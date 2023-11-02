@@ -5,6 +5,7 @@ const slots = `
       code
       name
       status
+      option
       isPreDates
     }
   }

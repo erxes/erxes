@@ -30,20 +30,17 @@ export const useChatMessages = (): IUseChats => {
 
   const id = searchParams.get("id") as string
 
-  const { data, loading, fetchMore, error, refetch } = useQuery(
-    queries.chatMessages,
-    {
-      variables: { chatId: id, skip: 0, limit: 30 },
-    }
-  )
+  const chatMessagesQuery = useQuery(queries.chatMessages, {
+    variables: { chatId: id, skip: 0, limit: 30 },
+  })
 
   useEffect(() => {
-    refetch()
+    chatMessagesQuery.refetch()
   }, [id])
 
   const [sendMessageMutation] = useMutation(mutations.chatMessageAdd, {
     update(cache, { data }: any) {
-      let messagesQuery = queries.chatMessages
+      const messagesQuery = queries.chatMessages
 
       const chatMessageAdd = data.chatMessageAdd ? data.chatMessageAdd : data
 
@@ -61,7 +58,7 @@ export const useChatMessages = (): IUseChats => {
             return
           }
 
-          const newData = { ...messages }
+          const newData = { ...messages } as any
 
           newData.list = [chatMessageAdd, ...newData.list]
 
@@ -98,7 +95,12 @@ export const useChatMessages = (): IUseChats => {
           relatedId,
           attachments,
           lastSeenMessageId: { lastMessageId: "temp-d" },
-          seenList: { lastSeenMessageId: "temp-d" },
+          seenList: [
+            {
+              lastSeenMessageId: "temp-d",
+              user: { _id: "", details: { avatar: "" } },
+            },
+          ],
           relatedMessage: null,
           createdAt: new Date(),
           mentionedUserIds: [],
@@ -115,14 +117,14 @@ export const useChatMessages = (): IUseChats => {
         return null
       }
 
-      fetchMore({})
+      chatMessagesQuery.fetchMore({})
     },
   })
 
   const handleLoadMore = () => {
-    const chatLength = data.chatMessages.list.length || 0
+    const chatLength = chatMessagesQuery.data.chatMessages.list.length || 0
 
-    fetchMore({
+    chatMessagesQuery.fetchMore({
       variables: {
         skip: chatLength,
       },
@@ -148,18 +150,20 @@ export const useChatMessages = (): IUseChats => {
     })
   }
 
-  const chatMessages = (data || {}).chatMessages
-    ? (data || {}).chatMessages.list
-    : []
+  const chatMessages =
+    chatMessagesQuery.data && chatMessagesQuery.data.chatMessages
+      ? chatMessagesQuery.data.chatMessages.list
+      : []
 
-  const messagesTotalCount = (data || {}).chatMessages
-    ? (data || {}).chatMessages.totalCount
-    : 0
+  const messagesTotalCount =
+    chatMessagesQuery.data && chatMessagesQuery.data.chatMessages
+      ? chatMessagesQuery.data.chatMessages.totalCount
+      : 0
 
   return {
-    loading,
+    loading: chatMessagesQuery.loading,
     chatMessages,
-    error,
+    error: chatMessagesQuery.error,
     handleLoadMore,
     sendMessage,
     messagesTotalCount,

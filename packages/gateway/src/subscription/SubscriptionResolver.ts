@@ -219,7 +219,7 @@ export default class SubscriptionResolver {
       return previousContext;
     });
 
-    const httpLink = createHttpLink({ fetch, uri: gatewayURL });
+    const httpLink = createHttpLink({ fetch: fetch as any, uri: gatewayURL });
 
     this.apolloLink = from([errorLink, contextLink, httpLink]);
   }

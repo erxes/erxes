@@ -10,20 +10,22 @@ export const AttachmentWithPreview = ({
   images,
   className,
   deleteImage,
+  indexProp,
 }: {
   images: any[]
   className?: string
   deleteImage?: (index: number) => void
+  indexProp?: number
 }) => {
-  const [index, setIndex] = useState(0)
+  const [index, setIndex] = useState(indexProp ? indexProp : 0)
 
-  const onDelete = (index: number) => {
-    if (index > 0) {
-      setIndex(index - 1)
+  const onDelete = (i: number) => {
+    if (i > 0) {
+      setIndex(i - 1)
     }
 
     if (deleteImage) {
-      deleteImage(index)
+      deleteImage(i)
     }
 
     return
@@ -53,7 +55,7 @@ export const AttachmentWithPreview = ({
               src={images[index]?.url || ""}
               width={2000}
               height={2000}
-              className="w-full h-full object-contain cursor-pointer max-h-[800px]"
+              className="w-full h-full object-contain cursor-pointer max-h-[80vh]"
             />
           </div>
         </div>
@@ -71,19 +73,19 @@ export const AttachmentWithPreview = ({
         {index > 0 && (
           <button
             type="button"
-            className="absolute top-0 left-0 z-30 flex items-center justify-center h-full px-4 cursor-pointer"
+            className="absolute top-0 left-[-60px] z-30 flex items-center justify-center h-full px-4 cursor-pointer focus:outline-none"
             onClick={() => handleClick("previous")}
           >
-            <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-[#C3C3C1]">
+            <span className="inline-flex items-center justify-center w-6 h-6">
               <svg
-                className="w-2.5 h-2.5 text-white dark:text-gray-800"
+                className="w-6 h-6 text-white dark:text-gray-800"
                 aria-hidden="true"
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
                 viewBox="0 0 6 10"
               >
                 <path
-                  stroke="black"
+                  stroke="white"
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   strokeWidth="2"
@@ -98,19 +100,19 @@ export const AttachmentWithPreview = ({
         {index < images.length - 1 && (
           <button
             type="button"
-            className="absolute top-0 right-0 z-30 flex items-center justify-center h-full px-4 cursor-pointer group focus:outline-none"
+            className="absolute top-0 right-[-60px] z-30 flex items-center justify-center h-full px-4 cursor-pointer group focus:outline-none"
             onClick={() => handleClick("next")}
           >
-            <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-[#C3C3C1]">
+            <span className="inline-flex items-center justify-center w-6 h-6">
               <svg
-                className="w-2.5 h-2.5 text-white dark:text-gray-800"
+                className="w-6 h-6 text-white dark:text-gray-800"
                 aria-hidden="true"
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
                 viewBox="0 0 6 10"
               >
                 <path
-                  stroke="black"
+                  stroke="white"
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   strokeWidth="2"

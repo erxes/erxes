@@ -4,7 +4,7 @@ import { generateModels } from './connectionResolver';
 import { initBroker } from './messageBroker';
 import * as permissions from './permissions';
 import { getSubdomain } from '@erxes/api-utils/src/core';
-import { NOTIFICATION_MODULES } from '../constants';
+import { NOTIFICATION_MODULES } from './constants';
 
 export let debug;
 export let graphqlPubsub;
@@ -23,6 +23,11 @@ export default {
   },
 
   hasSubscriptions: true,
+  subscriptionPluginPath: require('path').resolve(
+    __dirname,
+    'graphql',
+    'subscriptionPlugin.js'
+  ),
 
   apolloServerContext: async (context, req) => {
     const subdomain = getSubdomain(req);

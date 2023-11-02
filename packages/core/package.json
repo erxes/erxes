@@ -13,7 +13,7 @@
     "start": "node dist",
     "dev": "ERXES_TELEMETRY_DISABLED=1 NODE_ENV=development nodemon src/index.ts",
     "loadTestData": "ts-node ./src/commands/loadTestData.ts",
-    "build": "tsc -p tsconfig.prod.json && tsc-alias -p tsconfig.prod.json && node fix-build.js",
+    "build": "tsc",
     "test": "node --expose-gc --max_old_space_size=8000 ./node_modules/.bin/jest --forceExit --silent --logHeapUsage --w=1",
     "customCommand": "node_modules/.bin/ts-node src/commands/customCommand.ts",
     "migrateBoardItems": "node_modules/.bin/ts-node src/commands/migrateBoardItems.ts",
@@ -36,6 +36,7 @@
     "updateUserNames": "node_modules/.bin/ts-node src/commands/updateUserNames.ts"
   },
   "dependencies": {
+    "@erxes/api-utils" : "*",
     "agentkeepalive": "^4.3.0",
     "@apollo/server" : "^4.9.3",
     "apollo-datasource-rest": "^0.5.1",
