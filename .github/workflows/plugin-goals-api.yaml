@@ -41,9 +41,9 @@ jobs:
         id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
         with:
           path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-          key: ${{ runner.os }}-yarn-plugin-goals-api
+          key: ${{ runner.os }}-yarn-api-plugin-goals
           restore-keys: |
-            ${{ runner.os }}-yarn-plugin-goals-api
+            ${{ runner.os }}-yarn-api-
             ${{ runner.os }}-yarn-
 
       - name: Build
