@@ -65,6 +65,7 @@ export const useNotification = (): IUseNotifications => {
         return null
       }
       fetchMore({})
+      unreadCountQuery.fetchMore({})
     },
   })
 

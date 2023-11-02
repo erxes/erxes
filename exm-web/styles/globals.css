@@ -194,3 +194,6 @@
 .hide-user-remove-button .css-wsp0cs-MultiValueGeneric {
   padding-right: 6px;
 }
+.shadow-notification {
+  box-shadow: rgba(0, 0, 0, 0.15) 0px 0px 20px 3px;
+}

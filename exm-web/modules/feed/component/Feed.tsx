@@ -11,11 +11,11 @@ const Feed = () => {
 
   const style =
     "text-[#A1A1A1] data-[state=active]:text-primary data-[state=active]:border-[#5629B6] data-[state=active]:border-b-2 h-16 hover:font-medium hover:text-[#A1A1A1]"
-    
+
   return (
     <div>
       <Tabs defaultValue="post">
-        <TabsList className="border-b">
+        <TabsList className="border-b border-[#eee]">
           <div className="w-[60%] items-center flex mx-auto h-[2.5rem] my-3">
             <TabsTrigger className={style} value="post">
               Post

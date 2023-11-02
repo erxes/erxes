@@ -79,7 +79,7 @@ const Notifications = () => {
       <li
         key={notification._id}
         onClick={() => markAsRead([notification._id])}
-        className="flex gap-2 p-2 cursor-pointer hover:bg-[#F0F0F0] rounded-[5px] items-center justify-between"
+        className="flex gap-2 p-3 cursor-pointer hover:bg-[#F0F0F0] items-center justify-between"
       >
         <div className="flex gap-2 items-center">
           <div className="w-10 h-10 shrink-0">
@@ -106,7 +106,7 @@ const Notifications = () => {
           </div>
         </div>
         {!notification.isRead && (
-          <div className="h-4 w-4 bg-primary-light rounded-full shrink-0" />
+          <div className="h-2.5 w-2.5 bg-primary-light rounded-full shrink-0" />
         )}
       </li>
     )
@@ -162,10 +162,10 @@ const Notifications = () => {
           )}
         </div>
       </PopoverTrigger>
-      <PopoverContent className="mr-8 w-80">
+      <PopoverContent className="mr-8 w-80 shadow-notification border-none p-0">
         <Tabs defaultValue="all">
           <TabsList>
-            <div className="flex gap-3 mb-3">
+            <div className="flex gap-3 p-3">
               <TabsTrigger className={tabTriggerStyle} value="all">
                 All
               </TabsTrigger>
@@ -174,7 +174,7 @@ const Notifications = () => {
               </TabsTrigger>
             </div>
           </TabsList>
-          <p className="font-normal mb-3 flex justify-between text-[13px]">
+          <p className="font-normal mb-3 px-3 flex justify-between text-[13px]">
             Earlier{" "}
             <span
               className="text-primary cursor-pointer"

@@ -21,7 +21,7 @@ const RightNavbar = () => {
   const { logout } = useMutations()
 
   return (
-    <div className="p-3.5 border-b">
+    <div className="p-3.5 border-b border-[#eee]">
       <div className="flex items-center justify-end">
         <Notifications />
         <Popover>
