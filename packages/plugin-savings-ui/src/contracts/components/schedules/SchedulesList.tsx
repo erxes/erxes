@@ -6,6 +6,7 @@ import { withRouter } from 'react-router-dom';
 
 import { ITransaction } from '../../../transactions/types';
 import ScheduleRow from './ScheduleRow';
+import { ContractsTableWrapper } from '../../styles';
 
 interface IProps extends IRouterProps {
   contractId: string;
@@ -30,7 +31,7 @@ class SchedulesList extends React.Component<IProps> {
     }
 
     return (
-      <>
+      <ContractsTableWrapper>
         <Table>
           <thead>
             <tr>
@@ -50,7 +51,7 @@ class SchedulesList extends React.Component<IProps> {
             ))}
           </tbody>
         </Table>
-      </>
+      </ContractsTableWrapper>
     );
   }
 }

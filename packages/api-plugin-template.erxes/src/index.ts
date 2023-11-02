@@ -351,7 +351,8 @@ async function startServer() {
       exporter,
       documentPrintHook,
       readFileHook,
-      payment
+      payment,
+      reports
     } = configs.meta;
 
     const { consumeRPCQueue, consumeQueue } = messageBrokerClient;
@@ -568,6 +569,18 @@ async function startServer() {
       }
     }
 
+    if (reports) {
+      if (reports.getChartResult) {
+        consumeRPCQueue(
+          `${configs.name}:reports.getChartResult`,
+          async args => ({
+            status: 'success',
+            data: await reports.getChartResult(args)
+          })
+        );
+      }
+    }
+
     if (initialSetup) {
       if (initialSetup.generate) {
         initialSetup.generateAvailable = true;
@@ -704,3 +717,5 @@ async function startServer() {
 }
 
 startServer();
+
+// conflict test
