@@ -1,3 +1,5 @@
+import { CommandEmpty, CommandGroup } from "cmdk"
+
 import { ScrollArea } from "@/components/ui/scroll-area"
 
 import ProductItem from "./components/productItem/productItem.market"
@@ -9,11 +11,18 @@ const Products = () => {
   if (loading) return <div className="mt-4">loading...</div>
 
   return (
-    <ScrollArea className="mt-4 flex-auto">
-      {products.map((product) => (
-        <ProductItem key={product._id} {...product} />
-      ))}
-    </ScrollArea>
+    <>
+      <CommandEmpty>
+        {loading ? "Хайж байна..." : "Бараа олдсонгүй..."}
+      </CommandEmpty>
+      <ScrollArea className="mt-4 flex-auto">
+        <CommandGroup>
+          {products.map((product) => (
+            <ProductItem key={product._id} {...product} />
+          ))}
+        </CommandGroup>
+      </ScrollArea>
+    </>
   )
 }
 

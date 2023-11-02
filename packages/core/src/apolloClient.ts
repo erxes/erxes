@@ -53,6 +53,9 @@ export const initApolloServer = async (app, httpServer) => {
         let user: any = null;
 
         if (req.headers.user) {
+          if (Array.isArray(req.headers.user)) {
+            throw new Error(`Multiple user headers`);
+          }
           const userJson = Buffer.from(req.headers.user, 'base64').toString(
             'utf-8'
           );

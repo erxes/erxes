@@ -14,7 +14,7 @@ const Products = () => {
   return (
     <>
       {mode === "market" && <Market />}
-      {mode === "main" && <Main />}
+      {["main", "restaurant"].includes(mode) && <Main />}
       {mode === "coffee-shop" && <CoffeeShop />}
     </>
   )

@@ -33,10 +33,10 @@ jobs:
         id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
         with:
           path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-          key: ${{ runner.os }}-yarn-core-${{ hashFiles('yarn.lock', 'core/yarn.lock') }}
+          key: ${{ runner.os }}-yarn-core
           restore-keys: |
-            ${{ runner.os }}-yarn-core-
-            ${{ runner.os }}-yarn-
+            ${{ runner.os }}-yarn-core
+            ${{ runner.os }}-yarn
 
       - name: Build
         run: |
@@ -49,7 +49,7 @@ jobs:
       - name: Build docker image
         if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/build-test' )
         run: |
-          cd dist/core
+          cd dist/erxes
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
-          docker build -t erxes/core:${GITHUB_REF#refs/heads/} -f Dockerfile .
+          docker buildx build -t erxes/core:${GITHUB_REF#refs/heads/} -f Dockerfile .
           docker push erxes/core:${GITHUB_REF#refs/heads/}

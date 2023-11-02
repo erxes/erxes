@@ -1,7 +1,7 @@
 import * as dotenv from 'dotenv';
 dotenv.config();
 
-import { ErxesProxyTarget } from 'src/proxy/targets';
+import { ErxesProxyTarget } from '../proxy/targets';
 import { supergraphConfigPath, supergraphPath } from './paths';
 import * as fs from 'fs';
 import { execSync } from 'child_process';

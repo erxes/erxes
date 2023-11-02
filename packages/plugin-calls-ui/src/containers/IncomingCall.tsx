@@ -1,32 +1,58 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import IncomingCall from '../components/IncomingCall';
-import { subscriptions } from '../graphql';
-import { useSubscription, gql } from '@apollo/client';
-import { IUser } from '@erxes/ui/src/auth/types';
-import withCurrentUser from '@erxes/ui/src/auth/containers/withCurrentUser';
 
-type Props = {
-  currentUser: IUser;
+import { __ } from '@erxes/ui/src/utils/core';
+import { callPropType } from '../lib/types';
+
+import { gql, useMutation } from '@apollo/client';
+import { mutations } from '../graphql';
+import { Alert } from '@erxes/ui/src/utils';
+
+interface Props {
+  closeModal?: () => void;
+  callIntegrationsOfUser: any;
+}
+
+const IncomingCallContainer = (props: Props, context) => {
+  const [customer, setCustomer] = useState<any>(undefined);
+  const { callIntegrationsOfUser } = props;
+
+  const phoneNumber = context?.call?.counterpart?.slice(
+    context.call.counterpart.indexOf(':') + 1,
+    context.call.counterpart.indexOf('@')
+  );
+
+  const defaultCallIntegration = localStorage.getItem(
+    'config:call_integrations'
+  );
+  const inboxId =
+    JSON.parse(defaultCallIntegration)?.inboxId ||
+    callIntegrationsOfUser?.[0]?.inboxId;
+
+  const [createCustomerMutation] = useMutation(gql(mutations.customersAdd));
+
+  useEffect(() => {
+    if (phoneNumber) {
+      createCustomerMutation({
+        variables: {
+          inboxIntegrationId: inboxId,
+          primaryPhone: phoneNumber
+        }
+      })
+        .then(({ data }: any) => {
+          setCustomer(data.callAddCustomer);
+        })
+        .catch(e => {
+          Alert.error(e.message);
+        });
+    }
+  }, [phoneNumber]);
+
+  return <IncomingCall customer={customer} />;
 };
 
-const IncomingCallContainer = (props: Props) => {
-  const { currentUser } = props;
-  const { data } = useSubscription(gql(subscriptions.phoneCallReceived), {
-    variables: {
-      userId: currentUser ? currentUser._id : ''
-    },
-    skip: !currentUser
-  });
-
-  if (!data || !data.phoneCallReceived) {
-    return null;
-  }
-
-  const callData = data && data.phoneCallReceived;
-
-  return <IncomingCall callData={callData} />;
+IncomingCallContainer.contextTypes = {
+  call: callPropType
 };
 
-const WithCurrentUser = withCurrentUser(IncomingCallContainer);
-
-export default (props: Props) => <WithCurrentUser {...props} />;
+export default IncomingCallContainer;
