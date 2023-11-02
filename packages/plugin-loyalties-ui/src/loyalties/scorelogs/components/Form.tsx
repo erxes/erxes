@@ -94,7 +94,7 @@ class ScoreForm extends React.Component<Props, State> {
     if (isEnabled('clientportal') && ownerType === 'cpUser') {
       return (
         <SelectClientPortalUser
-          label="Client Portal User"
+          label="Business Portal User"
           name="ownerId"
           multi={false}
           initialValue={ownerId}
