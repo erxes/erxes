@@ -8,7 +8,6 @@ on:
       - build-test
     paths:
       - 'packages/api-utils/**'
-      - 'packages/api-plugin-template.erxes/**'
       - 'packages/plugin-timeclock-api/**'
       - '.github/workflows/plugin-timeclock-api.yaml'
   pull_request:
@@ -18,7 +17,6 @@ on:
       - build-test
     paths:
       - 'packages/api-utils/**'
-      - 'packages/api-plugin-template.erxes/**'
       - 'packages/plugin-timeclock-api/**'
       - '.github/workflows/plugin-timeclock-api.yaml'
 
@@ -43,9 +41,9 @@ jobs:
         id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
         with:
           path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-          key: ${{ runner.os }}-yarn-plugin-timeclock-api
+          key: ${{ runner.os }}-yarn-api-plugin-timeclock
           restore-keys: |
-            ${{ runner.os }}-yarn-plugin-timeclock-api
+            ${{ runner.os }}-yarn-api-
             ${{ runner.os }}-yarn-
 
       - name: Build

@@ -38,7 +38,6 @@ jobs:
         path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
         key: ${{ runner.os }}-yarn-docs-${{ hashFiles('docs/yarn.lock') }}
         restore-keys: |
-          ${{ runner.os }}-yarn-docs-${{ hashFiles('docs/yarn.lock') }}
           ${{ runner.os }}-yarn-docs-
           ${{ runner.os }}-yarn-
 
