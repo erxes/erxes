@@ -3,7 +3,8 @@ import { afterMutationHandlers } from './afterMutations';
 
 import { serviceDiscovery } from './configs';
 import { generateModels, IModels } from './connectionResolver';
-import { sendNotification } from './utils';
+import { sendNotification, sendSms } from './utils';
+import { createCard } from './models/utils';
 
 let client;
 
@@ -72,6 +73,13 @@ export const initBroker = async cl => {
     }
   );
 
+  consumeQueue(
+    'clientportal:sendSMS',
+    async ({ subdomain, data: { to, content } }) => {
+      await sendSms(subdomain, 'messagePro', to, content);
+    }
+  );
+
   /**
    * Send notification to client portal
    * @param {Object} data
@@ -136,6 +144,19 @@ export const initBroker = async cl => {
       };
     }
   );
+
+  consumeRPCQueue('clientportal:createCard', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    const { cpUser, doc } = data;
+
+    const card = await createCard(subdomain, models, cpUser, doc);
+
+    return {
+      data: card,
+      status: 'success'
+    };
+  });
 };
 
 export const sendCoreMessage = async (args: ISendMessageArgs) => {

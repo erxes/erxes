@@ -1,6 +1,9 @@
 import { IModels } from '../connectionResolver';
 import { SOCIALPAY_TOKEN_URL } from '../constants';
-import messageBroker, { sendContactsMessage } from '../messageBroker';
+import messageBroker, {
+  sendCardsMessage,
+  sendContactsMessage
+} from '../messageBroker';
 import { sendRequest } from '@erxes/api-utils/src/requests';
 
 export interface IContactsParams {
@@ -201,4 +204,70 @@ export const handleDeviceToken = async (user, deviceToken) => {
       await user.update({ $set: { deviceTokens } });
     }
   }
+};
+
+export const createCard = async (subdomain, models, cpUser, doc) => {
+  const customer = await sendContactsMessage({
+    subdomain,
+    action: 'customers.findOne',
+    data: {
+      _id: cpUser.erxesCustomerId
+    },
+    isRPC: true
+  });
+
+  if (!customer) {
+    throw new Error('Customer not registered');
+  }
+
+  const {
+    type,
+    subject,
+    description,
+    stageId,
+    parentId,
+    closeDate,
+    startDate,
+    customFieldsData,
+    attachments,
+    labelIds,
+    productsData
+  } = doc;
+  let priority = doc.priority;
+
+  if (['High', 'Critical'].includes(priority)) {
+    priority = 'Normal';
+  }
+
+  const card = await sendCardsMessage({
+    subdomain,
+    action: `${type}s.create`,
+    data: {
+      userId: cpUser._id,
+      name: subject,
+      description,
+      priority,
+      stageId,
+      status: 'active',
+      customerId: customer._id,
+      createdAt: new Date(),
+      stageChangedDate: null,
+      parentId,
+      closeDate,
+      startDate,
+      customFieldsData,
+      attachments,
+      labelIds,
+      productsData
+    },
+    isRPC: true
+  });
+
+  await models.ClientPortalUserCards.createOrUpdateCard({
+    contentType: type,
+    contentTypeId: card._id,
+    cpUserId: cpUser._id
+  });
+
+  return card;
 };
