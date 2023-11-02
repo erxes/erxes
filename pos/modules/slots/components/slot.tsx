@@ -1,22 +1,30 @@
+import { memo } from "react"
+import { selectedTabAtom, slotFilterAtom } from "@/store"
+import { slotCodeAtom } from "@/store/order.store"
 import { motion } from "framer-motion"
-import { CircleDashed, CircleDotDashed, CircleSlash } from "lucide-react"
+import { useSetAtom } from "jotai"
+import { CheckCircle2, Circle, ListFilterIcon, XCircleIcon } from "lucide-react"
 
 import { ISlot } from "@/types/slots.type"
 import { cn } from "@/lib/utils"
 import {
-  HoverCard,
-  HoverCardContent,
-  HoverCardTrigger,
-} from "@/components/ui/hover-card"
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuSeparator,
+  ContextMenuTrigger,
+} from "@/components/ui/context-menu"
 import { Label } from "@/components/ui/label"
-import { RadioGroupItem } from "@/components/ui/radio-group"
+
+import CreateSlot from "./createSlot"
+import PreDates from "./preDates"
 
 const MotionLabel = motion(Label)
 
 const statusIcons = {
-  serving: CircleDotDashed,
-  available: CircleDashed,
-  reserved: CircleSlash,
+  serving: CheckCircle2,
+  available: Circle,
+  reserved: XCircleIcon,
 }
 
 const Slot = ({
@@ -53,6 +61,10 @@ const Slot = ({
     zIndex,
     borderRadius,
   }
+  const setActiveSlot = useSetAtom(slotCodeAtom)
+  const setSelectedTab = useSetAtom(selectedTabAtom)
+  const setFilterSlots = useSetAtom(slotFilterAtom)
+
   if (isShape)
     return (
       <div
@@ -64,27 +76,28 @@ const Slot = ({
       />
     )
 
+  const handleChoose = () => {
+    setActiveSlot(code)
+    setSelectedTab("products")
+  }
+
   return (
-    <HoverCard>
-      <HoverCardTrigger
+    <ContextMenu>
+      <ContextMenuTrigger
         className={cn(
           "absolute flex items-center font-medium justify-center text-white",
           active && "shadow-md shadow-primary/50"
         )}
         style={style}
+        onClick={handleChoose}
       >
-        <RadioGroupItem
-          value={active ? "" : code}
-          id={code}
-          className="peer sr-only"
-        />
         <div
           style={{
             transform: `rotate(-${rotateAngle}deg)`,
           }}
           className="flex items-center gap-0.5"
         >
-          <Icon className="h-4 w-4" />
+          <Icon className="h-5 w-5" />
           {name || code}
         </div>
         <MotionLabel
@@ -94,7 +107,7 @@ const Slot = ({
           initial={{
             opacity: 0,
           }}
-          className="absolute inset-0 border-primary border-2 cursor-pointer"
+          className="absolute inset-0 ring-2 ring-ring ring-offset-2  cursor-pointer"
           htmlFor={code}
           style={{
             width,
@@ -102,23 +115,33 @@ const Slot = ({
             borderRadius,
           }}
         />
-      </HoverCardTrigger>
+      </ContextMenuTrigger>
 
-      <HoverCardContent>
-        <div className="flex items-center justify-between">
+      <ContextMenuContent className="min-w-[13rem]">
+        <div className="flex items-center justify-between px-2 py-1.5">
           <div>
             {name} {code}
           </div>
           <div className="flex items-center gap-1">
-            <Icon className="h-4 w-4" />
+            <Icon className="h-5 w-5" />
             {status}
           </div>
         </div>
 
-        {(isPreDates || "").toString()}
-      </HoverCardContent>
-    </HoverCard>
+        <ContextMenuSeparator />
+        <ContextMenuItem onClick={handleChoose}>Сонгох</ContextMenuItem>
+        <CreateSlot code={code} />
+        <ContextMenuItem
+          className="flex items-center"
+          onClick={() => setFilterSlots(code)}
+        >
+          <ListFilterIcon className="h-4 w-4 mr-1" />
+          Захиалгууд
+        </ContextMenuItem>
+        <PreDates isPreDates={isPreDates} />
+      </ContextMenuContent>
+    </ContextMenu>
   )
 }
 
-export default Slot
+export default memo(Slot)

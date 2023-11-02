@@ -1,5 +1,6 @@
 import { useEffect } from "react"
-import { activeOrderIdAtom, slotCodeAtom } from "@/store/order.store"
+import { slotFilterAtom } from "@/store"
+import { activeOrderIdAtom } from "@/store/order.store"
 import { useAtom, useAtomValue } from "jotai"
 
 import { ORDER_STATUSES } from "@/lib/constants"
@@ -16,7 +17,7 @@ import useFullOrders from "./hooks/useFullOrders"
 const ActiveOrders = () => {
   const { ALL, COMPLETE } = ORDER_STATUSES
   const [_id, setActiveOrderId] = useAtom(activeOrderIdAtom)
-  const slotCode = useAtomValue(slotCodeAtom)
+  const slotCode = useAtomValue(slotFilterAtom)
 
   const { fullOrders, subToOrderStatuses, totalCount, handleLoadMore } =
     useFullOrders({
@@ -25,7 +26,7 @@ const ActiveOrders = () => {
         sortField: "createdAt",
         isPaid: false,
         statuses: ALL.filter((a) => a !== COMPLETE),
-        slotCode: _id ? undefined : slotCode,
+        slotCode: slotCode,
       },
       query: queries.activeOrders,
       onCompleted(orders) {

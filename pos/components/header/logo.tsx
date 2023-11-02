@@ -23,7 +23,7 @@ const Logo = () => {
   }
 
   return (
-    <div className="hidden rounded-md bg-gray-100 p-1 sm:block">
+    <div className="hidden rounded-md bg-gray-100 p-1 mx-1 sm:block">
       <div
         className="rounded bg-white px-3 text-black"
         onClick={() => (pathname === "/" ? reset() : router.push("/"))}
