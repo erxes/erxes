@@ -69,17 +69,15 @@ const UserDetail = ({
         </div>
         <div className="flex items-center justify-between mt-2 mb-4">
           <p className="text-black text-xs font-semibold">Departments</p>
-          <p className="text-[#444] text-xs">
-            <ul className="text-[#444]">
-              {user.departments && user.departments.length !== 0
-                ? user.departments.map((department) => (
-                    <li className="text-[#444]" key={department._id}>
-                      {department.title}
-                    </li>
-                  ))
-                : "-"}
-            </ul>
-          </p>
+          <ul className="text-[#444]">
+            {user.departments && user.departments.length !== 0
+              ? user.departments.map((department) => (
+                  <li className="text-[#444] text-xs" key={department._id}>
+                    {department.title}
+                  </li>
+                ))
+              : "-"}
+          </ul>
         </div>
         <div className="flex items-center justify-between mt-2 mb-4">
           <p className="text-black text-xs font-semibold">Branches</p>

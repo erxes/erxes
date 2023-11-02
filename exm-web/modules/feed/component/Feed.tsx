@@ -11,53 +11,46 @@ const Feed = () => {
   return (
     <div>
       <Tabs defaultValue="post">
-        <TabsList className="w-full items-center flex p-2 h-[6vh]">
-          <TabsTrigger
-            className="text-[#444] data-[state=active]:border-[#5629B6] data-[state=active]:border-b-2"
-            value="post"
-          >
-            Post
-          </TabsTrigger>
-          <TabsTrigger
-            className="text-[#444] data-[state=active]:border-[#5629B6] data-[state=active]:border-b-2"
-            value="event"
-          >
-            Event
-          </TabsTrigger>
-          <TabsTrigger
-            className="text-[#444] data-[state=active]:border-[#5629B6] data-[state=active]:border-b-2"
-            value="bravo"
-          >
-            Bravo
-          </TabsTrigger>
-          <TabsTrigger
-            className="text-[#444] data-[state=active]:border-[#5629B6] data-[state=active]:border-b-2"
-            value="publicHoliday"
-          >
-            Public holiday
-          </TabsTrigger>
-          <TabsTrigger
-            className="text-[#444] data-[state=active]:border-[#5629B6] data-[state=active]:border-b-2"
-            value="welcome"
-          >
-            Welcome
-          </TabsTrigger>
+        <TabsList className="border-b">
+          <div className="w-[60%] items-center flex mx-auto h-[2.5rem] my-3">
+            <TabsTrigger
+              className="text-[#444] data-[state=active]:border-[#5629B6] data-[state=active]:border-b-2 h-8"
+              value="post"
+            >
+              Post
+            </TabsTrigger>
+            <TabsTrigger
+              className="text-[#444] data-[state=active]:border-[#5629B6] data-[state=active]:border-b-2 h-8"
+              value="event"
+            >
+              Event
+            </TabsTrigger>
+            <TabsTrigger
+              className="text-[#444] data-[state=active]:border-[#5629B6] data-[state=active]:border-b-2 h-8"
+              value="bravo"
+            >
+              Bravo
+            </TabsTrigger>
+            <TabsTrigger
+              className="text-[#444] data-[state=active]:border-[#5629B6] data-[state=active]:border-b-2 h-8"
+              value="publicHoliday"
+            >
+              Calendar
+            </TabsTrigger>
+          </div>
         </TabsList>
 
-        <TabsContent value="post">
+        <TabsContent value="post" className="bg-[#F8F9FA]">
           <List contentType="post" />
         </TabsContent>
-        <TabsContent value="event">
+        <TabsContent value="event" className="bg-[#F8F9FA]">
           <List contentType="event" />
         </TabsContent>
-        <TabsContent value="bravo">
+        <TabsContent value="bravo" className="bg-[#F8F9FA]">
           <List contentType="bravo" />
         </TabsContent>
-        <TabsContent value="publicHoliday">
+        <TabsContent value="publicHoliday" className="bg-[#F8F9FA]">
           <List contentType="publicHoliday" />
-        </TabsContent>
-        <TabsContent value="welcome">
-          <List contentType="welcome" />
         </TabsContent>
       </Tabs>
     </div>
