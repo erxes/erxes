@@ -2,6 +2,7 @@ import { Alert, __ } from '@erxes/ui/src/utils';
 import {
   ControlWrapper,
   EditorFooter,
+  EditorFooterGroup,
   MailEditorWrapper,
   Resipients,
   ShowReplies,
@@ -12,6 +13,7 @@ import {
 } from './styles';
 import { FlexRow, Subject } from './styles';
 import { IEmail, IMail, IMessage } from '@erxes/ui-inbox/src/inbox/types';
+import EmailTemplate from '../../containers/mail/EmailTemplate';
 import React, { ReactNode } from 'react';
 import {
   formatObj,
@@ -24,8 +26,7 @@ import { isEnabled, readFile } from '@erxes/ui/src/utils/core';
 import Attachment from '@erxes/ui/src/components/Attachment';
 import Button from '@erxes/ui/src/components/Button';
 import { Column } from '@erxes/ui/src/styles/main';
-import EditorCK from '@erxes/ui/src/containers/EditorCK';
-import EmailTemplate from '../../containers/mail/EmailTemplate';
+
 import FormControl from '@erxes/ui/src/components/form/Control';
 import { IAttachment } from '@erxes/ui/src/types';
 import { IEmailSignature } from '@erxes/ui/src/auth/types';
@@ -33,7 +34,6 @@ import { IEmailTemplate } from '../../types';
 import { IUser } from '@erxes/ui/src/auth/types';
 import Icon from '@erxes/ui/src/components/Icon';
 import { Label } from '@erxes/ui/src/components/form/styles';
-import { MAIL_TOOLBARS_CONFIG } from '@erxes/ui/src/constants/integrations';
 import MailChooser from './MailChooser';
 import { Meta } from './styles';
 import SignatureChooser from './SignatureChooser';
@@ -43,6 +43,7 @@ import Uploader from '@erxes/ui/src/components/Uploader';
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 import dayjs from 'dayjs';
 import { generateEmailTemplateParams } from '@erxes/ui-engage/src/utils';
+import { RichTextEditor } from '@erxes/ui/src/components/richTextEditor/TEditor';
 
 const Signature = asyncComponent(() =>
   import(
@@ -112,7 +113,9 @@ type State = {
   showReply: string;
   isRepliesRetrieved: boolean;
 };
-
+{
+  /* @ts-ignore*/
+}
 class MailForm extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
@@ -444,8 +447,9 @@ class MailForm extends React.Component<Props, State> {
     });
   };
 
-  onEditorChange = e => {
-    this.setState({ content: e.editor.getData() });
+  onEditorChange = (value: string) => {
+    // this.setState({ content: e.editor.getData() });
+    this.setState({ content: value });
     this.prepareData();
   };
 
@@ -750,51 +754,56 @@ class MailForm extends React.Component<Props, State> {
           />
         </UploaderWrapper>
         <EditorFooter>
-          <div>
-            {this.renderSubmit('Send', this.onSubmit, 'primary')}
-            {isReply &&
-              this.renderSubmit(
-                conversationStatus === 'closed'
-                  ? 'Send and Open'
-                  : 'Send and Resolve',
-                onSubmitResolve,
-                conversationStatus === 'closed' ? 'warning' : 'success',
-                conversationStatus === 'closed' ? 'redo' : 'check-circle',
-                'resolveOrOpen'
+          <EditorFooterGroup>
+            <div>
+              {this.renderSubmit('Send', this.onSubmit, 'primary')}
+              {isReply &&
+                this.renderSubmit(
+                  conversationStatus === 'closed'
+                    ? 'Send and Open'
+                    : 'Send and Resolve',
+                  onSubmitResolve,
+                  conversationStatus === 'closed' ? 'warning' : 'success',
+                  conversationStatus === 'closed' ? 'redo' : 'check-circle',
+                  'resolveOrOpen'
+                )}
+            </div>
+            <ToolBar>
+              <Uploader
+                defaultFileList={this.state.attachments || []}
+                onChange={onChangeAttachment}
+                icon="attach"
+                showOnlyIcon={true}
+                noPreview={true}
+              />
+
+              {isEnabled('emailtemplates') && (
+                <EmailTemplate
+                  onSelect={this.templateChange}
+                  totalCount={totalCount}
+                  fetchMoreEmailTemplates={fetchMoreEmailTemplates}
+                  targets={generateEmailTemplateParams(emailTemplates || [])}
+                  history={history}
+                  loading={loading}
+                />
               )}
-          </div>
+              <SignatureChooser
+                signatureContent={this.signatureContent}
+                brands={brands || []}
+                signatures={emailSignatures || []}
+                emailSignature={this.state.emailSignature}
+                emailContent={this.state.content}
+                onContentChange={this.onContentChange}
+                onSignatureChange={this.onSignatureChange}
+              />
+            </ToolBar>
+          </EditorFooterGroup>
           <ToolBar>
-            <Uploader
-              defaultFileList={this.state.attachments || []}
-              onChange={onChangeAttachment}
-              icon="attach"
-              showOnlyIcon={true}
-              noPreview={true}
-            />
             {this.renderIcon({
               text: 'Delete',
               icon: 'trash-alt',
               onClick: toggleReply
             })}
-            {isEnabled('emailtemplates') && (
-              <EmailTemplate
-                onSelect={this.templateChange}
-                totalCount={totalCount}
-                fetchMoreEmailTemplates={fetchMoreEmailTemplates}
-                targets={generateEmailTemplateParams(emailTemplates || [])}
-                history={history}
-                loading={loading}
-              />
-            )}
-            <SignatureChooser
-              signatureContent={this.signatureContent}
-              brands={brands || []}
-              signatures={emailSignatures || []}
-              emailSignature={this.state.emailSignature}
-              emailContent={this.state.content}
-              onContentChange={this.onContentChange}
-              onSignatureChange={this.onSignatureChange}
-            />
           </ToolBar>
         </EditorFooter>
       </div>
@@ -825,7 +834,13 @@ class MailForm extends React.Component<Props, State> {
     return (
       <MailEditorWrapper>
         {this.renderShowReplies()}
-        <EditorCK
+
+        <RichTextEditor
+          content={this.state.content}
+          onChange={this.onEditorChange}
+          toolbarLocation="bottom"
+        />
+        {/* <EditorCK
           toolbar={MAIL_TOOLBARS_CONFIG}
           removePlugins="elementspath"
           content={this.state.content}
@@ -835,7 +850,7 @@ class MailForm extends React.Component<Props, State> {
           autoGrow={true}
           autoGrowMinHeight={300}
           autoGrowMaxHeight={300}
-        />
+        /> */}
       </MailEditorWrapper>
     );
   }
