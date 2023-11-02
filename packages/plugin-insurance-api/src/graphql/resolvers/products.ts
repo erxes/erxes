@@ -11,12 +11,12 @@ const InsuranceProduct = {
     );
   },
 
-  async risks(
+  async category(
     product: IInsuranceProductDocument,
     _params,
     { models }: IContext
   ) {
-    return models.Risks.find({ _id: { $in: product.riskIds || [] } }).lean();
+    return models.Categories.findOne({ _id: product.categoryId }).lean();
   }
 };
 
@@ -28,15 +28,15 @@ const InsuranceProductOfVendor = {
         _id: product.lastModifiedBy
       }
     );
-  },
-
-  async risks(
-    product: IInsuranceProductDocument,
-    _params,
-    { models }: IContext
-  ) {
-    return models.Risks.find({ _id: { $in: product.riskIds || [] } }).lean();
   }
+
+  // async risks(
+  //   product: IInsuranceProductDocument,
+  //   _params,
+  //   { models }: IContext
+  // ) {
+  //   return models.Risks.find({ _id: { $in: product.riskIds || [] } }).lean();
+  // }
 };
 
 export { InsuranceProduct, InsuranceProductOfVendor };

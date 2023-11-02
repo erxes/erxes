@@ -59,6 +59,7 @@ const List = (props: Props) => {
       <thead>
         <tr>
           <th>{__('Code')}</th>
+          <th>{__('Category')}</th>
           <th>{__('Name')}</th>
           <th>{__('Description')}</th>
           <th>{__('Price')}</th>

@@ -4,7 +4,7 @@ import { IContext } from '../../../connectionResolver';
 import { sendCommonMessage } from '../../../messageBroker';
 
 const queries = {
-  insuranceProductsPaginated: async (
+  insuranceProductList: async (
     _root,
     {
       page,
@@ -34,14 +34,14 @@ const queries = {
     }
 
     return {
-      products: paginate(
+      list: paginate(
         models.Products.find(qry).sort({ [sortField]: sortOrder }),
         {
           page,
           perPage
         }
       ),
-      count: models.Products.find(qry).count()
+      totalCount: models.Products.find(qry).count()
     };
   },
 
@@ -156,7 +156,7 @@ const queries = {
           code: { $first: '$code' },
           description: { $first: '$description' },
           price: { $first: '$price' },
-          riskIds: { $first: '$riskIds' },
+          riskConfigs: { $first: '$riskConfigs' },
           createdAt: { $first: '$createdAt' },
           updatedAt: { $first: '$updatedAt' },
           lastModifiedBy: { $first: '$lastModifiedBy' },

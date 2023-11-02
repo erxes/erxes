@@ -6,10 +6,22 @@ import { IInsuranceProductModel, loadProductClass } from './models/Products';
 import { IRiskModel, loadRiskClass } from './models/Risks';
 import { IInsuranceProductDocument } from './models/definitions/products';
 import { IRiskDocument } from './models/definitions/risks';
+import { IInsuranceItemModel, loadItemClass } from './models/Items';
+import { IInsuranceItemDocument } from './models/definitions/item';
+import { IInsurancePackageModel, loadPackageClass } from './models/Packages';
+import { IInsurancePackageDocument } from './models/definitions/package';
+import {
+  IInsuranceCategoryModel,
+  loadCategoryClass
+} from './models/Categories';
+import { IInsuranceCategoryDocument } from './models/definitions/category';
 
 export interface IModels {
   Risks: IRiskModel;
   Products: IInsuranceProductModel;
+  Items: IInsuranceItemModel;
+  Packages: IInsurancePackageModel;
+  Categories: IInsuranceCategoryModel;
 }
 
 export interface IContext extends IMainContext {
@@ -44,6 +56,21 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
     'insurance_products',
     loadProductClass(models)
   );
+
+  models.Items = db.model<IInsuranceItemDocument, IInsuranceItemModel>(
+    'insurance_items',
+    loadItemClass(models)
+  );
+
+  models.Packages = db.model<IInsurancePackageDocument, IInsurancePackageModel>(
+    'insurance_packages',
+    loadPackageClass(models)
+  );
+
+  models.Categories = db.model<
+    IInsuranceCategoryDocument,
+    IInsuranceCategoryModel
+  >('insurance_categories', loadCategoryClass(models));
 
   return models;
 };

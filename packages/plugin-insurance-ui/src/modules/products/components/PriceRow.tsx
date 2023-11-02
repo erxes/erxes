@@ -3,7 +3,7 @@ import FormControl from '@erxes/ui/src/components/form/Control';
 import React from 'react';
 import { CompanyProductConfig } from '../../../gql/types';
 import Button from '@erxes/ui/src/components/Button';
-import { PriceRow } from '../../../styles';
+import { FlexRow } from '../../../styles';
 
 type Props = {
   productConfig: CompanyProductConfig;
@@ -27,7 +27,7 @@ const Row = (props: Props) => {
   };
 
   return (
-    <PriceRow>
+    <FlexRow>
       <SelectCompanies
         label="Choose vendor"
         name="vendors"
@@ -51,7 +51,7 @@ const Row = (props: Props) => {
         onChange={onChangeInput}
       />
       <Button onClick={remove} btnStyle="danger" icon="times" />
-    </PriceRow>
+    </FlexRow>
   );
 };
 

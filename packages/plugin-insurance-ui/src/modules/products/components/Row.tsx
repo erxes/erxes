@@ -1,5 +1,4 @@
 import { RowTitle } from '@erxes/ui-engage/src/styles';
-import { IUser } from '@erxes/ui/src/auth/types';
 import ActionButtons from '@erxes/ui/src/components/ActionButtons';
 import Button from '@erxes/ui/src/components/Button';
 import Icon from '@erxes/ui/src/components/Icon';
@@ -51,6 +50,10 @@ const Row = (props: Props) => {
     <tr>
       <td key={Math.random()}>
         <RowTitle>{product.code || '-'}</RowTitle>
+      </td>
+
+      <td key={Math.random()}>
+        <RowTitle>{product.category ? product.category.name : '-'}</RowTitle>
       </td>
 
       <td key={Math.random()}>

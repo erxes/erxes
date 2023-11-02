@@ -17,20 +17,28 @@ export type ProductCoreFieldsFragment = {
   price?: number | null;
   description?: string | null;
   updatedAt?: any | null;
-  riskIds?: Array<string | null> | null;
+  categoryId?: string | null;
   companyProductConfigs?: Array<{
     __typename?: 'CompanyProductConfig';
     companyId: string;
     specificPrice?: number | null;
   } | null> | null;
-  risks?: Array<{
-    __typename?: 'Risk';
+  riskConfigs?: Array<{
+    __typename?: 'RiskConfig';
+    riskId: string;
+    coverage?: number | null;
+    coverageLimit?: number | null;
+  } | null> | null;
+  category?: {
+    __typename?: 'InsuranceCategory';
     _id: string;
     name?: string | null;
-    code?: string | null;
-    description?: string | null;
-    updatedAt?: any | null;
-  } | null> | null;
+    risks?: Array<{
+      __typename?: 'Risk';
+      _id: string;
+      name?: string | null;
+    } | null> | null;
+  } | null;
 };
 
 export type TeamMemberFieldsFragment = {

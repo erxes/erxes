@@ -5,7 +5,7 @@ import { IOption, IQueryParams } from '@erxes/ui/src/types';
 import { queries } from '../graphql';
 
 import { getGqlString } from '@erxes/ui/src/utils/core';
-import { Risk } from '../../../gql/graphql';
+import { Risk } from '../../../gql/types';
 
 // get config options for react-select-plus
 export function generateOptions(array: Risk[] = []): IOption[] {

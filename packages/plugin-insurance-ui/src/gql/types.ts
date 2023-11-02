@@ -431,7 +431,6 @@ export type Company = {
   customers?: Maybe<Array<Maybe<Customer>>>;
   description?: Maybe<Scalars['String']['output']>;
   emails?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
-  getTags?: Maybe<Array<Maybe<Tag>>>;
   industry?: Maybe<Scalars['String']['output']>;
   isSubscribed?: Maybe<Scalars['String']['output']>;
   links?: Maybe<Scalars['JSON']['output']>;
@@ -543,7 +542,6 @@ export type Customer = {
   emailValidationStatus?: Maybe<Scalars['String']['output']>;
   emails?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
   firstName?: Maybe<Scalars['String']['output']>;
-  getTags?: Maybe<Array<Maybe<Tag>>>;
   hasAuthority?: Maybe<Scalars['String']['output']>;
   integrationId?: Maybe<Scalars['String']['output']>;
   isOnline?: Maybe<Scalars['Boolean']['output']>;
@@ -628,7 +626,6 @@ export type Deal = {
   startDate?: Maybe<Scalars['Date']['output']>;
   status?: Maybe<Scalars['String']['output']>;
   tagIds?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
-  tags?: Maybe<Array<Maybe<Tag>>>;
   timeTrack?: Maybe<TimeTrack>;
   unUsedAmount?: Maybe<Scalars['JSON']['output']>;
   userId?: Maybe<Scalars['String']['output']>;
@@ -768,7 +765,6 @@ export type Field = {
   order?: Maybe<Scalars['Int']['output']>;
   pageNumber?: Maybe<Scalars['Int']['output']>;
   productCategoryId?: Maybe<Scalars['String']['output']>;
-  products?: Maybe<Array<Maybe<Product>>>;
   relationType?: Maybe<Scalars['String']['output']>;
   searchable?: Maybe<Scalars['Boolean']['output']>;
   showInCard?: Maybe<Scalars['Boolean']['output']>;
@@ -777,6 +773,36 @@ export type Field = {
   text?: Maybe<Scalars['String']['output']>;
   type?: Maybe<Scalars['String']['output']>;
   validation?: Maybe<Scalars['String']['output']>;
+};
+
+export type FieldItem = {
+  _id?: InputMaybe<Scalars['String']['input']>;
+  associatedFieldId?: InputMaybe<Scalars['String']['input']>;
+  code?: InputMaybe<Scalars['String']['input']>;
+  column?: InputMaybe<Scalars['Int']['input']>;
+  content?: InputMaybe<Scalars['String']['input']>;
+  description?: InputMaybe<Scalars['String']['input']>;
+  field?: InputMaybe<Scalars['String']['input']>;
+  groupName?: InputMaybe<Scalars['String']['input']>;
+  isDefinedByErxes?: InputMaybe<Scalars['Boolean']['input']>;
+  isRequired?: InputMaybe<Scalars['Boolean']['input']>;
+  isVisibleToCreate?: InputMaybe<Scalars['Boolean']['input']>;
+  locationOptions?: InputMaybe<Array<InputMaybe<LocationOptionInput>>>;
+  logicAction?: InputMaybe<Scalars['String']['input']>;
+  logics?: InputMaybe<Array<InputMaybe<LogicInput>>>;
+  objectListConfigs?: InputMaybe<Array<InputMaybe<ObjectListConfigInput>>>;
+  options?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  optionsValues?: InputMaybe<Scalars['String']['input']>;
+  order?: InputMaybe<Scalars['Int']['input']>;
+  pageNumber?: InputMaybe<Scalars['Int']['input']>;
+  productCategoryId?: InputMaybe<Scalars['String']['input']>;
+  searchable?: InputMaybe<Scalars['Boolean']['input']>;
+  showInCard?: InputMaybe<Scalars['Boolean']['input']>;
+  subFieldIds?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  tempFieldId?: InputMaybe<Scalars['String']['input']>;
+  text?: InputMaybe<Scalars['String']['input']>;
+  type?: InputMaybe<Scalars['String']['input']>;
+  validation?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type FieldsGroup = {
@@ -893,9 +919,77 @@ export type InputRule = {
   value?: InputMaybe<Scalars['String']['input']>;
 };
 
+export type InsuranceCategory = {
+  __typename?: 'InsuranceCategory';
+  _id: Scalars['ID']['output'];
+  code?: Maybe<Scalars['String']['output']>;
+  description?: Maybe<Scalars['String']['output']>;
+  lastModifiedAt?: Maybe<Scalars['Date']['output']>;
+  lastModifiedBy?: Maybe<User>;
+  name?: Maybe<Scalars['String']['output']>;
+  riskIds?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
+  risks?: Maybe<Array<Maybe<Risk>>>;
+};
+
+export type InsuranceCategoryList = {
+  __typename?: 'InsuranceCategoryList';
+  list?: Maybe<Array<Maybe<InsuranceCategory>>>;
+  totalCount?: Maybe<Scalars['Int']['output']>;
+};
+
+export type InsuranceItem = {
+  __typename?: 'InsuranceItem';
+  _id: Scalars['ID']['output'];
+  company?: Maybe<Company>;
+  companyID?: Maybe<Scalars['ID']['output']>;
+  customFieldsData?: Maybe<Scalars['JSON']['output']>;
+  customer?: Maybe<Customer>;
+  customerID?: Maybe<Scalars['ID']['output']>;
+  user?: Maybe<User>;
+  userId?: Maybe<Scalars['ID']['output']>;
+  vendorUser?: Maybe<ClientPortalUser>;
+  vendorUserId?: Maybe<Scalars['ID']['output']>;
+};
+
+export type InsuranceItemInput = {
+  companyID: Scalars['ID']['input'];
+  customFieldsData?: InputMaybe<Scalars['JSON']['input']>;
+  customerID: Scalars['ID']['input'];
+};
+
+export type InsuranceItemListResult = {
+  __typename?: 'InsuranceItemListResult';
+  list?: Maybe<Array<Maybe<InsuranceItem>>>;
+  totalCount?: Maybe<Scalars['Int']['output']>;
+};
+
+export type InsurancePackage = {
+  __typename?: 'InsurancePackage';
+  _id: Scalars['ID']['output'];
+  createdAt: Scalars['Date']['output'];
+  lastModifiedAt?: Maybe<Scalars['Date']['output']>;
+  lastModifiedBy?: Maybe<User>;
+  name: Scalars['String']['output'];
+  productIds: Array<Scalars['ID']['output']>;
+  products?: Maybe<Array<Maybe<InsuranceProduct>>>;
+};
+
+export type InsurancePackageInput = {
+  name: Scalars['String']['input'];
+  productIds: Array<Scalars['ID']['input']>;
+};
+
+export type InsurancePackageList = {
+  __typename?: 'InsurancePackageList';
+  list: Array<InsurancePackage>;
+  totalCount: Scalars['Int']['output'];
+};
+
 export type InsuranceProduct = {
   __typename?: 'InsuranceProduct';
   _id: Scalars['ID']['output'];
+  category?: Maybe<InsuranceCategory>;
+  categoryId?: Maybe<Scalars['ID']['output']>;
   code?: Maybe<Scalars['String']['output']>;
   companyProductConfigs?: Maybe<Array<Maybe<CompanyProductConfig>>>;
   createdAt?: Maybe<Scalars['Date']['output']>;
@@ -903,9 +997,14 @@ export type InsuranceProduct = {
   lastModifiedBy?: Maybe<User>;
   name?: Maybe<Scalars['String']['output']>;
   price?: Maybe<Scalars['Float']['output']>;
-  riskIds?: Maybe<Array<Maybe<Scalars['ID']['output']>>>;
-  risks?: Maybe<Array<Maybe<Risk>>>;
+  riskConfigs?: Maybe<Array<Maybe<RiskConfig>>>;
   updatedAt?: Maybe<Scalars['Date']['output']>;
+};
+
+export type InsuranceProductList = {
+  __typename?: 'InsuranceProductList';
+  list?: Maybe<Array<Maybe<InsuranceProduct>>>;
+  totalCount?: Maybe<Scalars['Int']['output']>;
 };
 
 export type InsuranceProductOfVendor = {
@@ -916,32 +1015,8 @@ export type InsuranceProductOfVendor = {
   description?: Maybe<Scalars['String']['output']>;
   name?: Maybe<Scalars['String']['output']>;
   price?: Maybe<Scalars['Float']['output']>;
-  riskIds?: Maybe<Array<Maybe<Scalars['ID']['output']>>>;
-  risks?: Maybe<Array<Maybe<Risk>>>;
+  riskConfigs?: Maybe<Array<Maybe<RiskConfig>>>;
   updatedAt?: Maybe<Scalars['Date']['output']>;
-};
-
-export type InsuranceProductPage = {
-  __typename?: 'InsuranceProductPage';
-  count?: Maybe<Scalars['Int']['output']>;
-  products?: Maybe<Array<Maybe<InsuranceProduct>>>;
-};
-
-export type InternalNote = {
-  __typename?: 'InternalNote';
-  _id: Scalars['String']['output'];
-  content?: Maybe<Scalars['String']['output']>;
-  contentType: Scalars['String']['output'];
-  contentTypeId?: Maybe<Scalars['String']['output']>;
-  createdAt?: Maybe<Scalars['Date']['output']>;
-  createdUser?: Maybe<User>;
-  createdUserId?: Maybe<Scalars['String']['output']>;
-};
-
-export type InternalNotesByAction = {
-  __typename?: 'InternalNotesByAction';
-  list?: Maybe<Array<Maybe<ModifiedNote>>>;
-  totalCount?: Maybe<Scalars['Int']['output']>;
 };
 
 export type Interval = {
@@ -1034,18 +1109,6 @@ export type ManualVerificationConfig = {
   userIds?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
   verifyCompany?: Maybe<Scalars['Boolean']['output']>;
   verifyCustomer?: Maybe<Scalars['Boolean']['output']>;
-};
-
-export type ModifiedNote = {
-  __typename?: 'ModifiedNote';
-  _id: Scalars['String']['output'];
-  action?: Maybe<Scalars['String']['output']>;
-  content?: Maybe<Scalars['String']['output']>;
-  contentId?: Maybe<Scalars['String']['output']>;
-  contentType: Scalars['String']['output'];
-  contentTypeDetail?: Maybe<Scalars['JSON']['output']>;
-  createdAt?: Maybe<Scalars['Date']['output']>;
-  createdBy?: Maybe<Scalars['String']['output']>;
 };
 
 export type Mutation = {
@@ -1166,12 +1229,18 @@ export type Mutation = {
   growthHacksRemove?: Maybe<GrowthHack>;
   growthHacksVote?: Maybe<GrowthHack>;
   growthHacksWatch?: Maybe<GrowthHack>;
+  insuranceCategoryAdd?: Maybe<InsuranceCategory>;
+  insuranceCategoryEdit?: Maybe<InsuranceCategory>;
+  insuranceCategoryRemove?: Maybe<Scalars['String']['output']>;
+  insuranceItemAdd?: Maybe<InsuranceItem>;
+  insuranceItemEdit?: Maybe<InsuranceItem>;
+  insuranceItemRemove?: Maybe<Scalars['JSON']['output']>;
+  insurancePackageAdd: InsurancePackage;
+  insurancePackageEdit: InsurancePackage;
+  insurancePackageRemove?: Maybe<Scalars['JSON']['output']>;
   insuranceProductsAdd?: Maybe<InsuranceProduct>;
   insuranceProductsEdit?: Maybe<InsuranceProduct>;
   insuranceProductsRemove?: Maybe<Scalars['String']['output']>;
-  internalNotesAdd?: Maybe<InternalNote>;
-  internalNotesEdit?: Maybe<InternalNote>;
-  internalNotesRemove?: Maybe<InternalNote>;
   login?: Maybe<Scalars['String']['output']>;
   logout?: Maybe<Scalars['String']['output']>;
   manageExpenses?: Maybe<Array<Maybe<Cost>>>;
@@ -1196,14 +1265,6 @@ export type Mutation = {
   pipelinesRemove?: Maybe<Scalars['JSON']['output']>;
   pipelinesUpdateOrder?: Maybe<Array<Maybe<Pipeline>>>;
   pipelinesWatch?: Maybe<Pipeline>;
-  productCategoriesAdd?: Maybe<ProductCategory>;
-  productCategoriesEdit?: Maybe<ProductCategory>;
-  productCategoriesRemove?: Maybe<Scalars['JSON']['output']>;
-  productsAdd?: Maybe<Product>;
-  productsConfigsUpdate?: Maybe<Scalars['JSON']['output']>;
-  productsEdit?: Maybe<Product>;
-  productsMerge?: Maybe<Product>;
-  productsRemove?: Maybe<Scalars['String']['output']>;
   purchasesAdd?: Maybe<Purchase>;
   purchasesArchive?: Maybe<Scalars['String']['output']>;
   purchasesChange?: Maybe<Purchase>;
@@ -1226,11 +1287,6 @@ export type Mutation = {
   structuresAdd?: Maybe<Structure>;
   structuresEdit?: Maybe<Structure>;
   structuresRemove?: Maybe<Scalars['JSON']['output']>;
-  tagsAdd?: Maybe<Tag>;
-  tagsEdit?: Maybe<Tag>;
-  tagsMerge?: Maybe<Tag>;
-  tagsRemove?: Maybe<Scalars['JSON']['output']>;
-  tagsTag?: Maybe<Scalars['String']['output']>;
   tasksAdd?: Maybe<Task>;
   tasksArchive?: Maybe<Scalars['String']['output']>;
   tasksChange?: Maybe<Task>;
@@ -1248,9 +1304,6 @@ export type Mutation = {
   unitsAdd?: Maybe<Unit>;
   unitsEdit?: Maybe<Unit>;
   unitsRemove?: Maybe<Scalars['JSON']['output']>;
-  uomsAdd?: Maybe<Uom>;
-  uomsEdit?: Maybe<Uom>;
-  uomsRemove?: Maybe<Scalars['String']['output']>;
   usersChangePassword?: Maybe<User>;
   usersConfigEmailSignatures?: Maybe<User>;
   usersConfigGetNotificationByEmail?: Maybe<User>;
@@ -1972,6 +2025,13 @@ export type MutationFieldsAddArgs = {
   validation?: InputMaybe<Scalars['String']['input']>;
 };
 
+export type MutationFieldsBulkAddAndEditArgs = {
+  addingFields?: InputMaybe<Array<InputMaybe<FieldItem>>>;
+  contentType: Scalars['String']['input'];
+  contentTypeId?: InputMaybe<Scalars['String']['input']>;
+  editingFields?: InputMaybe<Array<InputMaybe<FieldItem>>>;
+};
+
 export type MutationFieldsEditArgs = {
   _id: Scalars['String']['input'];
   associatedFieldId?: InputMaybe<Scalars['String']['input']>;
@@ -2173,44 +2233,78 @@ export type MutationGrowthHacksWatchArgs = {
   isAdd?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
-export type MutationInsuranceProductsAddArgs = {
+export type MutationInsuranceCategoryAddArgs = {
   code: Scalars['String']['input'];
-  companyConfigs?: InputMaybe<Array<InputMaybe<CompanyProductConfigInput>>>;
+  description: Scalars['String']['input'];
+  name: Scalars['String']['input'];
+  riskIds?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+};
+
+export type MutationInsuranceCategoryEditArgs = {
+  _id: Scalars['ID']['input'];
+  code?: InputMaybe<Scalars['String']['input']>;
+  description?: InputMaybe<Scalars['String']['input']>;
+  name?: InputMaybe<Scalars['String']['input']>;
+  riskIds?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+};
+
+export type MutationInsuranceCategoryRemoveArgs = {
+  _id: Scalars['ID']['input'];
+};
+
+export type MutationInsuranceItemAddArgs = {
+  doc?: InputMaybe<InsuranceItemInput>;
+};
+
+export type MutationInsuranceItemEditArgs = {
+  _id: Scalars['ID']['input'];
+  doc?: InputMaybe<InsuranceItemInput>;
+};
+
+export type MutationInsuranceItemRemoveArgs = {
+  _id: Scalars['ID']['input'];
+};
+
+export type MutationInsurancePackageAddArgs = {
+  input: InsurancePackageInput;
+};
+
+export type MutationInsurancePackageEditArgs = {
+  _id: Scalars['ID']['input'];
+  input: InsurancePackageInput;
+};
+
+export type MutationInsurancePackageRemoveArgs = {
+  _id: Scalars['ID']['input'];
+};
+
+export type MutationInsuranceProductsAddArgs = {
+  categoryId?: InputMaybe<Scalars['ID']['input']>;
+  code: Scalars['String']['input'];
+  companyProductConfigs?: InputMaybe<
+    Array<InputMaybe<CompanyProductConfigInput>>
+  >;
   description: Scalars['String']['input'];
   name: Scalars['String']['input'];
   price: Scalars['Float']['input'];
-  riskIds?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
+  riskConfigs?: InputMaybe<Array<InputMaybe<RiskConfigInput>>>;
 };
 
 export type MutationInsuranceProductsEditArgs = {
   _id: Scalars['ID']['input'];
+  categoryId?: InputMaybe<Scalars['ID']['input']>;
   code?: InputMaybe<Scalars['String']['input']>;
-  companyConfigs?: InputMaybe<Array<InputMaybe<CompanyProductConfigInput>>>;
+  companyProductConfigs?: InputMaybe<
+    Array<InputMaybe<CompanyProductConfigInput>>
+  >;
   description?: InputMaybe<Scalars['String']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
   price?: InputMaybe<Scalars['Float']['input']>;
-  riskIds?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
+  riskConfigs?: InputMaybe<Array<InputMaybe<RiskConfigInput>>>;
 };
 
 export type MutationInsuranceProductsRemoveArgs = {
   _id: Scalars['ID']['input'];
-};
-
-export type MutationInternalNotesAddArgs = {
-  content?: InputMaybe<Scalars['String']['input']>;
-  contentType: Scalars['String']['input'];
-  contentTypeId?: InputMaybe<Scalars['String']['input']>;
-  mentionedUserIds?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-};
-
-export type MutationInternalNotesEditArgs = {
-  _id: Scalars['String']['input'];
-  content?: InputMaybe<Scalars['String']['input']>;
-  mentionedUserIds?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-};
-
-export type MutationInternalNotesRemoveArgs = {
-  _id: Scalars['String']['input'];
 };
 
 export type MutationLoginArgs = {
@@ -2354,95 +2448,6 @@ export type MutationPipelinesWatchArgs = {
   _id: Scalars['String']['input'];
   isAdd?: InputMaybe<Scalars['Boolean']['input']>;
   type: Scalars['String']['input'];
-};
-
-export type MutationProductCategoriesAddArgs = {
-  attachment?: InputMaybe<AttachmentInput>;
-  code: Scalars['String']['input'];
-  description?: InputMaybe<Scalars['String']['input']>;
-  isSimilarity?: InputMaybe<Scalars['Boolean']['input']>;
-  mask?: InputMaybe<Scalars['JSON']['input']>;
-  maskType?: InputMaybe<Scalars['String']['input']>;
-  meta?: InputMaybe<Scalars['String']['input']>;
-  name: Scalars['String']['input'];
-  parentId?: InputMaybe<Scalars['String']['input']>;
-  similarities?: InputMaybe<Scalars['JSON']['input']>;
-  status?: InputMaybe<Scalars['String']['input']>;
-};
-
-export type MutationProductCategoriesEditArgs = {
-  _id: Scalars['String']['input'];
-  attachment?: InputMaybe<AttachmentInput>;
-  code: Scalars['String']['input'];
-  description?: InputMaybe<Scalars['String']['input']>;
-  isSimilarity?: InputMaybe<Scalars['Boolean']['input']>;
-  mask?: InputMaybe<Scalars['JSON']['input']>;
-  maskType?: InputMaybe<Scalars['String']['input']>;
-  meta?: InputMaybe<Scalars['String']['input']>;
-  name: Scalars['String']['input'];
-  parentId?: InputMaybe<Scalars['String']['input']>;
-  similarities?: InputMaybe<Scalars['JSON']['input']>;
-  status?: InputMaybe<Scalars['String']['input']>;
-};
-
-export type MutationProductCategoriesRemoveArgs = {
-  _id: Scalars['String']['input'];
-};
-
-export type MutationProductsAddArgs = {
-  attachment?: InputMaybe<AttachmentInput>;
-  attachmentMore?: InputMaybe<Array<InputMaybe<AttachmentInput>>>;
-  barcodeDescription?: InputMaybe<Scalars['String']['input']>;
-  barcodes?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-  categoryId?: InputMaybe<Scalars['String']['input']>;
-  code?: InputMaybe<Scalars['String']['input']>;
-  customFieldsData?: InputMaybe<Scalars['JSON']['input']>;
-  description?: InputMaybe<Scalars['String']['input']>;
-  name?: InputMaybe<Scalars['String']['input']>;
-  shortName?: InputMaybe<Scalars['String']['input']>;
-  subUoms?: InputMaybe<Scalars['JSON']['input']>;
-  taxCode?: InputMaybe<Scalars['String']['input']>;
-  taxType?: InputMaybe<Scalars['String']['input']>;
-  type?: InputMaybe<Scalars['String']['input']>;
-  unitPrice?: InputMaybe<Scalars['Float']['input']>;
-  uom?: InputMaybe<Scalars['String']['input']>;
-  variants?: InputMaybe<Scalars['JSON']['input']>;
-  vendorId?: InputMaybe<Scalars['String']['input']>;
-};
-
-export type MutationProductsConfigsUpdateArgs = {
-  configsMap: Scalars['JSON']['input'];
-};
-
-export type MutationProductsEditArgs = {
-  _id: Scalars['String']['input'];
-  attachment?: InputMaybe<AttachmentInput>;
-  attachmentMore?: InputMaybe<Array<InputMaybe<AttachmentInput>>>;
-  barcodeDescription?: InputMaybe<Scalars['String']['input']>;
-  barcodes?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-  categoryId?: InputMaybe<Scalars['String']['input']>;
-  code?: InputMaybe<Scalars['String']['input']>;
-  customFieldsData?: InputMaybe<Scalars['JSON']['input']>;
-  description?: InputMaybe<Scalars['String']['input']>;
-  name?: InputMaybe<Scalars['String']['input']>;
-  shortName?: InputMaybe<Scalars['String']['input']>;
-  subUoms?: InputMaybe<Scalars['JSON']['input']>;
-  taxCode?: InputMaybe<Scalars['String']['input']>;
-  taxType?: InputMaybe<Scalars['String']['input']>;
-  type?: InputMaybe<Scalars['String']['input']>;
-  unitPrice?: InputMaybe<Scalars['Float']['input']>;
-  uom?: InputMaybe<Scalars['String']['input']>;
-  variants?: InputMaybe<Scalars['JSON']['input']>;
-  vendorId?: InputMaybe<Scalars['String']['input']>;
-};
-
-export type MutationProductsMergeArgs = {
-  productFields?: InputMaybe<Scalars['JSON']['input']>;
-  productIds?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-};
-
-export type MutationProductsRemoveArgs = {
-  productIds?: InputMaybe<Array<Scalars['String']['input']>>;
 };
 
 export type MutationPurchasesAddArgs = {
@@ -2630,36 +2635,6 @@ export type MutationStructuresRemoveArgs = {
   _id: Scalars['String']['input'];
 };
 
-export type MutationTagsAddArgs = {
-  colorCode?: InputMaybe<Scalars['String']['input']>;
-  name: Scalars['String']['input'];
-  parentId?: InputMaybe<Scalars['String']['input']>;
-  type: Scalars['String']['input'];
-};
-
-export type MutationTagsEditArgs = {
-  _id: Scalars['String']['input'];
-  colorCode?: InputMaybe<Scalars['String']['input']>;
-  name: Scalars['String']['input'];
-  parentId?: InputMaybe<Scalars['String']['input']>;
-  type: Scalars['String']['input'];
-};
-
-export type MutationTagsMergeArgs = {
-  destId: Scalars['String']['input'];
-  sourceId: Scalars['String']['input'];
-};
-
-export type MutationTagsRemoveArgs = {
-  _id: Scalars['String']['input'];
-};
-
-export type MutationTagsTagArgs = {
-  tagIds: Array<Scalars['String']['input']>;
-  targetIds: Array<Scalars['String']['input']>;
-  type: Scalars['String']['input'];
-};
-
 export type MutationTasksAddArgs = {
   aboveItemId?: InputMaybe<Scalars['String']['input']>;
   assignedUserIds?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
@@ -2845,21 +2820,6 @@ export type MutationUnitsEditArgs = {
 
 export type MutationUnitsRemoveArgs = {
   ids?: InputMaybe<Array<Scalars['String']['input']>>;
-};
-
-export type MutationUomsAddArgs = {
-  code?: InputMaybe<Scalars['String']['input']>;
-  name?: InputMaybe<Scalars['String']['input']>;
-};
-
-export type MutationUomsEditArgs = {
-  _id: Scalars['String']['input'];
-  code?: InputMaybe<Scalars['String']['input']>;
-  name?: InputMaybe<Scalars['String']['input']>;
-};
-
-export type MutationUomsRemoveArgs = {
-  uomIds?: InputMaybe<Array<Scalars['String']['input']>>;
 };
 
 export type MutationUsersChangePasswordArgs = {
@@ -3083,7 +3043,6 @@ export type Pipeline = {
   startDate?: Maybe<Scalars['Date']['output']>;
   state?: Maybe<Scalars['String']['output']>;
   status?: Maybe<Scalars['String']['output']>;
-  tag?: Maybe<Tag>;
   tagId?: Maybe<Scalars['String']['output']>;
   templateId?: Maybe<Scalars['String']['output']>;
   type?: Maybe<Scalars['String']['output']>;
@@ -3135,78 +3094,9 @@ export type PipelineTemplateStageInput = {
   name: Scalars['String']['input'];
 };
 
-export type Product = {
-  __typename?: 'Product';
-  _id: Scalars['String']['output'];
-  attachment?: Maybe<Attachment>;
-  attachmentMore?: Maybe<Array<Maybe<Attachment>>>;
-  barcodeDescription?: Maybe<Scalars['String']['output']>;
-  barcodes?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
-  category?: Maybe<ProductCategory>;
-  categoryId?: Maybe<Scalars['String']['output']>;
-  code?: Maybe<Scalars['String']['output']>;
-  createdAt?: Maybe<Scalars['Date']['output']>;
-  customFieldsData?: Maybe<Scalars['JSON']['output']>;
-  customFieldsDataByFieldCode?: Maybe<Scalars['JSON']['output']>;
-  description?: Maybe<Scalars['String']['output']>;
-  getTags?: Maybe<Array<Maybe<Tag>>>;
-  hasSimilarity?: Maybe<Scalars['Boolean']['output']>;
-  name?: Maybe<Scalars['String']['output']>;
-  shortName?: Maybe<Scalars['String']['output']>;
-  status?: Maybe<Scalars['String']['output']>;
-  subUoms?: Maybe<Scalars['JSON']['output']>;
-  tagIds?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
-  taxCode?: Maybe<Scalars['String']['output']>;
-  taxType?: Maybe<Scalars['String']['output']>;
-  type?: Maybe<Scalars['String']['output']>;
-  unitPrice?: Maybe<Scalars['Float']['output']>;
-  uom?: Maybe<Scalars['String']['output']>;
-  variants?: Maybe<Scalars['JSON']['output']>;
-  vendor?: Maybe<Company>;
-  vendorId?: Maybe<Scalars['String']['output']>;
-};
-
-export type ProductCategory = {
-  __typename?: 'ProductCategory';
-  _id: Scalars['String']['output'];
-  attachment?: Maybe<Attachment>;
-  code: Scalars['String']['output'];
-  description?: Maybe<Scalars['String']['output']>;
-  isRoot?: Maybe<Scalars['Boolean']['output']>;
-  isSimilarity?: Maybe<Scalars['Boolean']['output']>;
-  mask?: Maybe<Scalars['JSON']['output']>;
-  maskType?: Maybe<Scalars['String']['output']>;
-  meta?: Maybe<Scalars['String']['output']>;
-  name?: Maybe<Scalars['String']['output']>;
-  order: Scalars['String']['output'];
-  parentId?: Maybe<Scalars['String']['output']>;
-  productCount?: Maybe<Scalars['Int']['output']>;
-  similarities?: Maybe<Scalars['JSON']['output']>;
-  status?: Maybe<Scalars['String']['output']>;
-};
-
 export type ProductField = {
   productId?: InputMaybe<Scalars['String']['input']>;
   quantity?: InputMaybe<Scalars['Int']['input']>;
-};
-
-export type ProductSimilarity = {
-  __typename?: 'ProductSimilarity';
-  groups?: Maybe<Array<Maybe<ProductSimilarityGroup>>>;
-  products?: Maybe<Array<Maybe<Product>>>;
-};
-
-export type ProductSimilarityGroup = {
-  __typename?: 'ProductSimilarityGroup';
-  fieldId?: Maybe<Scalars['String']['output']>;
-  title?: Maybe<Scalars['String']['output']>;
-};
-
-export type ProductsConfig = {
-  __typename?: 'ProductsConfig';
-  _id: Scalars['String']['output'];
-  code: Scalars['String']['output'];
-  value?: Maybe<Scalars['JSON']['output']>;
 };
 
 export type ProductsDataChangeResponse = {
@@ -3259,7 +3149,6 @@ export type Purchase = {
   startDate?: Maybe<Scalars['Date']['output']>;
   status?: Maybe<Scalars['String']['output']>;
   tagIds?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
-  tags?: Maybe<Array<Maybe<Tag>>>;
   timeTrack?: Maybe<TimeTrack>;
   unUsedAmount?: Maybe<Scalars['JSON']['output']>;
   userId?: Maybe<Scalars['String']['output']>;
@@ -3439,14 +3328,19 @@ export type Query = {
   growthHacks?: Maybe<Array<Maybe<GrowthHack>>>;
   growthHacksPriorityMatrix?: Maybe<Scalars['JSON']['output']>;
   growthHacksTotalCount?: Maybe<Scalars['Int']['output']>;
+  insuranceCategories?: Maybe<Array<Maybe<InsuranceCategory>>>;
+  insuranceCategory?: Maybe<InsuranceCategory>;
+  insuranceCategoryList?: Maybe<InsuranceCategoryList>;
+  insuranceItem?: Maybe<InsuranceItem>;
+  insuranceItemList?: Maybe<InsuranceItemListResult>;
+  insuranceItems?: Maybe<Array<Maybe<InsuranceItem>>>;
+  insurancePackage?: Maybe<InsurancePackage>;
+  insurancePackageList?: Maybe<InsurancePackageList>;
+  insurancePackages: Array<InsurancePackage>;
   insuranceProduct?: Maybe<InsuranceProduct>;
+  insuranceProductList?: Maybe<InsuranceProductList>;
   insuranceProducts?: Maybe<Array<Maybe<InsuranceProduct>>>;
   insuranceProductsOfVendor?: Maybe<Array<Maybe<InsuranceProductOfVendor>>>;
-  insuranceProductsPaginated?: Maybe<InsuranceProductPage>;
-  internalNoteDetail?: Maybe<InternalNote>;
-  internalNotes?: Maybe<Array<Maybe<InternalNote>>>;
-  internalNotesAsLogs?: Maybe<Array<Maybe<Scalars['JSON']['output']>>>;
-  internalNotesByAction?: Maybe<InternalNotesByAction>;
   itemsCountByAssignedUser?: Maybe<Scalars['JSON']['output']>;
   itemsCountBySegments?: Maybe<Scalars['JSON']['output']>;
   logs?: Maybe<LogList>;
@@ -3468,16 +3362,6 @@ export type Query = {
   pipelineTemplates?: Maybe<Array<Maybe<PipelineTemplate>>>;
   pipelineTemplatesTotalCount?: Maybe<Scalars['Int']['output']>;
   pipelines?: Maybe<Array<Maybe<Pipeline>>>;
-  productCategories?: Maybe<Array<Maybe<ProductCategory>>>;
-  productCategoriesTotalCount?: Maybe<Scalars['Int']['output']>;
-  productCategoryDetail?: Maybe<ProductCategory>;
-  productCountByTags?: Maybe<Scalars['JSON']['output']>;
-  productDetail?: Maybe<Product>;
-  productSimilarities?: Maybe<ProductSimilarity>;
-  products?: Maybe<Array<Maybe<Product>>>;
-  productsConfigs?: Maybe<Array<Maybe<ProductsConfig>>>;
-  productsGroupCounts?: Maybe<Scalars['JSON']['output']>;
-  productsTotalCount?: Maybe<Scalars['Int']['output']>;
   purchaseDetail?: Maybe<Purchase>;
   purchasecheckDiscount?: Maybe<Scalars['JSON']['output']>;
   purchases?: Maybe<Array<Maybe<PurchaseListItem>>>;
@@ -3491,9 +3375,6 @@ export type Query = {
   stageDetail?: Maybe<Stage>;
   stages?: Maybe<Array<Maybe<Stage>>>;
   structureDetail?: Maybe<Structure>;
-  tagDetail?: Maybe<Tag>;
-  tags?: Maybe<Array<Maybe<Tag>>>;
-  tagsGetTypes?: Maybe<Array<Maybe<Scalars['JSON']['output']>>>;
   taskDetail?: Maybe<Task>;
   tasks?: Maybe<Array<Maybe<TaskListItem>>>;
   tasksAsLogs?: Maybe<Array<Maybe<Scalars['JSON']['output']>>>;
@@ -3505,8 +3386,6 @@ export type Query = {
   unitDetail?: Maybe<Unit>;
   units?: Maybe<Array<Maybe<Unit>>>;
   unitsMain?: Maybe<UnitListQueryResponse>;
-  uoms?: Maybe<Array<Maybe<Uom>>>;
-  uomsTotalCount?: Maybe<Scalars['Int']['output']>;
   userDetail?: Maybe<User>;
   userMovements?: Maybe<Array<Maybe<UserMovement>>>;
   users?: Maybe<Array<Maybe<User>>>;
@@ -4468,17 +4347,17 @@ export type QueryGrowthHacksTotalCountArgs = {
   userIds?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
 };
 
-export type QueryInsuranceProductArgs = {
-  _id: Scalars['ID']['input'];
-};
-
-export type QueryInsuranceProductsArgs = {
+export type QueryInsuranceCategoriesArgs = {
   page?: InputMaybe<Scalars['Int']['input']>;
   perPage?: InputMaybe<Scalars['Int']['input']>;
   searchValue?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type QueryInsuranceProductsPaginatedArgs = {
+export type QueryInsuranceCategoryArgs = {
+  _id: Scalars['ID']['input'];
+};
+
+export type QueryInsuranceCategoryListArgs = {
   page?: InputMaybe<Scalars['Int']['input']>;
   perPage?: InputMaybe<Scalars['Int']['input']>;
   searchValue?: InputMaybe<Scalars['String']['input']>;
@@ -4486,24 +4365,46 @@ export type QueryInsuranceProductsPaginatedArgs = {
   sortField?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type QueryInternalNoteDetailArgs = {
-  _id: Scalars['String']['input'];
+export type QueryInsuranceItemArgs = {
+  _id: Scalars['ID']['input'];
 };
 
-export type QueryInternalNotesArgs = {
-  contentType: Scalars['String']['input'];
-  contentTypeId?: InputMaybe<Scalars['String']['input']>;
+export type QueryInsurancePackageArgs = {
+  _id: Scalars['ID']['input'];
 };
 
-export type QueryInternalNotesAsLogsArgs = {
-  contentTypeId: Scalars['String']['input'];
-};
-
-export type QueryInternalNotesByActionArgs = {
-  contentType?: InputMaybe<Scalars['String']['input']>;
+export type QueryInsurancePackageListArgs = {
   page?: InputMaybe<Scalars['Int']['input']>;
   perPage?: InputMaybe<Scalars['Int']['input']>;
-  pipelineId?: InputMaybe<Scalars['String']['input']>;
+  searchValue?: InputMaybe<Scalars['String']['input']>;
+  sortDirection?: InputMaybe<SortDirection>;
+  sortField?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type QueryInsurancePackagesArgs = {
+  page?: InputMaybe<Scalars['Int']['input']>;
+  perPage?: InputMaybe<Scalars['Int']['input']>;
+  searchValue?: InputMaybe<Scalars['String']['input']>;
+  sortDirection?: InputMaybe<SortDirection>;
+  sortField?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type QueryInsuranceProductArgs = {
+  _id: Scalars['ID']['input'];
+};
+
+export type QueryInsuranceProductListArgs = {
+  page?: InputMaybe<Scalars['Int']['input']>;
+  perPage?: InputMaybe<Scalars['Int']['input']>;
+  searchValue?: InputMaybe<Scalars['String']['input']>;
+  sortDirection?: InputMaybe<SortDirection>;
+  sortField?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type QueryInsuranceProductsArgs = {
+  page?: InputMaybe<Scalars['Int']['input']>;
+  perPage?: InputMaybe<Scalars['Int']['input']>;
+  searchValue?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type QueryItemsCountByAssignedUserArgs = {
@@ -4590,77 +4491,6 @@ export type QueryPipelinesArgs = {
   page?: InputMaybe<Scalars['Int']['input']>;
   perPage?: InputMaybe<Scalars['Int']['input']>;
   type?: InputMaybe<Scalars['String']['input']>;
-};
-
-export type QueryProductCategoriesArgs = {
-  meta?: InputMaybe<Scalars['String']['input']>;
-  parentId?: InputMaybe<Scalars['String']['input']>;
-  searchValue?: InputMaybe<Scalars['String']['input']>;
-  status?: InputMaybe<Scalars['String']['input']>;
-  withChild?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-export type QueryProductCategoriesTotalCountArgs = {
-  meta?: InputMaybe<Scalars['String']['input']>;
-  parentId?: InputMaybe<Scalars['String']['input']>;
-  searchValue?: InputMaybe<Scalars['String']['input']>;
-  status?: InputMaybe<Scalars['String']['input']>;
-  withChild?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-export type QueryProductCategoryDetailArgs = {
-  _id?: InputMaybe<Scalars['String']['input']>;
-};
-
-export type QueryProductDetailArgs = {
-  _id?: InputMaybe<Scalars['String']['input']>;
-};
-
-export type QueryProductSimilaritiesArgs = {
-  _id: Scalars['String']['input'];
-  groupedSimilarity?: InputMaybe<Scalars['String']['input']>;
-};
-
-export type QueryProductsArgs = {
-  boardId?: InputMaybe<Scalars['String']['input']>;
-  categoryId?: InputMaybe<Scalars['String']['input']>;
-  excludeIds?: InputMaybe<Scalars['Boolean']['input']>;
-  groupedSimilarity?: InputMaybe<Scalars['String']['input']>;
-  ids?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-  page?: InputMaybe<Scalars['Int']['input']>;
-  perPage?: InputMaybe<Scalars['Int']['input']>;
-  pipelineId?: InputMaybe<Scalars['String']['input']>;
-  searchValue?: InputMaybe<Scalars['String']['input']>;
-  segment?: InputMaybe<Scalars['String']['input']>;
-  segmentData?: InputMaybe<Scalars['String']['input']>;
-  sortDirection?: InputMaybe<Scalars['Int']['input']>;
-  sortField?: InputMaybe<Scalars['String']['input']>;
-  status?: InputMaybe<Scalars['String']['input']>;
-  tag?: InputMaybe<Scalars['String']['input']>;
-  type?: InputMaybe<Scalars['String']['input']>;
-  vendorId?: InputMaybe<Scalars['String']['input']>;
-};
-
-export type QueryProductsGroupCountsArgs = {
-  only?: InputMaybe<Scalars['String']['input']>;
-  segment?: InputMaybe<Scalars['String']['input']>;
-  segmentData?: InputMaybe<Scalars['String']['input']>;
-};
-
-export type QueryProductsTotalCountArgs = {
-  boardId?: InputMaybe<Scalars['String']['input']>;
-  categoryId?: InputMaybe<Scalars['String']['input']>;
-  excludeIds?: InputMaybe<Scalars['Boolean']['input']>;
-  groupedSimilarity?: InputMaybe<Scalars['String']['input']>;
-  ids?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-  pipelineId?: InputMaybe<Scalars['String']['input']>;
-  searchValue?: InputMaybe<Scalars['String']['input']>;
-  segment?: InputMaybe<Scalars['String']['input']>;
-  segmentData?: InputMaybe<Scalars['String']['input']>;
-  status?: InputMaybe<Scalars['String']['input']>;
-  tag?: InputMaybe<Scalars['String']['input']>;
-  type?: InputMaybe<Scalars['String']['input']>;
-  vendorId?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type QueryPurchaseDetailArgs = {
@@ -4893,17 +4723,6 @@ export type QueryStagesArgs = {
   startDateStartDate?: InputMaybe<Scalars['Date']['input']>;
   stateChangedEndDate?: InputMaybe<Scalars['Date']['input']>;
   stateChangedStartDate?: InputMaybe<Scalars['Date']['input']>;
-};
-
-export type QueryTagDetailArgs = {
-  _id: Scalars['String']['input'];
-};
-
-export type QueryTagsArgs = {
-  parentId?: InputMaybe<Scalars['String']['input']>;
-  searchValue?: InputMaybe<Scalars['String']['input']>;
-  tagIds?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-  type?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type QueryTaskDetailArgs = {
@@ -5202,6 +5021,19 @@ export type Risk = {
   updatedAt?: Maybe<Scalars['Date']['output']>;
 };
 
+export type RiskConfig = {
+  __typename?: 'RiskConfig';
+  coverage?: Maybe<Scalars['Float']['output']>;
+  coverageLimit?: Maybe<Scalars['Float']['output']>;
+  riskId: Scalars['ID']['output'];
+};
+
+export type RiskConfigInput = {
+  coverage?: InputMaybe<Scalars['Float']['input']>;
+  coverageLimit?: InputMaybe<Scalars['Float']['input']>;
+  riskId: Scalars['ID']['input'];
+};
+
 export type RiskPage = {
   __typename?: 'RiskPage';
   count?: Maybe<Scalars['Int']['output']>;
@@ -5342,20 +5174,6 @@ export type SuccessResult = {
   success?: Maybe<Scalars['Boolean']['output']>;
 };
 
-export type Tag = {
-  __typename?: 'Tag';
-  _id: Scalars['String']['output'];
-  colorCode?: Maybe<Scalars['String']['output']>;
-  createdAt?: Maybe<Scalars['Date']['output']>;
-  name?: Maybe<Scalars['String']['output']>;
-  objectCount?: Maybe<Scalars['Int']['output']>;
-  order?: Maybe<Scalars['String']['output']>;
-  parentId?: Maybe<Scalars['String']['output']>;
-  relatedIds?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
-  totalObjectCount?: Maybe<Scalars['Int']['output']>;
-  type?: Maybe<Scalars['String']['output']>;
-};
-
 export type Task = {
   __typename?: 'Task';
   _id: Scalars['String']['output'];
@@ -5393,7 +5211,6 @@ export type Task = {
   startDate?: Maybe<Scalars['Date']['output']>;
   status?: Maybe<Scalars['String']['output']>;
   tagIds?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
-  tags?: Maybe<Array<Maybe<Tag>>>;
   timeTrack?: Maybe<TimeTrack>;
   userId?: Maybe<Scalars['String']['output']>;
 };
@@ -5469,7 +5286,6 @@ export type Ticket = {
   startDate?: Maybe<Scalars['Date']['output']>;
   status?: Maybe<Scalars['String']['output']>;
   tagIds?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
-  tags?: Maybe<Array<Maybe<Tag>>>;
   timeTrack?: Maybe<TimeTrack>;
   userId?: Maybe<Scalars['String']['output']>;
 };
@@ -5545,14 +5361,6 @@ export type UnitListQueryResponse = {
   list?: Maybe<Array<Maybe<Unit>>>;
   totalCount?: Maybe<Scalars['Int']['output']>;
   totalUsersCount?: Maybe<Scalars['Int']['output']>;
-};
-
-export type Uom = {
-  __typename?: 'Uom';
-  _id: Scalars['String']['output'];
-  code?: Maybe<Scalars['String']['output']>;
-  createdAt?: Maybe<Scalars['Date']['output']>;
-  name?: Maybe<Scalars['String']['output']>;
 };
 
 export type User = {

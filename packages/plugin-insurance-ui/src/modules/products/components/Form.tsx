@@ -9,9 +9,16 @@ import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { LinkButton, ModalFooter } from '@erxes/ui/src/styles/main';
 import { __ } from '@erxes/ui/src/utils/core';
-import { CompanyProductConfig, InsuranceProduct } from '../../../gql/types';
+import {
+  CompanyProductConfig,
+  InsuranceProduct,
+  Risk,
+  RiskConfig
+} from '../../../gql/types';
 import SelectRisks from '../../risks/containers/SelectRisks';
 import PriceRow from './PriceRow';
+import SelectCategory from '../../categories/containers/SelectCategory';
+import RiskRow from './RiskRow';
 
 type Props = {
   product?: InsuranceProduct;
@@ -21,7 +28,17 @@ type Props = {
 
 const ProductForm = (props: Props) => {
   const [product, setProduct] = React.useState<any>(
-    props.product || { code: '', name: '', description: '', price: 0 }
+    props.product || {
+      code: '',
+      name: '',
+      description: '',
+      price: 0,
+      categoryId: ''
+    }
+  );
+
+  const [riskConfigs, setRiskConfigs] = React.useState<any[]>(
+    product.riskConfigs || []
   );
 
   const [companyConfigs, setCompanyConfigs] = React.useState<
@@ -46,6 +63,14 @@ const ProductForm = (props: Props) => {
       return {
         companyId: companyConfig.companyId,
         specificPrice: Number(companyConfig.specificPrice || 0)
+      };
+    });
+
+    finalValues.riskConfigs = riskConfigs.map(riskConfig => {
+      return {
+        riskId: riskConfig.riskId,
+        coverage: Number(riskConfig.coverage || 0),
+        coverageLimit: Number(riskConfig.coverageLimit || 0)
       };
     });
 
@@ -91,29 +116,71 @@ const ProductForm = (props: Props) => {
       );
     };
 
+    const renderRisks = () => {
+      if (!product.categoryId) {
+        return null;
+      }
+
+      if (riskConfigs.length === 0) {
+        return null;
+      }
+
+      return (
+        <>
+          <ControlLabel>{__('Risks')}</ControlLabel>
+          {riskConfigs.map((risk, i) => {
+            return (
+              <RiskRow
+                key={i}
+                riskName={risk.name}
+                config={risk}
+                index={i}
+                onChange={(index, riskConfig) => {
+                  const tempConfigs = [...riskConfigs];
+                  tempConfigs[index] = riskConfig;
+                  setRiskConfigs(tempConfigs);
+                }}
+              />
+            );
+          })}
+        </>
+      );
+    };
+
     return (
       <>
         {renderInput('code', 'text', product.code, 'Code', true)}
         {renderInput('name', 'text', product.name, 'Name', true)}
         {renderInput('description', 'text', product.description, 'Description')}
         <FormGroup>
-          <ControlLabel>{__('Risks')}</ControlLabel>
-          <SelectRisks
-            label="Risks"
-            name="risks"
-            onSelect={(values: string[] | string) => {
+          <ControlLabel>{__('Category')}</ControlLabel>
+          <SelectCategory
+            value={product.categoryId}
+            onChange={(categoryId, categoryRisks: Risk[]) => {
               setProduct({
                 ...product,
-                riskIds: values
+                categoryId
               });
+
+              const newConfigs: RiskConfig[] = categoryRisks.map(risk => {
+                return {
+                  riskId: risk._id,
+                  name: risk.name,
+                  coverage: 0,
+                  coverageLimit: 0
+                };
+              });
+
+              setRiskConfigs(newConfigs);
             }}
-            initialValue={product.riskIds}
           />
+
+          {renderRisks()}
         </FormGroup>
         {renderInput('price', 'number', product.price, 'Price', true, true)}
         or
         <FormGroup>
-          <ControlLabel>Specific price for vendor</ControlLabel>
+          <ControlLabel>Specific price for vendors</ControlLabel>
           {companyConfigs.map((companyConfig, index) => (
             <PriceRow
               key={index}
