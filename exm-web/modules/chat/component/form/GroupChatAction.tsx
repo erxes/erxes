@@ -38,9 +38,11 @@ const FormSchema = z.object({
 export const GroupChatAction = ({
   chat,
   setOpen,
+  type,
 }: {
   chat: IChat
   setOpen: (open: boolean) => void
+  type: string
 }) => {
   const callBack = (result: string) => {
     if (result === "success") {
@@ -86,6 +88,50 @@ export const GroupChatAction = ({
     form.reset({ ...defaultValues })
   }, [chat])
 
+  const renderFormField = () => {
+    if (type === "name") {
+      return (
+        <FormField
+          control={form.control}
+          name="name"
+          render={({ field }) => (
+            <FormItem>
+              <FormControl>
+                <Input
+                  {...field}
+                  placeholder="Change group name here"
+                  defaultValue={field.value}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      )
+    }
+
+    return (
+      <>
+        {featuredImage && featuredImage.length === 0 && (
+          <Uploader
+            defaultFileList={featuredImage || []}
+            onChange={setFeaturedImage}
+            type={"image"}
+            setUploading={setImageUploading}
+          />
+        )}
+
+        {featuredImage && featuredImage.length > 0 && (
+          <AttachmentWithPreview
+            images={featuredImage}
+            className="mt-2"
+            deleteImage={deleteImage}
+          />
+        )}
+      </>
+    )
+  }
+
   return (
     <DialogContent>
       <DialogHeader>
@@ -95,41 +141,7 @@ export const GroupChatAction = ({
       {loading ? <LoadingPost text="Creating chat" /> : null}
       <Form {...form}>
         <form className="space-y-3" onSubmit={form.handleSubmit(onSubmit)}>
-          <FormField
-            control={form.control}
-            name="name"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Group chat Name</FormLabel>
-                <FormControl>
-                  <Input
-                    {...field}
-                    placeholder="name"
-                    defaultValue={field.value}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          {featuredImage && featuredImage.length === 0 && (
-            <Uploader
-              defaultFileList={featuredImage || []}
-              onChange={setFeaturedImage}
-              type={"image"}
-              setUploading={setImageUploading}
-            />
-          )}
-
-          {featuredImage && featuredImage.length > 0 && (
-            <AttachmentWithPreview
-              images={featuredImage}
-              className="mt-2"
-              deleteImage={deleteImage}
-            />
-          )}
-
+          {renderFormField()}
           <Button
             type="submit"
             className="font-semibold w-full rounded-full"

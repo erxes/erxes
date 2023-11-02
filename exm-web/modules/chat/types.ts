@@ -1,6 +1,12 @@
 import { IUser } from "../auth/types"
 import { IAttachment } from "../types"
 
+
+export interface ISeenList {
+  lastSeenMessageId: string
+  user: IUser
+
+}
 export interface IChatMessage {
   _id: string
   content: string
@@ -8,8 +14,9 @@ export interface IChatMessage {
   attachments: IAttachment[]
   createdAt: string
   createdUser: IUser
-
+  seenList: ISeenList[]
   relatedMessage: IChatMessage
+  isPinned: boolean
 }
 
 export interface IChat {

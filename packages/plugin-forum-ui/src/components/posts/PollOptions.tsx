@@ -255,7 +255,7 @@ class PollOptions extends React.Component<Props, State> {
 
     return value;
   };
-  
+
   renderOption = (option: IPollOption) => {
     return (
       <li key={option._id} onDoubleClick={this.showEditForm.bind(this, option)}>

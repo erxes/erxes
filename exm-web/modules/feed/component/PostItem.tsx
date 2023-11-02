@@ -313,11 +313,11 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
           <div className="flex items-center justify-between">
             <div className="flex items-center">
               <Image
-                src={userDetail?.avatar || "/user.png"}
+                src={userDetail?.avatar || "/avatar-colored.svg"}
                 alt="User Profile"
                 width={100}
                 height={100}
-                className="w-10 h-10 rounded-full"
+                className="w-10 h-10 rounded-full object-cover"
               />
               <div className="ml-3">
                 <div className="text-sm font-bold text-gray-700 mb-1">

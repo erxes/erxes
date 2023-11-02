@@ -1,9 +1,10 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import useCheckRegister from "@/modules/checkout/hooks/useCheckRegister"
 import { registerNumberAtom } from "@/store/order.store"
 import { useSetAtom } from "jotai"
 import { CornerDownLeft } from "lucide-react"
 
+import useFocus from "@/lib/useFocus"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -15,6 +16,8 @@ const CheckRegister = () => {
   const setRegister = useSetAtom(registerNumberAtom)
   const { checkRegister, loading, data } = useCheckRegister()
   const { found, name } = data || {}
+  const [htmlElRef, setFocus] = useFocus()
+
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     if (!current.match(/^[А-ЯЁӨҮ]{2}[0-9]{8}$|^\d{7}$/))
@@ -34,6 +37,11 @@ const CheckRegister = () => {
       },
     })
   }
+
+  useEffect(() => {
+    setFocus()
+  }, [])
+
   return (
     <form onSubmit={handleSubmit}>
       <Label className="block pb-2" htmlFor="registerNumber">
@@ -47,6 +55,7 @@ const CheckRegister = () => {
           disabled={loading}
           value={current}
           onChange={(e) => setCurrent(e.target.value)}
+          ref={htmlElRef}
         ></Input>
         <Button
           className="absolute right-0 top-0 bg-white"

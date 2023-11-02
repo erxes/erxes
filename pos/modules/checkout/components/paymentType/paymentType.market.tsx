@@ -1,4 +1,4 @@
-import { useEffect } from "react"
+import { useEffect, useRef } from "react"
 import { CheckIcon } from "lucide-react"
 
 import { HARD_PAYMENT_TYPES } from "@/lib/constants"
@@ -20,6 +20,7 @@ const PaymentType = () => {
     setCurrentAmount,
     type,
   } = useHandlePayment()
+  const amountRef = useRef<HTMLInputElement | null>(null)
 
   const { disableInput } = useCheckNotSplit()
 
@@ -27,17 +28,28 @@ const PaymentType = () => {
     setCurrentAmount(notPaidAmount)
   }, [notPaidAmount, setCurrentAmount])
 
+  const onSelectType = () => {
+    setTimeout(() => amountRef.current?.focus(), 200)
+  }
+
   return (
-    <div className="mb-2 flex items-center">
+    <form
+      className="mb-2 flex items-center"
+      onSubmit={(e) => {
+        e.preventDefault()
+        handlePay()
+      }}
+    >
       <div className="flex flex-auto">
         <div className="w-1/2 pr-1">
-          <SelectPaymentType />
+          <SelectPaymentType onSelect={onSelectType} />
         </div>
         <div className="w-1/2 pl-1">
           <Input
             value={currentAmount.toLocaleString()}
             disabled={disableInput || loading}
             onChange={(e) => handleValueChange(e.target.value)}
+            ref={amountRef}
           />
         </div>
       </div>
@@ -45,7 +57,7 @@ const PaymentType = () => {
         className={cn(submitClassName, "bg-green-500 hover:bg-green-500/90")}
         loading={loading}
         iconOnly={true}
-        onClick={handlePay}
+        type="submit"
         disabled={
           HARD_PAYMENT_TYPES.includes(type) &&
           (notPaidAmount === 0 || currentAmount === 0)
@@ -53,7 +65,7 @@ const PaymentType = () => {
       >
         <CheckIcon className=" h-4 w-4" />
       </Button>
-    </div>
+    </form>
   )
 }
 

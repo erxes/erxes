@@ -2,12 +2,11 @@
   "name": "@erxes/plugin-facebook-api",
   "version": "1.0.0",
   "scripts": {
-    "install-deps": "cd .erxes && yarn install",
-    "dev": "cd .erxes && yarn dev",
-    "build": "cd .erxes && yarn build",
-    "start": "cd .erxes/dist/plugin-facebook-api/.erxes && node src"
+    "dev": "nodemon src/index.ts",
+    "build" : "tsc"
   },
   "dependencies": {
+    "@erxes/api-utils" : "*",
     "botbuilder": "^4.4.0",
     "botbuilder-adapter-facebook-erxes": "^1.0.5",
     "fbgraph": "^1.4.4",

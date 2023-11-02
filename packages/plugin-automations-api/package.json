@@ -2,12 +2,11 @@
   "name": "@erxes/plugin-automations-api",
   "version": "1.0.0",
   "scripts": {
-    "install-deps": "cd .erxes && yarn install",
-    "dev": "cd .erxes && yarn dev",
-    "build": "cd .erxes && yarn build",
-    "start": "cd .erxes/dist/plugin-cards-api/.erxes && node src"
+    "dev": "nodemon src/index.ts",
+    "build" : "tsc"
   },
   "dependencies": {
+    "@erxes/api-utils" : "*",
     "aws-sdk": "^2.493.0",
     "nodemailer": "^6.2.1"
   }
