@@ -30,7 +30,6 @@
     "ckeditor4-react": "1.1.0",
     "@tiptap/pm": "^2.1.11",
     "@tiptap/react": "^2.1.11",
-    "@tiptap/starter-kit": "^2.1.11",
     "color": "^4.1.0",
     "dayjs": "1.8.15",
     "dotenv": "^10.0.0",
