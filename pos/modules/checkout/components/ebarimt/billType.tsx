@@ -21,7 +21,7 @@ const BillType = () => {
   const { skipEbarimt, allowInnerBill } = useRenderEbarimt()
   const { printBill, loading } = usePrintBill()
 
-  useKeyEvent(() => setBillType("3"), "F10")
+  useKeyEvent(() => !skipEbarimt && setBillType("3"), "F10")
 
   useEffect(() => {
     if (billType === BILL_TYPES.INNER) printBill()

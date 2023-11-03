@@ -1,7 +1,7 @@
 "use client"
 
 import { usePathname, useRouter } from "next/navigation"
-import { activeCategoryAtom } from "@/store"
+import { activeCategoryAtom, slotFilterAtom } from "@/store"
 import { configAtom } from "@/store/config.store"
 import { setInitialAtom } from "@/store/order.store"
 import { useAtomValue, useSetAtom } from "jotai"
@@ -13,6 +13,7 @@ const Logo = () => {
   const router = useRouter()
   const setInitialState = useSetAtom(setInitialAtom)
   const setCategory = useSetAtom(activeCategoryAtom)
+  const setSlotFilter = useSetAtom(slotFilterAtom)
   const config = useAtomValue(configAtom)
 
   const { logo } = config?.uiOptions || {}
@@ -20,10 +21,11 @@ const Logo = () => {
   const reset = () => {
     setInitialState()
     setCategory("")
+    setSlotFilter(null)
   }
 
   return (
-    <div className="hidden rounded-md bg-gray-100 p-1 sm:block">
+    <div className="hidden rounded-md bg-gray-100 p-1 mx-1 sm:block">
       <div
         className="rounded bg-white px-3 text-black"
         onClick={() => (pathname === "/" ? reset() : router.push("/"))}
