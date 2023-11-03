@@ -11,8 +11,8 @@ const commonFields = `
     $unit:String
     $branch:String
     $specificPeriodGoals:JSON
-    $startDate:String
-    $endDate:String
+    $startDate:Date
+    $endDate:Date
     $target:String
     $segmentIds: [String] 
 `;

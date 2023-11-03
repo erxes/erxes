@@ -22,7 +22,8 @@ const listParamsDef = `
   $page: Int
   $perPage: Int
   $ids: [String]
-  $date: String
+  $date: Date
+  $endDate: Date
   $branch: String
   $department: String
   $unit: String
@@ -37,6 +38,7 @@ const listParamsValue = `
   perPage: $perPage
   ids: $ids
   date: $date
+  endDate:$endDate
   branch: $branch
   department: $department
   contribution:$contribution

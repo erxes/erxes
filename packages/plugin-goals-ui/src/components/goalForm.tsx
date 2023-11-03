@@ -27,7 +27,6 @@ import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import { Alert } from '@erxes/ui/src/utils';
 import { isEnabled } from '@erxes/ui/src/utils/core';
 import { __ } from 'coreui/utils';
-import dayjs from 'dayjs';
 import React from 'react';
 import {
   CONTRIBUTION,
@@ -43,7 +42,7 @@ type Props = {
   goalType: IGoalType;
   closeModal: () => void;
   pipelineLabels?: IPipelineLabel[];
-  segmentIds?: any;
+  segmentIds: string[];
   branchListQuery: BranchesMainQueryResponse;
   unitListQuery: UnitsMainQueryResponse;
   departmentListQuery: DepartmentsMainQueryResponse;
@@ -70,9 +69,9 @@ type State = {
   unit: string;
   pipelineLabels: IPipelineLabel[];
   stageId?: string;
-  pipelineId?: string;
+  pipelineId?: any;
   boardId: string;
-  segmentIds: string[];
+  segmentIds: any;
   stageRadio: boolean;
   segmentRadio: boolean;
 };
@@ -226,6 +225,8 @@ class GoalTypeForm extends React.Component<Props, State> {
       goalType: finalValues.goalType,
       startDate,
       endDate,
+      // startDate: durationStart,
+      // endDate: durationEnd,
       target: finalValues.target
     };
   };
@@ -314,7 +315,6 @@ class GoalTypeForm extends React.Component<Props, State> {
     const departments = departmentListQuery.departmentsMain?.list || [];
     const branches = branchListQuery.branchesMain?.list || [];
     const units = unitListQuery.unitsMain?.list || [];
-    console.log(this.state.entity, 'sdaa');
     return (
       <>
         <ScrollWrapper>

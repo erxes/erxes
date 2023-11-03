@@ -29,8 +29,8 @@ export interface IGoalTypeDoc {
     _id: string;
   };
   chooseStage: string;
-  startDate: string;
-  endDate: string;
+  startDate: Date;
+  endDate: Date;
   target: string;
   segmentIds: string[];
 }

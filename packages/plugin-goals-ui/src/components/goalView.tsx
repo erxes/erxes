@@ -9,7 +9,6 @@ import React from 'react';
 import { RouteComponentProps, withRouter } from 'react-router-dom';
 import { IGoalType } from '../types';
 
-// Define the type for the props
 interface IProps extends RouteComponentProps {
   goalType: IGoalType; // Adjust the type of goalTypes as per your
   boardName: string;
