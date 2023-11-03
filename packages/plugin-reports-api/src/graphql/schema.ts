@@ -71,7 +71,8 @@ export const queries = `
   
   reportChartsList: ChartsListResponse
   reportChartDetail(chartId: String!): ReportChart
-  
+  reportTemplatesList: [JSON]  
+
   reportChartGetTemplates(serviceName: String!): JSON
   reportChartGetFilterTypes(serviceName: String!, templateType: String!): JSON
   reportChartGetResult(serviceName: String!, templateType: String!, filter: JSON): JSON

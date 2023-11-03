@@ -30,7 +30,7 @@ const dashboardDetail = ({ match, location, history }) => {
 const routes = () => {
   return (
     <>
-      <Route path="/reports/" component={reports} />;
+      <Route path="/reports" exact={true} component={reports} />
       <Route
         key="/reports/details"
         exact={true}

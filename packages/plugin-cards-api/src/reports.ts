@@ -87,9 +87,10 @@ const templates = [
         fieldLabel: 'Select pipeline'
       },
       {
-        fieldName: 'createdAt',
+        fieldName: 'dateRange',
         fieldType: 'date',
-        fieldQuery: 'createdAt'
+        fieldQuery: 'createdAt',
+        fieldLabel: 'Select date range'
       },
       {
         fieldName: 'dealName',

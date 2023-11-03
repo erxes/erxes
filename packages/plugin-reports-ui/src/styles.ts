@@ -183,31 +183,104 @@ const BackButton = styled.div`
 
 const BoxContainer = styled.div`
   display: flex;
-  padding: 20px 0 20px 20px;
+  padding: 10px;
   flex-wrap: wrap;
+
+  border-radius: 3px;
+  border: 1px solid #eee;
+
+  &:before {
+    content: '\\ec35';
+    font-family: 'erxes';
+    position: absolute;
+    color: ${colors.colorCoreDarkBlue};
+    font-size: 196px;
+    transform: rotate(10deg);
+    right: -15%;
+    bottom: -80px;
+    opacity: 0.06;
+  }
+
+  display: flex;
+  justify-content: flex-start;
+  border-style: dashed;
+  border-width: 2px;
+
+  &:before {
+    content: '';
+  }
+
+  &:hover {
+    border-color: ${colors.borderDarker};
+    cursor: pointer;
+
+    h5 {
+      opacity: 0.8;
+    }
+  }
+
+  h5 {
+    opacity: 0.4;
+    font-weight: bold;
+    font-size: 40px;
+    line-height: 44px;
+  }
 
   > a,
   > div {
-    flex-basis: 20%;
+    flex-basis: 90%;
     display: flex;
     flex-shrink: 0;
 
     @media (min-width: 480px) {
-      flex-basis: 50%;
+      flex-basis: 70%;
     }
 
     @media (min-width: 768px) {
-      flex-basis: 33.3333333%;
+      flex-basis: 90%;
     }
 
     @media (min-width: 1170px) {
-      flex-basis: 25%;
+      flex-basis: 80%;
     }
 
     @media (min-width: 1400px) {
-      flex-basis: 20%;
+      flex-basis: 80%;
     }
   }
+`;
+
+const FlexColumn = styled.div`
+  display: flex;
+  flex-direction: column;
+`;
+
+const FormContentWrapper = styled.div`
+  display: flex;
+
+  align-items: stretch;
+
+  flex-grow: 1;
+  flex-shrink: 1;
+  flex-basis: 0;
+
+  overflow-y: auto;
+`;
+
+const ReportsSearchSection = styled.div`
+  margin: 0 10px;
+  padding: 20px;
+
+  height: 100%;
+  position: sticky;
+  top: 0;
+`;
+
+const ReportsTemplatesSection = styled.div`
+  display: block;
+  flex: 1;
+  margin: 10px;
+  padding: 20px;
 `;
 
 export {
@@ -216,5 +289,9 @@ export {
   ActionBarButtonsWrapper,
   Title,
   BackButton,
-  BoxContainer
+  BoxContainer,
+  FlexColumn,
+  FormContentWrapper,
+  ReportsSearchSection,
+  ReportsTemplatesSection
 };
