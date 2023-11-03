@@ -12997,14 +12997,6 @@ erxes-icon@^1.2.1:
   resolved "https://registry.npmjs.org/erxes-icon/-/erxes-icon-1.2.1.tgz"
   integrity sha512-qk1yavXsBCub9/XBaiTgg9OCouRfZnDxWIqtfi/tVr51zFYgZuGm5GkswglIhF5FCayJ+XtOFqf/Z/9UUc676g==
 
-erxes-inmemory-storage@^1.0.20:
-  version "1.0.20"
-  resolved "https://registry.npmjs.org/erxes-inmemory-storage/-/erxes-inmemory-storage-1.0.20.tgz"
-  integrity sha512-/04S7ujL3wTUYePM/GcjSXQ+nldG/q/Zl9AJmop0DwoJ/4Ka1E9jI8Tc3skxsWBX4vWoMxZ/Awrh4DO4JW7Hxw==
-  dependencies:
-    "@babel/runtime" "^7.11.2"
-    redis "^3.0.2"
-
 erxes-telemetry@^1.0.4:
   version "1.0.4"
   resolved "https://registry.npmjs.org/erxes-telemetry/-/erxes-telemetry-1.0.4.tgz"

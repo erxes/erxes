@@ -475,6 +475,17 @@ jobs:
 
           docker push erxes/plugin-msdynamic-api:${GITHUB_REF#refs/tags/}
 
+     - name: plugin-facebook-api
+        run: >
+          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
+          secrets.DOCKERHUB_USERNAME }} --password-stdin 
+
+          docker image pull erxes/plugin-facebook-api:dev 
+
+          docker tag erxes/plugin-facebook-api:dev erxes/plugin-facebook-api:${GITHUB_REF#refs/tags/} 
+
+          docker push erxes/plugin-facebook-api:${GITHUB_REF#refs/tags/}
+
       - name: inbox ui
         run: aws s3 sync s3://erxes-dev-plugins/uis/plugin-inbox-ui
           s3://erxes-release-plugins/uis/plugin-inbox-ui/${GITHUB_REF#refs/tags/}/
@@ -573,3 +584,11 @@ jobs:
       - name: msdynamic ui
         run: aws s3 sync s3://erxes-dev-plugins/uis/plugin-msdynamic-ui
           s3://erxes-release-plugins/uis/plugin-msdynamic-ui/${GITHUB_REF#refs/tags/}/
+
+      - name: facebook ui
+        run: aws s3 sync s3://erxes-dev-plugins/uis/plugin-facebook-ui
+          s3://erxes-release-plugins/uis/plugin-facebook-ui/${GITHUB_REF#refs/tags/}/
+
+      - name: timeclock ui
+        run: aws s3 sync s3://erxes-dev-plugins/uis/plugin-timeclock-ui
+          s3://erxes-release-plugins/uis/plugin-timeclock-ui/${GITHUB_REF#refs/tags/}/
