@@ -8,6 +8,7 @@ const TimeClock = dynamic(() => import("./timeclock/TimeclockList"))
 const Requests = dynamic(() => import("./requests/Request"))
 const Schedule = dynamic(() => import("./schedule/Schedule"))
 const Report = dynamic(() => import("./report/Report"))
+const Configuration = dynamic(() => import("./configuration/Configuration"))
 
 const Timeclocks = () => {
   localStorage.getItem("exm_env_REACT_APP_DOMAIN")
@@ -39,6 +40,12 @@ const Timeclocks = () => {
           >
             Report
           </TabsTrigger>
+          <TabsTrigger
+            className="text-[#444] data-[state=active]:border-[#5629B6] data-[state=active]:border-b-2"
+            value="configuration"
+          >
+            Configuration
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="timeclock">
@@ -52,6 +59,9 @@ const Timeclocks = () => {
         </TabsContent>
         <TabsContent value="report">
           <Report />
+        </TabsContent>
+        <TabsContent value="configuration">
+          <Configuration />
         </TabsContent>
       </Tabs>
     </div>
