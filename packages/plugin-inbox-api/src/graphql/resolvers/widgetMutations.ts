@@ -917,10 +917,8 @@ const widgetMutations = {
       }
     }
 
-    const customerLastStatus = await redis.get(
-      `customer_last_status_${customerId}`,
-      'left'
-    );
+    const customerLastStatus =
+      (await redis.get(`customer_last_status_${customerId}`)) || 'left';
 
     if (customerLastStatus === 'left' && customerId) {
       await redis.set(`customer_last_status_${customerId}`, 'joined');
