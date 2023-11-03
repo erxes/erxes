@@ -17,7 +17,6 @@ import { EditorState } from '@tiptap/pm/state';
 export function getAttributesForNodes(
   state: EditorState,
   typeOrName: string | NodeType
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ): Record<string, any>[] {
   const type = getNodeType(typeOrName, state.schema);
   const { from, to } = state.selection;

@@ -2,18 +2,17 @@ import { Alert, __ } from '@erxes/ui/src/utils';
 import {
   ControlWrapper,
   EditorFooter,
-  EditorFooterGroup,
   MailEditorWrapper,
   Resipients,
   ShowReplies,
   ShowReplyButtonWrapper,
   SpaceBetweenRow,
   ToolBar,
-  UploaderWrapper
+  UploaderWrapper,
+  EditorFooterGroup
 } from './styles';
 import { FlexRow, Subject } from './styles';
 import { IEmail, IMail, IMessage } from '@erxes/ui-inbox/src/inbox/types';
-import EmailTemplate from '../../containers/mail/EmailTemplate';
 import React, { ReactNode } from 'react';
 import {
   formatObj,
@@ -26,7 +25,8 @@ import { isEnabled, readFile } from '@erxes/ui/src/utils/core';
 import Attachment from '@erxes/ui/src/components/Attachment';
 import Button from '@erxes/ui/src/components/Button';
 import { Column } from '@erxes/ui/src/styles/main';
-
+import { RichTextEditor } from '@erxes/ui/src/components/richTextEditor/TEditor';
+import EmailTemplate from '../../containers/mail/EmailTemplate';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import { IAttachment } from '@erxes/ui/src/types';
 import { IEmailSignature } from '@erxes/ui/src/auth/types';
@@ -34,6 +34,7 @@ import { IEmailTemplate } from '../../types';
 import { IUser } from '@erxes/ui/src/auth/types';
 import Icon from '@erxes/ui/src/components/Icon';
 import { Label } from '@erxes/ui/src/components/form/styles';
+import { MAIL_TOOLBARS_CONFIG } from '@erxes/ui/src/constants/integrations';
 import MailChooser from './MailChooser';
 import { Meta } from './styles';
 import SignatureChooser from './SignatureChooser';
@@ -43,7 +44,6 @@ import Uploader from '@erxes/ui/src/components/Uploader';
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 import dayjs from 'dayjs';
 import { generateEmailTemplateParams } from '@erxes/ui-engage/src/utils';
-import { RichTextEditor } from '@erxes/ui/src/components/richTextEditor/TEditor';
 
 const Signature = asyncComponent(() =>
   import(
@@ -113,9 +113,7 @@ type State = {
   showReply: string;
   isRepliesRetrieved: boolean;
 };
-{
-  /* @ts-ignore*/
-}
+
 class MailForm extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
@@ -448,7 +446,6 @@ class MailForm extends React.Component<Props, State> {
   };
 
   onEditorChange = (value: string) => {
-    // this.setState({ content: e.editor.getData() });
     this.setState({ content: value });
     this.prepareData();
   };
@@ -834,23 +831,10 @@ class MailForm extends React.Component<Props, State> {
     return (
       <MailEditorWrapper>
         {this.renderShowReplies()}
-
         <RichTextEditor
           content={this.state.content}
           onChange={this.onEditorChange}
-          toolbarLocation="bottom"
         />
-        {/* <EditorCK
-          toolbar={MAIL_TOOLBARS_CONFIG}
-          removePlugins="elementspath"
-          content={this.state.content}
-          onChange={this.onEditorChange}
-          toolbarLocation="bottom"
-          autoFocus={!this.props.isForward}
-          autoGrow={true}
-          autoGrowMinHeight={300}
-          autoGrowMaxHeight={300}
-        /> */}
       </MailEditorWrapper>
     );
   }

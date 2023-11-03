@@ -97,18 +97,9 @@ export const RichTextEditorFontControl = () => {
       .run();
   };
 
-  const handleInputKeydown = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === 'Enter') {
-      event.preventDefault();
-      //   setLink();
-    }
-  };
-
   return (
     <FontSelectWrapper>
       <Select
-        //  placeholder={ctx.labels.linkEditorInputPlaceholder}
-        //  aria-label={ctx.labels.linkEditorInputLabel}
         optionClassName="needsclick"
         placeholder="Size"
         multi={false}
@@ -117,7 +108,6 @@ export const RichTextEditorFontControl = () => {
         options={DEFAULT_FONT_SIZE_SELECT_OPTIONS.map(size => ({
           value: size,
           label: size
-          //   <p style={{ fontSize: size }}>
         }))}
       />
     </FontSelectWrapper>

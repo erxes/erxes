@@ -74,8 +74,6 @@ export const RichTextEditorLinkControl = (
     }
   };
 
-  //   useWindowEvent('edit-link', handleOpen, false);
-
   return (
     <OverlayTrigger
       ref={overlayTrigger => {

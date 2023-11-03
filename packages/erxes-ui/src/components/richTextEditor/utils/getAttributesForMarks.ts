@@ -17,7 +17,6 @@ import { EditorState } from '@tiptap/pm/state';
 export function getAttributesForMarks(
   state: EditorState,
   typeOrName: string | MarkType
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ): Record<string, any>[] {
   const type = getMarkType(typeOrName, state.schema);
   const { from, to, empty } = state.selection;

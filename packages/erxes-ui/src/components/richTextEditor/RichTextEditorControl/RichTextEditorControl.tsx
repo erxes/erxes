@@ -40,7 +40,6 @@ export const RichTextEditorControl = (props: RichTextEditorControlProps) => {
 export interface RichTextEditorControlBaseProps
   extends RichTextEditorControlProps {
   icon?: React.FC<{ style: React.CSSProperties }>;
-  // className: React.HTMLAttributes<HTMLButtonElement>;
 }
 
 export const RichTextEditorControlBase = <
@@ -96,7 +95,6 @@ export function createControl({
             .run()
         }
         icon={icon}
-        // icon={icon || props.icon}
       />
     );
   };

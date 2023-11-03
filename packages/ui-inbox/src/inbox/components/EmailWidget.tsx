@@ -1,5 +1,4 @@
 import {
-  EmailWidgetsWrapper,
   Link,
   NewEmailHeader,
   WidgetButton
@@ -10,7 +9,7 @@ import CommonPortal from '@erxes/ui/src/components/CommonPortal';
 import Icon from '@erxes/ui/src/components/Icon';
 import MailForm from '@erxes/ui-inbox/src/settings/integrations/containers/mail/MailForm';
 import { ModalWrapper } from '../styles';
-import React, { useEffect, useRef, useState } from 'react';
+import React from 'react';
 import Tip from '@erxes/ui/src/components/Tip';
 import { WidgetWrapper } from '@erxes/ui-inbox/src/settings/integrations/components/mail/styles';
 import { __ } from '@erxes/ui/src/utils';
@@ -27,60 +26,57 @@ type Props = {
 };
 
 type State = {
-  // shrink: string;
-  // clear: boolean;
-  // isFullscreen: boolean;
-  // isEmptyEmail: boolean;
-  widgets: any[];
+  shrink: string;
+  clear: boolean;
+  isFullscreen: boolean;
+  isEmptyEmail: boolean;
 };
 
-function Widget(props) {
-  const [widgets, setWidgets] = useState<any>([]);
+class Widget extends React.Component<Props, State> {
+  constructor(props) {
+    super(props);
 
-  const changeState = (state: boolean) => {
-    // this.setState({
-    //   shrink: 'false',
-    //   clear: false,
-    // });
+    this.state = {
+      shrink: localStorage.getItem('emailWidgetShrink') || 'false',
+      clear: false,
+      isFullscreen: false,
+      isEmptyEmail: false
+    };
+  }
+
+  changeState = (state: boolean) => {
+    this.setState({
+      shrink: 'false',
+      clear: false
+    });
     localStorage.setItem(
       'emailWidgetShow',
       JSON.stringify({
-        type: props.type || 'widget',
+        type: this.props.type || 'widget',
         show: state
       })
     );
     localStorage.setItem('emailWidgetShrink', 'false');
   };
 
-  const showWidget = (isEmptyEmail?: boolean) => {
-    // const { type = 'widget' } = props;
-    // const storageShow = JSON.parse(
-    //   localStorage.getItem('emailWidgetShow') ?? ''
-    // );
-    // const storageWidgetShow = storageShow ? storageShow.show : false;
+  showWidget = (isEmptyEmail?: boolean) => {
+    const { type = 'widget' } = this.props;
+    const storageShow = JSON.parse(localStorage.getItem('emailWidgetShow'));
+    const storageWidgetShow = storageShow ? storageShow.show : false;
 
-    // if (storageWidgetShow === false) {
-    //   changeState(true);
-    // }
-    // if (storageWidgetShow === true && storageShow.type === type) {
-    //   changeState(false);
-    // }
-    setWidgets(prevWidgets => [
-      ...prevWidgets,
-      {
-        isShrink: false,
-        clear: false,
-        isFullscreen: false,
-        isEmptyEmail: true
-      }
-    ]);
+    if (storageWidgetShow === false) {
+      this.changeState(true);
+    }
+    if (storageWidgetShow === true && storageShow.type === type) {
+      this.changeState(false);
+    }
 
-    // if (isEmptyEmail) {
-    //   this.setState({ isEmptyEmail: true });
-    // }
+    if (isEmptyEmail) {
+      this.setState({ isEmptyEmail: true });
+    }
   };
 
-  function renderTrigger() {
+  renderTrigger() {
     const {
       disabled,
       type = 'widget',
@@ -89,13 +85,13 @@ function Widget(props) {
       buttonText,
       emailTo,
       emailStatus
-    } = props;
+    } = this.props;
 
     if (type === 'action' || type === 'tab') {
       return (
         <Button
           btnStyle={buttonStyle ? buttonStyle : 'primary'}
-          onClick={() => showWidget()}
+          onClick={() => this.showWidget()}
           disabled={disabled}
           size={buttonSize}
         >
@@ -109,7 +105,7 @@ function Widget(props) {
 
     if (type.includes('link')) {
       return (
-        <Link onClick={() => showWidget()}>
+        <Link onClick={() => this.showWidget()}>
           {emailTo}
           {emailStatus && emailStatus()}
         </Link>
@@ -119,149 +115,129 @@ function Widget(props) {
     return (
       <WidgetButton>
         <Tip text={__('New Email')} placement="bottom">
-          <Icon icon="envelope-alt" size={20} onClick={() => showWidget()} />
+          <Icon
+            icon="envelope-alt"
+            size={20}
+            onClick={() => this.showWidget(true)}
+          />
         </Tip>
       </WidgetButton>
     );
   }
 
-  function renderContent() {
-    const changeShrink = (index: number) => {
-      const updatingWidgets = [...widgets];
-      const widgetToUpdate = updatingWidgets.at(index);
+  renderContent() {
+    const { shrink, clear, isFullscreen } = this.state;
 
-      widgetToUpdate.isFullscreen = false;
-      widgetToUpdate.isShrink = !widgetToUpdate.isShrink;
-      setWidgets(updatingWidgets);
+    const changeShrink = () => {
+      if (isFullscreen) {
+        this.setState({ isFullscreen: false });
+      }
+      this.setState({ shrink: shrink === 'true' ? 'false' : 'true' });
+      localStorage.setItem(
+        'emailWidgetShrink',
+        shrink === 'true' ? 'false' : 'true'
+      );
     };
 
     const hideWidget = () => {
-      // this.setState({ shrink: 'false' });
+      this.setState({ shrink: 'false' });
       localStorage.setItem('emailWidgetShrink', 'false');
       localStorage.setItem(
         'emailWidgetShow',
         JSON.stringify({
-          type: props.type || 'widget',
+          type: this.props.type || 'widget',
           show: false
         })
       );
     };
 
-    const onClose = (id: number) => {
-      // hideWidget();
-      setWidgets(widgets.filter((_, index: number) => index !== id));
-      // this.setState({ clear: true, isFullscreen: false });
+    const onClose = () => {
+      hideWidget();
+      this.setState({ clear: true, isFullscreen: false });
     };
 
-    const handleExpand = (index: number) => {
-      const updatingWidgets = [...widgets];
-      const widgetToUpdate = updatingWidgets.at(index);
-      widgetToUpdate.isShrink = false;
-      widgetToUpdate.isFullscreen = !widgetToUpdate.isFullscreen;
-      setWidgets(updatingWidgets);
-      // this.setState({ isFullscreen: !this.state.isFullscreen });
+    const handleExpand = () => {
+      this.setState({ isFullscreen: !this.state.isFullscreen });
     };
 
     const isWidgetShow =
-      JSON.parse(localStorage.getItem('emailWidgetShow') ?? '') || {};
+      JSON.parse(localStorage.getItem('emailWidgetShow')) || {};
 
-    // const isShrink = shrink === 'true' ? true : false;
-
-    const renderWidget = (widgetState, index) => {
-      return (
-        <ModalWrapper
-          onClick={() => changeShrink(index)}
-          show={widgetState.isFullscreen}
-        >
-          <WidgetWrapper
-            shrink={widgetState.isShrink}
-            show={isWidgetShow.show}
-            fullScreen={widgetState.isFullscreen}
-            onClick={e => {
-              e.stopPropagation();
-            }}
-          >
-            <NewEmailHeader>
-              <span onClick={() => changeShrink(index)}>{__('New Email')}</span>
-              <div>
-                <Tip text={'Minimize'} placement="top">
-                  <Icon
-                    size={10}
-                    icon={widgetState.isShrink === 'true' ? 'plus' : 'minus'}
-                    onClick={() => changeShrink(index)}
-                  />
-                </Tip>
-                <Tip
-                  text={
-                    widgetState.isFullscreen
-                      ? 'Exit full screen'
-                      : 'Full screen'
-                  }
-                  placement="top"
-                >
-                  <Icon
-                    size={10}
-                    icon={
-                      widgetState.isFullscreen
-                        ? 'compress'
-                        : 'expand-arrows-alt'
-                    }
-                    onClick={() => handleExpand(index)}
-                  />
-                </Tip>
-                <Tip text={'Close'} placement="top">
-                  <Icon
-                    size={10}
-                    icon="cancel"
-                    onClick={() => onClose(index)}
-                  />
-                </Tip>
-              </div>
-            </NewEmailHeader>
-            <MailForm
-              {...props}
-              // isEmptyEmail={this.state.isEmptyEmail}
-              isEmptyEmail={true}
-              shrink={widgetState.isShrink}
-              clear={widgetState.clear}
-              clearOnSubmit={true}
-              closeModal={() => onClose(index)}
-            />
-          </WidgetWrapper>
-        </ModalWrapper>
-      );
-    };
+    const isShrink = shrink === 'true' ? true : false;
 
     return (
-      <EmailWidgetsWrapper>
-        {widgets.map((widget, index) => renderWidget(widget, index))}
-      </EmailWidgetsWrapper>
+      <ModalWrapper onClick={() => changeShrink()} show={isFullscreen}>
+        <WidgetWrapper
+          shrink={isShrink}
+          show={isWidgetShow.show}
+          fullScreen={isFullscreen}
+          onClick={e => {
+            e.stopPropagation();
+          }}
+        >
+          <NewEmailHeader>
+            <span onClick={changeShrink}>{__('New Email')}</span>
+            <div>
+              <Tip text={'Minimize'} placement="top">
+                <Icon
+                  size={10}
+                  icon={shrink === 'true' ? 'plus' : 'minus'}
+                  onClick={changeShrink}
+                />
+              </Tip>
+              <Tip
+                text={isFullscreen ? 'Exit full screen' : 'Full screen'}
+                placement="top"
+              >
+                <Icon
+                  size={10}
+                  icon={isFullscreen ? 'compress' : 'expand-arrows-alt'}
+                  onClick={handleExpand}
+                />
+              </Tip>
+              <Tip text={'Close'} placement="top">
+                <Icon size={10} icon="cancel" onClick={onClose} />
+              </Tip>
+            </div>
+          </NewEmailHeader>
+          <MailForm
+            {...this.props}
+            isEmptyEmail={this.state.isEmptyEmail}
+            shrink={isShrink}
+            clear={clear}
+            clearOnSubmit={true}
+            closeModal={onClose}
+          />
+        </WidgetWrapper>
+      </ModalWrapper>
     );
   }
 
-  function renderWidget() {
-    const { type = 'widget' } = props;
+  renderWidget() {
+    const { type = 'widget' } = this.props;
 
     const isWidgetShow =
-      JSON.parse(localStorage.getItem('emailWidgetShow') || '') || {};
+      JSON.parse(localStorage.getItem('emailWidgetShow')) || {};
 
     if (window.location.href.includes('contacts')) {
       if (isWidgetShow.type === type) {
-        return renderContent();
+        return this.renderContent();
       }
 
       return null;
     }
 
-    return renderContent();
+    return this.renderContent();
   }
 
-  return (
-    <>
-      {renderTrigger()}
-      <CommonPortal>{renderWidget()}</CommonPortal>
-    </>
-  );
+  render() {
+    return (
+      <>
+        {this.renderTrigger()}
+        <CommonPortal>{this.renderWidget()}</CommonPortal>
+      </>
+    );
+  }
 }
 
 export default Widget;
