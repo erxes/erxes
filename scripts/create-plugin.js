@@ -3,7 +3,7 @@ var fs = require('fs-extra');
 var path = require('path');
 const execSync = require('child_process').exec;
 const { prompt, Select } = require('enquirer');
-const filePath = (pathName) => {
+const filePath = pathName => {
   if (pathName) {
     return resolve(__dirname, '..', pathName);
   }
@@ -22,16 +22,17 @@ const promptChoice = new Select({
     'What type of plugin do you wanna create? (You can create general plugin or integration plugin)',
   choices: [
     { name: 'general', message: 'General' },
-    { name: 'integration', message: 'Integration' }
+    { name: 'integration', message: 'Integration' },
   ]
 });
 
 const promptIntegrationChoice = new Select({
   name: 'choice',
-  message: 'Choose the integration plugin`s ui template.',
+  message:
+    'Choose the integration plugin`s ui template.',
   choices: [
     { name: 'integration', message: 'With form' },
-    { name: 'integrationDetail', message: 'With detail page' }
+    { name: 'integrationDetail', message: 'With detail page' },
   ]
 });
 
@@ -42,10 +43,10 @@ const promptBlank = new Select({
   choices: ['yes', 'no']
 });
 
-const capitalizeFirstLetter = (value) =>
+const capitalizeFirstLetter = value =>
   value.charAt(0).toUpperCase() + value.slice(1);
 
-const pluralFormation = (type) => {
+const pluralFormation = type => {
   if (type[type.length - 1] === 'y') {
     return type.slice(0, -1) + 'ies';
   }
@@ -73,7 +74,7 @@ const loopDirFiles = async (dir, name) => {
       console.error('Could not list the directory.', err);
       process.exit(1);
     }
-    files.forEach((file) => {
+    files.forEach(file => {
       var fullPath = path.join(dir, file);
       fs.stat(fullPath, function(error, stat) {
         if (error) {
@@ -98,16 +99,14 @@ var createUi = async (name, location, type) => {
     default: filePath(`./packages/ui-plugin-template/source-default`),
     empty: filePath(`./packages/ui-plugin-template/source-empty`),
     integration: filePath(`./packages/ui-plugin-template/source-integration`),
-    integrationDetail: filePath(
-      `./packages/ui-plugin-template/source-integration-detail`
-    )
-  };
+    integrationDetail: filePath(`./packages/ui-plugin-template/source-integration-detail`)
+  }
 
   fs.copySync(
     dir,
     newDir,
     {
-      filter: (path) => {
+      filter: path => {
         return !/.*source.*/g.test(path);
       }
     },
@@ -127,13 +126,13 @@ var createApi = async (name, type) => {
     default: filePath(`./packages/api-plugin-templ/source-default`),
     empty: filePath(`./packages/api-plugin-templ/source-empty`),
     integration: filePath(`./packages/api-plugin-templ/source-integration`)
-  };
+  }
 
   fs.copySync(
     dir,
     newDir,
     {
-      filter: (path) => {
+      filter: path => {
         return !/.*source.*/g.test(path);
       }
     },
@@ -174,14 +173,14 @@ const addIntoUIConfigs = (name, location, callback) => {
     var updated = data
       .toString()
       .replace(/menus:.*\[.*\]/g, `menus:[${JSON.stringify(menu)}]`);
-    fs.writeFile(uiPath, updated, (err2) => {
+    fs.writeFile(uiPath, updated, err2 => {
       if (err2) console.error(err2);
       callback();
     });
   });
 };
 
-const addIntoApiConfigs = async (name) => {
+const addIntoApiConfigs = async name => {
   const configsPath = resolve(__dirname, '..', 'cli/configs.json');
 
   var newPlugin = {
@@ -211,15 +210,15 @@ const addIntoApiConfigs = async (name) => {
   });
 };
 
-const installUiDeps = (name) => {
+const installUiDeps = name => {
   return `cd ` + filePath(`packages/plugin-${name}-ui && yarn install-deps`);
 };
 
-const installApiDeps = (name) => {
+const installApiDeps = name => {
   return `cd ` + filePath(`packages/plugin-${name}-api && yarn install-deps`);
 };
 
-const installDeps = (name) => {
+const installDeps = name => {
   execSync(installUiDeps(name), (err, data) => {
     if (err) console.error(err);
     console.log('Installing UI dependencies...');
@@ -240,9 +239,9 @@ const main = async () => {
       message: 'Please enter the plugin name:'
     }
   ]);
-  promptChoice.run().then((type) => {
+  promptChoice.run().then(type => {
     if (type === 'integration') {
-      promptIntegrationChoice.run().then((templateType) => {
+      promptIntegrationChoice.run().then(templateType => {
         const name = input.name;
 
         createUi(name, '', templateType);
@@ -252,10 +251,10 @@ const main = async () => {
     } else {
       promptBlank
         .run()
-        .then((defaultTemplate) => {
+        .then(defaultTemplate => {
           promptLocation
             .run()
-            .then((location) => {
+            .then(location => {
               const name = input.name;
 
               const type = defaultTemplate === 'no' ? 'empty' : 'default';
@@ -265,11 +264,11 @@ const main = async () => {
 
               installDeps(name);
             })
-            .catch((err) => console.error(err));
+            .catch(err => console.error(err));
         })
-        .catch((err) => console.error(err));
+        .catch(err => console.error(err));
     }
-  });
+  })
 };
 
 main();
