@@ -75,7 +75,6 @@ export default class ConversationDetail extends React.Component<Props> {
     if (!loading) {
       return (
         <ContentBox>
-          {/* <Spinner /> */}
           <ConversationDetailLoader />
         </ContentBox>
       );
