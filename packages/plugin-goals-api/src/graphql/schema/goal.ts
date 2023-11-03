@@ -15,8 +15,8 @@ _id: String!
   branch:String
   progress:JSON
   specificPeriodGoals:JSON
-  startDate: String
-  endDate: String
+  startDate: Date
+  endDate: Date
   target:String
  },
   type GoalType {
@@ -36,8 +36,8 @@ _id: String!
   specificPeriodGoals:JSON
    progress:JSON
 
-  startDate: String
-  endDate: String
+  startDate: Date
+  endDate: Date
   target:String
   },
     type GoalTypesListResponse {
@@ -52,7 +52,8 @@ const queryParams = `
   branch:String
   department:String
   unit:String
-  date:String
+  date:Date
+  endDate:Date
   contribution: [String]
   segmentIds: [String]
   ids: [String]
@@ -64,8 +65,8 @@ const queryParams = `
 export const queries = `
   goals(entity:String, contributionType:String,metric:String,  segmentIds: [String],goalType:String, contribution: [String],specificPeriodGoals:JSON stageId:String,pipelineId:String,boardId:String,
   department:String,unit:String,branch:String,
-  startDate: String, progress:JSON
-  endDate: String,target:String): [Goal]
+  startDate: Date, progress:JSON
+  endDate: Date,target:String): [Goal]
   goalDetail(_id: String!): JSON
   goalTypesMain(${queryParams}): GoalTypesListResponse
   goalTypes(${queryParams}): [GoalType]
@@ -85,8 +86,8 @@ const params = `
   branch:String
   specificPeriodGoals:JSON
   progress:JSON
-  startDate:String
-  endDate:String
+  startDate:Date
+  endDate:Date
   target: String
   segmentIds: [String]
 `;

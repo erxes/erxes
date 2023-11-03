@@ -2,7 +2,7 @@ import { IContext } from '../../../connectionResolver';
 import { paginate } from '@erxes/api-utils/src';
 
 const generateFilter = async (params, commonQuerySelector) => {
-  const { branch, department, unit, contribution, date } = params;
+  const { branch, department, unit, contribution, date, endDate } = params;
   let filter: any = {};
   if (branch) {
     filter.branch = branch;
@@ -17,39 +17,12 @@ const generateFilter = async (params, commonQuerySelector) => {
     filter.contribution = { $in: [contribution] };
   }
   if (date) {
-    const now = new Date(date);
-    const nowISO = now.toISOString();
-    filter.$or = [
-      {
-        isStartDateEnabled: false,
-        isEndDateEnabled: false
-      },
-      {
-        isStartDateEnabled: true,
-        isEndDateEnabled: false,
-        startDate: {
-          $lt: nowISO
-        }
-      },
-      {
-        isStartDateEnabled: false,
-        isEndDateEnabled: true,
-        endDate: {
-          $gt: nowISO
-        }
-      },
-      {
-        isStartDateEnabled: true,
-        isEndDateEnabled: true,
-        startDate: {
-          $lt: nowISO
-        },
-        endDate: {
-          $gt: nowISO
-        }
-      }
-    ];
+    filter.startDate = { $gt: new Date(date) };
   }
+  if (endDate) {
+    filter.endDate = { $gt: new Date(endDate) };
+  }
+
   return filter;
 };
 

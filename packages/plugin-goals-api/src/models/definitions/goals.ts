@@ -22,8 +22,8 @@ export interface IGoal {
   chooseStage: string;
   specificPeriodGoals?: ISpecificPeriodGoals[];
   segmentIds: string[];
-  startDate: string;
-  endDate: string;
+  startDate: Date;
+  endDate: Date;
   target: string;
   progress: any;
 }
@@ -53,8 +53,8 @@ export const goalSchema = schemaHooksWrapper(
     metric: field({ type: String, label: 'Metric' }),
     goalType: field({ type: String, label: 'Choose Goal Type' }),
     contribution: field({ type: [String], label: 'contribution' }),
-    startDate: field({ type: String, label: 'StartDate Durable' }),
-    endDate: field({ type: String, label: 'EndDate Durable' }),
+    startDate: field({ type: Date, label: 'StartDate Durable' }),
+    endDate: field({ type: Date, label: 'EndDate Durable' }),
     target: field({ type: String, label: 'Target' }),
     progress: {
       type: Object,
