@@ -62,7 +62,7 @@ export default function DepartmentForm(props: Props) {
 
   const renderContent = (formProps: IFormProps) => {
     const { values, isSubmitted } = formProps;
-
+    console.log('aaaa', departments);
     return (
       <>
         <FormGroup>

@@ -1,15 +1,17 @@
-import React from 'react';
 import * as compose from 'lodash.flowright';
-import { withProps } from '@erxes/ui/src/utils/core';
-import { graphql } from '@apollo/client/react/hoc';
-import { gql } from '@apollo/client';
-import { queries, mutations } from '@erxes/ui/src/team/graphql';
-import { DepartmentsMainQueryResponse } from '@erxes/ui/src/team/types';
-import { EmptyState, Spinner } from '@erxes/ui/src';
-import MainListCompoenent from '../../components/department/MainList';
+
 import { Alert, confirm } from '@erxes/ui/src/utils';
+import { EmptyState, Spinner } from '@erxes/ui/src';
+import { mutations, queries } from '@erxes/ui/src/team/graphql';
+
+import { DepartmentsMainQueryResponse } from '@erxes/ui/src/team/types';
+import MainListCompoenent from '../../components/department/MainList';
+import React from 'react';
 import client from '@erxes/ui/src/apolloClient';
 import { generatePaginationParams } from '@erxes/ui/src/utils/router';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
+import { withProps } from '@erxes/ui/src/utils/core';
 
 type Props = {
   queryParams: any;
@@ -37,6 +39,7 @@ class MainList extends React.Component<FinalProps> {
         <EmptyState image="/images/actions/5.svg" text="Something went wrong" />
       );
     }
+
     const deleteDepartments = (ids: string[], callback: () => void) => {
       confirm().then(() => {
         client
@@ -62,6 +65,7 @@ class MainList extends React.Component<FinalProps> {
           });
       });
     };
+
     return (
       <MainListCompoenent
         {...this.props}
