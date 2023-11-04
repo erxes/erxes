@@ -95,9 +95,9 @@ jobs:
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
           secrets.DOCKERHUB_USERNAME }} --password-stdin 
 
-          docker image pull erxes/client-portal:master  
+          docker image pull erxes/client-portal:dev  
 
-          docker tag erxes/client-portal:master  erxes/client-portal:${GITHUB_REF#refs/tags/} 
+          docker tag erxes/client-portal:dev  erxes/client-portal:${GITHUB_REF#refs/tags/} 
 
           docker push erxes/client-portal:${GITHUB_REF#refs/tags/}
 
