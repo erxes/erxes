@@ -5,13 +5,13 @@ import { useQuery, useSubscription } from "@apollo/client"
 import { useAtomValue } from "jotai"
 
 import { queries } from "../graphql"
-import { ReportsQueryResponse } from "../types"
+import { IReport } from "../types"
 import { isCurrentUserAdmin } from "../utils"
 
-export interface IUseRequests {
+export interface IUseReports {
   loading: boolean
   error: any
-  reportsList: ReportsQueryResponse
+  reportsList: IReport[]
   reportsTotalCount: number
 }
 
@@ -20,7 +20,7 @@ export const useReports = (
   perPage: number,
   startDate: string,
   endDate: string
-): IUseRequests => {
+): IUseReports => {
   const currentUser = useAtomValue(currentUserAtom)
 
   const { data, loading, error } = useQuery(queries.timeclockReports, {

@@ -55,6 +55,8 @@ export interface IUserDetails {
   shortName: string
   position: string
   description: string
+  firstName: string
+  lastName: string
 }
 
 export interface INotifcationSettings {

@@ -5,23 +5,28 @@ import Select from "react-select"
 
 import { Input } from "@/components/ui/input"
 
-import { useUsers } from "../hooks/useUsers"
+import { useDepartments } from "../hooks/useDepartments"
 
-const SelectUsers = ({
+const SelectDepartments = ({
   field,
-  userIds,
+  departmentIds,
   onChange,
 }: {
   field?: any
-  onChange: (userIds: string[]) => void
-  userIds: string[]
+  onChange: (departmentIds: string[]) => void
+  departmentIds: string[]
 }) => {
   const [reload, setReload] = useState(false)
 
   const [searchValue, setSearchValue] = useState("")
 
-  const { userOptions, loading } = useUsers({ userIds, reload, searchValue })
-  console.log(userOptions)
+  const { departmentsOption, loading } = useDepartments({
+    departmentIds,
+    reload,
+    searchValue,
+  })
+
+  console.log(departmentsOption)
 
   const onChangeMultiValue = (datas: any) => {
     const ids = datas.map((data: any) => data.value)
@@ -38,16 +43,15 @@ const SelectUsers = ({
           onMenuClose={() => setReload(false)}
           onMenuOpen={() => setReload(true)}
           isMulti={true}
-          options={userOptions}
-          defaultValue={userOptions?.filter((userOption) =>
-            userIds?.includes(userOption?.value)
+          options={departmentsOption}
+          defaultValue={departmentsOption?.filter((departmentOption) =>
+            departmentIds?.includes(departmentOption?.value)
           )}
-          placeholder="Select users"
+          placeholder="Select departments"
           isSearchable={true}
           onInputChange={setSearchValue}
           onChange={(data) => {
             onChangeMultiValue(data)
-            field && field.onChange(data)
           }}
         />
       )}
@@ -55,4 +59,4 @@ const SelectUsers = ({
   )
 }
 
-export default SelectUsers
+export default SelectDepartments

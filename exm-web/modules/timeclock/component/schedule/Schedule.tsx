@@ -8,8 +8,8 @@ const Schedule = (props: Props) => {
   const { schedulesList, schedulesTotalCount } = useSchedules(
     1,
     20,
-    "Sun Oct 29 2023 08:50:22 GMT+0800 (Ulaanbaatar Standard Time)",
-    "Thu Nov 02 2023 08:50:22 GMT+0800 (Ulaanbaatar Standard Time)",
+    "Wed Nov 01 2023 00:00:00 GMT+0800 (Ulaanbaatar Standard Time)",
+    "Fri Dec 01 2023 00:00:00 GMT+0800 (Ulaanbaatar Standard Time)",
     "Approved"
   )
 

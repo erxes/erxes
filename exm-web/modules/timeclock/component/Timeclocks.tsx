@@ -1,17 +1,24 @@
 "use client"
 
 import dynamic from "next/dynamic"
+import { currentUserAtom } from "@/modules/JotaiProiveder"
+import { useAtomValue } from "jotai"
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
-const TimeClock = dynamic(() => import("./timeclock/TimeclockList"))
-const Requests = dynamic(() => import("./requests/Request"))
+import { isCurrentUserAdmin } from "../utils"
+
+const TimeClock = dynamic(() => import("./timeclock/TimeclockContainer"))
+const Absences = dynamic(() => import("./absence/AbsenceList"))
 const Schedule = dynamic(() => import("./schedule/Schedule"))
 const Report = dynamic(() => import("./report/Report"))
 const Configuration = dynamic(() => import("./configuration/Configuration"))
 
 const Timeclocks = () => {
   localStorage.getItem("exm_env_REACT_APP_DOMAIN")
+
+  const currentUser = useAtomValue(currentUserAtom)
+
   return (
     <div>
       <Tabs defaultValue="timeclock">
@@ -40,19 +47,21 @@ const Timeclocks = () => {
           >
             Report
           </TabsTrigger>
-          <TabsTrigger
-            className="text-[#444] data-[state=active]:border-[#5629B6] data-[state=active]:border-b-2"
-            value="configuration"
-          >
-            Configuration
-          </TabsTrigger>
+          {isCurrentUserAdmin(currentUser) && (
+            <TabsTrigger
+              className="text-[#444] data-[state=active]:border-[#5629B6] data-[state=active]:border-b-2"
+              value="configuration"
+            >
+              Configuration
+            </TabsTrigger>
+          )}
         </TabsList>
 
         <TabsContent value="timeclock">
           <TimeClock />
         </TabsContent>
         <TabsContent value="requests">
-          <Requests />
+          <Absences />
         </TabsContent>
         <TabsContent value="schedule">
           <Schedule />

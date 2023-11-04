@@ -8,23 +8,23 @@ import { queries } from "../graphql"
 import { IAbsence } from "../types"
 import { isCurrentUserAdmin } from "../utils"
 
-export interface IUseRequests {
+export interface IUseAbsence {
   loading: boolean
   error: any
-  requestsList: IAbsence[]
-  requestsTotalCount: number
+  absenceList: IAbsence[]
+  absenceTotalCount: number
 }
 
-export const useRequests = (
+export const useAbsence = (
   page: number,
   perPage: number,
   startDate: string,
   endDate: string
-): IUseRequests => {
+): IUseAbsence => {
   const currentUser = useAtomValue(currentUserAtom)
 
   const {
-    data: mainData,
+    data: absenceData,
     loading,
     error,
   } = useQuery(queries.requestsMain, {
@@ -37,12 +37,12 @@ export const useRequests = (
     },
   })
 
-  const requestsList = (mainData || {}).requestsMain
-    ? (mainData || {}).requestsMain.list
+  const absenceList = (absenceData || {}).requestsMain
+    ? (absenceData || {}).requestsMain.list
     : []
 
-  const requestsTotalCount = (mainData || {}).requestsMain
-    ? (mainData || {}).requestsMain.totalCount
+  const absenceTotalCount = (absenceData || {}).requestsMain
+    ? (absenceData || {}).requestsMain.totalCount
     : 0
 
   const {
@@ -56,8 +56,8 @@ export const useRequests = (
     : []
 
   return {
-    requestsList,
-    requestsTotalCount,
+    absenceList,
+    absenceTotalCount,
     loading,
     error,
   }
