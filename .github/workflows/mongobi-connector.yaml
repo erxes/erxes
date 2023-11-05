@@ -5,6 +5,7 @@ on:
     branches:
       - master
       - dev
+      - master
     paths:
       - 'mongobi-connector/**'
       - '.github/workflows/mongobi-connector.yaml'
