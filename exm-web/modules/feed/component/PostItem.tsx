@@ -12,13 +12,14 @@ import {
   CheckCircle2Icon,
   ClockIcon,
   ExternalLinkIcon,
-  HeartIcon,
   MapPinIcon,
   MessageCircleIcon,
   MoreHorizontalIcon,
   PencilIcon,
   PinIcon,
+  PinOff,
   StarIcon,
+  ThumbsUp,
   TrashIcon,
   UserIcon,
   UsersIcon,
@@ -41,11 +42,13 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
-import { ImageWithPreview } from "@/components/ImageWithPreview"
+import { FilePreview } from "@/components/FilePreview"
 
+import { useComments } from "../hooks/useComment"
 import useFeedMutation from "../hooks/useFeedMutation"
 import { useReactionMutaion } from "../hooks/useReactionMutation"
 import { useReactionQuery } from "../hooks/useReactionQuery"
+import CommentItem from "./CommentItem"
 import CommentForm from "./form/CommentForm"
 
 const BravoForm = dynamic(() => import("./form/BravoForm"))
@@ -66,6 +69,12 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
   }
 
   const { feed, loading } = useFeedDetail({ feedId: postId })
+  const {
+    comments,
+    commentsCount,
+    loading: commentLoading,
+    handleLoadMore,
+  } = useComments(feed._id)
   const { emojiCount, emojiReactedUser, loadingReactedUsers } =
     useReactionQuery({
       feedId: postId,
@@ -172,12 +181,17 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
           <DialogTrigger asChild={true} id="delete-form">
             <div className="cursor-pointer flex items-center pt-2">
               <MessageCircleIcon size={20} className="mr-1" color="black" />
+              Comment
             </div>
           </DialogTrigger>
 
           {commentOpen && (
             <CommentForm
               feed={feed}
+              comments={comments}
+              commentsCount={commentsCount}
+              loading={commentLoading}
+              handleLoadMore={handleLoadMore}
               currentUserId={currentUser._id}
               emojiReactedUser={emojiReactedUser}
               emojiCount={emojiCount}
@@ -222,7 +236,7 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
       <>
         <Dialog open={formOpen} onOpenChange={() => setFormOpen(!formOpen)}>
           <DialogTrigger asChild={true} id="delete-form">
-            <div className="text-black flex items-center">
+            <div className="text-destructive flex items-center">
               <TrashIcon size={16} className="mr-1" />
               Delete
             </div>
@@ -247,6 +261,23 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
           </div>
         </PopoverTrigger>
         <PopoverContent className="w-40 p-3">
+          {feed.contentType === "event" &&
+          new Date(feed.eventData?.endDate || "") < new Date() ? null : (
+            <div
+              className="hover:bg-[#F0F0F0] p-2 rounded-md cursor-pointer text-[#444] text-xs flex items-center"
+              onClick={() => pinFeed(feed._id)}
+            >
+              {feed.isPinned ? (
+                <PinOff size={16} className="mr-1 text-black" />
+              ) : (
+                <PinIcon size={16} className="mr-1 text-black" />
+              )}
+              <span className="text-black font-medium">
+                {feed.isPinned ? "UnPin" : "Pin"}
+              </span>
+            </div>
+          )}
+
           {currentUser.isOwner || currentUser._id === user._id ? (
             <div className="hover:bg-[#F0F0F0] p-2 rounded-md cursor-pointer text-[#444] text-xs">
               {editAction()}
@@ -254,23 +285,10 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
           ) : null}
 
           {currentUser.isOwner || currentUser._id === user._id ? (
-            <div className="hover:bg-[#F0F0F0] p-2 rounded-md cursor-pointer text-[#444] text-xs">
+            <div className="hover:bg-[#F0F0F0] p-2 rounded-md cursor-pointer text-xs">
               {deleteAction()}
             </div>
           ) : null}
-
-          {feed.contentType === "event" &&
-          new Date(feed.eventData?.endDate || "") < new Date() ? null : (
-            <div
-              className="hover:bg-[#F0F0F0] p-2 rounded-md cursor-pointer text-[#444] text-xs flex items-center"
-              onClick={() => pinFeed(feed._id)}
-            >
-              <PinIcon size={16} className="mr-1" />
-              <span className="text-black font-medium">
-                {feed.isPinned ? "UnPin" : "Pin"}
-              </span>
-            </div>
-          )}
         </PopoverContent>
       </Popover>
     )
@@ -306,10 +324,51 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
     )
   }
 
+  const renderCreatedDate = () => {
+    if (feed.createdAt) {
+      const postCreationDate: any = new Date(feed.createdAt)
+      const currentDate: any = new Date()
+      const differenceInMilliseconds = currentDate - postCreationDate
+      const monthsDifference =
+        differenceInMilliseconds / (1000 * 60 * 60 * 24 * 30.44)
+
+      if (monthsDifference >= 2) {
+        return dayjs(feed.createdAt).format("MM/DD/YYYY h:mm A")
+      }
+
+      return dayjs(feed.createdAt).fromNow()
+    }
+  }
+
+  const renderEmojiCount = () => {
+    if (emojiCount === 0 || !emojiCount) {
+      return null
+    }
+
+    let text
+
+    if (idExists) {
+      text = `You ${
+        emojiCount - 1 === 0 ? "" : ` and ${emojiCount - 1} others`
+      }  liked this`
+    } else {
+      text = emojiCount
+    }
+
+    return (
+      <div className="flex mt-4">
+        <div className="bg-primary-light rounded-full w-[22px] h-[22px] flex items-center justify-center text-white mr-2">
+          <ThumbsUp size={12} fill="#fff" />
+        </div>
+        <div className="text-[#5E5B5B]">{text} </div>
+      </div>
+    )
+  }
+
   return (
     <>
-      <Card className="max-w-2xl mx-auto my-4 border-0">
-        <CardHeader>
+      <Card className="max-w-2xl mx-auto my-4 border-0 p-4">
+        <CardHeader className="p-0 pb-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center">
               <Image
@@ -317,7 +376,7 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
                 alt="User Profile"
                 width={100}
                 height={100}
-                className="w-10 h-10 rounded-full object-cover"
+                className="w-10 h-10 rounded-full object-cover border border-primary"
               />
               <div className="ml-3">
                 <div className="text-sm font-bold text-gray-700 mb-1">
@@ -326,8 +385,7 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
                     userDetail?.email}
                 </div>
                 <div className="text-xs text-[#666] font-normal">
-                  {dayjs(feed.createdAt).format("MM/DD/YYYY h:mm A")}{" "}
-                  <span className="text-green-700 font-bold text-sm ml-1">{`#${feed.contentType}`}</span>
+                  {renderCreatedDate()}{" "}
                 </div>
               </div>
             </div>
@@ -377,18 +435,15 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
                 </>
               )}
 
+              {feed.createdUser?._id === currentUser._id && renderFeedActions()}
               {feed.isPinned && <PinIcon size={18} color={"#FF0000"} />}
-              {renderFeedActions()}
             </div>
           </div>
         </CardHeader>
         <CardContent className="p-0">
-          <div className="px-4">
-            <div className="text-sm font-semibold text-slate-800 overflow-x-hidden">
-              <b className="text-[#444] text-base font-bold">{feed.title}</b>
-            </div>
-            <div className="my-1 overflow-x-hidden">
-              <p className="text-[#666]">{updatedDescription}</p>
+          <div className="">
+            <div className="overflow-x-hidden">
+              <p className="text-black">{updatedDescription}</p>
             </div>
             {feed.contentType === "event" && renderEventInfo()}
             {links.map((link, index) => {
@@ -403,6 +458,7 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
                     .replace("share/", "embed/")}
                   title="Video"
                   allowFullScreen={true}
+                  className="rounded-lg mt-4"
                 />
               )
             })}
@@ -411,7 +467,7 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
           {(feed.attachments || []).map((a, index) => {
             return (
               <a key={index} href={readFile(a.url)}>
-                <div className="flex items-center border-y text-sm font-semibold text-[#444] p-2.5">
+                <div className="flex items-center bg-primary-light text-sm font-medium text-white attachment-shadow px-2.5 py-[5px] justify-between w-full rounded-lg rounded-tr-none mt-4">
                   {a.name} <ExternalLinkIcon size={18} />
                 </div>
               </a>
@@ -419,25 +475,43 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
           })}
 
           {feed.images && feed.images.length > 0 && (
-            <ImageWithPreview images={feed.images} className="mt-2" />
+            <div className="mt-4">
+              <FilePreview
+                attachments={feed.images}
+                fileUrl={feed.images[0].url}
+                fileIndex={0}
+                grid={true}
+              />
+            </div>
           )}
+          {renderEmojiCount()}
         </CardContent>
 
-        <CardFooter className="border-t mt-5 pb-2">
+        <CardFooter className="border-t mt-5 pb-0 justify-between">
           <div
             className="cursor-pointer flex items-center pt-2 mr-4"
             onClick={reactionAdd}
           >
-            <HeartIcon
+            <ThumbsUp
               size={20}
               className="mr-1"
-              fill={`${idExists ? "#FF0000" : "white"}`}
-              color={`${idExists ? "#FF0000" : "black"}`}
+              fill={`${idExists ? "#8771D5" : "white"}`}
+              color={`${idExists ? "#8771D5" : "black"}`}
             />
-            <span className="font-bold text-base">{emojiCount}</span>
+            <div className={`${idExists ? "text-primary" : "text-black"}`}>
+              Like
+            </div>
           </div>
           {renderComment()}
         </CardFooter>
+        {comments && comments.length > 0 && (
+          <div className="border-t mt-3">
+            <CommentItem
+              comment={comments[0]}
+              currentUserId={currentUser._id}
+            />
+          </div>
+        )}
       </Card>
     </>
   )
