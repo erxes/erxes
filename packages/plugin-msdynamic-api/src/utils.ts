@@ -77,45 +77,44 @@ export const consumeInventory = async (subdomain, doc, action) => {
 export const consumeCustomers = async (subdomain, doc, action) => {
   const updateCode = action === 'delete' ? doc.code : doc.No.replace(/\s/g, '');
 
-  const config = await getConfig(subdomain, 'DYNAMIC', {});
-
-  if (!config.category) {
-    throw new Error('MS Dynamic config category not found.');
-  }
-
-  const product = await sendProductsMessage({
+  const company = await sendContactsMessage({
     subdomain,
-    action: 'findOne',
-    data: { firstName: doc.Name },
+    action: 'companies.findOne',
+    data: { code: updateCode },
     isRPC: true,
     defaultValue: {}
   });
 
   if ((action === 'update' && doc.No) || action === 'create') {
     const document: any = {
-      firstName: doc?.Name || 'default'
+      primaryName: doc?.Name || 'default',
+      code: doc.No,
+      primaryPhone: doc?.Mobile_Phone_No,
+      phones: [doc?.Phone_No],
+      location: doc?.Country_Region_Code === 'MN' ? 'Mongolia' : '',
+      businessType: doc?.Partner_Type === 'Person' ? 'Customer' : 'Partner'
     };
 
-    if (product) {
+    if (company) {
       await sendContactsMessage({
         subdomain,
-        action: 'updateProduct',
-        data: { _id: product._id, doc: { ...document } },
+        action: 'companies.updateCompany',
+        data: { _id: company._id, doc: { ...document } },
         isRPC: true
       });
     } else {
       await sendContactsMessage({
         subdomain,
-        action: 'createProduct',
-        data: { doc: { ...document } },
+        action: 'companies.createCompany',
+        data: { ...document },
         isRPC: true
       });
     }
-  } else if (action === 'delete' && product) {
+  } else if (action === 'delete' && company) {
     await sendContactsMessage({
       subdomain,
-      action: 'removeProducts',
-      data: { _ids: [product._id] },
+      action: 'companies.removeCompanies',
+      data: { _ids: [company._id] },
       isRPC: true
     });
   }

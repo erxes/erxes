@@ -157,15 +157,15 @@ const msdynamicMutations = {
     const { customerApi, username, password } = config;
 
     try {
-      const customers = await sendContactsMessage({
+      const companies = await sendContactsMessage({
         subdomain,
-        action: 'customers.findActiveCustomers',
+        action: 'companies.findActiveCompanies',
         data: {},
         isRPC: true,
         defaultValue: {}
       });
 
-      const customerNames = customers.map(c => c.firstName) || [];
+      const companyCodes = companies.map(c => c.code) || [];
 
       const response = await sendRequest({
         url: customerApi,
@@ -179,33 +179,30 @@ const msdynamicMutations = {
         }
       });
 
-      const resultNames = response.value.map(r => r.Name) || [];
+      const resultCodes =
+        response.value.map(r => r.No.replace(/\s/g, '')) || [];
 
-      const customerByName = {};
+      const companyByCode = {};
 
-      for (const customer of customers) {
-        customerByName[customer.firstName] = customer;
+      for (const company of companies) {
+        companyByCode[company.code] = company;
 
-        for (const rname of resultNames) {
-          if (rname === customer.firstName) {
-            deleteCustomers.push(customer);
-          }
+        if (!resultCodes.includes(company.code)) {
+          deleteCustomers.push(company);
         }
       }
 
-      for (const resCustomer of response.value) {
-        for (const cname of customerNames) {
-          if (cname === resCustomer.Name) {
-            const customer = customerByName[resCustomer.Name];
+      for (const resCompany of response.value) {
+        if (companyCodes.includes(resCompany.No.replace(/\s/g, ''))) {
+          const company = companyByCode[resCompany.No.replace(/\s/g, '')];
 
-            if (resCustomer?.Name === customer.firstName) {
-              matchedCount = matchedCount + 1;
-            } else {
-              updateCustomers.push(resCustomer);
-            }
+          if (resCompany?.Name === company.primaryName) {
+            matchedCount = matchedCount + 1;
           } else {
-            createCustomers.push(resCustomer);
+            updateCustomers.push(resCompany);
           }
+        } else {
+          createCustomers.push(resCompany);
         }
       }
     } catch (e) {

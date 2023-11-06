@@ -24,7 +24,7 @@ const toCheckCustomers = `
 
 const toSyncCustomers = `
   mutation toSyncCustomers($action: String, $customers: [JSON]) {
-    toSyncCustomers(action: $action, customers: $products)
+    toSyncCustomers(action: $action, customers: $customers)
   }
 `;
 
