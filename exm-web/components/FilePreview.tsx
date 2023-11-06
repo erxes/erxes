@@ -1,4 +1,4 @@
-import React, {useState} from "react"
+import React, { useState } from "react"
 import AudioVisualizer from "@/modules/chat/component/messages/AudioVisualizer"
 import { ExternalLinkIcon, XCircle } from "lucide-react"
 
@@ -30,7 +30,7 @@ export const FilePreview = ({
   grid?: boolean
 }) => {
   const [gridImageIndex, setGridImageIndex] = useState(0)
-  
+
   if (!fileUrl || !fileUrl.split) {
     return null
   }
@@ -144,7 +144,7 @@ export const FilePreview = ({
                       src={image.url || ""}
                       width={500}
                       height={500}
-                      className={`overflow-hidden rounded-lg object-cover ${width} ${
+                      className={`overflow-hidden rounded-lg object-cover cursor-pointer ${width} ${
                         length !== 1 ? "h-[227px]" : "h-full"
                       } ${
                         length !== 1 &&
@@ -157,7 +157,10 @@ export const FilePreview = ({
                   )
                 })}
                 {attachments.length > 4 && (
-                  <div className="text-white bg-black/50 w-[316px] h-[227px] absolute bottom-0 right-0 rounded-lg flex items-center justify-center text-[30px] cursor-pointer" onClick={() => setGridImageIndex(3)}>
+                  <div
+                    className="text-white bg-black/50 w-[316px] h-[227px] absolute bottom-0 right-0 rounded-lg flex items-center justify-center text-[30px] cursor-pointer"
+                    onClick={() => setGridImageIndex(3)}
+                  >
                     + {attachments.length - 4}
                   </div>
                 )}

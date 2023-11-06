@@ -179,7 +179,7 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
           onOpenChange={() => setCommentOpen(!commentOpen)}
         >
           <DialogTrigger asChild={true} id="delete-form">
-            <div className="cursor-pointer flex items-center pt-2">
+            <div className="cursor-pointer flex items-center py-2 px-4 hover:bg-[#F0F0F0]">
               <MessageCircleIcon size={20} className="mr-1" color="black" />
               Comment
             </div>
@@ -441,38 +441,39 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
           </div>
         </CardHeader>
         <CardContent className="p-0">
-          <div className="">
-            <div className="overflow-x-hidden">
-              <p className="text-black">{updatedDescription}</p>
-            </div>
-            {feed.contentType === "event" && renderEventInfo()}
-            {links.map((link, index) => {
+          <div className="overflow-x-hidden">
+            <p className="text-black">{updatedDescription}</p>
+          </div>
+          {feed.contentType === "event" && renderEventInfo()}
+          {links.map((link, index) => {
+            return (
+              <iframe
+                key={index}
+                width="640"
+                height="390"
+                src={String(link)
+                  .replace("watch?v=", "embed/")
+                  .replace("youtu.be/", "youtube.com/embed/")
+                  .replace("share/", "embed/")}
+                title="Video"
+                allowFullScreen={true}
+                className="rounded-lg mt-4"
+              />
+            )
+          })}
+
+          <div className="flex flex-wrap gap-3 mt-4">
+            {(feed.attachments || []).map((a, index) => {
               return (
-                <iframe
-                  key={index}
-                  width="640"
-                  height="390"
-                  src={String(link)
-                    .replace("watch?v=", "embed/")
-                    .replace("youtu.be/", "youtube.com/embed/")
-                    .replace("share/", "embed/")}
-                  title="Video"
-                  allowFullScreen={true}
-                  className="rounded-lg mt-4"
-                />
+                <a key={index} href={readFile(a.url)} className=" w-1/2 flex-1">
+                  <div className="flex bg-[#EAEAEA] text-sm font-medium text-[#444] attachment-shadow px-2.5 py-[5px] justify-between w-full rounded-lg rounded-tr-none">
+                    <span className="truncate">{a.name}</span>{" "}
+                    <ExternalLinkIcon size={18} />
+                  </div>
+                </a>
               )
             })}
           </div>
-
-          {(feed.attachments || []).map((a, index) => {
-            return (
-              <a key={index} href={readFile(a.url)}>
-                <div className="flex items-center bg-primary-light text-sm font-medium text-white attachment-shadow px-2.5 py-[5px] justify-between w-full rounded-lg rounded-tr-none mt-4">
-                  {a.name} <ExternalLinkIcon size={18} />
-                </div>
-              </a>
-            )
-          })}
 
           {feed.images && feed.images.length > 0 && (
             <div className="mt-4">
@@ -487,9 +488,9 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
           {renderEmojiCount()}
         </CardContent>
 
-        <CardFooter className="border-t mt-5 pb-0 justify-between">
+        <CardFooter className="border-t mt-5 p-0 justify-between">
           <div
-            className="cursor-pointer flex items-center pt-2 mr-4"
+            className="cursor-pointer flex items-center py-2 px-4 hover:bg-[#F0F0F0]"
             onClick={reactionAdd}
           >
             <ThumbsUp
@@ -505,7 +506,7 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
           {renderComment()}
         </CardFooter>
         {comments && comments.length > 0 && (
-          <div className="border-t mt-3">
+          <div className="border-t">
             <CommentItem
               comment={comments[0]}
               currentUserId={currentUser._id}
