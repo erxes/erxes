@@ -15,7 +15,6 @@ import { IField } from '@erxes/ui/src/types';
 import React from 'react';
 import Sidebar from '../../containers/conversationDetail/Sidebar';
 import SidebarLoader from './sidebar/SidebarLoader';
-import Spinner from '@erxes/ui/src/components/Spinner';
 import WorkArea from './workarea/WorkArea';
 
 type Props = {
