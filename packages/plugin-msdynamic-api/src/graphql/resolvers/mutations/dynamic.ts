@@ -1,22 +1,13 @@
 import { sendRequest } from '@erxes/api-utils/src';
-import { IContext, sendProductsMessage } from '../../../messageBroker';
-import { consumeInventory, getConfig } from '../../../utils';
+import {
+  IContext,
+  sendContactsMessage,
+  sendProductsMessage
+} from '../../../messageBroker';
+import { consumeCustomers, consumeInventory, getConfig } from '../../../utils';
 
 const msdynamicMutations = {
-  /**
-   * Creates a new msdynamic
-   */
-  async msdynamicAddConfigs(_root, doc, { models }: IContext) {
-    return await models.Msdynamics.createMsdynamicConfig(doc);
-  },
-  /**
-   * Edits a new msdynamic
-   */
-  async msdynamicEditConfigs(_root, doc, { models, user }: IContext) {
-    return await models.Msdynamics.updateMsdynamicConfig(doc, user);
-  },
-
-  async toCheckProducts(_root, _args, { models, subdomain }: IContext) {
+  async toCheckProducts(_root, _args, { subdomain }: IContext) {
     const config = await getConfig(subdomain, 'DYNAMIC', {});
 
     const updateProducts: any = [];
@@ -136,6 +127,132 @@ const msdynamicMutations = {
         case 'DELETE': {
           for (const product of products) {
             await consumeInventory(subdomain, product, 'delete');
+          }
+          break;
+        }
+        default:
+          break;
+      }
+
+      return {
+        status: 'success'
+      };
+    } catch (e) {
+      console.log(e, 'error');
+    }
+  },
+
+  async toCheckCustomers(_root, _args, { subdomain }: IContext) {
+    const config = await getConfig(subdomain, 'DYNAMIC', {});
+
+    const createCustomers: any = [];
+    const updateCustomers: any = [];
+    const deleteCustomers: any = [];
+    let matchedCount = 0;
+
+    if (!config.customerApi || !config.username || !config.password) {
+      throw new Error('MS Dynamic config not found.');
+    }
+
+    const { customerApi, username, password } = config;
+
+    try {
+      const customers = await sendContactsMessage({
+        subdomain,
+        action: 'customers.findActiveCustomers',
+        data: {},
+        isRPC: true,
+        defaultValue: {}
+      });
+
+      const customerNames = customers.map(c => c.firstName) || [];
+
+      const response = await sendRequest({
+        url: customerApi,
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          Accept: 'application/json',
+          Authorization: `Basic ${Buffer.from(
+            `${username}:${password}`
+          ).toString('base64')}`
+        }
+      });
+
+      const resultNames = response.value.map(r => r.Name) || [];
+
+      const customerByName = {};
+
+      for (const customer of customers) {
+        customerByName[customer.firstName] = customer;
+
+        for (const rname of resultNames) {
+          if (rname === customer.firstName) {
+            deleteCustomers.push(customer);
+          }
+        }
+      }
+
+      for (const resCustomer of response.value) {
+        for (const cname of customerNames) {
+          if (cname === resCustomer.Name) {
+            const customer = customerByName[resCustomer.Name];
+
+            if (resCustomer?.Name === customer.firstName) {
+              matchedCount = matchedCount + 1;
+            } else {
+              updateCustomers.push(resCustomer);
+            }
+          } else {
+            createCustomers.push(resCustomer);
+          }
+        }
+      }
+    } catch (e) {
+      console.log(e, 'error');
+    }
+
+    return {
+      create: {
+        count: createCustomers.length,
+        items: createCustomers
+      },
+      update: {
+        count: updateCustomers.length,
+        items: updateCustomers
+      },
+      delete: {
+        count: deleteCustomers.length,
+        items: deleteCustomers
+      },
+      matched: {
+        count: matchedCount
+      }
+    };
+  },
+
+  async toSyncCustomers(
+    _root,
+    { action, customers }: { action: string; customers: any[] },
+    { subdomain }: IContext
+  ) {
+    try {
+      switch (action) {
+        case 'CREATE': {
+          for (const customer of customers) {
+            await consumeCustomers(subdomain, customer, 'create');
+          }
+          break;
+        }
+        case 'UPDATE': {
+          for (const customer of customers) {
+            await consumeCustomers(subdomain, customer, 'update');
+          }
+          break;
+        }
+        case 'DELETE': {
+          for (const customer of customers) {
+            await consumeCustomers(subdomain, customer, 'delete');
           }
           break;
         }

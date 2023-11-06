@@ -14,6 +14,15 @@ export const initBroker = async cl => {
   client = cl;
 };
 
+export const sendContactsMessage = async (args: ISendMessageArgs) => {
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName: 'contacts',
+    ...args
+  });
+};
+
 export const sendProductsMessage = async (
   args: ISendMessageArgs
 ): Promise<any> => {

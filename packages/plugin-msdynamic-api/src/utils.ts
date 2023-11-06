@@ -1,4 +1,8 @@
-import { sendCoreMessage, sendProductsMessage } from './messageBroker';
+import {
+  sendContactsMessage,
+  sendCoreMessage,
+  sendProductsMessage
+} from './messageBroker';
 
 export const getConfig = async (subdomain, code, defaultValue?) => {
   return await sendCoreMessage({
@@ -62,6 +66,53 @@ export const consumeInventory = async (subdomain, doc, action) => {
     }
   } else if (action === 'delete' && product) {
     await sendProductsMessage({
+      subdomain,
+      action: 'removeProducts',
+      data: { _ids: [product._id] },
+      isRPC: true
+    });
+  }
+};
+
+export const consumeCustomers = async (subdomain, doc, action) => {
+  const updateCode = action === 'delete' ? doc.code : doc.No.replace(/\s/g, '');
+
+  const config = await getConfig(subdomain, 'DYNAMIC', {});
+
+  if (!config.category) {
+    throw new Error('MS Dynamic config category not found.');
+  }
+
+  const product = await sendProductsMessage({
+    subdomain,
+    action: 'findOne',
+    data: { firstName: doc.Name },
+    isRPC: true,
+    defaultValue: {}
+  });
+
+  if ((action === 'update' && doc.No) || action === 'create') {
+    const document: any = {
+      firstName: doc?.Name || 'default'
+    };
+
+    if (product) {
+      await sendContactsMessage({
+        subdomain,
+        action: 'updateProduct',
+        data: { _id: product._id, doc: { ...document } },
+        isRPC: true
+      });
+    } else {
+      await sendContactsMessage({
+        subdomain,
+        action: 'createProduct',
+        data: { doc: { ...document } },
+        isRPC: true
+      });
+    }
+  } else if (action === 'delete' && product) {
+    await sendContactsMessage({
       subdomain,
       action: 'removeProducts',
       data: { _ids: [product._id] },

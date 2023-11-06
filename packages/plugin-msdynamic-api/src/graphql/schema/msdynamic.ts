@@ -14,4 +14,6 @@ export const mutations = `
   msdynamicEditConfigs(_id:String!, ${params}): Msdynamic
   toCheckProducts: JSON
   toSyncProducts(action: String, products: [JSON]): JSON
+  toCheckCustomers: JSON
+  toSyncCustomers(action: String, customers: [JSON]): JSON
 `;
