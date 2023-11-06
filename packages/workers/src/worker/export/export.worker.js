@@ -20,7 +20,7 @@ const getWorkerFile = () => {
 };
 
 try {
-  require(path.resolve(__dirname, `${getWorkerFile()}`));
+  require(path.resolve('erxes/packages/workers', `${getWorkerFile()}`));
 } catch (e) {
   console.log(e);
 }
