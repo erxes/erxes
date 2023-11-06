@@ -37,7 +37,29 @@ const totalCount = `
   }
 `;
 
+const reportTemplatesList = `
+  query reportTemplatesList($searchValue: String) {
+    reportTemplatesList(searchValue: $searchValue) {
+      title
+      description
+      charts
+      img
+      serviceName
+    }
+  }
+`;
+
+const reportChartTemplatesList = `
+query reportChartTemplatesList($serviceName: String!, $charts: [String]) {
+  reportChartTemplatesList(serviceName: $serviceName, charts: $charts)
+}
+
+
+`;
+
 export default {
   reportsList,
-  totalCount
+  totalCount,
+  reportTemplatesList,
+  reportChartTemplatesList
 };

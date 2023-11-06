@@ -24,10 +24,11 @@ export const types = `
   }
 
   type ReportTemplate {
-    templateType: String
-    name: String!
+    title: String
     description: String
-    filterTypes: [ReportFilter]
+    charts: [String]
+    img: String
+    serviceName: String
   }
 
   type ReportFilter {
@@ -78,16 +79,14 @@ export const types = `
   }
 `;
 
-const query_params = `
-  userId: String`;
-
 export const queries = `
   reportsList: ReportsListResponse
   reportDetail(reportId: String!): Report
   
   reportChartsList: ChartsListResponse
   reportChartDetail(chartId: String!): ReportChart
-  reportTemplatesList(searchValue: String): [JSON]  
+  reportTemplatesList(searchValue: String): [ReportTemplate]  
+  reportChartTemplatesList(serviceName: String!, charts: [String]): [JSON] 
 
   reportChartGetTemplates(serviceName: String!): JSON
   reportChartGetFilterTypes(serviceName: String!, templateType: String!): JSON

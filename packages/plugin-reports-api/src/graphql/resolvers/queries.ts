@@ -30,13 +30,26 @@ const reportsQueries = {
       if (reportTemplates) {
         totalTemplatesList.push(
           ...reportTemplates.filter(t =>
-            t.name.toLowerCase().includes(searchValue.toLowerCase())
+            t.title.toLowerCase().includes(searchValue?.toLowerCase())
           )
         );
       }
     }
 
     return totalTemplatesList;
+  },
+
+  async reportChartTemplatesList(
+    _root,
+    { serviceName, charts }: { serviceName: string; charts: string[] },
+    {}: IContext
+  ) {
+    const service = await serviceDiscovery.getService(serviceName, true);
+    console.log('mofof ', service.config?.meta?.reports);
+    const chartTemplates = service.config?.meta?.reports?.chartTemplates;
+
+    console.log('c templates ', chartTemplates);
+    return chartTemplates.filter(t => charts.includes(t.templateType));
   },
 
   chartsList(_root, {}, { models }: IContext) {

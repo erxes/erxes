@@ -15,10 +15,10 @@ const reports = ({ location, history }) => {
 };
 
 const ReportForm = asyncComponent(() =>
-  import('./components/report/ReportForm')
+  import('./containers/report/ReportForm')
 );
 
-const dashboardDetail = ({ match, location, history }) => {
+const dashboardDetail = ({ location, history }) => {
   return (
     <ReportForm
       history={history}

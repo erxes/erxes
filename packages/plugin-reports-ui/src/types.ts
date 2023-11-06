@@ -40,6 +40,21 @@ export type ReportsListQueryResponse = {
   refetch: () => void;
   loading: boolean;
 };
+
+export type ReportTemplatesListQueryResponse = {
+  reportTemplatesList: ReportTemplate[];
+  refetch: () => void;
+  loading: boolean;
+};
+
+type ReportTemplate = {
+  title: string;
+  description: string;
+  charts: string[];
+  img: string;
+  serviceName: string;
+};
+
 export type TypeQueryResponse = {
   reportsTypes: IType[];
   refetch: () => void;
