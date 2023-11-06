@@ -495,7 +495,7 @@ jobs:
 
           docker push erxes/plugin-msdynamic-api:${GITHUB_REF#refs/tags/}
 
-     - name: plugin-facebook-api
+      - name: plugin-facebook-api
         run: >
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
           secrets.DOCKERHUB_USERNAME }} --password-stdin 
@@ -506,7 +506,7 @@ jobs:
 
           docker push erxes/plugin-facebook-api:${GITHUB_REF#refs/tags/}
 
-     - name: plugin-ecommerce-api
+      - name: plugin-ecommerce-api
         run: >
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
           secrets.DOCKERHUB_USERNAME }} --password-stdin 
@@ -517,8 +517,7 @@ jobs:
 
           docker push erxes/plugin-ecommerce-api:${GITHUB_REF#refs/tags/}
 
-
-     - name: plugin-cars-api
+      - name: plugin-cars-api
         run: >
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
           secrets.DOCKERHUB_USERNAME }} --password-stdin 
@@ -550,7 +549,6 @@ jobs:
           docker tag erxes/plugin-assets-api:master  erxes/plugin-assets-api:${GITHUB_REF#refs/tags/} 
 
           docker push erxes/plugin-assets-api:${GITHUB_REF#refs/tags/}
-
 
       - name: plugin-payment-api
         run: >
@@ -650,7 +648,7 @@ jobs:
           docker tag erxes/plugin-zalo-api:master  erxes/plugin-zalo-api:${GITHUB_REF#refs/tags/} 
 
           docker push erxes/plugin-zalo-api:${GITHUB_REF#refs/tags/}
-          
+
       - name: inbox ui
         run: aws s3 sync s3://erxes-master-plugins/uis/plugin-inbox-ui
           s3://erxes-release-plugins/uis/plugin-inbox-ui/${GITHUB_REF#refs/tags/}/
@@ -777,11 +775,11 @@ jobs:
       - name: loans ui
         run: aws s3 sync s3://erxes-master-plugins/uis/plugin-loans-ui
           s3://erxes-release-plugins/uis/plugin-loans-ui/${GITHUB_REF#refs/tags/}/
-      
+
       - name: savings ui
         run: aws s3 sync s3://erxes-master-plugins/uis/plugin-savings-ui
           s3://erxes-release-plugins/uis/plugin-savings-ui/${GITHUB_REF#refs/tags/}/
-          
+
       - name: productplaces ui
         run: aws s3 sync s3://erxes-master-plugins/uis/plugin-productplaces-ui
           s3://erxes-release-plugins/uis/plugin-productplaces-ui/${GITHUB_REF#refs/tags/}/
@@ -801,8 +799,3 @@ jobs:
       - name: zalo ui
         run: aws s3 sync s3://erxes-master-plugins/uis/plugin-zalo-ui
           s3://erxes-release-plugins/uis/plugin-zalo-ui/${GITHUB_REF#refs/tags/}/
-
-
-
-
-
