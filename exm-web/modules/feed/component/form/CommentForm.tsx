@@ -23,9 +23,8 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { toast } from "@/components/ui/use-toast"
 import { AttachmentWithPreview } from "@/components/AttachmentWithPreview"
 
-import { useComments } from "../../hooks/useComment"
 import { useReactionMutaion } from "../../hooks/useReactionMutation"
-import { IFeed } from "../../types"
+import { IComment, IFeed } from "../../types"
 import CommentItem from "../CommentItem"
 
 const CommentForm = ({
@@ -33,17 +32,21 @@ const CommentForm = ({
   currentUserId,
   emojiReactedUser,
   emojiCount,
+  comments,
+  commentsCount,
+  loading,
+  handleLoadMore,
 }: {
   feed: IFeed
   currentUserId: string
   emojiReactedUser: string[]
   emojiCount: number
+  comments: IComment[]
+  commentsCount: number
+  loading: boolean
+  handleLoadMore: () => void
 }) => {
   const { reactionMutation, commentMutation } = useReactionMutaion({})
-
-  const { comments, commentsCount, loading, handleLoadMore } = useComments(
-    feed._id
-  )
 
   const [comment, setComment] = useState("")
 
