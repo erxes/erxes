@@ -9,14 +9,14 @@ import {
 } from '@erxes/ui/src/components';
 import Button from '@erxes/ui/src/components/Button';
 import { menuDynamic } from '../constants';
-import Row from './InventoryProductsRow';
+import Row from './CustomersRow';
 
 type Props = {
   history: any;
   queryParams: any;
   loading: boolean;
-  toCheckProducts: () => void;
-  toSyncProducts: (action: string, products: any[]) => void;
+  toCheckCustomers: () => void;
+  toSyncCustomers: (action: string, customers: any[]) => void;
   items: any;
 };
 
@@ -24,8 +24,8 @@ const Customers = ({
   items,
   loading,
   queryParams,
-  toCheckProducts,
-  toSyncProducts
+  toCheckCustomers,
+  toSyncCustomers
 }: Props) => {
   const checkButton = (
     <>
@@ -34,7 +34,7 @@ const Customers = ({
         btnStyle="warning"
         size="small"
         icon="check-1"
-        onClick={toCheckProducts}
+        onClick={toCheckCustomers}
       >
         Check
       </Button>
@@ -79,7 +79,7 @@ const Customers = ({
 
     const onClickSync = () => {
       data = excludeSyncTrue(data);
-      toSyncProducts(action, data);
+      toSyncCustomers(action, data);
     };
 
     const renderRow = (rowData: any, rowSction: string) => {
@@ -87,8 +87,8 @@ const Customers = ({
         rowData = rowData.slice(0, 100);
       }
 
-      return rowData.map(p => (
-        <Row key={p.code} product={p} action={rowSction} />
+      return rowData.map((c: any, i: number) => (
+        <Row key={i} customers={c} action={rowSction} />
       ));
     };
 
@@ -132,7 +132,7 @@ const Customers = ({
       <br />
       <CollapseContent
         title={__(
-          'Create products' + (items.create ? ':  ' + items.create.count : '')
+          'Create customers' + (items.create ? ':  ' + items.create.count : '')
         )}
       >
         <>
@@ -151,7 +151,7 @@ const Customers = ({
       </CollapseContent>
       <CollapseContent
         title={__(
-          'Update products' + (items.update ? ':  ' + items.update.count : '')
+          'Update customers' + (items.update ? ':  ' + items.update.count : '')
         )}
       >
         <>
@@ -170,7 +170,7 @@ const Customers = ({
       </CollapseContent>
       <CollapseContent
         title={__(
-          'Delete products' + (items.delete ? ':  ' + items.delete.count : '')
+          'Delete customers' + (items.delete ? ':  ' + items.delete.count : '')
         )}
       >
         <>

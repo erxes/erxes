@@ -3,8 +3,8 @@ import * as compose from 'lodash.flowright';
 import { graphql } from '@apollo/client/react/hoc';
 import { withProps } from '@erxes/ui/src/utils';
 import {
-  ToCheckProductsMutationResponse,
-  ToSyncProductsMutationResponse
+  ToCheckCustomersMutationResponse,
+  ToSyncCustomersMutationResponse
 } from '../types';
 import { Bulk } from '@erxes/ui/src/components';
 import Alert from '@erxes/ui/src/utils/Alert';
@@ -19,8 +19,8 @@ type Props = {
 };
 
 type FinalProps = {} & Props &
-  ToCheckProductsMutationResponse &
-  ToSyncProductsMutationResponse;
+  ToCheckCustomersMutationResponse &
+  ToSyncCustomersMutationResponse;
 
 const CustomersContainer = (props: FinalProps) => {
   const [items, setItems] = useState({});
@@ -51,20 +51,20 @@ const CustomersContainer = (props: FinalProps) => {
     return data;
   };
 
-  const toCheckProducts = () => {
+  const toCheckCustomers = () => {
     setLoading(true);
     props
-      .toCheckProducts({
+      .toCheckCustomers({
         variables: {}
       })
       .then(response => {
-        const data = response.data.toCheckProducts;
+        const data = response.data.toCheckCustomers;
 
         setSyncStatus(data, 'create');
         setSyncStatus(data, 'update');
         setSyncStatus(data, 'delete');
 
-        setItems(response.data.toCheckProducts);
+        setItems(response.data.toCheckCustomers);
         setLoading(false);
       })
       .catch(e => {
@@ -73,13 +73,13 @@ const CustomersContainer = (props: FinalProps) => {
       });
   };
 
-  const toSyncProducts = (action: string, products: any[]) => {
+  const toSyncCustomers = (action: string, customers: any[]) => {
     setLoading(true);
     props
-      .toSyncProducts({
+      .toSyncCustomers({
         variables: {
           action,
-          products
+          customers
         }
       })
       .then(() => {
@@ -89,7 +89,7 @@ const CustomersContainer = (props: FinalProps) => {
       .finally(() => {
         const data = items;
 
-        setSyncStatusTrue(data, products, action.toLowerCase());
+        setSyncStatusTrue(data, customers, action.toLowerCase());
         setItems(data);
       })
       .catch(e => {
@@ -102,8 +102,8 @@ const CustomersContainer = (props: FinalProps) => {
     ...props,
     loading,
     items,
-    toCheckProducts,
-    toSyncProducts
+    toCheckCustomers,
+    toSyncCustomers
   };
 
   const content = () => <Customers {...updatedProps} />;
@@ -113,16 +113,16 @@ const CustomersContainer = (props: FinalProps) => {
 
 export default withProps<Props>(
   compose(
-    graphql<Props, ToCheckProductsMutationResponse, {}>(
-      gql(mutations.toCheckProducts),
+    graphql<Props, ToCheckCustomersMutationResponse, {}>(
+      gql(mutations.toCheckCustomers),
       {
-        name: 'toCheckProducts'
+        name: 'toCheckCustomers'
       }
     ),
-    graphql<Props, ToSyncProductsMutationResponse, {}>(
-      gql(mutations.toSyncProducts),
+    graphql<Props, ToSyncCustomersMutationResponse, {}>(
+      gql(mutations.toSyncCustomers),
       {
-        name: 'toSyncProducts'
+        name: 'toSyncCustomers'
       }
     )
   )(CustomersContainer)

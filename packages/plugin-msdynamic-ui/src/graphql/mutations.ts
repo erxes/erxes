@@ -16,8 +16,22 @@ const toSyncProducts = `
   }
 `;
 
+const toCheckCustomers = `
+  mutation toCheckCustomers {
+    toCheckCustomers
+  }
+`;
+
+const toSyncCustomers = `
+  mutation toSyncCustomers($action: String, $customers: [JSON]) {
+    toSyncCustomers(action: $action, customers: $products)
+  }
+`;
+
 export default {
   updateConfigs,
   toCheckProducts,
-  toSyncProducts
+  toSyncProducts,
+  toCheckCustomers,
+  toSyncCustomers
 };
