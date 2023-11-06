@@ -189,7 +189,11 @@ const importBulkStream = ({
 };
 
 const getWorkerFile = fileName => {
-  return `./src/worker/import/${fileName}.worker.import.js`;
+  if (process.env.NODE_ENV !== 'production') {
+    return `./src/worker/import/${fileName}.worker.import.js`;
+  }
+
+  return `./packages/workers/src/worker/import/${fileName}.worker.import.js`;
 };
 
 export const clearEmptyValues = (obj: any) => {
