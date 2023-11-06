@@ -25,30 +25,6 @@ function List(props: Props) {
   const [searchValue, setSearchvalue] = useState(null);
   let timer: NodeJS.Timer;
 
-  const trigger = (
-    <Button id={'AddReportsButton'} btnStyle="success" icon="plus-circle">
-      Add Reports
-    </Button>
-  );
-
-  // const modalContent = props => (
-  //   <Form
-  //     {...props}
-  //     types={types}
-  //     renderButton={renderButton}
-  //     reports={reports}
-  //   />
-  // );
-
-  // const actionBarRight = (
-  //   <ModalTrigger
-  //     title={__('Add reports')}
-  //     trigger={trigger}
-  //     content={modalContent}
-  //     enforceFocus={false}
-  //   />
-  // );
-
   const search = e => {
     if (timer) {
       clearTimeout(timer);

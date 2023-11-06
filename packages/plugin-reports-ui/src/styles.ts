@@ -290,6 +290,16 @@ const FlexCenter = styled.div`
   margin: 20px;
 `;
 
+const HeightedWrapper = styled.div`
+  flex: 1;
+  position: relative;
+
+  margin: 0;
+
+  > section {
+    margin: 0;
+  }
+`;
 export {
   DragField,
   CenterBar,
@@ -301,5 +311,6 @@ export {
   FormContentWrapper,
   ReportsSearchSection,
   ReportsTemplatesSection,
-  FlexCenter
+  FlexCenter,
+  HeightedWrapper
 };

@@ -7,12 +7,15 @@ import {
   BoxContainer,
   FlexColumn,
   FormContentWrapper,
+  HeightedWrapper,
   ReportsSearchSection,
   ReportsTemplatesSection
 } from '../../styles';
 import { FlexCenter } from '../../styles';
 import ReportFormModal from '../../containers/report/ReportFormModal';
 import { IReport } from '../../types';
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
+
 type Props = {
   history: any;
   queryParams: any;
@@ -37,7 +40,14 @@ const ReportForm = (props: Props) => {
   };
 
   return (
-    <>
+    <HeightedWrapper>
+      <Wrapper.Header
+        breadcrumb={[
+          { title: __('Reports'), link: '/reports' },
+          { title: __('Create a report') }
+        ]}
+        title={__('Create a report')}
+      />
       <Modal show={showModal} onHide={() => setShowModal(false)}>
         <Modal.Header>
           <Modal.Title>Modal heading</Modal.Title>
@@ -104,7 +114,7 @@ const ReportForm = (props: Props) => {
           />
         </ReportsSearchSection> */}
       </FormContentWrapper>
-    </>
+    </HeightedWrapper>
   );
 };
 
