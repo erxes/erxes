@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - dev
+      - master
       - staging
       - build-test
     paths:
@@ -12,7 +13,8 @@ on:
   pull_request:
     branches:
       - master
-      - develop
+      - dev
+      - masterelop
       - apm
       - staging
     paths:
