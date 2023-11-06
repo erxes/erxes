@@ -64,8 +64,9 @@ const goalQueries = {
     params,
     { commonQuerySelector, models }: IContext
   ) => {
-    await models.Goals.progressIdsGoals();
     const filter = await generateFilter(params, commonQuerySelector);
+    await models.Goals.progressIdsGoals(filter, params);
+
     return {
       list: paginate(models.Goals.find(filter).sort(sortBuilder(params)), {
         page: params.page,

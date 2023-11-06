@@ -7,6 +7,7 @@ _id: String!
  boardId:String
  contributionType: String
  segmentIds: [String]
+ notification:JSON
  metric:String
   goalType: String
   contribution: [String]
@@ -27,6 +28,7 @@ _id: String!
    boardId:String
   contributionType: String
   segmentIds: [String]
+  notification:JSON
   metric:String
   goalType: String
   contribution: [String]
@@ -56,6 +58,7 @@ const queryParams = `
   endDate:Date
   contribution: [String]
   segmentIds: [String]
+ notification:JSON
   ids: [String]
   searchValue: String
   sortField: String
@@ -64,6 +67,7 @@ const queryParams = `
 
 export const queries = `
   goals(entity:String, contributionType:String,metric:String,  segmentIds: [String],goalType:String, contribution: [String],specificPeriodGoals:JSON stageId:String,pipelineId:String,boardId:String,
+    notification:JSON
   department:String,unit:String,branch:String,
   startDate: Date, progress:JSON
   endDate: Date,target:String): [Goal]
@@ -90,6 +94,7 @@ const params = `
   endDate:Date
   target: String
   segmentIds: [String]
+ notification:JSON
 `;
 
 export const mutations = `

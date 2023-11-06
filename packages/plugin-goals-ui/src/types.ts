@@ -33,9 +33,15 @@ export interface IGoalTypeDoc {
   endDate: Date;
   target: string;
   segmentIds: string[];
+  notification: {
+    goalStarted: boolean;
+    goalAchieved: boolean;
+    goalMissed: boolean;
+  };
 }
 
 export interface IGoalType extends IGoalTypeDoc {
+  length: number;
   _id: string;
   map(arg0: (item: any, index: any) => void): import('react').ReactNode;
   forEach(arg0: (goal: any) => void): unknown;

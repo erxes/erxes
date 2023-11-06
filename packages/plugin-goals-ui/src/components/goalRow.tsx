@@ -31,7 +31,7 @@ function renderFormTrigger(trigger: React.ReactNode, goalType: IGoalType) {
     />
   );
 }
-function renderFormTViewrigger(
+function renderFormTViewier(
   trigger: React.ReactNode,
   goalType: IGoalType,
   boardName: string,
@@ -63,7 +63,7 @@ function renderFormTViewrigger(
 
 function renderEditAction(goalType: IGoalType) {
   const trigger = <Button btnStyle="link" icon="edit-1" />;
-
+  console.log(goalType, 'goalType');
   return renderFormTrigger(trigger, goalType);
 }
 function renderViewAction(
@@ -74,7 +74,7 @@ function renderViewAction(
   emailName: string
 ) {
   const trigger = <Button btnStyle="link" icon="eye" />;
-  return renderFormTViewrigger(
+  return renderFormTViewier(
     trigger,
     goalType,
     boardName,

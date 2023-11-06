@@ -15,6 +15,7 @@ const commonFields = `
     $endDate:Date
     $target:String
     $segmentIds: [String] 
+    $notification:JSON
 `;
 
 const commonVariables = `
@@ -34,6 +35,7 @@ const commonVariables = `
   endDate:$endDate
   target:$target
   segmentIds: $segmentIds
+  notification:$notification
 `;
 
 const goalTypesAdd = `
@@ -56,6 +58,7 @@ const goalTypesAdd = `
       endDate
       target
       segmentIds
+      notification
     }
   }
 `;
@@ -80,6 +83,7 @@ const goalTypesEdit = `
       endDate
       target
       segmentIds
+      notification
     }
   }
 `;

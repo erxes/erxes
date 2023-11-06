@@ -26,6 +26,11 @@ export interface IGoal {
   endDate: Date;
   target: string;
   progress: any;
+  notification: {
+    goalStarted: boolean;
+    goalAchieved: boolean;
+    goalMissed: boolean;
+  };
 }
 
 export interface IGoalDocument extends IGoal, Document {
@@ -72,7 +77,12 @@ export const goalSchema = schemaHooksWrapper(
       type: String,
       label: 'Branch'
     },
-    segmentIds: field({ type: [String], label: 'Segment Data' })
+    segmentIds: field({ type: [String], label: 'Segment Data' }),
+    notification: field({
+      type: Object,
+      optional: true,
+      label: 'Notification'
+    })
   }),
   'erxes_goals'
 );

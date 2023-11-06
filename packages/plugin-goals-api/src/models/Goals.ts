@@ -1,20 +1,29 @@
 import { Model } from 'mongoose';
 import { IModels } from '../connectionResolver';
-import { sendCardsMessage } from '../messageBroker';
+import { sendCardsMessage, sendNotificationsMessage } from '../messageBroker';
 import { goalSchema, IGoal, IGoalDocument } from './definitions/goals';
-
 export interface IGoalModel extends Model<IGoalDocument> {
   getGoal(_id: string): Promise<IGoalDocument>;
   createGoal(doc: IGoal): Promise<IGoalDocument>;
   updateGoal(_id: string, doc: IGoal): Promise<IGoalDocument>;
   removeGoal(_ids: string[]);
   progressGoal(_id: string);
-  progressIdsGoals(): Promise<IGoalDocument>;
+  progressIdsGoals(filter, params): Promise<IGoalDocument>;
 }
 
 export const loadGoalClass = (models: IModels, subdomain: string) => {
   class Goal {
     public static async createGoal(doc: IGoal, createdUserId: string) {
+      // sendNotificationsMessage({
+      //   subdomain,
+      //   action: 'send',
+      //   data: {
+      //     doc
+      //   },
+      //   isRPC: true,
+      //   defaultValue: true
+      // });
+
       return models.Goals.create({
         ...doc,
         createdDate: new Date(),
@@ -63,26 +72,16 @@ export const loadGoalClass = (models: IModels, subdomain: string) => {
       const goal = await models.Goals.findOne({
         _id
       });
-      const target = goal?.target;
-
-      const actionName = goal?.entity + 's.find';
-      const progressed = await progressFunction(
-        actionName,
-        goal,
-        goal?.metric,
-        target
-      );
-
-      // goal.progress.push(progressed);
-
-      // const data = { ...goal, progressed };
-      // const data = { goal, progressed };
       return goal;
     }
 
-    public static async progressIdsGoals() {
+    public static async progressIdsGoals(filter, params) {
       try {
-        const doc = await models.Goals.find({}).lean();
+        // const doc = await models.Goals.find({}).lean();
+        const doc = await models.Goals.find(filter)
+          .skip((params.page - 1) * params.perPage)
+          .limit(params.perPage);
+
         const data = await progressFunctionIds(doc);
         return data;
       } catch (error) {
@@ -274,7 +273,7 @@ export const loadGoalClass = (models: IModels, subdomain: string) => {
       );
     }
 
-    const updates = await models.Goals.find({}).lean();
+    const updates = doc;
     for (const item of updates) {
       const actionName = item?.entity + 's.find';
       const stage = item?.stageId;
@@ -289,7 +288,6 @@ export const loadGoalClass = (models: IModels, subdomain: string) => {
       let totalAmount = 0;
       let current;
       if (item.metric === 'Value') {
-        // let progress;
         for (const items of amount) {
           if (items.productsData && items.status === 'active') {
             const productsData = items.productsData;

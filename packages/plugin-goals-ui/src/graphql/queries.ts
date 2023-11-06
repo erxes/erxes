@@ -16,6 +16,7 @@ const insuranceTypeFields = `
       endDate
       target
       segmentIds
+      notification
 `;
 
 const listParamsDef = `

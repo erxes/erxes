@@ -8,6 +8,17 @@ import dayjs from 'dayjs';
 import React from 'react';
 import { RouteComponentProps, withRouter } from 'react-router-dom';
 import { IGoalType } from '../types';
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer
+} from 'recharts';
+import { runInContext } from 'vm';
 
 interface IProps extends RouteComponentProps {
   goalType: IGoalType; // Adjust the type of goalTypes as per your
@@ -33,6 +44,29 @@ class GoalView extends React.Component<IProps> {
     const pipelineName = this.props.pipelineName;
     const stageName = this.props.stageName;
     const email = this.props.emailName;
+    const formattedStartDate = dayjs(data.startDate).format(
+      'MM/DD/YYYY h:mm A'
+    );
+
+    const chartData = [
+      {
+        addMonthly: formattedStartDate,
+        addTarget: data.target,
+        current: data.progress.current,
+        progress: data.progress.progress
+      },
+      ...data.specificPeriodGoals.map(result => {
+        return {
+          _id: result._id,
+          addMonthly: result.addMonthly,
+          addTarget: result.addTarget,
+          progress: result.progress
+        };
+      })
+    ];
+
+    console.log(JSON.stringify(data, null, 2), 'data');
+
     return (
       <div>
         <div>
@@ -75,7 +109,7 @@ class GoalView extends React.Component<IProps> {
                 <ControlLabel>{__('Current: ') + current}</ControlLabel>
                 <ControlLabel>{__('Target: ') + data.target}</ControlLabel>
                 <ControlLabel>
-                  {__('Progress: ') + nestedProgressValue}
+                  {__('Progress: ') + nestedProgressValue + '%'}
                 </ControlLabel>
               </FormGroup>
             </FlexItem>
@@ -120,13 +154,28 @@ class GoalView extends React.Component<IProps> {
                       <td>{element.addTarget}</td>
                       <td>{current}</td>
                       <td>{element.progress + '%'}</td>
-                      <td>
-                        {dayjs(element.addMonthly).format('MMM D, h:mm A')}
-                      </td>
+                      <td>{element.addMonthly}</td>
                     </tr>
                   ))}
                 </tbody>
               </Table>
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart data={chartData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="addMonthly" />
+                  <YAxis
+                    label={{
+                      value: 'Number of Deals',
+                      angle: -90,
+                      position: 'insideLeft'
+                    }}
+                    padding={{ right: 10 }}
+                  />
+                  <Tooltip />
+                  <Legend />
+                  <Bar dataKey="progress" fill="#82ca9d" name="Progress" />
+                </BarChart>
+              </ResponsiveContainer>
             </BoardHeader>
           </FlexItem>
         </FlexContent>

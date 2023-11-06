@@ -36,7 +36,7 @@ import {
   SPECIFIC_PERIOD_GOAL
 } from '../constants';
 import { IGoalType, IGoalTypeDoc } from '../types';
-
+import { Description } from '@erxes/ui-settings/src/styles';
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   goalType: IGoalType;
@@ -68,12 +68,18 @@ type State = {
   department: string;
   unit: string;
   pipelineLabels: IPipelineLabel[];
-  stageId?: string;
+  stageId?: any;
   pipelineId?: any;
-  boardId: string;
+  boardId: any;
   segmentIds: any;
   stageRadio: boolean;
   segmentRadio: boolean;
+  nextButton: boolean;
+  notification: {
+    goalStarted: boolean;
+    goalAchieved: boolean;
+    goalMissed: boolean;
+  };
 };
 
 class GoalTypeForm extends React.Component<Props, State> {
@@ -81,7 +87,14 @@ class GoalTypeForm extends React.Component<Props, State> {
     super(props);
     const { goalType = {} } = props;
     this.state = {
-      segmentIds: goalType.segmentIds || [],
+      // notification: goalType.notification,
+      notification: {
+        goalStarted: false,
+        goalAchieved: false,
+        goalMissed: false
+      },
+      nextButton: goalType.nextButton,
+      segmentIds: goalType.segmentIds || '',
       branch: goalType.branch || '',
       department: goalType.department || '',
       unit: goalType.unit || '',
@@ -196,10 +209,11 @@ class GoalTypeForm extends React.Component<Props, State> {
       segmentRadio,
       period,
       specificPeriodGoals,
-      segmentIds
+      segmentIds,
+      notification
     } = this.state;
     const finalValues = values;
-
+    //// assignmentCampaign segment
     if (goalType) {
       finalValues._id = goalType._id;
     }
@@ -225,9 +239,8 @@ class GoalTypeForm extends React.Component<Props, State> {
       goalType: finalValues.goalType,
       startDate,
       endDate,
-      // startDate: durationStart,
-      // endDate: durationEnd,
-      target: finalValues.target
+      target: finalValues.target,
+      notification
     };
   };
 
@@ -249,13 +262,22 @@ class GoalTypeForm extends React.Component<Props, State> {
     this.setState({ [name]: value } as any);
   };
 
+  onChangeFieldNotification = event => {
+    const { name, checked } = event.target;
+    this.setState(prevState => ({
+      notification: {
+        ...prevState.notification,
+        [name]: checked
+      }
+    }));
+  };
+
   onChangeEndDate = value => {
     this.setState({ endDate: value });
   };
   onUserChange = userId => {
     this.setState({ contribution: userId });
   };
-
   onChangeSegments = values => {
     this.setState({ segmentIds: values });
   };
@@ -309,7 +331,6 @@ class GoalTypeForm extends React.Component<Props, State> {
     const { closeModal, renderButton } = this.props;
     const { values, isSubmitted } = formProps;
     const months: string[] = this.mapMonths();
-
     const weeks = this.mapWeeks();
     const { departmentListQuery, branchListQuery, unitListQuery } = this.props;
     const departments = departmentListQuery.departmentsMain?.list || [];
@@ -317,353 +338,435 @@ class GoalTypeForm extends React.Component<Props, State> {
     const units = unitListQuery.unitsMain?.list || [];
     return (
       <>
-        <ScrollWrapper>
-          <FormWrapper>
-            <FormColumn>
-              <FormGroup>
-                <ControlLabel required={true}>
-                  {__('choose Entity')}
-                </ControlLabel>
-                <FormControl
-                  {...formProps}
-                  name="entity"
-                  componentClass="select"
-                  value={this.state.entity}
-                  required={true}
-                  onChange={this.onChangeField}
-                >
-                  {ENTITY.map((item, index) => (
-                    <option key={index} value={item.value}>
-                      {item.name}
-                    </option>
-                  ))}
-                </FormControl>
-              </FormGroup>
-              <FormGroup>
-                <FormControl
-                  {...formProps}
-                  componentClass="checkbox" // Use 'input' for checkboxes
-                  name="stageRadio"
-                  checked={this.state.stageRadio}
-                  onChange={this.onChangeField}
-                  inline={true}
-                >
-                  {__('Stage')}
-                </FormControl>
-                <FormControl
-                  {...formProps}
-                  componentClass="checkbox" // Use 'input' for checkboxes
-                  name="segmentRadio"
-                  checked={this.state.segmentRadio}
-                  onChange={this.onChangeField}
-                  inline={true}
-                />
-                {__('Segment')}
-              </FormGroup>
-              {this.state.segmentRadio === true && (
-                <FormGroup>
-                  {isEnabled('segments') && isEnabled('contacts') && (
-                    <>
-                      <FormGroup>
-                        <ControlLabel>Segments</ControlLabel>
-                        <SelectSegments
-                          name="segmentIds"
-                          label="Choose segments"
-                          contentTypes={[`cards:${this.state.entity}`]}
-                          initialValue={this.state.segmentIds.segmentIds}
-                          multi={true}
-                          onSelect={segmentIds =>
-                            this.onChangeSegments(segmentIds)
-                          }
-                        />
-                      </FormGroup>
-                    </>
-                  )}
-                </FormGroup>
-              )}
-              {this.state.stageRadio === true && (
-                <FormGroup>
-                  {isEnabled('cards') && (
-                    <BoardSelect
-                      type={this.state.entity}
-                      stageId={this.state.stageId}
-                      pipelineId={this.state.pipelineId}
-                      boardId={this.state.boardId}
-                      onChangeStage={this.onChangeStage}
-                      onChangePipeline={this.onChangePipeline}
-                      onChangeBoard={this.onChangeBoard}
+        {(!this.state.nextButton || this.state.nextButton === undefined) && (
+          <>
+            <ScrollWrapper>
+              <FormWrapper>
+                <FormColumn>
+                  <FormGroup>
+                    <ControlLabel>{__('choose Entity')}</ControlLabel>
+                    <FormControl
+                      {...formProps}
+                      name="entity"
+                      componentClass="select"
+                      value={this.state.entity}
+                      onChange={this.onChangeField}
+                    >
+                      {ENTITY.map((item, index) => (
+                        <option key={index} value={item.value}>
+                          {item.name}
+                        </option>
+                      ))}
+                    </FormControl>
+                  </FormGroup>
+                  <FormGroup>
+                    <FormControl
+                      {...formProps}
+                      componentClass="checkbox" // Use 'input' for checkboxes
+                      name="stageRadio"
+                      checked={this.state.stageRadio}
+                      onChange={this.onChangeField}
+                      inline={true}
+                    >
+                      {__('Stage')}
+                    </FormControl>
+                    <FormControl
+                      {...formProps}
+                      componentClass="checkbox" // Use 'input' for checkboxes
+                      name="segmentRadio"
+                      checked={this.state.segmentRadio}
+                      onChange={this.onChangeField}
+                      inline={true}
                     />
+                    {__('Segment')}
+                  </FormGroup>
+                  {this.state.segmentRadio === true && (
+                    <FormGroup>
+                      {isEnabled('segments') && isEnabled('contacts') && (
+                        <>
+                          <FormGroup>
+                            <ControlLabel>Segments</ControlLabel>
+                            <SelectSegments
+                              name="segmentIds"
+                              label="Choose segments"
+                              contentTypes={[`cards:${this.state.entity}`]}
+                              initialValue={this.state.segmentIds.segmentIds}
+                              multi={true}
+                              onSelect={segmentIds =>
+                                this.onChangeSegments(segmentIds)
+                              }
+                            />
+                          </FormGroup>
+                        </>
+                      )}
+                    </FormGroup>
                   )}
-                </FormGroup>
+                  {this.state.stageRadio === true && (
+                    <FormGroup>
+                      {isEnabled('cards') && (
+                        <BoardSelect
+                          type={this.state.entity}
+                          stageId={this.state.stageId}
+                          pipelineId={this.state.pipelineId}
+                          boardId={this.state.boardId}
+                          onChangeStage={this.onChangeStage}
+                          onChangePipeline={this.onChangePipeline}
+                          onChangeBoard={this.onChangeBoard}
+                        />
+                      )}
+                    </FormGroup>
+                  )}
+                  <FormGroup>
+                    <ControlLabel>{__('start duration')}:</ControlLabel>
+                    <DateContainer>
+                      <DateControl
+                        {...formProps}
+                        required={false}
+                        name="date"
+                        value={this.state.startDate}
+                        onChange={this.onChangeStartDate}
+                      />
+                    </DateContainer>
+                  </FormGroup>
+                  <FormGroup>
+                    <ControlLabel>{__('end duration')}:</ControlLabel>
+                    <DateContainer>
+                      <DateControl
+                        {...formProps}
+                        required={false}
+                        name="date"
+                        value={this.state.endDate}
+                        onChange={this.onChangeEndDate}
+                      />
+                    </DateContainer>
+                  </FormGroup>
+                </FormColumn>
+                <FormColumn>
+                  <FormGroup>
+                    <ControlLabel>{__('choose goalType type')}</ControlLabel>
+                    <FormControl
+                      {...formProps}
+                      name="goalType"
+                      componentClass="select"
+                      value={this.state.goalType}
+                      onChange={this.onChangeField}
+                    >
+                      {GOAL_TYPE.map((typeName, index) => (
+                        <option key={index} value={typeName}>
+                          {typeName}
+                        </option>
+                      ))}
+                    </FormControl>
+                  </FormGroup>
+                  <FormGroup>
+                    <ControlLabel>{__('contribution type')}</ControlLabel>
+                    <FormControl
+                      {...formProps}
+                      name="contributionType"
+                      componentClass="select"
+                      value={this.state.contributionType}
+                      onChange={this.onChangeField}
+                    >
+                      {CONTRIBUTION.map((item, index) => (
+                        <option key={index} value={item.value}>
+                          {item.name}
+                        </option>
+                      ))}
+                    </FormControl>
+                  </FormGroup>
+                  {this.state.contributionType === 'person' && (
+                    <FormGroup>
+                      <ControlLabel>contribution</ControlLabel>
+                      <SelectTeamMembers
+                        label="Choose users"
+                        name="userId"
+                        customOption={{ label: 'Choose user', value: '' }}
+                        initialValue={this.state.contribution || ''}
+                        onSelect={this.onUserChange}
+                        multi={false}
+                      />
+                    </FormGroup>
+                  )}
+                  {this.state.contributionType === 'team' && (
+                    <FormGroup>
+                      <ControlLabel>{__('Choose Structure')}</ControlLabel>
+                      <FormControl
+                        {...formProps}
+                        name="teamGoalType"
+                        componentClass="select"
+                        value={this.state.teamGoalType}
+                        onChange={this.onChangeField}
+                      >
+                        {GOAL_STRUCTURE.map((item, index) => (
+                          <option key={index} value={item.value}>
+                            {item.name}
+                          </option>
+                        ))}
+                      </FormControl>
+                    </FormGroup>
+                  )}
+                  {this.state.teamGoalType === 'Departments' &&
+                    this.state.contributionType === 'team' && (
+                      <FormGroup>
+                        <ControlLabel>{__('Departments')}</ControlLabel>
+                        <FormControl
+                          {...formProps}
+                          name="department"
+                          componentClass="select"
+                          value={this.state.department}
+                          onChange={this.onChangeField}
+                        >
+                          {departments.map((item, index) => (
+                            <option key={index} value={item._id}>
+                              {item.title}
+                            </option>
+                          ))}
+                        </FormControl>
+                      </FormGroup>
+                    )}
+                  {this.state.teamGoalType === 'Units' &&
+                    this.state.contributionType === 'team' && (
+                      <FormGroup>
+                        <ControlLabel>{__('Units')}</ControlLabel>
+                        <FormControl
+                          {...formProps}
+                          name="unit"
+                          componentClass="select"
+                          value={this.state.unit}
+                          onChange={this.onChangeField}
+                        >
+                          {units.map((item, index) => (
+                            <option key={index} value={item._id}>
+                              {item.title}
+                            </option>
+                          ))}
+                        </FormControl>
+                      </FormGroup>
+                    )}
+                  {this.state.teamGoalType === 'Branches' &&
+                    this.state.contributionType === 'team' && (
+                      <FormGroup>
+                        <ControlLabel>{__('Branches')}</ControlLabel>
+                        <FormControl
+                          {...formProps}
+                          name="branch"
+                          componentClass="select"
+                          value={this.state.branch}
+                          onChange={this.onChangeField}
+                        >
+                          {branches.map((item, index) => (
+                            <option key={index} value={item._id}>
+                              {item.title}
+                            </option>
+                          ))}
+                        </FormControl>
+                      </FormGroup>
+                    )}
+                  <FormGroup>
+                    <ControlLabel>{__('metric')}:</ControlLabel>
+                    <FormControl
+                      {...formProps}
+                      name="metric"
+                      componentClass="select"
+                      value={this.state.metric}
+                      onChange={this.onChangeField}
+                    >
+                      {['Value', 'Count'].map((typeName, index) => (
+                        <option key={index} value={typeName}>
+                          {typeName}
+                        </option>
+                      ))}
+                    </FormControl>
+                  </FormGroup>
+                  <FormGroup>
+                    {this.renderFormGroup('target', {
+                      ...formProps,
+                      name: 'target',
+                      type: 'number',
+                      defaultValue: goalType.target || 0
+                    })}
+                  </FormGroup>
+                  <FormGroup>
+                    <ControlLabel>
+                      {__('choose specific period goals')}
+                    </ControlLabel>
+                    <FormControl
+                      {...formProps}
+                      name="periodGoal"
+                      componentClass="select"
+                      value={this.state.periodGoal}
+                      onChange={this.onChangeField}
+                    >
+                      {SPECIFIC_PERIOD_GOAL.map((item, index) => (
+                        <option key={index} value={item.value}>
+                          {item.name}
+                        </option>
+                      ))}
+                    </FormControl>
+                  </FormGroup>
+                </FormColumn>
+              </FormWrapper>
+              {this.state.periodGoal === 'Monthly' && (
+                <div>
+                  {months.map((month, index) => (
+                    <FormWrapper key={index}>
+                      <FormColumn>
+                        <ControlLabel>{__('Period (Monthly)')}</ControlLabel>
+                        <FormGroup>
+                          <DateContainer>{month}</DateContainer>
+                        </FormGroup>
+                      </FormColumn>
+                      <FormColumn>
+                        <ControlLabel>{__('Target')}</ControlLabel>
+                        <FormGroup>
+                          <FormControl
+                            type="number"
+                            name="target"
+                            value={
+                              this.state.specificPeriodGoals[index]
+                                ?.addTarget !== undefined
+                                ? this.state.specificPeriodGoals[index]
+                                    .addTarget
+                                : 0
+                            }
+                            onChange={event =>
+                              this.onChangeTarget(index, event)
+                            }
+                          />
+                        </FormGroup>
+                      </FormColumn>
+                    </FormWrapper>
+                  ))}
+                </div>
               )}
-              <FormGroup>
-                <ControlLabel>{__('start duration')}:</ControlLabel>
-                <DateContainer>
-                  <DateControl
-                    {...formProps}
-                    required={false}
-                    name="date"
-                    value={this.state.startDate}
-                    onChange={this.onChangeStartDate}
-                  />
-                </DateContainer>
-              </FormGroup>
-              <FormGroup>
-                <ControlLabel>{__('end duration')}:</ControlLabel>
-                <DateContainer>
-                  <DateControl
-                    {...formProps}
-                    required={false}
-                    name="date"
-                    value={this.state.endDate}
-                    onChange={this.onChangeEndDate}
-                  />
-                </DateContainer>
-              </FormGroup>
-            </FormColumn>
+              {this.state.periodGoal === 'Weekly' && (
+                <div>
+                  {weeks.map((week, index) => (
+                    <FormWrapper key={index}>
+                      <FormColumn>
+                        <ControlLabel>{__('Period (Weekly)')}</ControlLabel>
+                        <FormGroup>
+                          <DateContainer>{week}</DateContainer>
+                        </FormGroup>
+                      </FormColumn>
+                      <FormColumn>
+                        <ControlLabel>{__('Target')}</ControlLabel>
+                        <FormGroup>
+                          <FormControl
+                            type="number"
+                            name="target"
+                            value={
+                              this.state.specificPeriodGoals[index]
+                                ?.addTarget !== undefined
+                                ? this.state.specificPeriodGoals[index]
+                                    .addTarget
+                                : 0
+                            }
+                            onChange={event =>
+                              this.onChangeTarget(index, event)
+                            }
+                          />
+                        </FormGroup>
+                      </FormColumn>
+                    </FormWrapper>
+                  ))}
+                </div>
+              )}
+            </ScrollWrapper>
+          </>
+        )}
+        {this.state.nextButton === true && (
+          <>
             <FormColumn>
+              <h3 style={{ textAlign: 'center' }}>
+                {__('Add notifications to your goal')}
+              </h3>
               <FormGroup>
-                <ControlLabel required={true}>
-                  {__('choose goalType type')}
-                </ControlLabel>
                 <FormControl
                   {...formProps}
-                  name="goalType"
-                  componentClass="select"
-                  value={this.state.goalType}
-                  onChange={this.onChangeField}
+                  componentClass="checkbox" // Use 'input' for checkboxes
+                  name="goalStarted"
+                  checked={this.state.notification.goalStarted}
+                  onChange={this.onChangeFieldNotification}
+                  inline={true}
                 >
-                  {GOAL_TYPE.map((typeName, index) => (
-                    <option key={index} value={typeName}>
-                      {typeName}
-                    </option>
-                  ))}
+                  {__('Goal Started')}
+                  <Description>
+                    {__('Receive a notification when the goal has started')}
+                  </Description>
                 </FormControl>
               </FormGroup>
               <FormGroup>
-                <ControlLabel required={true}>
-                  {__('contribution type')}
-                </ControlLabel>
                 <FormControl
                   {...formProps}
-                  name="contributionType"
-                  componentClass="select"
-                  value={this.state.contributionType}
-                  onChange={this.onChangeField}
+                  componentClass="checkbox" // Use 'input' for checkboxes
+                  name="goalAchieved"
+                  checked={this.state.notification.goalAchieved}
+                  onChange={this.onChangeFieldNotification}
+                  inline={true}
                 >
-                  {CONTRIBUTION.map((item, index) => (
-                    <option key={index} value={item.value}>
-                      {item.name}
-                    </option>
-                  ))}
-                </FormControl>
-              </FormGroup>
-              {this.state.contributionType === 'person' && (
-                <FormGroup>
-                  <ControlLabel>contribution</ControlLabel>
-                  <SelectTeamMembers
-                    label="Choose users"
-                    name="userId"
-                    customOption={{ label: 'Choose user', value: '' }}
-                    initialValue={this.state.contribution || ''}
-                    onSelect={this.onUserChange}
-                    multi={false}
-                  />
-                </FormGroup>
-              )}
-              {this.state.contributionType === 'team' && (
-                <FormGroup>
-                  <ControlLabel>{__('Choose Structure')}</ControlLabel>
-                  <FormControl
-                    {...formProps}
-                    name="teamGoalType"
-                    componentClass="select"
-                    value={this.state.teamGoalType}
-                    onChange={this.onChangeField}
-                  >
-                    {GOAL_STRUCTURE.map((item, index) => (
-                      <option key={index} value={item.value}>
-                        {item.name}
-                      </option>
-                    ))}
-                  </FormControl>
-                </FormGroup>
-              )}
-              {this.state.teamGoalType === 'Departments' &&
-                this.state.contributionType === 'team' && (
-                  <FormGroup>
-                    <ControlLabel>{__('Departments')}</ControlLabel>
-                    <FormControl
-                      {...formProps}
-                      name="department"
-                      componentClass="select"
-                      value={this.state.department}
-                      onChange={this.onChangeField}
-                    >
-                      {departments.map((item, index) => (
-                        <option key={index} value={item._id}>
-                          {item.title}
-                        </option>
-                      ))}
-                    </FormControl>
-                  </FormGroup>
-                )}
-              {this.state.teamGoalType === 'Units' &&
-                this.state.contributionType === 'team' && (
-                  <FormGroup>
-                    <ControlLabel>{__('Units')}</ControlLabel>
-                    <FormControl
-                      {...formProps}
-                      name="unit"
-                      componentClass="select"
-                      value={this.state.unit}
-                      onChange={this.onChangeField}
-                    >
-                      {units.map((item, index) => (
-                        <option key={index} value={item._id}>
-                          {item.title}
-                        </option>
-                      ))}
-                    </FormControl>
-                  </FormGroup>
-                )}
-              {this.state.teamGoalType === 'Branches' &&
-                this.state.contributionType === 'team' && (
-                  <FormGroup>
-                    <ControlLabel>{__('Branches')}</ControlLabel>
-                    <FormControl
-                      {...formProps}
-                      name="branch"
-                      componentClass="select"
-                      value={this.state.branch}
-                      onChange={this.onChangeField}
-                    >
-                      {branches.map((item, index) => (
-                        <option key={index} value={item._id}>
-                          {item.title}
-                        </option>
-                      ))}
-                    </FormControl>
-                  </FormGroup>
-                )}
-
-              <FormGroup>
-                <ControlLabel>{__('metric')}:</ControlLabel>
-                <FormControl
-                  {...formProps}
-                  name="metric"
-                  componentClass="select"
-                  value={this.state.metric}
-                  required={true}
-                  onChange={this.onChangeField}
-                >
-                  {['Value', 'Count'].map((typeName, index) => (
-                    <option key={index} value={typeName}>
-                      {typeName}
-                    </option>
-                  ))}
+                  {__('Goal Achieved')}
+                  <Description>
+                    {__(
+                      'Receive a notification when the goal reached 100% of the target within the duration'
+                    )}
+                  </Description>
                 </FormControl>
               </FormGroup>
               <FormGroup>
-                {this.renderFormGroup('target', {
-                  ...formProps,
-                  name: 'target',
-                  type: 'number',
-                  defaultValue: goalType.target || 0
-                })}
-              </FormGroup>
-              <FormGroup>
-                <ControlLabel>
-                  {__('choose specific period goals')}
-                </ControlLabel>
                 <FormControl
                   {...formProps}
-                  name="periodGoal"
-                  componentClass="select"
-                  value={this.state.periodGoal}
-                  required={true}
-                  onChange={this.onChangeField}
+                  componentClass="checkbox" // Use 'input' for checkboxes
+                  name="goalMissed"
+                  checked={this.state.notification.goalMissed}
+                  onChange={this.onChangeFieldNotification}
+                  inline={true}
                 >
-                  {SPECIFIC_PERIOD_GOAL.map((item, index) => (
-                    <option key={index} value={item.value}>
-                      {item.name}
-                    </option>
-                  ))}
+                  {__('Goal Missed')}
+                  <Description>
+                    {__(
+                      'Receive a notification when the goal didn’t reach 100% of the target within the duration'
+                    )}
+                  </Description>
                 </FormControl>
               </FormGroup>
             </FormColumn>
-          </FormWrapper>
-          {this.state.periodGoal === 'Monthly' && (
-            <div>
-              {months.map((month, index) => (
-                <FormWrapper key={index}>
-                  <FormColumn>
-                    <ControlLabel>{__('Period (Monthly)')}</ControlLabel>
-                    <FormGroup>
-                      <DateContainer>{month}</DateContainer>
-                    </FormGroup>
-                  </FormColumn>
-                  <FormColumn>
-                    <ControlLabel>{__('Target')}</ControlLabel>
-                    <FormGroup>
-                      <FormControl
-                        type="number"
-                        name="target"
-                        value={
-                          this.state.specificPeriodGoals[index]?.addTarget !==
-                          undefined
-                            ? this.state.specificPeriodGoals[index].addTarget
-                            : 0
-                        }
-                        onChange={event => this.onChangeTarget(index, event)}
-                      />
-                    </FormGroup>
-                  </FormColumn>
-                </FormWrapper>
-              ))}
-            </div>
-          )}
-          {this.state.periodGoal === 'Weekly' && (
-            <div>
-              {weeks.map((week, index) => (
-                <FormWrapper key={index}>
-                  <FormColumn>
-                    <ControlLabel>{__('Period (Weekly)')}</ControlLabel>
-                    <FormGroup>
-                      <DateContainer>{week}</DateContainer>
-                    </FormGroup>
-                  </FormColumn>
-                  <FormColumn>
-                    <ControlLabel>{__('Target')}</ControlLabel>
-                    <FormGroup>
-                      <FormControl
-                        type="number"
-                        name="target"
-                        value={
-                          this.state.specificPeriodGoals[index]?.addTarget !==
-                          undefined
-                            ? this.state.specificPeriodGoals[index].addTarget
-                            : 0
-                        }
-                        onChange={event => this.onChangeTarget(index, event)}
-                      />
-                    </FormGroup>
-                  </FormColumn>
-                </FormWrapper>
-              ))}
-            </div>
-          )}
-        </ScrollWrapper>
+          </>
+        )}
         <ModalFooter>
-          <Button btnStyle="simple" onClick={closeModal} icon="cancel-1">
-            {__('Close')}
-          </Button>
-          {renderButton({
-            name: 'goalType',
-            values: this.generateDoc(values),
-            isSubmitted,
-            object: this.props.goalType
-          })}
+          {(!this.state.nextButton || this.state.nextButton === undefined) && (
+            <div>
+              <Button btnStyle="simple" onClick={closeModal} icon="cancel-1">
+                {__('Close')}
+              </Button>
+              <Button
+                btnStyle="danger"
+                onClick={() => {
+                  this.setState({ nextButton: true });
+                }}
+                icon="arrow-right"
+              >
+                {__('Next')}
+              </Button>
+              {this.props.renderButton({
+                name: 'goalType',
+                values: this.generateDoc(values),
+                isSubmitted,
+                object: this.props.goalType
+              })}
+            </div>
+          )}
+          {this.state.nextButton === true && (
+            <div>
+              <Button
+                btnStyle="danger"
+                onClick={() => this.setState({ nextButton: false })}
+                icon="arrow-left"
+              >
+                {__('Back')}
+              </Button>
+            </div>
+          )}
         </ModalFooter>
       </>
     );
