@@ -1,25 +1,29 @@
 import React, { useState } from 'react';
 import {
+  Button,
   ControlLabel,
   FormControl,
   TabTitle,
   Tabs
 } from '@erxes/ui/src/components';
-import { CenterBar, FlexColumn } from '../../styles';
+import { CenterBar, FlexCenter, FlexColumn } from '../../styles';
 import { __ } from '@erxes/ui/src/utils';
 import { FlexRow } from '@erxes/ui-settings/src/styles';
 import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
 import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
-import { ReportTemplatesListQueryResponse } from '../../types';
 
 type Props = {
   history: any;
   queryParams: any;
 
   chartTemplates: any[];
+  createReport?(values: any): void;
+  setShowModal(showModal: boolean): void;
 };
 
 const ReportFormModal = (props: Props) => {
+  const { createReport, setShowModal } = props;
+
   const [visibility, setVisibility] = useState('public');
   const [userIds, setUserIds] = useState([]);
   const [departmentIds, setDepartmentIds] = useState([]);
@@ -73,6 +77,13 @@ const ReportFormModal = (props: Props) => {
           />
         </>
       )}
+
+      <FlexCenter>
+        <Button btnStyle="primary" onClick={() => setShowModal(false)}>
+          Close
+        </Button>
+        <Button btnStyle="success">Save Changes</Button>
+      </FlexCenter>
     </FlexColumn>
   );
 };

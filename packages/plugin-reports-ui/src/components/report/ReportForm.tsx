@@ -1,20 +1,18 @@
-import React, { useState } from 'react';
-import Modal from 'react-bootstrap/Modal';
 import { FlexRow } from '@erxes/ui-settings/src/styles';
 import { Button, FormControl } from '@erxes/ui/src/components';
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { __ } from '@erxes/ui/src/utils';
+import React, { useState } from 'react';
+import Modal from 'react-bootstrap/Modal';
+import ReportFormModal from '../../containers/report/ReportFormModal';
 import {
   BoxContainer,
+  FlexCenter,
   FlexColumn,
   FormContentWrapper,
-  HeightedWrapper,
   ReportsSearchSection,
   ReportsTemplatesSection
 } from '../../styles';
-import { FlexCenter } from '../../styles';
-import ReportFormModal from '../../containers/report/ReportFormModal';
-import { IReport } from '../../types';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 
 type Props = {
   history: any;
@@ -40,7 +38,7 @@ const ReportForm = (props: Props) => {
   };
 
   return (
-    <HeightedWrapper>
+    <>
       <Wrapper.Header
         breadcrumb={[
           { title: __('Reports'), link: '/reports' },
@@ -58,14 +56,9 @@ const ReportForm = (props: Props) => {
             emptyReport={emptyReport}
             charts={charts}
             serviceName={serviceName}
+            setShowModal={setShowModal}
           />
         </Modal.Body>
-        <FlexCenter>
-          <Button btnStyle="primary" onClick={() => setShowModal(false)}>
-            Close
-          </Button>
-          <Button btnStyle="success">Save Changes</Button>
-        </FlexCenter>
       </Modal>
 
       <FormContentWrapper>
@@ -91,7 +84,7 @@ const ReportForm = (props: Props) => {
               >
                 <FlexRow>
                   <div>
-                    <img src={template.img} width="500px" height="auto" />
+                    <img src={template.img} width="500px" />
                   </div>
                   <FlexColumn>
                     <h3>{template.title}</h3>
@@ -114,7 +107,7 @@ const ReportForm = (props: Props) => {
           />
         </ReportsSearchSection> */}
       </FormContentWrapper>
-    </HeightedWrapper>
+    </>
   );
 };
 

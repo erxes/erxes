@@ -281,25 +281,16 @@ const ReportsTemplatesSection = styled.div`
   flex: 1;
   margin: 10px;
   padding: 20px;
+  overflow-y: auto;
 `;
 const FlexCenter = styled.div`
   display: flex;
   flex-direction: row;
   justify-content: center;
   align-items: center;
-  margin: 20px;
+  margin: 10px;
 `;
 
-const HeightedWrapper = styled.div`
-  flex: 1;
-  position: relative;
-
-  margin: 0;
-
-  > section {
-    margin: 0;
-  }
-`;
 export {
   DragField,
   CenterBar,
@@ -311,6 +302,5 @@ export {
   FormContentWrapper,
   ReportsSearchSection,
   ReportsTemplatesSection,
-  FlexCenter,
-  HeightedWrapper
+  FlexCenter
 };

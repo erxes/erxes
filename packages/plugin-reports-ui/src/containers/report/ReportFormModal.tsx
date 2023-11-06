@@ -14,6 +14,8 @@ type Props = {
   charts?: string[];
   serviceName?: string;
   emptyReport?: boolean;
+  setShowModal(showModal: boolean): void;
+  createReport?(values: any): void;
 };
 
 type FinalProps = {
