@@ -156,30 +156,15 @@ const RightSideBar = () => {
                             onClick={() => eventAction(item._id, "interested")}
                           >
                             {checkUserGoingStatus ? (
-                              <div
-                                className="flex items-center cursor-pointer gap-2 px-3 py-2"
-                                onClick={() =>
-                                  eventAction(item._id, "interested")
-                                }
-                              >
+                              <div className="flex items-center cursor-pointer gap-2 px-3 py-2">
                                 <CheckCheckIcon size={15} /> Going
                               </div>
                             ) : checkUserInterestedStatus ? (
-                              <div
-                                className="flex items-center cursor-pointer gap-2 px-3 py-2"
-                                onClick={() =>
-                                  eventAction(item._id, "interested")
-                                }
-                              >
+                              <div className="flex items-center cursor-pointer gap-2 px-3 py-2">
                                 <HeartIcon size={15} /> Interested
                               </div>
                             ) : (
-                              <div
-                                className="flex items-center cursor-pointer gap-2 px-3 py-2"
-                                onClick={() =>
-                                  eventAction(item._id, "interested")
-                                }
-                              >
+                              <div className="flex items-center cursor-pointer gap-2 px-3 py-2">
                                 <X size={15} /> Not interested
                               </div>
                             )}
