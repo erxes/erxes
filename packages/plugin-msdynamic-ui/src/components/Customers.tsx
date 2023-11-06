@@ -114,7 +114,6 @@ const Customers = ({
             <tr>
               <th>{__('Code')}</th>
               <th>{__('Name')}</th>
-              <th>{__('Unit price')}</th>
               {action === 'UPDATE' ? <th>{__('Update Status')}</th> : <></>}
               {action === 'CREATE' ? <th>{__('Create Status')}</th> : <></>}
               {action === 'DELETE' ? <th>{__('Delete Status')}</th> : <></>}

@@ -6,21 +6,12 @@ type Props = {
 };
 
 const CustomersRow = ({ customers, action }: Props) => {
-  const {
-    Description,
-    No,
-    name,
-    code,
-    unitPrice,
-    Unit_Price,
-    syncStatus
-  } = customers;
+  const { Name, No, primaryName, code, syncStatus } = customers;
 
   return (
     <tr>
       <td>{action === 'DELETE' ? code : No}</td>
-      <td>{action === 'DELETE' ? name : Description}</td>
-      <td>{parseFloat(action === 'DELETE' ? unitPrice : Unit_Price)}</td>
+      <td>{action === 'DELETE' ? primaryName : Name}</td>
       {action === 'CREATE' ? (
         <td>
           {syncStatus === false ? (
