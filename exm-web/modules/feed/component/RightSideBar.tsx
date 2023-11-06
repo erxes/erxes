@@ -6,11 +6,11 @@ import dayjs from "dayjs"
 import { useAtomValue } from "jotai"
 import { ClockIcon, MapPinIcon, UsersIcon } from "lucide-react"
 
-import { readFile } from "@/lib/utils"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import Image from "@/components/ui/image"
 import { ScrollArea } from "@/components/ui/scroll-area"
 
+import RightNavbar from "../../navbar/component/RightNavbar"
 import { useEvents } from "../hooks/useEvent"
 
 const RightSideBar = () => {
@@ -45,34 +45,10 @@ const RightSideBar = () => {
   })
 
   return (
-    <div className="p-4">
-      <div>
-        <div className="flex items-center">
-          <Image
-            src={
-              currentUser.details && currentUser.details.avatar
-                ? currentUser?.details?.avatar
-                : "/avatar-colored.svg"
-            }
-            alt="User Profile"
-            width={100}
-            height={100}
-            className="w-10 h-10 rounded-full object-cover"
-          />
-          <div className="ml-3 mt-2">
-            <div className="text-sm font-bold text-gray-700 mb-1 flex flex-col">
-              {currentUser?.details.fullName ||
-                currentUser?.username ||
-                currentUser?.email}
-              <span className="text-xs font-medium">
-                {currentUser?.username}
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
+    <div>
+      <RightNavbar />
 
-      <ScrollArea className="h-[calc(100vh-100px)] ">
+      <ScrollArea className="h-[calc(100vh-100px)] bg-[#F8F9FA]">
         <div className="p-2 mt-4">
           {((checkedTodaysEvent && checkedTodaysEvent) || []).map(
             (item: any) => {
