@@ -19,6 +19,26 @@ const reportsQueries = {
     return models.Reports.getReport(_id);
   },
 
+  // return total templates list from available services
+  async reportTemplatesList(_root, { searchValue }, { models }: IContext) {
+    const serviceNames = await serviceDiscovery.getServices();
+    const totalTemplatesList: any = [];
+    for (const serviceName of serviceNames) {
+      const service = await serviceDiscovery.getService(serviceName, true);
+      const reportTemplates = service.config?.meta?.reports?.reportTemplates;
+
+      if (reportTemplates) {
+        totalTemplatesList.push(
+          ...reportTemplates.filter(t =>
+            t.name.toLowerCase().includes(searchValue.toLowerCase())
+          )
+        );
+      }
+    }
+
+    return totalTemplatesList;
+  },
+
   chartsList(_root, {}, { models }: IContext) {
     const selector: any = {};
     const totalCount = models.Charts.count(selector);
@@ -37,7 +57,7 @@ const reportsQueries = {
   ) {
     const service = serviceDiscovery.getService(serviceName);
 
-    const templates = service.configs.meta.reports || {};
+    const templates = service.configs.meta.reports.templates || {};
 
     let filterTypes = [];
 

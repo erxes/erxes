@@ -7,7 +7,8 @@ export const types = `
     _id: String!
     name: String
     visibility: VisibilityType
-    memberIds: [String]
+    selectedMemberIds: [String]
+    departmentIds: [String]
     tagIds: [String]
     charts: [ReportChart]
     
@@ -20,6 +21,21 @@ export const types = `
   enum VisibilityType {
     public
     private
+  }
+
+  type ReportTemplate {
+    templateType: String
+    name: String!
+    description: String
+    filterTypes: [ReportFilter]
+  }
+
+  type ReportFilter {
+    fieldName: String
+    fieldType: String
+    multi: Boolean
+    fieldQuery: String
+    fieldLabel: String
   }
  
   type ReportChart {
@@ -71,7 +87,7 @@ export const queries = `
   
   reportChartsList: ChartsListResponse
   reportChartDetail(chartId: String!): ReportChart
-  reportTemplatesList: [JSON]  
+  reportTemplatesList(searchValue: String): [JSON]  
 
   reportChartGetTemplates(serviceName: String!): JSON
   reportChartGetFilterTypes(serviceName: String!, templateType: String!): JSON

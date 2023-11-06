@@ -100,20 +100,20 @@ const DragField = styledTS<{ haveChart?: boolean }>(styled(ReactGridLayout))`
 `;
 
 const CenterBar = styled.div`
-  position: absolute;
-  left: 40%;
-
   > div {
     height: 30px;
     border: 1px solid ${colors.borderDarker};
     border-radius: ${dimensions.coreSpacing + dimensions.unitSpacing}px;
+
+    width: fit-content;
+    margin-left: auto;
 
     span {
       font-weight: 500;
       padding: 4px ${dimensions.coreSpacing}px;
       border-radius: ${dimensions.coreSpacing + dimensions.unitSpacing}px;
 
-      &.public {
+      &.active {
         background: ${colors.colorSecondary};
         color: ${colors.colorWhite};
 
@@ -282,6 +282,13 @@ const ReportsTemplatesSection = styled.div`
   margin: 10px;
   padding: 20px;
 `;
+const FlexCenter = styled.div`
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  margin: 20px;
+`;
 
 export {
   DragField,
@@ -293,5 +300,6 @@ export {
   FlexColumn,
   FormContentWrapper,
   ReportsSearchSection,
-  ReportsTemplatesSection
+  ReportsTemplatesSection,
+  FlexCenter
 };

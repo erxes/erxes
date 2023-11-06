@@ -2,10 +2,20 @@ import { IUserDocument } from '@erxes/api-utils/src/types';
 import { models } from './connectionResolver';
 import { sendCoreMessage } from './messageBroker';
 
-const templates = [
+const reportTemplates = [
+  {
+    title: '1231',
+    description:
+      "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
+    charts: ['dealsChart', '123'],
+    img: 'https://office.erxes.io/images/usingGuide.png'
+  }
+];
+
+const chartTemplates = [
   {
     templateType: 'dealsChart',
-    name: 'dealsChart',
+    name: 'Deals chart',
     getChartResult: async (
       filter: any,
       subdomain: string,
@@ -105,12 +115,13 @@ const getChartResult = async ({ subdomain, data }) => {
   const { templateType, filter, currentUser } = data;
 
   const template =
-    templates.find(t => t.templateType === templateType) || ({} as any);
+    chartTemplates.find(t => t.templateType === templateType) || ({} as any);
 
   return template.getChartResult(filter, subdomain, currentUser);
 };
 
 export default {
-  templates,
+  chartTemplates,
+  reportTemplates,
   getChartResult
 };
