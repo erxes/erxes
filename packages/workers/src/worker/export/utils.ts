@@ -13,11 +13,7 @@ const myWorker = new CustomWorker();
 export const uploadsFolderPath = path.join(__dirname, '../../private/uploads');
 
 const getWorkerFile = () => {
-  if (process.env.NODE_ENV !== 'production') {
-    return `./src/worker/export/export.worker.js`;
-  }
-
-  return `./dist/workers/src/worker/export/export.worker.js`;
+  return `./src/worker/export/export.worker.js`;
 };
 
 export const receiveExportCreate = async (

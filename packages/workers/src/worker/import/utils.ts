@@ -189,11 +189,7 @@ const importBulkStream = ({
 };
 
 const getWorkerFile = fileName => {
-  if (process.env.NODE_ENV !== 'production') {
-    return `./src/worker/import/${fileName}.worker.import.js`;
-  }
-
-  return `./dist/workers/src/worker/import/${fileName}.worker.import.js`;
+  return `./src/worker/import/${fileName}.worker.import.js`;
 };
 
 export const clearEmptyValues = (obj: any) => {
@@ -248,6 +244,8 @@ export const receiveImportRemove = async (
     }
 
     const workerPath = path.resolve(getWorkerFile('importHistoryRemove'));
+
+    console.log(workerPath, '213213');
 
     const calc = Math.ceil(ids.length / WORKER_BULK_LIMIT);
     const results: any[] = [];
