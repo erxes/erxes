@@ -10,7 +10,6 @@ import { ReportTemplatesListQueryResponse } from '../../types';
 import ReportFormComponent from '../../components/report/ReportForm';
 type Props = {
   searchValue: string;
-  charts: string[];
   serviceName: string;
 
   history: any;
@@ -24,9 +23,14 @@ type FinalProps = {
 const ReportForm = (props: FinalProps) => {
   const { reportTemplatesListQuery, history, queryParams } = props;
 
-  console.log('yamate   ', reportTemplatesListQuery.reportTemplatesList);
+  if (reportTemplatesListQuery.loading) {
+    return <Spinner />;
+  }
 
-  return <ReportFormComponent {...props} />;
+  const { reportTemplatesList = [] } = reportTemplatesListQuery;
+  return (
+    <ReportFormComponent {...props} reportTemplates={reportTemplatesList} />
+  );
 };
 
 export default withProps<Props>(
@@ -37,16 +41,6 @@ export default withProps<Props>(
         name: 'reportTemplatesListQuery',
         options: ({ searchValue }) => ({
           variables: { searchValue },
-          fetchPolicy: 'network-only'
-        })
-      }
-    ),
-    graphql<Props, any, { serviceName: string; charts: string[] }>(
-      gql(queries.reportChartTemplatesList),
-      {
-        name: 'reportChartTemplatesListQuery',
-        options: ({ serviceName, charts }) => ({
-          variables: { serviceName, charts },
           fetchPolicy: 'network-only'
         })
       }

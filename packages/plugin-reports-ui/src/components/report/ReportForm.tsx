@@ -11,59 +11,30 @@ import {
   ReportsTemplatesSection
 } from '../../styles';
 import { FlexCenter } from '../../styles';
-import ReportFormModal from './ReportFormModal';
-
+import ReportFormModal from '../../containers/report/ReportFormModal';
+import { IReport } from '../../types';
 type Props = {
   history: any;
   queryParams: any;
+
+  reportTemplates: any[];
 };
 
-const templates = [
-  {
-    name: 'Chat overview',
-    description: `Lorem Ipsum is simply dummy text of the printing and
-                  typesetting industry. Lorem Ipsum has been the industry's
-                  standard dummy text ever since the 1500s, when an unknown
-                  printer took a galley of type and scrambled it to make a type
-                  specimen book. It has survived not only five centuries, but
-                  also the leap into electronic typesetting, remaining
-                  essentially unchanged. It was popularised in the 1960s with
-                  the release of Letraset sheets containing Lorem Ipsum
-                  passages, and more recently with desktop publishing software
-                  like Aldus PageMaker including versions of Lorem Ipsum.`
-  },
-  {
-    name: 'Email overview',
-    description: `Lorem Ipsum is simply dummy text of the printing and
-                  typesetting industry. Lorem Ipsum has been the industry's
-                  standard dummy text ever since the 1500s, when an unknown
-                  printer took a galley of type and scrambled it to make a type
-                  specimen book. It has survived not only five centuries, but
-                  also the leap into electronic typesetting, remaining
-                  essentially unchanged. It was popularised in the 1960s with
-                  the release of Letraset sheets containing Lorem Ipsum
-                  passages, and more recently with desktop publishing software
-                  like Aldus PageMaker including versions of Lorem Ipsum.`
-  },
-  {
-    name: 'Sales',
-    description: `Lorem Ipsum is simply dummy text of the printing and
-                  typesetting industry. Lorem Ipsum has been the industry's
-                  standard dummy text ever since the 1500s, when an unknown
-                  printer took a galley of type and scrambled it to make a type
-                  specimen book. It has survived not only five centuries, but
-                  also the leap into electronic typesetting, remaining
-                  essentially unchanged. It was popularised in the 1960s with
-                  the release of Letraset sheets containing Lorem Ipsum
-                  passages, and more recently with desktop publishing software
-                  like Aldus PageMaker including versions of Lorem Ipsum.`
-  }
-];
 const ReportForm = (props: Props) => {
   // show report templates list
   // set visibility
 
+  const { reportTemplates } = props;
   const [showModal, setShowModal] = useState(false);
+  const [charts, setCharts] = useState<string[]>([]);
+  const [emptyReport, setEmptyReport] = useState(false);
+  const [serviceName, setServiceName] = useState('');
+
+  const onModalTrigger = (template: any) => {
+    setShowModal(true);
+    setCharts(template.charts);
+    setServiceName(template.serviceName);
+  };
 
   return (
     <>
@@ -72,7 +43,12 @@ const ReportForm = (props: Props) => {
           <Modal.Title>Modal heading</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <ReportFormModal />
+          <ReportFormModal
+            {...props}
+            emptyReport={emptyReport}
+            charts={charts}
+            serviceName={serviceName}
+          />
         </Modal.Body>
         <FlexCenter>
           <Button btnStyle="primary" onClick={() => setShowModal(false)}>
@@ -85,7 +61,12 @@ const ReportForm = (props: Props) => {
       <FormContentWrapper>
         <ReportsTemplatesSection>
           <FlexColumn style={{ gap: '20px' }}>
-            <BoxContainer onClick={() => setShowModal(true)}>
+            <BoxContainer
+              onClick={() => {
+                setEmptyReport(true);
+                setShowModal(true);
+              }}
+            >
               <div>
                 <h5> + Create a report from scratch</h5>
               </div>
@@ -93,12 +74,17 @@ const ReportForm = (props: Props) => {
 
             <h3>Create reports from templates</h3>
 
-            {templates.map((template, index) => (
-              <BoxContainer key={index}>
+            {reportTemplates.map((template, index) => (
+              <BoxContainer
+                key={index}
+                onClick={() => onModalTrigger(template)}
+              >
                 <FlexRow>
-                  <div></div>
+                  <div>
+                    <img src={template.img} width="500px" height="auto" />
+                  </div>
                   <FlexColumn>
-                    <h3>{template.name}</h3>
+                    <h3>{template.title}</h3>
                     <p>{template.description}</p>
                   </FlexColumn>
                 </FlexRow>
@@ -107,7 +93,7 @@ const ReportForm = (props: Props) => {
           </FlexColumn>
         </ReportsTemplatesSection>
 
-        <ReportsSearchSection>
+        {/* <ReportsSearchSection>
           <FormControl
             type="text"
             placeholder={__('Search report templates')}
@@ -116,7 +102,7 @@ const ReportForm = (props: Props) => {
             // autoFocus={true}
             // onFocus={moveCursorAtTheEnd}
           />
-        </ReportsSearchSection>
+        </ReportsSearchSection> */}
       </FormContentWrapper>
     </>
   );

@@ -23,6 +23,7 @@ const reportsQueries = {
   async reportTemplatesList(_root, { searchValue }, { models }: IContext) {
     const serviceNames = await serviceDiscovery.getServices();
     const totalTemplatesList: any = [];
+    const searchVal = searchValue || '';
     for (const serviceName of serviceNames) {
       const service = await serviceDiscovery.getService(serviceName, true);
       const reportTemplates = service.config?.meta?.reports?.reportTemplates;
@@ -30,7 +31,7 @@ const reportsQueries = {
       if (reportTemplates) {
         totalTemplatesList.push(
           ...reportTemplates.filter(t =>
-            t.title.toLowerCase().includes(searchValue?.toLowerCase())
+            t.title.toLowerCase().includes(searchVal?.toLowerCase())
           )
         );
       }
@@ -45,10 +46,7 @@ const reportsQueries = {
     {}: IContext
   ) {
     const service = await serviceDiscovery.getService(serviceName, true);
-    console.log('mofof ', service.config?.meta?.reports);
     const chartTemplates = service.config?.meta?.reports?.chartTemplates;
-
-    console.log('c templates ', chartTemplates);
     return chartTemplates.filter(t => charts.includes(t.templateType));
   },
 

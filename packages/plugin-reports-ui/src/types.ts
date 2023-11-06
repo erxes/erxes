@@ -16,6 +16,13 @@ enum ReportVisibility {
   private = 'private'
 }
 
+export interface IReportTemplate {
+  title: string;
+  description: string;
+  charts: string[];
+  img: string;
+  serviceName: string;
+}
 export interface IChart {
   _id: string;
   name?: string;
@@ -43,6 +50,12 @@ export type ReportsListQueryResponse = {
 
 export type ReportTemplatesListQueryResponse = {
   reportTemplatesList: ReportTemplate[];
+  refetch: () => void;
+  loading: boolean;
+};
+
+export type ReportChartTemplatesListQueryResponse = {
+  reportChartTemplatesList: any[];
   refetch: () => void;
   loading: boolean;
 };

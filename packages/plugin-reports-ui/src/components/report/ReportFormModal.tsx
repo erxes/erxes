@@ -10,8 +10,16 @@ import { __ } from '@erxes/ui/src/utils';
 import { FlexRow } from '@erxes/ui-settings/src/styles';
 import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
 import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
+import { ReportTemplatesListQueryResponse } from '../../types';
 
-const ReportFormModal = () => {
+type Props = {
+  history: any;
+  queryParams: any;
+
+  chartTemplates: any[];
+};
+
+const ReportFormModal = (props: Props) => {
   const [visibility, setVisibility] = useState('public');
   const [userIds, setUserIds] = useState([]);
   const [departmentIds, setDepartmentIds] = useState([]);
