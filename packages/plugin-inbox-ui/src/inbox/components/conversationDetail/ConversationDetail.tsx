@@ -14,6 +14,7 @@ import { IConversation } from '@erxes/ui-inbox/src/inbox/types';
 import { IField } from '@erxes/ui/src/types';
 import React from 'react';
 import Sidebar from '../../containers/conversationDetail/Sidebar';
+import SidebarLoader from './sidebar/SidebarLoader';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import WorkArea from './workarea/WorkArea';
 
@@ -28,10 +29,10 @@ export default class ConversationDetail extends React.Component<Props> {
   renderSidebar() {
     const { loading, currentConversation, conversationFields } = this.props;
 
-    if (!loading) {
+    if (loading) {
       return (
         <EmptySidebar full={true}>
-          <Spinner />
+          <SidebarLoader />
         </EmptySidebar>
       );
     }
@@ -72,7 +73,7 @@ export default class ConversationDetail extends React.Component<Props> {
   renderContent() {
     const { loading, currentConversation } = this.props;
 
-    if (!loading) {
+    if (loading) {
       return (
         <ContentBox>
           <ConversationDetailLoader />

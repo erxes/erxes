@@ -39,7 +39,7 @@ const FlexColumn = styled.div`
 const TopActionBar = styled.div`
   display: flex;
   justify-content: space-between;
-  padding: 20px;
+  padding: ${dimensions.unitSpacing + 4}px ${dimensions.coreSpacing}px;
 `;
 
 const MainContent = styled.div`
@@ -58,7 +58,7 @@ const EditorFooter = styled.div`
 `;
 
 const EditorContent = styled.div`
-  height: 60px;
+  height: 70px;
 `;
 
 const EditorTop = styled.div`
