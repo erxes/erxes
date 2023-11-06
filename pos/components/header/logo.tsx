@@ -1,7 +1,7 @@
 "use client"
 
 import { usePathname, useRouter } from "next/navigation"
-import { activeCategoryAtom, slotFilterAtom } from "@/store"
+import { activeCategoryAtom, refetchUserAtom, slotFilterAtom } from "@/store"
 import { configAtom } from "@/store/config.store"
 import { setInitialAtom } from "@/store/order.store"
 import { useAtomValue, useSetAtom } from "jotai"
@@ -14,6 +14,7 @@ const Logo = () => {
   const setInitialState = useSetAtom(setInitialAtom)
   const setCategory = useSetAtom(activeCategoryAtom)
   const setSlotFilter = useSetAtom(slotFilterAtom)
+  const setRefetchUser = useSetAtom(refetchUserAtom)
   const config = useAtomValue(configAtom)
 
   const { logo } = config?.uiOptions || {}
@@ -22,6 +23,7 @@ const Logo = () => {
     setInitialState()
     setCategory("")
     setSlotFilter(null)
+    setRefetchUser(true)
   }
 
   return (

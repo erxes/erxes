@@ -1,16 +1,17 @@
 import { memo } from "react"
 import { selectedTabAtom, slotFilterAtom } from "@/store"
 import { slotCodeAtom } from "@/store/order.store"
-import { useSetAtom } from "jotai"
+import { useAtom, useSetAtom } from "jotai"
 import { CheckCircle2, Circle, ListFilterIcon, XCircleIcon } from "lucide-react"
 
 import { ISlot } from "@/types/slots.type"
 import {
-  ContextMenu,
-  ContextMenuContent,
-  ContextMenuItem,
-  ContextMenuSeparator,
-} from "@/components/ui/context-menu"
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu"
 
 import CreateSlot from "./createSlot"
 import PreDates from "./preDates"
@@ -32,18 +33,18 @@ const SlotActions = ({
   active: boolean
   children: React.ReactNode
 }) => {
-  const setActiveSlot = useSetAtom(slotCodeAtom)
+  const [activeSlot, setActiveSlot] = useAtom(slotCodeAtom)
   const setSelectedTab = useSetAtom(selectedTabAtom)
   const setFilterSlots = useSetAtom(slotFilterAtom)
   const Icon = statusIcons[status || "available"]
-  const handleChoose = () => {
-    setActiveSlot(code)
-    setSelectedTab("products")
+  const handleChoose = (checked: boolean) => {
+    setActiveSlot(checked ? code : null)
+    checked && setSelectedTab("products")
   }
   return (
-    <ContextMenu>
+    <DropdownMenu>
       {children}
-      <ContextMenuContent className="min-w-[13rem]">
+      <DropdownMenuContent className="min-w-[13rem]">
         <div className="flex items-center justify-between px-2 py-1.5">
           <div className="flex items-center">
             {name} ({code})
@@ -54,19 +55,24 @@ const SlotActions = ({
           </div>
         </div>
 
-        <ContextMenuSeparator />
-        <ContextMenuItem onClick={handleChoose}>Сонгох</ContextMenuItem>
+        <DropdownMenuSeparator />
+        <DropdownMenuCheckboxItem
+          onCheckedChange={handleChoose}
+          checked={activeSlot === code}
+        >
+          Захиалгад оноох
+        </DropdownMenuCheckboxItem>
         <CreateSlot code={code} />
-        <ContextMenuItem
+        <DropdownMenuItem
           className="flex items-center"
           onClick={() => setFilterSlots(code)}
         >
-          <ListFilterIcon className="h-4 w-4 mr-1" />
-          Захиалгууд
-        </ContextMenuItem>
+          <ListFilterIcon className="h-4 w-4 mr-2" />
+          Захиалга сонгох
+        </DropdownMenuItem>
         <PreDates isPreDates={isPreDates} />
-      </ContextMenuContent>
-    </ContextMenu>
+      </DropdownMenuContent>
+    </DropdownMenu>
   )
 }
 

@@ -26,12 +26,12 @@ const ActiveOrders = () => {
         sortField: "createdAt",
         isPaid: false,
         statuses: ALL,
-        slotCode: slotCode,
+        slotCode,
       },
       query: queries.activeOrders,
       onCompleted(orders) {
         if (orders.length === 1) {
-          !_id && slotCode && setActiveOrderId(orders[0]._id)
+          !!slotCode && setActiveOrderId(orders[0]._id)
         }
       },
     })

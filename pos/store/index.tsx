@@ -31,6 +31,8 @@ export const selectedTabAtom = atom<"plan" | "products">("plan")
 
 export const slotFilterAtom = atom<string | null>(null)
 
+export const refetchUserAtom = atom<boolean>(false)
+
 // dialog
 
 export const kioskModalView = atom<string>("")

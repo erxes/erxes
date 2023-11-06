@@ -5,7 +5,7 @@ import { Check } from "lucide-react"
 
 import { ISlot } from "@/types/slots.type"
 import { Button } from "@/components/ui/button"
-import { ContextMenuTrigger } from "@/components/ui/context-menu"
+import { DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Label } from "@/components/ui/label"
 
 import SlotActions from "./slotActions"
@@ -35,7 +35,7 @@ const Slot = (
 
   return (
     <SlotActions {...props}>
-      <ContextMenuTrigger>
+      <DropdownMenuTrigger>
         <Button className={className({ status })} Component={"div"}>
           {name}
           <RadioGroupItem
@@ -51,7 +51,6 @@ const Slot = (
             initial={{
               opacity: 0,
             }}
-            htmlFor={code}
           />
           <MotionLabel
             className="absolute -top-1.5 -right-1.5 bg-primary h-5 w-5 rounded-full border-2 border-white p-0.5 text-white"
@@ -61,12 +60,11 @@ const Slot = (
               translateY: active ? 0 : 2,
               translateX: active ? 0 : -2,
             }}
-            htmlFor={code}
           >
             <Check className="h-3 w-3" strokeWidth={4} />
           </MotionLabel>
         </Button>
-      </ContextMenuTrigger>
+      </DropdownMenuTrigger>
     </SlotActions>
   )
 }

@@ -5,8 +5,9 @@ import {
   slotCodeAtom,
 } from "@/store/order.store"
 import { useAtomValue, useSetAtom } from "jotai"
+import { PlusCircleIcon } from "lucide-react"
 
-import { ContextMenuItem } from "@/components/ui/context-menu"
+import { DropdownMenuItem } from "@/components/ui/dropdown-menu"
 
 const CreateSlot = ({ code }: { code: string }) => {
   const activeOrderId = useAtomValue(activeOrderIdAtom)
@@ -20,9 +21,14 @@ const CreateSlot = ({ code }: { code: string }) => {
   }
 
   return (
-    <ContextMenuItem onClick={handleCreate} disabled={!activeOrderId}>
-      Шинэ захиалга үүсгэх
-    </ContextMenuItem>
+    <DropdownMenuItem
+      onClick={handleCreate}
+      disabled={!activeOrderId}
+      className="flex items-center"
+    >
+      <PlusCircleIcon className="h-4 w-4 mr-2" />
+      Захиалга үүсгэх
+    </DropdownMenuItem>
   )
 }
 

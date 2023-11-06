@@ -27,7 +27,7 @@ import { customerPopoverAtom } from '@/store/ui.store'
 import useOrderCU from '../orders/hooks/useOrderCU'
 import Loader from '@/components/ui/loader'
 import useKeyEvent from '@/lib/useKeyEvent'
-import { Shortcut } from '@/components/ui/shortcut'
+import { Kbd } from '@/components/ui/kbd'
 const placeHolder = (type: CustomerTypeT) => {
   if (type === "company") return "Байгууллага"
   if (type === "user") return "Ажилтан"
@@ -66,7 +66,7 @@ const Customer = () => {
   const handleSelect = (cus: Customer) => {
     setCustomer(cus._id === customer?._id ? null : cus)
     setOpen(false)
-    _id && setTimeout(orderCU, 200)
+    _id && setTimeout(orderCU, 100)
   }
 
   const handleClean = () => {
@@ -86,7 +86,7 @@ const Customer = () => {
             aria-expanded={open}
             className="w-full justify-between px-2"
           >
-            {!!customer ? getCustomerLabel(customer) : <span>{`${placeHolder(customerType)} сонгох`} <Shortcut className='bg-neutral-200/70 px-1'>F9</Shortcut></span>}
+            {!!customer ? getCustomerLabel(customer) : <span>{`${placeHolder(customerType)} сонгох`} <Kbd className='bg-neutral-200/70 px-1'>F9</Kbd></span>}
             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>

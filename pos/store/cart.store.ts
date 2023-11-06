@@ -1,4 +1,5 @@
 import { atom } from "jotai"
+import { atomWithStorage } from "jotai/utils"
 
 import {
   IAddToCartInput,
@@ -103,7 +104,8 @@ export const addToCart = (
 
 // Atoms
 // cart
-export const cartAtom = atom<OrderItem[]>([])
+export const cartAtom = atomWithStorage<OrderItem[]>("cart", [])
+
 export const orderItemInput = atom<OrderItemInput[]>((get) =>
   get(cartAtom).map(
     ({

@@ -1,13 +1,10 @@
 import { memo } from "react"
-import { selectedTabAtom } from "@/store"
-import { slotCodeAtom } from "@/store/order.store"
 import { motion } from "framer-motion"
-import { useSetAtom } from "jotai"
 import { CheckCircle2, Circle, XCircleIcon } from "lucide-react"
 
 import { ISlot } from "@/types/slots.type"
 import { cn } from "@/lib/utils"
-import { ContextMenuTrigger } from "@/components/ui/context-menu"
+import { DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Label } from "@/components/ui/label"
 
 import SlotActions from "./slotActions"
@@ -51,8 +48,6 @@ const Slot = (
     zIndex,
     borderRadius,
   }
-  const setActiveSlot = useSetAtom(slotCodeAtom)
-  const setSelectedTab = useSetAtom(selectedTabAtom)
 
   if (isShape)
     return (
@@ -65,20 +60,14 @@ const Slot = (
       />
     )
 
-  const handleChoose = () => {
-    setActiveSlot(code)
-    setSelectedTab("products")
-  }
-
   return (
     <SlotActions {...props}>
-      <ContextMenuTrigger
+      <DropdownMenuTrigger
         className={cn(
           "absolute flex items-center font-medium justify-center text-white",
           active && "shadow-md shadow-primary/50"
         )}
         style={style}
-        onClick={handleChoose}
       >
         <div
           style={{
@@ -104,7 +93,7 @@ const Slot = (
             borderRadius,
           }}
         />
-      </ContextMenuTrigger>
+      </DropdownMenuTrigger>
     </SlotActions>
   )
 }

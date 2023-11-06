@@ -12,10 +12,9 @@ import {
   IPutResponse,
 } from "@/types/order.types"
 
-import { customerSearchAtom } from "."
+import { customerSearchAtom, selectedTabAtom } from "."
 import { cartAtom, orderItemInput, totalAmountAtom } from "./cart.store"
 import { allowTypesAtom } from "./config.store"
-import { selectedTabAtom } from "."
 import { paymentSheetAtom } from "./ui.store"
 
 // order
