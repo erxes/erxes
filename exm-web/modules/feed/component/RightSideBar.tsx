@@ -61,8 +61,6 @@ const RightSideBar = () => {
       e?.eventData?.visibility === "public"
   )
 
-  console.log("vev", checkedTodaysEvent)
-
   return (
     <div>
       <RightNavbar />
