@@ -82,4 +82,4 @@ jobs:
           tar -cf build.tar --directory=packages/plugin-priuscenter-ui/.erxes/dist .
           cp build.tar packages/plugin-priuscenter-ui/.erxes/dist
           rm -rf packages/plugin-priuscenter-ui/.erxes/dist/*.js
-          aws s3 sync packages/plugin-priuscenter-ui/.erxes/dist s3://erxes-${GITHUB_REF#refs/heads/}-plugins/uis/plugin-priuscenter-ui --delete
+          aws s3 sync packages/plugin-priuscenter-ui/.erxes/dist s3://erxes-enterprise-plugins/uis/plugin-priuscenter-ui --delete

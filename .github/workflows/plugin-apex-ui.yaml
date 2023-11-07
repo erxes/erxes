@@ -82,4 +82,4 @@ jobs:
           tar -cf build.tar --directory=packages/plugin-apex-ui/.erxes/dist .
           cp build.tar packages/plugin-apex-ui/.erxes/dist
           rm -rf packages/plugin-apex-ui/.erxes/dist/*.js
-          aws s3 sync packages/plugin-apex-ui/.erxes/dist s3://erxes-${GITHUB_REF#refs/heads/}-plugins/uis/plugin-apex-ui --delete
+          aws s3 sync packages/plugin-apex-ui/.erxes/dist s3://erxes-enterprise-plugins/uis/plugin-apex-ui --delete
