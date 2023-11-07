@@ -7,13 +7,16 @@ export const types = `
     _id: String!
     name: String
     visibility: VisibilityType
-    selectedMemberIds: [String]
-    departmentIds: [String]
+    
+    assignedUserIds: [String]
+    assignedDepartmentIds: [String]
     tagIds: [String]
+    
     charts: [ReportChart]
     
-    lastUpdatedAt:Date
-    lastUpdatedBy: User
+    updatedAt:Date
+    updatedBy: User
+
     createdAt:Date
     createdBy: User
   }
@@ -105,8 +108,16 @@ const chart_params = `
   order: Int
 `;
 
+const report_params = `
+  name: String,
+  visibility: VisibilityType,
+  assignedUserIds: [String],
+  assignedDepartmentIds: [String],
+  tagIds: [String],
+`;
+
 export const mutations = `
-  reportsAdd(${params}): Report
+  reportsAdd(${report_params}): Report
   reportsRemove(_id: String!): JSON
   reportsRemoveMany(ids: [String]!): JSON 
    

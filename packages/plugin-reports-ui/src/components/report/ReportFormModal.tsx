@@ -17,7 +17,7 @@ type Props = {
   queryParams: any;
 
   chartTemplates: any[];
-  createReport?(values: any): void;
+  createReport(values: any): void;
   setShowModal(showModal: boolean): void;
 };
 
@@ -27,6 +27,7 @@ const ReportFormModal = (props: Props) => {
   const [visibility, setVisibility] = useState('public');
   const [userIds, setUserIds] = useState([]);
   const [departmentIds, setDepartmentIds] = useState([]);
+  const [name, setName] = useState('');
 
   const handleUserChange = _userIds => {
     setUserIds(_userIds);
@@ -36,11 +37,24 @@ const ReportFormModal = (props: Props) => {
     setDepartmentIds(_departmentIds);
   };
 
+  const handleNameChange = e => {
+    e.preventDefault();
+    setName(e.target.value);
+  };
+
+  const handleSubmit = async () => {
+    createReport({
+      name,
+      visibility,
+      assignedUserIds: userIds,
+      assignedDepartmentIds: departmentIds
+    });
+  };
   return (
     <FlexColumn style={{ gap: '20px' }}>
       <div>
         <ControlLabel>Report Name</ControlLabel>
-        <FormControl type="text" />
+        <FormControl type="text" onChange={handleNameChange} />
       </div>
 
       <FlexRow justifyContent="space-between">
@@ -82,7 +96,9 @@ const ReportFormModal = (props: Props) => {
         <Button btnStyle="primary" onClick={() => setShowModal(false)}>
           Close
         </Button>
-        <Button btnStyle="success">Save Changes</Button>
+        <Button btnStyle="success" onClick={handleSubmit}>
+          Save Changes
+        </Button>
       </FlexCenter>
     </FlexColumn>
   );

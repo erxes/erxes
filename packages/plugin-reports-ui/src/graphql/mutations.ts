@@ -46,11 +46,41 @@ const editType = `
   }
 `;
 
+const report_params = `
+  $name: String,
+  $visibility: VisibilityType,
+  $selectedMemberIds: [String],
+  $departmentIds: [String],
+  $tagIds: [String],
+`;
+
+const report_params_def = `
+  name: $name,
+  visibility: $visibility,
+  selectedMemberIds: $selectedMemberIds,
+  departmentIds: $departmentIds,
+  tagIds: $tagIds,
+`;
+
+const reportsAdd = `
+mutation reportsAdd(${report_params}) {
+  reportsAdd(${report_params_def}) {
+    _id
+    name
+    visibility
+    selectedMemberIds
+    departmentIds
+    tagIds
+  }
+}
+`;
+
 export default {
   add,
   remove,
   edit,
   addType,
   removeType,
-  editType
+  editType,
+  reportsAdd
 };

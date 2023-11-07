@@ -60,6 +60,12 @@ export type ReportChartTemplatesListQueryResponse = {
   loading: boolean;
 };
 
+export type ReportFormMutationResponse = {
+  reportsAddMutation: (params: {
+    variables: ReportFormMutationVariables;
+  }) => Promise<any>;
+};
+
 type ReportTemplate = {
   title: string;
   description: string;
@@ -75,6 +81,14 @@ export type TypeQueryResponse = {
 };
 
 // mutations
+
+export type ReportFormMutationVariables = {
+  name: string;
+  visibility: ReportVisibility;
+  assignedUserIds: string[];
+  assignedDepartmentIds: string[];
+};
+
 export type MutationVariables = {
   _id?: string;
   name: string;

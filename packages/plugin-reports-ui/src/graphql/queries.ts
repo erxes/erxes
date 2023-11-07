@@ -4,10 +4,9 @@ const reportsList = `
       list {
         _id
         name
-        description
         visibility
         charts {
-          _id
+          
           name
           contentType
           template

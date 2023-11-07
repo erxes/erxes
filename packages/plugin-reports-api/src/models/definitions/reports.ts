@@ -23,7 +23,15 @@ export interface IReport {
   visibility: IVisibilityType;
   memberIds: string[];
   tagIds: string[];
+
   createdAt: Date;
+  createdBy: string;
+
+  updatedAt: Date;
+  updatedBy: string;
+
+  assignedUserIds: string[];
+  assignedDepartmentIds: string[];
 }
 
 export interface IReportDocument extends IReport, Document {
@@ -58,13 +66,30 @@ export const reportSchema = new Schema({
     type: IVisibilityType,
     label: 'Report visibility'
   }),
-  memberIds: field({ type: [String], label: 'Assigned member ids' }),
+  assignedUserIds: field({ type: [String], label: 'Assigned member ids' }),
+  assignedDepartmentIds: field({
+    type: [String],
+    label: 'Assigned department ids'
+  }),
   tagIds: field({ type: [String], label: 'Assigned tag ids' }),
   createdAt: field({
     default: Date.now(),
     type: Date,
     label: 'Created at',
     index: true
+  }),
+  createdBy: field({
+    type: String,
+    label: 'Created by user id',
+    index: true
+  }),
+  updatedAt: field({
+    type: Date,
+    label: 'Last updated at'
+  }),
+  updatedBy: field({
+    type: String,
+    label: 'Last updated by user id'
   })
 });
 

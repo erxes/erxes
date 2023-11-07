@@ -4,7 +4,6 @@ import Spinner from '@erxes/ui/src/components/Spinner';
 import { withProps } from '@erxes/ui/src/utils';
 import * as compose from 'lodash.flowright';
 import React from 'react';
-import { router } from '@erxes/ui/src/utils';
 import { queries } from '../../graphql';
 import { ReportTemplatesListQueryResponse } from '../../types';
 import ReportFormComponent from '../../components/report/ReportForm';
