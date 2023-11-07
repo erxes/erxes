@@ -16,8 +16,8 @@ type Props = {
   report: IReport;
   history: any;
   isChecked: boolean;
-  toggleReport?: (reportId: string, isChecked?: boolean) => void;
-  removeReports?: (reportIds: string[]) => void;
+  toggleReport: (reportId: string, isChecked?: boolean) => void;
+  removeReports: (reportIds: string[]) => void;
 };
 
 const Row = (props: Props) => {
@@ -55,6 +55,8 @@ const Row = (props: Props) => {
           onChange={onCheckReport}
         />
       </td>
+
+      <td>{report.name}</td>
 
       <td className="text-primary">
         <Icon icon="swatchbook" /> <b>{report.chartsCount || 0}</b>

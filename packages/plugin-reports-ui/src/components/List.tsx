@@ -14,11 +14,12 @@ import Row from './Row';
 import { isEnabled } from '@erxes/ui/src/utils/core';
 import TaggerPopover from '@erxes/ui-tags/src/components/TaggerPopover';
 import { TAG_TYPES } from '@erxes/ui-tags/src/constants';
-
+import SideBar from '../containers/SideBarList';
+// import SideBar from './SideBar';
 type Props = {
   reports: IReport[];
   renderButton?: (props: IButtonMutateProps) => JSX.Element;
-  removeReports?: (reportIds: string[]) => void;
+  removeReports: (reportIds: string[]) => void;
   editReport?: (report: IReport) => void;
   loading: boolean;
   history: any;
@@ -74,7 +75,7 @@ function List(props: Props) {
     </BarItems>
   );
 
-  const toggleReport = (reportId: string, isChecked: boolean) => {
+  const toggleReport = (reportId: string, isChecked?: boolean) => {
     if (isChecked) {
       setChosenReportIds([...chosenReportIds, reportId]);
     } else {
@@ -107,7 +108,7 @@ function List(props: Props) {
               key={report._id}
               report={report}
               {...updatedProps}
-              isChecked={chosenReportIds.includes(report._id)}
+              isChecked={chosenReportIds.includes(report._id) || false}
             />
           );
         })}
@@ -115,9 +116,10 @@ function List(props: Props) {
     </Table>
   );
 
-  const SideBarList = asyncComponent(() =>
-    import(/* webpackChunkName: "List - Reports" */ '../containers/SideBarList')
-  );
+  // const SideBarList = asyncComponent(() =>
+  //   import(/* webpackChunkName: "List - Reports" */ '../containers/SideBarList')
+  // );
+  const LeftSidebar = <SideBar {...props} />;
 
   const breadcrumb = [
     { title: __('Settings'), link: '/settings' },
@@ -148,7 +150,7 @@ function List(props: Props) {
           <TaggerPopover
             type={TAG_TYPES.DASHBOARD}
             // successCallback={this.afterTag}
-            targets={reports.filter(r => chosenReportIds.includs(r._id))}
+            targets={reports.filter(r => chosenReportIds.includes(r._id))}
             trigger={tagButton}
             // refetchQueries={['dashboardCountByTags']}
           />
@@ -179,6 +181,7 @@ function List(props: Props) {
         />
       }
       transparent={true}
+      leftSidebar={LeftSidebar}
       hasBorder
     />
   );

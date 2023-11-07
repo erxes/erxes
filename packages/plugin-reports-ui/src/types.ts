@@ -95,6 +95,11 @@ export type TypeQueryResponse = {
   loading: boolean;
 };
 
+export type CountByTagsQueryResponse = {
+  dashboardCountByTags: { [key: string]: number };
+  loading: boolean;
+};
+
 // mutations
 
 export type ReportFormMutationVariables = {

@@ -291,6 +291,10 @@ const FlexCenter = styled.div`
   margin: 10px;
 `;
 
+const MenuFooter = styled.footer`
+  padding: 10px 20px;
+`;
+
 export {
   DragField,
   CenterBar,
@@ -302,5 +306,6 @@ export {
   FormContentWrapper,
   ReportsSearchSection,
   ReportsTemplatesSection,
-  FlexCenter
+  FlexCenter,
+  MenuFooter
 };

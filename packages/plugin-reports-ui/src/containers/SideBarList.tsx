@@ -28,69 +28,19 @@ type FinalProps = {
 const TypesListContainer = (props: FinalProps) => {
   const { listReportsTypeQuery, typesEdit, typesRemove, history } = props;
 
-  if (listReportsTypeQuery.loading) {
-    return <Spinner />;
-  }
-
-  // calls gql mutation for edit/add type
-  const renderButton = ({
-    passedName,
-    values,
-    isSubmitted,
-    callback,
-    object
-  }: IButtonMutateProps) => {
-    return (
-      <ButtonMutate
-        mutation={object ? mutations.editType : mutations.addType}
-        variables={values}
-        callback={callback}
-        isSubmitted={isSubmitted}
-        type="submit"
-        successMessage={`You successfully ${
-          object ? 'updated' : 'added'
-        } a ${passedName}`}
-        refetchQueries={['listReportsTypeQuery']}
-      />
-    );
-  };
-
-  const remove = type => {
-    confirm('You are about to delete the item. Are you sure? ')
-      .then(() => {
-        typesRemove({ variables: { _id: type._id } })
-          .then(() => {
-            Alert.success('Successfully deleted an item');
-          })
-          .catch(e => Alert.error(e.message));
-      })
-      .catch(e => Alert.error(e.message));
-  };
-
   const updatedProps = {
-    ...props,
-    types: listReportsTypeQuery.reportsTypes || [],
-    loading: listReportsTypeQuery.loading,
-    remove,
-    renderButton
+    ...props
   };
 
   return <SideBar {...updatedProps} />;
 };
 
 export default withProps<Props>(
-  compose(
-    graphql(gql(queries.listReportsTypes), {
-      name: 'listReportsTypeQuery',
-      options: () => ({
-        fetchPolicy: 'network-only'
-      })
-    }),
-    graphql(gql(mutations.removeType), {
-      name: 'typesRemove',
-      options: () => ({
-        refetchQueries: ['listReportsTypeQuery']
-      })
-    })
-  )(TypesListContainer)
+  compose()(TypesListContainer)
+  // graphql(gql(mutations.removeType), {
+  //   name: 'typesRemove',
+  //   options: () => ({
+  //     refetchQueries: ['listReportsTypeQuery']
+  //   })
+  // })
 );
