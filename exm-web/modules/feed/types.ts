@@ -86,6 +86,7 @@ export interface IFeed {
   branchIds?: string[]
   unitId?: string
   createdUser?: IUser
+  commentCount?: boolean
 }
 
 export interface IFeedVariable {

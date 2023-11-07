@@ -14,6 +14,7 @@ interface Props {
   closeModal?: () => void;
   data: any;
   callData?: { callerNumber: String };
+  setConfig?: any;
 }
 
 const renderInput = (
@@ -31,7 +32,7 @@ const renderInput = (
 };
 
 const CallIntegrationForm = (props: Props) => {
-  const { closeModal, data = {} } = props;
+  const { closeModal, data = {}, setConfig } = props;
   const [selectedIntegrationId, setSelectedIntegrationId] = useState('');
   const integration = selectedIntegrationId
     ? data?.find(d => d._id === selectedIntegrationId)
@@ -50,6 +51,15 @@ const CallIntegrationForm = (props: Props) => {
           isAvailable: true
         })
       );
+    integration &&
+      setConfig({
+        inboxId: integration.inboxId,
+        phone: integration.phone,
+        wsServer: integration.wsServer,
+        token: integration.token,
+        operators: integration.operators,
+        isAvailable: true
+      });
     closeModal();
   };
 

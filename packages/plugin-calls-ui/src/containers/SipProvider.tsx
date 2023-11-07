@@ -13,7 +13,7 @@ import CallIntegrationForm from '../components/Form';
 
 const SipProviderContainer = props => {
   const [config, setConfig] = useState(
-    JSON.parse(localStorage.getItem('config:call_integrations') || '{}')
+    JSON.parse(localStorage.getItem('config:call_integrations'))
   );
 
   const { data, loading, error } = useQuery(
@@ -27,8 +27,20 @@ const SipProviderContainer = props => {
   if (error) return Alert.error(error.message);
   const { callIntegrationsOfUser } = data;
 
+  if (!callIntegrationsOfUser || callIntegrationsOfUser.length === 0) {
+    return null;
+  }
+
+  const handleSetConfig = data => {
+    setConfig(data);
+  };
+
   const content = props => (
-    <CallIntegrationForm {...props} data={callIntegrationsOfUser} />
+    <CallIntegrationForm
+      {...props}
+      data={callIntegrationsOfUser}
+      setConfig={handleSetConfig}
+    />
   );
 
   if (!config) {
@@ -54,9 +66,6 @@ const SipProviderContainer = props => {
     port: parseInt(port?.toString() || '8089')
   };
 
-  const handleSetConfig = data => {
-    setConfig(data);
-  };
   return (
     <SipProvider {...sipConfig}>
       {state =>

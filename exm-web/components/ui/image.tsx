@@ -27,7 +27,9 @@ const Image: FC<
   const fixedSrc = readFile(src || "")
 
   const [isImageLoading, setIsImageLoading] = useState(true)
-  const [srcI, setSrcI] = useState(fixedSrc || fallBack || "/user.png")
+  const [srcI, setSrcI] = useState(
+    fixedSrc || fallBack || "/avatar-colored.svg"
+  )
   const handleComplete = () => setIsImageLoading(false)
 
   useEffect(() => {

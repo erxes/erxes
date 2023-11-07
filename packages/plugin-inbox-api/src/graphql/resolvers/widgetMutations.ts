@@ -14,8 +14,8 @@ import {
 
 import { debug } from '../../configs';
 
-import { get, set } from '../../inmemoryStorage';
 import { graphqlPubsub } from '../../configs';
+import redis from '@erxes/api-utils/src/redis';
 
 import {
   AUTO_BOT_MESSAGES,
@@ -917,13 +917,11 @@ const widgetMutations = {
       }
     }
 
-    const customerLastStatus = await get(
-      `customer_last_status_${customerId}`,
-      'left'
-    );
+    const customerLastStatus =
+      (await redis.get(`customer_last_status_${customerId}`)) || 'left';
 
     if (customerLastStatus === 'left' && customerId) {
-      set(`customer_last_status_${customerId}`, 'joined');
+      await redis.set(`customer_last_status_${customerId}`, 'joined');
 
       // customer has joined + time
       const conversationMessages = await models.Conversations.changeCustomerStatus(
@@ -1194,7 +1192,9 @@ const widgetMutations = {
     let sessionId = conversationId;
 
     if (!conversationId) {
-      sessionId = await get(`bot_initial_message_session_id_${integrationId}`);
+      sessionId = await redis.get(
+        `bot_initial_message_session_id_${integrationId}`
+      );
 
       const conversation = await models.Conversations.createConversation({
         customerId,
@@ -1205,7 +1205,7 @@ const widgetMutations = {
 
       conversationId = conversation._id;
 
-      const initialMessageBotData = await get(
+      const initialMessageBotData = await redis.get(
         `bot_initial_message_${integrationId}`
       );
 
@@ -1283,7 +1283,10 @@ const widgetMutations = {
       .toString(36)
       .substr(2, 9)}`;
 
-    await set(`bot_initial_message_session_id_${integrationId}`, sessionId);
+    await redis.set(
+      `bot_initial_message_session_id_${integrationId}`,
+      sessionId
+    );
 
     const integration =
       (await models.Integrations.findOne({ _id: integrationId })) ||
@@ -1299,7 +1302,7 @@ const widgetMutations = {
       }
     });
 
-    await set(
+    await redis.set(
       `bot_initial_message_${integrationId}`,
       JSON.stringify(botRequest.responses)
     );

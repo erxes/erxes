@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - 'dev'
+      - master
       - 'staging'
       - build-test
     paths:
@@ -32,9 +33,9 @@ jobs:
         id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
         with:
           path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-          key: ${{ runner.os }}-yarn-crons-${{ hashFiles('yarn.lock', 'crons/yarn.lock') }}
+          key: ${{ runner.os }}-yarn-api-crons
           restore-keys: |
-            ${{ runner.os }}-yarn-crons
+            ${{ runner.os }}-yarn-api-
             ${{ runner.os }}-yarn-
 
       - name: Build
@@ -47,7 +48,7 @@ jobs:
       - name: Build docker image
         if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/staging' )
         run: |
-          cd dist/crons
+          cd dist/erxes
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
-          docker build -t erxes/crons:${GITHUB_REF#refs/heads/} -f Dockerfile .
+          docker buildx build -t erxes/crons:${GITHUB_REF#refs/heads/} -f Dockerfile .
           docker push erxes/crons:${GITHUB_REF#refs/heads/}

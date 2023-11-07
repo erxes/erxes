@@ -92,7 +92,7 @@ const ParticipantItem = ({
     return (
       <Popover>
         <PopoverTrigger asChild={true} className="relative cursor-pointer">
-          <div className="p-2 bg-white rounded-full absolute right-1 ">
+          <div className="p-2 absolute right-1 ">
             <MoreVerticalIcon size={18} />
           </div>
         </PopoverTrigger>
@@ -122,7 +122,7 @@ const ParticipantItem = ({
   }
 
   return (
-    <div className="mt-4">
+    <div className="mb-4">
       <div className="flex items-center justify-between mb-2 p-2 hover:bg-[#F0F0F0]">
         <div className="flex items-center">
           <div className="items-end flex mr-2">
@@ -135,7 +135,7 @@ const ParticipantItem = ({
                 alt="avatar"
                 width={60}
                 height={60}
-                className="w-12 h-12 rounded-full object-cover"
+                className="w-12 h-12 rounded-full object-cover border border-primary"
               />
             </div>
           </div>
@@ -143,9 +143,9 @@ const ParticipantItem = ({
           <div className="">
             <p className="text-sm font-semibold text-[#444]">
               {participant?.details?.fullName || participant?.email}
+              {participant.isAdmin ? "  (Admin)" : ""}
             </p>
             <p className="text-xs font-medium text-[#444]">
-              {participant.isAdmin ? "Admin " : ""}
               {participant?.details?.position || ""}
             </p>
           </div>
