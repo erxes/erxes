@@ -69,6 +69,10 @@ const RightSideBar = () => {
     )
   }
 
+  const onClickEvent = (id: string) => {
+    return (window.location.href = `detail?contentType=event&id=${id}`)
+  }
+
   return (
     <div>
       <RightNavbar />
@@ -103,16 +107,25 @@ const RightSideBar = () => {
                       </div>
                     )}
                     <div>
-                      <h3 className="font-semibold text-[16px] mb-2">
+                      <h3
+                        className="font-semibold text-[16px] mb-2 cursor-pointer"
+                        onClick={() => onClickEvent(item._id)}
+                      >
                         {item.title}
                       </h3>
-                      <div className="flex items-center mb-1 text-[#484848] mb-2">
+                      <div
+                        className="flex items-center mb-1 text-[#484848] mb-2 cursor-pointer"
+                        onClick={() => onClickEvent(item._id)}
+                      >
                         <MapPinIcon size={16} className="mr-1" />
                         {item.eventData?.where || ""}
                       </div>
 
                       <div className="text-[#484848] text-xs mt-1 text-[14px] mb-3">
-                        <div className="flex items-center text-[13px] text-[#484848]">
+                        <div
+                          className="flex items-center text-[13px] text-[#484848] cursor-pointer"
+                          onClick={() => onClickEvent(item._id)}
+                        >
                           <ClockIcon size={16} className="mr-1" />
                           {dayjs(item.eventData?.startDate).format(
                             "MM/DD/YY h:mm A"
