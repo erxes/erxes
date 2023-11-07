@@ -105,6 +105,7 @@ export const addToCart = (
 // Atoms
 // cart
 export const cartAtom = atomWithStorage<OrderItem[]>("cart", [])
+export const cartChangedAtom = atomWithStorage<boolean>("cartChanged", false)
 
 export const orderItemInput = atom<OrderItemInput[]>((get) =>
   get(cartAtom).map(
@@ -142,12 +143,14 @@ export const totalAmountAtom = atom<number>((get) =>
 export const addToCartAtom = atom(
   () => "",
   (get, set, update: IAddToCartInput) => {
+    set(cartChangedAtom, true)
     set(cartAtom, addToCart(update, get(cartAtom)))
   }
 )
 export const updateCartAtom = atom(
   () => "",
   (get, set, update: IUpdateItem) => {
+    set(cartChangedAtom, true)
     set(
       cartAtom,
       changeCartItem(update, get(cartAtom), !!get(banFractionsAtom))

@@ -1,4 +1,5 @@
 import { modeAtom, refetchUserAtom } from "@/store"
+import { cartChangedAtom } from "@/store/cart.store"
 import { orderValuesAtom } from "@/store/order.store"
 import { ApolloError, useMutation } from "@apollo/client"
 import { useAtomValue, useSetAtom } from "jotai"
@@ -15,6 +16,7 @@ const useOrderCU = (onCompleted?: (id: string) => void) => {
 
   const origin = useAtomValue(modeAtom)
   const setRefetchUser = useSetAtom(refetchUserAtom)
+  const setCartChanged = useSetAtom(cartChangedAtom)
 
   // TODO: get type default from config
   const variables = {
@@ -35,6 +37,7 @@ const useOrderCU = (onCompleted?: (id: string) => void) => {
     onCompleted(data) {
       const { _id } = (data || {}).ordersAdd || {}
       setRefetchUser(true)
+      setCartChanged(false)
       onCompleted && onCompleted(_id)
     },
     onError,
@@ -48,6 +51,7 @@ const useOrderCU = (onCompleted?: (id: string) => void) => {
       onCompleted(data) {
         const { _id } = (data || {}).ordersEdit || {}
         setRefetchUser(true)
+        setCartChanged(false)
         return onCompleted && onCompleted(_id)
       },
       refetchQueries: ["orderDetail", "PoscSlots"],
