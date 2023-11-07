@@ -52,7 +52,6 @@ import CommentItem from "./CommentItem"
 import CommentForm from "./form/CommentForm"
 
 const BravoForm = dynamic(() => import("./form/BravoForm"))
-const EventForm = dynamic(() => import("./form/EventForm"))
 const HolidayForm = dynamic(() => import("./form/HolidayForm"))
 const PostForm = dynamic(() => import("./form/PostForm"))
 
@@ -151,8 +150,6 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
           return null
         case "bravo":
           return <BravoForm feed={feed} setOpen={setOpen} />
-        case "event":
-          return <EventForm feed={feed} setOpen={setOpen} />
       }
     }
 

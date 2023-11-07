@@ -2,13 +2,15 @@
 
 import { useEffect, useState } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { XCircle } from "lucide-react"
+import Datetime from "@nateradebaugh/react-datetime"
+import dayjs from "dayjs"
+import relativeTime from "dayjs/plugin/relativeTime"
+import { Calendar, XCircle } from "lucide-react"
 import { useForm } from "react-hook-form"
 import Select from "react-select"
 import * as z from "zod"
 
 import { Button } from "@/components/ui/button"
-import { DatePicker } from "@/components/ui/date-picker"
 import {
   DialogContent,
   DialogHeader,
@@ -23,18 +25,25 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import LoadingPost from "@/components/ui/loadingPost"
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import SuccessPost from "@/components/ui/successPost"
 import { Textarea } from "@/components/ui/textarea"
-import { AttachmentWithPreview } from "@/components/AttachmentWithPreview"
+import { Toggle } from "@/components/ui/toggle"
 import SelectUsers from "@/components/select/SelectUsers"
 
 import useFeedMutation from "../../hooks/useFeedMutation"
 import { useTeamMembers } from "../../hooks/useTeamMembers"
 import { IFeed } from "../../types"
+import FormImages from "./FormImages"
 import Uploader from "./uploader/Uploader"
+
+dayjs.extend(relativeTime)
 
 const FormSchema = z
   .object({
@@ -91,7 +100,7 @@ const EventForm = ({
   })
 
   const [visibility, setVisibility] = useState(
-    feed?.eventData?.visibility || "public"
+    feed?.eventData?.visibility === "public" ? false : true
   )
   const [departmentIds, setDepartmentIds] = useState(feed?.departmentIds || [])
   const [branchIds, setBranchIds] = useState(feed?.branchIds || [])
@@ -189,14 +198,6 @@ const EventForm = ({
     setAttachments(updated)
   }
 
-  const deleteImage = (index: number) => {
-    const updated = [...images]
-
-    updated.splice(index, 1)
-
-    setImage(updated)
-  }
-
   const onChangeMultiValue = (type: string, datas: any) => {
     const onchangeFunc = type === "department" ? setDepartmentIds : setBranchIds
 
@@ -206,7 +207,7 @@ const EventForm = ({
   }
 
   return (
-    <DialogContent className="max-h-[110vh] overflow-auto">
+    <DialogContent className="max-h-[80vh] overflow-auto">
       <DialogHeader>
         <DialogTitle>Create event</DialogTitle>
       </DialogHeader>
@@ -214,25 +215,18 @@ const EventForm = ({
       {mutationLoading ? <LoadingPost /> : null}
       {success ? <SuccessPost /> : null}
 
-      <RadioGroup
-        className="flex font-semibold"
-        value={visibility}
-        onValueChange={(value) => setVisibility(value)}
-      >
-        <div>
-          <RadioGroupItem value="public" id="1" className="mr-1" />
-          <Label htmlFor="1">Public</Label>
+      <div className="flex justify-end items-center">
+        <div
+          className="cursor-pointer px-2 py-1 hover:bg-[#F0F0F0] rounded-md"
+          onClick={() => setVisibility(!visibility)}
+        >
+          {visibility ? "Make public" : "Make private"}
         </div>
-
-        <div>
-          <RadioGroupItem value="private" id="2" className="mr-1" />
-          <Label htmlFor="2">Private</Label>
-        </div>
-      </RadioGroup>
+      </div>
 
       <Form {...form}>
         <form className="space-y-3" onSubmit={form.handleSubmit(onSubmit)}>
-          {visibility === "private" && (
+          {visibility && (
             <FormField
               control={form.control}
               name="recipientIds"
@@ -252,51 +246,99 @@ const EventForm = ({
             />
           )}
 
-          <FormField
-            control={form.control}
-            name="startDate"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="block">Start Date</FormLabel>
-                <FormControl>
-                  <DatePicker
-                    date={field.value}
-                    setDate={field.onChange}
-                    fromDate={new Date()}
-                    className="w-full"
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          <div className="flex gap-3">
+            <FormField
+              control={form.control}
+              name="startDate"
+              render={({ field }) => (
+                <FormItem className="flex-1">
+                  <FormControl>
+                    <Popover>
+                      <PopoverTrigger className="w-full">
+                        <div className="cursor-pointer flex rounded-md px-3 py-2 border items-center w-full border-light">
+                          <Calendar size={15} className="mr-2" />
+                          <span>
+                            {field.value
+                              ? dayjs(field.value).format("MM/DD/YYYY HH:mm")
+                              : "Start date"}
+                          </span>
+                        </div>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-fit">
+                        <Datetime
+                          inputProps={{ placeholder: "Start date" }}
+                          dateFormat="YYYY/MM/DD"
+                          timeFormat="HH:mm"
+                          value={field.value}
+                          closeOnSelect={true}
+                          utc={true}
+                          input={false}
+                          onChange={field.onChange}
+                          defaultValue={dayjs()
+                            .startOf("day")
+                            .add(12, "hour")
+                            .format("YYYY-MM-DD HH:mm:ss")}
+                        />
+                      </PopoverContent>
+                    </Popover>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-          <FormField
-            control={form.control}
-            name="endDate"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="block">End Date</FormLabel>
-                <FormControl>
-                  <DatePicker
-                    date={field.value}
-                    setDate={field.onChange}
-                    className="w-full"
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+            <FormField
+              control={form.control}
+              name="endDate"
+              render={({ field }) => (
+                <FormItem className="flex-1">
+                  <FormControl>
+                    <Popover>
+                      <PopoverTrigger className="w-full">
+                        <div className="cursor-pointer flex rounded-md px-3 py-2 border items-center w-full border-light">
+                          <Calendar size={15} className="mr-2" />
+                          <span>
+                            {field.value
+                              ? dayjs(field.value).format("MM/DD/YYYY HH:mm")
+                              : "End date"}
+                          </span>
+                        </div>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-fit">
+                        <Datetime
+                          inputProps={{ placeholder: "End date" }}
+                          dateFormat="YYYY/MM/DD"
+                          timeFormat="HH:mm"
+                          value={field.value}
+                          closeOnSelect={true}
+                          utc={true}
+                          input={false}
+                          onChange={field.onChange}
+                          defaultValue={dayjs()
+                            .startOf("day")
+                            .add(12, "hour")
+                            .format("YYYY-MM-DD HH:mm:ss")}
+                        />
+                      </PopoverContent>
+                    </Popover>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
 
           <FormField
             control={form.control}
             name="title"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Title</FormLabel>
                 <FormControl>
-                  <Input placeholder="title" {...field} />
+                  <Input
+                    placeholder="Event name"
+                    {...field}
+                    className="border-light"
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -308,12 +350,12 @@ const EventForm = ({
             name="description"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Description</FormLabel>
                 <FormControl>
                   <Textarea
-                    placeholder="description"
+                    placeholder="Event description"
                     {...field}
                     defaultValue={feed?.description || ""}
+                    className="border-light"
                   />
                 </FormControl>
                 <FormMessage />
@@ -326,11 +368,10 @@ const EventForm = ({
             name="where"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Where</FormLabel>
                 <FormControl>
                   <Textarea
-                    className="rounded-md px-3 py-2"
-                    placeholder="where"
+                    className="rounded-md px-3 py-2 border-light"
+                    placeholder="Add location"
                     {...field}
                     defaultValue={feed?.eventData?.where || ""}
                   />
@@ -344,7 +385,6 @@ const EventForm = ({
             name="departmentIds"
             render={() => (
               <FormItem>
-                <FormLabel>Departments</FormLabel>
                 <FormControl>
                   {loading && !reload && !seDepartmentSearchvalue ? (
                     <Input disabled={true} placeholder="Loading..." />
@@ -358,7 +398,7 @@ const EventForm = ({
                         (departmentOption) =>
                           departmentIds.includes(departmentOption?.value)
                       )}
-                      placeholder="Select departments"
+                      placeholder="All departments"
                       isSearchable={true}
                       onInputChange={seDepartmentSearchvalue}
                       onChange={(data) =>
@@ -377,7 +417,6 @@ const EventForm = ({
             name="branchIds"
             render={() => (
               <FormItem>
-                <FormLabel>Branches</FormLabel>
                 <FormControl>
                   {loading && !reload && branchSearchValue ? (
                     <Input disabled={true} placeholder="Loading..." />
@@ -390,7 +429,7 @@ const EventForm = ({
                       defaultValue={branchOptions?.filter((branchOption) =>
                         branchIds?.includes(branchOption?.value)
                       )}
-                      placeholder="Select branches"
+                      placeholder="All branches"
                       isSearchable={true}
                       onInputChange={setBranchSearchvalue}
                       onChange={(data) => onChangeMultiValue("branch", data)}
@@ -407,7 +446,6 @@ const EventForm = ({
             name="unitId"
             render={({}) => (
               <FormItem>
-                <FormLabel>Unit</FormLabel>
                 <FormControl>
                   {loading && !reload && unitSearchValue ? (
                     <Input disabled={true} placeholder="Loading..." />
@@ -417,7 +455,7 @@ const EventForm = ({
                       onMenuOpen={() => setReload(true)}
                       isClearable={true}
                       options={unitOptions}
-                      placeholder="Select units"
+                      placeholder="All units"
                       value={unitOptions?.filter(
                         (unitOption) => unitOption.value === unitId
                       )}
@@ -434,37 +472,41 @@ const EventForm = ({
             )}
           />
 
-          <Uploader
-            defaultFileList={images || []}
-            onChange={setImage}
-            type={"image"}
-            setUploading={setImageUploading}
-          />
-          {images && images.length > 0 && (
-            <AttachmentWithPreview
-              images={images}
-              className="mt-2"
-              deleteImage={deleteImage}
-            />
-          )}
-
-          <Uploader
-            defaultFileList={attachments || []}
-            onChange={setAttachments}
-            setUploading={setAttachmentUploading}
-          />
-
           {(attachments || []).map((attachment, index) => {
             return (
               <div
                 key={index}
-                className="flex items-center border-y text-sm font-semibold text-[#444] p-2.5"
+                className="flex items-center bg-primary-light text-sm font-medium text-white attachment-shadow px-2.5 py-[5px] justify-between w-full rounded-lg rounded-tr-none"
               >
-                {attachment.name}{" "}
+                <p className="max-w-[400px]">{attachment.name}</p>
                 <XCircle size={18} onClick={() => deleteAttachment(index)} />
               </div>
             )
           })}
+
+          <FormImages images={images} setImage={setImage} />
+
+          <div className="flex items-center border rounded-lg px-2 border-[#cccccc] justify-between">
+            <p className="text-[#444]">Add attachments</p>
+            <div className="flex">
+              <Uploader
+                defaultFileList={images || []}
+                onChange={setImage}
+                type={"image"}
+                icon={true}
+                iconSize={20}
+                setUploading={setImageUploading}
+              />
+
+              <Uploader
+                defaultFileList={attachments || []}
+                onChange={setAttachments}
+                icon={true}
+                iconSize={20}
+                setUploading={setAttachmentUploading}
+              />
+            </div>
+          </div>
 
           <Button
             type="submit"
