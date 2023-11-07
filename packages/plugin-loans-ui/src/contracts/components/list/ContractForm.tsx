@@ -31,7 +31,7 @@ import { IContractType } from '../../../contractTypes/types';
 import { IUser } from '@erxes/ui/src/auth/types';
 import { generateCustomGraphic, getDiffDay } from '../../utils/customGraphic';
 import { LoanContract, LoanSchedule } from '../../interface/LoanContract';
-import { LoanPurpose } from '../../../constants';
+import { LoanPurpose, ORGANIZATION_TYPE } from '../../../constants';
 
 type Props = {
   currentUser: IUser;
@@ -569,27 +569,30 @@ class ContractForm extends React.Component<Props, State> {
                   multi={false}
                 ></SelectContractType>
               </FormGroup>
-              <FormGroup>
-                <ControlLabel required={true}>
-                  {__('Loan Purpose')}
-                </ControlLabel>
-                <FormControl
-                  {...formProps}
-                  name="loanPurpose"
-                  componentClass="select"
-                  value={this.state.loanPurpose}
-                  onChange={this.onChangeField}
-                >
-                  {(this.state.customerType === 'customer'
-                    ? LoanPurpose['person']
-                    : LoanPurpose['organization']
-                  ).map((typeName, index) => (
-                    <option key={index} value={typeName}>
-                      {__(typeName)}
-                    </option>
-                  ))}
-                </FormControl>
-              </FormGroup>
+              {this.props.currentUser?.configs?.loansConfig
+                ?.organizationType === ORGANIZATION_TYPE.BBSB && (
+                <FormGroup>
+                  <ControlLabel required={true}>
+                    {__('Loan Purpose')}
+                  </ControlLabel>
+                  <FormControl
+                    {...formProps}
+                    name="loanPurpose"
+                    componentClass="select"
+                    value={this.state.loanPurpose}
+                    onChange={this.onChangeField}
+                  >
+                    {(this.state.customerType === 'customer'
+                      ? LoanPurpose['person']
+                      : LoanPurpose['organization']
+                    ).map((typeName, index) => (
+                      <option key={index} value={typeName}>
+                        {__(typeName)}
+                      </option>
+                    ))}
+                  </FormControl>
+                </FormGroup>
+              )}
               {this.state.useMargin &&
                 this.renderFormGroup('Down payment', {
                   ...formProps,
