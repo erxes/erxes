@@ -34,10 +34,18 @@ export const types = `
     productId: String
   }
 
+  type PreDate {
+    _id: String
+    dueDate: Date
+  }
+
   type PosclientSlot {
     _id: String
     code: String
     name: String
+    status: String
+    isPreDates: [PreDate]
+    option: JSON
   }
 
   type PosConfig {
@@ -73,6 +81,7 @@ export const types = `
     allowTypes: [String]
     isCheckRemainder: Boolean
     checkExcludeCategoryIds: [String]
+    banFractions: Boolean
   }
 `;
 

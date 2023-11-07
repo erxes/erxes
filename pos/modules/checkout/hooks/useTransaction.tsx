@@ -1,16 +1,16 @@
 import { currentAmountAtom } from "@/store"
-import { activeOrderAtom } from "@/store/order.store"
-import { setPaymentSheetAtom } from "@/store/ui.store"
-import { useAtom } from "jotai"
+import { activeOrderIdAtom } from "@/store/order.store"
+import { useAtom, useSetAtom } from "jotai"
 
 import { paidAmounts } from "@/lib/utils"
 
 import useAddPayment from "./useAddPayment"
+import { paymentSheetAtom } from '@/store/ui.store'
 
 const useTransaction = (type: string) => {
   const [amount] = useAtom(currentAmountAtom)
-  const [_id] = useAtom(activeOrderAtom)
-  const [, setPaymentSheet] = useAtom(setPaymentSheetAtom)
+  const [_id] = useAtom(activeOrderIdAtom)
+  const setPaymentSheet = useSetAtom(paymentSheetAtom)
   const closePaymentSheet = () => setPaymentSheet(false)
 
   const { addPayment } = useAddPayment({

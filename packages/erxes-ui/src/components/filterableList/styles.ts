@@ -1,6 +1,7 @@
+import { colors, dimensions } from '../../styles';
+
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
-import { colors, dimensions } from '../../styles';
 
 const PopoverHeader = styled.div`
   display: block !important;
@@ -23,6 +24,16 @@ const FlexRow = styled.div`
   > li {
     flex: 1;
     display: flex !important;
+
+    &.active {
+      color: rgb(55, 55, 55);
+      background: rgb(240, 240, 240);
+      outline: 0px;
+    }
+
+    &:focus {
+      outline: none;
+    }
   }
 `;
 
@@ -113,7 +124,7 @@ const PopoverBody = styled.div`
     max-height: unset;
   }
 
-  min-width: 260px;
+  min-width: 300px;
 `;
 
 const PopoverFooter = styled.div`
@@ -150,19 +161,13 @@ const ChildList = styled.div`
 
 const iconWidth = 30;
 
-const ToggleIcon = styledTS<{ isIndented?: boolean; type?: string }>(
-  styled.div
-)`
+const ToggleIcon = styledTS<{ type?: string }>(styled.div)`
   position: absolute;
   ${props =>
     props.type === 'list' &&
     `
   top: 8px;
-  left:${
-    props.isIndented
-      ? `${dimensions.unitSpacing * 0.5}px`
-      : `${dimensions.unitSpacing * 1.5}px`
-  };
+  left:${dimensions.unitSpacing * 0.5}px;
   line-height: ${iconWidth}px;
   text-align: center;
   width: ${iconWidth / 2}px;`}

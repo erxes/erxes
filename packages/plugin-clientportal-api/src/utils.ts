@@ -4,7 +4,7 @@ import { generateFieldsFromSchema } from '@erxes/api-utils/src/fieldUtils';
 import redis from '@erxes/api-utils/src/redis';
 import { sendRequest } from '@erxes/api-utils/src/requests';
 import { getNextMonth, getToday } from '@erxes/api-utils/src';
-import { IUserDocument } from './../../api-utils/src/types';
+import { IUserDocument } from '@erxes/api-utils/src/types';
 import { graphqlPubsub } from './configs';
 import { generateModels, IContext, IModels } from './connectionResolver';
 import {
@@ -16,6 +16,7 @@ import {
 
 import * as admin from 'firebase-admin';
 import { CLOSE_DATE_TYPES } from './constants';
+import { IUser } from './models/definitions/clientPortalUser';
 
 export const getConfig = async (
   code: string,
@@ -206,9 +207,13 @@ export const initFirebase = async (subdomain: string): Promise<void> => {
     const serviceAccount = JSON.parse(codeString);
 
     if (serviceAccount.private_key) {
-      await admin.initializeApp({
-        credential: admin.credential.cert(serviceAccount)
-      });
+      try {
+        await admin.initializeApp({
+          credential: admin.credential.cert(serviceAccount)
+        });
+      } catch (e) {
+        console.log(`initFireBase error: ${e.message}`);
+      }
     }
   }
 };
@@ -580,4 +585,44 @@ export const getCloseDateByType = (closeDateType: string) => {
 
     return { $lt: today };
   }
+};
+
+export const getUserName = (data: IUser) => {
+  if (!data) {
+    return null;
+  }
+
+  if (data.firstName || data.lastName) {
+    return data.firstName + ' ' + data.lastName;
+  }
+
+  if (data.email || data.username || data.phone) {
+    return data.email || data.username || data.phone;
+  }
+
+  return 'Unknown';
+};
+
+export const getUserCards = async (
+  userId: string,
+  contentType: string,
+  models: IModels,
+  subdomain
+) => {
+  const cardIds = await models.ClientPortalUserCards.find({
+    cpUserId: userId,
+    contentType
+  }).distinct('contentTypeId');
+
+  const cards = await sendCardsMessage({
+    subdomain,
+    action: `${contentType}s.find`,
+    data: {
+      _id: { $in: cardIds }
+    },
+    isRPC: true,
+    defaultValue: []
+  });
+
+  return cards;
 };

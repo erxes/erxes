@@ -53,8 +53,7 @@ export const loadMeetingClass = (model: IModels) => {
       }
       const result = await model.Meetings.findOne({
         _id: doc._id,
-        createdBy: user._id,
-        status: { $ne: 'completed' }
+        createdBy: user._id
       });
       if (result) {
         await model.Meetings.updateOne(
@@ -72,7 +71,8 @@ export const loadMeetingClass = (model: IModels) => {
         createdBy: user._id
       });
       if (result) {
-        return model.Meetings.deleteOne({ _id });
+        await model.Meetings.deleteOne({ _id });
+        return await model.Topics.deleteMany({ meetingId: _id });
       }
       throw new Error('You cannot remove ');
     }

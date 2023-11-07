@@ -1,7 +1,7 @@
-import { activeOrderAtom, setInitialAtom } from "@/store/order.store"
+import { activeOrderIdAtom, setInitialAtom } from "@/store/order.store"
 import { cva } from "class-variance-authority"
 import { useAtom } from "jotai"
-import { CheckIcon } from "lucide-react"
+import { AlarmClockIcon, CheckIcon } from "lucide-react"
 
 import { IOrder } from "@/types/order.types"
 import { Button } from "@/components/ui/button"
@@ -12,8 +12,15 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 
-const ChooseOrder = ({ number, status, _id }: IOrder) => {
-  const [activeOrder, setActiveOrder] = useAtom(activeOrderAtom)
+const ChooseOrder = ({
+  number,
+  status,
+  _id,
+  slotCode,
+  origin,
+  isPre,
+}: IOrder) => {
+  const [activeOrder, setActiveOrder] = useAtom(activeOrderIdAtom)
   const [, setInitialState] = useAtom(setInitialAtom)
 
   return (
@@ -26,7 +33,15 @@ const ChooseOrder = ({ number, status, _id }: IOrder) => {
               activeOrder === _id ? setInitialState() : setActiveOrder(_id)
             }
           >
+            {isPre && (
+              <AlarmClockIcon
+                className="h-5 w-5 mr-1 -ml-1"
+                strokeWidth={2.2}
+              />
+            )}
             {(number || "").split("_")[1]}
+            {slotCode && ` (${slotCode})`}
+            {origin === "kiosk" && "*"}
             {activeOrder === _id && (
               <span className="absolute -right-2 -top-2  rounded-full border-2 border-white bg-inherit p-1 text-white">
                 <CheckIcon className="h-3 w-3" strokeWidth={4} />
@@ -45,7 +60,7 @@ const ChooseOrder = ({ number, status, _id }: IOrder) => {
 }
 
 const statusVariants = cva(
-  "font-extrabold relative overflow-visible my-2 mx-1 py-2 h-auto text-sm",
+  "font-extrabold relative overflow-visible my-2 mx-1 py-2 h-auto text-sm whitespace-nowrap",
   {
     variants: {
       status: {

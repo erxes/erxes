@@ -3,13 +3,13 @@ name: Workers CI
 on:
   push:
     branches:
-      - "dev"
-      - "staging"
+      - 'dev'
+      - master
+      - 'staging'
     paths:
-      - "packages/api-utils/**"
-      - "packages/api-plugin-template.erxes/**"
-      - "packages/workers/**"
-      - ".github/workflows/workers.yaml"
+      - 'packages/api-utils/**'
+      - 'packages/workers/**'
+      - '.github/workflows/workers.yaml'
 
 jobs:
   workers:
@@ -32,9 +32,9 @@ jobs:
         id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
         with:
           path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-          key: ${{ runner.os }}-yarn-workers-${{ hashFiles('yarn.lock', 'workers/yarn.lock') }}
+          key: ${{ runner.os }}-yarn-api-workers
           restore-keys: |
-            ${{ runner.os }}-yarn-workers
+            ${{ runner.os }}-yarn-api-
             ${{ runner.os }}-yarn-
 
       - name: Build
@@ -47,7 +47,7 @@ jobs:
       - name: Build docker image
         if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/staging' )
         run: |
-          cd dist/workers
+          cd dist/erxes
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
-          docker build -t erxes/workers:${GITHUB_REF#refs/heads/} -f Dockerfile .
+          docker buildx build -t erxes/workers:${GITHUB_REF#refs/heads/} -f Dockerfile .
           docker push erxes/workers:${GITHUB_REF#refs/heads/}

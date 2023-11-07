@@ -12,6 +12,11 @@ import {
 } from './styles';
 import { FlexRow, Subject } from './styles';
 import { IEmail, IMail, IMessage } from '@erxes/ui-inbox/src/inbox/types';
+import {
+  MailColumn,
+  MailSuggestionContainer,
+  MailSuggestionItem
+} from '../../styles';
 import React, { ReactNode } from 'react';
 import {
   formatObj,
@@ -22,34 +27,38 @@ import {
 import { isEnabled, readFile } from '@erxes/ui/src/utils/core';
 
 import Attachment from '@erxes/ui/src/components/Attachment';
+import { Avatar } from '@erxes/ui/src/components/SelectWithSearch';
 import Button from '@erxes/ui/src/components/Button';
 import { Column } from '@erxes/ui/src/styles/main';
 import EditorCK from '@erxes/ui/src/containers/EditorCK';
-import EmailTemplate from './emailTemplate/EmailTemplate';
+import EmailTemplate from '../../containers/mail/EmailTemplate';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import { IAttachment } from '@erxes/ui/src/types';
+import { IContact } from '../../types';
 import { IEmailSignature } from '@erxes/ui/src/auth/types';
+import { IEmailTemplate } from '../../types';
 import { IUser } from '@erxes/ui/src/auth/types';
 import Icon from '@erxes/ui/src/components/Icon';
 import { Label } from '@erxes/ui/src/components/form/styles';
 import { MAIL_TOOLBARS_CONFIG } from '@erxes/ui/src/constants/integrations';
 import MailChooser from './MailChooser';
 import { Meta } from './styles';
+import SignatureChooser from './SignatureChooser';
 import { SmallLoader } from '@erxes/ui/src/components/ButtonMutate';
 import Tip from '@erxes/ui/src/components/Tip';
 import Uploader from '@erxes/ui/src/components/Uploader';
+import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 import dayjs from 'dayjs';
 import { generateEmailTemplateParams } from '@erxes/ui-engage/src/utils';
-import {
-  MailColumn,
-  MailSuggestionContainer,
-  MailSuggestionItem
-} from '../../styles';
-import { Avatar } from '@erxes/ui/src/components/SelectWithSearch';
-import { IContact } from '../../types';
+
+const Signature = asyncComponent(() =>
+  import(
+    /* webpackChunkName:"Signature" */ '@erxes/ui-settings/src/email/containers/Signature'
+  )
+);
 
 type Props = {
-  emailTemplates: any[] /*change type*/;
+  emailTemplates: IEmailTemplate[] /*change type*/;
   currentUser: IUser;
   fromEmail?: string;
   emailTo?: string;
@@ -69,6 +78,7 @@ type Props = {
   fetchMoreEmailTemplates: (page: number) => void;
   createdAt?: Date;
   isEmptyEmail?: boolean;
+  loading?: boolean;
   sendMail: ({
     variables,
     callback
@@ -82,6 +92,7 @@ type Props = {
   shrink?: boolean;
   clear?: boolean;
   conversationStatus?: string;
+  brands?: any[];
 };
 
 type State = {
@@ -96,6 +107,7 @@ type State = {
   hasCc?: boolean;
   hasBcc?: boolean;
   hasSubject?: boolean;
+  loading?: boolean;
   kind: string;
   content: string;
   isSubmitLoading: boolean;
@@ -116,19 +128,21 @@ class MailForm extends React.Component<Props, State> {
     super(props);
     const { isForward, replyAll, mailData = {} as IMail, emailTo } = props;
 
-    const mailWidget = JSON.parse(localStorage.getItem('emailWidgetData'));
+    const mailWidget = JSON.parse(
+      localStorage.getItem('emailWidgetData') || '{}'
+    );
 
     const cc = replyAll
       ? formatObj(mailData.cc || [])
       : mailWidget
       ? mailWidget.cc
-      : '';
+      : '' || '';
 
     const bcc = replyAll
       ? formatObj(mailData.bcc || [])
       : mailWidget
       ? mailWidget.bcc
-      : '';
+      : '' || '';
 
     const [from] = mailData.from || ([{}] as IEmail[]);
     const sender =
@@ -140,7 +154,7 @@ class MailForm extends React.Component<Props, State> {
       ? mailWidget.to
       : isForward
       ? ''
-      : sender;
+      : sender || '';
     const mailKey = `mail_${to || this.props.currentUser._id}`;
     const showPrevEmails =
       (localStorage.getItem(`reply_${mailKey}`) || '').length > 0;
@@ -150,7 +164,7 @@ class MailForm extends React.Component<Props, State> {
         ? mailData.attachments
         : mailWidget
         ? mailWidget.attachments
-        : [];
+        : [] || [];
 
     this.state = {
       cc,
@@ -440,12 +454,6 @@ class MailForm extends React.Component<Props, State> {
     });
   };
 
-  changeEditorContent = (content: string, emailSignature: string) => {
-    this.setState({ content }, () => {
-      this.setState({ emailSignature });
-    });
-  };
-
   onEditorChange = e => {
     this.setState({ content: e.editor.getData() });
     this.prepareData();
@@ -530,6 +538,14 @@ class MailForm extends React.Component<Props, State> {
 
   templateChange = value => {
     this.setState({ content: this.findTemplate(value), templateId: value });
+  };
+
+  onContentChange = content => {
+    this.setState({ content });
+  };
+
+  onSignatureChange = emailSignature => {
+    this.setState({ emailSignature });
   };
 
   renderFromValue = () => {
@@ -844,6 +860,10 @@ class MailForm extends React.Component<Props, State> {
     );
   }
 
+  signatureContent = props => {
+    return <Signature {...props} />;
+  };
+
   renderButtons() {
     const {
       isReply,
@@ -852,7 +872,10 @@ class MailForm extends React.Component<Props, State> {
       totalCount,
       fetchMoreEmailTemplates,
       history,
-      conversationStatus
+      conversationStatus,
+      emailSignatures,
+      brands,
+      loading
     } = this.props;
 
     const onSubmitResolve = e => this.onSubmit(e, true);
@@ -879,7 +902,9 @@ class MailForm extends React.Component<Props, State> {
       <div>
         <UploaderWrapper>
           <Attachment
-            attachment={this.state.attachments[0] || ({} as IAttachment)}
+            attachment={
+              (this.state.attachments || [])[0] || ({} as IAttachment)
+            }
             attachments={this.state.attachments || ([] as IAttachment[])}
             removeAttachment={removeAttachment}
             withoutPreview={true}
@@ -919,8 +944,18 @@ class MailForm extends React.Component<Props, State> {
                 fetchMoreEmailTemplates={fetchMoreEmailTemplates}
                 targets={generateEmailTemplateParams(emailTemplates || [])}
                 history={history}
+                loading={loading}
               />
             )}
+            <SignatureChooser
+              signatureContent={this.signatureContent}
+              brands={brands || []}
+              signatures={emailSignatures || []}
+              emailSignature={this.state.emailSignature}
+              emailContent={this.state.content}
+              onContentChange={this.onContentChange}
+              onSignatureChange={this.onSignatureChange}
+            />
           </ToolBar>
         </EditorFooter>
       </div>

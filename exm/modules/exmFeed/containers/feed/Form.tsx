@@ -11,6 +11,7 @@ import React from 'react';
 import Spinner from '../../../common/Spinner';
 import gql from 'graphql-tag';
 import { useQuery } from '@apollo/client';
+import { IUser } from '../../../auth/types';
 
 type Props = {
   contentType: string;
@@ -18,10 +19,11 @@ type Props = {
   transparent?: boolean;
   closeModal?: () => void;
   isEdit?: boolean;
+  currentUser: IUser;
 };
 
 export default function FormContainer(props: Props) {
-  const { contentType, item, transparent } = props;
+  const { contentType, item, transparent, currentUser } = props;
 
   const { data } = useQuery(gql(queries.fields), {
     variables: {
@@ -89,6 +91,7 @@ export default function FormContainer(props: Props) {
 
   const updateProps = {
     ...props,
+    currentUser,
     fields,
     departments: (dataDepartment && dataDepartment.departments) || [],
     units: (dataUnit && dataUnit.unitsMain.list) || [],

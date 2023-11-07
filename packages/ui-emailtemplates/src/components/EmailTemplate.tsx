@@ -1,13 +1,15 @@
-import React from 'react';
 import {
+  Actions,
+  IframeFullScreen,
+  IframePreview,
   Template,
   TemplateBox,
-  Actions,
-  TemplateInfo,
-  IframePreview,
-  IframeFullScreen
+  TemplateBoxInfo,
+  TemplateInfo
 } from '../styles';
 import { Icon, ModalTrigger } from '@erxes/ui/src';
+
+import React from 'react';
 import dayjs from 'dayjs';
 
 type Props = {
@@ -25,7 +27,9 @@ class EmailTemplate extends React.Component<Props> {
 
   renderDate(createdAt, modifiedAt) {
     if (createdAt === modifiedAt) {
-      if (createdAt === null) return '-';
+      if (createdAt === null) {
+        return '-';
+      }
 
       return dayjs(createdAt).format('DD MMM YYYY');
     }
@@ -51,7 +55,7 @@ class EmailTemplate extends React.Component<Props> {
       <ModalTrigger
         content={form}
         trigger={trigger}
-        hideHeader
+        hideHeader={true}
         title=""
         size="lg"
       />
@@ -87,27 +91,31 @@ class EmailTemplate extends React.Component<Props> {
         key={_id}
         className={selectedTemplateId === _id ? 'active' : ''}
       >
-        <h5>{name}</h5>
         <TemplateBox>
           {this.renderActions()}
           <IframePreview>
             <iframe title="content-iframe" srcDoc={content} />
           </IframePreview>
         </TemplateBox>
-        <TemplateInfo>
-          <p>{createdAt === modifiedAt ? `Created at` : `Modified at`}</p>
-          <p>{this.renderDate(createdAt, modifiedAt)}</p>
-        </TemplateInfo>
-        <TemplateInfo>
-          <p>Created by</p>
-          {createdUser ? (
-            createdUser.details.fullName && (
-              <p>{createdUser.details.fullName}</p>
-            )
-          ) : (
-            <p>erxes Inc</p>
-          )}
-        </TemplateInfo>
+        <TemplateBoxInfo>
+          <h5>{name}</h5>
+          <div>
+            <TemplateInfo>
+              <p>{createdAt === modifiedAt ? `Created at` : `Modified at`}</p>
+              <p>{this.renderDate(createdAt, modifiedAt)}</p>
+            </TemplateInfo>
+            <TemplateInfo>
+              <p>Created by</p>
+              {createdUser ? (
+                createdUser.details.fullName && (
+                  <p>{createdUser.details.fullName}</p>
+                )
+              ) : (
+                <p>erxes Inc</p>
+              )}
+            </TemplateInfo>
+          </div>
+        </TemplateBoxInfo>
       </Template>
     );
   }

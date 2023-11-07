@@ -1,39 +1,34 @@
 import { slotCodeAtom } from "@/store/order.store"
-import { gql, useQuery } from "@apollo/client"
 import { useAtom } from "jotai"
 
 import { ISlot } from "@/types/slots.type"
-import { LoaderIcon } from "@/components/ui/loader"
 import { RadioGroup } from "@/components/ui/radio-group"
-import { ScrollArea } from "@/components/ui/scroll-area"
 
-import Slot from "./components/Slot"
-import { queries } from "./graphql"
+import Slot from "./components/slot"
+import useSlots from "./hooks/useSlots"
 
 const Slots = () => {
-  const { data, loading } = useQuery(gql(queries.slots))
-  const { poscSlots } = data || {}
+  const { slots, loading } = useSlots()
   const [activeSlot, setActiveSlot] = useAtom(slotCodeAtom)
-
   return (
-    <ScrollArea>
+    <div className="w-full overflow-auto shadow-inner p-2">
       <RadioGroup
-        className="flex-col flex gap-1.5 pr-4 pt-1.5"
+        className="relative min-h-[1000px] min-w-[1000px] w-full h-full"
+        style={{
+          background: "white",
+          backgroundImage: `radial-gradient(#d4d4d4 1px, transparent 0)`,
+          backgroundSize: "10px 10px",
+          backgroundPosition: "-5px -5px",
+        }}
         value={activeSlot || ""}
         onValueChange={(value) => setActiveSlot(value)}
       >
-        {loading ? (
-          <LoaderIcon />
-        ) : (
-          <>
-            {(poscSlots || []).map((slot: ISlot) => (
-              <Slot {...slot} key={slot._id} active={slot._id === activeSlot} />
-            ))}
-          </>
-        )}
+        {(slots || []).map((slot: ISlot) => (
+          <Slot key={slot._id} {...slot} active={activeSlot === slot.code} />
+        ))}
       </RadioGroup>
-    </ScrollArea>
+    </div>
   )
 }
-// productsConfigs
+
 export default Slots

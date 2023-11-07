@@ -4,7 +4,13 @@ import React, { useState, useEffect } from 'react';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import Tip from '@erxes/ui/src/components/Tip';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { FilterItem, FlexRow, FlexRowLeft, ToggleButton } from '../../styles';
+import {
+  FilterItem,
+  FlexRow,
+  FlexRowLeft,
+  SchedulesTableWrapper,
+  ToggleButton
+} from '../../styles';
 
 import { IBranch, IDepartment } from '@erxes/ui/src/team/types';
 import ScheduleForm from '../../containers/schedule/ScheduleForm';
@@ -78,13 +84,18 @@ function ScheduleList(props: Props) {
     showSideBar,
     getPagination,
     isCurrentUserSupervisor,
-    checkDuplicateScheduleShifts
+    checkDuplicateScheduleShifts,
+    scheduleConfigs
   } = props;
+
+  const [scheduleConfigsWrappedById, setScheduleConfigsWrappedById] = useState(
+    {}
+  );
 
   const [selectedScheduleStatus, setScheduleStatus] = useState(
     router.getParam(history, 'scheduleStatus') || ''
   );
-  const [showRemoveBtn, setShowRemoveBtn] = useState(false);
+  const [showButtons, setShowButtons] = useState(false);
 
   const [isSideBarOpen, setIsOpen] = useState(
     localStorage.getItem('isSideBarOpen') === 'true' ? true : false
@@ -108,6 +119,17 @@ function ScheduleList(props: Props) {
   };
 
   const daysAndDatesHeaders: Column[] = [];
+
+  useEffect(() => {
+    const scheduleConfigsWrapped = {};
+    if (scheduleConfigs) {
+      for (const scheduleConfig of scheduleConfigs) {
+        scheduleConfigsWrapped[scheduleConfig._id] = scheduleConfig;
+      }
+    }
+
+    setScheduleConfigsWrappedById(scheduleConfigsWrapped);
+  }, [scheduleConfigs]);
 
   const prepareTableHeaders = () => {
     let startRange = dayjs(startDate);
@@ -148,14 +170,30 @@ function ScheduleList(props: Props) {
     </Button>
   );
 
-  const modalContent = ({ closeModal }) => (
-    <ScheduleForm modalContentType={''} closeModal={closeModal} {...props} />
+  const modalContent = (closeModal, scheduleOfMember?: ISchedule) => (
+    <ScheduleForm
+      modalContentType={''}
+      closeModal={closeModal}
+      {...props}
+      scheduleOfMember={scheduleOfMember}
+    />
   );
 
-  const adminConfigContent = ({ closeModal }) => {
+  const adminConfigContent = (closeModal, scheduleOfMember?: ISchedule) => {
+    let sortedSchedule: any = scheduleOfMember;
+
+    sortedSchedule = {
+      ...scheduleOfMember,
+      shifts: scheduleOfMember?.shifts.sort(
+        (a, b) =>
+          new Date(a.shiftStart).getTime() - new Date(b.shiftStart).getTime()
+      )
+    };
+
     return (
       <ScheduleForm
         modalContentType={'adminConfig'}
+        scheduleOfMember={sortedSchedule}
         closeModal={closeModal}
         {...props}
       />
@@ -244,7 +282,7 @@ function ScheduleList(props: Props) {
         title={__('Send schedule request')}
         size="lg"
         trigger={trigger}
-        content={modalContent}
+        content={({ closeModal }) => modalContent(closeModal)}
       />
 
       {isCurrentUserSupervisor && (
@@ -252,7 +290,7 @@ function ScheduleList(props: Props) {
           size="lg"
           title={__('Schedule config - Admin')}
           trigger={adminConfigTrigger}
-          content={adminConfigContent}
+          content={({ closeModal }) => adminConfigContent(closeModal)}
         />
       )}
     </FlexRow>
@@ -278,38 +316,25 @@ function ScheduleList(props: Props) {
         <tr>
           <th
             rowSpan={2}
-            style={{ border: '1px solid #EEE' }}
-            onMouseOver={() => setShowRemoveBtn(true)}
-            onMouseLeave={() => setShowRemoveBtn(false)}
+            onMouseOver={() => setShowButtons(true)}
+            onMouseLeave={() => setShowButtons(false)}
           >
             {''}
           </th>
           {selectedScheduleStatus === 'Pending' && (
-            <th rowSpan={2} style={{ border: '1px solid #EEE' }}>
+            <th rowSpan={2} style={{ textAlign: 'center' }}>
               {__('Action')}
             </th>
           )}
-          <th rowSpan={2} style={{ border: '1px solid #EEE' }}>
+          <th rowSpan={2} className="fixed-column">
             {__('Team members')}
           </th>
 
-          <th rowSpan={2} style={{ border: '1px solid #EEE' }}>
-            {__('Employee Id')}
-          </th>
-          <th rowSpan={2} style={{ border: '1px solid #EEE' }}>
-            {__('Total days')}
-          </th>
-          <th rowSpan={2} style={{ border: '1px solid #EEE' }}>
-            {__('Total hours')}
-          </th>
-          <th rowSpan={2} style={{ border: '1px solid #EEE' }}>
-            {__('Total Break')}
-          </th>
-          {!isEnabled('bichil') && (
-            <th rowSpan={2} style={{ border: '1px solid #EEE' }}>
-              {__('Member checked')}
-            </th>
-          )}
+          <th rowSpan={2}>{__('Employee Id')}</th>
+          <th rowSpan={2}>{__('Total days')}</th>
+          <th rowSpan={2}>{__('Total hours')}</th>
+          <th rowSpan={2}>{__('Total Break')}</th>
+          {!isEnabled('bichil') && <th rowSpan={2}>{__('Member checked')}</th>}
           {daysAndDatesHeaders.map(column => {
             return (
               <th
@@ -348,6 +373,7 @@ function ScheduleList(props: Props) {
       shiftStart: string;
       shiftEnd: string;
       backgroundColor: string;
+      scheduleConfigId: string;
     };
 
     const listShiftsOnCorrectColumn: { [columnNo: number]: ShiftString[] } = [];
@@ -359,6 +385,7 @@ function ScheduleList(props: Props) {
           dayjs(shift.shiftStart).format(dateOfTheMonthFormat)
       );
 
+      const scheduleConfigId = shift.scheduleConfigId;
       if (findColumn) {
         const columnNumber = findColumn.columnNo;
         const backgroundColor = findColumn.backgroundColor;
@@ -373,7 +400,8 @@ function ScheduleList(props: Props) {
             {
               shiftStart,
               shiftEnd,
-              backgroundColor
+              backgroundColor,
+              scheduleConfigId
             },
             ...prevShifts
           ];
@@ -381,7 +409,7 @@ function ScheduleList(props: Props) {
         }
 
         listShiftsOnCorrectColumn[columnNumber] = [
-          { shiftStart, shiftEnd, backgroundColor }
+          { shiftStart, shiftEnd, backgroundColor, scheduleConfigId }
         ];
         continue;
       }
@@ -391,18 +419,26 @@ function ScheduleList(props: Props) {
 
     for (let i = 1; i < lastColumnIdx; i++) {
       if (i in listShiftsOnCorrectColumn) {
-        const shiftsOfDay = listShiftsOnCorrectColumn[i].map(shift => {
+        const shiftsOfDay = listShiftsOnCorrectColumn[i].map((shift, index) => {
+          const getScheduleConfigName = scheduleConfigsWrappedById[
+            shift.scheduleConfigId
+          ]
+            ? scheduleConfigsWrappedById[shift.scheduleConfigId].scheduleName
+            : 'insert';
+
           return (
-            <td
-              key={Math.random()}
-              style={{
-                backgroundColor: shift.backgroundColor,
-                border: '1px solid #EEE'
-              }}
-            >
-              <div>{shift.shiftStart}</div>
-              <div>{shift.shiftEnd}</div>
-            </td>
+            <Tip key={index} text={getScheduleConfigName}>
+              <td
+                style={{
+                  cursor: 'default',
+                  backgroundColor: shift.backgroundColor,
+                  border: '1px solid #EEE'
+                }}
+              >
+                <div>{shift.shiftStart}</div>
+                <div>{shift.shiftEnd}</div>
+              </td>
+            </Tip>
           );
         });
         listRowOnColumnOrder.push(...shiftsOfDay);
@@ -462,65 +498,95 @@ function ScheduleList(props: Props) {
       totalHoursScheduled -= totalBreakInHours;
     }
 
+    const editScheduleTrigger = (
+      <Button size="small" icon="edit" btnStyle="link" />
+    );
+
     return (
       <tr style={{ textAlign: 'left' }}>
         <td
-          onMouseOver={() => setShowRemoveBtn(true)}
-          onMouseLeave={() => setShowRemoveBtn(false)}
+          onMouseOver={() => setShowButtons(true)}
+          onMouseLeave={() => setShowButtons(false)}
           style={{ textAlign: 'center' }}
         >
-          <FlexRow>
-            {showRemoveBtn && (
-              <Tip text={'Remove Schedule'} placement="top">
-                <Button
-                  size="small"
-                  icon="times-circle"
-                  btnStyle="link"
-                  onClick={() =>
-                    removeSchedule(scheduleOfMember._id, 'schedule')
+          {showButtons && (
+            <FlexRow>
+              {isCurrentUserSupervisor &&
+                selectedScheduleStatus === 'Approved' && (
+                  <ModalTrigger
+                    size="lg"
+                    title={__('Edit schedule - Admin')}
+                    trigger={editScheduleTrigger}
+                    content={({ closeModal }) =>
+                      adminConfigContent(closeModal, scheduleOfMember)
+                    }
+                  />
+                )}
+
+              {selectedScheduleStatus !== 'Approved' && (
+                <ModalTrigger
+                  size="lg"
+                  title={__('Edit schedule request')}
+                  trigger={editScheduleTrigger}
+                  content={({ closeModal }) =>
+                    modalContent(closeModal, scheduleOfMember)
                   }
                 />
-              </Tip>
-            )}
-
-            {selectedScheduleStatus === 'Rejected' && showRemoveBtn && (
-              <Tip text={'Approve Schedule'} placement="top">
-                <Button
-                  size="small"
-                  icon="checked"
-                  btnStyle="link"
-                  onClick={() => {
-                    confirm(
-                      'Are you sure to Approve according schedule ?'
-                    ).then(() => checkAndApproveSchedule(scheduleOfMember));
-                  }}
-                />
-              </Tip>
-            )}
-          </FlexRow>
+              )}
+              {isCurrentUserSupervisor && (
+                <Tip text={'Remove Schedule'} placement="top">
+                  <Button
+                    size="small"
+                    icon="times-circle"
+                    btnStyle="link"
+                    onClick={() =>
+                      removeSchedule(scheduleOfMember._id, 'schedule')
+                    }
+                  />
+                </Tip>
+              )}
+              {selectedScheduleStatus === 'Rejected' &&
+                isCurrentUserSupervisor && (
+                  <Tip text={'Approve Schedule'} placement="top">
+                    <Button
+                      size="small"
+                      icon="checked"
+                      btnStyle="link"
+                      onClick={() => {
+                        confirm(
+                          'Are you sure to Approve according schedule ?'
+                        ).then(() => checkAndApproveSchedule(scheduleOfMember));
+                      }}
+                    />
+                  </Tip>
+                )}
+            </FlexRow>
+          )}
         </td>
 
         {selectedScheduleStatus === 'Pending' && (
           <td>
-            <Button
-              disabled={scheduleOfMember.solved}
-              size="small"
-              btnStyle="success"
-              onClick={() => checkAndApproveSchedule(scheduleOfMember)}
-            >
-              Approve
-            </Button>
-            <Button
-              disabled={scheduleOfMember.solved}
-              size="small"
-              btnStyle="danger"
-              onClick={() => solveSchedule(scheduleOfMember._id, 'Rejected')}
-            >
-              Reject
-            </Button>
+            <FlexRow>
+              <Button
+                disabled={scheduleOfMember.solved}
+                size="small"
+                btnStyle="success"
+                onClick={() => checkAndApproveSchedule(scheduleOfMember)}
+              >
+                Approve
+              </Button>
+              <Button
+                disabled={scheduleOfMember.solved}
+                size="small"
+                btnStyle="danger"
+                onClick={() => solveSchedule(scheduleOfMember._id, 'Rejected')}
+              >
+                Reject
+              </Button>
+            </FlexRow>
           </td>
         )}
-        <td>{name}</td>
+        <td className="fixed-column">{name}</td>
         <td>{employeeId}</td>
         <td>{totalDaysScheduled}</td>
         <td>{totalHoursScheduled.toFixed(1)}</td>
@@ -539,13 +605,15 @@ function ScheduleList(props: Props) {
     const getFilteredSchedules = filterSchedules(scheduleOfMembers);
 
     return (
-      <Table bordered={true} condensed={true} responsive={true}>
-        {renderTableHeaders()}
-        {getFilteredSchedules.map(schedule => {
-          return renderScheduleRow(schedule, schedule.user);
-        })}
-        <tbody>{}</tbody>
-      </Table>
+      <SchedulesTableWrapper>
+        <Table bordered={true} condensed={true} responsive={true}>
+          {renderTableHeaders()}
+          {getFilteredSchedules.map(schedule => {
+            return renderScheduleRow(schedule, schedule.user);
+          })}
+          <tbody>{}</tbody>
+        </Table>
+      </SchedulesTableWrapper>
     );
   };
   return content();

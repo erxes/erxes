@@ -39,6 +39,7 @@ export interface IPos {
   allowTypes: string[];
   isCheckRemainder: boolean;
   checkExcludeCategoryIds: string[];
+  banFractions: boolean;
 }
 export interface IPosDocument extends IPos, Document {
   _id: string;
@@ -61,6 +62,9 @@ export interface IPosSlot {
   posId: string;
   name: string;
   code: string;
+  options: {
+    [key: string]: string | number;
+  };
 }
 
 export interface IPosSlotDocument extends IPosSlot, Document {
@@ -139,6 +143,7 @@ export const posSchema = schemaHooksWrapper(
       type: [String],
       label: 'Check Exclude Categories'
     }),
+    banFractions: field({ type: Boolean, label: 'has Float count' }),
     status: field({ type: String, label: 'Status', optional: true })
   }),
   'erxes_pos'
@@ -176,7 +181,8 @@ export const posSlotSchema = schemaHooksWrapper(
     _id: field({ pkey: true }),
     name: field({ type: String, label: 'Name' }),
     code: field({ type: String, label: 'Code' }),
-    posId: field({ type: String, label: 'Pos' })
+    posId: field({ type: String, label: 'Pos' }),
+    option: field({ type: Object, label: 'Option' })
   }),
   'erxes_pos_slot'
 );

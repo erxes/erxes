@@ -4,11 +4,13 @@ import { IContext } from '../../../messageBroker';
 const generateFilter = async (params, user) => {
   const {
     participantIds,
+    dealIds,
     companyId,
     createdAtFrom,
     createdAtTo,
     userId,
-    isPreviousSession
+    isPreviousSession,
+    searchValue
   } = params;
 
   const selector: any = { participantIds: { $in: [user._id] } };
@@ -18,10 +20,13 @@ const generateFilter = async (params, user) => {
     participantIds.length > 0 &&
     !participantIds.includes('')
   ) {
-    selector.participantIds = { $in: participantIds };
+    selector.participantIds = { $in: [user._id, ...participantIds] };
   }
   if (userId) {
     selector.createdBy = userId;
+  }
+  if (dealIds) {
+    selector.dealIds = { $in: dealIds };
   }
 
   if (companyId || companyId === null) {
@@ -38,6 +43,12 @@ const generateFilter = async (params, user) => {
     selector.createdAt = {
       ...selector.createdAt,
       $lt: new Date(createdAtTo)
+    };
+  }
+
+  if (searchValue) {
+    selector.title = {
+      $in: [new RegExp(`.*${searchValue}.*`, 'i')]
     };
   }
   return selector;
@@ -71,6 +82,11 @@ const meetingQueries = {
     }
 
     return await models.Meetings.meetingDetail(_id, user._id);
+  },
+  async meetingsTotalCount(_root, {}, { models, user }: IContext) {
+    const filter = await generateFilter({ isPreviousSession: true }, user);
+
+    return models.Meetings.find(filter).countDocuments();
   }
 };
 

@@ -38,11 +38,11 @@ const ProductItem = ({
         <Tooltip>
           <TooltipTrigger asChild>
             <div className="mb-1 h-8 overflow-hidden  text-ellipsis text-sm leading-4 ">
-              <small>{name}</small>
+              <small>{`${code} - ${name}`}</small>
             </div>
           </TooltipTrigger>
           <TooltipContent>
-            <p>{name}</p>
+            <div>{`${code} - ${name}`}</div>
           </TooltipContent>
         </Tooltip>
       </TooltipProvider>

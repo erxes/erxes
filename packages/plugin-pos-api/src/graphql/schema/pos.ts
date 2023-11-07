@@ -46,6 +46,7 @@ const posCommonFields = `
   allowTypes: [String]
   isCheckRemainder: Boolean
   checkExcludeCategoryIds: [String]
+  banFractions: Boolean
 `;
 
 const catProd = `
@@ -96,6 +97,9 @@ export const types = ({ contactsEnabled, productsEnabled }) => `
     user: User
     ${posCommonFields}
     catProdMappings: [CatProd]
+
+    branchTitle: String
+    departmentTitle: String
   }
 
   type PosSlot {
@@ -103,6 +107,7 @@ export const types = ({ contactsEnabled, productsEnabled }) => `
     posId: String
     code: String
     name: String
+    option: JSON
   }
 
   type ProductGroups {
@@ -129,6 +134,7 @@ export const types = ({ contactsEnabled, productsEnabled }) => `
     posId: String!
     code: String
     name: String
+    option: JSON
   }
 
   input CatProdInput {

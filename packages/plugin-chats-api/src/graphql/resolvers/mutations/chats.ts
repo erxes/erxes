@@ -50,13 +50,15 @@ const chatMutations = {
       user._id
     );
 
+    const recievers = allParticipantIds.filter(value => user._id !== value);
+
     sendCoreMessage({
       subdomain: 'os',
       action: 'sendMobileNotification',
       data: {
         title: doc.title,
         body: doc.description,
-        receivers: allParticipantIds,
+        recievers,
         data: {
           type: 'chats',
           id: chat._id
@@ -64,13 +66,17 @@ const chatMutations = {
       }
     });
 
-    graphqlPubsub.publish('chatInserted', {
-      userId: user._id
-    });
+    for (const participant of allParticipantIds) {
+      if (participant !== user._id) {
+        graphqlPubsub.publish('chatInserted', {
+          userId: participant
+        });
 
-    graphqlPubsub.publish('chatUnreadCountChanged', {
-      userId: user._id
-    });
+        graphqlPubsub.publish('chatUnreadCountChanged', {
+          userId: participant
+        });
+      }
+    }
 
     return chat;
   },
@@ -103,11 +109,36 @@ const chatMutations = {
 
         return 'Success';
       }
-
-      return models.Chats.removeChat(_id);
     }
 
-    return models.Chats.removeChat(_id);
+    return 'Success';
+  },
+
+  chatArchive: async (_root, { _id }, { models, user }) => {
+    const chat = await models.Chats.findOne({
+      _id,
+      participantIds: { $in: [user._id] }
+    });
+
+    if (!chat) {
+      throw new Error('Chat not found');
+    }
+
+    const archiverUser = chat && chat.archivedUserIds.includes(user._id);
+
+    if (archiverUser) {
+      await models.Chats.updateOne(
+        { _id },
+        { $pull: { archivedUserIds: { $in: [user._id] } } }
+      );
+    } else {
+      await models.Chats.updateOne(
+        { _id },
+        { $push: { archivedUserIds: [user._id] } }
+      );
+    }
+
+    return 'Success';
   },
 
   chatMarkAsRead: async (_root, { _id }, { models, user }) => {
@@ -149,20 +180,9 @@ const chatMutations = {
         updated = true;
 
         seen = false;
-
-        // if (seenInfo.lastSeenMessageId !== lastMessage._id) {
-        //   seenInfo.lastSeenMessageId = lastMessage._id;
-        //   seenInfo.seenDate = new Date();
-
-        //   updated = true;
-        // }
       }
 
       if (updated) {
-        graphqlPubsub.publish('chatUnreadCountChanged', {
-          userId: user._id
-        });
-
         await models.Chats.updateOne(
           { _id: chat._id },
           { $set: { seenInfos } }
@@ -245,7 +265,7 @@ const chatMutations = {
   },
 
   chatMessageAdd: async (_root, args, { models, user }) => {
-    if (!args.content) {
+    if (!args.content && args.attachments.length === 0) {
       throw new Error('Content is required');
     }
 
@@ -266,24 +286,19 @@ const chatMutations = {
       },
       {
         $set: {
-          updatedAt: new Date()
+          updatedAt: new Date(),
+          archivedUserIds: []
         }
       }
     );
 
-    graphqlPubsub.publish('chatMessageInserted', {
-      chatMessageInserted: message
-    });
-
-    graphqlPubsub.publish('chatReceivedNotification', {
-      chatReceivedNotification: message
-    });
-
     const chat = await models.Chats.getChat(message.chatId, user._id);
 
-    const recievers = chat.participantIds.filter(
+    let recievers = chat.participantIds.filter(
       value => !chat.muteUserIds.includes(value)
     );
+
+    recievers = chat.participantIds.filter(value => user._id !== value);
 
     sendCoreMessage({
       subdomain: 'os',
@@ -300,13 +315,19 @@ const chatMutations = {
     });
 
     for (const reciever of recievers) {
-      graphqlPubsub.publish('chatUnreadCountChanged', {
-        userId: reciever
-      });
+      if (reciever !== user._id) {
+        graphqlPubsub.publish('chatUnreadCountChanged', {
+          userId: reciever
+        });
 
-      graphqlPubsub.publish('chatInserted', {
-        userId: reciever
-      });
+        graphqlPubsub.publish('chatInserted', {
+          userId: reciever
+        });
+
+        graphqlPubsub.publish('chatMessageInserted', {
+          chatMessageInserted: message
+        });
+      }
     }
 
     return message;
@@ -471,9 +492,11 @@ const chatMutations = {
 
     const chat = await models.Chats.getChat(message.chatId, user._id);
 
-    const recievers = chat.participantIds.filter(
+    let recievers = chat.participantIds.filter(
       value => !chat.muteUserIds.includes(value)
     );
+
+    recievers = recievers.filter(value => user._id !== value);
 
     sendCoreMessage({
       subdomain: 'os',
@@ -490,13 +513,15 @@ const chatMutations = {
     });
 
     for (const reciever of recievers) {
-      graphqlPubsub.publish('chatUnreadCountChanged', {
-        userId: reciever
-      });
+      if (reciever !== user._id) {
+        graphqlPubsub.publish('chatUnreadCountChanged', {
+          userId: reciever
+        });
 
-      graphqlPubsub.publish('chatInserted', {
-        userId: reciever
-      });
+        graphqlPubsub.publish('chatInserted', {
+          userId: reciever
+        });
+      }
     }
 
     return message;

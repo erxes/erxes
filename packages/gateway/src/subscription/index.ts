@@ -20,7 +20,17 @@ import { makeExecutableSchema } from '@graphql-tools/schema';
 import { apolloRouterPort } from '../apollo-router';
 import { gql } from '@apollo/client/core';
 
-let disposable: Disposable;
+let disposable: Disposable | undefined;
+
+export async function stopSubscriptionServer() {
+  if (disposable) {
+    try {
+      await disposable.dispose();
+    } catch (e) {
+      console.error(e);
+    }
+  }
+}
 
 export function makeSubscriptionSchema({ typeDefs, resolvers }: any) {
   if (!typeDefs || !resolvers) {
@@ -41,9 +51,7 @@ export function makeSubscriptionSchema({ typeDefs, resolvers }: any) {
   });
 }
 
-export async function startSubscriptionServer(
-  httpServer: http.Server
-): Promise<Disposable | undefined> {
+export async function startSubscriptionServer(httpServer: http.Server) {
   const wsServer = new ws.Server({
     server: httpServer,
     path: '/graphql'
@@ -62,15 +70,7 @@ export async function startSubscriptionServer(
     resolvers
   });
 
-  if (disposable) {
-    try {
-      await disposable.dispose();
-    } catch (e) {
-      console.error(e);
-    }
-  }
-
-  // const apolloRouterPort = await getApolloRouterPort();
+  await stopSubscriptionServer();
 
   disposable = useServer(
     {
@@ -120,6 +120,4 @@ export async function startSubscriptionServer(
     },
     wsServer
   );
-
-  return disposable;
 }

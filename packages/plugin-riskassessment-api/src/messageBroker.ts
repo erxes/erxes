@@ -25,6 +25,18 @@ export const initBroker = async cl => {
       };
     }
   );
+
+  consumeRPCQueue(
+    'riskassessment:riskAssessments.create',
+    async ({ subdomain, data }) => {
+      const models = await generateModels(subdomain);
+
+      return {
+        data: await models.RiskAssessments.addRiskAssessment(data),
+        status: 'success'
+      };
+    }
+  );
 };
 
 export const sendFormsMessage = async (

@@ -31,8 +31,9 @@ export const setCurrentUserAtom = atom(
   }
 )
 export const allowTypesAtom = atom<IOrderType[] | null>(null)
+export const banFractionsAtom = atom<boolean | null>(null)
 
-export const setWholeConfig = atom(
+export const setWholeConfigAtom = atom(
   null,
   (
     get,
@@ -41,10 +42,12 @@ export const setWholeConfig = atom(
       IPaymentConfig &
       IEbarimtConfig &
       ICoverConfig &
-      ISettingsConfig
+      ISettingsConfig & {
+        allowTypes: IOrderType[]
+        banFractions: boolean | null
+      }
   ) => {
     const {
-      erxesAppToken,
       paymentIds,
       paymentTypes,
       permissionConfig,
@@ -57,6 +60,9 @@ export const setWholeConfig = atom(
       adminIds,
       token,
       waitingScreen,
+      allowTypes,
+      kitchenScreen,
+      banFractions,
     } = update
 
     set(configAtom, {
@@ -67,9 +73,9 @@ export const setWholeConfig = atom(
       createdAt,
       token,
       waitingScreen,
+      kitchenScreen,
     })
     set(paymentConfigAtom, {
-      erxesAppToken,
       paymentIds,
       paymentTypes,
       permissionConfig,
@@ -84,6 +90,8 @@ export const setWholeConfig = atom(
       paymentIds,
       paymentTypes,
     })
+    set(allowTypesAtom, allowTypes)
+    set(banFractionsAtom, banFractions)
   }
 )
 

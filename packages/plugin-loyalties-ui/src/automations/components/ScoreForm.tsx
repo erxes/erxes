@@ -112,9 +112,11 @@ export default class ScoreForm extends React.Component<Props, State> {
   renderDefaultContent(config, handleChange) {
     const { triggerType } = this.props;
 
-    const additionalAttributes: any[] = ['contacts', 'user'].some(c =>
-      triggerType.includes(c)
-    )
+    const additionalAttributes: any[] = [
+      'contacts',
+      'user',
+      'posOrder'
+    ].some(c => triggerType.includes(c))
       ? [
           {
             _id: String(Math.random()),
@@ -136,16 +138,15 @@ export default class ScoreForm extends React.Component<Props, State> {
           onChange={config => this.setState({ config })}
           customAttributions={additionalAttributes}
         />
-        <FormGroup>
-          <ControlLabel>{__('Score')}</ControlLabel>
-          <FormControl
-            type="number"
-            defaultValue={config?.score}
-            onChange={e =>
-              handleChange((e.currentTarget as HTMLInputElement).value, 'score')
-            }
-          />
-        </FormGroup>
+
+        <PlaceHolderInput
+          config={config}
+          triggerType={triggerType}
+          inputName="scoreString"
+          label="Score"
+          attrTypes={['Number']}
+          onChange={config => this.setState({ config })}
+        />
       </>
     );
   }

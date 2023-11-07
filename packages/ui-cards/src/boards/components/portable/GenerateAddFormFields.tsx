@@ -7,6 +7,10 @@ import { LogicParams } from '@erxes/ui-forms/src/settings/properties/types';
 import PipelineLabels from './PipelineLabels';
 import React from 'react';
 import { checkLogic } from '@erxes/ui-forms/src/settings/properties/utils';
+import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
+import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
 
 type Props = {
   object: any;
@@ -92,6 +96,40 @@ function GenerateAddFormFields(props: Props) {
           if (field.field === 'assignedUserIds') {
             return (
               <AssignedUsers field={field} onChangeField={onChangeField} />
+            );
+          }
+
+          if (field.field === 'branchIds') {
+            return (
+              <FormGroup>
+                <ControlLabel>Branches</ControlLabel>
+                <SelectBranches
+                  label="Choose branch"
+                  name="branches"
+                  initialValue={[]}
+                  multi={true}
+                  onSelect={branchIds => {
+                    onChangeField('branchIds', branchIds);
+                  }}
+                />
+              </FormGroup>
+            );
+          }
+
+          if (field.field === 'departmentIds') {
+            return (
+              <FormGroup>
+                <ControlLabel>Departments</ControlLabel>
+                <SelectDepartments
+                  label="Choose department"
+                  name="departments"
+                  initialValue={[]}
+                  multi={true}
+                  onSelect={departmentIds => {
+                    onChangeField('departmentIds', departmentIds);
+                  }}
+                />
+              </FormGroup>
             );
           }
 

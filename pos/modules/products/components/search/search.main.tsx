@@ -1,16 +1,17 @@
-import React, { useState } from "react"
-import { searchAtom } from "@/store"
+import React from "react"
+import { activeCategoryAtom, searchAtom } from "@/store"
+import { searchPopoverAtom } from "@/store/ui.store"
 import { motion } from "framer-motion"
-import { useAtom } from "jotai"
+import { useAtom, useSetAtom } from "jotai"
+import { SearchIcon } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 import { Input } from "@/components/ui/input"
 
-import { SearchIc } from "./search.market"
-
 const Search: React.FC = () => {
-  const [focused, setFocused] = useState(false)
+  const [focused, setFocused] = useAtom(searchPopoverAtom)
   const [search, setSearch] = useAtom(searchAtom)
+  const setActiveCat = useSetAtom(activeCategoryAtom)
 
   const show = focused || search
 
@@ -25,7 +26,10 @@ const Search: React.FC = () => {
       <SearchIc className="h-5 w-5 text-black/75" />
       <Input
         className={cn("z-1 relative border-none", focused && "pl-9")}
-        onFocus={() => setFocused(true)}
+        onFocus={() => {
+          setFocused(true)
+          setActiveCat("")
+        }}
         onBlur={() => !search && setFocused(false)}
         onChange={(e) => setSearch(e.target.value)}
         value={search}
@@ -34,5 +38,15 @@ const Search: React.FC = () => {
     </motion.div>
   )
 }
+
+export const SearchIc = ({ className }: { className?: string }) => (
+  <SearchIcon
+    className={cn(
+      "absolute left-2 top-1/2 h-4 w-4 -translate-y-2/4 text-black/40",
+      className
+    )}
+    strokeWidth={2}
+  />
+)
 
 export default Search

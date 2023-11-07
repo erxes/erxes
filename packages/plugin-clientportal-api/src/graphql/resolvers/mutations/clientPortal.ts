@@ -3,6 +3,9 @@ import { sendCardsMessage, sendContactsMessage } from '../../../messageBroker';
 import { IClientPortal } from '../../../models/definitions/clientPortal';
 import { IContext } from '../../../connectionResolver';
 import { checkPermission } from '@erxes/api-utils/src';
+import { putActivityLog } from '../../../logUtils';
+import { getUserName } from '../../../utils';
+import { createCard } from '../../../models/utils';
 
 export interface IVerificationParams {
   userId: string;
@@ -11,8 +14,12 @@ export interface IVerificationParams {
 }
 
 const clientPortalMutations = {
-  clientPortalConfigUpdate(_root, args: IClientPortal, { models }: IContext) {
-    return models.ClientPortals.createOrUpdateConfig(args);
+  clientPortalConfigUpdate(
+    _root,
+    { config }: { config: IClientPortal },
+    { models }: IContext
+  ) {
+    return models.ClientPortals.createOrUpdateConfig(config);
   },
 
   clientPortalRemove(_root, { _id }: { _id: string }, { models }: IContext) {
@@ -21,76 +28,14 @@ const clientPortalMutations = {
 
   async clientPortalCreateCard(
     _root,
-    {
-      type,
-      subject,
-      priority,
-      description,
-      stageId,
-      parentId,
-      closeDate,
-      startDate,
-      customFieldsData,
-      attachments,
-      labelIds,
-      productsData
-    },
+    args,
     { subdomain, cpUser, models }: IContext
   ) {
     if (!cpUser) {
       throw new Error('You are not logged in');
     }
 
-    const customer = await sendContactsMessage({
-      subdomain,
-      action: 'customers.findOne',
-      data: {
-        _id: cpUser.erxesCustomerId
-      },
-      isRPC: true
-    });
-
-    if (!customer) {
-      throw new Error('Customer not registered');
-    }
-
-    if (['High', 'Critical'].includes(priority)) {
-      priority = 'Normal';
-    }
-
-    const card = await sendCardsMessage({
-      subdomain,
-      action: `${type}s.create`,
-      data: {
-        userId: cpUser._id,
-        name: subject,
-        description,
-        priority,
-        stageId,
-        status: 'active',
-        customerId: customer._id,
-        createdAt: new Date(),
-        stageChangedDate: null,
-        parentId,
-        closeDate,
-        startDate,
-        customFieldsData,
-        attachments,
-        labelIds,
-        productsData
-      },
-      isRPC: true
-    });
-
-    await models.ClientPortalUserCards.createOrUpdateCard(
-      {
-        type,
-        cardId: card._id
-      },
-      cpUser._id
-    );
-
-    return card;
+    return createCard(subdomain, models, cpUser, args);
   }
 };
 

@@ -20,6 +20,7 @@ interface ISearchParams {
   dueStartDate?: Date;
   dueEndDate?: Date;
   isPreExclude?: boolean;
+  slotCode?: string;
 }
 
 const generateFilter = (config: IConfig, params: ISearchParams) => {
@@ -34,7 +35,8 @@ const generateFilter = (config: IConfig, params: ISearchParams) => {
     customerType,
     dueStartDate,
     dueEndDate,
-    isPreExclude
+    isPreExclude,
+    slotCode
   } = params;
   const filter: any = {
     $or: [{ posToken: config.token }, { subToken: config.token }]
@@ -49,6 +51,10 @@ const generateFilter = (config: IConfig, params: ISearchParams) => {
 
   if (customerId) {
     filter.customerId = customerId;
+  }
+
+  if (slotCode) {
+    filter.slotCode = slotCode;
   }
 
   if (customerType) {
@@ -179,14 +185,14 @@ const orderQueries = {
     { posUser, models, config }: IContext
   ) {
     if (posUser) {
-      return models.Orders.findOne({ _id });
+      return models.Orders.findOne({ _id, posToken: config.token });
     }
 
     if (!customerId) {
       throw new Error('Not found');
     }
 
-    return models.Orders.findOne({ _id, customerId, posToken: config.token });
+    return models.Orders.findOne({ _id, posToken: config.token, customerId });
   },
 
   async ordersCheckCompany(_root, { registerNumber }, { config }: IContext) {

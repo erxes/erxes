@@ -12,11 +12,14 @@ const commonFields = `
   $useMargin: Boolean
   $useDebt: Boolean
   $useSkipInterest:Boolean
+  $useManualNumbering:Boolean
+  $useFee:Boolean
   $leaseType: String
   $createdAt: Date,
   $productCategoryIds: [String],
   $config: JSON,
   $currency: String,
+  $productType: String
 `;
 
 const commonVariables = `
@@ -31,11 +34,14 @@ const commonVariables = `
   useMargin: $useMargin
   useDebt: $useDebt
   useSkipInterest: $useSkipInterest
+  useManualNumbering: $useManualNumbering
+  useFee: $useFee
   leaseType: $leaseType
   createdAt: $createdAt,
   productCategoryIds: $productCategoryIds,
   config: $config,
   currency: $currency,
+  productType: $productType
 `;
 
 const contractTypesAdd = `

@@ -39,6 +39,17 @@ const scheduleQueries = {
       return models.FirstSchedules.find(filter).sort({ payDate: 1 });
     }
 
+    const lastTransaction = await models.Transactions.findOne({
+      contractId: params.contractId
+    })
+      .sort({ payDate: -1 })
+      .lean();
+
+    if (!!lastTransaction) {
+      filter.payDate = { $lte: lastTransaction.payDate };
+    } else filter.payDate = { $lte: new Date() };
+    filter.didTotal = { $gt: 0 };
+
     return models.Schedules.find(filter).sort({ payDate: 1 });
   },
 

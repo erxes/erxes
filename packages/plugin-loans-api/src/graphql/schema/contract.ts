@@ -35,6 +35,7 @@ export const types = () => `
     createdAt: Date
     marginAmount: Float
     leaseAmount: Float
+    givenAmount: Float
     feeAmount: Float
     tenor: Float
     unduePercent: Float
@@ -97,7 +98,13 @@ export const types = () => `
     lastStoredDate:Date
     isPayFirstMonth: Boolean
     downPayment: Float
+    skipAmountCalcMonth: Float
+    customPayment: Float
+    customInterest: Float
     isBarter: Boolean
+    useManualNumbering: Boolean
+    useFee: Boolean
+    loanPurpose: String
   }
 
 
@@ -120,6 +127,11 @@ export const types = () => `
   type ContractsListResponse {
     list: [LoanContract],
     totalCount: Float,
+  }
+  type LoanAlert {
+    name: String,
+    count: Float,
+    filter: JSON,
   }
 `;
 
@@ -161,6 +173,7 @@ export const queries = `
   cpContracts(cpUserType: String cpUserEmail: String cpUserPhone: String): [LoanContract]
   cpContractDetail(_id: String!): LoanContract
   closeInfo(contractId: String, date: Date): CloseInfo
+  contractsAlert(date: Date): [LoanAlert]
 `;
 
 const commonFields = `
@@ -174,6 +187,7 @@ const commonFields = `
   createdAt: Date
   marginAmount: Float
   leaseAmount: Float
+  givenAmount: Float
   feeAmount: Float
   tenor: Float
   unduePercent: Float
@@ -207,7 +221,13 @@ const commonFields = `
   currency:String
   isPayFirstMonth: Boolean
   downPayment: Float
+  skipAmountCalcMonth: Float
   isBarter: Boolean
+  customPayment: Float
+  customInterest: Float
+  loanPurpose: String
+  useManualNumbering: Boolean
+  useFee: Boolean
 `;
 
 const interestCorrectionFields = `

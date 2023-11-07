@@ -8,8 +8,10 @@ import SpinCampaign from '../components/List';
 import { mutations, queries } from '../graphql';
 import {
   SpinCampaignQueryResponse,
-  SpinCampaignRemoveMutationResponse
+  SpinCampaignRemoveMutationResponse,
+  SpinCampaignsCountQueryResponse
 } from '../types';
+import { generatePaginationParams } from '@erxes/ui/src/utils/router';
 
 type Props = {
   queryParams: any;
@@ -19,12 +21,18 @@ type Props = {
 
 type FinalProps = {
   spinCampaignQuery: SpinCampaignQueryResponse;
+  spinCampaignQueryCount: SpinCampaignsCountQueryResponse;
 } & Props &
   SpinCampaignRemoveMutationResponse;
 
 class SpinCampaignContainer extends React.Component<FinalProps> {
   render() {
-    const { spinCampaignQuery, queryParams, spinCampaignsRemove } = this.props;
+    const {
+      spinCampaignQuery,
+      spinCampaignQueryCount,
+      queryParams,
+      spinCampaignsRemove
+    } = this.props;
 
     // remove action
     const remove = ({ spinCampaignIds }, emptyBulk) => {
@@ -47,6 +55,7 @@ class SpinCampaignContainer extends React.Component<FinalProps> {
     const filterStatus = this.props.queryParams.filterStatus || '';
 
     const spinCampaigns = spinCampaignQuery.spinCampaigns || [];
+    const totalCount = spinCampaignQueryCount.spinCampaignsCount || 0;
 
     const updatedProps = {
       ...this.props,
@@ -55,7 +64,8 @@ class SpinCampaignContainer extends React.Component<FinalProps> {
       remove,
       loading: spinCampaignQuery.loading,
       searchValue,
-      filterStatus
+      filterStatus,
+      totalCount
     };
 
     const productList = props => <SpinCampaign {...updatedProps} {...props} />;
@@ -78,8 +88,22 @@ const options = () => ({
 
 export default withProps<Props>(
   compose(
-    graphql<{}, SpinCampaignQueryResponse>(gql(queries.spinCampaigns), {
-      name: 'spinCampaignQuery'
+    graphql<Props>(gql(queries.spinCampaignsCount), {
+      name: 'spinCampaignQueryCount',
+      options: ({ queryParams }: Props) => ({
+        variables: {
+          searchValue: queryParams.searchValue
+        }
+      })
+    }),
+    graphql<Props, SpinCampaignQueryResponse>(gql(queries.spinCampaigns), {
+      name: 'spinCampaignQuery',
+      options: ({ queryParams }: Props) => ({
+        variables: {
+          searchValue: queryParams.searchValue,
+          ...generatePaginationParams(queryParams)
+        }
+      })
     }),
     graphql<
       Props,

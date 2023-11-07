@@ -37,6 +37,7 @@ export interface IPrice {
 
 export interface IProduct extends IProductCommonFields {
   categoryId?: string;
+  shortName?: string;
   type?: string;
   barcodes?: string[];
   barcodeDescription?: string;
@@ -94,6 +95,7 @@ export const productSchema = schemaWrapper(
     _id: field({ pkey: true }),
     categoryId: field({ type: String, label: 'Category' }),
     name: field({ type: String, label: 'Name' }),
+    shortName: field({ type: String, optional: true, label: 'Short name' }),
     code: field({ type: String, label: 'Code' }),
     barcodes: field({
       type: [String],
@@ -189,6 +191,11 @@ export const productCategorySchema = schemaHooksWrapper(
     isSimilarity: field({ type: Boolean, label: 'is Similiraties' }),
     similarities: field({
       type: [{ id: String, groupId: String, fieldId: String, title: String }]
+    }),
+    maskType: field({
+      type: String,
+      optional: true,
+      label: 'Mask type'
     })
   }),
   'erxes_productCategorySchema'

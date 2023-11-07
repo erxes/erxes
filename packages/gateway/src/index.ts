@@ -20,14 +20,13 @@ import {
   applyProxiesCoreless,
   applyProxyToCore
 } from './proxy/create-middleware';
-import apolloRouter from './apollo-router';
-import { ChildProcess } from 'child_process';
-import { startSubscriptionServer } from './subscription';
-import { Disposable } from 'graphql-ws';
-import { publishRefreshEnabledServices } from '@erxes/api-utils/src/serviceDiscovery';
+import { startRouter, stopRouter } from './apollo-router';
+import {
+  startSubscriptionServer,
+  stopSubscriptionServer
+} from './subscription';
 
 const {
-  NODE_ENV,
   DOMAIN,
   WIDGETS_DOMAIN,
   CLIENT_PORTAL_DOMAINS,
@@ -38,18 +37,6 @@ const {
   SENTRY_DSN
 } = process.env;
 
-let apolloRouterProcess: ChildProcess | undefined = undefined;
-let subscriptionServer: Disposable | undefined = undefined;
-
-const stopRouter = () => {
-  if (!apolloRouterProcess) {
-    return;
-  }
-  try {
-    apolloRouterProcess.kill('SIGKILL');
-  } catch (e) {}
-};
-
 (async () => {
   const app = express();
 
@@ -57,8 +44,6 @@ const stopRouter = () => {
   app.get('/health', async (_req, res) => {
     res.end('ok');
   });
-
-  await publishRefreshEnabledServices();
 
   if (SENTRY_DSN) {
     Sentry.init({
@@ -103,7 +88,7 @@ const stopRouter = () => {
 
   const targets: ErxesProxyTarget[] = await retryGetProxyTargets();
 
-  apolloRouterProcess = await apolloRouter(targets);
+  await startRouter(targets);
 
   await applyProxiesCoreless(app, targets);
 
@@ -120,7 +105,7 @@ const stopRouter = () => {
     }
   });
 
-  subscriptionServer = await startSubscriptionServer(httpServer);
+  await startSubscriptionServer(httpServer);
 
   // Why are we parsing the body twice? When we don't use the body
   app.use(
@@ -150,17 +135,8 @@ const stopRouter = () => {
 (['SIGINT', 'SIGTERM'] as NodeJS.Signals[]).forEach(sig => {
   process.on(sig, async () => {
     console.log(`Exiting on signal ${sig}`);
-    if (NODE_ENV === 'development') {
-      try {
-        publishRefreshEnabledServices();
-      } catch (e) {}
-    }
-    if (subscriptionServer) {
-      try {
-        subscriptionServer.dispose();
-      } catch (e) {}
-    }
-    await stopRouter();
+    await stopSubscriptionServer();
+    await stopRouter(sig);
     process.exit(0);
   });
 });

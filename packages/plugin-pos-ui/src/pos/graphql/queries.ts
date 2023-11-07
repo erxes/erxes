@@ -49,6 +49,10 @@ export const posCommonFields = `
   allowTypes
   isCheckRemainder
   checkExcludeCategoryIds
+  banFractions
+
+  branchTitle
+  departmentTitle
 `;
 
 const commonParamDefs = `
@@ -98,6 +102,7 @@ const posSlots = `
       posId
       code
       name
+      option
     }
   }
 `;

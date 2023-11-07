@@ -6,7 +6,13 @@ import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
-import { Row, FilterItem, TextAlignCenter } from '../../styles';
+import {
+  Row,
+  FilterItem,
+  TextAlignCenter,
+  SearchInput,
+  FlexRow
+} from '../../styles';
 import {
   IAbsence,
   IAbsenceType,
@@ -21,6 +27,7 @@ import Tip from '@erxes/ui/src/components/Tip';
 
 import ConfigForm from './ConfigForm';
 import Pagination from '@erxes/ui/src/components/pagination/Pagination';
+import { FormControl } from '@erxes/ui/src/components/form';
 
 type Props = {
   getActionBar: (actionBar: any) => void;
@@ -46,6 +53,7 @@ type Props = {
   removePayDate: (payDateId: string) => void;
   removeScheduleConfig: (scheduleConfigId: string) => void;
   removeDeviceConfig: (deviceConfig: string) => void;
+  refetchDeviceConfigsQuery: (params: any) => void;
 };
 
 function ConfigList(props: Props) {
@@ -63,7 +71,9 @@ function ConfigList(props: Props) {
     removeScheduleConfig,
     removeDeviceConfig,
     showSideBar,
-    getPagination
+    getPagination,
+
+    refetchDeviceConfigsQuery
   } = props;
 
   const [selectedType, setType] = useState(
@@ -191,35 +201,53 @@ function ConfigList(props: Props) {
     );
   };
 
+  const onSearchDeviceConfigs = e => {
+    e.preventDefault();
+    refetchDeviceConfigsQuery({ searchValue: e.target.value });
+  };
+
   const actionBarRight = (
-    <>
-      <ModalTrigger
-        size="lg"
-        title={__('Schedule Config')}
-        trigger={scheduleConfigTrigger}
-        content={contentProps => scheduleConfigContent(contentProps, null)}
-      />
-      <ModalTrigger
-        title={__('Requests Config')}
-        trigger={absenceConfigTrigger}
-        content={contentProps => absenceConfigContent(contentProps, null)}
-      />
-      <ModalTrigger
-        title={__('Schedule Config')}
-        trigger={payPeriodConfigTrigger}
-        content={contentProps => payPeriodConfigContent(contentProps, null)}
-      />
-      <ModalTrigger
-        title={__('Holiday Config')}
-        trigger={holidayConfigTrigger}
-        content={contentProps => holidayConfigContent(contentProps, null)}
-      />
-      <ModalTrigger
-        title={__('Terminal Device Config')}
-        trigger={devicesConfigTrigger}
-        content={contentProps => deviceConfigContent(contentProps, null)}
-      />
-    </>
+    <FlexRow>
+      {selectedType === 'Terminal Devices' && (
+        <SearchInput isInPopover={false}>
+          <Icon icon="search-1" />
+          <FormControl
+            type="text"
+            placeholder={__('Type to search for devices')}
+            onChange={onSearchDeviceConfigs}
+          />
+        </SearchInput>
+      )}
+
+      <div>
+        <ModalTrigger
+          size="lg"
+          title={__('Schedule Config')}
+          trigger={scheduleConfigTrigger}
+          content={contentProps => scheduleConfigContent(contentProps, null)}
+        />
+        <ModalTrigger
+          title={__('Requests Config')}
+          trigger={absenceConfigTrigger}
+          content={contentProps => absenceConfigContent(contentProps, null)}
+        />
+        <ModalTrigger
+          title={__('Schedule Config')}
+          trigger={payPeriodConfigTrigger}
+          content={contentProps => payPeriodConfigContent(contentProps, null)}
+        />
+        <ModalTrigger
+          title={__('Holiday Config')}
+          trigger={holidayConfigTrigger}
+          content={contentProps => holidayConfigContent(contentProps, null)}
+        />
+        <ModalTrigger
+          title={__('Terminal Device Config')}
+          trigger={devicesConfigTrigger}
+          content={contentProps => deviceConfigContent(contentProps, null)}
+        />
+      </div>
+    </FlexRow>
   );
 
   const actionBar = (

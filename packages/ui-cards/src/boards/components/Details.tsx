@@ -22,6 +22,15 @@ class Details extends React.Component<Props> {
             ({item.quantity} {item.uom ? item.uom : 'PC'})
           </Quantity>
         )}
+        {item.unitPrice && (
+          <>
+            {' '}
+            -{' '}
+            {item.unitPrice.toLocaleString(undefined, {
+              maximumFractionDigits: 0
+            })}
+          </>
+        )}
       </ItemBox>
     );
   }

@@ -23,6 +23,7 @@ type Props = {
 
 type FinalProps = {
   contractsMainQuery: MainQueryResponse;
+  contractsAlertQuery: any;
 } & Props &
   IRouterProps &
   RemoveMutationResponse;
@@ -30,6 +31,8 @@ type FinalProps = {
 type State = {
   loading: boolean;
 };
+
+type ContractAlert = { name: string; count: number; filter: any };
 
 const generateQueryParams = ({ location }) => {
   return queryString.parse(location.search);
@@ -82,7 +85,8 @@ class ContractListContainer extends React.Component<FinalProps, State> {
   render() {
     const {
       contractsMainQuery,
-      contractsRemove
+      contractsRemove,
+      contractsAlertQuery
       // contractsMerge,
     } = this.props;
 
@@ -103,11 +107,14 @@ class ContractListContainer extends React.Component<FinalProps, State> {
     const { list = [], totalCount = 0 } =
       contractsMainQuery.contractsMain || {};
 
+    const alerts: ContractAlert[] = contractsAlertQuery?.contractsAlert || [];
+
     const updatedProps = {
       ...this.props,
       totalCount,
       searchValue,
       contracts: list,
+      alerts,
       loading: contractsMainQuery.loading || this.state.loading,
       queryParams: this.props.queryParams,
       removeContracts,
@@ -177,6 +184,17 @@ export default withProps<Props>(
         }
       }
     ),
+    graphql<{ queryParams: any }, any, any>(gql(queries.contractsAlert), {
+      name: 'contractsAlertQuery',
+      options: () => {
+        return {
+          variables: {
+            date: new Date()
+          },
+          fetchPolicy: 'network-only'
+        };
+      }
+    }),
     // mutations
     graphql<{}, RemoveMutationResponse, RemoveMutationVariables>(
       gql(mutations.contractsRemove),

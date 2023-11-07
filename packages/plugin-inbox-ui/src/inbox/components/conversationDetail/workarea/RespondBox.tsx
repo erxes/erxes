@@ -16,6 +16,11 @@ import {
   RespondBoxStyled,
   SmallEditor
 } from '@erxes/ui-inbox/src/inbox/styles';
+import {
+  getPluginConfig,
+  isEnabled,
+  loadDynamicComponent
+} from '@erxes/ui/src/utils/core';
 
 import Button from '@erxes/ui/src/components/Button';
 import FormControl from '@erxes/ui/src/components/form/Control';
@@ -32,11 +37,6 @@ import { SmallLoader } from '@erxes/ui/src/components/ButtonMutate';
 import Tip from '@erxes/ui/src/components/Tip';
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 import { deleteHandler } from '@erxes/ui/src/utils/uploadHandler';
-import {
-  getPluginConfig,
-  isEnabled,
-  loadDynamicComponent
-} from '@erxes/ui/src/utils/core';
 
 const Editor = asyncComponent(
   () => import(/* webpackChunkName: "Editor-in-Inbox" */ './Editor'),
@@ -56,6 +56,7 @@ type Props = {
   ) => void;
   onSearchChange: (value: string) => void;
   showInternal: boolean;
+  disableInternalState: boolean;
   setAttachmentPreview?: (data: IAttachmentPreview) => void;
   responseTemplates: IResponseTemplate[];
   teamMembers: IUser[];
@@ -327,9 +328,17 @@ class RespondBox extends React.Component<Props, State> {
   };
 
   toggleForm = () => {
-    this.setState({
-      isInternal: !this.state.isInternal
-    });
+    this.setState(
+      {
+        isInternal: !this.state.isInternal
+      },
+      () => {
+        localStorage.setItem(
+          `showInternalState-${this.props.conversation._id}`,
+          String(this.state.isInternal)
+        );
+      }
+    );
   };
 
   renderIndicator() {
@@ -435,7 +444,7 @@ class RespondBox extends React.Component<Props, State> {
             componentClass="checkbox"
             checked={isInternal}
             onChange={this.toggleForm}
-            disabled={this.props.showInternal}
+            disabled={this.props.disableInternalState}
           >
             {__('Internal note')}
           </FormControl>

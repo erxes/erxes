@@ -18,12 +18,14 @@ export const types = `
     _id: String! @external
   }
 
-  type Timeclock {
+  type Timeclock @key(fields: "_id"){
     _id: String!
     user: User
     shiftStart: Date
     shiftEnd: Date
     shiftActive: Boolean
+    shiftNotClosed: Boolean
+    
     employeeUserName: String
     deviceName: String
     branchName: String
@@ -46,7 +48,7 @@ export const types = `
     deviceName: String
   }
 
-  type Absence {
+  type Absence @key(fields: "_id"){
     _id: String!
     user: User
     holidayName: String
@@ -61,6 +63,8 @@ export const types = `
     absenceTimeType: String
     requestDates: [String]
     totalHoursOfAbsence: String
+
+    note: String
   }
 
   type AbsenceType {
@@ -104,7 +108,7 @@ export const types = `
     lunchBreakInMins: Int
   }
 
-  type Schedule {
+  type Schedule @key(fields: "_id"){
     _id: String!
     user: User
     shifts: [Shift]
@@ -205,7 +209,7 @@ export const types = `
     totalHoursAbsenceSelectedMonth: Float
   }
   
-  type Report {
+  type TimeclockReport {
     groupTitle: String
     groupReport: [UserReport]
     groupTotalMinsLate: Int
@@ -280,8 +284,8 @@ export const types = `
     totalCount: Float
   }
 
-  type ReportsListResponse {
-    list: [Report]
+  type TimeclockReportsListResponse {
+    list: [TimeclockReport]
     totalCount: Float
   }
   
@@ -322,6 +326,8 @@ const queryParams = `
   reportType: String
   scheduleStatus: String
   isCurrentUserAdmin: Boolean
+
+  searchValue: String
 `;
 
 const commonParams = `
@@ -375,7 +381,7 @@ export const queries = `
   
   absenceTypes:[AbsenceType]
   
-  timeclockReports(${queryParams}): ReportsListResponse
+  timeclockReports(${queryParams}): TimeclockReportsListResponse
 
   
   timeclockReportByUser(selectedUser: String, selectedMonth: String, selectedYear: String, selectedDate:String): UserReport
@@ -416,9 +422,10 @@ export const mutations = `
   
   sendScheduleRequest(userId: String, shifts: [ShiftInput], scheduleConfigId: String, totalBreakInMins: Int): Schedule
   submitSchedule(branchIds:[String],departmentIds:[String], userIds: [String], shifts:[ShiftInput], scheduleConfigId: String, totalBreakInMins: Int): Schedule
+  editSchedule(_id: String!, shifts: [ShiftInput]): JSON
   checkDuplicateScheduleShifts(branchIds:[String],departmentIds:[String], userIds: [String], shifts:[ShiftInput], status: String): [DuplicateSchedule]
 
-  solveAbsenceRequest(_id: String, status: String): Absence
+  solveAbsenceRequest(_id: String, status: String, note: String): Absence
   solveScheduleRequest(_id: String, status: String): Schedule
   solveShiftRequest(_id: String, status: String): Shift
   

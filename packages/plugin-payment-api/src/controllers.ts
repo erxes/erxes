@@ -10,6 +10,7 @@ import { sendRequest } from '@erxes/api-utils/src';
 import { graphqlPubsub } from './configs';
 import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
 import messageBroker from './messageBroker';
+import { randomAlphanumeric } from '@erxes/api-utils/src/random';
 
 const router = Router();
 
@@ -42,22 +43,25 @@ router.post('/gateway/manualCheck', async (req, res) => {
   const status = await models.Invoices.checkInvoice(invoiceId);
 
   if (status === 'paid') {
-    const invoice = await models.Invoices.getInvoice({ _id: invoiceId });
+    const invoiceDoc = await models.Invoices.getInvoice(
+      { _id: invoiceId },
+      true
+    );
 
     graphqlPubsub.publish('invoiceUpdated', {
       invoiceUpdated: {
-        _id: invoice._id,
+        _id: invoiceDoc._id,
         status: 'paid'
       }
     });
 
-    const [serviceName] = invoice.contentType.split(':');
+    const [serviceName] = invoiceDoc.contentType.split(':');
 
     if (await isEnabled(serviceName)) {
       messageBroker().sendMessage(`${serviceName}:paymentCallback`, {
         subdomain,
         data: {
-          ...invoice,
+          ...invoiceDoc,
           apiResponse: 'success'
         }
       });
@@ -65,7 +69,7 @@ router.post('/gateway/manualCheck', async (req, res) => {
 
     redisUtils.removeInvoice(invoiceId);
 
-    res.clearCookie(`paymentData_${invoice.contentTypeId}`);
+    res.clearCookie(`paymentData_${invoiceDoc.contentTypeId}`);
   }
 
   return res.json({ status });
@@ -119,6 +123,7 @@ router.post('/gateway/storepay', async (req, res) => {
 
 router.post('/gateway/updateInvoice', async (req, res) => {
   const { selectedPaymentId, paymentKind, invoiceData, phone } = req.body;
+
   const subdomain = getSubdomain(req);
   const models = await generateModels(subdomain);
 
@@ -138,13 +143,18 @@ router.post('/gateway/updateInvoice', async (req, res) => {
     invoice.status !== 'paid' &&
     invoice.selectedPaymentId !== selectedPaymentId
   ) {
-    await models.Invoices.updateInvoice(invoice._id, {
+    const doc: any = {
       selectedPaymentId,
       paymentKind,
       phone,
-      domain,
-      identifier: invoice.identifier
-    });
+      domain
+    };
+
+    if (!invoice.selectedPaymentId) {
+      doc.identifier = randomAlphanumeric(32);
+    }
+
+    await models.Invoices.updateInvoice(invoice._id, doc);
   }
 
   if (!invoice) {
@@ -152,7 +162,8 @@ router.post('/gateway/updateInvoice', async (req, res) => {
       ...invoiceData,
       selectedPaymentId,
       phone,
-      domain
+      domain,
+      identifier: randomAlphanumeric(32)
     });
   }
 
@@ -201,6 +212,7 @@ router.get('/gateway', async (req, res) => {
   const payments = paymentsFound.map(p => ({
     _id: p._id,
     kind: p.kind,
+    name: p.name,
     title: PAYMENTS[p.kind].title
   }));
 

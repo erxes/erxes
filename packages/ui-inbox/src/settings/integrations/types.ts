@@ -25,6 +25,12 @@ export interface IImapForm {
   smtpPort: number;
 }
 
+export interface IEmailTemplate {
+  _id: string;
+  name: string;
+  content: string;
+}
+
 export interface IExchangeForm {
   email: string;
   password: string;

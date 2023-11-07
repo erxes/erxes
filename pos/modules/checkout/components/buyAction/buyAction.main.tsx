@@ -2,17 +2,20 @@
 
 import dynamic from "next/dynamic"
 import { useRouter } from "next/navigation"
-import ShowDeliveryInfo from "@/modules/orders/components/DeliveryInputs/ShowDeliveryInfo"
+import DeliveryInputs from "@/modules/orders/components/DeliveryInputs"
 import useOrderCU from "@/modules/orders/hooks/useOrderCU"
+import { configAtom } from "@/store/config.store"
 import {
-  activeOrderAtom,
+  activeOrderIdAtom,
   buttonTypeAtom,
   orderTypeAtom,
 } from "@/store/order.store"
+import { showRecieptAtom } from "@/store/progress.store"
 import { useAtom, useAtomValue, useSetAtom } from "jotai"
 
 import { ORDER_TYPES } from "@/lib/constants"
 import { Button } from "@/components/ui/button"
+import PrintProgress from "@/app/(main)/(orders)/components/progress/PrintProgress"
 
 const OrderFinish = dynamic(() => import("../orderFinish"), {
   loading: () => <div />,
@@ -20,13 +23,19 @@ const OrderFinish = dynamic(() => import("../orderFinish"), {
 
 const BuyAction = () => {
   const [buttonType, setButtonType] = useAtom(buttonTypeAtom)
-  const setActiveOrder = useSetAtom(activeOrderAtom)
+  const setActiveOrder = useSetAtom(activeOrderIdAtom)
+  const setShowRecieptId = useSetAtom(showRecieptAtom)
   const type = useAtomValue(orderTypeAtom)
   const router = useRouter()
   const isPay = buttonType === "pay"
+  const config = useAtomValue(configAtom)
+  const { isActive, isPrint } = config?.kitchenScreen || {}
 
   const onCompleted = (_id: string) => {
     isPay && router.push("/checkout?orderId=" + _id)
+    if (!isPay && !isActive && isPrint) {
+      setShowRecieptId(_id)
+    }
     return setActiveOrder(_id)
   }
 
@@ -50,7 +59,7 @@ const BuyAction = () => {
         Захиалах
       </Button>
       <div className="flex items-center col-span-2 gap-2">
-        <ShowDeliveryInfo />
+        <DeliveryInputs />
         {ORDER_TYPES.SALES.includes(type) ? (
           <Button
             size="lg"
@@ -68,6 +77,7 @@ const BuyAction = () => {
           <OrderFinish />
         )}
       </div>
+      <PrintProgress />
     </>
   )
 }

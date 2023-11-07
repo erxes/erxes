@@ -1,3 +1,10 @@
+export interface IUIOptions {
+  colors?: string
+  logo?: string
+  favIcon?: string
+  receiptIcon?: string
+}
+
 export interface IConfig {
   _id: string
   name: string
@@ -9,11 +16,8 @@ export interface IConfig {
   waitingScreen?: {
     isActive?: boolean
   }
-  uiOptions?: {
-    colors: string
-    logo: string
-    favIcon: string
-  }
+  kitchenScreen?: IKitchenScreen
+  uiOptions?: IUIOptions
 }
 
 export interface IPaymentType {
@@ -26,8 +30,12 @@ export interface IPaymentType {
   }
 }
 
+export interface IKitchenScreen {
+  isActive?: boolean
+  isPrint?: boolean
+}
+
 export interface IPaymentConfig extends ICoverConfig {
-  erxesAppToken: string
   permissionConfig?: {
     admins?: {
       isTempBill?: boolean
@@ -48,9 +56,7 @@ export interface IEbarimtConfig {
     hasCopy: boolean
   }
   paymentTypes: IPaymentType[]
-  uiOptions: {
-    receiptIcon: string
-  }
+  uiOptions: IUIOptions
   name: string
 }
 
@@ -81,4 +87,4 @@ export interface ICurrentUser {
   }
 }
 
-export type modeT = "market" | "main" | "kiosk" | "coffee-shop"
+export type modeT = "market" | "main" | "kiosk" | "coffee-shop" | "restaurant"

@@ -37,8 +37,8 @@ type State = {
   isSubmitted: boolean;
 };
 
-const generateEmptyEntry = () => ({
-  email: '',
+const generateEmptyEntry = (email?: string) => ({
+  email: email ? email : '',
   password: '',
   groupId: '',
   channelIds: [],
@@ -136,7 +136,7 @@ class UserInvitationForm extends React.Component<Props, State> {
 
     const emails = values.split(',');
 
-    emails.map(e => entries.splice(0, 0, generateEmptyEntry()));
+    emails.map(e => entries.splice(0, 0, generateEmptyEntry(e)));
 
     this.setState({ addMany: false });
   };
@@ -145,6 +145,16 @@ class UserInvitationForm extends React.Component<Props, State> {
     const { entries } = this.state;
 
     this.setState({ entries: entries.filter((item, index) => index !== i) });
+  };
+
+  beforeSubmit = () => {
+    const { entries } = this.state;
+
+    for (const entry of entries) {
+      if (!entry.email || !entry.groupId) {
+        return Alert.warning('Please fill all required fields');
+      }
+    }
   };
 
   renderRemoveInput = (i: number) => {
@@ -374,6 +384,7 @@ class UserInvitationForm extends React.Component<Props, State> {
             name: 'team member invitation',
             values: this.generateDoc(),
             isSubmitted,
+            beforeSubmit: this.beforeSubmit,
             callback: closeModal
           })}
         </ModalFooter>

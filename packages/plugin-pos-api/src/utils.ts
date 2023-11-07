@@ -51,7 +51,9 @@ export const getBranchesUtil = async (
   const allowsPos = await models.Pos.find({
     isOnline: { $ne: true },
     branchId: { $in: pos.allowBranchIds }
-  }).lean();
+  })
+    .sort({ onServer: -1, name: 1 })
+    .lean();
 
   let healthyBranchIds = [] as any;
 
@@ -61,6 +63,10 @@ export const getBranchesUtil = async (
     healthyBranchIds = allowsPos.map(p => p.branchId);
   } else {
     for (const allowPos of allowsPos) {
+      if (healthyBranchIds.includes(allowPos.branchId)) {
+        continue;
+      }
+
       const response = await sendPosclientHealthCheck({
         subdomain,
         pos: allowPos
@@ -75,7 +81,23 @@ export const getBranchesUtil = async (
   return await sendCoreMessage({
     subdomain,
     action: 'branches.find',
-    data: { query: { _id: { $in: healthyBranchIds } } },
+    data: {
+      query: { _id: { $in: healthyBranchIds } },
+      fields: {
+        _id: 1,
+        title: 1,
+        address: 1,
+        radius: 1,
+        phoneNumber: 1,
+        email: 1,
+        coordinate: 1,
+        image: 1,
+        code: 1,
+        order: 1,
+        status: 1,
+        links: 1
+      }
+    },
     isRPC: true,
     defaultValue: []
   });
@@ -337,10 +359,13 @@ export const statusToDone = async ({
 
   await updateCustomer({ subdomain, doneOrder });
 
-  if (pos.isOnline && doneOrder.branchId) {
+  if (pos.isOnline && doneOrder.subBranchId) {
     const toPos = await models.Pos.findOne({
-      branchId: doneOrder.branchId
-    }).lean();
+      branchId: doneOrder.subBranchId,
+      _id: { $ne: pos._id }
+    })
+      .sort({ onServer: -1, name: 1 })
+      .lean();
 
     // paid order info to offline pos
     if (toPos) {
@@ -641,10 +666,13 @@ export const syncOrderFromClient = async ({
 
   await createDealPerOrder({ subdomain, pos, newOrder });
 
-  if (pos.isOnline && newOrder.branchId) {
+  if (pos.isOnline && newOrder.subBranchId) {
     const toPos = await models.Pos.findOne({
-      branchId: newOrder.branchId
-    }).lean();
+      branchId: newOrder.subBranchId,
+      _id: { $ne: pos._id }
+    })
+      .sort({ onServer: -1, name: 1 })
+      .lean();
 
     // paid order info to offline pos
     if (toPos) {
@@ -661,21 +689,24 @@ export const syncOrderFromClient = async ({
     // change branch and before another pos synced then remove from befort sync
     if (
       oldOrder &&
-      oldOrder.branchId &&
-      newOrder.branchId !== oldOrder.branchId
+      oldOrder.subBranchId &&
+      newOrder.subBranchId !== oldOrder.subBranchId
     ) {
       const toCancelPos = await models.Pos.findOne({
-        branchId: oldOrder.branchId
+        branchId: oldOrder.subBranchId,
+        _id: { $ne: pos._id }
       }).lean();
 
-      await sendPosclientMessage({
-        subdomain,
-        action: 'erxes-posclient-to-pos-api-remove',
-        data: {
-          order: { ...newOrder, posToken, subToken: toPos.token }
-        },
-        pos: toCancelPos
-      });
+      if (toCancelPos) {
+        await sendPosclientMessage({
+          subdomain,
+          action: 'erxes-posclient-to-pos-api-remove',
+          data: {
+            order: { ...newOrder, posToken, subToken: toPos.token }
+          },
+          pos: toCancelPos
+        });
+      }
     }
   }
 

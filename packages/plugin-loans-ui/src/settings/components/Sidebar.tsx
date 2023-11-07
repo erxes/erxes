@@ -44,6 +44,10 @@ class Sidebar extends React.Component {
       <LeftSidebar full={true} header={this.renderSidebarHeader()}>
         <List id="SettingsSidebar">
           {this.renderListItem(
+            '/erxes-plugin-loan/main-settings',
+            __('Loan settings')
+          )}
+          {this.renderListItem(
             '/erxes-plugin-loan/undue-settings',
             __('Loan not calc undue settings')
           )}

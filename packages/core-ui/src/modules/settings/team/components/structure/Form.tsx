@@ -11,9 +11,10 @@ import { ModalFooter } from '@erxes/ui/src/styles/main';
 import { __ } from 'modules/common/utils';
 import { IStructure } from '@erxes/ui/src/team/types';
 import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
-import Box from '@erxes/ui/src/components/Box';
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import Button from '@erxes/ui/src/components/Button';
 import ContactInfoForm from '../common/ContactInfoForm';
+import { Title } from '@erxes/ui-settings/src/styles';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -136,8 +137,13 @@ export default function StructureForm(props: Props) {
   };
 
   return (
-    <Box isOpen={true} title={__('Structure')} name="showStructure">
+    <>
+      <Wrapper.ActionBar
+        background="bgWhite"
+        left={<Title capitalize={true}>{__('Structure')}</Title>}
+        wideSpacing={true}
+      />
       <Form renderContent={renderContent} />
-    </Box>
+    </>
   );
 }

@@ -31,6 +31,11 @@ export default {
     };
   },
   hasSubscriptions: true,
+  subscriptionPluginPath: require('path').resolve(
+    __dirname,
+    'graphql',
+    'subscriptionPlugin.js'
+  ),
   freeSubscriptions: loadSubscriptions,
 
   getHandlers: [
@@ -102,6 +107,10 @@ export default {
     graphqlPubsub = options.pubsubClient;
 
     debug = options.debug;
+  },
+
+  reconnectRMQ: async messageBrokerClient => {
+    initBroker(messageBrokerClient);
   }
 };
 

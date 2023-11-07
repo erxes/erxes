@@ -1,7 +1,7 @@
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
 
-import { IEbarimtConfig, IPaymentType, modeT } from "@/types/config.types"
+import { IEbarimtConfig, IPaymentType } from "@/types/config.types"
 import { ALL_BANK_CARD_TYPES } from "@/lib/constants"
 
 import { IPaidAmount } from "../types/order.types"
@@ -10,6 +10,7 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 export const READ_FILE = "/read-file?key="
+
 export const readFile = (url: string = "") => {
   if (url.includes(READ_FILE)) {
     const apiUrl = url.split(READ_FILE)[0]
@@ -20,15 +21,6 @@ export const readFile = (url: string = "") => {
   //   return `${protocol}//${host}${url}`
   // }
   return url
-}
-
-export const getMode = (): modeT => {
-  const mode = typeof window !== "undefined" ? getLocal("mode") : "main"
-  if (!mode) {
-    setLocal("mode", "main")
-    return "main"
-  }
-  return mode as modeT
 }
 
 export const getEnv = (): any => {

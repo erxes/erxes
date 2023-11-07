@@ -26,6 +26,7 @@ export type IProductGroup = {
 
 export type IScreenConfig = {
   isActive: boolean;
+  isPrint?: boolean;
   type: string;
   value: number;
   contentUrl?: string;
@@ -70,6 +71,10 @@ export type IPos = {
   allowTypes?: string[];
   isCheckRemainder: boolean;
   checkExcludeCategoryIds: string[];
+  banFractions: boolean;
+
+  branchTitle?: string;
+  departmentTitle?: string;
 };
 
 export type ISlot = {
@@ -77,6 +82,9 @@ export type ISlot = {
   code: string;
   name: string;
   posId: string;
+  option: {
+    [key: string]: string | number;
+  };
 };
 
 // query types

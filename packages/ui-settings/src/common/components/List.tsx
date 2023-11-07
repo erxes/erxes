@@ -56,9 +56,7 @@ class List extends React.Component<Props & ICommonListProps, {}> {
       emptyContent,
       leftSidebar,
       rightActionBar,
-      queryParams,
       transparent,
-      history,
       hasBorder
     } = this.props;
 

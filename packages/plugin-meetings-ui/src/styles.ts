@@ -2,7 +2,7 @@ import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 
 import { colors, dimensions, typography } from '@erxes/ui/src/styles';
-export const ChatListSearch = styled.div`
+export const MeetingListSearch = styled.div`
   padding: 0 ${dimensions.coreSpacing}px;
   margin-bottom: ${dimensions.coreSpacing}px;
   margin-top: ${dimensions.coreSpacing}px;

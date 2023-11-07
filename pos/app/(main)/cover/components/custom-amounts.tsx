@@ -1,14 +1,14 @@
 import { coverConfigAtom } from "@/store/config.store"
 import { calcAmountsAtom } from "@/store/cover.store"
-import { useAtom } from "jotai"
+import { useAtomValue } from "jotai"
 
 import { ALL_BANK_CARD_TYPES } from "@/lib/constants"
 
 import Amount from "./amount"
 
 const CustomAmounts = () => {
-  const [config] = useAtom(coverConfigAtom)
-  const [calcAmounts] = useAtom(calcAmountsAtom)
+  const config = useAtomValue(coverConfigAtom)
+  const calcAmounts = useAtomValue(calcAmountsAtom)
   const { paymentTypes, paymentIds } = config || {}
 
   const nonBankPts = (paymentTypes || []).filter(

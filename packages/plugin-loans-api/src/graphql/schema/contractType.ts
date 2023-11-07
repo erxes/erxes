@@ -12,6 +12,8 @@ export const types = () => `
     useMargin: Boolean
     useSkipInterest: Boolean
     useDebt: Boolean
+    useManualNumbering: Boolean
+    useFee: Boolean
     leaseType: String
     createdAt: Date
     productCategoryIds: [String]
@@ -19,6 +21,7 @@ export const types = () => `
 
     productCategories: [ProductCategory]
     currency:String
+    productType:String
   }
 
   type ContractTypesListResponse {
@@ -53,12 +56,15 @@ const commonFields = `
   undueCalcType: String
   useMargin: Boolean
   useSkipInterest: Boolean
+  useManualNumbering: Boolean
   useDebt: Boolean
+  useFee: Boolean
   leaseType: String
   createdAt: Date
   productCategoryIds: [String]
   config: JSON
   currency:String
+  productType:String
 `;
 
 export const mutations = `

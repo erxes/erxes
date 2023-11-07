@@ -437,19 +437,20 @@ export const generateQueryBySegment = async (
             if (ct.type !== propertyContentType) {
               continue;
             }
-
-            const { positive } = await sendMessage({
+            const { positive, ignoreThisPostiveQuery } = await sendMessage({
               subdomain,
               serviceName: propertyServiceName,
               isRPC: true,
               action: 'segments.propertyConditionExtender',
-              data: { condition }
+              data: { condition, positiveQuery }
             });
 
             if (positive) {
               positiveQuery = {
                 bool: {
-                  must: [positiveQuery, positive]
+                  must: ignoreThisPostiveQuery
+                    ? [positive]
+                    : [positiveQuery, positive]
                 }
               };
             }
@@ -764,6 +765,26 @@ export function elkConvertConditionToQuery(args: {
     positiveQuery = { range: { [field]: { gte, lte } } };
   }
 
+  if (field === 'birthDate' && ['woad', 'wobd'].includes(operator)) {
+    const currentDate = new Date();
+
+    if (operator === 'wobd') {
+      currentDate.setDate(currentDate.getDate() + Number(fixedValue || ''));
+    }
+
+    if (operator === 'woad') {
+      currentDate.setDate(currentDate.getDate() - Number(fixedValue || ''));
+    }
+
+    const month = currentDate.getMonth() + 1;
+    const day = currentDate.getDate();
+
+    positiveQuery = {
+      wildcard: {
+        [field]: `????-${month}-${day < 10 ? '0' + day : day}???:??:??.????`
+      }
+    };
+  }
   // date relative less than
   if (operator === 'drlt') {
     positiveQuery = { range: { [field]: { lte: fixedValue } } };

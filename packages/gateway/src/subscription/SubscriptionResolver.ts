@@ -219,7 +219,7 @@ export default class SubscriptionResolver {
       return previousContext;
     });
 
-    const httpLink = createHttpLink({ fetch, uri: gatewayURL });
+    const httpLink = createHttpLink({ fetch: fetch as any, uri: gatewayURL });
 
     this.apolloLink = from([errorLink, contextLink, httpLink]);
   }
@@ -263,14 +263,19 @@ export default class SubscriptionResolver {
         return merge(payloadData, Object.values(response.data)[0]);
       }
     } catch (error) {
-      console.error(error);
+      console.error(
+        '----------------- subscription resolver request error ---------------------------'
+      );
+      console.error('query', query);
+      console.error('error', error);
+      console.error(
+        '---------------------------------------------------------------------------------'
+      );
     }
   }
 
   private async query(graphqlRequest: GraphQLRequest): Promise<FetchResult> {
-    const response = await toPromise(
-      execute(this.apolloLink, graphqlRequest)
-    );
+    const response = await toPromise(execute(this.apolloLink, graphqlRequest));
     return response;
   }
 }

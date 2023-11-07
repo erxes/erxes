@@ -1,8 +1,9 @@
 "use client"
 
-import { useState } from "react"
+import { modeAtom } from "@/store"
+import { useAtom } from "jotai"
 
-import { getMode, setLocal } from "@/lib/utils"
+import { modeT } from "@/types/config.types"
 import {
   Select,
   SelectContent,
@@ -12,15 +13,13 @@ import {
 } from "@/components/ui/select"
 
 const ChooseTheme = () => {
-  const localMode = getMode()
-  const [mode, setMode] = useState<string>(localMode)
+  const [mode, setMode] = useAtom(modeAtom)
 
   return (
     <div className="relative w-full rounded-lg bg-black text-sm">
       <Select
         value={mode}
-        onValueChange={(value) => {
-          setLocal("mode", value)
+        onValueChange={(value: modeT) => {
           setMode(value)
         }}
       >
@@ -31,6 +30,7 @@ const ChooseTheme = () => {
           <SelectItem value="main">Үндсэн</SelectItem>
           <SelectItem value="market">Дэлгүүр</SelectItem>
           <SelectItem value="coffee-shop">Кофе шоп</SelectItem>
+          <SelectItem value="restaurant">Ресторан</SelectItem>
           <SelectItem value="kiosk">Kiosk</SelectItem>
           <SelectItem value="waiting">Waiting Screen</SelectItem>
           <SelectItem value="kitchen">Kitchen Screen</SelectItem>

@@ -34,6 +34,7 @@ const useTimer = (targetDate: string) => {
 
   return {
     remainingTime: formatDate(remainingTime),
+    seconds: Math.ceil(remainingTime / 1000),
   }
 }
 

@@ -1,14 +1,14 @@
 import { colors, dimensions } from '@erxes/ui/src/styles';
-import { rgba } from '@erxes/ui/src/styles/ecolor';
+
 import { highlight } from '@erxes/ui/src/utils/animations';
+import { rgba } from '@erxes/ui/src/styles/ecolor';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 
 const Templates = styled.div`
   display: flex;
   background: ${colors.colorWhite};
-  padding: ${dimensions.coreSpacing}px;
-  overflow: auto;
+  padding: 20px 0 20px 20px;
   flex-wrap: wrap;
 
   > div {
@@ -72,17 +72,21 @@ const TemplateWrapper = styled.div`
   }
 `;
 
-const TemplateBox = styled.div`
+const TemplateBox = styledTS<{ hasPadding?: boolean }>(styled.div)`
   width: 100%;
   height: 140px;
-  border-radius: 2px;
-  border: 1px solid ${colors.borderDarker};
+  border-bottom: 1px solid #F1F1F2;
   position: relative;
-  margin: 10px 0 15px 0;
+  padding: ${props => props.hasPadding && `${dimensions.unitSpacing}px`};
 `;
 
 const Actions = styled.div`
   background: ${rgba(colors.colorBlack, 0.7)};
+  background-image: linear-gradient(
+    0deg,
+    rgba(255, 255, 255, 0.4) 0px,
+    transparent 80px
+  );
   display: flex;
   position: absolute;
   opacity: 0;
@@ -92,34 +96,38 @@ const Actions = styled.div`
   left: 0;
   top: 0;
   border-radius: 2px;
-  transition: opacity ease 0.3s;
+  transition: opacity ease 0.4s;
   justify-content: space-evenly;
   align-items: center;
   color: ${colors.bgLight};
 
   div {
     cursor: pointer;
+    color: ${colors.colorWhite};
+    opacity: 0.8;
+    transition: all ease 0.3s;
 
     i {
       margin-right: 3px;
     }
 
     &:hover {
-      font-weight: 500;
-      transition: all ease 0.3s;
+      opacity: 1;
     }
   }
 `;
 
-const Template = styledTS<{ isLongName?: boolean }>(styled.div)`
+const Template = styledTS<{ isLongName?: boolean; position?: string }>(
+  styled.div
+)`
   flex-basis: 300px;
-  padding: 10px 10px;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: ${props => props.position || 'space-between'};
   border-radius: 6px;
+  border: 1px solid #F1F1F2;
   margin: 0 ${dimensions.coreSpacing}px ${dimensions.coreSpacing}px 0;
-  box-shadow: 0 0 10px 1px rgba(0, 0, 0, 0.1);
+  box-shadow: 0px 4px 12px 0px rgba(0, 0, 0, 0.03);
 
   > h5 {
     line-height: ${dimensions.coreSpacing}px;
@@ -136,6 +144,8 @@ const Template = styledTS<{ isLongName?: boolean }>(styled.div)`
   }
 
   &:hover {
+    box-shadow: 0px 8px 12px 0px rgba(0, 0, 0, 0.08);
+
     ${Actions} {
       opacity: 1;
     }
@@ -151,16 +161,51 @@ const TemplateInfo = styled.div`
   display: flex;
   justify-content: space-between;
   font-size: 11px;
+  margin-bottom: ${dimensions.unitSpacing}px;
 
   > p {
     color: ${colors.colorCoreGray};
     line-height: 12px;
-    margin: 0 0 5px;
+    margin: 0;
+
+    &.flex {
+      display: flex;
+    }
 
     &:first-child {
       color: #333;
+      margin-right: ${dimensions.coreSpacing}px;
+      min-width: 100px;
+      display: flex;
+    }
+
+    &:last-child {
+      text-align: end;
     }
   }
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+`;
+
+const TemplateBoxInfo = styled.div`
+  padding: ${dimensions.unitSpacing}px;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  justify-content: space-between;
+
+  > h5 {
+    margin: 0 0 ${dimensions.unitSpacing}px;
+  }
+`;
+
+const EllipsedRow = styled.div`
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
 `;
 
 export {
@@ -171,5 +216,7 @@ export {
   IframePreview,
   IframeFullScreen,
   TemplateInfo,
-  TemplateWrapper
+  TemplateWrapper,
+  TemplateBoxInfo,
+  EllipsedRow
 };

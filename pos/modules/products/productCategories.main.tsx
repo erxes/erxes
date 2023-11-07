@@ -31,7 +31,7 @@ const ProductCategories = () => {
         </SheetTrigger>
         <SheetContent
           side="left"
-          className="sm:max-w-4xl w-full flex flex-col overflow-hidden h-screen p-4 pr-0"
+          className="sm:max-w-md w-full flex flex-col overflow-hidden h-screen p-4 pr-0"
         >
           {open && <Categories setOpen={setOpen} />}
         </SheetContent>

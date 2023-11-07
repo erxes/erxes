@@ -14,7 +14,6 @@ import fetch from 'node-fetch';
 import { IModels } from '../connectionResolver';
 import { IUserDocument } from '../db/models/definitions/users';
 import { debugBase, debugError } from '../debuggers';
-import memoryStorage from '../inmemoryStorage';
 import {
   sendCommonMessage,
   sendContactsMessage,
@@ -255,24 +254,36 @@ export const createTransporter = async ({ ses }, models?: IModels) => {
 
 export const uploadsFolderPath = path.join(__dirname, '../private/uploads');
 
-export const initFirebase = async (models: IModels): Promise<void> => {
-  const config = await models.Configs.findOne({
-    code: 'GOOGLE_APPLICATION_CREDENTIALS_JSON'
-  });
+export const initFirebase = async (
+  models: IModels,
+  customConfig?: string
+): Promise<void> => {
+  let codeString = 'value';
 
-  if (!config) {
-    return;
+  if (customConfig) {
+    codeString = customConfig;
+  } else {
+    const config = await models.Configs.findOne({
+      code: 'GOOGLE_APPLICATION_CREDENTIALS_JSON'
+    });
+
+    if (!config) {
+      return;
+    }
+    codeString = config.value;
   }
-
-  const codeString = config.value || 'value';
 
   if (codeString[0] === '{' && codeString[codeString.length - 1] === '}') {
     const serviceAccount = JSON.parse(codeString);
 
     if (serviceAccount.private_key) {
-      await admin.initializeApp({
-        credential: admin.credential.cert(serviceAccount)
-      });
+      try {
+        await admin.initializeApp({
+          credential: admin.credential.cert(serviceAccount)
+        });
+      } catch (e) {
+        console.log(`initFireBase error: ${e.message}`);
+      }
     }
   }
 };
@@ -930,9 +941,9 @@ const readFromCR2 = async (key: string, models?: IModels) => {
             error.code === 'NoSuchKey' &&
             error.message.includes('key does not exist')
           ) {
-            debugBase(
-              `Error occurred when fetching r2 file with key: "${key}"`
-            );
+            console.log('file does not exist with key: ', key);
+
+            return resolve(null);
           }
 
           return reject(error);
@@ -1193,8 +1204,8 @@ export const getConfig = async (
   return configs[code];
 };
 
-export const resetConfigsCache = () => {
-  memoryStorage().set('configs_erxes_api', '');
+export const resetConfigsCache = async () => {
+  await redis.set('configs_erxes_api', '');
 };
 
 export const getCoreDomain = () => {
@@ -1283,12 +1294,14 @@ export const configReplacer = config => {
 export const sendMobileNotification = async (
   models: IModels,
   {
+    customConfig,
     receivers,
     title,
     body,
     deviceTokens,
     data
   }: {
+    customConfig: string;
     receivers: string[];
     title: string;
     body: string;
@@ -1297,7 +1310,7 @@ export const sendMobileNotification = async (
   }
 ): Promise<void> => {
   if (!admin.apps.length) {
-    await initFirebase(models);
+    await initFirebase(models, customConfig);
   }
 
   const transporter = admin.messaging();

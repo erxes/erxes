@@ -398,28 +398,17 @@ const Row = styled.div`
   }
 `;
 
-const SearchInput = styledTS<{ isInPopover: boolean }>(styled.div)`
+const SearchInput = styled.div`
   position: relative;
 
   input {
-    border: 1px solid ${colors.borderPrimary};
-    padding: 20px 20px 20px 30px;
-    border-radius: 5px;
-    width: ${props => (props.isInPopover ? '270px' : '500px')};
-    margin:  ${props => props.isInPopover && '10px 20px 0'};
+    border-bottom: 1px solid ${colors.borderPrimary};
+    padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
     background: ${colors.colorWhite};
 
-    @media (max-width: 1300px) {
-      min-width: 260px;
+    &:focus {
+      outline: 0;
     }
-  }
-
-  i {
-    position: absolute;
-    top: 10px;
-    left: 30px;
-    font-size: 15px;
-    color: ${colors.colorCoreGray};
   }
 `;
 

@@ -9,11 +9,13 @@ import { withProps } from '@erxes/ui/src/utils';
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import withCurrentUser from '@erxes/ui/src/auth/containers/withCurrentUser';
 import { queries as companyQueries } from '@erxes/ui-contacts/src/companies/graphql';
+import { queries as dealsQuery } from '@erxes/ui-cards/src/deals/graphql';
 
 import { IMeeting, RemoveMutationResponse } from '../../../types';
 import { mutations } from '../../../graphql';
 import { MeetingForm } from '../../../components/myCalendar/meeting/Form';
 import { CompaniesQueryResponse } from '@erxes/ui-contacts/src/companies/types';
+import { DealsQueryResponse } from '@erxes/ui-cards/src/deals/types';
 
 type Props = {
   queryParams: any;
@@ -23,16 +25,19 @@ type Props = {
   closeModal: () => void;
   object?: IMeeting | null;
   calendarDate?: any;
+  dealId?: string;
 };
 
 type FinalProps = {
   currentUser: IUser;
   companiesQuery: CompaniesQueryResponse;
+  dealsQuery: DealsQueryResponse;
 } & Props &
   RemoveMutationResponse;
 
 const MeetingFormContainer = (props: FinalProps) => {
-  const { companiesQuery, refetch } = props;
+  const { companiesQuery, refetch, dealsQuery } = props;
+
   const renderButton = ({
     passedName,
     values,
@@ -41,9 +46,10 @@ const MeetingFormContainer = (props: FinalProps) => {
     object
   }: IButtonMutateProps) => {
     values.title =
+      values.title ||
       companiesQuery.companies.find(c => c._id === values.companyId)
-        ?.primaryName || '';
-
+        ?.primaryName ||
+      '';
     return (
       <ButtonMutate
         mutation={object ? mutations.editMeeting : mutations.addMeeting}
@@ -64,7 +70,10 @@ const MeetingFormContainer = (props: FinalProps) => {
     renderButton
   };
 
-  if (companiesQuery && companiesQuery.loading) {
+  if (
+    (companiesQuery && companiesQuery.loading) ||
+    (dealsQuery && dealsQuery.loading)
+  ) {
     return <Spinner />;
   }
   return <MeetingForm {...updatedProps} />;
@@ -75,6 +84,12 @@ export default withProps<Props>(
     graphql(gql(companyQueries.companies), {
       name: 'companiesQuery',
       options: () => ({})
+    }),
+    graphql(gql(dealsQuery.deals), {
+      name: 'dealsQuery',
+      options: () => ({
+        fetchPolicy: 'network-only'
+      })
     })
   )(withCurrentUser(MeetingFormContainer))
 );

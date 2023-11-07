@@ -1,19 +1,21 @@
-import * as React from "react";
-import { getDataFromTree } from "@apollo/client/react/ssr";
-import initApollo from "./initApollo";
-import Head from "next/head";
-import { getEnv } from "../../../utils/configs";
+import * as React from 'react';
+import { getDataFromTree } from '@apollo/client/react/ssr';
+import initApollo from './initApollo';
+import Head from 'next/head';
+import { getEnv } from '../../../utils/configs';
 
-const { REACT_APP_DOMAIN='' } = getEnv();
+const { REACT_APP_DOMAIN = '' } = getEnv();
 
 const SERVER_LINK_OPTIONS = {
-  uri: `${REACT_APP_DOMAIN}/${REACT_APP_DOMAIN.includes('https') ? '/gateway/' : ''}graphql`,
+  uri: `${REACT_APP_DOMAIN}/${
+    REACT_APP_DOMAIN.includes('https') ? '/gateway/' : ''
+  }graphql`,
   credentials: 'include'
 };
 
-export default (App) => {
+export default App => {
   return class Apollo extends React.Component<any> {
-    static displayName = "withApollo(App)";
+    static displayName = 'withApollo(App)';
 
     apolloClient: any;
 
@@ -21,7 +23,7 @@ export default (App) => {
       const {
         Component,
         router,
-        ctx: { res },
+        ctx: { res }
       } = ctx;
 
       const apollo = initApollo(SERVER_LINK_OPTIONS, {});
@@ -57,7 +59,7 @@ export default (App) => {
           // Prevent Apollo Client GraphQL errors from crashing SSR.
           // Handle them in components via the data.error prop:
           // https://www.apollographql.com/docs/react/api/react-apollo.html#graphql-query-data-error
-          console.error("Error while running `getDataFromTree`", error.message);
+          console.error('Error while running `getDataFromTree`', error.message);
         }
 
         // getDataFromTree does not call componentWillUnmount
@@ -70,7 +72,7 @@ export default (App) => {
 
       return {
         ...appProps,
-        apolloState,
+        apolloState
       };
     }
 
@@ -81,12 +83,7 @@ export default (App) => {
     }
 
     render() {
-      return (
-        <App
-          {...this.props}
-          apolloClient={this.apolloClient}
-        />
-      );
+      return <App {...this.props} apolloClient={this.apolloClient} />;
     }
   };
 };

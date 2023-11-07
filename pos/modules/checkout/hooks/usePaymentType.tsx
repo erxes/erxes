@@ -8,7 +8,6 @@ import {
 } from "@/store/order.store"
 import { useAtom, useAtomValue, useSetAtom } from "jotai"
 
-import { IPaymentType } from "@/types/config.types"
 import { ALL_BANK_CARD_TYPES } from "@/lib/constants"
 import { filterPaymentTypes } from "@/lib/utils"
 
@@ -16,7 +15,7 @@ const usePaymentType = (type: string) => {
   const [config] = useAtom(paymentConfigAtom)
   const { paymentTypes } = config || {}
 
-  return paymentTypes?.find((pt) => pt.type === type) || ({} as IPaymentType)
+  return paymentTypes?.find((pt) => pt.type === type)
 }
 
 export const useCheckNotSplit = () => {

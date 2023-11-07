@@ -4,7 +4,7 @@ import * as request from 'request-promise';
 import * as sanitizeHtml from 'sanitize-html';
 import { IModels } from './connectionResolver';
 import { debugBase, debugExternalRequests } from './debuggers';
-import { get, set } from './inmemoryStorage';
+import redis from '@erxes/api-utils/src/redis';
 import { sendInboxMessage } from './messageBroker';
 
 dotenv.config();
@@ -173,7 +173,7 @@ export const downloadAttachment = urlOrName => {
 };
 
 export const getConfigs = async (models: IModels) => {
-  const configsCache = await get('configs_erxes_integrations');
+  const configsCache = await redis.get('configs_erxes_integrations');
 
   if (configsCache && configsCache !== '{}') {
     return JSON.parse(configsCache);
@@ -186,7 +186,7 @@ export const getConfigs = async (models: IModels) => {
     configsMap[config.code] = config.value;
   }
 
-  set('configs_erxes_integrations', JSON.stringify(configsMap));
+  await redis.set('configs_erxes_integrations', JSON.stringify(configsMap));
 
   return configsMap;
 };
@@ -221,8 +221,8 @@ export const getCommonGoogleConfigs = async (subdomain: string) => {
   };
 };
 
-export const resetConfigsCache = () => {
-  set('configs_erxes_integrations', '');
+export const resetConfigsCache = async () => {
+  await redis.set('configs_erxes_integrations', '');
 };
 
 export const generateUid = () => {

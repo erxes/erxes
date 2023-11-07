@@ -1,9 +1,9 @@
 import { currentAmountAtom, currentPaymentTypeAtom } from "@/store"
-import { activeOrderAtom, unPaidAmountAtom } from "@/store/order.store"
+import { activeOrderIdAtom, unPaidAmountAtom } from "@/store/order.store"
 import { paymentSheetAtom } from "@/store/ui.store"
 import { useAtom, useAtomValue, useSetAtom } from "jotai"
 
-import { ALL_BANK_CARD_TYPES } from "@/lib/constants"
+import { ALL_BANK_CARD_TYPES, HARD_PAYMENT_TYPES } from "@/lib/constants"
 import { paidAmounts } from "@/lib/utils"
 
 import useAddPayment from "./useAddPayment"
@@ -13,12 +13,17 @@ const useHandlePayment = () => {
   const notPaidAmount = useAtomValue(unPaidAmountAtom)
   const type = useAtomValue(currentPaymentTypeAtom)
   const setOpenSheet = useSetAtom(paymentSheetAtom)
-  const _id = useAtomValue(activeOrderAtom)
+  const _id = useAtomValue(activeOrderIdAtom)
 
   const { addPayment, loading } = useAddPayment()
 
   const handleValueChange = (val: string) => {
-    const numericValue = parseFloat(val.replace(/[^0-9.-]/g, ""))
+    const numericValue = parseFloat(
+      val.replace(
+        HARD_PAYMENT_TYPES.includes(type) ? /[^0-9.]/g : /[^0-9.-]/g,
+        ""
+      )
+    )
     if (!isNaN(numericValue)) {
       setCurrentAmount(
         numericValue > notPaidAmount
@@ -56,6 +61,7 @@ const useHandlePayment = () => {
     }
   }
   return {
+    type,
     handleValueChange,
     handlePay,
     loading,

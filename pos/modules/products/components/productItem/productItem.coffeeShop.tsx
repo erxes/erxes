@@ -5,6 +5,7 @@ import { useSetAtom } from "jotai"
 
 import { IProduct } from "@/types/product.types"
 import { cn } from "@/lib/utils"
+import { AspectRatio } from "@/components/ui/aspect-ratio"
 import { Button } from "@/components/ui/button"
 import { CardTitle } from "@/components/ui/card"
 import { Dialog, DialogContent } from "@/components/ui/dialog"
@@ -25,12 +26,13 @@ const ProductItem = (props: IProduct) => {
         onClick={() =>
           hasSimilarity ? setOpen(true) : addToCart({ name, _id, unitPrice })
         }
+        className="relative"
       >
         <ProductContent {...props} />
       </ProductItemWrapper>
       <Dialog open={open} onOpenChange={() => setOpen(false)}>
         <DialogContent>
-          {open && <ChooseSimilarities {...props} setOpen={setOpen}/>}
+          {open && <ChooseSimilarities {...props} setOpen={setOpen} />}
         </DialogContent>
       </Dialog>
     </>
@@ -56,13 +58,18 @@ const ProductContent = ({
   unitPrice,
   description,
   hasSimilarity,
+  code,
 }: IProduct) => (
   <>
     <ProductItemImage src={attachment?.url || ""} />
-    <ProductItemTitle>{name}</ProductItemTitle>
-    <ProductItemDescription>{description || ""}</ProductItemDescription>
+    <ProductItemTitle>{`${code} - ${name}`}</ProductItemTitle>
+    <ProductItemDescription description={description} />
     <ProductItemPriceWithWrapper unitPrice={unitPrice}>
-      {hasSimilarity && <ProductItemButton>Нэмэх</ProductItemButton>}
+      {hasSimilarity && (
+        <Button className="absolute h-auto rounded-r-none right-0 px-3 border-r">
+          Сонгох...
+        </Button>
+      )}
     </ProductItemPriceWithWrapper>
   </>
 )
@@ -78,14 +85,18 @@ export const ProductItemImage = ({
 }) => {
   const size = (big ? 2 : 1) * 100
   return (
-    <Image
-      src={src}
-      alt=""
-      width={size}
-      height={size}
-      className={cn("w-full object-contain h-24", className)}
-      quality={100}
-    />
+    <div className={className}>
+      <AspectRatio>
+        <Image
+          src={src}
+          alt=""
+          width={size}
+          height={size}
+          className={"w-full object-contain h-full"}
+          quality={100}
+        />
+      </AspectRatio>
+    </div>
   )
 }
 
@@ -99,7 +110,7 @@ export const ProductItemTitle = ({
   return (
     <CardTitle
       className={cn(
-        "font-semibold text-sm pt-1 leading-none h-8 mb-2 overflow-hidden",
+        "font-semibold text-sm leading-none h-8 my-2 overflow-hidden",
         className
       )}
     >
@@ -109,14 +120,17 @@ export const ProductItemTitle = ({
 }
 
 export const ProductItemDescription = ({
-  children,
+  description,
   className,
 }: {
-  children: React.ReactNode
+  description?: string | null
   className?: string
 }) => {
   return (
-    <div className={cn("text-neutral-500 mb-3", className)}>{children}</div>
+    <div
+      className={cn("text-neutral-500 mb-3", className)}
+      dangerouslySetInnerHTML={{ __html: description || "" }}
+    />
   )
 }
 
@@ -131,7 +145,9 @@ export const ProductItemPriceWithWrapper = ({
 }) => {
   return (
     <div className={cn("flex items-center justify-between", className)}>
-      <div className="font-black text-base">{(unitPrice || 0).toLocaleString()}₮</div>
+      <div className="font-black text-base">
+        {(unitPrice || 0).toLocaleString()}₮
+      </div>
       {children}
     </div>
   )
