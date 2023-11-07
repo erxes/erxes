@@ -30,6 +30,7 @@ export const FilePreview = ({
   grid?: boolean
 }) => {
   const [gridImageIndex, setGridImageIndex] = useState(0)
+  const isChat = window.location.pathname.includes("chats")
 
   if (!fileUrl || !fileUrl.split) {
     return null
@@ -177,13 +178,19 @@ export const FilePreview = ({
       <>
         <Dialog>
           <DialogTrigger asChild={true}>
-            <div className="shrink-0 w-[80px] h-[80px] cursor-pointer bg-slate-600 rounded-lg">
+            <div
+              className={`shrink-0 ${
+                isChat ? "w-[80px] h-[80px]" : "w-full h-full"
+              } cursor-pointer bg-slate-600 rounded-lg`}
+            >
               <Image
                 alt="image"
                 src={fileUrl || ""}
                 width={500}
                 height={500}
-                className="object-cover w-[80px] h-[80px] rounded-lg"
+                className={`object-cover ${
+                  isChat ? "w-[80px] h-[80px]" : "w-full h-full"
+                } rounded-lg`}
               />
             </div>
           </DialogTrigger>

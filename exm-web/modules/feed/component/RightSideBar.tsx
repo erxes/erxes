@@ -1,57 +1,53 @@
 "use client"
 
+import { useEffect } from "react"
 import { currentUserAtom } from "@/modules/JotaiProiveder"
 import { IUser } from "@/modules/auth/types"
 import dayjs from "dayjs"
 import { useAtomValue } from "jotai"
-import {
-  CheckCheckIcon,
-  ChevronDown,
-  ClockIcon,
-  HeartIcon,
-  MapPinIcon,
-  X,
-} from "lucide-react"
+import { ClockIcon, MapPinIcon } from "lucide-react"
+import { useInView } from "react-intersection-observer"
 
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
 import Image from "@/components/ui/image"
+import Loader from "@/components/ui/loader"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { useUsers } from "@/components/hooks/useUsers"
 
 import RightNavbar from "../../navbar/component/RightNavbar"
 import { useEvents } from "../hooks/useEvent"
-import useFeedMutation from "../hooks/useFeedMutation"
+import EventDropDown from "./EventDropDown"
 
 const RightSideBar = () => {
   const currentUser = useAtomValue(currentUserAtom) || ({} as IUser)
-  const { events } = useEvents()
+  const { events, handleLoadMore, loading, totalCount } = useEvents()
   const { users } = useUsers({})
-  const callBack = () => {
-    return
-  }
 
-  const { eventAction } = useFeedMutation({
-    callBack,
+  const { ref, inView } = useInView({
+    threshold: 0,
   })
+
+  useEffect(() => {
+    if (inView) {
+      handleLoadMore()
+    }
+  }, [inView, handleLoadMore])
+
+  if (loading) {
+    return <Loader />
+  }
 
   const today = dayjs(new Date()).format("YYYY-MM-DD")
 
   const todayEvents =
     events &&
-    events.map((e) => {
+    events.filter((e) => {
       if (
         dayjs(e?.eventData?.startDate).format("YYYY-MM-DD") <= today &&
         today <= dayjs(e?.eventData?.endDate).format("YYYY-MM-DD")
       ) {
         return e
       }
-
-      return null
     })
 
   const checkedTodaysEvent = (todayEvents || []).filter(
@@ -60,6 +56,18 @@ const RightSideBar = () => {
         e?.recipientIds.includes(currentUser._id)) ||
       e?.eventData?.visibility === "public"
   )
+
+  const renderLoadMore = () => {
+    if (!loading && totalCount === events.length) {
+      return null
+    }
+
+    return (
+      <div ref={ref}>
+        <Loader />
+      </div>
+    )
+  }
 
   return (
     <div>
@@ -75,11 +83,6 @@ const RightSideBar = () => {
               if (item === null) {
                 return null
               }
-
-              const checkUserGoingStatus =
-                item?.eventData.goingUserIds.includes(currentUser._id)
-              const checkUserInterestedStatus =
-                item?.eventData.interestedUserIds.includes(currentUser._id)
 
               const goingUsers = users.filter((user) =>
                 item?.eventData.goingUserIds.includes(user._id)
@@ -108,7 +111,7 @@ const RightSideBar = () => {
                         {item.eventData?.where || ""}
                       </div>
 
-                      <div className="text-[#484848] text-xs mt-1 text-[14px]">
+                      <div className="text-[#484848] text-xs mt-1 text-[14px] mb-3">
                         <div className="flex items-center text-[13px] text-[#484848]">
                           <ClockIcon size={16} className="mr-1" />
                           {dayjs(item.eventData?.startDate).format(
@@ -143,59 +146,14 @@ const RightSideBar = () => {
                           </div>
                         )}
                       </div>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger className="w-full">
-                          <div
-                            className={`${
-                              checkUserGoingStatus || checkUserInterestedStatus
-                                ? "bg-primary text-white"
-                                : "bg-[#EAEAEA]"
-                            } text-[14px] pr-2 rounded-lg flex items-center w-full justify-between mt-3`}
-                            onClick={() => eventAction(item._id, "interested")}
-                          >
-                            {checkUserGoingStatus ? (
-                              <div className="flex items-center cursor-pointer gap-2 px-3 py-2">
-                                <CheckCheckIcon size={15} /> Going
-                              </div>
-                            ) : checkUserInterestedStatus ? (
-                              <div className="flex items-center cursor-pointer gap-2 px-3 py-2">
-                                <HeartIcon size={15} /> Interested
-                              </div>
-                            ) : (
-                              <div className="flex items-center cursor-pointer gap-2 px-3 py-2">
-                                <X size={15} /> Not interested
-                              </div>
-                            )}
-                            <ChevronDown size={18} />
-                          </div>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent className="border-0 shadow-none p-0 flex-col">
-                          <div
-                            className="flex items-center cursor-pointer gap-2 px-3 py-2 hover:bg-[#F0F0F0]"
-                            onClick={() => eventAction(item._id, "interested")}
-                          >
-                            <HeartIcon size={15} /> Interested
-                          </div>
-                          <div
-                            className="flex items-center cursor-pointer gap-2 px-3 py-2 hover:bg-[#F0F0F0]"
-                            onClick={() => eventAction(item._id, "going")}
-                          >
-                            <CheckCheckIcon size={15} /> Going
-                          </div>
-                          <div
-                            className="flex items-center cursor-pointer gap-2 px-3 py-2 hover:bg-[#F0F0F0]"
-                            onClick={() => eventAction(item._id, "neither")}
-                          >
-                            <X size={15} /> Not interested
-                          </div>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                      <EventDropDown event={item} />
                     </div>
                   </CardContent>
                 </Card>
               )
             }
           )}
+          {renderLoadMore()}
         </div>
       </ScrollArea>
     </div>
