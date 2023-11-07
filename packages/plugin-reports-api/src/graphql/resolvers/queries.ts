@@ -3,9 +3,12 @@ import { IContext } from '../../connectionResolver';
 import { sendCommonMessage } from '../../messageBroker';
 
 const reportsQueries = {
-  reportsList(_root, {}, { models }: IContext) {
-    const selector: any = {};
+  reportsList(_root, { searchValue }, { models }: IContext) {
+    let selector: any = {};
     const totalCount = models.Reports.count(selector);
+
+    const regex = new RegExp(searchValue, 'i');
+    selector = { name: regex };
 
     const list = models.Reports.find(selector).sort({
       createdAt: 1,

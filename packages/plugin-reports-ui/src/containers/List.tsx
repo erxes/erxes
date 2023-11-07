@@ -14,6 +14,8 @@ import {
 
 type Props = {
   history: any;
+  queryParams: any;
+
   typeId: string;
 };
 
@@ -53,12 +55,12 @@ const ListContainer = (props: FinalProps) => {
 
 export default withProps<Props>(
   compose(
-    graphql<Props, ReportsListQueryResponse, { typeId: string }>(
+    graphql<Props, ReportsListQueryResponse, { searchValue: string }>(
       gql(queries.reportsList),
       {
         name: 'reportsListQuery',
-        options: ({ typeId }) => ({
-          variables: { typeId: typeId || '' },
+        options: ({ queryParams }) => ({
+          variables: { searchValue: queryParams.searchValue || '' },
           fetchPolicy: 'network-only'
         })
       }

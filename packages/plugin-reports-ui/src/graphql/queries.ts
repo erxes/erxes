@@ -18,9 +18,18 @@ const userFields = `
   }
 `;
 
+const commonParams = `
+$searchValue: String
+
+`;
+
+const commonParamsDef = `
+searchValue: $searchValue
+`;
+
 const reportsList = `
-  query reportsList {
-    reportsList {
+  query reportsList(${commonParams}) {
+    reportsList(${commonParamsDef}}) {
       list {
         _id
         name
@@ -79,8 +88,6 @@ const reportChartTemplatesList = `
 query reportChartTemplatesList($serviceName: String!, $charts: [String]) {
   reportChartTemplatesList(serviceName: $serviceName, charts: $charts)
 }
-
-
 `;
 
 export default {
