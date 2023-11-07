@@ -1,13 +1,22 @@
+import { ITag } from '@erxes/ui-tags/src/types';
+import { IUser } from '@erxes/ui/src/auth/types';
+
 export interface IReport {
   _id: string;
   name?: string;
   createdAt?: Date;
+  createdBy?: IUser;
+  updatedAt?: Date;
+  updatedBy?: IUser;
   expiryDate?: Date;
   totalObjectCount?: number;
   checked?: boolean;
   typeId?: string;
   currentType?: IType;
   charts?: IChart[];
+  chartsCount?: number;
+
+  tags?: ITag[];
   visibility?: ReportVisibility;
 }
 
@@ -42,10 +51,16 @@ export interface IType {
 
 // queries
 export type ReportsListQueryResponse = {
-  list: IReport[];
-  totalCount: number;
+  reportsList: {
+    list: IReport[];
+    totalCount: number;
+  };
   refetch: () => void;
   loading: boolean;
+};
+
+export type ReportsMutationResponse = {
+  removeReportsMutation: (params: { reportIds: string[] }) => Promise<any>;
 };
 
 export type ReportTemplatesListQueryResponse = {

@@ -13,7 +13,8 @@ export const types = `
     tagIds: [String]
     
     charts: [ReportChart]
-    
+    chartsCount: Int
+
     updatedAt:Date
     updatedBy: User
 

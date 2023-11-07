@@ -1,3 +1,23 @@
+const userFields = `
+  _id
+  username
+  email
+  employeeId
+  details {
+    avatar
+    fullName
+    firstName
+    lastName
+    position
+  }
+  departments {
+    title
+  }
+  branches {
+    title
+  }
+`;
+
 const reportsList = `
   query reportsList {
     reportsList {
@@ -5,8 +25,15 @@ const reportsList = `
         _id
         name
         visibility
+        createdAt
+        createdBy{
+          ${userFields}
+        }
+        updatedAt
+        updatedBy{
+          ${userFields}
+        }
         charts {
-          
           name
           contentType
           template

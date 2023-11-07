@@ -10,9 +10,10 @@ import { BarItems } from '@erxes/ui/src/layout/styles';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { __, router } from '@erxes/ui/src/utils';
 import { IReport } from '../types';
+import Row from './Row';
 
 type Props = {
-  reports: any;
+  reports: IReport[];
   renderButton?: (props: IButtonMutateProps) => JSX.Element;
   removeReports?: (reportIds: string[]) => void;
   editReport?: (report: IReport) => void;
@@ -21,8 +22,10 @@ type Props = {
 };
 
 function List(props: Props) {
-  const { reports, renderButton, loading, history } = props;
+  const { reports, loading, history } = props;
   const [searchValue, setSearchvalue] = useState(null);
+  const [chosenIds, setChosenIds] = useState<any>([]);
+
   let timer: NodeJS.Timer;
 
   const search = e => {
@@ -70,30 +73,43 @@ function List(props: Props) {
 
   const actionBar = <Wrapper.ActionBar right={actionBarRight} wideSpacing />;
 
+  const toggleReport = (reportId: string, isChecked: boolean) => {
+    if (isChecked) {
+      setChosenIds([...chosenIds, reportId]);
+    } else {
+      setChosenIds(chosenIds.filter(id => id !== reportId));
+    }
+  };
+
+  const updatedProps = {
+    ...props,
+    toggleReport
+  };
   const content = (
     <Table>
       <thead>
         <tr>
-          <th>{__('Todo')}</th>
-          <th>{__('Expiry Date')}</th>
+          <th>{__('')}</th>
+          <th>{__('Name')}</th>
+          <th>{__('Last updated by')}</th>
+          <th>{__('Created by')}</th>
+          <th>{__('Last updated at')}</th>
+          <th>{__('Created at')}</th>
+          <th>{__('Tags')}</th>
           <th>{__('Actions')}</th>
         </tr>
       </thead>
-      <tbody id={'ReportsShowing'}>
-        {/* {reports.map(reports => {
+      <tbody>
+        {reports.map(report => {
           return (
             <Row
-              space={0}
-              key={reports._id}
-              reports={reports}
-              remove={remove}
-              edit={edit}
-              renderButton={renderButton}
-              reports={reports}
-              types={types}
+              key={report._id}
+              report={report}
+              {...updatedProps}
+              isChecked={chosenIds.includes(report._id)}
             />
           );
-        })} */}
+        })}
       </tbody>
     </Table>
   );
@@ -121,7 +137,6 @@ function List(props: Props) {
         />
       }
       transparent={true}
-      leftSidebar={<SideBarList />}
       hasBorder
     />
   );

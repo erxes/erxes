@@ -1,12 +1,16 @@
 import { gql } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
 import Spinner from '@erxes/ui/src/components/Spinner';
-import { withProps } from '@erxes/ui/src/utils';
+import { Alert, __, withProps } from '@erxes/ui/src/utils';
 import * as compose from 'lodash.flowright';
 import React from 'react';
 import List from '../components/List';
 import { queries } from '../graphql';
-import { ReportsQueryResponse, TypeQueryResponse } from '../types';
+import {
+  ReportsListQueryResponse,
+  ReportsMutationResponse,
+  TypeQueryResponse
+} from '../types';
 
 type Props = {
   history: any;
@@ -14,83 +18,42 @@ type Props = {
 };
 
 type FinalProps = {
-  reportsListQuery: ReportsQueryResponse;
-  listReportsTypeQuery: TypeQueryResponse;
-} & Props;
+  reportsListQuery: ReportsListQueryResponse;
+} & Props &
+  ReportsMutationResponse;
 
 const ListContainer = (props: FinalProps) => {
-  const { reportsListQuery, history, typeId } = props;
+  const { reportsListQuery, history, typeId, removeReportsMutation } = props;
 
   if (reportsListQuery.loading) {
     return <Spinner />;
   }
 
-  // const renderButton = ({
-  //   passedName,
-  //   values,
-  //   isSubmitted,
-  //   callback,
-  //   object
-  // }: IButtonMutateProps) => {
-  //   return (
-  //     <ButtonMutate
-  //       mutation={object ? mutations.edit : mutations.add}
-  //       variables={values}
-  //       callback={callback}
-  //       isSubmitted={isSubmitted}
-  //       type="submit"
-  //       successMessage={`You successfully ${
-  //         object ? 'updated' : 'added'
-  //       } a ${passedName}`}
-  //       refetchQueries={['listQuery']}
-  //     />
-  //   );
-  // };
+  const { list = [], totalCount = 0 } = reportsListQuery.reportsList || {};
 
-  // const remove = reports => {
-  //   confirm('You are about to delete the item. Are you sure? ')
-  //     .then(() => {
-  //       removeMutation({ variables: { _id: reports._id } })
-  //         .then(() => {
-  //           Alert.success('Successfully deleted an item');
-  //         })
-  //         .catch(e => Alert.error(e.message));
-  //     })
-  //     .catch(e => Alert.error(e.message));
-  // };
-
-  // const edit = reports => {
-  //   editMutation({
-  //     variables: {
-  //       _id: reports._id,
-  //       name: reports.name,
-  //       checked: reports.checked,
-  //       expiryDate: reports.expiryDate,
-  //       type: reports.type
-  //     }
-  //   })
-  //     .then(() => {
-  //       Alert.success('Successfully updated an item');
-  //       listQuery.refetch();
-  //     })
-  //     .catch(e => Alert.error(e.message));
-  // };
-
-  const { list = [], totalCount = 0 } = reportsListQuery;
+  const removeReports = (reportIds: string[]) => {
+    removeReportsMutation({ reportIds })
+      .then(() => {
+        Alert.success(__('Successfully deleted'));
+      })
+      .catch((e: Error) => Alert.error(e.message));
+  };
 
   const updatedProps = {
     ...props,
 
     totalCount,
     reports: list,
-    loading: reportsListQuery.loading
+    loading: reportsListQuery.loading,
+    removeReports
   };
+
   return <List {...updatedProps} />;
 };
 
 export default withProps<Props>(
   compose(
-    graphql<Props, ReportsQueryResponse, { typeId: string }>(
+    graphql<Props, ReportsListQueryResponse, { typeId: string }>(
       gql(queries.reportsList),
       {
         name: 'reportsListQuery',
