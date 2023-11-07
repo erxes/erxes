@@ -10,9 +10,14 @@ import {
   Actions,
   CallAction,
   InCallFooter,
-  PhoneNumber
+  PhoneNumber,
+  ContactItem,
+  CallTabsContainer,
+  CallTab,
+  ActionNumber,
+  CallTabContent
 } from '../styles';
-import { numbers, symbols } from '../constants';
+import { inCallTabs, numbers, symbols } from '../constants';
 import { FormControl } from '@erxes/ui/src/components/form';
 import Select from 'react-select-plus';
 import { Button, Icon } from '@erxes/ui/src/components';
@@ -22,6 +27,7 @@ import {
   CALL_DIRECTION_INCOMING,
   CALL_STATUS_ACTIVE,
   CALL_STATUS_IDLE,
+  CALL_STATUS_STARTING,
   SIP_STATUS_REGISTERED
 } from '../lib/enums';
 import { callPropType, sipPropType } from '../lib/types';
@@ -29,14 +35,13 @@ import { formatPhone, getSpentTime } from '../utils';
 import Popover from 'react-bootstrap/Popover';
 
 type Props = {
-  addCustomer: (firstName: string, phoneNumber: string) => void;
+  addCustomer: (firstName: string, phoneNumber: string, callID: string) => void;
   callIntegrationsOfUser: any;
   setConfig: any;
 };
 const KeyPad = (props: Props, context) => {
   const Sip = context;
   const { call, mute, unmute, isMuted, isHolded, hold, unhold } = Sip;
-
   const { addCustomer, callIntegrationsOfUser, setConfig } = props;
 
   const defaultCallIntegration = localStorage.getItem(
@@ -61,6 +66,15 @@ const KeyPad = (props: Props, context) => {
 
   useEffect(() => {
     let timer: NodeJS.Timeout;
+
+    if (call?.status === CALL_STATUS_STARTING) {
+      const inboxId =
+        JSON.parse(defaultCallIntegration)?.inboxId ||
+        callIntegrationsOfUser?.[0]?.inboxId;
+      const formatedPhone = formatPhone(number);
+
+      addCustomer(inboxId, formatedPhone, call?.id);
+    }
     if (call?.status === CALL_STATUS_ACTIVE) {
       timer = setInterval(() => {
         setTimeSpent(prevTimeSpent => prevTimeSpent + 1);
@@ -83,21 +97,18 @@ const KeyPad = (props: Props, context) => {
     if (formatedPhone.length !== 8) {
       return Alert.warning('Check phone number');
     }
-    const inboxId =
-      JSON.parse(defaultCallIntegration)?.inboxId ||
-      callIntegrationsOfUser?.[0]?.inboxId;
+
     const { startCall } = context;
 
     if (startCall) {
       startCall(formatedPhone);
-      addCustomer(inboxId, formatedPhone);
     }
   };
 
   const handleCallStop = () => {
     const { stopCall, call } = context;
 
-    if (stopCall && call.status === CALL_STATUS_ACTIVE) {
+    if (stopCall) {
       stopCall();
     }
   };

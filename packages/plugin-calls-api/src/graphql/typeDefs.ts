@@ -32,9 +32,8 @@ const queries = `
 `;
 
 const mutations = `
-
   callsIntegrationUpdate(configs: CallIntegrationConfigs): JSON
-  callAddCustomer(inboxIntegrationId: String, primaryPhone: String): Customer
+  callAddCustomer(inboxIntegrationId: String, primaryPhone: String, direction: String, callID: String): Customer
 `;
 
 const typeDefs = async _serviceDiscovery => {

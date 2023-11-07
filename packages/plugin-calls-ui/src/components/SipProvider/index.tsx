@@ -144,7 +144,7 @@ export default class SipProvider extends React.Component<
         errorMessage: this.state.sipErrorMessage
       },
       call: {
-        id: '??',
+        id: this.state.rtcSession?._id,
         status: this.state.callStatus,
         direction: this.state.callDirection,
         counterpart: this.state.callCounterpart
@@ -608,6 +608,7 @@ export default class SipProvider extends React.Component<
   }
 
   public render() {
+    console.log(this.state, 'state...');
     return this.props.children(this.state);
   }
 }

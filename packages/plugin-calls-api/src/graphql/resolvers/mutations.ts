@@ -1,6 +1,5 @@
 import { generateToken } from '../../utils';
 import { IContext } from '../../connectionResolver';
-import { ICustomer } from '../../models/definitions/customers';
 
 import receiveCall from '../../receiveCall';
 
@@ -16,17 +15,10 @@ const callsMutations = {
     return integration;
   },
 
-  async callAddCustomer(
-    _root,
-    { primaryPhone, inboxIntegrationId },
-    { models, subdomain }: IContext
-  ) {
-    const createData: ICustomer = {
-      inboxIntegrationId,
-      primaryPhone
-    };
+  async callAddCustomer(_root, _args, { models, subdomain }: IContext) {
+    const { primaryPhone, inboxIntegrationId, direction, callID } = _args;
 
-    const customer = await receiveCall(models, subdomain, createData);
+    const customer = await receiveCall(models, subdomain, _args);
 
     return (
       customer.erxesApiId && {

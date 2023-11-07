@@ -16,6 +16,7 @@ interface Props {
 const IncomingCallContainer = (props: Props, context) => {
   const [customer, setCustomer] = useState<any>(undefined);
   const { callIntegrationsOfUser } = props;
+  const { call } = context;
 
   const phoneNumber = context?.call?.counterpart?.slice(
     context.call.counterpart.indexOf(':') + 1,
@@ -32,11 +33,13 @@ const IncomingCallContainer = (props: Props, context) => {
   const [createCustomerMutation] = useMutation(gql(mutations.customersAdd));
 
   useEffect(() => {
-    if (phoneNumber) {
+    if (phoneNumber && call?.id) {
       createCustomerMutation({
         variables: {
           inboxIntegrationId: inboxId,
-          primaryPhone: phoneNumber
+          primaryPhone: phoneNumber,
+          direction: 'incoming',
+          callID: call.id
         }
       })
         .then(({ data }: any) => {
@@ -46,7 +49,7 @@ const IncomingCallContainer = (props: Props, context) => {
           Alert.error(e.message);
         });
     }
-  }, [phoneNumber]);
+  }, [phoneNumber, call?.id]);
 
   return <IncomingCall customer={customer} />;
 };
