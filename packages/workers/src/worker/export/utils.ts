@@ -17,7 +17,7 @@ const getWorkerFile = () => {
     return `./src/worker/export/export.worker.js`;
   }
 
-  return `./dist/workers/src/worker/export/export.worker.js`;
+  return `./packages/workers/src/worker/export/export.worker.js`;
 };
 
 export const receiveExportCreate = async (

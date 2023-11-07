@@ -1,4 +1,5 @@
-import React from "react"
+import React, { useState } from "react"
+import AudioVisualizer from "@/modules/chat/component/messages/AudioVisualizer"
 import { ExternalLinkIcon, XCircle } from "lucide-react"
 
 import { readFile } from "@/lib/utils"
@@ -14,6 +15,9 @@ export const FilePreview = ({
   fileIndex,
   isDownload,
   attachments,
+  indexProp,
+  isMe,
+  grid,
 }: {
   fileUrl: string
   fileName?: string
@@ -21,7 +25,12 @@ export const FilePreview = ({
   deleteImage?: (index: number) => void
   isDownload?: boolean
   attachments?: any[]
+  indexProp?: number
+  isMe?: boolean
+  grid?: boolean
 }) => {
+  const [gridImageIndex, setGridImageIndex] = useState(0)
+
   if (!fileUrl || !fileUrl.split) {
     return null
   }
@@ -36,9 +45,12 @@ export const FilePreview = ({
 
   const renderImageForm = () => {
     return (
-      <DialogContent>
+      <DialogContent className="bg-transparent border-0 shadow-none max-w-2xl">
         <DialogHeader />
-        <AttachmentWithPreview images={attachments || []} />
+        <AttachmentWithPreview
+          images={attachments || []}
+          indexProp={grid ? gridImageIndex : indexProp}
+        />
       </DialogContent>
     )
   }
@@ -46,10 +58,10 @@ export const FilePreview = ({
   const renderFile = () => {
     return (
       <div className="relative">
-        {deleteImage && (
+        {deleteImage && fileIndex && (
           <button
             type="button"
-            className="absolute top-0 bg-white p-1 rounded-full"
+            className="absolute -top-2 -right-2 bg-white rounded-full"
             onClick={() => onDelete(fileIndex)}
           >
             <XCircle size={18} />
@@ -58,17 +70,17 @@ export const FilePreview = ({
 
         {isDownload ? (
           <a href={readFile(fileUrl)}>
-            <div className="mr-1 p-2 rounded-lg bg-[#F0F0F0]">
-              <div className="flex items-center text-sm font-semibold text-[#444] break-words">
+            <div className="w-full p-2 rounded-md bg-[#F0F0F0]">
+              <div className="flex gap-2 items-center font-semibold text-[#444] break-words">
                 <ExternalLinkIcon size={18} /> {fileName}
-              </div>{" "}
+              </div>
             </div>
           </a>
         ) : (
-          <div className="mr-1 p-2 rounded-lg bg-[#F0F0F0]">
-            <div className="flex items-center text-sm font-semibold text-[#444] break-words">
+          <div className="p-2 rounded-md bg-[#F0F0F0] ">
+            <div className="flex gap-2 items-center font-semibold text-[#444] break-words">
               <ExternalLinkIcon size={18} /> {fileName}
-            </div>{" "}
+            </div>
           </div>
         )}
       </div>
@@ -76,12 +88,12 @@ export const FilePreview = ({
   }
 
   const renderImagePreview = () => {
-    if (deleteImage) {
+    if (deleteImage && fileIndex) {
       return (
-        <div className="mr-1 w-[80px] h-[80px] shrink-0">
+        <div className="relative shrink-0 w-14 h-14">
           <button
             type="button"
-            className="absolute top-0 bg-white p-1 rounded-full"
+            className="absolute -top-2 -right-2 bg-white rounded-full"
             onClick={() => onDelete(fileIndex)}
           >
             <XCircle size={18} />
@@ -90,11 +102,74 @@ export const FilePreview = ({
           <Image
             alt="image"
             src={fileUrl || ""}
-            width={500}
-            height={500}
-            className="object-contain w-[80px] h-[80px]"
+            width={100}
+            height={100}
+            className="object-cover rounded-md w-14 h-14"
           />
         </div>
+      )
+    }
+
+    if (grid && attachments) {
+      return (
+        <>
+          <Dialog>
+            <DialogTrigger asChild={true}>
+              <div className="w-full h-[462px] flex flex-wrap overflow-hidden relative">
+                {attachments.map((image, index) => {
+                  const length = attachments.length
+                  let width
+                  if (length === 1 || length === 2) {
+                    width = "w-full"
+                  }
+                  if (length === 3) {
+                    if (index === 2) {
+                      width = "w-full"
+                    } else {
+                      width = "w-[316px]"
+                    }
+                  }
+                  if (length === 4 || length > 4) {
+                    width = "w-[316px]"
+                  }
+
+                  if (index > 3) {
+                    return null
+                  }
+
+                  return (
+                    <Image
+                      key={index}
+                      alt="image"
+                      src={image.url || ""}
+                      width={500}
+                      height={500}
+                      className={`overflow-hidden rounded-lg object-cover cursor-pointer ${width} ${
+                        length !== 1 ? "h-[227px]" : "h-full"
+                      } ${
+                        length !== 1 &&
+                        length !== 2 &&
+                        index % 2 === 0 &&
+                        "mr-2"
+                      } mb-2`}
+                      onClick={() => setGridImageIndex(index)}
+                    />
+                  )
+                })}
+                {attachments.length > 4 && (
+                  <div
+                    className="text-white bg-black/50 w-[316px] h-[227px] absolute bottom-0 right-0 rounded-lg flex items-center justify-center text-[30px] cursor-pointer"
+                    onClick={() => setGridImageIndex(3)}
+                  >
+                    + {attachments.length - 4}
+                  </div>
+                )}
+              </div>
+            </DialogTrigger>
+
+            {renderImageForm()}
+          </Dialog>
+        </>
       )
     }
 
@@ -102,13 +177,13 @@ export const FilePreview = ({
       <>
         <Dialog>
           <DialogTrigger asChild={true}>
-            <div className="mr-1 w-[80px] h-[80px] shrink-0 cursor-pointer">
+            <div className="shrink-0 w-[80px] h-[80px] cursor-pointer bg-slate-600 rounded-lg">
               <Image
                 alt="image"
                 src={fileUrl || ""}
                 width={500}
                 height={500}
-                className="object-contain w-[80px] h-[80px]"
+                className="object-cover w-[80px] h-[80px] rounded-lg"
               />
             </div>
           </DialogTrigger>
@@ -116,6 +191,36 @@ export const FilePreview = ({
           {renderImageForm()}
         </Dialog>
       </>
+    )
+  }
+
+  const renderAudioFile = () => {
+    if (deleteImage && fileIndex) {
+      return (
+        <div className="relative">
+          <button
+            type="button"
+            className="absolute -top-2 -right-2 bg-white rounded-full"
+            onClick={() => onDelete(fileIndex)}
+          >
+            <XCircle size={18} />
+          </button>
+          <div className="p-2 rounded-md bg-[#F0F0F0] ">
+            <div className="flex gap-2 items-center font-semibold text-[#444] break-words">
+              <ExternalLinkIcon size={18} /> {fileName}
+            </div>
+          </div>
+        </div>
+      )
+    }
+
+    return (
+      <AudioVisualizer
+        url={readFile(fileUrl)}
+        waveColor={"#b5b4b4"}
+        progressColor={`${isMe ? "#fff" : "#8771D5"}`}
+        from="message"
+      />
     )
   }
 
@@ -133,6 +238,12 @@ export const FilePreview = ({
     case "xlsx":
       filePreview = renderFile()
       break
+    case "webm":
+      filePreview = renderAudioFile()
+      break
+    case "mp3":
+      filePreview = renderAudioFile()
+      break
     // case "mp4":
     //   filePreview = renderVideo()
     //   break
@@ -141,6 +252,7 @@ export const FilePreview = ({
     //   break
     case "jpeg":
     case "jpg":
+    case "JPG":
     case "gif":
     case "png":
       filePreview = renderImagePreview()
@@ -153,7 +265,6 @@ export const FilePreview = ({
     case "avi":
     case "txt":
     case "rar":
-    case "mp3":
     case "pdf":
     default:
       filePreview = renderFile()

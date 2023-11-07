@@ -2,17 +2,14 @@
   "name": "@erxes/plugin-engages-api",
   "version": "1.0.0",
   "scripts": {
-    "test": "jest --coverage --forceExit --runInBand",
-    "install-deps": "cd .erxes && yarn install",
-    "dev": "cd .erxes && yarn dev",
-    "build": "cd .erxes && yarn build",
-    "start": "cd .erxes/dist/plugin-engages-api/.erxes && node src"
+    "dev": "nodemon src/index.ts",
+    "build" : "tsc"
   },
   "dependencies": {
+    "@erxes/api-utils" : "*",
     "@types/body-parser": "^1.17.0",
     "aws-sdk": "^2.493.0",
-    "body-parser": "^1.17.1",
-    "nanoid" : "^3.3.6",
+    "faker": "^4.1.0",
     "nodemailer": "^6.2.1",
     "telnyx": "^1.7.2"
   },

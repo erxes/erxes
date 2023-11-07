@@ -8866,22 +8866,6 @@ body-parser@1.19.1, body-parser@^1.19.0:
     raw-body "2.4.2"
     type-is "~1.6.18"
 
-body-parser@1.19.2, body-parser@^1.17.1:
-  version "1.19.2"
-  resolved "https://registry.npmjs.org/body-parser/-/body-parser-1.19.2.tgz"
-  integrity sha512-SAAwOxgoCKMGs9uUAUFHygfLAyaniaoun6I8mFY9pRAJL9+Kec34aU+oIjDhTycub1jozEfEwx1W1IuOYxVSFw==
-  dependencies:
-    bytes "3.1.2"
-    content-type "~1.0.4"
-    debug "2.6.9"
-    depd "~1.1.2"
-    http-errors "1.8.1"
-    iconv-lite "0.4.24"
-    on-finished "~2.3.0"
-    qs "6.9.7"
-    raw-body "2.4.3"
-    type-is "~1.6.18"
-
 body-parser@1.20.0:
   version "1.20.0"
   resolved "https://registry.npmjs.org/body-parser/-/body-parser-1.20.0.tgz"
@@ -8899,6 +8883,22 @@ body-parser@1.20.0:
     raw-body "2.5.1"
     type-is "~1.6.18"
     unpipe "1.0.0"
+
+body-parser@^1.17.1:
+  version "1.19.2"
+  resolved "https://registry.npmjs.org/body-parser/-/body-parser-1.19.2.tgz"
+  integrity sha512-SAAwOxgoCKMGs9uUAUFHygfLAyaniaoun6I8mFY9pRAJL9+Kec34aU+oIjDhTycub1jozEfEwx1W1IuOYxVSFw==
+  dependencies:
+    bytes "3.1.2"
+    content-type "~1.0.4"
+    debug "2.6.9"
+    depd "~1.1.2"
+    http-errors "1.8.1"
+    iconv-lite "0.4.24"
+    on-finished "~2.3.0"
+    qs "6.9.7"
+    raw-body "2.4.3"
+    type-is "~1.6.18"
 
 body-parser@^1.20.0:
   version "1.20.2"
@@ -10343,11 +10343,6 @@ commander@^8.3.0:
   version "8.3.0"
   resolved "https://registry.npmjs.org/commander/-/commander-8.3.0.tgz"
   integrity sha512-OkTL9umf+He2DZkUq8f8J9of7yL6RJKI24dVITBmNfZBmri9zYZQrKkuXiKhyfPSu8tUhnVBB1iKXevvnlR4Ww==
-
-commander@^9.0.0:
-  version "9.0.0"
-  resolved "https://registry.npmjs.org/commander/-/commander-9.0.0.tgz"
-  integrity sha512-JJfP2saEKbQqvW+FI93OYUB4ByV5cizMpFMiiJI8xDbBvQvSkIk0VvQdn1CZ8mqAO8Loq2h0gYTYtDFUZUeERw==
 
 common-tags@1.8.2:
   version "1.8.2"
@@ -12712,18 +12707,32 @@ erxes-api-utils@^0.0.34:
     requestify "^0.2.5"
     ts-node "8.0.3"
 
+erxes-api-utils@^0.0.39:
+  version "0.0.39"
+  resolved "https://registry.yarnpkg.com/erxes-api-utils/-/erxes-api-utils-0.0.39.tgz#728214ebe0c892d4aceeff5c41df472e275142fe"
+  integrity sha512-s9p9mxwrC9mgK29Oeyy7HIYTkDsQ3VsnkWbONtoth+Y4DWvyvsR4S2IcQbtvDco2DciYfTTz4DkT8OeFHbbmBA==
+  dependencies:
+    "@babel/runtime" "^7.11.2"
+    aws-sdk "^2.151.0"
+    dd-trace "^0.30.5"
+    debug "^4.1.1"
+    dotenv "^4.0.0"
+    firebase-admin "^8.6.1"
+    graphql "^14.0.2"
+    graphql-redis-subscriptions "^1.4.0"
+    graphql-subscriptions "^1.1.0"
+    handlebars "^4.7.3"
+    meteor-random "^0.0.3"
+    mongoose "5.7.5"
+    nodemailer "^4.1.3"
+    request "^2.88.0"
+    requestify "^0.2.5"
+    ts-node "8.0.3"
+
 erxes-icon@^1.2.1:
   version "1.2.1"
   resolved "https://registry.npmjs.org/erxes-icon/-/erxes-icon-1.2.1.tgz"
   integrity sha512-qk1yavXsBCub9/XBaiTgg9OCouRfZnDxWIqtfi/tVr51zFYgZuGm5GkswglIhF5FCayJ+XtOFqf/Z/9UUc676g==
-
-erxes-inmemory-storage@^1.0.20:
-  version "1.0.20"
-  resolved "https://registry.npmjs.org/erxes-inmemory-storage/-/erxes-inmemory-storage-1.0.20.tgz"
-  integrity sha512-/04S7ujL3wTUYePM/GcjSXQ+nldG/q/Zl9AJmop0DwoJ/4Ka1E9jI8Tc3skxsWBX4vWoMxZ/Awrh4DO4JW7Hxw==
-  dependencies:
-    "@babel/runtime" "^7.11.2"
-    redis "^3.0.2"
 
 erxes-telemetry@^1.0.4:
   version "1.0.4"
@@ -13367,42 +13376,6 @@ express@^4.15.4, express@^4.18.1:
     utils-merge "1.0.1"
     vary "~1.1.2"
 
-express@^4.16.4:
-  version "4.17.3"
-  resolved "https://registry.npmjs.org/express/-/express-4.17.3.tgz"
-  integrity sha512-yuSQpz5I+Ch7gFrPCk4/c+dIBKlQUxtgwqzph132bsT6qhuzss6I8cLJQz7B3rFblzd6wtcI0ZbGltH/C4LjUg==
-  dependencies:
-    accepts "~1.3.8"
-    array-flatten "1.1.1"
-    body-parser "1.19.2"
-    content-disposition "0.5.4"
-    content-type "~1.0.4"
-    cookie "0.4.2"
-    cookie-signature "1.0.6"
-    debug "2.6.9"
-    depd "~1.1.2"
-    encodeurl "~1.0.2"
-    escape-html "~1.0.3"
-    etag "~1.8.1"
-    finalhandler "~1.1.2"
-    fresh "0.5.2"
-    merge-descriptors "1.0.1"
-    methods "~1.1.2"
-    on-finished "~2.3.0"
-    parseurl "~1.3.3"
-    path-to-regexp "0.1.7"
-    proxy-addr "~2.0.7"
-    qs "6.9.7"
-    range-parser "~1.2.1"
-    safe-buffer "5.2.1"
-    send "0.17.2"
-    serve-static "1.14.2"
-    setprototypeof "1.2.0"
-    statuses "~1.5.0"
-    type-is "~1.6.18"
-    utils-merge "1.0.1"
-    vary "~1.1.2"
-
 express@^4.17.1, express@^4.17.2:
   version "4.17.2"
   resolved "https://registry.npmjs.org/express/-/express-4.17.2.tgz"
@@ -13982,11 +13955,6 @@ follow-redirects@^1.0.0:
   integrity sha512-m/pZQy4Gj287eNy94nivy5wchN3Kp+Q5WgUPNy5lJSZ3sgkVKSYV/ZChMAQVIgx1SqfZ2zBZtPA2YlXIWxxJOQ==
   dependencies:
     debug "^3.2.6"
-
-follow-redirects@^1.13.0:
-  version "1.14.9"
-  resolved "https://registry.npmjs.org/follow-redirects/-/follow-redirects-1.14.9.tgz"
-  integrity sha512-MQDfihBQYMcyy5dhRDJUHcw7lb2Pv/TuE6xP1vyraLukNDHKbDxDNaOE3NbCAdKQApno+GPRyo1YAp89yCjK4w==
 
 follow-redirects@^1.14.0:
   version "1.14.8"
@@ -14700,7 +14668,7 @@ globby@10.0.2:
     merge2 "^1.2.3"
     slash "^3.0.0"
 
-globby@^11.0.1, globby@^11.0.3, globby@^11.0.4:
+globby@^11.0.1, globby@^11.0.3:
   version "11.1.0"
   resolved "https://registry.npmjs.org/globby/-/globby-11.1.0.tgz"
   integrity sha512-jhIXaOzy1sb8IyocaruWSn1TjmnBVs8Ayhcy83rmxNJ8q2uWKCAj3CnJY+KpGSXCueAPc0i05kVvVKtP1t9S3g==
@@ -20137,11 +20105,6 @@ mv@~2:
     ncp "~2.0.0"
     rimraf "~2.4.0"
 
-mylas@^2.1.9:
-  version "2.1.9"
-  resolved "https://registry.npmjs.org/mylas/-/mylas-2.1.9.tgz"
-  integrity sha512-pa+cQvmhoM8zzgitPYZErmDt9EdTNVnXsH1XFjMeM4TyG4FFcgxrvK1+jwabVFwUOEDaSWuXBMjg43kqt/Ydlg==
-
 mysql2@^2.2.5:
   version "2.3.3"
   resolved "https://registry.npmjs.org/mysql2/-/mysql2-2.3.3.tgz"
@@ -20503,16 +20466,6 @@ nodejs-file-downloader@^4.10.6:
   integrity sha512-n9XK3+h1aSKbnf1dYvEiB6wd4rnzPz40IKBNuqr4zKlzfvc9AT69Vjf/X8+QwyOxsqYLY3/4etDZX97FKh27Jw==
   dependencies:
     follow-redirects "^1.15.1"
-    https-proxy-agent "^5.0.0"
-    mime-types "^2.1.27"
-    sanitize-filename "^1.6.3"
-
-nodejs-file-downloader@^4.9.2:
-  version "4.9.3"
-  resolved "https://registry.npmjs.org/nodejs-file-downloader/-/nodejs-file-downloader-4.9.3.tgz"
-  integrity sha512-1agDW6TDkdNdyMm20iF70bpRHsA8WwVdezFTcBD4FPf/nAPwV/cDK7tUeALemK1DX1k8MfhAiYTB/jmyBkgmJw==
-  dependencies:
-    follow-redirects "^1.13.0"
     https-proxy-agent "^5.0.0"
     mime-types "^2.1.27"
     sanitize-filename "^1.6.3"
@@ -26290,17 +26243,6 @@ ts-node@^9.0.0:
     source-map-support "^0.5.17"
     yn "3.1.1"
 
-tsc-alias@^1.5.0:
-  version "1.6.1"
-  resolved "https://registry.npmjs.org/tsc-alias/-/tsc-alias-1.6.1.tgz"
-  integrity sha512-cvnfvm1eFmLcVOidGmSRS0iTjoPxT5DZMnZmD1ZWHSkda8EAm+00uD7Zs/OCblo0l+AEluCdAG+qP7sZf475FA==
-  dependencies:
-    chokidar "^3.5.3"
-    commander "^9.0.0"
-    globby "^11.0.4"
-    mylas "^2.1.9"
-    normalize-path "^3.0.0"
-
 tsconfig@^7.0.0:
   version "7.0.0"
   resolved "https://registry.npmjs.org/tsconfig/-/tsconfig-7.0.0.tgz"
@@ -27978,7 +27920,7 @@ ws@^8.12.0, ws@^8.13.0:
   resolved "https://registry.npmjs.org/ws/-/ws-8.14.2.tgz"
   integrity sha512-wEBG1ftX4jcglPxgFCMJmZ2PLtSbJ2Peg6TmpJFTbe9GZYOQCDPdMYu/Tm0/bGZkw8paZnJY45J4K2PZrLYq8g==
 
-ws@^8.4.0, ws@^8.4.2:
+ws@^8.4.2:
   version "8.5.0"
   resolved "https://registry.npmjs.org/ws/-/ws-8.5.0.tgz"
   integrity sha512-BWX0SWVgLPzYwF8lTzEy1egjhS4S4OEAHfsO8o65WOVsrnSRGaSiUaa9e0ggGlkMTtBlmOpEXiie9RUcBO86qg==

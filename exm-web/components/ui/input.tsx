@@ -17,10 +17,7 @@ const Input = React.forwardRef<
         autoComplete="off"
         type={type}
         className={cn(
-          "flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-2  ring-offset-background file:border-0 file:bg-transparent file:font-medium placeholder:text-muted-foreground  disabled:cursor-not-allowed disabled:opacity-50",
-          focus
-            ? "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-            : "focus-visible:outline-none",
+          "flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-2  ring-offset-background file:border-0 file:bg-transparent file:font-medium placeholder:text-muted-foreground  disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-none",
           className
         )}
         ref={ref}
