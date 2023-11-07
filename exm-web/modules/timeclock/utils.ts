@@ -142,6 +142,14 @@ export const isCurrentUserAdmin = (currentUser: any) => {
   )
 }
 
+export const isCurrentUserSupervisor = (currentUser: any) => {
+  return (
+    (currentUser.permissionActions &&
+      currentUser.permissionActions.manageTimeclocks) ||
+    false
+  )
+}
+
 export const returnDeviceTypes = (deviceType: any) => {
   let checkInDevice
   let checkOutDevice
@@ -158,4 +166,25 @@ export const returnDeviceTypes = (deviceType: any) => {
   }
 
   return [checkInDevice, checkOutDevice]
+}
+
+export const generatePaginationParams = (queryParams: {
+  page?: string
+  perPage?: string
+}) => {
+  return {
+    page: queryParams.page ? parseInt(queryParams.page, 10) : 1,
+    perPage: queryParams.perPage ? parseInt(queryParams.perPage, 10) : 20,
+  }
+}
+
+export const generateParams = (queryParams: any) => {
+  return {
+    ...generatePaginationParams(queryParams || {}),
+    startDate: queryParams.startDate,
+    endDate: queryParams.endDate,
+    userIds: queryParams.userIds,
+    departmentIds: queryParams.departmentIds,
+    branchIds: queryParams.branchIds,
+  }
 }

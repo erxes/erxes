@@ -41,30 +41,70 @@ const userFields = `
   }
 `
 
-const timeclockEdit = `
-  mutation timeclockEdit($_id: String!, $shiftStart: Date, $shiftEnd: Date, $shiftActive: Boolean, $inDeviceType: String,$inDevice: String $outDeviceType: String,$outDevice: String ){
-    timeclockEdit(_id: $_id, shiftStart: $shiftStart, shiftEnd: $shiftEnd, shiftActive: $shiftActive, inDeviceType: $inDeviceType, inDevice: $inDevice, outDeviceType: $outDeviceType, outDevice: $outDevice){
+const timeclockEdit = gql`
+  mutation timeclockEdit(
+    $_id: String!
+    $shiftStart: Date
+    $shiftEnd: Date
+    $shiftActive: Boolean
+    $inDeviceType: String
+    $inDevice: String
+    $outDeviceType: String
+    $outDevice: String
+  ) {
+    timeclockEdit(
+      _id: $_id
+      shiftStart: $shiftStart
+      shiftEnd: $shiftEnd
+      shiftActive: $shiftActive
+      inDeviceType: $inDeviceType
+      inDevice: $inDevice
+      outDeviceType: $outDeviceType
+      outDevice: $outDevice
+    ) {
       _id
     }
   }
-  `
-const timeclockRemove = `
-  mutation timeclockRemove($_id: String!){
+`
+const timeclockRemove = gql`
+  mutation timeclockRemove($_id: String!) {
     timeclockRemove(_id: $_id)
   }
-  `
+`
 
-const timeclockStart = `
-  mutation timeclockStart($userId: String, $longitude: Float, $latitude: Float, $deviceType: String){
-    timeclockStart(userId: $userId, longitude: $longitude, latitude: $latitude, deviceType: $deviceType){
+const timeclockStart = gql`
+  mutation timeclockStart(
+    $userId: String
+    $longitude: Float
+    $latitude: Float
+    $deviceType: String
+  ) {
+    timeclockStart(
+      userId: $userId
+      longitude: $longitude
+      latitude: $latitude
+      deviceType: $deviceType
+    ) {
       _id
     }
   }
 `
 
-const timeclockStop = `
-  mutation timeclockStop( $userId: String, $_id: String, $longitude: Float, $latitude: Float,$deviceType: String){
-    timeclockStop(userId: $userId, _id: $_id, longitude: $longitude, latitude: $latitude, deviceType : $deviceType){
+const timeclockStop = gql`
+  mutation timeclockStop(
+    $userId: String
+    $_id: String
+    $longitude: Float
+    $latitude: Float
+    $deviceType: String
+  ) {
+    timeclockStop(
+      userId: $userId
+      _id: $_id
+      longitude: $longitude
+      latitude: $latitude
+      deviceType: $deviceType
+    ) {
       _id
     }
   }
@@ -243,10 +283,25 @@ const deviceConfigRemove = `mutation deviceConfigRemove($_id: String){
   deviceConfigRemove(_id: $_id)
 }`
 
-const extractAllDataFromMsSQL = `
-mutation extractAllDataFromMsSQL($startDate: String, $endDate: String, $extractAll: Boolean, $branchIds: [String], $departmentIds: [String],$userIds: [String]){
-  extractAllDataFromMsSQL(startDate: $startDate, endDate: $endDate, extractAll: $extractAll, branchIds: $branchIds, departmentIds:$departmentIds, userIds: $userIds)
-}`
+const extractAllDataFromMsSQL = gql`
+  mutation extractAllDataFromMsSQL(
+    $startDate: String
+    $endDate: String
+    $extractAll: Boolean
+    $branchIds: [String]
+    $departmentIds: [String]
+    $userIds: [String]
+  ) {
+    extractAllDataFromMsSQL(
+      startDate: $startDate
+      endDate: $endDate
+      extractAll: $extractAll
+      branchIds: $branchIds
+      departmentIds: $departmentIds
+      userIds: $userIds
+    )
+  }
+`
 
 const extractTimeLogsFromMsSql = `
 mutation extractTimeLogsFromMsSQL($startDate: String, $endDate: String, $extractAll: Boolean, $branchIds: [String], $departmentIds: [String],$userIds: [String]){

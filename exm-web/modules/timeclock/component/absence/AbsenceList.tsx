@@ -36,7 +36,7 @@ const Request = (props: Props) => {
   )
 
   return (
-    <div className="h-[94vh] py-5 px-10  overflow-y-auto">
+    <div className="h-[94vh] flex flex-col gap-3">
       <Table>
         <TableHeader>
           <TableRow>

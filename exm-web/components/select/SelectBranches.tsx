@@ -26,8 +26,6 @@ const SelectBranches = ({
     searchValue,
   })
 
-  console.log(branchesOption)
-
   const onChangeMultiValue = (datas: any) => {
     const ids = datas.map((data: any) => data.value)
 

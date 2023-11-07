@@ -5,6 +5,7 @@ import { TableCell, TableRow } from "@/components/ui/table"
 
 import { ITimeclock } from "../../types"
 import { returnDeviceTypes } from "../../utils"
+import TimeclockRowAction from "./action/TimeclockRowAction"
 
 type Props = {
   timeclock: ITimeclock
@@ -50,6 +51,9 @@ const TimeClockRow = ({ timeclock }: Props) => {
               returnDeviceTypes(timeclock.deviceType)[1]}
         </TableCell>
         <TableCell className="py-5">{timeclock.outDevice || "-"}</TableCell>
+        <TableCell className="py-5">
+          <TimeclockRowAction timeclock={timeclock} />
+        </TableCell>
       </TableRow>
     </>
   )

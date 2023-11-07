@@ -346,9 +346,9 @@ query deviceConfigs (${listParamsDef}){
   }
 }`
 
-const timeLogsPerUser = `
-  query timeLogsPerUser($userId: String, $startDate: String, $endDate: String){
-    timeLogsPerUser(userId: $userId, startDate: $startDate, endDate: $endDate){
+const timeLogsPerUser = gql`
+  query timeLogsPerUser($userId: String, $startDate: String, $endDate: String) {
+    timeLogsPerUser(userId: $userId, startDate: $startDate, endDate: $endDate) {
       _id
       timelog
       deviceName

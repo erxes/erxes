@@ -21,7 +21,6 @@ const SelectUsers = ({
   const [searchValue, setSearchValue] = useState("")
 
   const { userOptions, loading } = useUsers({ userIds, reload, searchValue })
-  console.log(userOptions)
 
   const onChangeMultiValue = (datas: any) => {
     const ids = datas.map((data: any) => data.value)

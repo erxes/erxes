@@ -26,8 +26,6 @@ const SelectDepartments = ({
     searchValue,
   })
 
-  console.log(departmentsOption)
-
   const onChangeMultiValue = (datas: any) => {
     const ids = datas.map((data: any) => data.value)
 
