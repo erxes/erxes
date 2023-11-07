@@ -73,11 +73,11 @@ const RightSideBar = () => {
     <div>
       <RightNavbar />
 
-      <ScrollArea className="h-[calc(100vh-65px)] bg-[#F8F9FA]">
+      <CardHeader className="text-black font-bold text-lg pl-0 bg-[#F8F9FA]">
+        Today's events
+      </CardHeader>
+      <ScrollArea className="h-[calc(100vh-125px)] bg-[#F8F9FA]">
         <div className="pb-4 pr-4">
-          <CardHeader className="text-black font-bold text-lg pl-0">
-            Today's events
-          </CardHeader>
           {((checkedTodaysEvent && checkedTodaysEvent) || []).map(
             (item: any) => {
               if (item === null) {

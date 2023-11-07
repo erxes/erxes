@@ -36,7 +36,9 @@ const EventDropDown = ({ event }: { event: IFeed }) => {
       <DropdownMenuTrigger className="w-full">
         <div
           className={`${
-            checkUserGoingStatus || checkUserInterestedStatus
+            checkUserGoingStatus
+              ? "bg-success-foreground text-white"
+              : checkUserInterestedStatus
               ? "bg-primary text-white"
               : "bg-[#EAEAEA]"
           } text-[14px] pr-2 rounded-lg flex items-center w-full justify-between`}

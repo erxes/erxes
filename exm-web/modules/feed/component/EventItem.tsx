@@ -270,7 +270,7 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
     const { eventData } = feed
 
     return (
-      <div className="text-[#444]">
+      <div className="text-[#5E5B5B]">
         <div className="flex items-center mb-2">
           <Calendar size={18} className="mr-1" />
           {dayjs(eventData?.startDate).format("MM/DD/YY h:mm A")} ~{" "}
@@ -343,7 +343,7 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
             <div>
               <div className="overflow-x-hidden">
                 <p className="text-black font-semibold mb-2">{feed.title}</p>
-                <p className="text-[#5E5B5B] mb-2">
+                <p className="text-[#222] mb-2">
                   <span
                     className={`${
                       seeMore ? "max-h-fit" : "max-h-[40px]"
