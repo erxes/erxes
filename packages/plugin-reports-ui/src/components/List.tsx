@@ -11,6 +11,9 @@ import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { __, router } from '@erxes/ui/src/utils';
 import { IReport } from '../types';
 import Row from './Row';
+import { isEnabled } from '@erxes/ui/src/utils/core';
+import TaggerPopover from '@erxes/ui-tags/src/components/TaggerPopover';
+import { TAG_TYPES } from '@erxes/ui-tags/src/constants';
 
 type Props = {
   reports: IReport[];
@@ -24,7 +27,7 @@ type Props = {
 function List(props: Props) {
   const { reports, loading, history } = props;
   const [searchValue, setSearchvalue] = useState(null);
-  const [chosenIds, setChosenIds] = useState<any>([]);
+  const [chosenReportIds, setChosenReportIds] = useState<any>([]);
 
   let timer: NodeJS.Timer;
 
@@ -71,13 +74,11 @@ function List(props: Props) {
     </BarItems>
   );
 
-  const actionBar = <Wrapper.ActionBar right={actionBarRight} wideSpacing />;
-
   const toggleReport = (reportId: string, isChecked: boolean) => {
     if (isChecked) {
-      setChosenIds([...chosenIds, reportId]);
+      setChosenReportIds([...chosenReportIds, reportId]);
     } else {
-      setChosenIds(chosenIds.filter(id => id !== reportId));
+      setChosenReportIds(chosenReportIds.filter(id => id !== reportId));
     }
   };
 
@@ -106,7 +107,7 @@ function List(props: Props) {
               key={report._id}
               report={report}
               {...updatedProps}
-              isChecked={chosenIds.includes(report._id)}
+              isChecked={chosenReportIds.includes(report._id)}
             />
           );
         })}
@@ -122,6 +123,47 @@ function List(props: Props) {
     { title: __('Settings'), link: '/settings' },
     { title: __('Reports'), link: '/reports' }
   ];
+
+  let actionBarLeft: React.ReactNode;
+
+  if (chosenReportIds.length) {
+    const tagButton = (
+      <Button btnStyle="simple" size="small" icon="tag-alt">
+        Tag
+      </Button>
+    );
+
+    actionBarLeft = (
+      <BarItems>
+        <Button
+          btnStyle="danger"
+          size="small"
+          icon="cancel-1"
+          // onClick={() => this.removeDashboards(bulk)}
+        >
+          Remove
+        </Button>
+
+        {isEnabled('tags') && (
+          <TaggerPopover
+            type={TAG_TYPES.DASHBOARD}
+            // successCallback={this.afterTag}
+            targets={reports.filter(r => chosenReportIds.includs(r._id))}
+            trigger={tagButton}
+            // refetchQueries={['dashboardCountByTags']}
+          />
+        )}
+      </BarItems>
+    );
+  }
+
+  const actionBar = (
+    <Wrapper.ActionBar
+      right={actionBarRight}
+      left={actionBarLeft}
+      wideSpacing
+    />
+  );
 
   return (
     <Wrapper
