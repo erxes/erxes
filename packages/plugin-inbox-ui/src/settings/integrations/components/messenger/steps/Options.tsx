@@ -11,6 +11,7 @@ import Toggle from '@erxes/ui/src/components/Toggle';
 import client from '@erxes/ui/src/apolloClient';
 import { gql } from '@apollo/client';
 import { queries } from '@erxes/ui-inbox/src/settings/integrations/graphql';
+import { loadDynamicComponent } from '@erxes/ui/src/utils/core';
 
 type Props = {
   onChange: (
