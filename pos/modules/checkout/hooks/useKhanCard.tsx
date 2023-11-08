@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 
 import { IBillType } from "@/types/order.types"
 import { BANK_CARD_TYPES } from "@/lib/constants"
@@ -15,27 +15,27 @@ const useKhanCard = (args?: { skipCheck?: boolean }) => {
 
   const { type } = usePaymentType(BANK_CARD_TYPES.KHANBANK) || {}
 
-  const checkIsAlive = (options?: {
-    onCompleted?: () => void
-    onError?: () => void
-  }) => {
-    const { onCompleted, onError } = options || {}
-    if (!type) return setLoading(false)
+  const checkIsAlive = useCallback(
+    (options?: { onCompleted?: () => void; onError?: () => void }) => {
+      const { onCompleted, onError } = options || {}
+      if (!type) return setLoading(false)
 
-    fetch(`${PATH}/ajax/get-status-info`)
-      .then((res) => res.json())
-      .then((res: any) => {
-        if (res && res.status_code === "ok") {
+      fetch(`${PATH}/ajax/get-status-info`)
+        .then((res) => res.json())
+        .then((res: any) => {
+          if (res && res.status_code === "ok") {
+            setLoading(false)
+            setIsAlive(true)
+            !!onCompleted && onCompleted()
+          }
+        })
+        .catch(() => {
           setLoading(false)
-          setIsAlive(true)
-          !!onCompleted && onCompleted()
-        }
-      })
-      .catch(() => {
-        setLoading(false)
-        onError && onError()
-      }) //todo: handle error
-  }
+          onError && onError()
+        }) //todo: handle error
+    },
+    [type]
+  )
 
   useEffect(() => {
     if (skipCheck) {
@@ -44,8 +44,7 @@ const useKhanCard = (args?: { skipCheck?: boolean }) => {
       return
     }
     checkIsAlive()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [checkIsAlive, skipCheck])
 
   return { checkIsAlive, loading, isAlive }
 }
