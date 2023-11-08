@@ -146,7 +146,7 @@ export const useSettlement = ({
 
         if (status && response) {
           const { response_code, response_msg } = response
-          if (response_code === "000") {
+          if (response_code === true) {
             toast({ description: "Settlement was successful" })
             onCompleted && onCompleted(response)
             return setLoading(false)
