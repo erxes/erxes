@@ -165,7 +165,16 @@ const msdynamicMutations = {
         defaultValue: {}
       });
 
+      const customers = await sendContactsMessage({
+        subdomain,
+        action: 'customers.findActiveCustomers',
+        data: {},
+        isRPC: true,
+        defaultValue: {}
+      });
+
       const companyCodes = companies.map(c => c.code) || [];
+      const customerCodes = customers.map(c => c.code) || [];
 
       const response = await sendRequest({
         url: customerApi,
@@ -183,6 +192,7 @@ const msdynamicMutations = {
         response.value.map(r => r.No.replace(/\s/g, '')) || [];
 
       const companyByCode = {};
+      const customerByCode = {};
 
       for (const company of companies) {
         companyByCode[company.code] = company;
@@ -192,7 +202,15 @@ const msdynamicMutations = {
         }
       }
 
-      for (const resCompany of response.value) {
+      for (const customer of customers) {
+        customerByCode[customer.code] = customer;
+
+        if (!resultCodes.includes(customer.code)) {
+          deleteCustomers.push(customer);
+        }
+      }
+
+      const companyRequest = resCompany => {
         if (companyCodes.includes(resCompany.No.replace(/\s/g, ''))) {
           const company = companyByCode[resCompany.No.replace(/\s/g, '')];
 
@@ -203,6 +221,48 @@ const msdynamicMutations = {
           }
         } else {
           createCustomers.push(resCompany);
+        }
+      };
+
+      const customerRequest = resCompany => {
+        if (customerCodes.includes(resCompany.No.replace(/\s/g, ''))) {
+          const customer = customerByCode[resCompany.No.replace(/\s/g, '')];
+
+          if (resCompany?.Name === customer.firstName) {
+            matchedCount = matchedCount + 1;
+          } else {
+            updateCustomers.push(resCompany);
+          }
+        } else {
+          createCustomers.push(resCompany);
+        }
+      };
+
+      for (const resCompany of response.value) {
+        if (resCompany?.Partner_Type === 'Company') {
+          companyRequest(resCompany);
+        }
+
+        if (resCompany?.Partner_Type === 'Person') {
+          if (resCompany.VAT_Registration_No.length === 7) {
+            companyRequest(resCompany);
+          } else {
+            customerRequest(resCompany);
+          }
+        }
+
+        if (
+          resCompany?.Partner_Type === ' ' &&
+          resCompany.VAT_Registration_No
+        ) {
+          companyRequest(resCompany);
+        }
+
+        if (
+          resCompany?.Partner_Type === ' ' &&
+          !resCompany.VAT_Registration_No
+        ) {
+          customerRequest(resCompany);
         }
       }
     } catch (e) {

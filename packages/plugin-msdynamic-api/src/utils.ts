@@ -13,6 +13,80 @@ export const getConfig = async (subdomain, code, defaultValue?) => {
   });
 };
 
+const companyRequest = async (subdomain, action, updateCode, doc) => {
+  const company = await sendContactsMessage({
+    subdomain,
+    action: 'companies.findOne',
+    data: { code: updateCode },
+    isRPC: true,
+    defaultValue: {}
+  });
+
+  if ((action === 'update' && doc.No) || action === 'create') {
+    const document: any = {
+      primaryName: doc?.Name || 'default',
+      code: doc.No,
+      primaryPhone: doc?.Mobile_Phone_No,
+      phones: [doc?.Phone_No],
+      location: doc?.Country_Region_Code === 'MN' ? 'Mongolia' : '',
+      businessType: doc?.Partner_Type === 'Person' ? 'Customer' : 'Partner'
+    };
+
+    if (company) {
+      await sendContactsMessage({
+        subdomain,
+        action: 'companies.updateCompany',
+        data: { _id: company._id, doc: { ...document } },
+        isRPC: true
+      });
+    } else {
+      await sendContactsMessage({
+        subdomain,
+        action: 'companies.createCompany',
+        data: { ...document },
+        isRPC: true
+      });
+    }
+  }
+};
+
+const customerRequest = async (subdomain, action, updateCode, doc) => {
+  const customer = await sendContactsMessage({
+    subdomain,
+    action: 'customers.findOne',
+    data: { code: updateCode },
+    isRPC: true,
+    defaultValue: {}
+  });
+
+  if ((action === 'update' && doc.No) || action === 'create') {
+    const document: any = {
+      primaryName: doc?.Name || 'default',
+      code: doc.No,
+      primaryPhone: doc?.Mobile_Phone_No,
+      phones: [doc?.Phone_No],
+      location: doc?.Country_Region_Code === 'MN' ? 'Mongolia' : '',
+      businessType: doc?.Partner_Type === 'Person' ? 'Customer' : 'Partner'
+    };
+
+    if (customer) {
+      await sendContactsMessage({
+        subdomain,
+        action: 'customers.updateCustomer',
+        data: { _id: customer._id, doc: { ...document } },
+        isRPC: true
+      });
+    } else {
+      await sendContactsMessage({
+        subdomain,
+        action: 'customers.createCustomer',
+        data: { ...document },
+        isRPC: true
+      });
+    }
+  }
+};
+
 export const consumeInventory = async (subdomain, doc, action) => {
   const updateCode = action === 'delete' ? doc.code : doc.No.replace(/\s/g, '');
 
@@ -77,45 +151,58 @@ export const consumeInventory = async (subdomain, doc, action) => {
 export const consumeCustomers = async (subdomain, doc, action) => {
   const updateCode = action === 'delete' ? doc.code : doc.No.replace(/\s/g, '');
 
-  const company = await sendContactsMessage({
-    subdomain,
-    action: 'companies.findOne',
-    data: { code: updateCode },
-    isRPC: true,
-    defaultValue: {}
-  });
+  if (doc?.Partner_Type === 'Company') {
+    companyRequest(subdomain, action, updateCode, doc);
+  }
 
-  if ((action === 'update' && doc.No) || action === 'create') {
-    const document: any = {
-      primaryName: doc?.Name || 'default',
-      code: doc.No,
-      primaryPhone: doc?.Mobile_Phone_No,
-      phones: [doc?.Phone_No],
-      location: doc?.Country_Region_Code === 'MN' ? 'Mongolia' : '',
-      businessType: doc?.Partner_Type === 'Person' ? 'Customer' : 'Partner'
-    };
-
-    if (company) {
-      await sendContactsMessage({
-        subdomain,
-        action: 'companies.updateCompany',
-        data: { _id: company._id, doc: { ...document } },
-        isRPC: true
-      });
+  if (doc?.Partner_Type === 'Person') {
+    if (doc.VAT_Registration_No.length === 7) {
+      companyRequest(subdomain, action, updateCode, doc);
     } else {
+      customerRequest(subdomain, action, updateCode, doc);
+    }
+  }
+
+  if (doc?.Partner_Type === ' ' && doc.VAT_Registration_No) {
+    companyRequest(subdomain, action, updateCode, doc);
+  }
+
+  if (doc?.Partner_Type === ' ' && !doc.VAT_Registration_No) {
+    customerRequest(subdomain, action, updateCode, doc);
+  }
+
+  if (action === 'delete') {
+    const company = await sendContactsMessage({
+      subdomain,
+      action: 'companies.findOne',
+      data: { _id: doc._id },
+      isRPC: true,
+      defaultValue: {}
+    });
+
+    const customer = await sendContactsMessage({
+      subdomain,
+      action: 'customers.findOne',
+      data: { _id: doc._id },
+      isRPC: true,
+      defaultValue: {}
+    });
+
+    if (action === 'delete' && company) {
       await sendContactsMessage({
         subdomain,
-        action: 'companies.createCompany',
-        data: { ...document },
+        action: 'companies.removeCompanies',
+        data: { _ids: [company._id] },
         isRPC: true
       });
     }
-  } else if (action === 'delete' && company) {
-    await sendContactsMessage({
-      subdomain,
-      action: 'companies.removeCompanies',
-      data: { _ids: [company._id] },
-      isRPC: true
-    });
+
+    if (action === 'delete' && customer) {
+      await sendContactsMessage({
+        subdomain,
+        action: 'customers.removeCustomers',
+        data: { customerIds: [customer._id] }
+      });
+    }
   }
 };

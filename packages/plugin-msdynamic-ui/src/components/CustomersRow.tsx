@@ -6,12 +6,12 @@ type Props = {
 };
 
 const CustomersRow = ({ customers, action }: Props) => {
-  const { Name, No, primaryName, code, syncStatus } = customers;
+  const { Name, No, primaryName, firstName, code, syncStatus } = customers;
 
   return (
     <tr>
       <td>{action === 'DELETE' ? code : No}</td>
-      <td>{action === 'DELETE' ? primaryName : Name}</td>
+      <td>{action === 'DELETE' ? primaryName || firstName : Name}</td>
       {action === 'CREATE' ? (
         <td>
           {syncStatus === false ? (
