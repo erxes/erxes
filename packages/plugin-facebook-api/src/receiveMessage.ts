@@ -6,6 +6,7 @@ import { sendInboxMessage } from './messageBroker';
 import { getOrCreateCustomer } from './store';
 import { IChannelData } from './types';
 import { INTEGRATION_KINDS } from './constants';
+import { putCreateLog } from './logUtils';
 
 const receiveMessage = async (
   models: IModels,
@@ -140,6 +141,13 @@ const receiveMessage = async (
       );
     }
   }
+
+  putCreateLog(
+    models,
+    subdomain,
+    { type: 'message', newDate: message, object: conversationMessage },
+    userId
+  );
 };
 
 export default receiveMessage;

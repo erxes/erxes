@@ -10,12 +10,14 @@ module.exports = {
       './src/containers/TagMessageContainer.tsx',
     './inboxConversationDetail':
       './src/containers/post/FbCommentsContainer.tsx',
+    './automation': './src/automations/index.tsx'
   },
   routes: {
     url: 'http://localhost:3017/remoteEntry.js',
     scope: 'facebook',
-    module: './routes',
+    module: './routes'
   },
+  automation: './automation',
   inboxIntegrationSettings: './inboxIntegrationSettings',
   inboxDirectMessage: {
     messagesQuery: {
@@ -81,7 +83,7 @@ module.exports = {
           }
         `,
       name: 'facebookConversationMessages',
-      integrationKind: 'facebook-messenger',
+      integrationKind: 'facebook-messenger'
     },
     countQuery: {
       query: `
@@ -90,8 +92,8 @@ module.exports = {
           }
         `,
       name: 'facebookConversationMessagesCount',
-      integrationKind: 'facebook-messenger',
-    },
+      integrationKind: 'facebook-messenger'
+    }
   },
   inboxIntegrations: [
     {
@@ -105,7 +107,7 @@ module.exports = {
       createUrl: '/settings/integrations/createFacebook',
       category:
         'All integrations, For support teams, Marketing automation, Social media',
-      components: ['inboxConversationDetail'],
+      components: ['inboxConversationDetail']
     },
     {
       name: 'Facebook Messenger',
@@ -119,11 +121,11 @@ module.exports = {
       createUrl: '/settings/integrations/createFacebook',
       category:
         'All integrations, For support teams, Messaging, Social media, Conversation',
-      components: ['inboxConversationDetailRespondBoxMask'],
-    },
+      components: ['inboxConversationDetailRespondBoxMask']
+    }
   ],
   activityLog: './activityLog',
   inboxConversationDetailRespondBoxMask:
     './inboxConversationDetailRespondBoxMask',
-  inboxConversationDetail: './inboxConversationDetail',
+  inboxConversationDetail: './inboxConversationDetail'
 };

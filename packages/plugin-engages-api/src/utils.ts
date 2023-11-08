@@ -24,9 +24,16 @@ export const createTransporter = async (models: IModels) => {
   try {
     AWS.config.update(config);
 
-    return nodemailer.createTransport({
-      SES: new AWS.SES({ apiVersion: '2010-12-01' })
-    });
+    try {
+      const SES = new AWS.SES({ apiVersion: '2010-12-01' });
+
+      return nodemailer.createTransport({
+        SES
+      });
+    } catch (error) {
+      debugError(`Error during create transporter: ${error.message}`);
+      throw new Error(error.message);
+    }
   } catch (error) {
     debugError(`Error during create transporter: ${error.message}`);
     throw new Error(error.message);
@@ -67,7 +74,9 @@ export const getEnv = ({
 export const subscribeEngage = (models: IModels) => {
   return new Promise(async (resolve, reject) => {
     const snsApi = await getApi(models, 'sns');
-    const sesApi = await getApi(models, 'ses');
+    const sesApi = await getApi(models, 'ses').catch(err => {
+      debugError(`Error during get api: ${err.message}`);
+    });
     const configSet = await getConfig(models, 'configSet', 'erxes');
 
     const DOMAIN = getEnv({ name: 'DOMAIN' });

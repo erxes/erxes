@@ -6,6 +6,7 @@ import { getSubdomain } from '@erxes/api-utils/src/core';
 import { generateModels } from './connectionResolver';
 import initApp from './initApp';
 import { INTEGRATION_KINDS } from './constants';
+import automations from './automations';
 
 export let mainDb;
 export let debug;
@@ -23,6 +24,7 @@ export default {
     };
   },
   meta: {
+    automations,
     inboxIntegrations: [
       {
         kind: INTEGRATION_KINDS.MESSENGER,
