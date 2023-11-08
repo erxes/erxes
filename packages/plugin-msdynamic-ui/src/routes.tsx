@@ -1,39 +1,45 @@
-import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
-import React from 'react';
-import { Route } from 'react-router-dom';
-import queryString from 'query-string';
+import asyncComponent from "@erxes/ui/src/components/AsyncComponent";
+import React from "react";
+import { Route } from "react-router-dom";
+import queryString from "query-string";
 
-const GeneralSettings = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "List - Msdynamics" */ './containers/GeneralSettings'
-  )
+const GeneralSettings = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "List - Msdynamics" */ "./containers/GeneralSettings"
+    )
 );
 
-const SyncHistoryList = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "CheckSyncedDeals" */ './containers/SyncHistoryList'
-  )
+const SyncHistoryList = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "CheckSyncedDeals" */ "./containers/SyncHistoryList"
+    )
 );
 
-const InventoryProducts = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "InventoryProducts" */ './containers/InventoryProducts'
-  )
+const InventoryProducts = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "InventoryProducts" */ "./containers/InventoryProducts"
+    )
 );
 
-const InventoryPrices = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "InventoryProducts" */ './containers/InventoryPrice'
-  )
+const InventoryPrices = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "InventoryProducts" */ "./containers/InventoryPrice"
+    )
 );
 
-const InventoryCategory = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "InventoryProducts" */ './containers/InventoryCategory'
-  )
+const InventoryCategory = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "InventoryProducts" */ "./containers/InventoryCategory"
+    )
 );
-const Customers = asyncComponent(() =>
-  import(/* webpackChunkName: "InventoryProducts" */ './containers/Customers')
+const Customers = asyncComponent(
+  () =>
+    import(/* webpackChunkName: "InventoryProducts" */ "./containers/Customers")
 );
 
 const msdynamics = ({ history }) => {
