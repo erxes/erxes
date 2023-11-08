@@ -20,6 +20,14 @@ export interface IReport {
   visibility?: ReportVisibility;
 }
 
+export interface IReportItem {
+  _id: string;
+  reportId: string;
+  layout: any;
+  vizState: any;
+  name: string;
+}
+
 enum ReportVisibility {
   public = 'public',
   private = 'private'
@@ -63,6 +71,12 @@ export type ReportsMutationResponse = {
   reportsRemoveManyMutation: (params: {
     variables: { ids: string[] };
   }) => Promise<any>;
+};
+
+export type ReportDetailQueryResponse = {
+  reportDetail: IReport;
+  refetch: () => void;
+  loading: boolean;
 };
 
 export type ReportTemplatesListQueryResponse = {

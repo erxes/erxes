@@ -20,11 +20,15 @@ const userFields = `
 
 const commonParams = `
 $searchValue: String
+$perPage: Int
+$page: Int
 
 `;
 
 const commonParamsDef = `
 searchValue: $searchValue
+perPage: $perPage
+page: $page
 `;
 
 const reportsList = `
@@ -90,9 +94,45 @@ query reportChartTemplatesList($serviceName: String!, $charts: [String]) {
 }
 `;
 
+const reportDetail = `
+  query reportDetail($reportId: String!) {
+    reportDetail(reportId: $reportId) {
+      _id
+        name
+        visibility
+        createdAt
+        createdBy{
+          ${userFields}
+        }
+        updatedAt
+        updatedBy{
+          ${userFields}
+        }
+        charts {
+          name
+          contentType
+          template
+          order
+          chartType
+          filters {
+            fieldName
+            filterValue
+            filterType
+          }
+          defaultFilter {
+            fieldName
+            filterValue
+            filterType
+          }
+        }
+    }
+  }
+`;
 export default {
   reportsList,
   totalCount,
+
   reportTemplatesList,
-  reportChartTemplatesList
+  reportChartTemplatesList,
+  reportDetail
 };

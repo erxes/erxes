@@ -5,6 +5,7 @@ import { colors, dimensions } from '@erxes/ui/src/styles';
 import { FlexContent } from '@erxes/ui/src/layout/styles';
 import { lighten } from '@erxes/ui/src/styles/ecolor';
 import { ActionButtons } from '@erxes/ui-settings/src/styles';
+import { RightMenuContainer } from '@erxes/ui-cards/src/boards/styles/rightMenu';
 
 const ReactGridLayout = WidthProvider(RGL);
 
@@ -368,6 +369,64 @@ const SideList = styledTS<{
   }
 `;
 
+const ActionFooter = styled.div`
+  padding: ${dimensions.unitSpacing}px;
+  bottom: ${dimensions.coreSpacing}px;
+`;
+
+const FormContainer = styled.div`
+  background-image: radial-gradient(
+    ${colors.bgActive} 20%,
+    ${colors.colorWhite} 20%
+  );
+  padding: 2rem;
+  background-size: 10px 10px;
+  height: 100% !important;
+`;
+
+const FormChart = styled.div`
+  width: calc(100% - 500px);
+  background: white;
+
+  box-shadow: 1px 4px 16px rgba(141, 149, 166, 0.1);
+  border: 2px solid transparent;
+  border-radius: 4px;
+  padding: 2rem;
+`;
+
+const RightDrawerContainer = styled(RightMenuContainer)`
+  background: ${colors.colorWhite};
+  width: 500px;
+  padding: ${dimensions.unitSpacing}px;
+  z-index: 10;
+`;
+
+const Description = styled.div`
+  margin: ${dimensions.coreSpacing}px ${dimensions.unitSpacing}px
+    ${dimensions.unitSpacing}px;
+
+  h4 {
+    margin: 0;
+    font-size: 16px;
+  }
+
+  > p {
+    margin: ${dimensions.unitSpacing - 5}px 0 0 0;
+    color: ${colors.colorCoreGray};
+  }
+`;
+
+const ScrolledContent = styled.div`
+  flex: 1;
+  overflow: auto;
+`;
+
+const DrawerDetail = styled.div`
+  padding: ${dimensions.coreSpacing}px;
+  border: 1px solid ${colors.borderPrimary};
+  border-radius: 5px;
+`;
+
 export {
   DragField,
   CenterBar,
@@ -381,5 +440,12 @@ export {
   ReportsTemplatesSection,
   FlexCenter,
   MenuFooter,
-  SideList
+  SideList,
+  ActionFooter,
+  FormContainer,
+  FormChart,
+  RightDrawerContainer,
+  Description,
+  ScrolledContent,
+  DrawerDetail
 };

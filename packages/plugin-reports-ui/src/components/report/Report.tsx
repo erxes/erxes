@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { IChart, IReport } from '../../types';
+import { IChart, IReport, IReportItem } from '../../types';
 import { Tabs, TabTitle } from '@erxes/ui/src/components/tabs';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { __ } from '@erxes/ui/src/utils';
+import { __, confirm } from '@erxes/ui/src/utils';
 import PageContent from '@erxes/ui/src/layout/components/PageContent';
 import {
   ActionBarButtonsWrapper,
@@ -12,7 +12,6 @@ import {
   Title
 } from '../../styles';
 import { Link } from 'react-router-dom';
-import { ChartTitle } from '../../../../plugin-dashboard-ui/src/styles';
 import Chart from '../chart/Chart';
 import { BarItems, FlexContent } from '@erxes/ui/src/layout/styles';
 import { Button, FormControl, Icon } from '@erxes/ui/src/components';
@@ -34,21 +33,58 @@ const defaultLayout = i => ({
 
 type Props = {
   report: IReport;
+  reportItems: IReportItem[];
+  history: any;
+  queryParams: any;
+  reportsEdit: (reportId: string, values: any) => void;
 };
+
 const Report = (props: Props) => {
-  const { report } = props;
+  const { report, reportsEdit, history } = props;
   const { charts } = report;
   const [isPublic, setIsPublic] = useState(report.visibility === 'public');
+  const [name, setName] = useState(report.name || '');
+  const [visibility, setVisibility] = useState(report.visibility);
+
+  const [showChatForm, setShowChatForm] = useState(false);
+
+  const onNameChange = e => {
+    e.preventDefault();
+
+    setName(e.target.value);
+  };
+  const toggleChartForm = () => {
+    setShowChatForm(!showChatForm);
+  };
+
+  const renderButtons = () => {
+    return (
+      <>
+        <Button
+          btnStyle="primary"
+          size="small"
+          icon="plus-circle"
+          onClick={toggleChartForm}
+        >
+          Add a chart
+        </Button>
+      </>
+    );
+  };
+
+  const checkNameChange = () => {
+    return name !== report.name;
+  };
 
   const reportItem = (item: IChart) => {
     if (item.layout) {
       return (
         <div key={item._id} data-grid={defaultLayout(item)}>
-          <ChartTitle>
+          <div>
             <div>{item.name}</div>
             <span className="db-item-action">edit</span>
             <span className="db-item-action">delete</span>
-          </ChartTitle>
+          </div>
           <Chart chart={item} name={item.name} />
         </div>
       );
@@ -56,19 +92,28 @@ const Report = (props: Props) => {
     return;
   };
 
+  const handleBackButtonClick = () => {
+    if (checkNameChange()) {
+      confirm('Do you want to save the change').then(() =>
+        reportsEdit(report._id, { name })
+      );
+
+      history.push('/reports');
+    } else {
+      history.push('/reports');
+    }
+  };
   const renderLeftActionBar = () => {
     return (
       <FlexContent>
-        <Link to={`/dashboard`}>
-          <BackButton>
-            <Icon icon="angle-left" size={20} />
-          </BackButton>
-        </Link>
+        <BackButton onClick={handleBackButtonClick}>
+          <Icon icon="angle-left" size={20} />
+        </BackButton>
         <Title>
           <FormControl
             name="name"
             value={name}
-            // onChange={onNameChange}
+            onChange={onNameChange}
             required={true}
             autoFocus={true}
           />
@@ -123,7 +168,7 @@ const Report = (props: Props) => {
         ) : null}
 
         <ActionBarButtonsWrapper>
-          {/* {renderButtons()} */}
+          {renderButtons()}
           <Button
             btnStyle="success"
             size="small"

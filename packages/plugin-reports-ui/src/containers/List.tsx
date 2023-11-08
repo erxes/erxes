@@ -1,12 +1,15 @@
+import React from 'react';
 import { gql } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
+import { withRouter } from 'react-router-dom';
+import { IRouterProps } from '@erxes/ui/src/types';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { Alert, __, confirm, withProps } from '@erxes/ui/src/utils';
 import * as compose from 'lodash.flowright';
-import React from 'react';
 import List from '../components/List';
 import { mutations, queries } from '../graphql';
 import { ReportsListQueryResponse, ReportsMutationResponse } from '../types';
+import { generatePaginationParams } from '@erxes/ui/src/utils/router';
 
 type Props = {
   history: any;
@@ -19,7 +22,17 @@ type Props = {
 type FinalProps = {
   reportsListQuery: ReportsListQueryResponse;
 } & Props &
+  IRouterProps &
   ReportsMutationResponse;
+
+const generateParams = queryParams => {
+  return {
+    ...generatePaginationParams(queryParams),
+    searchValue: queryParams.searchValue,
+    tag: queryParams.tag,
+    departmentId: queryParams.departmentId
+  };
+};
 
 const ListContainer = (props: FinalProps) => {
   const {
@@ -67,7 +80,7 @@ export default withProps<Props>(
       {
         name: 'reportsListQuery',
         options: ({ queryParams }) => ({
-          variables: { searchValue: queryParams.searchValue || '' },
+          variables: generateParams(queryParams),
           fetchPolicy: 'network-only'
         })
       }
@@ -83,5 +96,5 @@ export default withProps<Props>(
         })
       }
     )
-  )(ListContainer)
+  )(withRouter<IRouterProps>(ListContainer))
 );

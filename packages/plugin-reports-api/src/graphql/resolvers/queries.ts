@@ -18,8 +18,8 @@ const reportsQueries = {
     return { list, totalCount };
   },
 
-  reportDetail(_root, { _id }, { models }: IContext) {
-    return models.Reports.getReport(_id);
+  reportDetail(_root, { reportId }, { models }: IContext) {
+    return models.Reports.getReport(reportId);
   },
 
   // return total templates list from available services

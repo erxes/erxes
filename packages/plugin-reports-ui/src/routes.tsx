@@ -2,6 +2,7 @@ import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 import queryString from 'query-string';
 import React from 'react';
 import { Route } from 'react-router-dom';
+import Report from './containers/report/Report';
 
 const List = asyncComponent(() =>
   import(/* webpackChunkName: "List - Reportss" */ './containers/List')
@@ -18,7 +19,7 @@ const ReportForm = asyncComponent(() =>
   import('./containers/report/ReportForm')
 );
 
-const dashboardDetail = ({ location, history }) => {
+const reportForm = ({ location, history }) => {
   return (
     <ReportForm
       history={history}
@@ -27,15 +28,29 @@ const dashboardDetail = ({ location, history }) => {
   );
 };
 
+const reportDetail = ({ match, location, history }) => {
+  const reportId = match.params.id;
+  const queryParams = queryString.parse(location.search);
+
+  const props = { reportId, queryParams, history };
+  return <Report {...props} />;
+};
+
 const routes = () => {
   return (
     <>
       <Route path="/reports" exact={true} component={reports} />
       <Route
-        key="/reports/details"
+        key="/reports/details/create-report"
         exact={true}
         path="/reports/details/create-report"
-        component={dashboardDetail}
+        component={reportForm}
+      />
+      <Route
+        key="/reports/details/:id"
+        exact={true}
+        path="/reports/details/:id"
+        component={reportDetail}
       />
     </>
   );

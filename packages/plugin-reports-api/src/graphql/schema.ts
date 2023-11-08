@@ -85,6 +85,8 @@ export const types = `
 
 const queryParams = `
   searchValue: String
+  perPage: Int
+  page: Int
   departmentId: String
 `;
 

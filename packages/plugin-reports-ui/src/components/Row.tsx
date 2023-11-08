@@ -11,6 +11,7 @@ import {
 } from '@erxes/ui/src/components';
 import { FlexCenter } from '@erxes/ui/src/styles/main';
 import { __ } from '@erxes/ui/src/utils';
+import { Link } from 'react-router-dom';
 import * as dayjs from 'dayjs';
 
 type Props = {
@@ -26,6 +27,17 @@ const Row = (props: Props) => {
 
   const { updatedBy, createdBy } = report;
 
+  const editAction = () => {
+    return (
+      <Link to={`/reports/details/${report._id}`}>
+        <Button btnStyle="link">
+          <Tip text={__('Edit')} placement="top">
+            <Icon icon="edit-3" />
+          </Tip>
+        </Button>
+      </Link>
+    );
+  };
   const removeAction = () => {
     const onRemove = () => removeReports([report._id]);
 
@@ -47,6 +59,10 @@ const Row = (props: Props) => {
     }
   };
 
+  const onNameClick = () => {
+    history.push(`/reports/details/${report._id}`);
+  };
+
   const returnFormattedDateTime = (dateVal: Date) => {
     const date = dayjs(dateVal).format('DD/MM/YYYY');
     const time = dayjs(dateVal).format('HH:mm');
@@ -64,7 +80,7 @@ const Row = (props: Props) => {
         />
       </td>
 
-      <td>{report.name}</td>
+      <td onClick={onNameClick}>{report.name}</td>
 
       <td className="text-primary">
         <Icon icon="swatchbook" /> <b>{report.chartsCount || 0}</b>
@@ -102,7 +118,10 @@ const Row = (props: Props) => {
       </td>
 
       <td>
-        <ActionButtons>{removeAction()}</ActionButtons>
+        <ActionButtons>
+          {editAction()}
+          {removeAction()}
+        </ActionButtons>
       </td>
     </tr>
   );

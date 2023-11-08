@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { Title } from '@erxes/ui-settings/src/styles';
 import { FormControl } from '@erxes/ui/src/components';
-import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
+import withTableWrapper from '@erxes/ui/src/components/table/withTableWrapper';
+import { withRouter } from 'react-router-dom';
+import { IRouterProps } from '@erxes/ui/src/types';
 import Button from '@erxes/ui/src/components/Button';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import Table from '@erxes/ui/src/components/table';
@@ -24,10 +26,11 @@ type Props = {
   loading: boolean;
 
   queryParams: any;
-  history: any;
 };
 
-function List(props: Props) {
+type FinalProps = Props & IRouterProps;
+
+function List(props: FinalProps) {
   const { reports, loading, history, queryParams, removeReports } = props;
   const [searchValue, setSearchvalue] = useState(queryParams.searchValue || '');
   const [chosenReportIds, setChosenReportIds] = useState<any>([]);
@@ -198,4 +201,4 @@ function List(props: Props) {
   );
 }
 
-export default List;
+export default withTableWrapper('Dashboard', withRouter<IRouterProps>(List));
