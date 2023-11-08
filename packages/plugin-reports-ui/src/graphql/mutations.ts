@@ -80,6 +80,19 @@ mutation reportsRemoveMany($ids: [String]!) {
   reportsRemoveMany(ids: $ids)
 }`;
 
+const reportsEdit = `
+mutation reportsEdit($_id: String!, ${report_params}) {
+  reportsEdit(_id: $_id, ${report_params_def}) {
+    name
+    visibility
+    assignedUserIds
+    assignedDepartmentIds
+    tagIds
+  }
+}
+
+`;
+
 export default {
   add,
   remove,
@@ -88,5 +101,6 @@ export default {
   removeType,
   editType,
   reportsAdd,
-  reportsRemoveMany
+  reportsRemoveMany,
+  reportsEdit
 };

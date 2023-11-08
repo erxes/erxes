@@ -123,13 +123,13 @@ const Report = (props: Props) => {
         <CenterBar>
           <Tabs full={true}>
             <TabTitle
-              className={isPublic ? 'public' : ''}
+              className={isPublic ? 'active' : ''}
               // onClick={switchVisiblitybarTab.bind(this, 'public')}
             >
               {__('Public')}
             </TabTitle>
             <TabTitle
-              className={isPublic ? '' : 'public'}
+              className={isPublic ? '' : 'active'}
               // onClick={switchVisiblitybarTab.bind(this, 'private')}
             >
               {__('Private')}

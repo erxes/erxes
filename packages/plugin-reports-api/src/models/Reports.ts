@@ -34,6 +34,11 @@ export const loadReportClass = (models: IModels) => {
     }
     // update
     public static async updateReport(_id: string, doc: IReport) {
+      const report = await models.Reports.findOne({ _id });
+      if (!report) {
+        throw new Error('Report not found');
+      }
+
       return models.Reports.updateOne({ _id }, { $set: { ...doc } });
     }
     // remove

@@ -1,11 +1,14 @@
 import { gql } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
 import Spinner from '@erxes/ui/src/components/Spinner';
-import { withProps } from '@erxes/ui/src/utils';
+import { Alert, withProps } from '@erxes/ui/src/utils';
 import * as compose from 'lodash.flowright';
 import React from 'react';
-import { queries } from '../../graphql';
-import { ReportDetailQueryResponse } from '../../types';
+import { mutations, queries } from '../../graphql';
+import {
+  ReportDetailQueryResponse,
+  ReportsMutationResponse
+} from '../../types';
 import Report from '../../components/report/Report';
 
 type Props = {
@@ -16,20 +19,43 @@ type Props = {
 
 type FinalProps = {
   reportDetailQuery: ReportDetailQueryResponse;
-} & Props;
+} & Props &
+  ReportsMutationResponse;
 const ReportList = (props: FinalProps) => {
-  const { reportDetailQuery, reportId } = props;
+  const { reportDetailQuery, reportId, reportsEditMutation } = props;
 
   console.log('reportId ', reportId);
   if (reportDetailQuery.loading) {
     return <Spinner />;
   }
 
-  return <Report report={reportDetailQuery?.reportDetail} {...props} />;
+  const reportsEdit = (_id: string, values: any) => {
+    reportsEditMutation({ variables: { _id, ...values } })
+      .then(() => {
+        Alert.success('Successfully edited report');
+      })
+      .catch(err => Alert.error(err.message));
+  };
+
+  return (
+    <Report
+      report={reportDetailQuery?.reportDetail}
+      reportsEdit={reportsEdit}
+      {...props}
+    />
+  );
 };
 
 export default withProps<Props>(
   compose(
+    graphql<Props, any>(gql(mutations.reportsEdit), {
+      name: 'reportsEditMutation',
+      options: variables => ({
+        variables,
+        fetchPolicy: 'network-only',
+        refetchQueries: ['reportsList']
+      })
+    }),
     graphql<Props, any, { reportId: string }>(gql(queries.reportDetail), {
       name: 'reportDetailQuery',
       options: ({ reportId }) => ({

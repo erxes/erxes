@@ -113,6 +113,7 @@ export const params = `
 `;
 
 const chart_params = `
+  reportId: String!
   order: Int
 `;
 
@@ -129,7 +130,7 @@ export const mutations = `
   reportsRemove(_id: String!): JSON
   reportsRemoveMany(ids: [String]!): JSON 
    
-  reportsEdit(_id:String!, ${params}): Report
+  reportsEdit(_id:String!, ${report_params}): Report
 
   reportChartsAdd(${chart_params}): ReportChart
   reportChartsRemove(_id: String!): JSON

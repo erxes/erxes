@@ -71,6 +71,10 @@ export type ReportsMutationResponse = {
   reportsRemoveManyMutation: (params: {
     variables: { ids: string[] };
   }) => Promise<any>;
+
+  reportsEditMutation: (params: {
+    variables: MutationVariables;
+  }) => Promise<any>;
 };
 
 export type ReportDetailQueryResponse = {
