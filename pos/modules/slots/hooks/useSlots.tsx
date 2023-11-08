@@ -1,11 +1,18 @@
-import { useQuery } from "@apollo/client"
+import { useCallback } from "react"
+import { gql, useQuery } from "@apollo/client"
 
-import { queries } from "../graphql"
+import { queries, subscriptions } from "../graphql"
 
 const useSlots = () => {
-  const { data, loading } = useQuery(queries.slots)
+  const { data, loading, subscribeToMore } = useQuery(queries.slots)
   const { poscSlots: slots } = data || {}
-  return { slots, loading }
+
+  const subToSlots = useCallback(
+    () => subscribeToMore({ document: gql(subscriptions.slotsStatusUpdated) }),
+    [subscribeToMore]
+  )
+
+  return { slots, loading, subToSlots }
 }
 
 export default useSlots

@@ -98,6 +98,12 @@ export const types = `
     details: PosUserDetailsType
   }
 
+  type PosclientSlot {
+    _id: String
+    code: String
+    status: String
+  }
+
   type Order {
     ${orderTypeFields}
   }
