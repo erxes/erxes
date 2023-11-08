@@ -16,4 +16,6 @@ export const mutations = `
   toSyncProducts(action: String, products: [JSON]): JSON
   toCheckCustomers: JSON
   toSyncCustomers(action: String, customers: [JSON]): JSON
+  toSendCustomers(customers: [JSON]): JSON
+  toSendDeals(deals: [JSON]): JSON
 `;
