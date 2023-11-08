@@ -5,6 +5,7 @@ import dynamic from "next/dynamic"
 import { currentUserAtom } from "@/modules/JotaiProiveder"
 import { IUser } from "@/modules/auth/types"
 import { useFeedDetail } from "@/modules/feed/hooks/useFeedDetail"
+import { isNonNullObject } from "@apollo/client/utilities"
 import dayjs from "dayjs"
 import { useAtomValue } from "jotai"
 import {
@@ -94,8 +95,6 @@ const EventItem = ({ postId }: { postId: string }): JSX.Element => {
   if (loadingReactedUsers) {
     return <div />
   }
-
-  const user = feed.createdUser || ({} as IUser)
 
   const idExists = emojiReactedUser.some(
     (item: any) => item._id === currentUser._id
@@ -233,8 +232,7 @@ const EventItem = ({ postId }: { postId: string }): JSX.Element => {
           </div>
         </PopoverTrigger>
         <PopoverContent className="w-40 p-3">
-          {feed.contentType === "event" &&
-          new Date(feed.eventData?.endDate || "") < new Date() ? null : (
+          {new Date(feed.eventData?.endDate || "") < new Date() ? null : (
             <div
               className="hover:bg-[#F0F0F0] p-2 rounded-md cursor-pointer text-[#444] text-xs flex items-center"
               onClick={() => pinFeed(feed._id)}
@@ -249,18 +247,12 @@ const EventItem = ({ postId }: { postId: string }): JSX.Element => {
               </span>
             </div>
           )}
-
-          {currentUser.isOwner || currentUser._id === user._id ? (
-            <div className="hover:bg-[#F0F0F0] p-2 rounded-md cursor-pointer text-[#444] text-xs">
-              {editAction()}
-            </div>
-          ) : null}
-
-          {currentUser.isOwner || currentUser._id === user._id ? (
-            <div className="hover:bg-[#F0F0F0] p-2 rounded-md cursor-pointer text-xs">
-              {deleteAction()}
-            </div>
-          ) : null}
+          <div className="hover:bg-[#F0F0F0] p-2 rounded-md cursor-pointer text-[#444] text-xs">
+            {editAction()}
+          </div>
+          <div className="hover:bg-[#F0F0F0] p-2 rounded-md cursor-pointer text-xs">
+            {deleteAction()}
+          </div>
         </PopoverContent>
       </Popover>
     )
@@ -326,20 +318,56 @@ const EventItem = ({ postId }: { postId: string }): JSX.Element => {
     )
   }
 
+  const renderImage = () => {
+    if (!feed.images || feed.images.length === 0) {
+      return null
+    }
+
+    return (
+      <div className="overflow-hidden rounded-[10px] h-[150px] w-[150px] mr-[20px] shrink-0">
+        <FilePreview
+          attachments={[feed.images[0]]}
+          fileUrl={feed.images[0].url}
+          fileIndex={0}
+        />
+      </div>
+    )
+  }
+
+  const renderSeeMore = () => {
+    if (seeMore || updatedDescription.length < 60) {
+      return null
+    }
+
+    return (
+      <span
+        className="text-primary cursor-pointer"
+        onClick={() => setSeeMore(true)}
+      >
+        {" "}
+        see more...
+      </span>
+    )
+  }
+
+  const renderComments = () => {
+    if (!comments || comments.length === 0) {
+      return null
+    }
+
+    return (
+      <div className="border-t mt-3">
+        <CommentItem comment={comments[0]} currentUserId={currentUser._id} />
+      </div>
+    )
+  }
+
   return (
     <>
       <Card className="max-w-2xl mx-auto my-4 border-0 p-4">
         <CardContent className="p-0 flex items-start justify-between">
           <div className="flex">
-            {feed.images && feed.images.length > 0 && (
-              <div className="overflow-hidden rounded-[10px] h-[150px] w-[150px] mr-[20px] shrink-0">
-                <FilePreview
-                  attachments={[feed.images[0]]}
-                  fileUrl={feed.images[0].url}
-                  fileIndex={0}
-                />
-              </div>
-            )}
+            {renderImage()}
             <div>
               <div className="overflow-x-hidden">
                 <p className="text-black font-semibold mb-2">{feed.title}</p>
@@ -351,15 +379,7 @@ const EventItem = ({ postId }: { postId: string }): JSX.Element => {
                   >
                     {updatedDescription}
                   </span>
-                  {!seeMore && updatedDescription.length > 60 && (
-                    <span
-                      className="text-primary cursor-pointer"
-                      onClick={() => setSeeMore(true)}
-                    >
-                      {" "}
-                      see more...
-                    </span>
-                  )}
+                  {renderSeeMore()}
                 </p>
               </div>
               {renderEventInfo()}
@@ -389,14 +409,7 @@ const EventItem = ({ postId }: { postId: string }): JSX.Element => {
           </div>
           {renderComment()}
         </CardFooter>
-        {comments && comments.length > 0 && (
-          <div className="border-t mt-3">
-            <CommentItem
-              comment={comments[0]}
-              currentUserId={currentUser._id}
-            />
-          </div>
-        )}
+        {renderComments()}
       </Card>
     </>
   )
