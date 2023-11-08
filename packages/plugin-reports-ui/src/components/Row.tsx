@@ -11,6 +11,7 @@ import {
 } from '@erxes/ui/src/components';
 import { FlexCenter } from '@erxes/ui/src/styles/main';
 import { __ } from '@erxes/ui/src/utils';
+import * as dayjs from 'dayjs';
 
 type Props = {
   report: IReport;
@@ -46,6 +47,13 @@ const Row = (props: Props) => {
     }
   };
 
+  const returnFormattedDateTime = (dateVal: Date) => {
+    const date = dayjs(dateVal).format('DD/MM/YYYY');
+    const time = dayjs(dateVal).format('HH:mm');
+
+    return `${date} ${time}`;
+  };
+
   return (
     <tr>
       <td>
@@ -76,13 +84,17 @@ const Row = (props: Props) => {
       <td>
         <Icon icon="calendar" />
         <span>
-          {report.updatedAt ? report.updatedAt.toLocaleString() : '-'}
+          {report.updatedAt
+            ? returnFormattedDateTime(new Date(report.updatedAt))
+            : '-'}
         </span>
       </td>
       <td>
         <Icon icon="calendar" />
         <span>
-          {report.createdAt ? report.createdAt.toLocaleString() : '-'}
+          {report.createdAt
+            ? returnFormattedDateTime(new Date(report.createdAt))
+            : '-'}
         </span>
       </td>
       <td>

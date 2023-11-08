@@ -4,12 +4,13 @@ import { isEnabled } from '@erxes/ui/src/utils/core';
 import TagFilter from '../containers/filters/TagFilter';
 import DepartmentFilter from '../containers/filters/DepartmentFilter';
 
-function Sidebar() {
+type Props = {};
+function Sidebar(props: any) {
   return (
     <Wrapper.Sidebar hasBorder>
       {isEnabled('tags') && <TagFilter />}
 
-      {/* <DepartmentFilter /> */}
+      <DepartmentFilter />
     </Wrapper.Sidebar>
   );
 }

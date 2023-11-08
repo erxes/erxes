@@ -60,7 +60,9 @@ export type ReportsListQueryResponse = {
 };
 
 export type ReportsMutationResponse = {
-  removeReportsMutation: (params: { reportIds: string[] }) => Promise<any>;
+  reportsRemoveManyMutation: (params: {
+    variables: { ids: string[] };
+  }) => Promise<any>;
 };
 
 export type ReportTemplatesListQueryResponse = {

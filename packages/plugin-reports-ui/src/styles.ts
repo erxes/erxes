@@ -3,6 +3,8 @@ import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 import { colors, dimensions } from '@erxes/ui/src/styles';
 import { FlexContent } from '@erxes/ui/src/layout/styles';
+import { lighten } from '@erxes/ui/src/styles/ecolor';
+import { ActionButtons } from '@erxes/ui-settings/src/styles';
 
 const ReactGridLayout = WidthProvider(RGL);
 
@@ -295,6 +297,77 @@ const MenuFooter = styled.footer`
   padding: 10px 20px;
 `;
 
+const SidebarListItem = styledTS<{ isActive: boolean }>(styled.li)`
+  position: relative;
+  border-bottom: 1px solid ${colors.borderPrimary};
+  background: ${props => props.isActive && colors.bgActive};
+  overflow: hidden;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-right: 20px;
+  a {
+    white-space: normal;
+    flex: 1;
+    padding: 10px 0 10px 20px;
+    font-weight: 500;
+    &:hover {
+      background: none;
+    }
+    &:focus {
+      color: inherit;
+      text-decoration: none;
+    }
+    > span {
+      color: #666;
+      font-weight: normal;
+    }
+  }
+  &:last-child {
+    border: none;
+  }
+  &:hover {
+    cursor: pointer;
+    background: ${props => !props.isActive && colors.bgLight};
+    ${ActionButtons} {
+      width: 35px;
+    }
+  }
+`;
+
+const SideList = styledTS<{
+  isActive?: boolean;
+  level?: number;
+}>(styled(SidebarListItem))`
+  white-space: normal !important;
+  border: 0;
+  padding-left: ${props => `${(props.level || 0) * 30 + 20}px !important`};
+
+  > span {
+    width: 90%;
+    display: flex;
+    color: ${props => props.isActive && colors.colorPrimary};
+
+    &:hover {
+      color: ${props => !props.isActive && lighten(colors.textPrimary, 40)};
+    }
+
+    > i {
+      margin-right: 5px;
+      color: ${props =>
+        props.isActive
+          ? colors.colorPrimary
+          : !props.level || props.level === 0
+          ? colors.colorCoreBlue
+          : colors.colorCoreGreen};
+    }
+  }
+
+  &:hover {
+    background: ${props => !props.isActive && colors.bgLight};
+  }
+`;
+
 export {
   DragField,
   CenterBar,
@@ -307,5 +380,6 @@ export {
   ReportsSearchSection,
   ReportsTemplatesSection,
   FlexCenter,
-  MenuFooter
+  MenuFooter,
+  SideList
 };

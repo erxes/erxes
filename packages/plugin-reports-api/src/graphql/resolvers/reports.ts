@@ -14,5 +14,22 @@ export default {
     } catch (error) {
       return new Error(`Invalid ${error.path}: ${error.value}`);
     }
+  },
+  createdBy(report: IReportDocument) {
+    return (
+      report.createdBy && {
+        __typename: 'User',
+        _id: report.createdBy
+      }
+    );
+  },
+
+  updatedBy(report: IReportDocument) {
+    return (
+      report.updatedBy && {
+        __typename: 'User',
+        _id: report.updatedBy
+      }
+    );
   }
 };

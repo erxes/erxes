@@ -2,7 +2,7 @@ import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
 import { graphql } from '@apollo/client/react/hoc';
 import { Alert, confirm, withProps } from '@erxes/ui/src/utils';
-import SideBar from '../components/SideBar';
+import SideBarComponent from '../components/SideBar';
 import {
   EditTypeMutationResponse,
   RemoveTypeMutationResponse,
@@ -20,27 +20,28 @@ type Props = {
 };
 
 type FinalProps = {
-  listReportsTypeQuery: TypeQueryResponse;
+  listReportsTypeQuery?: TypeQueryResponse;
 } & Props &
   RemoveTypeMutationResponse &
   EditTypeMutationResponse;
 
-const TypesListContainer = (props: FinalProps) => {
+const SideBar = (props: FinalProps) => {
   const { listReportsTypeQuery, typesEdit, typesRemove, history } = props;
 
   const updatedProps = {
     ...props
   };
 
-  return <SideBar {...updatedProps} />;
+  return <SideBarComponent {...updatedProps} />;
 };
 
-export default withProps<Props>(
-  compose()(TypesListContainer)
-  // graphql(gql(mutations.removeType), {
-  //   name: 'typesRemove',
-  //   options: () => ({
-  //     refetchQueries: ['listReportsTypeQuery']
-  //   })
-  // })
-);
+export default SideBar;
+// export default withProps<Props>(
+//   compose()(TypesListContainer)
+// graphql(gql(mutations.removeType), {
+//   name: 'typesRemove',
+//   options: () => ({
+//     refetchQueries: ['listReportsTypeQuery']
+//   })
+// })
+// );

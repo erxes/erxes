@@ -14,36 +14,43 @@ import Row from './Row';
 import { isEnabled } from '@erxes/ui/src/utils/core';
 import TaggerPopover from '@erxes/ui-tags/src/components/TaggerPopover';
 import { TAG_TYPES } from '@erxes/ui-tags/src/constants';
-import SideBar from '../containers/SideBarList';
+import SideBar from '../containers/SideBar';
 // import SideBar from './SideBar';
 type Props = {
   reports: IReport[];
   renderButton?: (props: IButtonMutateProps) => JSX.Element;
-  removeReports: (reportIds: string[]) => void;
+  removeReports: (reportIds: string[], callback: any) => void;
   editReport?: (report: IReport) => void;
   loading: boolean;
+
+  queryParams: any;
   history: any;
 };
 
 function List(props: Props) {
-  const { reports, loading, history } = props;
-  const [searchValue, setSearchvalue] = useState(null);
+  const { reports, loading, history, queryParams, removeReports } = props;
+  const [searchValue, setSearchvalue] = useState(queryParams.searchValue || '');
   const [chosenReportIds, setChosenReportIds] = useState<any>([]);
 
-  let timer: NodeJS.Timer;
+  const [timer, setTimer] = useState<NodeJS.Timer>(undefined);
+
+  // let timer: NodeJS.Timer;
 
   const search = e => {
     if (timer) {
       clearTimeout(timer);
+      setTimer(undefined);
     }
 
     const value = e.target.value;
     setSearchvalue(value);
 
-    timer = setTimeout(() => {
-      router.removeParams(history, 'page');
-      router.setParams(history, { searchValue: value });
-    }, 500);
+    setTimer(
+      setTimeout(() => {
+        router.removeParams(history, 'page');
+        router.setParams(history, { searchValue: value });
+      }, 500)
+    );
   };
 
   const moveCursorAtTheEnd = e => {
@@ -51,6 +58,7 @@ function List(props: Props) {
     e.target.value = '';
     e.target.value = tmpValue;
   };
+
   const title = <Title capitalize={true}>{__('Reports')}</Title>;
 
   const actionBarRight = (
@@ -93,6 +101,7 @@ function List(props: Props) {
         <tr>
           <th>{__('')}</th>
           <th>{__('Name')}</th>
+          <th>{__('Charts')}</th>
           <th>{__('Last updated by')}</th>
           <th>{__('Created by')}</th>
           <th>{__('Last updated at')}</th>
@@ -141,14 +150,16 @@ function List(props: Props) {
           btnStyle="danger"
           size="small"
           icon="cancel-1"
-          // onClick={() => this.removeDashboards(bulk)}
+          onClick={() =>
+            removeReports(chosenReportIds, () => setChosenReportIds([]))
+          }
         >
           Remove
         </Button>
 
         {isEnabled('tags') && (
           <TaggerPopover
-            type={TAG_TYPES.DASHBOARD}
+            type={TAG_TYPES.REPORT}
             // successCallback={this.afterTag}
             targets={reports.filter(r => chosenReportIds.includes(r._id))}
             trigger={tagButton}

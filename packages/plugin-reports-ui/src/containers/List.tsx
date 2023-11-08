@@ -1,22 +1,19 @@
 import { gql } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
 import Spinner from '@erxes/ui/src/components/Spinner';
-import { Alert, __, withProps } from '@erxes/ui/src/utils';
+import { Alert, __, confirm, withProps } from '@erxes/ui/src/utils';
 import * as compose from 'lodash.flowright';
 import React from 'react';
 import List from '../components/List';
-import { queries } from '../graphql';
-import {
-  ReportsListQueryResponse,
-  ReportsMutationResponse,
-  TypeQueryResponse
-} from '../types';
+import { mutations, queries } from '../graphql';
+import { ReportsListQueryResponse, ReportsMutationResponse } from '../types';
 
 type Props = {
   history: any;
   queryParams: any;
 
   typeId: string;
+  ids?: string[];
 };
 
 type FinalProps = {
@@ -25,20 +22,30 @@ type FinalProps = {
   ReportsMutationResponse;
 
 const ListContainer = (props: FinalProps) => {
-  const { reportsListQuery, history, typeId, removeReportsMutation } = props;
+  const {
+    reportsListQuery,
+    history,
+    typeId,
+    reportsRemoveManyMutation
+  } = props;
 
   if (reportsListQuery.loading) {
+    console.log('reports list loading ');
+
     return <Spinner />;
   }
 
   const { list = [], totalCount = 0 } = reportsListQuery.reportsList || {};
 
-  const removeReports = (reportIds: string[]) => {
-    removeReportsMutation({ reportIds })
-      .then(() => {
-        Alert.success(__('Successfully deleted'));
-      })
-      .catch((e: Error) => Alert.error(e.message));
+  const removeReports = (ids: string[], callback: any) => {
+    confirm(__('Are you sure to delete selected reports?')).then(() => {
+      reportsRemoveManyMutation({ variables: { ids } })
+        .then(() => {
+          Alert.success(__('Successfully deleted'));
+          callback();
+        })
+        .catch((e: Error) => Alert.error(e.message));
+    });
   };
 
   const updatedProps = {
@@ -62,6 +69,17 @@ export default withProps<Props>(
         options: ({ queryParams }) => ({
           variables: { searchValue: queryParams.searchValue || '' },
           fetchPolicy: 'network-only'
+        })
+      }
+    ),
+    graphql<Props, ReportsListQueryResponse, { ids?: string[] }>(
+      gql(mutations.reportsRemoveMany),
+      {
+        name: 'reportsRemoveManyMutation',
+        options: ({ ids }) => ({
+          variables: { ids },
+          fetchPolicy: 'network-only',
+          refetchQueries: ['reportsList']
         })
       }
     )

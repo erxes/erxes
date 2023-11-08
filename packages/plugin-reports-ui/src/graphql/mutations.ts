@@ -49,16 +49,16 @@ const editType = `
 const report_params = `
   $name: String,
   $visibility: VisibilityType,
-  $selectedMemberIds: [String],
-  $departmentIds: [String],
+  $assignedUserIds: [String],
+  $assignedDepartmentIds: [String],
   $tagIds: [String],
 `;
 
 const report_params_def = `
   name: $name,
   visibility: $visibility,
-  selectedMemberIds: $selectedMemberIds,
-  departmentIds: $departmentIds,
+  assignedUserIds: $assignedUserIds,
+  assignedDepartmentIds: $assignedDepartmentIds,
   tagIds: $tagIds,
 `;
 
@@ -68,12 +68,17 @@ mutation reportsAdd(${report_params}) {
     _id
     name
     visibility
-    selectedMemberIds
-    departmentIds
+    assignedUserIds
+    assignedDepartmentIds
     tagIds
   }
 }
 `;
+
+const reportsRemoveMany = `
+mutation reportsRemoveMany($ids: [String]!) {
+  reportsRemoveMany(ids: $ids)
+}`;
 
 export default {
   add,
@@ -82,5 +87,6 @@ export default {
   addType,
   removeType,
   editType,
-  reportsAdd
+  reportsAdd,
+  reportsRemoveMany
 };

@@ -131,7 +131,13 @@ const tagMutations = {
       throw new Error('Tag not found.');
     }
 
+    console.log('tag type', type);
+    console.log('tag tagIds', tagIds);
+    console.log('tag targetIds', targetIds);
+
     const targets = await tagObject(subdomain, type, tagIds, targetIds);
+
+    console.log('targets ', targets);
 
     for (const target of targets) {
       await putActivityLog(subdomain, {

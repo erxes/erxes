@@ -29,7 +29,7 @@ searchValue: $searchValue
 
 const reportsList = `
   query reportsList(${commonParams}) {
-    reportsList(${commonParamsDef}}) {
+    reportsList(${commonParamsDef}) {
       list {
         _id
         name

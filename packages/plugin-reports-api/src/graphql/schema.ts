@@ -83,8 +83,13 @@ export const types = `
   }
 `;
 
+const queryParams = `
+  searchValue: String
+  departmentId: String
+`;
+
 export const queries = `
-  reportsList: ReportsListResponse
+  reportsList(${queryParams}): ReportsListResponse
   reportDetail(reportId: String!): Report
   
   reportChartsList: ChartsListResponse
