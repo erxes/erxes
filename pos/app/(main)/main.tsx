@@ -13,7 +13,7 @@ const MainIndexPage = () => {
         <div className={cn("flex h-full w-2/3 flex-col p-4 pr-0")}>
           <ProductsContainer />
         </div>
-        <div className={"flex w-1/3 flex-col border-l"}>
+        <div className="flex w-1/3 flex-col border-l">
           <CheckoutMain />
         </div>
       </section>
