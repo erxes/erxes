@@ -51,7 +51,7 @@ import CommentForm from "./form/CommentForm"
 
 const EventForm = dynamic(() => import("./form/EventForm"))
 
-const PostItem = ({ postId }: { postId: string }): JSX.Element => {
+const EventItem = ({ postId }: { postId: string }): JSX.Element => {
   const [open, setOpen] = useState(false)
   const [seeMore, setSeeMore] = useState(false)
   const [formOpen, setFormOpen] = useState(false)
@@ -402,4 +402,4 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
   )
 }
 
-export default PostItem
+export default EventItem

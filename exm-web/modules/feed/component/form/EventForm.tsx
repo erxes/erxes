@@ -31,10 +31,8 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import SuccessPost from "@/components/ui/successPost"
 import { Textarea } from "@/components/ui/textarea"
-import { Toggle } from "@/components/ui/toggle"
 import SelectUsers from "@/components/select/SelectUsers"
 
 import useFeedMutation from "../../hooks/useFeedMutation"
@@ -100,7 +98,7 @@ const EventForm = ({
   })
 
   const [visibility, setVisibility] = useState(
-    feed?.eventData?.visibility === "public" ? false : true
+    feed?.eventData?.visibility === "private" ? true : false
   )
   const [departmentIds, setDepartmentIds] = useState(feed?.departmentIds || [])
   const [branchIds, setBranchIds] = useState(feed?.branchIds || [])

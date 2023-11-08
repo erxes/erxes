@@ -28,9 +28,9 @@ const List = ({ contentType }: { contentType: string }) => {
   const normalList = datas.filter((data) => !data.isPinned)
 
   const showList = (items: IFeed[]) => {
-    if(contentType === 'event'){
-      return items.map((filteredItem: any) => (
-        <EventItem postId={filteredItem._id} key={filteredItem._id} />
+    if (contentType === "event") {
+      return items.map((filteredItem: any, index) => (
+        <EventItem postId={filteredItem._id} key={index} />
       ))
     }
 
