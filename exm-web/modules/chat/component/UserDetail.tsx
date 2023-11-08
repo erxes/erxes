@@ -18,6 +18,24 @@ const UserDetail = ({
     return <PinnedMessages />
   }
 
+  const renderBrachDepartments = (type: string) => {
+    let array
+    if (type === "branch") {
+      array = user.branches
+    }
+    if (type === "departments") {
+      array = user.departments
+    }
+    if (array && array.length > 0) {
+      return array.map((data) => (
+        <li className="text-[#444] text-xs" key={data._id}>
+          {data.title}
+        </li>
+      ))
+    }
+    return "-"
+  }
+
   return (
     <>
       <div
@@ -69,29 +87,13 @@ const UserDetail = ({
         </div>
         <div className="flex items-center justify-between mt-2 mb-4">
           <p className="text-black text-xs font-semibold">Departments</p>
-          <p className="text-[#444] text-xs">
-            <ul className="text-[#444]">
-              {user.departments && user.departments.length !== 0
-                ? user.departments.map((department) => (
-                    <li className="text-[#444]" key={department._id}>
-                      {department.title}
-                    </li>
-                  ))
-                : "-"}
-            </ul>
-          </p>
+          <ul className="text-[#444]">
+            {renderBrachDepartments("departments")}
+          </ul>
         </div>
         <div className="flex items-center justify-between mt-2 mb-4">
           <p className="text-black text-xs font-semibold">Branches</p>
-          <ul className="text-[#444]">
-            {user.branches && user.branches.length !== 0
-              ? user.branches.map((branch) => (
-                  <li className="text-[#444]" key={branch._id}>
-                    {branch.title}
-                  </li>
-                ))
-              : "-"}
-          </ul>
+          <ul className="text-[#444]">{renderBrachDepartments("branch")}</ul>
         </div>
         {renderPinnedMessage()}
       </div>

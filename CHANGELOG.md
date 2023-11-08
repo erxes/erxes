@@ -1,3 +1,23 @@
+# [1.4.0-alpha.3](https://github.com/erxes/erxes/compare/1.4.0-alpha.2...1.4.0-alpha.3) (2023-11-06)
+
+# [1.4.0-alpha.2](https://github.com/erxes/erxes/compare/1.4.0-alpha.1...1.4.0-alpha.2) (2023-11-04)
+
+
+### Bug Fixes
+
+* **department:** cannot save department without parent ([dfecc06](https://github.com/erxes/erxes/commit/dfecc06fb13b64d169e6917292c27b97c1d39c02))
+
+# [1.4.0-alpha.3](https://github.com/erxes/erxes/compare/1.4.0-alpha.2...1.4.0-alpha.3) (2023-11-04)
+
+# [1.4.0-alpha.2](https://github.com/erxes/erxes/compare/1.4.0-alpha.1...1.4.0-alpha.2) (2023-11-04)
+
+
+### Bug Fixes
+
+* **department:** cannot save department without parent ([dfecc06](https://github.com/erxes/erxes/commit/dfecc06fb13b64d169e6917292c27b97c1d39c02))
+
+# [1.4.0-alpha.1](https://github.com/erxes/erxes/compare/1.4.0-alpha.0...1.4.0-alpha.1) (2023-11-02)
+
 # [1.4.0-alpha.0](https://github.com/erxes/erxes/compare/1.3.0...1.4.0-alpha.0) (2023-11-01)
 
 

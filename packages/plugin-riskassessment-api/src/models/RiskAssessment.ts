@@ -17,6 +17,7 @@ export interface IRiskAssessmentsModel extends Model<IRiskAssessmentsDocument> {
     user: IUserDocument
   ): Promise<any>;
   riskAssessmentFormSubmissionDetail(parmas): Promise<any>;
+  getStatistic(filter: any): Promise<any>;
   editRiskAssessment(_id: string, doc: any): Promise<IRiskAssessmentsDocument>;
   removeRiskAssessment(_id: string);
   riskAssessmentAssignedMembers(
@@ -662,6 +663,42 @@ export const loadRiskAssessments = (models: IModels, subdomain: string) => {
         ]);
         return;
       }
+    }
+
+    public static async getStatistic(filter) {
+      const [statistic] = await models.RiskAssessments.aggregate([
+        { $match: { ...filter } },
+        {
+          $group: {
+            _id: null,
+            ids: { $push: '$_id' },
+            averageScore: {
+              $avg: {
+                $cond: [
+                  { $ne: ['$status', 'In Progress'] },
+                  '$resultScore',
+                  null
+                ]
+              }
+            },
+            totalCount: { $sum: 1 },
+            submittedAssessmentCount: {
+              $sum: { $cond: [{ $ne: ['$status', 'In Progress'] }, 1, 0] }
+            }
+          }
+        },
+        {
+          $project: {
+            _id: 0,
+            ids: 1,
+            averageScore: { $round: ['$averageScore', 2] },
+            submittedAssessmentCount: 1,
+            totalCount: 1
+          }
+        }
+      ]);
+
+      return statistic;
     }
 
     static async getGroupsIndicatorIds(groupId: string) {

@@ -35,11 +35,11 @@ class Detail extends React.Component<FinalProps> {
     }
 
     const {
-      assignedUsers,
+      assignedUsers = [],
       groupAssessment,
       indicatorAssessment,
       ...detail
-    } = detailQueryResponse?.riskAssessmentDetail;
+    } = detailQueryResponse?.riskAssessmentDetail || {};
 
     const updatedProps = {
       queryParams,
