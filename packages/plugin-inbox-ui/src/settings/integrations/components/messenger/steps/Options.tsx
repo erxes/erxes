@@ -99,8 +99,8 @@ class Options extends React.Component<Props, State> {
             query: gql(queries.integrationsVideoCallUsageStatus),
             fetchPolicy: 'network-only'
           })
-          .then(({ data: { integrationsVideoCallUsageStatus } }) => {
-            if (integrationsVideoCallUsageStatus) {
+          .then(({ data: { videoCallUsageStatus } }) => {
+            if (videoCallUsageStatus) {
               this.onChangeFunction('showVideoCallRequest', true);
             } else {
               Alert.error('Please configure a video call settings');

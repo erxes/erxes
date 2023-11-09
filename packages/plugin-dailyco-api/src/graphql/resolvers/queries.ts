@@ -18,7 +18,7 @@ const queries = {
       isRPC: true
     });
 
-    if (!type || type !== 'dailyco') {
+    if (!type || type.value !== 'daily') {
       throw new Error(
         'Video call configs not found. Please setup video call configs from integrations settings.'
       );
