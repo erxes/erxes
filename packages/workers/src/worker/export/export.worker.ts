@@ -154,7 +154,7 @@ connect()
           columnsConfig,
           segmentData
         },
-        timeout: 5 * 60 * 1000
+        timeout: 5 * 60 * 1000 // 5 minutes
       }
     );
 
@@ -176,7 +176,7 @@ connect()
             page,
             perPage
           },
-          timeout: 5 * 60 * 1000
+          timeout: 5 * 60 * 1000 // 5 minutes
         }
       );
 
