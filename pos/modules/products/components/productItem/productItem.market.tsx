@@ -1,5 +1,5 @@
 import { addToCartAtom } from "@/store/cart.store"
-import { searchPopoverAtom } from "@/store/ui.store"
+import { changeFocusAtom, searchPopoverAtom } from "@/store/ui.store"
 import { useSetAtom } from "jotai"
 import { SearchIcon } from "lucide-react"
 
@@ -10,10 +10,12 @@ const ProductItem = (props: IProduct) => {
   const { name, code } = props
   const addToCart = useSetAtom(addToCartAtom)
   const closePopover = useSetAtom(searchPopoverAtom)
+  const changeFocus = useSetAtom(changeFocusAtom)
 
   const onSelect = () => {
     addToCart(props)
     setTimeout(() => closePopover(false))
+    changeFocus(true)
   }
 
   return (
