@@ -11,10 +11,12 @@ const SelectUsers = ({
   field,
   userIds,
   onChange,
+  className,
 }: {
   field?: any
   onChange: (userIds: string[]) => void
   userIds: string[]
+  className?: any
 }) => {
   const [reload, setReload] = useState(false)
 
@@ -34,6 +36,7 @@ const SelectUsers = ({
         <Input disabled={true} placeholder="Loading..." />
       ) : (
         <Select
+          className={className}
           onMenuClose={() => setReload(false)}
           onMenuOpen={() => setReload(true)}
           isMulti={true}

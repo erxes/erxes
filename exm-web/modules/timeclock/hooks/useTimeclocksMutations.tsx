@@ -2,8 +2,9 @@
 
 import { currentUserAtom } from "@/modules/JotaiProiveder"
 import { useMutation } from "@apollo/client"
-import dayjs from "dayjs"
 import { useAtomValue } from "jotai"
+
+import { toast } from "@/components/ui/use-toast"
 
 import { mutations } from "../graphql"
 import { isCurrentUserAdmin } from "../utils"
@@ -15,11 +16,6 @@ export const useTimeclocksMutation = ({
 }) => {
   const currentUser = useAtomValue(currentUserAtom)
   isCurrentUserAdmin(currentUser)
-
-  const [extractAllMsSqlDataMutation, { loading: extractLoading }] =
-    useMutation(mutations.extractAllDataFromMsSQL, {
-      refetchQueries: ["timeclocksMain"],
-    })
 
   const [timeclocksRemove, { loading: loadingDelete }] = useMutation(
     mutations.timeclockRemove,
@@ -41,29 +37,6 @@ export const useTimeclocksMutation = ({
   const [stopTimeMutation] = useMutation(mutations.timeclockStop, {
     refetchQueries: ["timeclocksMain"],
   })
-
-  const extractAllMsSqlData = (start: Date, end: Date, params: any) => {
-    extractAllMsSqlDataMutation({
-      variables: {
-        startDate: dayjs(start).format("YYYY-MM-DD"),
-        endDate: dayjs(end).format("YYYY-MM-DD"),
-        ...params,
-      },
-    })
-      .then((res) => {
-        const returnMsg = res.data.extractAllDataFromMsSQL.message
-
-        if (returnMsg) {
-          callBack(returnMsg)
-          return
-        }
-
-        callBack("Successfully extracted data")
-      })
-      .catch((e) => {
-        callBack("error")
-      })
-  }
 
   const removeTimeclock = (timeclockId: string) => {
     timeclocksRemove({
@@ -109,7 +82,9 @@ export const useTimeclocksMutation = ({
       .then(() => {
         callBack("success")
       })
-      .catch(() => callBack("error"))
+      .catch((error) =>
+        toast({ description: error.message, variant: "destructive" })
+      )
   }
 
   const stopClockTime = (userId: string, timeId?: string) => {
@@ -129,11 +104,10 @@ export const useTimeclocksMutation = ({
   }
 
   return {
-    extractAllMsSqlData,
     removeTimeclock,
     editTimeclock,
     startClockTime,
     stopClockTime,
-    loading: loadingDelete || loadingEdit || extractLoading,
+    loading: loadingDelete || loadingEdit,
   }
 }

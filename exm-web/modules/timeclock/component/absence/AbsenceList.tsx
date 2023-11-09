@@ -1,4 +1,7 @@
-import React from "react"
+import React, { useState } from "react"
+import { currentUserAtom } from "@/modules/JotaiProiveder"
+import { useAtomValue } from "jotai"
+import { ChevronDown, ChevronRight } from "lucide-react"
 
 import {
   Table,
@@ -10,33 +13,52 @@ import {
 
 import { useAbsence } from "../../hooks/useAbsence"
 import RequestRow from "./AbsenceRow"
+import AbsenceAction from "./action/AbsenceAction"
 
-type Props = {}
+type Props = {
+  queryParams: any
+}
 
-const list = [
-  "Team member",
-  "Date",
-  "From",
-  "To",
-  "Total hours",
-  "Reason",
-  "Explanation",
-  "Attachment",
-  "Status",
-  "Note",
-  "Action",
-]
+const Request = ({ queryParams }: Props) => {
+  const currentUser = useAtomValue(currentUserAtom)
+  const { absenceList, absenceTypes, absenceTotalCount } = useAbsence({
+    page: 1,
+    perPage: 20,
+    ...queryParams,
+  })
 
-const Request = (props: Props) => {
-  const { absenceList, absenceTotalCount } = useAbsence(
-    1,
-    10,
-    "Wed Nov 01 2023 00:00:00 GMT+0800 (Ulaanbaatar Standard Time)",
-    "Fri Dec 01 2023 00:00:00 GMT+0800 (Ulaanbaatar Standard Time)"
+  const [seeDate, setSeeDates] = useState(false)
+
+  const seeDates = (
+    <TableHead
+      onClick={() => setSeeDates(!seeDate)}
+      style={{ cursor: "pointer" }}
+    >
+      <div className="flex items-center gap-1">
+        <div>{"See dates"}</div>
+        {seeDate ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
+      </div>
+    </TableHead>
   )
+
+  const list = [
+    "Team member",
+    "Date",
+    "From",
+    "To",
+    "Total hours",
+    seeDates,
+    "Reason",
+    "Explanation",
+    "Attachment",
+    "Status",
+    "Note",
+    "Action",
+  ]
 
   return (
     <div className="h-[94vh] flex flex-col gap-3">
+      <AbsenceAction queryParams={queryParams} absenceTypes={absenceTypes} />
       <Table>
         <TableHeader>
           <TableRow>
@@ -47,7 +69,7 @@ const Request = (props: Props) => {
         </TableHeader>
         <TableBody>
           {absenceList.map((absence, index) => (
-            <RequestRow absence={absence} key={index} />
+            <RequestRow absence={absence} seeDate={seeDate} key={index} />
           ))}
         </TableBody>
       </Table>

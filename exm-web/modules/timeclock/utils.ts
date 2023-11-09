@@ -1,4 +1,5 @@
 import { IUser } from "@erxes/ui/src/auth/types"
+import dayjs from "dayjs"
 
 // import { generatePaginationParams } from "@erxes/ui/src/utils/router"
 // import dayjs from "dayjs"
@@ -187,4 +188,37 @@ export const generateParams = (queryParams: any) => {
     departmentIds: queryParams.departmentIds,
     branchIds: queryParams.branchIds,
   }
+}
+
+export const compareStartAndEndTimeOfSingleDate = (
+  newShiftStart?,
+  newShiftEnd?,
+  shiftDate?
+) => {
+  let overnightShift = false
+  let correctShiftEnd
+
+  const shiftDateString = dayjs(shiftDate).format("MM/DD/YYYY")
+
+  if (
+    dayjs(newShiftEnd).format("HH:mm") < dayjs(newShiftStart).format("HH:mm")
+  ) {
+    correctShiftEnd = dayjs(
+      dayjs(shiftDateString).add(1, "day").toDate().toLocaleDateString() +
+        " " +
+        dayjs(newShiftEnd).format("HH:mm")
+    ).toDate()
+
+    overnightShift = true
+  } else {
+    correctShiftEnd = dayjs(
+      shiftDateString + " " + dayjs(newShiftEnd).format("HH:mm")
+    ).toDate()
+  }
+
+  const correctShiftStart = dayjs(
+    shiftDateString + " " + dayjs(newShiftStart).format("HH:mm")
+  ).toDate()
+
+  return [correctShiftStart, correctShiftEnd, overnightShift]
 }

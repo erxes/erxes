@@ -72,6 +72,7 @@ export interface IUser {
   details?: IUserDetails
   type: string
   companyName: string
+  employeeId: string
 
   notificationSettings?: INotifcationSettings
 }

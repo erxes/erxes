@@ -1,5 +1,8 @@
-import React, { useEffect, useState } from "react"
+import React, { memo, useEffect, useState } from "react"
+import { currentUserAtom } from "@/modules/JotaiProiveder"
 import { useTimeclocksMutation } from "@/modules/timeclock/hooks/useTimeclocksMutations"
+import { isCurrentUserAdmin } from "@/modules/timeclock/utils"
+import { useAtomValue } from "jotai"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -11,96 +14,65 @@ import {
 } from "@/components/ui/dialog"
 import SelectUsers from "@/components/select/SelectUsers"
 
-type Props = {}
+const SelectUsersMemoized = memo(SelectUsers)
+const TimeclockShift = () => {
+  const currentUser = useAtomValue(currentUserAtom)
 
-const TimeclockShift = (props: Props) => {
   const [open, setOpen] = useState(false)
   const [currentTime, setCurrentTime] = useState(
     new Date().toLocaleTimeString()
   )
-  const [userId, setUserId] = useState("")
-  const [userIds, setUserIds] = useState([] as string[])
+
   const [shiftStarted, setShiftStarted] = useState(false)
 
   const callBack = (result: string) => {
     if (result === "success") {
       setOpen(false)
+      setShiftStarted(false)
     }
   }
 
   const { startClockTime, stopClockTime } = useTimeclocksMutation({ callBack })
 
-  // const returnTotalUserOptions = () => {
-  //   const totalUserOptions: string[] = []
-
-  //   for (const dept of departments) {
-  //     totalUserOptions.push(...dept.userIds)
-  //   }
-
-  //   for (const branch of branches) {
-  //     totalUserOptions.push(...branch.userIds)
-  //   }
-
-  //   if (currentUser) {
-  //     totalUserOptions.push(currentUser._id)
-  //   }
-
-  //   return totalUserOptions
-  // }
-
-  // const filterParams = isCurrentUserAdmin(currentUser)
-  //   ? {}
-  //   : {
-  //       ids: returnTotalUserOptions(),
-  //       excludeIds: false,
-  //     }
-
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentTime(new Date().toLocaleTimeString())
     }, 1000)
-    return function cleanup() {
+    return () => {
       clearInterval(timer)
     }
   }, [])
 
-  // const onTeamMemberSelect = (memberId) => {
-  //   setUserId(memberId)
-  // }
-
   const startClock = () => {
-    startClockTime(userId)
+    startClockTime(currentUser?._id!)
   }
 
   const stopClock = () => {
-    stopClockTime(userId, "shiftId")
+    stopClockTime(currentUser?._id!, "shiftId")
   }
 
   return (
     <Dialog open={open} onOpenChange={() => setOpen(!open)}>
       <DialogTrigger asChild={true}>
-        <button className="px-3 bg-[#3dcc38] text-[#fff] rounded-md">
+        <button className="px-3 py-2 bg-[#3dcc38] text-[#fff] rounded-md">
           Start Shift
         </button>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent className="px-5">
         <DialogHeader>
           <DialogTitle>Start Shift</DialogTitle>
         </DialogHeader>
-        <div className="flex flex-col gap-3">
-          <div className="flex font-bold text-center text-[82px] py-10 justify-between">
+        <div className="flex flex-col">
+          <div className="flex font-bold text-[80px] py-10 justify-between">
             <div>{currentTime.split(" ")[0]}</div>
             <div>{currentTime.split(" ")[1]}</div>
           </div>
-          <div className="flex justify-between">
-            <SelectUsers userIds={userIds} onChange={setUserIds} />
-            <Button
-              className="whitespace-nowrap"
-              onClick={shiftStarted ? stopClock : startClock}
-            >
-              {shiftStarted ? "Clock out" : "Clock in"}
-            </Button>
-          </div>
+          <Button
+            className="whitespace-nowrap"
+            onClick={shiftStarted ? stopClock : startClock}
+          >
+            {shiftStarted ? "Clock out" : "Clock in"}
+          </Button>
         </div>
       </DialogContent>
     </Dialog>

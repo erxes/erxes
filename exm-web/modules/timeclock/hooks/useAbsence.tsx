@@ -5,22 +5,29 @@ import { useQuery, useSubscription } from "@apollo/client"
 import { useAtomValue } from "jotai"
 
 import { queries } from "../graphql"
-import { IAbsence } from "../types"
-import { isCurrentUserAdmin } from "../utils"
+import { IAbsence, IAbsenceType } from "../types"
+import { generateParams, isCurrentUserAdmin } from "../utils"
 
 export interface IUseAbsence {
   loading: boolean
   error: any
   absenceList: IAbsence[]
+  absenceTypes: IAbsenceType[]
   absenceTotalCount: number
 }
 
-export const useAbsence = (
-  page: number,
-  perPage: number,
-  startDate: string,
+type Props = {
+  page?: number
+  perPage?: number
+  startDate: string
   endDate: string
-): IUseAbsence => {
+  branchIds?: string[]
+  departmentIds?: string[]
+  userIds?: string[]
+  searchValue?: string
+}
+
+export const useAbsence = (props: Props): IUseAbsence => {
   const currentUser = useAtomValue(currentUserAtom)
 
   const {
@@ -29,11 +36,7 @@ export const useAbsence = (
     error,
   } = useQuery(queries.requestsMain, {
     variables: {
-      page,
-      perPage,
-      startDate,
-      endDate,
-      isCurrentUserAdmin: isCurrentUserAdmin(currentUser),
+      ...generateParams(props),
     },
   })
 
@@ -51,12 +54,13 @@ export const useAbsence = (
     error: typesError,
   } = useQuery(queries.absenceTypes)
 
-  const typesList = (typesData || {}).absenceTypes
+  const absenceTypes = (typesData || {}).absenceTypes
     ? (typesData || {}).absenceTypes
     : []
 
   return {
     absenceList,
+    absenceTypes,
     absenceTotalCount,
     loading,
     error,

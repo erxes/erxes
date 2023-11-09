@@ -3,18 +3,15 @@ import dayjs from "dayjs"
 
 import { TableCell, TableRow } from "@/components/ui/table"
 
-import { IAbsence } from "../../types"
-import { returnDeviceTypes } from "../../utils"
+import { IAbsence, IAbsenceType } from "../../types"
+import AbsenceRowAction from "./action/AbsenceRowAction"
 
 type Props = {
   absence: IAbsence
+  seeDate: boolean
 }
 
-const RequestRow = ({ absence }: Props) => {
-  const [seeDates, setSeeDates] = useState(
-    JSON.parse(localStorage.getItem("seeDates") || "false")
-  )
-
+const RequestRow = ({ absence, seeDate }: Props) => {
   const startTime = new Date(absence.startTime)
   const endTime = new Date(absence.endTime)
 
@@ -44,31 +41,31 @@ const RequestRow = ({ absence }: Props) => {
   }
 
   const renderAbsenceDays = () => {
-    if (absenceTimeType === "by day" && seeDates) {
+    if (absenceTimeType === "by day" && seeDate) {
       return absence.requestDates.map((requestDate) => (
         <div key={requestDate}>{requestDate}</div>
       ))
     }
 
-    return <div>{"-"}</div>
+    return <TableCell>{"-"}</TableCell>
   }
 
   const renderAbsenceTimeInfo = () => {
     if (absence.reason.match(/Check in request/gi)) {
       return (
         <>
-          <td>{startingDate}</td>
-          <td>{startingTime}</td>
-          <td>{"-"}</td>
+          <TableCell>{startingDate}</TableCell>
+          <TableCell>{startingTime}</TableCell>
+          <TableCell>{"-"}</TableCell>
         </>
       )
     }
     if (absence.reason.match(/Check out request/gi)) {
       return (
         <>
-          <td>{startingDate}</td>
-          <td>{"-"}</td>
-          <td>{startingTime}</td>
+          <TableCell>{startingDate}</TableCell>
+          <TableCell>{"-"}</TableCell>
+          <TableCell>{startingTime}</TableCell>
         </>
       )
     }
@@ -76,20 +73,37 @@ const RequestRow = ({ absence }: Props) => {
     if (absenceTimeType === "by day") {
       return (
         <>
-          <td>{"-"}</td>
-          <td>{startingDate}</td>
-          <td>{endingDate}</td>
+          <TableCell>{"-"}</TableCell>
+          <TableCell>{startingDate}</TableCell>
+          <TableCell>{endingDate}</TableCell>
         </>
       )
     }
     // by hour
     return (
       <>
-        <td>{startingDate}</td>
-        <td>{startingTime}</td>
-        <td>{endingTime}</td>
+        <TableCell>{startingDate}</TableCell>
+        <TableCell>{startingTime}</TableCell>
+        <TableCell>{endingTime}</TableCell>
       </>
     )
+  }
+
+  const renderStatus = () => {
+    const status = absence.solved
+      ? absence.status?.split("/")[1]?.trim()
+      : "Pending"
+
+    const colorClass =
+      status === "Approved"
+        ? "text-green-500"
+        : status === "Rejected"
+        ? "text-red-500"
+        : status === "Pending"
+        ? "text-orange-500"
+        : ""
+
+    return <div className={colorClass}>{status}</div>
   }
 
   return (
@@ -104,16 +118,21 @@ const RequestRow = ({ absence }: Props) => {
               : "-"
             : "-"}
         </TableCell>
-        <TableCell className="py-5"> {renderAbsenceTimeInfo()}</TableCell>
+        {renderAbsenceTimeInfo()}
         <TableCell className="py-5">
           {absence.totalHoursOfAbsence || calculateAbsenceHours()}
         </TableCell>
         <TableCell className="py-5">{renderAbsenceDays()}</TableCell>
         <TableCell className="py-5">{absence.reason || "-"}</TableCell>
         <TableCell className="py-5">{absence.explanation || "-"}</TableCell>
-        <TableCell className="py-5">-</TableCell>
-        <TableCell className="py-5">-</TableCell>
+        <TableCell className="py-5">
+          {absence.attachment ? absence.attachment.name : "-"}
+        </TableCell>
+        <TableCell className="">{renderStatus()}</TableCell>
         <TableCell className="py-5">{absence.note || "-"}</TableCell>
+        <TableCell className="py-5">
+          <AbsenceRowAction absence={absence} />
+        </TableCell>
       </TableRow>
     </>
   )

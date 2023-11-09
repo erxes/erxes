@@ -1,5 +1,6 @@
 import React from "react"
-import { useSearchParams } from "next/navigation"
+import { currentUserAtom } from "@/modules/JotaiProiveder"
+import { useAtomValue } from "jotai"
 
 import {
   Table,
@@ -10,7 +11,6 @@ import {
 } from "@/components/ui/table"
 
 import { useTimeclocksList } from "../../hooks/useTimeclocksList"
-import { ITimeclock } from "../../types"
 import TimeClockRow from "./TimeclockRow"
 import TimeclockAction from "./action/TImeclockAction"
 
@@ -27,14 +27,13 @@ const list = [
   "Action",
 ]
 
-const TimeclockList = () => {
-  const searchParams = useSearchParams()
+const TimeclockList = ({ queryParams }: any) => {
+  const currentUser = useAtomValue(currentUserAtom)
 
   const { timeclocksMainList, timeclocksMainTotalCount } = useTimeclocksList({
     page: 1,
     perPage: 20,
-    startDate: searchParams.get("startDate") as string,
-    endDate: searchParams.get("endDate") as string,
+    ...queryParams,
   })
 
   return (

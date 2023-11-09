@@ -8,25 +8,29 @@ import { useAtomValue } from "jotai"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 import { isCurrentUserAdmin } from "../utils"
-import Sidebar from "./sidebar/Sidebar"
+
+// import Sidebar from "./sidebar/Sidebar"
 
 const TimeClockList = dynamic(() => import("./timeclock/TimeclockList"))
 const Absences = dynamic(() => import("./absence/AbsenceList"))
-// const Schedule = dynamic(() => import("./schedule/Schedule"))
-// const Report = dynamic(() => import("./report/Report"))
-// const Configuration = dynamic(() => import("./configuration/Configuration"))
+const Schedule = dynamic(() => import("./schedule/ScheduleList"))
+
+const NOW = new Date()
+// get 1st of the next Month
+const startOfNextMonth = new Date(NOW.getFullYear(), NOW.getMonth() + 1, 1)
+// get 1st of this month
+const startOfThisMonth = new Date(NOW.getFullYear(), NOW.getMonth(), 1)
 
 const Timeclocks = () => {
   localStorage.getItem("exm_env_REACT_APP_DOMAIN")
 
   const currentUser = useAtomValue(currentUserAtom)
 
-  const searchParams = useSearchParams()
-  const startDate = new Date(searchParams.get("startDate") as string)
-  const endDate = new Date(searchParams.get("endDate") as string)
-  const branchIds = searchParams.get("branchIds")?.split(",") || []
-  const departmentIds = searchParams.get("departmentIds")?.split(",") || []
-  const userIds = searchParams.get("userIds")?.split(",") || []
+  const queryParams = {
+    userIds: currentUser?._id,
+    startDate: startOfThisMonth,
+    endDate: startOfNextMonth,
+  }
 
   return (
     <div>
@@ -50,45 +54,19 @@ const Timeclocks = () => {
           >
             Schedule
           </TabsTrigger>
-          <TabsTrigger
-            className="text-[#444] data-[state=active]:border-[#5629B6] data-[state=active]:border-b-2"
-            value="report"
-          >
-            Report
-          </TabsTrigger>
-          {isCurrentUserAdmin(currentUser) && (
-            <TabsTrigger
-              className="text-[#444] data-[state=active]:border-[#5629B6] data-[state=active]:border-b-2"
-              value="configuration"
-            >
-              Configuration
-            </TabsTrigger>
-          )}
         </TabsList>
 
-        <div className="flex flex-col p-5 gap-5 ">
-          <Sidebar
-            startDate={startDate}
-            endDate={endDate}
-            branch={branchIds}
-            department={departmentIds}
-            user={userIds}
-          />
+        <div className="flex flex-col px-10 py-5 gap-5 ">
+          {/* <Sidebar queryParams={queryParams} /> */}
           <TabsContent className="w-full" value="timeclock">
-            <TimeClockList />
+            <TimeClockList queryParams={queryParams} />
           </TabsContent>
           <TabsContent className="w-full" value="requests">
-            <Absences />
+            <Absences queryParams={queryParams} />
           </TabsContent>
-          {/* <TabsContent value="schedule">
-          <Schedule />
-        </TabsContent>
-        <TabsContent value="report">
-        <Report />
-        </TabsContent>
-        <TabsContent value="configuration">
-        <Configuration />
-      </TabsContent> */}
+          <TabsContent className="w-full" value="schedule">
+            <Schedule queryParams={queryParams} />
+          </TabsContent>
         </div>
       </Tabs>
     </div>

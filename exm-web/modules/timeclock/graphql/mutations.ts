@@ -118,17 +118,41 @@ const timeclockCreate = `
     }
 `
 
-const sendAbsenceRequest = `
-  mutation sendAbsenceRequest($startTime: Date, $endTime: Date,$requestDates: [String] $userId: String, $reason: String, $explanation: String, $attachment: AttachmentInput, $absenceTypeId: String, $absenceTimeType: String, $totalHoursOfAbsence: String){
-    sendAbsenceRequest(startTime: $startTime, endTime: $endTime,requestDates: $requestDates,  userId: $userId, reason: $reason, explanation: $explanation, attachment: $attachment, absenceTypeId: $absenceTypeId, absenceTimeType: $absenceTimeType, totalHoursOfAbsence: $totalHoursOfAbsence ){
+const sendAbsenceRequest = gql`
+  mutation sendAbsenceRequest(
+    $startTime: Date
+    $endTime: Date
+    $requestDates: [String]
+    $userId: String
+    $reason: String
+    $explanation: String
+    $attachment: AttachmentInput
+    $absenceTypeId: String
+    $absenceTimeType: String
+    $totalHoursOfAbsence: String
+  ) {
+    sendAbsenceRequest(
+      startTime: $startTime
+      endTime: $endTime
+      requestDates: $requestDates
+      userId: $userId
+      reason: $reason
+      explanation: $explanation
+      attachment: $attachment
+      absenceTypeId: $absenceTypeId
+      absenceTimeType: $absenceTimeType
+      totalHoursOfAbsence: $totalHoursOfAbsence
+    ) {
       _id
     }
-  }`
+  }
+`
 
-const removeAbsenceRequest = `
-mutation removeAbsenceRequest($_id: String){
-  removeAbsenceRequest(_id: $_id)
-}`
+const removeAbsenceRequest = gql`
+  mutation removeAbsenceRequest($_id: String) {
+    removeAbsenceRequest(_id: $_id)
+  }
+`
 
 const absenceTypeAdd = `
   mutation absenceTypeAdd(${absenceTypeParams}){
@@ -181,12 +205,12 @@ const checkDuplicateScheduleShifts = `
     }
   }`
 
-const solveAbsenceRequest = `
-  mutation solveAbsenceRequest($_id: String, $status: String, $note: String){
-    solveAbsenceRequest(_id: $_id, status: $status, note:$note){
+const solveAbsenceRequest = gql`
+  mutation solveAbsenceRequest($_id: String, $status: String, $note: String) {
+    solveAbsenceRequest(_id: $_id, status: $status, note: $note) {
       _id
     }
-  }  
+  }
 `
 
 const solveSchedule = `
@@ -315,12 +339,21 @@ mutation createTimeClockFromLog($userId: String, $timelog: Date, $inDevice: Stri
   }
 }`
 
-const submitCheckInOutRequest = `
-mutation submitCheckInOutRequest($checkType: String, $userId: String, $checkTime: Date){
-  submitCheckInOutRequest(checkType: $checkType, userId: $userId, checkTime: $checkTime){
-    _id
+const submitCheckInOutRequest = gql`
+  mutation submitCheckInOutRequest(
+    $checkType: String
+    $userId: String
+    $checkTime: Date
+  ) {
+    submitCheckInOutRequest(
+      checkType: $checkType
+      userId: $userId
+      checkTime: $checkTime
+    ) {
+      _id
+    }
   }
-}`
+`
 const scheduleConfigOrderEdit = `
 mutation scheduleConfigOrderEdit($userId: String, $orderedList :[ConfigOrderInput]){
   scheduleConfigOrderEdit(userId: $userId, orderedList: $orderedList)
