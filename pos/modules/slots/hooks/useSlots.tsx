@@ -1,9 +1,9 @@
-import { gql, useQuery } from "@apollo/client"
+import { useQuery } from "@apollo/client"
 
 import { queries } from "../graphql"
 
 const useSlots = () => {
-  const { data, loading } = useQuery(gql(queries.slots))
+  const { data, loading } = useQuery(queries.slots)
   const { poscSlots: slots } = data || {}
   return { slots, loading }
 }

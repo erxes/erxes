@@ -11,7 +11,7 @@ const Checkout = () => {
   const mode = useAtomValue(modeAtom)
   return (
     <>
-      {["main", "coffee-shop"].includes(mode) && <Main />}
+      {["main", "coffee-shop", "restaurant"].includes(mode) && <Main />}
       {mode === "kiosk" && <Kiosk />}
     </>
   )

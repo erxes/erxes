@@ -1,10 +1,12 @@
+import { useEffect } from "react"
 import Products from "@/modules/products/products.market"
 import { searchAtom } from "@/store"
-import { searchPopoverAtom } from "@/store/ui.store"
+import { changeFocusAtom, searchPopoverAtom } from "@/store/ui.store"
 import { AnimatePresence, motion } from "framer-motion"
 import { useAtom, useAtomValue, useSetAtom } from "jotai"
 import { SearchIcon } from "lucide-react"
 
+import useFocus from "@/lib/useFocus"
 import useKeyEvent from "@/lib/useKeyEvent"
 import { Button } from "@/components/ui/button"
 import { Command, CommandInput } from "@/components/ui/command"
@@ -17,38 +19,57 @@ import {
 const Content = motion(PopoverContent)
 
 const Search = () => {
+  const [ref, setFocus] = useFocus()
   const [open, setOpen] = useAtom(searchPopoverAtom)
   useKeyEvent(() => setOpen(true), "F6")
+  const [focus, setChangeFocus] = useAtom(changeFocusAtom)
+
+  useEffect(() => {
+    if (focus) {
+      setTimeout(setFocus, 20)
+      setChangeFocus(false)
+    }
+  }, [focus, setChangeFocus, setFocus])
 
   return (
-    <SearchTrigger>
-      <Popover open={open} onOpenChange={(op) => setOpen(op)} modal>
-        <PopoverTrigger className="absolute -top-4 h-0 w-full" />
-        <AnimatePresence>
-          {open && (
-            <Content
-              className="flex flex-col border-none p-3"
-              animateCss={false}
-              variants={itemVariants}
-              initial="initial"
-              animate="animate"
-              exit="initial"
-              transition={{
-                duration: 0.3,
-              }}
-              style={{
-                width: "calc(var(--radix-popper-anchor-width) + 1.5rem)",
-              }}
-            >
-              <Command shouldFilter={false}>
-                <SearchInput />
-                <Products />
-              </Command>
-            </Content>
-          )}
-        </AnimatePresence>
-      </Popover>
-    </SearchTrigger>
+    <>
+      <SearchTrigger>
+        <Popover
+          open={open}
+          onOpenChange={(op) => {
+            setOpen(op)
+            setChangeFocus(true)
+          }}
+          modal
+        >
+          <PopoverTrigger className="absolute -top-4 h-0 w-full" />
+          <AnimatePresence>
+            {open && (
+              <Content
+                className="flex flex-col border-none p-3"
+                animateCss={false}
+                variants={itemVariants}
+                initial="initial"
+                animate="animate"
+                exit="initial"
+                transition={{
+                  duration: 0.3,
+                }}
+                style={{
+                  width: "calc(var(--radix-popper-anchor-width) + 1.5rem)",
+                }}
+              >
+                <Command shouldFilter={false}>
+                  <SearchInput />
+                  <Products />
+                </Command>
+              </Content>
+            )}
+          </AnimatePresence>
+        </Popover>
+      </SearchTrigger>
+      <div ref={ref} tabIndex={0} />
+    </>
   )
 }
 

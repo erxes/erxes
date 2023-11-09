@@ -1,43 +1,40 @@
+import { slotFilterAtom } from "@/store"
 import { slotCodeAtom } from "@/store/order.store"
-import { useAtom } from "jotai"
+import { useAtom, useSetAtom } from "jotai"
 
 import { ISlot } from "@/types/slots.type"
-import { LoaderIcon } from "@/components/ui/loader"
-import { RadioGroup } from "@/components/ui/radio-group"
-import { ScrollArea } from "@/components/ui/scroll-area"
 
-import Slot from "./components/Slot"
+import Slot from "./components/slot"
 import useSlots from "./hooks/useSlots"
 
 const Slots = () => {
   const { slots, loading } = useSlots()
   const [activeSlot, setActiveSlot] = useAtom(slotCodeAtom)
-
-  if (!loading && !slots.length) return null
-
+  const setSlotFilter = useSetAtom(slotFilterAtom)
   return (
-    <ScrollArea>
-      <RadioGroup
-        className="flex-col flex gap-1.5 pr-4 pt-1.5"
-        value={activeSlot || ""}
-        onValueChange={(value) => setActiveSlot(value)}
+    <div className="w-full overflow-auto shadow-inner p-2">
+      <div
+        className="relative min-h-[1000px] min-w-[1000px] w-full h-full"
+        style={{
+          background: "white",
+          backgroundImage: `radial-gradient(#d4d4d4 1px, transparent 0)`,
+          backgroundSize: "10px 10px",
+          backgroundPosition: "-5px -5px",
+        }}
       >
-        {loading ? (
-          <LoaderIcon />
-        ) : (
-          <>
-            {(slots || []).map((slot: ISlot) => (
-              <Slot
-                {...slot}
-                key={slot.code}
-                active={slot.code === activeSlot}
-              />
-            ))}
-          </>
-        )}
-      </RadioGroup>
-    </ScrollArea>
+        <div
+          className="absolute inset-0"
+          onClick={() => {
+            setActiveSlot(null)
+            setSlotFilter(null)
+          }}
+        />
+        {(slots || []).map((slot: ISlot) => (
+          <Slot key={slot._id} {...slot} active={activeSlot === slot.code} />
+        ))}
+      </div>
+    </div>
   )
 }
-// productsConfigs
+
 export default Slots

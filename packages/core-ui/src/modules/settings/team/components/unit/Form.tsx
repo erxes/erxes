@@ -10,7 +10,7 @@ import { ModalFooter } from '@erxes/ui/src/styles/main';
 import Select from 'react-select-plus';
 import SelectStructureMembers from '../SelectStructureMembers';
 import { __ } from 'modules/common/utils';
-import { generateTree } from '../../utils';
+import { generateUserOptions } from '@erxes/ui/src/team/containers/SelectDepartments';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -112,10 +112,7 @@ export default function DepartmentForm(props: Props) {
             placeholder={__('Choose department')}
             value={departmentId}
             onChange={onChangeDepartment}
-            options={generateTree(departments, '', (node, level) => ({
-              value: node._id,
-              label: `${'---'.repeat(level)} ${node.title}`
-            }))}
+            options={generateUserOptions(departments)}
           />
         </FormGroup>
         <FormGroup>

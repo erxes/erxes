@@ -4,7 +4,8 @@ on:
   push:
     branches:
       - master
-      - develop
+      - dev
+      - masterelop
     paths:
       - 'email-verifier/**'
       - '.github/workflows/email_verifier.yaml'
@@ -12,7 +13,8 @@ on:
   pull_request:
     branches:
       - master
-      - develop
+      - dev
+      - masterelop
     paths:
       - 'email-verifier/**'
       - '.github/workflows/email_verifier.yaml'

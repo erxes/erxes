@@ -20,6 +20,11 @@ const isSwarm = DEPLOYMENT_METHOD !== 'docker-compose';
 const buildPlugins = ['dev', 'staging', 'build-test'];
 
 const commonEnvs = configs => {
+
+  const enabledServices  = (configs.plugins || []).map(plugin => plugin.name);
+  enabledServices.push("workers");
+  const enabledServicesJson = JSON.stringify(enabledServices);
+
   const db_server_address = configs.db_server_address;
   const widgets = configs.widgets || {};
   const redis = configs.redis || {};
@@ -45,7 +50,7 @@ const commonEnvs = configs => {
     RABBITMQ_HOST: rabbitmq_host,
     ELASTICSEARCH_URL: `http://${db_server_address ||
       (isSwarm ? 'erxes-dbs_elasticsearch' : 'elasticsearch')}:9200`,
-    ENABLED_SERVICES_PATH: '/data/enabled-services.js',
+    ENABLED_SERVICES_JSON: enabledServicesJson,
     MESSAGE_BROKER_PREFIX: rabbitmq.prefix || '',
     SENTRY_DSN: configs.sentry_dsn,
   };
@@ -126,7 +131,6 @@ const generatePluginBlock = (configs, plugin) => {
       ...commonEnvs(configs),
       ...(plugin.extra_env || {})
     },
-    volumes: ['./enabled-services.js:/data/enabled-services.js'],
     networks: ['erxes'],
     extra_hosts
   };
@@ -491,13 +495,11 @@ const up = async ({ uis, downloadLocales, fromInstaller }) => {
           EMAIL_VERIFIER_ENDPOINT:
             configs.email_verifier_endpoint ||
             'https://email-verifier.erxes.io',
-          ENABLED_SERVICES_PATH: '/data/enabled-services.js',
           ...commonEnvs(configs),
           ...((configs.core || {}).extra_env || {})
         },
         extra_hosts,
         volumes: [
-          './enabled-services.js:/data/enabled-services.js',
           './permissions.json:/core-api/permissions.json',
           './core-api-uploads:/core-api/dist/core/src/private/uploads'
         ],
@@ -515,7 +517,6 @@ const up = async ({ uis, downloadLocales, fromInstaller }) => {
           ...commonEnvs(configs),
           ...((configs.gateway || {}).extra_env || {})
         },
-        volumes: ['./enabled-services.js:/data/enabled-services.js'],
         healthcheck,
         extra_hosts,
         ports: [`${GATEWAY_PORT}:${SERVICE_INTERNAL_PORT}`],
@@ -527,7 +528,6 @@ const up = async ({ uis, downloadLocales, fromInstaller }) => {
           MONGO_URL: mongoEnv(configs),
           ...commonEnvs(configs)
         },
-        volumes: ['./enabled-services.js:/data/enabled-services.js'],
         networks: ['erxes']
       },
       "plugin-workers-api": {
@@ -541,7 +541,6 @@ const up = async ({ uis, downloadLocales, fromInstaller }) => {
           ...commonEnvs(configs),
           ...((configs.workers || {}).extra_env || {})
         },
-        volumes: ['./enabled-services.js:/data/enabled-services.js'],
         extra_hosts,
         networks: ['erxes']
       }
@@ -615,10 +614,9 @@ const up = async ({ uis, downloadLocales, fromInstaller }) => {
         CUBEJS_REDIS_URL: `redis://${db_server_address ||
           'redis'}:${REDIS_PORT}`,
         CUBEJS_REDIS_PASSWORD: configs.redis.password || '',
-        ENABLED_SERVICES_PATH: '/data/enabled-services.js',
+        ENABLED_SERVICES_JSON: commonEnvs(configs).ENABLED_SERVICES_JSON,
         ...(dashboard.extra_env || {})
       },
-      volumes: ['./enabled-services.js:/data/enabled-services.js'],
       extra_hosts,
       networks: ['erxes']
     };
@@ -678,7 +676,6 @@ const up = async ({ uis, downloadLocales, fromInstaller }) => {
     updateLocales();
   }
 
-  const enabledPlugins = ["'workers'"];
   const uiPlugins = [];
   const essyncerJSON = {
     plugins: [
@@ -721,8 +718,6 @@ const up = async ({ uis, downloadLocales, fromInstaller }) => {
     dockerComposeConfig.services[
       `plugin-${plugin.name}-api`
     ] = generatePluginBlock(configs, plugin);
-
-    enabledPlugins.push(`'${plugin.name}'`);
 
     if (pluginsMap[plugin.name]) {
       const uiConfig = pluginsMap[plugin.name].ui;
@@ -774,17 +769,6 @@ const up = async ({ uis, downloadLocales, fromInstaller }) => {
       ${uiPlugins.join(',')}
     ]
   `.replace(/plugin-uis.s3.us-west-2.amazonaws.com/g, NGINX_HOST)
-  );
-
-  log('Generating enabled-services.js ....');
-
-  await fs.promises.writeFile(
-    filePath('enabled-services.js'),
-    `
-    module.exports = [
-      ${enabledPlugins.join(',')}
-    ]
-  `
   );
 
   const extraServices = configs.extra_services || {};

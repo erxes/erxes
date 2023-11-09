@@ -2,14 +2,11 @@
   "name": "@erxes/plugin-inbox-api",
   "version": "1.0.0",
   "scripts": {
-    "install-deps": "cd .erxes && yarn install",
-    "dev": "cd .erxes && yarn dev",
-    "build": "cd .erxes && yarn build",
-    "start": "cd .erxes/dist/plugin-inbox-api/.erxes && node src",
-    "customCommand": "yarn ts-node src/customCommand.ts"
+    "dev": "nodemon src/index.ts",
+    "build" : "tsc"
   },
   "dependencies": {
-    "erxes-inmemory-storage": "^1.0.20",
+    "@erxes/api-utils" : "*",
     "moment-timezone": "^0.5.28",
     "server-timing": "3.3.1",
     "uuid-by-string": "^3.0.5",

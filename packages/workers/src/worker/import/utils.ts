@@ -12,7 +12,8 @@ import { getFileUploadConfigs } from '../../messageBroker';
 import { IModels } from '../../connectionResolvers';
 
 const { ELK_SYNCER } = process.env;
-const WORKER_BULK_LIMIT = 300;
+
+const WORKER_BULK_LIMIT = 50;
 
 const checkFieldNames = async (fields: string[], columnConfig?: object) => {
   const properties: any[] = [];
@@ -193,7 +194,7 @@ const getWorkerFile = fileName => {
     return `./src/worker/import/${fileName}.worker.import.js`;
   }
 
-  return `./dist/workers/src/worker/import/${fileName}.worker.import.js`;
+  return `./packages/workers/src/worker/import/${fileName}.worker.import.js`;
 };
 
 export const clearEmptyValues = (obj: any) => {

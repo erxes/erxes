@@ -28,6 +28,7 @@
 
     --primary: 257 63% 44%;
     --primary-foreground: 210 40% 98%;
+    --primary-light: 	254 55% 64%;
 
     --secondary: 210 40% 96.1%;
     --secondary-foreground: 222.2 47.4% 11.2%;
@@ -36,7 +37,10 @@
     --accent-foreground: 222.2 47.4% 11.2%;
 
     --warning: 40 100% 50%;
-    --warning-foreground: 43 96% 56%;
+    --warning-foreground: 43 96% 80%;
+
+    --success: 140 50% 85%;
+    --success-foreground: 141 77% 42%;
 
     --destructive: 0 100% 50%;
     --destructive-foreground: 210 40% 98%;
@@ -80,6 +84,10 @@
   }
 }
 
+* :focus-visible {
+  outline: -webkit-focus-ring-color auto 0;
+}
+
 .slick-prev {
   left: 10px !important;
   z-index: 1;
@@ -108,4 +116,130 @@
 .slick-dots li button:before {
   color: #fff !important;
   font-size: 8px !important;
+}
+
+.p-1px {
+  padding: 1px;
+}
+
+.bg-black\/25 {
+  background-color: rgb(0 0 0 / 0.25);
+}
+
+.bg-success {
+  background-color: hsl(var(--success));
+}
+
+.bg-success-foreground {
+  background-color: hsl(var(--success-foreground));
+}
+
+.text-success-foreground {
+  color: hsl(var(--success-foreground));
+}
+
+.text-primary-light {
+  color: hsl(var(--primary-light));
+}
+
+.bg-primary-light {
+  background-color: hsl(var(--primary-light));
+}
+
+.chat-list-max-height {
+  max-height: calc(100vh - 230px);
+}
+.chat-list-search-max-height {
+  max-height: calc(100vh - 195px);
+}
+
+.user-shared-files-max-height {
+  max-height: calc(100vh - 510px);
+}
+.group-shared-files-max-height {
+  max-height: calc(100vh - 460px);
+}
+
+.w-300 {
+  width: 300px;
+}
+
+.css-13cymwt-control{
+  border-radius: 8px !important;
+}
+
+.css-t3ipsp-control {
+  border-radius: 8px !important;
+  border-color: hsl(0, 0%, 80%) !important;
+  box-shadow: none !important;
+}
+
+.css-1p3m7a8-multiValue {
+  background-color: rgba(238, 216, 255, 1) !important;
+  border-radius: 5px !important;
+}
+.css-1p3m7a8-multiValue svg{
+  background-color: rgba(245, 246, 255, 1);
+  border-radius: 50%;
+  color: rgba(238, 216, 255, 1);
+}
+.gap-0 {
+  gap: 0;
+}
+.max-h-\[60vh\] {
+  max-height: 60vh;
+}
+.w-message {
+  width: calc(75% - 90px);
+}
+.hide-user-remove-button .css-12a83d4-MultiValueRemove {
+  display: none;
+}
+.hide-user-remove-button .css-wsp0cs-MultiValueGeneric {
+  padding-right: 6px;
+}
+.shadow-notification {
+  box-shadow: rgba(0, 0, 0, 0.15) 0px 0px 20px 3px;
+}
+.css-1jqq78o-placeholder {
+  color: #444 !important;
+}
+.css-1u9des2-indicatorSeparator {
+  display: none;
+}
+.css-13cymwt-control {
+  border-color: hsl(var(--border));
+}
+.attachment-shadow {
+  box-shadow: 0px 1px 3px 1px rgba(0, 0, 0, 0.15), 0px 1px 2px 0px rgba(0, 0, 0, 0.15);
+}
+.event-card-image-shadow {
+  box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.25);
+}
+.rdtTimeToggle {
+  text-align: center;
+  cursor: pointer;
+}
+.rdtCounters {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: center;
+}
+.rdtYears table, .rdtMonths table {
+  width: 100%;
+}
+.rdtYear, .rdtMonth, .rdtDay {
+  text-align: center;
+  padding: 3px 5px;
+  cursor: pointer;
+}
+.rdtYear:hover, .rdtMonth:hover, .rdtDay:hover {
+  background-color: #f0f0f0;
+}
+.rdtBtn, .rdtSwitch, .rdtPrev, .rdtNext {
+  cursor: pointer;
+}
+.border-light {
+  border-color: hsl(0, 0%, 80%) !important;
 }

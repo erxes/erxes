@@ -116,6 +116,7 @@ class DealItem extends React.PureComponent<Props> {
         return (
           <ItemProductProbabilities
             totalAmount={item.amount}
+            unusedTotalAmount={item.unUsedAmount || {}}
             probability={stage.probability}
           />
         );

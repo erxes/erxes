@@ -1,7 +1,7 @@
 import * as dotenv from 'dotenv';
 dotenv.config();
 
-import { ErxesProxyTarget } from 'src/proxy/targets';
+import { ErxesProxyTarget } from '../proxy/targets';
 import { supergraphConfigPath, supergraphPath } from './paths';
 import * as fs from 'fs';
 import { execSync } from 'child_process';
@@ -55,7 +55,9 @@ const createSupergraphConfig = (proxyTargets: ErxesProxyTarget[]) => {
       !fs.existsSync(supergraphConfigPath) ||
       !isSameFile(supergraphConfigPath, superGraphConfigNext)
     ) {
-      execSync(`cp ${superGraphConfigNext}  ${supergraphConfigPath}`);
+      execSync(`cp -f ${superGraphConfigNext}  ${supergraphConfigPath}`, {
+        stdio: 'inherit'
+      });
     }
   }
 };
@@ -76,7 +78,9 @@ const supergraphComposeOnce = async () => {
       !fs.existsSync(supergraphPath) ||
       !isSameFile(supergraphPath, superGraphqlNext)
     ) {
-      execSync(`cp ${superGraphqlNext} ${supergraphPath}`);
+      execSync(`cp -f ${superGraphqlNext} ${supergraphPath}`, {
+        stdio: 'inherit'
+      });
       console.log(`NEW Supergraph Schema was printed to ${supergraphPath}`);
     }
   }

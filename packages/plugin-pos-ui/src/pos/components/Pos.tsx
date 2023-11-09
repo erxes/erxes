@@ -143,7 +143,8 @@ class Pos extends React.Component<Props, State> {
       _id: m._id,
       code: m.code,
       name: m.name,
-      posId: m.posId
+      posId: m.posId,
+      option: m.option
     }));
 
     let doc: any = {
