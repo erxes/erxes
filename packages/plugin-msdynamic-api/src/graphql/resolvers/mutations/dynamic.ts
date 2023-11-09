@@ -344,102 +344,15 @@ const msdynamicMutations = {
 
       for (const customer of customers) {
         const document: any = {
-          No: 'BEV-00001',
-          Name: 'Erdenet Nomads',
-          Name_MN: 'Номадсхоспиталити',
-          Search_Name: 'ERDENET NOMADS',
-          IC_Partner_Code: '',
-          Balance_LCY: 0,
-          Balance_Due_LCY: 0,
-          Credit_Limit_LCY: 0,
-          Blocked: '',
-          Salesperson_Code: 'BEV-ERDE',
-          Responsibility_Center: 'BEV-DIST',
-          Service_Zone_Code: '',
-          Document_Sending_Profile: '',
-          CustSalesLCY_CustProfit_AdjmtCostLCY: 0,
-          AdjCustProfit: 0,
-          AdjProfitPct: 0,
-          Last_Date_Modified: '2023-10-11',
-          Disable_Search_by_Name: false,
-          Chain_Name: 'JJ017',
-          Name_2: '',
-          Customer_Category_Code: 'ON',
-          Customer_Classification_Code: 'RESTAURANT',
-          Global_Dimension_1_Code: 'BU1300',
-          Employee_No: '',
-          Creation_Date: '0001-01-01',
-          Address: 'Erdenet hot',
-          Address_2: 'Erdenet hot',
-          Country_Region_Code: 'MN',
-          City: 'Orkhon',
-          County: '',
-          Post_Code: '61000',
-          ShowMap: 'Show on Map',
-          Primary_Contact_No: 'RMC-000951',
-          ContactName: '',
-          Phone_No: '',
-          E_Mail: '',
-          Mobile_Phone_No: '',
-          Fax_No: '',
-          Home_Page: '',
-          Language_Code: '',
-          Bill_to_Customer_No: '',
-          VAT_Registration_No: '2737329',
-          GLN: '',
-          Use_GLN_in_Electronic_Document: false,
-          Copy_Sell_to_Addr_to_Qte_From: 'Company',
-          Invoice_Copies: 0,
-          Gen_Bus_Posting_Group: 'DOMESTIC',
-          VAT_Bus_Posting_Group: 'DOMESTIC',
-          Customer_Posting_Group: 'TRADE',
-          Currency_Code: '',
-          Customer_Price_Group: 'ON TRADE',
-          Customer_Disc_Group: '',
-          Allow_Line_Disc: true,
-          Invoice_Disc_Code: 'BEV-00001',
-          Prices_Including_VAT: true,
-          BillType: 'Receipt',
-          Where_Print_VAT: 'Unposted',
-          AllowPrintVATPostedInv: true,
-          Internal: false,
-          Corresponding_Vendor_No: '',
-          Default_Service_Item_Charge: '',
-          Item_Charge_Invoice_Deal_Type: '',
-          Prepayment_Percent: 0,
-          Application_Method: 'Manual',
-          Partner_Type: 'Company',
-          Payment_Terms_Code: 'ENDOFMONTH',
-          Payment_Method_Code: 'LEND',
-          Reminder_Terms_Code: '',
-          Fin_Charge_Terms_Code: '',
-          Cash_Flow_Payment_Terms_Code: '',
-          Print_Statements: false,
-          Last_Statement_No: 0,
-          Block_Payment_Tolerance: false,
-          Preferred_Bank_Account_Code: '',
-          Lend_Product_Id: 0,
-          Bank_Name: '',
-          Account_No: '',
-          Ship_to_Code: '',
-          Location_Code: 'BEV-10',
-          Combine_Shipments: false,
-          Reserve: 'Optional',
-          Shipping_Advice: 'Partial',
-          Shipment_Method_Code: '',
-          Shipping_Agent_Code: '',
-          Shipping_Agent_Service_Code: '',
-          Shipping_Time: '',
-          Base_Calendar_Code: '',
-          Global_Dimension_1_Filter: '',
-          Global_Dimension_2_Filter: '',
-          Currency_Filter: '',
-          Date_Filter: ''
+          Name: 'TEST GERELSUKH',
+          Name_MN: 'Тестгэрэлсүх',
+          Search_Name: 'TEST GERELSUKH',
+          Phone_No: customer.phone
         };
 
         const response = await sendRequest({
-          url: customerApi,
-          method: 'POST',
+          url: `${customerApi}?$filter=Phone_No eq '${customer.phone}'`,
+          method: 'GET',
           headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
             Accept: 'application/json',
@@ -449,6 +362,22 @@ const msdynamicMutations = {
           },
           body: document
         });
+
+        if (response.value.length === 0) {
+          const postResponse = await sendRequest({
+            url: customerApi,
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Basic ${Buffer.from(
+                `${username}:${password}`
+              ).toString('base64')}`
+            },
+            body: document
+          });
+
+          console.log(postResponse, 'responce');
+        }
       }
 
       return {
