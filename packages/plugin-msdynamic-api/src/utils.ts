@@ -64,7 +64,8 @@ const customerRequest = async (subdomain, action, updateCode, doc) => {
       firstName: doc?.Name || 'default',
       code: doc.No,
       primaryPhone: doc?.Mobile_Phone_No,
-      phones: [doc?.Phone_No]
+      phones: [doc?.Phone_No],
+      state: 'customer'
     };
 
     if (customer) {
