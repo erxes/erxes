@@ -24,6 +24,10 @@ export const setConfigsAtom = atom(null, (get, set, update: IConfig[]) => {
   set(configsAtom, update)
 })
 export const currentUserAtom = atom<ICurrentUser | null>(null)
+
+export const isAdminAtom = atom((get) =>
+  get(configAtom)?.adminIds?.includes(get(currentUserAtom)?._id || "")
+)
 export const setCurrentUserAtom = atom(
   null,
   (get, set, update: ICurrentUser | null) => {
