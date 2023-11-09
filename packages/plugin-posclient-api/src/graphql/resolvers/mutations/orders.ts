@@ -33,6 +33,7 @@ import {
   validateOrder,
   validateOrderPayment
 } from '../../utils/orderUtils';
+import { checkSlotStatus } from '../../utils/slots';
 
 interface IPaymentBase {
   billType: string;
@@ -305,6 +306,26 @@ const ordersEdit = async (
       customerType: order.customerType
     }
   });
+
+  if (
+    (order.slotCode || updatedOrder.slotCode) &&
+    order.slotCode !== updatedOrder.slotCode
+  ) {
+    const currentSlots = await models.PosSlots.find({
+      posId: config.posId,
+      code: { $in: [order.slotCode, updatedOrder.slotCode] }
+    }).lean();
+
+    if (order.slotCode) {
+      console.log(order, 'zzzzz');
+      await graphqlPubsub.publish('slotsStatusUpdated', {
+        slotsStatusUpdated: {
+          slotCodes: currentSlots.map(cs => cs.code),
+          slots: await checkSlotStatus(models, config, currentSlots)
+        }
+      });
+    }
+  }
 
   return updatedOrder;
 };

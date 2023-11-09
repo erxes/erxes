@@ -1,3 +1,4 @@
+import { useEffect } from "react"
 import { slotFilterAtom } from "@/store"
 import { slotCodeAtom } from "@/store/order.store"
 import { useAtom, useSetAtom } from "jotai"
@@ -8,9 +9,14 @@ import Slot from "./components/slot"
 import useSlots from "./hooks/useSlots"
 
 const Slots = () => {
-  const { slots, loading } = useSlots()
+  const { slots, loading, subToSlots } = useSlots()
   const [activeSlot, setActiveSlot] = useAtom(slotCodeAtom)
   const setSlotFilter = useSetAtom(slotFilterAtom)
+
+  useEffect(() => {
+    subToSlots()
+  }, [])
+
   return (
     <div className="w-full overflow-auto shadow-inner p-2">
       <div
