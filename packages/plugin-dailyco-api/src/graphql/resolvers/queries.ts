@@ -1,4 +1,6 @@
+import { sendRequest } from '@erxes/api-utils/src';
 import { IContext } from '../../connectionResolver';
+import { sendCommonMessage } from '../../messageBroker';
 import {
   Conversations,
   ConversationMessages,
@@ -7,91 +9,66 @@ import {
 } from '../../models';
 
 const queries = {
-  async viberConversationDetail(
-    _root,
-    { conversationId },
-    context: IContext
-  ): Promise<IConversationMessages[]> {
-    let conversation: any = await Conversations.findOne(
-      { erxesApiId: conversationId },
-      '_id'
-    );
+  async videoCallUsageStatus(_root, _args, { models, subdomain }: IContext) {
+    const type = await sendCommonMessage({
+      serviceName: 'integrations',
+      action: 'configs.findOne',
+      subdomain,
+      data: { code: 'VIDEO_CALL_TYPE' },
+      isRPC: true
+    });
 
-    if (conversation) {
-      const messages = ConversationMessages.find({
-        conversationId: conversation._id
-      }).sort('createdAt');
-      return messages;
+    if (!type || type !== 'dailyco') {
+      throw new Error(
+        'Video call configs not found. Please setup video call configs from integrations settings.'
+      );
     }
 
-    return [];
-  },
+    const keys = ['DAILY_API_KEY', 'DAILY_END_POINT'];
 
-  async viberConversationMessages(
-    _root,
-    args: any,
-    context: IContext
-  ): Promise<any[]> {
-    const query: { conversationId: string } = { conversationId: '' };
-    const { conversationId, limit, skip, getFirst } = args;
+    const selector = { code: { $in: keys } };
 
-    let messages: any[] = [];
+    const configs = await sendCommonMessage({
+      serviceName: 'integrations',
+      action: 'configs.find',
+      subdomain,
+      data: { selector },
+      isRPC: true
+    });
 
-    const conversation = await Conversations.findOne(
-      { erxesApiId: conversationId },
-      '_id'
-    );
-
-    if (conversation) {
-      query.conversationId = conversation._id;
+    if (!configs || configs.length === 0) {
+      throw new Error(
+        'Video call configs not found. Please setup video call configs from integrations settings.'
+      );
     }
 
-    if (limit) {
-      const sort: { createdAt: number } = getFirst
-        ? { createdAt: 1 }
-        : { createdAt: -1 };
+    const DAILY_API_KEY = configs.find(
+      (config: any) => config.code === 'DAILY_API_KEY'
+    ).value;
 
-      messages = await ConversationMessages.find(query)
-        .sort(sort)
-        .skip(skip || 0)
-        .limit(limit);
+    const response = await sendRequest({
+      url: 'https://api.daily.co/v1',
+      method: 'get',
+      headers: { Authorization: `Bearer ${DAILY_API_KEY}` }
+    });
 
-      return getFirst ? messages : messages.reverse();
+    if (!response) {
+      throw new Error(
+        'Error while fetching video call usage status. Please try again later.'
+      );
     }
 
-    messages = await ConversationMessages.find(query)
-      .sort({ createdAt: -1 })
-      .limit(50);
+    if (response.error) {
+      if (response.error === 'authentication-error') {
+        throw new Error(
+          'Invalid daily api key. Please check your daily api key.'
+        );
+      }
 
-    return messages.reverse();
-  },
-
-  async viberConversationMessagesCount(
-    _root,
-    { conversationId }: { conversationId: string },
-    context: IContext
-  ) {
-    const conversation = await Conversations.findOne(
-      { erxesApiId: conversationId },
-      '_id'
-    );
-
-    if (conversation) {
-      return ConversationMessages.countDocuments({
-        conversationId: conversation._id
-      });
+      throw new Error(response.error);
     }
 
-    return 0;
-  },
-
-  async viberIntegrationDetail(
-    _root,
-    { integrationId }: { integrationId: string },
-    context: IContext
-  ): Promise<any> {
-    const integration = await Integrations.findOne({ inboxId: integrationId });
-    return integration;
+    return response;
   }
 };
 
