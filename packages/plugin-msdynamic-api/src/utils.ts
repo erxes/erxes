@@ -61,12 +61,10 @@ const customerRequest = async (subdomain, action, updateCode, doc) => {
 
   if ((action === 'update' && doc.No) || action === 'create') {
     const document: any = {
-      primaryName: doc?.Name || 'default',
+      firstName: doc?.Name || 'default',
       code: doc.No,
       primaryPhone: doc?.Mobile_Phone_No,
-      phones: [doc?.Phone_No],
-      location: doc?.Country_Region_Code === 'MN' ? 'Mongolia' : '',
-      businessType: doc?.Partner_Type === 'Person' ? 'Customer' : 'Partner'
+      phones: [doc?.Phone_No]
     };
 
     if (customer) {

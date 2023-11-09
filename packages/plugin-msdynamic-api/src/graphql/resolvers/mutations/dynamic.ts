@@ -210,6 +210,7 @@ const msdynamicMutations = {
         }
       }
 
+      /* company and customer rquest function*/
       const companyRequest = resCompany => {
         if (companyCodes.includes(resCompany.No.replace(/\s/g, ''))) {
           const company = companyByCode[resCompany.No.replace(/\s/g, '')];
@@ -237,6 +238,8 @@ const msdynamicMutations = {
           createCustomers.push(resCompany);
         }
       };
+
+      /* ---------------------- */
 
       for (const resCompany of response.value) {
         if (resCompany?.Partner_Type === 'Company') {
