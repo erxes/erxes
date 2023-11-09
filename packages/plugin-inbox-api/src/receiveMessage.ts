@@ -8,6 +8,7 @@ import {
 import { generateModels } from './connectionResolver';
 import { IConversationDocument } from './models/definitions/conversations';
 import { pConversationClientMessageInserted } from './graphql/resolvers/widgetMutations';
+import { putCreateLog } from './logUtils';
 
 const sendError = message => ({
   status: 'error',
@@ -137,6 +138,13 @@ export const receiveRpcMessage = async (subdomain, data) => {
     doc.assignedUserId = assignedUserId;
 
     const conversation = await Conversations.createConversation(doc);
+
+    putCreateLog(
+      await generateModels(subdomain),
+      subdomain,
+      { ...doc, type: 'conversation' },
+      user
+    );
 
     return sendSuccess({ _id: conversation._id });
   }

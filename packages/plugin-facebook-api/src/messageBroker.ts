@@ -66,6 +66,7 @@ export const initBroker = async cl => {
         }
 
         if (type === 'facebook') {
+          console.log({ data });
           response = { data: await handleFacebookMessage(models, data) };
         }
 
@@ -203,6 +204,17 @@ export const sendInboxMessage = (args: ISendMessageArgs) => {
     client,
     serviceDiscovery,
     serviceName: 'inbox',
+    ...args
+  });
+};
+
+export const sendContactsMessage = async (
+  args: ISendMessageArgs
+): Promise<any> => {
+  return sendCommonMessage({
+    client,
+    serviceDiscovery,
+    serviceName: 'contacts',
     ...args
   });
 };

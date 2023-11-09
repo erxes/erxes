@@ -9,6 +9,12 @@ const CreateFacebook = asyncComponent(() =>
   import(/* webpackChunkName: "Settings CreateFacebook" */ './containers/Form')
 );
 
+const MessengerBotList = asyncComponent(() =>
+  import(
+    /* webpackChunkName: "Settings Messenger Bots" */ './bots/containers/List'
+  )
+);
+
 const createFacebook = ({ location, history }) => {
   const queryParams = queryString.parse(location.search);
 
@@ -17,6 +23,12 @@ const createFacebook = ({ location, history }) => {
   };
 
   return <CreateFacebook callBack={callBack} kind={queryParams.kind} />;
+};
+
+const fbMessengerBots = ({ location }) => {
+  const queryParams = queryString.parse(location.search);
+
+  return <MessengerBotList queryParams={queryParams} />;
 };
 
 const auth = ({ location }) => (
@@ -37,6 +49,13 @@ const routes = () => (
       exact={true}
       path="/settings/fb-authorization"
       component={auth}
+    />
+
+    <Route
+      key="/settings/facebook-messenger-bots"
+      exact={true}
+      path="/settings/facebook-messenger-bots"
+      component={fbMessengerBots}
     />
   </React.Fragment>
 );

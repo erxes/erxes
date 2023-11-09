@@ -7,6 +7,8 @@ import { generateModels } from './connectionResolver';
 import initApp from './initApp';
 import { INTEGRATION_KINDS } from './constants';
 import automations from './automations';
+import forms from './forms';
+import segments from './segments';
 
 export let mainDb;
 export let debug;
@@ -25,6 +27,8 @@ export default {
   },
   meta: {
     automations,
+    forms,
+    segments,
     inboxIntegrations: [
       {
         kind: INTEGRATION_KINDS.MESSENGER,

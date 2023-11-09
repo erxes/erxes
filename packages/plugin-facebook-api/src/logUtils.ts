@@ -13,7 +13,7 @@ export const putCreateLog = async (
   models: IModels,
   subdomain: string,
   logDoc,
-  userId
+  customerId
 ) => {
   const { description, extraDesc } = await gatherDescriptions(
     models,
@@ -24,7 +24,7 @@ export const putCreateLog = async (
     }
   );
 
-  const customer = await models.Customers.findOne({ _id: userId }).lean();
+  const customer = await models.Customers.findOne({ _id: customerId }).lean();
 
   await commonPutCreateLog(
     subdomain,

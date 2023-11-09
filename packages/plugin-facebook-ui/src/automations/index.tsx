@@ -1,4 +1,5 @@
 import React from 'react';
+import ReplyFbMessage from './components/ReplyFbMessage';
 
 const Automations = props => {
   const { componentType, activeAction } = props;
@@ -13,7 +14,12 @@ const Automations = props => {
       .replace('.', ':')
       .split(':');
 
-    return <>Fuck</>;
+    switch (contentType) {
+      case 'messages':
+        return <ReplyFbMessage {...props} />;
+      default:
+        return null;
+    }
   }
   if (componentType === 'historyActionResult') {
     const { result } = props;

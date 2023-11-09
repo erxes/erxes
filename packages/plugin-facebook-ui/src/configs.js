@@ -17,6 +17,15 @@ module.exports = {
     scope: 'facebook',
     module: './routes'
   },
+  menus: [
+    {
+      text: 'Facebook Messenger Bots',
+      to: '/settings/facebook-messenger-bots',
+      image: '/images/icons/erxes-16.svg',
+      location: 'settings',
+      scope: 'facebook'
+    }
+  ],
   automation: './automation',
   inboxIntegrationSettings: './inboxIntegrationSettings',
   inboxDirectMessage: {

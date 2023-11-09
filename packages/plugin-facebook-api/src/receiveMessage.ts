@@ -103,7 +103,7 @@ const receiveMessage = async (
   }
 
   // get conversation message
-  const conversationMessage = await models.ConversationMessages.findOne({
+  let conversationMessage = await models.ConversationMessages.findOne({
     mid: message.mid
   });
 
@@ -133,6 +133,8 @@ const receiveMessage = async (
           conversationId: conversation.erxesApiId
         }
       });
+
+      conversationMessage = created;
     } catch (e) {
       throw new Error(
         e.message.includes('duplicate')
@@ -145,8 +147,8 @@ const receiveMessage = async (
   putCreateLog(
     models,
     subdomain,
-    { type: 'message', newDate: message, object: conversationMessage },
-    userId
+    { type: 'messages', newData: message, object: conversationMessage },
+    customer._id
   );
 };
 
