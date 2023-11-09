@@ -1,19 +1,51 @@
 import { Schema, model } from 'mongoose';
 
+export interface IRecording {
+  id: string;
+  url?: string;
+  expires?: number;
+}
+
 export interface ICallRecord {
-  erxesApiConversationId: string;
-  erxesApiMessageId: string;
+  contentType: string;
+  contentTypeId: string;
+
   roomName: string;
   privacy: string;
+  status: string;
   token: string;
+
+  recordings?: IRecording[];
 }
+
+const recordingSchema = new Schema(
+  {
+    id: String,
+    url: String,
+    expires: Number
+  },
+  {
+    _id: false
+  }
+);
 
 export const recordSchema: Schema<ICallRecord> = new Schema<ICallRecord>({
   erxesApiConversationId: String,
   erxesApiMessageId: String,
   roomName: String,
   privacy: String,
-  token: String
+  status: {
+    type: String,
+    default: 'ongoing'
+  },
+  token: String,
+  kind: String,
+
+  recordings: [recordingSchema],
+  createdAt: {
+    type: Date,
+    default: new Date()
+  }
 });
 
 export const loadRecordClass = () => {

@@ -14,6 +14,8 @@ const Recording = asyncComponent(() =>
 const videoCall = ({ location }) => {
   const queryParams = queryString.parse(location.search);
 
+  console.log('queryParams', queryParams);
+
   return <VideoCall queryParams={queryParams} />;
 };
 

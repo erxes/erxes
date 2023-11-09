@@ -16,7 +16,11 @@ export const initBroker = async cl => {
   consumeRPCQueue(
     'dailyco:createRoom',
     async (args): Promise<any> => {
-      const { subdomain, erxesApiConversationId, erxesApiMessageId } = args;
+      const {
+        subdomain,
+        erxesApiConversationId,
+        contentType = 'inbox:conversations'
+      } = args;
 
       try {
         const response = await sendDailyRequest(
@@ -36,11 +40,12 @@ export const initBroker = async cl => {
         );
 
         const doc: ICallRecord = {
-          erxesApiConversationId,
-          erxesApiMessageId,
+          contentTypeId: erxesApiConversationId,
+          contentType,
           roomName: response.name,
           privacy: response.privacy,
-          token: tokenResponse.token
+          token: tokenResponse.token,
+          status: 'ongoing'
         };
 
         const record = await Records.createCallRecord(doc);
