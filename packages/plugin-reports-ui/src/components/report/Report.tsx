@@ -1,20 +1,23 @@
-import React, { useState } from 'react';
-import { IChart, IReport, IReportItem } from '../../types';
-import { Tabs, TabTitle } from '@erxes/ui/src/components/tabs';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { __, confirm } from '@erxes/ui/src/utils';
+import { Button, FormControl, Icon } from '@erxes/ui/src/components';
+import { TabTitle, Tabs } from '@erxes/ui/src/components/tabs';
 import PageContent from '@erxes/ui/src/layout/components/PageContent';
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
+import { BarItems, FlexContent } from '@erxes/ui/src/layout/styles';
+import { __, confirm } from '@erxes/ui/src/utils';
+import React, { useState } from 'react';
+import Modal from 'react-bootstrap/Modal';
 import {
   ActionBarButtonsWrapper,
   BackButton,
   CenterBar,
   DragField,
+  FlexCenter,
   Title
 } from '../../styles';
-import { Link } from 'react-router-dom';
+import { IChart, IReport, IReportItem } from '../../types';
 import Chart from '../chart/Chart';
-import { BarItems, FlexContent } from '@erxes/ui/src/layout/styles';
-import { Button, FormControl, Icon } from '@erxes/ui/src/components';
+import SelectMembersForm from '../utils/SelectMembersForm';
+import Participators from './Participators';
 
 const deserializeItem = i => ({
   ...i,
@@ -36,17 +39,23 @@ type Props = {
   reportItems: IReportItem[];
   history: any;
   queryParams: any;
-  reportsEdit: (reportId: string, values: any) => void;
+  reportsEdit: (reportId: string, values: any, callback?: any) => void;
 };
 
 const Report = (props: Props) => {
   const { report, reportsEdit, history } = props;
-  const { charts } = report;
+  const { charts, members } = report;
   const [isPublic, setIsPublic] = useState(report.visibility === 'public');
   const [name, setName] = useState(report.name || '');
-  const [visibility, setVisibility] = useState(report.visibility);
+  const [visibility, setVisibility] = useState<string>(report.visibility || '');
 
   const [showChatForm, setShowChatForm] = useState(false);
+  const [showTeamMemberSelect, setShowTeamMembersSelect] = useState(false);
+
+  const [userIds, setUserIds] = useState(report.assignedUserIds);
+  const [departmentIds, setDepartmentIds] = useState(
+    report.assignedDepartmentIds
+  );
 
   const onNameChange = e => {
     e.preventDefault();
@@ -95,14 +104,72 @@ const Report = (props: Props) => {
   const handleBackButtonClick = () => {
     if (checkNameChange()) {
       confirm('Do you want to save the change').then(() =>
-        reportsEdit(report._id, { name })
+        reportsEdit(report._id, { name }, history.push('/reports'))
       );
-
-      history.push('/reports');
     } else {
       history.push('/reports');
     }
   };
+
+  const switchVisiblitybarTab = (vis: string) => {
+    setVisibility(vis);
+    setIsPublic(vis === 'public');
+    reportsEdit(report._id, { visibility: vis });
+  };
+
+  const handleSubmit = () => {
+    reportsEdit(report._id, { name, visibility, charts });
+  };
+
+  const handleMembersSubmit = () => {
+    reportsEdit(
+      report._id,
+      {
+        visibility,
+        assignedDepartmentIds: departmentIds,
+        assignedUserIds: userIds
+      },
+      setShowTeamMembersSelect(false)
+    );
+  };
+
+  const handleDepartmentChange = (deptIds: string[]) => {
+    setDepartmentIds(deptIds);
+  };
+
+  const handleUserChange = (usrIds: string[]) => {
+    setUserIds(usrIds);
+  };
+
+  const renderMembersSelectModal = () => {
+    return (
+      <Modal
+        show={showTeamMemberSelect}
+        onHide={() => setShowTeamMembersSelect(false)}
+      >
+        <Modal.Body>
+          <SelectMembersForm
+            handleDepartmentChange={handleDepartmentChange}
+            handleUserChange={handleUserChange}
+            userIds={userIds}
+            departmentIds={departmentIds}
+          />
+          <FlexCenter>
+            <Button
+              btnStyle="primary"
+              onClick={() => setShowTeamMembersSelect(false)}
+            >
+              Cancel
+            </Button>
+            <Button btnStyle="success" onClick={handleMembersSubmit}>
+              Save
+            </Button>
+          </FlexCenter>
+        </Modal.Body>
+      </Modal>
+    );
+  };
+
   const renderLeftActionBar = () => {
     return (
       <FlexContent>
@@ -124,13 +191,13 @@ const Report = (props: Props) => {
           <Tabs full={true}>
             <TabTitle
               className={isPublic ? 'active' : ''}
-              // onClick={switchVisiblitybarTab.bind(this, 'public')}
+              onClick={() => switchVisiblitybarTab('public')}
             >
               {__('Public')}
             </TabTitle>
             <TabTitle
               className={isPublic ? '' : 'active'}
-              // onClick={switchVisiblitybarTab.bind(this, 'private')}
+              onClick={() => switchVisiblitybarTab('private')}
             >
               {__('Private')}
             </TabTitle>
@@ -141,15 +208,9 @@ const Report = (props: Props) => {
   };
 
   const renderRightActionBar = () => {
-    // const { isPublic } = state;
-
-    // const { dashboard } = props;
-
-    // const members = dashboard.members || ([] as IUser[]);
-
-    // const onClickButton = () => {
-    //   setState({ showTeamMemberSelect: true });
-    // };
+    const onClickSelectMembers = () => {
+      setShowTeamMembersSelect(true);
+    };
 
     return (
       <BarItems>
@@ -159,11 +220,11 @@ const Report = (props: Props) => {
               btnStyle="link"
               size="small"
               icon={'check-circle'}
-              // onClick={onClickButton}
+              onClick={onClickSelectMembers}
             >
               {__('Select  members or department')}
             </Button>
-            {/* <Participators participatedUsers={members} limit={100} /> */}
+            <Participators participatedUsers={members} limit={100} />
           </>
         ) : null}
 
@@ -173,7 +234,7 @@ const Report = (props: Props) => {
             btnStyle="success"
             size="small"
             icon={'check-circle'}
-            // onClick={handleSubmit}
+            onClick={handleSubmit}
           >
             {__('Save')}
           </Button>
@@ -200,6 +261,7 @@ const Report = (props: Props) => {
         }
         transparent={false}
       >
+        {showTeamMemberSelect && renderMembersSelectModal()}
         <DragField>{charts?.map(deserializeItem).map(reportItem)}</DragField>
       </PageContent>
     </>

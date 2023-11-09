@@ -1,4 +1,5 @@
 import { IContext } from '../../connectionResolver';
+import { sendTagsMessage } from '../../messageBroker';
 import { IReportDocument } from '../../models/definitions/reports';
 
 export default {
@@ -31,5 +32,23 @@ export default {
         _id: report.updatedBy
       }
     );
+  },
+
+  members(report: IReportDocument) {
+    return (report.assignedUserIds || []).map(_id => ({
+      __typename: 'User',
+      _id
+    }));
+  },
+
+  async tags(report: IReportDocument, _, { subdomain }: IContext) {
+    return sendTagsMessage({
+      subdomain,
+      action: 'find',
+      data: {
+        _id: { $in: report.tagIds }
+      },
+      isRPC: true
+    });
   }
 };

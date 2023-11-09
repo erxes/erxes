@@ -20,11 +20,6 @@ import Select from 'react-select-plus';
 
 import Button from '@erxes/ui/src/components/Button';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
-import { CHART_TYPES } from '../../constants';
-import DimensionForm from './DimensionForm';
-import FilterForm from './FilterForm';
-import MeasureForm from './MeasureForm';
-import TimeForm from './TimeForm';
 import { __ } from '@erxes/ui/src/utils';
 
 type Props = {

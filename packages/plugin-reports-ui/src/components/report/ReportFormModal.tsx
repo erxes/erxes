@@ -11,6 +11,7 @@ import { __ } from '@erxes/ui/src/utils';
 import { FlexRow } from '@erxes/ui-settings/src/styles';
 import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
 import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
+import SelectMembersForm from '../utils/SelectMembersForm';
 
 type Props = {
   history: any;
@@ -77,19 +78,10 @@ const ReportFormModal = (props: Props) => {
         </CenterBar>
       </FlexRow>
       {visibility === 'private' && (
-        <>
-          <ControlLabel>Select members or departments</ControlLabel>
-          <SelectTeamMembers
-            label={'Choose team members'}
-            name="assignedUserIds"
-            onSelect={handleUserChange}
-          />
-          <SelectDepartments
-            name="assignedDepartmentIds"
-            label={'Select departments'}
-            onSelect={handleDepartmentChange}
-          />
-        </>
+        <SelectMembersForm
+          handleDepartmentChange={handleDepartmentChange}
+          handleUserChange={handleUserChange}
+        />
       )}
 
       <FlexCenter>

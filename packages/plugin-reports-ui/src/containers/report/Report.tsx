@@ -29,10 +29,13 @@ const ReportList = (props: FinalProps) => {
     return <Spinner />;
   }
 
-  const reportsEdit = (_id: string, values: any) => {
+  const reportsEdit = (_id: string, values: any, callback?: any) => {
     reportsEditMutation({ variables: { _id, ...values } })
       .then(() => {
         Alert.success('Successfully edited report');
+        if (callback) {
+          callback();
+        }
       })
       .catch(err => Alert.error(err.message));
   };

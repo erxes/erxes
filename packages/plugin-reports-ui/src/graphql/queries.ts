@@ -48,6 +48,9 @@ const reportsList = `
         updatedBy{
           ${userFields}
         }
+        members {
+          ${userFields}
+        }
         charts {
           name
           contentType
@@ -110,6 +113,9 @@ const reportDetail = `
         updatedBy{
           ${userFields}
         }
+        members{
+          ${userFields}
+        }
         charts {
           name
           contentType
@@ -127,6 +133,9 @@ const reportDetail = `
             filterType
           }
         }
+
+        assignedDepartmentIds
+        assignedUserIds
     }
   }
 `;

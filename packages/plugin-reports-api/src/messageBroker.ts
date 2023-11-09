@@ -53,6 +53,15 @@ export const sendCommonMessage = async (
   });
 };
 
+export const sendTagsMessage = async (args: ISendMessageArgs): Promise<any> => {
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName: 'tags',
+    ...args
+  });
+};
+
 export default function() {
   return client;
 }

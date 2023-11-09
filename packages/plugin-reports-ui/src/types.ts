@@ -16,7 +16,11 @@ export interface IReport {
   charts?: IChart[];
   chartsCount?: number;
 
+  assignedUserIds?: string[];
+  assignedDepartmentIds?: string[];
+
   tags?: ITag[];
+  members?: IUser[];
   visibility?: ReportVisibility;
 }
 

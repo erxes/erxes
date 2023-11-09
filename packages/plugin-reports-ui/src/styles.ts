@@ -103,6 +103,9 @@ const DragField = styledTS<{ haveChart?: boolean }>(styled(ReactGridLayout))`
 `;
 
 const CenterBar = styled.div`
+  position: absolute;
+  left: 40%;
+
   > div {
     height: 30px;
     border: 1px solid ${colors.borderDarker};
