@@ -16,7 +16,7 @@ const DashboardFilterContainer = (props: {
 }) => {
   const { countByTagsQuery, tagsQuery } = props;
 
-  const counts = countByTagsQuery?.dashboardCountByTags || {};
+  const counts = countByTagsQuery?.reportsCountByTags || {};
 
   return (
     <CountsByTag
@@ -28,15 +28,16 @@ const DashboardFilterContainer = (props: {
   );
 };
 
-export default compose()(DashboardFilterContainer);
-// graphql<{}, CountByTagsQueryResponse, {}>(gql(queries.dashboardCountByTags), {
-//   name: 'countByTagsQuery'
-// }),
-// graphql<{}, TagsQueryResponse, { type: string }>(gql(tagQueries.tags), {
-//   name: 'tagsQuery',
-//   options: () => ({
-//     variables: {
-//       type: TAG_TYPES.DASHBOARD
-//     }
-//   })
-// })
+export default compose(
+  graphql<{}, CountByTagsQueryResponse, {}>(gql(queries.reportsCountByTags), {
+    name: 'countByTagsQuery'
+  }),
+  graphql<{}, TagsQueryResponse, { type: string }>(gql(tagQueries.tags), {
+    name: 'tagsQuery',
+    options: () => ({
+      variables: {
+        type: TAG_TYPES.REPORT
+      }
+    })
+  })
+)(DashboardFilterContainer);

@@ -3,8 +3,8 @@ import { generateModels } from './connectionResolver';
 export default {
   types: [
     {
-      description: 'Dashboard',
-      type: 'dashboard'
+      description: 'Reports',
+      type: 'reports'
     }
   ],
   tag: async ({ subdomain, data }) => {

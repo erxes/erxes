@@ -120,7 +120,7 @@ export type TypeQueryResponse = {
 };
 
 export type CountByTagsQueryResponse = {
-  dashboardCountByTags: { [key: string]: number };
+  reportsCountByTags: { [key: string]: number };
   loading: boolean;
 };
 

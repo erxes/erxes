@@ -23,7 +23,7 @@ $searchValue: String
 $perPage: Int
 $page: Int
 $departmentId: String
-
+$tagId: String
 `;
 
 const commonParamsDef = `
@@ -31,6 +31,7 @@ searchValue: $searchValue
 perPage: $perPage
 page: $page
 departmentId: $departmentId
+tagId: $tagId
 `;
 
 const reportsList = `
@@ -139,11 +140,19 @@ const reportDetail = `
     }
   }
 `;
+
+const reportsCountByTags = `
+query reportsCountByTags {
+  reportsCountByTags
+}
+`;
+
 export default {
   reportsList,
   totalCount,
 
   reportTemplatesList,
   reportChartTemplatesList,
-  reportDetail
+  reportDetail,
+  reportsCountByTags
 };

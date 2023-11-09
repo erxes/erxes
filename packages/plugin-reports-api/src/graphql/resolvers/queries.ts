@@ -1,7 +1,11 @@
 import { IUserDocument } from '@erxes/api-utils/src/types';
 import { serviceDiscovery } from '../../configs';
 import { IContext } from '../../connectionResolver';
-import { sendCommonMessage, sendCoreMessage } from '../../messageBroker';
+import {
+  sendCommonMessage,
+  sendCoreMessage,
+  sendTagsMessage
+} from '../../messageBroker';
 
 interface IListParams {
   searchValue: string;
@@ -182,6 +186,28 @@ const reportsQueries = {
     });
 
     return reportResult;
+  },
+  async reportsCountByTags(_root, _params, { models, subdomain }: IContext) {
+    const counts = {};
+
+    const tags = await sendTagsMessage({
+      subdomain,
+      action: 'find',
+      data: {
+        type: 'reports:reports'
+      },
+      isRPC: true,
+      defaultValue: []
+    });
+
+    for (const tag of tags) {
+      counts[tag._id] = await models.Reports.find({
+        tagIds: tag._id,
+        status: { $ne: 'deleted' }
+      }).countDocuments();
+    }
+
+    return counts;
   }
 };
 

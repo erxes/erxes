@@ -103,6 +103,7 @@ const queryParams = `
   perPage: Int
   page: Int
   departmentId: String
+  tagId: String
 `;
 
 export const queries = `
@@ -117,7 +118,7 @@ export const queries = `
   reportChartGetTemplates(serviceName: String!): JSON
   reportChartGetFilterTypes(serviceName: String!, templateType: String!): JSON
   reportChartGetResult(serviceName: String!, templateType: String!, filter: JSON): JSON
-  
+  reportsCountByTags:JSON
 `;
 
 export const params = `
