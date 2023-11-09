@@ -608,7 +608,6 @@ export default class SipProvider extends React.Component<
   }
 
   public render() {
-    console.log(this.state, 'state...');
     return this.props.children(this.state);
   }
 }
