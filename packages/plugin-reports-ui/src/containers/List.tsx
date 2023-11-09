@@ -43,8 +43,6 @@ const ListContainer = (props: FinalProps) => {
   } = props;
 
   if (reportsListQuery.loading) {
-    console.log('reports list loading ');
-
     return <Spinner />;
   }
 

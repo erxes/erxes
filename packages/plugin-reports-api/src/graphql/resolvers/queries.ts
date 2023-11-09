@@ -75,7 +75,6 @@ const reportsQueries = {
 
     const filter = await generateFilter(params, user, subdomain);
 
-    console.log('filter ', filter);
     const list = models.Reports.find(filter).sort({
       createdAt: 1,
       name: 1

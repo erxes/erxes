@@ -24,7 +24,6 @@ type FinalProps = {
 const ReportList = (props: FinalProps) => {
   const { reportDetailQuery, reportId, reportsEditMutation } = props;
 
-  console.log('reportId ', reportId);
   if (reportDetailQuery.loading) {
     return <Spinner />;
   }

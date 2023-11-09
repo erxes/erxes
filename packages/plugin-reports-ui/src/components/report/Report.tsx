@@ -18,6 +18,7 @@ import { IChart, IReport, IReportItem } from '../../types';
 import Chart from '../chart/Chart';
 import SelectMembersForm from '../utils/SelectMembersForm';
 import Participators from './Participators';
+import ChartForm from '../../containers/chart/ChartForm';
 
 const deserializeItem = i => ({
   ...i,
@@ -43,7 +44,7 @@ type Props = {
 };
 
 const Report = (props: Props) => {
-  const { report, reportsEdit, history } = props;
+  const { report, reportsEdit, history, queryParams } = props;
   const { charts, members } = report;
   const [isPublic, setIsPublic] = useState(report.visibility === 'public');
   const [name, setName] = useState(report.name || '');
@@ -262,7 +263,16 @@ const Report = (props: Props) => {
         transparent={false}
       >
         {showTeamMemberSelect && renderMembersSelectModal()}
-        <DragField>{charts?.map(deserializeItem).map(reportItem)}</DragField>
+        {!showChatForm && (
+          <DragField>{charts?.map(deserializeItem).map(reportItem)}</DragField>
+        )}
+        {showChatForm && (
+          <ChartForm
+            history={history}
+            queryParams={queryParams}
+            toggleForm={() => setShowChatForm(!showChatForm)}
+          />
+        )}
       </PageContent>
     </>
   );

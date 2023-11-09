@@ -18,7 +18,6 @@ const SelectMembersForm = (props: Props) => {
     departmentIds
   } = props;
 
-  console.log('memebres ', userIds);
   return (
     <>
       <ControlLabel>Select members or departments</ControlLabel>
