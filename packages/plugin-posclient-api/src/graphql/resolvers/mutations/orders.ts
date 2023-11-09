@@ -317,11 +317,9 @@ const ordersEdit = async (
     }).lean();
 
     if (order.slotCode) {
-      console.log(order, 'zzzzz');
       await graphqlPubsub.publish('slotsStatusUpdated', {
         slotsStatusUpdated: {
-          slotCodes: currentSlots.map(cs => cs.code),
-          slots: await checkSlotStatus(models, config, currentSlots)
+          ...(await checkSlotStatus(models, config, currentSlots))
         }
       });
     }

@@ -1,10 +1,6 @@
 import { getPureDate } from '@erxes/api-utils/src/core';
 
-export const checkSlotStatus = async (models, config, slots?) => {
-  if (!slots) {
-    slots = await models.PosSlots.find({ posId: config.posId }).lean();
-  }
-
+export const checkSlotStatus = async (models, config, slots) => {
   const now = getPureDate(new Date());
 
   const slotCodes = slots.map(s => s.code);

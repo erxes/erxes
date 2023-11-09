@@ -17,7 +17,7 @@ module.exports = {
         subscribe: withFilter(
           () => graphqlPubsub.asyncIterator('ordersOrdered'),
           (payload, variables) => {
-            console.log(payload, 'ordersOrdered-payload');
+            console.log(payload, 'ordersOrdered-payloadaaaaaaaaaaaaaaaaaaaaa');
             const { status, customerId } = payload.ordersOrdered;
             if (variables.customerId) {
               return (
@@ -43,7 +43,7 @@ module.exports = {
         subscribe: withFilter(
           () => graphqlPubsub.asyncIterator('slotsStatusUpdated'),
           (payload) => {
-            console.log(payload, 'payloadddddd');
+            console.log(payload, 'payloaddddddddddddddddddddddddd');
             return payload.slotsStatusUpdated;
           }
         ),
