@@ -127,4 +127,5 @@ export const types = `
 export const queries = `
   orders(${ordersQueryParams}): [Order]
   fullOrders(${ordersQueryParams}): [Order]
+  poscSlots: [PosclientSlot]
 `;

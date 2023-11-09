@@ -17,7 +17,8 @@ module.exports = {
         subscribe: withFilter(
           () => graphqlPubsub.asyncIterator('ordersOrdered'),
           (payload, variables) => {
-            const { status, customerId, posToken } = payload.ordersOrdered;
+            const { status, customerId, posToken } = payload.ordersOrdered._doc ? payload.ordersOrdered._doc : payload.ordersOrdered;
+
             if (variables.customerId) {
               return (
                 variables.posToken === posToken &&
@@ -46,6 +47,7 @@ module.exports = {
             if (!variables.posToken) {
               return false;
             }
+
             return Boolean((payload.slotsStatusUpdated || []).filter(
               s => s.posToken === variables.posToken
             ).length);
