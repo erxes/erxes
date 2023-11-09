@@ -76,9 +76,6 @@ export const RichTextEditorLinkControl = (
 
   return (
     <OverlayTrigger
-      ref={overlayTrigger => {
-        overlayTrigger = overlayTrigger;
-      }}
       trigger="click"
       rootClose={true}
       placement="top"

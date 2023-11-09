@@ -50,7 +50,7 @@ const LinkWrapper = styled.div`
   color: ${colors.textPrimary};
   cursor: pointer;
   padding: 0.5rem;
-  z-index: 1000;
+  z-index: 9999;
   > button {
     height: 2.25rem;
     min-height: 2.25rem;

@@ -4,7 +4,6 @@ const RichTextEditorWrapper = styled.div`
   position: relative;
   background: #fff;
   overflow-y: hidden;
-  min-height: 350px;
   margin: 0.5rem;
   border: 1px solid #e9ecef;
   border-radius: 4px;

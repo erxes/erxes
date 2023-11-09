@@ -1318,8 +1318,7 @@ a:hover {
   .ProseMirror{
     padding: 1rem;
     outline: 0px;
-    min-height: 150px;
-    max-height: 300px;
+    height: 100%;
     overflow-y: auto;
   }
  
