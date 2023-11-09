@@ -253,7 +253,7 @@ export const extractConfig = async (subdomain, doc) => {
         ? `${FILE_PATH}?key=${uiOptions.qrCodeImage}`
         : uiOptions.qrCodeImage;
   } catch (e) {
-    console.log(e, '-------');
+    console.log(e.message);
   }
 
   return {

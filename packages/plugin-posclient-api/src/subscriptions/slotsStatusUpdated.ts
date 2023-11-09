@@ -13,16 +13,6 @@ export default {
           return false;
         }
 
-        console.log(
-          payload,
-          'payloaddddddddddddddddddddddddd',
-          Boolean(payload.slotsStatusUpdated.length),
-          Boolean(
-            (payload.slotsStatusUpdated || []).filter(
-              s => s.posToken === variables.posToken
-            ).length
-          )
-        );
         return Boolean(
           (payload.slotsStatusUpdated || []).filter(
             s => s.posToken === variables.posToken
