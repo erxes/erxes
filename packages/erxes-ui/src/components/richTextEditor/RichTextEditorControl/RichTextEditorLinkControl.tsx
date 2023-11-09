@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { OverlayTrigger } from 'react-bootstrap';
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import { BoxArrowUpRight } from 'react-bootstrap-icons';
 import { useRichTextEditorContext } from '../RichTextEditor.context';
 import {
@@ -80,8 +80,8 @@ export const RichTextEditorLinkControl = (
         overlayTrigger = overlayTrigger;
       }}
       trigger="click"
-      placement="top"
       rootClose={true}
+      placement="top"
       overlay={
         <LinkWrapper>
           <InputWrapper>
