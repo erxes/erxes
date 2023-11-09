@@ -37,6 +37,7 @@ import {
 } from '../constants';
 import { IGoalType, IGoalTypeDoc } from '../types';
 import { Description } from '@erxes/ui-settings/src/styles';
+
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   goalType: IGoalType;
@@ -58,8 +59,9 @@ type State = {
   entity: string;
   teamGoalType: string;
   contributionType: string;
-  goalType: string;
   metric: string;
+  target: string;
+  goalTypeChoose: string;
   startDate: Date;
   endDate: Date;
   period: boolean;
@@ -74,7 +76,7 @@ type State = {
   segmentIds: any;
   stageRadio: boolean;
   segmentRadio: boolean;
-  nextButton: boolean;
+  notificationButton: boolean;
   notification: {
     goalStarted: boolean;
     goalAchieved: boolean;
@@ -87,34 +89,34 @@ class GoalTypeForm extends React.Component<Props, State> {
     super(props);
     const { goalType = {} } = props;
     this.state = {
-      // notification: goalType.notification,
       notification: {
         goalStarted: false,
         goalAchieved: false,
         goalMissed: false
       },
-      nextButton: goalType.nextButton,
-      segmentIds: goalType.segmentIds || '',
-      branch: goalType.branch || '',
-      department: goalType.department || '',
-      unit: goalType.unit || '',
+      notificationButton: goalType.notificationButton,
+      segmentIds: goalType.segmentIds,
+      branch: goalType.branch,
+      department: goalType.department,
+      unit: goalType.unit,
       specificPeriodGoals: goalType.specificPeriodGoals || [],
       stageRadio: goalType.stageRadio,
       periodGoal: goalType.periodGoal,
       segmentRadio: goalType.segmentRadio,
       contribution: goalType.contribution,
       pipelineLabels: goalType.pipelineLabels,
-      entity: goalType.entity || '',
-      teamGoalType: goalType.teamGoalType || '',
-      contributionType: goalType.contributionType || '',
-      goalType: goalType.goalType || '',
-      metric: goalType.metric || '',
+      entity: goalType.entity || ENTITY[0].value,
+      teamGoalType: goalType.teamGoalType,
+      contributionType: goalType.contributionType || CONTRIBUTION[0].value,
+      goalTypeChoose: goalType.goalTypeChoose || GOAL_TYPE[0],
+      metric: goalType.metric || 'Value',
       period: goalType.period,
       startDate: goalType.startDate || new Date(),
       endDate: goalType.endDate || new Date(),
       stageId: goalType.stageId,
       pipelineId: goalType.pipelineId,
-      boardId: goalType.boardId
+      boardId: goalType.boardId,
+      target: goalType.target
     };
   }
 
@@ -122,53 +124,39 @@ class GoalTypeForm extends React.Component<Props, State> {
     this.setState({ startDate: value });
   };
 
+  onChangeTargetPeriod = event => {
+    const { value } = event.target;
+    this.setState({ target: value });
+  };
+
   onChangeTarget = (index, event) => {
     const { specificPeriodGoals, periodGoal } = this.state;
     const { value } = event.target;
-
     const updatedSpecificPeriodGoals = specificPeriodGoals.map((goal, i) => {
       if (i === index) {
         return { ...goal, addTarget: value };
       }
       return goal;
     });
-    if (periodGoal === 'Monthly') {
-      const months = this.mapMonths();
 
-      months.forEach(month => {
-        const exists = specificPeriodGoals.some(
-          goal => goal.addMonthly === month
-        );
-        if (!exists) {
-          const newElement = {
-            _id: Math.random().toString(),
-            addMonthly: month,
-            addTarget: 0
-          };
-          updatedSpecificPeriodGoals.push(newElement);
-        }
-      });
+    const periods =
+      periodGoal === 'Monthly' ? this.mapMonths() : this.mapWeeks();
 
-      this.setState({ specificPeriodGoals: updatedSpecificPeriodGoals });
-    } else {
-      const weeks = this.mapWeeks();
+    periods.forEach(period => {
+      const exists = specificPeriodGoals.some(
+        goal => goal.addMonthly === period
+      );
+      if (!exists) {
+        const newElement = {
+          _id: Math.random().toString(),
+          addMonthly: period,
+          addTarget: 0
+        };
+        updatedSpecificPeriodGoals.push(newElement);
+      }
+    });
 
-      weeks.forEach(week => {
-        const exists = specificPeriodGoals.some(
-          goal => goal.addMonthly === week
-        );
-        if (!exists) {
-          const newElement = {
-            _id: Math.random().toString(),
-            addMonthly: week,
-            addTarget: 0
-          };
-          updatedSpecificPeriodGoals.push(newElement);
-        }
-      });
-
-      this.setState({ specificPeriodGoals: updatedSpecificPeriodGoals });
-    }
+    this.setState({ specificPeriodGoals: updatedSpecificPeriodGoals });
   };
 
   onChangeStage = stgId => {
@@ -210,10 +198,17 @@ class GoalTypeForm extends React.Component<Props, State> {
       period,
       specificPeriodGoals,
       segmentIds,
-      notification
+      notification,
+      entity,
+      department,
+      unit,
+      branch,
+      contributionType,
+      metric,
+      target,
+      goalTypeChoose
     } = this.state;
     const finalValues = values;
-    //// assignmentCampaign segment
     if (goalType) {
       finalValues._id = goalType._id;
     }
@@ -221,10 +216,10 @@ class GoalTypeForm extends React.Component<Props, State> {
     return {
       _id: finalValues._id,
       ...this.state,
-      entity: finalValues.entity,
-      department: finalValues.department,
-      unit: finalValues.unit,
-      branch: finalValues.branch,
+      entity,
+      department,
+      unit,
+      branch,
       segmentIds,
       specificPeriodGoals, // Renamed the property
       stageRadio,
@@ -234,12 +229,12 @@ class GoalTypeForm extends React.Component<Props, State> {
       boardId,
       contribution,
       period,
-      contributionType: finalValues.contributionType,
-      metric: finalValues.metric,
-      goalType: finalValues.goalType,
+      contributionType,
+      metric,
+      goalType: goalTypeChoose,
       startDate,
       endDate,
-      target: finalValues.target,
+      target,
       notification
     };
   };
@@ -284,8 +279,8 @@ class GoalTypeForm extends React.Component<Props, State> {
 
   mapMonths = (): string[] => {
     const { startDate, endDate } = this.state;
-    const startDateObject = new Date(startDate); // Ensure startDate is a Date object
-    const endDateObject = new Date(endDate); // Ensure endDate is a Date object
+    const startDateObject = new Date(startDate); // Ensure startDate is a
+    const endDateObject = new Date(endDate); // Ensure endDate is a Date
     const startMonth = startDateObject.getMonth();
     const endMonth = endDateObject.getMonth();
     const year = startDateObject.getFullYear(); //
@@ -327,7 +322,6 @@ class GoalTypeForm extends React.Component<Props, State> {
     return weeks;
   };
   renderContent = (formProps: IFormProps) => {
-    const goalType = this.props.goalType || ({} as IGoalType);
     const { closeModal, renderButton } = this.props;
     const { values, isSubmitted } = formProps;
     const months: string[] = this.mapMonths();
@@ -338,7 +332,8 @@ class GoalTypeForm extends React.Component<Props, State> {
     const units = unitListQuery.unitsMain?.list || [];
     return (
       <>
-        {(!this.state.nextButton || this.state.nextButton === undefined) && (
+        {(!this.state.notificationButton ||
+          this.state.notificationButton === undefined) && (
           <>
             <ScrollWrapper>
               <FormWrapper>
@@ -446,9 +441,9 @@ class GoalTypeForm extends React.Component<Props, State> {
                     <ControlLabel>{__('choose goalType type')}</ControlLabel>
                     <FormControl
                       {...formProps}
-                      name="goalType"
+                      name="goalTypeChoose"
                       componentClass="select"
-                      value={this.state.goalType}
+                      value={this.state.goalTypeChoose}
                       onChange={this.onChangeField}
                     >
                       {GOAL_TYPE.map((typeName, index) => (
@@ -579,12 +574,20 @@ class GoalTypeForm extends React.Component<Props, State> {
                     </FormControl>
                   </FormGroup>
                   <FormGroup>
-                    {this.renderFormGroup('target', {
-                      ...formProps,
-                      name: 'target',
-                      type: 'number',
-                      defaultValue: goalType.target || 0
-                    })}
+                    <ControlLabel>{__('Target')}</ControlLabel>
+                    <FormGroup>
+                      <FormControl
+                        type="number"
+                        name="target"
+                        value={
+                          this.state.target !== undefined &&
+                          this.state.target !== null
+                            ? this.state.target
+                            : 0
+                        }
+                        onChange={this.onChangeTargetPeriod}
+                      />
+                    </FormGroup>
                   </FormGroup>
                   <FormGroup>
                     <ControlLabel>
@@ -675,7 +678,7 @@ class GoalTypeForm extends React.Component<Props, State> {
             </ScrollWrapper>
           </>
         )}
-        {this.state.nextButton === true && (
+        {this.state.notificationButton === true && (
           <>
             <FormColumn>
               <h3 style={{ textAlign: 'center' }}>
@@ -683,88 +686,86 @@ class GoalTypeForm extends React.Component<Props, State> {
               </h3>
               <FormGroup>
                 <FormControl
-                  {...formProps}
                   componentClass="checkbox" // Use 'input' for checkboxes
                   name="goalStarted"
                   checked={this.state.notification.goalStarted}
                   onChange={this.onChangeFieldNotification}
                   inline={true}
                 >
-                  {__('Goal Started')}
-                  <Description>
-                    {__('Receive a notification when the goal has started')}
-                  </Description>
+                  <ControlLabel>{__('Goal Started')}:</ControlLabel>
                 </FormControl>
+                <Description>
+                  {__('Receive a notification when the goal has started')}
+                </Description>
               </FormGroup>
               <FormGroup>
                 <FormControl
-                  {...formProps}
                   componentClass="checkbox" // Use 'input' for checkboxes
                   name="goalAchieved"
                   checked={this.state.notification.goalAchieved}
                   onChange={this.onChangeFieldNotification}
                   inline={true}
                 >
-                  {__('Goal Achieved')}
-                  <Description>
-                    {__(
-                      'Receive a notification when the goal reached 100% of the target within the duration'
-                    )}
-                  </Description>
+                  <ControlLabel>{__('Goal Achieved')}:</ControlLabel>
                 </FormControl>
+                <Description>
+                  {__(
+                    'Receive a notification when the goal reached 100% of the target within the duration'
+                  )}
+                </Description>
               </FormGroup>
               <FormGroup>
                 <FormControl
-                  {...formProps}
                   componentClass="checkbox" // Use 'input' for checkboxes
                   name="goalMissed"
                   checked={this.state.notification.goalMissed}
                   onChange={this.onChangeFieldNotification}
                   inline={true}
                 >
-                  {__('Goal Missed')}
-                  <Description>
-                    {__(
-                      'Receive a notification when the goal didn’t reach 100% of the target within the duration'
-                    )}
-                  </Description>
+                  <ControlLabel>{__('Goal Missed')}:</ControlLabel>
                 </FormControl>
+                <Description>
+                  {__(
+                    'Receive a notification when the goal didn’t reach 100% of the target within the duration'
+                  )}
+                </Description>
               </FormGroup>
             </FormColumn>
           </>
         )}
         <ModalFooter>
-          {(!this.state.nextButton || this.state.nextButton === undefined) && (
+          {(!this.state.notificationButton ||
+            this.state.notificationButton === undefined) && (
             <div>
               <Button btnStyle="simple" onClick={closeModal} icon="cancel-1">
                 {__('Close')}
               </Button>
               <Button
-                btnStyle="danger"
+                btnStyle="success"
                 onClick={() => {
-                  this.setState({ nextButton: true });
+                  this.setState({ notificationButton: true });
                 }}
                 icon="arrow-right"
               >
                 {__('Next')}
               </Button>
-              {this.props.renderButton({
+            </div>
+          )}
+          {this.state.notificationButton === true && (
+            <div>
+              <Button
+                btnStyle="danger"
+                onClick={() => this.setState({ notificationButton: false })}
+                icon="arrow-left"
+              >
+                {__('Back')}
+              </Button>
+              {renderButton({
                 name: 'goalType',
                 values: this.generateDoc(values),
                 isSubmitted,
                 object: this.props.goalType
               })}
-            </div>
-          )}
-          {this.state.nextButton === true && (
-            <div>
-              <Button
-                btnStyle="danger"
-                onClick={() => this.setState({ nextButton: false })}
-                icon="arrow-left"
-              >
-                {__('Back')}
-              </Button>
             </div>
           )}
         </ModalFooter>

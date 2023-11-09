@@ -45,6 +45,11 @@ export const sendCardsMessage = (args: ISendMessageArgs): Promise<any> => {
     ...args
   });
 };
+
+export const sendNotification = (subdomain: string, data) => {
+  return sendNotificationsMessage({ subdomain, action: 'send', data });
+};
+
 export const sendNotificationsMessage = async (
   args: ISendMessageArgs
 ): Promise<any> => {

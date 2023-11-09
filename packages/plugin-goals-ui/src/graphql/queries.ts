@@ -204,7 +204,6 @@ export const unitField = `
   _id
   title
   description
-  department
   department {
     ${departmentField}
   }

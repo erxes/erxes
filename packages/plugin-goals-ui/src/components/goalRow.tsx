@@ -63,7 +63,6 @@ function renderFormTViewier(
 
 function renderEditAction(goalType: IGoalType) {
   const trigger = <Button btnStyle="link" icon="edit-1" />;
-  console.log(goalType, 'goalType');
   return renderFormTrigger(trigger, goalType);
 }
 function renderViewAction(
@@ -164,6 +163,7 @@ function GoalRow({ goalType, isChecked, toggleBulk }: Props) {
       <td>{pipelineName}</td>
       <td>{stageName}</td>
       <td key={'contributionType'}>
+        {' '}
         {displayValue(goalType, 'contributionType')}
       </td>
       <td key={'metric'}>{displayValue(goalType, 'metric')}</td>

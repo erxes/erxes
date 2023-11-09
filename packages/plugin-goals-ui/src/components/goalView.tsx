@@ -65,8 +65,6 @@ class GoalView extends React.Component<IProps> {
       })
     ];
 
-    console.log(JSON.stringify(data, null, 2), 'data');
-
     return (
       <div>
         <div>
