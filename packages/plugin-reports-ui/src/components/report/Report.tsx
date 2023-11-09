@@ -50,9 +50,9 @@ const Report = (props: Props) => {
 
   const onNameChange = e => {
     e.preventDefault();
-
     setName(e.target.value);
   };
+
   const toggleChartForm = () => {
     setShowChatForm(!showChatForm);
   };

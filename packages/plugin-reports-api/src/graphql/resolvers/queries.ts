@@ -1,16 +1,82 @@
+import { IUserDocument } from '@erxes/api-utils/src/types';
 import { serviceDiscovery } from '../../configs';
 import { IContext } from '../../connectionResolver';
-import { sendCommonMessage } from '../../messageBroker';
+import { sendCommonMessage, sendCoreMessage } from '../../messageBroker';
+
+interface IListParams {
+  searchValue: string;
+  ids?: string;
+  page?: number;
+  perPage?: number;
+  sortField: string;
+  sortDirection: number;
+  tag: string;
+  departmentId: string;
+}
+
+const generateFilter = async (
+  params: IListParams,
+  user: IUserDocument,
+  subdomain: string
+) => {
+  const { searchValue, tag, departmentId } = params;
+
+  let filter: any = {};
+
+  if (!user.isOwner) {
+    const departments = await sendCoreMessage({
+      subdomain,
+      action: 'departments.find',
+      data: {
+        userIds: { $in: [user._id] }
+      },
+      isRPC: true,
+      defaultValue: []
+    });
+
+    const departmentIds = departments.map(d => d._id);
+
+    filter = {
+      $or: [
+        { visibility: { $exists: null } },
+        { visibility: 'public' },
+        {
+          $and: [
+            { visibility: 'private' },
+            {
+              $or: [
+                { selectedMemberIds: user._id },
+                { createdBy: user._id },
+                { departmentIds: { $in: departmentIds } }
+              ]
+            }
+          ]
+        }
+      ]
+    };
+  }
+
+  if (searchValue) {
+    filter.name = new RegExp(`.*${searchValue}.*`, 'i');
+  }
+  if (tag) {
+    filter.tagIds = { $in: [tag] };
+  }
+  if (departmentId) {
+    filter.departmentIds = { $in: [departmentId] };
+  }
+
+  return filter;
+};
 
 const reportsQueries = {
-  reportsList(_root, { searchValue }, { models }: IContext) {
-    let selector: any = {};
-    const totalCount = models.Reports.count(selector);
+  async reportsList(_root, params, { models, subdomain, user }: IContext) {
+    const totalCount = models.Reports.count({});
 
-    const regex = new RegExp(searchValue, 'i');
-    selector = { name: regex };
+    const filter = await generateFilter(params, user, subdomain);
 
-    const list = models.Reports.find(selector).sort({
+    console.log('filter ', filter);
+    const list = models.Reports.find(filter).sort({
       createdAt: 1,
       name: 1
     });

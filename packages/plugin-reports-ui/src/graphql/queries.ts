@@ -22,6 +22,7 @@ const commonParams = `
 $searchValue: String
 $perPage: Int
 $page: Int
+$departmentId: String
 
 `;
 
@@ -29,6 +30,7 @@ const commonParamsDef = `
 searchValue: $searchValue
 perPage: $perPage
 page: $page
+departmentId: $departmentId
 `;
 
 const reportsList = `

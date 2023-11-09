@@ -28,11 +28,17 @@ const reportForm = ({ location, history }) => {
   );
 };
 
-const reportDetail = ({ match, location, history }) => {
-  const reportId = match.params.id;
+const reportsDetail = ({ match, location, history }) => {
+  const slug = match.params.slug;
+
   const queryParams = queryString.parse(location.search);
 
-  const props = { reportId, queryParams, history };
+  const props = { reportId: slug, queryParams, history };
+
+  if (slug === 'create-report') {
+    return <ReportForm {...props} />;
+  }
+
   return <Report {...props} />;
 };
 
@@ -40,17 +46,12 @@ const routes = () => {
   return (
     <>
       <Route path="/reports" exact={true} component={reports} />
+
       <Route
-        key="/reports/details/create-report"
+        key="/reports/details/:slug"
         exact={true}
-        path="/reports/details/create-report"
-        component={reportForm}
-      />
-      <Route
-        key="/reports/details/:id"
-        exact={true}
-        path="/reports/details/:id"
-        component={reportDetail}
+        path="/reports/details/:slug"
+        component={reportsDetail}
       />
     </>
   );
