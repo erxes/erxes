@@ -98,6 +98,11 @@ export const types = `
     details: PosUserDetailsType
   }
 
+  type PreDate {
+    _id: String
+    dueDate: Date
+  }
+
   type PosclientSlot {
     _id: String
     posToken: String
