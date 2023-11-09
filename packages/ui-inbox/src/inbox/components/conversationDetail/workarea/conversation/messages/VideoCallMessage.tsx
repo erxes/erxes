@@ -11,6 +11,8 @@ type Props = {
 const VideoCallMessage = (props: Props) => {
   const { message } = props;
 
+  console.log('message', message);
+
   const videoCallData = message.videoCallData || {
     status: 'end',
     url: '',
@@ -39,7 +41,7 @@ const VideoCallMessage = (props: Props) => {
         <CallBox>
           <UserInfo>
             <strong>
-              <Icon icon='phone-slash' color='#EA475D' size={15} />{' '}
+              <Icon icon="phone-slash" color="#EA475D" size={15} />{' '}
               {__('Video call ended')}
             </strong>
             {renderRecordings()}
@@ -55,12 +57,12 @@ const VideoCallMessage = (props: Props) => {
         <UserInfo>
           <h5>{__('Video call invitation sent')}</h5>
           <h3>
-            <Icon icon='user-plus' color='#3B85F4' />
+            <Icon icon="user-plus" color="#3B85F4" />
           </h3>
           {renderRecordings()}
         </UserInfo>
         <CallButton>
-          <a target='_blank' rel='noopener noreferrer' href={videoCallData.url}>
+          <a target="_blank" rel="noopener noreferrer" href={videoCallData.url}>
             {__('Join a call')}
           </a>
         </CallButton>

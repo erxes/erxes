@@ -1,5 +1,38 @@
+import { IContext } from '@erxes/api-utils/src';
+import { sendInboxMessage } from '../../messageBroker';
 import { ICallRecord, Records } from '../../models';
 import { sendDailyRequest } from '../../utils';
+import { graphqlPubsub } from '../../configs';
+
+export const publishMessage = async (
+  subdomain: string,
+  message: any,
+  customerId?: string
+) => {
+  graphqlPubsub.publish('conversationMessageInserted', {
+    conversationMessageInserted: message
+  });
+
+  // widget is listening for this subscription to show notification
+  // customerId available means trying to notify to client
+  if (customerId) {
+    const unreadCount = await sendInboxMessage({
+      subdomain,
+      action: 'widgetsGetUnreadMessagesCount',
+      data: {
+        conversationId: message.conversationId
+      },
+      isRPC: true
+    });
+
+    graphqlPubsub.publish('conversationAdminMessageInserted', {
+      conversationAdminMessageInserted: {
+        customerId,
+        unreadCount
+      }
+    });
+  }
+};
 
 const mutations = {
   async dailySaveVideoRecordingInfo(_root, args) {
@@ -36,7 +69,7 @@ const mutations = {
     }
   },
 
-  dailyCreateRoom: async (_root, args) => {
+  dailyCreateRoom: async (_root, args, { user }: IContext) => {
     const {
       subdomain,
       contentTypeId,
@@ -60,33 +93,48 @@ const mutations = {
         subdomain
       );
 
-      const doc: ICallRecord = {
-        contentTypeId,
-        contentType,
-        roomName: response.name,
-        privacy: response.privacy,
-        token: tokenResponse.token,
-        status: 'ongoing'
-      };
-
-      const record = await Records.createCallRecord(doc);
-
       const domain_name = response.domain_name;
 
-      // return {
-      //   status: 'success',
-      //   data: {
-      //     url: `${domain_name}/${record.roomName}?=t${record.token}`,
-      //     name: record.roomName,
-      //     status: 'ongoing',
-      //   },
-      // };
-
-      return {
-        url: `${domain_name}/${record.roomName}?=t${record.token}`,
-        name: record.roomName,
+      const callData = {
+        url: `https://${domain_name}.daily.co/${response.roomName}?t=${tokenResponse.token}`,
+        name: response.roomName,
         status: 'ongoing'
       };
+
+      if (contentType === 'inbox:conversations') {
+        const message = await sendInboxMessage({
+          subdomain,
+          action: 'createOnlyMessage',
+          data: {
+            conversationId: contentTypeId,
+            internal: false,
+            contentType: 'videoCall',
+            userId: user._id
+          },
+          isRPC: true
+        });
+
+        const doc: ICallRecord = {
+          contentTypeId,
+          contentType,
+          roomName: response.name,
+          privacy: response.privacy,
+          token: tokenResponse.token,
+          status: 'ongoing',
+          messageId: message._id
+        };
+
+        await Records.createCallRecord(doc);
+
+        const updatedMessage = {
+          ...message,
+          videoCallData: callData
+        };
+
+        publishMessage(subdomain, updatedMessage);
+      }
+
+      return callData;
     } catch (e) {
       throw new Error(e.message);
     }

@@ -67,8 +67,6 @@ export const sendDailyRequest = async (
     isRPC: true
   });
 
-  console.log(data);
-
   const res = await sendRequest({
     url: `https://${domain_name}.daily.co${url}`,
     method,

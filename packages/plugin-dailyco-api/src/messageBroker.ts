@@ -1,8 +1,8 @@
 import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
 import * as dotenv from 'dotenv';
 import { serviceDiscovery } from './configs';
-import { sendDailyRequest } from './utils';
-import { ICallRecord, Records } from './models';
+import { Records } from './models';
+import { getDailyData } from './utils';
 
 dotenv.config();
 
@@ -14,59 +14,33 @@ export const initBroker = async cl => {
   const { consumeRPCQueue } = client;
 
   consumeRPCQueue(
-    'dailyco:createRoom',
+    'dailyco:getDailyRoom',
     async (args): Promise<any> => {
-      const {
-        subdomain,
-        erxesApiConversationId,
-        contentType = 'inbox:conversations'
-      } = args;
+      const { subdomain, data } = args;
+      const { contentType, contentTypeId, messageId } = data;
 
-      try {
-        const response = await sendDailyRequest(
-          '/api/v1/rooms',
-          'post',
-          { privacy: 'private' },
-          subdomain
-        );
+      const callRecord = await Records.findOne({
+        contentTypeId,
+        contentType,
+        messageId
+      });
 
-        const tokenResponse = await sendDailyRequest(
-          '/api/v1/meeting-tokens',
-          'post',
-          {
-            properties: { room_name: response.name, enable_recording: 'cloud' }
-          },
-          subdomain
-        );
-
-        const doc: ICallRecord = {
-          contentTypeId: erxesApiConversationId,
-          contentType,
-          roomName: response.name,
-          privacy: response.privacy,
-          token: tokenResponse.token,
-          status: 'ongoing'
-        };
-
-        const record = await Records.createCallRecord(doc);
-
-        const domain_name = response.domain_name;
-
-        return {
-          status: 'success',
-          data: {
-            url: `${domain_name}/${record.roomName}?=t${record.token}`,
-            name: record.roomName,
-            status: 'ongoing'
-          }
-        };
-      } catch (e) {
-        console.log(e);
-        return {
-          status: 'failed',
-          message: e.message
-        };
+      if (!callRecord) {
+        return null;
       }
+
+      const { roomName, token, status } = callRecord;
+
+      const { domain_name } = await getDailyData(subdomain);
+
+      return {
+        status: 'success',
+        data: {
+          url: `https://${domain_name}.daily.co/${roomName}?t=${token}`,
+          name: roomName,
+          status
+        }
+      };
     }
   );
 };

@@ -3,7 +3,7 @@ import client from '@erxes/ui/src/apolloClient';
 import { gql } from '@apollo/client';
 import { SimpleButton } from '@erxes/ui/src/styles/main';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 import { mutations } from '../graphql';
@@ -57,50 +57,43 @@ const VideoCall = props => {
   const [errorMessage, setErrorMessage] = useState('');
   const [recordingId, setRecordingId] = useState('');
   let callFrame;
-  const { url, conversationId } = props.queryParams;
+
+  const { url, name, conversationId } = props.queryParams;
+
+  // const iframeRef:any = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const owner = { url };
-    const parentEl =
+    // const container: any = document.getElementById('call-frame-container');
+    const container =
       document.getElementById('call-frame-container') ||
       document.getElementsByTagName('body')[0];
+    if (url && container) {
+      callFrame = DailyIframe.createFrame(container);
 
-    callFrame = DailyIframe.createFrame(parentEl, {});
+      callFrame
+        .on('recording-started', event => {
+          console.log('recording-started', event);
+          setRecordingId(event.recordingId);
+        })
+        .on('recording-upload-completed', event => {
+          console.log('recording-upload-completed', event);
+          // setRecordingId('');
+        })
+        .on('error', event => {
+          setErrorMessage(event.errorMsg);
+        });
 
-    callFrame
-      .on('error', e => {
-        setErrorMessage(e.errorMsg);
-      })
-      .on('recording-started', data => {
-        setRecordingId(data.recordingId);
-      })
-      .on('recording-upload-completed', data => {
-        if (data.action === 'recording-upload-completed') {
-          client
-            .mutate({
-              mutation: gql(mutations.saveRecord),
-              variables: {
-                contentType: 'inbox:conversations',
-                contentTypeId: conversationId,
-                recordingId
-              }
-            })
-            .catch(error => {
-              Alert.error(error.message);
-            });
-        }
-      });
-
-    callFrame.join(owner);
+      callFrame.join({ url, showLeaveButton: true });
+    }
 
     return () => {
-      // Clean up code if needed
+      if (callFrame) {
+        callFrame.destroy();
+      }
     };
-  }, [props.queryParams]);
+  }, [url]);
 
   const onDelete = () => {
-    const { name } = props.queryParams;
-
     setLoading(true);
     client
       .mutate({
@@ -119,6 +112,7 @@ const VideoCall = props => {
   };
 
   const renderControls = () => {
+    console.log('renderControls', loading);
     return (
       <Control>
         <ControlBtn onClick={onDelete} disabled={loading}>
@@ -139,7 +133,9 @@ const VideoCall = props => {
       <div
         id="call-frame-container"
         style={{ width: '100%', height: '100%' }}
+        // ref={iframeRef}
       />
+      {/* <iframe id="call-frame-container" style={{ width: '100%', height: '100%' }} ref={iframeRef} /> */}
     </>
   );
 };

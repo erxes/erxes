@@ -9,7 +9,7 @@ export interface IRecording {
 export interface ICallRecord {
   contentType: string;
   contentTypeId: string;
-
+  messageId: string;
   roomName: string;
   privacy: string;
   status: string;
@@ -30,8 +30,9 @@ const recordingSchema = new Schema(
 );
 
 export const recordSchema: Schema<ICallRecord> = new Schema<ICallRecord>({
-  erxesApiConversationId: String,
-  erxesApiMessageId: String,
+  contentType: String,
+  contentTypeId: String,
+  messageId: String,
   roomName: String,
   privacy: String,
   status: {
