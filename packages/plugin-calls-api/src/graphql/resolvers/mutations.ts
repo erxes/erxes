@@ -15,17 +15,22 @@ const callsMutations = {
     return integration;
   },
 
-  async callAddCustomer(_root, _args, { models, subdomain }: IContext) {
-    const { primaryPhone, inboxIntegrationId, direction, callID } = _args;
+  async callAddCustomer(_root, args, { models, subdomain }: IContext) {
+    const customer = await receiveCall(models, subdomain, args);
+    let conversation;
+    if (args.callID) {
+      conversation = await models.Conversations.findOne({
+        callId: args.callID
+      });
+    }
 
-    const customer = await receiveCall(models, subdomain, _args);
-
-    return (
-      customer.erxesApiId && {
+    return {
+      customer: customer.erxesApiId && {
         __typename: 'Customer',
         _id: customer.erxesApiId
-      }
-    );
+      },
+      conversation
+    };
   }
 };
 

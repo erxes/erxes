@@ -17,6 +17,10 @@ interface Props {
 
 const IncomingCallContainer = (props: Props, context) => {
   const [customer, setCustomer] = useState<any>(undefined);
+  const [conversation, setConversation] = useState<any>(undefined);
+
+  const [hasMicrophone, setHasMicrophone] = useState(false);
+
   const { callIntegrationsOfUser } = props;
   const { call } = context;
 
@@ -35,6 +39,22 @@ const IncomingCallContainer = (props: Props, context) => {
   const [createCustomerMutation] = useMutation(gql(mutations.customersAdd));
 
   useEffect(() => {
+    navigator.mediaDevices
+      .getUserMedia({ audio: true })
+      .then(() => {
+        setHasMicrophone(true);
+      })
+      .catch(error => {
+        console.error('Error accessing microphone:', error);
+        const errorMessage = error
+          ?.toString()
+          .replace('DOMException:', '')
+          .replace('NotFoundError: ', '');
+        setHasMicrophone(false);
+
+        Alert.error(errorMessage);
+      });
+
     if (phoneNumber && call?.id) {
       createCustomerMutation({
         variables: {
@@ -45,7 +65,8 @@ const IncomingCallContainer = (props: Props, context) => {
         }
       })
         .then(({ data }: any) => {
-          setCustomer(data.callAddCustomer);
+          setCustomer(data.callAddCustomer?.customer);
+          setConversation(data.callAddCustomer?.conversation);
         })
         .catch(e => {
           Alert.error(e.message);
@@ -93,6 +114,8 @@ const IncomingCallContainer = (props: Props, context) => {
       customer={customer}
       toggleSectionWithPhone={toggleSection}
       taggerRefetchQueries={taggerRefetchQueries}
+      conversation={conversation}
+      hasMicrophone={hasMicrophone}
     />
   );
 };

@@ -1,7 +1,6 @@
 import { graphqlPubsub } from './configs';
 import { IModels } from './connectionResolver';
 import { sendInboxMessage } from './messageBroker';
-import { ICustomer } from './models/definitions/customers';
 import { getOrCreateCustomer } from './store';
 
 const receiveCall = async (models: IModels, subdomain: string, params) => {
@@ -12,7 +11,7 @@ const receiveCall = async (models: IModels, subdomain: string, params) => {
   const inboxIntegration = await sendInboxMessage({
     subdomain,
     action: 'integrations.findOne',
-    data: { _id: integration.inboxId },
+    data: { _id: integration?.inboxId },
     isRPC: true,
     defaultValue: null
   });

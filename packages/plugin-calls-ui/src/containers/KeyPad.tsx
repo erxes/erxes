@@ -6,9 +6,13 @@ import client from '@erxes/ui/src/apolloClient';
 import { Alert } from '@erxes/ui/src/utils';
 
 import KeyPad from '../components/Keypad';
+import { ICallConversation } from '../types';
 
 const KeyPadContainer = ({ callIntegrationsOfUser, setConfig }) => {
   const [customer, setCustomer] = useState<any>(undefined);
+  const [conversation, setConversation] = useState<ICallConversation>(
+    undefined
+  );
   const [createCustomerMutation] = useMutation(gql(mutations.customersAdd));
 
   const getCustomerDetail = (phoneNumber?: string) => {
@@ -48,7 +52,8 @@ const KeyPadContainer = ({ callIntegrationsOfUser, setConfig }) => {
       }
     })
       .then(({ data }: any) => {
-        setCustomer(data.callAddCustomer);
+        setCustomer(data.callAddCustomer?.customer);
+        setConversation(data.callAddCustomer?.conversation);
       })
       .catch(e => {
         Alert.error(e.message);
@@ -76,6 +81,7 @@ const KeyPadContainer = ({ callIntegrationsOfUser, setConfig }) => {
       customer={customer}
       toggleSectionWithPhone={toggleSection}
       taggerRefetchQueries={taggerRefetchQueries}
+      conversation={conversation}
     />
   );
 };

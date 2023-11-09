@@ -34,8 +34,8 @@ import { formatPhone, getSpentTime } from '../utils';
 import Popover from 'react-bootstrap/Popover';
 import AssignBox from '@erxes/ui-inbox/src/inbox/containers/AssignBox';
 import { isEnabled } from '@erxes/ui/src/utils/core';
-import { ICustomer } from '../types';
 import TaggerSection from '@erxes/ui-contacts/src/customers/components/common/TaggerSection';
+import { ICallConversation, ICustomer } from '../types';
 
 type Props = {
   addCustomer: (firstName: string, phoneNumber: string, callID: string) => void;
@@ -44,6 +44,7 @@ type Props = {
   customer: ICustomer;
   toggleSectionWithPhone: (phoneNumber: string) => void;
   taggerRefetchQueries: any;
+  conversation: ICallConversation;
 };
 const KeyPad = (props: Props, context) => {
   const Sip = context;
@@ -54,7 +55,8 @@ const KeyPad = (props: Props, context) => {
     setConfig,
     customer,
     toggleSectionWithPhone,
-    taggerRefetchQueries
+    taggerRefetchQueries,
+    conversation
   } = props;
 
   const defaultCallIntegration = localStorage.getItem(
@@ -72,6 +74,7 @@ const KeyPad = (props: Props, context) => {
       callIntegrationsOfUser?.[0]?.phone ||
       ''
   );
+  const [hasMicrophone, setHasMicrophone] = useState(false);
 
   const [timeSpent, setTimeSpent] = useState(0);
   const formatedPhone = formatPhone(number);
@@ -80,11 +83,33 @@ const KeyPad = (props: Props, context) => {
     value: user.phone,
     label: user.phone
   }));
+  let conversationDetail;
+
+  if (conversation) {
+    conversationDetail = {
+      ...conversation,
+      _id: conversation.erxesApiId
+    };
+  }
 
   useEffect(() => {
     let timer: NodeJS.Timeout;
 
-    if (call?.status === CALL_STATUS_STARTING) {
+    navigator.mediaDevices
+      .getUserMedia({ audio: true })
+      .then(() => {
+        setHasMicrophone(true);
+      })
+      .catch(error => {
+        const errorMessage = error
+          ?.toString()
+          .replace('DOMException:', '')
+          .replace('NotFoundError: ', '');
+        setHasMicrophone(false);
+        return Alert.error(errorMessage);
+      });
+
+    if (call?.status === CALL_STATUS_STARTING && hasMicrophone) {
       const inboxId =
         JSON.parse(defaultCallIntegration)?.inboxId ||
         callIntegrationsOfUser?.[0]?.inboxId;
@@ -106,6 +131,10 @@ const KeyPad = (props: Props, context) => {
   };
 
   const handleCall = () => {
+    if (!hasMicrophone) {
+      return Alert.error('Check your microphone');
+    }
+
     if (Sip.sip?.status !== SIP_STATUS_REGISTERED) {
       return;
     }
@@ -119,7 +148,7 @@ const KeyPad = (props: Props, context) => {
 
     const { startCall } = context;
 
-    if (startCall) {
+    if (startCall && hasMicrophone) {
       startCall(formatedPhone);
     }
   };
@@ -296,7 +325,11 @@ const KeyPad = (props: Props, context) => {
           tab="Assign"
           show={currentTab === 'Assign' ? true : false}
         >
-          <AssignBox targets={[]} event="onClick" afterSave={() => {}} />
+          <AssignBox
+            targets={[conversationDetail]}
+            event="onClick"
+            afterSave={() => {}}
+          />
         </CallTabContent>
         <CallAction onClick={handleCallStop} isDecline={true}>
           <Icon icon="phone-slash" />

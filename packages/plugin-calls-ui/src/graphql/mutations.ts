@@ -7,20 +7,37 @@ mutation CallsIntegrationUpdate($configs: CallIntegrationConfigs) {
 const customersAdd = `
   mutation CallAddCustomer($inboxIntegrationId: String, $primaryPhone: String, $direction: String, $callID: String!) {
     callAddCustomer(inboxIntegrationId: $inboxIntegrationId, primaryPhone: $primaryPhone, direction: $direction, callID: $callID) {
-      _id
-      avatar
-      getTags {
+      conversation {
+          _id
+          erxesApiId
+          integrationId
+          senderPhoneNumber
+          recipientPhoneNumber
+          callId
+        }
+      customer {
         _id
-        colorCode
-        name
-        type
+        avatar
+        code
+        createdAt
+        getTags {
+          _id
+          name
+          type
+          colorCode
+          createdAt
+          objectCount
+          totalObjectCount
+          parentId
+          order
+          relatedIds
+        }
+        email
+        primaryPhone
+        tagIds
+        lastName
+        firstName
       }
-      email
-      lastName
-      firstName
-      phones
-      phone
-      primaryPhone
   }
 }
 `;
