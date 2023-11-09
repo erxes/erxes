@@ -2,11 +2,13 @@
 import client from '@erxes/ui/src/apolloClient';
 import { gql } from '@apollo/client';
 import { SimpleButton } from '@erxes/ui/src/styles/main';
-import { __, Alert } from 'coreui/utils';
+
 import React from 'react';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 import { mutations } from '../graphql';
+import { __ } from '@erxes/ui/src/utils/core';
+import { Alert } from '@erxes/ui/src/utils';
 
 const Control = styled('div')`
   position: absolute;
@@ -69,34 +71,34 @@ class VideoCall extends React.Component<Props, States> {
       document.getElementById('call-frame-container') ||
       document.getElementsByTagName('body')[0];
 
-    // this.callFrame = DailyIframe.createFrame(parentEl, {});
+    this.callFrame = DailyIframe.createFrame(parentEl, {});
 
-    // this.callFrame
-    //   .on('error', e => {
-    //     this.setState({ errorMessage: e.errorMsg });
-    //   })
-    //   .on('recording-started', data => {
-    //     this.setState({
-    //       recordingId: data.recordingId
-    //     });
-    //   })
-    //   .on('recording-upload-completed', data => {
-    //     if (data.action === 'recording-upload-completed') {
-    //       client
-    //         .mutate({
-    //           mutation: gql(mutations.saveVideoRecordingInfo),
-    //           variables: {
-    //             conversationId,
-    //             recordingId: this.state.recordingId
-    //           }
-    //         })
-    //         .catch(error => {
-    //           Alert.error(error.message);
-    //         });
-    //     }
-    //   });
+    this.callFrame
+      .on('error', e => {
+        this.setState({ errorMessage: e.errorMsg });
+      })
+      .on('recording-started', data => {
+        this.setState({
+          recordingId: data.recordingId
+        });
+      })
+      .on('recording-upload-completed', data => {
+        if (data.action === 'recording-upload-completed') {
+          client
+            .mutate({
+              mutation: gql(mutations.saveVideoRecordingInfo),
+              variables: {
+                conversationId,
+                recordingId: this.state.recordingId
+              }
+            })
+            .catch(error => {
+              Alert.error(error.message);
+            });
+        }
+      });
 
-    // this.callFrame.join(owner);
+    this.callFrame.join(owner);
   }
 
   onDelete = () => {
@@ -108,8 +110,8 @@ class VideoCall extends React.Component<Props, States> {
         mutation: gql(mutations.deleteVideoChatRoom),
         variables: { name }
       })
-      .then(({ data: { integrationsDeleteVideoChatRoom } }) => {
-        if (integrationsDeleteVideoChatRoom) {
+      .then(({ data: { conversationDeleteVideoChatRoom } }) => {
+        if (conversationDeleteVideoChatRoom) {
           window.close();
           this.setState({ loading: false });
         }

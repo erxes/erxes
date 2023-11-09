@@ -1,8 +1,6 @@
 import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers';
 import { initBroker } from './messageBroker';
-import init from './controller';
-import webhookListen from './dailyco/webhookListen';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 
 export let mainDb;
@@ -28,8 +26,6 @@ export default {
     ]
   },
 
-  postHandlers: [{ path: '/webhook/:integrationId', method: webhookListen }],
-
   apolloServerContext: async (context, req): Promise<any> => {
     const subdomain: string = getSubdomain(req);
     context.subdomain = subdomain;
@@ -44,7 +40,5 @@ export default {
     graphqlPubsub = options.pubsubClient;
 
     initBroker(options.messageBrokerClient);
-
-    init(app);
   }
 };

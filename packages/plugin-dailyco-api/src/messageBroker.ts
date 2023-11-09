@@ -1,14 +1,8 @@
-import * as dotenv from 'dotenv';
 import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
+import * as dotenv from 'dotenv';
 import { serviceDiscovery } from './configs';
-import {
-  Customers,
-  Integrations,
-  Conversations,
-  ConversationMessages,
-  IConversation
-} from './models';
-import { ViberAPI } from './dailyco/api';
+import { sendDailyRequest } from './utils';
+import { ICallRecord, Records } from './models';
 
 dotenv.config();
 
@@ -20,177 +14,54 @@ export const initBroker = async cl => {
   const { consumeRPCQueue } = client;
 
   consumeRPCQueue(
-    'dailyco:createIntegration',
-    async (args: ISendMessageArgs): Promise<any> => {
-      const { subdomain, data } = args;
-      const { integrationId, doc } = data;
-      const docData = JSON.parse(doc.data);
-
-      const viberIntegration = await Integrations.create({
-        inboxId: integrationId,
-        ...docData
-      });
-
-      const viberApi: ViberAPI = new ViberAPI({
-        token: docData.token,
-        integrationId,
-        subdomain
-      });
-
-      // registering webhook
-      try {
-        await viberApi.registerWebhook();
-      } catch (e) {
-        await Integrations.deleteOne({ _id: viberIntegration._id });
-        return {
-          status: 'failed',
-          errorMessage: e
-        };
-      }
-
-      return {
-        status: 'success'
-      };
-    }
-  );
-
-  consumeRPCQueue(
-    'integrations:updateIntegration',
-    async ({ subdomain, data: { integrationId, doc } }) => {
-      const details = JSON.parse(doc.data);
-
-      const integration = await Integrations.findOne({
-        inboxId: integrationId
-      });
-
-      if (!integration) {
-        return {
-          status: 'error',
-          errorMessage: 'Integration not found.'
-        };
-      }
-
-      const viberApi: ViberAPI = new ViberAPI({
-        token: details.token,
-        integrationId,
-        subdomain
-      });
+    'dailyco:createRoom',
+    async (args): Promise<any> => {
+      const { subdomain, erxesApiConversationId, erxesApiMessageId } = args;
 
       try {
-        await viberApi.registerWebhook();
-      } catch (e) {
-        return {
-          status: 'error',
-          errorMessage: e
+        const response = await sendDailyRequest(
+          '/api/v1/rooms',
+          'post',
+          { privacy: 'private' },
+          subdomain
+        );
+
+        const tokenResponse = await sendDailyRequest(
+          '/api/v1/meeting-tokens',
+          'post',
+          {
+            properties: { room_name: response.name, enable_recording: 'cloud' }
+          },
+          subdomain
+        );
+
+        const doc: ICallRecord = {
+          erxesApiConversationId,
+          erxesApiMessageId,
+          roomName: response.name,
+          privacy: response.privacy,
+          token: tokenResponse.token
         };
-      }
 
-      await Integrations.updateOne(
-        { erxesApiId: integrationId },
-        { $set: details }
-      );
+        const record = await Records.createCallRecord(doc);
 
-      return {
-        status: 'success'
-      };
-    }
-  );
+        const domain_name = response.domain_name;
 
-  consumeRPCQueue(
-    'dailyco:integrationDetail',
-    async (args: ISendMessageArgs): Promise<any> => {
-      const inboxId: string = args.data.inboxId;
-
-      const viberIntegration = await Integrations.findOne({ inboxId }, 'token');
-
-      return {
-        status: 'success',
-        data: { token: viberIntegration?.token }
-      };
-    }
-  );
-
-  consumeRPCQueue(
-    'dailyco:removeIntegrations',
-    async (args: ISendMessageArgs): Promise<any> => {
-      const { data } = args;
-      const { integrationId } = data;
-
-      await Customers.deleteMany({ inboxIntegrationId: integrationId });
-      await Integrations.deleteMany({ inboxId: integrationId });
-
-      const conversationIds: string[] = [];
-
-      const conversationIdsKeys: IConversation[] = await Conversations.find(
-        { integrationId },
-        '_id'
-      );
-
-      conversationIdsKeys.map((key: IConversation): void => {
-        conversationIds.push(key._id);
-      });
-
-      if (conversationIds.length > 0) {
-        await ConversationMessages.deleteMany({
-          conversationId: { $in: conversationIds }
-        });
-      }
-
-      await Conversations.deleteMany({ integrationId });
-
-      return {
-        status: 'success'
-      };
-    }
-  );
-
-  consumeRPCQueue(
-    'dailyco:api_to_integrations',
-    async (args: ISendMessageArgs): Promise<any> => {
-      const { subdomain, data } = args;
-      const integrationId = data.integrationId;
-
-      const integration = await Integrations.findOne(
-        { inboxId: integrationId },
-        { inboxId: 1, token: 1 }
-      );
-
-      if (!integration) {
-        return {
-          status: 'error',
-          errorMessage: 'Integration not found.'
-        };
-      }
-
-      if (data.action === 'getDetails') {
         return {
           status: 'success',
           data: {
-            token: integration.token
+            url: `${domain_name}/${record.roomName}?=t${record.token}`,
+            name: record.roomName,
+            status: 'ongoing'
           }
         };
+      } catch (e) {
+        console.log(e);
+        return {
+          status: 'failed',
+          message: e.message
+        };
       }
-
-      if (data.action.includes('reply')) {
-        try {
-          const payload = JSON.parse(data.payload || '{}');
-          const viberApi: ViberAPI = new ViberAPI({
-            token: integration.token,
-            integrationId,
-            subdomain
-          });
-          await viberApi.sendMessage(payload);
-        } catch (e) {
-          return {
-            status: 'error',
-            errorMessage: e.message
-          };
-        }
-      }
-
-      return {
-        status: 'success'
-      };
     }
   );
 };

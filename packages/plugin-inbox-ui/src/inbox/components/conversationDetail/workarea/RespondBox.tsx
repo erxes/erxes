@@ -480,7 +480,9 @@ class RespondBox extends React.Component<Props, State> {
     return (
       <EditorActions>
         {this.renderCheckbox(integration.kind)}
-        {this.renderVideoRoom()}
+        {/* {this.renderVideoRoom()} */}
+
+        {loadDynamicComponent('renderInboxEditorActions', this.props, true)}
 
         <Tip text={__('Attach file')}>
           <label>

@@ -640,15 +640,40 @@ const conversationMutations = {
 
       message = await models.ConversationMessages.addMessage(doc, user._id);
 
-      const videoCallData = await sendIntegrationsMessage({
+      let videoCallData;
+
+      const type = await sendIntegrationsMessage({
         subdomain,
-        action: 'createDailyRoom',
+        action: 'configs.findOne',
         data: {
-          erxesApiConversationId: _id,
-          erxesApiMessageId: message._id
+          code: 'VIDEO_CALL_TYPE'
         },
         isRPC: true
       });
+
+      if (!type) {
+        throw new Error('Video call settings not configured completely');
+      }
+
+      switch (type.value) {
+        case 'daily':
+          console.log('daily');
+          videoCallData = await sendCommonMessage({
+            serviceName: 'dailyco',
+            subdomain,
+            action: 'createRoom',
+            data: {
+              erxesApiConversationId: _id,
+              erxesApiMessageId: message._id
+            },
+            isRPC: true
+          });
+
+          console.log('daily', videoCallData);
+          break;
+        default:
+          break;
+      }
 
       const updatedMessage = { ...message._doc, videoCallData };
 
