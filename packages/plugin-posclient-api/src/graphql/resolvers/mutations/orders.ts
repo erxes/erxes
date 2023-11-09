@@ -318,9 +318,7 @@ const ordersEdit = async (
 
     if (order.slotCode) {
       await graphqlPubsub.publish('slotsStatusUpdated', {
-        slotsStatusUpdated: {
-          ...(await checkSlotStatus(models, config, currentSlots))
-        }
+        slotsStatusUpdated: await checkSlotStatus(models, config, currentSlots)
       });
     }
   }

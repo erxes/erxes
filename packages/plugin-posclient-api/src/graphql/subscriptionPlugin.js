@@ -43,8 +43,8 @@ module.exports = {
         subscribe: withFilter(
           () => graphqlPubsub.asyncIterator('slotsStatusUpdated'),
           (payload) => {
-            console.log(payload, 'payloaddddddddddddddddddddddddd');
-            return payload.slotsStatusUpdated;
+            console.log(payload, 'payloaddddddddddddddddddddddddd', Boolean(payload.slotsStatusUpdated.length));
+            return Boolean(payload.slotsStatusUpdated.length);
           }
         ),
       },
