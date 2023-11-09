@@ -2,6 +2,7 @@ const slotsStatusUpdated = `
   subscription slotsStatusUpdated {
     slotsStatusUpdated {
       _id
+      posToken
       code
       name
       option

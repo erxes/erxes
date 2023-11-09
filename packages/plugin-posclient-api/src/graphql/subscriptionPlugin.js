@@ -3,9 +3,9 @@ var { withFilter } = require('graphql-subscriptions');
 module.exports = {
   name: 'posclient',
   typeDefs: `
-    ordersOrdered(statuses: [String], customerId: String): Order
-    orderItemsOrdered(statuses: [String]): PosOrderItem
-    slotsStatusUpdated: [PosclientSlot]
+    ordersOrdered(posToken: String, statuses: [String], customerId: String): Order
+    orderItemsOrdered(posToken: String, statuses: [String]): PosOrderItem
+    slotsStatusUpdated(posToken: String): [PosclientSlot]
   `,
 
   generateResolvers: (graphqlPubsub) => {
@@ -18,15 +18,16 @@ module.exports = {
           () => graphqlPubsub.asyncIterator('ordersOrdered'),
           (payload, variables) => {
             console.log(payload, 'ordersOrdered-payloadaaaaaaaaaaaaaaaaaaaaa');
-            const { status, customerId } = payload.ordersOrdered;
+            const { status, customerId, posToken } = payload.ordersOrdered;
             if (variables.customerId) {
               return (
+                variables.posToken === posToken &&
                 variables.statuses.includes(status) &&
                 variables.customerId === customerId
               );
             }
 
-            return variables.statuses.includes(status);
+            return (variables.posToken === posToken && variables.statuses.includes(status));
           }
         ),
       },
@@ -34,17 +35,23 @@ module.exports = {
         subscribe: withFilter(
           () => graphqlPubsub.asyncIterator('orderItemsOrdered'),
           (payload, variables) => {
-            const { status } = payload.orderItemsOrdered;
-            return variables.statuses.includes(status);
+            const { status, posToken } = payload.orderItemsOrdered;
+            return (variables.posToken === posToken && variables.statuses.includes(status));
           }
         ),
       },
       slotsStatusUpdated: {
         subscribe: withFilter(
           () => graphqlPubsub.asyncIterator('slotsStatusUpdated'),
-          (payload) => {
-            console.log(payload, 'payloaddddddddddddddddddddddddd', Boolean(payload.slotsStatusUpdated.length));
-            return Boolean(payload.slotsStatusUpdated.length);
+          (payload, variables) => {
+            if (!variables.posToken) {
+              return false;
+            }
+
+            console.log(payload, 'payloaddddddddddddddddddddddddd', Boolean(payload.slotsStatusUpdated.length), Boolean((payload.slotsStatusUpdated || []).filter(s => s.posToken === variables.posToken).length));
+            return Boolean((payload.slotsStatusUpdated || []).filter(
+              s => s.posToken === variables.posToken
+            ).length);
           }
         ),
       },

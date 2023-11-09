@@ -312,7 +312,7 @@ const ordersEdit = async (
     order.slotCode !== updatedOrder.slotCode
   ) {
     const currentSlots = await models.PosSlots.find({
-      posId: config.posId,
+      posToken: config.token,
       code: { $in: [order.slotCode, updatedOrder.slotCode] }
     }).lean();
 
@@ -467,7 +467,7 @@ const orderMutations = {
   async orderItemChangeStatus(
     _root,
     { _id, status }: { _id: string; status: string },
-    { models }: IContext
+    { models, config }: IContext
   ) {
     const oldOrderItem = await models.OrderItems.getOrderItem(_id);
 
@@ -476,6 +476,7 @@ const orderMutations = {
     await graphqlPubsub.publish('orderItemsOrdered', {
       orderItemsOrdered: {
         _id,
+        posToken: config.token,
         status: status
       }
     });

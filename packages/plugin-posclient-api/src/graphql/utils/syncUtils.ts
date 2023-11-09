@@ -57,7 +57,7 @@ export const importSlots = async (
 ) => {
   const pos = await models.Configs.getConfig({ token });
   await models.PosSlots.deleteMany({ posId: pos.posId });
-  await models.PosSlots.insertMany(slots);
+  await models.PosSlots.insertMany(slots.map(s => ({ ...s, posToken: token })));
 };
 
 export const preImportProducts = async (

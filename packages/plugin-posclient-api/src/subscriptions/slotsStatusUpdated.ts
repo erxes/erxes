@@ -8,9 +8,26 @@ export default {
   slotsStatusUpdated: {
     subscribe: withFilter(
       () => graphqlPubsub.asyncIterator('slotsStatusUpdated'),
-      payload => {
-        console.log(payload, '----');
-        return !!payload.slotsStatusUpdated;
+      (payload, variables) => {
+        if (!variables.posToken) {
+          return false;
+        }
+
+        console.log(
+          payload,
+          'payloaddddddddddddddddddddddddd',
+          Boolean(payload.slotsStatusUpdated.length),
+          Boolean(
+            (payload.slotsStatusUpdated || []).filter(
+              s => s.posToken === variables.posToken
+            ).length
+          )
+        );
+        return Boolean(
+          (payload.slotsStatusUpdated || []).filter(
+            s => s.posToken === variables.posToken
+          ).length
+        );
       }
     )
   }

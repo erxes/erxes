@@ -29,7 +29,7 @@ const configQueries = {
   },
 
   async poscSlots(_root, _args, { models, config }: IContext) {
-    const slots = await models.PosSlots.find({ posId: config.posId }).lean();
+    const slots = await models.PosSlots.find({ posToken: config.token }).lean();
     return await checkSlotStatus(models, config, slots);
   },
 
