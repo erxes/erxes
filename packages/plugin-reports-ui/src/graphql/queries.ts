@@ -69,6 +69,11 @@ const reportsList = `
             filterType
           }
         }
+        tags{
+          _id
+          name
+          colorCode
+        }
       }
 
       totalCount
@@ -133,6 +138,12 @@ const reportDetail = `
             filterValue
             filterType
           }
+        }
+
+        tags  {
+          _id
+          name
+          colorCode
         }
 
         assignedDepartmentIds
