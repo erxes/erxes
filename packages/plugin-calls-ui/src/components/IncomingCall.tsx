@@ -23,7 +23,6 @@ import NameCard from '@erxes/ui/src/components/nameCard/NameCard';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import Button from '@erxes/ui/src/components/Button';
 import AssignBox from '@erxes/ui-inbox/src/inbox/containers/AssignBox';
-import Tagger from '@erxes/ui-tags/src/containers/Tagger';
 import WidgetPopover from './WidgetPopover';
 import { isEnabled, renderFullName } from '@erxes/ui/src/utils/core';
 import * as PropTypes from 'prop-types';
@@ -31,9 +30,12 @@ import { callPropType, sipPropType } from '../lib/types';
 import { CALL_STATUS_IDLE } from '../lib/enums';
 import { ICustomer } from '../types';
 import { Tags } from '@erxes/ui/src/components';
+import TaggerSection from '@erxes/ui-contacts/src/customers/components/common/TaggerSection';
 
 type Props = {
   customer: ICustomer;
+  toggleSectionWithPhone: (phoneNumber: string) => void;
+  taggerRefetchQueries: any;
 };
 
 const getSpentTime = (seconds: number) => {
@@ -67,7 +69,7 @@ const IncomingCall: React.FC<Props> = (props: Props, context) => {
   const Sip = context;
   const { mute, unmute, isMuted, isHolded, hold, unhold } = Sip;
 
-  const { customer } = props;
+  const { customer, toggleSectionWithPhone, taggerRefetchQueries } = props;
   const primaryPhone = customer?.primaryPhone;
 
   const [currentTab, setCurrentTab] = useState('');
@@ -109,6 +111,10 @@ const IncomingCall: React.FC<Props> = (props: Props, context) => {
     setShowHistory(true);
   };
 
+  const toggleSection = () => {
+    toggleSectionWithPhone(primaryPhone);
+  };
+
   const renderFooter = () => {
     if (!shrink) {
       return (
@@ -132,7 +138,14 @@ const IncomingCall: React.FC<Props> = (props: Props, context) => {
           <Button btnStyle="success">{__('Send')}</Button>
         </CallTabContent>
         <CallTabContent tab="Tags" show={currentTab === 'Tags' ? true : false}>
-          <Tagger type="" />
+          {isEnabled('tags') && (
+            <TaggerSection
+              data={customer}
+              type="contacts:customer"
+              refetchQueries={taggerRefetchQueries}
+              collapseCallback={toggleSection}
+            />
+          )}
         </CallTabContent>
         <CallTabContent
           tab="Assign"

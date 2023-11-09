@@ -14,7 +14,6 @@ import {
   ContactItem,
   CallTabsContainer,
   CallTab,
-  ActionNumber,
   CallTabContent
 } from '../styles';
 import { inCallTabs, numbers, symbols } from '../constants';
@@ -33,20 +32,37 @@ import {
 import { callPropType, sipPropType } from '../lib/types';
 import { formatPhone, getSpentTime } from '../utils';
 import Popover from 'react-bootstrap/Popover';
+import AssignBox from '@erxes/ui-inbox/src/inbox/containers/AssignBox';
+import { isEnabled } from '@erxes/ui/src/utils/core';
+import { ICustomer } from '../types';
+import TaggerSection from '@erxes/ui-contacts/src/customers/components/common/TaggerSection';
 
 type Props = {
   addCustomer: (firstName: string, phoneNumber: string, callID: string) => void;
   callIntegrationsOfUser: any;
   setConfig: any;
+  customer: ICustomer;
+  toggleSectionWithPhone: (phoneNumber: string) => void;
+  taggerRefetchQueries: any;
 };
 const KeyPad = (props: Props, context) => {
   const Sip = context;
   const { call, mute, unmute, isMuted, isHolded, hold, unhold } = Sip;
-  const { addCustomer, callIntegrationsOfUser, setConfig } = props;
+  const {
+    addCustomer,
+    callIntegrationsOfUser,
+    setConfig,
+    customer,
+    toggleSectionWithPhone,
+    taggerRefetchQueries
+  } = props;
 
   const defaultCallIntegration = localStorage.getItem(
     'config:call_integrations'
   );
+
+  const [currentTab, setCurrentTab] = useState('');
+  const [shrink, setShrink] = useState(customer ? true : false);
 
   const [number, setNumber] = useState('');
   const [showTrigger, setShowTrigger] = useState(false);
@@ -58,6 +74,7 @@ const KeyPad = (props: Props, context) => {
   );
 
   const [timeSpent, setTimeSpent] = useState(0);
+  const formatedPhone = formatPhone(number);
 
   const ourPhone = callIntegrationsOfUser?.map(user => ({
     value: user.phone,
@@ -71,7 +88,6 @@ const KeyPad = (props: Props, context) => {
       const inboxId =
         JSON.parse(defaultCallIntegration)?.inboxId ||
         callIntegrationsOfUser?.[0]?.inboxId;
-      const formatedPhone = formatPhone(number);
 
       addCustomer(inboxId, formatedPhone, call?.id);
     }
@@ -84,6 +100,11 @@ const KeyPad = (props: Props, context) => {
     return () => clearInterval(timer);
   }, [call?.status]);
 
+  const onTabClick = (tab: string) => {
+    setCurrentTab(tab);
+    setShrink(true);
+  };
+
   const handleCall = () => {
     if (Sip.sip?.status !== SIP_STATUS_REGISTERED) {
       return;
@@ -91,8 +112,6 @@ const KeyPad = (props: Props, context) => {
     if (Sip.call?.status !== CALL_STATUS_IDLE) {
       return;
     }
-    // new Audio('/sound/outgoing.mp3');
-    const formatedPhone = formatPhone(number);
 
     if (formatedPhone.length !== 8) {
       return Alert.warning('Check phone number');
@@ -126,6 +145,10 @@ const KeyPad = (props: Props, context) => {
       num += e;
       setNumber(num);
     }
+  };
+
+  const toggleSection = () => {
+    toggleSectionWithPhone(formatedPhone);
   };
 
   const renderKeyPad = () => {
@@ -230,7 +253,6 @@ const KeyPad = (props: Props, context) => {
   };
 
   const renderCallerInfo = () => {
-    const formatedPhone = formatPhone(number);
     if (!formatedPhone) {
       return null;
     }
@@ -238,12 +260,57 @@ const KeyPad = (props: Props, context) => {
     return <PhoneNumber>{formatedPhone}</PhoneNumber>;
   };
 
+  const renderFooter = () => {
+    if (!shrink) {
+      return (
+        <InCallFooter>
+          <Button btnStyle="link">{__('Add or call')}</Button>
+          <CallAction onClick={handleCallStop} isDecline={true}>
+            <Icon icon="phone-slash" />
+          </CallAction>
+          <Button btnStyle="link">{__('Transfer call')}</Button>
+        </InCallFooter>
+      );
+    }
+
+    return (
+      <>
+        <CallTabContent
+          tab="Notes"
+          show={currentTab === 'Notes' ? true : false}
+        >
+          <FormControl componentClass="textarea" placeholder="Send a note..." />
+          <Button btnStyle="success">{__('Send')}</Button>
+        </CallTabContent>
+        <CallTabContent tab="Tags" show={currentTab === 'Tags' ? true : false}>
+          {isEnabled('tags') && (
+            <TaggerSection
+              data={customer}
+              type="contacts:customer"
+              refetchQueries={taggerRefetchQueries}
+              collapseCallback={toggleSection}
+            />
+          )}
+        </CallTabContent>
+        <CallTabContent
+          tab="Assign"
+          show={currentTab === 'Assign' ? true : false}
+        >
+          <AssignBox targets={[]} event="onClick" afterSave={() => {}} />
+        </CallTabContent>
+        <CallAction onClick={handleCallStop} isDecline={true}>
+          <Icon icon="phone-slash" />
+        </CallAction>
+      </>
+    );
+  };
+
   return (
     <>
       {Sip.call?.status === CALL_STATUS_ACTIVE && (
         <Popover id="call-popover" className="call-popover">
           <InCall>
-            <CallInfo shrink={false}>
+            <CallInfo shrink={shrink}>
               <p>
                 {__('Call duration:')} <b>{getSpentTime(timeSpent)}</b>
               </p>
@@ -284,14 +351,20 @@ const KeyPad = (props: Props, context) => {
                 )}
               </Actions>
             </CallInfo>
-
-            <InCallFooter>
-              <Button btnStyle="link">{__('Add or call')}</Button>
-              <CallAction onClick={handleCallStop} isDecline={true}>
-                <Icon icon="phone-slash" />
-              </CallAction>
-              <Button btnStyle="link">{__('Transfer call')}</Button>
-            </InCallFooter>
+            <ContactItem>
+              <CallTabsContainer full={true}>
+                {inCallTabs.map(tab => (
+                  <CallTab
+                    key={tab}
+                    className={currentTab === tab ? 'active' : ''}
+                    onClick={() => onTabClick(tab)}
+                  >
+                    {__(tab)}
+                  </CallTab>
+                ))}
+              </CallTabsContainer>
+            </ContactItem>
+            {renderFooter()}
           </InCall>
         </Popover>
       )}

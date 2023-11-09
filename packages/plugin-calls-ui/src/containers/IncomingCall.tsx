@@ -7,6 +7,8 @@ import { callPropType } from '../lib/types';
 import { gql, useMutation } from '@apollo/client';
 import { mutations } from '../graphql';
 import { Alert } from '@erxes/ui/src/utils';
+import client from '@erxes/ui/src/apolloClient';
+import queries from '../graphql/queries';
 
 interface Props {
   closeModal?: () => void;
@@ -51,7 +53,48 @@ const IncomingCallContainer = (props: Props, context) => {
     }
   }, [phoneNumber, call?.id]);
 
-  return <IncomingCall customer={customer} />;
+  const getCustomerDetail = (phoneNumber?: string) => {
+    if (!phoneNumber) {
+      return null;
+    }
+
+    client
+      .query({
+        query: gql(queries.callCustomerDetail),
+        fetchPolicy: 'network-only',
+        variables: { callerNumber: phoneNumber }
+      })
+      .then(({ data }: { data: any }) => {
+        if (data && data.callsCustomerDetail) {
+          setCustomer(data.callsCustomerDetail);
+        }
+      })
+      .catch(error => {
+        console.log(error.message); // tslint:disable-line
+      });
+
+    return;
+  };
+
+  const toggleSection = (phoneNumber): void => {
+    getCustomerDetail(phoneNumber);
+  };
+
+  const taggerRefetchQueries = [
+    {
+      query: gql(queries.callCustomerDetail),
+      variables: { callerNumber: customer?.primaryPhone },
+      skip: !customer?.primaryPhone
+    }
+  ];
+
+  return (
+    <IncomingCall
+      customer={customer}
+      toggleSectionWithPhone={toggleSection}
+      taggerRefetchQueries={taggerRefetchQueries}
+    />
+  );
 };
 
 IncomingCallContainer.contextTypes = {
