@@ -1,6 +1,6 @@
 const slotsStatusUpdated = `
-  subscription slotsStatusUpdated {
-    slotsStatusUpdated {
+  subscription slotsStatusUpdated($token: String) {
+    slotsStatusUpdated(posToken: $token) {
       _id
       posToken
       code
@@ -13,7 +13,7 @@ const slotsStatusUpdated = `
       }
     }
   }
-`;
+`
 
-const subscriptions = { slotsStatusUpdated };
-export default subscriptions;
+const subscriptions = { slotsStatusUpdated }
+export default subscriptions

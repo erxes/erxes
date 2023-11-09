@@ -229,6 +229,23 @@ const ordersAdd = async (
       }
     });
 
+    if (order.slotCode) {
+      const currentSlots = await models.PosSlots.find({
+        posToken: config.token,
+        code: order.slotCode
+      }).lean();
+
+      if (currentSlots.length) {
+        await graphqlPubsub.publish('slotsStatusUpdated', {
+          slotsStatusUpdated: await checkSlotStatus(
+            models,
+            config,
+            currentSlots
+          )
+        });
+      }
+    }
+
     return order;
   } catch (e) {
     debugError(
@@ -316,7 +333,7 @@ const ordersEdit = async (
       code: { $in: [order.slotCode, updatedOrder.slotCode] }
     }).lean();
 
-    if (order.slotCode) {
+    if (currentSlots.length) {
       await graphqlPubsub.publish('slotsStatusUpdated', {
         slotsStatusUpdated: await checkSlotStatus(models, config, currentSlots)
       });
