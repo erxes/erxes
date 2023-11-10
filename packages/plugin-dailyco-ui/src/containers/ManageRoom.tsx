@@ -57,7 +57,15 @@ function ManageRoom(props: Props) {
 
   return (
     <Tip text={__('Invite to video call')}>
-      <label onClick={createVideoRoom}>
+      <label
+        onClick={createVideoRoom}
+        onKeyDown={e => {
+          if (e.key === 'Enter') {
+            createVideoRoom();
+          }
+        }}
+        tabIndex={0} // This makes the element focusable
+      >
         {loading ? <SmallLoader /> : <Icon icon="video" />}
       </label>
     </Tip>
