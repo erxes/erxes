@@ -37,6 +37,7 @@ const IncomingCallContainer = (props: Props, context) => {
     callIntegrationsOfUser?.[0]?.inboxId;
 
   const [createCustomerMutation] = useMutation(gql(mutations.customersAdd));
+  const [addInternalNotes] = useMutation(gql(mutations.conversationMessageAdd));
 
   useEffect(() => {
     navigator.mediaDevices
@@ -73,6 +74,22 @@ const IncomingCallContainer = (props: Props, context) => {
         });
     }
   }, [phoneNumber, call?.id]);
+
+  const addNote = (conversationId: string, content: any) => {
+    addInternalNotes({
+      variables: {
+        content,
+        conversationId,
+        internal: true
+      }
+    })
+      .then(() => {
+        Alert.success('Successfully added note');
+      })
+      .catch(e => {
+        Alert.error(e.message);
+      });
+  };
 
   const getCustomerDetail = (phoneNumber?: string) => {
     if (!phoneNumber) {
@@ -116,6 +133,7 @@ const IncomingCallContainer = (props: Props, context) => {
       taggerRefetchQueries={taggerRefetchQueries}
       conversation={conversation}
       hasMicrophone={hasMicrophone}
+      addNote={addNote}
     />
   );
 };

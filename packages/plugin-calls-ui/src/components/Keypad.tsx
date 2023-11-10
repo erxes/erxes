@@ -36,6 +36,7 @@ import AssignBox from '@erxes/ui-inbox/src/inbox/containers/AssignBox';
 import { isEnabled } from '@erxes/ui/src/utils/core';
 import TaggerSection from '@erxes/ui-contacts/src/customers/components/common/TaggerSection';
 import { ICallConversation, ICustomer } from '../types';
+import { StepContent } from '@erxes/ui/src/components/step/styles';
 
 type Props = {
   addCustomer: (firstName: string, phoneNumber: string, callID: string) => void;
@@ -45,6 +46,7 @@ type Props = {
   toggleSectionWithPhone: (phoneNumber: string) => void;
   taggerRefetchQueries: any;
   conversation: ICallConversation;
+  addNote: (conversationId: string, content: string) => void;
 };
 const KeyPad = (props: Props, context) => {
   const Sip = context;
@@ -56,7 +58,8 @@ const KeyPad = (props: Props, context) => {
     customer,
     toggleSectionWithPhone,
     taggerRefetchQueries,
-    conversation
+    conversation,
+    addNote
   } = props;
 
   const defaultCallIntegration = localStorage.getItem(
@@ -75,6 +78,7 @@ const KeyPad = (props: Props, context) => {
       ''
   );
   const [hasMicrophone, setHasMicrophone] = useState(false);
+  const [noteContent, setNoteContent] = useState('');
 
   const [timeSpent, setTimeSpent] = useState(0);
   const formatedPhone = formatPhone(number);
@@ -289,6 +293,13 @@ const KeyPad = (props: Props, context) => {
     return <PhoneNumber>{formatedPhone}</PhoneNumber>;
   };
 
+  const onChangeText = e =>
+    setNoteContent((e.currentTarget as HTMLInputElement).value);
+
+  const sendMessage = () => {
+    addNote(conversationDetail?._id, noteContent);
+  };
+
   const renderFooter = () => {
     if (!shrink) {
       return (
@@ -308,8 +319,14 @@ const KeyPad = (props: Props, context) => {
           tab="Notes"
           show={currentTab === 'Notes' ? true : false}
         >
-          <FormControl componentClass="textarea" placeholder="Send a note..." />
-          <Button btnStyle="success">{__('Send')}</Button>
+          <FormControl
+            componentClass="textarea"
+            placeholder="Send a note..."
+            onChange={onChangeText}
+          />
+          <Button btnStyle="success" onClick={sendMessage}>
+            {__('Send')}
+          </Button>
         </CallTabContent>
         <CallTabContent tab="Tags" show={currentTab === 'Tags' ? true : false}>
           {isEnabled('tags') && (

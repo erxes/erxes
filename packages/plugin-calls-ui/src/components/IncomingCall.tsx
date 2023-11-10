@@ -38,6 +38,7 @@ type Props = {
   toggleSectionWithPhone: (phoneNumber: string) => void;
   taggerRefetchQueries: any;
   hasMicrophone: boolean;
+  addNote: (conversationId: string, content: string) => void;
 };
 
 const getSpentTime = (seconds: number) => {
@@ -76,7 +77,8 @@ const IncomingCall: React.FC<Props> = (props: Props, context) => {
     toggleSectionWithPhone,
     taggerRefetchQueries,
     conversation,
-    hasMicrophone
+    hasMicrophone,
+    addNote
   } = props;
   const primaryPhone = customer?.primaryPhone;
 
@@ -88,6 +90,8 @@ const IncomingCall: React.FC<Props> = (props: Props, context) => {
   const [timeSpent, setTimeSpent] = useState(0);
   const [status, setStatus] = useState('pending');
   const [showHistory, setShowHistory] = useState(false);
+
+  const [noteContent, setNoteContent] = useState('');
 
   let conversationDetail;
 
@@ -127,6 +131,13 @@ const IncomingCall: React.FC<Props> = (props: Props, context) => {
     toggleSectionWithPhone(primaryPhone);
   };
 
+  const onChangeText = e =>
+    setNoteContent((e.currentTarget as HTMLInputElement).value);
+
+  const sendMessage = () => {
+    addNote(conversationDetail?._id, noteContent);
+  };
+
   const renderFooter = () => {
     if (!shrink) {
       return (
@@ -146,8 +157,14 @@ const IncomingCall: React.FC<Props> = (props: Props, context) => {
           tab="Notes"
           show={currentTab === 'Notes' ? true : false}
         >
-          <FormControl componentClass="textarea" placeholder="Send a note..." />
-          <Button btnStyle="success">{__('Send')}</Button>
+          <FormControl
+            componentClass="textarea"
+            placeholder="Send a note..."
+            onChange={onChangeText}
+          />
+          <Button btnStyle="success" onClick={sendMessage}>
+            {__('Send')}
+          </Button>
         </CallTabContent>
         <CallTabContent tab="Tags" show={currentTab === 'Tags' ? true : false}>
           {isEnabled('tags') && (

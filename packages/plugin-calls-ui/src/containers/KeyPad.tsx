@@ -14,6 +14,7 @@ const KeyPadContainer = ({ callIntegrationsOfUser, setConfig }) => {
     undefined
   );
   const [createCustomerMutation] = useMutation(gql(mutations.customersAdd));
+  const [addInternalNotes] = useMutation(gql(mutations.conversationMessageAdd));
 
   const getCustomerDetail = (phoneNumber?: string) => {
     if (!phoneNumber) {
@@ -36,6 +37,22 @@ const KeyPadContainer = ({ callIntegrationsOfUser, setConfig }) => {
       });
 
     return;
+  };
+
+  const addNote = (conversationId: string, content: any) => {
+    addInternalNotes({
+      variables: {
+        content,
+        conversationId,
+        internal: true
+      }
+    })
+      .then(() => {
+        Alert.success('Successfully added note');
+      })
+      .catch(e => {
+        Alert.error(e.message);
+      });
   };
 
   const createCustomer = (
@@ -82,6 +99,7 @@ const KeyPadContainer = ({ callIntegrationsOfUser, setConfig }) => {
       toggleSectionWithPhone={toggleSection}
       taggerRefetchQueries={taggerRefetchQueries}
       conversation={conversation}
+      addNote={addNote}
     />
   );
 };
