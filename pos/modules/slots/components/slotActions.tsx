@@ -60,6 +60,7 @@ const SlotActions = ({
         <DropdownMenuCheckboxItem
           onCheckedChange={handleChoose}
           checked={activeSlot === code}
+          disabled={!activeSlot}
         >
           Захиалгад оноох
         </DropdownMenuCheckboxItem>
