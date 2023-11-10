@@ -5,30 +5,33 @@ import dynamic from "next/dynamic"
 import { currentUserAtom } from "@/modules/JotaiProiveder"
 import { IUser } from "@/modules/auth/types"
 import { useFeedDetail } from "@/modules/feed/hooks/useFeedDetail"
+import { isNonNullObject } from "@apollo/client/utilities"
 import dayjs from "dayjs"
 import { useAtomValue } from "jotai"
 import {
   AlertTriangleIcon,
+  Calendar,
   ExternalLinkIcon,
+  MapPinIcon,
   MessageCircleIcon,
-  MoreHorizontalIcon,
+  MoreVerticalIcon,
   PencilIcon,
   PinIcon,
   PinOff,
   ThumbsUp,
   TrashIcon,
+  UserIcon,
 } from "lucide-react"
 
 import { readFile } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
+import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import {
   Dialog,
   DialogContent,
   DialogFooter,
   DialogTrigger,
 } from "@/components/ui/dialog"
-import Image from "@/components/ui/image"
 import LoadingCard from "@/components/ui/loading-card"
 import LoadingPost from "@/components/ui/loadingPost"
 import {
@@ -43,14 +46,15 @@ import useFeedMutation from "../hooks/useFeedMutation"
 import { useReactionMutaion } from "../hooks/useReactionMutation"
 import { useReactionQuery } from "../hooks/useReactionQuery"
 import CommentItem from "./CommentItem"
+import EventDropDown from "./EventDropDown"
+import EventUsersAvatar from "./EventUsersAvatar"
 import CommentForm from "./form/CommentForm"
 
-const BravoForm = dynamic(() => import("./form/BravoForm"))
-const HolidayForm = dynamic(() => import("./form/HolidayForm"))
-const PostForm = dynamic(() => import("./form/PostForm"))
+const EventForm = dynamic(() => import("./form/EventForm"))
 
-const PostItem = ({ postId }: { postId: string }): JSX.Element => {
+const EventItem = ({ postId }: { postId: string }): JSX.Element => {
   const [open, setOpen] = useState(false)
+  const [seeMore, setSeeMore] = useState(false)
   const [formOpen, setFormOpen] = useState(false)
   const [commentOpen, setCommentOpen] = useState(false)
   const currentUser = useAtomValue(currentUserAtom) || ({} as IUser)
@@ -92,16 +96,12 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
     return <div />
   }
 
-  const user = feed.createdUser || ({} as IUser)
-  const userDetail = user.details
-
   const idExists = emojiReactedUser.some(
     (item: any) => item._id === currentUser._id
   )
 
   const urlRegex = /(https?:\/\/[^\s]+)/g
 
-  let links: string[] = []
   let updatedDescription = ""
 
   if (feed.description) {
@@ -113,8 +113,6 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
           prevDescription.replace(link, ""),
         feed.description
       )
-
-      links = matches
     } else {
       updatedDescription = feed.description
     }
@@ -126,16 +124,7 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
 
   const editAction = () => {
     const renderForm = () => {
-      switch (feed.contentType) {
-        case "post":
-          return <PostForm feed={feed} setOpen={setOpen} />
-        case "publicHoliday":
-          return <HolidayForm feed={feed} setOpen={setOpen} />
-        case "welcome":
-          return null
-        case "bravo":
-          return <BravoForm feed={feed} setOpen={setOpen} />
-      }
+      return <EventForm feed={feed} setOpen={setOpen} />
     }
 
     return (
@@ -161,7 +150,7 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
           onOpenChange={() => setCommentOpen(!commentOpen)}
         >
           <DialogTrigger asChild={true} id="delete-form">
-            <div className="cursor-pointer flex items-center py-2 px-4 hover:bg-[#F0F0F0]">
+            <div className="cursor-pointer flex items-center pt-2">
               <MessageCircleIcon size={20} className="mr-1" color="black" />
               Comment
             </div>
@@ -231,10 +220,6 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
   }
 
   const renderFeedActions = () => {
-    if (feed.contentType === "welcome") {
-      return null
-    }
-
     if (currentUser._id !== feed.createdUser?._id) {
       return null
     }
@@ -243,23 +228,25 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
       <Popover>
         <PopoverTrigger asChild={true}>
           <div className="p-2 bg-white rounded-full">
-            <MoreHorizontalIcon size={16} />
+            <MoreVerticalIcon size={16} />
           </div>
         </PopoverTrigger>
         <PopoverContent className="w-40 p-3">
-          <div
-            className="hover:bg-[#F0F0F0] p-2 rounded-md cursor-pointer text-[#444] text-xs flex items-center"
-            onClick={() => pinFeed(feed._id)}
-          >
-            {feed.isPinned ? (
-              <PinOff size={16} className="mr-1 text-black" />
-            ) : (
-              <PinIcon size={16} className="mr-1 text-black" />
-            )}
-            <span className="text-black font-medium">
-              {feed.isPinned ? "UnPin" : "Pin"}
-            </span>
-          </div>
+          {new Date(feed.eventData?.endDate || "") < new Date() ? null : (
+            <div
+              className="hover:bg-[#F0F0F0] p-2 rounded-md cursor-pointer text-[#444] text-xs flex items-center"
+              onClick={() => pinFeed(feed._id)}
+            >
+              {feed.isPinned ? (
+                <PinOff size={16} className="mr-1 text-black" />
+              ) : (
+                <PinIcon size={16} className="mr-1 text-black" />
+              )}
+              <span className="text-black font-medium">
+                {feed.isPinned ? "UnPin" : "Pin"}
+              </span>
+            </div>
+          )}
           <div className="hover:bg-[#F0F0F0] p-2 rounded-md cursor-pointer text-[#444] text-xs">
             {editAction()}
           </div>
@@ -271,20 +258,39 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
     )
   }
 
-  const renderCreatedDate = () => {
-    if (feed.createdAt) {
-      const postCreationDate: any = new Date(feed.createdAt)
-      const currentDate: any = new Date()
-      const differenceInMilliseconds = currentDate - postCreationDate
-      const monthsDifference =
-        differenceInMilliseconds / (1000 * 60 * 60 * 24 * 30.44)
+  const renderEventInfo = () => {
+    const { eventData } = feed
 
-      if (monthsDifference >= 2) {
-        return dayjs(feed.createdAt).format("MM/DD/YYYY h:mm A")
-      }
-
-      return dayjs(feed.createdAt).fromNow()
-    }
+    return (
+      <div className="text-[#5E5B5B]">
+        <div className="flex items-center mb-2">
+          <Calendar size={18} className="mr-1" />
+          {dayjs(eventData?.startDate).format("MM/DD/YY h:mm A")} ~{" "}
+          {dayjs(eventData?.endDate).format("MM/DD/YY h:mm A")}
+        </div>
+        <div className="flex items-center mb-2">
+          <UserIcon size={18} className="mr-1" />
+          Event by{" "}
+          {feed?.createdUser?.details?.fullName ||
+            feed?.createdUser?.username ||
+            feed?.createdUser?.email}
+        </div>
+        <div className="flex items-center mb-2">
+          <MapPinIcon size={18} className="mr-1" />
+          {eventData?.where || ""}
+        </div>
+        {eventData && <EventUsersAvatar eventData={eventData} />}
+        {(feed.attachments || []).map((a, index) => {
+          return (
+            <a key={index} href={readFile(a.url)}>
+              <div className="flex items-center bg-primary-light text-sm font-medium text-white attachment-shadow px-2.5 py-[5px] justify-between w-full rounded-lg rounded-tr-none mt-4">
+                {a.name} <ExternalLinkIcon size={18} />
+              </div>
+            </a>
+          )
+        })}
+      </div>
+    )
   }
 
   const renderEmojiCount = () => {
@@ -312,40 +318,46 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
     )
   }
 
-  const renderAttachments = () => {
-    if (!feed.attachments || feed.attachments.length === 0) {
-      return null
-    }
-
-    return (
-      <div className="flex flex-wrap gap-3 mt-4">
-        {(feed.attachments || []).map((a, index) => {
-          return (
-            <a key={index} href={readFile(a.url)} className="w-1/2 flex-1">
-              <div className="flex bg-[#EAEAEA] text-sm font-medium text-[#444] attachment-shadow px-2.5 py-[5px] justify-between w-full rounded-lg rounded-tr-none">
-                <span className="truncate">{a.name}</span>{" "}
-                <ExternalLinkIcon size={18} />
-              </div>
-            </a>
-          )
-        })}
-      </div>
-    )
-  }
-
-  const renderImages = () => {
+  const renderImage = () => {
     if (!feed.images || feed.images.length === 0) {
       return null
     }
 
     return (
-      <div className="mt-4">
+      <div className="overflow-hidden rounded-[10px] h-[150px] w-[150px] mr-[20px] shrink-0">
         <FilePreview
-          attachments={feed.images}
+          attachments={[feed.images[0]]}
           fileUrl={feed.images[0].url}
           fileIndex={0}
-          grid={true}
         />
+      </div>
+    )
+  }
+
+  const renderSeeMore = () => {
+    if (seeMore || updatedDescription.length < 60) {
+      return null
+    }
+
+    return (
+      <span
+        className="text-primary cursor-pointer"
+        onClick={() => setSeeMore(true)}
+      >
+        {" "}
+        see more...
+      </span>
+    )
+  }
+
+  const renderComments = () => {
+    if (!comments || comments.length === 0) {
+      return null
+    }
+
+    return (
+      <div className="border-t mt-3">
+        <CommentItem comment={comments[0]} currentUserId={currentUser._id} />
       </div>
     )
   }
@@ -353,63 +365,36 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
   return (
     <>
       <Card className="max-w-2xl mx-auto my-4 border-0 p-4">
-        <CardHeader className="p-0 pb-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center">
-              <Image
-                src={userDetail?.avatar || "/avatar-colored.svg"}
-                alt="User Profile"
-                width={100}
-                height={100}
-                className="w-10 h-10 rounded-full object-cover border border-primary"
-              />
-              <div className="ml-3">
-                <div className="text-sm font-bold text-gray-700 mb-1">
-                  {userDetail?.fullName ||
-                    userDetail?.username ||
-                    userDetail?.email}
-                </div>
-                <div className="text-xs text-[#666] font-normal">
-                  {renderCreatedDate()}{" "}
-                </div>
+        <CardContent className="p-0 flex items-start justify-between">
+          <div className="flex">
+            {renderImage()}
+            <div>
+              <div className="overflow-x-hidden">
+                <p className="text-black font-semibold mb-2">{feed.title}</p>
+                <p className="text-[#222] mb-2">
+                  <span
+                    className={`${
+                      seeMore ? "max-h-fit" : "max-h-[40px]"
+                    } flex overflow-hidden`}
+                  >
+                    {updatedDescription}
+                  </span>
+                  {renderSeeMore()}
+                </p>
               </div>
-            </div>
-
-            <div className="flex items-center cursor-pointer">
-              {renderFeedActions()}
-              {feed.isPinned && <PinIcon size={18} color={"#FF0000"} />}
+              {renderEventInfo()}
             </div>
           </div>
-        </CardHeader>
-        <CardContent className="p-0">
-          <div className="overflow-x-hidden">
-            <p className="text-black">{updatedDescription}</p>
+          <div className="w-[205px] shrink-0 flex">
+            <EventDropDown event={feed} />
+            {renderFeedActions()}
           </div>
-          {links.map((link, index) => {
-            return (
-              <iframe
-                key={index}
-                width="640"
-                height="390"
-                src={String(link)
-                  .replace("watch?v=", "embed/")
-                  .replace("youtu.be/", "youtube.com/embed/")
-                  .replace("share/", "embed/")}
-                title="Video"
-                allowFullScreen={true}
-                className="rounded-lg mt-4"
-              />
-            )
-          })}
-
-          {renderAttachments()}
-          {renderImages()}
-          {renderEmojiCount()}
         </CardContent>
 
-        <CardFooter className="border-t mt-5 p-0 justify-between">
+        {renderEmojiCount()}
+        <CardFooter className="border-t mt-5 pb-0 justify-between">
           <div
-            className="cursor-pointer flex items-center py-2 px-4 hover:bg-[#F0F0F0]"
+            className="cursor-pointer flex items-center pt-2 mr-4"
             onClick={reactionAdd}
           >
             <ThumbsUp
@@ -424,17 +409,10 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
           </div>
           {renderComment()}
         </CardFooter>
-        {comments && comments.length > 0 && (
-          <div className="border-t">
-            <CommentItem
-              comment={comments[0]}
-              currentUserId={currentUser._id}
-            />
-          </div>
-        )}
+        {renderComments()}
       </Card>
     </>
   )
 }
 
-export default PostItem
+export default EventItem
