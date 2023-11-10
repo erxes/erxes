@@ -2,7 +2,7 @@ import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
 import * as dotenv from 'dotenv';
 import { serviceDiscovery } from './configs';
 import { Records } from './models';
-import { getDailyData } from './utils';
+import { getDailyData, getRecordings } from './utils';
 
 dotenv.config();
 
@@ -33,12 +33,18 @@ export const initBroker = async cl => {
 
       const { domain_name } = await getDailyData(subdomain);
 
+      const recordingLinks = await getRecordings(
+        subdomain,
+        callRecord.recordings
+      );
+
       return {
         status: 'success',
         data: {
           url: `https://${domain_name}.daily.co/${roomName}?t=${token}`,
           name: roomName,
-          status
+          status,
+          recordingLinks: recordingLinks.map(recording => recording.url) || []
         }
       };
     }

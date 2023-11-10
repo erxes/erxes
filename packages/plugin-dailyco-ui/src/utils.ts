@@ -13,10 +13,6 @@ export const openWindow = (
   const y = window.top.outerHeight / 2 + window.top.screenY - height / 2;
   const x = window.top.outerWidth / 2 + window.top.screenX - width / 2;
 
-  const link = `/videoCall?url=${url}&name=${name}&conversationId=${conversationId}`;
-
-  console.log('link', link);
-
   window.open(
     `/videoCall?url=${url}&name=${name}&conversationId=${conversationId}`,
     '_blank',

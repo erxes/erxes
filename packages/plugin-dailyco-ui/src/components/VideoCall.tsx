@@ -46,7 +46,6 @@ type Props = {
 };
 
 const VideoCall = props => {
-  console.log('props', props);
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [recordingId, setRecordingId] = useState('');
@@ -61,7 +60,6 @@ const VideoCall = props => {
   const { url, name } = props.queryParams;
 
   useEffect(() => {
-    // const container: any = document.getElementById('call-frame-container');
     const container =
       document.getElementById('call-frame-container') ||
       document.getElementsByTagName('body')[0];
@@ -70,7 +68,6 @@ const VideoCall = props => {
 
       callFrame
         .on('recording-started', event => {
-          console.log('recording-started', event);
           setRecordingId(event.recordingId);
 
           client
@@ -90,7 +87,6 @@ const VideoCall = props => {
             });
         })
         .on('recording-upload-completed', event => {
-          console.log('recording-upload-completed', event);
           client
             .mutate({
               mutation: gql(mutations.saveRecord),
@@ -129,7 +125,6 @@ const VideoCall = props => {
         variables: { name }
       })
       .then(({ data: { dailyDeleteVideoChatRoom } }) => {
-        console.log('dailyDeleteVideoChatRoom', dailyDeleteVideoChatRoom);
         if (dailyDeleteVideoChatRoom) {
           window.close();
           setLoading(false);
@@ -141,7 +136,6 @@ const VideoCall = props => {
   };
 
   const renderControls = () => {
-    console.log('renderControls', loading);
     return (
       <Control>
         <ControlBtn onClick={onDelete} disabled={loading}>

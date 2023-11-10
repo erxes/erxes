@@ -1,11 +1,12 @@
 import { sendRequest } from '@erxes/api-utils/src/requests';
 import { sendCommonMessage } from './messageBroker';
+import { IRecording } from './models';
 
 export const getDailyData = async subdomain => {
   const keys = ['DAILY_API_KEY', 'DAILY_END_POINT'];
 
   const selector = { code: { $in: keys } };
-  console.log('selector ======== ', selector);
+
   const configs = await sendCommonMessage({
     serviceName: 'integrations',
     action: 'configs.find',
@@ -13,8 +14,6 @@ export const getDailyData = async subdomain => {
     data: { selector },
     isRPC: true
   });
-
-  console.log('configs ======== ', configs);
 
   if (!configs || configs.length === 0) {
     throw new Error(
@@ -84,4 +83,43 @@ export const sendDailyRequest = async (
   } catch (e) {
     return e;
   }
+};
+
+export const isAfter = (
+  expiresTimestamp: number,
+  defaultMillisecond?: number
+) => {
+  const millisecond = defaultMillisecond || new Date().getTime();
+  const expiresMillisecond = new Date(expiresTimestamp * 1000).getTime();
+
+  if (expiresMillisecond > millisecond) {
+    return true;
+  }
+
+  return false;
+};
+
+export const getRecordings = async (
+  subdomain: string,
+  recordings: IRecording[]
+) => {
+  const newRecordings: IRecording[] = [];
+
+  for (const record of recordings) {
+    if (!record.expires || (record.expires && !isAfter(record.expires))) {
+      const accessLinkResponse = await sendDailyRequest(
+        `/api/v1/recordings/${record.id}/access-link`,
+        'GET',
+        {},
+        subdomain
+      );
+
+      record.expires = accessLinkResponse.expires;
+      record.url = accessLinkResponse.download_link;
+    }
+
+    newRecordings.push(record);
+  }
+
+  return newRecordings;
 };
