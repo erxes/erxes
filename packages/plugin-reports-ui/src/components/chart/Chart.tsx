@@ -4,22 +4,14 @@ import {
   ChartConfiguration,
   ChartConfigurationCustomTypesPerDataset,
   ChartOptions,
+  ChartType,
   Colors
 } from 'chart.js';
 import { IChart } from '../../types';
+import { DEFAULT_BACKGROUND_COLORS, DEFAULT_BORDER_COLORS } from './utils';
 
 Chart.register(Colors);
 
-export enum ChartType {
-  BAR = 'bar',
-  LINE = 'line',
-  PIE = 'pie',
-  DOUGHNUT = 'doughnut',
-  POLAR_AREA = 'polarArea',
-  RADAR = 'radar',
-  BUBBLE = 'bubble',
-  SCATTER = 'scatter'
-}
 interface IChartProps {
   chart: IChart;
 
@@ -183,7 +175,9 @@ const ChartComponent: React.FC<IChartProps> = ({
         data: {
           datasets: [
             {
-              data: [0, 1, 1]
+              data: [0, 1, 1],
+              backgroundColor: DEFAULT_BACKGROUND_COLORS,
+              borderColor: DEFAULT_BORDER_COLORS
             }
           ],
           labels: ['Ariuka ', 'Enkhtuvshin Narmandakh', 'Erdembileg Ebi']

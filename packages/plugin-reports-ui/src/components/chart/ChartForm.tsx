@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import RTG from 'react-transition-group';
+import EmptyState from '@erxes/ui/src/components/EmptyState';
 import {
   ActionFooter,
   Description,
@@ -10,7 +11,6 @@ import {
   ScrolledContent
 } from '../../styles';
 
-import EmptyState from '@erxes/ui/src/components/EmptyState';
 import {
   ControlLabel,
   FormControl,
@@ -20,17 +20,32 @@ import Select from 'react-select-plus';
 
 import Button from '@erxes/ui/src/components/Button';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
-import { __ } from '@erxes/ui/src/utils';
+import { router, __ } from '@erxes/ui/src/utils';
+import { CHART_TYPES } from './utils';
+import ChartRenderer from './ChartRenderer';
+import { ChartType } from 'chart.js';
 
 type Props = {
-  serviceTypes: string[];
   toggleForm: () => void;
+
+  history: any;
+  queryParams: any;
+
+  reportTemplates: any;
+  showChatForm: boolean;
 };
 const ChartForm = (props: Props) => {
-  const { serviceTypes, toggleForm } = props;
+  const { toggleForm, history, reportTemplates, showChatForm } = props;
 
   const [name, setName] = useState('');
-  const [serviceType, setServiceType] = useState(serviceTypes[0]);
+
+  const [chartType, setChartType] = useState<ChartType>('bar');
+  const [serviceType, setServiceType] = useState('');
+  const [serviceTypes, setServiceTypes] = useState([]);
+
+  useEffect(() => {
+    setServiceTypes(reportTemplates.map(r => r.serviceName));
+  }, [reportTemplates]);
 
   const onChangeName = (e: any) => {
     e.preventDefault();
@@ -38,7 +53,24 @@ const ChartForm = (props: Props) => {
     setName(e.target.value);
   };
 
+  const onServiceTypeChange = selVal => {
+    router.setParams(history, { serviceType: selVal.value });
+    setServiceType(selVal.value);
+  };
+
+  const onChartTypeChange = chartSelVal => {
+    setChartType(chartSelVal.value);
+  };
+
+  const renderChartTypes = Object.keys(CHART_TYPES).map(t => {
+    return {
+      label: CHART_TYPES[t],
+      value: CHART_TYPES[t]
+    };
+  });
+
   const onSave = () => {};
+
   return (
     <FormContainer>
       {/* {isQueryPresent ? (
@@ -60,29 +92,21 @@ const ChartForm = (props: Props) => {
       ) : null} */}
 
       <FormChart>
-        {/* <RTG.CSSTransition
-          // in={this.props.showDrawer}
+        <RTG.CSSTransition
+          in={showChatForm}
           timeout={300}
           classNames="slide-in-right"
           unmountOnExit={true}
         >
-          {isQueryPresent ? (
-            <>
-              <ChartRenderer
-                query={query}
-                chartType={chartType}
-                chartHeight={600}
-                filters={filters}
-                validatedQuery={validatedQuery}
-              />
-            </>
+          {showChatForm ? (
+            <ChartRenderer chartType={chartType} />
           ) : (
             <EmptyState
               text={__('Build your custom query')}
               image="/images/actions/21.svg"
             />
           )}
-        </RTG.CSSTransition> */}
+        </RTG.CSSTransition>
       </FormChart>
       <div>
         <RightDrawerContainer>
@@ -112,8 +136,19 @@ const ChartForm = (props: Props) => {
                     };
                   })}
                   value={serviceType}
-                  onChange={m => setServiceType(m.value)}
+                  onChange={onServiceTypeChange}
                   placeholder={__(`Choose Type`)}
+                />
+              </FormGroup>
+
+              <FormGroup>
+                <ControlLabel required={true}>{__('Chart type')}</ControlLabel>
+
+                <Select
+                  options={renderChartTypes}
+                  value={chartType}
+                  onChange={onChartTypeChange}
+                  placeholder={__(`Choose chart`)}
                 />
               </FormGroup>
             </DrawerDetail>
