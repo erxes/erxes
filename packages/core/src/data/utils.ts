@@ -606,8 +606,9 @@ export const uploadFileCloudflare = async (
   }
 
   if (
-    CLOUDFLARE_USE_CDN === 'true' ||
-    (CLOUDFLARE_USE_CDN === true && detectedType && isVideo(detectedType.mime))
+    (CLOUDFLARE_USE_CDN === 'true' || CLOUDFLARE_USE_CDN === true) &&
+    detectedType &&
+    isVideo(detectedType.mime)
   ) {
     return uploadToCFStream(file, models);
   }
