@@ -29,7 +29,7 @@ import { IIntegration } from '@erxes/ui-inbox/src/settings/integrations/types';
 import { IResponseTemplate } from '../../../../settings/responseTemplates/types';
 import { IUser } from '@erxes/ui/src/auth/types';
 import Icon from '@erxes/ui/src/components/Icon';
-import ManageVideoRoom from '../../../../videoCall/containers/ManageRoom';
+
 import NameCard from '@erxes/ui/src/components/nameCard/NameCard';
 import React from 'react';
 import ResponseTemplate from '../../../containers/conversationDetail/responseTemplate/ResponseTemplate';
@@ -453,23 +453,23 @@ class RespondBox extends React.Component<Props, State> {
     );
   }
 
-  renderVideoRoom() {
-    const { conversation, refetchMessages, refetchDetail } = this.props;
-    const integration = conversation.integration || ({} as IIntegration);
+  // renderVideoRoom() {
+  //   const { conversation, refetchMessages, refetchDetail } = this.props;
+  //   const integration = conversation.integration || ({} as IIntegration);
 
-    if (this.state.isInternal || integration.kind !== 'messenger') {
-      return null;
-    }
+  //   if (this.state.isInternal || integration.kind !== 'messenger') {
+  //     return null;
+  //   }
 
-    return (
-      <ManageVideoRoom
-        refetchMessages={refetchMessages}
-        refetchDetail={refetchDetail}
-        conversationId={conversation._id}
-        activeVideo={conversation.videoCallData}
-      />
-    );
-  }
+  //   return (
+  //     <ManageVideoRoom
+  //       refetchMessages={refetchMessages}
+  //       refetchDetail={refetchDetail}
+  //       conversationId={conversation._id}
+  //       activeVideo={conversation.videoCallData}
+  //     />
+  //   );
+  // }
 
   renderButtons() {
     const { conversation } = this.props;
@@ -480,7 +480,9 @@ class RespondBox extends React.Component<Props, State> {
     return (
       <EditorActions>
         {this.renderCheckbox(integration.kind)}
-        {this.renderVideoRoom()}
+        {/* {this.renderVideoRoom()} */}
+
+        {loadDynamicComponent('inboxEditorAction', this.props, true)}
 
         <Tip text={__('Attach file')}>
           <label>
