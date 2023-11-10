@@ -35,6 +35,7 @@ export interface IReport {
 
   reportTemplateType?: string;
   serviceName?: string;
+  charts?: IChartDocument[];
 }
 
 export interface IReportDocument extends IReport, Document {

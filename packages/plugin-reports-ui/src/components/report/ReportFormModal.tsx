@@ -9,8 +9,6 @@ import {
 import { CenterBar, FlexCenter, FlexColumn } from '../../styles';
 import { __ } from '@erxes/ui/src/utils';
 import { FlexRow } from '@erxes/ui-settings/src/styles';
-import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
-import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
 import SelectMembersForm from '../utils/SelectMembersForm';
 
 type Props = {
@@ -18,17 +16,19 @@ type Props = {
   queryParams: any;
 
   chartTemplates: any[];
+  reportName?: string;
+  reportTemplateType?: string | null;
   createReport(values: any): void;
   setShowModal(showModal: boolean): void;
 };
 
 const ReportFormModal = (props: Props) => {
-  const { createReport, setShowModal } = props;
+  const { createReport, setShowModal, reportTemplateType, reportName } = props;
 
   const [visibility, setVisibility] = useState('public');
   const [userIds, setUserIds] = useState([]);
   const [departmentIds, setDepartmentIds] = useState([]);
-  const [name, setName] = useState('');
+  const [name, setName] = useState(reportName || '');
 
   const handleUserChange = _userIds => {
     setUserIds(_userIds);
@@ -44,18 +44,25 @@ const ReportFormModal = (props: Props) => {
   };
 
   const handleSubmit = async () => {
+    console.log('reportTemplateType ', reportTemplateType);
     createReport({
       name,
       visibility,
       assignedUserIds: userIds,
-      assignedDepartmentIds: departmentIds
+      assignedDepartmentIds: departmentIds,
+      reportTemplateType
     });
   };
   return (
     <FlexColumn style={{ gap: '20px' }}>
       <div>
         <ControlLabel>Report Name</ControlLabel>
-        <FormControl type="text" onChange={handleNameChange} />
+        <FormControl
+          type="text"
+          onChange={handleNameChange}
+          value={name}
+          autoFocus={true}
+        />
       </div>
 
       <FlexRow justifyContent="space-between">

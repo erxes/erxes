@@ -30,11 +30,16 @@ const ReportForm = (props: Props) => {
   const [charts, setCharts] = useState<string[]>([]);
   const [emptyReport, setEmptyReport] = useState(false);
   const [serviceName, setServiceName] = useState('');
+  const [reportName, setReportName] = useState('');
+  const [reportTemplateType, setReportTemplateType] = useState(null);
 
   const onModalTrigger = (template: any) => {
     setShowModal(true);
     setCharts(template.charts);
     setServiceName(template.serviceName);
+    setReportTemplateType(template.type);
+    setReportName(template.title);
+    console.log('template ', template);
   };
 
   return (
@@ -53,6 +58,8 @@ const ReportForm = (props: Props) => {
         <Modal.Body>
           <ReportFormModal
             {...props}
+            reportName={reportName}
+            reportTemplateType={reportTemplateType}
             emptyReport={emptyReport}
             charts={charts}
             serviceName={serviceName}

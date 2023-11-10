@@ -1,3 +1,4 @@
+import { createGenerateModels } from '@erxes/api-utils/src/core';
 import { serviceDiscovery } from '../../configs';
 import { IContext } from '../../connectionResolver';
 import {
@@ -6,6 +7,7 @@ import {
   IReport,
   IReportDocument
 } from '../../models/definitions/reports';
+import { Server } from 'http';
 
 const reportsMutations = {
   async reportsAdd(_root, doc: IReport, { models, user }: IContext) {
@@ -18,11 +20,15 @@ const reportsMutations = {
     });
 
     if (doc.reportTemplateType) {
+      console.log('aa ', doc.serviceName);
       const service = await serviceDiscovery.getService(doc.serviceName, true);
+      console.log(service);
+
       const reportTemplate = service.config?.meta?.reports?.reportTemplates?.find(
         t => t.type === doc.reportTemplateType
       );
 
+      console.log('tttt   ', reportTemplate);
       const chartTemplates = service.config?.meta?.reports?.chartTemplates;
 
       const { charts } = reportTemplate;
@@ -48,6 +54,14 @@ const reportsMutations = {
     { _id, ...doc }: IReportDocument,
     { models, user }: IContext
   ) {
+    if (doc.charts) {
+      const { charts } = doc;
+
+      for (const chart of charts) {
+        await models.Charts.updateChart(chart._id, { ...chart });
+      }
+    }
+
     return models.Reports.updateReport(_id, {
       ...doc,
       updatedAt: new Date(),
@@ -55,9 +69,11 @@ const reportsMutations = {
     });
   },
   async reportsRemove(_root, _id: string, { models }: IContext) {
+    await models.Charts.remove({ reportId: _id });
     return models.Reports.removeReport(_id);
   },
   async reportsRemoveMany(_root, { ids }, { models }: IContext) {
+    await models.Charts.remove({ reportId: { $in: ids } });
     return models.Reports.remove({ _id: { $in: ids } });
   },
   async chartsAdd(_root, doc: IChart, { models }: IContext) {

@@ -16,8 +16,11 @@ type Props = {
   queryParams: any;
 
   charts?: string[];
-  serviceName?: string;
   emptyReport?: boolean;
+
+  reportName?: string;
+  serviceName?: string;
+  reportTemplateType?: string | null;
   setShowModal(showModal: boolean): void;
 };
 
@@ -30,7 +33,8 @@ const ReportFormModal = (props: FinalProps) => {
   const {
     reportChartTemplatesListQuery,
     reportsAddMutation,
-    setShowModal
+    setShowModal,
+    history
   } = props;
 
   if (reportChartTemplatesListQuery?.loading) {
@@ -38,10 +42,16 @@ const ReportFormModal = (props: FinalProps) => {
   }
 
   const createReport = async (values: ReportFormMutationVariables) => {
+    console.log('values ', values);
     reportsAddMutation({ variables: values })
-      .then(() => {
+      .then(res => {
         Alert.success('Successfully created report');
+        console.log('res ', res);
         setShowModal(false);
+        const { _id } = res.data.reportsAdd;
+        if (_id) {
+          history.push('/reports/details/' + _id);
+        }
       })
       .catch(err => {
         Alert.error(err.message);

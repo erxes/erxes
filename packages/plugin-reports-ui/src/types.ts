@@ -131,6 +131,7 @@ export type ReportFormMutationVariables = {
   visibility: ReportVisibility;
   assignedUserIds: string[];
   assignedDepartmentIds: string[];
+  reportTemplateType: string;
 };
 
 export type MutationVariables = {

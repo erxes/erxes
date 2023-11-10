@@ -55,7 +55,7 @@ const reportsList = `
         charts {
           name
           contentType
-          template
+          templateType
           order
           chartType
           filters {
@@ -91,6 +91,7 @@ const reportTemplatesList = `
   query reportTemplatesList($searchValue: String) {
     reportTemplatesList(searchValue: $searchValue) {
       title
+      type
       description
       charts
       img
@@ -125,7 +126,7 @@ const reportDetail = `
         charts {
           name
           contentType
-          template
+          templateType
           order
           chartType
           filters {
