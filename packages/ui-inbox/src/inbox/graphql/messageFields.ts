@@ -11,12 +11,17 @@ export default `
   }
   mentionedUserIds
   conversationId
-  videoCallData {
+  ${
+    isEnabled('dailyco')
+      ? `  videoCallData {
     url
     status
     recordingLinks
     name
+  }`
+      : ''
   }
+
   internal
   fromBot
   contentType
