@@ -1,6 +1,6 @@
 import { memo } from "react"
 import { selectedTabAtom, slotFilterAtom } from "@/store"
-import { slotCodeAtom } from "@/store/order.store"
+import { setInitialAtom, slotCodeAtom } from "@/store/order.store"
 import { useAtom, useSetAtom } from "jotai"
 import { CheckCircle2, Circle, ListFilterIcon, XCircleIcon } from "lucide-react"
 
@@ -35,6 +35,7 @@ const SlotActions = ({
 }) => {
   const [activeSlot, setActiveSlot] = useAtom(slotCodeAtom)
   const setSelectedTab = useSetAtom(selectedTabAtom)
+  const setInitialState = useSetAtom(setInitialAtom)
   const setFilterSlots = useSetAtom(slotFilterAtom)
   const Icon = statusIcons[status || "available"]
   const handleChoose = (checked: boolean) => {
@@ -65,7 +66,10 @@ const SlotActions = ({
         <CreateSlot code={code} />
         <DropdownMenuItem
           className="flex items-center"
-          onClick={() => setFilterSlots(code)}
+          onClick={() => {
+            setInitialState()
+            setFilterSlots(code)
+          }}
         >
           <ListFilterIcon className="h-4 w-4 mr-2" />
           Захиалга сонгох
