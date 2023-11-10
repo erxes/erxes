@@ -375,19 +375,20 @@ query timeclockDepartments($searchValue: String){
   }
 }`
 
-const scheduleConfigOrder = `
-query scheduleConfigOrder($userId: String){
-  scheduleConfigOrder(userId: $userId){
-    _id
-    userId
-    orderedList {
-      order
-      pinned
-      scheduleConfigId
-      label
+const scheduleConfigOrder = gql`
+  query scheduleConfigOrder($userId: String) {
+    scheduleConfigOrder(userId: $userId) {
+      _id
+      userId
+      orderedList {
+        order
+        pinned
+        scheduleConfigId
+        label
+      }
     }
   }
-}`
+`
 
 export default {
   timeclockReports,

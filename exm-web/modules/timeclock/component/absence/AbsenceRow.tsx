@@ -47,25 +47,25 @@ const RequestRow = ({ absence, seeDate }: Props) => {
       ))
     }
 
-    return <TableCell>{"-"}</TableCell>
+    return <TableCell className="py-4">{"-"}</TableCell>
   }
 
   const renderAbsenceTimeInfo = () => {
     if (absence.reason.match(/Check in request/gi)) {
       return (
         <>
-          <TableCell>{startingDate}</TableCell>
-          <TableCell>{startingTime}</TableCell>
-          <TableCell>{"-"}</TableCell>
+          <TableCell className="py-4">{startingDate}</TableCell>
+          <TableCell className="py-4">{startingTime}</TableCell>
+          <TableCell className="py-4">{"-"}</TableCell>
         </>
       )
     }
     if (absence.reason.match(/Check out request/gi)) {
       return (
         <>
-          <TableCell>{startingDate}</TableCell>
-          <TableCell>{"-"}</TableCell>
-          <TableCell>{startingTime}</TableCell>
+          <TableCell className="py-4">{startingDate}</TableCell>
+          <TableCell className="py-4">{"-"}</TableCell>
+          <TableCell className="py-4">{startingTime}</TableCell>
         </>
       )
     }
@@ -73,18 +73,18 @@ const RequestRow = ({ absence, seeDate }: Props) => {
     if (absenceTimeType === "by day") {
       return (
         <>
-          <TableCell>{"-"}</TableCell>
-          <TableCell>{startingDate}</TableCell>
-          <TableCell>{endingDate}</TableCell>
+          <TableCell className="py-4">{"-"}</TableCell>
+          <TableCell className="py-4">{startingDate}</TableCell>
+          <TableCell className="py-4">{endingDate}</TableCell>
         </>
       )
     }
     // by hour
     return (
       <>
-        <TableCell>{startingDate}</TableCell>
-        <TableCell>{startingTime}</TableCell>
-        <TableCell>{endingTime}</TableCell>
+        <TableCell className="py-4">{startingDate}</TableCell>
+        <TableCell className="py-4">{startingTime}</TableCell>
+        <TableCell className="py-4">{endingTime}</TableCell>
       </>
     )
   }
@@ -109,7 +109,7 @@ const RequestRow = ({ absence, seeDate }: Props) => {
   return (
     <>
       <TableRow>
-        <TableCell className="py-5">
+        <TableCell className="py-4">
           {absence.user && absence.user.details
             ? absence.user.details.fullName
               ? absence.user.details.fullName
@@ -119,18 +119,18 @@ const RequestRow = ({ absence, seeDate }: Props) => {
             : "-"}
         </TableCell>
         {renderAbsenceTimeInfo()}
-        <TableCell className="py-5">
+        <TableCell className="py-4">
           {absence.totalHoursOfAbsence || calculateAbsenceHours()}
         </TableCell>
-        <TableCell className="py-5">{renderAbsenceDays()}</TableCell>
-        <TableCell className="py-5">{absence.reason || "-"}</TableCell>
-        <TableCell className="py-5">{absence.explanation || "-"}</TableCell>
-        <TableCell className="py-5">
+        <TableCell className="py-4">{renderAbsenceDays()}</TableCell>
+        <TableCell className="py-4">{absence.reason || "-"}</TableCell>
+        <TableCell className="py-4">{absence.explanation || "-"}</TableCell>
+        <TableCell className="py-4">
           {absence.attachment ? absence.attachment.name : "-"}
         </TableCell>
         <TableCell className="">{renderStatus()}</TableCell>
-        <TableCell className="py-5">{absence.note || "-"}</TableCell>
-        <TableCell className="py-5">
+        <TableCell className="py-4">{absence.note || "-"}</TableCell>
+        <TableCell className="py-4">
           <AbsenceRowAction absence={absence} />
         </TableCell>
       </TableRow>

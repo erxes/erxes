@@ -93,13 +93,14 @@ export const useAbsenceMutation = ({
     userId: string,
     reason: string,
     explanation: string,
-    attachment: IAttachment,
+    attachments: IAttachment[],
     submitTime: any,
     absenceTypeId: string,
     absenceTimeType: string,
     totalHoursOfAbsence: string
   ) => {
-    const checkAttachment = attachment?.url.length ? attachment : undefined
+    const checkAttachment = attachments.length ? attachments[0] : undefined
+    console.log(checkAttachment)
 
     if (absenceTimeType === "by day") {
       const sortedRequestDates = submitTime.requestDates.sort()

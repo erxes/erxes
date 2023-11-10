@@ -8,9 +8,11 @@ import { compareStartAndEndTimeOfSingleDate } from "@/modules/timeclock/utils"
 import { IAttachment } from "@/modules/types"
 import dayjs from "dayjs"
 import { useAtomValue } from "jotai"
+import { CalendarIcon } from "lucide-react"
 import Select from "react-select"
 
 import { Button } from "@/components/ui/button"
+import { Calendar } from "@/components/ui/calendar"
 import { DatePicker } from "@/components/ui/date-picker"
 import {
   Dialog,
@@ -18,6 +20,11 @@ import {
   DialogHeader,
   DialogTrigger,
 } from "@/components/ui/dialog"
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
 import { Textarea } from "@/components/ui/textarea"
 import { useToast } from "@/components/ui/use-toast"
 
@@ -34,7 +41,7 @@ type RequestByTime = {
 
 type Request = {
   byDay: {
-    requestDates: string[]
+    requestDates: Date[]
   }
 
   byTime: RequestByTime
@@ -45,7 +52,6 @@ const AbsenceRequest = ({ queryParams, absenceTypes }: Props) => {
   const currentUser = useAtomValue(currentUserAtom)
 
   const [open, setOpen] = useState(false)
-  const [date, setDate] = useState<Date | undefined>(new Date())
   const [selectedAbsenceType, setSelectedAbsenceType] = useState("")
   const [absenceIndex, setAbsenceIndex] = useState(0)
 
@@ -57,13 +63,6 @@ const AbsenceRequest = ({ queryParams, absenceTypes }: Props) => {
     byDay: { requestDates: [] },
     byTime: { date: new Date(), startTime: new Date(), endTime: new Date() },
   })
-
-  const [startTime, setStartTime] = useState(
-    dayjs(request.byTime.startTime).format("HH:mm")
-  )
-  const [endTime, setEndTime] = useState(
-    dayjs(request.byTime.endTime).format("HH:mm")
-  )
 
   const requestTimeByDay =
     absenceTypes[absenceIndex]?.requestTimeType === "by day"
@@ -87,79 +86,6 @@ const AbsenceRequest = ({ queryParams, absenceTypes }: Props) => {
   const onTypeSelectChange = (selectedType: any) => {
     setSelectedAbsenceType(selectedType.value)
     setAbsenceIndex(selectedType.arrayIndex)
-  }
-
-  const onStartTimeChange = (e: any) => {
-    setStartTime(e.target.vaue)
-    onTimeChange(e.target.value, "start")
-  }
-  const onEndTimeChange = (e: any) => {
-    setEndTime(e.target.value)
-    onTimeChange(e.target.value, "end")
-  }
-
-  const onChangeStartTime = (starTimeValue) => {
-    const [getCorrectStartTime, getCorrectEndTime] =
-      compareStartAndEndTimeOfSingleDate(
-        starTimeValue,
-        request.byTime.endTime,
-        request.byTime.date
-      )
-
-    setRequest({
-      ...request,
-      byTime: {
-        ...request.byTime,
-        endTime: getCorrectEndTime,
-        startTime: getCorrectStartTime,
-      },
-    })
-  }
-
-  const onChangeEndTime = (endTimeValue) => {
-    const [getCorrectStartTime, getCorrectEndTime] =
-      compareStartAndEndTimeOfSingleDate(
-        request.byTime.startTime,
-        endTimeValue,
-        request.byTime.date
-      )
-
-    setRequest({
-      ...request,
-      byTime: {
-        ...request.byTime,
-        endTime: getCorrectEndTime,
-        startTime: getCorrectStartTime,
-      },
-    })
-  }
-
-  const onTimeChange = (input: any, type: string) => {
-    const startDate = request.byTime.date
-
-    const getDate = startDate
-      ? startDate.toLocaleDateString()
-      : new Date().toLocaleDateString()
-    const validateInput = dayjs(getDate + " " + input).toDate()
-
-    if (
-      input instanceof Date &&
-      startDate?.getUTCFullYear() === input.getUTCFullYear()
-    ) {
-      if (type === "start") {
-        onChangeStartTime(input)
-      } else {
-        onChangeEndTime(input)
-      }
-    }
-
-    if (!isNaN(validateInput.getTime())) {
-      if (type === "start") {
-        onChangeStartTime(validateInput)
-      } else {
-        onChangeEndTime(validateInput)
-      }
-    }
   }
 
   const checkInput = (userId: string) => {
@@ -207,6 +133,7 @@ const AbsenceRequest = ({ queryParams, absenceTypes }: Props) => {
     return (
       <>
         <Textarea
+          placeholder="Please write short explanation"
           className="scrollbar-hide"
           onChange={(e) => setExplanation(e.target.value)}
         />
@@ -217,11 +144,13 @@ const AbsenceRequest = ({ queryParams, absenceTypes }: Props) => {
   const renderRequiredAttachment = () => {
     return (
       <>
-        <Uploader
-          defaultFileList={attachments || []}
-          onChange={setAttachments}
-          setUploading={setAttachmentUploading}
-        />
+        <div className="flex items-center">
+          <Uploader
+            defaultFileList={attachments || []}
+            onChange={setAttachments}
+            setUploading={setAttachmentUploading}
+          />
+        </div>
       </>
     )
   }
@@ -236,21 +165,13 @@ const AbsenceRequest = ({ queryParams, absenceTypes }: Props) => {
         totalRequestedDays *
         (absenceTypes[absenceIndex].requestHoursPerDay || 0)
 
-      return totalRequestedDaysTime < 1
-        ? `${Math.round(totalRequestedDaysTime * 60)} minutes`
-        : dayjs()
-            .startOf("day")
-            .add(totalRequestedDaysTime, "hours")
-            .format("HH:mm")
+      return totalRequestedDaysTime.toFixed(1)
     }
 
-    const totalHours =
+    return (
       (request.byTime.endTime.getTime() - request.byTime.startTime.getTime()) /
       3600000
-
-    return totalHours < 1
-      ? `${Math.round(totalHours * 60)} minutes`
-      : dayjs().startOf("day").add(totalHours, "hours").format("HH:mm")
+    ).toFixed(2)
   }
 
   const renderTotalRequestTime = () => {
@@ -279,36 +200,151 @@ const AbsenceRequest = ({ queryParams, absenceTypes }: Props) => {
     )
   }
 
+  const onDateSelectChange = (days: Date[]) => {
+    if (days) {
+      setRequest({ ...request, byDay: { requestDates: days } })
+    }
+  }
+
   const renderDateSelection = () => {
+    const days = request.byDay.requestDates?.length
     return (
       <>
-        <DatePicker
-          date={date}
-          setDate={setDate}
-          className="w-full"
-          mode="multiple"
-        />
+        <Popover>
+          <PopoverTrigger asChild={true}>
+            <Button
+              variant={"outline"}
+              className={"w-full justify-start text-left font-normal"}
+            >
+              <CalendarIcon className="mr-2 h-4 w-4" />
+              {days !== 0 ? `${days} day selected` : "Choose Date"}
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-auto p-0">
+            <Calendar
+              mode="multiple"
+              selected={request.byDay.requestDates}
+              onSelect={(day) => onDateSelectChange(day!)}
+            />
+          </PopoverContent>
+        </Popover>
         {renderTotalRequestTime()}
       </>
     )
   }
 
+  const onDateChange = (selectedDate: Date) => {
+    const [getCorrectStartTime, getCorrectEndTime] =
+      compareStartAndEndTimeOfSingleDate(
+        request.byTime.startTime,
+        request.byTime.endTime,
+        selectedDate
+      )
+
+    setRequest({
+      ...request,
+      byTime: {
+        date: new Date(selectedDate),
+        endTime: getCorrectEndTime as Date,
+        startTime: getCorrectStartTime as Date,
+      },
+    })
+  }
+
+  const onChangeStartTime = (starTimeValue: Date) => {
+    const [getCorrectStartTime, getCorrectEndTime] =
+      compareStartAndEndTimeOfSingleDate(
+        starTimeValue,
+        request.byTime.endTime,
+        request.byTime.date
+      )
+
+    setRequest({
+      ...request,
+      byTime: {
+        ...request.byTime,
+        endTime: getCorrectEndTime as Date,
+        startTime: getCorrectStartTime as Date,
+      },
+    })
+  }
+
+  const onChangeEndTime = (endTimeValue: Date) => {
+    const [getCorrectStartTime, getCorrectEndTime] =
+      compareStartAndEndTimeOfSingleDate(
+        request.byTime.startTime,
+        endTimeValue,
+        request.byTime.date
+      )
+
+    setRequest({
+      ...request,
+      byTime: {
+        ...request.byTime,
+        endTime: getCorrectEndTime as Date,
+        startTime: getCorrectStartTime as Date,
+      },
+    })
+  }
+
+  const onTimeChange = (input: any, type: string) => {
+    const startDate = request.byTime.date
+
+    const getDate = startDate
+      ? startDate.toLocaleDateString()
+      : new Date().toLocaleDateString()
+    const validateInput = dayjs(getDate + " " + input).toDate()
+
+    if (
+      input instanceof Date &&
+      startDate?.getUTCFullYear() === input.getUTCFullYear()
+    ) {
+      if (type === "start") {
+        onChangeStartTime(input)
+      } else {
+        onChangeEndTime(input)
+      }
+    }
+
+    if (!isNaN(validateInput.getTime())) {
+      if (type === "start") {
+        onChangeStartTime(validateInput)
+      } else {
+        onChangeEndTime(validateInput)
+      }
+    }
+  }
+
   const renderDateAndTimeSelection = () => {
+    const inputTimeStyle = {
+      'input[type="time"]::-webkit-calendar-picker-indicator': {
+        background: "none",
+      },
+    }
+
     return (
       <>
         <div className="flex gap-2 justify-between">
-          <DatePicker date={date} setDate={setDate} className="w-full" />
-          <input
-            type="time"
+          <DatePicker
+            date={request.byTime.date}
+            setDate={(selectedDate) => onDateChange(selectedDate!)}
             className="w-full"
-            onChange={onStartTimeChange}
-            value={startTime}
           />
           <input
             type="time"
-            className="w-full"
-            onChange={onEndTimeChange}
-            value={endTime}
+            style={inputTimeStyle as any}
+            className="w-full text-center border border-input hover:bg-accent hover:text-accent-foreground rounded-md px-3"
+            onChange={(e) => onTimeChange(e.target.value, "start")}
+            value={dayjs(request.byTime.startTime).format("HH:mm")}
+            placeholder="Start Time"
+          />
+          <input
+            type="time"
+            style={inputTimeStyle as any}
+            className="w-full text-center border border-input hover:bg-accent hover:text-accent-foreground rounded-md px-3"
+            onChange={(e) => onTimeChange(e.target.value, "end")}
+            value={dayjs(request.byTime.endTime).format("HH:mm")}
+            placeholder="End Time"
           />
         </div>
         {renderTotalRequestTime()}
@@ -318,7 +354,7 @@ const AbsenceRequest = ({ queryParams, absenceTypes }: Props) => {
 
   const renderRequestForm = () => {
     return (
-      <DialogContent>
+      <DialogContent className="max-w-lg">
         <DialogHeader>Create Request</DialogHeader>
         {requestTimeByDay
           ? renderDateSelection()

@@ -354,10 +354,14 @@ const submitCheckInOutRequest = gql`
     }
   }
 `
-const scheduleConfigOrderEdit = `
-mutation scheduleConfigOrderEdit($userId: String, $orderedList :[ConfigOrderInput]){
-  scheduleConfigOrderEdit(userId: $userId, orderedList: $orderedList)
-}`
+const scheduleConfigOrderEdit = gql`
+  mutation scheduleConfigOrderEdit(
+    $userId: String
+    $orderedList: [ConfigOrderInput]
+  ) {
+    scheduleConfigOrderEdit(userId: $userId, orderedList: $orderedList)
+  }
+`
 
 const editSchedule = `
 mutation editSchedule($_id: String!, $shifts:[ShiftInput]){

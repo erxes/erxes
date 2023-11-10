@@ -1,6 +1,8 @@
 import { IUser } from "@erxes/ui/src/auth/types"
 import dayjs from "dayjs"
 
+import { IScheduleForm } from "./types"
+
 // import { generatePaginationParams } from "@erxes/ui/src/utils/router"
 // import dayjs from "dayjs"
 
@@ -188,6 +190,52 @@ export const generateParams = (queryParams: any) => {
     departmentIds: queryParams.departmentIds,
     branchIds: queryParams.branchIds,
   }
+}
+
+export const compareStartAndEndTime = (
+  scheduleDates: IScheduleForm,
+  day_key,
+  newShiftStart?,
+  newShiftEnd?,
+  shiftDate?
+) => {
+  const currShift = scheduleDates[day_key]
+  const currShiftDate = shiftDate
+    ? shiftDate
+    : currShift
+    ? currShift.shiftDate
+      ? currShift.shiftDate.toLocaleDateString()
+      : currShift.shiftStart?.toLocaleDateString()
+    : newShiftStart.toLocaleDateString()
+
+  const currShiftEnd = newShiftEnd ? newShiftEnd : currShift.shiftEnd
+  const currShiftStart = newShiftStart ? newShiftStart : currShift.shiftStart
+
+  let overnightShift = false
+  let correctShiftEnd
+
+  if (
+    dayjs(currShiftEnd).format('HH:mm"') <
+    dayjs(currShiftStart).format('HH:mm"')
+  ) {
+    correctShiftEnd = dayjs(
+      dayjs(currShiftDate).add(1, "day").toDate().toLocaleDateString() +
+        " " +
+        dayjs(currShiftEnd).format('HH:mm"')
+    ).toDate()
+
+    overnightShift = true
+  } else {
+    correctShiftEnd = dayjs(
+      currShiftDate + " " + dayjs(currShiftEnd).format('HH:mm"')
+    ).toDate()
+  }
+
+  const correctShiftStart = dayjs(
+    currShiftDate + " " + dayjs(currShiftStart).format('HH:mm"')
+  ).toDate()
+
+  return [correctShiftStart, correctShiftEnd, overnightShift]
 }
 
 export const compareStartAndEndTimeOfSingleDate = (

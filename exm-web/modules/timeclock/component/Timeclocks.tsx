@@ -23,10 +23,13 @@ const startOfThisMonth = new Date(NOW.getFullYear(), NOW.getMonth(), 1)
 
 const Timeclocks = () => {
   localStorage.getItem("exm_env_REACT_APP_DOMAIN")
-
   const currentUser = useAtomValue(currentUserAtom)
+  const searchParams = useSearchParams()
+  const params = Object.fromEntries(searchParams)
 
   const queryParams = {
+    page: params.page || 1,
+    perPage: params.perPage || 8,
     userIds: currentUser?._id,
     startDate: startOfThisMonth,
     endDate: startOfNextMonth,

@@ -2,6 +2,7 @@ import React from "react"
 import { currentUserAtom } from "@/modules/JotaiProiveder"
 import { useAtomValue } from "jotai"
 
+import Pagination from "@/components/ui/pagination"
 import {
   Table,
   TableBody,
@@ -31,8 +32,6 @@ const TimeclockList = ({ queryParams }: any) => {
   const currentUser = useAtomValue(currentUserAtom)
 
   const { timeclocksMainList, timeclocksMainTotalCount } = useTimeclocksList({
-    page: 1,
-    perPage: 20,
     ...queryParams,
   })
 
@@ -53,6 +52,7 @@ const TimeclockList = ({ queryParams }: any) => {
           ))}
         </TableBody>
       </Table>
+      <Pagination count={timeclocksMainTotalCount} />
     </div>
   )
 }

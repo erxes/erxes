@@ -4,13 +4,17 @@ import dayjs from "dayjs"
 import { TableCell, TableRow } from "@/components/ui/table"
 
 import { ISchedule } from "../../types"
-import ScheduleRowAction from "./action/ScheduleRowAction"
 
 type Props = {
   schedule: ISchedule
 }
 
 const ScheduleRow = ({ schedule }: Props) => {
+  const scheduleChecked =
+    schedule.scheduleChecked || !schedule.submittedByAdmin
+      ? "Танилцсан"
+      : "Танилцаагүй"
+
   const totalDaysScheduled = new Set(
     schedule.shifts.map((shift) => dayjs(shift.shiftStart).format("MM/DD/YYYY"))
   ).size
@@ -50,9 +54,7 @@ const ScheduleRow = ({ schedule }: Props) => {
         <TableCell className="py-5">{totalDaysScheduled}</TableCell>
         <TableCell className="py-5">{totalHoursScheduled.toFixed(1)}</TableCell>
         <TableCell className="py-5">{totalBreakInHours.toFixed(1)}</TableCell>
-        <TableCell className="py-5">
-          <ScheduleRowAction schedule={schedule} />
-        </TableCell>
+        <TableCell className="py-5">{scheduleChecked}</TableCell>
       </TableRow>
     </>
   )

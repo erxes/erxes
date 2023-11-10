@@ -22,10 +22,9 @@ type Props = {
   endDate: string
   userIds?: string[]
   searchValue?: string
-  scheduleStatus: string
 }
 
-export const useSchedules = (props: Props) => {
+export const useSchedules = (props: Props, scheduleStatus: string) => {
   const currentUser = useAtomValue(currentUserAtom)
 
   const {
@@ -35,6 +34,7 @@ export const useSchedules = (props: Props) => {
   } = useQuery(queries.schedulesMain, {
     variables: {
       ...generateParams(props),
+      scheduleStatus,
     },
   })
 
@@ -56,9 +56,21 @@ export const useSchedules = (props: Props) => {
     ? (configsData || {}).scheduleConfigs
     : []
 
+  const {
+    data: configsOrder,
+    loading: configsOrderLoading,
+    error: configsOrderError,
+  } = useQuery(queries.scheduleConfigOrder)
+
+  const scheduleConfigOrder = (configsOrder || {}).scheduleConfigOrder
+    ? (configsOrder || {}).scheduleConfigOrder
+    : {}
+
   return {
     schedulesList,
     configsList,
+    scheduleConfigOrder,
     schedulesTotalCount,
+    loading: mainLoading || configsLoading,
   }
 }

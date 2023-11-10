@@ -1,5 +1,6 @@
-import React from "react"
+import React, { useState } from "react"
 
+import Pagination from "@/components/ui/pagination"
 import {
   Table,
   TableBody,
@@ -11,6 +12,7 @@ import {
 import { useSchedules } from "../../hooks/useSchedule"
 import { ISchedule } from "../../types"
 import ScheduleRow from "./ScheduleRow"
+import ScheduleAction from "./action/ScheduleAction"
 
 type Props = {
   queryParams: any
@@ -23,19 +25,34 @@ const list = [
   "Total hours",
   "Total break",
   "Member checked",
-  "Actions",
 ]
 
 const Schedule = ({ queryParams }: Props) => {
-  const { schedulesList, schedulesTotalCount } = useSchedules({
-    page: 1,
-    perPage: 20,
-    scheduleStatus: "Approved",
-    ...queryParams,
-  })
+  const [status, setStatus] = useState("Approved")
+
+  const {
+    schedulesList,
+    configsList,
+    scheduleConfigOrder,
+    schedulesTotalCount,
+    loading,
+  } = useSchedules(
+    {
+      ...queryParams,
+    },
+    status
+  )
 
   return (
     <div className="h-[94vh] flex flex-col gap-3">
+      {!loading && (
+        <ScheduleAction
+          status={status}
+          setStatus={setStatus}
+          configsList={configsList}
+          scheduleConfigOrder={scheduleConfigOrder}
+        />
+      )}
       <Table>
         <TableHeader>
           <TableRow>
@@ -50,6 +67,7 @@ const Schedule = ({ queryParams }: Props) => {
           ))}
         </TableBody>
       </Table>
+      <Pagination count={schedulesTotalCount} />
     </div>
   )
 }
