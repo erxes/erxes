@@ -47,7 +47,7 @@ export const Sidebar = () => {
         <div className="relative p-3">
           <div
             className={`${
-              activeClass === active ? "bg-[#6569DF]" : "bg-white"
+              activeClass === active ? `bg-[${color}]` : "bg-white"
             } ${
               pathname.includes("/chat") ? "" : ""
             } shadow-md p-2 rounded-lg relative`}
@@ -125,7 +125,7 @@ export const MAIN_NAVIGATION = [
     href: "chats",
     value: "Chats",
     Icon: MessageCircleIcon,
-    color: "#A0AEC0",
+    color: "#FDA50D",
   },
   {
     active: "team",
