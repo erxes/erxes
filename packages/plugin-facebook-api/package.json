@@ -7,7 +7,7 @@
   },
   "dependencies": {
     "@erxes/api-utils" : "*",
-    "botbuilder": "^4.4.0",
+    "botbuilder": "^4.21.1",
     "botbuilder-adapter-facebook-erxes": "^1.0.5",
     "fbgraph": "^1.4.4",
     "aws-sdk": "^2.151.0",
