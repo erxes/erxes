@@ -30,7 +30,7 @@ const ControlBtn = styledTS<{ disabled?: boolean }>(styled(SimpleButton))`
   opacity: ${props => props.disabled && '0.9'};
 `;
 
-const Error = styled.div`
+const ErrorWrapper = styled.div`
   position: absolute;
   height: 30px;
   width: 100%;
@@ -152,7 +152,7 @@ const VideoCall = props => {
   return (
     <>
       {renderControls()}
-      {errorMessage && <Error>{errorMessage}</Error>}
+      {errorMessage && <ErrorWrapper>{errorMessage}</ErrorWrapper>}
       <div
         id="call-frame-container"
         style={{ width: '100%', height: '100%' }}
