@@ -283,7 +283,7 @@ const branchesMain = `
   }
 `
 
-const userDetail = `
+const userDetail = gql`
   query userDetail($_id: String) {
     userDetail(_id: $_id) {
       _id
@@ -329,7 +329,7 @@ const userConversations = `
   }
 `
 
-const usersTotalCount = `
+const usersTotalCount = gql`
   query usersTotalCount(${listParamsDef}) {
     usersTotalCount(${listParamsValue})
   }

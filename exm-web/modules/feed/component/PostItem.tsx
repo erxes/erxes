@@ -37,6 +37,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover"
 import { FilePreview } from "@/components/FilePreview"
+import { useUsers } from "@/components/hooks/useUsers"
 
 import { useComments } from "../hooks/useComment"
 import useFeedMutation from "../hooks/useFeedMutation"
@@ -54,6 +55,7 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
   const [formOpen, setFormOpen] = useState(false)
   const [commentOpen, setCommentOpen] = useState(false)
   const currentUser = useAtomValue(currentUserAtom) || ({} as IUser)
+  let recipientUsers
 
   const callBack = (result: string) => {
     if (result === "success") {
@@ -62,6 +64,8 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
   }
 
   const { feed, loading } = useFeedDetail({ feedId: postId })
+  const { users } = useUsers({})
+
   const {
     comments,
     commentsCount,
@@ -350,6 +354,51 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
     )
   }
 
+  const renderComments = () => {
+    if (!comments || comments.length === 0) {
+      return null
+    }
+
+    return (
+      <div className="border-t">
+        <CommentItem comment={comments[0]} currentUserId={currentUser._id} />
+      </div>
+    )
+  }
+
+  const renderRecipientUsers = () => {
+    if (feed.recipientIds.length === 0 || !feed.recipientIds) {
+      return null
+    }
+
+    recipientUsers = feed.recipientIds.map((id) =>
+      users.find((item) => item._id === id)
+    )
+
+    const more = () => {
+      if (recipientUsers.length < 3) {
+        return null
+      }
+
+      return <> and {recipientUsers.length - 2} more people</>
+    }
+
+    return (
+      <>
+        <span className="text-[#5E5B5B] font-medium"> with </span>
+        {recipientUsers.slice(0, 2).map((item, index) => {
+          return (
+            <>
+              {item?.details.fullName || item?.username || item?.email}
+              {index + 1 !== recipientUsers.length && ", "}
+            </>
+          )
+        })}
+        {more()}
+      </>
+    )
+  }
+
   return (
     <>
       <Card className="max-w-2xl mx-auto my-4 border-0 p-4">
@@ -368,6 +417,7 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
                   {userDetail?.fullName ||
                     userDetail?.username ||
                     userDetail?.email}
+                  {feed.contentType === "bravo" && renderRecipientUsers()}
                 </div>
                 <div className="text-xs text-[#666] font-normal">
                   {renderCreatedDate()}{" "}
@@ -424,14 +474,7 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
           </div>
           {renderComment()}
         </CardFooter>
-        {comments && comments.length > 0 && (
-          <div className="border-t">
-            <CommentItem
-              comment={comments[0]}
-              currentUserId={currentUser._id}
-            />
-          </div>
-        )}
+        {renderComments()}
       </Card>
     </>
   )

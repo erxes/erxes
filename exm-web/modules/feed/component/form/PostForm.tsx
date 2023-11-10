@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { XCircle } from "lucide-react"
 import { useForm } from "react-hook-form"
 import Select from "react-select"
 import * as z from "zod"
@@ -28,6 +27,7 @@ import { Textarea } from "@/components/ui/textarea"
 import useFeedMutation from "../../hooks/useFeedMutation"
 import { useTeamMembers } from "../../hooks/useTeamMembers"
 import { IFeed } from "../../types"
+import FormAttachments from "./FormAttachments"
 import FormImages from "./FormImages"
 import Uploader from "./uploader/Uploader"
 
@@ -100,14 +100,6 @@ const PostForm = ({
     callBack,
   })
 
-  const deleteAttachment = (index: number) => {
-    const updated = [...attachments]
-
-    updated.splice(index, 1)
-
-    setAttachments(updated)
-  }
-
   useEffect(() => {
     let defaultValues = {} as any
 
@@ -171,17 +163,10 @@ const PostForm = ({
             )}
           />
 
-          {(attachments || []).map((attachment, index) => {
-            return (
-              <div
-                key={index}
-                className="flex items-center bg-primary-light text-sm font-medium text-white attachment-shadow px-2.5 py-[5px] justify-between w-full rounded-lg rounded-tr-none"
-              >
-                <p className="max-w-[400px]">{attachment.name}</p>
-                <XCircle size={18} onClick={() => deleteAttachment(index)} className="cursor-pointer" />
-              </div>
-            )
-          })}
+          <FormAttachments
+            attachments={attachments || []}
+            setAttachments={setImage}
+          />
           <FormImages images={images} setImage={setImage} />
 
           <FormField

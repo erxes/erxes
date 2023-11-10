@@ -16,10 +16,8 @@ import {
   FormControl,
   FormField,
   FormItem,
-  FormLabel,
   FormMessage,
 } from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
 import LoadingPost from "@/components/ui/loadingPost"
 import SuccessPost from "@/components/ui/successPost"
 import { Textarea } from "@/components/ui/textarea"
@@ -27,15 +25,11 @@ import SelectUsers from "@/components/select/SelectUsers"
 
 import useFeedMutation from "../../hooks/useFeedMutation"
 import { IFeed } from "../../types"
+import FormAttachments from "./FormAttachments"
+import FormImages from "./FormImages"
+import Uploader from "./uploader/Uploader"
 
 const FormSchema = z.object({
-  title: z
-    .string({
-      required_error: "Please enter an title",
-    })
-    .refine((val) => val.trim().length !== 0, {
-      message: "Please enter an title",
-    }),
   description: z
     .string({
       required_error: "Please enter an description",
@@ -61,6 +55,10 @@ const BravoForm = ({
 
   const [recipientIds, setRecipientIds] = useState(feed?.recipientIds || [])
   const [success, setSuccess] = useState(false)
+  const [images, setImage] = useState(feed?.images || [])
+  const [attachments, setAttachments] = useState(feed?.attachments || [])
+  const [imageUploading, setImageUploading] = useState(false)
+  const [attachmentUploading, setAttachmentUploading] = useState(false)
 
   const callBack = (result: string) => {
     if (result === "success") {
@@ -93,10 +91,12 @@ const BravoForm = ({
   const onSubmit = (data: z.infer<typeof FormSchema>) => {
     feedMutation(
       {
-        title: data.title,
+        title: "title",
         description: data.description ? data.description : "",
         contentType: "bravo",
         recipientIds,
+        images,
+        attachments,
       },
       feed?._id || ""
     )
@@ -115,46 +115,31 @@ const BravoForm = ({
         <form className="space-y-3" onSubmit={form.handleSubmit(onSubmit)}>
           <FormField
             control={form.control}
-            name="title"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Title</FormLabel>
-                <FormControl>
-                  <Input
-                    placeholder="title"
-                    {...field}
-                    defaultValue={feed?.title || ""}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
             name="description"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Description</FormLabel>
                 <FormControl>
                   <Textarea
-                    placeholder="description"
+                    placeholder="Write a bravo"
                     {...field}
                     defaultValue={feed?.description || ""}
+                    className="p-0 border-none"
                   />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
-
+          <FormAttachments
+            attachments={attachments || []}
+            setAttachments={setImage}
+          />
+          <FormImages images={images} setImage={setImage} />{" "}
           <FormField
             control={form.control}
             name="recipientIds"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Select users</FormLabel>
                 <FormControl>
                   <SelectUsers
                     userIds={recipientIds}
@@ -166,8 +151,32 @@ const BravoForm = ({
               </FormItem>
             )}
           />
+          <div className="flex items-center border rounded-lg px-2 border-[#cccccc] justify-between">
+            <p className="text-[#444]">Add attachments</p>
+            <div className="flex">
+              <Uploader
+                defaultFileList={images || []}
+                onChange={setImage}
+                type={"image"}
+                icon={true}
+                iconSize={20}
+                setUploading={setImageUploading}
+              />
 
-          <Button type="submit" className="font-semibold w-full rounded-full">
+              <Uploader
+                defaultFileList={attachments || []}
+                onChange={setAttachments}
+                icon={true}
+                iconSize={20}
+                setUploading={setAttachmentUploading}
+              />
+            </div>
+          </div>
+          <Button
+            type="submit"
+            className="font-semibold w-full rounded-full"
+            disabled={imageUploading || attachmentUploading}
+          >
             Post
           </Button>
         </form>
