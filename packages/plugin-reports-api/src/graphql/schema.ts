@@ -62,9 +62,10 @@ export const types = tagsAvailable => `
     name: String
     reportId: String!
     contentType: String
-    template: String
+    templateType: String
     order: Int
     chartType: ChartType
+    chartTypes: [ChartType]
     filters: [ChartFilter]
     defaultFilter: ChartFilter
   }
@@ -73,6 +74,11 @@ export const types = tagsAvailable => `
     pie
     line
     bar
+    doughnut
+    polarArea
+    radar
+    bubble
+    scatter
   }
 
   type ChartFilter {
@@ -139,6 +145,8 @@ const report_params = `
   assignedUserIds: [String],
   assignedDepartmentIds: [String],
   tagIds: [String],
+  reportTemplateType: String
+  serviceName: String
 `;
 
 export const mutations = `

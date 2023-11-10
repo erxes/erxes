@@ -271,6 +271,7 @@ const Report = (props: Props) => {
             history={history}
             queryParams={queryParams}
             toggleForm={() => setShowChatForm(!showChatForm)}
+            showChatForm={showChatForm}
           />
         )}
       </PageContent>

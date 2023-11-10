@@ -32,6 +32,9 @@ export interface IReport {
 
   assignedUserIds: string[];
   assignedDepartmentIds: string[];
+
+  reportTemplateType?: string;
+  serviceName?: string;
 }
 
 export interface IReportDocument extends IReport, Document {

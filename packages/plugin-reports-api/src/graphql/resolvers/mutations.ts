@@ -1,3 +1,4 @@
+import { serviceDiscovery } from '../../configs';
 import { IContext } from '../../connectionResolver';
 import {
   IChart,
@@ -8,13 +9,39 @@ import {
 
 const reportsMutations = {
   async reportsAdd(_root, doc: IReport, { models, user }: IContext) {
-    return models.Reports.createReport({
+    const report = await models.Reports.createReport({
       ...doc,
       createdBy: user._id,
       createdAt: new Date(),
       updatedBy: user._id,
       updatedAt: new Date()
     });
+
+    if (doc.reportTemplateType) {
+      const service = await serviceDiscovery.getService(doc.serviceName, true);
+      const reportTemplate = service.config?.meta?.reports?.reportTemplates?.find(
+        t => t.type === doc.reportTemplateType
+      );
+
+      const chartTemplates = service.config?.meta?.reports?.chartTemplates;
+
+      const { charts } = reportTemplate;
+      let getChartTemplates;
+
+      if (charts) {
+        getChartTemplates = chartTemplates?.filter(t =>
+          charts.includes(t.templateType)
+        );
+      }
+
+      if (getChartTemplates) {
+        await models.Charts.insertMany({
+          docs: getChartTemplates.map(c => ({ ...c, reportId: report._id }))
+        });
+      }
+    }
+
+    return report;
   },
   async reportsEdit(
     _root,

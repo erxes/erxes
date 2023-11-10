@@ -4,6 +4,7 @@ import { sendCoreMessage } from './messageBroker';
 
 const reportTemplates = [
   {
+    type: 'deal',
     title: 'Deals chart',
     serviceName: 'cards',
     description:
@@ -12,6 +13,7 @@ const reportTemplates = [
     img: 'https://sciter.com/wp-content/uploads/2022/08/chart-js.png'
   },
   {
+    type: 'task',
     title: 'Tasks chart',
     serviceName: 'cards',
     description:
@@ -20,6 +22,7 @@ const reportTemplates = [
     img: 'https://cdn.mos.cms.futurecdn.net/S5bicwPe8vbP9nt3iwAwwi.jpg'
   },
   {
+    type: 'ticket',
     title: 'Tickets chart',
     serviceName: 'cards',
     description:
@@ -33,6 +36,7 @@ const chartTemplates = [
   {
     templateType: 'dealsChart',
     name: 'Deals chart',
+    chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea'],
     getChartResult: async (
       filter: any,
       subdomain: string,
