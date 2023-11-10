@@ -375,8 +375,6 @@ const msdynamicMutations = {
             },
             body: document
           });
-
-          console.log(postResponse, 'responce');
         }
       }
 
