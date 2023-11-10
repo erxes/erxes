@@ -1,16 +1,17 @@
-import client from '@erxes/ui/src/apolloClient';
 import { gql } from '@apollo/client';
+import { IVideoCallData } from '@erxes/ui-inbox/src/inbox/types';
+import client from '@erxes/ui/src/apolloClient';
 import { SmallLoader } from '@erxes/ui/src/components/ButtonMutate';
 import Icon from '@erxes/ui/src/components/Icon';
 import Tip from '@erxes/ui/src/components/Tip';
 import { __, Alert } from 'coreui/utils';
-import { IVideoCallData } from '@erxes/ui-inbox/src/inbox/types';
 import React, { useState } from 'react';
 import { mutations } from '../graphql';
+import { openWindow } from '../utils';
 
 type Props = {
   activeVideo?: IVideoCallData;
-  conversationId: string;
+  conversation: any;
   refetchDetail: () => void;
   refetchMessages: () => void;
 };
@@ -18,27 +19,10 @@ type Props = {
 function ManageRoom(props: Props) {
   const [loading, setLoading] = useState(false);
 
-  const openWindow = (conversationId: string, url: string, name: string) => {
-    const height = 600;
-    const width = 480;
-
-    const y = window.top.outerHeight / 2 + window.top.screenY - height / 2;
-    const x = window.top.outerWidth / 2 + window.top.screenX - width / 2;
-
-    window.open(
-      `/videoCall?url=${url}&name=${name}&conversationId=${conversationId}`,
-      '_blank',
-      `toolbar=no,titlebar=no,directories=no,menubar=no,location=no,scrollbars=yes,status=no,height=${height},width=${width},top=${y},left=${x}`
-    );
-  };
-
   const createVideoRoom = () => {
-    const {
-      conversationId,
-      activeVideo,
-      refetchDetail,
-      refetchMessages
-    } = props;
+    const { conversation, activeVideo, refetchDetail, refetchMessages } = props;
+
+    const conversationId = conversation._id;
 
     if (activeVideo && activeVideo.url) {
       openWindow(conversationId, activeVideo.url, activeVideo.name || '');
@@ -47,8 +31,11 @@ function ManageRoom(props: Props) {
 
       client
         .mutate({
-          mutation: gql(mutations.createVideoChatRoom),
-          variables: { _id: conversationId }
+          mutation: gql(mutations.createRoom),
+          variables: {
+            contentTypeId: conversationId,
+            contentType: 'inbox:conversations'
+          }
         })
         .then(({ data }: any) => {
           setLoading(false);
@@ -56,7 +43,7 @@ function ManageRoom(props: Props) {
           refetchDetail();
           refetchMessages();
 
-          const { url, name } = data.conversationCreateVideoChatRoom;
+          const { url, name } = data.dailyCreateRoom;
 
           openWindow(conversationId, url, name);
         })
@@ -70,7 +57,15 @@ function ManageRoom(props: Props) {
 
   return (
     <Tip text={__('Invite to video call')}>
-      <label onClick={createVideoRoom}>
+      <label
+        onClick={createVideoRoom}
+        onKeyDown={e => {
+          if (e.key === 'Enter') {
+            createVideoRoom();
+          }
+        }}
+        tabIndex={0} // This makes the element focusable
+      >
         {loading ? <SmallLoader /> : <Icon icon="video" />}
       </label>
     </Tip>
