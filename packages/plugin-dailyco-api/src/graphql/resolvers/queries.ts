@@ -1,9 +1,8 @@
-import { IContext } from '../../connectionResolver';
 import { sendCommonMessage } from '../../messageBroker';
 import { getDailyData } from '../../utils';
 
 const queries = {
-  async videoCallUsageStatus(_root, _args, { models, subdomain }: IContext) {
+  async videoCallUsageStatus(_root, _args, { models, subdomain }) {
     const type = await sendCommonMessage({
       serviceName: 'integrations',
       action: 'configs.findOne',
