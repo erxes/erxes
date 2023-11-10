@@ -45,12 +45,6 @@ type Props = {
   queryParams: any;
 };
 
-type States = {
-  loading: boolean;
-  errorMessage?: string;
-  recordingId?: string;
-};
-
 const VideoCall = props => {
   console.log('props', props);
   const [loading, setLoading] = useState(false);
@@ -58,9 +52,7 @@ const VideoCall = props => {
   const [recordingId, setRecordingId] = useState('');
   let callFrame;
 
-  const { url, name, conversationId } = props.queryParams;
-
-  // const iframeRef:any = useRef<HTMLDivElement>(null);
+  const { url, name } = props.queryParams;
 
   useEffect(() => {
     // const container: any = document.getElementById('call-frame-container');
@@ -101,6 +93,7 @@ const VideoCall = props => {
         variables: { name }
       })
       .then(({ data: { dailyDeleteVideoChatRoom } }) => {
+        console.log('dailyDeleteVideoChatRoom', dailyDeleteVideoChatRoom);
         if (dailyDeleteVideoChatRoom) {
           window.close();
           setLoading(false);

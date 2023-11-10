@@ -48,7 +48,8 @@ const mutations = {
 
   async dailyDeleteVideoChatRoom(_root, args) {
     const callRecord = await Records.findOne({
-      roomName: args.name
+      roomName: args.name,
+      status: 'ongoing'
     });
 
     if (callRecord) {
@@ -60,7 +61,10 @@ const mutations = {
           callRecord.subdomain
         );
 
-        await Records.deleteOne({ _id: callRecord._id });
+        await Records.updateOne(
+          { _id: callRecord._id },
+          { $set: { status: 'end' } }
+        );
 
         return true;
       } catch {
@@ -84,6 +88,8 @@ const mutations = {
         subdomain
       );
 
+      console.log('response', response);
+
       const tokenResponse = await sendDailyRequest(
         '/api/v1/meeting-tokens',
         'post',
@@ -96,8 +102,8 @@ const mutations = {
       const domain_name = response.domain_name;
 
       const callData = {
-        url: `https://${domain_name}.daily.co/${response.roomName}?t=${tokenResponse.token}`,
-        name: response.roomName,
+        url: `https://${domain_name}.daily.co/${response.name}?t=${tokenResponse.token}`,
+        name: response.name,
         status: 'ongoing'
       };
 

@@ -1,4 +1,4 @@
-import { isEnabled } from "@erxes/ui/src/utils/core";
+import { isEnabled } from '@erxes/ui/src/utils/core';
 
 export default `
   _id
@@ -15,6 +15,7 @@ export default `
     url
     status
     recordingLinks
+    name
   }
   internal
   fromBot
@@ -37,7 +38,7 @@ export default `
     }
   }
   ${
-    isEnabled("contacts")
+    isEnabled('contacts')
       ? `
       customer {
         _id
@@ -58,14 +59,15 @@ export default `
 
         tagIds
         ${
-          isEnabled("tags")
+          isEnabled('tags')
             ? `
             getTags {
               _id
               name
               colorCode
             }
-          ` : `` 
+          `
+            : ``
         }
       }
     `

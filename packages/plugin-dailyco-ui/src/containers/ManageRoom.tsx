@@ -7,6 +7,7 @@ import { __, Alert } from 'coreui/utils';
 import { IConversation, IVideoCallData } from '@erxes/ui-inbox/src/inbox/types';
 import React, { useState } from 'react';
 import { mutations } from '../graphql';
+import { openWindow } from '../utils';
 
 type Props = {
   activeVideo?: IVideoCallData;
@@ -18,27 +19,27 @@ type Props = {
 function ManageRoom(props: Props) {
   const [loading, setLoading] = useState(false);
 
-  const openWindow = (conversationId: string, url: string, name: string) => {
-    if (!window || !window.top) {
-      return;
-    }
+  // const openWindow = (conversationId: string, url: string, name: string) => {
+  //   if (!window || !window.top) {
+  //     return;
+  //   }
 
-    const height = 600;
-    const width = 480;
+  //   const height = 600;
+  //   const width = 480;
 
-    const y = window.top.outerHeight / 2 + window.top.screenY - height / 2;
-    const x = window.top.outerWidth / 2 + window.top.screenX - width / 2;
+  //   const y = window.top.outerHeight / 2 + window.top.screenY - height / 2;
+  //   const x = window.top.outerWidth / 2 + window.top.screenX - width / 2;
 
-    const link = `/videoCall?url=${url}&name=${name}&conversationId=${conversationId}`;
+  //   const link = `/videoCall?url=${url}&name=${name}&conversationId=${conversationId}`;
 
-    console.log('link', link);
+  //   console.log('link', link);
 
-    window.open(
-      `/videoCall?url=${url}&name=${name}&conversationId=${conversationId}`,
-      '_blank',
-      `toolbar=no,titlebar=no,directories=no,menubar=no,location=no,scrollbars=yes,status=no,height=${height},width=${width},top=${y},left=${x}`
-    );
-  };
+  //   window.open(
+  //     `/videoCall?url=${url}&name=${name}&conversationId=${conversationId}`,
+  //     '_blank',
+  //     `toolbar=no,titlebar=no,directories=no,menubar=no,location=no,scrollbars=yes,status=no,height=${height},width=${width},top=${y},left=${x}`
+  //   );
+  // };
 
   const createVideoRoom = () => {
     const { conversation, activeVideo, refetchDetail, refetchMessages } = props;
