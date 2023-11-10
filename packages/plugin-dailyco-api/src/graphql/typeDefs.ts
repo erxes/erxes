@@ -15,7 +15,7 @@ const queries: string = `
 `;
 
 const mutations: string = `
-  dailySaveVideoRecordingInfo(contentType:String!, contentTypeId:String!, recordingId: String! ): String
+  dailySaveVideoRecordingInfo(roomName:String!, recordingId: String! ): String
   dailyDeleteVideoChatRoom(name: String!): Boolean
   dailyCreateRoom(contentType:String!, contentTypeId:String!): VideoCallData
 `;

@@ -52,6 +52,12 @@ const VideoCall = props => {
   const [recordingId, setRecordingId] = useState('');
   let callFrame;
 
+  const messengerDiv = document.getElementById('erxes-messenger-container');
+
+  if (messengerDiv) {
+    messengerDiv.style.display = 'none';
+  }
+
   const { url, name } = props.queryParams;
 
   useEffect(() => {
@@ -66,10 +72,40 @@ const VideoCall = props => {
         .on('recording-started', event => {
           console.log('recording-started', event);
           setRecordingId(event.recordingId);
+
+          client
+            .mutate({
+              mutation: gql(mutations.saveRecord),
+              variables: { roomName: name, recordingId: event.recordingId }
+            })
+            // .then(({ data: { dailyDeleteVideoChatRoom } }) => {
+            //   console.log('dailyDeleteVideoChatRoom', dailyDeleteVideoChatRoom);
+            //   if (dailyDeleteVideoChatRoom) {
+            //     window.close();
+            //     setLoading(false);
+            //   }
+            // })
+            .catch(error => {
+              Alert.error(error.message);
+            });
         })
         .on('recording-upload-completed', event => {
           console.log('recording-upload-completed', event);
-          // setRecordingId('');
+          client
+            .mutate({
+              mutation: gql(mutations.saveRecord),
+              variables: { roomName: name, recordingId }
+            })
+            // .then(({ data: { dailyDeleteVideoChatRoom } }) => {
+            //   console.log('dailyDeleteVideoChatRoom', dailyDeleteVideoChatRoom);
+            //   if (dailyDeleteVideoChatRoom) {
+            //     window.close();
+            //     setLoading(false);
+            //   }
+            // })
+            .catch(error => {
+              Alert.error(error.message);
+            });
         })
         .on('error', event => {
           setErrorMessage(event.errorMsg);

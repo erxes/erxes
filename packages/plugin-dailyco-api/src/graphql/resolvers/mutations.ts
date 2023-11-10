@@ -36,10 +36,10 @@ export const publishMessage = async (
 
 const mutations = {
   async dailySaveVideoRecordingInfo(_root, args) {
-    const { contentType, contentTypeId, recordingId } = args;
+    const { roomName, recordingId } = args;
 
     await Records.updateOne(
-      { contentType, contentTypeId },
+      { roomName },
       { $push: { recordings: { id: recordingId } } }
     );
 
@@ -87,8 +87,6 @@ const mutations = {
         { privacy: 'private' },
         subdomain
       );
-
-      console.log('response', response);
 
       const tokenResponse = await sendDailyRequest(
         '/api/v1/meeting-tokens',

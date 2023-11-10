@@ -1,6 +1,6 @@
 const saveRecord = `
-mutation DailySaveVideoRecordingInfo($contentType: String!, $contentTypeId: String!, $recordingId: String!) {
-  dailySaveVideoRecordingInfo(contentType: $contentType, contentTypeId: $contentTypeId, recordingId: $recordingId)
+mutation DailySaveVideoRecordingInfo($roomName: String!, $recordingId: String!) {
+  dailySaveVideoRecordingInfo(roomName: $roomName, recordingId: $recordingId)
 }
 
 `;

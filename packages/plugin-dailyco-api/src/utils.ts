@@ -5,7 +5,7 @@ export const getDailyData = async subdomain => {
   const keys = ['DAILY_API_KEY', 'DAILY_END_POINT'];
 
   const selector = { code: { $in: keys } };
-
+  console.log('selector ======== ', selector);
   const configs = await sendCommonMessage({
     serviceName: 'integrations',
     action: 'configs.find',
@@ -13,6 +13,8 @@ export const getDailyData = async subdomain => {
     data: { selector },
     isRPC: true
   });
+
+  console.log('configs ======== ', configs);
 
   if (!configs || configs.length === 0) {
     throw new Error(
@@ -67,15 +69,19 @@ export const sendDailyRequest = async (
     isRPC: true
   });
 
-  const res = await sendRequest({
-    url: `https://${domain_name}.daily.co${url}`,
-    method,
-    headers: { Authorization: `Bearer ${api_key.value}` },
-    body
-  });
+  try {
+    const res = await sendRequest({
+      url: `https://${domain_name}.daily.co${url}`,
+      method,
+      headers: { Authorization: `Bearer ${api_key.value}` },
+      body
+    });
 
-  return {
-    ...res,
-    domain_name
-  };
+    return {
+      ...res,
+      domain_name
+    };
+  } catch (e) {
+    return e;
+  }
 };

@@ -34,6 +34,7 @@ export default {
 
   onServerInit: async options => {
     const app = options.app;
+
     mainDb = options.db;
 
     debug = options.debug;
