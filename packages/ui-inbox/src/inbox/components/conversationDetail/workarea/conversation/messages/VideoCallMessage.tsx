@@ -19,10 +19,6 @@ const openWindow = (conversationId: string, url: string, name: string) => {
   const y = window.top.outerHeight / 2 + window.top.screenY - height / 2;
   const x = window.top.outerWidth / 2 + window.top.screenX - width / 2;
 
-  const link = `/videoCall?url=${url}&name=${name}&conversationId=${conversationId}`;
-
-  console.log('link', link);
-
   window.open(
     `/videoCall?url=${url}&name=${name}&conversationId=${conversationId}`,
     '_blank',
@@ -32,8 +28,6 @@ const openWindow = (conversationId: string, url: string, name: string) => {
 
 const VideoCallMessage = (props: Props) => {
   const { message } = props;
-
-  console.log('message', message);
 
   const videoCallData = message.videoCallData || {
     status: 'end',
