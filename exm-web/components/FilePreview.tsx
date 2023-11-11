@@ -127,11 +127,11 @@ export const FilePreview = ({
                     if (index === 2) {
                       width = "w-full"
                     } else {
-                      width = "w-[316px]"
+                      width = "w-[424px]"
                     }
                   }
                   if (length === 4 || length > 4) {
-                    width = "w-[316px]"
+                    width = "w-[424px]"
                   }
 
                   if (index > 3) {
@@ -159,7 +159,7 @@ export const FilePreview = ({
                 })}
                 {attachments.length > 4 && (
                   <div
-                    className="text-white bg-black/50 w-[316px] h-[227px] absolute bottom-0 right-0 rounded-lg flex items-center justify-center text-[30px] cursor-pointer"
+                    className="text-white bg-black/50 w-[424px] h-[227px] absolute bottom-0 right-[7px] rounded-lg flex items-center justify-center text-[30px] cursor-pointer"
                     onClick={() => setGridImageIndex(3)}
                   >
                     + {attachments.length - 4}

@@ -7,7 +7,11 @@ export interface IUseUserDetail {
   userDetail: IUser
 }
 
-export const useUserDetail = ({ userId }: { userId: string }): IUseUserDetail => {
+export const useUserDetail = ({
+  userId,
+}: {
+  userId: string
+}): IUseUserDetail => {
   const { data, loading } = useQuery(queries.userDetail, {
     variables: {
       _id: userId,
