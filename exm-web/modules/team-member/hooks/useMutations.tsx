@@ -1,6 +1,8 @@
 import { mutations } from "@/common/team/graphql"
 import { gql, useMutation } from "@apollo/client"
 
+import { toast } from "@/components/ui/use-toast"
+
 const useMutations = () => {
   const [usersEditProfileMutation, { loading }] = useMutation(
     gql(mutations.usersEditProfile)
@@ -9,7 +11,13 @@ const useMutations = () => {
   const usersEditProfile = (newVariables: any) => {
     usersEditProfileMutation({
       variables: { ...newVariables },
-    }).catch((e) => console.log(e))
+    })
+      .then(() =>
+        toast({
+          description: "Looking good!",
+        })
+      )
+      .catch((e) => console.log(e))
   }
 
   return {

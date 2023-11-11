@@ -6,10 +6,9 @@ import RightNavbar from "@/modules/navbar/component/RightNavbar"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 const List = dynamic(() => import("@/modules/team-member/component/List"))
+const Company = dynamic(() => import("@/modules/company/component/Company"))
 
 const Feed = () => {
-  localStorage.getItem("exm_env_REACT_APP_DOMAIN")
-
   const style =
     "text-[#A1A1A1] data-[state=active]:text-primary data-[state=active]:border-[#5629B6] data-[state=active]:border-b-2 h-16 hover:font-medium hover:text-[#A1A1A1]"
 
@@ -36,11 +35,17 @@ const Feed = () => {
         <TabsContent value={"teamMembers"} className="bg-[#F8F9FA]">
           <List />
         </TabsContent>
-        <TabsContent value={"structure"} className="bg-[#F8F9FA]">
-          {/* <List contentType={item} /> */}
+        <TabsContent
+          value={"structure"}
+          className="bg-[#F8F9FA] h-[calc(100vh-70px)] p-6 overflow-auto"
+        >
+          <Company type="structure" />
         </TabsContent>
-        <TabsContent value={"company"} className="bg-[#F8F9FA]">
-          {/* <List contentType={item} /> */}
+        <TabsContent
+          value={"company"}
+          className="bg-[#F8F9FA] h-[calc(100vh-70px)] p-6 overflow-auto"
+        >
+          <Company type="vision" />
         </TabsContent>
       </Tabs>
     </div>

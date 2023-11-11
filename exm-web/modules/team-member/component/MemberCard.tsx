@@ -9,7 +9,7 @@ const MemberCard = ({ user }: { user: IUser }): JSX.Element => {
   const userDetail = user.details
 
   return (
-    <div className="border-0 p-6 bg-white rounded-lg justify-center flex">
+    <div className="border-[0.5px] border-[#BFBFBF] p-6 bg-white rounded-lg justify-center flex">
       <div className="p-0 pb-4 items-center">
         <a
           className="flex items-center flex-col cursor-pointer"
@@ -23,13 +23,13 @@ const MemberCard = ({ user }: { user: IUser }): JSX.Element => {
             className="w-[80px] h-[80px] rounded-full object-cover border border-primary"
           />
           <div className="mt-2 text-center">
-            <div className="text-base font-bold text-gray-700 mb-1">
+            <div className="text-base font-bold text-gray-700 mb-2">
               {userDetail?.fullName ||
                 userDetail?.username ||
                 userDetail?.email}
             </div>
             {userDetail.position && (
-              <p className="font-normal text-sm">{userDetail.position}</p>
+              <p className="font-normal text-sm mb-2">{userDetail.position}</p>
             )}
             {userDetail.description && (
               <p className="text-[#5E5B5B] font-normal text-sm">

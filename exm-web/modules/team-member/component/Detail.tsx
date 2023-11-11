@@ -1,19 +1,11 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { currentUserAtom } from "@/modules/JotaiProiveder"
 import RightNavbar from "@/modules/navbar/component/RightNavbar"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useAtomValue } from "jotai"
-import {
-  Facebook,
-  Github,
-  Globe,
-  Instagram,
-  Linkedin,
-  Twitter,
-  Youtube,
-} from "lucide-react"
+import { Facebook, Globe, Twitter, Youtube } from "lucide-react"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
 
@@ -29,7 +21,6 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import Loader from "@/components/ui/loader"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Textarea } from "@/components/ui/textarea"
 import AvatarUpload from "@/components/AvatarUpload"
@@ -44,6 +35,7 @@ const FormSchema = z.object({
   lastName: z.string().optional(),
   position: z.string().optional(),
   username: z.string(),
+  password: z.string(),
   location: z.string().optional(),
   facebook: z.string().optional(),
   twitter: z.string().optional(),
@@ -60,55 +52,59 @@ const Detail = ({ id }: { id: string }) => {
     resolver: zodResolver(FormSchema),
   })
 
-  const { userDetail, loading } = useUserDetail({ userId: id })
+  if (!id) {
+    return <div />
+  }
+
+  const { userDetail } = useUserDetail({ userId: id })
   const { usersEditProfile } = useMutations()
   const currentUser = useAtomValue(currentUserAtom)
   const [avatar, setAvatar] = useState(
     userDetail.details?.avatar || "/avatar-colored.svg"
   )
-  if (loading) {
-    return <Loader />
-  }
+
+  useEffect(() => {
+    let defaultValues = {} as any
+
+    if (userDetail) {
+      defaultValues = {
+        ...userDetail,
+        ...userDetail?.details,
+        ...userDetail?.links,
+      }
+    }
+
+    form.reset({ ...defaultValues })
+  }, [userDetail])
 
   const style =
     "text-[#A1A1A1] data-[state=active]:text-primary data-[state=active]:border-[#5629B6] data-[state=active]:border-b-2 h-16 hover:font-medium hover:text-[#A1A1A1]"
-  console.log("userDetail", userDetail, userDetail.email)
 
   const disable = currentUser?._id !== id
 
-  // useEffect(() => {
-  //   let defaultValues = {} as any
-
-  //   if (userDetail) {
-  //     defaultValues = { ...userDetail }
-  //   }
-  // }, [userDetail])
-
   const onSubmit = (data: z.infer<typeof FormSchema>) => {
-    console.log("daa", avatar)
     usersEditProfile({
       email: data.email || userDetail.email,
       username: data.username || userDetail.username,
       details: {
-        description: data.description || userDetail.details.description,
+        description: data.description || userDetail?.details?.description,
         avatar,
-        birthDate: data.birthDate || userDetail.details.birthDate,
+        birthDate: data.birthDate || userDetail?.details?.birthDate,
         firstName: data.firstName || userDetail.details.firstName,
         lastName: data.lastName || userDetail.details.lastName,
         location: data.location || userDetail.details.location,
         operatorPhone: data.operatorPhone || userDetail.details.operatorPhone,
         position: data.position || userDetail.details.position,
-        workStartedDate:
-          data.workStartedDate || userDetail.details.workStartedDate,
+        workStartedDate: data.workStartedDate,
       },
       links: {
-        facebook: data.facebook || userDetail.links?.facebook,
-        twitter: data.twitter || userDetail.links?.twitter,
-        youtube: data.youtube || userDetail.links?.youtube,
-        website: data.website || userDetail.links?.website,
+        facebook: data.facebook,
+        twitter: data.twitter,
+        youtube: data.youtube,
+        website: data.website,
       },
-      password: "Ariuka0215",
-      employeeId: data.employeeId || userDetail.employeeId,
+      password: data.password,
+      employeeId: data.employeeId,
     })
   }
 
@@ -119,7 +115,7 @@ const Detail = ({ id }: { id: string }) => {
   return (
     <div className="w-5/6 shrink-0">
       <div>
-        <Tabs defaultValue="post">
+        <Tabs defaultValue="teamMembers">
           <TabsList className="border-b border-[#eee]">
             <div className="flex justify-between">
               <div className="w-[50%] items-center flex mr-auto h-[2.5rem] my-3 ml-[25px]">
@@ -177,9 +173,6 @@ const Detail = ({ id }: { id: string }) => {
                               placeholder="Type your bio"
                               {...field}
                               className="p-0 border-none disabled:opacity-100"
-                              defaultValue={
-                                userDetail.details?.description || ""
-                              }
                               disabled={disable}
                             />
                           </FormControl>
@@ -199,7 +192,6 @@ const Detail = ({ id }: { id: string }) => {
                               placeholder="Type your email"
                               {...field}
                               className="p-0 border-none disabled:opacity-100"
-                              defaultValue={userDetail.email || ""}
                               disabled={disable}
                             />
                           </FormControl>
@@ -219,9 +211,6 @@ const Detail = ({ id }: { id: string }) => {
                               placeholder="Type your phone number"
                               {...field}
                               className="p-0 border-none disabled:opacity-100"
-                              defaultValue={
-                                userDetail.details?.operatorPhone || ""
-                              }
                               disabled={disable}
                             />
                           </FormControl>
@@ -238,7 +227,7 @@ const Detail = ({ id }: { id: string }) => {
                           <FormLabel className="block">Birthday</FormLabel>
                           <FormControl>
                             <DatePicker
-                              date={userDetail.details?.birthDate}
+                              date={field.value}
                               setDate={field.onChange}
                               className="w-full p-0 border-none disabled:opacity-100 hover:bg-transparent"
                               disabled={disable}
@@ -267,7 +256,6 @@ const Detail = ({ id }: { id: string }) => {
                               placeholder="Type your employee id"
                               {...field}
                               className="p-0 border-none disabled:opacity-100"
-                              defaultValue={userDetail.employeeId || ""}
                               disabled={disable}
                             />
                           </FormControl>
@@ -334,7 +322,6 @@ const Detail = ({ id }: { id: string }) => {
                             placeholder="Type your first name"
                             {...field}
                             className="p-0 border-none disabled:opacity-100"
-                            defaultValue={userDetail.details.firstName || ""}
                             disabled={disable}
                           />
                         </FormControl>
@@ -355,7 +342,6 @@ const Detail = ({ id }: { id: string }) => {
                             placeholder="Type your last name"
                             {...field}
                             className="p-0 border-none disabled:opacity-100"
-                            defaultValue={userDetail.details.lastName || ""}
                             disabled={disable}
                           />
                         </FormControl>
@@ -377,7 +363,6 @@ const Detail = ({ id }: { id: string }) => {
                             {...field}
                             className="p-0 border-none disabled:opacity-100"
                             disabled={disable}
-                            defaultValue={userDetail.username || ""}
                           />
                         </FormControl>
                         <FormMessage />
@@ -397,7 +382,6 @@ const Detail = ({ id }: { id: string }) => {
                             placeholder="Type your position"
                             {...field}
                             className="p-0 border-none disabled:opacity-100"
-                            defaultValue={userDetail.details.position || ""}
                             disabled={disable}
                           />
                         </FormControl>
@@ -415,7 +399,7 @@ const Detail = ({ id }: { id: string }) => {
                         </FormLabel>
                         <FormControl>
                           <DatePicker
-                            date={userDetail.details?.workStartedDate}
+                            date={field.value}
                             setDate={field.onChange}
                             className="w-full p-0 border-none disabled:opacity-100 hover:bg-transparent"
                             disabled={disable}
@@ -438,7 +422,6 @@ const Detail = ({ id }: { id: string }) => {
                             placeholder="Type your location"
                             {...field}
                             className="p-0 border-none disabled:opacity-100"
-                            defaultValue={userDetail.details.location || ""}
                             disabled={disable}
                           />
                         </FormControl>
@@ -447,12 +430,24 @@ const Detail = ({ id }: { id: string }) => {
                     )}
                   />
                   {!disable && (
-                    <FormItem className="flex items-center space-y-0 h-[44px]">
-                      <FormLabel className="w-[150px] mr-[200px] shrink-0 whitespace-nowrap">
-                        Change Password
-                      </FormLabel>
-                      <p>************</p>
-                    </FormItem>
+                    <FormField
+                      control={form.control}
+                      name="password"
+                      render={({ field }) => (
+                        <FormItem className="flex items-center space-y-0 h-[44px]">
+                          <FormLabel className="w-[150px] mr-[200px] shrink-0 whitespace-nowrap">
+                            Change Password
+                          </FormLabel>
+                          <FormControl>
+                            <Input
+                              placeholder="Type your password"
+                              {...field}
+                              className="p-0 border-none disabled:opacity-100"
+                            />
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
                   )}
                 </div>
                 {!disable && (
@@ -461,12 +456,14 @@ const Detail = ({ id }: { id: string }) => {
                       <Label className="text-base text-black font-semibold">
                         Social Accounts
                       </Label>
-                      <Button
-                        type="submit"
-                        className="bg-transparent text-[#33363F] hover:bg-transparent"
-                      >
-                        Save
-                      </Button>
+                      {!disable && (
+                        <Button
+                          type="submit"
+                          className="bg-transparent text-[#33363F] hover:bg-transparent"
+                        >
+                          Save
+                        </Button>
+                      )}
                     </div>
                     <FormField
                       control={form.control}
@@ -481,7 +478,6 @@ const Detail = ({ id }: { id: string }) => {
                               placeholder="Type your facebook"
                               {...field}
                               className="p-0 border-none"
-                              defaultValue={userDetail.links?.facebook || ""}
                             />
                           </FormControl>
                           <FormMessage />
@@ -501,7 +497,6 @@ const Detail = ({ id }: { id: string }) => {
                               placeholder="Type your twitter"
                               {...field}
                               className="p-0 border-none"
-                              defaultValue={userDetail.links?.twitter || ""}
                             />
                           </FormControl>
                           <FormMessage />
@@ -521,7 +516,6 @@ const Detail = ({ id }: { id: string }) => {
                               placeholder="Type your youtube"
                               {...field}
                               className="p-0 border-none"
-                              defaultValue={userDetail.links?.youtube || ""}
                             />
                           </FormControl>
                           <FormMessage />
@@ -541,7 +535,6 @@ const Detail = ({ id }: { id: string }) => {
                               placeholder="Type your website"
                               {...field}
                               className="p-0 border-none"
-                              defaultValue={userDetail.links?.website || ""}
                             />
                           </FormControl>
                           <FormMessage />

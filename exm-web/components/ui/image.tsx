@@ -16,7 +16,7 @@ const Image: FC<
     src,
     fill = true,
     alt = "",
-    onError = () => setSrcI(props.fallBack || "/product.png"),
+    onError = () => setSrcI(props.fallBack || "https://erxes.io/static/images/public_images_actions_404.svg"),
     width,
     height,
     fallBack,

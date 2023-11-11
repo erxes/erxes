@@ -49,7 +49,7 @@ export const useUsers = ({
 
     fetchMore({
       variables: {
-        page: usersLength / 20 + 1,
+        page: Math.round(usersLength / 20 + 1),
         perPage: 20,
       },
       updateQuery(prev, { fetchMoreResult }) {

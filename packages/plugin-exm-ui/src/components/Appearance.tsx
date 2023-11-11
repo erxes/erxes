@@ -18,14 +18,18 @@ import { ColorPick, ColorPicker } from '../styles';
 import Popover from 'react-bootstrap/Popover';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import { IExm } from '../types';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import VisionStructureForm from './VisionStructureForm';
+import { IButtonMutateProps } from '@erxes/ui/src/types';
 
 type Props = {
   exm: IExm;
   edit: (variables: IExm) => void;
+  renderButton: (props: IButtonMutateProps) => JSX.Element;
 };
 
 export default function Appearance(props: Props) {
-  const { exm, edit } = props;
+  const { exm, edit, renderButton } = props;
 
   const exmLogo = exm.logo;
   const exmFavicon = exm.favicon;
@@ -118,7 +122,7 @@ export default function Appearance(props: Props) {
       </OverlayTrigger>
     );
   };
-
+  console.log('exm', exm);
   return (
     <AppearanceWrapper>
       <GeneralWrapper>
@@ -153,6 +157,51 @@ export default function Appearance(props: Props) {
             </FeatureRowItem>
           </FeatureRow>
         </TeamPortal>
+        <Logos>
+          <p>Company vision and strucutre</p>
+          <FeatureRow>
+            <FeatureRowItem>
+              <p>Vision</p>
+              <ModalTrigger
+                title={exm.vision ? 'Edit Vision' : 'Add Vision'}
+                size="lg"
+                trigger={
+                  <Button btnStyle="simple">
+                    {__(exm.vision ? 'Edit Vision' : 'Add Vision')}
+                  </Button>
+                }
+                content={modalProps => (
+                  <VisionStructureForm
+                    {...modalProps}
+                    object={exm}
+                    type="vision"
+                    renderButton={renderButton}
+                  />
+                )}
+              />
+            </FeatureRowItem>
+            <FeatureRowItem>
+              <p>Structure</p>
+              <ModalTrigger
+                title={exm.structure ? 'Edit Structure' : 'Add Structure'}
+                size="lg"
+                trigger={
+                  <Button btnStyle="simple">
+                    {__(exm.structure ? 'Edit Structure' : 'Add Structure')}
+                  </Button>
+                }
+                content={modalProps => (
+                  <VisionStructureForm
+                    {...modalProps}
+                    object={exm}
+                    type="structure"
+                    renderButton={renderButton}
+                  />
+                )}
+              />
+            </FeatureRowItem>
+          </FeatureRow>
+        </Logos>
         <Logos>
           <p>Logo and favicon</p>
           <FeatureRow>
