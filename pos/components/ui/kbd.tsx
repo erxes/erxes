@@ -1,11 +1,8 @@
 import { cn } from "@/lib/utils"
 
-function Shortcut({
-  className,
-  ...props
-}: React.HTMLAttributes<HTMLDivElement>) {
+function Kbd({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
   return (
-    <div
+    <kbd
       className={cn(
         "bg-neutral-400/10 h-5 px-0.5 inline-flex items-center justify-center rounded",
         className
@@ -15,4 +12,4 @@ function Shortcut({
   )
 }
 
-export { Shortcut }
+export { Kbd }
