@@ -173,21 +173,47 @@ const absenceTypeRemove = `
     absenceTypeRemove(_id: $_id)
   }`
 
-const sendScheduleRequest = `
-  mutation sendScheduleRequest($userId: String, $shifts: [ShiftInput], $scheduleConfigId: String, $totalBreakInMins: Int){
-    sendScheduleRequest(userId: $userId, shifts: $shifts, scheduleConfigId: $scheduleConfigId, totalBreakInMins: $totalBreakInMins){
+const sendScheduleRequest = gql`
+  mutation sendScheduleRequest(
+    $userId: String
+    $shifts: [ShiftInput]
+    $scheduleConfigId: String
+    $totalBreakInMins: Int
+  ) {
+    sendScheduleRequest(
+      userId: $userId
+      shifts: $shifts
+      scheduleConfigId: $scheduleConfigId
+      totalBreakInMins: $totalBreakInMins
+    ) {
       _id
     }
-  }`
+  }
+`
 
-const submitSchedule = `
-  mutation submitSchedule($branchIds: [String], $departmentIds: [String],$userIds: [String], $shifts: [ShiftInput], $scheduleConfigId: String, $totalBreakInMins: Int){
-    submitSchedule(branchIds: $branchIds, departmentIds:$departmentIds, userIds: $userIds, shifts: $shifts, scheduleConfigId: $scheduleConfigId, totalBreakInMins: $totalBreakInMins){
+const submitSchedule = gql`
+  mutation submitSchedule(
+    $branchIds: [String]
+    $departmentIds: [String]
+    $userIds: [String]
+    $shifts: [ShiftInput]
+    $scheduleConfigId: String
+    $totalBreakInMins: Int
+  ) {
+    submitSchedule(
+      branchIds: $branchIds
+      departmentIds: $departmentIds
+      userIds: $userIds
+      shifts: $shifts
+      scheduleConfigId: $scheduleConfigId
+      totalBreakInMins: $totalBreakInMins
+    ) {
       _id
     }
-  }`
+  }
+`
 
-const checkDuplicateScheduleShifts = `
+const checkDuplicateScheduleShifts = gql`
   mutation checkDuplicateScheduleShifts($branchIds: [String], $departmentIds: [String],$userIds: [String], $shifts: [ShiftInput], $status: String){
     checkDuplicateScheduleShifts(branchIds: $branchIds, departmentIds:$departmentIds, userIds: $userIds, shifts: $shifts, status: $status ){
         shifts{

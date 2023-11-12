@@ -116,7 +116,7 @@ const Page = ({
     let className = ""
 
     if (page === currentPage) {
-      className += "bg-gray-200 text-gray-800 disabled"
+      className += "bg-gray-200 text-gray-800 hover:bg-gray-200 disabled"
     }
 
     return (

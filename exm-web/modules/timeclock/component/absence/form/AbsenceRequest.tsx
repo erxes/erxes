@@ -168,10 +168,19 @@ const AbsenceRequest = ({ queryParams, absenceTypes }: Props) => {
       return totalRequestedDaysTime.toFixed(1)
     }
 
-    return (
+    const totalHours = (
       (request.byTime.endTime.getTime() - request.byTime.startTime.getTime()) /
       3600000
     ).toFixed(2)
+
+    const hours = Math.floor(totalHours)
+    const minutes = Math.round((totalHours - hours) * 60)
+
+    const formattedTime = dayjs()
+      .hour(hours)
+      .minute(minutes)
+      .format("HH[h] mm[m]")
+    return formattedTime
   }
 
   const renderTotalRequestTime = () => {
@@ -179,23 +188,16 @@ const AbsenceRequest = ({ queryParams, absenceTypes }: Props) => {
 
     if (requestTimeByDay) {
       return (
-        <div className="flex">
-          <div className="flex flex-col">
-            <div>Total days :</div>
-            <div>Total hours :</div>
-          </div>
-          <div className="flex flex-col">
-            <div>{totalRequestedDays}</div>
-            <div>{calculateTotalHoursOfAbsence()}</div>
-          </div>
+        <div className="flex gap-3 font-bold text-[18px] justify-center">
+          <div>Total days : {totalRequestedDays}</div>
+          <div>Total hours : {calculateTotalHoursOfAbsence()}</div>
         </div>
       )
     }
 
     return (
-      <div className="flex">
-        <div>Total hours :</div>
-        <div> {calculateTotalHoursOfAbsence()}</div>
+      <div className="flex gap-3 font-bold text-[18px] justify-center">
+        <div>Total hours : {calculateTotalHoursOfAbsence()}</div>
       </div>
     )
   }
@@ -316,12 +318,6 @@ const AbsenceRequest = ({ queryParams, absenceTypes }: Props) => {
   }
 
   const renderDateAndTimeSelection = () => {
-    const inputTimeStyle = {
-      'input[type="time"]::-webkit-calendar-picker-indicator': {
-        background: "none",
-      },
-    }
-
     return (
       <>
         <div className="flex gap-2 justify-between">
@@ -332,7 +328,6 @@ const AbsenceRequest = ({ queryParams, absenceTypes }: Props) => {
           />
           <input
             type="time"
-            style={inputTimeStyle as any}
             className="w-full text-center border border-input hover:bg-accent hover:text-accent-foreground rounded-md px-3"
             onChange={(e) => onTimeChange(e.target.value, "start")}
             value={dayjs(request.byTime.startTime).format("HH:mm")}
@@ -340,7 +335,6 @@ const AbsenceRequest = ({ queryParams, absenceTypes }: Props) => {
           />
           <input
             type="time"
-            style={inputTimeStyle as any}
             className="w-full text-center border border-input hover:bg-accent hover:text-accent-foreground rounded-md px-3"
             onChange={(e) => onTimeChange(e.target.value, "end")}
             value={dayjs(request.byTime.endTime).format("HH:mm")}

@@ -1,18 +1,14 @@
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 import { currentUserAtom } from "@/modules/JotaiProiveder"
-import { useSchedules } from "@/modules/timeclock/hooks/useSchedule"
 import { useScheduleMutation } from "@/modules/timeclock/hooks/useScheduleMutation"
 import {
-  ISchedule,
   IScheduleConfig,
   IScheduleConfigOrder,
-  IScheduleDate,
-  IScheduleForm,
 } from "@/modules/timeclock/types"
-import { compareStartAndEndTime } from "@/modules/timeclock/utils"
+import { isSameDay } from "date-fns"
 import dayjs from "dayjs"
 import { useAtomValue } from "jotai"
-import { CalendarIcon, ChevronDown, ChevronUp, Pin, PinOff } from "lucide-react"
+import { CalendarIcon, Plus, X } from "lucide-react"
 import Select from "react-select"
 
 import { Button } from "@/components/ui/button"
@@ -25,12 +21,13 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
-import { Label } from "@/components/ui/label"
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
+
+import ScheduleConfigOrder from "./ScheduleConfigOrder"
 
 type Props = {
   configsList: IScheduleConfig[]
@@ -38,15 +35,16 @@ type Props = {
 }
 
 const ScheduleRequest = ({ configsList, scheduleConfigOrder }: Props) => {
-  const [open, setOpen] = useState(false)
-  const [toggleOrder, setToggleOrder] = useState(false)
   const currentUser = useAtomValue(currentUserAtom)
+  const [open, setOpen] = useState(false)
 
   const callBack = (result: string) => {
-    return result
+    if (result) {
+      setOpen(false)
+    }
   }
 
-  const { scheduleConfigOrderEdit } = useScheduleMutation({ callBack })
+  const { checkDuplicateScheduleShifts } = useScheduleMutation({ callBack })
 
   const [scheduleConfigsOrderData, setScheduleConfigsOrderData] = useState({
     userId: currentUser?._id,
@@ -60,29 +58,29 @@ const ScheduleRequest = ({ configsList, scheduleConfigOrder }: Props) => {
         })),
   })
 
-  const [selectedScheduleConfigId, setScheduleConfigId] = useState(
-    scheduleConfigsOrderData.orderedList[0].scheduleConfigId
-  )
-
-  const omitTypeName = (scheduleConfigOrderData: IScheduleConfigOrder) => {
-    const orderData = scheduleConfigOrderData
-
-    return {
-      userId: orderData.userId,
-      orderedList: orderData.orderedList.map((s) => ({
-        order: s.order,
-        scheduleConfigId: s.scheduleConfigId,
-        pinned: s.pinned,
-        label: s.label,
-      })),
-    }
+  const initialSelectValue = {
+    value: scheduleConfigsOrderData.orderedList[0].scheduleConfigId,
+    label: scheduleConfigsOrderData.orderedList[0].label,
   }
 
-  const scheduleConfigOrderDataEdit = (scheduleConfigOrderData: any) => {
-    setScheduleConfigsOrderData(scheduleConfigOrderData)
-    scheduleConfigOrderEdit(omitTypeName(scheduleConfigOrderData))
-  }
+  const [days, setDays] = useState<Date[]>([new Date()])
+  const [selectedValue, setSelectedValue] = useState(initialSelectValue)
+  const [selectedValues, setSelectedValues] = useState([initialSelectValue])
 
+  const [shifts, setShifts] = useState([
+    {
+      scheduleConfigId: configsList[0]._id,
+      shiftStart: new Date(
+        dayjs(days[0]).format("YYYY-MM-DD") + " " + configsList[0].shiftStart
+      ),
+      shiftEnd: new Date(
+        dayjs(days[0]).format("YYYY-MM-DD") + " " + configsList[0].shiftEnd
+      ),
+      lunchBreakInMins: configsList[0].lunchBreakInMins,
+    },
+  ])
+
+  // Select Section ////////////////////////////////////////////////////////
   const renderScheduleConfigOptions = () => {
     return scheduleConfigsOrderData.orderedList.map((s) => ({
       value: s.scheduleConfigId,
@@ -90,187 +88,202 @@ const ScheduleRequest = ({ configsList, scheduleConfigOrder }: Props) => {
     }))
   }
 
-  const unpinScheduleConfig = (currentConfigOrder: number) => {
-    let firstUnpinnedOrderNum = scheduleConfigsOrderData.orderedList.length
+  const handleConfigChange = (selectedConfigValue: any) => {
+    setSelectedValue(selectedConfigValue)
+    setSelectedValues(Array(days.length).fill(selectedConfigValue))
 
-    const newScheduleConfigsOrderData = scheduleConfigsOrderData
+    const selectedConfigId = selectedConfigValue?.value
+    const selectedConfig = configsList.find(
+      (config) => config._id === selectedConfigId
+    )
 
-    for (const scheduleConfigsOrderItem of newScheduleConfigsOrderData.orderedList) {
-      if (!scheduleConfigsOrderItem.pinned) {
-        firstUnpinnedOrderNum = scheduleConfigsOrderItem.order
-        break
-      }
-    }
-
-    const lastPinnedOrderNum = firstUnpinnedOrderNum - 1
-
-    for (const scheduleConfigsOrderItem of newScheduleConfigsOrderData.orderedList) {
-      if (scheduleConfigsOrderItem.order < currentConfigOrder) {
-        continue
-      }
-
-      if (scheduleConfigsOrderItem.order > lastPinnedOrderNum) {
-        break
-      }
-
-      if (scheduleConfigsOrderItem.order === currentConfigOrder) {
-        scheduleConfigsOrderItem.order = lastPinnedOrderNum
-        scheduleConfigsOrderItem.pinned = false
-        continue
-      }
-      scheduleConfigsOrderItem.order = scheduleConfigsOrderItem.order - 1
-    }
-
-    scheduleConfigOrderDataEdit({ ...newScheduleConfigsOrderData })
+    setShifts(
+      days.map((day) => ({
+        scheduleConfigId: selectedConfig?._id!,
+        shiftStart: new Date(
+          dayjs(day).format("YYYY-MM-DD") + " " + selectedConfig?.shiftStart!
+        ),
+        shiftEnd: new Date(
+          dayjs(day).format("YYYY-MM-DD") + " " + selectedConfig?.shiftEnd!
+        ),
+        lunchBreakInMins: selectedConfig?.lunchBreakInMins!,
+      }))
+    )
   }
 
-  const pinScheduleConfig = (currentConfigOrder: number) => {
-    let firstUnpinnedOrderNum = 0
+  const handleConfigsChange = (selectedConfigValue: any, index: number) => {
+    const updatedValues = [...selectedValues]
+    updatedValues[index] = selectedConfigValue
+    setSelectedValues(updatedValues)
 
-    const newScheduleConfigsOrderData = scheduleConfigsOrderData
+    const selectedConfigId = selectedConfigValue?.value
+    const selectedConfig = configsList.find(
+      (config) => config._id === selectedConfigId
+    )
 
-    for (const scheduleConfigsOrderItem of newScheduleConfigsOrderData.orderedList) {
-      if (!scheduleConfigsOrderItem.pinned) {
-        firstUnpinnedOrderNum = scheduleConfigsOrderItem.order
-        break
+    setShifts((prevShifts) => {
+      const newShifts = [...prevShifts]
+
+      newShifts[index] = {
+        scheduleConfigId: selectedConfig?._id!,
+        shiftStart: new Date(
+          dayjs(days[index]).format("YYYY-MM-DD") +
+            " " +
+            selectedConfig?.shiftStart!
+        ),
+        shiftEnd: new Date(
+          dayjs(days[index]).format("YYYY-MM-DD") +
+            " " +
+            selectedConfig?.shiftEnd!
+        ),
+        lunchBreakInMins: selectedConfig?.lunchBreakInMins!,
       }
-    }
 
-    const lastPinnedOrderNum = firstUnpinnedOrderNum - 1
+      return newShifts
+    })
+  }
+  ////////////////////////////////////////////////////////////////////////
 
-    for (const scheduleConfigsOrderItem of newScheduleConfigsOrderData.orderedList) {
-      if (scheduleConfigsOrderItem.order > currentConfigOrder) {
-        break
-      }
+  const handleDaySelection = (selectedDays: Date[]) => {
+    setSelectedValues((prevValues) => [...prevValues, selectedValue])
 
-      if (scheduleConfigsOrderItem.order <= lastPinnedOrderNum) {
-        continue
-      }
+    const selectedConfigId = selectedValue?.value
+    const selectedConfig = configsList.find(
+      (config) => config._id === selectedConfigId
+    )
 
-      if (scheduleConfigsOrderItem.order === currentConfigOrder) {
-        scheduleConfigsOrderItem.order = firstUnpinnedOrderNum
-        scheduleConfigsOrderItem.pinned = true
-        continue
-      }
-      scheduleConfigsOrderItem.order = scheduleConfigsOrderItem.order + 1
-    }
-
-    scheduleConfigOrderDataEdit({ ...newScheduleConfigsOrderData })
+    setShifts((prevValues) => [
+      ...prevValues,
+      {
+        scheduleConfigId: selectedConfig?._id!,
+        shiftStart: new Date(
+          dayjs(selectedDays?.at(-1)).format("YYYY-MM-DD") +
+            " " +
+            selectedConfig?.shiftStart!
+        ),
+        shiftEnd: new Date(
+          dayjs(selectedDays?.at(-1)).format("YYYY-MM-DD") +
+            " " +
+            selectedConfig?.shiftEnd!
+        ),
+        lunchBreakInMins: selectedConfig?.lunchBreakInMins!,
+      },
+    ])
   }
 
-  const [days, setDays] = useState<Date[]>([new Date()])
-  const [date, setDate] = useState<Date>(new Date())
+  // Date Section ////////////////////////////////////////////////////////
+  const handleCalendarChange = (selectedDays: Date[]) => {
+    console.log(selectedDays)
 
-  const [scheduleDates, setScheduleDates] = useState<IScheduleForm>({})
+    setDays(selectedDays)
+    handleDaySelection(selectedDays)
+  }
 
-  const scheduleConfigsObject = {}
-
-  configsList?.map((config) => {
-    scheduleConfigsObject[config._id] = config
-  })
-
-  const onScheduleConfigSelectForAll = (scheduleConfig) => {
-    console.log("scheduleConfig", scheduleConfig)
-
-    const selectedScheduleConfidId = scheduleConfig.value
-
-    Object.keys(scheduleDates).forEach((day_key) => {
-      if (scheduleDates[day_key].inputChecked) {
-        return
-      }
-      const shiftDay = scheduleDates[day_key].shiftDate
-
-      const getShiftStart = dayjs(
-        shiftDay?.toLocaleDateString() +
-          " " +
-          scheduleConfigsObject[selectedScheduleConfidId].shiftStart
-      ).toDate()
-
-      const getShiftEnd = dayjs(
-        shiftDay?.toLocaleDateString() +
-          " " +
-          scheduleConfigsObject[selectedScheduleConfidId].shiftEnd
-      ).toDate()
-
-      const [getCorrectShiftStart, getCorrectShiftEnd, overNightShift] =
-        compareStartAndEndTime(
-          scheduleDates,
-          day_key,
-          getShiftStart,
-          getShiftEnd
-        )
-      scheduleDates[day_key].shiftStart = getCorrectShiftStart
-      scheduleDates[day_key].shiftEnd = getCorrectShiftEnd
-      scheduleDates[day_key].overnightShift = overNightShift
-      scheduleDates[day_key].scheduleConfigId = selectedScheduleConfidId
+  const handleDatePicker = (selectedDay: Date, index: number) => {
+    setDays((prevDays) => {
+      const newDays = [...prevDays]
+      newDays[index] = selectedDay
+      return newDays
     })
 
-    setScheduleDates({ ...scheduleDates })
+    setShifts((prevShifts) => {
+      const newShifts = [...prevShifts]
+      const existingShift = newShifts[index]
+
+      const startTime = dayjs(existingShift.shiftStart).format("HH:mm:ss")
+      const endTime = dayjs(existingShift.shiftEnd).format("HH:mm:ss")
+
+      newShifts[index] = {
+        ...existingShift,
+        shiftStart: new Date(
+          dayjs(selectedDay).format("YYYY-MM-DD") + " " + startTime
+        ),
+        shiftEnd: new Date(
+          dayjs(selectedDay).format("YYYY-MM-DD") + " " + endTime
+        ),
+      }
+
+      return newShifts
+    })
+  }
+  ////////////////////////////////////////////////////////////////////////
+
+  // Input Section ////////////////////////////////////////////////////////
+  const handleInputChange = (e: any, index: number) => {
+    const { name, value } = e.target
+
+    const updatedShifts = [...shifts]
+
+    updatedShifts[index] = {
+      ...updatedShifts[index],
+      [name]:
+        name === "lunchBreakInMins"
+          ? parseInt(value, 10) || 0
+          : new Date(dayjs(days[index]).format("YYYY-MM-DD") + " " + value),
+    }
+
+    setShifts(updatedShifts)
+  }
+  /////////////////////////////////////////////////////////////////////////
+  console.log("shifts", shifts)
+
+  const calculateScheduledDaysAndHours = () => {
+    const totalDay = days.length
+    let totalHours = 0
+    let totalBreak = 0
+
+    shifts.forEach((shift) => {
+      const shiftStart = dayjs(shift.shiftStart)
+      const shiftEnd = dayjs(shift.shiftEnd)
+      const lunchBreakInMins = shift.lunchBreakInMins
+
+      const duration = shiftEnd.diff(shiftStart, "minute") - lunchBreakInMins
+
+      totalHours += duration / 60
+      totalBreak += lunchBreakInMins
+    })
+
+    return {
+      totalDay,
+      totalHours: totalHours.toFixed(2),
+      totalBreak,
+    }
   }
 
   const displayTotalDaysHoursBreakMins = () => {
-    let totalBreakMins = 0
-
-    for (const scheduledDateIdx of Object.keys(days)) {
-      totalBreakMins += days[scheduledDateIdx].lunchBreakInMins || 0
-    }
-
+    const { totalDay, totalHours, totalBreak } =
+      calculateScheduledDaysAndHours()
     return (
-      <div>
-        <div>Total days {calculateScheduledDaysAndHours()[0]}</div>
-        <div>Total hours {calculateScheduledDaysAndHours()[1]}</div>
-        <div>Total break {(totalBreakMins / 60).toFixed(1)}</div>
+      <div className="flex gap-3 justify-center font-bold text-[20px]">
+        <div className="flex gap-2">
+          <div>Days : {totalDay}</div>
+        </div>
+        <div className="flex gap-2">
+          <div>Hours : {totalHours}</div>
+        </div>
+        <div className="flex gap-2">
+          <div>Break : {totalBreak}</div>
+        </div>
       </div>
     )
   }
 
-  const pickSubset = Object.values(scheduleDates).map((shift) => {
-    return {
-      _id: shift._id,
-      shiftStart: shift.shiftStart,
-      shiftEnd: shift.shiftEnd,
-      scheduleConfigId: shift.inputChecked ? null : shift.scheduleConfigId,
-      lunchBreakInMins: shift.lunchBreakInMins,
-    }
-  })
-
-  const calculateScheduledDaysAndHours = () => {
-    const totalDays = Object.keys(scheduleDates).length
-    let totalHours = 0
-
-    pickSubset.forEach((shift) => {
-      totalHours +=
-        (shift.shiftEnd.getTime() - shift.shiftStart.getTime()) / (1000 * 3600)
-    })
-
-    let totalBreakMins = 0
-
-    for (const scheduledDateIdx of Object.keys(scheduleDates)) {
-      totalBreakMins += scheduleDates[scheduledDateIdx].lunchBreakInMins || 0
-    }
-
-    return [
-      totalDays,
-      (totalHours - totalBreakMins / 60).toFixed(1),
-      totalBreakMins,
-    ]
-  }
-
   const onSubmitClick = () => {
-    // checkDuplicateScheduleShifts({
-    //   branchIds: [],
-    //   departmentIds: [],
-    //   userIds: currentUser?._id,
-    //   shifts: pickSubset,
-    //   totalBreakInMins: calculateScheduledDaysAndHours()[2],
-    //   userType: "employee",
-    // })
+    const { totalBreak } = calculateScheduledDaysAndHours()
+    checkDuplicateScheduleShifts({
+      branchIds: [],
+      departmentIds: [],
+      userIds: currentUser?._id,
+      shifts,
+      totalBreakInMins: totalBreak,
+      userType: "employee",
+    })
     console.log({
       branchIds: [],
       departmentIds: [],
       userIds: currentUser?._id,
-      shifts: pickSubset,
-      totalBreakInMins: calculateScheduledDaysAndHours()[2],
+      shifts,
+      totalBreakInMins: totalBreak,
       userType: "employee",
     })
   }
@@ -279,53 +292,16 @@ const ScheduleRequest = ({ configsList, scheduleConfigOrder }: Props) => {
     return (
       <div className="flex flex-col gap-3">
         {displayTotalDaysHoursBreakMins()}
-        <div className="flex flex-col gap-2">
-          <button
-            onClick={() => setToggleOrder(!toggleOrder)}
-            className="flex gap-2 items-center"
-          >
-            <div className="flex gap-2 items-center">
-              Select schedule configs order
-              {toggleOrder ? (
-                <ChevronUp size={16} />
-              ) : (
-                <ChevronDown size={16} />
-              )}
-            </div>
-          </button>
-          {toggleOrder && (
-            <div className="flex flex-col gap-2 px-3">
-              {scheduleConfigsOrderData.orderedList
-                .sort((a, b) => a.order - b.order)
-                .map((s: any) => (
-                  <div
-                    key={s.order}
-                    className="flex justify-between items-center"
-                  >
-                    <div>{s.label}</div>
-                    {s.pinned ? (
-                      <Pin
-                        fill="purple"
-                        onClick={() => unpinScheduleConfig(s.order)}
-                        size={16}
-                      />
-                    ) : (
-                      <Pin
-                        onClick={() => pinScheduleConfig(s.order)}
-                        size={16}
-                      />
-                    )}
-                  </div>
-                ))}
-            </div>
-          )}
-        </div>
+        <ScheduleConfigOrder
+          scheduleConfigsOrderData={scheduleConfigsOrderData}
+          setScheduleConfigsOrderData={setScheduleConfigsOrderData}
+        />
         <Select
           options={renderScheduleConfigOptions()}
-          onChange={onScheduleConfigSelectForAll}
-          value={selectedScheduleConfigId}
+          onChange={handleConfigChange}
+          value={selectedValue}
         />
-        <div className="flex gap-2">
+        <div className="flex gap-1">
           <Popover>
             <PopoverTrigger asChild={true}>
               <Button
@@ -339,18 +315,26 @@ const ScheduleRequest = ({ configsList, scheduleConfigOrder }: Props) => {
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-auto p-0">
-              <Calendar mode="multiple" selected={days} onSelect={setDays} />
+              <Calendar
+                mode="multiple"
+                selected={days}
+                onSelect={(selectedDays) => handleCalendarChange(selectedDays!)}
+              />
             </PopoverContent>
           </Popover>
           <Button
             onClick={() => {
-              setDays((prevDate: Date[]) => [
-                ...prevDate,
-                dayjs(prevDate.at(-1)).add(1, "day").toDate(),
-              ])
+              const maxDate =
+                days.length > 0
+                  ? dayjs(
+                      Math.max(...days.map((date) => dayjs(date).valueOf()))
+                    )
+                  : dayjs()
+
+              handleCalendarChange([...days, maxDate.add(1, "day").toDate()])
             }}
           >
-            +
+            <Plus size={16} />
           </Button>
         </div>
         <div className="flex flex-col gap-2">
@@ -358,34 +342,68 @@ const ScheduleRequest = ({ configsList, scheduleConfigOrder }: Props) => {
             <div key={index} className="flex gap-1">
               <DatePicker
                 date={day}
-                setDate={(selectedDate) =>
-                  handleDateChange(selectedDate, index)
-                }
-                className="w-[150px]"
+                setDate={(selectedDay) => handleDatePicker(selectedDay!, index)}
+                className="w-1/6"
+                disabled={days}
               />
               <Select
                 options={renderScheduleConfigOptions()}
-                onChange={onScheduleConfigSelectForAll}
-                className="w-[200px]"
-                value={selectedScheduleConfigId}
+                className="w-2/6"
+                onChange={(value) => handleConfigsChange(value, index)}
+                value={selectedValues[index]}
               />
+              <input
+                type="time"
+                name="shiftStart"
+                className="appearance-none block w-1/6 text-center border border-input hover:bg-accent hover:text-accent-foreground rounded-md px-3 outline-none"
+                value={dayjs(shifts[index].shiftStart).format("HH:mm")}
+                onChange={(e) => handleInputChange(e, index)}
+              />
+              <input
+                type="time"
+                name="shiftEnd"
+                className="appearance-none block w-1/6 text-center border border-input hover:bg-accent hover:text-accent-foreground rounded-md px-3 outline-none"
+                value={dayjs(shifts[index].shiftEnd).format("HH:mm")}
+                onChange={(e) => handleInputChange(e, index)}
+              />
+              <input
+                type="number"
+                name="lunchBreakInMins"
+                min={0}
+                max={60}
+                className="[appearance:textfield] 
+                [&::-webkit-outer-spin-button]:appearance-none 
+                [&::-webkit-inner-spin-button]:appearance-none 
+                w-1/12 text-center border border-input 
+                hover:bg-accent 
+                hover:text-accent-foreground rounded-md px-3 outline-none"
+                value={shifts[index].lunchBreakInMins}
+                onChange={(e) => handleInputChange(e, index)}
+              />
+              <Button
+                onClick={() => {
+                  const newDays = [...days]
+                  newDays.splice(index, 1)
+                  setDays(newDays)
+
+                  const newValues = [...selectedValues]
+                  newValues.splice(index, 1)
+                  setSelectedValues(newValues)
+
+                  const newShift = [...shifts]
+                  newShift.splice(index, 1)
+                  setShifts(newShift)
+                }}
+              >
+                <X size={16} />
+              </Button>
             </div>
           ))}
         </div>
-        <button onClick={onSubmitClick}>Submit</button>
+        <Button onClick={onSubmitClick}>Submit</Button>
       </div>
     )
   }
-
-  const handleDateChange = (selectedDate: Date, index: number) => {
-    setDays((prevDays) => {
-      const newDays = [...prevDays]
-      newDays[index] = selectedDate
-      return newDays
-    })
-  }
-
-  const [selectedConfig, setSelectedConfig] = useState(configsList)
 
   return (
     <Dialog open={open} onOpenChange={() => setOpen(!open)}>
