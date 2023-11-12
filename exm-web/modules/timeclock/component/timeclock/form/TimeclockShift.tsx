@@ -58,7 +58,7 @@ const TimeclockShift = () => {
           Start Shift
         </button>
       </DialogTrigger>
-      <DialogContent className="px-5">
+      <DialogContent className="px-5 max-w-lg">
         <DialogHeader>
           <DialogTitle>Start Shift</DialogTitle>
         </DialogHeader>

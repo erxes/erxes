@@ -3,7 +3,10 @@ import {
   IScheduleConfig,
   IScheduleConfigOrder,
 } from "@/modules/timeclock/types"
+import { CalendarDays, Grid2x2 } from "lucide-react"
 import Select from "react-select"
+
+import { Button } from "@/components/ui/button"
 
 import ScheduleRequest from "../form/ScheduleRequest"
 
@@ -12,6 +15,8 @@ type Props = {
   setStatus: (status: string) => void
   configsList: IScheduleConfig[]
   scheduleConfigOrder: IScheduleConfigOrder
+  toggleView: boolean
+  setToggleView: (view: boolean) => void
 }
 const options = [
   { value: "Approved", label: "Approved" },
@@ -24,6 +29,8 @@ const ScheduleAction = ({
   setStatus,
   configsList,
   scheduleConfigOrder,
+  toggleView,
+  setToggleView,
 }: Props) => {
   return (
     <div>
@@ -38,6 +45,9 @@ const ScheduleAction = ({
           configsList={configsList}
           scheduleConfigOrder={scheduleConfigOrder}
         />
+        <Button onClick={() => setToggleView(!toggleView)}>
+          {toggleView ? <CalendarDays size={16} /> : <Grid2x2 size={16} />}
+        </Button>
       </div>
     </div>
   )

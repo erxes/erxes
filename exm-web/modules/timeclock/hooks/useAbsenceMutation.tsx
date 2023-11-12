@@ -99,8 +99,7 @@ export const useAbsenceMutation = ({
     absenceTimeType: string,
     totalHoursOfAbsence: string
   ) => {
-    const checkAttachment = attachments.length ? attachments[0] : undefined
-    console.log(checkAttachment)
+    const checkAttachment = attachments?.length ? attachments[0] : undefined
 
     if (absenceTimeType === "by day") {
       const sortedRequestDates = submitTime.requestDates.sort()

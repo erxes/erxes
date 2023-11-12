@@ -35,26 +35,20 @@ const Timeclocks = () => {
     endDate: startOfNextMonth,
   }
 
+  const style =
+    "text-[#A1A1A1] data-[state=active]:text-primary data-[state=active]:border-[#5629B6] data-[state=active]:border-b-2 h-16 hover:font-medium hover:text-[#A1A1A1]"
+
   return (
     <div>
       <Tabs defaultValue="timeclock">
         <TabsList className="w-full items-center flex p-2 h-[6vh]">
-          <TabsTrigger
-            className="text-[#444] data-[state=active]:border-[#5629B6] data-[state=active]:border-b-2"
-            value="timeclock"
-          >
+          <TabsTrigger className={style} value="timeclock">
             TimeClocks
           </TabsTrigger>
-          <TabsTrigger
-            className="text-[#444] data-[state=active]:border-[#5629B6] data-[state=active]:border-b-2"
-            value="requests"
-          >
+          <TabsTrigger className={style} value="requests">
             Requests
           </TabsTrigger>
-          <TabsTrigger
-            className="text-[#444] data-[state=active]:border-[#5629B6] data-[state=active]:border-b-2"
-            value="schedule"
-          >
+          <TabsTrigger className={style} value="schedule">
             Schedule
           </TabsTrigger>
         </TabsList>

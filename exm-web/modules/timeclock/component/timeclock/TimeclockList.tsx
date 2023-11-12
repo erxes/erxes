@@ -38,21 +38,25 @@ const TimeclockList = ({ queryParams }: any) => {
   return (
     <div className="h-[94vh] flex flex-col gap-3">
       <TimeclockAction />
-      <Table>
-        <TableHeader>
-          <TableRow>
-            {list.map((item, index) => (
-              <TableHead key={index}>{item}</TableHead>
+      <div className="flex overflow-y-auto max-h-[70vh]">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              {list.map((item, index) => (
+                <TableHead key={index}>{item}</TableHead>
+              ))}
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {timeclocksMainList.map((timeclock, index) => (
+              <TimeClockRow timeclock={timeclock} key={index} />
             ))}
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {timeclocksMainList.map((timeclock, index) => (
-            <TimeClockRow timeclock={timeclock} key={index} />
-          ))}
-        </TableBody>
-      </Table>
-      <Pagination count={timeclocksMainTotalCount} />
+          </TableBody>
+        </Table>
+      </div>
+      <div className="self-end">
+        <Pagination count={timeclocksMainTotalCount} />
+      </div>
     </div>
   )
 }

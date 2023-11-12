@@ -51,6 +51,7 @@ export const useScheduleMutation = ({
     })
       .then(() => {
         toast({ description: "Successfully sent a schedule request" })
+        callBack("success")
       })
       .catch((err) => toast({ description: err.message }))
   }

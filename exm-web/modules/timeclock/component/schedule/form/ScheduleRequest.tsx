@@ -39,7 +39,7 @@ const ScheduleRequest = ({ configsList, scheduleConfigOrder }: Props) => {
   const [open, setOpen] = useState(false)
 
   const callBack = (result: string) => {
-    if (result) {
+    if (result === "success") {
       setOpen(false)
     }
   }

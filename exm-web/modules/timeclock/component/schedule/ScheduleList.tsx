@@ -1,5 +1,6 @@
 import React, { useState } from "react"
 
+import { Calendar } from "@/components/ui/calendar"
 import Pagination from "@/components/ui/pagination"
 import {
   Table,
@@ -29,6 +30,7 @@ const list = [
 
 const Schedule = ({ queryParams }: Props) => {
   const [status, setStatus] = useState("Approved")
+  const [toggleView, setToggleView] = useState(false)
 
   const {
     schedulesList,
@@ -51,23 +53,33 @@ const Schedule = ({ queryParams }: Props) => {
           setStatus={setStatus}
           configsList={configsList}
           scheduleConfigOrder={scheduleConfigOrder}
+          toggleView={toggleView}
+          setToggleView={setToggleView}
         />
       )}
-      <Table>
-        <TableHeader>
-          <TableRow>
-            {list.map((item, index) => (
-              <TableHead key={index}>{item}</TableHead>
-            ))}
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {schedulesList.map((schedule: ISchedule, index: number) => (
-            <ScheduleRow schedule={schedule} key={index} />
-          ))}
-        </TableBody>
-      </Table>
-      <Pagination count={schedulesTotalCount} />
+      <div className="flex overflow-y-auto max-h-[70vh]">
+        {toggleView ? (
+          <Table>
+            <TableHeader>
+              <TableRow>
+                {list.map((item, index) => (
+                  <TableHead key={index}>{item}</TableHead>
+                ))}
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {schedulesList.map((schedule: ISchedule, index: number) => (
+                <ScheduleRow schedule={schedule} key={index} />
+              ))}
+            </TableBody>
+          </Table>
+        ) : (
+          <Calendar className="w-full h-screen bg-blue-400" />
+        )}
+      </div>
+      <div className="self-end">
+        <Pagination count={schedulesTotalCount} />
+      </div>
     </div>
   )
 }
