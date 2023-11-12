@@ -20,7 +20,6 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
 import LoadingPost from "@/components/ui/loadingPost"
 import SuccessPost from "@/components/ui/successPost"
 import { Textarea } from "@/components/ui/textarea"
@@ -31,13 +30,6 @@ import { IFeed } from "../../types"
 import Uploader from "./uploader/Uploader"
 
 const FormSchema = z.object({
-  title: z
-    .string({
-      required_error: "Please enter an title",
-    })
-    .refine((val) => val.length !== 0, {
-      message: "Please enter an title",
-    }),
   description: z
     .string({
       required_error: "Please enter an description",
@@ -59,6 +51,7 @@ const HolidayForm = ({
     resolver: zodResolver(FormSchema),
   })
   const [images, setImage] = useState(feed?.images || [])
+  const [attachments, setAttachments] = useState(feed?.attachments || [])
   const [success, setSuccess] = useState(false)
 
   const callBack = (result: string) => {
@@ -94,7 +87,7 @@ const HolidayForm = ({
   const onSubmit = (data: z.infer<typeof FormSchema>) => {
     feedMutation(
       {
-        title: data.title,
+        title: "title",
         description: data.description ? data.description : "",
         contentType: "publicHoliday",
         createdAt: data.createdAt,
@@ -123,24 +116,6 @@ const HolidayForm = ({
 
       <Form {...form}>
         <form className="space-y-3" onSubmit={form.handleSubmit(onSubmit)}>
-          <FormField
-            control={form.control}
-            name="title"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Title</FormLabel>
-                <FormControl>
-                  <Input
-                    placeholder="title"
-                    {...field}
-                    defaultValue={feed?.title || ""}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
           <FormField
             control={form.control}
             name="description"
