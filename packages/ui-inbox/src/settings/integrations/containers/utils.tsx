@@ -7,7 +7,7 @@ import sanitizeHtml from 'sanitize-html';
 
 export const formatStr = (emailString?: string) => {
   return emailString
-    ? emailString.split(/[ , ]+/).filter(email => email !== '')
+    ? emailString.split(/[ ,]+/).filter(mail => mail !== '')
     : [];
 };
 
@@ -17,6 +17,12 @@ export const formatObj = (emailArray: IEmail[]) => {
   }
 
   return emailArray ? emailArray.map(s => s.email).join(', ') : '';
+};
+
+export const getValidEmails = (emails: string) => {
+  const emailArray = emails.split(',').map(email => email.trim());
+  const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
+  return emailArray.filter(email => emailRegex.test(email));
 };
 
 export type GenerateMailParam = {

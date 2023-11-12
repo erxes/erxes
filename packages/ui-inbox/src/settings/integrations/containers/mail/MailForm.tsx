@@ -5,6 +5,7 @@ import { Alert, withProps } from '@erxes/ui/src/utils';
 import { IMail, IMessage } from '@erxes/ui-inbox/src/inbox/types';
 import { mutations, queries } from '../../graphql';
 
+import { ContactQueryResponse } from '../../types';
 import { IEmailTemplate } from '../../types';
 import { IRouterProps } from '@erxes/ui/src/types';
 import { IUser } from '@erxes/ui/src/auth/types';
@@ -19,7 +20,6 @@ import { isEnabled } from '@erxes/ui/src/utils/core';
 import queryString from 'query-string';
 import withCurrentUser from '@erxes/ui/src/auth/containers/withCurrentUser';
 import { withRouter } from 'react-router-dom';
-import { ContactQueryResponse } from '../../types';
 
 type Props = {
   detailQuery?: any;
@@ -63,6 +63,7 @@ class MailFormContainer extends React.Component<
     loadedEmails: boolean;
     verifiedImapEmails: string[];
     verifiedEngageEmails: string[];
+    contacts: any[];
   }
 > {
   constructor(props: FinalProps) {
@@ -71,7 +72,8 @@ class MailFormContainer extends React.Component<
     this.state = {
       loadedEmails: false,
       verifiedImapEmails: [],
-      verifiedEngageEmails: []
+      verifiedEngageEmails: [],
+      contacts: []
     };
   }
 
@@ -269,34 +271,31 @@ class MailFormContainer extends React.Component<
       });
     };
 
-    const contacts = !contactsMainQuery.loading
-      ? [
-          ...contactsMainQuery?.customers?.list,
-          ...contactsMainQuery?.companies?.list,
-          ...contactsMainQuery?.leads?.list
-        ]
-          .filter(contact => {
-            return contact.primaryEmail !== null;
-          })
-          .map(contact => {
-            const {
-              _id,
-              firstName,
-              lastName,
-              primaryName,
-              primaryEmail,
-              avatar
-            } = contact;
+    const searchContacts = debounce(value => {
+      if (value.trim() === '') {
+        this.setState({
+          contacts: []
+        });
+        return;
+      }
 
-            return {
-              primaryName:
-                primaryName || `${firstName || ''} ${lastName || ''}`,
-              primaryEmail: primaryEmail,
-              avatar: avatar,
-              id: _id
-            };
-          })
-      : [];
+      client
+        .query({
+          query: gql(queries.contacts),
+          variables: {
+            searchValue: value
+          }
+        })
+        .then(({ data }) => {
+          this.setState({
+            contacts: data.contacts
+          });
+        })
+        .catch(e => {
+          Alert.error(e.message);
+          this.setState({ contacts: [] });
+        });
+    }, 250);
 
     const updatedProps = {
       ...this.props,
@@ -312,7 +311,8 @@ class MailFormContainer extends React.Component<
       messageId,
       verifiedImapEmails: verifiedImapEmails || [],
       verifiedEngageEmails: verifiedEngageEmails || [],
-      contacts: contacts || []
+      contacts: this.state.contacts || [],
+      searchContacts
     };
 
     return <MailForm {...updatedProps} />;

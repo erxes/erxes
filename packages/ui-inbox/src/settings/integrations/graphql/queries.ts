@@ -220,38 +220,20 @@ const imapIntegrations = `
   }
 `;
 
-const contacts = isEnabled('contacts')
-  ? `
-    query contactsMain($page: Int, $perPage: Int, $customerType: String, $leadType: String) {
-      leads: customersMain(page: $page, perPage: $perPage, type: $leadType) {
-        list {
-          _id
-          primaryEmail
-          firstName
-          lastName
-          avatar
-        }
-      }
-      customers: customersMain(page: $page, perPage: $perPage, type: $customerType) {
-        list {
-          _id
-          primaryEmail
-          firstName
-          lastName
-          avatar
-        }
-      }
-      companies : companiesMain(page: $page, perPage: $perPage) {
-          list {
-            _id
-            primaryName
-            primaryEmail
-            avatar
-          }
-        }
+const contacts = `
+  query Contacts($searchValue: String) {
+    contacts(searchValue: $searchValue) {
+      _id
+      fullName
+      primaryEmail
+      primaryPhone
+      avatar
+      createdAt
+      status
+      contentType
     }
-  `
-  : ``;
+  }
+`;
 
 export default {
   users,

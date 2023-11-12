@@ -115,7 +115,8 @@ const Attachments = styled.div`
 const FlexRow = styledTS<{ isEmail?: boolean }>(styled.div)`
   display: flex;
   align-items: center;
-  height: ${props => props.isEmail && '28px'};
+  ${props => props.isEmail && 'min-height: 28px'};
+  padding: ${props => (props.isEmail ? '2px' : '0')};
 
   > label {
     margin: ${props =>
@@ -398,6 +399,20 @@ const SignatureDropdownWrapper = styled.div`
   }
 `;
 
+const FieldWrapper = styled.div`
+  width: 100%;
+  display: flex;
+  flex: 1;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 5px;
+`;
+
+const MailColumn = styled.div`
+  flex: 1;
+  position: relative;
+`;
+
 export {
   Attachments,
   FlexRow,
@@ -424,5 +439,7 @@ export {
   SignatureChooserFooter,
   SignatureOptionWrapper,
   SignatureHiderButton,
-  SignatureDropdownWrapper
+  SignatureDropdownWrapper,
+  FieldWrapper,
+  MailColumn
 };
