@@ -103,6 +103,8 @@ const users = gql`
       isActive
       groupIds
       brandIds
+      branchIds
+      departmentIds
       score
 
       details {

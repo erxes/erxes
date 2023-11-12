@@ -47,7 +47,13 @@ const FormSchema = z.object({
   workStartedDate: z.date().optional(),
 })
 
-const Detail = ({ id }: { id: string }) => {
+const Detail = ({
+  id,
+  handleTabClick,
+}: {
+  id: string
+  handleTabClick: (tab: string) => void
+}) => {
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
   })
@@ -119,13 +125,25 @@ const Detail = ({ id }: { id: string }) => {
           <TabsList className="border-b border-[#eee]">
             <div className="flex justify-between">
               <div className="w-[50%] items-center flex mr-auto h-[2.5rem] my-3 ml-[25px]">
-                <TabsTrigger className={style} value="teamMembers">
+                <TabsTrigger
+                  className={style}
+                  value="teamMembers"
+                  onClick={() => handleTabClick("teamMembers")}
+                >
                   Team members
                 </TabsTrigger>
-                <TabsTrigger className={style} value="structure">
+                <TabsTrigger
+                  className={style}
+                  value="structure"
+                  onClick={() => handleTabClick("structure")}
+                >
                   Structure
                 </TabsTrigger>
-                <TabsTrigger className={style} value="company">
+                <TabsTrigger
+                  className={style}
+                  value="company"
+                  onClick={() => handleTabClick("company")}
+                >
                   Company
                 </TabsTrigger>
               </div>
@@ -166,7 +184,7 @@ const Detail = ({ id }: { id: string }) => {
                       control={form.control}
                       name="description"
                       render={({ field }) => (
-                        <FormItem>
+                        <FormItem className="mb-3">
                           <FormLabel>Bio</FormLabel>
                           <FormControl>
                             <Textarea
@@ -185,13 +203,13 @@ const Detail = ({ id }: { id: string }) => {
                       control={form.control}
                       name="email"
                       render={({ field }) => (
-                        <FormItem className="space-y-0">
+                        <FormItem className="space-y-0 mb-3">
                           <FormLabel>Email</FormLabel>
                           <FormControl>
                             <Input
                               placeholder="Type your email"
                               {...field}
-                              className="p-0 border-none disabled:opacity-100"
+                              className="p-0 border-none disabled:opacity-100 h-8"
                               disabled={disable}
                             />
                           </FormControl>
@@ -204,13 +222,13 @@ const Detail = ({ id }: { id: string }) => {
                       control={form.control}
                       name="operatorPhone"
                       render={({ field }) => (
-                        <FormItem className="space-y-0">
+                        <FormItem className="space-y-0 mb-3">
                           <FormLabel>Phone</FormLabel>
                           <FormControl>
                             <Input
                               placeholder="Type your phone number"
                               {...field}
-                              className="p-0 border-none disabled:opacity-100"
+                              className="p-0 border-none disabled:opacity-100 h-8"
                               disabled={disable}
                             />
                           </FormControl>
@@ -223,13 +241,13 @@ const Detail = ({ id }: { id: string }) => {
                       control={form.control}
                       name="birthDate"
                       render={({ field }) => (
-                        <FormItem className="space-y-0">
+                        <FormItem className="space-y-0 mb-3">
                           <FormLabel className="block">Birthday</FormLabel>
                           <FormControl>
                             <DatePicker
                               date={field.value}
                               setDate={field.onChange}
-                              className="w-full p-0 border-none disabled:opacity-100 hover:bg-transparent"
+                              className="w-full p-0 border-none disabled:opacity-100 hover:bg-transparent h-8"
                               disabled={disable}
                             />
                           </FormControl>
@@ -238,9 +256,9 @@ const Detail = ({ id }: { id: string }) => {
                       )}
                     />
 
-                    <FormItem className="space-y-0">
+                    <FormItem className="space-y-0 mb-3">
                       <FormLabel>Score</FormLabel>
-                      <p className="h-[40px] items-center flex">
+                      <p className="h-[32px] items-center flex">
                         {userDetail.score}
                       </p>
                     </FormItem>
@@ -249,13 +267,13 @@ const Detail = ({ id }: { id: string }) => {
                       control={form.control}
                       name="employeeId"
                       render={({ field }) => (
-                        <FormItem className="space-y-0">
+                        <FormItem className="space-y-0 mb-3">
                           <FormLabel>Employee ID</FormLabel>
                           <FormControl>
                             <Input
                               placeholder="Type your employee id"
                               {...field}
-                              className="p-0 border-none disabled:opacity-100"
+                              className="p-0 border-none disabled:opacity-100 h-8"
                               disabled={disable}
                             />
                           </FormControl>

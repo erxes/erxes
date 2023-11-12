@@ -10,7 +10,7 @@ const MemberCard = ({ user }: { user: IUser }): JSX.Element => {
 
   return (
     <div className="border-[0.5px] border-[#BFBFBF] p-6 bg-white rounded-lg justify-center flex">
-      <div className="p-0 pb-4 items-center">
+      <div className="p-0 items-center">
         <a
           className="flex items-center flex-col cursor-pointer"
           href={`company/team-members/detail?id=${user._id}`}
@@ -39,47 +39,55 @@ const MemberCard = ({ user }: { user: IUser }): JSX.Element => {
           </div>
         </a>
         <div className="flex justify-center mt-3">
-          <a
-            href={user.links?.facebook}
-            target="_blank"
-            className="cursor-pointer"
-          >
-            <Facebook
-              size={25}
-              className="rounded-lg p-[5px] bg-[#1877F2] text-white mr-[5px]"
-            />
-          </a>
-          <a
-            href={user.links?.twitter}
-            target="_blank"
-            className="cursor-pointer"
-          >
-            <Twitter
-              size={25}
-              className="rounded-lg p-[6px] bg-[#1DA1F2] text-white mr-[5px]"
-              fill="white"
-            />
-          </a>
-          <a
-            href={user.links?.youtube}
-            target="_blank"
-            className="cursor-pointer"
-          >
-            <Youtube
-              size={25}
-              className="rounded-lg p-[6px] bg-[#ff0000] text-white mr-[5px]"
-            />
-          </a>
-          <a
-            href={user.links?.website}
-            target="_blank"
-            className="cursor-pointer"
-          >
-            <Globe
-              size={25}
-              className="rounded-lg p-[6px] bg-primary-light text-white"
-            />
-          </a>
+          {user.links?.facebook && (
+            <a
+              href={user.links?.facebook}
+              target="_blank"
+              className="cursor-pointer"
+            >
+              <Facebook
+                size={25}
+                className="rounded-lg p-[5px] bg-[#1877F2] text-white mr-[5px]"
+              />
+            </a>
+          )}
+          {user.links?.twitter && (
+            <a
+              href={user.links?.twitter}
+              target="_blank"
+              className="cursor-pointer"
+            >
+              <Twitter
+                size={25}
+                className="rounded-lg p-[6px] bg-[#1DA1F2] text-white mr-[5px]"
+                fill="white"
+              />
+            </a>
+          )}
+          {user.links?.youtube && (
+            <a
+              href={user.links?.youtube}
+              target="_blank"
+              className="cursor-pointer"
+            >
+              <Youtube
+                size={25}
+                className="rounded-lg p-[6px] bg-[#ff0000] text-white mr-[5px]"
+              />
+            </a>
+          )}
+          {user.links?.website && (
+            <a
+              href={user.links?.website}
+              target="_blank"
+              className="cursor-pointer"
+            >
+              <Globe
+                size={25}
+                className="rounded-lg p-[6px] bg-primary-light text-white"
+              />
+            </a>
+          )}
         </div>
       </div>
     </div>
