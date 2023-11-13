@@ -49,7 +49,7 @@ ssh root@YOUR_DROPLET_PUBLIC_IP
 
 ## Configure NGINX
 
-- You need to replace the `YOUR_DOMAIN_COM` with your actual `domain name` in the nginx config file `/etc/nginx/sites-available/default`.
+- You need to replace the `YOUR_DOMAIN_COM` with your actual `domain name` in the nginx config file `/etc/nginx/sites-available/default.conf`.
 
 ```bash
 nano /etc/nginx/sites-available/default.conf
