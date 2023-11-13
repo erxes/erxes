@@ -15,19 +15,10 @@ type Props = {
   defaultFileList: IAttachment[]
   onChange: (attachments: IAttachment[]) => void
   type?: string
-  icon?: boolean
-  iconSize?: number
   setUploading: (state: boolean) => void
 }
 
-const Uploader = ({
-  defaultFileList,
-  onChange,
-  type,
-  setUploading,
-  icon,
-  iconSize,
-}: Props) => {
+const Uploader = ({ defaultFileList, onChange, type, setUploading }: Props) => {
   const [loading, setLoading] = useState(false)
 
   const handleFileInput = ({ target }: { target: any }) => {
@@ -64,31 +55,9 @@ const Uploader = ({
   const uploadText =
     type && type === "image" ? "Upload images" : "Upload Attachments"
 
-  const uploadIcon = type && type === "image" ? <ImageIcon size={iconSize} /> : <Paperclip size={iconSize} />
+  const uploadIcon = type && type === "image" ? <ImageIcon /> : <Paperclip />
 
   const id = Math.random().toString()
-
-  if (icon) {
-    return (
-      <Card>
-        <div className="flex items-center space-x-2">
-          <label
-            htmlFor={id}
-            className="cursor-pointer px-2 py-2 h-[50%] w-full flex items-center text-primary"
-          >
-            {uploadIcon}
-          </label>
-          <input
-            id={id}
-            accept={type && type === "image" ? "image/*" : ""}
-            type="file"
-            onChange={handleFileInput}
-            className="hidden"
-          />
-        </div>
-      </Card>
-    )
-  }
 
   return (
     <Card className="bg-[#F0F0F0]">

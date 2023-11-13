@@ -11,7 +11,6 @@ const typeFields = `
   total: Float,
   balance: Float,
   storedInterest: Float,
-  commitmentInterest: Float,
   calcInterest: Float,
   closeAmount: Float,
 `;

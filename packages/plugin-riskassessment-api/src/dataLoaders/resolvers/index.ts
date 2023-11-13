@@ -8,7 +8,7 @@ import FormSubmissionUserType from './riskFormSubmissionUsers';
 import RiskIndicatorType from './riskIndicator';
 import RiskIndicatorConfigs from './riskIndicatorConfigs';
 import PlanSchedule from './schedule';
-import RiskAssessmentStats from './stats';
+
 export default {
   RiskIndicatorType,
   FormSubmissionUserType,
@@ -19,6 +19,5 @@ export default {
   IndicatorAssessment,
   IndicatorsGroupType,
   Plan,
-  PlanSchedule,
-  RiskAssessmentStats
+  PlanSchedule
 };

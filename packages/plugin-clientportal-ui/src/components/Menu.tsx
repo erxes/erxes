@@ -47,6 +47,8 @@ const SelectMenu = props => {
       <Box
         selected={true}
         onClick={() => {
+          console.log('path', path);
+          console.log('props', props);
           props.history.push(path);
         }}
       >

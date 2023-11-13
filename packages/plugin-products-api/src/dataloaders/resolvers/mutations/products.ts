@@ -62,10 +62,7 @@ const productMutations = {
     { user, models, subdomain }: IContext
   ) {
     const product = await models.Products.getProduct({ _id });
-    const updated = await models.Products.updateProduct(_id, {
-      ...doc,
-      status: 'active'
-    });
+    const updated = await models.Products.updateProduct(_id, doc);
 
     await putUpdateLog(
       models,
@@ -73,11 +70,7 @@ const productMutations = {
       {
         type: MODULE_NAMES.PRODUCT,
         object: product,
-        newData: {
-          ...doc,
-          status: 'active',
-          customFieldsData: updated.customFieldsData
-        },
+        newData: { ...doc, customFieldsData: updated.customFieldsData },
         updatedDocument: updated
       },
       user

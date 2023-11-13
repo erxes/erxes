@@ -20,7 +20,6 @@ export const types = () => `
     interest: Float
     interestEve: Float
     interestNonce: Float
-    commitmentInterest: Float
     payment: Float
     insurance: Float
     debt: Float
@@ -30,7 +29,6 @@ export const types = () => `
     didInterest: Float
     didInterestEve: Float
     didInterestNonce: Float
-    didCommitmentInterest: Float
     didPayment: Float
     didInsurance: Float
     didDebt: Float

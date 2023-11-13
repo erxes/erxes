@@ -18,12 +18,10 @@ export const calcInterest = ({
 export const calcPerVirtual = (doc: IDefaultScheduleParam) => {
   const loanPayment = doc.leaseAmount / doc.tenor;
   const loanBalance = doc.leaseAmount - loanPayment;
-
   const calcedInterest = calcInterest({
     balance: doc.leaseAmount,
     interestRate: doc.interestRate
   });
-
   const totalPayment = loanPayment + calcedInterest;
 
   return {
@@ -163,7 +161,6 @@ export const calcPerMonthEqual = (
     interestRate: doc.interestRate,
     dayOfMonth: diffEve
   });
-
   const calcedInterestNonce = calcInterest({
     balance,
     interestRate: doc.interestRate,

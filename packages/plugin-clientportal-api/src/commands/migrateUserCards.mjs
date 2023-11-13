@@ -26,9 +26,8 @@ const command = async () => {
 
         Cards = db.collection('client_portal_user_cards');
         ClientPortals = db.collection('client_portals');
-// update client portal kind if not set
-        
-        await ClientPortals.updateMany({ kind: { $exists: false } }, { $set: { kind: 'client' } });
+
+        await ClientPortals.updateMany({}, { $set: { kind: 'client' } });
 
         const cards = await Cards.find({}).toArray();
 

@@ -72,18 +72,10 @@ export default `
   `
       : ``
   }
-
-  ${
-    isEnabled('dailyco')
-      ? `
   videoCallData {
     url
     name
-  }`
-      : ''
   }
-
-
   readUserIds
   callProAudio
   customFieldsData

@@ -1,8 +1,0 @@
-{
-  "name": "@erxes/plugin-dailyco-api",
-  "version": "1.0.0",
-  "scripts": {
-    "dev": "nodemon src/index.ts",
-    "build" : "tsc"
-  }
-}

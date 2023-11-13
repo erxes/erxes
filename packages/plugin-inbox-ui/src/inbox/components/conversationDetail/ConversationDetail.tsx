@@ -1,20 +1,18 @@
-import { ContentBox, MainContent } from '@erxes/ui/src/layout/styles';
-import DmWorkArea, {
-  resetDmWithQueryCache
-} from '../../containers/conversationDetail/DmWorkArea';
+import EmptyState from '@erxes/ui/src/components/EmptyState';
+import Spinner from '@erxes/ui/src/components/Spinner';
+import EmptySidebar from '@erxes/ui/src/layout/components/Sidebar';
+import { MainContent, ContentBox } from '@erxes/ui/src/layout/styles';
+import { IField } from '@erxes/ui/src/types';
+import React from 'react';
+import { IConversation } from '@erxes/ui-inbox/src/inbox/types';
+import Sidebar from '../../containers/conversationDetail/Sidebar';
 import {
   getPluginConfig,
   loadDynamicComponent
 } from '@erxes/ui/src/utils/core';
-
-import ConversationDetailLoader from './ConversationDetailLoader';
-import EmptySidebar from '@erxes/ui/src/layout/components/Sidebar';
-import EmptyState from '@erxes/ui/src/components/EmptyState';
-import { IConversation } from '@erxes/ui-inbox/src/inbox/types';
-import { IField } from '@erxes/ui/src/types';
-import React from 'react';
-import Sidebar from '../../containers/conversationDetail/Sidebar';
-import SidebarLoader from './sidebar/SidebarLoader';
+import DmWorkArea, {
+  resetDmWithQueryCache
+} from '../../containers/conversationDetail/DmWorkArea';
 import WorkArea from './workarea/WorkArea';
 
 type Props = {
@@ -28,20 +26,20 @@ export default class ConversationDetail extends React.Component<Props> {
   renderSidebar() {
     const { loading, currentConversation, conversationFields } = this.props;
 
-    if (loading) {
-      return (
-        <EmptySidebar full={true}>
-          <SidebarLoader />
-        </EmptySidebar>
-      );
-    }
-
     if (currentConversation) {
       return (
         <Sidebar
           conversation={currentConversation}
           conversationFields={conversationFields}
         />
+      );
+    }
+
+    if (loading) {
+      return (
+        <EmptySidebar full={true}>
+          <Spinner />
+        </EmptySidebar>
       );
     }
 
@@ -71,14 +69,6 @@ export default class ConversationDetail extends React.Component<Props> {
 
   renderContent() {
     const { loading, currentConversation } = this.props;
-
-    if (loading) {
-      return (
-        <ContentBox>
-          <ConversationDetailLoader />
-        </ContentBox>
-      );
-    }
 
     if (currentConversation) {
       const { integration } = currentConversation;
@@ -137,6 +127,14 @@ export default class ConversationDetail extends React.Component<Props> {
       }
 
       return <DmWorkArea {...this.props} />;
+    }
+
+    if (loading) {
+      return (
+        <ContentBox>
+          <Spinner />
+        </ContentBox>
+      );
     }
 
     return (

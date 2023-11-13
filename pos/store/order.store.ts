@@ -1,7 +1,6 @@
 "use client"
 
 import { atom } from "jotai"
-import { atomWithStorage } from "jotai/utils"
 
 import { Customer, CustomerType } from "@/types/customer.types"
 import {
@@ -13,21 +12,14 @@ import {
   IPutResponse,
 } from "@/types/order.types"
 
-import { customerSearchAtom, selectedTabAtom } from "."
-import {
-  cartAtom,
-  cartChangedAtom,
-  orderItemInput,
-  totalAmountAtom,
-} from "./cart.store"
+import { customerSearchAtom } from "."
+import { cartAtom, orderItemInput, totalAmountAtom } from "./cart.store"
 import { allowTypesAtom } from "./config.store"
+import { selectedTabAtom } from "."
 import { paymentSheetAtom } from "./ui.store"
 
 // order
-export const activeOrderIdAtom = atomWithStorage<string | null>(
-  "activeOrderId",
-  null
-)
+export const activeOrderIdAtom = atom<string | null>(null)
 export const orderNumberAtom = atom<string>("")
 export const buttonTypeAtom = atom<string | null>(null)
 
@@ -102,6 +94,7 @@ export const setInitialAtom = atom(
   }
 )
 
+// set order states
 export const setOrderStatesAtom = atom(
   () => "",
   (
@@ -132,7 +125,7 @@ export const setOrderStatesAtom = atom(
     set(activeOrderIdAtom, _id || null)
     set(customerAtom, customer || null)
     set(customerTypeAtom, customerType || "")
-    !get(cartChangedAtom) && set(cartAtom, items)
+    set(cartAtom, items)
     set(orderTypeAtom, type || "eat")
     set(billTypeAtom, billType || "1")
     set(registerNumberAtom, registerNumber || "")
@@ -141,6 +134,7 @@ export const setOrderStatesAtom = atom(
     set(cashAmountAtom, cashAmount || 0)
     set(mobileAmountAtom, mobileAmount || 0)
     set(paidAmountsAtom, paidAmounts || [])
+    // set(byPercentTypesAtom, getByPercent(paidAmounts))
     set(orderTotalAmountAtom, totalAmount || 0)
     set(paidDateAtom, paidDate || null)
     set(putResponsesAtom, putResponses || [])
@@ -152,6 +146,17 @@ export const setOrderStatesAtom = atom(
   }
 )
 
+// const getByPercent = (paidAmounts?: IPaidAmount[]) => {
+//   const byPercentTypes: string[] = []
+//   ;(paidAmounts || []).forEach((paidAmount) => {
+//     const { type, info } = paidAmount || {}
+//     if (info?.byPercent && !byPercentTypes.includes(type))
+//       return byPercentTypes.push(type)
+//   })
+//   return byPercentTypes
+// }
+
+// getOrderValue
 export const orderValuesAtom = atom((get) => ({
   items: get(orderItemInput),
   totalAmount: get(totalAmountAtom),

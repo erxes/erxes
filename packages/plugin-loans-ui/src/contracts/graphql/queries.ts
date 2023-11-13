@@ -52,7 +52,6 @@ const contractFields = `
   useFee
   loanPurpose
   givenAmount
-  leaseType
 `;
 
 const listParamsDef = `
@@ -214,7 +213,6 @@ export const schedules = `
       interest
       interestEve
       interestNonce
-      commitmentInterest
       payment
       insurance
       debt
@@ -224,7 +222,6 @@ export const schedules = `
       didInterest
       didInterestEve
       didInterestNonce
-      didCommitmentInterest
       didPayment
       didInsurance
       didDebt

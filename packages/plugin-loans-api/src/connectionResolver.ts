@@ -1,4 +1,3 @@
-//#region import
 import * as mongoose from 'mongoose';
 import { IContext as IMainContext } from '@erxes/api-utils/src';
 import { IPeriodLockDocument } from './models/definitions/periodLocks';
@@ -22,11 +21,6 @@ import { loadInvoiceClass, IInvoiceModel } from './models/invoices';
 import { loadScheduleClass, IScheduleModel } from './models/schedules';
 import { loadTransactionClass, ITransactionModel } from './models/transactions';
 import { IGeneralModel, loadGeneralClass } from './models/general';
-import { loadPurposeClass, IPurposeModel } from './models/loanPurpose';
-import {
-  loadPurposeTypeClass,
-  IPurposeTypeModel
-} from './models/loanPurposeType';
 import { IGeneralDocument } from './models/definitions/general';
 import { createGenerateModels } from '@erxes/api-utils/src/core';
 import {
@@ -44,9 +38,6 @@ import {
   loanStoredInterestClass
 } from './models/storedInterest';
 import { IStoredInterestDocument } from './models/definitions/storedInterest';
-import { IPurposeDocument } from './models/definitions/loanPurpose';
-import { IPurposeTypeDocument } from './models/definitions/loanPurposeType';
-//#endregion
 
 export interface IModels {
   PeriodLocks: IPeriodLockModel;
@@ -61,8 +52,6 @@ export interface IModels {
   Classification: IClassificationModel;
   InterestCorrection: IInterestCorrectionModel;
   StoredInterest: IStoredInterestModel;
-  LoanPurposeType: IPurposeTypeModel;
-  LoanPurpose: IPurposeModel;
 }
 
 export interface IContext extends IMainContext {
@@ -140,16 +129,6 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
     'loan_stored_interest',
     loanStoredInterestClass(models)
   ) as IStoredInterestModel;
-
-  models.LoanPurpose = db.model<IPurposeDocument, IPurposeModel>(
-    'loan_purpose',
-    loadPurposeClass(models)
-  ) as IPurposeModel;
-
-  models.LoanPurposeType = db.model<IPurposeTypeDocument, IPurposeTypeModel>(
-    'loan_purpose_type',
-    loadPurposeTypeClass(models)
-  ) as IPurposeTypeModel;
 
   return models;
 };

@@ -104,7 +104,7 @@ export const updateIntegrationConfigs = async (
 ): Promise<void> => {
   await models.Configs.updateConfigs(configsMap);
 
-  await resetConfigsCache();
+  resetConfigsCache();
 };
 
 export const routeErrorHandling = (fn, callback?: any) => {

@@ -9,10 +9,17 @@ import { ISchedule } from '../../types';
 
 type Props = {
   schedule: ISchedule;
-  leaseType?: string;
 };
 
-function ScheduleRow({ schedule, leaseType }: Props) {
+function ScheduleRow({ schedule }: Props) {
+  const onClick = e => {
+    e.stopPropagation();
+  };
+
+  // const onTrClick = () => {
+  //   history.push(`/erxes-plugin-loan/contract-details/${contract._id}`);
+  // };
+
   const renderIcon = status => {
     if (status === 'done') {
       return <Icon icon={'medal'} color={'orange'} />;
@@ -46,9 +53,6 @@ function ScheduleRow({ schedule, leaseType }: Props) {
       <td>{(schedule.balance || 0).toLocaleString()}</td>
       <td>{renderCell('payment', 'didPayment')}</td>
       <td>{renderCell('interest', 'didInterest')}</td>
-      {leaseType === 'linear' && (
-        <td>{renderCell('commitmentInterest', 'didCommitmentInterest')}</td>
-      )}
       <td>{renderCell('undue', 'didUndue')}</td>
       <td>{renderCell('total', 'didTotal')}</td>
     </ExtraRow>

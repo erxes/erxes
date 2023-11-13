@@ -44,6 +44,7 @@
     "bcryptjs": "^2.4.3",
     "cookie-parser": "^1.4.3",
     "csv-parser": "^3.0.0",
+    "erxes-inmemory-storage": "^1.0.20",
     "faker": "^4.1.0",
     "file-type": "^10.4.0",
     "firebase-admin": "^8.6.1",

@@ -192,7 +192,6 @@ class ContractTypesList extends React.Component<IProps, State> {
 
         <ModalTrigger
           title="New contractType"
-          size="lg"
           trigger={addTrigger}
           autoOpenKey="showContractTypeModal"
           content={contractTypeForm}

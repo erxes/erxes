@@ -31,7 +31,9 @@ const ChooseTheme = () => {
           <SelectItem value="market">Дэлгүүр</SelectItem>
           <SelectItem value="coffee-shop">Кофе шоп</SelectItem>
           <SelectItem value="restaurant">Ресторан</SelectItem>
-          <SelectItem value="kiosk">Киоск</SelectItem>
+          <SelectItem value="kiosk">Kiosk</SelectItem>
+          <SelectItem value="waiting">Waiting Screen</SelectItem>
+          <SelectItem value="kitchen">Kitchen Screen</SelectItem>
         </SelectContent>
       </Select>
       <small className="absolute left-3 top-2 font-bold leading-4 text-white/80">

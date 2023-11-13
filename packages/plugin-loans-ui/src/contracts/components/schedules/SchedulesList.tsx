@@ -14,7 +14,6 @@ interface IProps extends IRouterProps {
   loading: boolean;
   scheduleYears: IScheduleYear[];
   currentYear: number;
-  leaseType?: string;
   onClickYear: (year: number) => void;
 }
 
@@ -37,7 +36,7 @@ class SchedulesList extends React.Component<IProps> {
   }
 
   render() {
-    const { schedules, loading, leaseType } = this.props;
+    const { schedules, loading } = this.props;
 
     if (loading) {
       return <Spinner />;
@@ -54,18 +53,13 @@ class SchedulesList extends React.Component<IProps> {
               <th>{__('Loan Balance')}</th>
               <th>{__('Loan Payment')}</th>
               <th>{__('Interest')}</th>
-              {leaseType === 'linear' && <th>{__('Commitment interest')}</th>}
               <th>{__('Loss')}</th>
               <th>{__('Total')}</th>
             </tr>
           </thead>
           <tbody id="schedules">
             {schedules.map(schedule => (
-              <ScheduleRow
-                schedule={schedule}
-                key={schedule._id}
-                leaseType={leaseType}
-              ></ScheduleRow>
+              <ScheduleRow schedule={schedule} key={schedule._id}></ScheduleRow>
             ))}
           </tbody>
         </Table>

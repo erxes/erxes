@@ -37,15 +37,6 @@ export const JOURNALS_KEY_LABELS = {
   isHasVat: 'isHasVat'
 };
 
-export const LEASE_TYPES = {
-  FINANCE: 'finance',
-  SALVAGE: 'salvage',
-  LINEAR: 'linear',
-  CREDIT: 'credit',
-
-  ALL: ['finance', 'salvage', 'linear', 'credit']
-};
-
 // erkhet.role.cashAccount ==== journalConfig.repaymentTemp
 // erkhet.role.debAccount ==== journalConfig.tempDebt
 // erkhet.mainInventory.saleAccount ==== denchinDans |

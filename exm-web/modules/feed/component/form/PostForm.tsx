@@ -18,20 +18,28 @@ import {
   FormControl,
   FormField,
   FormItem,
+  FormLabel,
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import LoadingPost from "@/components/ui/loadingPost"
 import SuccessPost from "@/components/ui/successPost"
 import { Textarea } from "@/components/ui/textarea"
+import { AttachmentWithPreview } from "@/components/AttachmentWithPreview"
 
 import useFeedMutation from "../../hooks/useFeedMutation"
 import { useTeamMembers } from "../../hooks/useTeamMembers"
 import { IFeed } from "../../types"
-import FormImages from "./FormImages"
 import Uploader from "./uploader/Uploader"
 
 const FormSchema = z.object({
+  title: z
+    .string({
+      required_error: "Please enter an title",
+    })
+    .refine((val) => val.trim().length !== 0, {
+      message: "Please enter an title",
+    }),
   description: z
     .string({
       required_error: "Please enter an description",
@@ -108,6 +116,14 @@ const PostForm = ({
     setAttachments(updated)
   }
 
+  const deleteImage = (index: number) => {
+    const updated = [...images]
+
+    updated.splice(index, 1)
+
+    setImage(updated)
+  }
+
   useEffect(() => {
     let defaultValues = {} as any
 
@@ -120,7 +136,7 @@ const PostForm = ({
   const onSubmit = (data: z.infer<typeof FormSchema>) => {
     feedMutation(
       {
-        title: "title",
+        title: data.title,
         description: data.description ? data.description : "",
         contentType: "post",
         images,
@@ -155,15 +171,15 @@ const PostForm = ({
         <form className="space-y-3" onSubmit={form.handleSubmit(onSubmit)}>
           <FormField
             control={form.control}
-            name="description"
+            name="title"
             render={({ field }) => (
               <FormItem>
+                <FormLabel>Title</FormLabel>
                 <FormControl>
-                  <Textarea
-                    placeholder="Write a post"
+                  <Input
+                    placeholder="title"
                     {...field}
-                    defaultValue={feed?.description || ""}
-                    className="p-0 border-none"
+                    defaultValue={feed?.title || ""}
                   />
                 </FormControl>
                 <FormMessage />
@@ -171,24 +187,30 @@ const PostForm = ({
             )}
           />
 
-          {(attachments || []).map((attachment, index) => {
-            return (
-              <div
-                key={index}
-                className="flex items-center bg-primary-light text-sm font-medium text-white attachment-shadow px-2.5 py-[5px] justify-between w-full rounded-lg rounded-tr-none"
-              >
-                <p className="max-w-[400px]">{attachment.name}</p>
-                <XCircle size={18} onClick={() => deleteAttachment(index)} className="cursor-pointer" />
-              </div>
-            )
-          })}
-          <FormImages images={images} setImage={setImage} />
+          <FormField
+            control={form.control}
+            name="description"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Description</FormLabel>
+                <FormControl>
+                  <Textarea
+                    placeholder="description"
+                    {...field}
+                    defaultValue={feed?.description || ""}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
           <FormField
             control={form.control}
             name="departmentIds"
             render={() => (
               <FormItem>
+                <FormLabel>Departments</FormLabel>
                 <FormControl>
                   {loading && !reload && !seDepartmentSearchvalue ? (
                     <Input disabled={true} placeholder="Loading..." />
@@ -202,7 +224,7 @@ const PostForm = ({
                         (departmentOption) =>
                           departmentIds.includes(departmentOption?.value)
                       )}
-                      placeholder="All departments"
+                      placeholder="Select departments"
                       isSearchable={true}
                       onInputChange={seDepartmentSearchvalue}
                       onChange={(data) =>
@@ -221,6 +243,7 @@ const PostForm = ({
             name="branchIds"
             render={() => (
               <FormItem>
+                <FormLabel>Branches</FormLabel>
                 <FormControl>
                   {loading && !reload && branchSearchValue ? (
                     <Input disabled={true} placeholder="Loading..." />
@@ -233,7 +256,7 @@ const PostForm = ({
                       defaultValue={branchOptions?.filter((branchOption) =>
                         branchIds?.includes(branchOption?.value)
                       )}
-                      placeholder="All branches"
+                      placeholder="Select branches"
                       isSearchable={true}
                       onInputChange={setBranchSearchvalue}
                       onChange={(data) => onChangeMultiValue("branch", data)}
@@ -250,6 +273,7 @@ const PostForm = ({
             name="unitId"
             render={({}) => (
               <FormItem>
+                <FormLabel>Unit</FormLabel>
                 <FormControl>
                   {loading && !reload && unitSearchValue ? (
                     <Input disabled={true} placeholder="Loading..." />
@@ -259,7 +283,7 @@ const PostForm = ({
                       onMenuOpen={() => setReload(true)}
                       isClearable={true}
                       options={unitOptions}
-                      placeholder="All units"
+                      placeholder="Select units"
                       value={unitOptions?.filter(
                         (unitOption) => unitOption.value === unitId
                       )}
@@ -275,31 +299,42 @@ const PostForm = ({
               </FormItem>
             )}
           />
-          <div className="flex items-center border rounded-lg px-2 border-[hsl(var(--border))] justify-between">
-            <p className="text-[#444]">Add attachments</p>
-            <div className="flex">
-              <Uploader
-                defaultFileList={images || []}
-                onChange={setImage}
-                type={"image"}
-                icon={true}
-                iconSize={20}
-                setUploading={setImageUploading}
-              />
 
-              <Uploader
-                defaultFileList={attachments || []}
-                onChange={setAttachments}
-                icon={true}
-                iconSize={20}
-                setUploading={setAttachmentUploading}
-              />
-            </div>
-          </div>
+          <Uploader
+            defaultFileList={images || []}
+            onChange={setImage}
+            type={"image"}
+            setUploading={setImageUploading}
+          />
+          {images && images.length > 0 && (
+            <AttachmentWithPreview
+              images={images}
+              className="mt-2"
+              deleteImage={deleteImage}
+            />
+          )}
+
+          <Uploader
+            defaultFileList={attachments || []}
+            onChange={setAttachments}
+            setUploading={setAttachmentUploading}
+          />
+
+          {(attachments || []).map((attachment, index) => {
+            return (
+              <div
+                key={index}
+                className="flex items-center border-y text-sm font-semibold text-[#444] p-2.5 justify-between max-w-[445px] break-all"
+              >
+                <p className="max-w-[400px]">{attachment.name}</p>
+                <XCircle size={18} onClick={() => deleteAttachment(index)} />
+              </div>
+            )
+          })}
 
           <Button
             type="submit"
-            className="font-semibold w-full rounded-lg bg-primary-light"
+            className="font-semibold w-full rounded-full"
             disabled={imageUploading || attachmentUploading}
           >
             Post

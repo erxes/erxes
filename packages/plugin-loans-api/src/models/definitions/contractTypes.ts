@@ -56,7 +56,6 @@ export interface IContractType {
   useManualNumbering: boolean;
   useFee: boolean;
   leaseType: string;
-  commitmentInterest: number;
   createdAt: Date;
   productCategoryIds: string[];
   config: IContractConfig;
@@ -113,11 +112,6 @@ export const contractTypeSchema = schemaHooksWrapper(
       label: 'Lease Type',
       required: true,
       default: LEASE_TYPES.FINANCE
-    }),
-    commitmentInterest: field({
-      type: Number,
-      label: 'Commitment Interest',
-      default: 0
     }),
     createdAt: field({
       type: Date,

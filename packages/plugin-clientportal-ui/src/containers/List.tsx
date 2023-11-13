@@ -166,6 +166,8 @@ const MainContainer = (props: ListProps) => {
   const { history } = props;
   const _id = routerUtils.getParam(history, '_id');
 
+  console.log('LastConfigContainer', props);
+
   if (_id) {
     const extendedProps = { ...props, _id };
 

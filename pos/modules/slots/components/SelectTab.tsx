@@ -15,7 +15,7 @@ const SelectTab = () => {
     >
       <TabsList className="w-full">
         <TabsTrigger value="plan" className="flex-auto min-w-[180px]">
-          Заал {slot ? ` (${slot})` : ""}
+          Ширээ {slot ? ` (${slot})` : ""}
         </TabsTrigger>
         <TabsTrigger value="products" className="flex-auto min-w-[180px]">
           Бараа

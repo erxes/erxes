@@ -57,10 +57,8 @@ export const SCHEDULE_STATUS = {
 export const LEASE_TYPES = {
   FINANCE: 'finance',
   SALVAGE: 'salvage',
-  LINEAR: 'linear',
-  CREDIT: 'credit',
 
-  ALL: ['finance', 'salvage', 'linear', 'credit']
+  ALL: ['finance', 'salvage']
 };
 
 export const STORED_INTEREST_TYPES = {

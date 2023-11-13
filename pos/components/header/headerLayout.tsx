@@ -21,7 +21,12 @@ const HeaderLayout = (props: {
 }) => {
   const mode = useAtomValue(modeAtom)
 
-  return <>{mode === "market" ? <Market {...props} /> : <Main {...props} />}</>
+  return (
+    <>
+      {["coffee-shop", "main"].includes(mode) && <Main {...props} />}
+      {mode === "market" && <Market {...props} />}
+    </>
+  )
 }
 
 export default HeaderLayout

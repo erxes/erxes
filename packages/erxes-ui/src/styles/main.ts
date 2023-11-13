@@ -1,14 +1,8 @@
 import { colors, dimensions, typography } from '../styles';
-import styled, { css, keyframes } from 'styled-components';
+import styled, { css } from 'styled-components';
 
-import { IAnimatedLoader } from '../types';
 import { rgba } from '../styles/ecolor';
 import styledTS from 'styled-components-ts';
-
-const placeHolderShimmer = keyframes`
-  0% { background-position: -468px 0 }
-  100% { background-position: 468px 0 }
-`;
 
 const Flex = styled.div`
   display: flex;
@@ -508,26 +502,6 @@ const TextWrapper = styled.div`
   }
 `;
 
-const Loader = styledTS<IAnimatedLoader>(styled.div)`
-  animation-duration: 1.25s;
-  animation-fill-mode: forwards;
-  animation-iteration-count: infinite;
-  animation-name: ${placeHolderShimmer};
-  animation-timing-function: linear;
-  background: linear-gradient(to right, 
-    ${props => (props.color ? props.color : colors.borderPrimary)} 8%, 
-    ${props => (props.color ? colors.bgLight : colors.borderDarker)} 18%, 
-    ${props => (props.color ? props.color : colors.borderPrimary)} 33%);
-  background-size: 800px 200px;
-  width: ${props => (props.width ? props.width : '100%')};
-  height: ${props => (props.height ? props.height : '100%')};
-  border-radius: ${props => (props.round ? '50%' : '2px')};
-  margin-right: ${props => props.marginRight};
-  margin: ${props => props.margin};
-  position: relative;
-  float: left;
-`;
-
 export {
   Actions,
   PopoverButton,
@@ -553,7 +527,6 @@ export {
   DateContainer,
   TabContent,
   ButtonRelated,
-  Loader,
   SimpleButton,
   TopHeader,
   Title,

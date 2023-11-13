@@ -19,7 +19,6 @@ export const contractTypeFields = `
   productType
   useManualNumbering
   useFee
-  commitmentInterest
 `;
 
 const listParamsDef = `

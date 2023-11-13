@@ -58,7 +58,7 @@ const FeedForm = ({ contentType }: { contentType: string }) => {
     <>
       <Dialog open={open} onOpenChange={() => setOpen(!open)}>
         <div className="w-full">
-          <Card className="max-w-2xl mx-auto my-4 border-0">
+          <Card className="max-w-2xl mx-auto my-2 border-0">
             {contentType !== "welcome" ? (
               <CardHeader className="flex">
                 <div className="flex items-center">
@@ -71,13 +71,13 @@ const FeedForm = ({ contentType }: { contentType: string }) => {
                     alt="User Profile"
                     width={500}
                     height={500}
-                    className="w-10 h-10 rounded-full object-cover border border-primary"
+                    className="w-10 h-10 rounded-full object-cover"
                   />
                   <div className="w-full ml-4">
                     <DialogTrigger asChild={true}>
                       <div>
                         <Input
-                          className="bg-[#F5F6FF] rounded-lg border-none"
+                          className="border-sm rounded-full"
                           placeholder={`${placeHolder || "place"}`}
                         />
                       </div>

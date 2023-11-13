@@ -47,7 +47,7 @@ export const Sidebar = () => {
         <div className="relative p-3">
           <div
             className={`${
-              activeClass === active ? `bg-[${color}]` : "bg-white"
+              activeClass === active ? "bg-[#6569DF]" : "bg-white"
             } ${
               pathname.includes("/chat") ? "" : ""
             } shadow-md p-2 rounded-lg relative`}
@@ -85,11 +85,11 @@ export const Sidebar = () => {
 
   return (
     <div
-      className={`h-full p-4 border-r border-[#eee]  ${
-        pathname.includes("/chat") ? "" : "w-1/4"
+      className={`h-full p-4 border-r  ${
+        pathname.includes("/chat") ? "" : "w-1/5"
       }`}
     >
-      <div className="w-full pb-2 mb-4 flex justify-center">
+      <div className="w-full pb-2 mb-4 border-b flex justify-center">
         <Image
           alt=""
           src="/logo-dark.svg"
@@ -125,7 +125,7 @@ export const MAIN_NAVIGATION = [
     href: "chats",
     value: "Chats",
     Icon: MessageCircleIcon,
-    color: "#FDA50D",
+    color: "#A0AEC0",
   },
   {
     active: "team",

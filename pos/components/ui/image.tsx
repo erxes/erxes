@@ -57,7 +57,7 @@ const Image: FC<
     <NextImage
       {...updatedProps}
       loader={!srcI.startsWith("/") ? cloudflareLoader : undefined}
-      onLoad={handleComplete}
+      onLoadingComplete={handleComplete}
       className={cn(className, isImageLoading && "blur-2xl", "text-black")}
       sizes={
         sizes ||

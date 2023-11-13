@@ -155,30 +155,6 @@ export const initBroker = async cl => {
     }
   );
 
-  consumeRPCQueue(
-    'integrations:configs.findOne',
-    async ({ subdomain, data: { code } }) => {
-      const models = await generateModels(subdomain);
-
-      return {
-        data: await models.Configs.findOne({ code }),
-        status: 'success'
-      };
-    }
-  );
-
-  consumeRPCQueue(
-    'integrations:configs.find',
-    async ({ subdomain, data: { selector } }) => {
-      const models = await generateModels(subdomain);
-
-      return {
-        data: await models.Configs.find(selector).lean(),
-        status: 'success'
-      };
-    }
-  );
-
   consumeQueue('integrations:notification', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 

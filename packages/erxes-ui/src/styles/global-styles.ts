@@ -9,11 +9,11 @@ html {
 }
 
 body {
-  font-family: system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen,Ubuntu,Cantarell,"Fira Sans","Droid Sans","Helvetica Neue",sans-serif !important;
+  font-family: system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen,Ubuntu,Cantarell,"Fira Sans","Droid Sans","Helvetica Neue",sans-serif;
   margin: 0;
   font-size: ${typography.fontSizeBody}px !important;
   line-height: ${typography.lineHeightBody};
-  color: ${colors.textPrimary} !important;
+  color: ${colors.textPrimary};
   height: 100%;
   background: ${colors.colorWhite} !important;
   -webkit-font-smoothing: antialiased;

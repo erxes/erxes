@@ -13,6 +13,7 @@ import {
   supergraphPath
 } from './paths';
 import supergraphCompose from './supergraph-compose';
+// import * as getPort from 'get-port';
 
 const {
   DOMAIN,
@@ -26,12 +27,12 @@ const {
 
 let routerProcess: ChildProcess | undefined = undefined;
 
-export const stopRouter = (_sig: NodeJS.Signals) => {
+export const stopRouter = (sig: NodeJS.Signals) => {
   if (!routerProcess) {
     return;
   }
   try {
-    routerProcess.kill('SIGKILL');
+    routerProcess.kill(sig);
   } catch (e) {
     console.error(e);
   }

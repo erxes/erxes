@@ -209,7 +209,7 @@ class HistoryRow extends React.Component<Props> {
           <span>{renderValue(history.failed)}</span>
         </td>
 
-        <td>{details?.fullName || '-'}</td>
+        <td>{details.fullName || '-'}</td>
 
         <td>
           <DateWrapper>{dayjs(history.date).format('lll')}</DateWrapper>

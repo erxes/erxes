@@ -56,8 +56,6 @@ const commonFields = `
   $useManualNumbering:Boolean
   $useFee:Boolean
   $loanPurpose: String
-  $leaseType: String
-  $commitmentInterest: Float
 `;
 
 const commonVariables = `
@@ -115,8 +113,6 @@ const commonVariables = `
   useManualNumbering: $useManualNumbering
   useFee: $useFee
   loanPurpose: $loanPurpose
-  leaseType:$leaseType
-  commitmentInterest:$commitmentInterest
 `;
 
 const contractsAdd = `

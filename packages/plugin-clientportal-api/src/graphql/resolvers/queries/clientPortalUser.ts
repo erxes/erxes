@@ -100,9 +100,7 @@ const clientPortalUserQueries = {
         }
       }
 
-      if (rangeFilters.length) {
-        filter.$and = rangeFilters;
-      }
+      rangeFilters.length && (filter.$and = rangeFilters);
     }
 
     return paginate(

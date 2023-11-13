@@ -3,10 +3,9 @@ import {
   attachmentType
 } from '@erxes/api-utils/src/commonTypeDefs';
 
-export const types = ({ tags, forms, contacts, dailyco }) => `
+export const types = ({ tags, forms, contacts }) => `
   ${attachmentType}
   ${attachmentInput}
-
 
   extend type Customer @key(fields: "_id") {
     _id: String @external
@@ -22,19 +21,6 @@ export const types = ({ tags, forms, contacts, dailyco }) => `
       ? `
       extend type Tag @key(fields: "_id") {
         _id: String! @external
-      }
-    `
-      : ''
-  }
-
-  ${
-    dailyco
-      ? `
-      extend type VideoCallData {
-        url: String
-        name: String
-        status: String
-        recordingLinks: [String]
       }
     `
       : ''
@@ -72,7 +58,7 @@ export const types = ({ tags, forms, contacts, dailyco }) => `
     assignedUser: User
     participatedUsers: [User]
     participatorCount: Int
-    ${dailyco ? 'videoCallData: VideoCallData' : ''}
+    videoCallData: VideoCallData
     customFieldsData: JSON
 
     bookingProductId: String
@@ -107,7 +93,7 @@ export const types = ({ tags, forms, contacts, dailyco }) => `
     user: User
     customer: Customer
     mailData: MailData
-    ${dailyco ? 'videoCallData: VideoCallData' : ''}
+    videoCallData: VideoCallData
     contentType: String
     bookingWidgetData: JSON
     mid: String
@@ -159,6 +145,13 @@ export const types = ({ tags, forms, contacts, dailyco }) => `
   type ConversationAdminMessageInsertedResponse {
     customerId: String
     unreadCount: Int
+  }
+
+  type VideoCallData {
+    url: String
+    name: String
+    status: String
+    recordingLinks: [String]
   }
 
   ${
@@ -265,6 +258,7 @@ export const mutations = `
   conversationsUnassign(_ids: [String]!): [Conversation]
   conversationsChangeStatus(_ids: [String]!, status: String!): [Conversation]
   conversationMarkAsRead(_id: String): Conversation
+  conversationCreateVideoChatRoom(_id: String!): VideoCallData
   changeConversationOperator(_id: String! operatorStatus: String!): JSON
   conversationResolveAll(${mutationFilterParams}): Int
   conversationConvertToCard(${convertParams}): String

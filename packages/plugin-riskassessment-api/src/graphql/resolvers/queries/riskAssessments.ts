@@ -6,7 +6,7 @@ import { sendCardsMessage } from '../../../messageBroker';
 import { generateSort } from '../../../utils';
 import { RiskAssessmentGroupParams } from '../types';
 
-export const generateFilter = async (
+const generateFilter = async (
   params,
   models: IModels,
   subdomain: string,
@@ -245,16 +245,6 @@ const RiskAssessmentQueries = {
       indicatorId,
       userId
     );
-  },
-
-  async riskAssessmentStatistics(
-    _root,
-    args,
-    { models, user, subdomain }: IContext
-  ) {
-    const filter = await generateFilter(args, models, subdomain, user);
-
-    return models.RiskAssessments.getStatistic(filter);
   }
 };
 
