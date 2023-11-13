@@ -127,7 +127,7 @@ export const feedSchema = schemaHooksWrapper(
     department: field({ type: String, label: 'Department' }),
     branchIds: field({ type: [String], label: 'Branch Ids' }),
     unitId: field({ type: String, label: 'Unit', optional: true }),
-    category: field({ type: Date, label: 'Category', optional: true }),
+    category: field({ type: String, label: 'Category', optional: true }),
     ceremonyData: field({ type: ceremonyDataSchema }),
     eventData: field({ type: eventDataSchema }),
     startDate: field({ type: Date }),
