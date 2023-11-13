@@ -12,6 +12,13 @@ import * as z from "zod"
 import { Button } from "@/components/ui/button"
 import { DatePicker } from "@/components/ui/date-picker"
 import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
+import {
   Form,
   FormControl,
   FormField,
@@ -27,6 +34,7 @@ import AvatarUpload from "@/components/AvatarUpload"
 
 import useMutations from "../hooks/useMutations"
 import { useUserDetail } from "../hooks/useUserDetail"
+import ChangePassword from "./ChangePassword"
 
 const FormSchema = z.object({
   operatorPhone: z.string().optional(),
@@ -63,7 +71,9 @@ const Detail = ({
   }
 
   const { userDetail } = useUserDetail({ userId: id })
-  const { usersEditProfile } = useMutations()
+  const { usersEditProfile, changePassword, changePasswordLoading } =
+    useMutations()
+  const [open, setOpen] = useState(false)
   const currentUser = useAtomValue(currentUserAtom)
   const [avatar, setAvatar] = useState(
     userDetail.details?.avatar || "/avatar-colored.svg"
@@ -467,6 +477,26 @@ const Detail = ({
                               className="p-0 border-none disabled:opacity-100"
                             />
                           </FormControl>
+                          <Dialog
+                            open={open}
+                            onOpenChange={() => setOpen(!open)}
+                          >
+                            <DialogTrigger asChild={true}>
+                              <div className="whitespace-nowrap text-[#64748B] cursor-pointer">
+                                Change Password
+                              </div>
+                            </DialogTrigger>
+                            <DialogContent>
+                              <DialogHeader>
+                                <DialogTitle>Update your password</DialogTitle>
+                              </DialogHeader>
+                              <ChangePassword
+                                changePassword={changePassword}
+                                loading={changePasswordLoading}
+                                setOpen={setOpen}
+                              />
+                            </DialogContent>
+                          </Dialog>
                         </FormItem>
                       )}
                     />
