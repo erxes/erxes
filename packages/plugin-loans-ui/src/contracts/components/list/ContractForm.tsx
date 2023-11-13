@@ -755,22 +755,24 @@ class ContractForm extends React.Component<Props, State> {
                 })}
             </FormColumn>
             <FormColumn>
-              <FormGroup>
-                <ControlLabel required={true}>{__('Repayment')}</ControlLabel>
-                <FormControl
-                  {...formProps}
-                  name="repayment"
-                  componentClass="select"
-                  value={this.state.repayment}
-                  onChange={this.onChangeField}
-                >
-                  {['fixed', 'equal', 'custom'].map((typeName, index) => (
-                    <option key={index} value={typeName}>
-                      {__(typeName + 'Method')}
-                    </option>
-                  ))}
-                </FormControl>
-              </FormGroup>
+              {this.state.leaseType !== 'linear' && (
+                <FormGroup>
+                  <ControlLabel required={true}>{__('Repayment')}</ControlLabel>
+                  <FormControl
+                    {...formProps}
+                    name="repayment"
+                    componentClass="select"
+                    value={this.state.repayment}
+                    onChange={this.onChangeField}
+                  >
+                    {['fixed', 'equal', 'custom'].map((typeName, index) => (
+                      <option key={index} value={typeName}>
+                        {__(typeName + 'Method')}
+                      </option>
+                    ))}
+                  </FormControl>
+                </FormGroup>
+              )}
               {this.renderFormGroup('Tenor', {
                 type: 'number',
                 name: 'tenor',
@@ -800,21 +802,23 @@ class ContractForm extends React.Component<Props, State> {
                 })}
             </FormColumn>
             <FormColumn>
-              <FormGroup>
-                <ControlLabel required>{__('Schedule Days')}</ControlLabel>
-                <Select
-                  required
-                  className="flex-item"
-                  placeholder={__('Choose an schedule Days')}
-                  value={this.state.scheduleDays}
-                  onChange={onSelectScheduleDays}
-                  multi={true}
-                  options={new Array(31).fill(1).map((row, index) => ({
-                    value: row + index,
-                    label: row + index
-                  }))}
-                />
-              </FormGroup>
+              {this.state.leaseType !== 'linear' && (
+                <FormGroup>
+                  <ControlLabel required>{__('Schedule Days')}</ControlLabel>
+                  <Select
+                    required
+                    className="flex-item"
+                    placeholder={__('Choose an schedule Days')}
+                    value={this.state.scheduleDays}
+                    onChange={onSelectScheduleDays}
+                    multi={true}
+                    options={new Array(31).fill(1).map((row, index) => ({
+                      value: row + index,
+                      label: row + index
+                    }))}
+                  />
+                </FormGroup>
+              )}
               {this.renderFormGroup('Interest Rate', {
                 ...formProps,
                 type: 'number',
@@ -837,14 +841,15 @@ class ContractForm extends React.Component<Props, State> {
                   onChange: this.onChangeField,
                   onClick: this.onFieldClick
                 })}
-              {this.renderFormGroup('Is Pay First Month', {
-                className: 'flex-item',
-                type: 'checkbox',
-                componentClass: 'checkbox',
-                name: 'isPayFirstMonth',
-                checked: this.state.isPayFirstMonth || false,
-                onChange: this.onChangeField
-              })}
+              {this.state.leaseType !== 'linear' &&
+                this.renderFormGroup('Is Pay First Month', {
+                  className: 'flex-item',
+                  type: 'checkbox',
+                  componentClass: 'checkbox',
+                  name: 'isPayFirstMonth',
+                  checked: this.state.isPayFirstMonth || false,
+                  onChange: this.onChangeField
+                })}
             </FormColumn>
           </FormWrapper>
           {this.state.repayment === 'custom' && (

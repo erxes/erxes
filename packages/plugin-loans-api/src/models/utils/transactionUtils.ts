@@ -151,6 +151,7 @@ export const getCalcedAmounts = async (
     total: 0,
     preSchedule: undefined,
     balance: 0,
+    unUsedBalance: 0,
     storedInterest: 0,
     commitmentInterest: 0,
     commitmentInterestEve: 0,
