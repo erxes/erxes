@@ -22,7 +22,13 @@ type FinalProps = {
 } & Props &
   ReportsMutationResponse;
 const ReportList = (props: FinalProps) => {
-  const { reportDetailQuery, reportId, reportsEditMutation } = props;
+  const {
+    reportDetailQuery,
+    reportId,
+    reportsEditMutation,
+    reportChartsEditMutation,
+    reportChartsRemoveMutation
+  } = props;
 
   if (reportDetailQuery.loading) {
     return <Spinner />;
@@ -39,10 +45,33 @@ const ReportList = (props: FinalProps) => {
       .catch(err => Alert.error(err.message));
   };
 
+  const reportChartsEdit = (_id: string, values: any, callback?: any) => {
+    console.log('reportChartsEdit   ', values);
+
+    reportChartsEditMutation({ variables: { _id, ...values } })
+      .then(() => {
+        Alert.success('Successfully edited chart');
+        if (callback) {
+          callback();
+        }
+      })
+      .catch(err => Alert.error(err.message));
+  };
+
+  const reportChartsRemove = (_id: string) => {
+    reportChartsRemoveMutation({ variables: { _id } })
+      .then(() => {
+        Alert.success('Successfully removed chart');
+      })
+      .catch(err => Alert.error(err.message));
+  };
+
   return (
     <Report
       report={reportDetailQuery?.reportDetail}
       reportsEdit={reportsEdit}
+      reportChartsEdit={reportChartsEdit}
+      reportChartsRemove={reportChartsRemove}
       {...props}
     />
   );
@@ -56,6 +85,36 @@ export default withProps<Props>(
         variables,
         fetchPolicy: 'network-only',
         refetchQueries: ['reportsList']
+      })
+    }),
+    graphql<Props, any>(gql(mutations.reportChartsEdit), {
+      name: 'reportChartsEditMutation',
+      options: ({ reportId, ...variables }) => ({
+        variables,
+        fetchPolicy: 'network-only',
+        refetchQueries: [
+          {
+            query: gql(queries.reportDetail),
+            variables: {
+              reportId
+            }
+          }
+        ]
+      })
+    }),
+    graphql<Props, any>(gql(mutations.reportChartsRemove), {
+      name: 'reportChartsRemoveMutation',
+      options: ({ reportId, ...variables }) => ({
+        variables,
+        fetchPolicy: 'network-only',
+        refetchQueries: [
+          {
+            query: gql(queries.reportDetail),
+            variables: {
+              reportId
+            }
+          }
+        ]
       })
     }),
     graphql<Props, any, { reportId: string }>(gql(queries.reportDetail), {

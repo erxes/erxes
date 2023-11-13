@@ -81,7 +81,8 @@ export const loadChartClass = (models: IModels) => {
     }
     // update
     public static async updateChart(_id: string, doc: IChart) {
-      return models.Charts.updateOne({ _id }, { $set: { ...doc } });
+      await models.Charts.updateOne({ _id }, { $set: { ...doc } });
+      return models.Charts.findOne({ _id });
     }
     // remove
     public static async removeChart(_id: string) {

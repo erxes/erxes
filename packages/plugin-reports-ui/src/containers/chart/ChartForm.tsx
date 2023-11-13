@@ -34,20 +34,26 @@ const ChartFormList = (props: FinalProps) => {
   const { reportTemplatesList = [] } = reportTemplatesListQuery;
 
   const chartsEdit = values => {
-    reportChartsAddMutation({ variables: values })
-      .then(() => {})
+    reportChartsEditMutation({ variables: values })
+      .then(() => {
+        Alert.success('Successfully edited chart');
+      })
       .catch(err => Alert.error(err.message));
   };
 
   const chartsAdd = values => {
-    reportChartsEditMutation({ variables: values })
-      .then(() => {})
+    reportChartsAddMutation({ variables: values })
+      .then(() => {
+        Alert.success('Successfully added chart');
+      })
       .catch(err => Alert.error(err.message));
   };
 
   const chartsRemove = (_id: string) => {
     reportChartsRemoveMutation(_id)
-      .then(() => {})
+      .then(() => {
+        Alert.success('Successfully removed chart');
+      })
       .catch(err => Alert.error(err.message));
   };
 
@@ -55,6 +61,7 @@ const ChartFormList = (props: FinalProps) => {
     ...props,
     chartsAdd,
     chartsEdit,
+    chartsRemove,
     reportTemplates: reportTemplatesList
   };
 

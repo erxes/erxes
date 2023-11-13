@@ -51,6 +51,9 @@ export interface IChart {
   chartType: string;
   filterIds: string[];
   defaultFilter: IChartFilter;
+
+  vizState: string;
+  layout: string;
 }
 
 export interface IChartDocument extends IChart, Document {
@@ -106,6 +109,8 @@ export const chartSchema = new Schema({
     index: true
   }),
   contentType: field({ type: String, label: 'Content type' }),
+  layout: field({ type: String, label: 'Report item - layout' }),
+  vizState: field({ type: String }),
   template: field({
     type: String,
     label: 'Template name coming from plugins config',
@@ -113,6 +118,6 @@ export const chartSchema = new Schema({
   }),
   order: field({ type: Number, label: 'Order number' }),
   chartType: field({ type: IChartType, label: 'Chart type' }),
-  filterIds: field({ type: [String], label: 'Filters' }),
+  filters: field({ type: [JSON], label: 'Filters' }),
   defaultFilterId: field({ type: String, label: 'Default filter id' })
 });

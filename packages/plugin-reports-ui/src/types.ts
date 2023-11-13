@@ -26,10 +26,17 @@ export interface IReport {
 
 export interface IReportItem {
   _id: string;
-  reportId: string;
-  layout: any;
-  vizState: any;
-  name: string;
+  name?: string;
+  contentType?: string;
+  template?: string;
+  order?: number;
+  chartType: string;
+  filters?: any[];
+  defaultFilter?: any;
+
+  data?: number[];
+  layout?: any;
+  vizState?: any;
 }
 
 enum ReportVisibility {
@@ -56,6 +63,7 @@ export interface IChart {
 
   data?: number[];
   layout?: any;
+  vizState?: any;
 }
 export interface IType {
   _id: string;
@@ -79,6 +87,12 @@ export type ReportsMutationResponse = {
 
   reportsEditMutation: (params: {
     variables: MutationVariables;
+  }) => Promise<any>;
+
+  reportChartsEditMutation: (params: { variables: any }) => Promise<any>;
+
+  reportChartsRemoveMutation: (params: {
+    variables: { _id: string };
   }) => Promise<any>;
 };
 

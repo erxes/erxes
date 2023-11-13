@@ -19,11 +19,7 @@ interface IChartProps {
 const ChartRenderer = (props: IChartProps) => {
   const { labels, chartType, data } = props;
 
-  console.log('jajajjaja');
   const chartRef = useRef<HTMLCanvasElement>(null);
-
-  const aa = data || DEFAULT_DATA_PER_CHART[chartType];
-  console.log('aa  ', aa);
 
   const chartData = {
     labels: labels || DEFAULT_LABELS_PER_CHART[chartType],

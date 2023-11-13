@@ -53,6 +53,7 @@ const reportsList = `
           ${userFields}
         }
         charts {
+          _id
           name
           contentType
           templateType
@@ -124,6 +125,7 @@ const reportDetail = `
           ${userFields}
         }
         charts {
+          _id
           name
           contentType
           templateType

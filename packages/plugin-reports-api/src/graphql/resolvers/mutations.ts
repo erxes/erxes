@@ -1,4 +1,3 @@
-import { createGenerateModels } from '@erxes/api-utils/src/core';
 import { serviceDiscovery } from '../../configs';
 import { IContext } from '../../connectionResolver';
 import {
@@ -7,7 +6,6 @@ import {
   IReport,
   IReportDocument
 } from '../../models/definitions/reports';
-import { Server } from 'http';
 
 const reportsMutations = {
   async reportsAdd(_root, doc: IReport, { models, user }: IContext) {
@@ -88,17 +86,19 @@ const reportsMutations = {
     await models.Charts.remove({ reportId: { $in: ids } });
     return models.Reports.remove({ _id: { $in: ids } });
   },
-  async chartsAdd(_root, doc: IChart, { models }: IContext) {
+  async reportChartsAdd(_root, doc: IChart, { models }: IContext) {
     return models.Charts.createChart(doc);
   },
-  async chartsEdit(
+  async reportChartsEdit(
     _root,
     { _id, ...doc }: IChartDocument,
     { models }: IContext
   ) {
-    return models.Charts.updateChart(_id, doc);
+    const aa = await models.Charts.updateChart(_id, { ...doc });
+    console.log('aa ', aa);
+    return aa;
   },
-  async chartsRemove(_root, _id: string, { models }: IContext) {
+  reportChartsRemove(_root, _id: string, { models }: IContext) {
     return models.Charts.removeChart(_id);
   }
 };

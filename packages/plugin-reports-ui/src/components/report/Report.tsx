@@ -4,7 +4,7 @@ import PageContent from '@erxes/ui/src/layout/components/PageContent';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { BarItems, FlexContent } from '@erxes/ui/src/layout/styles';
 import { __, confirm } from '@erxes/ui/src/utils';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Modal from 'react-bootstrap/Modal';
 import {
   ActionBarButtonsWrapper,
@@ -20,10 +20,8 @@ import SelectMembersForm from '../utils/SelectMembersForm';
 import Participators from './Participators';
 import ChartForm from '../../containers/chart/ChartForm';
 import ChartRenderer from '../chart/ChartRenderer';
-import { Chart } from 'chart.js';
 
 const deserializeItem = i => {
-  console.log('i ', i);
   return {
     ...i,
     layout: i.layout ? JSON.parse(i.layout) : {},
@@ -42,28 +40,41 @@ const defaultLayout = i => ({
 
 type Props = {
   report: IReport;
-  reportItems: IReportItem[];
   history: any;
   queryParams: any;
   reportsEdit: (reportId: string, values: any, callback?: any) => void;
+  reportChartsEdit: (_id: string, values: any, callback?: any) => void;
+  reportChartsRemove: (_id: string) => void;
 };
 
 const Report = (props: Props) => {
-  const { report, reportsEdit, history, queryParams } = props;
+  const {
+    report,
+    reportsEdit,
+    reportChartsEdit,
+    reportChartsRemove,
+    history,
+    queryParams
+  } = props;
   const { charts, members } = report;
 
-  console.log('charts ', charts);
+  const [reportItems, setReportItems] = useState<IReportItem[]>([]);
   const [isPublic, setIsPublic] = useState(report.visibility === 'public');
   const [name, setName] = useState(report.name || '');
   const [visibility, setVisibility] = useState<string>(report.visibility || '');
 
   const [showChatForm, setShowChatForm] = useState(false);
   const [showTeamMemberSelect, setShowTeamMembersSelect] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
 
   const [userIds, setUserIds] = useState(report.assignedUserIds);
   const [departmentIds, setDepartmentIds] = useState(
     report.assignedDepartmentIds
   );
+
+  useEffect(() => {
+    setReportItems(charts || []);
+  }, [charts]);
 
   const onNameChange = e => {
     e.preventDefault();
@@ -93,16 +104,24 @@ const Report = (props: Props) => {
     return name !== report.name;
   };
 
+  const onDeleteChart = (_id: string) => {
+    confirm('Are you sure to delete this chart').then(() => {
+      reportChartsRemove(_id);
+    });
+  };
   const reportItem = (item: IChart) => {
     if (item.layout) {
-      console.log('ites ', item);
-      console.log('ite, ', defaultLayout(item));
       return (
         <div key={item._id || Math.random()} data-grid={defaultLayout(item)}>
           <ChartTitle>
             <div>{item.name}</div>
             <span className="db-item-action">edit</span>
-            <span className="db-item-action">delete</span>
+            <span
+              className="db-item-action"
+              onClick={() => onDeleteChart(item._id)}
+            >
+              delete
+            </span>
           </ChartTitle>
           <ChartRenderer chartType={item.chartType} data={item.data} />
         </div>
@@ -253,6 +272,26 @@ const Report = (props: Props) => {
     );
   };
 
+  const onLayoutChange = newLayout => {
+    console.log('nlayout    ', newLayout);
+    newLayout.forEach(l => {
+      const item = reportItems.find(i => i._id?.toString() === l.i);
+      const toUpdate = JSON.stringify({
+        x: l.x,
+        y: l.y,
+        w: l.w,
+        h: l.h
+      });
+
+      if (item && toUpdate !== item.layout) {
+        console.log('sdaa');
+
+        reportChartsEdit(item._id, {
+          layout: toUpdate
+        });
+      }
+    });
+  };
   return (
     <>
       <Wrapper.Header
@@ -277,11 +316,17 @@ const Report = (props: Props) => {
             haveChart={charts?.length ? true : false}
             cols={6}
             margin={[30, 30]}
+            onDragStart={() => setIsDragging(true)}
+            onDragEnd={() => setIsDragging(false)}
+            onResizeStart={() => setIsDragging(true)}
+            onResizeStop={() => setIsDragging(false)}
+            onLayoutChange={onLayoutChange}
+            isDragging={isDragging}
             rowHeight={160}
             containerPadding={[30, 30]}
             useCSSTransforms={true}
           >
-            {charts.map(deserializeItem).map(reportItem)}
+            {charts?.map(deserializeItem).map(reportItem)}
           </DragField>
         )}
 

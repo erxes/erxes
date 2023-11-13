@@ -60,6 +60,7 @@ export const types = tagsAvailable => `
   }
  
   type ReportChart {
+    _id: String
     name: String
     reportId: String!
     contentType: String
@@ -69,6 +70,8 @@ export const types = tagsAvailable => `
     chartTypes: [ChartType]
     filters: [ChartFilter]
     defaultFilter: ChartFilter
+    layout: String
+    vizState: String
   }
 
   enum ChartType {
@@ -141,13 +144,13 @@ export const params = `
   typeId:String
 `;
 
-const chart_params = `
-  reportId: String!
+const report_chart_common_params = `
   name: String
   chartType: String
   templateType: String
   order: Int
-  filters: [ChartFilterInput]
+  vizState: String
+  layout: String
 `;
 
 const report_params = `
@@ -167,7 +170,7 @@ export const mutations = `
    
   reportsEdit(_id:String!, ${report_params}): Report
 
-  reportChartsAdd(${chart_params}): ReportChart
+  reportChartsAdd(${report_chart_common_params}, reportId: String!): ReportChart
   reportChartsRemove(_id: String!): JSON
-  reportChartsEdit(_id: String, ${chart_params}): ReportChart
+  reportChartsEdit(_id: String, ${report_chart_common_params}): JSON
 `;
