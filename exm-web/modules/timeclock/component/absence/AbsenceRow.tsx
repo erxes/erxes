@@ -1,6 +1,7 @@
 import React, { useState } from "react"
 import dayjs from "dayjs"
 
+import { readFile } from "@/lib/utils"
 import { TableCell, TableRow } from "@/components/ui/table"
 
 import { IAbsence, IAbsenceType } from "../../types"
@@ -15,11 +16,11 @@ const RequestRow = ({ absence, seeDate }: Props) => {
   const startTime = new Date(absence.startTime)
   const endTime = new Date(absence.endTime)
 
-  const startingDate = dayjs(startTime).format("MM/DD/YYYY")
-  const startingTime = dayjs(startTime).format("HH:mm")
+  const startingDate = dayjs(startTime).format("MMM/DD/YYYY")
+  const startingTime = dayjs(startTime).format("HH[h] : mm[m]")
 
-  const endingDate = dayjs(endTime).format("MM/DD/YYYY")
-  const endingTime = dayjs(endTime).format("HH:mm")
+  const endingDate = dayjs(endTime).format("MMM/DD/YYYY")
+  const endingTime = dayjs(endTime).format("HH[h] : mm[m]")
 
   const absenceTimeType = absence.absenceTimeType
 
@@ -37,35 +38,38 @@ const RequestRow = ({ absence, seeDate }: Props) => {
       (endTime.getTime() - startTime.getTime()) /
       3600000
     ).toFixed(1)
+
     return getTimeInHours
   }
 
   const renderAbsenceDays = () => {
     if (absenceTimeType === "by day" && seeDate) {
       return absence.requestDates.map((requestDate) => (
-        <div key={requestDate}>{requestDate}</div>
+        <TableCell key={requestDate} className="px-2 py-0">
+          {dayjs(requestDate).format("MMM/DD/YYYY")}
+        </TableCell>
       ))
     }
 
-    return <TableCell className="py-4">{"-"}</TableCell>
+    return <TableCell className="py-0">{"-"}</TableCell>
   }
 
   const renderAbsenceTimeInfo = () => {
     if (absence.reason.match(/Check in request/gi)) {
       return (
         <>
-          <TableCell className="py-4">{startingDate}</TableCell>
-          <TableCell className="py-4">{startingTime}</TableCell>
-          <TableCell className="py-4">{"-"}</TableCell>
+          <TableCell className="py-5">{startingDate}</TableCell>
+          <TableCell className="py-5">{startingTime}</TableCell>
+          <TableCell className="py-5">{"-"}</TableCell>
         </>
       )
     }
     if (absence.reason.match(/Check out request/gi)) {
       return (
         <>
-          <TableCell className="py-4">{startingDate}</TableCell>
-          <TableCell className="py-4">{"-"}</TableCell>
-          <TableCell className="py-4">{startingTime}</TableCell>
+          <TableCell className="py-5">{startingDate}</TableCell>
+          <TableCell className="py-5">{"-"}</TableCell>
+          <TableCell className="py-5">{startingTime}</TableCell>
         </>
       )
     }
@@ -73,18 +77,18 @@ const RequestRow = ({ absence, seeDate }: Props) => {
     if (absenceTimeType === "by day") {
       return (
         <>
-          <TableCell className="py-4">{"-"}</TableCell>
-          <TableCell className="py-4">{startingDate}</TableCell>
-          <TableCell className="py-4">{endingDate}</TableCell>
+          <TableCell className="py-5">{"-"}</TableCell>
+          <TableCell className="py-5">{startingDate}</TableCell>
+          <TableCell className="py-5">{endingDate}</TableCell>
         </>
       )
     }
     // by hour
     return (
       <>
-        <TableCell className="py-4">{startingDate}</TableCell>
-        <TableCell className="py-4">{startingTime}</TableCell>
-        <TableCell className="py-4">{endingTime}</TableCell>
+        <TableCell className="py-5">{startingDate}</TableCell>
+        <TableCell className="py-5">{startingTime}</TableCell>
+        <TableCell className="py-5">{endingTime}</TableCell>
       </>
     )
   }
@@ -108,8 +112,8 @@ const RequestRow = ({ absence, seeDate }: Props) => {
 
   return (
     <>
-      <TableRow>
-        <TableCell className="py-4">
+      <TableRow className="border-none">
+        <TableCell className="py-5">
           {absence.user && absence.user.details
             ? absence.user.details.fullName
               ? absence.user.details.fullName
@@ -119,18 +123,27 @@ const RequestRow = ({ absence, seeDate }: Props) => {
             : "-"}
         </TableCell>
         {renderAbsenceTimeInfo()}
-        <TableCell className="py-4">
+        <TableCell className="py-5">
           {absence.totalHoursOfAbsence || calculateAbsenceHours()}
         </TableCell>
-        <TableCell className="py-4">{renderAbsenceDays()}</TableCell>
-        <TableCell className="py-4">{absence.reason || "-"}</TableCell>
-        <TableCell className="py-4">{absence.explanation || "-"}</TableCell>
-        <TableCell className="py-4">
-          {absence.attachment ? absence.attachment.name : "-"}
+        <TableCell className="py-5">{renderAbsenceDays()}</TableCell>
+        <TableCell className="py-5">{absence.reason || "-"}</TableCell>
+        <TableCell className="py-5">{absence.explanation || "-"}</TableCell>
+        <TableCell className="py-5 max-w-[50px] truncate">
+          {absence.attachment ? (
+            <a
+              href={readFile(absence.attachment.url)}
+              download={absence.attachment.name}
+            >
+              {absence.attachment.name}
+            </a>
+          ) : (
+            "-"
+          )}
         </TableCell>
         <TableCell className="">{renderStatus()}</TableCell>
-        <TableCell className="py-4">{absence.note || "-"}</TableCell>
-        <TableCell className="py-4">
+        <TableCell className="py-5">{absence.note || "-"}</TableCell>
+        <TableCell className="py-5">
           <AbsenceRowAction absence={absence} />
         </TableCell>
       </TableRow>

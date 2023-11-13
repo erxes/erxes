@@ -28,6 +28,7 @@ const TimeclockEdit = ({ timeclock }: Props) => {
   const [open, setOpen] = useState(false)
 
   const [shiftStart, setShiftStart] = useState(timeclock.shiftStart)
+  const [timeStart, setTimeStart] = useState("")
   const [shiftStartInsert, setShiftStartInsert] = useState<Date | undefined>(
     timeclock.shiftStart
   )
@@ -36,6 +37,7 @@ const TimeclockEdit = ({ timeclock }: Props) => {
   const [outDevice, setOutDevice] = useState(null)
 
   const [shiftEnd, setShiftEnd] = useState(timeclock.shiftEnd)
+  const [timeEnd, setTimeEnd] = useState("")
   const [shiftEndInsert, setShiftEndInsert] = useState<Date | undefined>(
     timeclock.shiftEnd || timeclock.shiftStart
   )
@@ -202,7 +204,21 @@ const TimeclockEdit = ({ timeclock }: Props) => {
           )}
 
           {shiftStartInput === "insert" && (
-            <DatePicker date={shiftStartInsert} setDate={setShiftStartInsert} />
+            <>
+              <DatePicker
+                date={shiftStartInsert}
+                setDate={setShiftStartInsert}
+              />
+              <input
+                type="time"
+                name="shiftStart"
+                className="appearance-none block w-1/6 text-center border border-input hover:bg-accent hover:text-accent-foreground rounded-md px-3 outline-none"
+                value={timeStart}
+                onChange={(e) => {
+                  setTimeStart(e.target.value)
+                }}
+              />
+            </>
           )}
         </div>
         <div
@@ -247,7 +263,18 @@ const TimeclockEdit = ({ timeclock }: Props) => {
             )}
 
             {shiftEndInput === "insert" && (
-              <DatePicker date={shiftEndInsert} setDate={setShiftEndInsert} />
+              <>
+                <DatePicker date={shiftEndInsert} setDate={setShiftEndInsert} />
+                <input
+                  type="time"
+                  name="shiftEnd"
+                  className="appearance-none block w-1/6 text-center border border-input hover:bg-accent hover:text-accent-foreground rounded-md px-3 outline-none"
+                  value={timeEnd}
+                  onChange={(e) => {
+                    setTimeEnd(e.target.value)
+                  }}
+                />
+              </>
             )}
           </div>
         )}

@@ -8,7 +8,7 @@ import { compareStartAndEndTimeOfSingleDate } from "@/modules/timeclock/utils"
 import { IAttachment } from "@/modules/types"
 import dayjs from "dayjs"
 import { useAtomValue } from "jotai"
-import { CalendarIcon } from "lucide-react"
+import { CalendarIcon, Paperclip } from "lucide-react"
 import Select from "react-select"
 
 import { Button } from "@/components/ui/button"
@@ -27,6 +27,7 @@ import {
 } from "@/components/ui/popover"
 import { Textarea } from "@/components/ui/textarea"
 import { useToast } from "@/components/ui/use-toast"
+import uploadHandler from "@/components/uploader/uploadHandler"
 
 type Props = {
   queryParams: any
@@ -56,7 +57,7 @@ const AbsenceRequest = ({ queryParams, absenceTypes }: Props) => {
   const [absenceIndex, setAbsenceIndex] = useState(0)
 
   const [explanation, setExplanation] = useState("")
-  const [attachments, setAttachments] = useState<any>()
+  const [attachments, setAttachments] = useState<IAttachment[]>([])
   const [attachmentUploading, setAttachmentUploading] = useState(false)
 
   const [request, setRequest] = useState<Request>({
@@ -73,7 +74,7 @@ const AbsenceRequest = ({ queryParams, absenceTypes }: Props) => {
     }
   }
 
-  const { sendAbsenceRequest, loading } = useAbsenceMutation({ callBack })
+  const { sendAbsenceRequest } = useAbsenceMutation({ callBack })
 
   const generateSelectOptions = () => {
     return absenceTypes.map((absenceType, index) => ({
@@ -93,7 +94,7 @@ const AbsenceRequest = ({ queryParams, absenceTypes }: Props) => {
       toast({ description: "No user was selected" })
     } else if (
       absenceTypes[absenceIndex].attachRequired &&
-      attachments.url === ""
+      attachments?.length === 0
     ) {
       toast({ description: "No attachment was uploaded" })
     } else if (absenceTypes[absenceIndex].explRequired && explanation === "") {
@@ -141,17 +142,41 @@ const AbsenceRequest = ({ queryParams, absenceTypes }: Props) => {
     )
   }
 
+  const handleAttachmentChange = (e: any) => {
+    const files = e.target.files
+
+    uploadHandler({
+      files,
+      beforeUpload: () => {
+        setAttachmentUploading(true)
+        return
+      },
+
+      afterUpload: ({ response, fileInfo }) => {
+        setAttachmentUploading(false)
+        setAttachments((prevAttachments) => [
+          ...prevAttachments,
+          Object.assign({ url: response }, fileInfo),
+        ])
+      },
+    })
+  }
+
   const renderRequiredAttachment = () => {
     return (
-      <>
-        <div className="flex items-center">
-          <Uploader
-            defaultFileList={attachments || []}
-            onChange={setAttachments}
-            setUploading={setAttachmentUploading}
+      <div className="flex justify-between self-start items-center gap-2">
+        <label className="cursor-pointer bg-primary p-2 rounded-md">
+          <input
+            autoComplete="off"
+            multiple={true}
+            type="file"
+            onChange={handleAttachmentChange}
+            className="hidden"
           />
-        </div>
-      </>
+          <Paperclip size={18} color="#fff" />
+        </label>
+        <div>{attachments.length !== 0 ? attachments[0].name : null}</div>
+      </div>
     )
   }
 
@@ -168,10 +193,14 @@ const AbsenceRequest = ({ queryParams, absenceTypes }: Props) => {
       return totalRequestedDaysTime.toFixed(1)
     }
 
-    const totalHours = (
-      (request.byTime.endTime.getTime() - request.byTime.startTime.getTime()) /
-      3600000
-    ).toFixed(2)
+    const totalHours = parseInt(
+      (
+        (request.byTime.endTime.getTime() -
+          request.byTime.startTime.getTime()) /
+        3600000
+      ).toFixed(2),
+      10
+    )
 
     const hours = Math.floor(totalHours)
     const minutes = Math.round((totalHours - hours) * 60)
@@ -348,7 +377,7 @@ const AbsenceRequest = ({ queryParams, absenceTypes }: Props) => {
 
   const renderRequestForm = () => {
     return (
-      <DialogContent className="max-w-lg">
+      <DialogContent>
         <DialogHeader>Create Request</DialogHeader>
         {requestTimeByDay
           ? renderDateSelection()

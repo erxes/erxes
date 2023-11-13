@@ -185,10 +185,6 @@ const PaginationContainer = ({
   }
 
   const renderBar = () => {
-    if (!isPaginated) {
-      return null
-    }
-
     let prevClass = ""
     let nextClass = ""
 

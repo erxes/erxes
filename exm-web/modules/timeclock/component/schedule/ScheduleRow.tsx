@@ -38,8 +38,8 @@ const ScheduleRow = ({ schedule }: Props) => {
 
   return (
     <>
-      <TableRow>
-        <TableCell className="py-4">
+      <TableRow className="border-none">
+        <TableCell className="py-5">
           {schedule.user && schedule.user.details
             ? schedule.user.details.fullName
               ? schedule.user.details.fullName
@@ -48,13 +48,13 @@ const ScheduleRow = ({ schedule }: Props) => {
               : "-"
             : "-"}
         </TableCell>
-        <TableCell className="py-4">
+        <TableCell className="py-5">
           {schedule.user.employeeId ? schedule.user.employeeId : ""}
         </TableCell>
-        <TableCell className="py-4">{totalDaysScheduled}</TableCell>
-        <TableCell className="py-4">{totalHoursScheduled.toFixed(1)}</TableCell>
-        <TableCell className="py-4">{totalBreakInHours.toFixed(1)}</TableCell>
-        <TableCell className="py-4">{scheduleChecked}</TableCell>
+        <TableCell className="py-5">{totalDaysScheduled}</TableCell>
+        <TableCell className="py-5">{totalHoursScheduled.toFixed(1)}</TableCell>
+        <TableCell className="py-5">{totalBreakInHours.toFixed(1)}</TableCell>
+        <TableCell className="py-5">{scheduleChecked}</TableCell>
       </TableRow>
     </>
   )

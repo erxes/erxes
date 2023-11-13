@@ -7,8 +7,6 @@ import { useAtomValue } from "jotai"
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
-import { isCurrentUserAdmin } from "../utils"
-
 // import Sidebar from "./sidebar/Sidebar"
 
 const TimeClockList = dynamic(() => import("./timeclock/TimeclockList"))
@@ -29,7 +27,7 @@ const Timeclocks = () => {
 
   const queryParams = {
     page: params.page || 1,
-    perPage: params.perPage || 8,
+    perPage: params.perPage || 10,
     userIds: currentUser?._id,
     startDate: startOfThisMonth,
     endDate: startOfNextMonth,

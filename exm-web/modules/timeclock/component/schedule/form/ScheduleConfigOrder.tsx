@@ -129,7 +129,7 @@ const ScheduleConfigOrder = ({
             .map((s: any) => (
               <div
                 key={s.order}
-                className="flex justify-between items-center py-2 px-3 "
+                className="flex justify-between items-center py-2 px-3 bg"
               >
                 <div>{s.label}</div>
                 {s.pinned ? (

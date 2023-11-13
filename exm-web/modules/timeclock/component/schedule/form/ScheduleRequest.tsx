@@ -77,7 +77,7 @@ const ScheduleRequest = ({ configsList, scheduleConfigOrder }: Props) => {
         dayjs(days[0]).format("YYYY-MM-DD") + " " + configsList[0].shiftEnd
       ),
       lunchBreakInMins: configsList[0].lunchBreakInMins,
-    },
+    } || {},
   ])
 
   // Select Section ////////////////////////////////////////////////////////
@@ -110,6 +110,8 @@ const ScheduleRequest = ({ configsList, scheduleConfigOrder }: Props) => {
       }))
     )
   }
+
+  console.log("shifts", shifts)
 
   const handleConfigsChange = (selectedConfigValue: any, index: number) => {
     const updatedValues = [...selectedValues]
@@ -173,8 +175,6 @@ const ScheduleRequest = ({ configsList, scheduleConfigOrder }: Props) => {
 
   // Date Section ////////////////////////////////////////////////////////
   const handleCalendarChange = (selectedDays: Date[]) => {
-    console.log(selectedDays)
-
     setDays(selectedDays)
     handleDaySelection(selectedDays)
   }
@@ -208,7 +208,7 @@ const ScheduleRequest = ({ configsList, scheduleConfigOrder }: Props) => {
   }
   ////////////////////////////////////////////////////////////////////////
 
-  // Input Section ////////////////////////////////////////////////////////
+  // Input Change ////////////////////////////////////////////////////////
   const handleInputChange = (e: any, index: number) => {
     const { name, value } = e.target
 
@@ -225,7 +225,6 @@ const ScheduleRequest = ({ configsList, scheduleConfigOrder }: Props) => {
     setShifts(updatedShifts)
   }
   /////////////////////////////////////////////////////////////////////////
-  console.log("shifts", shifts)
 
   const calculateScheduledDaysAndHours = () => {
     const totalDay = days.length
@@ -240,13 +239,15 @@ const ScheduleRequest = ({ configsList, scheduleConfigOrder }: Props) => {
       const duration = shiftEnd.diff(shiftStart, "minute") - lunchBreakInMins
 
       totalHours += duration / 60
-      totalBreak += lunchBreakInMins
+      totalBreak += lunchBreakInMins / 60
     })
+
+    const formattedBreakTime = totalBreak < 1 ? totalBreak * 60 : totalBreak
 
     return {
       totalDay,
       totalHours: totalHours.toFixed(2),
-      totalBreak,
+      totalBreak: formattedBreakTime,
     }
   }
 
@@ -271,14 +272,6 @@ const ScheduleRequest = ({ configsList, scheduleConfigOrder }: Props) => {
   const onSubmitClick = () => {
     const { totalBreak } = calculateScheduledDaysAndHours()
     checkDuplicateScheduleShifts({
-      branchIds: [],
-      departmentIds: [],
-      userIds: currentUser?._id,
-      shifts,
-      totalBreakInMins: totalBreak,
-      userType: "employee",
-    })
-    console.log({
       branchIds: [],
       departmentIds: [],
       userIds: currentUser?._id,
@@ -374,7 +367,7 @@ const ScheduleRequest = ({ configsList, scheduleConfigOrder }: Props) => {
                 className="[appearance:textfield] 
                 [&::-webkit-outer-spin-button]:appearance-none 
                 [&::-webkit-inner-spin-button]:appearance-none 
-                w-1/12 text-center border border-input 
+                text-center border border-input 
                 hover:bg-accent 
                 hover:text-accent-foreground rounded-md px-3 outline-none"
                 value={shifts[index].lunchBreakInMins}
@@ -412,7 +405,7 @@ const ScheduleRequest = ({ configsList, scheduleConfigOrder }: Props) => {
           Schedule Request
         </button>
       </DialogTrigger>
-      <DialogContent className="px-5">
+      <DialogContent className="px-5 max-w-4xl">
         <DialogHeader>
           <DialogTitle>Create Schedule Request</DialogTitle>
         </DialogHeader>
