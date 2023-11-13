@@ -380,6 +380,29 @@ export const getCalcedAmounts = async (
         interestRate: contract.interestRate,
         dayOfMonth: diffNonce
       });
+
+      //commitment interest calculation
+      if (
+        contract.leaseType === LEASE_TYPES.LINEAR &&
+        contract.commitmentInterest > 0
+      ) {
+        result.commitmentInterestEve =
+          (preSchedule.interestEve || 0) -
+          (preSchedule.didInterestEve || 0) +
+          calcInterest({
+            balance: result.unUsedBalance,
+            interestRate: contract.commitmentInterest,
+            dayOfMonth: diffEve
+          });
+        result.commitmentInterestNonce =
+          (preSchedule.interestNonce || 0) -
+          (preSchedule.didInterestNonce || 0) +
+          calcInterest({
+            balance: result.unUsedBalance,
+            interestRate: contract.commitmentInterest,
+            dayOfMonth: diffNonce
+          });
+      }
     }
 
     if (preSchedule.status === SCHEDULE_STATUS.LESS) {
@@ -479,6 +502,29 @@ export const getCalcedAmounts = async (
       interestRate: contract.interestRate,
       dayOfMonth: diffNonce
     });
+
+    //commitment interest calculation
+    if (
+      contract.leaseType === LEASE_TYPES.LINEAR &&
+      contract.commitmentInterest > 0
+    ) {
+      result.commitmentInterestEve =
+        (preSchedule.interestEve || 0) -
+        (preSchedule.didInterestEve || 0) +
+        calcInterest({
+          balance: result.unUsedBalance,
+          interestRate: contract.commitmentInterest,
+          dayOfMonth: diffEve
+        });
+      result.commitmentInterestNonce =
+        (preSchedule.interestNonce || 0) -
+        (preSchedule.didInterestNonce || 0) +
+        calcInterest({
+          balance: result.unUsedBalance,
+          interestRate: contract.commitmentInterest,
+          dayOfMonth: diffNonce
+        });
+    }
   }
 
   result.insurance = nextSchedule.insurance;
