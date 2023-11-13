@@ -304,51 +304,6 @@ class GoalTypeForm extends React.Component<Props, State> {
     return months;
   };
 
-  // mapWeeks = (): string[] => {
-  //   const { startDate, endDate } = this.state;
-  //   const weeks: string[] = [];
-  //   const currentDate = new Date(startDate);
-  //   while (currentDate <= endDate) {
-  //     const weekStart = new Date(currentDate);
-  //     const weekEnd = new Date(currentDate);
-  //     weekEnd.setDate(weekEnd.getDate() + 6);
-  //     weeks.push(
-  //       `Week of ${weekStart.toDateString()} - ${weekEnd.toDateString()}`
-  //     );
-  //     currentDate.setDate(currentDate.getDate() + 7);
-  //   }
-  //   return weeks;
-  // };
-  // mapMonths = (): Array<{ _id: number; month: string }> => {
-  //   const { startDate, endDate } = this.state;
-  //   const startDateObject = new Date(startDate);
-  //   const endDateObject = new Date(endDate);
-  //   const startMonth = startDateObject.getMonth();
-  //   const endMonth = endDateObject.getMonth();
-  //   const year = startDateObject.getFullYear();
-  //   const monthNames = [
-  //     'January',
-  //     'February',
-  //     'March',
-  //     'April',
-  //     'May',
-  //     'June',
-  //     'July',
-  //     'August',
-  //     'September',
-  //     'October',
-  //     'November',
-  //     'December'
-  //   ];
-  //   const months: Array<{ _id: number; month: string }> = [];
-
-  //   for (let i = startMonth; i <= endMonth; i++) {
-  //     const _id = i; // Use the month index as _id
-  //     months.push({ _id, month: `${monthNames[i]} ${year}` });
-  //   }
-  //   return months;
-  // };
-
   mapWeeks = (): string[] => {
     const { startDate, endDate } = this.state;
     const weeks: string[] = [];
