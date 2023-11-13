@@ -7,8 +7,10 @@ import {
   IReport,
   IReportDocument,
   reportSchema,
-  chartSchema
+  chartSchema,
+  IChartEdit
 } from './definitions/reports';
+import { Z_ASCII } from 'zlib';
 
 export interface IReportModel extends Model<IReportDocument> {
   getReport(_id: string): Promise<IReportDocument>;
@@ -60,7 +62,7 @@ export const loadReportClass = (models: IModels) => {
 export interface IChartModel extends Model<IChartDocument> {
   getChart(_id: string): Promise<IChartDocument>;
   createChart(doc: IChart): Promise<IChartDocument>;
-  updateChart(_id: string, doc: IChart): Promise<IChartDocument>;
+  updateChart(_id: string, doc: IChartEdit): Promise<IChartDocument>;
   removeChart(_id: string): void;
 }
 
@@ -81,7 +83,7 @@ export const loadChartClass = (models: IModels) => {
     }
     // update
     public static async updateChart(_id: string, doc: IChart) {
-      await models.Charts.updateOne({ _id }, { $set: { ...doc } });
+      await models.Charts.updateOne({ _id }, { $set: doc });
       return models.Charts.findOne({ _id });
     }
     // remove

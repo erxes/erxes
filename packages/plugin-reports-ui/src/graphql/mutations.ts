@@ -67,12 +67,14 @@ mutation reportsEdit($_id: String!, ${report_params}) {
 `;
 const reportChartsEdit = `
 mutation reportChartsEdit($_id: String!, ${report_chart_params}) {
-  reportChartsEdit(_id: $_id, ${report_chart_params_def})
+  reportChartsEdit(_id: $_id, ${report_chart_params_def}) {
+    ${report_chart_fields}
+  }
 }
 `;
 const reportChartsAdd = `
-mutation reportChartsAdd($_id: String!,$reportId: String!, ${report_chart_params}) {
-  reportChartsAdd(_id: $_id,reportId: $reportId, ${report_chart_params_def}) {
+mutation reportChartsAdd($reportId: String!, ${report_chart_params}) {
+  reportChartsAdd(reportId: $reportId, ${report_chart_params_def}) {
     ${report_chart_fields}
   }
 }

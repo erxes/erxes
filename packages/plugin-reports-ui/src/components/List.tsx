@@ -17,7 +17,6 @@ import { isEnabled } from '@erxes/ui/src/utils/core';
 import TaggerPopover from '@erxes/ui-tags/src/components/TaggerPopover';
 import { TAG_TYPES } from '@erxes/ui-tags/src/constants';
 import SideBar from '../containers/SideBar';
-// import SideBar from './SideBar';
 type Props = {
   reports: IReport[];
   renderButton?: (props: IButtonMutateProps) => JSX.Element;

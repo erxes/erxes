@@ -16,6 +16,14 @@ export default {
       return new Error(`Invalid ${error.path}: ${error.value}`);
     }
   },
+  chartsCount(report: IReportDocument, {}, { models }: IContext) {
+    try {
+      const { _id } = report;
+      return models.Charts.find({ reportId: _id }).countDocuments();
+    } catch (error) {
+      return new Error(`Invalid ${error.path}: ${error.value}`);
+    }
+  },
   createdBy(report: IReportDocument) {
     return (
       report.createdBy && {

@@ -19,13 +19,14 @@ interface IChartProps {
 const ChartRenderer = (props: IChartProps) => {
   const { labels, chartType, data } = props;
 
+  console.log('renderer   ', chartType);
   const chartRef = useRef<HTMLCanvasElement>(null);
 
   const chartData = {
     labels: labels || DEFAULT_LABELS_PER_CHART[chartType],
     datasets: [
       {
-        label: 'My First Dataset',
+        label: 'Default Dataset',
         data: data || DEFAULT_DATA_PER_CHART[chartType],
         backgroundColor: DEFAULT_BACKGROUND_COLORS,
         borderColor: DEFAULT_BORDER_COLORS,
@@ -46,7 +47,7 @@ const ChartRenderer = (props: IChartProps) => {
         chart.destroy();
       };
     }
-  }, []);
+  }, [chartData, chartType]);
 
   return (
     <>

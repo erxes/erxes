@@ -104,8 +104,7 @@ export default withProps<Props>(
     }),
     graphql<Props, any>(gql(mutations.reportChartsRemove), {
       name: 'reportChartsRemoveMutation',
-      options: ({ reportId, ...variables }) => ({
-        variables,
+      options: ({ reportId }) => ({
         fetchPolicy: 'network-only',
         refetchQueries: [
           {

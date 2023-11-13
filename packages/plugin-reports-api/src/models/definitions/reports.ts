@@ -56,6 +56,13 @@ export interface IChart {
   layout: string;
 }
 
+export interface IChartEdit {
+  layout?: string;
+  vizState?: string;
+  name?: string;
+  type?: string;
+}
+
 export interface IChartDocument extends IChart, Document {
   _id: string;
 }

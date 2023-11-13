@@ -6,6 +6,7 @@ import { gql } from '@apollo/client';
 import ChartForm from '../../components/chart/ChartForm';
 import { mutations, queries } from '../../graphql';
 import {
+  IChart,
   ReportChartFormMutationResponse,
   ReportTemplatesListQueryResponse
 } from '../../types';
@@ -16,6 +17,8 @@ type Props = {
   toggleForm: () => void;
   showChatForm: boolean;
   reportId: string;
+
+  chart?: IChart;
 };
 
 type FinalProps = {
@@ -28,23 +31,25 @@ const ChartFormList = (props: FinalProps) => {
     reportTemplatesListQuery,
     reportChartsAddMutation,
     reportChartsEditMutation,
-    reportChartsRemoveMutation
+    reportChartsRemoveMutation,
+    toggleForm
   } = props;
 
   const { reportTemplatesList = [] } = reportTemplatesListQuery;
 
   const chartsEdit = values => {
-    reportChartsEditMutation({ variables: values })
-      .then(() => {
-        Alert.success('Successfully edited chart');
-      })
-      .catch(err => Alert.error(err.message));
+    reportChartsEditMutation({ variables: values });
+    // .then(() => {
+    //   Alert.success('Successfully edited chart');
+    // })
+    // .catch(err => Alert.error(err.message));
   };
 
   const chartsAdd = values => {
     reportChartsAddMutation({ variables: values })
       .then(() => {
         Alert.success('Successfully added chart');
+        toggleForm();
       })
       .catch(err => Alert.error(err.message));
   };
@@ -72,7 +77,6 @@ export default compose(
   graphql<Props, any, {}>(gql(queries.reportTemplatesList), {
     name: 'reportTemplatesListQuery',
     options: () => ({
-      variables: {},
       fetchPolicy: 'network-only'
     })
   }),

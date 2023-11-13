@@ -18,15 +18,12 @@ const reportsMutations = {
     });
 
     if (doc.reportTemplateType) {
-      console.log('aa ', doc.serviceName);
       const service = await serviceDiscovery.getService(doc.serviceName, true);
-      console.log(service);
 
       const reportTemplate = service.config?.meta?.reports?.reportTemplates?.find(
         t => t.type === doc.reportTemplateType
       );
 
-      console.log('tttt   ', reportTemplate);
       const chartTemplates = service.config?.meta?.reports?.chartTemplates;
 
       const { charts } = reportTemplate;
@@ -39,14 +36,8 @@ const reportsMutations = {
       }
 
       if (getChartTemplates) {
-        // console.log('aa ', getChartTemplates, report._id);
         await models.Charts.insertMany(
           getChartTemplates.map(c => {
-            console.log('lil ', {
-              template: c.templateType,
-              chartType: c.chartTypes[0],
-              reportId: report._id
-            });
             return {
               template: c.templateType,
               chartType: c.chartTypes[0],
@@ -94,9 +85,7 @@ const reportsMutations = {
     { _id, ...doc }: IChartDocument,
     { models }: IContext
   ) {
-    const aa = await models.Charts.updateChart(_id, { ...doc });
-    console.log('aa ', aa);
-    return aa;
+    return models.Charts.updateChart(_id, { ...doc });
   },
   reportChartsRemove(_root, _id: string, { models }: IContext) {
     return models.Charts.removeChart(_id);

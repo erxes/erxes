@@ -1,4 +1,9 @@
-import { Button, FormControl, Icon } from '@erxes/ui/src/components';
+import {
+  Button,
+  ControlLabel,
+  FormControl,
+  Icon
+} from '@erxes/ui/src/components';
 import { TabTitle, Tabs } from '@erxes/ui/src/components/tabs';
 import PageContent from '@erxes/ui/src/layout/components/PageContent';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
@@ -21,6 +26,10 @@ import Participators from './Participators';
 import ChartForm from '../../containers/chart/ChartForm';
 import ChartRenderer from '../chart/ChartRenderer';
 
+const DEFAULT_GRID_DIMENSIONS = {
+  w: 3,
+  h: 3
+};
 const deserializeItem = i => {
   return {
     ...i,
@@ -32,8 +41,8 @@ const deserializeItem = i => {
 const defaultLayout = i => ({
   x: i.layout.x || 0,
   y: i.layout.y || 0,
-  w: i.layout.w || 3,
-  h: i.layout.h || 3,
+  w: i.layout.w || DEFAULT_GRID_DIMENSIONS.w,
+  h: i.layout.h || DEFAULT_GRID_DIMENSIONS.h,
   minW: 1,
   minH: 1
 });
@@ -63,6 +72,7 @@ const Report = (props: Props) => {
   const [name, setName] = useState(report.name || '');
   const [visibility, setVisibility] = useState<string>(report.visibility || '');
 
+  const [currentChart, setCurrentChart] = useState(null);
   const [showChatForm, setShowChatForm] = useState(false);
   const [showTeamMemberSelect, setShowTeamMembersSelect] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
@@ -71,6 +81,8 @@ const Report = (props: Props) => {
   const [departmentIds, setDepartmentIds] = useState(
     report.assignedDepartmentIds
   );
+
+  const [columnsNum, setColumnsNum] = useState(2);
 
   useEffect(() => {
     setReportItems(charts || []);
@@ -109,13 +121,26 @@ const Report = (props: Props) => {
       reportChartsRemove(_id);
     });
   };
+
+  const fillEmptyContent = () => {
+    const totalCols = columnsNum * 3;
+  };
+
   const reportItem = (item: IChart) => {
     if (item.layout) {
       return (
         <div key={item._id || Math.random()} data-grid={defaultLayout(item)}>
           <ChartTitle>
             <div>{item.name}</div>
-            <span className="db-item-action">edit</span>
+            <span
+              className="db-item-action"
+              onClick={() => {
+                setCurrentChart(item);
+                setShowChatForm(true);
+              }}
+            >
+              edit
+            </span>
             <span
               className="db-item-action"
               onClick={() => onDeleteChart(item._id)}
@@ -168,6 +193,11 @@ const Report = (props: Props) => {
 
   const handleUserChange = (usrIds: string[]) => {
     setUserIds(usrIds);
+  };
+
+  const onColumsNumChange = e => {
+    e.preventDefault();
+    setColumnsNum(e.target.value);
   };
 
   const renderMembersSelectModal = () => {
@@ -258,6 +288,18 @@ const Report = (props: Props) => {
         ) : null}
 
         <ActionBarButtonsWrapper>
+          <ControlLabel>Enter columns num</ControlLabel>
+
+          <div style={{ width: '10%' }}>
+            <FormControl
+              type="number"
+              inline={true}
+              align="center"
+              name="columnsNum"
+              value={columnsNum}
+              onChange={onColumsNumChange}
+            />
+          </div>
           {renderButtons()}
           <Button
             btnStyle="success"
@@ -314,7 +356,7 @@ const Report = (props: Props) => {
         {!showChatForm && (
           <DragField
             haveChart={charts?.length ? true : false}
-            cols={6}
+            cols={columnsNum * 3}
             margin={[30, 30]}
             onDragStart={() => setIsDragging(true)}
             onDragEnd={() => setIsDragging(false)}
@@ -336,6 +378,7 @@ const Report = (props: Props) => {
             queryParams={queryParams}
             toggleForm={() => setShowChatForm(!showChatForm)}
             showChatForm={showChatForm}
+            chart={currentChart}
             reportId={report._id}
           />
         )}

@@ -41,6 +41,7 @@ const reportsList = `
         _id
         name
         visibility
+        chartsCount
         createdAt
         createdBy{
           ${userFields}
@@ -57,6 +58,8 @@ const reportsList = `
           name
           contentType
           templateType
+          layout
+          vizState
           order
           chartType
           filters {
@@ -131,6 +134,8 @@ const reportDetail = `
           templateType
           order
           chartType
+          layout
+          vizState
           filters {
             fieldName
             filterValue

@@ -104,7 +104,7 @@ const DragField = styledTS<{ haveChart?: boolean }>(styled(ReactGridLayout))`
 
 const CenterBar = styled.div`
   position: absolute;
-  left: 40%;
+  left: 40% !important;
 
   > div {
     height: 30px;
@@ -136,6 +136,11 @@ const CenterBar = styled.div`
 `;
 
 const ActionBarButtonsWrapper = styled.div`
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  align-items: center;
+
   @media (max-width: 1450px) {
     max-width: 350px;
     white-space: normal;

@@ -51,9 +51,8 @@ const ChartForm = (props: Props) => {
     chartsEdit
   } = props;
 
-  const [name, setName] = useState('');
-
-  const [chartType, setChartType] = useState<ChartType>('bar');
+  const [name, setName] = useState(chart?.name || '');
+  const [chartType, setChartType] = useState<string>(chart?.chartType || 'bar');
   const [serviceType, setServiceType] = useState('');
   const [serviceTypes, setServiceTypes] = useState([]);
 
@@ -115,7 +114,7 @@ const ChartForm = (props: Props) => {
           unmountOnExit={true}
         >
           {showChatForm ? (
-            <ChartRenderer chartType={chartType} />
+            <ChartRenderer chartType={chartType} data={chart?.data} />
           ) : (
             <EmptyState
               text={__('Build your custom query')}
