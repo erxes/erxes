@@ -16,7 +16,7 @@ import {
 import { IRouterProps } from '@erxes/ui/src/types';
 import React from 'react';
 import { withRouter } from 'react-router-dom';
-import { menuContracts } from '../../constants';
+import { ORGANIZATION_TYPE, menuContracts } from '../../constants';
 import Dropdown from 'react-bootstrap/Dropdown';
 import TransactionForm from '../containers/TransactionForm';
 import { ContractsTableWrapper } from '../../contracts/styles';
@@ -183,16 +183,18 @@ class TransactionsList extends React.Component<IProps> {
 
       actionBarLeft = (
         <BarItems>
-          {can('transactionsRemove', currentUser) && (
-            <Button
-              btnStyle="danger"
-              size="small"
-              icon="cancel-1"
-              onClick={onClick}
-            >
-              {__('Delete')}
-            </Button>
-          )}
+          {currentUser?.configs?.loansConfig?.organizationType ===
+            ORGANIZATION_TYPE.ENTITY &&
+            can('transactionsRemove', currentUser) && (
+              <Button
+                btnStyle="danger"
+                size="small"
+                icon="cancel-1"
+                onClick={onClick}
+              >
+                {__('Delete')}
+              </Button>
+            )}
         </BarItems>
       );
     }
