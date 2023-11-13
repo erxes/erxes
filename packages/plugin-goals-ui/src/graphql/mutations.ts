@@ -5,17 +5,20 @@ const commonFields = `
     $boardId: String
     $contributionType: String
     $metric:String
-    $goalType: String
+    $goalTypeChoose: String
     $contribution: [String]
-    $department:String
-    $unit:String
-    $branch:String
+    $department:[String]
+    $unit:[String]
+    $branch:[String]
     $specificPeriodGoals:JSON
     $startDate:Date
     $endDate:Date
-    $target:String
+    $target:Float
     $segmentIds: [String] 
-    $notification:JSON
+    $segmentRadio:Boolean
+    $stageRadio:Boolean
+    $periodGoal:String
+    $teamGoalType:String
 `;
 
 const commonVariables = `
@@ -25,7 +28,7 @@ const commonVariables = `
   boardId:$boardId
   contributionType:$contributionType
   metric:$metric
-  goalType:$goalType
+  goalTypeChoose:$goalTypeChoose
   contribution:$contribution
   department:$department
   unit:$unit
@@ -35,7 +38,10 @@ const commonVariables = `
   endDate:$endDate
   target:$target
   segmentIds: $segmentIds
-  notification:$notification
+  segmentRadio:$segmentRadio
+  stageRadio:$stageRadio
+  periodGoal:$periodGoal
+  teamGoalType:$teamGoalType
 `;
 
 const goalTypesAdd = `
@@ -48,7 +54,7 @@ const goalTypesAdd = `
       stageId
       contributionType
       metric
-      goalType
+      goalTypeChoose
       contribution
       department
       unit
@@ -58,7 +64,10 @@ const goalTypesAdd = `
       endDate
       target
       segmentIds
-      notification
+      segmentRadio
+      stageRadio
+      periodGoal
+      teamGoalType
     }
   }
 `;
@@ -73,7 +82,7 @@ const goalTypesEdit = `
       boardId
       contributionType
       metric
-      goalType
+      goalTypeChoose
       contribution
       department
       unit
@@ -83,7 +92,10 @@ const goalTypesEdit = `
       endDate
       target
       segmentIds
-      notification
+      segmentRadio
+      segmentRadio
+      periodGoal
+      teamGoalType
     }
   }
 `;

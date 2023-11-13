@@ -3,7 +3,7 @@ export interface ISpecificPeriodGoal {
   _id: string;
   current: string;
   addMonthly: string;
-  addTarget: string;
+  addTarget: number;
 }
 
 export interface IGoalTypeDoc {
@@ -15,29 +15,28 @@ export interface IGoalTypeDoc {
   boardId: any;
   contributionType: string;
   metric: string;
-  goalType: string;
+  goalTypeChoose: string;
   contribution: [string];
-  department: string;
-  unit: string;
-  branch: string;
+  department: string[];
+  unit: string[];
+  branch: string[];
   specificPeriodGoals: ISpecificPeriodGoal[];
   progress: {
     current: string;
     progress: string;
     amountData: string;
-    target: string;
+    target: number;
     _id: string;
   };
   chooseStage: string;
   startDate: Date;
   endDate: Date;
-  target: string;
+  target: number;
   segmentIds: string[];
-  notification: {
-    goalStarted: boolean;
-    goalAchieved: boolean;
-    goalMissed: boolean;
-  };
+  stageRadio: boolean;
+  segmentRadio: boolean;
+  periodGoal: string;
+  teamGoalType: string;
 }
 
 export interface IGoalType extends IGoalTypeDoc {

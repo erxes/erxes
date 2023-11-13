@@ -1,10 +1,5 @@
 import { IContext } from '../../../connectionResolver';
 import { paginate } from '@erxes/api-utils/src';
-import {
-  sendNotificationsMessage,
-  sendCommonMessage,
-  sendNotification
-} from '../../../messageBroker';
 import { graphqlPubsub } from '../../../configs';
 
 const generateFilter = async (params, commonQuerySelector) => {
@@ -14,10 +9,10 @@ const generateFilter = async (params, commonQuerySelector) => {
     filter.branch = branch;
   }
   if (department) {
-    filter.department = { $in: [department] };
+    filter.department = department;
   }
   if (unit) {
-    filter.unit = { $in: [unit] };
+    filter.unit = unit;
   }
   if (contribution) {
     filter.contribution = { $in: [contribution] };
@@ -72,16 +67,6 @@ const goalQueries = {
   ) => {
     const filter = await generateFilter(params, commonQuerySelector);
     await models.Goals.progressIdsGoals(filter, params);
-
-    // await sendNotificationsMessage({
-    //   subdomain,
-    //   action: 'send',
-    //   data: {
-    //     createdUser: user,
-    //     title: `test`,
-    //     action: `changed goal`
-    //   }
-    // });
 
     return {
       list: paginate(models.Goals.find(filter).sort(sortBuilder(params)), {
