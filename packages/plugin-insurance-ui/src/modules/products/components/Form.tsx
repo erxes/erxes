@@ -19,6 +19,7 @@ import SelectRisks from '../../risks/containers/SelectRisks';
 import PriceRow from './PriceRow';
 import SelectCategory from '../../categories/containers/SelectCategory';
 import RiskRow from './RiskRow';
+import CustomFieldSection from './CustomFieldSection';
 
 type Props = {
   product?: InsuranceProduct;
@@ -149,68 +150,88 @@ const ProductForm = (props: Props) => {
 
     return (
       <>
-        {renderInput('code', 'text', product.code, 'Code', true)}
-        {renderInput('name', 'text', product.name, 'Name', true)}
-        {renderInput('description', 'text', product.description, 'Description')}
-        <FormGroup>
-          <ControlLabel>{__('Category')}</ControlLabel>
-          <SelectCategory
-            value={product.categoryId}
-            onChange={(categoryId, categoryRisks: Risk[]) => {
-              setProduct({
-                ...product,
-                categoryId
-              });
-
-              const newConfigs: RiskConfig[] = categoryRisks.map(risk => {
-                return {
-                  riskId: risk._id,
-                  name: risk.name,
-                  coverage: 0,
-                  coverageLimit: 0
-                };
-              });
-
-              setRiskConfigs(newConfigs);
-            }}
-          />
-
-          {renderRisks()}
-        </FormGroup>
-        {renderInput('price', 'number', product.price, 'Price', true, true)}
-        or
-        <FormGroup>
-          <ControlLabel>Specific price for vendors</ControlLabel>
-          {companyConfigs.map((companyConfig, index) => (
-            <PriceRow
-              key={index}
-              index={index}
-              productConfig={companyConfig}
-              onChange={(rowIndex, productConfig) => {
-                const newCompanyConfigs = [...companyConfigs];
-                newCompanyConfigs[rowIndex] = productConfig;
-                setCompanyConfigs(newCompanyConfigs);
-              }}
-              remove={rowIndex => {
-                setCompanyConfigs(
-                  companyConfigs.filter((c, i) => i !== rowIndex)
-                );
-              }}
-            />
-          ))}
-          <br />
-
-          <LinkButton
-            onClick={() => {
-              setCompanyConfigs([
-                ...companyConfigs,
-                { companyId: '', specificPrice: 0 }
-              ]);
+        <div style={{ display: 'flex' }}>
+          <div
+            style={{
+              width: props.product ? '50%' : '100%',
+              padding: '20px',
+              height: '100%'
             }}
           >
-            <Icon icon="plus-1" /> Add
-          </LinkButton>
-        </FormGroup>
+            {renderInput('code', 'text', product.code, 'Code', true)}
+            {renderInput('name', 'text', product.name, 'Name', true)}
+            {renderInput(
+              'description',
+              'text',
+              product.description,
+              'Description'
+            )}
+            <FormGroup>
+              <ControlLabel>{__('Category')}</ControlLabel>
+              <SelectCategory
+                value={product.categoryId}
+                onChange={(categoryId, categoryRisks: Risk[]) => {
+                  setProduct({
+                    ...product,
+                    categoryId
+                  });
+
+                  const newConfigs: RiskConfig[] = categoryRisks.map(risk => {
+                    return {
+                      riskId: risk._id,
+                      name: risk.name,
+                      coverage: 0,
+                      coverageLimit: 0
+                    };
+                  });
+
+                  setRiskConfigs(newConfigs);
+                }}
+              />
+
+              {renderRisks()}
+            </FormGroup>
+            {renderInput('price', 'number', product.price, 'Price', true, true)}
+            or
+            <FormGroup>
+              <ControlLabel>Specific price for vendors</ControlLabel>
+              {companyConfigs.map((companyConfig, index) => (
+                <PriceRow
+                  key={index}
+                  index={index}
+                  productConfig={companyConfig}
+                  onChange={(rowIndex, productConfig) => {
+                    const newCompanyConfigs = [...companyConfigs];
+                    newCompanyConfigs[rowIndex] = productConfig;
+                    setCompanyConfigs(newCompanyConfigs);
+                  }}
+                  remove={rowIndex => {
+                    setCompanyConfigs(
+                      companyConfigs.filter((c, i) => i !== rowIndex)
+                    );
+                  }}
+                />
+              ))}
+              <br />
+
+              <LinkButton
+                onClick={() => {
+                  setCompanyConfigs([
+                    ...companyConfigs,
+                    { companyId: '', specificPrice: 0 }
+                  ]);
+                }}
+              >
+                <Icon icon="plus-1" /> Add
+              </LinkButton>
+            </FormGroup>
+          </div>
+          {props.product && (
+            <div style={{ width: '50%', padding: '20px', height: '100%' }}>
+              <CustomFieldSection isDetail={true} _id={props.product._id} />
+            </div>
+          )}
+        </div>
         <ModalFooter>
           <Button btnStyle="simple" onClick={closeModal} icon="times-circle">
             Close

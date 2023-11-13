@@ -23,12 +23,13 @@ export interface IInsuranceItemDocument extends IInsuranceItem, Document {
 }
 
 export const itemSchema = new Schema({
+  _id: field({ pkey: true }),
   customerId: field({ type: String, sparse: true }),
   companyId: field({ type: String, sparse: true }),
   vendorUserId: field({ type: String, required: true }),
   productId: field({ type: String, required: true }),
   dealId: field({ type: String }),
   status: field({ type: String, required: true }),
-  customFieldsData: field({ type: customFieldSchema }),
+  customFieldsData: field({ type: [customFieldSchema] }),
   lastModifiedBy: field({ type: String })
 });

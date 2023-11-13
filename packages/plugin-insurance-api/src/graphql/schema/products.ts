@@ -32,6 +32,8 @@ type CompanyProductConfig {
     categoryId: ID
 
     category: InsuranceCategory
+
+    customFieldsData: JSON
   }
   
   type InsuranceProductOfVendor @key(fields: "_id") @cacheControl(maxAge: 3) {
@@ -44,6 +46,7 @@ type CompanyProductConfig {
     createdAt: Date
     updatedAt: Date
     riskConfigs: [RiskConfig]
+    customFieldsData: JSON
   }
   
   type InsuranceProductList {
@@ -79,6 +82,7 @@ export const mutations = `
         riskConfigs: [RiskConfigInput]
         categoryId: ID
         companyProductConfigs: [CompanyProductConfigInput]
+        customFieldsData: JSON
     ): InsuranceProduct
     insuranceProductsEdit(
         _id: ID!
@@ -89,6 +93,7 @@ export const mutations = `
       riskConfigs: [RiskConfigInput]
       categoryId: ID
         companyProductConfigs: [CompanyProductConfigInput]
+        customFieldsData: JSON
     ): InsuranceProduct
     insuranceProductsRemove(_id: ID!): String
 `;

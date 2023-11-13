@@ -1,6 +1,6 @@
 import customScalars from '@erxes/api-utils/src/customScalars';
 import { Risk } from './risks';
-import { InsurancePackage } from './insurancePackage';
+import { InsuranceItem } from './insuranceItem';
 import { InsuranceProduct, InsuranceProductOfVendor } from './products';
 import { InsuranceCategory } from './insuranceCategory';
 import { RiskConfig } from './riskConfig';
@@ -13,7 +13,7 @@ const resolvers: any = async _serviceDiscovery => ({
   Risk,
   InsuranceProduct,
   InsuranceProductOfVendor,
-  InsurancePackage,
+  InsuranceItem,
   InsuranceCategory,
   RiskConfig,
 

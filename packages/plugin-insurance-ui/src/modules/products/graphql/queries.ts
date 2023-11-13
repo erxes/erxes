@@ -42,7 +42,17 @@ const GET_PRODUCTS = gql`
   }
 `;
 
+const GET_PRODUCT = gql`
+  ${PRODUCT_CORE_FIELDS}
+  query InsuranceProduct($_id: ID!) {
+    insuranceProduct(_id: $_id) {
+      ...ProductCoreFields
+    }
+  }
+`;
+
 export default {
   PRODUCTS_PAGINATED,
-  GET_PRODUCTS
+  GET_PRODUCTS,
+  GET_PRODUCT
 };

@@ -18,6 +18,7 @@ export const PRODUCT_CORE_FIELDS = gql`
     price
     description
     updatedAt
+    customFieldsData
     companyProductConfigs {
       companyId
       specificPrice

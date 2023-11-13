@@ -20,8 +20,6 @@ const mutations = {
       cpUser
     });
 
-    console.log('company', company);
-
     const { companyId, customerId } = doc;
 
     if (!companyId && !customerId) {
@@ -44,8 +42,6 @@ const mutations = {
       }
     };
 
-    console.log('dealDoc', dealDoc);
-
     const deal = await sendCommonMessage({
       subdomain,
       action: 'createCard',
@@ -53,8 +49,6 @@ const mutations = {
       isRPC: true,
       data: dealDoc
     });
-
-    console.log('deal', deal);
 
     if (!deal) {
       throw new Error('Deal not created');

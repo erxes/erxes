@@ -1,5 +1,5 @@
 import { Document, Schema } from 'mongoose';
-
+import { customFieldSchema } from '@erxes/api-utils/src/types';
 import { field } from './utils';
 
 export type ProductConfig = {
@@ -21,6 +21,7 @@ export interface IInsuranceProduct {
   companyProductConfigs?: ProductConfig[];
   riskConfigs?: RiskConfig[];
   categoryId: string;
+  customFieldsData?: any;
 }
 
 export interface IInsuranceProductDocument extends IInsuranceProduct, Document {
@@ -51,5 +52,6 @@ export const productSchema = new Schema({
   searchText: field({ type: String, optional: true }),
   companyProductConfigs: field({ type: [Schema.Types.Mixed], optional: true }),
   riskConfigs: field({ type: [riskSchema], optional: true }),
-  categoryId: field({ type: String, optional: true })
+  categoryId: field({ type: String, optional: true }),
+  customFieldsData: field({ type: [customFieldSchema] })
 });

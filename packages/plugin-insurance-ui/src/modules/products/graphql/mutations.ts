@@ -9,6 +9,7 @@ const PRODUCTS_ADD = gql`
     $riskConfigs: [RiskConfigInput]
     $categoryId: ID!
     $companyProductConfigs: [CompanyProductConfigInput]
+    $customFieldsData: JSON
   ) {
     insuranceProductsAdd(
       name: $name
@@ -18,6 +19,7 @@ const PRODUCTS_ADD = gql`
       riskConfigs: $riskConfigs
       companyProductConfigs: $companyProductConfigs
       categoryId: $categoryId
+      customFieldsData: $customFieldsData
     ) {
       _id
     }
@@ -34,6 +36,7 @@ const PRODUCTS_EDIT = gql`
     $riskConfigs: [RiskConfigInput]
     $categoryId: ID
     $companyProductConfigs: [CompanyProductConfigInput]
+    $customFieldsData: JSON
   ) {
     insuranceProductsEdit(
       _id: $_id
@@ -44,6 +47,7 @@ const PRODUCTS_EDIT = gql`
       riskConfigs: $riskConfigs
       categoryId: $categoryId
       companyProductConfigs: $companyProductConfigs
+      customFieldsData: $customFieldsData
     ) {
       _id
     }

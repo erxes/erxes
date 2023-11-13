@@ -86,7 +86,7 @@ const Row = (props: Props) => {
             title={'Edit product'}
             trigger={<Button btnStyle="link" icon="edit-3" />}
             content={formContent}
-            size={'lg'}
+            size={'xl'}
           />
           {renderRemoveAction()}
         </ActionButtons>
