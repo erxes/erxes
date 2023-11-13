@@ -73,6 +73,11 @@ class DetailInfo extends React.Component<Props> {
           'Interest Rate',
           (contract.interestRate || 0).toLocaleString()
         )}
+        {contract.leaseType === 'linear' &&
+          this.renderRow(
+            'Commitment interest',
+            (contract.commitmentInterest || 0).toLocaleString()
+          )}
         {this.renderRow('Loan Repayment', contract.repayment)}
         {this.renderRow('Start Date', dayjs(contract.startDate).format('ll'))}
         {this.renderRow('Schedule Days', contract.scheduleDays.join(','))}
