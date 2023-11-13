@@ -222,6 +222,7 @@ class ContractForm extends React.Component<Props, State> {
       leasingExpertId: this.state.leasingExpertId,
       riskExpertId: this.state.riskExpertId,
       leaseType: this.state.leaseType,
+      commitmentInterest: this.state.commitmentInterest,
       weekends: this.state.weekends.map(week => Number(week)),
       useHoliday: Boolean(this.state.useHoliday),
       relContractId: this.state.relContractId,
@@ -330,6 +331,8 @@ class ContractForm extends React.Component<Props, State> {
     var changingStateValue: any = {
       contractTypeId: value,
       leaseType: (contractTypeObj && contractTypeObj.leaseType) || 'finance',
+      commitmentInterest:
+        (contractTypeObj && contractTypeObj.commitmentInterest) || 0,
       useMargin: contractTypeObj.useMargin,
       useSkipInterest: contractTypeObj.useSkipInterest,
       useDebt: contractTypeObj.useDebt,
