@@ -41,9 +41,21 @@ const reportsMutations = {
       }
 
       if (getChartTemplates) {
-        await models.Charts.insertMany({
-          docs: getChartTemplates.map(c => ({ ...c, reportId: report._id }))
-        });
+        // console.log('aa ', getChartTemplates, report._id);
+        await models.Charts.insertMany(
+          getChartTemplates.map(c => {
+            console.log('lil ', {
+              template: c.templateType,
+              chartType: c.chartTypes[0],
+              reportId: report._id
+            });
+            return {
+              template: c.templateType,
+              chartType: c.chartTypes[0],
+              reportId: report._id
+            };
+          })
+        );
       }
     }
 

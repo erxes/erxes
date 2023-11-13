@@ -34,6 +34,7 @@ const ReportFormModal = (props: FinalProps) => {
     reportChartTemplatesListQuery,
     reportsAddMutation,
     setShowModal,
+    serviceName,
     history
   } = props;
 
@@ -43,7 +44,7 @@ const ReportFormModal = (props: FinalProps) => {
 
   const createReport = async (values: ReportFormMutationVariables) => {
     console.log('values ', values);
-    reportsAddMutation({ variables: values })
+    reportsAddMutation({ variables: { ...values, serviceName } })
       .then(res => {
         Alert.success('Successfully created report');
         console.log('res ', res);

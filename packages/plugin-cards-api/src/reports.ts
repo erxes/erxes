@@ -40,12 +40,13 @@ const chartTemplates = [
     getChartResult: async (
       filter: any,
       subdomain: string,
-      currentUser?: IUserDocument
+      currentUser: IUserDocument,
+      getDefaultPipelineId?: string
     ) => {
       const DEFAULT_FILTER = {
-        assignedUserIds: [`WQ3tsgnDdDu3jhbQj`],
-        userId: `WQ3tsgnDdDu3jhbQj`,
-        pipelineId: '1231'
+        assignedUserIds: [currentUser._id],
+        userId: currentUser._id,
+        pipelineId: getDefaultPipelineId
       };
 
       const query = {

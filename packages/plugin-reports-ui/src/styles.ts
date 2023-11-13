@@ -430,6 +430,35 @@ const DrawerDetail = styled.div`
   border-radius: 5px;
 `;
 
+const ChartTitle = styled.div`
+  display: flex
+  align-items:center;
+  position: relative;
+  width: 100%;
+  z-index: 1000;
+  left: 0;
+  right: 0;
+
+  padding: 0 1.25rem 1.25rem 1.25rem;
+  div {
+    font-weight: 700;
+    font-size: 1rem;
+  }
+  span {
+    font-weight:500; 
+    display:none;
+    cursor:pointer;
+  }
+  span:first-of-type {
+    margin-left: auto;
+    margin-right: 0.5rem;
+    color: ${colors.colorPrimary}
+  }
+  span:last-of-type {
+    color: ${colors.colorCoreRed}
+  }
+`;
+
 export {
   DragField,
   CenterBar,
@@ -450,5 +479,6 @@ export {
   RightDrawerContainer,
   Description,
   ScrolledContent,
-  DrawerDetail
+  DrawerDetail,
+  ChartTitle
 };

@@ -6,7 +6,8 @@ import {
   IChartDocument,
   IReport,
   IReportDocument,
-  reportSchema
+  reportSchema,
+  chartSchema
 } from './definitions/reports';
 
 export interface IReportModel extends Model<IReportDocument> {
@@ -64,7 +65,7 @@ export interface IChartModel extends Model<IChartDocument> {
 }
 
 export const loadChartClass = (models: IModels) => {
-  class Report {
+  class Chart {
     // get
     public static async getChart(_id: string) {
       const chart = await models.Charts.findOne({ _id });
@@ -86,13 +87,13 @@ export const loadChartClass = (models: IModels) => {
     public static async removeChart(_id: string) {
       const chart = await models.Charts.getChart(_id);
       if (!chart) {
-        throw new Error('Report not found');
+        throw new Error('Chart not found');
       }
-      return models.Reports.deleteOne({ _id });
+      return models.Charts.deleteOne({ _id });
     }
   }
 
-  reportSchema.loadClass(Report);
+  chartSchema.loadClass(Chart);
 
-  return reportSchema;
+  return chartSchema;
 };

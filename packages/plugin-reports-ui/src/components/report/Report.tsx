@@ -10,21 +10,26 @@ import {
   ActionBarButtonsWrapper,
   BackButton,
   CenterBar,
+  ChartTitle,
   DragField,
   FlexCenter,
   Title
 } from '../../styles';
 import { IChart, IReport, IReportItem } from '../../types';
-import Chart from '../chart/Chart';
 import SelectMembersForm from '../utils/SelectMembersForm';
 import Participators from './Participators';
 import ChartForm from '../../containers/chart/ChartForm';
+import ChartRenderer from '../chart/ChartRenderer';
+import { Chart } from 'chart.js';
 
-const deserializeItem = i => ({
-  ...i,
-  layout: JSON.parse(i.layout) || {},
-  vizState: JSON.parse(i.vizState)
-});
+const deserializeItem = i => {
+  console.log('i ', i);
+  return {
+    ...i,
+    layout: i.layout ? JSON.parse(i.layout) : {},
+    vizState: i.vizState ? JSON.parse(i.vizState) : {}
+  };
+};
 
 const defaultLayout = i => ({
   x: i.layout.x || 0,
@@ -46,6 +51,8 @@ type Props = {
 const Report = (props: Props) => {
   const { report, reportsEdit, history, queryParams } = props;
   const { charts, members } = report;
+
+  console.log('charts ', charts);
   const [isPublic, setIsPublic] = useState(report.visibility === 'public');
   const [name, setName] = useState(report.name || '');
   const [visibility, setVisibility] = useState<string>(report.visibility || '');
@@ -88,14 +95,16 @@ const Report = (props: Props) => {
 
   const reportItem = (item: IChart) => {
     if (item.layout) {
+      console.log('ites ', item);
+      console.log('ite, ', defaultLayout(item));
       return (
-        <div key={item._id} data-grid={defaultLayout(item)}>
-          <div>
+        <div key={item._id || Math.random()} data-grid={defaultLayout(item)}>
+          <ChartTitle>
             <div>{item.name}</div>
             <span className="db-item-action">edit</span>
             <span className="db-item-action">delete</span>
-          </div>
-          <Chart chart={item} name={item.name} />
+          </ChartTitle>
+          <ChartRenderer chartType={item.chartType} data={item.data} />
         </div>
       );
     }
@@ -264,14 +273,25 @@ const Report = (props: Props) => {
       >
         {showTeamMemberSelect && renderMembersSelectModal()}
         {!showChatForm && (
-          <DragField>{charts?.map(deserializeItem).map(reportItem)}</DragField>
+          <DragField
+            haveChart={charts?.length ? true : false}
+            cols={6}
+            margin={[30, 30]}
+            rowHeight={160}
+            containerPadding={[30, 30]}
+            useCSSTransforms={true}
+          >
+            {charts.map(deserializeItem).map(reportItem)}
+          </DragField>
         )}
+
         {showChatForm && (
           <ChartForm
             history={history}
             queryParams={queryParams}
             toggleForm={() => setShowChatForm(!showChatForm)}
             showChatForm={showChatForm}
+            reportId={report._id}
           />
         )}
       </PageContent>

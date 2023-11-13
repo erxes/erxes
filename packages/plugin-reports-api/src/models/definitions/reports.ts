@@ -100,7 +100,11 @@ export const reportSchema = new Schema({
 export const chartSchema = new Schema({
   _id: field({ pkey: true }),
   name: field({ type: String, label: 'Chart name', index: true }),
-  reportId: field({ type: String, label: 'Id of a corresponding report' }),
+  reportId: field({
+    type: String,
+    label: 'Id of a corresponding report',
+    index: true
+  }),
   contentType: field({ type: String, label: 'Content type' }),
   template: field({
     type: String,

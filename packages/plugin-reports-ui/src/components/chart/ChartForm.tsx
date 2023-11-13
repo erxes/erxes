@@ -24,6 +24,7 @@ import { router, __ } from '@erxes/ui/src/utils';
 import { CHART_TYPES } from './utils';
 import ChartRenderer from './ChartRenderer';
 import { ChartType } from 'chart.js';
+import { IChart } from '../../types';
 
 type Props = {
   toggleForm: () => void;
@@ -33,9 +34,22 @@ type Props = {
 
   reportTemplates: any;
   showChatForm: boolean;
+
+  chart?: IChart;
+
+  chartsEdit: (values: any) => void;
+  chartsAdd: (values: any) => void;
 };
 const ChartForm = (props: Props) => {
-  const { toggleForm, history, reportTemplates, showChatForm } = props;
+  const {
+    toggleForm,
+    history,
+    reportTemplates,
+    showChatForm,
+    chart,
+    chartsAdd,
+    chartsEdit
+  } = props;
 
   const [name, setName] = useState('');
 
@@ -69,7 +83,9 @@ const ChartForm = (props: Props) => {
     };
   });
 
-  const onSave = () => {};
+  const onSave = () => {
+    chart ? chartsEdit({ chartType, name }) : chartsAdd({ chartType, name });
+  };
 
   return (
     <FormContainer>

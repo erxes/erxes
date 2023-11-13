@@ -1,13 +1,6 @@
-import React, { useEffect, useRef, useState } from 'react';
+import { ChartType } from 'chart.js';
 import Chart from 'chart.js/auto';
-import {
-  ChartConfiguration,
-  ChartConfigurationCustomTypesPerDataset,
-  ChartOptions,
-  ChartType,
-  Colors
-} from 'chart.js';
-import { IChart } from '../../types';
+import React, { useEffect, useRef } from 'react';
 import {
   DEFAULT_BACKGROUND_COLORS,
   DEFAULT_BORDER_COLORS,
@@ -19,14 +12,18 @@ interface IChartProps {
   data?: number[];
   labels?: string[];
   template?: string;
-  chartType: ChartType;
+  chartType: ChartType | string;
   name?: string;
 }
 
 const ChartRenderer = (props: IChartProps) => {
   const { labels, chartType, data } = props;
 
+  console.log('jajajjaja');
   const chartRef = useRef<HTMLCanvasElement>(null);
+
+  const aa = data || DEFAULT_DATA_PER_CHART[chartType];
+  console.log('aa  ', aa);
 
   const chartData = {
     labels: labels || DEFAULT_LABELS_PER_CHART[chartType],
@@ -53,12 +50,11 @@ const ChartRenderer = (props: IChartProps) => {
         chart.destroy();
       };
     }
-  }, [data, labels, chartType]);
+  }, []);
 
   return (
     <>
       <canvas ref={chartRef} />
-      <div>asdasd</div>
     </>
   );
 };

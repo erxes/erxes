@@ -88,6 +88,12 @@ export const types = tagsAvailable => `
     filterType: FilterType
   }
 
+  input ChartFilterInput {
+    fieldName: String
+    filterValue: String
+    filterType: FilterType
+  }
+
   enum FilterType {
     DATE
     STRING
@@ -137,7 +143,11 @@ export const params = `
 
 const chart_params = `
   reportId: String!
+  name: String
+  chartType: String
+  templateType: String
   order: Int
+  filters: [ChartFilterInput]
 `;
 
 const report_params = `
