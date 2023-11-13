@@ -144,6 +144,7 @@ const feedCommonParams = `
   department: String
   unitId: String
   branchIds: [String]
+  category: String
 `;
 
 const thankCommonParams = `
