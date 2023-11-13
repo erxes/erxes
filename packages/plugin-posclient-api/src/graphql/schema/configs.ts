@@ -41,7 +41,6 @@ export const types = `
 
   type PosclientSlot {
     _id: String
-    posToken: String
     code: String
     name: String
     status: String

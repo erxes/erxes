@@ -44,8 +44,6 @@ export const types = _serviceDiscovery => {
       favicon: JSON
       features: [ExmFeature]
       appearance: ExmAppearance
-      vision: String
-      structure: String
       createdAt: Date
       createdBy: String
     }
@@ -90,8 +88,6 @@ const commonParams = `
   logo: AttachmentInput
   favicon: AttachmentInput
   appearance: ExmAppearanceInput
-  vision: String
-  structure: String
 `;
 
 export const mutations = `

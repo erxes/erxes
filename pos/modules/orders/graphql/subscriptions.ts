@@ -1,8 +1,8 @@
 import { orderFields } from "./queries"
 
 const ordersOrdered = `
-  subscription ordersOrdered($statuses: [String], $customerId: String, $token: String) {
-    ordersOrdered(statuses: $statuses, customerId: $customerId, posToken: $token) {
+  subscription ordersOrdered($statuses: [String], $customerId: String) {
+    ordersOrdered(statuses: $statuses, customerId: $customerId) {
       ${orderFields}
       items {
         _id
@@ -19,8 +19,8 @@ const ordersOrdered = `
   }
 `
 const orderItemsOrdered = `
-  subscription orderItemsOrdered($statuses: [String], $token: String) {
-    orderItemsOrdered(statuses: $statuses, posToken: $token) {
+  subscription orderItemsOrdered($statuses: [String]) {
+    orderItemsOrdered(statuses: $statuses) {
       _id
     }
   }

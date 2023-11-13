@@ -33,7 +33,6 @@ import {
   validateOrder,
   validateOrderPayment
 } from '../../utils/orderUtils';
-import { checkSlotStatus } from '../../utils/slots';
 
 interface IPaymentBase {
   billType: string;
@@ -229,23 +228,6 @@ const ordersAdd = async (
       }
     });
 
-    if (order.slotCode) {
-      const currentSlots = await models.PosSlots.find({
-        posToken: config.token,
-        code: order.slotCode
-      }).lean();
-
-      if (currentSlots.length) {
-        await graphqlPubsub.publish('slotsStatusUpdated', {
-          slotsStatusUpdated: await checkSlotStatus(
-            models,
-            config,
-            currentSlots
-          )
-        });
-      }
-    }
-
     return order;
   } catch (e) {
     debugError(
@@ -323,22 +305,6 @@ const ordersEdit = async (
       customerType: order.customerType
     }
   });
-
-  if (
-    (order.slotCode || updatedOrder.slotCode) &&
-    order.slotCode !== updatedOrder.slotCode
-  ) {
-    const currentSlots = await models.PosSlots.find({
-      posToken: config.token,
-      code: { $in: [order.slotCode, updatedOrder.slotCode] }
-    }).lean();
-
-    if (currentSlots.length) {
-      await graphqlPubsub.publish('slotsStatusUpdated', {
-        slotsStatusUpdated: await checkSlotStatus(models, config, currentSlots)
-      });
-    }
-  }
 
   return updatedOrder;
 };
@@ -484,7 +450,7 @@ const orderMutations = {
   async orderItemChangeStatus(
     _root,
     { _id, status }: { _id: string; status: string },
-    { models, config }: IContext
+    { models }: IContext
   ) {
     const oldOrderItem = await models.OrderItems.getOrderItem(_id);
 
@@ -493,7 +459,6 @@ const orderMutations = {
     await graphqlPubsub.publish('orderItemsOrdered', {
       orderItemsOrdered: {
         _id,
-        posToken: config.token,
         status: status
       }
     });

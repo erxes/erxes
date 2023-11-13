@@ -1,17 +1,3 @@
-const commonPaginationParams = `
-  $page: Int,
-  $perPage: Int,
-  $sortDirection:Int
-  $sortField:String
-`;
-
-const commonPaginationParamsDef = `
-  page: $page,
-  perPage: $perPage,
-  sortDirection: $sortDirection
-  sortField: $sortField
-`;
-
 const commonParams = `
   $cardType:String,
   $branchIds: [String],
@@ -21,9 +7,13 @@ const commonParams = `
   $createdAtTo: String,
   $departmentIds: [String],
   $operationIds: [String],
+  $page: Int,
+  $perPage: Int,
   $riskIndicatorIds: [String],
   $searchValue: String,
   $status: String
+  $sortDirection:Int
+  $sortField:String
   $tagIds:[String]
   $groupIds:[String]
   $cardFilter:CardFilter
@@ -38,9 +28,13 @@ const commonParamsDef = `
   createdAtTo: $createdAtTo,
   departmentIds: $departmentIds,
   operationIds: $operationIds,
+  page: $page,
+  perPage: $perPage,
   riskIndicatorIds: $riskIndicatorIds,
   searchValue: $searchValue,
   status: $status,
+  sortDirection: $sortDirection
+  sortField: $sortField
   tagIds:$tagIds 
   groupIds:$groupIds,
   cardFilter:$cardFilter
@@ -82,16 +76,16 @@ const commonField = `
  `;
 
 const riskAssessments = `
-  query RiskAssessments(${commonParams},${commonPaginationParams}) {
-  riskAssessments(${commonParamsDef},${commonPaginationParamsDef}) {
+  query RiskAssessments(${commonParams}) {
+  riskAssessments(${commonParamsDef}) {
     ${commonField}
   }
 }
 `;
 
 const totalCount = `
-  query RiskAssessmentsTotalCount(${commonParams},${commonPaginationParams}) {
-    riskAssessmentsTotalCount(${commonParamsDef},${commonPaginationParamsDef})
+  query RiskAssessmentsTotalCount(${commonParams}) {
+    riskAssessmentsTotalCount(${commonParamsDef})
   }
 `;
 
@@ -101,19 +95,4 @@ const riskAssessmentDetail = `
   }
 `;
 
-const getStatistic = `
-  query RiskAssessmentStatistics(${commonParams}) {
-    riskAssessmentStatistics(${commonParamsDef}){
-      averageScore
-      submittedAssessmentCount
-      totalCount
-    }
-  }
-`;
-
-export default {
-  totalCount,
-  riskAssessments,
-  riskAssessmentDetail,
-  getStatistic
-};
+export default { totalCount, riskAssessments, riskAssessmentDetail };

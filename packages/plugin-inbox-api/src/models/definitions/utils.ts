@@ -1,5 +1,5 @@
 import { nanoid } from 'nanoid';
-import redis from '@erxes/api-utils/src/redis';
+import { removeKey } from '../../inmemoryStorage';
 
 /*
  * Mongoose field options wrapper
@@ -39,8 +39,8 @@ const hookList = [
 
 export const schemaHooksWrapper = (schema, cacheKey: string) => {
   for (const hook of hookList) {
-    schema.post(hook, async () => {
-      await redis.del(cacheKey);
+    schema.post(hook, () => {
+      removeKey(cacheKey);
     });
   }
 

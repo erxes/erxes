@@ -624,6 +624,47 @@ const conversationMutations = {
     return models.Conversations.markAsReadConversation(_id, user._id);
   },
 
+  async conversationCreateVideoChatRoom(
+    _root,
+    { _id },
+    { user, models, subdomain }: IContext
+  ) {
+    let message;
+
+    try {
+      const doc = {
+        conversationId: _id,
+        internal: false,
+        contentType: MESSAGE_TYPES.VIDEO_CALL
+      };
+
+      message = await models.ConversationMessages.addMessage(doc, user._id);
+
+      const videoCallData = await sendIntegrationsMessage({
+        subdomain,
+        action: 'createDailyRoom',
+        data: {
+          erxesApiConversationId: _id,
+          erxesApiMessageId: message._id
+        },
+        isRPC: true
+      });
+
+      const updatedMessage = { ...message._doc, videoCallData };
+
+      // publish new message to conversation detail
+      publishMessage(models, updatedMessage);
+
+      return videoCallData;
+    } catch (e) {
+      debug.error(e.message);
+
+      await models.ConversationMessages.deleteOne({ _id: message._id });
+
+      throw new Error(e.message);
+    }
+  },
+
   async changeConversationOperator(
     _root,
     { _id, operatorStatus }: { _id: string; operatorStatus: string },
@@ -683,6 +724,7 @@ const conversationMutations = {
 };
 
 requireLogin(conversationMutations, 'conversationMarkAsRead');
+requireLogin(conversationMutations, 'conversationCreateVideoChatRoom');
 requireLogin(conversationMutations, 'conversationConvertToCard');
 
 checkPermission(

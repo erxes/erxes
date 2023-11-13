@@ -5,23 +5,27 @@ import { IUser } from "@/modules/auth/types"
 import dayjs from "dayjs"
 import {
   ClockIcon,
+  HeartIcon,
   MapPinIcon,
   SendHorizontal,
-  ThumbsUp,
   UserIcon,
   UsersIcon,
 } from "lucide-react"
 
-import { CardFooter } from "@/components/ui/card"
-import { DialogContent } from "@/components/ui/dialog"
+import {
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
 import Image from "@/components/ui/image"
 import LoadingCard from "@/components/ui/loading-card"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { toast } from "@/components/ui/use-toast"
-import { FilePreview } from "@/components/FilePreview"
+import { AttachmentWithPreview } from "@/components/AttachmentWithPreview"
 
+import { useComments } from "../../hooks/useComment"
 import { useReactionMutaion } from "../../hooks/useReactionMutation"
-import { IComment, IFeed } from "../../types"
+import { IFeed } from "../../types"
 import CommentItem from "../CommentItem"
 
 const CommentForm = ({
@@ -29,21 +33,17 @@ const CommentForm = ({
   currentUserId,
   emojiReactedUser,
   emojiCount,
-  comments,
-  commentsCount,
-  loading,
-  handleLoadMore,
 }: {
   feed: IFeed
   currentUserId: string
   emojiReactedUser: string[]
   emojiCount: number
-  comments: IComment[]
-  commentsCount: number
-  loading: boolean
-  handleLoadMore: () => void
 }) => {
   const { reactionMutation, commentMutation } = useReactionMutaion({})
+
+  const { comments, commentsCount, loading, handleLoadMore } = useComments(
+    feed._id
+  )
 
   const [comment, setComment] = useState("")
 
@@ -148,33 +148,11 @@ const CommentForm = ({
     ))
   }
 
-  const renderEmojiCount = () => {
-    if (emojiCount === 0 || !emojiCount) {
-      return null
-    }
-
-    let text
-
-    if (idExists) {
-      text = `You ${
-        emojiCount - 1 === 0 ? "" : ` and ${emojiCount - 1} others`
-      }  liked this`
-    } else {
-      text = emojiCount
-    }
-
-    return (
-      <div className="flex mt-4">
-        <div className="bg-primary-light rounded-full w-[22px] h-[22px] flex items-center justify-center text-white mr-2">
-          <ThumbsUp size={12} fill="#fff" />
-        </div>
-        <div className="text-[#5E5B5B]">{text} </div>
-      </div>
-    )
-  }
-
   return (
-    <DialogContent className="max-w-2xl w-[42rem] p-[15px]">
+    <DialogContent className="">
+      <DialogHeader>
+        <DialogTitle>{feed?.title || ""}</DialogTitle>
+      </DialogHeader>
       <div className="flex items-center ">
         <Image
           src={userDetail?.avatar || "/avatar-colored.svg"}
@@ -189,11 +167,12 @@ const CommentForm = ({
           </div>
           <div className="text-xs text-[#666] font-normal">
             {dayjs(feed.createdAt).format("MM/DD/YYYY h:mm A")}{" "}
+            <span className="text-green-700 font-bold text-sm ml-1">{`#${feed.contentType}`}</span>
           </div>
         </div>
       </div>
 
-      <ScrollArea className="h-[60vh]">
+      <ScrollArea className="h-[650px]">
         <div className="my-1 overflow-x-hidden">
           <p className="text-[#666]">{updatedDescription}</p>
         </div>
@@ -218,33 +197,22 @@ const CommentForm = ({
 
         <div className="border-b pb-2">
           {feed.images && feed.images.length > 0 && (
-            <div className="mt-4">
-              <FilePreview
-                attachments={feed.images}
-                fileUrl={feed.images[0].url}
-                fileIndex={0}
-                grid={true}
-              />
-            </div>
+            <AttachmentWithPreview images={feed.images} className="" />
           )}
-          {renderEmojiCount()}
-        </div>
-        <CardFooter className="border-b p-0 justify-between">
           <div
-            className="cursor-pointer flex items-center py-2 px-4 hover:bg-[#F0F0F0]"
+            className="cursor-pointer flex items-center mr-4 mt-1"
             onClick={reactionAdd}
           >
-            <ThumbsUp
+            <HeartIcon
               size={20}
               className="mr-1"
-              fill={`${idExists ? "#8771D5" : "white"}`}
-              color={`${idExists ? "#8771D5" : "black"}`}
+              fill={`${idExists ? "#FF0000" : "white"}`}
+              color={`${idExists ? "#FF0000" : "black"}`}
             />
-            <div className={`${idExists ? "text-primary" : "text-black"}`}>
-              Like
-            </div>
+            <span className="font-bold text-base">{emojiCount}</span>
           </div>
-        </CardFooter>
+        </div>
+
         {renderComments()}
 
         {commentsCount > 0 && (
@@ -265,17 +233,17 @@ const CommentForm = ({
         {loading && <LoadingCard />}
       </ScrollArea>
 
-      <div className="flex items-center px-2 rounded-2xl bg-[#F5F6FF]">
+      <div className="flex items-center px-2 rounded-2xl border">
         <textarea
           value={comment}
           onKeyDown={onEnterPress}
           onChange={handleInputChange}
           placeholder="Type a message..."
           style={textareaStyle}
-          className="resize-none rounded-2xl px-4 pt-4 w-full focus:outline-none bg-[#F5F6FF]"
+          className="resize-none rounded-2xl px-4 pt-4 w-full  focus:outline-none"
         />
         <label onClick={onSubmit} className="mr-2">
-          <SendHorizontal size={18} className="text-primary" />
+          <SendHorizontal size={18} />
         </label>
       </div>
     </DialogContent>

@@ -19,7 +19,7 @@ const Market = () => {
           <Cart />
           <BarcodeResult />
         </div>
-        <div className="flex w-1/3 flex-col border-l p-4 pr-0 relative">
+        <div className="flex w-1/3 flex-col border-l p-4 pr-0">
           <OrderDetail>
             <Customer />
             <Checkout />

@@ -55,9 +55,7 @@ const createSupergraphConfig = (proxyTargets: ErxesProxyTarget[]) => {
       !fs.existsSync(supergraphConfigPath) ||
       !isSameFile(supergraphConfigPath, superGraphConfigNext)
     ) {
-      execSync(`cp -f ${superGraphConfigNext}  ${supergraphConfigPath}`, {
-        stdio: 'inherit'
-      });
+      execSync(`cp ${superGraphConfigNext}  ${supergraphConfigPath}`);
     }
   }
 };
@@ -78,9 +76,7 @@ const supergraphComposeOnce = async () => {
       !fs.existsSync(supergraphPath) ||
       !isSameFile(supergraphPath, superGraphqlNext)
     ) {
-      execSync(`cp -f ${superGraphqlNext} ${supergraphPath}`, {
-        stdio: 'inherit'
-      });
+      execSync(`cp ${superGraphqlNext} ${supergraphPath}`);
       console.log(`NEW Supergraph Schema was printed to ${supergraphPath}`);
     }
   }

@@ -141,8 +141,6 @@ class TransactionForm extends React.Component<Props, State> {
       trVal = this.state[fieldName];
     } else trVal = paymentInfo?.[fieldName] || transaction[fieldName] || 0;
 
-    if (!trVal) return '';
-
     return (
       <FormWrapper>
         <FormColumn>
@@ -172,7 +170,6 @@ class TransactionForm extends React.Component<Props, State> {
           {this.renderRowTr('Payment', 'payment')}
           {this.renderRowTr('Stored Interest', 'storedInterest')}
           {this.renderRowTr('Interest Nonce', 'calcInterest')}
-          {this.renderRowTr('Commitment interest', 'commitmentInterest')}
           {this.renderRowTr('Loss', 'undue')}
           {this.renderRowTr('Insurance', 'insurance')}
           {this.renderRowTr('Debt', 'debt')}
@@ -200,8 +197,6 @@ class TransactionForm extends React.Component<Props, State> {
         {this.renderRow('payment', 'payment')}
         {this.renderRow('interest eve', 'storedInterest')}
         {this.renderRow('interest nonce', 'calcInterest')}
-        {this.renderRow('Commitment interest', 'commitmentInterest')}
-
         {this.renderRow('undue', 'undue')}
         {this.renderRow('insurance', 'insurance')}
         {this.renderRow('debt', 'debt')}

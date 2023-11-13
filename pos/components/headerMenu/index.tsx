@@ -1,7 +1,7 @@
 import Link from "next/link"
 import Logout from "@/modules/auth/components/logout"
 import { modeAtom } from "@/store"
-import { configAtom, currentUserAtom } from "@/store/config.store"
+import { configAtom } from "@/store/config.store"
 import { useAtomValue } from "jotai"
 import {
   FileBarChart2Icon,
@@ -15,20 +15,20 @@ import {
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
-
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "../ui/dropdown-menu"
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuTrigger,
+} from "@/components/ui/navigation-menu"
+
+import { Separator } from "../ui/separator"
 
 const HeaderMenu = () => {
   const mode = useAtomValue(modeAtom)
-  const user = useAtomValue(currentUserAtom)
-  const { waitingScreen, kitchenScreen, adminIds } =
-    useAtomValue(configAtom) || {}
+  const { waitingScreen, kitchenScreen } = useAtomValue(configAtom) || {}
 
   const getMenu = () => {
     if (mode === "market") return supermarketMenu
@@ -39,10 +39,6 @@ const HeaderMenu = () => {
     if (waitingScreen?.isActive) {
       menu.push(waitingMenu)
     }
-    if (adminIds?.includes(user?._id || "")) {
-      menu.push(reportMenu)
-    }
-
     return menu
   }
 
@@ -51,42 +47,49 @@ const HeaderMenu = () => {
   return (
     <div
       className={cn(
-        "p-1 rounded-md bg-neutral-100 flex items-center justify-center",
+        "h-10 rounded-md bg-neutral-100",
         mode === "market" && "sm:ml-2",
         ["main", "coffee-shop"].includes(mode) && "sm:mr-2"
       )}
     >
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="ghost" className="h-auto rounded-sm bg-white p-1">
-            <MenuIcon className="h-6 w-6" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent className="p-3 min-w-[200px]">
-          {menu.map((itm) => (
-            <MenuItem {...itm} key={itm.href} />
-          ))}
-          <DropdownMenuSeparator />
-          <Logout />
-        </DropdownMenuContent>
-      </DropdownMenu>
+      <NavigationMenu className="p-1">
+        <NavigationMenuList>
+          <NavigationMenuItem>
+            <NavigationMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                className="h-auto rounded-md bg-white p-1"
+              >
+                <MenuIcon className="h-6 w-6" />
+              </Button>
+            </NavigationMenuTrigger>
+            <NavigationMenuContent>
+              <ul className="w-[200px] p-3">
+                {menu.map((itm) => (
+                  <MenuItem {...itm} key={itm.href} />
+                ))}
+                <Separator className="mx-3 w-auto" />
+                <Logout />
+              </ul>
+            </NavigationMenuContent>
+          </NavigationMenuItem>
+        </NavigationMenuList>
+      </NavigationMenu>
     </div>
   )
 }
 
 const MenuItem = ({ href, Icon, text }: any) => (
-  <DropdownMenuItem asChild>
-    <Button
-      className="w-full justify-start mb-1"
-      variant="ghost"
-      size="sm"
-      Component={Link}
-      href={`/${href}`}
-    >
-      <Icon className="mr-2 h-5 w-5" />
-      {text}
-    </Button>
-  </DropdownMenuItem>
+  <li>
+    <Link href={`/${href}`}>
+      <NavigationMenuLink asChild>
+        <Button className="w-full justify-start" variant="ghost">
+          <Icon className="mr-2 h-5 w-5" />
+          {text}
+        </Button>
+      </NavigationMenuLink>
+    </Link>
+  </li>
 )
 
 const supermarketMenu = [
@@ -94,6 +97,11 @@ const supermarketMenu = [
     href: "history",
     Icon: HistoryIcon,
     text: "Захиалгын түүх",
+  },
+  {
+    href: "report",
+    Icon: FileBarChart2Icon,
+    text: "Тайлан",
   },
   {
     href: "cover",
@@ -106,12 +114,6 @@ const supermarketMenu = [
     text: "Тохиргоо",
   },
 ]
-
-const reportMenu = {
-  href: "report",
-  Icon: FileBarChart2Icon,
-  text: "Тайлан",
-}
 
 const progressMenu = {
   href: "progress",

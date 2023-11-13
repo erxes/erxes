@@ -266,7 +266,7 @@ function General({
         <BlockRow>
           {renderControl({
             required: true,
-            label: `${kind} portal name`,
+            label: 'Business Portal Name',
             subtitle: 'Displayed in the header area',
             formValueName: 'name',
             formValue: name,

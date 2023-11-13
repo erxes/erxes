@@ -54,7 +54,6 @@ export interface IContractTypeDoc {
   number: string;
   vacancy: number;
   leaseType: string;
-  commitmentInterest: number;
   createdAt: Date;
   productCategoryIds: string[];
   config: IContractConfig;

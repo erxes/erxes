@@ -84,10 +84,6 @@
   }
 }
 
-* :focus-visible {
-  outline: -webkit-focus-ring-color auto 0;
-}
-
 .slick-prev {
   left: 10px !important;
   z-index: 1;
@@ -197,49 +193,4 @@
 }
 .hide-user-remove-button .css-wsp0cs-MultiValueGeneric {
   padding-right: 6px;
-}
-.shadow-notification {
-  box-shadow: rgba(0, 0, 0, 0.15) 0px 0px 20px 3px;
-}
-.css-1jqq78o-placeholder {
-  color: #444 !important;
-}
-.css-1u9des2-indicatorSeparator {
-  display: none;
-}
-.css-13cymwt-control {
-  border-color: hsl(var(--border));
-}
-.attachment-shadow {
-  box-shadow: 0px 1px 3px 1px rgba(0, 0, 0, 0.15), 0px 1px 2px 0px rgba(0, 0, 0, 0.15);
-}
-.event-card-image-shadow {
-  box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.25);
-}
-.rdtTimeToggle {
-  text-align: center;
-  cursor: pointer;
-}
-.rdtCounters {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-  justify-content: center;
-}
-.rdtYears table, .rdtMonths table {
-  width: 100%;
-}
-.rdtYear, .rdtMonth, .rdtDay {
-  text-align: center;
-  padding: 3px 5px;
-  cursor: pointer;
-}
-.rdtYear:hover, .rdtMonth:hover, .rdtDay:hover {
-  background-color: #f0f0f0;
-}
-.rdtBtn, .rdtSwitch, .rdtPrev, .rdtNext {
-  cursor: pointer;
-}
-.border-light {
-  border-color: hsl(0, 0%, 80%) !important;
 }

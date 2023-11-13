@@ -35,7 +35,6 @@ function renderFormTrigger(
       title="Edit contract type"
       trigger={trigger}
       content={content}
-      size="lg"
     />
   );
 }

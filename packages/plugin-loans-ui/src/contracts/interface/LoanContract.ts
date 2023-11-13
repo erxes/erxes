@@ -45,7 +45,6 @@ export type LoanContract = {
   customInterest?: number;
   useManualNumbering: boolean;
   useFee: boolean;
-  commitmentInterest: number;
 };
 
 export type LoanSchedule = {

@@ -8,19 +8,18 @@ import { isEnabled } from '@erxes/ui/src/utils/core';
 
 type Props = {
   loadingMainQuery: boolean;
-  kind?: 'client' | 'vendor';
   counts: {
     byCP: Counts;
     byType: Counts;
   };
 };
 
-function Sidebar({ counts, loadingMainQuery, kind }: Props) {
+function Sidebar({ counts, loadingMainQuery }: Props) {
   return (
-    <Wrapper.Sidebar hasBorder={true}>
+    <Wrapper.Sidebar hasBorder>
       {isEnabled('clientportal') && (
         <>
-          <ClientPortalIdFilter counts={counts.byCP} kind={kind} />
+          <ClientPortalIdFilter counts={counts.byCP} />
           <TypeFilter counts={counts.byType} />
         </>
       )}

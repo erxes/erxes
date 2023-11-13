@@ -1,13 +1,11 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useCallback, useEffect } from "react"
-import { configAtom } from "@/store/config.store"
 import {
   DocumentNode,
   gql,
   useLazyQuery,
   WatchQueryFetchPolicy,
 } from "@apollo/client"
-import { useAtomValue } from "jotai"
 
 import { IOrder } from "@/types/order.types"
 
@@ -55,7 +53,6 @@ const useFullOrders = ({
   onCompleted?: (data: any) => void
 }): IFullOrdersResult => {
   const PER_PAGE = (variables || {}).perPage || 28
-  const { token } = useAtomValue(configAtom) || {}
 
   const [
     getFullOrders,
@@ -93,7 +90,7 @@ const useFullOrders = ({
     (subStatuses: string[], callBack?: any) =>
       subscribeToMore({
         document: gql(subscriptions.ordersOrdered),
-        variables: { statuses: checkIsArray(subStatuses), token },
+        variables: { statuses: checkIsArray(subStatuses) },
         updateQuery: (prev, { subscriptionData }) => {
           if (!subscriptionData.data) return prev
           const changedOrder = subscriptionData.data.ordersOrdered
@@ -112,7 +109,7 @@ const useFullOrders = ({
     (subStatuses: string[], callBack?: any) =>
       subscribeToMore({
         document: gql(subscriptions.orderItemsOrdered),
-        variables: { statuses: checkIsArray(subStatuses), token },
+        variables: { statuses: checkIsArray(subStatuses) },
         updateQuery: (prev, { subscriptionData }) => {
           if (!subscriptionData.data) return prev
           const changedOrderItem = subscriptionData.data.orderItemsOrdered

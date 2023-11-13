@@ -112,25 +112,6 @@ export const loadTransactionClass = (models: IModels) => {
           { _id: contract._id },
           { $inc: { givenAmount: doc.give } }
         );
-        if (contract.leaseType === 'linear') {
-          const prevSchedule = await models.Schedules.findOne({
-            payDate: { $lte: doc.payDate },
-            contractId: contract._id
-          });
-          const schedules = [
-            {
-              contractId: contract._id,
-              status: SCHEDULE_STATUS.PENDING,
-              payDate: doc.payDate,
-              balance: (doc.payment || 0) + (prevSchedule?.balance || 0),
-              interestNonce: 0,
-              payment: doc.payment,
-              total: doc.payment
-            }
-          ];
-
-          await models.Schedules.insertMany(schedules);
-        }
         return tr;
       }
 
@@ -139,7 +120,6 @@ export const loadTransactionClass = (models: IModels) => {
       });
 
       trInfo.calcInterest = trInfo.interestEve + trInfo.interestNonce;
-
       if (contract.storedInterest) {
         let payedInterest = trInfo.interestEve + trInfo.interestNonce;
 
@@ -491,17 +471,8 @@ export const loadTransactionClass = (models: IModels) => {
         paymentInfo.interestNonce -
         paymentInfo.storedInterest;
 
-      paymentInfo.commitmentInterest =
-        paymentInfo.commitmentInterestEve + paymentInfo.commitmentInterestNonce;
-
       paymentInfo.total =
-        payment +
-        undue +
-        interestEve +
-        interestNonce +
-        insurance +
-        debt +
-        paymentInfo.commitmentInterest;
+        payment + undue + interestEve + interestNonce + insurance + debt;
 
       paymentInfo.closeAmount =
         balance +
@@ -510,7 +481,6 @@ export const loadTransactionClass = (models: IModels) => {
         interestEve +
         interestNonce +
         insurance +
-        paymentInfo.commitmentInterest +
         debt;
 
       return paymentInfo;

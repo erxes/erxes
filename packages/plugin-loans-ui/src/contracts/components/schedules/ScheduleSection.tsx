@@ -15,13 +15,11 @@ type Props = {
   fixSchedules?: (contractId: string) => void;
   hasTransaction?: boolean;
   currentUser: IUser;
-  leaseType?: string;
 };
 
 function ScheduleSection({
   contractId,
   isFirst,
-  leaseType,
   regenSchedules,
   fixSchedules,
   hasTransaction,
@@ -71,7 +69,6 @@ function ScheduleSection({
         <SchedulesList
           contractId={contractId}
           isFirst={isFirst}
-          leaseType={leaseType}
         ></SchedulesList>
       </ScrollTableColls>
     </Box>

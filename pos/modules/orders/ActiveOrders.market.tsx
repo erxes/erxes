@@ -15,7 +15,7 @@ import { queries } from "./graphql"
 import useFullOrders from "./hooks/useFullOrders"
 
 const ActiveOrders = () => {
-  const { ALL } = ORDER_STATUSES
+  const { ALL, COMPLETE } = ORDER_STATUSES
   const _id = useAtomValue(activeOrderIdAtom)
   const slotCode = useAtomValue(slotCodeAtom)
   const [activeOrderId, setActiveOrderId] = useAtom(activeOrderIdAtom)
@@ -32,7 +32,7 @@ const ActiveOrders = () => {
       sortDirection: -1,
       sortField: "createdAt",
       isPaid: false,
-      statuses: ALL,
+      statuses: ALL.filter((a) => a !== COMPLETE),
       slotCode: _id ? undefined : slotCode,
     },
     query: queries.activeOrders,

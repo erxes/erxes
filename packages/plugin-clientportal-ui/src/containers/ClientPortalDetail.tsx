@@ -19,7 +19,7 @@ type Props = {
 
 function ClientPortalDetailContainer(props: Props) {
   const { queryParams, history, kind, closeModal } = props;
-
+  console.log('@###### ', kind);
   const { loading, data = {} } = useQuery<ClientPortalConfigQueryResponse>(
     gql(queries.getConfig),
     {

@@ -18,7 +18,6 @@ import { __ } from 'coreui/utils';
 import { IContractType, IContractTypeDoc } from '../types';
 import { IUser } from '@erxes/ui/src/auth/types';
 import { ORGANIZATION_TYPE } from '../../constants';
-import { LEASE_TYPES } from '../constants';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -87,8 +86,7 @@ class ContractTypeForm extends React.Component<Props, State> {
       productCategoryIds: this.state.productCategoryIds,
       description: finalValues.description,
       productType: this.state.productType,
-      currency: finalValues.currency,
-      commitmentInterest: Number(finalValues.commitmentInterest)
+      currency: finalValues.currency
     };
   };
 
@@ -177,7 +175,7 @@ class ContractTypeForm extends React.Component<Props, State> {
               </FormGroup>
               <FormGroup>
                 <ControlLabel required={true}>
-                  {__('Product Type')}
+                  {__('Loss calc type')}
                 </ControlLabel>
                 <FormControl
                   {...formProps}
@@ -233,22 +231,15 @@ class ContractTypeForm extends React.Component<Props, State> {
                   required={true}
                   onChange={this.onChangeField}
                 >
-                  {LEASE_TYPES.ALL.map((typeName, index) => (
-                    <option key={index} value={typeName}>
-                      {typeName}
-                    </option>
-                  ))}
+                  {['finance', 'linear', 'creditCard'].map(
+                    (typeName, index) => (
+                      <option key={index} value={typeName}>
+                        {typeName}
+                      </option>
+                    )
+                  )}
                 </FormControl>
               </FormGroup>
-              {this.state.leaseType === LEASE_TYPES.LINEAR &&
-                this.renderFormGroup('Commitment interest', {
-                  ...formProps,
-                  name: 'commitmentInterest',
-                  required: true,
-                  type: 'number',
-                  useNumberFormat: true,
-                  value: contractType.commitmentInterest
-                })}
               {currentUser?.configs?.loansConfig?.organizationType ===
                 ORGANIZATION_TYPE.ENTITY && (
                 <FormGroup>

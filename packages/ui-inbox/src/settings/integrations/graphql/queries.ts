@@ -189,8 +189,8 @@ const integrationsGetFbPages = `
 `;
 
 const integrationsVideoCallUsageStatus = `
-  query VideoCallUsageStatus {
-    videoCallUsageStatus
+  query integrationsVideoCallUsageStatus {
+    integrationsVideoCallUsageStatus
   }
 `;
 

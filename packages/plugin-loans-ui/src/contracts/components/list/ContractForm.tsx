@@ -31,7 +31,7 @@ import { IContractType } from '../../../contractTypes/types';
 import { IUser } from '@erxes/ui/src/auth/types';
 import { generateCustomGraphic, getDiffDay } from '../../utils/customGraphic';
 import { LoanContract, LoanSchedule } from '../../interface/LoanContract';
-import { LoanPurpose, ORGANIZATION_TYPE } from '../../../constants';
+import { LoanPurpose } from '../../../constants';
 
 type Props = {
   currentUser: IUser;
@@ -107,12 +107,10 @@ class ContractForm extends React.Component<Props, State> {
       contractNumber: contract.number,
       contractDate: contract.contractDate || new Date(),
       loanPurpose: contract.loanPurpose,
-
       loanSubPurpose: contract.loanSubPurpose,
       contractTypeId: contract.contractTypeId || '',
       status: contract.status,
       branchId: contract.branchId,
-      leaseType: contract.leaseType,
       description: contract.description || '',
       marginAmount: contract.marginAmount || 0,
       leaseAmount: contract.leaseAmount || 0,
@@ -140,6 +138,8 @@ class ContractForm extends React.Component<Props, State> {
       riskExpertId: contract.riskExpertId || '',
       customerId: contract.customerId || '',
       customerType: contract.customerType || 'customer',
+      leaseType:
+        (contract.contractType && contract.contractType.leaseType) || 'finance',
       weekends: contract.weekends || [],
       useHoliday: contract.useHoliday || false,
       relContractId: contract.relContractId || '',
@@ -221,8 +221,6 @@ class ContractForm extends React.Component<Props, State> {
       relationExpertId: this.state.relationExpertId,
       leasingExpertId: this.state.leasingExpertId,
       riskExpertId: this.state.riskExpertId,
-      leaseType: this.state.leaseType,
-      commitmentInterest: this.state.commitmentInterest,
       weekends: this.state.weekends.map(week => Number(week)),
       useHoliday: Boolean(this.state.useHoliday),
       relContractId: this.state.relContractId,
@@ -326,13 +324,9 @@ class ContractForm extends React.Component<Props, State> {
   onSelectContractType = value => {
     const contractTypeObj: IContractType = ContractTypeById[value];
 
-    console.log('contractTypeObj', contractTypeObj);
-
     var changingStateValue: any = {
       contractTypeId: value,
       leaseType: (contractTypeObj && contractTypeObj.leaseType) || 'finance',
-      commitmentInterest:
-        (contractTypeObj && contractTypeObj.commitmentInterest) || 0,
       useMargin: contractTypeObj.useMargin,
       useSkipInterest: contractTypeObj.useSkipInterest,
       useDebt: contractTypeObj.useDebt,
@@ -547,25 +541,6 @@ class ContractForm extends React.Component<Props, State> {
                   onChange: this.onChangeField,
                   onClick: this.onFieldClick
                 })}
-              {this.props.currentUser?.configs?.loansConfig
-                ?.organizationType === ORGANIZATION_TYPE.BBSB && (
-                <FormGroup>
-                  <ControlLabel required={true}>{__('Loan Type')}</ControlLabel>
-                  <FormControl
-                    {...formProps}
-                    name="loanDestination"
-                    componentClass="select"
-                    value={this.state.loanDestination}
-                    onChange={this.onChangeField}
-                  >
-                    {LoanPurpose.destination.map((type, index) => (
-                      <option key={index} value={type.code}>
-                        {__(type.name)}
-                      </option>
-                    ))}
-                  </FormControl>
-                </FormGroup>
-              )}
             </FormColumn>
             <FormColumn>
               <FormGroup>
@@ -594,33 +569,27 @@ class ContractForm extends React.Component<Props, State> {
                   multi={false}
                 ></SelectContractType>
               </FormGroup>
-              {this.props.currentUser?.configs?.loansConfig
-                ?.organizationType === ORGANIZATION_TYPE.BBSB && (
-                <FormGroup>
-                  <ControlLabel required={true}>
-                    {__('Loan Purpose')}
-                  </ControlLabel>
-                  <FormControl
-                    {...formProps}
-                    name="loanPurpose"
-                    componentClass="select"
-                    value={this.state.loanPurpose}
-                    onChange={this.onChangeField}
-                  >
-                    {LoanPurpose.purpose
-                      .filter(a =>
-                        this.state.loanDestination
-                          ? a.parent === this.state.loanDestination
-                          : true
-                      )
-                      .map((type, index) => (
-                        <option key={index} value={type.name}>
-                          {__(type.name)}
-                        </option>
-                      ))}
-                  </FormControl>
-                </FormGroup>
-              )}
+              <FormGroup>
+                <ControlLabel required={true}>
+                  {__('Loan Purpose')}
+                </ControlLabel>
+                <FormControl
+                  {...formProps}
+                  name="loanPurpose"
+                  componentClass="select"
+                  value={this.state.loanPurpose}
+                  onChange={this.onChangeField}
+                >
+                  {(this.state.customerType === 'customer'
+                    ? LoanPurpose['person']
+                    : LoanPurpose['organization']
+                  ).map((typeName, index) => (
+                    <option key={index} value={typeName}>
+                      {__(typeName)}
+                    </option>
+                  ))}
+                </FormControl>
+              </FormGroup>
               {this.state.useMargin &&
                 this.renderFormGroup('Down payment', {
                   ...formProps,
@@ -783,24 +752,22 @@ class ContractForm extends React.Component<Props, State> {
                 })}
             </FormColumn>
             <FormColumn>
-              {this.state.leaseType !== 'linear' && (
-                <FormGroup>
-                  <ControlLabel required={true}>{__('Repayment')}</ControlLabel>
-                  <FormControl
-                    {...formProps}
-                    name="repayment"
-                    componentClass="select"
-                    value={this.state.repayment}
-                    onChange={this.onChangeField}
-                  >
-                    {['fixed', 'equal', 'custom'].map((typeName, index) => (
-                      <option key={index} value={typeName}>
-                        {__(typeName + 'Method')}
-                      </option>
-                    ))}
-                  </FormControl>
-                </FormGroup>
-              )}
+              <FormGroup>
+                <ControlLabel required={true}>{__('Repayment')}</ControlLabel>
+                <FormControl
+                  {...formProps}
+                  name="repayment"
+                  componentClass="select"
+                  value={this.state.repayment}
+                  onChange={this.onChangeField}
+                >
+                  {['fixed', 'equal', 'custom'].map((typeName, index) => (
+                    <option key={index} value={typeName}>
+                      {__(typeName + 'Method')}
+                    </option>
+                  ))}
+                </FormControl>
+              </FormGroup>
               {this.renderFormGroup('Tenor', {
                 type: 'number',
                 name: 'tenor',
@@ -830,23 +797,21 @@ class ContractForm extends React.Component<Props, State> {
                 })}
             </FormColumn>
             <FormColumn>
-              {this.state.leaseType !== 'linear' && (
-                <FormGroup>
-                  <ControlLabel required>{__('Schedule Days')}</ControlLabel>
-                  <Select
-                    required
-                    className="flex-item"
-                    placeholder={__('Choose an schedule Days')}
-                    value={this.state.scheduleDays}
-                    onChange={onSelectScheduleDays}
-                    multi={true}
-                    options={new Array(31).fill(1).map((row, index) => ({
-                      value: row + index,
-                      label: row + index
-                    }))}
-                  />
-                </FormGroup>
-              )}
+              <FormGroup>
+                <ControlLabel required>{__('Schedule Days')}</ControlLabel>
+                <Select
+                  required
+                  className="flex-item"
+                  placeholder={__('Choose an schedule Days')}
+                  value={this.state.scheduleDays}
+                  onChange={onSelectScheduleDays}
+                  multi={true}
+                  options={new Array(31).fill(1).map((row, index) => ({
+                    value: row + index,
+                    label: row + index
+                  }))}
+                />
+              </FormGroup>
               {this.renderFormGroup('Interest Rate', {
                 ...formProps,
                 type: 'number',
@@ -869,15 +834,14 @@ class ContractForm extends React.Component<Props, State> {
                   onChange: this.onChangeField,
                   onClick: this.onFieldClick
                 })}
-              {this.state.leaseType !== 'linear' &&
-                this.renderFormGroup('Is Pay First Month', {
-                  className: 'flex-item',
-                  type: 'checkbox',
-                  componentClass: 'checkbox',
-                  name: 'isPayFirstMonth',
-                  checked: this.state.isPayFirstMonth || false,
-                  onChange: this.onChangeField
-                })}
+              {this.renderFormGroup('Is Pay First Month', {
+                className: 'flex-item',
+                type: 'checkbox',
+                componentClass: 'checkbox',
+                name: 'isPayFirstMonth',
+                checked: this.state.isPayFirstMonth || false,
+                onChange: this.onChangeField
+              })}
             </FormColumn>
           </FormWrapper>
           {this.state.repayment === 'custom' && (

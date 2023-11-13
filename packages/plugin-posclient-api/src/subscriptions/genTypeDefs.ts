@@ -13,9 +13,8 @@ export default function getTypeDefs(): DocumentNode {
     }
 
     type Subscription {
-      ordersOrdered(posToken: String, statuses: [String], customerId: String): Order
-      orderItemsOrdered(posToken: String, statuses: [String]): PosOrderItem
-      slotsStatusUpdated(posToken: String): [PosclientSlot]
+      ordersOrdered(statuses: [String], customerId: String): Order
+      orderItemsOrdered(statuses: [String]): PosOrderItem
   }
 `;
 }

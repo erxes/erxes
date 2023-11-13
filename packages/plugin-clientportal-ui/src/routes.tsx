@@ -86,22 +86,10 @@ const companyDetail = ({ match, history }) => {
   return <ClientPortalCompanyDetails id={id} history={history} />;
 };
 
-const list = ({ match, location, history }) => {
+const list = ({ location, history }) => {
   const queryParams = queryString.parse(location.search);
 
-  let kind = 'client';
-
-  if (match.path === '/settings/vendor-portal/user') {
-    kind = 'vendor';
-  }
-
-  return (
-    <ClientPortalUserList
-      queryParams={queryParams}
-      history={history}
-      kind={kind}
-    />
-  );
+  return <ClientPortalUserList queryParams={queryParams} history={history} />;
 };
 
 const routes = () => (
@@ -144,12 +132,6 @@ const routes = () => (
     <Route
       key="/settings/client-portal/user"
       path="/settings/client-portal/user"
-      component={list}
-    />
-
-    <Route
-      key="/settings/vendor-portal/user"
-      path="/settings/vendor-portal/user"
       component={list}
     />
   </>

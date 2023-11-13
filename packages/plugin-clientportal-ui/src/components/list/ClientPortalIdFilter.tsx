@@ -18,7 +18,6 @@ interface IProps extends IRouterProps {
   loading: boolean;
   emptyText?: string;
   clientPortalGetConfigs: ClientPortalConfig[];
-  kind?: string;
 }
 
 function ClientPortalUser({
@@ -26,18 +25,8 @@ function ClientPortalUser({
   counts,
   loading,
   emptyText,
-  clientPortalGetConfigs,
-  kind = 'client'
+  clientPortalGetConfigs
 }: IProps) {
-  React.useEffect(() => {
-    if (
-      clientPortalGetConfigs.length > 0 &&
-      !router.getParam(history, 'cpId')
-    ) {
-      router.setParams(history, { cpId: clientPortalGetConfigs[0]._id });
-    }
-  }, [clientPortalGetConfigs]);
-
   const onRemove = () => {
     router.removeParams(history, 'cpId');
   };
@@ -83,7 +72,7 @@ function ClientPortalUser({
 
   return (
     <Box
-      title={__(`Filter by ${kind} portal`)}
+      title={__('Filter by Business Portal')}
       collapsible={clientPortalGetConfigs.length > 5}
       extraButtons={extraButtons}
       name="showFilterByClientPortalId"

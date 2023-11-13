@@ -5,7 +5,7 @@ import resolvers from './graphql/resolvers';
 // import { initBroker } from "./messageBroker";
 // import init from "./controller";
 import { generateModels } from './models';
-import { initBroker, createRoutes } from './server';
+import { initMemoryStorage, initBroker, createRoutes } from './server';
 
 export let mainDb;
 export let graphqlPubsub;
@@ -43,6 +43,8 @@ export default {
 
     debug = options.debug;
     graphqlPubsub = options.pubsubClient;
+
+    initMemoryStorage();
 
     console.log('options.messageBrokerClient', options.messageBrokerClient);
 

@@ -1,4 +1,5 @@
 import * as dotenv from 'dotenv';
+import { redisOptions } from 'erxes-inmemory-storage';
 import { RedisPubSub } from 'graphql-redis-subscriptions';
 import Redis from 'ioredis';
 
@@ -7,13 +8,11 @@ dotenv.config();
 
 const { REDIS_HOST, REDIS_PORT, REDIS_PASSWORD } = process.env;
 
-const redisOptions = {
-  host: REDIS_HOST,
-  port: parseInt(REDIS_PORT || '6379', 10),
-  password: REDIS_PASSWORD
-};
-
 const createPubsubInstance = () => {
+  redisOptions.host = REDIS_HOST;
+  redisOptions.port = REDIS_PORT;
+  redisOptions.password = REDIS_PASSWORD;
+
   return new RedisPubSub({
     connectionListener: error => {
       if (error) {

@@ -23,7 +23,6 @@ import withTableWrapper from '@erxes/ui/src/components/table/withTableWrapper';
 interface IProps extends IRouterProps {
   history: any;
   type: string;
-  kind: 'client' | 'vendor';
   queryParams: any;
   clientPortalUsers: IClientPortalUser[];
   clientPortalUserCount: number;
@@ -50,6 +49,7 @@ class ClientportalUserList extends React.Component<IProps, State> {
 
   constructor(props) {
     super(props);
+
     this.state = {
       searchValue: this.props.searchValue
     };
@@ -184,9 +184,7 @@ class ClientportalUserList extends React.Component<IProps, State> {
     );
 
     const customerForm = props => {
-      return (
-        <ClientPortalUserForm {...props} size="lg" kind={this.props.kind} />
-      );
+      return <ClientPortalUserForm {...props} size="lg" />;
     };
 
     const actionBarRight = (
@@ -224,14 +222,14 @@ class ClientportalUserList extends React.Component<IProps, State> {
           });
 
       const onClickConfirm = e => {
-        const userType = e.currentTarget.id;
+        const kind = e.currentTarget.id;
         confirm(
           `This action forces the ${
             bulk.length > 1 ? "users'" : "user's"
-          }  ${userType} to be verified. Do you want to continue?`
+          }  ${kind} to be verified. Do you want to continue?`
         )
           .then(() => {
-            this.verifyUsers(userType, bulk);
+            this.verifyUsers(kind, bulk);
           })
           .catch(error => {
             Alert.error(error.message);
@@ -293,7 +291,6 @@ class ClientportalUserList extends React.Component<IProps, State> {
               byCP: { byCP: clientPortalUserCount },
               byType: { byType: 0 }
             }}
-            kind={this.props.kind}
           />
         }
         content={

@@ -25,7 +25,7 @@ export function DatePicker({
 }) {
   return (
     <Popover>
-      <PopoverTrigger asChild={true}>
+      <PopoverTrigger asChild>
         <Button
           variant={"outline"}
           className={cn(
@@ -37,7 +37,7 @@ export function DatePicker({
         >
           <CalendarIcon className="mr-2 h-4 w-4" />
           {date ? (
-            format(new Date(date), "yyyy-MM-dd hh:mm")
+            format(new Date(date), "yyyy-MM-dd")
           ) : (
             <span>Pick a date</span>
           )}
@@ -49,8 +49,8 @@ export function DatePicker({
           disabled={disabled}
           mode="single"
           selected={date}
-          onSelect={(e) => setDate(e)}
-          initialFocus={true}
+          onSelect={(date) => setDate(date)}
+          initialFocus
         />
       </PopoverContent>
     </Popover>

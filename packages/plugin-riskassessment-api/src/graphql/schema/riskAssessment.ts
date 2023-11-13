@@ -60,14 +60,6 @@ export const types = `
         fields:JSON
     }
 
-    type RiskAssessmentStats {
-        averageScore:Float
-        submittedAssessmentCount:Int
-        totalCount:Int
-        resolvedCardCount:Int
-
-    }
-
     input GroupsAssignedUsers {
         groupId:String
         assignedUserIds:[String]
@@ -112,13 +104,6 @@ export const mutations = `
     removeRiskAssessments(ids:[String]):JSON
 `;
 
-const commonPaginationParams = `
-    perPage:Int
-    page:Int
-    sortField:String
-    sortDirection:Int
-`;
-
 const commonParams = `
     cardType:String,
     cardIds:[String],
@@ -132,6 +117,10 @@ const commonParams = `
     branchIds:[String]
     departmentIds:[String]
     operationIds:[String]
+    perPage:Int
+    page:Int
+    sortField:String
+    sortDirection:Int
     tagIds:[String]
     groupIds:[String]
     customFieldsValues:[String]
@@ -146,11 +135,9 @@ const commonFormSubmitParams = `
 `;
 
 export const queries = `
-    riskAssessments(${commonParams},${commonPaginationParams}):[RiskAssessment]
+    riskAssessments(${commonParams}):[RiskAssessment]
 
-    riskAssessmentsTotalCount(${commonParams},${commonPaginationParams}):Int
-
-    riskAssessmentStatistics(${commonParams}):RiskAssessmentStats
+    riskAssessmentsTotalCount(${commonParams}):Int
 
     riskAssessmentDetail(id:String,showFlagged:Boolean):JSON
 

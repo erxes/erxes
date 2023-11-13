@@ -27,7 +27,6 @@ export const types = () => {
       contentType: String
       visibility: String
       department: String
-      category: String
       departmentIds: [String]
       branchIds: [String]
       unitId: String
@@ -124,7 +123,7 @@ const commonSelector = `
 
 export const queries = `
   exmFeedDetail(_id: String!): ExmFeed
-  exmFeed(contentTypes: [ContentType],category: String, isPinned: Boolean, type: SourceType, recipientType: RecipientType, title: String, limit: Int, skip: Int, startDate : String, endDate : String, bravoType : String, ${commonSelector}): ExmFeedResponse
+  exmFeed(contentTypes: [ContentType], isPinned: Boolean, type: SourceType, recipientType: RecipientType, title: String, limit: Int, skip: Int, startDate : String, endDate : String, bravoType : String, ${commonSelector}): ExmFeedResponse
   exmThanks(limit: Int, skip: Int, type: SourceType): ExmThankResponse
   exmFeedCeremonies(contentType: ContentType, filterType: FilterType): ExmFeedResponse
 `;
@@ -144,7 +143,6 @@ const feedCommonParams = `
   department: String
   unitId: String
   branchIds: [String]
-  category: String
 `;
 
 const thankCommonParams = `
