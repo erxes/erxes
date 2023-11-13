@@ -15,7 +15,7 @@ import {
 import { IRouterProps } from '@erxes/ui/src/types';
 import React from 'react';
 import { withRouter } from 'react-router-dom';
-import { menuContracts } from '../../../constants';
+import { ORGANIZATION_TYPE, menuContracts } from '../../../constants';
 
 import ContractForm from '../../containers/ContractForm';
 import { ContractsTableWrapper } from '../../styles';
@@ -246,16 +246,18 @@ class ContractsList extends React.Component<IProps, State> {
             content={classificationForm}
             backDrop="static"
           />
-          {can('contractsRemove', currentUser) && (
-            <Button
-              btnStyle="danger"
-              size="small"
-              icon="cancel-1"
-              onClick={onClick}
-            >
-              {__('Delete')}
-            </Button>
-          )}
+          {currentUser?.configs?.loansConfig?.organizationType ===
+            ORGANIZATION_TYPE.ENTITY &&
+            can('contractsRemove', currentUser) && (
+              <Button
+                btnStyle="danger"
+                size="small"
+                icon="cancel-1"
+                onClick={onClick}
+              >
+                {__('Delete')}
+              </Button>
+            )}
           {alerts.map(mur => (
             <Button onClick={() => onSelect(mur.filter, 'ids')}>
               {mur.name}:{mur.count}
