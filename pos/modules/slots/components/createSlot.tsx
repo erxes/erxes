@@ -23,7 +23,7 @@ const CreateSlot = ({ code }: { code: string }) => {
   return (
     <DropdownMenuItem
       onClick={handleCreate}
-      disabled={!activeOrderId}
+      // disabled={!activeOrderId}
       className="flex items-center"
     >
       <PlusCircleIcon className="h-4 w-4 mr-2" />
