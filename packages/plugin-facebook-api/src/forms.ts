@@ -47,7 +47,7 @@ const generateCustomerOptions = async (
 };
 
 const generateFields = async ({ subdomain, data }) => {
-  const { type } = data;
+  const { type, usageType } = data;
 
   const models = await generateModels(subdomain);
 
@@ -92,20 +92,20 @@ const generateFields = async ({ subdomain, data }) => {
     }
   }
 
-  const customersOptions = await generateCustomerOptions(
-    subdomain,
-    'customers',
-    'Customer',
-    'contact'
-  );
-
   fields = [
     ...fields,
     ...[
-      { _id: Math.random(), name: 'content', label: 'Content', type: 'String' },
-      customersOptions
+      { _id: Math.random(), name: 'content', label: 'Content', type: 'String' }
     ]
   ];
+
+  // if (usageType === 'automation') {
+
+  //   fields = [
+
+  //   ]
+
+  // }
 
   return fields;
 };

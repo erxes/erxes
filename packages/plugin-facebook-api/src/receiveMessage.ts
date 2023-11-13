@@ -13,13 +13,14 @@ const receiveMessage = async (
   subdomain: string,
   activity: Activity
 ) => {
-  const {
+  let {
     recipient,
     sender,
     timestamp,
     text,
     attachments = [],
-    message
+    message,
+    postback
   } = activity.channelData as IChannelData;
 
   const integration = await models.Integrations.getIntegration({
@@ -32,6 +33,8 @@ const receiveMessage = async (
   const userId = sender.id;
   const pageId = recipient.id;
   const kind = INTEGRATION_KINDS.MESSENGER;
+
+  text = postback.title === 'Get Started' ? 'Get Started' : text;
 
   // get or create customer
   const customer = await getOrCreateCustomer(
@@ -51,13 +54,17 @@ const receiveMessage = async (
   // create conversation
   if (!conversation) {
     // save on integrations db
+
+    const isBot = postback && postback.title === 'Get Started' ? true : false;
+
     try {
       conversation = await models.Conversations.create({
         timestamp,
         senderId: userId,
         recipientId: recipient.id,
         content: text,
-        integrationId: integration._id
+        integrationId: integration._id,
+        isBot
       });
     } catch (e) {
       throw new Error(
@@ -66,6 +73,8 @@ const receiveMessage = async (
           : e
       );
     }
+  } else {
+    conversation.content = text || '';
   }
 
   const formattedAttachments = (attachments || [])
@@ -104,7 +113,7 @@ const receiveMessage = async (
 
   // get conversation message
   let conversationMessage = await models.ConversationMessages.findOne({
-    mid: message.mid
+    mid: message.mid || postback.mid
   });
 
   if (!conversationMessage) {

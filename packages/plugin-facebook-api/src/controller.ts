@@ -87,6 +87,8 @@ const init = async app => {
 
     const adapter = await getAdapter(models);
 
+    console.log(data.entry);
+
     for (const entry of data.entry) {
       // receive chat
       if (entry.messaging) {

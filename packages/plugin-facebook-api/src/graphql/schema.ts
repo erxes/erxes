@@ -72,6 +72,16 @@ export const types = `
     ${commonPostAndCommentFields}
     content:String
   }
+
+  type FacebookMessengerBot {
+    _id: String
+    name:String
+    accountId: String
+    account:JSON
+    pageId: String
+    page: JSON
+    createdAt: Date
+  }
 `;
 
 export const queries = `
@@ -92,14 +102,14 @@ export const queries = `
   facebookConversationMessagesCount(conversationId: String!): Int
   facebookGetPost(erxesApiId: String): FacebookPost
   facebookHasTaggedMessages(conversationId: String!): Boolean
-  facebootMessengerBots:JSON
-  facebootMessengerBotsTotalCount:JSON
+  facebootMessengerBots:[FacebookMessengerBot]
+  facebootMessengerBotsTotalCount:Int
 `;
 
 export const mutations = `
   facebookUpdateConfigs(configsMap: JSON!): JSON
-  facebookMessengerAddBot(name:String,description:String,integrationId:String,pageId:String):JSON
-  facebookMessengerUpdateBot(_id:String,name:String,description:String,integrationId:String,pageId:String):JSON
+  facebookMessengerAddBot(name:String,accountId:String,pageId:String):JSON
+  facebookMessengerUpdateBot(_id:String,name:String,accountId:String,pageId:String):JSON
   facebookMessengerRemoveBot(_id:String):JSON
   facebookRepair(_id: String!): JSON
   facebookChangeCommentStatus(commentId: String): FacebookComment

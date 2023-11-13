@@ -21,7 +21,8 @@ export const conversationSchema = new Schema({
   senderId: { type: String, index: true },
   recipientId: { type: String, index: true },
   integrationId: String,
-  content: String
+  content: String,
+  isBot: Boolean
 });
 
 conversationSchema.index({ senderId: 1, recipientId: 1 }, { unique: true });

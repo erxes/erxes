@@ -3,17 +3,23 @@ import { IModels } from '../connectionResolver';
 import { getPageAccessTokenFromMap, graphRequest } from '../utils';
 import { IBotDocument, botSchema } from './definitions/bots';
 
-const validateDoc = doc => {
-  if (doc.name) {
+const validateDoc = async (models: IModels, doc: any) => {
+  if (!doc.name) {
     throw new Error('Please provide a name of bot');
   }
 
-  if (doc.integrationId) {
-    throw new Error('Please select a facebook integration');
+  if (!doc.accountId) {
+    throw new Error('Please select a facebook account');
   }
 
-  if (doc.pageId) {
+  if (!doc.pageId) {
     throw new Error('Please select a facebook page');
+  }
+
+  if (
+    await models.Bots.findOne({ pageId: doc.pageId, accountId: doc.accountId })
+  ) {
+    throw new Error('This page has already been registered as a bot');
   }
 };
 
@@ -27,16 +33,17 @@ export const loadBotClass = (models: IModels) => {
   class Bot {
     public static async addBot(doc) {
       try {
-        validateDoc(doc);
+        await validateDoc(models, doc);
       } catch (error) {
         throw new Error(error.message);
       }
 
-      const { integrationId, pageId } = doc;
+      const { accountId, pageId } = doc;
 
       const integration = await models.Integrations.findOne({
-        _id: integrationId,
-        facebookPageIds: { $in: [pageId] }
+        accountId,
+        facebookPageIds: { $in: [pageId] },
+        healthStatus: 'healthy'
       });
 
       try {
@@ -48,16 +55,16 @@ export const loadBotClass = (models: IModels) => {
 
     public static async updateBot(_id, doc) {
       try {
-        validateDoc(doc);
+        await validateDoc(models, doc);
       } catch (error) {
         throw new Error(error.message);
       }
 
-      const { integrationId, pageId } = doc;
+      const { accountId, pageId } = doc;
 
       const bot = await models.Bots.findOne({ _id }).select({
         _id: 0,
-        integrationId: 1,
+        accountId: 1,
         pageId: 1
       });
 
@@ -66,16 +73,23 @@ export const loadBotClass = (models: IModels) => {
       }
 
       if (
-        JSON.stringify({ integrationId, pageId }) !== JSON.stringify({ ...bot })
+        JSON.stringify({ accountId, pageId }) !== JSON.stringify({ ...bot })
       ) {
-        await this.disconnectBotPageMessenger(_id);
+        try {
+          await this.disconnectBotPageMessenger(_id);
 
-        await this.connectBotPageMessenger(
-          await models.Integrations.findOne({ _id: integrationId }),
-          pageId,
-          doc
-        );
-        return { status: 'success' };
+          await this.connectBotPageMessenger(
+            await models.Integrations.findOne({
+              accountId,
+              healthStatus: 'healthy'
+            }),
+            pageId,
+            doc
+          );
+          return { status: 'success' };
+        } catch (error) {
+          throw new Error(error.message);
+        }
       }
 
       await models.Bots.updateOne({ _id }, { ...doc });
@@ -83,12 +97,15 @@ export const loadBotClass = (models: IModels) => {
     }
 
     public static async removeBot(_id) {
-      if (await models.Bots.findOne({ _id })) {
+      if (!(await models.Bots.findOne({ _id }))) {
         throw new Error('Not found');
       }
 
-      await this.disconnectBotPageMessenger(_id);
-
+      try {
+        await this.disconnectBotPageMessenger(_id);
+      } catch (error) {
+        throw new Error(error.message);
+      }
       await models.Bots.deleteOne({ _id });
 
       return { status: 'success' };
@@ -98,18 +115,18 @@ export const loadBotClass = (models: IModels) => {
       const pageAccessToken = getPageAccessTokenFromMap(
         pageId,
         integration?.facebookPageTokensMap || {}
-      )[pageId];
+      );
 
       if (!pageAccessToken) {
         throw new Error('Cannot find access token');
       }
 
       try {
-        graphRequest.post('/me/messenger_profile', pageAccessToken, {
-          get_started: { payload: 'first hand shake' }
-        });
+        const bot = await models.Bots.create({ ...doc });
 
-        await models.Bots.create({ ...doc });
+        graphRequest.post('/me/messenger_profile', pageAccessToken, {
+          get_started: { payload: bot._id }
+        });
 
         return { status: 'success' };
       } catch (error) {
@@ -118,10 +135,11 @@ export const loadBotClass = (models: IModels) => {
     }
 
     static async disconnectBotPageMessenger(_id) {
-      const bot = await models.Bots.findOne({ id: _id });
+      const bot = await models.Bots.findOne({ _id });
 
       const integration = await models.Integrations.findOne({
-        _id: bot?.integrationId
+        accountId: bot?.accountId,
+        healthStatus: 'healthy'
       });
 
       if (!bot || !integration) {
@@ -131,17 +149,17 @@ export const loadBotClass = (models: IModels) => {
       const pageAccessToken = getPageAccessTokenFromMap(
         bot.pageId,
         integration?.facebookPageTokensMap || {}
-      )[bot.pageId];
+      );
 
       if (!pageAccessToken) {
         throw new Error('Cannot find access token');
       }
 
       try {
-        graphRequest.delete(
-          `/me/messenger_profile?fields=get_started`,
-          pageAccessToken
-        );
+        graphRequest.delete(`/me/messenger_profile`, pageAccessToken, {
+          fields: ['get_started'],
+          access_token: pageAccessToken
+        });
 
         await models.Bots.deleteOne({ _id });
 

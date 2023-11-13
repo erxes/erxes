@@ -3,7 +3,7 @@ import { field } from './utils';
 
 export interface IBot {
   name: string;
-  integrationId: string;
+  accountId: string;
   pageId: string;
   status: string;
 }
@@ -15,6 +15,7 @@ export interface IBotDocument extends IBot, Document {
 export const botSchema = new Schema({
   _id: field({ pkey: true }),
   name: { type: String },
-  integrationId: { type: String },
-  pageId: { type: String }
+  accountId: { type: String },
+  pageId: { type: String },
+  createdAt: { type: Date, default: Date.now() }
 });

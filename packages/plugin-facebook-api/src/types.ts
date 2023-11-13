@@ -44,6 +44,10 @@ export interface IChannelData {
   message: {
     mid: string;
   };
+  postback: {
+    title: 'Get Started';
+    mid: string;
+  };
 }
 
 export interface IAttachment {

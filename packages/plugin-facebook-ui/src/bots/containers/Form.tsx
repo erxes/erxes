@@ -3,6 +3,7 @@ import React from 'react';
 import { mutations } from '../graphql';
 import { ButtonMutate } from '@erxes/ui/src';
 import FormCompnent from '../components/Form';
+import { refetchQueries } from './List';
 
 type Props = {
   bot?: any;
@@ -30,6 +31,7 @@ class Form extends React.Component<Props> {
       const afterMutate = () => {
         if (callback) {
           callback();
+          this.props.closeModal();
         }
       };
 
@@ -39,7 +41,7 @@ class Form extends React.Component<Props> {
           variables={values}
           callback={afterMutate}
           isSubmitted={isSubmitted}
-          //   refetchQueries={refetchQueries(queryParams)}
+          refetchQueries={refetchQueries({})}
           type="submit"
           confirmationUpdate={confirmationUpdate}
           successMessage={`You successfully ${successAction} a ${name}`}

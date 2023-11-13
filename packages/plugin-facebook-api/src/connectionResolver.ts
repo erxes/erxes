@@ -106,7 +106,7 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
   >('conversation_messages_facebooks', loadConversationMessageClass(models));
 
   models.Bots = db.model<IBotDocument, IBotModel>(
-    'facebooks_messenger_bots',
+    'facebook_messengers_bots',
     loadBotClass(models)
   );
 

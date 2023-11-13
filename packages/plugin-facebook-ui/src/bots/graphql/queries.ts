@@ -1,6 +1,14 @@
 const list = `
     query FacebootMessengerBots {
-      facebootMessengerBots
+      facebootMessengerBots {
+        _id
+        name
+        account
+        accountId
+        createdAt
+        page
+        pageId
+      }
     }
 `;
 
