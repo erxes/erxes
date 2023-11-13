@@ -24,6 +24,7 @@ export interface IGoal {
   segmentRadio: boolean;
   periodGoal: string;
   teamGoalType: string;
+  segmentCount: number;
 }
 
 export interface IGoalDocument extends IGoal, Document {
@@ -74,7 +75,8 @@ export const goalSchema = schemaHooksWrapper(
     segmentRadio: field({ type: Boolean, label: 'Segment check' }),
     segmentIds: field({ type: [String], label: 'Segment Data' }),
     periodGoal: field({ type: String, label: 'Period ' }),
-    teamGoalType: field({ type: String, label: 'Choose  Structure' })
+    teamGoalType: field({ type: String, label: 'Choose  Structure' }),
+    segmentCount: field({ type: Number, min: 0, label: 'segmentCount' })
   }),
   'erxes_goals'
 );

@@ -38,11 +38,21 @@ export const initBroker = async cl => {
 };
 
 export const sendCardsMessage = (args: ISendMessageArgs): Promise<any> => {
-  console.log(args, 'asodpaksdopadksop');
   return sendMessage({
     client,
     serviceDiscovery,
     serviceName: 'cards',
+    ...args
+  });
+};
+
+export const sendSegmentsMessage = async (
+  args: ISendMessageArgs
+): Promise<any> => {
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName: 'segments',
     ...args
   });
 };

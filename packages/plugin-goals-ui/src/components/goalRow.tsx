@@ -96,13 +96,7 @@ function GoalRow({ goalType, isChecked, toggleBulk }: Props) {
   const [boardName, setBoardName] = useState('');
   const [stageName, setStageName] = useState('');
   const [emailName, setEmail] = useState('');
-  const [segmentIds, setSegmentIds] = useState('');
-  const segmentDetail = useQuery(gql(queries.segmentDetail), {
-    variables: {
-      _id: goalType.segmentIds
-    }
-  });
-  console.log(goalType.segmentIds, 'asdoasd');
+
   const pipelineDetail = useQuery(gql(queries.pipelineDetail), {
     variables: {
       _id: goalType.pipelineId
@@ -127,9 +121,6 @@ function GoalRow({ goalType, isChecked, toggleBulk }: Props) {
   });
 
   useEffect(() => {
-    if (segmentDetail.data && segmentDetail.data) {
-      setSegmentIds(segmentDetail.data.segmentDetail.name);
-    }
     if (userDetail.data && userDetail.data.userDetail) {
       setEmail(userDetail.data.userDetail.email);
     }
@@ -143,7 +134,6 @@ function GoalRow({ goalType, isChecked, toggleBulk }: Props) {
       setStageName(stageDetail.data.stageDetail.name);
     }
   }, [
-    segmentDetail.data,
     pipelineDetail.data,
     boardDetail.data,
     stageDetail.data,
@@ -151,7 +141,6 @@ function GoalRow({ goalType, isChecked, toggleBulk }: Props) {
   ]);
 
   if (
-    segmentDetail.loading ||
     pipelineDetail.loading ||
     boardDetail.loading ||
     stageDetail.loading ||

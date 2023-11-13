@@ -37,6 +37,7 @@ export interface IGoalTypeDoc {
   segmentRadio: boolean;
   periodGoal: string;
   teamGoalType: string;
+  segmentCount: number;
 }
 
 export interface IGoalType extends IGoalTypeDoc {

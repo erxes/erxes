@@ -22,7 +22,8 @@ const insuranceTypeFields = `
       startDate
       endDate
       target
-      segmentIds
+      segmentIds,
+      segmentCount
 `;
 
 const listParamsDef = `
@@ -307,17 +308,6 @@ const userDetail = `
   }
 `;
 
-const segmentDetail = `
-  query segmentDetail($_id: String) {
-    segmentDetail(_id: $_id) {
-      ${segmentFields}
-      getSubSegments {
-        ${segmentFields}
-      }
-    }
-  }
-`;
-
 export default {
   goalTypes,
   goalTypesMain,
@@ -329,6 +319,5 @@ export default {
   branchesMain,
   unitsMain,
   departmentsMain,
-  userDetail,
-  segmentDetail
+  userDetail
 };

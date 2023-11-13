@@ -8,8 +8,7 @@ import dayjs from 'dayjs';
 import React from 'react';
 import { RouteComponentProps, withRouter } from 'react-router-dom';
 import { IGoalType } from '../types';
-import SegmentsForm from '@erxes/ui-segments/src/containers/form/SegmentsForm';
-import segmentDetail from '../graphql/queries';
+
 interface IProps extends RouteComponentProps {
   goalType: IGoalType; // Adjust the type of goalTypes as per your
   boardName: string;
@@ -37,72 +36,81 @@ class GoalView extends React.Component<IProps> {
 
     return (
       <div>
-        <div>
-          <ControlLabel>
-            {__(' Monthly: ' + data.entity + ', ' + email)}
-          </ControlLabel>
+        <ControlLabel>
+          {__(' Monthly: ' + data.entity + ', ' + email)}
+        </ControlLabel>
 
-          <FlexContent>
-            <FlexItem>
-              <BoardHeader>
-                <FormGroup>
-                  <ControlLabel>
-                    {__('Contributor: ') + data.contribution}
-                  </ControlLabel>
-                  <ControlLabel>
-                    {__('Goal Type: ') + data.goalTypeChoose}
-                  </ControlLabel>
-                  <FormGroup>
-                    <ControlLabel>
-                      {__('Board:  ')}
-                      {boardName}
-                    </ControlLabel>
-                    <ControlLabel>
-                      {__('Pipeline:  ')}
-                      {pipelineName}
-                    </ControlLabel>
-                    <ControlLabel>
-                      {__('Stage:  ')}
-                      {stageName}
-                    </ControlLabel>
-                  </FormGroup>
-                </FormGroup>
-              </BoardHeader>
-            </FlexItem>
-            <FlexItem>
+        <FlexContent>
+          <FlexItem>
+            <BoardHeader>
               <FormGroup>
                 <ControlLabel>
-                  {__('Duration: ')} {data.startDate} - {data.endDate}
+                  {__('Contributor: ') + data.contribution}
                 </ControlLabel>
-                <ControlLabel>{__('Current: ') + current}</ControlLabel>
-                <ControlLabel>{__('Target: ') + data.target}</ControlLabel>
                 <ControlLabel>
-                  {__('Progress: ') + nestedProgressValue + '%'}
+                  {__('Goal Type: ') + data.goalTypeChoose}
                 </ControlLabel>
-              </FormGroup>
-            </FlexItem>
-          </FlexContent>
-        </div>
-        <div>
-          <ControlLabel>{__('Month ' + data.entity)}</ControlLabel>
-          <FlexContent>
-            <FlexItem>
-              <BoardHeader>
                 <FormGroup>
                   <ControlLabel>
-                    {__(
-                      data.entity +
-                        ' progressed: ' +
-                        pipelineName +
-                        ', ' +
-                        stageName
-                    )}
+                    {__('Board:  ')}
+                    {boardName}
+                  </ControlLabel>
+                  <ControlLabel>
+                    {__('Pipeline:  ')}
+                    {pipelineName}
+                  </ControlLabel>
+                  <ControlLabel>
+                    {__('Stage:  ')}
+                    {stageName}
                   </ControlLabel>
                 </FormGroup>
-              </BoardHeader>
-            </FlexItem>
-          </FlexContent>
-        </div>
+              </FormGroup>
+            </BoardHeader>
+          </FlexItem>
+          <FlexItem>
+            <FormGroup>
+              <ControlLabel>
+                {__('Duration: ')} {dayjs(data.startDate).format('YYYY-MM-DD ')}
+                - {dayjs(data.endDate).format('YYYY-MM-DD ')}
+              </ControlLabel>
+              <ControlLabel>{__('Current: ') + current}</ControlLabel>
+              <ControlLabel>{__('Target: ') + data.target}</ControlLabel>
+              <ControlLabel>
+                {__('Progress: ') + nestedProgressValue + '%'}
+              </ControlLabel>
+            </FormGroup>
+          </FlexItem>
+        </FlexContent>
+        <ControlLabel>{__('Month ' + data.entity)}</ControlLabel>
+        <FlexContent>
+          <FlexItem>
+            <BoardHeader>
+              <FormGroup>
+                <ControlLabel>
+                  {__(
+                    data.entity +
+                      ' progressed: ' +
+                      pipelineName +
+                      ', ' +
+                      stageName
+                  )}
+                </ControlLabel>
+              </FormGroup>
+            </BoardHeader>
+          </FlexItem>
+        </FlexContent>
+
+        <FlexContent>
+          <FlexItem>
+            <BoardHeader>
+              <FormGroup>
+                <ControlLabel>
+                  {__('Segment: ') + data.segmentCount}
+                </ControlLabel>
+              </FormGroup>
+            </BoardHeader>
+          </FlexItem>
+        </FlexContent>
 
         <FlexContent>
           <FlexItem>
@@ -127,15 +135,6 @@ class GoalView extends React.Component<IProps> {
                   ))}
                 </tbody>
               </Table>
-              {/* <SegmentsForm
-                {...this.props}
-                contentType={triggerType}
-                addConfig={addAction}
-                closeModal={this.props.closeModal}
-                activeTrigger={activeAction}
-                id={config.contentId}
-                hideDetailForm={true}
-              /> */}
             </BoardHeader>
           </FlexItem>
         </FlexContent>

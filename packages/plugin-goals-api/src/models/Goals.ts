@@ -1,6 +1,6 @@
 import { Model } from 'mongoose';
 import { IModels } from '../connectionResolver';
-import { sendCardsMessage } from '../messageBroker';
+import { sendCardsMessage, sendSegmentsMessage } from '../messageBroker';
 import { goalSchema, IGoal, IGoalDocument } from './definitions/goals';
 export interface IGoalModel extends Model<IGoalDocument> {
   getGoal(_id: string): Promise<IGoalDocument>;
@@ -99,11 +99,11 @@ export const loadGoalClass = (models: IModels, subdomain: string) => {
       let amount;
 
       // Check if any of the conditions are met to send the request
-      let requestData;
+      let requestData: any;
 
       if (item.contributionType === 'person') {
         requestData = {
-          watchedUserIds: item.contribution
+          assignedUserIds: item.contribution
         };
       } else if (item.contributionType === 'team') {
         if (item.teamGoalType === 'Departments') {
@@ -127,6 +127,37 @@ export const loadGoalClass = (models: IModels, subdomain: string) => {
         isRPC: true
       });
 
+      let customerIdsBySegments: string[] = [];
+
+      try {
+        // Assuming 'item' is the object containing segmentIds
+        for (const segment of item.segmentIds || []) {
+          const cIds = await sendSegmentsMessage({
+            isRPC: true,
+            subdomain,
+            action: 'fetchSegment',
+            data: { segmentId: segment }
+          });
+
+          // Concatenate the fetched customer IDs to the array
+          customerIdsBySegments = [...customerIdsBySegments, ...cIds];
+        }
+
+        // Get the count of elements in the array
+        const count = customerIdsBySegments.length;
+
+        // Update the database
+        await models.Goals.updateOne(
+          { _id: item._id },
+          {
+            $set: {
+              segmentCount: count
+            }
+          }
+        );
+      } catch (error) {
+        throw new Error(error);
+      }
       let current;
       let progress;
       let amountData;
@@ -271,15 +302,12 @@ export const loadGoalClass = (models: IModels, subdomain: string) => {
           );
         } catch (error) {
           // Handle the error here
-          console.error('An error occurred during the update:', error);
-          throw error; // Rethrow the error if necessary
+          throw new Error(error);
         }
       }
       return true;
     } catch (error) {
-      // Handle any errors that occur in the try block
-      console.error('An error occurred:', error);
-      throw error; // Rethrow the error if necessary
+      throw new Error(error);
     }
   }
 

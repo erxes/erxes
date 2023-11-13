@@ -18,11 +18,6 @@ import {
 import client from '@erxes/ui/src/apolloClient';
 import { DateContainer } from '@erxes/ui/src/styles/main';
 import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
-import {
-  BranchesMainQueryResponse,
-  DepartmentsMainQueryResponse,
-  UnitsMainQueryResponse
-} from '@erxes/ui/src/team/types';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import { Alert } from '@erxes/ui/src/utils';
 import { isEnabled } from '@erxes/ui/src/utils/core';
@@ -36,6 +31,9 @@ import {
   SPECIFIC_PERIOD_GOAL
 } from '../constants';
 import { IGoalType, IGoalTypeDoc } from '../types';
+import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
+import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
+import SelectUnits from '@erxes/ui/src/team/containers/SelectUnits';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -43,9 +41,6 @@ type Props = {
   closeModal: () => void;
   pipelineLabels?: IPipelineLabel[];
   segmentIds: string[];
-  branchListQuery: BranchesMainQueryResponse;
-  unitListQuery: UnitsMainQueryResponse;
-  departmentListQuery: DepartmentsMainQueryResponse;
 };
 
 type State = {
@@ -81,6 +76,7 @@ class GoalTypeForm extends React.Component<Props, State> {
   constructor(props) {
     super(props);
     const { goalType = {} } = props;
+    console.log(goalType, 'asdopasdk');
     this.state = {
       segmentIds: goalType.segmentIds || [],
       branch: goalType.branch || [],
@@ -124,88 +120,15 @@ class GoalTypeForm extends React.Component<Props, State> {
       // You can also display an error message to the user
     }
   };
-
-  // onChangeTarget = (_id, event) => {
-  //   const { specificPeriodGoals, periodGoal } = this.state;
-  //   const { value } = event.target;
-
-  //   const updatedSpecificPeriodGoals = specificPeriodGoals.map((goal, i) => {
-  //     if (i === _id) {
-  //       return { ...goal, addTarget: value };
-  //     }
-  //     return goal;
-  //   });
-  //   if (periodGoal === 'Monthly') {
-  //     const months = this.mapMonths();
-
-  //     months.forEach((month) => {
-  //       const exists = specificPeriodGoals.some(
-  //         (goal) => goal.addMonthly._id === month._id
-  //       );
-  //       if (!exists) {
-  //         const newElement = {
-  //           _id: Math.random().toString(),
-  //           addMonthly: month,
-  //           addWeekly: 'null',
-  //           addTarget: 0
-  //         };
-  //         updatedSpecificPeriodGoals.push(newElement);
-  //       }
-  //     });
-
-  //     this.setState({ specificPeriodGoals: updatedSpecificPeriodGoals });
-  //   } else {
-  //     const weeks = this.mapWeeks();
-
-  //     weeks.forEach((week) => {
-  //       const exists = specificPeriodGoals.some(
-  //         (goal) => goal.addMonthly._id === week._id
-  //       );
-  //       if (!exists) {
-  //         const newElement = {
-  //           _id: Math.random().toString(),
-  //           addMonthly: 'null',
-  //           addWeekly: week,
-  //           addTarget: 0
-  //         };
-  //         updatedSpecificPeriodGoals.push(newElement);
-  //       }
-  //     });
-
-  //     this.setState({ specificPeriodGoals: updatedSpecificPeriodGoals });
-  //   }
-  // };
-
-  // onChangeTarget = (_id, event) => {
-  //   const { specificPeriodGoals, periodGoal } = this.state;
-  //   const { value } = event.target;
-
-  //   const updatedSpecificPeriodGoals = specificPeriodGoals.map((goal, i) => {
-  //     if (i === _id) {
-  //       return { ...goal, addTarget: value };
-  //     }
-  //     return goal;
-  //   });
-  //   const periods =
-  //     periodGoal === 'Monthly' ? this.mapMonths() : this.mapWeeks();
-
-  //   periods.forEach((period) => {
-  //     const exists = specificPeriodGoals.some(
-  //       (goal) => goal.addMonthly === period._id
-  //     );
-  //     if (!exists) {
-  //       const newElement = {
-  //         _id: Math.random().toString(),
-  //         addMonthly: period,
-  //         addTarget: 0
-  //       };
-  //       updatedSpecificPeriodGoals.push(newElement);
-  //     }
-  //   });
-  //   this.setState({ specificPeriodGoals: updatedSpecificPeriodGoals });
-  // };
-
-  // this.setState({ specificPeriodGoals: updatedSpecificPeriodGoals });
+  onChangeBranchId = value => {
+    this.setState({ branch: value });
+  };
+  onChangeDepartments = value => {
+    this.setState({ department: value });
+  };
+  onChangeUnites = value => {
+    this.setState({ unit: value });
+  };
 
   onChangeStage = stgId => {
     this.setState({ stageId: stgId });
@@ -453,13 +376,6 @@ class GoalTypeForm extends React.Component<Props, State> {
     const months: string[] = this.mapMonths();
     const weeks = this.mapWeeks();
 
-    const { departmentListQuery, branchListQuery, unitListQuery } = this.props;
-    const departments = departmentListQuery.departmentsMain?.list || [];
-    const branches = branchListQuery.branchesMain?.list || [];
-    const units = unitListQuery.unitsMain?.list || [];
-
-    // console.log(JSON.stringify(this.mapMonths(), null, 2), 'month');
-    // console.log(JSON.stringify(this.mapWeeks(), null, 2), 'week');
     return (
       <>
         <ScrollWrapper>
@@ -631,57 +547,39 @@ class GoalTypeForm extends React.Component<Props, State> {
                 this.state.contributionType === 'team' && (
                   <FormGroup>
                     <ControlLabel>{__('Departments')}</ControlLabel>
-                    <FormControl
-                      {...formProps}
-                      name="department"
-                      componentClass="select"
-                      value={this.state.department}
-                      onChange={this.onChangeField}
-                    >
-                      {departments.map((item, index) => (
-                        <option key={index} value={item._id}>
-                          {item.title}
-                        </option>
-                      ))}
-                    </FormControl>
+                    <SelectDepartments
+                      name="branchId"
+                      label={__('Choose Departments')}
+                      initialValue={this.state?.department}
+                      onSelect={this.onChangeDepartments}
+                      multi={false}
+                    />
                   </FormGroup>
                 )}
               {this.state.teamGoalType === 'Units' &&
                 this.state.contributionType === 'team' && (
                   <FormGroup>
                     <ControlLabel>{__('Units')}</ControlLabel>
-                    <FormControl
-                      {...formProps}
-                      name="unit"
-                      componentClass="select"
-                      value={this.state.unit}
-                      onChange={this.onChangeField}
-                    >
-                      {units.map((item, index) => (
-                        <option key={index} value={item._id}>
-                          {item.title}
-                        </option>
-                      ))}
-                    </FormControl>
+                    <SelectUnits
+                      name="branchId"
+                      label={__('Choose Units')}
+                      initialValue={this.state?.unit}
+                      onSelect={this.onChangeUnites}
+                      multi={false}
+                    />
                   </FormGroup>
                 )}
               {this.state.teamGoalType === 'Branches' &&
                 this.state.contributionType === 'team' && (
                   <FormGroup>
                     <ControlLabel>{__('Branches')}</ControlLabel>
-                    <FormControl
-                      {...formProps}
-                      name="branch"
-                      componentClass="select"
-                      value={this.state.branch}
-                      onChange={this.onChangeField}
-                    >
-                      {branches.map((item, index) => (
-                        <option key={index} value={item._id}>
-                          {item.title}
-                        </option>
-                      ))}
-                    </FormControl>
+                    <SelectBranches
+                      name="branchId"
+                      label={__('Choose Branches')}
+                      initialValue={this.state?.branch}
+                      onSelect={this.onChangeBranchId}
+                      multi={false}
+                    />
                   </FormGroup>
                 )}
               <FormGroup>
@@ -767,7 +665,7 @@ class GoalTypeForm extends React.Component<Props, State> {
           )}
           {this.state.periodGoal === 'Weekly' && (
             <div>
-              {weeks.map((week, index) => (
+              {weeks.map(week => (
                 <FormWrapper key={week}>
                   <FormColumn>
                     <ControlLabel>{__('Period (Weekly)')}</ControlLabel>
