@@ -44,6 +44,7 @@ class DetailInfo extends React.Component<Props> {
         {this.renderRow('Contract Number', contract.number)}
         {this.renderRow('Status', contract.status)}
         {this.renderRow('Classification', contract.classification)}
+        {this.renderRow('Lease Type', contract.leaseType)}
         {this.renderRow(
           'Margin Amount',
           (contract.marginAmount || 0).toLocaleString()
