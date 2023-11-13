@@ -40,23 +40,41 @@ const TimeclockList = ({ queryParams }: any) => {
   return (
     <div className="h-[94vh] flex flex-col gap-3">
       <TimeclockAction />
-      <div className="flex overflow-y-auto max-h-[70vh]">
+      <div className="flex overflow-y-auto max-h-[70vh] scrollbar-hide">
         <Table>
-          <TableHeader>
-            <TableRow>
+          <TableHeader className="sticky top-0 bg-[#f8f9fa] border-none">
+            <TableRow className="border-none">
               {list.map((item, index) => (
-                <TableHead key={index}>{item}</TableHead>
+                <TableHead
+                  key={index}
+                  className="py-5 border-none text-[#4F33AF] font-bold"
+                >
+                  {item}
+                </TableHead>
               ))}
             </TableRow>
           </TableHeader>
-          <TableBody>
-            {timeclocksMainList.map((timeclock, index) => (
-              <TimeClockRow timeclock={timeclock} key={index} />
-            ))}
-          </TableBody>
+          {loading ? (
+            <div className="absolute left-1/2">
+              <Loader />
+            </div>
+          ) : (
+            <TableBody>
+              {timeclocksMainList.map((timeclock, index) => (
+                <TimeClockRow timeclock={timeclock} key={index} />
+              ))}
+            </TableBody>
+          )}
         </Table>
       </div>
-      <div className="self-end">
+      <div className="flex items-center justify-between">
+        <span className="text-[#B5B7C0] font-medium">
+          Showing data {(queryParams.page - 1) * queryParams.perPage + 1} to{" "}
+          {queryParams.page * queryParams.perPage > timeclocksMainTotalCount
+            ? timeclocksMainTotalCount
+            : queryParams.page * queryParams.perPage}{" "}
+          of {timeclocksMainTotalCount} entries
+        </span>
         <Pagination count={timeclocksMainTotalCount} />
       </div>
     </div>

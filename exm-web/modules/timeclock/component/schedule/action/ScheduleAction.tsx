@@ -45,9 +45,9 @@ const ScheduleAction = ({
           configsList={configsList}
           scheduleConfigOrder={scheduleConfigOrder}
         />
-        <Button onClick={() => setToggleView(!toggleView)}>
+        {/* <Button onClick={() => setToggleView(!toggleView)}>
           {toggleView ? <CalendarDays size={16} /> : <Grid2x2 size={16} />}
-        </Button>
+        </Button> */}
       </div>
     </div>
   )

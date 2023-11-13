@@ -59,7 +59,7 @@ const Request = ({ queryParams }: Props) => {
   return (
     <div className="h-[94vh] flex flex-col gap-3">
       <AbsenceAction queryParams={queryParams} absenceTypes={absenceTypes} />
-      <div className="flex overflow-y-auto max-h-[70vh]">
+      <div className="flex overflow-y-auto max-h-[70vh] scrollbar-hide">
         <Table>
           <TableHeader className="sticky top-0 bg-[#f8f9fa] border-none">
             <TableRow className="border-none">

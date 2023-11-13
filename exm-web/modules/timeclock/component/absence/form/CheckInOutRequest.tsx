@@ -45,7 +45,7 @@ const CheckInOutRequest = (props: Props) => {
 
   const renderRequestForm = () => {
     return (
-      <DialogContent className="max-w-lg">
+      <DialogContent>
         <DialogHeader>Create Check In/Out Request</DialogHeader>
 
         <div className="flex flex-col gap-2">
