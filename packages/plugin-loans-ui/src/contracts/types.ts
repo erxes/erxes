@@ -70,6 +70,7 @@ export interface IContract {
   unduePercent: number;
   undueCalcType: string;
   leaseType: string;
+  commitmentInterest: number;
 
   contractType?: IContractTypeDoc;
   weekends: number[];
