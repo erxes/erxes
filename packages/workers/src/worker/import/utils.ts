@@ -12,7 +12,8 @@ import { getFileUploadConfigs } from '../../messageBroker';
 import { IModels } from '../../connectionResolvers';
 
 const { ELK_SYNCER } = process.env;
-const WORKER_BULK_LIMIT = 300;
+
+const WORKER_BULK_LIMIT = 50;
 
 const checkFieldNames = async (fields: string[], columnConfig?: object) => {
   const properties: any[] = [];
@@ -248,8 +249,6 @@ export const receiveImportRemove = async (
     }
 
     const workerPath = path.resolve(getWorkerFile('importHistoryRemove'));
-
-    console.log(workerPath, '213213');
 
     const calc = Math.ceil(ids.length / WORKER_BULK_LIMIT);
     const results: any[] = [];
