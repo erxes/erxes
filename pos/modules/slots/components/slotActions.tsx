@@ -67,7 +67,7 @@ const SlotActions = ({
           checked={activeSlot === code}
           disabled={!activeOrderId}
         >
-          Захиалгад оноох
+          {activeSlot === code ? "Захиалгаас чөлөөлөх" : "Захиалгад оноох"}
         </DropdownMenuCheckboxItem>
         <CreateSlot code={code} />
         <DropdownMenuItem
