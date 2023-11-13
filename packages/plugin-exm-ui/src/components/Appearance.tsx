@@ -122,7 +122,7 @@ export default function Appearance(props: Props) {
       </OverlayTrigger>
     );
   };
-  console.log('exm', exm);
+
   return (
     <AppearanceWrapper>
       <GeneralWrapper>

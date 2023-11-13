@@ -17,7 +17,11 @@ const useMutations = () => {
           description: "Looking good!",
         })
       )
-      .catch((e) => console.log(e))
+      .catch((e) =>
+        toast({
+          description: e.message,
+        })
+      )
   }
 
   return {

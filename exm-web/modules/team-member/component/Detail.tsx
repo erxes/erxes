@@ -43,8 +43,8 @@ const FormSchema = z.object({
   website: z.string().optional(),
   employeeId: z.string().optional(),
   email: z.string().email(),
-  birthDate: z.date().optional(),
-  workStartedDate: z.date().optional(),
+  birthDate: z.string().optional(),
+  workStartedDate: z.string().optional(),
 })
 
 const Detail = ({
@@ -90,17 +90,17 @@ const Detail = ({
 
   const onSubmit = (data: z.infer<typeof FormSchema>) => {
     usersEditProfile({
-      email: data.email || userDetail.email,
-      username: data.username || userDetail.username,
+      email: data.email,
+      username: data.username,
       details: {
-        description: data.description || userDetail?.details?.description,
+        description: data.description,
         avatar,
-        birthDate: data.birthDate || userDetail?.details?.birthDate,
-        firstName: data.firstName || userDetail.details.firstName,
-        lastName: data.lastName || userDetail.details.lastName,
-        location: data.location || userDetail.details.location,
-        operatorPhone: data.operatorPhone || userDetail.details.operatorPhone,
-        position: data.position || userDetail.details.position,
+        birthDate: data.birthDate,
+        firstName: data.firstName,
+        lastName: data.lastName,
+        location: data.location,
+        operatorPhone: data.operatorPhone,
+        position: data.position,
         workStartedDate: data.workStartedDate,
       },
       links: {
@@ -245,7 +245,9 @@ const Detail = ({
                           <FormLabel className="block">Birthday</FormLabel>
                           <FormControl>
                             <DatePicker
-                              date={field.value}
+                              date={
+                                field.value ? new Date(field.value) : undefined
+                              }
                               setDate={field.onChange}
                               className="w-full p-0 border-none disabled:opacity-100 hover:bg-transparent h-8"
                               disabled={disable}
@@ -417,7 +419,9 @@ const Detail = ({
                         </FormLabel>
                         <FormControl>
                           <DatePicker
-                            date={field.value}
+                            date={
+                              field.value ? new Date(field.value) : undefined
+                            }
                             setDate={field.onChange}
                             className="w-full p-0 border-none disabled:opacity-100 hover:bg-transparent"
                             disabled={disable}
@@ -454,7 +458,7 @@ const Detail = ({
                       render={({ field }) => (
                         <FormItem className="flex items-center space-y-0 h-[44px]">
                           <FormLabel className="w-[150px] mr-[200px] shrink-0 whitespace-nowrap">
-                            Change Password
+                            Password
                           </FormLabel>
                           <FormControl>
                             <Input

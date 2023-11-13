@@ -62,50 +62,41 @@ const List = () => {
         </div>
       )
     }
+
+    let items
+
     if (activeTab === "branch") {
-      return (
-        <div className="flex flex-col w-full">
-          {branches.map((branch) => (
-            <div key={Math.random()}>
-              <h3 className="mt-4 font-bold text-[16px] flex items-center">
-                <GitFork size={15} className="mr-2" />
-                {branch.title}
-              </h3>
-              <div className="w-full gap-3 mt-4 grid grid-cols-4 overflow-x-hidden overflow-y-auto">
-                {users
-                  .filter((user) => user.branchIds?.includes(branch._id))
-                  .map((user) => (
-                    <MemberCard key={Math.random()} user={user} />
-                  ))}
-              </div>
-            </div>
-          ))}
-        </div>
-      )
+      items = branches
     }
+
     if (activeTab === "department") {
-      return (
-        <div className="flex flex-col w-full">
-          {departments.map((department) => (
-            <div key={Math.random()}>
-              <h3 className="mt-4 font-bold text-[16px] flex items-center">
-                <Building size={15} className="mr-2" />
-                {department.title}
-              </h3>
-              <div className="w-full gap-3 mt-4 grid grid-cols-4 overflow-x-hidden overflow-y-auto">
-                {users
-                  .filter((user) =>
-                    user.departmentIds?.includes(department._id)
-                  )
-                  .map((user) => (
-                    <MemberCard key={Math.random()} user={user} />
-                  ))}
-              </div>
-            </div>
-          ))}
-        </div>
-      )
+      items = departments
     }
+
+    return (
+      <div className="flex flex-col w-full">
+        {(items || []).map((item) => (
+          <div key={Math.random()}>
+            <h3 className="mt-4 font-bold text-[16px] flex items-center">
+              <GitFork size={15} className="mr-2" />
+              {item.title}
+            </h3>
+            <div className="w-full gap-3 mt-4 grid grid-cols-4 overflow-x-hidden overflow-y-auto">
+              {users
+                .filter((user) =>
+                  (activeTab === "branch"
+                    ? user.branchIds
+                    : user.departmentIds
+                  ).includes(item._id)
+                )
+                .map((user) => (
+                  <MemberCard key={Math.random()} user={user} />
+                ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    )
   }
 
   return (
