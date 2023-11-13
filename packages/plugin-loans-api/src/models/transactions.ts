@@ -120,6 +120,7 @@ export const loadTransactionClass = (models: IModels) => {
       });
 
       trInfo.calcInterest = trInfo.interestEve + trInfo.interestNonce;
+
       if (contract.storedInterest) {
         let payedInterest = trInfo.interestEve + trInfo.interestNonce;
 

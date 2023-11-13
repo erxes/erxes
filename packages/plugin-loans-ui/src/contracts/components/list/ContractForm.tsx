@@ -107,10 +107,12 @@ class ContractForm extends React.Component<Props, State> {
       contractNumber: contract.number,
       contractDate: contract.contractDate || new Date(),
       loanPurpose: contract.loanPurpose,
+
       loanSubPurpose: contract.loanSubPurpose,
       contractTypeId: contract.contractTypeId || '',
       status: contract.status,
       branchId: contract.branchId,
+      leaseType: contract.leaseType,
       description: contract.description || '',
       marginAmount: contract.marginAmount || 0,
       leaseAmount: contract.leaseAmount || 0,
@@ -138,8 +140,6 @@ class ContractForm extends React.Component<Props, State> {
       riskExpertId: contract.riskExpertId || '',
       customerId: contract.customerId || '',
       customerType: contract.customerType || 'customer',
-      leaseType:
-        (contract.contractType && contract.contractType.leaseType) || 'finance',
       weekends: contract.weekends || [],
       useHoliday: contract.useHoliday || false,
       relContractId: contract.relContractId || '',
@@ -221,6 +221,7 @@ class ContractForm extends React.Component<Props, State> {
       relationExpertId: this.state.relationExpertId,
       leasingExpertId: this.state.leasingExpertId,
       riskExpertId: this.state.riskExpertId,
+      leaseType: this.state.leaseType,
       weekends: this.state.weekends.map(week => Number(week)),
       useHoliday: Boolean(this.state.useHoliday),
       relContractId: this.state.relContractId,
@@ -323,6 +324,8 @@ class ContractForm extends React.Component<Props, State> {
 
   onSelectContractType = value => {
     const contractTypeObj: IContractType = ContractTypeById[value];
+
+    console.log('contractTypeObj', contractTypeObj);
 
     var changingStateValue: any = {
       contractTypeId: value,

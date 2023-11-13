@@ -52,6 +52,7 @@ const contractFields = `
   useFee
   loanPurpose
   givenAmount
+  leaseType
 `;
 
 const listParamsDef = `
