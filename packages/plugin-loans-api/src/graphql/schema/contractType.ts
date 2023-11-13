@@ -15,6 +15,7 @@ export const types = () => `
     useManualNumbering: Boolean
     useFee: Boolean
     leaseType: String
+    commitmentInterest: Float
     createdAt: Date
     productCategoryIds: [String]
     config: JSON
@@ -60,6 +61,7 @@ const commonFields = `
   useDebt: Boolean
   useFee: Boolean
   leaseType: String
+  commitmentInterest: Float
   createdAt: Date
   productCategoryIds: [String]
   config: JSON

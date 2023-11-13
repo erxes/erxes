@@ -108,31 +108,33 @@ export const getPostData = async (subdomain, pos, order) => {
   }
 
   let customerCode = '';
-  const customerType = order.customerType || 'customer';
-  if (customerType === 'company') {
-    customerCode = customerCode = (
-      (await sendContactsMessage({
-        subdomain,
-        action: 'companies.findOne',
-        data: {
-          _id: order.customerId
-        },
-        isRPC: true,
-        defaultValue: {}
-      })) || {}
-    ).code;
-  } else {
-    customerCode = (
-      (await sendContactsMessage({
-        subdomain,
-        action: 'customers.findOne',
-        data: {
-          _id: order.customerId
-        },
-        isRPC: true,
-        defaultValue: {}
-      })) || {}
-    ).code;
+  if (order.customerId) {
+    const customerType = order.customerType || 'customer';
+    if (customerType === 'company') {
+      customerCode = customerCode = (
+        (await sendContactsMessage({
+          subdomain,
+          action: 'companies.findOne',
+          data: {
+            _id: order.customerId
+          },
+          isRPC: true,
+          defaultValue: {}
+        })) || {}
+      ).code;
+    } else {
+      customerCode = (
+        (await sendContactsMessage({
+          subdomain,
+          action: 'customers.findOne',
+          data: {
+            _id: order.customerId
+          },
+          isRPC: true,
+          defaultValue: {}
+        })) || {}
+      ).code;
+    }
   }
 
   const orderInfos = [

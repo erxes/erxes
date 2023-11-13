@@ -14,7 +14,6 @@ import fetch from 'node-fetch';
 import { IModels } from '../connectionResolver';
 import { IUserDocument } from '../db/models/definitions/users';
 import { debugBase, debugError } from '../debuggers';
-import memoryStorage from '../inmemoryStorage';
 import {
   sendCommonMessage,
   sendContactsMessage,
@@ -37,20 +36,12 @@ export interface IEmailParams {
 /**
  * Read contents of a file
  */
-export const readFile = (filename: string) => {
-  let folder = 'dist/core/src';
-
-  if (process.env.NODE_ENV !== 'production') {
-    folder = 'src';
-  }
-
-  if (fs.existsSync('./build/api')) {
-    folder = 'build/api';
-  }
-
-  const filePath = `./${folder}/private/emailTemplates/${filename}.html`;
-
-  return fs.readFileSync(filePath, 'utf8');
+export const readFile = async (filename: string) => {
+  const filePath = path.resolve(
+    __dirname,
+    `../private/emailTemplates/${filename}.html`
+  );
+  return fs.promises.readFile(filePath, 'utf8');
 };
 
 /**
@@ -615,8 +606,9 @@ export const uploadFileCloudflare = async (
   }
 
   if (
-    CLOUDFLARE_USE_CDN === 'true' ||
-    (CLOUDFLARE_USE_CDN === true && detectedType && isVideo(detectedType.mime))
+    (CLOUDFLARE_USE_CDN === 'true' || CLOUDFLARE_USE_CDN === true) &&
+    detectedType &&
+    isVideo(detectedType.mime)
   ) {
     return uploadToCFStream(file, models);
   }
@@ -1205,8 +1197,8 @@ export const getConfig = async (
   return configs[code];
 };
 
-export const resetConfigsCache = () => {
-  memoryStorage().set('configs_erxes_api', '');
+export const resetConfigsCache = async () => {
+  await redis.set('configs_erxes_api', '');
 };
 
 export const getCoreDomain = () => {

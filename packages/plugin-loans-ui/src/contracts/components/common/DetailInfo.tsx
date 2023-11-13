@@ -44,6 +44,7 @@ class DetailInfo extends React.Component<Props> {
         {this.renderRow('Contract Number', contract.number)}
         {this.renderRow('Status', contract.status)}
         {this.renderRow('Classification', contract.classification)}
+        {this.renderRow('Lease Type', contract.leaseType)}
         {this.renderRow(
           'Margin Amount',
           (contract.marginAmount || 0).toLocaleString()
@@ -72,6 +73,11 @@ class DetailInfo extends React.Component<Props> {
           'Interest Rate',
           (contract.interestRate || 0).toLocaleString()
         )}
+        {contract.leaseType === 'linear' &&
+          this.renderRow(
+            'Commitment interest',
+            (contract.commitmentInterest || 0).toLocaleString()
+          )}
         {this.renderRow('Loan Repayment', contract.repayment)}
         {this.renderRow('Start Date', dayjs(contract.startDate).format('ll'))}
         {this.renderRow('Schedule Days', contract.scheduleDays.join(','))}
