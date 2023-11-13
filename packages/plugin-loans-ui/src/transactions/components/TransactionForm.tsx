@@ -141,6 +141,8 @@ class TransactionForm extends React.Component<Props, State> {
       trVal = this.state[fieldName];
     } else trVal = paymentInfo?.[fieldName] || transaction[fieldName] || 0;
 
+    if (!trVal) return '';
+
     return (
       <FormWrapper>
         <FormColumn>
