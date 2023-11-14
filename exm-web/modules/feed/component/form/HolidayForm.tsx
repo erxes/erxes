@@ -28,6 +28,8 @@ import { AttachmentWithPreview } from "@/components/AttachmentWithPreview"
 
 import useFeedMutation from "../../hooks/useFeedMutation"
 import { IFeed } from "../../types"
+import FormAttachments from "./FormAttachments"
+import FormImages from "./FormImages"
 import Uploader from "./uploader/Uploader"
 
 const FormSchema = z.object({
@@ -54,6 +56,7 @@ const HolidayForm = ({
   const [images, setImage] = useState(feed?.images || [])
   const [category, setCategory] = useState(feed?.category || "")
   const [success, setSuccess] = useState(false)
+  const [attachments, setAttachments] = useState(feed?.attachments || [])
 
   const callBack = (result: string) => {
     if (result === "success") {
@@ -72,6 +75,7 @@ const HolidayForm = ({
     callBack,
   })
   const [imageUploading, setImageUploading] = useState(false)
+  const [attachmentUploading, setAttachmentUploading] = useState(false)
 
   useEffect(() => {
     let defaultValues = {} as any
@@ -94,17 +98,10 @@ const HolidayForm = ({
         category,
         createdAt: data.createdAt,
         images,
+        attachments,
       },
       feed?._id || ""
     )
-  }
-
-  const deleteImage = (index: number) => {
-    const updated = [...images]
-
-    updated.splice(index, 1)
-
-    setImage(updated)
   }
 
   return (
@@ -123,25 +120,39 @@ const HolidayForm = ({
             name="description"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Description</FormLabel>
                 <FormControl>
                   <Textarea
-                    placeholder="description"
+                    placeholder="About this holiday"
                     {...field}
                     defaultValue={feed?.description || ""}
+                    className="p-0 border-none"
                   />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
-
+          <FormAttachments
+            attachments={attachments || []}
+            setAttachments={setAttachments}
+          />
+          <FormImages images={images} setImage={setImage} />{" "}
+          <Select
+            isMulti={false}
+            options={[
+              { label: "Ceremony", value: "ceremony" },
+              { label: "Birthday", value: "birthday" },
+              { label: "Public holiday", value: "publicHoliday" },
+            ]}
+            placeholder="Choose category"
+            isSearchable={true}
+            onChange={(data) => setCategory(data?.value || "")}
+          />
           <FormField
             control={form.control}
             name="createdAt"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="block">Start Date</FormLabel>
                 <FormControl>
                   <DatePicker
                     date={field.value}
@@ -154,37 +165,31 @@ const HolidayForm = ({
               </FormItem>
             )}
           />
+          <div className="flex items-center border rounded-lg px-2 border-[#cccccc] justify-between">
+            <p className="text-[#444]">Add attachments</p>
+            <div className="flex">
+              <Uploader
+                defaultFileList={images || []}
+                onChange={setImage}
+                type={"image"}
+                icon={true}
+                iconSize={20}
+                setUploading={setImageUploading}
+              />
 
-          <Select
-            isMulti={false}
-            options={[
-              { label: "Ceremony", value: "ceremony" },
-              { label: "Birthday", value: "birthday" },
-              { label: "Public holiday", value: "publicHoliday" },
-            ]}
-            placeholder="Choose one category"
-            isSearchable={true}
-            onChange={(data) => setCategory(data?.value || "")}
-          />
-
-          <Uploader
-            defaultFileList={images || []}
-            onChange={setImage}
-            type={"image"}
-            setUploading={setImageUploading}
-          />
-          {images && images.length > 0 && (
-            <AttachmentWithPreview
-              images={images}
-              className="mt-2"
-              deleteImage={deleteImage}
-            />
-          )}
-
+              <Uploader
+                defaultFileList={attachments || []}
+                onChange={setAttachments}
+                icon={true}
+                iconSize={20}
+                setUploading={setAttachmentUploading}
+              />
+            </div>
+          </div>
           <Button
             type="submit"
             className="font-semibold w-full rounded-full"
-            disabled={imageUploading}
+            disabled={imageUploading || attachmentUploading}
           >
             Post
           </Button>

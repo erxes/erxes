@@ -413,6 +413,27 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
     )
   }
 
+  const renderHolidayType = () => {
+    if (feed.contentType !== "publicHoliday") {
+      return null
+    }
+    if (!feed.contentType) {
+      return null
+    }
+    const bgColor =
+      feed.category === "ceremony"
+        ? "bg-primary"
+        : feed.category === "birthday"
+        ? "bg-[#AC43C6]"
+        : "bg-success-foreground"
+
+    return (
+      <div className={`text-white capitalize ${bgColor} px-3 py-1 rounded-lg`}>
+        {feed.contentType}
+      </div>
+    )
+  }
+
   return (
     <>
       <Card className="max-w-[56rem] mx-auto my-4 border-0 p-4">
@@ -432,15 +453,13 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
                   "flex items-center gap-3"
                 }`}
               >
-                <div className="text-sm font-bold text-gray-700 mb-1">
+                <div className="text-sm font-bold text-gray-700">
                   {userDetail?.fullName ||
                     userDetail?.username ||
                     userDetail?.email}
                   {feed.contentType === "bravo" && renderRecipientUsers()}
                 </div>
-                {feed.contentType === "publicHoliday" && (
-                  <div>{feed.category}</div>
-                )}
+                {renderHolidayType()}
                 <div className="text-xs text-[#666] font-normal">
                   {renderCreatedDate()}{" "}
                 </div>

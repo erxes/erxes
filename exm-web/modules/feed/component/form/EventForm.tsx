@@ -467,7 +467,7 @@ const EventForm = ({
 
           <FormAttachments
             attachments={attachments || []}
-            setAttachments={setImage}
+            setAttachments={setAttachments}
           />
           <FormImages images={images || []} setImage={setImage} />
 
