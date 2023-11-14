@@ -22,7 +22,7 @@ import Button from '@erxes/ui/src/components/Button';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
 import { __, router } from '@erxes/ui/src/utils';
 import { IChart } from '../../types';
-import ChartRenderer from './ChartRenderer';
+import ChartRenderer from '../../containers/chart/ChartRenderer';
 import { CHART_TYPES } from './utils';
 
 type Props = {
@@ -41,8 +41,9 @@ type Props = {
 };
 const ChartForm = (props: Props) => {
   const {
-    toggleForm,
     history,
+    queryParams,
+    toggleForm,
     reportTemplates,
     showChatForm,
     chart,
@@ -113,7 +114,12 @@ const ChartForm = (props: Props) => {
           unmountOnExit={true}
         >
           {showChatForm ? (
-            <ChartRenderer chartType={chartType} data={chart?.data} />
+            <ChartRenderer
+              chartType={chartType}
+              chartVariables={{ ...chart }}
+              history={history}
+              queryParams={queryParams}
+            />
           ) : (
             <EmptyState
               text={__('Build your custom query')}

@@ -122,12 +122,6 @@ const Report = (props: Props) => {
     });
   };
 
-  const fillEmptyContent = () => {
-    const totalCols = columnsNum * 3;
-
-    // const (reportItem)
-  };
-
   const reportItem = (item: IChart) => {
     console.log('item ', item);
     if (item.layout) {
