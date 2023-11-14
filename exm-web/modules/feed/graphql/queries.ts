@@ -32,6 +32,7 @@ const commonFeedFields = `
   attachments
   createdAt
   updatedAt
+  category
   likeCount
   heartCount
   isHearted

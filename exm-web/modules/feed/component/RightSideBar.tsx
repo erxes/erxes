@@ -1,9 +1,11 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import { useRouter, useSearchParams } from "next/navigation"
 import { currentUserAtom } from "@/modules/JotaiProiveder"
 import { IUser } from "@/modules/auth/types"
 import dayjs from "dayjs"
+import relativeTime from "dayjs/plugin/relativeTime"
 import { useAtomValue } from "jotai"
 import { ClockIcon, MapPinIcon } from "lucide-react"
 import { useInView } from "react-intersection-observer"
@@ -20,11 +22,19 @@ import RightNavbar from "../../navbar/component/RightNavbar"
 import { useEvents } from "../hooks/useEvent"
 import EventDropDown from "./EventDropDown"
 
-const RightSideBar = ({handleAddQueryParams}:{handleAddQueryParams: (param: any, value:any) => void}) => {
+dayjs.extend(relativeTime)
+
+const RightSideBar = () => {
   const currentUser = useAtomValue(currentUserAtom) || ({} as IUser)
   const { events, handleLoadMore, loading, totalCount } = useEvents()
   const { users } = useUsers({})
   const [date, setDate] = useState(new Date())
+
+  const router = useRouter()
+  const searchParams = useSearchParams()
+
+  const type = searchParams.get("contentType")
+  const dateFilter = searchParams.get("dateFilter")
 
   const { ref, inView } = useInView({
     threshold: 0,
@@ -75,118 +85,153 @@ const RightSideBar = ({handleAddQueryParams}:{handleAddQueryParams: (param: any,
   const onClickEvent = (id: string) => {
     return (window.location.href = `detail?contentType=event&id=${id}`)
   }
-console.log("date", date)
-  return (
-    <div className="bg-[#F8F9FA]">
-      <RightNavbar />
 
-      <ScrollArea className="h-[calc(100vh-60px)]">
-        <CardHeader className="text-black font-bold text-lg pl-0">
-          Select Calendar
-        </CardHeader>
-        <Calendar
-          className="bg-white mr-4 rounded-lg py-[30px] flex justify-center"
-          mode="single"
-          selected={date}
-          onSelect={(e) => setDate(e || new Date())}
-        />
+  const renderTodaysEvents = () => {
+    return (
+      <div className="pb-4 pr-4">
+        {((checkedTodaysEvent && checkedTodaysEvent) || []).map((item: any) => {
+          if (item === null) {
+            return null
+          }
 
-        <Button className="mt-6" onClick={() => handleAddQueryParams('dateFilter', date)}>
-          Apply
-        </Button>
+          const goingUsers = users.filter((user) =>
+            item?.eventData.goingUserIds.includes(user._id)
+          )
+
+          return (
+            <Card key={item._id} className="border-0 mb-2">
+              <CardContent className="pt-4">
+                {item.images && item.images.length > 0 && (
+                  <div className="w-full h-[150px] mb-2 event-card-image-shadow rounded-[9px]">
+                    <Image
+                      src={item.images[0].url}
+                      alt="event photo"
+                      width={500}
+                      height={500}
+                      className="w-full h-full object-cover rounded-[9px]"
+                    />
+                  </div>
+                )}
+                <div>
+                  <h3
+                    className="font-semibold text-[16px] mb-2 cursor-pointer"
+                    onClick={() => onClickEvent(item._id)}
+                  >
+                    {item.title}
+                  </h3>
+                  <div
+                    className="flex items-center mb-1 text-[#484848] mb-2 cursor-pointer"
+                    onClick={() => onClickEvent(item._id)}
+                  >
+                    <MapPinIcon size={16} className="mr-1" />
+                    {item.eventData?.where || ""}
+                  </div>
+
+                  <div className="text-[#484848] text-xs mt-1 text-[14px] mb-3">
+                    <div
+                      className="flex items-center text-[13px] text-[#484848] cursor-pointer"
+                      onClick={() => onClickEvent(item._id)}
+                    >
+                      <ClockIcon size={16} className="mr-1" />
+                      {dayjs(item.eventData?.startDate).format(
+                        "MM/DD/YY h:mm A"
+                      )}{" "}
+                      ~{" "}
+                      {dayjs(item.eventData?.endDate).format("MM/DD/YY h:mm A")}
+                    </div>
+                    {goingUsers.length > 0 && (
+                      <div className="flex items-center gap-2 mt-3">
+                        <div id="going users" className="flex -space-x-1">
+                          {goingUsers.slice(0, 5).map((user) => (
+                            <Image
+                              src={
+                                user.details && user.details.avatar
+                                  ? user.details.avatar
+                                  : "/avatar-colored.svg"
+                              }
+                              alt="avatar"
+                              key={user._id}
+                              width={100}
+                              height={100}
+                              className="inline-block w-6 h-6 rounded-full object-cover ring-1 ring-primary "
+                            />
+                          ))}
+                        </div>
+                        {goingUsers.length > 5 && (
+                          <div>+ {goingUsers.length - 5} going</div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                  <EventDropDown event={item} />
+                </div>
+              </CardContent>
+            </Card>
+          )
+        })}
+        {renderLoadMore()}
+      </div>
+    )
+  }
+
+  const renderRightSidebar = () => {
+    if (type === "publicHoliday") {
+      return (
+        <ScrollArea className="h-[calc(100vh-60px)]">
+          <CardHeader className="text-black font-bold text-lg pl-0">
+            Select Calendar
+          </CardHeader>
+          <Calendar
+            className="bg-white mr-4 rounded-lg py-[30px] flex justify-center"
+            mode="single"
+            selected={date}
+            onSelect={(e) => setDate(e || new Date())}
+          />
+
+          <Button
+            className="mt-6 bg-primary-light"
+            onClick={() =>
+              router.push(
+                `/?contentType=publicHoliday&dateFilter=${dayjs(date).format(
+                  "MMM DD YYYY"
+                )}`
+              )
+            }
+          >
+            Apply
+          </Button>
+          {dateFilter && (
+            <Button
+              className="mt-6 ml-6 bg-[#BFBFBF]"
+              onClick={() => router.push(`/?contentType=publicHoliday`)}
+            >
+              Cancel
+            </Button>
+          )}
+          <CardHeader className="text-black font-bold text-lg pl-0">
+            Today's events
+          </CardHeader>
+          {renderTodaysEvents()}
+        </ScrollArea>
+      )
+    }
+
+    return (
+      <>
         <CardHeader className="text-black font-bold text-lg pl-0">
           Today's events
         </CardHeader>
         <ScrollArea className="h-[calc(100vh-125px)]">
-          <div className="pb-4 pr-4">
-            {((checkedTodaysEvent && checkedTodaysEvent) || []).map(
-              (item: any) => {
-                if (item === null) {
-                  return null
-                }
-
-                const goingUsers = users.filter((user) =>
-                  item?.eventData.goingUserIds.includes(user._id)
-                )
-
-                return (
-                  <Card key={item._id} className="border-0 mb-2">
-                    <CardContent className="pt-4">
-                      {item.images && item.images.length > 0 && (
-                        <div className="w-full h-[150px] mb-2 event-card-image-shadow rounded-[9px]">
-                          <Image
-                            src={item.images[0].url}
-                            alt="event photo"
-                            width={500}
-                            height={500}
-                            className="w-full h-full object-cover rounded-[9px]"
-                          />
-                        </div>
-                      )}
-                      <div>
-                        <h3
-                          className="font-semibold text-[16px] mb-2 cursor-pointer"
-                          onClick={() => onClickEvent(item._id)}
-                        >
-                          {item.title}
-                        </h3>
-                        <div
-                          className="flex items-center mb-1 text-[#484848] mb-2 cursor-pointer"
-                          onClick={() => onClickEvent(item._id)}
-                        >
-                          <MapPinIcon size={16} className="mr-1" />
-                          {item.eventData?.where || ""}
-                        </div>
-
-                        <div className="text-[#484848] text-xs mt-1 text-[14px] mb-3">
-                          <div
-                            className="flex items-center text-[13px] text-[#484848] cursor-pointer"
-                            onClick={() => onClickEvent(item._id)}
-                          >
-                            <ClockIcon size={16} className="mr-1" />
-                            {dayjs(item.eventData?.startDate).format(
-                              "MM/DD/YY h:mm A"
-                            )}{" "}
-                            ~{" "}
-                            {dayjs(item.eventData?.endDate).format(
-                              "MM/DD/YY h:mm A"
-                            )}
-                          </div>
-                          {goingUsers.length > 0 && (
-                            <div className="flex items-center gap-2 mt-3">
-                              <div id="going users" className="flex -space-x-1">
-                                {goingUsers.slice(0, 5).map((user) => (
-                                  <Image
-                                    src={
-                                      user.details && user.details.avatar
-                                        ? user.details.avatar
-                                        : "/avatar-colored.svg"
-                                    }
-                                    alt="avatar"
-                                    key={user._id}
-                                    width={100}
-                                    height={100}
-                                    className="inline-block w-6 h-6 rounded-full object-cover ring-1 ring-primary "
-                                  />
-                                ))}
-                              </div>
-                              {goingUsers.length > 5 && (
-                                <div>+ {goingUsers.length - 5} going</div>
-                              )}
-                            </div>
-                          )}
-                        </div>
-                        <EventDropDown event={item} />
-                      </div>
-                    </CardContent>
-                  </Card>
-                )
-              }
-            )}
-            {renderLoadMore()}
-          </div>
+          {renderTodaysEvents()}
         </ScrollArea>
-      </ScrollArea>
+      </>
+    )
+  }
+
+  return (
+    <div className="bg-[#F8F9FA]">
+      <RightNavbar />
+      {renderRightSidebar()}
     </div>
   )
 }

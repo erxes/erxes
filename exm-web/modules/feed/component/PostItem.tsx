@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import dynamic from "next/dynamic"
+import { useSearchParams } from "next/navigation"
 import { currentUserAtom } from "@/modules/JotaiProiveder"
 import { IUser } from "@/modules/auth/types"
 import { useFeedDetail } from "@/modules/feed/hooks/useFeedDetail"
@@ -83,6 +84,9 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
   const { reactionMutation } = useReactionMutaion({
     callBack,
   })
+
+  const searchParams = useSearchParams()
+  const dateFilter = searchParams.get("dateFilter")
 
   if (loading) {
     return <LoadingCard />
@@ -279,6 +283,10 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
       const monthsDifference =
         differenceInMilliseconds / (1000 * 60 * 60 * 24 * 30.44)
 
+      if(feed.contentType === 'publicHoliday') {
+        return dayjs(feed.createdAt).format("• MMM DD")
+      }
+
       if (monthsDifference >= 2) {
         return dayjs(feed.createdAt).format("MM/DD/YYYY h:mm A")
       }
@@ -350,6 +358,13 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
     )
   }
 
+  if (feed.contentType === "publicHoliday") {
+    const date = new Date(feed.createdAt ? feed.createdAt : "")
+    if (dateFilter && !date.toString().includes(dateFilter)) {
+      return <></>
+    }
+  }
+
   return (
     <>
       <Card className="max-w-2xl mx-auto my-4 border-0 p-4">
@@ -363,12 +378,13 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
                 height={100}
                 className="w-10 h-10 rounded-full object-cover border border-primary"
               />
-              <div className="ml-3">
+              <div className={`ml-3 ${feed.contentType === 'publicHoliday' && 'flex items-center gap-3'}`}>
                 <div className="text-sm font-bold text-gray-700 mb-1">
                   {userDetail?.fullName ||
                     userDetail?.username ||
                     userDetail?.email}
                 </div>
+                {feed.contentType === 'publicHoliday' && <div>{feed.category}</div>}
                 <div className="text-xs text-[#666] font-normal">
                   {renderCreatedDate()}{" "}
                 </div>

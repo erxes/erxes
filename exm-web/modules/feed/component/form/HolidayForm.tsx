@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
+import Select from "react-select"
 import * as z from "zod"
 
 import { Button } from "@/components/ui/button"
@@ -51,7 +52,7 @@ const HolidayForm = ({
     resolver: zodResolver(FormSchema),
   })
   const [images, setImage] = useState(feed?.images || [])
-  const [attachments, setAttachments] = useState(feed?.attachments || [])
+  const [category, setCategory] = useState(feed?.category || "")
   const [success, setSuccess] = useState(false)
 
   const callBack = (result: string) => {
@@ -90,6 +91,7 @@ const HolidayForm = ({
         title: "title",
         description: data.description ? data.description : "",
         contentType: "publicHoliday",
+        category,
         createdAt: data.createdAt,
         images,
       },
@@ -151,6 +153,18 @@ const HolidayForm = ({
                 <FormMessage />
               </FormItem>
             )}
+          />
+
+          <Select
+            isMulti={false}
+            options={[
+              { label: "Ceremony", value: "ceremony" },
+              { label: "Birthday", value: "birthday" },
+              { label: "Public holiday", value: "publicHoliday" },
+            ]}
+            placeholder="Choose one category"
+            isSearchable={true}
+            onChange={(data) => setCategory(data?.value || "")}
           />
 
           <Uploader
