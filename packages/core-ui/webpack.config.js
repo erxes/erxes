@@ -5,7 +5,6 @@ const path = require('path');
 const InterpolateHtmlPlugin = require('interpolate-html-plugin');
 const ModuleFederationPlugin = require('webpack/lib/container/ModuleFederationPlugin');
 const { MFLiveReloadPlugin } = require('@module-federation/fmr');
-const NodePolyfillPlugin = require('node-polyfill-webpack-plugin');
 
 // replace accordingly './.env' with the path of your .env file
 const envs = require('dotenv').config({ path: './.env' });
@@ -114,7 +113,8 @@ module.exports = (env, args) => {
       fallback: {
         path: require.resolve('path-browserify'),
         timers: require.resolve('timers-browserify'),
-        util: require.resolve('util/')
+        util: require.resolve('util/'),
+        process: "process/browser",
       },
       alias: {
         'coreui/apolloClient': path.resolve(__dirname, './src/apolloClient.ts'),
@@ -134,8 +134,11 @@ module.exports = (env, args) => {
         ...envs.parsed,
         PUBLIC_URL: ''
       }),
-      new NodePolyfillPlugin({
-        includeAliases: ['process']
+      new webpack.ProvidePlugin({
+        // Make a global `process` variable that points to the `process` package,
+        // because the `util` package expects there to be a global variable named `process`.
+        // Thanks to https://stackoverflow.com/a/65018686/14239942
+        process: "process/browser",
       }),
       new HtmlWebPackPlugin({
         template: path.resolve(__dirname, 'public/index.html'),
