@@ -42,6 +42,7 @@ const exmDetail = `
       name
       description
       createdAt
+      categoryId
       
       features {
         _id

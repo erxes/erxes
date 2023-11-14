@@ -18,8 +18,6 @@ type Props = {
 function FormContainer(props: Props) {
   const { _id } = props;
 
-  console.log(_id);
-
   const [addMutation] = useMutation(gql(mutations.exmsAdd));
   const [editMutation] = useMutation(gql(mutations.exmsEdit));
 
@@ -32,10 +30,10 @@ function FormContainer(props: Props) {
     return <Spinner />;
   }
 
-  console.log(detailQuery, 'ahhaha');
+  const exmDetail = (detailQuery && detailQuery?.data?.exmDetail) || {};
 
   const exmAction = (variables: IExm, id?: string) => {
-    if (!_id) {
+    if (!id) {
       addMutation({ variables })
         .then(() => {
           Alert.success('Successfully added');
@@ -45,8 +43,8 @@ function FormContainer(props: Props) {
         });
     }
 
-    if (_id) {
-      editMutation({ variables })
+    if (id) {
+      editMutation({ variables: { _id: id, ...variables } })
         .then(() => {
           Alert.success('Successfully edited');
         })
@@ -56,7 +54,7 @@ function FormContainer(props: Props) {
     }
   };
 
-  return <Form actionMutation={exmAction} />;
+  return <Form actionMutation={exmAction} exm={exmDetail} />;
 }
 
 export default FormContainer;

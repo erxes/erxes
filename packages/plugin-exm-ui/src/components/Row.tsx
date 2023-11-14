@@ -22,7 +22,7 @@ function Row(props: Props) {
       <td>{item?.name || ''}</td>
       <td>
         <ActionButtons>
-          <Link to={`/settings/sync-saas/edit/${item._id}`}>
+          <Link to={`/erxes-plugin-exm/home/edit/${item._id}`}>
             <Button btnStyle="link">
               <Tip text="Edit Sync">
                 <Icon icon="edit" />
