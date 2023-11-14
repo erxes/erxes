@@ -51,8 +51,8 @@ const FormSchema = z.object({
   website: z.string().optional(),
   employeeId: z.string().optional(),
   email: z.string().email(),
-  birthDate: z.string().optional(),
-  workStartedDate: z.string().optional(),
+  birthDate: z.union([z.string().optional(), z.date().optional()]),
+  workStartedDate: z.union([z.string().optional(), z.date().optional()]),
 })
 
 const Detail = ({
