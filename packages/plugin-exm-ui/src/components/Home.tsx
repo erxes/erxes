@@ -5,22 +5,35 @@ import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import EditForm from '../containers/EditForm';
 import AddForm from '../containers/AddForm';
 import { IExm } from '../types';
+import { Pagination, Table } from '@erxes/ui/src/components';
+import SideBar from './SideBar';
 
 type Props = {
-  exm?: IExm;
+  queryParams: any;
+  history: any;
+  list?: IExm[];
+  totalCount: number;
 };
 
 function Home(props: Props) {
-  const { exm } = props;
+  const { list, totalCount, queryParams, history } = props;
 
   const leftActionBar = <div>{exm ? exm.name : ''}</div>;
 
   const content = () => {
-    if (exm) {
-      return <EditForm exm={exm} />;
-    }
-
-    return <AddForm />;
+    return (
+      <div>
+        <Table>
+          <thead>
+            <tr>
+              <th>{__('Name')}</th>
+              <th>{__('Actions')}</th>
+            </tr>
+          </thead>
+          {/* <tbody>{list.map(item => this.renderRow(item, item._id))}</tbody> */}
+        </Table>
+      </div>
+    );
   };
 
   return (
@@ -32,7 +45,9 @@ function Home(props: Props) {
         />
       }
       actionBar={<Wrapper.ActionBar left={leftActionBar} />}
+      leftSidebar={<SideBar history={history} queryParams={queryParams} />}
       content={content()}
+      footer={<Pagination count={totalCount} />}
     />
   );
 }

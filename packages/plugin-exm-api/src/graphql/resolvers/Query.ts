@@ -1,3 +1,4 @@
+import { paginate } from '@erxes/api-utils/src';
 import { checkPermission } from '@erxes/api-utils/src/permissions';
 
 import { IContext } from '../../connectionResolver';
@@ -29,7 +30,7 @@ const exmQueries = {
     const filter = await generateFilters(params, models);
 
     return {
-      list: await models.Exms.find(filter).sort({ createdAt: -1 }),
+      list: await paginate(models.Exms.find(filter), params),
       totalCount: await models.Exms.countDocuments(filter)
     };
   },
