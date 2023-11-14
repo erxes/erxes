@@ -35,6 +35,41 @@ const exms = `
 }
 `;
 
+const exmDetail = `
+  query exmDetail($_id: String!) {
+    exmDetail(_id: $_id) {
+      _id
+      name
+      description
+      createdAt
+      
+      features {
+        _id
+        icon
+        name
+        description
+        contentType
+        contentId
+        subContentId
+      }
+      
+      appearance {
+        primaryColor
+        secondaryColor
+        bodyColor
+        headerColor
+        footerColor
+      }
+      
+      logo
+      url
+      favicon
+      webName
+      webDescription
+    }
+  }
+`;
+
 const exmGet = `
   query exmGet {
     exmGet {
@@ -168,5 +203,6 @@ export default {
   allBrands,
   integrations,
   categories,
-  categoriesTotalCount
+  categoriesTotalCount,
+  exmDetail
 };

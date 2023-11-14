@@ -13,7 +13,18 @@ type Props = {
 };
 
 function EditFormContainer(props: Props) {
+  const [addMutation] = useMutation(gql(mutations.exmsAdd));
   const [editMutation] = useMutation(gql(mutations.exmsEdit));
+
+  const add = (variables: IExm) => {
+    editMutation({ variables })
+      .then(() => {
+        Alert.success('Successfully added');
+      })
+      .catch(e => {
+        Alert.error(e.message);
+      });
+  };
 
   const edit = (variables: IExm) => {
     editMutation({ variables })

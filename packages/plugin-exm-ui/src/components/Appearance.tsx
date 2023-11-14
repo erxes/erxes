@@ -21,11 +21,11 @@ import { IExm } from '../types';
 
 type Props = {
   exm: IExm;
-  edit: (variables: IExm) => void;
+  actionMutation: (variables: IExm, id?: string) => void;
 };
 
 export default function Appearance(props: Props) {
-  const { exm, edit } = props;
+  const { exm, actionMutation } = props;
 
   const exmLogo = exm.logo;
   const exmFavicon = exm.favicon;
@@ -56,7 +56,7 @@ export default function Appearance(props: Props) {
   );
 
   const onSave = () => {
-    edit({
+    actionMutation({
       _id: props.exm._id,
       logo: logo
         ? {
