@@ -60,6 +60,7 @@ export const exmSchema = new Schema({
   webDescription: { type: String, label: 'Web Description' },
   url: { type: String, label: 'Url' },
   description: { type: String, label: 'Description' },
+  categoryId: field({ type: String }),
   features: { type: [featureSchema] },
   logo: { type: Object },
   favicon: { type: Object },

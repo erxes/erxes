@@ -39,6 +39,7 @@ export const types = _serviceDiscovery => {
       webName: String
       webDescription: String
       description: String
+      categoryId: String
       logo: JSON
       url: String
       favicon: JSON
@@ -87,7 +88,7 @@ export const types = _serviceDiscovery => {
 };
 
 export const queries = `
-  exms(name: String, page: Int, perPage: Int): ExmList
+  exms(name: String, categoryId: String, page: Int, perPage: Int): ExmList
   exmGet: Exm
   exmCoreCategories: [ExmCoreCategory]
   exmCoreCategoriesTotalCount: Int
@@ -105,6 +106,7 @@ const commonParams = `
   appearance: ExmAppearanceInput
   vision: String
   structure: String
+  categoryId: String
 `;
 
 const commonMutationParams = `
