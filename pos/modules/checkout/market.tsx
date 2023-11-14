@@ -28,16 +28,14 @@ const Checkout = () => {
   return (
     <div className="mt-2 flex flex-auto flex-col pt-2">
       <div className="flex-auto">
-        <div className="flex-auto">
-          {!!activeOrder && (
-            <>
-              <Label className="block pb-2">Төлбөрийн төрөл:</Label>
-              <PaidTypes />
-            </>
-          )}
-          {isItemsRegistered && <PaymentTypes />}
-          {isReadyToPrint && <BillType />}
-        </div>
+        {!!activeOrder && (
+          <>
+            <Label className="block pb-2">Төлбөрийн төрөл:</Label>
+            <PaidTypes />
+          </>
+        )}
+        {isItemsRegistered && <PaymentTypes />}
+        {isReadyToPrint && <BillType />}
       </div>
       <div className="flex-none space-y-2">
         <OddAmount />
