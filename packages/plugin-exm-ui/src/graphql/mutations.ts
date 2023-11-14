@@ -32,6 +32,12 @@ const exmsAdd = `
 	}
 `;
 
+const exmsRemove = `
+	mutation exmsRemove($_id: String!) {
+		exmsRemove(_id: $_id)
+	}
+`;
+
 const exmsEdit = `
 	mutation exmsEdit($_id: String!, ${commonParamsDef} ) {
 		exmsEdit(_id: $_id, ${commonParams}) {
@@ -60,6 +66,7 @@ mutation exmCoreCategoryRemove($id: String) {
 export default {
   exmsAdd,
   exmsEdit,
+  exmsRemove,
   addCategory,
   editCategory,
   removeCategory

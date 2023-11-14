@@ -1,6 +1,6 @@
 const exms = `
-  query exms($name: String, $categoryId: String, $page: Int, $perPage: Int) {
-    exms(name: $name, categoryId: $categoryId, page: $page, perPage: $perPage) {
+  query exms($searchValue: String, $categoryId: String, $page: Int, $perPage: Int) {
+    exms(searchValue: $searchValue, categoryId: $categoryId, page: $page, perPage: $perPage) {
       list {
         _id
         name

@@ -112,7 +112,7 @@ class Home extends React.Component<Props, State> {
   };
 
   render() {
-    const { queryParams, totalCount } = this.props;
+    const { queryParams, totalCount, history } = this.props;
 
     const rightActionBar = (
       <BarItems>

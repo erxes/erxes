@@ -14,7 +14,7 @@ type Props = {
 
 type FinalProps = {
   listQuery: any;
-  removeSyncMutation: any;
+  removeExmMutation: any;
 } & Props;
 
 class ListContainer extends React.Component<FinalProps> {
@@ -23,19 +23,19 @@ class ListContainer extends React.Component<FinalProps> {
   }
 
   render() {
-    const { queryParams, history, listQuery, removeSyncMutation } = this.props;
+    const { queryParams, history, listQuery, removeExmMutation } = this.props;
 
-    // const remove = (_id) => {
-    //   confirm().then(() => {
-    //     removeSyncMutation({ variables: { _id } })
-    //       .then(() => {
-    //         Alert.success('Removed successfully');
-    //       })
-    //       .catch((err) => {
-    //         Alert.error(err.message);
-    //       });
-    //   });
-    // };
+    const remove = _id => {
+      confirm().then(() => {
+        removeExmMutation({ variables: { _id } })
+          .then(() => {
+            Alert.success('Removed successfully');
+          })
+          .catch(err => {
+            Alert.error(err.message);
+          });
+      });
+    };
 
     if (listQuery?.loading) {
       return <Spinner />;
@@ -45,7 +45,8 @@ class ListContainer extends React.Component<FinalProps> {
       queryParams,
       history,
       list: listQuery?.exms?.list || [],
-      totalCount: listQuery?.exms?.totalCount || 0
+      totalCount: listQuery?.exms?.totalCount || 0,
+      remove
     };
 
     return <List {...updatedProps} />;
@@ -75,6 +76,12 @@ export default withProps<Props>(
       name: 'listQuery',
       options: ({ queryParams }) => ({
         variables: generateParams(queryParams)
+      })
+    }),
+    graphql<Props>(gql(mutations.exmsRemove), {
+      name: 'removeExmMutation',
+      options: ({ queryParams }) => ({
+        refetchQueries: refetchQueries({ queryParams })
       })
     })
   )(ListContainer)

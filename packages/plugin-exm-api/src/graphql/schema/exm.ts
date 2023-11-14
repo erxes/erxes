@@ -94,7 +94,7 @@ const commonQueryParams = `
 `;
 
 export const queries = `
-  exms(name: String, categoryId: String, page: Int, perPage: Int): ExmList
+  exms(searchValue: String, categoryId: String, page: Int, perPage: Int): ExmList
   exmDetail(_id:String!): Exm
   exmGet: Exm
   exmCoreCategories(${commonQueryParams}): [ExmCoreCategory]
