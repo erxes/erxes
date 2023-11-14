@@ -3,15 +3,15 @@ import NameCard from '@erxes/ui/src/components/nameCard/NameCard';
 import { __ } from '@erxes/ui/src/utils';
 import React from 'react';
 import { AdditionalDetail, InputBar, ContactItem, Contacts } from '../styles';
-import { all } from '../constants';
 import Dropdown from 'react-bootstrap/Dropdown';
 import DropdownToggle from '@erxes/ui/src/components/DropdownToggle';
 import { FormControl } from '@erxes/ui/src/components/form';
-import { router } from '@erxes/ui/src/utils';
 import { EmptyState } from '@erxes/ui/src/components';
 
 type Props = {
-  history?: any;
+  customers?: any;
+  history: any;
+  searchCustomer: (searchValue: string) => void;
 };
 
 type State = {
@@ -28,18 +28,19 @@ class Contact extends React.Component<Props, State> {
   }
 
   renderContact = () => {
-    if (!all || all.length === 0) {
+    const { customers } = this.props;
+    if (!customers || customers.length === 0) {
       return <EmptyState icon="ban" text="There is no contact" size="small" />;
     }
 
-    return all.map((item, i) => {
+    return customers.map((customer, i) => {
       return (
         <ContactItem key={i}>
           <NameCard
-            user={item}
+            user={customer}
             key={i}
             avatarSize={40}
-            secondLine={item.details.operatorPhone}
+            secondLine={customer.primaryPhone}
           />
           <AdditionalDetail>
             <Dropdown>
@@ -63,10 +64,14 @@ class Contact extends React.Component<Props, State> {
 
   render() {
     const { searchValue } = this.state;
-    const { history } = this.props;
+    const { searchCustomer } = this.props;
     let timer;
 
-    const search = e => {
+    const onSearch = () => {
+      searchCustomer(this.state.searchValue);
+    };
+
+    const onChange = e => {
       if (timer) {
         clearTimeout(timer);
       }
@@ -74,23 +79,19 @@ class Contact extends React.Component<Props, State> {
       const inputValue = e.target.value;
 
       this.setState({ searchValue: inputValue });
-
-      timer = setTimeout(() => {
-        router.setParams(history, { searchValue: inputValue });
-      }, 500);
     };
 
     return (
       <>
         <InputBar type="searchBar">
-          <Icon icon="search-1" size={20} />
           <FormControl
             placeholder={__('Search')}
             name="searchValue"
-            onChange={search}
+            onChange={onChange}
             value={searchValue}
             autoFocus={true}
           />
+          <Icon icon="search-1" size={20} onClick={onSearch} />
         </InputBar>
         <Contacts>{this.renderContact()}</Contacts>
       </>
