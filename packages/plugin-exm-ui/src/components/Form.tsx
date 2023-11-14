@@ -18,9 +18,7 @@ function Form(props: Props) {
       return <General {...props} />;
     }
 
-    // return <Appearance {...props} />;
-
-    return <>ahhah</>;
+    return <Appearance {...props} />;
   };
 
   return (
