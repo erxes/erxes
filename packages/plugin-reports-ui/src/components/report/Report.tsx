@@ -24,7 +24,7 @@ import { IChart, IReport, IReportItem } from '../../types';
 import SelectMembersForm from '../utils/SelectMembersForm';
 import Participators from './Participators';
 import ChartForm from '../../containers/chart/ChartForm';
-import ChartRenderer from '../chart/ChartRenderer';
+import ChartRenderer from '../../containers/chart/ChartRenderer';
 
 const DEFAULT_GRID_DIMENSIONS = {
   w: 3,
@@ -124,9 +124,12 @@ const Report = (props: Props) => {
 
   const fillEmptyContent = () => {
     const totalCols = columnsNum * 3;
+
+    // const (reportItem)
   };
 
   const reportItem = (item: IChart) => {
+    console.log('item ', item);
     if (item.layout) {
       return (
         <div key={item._id || Math.random()} data-grid={defaultLayout(item)}>
@@ -148,7 +151,16 @@ const Report = (props: Props) => {
               delete
             </span>
           </ChartTitle>
-          <ChartRenderer chartType={item.chartType} data={item.data} />
+          <ChartRenderer
+            history={history}
+            queryParams={queryParams}
+            chartType={item.chartType}
+            chartVariables={{
+              serviceName: item.serviceName,
+              templateType: item.templateType,
+              filter: item.filter
+            }}
+          />
         </div>
       );
     }
@@ -288,7 +300,7 @@ const Report = (props: Props) => {
         ) : null}
 
         <ActionBarButtonsWrapper>
-          <ControlLabel>Enter columns num</ControlLabel>
+          {/* <ControlLabel>Enter columns num</ControlLabel>
 
           <div style={{ width: '10%' }}>
             <FormControl
@@ -299,7 +311,7 @@ const Report = (props: Props) => {
               value={columnsNum}
               onChange={onColumsNumChange}
             />
-          </div>
+          </div> */}
           {renderButtons()}
           <Button
             btnStyle="success"

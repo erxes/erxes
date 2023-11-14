@@ -46,16 +46,12 @@ const ReportList = (props: FinalProps) => {
   };
 
   const reportChartsEdit = (_id: string, values: any, callback?: any) => {
-    console.log('reportChartsEdit   ', values);
-
-    reportChartsEditMutation({ variables: { _id, ...values } })
-      .then(() => {
-        Alert.success('Successfully edited chart');
-        if (callback) {
-          callback();
-        }
-      })
-      .catch(err => Alert.error(err.message));
+    reportChartsEditMutation({ variables: { _id, ...values } }).then(() => {
+      Alert.success('Successfully edited chart');
+      if (callback) {
+        callback();
+      }
+    });
   };
 
   const reportChartsRemove = (_id: string) => {

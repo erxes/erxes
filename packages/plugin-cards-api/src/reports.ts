@@ -72,8 +72,6 @@ const chartTemplates = [
         defaultValue: []
       });
 
-      console.log('assigned users ', getTotalAssignedUsers);
-
       const assignedUsersMap = {};
 
       const deals = await models?.Deals.find(query);
@@ -94,7 +92,9 @@ const chartTemplates = [
         (t: any) => t.fullName
       );
 
-      const datasets = [{ data, labels }];
+      const title = 'Deals chart by assigned users';
+
+      const datasets = { title, data, labels };
       return datasets;
     },
 

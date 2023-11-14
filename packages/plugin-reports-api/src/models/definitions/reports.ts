@@ -51,6 +51,7 @@ export interface IChart {
   chartType: string;
   filterIds: string[];
   defaultFilter: IChartFilter;
+  serviceName?: string;
 
   vizState: string;
   layout: string;
@@ -116,9 +117,10 @@ export const chartSchema = new Schema({
     index: true
   }),
   contentType: field({ type: String, label: 'Content type' }),
+  serviceName: field({ type: String, label: 'Service name' }),
   layout: field({ type: String, label: 'Report item - layout' }),
   vizState: field({ type: String }),
-  template: field({
+  templateType: field({
     type: String,
     label: 'Template name coming from plugins config',
     index: true

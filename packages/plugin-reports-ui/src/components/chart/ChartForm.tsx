@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import RTG from 'react-transition-group';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
+import React, { useEffect, useState } from 'react';
+import RTG from 'react-transition-group';
 import {
   ActionFooter,
   Description,
@@ -20,11 +20,10 @@ import Select from 'react-select-plus';
 
 import Button from '@erxes/ui/src/components/Button';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
-import { router, __ } from '@erxes/ui/src/utils';
-import { CHART_TYPES } from './utils';
-import ChartRenderer from './ChartRenderer';
-import { ChartType } from 'chart.js';
+import { __, router } from '@erxes/ui/src/utils';
 import { IChart } from '../../types';
+import ChartRenderer from './ChartRenderer';
+import { CHART_TYPES } from './utils';
 
 type Props = {
   toggleForm: () => void;

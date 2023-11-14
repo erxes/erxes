@@ -26,7 +26,7 @@ const reportsMutations = {
 
       const chartTemplates = service.config?.meta?.reports?.chartTemplates;
 
-      const { charts } = reportTemplate;
+      const { charts, serviceName } = reportTemplate;
       let getChartTemplates;
 
       if (charts) {
@@ -35,13 +35,16 @@ const reportsMutations = {
         );
       }
 
+      console.log('gett ', getChartTemplates);
+
       if (getChartTemplates) {
         await models.Charts.insertMany(
           getChartTemplates.map(c => {
             return {
-              template: c.templateType,
+              serviceName,
               chartType: c.chartTypes[0],
-              reportId: report._id
+              reportId: report._id,
+              ...c
             };
           })
         );

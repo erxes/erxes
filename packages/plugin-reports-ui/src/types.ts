@@ -61,9 +61,19 @@ export interface IChart {
   filters?: any[];
   defaultFilter?: any;
 
+  serviceName?: string;
+  templateType?: string;
+  filter?: any;
+
   data?: number[];
   layout?: any;
   vizState?: any;
+}
+
+export interface IChartGetResultVariables {
+  serviceName?: string;
+  templateType?: string;
+  filter?: any;
 }
 export interface IType {
   _id: string;
@@ -98,6 +108,12 @@ export type ReportsMutationResponse = {
 
 export type ReportDetailQueryResponse = {
   reportDetail: IReport;
+  refetch: () => void;
+  loading: boolean;
+};
+
+export type ReportChartGetResultQueryResponse = {
+  reportChartGetResult: any;
   refetch: () => void;
   loading: boolean;
 };

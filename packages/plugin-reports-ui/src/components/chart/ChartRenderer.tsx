@@ -9,15 +9,18 @@ import {
 } from './utils';
 
 interface IChartProps {
+  datasets?: any;
+
   data?: number[];
   labels?: string[];
   template?: string;
   chartType: ChartType | string;
   name?: string;
+  title?: string;
 }
 
 const ChartRenderer = (props: IChartProps) => {
-  const { labels, chartType, data } = props;
+  const { labels, chartType, data, title } = props;
 
   console.log('renderer   ', chartType);
   const chartRef = useRef<HTMLCanvasElement>(null);
@@ -26,7 +29,7 @@ const ChartRenderer = (props: IChartProps) => {
     labels: labels || DEFAULT_LABELS_PER_CHART[chartType],
     datasets: [
       {
-        label: 'Default Dataset',
+        label: title || 'Default Dataset',
         data: data || DEFAULT_DATA_PER_CHART[chartType],
         backgroundColor: DEFAULT_BACKGROUND_COLORS,
         borderColor: DEFAULT_BORDER_COLORS,

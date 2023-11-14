@@ -132,6 +132,7 @@ const reportDetail = `
           name
           contentType
           templateType
+          serviceName
           order
           chartType
           layout
@@ -166,6 +167,11 @@ query reportsCountByTags {
 }
 `;
 
+const reportChartGetResult = `
+query reportChartGetResult($serviceName: String!, $templateType: String!, $filter: JSON){
+  reportChartGetResult(serviceName: $serviceName, templateType: $templateType, filter: $filter )
+}
+`;
 export default {
   reportsList,
   totalCount,
@@ -173,5 +179,7 @@ export default {
   reportTemplatesList,
   reportChartTemplatesList,
   reportDetail,
-  reportsCountByTags
+  reportsCountByTags,
+
+  reportChartGetResult
 };

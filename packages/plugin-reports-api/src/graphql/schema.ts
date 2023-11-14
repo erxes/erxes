@@ -64,6 +64,7 @@ export const types = tagsAvailable => `
     name: String
     reportId: String!
     contentType: String
+    serviceName: String
     templateType: String
     order: Int
     chartType: ChartType
