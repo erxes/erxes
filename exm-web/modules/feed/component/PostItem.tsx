@@ -38,6 +38,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover"
 import { FilePreview } from "@/components/FilePreview"
+import { useUsers } from "@/components/hooks/useUsers"
 
 import { useComments } from "../hooks/useComment"
 import useFeedMutation from "../hooks/useFeedMutation"
@@ -55,6 +56,7 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
   const [formOpen, setFormOpen] = useState(false)
   const [commentOpen, setCommentOpen] = useState(false)
   const currentUser = useAtomValue(currentUserAtom) || ({} as IUser)
+  let recipientUsers
 
   const callBack = (result: string) => {
     if (result === "success") {
@@ -63,6 +65,8 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
   }
 
   const { feed, loading } = useFeedDetail({ feedId: postId })
+  const { users } = useUsers({})
+
   const {
     comments,
     commentsCount,
@@ -283,7 +287,7 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
       const monthsDifference =
         differenceInMilliseconds / (1000 * 60 * 60 * 24 * 30.44)
 
-      if(feed.contentType === 'publicHoliday') {
+      if (feed.contentType === "publicHoliday") {
         return dayjs(feed.createdAt).format("• MMM DD")
       }
 
@@ -364,10 +368,54 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
       return <></>
     }
   }
+  const renderComments = () => {
+    if (!comments || comments.length === 0) {
+      return null
+    }
+
+    return (
+      <div className="border-t">
+        <CommentItem comment={comments[0]} currentUserId={currentUser._id} />
+      </div>
+    )
+  }
+
+  const renderRecipientUsers = () => {
+    if (feed.recipientIds.length === 0 || !feed.recipientIds) {
+      return null
+    }
+
+    recipientUsers = feed.recipientIds.map((id) =>
+      users.find((item) => item._id === id)
+    )
+
+    const more = () => {
+      if (recipientUsers.length < 3) {
+        return null
+      }
+
+      return <> and {recipientUsers.length - 2} more people</>
+    }
+
+    return (
+      <>
+        <span className="text-[#5E5B5B] font-medium"> with </span>
+        {recipientUsers.slice(0, 2).map((item, index) => {
+          return (
+            <>
+              {item?.details.fullName || item?.username || item?.email}
+              {index + 1 !== recipientUsers.length && ", "}
+            </>
+          )
+        })}
+        {more()}
+      </>
+    )
+  }
 
   return (
     <>
-      <Card className="max-w-2xl mx-auto my-4 border-0 p-4">
+      <Card className="max-w-[56rem] mx-auto my-4 border-0 p-4">
         <CardHeader className="p-0 pb-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center">
@@ -378,13 +426,21 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
                 height={100}
                 className="w-10 h-10 rounded-full object-cover border border-primary"
               />
-              <div className={`ml-3 ${feed.contentType === 'publicHoliday' && 'flex items-center gap-3'}`}>
+              <div
+                className={`ml-3 ${
+                  feed.contentType === "publicHoliday" &&
+                  "flex items-center gap-3"
+                }`}
+              >
                 <div className="text-sm font-bold text-gray-700 mb-1">
                   {userDetail?.fullName ||
                     userDetail?.username ||
                     userDetail?.email}
+                  {feed.contentType === "bravo" && renderRecipientUsers()}
                 </div>
-                {feed.contentType === 'publicHoliday' && <div>{feed.category}</div>}
+                {feed.contentType === "publicHoliday" && (
+                  <div>{feed.category}</div>
+                )}
                 <div className="text-xs text-[#666] font-normal">
                   {renderCreatedDate()}{" "}
                 </div>
@@ -405,7 +461,7 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
             return (
               <iframe
                 key={index}
-                width="640"
+                width="860"
                 height="390"
                 src={String(link)
                   .replace("watch?v=", "embed/")
@@ -440,14 +496,7 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
           </div>
           {renderComment()}
         </CardFooter>
-        {comments && comments.length > 0 && (
-          <div className="border-t">
-            <CommentItem
-              comment={comments[0]}
-              currentUserId={currentUser._id}
-            />
-          </div>
-        )}
+        {renderComments()}
       </Card>
     </>
   )

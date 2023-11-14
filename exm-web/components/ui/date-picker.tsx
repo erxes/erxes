@@ -37,7 +37,7 @@ export function DatePicker({
         >
           <CalendarIcon className="mr-2 h-4 w-4" />
           {date ? (
-            format(new Date(date), "yyyy-MM-dd hh:mm")
+            format(new Date(date), "yyyy-MM-dd")
           ) : (
             <span>Pick a date</span>
           )}

@@ -26,7 +26,7 @@ const Feed = () => {
     <div>
       <Tabs defaultValue={type || "post"}>
         <TabsList className="border-b border-[#eee]">
-          <div className="w-[60%] items-center flex mx-auto h-[2.5rem] my-3">
+          <div className="w-[60%] items-center flex mr-auto h-[2.5rem] my-3 ml-[25px]">
             <TabsTrigger
               className={style}
               value="post"

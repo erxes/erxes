@@ -127,11 +127,11 @@ export const FilePreview = ({
                     if (index === 2) {
                       width = "w-full"
                     } else {
-                      width = "w-[316px]"
+                      width = "w-[428px]"
                     }
                   }
                   if (length === 4 || length > 4) {
-                    width = "w-[316px]"
+                    width = "w-[428px]"
                   }
 
                   if (index > 3) {
@@ -148,10 +148,12 @@ export const FilePreview = ({
                       className={`overflow-hidden rounded-lg object-cover cursor-pointer ${width} ${
                         length !== 1 ? "h-[227px]" : "h-full"
                       } ${
-                        length !== 1 &&
-                        length !== 2 &&
-                        index % 2 === 0 &&
-                        "mr-2"
+                        (length !== 1 &&
+                          length !== 2 &&
+                          length !== 3 &&
+                          index % 2 === 0 &&
+                          "mr-2") ||
+                        (length === 3 && index === 0 && "mr-2")
                       } mb-2`}
                       onClick={() => setGridImageIndex(index)}
                     />
@@ -159,7 +161,7 @@ export const FilePreview = ({
                 })}
                 {attachments.length > 4 && (
                   <div
-                    className="text-white bg-black/50 w-[316px] h-[227px] absolute bottom-0 right-0 rounded-lg flex items-center justify-center text-[30px] cursor-pointer"
+                    className="text-white bg-black/50 w-[428px] h-[227px] absolute bottom-0 right-0 rounded-lg flex items-center justify-center text-[30px] cursor-pointer"
                     onClick={() => setGridImageIndex(3)}
                   >
                     + {attachments.length - 4}

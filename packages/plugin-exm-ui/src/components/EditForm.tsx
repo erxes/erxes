@@ -4,10 +4,12 @@ import { __ } from '@erxes/ui/src/utils';
 import General from '../containers/General';
 import Appearance from './Appearance';
 import { IExm } from '../types';
+import { IButtonMutateProps } from '@erxes/ui/src/types';
 
 type Props = {
   exm: IExm;
   edit: (variables: IExm) => void;
+  renderButton: (props: IButtonMutateProps) => JSX.Element;
 };
 
 function EditFrom(props: Props) {

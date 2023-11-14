@@ -54,32 +54,34 @@ const FeedForm = ({ contentType }: { contentType: string }) => {
     <>
       <Dialog open={open} onOpenChange={() => setOpen(!open)}>
         <div className="w-full">
-          <Card className="max-w-2xl mx-auto my-4 border-0">
-            <CardHeader className="flex">
-              <div className="flex items-center">
-                <Image
-                  src={
-                    userDetail.avatar
-                      ? readFile(userDetail.avatar)
-                      : "/avatar-colored.svg"
-                  }
-                  alt="User Profile"
-                  width={500}
-                  height={500}
-                  className="w-10 h-10 rounded-full object-cover border border-primary"
-                />
-                <div className="w-full ml-4">
-                  <DialogTrigger asChild={true}>
-                    <div>
-                      <Input
-                        className="bg-[#F5F6FF] rounded-lg border-none"
-                        placeholder={`${placeHolder || "place"}`}
-                      />
-                    </div>
-                  </DialogTrigger>
+          <Card className="max-w-[56rem] mx-auto my-4 border-0">
+            {contentType !== "welcome" ? (
+              <CardHeader className="flex">
+                <div className="flex items-center">
+                  <Image
+                    src={
+                      userDetail.avatar
+                        ? readFile(userDetail.avatar)
+                        : "/avatar-colored.svg"
+                    }
+                    alt="User Profile"
+                    width={500}
+                    height={500}
+                    className="w-10 h-10 rounded-full object-cover border border-primary"
+                  />
+                  <div className="w-full ml-4">
+                    <DialogTrigger asChild={true}>
+                      <div>
+                        <Input
+                          className="bg-[#F5F6FF] rounded-lg border-none"
+                          placeholder={`${placeHolder || "place"}`}
+                        />
+                      </div>
+                    </DialogTrigger>
+                  </div>
                 </div>
-              </div>
-            </CardHeader>
+              </CardHeader>
+            ) : null}
           </Card>
         </div>
 
