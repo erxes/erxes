@@ -1,7 +1,11 @@
 import { memo } from "react"
 import { selectedTabAtom, slotFilterAtom } from "@/store"
-import { slotCodeAtom } from "@/store/order.store"
-import { useAtom, useSetAtom } from "jotai"
+import {
+  activeOrderIdAtom,
+  setInitialAtom,
+  slotCodeAtom,
+} from "@/store/order.store"
+import { useAtom, useAtomValue, useSetAtom } from "jotai"
 import { CheckCircle2, Circle, ListFilterIcon, XCircleIcon } from "lucide-react"
 
 import { ISlot } from "@/types/slots.type"
@@ -34,7 +38,9 @@ const SlotActions = ({
   children: React.ReactNode
 }) => {
   const [activeSlot, setActiveSlot] = useAtom(slotCodeAtom)
+  const activeOrderId = useAtomValue(activeOrderIdAtom)
   const setSelectedTab = useSetAtom(selectedTabAtom)
+  const setInitialState = useSetAtom(setInitialAtom)
   const setFilterSlots = useSetAtom(slotFilterAtom)
   const Icon = statusIcons[status || "available"]
   const handleChoose = (checked: boolean) => {
@@ -59,13 +65,17 @@ const SlotActions = ({
         <DropdownMenuCheckboxItem
           onCheckedChange={handleChoose}
           checked={activeSlot === code}
+          disabled={!activeOrderId}
         >
-          Захиалгад оноох
+          {activeSlot === code ? "Захиалгаас чөлөөлөх" : "Захиалгад оноох"}
         </DropdownMenuCheckboxItem>
         <CreateSlot code={code} />
         <DropdownMenuItem
           className="flex items-center"
-          onClick={() => setFilterSlots(code)}
+          onClick={() => {
+            setInitialState()
+            setFilterSlots(code)
+          }}
         >
           <ListFilterIcon className="h-4 w-4 mr-2" />
           Захиалга сонгох

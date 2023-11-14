@@ -15,6 +15,7 @@ const commonFields = `
   $useManualNumbering:Boolean
   $useFee:Boolean
   $leaseType: String
+  $commitmentInterest: Float
   $createdAt: Date,
   $productCategoryIds: [String],
   $config: JSON,
@@ -37,6 +38,7 @@ const commonVariables = `
   useManualNumbering: $useManualNumbering
   useFee: $useFee
   leaseType: $leaseType
+  commitmentInterest: $commitmentInterest
   createdAt: $createdAt,
   productCategoryIds: $productCategoryIds,
   config: $config,

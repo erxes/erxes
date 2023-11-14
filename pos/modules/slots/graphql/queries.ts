@@ -4,6 +4,7 @@ const slots = gql`
   query PoscSlots {
     poscSlots {
       _id
+      posToken
       code
       name
       option
