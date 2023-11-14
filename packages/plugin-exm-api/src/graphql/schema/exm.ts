@@ -89,6 +89,7 @@ export const types = _serviceDiscovery => {
 
 export const queries = `
   exms(name: String, categoryId: String, page: Int, perPage: Int): ExmList
+  exmDetail(_id:String!): Exm
   exmGet: Exm
   exmCoreCategories: [ExmCoreCategory]
   exmCoreCategoriesTotalCount: Int

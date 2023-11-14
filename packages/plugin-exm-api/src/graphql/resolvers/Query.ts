@@ -34,6 +34,14 @@ const exmQueries = {
     };
   },
 
+  async exmDetail(_root, { _id }, { models }: IContext) {
+    const sync = await models.Exms.findOne({ _id });
+    if (!sync) {
+      throw new Error('Not found');
+    }
+    return sync;
+  },
+
   async exmGet(_root, _args, { models }) {
     return models.Exms.findOne().sort({ createdAt: -1 });
   },
