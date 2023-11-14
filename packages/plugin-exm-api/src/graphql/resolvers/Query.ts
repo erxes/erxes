@@ -15,6 +15,13 @@ const exmQueries = {
 
   async exmGet(_root, _args, { models }) {
     return models.Exms.findOne().sort({ createdAt: -1 });
+  },
+
+  async exmCoreCategories(_root, params: any, { models }: IContext) {
+    return models.ExmCategories.find();
+  },
+  async exmCoreCategoriesTotalCount(_root, params: any, { models }: IContext) {
+    return await models.ExmCategories.countDocuments();
   }
 };
 

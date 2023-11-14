@@ -50,6 +50,17 @@ export const types = _serviceDiscovery => {
       createdBy: String
     }
 
+    type ExmCoreCategory  {
+      _id:String,
+      name:String,
+      description:String,
+      parentId:String,
+      code:String,
+      order:String,
+      count:Int,
+      isRoot:Boolean,
+    }
+
     type ExmList {
       list: [Exm]
       totalCount: Int
@@ -78,6 +89,8 @@ export const types = _serviceDiscovery => {
 export const queries = `
   exms(name: String, page: Int, perPage: Int): ExmList
   exmGet: Exm
+  exmCoreCategories: [ExmCoreCategory]
+  exmCoreCategoriesTotalCount: Int
 `;
 
 const commonParams = `
@@ -94,9 +107,19 @@ const commonParams = `
   structure: String
 `;
 
+const commonMutationParams = `
+  name:String,
+  description:String,
+  parentId:String,
+  code:String
+`;
+
 export const mutations = `
   exmsAdd(${commonParams}): Exm
   exmsEdit(_id: String, ${commonParams}): Exm
   exmsRemove(_id: String!): JSON
+  exmCoreCategoryAdd(${commonMutationParams}):JSON
+  exmCoreCategoryUpdate(_id:String,${commonMutationParams}):JSON
+  exmCoreCategoryRemove(_id:String):JSON
   userRegistrationCreate(email:String, password:String): User
 `;
