@@ -41,7 +41,6 @@ const typeDefs = async _serviceDiscovery => {
     scalar Date
 
     ${types}
-    
     extend type Query {
       ${queries}
     }

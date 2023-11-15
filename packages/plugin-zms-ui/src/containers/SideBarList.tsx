@@ -26,7 +26,7 @@ type FinalProps = {
   EditTypeMutationResponse;
 
 const TypesListContainer = (props: FinalProps) => {
-  const { listZmsTypeQuery, typesEdit, typesRemove, history } = props;
+  const { listZmsTypeQuery, typesRemove, history } = props;
 
   if (listZmsTypeQuery.loading) {
     return <Spinner />;
@@ -50,7 +50,7 @@ const TypesListContainer = (props: FinalProps) => {
         successMessage={`You successfully ${
           object ? 'updated' : 'added'
         } a ${passedName}`}
-        refetchQueries={['listZmsTypeQuery']}
+        refetchQueries={['GetDictionaries']}
       />
     );
   };
@@ -66,7 +66,6 @@ const TypesListContainer = (props: FinalProps) => {
       })
       .catch(e => Alert.error(e.message));
   };
-  // console.log("listZmsParent: ", listZmsTypeQuery )
   const updatedProps = {
     ...props,
     parents: listZmsTypeQuery.getDictionaries || [],
@@ -86,10 +85,10 @@ export default withProps<Props>(
         fetchPolicy: 'network-only'
       })
     }),
-    graphql(gql(mutations.removeType), {
+    graphql(gql(mutations.removeDictionary), {
       name: 'typesRemove',
       options: () => ({
-        refetchQueries: ['listZmsTypeQuery']
+        refetchQueries: ['GetDictionaries']
       })
     })
   )(TypesListContainer)

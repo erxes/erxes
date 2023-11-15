@@ -28,14 +28,7 @@ type FinalProps = {
   EditMutationResponse;
 
 const ListContainer = (props: FinalProps) => {
-  const {
-    listQuery,
-    listZmsParentQuery,
-    removeMutation,
-    editMutation,
-    history,
-    parentId
-  } = props;
+  const { listQuery, removeMutation, parentId } = props;
 
   if (listQuery.loading) {
     return <Spinner />;
@@ -50,7 +43,7 @@ const ListContainer = (props: FinalProps) => {
   }: IButtonMutateProps) => {
     return (
       <ButtonMutate
-        mutation={object ? mutations.edit : mutations.add}
+        mutation={object ? mutations.editDictionary : mutations.add}
         variables={values}
         callback={callback}
         isSubmitted={isSubmitted}
@@ -58,7 +51,7 @@ const ListContainer = (props: FinalProps) => {
         successMessage={`You successfully ${
           object ? 'updated' : 'added'
         } a ${passedName}`}
-        refetchQueries={['listQuery']}
+        refetchQueries={['GetDictionaries']}
       />
     );
   };
@@ -76,20 +69,20 @@ const ListContainer = (props: FinalProps) => {
   };
 
   const edit = zms => {
-    editMutation({
-      variables: {
-        _id: zms._id,
-        name: zms.name,
-        checked: zms.checked,
-        expiryDate: zms.expiryDate,
-        type: zms.type
-      }
-    })
-      .then(() => {
-        Alert.success('Successfully updated an item');
-        listQuery.refetch();
-      })
-      .catch(e => Alert.error(e.message));
+    // editMutation({
+    //   variables: {
+    //     _id: zms._id,
+    //     name: zms.name,
+    //     checked: zms.checked,
+    //     expiryDate: zms.expiryDate,
+    //     type: zms.type
+    //   }
+    // })
+    //   .then(() => {
+    //     Alert.success('Successfully updated an item');
+    //     listQuery.refetch();
+    //   })
+    //   .catch(e => Alert.error(e.message));
   };
 
   const updatedProps = {
@@ -128,14 +121,14 @@ export default withProps<Props>(
       name: 'totalCountQuery'
     }),
 
-    graphql(gql(mutations.remove), {
+    graphql(gql(mutations.removeDictionary), {
       name: 'removeMutation',
       options: () => ({
-        refetchQueries: ['listQuery']
+        refetchQueries: ['GetDictionaries']
       })
     }),
 
-    graphql(gql(mutations.edit), {
+    graphql(gql(mutations.editDictionary), {
       name: 'editMutation'
     })
   )(ListContainer)

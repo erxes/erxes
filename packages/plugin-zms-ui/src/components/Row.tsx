@@ -38,6 +38,7 @@ type Props = {
   remove: (dictionary: IDictionary) => void;
   edit: (dictionary: IDictionary) => void;
   parents?: IParent[];
+  parentId: string;
 };
 
 type State = {
@@ -74,7 +75,8 @@ class Row extends React.Component<Props, State> {
       renderButton,
       space,
       dictionaries,
-      parents
+      parents,
+      parentId
     } = this.props;
 
     const editTrigger = (
@@ -89,7 +91,8 @@ class Row extends React.Component<Props, State> {
       <Form
         {...props}
         types={parents}
-        zms={dictionary}
+        parentId={parentId}
+        dictionary={dictionary}
         renderButton={renderButton}
         zmss={dictionaries}
       />

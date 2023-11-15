@@ -15,7 +15,7 @@ import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 type Props = {
   dictionaries: IDictionary[];
   types: IParent[];
-  typeId?: string;
+  parentId: string;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   remove: (zms: IDictionary) => void;
   edit: (zms: IDictionary) => void;
@@ -24,7 +24,7 @@ type Props = {
 
 function List({
   dictionaries,
-  typeId,
+  parentId,
   types,
   remove,
   renderButton,
@@ -41,8 +41,8 @@ function List({
     <Form
       {...props}
       types={types}
+      parentId={parentId}
       renderButton={renderButton}
-      dictionary={dictionaries}
     />
   );
 
@@ -60,7 +60,6 @@ function List({
   const actionBar = (
     <Wrapper.ActionBar left={title} right={actionBarRight} wideSpacing />
   );
-  console.log('zmss:', dictionaries);
   const content = (
     <Table>
       <thead>
@@ -78,6 +77,7 @@ function List({
               space={0}
               key={dictionary._id}
               dictionary={dictionary}
+              parentId={parentId}
               remove={remove}
               edit={edit}
               renderButton={renderButton}
@@ -112,7 +112,7 @@ function List({
           emptyImage="/images/actions/8.svg"
         />
       }
-      leftSidebar={<SideBarList currentTypeId={typeId} />}
+      leftSidebar={<SideBarList currentTypeId={parentId} />}
       transparent={true}
       hasBorder
     />

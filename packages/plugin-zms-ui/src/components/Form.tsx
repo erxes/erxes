@@ -11,16 +11,20 @@ import React from 'react';
 import { ICommonFormProps } from '@erxes/ui-settings/src/common/types';
 
 type Props = {
+  parentId: String;
   closeModal?: () => void;
   afterSave: () => void;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
-  zms?: IDictionary;
-  zmss?: IDictionary[];
+  dictionary?: IDictionary;
+  dictionaries?: IDictionary[];
   parents?: IParent[];
 } & ICommonFormProps;
 
 type State = {
-  expiryDate?: Date;
+  name?: String;
+  code?: String;
+  type?: String;
+  parentId: String;
 };
 
 type IItem = {
@@ -33,33 +37,38 @@ class FormComponent extends React.Component<Props & ICommonFormProps, State> {
   constructor(props: Props) {
     super(props);
 
-    const { zms } = this.props;
-
-    // this.state = {
-    //   expiryDate: zms
-    //     ? zms.expiryDate
-    //     : dayjs()
-    //         .add(30, 'day')
-    //         .toDate()
-    // };
+    const { dictionary, parentId } = this.props;
+    console.log('dictionary:', dictionary);
+    this.state = {
+      name: dictionary?.name,
+      code: dictionary?.code,
+      type: dictionary?.type,
+      parentId
+    };
   }
 
-  onDateChange = value => {
-    this.setState({ expiryDate: value });
-  };
+  // onDateChange = value => {
+  //   this.setState({ expiryDate: value });
+  // };
 
-  generateDoc = (values: { _id?: string; name: string; content: string }) => {
-    const { zms } = this.props;
+  generateDoc = (values: {
+    _id?: string;
+    name: string;
+    code: string;
+    type: string;
+  }) => {
+    const { dictionary } = this.props;
 
-    const finalValues = values;
+    const finalValues: any = values;
 
-    if (zms) {
-      finalValues._id = zms._id;
+    if (dictionary) {
+      finalValues.id = dictionary._id;
     }
 
+    finalValues.parentId = this.state.parentId;
+
     return {
-      ...finalValues,
-      expiryDate: this.state.expiryDate
+      ...finalValues
     };
   };
 
@@ -78,22 +87,17 @@ class FormComponent extends React.Component<Props & ICommonFormProps, State> {
   };
 
   renderContent = (formProps: IFormProps) => {
-    const { zms, parents, afterSave, closeModal, renderButton } = this.props;
+    const {
+      dictionary,
+      parents,
+      afterSave,
+      closeModal,
+      renderButton
+    } = this.props;
     const { values, isSubmitted } = formProps;
-    const object = zms || ({} as IDictionary);
+    const object = dictionary || ({} as IDictionary);
     return (
       <>
-        <FormGroup>
-          <ControlLabel required={true}>Parent</ControlLabel>
-          <FormControl
-            {...formProps}
-            name="parentId"
-            defaultValue={object.name}
-            type="text"
-            required={true}
-            autoFocus={true}
-          />
-        </FormGroup>
         <FormGroup>
           <ControlLabel required={true}>Name</ControlLabel>
           <FormControl
@@ -109,8 +113,8 @@ class FormComponent extends React.Component<Props & ICommonFormProps, State> {
           <ControlLabel required={true}>Type</ControlLabel>
           <FormControl
             {...formProps}
-            name="parentId"
-            defaultValue={object.name}
+            name="type"
+            defaultValue={object.type}
             type="text"
             required={true}
             autoFocus={true}
@@ -120,8 +124,8 @@ class FormComponent extends React.Component<Props & ICommonFormProps, State> {
           <ControlLabel required={true}>Code</ControlLabel>
           <FormControl
             {...formProps}
-            name="parentId"
-            defaultValue={object.name}
+            name="code"
+            defaultValue={object.code}
             type="text"
             required={true}
             autoFocus={true}
@@ -137,7 +141,7 @@ class FormComponent extends React.Component<Props & ICommonFormProps, State> {
             values: this.generateDoc(values),
             isSubmitted,
             callback: closeModal || afterSave,
-            object: zms
+            object: dictionary
           })}
         </ModalFooter>
       </>
