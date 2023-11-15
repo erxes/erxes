@@ -1,6 +1,7 @@
-import { slotFilterAtom } from "@/store"
+import { useEffect } from "react"
+import { selectedTabAtom, slotFilterAtom } from "@/store"
 import { slotCodeAtom } from "@/store/order.store"
-import { useAtom, useSetAtom } from "jotai"
+import { useAtom, useAtomValue, useSetAtom } from "jotai"
 
 import { ISlot } from "@/types/slots.type"
 
@@ -8,9 +9,17 @@ import Slot from "./components/slot"
 import useSlots from "./hooks/useSlots"
 
 const Slots = () => {
-  const { slots, loading } = useSlots()
+  const { slots, loading, subToSlots } = useSlots()
   const [activeSlot, setActiveSlot] = useAtom(slotCodeAtom)
   const setSlotFilter = useSetAtom(slotFilterAtom)
+  const selectedTab = useAtomValue(selectedTabAtom)
+
+  useEffect(() => {
+    subToSlots()
+  }, [])
+
+  if (selectedTab === "products") return null
+
   return (
     <div className="w-full overflow-auto shadow-inner p-2">
       <div

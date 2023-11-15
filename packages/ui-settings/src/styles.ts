@@ -132,7 +132,8 @@ const SidebarListItem = styledTS<{
   a {
     white-space: normal;
     flex: 1;
-    color: ${props => props.isActive && colors.colorPrimary} !important;
+    color: ${props =>
+      props.isActive ? colors.colorPrimary : '#666'} !important;
     font-weight: ${props => (props.isActive ? 600 : 500)};
 
     border-bottom: 1px solid ${colors.borderPrimary};

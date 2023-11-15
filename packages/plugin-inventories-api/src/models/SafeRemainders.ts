@@ -1,11 +1,13 @@
-import { paginate } from '@erxes/api-utils/src';
+const https = require('http');
+import * as fs from 'fs';
 import { Model } from 'mongoose';
 import * as _ from 'underscore';
+import * as xlsxPopulate from 'xlsx-populate';
 import { IModels } from '../connectionResolver';
 import { sendProductsMessage } from '../messageBroker';
 import {
-  SAFE_REMAINDER_STATUSES,
-  SAFE_REMAINDER_ITEM_STATUSES
+  SAFE_REMAINDER_ITEM_STATUSES,
+  SAFE_REMAINDER_STATUSES
 } from './definitions/constants';
 import {
   ISafeRemainder,
@@ -55,7 +57,9 @@ export const loadSafeRemainderClass = (models: IModels) => {
         departmentId,
         date,
         description,
-        productCategoryId
+        productCategoryId,
+        attachment,
+        filterField
       } = params;
 
       // Create new safe remainder
@@ -65,6 +69,7 @@ export const loadSafeRemainderClass = (models: IModels) => {
         departmentId,
         branchId,
         productCategoryId,
+        attachment,
         status: SAFE_REMAINDER_STATUSES.DRAFT,
         createdAt: new Date(),
         createdBy: userId,
@@ -72,13 +77,96 @@ export const loadSafeRemainderClass = (models: IModels) => {
         modifiedBy: userId
       });
 
+      let productFilter = {};
+      const attachDatas: any = {};
+      let attachFieldId = '';
+
+      if (attachment && attachment.url) {
+        const filePath = `src/private/uploads/${attachment.url}`;
+
+        const url = `http://localhost:3300/read-file?key=${attachment.url}`;
+        const file = fs.createWriteStream(`${filePath}`);
+
+        await new Promise((resolve, reject) => {
+          https.get(url, res => {
+            resolve(res.pipe(file));
+          });
+        });
+
+        await xlsxPopulate.fromFileAsync(`${filePath}`).then(workbook => {
+          let row = 1;
+          let checkVal = 'begin';
+          while (checkVal) {
+            row++;
+            const cella = workbook.sheet(0).cell(`A${row}`);
+            const cellb = workbook.sheet(0).cell(`B${row}`);
+            checkVal = cella.value() || cellb.value();
+
+            if (!checkVal) {
+              continue;
+            }
+
+            const valb =
+              String(
+                workbook
+                  .sheet(0)
+                  .cell(`B${row}`)
+                  .value()
+              ) || '';
+            const valc =
+              workbook
+                .sheet(0)
+                .cell(`C${row}`)
+                .value() || 0;
+            const vald =
+              workbook
+                .sheet(0)
+                .cell(`D${row}`)
+                .value() || 0;
+
+            if (valb) {
+              if (!Object.keys(attachDatas).includes(valb)) {
+                attachDatas[valb] = {
+                  changeCount: 0,
+                  lastCount: 0
+                };
+              }
+
+              attachDatas[valb].changeCount += Number(valc);
+              attachDatas[valb].lastCount = Number(vald);
+            }
+          }
+        });
+
+        if (filterField.includes('customFieldsData')) {
+          attachFieldId = filterField.split('.')[1];
+          productFilter = {
+            query: {
+              $and: [
+                { 'customFieldsData.field': attachFieldId },
+                { 'customFieldsData.value': { $in: Object.keys(attachDatas) } }
+              ]
+            }
+          };
+        } else {
+          productFilter = {
+            query: { [filterField]: { $in: Object.keys(attachDatas) } }
+          };
+        }
+        fs.unlink(filePath, () => {});
+      } else {
+        productFilter = {
+          categoryId: productCategoryId,
+          query: { status: { $ne: 'deleted' } }
+        };
+      }
+
       // Get products related to product category
       const limit = await sendProductsMessage({
         subdomain,
         action: 'count',
         data: {
-          categoryId: productCategoryId,
-          query: { status: { $ne: 'deleted' } }
+          ...productFilter
         },
         isRPC: true
       });
@@ -87,8 +175,7 @@ export const loadSafeRemainderClass = (models: IModels) => {
         subdomain,
         action: 'find',
         data: {
-          categoryId: productCategoryId,
-          query: { status: { $ne: 'deleted' } },
+          ...productFilter,
           sort: { code: 1 },
           limit
         },
@@ -97,6 +184,7 @@ export const loadSafeRemainderClass = (models: IModels) => {
 
       // Create remainder items for every product
       const productIds = products.map((item: any) => item._id);
+
       const liveRemainders = await models.Remainders.find({
         departmentId,
         branchId,
@@ -114,6 +202,23 @@ export const loadSafeRemainderClass = (models: IModels) => {
       for (const product of products) {
         order++;
         const live = liveRemByProductId[product._id] || {};
+        let count = live.count || 0;
+        if (attachment && attachment.url) {
+          const datasKey = String(
+            attachFieldId
+              ? product.customFieldsData.find(
+                  cfd => cfd.field === attachFieldId
+                )?.value
+              : product[filterField]
+          );
+          const { lastCount, changeCount } = attachDatas[datasKey];
+
+          if (changeCount) {
+            count = count + changeCount;
+          } else {
+            count = lastCount;
+          }
+        }
 
         bulkOps.push({
           remainderId: safeRemainder._id,
@@ -121,7 +226,7 @@ export const loadSafeRemainderClass = (models: IModels) => {
           departmentId: safeRemainder.departmentId,
           productId: product._id,
           preCount: live.count || 0,
-          count: live.count || 0,
+          count,
           status: SAFE_REMAINDER_ITEM_STATUSES.NEW,
           uom: product.uom,
           modifiedAt: new Date(),

@@ -8,7 +8,10 @@ import { tokenHandler } from '../../../auth/authUtils';
 import { IContext } from '../../../connectionResolver';
 import { sendContactsMessage, sendCoreMessage } from '../../../messageBroker';
 import { ILoginParams } from '../../../models/ClientPortalUser';
-import { IUser } from '../../../models/definitions/clientPortalUser';
+import {
+  IInvitiation,
+  IUser
+} from '../../../models/definitions/clientPortalUser';
 import redis from '../../../redis';
 import { sendSms } from '../../../utils';
 import { sendCommonMessage } from './../../../messageBroker';
@@ -555,7 +558,11 @@ const clientPortalUserMutations = {
     return 'sent';
   },
 
-  clientPortalUsersInvite: async (_root, args: IUser, context: IContext) => {
+  clientPortalUsersInvite: async (
+    _root,
+    args: IInvitiation,
+    context: IContext
+  ) => {
     const { models, subdomain } = context;
 
     const user = await models.ClientPortalUsers.invite(subdomain, {
@@ -861,9 +868,9 @@ const clientPortalUserMutations = {
   clientPortalUserAssignCompany: async (
     _root,
     args: { userId: string; erxesCompanyId: string; erxesCustomerId: string },
-    { models, subdomain, cpUser }: IContext
+    { models, subdomain, cpUser, user }: IContext
   ) => {
-    if (!cpUser) {
+    if (!cpUser && !user) {
       throw new Error('login required');
     }
 
@@ -898,7 +905,9 @@ const clientPortalUserMutations = {
       throw new Error(error);
     }
 
-    const cp = await models.ClientPortals.findOne(cpUser.clientPortalId).lean();
+    const cp = await models.ClientPortals.findOne(
+      cpUser?.clientPortalId
+    ).lean();
 
     if (cp || cp.kind === 'vendor') {
       await models.Companies.createOrUpdateCompany({
