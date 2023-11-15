@@ -3,18 +3,20 @@ name: Widgets CI
 on:
   push:
     branches:
-      - "dev"
-      - "staging"
+      - 'dev'
+      - master
+      - 'staging'
     paths:
-      - "widgets/**"
-      - ".github/workflows/widgets.yaml"
+      - 'widgets/**'
+      - '.github/workflows/widgets.yaml'
   pull_request:
     branches:
       - master
       - dev
+      - master
       - staging
     paths:
-      - "widgets/**"
+      - 'widgets/**'
 
 jobs:
   widgets:

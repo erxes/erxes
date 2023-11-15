@@ -1,4 +1,5 @@
 module.exports = {
+  srcDir: __dirname,
   name: 'clientportal',
   port: 3015,
   scope: 'clientportal',

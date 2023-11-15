@@ -101,7 +101,6 @@ export const ChatForm = ({
             name="userIds"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Select users</FormLabel>
                 <FormControl>
                   <SelectUsers
                     userIds={userIds}
@@ -120,10 +119,10 @@ export const ChatForm = ({
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Group chat Name</FormLabel>
                   <FormControl>
                     <Input
-                      placeholder="name"
+                    className="sm:rounded-lg"
+                      placeholder="Chat name"
                       {...field}
                       defaultValue={field.value}
                     />
@@ -134,8 +133,8 @@ export const ChatForm = ({
             />
           ) : null}
 
-          <Button type="submit" className="font-semibold w-full rounded-full">
-            Create
+          <Button type="submit" className="font-semibold w-full sm:rounded-lg bg-primary-light">
+            Add
           </Button>
         </form>
       </Form>

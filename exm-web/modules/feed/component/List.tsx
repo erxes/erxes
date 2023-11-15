@@ -2,9 +2,6 @@
 
 import { useEffect } from "react"
 import dynamic from "next/dynamic"
-import { currentUserAtom } from "@/modules/JotaiProiveder"
-import { IUser } from "@/modules/auth/types"
-import { useAtomValue } from "jotai"
 import { useInView } from "react-intersection-observer"
 
 import LoadingCard from "@/components/ui/loading-card"
@@ -14,12 +11,11 @@ import { useFeeds } from "../hooks/useFeed"
 import { IFeed } from "../types"
 
 const PostItem = dynamic(() => import("./PostItem"))
+const EventItem = dynamic(() => import("./EventItem"))
 
 const FeedForm = dynamic(() => import("../component/form/FeedForm"))
 
 const List = ({ contentType }: { contentType: string }) => {
-  const currentUser = useAtomValue(currentUserAtom) || ({} as IUser)
-
   const { ref, inView } = useInView({
     threshold: 0,
   })
@@ -32,6 +28,12 @@ const List = ({ contentType }: { contentType: string }) => {
   const normalList = datas.filter((data) => !data.isPinned)
 
   const showList = (items: IFeed[]) => {
+    if (contentType === "event") {
+      return items.map((filteredItem: any, index) => (
+        <EventItem postId={filteredItem._id} key={index} />
+      ))
+    }
+
     return items.map((filteredItem: any) => (
       <PostItem postId={filteredItem._id} key={filteredItem._id} />
     ))

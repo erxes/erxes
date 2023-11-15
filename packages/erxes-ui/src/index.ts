@@ -11,5 +11,3 @@ export * from './utils';
 export * from './layout';
 
 export { apolloClient, AppConsumer, AppProvider, EditorCK };
-
-// build trigger

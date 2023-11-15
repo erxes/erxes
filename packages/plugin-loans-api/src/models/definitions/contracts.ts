@@ -1,6 +1,7 @@
 import {
   CONTRACT_CLASSIFICATION,
   CONTRACT_STATUS,
+  LEASE_TYPES,
   REPAYMENT_TYPE
 } from './constants';
 import { Document, Schema } from 'mongoose';
@@ -118,6 +119,8 @@ export interface IContract {
   isStoppedInterest: boolean;
   stoppedInterestDate: Date;
   loanPurpose: string;
+  leaseType: string;
+  commitmentInterest: number;
 }
 
 export interface IContractDocument extends IContract, Document {
@@ -244,6 +247,18 @@ export const contractSchema = schemaHooksWrapper(
       label: 'Schedule Type',
       selectOptions: REPAYMENT_TYPE
     }),
+    leaseType: field({
+      type: String,
+      enum: LEASE_TYPES.ALL,
+      label: 'Lease Type',
+      required: true,
+      default: LEASE_TYPES.FINANCE
+    }),
+    commitmentInterest: field({
+      type: Number,
+      label: 'Commitment Interest',
+      default: 0
+    }),
     startDate: field({ type: Date, label: 'Start Date' }),
     endDate: field({ type: Date, label: 'End Date' }),
     scheduleDays: field({
@@ -252,7 +267,6 @@ export const contractSchema = schemaHooksWrapper(
       max: 31,
       label: 'Schedule Day'
     }),
-
     insurancesData: field({
       type: [insuranceDataSchema],
       label: 'Insurances'

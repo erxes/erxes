@@ -14,7 +14,8 @@ const chatQueries = {
     const filter: any = {
       $and: [
         { isPinnedUserIds: { $nin: [user._id] } },
-        { participantIds: { $in: [user._id] } }
+        { participantIds: { $in: [user._id] } },
+        { archivedUserIds: { $nin: [user._id] } }
       ]
     };
 
@@ -276,6 +277,15 @@ const chatQueries = {
       graphqlPubsub.publish('chatInserted', {
         userId: user._id
       });
+    } else {
+      const isArchived = chat.archivedUserIds?.includes(user._id);
+
+      if (isArchived) {
+        await models.Chats.updateOne(
+          { _id: chat._id },
+          { $pull: { archivedUserIds: { $in: [user._id] } } }
+        );
+      }
     }
 
     return chat._id;
@@ -305,6 +315,7 @@ const chatQueries = {
     });
     return userstatus;
   },
+
   activeMe: async (_root, { userId }, { models, user }) => {
     let userstatus = await models.UserStatus.findOne({
       userId: userId

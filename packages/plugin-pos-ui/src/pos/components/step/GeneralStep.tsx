@@ -1,29 +1,20 @@
 import Modal from 'react-bootstrap/Modal';
 import Select from 'react-select-plus';
-import PosSlotItem from '../productGroup/PosSlotItem';
 import React from 'react';
 import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
 import {
   __,
-  Button,
   ControlLabel,
   FormControl,
   FormGroup,
-  ModalTrigger,
   Toggle
 } from '@erxes/ui/src';
 import { IPos, ISlot } from '../../../types';
 import { LeftItem } from '@erxes/ui/src/components/step/styles';
-import {
-  Block,
-  BlockRow,
-  FlexColumn,
-  FlexItem,
-  FlexRow,
-  PosSlotAddButton
-} from '../../../styles';
+import { Block, BlockRow, FlexColumn, FlexItem } from '../../../styles';
 import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
 import { ALLOW_TYPES } from '../../../constants';
+import PosSlotPlan from '../productGroup/posSlotPlan';
 
 type Props = {
   onChange: (name: 'pos' | 'slots' | 'allowTypes', value: any) => void;
@@ -46,95 +37,6 @@ class GeneralStep extends React.Component<Props, State> {
       slots: props.posSlots || [],
       allowTypes: props.allowTypes
     };
-  }
-
-  renderMapping(slot: ISlot, props) {
-    const { slots } = this.state;
-
-    const removeItem = (_id: string) => {
-      const excluded = slots.filter(m => m._id !== _id);
-
-      this.setState({ slots: excluded });
-      this.props.onChange('slots', excluded);
-    };
-
-    const onChange = (changedSlot: ISlot) => {
-      const updated = slots.map(s =>
-        s._id === changedSlot._id ? { ...s, ...changedSlot } : s
-      );
-      this.setState({ slots: updated });
-      this.props.onChange('slots', updated);
-    };
-
-    return (
-      <PosSlotItem
-        key={slot._id || Math.random()}
-        {...props}
-        onChange={onChange}
-        removeItem={removeItem}
-        slot={slot}
-      />
-    );
-  }
-
-  renderPosSlotForm(trigger: React.ReactNode) {
-    const { slots = [] } = this.state;
-
-    const onClickAddSlot = () => {
-      const m = slots.slice();
-
-      m.push({
-        _id: Math.random().toString(),
-        code: '',
-        name: '',
-        posId: this.props.pos._id
-      });
-
-      this.setState({ slots: m });
-    };
-
-    const content = props => (
-      <FormGroup>
-        <PosSlotAddButton>
-          <Button
-            btnStyle="primary"
-            icon="plus-circle"
-            onClick={onClickAddSlot}
-          >
-            Add
-          </Button>
-        </PosSlotAddButton>
-        <Block>
-          <FlexRow key={Math.random()}>
-            <FormGroup>
-              <FormControl value={'CODE'} />
-            </FormGroup>
-            <FormGroup>
-              <FormControl value={'NAME'} />
-            </FormGroup>
-          </FlexRow>
-        </Block>
-        {slots.map(s => this.renderMapping(s, props))}
-        <Modal.Footer>
-          <Button
-            onClick={props.closeModal}
-            btnStyle="success"
-            icon={'plus-circle'}
-          >
-            {'Save'}
-          </Button>
-        </Modal.Footer>
-      </FormGroup>
-    );
-
-    return (
-      <ModalTrigger
-        title={'Slots'}
-        trigger={trigger}
-        content={content}
-        size={'lg'}
-      />
-    );
   }
 
   onChangeFunction = (name: any, value: any) => {
@@ -287,12 +189,6 @@ class GeneralStep extends React.Component<Props, State> {
   render() {
     const { pos, envs } = this.props;
 
-    const slotTrigger = (
-      <div>
-        Total slots: <button>{this.state.slots.length}</button>
-      </div>
-    );
-
     let name = 'POS name';
     let description: any = 'description';
 
@@ -348,9 +244,15 @@ class GeneralStep extends React.Component<Props, State> {
             <Block>
               <BlockRow>
                 <FormGroup>
-                  <ControlLabel>Slots:</ControlLabel>
+                  <PosSlotPlan
+                    slots={this.state.slots}
+                    onSave={slots => {
+                      this.setState({ slots });
+                      this.props.onChange('slots', slots);
+                    }}
+                    posId={this.props.pos._id}
+                  />
                 </FormGroup>
-                <FormGroup>{this.renderPosSlotForm(slotTrigger)}</FormGroup>
               </BlockRow>
             </Block>
             <Block>

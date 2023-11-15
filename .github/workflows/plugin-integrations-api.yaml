@@ -4,21 +4,21 @@ on:
   push:
     branches:
       - dev
+      - master
       - staging
       - build-test
     paths:
       - 'packages/api-utils/**'
-      - 'packages/api-plugin-template.erxes/**'
       - 'packages/plugin-integrations-api/**'
       - '.github/workflows/plugin-integrations-api.yaml'
   pull_request:
     branches:
       - dev
+      - master
       - staging
       - build-test
     paths:
       - 'packages/api-utils/**'
-      - 'packages/api-plugin-template.erxes/**'
       - 'packages/plugin-integrations-api/**'
       - '.github/workflows/plugin-integrations-api.yaml'
 
@@ -43,9 +43,9 @@ jobs:
         id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
         with:
           path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-          key: ${{ runner.os }}-yarn-plugin-integrations-api
+          key: ${{ runner.os }}-yarn-api-plugin-integrations
           restore-keys: |
-            ${{ runner.os }}-yarn-plugin-integrations-api
+            ${{ runner.os }}-yarn-api-
             ${{ runner.os }}-yarn-
 
       - name: Build
@@ -56,7 +56,7 @@ jobs:
           yarn build plugin integrations
 
       - name: Build docker image
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/build-test' )
+        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/build-test' )
         run: |
           cd dist/erxes
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin

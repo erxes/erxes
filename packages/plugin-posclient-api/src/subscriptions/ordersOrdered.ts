@@ -9,15 +9,20 @@ export default {
     subscribe: withFilter(
       () => graphqlPubsub.asyncIterator('ordersOrdered'),
       (payload, variables) => {
-        const { status, customerId } = payload.ordersOrdered;
+        const { status, customerId, posToken } = payload.ordersOrdered._doc
+          ? payload.ordersOrdered._doc
+          : payload.ordersOrdered;
         if (variables.customerId) {
           return (
+            variables.posToken === posToken &&
             variables.statuses.includes(status) &&
             variables.customerId === customerId
           );
         }
 
-        return variables.statuses.includes(status);
+        return (
+          variables.posToken === posToken && variables.statuses.includes(status)
+        );
       }
     )
   }

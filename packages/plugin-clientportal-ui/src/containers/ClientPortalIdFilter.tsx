@@ -11,6 +11,7 @@ import { ClientPortalConfigsQueryResponse, IClientPortalUser } from '../types';
 
 type Props = {
   counts: Counts;
+  kind?: string;
 };
 
 type FinalProps = {
@@ -21,12 +22,14 @@ class ClientPortalIdFilterContainer extends React.Component<FinalProps> {
   render() {
     const { clientPortalConfigsQuery, counts } = this.props;
 
+    const clientPortalGetConfigs =
+      (clientPortalConfigsQuery &&
+        clientPortalConfigsQuery.clientPortalGetConfigs) ||
+      [];
+
     const updatedProps = {
       ...this.props,
-      clientPortalGetConfigs:
-        (clientPortalConfigsQuery
-          ? clientPortalConfigsQuery.clientPortalGetConfigs
-          : null) || [],
+      clientPortalGetConfigs,
       loading:
         (clientPortalConfigsQuery ? clientPortalConfigsQuery.loading : null) ||
         false,
@@ -40,7 +43,11 @@ class ClientPortalIdFilterContainer extends React.Component<FinalProps> {
 export default withProps<Props>(
   compose(
     graphql<Props, ClientPortalConfigsQueryResponse>(gql(queries.getConfigs), {
-      name: 'clientPortalConfigsQuery'
+      name: 'clientPortalConfigsQuery',
+      options: ({ kind = 'client' }) => ({
+        fetchPolicy: 'network-only',
+        variables: { kind }
+      })
     })
   )(ClientPortalIdFilterContainer)
 );

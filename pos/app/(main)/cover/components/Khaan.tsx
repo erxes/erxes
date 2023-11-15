@@ -10,7 +10,7 @@ const Khaan = () => {
   const [description, setDescription] = useState<any>()
   const { sendSettlement, loading } = useSettlement({
     onCompleted(response) {
-      setDescription(response)
+      setDescription(JSON.stringify(response))
     },
   })
   return (

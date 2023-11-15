@@ -4,11 +4,11 @@ on:
   push:
     branches:
       - dev
+      - master
       - staging
       - build-test
     paths:
       - 'packages/api-utils/**'
-      - 'packages/api-plugin-template.erxes/**'
       - 'packages/core/**'
       - '.github/workflows/core.yaml'
 
@@ -33,9 +33,9 @@ jobs:
         id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
         with:
           path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-          key: ${{ runner.os }}-yarn-core
+          key: ${{ runner.os }}-yarn-api-core
           restore-keys: |
-            ${{ runner.os }}-yarn-core
+            ${{ runner.os }}-yarn-api-
             ${{ runner.os }}-yarn
 
       - name: Build
@@ -44,7 +44,6 @@ jobs:
           cd dist
           yarn install
           yarn build core
-          ls
 
       - name: Build docker image
         if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/build-test' )

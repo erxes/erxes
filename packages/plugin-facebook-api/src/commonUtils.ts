@@ -3,7 +3,7 @@ import * as request from 'request-promise';
 
 import { IModels } from './connectionResolver';
 import { debugBase, debugExternalRequests } from './debuggers';
-import { get, set } from './inmemoryStorage';
+import redis from '@erxes/api-utils/src/redis';
 
 dotenv.config();
 
@@ -135,7 +135,7 @@ export const generateAttachmentUrl = (urlOrName: string) => {
 };
 
 export const getConfigs = async (models: IModels) => {
-  const configsCache = await get(CACHE_NAME);
+  const configsCache = await redis.get(CACHE_NAME);
 
   if (configsCache && configsCache !== '{}') {
     return JSON.parse(configsCache);
@@ -148,7 +148,7 @@ export const getConfigs = async (models: IModels) => {
     configsMap[config.code] = config.value;
   }
 
-  set(CACHE_NAME, JSON.stringify(configsMap));
+  await redis.set(CACHE_NAME, JSON.stringify(configsMap));
 
   return configsMap;
 };
@@ -163,6 +163,6 @@ export const getConfig = async (models: IModels, code, defaultValue?) => {
   return configs[code];
 };
 
-export const resetConfigsCache = () => {
-  set(CACHE_NAME, '');
+export const resetConfigsCache = async () => {
+  await redis.set(CACHE_NAME, '');
 };
