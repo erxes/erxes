@@ -20,22 +20,22 @@ import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import { IExm } from '../types';
 
 type Props = {
-  exm?: IExm;
-  actionMutation: (variables: IExm, id?: string) => void;
+  exm: IExm;
+  edit: (variables: IExm) => void;
 };
 
 export default function Appearance(props: Props) {
-  const { exm, actionMutation } = props;
+  const { exm, edit } = props;
 
-  const exmLogo = exm?.logo;
-  const exmFavicon = exm?.favicon;
-  const exmAppearance = exm?.appearance;
+  const exmLogo = exm.logo;
+  const exmFavicon = exm.favicon;
+  const exmAppearance = exm.appearance;
   const [logo, setLogo] = useState(exmLogo);
   const [favicon, setFavicon] = useState(exmFavicon);
-  const [url, setUrl] = useState(exm?.url || '');
-  const [webName, setWebName] = useState(exm?.webName || '');
+  const [url, setUrl] = useState(exm.url || '');
+  const [webName, setWebName] = useState(exm.webName || '');
   const [webDescription, setWebDescription] = useState(
-    exm?.webDescription || ''
+    exm.webDescription || ''
   );
   const [appearance, setAppearance] = useState(
     exmAppearance
@@ -56,35 +56,8 @@ export default function Appearance(props: Props) {
   );
 
   const onSave = () => {
-    if (exm && exm._id) {
-      return actionMutation(
-        {
-          logo: logo
-            ? {
-                name: logo.name,
-                url: logo.url,
-                size: logo.size,
-                type: logo.type
-              }
-            : undefined,
-          appearance,
-          webName,
-          webDescription,
-          url,
-          favicon: favicon
-            ? {
-                name: favicon.name,
-                url: favicon.url,
-                size: favicon.size,
-                type: favicon.type
-              }
-            : undefined
-        },
-        exm._id
-      );
-    }
-
-    return actionMutation({
+    edit({
+      _id: props.exm._id,
       logo: logo
         ? {
             name: logo.name,

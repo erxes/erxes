@@ -13,8 +13,8 @@ import { IExm } from '../types';
 import { Alert } from '@erxes/ui/src/utils';
 
 type Props = {
-  exm?: IExm;
-  actionMutation: (variables: IExm, id?: string) => void;
+  exm: IExm;
+  edit: (variables: IExm) => void;
 };
 
 export default function GeneralContainer(props: Props) {
@@ -24,12 +24,11 @@ export default function GeneralContainer(props: Props) {
   const kbQuery = useQuery(gql(queries.knowledgeBaseTopics), {
     skip: !isEnabled('knowledgebase')
   });
-  const categoryQuery = useQuery(gql(queries.categories), {});
 
   const [kbCategories, setKbCategories] = useState({});
   const [forms, setForms] = useState([]);
 
-  if (brandsQuery.loading || kbQuery.loading || categoryQuery.loading) {
+  if (brandsQuery.loading || kbQuery.loading) {
     return <Spinner />;
   }
 
@@ -86,11 +85,6 @@ export default function GeneralContainer(props: Props) {
       getForms={getForms}
       kbTopics={
         kbQuery && kbQuery.data ? kbQuery.data.knowledgeBaseTopics || [] : []
-      }
-      exmCategories={
-        categoryQuery && categoryQuery.data
-          ? categoryQuery.data.exmCoreCategories || []
-          : []
       }
       kbCategories={kbCategories}
       getKbCategories={getKbCategories}

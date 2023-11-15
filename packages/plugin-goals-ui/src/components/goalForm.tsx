@@ -18,16 +18,10 @@ import {
 import client from '@erxes/ui/src/apolloClient';
 import { DateContainer } from '@erxes/ui/src/styles/main';
 import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
-import {
-  BranchesMainQueryResponse,
-  DepartmentsMainQueryResponse,
-  UnitsMainQueryResponse
-} from '@erxes/ui/src/team/types';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import { Alert } from '@erxes/ui/src/utils';
 import { isEnabled } from '@erxes/ui/src/utils/core';
 import { __ } from 'coreui/utils';
-import dayjs from 'dayjs';
 import React from 'react';
 import {
   CONTRIBUTION,
@@ -36,43 +30,44 @@ import {
   GOAL_TYPE,
   SPECIFIC_PERIOD_GOAL
 } from '../constants';
-import { IAssignmentCampaign, IGoalType, IGoalTypeDoc } from '../types';
+import { IGoalType, IGoalTypeDoc } from '../types';
+import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
+import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
+import SelectUnits from '@erxes/ui/src/team/containers/SelectUnits';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   goalType: IGoalType;
   closeModal: () => void;
   pipelineLabels?: IPipelineLabel[];
-  assignmentCampaign?: IAssignmentCampaign;
-  branchListQuery: BranchesMainQueryResponse;
-  unitListQuery: UnitsMainQueryResponse;
-  departmentListQuery: DepartmentsMainQueryResponse;
+  segmentIds: string[];
 };
 
 type State = {
   specificPeriodGoals: Array<{
     _id: string;
     addMonthly: string;
-    addTarget: number;
+    addTarget: string;
   }>;
   periodGoal: string;
   entity: string;
   teamGoalType: string;
   contributionType: string;
-  goalType: string;
   metric: string;
+  target: number;
+  goalTypeChoose: string;
   startDate: Date;
   endDate: Date;
   period: boolean;
   contribution: string;
-  branch: string;
-  department: string;
-  unit: string;
+  branch: string[];
+  department: string[];
+  unit: string[];
   pipelineLabels: IPipelineLabel[];
   stageId?: any;
   pipelineId?: any;
   boardId: any;
-  assignmentCampaign: IAssignmentCampaign;
+  segmentIds: any;
   stageRadio: boolean;
   segmentRadio: boolean;
 };
@@ -82,27 +77,28 @@ class GoalTypeForm extends React.Component<Props, State> {
     super(props);
     const { goalType = {} } = props;
     this.state = {
-      branch: goalType.branch || '',
-      department: goalType.department || '',
-      unit: goalType.unit || '',
+      segmentIds: goalType.segmentIds || [],
+      branch: goalType.branch || [],
+      department: goalType.department || [],
+      unit: goalType.unit || [],
       specificPeriodGoals: goalType.specificPeriodGoals || [],
       stageRadio: goalType.stageRadio,
       periodGoal: goalType.periodGoal,
       segmentRadio: goalType.segmentRadio,
       contribution: goalType.contribution,
       pipelineLabels: goalType.pipelineLabels,
-      entity: goalType.entity || '',
-      teamGoalType: goalType.teamGoalType || '',
-      contributionType: goalType.contributionType || '',
-      goalType: goalType.goalType || '',
-      metric: goalType.metric || '',
+      entity: goalType.entity || ENTITY[0].value,
+      teamGoalType: goalType.teamGoalType,
+      contributionType: goalType.contributionType || CONTRIBUTION[0].value,
+      goalTypeChoose: goalType.goalTypeChoose || GOAL_TYPE[0],
+      metric: goalType.metric || 'Value',
       period: goalType.period,
       startDate: goalType.startDate || new Date(),
       endDate: goalType.endDate || new Date(),
       stageId: goalType.stageId,
       pipelineId: goalType.pipelineId,
       boardId: goalType.boardId,
-      assignmentCampaign: this.props.assignmentCampaign || {}
+      target: goalType.target || 0
     };
   }
 
@@ -110,53 +106,27 @@ class GoalTypeForm extends React.Component<Props, State> {
     this.setState({ startDate: value });
   };
 
-  onChangeTarget = (index, event) => {
-    const { specificPeriodGoals, periodGoal } = this.state;
+  onChangeTargetPeriod = event => {
     const { value } = event.target;
+    const parsedValue = parseInt(value);
 
-    const updatedSpecificPeriodGoals = specificPeriodGoals.map((goal, i) => {
-      if (i === index) {
-        return { ...goal, addTarget: value };
-      }
-      return goal;
-    });
-    if (periodGoal === 'Monthly') {
-      const months = this.mapMonths();
-
-      months.forEach(month => {
-        const exists = specificPeriodGoals.some(
-          goal => goal.addMonthly === month
-        );
-        if (!exists) {
-          const newElement = {
-            _id: Math.random().toString(),
-            addMonthly: month,
-            addTarget: 0
-          };
-          updatedSpecificPeriodGoals.push(newElement);
-        }
-      });
-
-      this.setState({ specificPeriodGoals: updatedSpecificPeriodGoals });
+    if (!isNaN(parsedValue)) {
+      this.setState({ target: parsedValue });
     } else {
-      const weeks = this.mapWeeks();
-
-      weeks.forEach(week => {
-        const exists = specificPeriodGoals.some(
-          goal => goal.addMonthly === week
-        );
-        if (!exists) {
-          const newElement = {
-            _id: Math.random().toString(),
-            addMonthly: week,
-            addTarget: 0
-          };
-          updatedSpecificPeriodGoals.push(newElement);
-        }
-      });
-
-      this.setState({ specificPeriodGoals: updatedSpecificPeriodGoals });
+      // Handle the case where the value is not a valid integer
+      // You might want to set the state to a default value or display an error message
+      this.setState({ target: 0 }); // Set a default value of 0
+      // You can also display an error message to the user
     }
+  };
+  onChangeBranchId = value => {
+    this.setState({ branch: value });
+  };
+  onChangeDepartments = value => {
+    this.setState({ department: value });
+  };
+  onChangeUnites = value => {
+    this.setState({ unit: value });
   };
 
   onChangeStage = stgId => {
@@ -196,23 +166,33 @@ class GoalTypeForm extends React.Component<Props, State> {
       stageRadio,
       segmentRadio,
       period,
-      specificPeriodGoals
+      specificPeriodGoals,
+      segmentIds,
+      entity,
+      department,
+      unit,
+      branch,
+      contributionType,
+      metric,
+      target,
+      goalTypeChoose,
+      teamGoalType,
+      pipelineLabels,
+      periodGoal
     } = this.state;
     const finalValues = values;
-    //// assignmentCampaign segment
-    const { assignmentCampaign } = this.state;
     if (goalType) {
       finalValues._id = goalType._id;
     }
-    const durationStart = dayjs(startDate).format('MMM D, h:mm A');
-    const durationEnd = dayjs(endDate).format('MMM D, h:mm A');
+
     return {
       _id: finalValues._id,
       ...this.state,
-      entity: finalValues.entity,
-      department: finalValues.department,
-      unit: finalValues.unit,
-      branch: finalValues.branch,
+      entity,
+      department,
+      unit,
+      branch,
+      segmentIds,
       specificPeriodGoals, // Renamed the property
       stageRadio,
       segmentRadio,
@@ -221,12 +201,15 @@ class GoalTypeForm extends React.Component<Props, State> {
       boardId,
       contribution,
       period,
-      contributionType: finalValues.contributionType,
-      metric: finalValues.metric,
-      goalType: finalValues.goalType,
-      startDate: durationStart,
-      endDate: durationEnd,
-      target: finalValues.target
+      contributionType,
+      metric,
+      goalType: goalTypeChoose,
+      teamGoalType,
+      pipelineLabels,
+      periodGoal,
+      startDate,
+      endDate,
+      target
     };
   };
 
@@ -254,15 +237,45 @@ class GoalTypeForm extends React.Component<Props, State> {
   onUserChange = userId => {
     this.setState({ contribution: userId });
   };
-
   onChangeSegments = values => {
-    const { assignmentCampaign } = this.state;
-    this.setState({
-      assignmentCampaign: {
-        ...assignmentCampaign,
-        segmentIds: values.map(v => v.value)
+    this.setState({ segmentIds: values });
+  };
+
+  onChangeTarget = (date, event) => {
+    const { specificPeriodGoals, periodGoal } = this.state;
+    const { value } = event.target;
+
+    // Update the addTarget property based on the date
+    const updatedSpecificPeriodGoals = specificPeriodGoals.map(goal =>
+      goal.addMonthly === date ? { ...goal, addTarget: value } : goal
+    );
+
+    // Add new periods to specificPeriodGoals if they don't exist
+    const periods =
+      periodGoal === 'Monthly' ? this.mapMonths() : this.mapWeeks();
+
+    periods.forEach(period => {
+      const exists = updatedSpecificPeriodGoals.some(
+        goal => goal.addMonthly === period
+      );
+
+      if (!exists) {
+        updatedSpecificPeriodGoals.push({
+          _id: Math.random().toString(),
+          addMonthly: period,
+          addTarget: 0
+        });
       }
     });
+
+    // Update the state with the modified specificPeriodGoals
+    const filteredGoals = updatedSpecificPeriodGoals.filter(
+      goal =>
+        (periodGoal === 'Monthly' && goal.addMonthly.includes('Month')) ||
+        (periodGoal === 'Weekly' && goal.addMonthly.includes('Week'))
+    );
+
+    this.setState({ specificPeriodGoals: filteredGoals });
   };
 
   mapMonths = (): string[] => {
@@ -289,7 +302,7 @@ class GoalTypeForm extends React.Component<Props, State> {
     const months: string[] = [];
 
     for (let i = startMonth; i <= endMonth; i++) {
-      months.push(`${monthNames[i]} ${year}`);
+      months.push(`Month of ${monthNames[i]} ${year}`);
     }
     return months;
   };
@@ -297,44 +310,41 @@ class GoalTypeForm extends React.Component<Props, State> {
   mapWeeks = (): string[] => {
     const { startDate, endDate } = this.state;
     const weeks: string[] = [];
-    const currentDate = new Date(startDate);
-    while (currentDate <= endDate) {
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    const currentDate = new Date(start);
+
+    while (currentDate <= end) {
       const weekStart = new Date(currentDate);
       const weekEnd = new Date(currentDate);
       weekEnd.setDate(weekEnd.getDate() + 6);
-      weeks.push(
-        `Week of ${weekStart.toDateString()} - ${weekEnd.toDateString()}`
-      );
+      const weekString = `Week of ${weekStart.toDateString()} - ${weekEnd.toDateString()}`;
+
+      weeks.push(weekString);
+
       currentDate.setDate(currentDate.getDate() + 7);
     }
+
     return weeks;
   };
+
   renderContent = (formProps: IFormProps) => {
-    const goalType = this.props.goalType || ({} as IGoalType);
     const { closeModal, renderButton } = this.props;
     const { values, isSubmitted } = formProps;
     const months: string[] = this.mapMonths();
-
     const weeks = this.mapWeeks();
-    const { departmentListQuery, branchListQuery, unitListQuery } = this.props;
-    const departments = departmentListQuery.departmentsMain?.list || [];
-    const branches = branchListQuery.branchesMain?.list || [];
-    const units = unitListQuery.unitsMain?.list || [];
     return (
       <>
         <ScrollWrapper>
           <FormWrapper>
             <FormColumn>
               <FormGroup>
-                <ControlLabel required={true}>
-                  {__('choose Entity')}
-                </ControlLabel>
+                <ControlLabel>{__('choose Entity')}</ControlLabel>
                 <FormControl
                   {...formProps}
                   name="entity"
                   componentClass="select"
                   value={this.state.entity}
-                  required={true}
                   onChange={this.onChangeField}
                 >
                   {ENTITY.map((item, index) => (
@@ -365,22 +375,23 @@ class GoalTypeForm extends React.Component<Props, State> {
                 />
                 {__('Segment')}
               </FormGroup>
-
               {this.state.segmentRadio === true && (
                 <FormGroup>
-                  {isEnabled('segments') && (
+                  {isEnabled('segments') && isEnabled('contacts') && (
                     <>
-                      <ControlLabel>{__('Segment')}</ControlLabel>
-                      <SelectSegments
-                        name="segmentIds"
-                        label="Choose segments"
-                        contentTypes={['contacts:customer', 'contacts:lead']}
-                        initialValue={this.state.assignmentCampaign.segmentIds}
-                        multi={true}
-                        onSelect={segmentIds =>
-                          this.onChangeSegments(segmentIds)
-                        }
-                      />
+                      <FormGroup>
+                        <ControlLabel>Segments</ControlLabel>
+                        <SelectSegments
+                          name="segmentIds"
+                          label="Choose segments"
+                          contentTypes={[`cards:${this.state.entity}`]}
+                          initialValue={this.state.segmentIds}
+                          multi={true}
+                          onSelect={segmentIds =>
+                            this.onChangeSegments(segmentIds)
+                          }
+                        />
+                      </FormGroup>
                     </>
                   )}
                 </FormGroup>
@@ -427,14 +438,12 @@ class GoalTypeForm extends React.Component<Props, State> {
             </FormColumn>
             <FormColumn>
               <FormGroup>
-                <ControlLabel required={true}>
-                  {__('choose goalType type')}
-                </ControlLabel>
+                <ControlLabel>{__('choose goalType type')}</ControlLabel>
                 <FormControl
                   {...formProps}
-                  name="goalType"
+                  name="goalTypeChoose"
                   componentClass="select"
-                  value={this.state.goalType}
+                  value={this.state.goalTypeChoose}
                   onChange={this.onChangeField}
                 >
                   {GOAL_TYPE.map((typeName, index) => (
@@ -445,9 +454,7 @@ class GoalTypeForm extends React.Component<Props, State> {
                 </FormControl>
               </FormGroup>
               <FormGroup>
-                <ControlLabel required={true}>
-                  {__('contribution type')}
-                </ControlLabel>
+                <ControlLabel>{__('contribution type')}</ControlLabel>
                 <FormControl
                   {...formProps}
                   name="contributionType"
@@ -497,60 +504,41 @@ class GoalTypeForm extends React.Component<Props, State> {
                 this.state.contributionType === 'team' && (
                   <FormGroup>
                     <ControlLabel>{__('Departments')}</ControlLabel>
-                    <FormControl
-                      {...formProps}
-                      name="department"
-                      componentClass="select"
-                      value={this.state.department}
-                      onChange={this.onChangeField}
-                    >
-                      {departments.map((item, index) => (
-                        <option key={index} value={item._id}>
-                          {item.title}
-                        </option>
-                      ))}
-                    </FormControl>
+                    <SelectDepartments
+                      name="branchId"
+                      label={__('Choose Departments')}
+                      initialValue={this.state?.department}
+                      onSelect={this.onChangeDepartments}
+                      multi={false}
+                    />
                   </FormGroup>
                 )}
               {this.state.teamGoalType === 'Units' &&
                 this.state.contributionType === 'team' && (
                   <FormGroup>
                     <ControlLabel>{__('Units')}</ControlLabel>
-                    <FormControl
-                      {...formProps}
-                      name="unit"
-                      componentClass="select"
-                      value={this.state.unit}
-                      onChange={this.onChangeField}
-                    >
-                      {units.map((item, index) => (
-                        <option key={index} value={item._id}>
-                          {item.title}
-                        </option>
-                      ))}
-                    </FormControl>
+                    <SelectUnits
+                      name="branchId"
+                      label={__('Choose Units')}
+                      initialValue={this.state?.unit}
+                      onSelect={this.onChangeUnites}
+                      multi={false}
+                    />
                   </FormGroup>
                 )}
               {this.state.teamGoalType === 'Branches' &&
                 this.state.contributionType === 'team' && (
                   <FormGroup>
                     <ControlLabel>{__('Branches')}</ControlLabel>
-                    <FormControl
-                      {...formProps}
-                      name="branch"
-                      componentClass="select"
-                      value={this.state.branch}
-                      onChange={this.onChangeField}
-                    >
-                      {branches.map((item, index) => (
-                        <option key={index} value={item._id}>
-                          {item.title}
-                        </option>
-                      ))}
-                    </FormControl>
+                    <SelectBranches
+                      name="branchId"
+                      label={__('Choose Branches')}
+                      initialValue={this.state?.branch}
+                      onSelect={this.onChangeBranchId}
+                      multi={false}
+                    />
                   </FormGroup>
                 )}
-
               <FormGroup>
                 <ControlLabel>{__('metric')}:</ControlLabel>
                 <FormControl
@@ -558,7 +546,6 @@ class GoalTypeForm extends React.Component<Props, State> {
                   name="metric"
                   componentClass="select"
                   value={this.state.metric}
-                  required={true}
                   onChange={this.onChangeField}
                 >
                   {['Value', 'Count'].map((typeName, index) => (
@@ -569,12 +556,20 @@ class GoalTypeForm extends React.Component<Props, State> {
                 </FormControl>
               </FormGroup>
               <FormGroup>
-                {this.renderFormGroup('target', {
-                  ...formProps,
-                  name: 'target',
-                  type: 'number',
-                  defaultValue: goalType.target || 0
-                })}
+                <ControlLabel>{__('Target')}</ControlLabel>
+                <FormGroup>
+                  <FormControl
+                    type="number"
+                    name="target"
+                    value={
+                      this.state.target !== undefined &&
+                      this.state.target !== null
+                        ? this.state.target
+                        : 0
+                    }
+                    onChange={this.onChangeTargetPeriod}
+                  />
+                </FormGroup>
               </FormGroup>
               <FormGroup>
                 <ControlLabel>
@@ -585,7 +580,6 @@ class GoalTypeForm extends React.Component<Props, State> {
                   name="periodGoal"
                   componentClass="select"
                   value={this.state.periodGoal}
-                  required={true}
                   onChange={this.onChangeField}
                 >
                   {SPECIFIC_PERIOD_GOAL.map((item, index) => (
@@ -599,8 +593,8 @@ class GoalTypeForm extends React.Component<Props, State> {
           </FormWrapper>
           {this.state.periodGoal === 'Monthly' && (
             <div>
-              {months.map((month, index) => (
-                <FormWrapper key={index}>
+              {months.map(month => (
+                <FormWrapper key={month}>
                   <FormColumn>
                     <ControlLabel>{__('Period (Monthly)')}</ControlLabel>
                     <FormGroup>
@@ -614,12 +608,11 @@ class GoalTypeForm extends React.Component<Props, State> {
                         type="number"
                         name="target"
                         value={
-                          this.state.specificPeriodGoals[index]?.addTarget !==
-                          undefined
-                            ? this.state.specificPeriodGoals[index].addTarget
-                            : 0
+                          this.state.specificPeriodGoals.find(
+                            goal => goal.addMonthly === month
+                          )?.addTarget || 0
                         }
-                        onChange={event => this.onChangeTarget(index, event)}
+                        onChange={event => this.onChangeTarget(month, event)}
                       />
                     </FormGroup>
                   </FormColumn>
@@ -629,8 +622,8 @@ class GoalTypeForm extends React.Component<Props, State> {
           )}
           {this.state.periodGoal === 'Weekly' && (
             <div>
-              {weeks.map((week, index) => (
-                <FormWrapper key={index}>
+              {weeks.map(week => (
+                <FormWrapper key={week}>
                   <FormColumn>
                     <ControlLabel>{__('Period (Weekly)')}</ControlLabel>
                     <FormGroup>
@@ -644,12 +637,11 @@ class GoalTypeForm extends React.Component<Props, State> {
                         type="number"
                         name="target"
                         value={
-                          this.state.specificPeriodGoals[index]?.addTarget !==
-                          undefined
-                            ? this.state.specificPeriodGoals[index].addTarget
-                            : 0
+                          this.state.specificPeriodGoals.find(
+                            goal => goal.addMonthly === week
+                          )?.addTarget || 0
                         }
-                        onChange={event => this.onChangeTarget(index, event)}
+                        onChange={event => this.onChangeTarget(week, event)}
                       />
                     </FormGroup>
                   </FormColumn>
