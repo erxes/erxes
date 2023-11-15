@@ -2,6 +2,7 @@ import * as React from 'react';
 import { iconAttach, iconVideo } from '../../icons/Icons';
 import { __ } from '../../utils';
 import { MESSAGE_TYPES } from '../containers/AppContext';
+import { connection } from '../connection';
 
 type Props = {
   placeholder?: string;
@@ -178,7 +179,7 @@ class MessageSender extends React.Component<Props, State> {
   }
 
   renderVideoCallRequest() {
-    if (!this.props.showVideoCallRequest) {
+    if (!this.props.showVideoCallRequest || !connection.dailyco) {
       return null;
     }
 

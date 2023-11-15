@@ -1,16 +1,19 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { BarItems, PageHeader } from '@erxes/ui/src';
 import { Tabs, TabTitle } from '@erxes/ui/src/components/tabs';
 import { __ } from '@erxes/ui/src/utils';
 import General from '../containers/General';
 import Appearance from './Appearance';
 import { IExm } from '../types';
+import Button from '@erxes/ui/src/components/Button';
 
 type Props = {
-  exm: IExm;
-  edit: (variables: IExm) => void;
+  exm?: IExm;
+  actionMutation: (variables: IExm, id?: string) => void;
 };
 
-function EditFrom(props: Props) {
+function Form(props: Props) {
   const [currentTab, setCurrentTab] = useState('Mobile Gallery');
 
   const renderTabContent = () => {
@@ -23,6 +26,15 @@ function EditFrom(props: Props) {
 
   return (
     <>
+      <PageHeader>
+        <BarItems>
+          <Link to={`/erxes-plugin-exm/home`}>
+            <Button icon="leftarrow-3" btnStyle="link">
+              {__('Back')}
+            </Button>
+          </Link>
+        </BarItems>
+      </PageHeader>
       <Tabs full={true}>
         <TabTitle
           className={currentTab === 'Mobile Gallery' ? 'active' : ''}
@@ -42,4 +54,4 @@ function EditFrom(props: Props) {
   );
 }
 
-export default EditFrom;
+export default Form;
