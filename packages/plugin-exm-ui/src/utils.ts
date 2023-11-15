@@ -1,11 +1,9 @@
 export const removeTypename = (obj?: any[] | any) => {
   if (Array.isArray(obj)) {
     return obj.map(item => {
-      const newItem = { ...item };
+      delete item.__typename;
 
-      delete newItem.__typename;
-
-      return newItem;
+      return item;
     });
   }
 
