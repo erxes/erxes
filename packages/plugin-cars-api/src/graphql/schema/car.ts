@@ -77,6 +77,7 @@ const queryParams = `
   page: Int
   perPage: Int
   segment: String
+  segmentData: String
   categoryId: String
   ids: [String]
   searchValue: String
