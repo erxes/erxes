@@ -32,7 +32,9 @@ const TimeclockShift = () => {
     }
   }
 
-  const { startClockTime, stopClockTime } = useTimeclocksMutation({ callBack })
+  const { startClockTime, stopClockTime, loading } = useTimeclocksMutation({
+    callBack,
+  })
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -70,6 +72,7 @@ const TimeclockShift = () => {
           <Button
             className="whitespace-nowrap"
             onClick={shiftStarted ? stopClock : startClock}
+            disabled={loading}
           >
             {shiftStarted ? "Clock out" : "Clock in"}
           </Button>

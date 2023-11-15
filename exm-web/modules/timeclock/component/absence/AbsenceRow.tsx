@@ -17,10 +17,10 @@ const RequestRow = ({ absence, seeDate }: Props) => {
   const endTime = new Date(absence.endTime)
 
   const startingDate = dayjs(startTime).format("MMM/DD/YYYY")
-  const startingTime = dayjs(startTime).format("HH[h] : mm[m]")
+  const startingTime = dayjs(startTime).format("HH : mm A")
 
   const endingDate = dayjs(endTime).format("MMM/DD/YYYY")
-  const endingTime = dayjs(endTime).format("HH[h] : mm[m]")
+  const endingTime = dayjs(endTime).format("HH : mm A")
 
   const absenceTimeType = absence.absenceTimeType
 
@@ -45,7 +45,7 @@ const RequestRow = ({ absence, seeDate }: Props) => {
   const renderAbsenceDays = () => {
     if (absenceTimeType === "by day" && seeDate) {
       return absence.requestDates.map((requestDate) => (
-        <TableCell key={requestDate} className="px-2 py-0">
+        <TableCell key={requestDate} className="px-2 py-0 flex flex-col">
           {dayjs(requestDate).format("MMM/DD/YYYY")}
         </TableCell>
       ))

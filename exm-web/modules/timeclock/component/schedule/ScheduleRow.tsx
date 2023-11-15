@@ -36,6 +36,12 @@ const ScheduleRow = ({ schedule }: Props) => {
     totalHoursScheduled -= totalBreakInHours
   }
 
+  const formattedBreakHours = Math.floor(totalBreakInHours)
+  const formattedBreakMinutes = Math.floor((totalBreakInHours % 1) * 60)
+
+  const formattedTotalHours = Math.floor(totalHoursScheduled)
+  const formattedTotalMinutes = Math.floor((totalHoursScheduled % 1) * 60)
+
   return (
     <>
       <TableRow className="border-none">
@@ -52,8 +58,8 @@ const ScheduleRow = ({ schedule }: Props) => {
           {schedule.user.employeeId ? schedule.user.employeeId : ""}
         </TableCell>
         <TableCell className="py-5">{totalDaysScheduled}</TableCell>
-        <TableCell className="py-5">{totalHoursScheduled.toFixed(1)}</TableCell>
-        <TableCell className="py-5">{totalBreakInHours.toFixed(1)}</TableCell>
+        <TableCell className="py-5">{`${formattedTotalHours}h ${formattedTotalMinutes}m`}</TableCell>
+        <TableCell className="py-5">{`${formattedBreakHours}h ${formattedBreakMinutes}m`}</TableCell>
         <TableCell className="py-5">{scheduleChecked}</TableCell>
       </TableRow>
     </>

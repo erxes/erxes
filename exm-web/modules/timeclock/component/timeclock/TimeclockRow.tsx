@@ -16,10 +16,10 @@ const TimeClockRow = ({ timeclock }: Props) => {
     new Date(timeclock.shiftStart).toDateString().split(" ")[0] +
     "\t" +
     dayjs(timeclock.shiftStart).format("MM/DD/YYYY")
-  const shiftStartTime = dayjs(timeclock.shiftStart).format("HH[h] : mm[m]")
+  const shiftStartTime = dayjs(timeclock.shiftStart).format("HH : mm A")
 
   const shiftEndTime = timeclock.shiftEnd
-    ? dayjs(timeclock.shiftEnd).format("HH[h] : mm[m]")
+    ? dayjs(timeclock.shiftEnd).format("HH : mm A")
     : "-"
 
   const overNightShift =

@@ -19,13 +19,11 @@ export const useScheduleMutation = ({
     })
 
   const [checkDuplicateScheduleShiftsMutation, { loading: loadingCheck }] =
-    useMutation(mutations.checkDuplicateScheduleShifts, {
-      refetchQueries: ["scheduleConfigOrder"],
-    })
+    useMutation(mutations.checkDuplicateScheduleShifts)
   const [sendScheduleReqMutation, { loading: loadingRequest }] = useMutation(
     mutations.sendScheduleRequest,
     {
-      refetchQueries: ["scheduleConfigOrder"],
+      refetchQueries: ["schedulesMain"],
     }
   )
 

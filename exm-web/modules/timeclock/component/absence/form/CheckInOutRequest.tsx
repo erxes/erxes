@@ -72,7 +72,11 @@ const CheckInOutRequest = (props: Props) => {
           />
         </div>
 
-        <Button className="font-semibold w-full rounded-md" onClick={onSubmit}>
+        <Button
+          className="font-semibold w-full rounded-md"
+          onClick={onSubmit}
+          disabled={loading}
+        >
           Submit
         </Button>
       </DialogContent>

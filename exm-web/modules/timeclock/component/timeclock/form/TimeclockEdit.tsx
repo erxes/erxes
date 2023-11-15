@@ -3,7 +3,7 @@ import { useTimeLogs } from "@/modules/timeclock/hooks/useTimeLogs"
 import { useTimeclocksMutation } from "@/modules/timeclock/hooks/useTimeclocksMutations"
 import { ITimeclock, ITimelog } from "@/modules/timeclock/types"
 import dayjs from "dayjs"
-import { ChevronDown, ChevronUp } from "lucide-react"
+import { ChevronDown, ChevronUp, Undo2 } from "lucide-react"
 import Select from "react-select"
 
 import { Button } from "@/components/ui/button"
@@ -28,7 +28,9 @@ const TimeclockEdit = ({ timeclock }: Props) => {
   const [open, setOpen] = useState(false)
 
   const [shiftStart, setShiftStart] = useState(timeclock.shiftStart)
-  const [timeStart, setTimeStart] = useState("")
+  const [timeStart, setTimeStart] = useState(
+    dayjs(timeclock.shiftStart).format("HH:mm")
+  )
   const [shiftStartInsert, setShiftStartInsert] = useState<Date | undefined>(
     timeclock.shiftStart
   )
@@ -37,10 +39,16 @@ const TimeclockEdit = ({ timeclock }: Props) => {
   const [outDevice, setOutDevice] = useState(null)
 
   const [shiftEnd, setShiftEnd] = useState(timeclock.shiftEnd)
-  const [timeEnd, setTimeEnd] = useState("")
+  const [timeEnd, setTimeEnd] = useState(
+    dayjs(timeclock.shiftEnd).format("HH:mm")
+  )
   const [shiftEndInsert, setShiftEndInsert] = useState<Date | undefined>(
     timeclock.shiftEnd || timeclock.shiftStart
   )
+
+  const [backToStart, setBackToStart] = useState(false)
+
+  const [backToEnd, setBackToEnd] = useState(false)
 
   const [shiftEnded, setShiftEnded] = useState(!timeclock.shiftActive)
   const [shiftStartInput, setShiftStartInput] = useState("pick")
@@ -205,19 +213,36 @@ const TimeclockEdit = ({ timeclock }: Props) => {
 
           {shiftStartInput === "insert" && (
             <>
-              <DatePicker
-                date={shiftStartInsert}
-                setDate={setShiftStartInsert}
-              />
-              <input
-                type="time"
-                name="shiftStart"
-                className="appearance-none block w-1/6 text-center border border-input hover:bg-accent hover:text-accent-foreground rounded-md px-3 outline-none"
-                value={timeStart}
-                onChange={(e) => {
-                  setTimeStart(e.target.value)
-                }}
-              />
+              {backToStart ? (
+                <div className="flex items-center text-center border border-input hover:bg-accent hover:text-accent-foreground rounded-md py-2.5 px-5 w-[250px] outline-none justify-around">
+                  <Undo2 size={15} onClick={() => setBackToStart(false)} />
+                  <input
+                    type="time"
+                    name="shiftStart"
+                    className="w-full text-center bg-transparent outline-none"
+                    value={timeStart}
+                    onChange={(e) => {
+                      setTimeStart(e.target.value)
+                      setShiftStart(
+                        new Date(
+                          dayjs(timeclock.shiftStart).format("YYYY-MM-DD") +
+                            " " +
+                            timeStart
+                        )
+                      )
+                    }}
+                  />
+                </div>
+              ) : (
+                <DatePicker
+                  date={shiftStartInsert}
+                  setDate={(date) => {
+                    setShiftStartInsert(date)
+                    setBackToStart(true)
+                  }}
+                  required={true}
+                />
+              )}
             </>
           )}
         </div>
@@ -263,22 +288,46 @@ const TimeclockEdit = ({ timeclock }: Props) => {
             )}
 
             {shiftEndInput === "insert" && (
-              <>
-                <DatePicker date={shiftEndInsert} setDate={setShiftEndInsert} />
-                <input
-                  type="time"
-                  name="shiftEnd"
-                  className="appearance-none block w-1/6 text-center border border-input hover:bg-accent hover:text-accent-foreground rounded-md px-3 outline-none"
-                  value={timeEnd}
-                  onChange={(e) => {
-                    setTimeEnd(e.target.value)
-                  }}
-                />
-              </>
+              <div className="flex flex-col gap-1">
+                {backToEnd ? (
+                  <div className="flex items-center text-center border border-input hover:bg-accent hover:text-accent-foreground rounded-md py-2.5 px-5 w-[250px] outline-none justify-around">
+                    <Undo2 size={15} onClick={() => setBackToEnd(false)} />
+                    <input
+                      type="time"
+                      name="shiftEnd"
+                      className="w-full text-center bg-transparent outline-none"
+                      value={timeEnd}
+                      onChange={(e) => {
+                        setTimeEnd(e.target.value)
+                        setShiftEnd(
+                          new Date(
+                            dayjs(timeclock.shiftEnd).format("YYYY-MM-DD") +
+                              " " +
+                              timeEnd
+                          )
+                        )
+                      }}
+                    />
+                  </div>
+                ) : (
+                  <DatePicker
+                    date={shiftEndInsert}
+                    setDate={(date) => {
+                      setShiftEndInsert(date)
+                      setBackToEnd(true)
+                    }}
+                    required={true}
+                  />
+                )}
+              </div>
             )}
           </div>
         )}
-        <Button className="font-semibold w-full rounded-md" onClick={onSubmit}>
+        <Button
+          className="font-semibold w-full rounded-md"
+          onClick={onSubmit}
+          disabled={loading}
+        >
           Edit
         </Button>
       </DialogContent>

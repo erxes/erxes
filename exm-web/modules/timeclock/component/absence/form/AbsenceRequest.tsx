@@ -349,26 +349,28 @@ const AbsenceRequest = ({ queryParams, absenceTypes }: Props) => {
   const renderDateAndTimeSelection = () => {
     return (
       <>
-        <div className="flex gap-2 justify-between">
+        <div className="flex flex-col gap-2 justify-between">
           <DatePicker
             date={request.byTime.date}
             setDate={(selectedDate) => onDateChange(selectedDate!)}
             className="w-full"
           />
-          <input
-            type="time"
-            className="w-full text-center border border-input hover:bg-accent hover:text-accent-foreground rounded-md px-3"
-            onChange={(e) => onTimeChange(e.target.value, "start")}
-            value={dayjs(request.byTime.startTime).format("HH:mm")}
-            placeholder="Start Time"
-          />
-          <input
-            type="time"
-            className="w-full text-center border border-input hover:bg-accent hover:text-accent-foreground rounded-md px-3"
-            onChange={(e) => onTimeChange(e.target.value, "end")}
-            value={dayjs(request.byTime.endTime).format("HH:mm")}
-            placeholder="End Time"
-          />
+          <div className="flex gap-2">
+            <input
+              type="time"
+              className="w-full text-center border border-input hover:bg-accent hover:text-accent-foreground rounded-md py-2.5 px-3"
+              onChange={(e) => onTimeChange(e.target.value, "start")}
+              value={dayjs(request.byTime.startTime).format("HH:mm")}
+              placeholder="Start Time"
+            />
+            <input
+              type="time"
+              className="w-full text-center border border-input hover:bg-accent hover:text-accent-foreground rounded-md py-2.5 px-3"
+              onChange={(e) => onTimeChange(e.target.value, "end")}
+              value={dayjs(request.byTime.endTime).format("HH:mm")}
+              placeholder="End Time"
+            />
+          </div>
         </div>
         {renderTotalRequestTime()}
       </>

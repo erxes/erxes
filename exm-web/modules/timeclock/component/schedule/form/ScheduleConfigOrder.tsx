@@ -123,13 +123,13 @@ const ScheduleConfigOrder = ({
         </div>
       </button>
       {toggleOrder && (
-        <div className="flex flex-col gap-2 px-3">
+        <div className="flex flex-col gap-2 px-3 h-[100px]">
           {scheduleConfigsOrderData.orderedList
-            .sort((a: any, b: any) => a.order - b.order)
-            .map((s: any) => (
+            ?.sort((a: any, b: any) => a.order - b.order)
+            ?.map((s: any) => (
               <div
                 key={s.order}
-                className="flex justify-between items-center py-2 px-3 bg"
+                className="flex justify-between items-center py-2 px-3 "
               >
                 <div>{s.label}</div>
                 {s.pinned ? (

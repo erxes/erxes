@@ -58,9 +58,12 @@ const AbsenceDelete = ({ id }: Props) => {
   return (
     <Dialog open={open} onOpenChange={() => setOpen(!open)}>
       <DialogTrigger asChild={true}>
-        <div className="hover:bg-[#F0F0F0] p-2 rounded cursor-pointer text-[#444] text-xs">
+        <button
+          className="hover:bg-[#F0F0F0] p-2 rounded cursor-pointer text-[#444] text-xs"
+          disabled={loading}
+        >
           Delete
-        </div>
+        </button>
       </DialogTrigger>
       {renderDeleteForm()}
     </Dialog>

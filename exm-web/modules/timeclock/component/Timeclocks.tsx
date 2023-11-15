@@ -3,6 +3,7 @@
 import dynamic from "next/dynamic"
 import { useSearchParams } from "next/navigation"
 import { currentUserAtom } from "@/modules/JotaiProiveder"
+import RightNavbar from "@/modules/navbar/component/RightNavbar"
 import { useAtomValue } from "jotai"
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -40,19 +41,21 @@ const Timeclocks = () => {
     <div>
       <Tabs defaultValue="timeclock">
         <TabsList className="w-full items-center flex p-2 h-[6vh]">
-          <TabsTrigger className={style} value="timeclock">
-            TimeClocks
-          </TabsTrigger>
-          <TabsTrigger className={style} value="requests">
-            Requests
-          </TabsTrigger>
-          <TabsTrigger className={style} value="schedule">
-            Schedule
-          </TabsTrigger>
+          <div className="w-[60%] items-center flex mx-auto h-[2.5rem] my-3">
+            <TabsTrigger className={style} value="timeclock">
+              TimeClocks
+            </TabsTrigger>
+            <TabsTrigger className={style} value="requests">
+              Requests
+            </TabsTrigger>
+            <TabsTrigger className={style} value="schedule">
+              Schedule
+            </TabsTrigger>
+          </div>
+          <RightNavbar />
         </TabsList>
 
         <div className="flex flex-col px-10 py-5 gap-5 ">
-          {/* <Sidebar queryParams={queryParams} /> */}
           <TabsContent className="w-full" value="timeclock">
             <TimeClockList queryParams={queryParams} />
           </TabsContent>

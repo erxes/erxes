@@ -57,7 +57,7 @@ const Request = ({ queryParams }: Props) => {
   ]
 
   return (
-    <div className="h-[94vh] flex flex-col gap-3">
+    <div className="h-[94vh] mt-2 flex flex-col gap-3">
       <AbsenceAction queryParams={queryParams} absenceTypes={absenceTypes} />
       <div className="flex overflow-y-auto max-h-[70vh] scrollbar-hide">
         <Table>
@@ -87,13 +87,16 @@ const Request = ({ queryParams }: Props) => {
         </Table>
       </div>
       <div className="flex items-center justify-between">
-        <span className="text-[#B5B7C0] font-medium">
-          Showing data {(queryParams.page - 1) * queryParams.perPage + 1} to{" "}
-          {queryParams.page * queryParams.perPage > absenceTotalCount
-            ? absenceTotalCount
-            : queryParams.page * queryParams.perPage}{" "}
-          of {absenceTotalCount} entries
-        </span>
+        {absenceTotalCount <= 0 ? null : (
+          <span className="text-[#B5B7C0] font-medium self-end">
+            Showing data {(queryParams.page - 1) * queryParams.perPage + 1} to{" "}
+            {queryParams.page * queryParams.perPage > absenceTotalCount
+              ? absenceTotalCount
+              : queryParams.page * queryParams.perPage}{" "}
+            of {absenceTotalCount} entries
+          </span>
+        )}
+
         <Pagination count={absenceTotalCount} />
       </div>
     </div>
