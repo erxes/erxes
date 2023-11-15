@@ -165,7 +165,7 @@ const contactInfoFields = `
   }
 `
 
-const departments = `
+const departments = gql`
   query departments(${commonStructureParamsDef},$withoutUserFilter:Boolean) {
     departments(${commonStructureParamsValue},withoutUserFilter:$withoutUserFilter) {
       ${departmentField}
@@ -261,7 +261,7 @@ export const branchField = `
   ${contactInfoFields}
 `
 
-const branches = `
+const branches = gql`
   query branches(${commonStructureParamsDef}, $withoutUserFilter: Boolean) {
     branches (${commonStructureParamsValue}, withoutUserFilter: $withoutUserFilter){
       ${branchField}
