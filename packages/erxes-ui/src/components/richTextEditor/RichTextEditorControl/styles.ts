@@ -73,8 +73,33 @@ const LinkWrapper = styled.div`
     }
   }
 `;
+const ImageInputWrapper = styled.div`
+  display: flex;
+  gap: 0.5rem;
+  background-color: #fff;
+  color: ${colors.textPrimary};
+`;
 const InputWrapper = styled.div`
   position: relative;
+`;
+const FormItemWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  > label {
+    color: rgba(34, 47, 62, 0.7);
+  }
+  > div {
+    width: 100%;
+    > input {
+      flex-grow: 1;
+    }
+  }
+`;
+const FormActionWrapper = styled.div`
+  display: flex;
+  gap: 0.25rem;
+  margin-left: auto;
+  padding: 0.5rem 1rem;
 `;
 const LinkInput = styled.input`
   border: 0.0625rem solid #ced4da;
@@ -86,6 +111,26 @@ const LinkInput = styled.input`
   color: #000;
   outline: none;
   padding: 0 2.35rem 0 0.25rem;
+  &:focus {
+    border: 0.0625rem solid ${rgba(colors.colorSecondary, 0.55)};
+  }
+  &::placeholder {
+    color: #adb5bd;
+  }
+`;
+const ImageHandlingForm = styled.form`
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+`;
+const Input = styled.input`
+  border: 0.0625rem solid #ced4da;
+  border-radius: 0.25rem;
+  height: 2.25rem;
+  min-height: 2.25rem;
+  color: #000;
+  outline: none;
+  padding: 0 0.25rem;
   &:focus {
     border: 0.0625rem solid ${rgba(colors.colorSecondary, 0.55)};
   }
@@ -107,6 +152,27 @@ const InputAction = styled.div`
       color: ${colors.colorSecondary};
       background-color: ${rgba(colors.colorSecondary, 0.15)};
     }
+  }
+`;
+
+const FileInputAction = styled.div`
+  > div {
+    cursor: pointer;
+    background-color: #fff;
+    border: 0.0625rem solid #ced4da;
+    border-radius: 0.25rem;
+    padding-left: 0.55rem;
+    padding-right: 0.5rem;
+    padding-top: 0.2rem;
+    padding-bottom: 0.2rem;
+  }
+  label {
+    &:hover {
+      cursor: pointer;
+    }
+  }
+  input[type='file'] {
+    display: none;
   }
 `;
 const FontSelectWrapper = styled.div`
@@ -162,5 +228,11 @@ export {
   LinkInput,
   InputAction,
   InputWrapper,
-  FontSelectWrapper
+  FontSelectWrapper,
+  FileInputAction,
+  ImageInputWrapper,
+  Input,
+  FormItemWrapper,
+  ImageHandlingForm,
+  FormActionWrapper
 };

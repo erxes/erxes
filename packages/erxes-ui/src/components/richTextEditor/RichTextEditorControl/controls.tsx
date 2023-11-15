@@ -109,3 +109,10 @@ export const AlignJustifyControl = createControl({
   isActive: { name: null, attributes: { textAlign: 'justify' } },
   operation: { name: 'setTextAlign', attributes: 'justify' }
 });
+
+export const ImageControl = createControl({
+  label: 'imageControlLabel',
+  icon: props => <Justify />,
+  isActive: { name: null, attributes: { textAlign: 'justify' } },
+  operation: { name: 'setTextAlign', attributes: 'justify' }
+});

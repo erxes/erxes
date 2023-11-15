@@ -12,7 +12,9 @@ import { RichTextEditorControl } from './RichTextEditorControl/RichTextEditorCon
 import * as controls from './RichTextEditorControl/controls';
 
 import {
+  RichTextEditorColorControl,
   RichTextEditorFontControl,
+  RichTextEditorImageControl,
   RichTextEditorLinkControl
 } from './RichTextEditorControl';
 import { useEditor } from '@tiptap/react';
@@ -151,7 +153,11 @@ export const RichTextEditor = (props: RichTextEditorProps) => {
         <RichTextEditor.AlignCenter />
         <RichTextEditor.AlignJustify />
       </RichTextEditor.ControlsGroup>
+      <RichTextEditor.ControlsGroup>
+        <RichTextEditor.ImageControl />
+      </RichTextEditor.ControlsGroup>
     </RichTextEditor.Toolbar>,
+
     <RichTextEditorContent {...editorContentProps} />
   ];
 
@@ -209,3 +215,7 @@ RichTextEditor.AlignCenter = controls.AlignCenterControl;
 RichTextEditor.AlignJustify = controls.AlignJustifyControl;
 
 RichTextEditor.FontSize = RichTextEditorFontControl;
+
+RichTextEditor.ImageControl = RichTextEditorImageControl;
+
+RichTextEditor.ColorControl = RichTextEditorColorControl;

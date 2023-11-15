@@ -118,6 +118,11 @@ export interface RichTextEditorLabels {
 
   /** aria-label for color palette colors */
   colorPickerColorLabel(color: string): string;
+
+  /** aria-label for image control */
+  imageControlLabel: string;
+  /** aria-label for image url input */
+  imageUrlControlLabel: string;
 }
 
 export const DEFAULT_LABELS: RichTextEditorLabels = {
@@ -165,5 +170,9 @@ export const DEFAULT_LABELS: RichTextEditorLabels = {
   colorPickerColorPicker: 'Color picker',
   colorPickerPalette: 'Color palette',
   colorPickerSave: 'Save',
-  colorPickerColorLabel: color => `Set text color ${color}`
+  colorPickerColorLabel: color => `Set text color ${color}`,
+
+  // Image control
+  imageControlLabel: `Insert image`,
+  imageUrlControlLabel: 'Insert image link'
 };

@@ -32,6 +32,7 @@ import { useMemo } from 'react';
 import { FontSize } from '../extensions';
 import Image from '@tiptap/extension-image';
 import { DivTag } from '../nodes';
+import { ImageResize } from '../extensions/Image';
 
 export type UseExtensionsOptions = {
   /** Placeholder hint to show in the text input area before a user types a message. */
@@ -99,6 +100,10 @@ export default function useExtensions({
         inline: true,
         allowBase64: true
       }),
+      // ImageResize.configure({
+      //   inline: true,
+      //   allowBase64: true,
+      // }),
       Strike,
       CustomLinkExtension.configure({
         // autolink is generally useful for changing text into links if they
