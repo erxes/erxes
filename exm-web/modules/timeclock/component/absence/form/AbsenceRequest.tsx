@@ -396,10 +396,10 @@ const AbsenceRequest = ({ queryParams, absenceTypes }: Props) => {
             }}
           />
           {absenceTypes.length > 0 &&
-            absenceTypes[absenceIndex].explRequired &&
+            absenceTypes[absenceIndex]?.explRequired &&
             renderRequiredExplaination()}
           {absenceTypes.length > 0 &&
-            absenceTypes[absenceIndex].attachRequired &&
+            absenceTypes[absenceIndex]?.attachRequired &&
             renderRequiredAttachment()}
         </div>
 

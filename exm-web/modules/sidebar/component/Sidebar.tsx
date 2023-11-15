@@ -38,8 +38,6 @@ export const Sidebar = () => {
   }, [pathname])
 
   const NavigationItem = ({ href, active, Icon, value, color, desc }: any) => {
-    console.log(color)
-
     return (
       <li
         className={`${
