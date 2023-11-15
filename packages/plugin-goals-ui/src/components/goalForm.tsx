@@ -243,35 +243,39 @@ class GoalTypeForm extends React.Component<Props, State> {
 
   onChangeTarget = (date, event) => {
     const { specificPeriodGoals, periodGoal } = this.state;
-
     const { value } = event.target;
-    const updatedSpecificPeriodGoals = specificPeriodGoals.map(goal => {
-      if (goal.addMonthly === date) {
-        return { ...goal, addTarget: value };
-      }
-      return goal;
-    });
 
+    // Update the addTarget property based on the date
+    const updatedSpecificPeriodGoals = specificPeriodGoals.map(goal =>
+      goal.addMonthly === date ? { ...goal, addTarget: value } : goal
+    );
+
+    // Add new periods to specificPeriodGoals if they don't exist
     const periods =
       periodGoal === 'Monthly' ? this.mapMonths() : this.mapWeeks();
 
-    // Step 5: Add new periods to specificPeriodGoals if they don't exist
     periods.forEach(period => {
-      const exists = specificPeriodGoals.some(
+      const exists = updatedSpecificPeriodGoals.some(
         goal => goal.addMonthly === period
       );
+
       if (!exists) {
-        const newElement = {
+        updatedSpecificPeriodGoals.push({
           _id: Math.random().toString(),
           addMonthly: period,
           addTarget: 0
-        };
-        updatedSpecificPeriodGoals.push(newElement);
+        });
       }
     });
 
-    // Step 6: Update the state with the modified specificPeriodGoals
-    this.setState({ specificPeriodGoals: updatedSpecificPeriodGoals });
+    // Update the state with the modified specificPeriodGoals
+    const filteredGoals = updatedSpecificPeriodGoals.filter(
+      goal =>
+        (periodGoal === 'Monthly' && goal.addMonthly.includes('Month')) ||
+        (periodGoal === 'Weekly' && goal.addMonthly.includes('Week'))
+    );
+
+    this.setState({ specificPeriodGoals: filteredGoals });
   };
 
   mapMonths = (): string[] => {
@@ -298,7 +302,7 @@ class GoalTypeForm extends React.Component<Props, State> {
     const months: string[] = [];
 
     for (let i = startMonth; i <= endMonth; i++) {
-      months.push(`${monthNames[i]} ${year}`);
+      months.push(`Month of ${monthNames[i]} ${year}`);
     }
     return months;
   };
@@ -329,7 +333,6 @@ class GoalTypeForm extends React.Component<Props, State> {
     const { values, isSubmitted } = formProps;
     const months: string[] = this.mapMonths();
     const weeks = this.mapWeeks();
-
     return (
       <>
         <ScrollWrapper>
