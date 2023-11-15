@@ -1,15 +1,9 @@
-import {
-  IAttachment,
-  MutationVariables,
-  QueryResponse
-} from '@erxes/ui/src/types';
-// tslint:disable-next-line:interface-name
-interface SpecificPeriodGoal {
+export interface ISpecificPeriodGoal {
   progress: string;
   _id: string;
   current: string;
   addMonthly: string;
-  addTarget: string;
+  addTarget: number;
 }
 
 export interface IGoalTypeDoc {
@@ -21,26 +15,33 @@ export interface IGoalTypeDoc {
   boardId: any;
   contributionType: string;
   metric: string;
-  goalType: string;
+  goalTypeChoose: string;
   contribution: [string];
-  department: string;
-  unit: string;
-  branch: string;
-  specificPeriodGoals: SpecificPeriodGoal[];
+  department: string[];
+  unit: string[];
+  branch: string[];
+  specificPeriodGoals: ISpecificPeriodGoal[];
   progress: {
     current: string;
     progress: string;
     amountData: string;
-    target: string;
+    target: number;
     _id: string;
   };
   chooseStage: string;
-  startDate: string;
-  endDate: string;
-  target: string;
+  startDate: Date;
+  endDate: Date;
+  target: number;
+  segmentIds: string[];
+  stageRadio: boolean;
+  segmentRadio: boolean;
+  periodGoal: string;
+  teamGoalType: string;
+  segmentCount: number;
 }
 
 export interface IGoalType extends IGoalTypeDoc {
+  length: number;
   _id: string;
   map(arg0: (item: any, index: any) => void): import('react').ReactNode;
   forEach(arg0: (goal: any) => void): unknown;

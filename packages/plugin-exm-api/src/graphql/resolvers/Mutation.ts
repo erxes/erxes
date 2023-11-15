@@ -24,16 +24,6 @@ const exmMutations = {
     return updated;
   },
 
-  async exmCoreCategoryAdd(_root, args, { models }: IContext) {
-    return await models.ExmCategories.createExmCategory(args);
-  },
-  async exmCoreCategoryUpdate(_root, { _id, ...doc }, { models }: IContext) {
-    return await models.ExmCategories.updateExmCategory(_id, doc);
-  },
-  async exmCoreCategoryRemove(_root, { _id }, { models }: IContext) {
-    return await models.ExmCategories.removeExmCategory(_id);
-  },
-
   async userRegistrationCreate(_root, doc, { subdomain }: IContext) {
     const { email } = doc;
 
