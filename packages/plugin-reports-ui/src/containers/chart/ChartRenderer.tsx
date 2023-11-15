@@ -22,7 +22,7 @@ type FinalProps = {
   reportChartGetResultQuery: ReportChartGetResultQueryResponse;
 } & Props;
 const ChartRendererList = (props: FinalProps) => {
-  const { reportChartGetResultQuery, chartVariables } = props;
+  const { reportChartGetResultQuery } = props;
 
   if (reportChartGetResultQuery && reportChartGetResultQuery.loading) {
     return <Spinner />;

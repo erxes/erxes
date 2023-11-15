@@ -1,9 +1,4 @@
-import {
-  Button,
-  ControlLabel,
-  FormControl,
-  Icon
-} from '@erxes/ui/src/components';
+import { Button, FormControl, Icon } from '@erxes/ui/src/components';
 import { TabTitle, Tabs } from '@erxes/ui/src/components/tabs';
 import PageContent from '@erxes/ui/src/layout/components/PageContent';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
@@ -73,7 +68,7 @@ const Report = (props: Props) => {
   const [visibility, setVisibility] = useState<string>(report.visibility || '');
 
   const [currentChart, setCurrentChart] = useState(null);
-  const [showChatForm, setShowChatForm] = useState(false);
+  const [showChartForm, setShowChartForm] = useState(false);
   const [showTeamMemberSelect, setShowTeamMembersSelect] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
 
@@ -94,7 +89,7 @@ const Report = (props: Props) => {
   };
 
   const toggleChartForm = () => {
-    setShowChatForm(!showChatForm);
+    setShowChartForm(!showChartForm);
   };
 
   const renderButtons = () => {
@@ -123,7 +118,6 @@ const Report = (props: Props) => {
   };
 
   const reportItem = (item: IChart) => {
-    console.log('item ', item);
     if (item.layout) {
       return (
         <div key={item._id || Math.random()} data-grid={defaultLayout(item)}>
@@ -133,7 +127,7 @@ const Report = (props: Props) => {
               className="db-item-action"
               onClick={() => {
                 setCurrentChart(item);
-                setShowChatForm(true);
+                setShowChartForm(true);
               }}
             >
               edit
@@ -162,6 +156,11 @@ const Report = (props: Props) => {
   };
 
   const handleBackButtonClick = () => {
+    if (showChartForm) {
+      toggleChartForm();
+      return;
+    }
+
     if (checkNameChange()) {
       confirm('Do you want to save the change').then(() =>
         reportsEdit(report._id, { name }, history.push('/reports'))
@@ -321,7 +320,6 @@ const Report = (props: Props) => {
   };
 
   const onLayoutChange = newLayout => {
-    console.log('nlayout    ', newLayout);
     newLayout.forEach(l => {
       const item = reportItems.find(i => i._id?.toString() === l.i);
       const toUpdate = JSON.stringify({
@@ -332,8 +330,6 @@ const Report = (props: Props) => {
       });
 
       if (item && toUpdate !== item.layout) {
-        console.log('sdaa');
-
         reportChartsEdit(item._id, {
           layout: toUpdate
         });
@@ -359,7 +355,7 @@ const Report = (props: Props) => {
         transparent={false}
       >
         {showTeamMemberSelect && renderMembersSelectModal()}
-        {!showChatForm && (
+        {!showChartForm && (
           <DragField
             haveChart={charts?.length ? true : false}
             cols={columnsNum * 3}
@@ -378,12 +374,12 @@ const Report = (props: Props) => {
           </DragField>
         )}
 
-        {showChatForm && (
+        {showChartForm && (
           <ChartForm
             history={history}
             queryParams={queryParams}
-            toggleForm={() => setShowChatForm(!showChatForm)}
-            showChatForm={showChatForm}
+            toggleForm={() => setShowChartForm(!showChartForm)}
+            showChartForm={showChartForm}
             chart={currentChart}
             reportId={report._id}
           />

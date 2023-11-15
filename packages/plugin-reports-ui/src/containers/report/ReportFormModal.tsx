@@ -43,11 +43,9 @@ const ReportFormModal = (props: FinalProps) => {
   }
 
   const createReport = async (values: ReportFormMutationVariables) => {
-    console.log('values ', values);
     reportsAddMutation({ variables: { ...values, serviceName } })
       .then(res => {
         Alert.success('Successfully created report');
-        console.log('res ', res);
         setShowModal(false);
         const { _id } = res.data.reportsAdd;
         if (_id) {
@@ -59,6 +57,7 @@ const ReportFormModal = (props: FinalProps) => {
       });
   };
 
+  console.log('ajasjasjd ', props.reportTemplateType);
   return (
     <ReportFormModalComponent
       {...props}

@@ -9,7 +9,6 @@ import {
   IChart,
   ReportChartFormMutationResponse,
   ReportChartTemplatesListQueryResponse,
-  ReportTemplatesListQueryResponse,
   reportServicesListQueryResponse
 } from '../../types';
 import { Alert } from '@erxes/ui/src/utils';
@@ -18,14 +17,13 @@ type Props = {
   history: any;
   queryParams: any;
   toggleForm: () => void;
-  showChatForm: boolean;
+  showChartForm: boolean;
   reportId: string;
 
   chart?: IChart;
 };
 
 type FinalProps = {
-  reportTemplatesListQuery: ReportTemplatesListQueryResponse;
   reportChartTemplatesListQuery: ReportChartTemplatesListQueryResponse;
   reportServicesListQuery: reportServicesListQueryResponse;
 } & Props &
@@ -33,7 +31,6 @@ type FinalProps = {
 
 const ChartFormList = (props: FinalProps) => {
   const {
-    reportTemplatesListQuery,
     reportServicesListQuery,
     reportChartTemplatesListQuery,
     reportChartsAddMutation,
@@ -46,12 +43,11 @@ const ChartFormList = (props: FinalProps) => {
     return <Spinner />;
   }
 
-  const chartsEdit = values => {
+  const chartsEdit = (values, callback) => {
     reportChartsEditMutation({ variables: values });
-    // .then(() => {
-    //   Alert.success('Successfully edited chart');
-    // })
-    // .catch(err => Alert.error(err.message));
+    if (callback) {
+      callback();
+    }
   };
 
   const chartsAdd = values => {
@@ -76,21 +72,15 @@ const ChartFormList = (props: FinalProps) => {
     chartsAdd,
     chartsEdit,
     chartsRemove,
-    serviceNames: reportServicesListQuery.reportServicesList,
-    chartTemplates: reportChartTemplatesListQuery?.reportChartTemplatesList
+    serviceNames: reportServicesListQuery.reportServicesList || [],
+    chartTemplates:
+      reportChartTemplatesListQuery?.reportChartTemplatesList || []
   };
 
   return <ChartForm {...finalProps} />;
 };
 
 export default compose(
-  graphql<Props, any, {}>(gql(queries.reportTemplatesList), {
-    name: 'reportTemplatesListQuery',
-    options: ({ queryParams }) => ({
-      variables: { serviceName: queryParams.serviceName || null },
-      fetchPolicy: 'network-only'
-    })
-  }),
   graphql<Props, any, {}>(gql(queries.reportServicesList), {
     name: 'reportServicesListQuery',
     options: () => ({

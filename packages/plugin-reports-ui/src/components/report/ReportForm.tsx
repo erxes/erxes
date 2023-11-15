@@ -1,5 +1,4 @@
 import { FlexRow } from '@erxes/ui-settings/src/styles';
-import { Button, FormControl } from '@erxes/ui/src/components';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { __ } from '@erxes/ui/src/utils';
 import React, { useState } from 'react';
@@ -7,10 +6,8 @@ import Modal from 'react-bootstrap/Modal';
 import ReportFormModal from '../../containers/report/ReportFormModal';
 import {
   BoxContainer,
-  FlexCenter,
   FlexColumn,
   FormContentWrapper,
-  ReportsSearchSection,
   ReportsTemplatesSection
 } from '../../styles';
 
@@ -26,6 +23,7 @@ const ReportForm = (props: Props) => {
   // set visibility
 
   const { reportTemplates } = props;
+
   const [showModal, setShowModal] = useState(false);
   const [charts, setCharts] = useState<string[]>([]);
   const [emptyReport, setEmptyReport] = useState(false);
@@ -37,9 +35,8 @@ const ReportForm = (props: Props) => {
     setShowModal(true);
     setCharts(template.charts);
     setServiceName(template.serviceName);
-    setReportTemplateType(template.type);
+    setReportTemplateType(template.serviceType);
     setReportName(template.title);
-    console.log('template ', template);
   };
 
   return (

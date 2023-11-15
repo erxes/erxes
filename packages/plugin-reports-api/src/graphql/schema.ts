@@ -48,6 +48,7 @@ export const types = tagsAvailable => `
     charts: [String]
     img: String
     serviceName: String
+    serviceType: String
     type: String
   }
 

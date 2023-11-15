@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Button,
   ControlLabel,
@@ -23,12 +23,34 @@ type Props = {
 };
 
 const ReportFormModal = (props: Props) => {
-  const { createReport, setShowModal, reportTemplateType, reportName } = props;
+  const {
+    createReport,
+    setShowModal,
+    reportTemplateType,
+    reportName,
+    chartTemplates
+  } = props;
 
+  console.log('t type ', reportTemplateType, chartTemplates);
+
+  const [totalFilters, setTotalFilters] = useState<any[]>([{}]);
   const [visibility, setVisibility] = useState('public');
   const [userIds, setUserIds] = useState([]);
   const [departmentIds, setDepartmentIds] = useState([]);
   const [name, setName] = useState(reportName || '');
+
+  useEffect(() => {
+    // const getFilters = [...chartTemplates.map(c => c.filterTypes)];
+
+    const getFilters: any[] = [];
+
+    for (const chartTemplate of chartTemplates) {
+      getFilters.push(...chartTemplate.filterTypes);
+    }
+    setTotalFilters(getFilters);
+  }, [chartTemplates]);
+
+  console.log('aeer ', totalFilters);
 
   const handleUserChange = _userIds => {
     setUserIds(_userIds);
@@ -44,7 +66,6 @@ const ReportFormModal = (props: Props) => {
   };
 
   const handleSubmit = async () => {
-    console.log('reportTemplateType ', reportTemplateType);
     createReport({
       name,
       visibility,
@@ -90,6 +111,19 @@ const ReportFormModal = (props: Props) => {
           handleUserChange={handleUserChange}
         />
       )}
+
+      {totalFilters.map(c => {
+        return (
+          <FlexRow key={c.fieldName} justifyContent="space-between">
+            <ControlLabel>{c.fieldLabel}</ControlLabel>
+            <FormControl
+              componentClass="checkbox"
+              key={c.name}
+              checked={true}
+            />
+          </FlexRow>
+        );
+      })}
 
       <FlexCenter>
         <Button btnStyle="primary" onClick={() => setShowModal(false)}>

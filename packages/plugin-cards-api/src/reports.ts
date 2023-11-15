@@ -1,6 +1,7 @@
 import { IUserDocument } from '@erxes/api-utils/src/types';
 import { models } from './connectionResolver';
 import { sendCoreMessage } from './messageBroker';
+import * as dayjs from 'dayjs';
 
 const reportTemplates = [
   {
@@ -9,7 +10,7 @@ const reportTemplates = [
     serviceName: 'cards',
     description:
       "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
-    charts: ['dealsChart'],
+    charts: ['dealsChart', 'dealsChartByMonth'],
     img: 'https://sciter.com/wp-content/uploads/2022/08/chart-js.png'
   },
   {
@@ -18,7 +19,7 @@ const reportTemplates = [
     serviceName: 'cards',
     description:
       "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
-    charts: ['dealsChart'],
+    charts: ['dealsChart', 'dealsChartByMonth'],
     img: 'https://cdn.mos.cms.futurecdn.net/S5bicwPe8vbP9nt3iwAwwi.jpg'
   },
   {
@@ -43,8 +44,25 @@ const chartTemplates = [
       currentUser: IUserDocument,
       getDefaultPipelineId?: string
     ) => {
+      // demonstration filters
+      const getTotalAssignedUserIds: string[] = [];
+
+      const totalDeals = await models?.Deals.find({
+        assignedUserIds: { $exists: true }
+      });
+
+      if (totalDeals) {
+        for (const deal of totalDeals) {
+          if (deal.assignedUserIds) {
+            getTotalAssignedUserIds.push(...deal.assignedUserIds);
+          }
+        }
+      }
+
+      const totalAssignedUserIds = new Set(getTotalAssignedUserIds);
+
       const DEFAULT_FILTER = {
-        assignedUserIds: [currentUser._id],
+        assignedUserIds: Array.from(totalAssignedUserIds),
         userId: currentUser._id,
         pipelineId: getDefaultPipelineId
       };
@@ -98,6 +116,39 @@ const chartTemplates = [
       return datasets;
     },
 
+    // filterTypes: [
+    //   {
+    //     fieldName: 'assignedUserIds',
+    //     fieldType: 'select',
+    //     multi: true,
+    //     fieldQuery: 'users',
+    //     fieldLabel: 'Select assigned users'
+    //   },
+    //   {
+    //     fieldName: 'userId',
+    //     fieldType: 'select',
+    //     fieldQuery: 'user',
+    //     fieldLabel: 'Select assigned user'
+    //   },
+    //   {
+    //     fieldName: 'pipelineId',
+    //     fieldType: 'select',
+    //     fieldQuery: 'pipelines',
+    //     fieldLabel: 'Select pipeline'
+    //   },
+    //   {
+    //     fieldName: 'dateRange',
+    //     fieldType: 'date',
+    //     fieldQuery: 'createdAt',
+    //     fieldLabel: 'Select date range'
+    //   },
+    //   {
+    //     fieldName: 'dealName',
+    //     fieldType: 'input',
+    //     fieldQuery: 'name',
+    //     fieldLabel: 'Deal name'
+    //   }
+    // ]
     filterTypes: [
       {
         fieldName: 'assignedUserIds',
@@ -107,27 +158,65 @@ const chartTemplates = [
         fieldLabel: 'Select assigned users'
       },
       {
-        fieldName: 'userId',
-        fieldType: 'select',
-        fieldQuery: 'user',
-        fieldLabel: 'Select assigned user'
-      },
-      {
-        fieldName: 'pipelineId',
-        fieldType: 'select',
-        fieldQuery: 'pipelines',
-        fieldLabel: 'Select pipeline'
-      },
-      {
         fieldName: 'dateRange',
         fieldType: 'date',
         fieldQuery: 'createdAt',
         fieldLabel: 'Select date range'
-      },
+      }
+    ]
+  },
+  {
+    templateType: 'dealsChartByMonth',
+    name: 'Deals chart by month',
+    chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea'],
+    getChartResult: async (
+      filter: any,
+      subdomain: string,
+      currentUser: IUserDocument,
+      getDefaultPipelineId?: string
+    ) => {
+      const totalDeals = await models?.Deals.find({}).sort({ createdAt: -1 });
+      const monthNames: string[] = [];
+      const monthlyDealsCount: number[] = [];
+
+      if (totalDeals) {
+        const now = new Date(); // Get the current date
+        const startOfYear = new Date(now.getFullYear(), 0, 1); // Get the start of the year
+        const endOfYear = new Date(now.getFullYear(), 12, 31); // Get the start of the year
+        const endRange = dayjs(
+          new Date(totalDeals.at(-1)?.createdAt || endOfYear)
+        );
+
+        let startRange = dayjs(startOfYear);
+
+        while (startRange < endRange) {
+          monthNames.push(startRange.format('MMMM'));
+
+          const getStartOfNextMonth = startRange.add(1, 'month').toDate();
+          const getDealsCountOfMonth = totalDeals.filter(
+            deal =>
+              new Date(deal.createdAt || '').getTime() >=
+                startRange.toDate().getTime() &&
+              new Date(deal.createdAt || '').getTime() <
+                getStartOfNextMonth.getTime()
+          );
+          monthlyDealsCount.push(getDealsCountOfMonth.length);
+          startRange = startRange.add(1, 'month');
+        }
+      }
+
+      const title = 'Deals count by created month';
+      const datasets = { title, data: monthlyDealsCount, labels: monthNames };
+
+      return datasets;
+    },
+
+    filterTypes: [
       {
-        fieldName: 'dealName',
-        fieldType: 'string',
-        fieldQuery: 'name'
+        fieldName: 'dateRange',
+        fieldType: 'date',
+        fieldQuery: 'createdAt',
+        fieldLabel: 'Date range'
       }
     ]
   }

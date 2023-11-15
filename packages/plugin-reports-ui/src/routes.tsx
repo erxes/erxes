@@ -19,15 +19,6 @@ const ReportForm = asyncComponent(() =>
   import('./containers/report/ReportForm')
 );
 
-const reportForm = ({ location, history }) => {
-  return (
-    <ReportForm
-      history={history}
-      queryParams={queryString.parse(location.search)}
-    />
-  );
-};
-
 const reportsDetail = ({ match, location, history }) => {
   const slug = match.params.slug;
 

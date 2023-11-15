@@ -21,7 +21,7 @@ const reportsMutations = {
       const service = await serviceDiscovery.getService(doc.serviceName, true);
 
       const reportTemplate = service.config?.meta?.reports?.reportTemplates?.find(
-        t => t.type === doc.reportTemplateType
+        t => t.serviceType === doc.reportTemplateType
       );
 
       const chartTemplates = service.config?.meta?.reports?.chartTemplates;
@@ -29,6 +29,7 @@ const reportsMutations = {
       const { charts, serviceName } = reportTemplate;
       let getChartTemplates;
 
+      console.log('sda ', charts);
       if (charts) {
         getChartTemplates = chartTemplates?.filter(t =>
           charts.includes(t.templateType)

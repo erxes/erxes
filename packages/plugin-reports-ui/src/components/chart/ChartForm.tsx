@@ -31,12 +31,12 @@ type Props = {
   queryParams: any;
 
   chartTemplates: any[];
-  showChatForm: boolean;
+  showChartForm: boolean;
 
   chart?: IChart;
   serviceNames: string[];
 
-  chartsEdit: (values: any) => void;
+  chartsEdit: (values: any, callback?: any) => void;
   chartsAdd: (values: any) => void;
 };
 const ChartForm = (props: Props) => {
@@ -45,7 +45,7 @@ const ChartForm = (props: Props) => {
     queryParams,
     toggleForm,
     chartTemplates,
-    showChatForm,
+    showChartForm,
     chart,
     chartsAdd,
     chartsEdit,
@@ -55,8 +55,8 @@ const ChartForm = (props: Props) => {
 
   const [name, setName] = useState(chart?.name || '');
 
-  const [serviceName, setServiceName] = useState('');
-  const [chartTemplate, setChartTemplate] = useState('');
+  const [serviceName, setServiceName] = useState(chart?.serviceName || '');
+  const [chartTemplate, setChartTemplate] = useState(chart?.templateType || '');
 
   const [chartTypes, setChartTypes] = useState([]);
   const [chartType, setChartType] = useState<string>(chart?.chartType || 'bar');
@@ -98,19 +98,26 @@ const ChartForm = (props: Props) => {
   };
 
   const onSave = () => {
-    chart ? chartsEdit({ chartType, name }) : chartsAdd({ chartType, name });
+    chart
+      ? chartsEdit({ _id: chart._id, chartType, name }, toggleForm)
+      : chartsAdd({
+          chartType,
+          name,
+          serviceName,
+          templateType: chartTemplate
+        });
   };
 
   return (
     <FormContainer>
       <FormChart>
         <RTG.CSSTransition
-          in={showChatForm}
+          in={showChartForm}
           timeout={300}
           classNames="slide-in-right"
           unmountOnExit={true}
         >
-          {showChatForm ? (
+          {showChartForm ? (
             <ChartRenderer
               chartType={chartType}
               chartVariables={{ ...chart }}
@@ -154,7 +161,7 @@ const ChartForm = (props: Props) => {
                   })}
                   value={serviceName}
                   onChange={onServiceNameChange}
-                  placeholder={__(`Choose Type`)}
+                  placeholder={__(`Choose service`)}
                 />
               </FormGroup>
 
@@ -167,7 +174,7 @@ const ChartForm = (props: Props) => {
                   options={renderChartTemplates}
                   value={chartTemplate}
                   onChange={onChartTemplateChange}
-                  placeholder={__(`Choose chart`)}
+                  placeholder={__(`Choose template`)}
                 />
               </FormGroup>
 
@@ -178,7 +185,7 @@ const ChartForm = (props: Props) => {
                   options={renderChartTypes}
                   value={chartType}
                   onChange={onChartTypeChange}
-                  placeholder={__(`Choose chart`)}
+                  placeholder={__(`Choose type`)}
                 />
               </FormGroup>
             </DrawerDetail>

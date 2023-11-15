@@ -100,6 +100,7 @@ const reportTemplatesList = `
       charts
       img
       serviceName
+      serviceType
     }
   }
 `;

@@ -48,12 +48,14 @@ const ListContainer = (props: FinalProps) => {
 
   const { list = [], totalCount = 0 } = reportsListQuery.reportsList || {};
 
-  const removeReports = (ids: string[], callback: any) => {
+  const removeReports = (ids: string[], callback?: any) => {
     confirm(__('Are you sure to delete selected reports?')).then(() => {
       reportsRemoveManyMutation({ variables: { ids } })
         .then(() => {
           Alert.success(__('Successfully deleted'));
-          callback();
+          if (callback) {
+            callback();
+          }
         })
         .catch((e: Error) => Alert.error(e.message));
     });
