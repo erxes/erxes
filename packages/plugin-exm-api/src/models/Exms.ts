@@ -76,7 +76,7 @@ export const exmCategorySchema = new Schema({
   _id: field({ pkey: true }),
   name: field({ type: String, label: 'Name' }),
   parentId: field({ type: String }),
-  description: field({ type: String, label: 'Description' }),
+  description: field({ type: String, label: 'Description', optional: true }),
   code: field({ type: String, label: 'Code' }),
   order: field({ type: String, label: 'Order' }),
   createdAt: { type: Date, label: 'Created at' }
