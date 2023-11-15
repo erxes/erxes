@@ -122,17 +122,6 @@ const reportsQueries = {
     return chartTemplates.filter(t => charts.includes(t.templateType));
   },
 
-  chartsList(_root, {}, { models }: IContext) {
-    const selector: any = {};
-    const totalCount = models.Charts.count(selector);
-    const list = models.Charts.find(selector).sort({ name: 1 });
-    return { list, totalCount };
-  },
-
-  chartDetail(_root, { _id }, { models }: IContext) {
-    return models.Charts.getChart(_id);
-  },
-
   reportChartGetFilterTypes(
     _root,
     { serviceName, templateType },
