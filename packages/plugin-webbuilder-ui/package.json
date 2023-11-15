@@ -2,11 +2,12 @@
   "name": "plugin-webbuilder-ui",
   "version": "1.0.0",
   "scripts": {
-    "install-deps": "cd .erxes && yarn install",
-    "start": "cd .erxes && yarn start",
-    "build": "cd .erxes && yarn build"
+    "install-deps": "yarn install",
+    "start": "webpack serve --mode development",
+    "build": "webpack --mode production"
   },
   "dependencies": {
+    "@erxes/ui" : "*",
     "add": "^2.0.6",
     "grapejs": "^2.1.2",
     "grapesjs": "^0.19.4",
