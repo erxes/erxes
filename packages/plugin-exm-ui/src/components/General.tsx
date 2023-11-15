@@ -25,12 +25,11 @@ const getEmptyFeature = () => ({
 });
 
 type Props = {
-  exm?: IExm;
-  actionMutation: (variables: IExm, id?: string) => void;
+  exm: IExm;
+  edit: (variables: IExm) => void;
   brands: any[];
   forms: any[];
   kbTopics: any[];
-  exmCategories: any[];
   kbCategories: { [key: string]: any[] };
   getKbCategories: (topicId: string) => void;
   getForms: (brandId: string) => void;
@@ -42,17 +41,14 @@ export default function General(props: Props) {
     brands,
     kbTopics,
     exm,
-    exmCategories,
-    actionMutation,
+    edit,
     getKbCategories,
     getForms,
     kbCategories
   } = props;
-
-  const exmFeatures = exm?.features || [];
-  const [name, setName] = useState(exm?.name || '');
-  const [description, setDescription] = useState(exm?.description || '');
-  const [categoryId, setCategoryId] = useState(exm?.categoryId || '');
+  const exmFeatures = exm.features || [];
+  const [name, setName] = useState(exm.name || '');
+  const [description, setDescription] = useState(exm.description || '');
   const [features, setFeatures] = useState(
     exmFeatures.length > 0 ? removeTypename(exmFeatures) : [getEmptyFeature()]
   );
@@ -118,13 +114,7 @@ export default function General(props: Props) {
   };
 
   const onSave = () => {
-    const variables = { name, description, categoryId, features };
-
-    if (exm && exm._id) {
-      return actionMutation(variables, exm._id);
-    }
-
-    return actionMutation(variables);
+    edit({ _id: exm._id, name, description, features });
   };
 
   return (
@@ -146,23 +136,6 @@ export default function General(props: Props) {
               value={description}
               placeholder="Description"
               onChange={(e: any) => setDescription(e.target.value)}
-            />
-          </FeatureRowItem>
-          <FeatureRowItem>
-            <ControlLabel>{__('Choose Category')}</ControlLabel>
-            <Select
-              placeholder={__('Choose a category')}
-              value={categoryId}
-              // options={generateTree(exmCategories, null, (node, level) => ({
-              //   value: node._id,
-              //   label: `${'---'.repeat(level)} ${node.name}`
-              // }))}
-              options={exmCategories.map(item => ({
-                value: item._id,
-                label: item.name
-              }))}
-              onChange={(e: any) => setCategoryId(e.value)}
-              clearable={false}
             />
           </FeatureRowItem>
         </FeatureRow>
