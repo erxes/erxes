@@ -1,4 +1,12 @@
+import {
+  attachmentInput,
+  attachmentType
+} from '@erxes/api-utils/src/commonTypeDefs';
+
 const extendTypes = `
+  ${attachmentType}
+  ${attachmentInput}
+
   extend type Branch @key(fields: "_id") {
     _id: String! @external
   }

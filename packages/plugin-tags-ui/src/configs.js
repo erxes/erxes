@@ -1,4 +1,5 @@
 module.exports = {
+  srcDir: __dirname,
   name: 'tags',
   port: 3012,
   scope: 'tags',

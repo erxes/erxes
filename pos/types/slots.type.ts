@@ -1,5 +1,6 @@
 export interface ISlot {
   _id: string
+  posToken: string
   code: string
   name: string
   isPreDates: { dueDate: string; _id: string }[]

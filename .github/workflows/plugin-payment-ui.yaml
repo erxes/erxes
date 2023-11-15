@@ -62,15 +62,25 @@ jobs:
         with:
           node-version: 18.17.x
 
+      # https://github.com/actions/cache/blob/main/examples.md#node---yarn
+      - name: Get yarn cache directory path
+        id: yarn-cache-dir-path
+        run: echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
+
+      - uses: actions/cache@v3
+        id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
+        with:
+          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          key: ${{ runner.os }}-yarn # since the yarn install runs at workspace level
+          restore-keys: |
+            ${{ runner.os }}-yarn
+
       - name: Build
         run: |
           yarn install --frozen-lockfile
-          cp -r packages/ui-plugin-template/.erxes packages/plugin-payment-ui/.erxes
-          cp -r packages/plugin-payment-ui/src packages/plugin-payment-ui/.erxes/plugin-src
           cd packages/plugin-payment-ui
-          yarn install
-          yarn install-deps
           yarn build
+          cp -r ./src/locales/ ./dist/locales 2>/dev/null || true
 
       - name: Configure AWS credentials
         if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/build-test')
@@ -83,7 +93,7 @@ jobs:
       - name: Deploy
         if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/build-test')
         run: |
-          tar -cf build.tar --directory=packages/plugin-payment-ui/.erxes/dist .
-          cp build.tar packages/plugin-payment-ui/.erxes/dist
-          rm -rf packages/plugin-payment-ui/.erxes/dist/*.js
-          aws s3 sync packages/plugin-payment-ui/.erxes/dist s3://erxes-${GITHUB_REF#refs/heads/}-plugins/uis/plugin-payment-ui --delete
+          tar -cf build.tar --directory=packages/plugin-payment-ui/dist .
+          cp build.tar packages/plugin-payment-ui/dist
+          rm -rf packages/plugin-payment-ui/dist/*.js
+          aws s3 sync packages/plugin-payment-ui/dist s3://erxes-${GITHUB_REF#refs/heads/}-plugins/uis/plugin-payment-ui --delete
