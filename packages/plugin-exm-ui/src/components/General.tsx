@@ -48,7 +48,7 @@ export default function General(props: Props) {
     kbCategories
   } = props;
   const exmFeatures = exm.features || [];
-  console.log(exmFeatures);
+
   const [name, setName] = useState(exm.name || '');
   const [description, setDescription] = useState(exm.description || '');
   const [features, setFeatures] = useState(
