@@ -1,12 +1,19 @@
 "use client"
 
-// import "@nateradebaugh/react-datetime/scss/styles.scss"
 import "react-datetime-picker/dist/DateTimePicker.css"
 import "react-calendar/dist/Calendar.css"
 import "react-clock/dist/Clock.css"
-
+import { useEffect, useState } from "react"
+import { zodResolver } from "@hookform/resolvers/zod"
+import dayjs from "dayjs"
+import relativeTime from "dayjs/plugin/relativeTime"
+import { Calendar } from "lucide-react"
+import DateTimePicker from "react-datetime-picker"
+import { useForm } from "react-hook-form"
+import Select from "react-select"
 import * as z from "zod"
 
+import { Button } from "@/components/ui/button"
 import {
   DialogContent,
   DialogHeader,
@@ -20,34 +27,23 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form"
+import { Input } from "@/components/ui/input"
+import LoadingPost from "@/components/ui/loadingPost"
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
-import { useEffect, useState } from "react"
-
-import { Button } from "@/components/ui/button"
-import { Calendar } from "lucide-react"
-// import DateTime from "@nateradebaugh/react-datetime"
-import DateTimePicker from "react-datetime-picker"
-import FormAttachments from "./FormAttachments"
-import FormImages from "./FormImages"
-import { IFeed } from "../../types"
-import { Input } from "@/components/ui/input"
-import LoadingPost from "@/components/ui/loadingPost"
-import Select from "react-select"
-import SelectUsers from "@/components/select/SelectUsers"
 import SuccessPost from "@/components/ui/successPost"
 import { Textarea } from "@/components/ui/textarea"
-import Uploader from "./uploader/Uploader"
-import dayjs from "dayjs"
-import { enGB } from "date-fns/locale"
-import relativeTime from "dayjs/plugin/relativeTime"
+import SelectUsers from "@/components/select/SelectUsers"
+
 import useFeedMutation from "../../hooks/useFeedMutation"
-import { useForm } from "react-hook-form"
 import { useTeamMembers } from "../../hooks/useTeamMembers"
-import { zodResolver } from "@hookform/resolvers/zod"
+import { IFeed } from "../../types"
+import FormAttachments from "./FormAttachments"
+import FormImages from "./FormImages"
+import Uploader from "./uploader/Uploader"
 
 dayjs.extend(relativeTime)
 
@@ -260,27 +256,18 @@ const EventForm = ({
                           <Calendar size={15} className="mr-2" />
                           <span>
                             {field.value
-                              ? dayjs(field.value).format("MM/DD/yyyy HH:mm")
+                              ? dayjs(field.value).format("MM/DD/YYYY HH:mm")
                               : "Start date"}
                           </span>
                         </div>
                       </PopoverTrigger>
-                      <PopoverContent className="w-fit">
-                        {/* <DateTime
-                          // inputProps={{ placeholder: "Start date" }}
-                          dateFormat="yyyy/MM/DD"
-                          timeFormat="HH:mm"
-                          value={field.value}
-                          // closeOnSelect={true}
-                          // utc={true}
-                          // input={false}
-                          onChange={field.onChange}
-                        /> */}
-
+                      <PopoverContent className="w-fit p-2">
                         <DateTimePicker
-                          format="yyyy/MM/DD h:mm:ss a"
+                          format="yyyy/MM/dd h:mm:ss a"
                           value={field.value}
                           onChange={field.onChange}
+                          minDate={new Date()}
+                          clockClassName="hidden"
                         />
                       </PopoverContent>
                     </Popover>
@@ -302,22 +289,19 @@ const EventForm = ({
                           <Calendar size={15} className="mr-2" />
                           <span>
                             {field.value
-                              ? dayjs(field.value).format("MM/DD/yyyy HH:mm")
+                              ? dayjs(field.value).format("MM/DD/YYYY HH:mm")
                               : "End date"}
                           </span>
                         </div>
                       </PopoverTrigger>
-                      <PopoverContent className="w-fit">
-                        {/* <DateTime
-                          // inputProps={{ placeholder: "End date" }}
-                          dateFormat="yyyy/MM/DD"
-                          timeFormat="HH:mm"
+                      <PopoverContent className="w-fit p-2">
+                        <DateTimePicker
+                          format="yyyy/MM/dd h:mm:ss a"
                           value={field.value}
-                          // closeOnSelect={true}
-                          // utc={true}
-                          // input={false}
                           onChange={field.onChange}
-                        /> */}
+                          minDate={new Date()}
+                          clockClassName="hidden"
+                        />
                       </PopoverContent>
                     </Popover>
                   </FormControl>
