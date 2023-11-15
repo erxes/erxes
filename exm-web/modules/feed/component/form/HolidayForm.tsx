@@ -104,6 +104,12 @@ const HolidayForm = ({
     )
   }
 
+  const typeOptions = [
+    { label: "Ceremony", value: "ceremony" },
+    { label: "Birthday", value: "birthday" },
+    { label: "Public holiday", value: "publicHoliday" },
+  ]
+
   return (
     <DialogContent className="max-h-[80vh] max-w-2xl overflow-auto">
       <DialogHeader>
@@ -139,11 +145,10 @@ const HolidayForm = ({
           <FormImages images={images} setImage={setImage} />{" "}
           <Select
             isMulti={false}
-            options={[
-              { label: "Ceremony", value: "ceremony" },
-              { label: "Birthday", value: "birthday" },
-              { label: "Public holiday", value: "publicHoliday" },
-            ]}
+            options={typeOptions}
+            defaultValue={typeOptions.filter((option) =>
+              feed?.category?.includes(option.value)
+            )}
             placeholder="Choose category"
             isSearchable={true}
             onChange={(data) => setCategory(data?.value || "")}

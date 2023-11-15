@@ -79,6 +79,7 @@ const feed = gql`
         isPinned
         recipientIds
         images
+        category
         eventData {
           visibility
           where

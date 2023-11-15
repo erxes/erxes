@@ -417,7 +417,7 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
     if (feed.contentType !== "publicHoliday") {
       return null
     }
-    if (!feed.contentType) {
+    if (!feed.category) {
       return null
     }
     const bgColor =
@@ -429,7 +429,7 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
 
     return (
       <div className={`text-white capitalize ${bgColor} px-3 py-1 rounded-lg`}>
-        {feed.contentType}
+        {feed.category}
       </div>
     )
   }
