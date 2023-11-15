@@ -73,6 +73,20 @@ export const types = `
     content:String
   }
 
+  type BotPersistentMenuType {
+    _id:Float
+    type:String
+    title: String
+    url: String
+  }
+
+  input BotPersistentMenuInput {
+    _id:Float
+    type:String
+    title: String
+    url: String
+  }
+
   type FacebookMessengerBot {
     _id: String
     name:String
@@ -81,6 +95,7 @@ export const types = `
     pageId: String
     page: JSON
     createdAt: Date
+    persistentMenus:[BotPersistentMenuType]
   }
 `;
 
@@ -108,8 +123,8 @@ export const queries = `
 
 export const mutations = `
   facebookUpdateConfigs(configsMap: JSON!): JSON
-  facebookMessengerAddBot(name:String,accountId:String,pageId:String):JSON
-  facebookMessengerUpdateBot(_id:String,name:String,accountId:String,pageId:String):JSON
+  facebookMessengerAddBot(name:String,accountId:String,pageId:String,persistentMenus:[BotPersistentMenuInput]):JSON
+  facebookMessengerUpdateBot(_id:String,name:String,accountId:String,pageId:String,persistentMenus:[BotPersistentMenuInput]):JSON
   facebookMessengerRemoveBot(_id:String):JSON
   facebookRepair(_id: String!): JSON
   facebookChangeCommentStatus(commentId: String): FacebookComment

@@ -8,6 +8,9 @@ const list = `
         createdAt
         page
         pageId
+        persistentMenus {
+          _id,title,type,url
+        }
       }
     }
 `;

@@ -34,7 +34,7 @@ const facebookMutations = {
     { _id, ...args },
     { models }: IContext
   ) {
-    return await models.Bots.update(_id, args);
+    return await models.Bots.updateBot(_id, args);
   },
 
   async facebookMessengerRemoveBot(_root, { _id }, { models }: IContext) {

@@ -1,24 +1,26 @@
 const params = `
-    $name: String,
-    $accountId: String,
-    $pageId: String
+  $name: String,
+  $accountId: String,
+  $pageId: String,
+  $persistentMenus: [BotPersistentMenuInput]
 `;
 
 const paramsDef = `
-    name: $name,
-    accountId: $accountId,
-    pageId: $pageId
+  name: $name,
+  accountId: $accountId,
+  pageId: $pageId,
+  persistentMenus: $persistentMenus
 `;
 
 const addBot = `
-    mutation FacebookMessengerAddBot(${params}) {
-      facebookMessengerAddBot(${paramsDef})
-    }
+  mutation FacebookMessengerAddBot(${params}) {
+    facebookMessengerAddBot(${paramsDef})
+  }
 `;
 
 const updateBot = `
-    mutation FacebookMessengerUpdateBot($id: String,${params}) {
-      facebookMessengerUpdateBot(_id: $id,${paramsDef})
+    mutation FacebookMessengerUpdateBot($_id: String,${params}) {
+      facebookMessengerUpdateBot(_id: $_id,${paramsDef})
     }
 `;
 

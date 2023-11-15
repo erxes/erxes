@@ -23,7 +23,7 @@ const Automations = props => {
   }
   if (componentType === 'historyActionResult') {
     const { result } = props;
-    return <>{result}</>;
+    return <>{JSON.stringify(result || {})}</>;
   }
 };
 

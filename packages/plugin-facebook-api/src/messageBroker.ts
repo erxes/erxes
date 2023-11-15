@@ -66,7 +66,6 @@ export const initBroker = async cl => {
         }
 
         if (type === 'facebook') {
-          console.log({ data });
           response = { data: await handleFacebookMessage(models, data) };
         }
 

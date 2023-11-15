@@ -17,6 +17,7 @@ import { sendCommonMessage, sendSegmentsMessage } from './messageBroker';
 import { debugBase } from '@erxes/api-utils/src/debuggers';
 import { IModels } from './connectionResolver';
 import { handleEmail } from './common/emailUtils';
+import { playWait } from './actions/wait';
 
 export const getEnv = ({
   name,
@@ -170,7 +171,8 @@ export const executeActions = async (
           actionType: 'create',
           action,
           execution,
-          collectionType: type.replace('.create', '')
+          collectionType: type.replace('.create', ''),
+          playWait
         },
         isRPC: true
       });
@@ -390,6 +392,7 @@ export const receiveTrigger = async ({
   type: TriggerType;
   targets: any[];
 }) => {
+  console.log({ targets });
   const automations = await models.Automations.find({
     status: 'active',
     'triggers.type': { $in: [type] }

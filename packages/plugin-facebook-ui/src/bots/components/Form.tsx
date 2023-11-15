@@ -3,14 +3,17 @@ import {
   ControlLabel,
   FormControl,
   FormGroup,
+  Icon,
+  SortItem,
   __
 } from '@erxes/ui/src';
 import CommonForm from '@erxes/ui/src/components/form/Form';
-import { ModalFooter } from '@erxes/ui/src/styles/main';
+import { Column, LinkButton, ModalFooter } from '@erxes/ui/src/styles/main';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import React from 'react';
 import { SelectAccount, SelectAccountPages } from '../utils';
 import { Features } from '../styles';
+import { Columns } from '@erxes/ui/src/styles/chooser';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -21,6 +24,25 @@ type Props = {
 type State = {
   doc: any;
 };
+
+function removeNullAndTypename(obj) {
+  if (obj === null || typeof obj !== 'object') {
+    return obj;
+  }
+
+  if (Array.isArray(obj)) {
+    return obj.map(removeNullAndTypename);
+  }
+
+  const cleanedObj = {};
+  for (const key in obj) {
+    if (obj.hasOwnProperty(key) && obj[key] !== null && key !== '__typename') {
+      cleanedObj[key] = removeNullAndTypename(obj[key]);
+    }
+  }
+
+  return cleanedObj;
+}
 
 class Form extends React.Component<Props, State> {
   constructor(props) {
@@ -34,7 +56,97 @@ class Form extends React.Component<Props, State> {
   generateDoc(values) {
     const { doc } = this.state;
 
-    return { ...(doc || {}), ...values };
+    return { ...removeNullAndTypename(doc || {}), ...values };
+  }
+
+  renderPersistentMenus(doc) {
+    const { persistentMenus = [] } = doc || {};
+
+    const addPersistentMenu = () => {
+      this.setState({
+        doc: {
+          ...doc,
+          persistentMenus: [
+            ...persistentMenus,
+            { _id: Math.random(), title: '' }
+          ]
+        }
+      });
+    };
+
+    const onChange = (_id, name, value) => {
+      this.setState({
+        doc: {
+          ...doc,
+          persistentMenus: persistentMenus.map(persistentMenu =>
+            persistentMenu._id === _id
+              ? { ...persistentMenu, [name]: value }
+              : persistentMenu
+          )
+        }
+      });
+    };
+
+    const handleChange = (_id, e) => {
+      const { name, value } = e.currentTarget as HTMLInputElement;
+
+      onChange(_id, name, value);
+    };
+
+    const setUseUrl = _id => {
+      onChange(_id, 'type', 'web_url');
+    };
+
+    const handleRemove = _id => {
+      this.setState({
+        doc: {
+          ...doc,
+          persistentMenus: persistentMenus.filter(
+            persistentMenu => persistentMenu._id !== _id
+          )
+        }
+      });
+    };
+
+    return (
+      <>
+        {persistentMenus.map(persistentMenu => (
+          <SortItem isDragging={false} isModal={false}>
+            <Columns>
+              <Column>
+                <FormControl
+                  name="title"
+                  value={persistentMenu?.title}
+                  onChange={e => handleChange(persistentMenu._id, e)}
+                />
+              </Column>
+
+              {persistentMenu?.type === 'web_url' ? (
+                <Column>
+                  <FormControl
+                    name="url"
+                    onChange={e => handleChange(persistentMenu._id, e)}
+                    value={persistentMenu?.url}
+                  />
+                </Column>
+              ) : (
+                <LinkButton onClick={setUseUrl.bind(this, persistentMenu._id)}>
+                  {__('Set Url')}
+                </LinkButton>
+              )}
+            </Columns>
+            <Icon
+              icon="cancel-1"
+              style={{ cursor: 'pointer' }}
+              onClick={handleRemove.bind(this, persistentMenu?._id)}
+            />
+          </SortItem>
+        ))}
+        <LinkButton onClick={addPersistentMenu}>
+          {__('Add Persistent Menu')}
+        </LinkButton>
+      </>
+    );
   }
 
   renderContent = (formProps: IFormProps) => {
@@ -74,6 +186,7 @@ class Form extends React.Component<Props, State> {
               onSelect={onSelect}
             />
           </FormGroup>
+          {this.renderPersistentMenus(doc)}
         </Features>
 
         <ModalFooter>

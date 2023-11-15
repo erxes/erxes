@@ -3,7 +3,7 @@ import { IModels } from '../connectionResolver';
 import { getPageAccessTokenFromMap, graphRequest } from '../utils';
 import { IBotDocument, botSchema } from './definitions/bots';
 
-const validateDoc = async (models: IModels, doc: any) => {
+const validateDoc = async (models: IModels, doc: any, isUpdate?: boolean) => {
   if (!doc.name) {
     throw new Error('Please provide a name of bot');
   }
@@ -17,7 +17,11 @@ const validateDoc = async (models: IModels, doc: any) => {
   }
 
   if (
-    await models.Bots.findOne({ pageId: doc.pageId, accountId: doc.accountId })
+    !isUpdate &&
+    (await models.Bots.findOne({
+      pageId: doc.pageId,
+      accountId: doc.accountId
+    }))
   ) {
     throw new Error('This page has already been registered as a bot');
   }
@@ -39,6 +43,7 @@ export const loadBotClass = (models: IModels) => {
       }
 
       const { accountId, pageId } = doc;
+      console.log(doc);
 
       const integration = await models.Integrations.findOne({
         accountId,
@@ -54,26 +59,38 @@ export const loadBotClass = (models: IModels) => {
     }
 
     public static async updateBot(_id, doc) {
+      console.log({ _id });
       try {
-        await validateDoc(models, doc);
+        await validateDoc(models, doc, true);
       } catch (error) {
         throw new Error(error.message);
       }
 
-      const { accountId, pageId } = doc;
+      const { accountId, pageId, persistentMenus } = doc;
 
-      const bot = await models.Bots.findOne({ _id }).select({
-        _id: 0,
-        accountId: 1,
-        pageId: 1
-      });
+      const bot = await models.Bots.findOne({ _id })
+        .select({
+          _id: 0,
+          accountId: 1,
+          pageId: 1,
+          persistentMenus: 1
+        })
+        .lean();
 
       if (!bot) {
         throw new Error('Not found');
       }
 
+      console.log(
+        'first',
+        JSON.stringify({ accountId, pageId, persistentMenus })
+      );
+
+      console.log('second', JSON.stringify({ ...bot }));
+
       if (
-        JSON.stringify({ accountId, pageId }) !== JSON.stringify({ ...bot })
+        JSON.stringify({ accountId, pageId, persistentMenus }) !==
+        JSON.stringify({ ...bot })
       ) {
         try {
           await this.disconnectBotPageMessenger(_id);
@@ -124,8 +141,43 @@ export const loadBotClass = (models: IModels) => {
       try {
         const bot = await models.Bots.create({ ...doc });
 
+        let persistentMenus: any[] = [];
+
+        for (const { type, title, url } of doc?.persistentMenus || []) {
+          if (title) {
+            if (type === 'web_url' && url) {
+              persistentMenus.push({
+                type: 'web_url',
+                title,
+                url: url,
+                webview_height_ratio: 'full'
+              });
+            } else {
+              persistentMenus.push({
+                type: 'postback',
+                title,
+                payload: bot._id
+              });
+            }
+          }
+        }
+
         graphRequest.post('/me/messenger_profile', pageAccessToken, {
-          get_started: { payload: bot._id }
+          get_started: { payload: bot._id },
+          persistent_menu: [
+            {
+              locale: 'default',
+              composer_input_disabled: false,
+              call_to_actions: [
+                {
+                  type: 'postback',
+                  title: 'Get Started',
+                  payload: bot._id
+                },
+                ...persistentMenus
+              ]
+            }
+          ]
         });
 
         return { status: 'success' };
@@ -157,7 +209,7 @@ export const loadBotClass = (models: IModels) => {
 
       try {
         graphRequest.delete(`/me/messenger_profile`, pageAccessToken, {
-          fields: ['get_started'],
+          fields: ['get_started', 'persistent_menu'],
           access_token: pageAccessToken
         });
 

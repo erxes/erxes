@@ -31,8 +31,8 @@ class Form extends React.Component<Props> {
       const afterMutate = () => {
         if (callback) {
           callback();
-          this.props.closeModal();
         }
+        this.props.closeModal();
       };
 
       return (

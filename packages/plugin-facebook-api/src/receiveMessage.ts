@@ -23,6 +23,14 @@ const receiveMessage = async (
     postback
   } = activity.channelData as IChannelData;
 
+  if (!text && !message && !!postback && postback?.title === 'Get Started') {
+    text = postback.title;
+
+    message = {
+      mid: postback.mid
+    };
+  }
+
   const integration = await models.Integrations.getIntegration({
     $and: [
       { facebookPageIds: { $in: [recipient.id] } },
@@ -33,8 +41,6 @@ const receiveMessage = async (
   const userId = sender.id;
   const pageId = recipient.id;
   const kind = INTEGRATION_KINDS.MESSENGER;
-
-  text = postback.title === 'Get Started' ? 'Get Started' : text;
 
   // get or create customer
   const customer = await getOrCreateCustomer(
@@ -113,7 +119,7 @@ const receiveMessage = async (
 
   // get conversation message
   let conversationMessage = await models.ConversationMessages.findOne({
-    mid: message.mid || postback.mid
+    mid: message.mid
   });
 
   if (!conversationMessage) {

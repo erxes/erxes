@@ -65,3 +65,19 @@ export const playWait = async (models: IModels, subdomain: string) => {
     );
   }
 };
+
+export const setActionWait = async (
+  models: IModels,
+  subdomain: string,
+  data
+) => {
+  const { waitActionId, checkData, execution } = data;
+
+  await models.Executions.createExecution({
+    ...execution,
+    status: EXECUTION_STATUS.WAITING,
+    waitingActionId: waitActionId,
+    startWaitingDate: new Date(),
+    checkData
+  });
+};
