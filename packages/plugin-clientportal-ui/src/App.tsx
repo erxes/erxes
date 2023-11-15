@@ -3,6 +3,9 @@ import { AppProvider } from 'coreui/appContext';
 import React from 'react';
 
 import GeneralRoutes from './generalRoutes';
+import '@erxes/ui/src/styles/global-styles';
+import '@erxes/ui/src/styles/style.min.css';
+import 'erxes-icon/css/erxes.min.css';
 
 const App = () => {
   return (

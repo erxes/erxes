@@ -34,3 +34,12 @@ export interface ITag {
   order?: string;
   totalObjectCount?: number;
 }
+
+export interface ICallConversation {
+  erxesApiId?: string;
+  senderPhoneNumber: string;
+  recipientPhoneNumber: string;
+  integrationId: string;
+  callId: string;
+  id: string;
+}

@@ -1,4 +1,5 @@
 module.exports = {
+  srcDir: __dirname,
   name: 'inbox',
   port: 3009,
   scope: 'inbox',
