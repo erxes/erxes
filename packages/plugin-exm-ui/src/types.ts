@@ -18,12 +18,11 @@ interface IFeature {
 }
 
 export interface IExm {
-  _id?: string;
+  _id: string;
   name?: string;
   webName?: string;
   webDescription?: string;
   description?: string;
-  categoryId?: string;
   features?: IFeature[];
   logo?: IAttachment;
   favicon?: IAttachment;

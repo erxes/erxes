@@ -59,7 +59,6 @@
     "dataloader": "^2.0.0",
     "erxes-telemetry": "^1.0.4",
     "express": "^4.17.2",
-    "redis": "^2.8.0",
     "validator": "^13.5.2"
   }
 }
