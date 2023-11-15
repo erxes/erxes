@@ -19,7 +19,6 @@ export const RichTextEditorColorControl = () => {
 
   const { editor, labels } = useRichTextEditorContext();
   const currentColor = editor?.getAttributes('textStyle').color || null;
-  console.log(currentColor, 'currentColor');
 
   const label = labels.colorControlLabel(color);
   const handleColorChange = color => {

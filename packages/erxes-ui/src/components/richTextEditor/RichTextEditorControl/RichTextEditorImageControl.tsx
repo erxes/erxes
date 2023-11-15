@@ -63,8 +63,6 @@ export const RichTextEditorImageControl = (
 
   const handleSubmit = (e: FormEvent<Element>, callback: () => void) => {
     setImage();
-    console.log(callback, 'callback');
-
     if (callback) callback();
     setInputs(INITIAL_FORM_STATE);
   };
@@ -150,25 +148,7 @@ export const RichTextEditorImageControl = (
         {renderFormItem('link')}
         {renderFormItem('alt', 'Alternative description')}
         {renderFormItem('title', 'Image title')}
-        {/* {renderFooter(closeModal)} */}
-        <ModalFooter>
-          <Button
-            btnStyle="simple"
-            type="button"
-            icon="cancel-1"
-            onClick={closeModal}
-          >
-            Cancel
-          </Button>
-          <Button
-            btnStyle="success"
-            type="button"
-            icon="check-circle"
-            onClick={e => handleSubmit(e, closeModal)}
-          >
-            Save
-          </Button>
-        </ModalFooter>
+        {renderFooter(closeModal)}
       </ImageHandlingForm>
     );
   };
