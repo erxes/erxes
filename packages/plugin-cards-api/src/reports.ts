@@ -4,7 +4,7 @@ import { sendCoreMessage } from './messageBroker';
 
 const reportTemplates = [
   {
-    type: 'deal',
+    serviceType: 'deal',
     title: 'Deals chart',
     serviceName: 'cards',
     description:
@@ -13,7 +13,7 @@ const reportTemplates = [
     img: 'https://sciter.com/wp-content/uploads/2022/08/chart-js.png'
   },
   {
-    type: 'task',
+    serviceType: 'task',
     title: 'Tasks chart',
     serviceName: 'cards',
     description:
@@ -22,7 +22,7 @@ const reportTemplates = [
     img: 'https://cdn.mos.cms.futurecdn.net/S5bicwPe8vbP9nt3iwAwwi.jpg'
   },
   {
-    type: 'ticket',
+    serviceType: 'ticket',
     title: 'Tickets chart',
     serviceName: 'cards',
     description:

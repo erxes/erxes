@@ -92,8 +92,8 @@ const totalCount = `
 `;
 
 const reportTemplatesList = `
-  query reportTemplatesList($searchValue: String) {
-    reportTemplatesList(searchValue: $searchValue) {
+  query reportTemplatesList($searchValue: String, $serviceName: String) {
+    reportTemplatesList(searchValue: $searchValue, serviceName: $serviceName) {
       title
       type
       description
@@ -172,6 +172,11 @@ query reportChartGetResult($serviceName: String!, $templateType: String!, $filte
   reportChartGetResult(serviceName: $serviceName, templateType: $templateType, filter: $filter )
 }
 `;
+
+const reportServicesList = `
+query reportServicesList{
+  reportServicesList
+}`;
 export default {
   reportsList,
   totalCount,
@@ -181,5 +186,6 @@ export default {
   reportDetail,
   reportsCountByTags,
 
-  reportChartGetResult
+  reportChartGetResult,
+  reportServicesList
 };

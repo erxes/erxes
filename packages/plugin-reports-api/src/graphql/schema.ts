@@ -129,8 +129,9 @@ export const queries = `
   
   reportChartsList: ChartsListResponse
   reportChartDetail(chartId: String!): ReportChart
-  reportTemplatesList(searchValue: String): [ReportTemplate]  
+  reportTemplatesList(searchValue: String, serviceName: String): [ReportTemplate]  
   reportChartTemplatesList(serviceName: String!, charts: [String]): [JSON] 
+  reportServicesList: [String]
 
   reportChartGetTemplates(serviceName: String!): JSON
   reportChartGetFilterTypes(serviceName: String!, templateType: String!): JSON

@@ -8,9 +8,12 @@ import { mutations, queries } from '../../graphql';
 import {
   IChart,
   ReportChartFormMutationResponse,
-  ReportTemplatesListQueryResponse
+  ReportChartTemplatesListQueryResponse,
+  ReportTemplatesListQueryResponse,
+  reportServicesListQueryResponse
 } from '../../types';
 import { Alert } from '@erxes/ui/src/utils';
+import { Spinner } from '@erxes/ui/src/components';
 type Props = {
   history: any;
   queryParams: any;
@@ -23,19 +26,25 @@ type Props = {
 
 type FinalProps = {
   reportTemplatesListQuery: ReportTemplatesListQueryResponse;
+  reportChartTemplatesListQuery: ReportChartTemplatesListQueryResponse;
+  reportServicesListQuery: reportServicesListQueryResponse;
 } & Props &
   ReportChartFormMutationResponse;
 
 const ChartFormList = (props: FinalProps) => {
   const {
     reportTemplatesListQuery,
+    reportServicesListQuery,
+    reportChartTemplatesListQuery,
     reportChartsAddMutation,
     reportChartsEditMutation,
     reportChartsRemoveMutation,
     toggleForm
   } = props;
 
-  const { reportTemplatesList = [] } = reportTemplatesListQuery;
+  if (reportServicesListQuery.loading) {
+    return <Spinner />;
+  }
 
   const chartsEdit = values => {
     reportChartsEditMutation({ variables: values });
@@ -67,7 +76,8 @@ const ChartFormList = (props: FinalProps) => {
     chartsAdd,
     chartsEdit,
     chartsRemove,
-    reportTemplates: reportTemplatesList
+    serviceNames: reportServicesListQuery.reportServicesList,
+    chartTemplates: reportChartTemplatesListQuery?.reportChartTemplatesList
   };
 
   return <ChartForm {...finalProps} />;
@@ -76,10 +86,26 @@ const ChartFormList = (props: FinalProps) => {
 export default compose(
   graphql<Props, any, {}>(gql(queries.reportTemplatesList), {
     name: 'reportTemplatesListQuery',
+    options: ({ queryParams }) => ({
+      variables: { serviceName: queryParams.serviceName || null },
+      fetchPolicy: 'network-only'
+    })
+  }),
+  graphql<Props, any, {}>(gql(queries.reportServicesList), {
+    name: 'reportServicesListQuery',
     options: () => ({
       fetchPolicy: 'network-only'
     })
   }),
+  graphql<Props, any, {}>(gql(queries.reportChartTemplatesList), {
+    name: 'reportChartTemplatesListQuery',
+    options: ({ queryParams }) => ({
+      variables: { serviceName: queryParams.serviceName },
+      fetchPolicy: 'network-only'
+    }),
+    skip: ({ queryParams }) => !queryParams.serviceName
+  }),
+
   graphql<Props, any, {}>(gql(mutations.reportChartsAdd), {
     name: 'reportChartsAddMutation',
     options: ({ reportId }) => ({

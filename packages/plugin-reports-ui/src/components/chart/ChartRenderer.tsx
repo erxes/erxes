@@ -22,7 +22,6 @@ interface IChartProps {
 const ChartRenderer = (props: IChartProps) => {
   const { labels, chartType, data, title } = props;
 
-  console.log('renderer   ', chartType);
   const chartRef = useRef<HTMLCanvasElement>(null);
 
   const chartData = {

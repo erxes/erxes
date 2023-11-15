@@ -21,9 +21,8 @@ import Select from 'react-select-plus';
 import Button from '@erxes/ui/src/components/Button';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
 import { __, router } from '@erxes/ui/src/utils';
-import { IChart } from '../../types';
 import ChartRenderer from '../../containers/chart/ChartRenderer';
-import { CHART_TYPES } from './utils';
+import { IChart } from '../../types';
 
 type Props = {
   toggleForm: () => void;
@@ -31,10 +30,11 @@ type Props = {
   history: any;
   queryParams: any;
 
-  reportTemplates: any;
+  chartTemplates: any[];
   showChatForm: boolean;
 
   chart?: IChart;
+  serviceNames: string[];
 
   chartsEdit: (values: any) => void;
   chartsAdd: (values: any) => void;
@@ -44,43 +44,58 @@ const ChartForm = (props: Props) => {
     history,
     queryParams,
     toggleForm,
-    reportTemplates,
+    chartTemplates,
     showChatForm,
     chart,
     chartsAdd,
-    chartsEdit
+    chartsEdit,
+
+    serviceNames
   } = props;
 
   const [name, setName] = useState(chart?.name || '');
+
+  const [serviceName, setServiceName] = useState('');
+  const [chartTemplate, setChartTemplate] = useState('');
+
+  const [chartTypes, setChartTypes] = useState([]);
   const [chartType, setChartType] = useState<string>(chart?.chartType || 'bar');
-  const [serviceType, setServiceType] = useState('');
-  const [serviceTypes, setServiceTypes] = useState([]);
 
   useEffect(() => {
-    setServiceTypes(reportTemplates.map(r => r.serviceName));
-  }, [reportTemplates]);
+    const findChartTemplate = chartTemplates.find(
+      t => t.templateType === chartTemplate
+    );
+
+    if (findChartTemplate) {
+      setChartTypes(findChartTemplate.chartTypes);
+    }
+  }, [[...chartTemplates]]);
 
   const onChangeName = (e: any) => {
     e.preventDefault();
-
     setName(e.target.value);
   };
 
-  const onServiceTypeChange = selVal => {
-    router.setParams(history, { serviceType: selVal.value });
-    setServiceType(selVal.value);
+  const renderChartTemplates = chartTemplates.map(c => ({
+    label: c.name,
+    value: c.templateType
+  }));
+
+  const renderChartTypes = chartTypes.map(c => ({ label: c, value: c }));
+
+  const onServiceNameChange = selVal => {
+    router.setParams(history, { serviceName: selVal.value });
+    setServiceName(selVal.value);
+  };
+
+  const onChartTemplateChange = selVal => {
+    router.setParams(history, { chartTemplateType: selVal.value });
+    setChartTemplate(selVal.value);
   };
 
   const onChartTypeChange = chartSelVal => {
     setChartType(chartSelVal.value);
   };
-
-  const renderChartTypes = Object.keys(CHART_TYPES).map(t => {
-    return {
-      label: CHART_TYPES[t],
-      value: CHART_TYPES[t]
-    };
-  });
 
   const onSave = () => {
     chart ? chartsEdit({ chartType, name }) : chartsAdd({ chartType, name });
@@ -88,24 +103,6 @@ const ChartForm = (props: Props) => {
 
   return (
     <FormContainer>
-      {/* {isQueryPresent ? (
-        <SelectChartType>
-          <FormGroup>
-            <ControlLabel>Chart type</ControlLabel>
-
-            <Select
-              options={CHART_TYPES.map(chartTypeValue => ({
-                label: chartTypeValue.title,
-                value: chartTypeValue.name
-              }))}
-              value={chartType}
-              onChange={m => updateChartType(m.value)}
-              placeholder={__('Choose chart')}
-            />
-          </FormGroup>
-        </SelectChartType>
-      ) : null} */}
-
       <FormChart>
         <RTG.CSSTransition
           in={showChatForm}
@@ -146,18 +143,31 @@ const ChartForm = (props: Props) => {
                 />
               </FormGroup>
               <FormGroup>
-                <ControlLabel required={true}>{__('Type')}</ControlLabel>
+                <ControlLabel required={true}>{__('Service')}</ControlLabel>
 
                 <Select
-                  options={serviceTypes.map(st => {
+                  options={serviceNames.map(st => {
                     return {
                       label: st,
                       value: st
                     };
                   })}
-                  value={serviceType}
-                  onChange={onServiceTypeChange}
+                  value={serviceName}
+                  onChange={onServiceNameChange}
                   placeholder={__(`Choose Type`)}
+                />
+              </FormGroup>
+
+              <FormGroup>
+                <ControlLabel required={true}>
+                  {__('Chart template')}
+                </ControlLabel>
+
+                <Select
+                  options={renderChartTemplates}
+                  value={chartTemplate}
+                  onChange={onChartTemplateChange}
+                  placeholder={__(`Choose chart`)}
                 />
               </FormGroup>
 

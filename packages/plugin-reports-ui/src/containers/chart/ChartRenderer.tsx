@@ -22,17 +22,14 @@ type FinalProps = {
   reportChartGetResultQuery: ReportChartGetResultQueryResponse;
 } & Props;
 const ChartRendererList = (props: FinalProps) => {
-  const { reportChartGetResultQuery } = props;
+  const { reportChartGetResultQuery, chartVariables } = props;
 
-  if (reportChartGetResultQuery.loading) {
+  if (reportChartGetResultQuery && reportChartGetResultQuery.loading) {
     return <Spinner />;
   }
 
-  const {
-    data,
-    labels,
-    title
-  } = reportChartGetResultQuery.reportChartGetResult;
+  const { data, labels, title } =
+    reportChartGetResultQuery?.reportChartGetResult || {};
 
   const finalProps = {
     ...props,
@@ -40,12 +37,14 @@ const ChartRendererList = (props: FinalProps) => {
     labels,
     title
   };
+
   return <ChartRenderer {...finalProps} />;
 };
 
 export default withProps<Props>(
   compose(
     graphql<any>(gql(queries.reportChartGetResult), {
+      skip: ({ chartVariables }) => !Object.keys(chartVariables).length,
       name: 'reportChartGetResultQuery',
       options: ({ chartVariables }) => ({
         variables: chartVariables,

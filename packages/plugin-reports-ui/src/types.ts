@@ -130,6 +130,12 @@ export type ReportChartTemplatesListQueryResponse = {
   loading: boolean;
 };
 
+export type reportServicesListQueryResponse = {
+  reportServicesList: string[];
+  refetch: () => void;
+  loading: boolean;
+};
+
 export type ReportChartFormMutationResponse = {
   reportChartsAddMutation: (params: {
     variables: ReportChartFormMutationVariables;

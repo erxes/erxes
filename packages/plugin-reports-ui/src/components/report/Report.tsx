@@ -345,7 +345,7 @@ const Report = (props: Props) => {
       <Wrapper.Header
         title={report.name || 'Report'}
         breadcrumb={[
-          { title: __('Report'), link: '/reports' },
+          { title: __('Reports'), link: '/reports' },
           { title: `${(report && report.name) || ''}` }
         ]}
       />

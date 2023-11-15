@@ -91,20 +91,59 @@ const reportsQueries = {
     return models.Reports.getReport(reportId);
   },
 
-  // return total templates list from available services
-  async reportTemplatesList(_root, { searchValue }, { models }: IContext) {
+  // return service names list that exports reports
+  async reportServicesList(_root, _params, { models }: IContext) {
     const serviceNames = await serviceDiscovery.getServices();
-    const totalTemplatesList: any = [];
-    const searchVal = searchValue || '';
+    const totalServicesNamesList: string[] = [];
+
     for (const serviceName of serviceNames) {
+      const service = await serviceDiscovery.getService(serviceName, true);
+      const chartTemplates = service.config?.meta?.reports?.chartTemplates;
+
+      if (chartTemplates && chartTemplates.length) {
+        totalServicesNamesList.push(serviceName);
+      }
+    }
+
+    return totalServicesNamesList;
+  },
+
+  // return total templates list from available services
+  async reportTemplatesList(
+    _root,
+    { searchValue, serviceName },
+    { models }: IContext
+  ) {
+    const totalTemplatesList: any = [];
+
+    const filterBySearchValue = (reportTemplates: any[], searchVal: string) => {
+      return reportTemplates.filter(t =>
+        t.title.toLowerCase().includes(searchVal.toLowerCase())
+      );
+    };
+
+    if (serviceName) {
       const service = await serviceDiscovery.getService(serviceName, true);
       const reportTemplates = service.config?.meta?.reports?.reportTemplates;
 
       if (reportTemplates) {
         totalTemplatesList.push(
-          ...reportTemplates.filter(t =>
-            t.title.toLowerCase().includes(searchVal?.toLowerCase())
-          )
+          ...filterBySearchValue(reportTemplates, searchValue || '')
+        );
+      }
+
+      return totalTemplatesList;
+    }
+
+    const serviceNames = await serviceDiscovery.getServices();
+
+    for (const srviceName of serviceNames) {
+      const service = await serviceDiscovery.getService(srviceName, true);
+      const reportTemplates = service.config?.meta?.reports?.reportTemplates;
+
+      if (reportTemplates) {
+        totalTemplatesList.push(
+          ...filterBySearchValue(reportTemplates, searchValue || '')
         );
       }
     }
@@ -114,12 +153,12 @@ const reportsQueries = {
 
   async reportChartTemplatesList(
     _root,
-    { serviceName, charts }: { serviceName: string; charts: string[] },
+    { serviceName }: { serviceName: string },
     {}: IContext
   ) {
     const service = await serviceDiscovery.getService(serviceName, true);
     const chartTemplates = service.config?.meta?.reports?.chartTemplates;
-    return chartTemplates.filter(t => charts.includes(t.templateType));
+    return chartTemplates;
   },
 
   reportChartGetFilterTypes(
