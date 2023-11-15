@@ -1,76 +1,3 @@
-const exms = `
-  query exms($searchValue: String, $categoryId: String, $page: Int, $perPage: Int) {
-    exms(searchValue: $searchValue, categoryId: $categoryId, page: $page, perPage: $perPage) {
-      list {
-        _id
-        name
-        webName
-        webDescription
-        description
-        categoryId
-        logo
-        url
-        favicon
-        features {
-          _id
-          icon
-          name
-          description
-          contentType
-          contentId
-          subContentId
-        }
-        appearance {
-          primaryColor
-          secondaryColor
-          bodyColor
-          headerColor
-          footerColor
-        }
-        vision
-        structure
-      }
-      totalCount
-  }
-}
-`;
-
-const exmDetail = `
-  query exmDetail($_id: String!) {
-    exmDetail(_id: $_id) {
-      _id
-      name
-      description
-      createdAt
-      categoryId
-      
-      features {
-        _id
-        icon
-        name
-        description
-        contentType
-        contentId
-        subContentId
-      }
-      
-      appearance {
-        primaryColor
-        secondaryColor
-        bodyColor
-        headerColor
-        footerColor
-      }
-      
-      logo
-      url
-      favicon
-      webName
-      webDescription
-    }
-  }
-`;
-
 const exmGet = `
   query exmGet {
     exmGet {
@@ -105,26 +32,6 @@ const exmGet = `
       vision
       structure
     }
-  }
-`;
-
-const categories = `
-  query exmCoreCategories($ids:[String],$excludeIds:[String],$searchValue: String) {
-    exmCoreCategories(ids:$ids,excludeIds:$excludeIds,searchValue: $searchValue) {
-        _id
-        code
-        description
-        name
-        order
-        isRoot,
-        count
-    }
-  }
-`;
-
-const categoriesTotalCount = `
-  query exmCoreCategoriesTotalCount {
-    exmCoreCategoriesTotalCount
   }
 `;
 
@@ -200,12 +107,8 @@ const integrations = `
 
 export default {
   exmGet,
-  exms,
   knowledgeBaseTopics,
   knowledgeBaseCategories,
   allBrands,
-  integrations,
-  categories,
-  categoriesTotalCount,
-  exmDetail
+  integrations
 };

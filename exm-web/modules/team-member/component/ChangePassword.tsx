@@ -1,10 +1,7 @@
 "use client"
 
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
 import * as z from "zod"
 
-import { Button } from "@/components/ui/button"
 import {
   Form,
   FormControl,
@@ -13,7 +10,11 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form"
+
+import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
 
 const ChangePassword = ({
   changePassword,
@@ -44,7 +45,7 @@ const ChangePassword = ({
     resolver: zodResolver(FormSchema),
   })
 
-  const onSubmit = (data: z.infer<typeof FormSchema>) => {console.log("data", data)
+  const onSubmit = (data: z.infer<typeof FormSchema>) => {
     changePassword(data)
   }
 

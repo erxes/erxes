@@ -1,11 +1,14 @@
 "use client"
 
+import "react-datetime-picker/dist/DateTimePicker.css"
+import "react-calendar/dist/Calendar.css"
+import "react-clock/dist/Clock.css"
 import { useEffect, useState } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
-import Datetime from "@nateradebaugh/react-datetime"
 import dayjs from "dayjs"
 import relativeTime from "dayjs/plugin/relativeTime"
 import { Calendar } from "lucide-react"
+import DateTimePicker from "react-datetime-picker"
 import { useForm } from "react-hook-form"
 import Select from "react-select"
 import * as z from "zod"
@@ -116,6 +119,7 @@ const EventForm = ({
   const [imageUploading, setImageUploading] = useState(false)
   const [attachmentUploading, setAttachmentUploading] = useState(false)
   const [recipientIds, setRecipientIds] = useState(feed?.recipientIds || [])
+  const [value, setValue] = useState(new Date())
 
   const callBack = (result: string) => {
     if (result === "success") {
@@ -257,20 +261,13 @@ const EventForm = ({
                           </span>
                         </div>
                       </PopoverTrigger>
-                      <PopoverContent className="w-fit">
-                        <Datetime
-                          inputProps={{ placeholder: "Start date" }}
-                          dateFormat="YYYY/MM/DD"
-                          timeFormat="HH:mm"
+                      <PopoverContent className="w-fit p-2">
+                        <DateTimePicker
+                          format="yyyy/MM/dd h:mm:ss a"
                           value={field.value}
-                          closeOnSelect={true}
-                          utc={true}
-                          input={false}
                           onChange={field.onChange}
-                          defaultValue={dayjs()
-                            .startOf("day")
-                            .add(12, "hour")
-                            .format("YYYY-MM-DD HH:mm:ss")}
+                          minDate={new Date()}
+                          clockClassName="hidden"
                         />
                       </PopoverContent>
                     </Popover>
@@ -297,20 +294,13 @@ const EventForm = ({
                           </span>
                         </div>
                       </PopoverTrigger>
-                      <PopoverContent className="w-fit">
-                        <Datetime
-                          inputProps={{ placeholder: "End date" }}
-                          dateFormat="YYYY/MM/DD"
-                          timeFormat="HH:mm"
+                      <PopoverContent className="w-fit p-2">
+                        <DateTimePicker
+                          format="yyyy/MM/dd h:mm:ss a"
                           value={field.value}
-                          closeOnSelect={true}
-                          utc={true}
-                          input={false}
                           onChange={field.onChange}
-                          defaultValue={dayjs()
-                            .startOf("day")
-                            .add(12, "hour")
-                            .format("YYYY-MM-DD HH:mm:ss")}
+                          minDate={new Date()}
+                          clockClassName="hidden"
                         />
                       </PopoverContent>
                     </Popover>

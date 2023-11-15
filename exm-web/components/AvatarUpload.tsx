@@ -1,11 +1,10 @@
 import React, { useState } from "react"
-import { Upload } from "lucide-react"
-
-import { readFile } from "@/lib/utils"
-import { useToast } from "@/components/ui/use-toast"
-import uploadHandler from "@/components/uploader/uploadHandler"
 
 import Loader from "./ui/loader"
+import { Upload } from "lucide-react"
+import { readFile } from "@/lib/utils"
+import uploadHandler from "@/components/uploader/uploadHandler"
+import { useToast } from "@/components/ui/use-toast"
 
 type Props = {
   avatar?: string
@@ -54,7 +53,6 @@ const AvatarUpload = ({ avatar, defaultAvatar, onAvatarUpload }: Props) => {
       },
 
       afterRead: ({ result, fileInfo }) => {
-        console.log("result", result, fileInfo)
         if (setUploadPreview) {
           setUploadPreview((prevPreview: any) => {
             return fileInfo

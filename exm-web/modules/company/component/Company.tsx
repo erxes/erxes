@@ -7,7 +7,7 @@ const Company = ({ type }: { type: string }) => {
     return (
       <div className="bg-white flex justify-center items-center overflow-hidden mt-[20px] rounded-lg">
         <div className="flex flex-col justify-center items-center p-10">
-          <h1 className="text-[60px] mb-8 text-[#818C8B]">404</h1>
+          <h1 className="text-[60px] mb-8 text-[#818C8B]">Oh no!</h1>
           <p className="w-[60%] text-center">
             Sorry. the content you’re looking for doesn’t uploaded. Either it
             was removed, or have not uploaded yet.

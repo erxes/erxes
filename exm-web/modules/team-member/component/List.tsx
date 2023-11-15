@@ -105,6 +105,7 @@ const List = () => {
         <Input
           className={"sm:rounded-lg border-none bg-white"}
           value={searchValue}
+          autoFocus={true}
           placeholder={"Search Chat"}
           onChange={handleSearch}
         />

@@ -1,7 +1,6 @@
-import { DocumentNode } from 'graphql';
 import gql from 'graphql-tag';
 
-const types: string = `
+const types = `
 type VideoCallData {
   url: String
   name: String
@@ -10,17 +9,18 @@ type VideoCallData {
 }
 `;
 
-const queries: string = `
+const queries = `
   videoCallUsageStatus: JSON
 `;
 
-const mutations: string = `
+const mutations = `
   dailySaveVideoRecordingInfo(roomName:String!, recordingId: String! ): String
   dailyDeleteVideoChatRoom(name: String!): Boolean
   dailyCreateRoom(contentType:String!, contentTypeId:String!): VideoCallData
 `;
 
-const typeDefs: DocumentNode = gql`
+const typeDefs = async _serviceDiscovery => {
+  return gql`
   scalar JSON
   scalar Date
 
@@ -33,6 +33,7 @@ const typeDefs: DocumentNode = gql`
   extend type Mutation {
     ${mutations}
   }
-`;
+  `;
+};
 
 export default typeDefs;

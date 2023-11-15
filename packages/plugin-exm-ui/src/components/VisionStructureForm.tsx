@@ -1,15 +1,15 @@
-import FormGroup from '@erxes/ui/src/components/form/Group';
+import CommonForm from '@erxes/ui-settings/src/common/components/Form';
 import EditorCK from '@erxes/ui/src/containers/EditorCK';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import { IButtonMutateProps } from '@erxes/ui/src/types';
+import { ICommonFormProps } from '@erxes/ui-settings/src/common/types';
 import { IFormProps } from '@erxes/ui/src/types';
 import React from 'react';
-import CommonForm from '@erxes/ui-settings/src/common/components/Form';
-import { ICommonFormProps } from '@erxes/ui-settings/src/common/types';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
 
 type Props = {
   object?: any;
   type?: string;
-  renderButton: (props: IButtonMutateProps) => JSX.Element;
+  renderButton?: (props: IButtonMutateProps) => JSX.Element;
 } & ICommonFormProps;
 
 type State = {

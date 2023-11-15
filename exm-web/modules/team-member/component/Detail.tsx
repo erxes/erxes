@@ -65,11 +65,7 @@ const Detail = ({
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
   })
-
-  if (!id) {
-    return <div />
-  }
-
+  
   const { userDetail } = useUserDetail({ userId: id })
   const { usersEditProfile, changePassword, changePasswordLoading } =
     useMutations()

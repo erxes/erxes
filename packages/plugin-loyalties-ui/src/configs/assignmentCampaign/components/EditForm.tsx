@@ -120,11 +120,11 @@ class EditForm extends React.Component<Props, State> {
       });
     };
 
-    const onChangeSegments = values => {
+    const onChangeSegments = segmentIds => {
       this.setState({
         assignmentCampaign: {
           ...this.state.assignmentCampaign,
-          segmentIds: values.map(v => v.value)
+          segmentIds
         }
       });
     };
