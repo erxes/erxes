@@ -22,7 +22,7 @@ const messageFields = `
   contentType
 
   ${
-    !connection.enabledServices.dailyco
+    connection.enabledServices.dailyco
       ? `  videoCallData {
     url
     status
