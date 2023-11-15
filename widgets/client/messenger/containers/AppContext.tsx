@@ -184,6 +184,7 @@ export class AppProvider extends React.Component<{}, IState> {
   };
 
   saveBrowserInfo = () => {
+    console.log("saveBrowserInfo", connection);
     requestBrowserInfo({
       source: "fromMessenger",
       callback: (browserInfo: IBrowserInfo) => {

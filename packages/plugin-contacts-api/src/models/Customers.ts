@@ -1,6 +1,6 @@
 import { Model } from 'mongoose';
 
-import { putActivityLog, prepareCocLogData } from '../logUtils';
+import { putActivityLog, prepareCocLogData, putCreateLog } from '../logUtils';
 import { validSearchText } from '@erxes/api-utils/src';
 import { validateSingle } from '../verifierUtils';
 import { ICustomField } from '@erxes/api-utils/src/definitions/common';
@@ -20,6 +20,7 @@ import {
   sendToWebhook
 } from '../messageBroker';
 import { IUserDocument } from '@erxes/api-utils/src/types';
+import { MODULE_NAMES } from '../constants';
 
 interface IGetCustomerParams {
   email?: string;
@@ -839,6 +840,9 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
         state: doc.isUser ? 'customer' : customer.state,
         modifiedAt: new Date()
       };
+
+      console.log('modifier ', modifier);
+      console.log('doc ', doc);
 
       if (trackedData && trackedData.length > 0) {
         modifier.trackedData = trackedData;

@@ -23,6 +23,61 @@ export const initBroker = async cl => {
     return;
   });
 
+  consumeRPCQueue('polarsync:fetchCustomer', async ({ subdomain, data }) => {
+    const { customer } = data;
+
+    if (!customer || !customer.primaryPhone) {
+      return;
+    }
+
+    const configs = await sendCommonMessage({
+      subdomain,
+      serviceName: 'core',
+      action: 'configs.findOne',
+      data: {
+        query: {
+          code: 'POLARIS_API_URL'
+        }
+      },
+      isRPC: true,
+      defaultValue: null
+    });
+
+    if (!configs) {
+      return;
+    }
+
+    const url = `${configs.value}/user/update`;
+
+    const body: any = {
+      customer_code: customer.code || '',
+      phone_number: customer.primaryPhone,
+
+      updatedData: customer
+    };
+
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(body)
+    });
+
+    const res = await response.json();
+
+    console.log('res ', res);
+
+    if (res.errors) {
+      throw new Error(res.errors[0]);
+    }
+
+    return Polarissyncs.createOrUpdate({
+      customerId: customer._id,
+      data: res.data || null
+    });
+  });
+
   consumeRPCQueue('polarissync:find', async ({ data }) => {
     return {
       status: 'success',

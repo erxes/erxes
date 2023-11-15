@@ -1,5 +1,5 @@
 {
-  "name": "@erxes/plugin-dailyco-api",
+  "name": "@erxes/plugin-documents-api",
   "version": "1.0.0",
   "scripts": {
     "dev": "nodemon src/index.ts",
