@@ -38,6 +38,8 @@ export const Sidebar = () => {
   }, [pathname])
 
   const NavigationItem = ({ href, active, Icon, value, color, desc }: any) => {
+    console.log(color)
+
     return (
       <li
         className={`${
@@ -53,10 +55,7 @@ export const Sidebar = () => {
               pathname.includes("/chat") ? "" : ""
             } shadow-md p-2 rounded-lg relative`}
           >
-            <Icon
-              size={18}
-              color={`${activeClass === active ? "#FFF" : color}`}
-            />
+            <Icon size={18} color={color} />
           </div>
           {active === "chats" && unreadCount > 0 ? (
             <div className="absolute top-2 right-2">

@@ -123,7 +123,7 @@ const ScheduleConfigOrder = ({
         </div>
       </button>
       {toggleOrder && (
-        <div className="flex flex-col gap-2 px-3 h-[100px]">
+        <div className="flex flex-col gap-2 px-3 h-[200px] overflow-y-auto">
           {scheduleConfigsOrderData.orderedList
             ?.sort((a: any, b: any) => a.order - b.order)
             ?.map((s: any) => (

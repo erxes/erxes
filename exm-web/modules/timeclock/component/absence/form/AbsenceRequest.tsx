@@ -93,7 +93,7 @@ const AbsenceRequest = ({ queryParams, absenceTypes }: Props) => {
     if (userId === "") {
       toast({ description: "No user was selected" })
     } else if (
-      absenceTypes[absenceIndex].attachRequired &&
+      absenceTypes[absenceIndex]?.attachRequired &&
       attachments?.length === 0
     ) {
       toast({ description: "No attachment was uploaded" })

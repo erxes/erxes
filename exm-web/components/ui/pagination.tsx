@@ -185,6 +185,10 @@ const PaginationContainer = ({
   }
 
   const renderBar = () => {
+    if (!isPaginated) {
+      return null
+    }
+
     let prevClass = ""
     let nextClass = ""
 
@@ -261,7 +265,7 @@ const Pagination = (props: IPaginationContainerProps) => {
   const childProps = {
     ...props,
     currentPage,
-    isPaginated: totalPagesCount > 1,
+    isPaginated: totalPagesCount >= 1,
     totalPagesCount,
     pages,
   }

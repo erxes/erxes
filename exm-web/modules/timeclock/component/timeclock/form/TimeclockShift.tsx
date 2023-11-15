@@ -20,7 +20,7 @@ const TimeclockShift = () => {
 
   const [open, setOpen] = useState(false)
   const [currentTime, setCurrentTime] = useState(
-    new Date().toLocaleTimeString()
+    new Date().toLocaleTimeString("en-US", { hourCycle: "h23" })
   )
 
   const [shiftStarted, setShiftStarted] = useState(false)
@@ -38,7 +38,9 @@ const TimeclockShift = () => {
 
   useEffect(() => {
     const timer = setInterval(() => {
-      setCurrentTime(new Date().toLocaleTimeString())
+      setCurrentTime(
+        new Date().toLocaleTimeString("en-US", { hourCycle: "h23" })
+      )
     }, 1000)
     return () => {
       clearInterval(timer)
@@ -65,9 +67,8 @@ const TimeclockShift = () => {
           <DialogTitle>Start Shift</DialogTitle>
         </DialogHeader>
         <div className="flex flex-col">
-          <div className="flex font-bold text-[80px] py-10 justify-between">
-            <div>{currentTime.split(" ")[0]}</div>
-            <div>{currentTime.split(" ")[1]}</div>
+          <div className="flex font-bold text-[86px] py-10 justify-center">
+            <div>{currentTime}</div>
           </div>
           <Button
             className="whitespace-nowrap"

@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/table"
 
 import { useTimeclocksList } from "../../hooks/useTimeclocksList"
+import TimeclockTableFooter from "../TimeclockTableFooter"
 import TimeClockRow from "./TimeclockRow"
 import TimeclockAction from "./action/TImeclockAction"
 
@@ -37,6 +38,24 @@ const TimeclockList = ({ queryParams }: any) => {
       ...queryParams,
     })
 
+  const renderTableBody = () => {
+    if (loading) {
+      return (
+        <div className="absolute left-1/2">
+          <Loader />
+        </div>
+      )
+    }
+
+    return (
+      <TableBody>
+        {timeclocksMainList.map((timeclock, index) => (
+          <TimeClockRow timeclock={timeclock} key={index} />
+        ))}
+      </TableBody>
+    )
+  }
+
   return (
     <div className="h-[94vh] mt-2 flex flex-col gap-3">
       <TimeclockAction />
@@ -54,30 +73,14 @@ const TimeclockList = ({ queryParams }: any) => {
               ))}
             </TableRow>
           </TableHeader>
-          {loading ? (
-            <div className="absolute left-1/2">
-              <Loader />
-            </div>
-          ) : (
-            <TableBody>
-              {timeclocksMainList.map((timeclock, index) => (
-                <TimeClockRow timeclock={timeclock} key={index} />
-              ))}
-            </TableBody>
-          )}
+          {renderTableBody()}
         </Table>
       </div>
       <div className="flex items-center justify-between">
-        {timeclocksMainTotalCount <= 0 ? null : (
-          <span className="text-[#B5B7C0] font-medium">
-            Showing data {(queryParams.page - 1) * queryParams.perPage + 1} to{" "}
-            {queryParams.page * queryParams.perPage > timeclocksMainTotalCount
-              ? timeclocksMainTotalCount
-              : queryParams.page * queryParams.perPage}{" "}
-            of {timeclocksMainTotalCount} entries
-          </span>
-        )}
-
+        <TimeclockTableFooter
+          queryParams={queryParams}
+          totalCount={timeclocksMainTotalCount}
+        />
         <Pagination count={timeclocksMainTotalCount} />
       </div>
     </div>

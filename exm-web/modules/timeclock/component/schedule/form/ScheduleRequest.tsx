@@ -15,13 +15,6 @@ import { Button } from "@/components/ui/button"
 import { Calendar } from "@/components/ui/calendar"
 import { DatePicker } from "@/components/ui/date-picker"
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog"
-import {
   Popover,
   PopoverContent,
   PopoverTrigger,
@@ -32,11 +25,15 @@ import ScheduleConfigOrder from "./ScheduleConfigOrder"
 type Props = {
   configsList: IScheduleConfig[]
   scheduleConfigOrder: IScheduleConfigOrder
+  setOpen: (value: boolean) => void
 }
 
-const ScheduleRequest = ({ configsList, scheduleConfigOrder }: Props) => {
+const ScheduleRequest = ({
+  configsList,
+  scheduleConfigOrder,
+  setOpen,
+}: Props) => {
   const currentUser = useAtomValue(currentUserAtom)
-  const [open, setOpen] = useState(false)
 
   const callBack = (result: string) => {
     if (result === "success") {
@@ -70,20 +67,18 @@ const ScheduleRequest = ({ configsList, scheduleConfigOrder }: Props) => {
   const [selectedValue, setSelectedValue] = useState(initialSelectValue)
   const [selectedValues, setSelectedValues] = useState([initialSelectValue])
 
-  const [shifts, setShifts] = useState(
-    [
-      {
-        scheduleConfigId: configsList[0]._id,
-        shiftStart: new Date(
-          dayjs(days[0]).format("YYYY-MM-DD") + " " + configsList[0].shiftStart
-        ),
-        shiftEnd: new Date(
-          dayjs(days[0]).format("YYYY-MM-DD") + " " + configsList[0].shiftEnd
-        ),
-        lunchBreakInMins: configsList[0].lunchBreakInMins,
-      },
-    ] || []
-  )
+  const [shifts, setShifts] = useState([
+    {
+      scheduleConfigId: configsList[0]?._id,
+      shiftStart: new Date(
+        dayjs(days[0]).format("YYYY-MM-DD") + " " + configsList[0]?.shiftStart
+      ),
+      shiftEnd: new Date(
+        dayjs(days[0]).format("YYYY-MM-DD") + " " + configsList[0]?.shiftEnd
+      ),
+      lunchBreakInMins: configsList[0]?.lunchBreakInMins,
+    },
+  ])
 
   const renderScheduleConfigOptions = () => {
     return scheduleConfigsOrderData.orderedList.map((s) => ({
@@ -299,144 +294,119 @@ const ScheduleRequest = ({ configsList, scheduleConfigOrder }: Props) => {
     })
   }
 
-  const renderRequestForm = () => {
-    return (
-      <div className="flex flex-col gap-3">
-        {displayTotalDaysHoursBreakMins()}
-        <ScheduleConfigOrder
-          scheduleConfigsOrderData={scheduleConfigsOrderData}
-          setScheduleConfigsOrderData={setScheduleConfigsOrderData}
-        />
-        <Select
-          options={renderScheduleConfigOptions()}
-          onChange={handleConfigChange}
-          value={selectedValue}
-        />
-        <div className="flex gap-1">
-          <Popover>
-            <PopoverTrigger asChild={true}>
-              <Button
-                variant={"outline"}
-                className={"w-full justify-start text-left font-normal"}
-              >
-                <CalendarIcon className="mr-2 h-4 w-4" />
-                {days?.length !== 0
-                  ? `${days?.length} day selected`
-                  : "Choose Date"}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0">
-              <Calendar
-                mode="multiple"
-                selected={days}
-                onSelect={(_, selectedDay) =>
-                  handleCalendarChange(selectedDay!)
-                }
-              />
-            </PopoverContent>
-          </Popover>
-          <Button
-            onClick={() => {
-              const maxDate =
-                days.length > 0
-                  ? dayjs(
-                      Math.max(...days.map((date) => dayjs(date).valueOf()))
-                    )
-                  : dayjs()
+  return (
+    <div className="flex flex-col gap-3">
+      {displayTotalDaysHoursBreakMins()}
+      <ScheduleConfigOrder
+        scheduleConfigsOrderData={scheduleConfigsOrderData}
+        setScheduleConfigsOrderData={setScheduleConfigsOrderData}
+      />
+      <Select
+        options={renderScheduleConfigOptions()}
+        onChange={handleConfigChange}
+        value={selectedValue}
+      />
+      <div className="flex gap-1">
+        <Popover>
+          <PopoverTrigger asChild={true}>
+            <Button
+              variant={"outline"}
+              className={"w-full justify-start text-left font-normal"}
+            >
+              <CalendarIcon className="mr-2 h-4 w-4" />
+              {days?.length !== 0
+                ? `${days?.length} day selected`
+                : "Choose Date"}
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-auto p-0">
+            <Calendar
+              mode="multiple"
+              selected={days}
+              onSelect={(_, selectedDay) => handleCalendarChange(selectedDay!)}
+            />
+          </PopoverContent>
+        </Popover>
+        <Button
+          onClick={() => {
+            const maxDate =
+              days.length > 0
+                ? dayjs(Math.max(...days.map((date) => dayjs(date).valueOf())))
+                : dayjs()
 
-              handleCalendarChange(maxDate.add(1, "day").toDate())
-            }}
-          >
-            <Plus size={16} />
-          </Button>
-        </div>
-        <div className="flex flex-col gap-2">
-          {days?.map((day, index) => (
-            <div key={index} className="flex gap-1">
-              <DatePicker
-                date={day}
-                setDate={(selectedDay) => handleDatePicker(selectedDay!, index)}
-                className="w-2/6"
-                disabled={days}
-              />
-              <Select
-                options={renderScheduleConfigOptions()}
-                className="w-2/6"
-                onChange={(value) => handleConfigsChange(value, index)}
-                value={selectedValues[index]}
-              />
-              <input
-                type="time"
-                name="shiftStart"
-                className="appearance-none block w-1/6 text-center border border-input hover:bg-accent hover:text-accent-foreground rounded-md px-3 outline-none"
-                value={dayjs(shifts[index].shiftStart).format("HH:mm")}
-                onChange={(e) => handleInputChange(e, index)}
-              />
-              <input
-                type="time"
-                name="shiftEnd"
-                className="appearance-none block w-1/6 text-center border border-input hover:bg-accent hover:text-accent-foreground rounded-md px-3 outline-none"
-                value={dayjs(shifts[index].shiftEnd).format("HH:mm")}
-                onChange={(e) => handleInputChange(e, index)}
-              />
-              <input
-                type="number"
-                name="lunchBreakInMins"
-                min={0}
-                max={60}
-                className="[appearance:textfield] 
+            handleCalendarChange(maxDate.add(1, "day").toDate())
+          }}
+        >
+          <Plus size={16} />
+        </Button>
+      </div>
+      <div className="flex flex-col gap-2">
+        {days?.map((day, index) => (
+          <div key={index} className="flex gap-1">
+            <DatePicker
+              date={day}
+              setDate={(selectedDay) => handleDatePicker(selectedDay!, index)}
+              className="w-2/6"
+              disabled={days}
+            />
+            <Select
+              options={renderScheduleConfigOptions()}
+              className="w-2/6"
+              onChange={(value) => handleConfigsChange(value, index)}
+              value={selectedValues[index]}
+            />
+            <input
+              type="time"
+              name="shiftStart"
+              className="appearance-none block w-1/6 text-center border border-input hover:bg-accent hover:text-accent-foreground rounded-md px-3 outline-none"
+              value={dayjs(shifts[index].shiftStart).format("HH:mm")}
+              onChange={(e) => handleInputChange(e, index)}
+            />
+            <input
+              type="time"
+              name="shiftEnd"
+              className="appearance-none block w-1/6 text-center border border-input hover:bg-accent hover:text-accent-foreground rounded-md px-3 outline-none"
+              value={dayjs(shifts[index].shiftEnd).format("HH:mm")}
+              onChange={(e) => handleInputChange(e, index)}
+            />
+            <input
+              type="number"
+              name="lunchBreakInMins"
+              min={0}
+              max={60}
+              className="[appearance:textfield] 
                 [&::-webkit-outer-spin-button]:appearance-none 
                 [&::-webkit-inner-spin-button]:appearance-none 
                 text-center border border-input 
                 hover:bg-accent 
                 hover:text-accent-foreground rounded-md px-3 outline-none"
-                value={shifts[index].lunchBreakInMins}
-                onChange={(e) => handleInputChange(e, index)}
-              />
-              <Button
-                onClick={() => {
-                  const newDays = [...days]
-                  newDays.splice(index, 1)
-                  setDays(newDays)
+              value={shifts[index].lunchBreakInMins}
+              onChange={(e) => handleInputChange(e, index)}
+            />
+            <Button
+              onClick={() => {
+                const newDays = [...days]
+                newDays.splice(index, 1)
+                setDays(newDays)
 
-                  const newValues = [...selectedValues]
-                  newValues.splice(index, 1)
-                  setSelectedValues(newValues)
+                const newValues = [...selectedValues]
+                newValues.splice(index, 1)
+                setSelectedValues(newValues)
 
-                  const newShift = [...shifts]
-                  newShift.splice(index, 1)
-                  setShifts(newShift)
-                }}
-              >
-                <X size={16} />
-              </Button>
-            </div>
-          ))}
-        </div>
-        <Button
-          onClick={onSubmitClick}
-          disabled={loading || shifts.length === 0}
-        >
-          Submit
-        </Button>
+                const newShift = [...shifts]
+                newShift.splice(index, 1)
+                setShifts(newShift)
+              }}
+            >
+              <X size={16} />
+            </Button>
+          </div>
+        ))}
       </div>
-    )
-  }
-
-  return (
-    <Dialog open={open} onOpenChange={() => setOpen(!open)}>
-      <DialogTrigger asChild={true}>
-        <button className="px-3 py-2 bg-[#3dcc38] text-[#fff] rounded-md">
-          Schedule Request
-        </button>
-      </DialogTrigger>
-      <DialogContent className="px-5 max-w-4xl">
-        <DialogHeader>
-          <DialogTitle>Create Schedule Request</DialogTitle>
-        </DialogHeader>
-        {renderRequestForm()}
-      </DialogContent>
-    </Dialog>
+      <Button onClick={onSubmitClick} disabled={loading || shifts.length === 0}>
+        Submit
+      </Button>
+    </div>
   )
 }
 

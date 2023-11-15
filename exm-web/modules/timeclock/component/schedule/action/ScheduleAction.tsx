@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useState } from "react"
 import {
   IScheduleConfig,
   IScheduleConfigOrder,
@@ -7,6 +7,13 @@ import { CalendarDays, Grid2x2 } from "lucide-react"
 import Select from "react-select"
 
 import { Button } from "@/components/ui/button"
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
 
 import ScheduleRequest from "../form/ScheduleRequest"
 
@@ -32,6 +39,8 @@ const ScheduleAction = ({
   toggleView,
   setToggleView,
 }: Props) => {
+  const [open, setOpen] = useState(false)
+
   return (
     <div>
       <div className="flex gap-2 p-0 justify-end">
@@ -41,10 +50,24 @@ const ScheduleAction = ({
           options={options}
           onChange={(selectedOption) => setStatus(selectedOption?.value!)}
         />
-        <ScheduleRequest
-          configsList={configsList}
-          scheduleConfigOrder={scheduleConfigOrder}
-        />
+
+        <Dialog open={open} onOpenChange={() => setOpen(!open)}>
+          <DialogTrigger asChild={true}>
+            <button className="px-3 py-2 bg-[#3dcc38] text-[#fff] rounded-md">
+              Schedule Request
+            </button>
+          </DialogTrigger>
+          <DialogContent className="px-5 max-w-4xl">
+            <DialogHeader>
+              <DialogTitle>Create Schedule Request</DialogTitle>
+            </DialogHeader>
+            <ScheduleRequest
+              configsList={configsList}
+              scheduleConfigOrder={scheduleConfigOrder}
+              setOpen={setOpen}
+            />
+          </DialogContent>
+        </Dialog>
         <Button onClick={() => setToggleView(!toggleView)}>
           {toggleView ? <Grid2x2 size={16} /> : <CalendarDays size={16} />}
         </Button>

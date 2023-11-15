@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/table"
 
 import { useAbsence } from "../../hooks/useAbsence"
+import TableFooter from "../TimeclockTableFooter"
 import RequestRow from "./AbsenceRow"
 import AbsenceAction from "./action/AbsenceAction"
 
@@ -56,9 +57,29 @@ const Request = ({ queryParams }: Props) => {
     "Action",
   ]
 
+  const renderTableBody = () => {
+    if (loading) {
+      return (
+        <div className="absolute left-1/2">
+          <Loader />
+        </div>
+      )
+    }
+
+    return (
+      <TableBody>
+        {absenceList.map((absence, index) => (
+          <RequestRow absence={absence} seeDate={seeDate} key={index} />
+        ))}
+      </TableBody>
+    )
+  }
+
   return (
     <div className="h-[94vh] mt-2 flex flex-col gap-3">
-      <AbsenceAction queryParams={queryParams} absenceTypes={absenceTypes} />
+      {!loading && (
+        <AbsenceAction queryParams={queryParams} absenceTypes={absenceTypes} />
+      )}
       <div className="flex overflow-y-auto max-h-[70vh] scrollbar-hide">
         <Table>
           <TableHeader className="sticky top-0 bg-[#f8f9fa] border-none">
@@ -73,30 +94,11 @@ const Request = ({ queryParams }: Props) => {
               ))}
             </TableRow>
           </TableHeader>
-          {loading ? (
-            <div className="absolute left-1/2">
-              <Loader />
-            </div>
-          ) : (
-            <TableBody>
-              {absenceList.map((absence, index) => (
-                <RequestRow absence={absence} seeDate={seeDate} key={index} />
-              ))}
-            </TableBody>
-          )}
+          {renderTableBody()}
         </Table>
       </div>
       <div className="flex items-center justify-between">
-        {absenceTotalCount <= 0 ? null : (
-          <span className="text-[#B5B7C0] font-medium self-end">
-            Showing data {(queryParams.page - 1) * queryParams.perPage + 1} to{" "}
-            {queryParams.page * queryParams.perPage > absenceTotalCount
-              ? absenceTotalCount
-              : queryParams.page * queryParams.perPage}{" "}
-            of {absenceTotalCount} entries
-          </span>
-        )}
-
+        <TableFooter queryParams={queryParams} totalCount={absenceTotalCount} />
         <Pagination count={absenceTotalCount} />
       </div>
     </div>
