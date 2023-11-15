@@ -76,7 +76,6 @@ class GoalTypeForm extends React.Component<Props, State> {
   constructor(props) {
     super(props);
     const { goalType = {} } = props;
-    console.log(goalType, 'asdopasdk');
     this.state = {
       segmentIds: goalType.segmentIds || [],
       branch: goalType.branch || [],
