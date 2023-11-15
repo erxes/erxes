@@ -6,7 +6,6 @@ import {
   AwardIcon,
   CalendarClock,
   HomeIcon,
-  LayersIcon,
   MessageCircleIcon,
   ScrollTextIcon,
   StarIcon,
@@ -37,7 +36,7 @@ export const Sidebar = () => {
     }
   }, [pathname])
 
-  const NavigationItem = ({ href, active, Icon, value, color, desc }: any) => {
+  const NavigationItem = ({ href, active, Icon, value, color, backgroundClass , desc }: any) => {
     return (
       <li
         className={`${
@@ -48,7 +47,7 @@ export const Sidebar = () => {
         <div className="relative p-3">
           <div
             className={`${
-              activeClass === active ? `bg-[${color}]` : "bg-white"
+              activeClass === active ? backgroundClass : "bg-white"
             } ${
               pathname.includes("/chat") ? "" : ""
             } shadow-md p-2 rounded-lg relative`}
@@ -84,7 +83,7 @@ export const Sidebar = () => {
   return (
     <div
       className={`h-full p-4 border-r border-[#eee]  ${
-        pathname.includes("/chat") ? "" : "w-1/4"
+        pathname.includes("/chat") ? "" : "w-1/4 flex-0"
       }`}
     >
       <div className="w-full pb-2 mb-4 flex justify-center">
@@ -117,6 +116,7 @@ export const MAIN_NAVIGATION = [
     value: "Feed",
     Icon: HomeIcon,
     color: "#6569DF",
+    backgroundClass: "bg-[#6569DF]",
   },
   {
     active: "chats",
@@ -124,14 +124,15 @@ export const MAIN_NAVIGATION = [
     value: "Chats",
     Icon: MessageCircleIcon,
     color: "#FDA50D",
+    backgroundClass: "bg-[#FDA50D]",
   },
   {
-    active: "team",
-    href: "#",
-    value: "Team members",
+    active: "company",
+    href: "company",
+    value: "Company",
     Icon: Users2Icon,
     color: "#3B85F4",
-    desc: "Coming soon",
+    backgroundClass: "bg-[#3B85F4]",
   },
   {
     active: "discover",
@@ -140,6 +141,7 @@ export const MAIN_NAVIGATION = [
     Icon: StarIcon,
     color: "#EA475D",
     desc: "Coming soon",
+    backgroundClass: "bg-[#EA475D]",
   },
   {
     active: "learn",
@@ -148,6 +150,7 @@ export const MAIN_NAVIGATION = [
     Icon: ScrollTextIcon,
     color: "#3CCC38",
     desc: "Coming soon",
+    backgroundClass: "bg-[#3CCC38]",
   },
   {
     active: "leaderboard",
@@ -156,14 +159,7 @@ export const MAIN_NAVIGATION = [
     Icon: AwardIcon,
     color: "#FF6600",
     desc: "Coming soon",
-  },
-  {
-    active: "structure",
-    href: "#",
-    value: "Structure",
-    Icon: LayersIcon,
-    color: "#63D2D6",
-    desc: "Coming soon",
+    backgroundClass: "bg-[#FF6600]",
   },
   {
     active: "timeclocks",
