@@ -120,11 +120,11 @@ class CreateForm extends React.Component<Props, State> {
       });
     };
 
-    const onChangeSegments = values => {
+    const onChangeSegments = segmentIds => {
       this.setState({
         assignmentCampaign: {
           ...this.state.assignmentCampaign,
-          segmentIds: values.map(v => v.value)
+          segmentIds
         }
       });
     };
@@ -217,7 +217,7 @@ class CreateForm extends React.Component<Props, State> {
                 contentTypes={['contacts:customer', 'contacts:lead']}
                 initialValue={this.state.assignmentCampaign.segmentIds}
                 multi={true}
-                onSelect={segmentIds => onChangeSegments(segmentIds)}
+                onSelect={onChangeSegments}
               />
             </FormGroup>
           </>
