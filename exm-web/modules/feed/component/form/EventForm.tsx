@@ -267,10 +267,6 @@ const EventForm = ({
                           utc={true}
                           input={false}
                           onChange={field.onChange}
-                          defaultValue={dayjs()
-                            .startOf("day")
-                            .add(12, "hour")
-                            .format("YYYY-MM-DD HH:mm:ss")}
                         />
                       </PopoverContent>
                     </Popover>
@@ -307,10 +303,6 @@ const EventForm = ({
                           utc={true}
                           input={false}
                           onChange={field.onChange}
-                          defaultValue={dayjs()
-                            .startOf("day")
-                            .add(12, "hour")
-                            .format("YYYY-MM-DD HH:mm:ss")}
                         />
                       </PopoverContent>
                     </Popover>
