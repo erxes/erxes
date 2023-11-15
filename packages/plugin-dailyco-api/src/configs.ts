@@ -10,22 +10,13 @@ export let debug;
 
 export default {
   name: 'dailyco',
-  graphql: sd => {
+  graphql: async sd => {
     serviceDiscovery = sd;
     return {
-      typeDefs,
+      typeDefs: await typeDefs(sd),
       resolvers
     };
   },
-  meta: {
-    inboxIntegrations: [
-      {
-        kind: 'dailyco',
-        label: 'dailyco'
-      }
-    ]
-  },
-
   apolloServerContext: async (context, req): Promise<any> => {
     const subdomain: string = getSubdomain(req);
     context.subdomain = subdomain;
