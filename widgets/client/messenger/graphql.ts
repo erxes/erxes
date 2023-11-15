@@ -1,4 +1,4 @@
-import { connection } from "./connection";
+import { connection } from './connection';
 
 const userDetailFields = `
   avatar
@@ -20,10 +20,16 @@ const messageFields = `
   internal
   fromBot
   contentType
-  videoCallData {
+
+  ${
+    !connection.enabledServices.dailyco
+      ? `  videoCallData {
     url
     status
+  }`
+      : ''
   }
+
   engageData {
     content
     kind
@@ -287,5 +293,5 @@ export default {
   faqSearchArticlesQuery,
   integrationsFetchApi,
   conversationBotTypingStatus,
-  getEngageMessage
+  getEngageMessage,
 };
