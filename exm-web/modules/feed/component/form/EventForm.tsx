@@ -1,16 +1,12 @@
 "use client"
 
-import { useEffect, useState } from "react"
-import { zodResolver } from "@hookform/resolvers/zod"
-import Datetime from "@nateradebaugh/react-datetime"
-import dayjs from "dayjs"
-import relativeTime from "dayjs/plugin/relativeTime"
-import { Calendar } from "lucide-react"
-import { useForm } from "react-hook-form"
-import Select from "react-select"
+// import "@nateradebaugh/react-datetime/scss/styles.scss"
+import "react-datetime-picker/dist/DateTimePicker.css"
+import "react-calendar/dist/Calendar.css"
+import "react-clock/dist/Clock.css"
+
 import * as z from "zod"
 
-import { Button } from "@/components/ui/button"
 import {
   DialogContent,
   DialogHeader,
@@ -24,23 +20,34 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
-import LoadingPost from "@/components/ui/loadingPost"
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
-import SuccessPost from "@/components/ui/successPost"
-import { Textarea } from "@/components/ui/textarea"
-import SelectUsers from "@/components/select/SelectUsers"
+import { useEffect, useState } from "react"
 
-import useFeedMutation from "../../hooks/useFeedMutation"
-import { useTeamMembers } from "../../hooks/useTeamMembers"
-import { IFeed } from "../../types"
+import { Button } from "@/components/ui/button"
+import { Calendar } from "lucide-react"
+// import DateTime from "@nateradebaugh/react-datetime"
+import DateTimePicker from "react-datetime-picker"
 import FormAttachments from "./FormAttachments"
 import FormImages from "./FormImages"
+import { IFeed } from "../../types"
+import { Input } from "@/components/ui/input"
+import LoadingPost from "@/components/ui/loadingPost"
+import Select from "react-select"
+import SelectUsers from "@/components/select/SelectUsers"
+import SuccessPost from "@/components/ui/successPost"
+import { Textarea } from "@/components/ui/textarea"
 import Uploader from "./uploader/Uploader"
+import dayjs from "dayjs"
+import { enGB } from "date-fns/locale"
+import relativeTime from "dayjs/plugin/relativeTime"
+import useFeedMutation from "../../hooks/useFeedMutation"
+import { useForm } from "react-hook-form"
+import { useTeamMembers } from "../../hooks/useTeamMembers"
+import { zodResolver } from "@hookform/resolvers/zod"
 
 dayjs.extend(relativeTime)
 
@@ -116,6 +123,7 @@ const EventForm = ({
   const [imageUploading, setImageUploading] = useState(false)
   const [attachmentUploading, setAttachmentUploading] = useState(false)
   const [recipientIds, setRecipientIds] = useState(feed?.recipientIds || [])
+  const [value, setValue] = useState(new Date())
 
   const callBack = (result: string) => {
     if (result === "success") {
@@ -252,20 +260,26 @@ const EventForm = ({
                           <Calendar size={15} className="mr-2" />
                           <span>
                             {field.value
-                              ? dayjs(field.value).format("MM/DD/YYYY HH:mm")
+                              ? dayjs(field.value).format("MM/DD/yyyy HH:mm")
                               : "Start date"}
                           </span>
                         </div>
                       </PopoverTrigger>
                       <PopoverContent className="w-fit">
-                        <Datetime
-                          inputProps={{ placeholder: "Start date" }}
-                          dateFormat="YYYY/MM/DD"
+                        {/* <DateTime
+                          // inputProps={{ placeholder: "Start date" }}
+                          dateFormat="yyyy/MM/DD"
                           timeFormat="HH:mm"
                           value={field.value}
-                          closeOnSelect={true}
-                          utc={true}
-                          input={false}
+                          // closeOnSelect={true}
+                          // utc={true}
+                          // input={false}
+                          onChange={field.onChange}
+                        /> */}
+
+                        <DateTimePicker
+                          format="yyyy/MM/DD h:mm:ss a"
+                          value={field.value}
                           onChange={field.onChange}
                         />
                       </PopoverContent>
@@ -288,22 +302,22 @@ const EventForm = ({
                           <Calendar size={15} className="mr-2" />
                           <span>
                             {field.value
-                              ? dayjs(field.value).format("MM/DD/YYYY HH:mm")
+                              ? dayjs(field.value).format("MM/DD/yyyy HH:mm")
                               : "End date"}
                           </span>
                         </div>
                       </PopoverTrigger>
                       <PopoverContent className="w-fit">
-                        <Datetime
-                          inputProps={{ placeholder: "End date" }}
-                          dateFormat="YYYY/MM/DD"
+                        {/* <DateTime
+                          // inputProps={{ placeholder: "End date" }}
+                          dateFormat="yyyy/MM/DD"
                           timeFormat="HH:mm"
                           value={field.value}
-                          closeOnSelect={true}
-                          utc={true}
-                          input={false}
+                          // closeOnSelect={true}
+                          // utc={true}
+                          // input={false}
                           onChange={field.onChange}
-                        />
+                        /> */}
                       </PopoverContent>
                     </Popover>
                   </FormControl>
