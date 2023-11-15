@@ -71,6 +71,16 @@ const Notifications = () => {
     }
   }
 
+  const notificationClick = (notification: INotification) => {
+    if (!notification.isRead) {
+      markAsRead([notification._id])
+    }
+
+    return (window.location.href = `detail?contentType=${
+      notification.action.split(" ")[0]
+    }&id=${notification.link.slice(28)}`)
+  }
+
   const renderNotifRow = (notification: INotification) => {
     const { details, username, email } = notification.createdUser
     const { avatar, fullName } = details
@@ -78,7 +88,7 @@ const Notifications = () => {
     return (
       <li
         key={notification._id}
-        onClick={() => markAsRead([notification._id])}
+        onClick={() => notificationClick(notification)}
         className="flex gap-2 p-3 cursor-pointer hover:bg-[#F0F0F0] items-center justify-between"
       >
         <div className="flex gap-2 items-center">
