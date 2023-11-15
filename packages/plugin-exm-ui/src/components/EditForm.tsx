@@ -1,15 +1,16 @@
 import React, { useState } from 'react';
-import { Tabs, TabTitle } from '@erxes/ui/src/components/tabs';
-import { __ } from '@erxes/ui/src/utils';
-import General from '../containers/General';
+import { TabTitle, Tabs } from '@erxes/ui/src/components/tabs';
+
 import Appearance from './Appearance';
-import { IExm } from '../types';
+import General from '../containers/General';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
+import { IExm } from '../types';
+import { __ } from '@erxes/ui/src/utils';
 
 type Props = {
   exm: IExm;
   edit: (variables: IExm) => void;
-  renderButton: (props: IButtonMutateProps) => JSX.Element;
+  renderButton?: (props: IButtonMutateProps) => JSX.Element;
 };
 
 function EditFrom(props: Props) {
