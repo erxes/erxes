@@ -1,3 +1,10 @@
+# [1.4.0-alpha.7](https://github.com/erxes/erxes/compare/1.4.0-alpha.6...1.4.0-alpha.7) (2023-11-16)
+
+
+### Reverts
+
+* Revert "update(clientportal): improve vendor portal & client portal (#4753)" (#4754) ([23f6b32](https://github.com/erxes/erxes/commit/23f6b324f4e63800adb9258a04dd071b6a752e10)), closes [#4753](https://github.com/erxes/erxes/issues/4753) [#4754](https://github.com/erxes/erxes/issues/4754)
+
 # [1.4.0-alpha.6](https://github.com/erxes/erxes/compare/1.4.0-alpha.5...1.4.0-alpha.6) (2023-11-10)
 
 # [1.4.0-alpha.5](https://github.com/erxes/erxes/compare/1.4.0-alpha.4...1.4.0-alpha.5) (2023-11-07)
