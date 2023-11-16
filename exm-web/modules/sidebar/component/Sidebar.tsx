@@ -36,7 +36,15 @@ export const Sidebar = () => {
     }
   }, [pathname])
 
-  const NavigationItem = ({ href, active, Icon, value, color, backgroundClass , desc }: any) => {
+  const NavigationItem = ({
+    href,
+    active,
+    Icon,
+    value,
+    color,
+    backgroundClass,
+    desc,
+  }: any) => {
     return (
       <li
         className={`${
@@ -52,7 +60,10 @@ export const Sidebar = () => {
               pathname.includes("/chat") ? "" : ""
             } shadow-md p-2 rounded-lg relative`}
           >
-            <Icon size={18} color={color} />
+            <Icon
+              size={18}
+              color={activeClass === active ? "#ffffff" : color}
+            />
           </div>
           {active === "chats" && unreadCount > 0 ? (
             <div className="absolute top-2 right-2">
@@ -167,5 +178,6 @@ export const MAIN_NAVIGATION = [
     value: "Timeclocks",
     Icon: CalendarClock,
     color: "#3d91a9",
+    backgroundClass: "bg-[#3d91a9]",
   },
 ]

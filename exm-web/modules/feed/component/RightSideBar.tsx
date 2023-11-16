@@ -87,9 +87,28 @@ const RightSideBar = () => {
   }
 
   const renderTodaysEvents = () => {
+    if (!checkedTodaysEvent || checkedTodaysEvent.length === 0) {
+      return (
+        <div className="pb-4 pr-4">
+          <Card className="border-0 mb-2">
+            <CardContent className="pt-6 pb-6 flex flex-col items-center justify-center">
+              <Image
+                src="https://office.erxes.io/images/actions/19.svg"
+                alt="event photo"
+                width={500}
+                height={500}
+                className="w-[70%] h-[70%] object-contain rounded-[9px]"
+              />
+              <p className="text-[#5E5B5B] mt-4">There is no event for today</p>
+            </CardContent>
+          </Card>
+        </div>
+      )
+    }
+
     return (
       <div className="pb-4 pr-4">
-        {((checkedTodaysEvent && checkedTodaysEvent) || []).map((item: any) => {
+        {(checkedTodaysEvent || []).map((item: any) => {
           if (item === null) {
             return null
           }
