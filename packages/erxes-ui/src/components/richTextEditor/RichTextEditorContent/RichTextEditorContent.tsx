@@ -1,7 +1,7 @@
 import React from 'react';
 import { EditorContent } from '@tiptap/react';
 import { useRichTextEditorContext } from '../RichTextEditor.context';
-export interface RichTextEditorContentProps {
+export interface IRichTextEditorContentProps {
   /** The height of the editing area that includes the editor content. */
   height?: number | string;
   /** Whether editing area automatically expand and shrink vertically depending on the amount and size of content entered in its editing area. */
@@ -12,7 +12,7 @@ export interface RichTextEditorContentProps {
   autoGrowMinHeight?: number | string;
 }
 
-export const RichTextEditorContent = (props: RichTextEditorContentProps) => {
+export const RichTextEditorContent = (props: IRichTextEditorContentProps) => {
   const ctx = useRichTextEditorContext();
   const {
     height = 200,
@@ -25,7 +25,7 @@ export const RichTextEditorContent = (props: RichTextEditorContentProps) => {
     height: autoGrow ? autoGrowMaxHeight : height
   };
   return (
-    <div data-promise-mirror-editor>
+    <div data-promise-mirror-editor={true}>
       <EditorContent editor={ctx.editor} style={editorStyle} />
     </div>
   );

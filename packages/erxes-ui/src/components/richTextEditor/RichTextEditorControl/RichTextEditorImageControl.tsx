@@ -2,7 +2,7 @@ import React, { useState, ChangeEvent, FormEvent } from 'react';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import { useRichTextEditorContext } from '../RichTextEditor.context';
 import {
-  RichTextEditorControlBaseProps,
+  IRichTextEditorControlBaseProps,
   RichTextEditorControlBase
 } from './RichTextEditorControl';
 import {
@@ -19,7 +19,7 @@ import Button from '../../Button';
 import Uploader from '../../Uploader';
 import { IAttachment } from '../../../types';
 
-const LinkIcon: RichTextEditorControlBaseProps['icon'] = () => (
+const LinkIcon: IRichTextEditorControlBaseProps['icon'] = () => (
   <Icon icon="image" />
 );
 
@@ -63,7 +63,9 @@ export const RichTextEditorImageControl = (
 
   const handleSubmit = (e: FormEvent<Element>, callback: () => void) => {
     setImage();
-    if (callback) callback();
+    if (callback) {
+      callback();
+    }
     setInputs(INITIAL_FORM_STATE);
   };
 
@@ -83,7 +85,7 @@ export const RichTextEditorImageControl = (
             <Input
               id="link-input"
               name="link"
-              autoFocus
+              autoFocus={true}
               placeholder={ctx.labels.imageUrlControlLabel}
               aria-label={ctx.labels.imageUrlControlLabel}
               value={inputs.link}
@@ -140,9 +142,7 @@ export const RichTextEditorImageControl = (
     </ModalFooter>
   );
 
-  const renderContent = (props: { closeModal: () => void }) => {
-    const { closeModal } = props;
-
+  const renderContent = ({ closeModal }) => {
     return (
       <ImageHandlingForm onSubmit={e => handleSubmit(e, closeModal)}>
         {renderFormItem('link')}

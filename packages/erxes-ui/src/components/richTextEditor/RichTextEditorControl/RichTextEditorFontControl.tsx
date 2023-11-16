@@ -9,7 +9,7 @@ type SelectProps = {
   label: string | number;
 };
 
-const DEFAULT_FONT_SIZE_SELECT_OPTIONS: (string | number)[] = [
+const DEFAULT_FONT_SIZE_SELECT_OPTIONS: Array<string | number> = [
   'default',
   '8',
   '9',

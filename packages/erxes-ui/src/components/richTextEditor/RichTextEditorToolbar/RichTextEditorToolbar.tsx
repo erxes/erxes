@@ -1,7 +1,7 @@
 import React, { useRef } from 'react';
 import { EditorToolbarWrapper } from './styles';
 
-export interface RichTextEditorToolbarProps {
+export interface IRichTextEditorToolbarProps {
   /** Determines whether `position: sticky` styles should be added to the toolbar, `false` by default */
   sticky?: boolean;
 
@@ -12,7 +12,7 @@ export interface RichTextEditorToolbarProps {
 }
 
 export const RichTextEditorToolbar = (
-  props: Partial<RichTextEditorToolbarProps> = {}
+  props: Partial<IRichTextEditorToolbarProps> = {}
 ) => {
   const ref = useRef<HTMLDivElement>(null);
   const { sticky = false, stickyOffset, ...others } = props;

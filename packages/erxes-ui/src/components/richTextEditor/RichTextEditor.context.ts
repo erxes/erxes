@@ -1,14 +1,14 @@
 import { Editor } from '@tiptap/react';
-import { RichTextEditorLabels } from './labels';
+import { IRichTextEditorLabels } from './labels';
 import { createSafeContext } from './createSafeContext';
-interface RichTextEditorContext {
+interface IRichTextEditorContext {
   editor: Editor | null;
-  labels: RichTextEditorLabels;
+  labels: IRichTextEditorLabels;
 }
 
 export const [
   RichTextEditorProvider,
   useRichTextEditorContext
-] = createSafeContext<RichTextEditorContext>(
+] = createSafeContext<IRichTextEditorContext>(
   'RichTextEditor component was not found in tree'
 );

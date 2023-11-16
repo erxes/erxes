@@ -1,9 +1,9 @@
 import React, { useEffect, useMemo, useRef } from 'react';
-import { DEFAULT_LABELS, RichTextEditorLabels } from './labels';
+import { DEFAULT_LABELS, IRichTextEditorLabels } from './labels';
 import { RichTextEditorProvider } from './RichTextEditor.context';
 import {
   RichTextEditorContent,
-  RichTextEditorContentProps
+  IRichTextEditorContentProps
 } from './RichTextEditorContent/RichTextEditorContent';
 import { RichTextEditorControlsGroup } from './RichTextEditorControlsGroup/RichTextEditorControlsGroup';
 import { RichTextEditorToolbar } from './RichTextEditorToolbar/RichTextEditorToolbar';
@@ -25,12 +25,12 @@ const POSITION_TOP = 'top';
 const POSITION_BOTTOM = 'bottom';
 type toolbarLocationOption = 'bottom' | 'top';
 
-export interface RichTextEditorProps extends RichTextEditorContentProps {
+export interface IRichTextEditorProps extends IRichTextEditorContentProps {
   /** Controlled value */
   content: string;
   /** Exposing editor onChange to outer component via props */
   onChange?: (editorHtml: string) => void;
-  labels?: RichTextEditorLabels;
+  labels?: IRichTextEditorLabels;
   toolbarLocation?: toolbarLocationOption;
   /** Toolbar controls config */
   toolbar?: string[];
@@ -39,7 +39,7 @@ export interface RichTextEditorProps extends RichTextEditorContentProps {
 }
 let editorContent: string;
 
-export const RichTextEditor = (props: RichTextEditorProps) => {
+export const RichTextEditor = (props: IRichTextEditorProps) => {
   const ref = useRef<HTMLDivElement>(null);
   const {
     content,
@@ -63,9 +63,9 @@ export const RichTextEditor = (props: RichTextEditorProps) => {
     labels
   ]);
 
-  const handleEditorChange = ({ editor }) => {
+  const handleEditorChange = ({ editor: editorInstance }) => {
     if (onChange) {
-      onChange(editor.getHTML());
+      onChange(editorInstance.getHTML());
     }
   };
 
@@ -81,9 +81,11 @@ export const RichTextEditor = (props: RichTextEditorProps) => {
   });
 
   useEffect(() => {
-    if (!editor) return;
+    if (!editor) {
+      return;
+    }
 
-    let { from, to } = editor.state.selection;
+    const { from, to } = editor.state.selection;
     editor.commands.setContent(content, false, {
       preserveWhitespace: true
     });
@@ -96,7 +98,9 @@ export const RichTextEditor = (props: RichTextEditorProps) => {
   }, [editor, content]);
 
   useEffect(() => {
-    if (!editor) return;
+    if (!editor) {
+      return;
+    }
 
     if (name) {
       const storedContent = localStorage.getItem(name);
@@ -120,7 +124,7 @@ export const RichTextEditor = (props: RichTextEditorProps) => {
   }, []);
 
   const editorParts = [
-    <RichTextEditor.Toolbar>
+    <RichTextEditor.Toolbar key="rich-text-editor-toolbar-key">
       <RichTextEditor.ControlsGroup>
         <RichTextEditor.Bold />
         <RichTextEditor.Italic />
@@ -158,10 +162,13 @@ export const RichTextEditor = (props: RichTextEditorProps) => {
       </RichTextEditor.ControlsGroup>
     </RichTextEditor.Toolbar>,
 
-    <RichTextEditorContent {...editorContentProps} />
+    <RichTextEditorContent
+      {...editorContentProps}
+      key="rich-text-editor-content-key"
+    />
   ];
 
-  const renderEditor = (toolbarLocation: toolbarLocationOption) => {
+  const renderEditor = () => {
     if (toolbarLocation === POSITION_TOP) {
       return (
         <>
@@ -186,7 +193,7 @@ export const RichTextEditor = (props: RichTextEditorProps) => {
       }}
     >
       <RichTextEditorWrapper innerRef={ref}>
-        {renderEditor(toolbarLocation)}
+        {renderEditor()}
       </RichTextEditorWrapper>
     </RichTextEditorProvider>
   );

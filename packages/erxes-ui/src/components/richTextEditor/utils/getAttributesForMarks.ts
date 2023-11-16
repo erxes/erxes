@@ -17,7 +17,7 @@ import { EditorState } from '@tiptap/pm/state';
 export function getAttributesForMarks(
   state: EditorState,
   typeOrName: string | MarkType
-): Record<string, any>[] {
+): Array<Record<string, any>> {
   const type = getMarkType(typeOrName, state.schema);
   const { from, to, empty } = state.selection;
   const marks: Mark[] = [];

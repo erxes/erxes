@@ -1,4 +1,40 @@
-export interface RichTextEditorLabels {
+export interface IRichTextEditorLabels {
+  /** aria-label for link editor url input */
+  linkEditorInputLabel: string;
+
+  /** placeholder for link editor url input */
+  linkEditorInputPlaceholder: string;
+
+  /** Content of external button tooltip in link editor when the link was chosen to open in a new tab */
+  linkEditorExternalLink: string;
+
+  /** Content of external button tooltip in link editor when the link was chosen to open in the same tab */
+  linkEditorInternalLink: string;
+
+  /** Save button content in link editor */
+  linkEditorSave: string;
+
+  /** Cancel button title text in color picker control */
+  colorPickerCancel: string;
+
+  /** Clear button title text in color picker control */
+  colorPickerClear: string;
+
+  /** Color picker button title text in color picker control */
+  colorPickerColorPicker: string;
+
+  /** Palette button title text in color picker control */
+  colorPickerPalette: string;
+
+  /** Save button title text in color picker control */
+  colorPickerSave: string;
+
+  /** aria-label for image control */
+  imageControlLabel: string;
+
+  /** aria-label for image url input */
+  imageUrlControlLabel: string;
+
   /** RichTextEditor.Bold control aria-label */
   boldControlLabel: string;
 
@@ -86,46 +122,11 @@ export interface RichTextEditorLabels {
   /** A function go get RichTextEditor.Color control aria-label based on color that control applies */
   colorControlLabel(color: string): string;
 
-  /** aria-label for link editor url input */
-  linkEditorInputLabel: string;
-
-  /** placeholder for link editor url input */
-  linkEditorInputPlaceholder: string;
-
-  /** Content of external button tooltip in link editor when the link was chosen to open in a new tab */
-  linkEditorExternalLink: string;
-
-  /** Content of external button tooltip in link editor when the link was chosen to open in the same tab */
-  linkEditorInternalLink: string;
-
-  /** Save button content in link editor */
-  linkEditorSave: string;
-
-  /** Cancel button title text in color picker control */
-  colorPickerCancel: string;
-
-  /** Clear button title text in color picker control */
-  colorPickerClear: string;
-
-  /** Color picker button title text in color picker control */
-  colorPickerColorPicker: string;
-
-  /** Palette button title text in color picker control */
-  colorPickerPalette: string;
-
-  /** Save button title text in color picker control */
-  colorPickerSave: string;
-
   /** aria-label for color palette colors */
   colorPickerColorLabel(color: string): string;
-
-  /** aria-label for image control */
-  imageControlLabel: string;
-  /** aria-label for image url input */
-  imageUrlControlLabel: string;
 }
 
-export const DEFAULT_LABELS: RichTextEditorLabels = {
+export const DEFAULT_LABELS: IRichTextEditorLabels = {
   // Controls labels
   linkControlLabel: 'Link',
   colorPickerControlLabel: 'Text color',

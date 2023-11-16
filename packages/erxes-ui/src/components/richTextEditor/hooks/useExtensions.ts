@@ -64,7 +64,7 @@ const CustomLinkExtension = Link.extend({
 // Make subscript and superscript mutually exclusive
 // https://github.com/ueberdosis/tiptap/pull/1436#issuecomment-1031937768
 
-///@later config these
+/// @later config these
 const CustomSubscript = Subscript.extend({
   excludes: 'superscript'
 });

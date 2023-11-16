@@ -17,7 +17,7 @@ import { EditorState } from '@tiptap/pm/state';
 export function getAttributesForNodes(
   state: EditorState,
   typeOrName: string | NodeType
-): Record<string, any>[] {
+): Array<Record<string, any>> {
   const type = getNodeType(typeOrName, state.schema);
   const { from, to } = state.selection;
   const nodes: Node[] = [];

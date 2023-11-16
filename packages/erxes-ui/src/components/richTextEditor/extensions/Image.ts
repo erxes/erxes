@@ -1,17 +1,15 @@
-import { Component, FC, ReactElement } from 'react';
-import { mergeAttributes, nodeInputRule, Node } from '@tiptap/core';
-import { ReactNodeViewRenderer } from '@tiptap/react';
+import { mergeAttributes, nodeInputRule } from '@tiptap/core';
 
 import Image from '@tiptap/extension-image';
 
-export interface ImageOptions {
+export interface IImageOptions {
   inline: boolean;
   allowBase64: boolean;
   HTMLAttributes: Record<string, any>;
   useFigure: boolean;
 }
 declare module '@tiptap/core' {
-  interface Commands<ReturnType> {
+  interface ICommands<ReturnType> {
     imageResize: {
       setImage: (options: {
         src: string;
@@ -25,7 +23,7 @@ declare module '@tiptap/core' {
   }
 }
 export const inputRegex = /(!\[(.+|:?)]\((\S+)(?:(?:\s+)["'](\S+)["'])?\))$/;
-export const ImageResize = Image.extend<ImageOptions>({
+export const ImageResize = Image.extend<IImageOptions>({
   name: 'imageResize',
   addOptions() {
     return {

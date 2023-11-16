@@ -25,7 +25,7 @@ import { getAttributesForNodes } from './getAttributesForNodes';
 export function getAttributesForEachSelected(
   state: EditorState,
   typeOrName: string | NodeType | MarkType
-): Record<string, any>[] {
+): Array<Record<string, any>> {
   const schemaType = getSchemaTypeNameByName(
     typeof typeOrName === 'string' ? typeOrName : typeOrName.name,
     state.schema

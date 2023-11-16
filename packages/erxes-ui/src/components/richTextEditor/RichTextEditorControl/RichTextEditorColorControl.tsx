@@ -3,7 +3,7 @@ import Popover from 'react-bootstrap/Popover';
 import { COLORS } from '@erxes/ui/src/constants/colors';
 import {
   RichTextEditorControlBase,
-  RichTextEditorControlBaseProps
+  IRichTextEditorControlBaseProps
 } from './RichTextEditorControl';
 import { useRichTextEditorContext } from '../RichTextEditor.context';
 import TwitterPicker from 'react-color/lib/Twitter';
@@ -11,7 +11,7 @@ import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Icon from '../../Icon';
 import { colors } from '../../../styles';
 
-const LinkIcon: RichTextEditorControlBaseProps['icon'] = () => (
+const LinkIcon: IRichTextEditorControlBaseProps['icon'] = () => (
   <Icon icon="stopwatch" />
 );
 export const RichTextEditorColorControl = () => {
@@ -21,8 +21,10 @@ export const RichTextEditorColorControl = () => {
   const currentColor = editor?.getAttributes('textStyle').color || null;
 
   const label = labels.colorControlLabel(color);
-  const handleColorChange = color => {
-    setColor(color.hex);
+  const handleColorChange = (selectedColor: {
+    hex: React.SetStateAction<string>;
+  }) => {
+    setColor(selectedColor.hex);
   };
   useEffect(() => {
     if (editor) {

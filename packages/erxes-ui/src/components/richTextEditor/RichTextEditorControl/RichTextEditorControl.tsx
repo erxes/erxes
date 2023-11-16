@@ -1,12 +1,12 @@
 import React, { useRef } from 'react';
 
 import { useRichTextEditorContext } from '../RichTextEditor.context';
-import { RichTextEditorLabels } from '../labels';
+import { IRichTextEditorLabels } from '../labels';
 import { EditorControl } from './styles';
 
 export type RichTextEditorControlStylesNames = 'control';
 
-export interface RichTextEditorControlProps
+export interface IRichTextEditorControlProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   /** Determines whether the control should have active state, false by default */
   active?: boolean;
@@ -15,14 +15,14 @@ export interface RichTextEditorControlProps
   interactive?: boolean;
 }
 
-export const RichTextEditorControl = (props: RichTextEditorControlProps) => {
+export const RichTextEditorControl = (props: IRichTextEditorControlProps) => {
   const ref = useRef<HTMLButtonElement>(null);
   const { interactive, active, onMouseDown, ...others } = props;
 
   return (
     <EditorControl
       {...others}
-      data-rich-text-editor-control
+      data-rich-text-editor-control={true}
       tabIndex={interactive ? 0 : -1}
       data-interactive={interactive || undefined}
       data-active={active || undefined}
@@ -37,8 +37,8 @@ export const RichTextEditorControl = (props: RichTextEditorControlProps) => {
   );
 };
 
-export interface RichTextEditorControlBaseProps
-  extends RichTextEditorControlProps {
+export interface IRichTextEditorControlBaseProps
+  extends IRichTextEditorControlProps {
   icon?: React.FC<{ style: React.CSSProperties }>;
 }
 
@@ -57,8 +57,8 @@ export const RichTextEditorControlBase = <
   );
 };
 
-export interface CreateControlProps {
-  label: keyof RichTextEditorLabels;
+export interface ICreateControlProps {
+  label: keyof IRichTextEditorLabels;
   icon: React.FC<{ style: React.CSSProperties }>;
   isActive?: { name: string | null; attributes?: Record<string, any> | string };
   operation: { name: string; attributes?: Record<string, any> | string };
@@ -69,7 +69,7 @@ export function createControl({
   isActive,
   operation,
   icon
-}: CreateControlProps) {
+}: ICreateControlProps) {
   return <HTMLButtonElement, RichTextEditorControlBaseProps>(
     props: RichTextEditorControlBaseProps
   ) => {
