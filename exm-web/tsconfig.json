@@ -32,6 +32,6 @@
     "app/(main)/cover/detail",
     "app/(main)/chats/detail",
     "app/(main)/chats/..................................................................................................................................tsx"
-  ],
+, "app/(main)/company/team-members"  ],
   "exclude": ["node_modules", "tailwind.config.ts"]
 }
