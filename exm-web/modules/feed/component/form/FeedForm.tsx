@@ -54,7 +54,7 @@ const FeedForm = ({ contentType }: { contentType: string }) => {
     <>
       <Dialog open={open} onOpenChange={() => setOpen(!open)}>
         <div className="w-full">
-          <Card className="max-w-[56rem] mx-auto my-4 border-0">
+          <Card className="w-full mx-auto my-4 border-0">
             {contentType !== "welcome" ? (
               <CardHeader className="flex">
                 <div className="flex items-center">

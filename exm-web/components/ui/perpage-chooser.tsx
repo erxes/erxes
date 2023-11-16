@@ -22,7 +22,7 @@ const PerPageChooser = (props: Props) => {
       const queryParams = new URLSearchParams()
 
       queryParams.append("perPage", perPage.toString())
-      queryParams.append("page", 1)
+      queryParams.append("page", '1')
 
       router.push(`?${queryParams.toString()}`, {
         scroll: false,

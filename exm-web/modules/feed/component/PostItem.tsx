@@ -436,7 +436,7 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
 
   return (
     <>
-      <Card className="max-w-[56rem] mx-auto my-4 border-0 p-4">
+      <Card className="w-full mx-auto my-4 border-0 p-4">
         <CardHeader className="p-0 pb-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center">
