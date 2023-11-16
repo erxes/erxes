@@ -227,10 +227,11 @@
 }
 .react-datetime-picker__calendar{
   inset: calc(100% + 0.5rem) auto auto -9px !important;
+  width: 305px !important;
 }
 .react-calendar {
-  border: 1px solid #eee !important;
-  border-radius: 8px;
+  border: 1px solid hsl(0, 0%, 80%) !important;
+  border-radius: 6px;
 }
 .react-datetime-picker__clock {
   display: none;

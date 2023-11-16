@@ -249,7 +249,7 @@ const RightSideBar = () => {
 
   return (
     <div className="bg-[#F8F9FA]">
-      <RightNavbar />
+      <RightNavbar withBorder={true} />
       {renderRightSidebar()}
     </div>
   )
