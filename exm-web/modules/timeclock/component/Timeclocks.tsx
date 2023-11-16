@@ -40,19 +40,21 @@ const Timeclocks = () => {
   return (
     <div>
       <Tabs defaultValue="timeclock">
-        <TabsList className="w-full items-center flex p-2 h-[6vh]">
-          <div className="w-[60%] items-center flex mx-auto h-[2.5rem] my-3">
-            <TabsTrigger className={style} value="timeclock">
-              TimeClocks
-            </TabsTrigger>
-            <TabsTrigger className={style} value="requests">
-              Requests
-            </TabsTrigger>
-            <TabsTrigger className={style} value="schedule">
-              Schedule
-            </TabsTrigger>
+        <TabsList className="border-b border-[#eee] bg-white">
+          <div className="flex justify-between">
+            <div className="w-[60%] items-center flex mr-auto h-[2.5rem] my-3 ml-[25px]">
+              <TabsTrigger className={style} value="timeclock">
+                TimeClocks
+              </TabsTrigger>
+              <TabsTrigger className={style} value="requests">
+                Requests
+              </TabsTrigger>
+              <TabsTrigger className={style} value="schedule">
+                Schedule
+              </TabsTrigger>
+            </div>
+            <RightNavbar />
           </div>
-          <RightNavbar />
         </TabsList>
 
         <div className="flex flex-col px-10 py-5 gap-5 ">
