@@ -133,11 +133,13 @@ class ContractDetails extends React.Component<Props, State> {
           regenSchedules={regenSchedules}
           fixSchedules={fixSchedules}
         ></ScheduleSection>
-        <ScheduleSection
-          contractId={contract._id}
-          isFirst={true}
-          regenSchedules={regenSchedules}
-        ></ScheduleSection>
+        {contract.leaseType === 'finance' && (
+          <ScheduleSection
+            contractId={contract._id}
+            isFirst={true}
+            regenSchedules={regenSchedules}
+          ></ScheduleSection>
+        )}
 
         {isEnabled('logs') && (
           <>

@@ -45,8 +45,8 @@ export const loanStoredInterestClass = (models: IModels) => {
 
           let commitmentInterest = Number(
             (
-              (((contract.leaseAmount - contract.balanceAmount) *
-                contract.commitmentInterest) /
+              ((((contract.leaseAmount || 0) - (contract.balanceAmount || 0)) *
+                (contract.commitmentInterest || 0)) /
                 100 /
                 365) *
               getDiffDay(contract.lastStoredDate, storeInterestDate)

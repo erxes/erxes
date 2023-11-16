@@ -269,6 +269,7 @@ export const getCalcedAmounts = async (
             interestRate: contract.commitmentInterest,
             dayOfMonth: diffEve
           });
+
         result.commitmentInterestNonce =
           (preSchedule.interestNonce || 0) -
           (preSchedule.didInterestNonce || 0) +
