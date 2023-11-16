@@ -26,7 +26,7 @@ type FinalProps = {
   EditTypeMutationResponse;
 
 const TypesListContainer = (props: FinalProps) => {
-  const { listZmsTypeQuery, typesRemove, history } = props;
+  const { listZmsTypeQuery, typesRemove } = props;
 
   if (listZmsTypeQuery.loading) {
     return <Spinner />;
