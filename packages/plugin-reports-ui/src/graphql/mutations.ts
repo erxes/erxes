@@ -22,6 +22,7 @@ const report_chart_params = `
   $chartType: String
   $layout: String
   $vizState: String
+  $filter: JSON
 `;
 
 const report_chart_params_def = `
@@ -29,6 +30,7 @@ const report_chart_params_def = `
   chartType: $chartType
   layout: $layout
   vizState: $vizState
+  filter: $filter
 `;
 
 const report_chart_fields = `

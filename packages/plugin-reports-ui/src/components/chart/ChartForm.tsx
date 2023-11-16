@@ -106,24 +106,25 @@ const ChartForm = (props: Props) => {
 
   const onSave = () => {
     chart
-      ? chartsEdit({ _id: chart._id, chartType, name }, toggleForm)
+      ? chartsEdit(
+          { _id: chart._id, chartType, name, filter: filters },
+          toggleForm
+        )
       : chartsAdd({
           chartType,
           name,
           serviceName,
-          templateType: chartTemplate
+          templateType: chartTemplate,
+          filter: filters
         });
   };
 
   const setFilter = (fieldName: string, value: any) => {
     if (!value || !value.length) {
-      const newFilters = filters;
-      delete newFilters[fieldName];
-
-      setFilters(newFilters);
+      delete filters[fieldName];
+      setFilters(filters);
       return;
     }
-
     setFilters({ ...filters, [fieldName]: value });
   };
 

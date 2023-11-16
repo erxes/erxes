@@ -127,6 +127,6 @@ export const chartSchema = new Schema({
   }),
   order: field({ type: Number, label: 'Order number' }),
   chartType: field({ type: IChartType, label: 'Chart type' }),
-  filters: field({ type: [JSON], label: 'Filters' }),
+  filter: field({ type: JSON, label: 'Filters' }),
   defaultFilterId: field({ type: String, label: 'Default filter id' })
 });

@@ -70,7 +70,7 @@ export const types = tagsAvailable => `
     order: Int
     chartType: ChartType
     chartTypes: [ChartType]
-    filters: [ChartFilter]
+    filter: JSON
     defaultFilter: ChartFilter
     layout: String
     vizState: String
@@ -154,6 +154,7 @@ const report_chart_common_params = `
   order: Int
   vizState: String
   layout: String
+  filter: JSON
 `;
 
 const report_params = `

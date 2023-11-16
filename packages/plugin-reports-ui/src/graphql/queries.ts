@@ -62,11 +62,7 @@ const reportsList = `
           vizState
           order
           chartType
-          filters {
-            fieldName
-            filterValue
-            filterType
-          }
+          filter
           defaultFilter {
             fieldName
             filterValue
@@ -138,11 +134,7 @@ const reportDetail = `
           chartType
           layout
           vizState
-          filters {
-            fieldName
-            filterValue
-            filterType
-          }
+          filter
           defaultFilter {
             fieldName
             filterValue
