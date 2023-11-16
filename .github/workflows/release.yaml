@@ -649,16 +649,16 @@ jobs:
 
           docker push erxes/plugin-zalo-api:${GITHUB_REF#refs/tags/}
 
-      - name: plugin-riskassessmnet-api
+      - name: plugin-riskassessment-api
         run: >
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
           secrets.DOCKERHUB_USERNAME }} --password-stdin 
 
-          docker image pull erxes/plugin-riskassessmnet-api:master  
+          docker image pull erxes/plugin-riskassessment-api:master  
 
-          docker tag erxes/plugin-riskassessmnet-api:master  erxes/plugin-riskassessmnet-api:${GITHUB_REF#refs/tags/} 
+          docker tag erxes/plugin-riskassessment-api:master  erxes/plugin-riskassessment-api:${GITHUB_REF#refs/tags/} 
 
-          docker push erxes/plugin-riskassessmnet-api:${GITHUB_REF#refs/tags/}
+          docker push erxes/plugin-riskassessment-api:${GITHUB_REF#refs/tags/}
 
       - name: plugin-forum-api
         run: >
@@ -822,9 +822,9 @@ jobs:
         run: aws s3 sync s3://erxes-master-plugins/uis/plugin-zalo-ui
           s3://erxes-release-plugins/uis/plugin-zalo-ui/${GITHUB_REF#refs/tags/}/
 
-      - name: riskassessmnet ui
-        run: aws s3 sync s3://erxes-master-plugins/uis/plugin-riskassessmnet-ui
-          s3://erxes-release-plugins/uis/plugin-riskassessmnet-ui/${GITHUB_REF#refs/tags/}/
+      - name: riskassessment ui
+        run: aws s3 sync s3://erxes-master-plugins/uis/plugin-riskassessment-ui
+          s3://erxes-release-plugins/uis/plugin-riskassessment-ui/${GITHUB_REF#refs/tags/}/
 
       - name: assets ui
         run: aws s3 sync s3://erxes-master-plugins/uis/plugin-assets-ui
