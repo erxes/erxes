@@ -261,7 +261,7 @@ const EventForm = ({
                           </span>
                         </div>
                       </PopoverTrigger>
-                      <PopoverContent className="w-fit p-2">
+                      <PopoverContent className="w-[305px] shadow-none p-2 border-light">
                         <DateTimePicker
                           format="yyyy/MM/dd h:mm:ss a"
                           value={field.value}
@@ -294,7 +294,7 @@ const EventForm = ({
                           </span>
                         </div>
                       </PopoverTrigger>
-                      <PopoverContent className="w-fit p-2">
+                      <PopoverContent className="w-[305px] shadow-none p-2 border-light">
                         <DateTimePicker
                           format="yyyy/MM/dd h:mm:ss a"
                           value={field.value}

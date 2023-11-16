@@ -30,6 +30,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Textarea } from "@/components/ui/textarea"
+import { toast } from "@/components/ui/use-toast"
 import AvatarUpload from "@/components/AvatarUpload"
 
 import useMutations from "../hooks/useMutations"
@@ -66,10 +67,19 @@ const Detail = ({
     resolver: zodResolver(FormSchema),
   })
 
+  const callBack = (result: string) => {
+    if (result === "success") {
+      toast({
+        description: "Looking good!",
+      })
+      setValueIsChanged(false)
+    }
+  }
   const { userDetail } = useUserDetail({ userId: id })
   const { usersEditProfile, changePassword, changePasswordLoading } =
-    useMutations()
+    useMutations({ callBack })
   const [open, setOpen] = useState(false)
+  const [valueIsChanged, setValueIsChanged] = useState(false)
   const currentUser = useAtomValue(currentUserAtom)
   const [avatar, setAvatar] = useState(
     userDetail.details?.avatar || "/avatar-colored.svg"
@@ -90,6 +100,15 @@ const Detail = ({
 
     form.reset({ ...defaultValues })
   }, [userDetail])
+
+  useEffect(() => {
+    const subscription = form.watch((value, { name, type }) => {
+      if (name) {
+        setValueIsChanged(true)
+      }
+    })
+    return () => subscription.unsubscribe()
+  }, [form.watch])
 
   const style =
     "text-[#A1A1A1] data-[state=active]:text-primary data-[state=active]:border-[#5629B6] data-[state=active]:border-b-2 h-16 hover:font-medium hover:text-[#A1A1A1]"
@@ -124,6 +143,7 @@ const Detail = ({
 
   const onAvatarUpload = (url: string) => {
     setAvatar(url)
+    setValueIsChanged(true)
   }
 
   return (
@@ -200,6 +220,7 @@ const Detail = ({
                               {...field}
                               className="p-0 border-none disabled:opacity-100"
                               disabled={disable}
+                              {...form.register("description")}
                             />
                           </FormControl>
                           <FormMessage />
@@ -219,6 +240,7 @@ const Detail = ({
                               {...field}
                               className="p-0 border-none disabled:opacity-100 h-8"
                               disabled={disable}
+                              {...form.register("email")}
                             />
                           </FormControl>
                           <FormMessage />
@@ -238,6 +260,7 @@ const Detail = ({
                               {...field}
                               className="p-0 border-none disabled:opacity-100 h-8"
                               disabled={disable}
+                              {...form.register("operatorPhone")}
                             />
                           </FormControl>
                           <FormMessage />
@@ -259,6 +282,7 @@ const Detail = ({
                               setDate={field.onChange}
                               className="w-full p-0 border-none disabled:opacity-100 hover:bg-transparent h-8"
                               disabled={disable}
+                              {...form.register("birthDate")}
                             />
                           </FormControl>
                           <FormMessage />
@@ -285,6 +309,7 @@ const Detail = ({
                               {...field}
                               className="p-0 border-none disabled:opacity-100 h-8"
                               disabled={disable}
+                              {...form.register("employeeId")}
                             />
                           </FormControl>
                           <FormMessage />
@@ -293,6 +318,14 @@ const Detail = ({
                     />
                   </div>
                 </div>
+                {!disable && valueIsChanged && (
+                  <Button
+                    type="submit"
+                    className="bg-[#F8F9FA] text-[#33363F] hover:bg-[#F8F9FA] border w-full"
+                  >
+                    Save
+                  </Button>
+                )}
                 <div className="flex">
                   <a href={userDetail.links?.facebook} target="_blank">
                     <Facebook
@@ -328,10 +361,10 @@ const Detail = ({
                     <Label className="text-base text-black font-semibold">
                       Profile Details
                     </Label>
-                    {!disable && (
+                    {!disable && valueIsChanged && (
                       <Button
                         type="submit"
-                        className="bg-transparent text-[#33363F] hover:bg-transparent"
+                        className="bg-[#F8F9FA] text-[#33363F] hover:bg-[#F8F9FA] border"
                       >
                         Save
                       </Button>
@@ -351,6 +384,7 @@ const Detail = ({
                             {...field}
                             className="p-0 border-none disabled:opacity-100"
                             disabled={disable}
+                            {...form.register("firstName")}
                           />
                         </FormControl>
                         <FormMessage />
@@ -371,6 +405,7 @@ const Detail = ({
                             {...field}
                             className="p-0 border-none disabled:opacity-100"
                             disabled={disable}
+                            {...form.register("lastName")}
                           />
                         </FormControl>
                         <FormMessage />
@@ -391,6 +426,7 @@ const Detail = ({
                             {...field}
                             className="p-0 border-none disabled:opacity-100"
                             disabled={disable}
+                            {...form.register("username")}
                           />
                         </FormControl>
                         <FormMessage />
@@ -411,6 +447,7 @@ const Detail = ({
                             {...field}
                             className="p-0 border-none disabled:opacity-100"
                             disabled={disable}
+                            {...form.register("position")}
                           />
                         </FormControl>
                         <FormMessage />
@@ -433,6 +470,7 @@ const Detail = ({
                             setDate={field.onChange}
                             className="w-full p-0 border-none disabled:opacity-100 hover:bg-transparent"
                             disabled={disable}
+                            {...form.register("workStartedDate")}
                           />
                         </FormControl>
                         <FormMessage />
@@ -453,6 +491,7 @@ const Detail = ({
                             {...field}
                             className="p-0 border-none disabled:opacity-100"
                             disabled={disable}
+                            {...form.register("location")}
                           />
                         </FormControl>
                         <FormMessage />
@@ -506,10 +545,10 @@ const Detail = ({
                       <Label className="text-base text-black font-semibold">
                         Social Accounts
                       </Label>
-                      {!disable && (
+                      {valueIsChanged && (
                         <Button
                           type="submit"
-                          className="bg-transparent text-[#33363F] hover:bg-transparent"
+                          className="bg-[#F8F9FA] text-[#33363F] hover:bg-[#F8F9FA] border"
                         >
                           Save
                         </Button>
@@ -528,6 +567,7 @@ const Detail = ({
                               placeholder="Type your facebook"
                               {...field}
                               className="p-0 border-none"
+                              {...form.register("facebook")}
                             />
                           </FormControl>
                           <FormMessage />
@@ -547,6 +587,7 @@ const Detail = ({
                               placeholder="Type your twitter"
                               {...field}
                               className="p-0 border-none"
+                              {...form.register("twitter")}
                             />
                           </FormControl>
                           <FormMessage />
@@ -565,6 +606,7 @@ const Detail = ({
                             <Input
                               placeholder="Type your youtube"
                               {...field}
+                              {...form.register("youtube")}
                               className="p-0 border-none"
                             />
                           </FormControl>
@@ -583,6 +625,7 @@ const Detail = ({
                           <FormControl>
                             <Input
                               placeholder="Type your website"
+                              {...form.register("website")}
                               {...field}
                               className="p-0 border-none"
                             />
