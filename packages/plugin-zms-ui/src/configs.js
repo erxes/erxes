@@ -1,4 +1,5 @@
 module.exports = {
+  srcDir: __dirname,
   name: 'zms',
   port: 3017,
   scope: 'zms',
