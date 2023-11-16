@@ -1,3 +1,3 @@
 export { Link } from './Link';
-export { default as FontSize } from './FontSize';
+export { FontSize } from './FontSize';
 import { ImageResize } from './Image';

@@ -3,14 +3,14 @@ import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import { BoxArrowUpRight } from 'react-bootstrap-icons';
 import { useRichTextEditorContext } from '../RichTextEditor.context';
 import {
-  RichTextEditorControlBaseProps,
+  IRichTextEditorControlBaseProps,
   RichTextEditorControlBase
 } from './RichTextEditorControl';
 import Tip from '../../Tip';
 import { InputAction, InputWrapper, LinkInput, LinkWrapper } from './styles';
 import Icon from '../../Icon';
 
-const LinkIcon: RichTextEditorControlBaseProps['icon'] = () => (
+const LinkIcon: IRichTextEditorControlBaseProps['icon'] = () => (
   <Icon icon="link-alt" />
 );
 

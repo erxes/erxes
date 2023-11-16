@@ -1,5 +1,4 @@
 import styled from 'styled-components';
-import styledTS from 'styled-components-ts';
 import { colors } from '../../../styles';
 import { rgba } from '../../../styles/ecolor';
 

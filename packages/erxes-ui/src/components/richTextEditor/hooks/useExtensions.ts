@@ -124,7 +124,6 @@ export default function useExtensions({
       TextStyle,
       Color,
       FontFamily,
-      FontSize,
       Highlight.configure({ multicolor: true }),
       HorizontalRule,
       Dropcursor,
@@ -133,6 +132,7 @@ export default function useExtensions({
         placeholder
       }),
       History,
+      FontSize,
       DivTag
     ];
   }, [placeholder]);

@@ -1,7 +1,8 @@
 import TextStyle from '@tiptap/extension-text-style';
 
 declare module '@tiptap/core' {
-  interface ICommands<ReturnType> {
+  // tslint:disable-next-line:interface-name
+  interface Commands<ReturnType> {
     fontSize: {
       /**
        * Set the font size
@@ -14,7 +15,7 @@ declare module '@tiptap/core' {
     };
   }
 }
-const FontSize = TextStyle.extend({
+export const FontSize = TextStyle.extend({
   addAttributes() {
     return {
       ...this.parent?.(),
@@ -48,4 +49,3 @@ const FontSize = TextStyle.extend({
     };
   }
 });
-export default FontSize;
