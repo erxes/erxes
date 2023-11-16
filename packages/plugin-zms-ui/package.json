@@ -1,0 +1,13 @@
+{
+  "name": "@erxes/plugin-zms-ui",
+  "version": "1.0.0",
+  "scripts": {
+    "install-deps": "yarn install",
+    "start": "webpack serve --mode development",
+    "build": "webpack --mode production"
+  },
+  "dependencies": {
+    "@erxes/ui" : "*",
+    "timers-browserify": "^2.0.12"
+  }
+}

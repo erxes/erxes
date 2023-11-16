@@ -28,9 +28,4 @@ export const CONTRIBUTION = [
   { name: 'Personal Goal', value: 'person' }
 ];
 
-export const GOAL_TYPE = [
-  'Added',
-  'Processed',
-  'Won (Deal based only)',
-  'Meetings held (meeting based only)'
-];
+export const GOAL_TYPE = ['Added', 'Processed', 'Won (Deal based only)'];

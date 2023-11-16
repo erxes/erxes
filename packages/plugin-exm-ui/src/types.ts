@@ -1,4 +1,4 @@
-import { IAttachment } from 'modules/common/types';
+import { IAttachment } from '@erxes/ui/src/types';
 
 interface IAppearence {
   primaryColor: string;
@@ -18,15 +18,16 @@ interface IFeature {
 }
 
 export interface IExm {
-  _id?: string;
+  _id: string;
   name?: string;
   webName?: string;
   webDescription?: string;
   description?: string;
-  categoryId?: string;
   features?: IFeature[];
   logo?: IAttachment;
   favicon?: IAttachment;
   url?: string;
+  vision?: string;
+  structure?: string;
   appearance?: IAppearence;
 }

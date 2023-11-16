@@ -55,7 +55,7 @@ const List = ({ contentType }: { contentType: string }) => {
   }
 
   return (
-    <ScrollArea className="h-[94vh]">
+    <ScrollArea className="h-[calc(100vh-66px)]">
       <FeedForm contentType={contentType} />
       {showList(pinnedList)}
       {showList(normalList)}

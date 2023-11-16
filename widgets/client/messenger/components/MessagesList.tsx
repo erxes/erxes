@@ -256,7 +256,7 @@ class MessagesList extends React.Component<Props, State> {
   };
 
   renderCallRequest() {
-    if (!this.props.showVideoCallRequest || !connection.dailyco) {
+    if (!this.props.showVideoCallRequest || !connection.enabledServices.dailyco) {
       return null;
     }
 

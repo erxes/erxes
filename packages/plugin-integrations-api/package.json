@@ -17,7 +17,6 @@
     "gmail-api-parse-message": "^2.1.2",
     "migrate": "^1.6.2",
     "nylas": "^4.7.0",
-    "redis": "^2.8.0",
     "request": "^2.88.0",
     "request-promise": "^4.2.4",
     "sanitize-html": "^1.20.1",
