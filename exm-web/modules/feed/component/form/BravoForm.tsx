@@ -132,7 +132,7 @@ const BravoForm = ({
           />
           <FormAttachments
             attachments={attachments || []}
-            setAttachments={setImage}
+            setAttachments={setAttachments}
           />
           <FormImages images={images} setImage={setImage} />{" "}
           <FormField

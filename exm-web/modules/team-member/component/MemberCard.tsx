@@ -23,27 +23,27 @@ const MemberCard = ({ user }: { user: IUser }): JSX.Element => {
             className="w-[80px] h-[80px] rounded-full object-cover border border-primary"
           />
           <div className="mt-2 text-center">
-            <div className="text-base font-bold text-gray-700 mb-2">
+            <div className="text-base font-bold text-gray-700">
               {userDetail?.fullName ||
                 userDetail?.username ||
-                userDetail?.email}
+                userDetail?.email || <div className="text-[#A1A1A1]">N/A</div>}
             </div>
             {userDetail.position && (
-              <p className="font-normal text-sm mb-2">{userDetail.position}</p>
+              <p className="font-normal text-sm mt-2">{userDetail.position}</p>
             )}
             {userDetail.description && (
-              <p className="text-[#5E5B5B] font-normal text-sm">
+              <p className="text-[#5E5B5B] font-normal text-sm mt-2">
                 {userDetail.description}
               </p>
             )}
           </div>
         </a>
-        <div className="flex justify-center mt-3">
+        <div className="flex justify-center">
           {user.links?.facebook && (
             <a
               href={user.links?.facebook}
               target="_blank"
-              className="cursor-pointer"
+              className="cursor-pointer mt-3"
             >
               <Facebook
                 size={25}
@@ -55,7 +55,7 @@ const MemberCard = ({ user }: { user: IUser }): JSX.Element => {
             <a
               href={user.links?.twitter}
               target="_blank"
-              className="cursor-pointer"
+              className="cursor-pointer mt-3"
             >
               <Twitter
                 size={25}
@@ -68,7 +68,7 @@ const MemberCard = ({ user }: { user: IUser }): JSX.Element => {
             <a
               href={user.links?.youtube}
               target="_blank"
-              className="cursor-pointer"
+              className="cursor-pointer mt-3"
             >
               <Youtube
                 size={25}
@@ -80,7 +80,7 @@ const MemberCard = ({ user }: { user: IUser }): JSX.Element => {
             <a
               href={user.links?.website}
               target="_blank"
-              className="cursor-pointer"
+              className="cursor-pointer mt-3"
             >
               <Globe
                 size={25}
