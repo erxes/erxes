@@ -1,4 +1,3 @@
-import { IUser } from "@erxes/ui/src/auth/types"
 import dayjs from "dayjs"
 
 import { IScheduleForm } from "./types"
