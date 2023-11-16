@@ -65,7 +65,7 @@ const Detail = ({
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
   })
-  
+
   const { userDetail } = useUserDetail({ userId: id })
   const { usersEditProfile, changePassword, changePasswordLoading } =
     useMutations()
@@ -85,6 +85,8 @@ const Detail = ({
         ...userDetail?.links,
       }
     }
+
+    setAvatar(defaultValues.avatar)
 
     form.reset({ ...defaultValues })
   }, [userDetail])
