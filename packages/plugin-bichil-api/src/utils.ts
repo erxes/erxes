@@ -1,4 +1,4 @@
-import { getSubdomain } from '@erxes/api-utils/src/core';
+import { fixDate, getSubdomain } from '@erxes/api-utils/src/core';
 import { can, checkLogin } from '@erxes/api-utils/src/permissions';
 import { redis } from '@erxes/api-utils/src/serviceDiscovery';
 import { IUserDocument } from '@erxes/api-utils/src/types';
@@ -110,6 +110,57 @@ export const findAllTeamMembers = async (subdomain: string) => {
   });
 
   return users;
+};
+
+export const findTimeclockTeamMemberIds = async (
+  models: any,
+  startDate: Date,
+  endDate: Date
+) => {
+  const timeclockUserIds = await models.Timeclocks.find({
+    shiftStart: {
+      $gte: fixDate(startDate),
+      $lte: customFixDate(endDate)
+    },
+    shiftEnd: {
+      $gte: fixDate(startDate),
+      $lte: customFixDate(endDate)
+    }
+  }).distinct('userId');
+
+  const requestsUserIds = await models.Absences.find({
+    solved: true,
+    startTime: {
+      $gte: fixDate(startDate),
+      $lte: customFixDate(endDate)
+    },
+    endTime: {
+      $gte: fixDate(startDate),
+      $lte: customFixDate(endDate)
+    }
+  }).distinct('userId');
+
+  const scheduleIds = await models.Shifts.find({
+    status: 'Approved',
+    shiftStart: {
+      $gte: fixDate(startDate),
+      $lte: customFixDate(endDate)
+    },
+    shiftEnd: {
+      $gte: fixDate(startDate),
+      $lte: customFixDate(endDate)
+    }
+  }).distinct('scheduleId');
+
+  const scheduleUserIds = await models.Schedules.find({
+    _id: { $in: scheduleIds }
+  }).distinct('userId');
+
+  const allUserIds = Array.from(
+    new Set([...timeclockUserIds, ...requestsUserIds, ...scheduleUserIds])
+  );
+
+  return allUserIds;
 };
 
 export const findTeamMember = (subdomain: string, userId: string[]) => {
