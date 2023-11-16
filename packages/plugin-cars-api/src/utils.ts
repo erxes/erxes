@@ -350,6 +350,10 @@ export class Builder {
       body: queryOptions
     });
 
+    if (action === 'count') {
+      return response && response.count ? response.count : 0;
+    }
+
     const list = response.hits.hits.map(hit => {
       return {
         _id: hit._id,
