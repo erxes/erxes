@@ -3,7 +3,7 @@ import * as mongoose from 'mongoose';
 import * as moment from 'moment';
 import * as fs from 'fs';
 import { connect } from '../utils';
-import { createAWS, uploadsFolderPath } from '../../data/utils';
+import { createAWS, createCFR2, uploadsFolderPath } from '../../data/utils';
 import messageBroker, { getFileUploadConfigs } from '../../messageBroker';
 import { generateModels, IModels } from '../../connectionResolvers';
 
@@ -106,6 +106,48 @@ export const uploadFileAWS = async (
         ContentType:
           'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
         Bucket: AWS_BUCKET,
+        Key: fileName,
+        Body: excelData,
+        ACL: FILE_SYSTEM_PUBLIC === 'true' ? 'public-read' : undefined
+      },
+      (err, res) => {
+        if (err) {
+          return resolve({ error: err.message });
+        }
+        return resolve(res);
+      }
+    );
+  });
+
+  const file = FILE_SYSTEM_PUBLIC === 'true' ? response.Location : fileName;
+  const error = response.error;
+
+  return { file, rowIndex, error };
+};
+
+export const uploadFileCloudflare = async (
+  workbook: any,
+  rowIndex: any,
+  type: string
+): Promise<{ file: string; rowIndex: number; error: string }> => {
+  const {
+    CLOUDFLARE_BUCKET_NAME,
+    FILE_SYSTEM_PUBLIC
+  } = await getFileUploadConfigs();
+
+  // initialize s3
+  const s3 = await createCFR2();
+
+  const excelData = await generateXlsx(workbook);
+
+  const fileName = `${type} - ${moment().format('YYYY-MM-DD HH:mm')}.xlsx`;
+
+  const response: any = await new Promise(resolve => {
+    s3.upload(
+      {
+        ContentType:
+          'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        Bucket: CLOUDFLARE_BUCKET_NAME,
         Key: fileName,
         Body: excelData,
         ACL: FILE_SYSTEM_PUBLIC === 'true' ? 'public-read' : undefined
