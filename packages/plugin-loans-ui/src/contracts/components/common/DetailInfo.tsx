@@ -63,12 +63,17 @@ class DetailInfo extends React.Component<Props> {
           contract.feeAmount && contract.feeAmount.toLocaleString()
         )}
         {this.renderRow(
+          'Stored Interest',
+          contract.storedInterest && contract.storedInterest.toLocaleString()
+        )}
+
+        {this.renderRow(
           'Tenor (in months)',
           contract.tenor && contract.tenor.toLocaleString()
         )}
         {this.renderRow(
           'Interest Month',
-          (contract.interestRate && contract.interestRate / 12).toLocaleString()
+          contract.interestRate && (contract.interestRate / 12).toLocaleString()
         )}
         {this.renderRow(
           'Interest Rate',

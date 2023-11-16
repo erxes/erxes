@@ -29,6 +29,7 @@ export const loadGeneralClass = (models: IModels) => {
         );
         generals.push(general);
       }
+
       var res = await models.General.insertMany(generals);
 
       return res;

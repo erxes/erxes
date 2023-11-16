@@ -217,6 +217,7 @@ export const getCalcedAmounts = async (
 
   // closed contract
   if (!nextSchedule) {
+    console.log('221');
     const unduePercent = await getUnduePercent(
       models,
       subdomain,
@@ -608,10 +609,17 @@ export const transactionRule = async (
     interestNonce = 0,
     insurance = 0,
     debt = 0,
-    preSchedule
+    preSchedule,
+    commitmentInterest
   } = result.calcedInfo;
   result.calcedInfo.total =
-    payment + undue + interestEve + interestNonce + insurance + debt;
+    payment +
+    undue +
+    interestEve +
+    interestNonce +
+    insurance +
+    debt +
+    commitmentInterest;
 
   delete result.calcedInfo.preSchedule;
 
@@ -631,6 +639,13 @@ export const transactionRule = async (
 
   result.undue = undue;
   mainAmount = mainAmount - undue;
+  if (commitmentInterest > mainAmount) {
+    result.commitmentInterest = mainAmount;
+    return result;
+  }
+
+  result.commitmentInterest = commitmentInterest;
+  mainAmount = mainAmount - commitmentInterest;
   if (interestEve > mainAmount) {
     result.interestEve = mainAmount;
     return result;

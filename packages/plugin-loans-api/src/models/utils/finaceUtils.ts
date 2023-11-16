@@ -71,12 +71,12 @@ function findAccounts(
   insuranceAccount: string;
 } {
   const accounts = {
-    paymentAccount: config.normalAccount,
-    interestAccount: config.interestAccount,
-    undueAccount: config.undueAccount,
-    transAccount: config.transAccount,
-    debtAccount: config.debtAccount,
-    insuranceAccount: config.insuranceAccount
+    paymentAccount: config?.normalAccount,
+    interestAccount: config?.interestAccount,
+    undueAccount: config?.undueAccount,
+    transAccount: config?.transAccount,
+    debtAccount: config?.debtAccount,
+    insuranceAccount: config?.insuranceAccount
   };
 
   switch (classification) {

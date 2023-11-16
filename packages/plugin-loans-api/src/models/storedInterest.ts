@@ -43,6 +43,8 @@ export const loanStoredInterestClass = (models: IModels) => {
             ).toFixed(0)
           );
 
+          if (Number.isNaN(storedInterest)) continue;
+
           let commitmentInterest = Number(
             (
               ((((contract.leaseAmount || 0) - (contract.balanceAmount || 0)) *

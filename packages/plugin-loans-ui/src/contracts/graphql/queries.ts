@@ -53,6 +53,7 @@ const contractFields = `
   loanPurpose
   givenAmount
   leaseType
+  commitmentInterest
 `;
 
 const listParamsDef = `
@@ -146,6 +147,7 @@ export const contractDetailFields = `
   skipAmountCalcMonth
   customPayment
   customInterest
+  invoices
   contractType {
     code
     name
