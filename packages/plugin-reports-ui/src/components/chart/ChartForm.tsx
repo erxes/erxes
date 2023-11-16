@@ -5,6 +5,7 @@ import {
   ActionFooter,
   Description,
   DrawerDetail,
+  FlexColumn,
   FormChart,
   FormContainer,
   RightDrawerContainer,
@@ -23,6 +24,9 @@ import { ModalFooter } from '@erxes/ui/src/styles/main';
 import { __, router } from '@erxes/ui/src/utils';
 import ChartRenderer from '../../containers/chart/ChartRenderer';
 import { IChart } from '../../types';
+import ChartFormField, {
+  IFilterType
+} from '../../containers/chart/ChartFormField';
 
 type Props = {
   toggleForm: () => void;
@@ -60,6 +64,8 @@ const ChartForm = (props: Props) => {
 
   const [chartTypes, setChartTypes] = useState([]);
   const [chartType, setChartType] = useState<string>(chart?.chartType || 'bar');
+  const [filterTypes, setFilterTypes] = useState<IFilterType[]>([]);
+  const [filters, setFilters] = useState<any>({});
 
   useEffect(() => {
     const findChartTemplate = chartTemplates.find(
@@ -68,6 +74,7 @@ const ChartForm = (props: Props) => {
 
     if (findChartTemplate) {
       setChartTypes(findChartTemplate.chartTypes);
+      setFilterTypes(findChartTemplate.filterTypes);
     }
   }, [[...chartTemplates]]);
 
@@ -108,6 +115,30 @@ const ChartForm = (props: Props) => {
         });
   };
 
+  const setFilter = (fieldName: string, value: any) => {
+    if (!value || !value.length) {
+      const newFilters = filters;
+      delete newFilters[fieldName];
+
+      setFilters(newFilters);
+      return;
+    }
+
+    setFilters({ ...filters, [fieldName]: value });
+  };
+
+  const renderFilterTypes = (
+    <FlexColumn style={{ gap: '20px' }}>
+      {filterTypes.map((f: IFilterType) => (
+        <ChartFormField
+          filterType={f}
+          key={f.fieldName}
+          setFilter={setFilter}
+        />
+      ))}
+    </FlexColumn>
+  );
+
   return (
     <FormContainer>
       <FormChart>
@@ -120,7 +151,7 @@ const ChartForm = (props: Props) => {
           {showChartForm ? (
             <ChartRenderer
               chartType={chartType}
-              chartVariables={{ ...chart }}
+              chartVariables={{ filter: filters, ...chart }}
               history={history}
               queryParams={queryParams}
             />
@@ -188,8 +219,8 @@ const ChartForm = (props: Props) => {
                   placeholder={__(`Choose type`)}
                 />
               </FormGroup>
+              <FormGroup>{renderFilterTypes}</FormGroup>
             </DrawerDetail>
-
             <ActionFooter>
               <ModalFooter>
                 <Button

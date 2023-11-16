@@ -58,7 +58,6 @@ export interface IChart {
   template?: string;
   order?: number;
   chartType: string;
-  filters?: any[];
   defaultFilter?: any;
 
   serviceName?: string;

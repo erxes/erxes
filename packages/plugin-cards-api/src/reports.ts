@@ -125,9 +125,9 @@ const chartTemplates = [
     //     fieldLabel: 'Select assigned users'
     //   },
     //   {
-    //     fieldName: 'userId',
+    //     fieldName: 'assignedUserIds',
     //     fieldType: 'select',
-    //     fieldQuery: 'user',
+    //     fieldQuery: 'users',
     //     fieldLabel: 'Select assigned user'
     //   },
     //   {
@@ -156,6 +156,13 @@ const chartTemplates = [
         multi: true,
         fieldQuery: 'users',
         fieldLabel: 'Select assigned users'
+      },
+      {
+        fieldName: 'assignedDepartmentIds',
+        fieldType: 'select',
+        multi: true,
+        fieldQuery: 'departments',
+        fieldLabel: 'Select assigned departments'
       },
       {
         fieldName: 'dateRange',
@@ -205,8 +212,8 @@ const chartTemplates = [
         }
       }
 
-      const title = 'Deals count by created month';
-      const datasets = { title, data: monthlyDealsCount, labels: monthNames };
+      const label = 'Deals count by created month';
+      const datasets = [{ label, data: monthlyDealsCount, labels: monthNames }];
 
       return datasets;
     },

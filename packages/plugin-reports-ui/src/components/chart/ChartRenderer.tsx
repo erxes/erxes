@@ -1,4 +1,4 @@
-import { ChartType } from 'chart.js';
+import { ChartType, Colors } from 'chart.js';
 import Chart from 'chart.js/auto';
 import React, { useEffect, useRef } from 'react';
 import {
@@ -7,6 +7,9 @@ import {
   DEFAULT_DATA_PER_CHART,
   DEFAULT_LABELS_PER_CHART
 } from './utils';
+import { Spinner } from '@erxes/ui/src/components';
+
+Chart.register(Colors);
 
 interface IChartProps {
   datasets?: any;
@@ -17,16 +20,21 @@ interface IChartProps {
   chartType: ChartType | string;
   name?: string;
   title?: string;
+  loading?: boolean;
 }
 
 const ChartRenderer = (props: IChartProps) => {
-  const { labels, chartType, data, title } = props;
+  const { labels, chartType, datasets, data, title, loading } = props;
+
+  if (loading) {
+    return <Spinner />;
+  }
 
   const chartRef = useRef<HTMLCanvasElement>(null);
 
   const chartData = {
     labels: labels || DEFAULT_LABELS_PER_CHART[chartType],
-    datasets: [
+    datasets: datasets || [
       {
         label: title || 'Default Dataset',
         data: data || DEFAULT_DATA_PER_CHART[chartType],
@@ -39,7 +47,10 @@ const ChartRenderer = (props: IChartProps) => {
 
   const DEFAULT_CONFIG = {
     type: chartType,
-    data: chartData
+    data: chartData,
+    options: datasets
+      ? {}
+      : { plugins: { legend: { labels: { boxWidth: 0, boxHeight: 0 } } } }
   };
 
   useEffect(() => {
