@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
 import { graphql } from '@apollo/client/react/hoc';
-import { Alert, confirm, router, withProps } from '@erxes/ui/src/utils';
+import { Alert, confirm, withProps } from '@erxes/ui/src/utils';
 import List from '../components/List';
 import {
   EditMutationResponse,
@@ -68,23 +68,6 @@ const ListContainer = (props: FinalProps) => {
       .catch(e => Alert.error(e.message));
   };
 
-  const edit = zms => {
-    // editMutation({
-    //   variables: {
-    //     _id: zms._id,
-    //     name: zms.name,
-    //     checked: zms.checked,
-    //     expiryDate: zms.expiryDate,
-    //     type: zms.type
-    //   }
-    // })
-    //   .then(() => {
-    //     Alert.success('Successfully updated an item');
-    //     listQuery.refetch();
-    //   })
-    //   .catch(e => Alert.error(e.message));
-  };
-
   const updatedProps = {
     ...props,
     dictionaries: listQuery.getDictionaries || [],
@@ -92,7 +75,6 @@ const ListContainer = (props: FinalProps) => {
     parentId,
     loading: listQuery.loading,
     remove,
-    edit,
     renderButton
   };
   return <List {...updatedProps} />;

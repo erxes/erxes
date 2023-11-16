@@ -4,7 +4,7 @@ import { SidebarList } from '@erxes/ui/src/layout/styles';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { IParent } from '../types';
-import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
+import { IButtonMutateProps } from '@erxes/ui/src/types';
 import TypeForm from './TypeForm';
 import Button from '@erxes/ui/src/components/Button';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
@@ -23,12 +23,13 @@ type Props = {
 };
 
 type State = {
-  type: IParent;
+  type?: IParent;
 };
 
 class SideBar extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
+    this.state = { type: undefined };
   }
 
   trigger = (
@@ -50,20 +51,13 @@ class SideBar extends React.Component<Props, State> {
     </Button>
   );
 
-  content = props => {
-    const { type } = this.state;
-    const { renderButton, parents } = this.props;
-    return <TypeForm {...props} type={type} renderButton={renderButton} />;
-  };
-
   ListItem = (type, currentTypeName) => {
     const { remove } = this.props;
     const className = type && currentTypeName === type._id ? 'active' : '';
-
-    if (className) {
-      this.state = { type: type };
-    }
-
+    const content = props => {
+      const { renderButton } = this.props;
+      return <TypeForm {...props} type={type} renderButton={renderButton} />;
+    };
     return (
       <SidebarListItem isActive={className === 'active'} key={type._id}>
         <Link to={`/zmss?parentId=${type._id}`}>{__(type.name)}</Link>
@@ -73,7 +67,7 @@ class SideBar extends React.Component<Props, State> {
               size="sm"
               title="Edit type"
               trigger={this.editTrigger}
-              content={this.content}
+              content={content}
               enforceFocus={false}
             />
 

@@ -1,4 +1,3 @@
-import * as _ from 'underscore';
 import { Schema } from 'mongoose';
 import { ZmsLogs } from '.';
 
@@ -48,7 +47,3 @@ export const loadZmsLogClass = () => {
 
   return zmsLogSchema;
 };
-
-// export interface IZmsLog extends Model<IZmsLog> {
-//     createLog(doc: IZmsLog): Promise<IZmsLog>;
-//   }

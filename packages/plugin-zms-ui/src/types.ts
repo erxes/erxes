@@ -5,7 +5,7 @@ export interface IDictionary {
   code?: string;
   type: string;
   isParent: boolean;
-  createdBy?: String;
+  createdBy?: string;
   checked?: boolean;
   parentId?: string;
 }

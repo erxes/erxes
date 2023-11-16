@@ -1,5 +1,3 @@
-import * as _ from 'underscore';
-
 import { Schema } from 'mongoose';
 import { ZmsDictionaries } from '.';
 interface IZmsDictionary {
@@ -9,7 +7,7 @@ interface IZmsDictionary {
   type: string;
   isParent: boolean;
   createdAt: Date;
-  createdBy: String;
+  createdBy: string;
 }
 
 export const zmsDictionarySchema = new Schema<IZmsDictionary>({
@@ -33,16 +31,6 @@ export const loadZmsDictionaryClass = () => {
 
       return zmsDictionarySchema;
     }
-
-    // public static async getParents(isParent: Boolean) {
-    //   const parents = await ZmsDictionaries.find({isParent: isParent});
-
-    //   if (!parents) {
-    //     throw new Error('Parent not found');
-    //   }
-
-    //   return zmsDictionarySchema;
-    // }
 
     // create
     public static async createZmsDictionary(doc) {

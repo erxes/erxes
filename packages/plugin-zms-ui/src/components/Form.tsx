@@ -6,12 +6,11 @@ import { ModalFooter } from '@erxes/ui/src/styles/main';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { IDictionary, IParent } from '../types';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import { __ } from '@erxes/ui/src/utils';
 import React from 'react';
 import { ICommonFormProps } from '@erxes/ui-settings/src/common/types';
 
 type Props = {
-  parentId: String;
+  parentId: string;
   closeModal?: () => void;
   afterSave: () => void;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -21,10 +20,10 @@ type Props = {
 } & ICommonFormProps;
 
 type State = {
-  name?: String;
-  code?: String;
-  type?: String;
-  parentId: String;
+  name?: string;
+  code?: string;
+  type?: string;
+  parentId: string;
 };
 
 type IItem = {
@@ -47,10 +46,6 @@ class FormComponent extends React.Component<Props & ICommonFormProps, State> {
     };
   }
 
-  // onDateChange = value => {
-  //   this.setState({ expiryDate: value });
-  // };
-
   generateDoc = (values: {
     _id?: string;
     name: string;
@@ -72,28 +67,8 @@ class FormComponent extends React.Component<Props & ICommonFormProps, State> {
     };
   };
 
-  generateTagOptions = (types: IItem[]) => {
-    const result: React.ReactNode[] = [];
-
-    for (const type of types) {
-      result.push(
-        <option key={type._id} value={type._id}>
-          {type.name}
-        </option>
-      );
-    }
-
-    return result;
-  };
-
   renderContent = (formProps: IFormProps) => {
-    const {
-      dictionary,
-      parents,
-      afterSave,
-      closeModal,
-      renderButton
-    } = this.props;
+    const { dictionary, afterSave, closeModal, renderButton } = this.props;
     const { values, isSubmitted } = formProps;
     const object = dictionary || ({} as IDictionary);
     return (

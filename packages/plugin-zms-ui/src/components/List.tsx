@@ -18,7 +18,6 @@ type Props = {
   parentId: string;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   remove: (zms: IDictionary) => void;
-  edit: (zms: IDictionary) => void;
   loading: boolean;
 };
 
@@ -28,8 +27,7 @@ function List({
   types,
   remove,
   renderButton,
-  loading,
-  edit
+  loading
 }: Props) {
   const trigger = (
     <Button id={'AddDictionaryButton'} btnStyle="success" icon="plus-circle">
@@ -79,7 +77,6 @@ function List({
               dictionary={dictionary}
               parentId={parentId}
               remove={remove}
-              edit={edit}
               renderButton={renderButton}
               dictionaries={dictionaries}
               parents={types}

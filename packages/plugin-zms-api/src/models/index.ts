@@ -1,4 +1,3 @@
-import * as _ from 'underscore';
 import { model } from 'mongoose';
 import { loadZmsClass, zmsSchema } from './zmsModel';
 import { loadZmsLogClass, zmsLogSchema } from './zmsLogsModel';

@@ -1,4 +1,3 @@
-import { __ } from '@erxes/ui/src/utils/core';
 import React from 'react';
 import { IDictionary } from '../types';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
@@ -22,9 +21,8 @@ type Props = {
 
 const TypeForm = (props: Props) => {
   const { type, closeModal, renderButton, afterSave } = props;
-
   const generateDoc = (values: {
-    _id?: string;
+    id?: string;
     name: string;
     content: string;
   }) => {
@@ -33,7 +31,7 @@ const TypeForm = (props: Props) => {
     const { type } = props;
 
     if (type) {
-      finalValues._id = type._id;
+      finalValues.id = type._id;
     }
 
     return {

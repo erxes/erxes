@@ -36,7 +36,6 @@ type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   dictionaries: IDictionary[];
   remove: (dictionary: IDictionary) => void;
-  edit: (dictionary: IDictionary) => void;
   parents?: IParent[];
   parentId: string;
 };
@@ -45,30 +44,16 @@ type State = {
   checked: boolean;
 };
 
-class Row extends React.Component<Props, State> {
-  Dictionaries({ dictionary, checked }) {
-    return <ZmsNameStyled checked={checked}>{dictionary.name}</ZmsNameStyled>;
-  }
+function Dictionaries({ dictionary, checked }) {
+  return <ZmsNameStyled checked={checked}>{dictionary.name}</ZmsNameStyled>;
+}
 
+class Row extends React.Component<Props, State> {
   removeZms = () => {
     const { remove, dictionary } = this.props;
 
     remove(dictionary);
   };
-
-  toggleCheck = () => {
-    const { edit, dictionary } = this.props;
-
-    edit({
-      _id: dictionary._id,
-      checked: !dictionary.checked,
-      name: dictionary.name,
-      type: dictionary.type,
-      parentId: dictionary.parentId,
-      isParent: dictionary.isParent
-    });
-  };
-
   render() {
     const {
       dictionary,
@@ -98,22 +83,17 @@ class Row extends React.Component<Props, State> {
       />
     );
 
-    // const extractDate = zms.expiryDate
-    //   ? zms.expiryDate?.toString().split('T')[0]
-    //   : '-';
-
     return (
       <tr>
         <td>
           <ZmsWrapper space={space}>
             <FormControl
               componentClass="checkbox"
-              onChange={this.toggleCheck}
               color={colors.colorPrimary}
               defaultChecked={dictionary.checked || false}
             ></FormControl>
             <Margin>
-              <this.Dictionaries
+              <Dictionaries
                 dictionary={dictionary}
                 checked={dictionary.checked || false}
               />
