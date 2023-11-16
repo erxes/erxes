@@ -2,8 +2,11 @@
   "name": "@erxes/plugin-exm-ui",
   "version": "1.0.0",
   "scripts": {
-    "install-deps": "cd .erxes && yarn install",
-    "start": "cd .erxes && yarn start",
-    "build": "cd .erxes && yarn build"
+    "install-deps": "yarn install",
+    "start": "webpack serve --mode development",
+    "build": "webpack --mode production"
+  },
+  "dependencies": {
+    "@erxes/ui" : "*"
   }
 }

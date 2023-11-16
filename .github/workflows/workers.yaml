@@ -3,12 +3,13 @@ name: Workers CI
 on:
   push:
     branches:
-      - "dev"
-      - "staging"
+      - 'dev'
+      - master
+      - 'staging'
     paths:
-      - "packages/api-utils/**"
-      - "packages/workers/**"
-      - ".github/workflows/workers.yaml"
+      - 'packages/api-utils/**'
+      - 'packages/workers/**'
+      - '.github/workflows/workers.yaml'
 
 jobs:
   workers:

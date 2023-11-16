@@ -24,7 +24,6 @@ export default function DepartmentForm(props: Props) {
   const [userIds, setUserIds] = useState(
     (object.users || []).map(user => user._id)
   );
-  const [parentId, setParentId] = useState(object.parentId);
   const [supervisorId, setSupervisorId] = useState(object.supervisorId);
 
   const generateDoc = values => {
@@ -36,18 +35,13 @@ export default function DepartmentForm(props: Props) {
 
     return {
       userIds,
-      parentId,
       supervisorId,
-      ...finalValues
+      parentId: finalValues.parentId ? finalValues.parentId : null,
+      code: finalValues.code,
+      description: finalValues.description,
+      title: finalValues.title,
+      _id: finalValues._id
     };
-  };
-
-  const onChangeParent = (value: any) => {
-    if (value) {
-      setParentId(value);
-    } else {
-      setParentId(null);
-    }
   };
 
   const onSelectUsers = values => {
@@ -116,8 +110,7 @@ export default function DepartmentForm(props: Props) {
             {...formProps}
             name="parentId"
             componentClass="select"
-            defaultValue={parentId || null}
-            onChange={onChangeParent}
+            defaultValue={object.parentId || null}
           >
             <option value="" />
             {generateOptions()}

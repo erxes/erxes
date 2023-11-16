@@ -4,8 +4,8 @@ import { useEffect, useState } from "react"
 import { usePathname, useRouter } from "next/navigation"
 import {
   AwardIcon,
+  CalendarClock,
   HomeIcon,
-  LayersIcon,
   MessageCircleIcon,
   ScrollTextIcon,
   StarIcon,
@@ -36,7 +36,7 @@ export const Sidebar = () => {
     }
   }, [pathname])
 
-  const NavigationItem = ({ href, active, Icon, value, color, desc }: any) => {
+  const NavigationItem = ({ href, active, Icon, value, color, backgroundClass , desc }: any) => {
     return (
       <li
         className={`${
@@ -47,15 +47,12 @@ export const Sidebar = () => {
         <div className="relative p-3">
           <div
             className={`${
-              activeClass === active ? "bg-[#6569DF]" : "bg-white"
+              activeClass === active ? backgroundClass : "bg-white"
             } ${
               pathname.includes("/chat") ? "" : ""
             } shadow-md p-2 rounded-lg relative`}
           >
-            <Icon
-              size={18}
-              color={`${activeClass === active ? "#FFF" : color}`}
-            />
+            <Icon size={18} color={color} />
           </div>
           {active === "chats" && unreadCount > 0 ? (
             <div className="absolute top-2 right-2">
@@ -85,11 +82,11 @@ export const Sidebar = () => {
 
   return (
     <div
-      className={`h-full p-4 border-r  ${
-        pathname.includes("/chat") ? "" : "w-1/5"
+      className={`h-full p-4 border-r border-[#eee]  ${
+        pathname.includes("/chat") ? "" : "w-1/4 flex-0"
       }`}
     >
-      <div className="w-full pb-2 mb-4 border-b flex justify-center">
+      <div className="w-full pb-2 mb-4 flex justify-center">
         <Image
           alt=""
           src="/logo-dark.svg"
@@ -119,21 +116,23 @@ export const MAIN_NAVIGATION = [
     value: "Feed",
     Icon: HomeIcon,
     color: "#6569DF",
+    backgroundClass: "bg-[#6569DF]",
   },
   {
     active: "chats",
     href: "chats",
     value: "Chats",
     Icon: MessageCircleIcon,
-    color: "#A0AEC0",
+    color: "#FDA50D",
+    backgroundClass: "bg-[#FDA50D]",
   },
   {
-    active: "team",
-    href: "#",
-    value: "Team members",
+    active: "company",
+    href: "company",
+    value: "Company",
     Icon: Users2Icon,
     color: "#3B85F4",
-    desc: "Coming soon",
+    backgroundClass: "bg-[#3B85F4]",
   },
   {
     active: "discover",
@@ -142,6 +141,7 @@ export const MAIN_NAVIGATION = [
     Icon: StarIcon,
     color: "#EA475D",
     desc: "Coming soon",
+    backgroundClass: "bg-[#EA475D]",
   },
   {
     active: "learn",
@@ -150,6 +150,7 @@ export const MAIN_NAVIGATION = [
     Icon: ScrollTextIcon,
     color: "#3CCC38",
     desc: "Coming soon",
+    backgroundClass: "bg-[#3CCC38]",
   },
   {
     active: "leaderboard",
@@ -158,13 +159,13 @@ export const MAIN_NAVIGATION = [
     Icon: AwardIcon,
     color: "#FF6600",
     desc: "Coming soon",
+    backgroundClass: "bg-[#FF6600]",
   },
   {
-    active: "structure",
-    href: "#",
-    value: "Structure",
-    Icon: LayersIcon,
-    color: "#63D2D6",
-    desc: "Coming soon",
+    active: "timeclocks",
+    href: "timeclocks",
+    value: "Timeclocks",
+    Icon: CalendarClock,
+    color: "#3d91a9",
   },
 ]

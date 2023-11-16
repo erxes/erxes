@@ -8,57 +8,35 @@ const List = dynamic(() => import("./List"))
 
 const Feed = () => {
   localStorage.getItem("exm_env_REACT_APP_DOMAIN")
+
+  const style =
+    "text-[#A1A1A1] data-[state=active]:text-primary data-[state=active]:border-[#5629B6] data-[state=active]:border-b-2 h-16 hover:font-medium hover:text-[#A1A1A1]"
+
   return (
     <div>
       <Tabs defaultValue="post">
-        <TabsList className="w-full items-center flex p-2 h-[6vh]">
-          <TabsTrigger
-            className="text-[#444] data-[state=active]:border-[#5629B6] data-[state=active]:border-b-2"
-            value="post"
-          >
-            Post
-          </TabsTrigger>
-          <TabsTrigger
-            className="text-[#444] data-[state=active]:border-[#5629B6] data-[state=active]:border-b-2"
-            value="event"
-          >
-            Event
-          </TabsTrigger>
-          <TabsTrigger
-            className="text-[#444] data-[state=active]:border-[#5629B6] data-[state=active]:border-b-2"
-            value="bravo"
-          >
-            Bravo
-          </TabsTrigger>
-          <TabsTrigger
-            className="text-[#444] data-[state=active]:border-[#5629B6] data-[state=active]:border-b-2"
-            value="publicHoliday"
-          >
-            Public holiday
-          </TabsTrigger>
-          <TabsTrigger
-            className="text-[#444] data-[state=active]:border-[#5629B6] data-[state=active]:border-b-2"
-            value="welcome"
-          >
-            Welcome
-          </TabsTrigger>
+        <TabsList className="border-b border-[#eee]">
+          <div className="w-[60%] items-center flex mr-auto h-[2.5rem] my-3 ml-[25px]">
+            <TabsTrigger className={style} value="post">
+              Post
+            </TabsTrigger>
+            <TabsTrigger className={style} value="event">
+              Event
+            </TabsTrigger>
+            <TabsTrigger className={style} value="bravo">
+              Bravo
+            </TabsTrigger>
+            <TabsTrigger className={style} value="publicHoliday">
+              Calendar
+            </TabsTrigger>
+          </div>
         </TabsList>
 
-        <TabsContent value="post">
-          <List contentType="post" />
-        </TabsContent>
-        <TabsContent value="event">
-          <List contentType="event" />
-        </TabsContent>
-        <TabsContent value="bravo">
-          <List contentType="bravo" />
-        </TabsContent>
-        <TabsContent value="publicHoliday">
-          <List contentType="publicHoliday" />
-        </TabsContent>
-        <TabsContent value="welcome">
-          <List contentType="welcome" />
-        </TabsContent>
+        {["post", "event", "bravo", "publicHoliday"].map((item) => (
+          <TabsContent value={item} className="bg-[#F8F9FA]" key={item}>
+            <List contentType={item} />
+          </TabsContent>
+        ))}
       </Tabs>
     </div>
   )

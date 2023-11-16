@@ -12,7 +12,7 @@ export default function IndexPage() {
       <div className="flex h-full w-full flex-col">
         <Feed />
       </div>
-      <div className="flex w-1/3 flex-col border-l">
+      <div className="flex w-1/3 flex-col">
         <RightSideBar />
       </div>
     </>

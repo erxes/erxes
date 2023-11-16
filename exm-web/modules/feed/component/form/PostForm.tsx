@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { XCircle } from "lucide-react"
 import { useForm } from "react-hook-form"
 import Select from "react-select"
 import * as z from "zod"
@@ -18,28 +17,21 @@ import {
   FormControl,
   FormField,
   FormItem,
-  FormLabel,
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import LoadingPost from "@/components/ui/loadingPost"
 import SuccessPost from "@/components/ui/successPost"
 import { Textarea } from "@/components/ui/textarea"
-import { AttachmentWithPreview } from "@/components/AttachmentWithPreview"
 
 import useFeedMutation from "../../hooks/useFeedMutation"
 import { useTeamMembers } from "../../hooks/useTeamMembers"
 import { IFeed } from "../../types"
+import FormAttachments from "./FormAttachments"
+import FormImages from "./FormImages"
 import Uploader from "./uploader/Uploader"
 
 const FormSchema = z.object({
-  title: z
-    .string({
-      required_error: "Please enter an title",
-    })
-    .refine((val) => val.trim().length !== 0, {
-      message: "Please enter an title",
-    }),
   description: z
     .string({
       required_error: "Please enter an description",
@@ -108,22 +100,6 @@ const PostForm = ({
     callBack,
   })
 
-  const deleteAttachment = (index: number) => {
-    const updated = [...attachments]
-
-    updated.splice(index, 1)
-
-    setAttachments(updated)
-  }
-
-  const deleteImage = (index: number) => {
-    const updated = [...images]
-
-    updated.splice(index, 1)
-
-    setImage(updated)
-  }
-
   useEffect(() => {
     let defaultValues = {} as any
 
@@ -136,7 +112,7 @@ const PostForm = ({
   const onSubmit = (data: z.infer<typeof FormSchema>) => {
     feedMutation(
       {
-        title: data.title,
+        title: "title",
         description: data.description ? data.description : "",
         contentType: "post",
         images,
@@ -158,7 +134,7 @@ const PostForm = ({
   }
 
   return (
-    <DialogContent className="max-h-[80vh] overflow-auto">
+    <DialogContent className="max-h-[80vh] max-w-2xl overflow-auto">
       <DialogHeader>
         <DialogTitle>Create post</DialogTitle>
       </DialogHeader>
@@ -171,15 +147,15 @@ const PostForm = ({
         <form className="space-y-3" onSubmit={form.handleSubmit(onSubmit)}>
           <FormField
             control={form.control}
-            name="title"
+            name="description"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Title</FormLabel>
                 <FormControl>
-                  <Input
-                    placeholder="title"
+                  <Textarea
+                    placeholder="Write a post"
                     {...field}
-                    defaultValue={feed?.title || ""}
+                    defaultValue={feed?.description || ""}
+                    className="p-0 border-none"
                   />
                 </FormControl>
                 <FormMessage />
@@ -187,30 +163,17 @@ const PostForm = ({
             )}
           />
 
-          <FormField
-            control={form.control}
-            name="description"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Description</FormLabel>
-                <FormControl>
-                  <Textarea
-                    placeholder="description"
-                    {...field}
-                    defaultValue={feed?.description || ""}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+          <FormAttachments
+            attachments={attachments || []}
+            setAttachments={setImage}
           />
+          <FormImages images={images} setImage={setImage} />
 
           <FormField
             control={form.control}
             name="departmentIds"
             render={() => (
               <FormItem>
-                <FormLabel>Departments</FormLabel>
                 <FormControl>
                   {loading && !reload && !seDepartmentSearchvalue ? (
                     <Input disabled={true} placeholder="Loading..." />
@@ -224,7 +187,7 @@ const PostForm = ({
                         (departmentOption) =>
                           departmentIds.includes(departmentOption?.value)
                       )}
-                      placeholder="Select departments"
+                      placeholder="All departments"
                       isSearchable={true}
                       onInputChange={seDepartmentSearchvalue}
                       onChange={(data) =>
@@ -243,7 +206,6 @@ const PostForm = ({
             name="branchIds"
             render={() => (
               <FormItem>
-                <FormLabel>Branches</FormLabel>
                 <FormControl>
                   {loading && !reload && branchSearchValue ? (
                     <Input disabled={true} placeholder="Loading..." />
@@ -256,7 +218,7 @@ const PostForm = ({
                       defaultValue={branchOptions?.filter((branchOption) =>
                         branchIds?.includes(branchOption?.value)
                       )}
-                      placeholder="Select branches"
+                      placeholder="All branches"
                       isSearchable={true}
                       onInputChange={setBranchSearchvalue}
                       onChange={(data) => onChangeMultiValue("branch", data)}
@@ -273,7 +235,6 @@ const PostForm = ({
             name="unitId"
             render={({}) => (
               <FormItem>
-                <FormLabel>Unit</FormLabel>
                 <FormControl>
                   {loading && !reload && unitSearchValue ? (
                     <Input disabled={true} placeholder="Loading..." />
@@ -283,7 +244,7 @@ const PostForm = ({
                       onMenuOpen={() => setReload(true)}
                       isClearable={true}
                       options={unitOptions}
-                      placeholder="Select units"
+                      placeholder="All units"
                       value={unitOptions?.filter(
                         (unitOption) => unitOption.value === unitId
                       )}
@@ -299,42 +260,31 @@ const PostForm = ({
               </FormItem>
             )}
           />
+          <div className="flex items-center border rounded-lg px-2 border-[hsl(var(--border))] justify-between">
+            <p className="text-[#444]">Add attachments</p>
+            <div className="flex">
+              <Uploader
+                defaultFileList={images || []}
+                onChange={setImage}
+                type={"image"}
+                icon={true}
+                iconSize={20}
+                setUploading={setImageUploading}
+              />
 
-          <Uploader
-            defaultFileList={images || []}
-            onChange={setImage}
-            type={"image"}
-            setUploading={setImageUploading}
-          />
-          {images && images.length > 0 && (
-            <AttachmentWithPreview
-              images={images}
-              className="mt-2"
-              deleteImage={deleteImage}
-            />
-          )}
-
-          <Uploader
-            defaultFileList={attachments || []}
-            onChange={setAttachments}
-            setUploading={setAttachmentUploading}
-          />
-
-          {(attachments || []).map((attachment, index) => {
-            return (
-              <div
-                key={index}
-                className="flex items-center border-y text-sm font-semibold text-[#444] p-2.5 justify-between max-w-[445px] break-all"
-              >
-                <p className="max-w-[400px]">{attachment.name}</p>
-                <XCircle size={18} onClick={() => deleteAttachment(index)} />
-              </div>
-            )
-          })}
+              <Uploader
+                defaultFileList={attachments || []}
+                onChange={setAttachments}
+                icon={true}
+                iconSize={20}
+                setUploading={setAttachmentUploading}
+              />
+            </div>
+          </div>
 
           <Button
             type="submit"
-            className="font-semibold w-full rounded-full"
+            className="font-semibold w-full rounded-lg bg-primary-light"
             disabled={imageUploading || attachmentUploading}
           >
             Post

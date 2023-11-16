@@ -84,6 +84,10 @@
   }
 }
 
+* :focus-visible {
+  outline: -webkit-focus-ring-color auto 0;
+}
+
 .slick-prev {
   left: 10px !important;
   z-index: 1;
@@ -193,4 +197,41 @@
 }
 .hide-user-remove-button .css-wsp0cs-MultiValueGeneric {
   padding-right: 6px;
+}
+.shadow-notification {
+  box-shadow: rgba(0, 0, 0, 0.15) 0px 0px 20px 3px;
+}
+.css-1jqq78o-placeholder {
+  color: #444 !important;
+}
+.css-1u9des2-indicatorSeparator {
+  display: none;
+}
+.css-13cymwt-control {
+  border-color: hsl(var(--border));
+}
+.attachment-shadow {
+  box-shadow: 0px 1px 3px 1px rgba(0, 0, 0, 0.15), 0px 1px 2px 0px rgba(0, 0, 0, 0.15);
+}
+.event-card-image-shadow {
+  box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.25);
+}
+.border-light {
+  border-color: hsl(0, 0%, 80%) !important;
+}
+.react-datetime-picker__wrapper {
+  border: none !important;
+}
+.react-datetime-picker__inputGroup__input:invalid {
+  background: none !important;
+}
+.react-datetime-picker__calendar{
+  inset: calc(100% + 0.5rem) auto auto -9px !important;
+}
+.react-calendar {
+  border: 1px solid #eee !important;
+  border-radius: 8px;
+}
+.react-datetime-picker__clock {
+  display: none;
 }

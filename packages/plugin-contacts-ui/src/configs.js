@@ -1,4 +1,5 @@
 module.exports = {
+  srcDir: __dirname,
   name: 'contacts',
   port: 3011,
   scope: 'contacts',

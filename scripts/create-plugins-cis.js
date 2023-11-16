@@ -70,7 +70,9 @@ var plugins = [
   { name: 'polarissync', api: true, ui: true },
   { name: 'savings', api: true, ui: true },
   { name: 'goals', api: true, ui: true },
-  { name: 'msdynamic', api: true, ui: true }
+  { name: 'msdynamic', api: true, ui: true },
+  { name: 'dailyco', api: true, ui: true },
+  { name: 'zms', api: true, ui: true },
 ];
 
 const pluginsMap = {};
