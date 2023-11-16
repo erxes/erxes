@@ -52,7 +52,8 @@ const exmFeedQueries = {
       type,
       startDate,
       endDate,
-      bravoType
+      bravoType,
+      category
     },
     { models, user, subdomain }
   ) => {
@@ -187,6 +188,10 @@ const exmFeedQueries = {
 
     if (title) {
       filter.title = new RegExp(`.*${title}.*`, 'i');
+    }
+
+    if (category) {
+      filter.category = category;
     }
 
     if (contentTypes && contentTypes.length > 0) {

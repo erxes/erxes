@@ -63,18 +63,3 @@ export const callPropType = PropTypes.shape({
   direction: PropTypes.string,
   counterpart: PropTypes.string
 });
-
-export const RTC = PropTypes.shape({
-  id: PropTypes.string,
-  connection: PropTypes.any,
-  audioMuted: PropTypes.bool,
-  _id: PropTypes.string,
-  _connection: PropTypes.any,
-  _audioMuted: PropTypes.bool
-});
-
-export const rtcSessionPropType = PropTypes.shape({
-  id: PropTypes.number,
-  description: PropTypes.string
-  // Add more specific properties and their PropTypes here
-});

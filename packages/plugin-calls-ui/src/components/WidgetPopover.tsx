@@ -2,10 +2,10 @@ import React, { useState } from 'react';
 import Popover from 'react-bootstrap/Popover';
 import { Tab, TabsContainer, TabContent } from '../styles';
 import History from './History';
-import Contact from './Contact';
 import { Icon } from '@erxes/ui/src/components';
 import { __ } from '@erxes/ui/src/utils';
 import KeyPadContainer from '../containers/KeyPad';
+import ContactsContainer from '../containers/Contacts';
 
 type Props = {
   autoOpenTab: string;
@@ -34,7 +34,6 @@ const WidgetPopover = ({
   const contactsOnClick = () => {
     onTabClick('Contact');
   };
-
   return (
     <Popover id="call-popover" className="call-popover">
       <TabContent show={currentTab === 'History'}>
@@ -47,7 +46,7 @@ const WidgetPopover = ({
         />
       </TabContent>
       <TabContent show={currentTab === 'Contact'}>
-        <Contact />
+        <ContactsContainer />
       </TabContent>
       <TabsContainer full={true}>
         <Tab

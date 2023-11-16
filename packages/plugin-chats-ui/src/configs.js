@@ -1,4 +1,5 @@
 module.exports = {
+  srcDir: __dirname,
   name: 'chats',
   port: 3110,
   exposes: {

@@ -8,6 +8,8 @@ const commonParamsDef = `
   $favicon: AttachmentInput
   $webName: String
   $webDescription: String
+  $vision: String
+  $structure: String
 `;
 
 const commonParams = `
@@ -20,6 +22,8 @@ const commonParams = `
   favicon: $favicon
   webName: $webName
   webDescription: $webDescription
+  vision: $vision
+  structure: $structure
 `;
 
 const exmsAdd = `

@@ -1,4 +1,5 @@
 module.exports = {
+  srcDir: __dirname,
   name: 'timeclock',
   port: 3023,
   scope: 'timeclock',

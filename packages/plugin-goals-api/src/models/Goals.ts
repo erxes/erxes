@@ -1,15 +1,14 @@
 import { Model } from 'mongoose';
 import { IModels } from '../connectionResolver';
-import { sendCardsMessage } from '../messageBroker';
+import { sendCardsMessage, sendSegmentsMessage } from '../messageBroker';
 import { goalSchema, IGoal, IGoalDocument } from './definitions/goals';
-
 export interface IGoalModel extends Model<IGoalDocument> {
   getGoal(_id: string): Promise<IGoalDocument>;
   createGoal(doc: IGoal): Promise<IGoalDocument>;
   updateGoal(_id: string, doc: IGoal): Promise<IGoalDocument>;
   removeGoal(_ids: string[]);
   progressGoal(_id: string);
-  progressIdsGoals(): Promise<IGoalDocument>;
+  progressIdsGoals(filter, params): Promise<IGoalDocument>;
 }
 
 export const loadGoalClass = (models: IModels, subdomain: string) => {
@@ -63,104 +62,24 @@ export const loadGoalClass = (models: IModels, subdomain: string) => {
       const goal = await models.Goals.findOne({
         _id
       });
-      const target = goal?.target;
-
-      const actionName = goal?.entity + 's.find';
-      const progressed = await progressFunction(
-        actionName,
-        goal,
-        goal?.metric,
-        target
-      );
-
-      // goal.progress.push(progressed);
-
-      // const data = { ...goal, progressed };
-      // const data = { goal, progressed };
       return goal;
     }
 
-    public static async progressIdsGoals() {
+    public static async progressIdsGoals(filter, params) {
       try {
-        const doc = await models.Goals.find({}).lean();
+        // const doc = await models.Goals.find({}).lean();
+        const doc = await models.Goals.find(filter)
+          .skip((params.page - 1) * params.perPage)
+          .limit(params.perPage);
+
         const data = await progressFunctionIds(doc);
-        return data;
+        return data === true ? true : false;
       } catch (error) {
         // Handle the error appropriately
         console.error('Error fetching progress IDs goals:', error);
         return []; // Return an empty array or handle the error accordingly
       }
     }
-  }
-
-  async function progressFunction(actionName, goal, metric, target) {
-    const amount = await sendCardsMessage({
-      subdomain,
-      action: actionName,
-      data: {
-        stageId: goal?.stageId
-      },
-      isRPC: true
-    });
-    let current;
-    let progress;
-    let amountData;
-    if (metric === 'Value') {
-      let mobileAmountsData;
-
-      let data;
-      let totalAmount = 0;
-      for (const items of amount) {
-        if (items.productsData && items.status === 'active') {
-          const productsData = items.productsData;
-          productsData.forEach(item => {
-            totalAmount += item.amount;
-          });
-        }
-        if (items.mobileAmounts && items.mobileAmounts.length > 0) {
-          mobileAmountsData = items.mobileAmounts[0].amount;
-        }
-        if (items.paymentsData) {
-          const paymentsData = items.paymentsData;
-          if (paymentsData.prepay) {
-            data = paymentsData.prepay;
-          } else if (paymentsData.cash) {
-            data = paymentsData.cash;
-          } else if (paymentsData.bankTransaction) {
-            data = paymentsData.bankTransaction;
-          } else if (paymentsData.posTerminal) {
-            data = paymentsData.posTerminal;
-          } else if (paymentsData.wallet) {
-            data = paymentsData.wallet;
-          } else if (paymentsData.barter) {
-            data = paymentsData.barter;
-          } else if (paymentsData.receivable) {
-            data = paymentsData.receivable;
-          } else if (paymentsData.other) {
-            data = paymentsData.other;
-          }
-        }
-      }
-      current = totalAmount;
-      amountData = {
-        mobileAmountsData,
-        paymentsData: data
-      };
-      progress = await differenceFunction(current, parseInt(target || ''));
-    } else if (metric === 'Count') {
-      const activeElements = amount.filter(item => item.status === 'active');
-      // Getting the count of elements with status 'active'
-      current = activeElements.length;
-
-      progress = await differenceFunction(current, parseInt(target || ''));
-    }
-
-    const result = await models.Goals.updateOne(
-      { _id: goal._id },
-      { $set: { progress: { current, progress, amountData, target } } },
-      { runValuators: true }
-    );
-    return result;
   }
 
   async function progressFunctionIds(doc) {
@@ -171,28 +90,80 @@ export const loadGoalClass = (models: IModels, subdomain: string) => {
       current: string;
       progress: string;
       amountData: any;
-      target: string;
+      target: number;
     }
-    // tslint:disable-next-line:interface-name
 
     const data: DataItem[] = [];
 
     for (const item of doc) {
-      const amount = await sendCardsMessage({
+      let amount;
+
+      // Check if any of the conditions are met to send the request
+      let requestData: any;
+
+      if (item.contributionType === 'person') {
+        requestData = {
+          assignedUserIds: item.contribution
+        };
+      } else if (item.contributionType === 'team') {
+        if (item.teamGoalType === 'Departments') {
+          requestData = {
+            departmentIds: item.department
+          };
+        } else if (item.teamGoalType === 'Branches') {
+          requestData = {
+            branchIds: item.branch
+          };
+        }
+      }
+      // Send the request
+      amount = await sendCardsMessage({
         subdomain,
         action: item.entity + 's.find',
         data: {
+          ...requestData, // Spread the requestData to include its properties
           stageId: item.stageId
         },
         isRPC: true
       });
+
+      let customerIdsBySegments: string[] = [];
+
+      try {
+        // Assuming 'item' is the object containing segmentIds
+        for (const segment of item.segmentIds || []) {
+          const cIds = await sendSegmentsMessage({
+            isRPC: true,
+            subdomain,
+            action: 'fetchSegment',
+            data: { segmentId: segment }
+          });
+
+          // Concatenate the fetched customer IDs to the array
+          customerIdsBySegments = [...customerIdsBySegments, ...cIds];
+        }
+
+        // Get the count of elements in the array
+        const count = customerIdsBySegments.length;
+
+        // Update the database
+        await models.Goals.updateOne(
+          { _id: item._id },
+          {
+            $set: {
+              segmentCount: count
+            }
+          }
+        );
+      } catch (error) {
+        throw new Error(error);
+      }
       let current;
       let progress;
       let amountData;
 
       if (item.metric === 'Value') {
         let mobileAmountsData;
-
         let data;
         let totalAmount = 0;
         for (const items of amount) {
@@ -232,111 +203,55 @@ export const loadGoalClass = (models: IModels, subdomain: string) => {
           mobileAmountsData,
           paymentsData: data
         };
-        progress = await differenceFunction(
-          current,
-          parseInt(item.target || '')
-        );
-      } else if (item.metric === 'Count') {
-        const activeElements = amount.filter(item => item.status === 'active');
-        current = activeElements.length;
-
-        progress = await differenceFunction(
-          current,
-          parseInt(item.target || '')
-        );
-      }
-
-      data.push({
-        stageId: item.stageId,
-        _id: item._id,
-        current,
-        progress,
-        amountData,
-        target: item.target
-      });
-    }
-
-    for (const result of data) {
-      await models.Goals.updateOne(
-        { _id: result._id },
-        {
-          $set: {
-            progress: {
-              current: result.current,
-              progress: result.progress,
-              amountData: result.amountData,
-              target: result.target,
-              _id: result._id
-            }
-          }
-        },
-        { runValidators: true }
-      );
-    }
-
-    const updates = await models.Goals.find({}).lean();
-    for (const item of updates) {
-      const actionName = item?.entity + 's.find';
-      const stage = item?.stageId;
-      const amount = await sendCardsMessage({
-        subdomain,
-        action: actionName,
-        data: {
-          stageId: stage
-        },
-        isRPC: true
-      });
-      let totalAmount = 0;
-      let current;
-      if (item.metric === 'Value') {
-        // let progress;
-        for (const items of amount) {
-          if (items.productsData && items.status === 'active') {
-            const productsData = items.productsData;
-
-            productsData.forEach(item => {
-              totalAmount += item.amount;
-            });
-          }
-          current = totalAmount;
-
-          if (
-            item.specificPeriodGoals &&
-            Array.isArray(item.specificPeriodGoals)
-          ) {
-            const updatedSpecificPeriodGoals = item.specificPeriodGoals.map(
-              result => {
-                const progress = (current / result.addTarget) * 100;
-                const convertedNumber = progress.toFixed(3);
-
-                return {
-                  ...result,
-                  addMonthly: result.addMonthly, // update other properties as needed
-                  progress: convertedNumber // updating the progress property
-                };
-              }
-            );
-            await models.Goals.updateOne(
-              { _id: item._id },
-              {
-                $set: {
-                  specificPeriodGoals: updatedSpecificPeriodGoals
-                }
-              }
-            );
-          }
-        }
-      } else if (item.metric === 'Count') {
-        const activeElements = amount.filter(item => item.status === 'active');
-        current = activeElements.length;
+        progress = await differenceFunction(current, item.target);
         if (
           item.specificPeriodGoals &&
           Array.isArray(item.specificPeriodGoals)
         ) {
           const updatedSpecificPeriodGoals = item.specificPeriodGoals.map(
             result => {
-              const progress = (current / result.addTarget) * 100;
-              const convertedNumber = progress.toFixed(3);
+              let convertedNumber;
+              if (totalAmount === 0 || result.addTarget === 0) {
+                convertedNumber = 100;
+              } else {
+                const diff = (totalAmount / result.addTarget) * 100;
+                convertedNumber = diff.toFixed(3);
+              }
+
+              return {
+                ...result,
+                addMonthly: result.addMonthly, // Update other properties as needed
+                progress: convertedNumber // Update the progress property
+              };
+            }
+          );
+          await models.Goals.updateOne(
+            { _id: item._id },
+            {
+              $set: {
+                specificPeriodGoals: updatedSpecificPeriodGoals
+              }
+            }
+          );
+        }
+      } else if (item.metric === 'Count') {
+        const activeElements = amount.filter(item => item.status === 'active');
+        current = activeElements.length;
+
+        progress = await differenceFunction(current, item.target);
+        if (
+          item.specificPeriodGoals &&
+          Array.isArray(item.specificPeriodGoals)
+        ) {
+          const updatedSpecificPeriodGoals = item.specificPeriodGoals.map(
+            result => {
+              let convertedNumber;
+              if (current === 0 || result.addTarget === 0) {
+                convertedNumber = 100;
+              } else {
+                const diff = (current / result.addTarget) * 100;
+                convertedNumber = diff.toFixed(3);
+              }
 
               return {
                 ...result,
@@ -356,13 +271,54 @@ export const loadGoalClass = (models: IModels, subdomain: string) => {
           );
         }
       }
+
+      data.push({
+        stageId: item.stageId,
+        _id: item._id,
+        current,
+        progress,
+        amountData,
+        target: item.target
+      });
     }
-    return updates;
+
+    try {
+      for (const result of data) {
+        try {
+          await models.Goals.updateOne(
+            { _id: result._id },
+            {
+              $set: {
+                progress: {
+                  current: result.current,
+                  progress: result.progress,
+                  amountData: result.amountData,
+                  target: result.target,
+                  _id: result._id
+                }
+              }
+            },
+            { runValidators: true }
+          );
+        } catch (error) {
+          // Handle the error here
+          throw new Error(error);
+        }
+      }
+      return true;
+    } catch (error) {
+      throw new Error(error);
+    }
   }
 
   async function differenceFunction(amount: number, target: number) {
-    const diff = (amount / target) * 100;
-    const convertedNumber = diff.toFixed(3);
+    let convertedNumber;
+    if (amount === 0 || target === 0) {
+      convertedNumber = 100;
+    } else {
+      const diff = (amount / target) * 100;
+      convertedNumber = diff.toFixed(3);
+    }
 
     return convertedNumber;
   }

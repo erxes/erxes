@@ -7,6 +7,8 @@ import { connection } from './connection';
 import graphqTypes from './graphql';
 import { IConnectResponse } from './types';
 import asyncComponent from '../AsyncComponent';
+import {enabledServicesQuery} from '../form/graphql';
+import { EnabledServices } from '../form/types';
 
 const App = asyncComponent(() => 
   import( /* webpackChunkName: "MessengerApp" */'./containers/App')
@@ -19,6 +21,16 @@ widgetConnect({
     connection.setting = setting;
 
     initStorage(storage);
+
+    client.query({
+      query: gql(enabledServicesQuery),
+      fetchPolicy: "network-only"
+    }).then((res: any) => {
+      if (res.data.enabledServices) {
+        const { enabledServices } = res.data;
+        connection.enabledServices = enabledServices;
+      }
+    });
 
     const cachedCustomerId = getLocalStorageItem('customerId');
 

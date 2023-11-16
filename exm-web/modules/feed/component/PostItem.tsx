@@ -9,19 +9,14 @@ import dayjs from "dayjs"
 import { useAtomValue } from "jotai"
 import {
   AlertTriangleIcon,
-  CheckCircle2Icon,
-  ClockIcon,
   ExternalLinkIcon,
-  HeartIcon,
-  MapPinIcon,
   MessageCircleIcon,
   MoreHorizontalIcon,
   PencilIcon,
   PinIcon,
-  StarIcon,
+  PinOff,
+  ThumbsUp,
   TrashIcon,
-  UserIcon,
-  UsersIcon,
 } from "lucide-react"
 
 import { readFile } from "@/lib/utils"
@@ -41,15 +36,17 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
-import { ImageWithPreview } from "@/components/ImageWithPreview"
+import { FilePreview } from "@/components/FilePreview"
+import { useUsers } from "@/components/hooks/useUsers"
 
+import { useComments } from "../hooks/useComment"
 import useFeedMutation from "../hooks/useFeedMutation"
 import { useReactionMutaion } from "../hooks/useReactionMutation"
 import { useReactionQuery } from "../hooks/useReactionQuery"
+import CommentItem from "./CommentItem"
 import CommentForm from "./form/CommentForm"
 
 const BravoForm = dynamic(() => import("./form/BravoForm"))
-const EventForm = dynamic(() => import("./form/EventForm"))
 const HolidayForm = dynamic(() => import("./form/HolidayForm"))
 const PostForm = dynamic(() => import("./form/PostForm"))
 
@@ -58,6 +55,7 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
   const [formOpen, setFormOpen] = useState(false)
   const [commentOpen, setCommentOpen] = useState(false)
   const currentUser = useAtomValue(currentUserAtom) || ({} as IUser)
+  let recipientUsers
 
   const callBack = (result: string) => {
     if (result === "success") {
@@ -66,6 +64,14 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
   }
 
   const { feed, loading } = useFeedDetail({ feedId: postId })
+  const { users } = useUsers({})
+
+  const {
+    comments,
+    commentsCount,
+    loading: commentLoading,
+    handleLoadMore,
+  } = useComments(feed._id)
   const { emojiCount, emojiReactedUser, loadingReactedUsers } =
     useReactionQuery({
       feedId: postId,
@@ -74,7 +80,6 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
   const {
     deleteFeed,
     pinFeed,
-    eventAction,
     loading: mutationLoading,
   } = useFeedMutation({
     callBack,
@@ -97,10 +102,6 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
   const idExists = emojiReactedUser.some(
     (item: any) => item._id === currentUser._id
   )
-
-  const isGoing = feed.eventData?.goingUserIds.includes(currentUser._id)
-
-  const isInterest = feed.eventData?.interestedUserIds.includes(currentUser._id)
 
   const urlRegex = /(https?:\/\/[^\s]+)/g
 
@@ -127,10 +128,6 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
     reactionMutation(feed._id)
   }
 
-  const handleEventAction = (type: string) => {
-    eventAction(feed._id, type)
-  }
-
   const editAction = () => {
     const renderForm = () => {
       switch (feed.contentType) {
@@ -142,8 +139,6 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
           return null
         case "bravo":
           return <BravoForm feed={feed} setOpen={setOpen} />
-        case "event":
-          return <EventForm feed={feed} setOpen={setOpen} />
       }
     }
 
@@ -170,14 +165,19 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
           onOpenChange={() => setCommentOpen(!commentOpen)}
         >
           <DialogTrigger asChild={true} id="delete-form">
-            <div className="cursor-pointer flex items-center pt-2">
+            <div className="cursor-pointer flex items-center py-2 px-4 hover:bg-[#F0F0F0]">
               <MessageCircleIcon size={20} className="mr-1" color="black" />
+              Comment
             </div>
           </DialogTrigger>
 
           {commentOpen && (
             <CommentForm
               feed={feed}
+              comments={comments}
+              commentsCount={commentsCount}
+              loading={commentLoading}
+              handleLoadMore={handleLoadMore}
               currentUserId={currentUser._id}
               emojiReactedUser={emojiReactedUser}
               emojiCount={emojiCount}
@@ -222,7 +222,7 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
       <>
         <Dialog open={formOpen} onOpenChange={() => setFormOpen(!formOpen)}>
           <DialogTrigger asChild={true} id="delete-form">
-            <div className="text-black flex items-center">
+            <div className="text-destructive flex items-center">
               <TrashIcon size={16} className="mr-1" />
               Delete
             </div>
@@ -239,6 +239,10 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
       return null
     }
 
+    if (currentUser._id !== feed.createdUser?._id) {
+      return null
+    }
+
     return (
       <Popover>
         <PopoverTrigger asChild={true}>
@@ -247,69 +251,158 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
           </div>
         </PopoverTrigger>
         <PopoverContent className="w-40 p-3">
-          {currentUser.isOwner || currentUser._id === user._id ? (
-            <div className="hover:bg-[#F0F0F0] p-2 rounded-md cursor-pointer text-[#444] text-xs">
-              {editAction()}
-            </div>
-          ) : null}
-
-          {currentUser.isOwner || currentUser._id === user._id ? (
-            <div className="hover:bg-[#F0F0F0] p-2 rounded-md cursor-pointer text-[#444] text-xs">
-              {deleteAction()}
-            </div>
-          ) : null}
-
-          {feed.contentType === "event" &&
-          new Date(feed.eventData?.endDate || "") < new Date() ? null : (
-            <div
-              className="hover:bg-[#F0F0F0] p-2 rounded-md cursor-pointer text-[#444] text-xs flex items-center"
-              onClick={() => pinFeed(feed._id)}
-            >
-              <PinIcon size={16} className="mr-1" />
-              <span className="text-black font-medium">
-                {feed.isPinned ? "UnPin" : "Pin"}
-              </span>
-            </div>
-          )}
+          <div
+            className="hover:bg-[#F0F0F0] p-2 rounded-md cursor-pointer text-[#444] text-xs flex items-center"
+            onClick={() => pinFeed(feed._id)}
+          >
+            {feed.isPinned ? (
+              <PinOff size={16} className="mr-1 text-black" />
+            ) : (
+              <PinIcon size={16} className="mr-1 text-black" />
+            )}
+            <span className="text-black font-medium">
+              {feed.isPinned ? "UnPin" : "Pin"}
+            </span>
+          </div>
+          <div className="hover:bg-[#F0F0F0] p-2 rounded-md cursor-pointer text-[#444] text-xs">
+            {editAction()}
+          </div>
+          <div className="hover:bg-[#F0F0F0] p-2 rounded-md cursor-pointer text-xs">
+            {deleteAction()}
+          </div>
         </PopoverContent>
       </Popover>
     )
   }
 
-  const renderEventInfo = () => {
-    const { eventData } = feed
+  const renderCreatedDate = () => {
+    if (feed.createdAt) {
+      const postCreationDate: any = new Date(feed.createdAt)
+      const currentDate: any = new Date()
+      const differenceInMilliseconds = currentDate - postCreationDate
+      const monthsDifference =
+        differenceInMilliseconds / (1000 * 60 * 60 * 24 * 30.44)
+
+      if (monthsDifference >= 2) {
+        return dayjs(feed.createdAt).format("MM/DD/YYYY h:mm A")
+      }
+
+      return dayjs(feed.createdAt).fromNow()
+    }
+  }
+
+  const renderEmojiCount = () => {
+    if (emojiCount === 0 || !emojiCount) {
+      return null
+    }
+
+    let text
+
+    if (idExists) {
+      text = `You ${
+        emojiCount - 1 === 0 ? "" : ` and ${emojiCount - 1} others`
+      }  liked this`
+    } else {
+      text = emojiCount
+    }
 
     return (
-      <div className="text-[#444]">
-        <div className="flex items-center mb-2">
-          <ClockIcon size={18} className="mr-1" />
-          {dayjs(eventData?.startDate).format("MM/DD/YYYY h:mm A")} ~{" "}
-          {dayjs(eventData?.endDate).format("MM/DD/YYYY h:mm A")}
+      <div className="flex mt-4">
+        <div className="bg-primary-light rounded-full w-[22px] h-[22px] flex items-center justify-center text-white mr-2">
+          <ThumbsUp size={12} fill="#fff" />
         </div>
-        <div className="flex items-center mb-2">
-          <UsersIcon size={18} className="mr-1" />
-          <b>{eventData?.goingUserIds.length}</b>&nbsp;Going •&nbsp;
-          <b>{eventData?.interestedUserIds?.length}</b>&nbsp;Interested
-        </div>
-        <div className="flex items-center mb-2">
-          <UserIcon size={18} className="mr-1" />
-          Event by{" "}
-          {feed?.createdUser?.details?.fullName ||
-            feed?.createdUser?.username ||
-            feed?.createdUser?.email}
-        </div>
-        <div className="flex items-center mb-2">
-          <MapPinIcon size={18} className="mr-1" />
-          {eventData?.where || ""}
-        </div>
+        <div className="text-[#5E5B5B]">{text} </div>
       </div>
+    )
+  }
+
+  const renderAttachments = () => {
+    if (!feed.attachments || feed.attachments.length === 0) {
+      return null
+    }
+
+    return (
+      <div className="flex flex-wrap gap-3 mt-4">
+        {(feed.attachments || []).map((a, index) => {
+          return (
+            <a key={index} href={readFile(a.url)} className="w-1/2 flex-1">
+              <div className="flex bg-[#EAEAEA] text-sm font-medium text-[#444] attachment-shadow px-2.5 py-[5px] justify-between w-full rounded-lg rounded-tr-none">
+                <span className="truncate">{a.name}</span>{" "}
+                <ExternalLinkIcon size={18} />
+              </div>
+            </a>
+          )
+        })}
+      </div>
+    )
+  }
+
+  const renderImages = () => {
+    if (!feed.images || feed.images.length === 0) {
+      return null
+    }
+
+    return (
+      <div className="mt-4">
+        <FilePreview
+          attachments={feed.images}
+          fileUrl={feed.images[0].url}
+          fileIndex={0}
+          grid={true}
+        />
+      </div>
+    )
+  }
+
+  const renderComments = () => {
+    if (!comments || comments.length === 0) {
+      return null
+    }
+
+    return (
+      <div className="border-t">
+        <CommentItem comment={comments[0]} currentUserId={currentUser._id} />
+      </div>
+    )
+  }
+
+  const renderRecipientUsers = () => {
+    if (feed.recipientIds.length === 0 || !feed.recipientIds) {
+      return null
+    }
+
+    recipientUsers = feed.recipientIds.map((id) =>
+      users.find((item) => item._id === id)
+    )
+
+    const more = () => {
+      if (recipientUsers.length < 3) {
+        return null
+      }
+
+      return <> and {recipientUsers.length - 2} more people</>
+    }
+
+    return (
+      <>
+        <span className="text-[#5E5B5B] font-medium"> with </span>
+        {recipientUsers.slice(0, 2).map((item, index) => {
+          return (
+            <>
+              {item?.details.fullName || item?.username || item?.email}
+              {index + 1 !== recipientUsers.length && ", "}
+            </>
+          )
+        })}
+        {more()}
+      </>
     )
   }
 
   return (
     <>
-      <Card className="max-w-2xl mx-auto my-4 border-0">
-        <CardHeader>
+      <Card className="max-w-[56rem] mx-auto my-4 border-0 p-4">
+        <CardHeader className="p-0 pb-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center">
               <Image
@@ -317,127 +410,71 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
                 alt="User Profile"
                 width={100}
                 height={100}
-                className="w-10 h-10 rounded-full object-cover"
+                className="w-10 h-10 rounded-full object-cover border border-primary"
               />
               <div className="ml-3">
                 <div className="text-sm font-bold text-gray-700 mb-1">
                   {userDetail?.fullName ||
                     userDetail?.username ||
                     userDetail?.email}
+                  {feed.contentType === "bravo" && renderRecipientUsers()}
                 </div>
                 <div className="text-xs text-[#666] font-normal">
-                  {dayjs(feed.createdAt).format("MM/DD/YYYY h:mm A")}{" "}
-                  <span className="text-green-700 font-bold text-sm ml-1">{`#${feed.contentType}`}</span>
+                  {renderCreatedDate()}{" "}
                 </div>
               </div>
             </div>
 
             <div className="flex items-center cursor-pointer">
-              {feed.contentType === "event" && (
-                <>
-                  <div
-                    className={`cursor-pointer flex items-center p-2 ${
-                      isGoing ? "bg-[#6569DF]" : "bg-[#F0F0F0]"
-                    } mr-1 rounded-lg`}
-                    onClick={() => handleEventAction("going")}
-                  >
-                    <CheckCircle2Icon
-                      size={16}
-                      className="mr-1"
-                      color={`${isGoing ? "white" : "black"}`}
-                    />
-                    <span
-                      className={`${
-                        isGoing ? "text-white" : "text-black"
-                      } text-xs`}
-                    >
-                      Going
-                    </span>
-                  </div>
-
-                  <div
-                    className={`cursor-pointer flex items-center p-2 ${
-                      isInterest ? "bg-[#6569DF]" : "bg-[#F0F0F0]"
-                    } mr-1 rounded-lg`}
-                    onClick={() => handleEventAction("interested")}
-                  >
-                    <StarIcon
-                      size={16}
-                      className="mr-1"
-                      color={`${isInterest ? "white" : "black"}`}
-                    />
-                    <span
-                      className={`${
-                        isInterest ? "text-white" : "text-black"
-                      } text-xs`}
-                    >
-                      Interest
-                    </span>
-                  </div>
-                </>
-              )}
-
-              {feed.isPinned && <PinIcon size={18} color={"#FF0000"} />}
               {renderFeedActions()}
+              {feed.isPinned && <PinIcon size={18} color={"#FF0000"} />}
             </div>
           </div>
         </CardHeader>
         <CardContent className="p-0">
-          <div className="px-4">
-            <div className="text-sm font-semibold text-slate-800 overflow-x-hidden">
-              <b className="text-[#444] text-base font-bold">{feed.title}</b>
-            </div>
-            <div className="my-1 overflow-x-hidden">
-              <p className="text-[#666]">{updatedDescription}</p>
-            </div>
-            {feed.contentType === "event" && renderEventInfo()}
-            {links.map((link, index) => {
-              return (
-                <iframe
-                  key={index}
-                  width="640"
-                  height="390"
-                  src={String(link)
-                    .replace("watch?v=", "embed/")
-                    .replace("youtu.be/", "youtube.com/embed/")
-                    .replace("share/", "embed/")}
-                  title="Video"
-                  allowFullScreen={true}
-                />
-              )
-            })}
+          <div className="overflow-x-hidden">
+            <p className="text-black">{updatedDescription}</p>
           </div>
-
-          {(feed.attachments || []).map((a, index) => {
+          {links.map((link, index) => {
             return (
-              <a key={index} href={readFile(a.url)}>
-                <div className="flex items-center border-y text-sm font-semibold text-[#444] p-2.5">
-                  {a.name} <ExternalLinkIcon size={18} />
-                </div>
-              </a>
+              <iframe
+                key={index}
+                width="860"
+                height="390"
+                src={String(link)
+                  .replace("watch?v=", "embed/")
+                  .replace("youtu.be/", "youtube.com/embed/")
+                  .replace("share/", "embed/")}
+                title="Video"
+                allowFullScreen={true}
+                className="rounded-lg mt-4"
+              />
             )
           })}
 
-          {feed.images && feed.images.length > 0 && (
-            <ImageWithPreview images={feed.images} className="mt-2" />
-          )}
+          {renderAttachments()}
+          {renderImages()}
+          {renderEmojiCount()}
         </CardContent>
 
-        <CardFooter className="border-t mt-5 pb-2">
+        <CardFooter className="border-t mt-5 p-0 justify-between">
           <div
-            className="cursor-pointer flex items-center pt-2 mr-4"
+            className="cursor-pointer flex items-center py-2 px-4 hover:bg-[#F0F0F0]"
             onClick={reactionAdd}
           >
-            <HeartIcon
+            <ThumbsUp
               size={20}
               className="mr-1"
-              fill={`${idExists ? "#FF0000" : "white"}`}
-              color={`${idExists ? "#FF0000" : "black"}`}
+              fill={`${idExists ? "#8771D5" : "white"}`}
+              color={`${idExists ? "#8771D5" : "black"}`}
             />
-            <span className="font-bold text-base">{emojiCount}</span>
+            <div className={`${idExists ? "text-primary" : "text-black"}`}>
+              Like
+            </div>
           </div>
           {renderComment()}
         </CardFooter>
+        {renderComments()}
       </Card>
     </>
   )

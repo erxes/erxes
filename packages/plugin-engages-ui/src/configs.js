@@ -1,4 +1,5 @@
 module.exports = {
+  srcDir: __dirname,
   name: "engages",
   port: 3001,
   exposes: {

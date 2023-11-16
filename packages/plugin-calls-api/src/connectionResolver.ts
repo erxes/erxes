@@ -10,18 +10,13 @@ import {
   IConversationModel,
   loadConversationClass
 } from './models/Conversations';
-import {
-  IConversationMessageModel,
-  loadConversationMessageClass
-} from './models/ConversationMessages';
-import { IConversationMessageDocument } from './models/definitions/conversationMessages';
+
 import { ICustomerDocument } from './models/definitions/customers';
 
 export interface IModels {
   Integrations: IIntegrationModel;
   Conversations: IConversationModel;
   Customers: ICustomerModel;
-  ConversationMessages: IConversationMessageModel;
 }
 
 export interface IContext extends IMainContext {
@@ -43,11 +38,6 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
     'calls_conversations',
     loadConversationClass(models)
   );
-
-  models.ConversationMessages = db.model<
-    IConversationMessageDocument,
-    IConversationMessageModel
-  >('calls_conversation_messages', loadConversationMessageClass(models));
 
   models.Customers = db.model<ICustomerDocument, ICustomerModel>(
     'calls_customers',

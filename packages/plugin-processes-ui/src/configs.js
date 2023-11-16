@@ -1,4 +1,5 @@
 module.exports = {
+  srcDir: __dirname,
   name: 'processes',
   port: 3025,
   exposes: {

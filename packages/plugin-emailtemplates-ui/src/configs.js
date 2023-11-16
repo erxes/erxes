@@ -1,4 +1,5 @@
 module.exports = {
+  srcDir: __dirname,
   name: "emailtemplates",
   port: 3020,
   exposes: {

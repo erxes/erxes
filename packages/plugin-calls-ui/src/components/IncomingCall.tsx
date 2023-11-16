@@ -1,5 +1,5 @@
 import Icon from '@erxes/ui/src/components/Icon';
-import { __ } from '@erxes/ui/src/utils';
+import { Alert, __ } from '@erxes/ui/src/utils';
 import React, { useEffect, useState } from 'react';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
@@ -23,17 +23,22 @@ import NameCard from '@erxes/ui/src/components/nameCard/NameCard';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import Button from '@erxes/ui/src/components/Button';
 import AssignBox from '@erxes/ui-inbox/src/inbox/containers/AssignBox';
-import Tagger from '@erxes/ui-tags/src/containers/Tagger';
 import WidgetPopover from './WidgetPopover';
 import { isEnabled, renderFullName } from '@erxes/ui/src/utils/core';
 import * as PropTypes from 'prop-types';
 import { callPropType, sipPropType } from '../lib/types';
 import { CALL_STATUS_IDLE } from '../lib/enums';
-import { ICustomer } from '../types';
+import { ICallConversation, ICustomer } from '../types';
 import { Tags } from '@erxes/ui/src/components';
+import TaggerSection from '@erxes/ui-contacts/src/customers/components/common/TaggerSection';
 
 type Props = {
   customer: ICustomer;
+  conversation: ICallConversation;
+  toggleSectionWithPhone: (phoneNumber: string) => void;
+  taggerRefetchQueries: any;
+  hasMicrophone: boolean;
+  addNote: (conversationId: string, content: string) => void;
 };
 
 const getSpentTime = (seconds: number) => {
@@ -67,7 +72,14 @@ const IncomingCall: React.FC<Props> = (props: Props, context) => {
   const Sip = context;
   const { mute, unmute, isMuted, isHolded, hold, unhold } = Sip;
 
-  const { customer } = props;
+  const {
+    customer,
+    toggleSectionWithPhone,
+    taggerRefetchQueries,
+    conversation,
+    hasMicrophone,
+    addNote
+  } = props;
   const primaryPhone = customer?.primaryPhone;
 
   const [currentTab, setCurrentTab] = useState('');
@@ -78,6 +90,17 @@ const IncomingCall: React.FC<Props> = (props: Props, context) => {
   const [timeSpent, setTimeSpent] = useState(0);
   const [status, setStatus] = useState('pending');
   const [showHistory, setShowHistory] = useState(false);
+
+  const [noteContent, setNoteContent] = useState('');
+
+  let conversationDetail;
+
+  if (conversation) {
+    conversationDetail = {
+      ...conversation,
+      _id: conversation.erxesApiId
+    };
+  }
 
   useEffect(() => {
     let timer: NodeJS.Timeout;
@@ -99,14 +122,20 @@ const IncomingCall: React.FC<Props> = (props: Props, context) => {
     setShrink(true);
   };
 
-  const afterSave = () => {
+  const endCall = () => {
     onDeclineCall();
     setShowHistory(true);
   };
 
-  const endCall = () => {
-    onDeclineCall();
-    setShowHistory(true);
+  const toggleSection = () => {
+    toggleSectionWithPhone(primaryPhone);
+  };
+
+  const onChangeText = e =>
+    setNoteContent((e.currentTarget as HTMLInputElement).value);
+
+  const sendMessage = () => {
+    addNote(conversationDetail?._id, noteContent);
   };
 
   const renderFooter = () => {
@@ -128,17 +157,34 @@ const IncomingCall: React.FC<Props> = (props: Props, context) => {
           tab="Notes"
           show={currentTab === 'Notes' ? true : false}
         >
-          <FormControl componentClass="textarea" placeholder="Send a note..." />
-          <Button btnStyle="success">{__('Send')}</Button>
+          <FormControl
+            componentClass="textarea"
+            placeholder="Send a note..."
+            onChange={onChangeText}
+          />
+          <Button btnStyle="success" onClick={sendMessage}>
+            {__('Send')}
+          </Button>
         </CallTabContent>
         <CallTabContent tab="Tags" show={currentTab === 'Tags' ? true : false}>
-          <Tagger type="" />
+          {isEnabled('tags') && (
+            <TaggerSection
+              data={customer}
+              type="contacts:customer"
+              refetchQueries={taggerRefetchQueries}
+              collapseCallback={toggleSection}
+            />
+          )}
         </CallTabContent>
         <CallTabContent
           tab="Assign"
           show={currentTab === 'Assign' ? true : false}
         >
-          <AssignBox targets={[]} event="onClick" afterSave={afterSave} />
+          <AssignBox
+            targets={[conversationDetail]}
+            event="onClick"
+            afterSave={() => {}}
+          />
         </CallTabContent>
       </>
     );
@@ -163,6 +209,10 @@ const IncomingCall: React.FC<Props> = (props: Props, context) => {
   };
 
   const onAcceptCall = () => {
+    if (!hasMicrophone) {
+      return Alert.error('Check your microphone');
+    }
+
     setStatus('accepted');
     const { answerCall, call } = context;
     setHaveIncomingCall(false);
@@ -201,7 +251,7 @@ const IncomingCall: React.FC<Props> = (props: Props, context) => {
     }
   };
 
-  const popoverNotification = (
+  const popoverNotification = hasMicrophone && (
     <Popover id="call-popover" className="call-popover">
       <InCall>
         <CallInfo shrink={shrink}>

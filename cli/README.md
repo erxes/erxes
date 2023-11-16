@@ -1,85 +1,146 @@
+<br>
+
 <p align="center">
  <img src="docs/static/img/logo_dark.svg" alt="erxes logo" width="20%" />
 </p>
 
-<p align="center">erxes is an open fair-code licensed all-in-one growth marketing & management software. We offer an all-in-one solution for sales, marketing, and customer service teams, with a focus on the entire customer experience.</p
+<p align="center">An open-source Hubspot/Qualtrics alternative enables SaaS providers and digital marketing agencies/developers to create unique experiences for their entire business
+</p>
 
 <p align="center">
-  <a href="https://app.codacy.com/gh/erxes/erxes?utm_source=github.com&utm_medium=referral&utm_content=erxes">
-    <img alt="Codacy Badge" src="https://api.codacy.com/project/badge/Grade/afdc2d36ea294a01a036a4eeae4346b8">
-  </a>
+  <a href="https://erxes.io/resource-center">Docs</a>
+  |
+  <a href="https://erxes.io/">Website</a>
+  |
+  <a href="https://erxes.io/invest">Invest</a>
+  </p>
+</p>
 
+<p align="center">
    <a href="https://github.com/erxes/erxes/blob/master/LICENSE.md">
-      <img alt="License Badge" src="https://img.shields.io/badge/license-GNU%20GPL%20v3.0-brightgreen">
+      <img alt="License Badge" src="https://img.shields.io/badge/license-AGPLv3-brightgreen">
   </a>
   <a href="#">
       <img alt="Docker Pulls" src="https://img.shields.io/docker/pulls/erxes/erxes">
   </a>
+  <a href="https://www.figma.com/@erxes" target="_blank">
+      <img alt="Figma" src="https://img.shields.io/badge/Figma-Design%20System-blueviolet">
+  </a>
+   <a href="https://docs.erxes.io/docs/contribute/overview">
+      <img alt="Help Wanted" src="https://img.shields.io/badge/Help%20Wanted-Contribute-blue">
+  </a>
+   <a href="https://github.com/erxes/erxes/stargazers">
+      <img alt="Stars" src="https://img.shields.io/badge/Stars-%202.7k-orange">
+  </a>
+   <a href="https://discord.com/invite/aaGzy3gQK5">
+      <img alt="Discord" src="https://img.shields.io/badge/Discord-%20Community-blueviolet">
+  </a>
+   <a href="https://explore.transifex.com/erxes-inc/erxesxos/">
+      <img alt="Transfix" src="https://img.shields.io/badge/translations-contribute-brightgreen">
+  </a>
+   <a href="https://ossrank.com/p/416">
+      <img alt="Ossrank" src="https://shields.io/endpoint?url=https://ossrank.com/shield/416">
+  </a>
+   <a href="https://twitter.com/erxeshq">
+      <img alt="Twitter" src="https://img.shields.io/badge/twitter-blue">
+  </a>
+  <a href="https://cloud.cypress.io/projects/bg7eun/runs">
+      <img alt="Cypress" src="https://img.shields.io/endpoint?url=https://cloud.cypress.io/badge/simple/bg7eun/master&style=flat&logo=cypress">
+  </a>
 </p>
 
 <p align="center">
- <a href="https://erxes.org" target="_blank"><img src="https://erxes-os.s3-us-west-2.amazonaws.com/github/git-erxes.gif" alt="Open Source Growth Marketing Platform "></a>
+ <a href="https://erxes.io" target="_blank" rel="noopener noreferrer"><img src="https://erxes-docs.s3.us-west-2.amazonaws.com/xos.jpeg" width="100%" alt="erxes: Free and open fair-code licensed experience operating system (XOS)">
+</a>
 </p>
 
-## Demo
+Achieving growth and unity within your company is possible with erxes, because it is:
 
-Live demo is deployed at <a href="https://xosdemo.erxes.io/" target="_blank">https://xosdemo.erxes.io/</a>
+- **100% free & sustainable:** erxes offers a sustainable business model in which both developers and users win. It is open-source software, but even better.
+- **100% customizable:** Our plugin-based architecture provides unlimited customization and lets you meet all your needs, no matter how specific they are.
+- **100% privacy:** We've designed the erxes platform to retain complete control over your company's sensitive data with no third-party monitoring.
+- **100% in control:** You can build any experience you want, where all the channels your business operates on are connected and integrated.
 
-## Features
+## What does erxes mean? How do you pronounce it?
 
-<img src="https://s3.amazonaws.com/erxes/github/features-transparent.png" width="400" align="right" style="max-width: 50%">
+erxes (pronounced 'erk-sis') means "heavenly bodies" in Mongolian. It is branded as “erxes” with all lowercase letters.
 
-erxes helps you attract and engage more customers while helping you achieve high lead conversion. With erxes, all your marketing, sales, and customer service tools are merged into one platform for greater output.
+## What is erxes?
 
-- **Growth Hacking:** Manage your entire growth operation easily. Erxes makes growing a pleasure by consolidating ideas and making actual performance a reality. Erxes makes sure everything is recorded, prioritized, and centralized in a single platform.
-- **Email & SMS Marketing:** Reach your customers with personalized messaging. Keeping your customers hooked is a challenge. Start converting your prospects into potential customers through email, SMS, Live chat, Botpress and In-app-messaging and more interactions to drive them to a successful close. You can connect to your customers in a whole new complete way with erxes!
-- **Pop-ups & Forms:** Create Stylish Pop-ups and Forms that bring you leads. Turn regular visitors into qualified leads by capturing them with customizable pop-ups, forms, and embedded placements. Erxes helps you to create stylish and contextual pop-ups, banners and announcement bars to fit all your marketing needs.
-- **Sales Pipeline:** Track your entire sales pipeline from one dashboard. All your customer information and sales process is there in one board to follow up flawlessly. Have your sales managers know everything needed to deliver increased levels of personalization when they contact customers.
-- **Contact Management:** Manage Visitors, Customers, and Companies. Access our all-in-one CRM system so it’s easier to coordinate and manage your contacts and interactions with your customers. Erxes Contacts provides segmentation tools for you to work with more efficiently.
-- **Lead Scoring:** Identify and Target Sales-Ready Leads.
-- **Shared Team Inbox:** Communicate faster and easier with your customers via one truly omnichannel platform. Combine real-time client and team communication with in-app messaging, live chat, email and forms. Your customers can reach you however and wherever they want.
-- **Messenger:** Talk to Your Customers in Continuous Omnichannel Conversations. Enable businesses to capture customer feedback and communicate in real-time. You can educate your customers through the knowledge-base directly in the erxes Messenger.
-- **Knowledge base:** Create Help Articles for Customer Self-service. Educate both your customers, and staff by creating a help center related to your brand, products and services and reach a higher level of satisfaction.
-- **Task Management:** Work More Collaboratively and Get More Done. Save time, manage your projects, monitor your team and increase your productivity in just a few clicks. Erxes helps to turn chaos into clarity.
+erxes is a secure, self-hosted, and scalable open-source experience operating system (XOS) that enables SaaS providers and digital marketing agencies/developers to create unique experiences that work for all types of business. You can learn more about **<a href="https://docs.erxes.io/docs/introduction/architecture">erxes architecture in our documentation</a>.**
 
-## Documentation
+## erxes XOS & Plugins
 
-- <a href="https://www.erxes.org/">erxes documentation</a> <br>
-- <a href="https://www.erxes.org/overview/getting-started">Install erxes</a> <br>
-- <a href="https://www.erxes.org/developer/contributing">Contributing to erxes</a> <br>
+erxes is composed of 2 main components: **XOS** & **Plugins**
 
-## Deployment
+**XOS:** It contains the project's core. You can find the admin panel and the code that runs different plugins. The operating system comes with utility features that allow users to customize, improve speed, and enhance the experience along with plugins/features.
 
-### Ubuntu 18.04 LTS
+**Plugins:** erxes comes with a set of plugins that allow you to create unique customer experiences. Below is a list of some plugins you can choose from our **<a href="https://erxes.io/marketplace" >marketplace</a>** after you’ve finished installing erxes XOS:
 
-Follow these deployment instructions.
+- **Team Inbox** - Combine real-time client and team communication with in-app messaging, live chat, email, and form, so your customers can reach you, however, and whenever they want.<img src="https://s3.amazonaws.com/erxes/github/features-transparent.png" width="400" align="right" style="max-width: 50%">
+- **Messenger** - Enable businesses to capture every single customer feedback and educate customers through knowledge-base right from the erxes Messenger.
+- **Sales Management** - Easy and clear sales funnels allow you to control your sales pipeline from one responsive field by precisely analyzing your progress and determining your next best move for success.
+- **Lead generation** - Turn regular visitors into qualified leads by capturing them with a customizable landing page, forms, pop-up, or embed placements.
+- **Engage** - Start converting your prospects into potential customers through email, SMS, messenger, or more interactions to drive them to a successful close.
+- **Contact Management** - Access our all-in-one CRM system in one go, so it’s easier to coordinate and manage your customer interactions.
+- **Knowledgebase** - Educate your customers and staff by creating a help center related to your brands, products, and services to reach a higher level of satisfaction.
+- **Task Management** - Create a more collaborative, self-reliant and cross-linked team. **<a href="https://erxes.io/marketplace" >See more on our website</a>**.
 
-[![ubuntu](https://erxes-os.s3-us-west-2.amazonaws.com/github/ubuntu-logo.png)](https://www.erxes.org/installation/ubuntu)
+## Getting Started
 
-### Docker
+Read **<a href="https://docs.erxes.io/docs/intro" >the documentation<a>** to install erxes locally.
 
-Follow these deployment instructions.
+**🖐 Requirements**
 
-[![debian](https://erxes-os.s3-us-west-2.amazonaws.com/github/docker-logo.png)](https://www.erxes.org/installation/docker)
+Complete installation requirements can be found in the documentation under **<a href="https://docs.erxes.io/docs/intro" >installation requirements</a>**.
 
-## In-kind sponsors
+Supported operating systems:
 
-<a href="https://www.cloudflare.com/" target="_blank"><img src="https://s3.amazonaws.com/erxes/github/cloudflare.png" width="130px;" /></a>
-<a href="https://cloud.google.com/developers/startups/" target="_blank"><img src="https://s3.amazonaws.com/erxes/github/cloud-logo.svg" width="130px;" /></a>
-<a href="https://www.digitalocean.com/" target="_blank"><img src="https://s3.amazonaws.com/erxes/github/digitalocean.png" width="100px;" /></a>
-<a href="https://www.transifex.com/" target="_blank"><img src="https://s3.amazonaws.com/erxes/github/transifex.png" width="100px;" /></a>
-<a href="https://www.browserstack.com/" target="_blank"><img src="https://s3.amazonaws.com/erxes/github/browserstack.png" width="130px;" /></a>
+- Ubuntu v20.04 or higher
+- macOS Mojave or higher
 
-## Which license does erxes use?
+Node:
 
-erxes is a free and open <a href="https://faircode.io/">fair-code</a> licensed under GNU General Public License v3.0 with Commons Clause.
+- NodeJS v12.0 or higher
+- NPM >= 6.x
 
-## Is erxes open-source?
+Database:
 
-No. The <a href="https://commonsclause.com/">Commons Clause</a> that is attached to the GNU General Public License v3.0 license takes away some rights. Hence, according to the definition of the <a href="https://bit.ly/2WJ5uTh">Open Source Initiative (OSI)</a>, erxes is not open-source. Nonetheless, the source code is open and everyone (individuals and companies) can use it for free. However, it is not allowed to make money directly with erxes.
+- MongoDB 3.6+
+- Redis 3.x+
+- RabbitMQ 3.8.x+
+- Elasticsearch
 
-Furthermore, one cannot charge others to host or support erxes. To make things simpler, we grant everyone (individuals and companies) the right to offer consulting or support without prior permission as long as it is less than 30,000 USD ($30k) per annum. If your revenue from services based on erxes is greater than $30k per annum, we'd invite you to become a partner agency and apply for a license. If you have any questions about this, feel free to reach out to us at info@erxes.io.
+Software package managing systems:
 
-## Why is erxes not open-source but fair-code licensed instead?
+- Homebrew (optional)
+- Yarn
+- Xcode (optional)
 
-We love open-source and the idea everybody can freely use and extend what we wrote. Our community is at the heart of everything we do and we understand that people who contribute to a project are the main drivers who push a project forward. So to make sure that the project continues to evolve and stay alive in the longer run, we decided to attach the Commons Clause. This ensures that no other person or company can make money directly with erxes **without fairly compensating the project**. Especially if it competes with how we plan to finance our further development. For the greater majority of the people, it will not make any difference at all. At the same time, it protects the project. As erxes itself depends on and uses a lot of other open-source projects, it is only fair that we support them back. That is why we have planned to contribute a certain percentage of revenue/profit every month to these projects.
+We recommend always using the latest version of erxes to start your new projects. Enjoy 🎉
+
+## Become a partner
+
+Offer your expertise to the world and introduce your community to erxes.
+Let’s start growing **<a href="https://erxes.io/partners">together</a>**.
+
+## Contributing
+
+Please read our **<a href="https://github.com/erxes/erxes/blob/master/CONTRIBUTING.md" >contributing guide<a>** before submitting a Pull Request to the project.
+
+## Community support
+
+For general help using erxes, please refer to the erxes documentation. For additional help, you can use one of these channels to ask a question:
+
+- **<a href="https://discord.com/invite/aaGzy3gQK5" > Discord</a>** For live discussion with the community
+- **<a href="https://github.com/erxes/erxes" > GitHub</a>** Bug reports, contributions
+- **<a href="https://github.com/erxes/erxes/issues" > Feedback section</a>** Roadmap, feature requests & bugs
+- **<a href="https://twitter.com/erxesHQ" > Twitter</a>** Get the news fast
+
+## Upgrade Guides
+
+Follow our **<a href="https://docs.erxes.io/docs/update/">upgrade guides</a>** on the documentation to keep your erxes code up-to-date. See our dedicated repository for the erxes documentation, or view our **<a href="https://docs.erxes.io/docs/intro">documentation here</a>**.
+
+## License
+
+See the <a href="https://github.com/erxes/erxes/blob/master/LICENSE.md" >**LICENSE**</a> file for licensing information.

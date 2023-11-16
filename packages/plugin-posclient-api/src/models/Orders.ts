@@ -31,7 +31,7 @@ export const loadOrderClass = models => {
         { $set: { ...doc, modifiedAt: new Date() } }
       );
 
-      return models.Orders.findOne({ _id });
+      return models.Orders.findOne({ _id }).lean();
     }
 
     public static getPaidAmount(order: IOrderDocument) {

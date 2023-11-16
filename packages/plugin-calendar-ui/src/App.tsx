@@ -3,6 +3,14 @@ import { PluginLayout } from '@erxes/ui/src/styles/main';
 import GeneralRoutes from './generalRoutes';
 import { AppProvider } from 'coreui/appContext';
 import { dummyUser } from '@erxes/ui/src/constants/dummy-data';
+import '@erxes/ui/src/styles/style.min.css';
+import '@erxes/ui/src/styles/global-styles';
+import 'erxes-icon/css/erxes.min.css';
+import '@nateradebaugh/react-datetime/css/react-datetime.css';
+import dayjs from 'dayjs';
+import localizedFormat from 'dayjs/plugin/localizedFormat';
+
+dayjs.extend(localizedFormat);
 
 const App = () => {
   return (

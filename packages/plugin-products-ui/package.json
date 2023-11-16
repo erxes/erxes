@@ -2,11 +2,12 @@
   "name": "plugin-products-ui",
   "version": "1.0.0",
   "scripts": {
-    "install-deps": "cd .erxes && yarn install",
-    "start": "cd .erxes && yarn start",
-    "build": "cd .erxes && yarn build"
+    "install-deps": "yarn install",
+    "start": "webpack serve --mode development",
+    "build": "webpack --mode production"
   },
   "dependencies": {
+    "@erxes/ui" : "*",
     "react-barcode": "^1.4.5",
     "react-qr-code": "^2.0.8"
   }

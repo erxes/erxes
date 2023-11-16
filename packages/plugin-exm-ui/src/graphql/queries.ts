@@ -29,6 +29,8 @@ const exmGet = `
       favicon
       webName
       webDescription
+      vision
+      structure
     }
   }
 `;

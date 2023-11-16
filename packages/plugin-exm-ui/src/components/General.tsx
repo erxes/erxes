@@ -1,18 +1,19 @@
-import React, { useState } from 'react';
-import Select from 'react-select-plus';
 import { ControlLabel, FormControl } from '@erxes/ui/src/components/form';
-import { __ } from '@erxes/ui/src/utils';
 import {
+  FeatureLayout,
   FeatureRow,
   FeatureRowItem,
-  FeatureLayout,
   GeneralWrapper,
   TeamPortal
 } from '../styles';
-import Button from '@erxes/ui/src/components/Button';
 import { ICON_OPTIONS, TYPE_OPTIONS } from '../constants';
-import { IExm } from '../types';
+import React, { useState } from 'react';
 import { generateTree, removeTypename } from '../utils';
+
+import Button from '@erxes/ui/src/components/Button';
+import { IExm } from '../types';
+import Select from 'react-select-plus';
+import { __ } from '@erxes/ui/src/utils';
 
 const getEmptyFeature = () => ({
   _id: Math.random().toString(),
@@ -47,6 +48,7 @@ export default function General(props: Props) {
     kbCategories
   } = props;
   const exmFeatures = exm.features || [];
+
   const [name, setName] = useState(exm.name || '');
   const [description, setDescription] = useState(exm.description || '');
   const [features, setFeatures] = useState(

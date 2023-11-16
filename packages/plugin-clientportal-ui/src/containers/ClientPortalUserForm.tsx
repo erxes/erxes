@@ -18,6 +18,7 @@ type Props = {
   clientPortalUser: IClientPortalUser;
   closeModal: () => void;
   queryParams: IQueryParams;
+  kind: 'client' | 'vendor';
 };
 
 type FinalProps = {
@@ -110,7 +111,11 @@ const getRefetchQueries = () => {
 export default withProps<Props>(
   compose(
     graphql<Props, ClientPortalConfigsQueryResponse>(gql(queries.getConfigs), {
-      name: 'clientPortalConfigsQuery'
+      name: 'clientPortalConfigsQuery',
+      options: ({ kind }) => ({
+        fetchPolicy: 'network-only',
+        variables: { kind }
+      })
     })
   )(ClientPortalUserFormContainer)
 );

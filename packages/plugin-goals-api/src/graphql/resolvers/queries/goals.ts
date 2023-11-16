@@ -1,55 +1,29 @@
 import { IContext } from '../../../connectionResolver';
 import { paginate } from '@erxes/api-utils/src';
+import { graphqlPubsub } from '../../../configs';
 
 const generateFilter = async (params, commonQuerySelector) => {
-  const { branch, department, unit, contribution, date } = params;
+  const { branch, department, unit, contribution, date, endDate } = params;
   let filter: any = {};
   if (branch) {
     filter.branch = branch;
   }
   if (department) {
-    filter.department = { $in: [department] };
+    filter.department = department;
   }
   if (unit) {
-    filter.unit = { $in: [unit] };
+    filter.unit = unit;
   }
   if (contribution) {
     filter.contribution = { $in: [contribution] };
   }
   if (date) {
-    const now = new Date(date);
-    const nowISO = now.toISOString();
-    filter.$or = [
-      {
-        isStartDateEnabled: false,
-        isEndDateEnabled: false
-      },
-      {
-        isStartDateEnabled: true,
-        isEndDateEnabled: false,
-        startDate: {
-          $lt: nowISO
-        }
-      },
-      {
-        isStartDateEnabled: false,
-        isEndDateEnabled: true,
-        endDate: {
-          $gt: nowISO
-        }
-      },
-      {
-        isStartDateEnabled: true,
-        isEndDateEnabled: true,
-        startDate: {
-          $lt: nowISO
-        },
-        endDate: {
-          $gt: nowISO
-        }
-      }
-    ];
+    filter.startDate = { $gt: new Date(date) };
   }
+  if (endDate) {
+    filter.endDate = { $gt: new Date(endDate) };
+  }
+
   return filter;
 };
 
@@ -89,10 +63,11 @@ const goalQueries = {
   goalTypesMain: async (
     _root,
     params,
-    { commonQuerySelector, models }: IContext
+    { commonQuerySelector, models, subdomain, user }: IContext
   ) => {
-    await models.Goals.progressIdsGoals();
     const filter = await generateFilter(params, commonQuerySelector);
+    await models.Goals.progressIdsGoals(filter, params);
+
     return {
       list: paginate(models.Goals.find(filter).sort(sortBuilder(params)), {
         page: params.page,

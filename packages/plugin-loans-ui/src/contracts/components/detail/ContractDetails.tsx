@@ -128,6 +128,7 @@ class ContractDetails extends React.Component<Props, State> {
         <ScheduleSection
           contractId={contract._id}
           hasTransaction={contract.hasTransaction}
+          leaseType={contract.leaseType}
           isFirst={false}
           regenSchedules={regenSchedules}
           fixSchedules={fixSchedules}

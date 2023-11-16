@@ -1,4 +1,5 @@
 module.exports = {
+  srcDir: __dirname,
   name: "webbuilder",
   port: 3027,
   exposes: {

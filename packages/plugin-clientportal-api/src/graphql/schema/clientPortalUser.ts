@@ -148,6 +148,7 @@ const userParams = `
 
   companyName: String
   companyRegistrationNumber: String
+  erxesCompanyId: String
   
   firstName: String,
   lastName: String,
@@ -161,7 +162,7 @@ const userParams = `
 `;
 
 export const mutations = () => `
-  clientPortalUsersInvite(${userParams}): ClientPortalUser
+  clientPortalUsersInvite(${userParams}, disableVerificationMail: Boolean): ClientPortalUser
   clientPortalUsersEdit(_id: String!, ${userParams}): ClientPortalUser
   clientPortalUsersRemove(clientPortalUserIds: [String!]): JSON
   clientPortalRegister(${userParams}): String

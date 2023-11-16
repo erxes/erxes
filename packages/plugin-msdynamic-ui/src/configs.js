@@ -1,4 +1,5 @@
 module.exports = {
+  srcDir: __dirname,
   name: 'msdynamic',
   port: 3017,
   scope: 'msdynamic',

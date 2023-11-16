@@ -11,6 +11,7 @@ import Toggle from '@erxes/ui/src/components/Toggle';
 import client from '@erxes/ui/src/apolloClient';
 import { gql } from '@apollo/client';
 import { queries } from '@erxes/ui-inbox/src/settings/integrations/graphql';
+import { isEnabled, loadDynamicComponent } from '@erxes/ui/src/utils/core';
 
 type Props = {
   onChange: (
@@ -84,11 +85,10 @@ class Options extends React.Component<Props, State> {
     );
   }
 
-  render() {
-    const languageOnChange = e => this.onSelectChange(e, 'languageCode');
-
-    const notifyCustomerChange = e =>
-      this.onChangeFunction('notifyCustomer', e.target.checked);
+  renderVideoCallRequest() {
+    if (!isEnabled('dailyco')) {
+      return null;
+    }
 
     const showVideoCallRequestChange = e => {
       const checked = e.target.checked;
@@ -99,8 +99,8 @@ class Options extends React.Component<Props, State> {
             query: gql(queries.integrationsVideoCallUsageStatus),
             fetchPolicy: 'network-only'
           })
-          .then(({ data: { integrationsVideoCallUsageStatus } }) => {
-            if (integrationsVideoCallUsageStatus) {
+          .then(({ data: { videoCallUsageStatus } }) => {
+            if (videoCallUsageStatus) {
               this.onChangeFunction('showVideoCallRequest', true);
             } else {
               Alert.error('Please configure a video call settings');
@@ -113,6 +113,19 @@ class Options extends React.Component<Props, State> {
         this.onChangeFunction('showVideoCallRequest', false);
       }
     };
+
+    return this.renderToggle({
+      label: __('Show video call request'),
+      checked: this.props.showVideoCallRequest,
+      onChange: showVideoCallRequestChange
+    });
+  }
+
+  render() {
+    const languageOnChange = e => this.onSelectChange(e, 'languageCode');
+
+    const notifyCustomerChange = e =>
+      this.onChangeFunction('notifyCustomer', e.target.checked);
 
     const requireAuthChange = e =>
       this.onChangeFunction('requireAuth', e.target.checked);
@@ -183,11 +196,7 @@ class Options extends React.Component<Props, State> {
             onChange: notifyCustomerChange
           })}
 
-          {this.renderToggle({
-            label: __('Show video call request'),
-            checked: this.props.showVideoCallRequest,
-            onChange: showVideoCallRequestChange
-          })}
+          {this.renderVideoCallRequest()}
         </LeftItem>
       </FlexItem>
     );

@@ -6,17 +6,24 @@ _id: String!
  pipelineId:String
  boardId:String
  contributionType: String
+ segmentIds: [String]
+ periodGoal:String
+ teamGoalType:String
+ stageRadio:Boolean
+ structure:String
+segmentRadio:Boolean
  metric:String
-  goalType: String
+  goalTypeChoose: String
   contribution: [String]
-  department:String
-  unit:String
-  branch:String
+  department:[String]
+  unit:[String]
+  branch:[String]
   progress:JSON
   specificPeriodGoals:JSON
-  startDate: String
-  endDate: String
-  target:String
+  startDate: Date
+  endDate: Date
+  target:Float
+  segmentCount:Float
  },
   type GoalType {
   _id: String!
@@ -25,18 +32,23 @@ _id: String!
    pipelineId:String
    boardId:String
   contributionType: String
+  segmentIds: [String]
+  stageRadio:Boolean
+  segmentRadio:Boolean
+  periodGoal:String
+  teamGoalType:String
   metric:String
-  goalType: String
+  goalTypeChoose: String
   contribution: [String]
-  department:String
-  unit:String
-  branch:String
+  department:[String]
+  unit:[String]
+  branch:[String]
   specificPeriodGoals:JSON
    progress:JSON
-
-  startDate: String
-  endDate: String
-  target:String
+  startDate: Date
+  endDate: Date
+  target:Float
+  segmentCount:Float
   },
     type GoalTypesListResponse {
     list: [GoalType],
@@ -47,11 +59,13 @@ _id: String!
 const queryParams = `
   page: Int
   perPage: Int
-  branch:String
-  department:String
-  unit:String
-  date:String
+  branch:[String]
+  department:[String]
+  unit:[String]
+  date:Date
+  endDate:Date
   contribution: [String]
+  segmentIds: [String]
   ids: [String]
   searchValue: String
   sortField: String
@@ -59,10 +73,11 @@ const queryParams = `
 `;
 
 export const queries = `
-  goals(entity:String, contributionType:String,metric:String,goalType:String, contribution: [String],specificPeriodGoals:JSON stageId:String,pipelineId:String,boardId:String,
-  department:String,unit:String,branch:String,
-  startDate: String, progress:JSON
-  endDate: String,target:String): [Goal]
+  goals(entity:String, contributionType:String,metric:String,  segmentIds: [String],goalTypeChoose:String, contribution: [String],specificPeriodGoals:JSON stageId:String,pipelineId:String,boardId:String, periodGoal:String
+   stageRadio:Boolean, segmentRadio:Boolean, periodGoal:String, teamGoalType:String,
+  department:[String],unit:[String],branch:[String],
+  startDate: Date, progress:JSON , segmentCount:Float
+  endDate: Date, target:Float): [Goal]
   goalDetail(_id: String!): JSON
   goalTypesMain(${queryParams}): GoalTypesListResponse
   goalTypes(${queryParams}): [GoalType]
@@ -75,16 +90,23 @@ const params = `
   boardId: String
   contributionType: String
   metric: String
-  goalType: String
+  goalTypeChoose: String
   contribution: [String]
-  department:String
-  unit:String
-  branch:String
+  department:[String]
+  unit:[String]
+  branch:[String]
   specificPeriodGoals:JSON
   progress:JSON
-  startDate:String
-  endDate:String
-  target: String
+  startDate:Date
+  endDate:Date
+  target: Float
+  segmentCount: Float
+  segmentIds: [String]
+  periodGoal:String
+  segmentRadio:Boolean
+  stageRadio:Boolean
+  periodGoal:String
+  teamGoalType:String
 `;
 
 export const mutations = `

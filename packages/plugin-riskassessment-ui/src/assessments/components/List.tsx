@@ -1,17 +1,16 @@
-import {
-  BarItems,
-  Button,
-  FormControl,
-  HeaderDescription,
-  Pagination,
-  Table,
-  Wrapper,
-  __
-} from '@erxes/ui/src';
+import Button from '@erxes/ui/src/components/Button';
+import HeaderDescription from '@erxes/ui/src/components/HeaderDescription';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import Pagination from '@erxes/ui/src/components/pagination/Pagination';
+import Table from '@erxes/ui/src/components/table';
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
+import { BarItems } from '@erxes/ui/src/layout/styles';
+import { __ } from '@erxes/ui/src/utils/core';
 import * as _loadash from 'lodash';
 import React from 'react';
-import { FlexRow, HeaderContent } from '../../styles';
 import { headers } from '../common/Headers';
+import { DetailPopOver } from '../common/utils';
+import { Statistics } from '../containers/Statistic';
 import { TableHead } from './ListHead';
 import Row from './Row';
 import { SideBar } from './SideBar';
@@ -116,14 +115,6 @@ class List extends React.Component<Props, State> {
         title="Assessments"
         icon="/images/actions/13.svg"
         description=""
-        renderExtra={
-          <FlexRow>
-            <HeaderContent>
-              {__(`Total count`)}
-              <h4>{totalCount || 0}</h4>
-            </HeaderContent>
-          </FlexRow>
-        }
       />
     );
 
@@ -134,6 +125,17 @@ class List extends React.Component<Props, State> {
 
     const rightActionBar = (
       <BarItems>
+        <DetailPopOver
+          customComponent={
+            <Button icon="chart-bar" btnStyle="simple">
+              {__('See Statistic')}
+            </Button>
+          }
+          title=""
+          placement="left"
+        >
+          <Statistics totalCount={totalCount} queryParams={queryParams} />
+        </DetailPopOver>
         {!!selectedAssessmentIds.length && (
           <Button btnStyle="danger" onClick={removeAssessments}>
             {`Remove (${selectedAssessmentIds?.length || 0})`}

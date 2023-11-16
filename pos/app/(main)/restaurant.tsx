@@ -15,7 +15,7 @@ const Restaurant = () => {
       <Header />
       <section className="flex flex-auto items-stretch overflow-hidden">
         <div className={cn("flex h-full w-2/3 flex-col p-3 pl-4 relative")}>
-          {selectedTab === "plan" && <Slots />}
+          <Slots />
           {selectedTab === "products" && <ProductsContainer />}
           <SelectTab />
         </div>

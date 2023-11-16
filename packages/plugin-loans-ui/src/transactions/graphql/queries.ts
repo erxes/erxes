@@ -155,6 +155,7 @@ query GetPaymentInfo($id: String!, $payDate: Date) {
     balance
     closeAmount
     calcInterest
+    commitmentInterest
     storedInterest
   }
 }

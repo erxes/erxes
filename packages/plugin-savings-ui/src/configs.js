@@ -1,4 +1,5 @@
 module.exports = {
+  srcDir: __dirname,
   name: 'savings',
   port: 3120,
   exposes: {

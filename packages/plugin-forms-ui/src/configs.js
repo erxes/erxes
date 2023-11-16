@@ -1,4 +1,5 @@
 module.exports = {
+  srcDir: __dirname,
   name: 'forms',
   port: 3005,
   scope: 'forms',

@@ -1,4 +1,5 @@
 module.exports = {
+  srcDir: __dirname,
   name: "filemanager",
   scope: "filemanager",
   port: 3060,

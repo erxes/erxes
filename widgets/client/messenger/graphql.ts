@@ -1,4 +1,4 @@
-import { connection } from "./connection";
+import { connection } from './connection';
 
 const userDetailFields = `
   avatar
@@ -20,10 +20,7 @@ const messageFields = `
   internal
   fromBot
   contentType
-  videoCallData {
-    url
-    status
-  }
+
   engageData {
     content
     kind
@@ -52,12 +49,21 @@ const userFields = `
   isOnline
 `;
 
-const conversationDetailQuery = `
+const conversationDetailQuery = (isDailycoEnabled: boolean) => `
   query ($_id: String, $integrationId: String!) {
     widgetsConversationDetail(_id: $_id, integrationId: $integrationId) {
       _id
       messages {
         ${messageFields}
+        ${
+          isDailycoEnabled
+            ? `
+        videoCallData {
+          url
+          status
+        }`
+            : ''
+        }
       }
 
       operatorStatus
@@ -89,10 +95,19 @@ const widgetExportMessengerDataQuery = `
   }
 `;
 
-const conversationMessageInserted = `
+const conversationMessageInserted = (isDailycoEnabled: boolean) => `
   subscription conversationMessageInserted($_id: String!) {
     conversationMessageInserted(_id: $_id) {
       ${messageFields}
+      ${
+        isDailycoEnabled
+          ? `
+      videoCallData {
+        url
+        status
+      }`
+          : ''
+      }
     }
   }
 `;
@@ -287,5 +302,5 @@ export default {
   faqSearchArticlesQuery,
   integrationsFetchApi,
   conversationBotTypingStatus,
-  getEngageMessage
+  getEngageMessage,
 };

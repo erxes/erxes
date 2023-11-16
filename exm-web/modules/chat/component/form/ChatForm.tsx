@@ -138,6 +138,7 @@ export const ChatForm = ({
           </Button>
         </form>
       </Form>
+      <SelectUsers userIds={userIds} onChange={setUserIds} />
     </DialogContent>
   )
 }

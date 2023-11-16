@@ -1,6 +1,7 @@
+import { slotFilterAtom } from "@/store"
 import { activeOrderIdAtom, setInitialAtom } from "@/store/order.store"
 import { cva } from "class-variance-authority"
-import { useAtom } from "jotai"
+import { useAtom, useSetAtom } from "jotai"
 import { AlarmClockIcon, CheckIcon } from "lucide-react"
 
 import { IOrder } from "@/types/order.types"
@@ -21,7 +22,8 @@ const ChooseOrder = ({
   isPre,
 }: IOrder) => {
   const [activeOrder, setActiveOrder] = useAtom(activeOrderIdAtom)
-  const [, setInitialState] = useAtom(setInitialAtom)
+  const setInitialState = useSetAtom(setInitialAtom)
+  const setFilterSlot = useSetAtom(slotFilterAtom)
 
   return (
     <TooltipProvider>
@@ -29,9 +31,10 @@ const ChooseOrder = ({
         <TooltipTrigger asChild>
           <Button
             className={statusVariants({ status })}
-            onClick={() =>
+            onClick={() => {
               activeOrder === _id ? setInitialState() : setActiveOrder(_id)
-            }
+              setFilterSlot(null)
+            }}
           >
             {isPre && (
               <AlarmClockIcon

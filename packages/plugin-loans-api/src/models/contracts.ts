@@ -99,6 +99,24 @@ export const loadContractClass = (models: IModels) => {
         await models.Schedules.insertMany(schedules);
       }
 
+      if (doc.leaseType === 'linear') {
+        const schedules = [
+          {
+            contractId: contract._id,
+            status: SCHEDULE_STATUS.PENDING,
+            payDate: doc.endDate,
+
+            balance: doc.leaseAmount,
+            interestNonce: 0,
+            payment: doc.leaseAmount,
+            total: doc.leaseAmount
+          }
+        ];
+
+        await models.FirstSchedules.insertMany(schedules);
+        await models.Schedules.insertMany(schedules);
+      }
+
       return contract;
     }
 

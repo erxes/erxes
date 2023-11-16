@@ -1,4 +1,5 @@
 module.exports = {
+  srcDir: __dirname,
   name: 'facebook',
   port: 3017,
   scope: 'facebook',

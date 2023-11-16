@@ -1,4 +1,5 @@
 module.exports = {
+  srcDir: __dirname,
   name: "viber",
   scope: "viber",
   port: 3024,

@@ -7,7 +7,6 @@
   },
   "dependencies": {
     "@erxes/api-utils" : "*",
-    "erxes-inmemory-storage": "^1.0.20",
     "moment-timezone": "^0.5.28",
     "server-timing": "3.3.1",
     "uuid-by-string": "^3.0.5",

@@ -1,4 +1,5 @@
 module.exports = {
+  srcDir: __dirname,
   name: 'dashboard',
   port: 3007,
   exposes: {

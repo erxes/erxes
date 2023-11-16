@@ -16,6 +16,7 @@ import MessageBot from './MessageBot';
 import AccquireInformation from './AccquireInformation';
 import Bot from './bot/Bot';
 import { OPERATOR_STATUS } from './bot/constants';
+import { connection } from '../connection';
 
 type Props = {
   messages: IMessage[];
@@ -255,7 +256,7 @@ class MessagesList extends React.Component<Props, State> {
   };
 
   renderCallRequest() {
-    if (!this.props.showVideoCallRequest) {
+    if (!this.props.showVideoCallRequest || !connection.enabledServices.dailyco) {
       return null;
     }
 

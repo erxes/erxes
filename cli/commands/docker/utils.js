@@ -287,7 +287,7 @@ const deployDbs = async () => {
 
     dockerComposeConfig.services.mongo = {
       hostname: 'mongo',
-      image: 'mongo:4.0.20',
+      image: 'mongo:4.4.25',
       ports: [`0.0.0.0:${MONGO_PORT}:27017`],
       environment: {
         MONGO_INITDB_ROOT_USERNAME: configs.mongo.username,
@@ -1090,7 +1090,7 @@ const deployMongoBi = async program => {
 
   dockerComposeConfig.services.mongo = {
     hostname: 'mongo-secondary',
-    image: 'mongo:4.0.20',
+    image: 'mongo:4.4.25',
     ports: [`0.0.0.0:${MONGO_PORT}:27017`],
     environment: {
       MONGO_INITDB_ROOT_USERNAME: configs.mongo_username,

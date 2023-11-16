@@ -103,6 +103,8 @@ const users = gql`
       isActive
       groupIds
       brandIds
+      branchIds
+      departmentIds
       score
 
       details {
@@ -165,7 +167,7 @@ const contactInfoFields = `
   }
 `
 
-const departments = `
+const departments = gql`
   query departments(${commonStructureParamsDef},$withoutUserFilter:Boolean) {
     departments(${commonStructureParamsValue},withoutUserFilter:$withoutUserFilter) {
       ${departmentField}
@@ -261,7 +263,7 @@ export const branchField = `
   ${contactInfoFields}
 `
 
-const branches = `
+const branches = gql`
   query branches(${commonStructureParamsDef}, $withoutUserFilter: Boolean) {
     branches (${commonStructureParamsValue}, withoutUserFilter: $withoutUserFilter){
       ${branchField}
@@ -283,7 +285,7 @@ const branchesMain = `
   }
 `
 
-const userDetail = `
+const userDetail = gql`
   query userDetail($_id: String) {
     userDetail(_id: $_id) {
       _id
@@ -329,7 +331,7 @@ const userConversations = `
   }
 `
 
-const usersTotalCount = `
+const usersTotalCount = gql`
   query usersTotalCount(${listParamsDef}) {
     usersTotalCount(${listParamsValue})
   }

@@ -19,9 +19,14 @@ const goalMutations = {
   /**
    * Edits a goal
    */
-  async goalsEdit(_root, { _id, ...doc }: IGoalsEdit, { models }: IContext) {
-    const updated = await models.Goals.updateGoal(_id, doc);
 
+  async goalsEdit(_root, { _id, ...doc }: IGoalsEdit, { models }: IContext) {
+    await models.Goals.updateOne(
+      { _id },
+      { $unset: { specificPeriodGoals: [] } }
+    );
+
+    const updated = await models.Goals.updateGoal(_id, doc);
     return updated;
   },
 
@@ -32,7 +37,7 @@ const goalMutations = {
   async goalsRemove(
     _root,
     { goalTypeIds }: { goalTypeIds: string[] },
-    { models, user, subdomain }: IContext
+    { models }: IContext
   ) {
     await models.Goals.removeGoal(goalTypeIds);
 

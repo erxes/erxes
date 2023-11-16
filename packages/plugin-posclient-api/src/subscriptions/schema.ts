@@ -98,6 +98,21 @@ export const types = `
     details: PosUserDetailsType
   }
 
+  type PreDate {
+    _id: String
+    dueDate: Date
+  }
+
+  type PosclientSlot {
+    _id: String
+    posToken: String
+    code: String
+    name: String
+    status: String
+    isPreDates: [PreDate]
+    option: JSON
+  }
+
   type Order {
     ${orderTypeFields}
   }
@@ -112,4 +127,5 @@ export const types = `
 export const queries = `
   orders(${ordersQueryParams}): [Order]
   fullOrders(${ordersQueryParams}): [Order]
+  poscSlots: [PosclientSlot]
 `;

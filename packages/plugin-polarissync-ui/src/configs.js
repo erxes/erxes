@@ -1,4 +1,5 @@
 module.exports = {
+  srcDir: __dirname,
   name: 'polarissync',
   port: 3017,
   scope: 'polarissync',

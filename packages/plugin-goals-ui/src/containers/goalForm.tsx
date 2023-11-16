@@ -48,7 +48,6 @@ class GoalTypeFromContainer extends React.Component<FinalProps> {
       object
     }: IButtonMutateProps) => {
       const { closeModal, getAssociatedGoalType } = this.props;
-
       const afterSave = data => {
         closeModal();
 
@@ -77,7 +76,7 @@ class GoalTypeFromContainer extends React.Component<FinalProps> {
       ...this.props,
       renderButton
     };
-    return <GoalTypeForm {...updatedProps} />;
+    return <GoalTypeForm segmentIds={[]} {...updatedProps} />;
   }
 }
 

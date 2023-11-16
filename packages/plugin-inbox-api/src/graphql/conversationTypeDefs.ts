@@ -3,9 +3,10 @@ import {
   attachmentType
 } from '@erxes/api-utils/src/commonTypeDefs';
 
-export const types = ({ tags, forms, contacts }) => `
+export const types = ({ tags, forms, contacts, dailyco }) => `
   ${attachmentType}
   ${attachmentInput}
+
 
   extend type Customer @key(fields: "_id") {
     _id: String @external
@@ -21,6 +22,19 @@ export const types = ({ tags, forms, contacts }) => `
       ? `
       extend type Tag @key(fields: "_id") {
         _id: String! @external
+      }
+    `
+      : ''
+  }
+
+  ${
+    dailyco
+      ? `
+      extend type VideoCallData {
+        url: String
+        name: String
+        status: String
+        recordingLinks: [String]
       }
     `
       : ''
@@ -58,7 +72,7 @@ export const types = ({ tags, forms, contacts }) => `
     assignedUser: User
     participatedUsers: [User]
     participatorCount: Int
-    videoCallData: VideoCallData
+    ${dailyco ? 'videoCallData: VideoCallData' : ''}
     customFieldsData: JSON
 
     bookingProductId: String
@@ -93,7 +107,7 @@ export const types = ({ tags, forms, contacts }) => `
     user: User
     customer: Customer
     mailData: MailData
-    videoCallData: VideoCallData
+    ${dailyco ? 'videoCallData: VideoCallData' : ''}
     contentType: String
     bookingWidgetData: JSON
     mid: String
@@ -145,13 +159,6 @@ export const types = ({ tags, forms, contacts }) => `
   type ConversationAdminMessageInsertedResponse {
     customerId: String
     unreadCount: Int
-  }
-
-  type VideoCallData {
-    url: String
-    name: String
-    status: String
-    recordingLinks: [String]
   }
 
   ${
@@ -258,7 +265,6 @@ export const mutations = `
   conversationsUnassign(_ids: [String]!): [Conversation]
   conversationsChangeStatus(_ids: [String]!, status: String!): [Conversation]
   conversationMarkAsRead(_id: String): Conversation
-  conversationCreateVideoChatRoom(_id: String!): VideoCallData
   changeConversationOperator(_id: String! operatorStatus: String!): JSON
   conversationResolveAll(${mutationFilterParams}): Int
   conversationConvertToCard(${convertParams}): String

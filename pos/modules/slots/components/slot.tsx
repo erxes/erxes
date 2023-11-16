@@ -1,35 +1,30 @@
+import { memo } from "react"
 import { motion } from "framer-motion"
-import { CircleDashed, CircleDotDashed, CircleSlash } from "lucide-react"
+import { CheckCircle2, Circle, XCircleIcon } from "lucide-react"
 
 import { ISlot } from "@/types/slots.type"
 import { cn } from "@/lib/utils"
-import {
-  HoverCard,
-  HoverCardContent,
-  HoverCardTrigger,
-} from "@/components/ui/hover-card"
+import { DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Label } from "@/components/ui/label"
-import { RadioGroupItem } from "@/components/ui/radio-group"
+
+import SlotActions from "./slotActions"
 
 const MotionLabel = motion(Label)
 
 const statusIcons = {
-  serving: CircleDotDashed,
-  available: CircleDashed,
-  reserved: CircleSlash,
+  serving: CheckCircle2,
+  available: Circle,
+  reserved: XCircleIcon,
 }
 
-const Slot = ({
-  active,
-  code,
-  name,
-  option,
-  isPreDates,
-  status,
-}: ISlot & {
-  status?: "serving" | "available" | "reserved"
-  active: boolean
-}) => {
+const Slot = (
+  props: ISlot & {
+    status?: "serving" | "available" | "reserved"
+    active: boolean
+  }
+) => {
+  const { active, code, name, option, status } = props
+
   const {
     rotateAngle,
     width,
@@ -53,6 +48,7 @@ const Slot = ({
     zIndex,
     borderRadius,
   }
+
   if (isShape)
     return (
       <div
@@ -65,26 +61,21 @@ const Slot = ({
     )
 
   return (
-    <HoverCard>
-      <HoverCardTrigger
+    <SlotActions {...props}>
+      <DropdownMenuTrigger
         className={cn(
           "absolute flex items-center font-medium justify-center text-white",
           active && "shadow-md shadow-primary/50"
         )}
         style={style}
       >
-        <RadioGroupItem
-          value={active ? "" : code}
-          id={code}
-          className="peer sr-only"
-        />
         <div
           style={{
             transform: `rotate(-${rotateAngle}deg)`,
           }}
           className="flex items-center gap-0.5"
         >
-          <Icon className="h-4 w-4" />
+          <Icon className="h-5 w-5" />
           {name || code}
         </div>
         <MotionLabel
@@ -94,7 +85,7 @@ const Slot = ({
           initial={{
             opacity: 0,
           }}
-          className="absolute inset-0 border-primary border-2 cursor-pointer"
+          className="absolute inset-0 ring-2 ring-ring ring-offset-2  cursor-pointer"
           htmlFor={code}
           style={{
             width,
@@ -102,23 +93,9 @@ const Slot = ({
             borderRadius,
           }}
         />
-      </HoverCardTrigger>
-
-      <HoverCardContent>
-        <div className="flex items-center justify-between">
-          <div>
-            {name} {code}
-          </div>
-          <div className="flex items-center gap-1">
-            <Icon className="h-4 w-4" />
-            {status}
-          </div>
-        </div>
-
-        {(isPreDates || "").toString()}
-      </HoverCardContent>
-    </HoverCard>
+      </DropdownMenuTrigger>
+    </SlotActions>
   )
 }
 
-export default Slot
+export default memo(Slot)

@@ -36,7 +36,7 @@ const configMutations = {
 
       await models.Configs.createOrUpdateConfig(doc);
 
-      resetConfigsCache();
+      await resetConfigsCache();
 
       const updatedConfig = await models.Configs.getConfig(code);
 

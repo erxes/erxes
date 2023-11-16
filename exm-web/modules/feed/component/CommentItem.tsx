@@ -2,7 +2,6 @@
 
 import { useState } from "react"
 import { IUser } from "@/modules/auth/types"
-import dayjs from "dayjs"
 import {
   AlertTriangleIcon,
   MoreHorizontalIcon,
@@ -112,21 +111,21 @@ const CommentItem = ({
 
   return (
     <div
-      className="flex items-center mt-2"
+      className="flex items-center mt-4"
       onMouseEnter={() => setShowAction(true)}
       onMouseLeave={() => setShowAction(false)}
     >
-      <div className="flex items-center justify-start ">
+      <div className="flex justify-start ">
         <Image
           src={userDetail?.avatar || "/avatar-colored.svg"}
           alt="User Profile"
           width={100}
           height={100}
-          className="w-8 h-8 rounded-full shrink-0 object-cover"
+          className="w-10 h-10 rounded-full shrink-0 object-cover border border-primary"
         />
 
         <div className="ml-3 flex-wrap">
-          <div className="bg-[#F8F9FA] py-1 px-2 rounded-lg">
+          <div className="bg-[#F5F6FF] py-1 px-2 rounded-lg">
             <div className="text-sm font-bold text-gray-700">
               {userDetail?.fullName || user?.username || user?.email}
             </div>

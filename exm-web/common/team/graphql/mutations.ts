@@ -276,6 +276,20 @@ const branchesRemove = `
   }
 `
 
+const changePassword = `
+  mutation usersChangePassword(
+    $currentPassword: String!
+    $newPassword: String!
+  ) {
+    usersChangePassword(
+      currentPassword: $currentPassword
+      newPassword: $newPassword
+    ) {
+      _id
+    }
+  }
+`
+
 export default {
   usersEditProfile,
   usersEdit,
@@ -297,4 +311,5 @@ export default {
   branchesAdd,
   branchesEdit,
   branchesRemove,
+  changePassword,
 }

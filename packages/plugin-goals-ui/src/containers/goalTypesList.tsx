@@ -90,6 +90,7 @@ export default withProps<Props>(
             variables: {
               ...router.generatePaginationParams(queryParams || {}),
               date: queryParams.date,
+              endDate: queryParams.endDate,
               branch: queryParams.branch,
               department: queryParams.department,
               unit: queryParams.unit,

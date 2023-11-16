@@ -1,4 +1,5 @@
 import { useEffect } from "react"
+import { cartChangedAtom } from "@/store/cart.store"
 import { activeOrderIdAtom, setOrderStatesAtom } from "@/store/order.store"
 import { useLazyQuery } from "@apollo/client"
 import { useAtomValue, useSetAtom } from "jotai"
@@ -10,6 +11,7 @@ import { queries } from "./graphql"
 
 const OrderDetail = ({ children }: { children: React.ReactNode }) => {
   const _id = useAtomValue(activeOrderIdAtom)
+  const isChanged = useAtomValue(cartChangedAtom) //ene heregtei shuu
   const setOrderStates = useSetAtom(setOrderStatesAtom)
   const { onError } = useToast()
 

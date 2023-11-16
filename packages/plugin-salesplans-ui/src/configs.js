@@ -1,4 +1,5 @@
 module.exports = {
+  srcDir: __dirname,
   name: 'salesplans',
   port: 3026,
   exposes: {

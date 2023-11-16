@@ -1,4 +1,5 @@
 module.exports = {
+  srcDir: __dirname,
   name: "calendar",
   port: 3006,
   exposes: {

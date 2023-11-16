@@ -1,13 +1,14 @@
 "use client"
 
 import { ReactNode, useEffect, useState } from "react"
+import { refetchUserAtom } from "@/store"
 import {
   configAtom,
   setConfigsAtom,
   setCurrentUserAtom,
 } from "@/store/config.store"
 import { useQuery } from "@apollo/client"
-import { useSetAtom } from "jotai"
+import { useAtom, useSetAtom } from "jotai"
 
 import { hexToHsl } from "@/lib/utils"
 import Loader from "@/components/ui/loader"
@@ -21,8 +22,9 @@ const Configs = ({ children }: { children: ReactNode }) => {
   const setConfig = useSetAtom(configAtom)
   const [loadingConfigs, setLoadingConfigs] = useState(true)
   const { onError } = useToast()
+  const [fetchUser, setFetchUser] = useAtom(refetchUserAtom)
 
-  const { loading, data } = useQuery(queries.posCurrentUser)
+  const { loading, data, refetch } = useQuery(queries.posCurrentUser)
 
   const { data: config, loading: loadingConfig } = useQuery(
     queries.currentConfig
@@ -38,6 +40,13 @@ const Configs = ({ children }: { children: ReactNode }) => {
       setTimeout(() => setLoadingConfigs(false), 20)
     },
   })
+
+  useEffect(() => {
+    if (fetchUser) {
+      refetch()
+      setFetchUser(false)
+    }
+  }, [fetchUser, refetch, setFetchUser])
 
   useEffect(() => {
     setCurrentUser(data?.posCurrentUser)

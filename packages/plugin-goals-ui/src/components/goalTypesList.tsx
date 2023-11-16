@@ -147,7 +147,7 @@ class GoalTypesList extends React.Component<IProps, State> {
               <th>{__('stageName ')}</th>
               <th>{__('contributionType')}</th>
               <th>{__('metric')}</th>
-              <th>{__('goalType')}</th>
+              <th>{__('goalTypeChoose')}</th>
               <th>{__('startDate')}</th>
               <th>{__('endDate')}</th>
               <th>{__('current')}</th>

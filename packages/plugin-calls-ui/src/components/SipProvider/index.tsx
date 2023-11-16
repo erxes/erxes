@@ -144,7 +144,7 @@ export default class SipProvider extends React.Component<
         errorMessage: this.state.sipErrorMessage
       },
       call: {
-        id: '??',
+        id: this.state.rtcSession?._id,
         status: this.state.callStatus,
         direction: this.state.callDirection,
         counterpart: this.state.callCounterpart
@@ -317,9 +317,9 @@ export default class SipProvider extends React.Component<
 
     this.ua.call(destination, options);
 
-    this.outgoingAudio = new Audio('/sound/outgoing.mp3');
-    this.outgoingAudio.loop = true;
-    this.outgoingAudio.play();
+    // this.outgoingAudio = new Audio('/sound/outgoing.mp3');
+    // this.outgoingAudio.loop = true;
+    // this.outgoingAudio.play();
 
     this.setState({ callStatus: CALL_STATUS_STARTING });
   };
@@ -327,7 +327,7 @@ export default class SipProvider extends React.Component<
   public stopCall = () => {
     this.setState({ callStatus: CALL_STATUS_STOPPING });
     this.ua?.terminateSessions();
-    this.outgoingAudio?.pause();
+    // this.outgoingAudio?.pause();
   };
 
   public reconfigureDebug() {
@@ -515,7 +515,7 @@ export default class SipProvider extends React.Component<
           });
           this.ua?.terminateSessions();
           rtcSession = null;
-          this.outgoingAudio?.pause();
+          // this.outgoingAudio?.pause();
         });
 
         rtcSession.on('ended', () => {
@@ -530,7 +530,7 @@ export default class SipProvider extends React.Component<
           });
           this.ua?.terminateSessions();
           rtcSession = null;
-          this.outgoingAudio?.pause();
+          // this.outgoingAudio?.pause();
         });
 
         rtcSession.on('rejected', function(e) {
@@ -545,14 +545,14 @@ export default class SipProvider extends React.Component<
             callCounterpart: null
           });
           this.ua?.terminateSessions();
-          this.outgoingAudio?.pause();
+          // this.outgoingAudio?.pause();
         });
 
         rtcSession.on('accepted', () => {
           if (this.ua !== ua) {
             return;
           }
-          this.outgoingAudio?.pause();
+          // this.outgoingAudio?.pause();
           [
             this.remoteAudio.srcObject
           ] = rtcSession.connection.getRemoteStreams();
@@ -608,6 +608,7 @@ export default class SipProvider extends React.Component<
   }
 
   public render() {
+    console.log('sip state: ', this.state);
     return this.props.children(this.state);
   }
 }

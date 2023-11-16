@@ -1,11 +1,9 @@
+//#region  import
 import { IModels } from '../../connectionResolver';
 import { CONTRACT_STATUS, SCHEDULE_STATUS } from '../definitions/constants';
 import { IContractDocument } from '../definitions/contracts';
 import { IScheduleDocument } from '../definitions/schedules';
-import {
-  ITransaction,
-  ITransactionDocument
-} from '../definitions/transactions';
+import { ITransactionDocument } from '../definitions/transactions';
 import { trAfterSchedule, transactionRule } from './transactionUtils';
 import {
   addMonths,
@@ -21,6 +19,84 @@ import {
   getNextMonthDay,
   IPerHoliday
 } from './utils';
+//#endregion
+
+const insuranceHelper = (
+  contract: IContractDocument,
+  insuranceTypeRulesById: any,
+  currentYear: number
+) => {
+  let perMonthInsurance = 0;
+  let perYearInsurance = 0;
+  for (const data of contract.collateralsData) {
+    const insuranceType =
+      data.insuranceTypeId && insuranceTypeRulesById[data.insuranceTypeId];
+
+    if (!insuranceType) {
+      continue;
+    }
+
+    const rules = insuranceType.yearPercents || [100];
+    const percentOfCost =
+      rules.length > currentYear ? rules[currentYear] : rules[rules.length - 1];
+    const insurance =
+      ((((data.leaseAmount + data.marginAmount) / 100) * percentOfCost) / 100) *
+      insuranceType.percent;
+    perMonthInsurance += insurance / 11;
+    perYearInsurance += insurance;
+  }
+
+  const first10 = Math.ceil(perMonthInsurance);
+  const on11 = perYearInsurance - first10 * 10;
+
+  return { first10, on11 };
+};
+
+const fillAmounts = async (
+  models: IModels,
+  doc: IScheduleDocument,
+  tr: ITransactionDocument,
+  preSchedule: IScheduleDocument,
+  isSetAmount: boolean = false
+) => {
+  if (isSetAmount) {
+    doc.undue = tr?.calcedInfo?.undue || 0;
+    doc.interestEve = tr?.calcedInfo?.interestEve || 0;
+    doc.interestNonce = tr?.calcedInfo?.interestNonce || 0;
+    doc.payment = tr?.calcedInfo?.payment || 0;
+    doc.insurance = tr?.calcedInfo?.insurance || 0;
+    doc.debt = tr?.calcedInfo?.debt || 0;
+    doc.total = tr?.calcedInfo?.total || 0;
+  }
+
+  doc.undue = doc.undue || 0;
+  doc.didUndue = (doc.didUndue || 0) + (tr.undue || 0);
+  doc.didInterestEve = (doc.didInterestEve || 0) + (tr.interestEve || 0);
+  doc.didInterestNonce = (doc.didInterestNonce || 0) + (tr.interestNonce || 0);
+  doc.didPayment = (doc.didPayment || 0) + (tr.payment || 0);
+  doc.didInsurance = (doc.didInsurance || 0) + (tr.insurance || 0);
+  doc.didDebt = (doc.didDebt || 0) + (tr.debt || 0);
+  doc.didTotal = (doc.didTotal || 0) + (tr.total || 0);
+  doc.surplus = (doc.surplus || 0) + (tr.surplus || 0);
+
+  doc.balance = (preSchedule.balance || 0) - (tr.payment || 0);
+
+  doc.payDate = tr.payDate;
+  doc.transactionIds = doc.transactionIds
+    ? doc.transactionIds.concat([tr._id])
+    : [tr._id];
+
+  if (doc.balance < 0) {
+    doc.surplus = -1 * doc.balance;
+    doc.didPayment = (tr?.payment || 0) + doc.balance;
+    await models.Transactions.updateOne(
+      { _id: tr._id },
+      { $set: { surplus: doc.surplus, payment: doc.didPayment } }
+    );
+    doc.balance = 0;
+  }
+  return doc;
+};
 
 export const scheduleHelper = async (
   contract: IContractDocument,
@@ -166,37 +242,6 @@ export const scheduleHelper = async (
   bulkEntries[bulkEntries.length - 1] = lastEntry;
 
   return bulkEntries;
-};
-
-const insuranceHelper = (
-  contract: IContractDocument,
-  insuranceTypeRulesById: any,
-  currentYear: number
-) => {
-  let perMonthInsurance = 0;
-  let perYearInsurance = 0;
-  for (const data of contract.collateralsData) {
-    const insuranceType =
-      data.insuranceTypeId && insuranceTypeRulesById[data.insuranceTypeId];
-
-    if (!insuranceType) {
-      continue;
-    }
-
-    const rules = insuranceType.yearPercents || [100];
-    const percentOfCost =
-      rules.length > currentYear ? rules[currentYear] : rules[rules.length - 1];
-    const insurance =
-      ((((data.leaseAmount + data.marginAmount) / 100) * percentOfCost) / 100) *
-      insuranceType.percent;
-    perMonthInsurance += insurance / 11;
-    perYearInsurance += insurance;
-  }
-
-  const first10 = Math.ceil(perMonthInsurance);
-  const on11 = perYearInsurance - first10 * 10;
-
-  return { first10, on11 };
 };
 
 export const reGenerateSchedules = async (
@@ -496,52 +541,6 @@ export const fixSchedules = async (
       //now resolve schedules
       await trAfterSchedule(models, { ...transaction, ...trInfo } as any);
     }
-};
-
-const fillAmounts = async (
-  models: IModels,
-  doc: IScheduleDocument,
-  tr: ITransactionDocument,
-  preSchedule: IScheduleDocument,
-  isSetAmount: boolean = false
-) => {
-  if (isSetAmount) {
-    doc.undue = tr?.calcedInfo?.undue || 0;
-    doc.interestEve = tr?.calcedInfo?.interestEve || 0;
-    doc.interestNonce = tr?.calcedInfo?.interestNonce || 0;
-    doc.payment = tr?.calcedInfo?.payment || 0;
-    doc.insurance = tr?.calcedInfo?.insurance || 0;
-    doc.debt = tr?.calcedInfo?.debt || 0;
-    doc.total = tr?.calcedInfo?.total || 0;
-  }
-
-  doc.undue = doc.undue || 0;
-  doc.didUndue = (doc.didUndue || 0) + (tr.undue || 0);
-  doc.didInterestEve = (doc.didInterestEve || 0) + (tr.interestEve || 0);
-  doc.didInterestNonce = (doc.didInterestNonce || 0) + (tr.interestNonce || 0);
-  doc.didPayment = (doc.didPayment || 0) + (tr.payment || 0);
-  doc.didInsurance = (doc.didInsurance || 0) + (tr.insurance || 0);
-  doc.didDebt = (doc.didDebt || 0) + (tr.debt || 0);
-  doc.didTotal = (doc.didTotal || 0) + (tr.total || 0);
-  doc.surplus = (doc.surplus || 0) + (tr.surplus || 0);
-
-  doc.balance = (preSchedule.balance || 0) - (tr.payment || 0);
-
-  doc.payDate = tr.payDate;
-  doc.transactionIds = doc.transactionIds
-    ? doc.transactionIds.concat([tr._id])
-    : [tr._id];
-
-  if (doc.balance < 0) {
-    doc.surplus = -1 * doc.balance;
-    doc.didPayment = (tr?.payment || 0) + doc.balance;
-    await models.Transactions.updateOne(
-      { _id: tr._id },
-      { $set: { surplus: doc.surplus, payment: doc.didPayment } }
-    );
-    doc.balance = 0;
-  }
-  return doc;
 };
 
 export const generatePendingSchedules = async (
@@ -1126,6 +1125,7 @@ export const generatePendingSchedules = async (
 
   await models.Schedules.bulkWrite(bulkOps);
 };
+
 /**
  *
  * @param models

@@ -1,7 +1,7 @@
 import { IModels } from '../../connectionResolver';
 import { IPermissionDocument } from '../../db/models/definitions/permissions';
 import { getKey } from '@erxes/api-utils/src';
-import { set } from '../../inmemoryStorage';
+import redis from '@erxes/api-utils/src/redis';
 import { moduleObjects } from './actions/permission';
 
 export interface IModuleMap {
@@ -90,7 +90,7 @@ export const resetPermissionsCache = async (models: IModels) => {
   for (const user of users) {
     const key = getKey(user);
 
-    set(key, '');
+    redis.set(key, '');
   }
 };
 

@@ -110,3 +110,5 @@ export default {
   dateToShortStr,
   shortStrToDate
 };
+
+// trigger

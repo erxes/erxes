@@ -1,13 +1,13 @@
 import * as dotenv from 'dotenv';
 import { IModels } from '../models';
-import { get, set } from '.';
+import redis from '@erxes/api-utils/src/redis';
 
 dotenv.config();
 
 const CACHE_NAME = 'configs_erxes_zalo_integrations';
 
 export const getConfigs = async (models: IModels) => {
-  const configsCache = await get(CACHE_NAME);
+  const configsCache = await redis.get(CACHE_NAME);
 
   if (configsCache && configsCache !== '{}') {
     return JSON.parse(configsCache);
@@ -20,7 +20,7 @@ export const getConfigs = async (models: IModels) => {
     configsMap[config.code] = config.value;
   }
 
-  set(CACHE_NAME, JSON.stringify(configsMap));
+  await redis.set(CACHE_NAME, JSON.stringify(configsMap));
 
   return configsMap;
 };
@@ -41,9 +41,9 @@ export const updateConfigs = async (
 ): Promise<void> => {
   await models.Configs.updateConfigs(configsMap);
 
-  resetConfigsCache();
+  await resetConfigsCache();
 };
 
-export const resetConfigsCache = () => {
-  set(CACHE_NAME, '');
+export const resetConfigsCache = async () => {
+  await redis.set(CACHE_NAME, '');
 };

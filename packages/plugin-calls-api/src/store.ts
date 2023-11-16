@@ -7,37 +7,11 @@ export const getOrCreateCustomer = async (
   subdomain: string,
   callAccount: ICustomer & { recipientId?: String }
 ) => {
-  const { inboxIntegrationId, primaryPhone, recipientId } = callAccount;
+  const { inboxIntegrationId, primaryPhone } = callAccount;
 
   let customer = await models.Customers.findOne({
     primaryPhone
   });
-
-  // get conversation
-  let conversation = await models.Conversations.findOne({
-    senderId: primaryPhone,
-    recipientId: recipientId || ''
-  });
-
-  // create conversation
-  if (!conversation) {
-    // save on integrations db
-    try {
-      conversation = await models.Conversations.create({
-        timestamp: new Date(),
-        senderId: primaryPhone,
-        recipientId: recipientId,
-        content: '',
-        integrationId: inboxIntegrationId
-      });
-    } catch (e) {
-      throw new Error(
-        e.message.includes('duplicate')
-          ? 'Concurrent request: conversation duplication'
-          : e
-      );
-    }
-  }
 
   if (!customer) {
     customer = await models.Customers.create({
@@ -59,13 +33,11 @@ export const getOrCreateCustomer = async (
             lastName: null,
             avatar: null,
             isUser: true,
-            phone: [primaryPhone],
-            conversationId: conversation.erxesApiId
+            phone: [primaryPhone]
           })
         },
         isRPC: true
       });
-
       customer.erxesApiId = apiCustomerResponse._id;
       await customer.save();
     } catch (e) {

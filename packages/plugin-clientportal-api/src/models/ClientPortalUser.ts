@@ -14,6 +14,7 @@ import {
   IClientPortalDocument
 } from './definitions/clientPortal';
 import {
+  IInvitiation,
   INotifcationSettings,
   IUser,
   IUserDocument,
@@ -44,7 +45,7 @@ export interface IUserModel extends Model<IUserDocument> {
     phone?: string;
     code?: string;
   }): never;
-  invite(subdomain: string, doc: IUser): Promise<IUserDocument>;
+  invite(subdomain: string, doc: IInvitiation): Promise<IUserDocument>;
   getUser(doc: any): Promise<IUserDocument>;
   createUser(subdomain: string, doc: IUser): Promise<IUserDocument>;
   updateUser(
@@ -819,7 +820,7 @@ export const loadClientPortalUserClass = (models: IModels) => {
 
     public static async invite(
       subdomain: string,
-      { password, clientPortalId, ...doc }: IUser
+      { password, clientPortalId, ...doc }: IInvitiation
     ) {
       if (!password) {
         password = generateRandomPassword();
@@ -839,38 +840,43 @@ export const loadClientPortalUserClass = (models: IModels) => {
         password
       });
 
-      const { token, expires } = await models.ClientPortalUsers.generateToken();
-
-      user.registrationToken = token;
-      user.registrationTokenExpires = expires;
-
-      await user.save();
-
       const clientPortal = await models.ClientPortals.getConfig(clientPortalId);
 
-      const config = clientPortal.mailConfig || {
-        invitationContent: DEFAULT_MAIL_CONFIG.INVITE
-      };
+      if (!doc.disableVerificationMail) {
+        const {
+          token,
+          expires
+        } = await models.ClientPortalUsers.generateToken();
 
-      const link = `${clientPortal.url}/verify?token=${token}`;
+        user.registrationToken = token;
+        user.registrationTokenExpires = expires;
 
-      let content = config.invitationContent.replace(/{{ link }}/, link);
-      content = content.replace(/{{ password }}/, plainPassword);
+        await user.save();
 
-      await sendCoreMessage({
-        subdomain,
-        action: 'sendEmail',
-        data: {
-          toEmails: [doc.email],
-          title: `${clientPortal.name} invitation`,
-          template: {
-            name: 'base',
-            data: {
-              content
+        const config = clientPortal.mailConfig || {
+          invitationContent: DEFAULT_MAIL_CONFIG.INVITE
+        };
+
+        const link = `${clientPortal.url}/verify?token=${token}`;
+
+        let content = config.invitationContent.replace(/{{ link }}/, link);
+        content = content.replace(/{{ password }}/, plainPassword);
+
+        await sendCoreMessage({
+          subdomain,
+          action: 'sendEmail',
+          data: {
+            toEmails: [doc.email],
+            title: `${clientPortal.name} invitation`,
+            template: {
+              name: 'base',
+              data: {
+                content
+              }
             }
           }
-        }
-      });
+        });
+      }
 
       await sendAfterMutation(
         subdomain,

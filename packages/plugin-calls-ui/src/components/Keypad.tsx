@@ -10,9 +10,13 @@ import {
   Actions,
   CallAction,
   InCallFooter,
-  PhoneNumber
+  PhoneNumber,
+  ContactItem,
+  CallTabsContainer,
+  CallTab,
+  CallTabContent
 } from '../styles';
-import { numbers, symbols } from '../constants';
+import { inCallTabs, numbers, symbols } from '../constants';
 import { FormControl } from '@erxes/ui/src/components/form';
 import Select from 'react-select-plus';
 import { Button, Icon } from '@erxes/ui/src/components';
@@ -22,26 +26,48 @@ import {
   CALL_DIRECTION_INCOMING,
   CALL_STATUS_ACTIVE,
   CALL_STATUS_IDLE,
+  CALL_STATUS_STARTING,
   SIP_STATUS_REGISTERED
 } from '../lib/enums';
 import { callPropType, sipPropType } from '../lib/types';
 import { formatPhone, getSpentTime } from '../utils';
 import Popover from 'react-bootstrap/Popover';
+import AssignBox from '@erxes/ui-inbox/src/inbox/containers/AssignBox';
+import { isEnabled } from '@erxes/ui/src/utils/core';
+import TaggerSection from '@erxes/ui-contacts/src/customers/components/common/TaggerSection';
+import { ICallConversation, ICustomer } from '../types';
+import { StepContent } from '@erxes/ui/src/components/step/styles';
 
 type Props = {
-  addCustomer: (firstName: string, phoneNumber: string) => void;
+  addCustomer: (firstName: string, phoneNumber: string, callID: string) => void;
   callIntegrationsOfUser: any;
   setConfig: any;
+  customer: ICustomer;
+  toggleSectionWithPhone: (phoneNumber: string) => void;
+  taggerRefetchQueries: any;
+  conversation: ICallConversation;
+  addNote: (conversationId: string, content: string) => void;
 };
 const KeyPad = (props: Props, context) => {
   const Sip = context;
   const { call, mute, unmute, isMuted, isHolded, hold, unhold } = Sip;
-
-  const { addCustomer, callIntegrationsOfUser, setConfig } = props;
+  const {
+    addCustomer,
+    callIntegrationsOfUser,
+    setConfig,
+    customer,
+    toggleSectionWithPhone,
+    taggerRefetchQueries,
+    conversation,
+    addNote
+  } = props;
 
   const defaultCallIntegration = localStorage.getItem(
     'config:call_integrations'
   );
+
+  const [currentTab, setCurrentTab] = useState('');
+  const [shrink, setShrink] = useState(customer ? true : false);
 
   const [number, setNumber] = useState('');
   const [showTrigger, setShowTrigger] = useState(false);
@@ -51,16 +77,49 @@ const KeyPad = (props: Props, context) => {
       callIntegrationsOfUser?.[0]?.phone ||
       ''
   );
+  const [hasMicrophone, setHasMicrophone] = useState(false);
+  const [noteContent, setNoteContent] = useState('');
 
   const [timeSpent, setTimeSpent] = useState(0);
+  const formatedPhone = formatPhone(number);
 
   const ourPhone = callIntegrationsOfUser?.map(user => ({
     value: user.phone,
     label: user.phone
   }));
+  let conversationDetail;
+
+  if (conversation) {
+    conversationDetail = {
+      ...conversation,
+      _id: conversation.erxesApiId
+    };
+  }
 
   useEffect(() => {
     let timer: NodeJS.Timeout;
+
+    navigator.mediaDevices
+      .getUserMedia({ audio: true })
+      .then(() => {
+        setHasMicrophone(true);
+      })
+      .catch(error => {
+        const errorMessage = error
+          ?.toString()
+          .replace('DOMException:', '')
+          .replace('NotFoundError: ', '');
+        setHasMicrophone(false);
+        return Alert.error(errorMessage);
+      });
+
+    if (call?.status === CALL_STATUS_STARTING && hasMicrophone) {
+      const inboxId =
+        JSON.parse(defaultCallIntegration)?.inboxId ||
+        callIntegrationsOfUser?.[0]?.inboxId;
+
+      addCustomer(inboxId, formatedPhone, call?.id);
+    }
     if (call?.status === CALL_STATUS_ACTIVE) {
       timer = setInterval(() => {
         setTimeSpent(prevTimeSpent => prevTimeSpent + 1);
@@ -70,34 +129,38 @@ const KeyPad = (props: Props, context) => {
     return () => clearInterval(timer);
   }, [call?.status]);
 
+  const onTabClick = (tab: string) => {
+    setCurrentTab(tab);
+    setShrink(true);
+  };
+
   const handleCall = () => {
+    if (!hasMicrophone) {
+      return Alert.error('Check your microphone');
+    }
+
     if (Sip.sip?.status !== SIP_STATUS_REGISTERED) {
       return;
     }
     if (Sip.call?.status !== CALL_STATUS_IDLE) {
       return;
     }
-    // new Audio('/sound/outgoing.mp3');
-    const formatedPhone = formatPhone(number);
 
     if (formatedPhone.length !== 8) {
       return Alert.warning('Check phone number');
     }
-    const inboxId =
-      JSON.parse(defaultCallIntegration)?.inboxId ||
-      callIntegrationsOfUser?.[0]?.inboxId;
+
     const { startCall } = context;
 
-    if (startCall) {
+    if (startCall && hasMicrophone) {
       startCall(formatedPhone);
-      addCustomer(inboxId, formatedPhone);
     }
   };
 
   const handleCallStop = () => {
     const { stopCall, call } = context;
 
-    if (stopCall && call.status === CALL_STATUS_ACTIVE) {
+    if (stopCall) {
       stopCall();
     }
   };
@@ -115,6 +178,10 @@ const KeyPad = (props: Props, context) => {
       num += e;
       setNumber(num);
     }
+  };
+
+  const toggleSection = () => {
+    toggleSectionWithPhone(formatedPhone);
   };
 
   const renderKeyPad = () => {
@@ -219,7 +286,6 @@ const KeyPad = (props: Props, context) => {
   };
 
   const renderCallerInfo = () => {
-    const formatedPhone = formatPhone(number);
     if (!formatedPhone) {
       return null;
     }
@@ -227,12 +293,74 @@ const KeyPad = (props: Props, context) => {
     return <PhoneNumber>{formatedPhone}</PhoneNumber>;
   };
 
+  const onChangeText = e =>
+    setNoteContent((e.currentTarget as HTMLInputElement).value);
+
+  const sendMessage = () => {
+    addNote(conversationDetail?._id, noteContent);
+  };
+
+  const renderFooter = () => {
+    if (!shrink) {
+      return (
+        <InCallFooter>
+          <Button btnStyle="link">{__('Add or call')}</Button>
+          <CallAction onClick={handleCallStop} isDecline={true}>
+            <Icon icon="phone-slash" />
+          </CallAction>
+          <Button btnStyle="link">{__('Transfer call')}</Button>
+        </InCallFooter>
+      );
+    }
+
+    return (
+      <>
+        <CallTabContent
+          tab="Notes"
+          show={currentTab === 'Notes' ? true : false}
+        >
+          <FormControl
+            componentClass="textarea"
+            placeholder="Send a note..."
+            onChange={onChangeText}
+          />
+          <Button btnStyle="success" onClick={sendMessage}>
+            {__('Send')}
+          </Button>
+        </CallTabContent>
+        <CallTabContent tab="Tags" show={currentTab === 'Tags' ? true : false}>
+          {isEnabled('tags') && (
+            <TaggerSection
+              data={customer}
+              type="contacts:customer"
+              refetchQueries={taggerRefetchQueries}
+              collapseCallback={toggleSection}
+            />
+          )}
+        </CallTabContent>
+        <CallTabContent
+          tab="Assign"
+          show={currentTab === 'Assign' ? true : false}
+        >
+          <AssignBox
+            targets={[conversationDetail]}
+            event="onClick"
+            afterSave={() => {}}
+          />
+        </CallTabContent>
+        <CallAction onClick={handleCallStop} isDecline={true}>
+          <Icon icon="phone-slash" />
+        </CallAction>
+      </>
+    );
+  };
+
   return (
     <>
       {Sip.call?.status === CALL_STATUS_ACTIVE && (
         <Popover id="call-popover" className="call-popover">
           <InCall>
-            <CallInfo shrink={false}>
+            <CallInfo shrink={shrink}>
               <p>
                 {__('Call duration:')} <b>{getSpentTime(timeSpent)}</b>
               </p>
@@ -273,14 +401,20 @@ const KeyPad = (props: Props, context) => {
                 )}
               </Actions>
             </CallInfo>
-
-            <InCallFooter>
-              <Button btnStyle="link">{__('Add or call')}</Button>
-              <CallAction onClick={handleCallStop} isDecline={true}>
-                <Icon icon="phone-slash" />
-              </CallAction>
-              <Button btnStyle="link">{__('Transfer call')}</Button>
-            </InCallFooter>
+            <ContactItem>
+              <CallTabsContainer full={true}>
+                {inCallTabs.map(tab => (
+                  <CallTab
+                    key={tab}
+                    className={currentTab === tab ? 'active' : ''}
+                    onClick={() => onTabClick(tab)}
+                  >
+                    {__(tab)}
+                  </CallTab>
+                ))}
+              </CallTabsContainer>
+            </ContactItem>
+            {renderFooter()}
           </InCall>
         </Popover>
       )}

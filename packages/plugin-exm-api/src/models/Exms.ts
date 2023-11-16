@@ -52,6 +52,8 @@ export const exmSchema = new Schema({
   features: { type: [featureSchema] },
   logo: { type: Object },
   favicon: { type: Object },
+  vision: { type: Object },
+  structure: { type: Object },
   appearance: { type: appearanceSchema },
   scoringConfig: { type: [scoringConfigSchema] },
   createdBy: { type: String, label: 'Created by' },

@@ -59,16 +59,7 @@ const remainderQueries = {
     },
     { models, subdomain }: IContext
   ) => {
-    const {
-      categoryId,
-      productIds,
-      endDate,
-      beginDate,
-      branchId,
-      departmentId
-    } = params;
-    const bDate = new Date(beginDate);
-    const eDate = new Date(endDate);
+    const { categoryId, productIds, branchId, departmentId } = params;
 
     const productFilter: any = {};
     if (categoryId) {

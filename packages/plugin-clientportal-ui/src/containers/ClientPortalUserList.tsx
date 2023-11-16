@@ -20,7 +20,7 @@ import { graphql } from '@apollo/client/react/hoc';
 type Props = {
   queryParams: any;
   history: any;
-  type?: string;
+  kind?: string;
 };
 
 type FinalProps = {
@@ -131,7 +131,7 @@ export default withProps<Props>(
         variables: {
           searchValue: queryParams.searchValue,
           cpId: queryParams.cpId,
-          type: queryParams.type,
+
           dateFilters: queryParams.dateFilters,
           ...generatePaginationParams(queryParams)
         },

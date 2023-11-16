@@ -1,4 +1,5 @@
 module.exports = {
+  srcDir: __dirname,
   name: "knowledgebase",
   port: 3004,
   exposes: {

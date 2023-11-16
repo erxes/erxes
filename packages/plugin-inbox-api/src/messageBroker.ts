@@ -86,7 +86,14 @@ export const initBroker = cl => {
     'inbox:createOnlyMessage',
     async ({
       subdomain,
-      data: { conversationId, content, userId, customerId }
+      data: {
+        conversationId,
+        content,
+        userId,
+        customerId,
+        internal,
+        contentType
+      }
     }) => {
       const models = await generateModels(subdomain);
 
@@ -94,10 +101,11 @@ export const initBroker = cl => {
         status: 'success',
         data: await models.ConversationMessages.createMessage({
           conversationId,
-          internal: true,
+          internal,
           userId,
           customerId,
-          content
+          content,
+          contentType
         })
       };
     }
@@ -155,7 +163,9 @@ export const initBroker = cl => {
 
       return {
         status: 'success',
-        data: await models.Conversations.findOne({ _id: conversationId }).lean()
+        data: await models.Conversations.findOne({
+          _id: conversationId
+        }).lean()
       };
     }
   );
@@ -360,6 +370,20 @@ export const initBroker = cl => {
       const models = await generateModels(subdomain);
 
       await pConversationClientMessageInserted(models, subdomain, data);
+    }
+  );
+
+  consumeRPCQueue(
+    'inbox:widgetsGetUnreadMessagesCount',
+    async ({ subdomain, data }) => {
+      const models = await generateModels(subdomain);
+
+      return {
+        status: 'success',
+        data: await models.ConversationMessages.widgetsGetUnreadMessagesCount(
+          data.conversationId
+        )
+      };
     }
   );
 };

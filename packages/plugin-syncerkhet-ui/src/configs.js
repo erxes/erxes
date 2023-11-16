@@ -1,4 +1,5 @@
 module.exports = {
+  srcDir: __dirname,
   name: 'syncerkhet',
   port: 3017,
   exposes: {

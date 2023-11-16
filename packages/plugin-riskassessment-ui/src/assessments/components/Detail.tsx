@@ -1,15 +1,12 @@
-import {
-  CollapseContent,
-  colors,
-  Icon,
-  NameCard,
-  Table,
-  Tabs,
-  TabTitle,
-  __,
-  Attachment,
-  Button
-} from '@erxes/ui/src';
+import Attachment from '@erxes/ui/src/components/Attachment';
+import Button from '@erxes/ui/src/components/Button';
+import CollapseContent from '@erxes/ui/src/components/CollapseContent';
+import Icon from '@erxes/ui/src/components/Icon';
+import NameCard from '@erxes/ui/src/components/nameCard/NameCard';
+import Table from '@erxes/ui/src/components/table';
+import { Tabs, TabTitle } from '@erxes/ui/src/components/tabs';
+import colors from '@erxes/ui/src/styles/colors';
+import { __ } from '@erxes/ui/src/utils/core';
 import React from 'react';
 import {
   CardBox,
@@ -21,8 +18,8 @@ import {
   TriggerTabs
 } from '../../styles';
 
-import { DetailPopOver } from '../common/utils';
 import { removeParams, setParams } from '@erxes/ui/src/utils/router';
+import { DetailPopOver } from '../common/utils';
 
 type Props = {
   riskAssessment: any;

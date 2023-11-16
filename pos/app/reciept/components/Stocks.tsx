@@ -18,7 +18,7 @@ const Stocks = ({ stocks }: { stocks: IStock[] }) => {
     return (
       <div key={idx}>
         <div className="flex items-start leading-none">
-          <div className="w-6/12">{!type ? shortName ?? name : name}</div>
+          <div className="w-6/12">{!!type ? name : shortName || name}</div>
           <div className="w-3/12 text-center">
             {formatNum(unitPrice)} x {formatNum(qty)}
           </div>

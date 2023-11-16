@@ -1,3 +1,5 @@
+import { isEnabled } from '@erxes/ui/src/utils/core';
+
 const callsIntegrationDetail: string = `
   query callsIntegrationDetail($integrationId: String!) {
     callsIntegrationDetail(integrationId: $integrationId) {
@@ -30,20 +32,80 @@ const callCustomerDetail: string = `
       _id
       firstName
       primaryPhone
+      avatar
       phones
       phone
       tagIds
-      getTags {
-        _id
-        name
-        type
-        colorCode
-      }
+        ${
+          isEnabled('tags')
+            ? `
+          getTags {
+            _id
+            name
+            colorCode
+                    type
+
+          }
+        `
+            : ``
+        }
+     
     }
 }
+`;
+
+const listParamsDef = `
+  $page: Int,
+  $perPage: Int,
+  $tag: String,
+  $type: String,
+  $ids: [String],
+  $excludeIds: Boolean,
+  $searchValue: String,
+  $brand: String,
+  $integration: String,
+  $startDate: String,
+  $endDate: String,
+  $leadStatus: String,
+  $sortField: String,
+  $sortDirection: Int,
+  $dateFilters: String,
+`;
+
+const listParamsValue = `
+  page: $page,
+  perPage: $perPage,
+  tag: $tag,
+  type: $type,
+  ids: $ids,
+  excludeIds: $excludeIds,
+  searchValue: $searchValue,
+  brand: $brand,
+  integration: $integration
+  startDate: $startDate,
+  endDate: $endDate,
+  leadStatus: $leadStatus,
+  sortField: $sortField,
+  sortDirection: $sortDirection,
+  dateFilters: $dateFilters,
+`;
+
+const customers = `
+  query customers(${listParamsDef}) {
+    customers(${listParamsValue}) {
+      _id
+      firstName
+      primaryPhone
+      phones
+      phone
+      tagIds
+      avatar
+    }
+  }
 `;
 export default {
   callsIntegrationDetail,
   callIntegrationsOfUser,
-  callCustomerDetail
+  callCustomerDetail,
+  customers
 };

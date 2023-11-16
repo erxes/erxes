@@ -55,6 +55,10 @@ export interface IUser {
   };
 }
 
+export interface IInvitiation extends IUser {
+  disableVerificationMail?: boolean;
+}
+
 export interface IUserDocument extends IUser, Document {
   _id: string;
   phoneVerificationCode: string;

@@ -1,7 +1,10 @@
 import { debug } from '../../configs';
 import { IMessageDocument } from '../../models/definitions/conversationMessages';
 import { MESSAGE_TYPES } from '../../models/definitions/constants';
-import { sendIntegrationsMessage } from '../../messageBroker';
+import {
+  sendCommonMessage,
+  sendIntegrationsMessage
+} from '../../messageBroker';
 import { IContext } from '../../connectionResolver';
 
 export default {
@@ -78,11 +81,14 @@ export default {
     }
 
     try {
-      const response = await sendIntegrationsMessage({
+      const response = await sendCommonMessage({
+        serviceName: 'dailyco',
         subdomain,
         action: 'getDailyRoom',
         data: {
-          erxesApiMessageId: message._id
+          contentType: 'inbox:conversations',
+          contentTypeId: message.conversationId,
+          messageId: message._id
         },
         isRPC: true
       });

@@ -75,6 +75,7 @@ class Row extends React.Component<Props> {
       return (
         <ModalTrigger
           title="Risk assessment detail"
+          hideHeader
           content={content}
           trigger={trigger}
           size="xl"
