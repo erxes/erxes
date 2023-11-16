@@ -1,3 +1,5 @@
+# [1.4.0](https://github.com/erxes/erxes/compare/1.4.0-alpha.7...1.4.0) (2023-11-16)
+
 # [1.4.0-alpha.7](https://github.com/erxes/erxes/compare/1.4.0-alpha.6...1.4.0-alpha.7) (2023-11-16)
 
 
