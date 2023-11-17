@@ -4,6 +4,7 @@ import { useAtomValue } from "jotai"
 
 import Loader from "@/components/ui/loader"
 import Pagination from "@/components/ui/pagination"
+import { ScrollArea } from "@/components/ui/scroll-area"
 import {
   Table,
   TableBody,
