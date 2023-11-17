@@ -61,17 +61,30 @@ export const loadInvoiceClass = (models: IModels) => {
           .sort({ payDate: -1 })
           .lean();
         const payAmount = (lastSchedule?.balance || 0) * 0.1;
-        if (payAmount === 0) continue;
+
+        const invoiceDate = new Date(
+          nowDate.getFullYear(),
+          nowDate.getMonth(),
+          contract.scheduleDays[0] || 1
+        );
+
+        const isExistCurrentInvoice = await models.Invoices.findOne({
+          contractId: contract._id,
+          payDate: invoiceDate
+        });
+
+        if (
+          payAmount === 0 ||
+          isExistCurrentInvoice ||
+          invoiceDate <= contract.startDate
+        )
+          continue;
         const calcInfo: any = getCalcedAmounts(models, subdomain, {
           contractId: contract._id,
           payDate: nowDate
         });
         calcInfo.payment = payAmount;
-        calcInfo.payDate = new Date(
-          nowDate.getFullYear(),
-          nowDate.getMonth(),
-          contract.scheduleDays[0] || 1
-        );
+        calcInfo.payDate = invoiceDate;
 
         calcInfo.contractId = contract._id;
         calcInfo.total =
