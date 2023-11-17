@@ -32,6 +32,7 @@ const commonFeedFields = `
   attachments
   createdAt
   updatedAt
+  category
   likeCount
   heartCount
   isHearted
@@ -78,6 +79,7 @@ const feed = gql`
         isPinned
         recipientIds
         images
+        category
         eventData {
           visibility
           where

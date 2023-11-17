@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import dynamic from "next/dynamic"
+import { useSearchParams } from "next/navigation"
 import { currentUserAtom } from "@/modules/JotaiProiveder"
 import { IUser } from "@/modules/auth/types"
 import { useFeedDetail } from "@/modules/feed/hooks/useFeedDetail"
@@ -87,6 +88,9 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
   const { reactionMutation } = useReactionMutaion({
     callBack,
   })
+
+  const searchParams = useSearchParams()
+  const dateFilter = searchParams.get("dateFilter")
 
   if (loading) {
     return <LoadingCard />
@@ -283,6 +287,10 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
       const monthsDifference =
         differenceInMilliseconds / (1000 * 60 * 60 * 24 * 30.44)
 
+      if (feed.contentType === "publicHoliday") {
+        return dayjs(feed.createdAt).format("• MMM DD")
+      }
+
       if (monthsDifference >= 2) {
         return dayjs(feed.createdAt).format("MM/DD/YYYY h:mm A")
       }
@@ -354,6 +362,12 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
     )
   }
 
+  if (feed.contentType === "publicHoliday") {
+    const date = new Date(feed.createdAt ? feed.createdAt : "")
+    if (dateFilter && !date.toString().includes(dateFilter)) {
+      return <></>
+    }
+  }
   const renderComments = () => {
     if (!comments || comments.length === 0) {
       return null
@@ -399,9 +413,30 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
     )
   }
 
+  const renderHolidayType = () => {
+    if (feed.contentType !== "publicHoliday") {
+      return null
+    }
+    if (!feed.category) {
+      return null
+    }
+    const bgColor =
+      feed.category === "ceremony"
+        ? "bg-primary"
+        : feed.category === "birthday"
+        ? "bg-[#AC43C6]"
+        : "bg-success-foreground"
+
+    return (
+      <div className={`text-white capitalize ${bgColor} px-3 py-1 rounded-lg`}>
+        {feed.category}
+      </div>
+    )
+  }
+
   return (
     <>
-      <Card className="max-w-[56rem] mx-auto my-4 border-0 p-4">
+      <Card className="w-full mx-auto my-4 border-0 p-4">
         <CardHeader className="p-0 pb-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center">
@@ -412,13 +447,19 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
                 height={100}
                 className="w-10 h-10 rounded-full object-cover border border-primary"
               />
-              <div className="ml-3">
-                <div className="text-sm font-bold text-gray-700 mb-1">
+              <div
+                className={`ml-3 ${
+                  feed.contentType === "publicHoliday" &&
+                  "flex items-center gap-3"
+                }`}
+              >
+                <div className="text-sm font-bold text-gray-700">
                   {userDetail?.fullName ||
                     userDetail?.username ||
                     userDetail?.email}
                   {feed.contentType === "bravo" && renderRecipientUsers()}
                 </div>
+                {renderHolidayType()}
                 <div className="text-xs text-[#666] font-normal">
                   {renderCreatedDate()}{" "}
                 </div>
