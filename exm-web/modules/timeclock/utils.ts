@@ -1,4 +1,3 @@
-import { IUser } from "@erxes/ui/src/auth/types"
 import dayjs from "dayjs"
 
 import { IScheduleForm } from "./types"
@@ -61,10 +60,10 @@ export const generateParams = (queryParams: any) => {
 
 export const compareStartAndEndTime = (
   scheduleDates: IScheduleForm,
-  day_key,
-  newShiftStart?,
-  newShiftEnd?,
-  shiftDate?
+  day_key: any,
+  newShiftStart?: Date,
+  newShiftEnd?: Date,
+  shiftDate?: Date
 ) => {
   const currShift = scheduleDates[day_key]
   const currShiftDate = shiftDate
@@ -73,7 +72,7 @@ export const compareStartAndEndTime = (
     ? currShift.shiftDate
       ? currShift.shiftDate.toLocaleDateString()
       : currShift.shiftStart?.toLocaleDateString()
-    : newShiftStart.toLocaleDateString()
+    : newShiftStart?.toLocaleDateString()
 
   const currShiftEnd = newShiftEnd ? newShiftEnd : currShift.shiftEnd
   const currShiftStart = newShiftStart ? newShiftStart : currShift.shiftStart
@@ -106,9 +105,9 @@ export const compareStartAndEndTime = (
 }
 
 export const compareStartAndEndTimeOfSingleDate = (
-  newShiftStart?,
-  newShiftEnd?,
-  shiftDate?
+  newShiftStart?: Date,
+  newShiftEnd?: Date,
+  shiftDate?: Date
 ) => {
   let overnightShift = false
   let correctShiftEnd

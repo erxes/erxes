@@ -25,7 +25,7 @@ const FormImages = ({
   }
 
   return (
-    <div className="w-[462px] h-[462px] flex flex-wrap overflow-hidden relative">
+    <div className="w-full h-[462px] flex flex-wrap overflow-hidden relative">
       {images.map((image, index) => {
         const length = images.length
         let width
@@ -36,11 +36,11 @@ const FormImages = ({
           if (index === 2) {
             width = "w-full"
           } else {
-            width = "w-[227px]"
+            width = "w-[307px]"
           }
         }
         if (length === 4 || length > 4) {
-          width = "w-[227px]"
+          width = "w-[307px]"
         }
 
         if (index > 3) {
@@ -48,10 +48,15 @@ const FormImages = ({
         }
         return (
           <div
-            className={` relative ${width} ${
+            className={`relative ${width} ${
               length !== 1 ? "h-[227px]" : "h-full"
             } ${
-              length !== 1 && length !== 2 && index % 2 === 0 && "mr-2"
+              (length !== 1 &&
+                length !== 2 &&
+                length !== 3 &&
+                index % 2 === 0 &&
+                "mr-2") ||
+              (length === 3 && index === 0 && "mr-2")
             } mb-2`}
             key={index}
           >
@@ -62,9 +67,7 @@ const FormImages = ({
               height={500}
               className={`overflow-hidden rounded-lg object-cover ${width} ${
                 length !== 1 ? "h-[227px]" : "h-full"
-              } ${
-                length !== 1 && length !== 2 && index % 2 === 0 && "mr-2"
-              } mb-2`}
+              }`}
             />
             <XCircle
               size={18}
@@ -75,7 +78,7 @@ const FormImages = ({
         )
       })}
       {images.length > 4 && (
-        <div className="text-white bg-black/50 w-[227px] h-[227px] absolute bottom-0 right-0 rounded-lg flex items-center justify-center text-[30px]">
+        <div className="text-white bg-black/50 w-[307px] h-[227px] absolute bottom-0 right-0 rounded-lg flex items-center justify-center text-[30px]">
           + {images.length - 4}
         </div>
       )}

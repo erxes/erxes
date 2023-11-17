@@ -116,7 +116,7 @@ export const FilePreview = ({
         <>
           <Dialog>
             <DialogTrigger asChild={true}>
-              <div className="w-full h-[462px] flex flex-wrap overflow-hidden relative">
+              <div className="w-full h-[462px] flex flex-wrap overflow-hidden relative gap-2">
                 {attachments.map((image, index) => {
                   const length = attachments.length
                   let width
@@ -127,11 +127,11 @@ export const FilePreview = ({
                     if (index === 2) {
                       width = "w-full"
                     } else {
-                      width = "w-[428px]"
+                      width = "flex-1 w-1/2"
                     }
                   }
                   if (length === 4 || length > 4) {
-                    width = "w-[428px]"
+                    width = "w-[calc(50%-4px)]"
                   }
 
                   if (index > 3) {
@@ -147,21 +147,14 @@ export const FilePreview = ({
                       height={500}
                       className={`overflow-hidden rounded-lg object-cover cursor-pointer ${width} ${
                         length !== 1 ? "h-[227px]" : "h-full"
-                      } ${
-                        (length !== 1 &&
-                          length !== 2 &&
-                          length !== 3 &&
-                          index % 2 === 0 &&
-                          "mr-2") ||
-                        (length === 3 && index === 0 && "mr-2")
-                      } mb-2`}
+                      }`}
                       onClick={() => setGridImageIndex(index)}
                     />
                   )
                 })}
                 {attachments.length > 4 && (
                   <div
-                    className="text-white bg-black/50 w-[428px] h-[227px] absolute bottom-0 right-0 rounded-lg flex items-center justify-center text-[30px] cursor-pointer"
+                    className="text-white bg-black/50 w-[calc(50%-4px)] h-[227px] absolute bottom-0 right-0 rounded-lg flex items-center justify-center text-[30px] cursor-pointer"
                     onClick={() => setGridImageIndex(3)}
                   >
                     + {attachments.length - 4}

@@ -4,7 +4,6 @@
 import { useEffect } from "react"
 import { usePathname, useRouter } from "next/navigation"
 import { useAtomValue } from "jotai"
-import { Loader2 } from "lucide-react"
 
 import { currentUserAtom } from "../JotaiProiveder"
 

@@ -100,6 +100,17 @@ export const sendProductsMessage = async (
   });
 };
 
+export const sendFormsMessage = async (
+  args: ISendMessageArgs
+): Promise<any> => {
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName: 'forms',
+    ...args
+  });
+};
+
 export const sendPosMessage = async (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
     client,

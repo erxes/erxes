@@ -48,9 +48,9 @@ const Timeclocks = () => {
   return (
     <div>
       <Tabs defaultValue={tab || "timeclock"}>
-        <TabsList className="border-b border-[#eee]">
+        <TabsList className="border-b border-[#eee] bg-white">
           <div className="flex justify-between">
-            <div className="w-[50%] items-center flex mr-auto h-[2.5rem] my-3 ml-[35px]">
+            <div className="w-[60%] items-center flex mr-auto h-[2.5rem] my-3 ml-[25px]">
               <TabsTrigger
                 onClick={() => handleTabClick("timeclock")}
                 className={style}

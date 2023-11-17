@@ -11,6 +11,14 @@ import Alert from '@erxes/ui/src/utils/Alert';
 import { queries, mutations } from '../graphql';
 import ListComponent from '../components/List';
 
+export const generateParams = queryParams => {
+  return {
+    status: queryParams.status,
+    diffType: queryParams.diffType,
+    productCategoryIds: queryParams.productCategoryIds
+  };
+};
+
 function ListContainer() {
   // Hooks
   const location = useLocation();
@@ -25,25 +33,23 @@ function ListContainer() {
     notifyOnNetworkStatusChange: true,
     variables: { _id: id }
   });
+
   const safeRemainderItemsQuery = useQuery(gql(queries.safeRemainderItems), {
     fetchPolicy: 'network-only',
     variables: {
       remainderId: id,
-      status: queryParams.status,
-      diffType: queryParams.diffType,
-      productCategoryIds: queryParams.productCategoryIds,
+      ...generateParams(queryParams),
       ...router.generatePaginationParams(queryParams || {})
     }
   });
+
   const safeRemainderItemsCountQuery = useQuery(
     gql(queries.safeRemainderItemsCount),
     {
       fetchPolicy: 'network-only',
       variables: {
         remainderId: id,
-        status: queryParams.status,
-        diffType: queryParams.diffType,
-        productCategoryIds: queryParams.productCategoryIds
+        ...generateParams(queryParams)
       }
     }
   );

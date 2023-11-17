@@ -71,7 +71,7 @@ export interface IContract {
   undueCalcType: string;
   leaseType: string;
   commitmentInterest: number;
-
+  storedInterest: number;
   contractType?: IContractTypeDoc;
   weekends: number[];
   useHoliday: boolean;
@@ -114,6 +114,24 @@ export interface ISchedule {
   transactionIds?: string[];
   isDefault: boolean;
   customers?: any;
+}
+
+export interface IInvoice {
+  _id: string;
+  contractId: string;
+  version: string;
+  createdAt: Date;
+  status: string;
+  payDate: Date;
+
+  balance: number;
+  undue?: number;
+  interestEve?: number;
+  interestNonce?: number;
+  payment?: number;
+  insurance?: number;
+  debt?: number;
+  total: number;
 }
 
 export interface ICloseInfo {

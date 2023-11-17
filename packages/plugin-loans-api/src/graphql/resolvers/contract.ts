@@ -1,6 +1,9 @@
 import { IContext } from '../../connectionResolver';
 import { sendCoreMessage, sendMessageBroker } from '../../messageBroker';
-import { SCHEDULE_STATUS } from '../../models/definitions/constants';
+import {
+  LEASE_TYPES,
+  SCHEDULE_STATUS
+} from '../../models/definitions/constants';
 import { IContractDocument } from '../../models/definitions/contracts';
 import { IContract } from '../../models/definitions/contracts';
 import { getCalcedAmounts } from '../../models/utils/transactionUtils';
@@ -229,6 +232,17 @@ const Contracts = {
   ) {
     const today = getFullDate(new Date());
 
+    if (
+      contract.leaseType === LEASE_TYPES.LINEAR ||
+      contract.leaseType === LEASE_TYPES.CREDIT
+    ) {
+      const prevSchedule = await models.Schedules.findOne({
+        contractId: contract._id,
+        payDate: { $lte: today }
+      }).sort({ payDate: -1 });
+      return prevSchedule?.balance || 0;
+    }
+
     const prevSchedule = await models.Schedules.findOne({
       contractId: contract._id,
       payDate: { $lte: today },
@@ -307,6 +321,7 @@ const Contracts = {
 
     return transactions;
   },
+
   async storeInterest(contract: IContractDocument, {}, { models }: IContext) {
     const transactions = await models.Transactions.find({
       contractId: contract._id
@@ -315,6 +330,15 @@ const Contracts = {
       .lean();
 
     return transactions;
+  },
+  async invoices(contract: IContractDocument, {}, { models }: IContext) {
+    const invoices = await models.Invoices.find({
+      contractId: contract._id
+    })
+      .sort({ createdAt: -1 })
+      .lean();
+
+    return invoices;
   }
 };
 
