@@ -1,25 +1,27 @@
-import { CalendarIcon, Plus, X } from "lucide-react"
+import React, { useEffect, useState } from "react"
+import { currentUserAtom } from "@/modules/JotaiProiveder"
+import { useScheduleMutation } from "@/modules/timeclock/hooks/useScheduleMutation"
 import {
   IScheduleConfig,
   IScheduleConfigOrder,
 } from "@/modules/timeclock/types"
+import { isSameDay } from "date-fns"
+import dayjs from "dayjs"
+import { useAtomValue } from "jotai"
+import { CalendarIcon, Plus, X } from "lucide-react"
+import Select from "react-select"
+
+import { Button } from "@/components/ui/button"
+import { Calendar } from "@/components/ui/calendar"
+import { DatePicker } from "@/components/ui/date-picker"
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
-import React, { useEffect, useState } from "react"
+import { ScrollArea } from "@/components/ui/scroll-area"
 
-import { Button } from "@/components/ui/button"
-import { Calendar } from "@/components/ui/calendar"
-import { DatePicker } from "@/components/ui/date-picker"
 import ScheduleConfigOrder from "./ScheduleConfigOrder"
-import Select from "react-select"
-import { currentUserAtom } from "@/modules/JotaiProiveder"
-import dayjs from "dayjs"
-import { isSameDay } from "date-fns"
-import { useAtomValue } from "jotai"
-import { useScheduleMutation } from "@/modules/timeclock/hooks/useScheduleMutation"
 
 type Props = {
   configsList: IScheduleConfig[]
@@ -294,7 +296,7 @@ const ScheduleRequest = ({
   }
 
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex flex-col gap-3 h-full">
       {displayTotalDaysHoursBreakMins()}
       <ScheduleConfigOrder
         scheduleConfigsOrderData={scheduleConfigsOrderData}
@@ -339,69 +341,76 @@ const ScheduleRequest = ({
           <Plus size={16} />
         </Button>
       </div>
-      <div className="flex flex-col gap-2">
-        {days?.map((day, index) => (
-          <div key={index} className="flex gap-1">
-            <DatePicker
-              date={day}
-              setDate={(selectedDay) => handleDatePicker(selectedDay!, index)}
-              className="w-2/6"
-              disabled={days}
-            />
-            <Select
-              options={renderScheduleConfigOptions()}
-              className="w-2/6"
-              onChange={(value) => handleConfigsChange(value, index)}
-              value={selectedValues[index]}
-            />
-            <input
-              type="time"
-              name="shiftStart"
-              className="appearance-none block w-1/6 text-center border border-input hover:bg-accent hover:text-accent-foreground rounded-md px-3 outline-none"
-              value={dayjs(shifts[index].shiftStart).format("HH:mm")}
-              onChange={(e) => handleInputChange(e, index)}
-            />
-            <input
-              type="time"
-              name="shiftEnd"
-              className="appearance-none block w-1/6 text-center border border-input hover:bg-accent hover:text-accent-foreground rounded-md px-3 outline-none"
-              value={dayjs(shifts[index].shiftEnd).format("HH:mm")}
-              onChange={(e) => handleInputChange(e, index)}
-            />
-            <input
-              type="number"
-              name="lunchBreakInMins"
-              min={0}
-              max={60}
-              className="[appearance:textfield] 
+
+      <ScrollArea className="max-h-[400px] overflow-y-auto">
+        <div className="flex flex-col gap-2">
+          {days?.map((day, index) => (
+            <div key={index} className="flex gap-1">
+              <DatePicker
+                date={day}
+                setDate={(selectedDay) => handleDatePicker(selectedDay!, index)}
+                className="w-2/6"
+                selectedDays={days}
+              />
+              <Select
+                options={renderScheduleConfigOptions()}
+                className="w-2/6 rounded-md"
+                onChange={(value) => handleConfigsChange(value, index)}
+                value={selectedValues[index]}
+                menuPlacement="auto"
+                menuPosition="fixed"
+                menuPortalTarget={document.body}
+                styles={{ menuPortal: (base) => ({ ...base, zIndex: 9999 }) }}
+              />
+              <input
+                type="time"
+                name="shiftStart"
+                className="appearance-none block w-1/6 text-center border border-input hover:bg-accent hover:text-accent-foreground rounded-md px-3 outline-none"
+                value={dayjs(shifts[index].shiftStart).format("HH:mm")}
+                onChange={(e) => handleInputChange(e, index)}
+              />
+              <input
+                type="time"
+                name="shiftEnd"
+                className="appearance-none block w-1/6 text-center border border-input hover:bg-accent hover:text-accent-foreground rounded-md px-3 outline-none"
+                value={dayjs(shifts[index].shiftEnd).format("HH:mm")}
+                onChange={(e) => handleInputChange(e, index)}
+              />
+              <input
+                type="number"
+                name="lunchBreakInMins"
+                min={0}
+                max={60}
+                className="[appearance:textfield] 
                 [&::-webkit-outer-spin-button]:appearance-none 
                 [&::-webkit-inner-spin-button]:appearance-none 
                 text-center border border-input 
                 hover:bg-accent 
                 hover:text-accent-foreground rounded-md px-3 outline-none"
-              value={shifts[index].lunchBreakInMins}
-              onChange={(e) => handleInputChange(e, index)}
-            />
-            <Button
-              onClick={() => {
-                const newDays = [...days]
-                newDays.splice(index, 1)
-                setDays(newDays)
+                value={shifts[index].lunchBreakInMins}
+                onChange={(e) => handleInputChange(e, index)}
+              />
+              <Button
+                onClick={() => {
+                  const newDays = [...days]
+                  newDays.splice(index, 1)
+                  setDays(newDays)
 
-                const newValues = [...selectedValues]
-                newValues.splice(index, 1)
-                setSelectedValues(newValues)
+                  const newValues = [...selectedValues]
+                  newValues.splice(index, 1)
+                  setSelectedValues(newValues)
 
-                const newShift = [...shifts]
-                newShift.splice(index, 1)
-                setShifts(newShift)
-              }}
-            >
-              <X size={16} />
-            </Button>
-          </div>
-        ))}
-      </div>
+                  const newShift = [...shifts]
+                  newShift.splice(index, 1)
+                  setShifts(newShift)
+                }}
+              >
+                <X size={16} />
+              </Button>
+            </div>
+          ))}
+        </div>
+      </ScrollArea>
       <Button onClick={onSubmitClick} disabled={loading || shifts.length === 0}>
         Submit
       </Button>

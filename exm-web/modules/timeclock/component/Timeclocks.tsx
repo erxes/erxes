@@ -1,7 +1,8 @@
 "use client"
 
+import { useState } from "react"
 import dynamic from "next/dynamic"
-import { useSearchParams } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { currentUserAtom } from "@/modules/JotaiProiveder"
 import RightNavbar from "@/modules/navbar/component/RightNavbar"
 import { useAtomValue } from "jotai"
@@ -24,6 +25,7 @@ const Timeclocks = () => {
   localStorage.getItem("exm_env_REACT_APP_DOMAIN")
   const currentUser = useAtomValue(currentUserAtom)
   const searchParams = useSearchParams()
+  const router = useRouter()
   const params = Object.fromEntries(searchParams)
 
   const queryParams = {
@@ -34,38 +36,56 @@ const Timeclocks = () => {
     endDate: startOfNextMonth,
   }
 
+  const tab = searchParams.get("tab")
+
+  const handleTabClick = (tabType: string) => {
+    router.push(`/timeclocks?tab=${tabType}&page=1`)
+  }
+
   const style =
     "text-[#A1A1A1] data-[state=active]:text-primary data-[state=active]:border-[#5629B6] data-[state=active]:border-b-2 h-16 hover:font-medium hover:text-[#A1A1A1]"
 
   return (
     <div>
-      <Tabs defaultValue="timeclock">
-        <TabsList className="w-full items-center flex p-2 h-[6vh]">
-          <div className="w-[60%] items-center flex mx-auto h-[2.5rem] my-3">
-            <TabsTrigger className={style} value="timeclock">
-              TimeClocks
-            </TabsTrigger>
-            <TabsTrigger className={style} value="requests">
-              Requests
-            </TabsTrigger>
-            <TabsTrigger className={style} value="schedule">
-              Schedule
-            </TabsTrigger>
+      <Tabs defaultValue={tab || "timeclock"}>
+        <TabsList className="border-b border-[#eee]">
+          <div className="flex justify-between">
+            <div className="w-[50%] items-center flex mr-auto h-[2.5rem] my-3 ml-[35px]">
+              <TabsTrigger
+                onClick={() => handleTabClick("timeclock")}
+                className={style}
+                value={"timeclock"}
+              >
+                TimeClocks
+              </TabsTrigger>
+              <TabsTrigger
+                onClick={() => handleTabClick("requests")}
+                className={style}
+                value={"requests"}
+              >
+                Requests
+              </TabsTrigger>
+              <TabsTrigger
+                onClick={() => handleTabClick("schedule")}
+                className={style}
+                value={"schedule"}
+              >
+                Schedule
+              </TabsTrigger>
+            </div>
+            <RightNavbar />
           </div>
-          <RightNavbar />
         </TabsList>
 
-        <div className="flex flex-col px-10 py-5 gap-5 ">
-          <TabsContent className="w-full" value="timeclock">
-            <TimeClockList queryParams={queryParams} />
-          </TabsContent>
-          <TabsContent className="w-full" value="requests">
-            <Absences queryParams={queryParams} />
-          </TabsContent>
-          <TabsContent className="w-full" value="schedule">
-            <Schedule queryParams={queryParams} />
-          </TabsContent>
-        </div>
+        <TabsContent className="w-full" value={"timeclock"}>
+          <TimeClockList queryParams={queryParams} />
+        </TabsContent>
+        <TabsContent className="w-full" value={"requests"}>
+          <Absences queryParams={queryParams} />
+        </TabsContent>
+        <TabsContent className="w-full" value={"schedule"}>
+          <Schedule queryParams={queryParams} />
+        </TabsContent>
       </Tabs>
     </div>
   )

@@ -17,11 +17,13 @@ export function DatePicker({
   date,
   setDate,
   disabled,
+  selectedDays,
   className,
   ...props
 }: CalendarProps & {
   date?: Date
   setDate: (date: Date | undefined) => void
+  selectedDays?: Date[]
 }) {
   return (
     <Popover>
@@ -33,7 +35,7 @@ export function DatePicker({
             !date && "text-muted-foreground",
             className
           )}
-          disabled={typeof disabled === "boolean" ? true : false}
+          disabled={!!disabled}
         >
           <CalendarIcon className="mr-2 h-4 w-4" />
           {date ? (
@@ -46,7 +48,7 @@ export function DatePicker({
       <PopoverContent className="w-auto p-0">
         <Calendar
           {...props}
-          disabled={disabled}
+          disabled={selectedDays}
           mode="single"
           selected={date}
           onSelect={(e) => setDate(e)}

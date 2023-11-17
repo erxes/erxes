@@ -32,7 +32,7 @@ const TimeclockEdit = ({ timeclock }: Props) => {
     dayjs(timeclock.shiftStart).format("HH:mm")
   )
   const [shiftStartInsert, setShiftStartInsert] = useState<Date | undefined>(
-    timeclock.shiftStart
+    new Date(timeclock.shiftStart)
   )
 
   const [inDevice, setInDevice] = useState(null)
@@ -40,10 +40,10 @@ const TimeclockEdit = ({ timeclock }: Props) => {
 
   const [shiftEnd, setShiftEnd] = useState(timeclock.shiftEnd)
   const [timeEnd, setTimeEnd] = useState(
-    dayjs(timeclock.shiftEnd).format("HH:mm")
+    dayjs(timeclock.shiftEnd || timeclock.shiftStart).format("HH:mm")
   )
   const [shiftEndInsert, setShiftEndInsert] = useState<Date | undefined>(
-    timeclock.shiftEnd || timeclock.shiftStart
+    new Date(timeclock.shiftEnd || timeclock.shiftStart)
   )
 
   const [backToStart, setBackToStart] = useState(false)
@@ -59,6 +59,15 @@ const TimeclockEdit = ({ timeclock }: Props) => {
     startDate: dayjs(timeclock.shiftStart).format("MM/DD/YYYY"),
     endDate: dayjs(timeclock.shiftEnd).format("MM/DD/YYYY"),
   })
+
+  const timeStartPart = timeStart.split(":")
+  const timeEndPart = timeEnd.split(":")
+
+  shiftStartInsert?.setHours(Number(timeStartPart[0]))
+  shiftStartInsert?.setMinutes(Number(timeStartPart[1]))
+
+  shiftEndInsert?.setHours(Number(timeEndPart[0]))
+  shiftEndInsert?.setMinutes(Number(timeEndPart[1]))
 
   const callBack = (result: string) => {
     if (result === "success") {

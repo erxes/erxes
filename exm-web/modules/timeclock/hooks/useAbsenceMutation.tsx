@@ -55,6 +55,7 @@ export const useAbsenceMutation = ({
       },
     })
       .then((res) => {
+        callBack("success")
         toast({ description: `Successfully sent ${checkType} request` })
       })
       .catch((error) => {

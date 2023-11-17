@@ -16,13 +16,14 @@ const PerPageChooser = (props: Props) => {
   const router = useRouter()
   const searchParams = useSearchParams()
   const currentPerPage = Number(searchParams.get("perPage")) || 10
+  const currentParams = Object.fromEntries(searchParams)
 
   const onClick = (perPage: number) => {
     if (perPage !== currentPerPage) {
-      const queryParams = new URLSearchParams()
+      const queryParams = new URLSearchParams(currentParams)
 
-      queryParams.append("perPage", perPage.toString())
-      queryParams.append("page", 1)
+      queryParams.set("perPage", perPage.toString())
+      queryParams.set("page", "1")
 
       router.push(`?${queryParams.toString()}`, {
         scroll: false,
