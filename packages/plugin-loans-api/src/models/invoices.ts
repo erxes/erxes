@@ -85,6 +85,7 @@ export const loadInvoiceClass = (models: IModels) => {
         });
         calcInfo.payment = payAmount;
         calcInfo.payDate = invoiceDate;
+        calcInfo.interestEve = contract.storedInterest;
 
         calcInfo.contractId = contract._id;
         calcInfo.total =
