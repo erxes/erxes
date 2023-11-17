@@ -139,13 +139,6 @@ export const receiveRpcMessage = async (subdomain, data) => {
 
     const conversation = await Conversations.createConversation(doc);
 
-    putCreateLog(
-      await generateModels(subdomain),
-      subdomain,
-      { ...doc, type: 'conversation' },
-      user
-    );
-
     return sendSuccess({ _id: conversation._id });
   }
 

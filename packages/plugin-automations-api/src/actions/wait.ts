@@ -1,4 +1,4 @@
-import { IModels } from '../connectionResolver';
+import { IModels, generateModels } from '../connectionResolver';
 import { ACTIONS } from '../constants';
 import { getActionsMap } from '../helpers';
 import { IAction } from '../models/definitions/automaions';
@@ -66,12 +66,10 @@ export const playWait = async (models: IModels, subdomain: string) => {
   }
 };
 
-export const setActionWait = async (
-  models: IModels,
-  subdomain: string,
-  data
-) => {
+export const setActionWait = async (subdomain: string, data) => {
   const { waitActionId, checkData, execution } = data;
+
+  const models = await generateModels(subdomain);
 
   await models.Executions.createExecution({
     ...execution,
@@ -80,4 +78,5 @@ export const setActionWait = async (
     startWaitingDate: new Date(),
     checkData
   });
+  return 'success';
 };

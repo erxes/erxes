@@ -151,7 +151,7 @@ class HistoryRow extends React.Component<Props, State> {
           <td>
             <Label lblStyle={labelStyle}>{status}</Label>
           </td>
-          <td>{dayjs(createdAt).format('lll')}</td>
+          {/* <td>{dayjs(createdAt).format('lll')}</td> */}
         </tr>
         {this.renderDetail()}
       </>

@@ -121,7 +121,7 @@ const actionCreateMessage = async (
   subdomain,
   action,
   execution,
-  playWait
+  setActionWait
 ) => {
   const { target } = execution || {};
   const { config } = action || {};
@@ -165,7 +165,11 @@ const actionCreateMessage = async (
     );
 
     if (resp) {
-      // playWait(models, subdomain);
+      setActionWait(subdomain, {
+        execution,
+        checkData: {},
+        waitActionId: action._id
+      });
       return await models.ConversationMessages.addMessage(
         {
           // ...doc,

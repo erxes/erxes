@@ -17,7 +17,7 @@ import { sendCommonMessage, sendSegmentsMessage } from './messageBroker';
 import { debugBase } from '@erxes/api-utils/src/debuggers';
 import { IModels } from './connectionResolver';
 import { handleEmail } from './common/emailUtils';
-import { playWait } from './actions/wait';
+import { setActionWait } from './actions/wait';
 
 export const getEnv = ({
   name,
@@ -172,7 +172,7 @@ export const executeActions = async (
           action,
           execution,
           collectionType: type.replace('.create', ''),
-          playWait
+          setActionWait
         },
         isRPC: true
       });
