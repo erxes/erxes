@@ -36,7 +36,6 @@ export default {
       resolvers: await resolvers(sd)
     };
   },
-  hasDashboard: true,
   apolloServerContext: async (context, req) => {
     const subdomain = getSubdomain(req);
 
