@@ -19,7 +19,7 @@ var plugins = [
   { name: 'calls', ui: true, api: true },
   { name: 'cars', ui: true, api: true },
   { name: 'cards', ui: true, api: true },
-  { name: 'chats', ui: true, api: true },
+  { name: 'chats', api: true },
   { name: 'clientportal', ui: true, api: true },
   { name: 'contacts', ui: true, api: true },
   { name: 'dashboard', ui: true, api: true },
@@ -27,7 +27,7 @@ var plugins = [
   { name: 'emailtemplates', ui: true, api: true },
   { name: 'engages', ui: true, api: true },
   { name: 'exm', ui: true, api: true },
-  { name: 'exmfeed', ui: true, api: true },
+  { name: 'exmfeed', api: true },
   { name: 'forms', ui: true, api: true },
   { name: 'integrations', api: true },
   { name: 'internalnotes', api: true },
@@ -72,7 +72,7 @@ var plugins = [
   { name: 'goals', api: true, ui: true },
   { name: 'msdynamic', api: true, ui: true },
   { name: 'dailyco', api: true, ui: true },
-  { name: 'zms', api: true, ui: true },
+  { name: 'zms', api: true, ui: true }
 ];
 
 const pluginsMap = {};
