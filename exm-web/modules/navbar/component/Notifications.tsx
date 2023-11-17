@@ -82,7 +82,7 @@ const Notifications = () => {
   }
 
   const renderNotifRow = (notification: INotification) => {
-    const { details = {}, username, email } = notification.createdUser
+    const { details = {}, username = '', email } = notification.createdUser
     const { avatar, fullName } = details
 
     return (
