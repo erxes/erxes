@@ -58,7 +58,6 @@ export const join = async ({
   port,
   dbConnectionString,
   hasSubscriptions = false,
-  hasDashboard = false,
   importExportTypes,
   meta
 }: {
@@ -66,7 +65,6 @@ export const join = async ({
   port: string;
   dbConnectionString: string;
   hasSubscriptions?: boolean;
-  hasDashboard?: boolean;
   importExportTypes?: any;
   meta?: any;
 }) => {
@@ -76,7 +74,6 @@ export const join = async ({
     JSON.stringify({
       dbConnectionString,
       hasSubscriptions,
-      hasDashboard,
       importExportTypes,
       meta
     })

@@ -1,4 +1,5 @@
 module.exports = {
+  srcDir: __dirname,
   name: 'exmfeed',
   port: 3111,
   exposes: {

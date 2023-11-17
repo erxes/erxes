@@ -15,11 +15,13 @@ type Props = {
   fixSchedules?: (contractId: string) => void;
   hasTransaction?: boolean;
   currentUser: IUser;
+  leaseType?: string;
 };
 
 function ScheduleSection({
   contractId,
   isFirst,
+  leaseType,
   regenSchedules,
   fixSchedules,
   hasTransaction,
@@ -40,7 +42,7 @@ function ScheduleSection({
       });
 
   const renderExtraButton = () => {
-    if (isFirst) {
+    if (isFirst || leaseType !== 'finance') {
       return <></>;
     }
 
@@ -69,6 +71,7 @@ function ScheduleSection({
         <SchedulesList
           contractId={contractId}
           isFirst={isFirst}
+          leaseType={leaseType}
         ></SchedulesList>
       </ScrollTableColls>
     </Box>

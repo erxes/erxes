@@ -364,7 +364,7 @@ const EventItem = ({ postId }: { postId: string }): JSX.Element => {
 
   return (
     <>
-      <Card className="max-w-2xl mx-auto my-4 border-0 p-4">
+      <Card className="w-full mx-auto my-4 border-0 p-4">
         <CardContent className="p-0 flex items-start justify-between">
           <div className="flex">
             {renderImage()}

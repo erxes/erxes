@@ -33,11 +33,11 @@ export function DatePicker({
             !date && "text-muted-foreground",
             className
           )}
-          disabled={!!disabled}
+          disabled={typeof disabled === "boolean" ? true : false}
         >
           <CalendarIcon className="mr-2 h-4 w-4" />
           {date ? (
-            format(new Date(date), "yyyy-MM-dd hh:mm")
+            format(new Date(date), "yyyy-MM-dd")
           ) : (
             <span>Pick a date</span>
           )}

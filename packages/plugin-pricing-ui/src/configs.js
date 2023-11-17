@@ -1,4 +1,5 @@
 module.exports = {
+  srcDir: __dirname,
   name: "pricing",
   port: 3023,
   scope: "pricing",

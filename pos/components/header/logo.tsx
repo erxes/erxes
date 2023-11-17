@@ -39,6 +39,7 @@ const Logo = () => {
           height={24}
           width={48}
           className="object-contain h-8 w-auto min-w-[5rem]"
+          priority
         />
       </div>
     </div>

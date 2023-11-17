@@ -71,6 +71,7 @@ export const types = () => `
     collaterals: JSON
     insurancesData: JSON
     collateralsData: JSON
+    invoices: JSON
     currentSchedule: LoanCurrentSchedule
 
     weekends: [Int]
@@ -105,6 +106,8 @@ export const types = () => `
     useManualNumbering: Boolean
     useFee: Boolean
     loanPurpose: String
+    leaseType: String
+    commitmentInterest:Float
   }
 
 
@@ -228,6 +231,8 @@ const commonFields = `
   loanPurpose: String
   useManualNumbering: Boolean
   useFee: Boolean
+  leaseType: String
+  commitmentInterest: Float
 `;
 
 const interestCorrectionFields = `

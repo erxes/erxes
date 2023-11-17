@@ -212,6 +212,7 @@ const CommentForm = ({
                 .replace("share/", "embed/")}
               title="Video"
               allowFullScreen={true}
+              className="rounded-lg mt-4"
             />
           )
         })}

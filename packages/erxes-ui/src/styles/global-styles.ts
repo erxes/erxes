@@ -9,11 +9,11 @@ html {
 }
 
 body {
-  font-family: system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen,Ubuntu,Cantarell,"Fira Sans","Droid Sans","Helvetica Neue",sans-serif;
+  font-family: system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen,Ubuntu,Cantarell,"Fira Sans","Droid Sans","Helvetica Neue",sans-serif !important;
   margin: 0;
   font-size: ${typography.fontSizeBody}px !important;
   line-height: ${typography.lineHeightBody};
-  color: ${colors.textPrimary};
+  color: ${colors.textPrimary} !important;
   height: 100%;
   background: ${colors.colorWhite} !important;
   -webkit-font-smoothing: antialiased;
@@ -1246,6 +1246,82 @@ a:hover {
     font:inherit;
     color:inherit
   }
+
+  /* Tiptap */
+  .tiptap {
+    > * + * {
+      margin-top: 0.75em;
+    }
+
+    a {
+      color: #228be6;
+    }
+    
+    a:hover {
+      text-decoration: underline;
+    }
+
+    ul,
+    ol {
+      padding: 0 1rem;
+    }
+  
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+      line-height: 1.1;
+    }
+  
+    code {
+      background-color: rgba(#616161, 0.1);
+      color: #616161;
+    }
+  
+    pre {
+      background: #0D0D0D;
+      color: #FFF;
+      font-family: 'JetBrainsMono', monospace;
+      padding: 0.75rem 1rem;
+      border-radius: 0.5rem;
+  
+      code {
+        color: inherit;
+        padding: 0;
+        background: none;
+        font-size: 0.8rem;
+      }
+    }
+  
+    img {
+      max-width: 100%;
+      height: auto;
+    }
+  
+    blockquote {
+      padding-left: 1rem;
+      border-left: 2px solid rgba(#0D0D0D, 0.1);
+    }
+  
+    hr {
+      border: none;
+      border-top: 2px solid rgba(#0D0D0D, 0.1);
+      margin: 2rem 0;
+    }
+
+  }
+
+  /* PromiseMirror (actual editable section of editor) */
+  
+  .ProseMirror{
+    padding: 1rem;
+    outline: 0px;
+    height: 100%;
+    overflow-y: auto;
+  }
+ 
 `;
 
 const globalStyle = [`${style}`] as any;

@@ -1,6 +1,8 @@
+//#region  import
 import { IModels } from '../../connectionResolver';
 import {
   INVOICE_STATUS,
+  LEASE_TYPES,
   SCHEDULE_STATUS,
   UNDUE_CALC_TYPE
 } from '../definitions/constants';
@@ -25,7 +27,14 @@ import {
   getFullDate,
   getDatesDiffMonth
 } from './utils';
+//#endregion
 
+/**
+ * @param models
+ * @param contract
+ * @param trDate
+ * @returns
+ */
 export const getAOESchedules = async (
   models: IModels,
   contract,
@@ -125,7 +134,11 @@ export const getCalcedAmounts = async (
     payment: number;
     preSchedule: any;
     balance: number;
+    unUsedBalance: number;
     storedInterest: number;
+    commitmentInterest: number;
+    commitmentInterestEve: number;
+    commitmentInterestNonce: number;
     calcInterest: number;
     closeAmount: number;
   } = {
@@ -138,7 +151,11 @@ export const getCalcedAmounts = async (
     total: 0,
     preSchedule: undefined,
     balance: 0,
+    unUsedBalance: 0,
     storedInterest: 0,
+    commitmentInterest: 0,
+    commitmentInterestEve: 0,
+    commitmentInterestNonce: 0,
     calcInterest: 0,
     closeAmount: 0
   };
@@ -196,9 +213,11 @@ export const getCalcedAmounts = async (
   result.preSchedule = preSchedule;
 
   result.balance = preSchedule.balance;
+  result.unUsedBalance = contract.leaseAmount - preSchedule.balance;
 
   // closed contract
   if (!nextSchedule) {
+    console.log('221');
     const unduePercent = await getUnduePercent(
       models,
       subdomain,
@@ -237,6 +256,30 @@ export const getCalcedAmounts = async (
           interestRate: contract.interestRate,
           dayOfMonth: diffNonce
         });
+
+      //commitment interest calculation
+      if (
+        contract.leaseType === LEASE_TYPES.LINEAR &&
+        contract.commitmentInterest > 0
+      ) {
+        result.commitmentInterestEve =
+          (preSchedule.interestEve || 0) -
+          (preSchedule.didInterestEve || 0) +
+          calcInterest({
+            balance: result.unUsedBalance,
+            interestRate: contract.commitmentInterest,
+            dayOfMonth: diffEve
+          });
+
+        result.commitmentInterestNonce =
+          (preSchedule.interestNonce || 0) -
+          (preSchedule.didInterestNonce || 0) +
+          calcInterest({
+            balance: result.unUsedBalance,
+            interestRate: contract.commitmentInterest,
+            dayOfMonth: diffNonce
+          });
+      }
     }
 
     result.insurance = preSchedule.insurance;
@@ -339,6 +382,29 @@ export const getCalcedAmounts = async (
         interestRate: contract.interestRate,
         dayOfMonth: diffNonce
       });
+
+      //commitment interest calculation
+      if (
+        contract.leaseType === LEASE_TYPES.LINEAR &&
+        contract.commitmentInterest > 0
+      ) {
+        result.commitmentInterestEve =
+          (preSchedule.interestEve || 0) -
+          (preSchedule.didInterestEve || 0) +
+          calcInterest({
+            balance: result.unUsedBalance,
+            interestRate: contract.commitmentInterest,
+            dayOfMonth: diffEve
+          });
+        result.commitmentInterestNonce =
+          (preSchedule.interestNonce || 0) -
+          (preSchedule.didInterestNonce || 0) +
+          calcInterest({
+            balance: result.unUsedBalance,
+            interestRate: contract.commitmentInterest,
+            dayOfMonth: diffNonce
+          });
+      }
     }
 
     if (preSchedule.status === SCHEDULE_STATUS.LESS) {
@@ -438,6 +504,29 @@ export const getCalcedAmounts = async (
       interestRate: contract.interestRate,
       dayOfMonth: diffNonce
     });
+
+    //commitment interest calculation
+    if (
+      contract.leaseType === LEASE_TYPES.LINEAR &&
+      contract.commitmentInterest > 0
+    ) {
+      result.commitmentInterestEve =
+        (preSchedule.interestEve || 0) -
+        (preSchedule.didInterestEve || 0) +
+        calcInterest({
+          balance: result.unUsedBalance,
+          interestRate: contract.commitmentInterest,
+          dayOfMonth: diffEve
+        });
+      result.commitmentInterestNonce =
+        (preSchedule.interestNonce || 0) -
+        (preSchedule.didInterestNonce || 0) +
+        calcInterest({
+          balance: result.unUsedBalance,
+          interestRate: contract.commitmentInterest,
+          dayOfMonth: diffNonce
+        });
+    }
   }
 
   result.insurance = nextSchedule.insurance;
@@ -464,6 +553,14 @@ export const getCalcedAmounts = async (
   return result;
 };
 
+/**
+ * get payment information
+ * @param models
+ * @param subdomain
+ * @param doc
+ * @param result
+ * @returns
+ */
 export const transactionRule = async (
   models: IModels,
   subdomain: string,
@@ -479,6 +576,7 @@ export const transactionRule = async (
     storedInterest: number;
     calcInterest: number;
     calcedInfo: any;
+    commitmentInterest: number;
   }
 ) => {
   result = {
@@ -491,7 +589,8 @@ export const transactionRule = async (
     surplus: 0,
     storedInterest: 0,
     calcInterest: 0,
-    calcedInfo: undefined
+    calcedInfo: undefined,
+    commitmentInterest: 0
   };
 
   if (!doc.contractId) {
@@ -510,10 +609,17 @@ export const transactionRule = async (
     interestNonce = 0,
     insurance = 0,
     debt = 0,
-    preSchedule
+    preSchedule,
+    commitmentInterest
   } = result.calcedInfo;
   result.calcedInfo.total =
-    payment + undue + interestEve + interestNonce + insurance + debt;
+    payment +
+    undue +
+    interestEve +
+    interestNonce +
+    insurance +
+    debt +
+    commitmentInterest;
 
   delete result.calcedInfo.preSchedule;
 
@@ -533,6 +639,13 @@ export const transactionRule = async (
 
   result.undue = undue;
   mainAmount = mainAmount - undue;
+  if (commitmentInterest > mainAmount) {
+    result.commitmentInterest = mainAmount;
+    return result;
+  }
+
+  result.commitmentInterest = commitmentInterest;
+  mainAmount = mainAmount - commitmentInterest;
   if (interestEve > mainAmount) {
     result.interestEve = mainAmount;
     return result;
@@ -571,6 +684,7 @@ export const transactionRule = async (
 
   return result;
 };
+
 /**
  * when transaction done
  * then schedule must be modified by paid amount
@@ -675,6 +789,13 @@ export const trAfterSchedule = async (
   return;
 };
 
+/**
+ * transaction remove action
+ * @param models
+ * @param tr
+ * @param noDeleteSchIds
+ * @returns
+ */
 export const removeTrAfterSchedule = async (
   models: IModels,
   tr: ITransactionDocument,
