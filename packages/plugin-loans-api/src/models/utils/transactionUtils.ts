@@ -48,7 +48,10 @@ export const getAOESchedules = async (
     contractId: contract._id,
     payDate: { $lt: trDate },
     status: {
-      $in: [SCHEDULE_STATUS.DONE, SCHEDULE_STATUS.LESS, SCHEDULE_STATUS.PRE]
+      $in:
+        contract.leaseType === LEASE_TYPES.LINEAR
+          ? [SCHEDULE_STATUS.PENDING]
+          : [SCHEDULE_STATUS.DONE, SCHEDULE_STATUS.LESS, SCHEDULE_STATUS.PRE]
     }
   })
     .sort({ payDate: -1 })
@@ -279,6 +282,8 @@ export const getCalcedAmounts = async (
             interestRate: contract.commitmentInterest,
             dayOfMonth: diffNonce
           });
+        result.commitmentInterest =
+          result.commitmentInterestEve + result.commitmentInterestNonce;
       }
     }
 
@@ -404,6 +409,8 @@ export const getCalcedAmounts = async (
             interestRate: contract.commitmentInterest,
             dayOfMonth: diffNonce
           });
+        result.commitmentInterest =
+          result.commitmentInterestEve + result.commitmentInterestNonce;
       }
     }
 
@@ -526,6 +533,8 @@ export const getCalcedAmounts = async (
           interestRate: contract.commitmentInterest,
           dayOfMonth: diffNonce
         });
+      result.commitmentInterest =
+        result.commitmentInterestEve + result.commitmentInterestNonce;
     }
   }
 
