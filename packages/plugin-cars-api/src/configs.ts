@@ -6,6 +6,7 @@ import { getSubdomain } from '@erxes/api-utils/src/core';
 import * as permissions from './permissions';
 import forms from './forms';
 import segments from './segments';
+import tags from './tags';
 
 export let debug;
 export let graphqlPubsub;
@@ -41,5 +42,5 @@ export default {
     debug = options.debug;
     graphqlPubsub = options.pubsubClient;
   },
-  meta: { forms, segments }
+  meta: { forms, tags, segments }
 };

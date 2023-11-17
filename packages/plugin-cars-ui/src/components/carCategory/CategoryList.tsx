@@ -16,6 +16,7 @@ import { Link } from 'react-router-dom';
 
 import CategoryForm from '../../containers/carCategory/CategoryForm';
 import SegmentFilter from '../../containers/SegmentFilter';
+import TagFilter from '../../containers/TagFilter';
 import { ActionButtons, SidebarListItem } from '../../styles';
 import { ICarCategory } from '../../types';
 
@@ -184,6 +185,10 @@ class List extends React.Component<IProps> {
 
         {isEnabled('segments') && (
           <SegmentFilter loadingMainQuery={this.props.loading} />
+        )}
+
+        {isEnabled('tags') && (
+          <TagFilter loadingMainQuery={this.props.loading} />
         )}
       </Sidebar>
     );

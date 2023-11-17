@@ -2,7 +2,11 @@ import { fetchEs } from '@erxes/api-utils/src/elasticsearch';
 import { generateFieldsFromSchema } from '@erxes/api-utils/src';
 import * as _ from 'underscore';
 import { generateModels, IModels } from './connectionResolver';
-import { fetchSegment, sendSegmentsMessage } from './messageBroker';
+import {
+  fetchSegment,
+  sendSegmentsMessage,
+  sendTagsMessage
+} from './messageBroker';
 import { debug } from './configs';
 
 export interface ICountBy {
@@ -276,6 +280,26 @@ export class Builder {
     if (this.context.commonQuerySelectorElk) {
       this.positiveList.push(this.context.commonQuerySelectorElk);
     }
+  }
+
+  public async tagFilter(tagId: string, withRelated?: boolean) {
+    let tagIds: string[] = [tagId];
+
+    if (withRelated) {
+      const tag = await sendTagsMessage({
+        subdomain: this.subdomain,
+        action: 'find',
+        data: { _id: tagId }
+      });
+
+      tagIds = [tagId, ...(tag?.relatedIds || [])];
+    }
+
+    this.positiveList.push({
+      terms: {
+        tagIds
+      }
+    });
   }
 
   // filter by segment

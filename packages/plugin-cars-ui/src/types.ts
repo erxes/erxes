@@ -179,3 +179,8 @@ export type CountQueryResponse = {
   loading: boolean;
   refetch: () => void;
 };
+
+export type CountByTagsQueryResponse = {
+  carCountByTags: { [key: string]: number };
+  loading: boolean;
+};

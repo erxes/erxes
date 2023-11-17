@@ -3,8 +3,8 @@ import {
   checkPermission,
   requireLogin
 } from '@erxes/api-utils/src/permissions';
-import { IContext, IModels } from '../../../connectionResolver';
-import { sendCoreMessage } from '../../../messageBroker';
+import { IContext } from '../../../connectionResolver';
+import { sendCoreMessage, sendTagsMessage } from '../../../messageBroker';
 import { Builder, countBySegment } from '../../../utils';
 
 const generateFilter = async (
@@ -13,7 +13,7 @@ const generateFilter = async (
   commonQuerySelector,
   models
 ) => {
-  const { segment, segmentData } = params;
+  const { tag, segment, segmentData } = params;
 
   const filter: any = commonQuerySelector;
 
@@ -69,6 +69,10 @@ const generateFilter = async (
         defaultValue: []
       })
     };
+  }
+
+  if (tag) {
+    filter.tagIds = { $in: [tag] };
   }
 
   if (segment || segmentData) {
@@ -184,6 +188,30 @@ const carQueries = {
       case 'bySegment':
         counts.bySegment = await countBySegment(subdomain, 'cars:car', qb);
         break;
+    }
+
+    return counts;
+  },
+
+  async carCountByTags(_root, _params, { models, subdomain }: IContext) {
+    const counts = {};
+
+    // Count products by tag =========
+    const tags = await sendTagsMessage({
+      subdomain,
+      action: 'find',
+      data: {
+        type: 'cars:car'
+      },
+      isRPC: true,
+      defaultValue: []
+    });
+
+    for (const tag of tags) {
+      counts[tag._id] = await models.Cars.find({
+        tagIds: tag._id,
+        status: { $ne: 'Deleted' }
+      }).countDocuments();
     }
 
     return counts;
