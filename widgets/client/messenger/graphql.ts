@@ -21,15 +21,6 @@ const messageFields = `
   fromBot
   contentType
 
-  ${
-    connection.enabledServices.dailyco
-      ? `  videoCallData {
-    url
-    status
-  }`
-      : ''
-  }
-
   engageData {
     content
     kind
@@ -58,12 +49,21 @@ const userFields = `
   isOnline
 `;
 
-const conversationDetailQuery = `
+const conversationDetailQuery = (isDailycoEnabled: boolean) => `
   query ($_id: String, $integrationId: String!) {
     widgetsConversationDetail(_id: $_id, integrationId: $integrationId) {
       _id
       messages {
         ${messageFields}
+        ${
+          isDailycoEnabled
+            ? `
+        videoCallData {
+          url
+          status
+        }`
+            : ''
+        }
       }
 
       operatorStatus
@@ -95,10 +95,19 @@ const widgetExportMessengerDataQuery = `
   }
 `;
 
-const conversationMessageInserted = `
+const conversationMessageInserted = (isDailycoEnabled: boolean) => `
   subscription conversationMessageInserted($_id: String!) {
     conversationMessageInserted(_id: $_id) {
       ${messageFields}
+      ${
+        isDailycoEnabled
+          ? `
+      videoCallData {
+        url
+        status
+      }`
+          : ''
+      }
     }
   }
 `;

@@ -116,22 +116,6 @@ export async function startPlugin(configs: any): Promise<express.Express> {
     });
   }
 
-  if (configs.hasDashboard) {
-    if (configs.hasDashboard) {
-      app.get('/dashboard', async (req, res) => {
-        const headers = req.rawHeaders;
-
-        const index = headers.indexOf('schemaName') + 1;
-
-        const schemaName = headers[index];
-
-        res.sendFile(
-          path.join(__dirname, `../../src/dashboardSchemas/${schemaName}.js`)
-        );
-      });
-    }
-  }
-
   app.use((req: any, _res, next) => {
     req.rawBody = '';
 
@@ -694,7 +678,6 @@ export async function startPlugin(configs: any): Promise<express.Express> {
     port: PORT || '',
     dbConnectionString: mongoUrl,
     hasSubscriptions: configs.hasSubscriptions,
-    hasDashboard: configs.hasDashboard,
     importExportTypes: configs.importExportTypes,
     meta: configs.meta
   });

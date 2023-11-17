@@ -22,7 +22,6 @@ var plugins = [
   { name: 'chats', ui: true, api: true },
   { name: 'clientportal', ui: true, api: true },
   { name: 'contacts', ui: true, api: true },
-  { name: 'dashboard', ui: true, api: true },
   { name: 'ebarimt', ui: true, api: true },
   { name: 'emailtemplates', ui: true, api: true },
   { name: 'engages', ui: true, api: true },
@@ -72,6 +71,7 @@ var plugins = [
   { name: 'goals', api: true, ui: true },
   { name: 'msdynamic', api: true, ui: true },
   { name: 'dailyco', api: true, ui: true },
+  { name: 'zms', api: true, ui: true },
 ];
 
 const pluginsMap = {};

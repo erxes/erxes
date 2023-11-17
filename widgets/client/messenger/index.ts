@@ -27,7 +27,7 @@ widgetConnect({
       fetchPolicy: "network-only"
     }).then((res: any) => {
       if (res.data.enabledServices) {
-        const { enabledServices } = res.data as EnabledServices;
+        const { enabledServices } = res.data;
         connection.enabledServices = enabledServices;
       }
     });

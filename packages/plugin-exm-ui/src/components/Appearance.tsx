@@ -1,41 +1,46 @@
-import Button from '@erxes/ui/src/components/Button';
-import { FormControl } from '@erxes/ui/src/components/form';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import Uploader from '@erxes/ui/src/components/Uploader';
-import { __ } from '@erxes/ui/src/utils';
-import React, { useState } from 'react';
 import {
-  GeneralWrapper,
-  Colors,
-  Logos,
   AppearanceWrapper,
-  TeamPortal,
+  Colors,
   FeatureRow,
-  FeatureRowItem
+  FeatureRowItem,
+  GeneralWrapper,
+  Logos,
+  TeamPortal
 } from '../styles';
-import TwitterPicker from 'react-color/lib/Twitter';
 import { ColorPick, ColorPicker } from '../styles';
-import Popover from 'react-bootstrap/Popover';
-import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import React, { useState } from 'react';
+
+import Button from '@erxes/ui/src/components/Button';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import { FormControl } from '@erxes/ui/src/components/form';
+import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { IExm } from '../types';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import Popover from 'react-bootstrap/Popover';
+import TwitterPicker from 'react-color/lib/Twitter';
+import Uploader from '@erxes/ui/src/components/Uploader';
+import VisionStructureForm from './VisionStructureForm';
+import { __ } from '@erxes/ui/src/utils';
 
 type Props = {
-  exm?: IExm;
-  actionMutation: (variables: IExm, id?: string) => void;
+  exm: IExm;
+  edit: (variables: IExm) => void;
+  renderButton?: (props: IButtonMutateProps) => JSX.Element;
 };
 
 export default function Appearance(props: Props) {
-  const { exm, actionMutation } = props;
+  const { exm, edit, renderButton } = props;
 
-  const exmLogo = exm?.logo;
-  const exmFavicon = exm?.favicon;
-  const exmAppearance = exm?.appearance;
+  const exmLogo = exm.logo;
+  const exmFavicon = exm.favicon;
+  const exmAppearance = exm.appearance;
   const [logo, setLogo] = useState(exmLogo);
   const [favicon, setFavicon] = useState(exmFavicon);
-  const [url, setUrl] = useState(exm?.url || '');
-  const [webName, setWebName] = useState(exm?.webName || '');
+  const [url, setUrl] = useState(exm.url || '');
+  const [webName, setWebName] = useState(exm.webName || '');
   const [webDescription, setWebDescription] = useState(
-    exm?.webDescription || ''
+    exm.webDescription || ''
   );
   const [appearance, setAppearance] = useState(
     exmAppearance
@@ -56,35 +61,8 @@ export default function Appearance(props: Props) {
   );
 
   const onSave = () => {
-    if (exm && exm._id) {
-      return actionMutation(
-        {
-          logo: logo
-            ? {
-                name: logo.name,
-                url: logo.url,
-                size: logo.size,
-                type: logo.type
-              }
-            : undefined,
-          appearance,
-          webName,
-          webDescription,
-          url,
-          favicon: favicon
-            ? {
-                name: favicon.name,
-                url: favicon.url,
-                size: favicon.size,
-                type: favicon.type
-              }
-            : undefined
-        },
-        exm._id
-      );
-    }
-
-    return actionMutation({
+    edit({
+      _id: props.exm._id,
       logo: logo
         ? {
             name: logo.name,
@@ -180,6 +158,51 @@ export default function Appearance(props: Props) {
             </FeatureRowItem>
           </FeatureRow>
         </TeamPortal>
+        <Logos>
+          <p>Company vision and strucutre</p>
+          <FeatureRow>
+            <FeatureRowItem>
+              <p>Vision</p>
+              <ModalTrigger
+                title={exm.vision ? 'Edit Vision' : 'Add Vision'}
+                size="lg"
+                trigger={
+                  <Button btnStyle="simple">
+                    {__(exm.vision ? 'Edit Vision' : 'Add Vision')}
+                  </Button>
+                }
+                content={modalProps => (
+                  <VisionStructureForm
+                    {...modalProps}
+                    object={exm}
+                    type="vision"
+                    renderButton={renderButton}
+                  />
+                )}
+              />
+            </FeatureRowItem>
+            <FeatureRowItem>
+              <p>Structure</p>
+              <ModalTrigger
+                title={exm.structure ? 'Edit Structure' : 'Add Structure'}
+                size="lg"
+                trigger={
+                  <Button btnStyle="simple">
+                    {__(exm.structure ? 'Edit Structure' : 'Add Structure')}
+                  </Button>
+                }
+                content={modalProps => (
+                  <VisionStructureForm
+                    {...modalProps}
+                    object={exm}
+                    type="structure"
+                    renderButton={renderButton}
+                  />
+                )}
+              />
+            </FeatureRowItem>
+          </FeatureRow>
+        </Logos>
         <Logos>
           <p>Logo and favicon</p>
           <FeatureRow>

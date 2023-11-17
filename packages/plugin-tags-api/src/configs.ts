@@ -17,7 +17,6 @@ export let serviceDiscovery;
 export default {
   name: 'tags',
   permissions,
-  hasDashboard: true,
   graphql: async sd => {
     serviceDiscovery = sd;
     return {

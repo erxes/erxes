@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
+import Select from "react-select"
 import * as z from "zod"
 
 import { Button } from "@/components/ui/button"
@@ -20,7 +21,6 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
 import LoadingPost from "@/components/ui/loadingPost"
 import SuccessPost from "@/components/ui/successPost"
 import { Textarea } from "@/components/ui/textarea"
@@ -28,16 +28,11 @@ import { AttachmentWithPreview } from "@/components/AttachmentWithPreview"
 
 import useFeedMutation from "../../hooks/useFeedMutation"
 import { IFeed } from "../../types"
+import FormAttachments from "./FormAttachments"
+import FormImages from "./FormImages"
 import Uploader from "./uploader/Uploader"
 
 const FormSchema = z.object({
-  title: z
-    .string({
-      required_error: "Please enter an title",
-    })
-    .refine((val) => val.length !== 0, {
-      message: "Please enter an title",
-    }),
   description: z
     .string({
       required_error: "Please enter an description",
@@ -59,7 +54,9 @@ const HolidayForm = ({
     resolver: zodResolver(FormSchema),
   })
   const [images, setImage] = useState(feed?.images || [])
+  const [category, setCategory] = useState(feed?.category || "")
   const [success, setSuccess] = useState(false)
+  const [attachments, setAttachments] = useState(feed?.attachments || [])
 
   const callBack = (result: string) => {
     if (result === "success") {
@@ -78,6 +75,7 @@ const HolidayForm = ({
     callBack,
   })
   const [imageUploading, setImageUploading] = useState(false)
+  const [attachmentUploading, setAttachmentUploading] = useState(false)
 
   useEffect(() => {
     let defaultValues = {} as any
@@ -94,26 +92,26 @@ const HolidayForm = ({
   const onSubmit = (data: z.infer<typeof FormSchema>) => {
     feedMutation(
       {
-        title: data.title,
+        title: "title",
         description: data.description ? data.description : "",
         contentType: "publicHoliday",
+        category,
         createdAt: data.createdAt,
         images,
+        attachments,
       },
       feed?._id || ""
     )
   }
 
-  const deleteImage = (index: number) => {
-    const updated = [...images]
-
-    updated.splice(index, 1)
-
-    setImage(updated)
-  }
+  const typeOptions = [
+    { label: "Ceremony", value: "ceremony" },
+    { label: "Birthday", value: "birthday" },
+    { label: "Public holiday", value: "publicHoliday" },
+  ]
 
   return (
-    <DialogContent className="max-h-[80vh] overflow-auto">
+    <DialogContent className="max-h-[80vh] max-w-2xl overflow-auto">
       <DialogHeader>
         <DialogTitle>Create public holiday</DialogTitle>
       </DialogHeader>
@@ -125,46 +123,41 @@ const HolidayForm = ({
         <form className="space-y-3" onSubmit={form.handleSubmit(onSubmit)}>
           <FormField
             control={form.control}
-            name="title"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Title</FormLabel>
-                <FormControl>
-                  <Input
-                    placeholder="title"
-                    {...field}
-                    defaultValue={feed?.title || ""}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
             name="description"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Description</FormLabel>
                 <FormControl>
                   <Textarea
-                    placeholder="description"
+                    placeholder="About this holiday"
                     {...field}
                     defaultValue={feed?.description || ""}
+                    className="p-0 border-none"
                   />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
-
+          <FormAttachments
+            attachments={attachments || []}
+            setAttachments={setAttachments}
+          />
+          <FormImages images={images} setImage={setImage} />{" "}
+          <Select
+            isMulti={false}
+            options={typeOptions}
+            defaultValue={typeOptions.filter((option) =>
+              feed?.category?.includes(option.value)
+            )}
+            placeholder="Choose category"
+            isSearchable={true}
+            onChange={(data) => setCategory(data?.value || "")}
+          />
           <FormField
             control={form.control}
             name="createdAt"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="block">Start Date</FormLabel>
                 <FormControl>
                   <DatePicker
                     date={field.value}
@@ -177,25 +170,31 @@ const HolidayForm = ({
               </FormItem>
             )}
           />
+          <div className="flex items-center border rounded-lg px-2 border-[#cccccc] justify-between">
+            <p className="text-[#444]">Add attachments</p>
+            <div className="flex">
+              <Uploader
+                defaultFileList={images || []}
+                onChange={setImage}
+                type={"image"}
+                icon={true}
+                iconSize={20}
+                setUploading={setImageUploading}
+              />
 
-          <Uploader
-            defaultFileList={images || []}
-            onChange={setImage}
-            type={"image"}
-            setUploading={setImageUploading}
-          />
-          {images && images.length > 0 && (
-            <AttachmentWithPreview
-              images={images}
-              className="mt-2"
-              deleteImage={deleteImage}
-            />
-          )}
-
+              <Uploader
+                defaultFileList={attachments || []}
+                onChange={setAttachments}
+                icon={true}
+                iconSize={20}
+                setUploading={setAttachmentUploading}
+              />
+            </div>
+          </div>
           <Button
             type="submit"
             className="font-semibold w-full rounded-full"
-            disabled={imageUploading}
+            disabled={imageUploading || attachmentUploading}
           >
             Post
           </Button>
