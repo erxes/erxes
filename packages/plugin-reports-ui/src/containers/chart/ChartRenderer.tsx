@@ -39,15 +39,18 @@ type Props = {
   chartType: string;
 
   chartVariables: IChartGetResultVariables;
+  filter?: any;
+  chartHeight?: number;
 };
 
 type FinalProps = {
   reportChartGetResultQuery: ReportChartGetResultQueryResponse;
 } & Props;
 const ChartRendererList = (props: FinalProps) => {
-  const { reportChartGetResultQuery, chartVariables } = props;
+  const { reportChartGetResultQuery, chartVariables, filter } = props;
 
-  console.log('c variables ', chartVariables.filter);
+  console.log({ ...filter });
+
   if (reportChartGetResultQuery && reportChartGetResultQuery.loading) {
     return <Spinner />;
   }
@@ -91,10 +94,13 @@ const ChartRendererList = (props: FinalProps) => {
 export default withProps<Props>(
   compose(
     graphql<any>(gql(queries.reportChartGetResult), {
-      skip: ({ chartVariables }) => !Object.keys(chartVariables).length,
       name: 'reportChartGetResultQuery',
-      options: ({ chartVariables }) => ({
-        variables: { ...chartVariables },
+      options: ({ chartVariables, filter }) => ({
+        variables: {
+          serviceName: chartVariables.serviceName,
+          templateType: chartVariables.templateType,
+          filter: { ...filter }
+        },
         fetchPolicy: 'network-only'
       })
     })

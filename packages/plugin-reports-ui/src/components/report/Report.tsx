@@ -3,7 +3,7 @@ import { TabTitle, Tabs } from '@erxes/ui/src/components/tabs';
 import PageContent from '@erxes/ui/src/layout/components/PageContent';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { BarItems, FlexContent } from '@erxes/ui/src/layout/styles';
-import { __, confirm } from '@erxes/ui/src/utils';
+import { __, confirm, router } from '@erxes/ui/src/utils';
 import React, { useState, useEffect } from 'react';
 import Modal from 'react-bootstrap/Modal';
 import {
@@ -13,6 +13,8 @@ import {
   ChartTitle,
   DragField,
   FlexCenter,
+  HeightedWrapper,
+  ReportContainer,
   Title
 } from '../../styles';
 import { IChart, IReport, IReportItem } from '../../types';
@@ -118,6 +120,7 @@ const Report = (props: Props) => {
   };
 
   const reportItem = (item: IChart) => {
+    console.log('report item ', item);
     if (item.layout) {
       return (
         <div key={item._id || Math.random()} data-grid={defaultLayout(item)}>
@@ -126,6 +129,7 @@ const Report = (props: Props) => {
             <span
               className="db-item-action"
               onClick={() => {
+                router.setParams(history, { serviceName: item.serviceName });
                 setCurrentChart(item);
                 setShowChartForm(true);
               }}
@@ -143,11 +147,12 @@ const Report = (props: Props) => {
             history={history}
             queryParams={queryParams}
             chartType={item.chartType}
+            chartHeight={defaultLayout(item).h * 160}
             chartVariables={{
               serviceName: item.serviceName,
-              templateType: item.templateType,
-              filter: item.filter
+              templateType: item.templateType
             }}
+            filter={item.filter}
           />
         </div>
       );
@@ -337,55 +342,57 @@ const Report = (props: Props) => {
     });
   };
   return (
-    <>
-      <Wrapper.Header
-        title={report.name || 'Report'}
-        breadcrumb={[
-          { title: __('Reports'), link: '/reports' },
-          { title: `${(report && report.name) || ''}` }
-        ]}
-      />
-      <PageContent
-        actionBar={
-          <Wrapper.ActionBar
-            left={renderLeftActionBar()}
-            right={renderRightActionBar()}
-          />
-        }
-        transparent={false}
-      >
-        {showTeamMemberSelect && renderMembersSelectModal()}
-        {!showChartForm && (
-          <DragField
-            haveChart={charts?.length ? true : false}
-            cols={columnsNum * 3}
-            margin={[30, 30]}
-            onDragStart={() => setIsDragging(true)}
-            onDragEnd={() => setIsDragging(false)}
-            onResizeStart={() => setIsDragging(true)}
-            onResizeStop={() => setIsDragging(false)}
-            onLayoutChange={onLayoutChange}
-            isDragging={isDragging}
-            rowHeight={160}
-            containerPadding={[30, 30]}
-            useCSSTransforms={true}
-          >
-            {charts?.map(deserializeItem).map(reportItem)}
-          </DragField>
-        )}
+    <HeightedWrapper>
+      <ReportContainer>
+        <Wrapper.Header
+          title={report.name || 'Report'}
+          breadcrumb={[
+            { title: __('Reports'), link: '/reports' },
+            { title: `${(report && report.name) || ''}` }
+          ]}
+        />
+        <PageContent
+          actionBar={
+            <Wrapper.ActionBar
+              left={renderLeftActionBar()}
+              right={renderRightActionBar()}
+            />
+          }
+          transparent={false}
+        >
+          {showTeamMemberSelect && renderMembersSelectModal()}
+          {!showChartForm && (
+            <DragField
+              haveChart={charts?.length ? true : false}
+              cols={columnsNum * 3}
+              margin={[30, 30]}
+              onDragStart={() => setIsDragging(true)}
+              onDragEnd={() => setIsDragging(false)}
+              onResizeStart={() => setIsDragging(true)}
+              onResizeStop={() => setIsDragging(false)}
+              onLayoutChange={onLayoutChange}
+              isDragging={isDragging}
+              rowHeight={160}
+              containerPadding={[30, 30]}
+              useCSSTransforms={true}
+            >
+              {charts?.map(deserializeItem).map(reportItem)}
+            </DragField>
+          )}
 
-        {showChartForm && (
-          <ChartForm
-            history={history}
-            queryParams={queryParams}
-            toggleForm={() => setShowChartForm(!showChartForm)}
-            showChartForm={showChartForm}
-            chart={currentChart}
-            reportId={report._id}
-          />
-        )}
-      </PageContent>
-    </>
+          {showChartForm && (
+            <ChartForm
+              history={history}
+              queryParams={queryParams}
+              toggleForm={() => setShowChartForm(!showChartForm)}
+              showChartForm={showChartForm}
+              chart={currentChart}
+              reportId={report._id}
+            />
+          )}
+        </PageContent>
+      </ReportContainer>
+    </HeightedWrapper>
   );
 };
 

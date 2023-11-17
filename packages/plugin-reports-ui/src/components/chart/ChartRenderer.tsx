@@ -1,4 +1,5 @@
 import { ChartType, Colors } from 'chart.js';
+import ChartDataLabels from 'chartjs-plugin-datalabels';
 import Chart from 'chart.js/auto';
 import React, { useEffect, useRef } from 'react';
 import {
@@ -21,10 +22,20 @@ interface IChartProps {
   name?: string;
   title?: string;
   loading?: boolean;
+
+  chartHeight?: number;
 }
 
 const ChartRenderer = (props: IChartProps) => {
-  const { labels, chartType, datasets, data, title, loading } = props;
+  const {
+    labels,
+    chartType,
+    datasets,
+    data,
+    title,
+    loading,
+    chartHeight
+  } = props;
 
   if (loading) {
     return <Spinner />;
@@ -45,12 +56,26 @@ const ChartRenderer = (props: IChartProps) => {
     ]
   };
 
+  if (chartType === 'pie') {
+    Chart.register(ChartDataLabels);
+  }
+
+  let plugins: any = {
+    datalabels: { color: 'white', formatter: (value, ctx) => value }
+  };
+
+  if (!datasets) {
+    plugins = {
+      ...plugins,
+      legend: { labels: { boxWidth: 0, boxHeight: 0 } }
+    };
+  }
+
   const DEFAULT_CONFIG = {
     type: chartType,
     data: chartData,
-    options: datasets
-      ? {}
-      : { plugins: { legend: { labels: { boxWidth: 0, boxHeight: 0 } } } }
+    plugins: [ChartDataLabels],
+    options: { plugins }
   };
 
   useEffect(() => {
@@ -62,10 +87,12 @@ const ChartRenderer = (props: IChartProps) => {
     }
   }, [chartData, chartType]);
 
+  console.log('chart height ', chartHeight);
+
   return (
-    <>
+    <div style={{ width: `auto`, height: `${chartHeight}px` }}>
       <canvas ref={chartRef} />
-    </>
+    </div>
   );
 };
 

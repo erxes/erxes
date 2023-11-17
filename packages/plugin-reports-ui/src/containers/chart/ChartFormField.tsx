@@ -20,7 +20,7 @@ export type IFilterType = {
 type Props = {
   filterType: IFilterType;
   setFilter: (fieldName: string, value: any) => void;
-  filter?: IFilter;
+  initialValue?: any;
 };
 
 // const FIELD_QUERIES_MAP = {
@@ -28,9 +28,9 @@ type Props = {
 // }
 
 const ChartFormFieldList = (props: Props) => {
-  const { filterType, setFilter } = props;
+  const { filterType, setFilter, initialValue } = props;
   const { fieldName, fieldType, fieldQuery, fieldLabel, multi } = filterType;
-  const [fieldValue, setFieldValue] = useState(null);
+  const [fieldValue, setFieldValue] = useState(initialValue);
 
   const onChange = (input: any) => {
     switch (fieldType) {
@@ -60,6 +60,7 @@ const ChartFormFieldList = (props: Props) => {
             name="chartAssignedUserIds"
             label={fieldLabel}
             onSelect={onChange}
+            initialValue={fieldValue}
           />
         </div>
       );
@@ -74,6 +75,7 @@ const ChartFormFieldList = (props: Props) => {
             name="chartAssignedDepartmentIds"
             label={fieldLabel}
             onSelect={onChange}
+            initialValue={fieldValue}
           />
         </div>
       );

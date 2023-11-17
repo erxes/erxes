@@ -65,7 +65,7 @@ const ChartForm = (props: Props) => {
   const [chartTypes, setChartTypes] = useState([]);
   const [chartType, setChartType] = useState<string>(chart?.chartType || 'bar');
   const [filterTypes, setFilterTypes] = useState<IFilterType[]>([]);
-  const [filters, setFilters] = useState<any>({});
+  const [filters, setFilters] = useState<any>(chart?.filter || {});
 
   useEffect(() => {
     const findChartTemplate = chartTemplates.find(
@@ -122,9 +122,10 @@ const ChartForm = (props: Props) => {
   const setFilter = (fieldName: string, value: any) => {
     if (!value || !value.length) {
       delete filters[fieldName];
-      setFilters(filters);
+      setFilters({ ...chart?.filter, ...filters });
       return;
     }
+
     setFilters({ ...filters, [fieldName]: value });
   };
 
@@ -132,6 +133,7 @@ const ChartForm = (props: Props) => {
     <FlexColumn style={{ gap: '20px' }}>
       {filterTypes.map((f: IFilterType) => (
         <ChartFormField
+          initialValue={filters[f.fieldName]}
           filterType={f}
           key={f.fieldName}
           setFilter={setFilter}
@@ -152,7 +154,8 @@ const ChartForm = (props: Props) => {
           {showChartForm ? (
             <ChartRenderer
               chartType={chartType}
-              chartVariables={{ filter: filters, ...chart }}
+              chartVariables={{ ...chart }}
+              filter={filters}
               history={history}
               queryParams={queryParams}
             />

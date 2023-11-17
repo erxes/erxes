@@ -36,7 +36,8 @@ const ChartFormList = (props: FinalProps) => {
     reportChartsAddMutation,
     reportChartsEditMutation,
     reportChartsRemoveMutation,
-    toggleForm
+    toggleForm,
+    chart
   } = props;
 
   if (reportServicesListQuery.loading) {

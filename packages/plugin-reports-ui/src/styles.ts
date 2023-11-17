@@ -2,7 +2,7 @@ import RGL, { WidthProvider } from 'react-grid-layout';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 import { colors, dimensions } from '@erxes/ui/src/styles';
-import { FlexContent } from '@erxes/ui/src/layout/styles';
+import { Contents, FlexContent } from '@erxes/ui/src/layout/styles';
 import { lighten } from '@erxes/ui/src/styles/ecolor';
 import { ActionButtons } from '@erxes/ui-settings/src/styles';
 import { RightMenuContainer } from '@erxes/ui-cards/src/boards/styles/rightMenu';
@@ -23,7 +23,8 @@ const DragField = styledTS<{ haveChart?: boolean }>(styled(ReactGridLayout))`
       position: relative;
       transition: height 200ms ease;
     }
-    
+
+
    .react-grid-item {
       transition: all 200ms ease;
       transition-property: left, top;
@@ -40,6 +41,10 @@ const DragField = styledTS<{ haveChart?: boolean }>(styled(ReactGridLayout))`
         .db-item-action {
           display: inline;
         }
+      }
+
+      > canvas {
+        width: fit-content;
       }
     }
 
@@ -464,6 +469,19 @@ const ChartTitle = styled.div`
   }
 `;
 
+const HeightedWrapper = styled.div`
+  flex: 1;
+  position: relative;
+`;
+
+const ReportContainer = styled(Contents)`
+  margin: 0;
+
+  > section {
+    margin: 0;
+  }
+`;
+
 export {
   DragField,
   CenterBar,
@@ -485,5 +503,7 @@ export {
   Description,
   ScrolledContent,
   DrawerDetail,
-  ChartTitle
+  ChartTitle,
+  HeightedWrapper,
+  ReportContainer
 };
