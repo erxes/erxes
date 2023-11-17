@@ -1,25 +1,26 @@
-import FormControl from '@erxes/ui/src/components/form/Control';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import { LeftItem } from '@erxes/ui/src/components/step/styles';
-import EditorCK from '@erxes/ui/src/containers/EditorCK';
-import { readFile, uploadHandler, __ } from '@erxes/ui/src/utils';
-import { generateEmailTemplateParams } from '@erxes/ui-engage/src/utils';
-import { ILeadData } from '../../types';
-import { FORM_SUCCESS_ACTIONS } from '@erxes/ui/src/constants/integrations';
-import React from 'react';
-import Select from 'react-select-plus';
 import {
   FlexItem,
   ImagePreview,
   ImageUpload
 } from '@erxes/ui/src/components/step/style';
-import Uploader from '@erxes/ui/src/components/Uploader';
+import { __, readFile, uploadHandler } from '@erxes/ui/src/utils';
+
 import Button from '@erxes/ui/src/components/Button';
-import Icon from '@erxes/ui/src/components/Icon';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import { isEnabled } from '@erxes/ui/src/utils/core';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import EditorCK from '@erxes/ui/src/containers/EditorCK';
+import { FORM_SUCCESS_ACTIONS } from '@erxes/ui/src/constants/integrations';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import FormGroup from '@erxes/ui/src/components/form/Group';
 import { IFormData } from '@erxes/ui-forms/src/forms/types';
+import { ILeadData } from '../../types';
+import Icon from '@erxes/ui/src/components/Icon';
+import { LeftItem } from '@erxes/ui/src/components/step/styles';
+import React from 'react';
+import Select from 'react-select-plus';
+import Spinner from '@erxes/ui/src/components/Spinner';
+import Uploader from '@erxes/ui/src/components/Uploader';
+import { generateEmailTemplateParams } from '@erxes/ui-engage/src/utils';
+import { isEnabled } from '@erxes/ui/src/utils/core';
 
 type Name =
   | 'successAction'
@@ -340,7 +341,7 @@ class SuccessStep extends React.Component<Props, State> {
   }
 
   renderSelectOptions() {
-    const hasEmailField = this.props.formData.fields?.find(
+    const hasEmailField = this.props.formData?.fields?.find(
       e => e.type === 'email' || e.validation === 'email'
     );
 
