@@ -1,5 +1,5 @@
 {
-  "name": "plugin-facebook-ui",
+  "name": "plugin-instagram-ui",
   "version": "1.0.0",
   "scripts": {
     "install-deps": "yarn install",
@@ -7,6 +7,6 @@
     "build": "webpack --mode production"
   },
   "dependencies": {
-    "@erxes/ui" : "*"
+    "@erxes/ui": "*"
   }
 }

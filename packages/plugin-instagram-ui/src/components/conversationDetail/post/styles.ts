@@ -161,14 +161,14 @@ const LeftAlign = styled.div`
   font-size: 11px;
 `;
 
-const FacebookTagText = styled.p`
+const InstagramTagText = styled.p`
   margin-top: 5px;
   a {
     margin: 5px;
   }
 `;
 
-const FacebookContentMessage = styled.div`
+const InstagramContentMessage = styled.div`
   white-space: pre-wrap;
 `;
 
@@ -183,6 +183,6 @@ export {
   LeftAlign,
   DateTime,
   ShowMore,
-  FacebookTagText,
-  FacebookContentMessage
+  InstagramTagText,
+  InstagramContentMessage
 };

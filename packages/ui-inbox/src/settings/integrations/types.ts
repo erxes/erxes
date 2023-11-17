@@ -53,7 +53,7 @@ export interface IAccount {
 
 // query types
 export type IntegrationTypes = 'facebook';
-
+export type IntegrationTypesInstagram = 'instagram';
 export type IntegrationDetailQueryResponse = {
   integrationDetail: IIntegration;
 } & QueryResponse;

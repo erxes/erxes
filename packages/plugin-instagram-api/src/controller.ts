@@ -6,12 +6,12 @@ import loginMiddleware from './middlewares/loginMiddleware';
 import receiveComment from './receiveComment';
 import receiveMessage from './receiveMessage';
 import receivePost from './receivePost';
-import { FACEBOOK_POST_TYPES, INTEGRATION_KINDS } from './constants';
+import { INSTAGRAM_POST_TYPES, INTEGRATION_KINDS } from './constants';
 import { getAdapter, getPageAccessTokenFromMap } from './utils';
 import { generateModels } from './connectionResolver';
 
 const init = async app => {
-  app.get('/fblogin', loginMiddleware);
+  app.get('/iglogin', loginMiddleware);
 
   app.get('/instagram/get-post', async (req, res) => {
     debugInstagram(
@@ -59,15 +59,15 @@ const init = async app => {
     const subdomain = getSubdomain(req);
     const models = await generateModels(subdomain);
 
-    const FACEBOOK_VERIFY_TOKEN = await getConfig(
+    const INSTAGRAM_VERIFY_TOKEN = await getConfig(
       models,
-      'FACEBOOK_VERIFY_TOKEN'
+      'INSTAGRAM_VERIFY_TOKEN'
     );
 
     // when the endpoint is registered as a webhook, it must echo back
     // the 'hub.challenge' value it receives in the query arguments
     if (req.query['hub.mode'] === 'subscribe') {
-      if (req.query['hub.verify_token'] === FACEBOOK_VERIFY_TOKEN) {
+      if (req.query['hub.verify_token'] === INSTAGRAM_VERIFY_TOKEN) {
         res.send(req.query['hub.challenge']);
       } else {
         res.send('OK');
@@ -159,7 +159,7 @@ const init = async app => {
             }
           }
 
-          if (FACEBOOK_POST_TYPES.includes(event.value.item)) {
+          if (INSTAGRAM_POST_TYPES.includes(event.value.item)) {
             try {
               debugInstagram(
                 `Received post data ${JSON.stringify(event.value)}`

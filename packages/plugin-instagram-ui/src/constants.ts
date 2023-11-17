@@ -7,7 +7,7 @@ export const INTEGRATIONS = [
     kind: 'instagram-post',
     logo: '/images/integrations/instagram.png',
     createModal: 'instagram-post',
-    createUrl: '/settings/integrations/createFacebook',
+    createUrl: '/settings/integrations/createInstagram',
     category:
       'All integrations, For support teams, Marketing automation, Social media'
   },
@@ -20,7 +20,7 @@ export const INTEGRATIONS = [
     kind: 'instagram-messenger',
     logo: '/images/integrations/fb-messenger.png',
     createModal: 'instagram-messenger',
-    createUrl: '/settings/integrations/createFacebook',
+    createUrl: '/settings/integrations/createInstagram',
     category:
       'All integrations, For support teams, Messaging, Social media, Conversation'
   }

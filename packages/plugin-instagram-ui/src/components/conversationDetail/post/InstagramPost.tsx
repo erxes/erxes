@@ -10,7 +10,6 @@ import { IInstagramPost } from '../../../types';
 import NameCard from '@erxes/ui/src/components/nameCard/NameCard';
 import { PostContainer } from '@erxes/ui-inbox/src/inbox/components/conversationDetail/workarea/facebook/styles';
 import UserName from '@erxes/ui-inbox/src/inbox/components/conversationDetail/workarea/facebook/UserName';
-
 type Props = {
   post: IInstagramPost;
   commentCount: number;

@@ -393,19 +393,19 @@ export const checkInstagramPages = async (models: IModels, pages: any) => {
 export const getAdapter = async (models: IModels): Promise<any> => {
   const accessTokensByPageId = {};
 
-  const FACEBOOK_VERIFY_TOKEN = await getConfig(
+  const INSTAGRAM_VERIFY_TOKEN = await getConfig(
     models,
-    'FACEBOOK_VERIFY_TOKEN'
+    'INSTAGRAM_VERIFY_TOKEN'
   );
-  const FACEBOOK_APP_SECRET = await getConfig(models, 'FACEBOOK_APP_SECRET');
+  const INSTAGRAM_APP_SECRET = await getConfig(models, 'INSTAGRAM_APP_SECRET');
 
-  if (!FACEBOOK_VERIFY_TOKEN || !FACEBOOK_APP_SECRET) {
+  if (!INSTAGRAM_VERIFY_TOKEN || !INSTAGRAM_APP_SECRET) {
     return debugBase('Invalid instagram config');
   }
 
   return new FacebookAdapter({
-    verify_token: FACEBOOK_VERIFY_TOKEN,
-    app_secret: FACEBOOK_APP_SECRET,
+    verify_token: INSTAGRAM_VERIFY_TOKEN,
+    app_secret: INSTAGRAM_APP_SECRET,
     getAccessTokenForPage: async (pageId: string) => {
       return accessTokensByPageId[pageId];
     }

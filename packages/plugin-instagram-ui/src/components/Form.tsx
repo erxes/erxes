@@ -150,7 +150,7 @@ class Instagram extends React.Component<Props, State> {
             <FlexItem>
               <LeftItem>
                 <Accounts
-                  kind="facebook"
+                  kind="instagram"
                   onSelect={onAccountSelect}
                   onRemove={onRemoveAccount}
                 />
@@ -231,7 +231,7 @@ class Instagram extends React.Component<Props, State> {
       'Connect your Instagram Posts to start receiving Instagram post and comments in your team inbox'
     );
 
-    if (this.props.kind === INTEGRATION_KINDS.FACEBOOK_MESSENGER) {
+    if (this.props.kind === INTEGRATION_KINDS.INSTAGRAM_MESSENGER) {
       title = __('Instagram Messenger');
       description = __(
         'Connect your Instagram Messenger to start receiving Instagram messages in your team inbox'
@@ -258,7 +258,7 @@ class Instagram extends React.Component<Props, State> {
                     {__('Connect your')} {title}
                   </h1>
                   <p>{description}</p>
-                  <img alt={title} src="/images/previews/facebook.png" />
+                  <img alt={title} src="/images/previews/instagram.png" />
                 </TextWrapper>
               </ImageWrapper>
             </Preview>

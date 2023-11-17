@@ -5,18 +5,18 @@ import queryString from 'query-string';
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 import { Authorization } from './containers/Authorization';
 
-const CreateFacebook = asyncComponent(() =>
-  import(/* webpackChunkName: "Settings CreateFacebook" */ './containers/Form')
+const CreateInstagram = asyncComponent(() =>
+  import(/* webpackChunkName: "Settings CreateInstagram" */ './containers/Form')
 );
 
-const createFacebook = ({ location, history }) => {
+const createInstagram = ({ location, history }) => {
   const queryParams = queryString.parse(location.search);
 
   const callBack = () => {
     history.push('/settings/integrations/');
   };
 
-  return <CreateFacebook callBack={callBack} kind={queryParams.kind} />;
+  return <CreateInstagram callBack={callBack} kind={queryParams.kind} />;
 };
 
 const auth = ({ location }) => (
@@ -26,10 +26,10 @@ const auth = ({ location }) => (
 const routes = () => (
   <React.Fragment>
     <Route
-      key="/settings/integrations/createFacebook"
+      key="/settings/integrations/createInstagram"
       exact={true}
-      path="/settings/integrations/createFacebook"
-      component={createFacebook}
+      path="/settings/integrations/createInstagram"
+      component={createInstagram}
     />
 
     <Route

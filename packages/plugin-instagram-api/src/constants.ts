@@ -1,4 +1,4 @@
-export const FACEBOOK_POST_TYPES = [
+export const INSTAGRAM_POST_TYPES = [
   'status',
   'video',
   'photo',

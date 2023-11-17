@@ -6,7 +6,7 @@ import {
 } from '@erxes/ui-inbox/src/settings/integrations/styles';
 import {
   IAccount,
-  IntegrationTypes
+  IntegrationTypesInstagram
 } from '@erxes/ui-inbox/src/settings/integrations/types';
 import { __, confirm } from 'coreui/utils';
 
@@ -22,7 +22,7 @@ type Props = {
   accounts: IAccount[];
   formProps?: IFormProps;
   onAdd: () => void;
-  kind: IntegrationTypes;
+  kind: IntegrationTypesInstagram;
   renderForm?: () => JSX.Element;
   removeAccount: (accountId: string) => void;
 };
@@ -60,11 +60,11 @@ class Accounts extends React.Component<Props, { accountId?: string }> {
   renderButton() {
     const { onAdd, kind } = this.props;
 
-    if (kind === 'facebook') {
+    if (kind === 'instagram') {
       return (
         <FacebookButton onClick={onAdd}>
-          <Icon icon="facebook-official" />
-          {__('Continue with Facebook')}
+          <Icon icon="instagram-official" />
+          {__('Continue with instagram')}
         </FacebookButton>
       );
     }

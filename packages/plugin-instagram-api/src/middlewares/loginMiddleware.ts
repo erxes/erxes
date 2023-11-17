@@ -11,27 +11,27 @@ const loginMiddleware = async (req, res) => {
   const subdomain = getSubdomain(req);
   const models = await generateModels(subdomain);
 
-  const FACEBOOK_APP_ID = await getConfig(models, 'FACEBOOK_APP_ID');
-  const FACEBOOK_APP_SECRET = await getConfig(models, 'FACEBOOK_APP_SECRET');
-  const FACEBOOK_PERMISSIONS = await getConfig(
+  const INSTAGRAM_APP_ID = await getConfig(models, 'INSTAGRAM_APP_ID');
+  const INSTAGRAM_APP_SECRET = await getConfig(models, 'INSTAGRAM_APP_SECRET');
+  const INSTAGRAM_PERMISSIONS = await getConfig(
     models,
-    'FACEBOOK_PERMISSIONS',
+    'INSTAGRAM_PERMISSIONS',
     'pages_messaging,pages_manage_ads,pages_manage_engagement,pages_manage_metadata,pages_read_user_content'
   );
 
   const DOMAIN = getEnv({ name: 'DOMAIN' });
 
-  const FACEBOOK_LOGIN_REDIRECT_URL = await getConfig(
+  const INSTAGRAM_LOGIN_REDIRECT_URL = await getConfig(
     models,
-    'FACEBOOK_LOGIN_REDIRECT_URL',
-    `${DOMAIN}/gateway/pl:instagram/fblogin`
+    'INSTAGRAM_LOGIN_REDIRECT_URL',
+    `${DOMAIN}/gateway/pl:instagram/iglogin`
   );
 
   const conf = {
-    client_id: FACEBOOK_APP_ID,
-    client_secret: FACEBOOK_APP_SECRET,
-    scope: FACEBOOK_PERMISSIONS,
-    redirect_uri: FACEBOOK_LOGIN_REDIRECT_URL
+    client_id: INSTAGRAM_APP_ID,
+    client_secret: INSTAGRAM_APP_SECRET,
+    scope: INSTAGRAM_PERMISSIONS,
+    redirect_uri: INSTAGRAM_LOGIN_REDIRECT_URL
   };
 
   debugRequest(debugInstagram, req);

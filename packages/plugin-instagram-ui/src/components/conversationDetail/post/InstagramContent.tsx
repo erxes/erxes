@@ -1,7 +1,7 @@
 import ImageWithPreview from '@erxes/ui/src/components/ImageWithPreview';
 import { readFile } from '@erxes/ui/src/utils/core';
 import * as React from 'react';
-import { ContentContainer, FacebookContentMessage } from './styles';
+import { ContentContainer, InstagramContentMessage } from './styles';
 
 type Props = {
   content: string;
@@ -10,7 +10,7 @@ type Props = {
   scrollBottom?: () => void;
 };
 
-export default class FacebookContent extends React.Component<Props, {}> {
+export default class InstagramContent extends React.Component<Props, {}> {
   renderFiles(attachments?: string[]) {
     if (!attachments) {
       return null;
@@ -80,7 +80,7 @@ export default class FacebookContent extends React.Component<Props, {}> {
         return (
           <a
             key={index}
-            href={`https://www.facebook.com/${link}`}
+            href={`https://www.instagram.com/${link}`}
             target="_blank"
             rel="noopener noreferrer"
           >
@@ -96,7 +96,7 @@ export default class FacebookContent extends React.Component<Props, {}> {
 
     return (
       <React.Fragment>
-        <FacebookContentMessage>{content}</FacebookContentMessage>
+        <InstagramContentMessage>{content}</InstagramContentMessage>
         <ContentContainer isComment={true}>
           {this.renderFiles(attachments)}
         </ContentContainer>

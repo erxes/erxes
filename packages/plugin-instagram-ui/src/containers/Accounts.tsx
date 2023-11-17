@@ -4,7 +4,7 @@ import { graphql } from '@apollo/client/react/hoc';
 import React from 'react';
 
 import {
-  IntegrationTypes,
+  IntegrationTypesInstagram,
   RemoveAccountMutationResponse
 } from '@erxes/ui-inbox/src/settings/integrations/types';
 import { Alert, getEnv, withProps } from '@erxes/ui/src/utils';
@@ -17,7 +17,7 @@ import { queries } from '../graphql/index';
 import { AccountsQueryResponse } from '../types';
 
 type Props = {
-  kind: IntegrationTypes;
+  kind: IntegrationTypesInstagram;
   onSelect: (accountId?: string) => void;
   onRemove: (accountId: string) => void;
   formProps?: IFormProps;
@@ -46,7 +46,7 @@ class AccountContainer extends React.Component<FinalProps, {}> {
     const { REACT_APP_API_URL } = getEnv();
 
     this.popupWindow(
-      `${REACT_APP_API_URL}/pl:instagram/fblogin?kind=${kind}`,
+      `${REACT_APP_API_URL}/pl:instagram/iglogin?kind=${kind}`,
       'Integration',
       window,
       660,

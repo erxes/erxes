@@ -31,7 +31,6 @@ import Icon from '@erxes/ui/src/components/Icon';
 import Message from '@erxes/ui-inbox/src/inbox/components/conversationDetail/workarea/conversation/messages/Message';
 import Tip from '@erxes/ui/src/components/Tip';
 import UserName from '@erxes/ui-inbox/src/inbox/components/conversationDetail/workarea/facebook/UserName';
-
 import { IConversationMessage, IInstagramComment } from '../types';
 
 type Props = {
@@ -87,7 +86,7 @@ class ActivityLogs extends React.Component<Props, { toggleMessage: boolean }> {
 
     const { kind } = conversation.integration;
 
-    if (kind === 'facebook-post') {
+    if (kind === 'instagram-post') {
       return (
         <>
           <PostContainer>{conversation.content}</PostContainer>
@@ -149,16 +148,16 @@ class ActivityLogs extends React.Component<Props, { toggleMessage: boolean }> {
       case 'comment':
         action = '';
         kind = 'commented';
-        item = `on ${renderFullName(customer)}'s facebook post`;
+        item = `on ${renderFullName(customer)}'s instagram post`;
         break;
-      case 'facebook-post':
-        action = 'wrote a Facebook';
+      case 'instagram-post':
+        action = 'wrote a Instagram';
         kind = 'Post';
         item = '';
         break;
-      case 'facebook-messenger':
+      case 'instagram-messenger':
         kind = 'message';
-        item = 'by Facebook Messenger';
+        item = 'by Instagram Messenger';
         break;
       default:
         break;
