@@ -17,6 +17,7 @@ import {
 } from '../../styles';
 import { ICollateralData } from '../../types';
 import CollateralRow from './CollateralRow';
+import SelectSavingContract from './SelectSavingContract';
 
 type Props = {
   collateralsData?: ICollateralData[];
@@ -30,6 +31,7 @@ type State = {
   categoryId: string;
   currentCollateral: string;
   insurancePercent: number;
+  collateralType: string;
 };
 
 class CollateralItem extends React.Component<Props, State> {
@@ -37,6 +39,7 @@ class CollateralItem extends React.Component<Props, State> {
     super(props);
 
     this.state = {
+      collateralType: 'other',
       categoryId: '',
       currentCollateral: props.currentCollateral,
       insurancePercent:
@@ -314,6 +317,51 @@ class CollateralItem extends React.Component<Props, State> {
   renderForm = () => {
     const { collateralData } = this.props;
 
+    if (this.state.collateralType === 'saving')
+      return (
+        <CollateralItemContainer key={collateralData._id}>
+          <ContentRow>
+            <CollateralSettings>
+              <ItemRow>
+                <ItemText>{__('Collateral type')}:</ItemText>
+                <ContentColumn flex="3">
+                  <FormControl
+                    name="collateralType"
+                    componentClass="select"
+                    value={this.state.collateralType}
+                    onChange={e => {
+                      const name = (e.target as HTMLInputElement).name;
+                      const value = (e.target as HTMLInputElement).value;
+                      this.setState({ [name]: value } as any);
+                    }}
+                  >
+                    {['other', 'saving'].map((type, index) => (
+                      <option key={index} value={type}>
+                        {__(type)}
+                      </option>
+                    ))}
+                  </FormControl>
+                </ContentColumn>
+              </ItemRow>
+              <SelectSavingContract
+                label={__('Choose an contract')}
+                name="depositAccount"
+                initialValue={this.state.currentCollateral}
+                filterParams={{ isDeposit: false }}
+                onSelect={v => {
+                  if (typeof v === 'string') {
+                    this.setState({
+                      currentCollateral: v
+                    });
+                  }
+                }}
+                multi={false}
+              />
+            </CollateralSettings>
+          </ContentRow>
+        </CollateralItemContainer>
+      );
+
     if (
       !collateralData.collateral ||
       this.state.currentCollateral === collateralData.collateral._id
@@ -322,6 +370,27 @@ class CollateralItem extends React.Component<Props, State> {
         <CollateralItemContainer key={collateralData._id}>
           <ContentRow>
             <CollateralSettings>
+              <ItemRow>
+                <ItemText>{__('Collateral type')}:</ItemText>
+                <ContentColumn flex="3">
+                  <FormControl
+                    name="collateralType"
+                    componentClass="select"
+                    value={this.state.collateralType}
+                    onChange={e => {
+                      const name = (e.target as HTMLInputElement).name;
+                      const value = (e.target as HTMLInputElement).value;
+                      this.setState({ [name]: value } as any);
+                    }}
+                  >
+                    {['other', 'saving'].map((type, index) => (
+                      <option key={index} value={type}>
+                        {__(type)}
+                      </option>
+                    ))}
+                  </FormControl>
+                </ContentColumn>
+              </ItemRow>
               <ItemRow>
                 <ItemText>{__('Choose Collateral')}:</ItemText>
                 <ContentColumn flex="3">
