@@ -42,7 +42,7 @@ function ScheduleSection({
       });
 
   const renderExtraButton = () => {
-    if (isFirst) {
+    if (isFirst || leaseType !== 'finance') {
       return <></>;
     }
 

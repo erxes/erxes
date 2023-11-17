@@ -22,7 +22,6 @@ var plugins = [
   { name: 'chats', ui: true, api: true },
   { name: 'clientportal', ui: true, api: true },
   { name: 'contacts', ui: true, api: true },
-  { name: 'dashboard', ui: true, api: true },
   { name: 'ebarimt', ui: true, api: true },
   { name: 'emailtemplates', ui: true, api: true },
   { name: 'engages', ui: true, api: true },
