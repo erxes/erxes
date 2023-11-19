@@ -1,9 +1,9 @@
+import { sendRequest } from '@erxes/api-utils/src/requests';
 import {
   sendContactsMessage,
   sendCoreMessage,
   sendProductsMessage
 } from '../messageBroker';
-import { getSyncLogDoc } from './utils';
 
 export const validConfigMsg = async config => {
   if (!config.url) {
@@ -12,18 +12,9 @@ export const validConfigMsg = async config => {
   return '';
 };
 
-export const getPostData = async (
-  subdomain,
-  models,
-  user,
-  configs,
-  deal,
-  dateType = ''
-) => {
+export const getPostData = async (subdomain, config, deal, dateType = '') => {
   let billType = 1;
   let customerCode = '';
-
-  const syncLogDoc = getSyncLogDoc({ type: 'cards:deal', user, object: deal });
 
   const companyIds = await sendCoreMessage({
     subdomain,
@@ -45,7 +36,22 @@ export const getPostData = async (
       defaultValue: []
     });
 
-    customerCode = (companies.find(c => c.code) || {}).code || '';
+    const re = new RegExp('(^[А-ЯЁӨҮ]{2}[0-9]{8}$)|(^\\d{7}$)', 'gui');
+    for (const company of companies) {
+      if (re.test(company.code)) {
+        const checkCompanyRes = await sendRequest({
+          url: config.checkCompanyUrl,
+          method: 'GET',
+          params: { regno: company.code }
+        });
+
+        if (checkCompanyRes.found) {
+          billType = 3;
+          customerCode = company.code;
+          continue;
+        }
+      }
+    }
   }
 
   if (billType === 1) {
@@ -109,10 +115,12 @@ export const getPostData = async (
     defaultValue: []
   });
 
-  const productById = {};
+  const productCodeById = {};
   for (const product of products) {
-    productById[product._id] = product;
+    productCodeById[product._id] = product.code;
   }
+
+  const details: any = [];
 
   const branchIds = deal.productsData.map(pd => pd.branchId) || [];
   const departmentIds = deal.productsData.map(pd => pd.departmentId) || [];
@@ -148,11 +156,6 @@ export const getPostData = async (
     }
   }
 
-  const configBrandIds = Object.keys(configs);
-  const detailByBrandId: any = {};
-
-  const details: any = [];
-
   for (const productData of deal.productsData) {
     // not tickUsed product not sent
     if (!productData.tickUsed) {
@@ -160,11 +163,9 @@ export const getPostData = async (
     }
 
     // if wrong productId then not sent
-    if (!productById[productData.productId]) {
+    if (!productCodeById[productData.productId]) {
       continue;
     }
-
-    const product = productById[productData.productId];
 
     let otherCode: string = '';
 
@@ -174,41 +175,54 @@ export const getPostData = async (
       otherCode = `${branch.code || ''}_${department.code || ''}`;
     }
 
-    if (
-      !(product.scopeBrandIds || []).length &&
-      configBrandIds.includes('noBrand')
-    ) {
-      if (!detailByBrandId['noBrand']) {
-        detailByBrandId['noBrand'] = [];
-      }
-      detailByBrandId['noBrand'].push({
-        count: productData.quantity,
-        amount: productData.amount,
-        discount: productData.discount,
-        inventoryCode: product.code,
-        otherCode,
-        workerEmail:
-          productData.assignUserId && userEmailById[productData.assignUserId]
-      });
-      continue;
-    }
+    details.push({
+      count: productData.quantity,
+      amount: productData.amount,
+      discount: productData.discount,
+      inventoryCode: productCodeById[productData.productId],
+      otherCode,
+      workerEmail:
+        productData.assignUserId && userEmailById[productData.assignUserId]
+    });
+  }
 
-    for (const brandId of configBrandIds) {
-      if (product.scopeBrandIds.includes(brandId)) {
-        if (!detailByBrandId[brandId]) {
-          detailByBrandId[brandId] = [];
+  // debit payments coll
+  const payments = {};
+  const configure = {
+    prepay: 'preAmount',
+    cash: 'cashAmount',
+    bank: 'mobileAmount',
+    pos: 'cardAmount',
+    wallet: 'debtAmount',
+    barter: 'debtBarterAmount',
+    after: 'debtAmount',
+    other: 'debtAmount'
+  };
+
+  let sumSaleAmount = details.reduce((predet, detail) => {
+    return { amount: predet.amount + detail.amount };
+  }).amount;
+
+  for (const paymentKind of Object.keys(deal.paymentsData || [])) {
+    const payment = deal.paymentsData[paymentKind];
+    payments[configure[paymentKind]] =
+      (payments[configure[paymentKind]] || 0) + payment.amount;
+    sumSaleAmount = sumSaleAmount - payment.amount;
+  }
+
+  // if payments is less sum sale amount then create debt
+  if (sumSaleAmount > 0.005) {
+    payments[config.defaultPay] =
+      (payments[config.defaultPay] || 0) + sumSaleAmount;
+  } else if (sumSaleAmount < -0.005) {
+    if ((payments[config.defaultPay] || 0) > 0.005) {
+      payments[config.defaultPay] = payments[config.defaultPay] + sumSaleAmount;
+    } else {
+      for (const key of Object.keys(payments)) {
+        if (payments[key] > 0.005) {
+          payments[key] = payments[key] + sumSaleAmount;
+          continue;
         }
-
-        detailByBrandId[brandId].push({
-          count: productData.quantity,
-          amount: productData.amount,
-          discount: productData.discount,
-          inventoryCode: product.code,
-          otherCode,
-          workerEmail:
-            productData.assignUserId && userEmailById[productData.assignUserId]
-        });
-        continue;
       }
     }
   }
@@ -243,94 +257,33 @@ export const getPostData = async (
       break;
   }
 
-  // debit payments coll
-  const configure = {
-    prepay: 'preAmount',
-    cash: 'cashAmount',
-    bank: 'mobileAmount',
-    pos: 'cardAmount',
-    wallet: 'debtAmount',
-    barter: 'debtBarterAmount',
-    after: 'debtAmount',
-    other: 'debtAmount'
+  const orderInfos = [
+    {
+      date,
+      checkDate,
+      orderId: deal._id,
+      number: deal.number || '',
+      hasVat: config.hasVat || false,
+      hasCitytax: config.hasCitytax || false,
+      billType,
+      customerCode,
+      description: deal.name,
+      workerEmail:
+        (deal.assignedUserIds.length &&
+          userEmailById[deal.assignedUserIds[0]]) ||
+        undefined,
+      details,
+      ...payments
+    }
+  ];
+
+  return {
+    userEmail: config.userEmail,
+    token: config.apiToken,
+    apiKey: config.apiKey,
+    apiSecret: config.apiSecret,
+    orderInfos: JSON.stringify(orderInfos)
   };
-
-  const postDatas: any[] = [];
-  for (const brandId of Object.keys(detailByBrandId)) {
-    const details = detailByBrandId[brandId];
-    if (!details || !details.length) {
-      continue;
-    }
-
-    const config = configs[brandId];
-    const payments = {};
-
-    if (config.hasPayment) {
-      let sumSaleAmount = details.reduce((predet, detail) => {
-        return { amount: predet.amount + detail.amount };
-      }).amount;
-
-      for (const paymentKind of Object.keys(deal.paymentsData || [])) {
-        const payment = deal.paymentsData[paymentKind];
-        payments[configure[paymentKind]] =
-          (payments[configure[paymentKind]] || 0) + payment.amount;
-        sumSaleAmount = sumSaleAmount - payment.amount;
-      }
-
-      // if payments is less sum sale amount then create debt
-      if (sumSaleAmount > 0.005) {
-        payments[config.defaultPay] =
-          (payments[config.defaultPay] || 0) + sumSaleAmount;
-      } else if (sumSaleAmount < -0.005) {
-        if ((payments[config.defaultPay] || 0) > 0.005) {
-          payments[config.defaultPay] =
-            payments[config.defaultPay] + sumSaleAmount;
-        } else {
-          for (const key of Object.keys(payments)) {
-            if (payments[key] > 0.005) {
-              payments[key] = payments[key] + sumSaleAmount;
-              continue;
-            }
-          }
-        }
-      }
-    }
-
-    const orderInfos = [
-      {
-        date,
-        checkDate,
-        orderId: deal._id,
-        number: deal.number || '',
-        hasVat: config.hasVat || false,
-        hasCitytax: config.hasCitytax || false,
-        billType,
-        customerCode,
-        description: deal.name,
-        workerEmail:
-          (deal.assignedUserIds.length &&
-            userEmailById[deal.assignedUserIds[0]]) ||
-          undefined,
-        details,
-        ...payments
-      }
-    ];
-
-    const syncLog = await models.SyncLogs.syncLogsAdd(syncLogDoc);
-
-    postDatas.push({
-      syncLog,
-      postData: {
-        userEmail: config.userEmail,
-        token: config.apiToken,
-        apiKey: config.apiKey,
-        apiSecret: config.apiSecret,
-        orderInfos: JSON.stringify(orderInfos)
-      }
-    });
-  }
-
-  return postDatas;
 };
 
 export const getMoveData = async (subdomain, config, deal, dateType = '') => {

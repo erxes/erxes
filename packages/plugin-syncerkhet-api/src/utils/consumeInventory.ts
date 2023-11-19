@@ -1,12 +1,7 @@
 import { sendProductsMessage } from '../messageBroker';
+import { getConfig } from './utils';
 
-export const consumeInventory = async (
-  subdomain,
-  config,
-  doc,
-  old_code,
-  action
-) => {
+export const consumeInventory = async (subdomain, doc, old_code, action) => {
   const product = await sendProductsMessage({
     subdomain,
     action: 'findOne',
@@ -14,8 +9,6 @@ export const consumeInventory = async (
     isRPC: true,
     defaultValue: {}
   });
-
-  const brandIds = product.scopeBrandIds;
 
   if ((action === 'update' && old_code) || action === 'create') {
     const productCategory = await sendProductsMessage({
@@ -25,9 +18,7 @@ export const consumeInventory = async (
       isRPC: true
     });
 
-    if (!brandIds.includes(config.brandId)) {
-      brandIds.push(config.brandId);
-    }
+    const config = await getConfig(subdomain, 'ERKHET', {});
 
     const document: any = {
       name: doc.nickname || doc.name,
@@ -45,8 +36,7 @@ export const consumeInventory = async (
       description: eval('`' + config.consumeDescription + '`'),
       status: 'active',
       taxType: doc.vat_type || '',
-      taxCode: doc.vat_type_code || '',
-      scopeBrandIds: brandIds
+      taxCode: doc.vat_type_code || ''
     };
 
     if (doc.sub_measure_unit_code && doc.ratio_measure_unit) {
@@ -80,31 +70,17 @@ export const consumeInventory = async (
       });
     }
   } else if (action === 'delete' && product) {
-    const anotherBrandIds = brandIds.filter(b => b && b !== config.brandId);
-    if (anotherBrandIds.length) {
-      await sendProductsMessage({
-        subdomain,
-        action: 'updateProduct',
-        data: {
-          _id: product._id,
-          doc: { ...product, scopeBrandIds: anotherBrandIds }
-        },
-        isRPC: true
-      });
-    } else {
-      await sendProductsMessage({
-        subdomain,
-        action: 'removeProducts',
-        data: { _ids: [product._id] },
-        isRPC: true
-      });
-    }
+    await sendProductsMessage({
+      subdomain,
+      action: 'removeProducts',
+      data: { _ids: [product._id] },
+      isRPC: true
+    });
   }
 };
 
 export const consumeInventoryCategory = async (
   subdomain,
-  config,
   doc,
   old_code,
   action
@@ -116,8 +92,6 @@ export const consumeInventoryCategory = async (
     isRPC: true
   });
 
-  const brandIds = productCategory.scopeBrandIds;
-
   if ((action === 'update' && old_code) || action === 'create') {
     const parentCategory = await sendProductsMessage({
       subdomain,
@@ -126,15 +100,10 @@ export const consumeInventoryCategory = async (
       isRPC: true
     });
 
-    if (!brandIds.includes(config.brandId)) {
-      brandIds.push(config.brandId);
-    }
-
     const document = {
       code: doc.code,
       name: doc.name,
-      order: doc.order,
-      scopeBrandIds: brandIds
+      order: doc.order
     };
 
     if (productCategory) {
@@ -166,26 +135,13 @@ export const consumeInventoryCategory = async (
       });
     }
   } else if (action === 'delete' && productCategory) {
-    const anotherBrandIds = brandIds.filter(b => b && b !== config.brandId);
-    if (anotherBrandIds.length) {
-      await sendProductsMessage({
-        subdomain,
-        action: 'updateProduct',
-        data: {
-          _id: productCategory._id,
-          doc: { ...productCategory, scopeBrandIds: anotherBrandIds }
-        },
-        isRPC: true
-      });
-    } else {
-      await sendProductsMessage({
-        subdomain,
-        action: 'categories.removeProductCategory',
-        data: {
-          _id: productCategory._id
-        },
-        isRPC: true
-      });
-    }
+    await sendProductsMessage({
+      subdomain,
+      action: 'categories.removeProductCategory',
+      data: {
+        _id: productCategory._id
+      },
+      isRPC: true
+    });
   }
 };

@@ -1,7 +1,4 @@
 export const KEY_LABELS = {
-  brandId: 'brand',
-  title: 'title',
-  url: 'erkhet url',
   apiKey: 'api key',
   apiSecret: 'api secret',
   apiToken: 'api token',
@@ -14,7 +11,7 @@ export const KEY_LABELS = {
   customerDefaultName: 'customer Default Name',
   customerCategoryCode: 'customer Category Code',
   companyCategoryCode: 'company Category Code',
-  debtAccounts: 'Debt accounts'
+  getRemainderApiUrl: 'Get Remainder url'
 };
 
 export const menuSyncerkhet = [

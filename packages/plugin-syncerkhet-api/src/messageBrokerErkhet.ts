@@ -5,7 +5,7 @@ import {
   consumeInventoryCategory
 } from './utils/consumeInventory';
 import redis from '@erxes/api-utils/src/redis';
-import { generateModels, IModels } from './connectionResolver';
+import { IModels } from './connectionResolver';
 import { ISyncLogDocument } from './models/definitions/syncLog';
 
 let clientErkhet;
@@ -16,42 +16,20 @@ export const initBrokerErkhet = async () => {
   const { consumeQueue } = clientErkhet;
 
   consumeQueue('rpc_queue:erkhet', async ({ subdomain, data }) => {
-    const { object, old_code, action, api_key, api_secret } = data;
-    const models = await generateModels(subdomain);
-
-    const configs = await models.Configs.getConfig('erkhetConfig', {});
-    const allConfigs = (Object.values(configs) || []) as any[];
-
-    const config = allConfigs.find(
-      c =>
-        c.apiKey === api_key &&
-        c.apiSecret === api_secret &&
-        c.apiToken === subdomain
-    );
-
-    if (!config) {
-      return;
-    }
-
+    const { object, old_code, action } = data;
     const objectData = JSON.parse(object)[0];
     const doc = objectData.fields;
     const kind = objectData.model;
 
     switch (kind) {
       case 'inventories.inventory':
-        await consumeInventory(subdomain, config, doc, old_code, action);
+        await consumeInventory(subdomain, doc, old_code, action);
         break;
       case 'inventories.category':
-        await consumeInventoryCategory(
-          subdomain,
-          config,
-          doc,
-          old_code,
-          action
-        );
+        await consumeInventoryCategory(subdomain, doc, old_code, action);
         break;
       case 'customers.customer':
-        await consumeCustomer(subdomain, config, doc, old_code, action);
+        await consumeCustomer(subdomain, doc, old_code, action);
         break;
     }
 

@@ -12,10 +12,17 @@ export const getPureDate = (date: Date) => {
   return new Date(ndate.getTime() - diffTimeZone);
 };
 
-export const getPostData = async (subdomain, pos, order) => {
-  const models = await generateModels(subdomain);
+export const getConfig = async (subdomain, code, defaultValue?) => {
+  return await sendCoreMessage({
+    subdomain,
+    action: 'getConfig',
+    data: { code, defaultValue },
+    isRPC: true
+  });
+};
 
-  let erkhetConfig = await models.Configs.getConfig('ERKHET', {});
+export const getPostData = async (subdomain, pos, order) => {
+  let erkhetConfig = await getConfig(subdomain, 'ERKHET', {});
 
   if (
     !erkhetConfig ||
@@ -167,9 +174,8 @@ export const getPostData = async (subdomain, pos, order) => {
 };
 
 export const orderDeleteToErkhet = async (subdomain, pos, order) => {
+  let erkhetConfig = await getConfig(subdomain, 'ERKHET', {});
   const models = await generateModels(subdomain);
-
-  let erkhetConfig = await models.Configs.getConfig('ERKHET', {});
 
   if (
     !erkhetConfig ||

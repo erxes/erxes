@@ -6,8 +6,12 @@ import { sendCardsMessage, sendPosMessage } from '../../../messageBroker';
 import { sendRPCMessage, sendTRPCMessage } from '../../../messageBrokerErkhet';
 
 const checkSyncedMutations = {
-  async toCheckSynced(_root, { ids }: { ids: string[] }, { models }: IContext) {
-    const config = await models.Configs.getConfig('ERKHET', {});
+  async toCheckSynced(
+    _root,
+    { ids }: { ids: string[] },
+    { subdomain }: IContext
+  ) {
+    const config = await getConfig(subdomain, 'ERKHET', {});
 
     if (!config.apiToken || !config.apiKey || !config.apiSecret) {
       throw new Error('Erkhet config not found');
@@ -55,7 +59,7 @@ const checkSyncedMutations = {
       configStageId,
       dateType
     }: { dealIds: string[]; configStageId: string; dateType: string },
-    { subdomain, user, models }: IContext
+    { subdomain, user }: IContext
   ) {
     const result: { skipped: string[]; error: string[]; success: string[] } = {
       skipped: [],
@@ -63,9 +67,11 @@ const checkSyncedMutations = {
       success: []
     };
 
-    const configs = await models.Configs.getConfig('ebarimtConfig', {});
-    const moveConfigs = await models.Configs.getConfig('stageInMoveConfig', {});
-    const mainConfig = await models.Configs.getConfig('ERKHET', {});
+    const configs = await getConfig(subdomain, 'ebarimtConfig', {});
+    const moveConfigs = await getConfig(subdomain, 'stageInMoveConfig', {});
+    const mainConfig = await getConfig(subdomain, 'ERKHET', {});
+
+    const models = await generateModels(subdomain);
 
     const deals = await sendCardsMessage({
       subdomain,
@@ -94,14 +100,7 @@ const checkSyncedMutations = {
             ...configs[syncedStageId],
             ...mainConfig
           };
-          const postData = await getPostData(
-            subdomain,
-            models,
-            user,
-            config,
-            deal,
-            dateType
-          );
+          const postData = await getPostData(subdomain, config, deal, dateType);
 
           const response = await sendRPCMessage(
             models,
