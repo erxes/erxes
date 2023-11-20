@@ -22,7 +22,7 @@ export const getPostData = async (subdomain, pos, order) => {
     !erkhetConfig.apiKey! ||
     !erkhetConfig.apiSecret ||
     !pos.erkhetConfig ||
-    !pos.erkhetConfig.isSyncErkhet
+    !pos.erkhetConfig.isSyncManyErkhet
   ) {
     return;
   }
@@ -175,7 +175,7 @@ export const orderDeleteToErkhet = async (subdomain, pos, order) => {
     !erkhetConfig ||
     !erkhetConfig.apiKey! ||
     !erkhetConfig.apiSecret ||
-    !pos.erkhetConfig.isSyncErkhet
+    !pos.erkhetConfig.isSyncManyErkhet
   ) {
     return;
   }

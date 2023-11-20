@@ -7,7 +7,7 @@ import { __, DataWithLoader, Pagination, Table } from '@erxes/ui/src';
 import { Alert, confirm } from '@erxes/ui/src/utils';
 import { BarItems, Wrapper } from '@erxes/ui/src/layout';
 import { Title } from '@erxes/ui/src/styles/main';
-import { menuSyncerkhet } from '../../constants';
+import { menuSyncmanyerkhet } from '../../constants';
 
 type Props = {
   totalCount: number;
@@ -197,7 +197,7 @@ class CheckSyncedOrders extends React.Component<Props, State> {
           <Wrapper.Header
             title={__(`Check erkhet`)}
             queryParams={queryParams}
-            submenu={menuSyncerkhet}
+            submenu={menuSyncmanyerkhet}
           />
         }
         leftSidebar={sidebar}

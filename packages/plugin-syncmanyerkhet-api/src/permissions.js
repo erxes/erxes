@@ -1,11 +1,11 @@
 module.exports = {
-  syncerkhet: {
-    name: "erkhet",
-    description: "Erkhet",
+  syncmanyerkhet: {
+    name: "manyerkhet",
+    description: "Many Erkhet",
     actions: [
       {
-        name: "syncErkhetConfig",
-        description: "Manage erkhet config",
+        name: "syncManyErkhetConfig",
+        description: "Manage many erkhet config",
       },
     ],
   },

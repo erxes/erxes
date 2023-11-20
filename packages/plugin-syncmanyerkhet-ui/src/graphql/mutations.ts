@@ -1,14 +1,14 @@
 // Settings
 
 const updateConfigs = `
-  mutation syncerkhetConfigsUpdate($configsMap: JSON!) {
-    syncerkhetConfigsUpdate(configsMap: $configsMap)
+  mutation syncmanyerkhetConfigsUpdate($configsMap: JSON!) {
+    syncmanyerkhetConfigsUpdate(configsMap: $configsMap)
   }
 `;
 
 const toCheckSynced = `
-  mutation toCheckSynced($ids: [String]) {
-    toCheckSynced(ids: $ids) {
+  mutation manyToCheckSynced($ids: [String]) {
+    manyToCheckSynced(ids: $ids) {
       _id
       isSynced
       syncedDate
@@ -19,38 +19,38 @@ const toCheckSynced = `
 `;
 
 const toSyncDeals = `
-  mutation toSyncDeals($dealIds: [String], $configStageId: String, $dateType: String) {
-    toSyncDeals(dealIds: $dealIds, configStageId: $configStageId, dateType: $dateType)
+  mutation manyToSyncDeals($dealIds: [String], $configStageId: String, $dateType: String) {
+    manyToSyncDeals(dealIds: $dealIds, configStageId: $configStageId, dateType: $dateType)
   }
 `;
 
 const toSyncOrders = `
-  mutation toSyncOrders($orderIds: [String]) {
-    toSyncOrders(orderIds: $orderIds)
+  mutation manyToSyncOrders($orderIds: [String]) {
+    manyToSyncOrders(orderIds: $orderIds)
   }
 `;
 
 const toCheckProducts = `
-  mutation toCheckProducts($brandId: String) {
-    toCheckProducts(brandId: $brandId)
+  mutation manyToCheckProducts($brandId: String) {
+    manyToCheckProducts(brandId: $brandId)
   }
 `;
 
 const toSyncProducts = `
-  mutation toSyncProducts($action: String, $products: [JSON]) {
-    toSyncProducts(action: $action, products: $products)
+  mutation manyToSyncProducts($brandId: String, $action: String, $products: [JSON]) {
+    manyToSyncProducts(brandId: $brandId, action: $action, products: $products)
   }
 `;
 
 const toCheckCategories = `
-  mutation toCheckCategories($brandId: String) {
-    toCheckCategories(brandId: $brandId)
+  mutation manyToCheckCategories($brandId: String) {
+    manyToCheckCategories(brandId: $brandId)
   }
 `;
 
 const toSyncCategories = `
-  mutation toSyncCategories($action: String, $categories: [JSON]) {
-    toSyncCategories(action: $action, categories: $categories)
+  mutation manyToSyncCategories($brandId: String, $action: String, $categories: [JSON]) {
+    manyToSyncCategories(brandId: $brandId, action: $action, categories: $categories)
   }
 `;
 

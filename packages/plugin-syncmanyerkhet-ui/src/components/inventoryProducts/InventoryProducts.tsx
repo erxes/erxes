@@ -9,7 +9,7 @@ import {
   DataWithLoader,
   Pagination
 } from '@erxes/ui/src/components';
-import { menuSyncerkhet } from '../../constants';
+import { menuSyncmanyerkhet } from '../../constants';
 import SelectBrands from '@erxes/ui/src/brands/containers/SelectBrands';
 import { BarItems } from '@erxes/ui/src/layout/styles';
 
@@ -261,7 +261,7 @@ class InventoryProducts extends React.Component<Props, State> {
           <Wrapper.Header
             title={__(`Check product`)}
             queryParams={this.props.queryParams}
-            submenu={menuSyncerkhet}
+            submenu={menuSyncmanyerkhet}
           />
         }
         content={

@@ -43,7 +43,7 @@ export const putCreateLog = async (
     messageBroker(),
     {
       ...params,
-      type: `syncerkhet:${params.type}`
+      type: `syncmanyerkhet:${params.type}`
     },
     user
   );
@@ -65,7 +65,7 @@ export const putUpdateLog = async (
     messageBroker(),
     {
       ...params,
-      type: `syncerkhet:${params.type}`
+      type: `syncmanyerkhet:${params.type}`
     },
     user
   );
@@ -85,7 +85,7 @@ export const putDeleteLog = async (
   return commonPutDeleteLog(
     subdomain,
     messageBroker(),
-    { ...params, type: `syncerkhet:${params.type}` },
+    { ...params, type: `syncmanyerkhet:${params.type}` },
     user
   );
 };

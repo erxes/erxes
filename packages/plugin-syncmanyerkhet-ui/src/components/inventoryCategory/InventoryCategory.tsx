@@ -6,7 +6,7 @@ import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { __ } from '@erxes/ui/src/utils/core';
 import React from 'react';
 import Row from './InventoryCategoryRow';
-import { menuSyncerkhet } from '../../constants';
+import { menuSyncmanyerkhet } from '../../constants';
 import { BarItems } from '@erxes/ui/src/layout/styles';
 import SelectBrands from '@erxes/ui/src/brands/containers/SelectBrands';
 
@@ -250,7 +250,7 @@ class InventoryCategory extends React.Component<Props, State> {
           <Wrapper.Header
             title={__(`Check category`)}
             queryParams={this.props.queryParams}
-            submenu={menuSyncerkhet}
+            submenu={menuSyncmanyerkhet}
           />
         }
         content={

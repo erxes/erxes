@@ -8,11 +8,11 @@ const configQueries = {
   /**
    * Config object
    */
-  syncerkhetConfigs(_root, _args, { models }: IContext) {
+  syncmanyerkhetConfigs(_root, _args, { models }: IContext) {
     return models.Configs.find({});
   },
 
-  async syncerkhetConfigsGetValue(
+  async syncmanyerkhetConfigsGetValue(
     _root,
     { code }: { code: string },
     { models }: IContext

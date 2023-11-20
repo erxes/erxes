@@ -12,7 +12,7 @@ export type IConfig = {
 
 // query types
 export type ConfigsQueryResponse = {
-  syncerkhetConfigsGetValue: IConfig;
+  syncmanyerkhetConfigsGetValue: IConfig;
   loading: boolean;
   refetch: () => void;
 };
@@ -32,35 +32,37 @@ export type CheckSyncedDealsTotalCountQueryResponse = {
 } & QueryResponse;
 
 export type CheckSyncedMutationResponse = {
-  toCheckSynced: (mutation: { variables: { ids: string[] } }) => Promise<any>;
+  manyToCheckSynced: (mutation: {
+    variables: { ids: string[] };
+  }) => Promise<any>;
 };
 
 export type ToSyncDealsMutationResponse = {
-  toSyncDeals: (mutation: {
+  manyToSyncDeals: (mutation: {
     variables: { dealIds: string[]; configStageId: string; dateType: string };
   }) => Promise<any>;
 };
 
 export type ToCheckProductsMutationResponse = {
-  toCheckProducts: (mutation: {
+  manyToCheckProducts: (mutation: {
     variables: { brandId: string };
   }) => Promise<any>;
 };
 
 export type ToCheckCategoriesMutationResponse = {
-  toCheckCategories: (mutation: {
+  manyToCheckCategories: (mutation: {
     variables: { brandId: string };
   }) => Promise<any>;
 };
 
 export type ToSyncCategoriesMutationResponse = {
-  toSyncCategories: (mutation: {
+  manyToSyncCategories: (mutation: {
     variables: { brandId: string; action: string; categories: any[] };
   }) => Promise<any>;
 };
 
 export type ToSyncProductsMutationResponse = {
-  toSyncProducts: (mutation: {
+  manyToSyncProducts: (mutation: {
     variables: { brandId: string; action: string; products: any[] };
   }) => Promise<any>;
 };
@@ -74,7 +76,7 @@ export type CheckSyncedOrdersTotalCountQueryResponse = {
 } & QueryResponse;
 
 export type ToSyncOrdersMutationResponse = {
-  toSyncOrders: (mutation: {
+  manyToSyncOrders: (mutation: {
     variables: { orderIds: string[] };
   }) => Promise<any>;
 };

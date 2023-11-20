@@ -72,7 +72,7 @@ class InventoryProductsContainer extends React.Component<FinalProps, State> {
     const toSyncProducts = (action: string, products: any[]) => {
       this.setState({ loading: true });
       this.props
-        .toSyncProducts({
+        .manyToSyncProducts({
           variables: {
             brandId: brandId,
             action: action,
@@ -98,17 +98,18 @@ class InventoryProductsContainer extends React.Component<FinalProps, State> {
     const toCheckProducts = () => {
       this.setState({ loading: true });
       this.props
-        .toCheckProducts({
+        .manyToCheckProducts({
           variables: { brandId }
         })
         .then(response => {
-          let data = response.data.toCheckProducts;
+          let data = response.data.manyToCheckProducts;
+          console.log(data);
 
           setSyncStatus(data, 'create');
           setSyncStatus(data, 'update');
           setSyncStatus(data, 'delete');
 
-          this.setState({ items: response.data.toCheckProducts });
+          this.setState({ items: response.data.manyToCheckProducts });
           this.setState({ loading: false });
         })
         .catch(e => {
@@ -140,13 +141,13 @@ export default withProps<Props>(
     graphql<Props, ToCheckProductsMutationResponse, {}>(
       gql(mutations.toCheckProducts),
       {
-        name: 'toCheckProducts'
+        name: 'manyToCheckProducts'
       }
     ),
     graphql<Props, ToSyncProductsMutationResponse, {}>(
       gql(mutations.toSyncProducts),
       {
-        name: 'toSyncProducts'
+        name: 'manyToSyncProducts'
       }
     )
   )(withRouter<IRouterProps>(InventoryProductsContainer))

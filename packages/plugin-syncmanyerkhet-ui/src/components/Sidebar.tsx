@@ -28,23 +28,23 @@ class Sidebar extends React.Component {
       <LeftSidebar header={<SidebarHeader />} hasBorder={true}>
         <List id="SettingsSidebar">
           {this.renderListItem(
-            '/erxes-plugin-sync-erkhet/settings/general',
+            '/erxes-plugin-sync-many-erkhet/settings/general',
             'General config'
           )}
           {this.renderListItem(
-            '/erxes-plugin-sync-erkhet/settings/stage',
+            '/erxes-plugin-sync-many-erkhet/settings/stage',
             'Stage in Erkhet config'
           )}
           {this.renderListItem(
-            '/erxes-plugin-sync-erkhet/settings/return-stage',
+            '/erxes-plugin-sync-many-erkhet/settings/return-stage',
             'Stage in Return Erkhet config'
           )}
           {this.renderListItem(
-            '/erxes-plugin-sync-erkhet/settings/pipeline',
+            '/erxes-plugin-sync-many-erkhet/settings/pipeline',
             'Pipeline remiainder config'
           )}
           {this.renderListItem(
-            '/erxes-plugin-sync-erkhet/settings/move-stage',
+            '/erxes-plugin-sync-many-erkhet/settings/move-stage',
             'Stage in Erkhet movement config'
           )}
         </List>

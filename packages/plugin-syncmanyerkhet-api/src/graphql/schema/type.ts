@@ -1,5 +1,5 @@
 export const types = `
-  type SyncHistory {
+  type ManySyncHistory {
     _id: String!
     type: String
     contentType: String
@@ -18,7 +18,7 @@ export const types = `
     createdUser: JSON
   }
 
-  type CheckResponse {
+  type ManyCheckResponse {
     _id: String
     isSynced: Boolean
     syncedDate: Date
@@ -26,7 +26,7 @@ export const types = `
     syncedCustomer: String
   }
 
-  type erkhetRemainder {
+  type manyErkhetRemainder {
     _id: String!
     remainder: Int
     remainders: [JSON]

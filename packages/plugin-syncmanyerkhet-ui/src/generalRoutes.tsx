@@ -1,10 +1,10 @@
 import React from 'react';
 import { BrowserRouter as Router } from 'react-router-dom';
-import SyncErkhetRoutes from './routes';
+import SyncManyErkhetRoutes from './routes';
 
 const Routes = () => (
   <Router>
-    <SyncErkhetRoutes />
+    <SyncManyErkhetRoutes />
   </Router>
 );
 

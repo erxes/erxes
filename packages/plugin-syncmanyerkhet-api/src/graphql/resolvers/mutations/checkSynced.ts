@@ -6,7 +6,11 @@ import { sendCardsMessage, sendPosMessage } from '../../../messageBroker';
 import { sendRPCMessage, sendTRPCMessage } from '../../../messageBrokerErkhet';
 
 const checkSyncedMutations = {
-  async toCheckSynced(_root, { ids }: { ids: string[] }, { models }: IContext) {
+  async manyToCheckSynced(
+    _root,
+    { ids }: { ids: string[] },
+    { models }: IContext
+  ) {
     const config = await models.Configs.getConfig('ERKHET', {});
 
     if (!config.apiToken || !config.apiKey || !config.apiSecret) {
@@ -48,7 +52,7 @@ const checkSyncedMutations = {
     });
   },
 
-  async toSyncDeals(
+  async manyToSyncDeals(
     _root,
     {
       dealIds,
@@ -203,7 +207,7 @@ const checkSyncedMutations = {
     return result;
   },
 
-  async toSyncOrders(
+  async manyToSyncOrders(
     _root,
     { orderIds }: { orderIds: string[] },
     { subdomain, user }: IContext
@@ -280,7 +284,7 @@ const checkSyncedMutations = {
             data: {
               selector: { _id: order._id },
               modifier: {
-                $set: { syncErkhetInfo: txt }
+                $set: { syncManyErkhetInfo: txt }
               }
             },
             isRPC: true

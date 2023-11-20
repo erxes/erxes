@@ -17,10 +17,13 @@ export const KEY_LABELS = {
   debtAccounts: 'Debt accounts'
 };
 
-export const menuSyncerkhet = [
-  { title: 'Sync history', link: '/sync-erkhet-history' },
-  { title: 'Check deals', link: '/check-synced-deals?dateType=firstOrMove' },
-  { title: 'Check orders', link: '/check-pos-orders' },
-  { title: 'Check Category', link: '/inventory-category' },
-  { title: 'Check Products', link: '/inventory-products' }
+export const menuSyncmanyerkhet = [
+  { title: 'Sync history', link: '/sync-many-erkhet-history' },
+  {
+    title: 'Check deals',
+    link: '/check-many-synced-deals?dateType=firstOrMove'
+  },
+  { title: 'Check orders', link: '/check-many-pos-orders' },
+  { title: 'Check Category', link: '/many-inventory-category' },
+  { title: 'Check Products', link: '/many-inventory-products' }
 ];

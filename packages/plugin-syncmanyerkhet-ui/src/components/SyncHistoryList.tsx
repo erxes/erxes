@@ -11,7 +11,7 @@ import dayjs from 'dayjs';
 import { IRouterProps, IQueryParams } from '@erxes/ui/src/types';
 import React from 'react';
 import { withRouter } from 'react-router-dom';
-import { menuSyncerkhet } from '../constants';
+import { menuSyncmanyerkhet } from '../constants';
 import SyncHistorySidebar from './syncHistorySidebar';
 
 interface IProps extends IRouterProps {
@@ -118,7 +118,7 @@ class SyncHistoryList extends React.Component<IProps, {}> {
           <Wrapper.Header
             title={__(`Sync Histories`)}
             queryParams={queryParams}
-            submenu={menuSyncerkhet}
+            submenu={menuSyncmanyerkhet}
           />
         }
         leftSidebar={

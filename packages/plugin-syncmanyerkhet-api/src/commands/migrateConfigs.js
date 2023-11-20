@@ -18,7 +18,7 @@ const command = async () => {
   console.log('connected...');
 
   Configs = db.collection('configs');
-  SyncerkhetConfigs = db.collection('syncerkhet_configs');
+  SyncManyErkhetConfigs = db.collection('syncmanyerkhet_configs');
 
   keys = ['ERKHET', 'ebarimtConfig', 'stageInMoveConfig', 'returnEbarimtConfig', 'remainderConfig']
 
@@ -26,7 +26,7 @@ const command = async () => {
     const config = await Configs.findOne({ code: key });
 
     if (config) {
-      await SyncerkhetConfigs.updateOne({ code: key }, {
+      await SyncManyErkhetConfigs.updateOne({ code: key }, {
         $set: {
           _id: config._id,
           code: key,

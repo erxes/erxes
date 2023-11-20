@@ -7,7 +7,7 @@ const configMutations = {
    * Create or update config object
    */
 
-  async syncerkhetConfigsUpdate(
+  async syncmanyerkhetConfigsUpdate(
     _root,
     { configsMap },
     { user, models, subdomain }: IContext
@@ -63,7 +63,7 @@ const configMutations = {
 
 checkPermission(
   configMutations,
-  'syncerkhetConfigsUpdate',
+  'syncmanyerkhetConfigsUpdate',
   'manageGeneralSettings'
 );
 

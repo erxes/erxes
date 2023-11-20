@@ -3,8 +3,8 @@
 import { isEnabled } from '@erxes/ui/src/utils/core';
 
 const configs = `
-  query syncerkhetConfigsGetValue($code: String!) {
-    syncerkhetConfigsGetValue(code: $code)
+  query syncmanyerkhetConfigsGetValue($code: String!) {
+    syncmanyerkhetConfigsGetValue(code: $code)
   }
 `;
 
@@ -206,7 +206,7 @@ const posOrderDetail = `
       `
           : ``
       }
-      syncErkhetInfo
+      syncManyErkhetInfo
       putResponses
       deliveryInfo
       deal
@@ -216,10 +216,10 @@ const posOrderDetail = `
 `;
 
 const syncHistories = `
-  query syncHistories(
+  query manySyncHistories(
     ${commonHistoryParams}
   ) {
-    syncHistories (
+    manySyncHistories (
       ${commonHistoryParamDefs}
     ) {
       _id
@@ -243,10 +243,10 @@ const syncHistories = `
 `;
 
 const syncHistoriesCount = `
-  query syncHistoriesCount(
+  query manySyncHistoriesCount(
     ${commonHistoryParams}
   ) {
-    syncHistoriesCount (
+    manySyncHistoriesCount (
       ${commonHistoryParamDefs}
     )
   }

@@ -1,5 +1,5 @@
 {
-  "name": "@erxes/plugin-syncerkhet-api",
+  "name": "@erxes/plugin-syncmanyerkhet-api",
   "version": "1.0.0",
   "scripts": {
     "dev": "nodemon src/index.ts",

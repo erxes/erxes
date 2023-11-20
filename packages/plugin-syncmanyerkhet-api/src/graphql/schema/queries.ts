@@ -21,10 +21,10 @@ const commonHistoryParams = `
 `;
 
 export const queries = `
-  erkhetRemainders(
+  manyErkhetRemainders(
     ${productsQueryParams}
-  ): [erkhetRemainder]  
-  syncHistories(${commonHistoryParams}): [SyncHistory]
-  syncHistoriesCount(${commonHistoryParams}): Int
-  erkhetDebt(contentType: String!, contentId: String!, startDate: Date, endDate: Date, isMore: Boolean): JSON
+  ): [manyErkhetRemainder]  
+  manySyncHistories(${commonHistoryParams}): [ManySyncHistory]
+  manySyncHistoriesCount(${commonHistoryParams}): Int
+  manyErkhetDebt(contentType: String!, contentId: String!, startDate: Date, endDate: Date, isMore: Boolean): JSON
 `;

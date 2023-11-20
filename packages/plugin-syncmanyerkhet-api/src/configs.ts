@@ -16,7 +16,7 @@ export let mainDb;
 export let serviceDiscovery;
 
 export default {
-  name: 'syncerkhet',
+  name: 'syncmanyerkhet',
   permissions,
   getHandlers: [{ path: `/getOrderInfo`, method: getOrderInfo }],
   graphql: async sd => {

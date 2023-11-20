@@ -1,5 +1,5 @@
 {
-  "name": "plugin-syncerkhet-ui",
+  "name": "plugin-syncmanyerkhet-ui",
   "version": "1.0.0",
   "scripts": {
     "install-deps": "yarn install",

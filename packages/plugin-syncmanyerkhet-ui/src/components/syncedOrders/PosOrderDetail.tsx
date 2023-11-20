@@ -113,8 +113,8 @@ class OrderDetail extends React.Component<Props> {
           dayjs(order.paidDate || order.createdAt).format('lll')
         )}
         {this.renderDeliveryInfo()}
-        {order.syncErkhetInfo
-          ? this.renderRow('Erkhet Info', order.syncErkhetInfo)
+        {order.syncManyErkhetInfo
+          ? this.renderRow('Erkhet Info', order.syncManyErkhetInfo)
           : ''}
 
         {order.convertDealId

@@ -139,72 +139,72 @@ const routes = () => {
   return (
     <React.Fragment>
       <Route
-        key="/erxes-plugin-sync-erkhet/settings/general"
+        key="/erxes-plugin-sync-many-erkhet/settings/general"
         exact={true}
-        path="/erxes-plugin-sync-erkhet/settings/general"
+        path="/erxes-plugin-sync-many-erkhet/settings/general"
         component={GeneralSetting}
       />
 
       <Route
-        key="/erxes-plugin-sync-erkhet/settings/stage"
+        key="/erxes-plugin-sync-many-erkhet/settings/stage"
         exact={true}
-        path="/erxes-plugin-sync-erkhet/settings/stage"
+        path="/erxes-plugin-sync-many-erkhet/settings/stage"
         component={StageSetting}
       />
 
       <Route
-        key="/erxes-plugin-sync-erkhet/settings/move-stage"
+        key="/erxes-plugin-sync-many-erkhet/settings/move-stage"
         exact={true}
-        path="/erxes-plugin-sync-erkhet/settings/move-stage"
+        path="/erxes-plugin-sync-many-erkhet/settings/move-stage"
         component={StageMoveSetting}
       />
 
       <Route
-        key="/erxes-plugin-sync-erkhet/settings/return-stage"
+        key="/erxes-plugin-sync-many-erkhet/settings/return-stage"
         exact={true}
-        path="/erxes-plugin-sync-erkhet/settings/return-stage"
+        path="/erxes-plugin-sync-many-erkhet/settings/return-stage"
         component={ReturnStageSetting}
       />
 
       <Route
-        key="/erxes-plugin-sync-erkhet/settings/pipeline"
+        key="/erxes-plugin-sync-many-erkhet/settings/pipeline"
         exact={true}
-        path="/erxes-plugin-sync-erkhet/settings/pipeline"
+        path="/erxes-plugin-sync-many-erkhet/settings/pipeline"
         component={PipelineSetting}
       />
 
       <Route
-        key="/sync-erkhet-history"
+        key="/sync-many-erkhet-history"
         exact={true}
-        path="/sync-erkhet-history"
+        path="/sync-many-erkhet-history"
         component={syncHistoryList}
       />
 
       <Route
-        key="/check-synced-deals"
+        key="/check-many-synced-deals"
         exact={true}
-        path="/check-synced-deals"
+        path="/check-many-synced-deals"
         component={checkSyncedDealList}
       />
 
       <Route
-        key="/check-pos-orders"
+        key="/check-many-pos-orders"
         exact={true}
-        path="/check-pos-orders"
+        path="/check-many-pos-orders"
         component={CheckSyncedOrderList}
       />
 
       <Route
-        key="/inventory-products"
+        key="/many-inventory-products"
         exact={true}
-        path="/inventory-products"
+        path="/many-inventory-products"
         component={InventoryProductList}
       />
 
       <Route
-        key="/inventory-category"
+        key="/many-inventory-category"
         exact={true}
-        path="/inventory-category"
+        path="/many-inventory-category"
         component={InventoryCategoryList}
       />
     </React.Fragment>

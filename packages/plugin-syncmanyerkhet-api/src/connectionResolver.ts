@@ -21,12 +21,12 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
   models = {} as IModels;
 
   models.Configs = db.model<IConfigDocument, IConfigModel>(
-    'syncerkhet_configs',
+    'syncmanyerkhet_configs',
     loadConfigClass(models)
   );
 
   models.SyncLogs = db.model<ISyncLogDocument, ISyncLogModel>(
-    'syncerkhet_synclogs',
+    'syncmanyerkhet_synclogs',
     loadSyncLogClass(models)
   );
 

@@ -7,10 +7,10 @@ export const types = `
 `;
 
 export const queries = `
-  syncerkhetConfigs: [Config]
-  syncerkhetConfigsGetValue(code:String!):JSON
+  syncmanyerkhetConfigs: [Config]
+  syncmanyerkhetConfigsGetValue(code:String!):JSON
 `;
 
 export const mutations = `
-  syncerkhetConfigsUpdate(configsMap: JSON!): JSON
+  syncmanyerkhetConfigsUpdate(configsMap: JSON!): JSON
 `;

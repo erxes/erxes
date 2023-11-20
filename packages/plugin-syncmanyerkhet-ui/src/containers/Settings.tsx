@@ -33,7 +33,7 @@ class SettingsContainer extends React.Component<FinalProps> {
           configsQuery.refetch();
 
           Alert.success(
-            'You successfully updated stage in syncerkhet settings'
+            'You successfully updated stage in syncmanyerkhet settings'
           );
         })
         .catch(error => {
@@ -41,7 +41,7 @@ class SettingsContainer extends React.Component<FinalProps> {
         });
     };
 
-    const config = configsQuery.syncerkhetConfigsGetValue || {};
+    const config = configsQuery.syncmanyerkhetConfigsGetValue || {};
 
     const configsMap = { [config.code]: config.value };
 

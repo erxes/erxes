@@ -7,7 +7,7 @@ import {
 } from '../../../utils/consumeInventory';
 
 const inventoryMutations = {
-  async toCheckProducts(
+  async manyToCheckProducts(
     _root,
     { brandId }: { brandId: string },
     { subdomain, models }: IContext
@@ -19,10 +19,20 @@ const inventoryMutations = {
       throw new Error('Erkhet config not found.');
     }
 
+    const productQry: any = { status: { $ne: 'deleted' } };
+    if (brandId && brandId !== 'noBrand') {
+      productQry.scopeBrandIds = { $in: [brandId] };
+    } else {
+      productQry.$or = [
+        { scopeBrandIds: { $exists: false } },
+        { scopeBrandIds: { $size: 0 } }
+      ];
+    }
+    console.log(JSON.stringify(productQry));
     const productsCount = await sendProductsMessage({
       subdomain,
       action: 'count',
-      data: { query: { status: { $ne: 'deleted' } } },
+      data: { query: productQry },
       isRPC: true
     });
 
@@ -30,7 +40,7 @@ const inventoryMutations = {
       subdomain,
       action: 'find',
       data: {
-        query: { status: { $ne: 'deleted' } },
+        query: productQry,
         limit: productsCount
       },
       isRPC: true
@@ -100,7 +110,6 @@ const inventoryMutations = {
             (categoryOfId[product.categoryId] || {}).code
         ) {
           matchedCount = matchedCount + 1;
-          console.log(product.code);
         } else {
           updateProducts.push(resProd);
         }
@@ -128,11 +137,12 @@ const inventoryMutations = {
     };
   },
 
-  async toCheckCategories(
+  async manyToCheckCategories(
     _root,
     { brandId }: { brandId: string },
     { subdomain, models }: IContext
   ) {
+    console.log('qqqqqqqqqqqqqqqqqqqqq');
     const configs = await models.Configs.getConfig('erkhetConfig', {});
     const config = configs[brandId || 'noBrand'];
 
@@ -210,7 +220,7 @@ const inventoryMutations = {
     };
   },
 
-  async toSyncCategories(
+  async manyToSyncCategories(
     _root,
     {
       brandId,
@@ -275,7 +285,7 @@ const inventoryMutations = {
     }
   },
 
-  async toSyncProducts(
+  async manyToSyncProducts(
     _root,
     {
       brandId,
@@ -291,6 +301,7 @@ const inventoryMutations = {
       throw new Error('Erkhet config not found.');
     }
 
+    console.log(config);
     try {
       switch (action) {
         case 'CREATE': {

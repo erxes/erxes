@@ -17,11 +17,11 @@ export const afterQueryHandlers = async (subdomain, data) => {
 
   const { pipelineId } = args;
 
-  if (!pipelineId || !(await isEnabled('syncerkhet'))) {
+  if (!pipelineId || !(await isEnabled('syncmanyerkhet'))) {
     return results;
   }
   try {
-    const configs = await models.Configs.getConfig('ERKHET', {});
+    const configs = await models.Configs.getConfig('erkhetConfig', {});
     const remConfigs = await models.Configs.getConfig('remainderConfig', {});
 
     if (!Object.keys(remConfigs).includes(pipelineId)) {
@@ -30,44 +30,82 @@ export const afterQueryHandlers = async (subdomain, data) => {
 
     const remConfig = remConfigs[pipelineId];
 
-    const codes = (results || []).map(item => item.code);
+    const configBrandIds = Object.keys(configs);
+    const codesByBrandId = {};
 
-    const response = await sendRequest({
-      url: `${process.env.ERKHET_URL ||
-        'https://erkhet.biz'}/get-api/?kind=remainder`,
-      method: 'GET',
-      params: {
-        kind: 'remainder',
-        api_key: configs.apiKey,
-        api_secret: configs.apiSecret,
-        check_relate: codes.length < 4 ? '1' : '',
-        accounts: remConfig.account,
-        locations: remConfig.location,
-        inventories: codes.join(',')
-      },
-      timeout: 8000
-    });
+    for (const product of results) {
+      if (
+        !(product.scopeBrandIds || []).length &&
+        configBrandIds.includes('noBrand')
+      ) {
+        if (!codesByBrandId['noBrand']) {
+          codesByBrandId['noBrand'] = [];
+        }
+        codesByBrandId['noBrand'].push(product.code);
+        continue;
+      }
 
-    const jsonRes = JSON.parse(response);
-    let responseByCode = jsonRes;
+      for (const brandId of configBrandIds) {
+        if (product.scopeBrandIds.includes(brandId)) {
+          if (!codesByBrandId[brandId]) {
+            codesByBrandId[brandId] = [];
+          }
 
-    if (remConfig.account && remConfig.location) {
-      const accounts = remConfig.account.split(',') || [];
-      const locations = remConfig.location.split(',') || [];
+          codesByBrandId[brandId].push(product.code);
+          continue;
+        }
+      }
+    }
 
-      for (const acc of accounts) {
-        for (const loc of locations) {
-          const resp = (jsonRes[acc] || {})[loc] || {};
-          for (const invCode of Object.keys(resp)) {
-            if (!Object.keys(responseByCode).includes(invCode)) {
-              responseByCode[invCode] = '';
+    console.log(codesByBrandId);
+    let responseByCode = {};
+
+    for (const brandId of Object.keys(codesByBrandId)) {
+      const mainConfig = configs[brandId];
+      const remainderConfig = (remConfig.rules || {})[brandId];
+
+      if (!codesByBrandId[brandId].length) {
+        continue;
+      }
+      console.log(mainConfig, remainderConfig);
+      const response = await sendRequest({
+        url: `${process.env.ERKHET_URL ||
+          'https://erkhet.biz'}/get-api/?kind=remainder`,
+        method: 'GET',
+        params: {
+          kind: 'remainder',
+          api_key: mainConfig.apiKey,
+          api_secret: mainConfig.apiSecret,
+          check_relate: codesByBrandId[brandId].length < 4 ? '1' : '',
+          accounts: remainderConfig.account,
+          locations: remainderConfig.location,
+          inventories: codesByBrandId[brandId].join(',')
+        },
+        timeout: 8000
+      });
+
+      console.log(response);
+
+      const jsonRes = JSON.parse(response);
+
+      if (remainderConfig.account && remainderConfig.location) {
+        const accounts = remainderConfig.account.split(',') || [];
+        const locations = remainderConfig.location.split(',') || [];
+
+        for (const acc of accounts) {
+          for (const loc of locations) {
+            const resp = (jsonRes[acc] || {})[loc] || {};
+            for (const invCode of Object.keys(resp)) {
+              if (!Object.keys(responseByCode).includes(invCode)) {
+                responseByCode[invCode] = '';
+              }
+              const remainder = `${accounts.length > 1 ? `${acc}/` : ''}${
+                locations.length > 1 ? `${loc}:` : ''
+              } ${resp[invCode]}`;
+              responseByCode[invCode] = responseByCode[invCode]
+                ? `${responseByCode[invCode]}, ${remainder}`
+                : `${remainder}`;
             }
-            const remainder = `${accounts.length > 1 ? `${acc}/` : ''}${
-              locations.length > 1 ? `${loc}:` : ''
-            } ${resp[invCode]}`;
-            responseByCode[invCode] = responseByCode[invCode]
-              ? `${responseByCode[invCode]}, ${remainder}`
-              : `${remainder}`;
           }
         }
       }

@@ -15,7 +15,7 @@ export const consumeInventory = async (
     defaultValue: {}
   });
 
-  const brandIds = product.scopeBrandIds;
+  const brandIds = (product || {}).scopeBrandIds || [];
 
   if ((action === 'update' && old_code) || action === 'create') {
     const productCategory = await sendProductsMessage({
@@ -25,7 +25,7 @@ export const consumeInventory = async (
       isRPC: true
     });
 
-    if (!brandIds.includes(config.brandId)) {
+    if (!brandIds.includes(config.brandId) && config.brandId !== 'noBrand') {
       brandIds.push(config.brandId);
     }
 
@@ -116,7 +116,7 @@ export const consumeInventoryCategory = async (
     isRPC: true
   });
 
-  const brandIds = productCategory.scopeBrandIds;
+  const brandIds = (productCategory || {}).scopeBrandIds || [];
 
   if ((action === 'update' && old_code) || action === 'create') {
     const parentCategory = await sendProductsMessage({
@@ -126,7 +126,7 @@ export const consumeInventoryCategory = async (
       isRPC: true
     });
 
-    if (!brandIds.includes(config.brandId)) {
+    if (!brandIds.includes(config.brandId) && config.brandId !== 'noBrand') {
       brandIds.push(config.brandId);
     }
 

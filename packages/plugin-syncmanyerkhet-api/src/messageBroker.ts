@@ -14,19 +14,19 @@ export const initBroker = async cl => {
 
   const { consumeQueue, consumeRPCQueue } = client;
 
-  consumeQueue('syncerkhet:afterMutation', async ({ subdomain, data }) => {
+  consumeQueue('syncmanyerkhet:afterMutation', async ({ subdomain, data }) => {
     await afterMutationHandlers(subdomain, data);
     return;
   });
 
-  consumeRPCQueue('syncerkhet:afterQuery', async ({ subdomain, data }) => {
+  consumeRPCQueue('syncmanyerkhet:afterQuery', async ({ subdomain, data }) => {
     return {
       status: 'success',
       data: await afterQueryHandlers(subdomain, data)
     };
   });
 
-  consumeRPCQueue('syncerkhet:getConfig', async ({ subdomain, data }) => {
+  consumeRPCQueue('syncmanyerkhet:getConfig', async ({ subdomain, data }) => {
     const { code, defaultValue } = data;
     const models = await generateModels(subdomain);
 
@@ -36,7 +36,7 @@ export const initBroker = async cl => {
     };
   });
 
-  consumeRPCQueue('syncerkhet:toOrder', async ({ subdomain, data }) => {
+  consumeRPCQueue('syncmanyerkhet:toOrder', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
     const { pos, order } = data;
     const syncLogDoc = {
@@ -86,63 +86,66 @@ export const initBroker = async cl => {
     }
   });
 
-  consumeRPCQueue('syncerkhet:loanTransaction', async ({ subdomain, data }) => {
-    const { generals, orderId } = data;
-    const models = await generateModels(subdomain);
+  consumeRPCQueue(
+    'syncmanyerkhet:loanTransaction',
+    async ({ subdomain, data }) => {
+      const { generals, orderId } = data;
+      const models = await generateModels(subdomain);
 
-    const syncLogDoc = {
-      contentType: 'loans:transaction',
-      createdAt: new Date()
-    };
-    const syncLog = await models.SyncLogs.syncLogsAdd({
-      ...syncLogDoc,
-      contentId: orderId,
-      consumeData: data,
-      consumeStr: JSON.stringify(data)
-    });
+      const syncLogDoc = {
+        contentType: 'loans:transaction',
+        createdAt: new Date()
+      };
+      const syncLog = await models.SyncLogs.syncLogsAdd({
+        ...syncLogDoc,
+        contentId: orderId,
+        consumeData: data,
+        consumeStr: JSON.stringify(data)
+      });
 
-    try {
-      const postData = await loansTransactionToErkhet(
-        subdomain,
-        generals,
-        orderId
-      );
-      if (!postData) {
+      try {
+        const postData = await loansTransactionToErkhet(
+          subdomain,
+          generals,
+          orderId
+        );
+        if (!postData) {
+          return {
+            status: 'success',
+            data: {}
+          };
+        }
+
         return {
           status: 'success',
-          data: {}
+          data: await sendRPCMessage(
+            models,
+            syncLog,
+            'rpc_queue:erxes-automation-erkhet',
+            {
+              action: 'get-response-send-journal-orders',
+              isEbarimt: false,
+              payload: JSON.stringify(postData),
+              thirdService: true,
+              isJson: true
+            }
+          )
+        };
+      } catch (e) {
+        await models.SyncLogs.updateOne(
+          { _id: syncLog._id },
+          { $set: { error: e.message } }
+        );
+        return {
+          status: 'success',
+          data: { error: e.message }
         };
       }
-
-      return {
-        status: 'success',
-        data: await sendRPCMessage(
-          models,
-          syncLog,
-          'rpc_queue:erxes-automation-erkhet',
-          {
-            action: 'get-response-send-journal-orders',
-            isEbarimt: false,
-            payload: JSON.stringify(postData),
-            thirdService: true,
-            isJson: true
-          }
-        )
-      };
-    } catch (e) {
-      await models.SyncLogs.updateOne(
-        { _id: syncLog._id },
-        { $set: { error: e.message } }
-      );
-      return {
-        status: 'success',
-        data: { error: e.message }
-      };
     }
-  });
+  );
 
   consumeRPCQueue(
-    'syncerkhet:deleteTransaction',
+    'syncmanyerkhet:deleteTransaction',
     async ({ subdomain, data }) => {
       const { generals, orderId } = data;
       const models = await generateModels(subdomain);
@@ -198,7 +201,7 @@ export const initBroker = async cl => {
     }
   );
 
-  consumeRPCQueue('syncerkhet:returnOrder', async ({ subdomain, data }) => {
+  consumeRPCQueue('syncmanyerkhet:returnOrder', async ({ subdomain, data }) => {
     const { pos, order } = data;
 
     return {
