@@ -7,13 +7,11 @@ import RightNavbar from "@/modules/navbar/component/RightNavbar"
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
-import { useDiscover } from "../hooks/useDiscover"
-
 const Knowledgebase = dynamic(
   () => import("@/modules/discover/components/knowledgebase/Knowledgebase")
 )
 const Feedback = dynamic(
-  () => import("@/modules/discover/components/feedback/Feedback")
+  () => import("@/modules/discover/components/feedback/form/FeedbackForm")
 )
 
 const Discover = () => {

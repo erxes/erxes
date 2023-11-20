@@ -81,3 +81,27 @@ const Stepper = ({ steps = [], currentStep = 1, setCurrentStep }: Props) => {
 }
 
 export default Stepper
+
+
+.step-item {
+  @apply relative flex flex-col justify-center items-center w-40;
+}
+.step-item:not(:first-child):before {
+  @apply content-[''] bg-slate-200 absolute w-full h-[3px] right-2/4 top-1/3 -translate-y-2/4;
+}
+.step {
+  @apply w-10 h-10 flex items-center justify-center z-10 relative bg-slate-700 rounded-full font-semibold text-white;
+}
+.active .step {
+  @apply bg-[#4F33AF];
+}
+.complete .step {
+  @apply bg-green-600;
+}
+.complete p {
+  @apply text-white;
+}
+.complete:not(:first-child):before,
+.active:not(:first-child):before {
+  @apply bg-green-600;
+}
