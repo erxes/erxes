@@ -202,7 +202,11 @@ const getCardsTypeMBAction = cardType => {
   return action;
 };
 
-export const generateCreatedUsersCards = async ({ subdomain, params }) => {
+export const generateCreatedUsersCards = async ({
+  subdomain,
+  params,
+  fieldName
+}) => {
   const query = await queryBuilderCards({ subdomain, params: params });
 
   const cards = await sendCardsMessage({
@@ -213,9 +217,10 @@ export const generateCreatedUsersCards = async ({ subdomain, params }) => {
     defaultValue: []
   });
 
-  const createdUserIds = cards
-    .map(card => card.userId)
-    .filter(cardId => cardId);
+  const userIds = cards
+    .map(card => card[fieldName])
+    .filter(id => id)
+    .flat();
 
   const users = await sendCoreMessage({
     subdomain,
@@ -223,7 +228,7 @@ export const generateCreatedUsersCards = async ({ subdomain, params }) => {
     data: {
       query: {
         ...(await queryBuilderUsers({ subdomain, params })),
-        _id: { $in: [...new Set(createdUserIds)] }
+        _id: { $in: [...new Set(userIds)] }
       }
     },
     isRPC: true,
