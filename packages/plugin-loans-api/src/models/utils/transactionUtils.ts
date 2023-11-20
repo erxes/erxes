@@ -115,41 +115,42 @@ export const calcUndue = async (
   return result;
 };
 
-function fillCommitmentInterest(
+async function fillCommitmentInterest(
   contract: IContractDocument,
   result: any,
-  diffEve,
-  diffNonce,
-  preSchedule
+  models: IModels
 ) {
-  if (
-    contract.leaseType === LEASE_TYPES.LINEAR &&
-    contract.commitmentInterest > 0
-  ) {
-    result.commitmentInterestEve =
-      (preSchedule.interestEve || 0) -
-      (preSchedule.didInterestEve || 0) +
-      calcInterest({
-        balance: result.unUsedBalance,
-        interestRate: contract.commitmentInterest,
-        dayOfMonth: diffEve
-      });
+  const schedules = await models.Schedules.find({
+    contractId: contract._id,
+    status: SCHEDULE_STATUS.PENDING
+  });
 
-    result.commitmentInterestNonce =
-      (preSchedule.interestNonce || 0) -
-      (preSchedule.didInterestNonce || 0) +
-      calcInterest({
-        balance: result.unUsedBalance,
-        interestRate: contract.commitmentInterest,
-        dayOfMonth: diffNonce
-      });
+  let beginDate = contract.startDate;
 
-    result.commitmentInterest =
-      result.commitmentInterestEve + result.commitmentInterestNonce;
+  for await (let schedule of schedules) {
+    const { diffEve, diffNonce } = getDatesDiffMonth(
+      beginDate,
+      schedule.payDate
+    );
+    beginDate = schedule.payDate;
 
-    return result;
+    result.commitmentInterestEve += calcInterest({
+      balance: result.unUsedBalance,
+      interestRate: contract.commitmentInterest,
+      dayOfMonth: diffEve
+    });
+
+    result.commitmentInterestNonce += calcInterest({
+      balance: result.unUsedBalance,
+      interestRate: contract.commitmentInterest,
+      dayOfMonth: diffNonce
+    });
   }
-  return;
+
+  result.commitmentInterest =
+    result.commitmentInterestEve + result.commitmentInterestNonce;
+
+  return result;
 }
 
 /**
@@ -300,13 +301,7 @@ export const getCalcedAmounts = async (
         contract.leaseType === LEASE_TYPES.LINEAR &&
         contract.commitmentInterest > 0
       ) {
-        result = fillCommitmentInterest(
-          contract,
-          result,
-          diffEve,
-          diffNonce,
-          preSchedule
-        );
+        result = await fillCommitmentInterest(contract, result, models);
       }
     }
 
@@ -416,13 +411,7 @@ export const getCalcedAmounts = async (
         contract.leaseType === LEASE_TYPES.LINEAR &&
         contract.commitmentInterest > 0
       ) {
-        result = fillCommitmentInterest(
-          contract,
-          result,
-          diffEve,
-          diffNonce,
-          preSchedule
-        );
+        result = await fillCommitmentInterest(contract, result, models);
       }
     }
 
@@ -529,13 +518,7 @@ export const getCalcedAmounts = async (
       contract.leaseType === LEASE_TYPES.LINEAR &&
       contract.commitmentInterest > 0
     ) {
-      result = fillCommitmentInterest(
-        contract,
-        result,
-        diffEve,
-        diffNonce,
-        preSchedule
-      );
+      result = await fillCommitmentInterest(contract, result, models);
     }
   }
 
