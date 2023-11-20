@@ -12,8 +12,8 @@ import { cn } from "@/lib/utils"
 import { Toaster } from "@/components/ui/toaster"
 
 export const metadata: Metadata = {
-  title: "exm",
-  description: "exm",
+  title: "Employee Experience Management",
+  description: "Employee Experience Management",
   icons: {
     icon: "/favicon.png",
     shortcut: "/favicon.png",
