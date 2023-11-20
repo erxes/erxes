@@ -8,23 +8,33 @@ const insuranceTypeFields = `
       boardId
       contributionType
       metric
-      goalType
+      goalTypeChoose
       contribution
       specificPeriodGoals
+      segmentRadio
+      stageRadio
+      periodGoal
+      unit
+      department
+      branch
+      teamGoalType
       progress
       startDate
       endDate
       target
+      segmentIds,
+      segmentCount
 `;
 
 const listParamsDef = `
   $page: Int
   $perPage: Int
   $ids: [String]
-  $date: String
-  $branch: String
-  $department: String
-  $unit: String
+  $date: Date
+  $endDate: Date
+  $branch: [String]
+  $department: [String]
+  $unit: [String]
   $contribution: [String]
   $searchValue: String
   $sortField: String
@@ -36,6 +46,7 @@ const listParamsValue = `
   perPage: $perPage
   ids: $ids
   date: $date
+  endDate:$endDate
   branch: $branch
   department: $department
   contribution:$contribution
@@ -162,7 +173,14 @@ const detailFields = `
   operatorPhone
   ${nameFields}
 `;
-
+const segmentFields = `
+  _id
+  name
+  description
+  subOf
+  color
+  conditions
+`;
 export const departmentField = `
   _id
   title
@@ -200,7 +218,6 @@ export const unitField = `
   _id
   title
   description
-  department
   department {
     ${departmentField}
   }
@@ -290,6 +307,7 @@ const userDetail = `
     }
   }
 `;
+
 export default {
   goalTypes,
   goalTypesMain,

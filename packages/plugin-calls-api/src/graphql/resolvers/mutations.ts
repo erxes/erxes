@@ -1,6 +1,5 @@
 import { generateToken } from '../../utils';
 import { IContext } from '../../connectionResolver';
-import { ICustomer } from '../../models/definitions/customers';
 
 import receiveCall from '../../receiveCall';
 
@@ -16,24 +15,22 @@ const callsMutations = {
     return integration;
   },
 
-  async callAddCustomer(
-    _root,
-    { primaryPhone, inboxIntegrationId },
-    { models, subdomain }: IContext
-  ) {
-    const createData: ICustomer = {
-      inboxIntegrationId,
-      primaryPhone
-    };
+  async callAddCustomer(_root, args, { models, subdomain }: IContext) {
+    const customer = await receiveCall(models, subdomain, args);
+    let conversation;
+    if (args.callID) {
+      conversation = await models.Conversations.findOne({
+        callId: args.callID
+      });
+    }
 
-    const customer = await receiveCall(models, subdomain, createData);
-
-    return (
-      customer.erxesApiId && {
+    return {
+      customer: customer.erxesApiId && {
         __typename: 'Customer',
         _id: customer.erxesApiId
-      }
-    );
+      },
+      conversation
+    };
   }
 };
 

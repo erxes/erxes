@@ -24,7 +24,6 @@ export default {
     };
   },
   hasSubscriptions: false,
-  hasDashboard: true,
   meta: {
     dashboards
   },

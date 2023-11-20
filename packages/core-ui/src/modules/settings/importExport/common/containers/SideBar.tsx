@@ -10,6 +10,7 @@ import { queries } from '../graphql';
 type Props = {
   currentType: string;
   history: any;
+  mainType: string;
 };
 
 type State = {};
@@ -39,7 +40,12 @@ class SideBarContainer extends React.Component<FinalProps, State> {
 export default withProps<Props>(
   compose(
     graphql<Props>(gql(queries.historyGetTypes), {
-      name: 'historyGetTypes'
+      name: 'historyGetTypes',
+      options: props => ({
+        variables: {
+          type: props.mainType
+        }
+      })
     })
   )(SideBarContainer)
 );

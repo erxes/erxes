@@ -1,4 +1,5 @@
 module.exports = {
+  srcDir: __dirname,
   name: 'xyp',
   port: 3017,
   scope: 'xyp',

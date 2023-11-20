@@ -56,7 +56,6 @@ var main = async () => {
 		{ name: 'cards', ui: true, api: true },
 		{ name: 'clientportal', ui: true, api: true },
 		{ name: 'contacts', ui: true, api: true },
-		{ name: 'dashboard', ui: true, api: true },
 		{ name: 'emailtemplates', ui: true, api: true },
 		{ name: 'engages', ui: true, api: true },
 		{ name: 'forms', ui: true, api: true },

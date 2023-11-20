@@ -216,30 +216,23 @@
 .event-card-image-shadow {
   box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.25);
 }
-.rdtTimeToggle {
-  text-align: center;
-  cursor: pointer;
-}
-.rdtCounters {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-  justify-content: center;
-}
-.rdtYears table, .rdtMonths table {
-  width: 100%;
-}
-.rdtYear, .rdtMonth, .rdtDay {
-  text-align: center;
-  padding: 3px 5px;
-  cursor: pointer;
-}
-.rdtYear:hover, .rdtMonth:hover, .rdtDay:hover {
-  background-color: #f0f0f0;
-}
-.rdtBtn, .rdtSwitch, .rdtPrev, .rdtNext {
-  cursor: pointer;
-}
 .border-light {
   border-color: hsl(0, 0%, 80%) !important;
+}
+.react-datetime-picker__wrapper {
+  border: none !important;
+}
+.react-datetime-picker__inputGroup__input:invalid {
+  background: none !important;
+}
+.react-datetime-picker__calendar{
+  inset: calc(100% + 0.5rem) auto auto -9px !important;
+  width: 305px !important;
+}
+.react-calendar {
+  border: 1px solid hsl(0, 0%, 80%) !important;
+  border-radius: 6px;
+}
+.react-datetime-picker__clock {
+  display: none;
 }

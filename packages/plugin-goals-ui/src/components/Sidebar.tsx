@@ -26,7 +26,7 @@ export default function Sidebar(props: Props) {
   const history = useHistory();
 
   const [filters, setFilters] = useState(props.params);
-  const { branch, department, unit, date, contribution } = filters;
+  const { branch, department, unit, date, contribution, endDate } = filters;
 
   const clearFilter = () => {
     router.removeParams(
@@ -36,6 +36,7 @@ export default function Sidebar(props: Props) {
       'unit',
       'contribution',
       'date',
+      'endDate',
       'page'
     );
   };
@@ -53,7 +54,12 @@ export default function Sidebar(props: Props) {
       <Section.Title>
         {__('Filters')}
         <Section.QuickButtons>
-          {(branch || department || unit || contribution || date) && (
+          {(branch ||
+            department ||
+            unit ||
+            contribution ||
+            date ||
+            endDate) && (
             <a href="#cancel" tabIndex={0} onClick={clearFilter}>
               <Tip text={__('Clear filter')} placement="bottom">
                 <Icon icon="cancel-1" />
@@ -64,15 +70,26 @@ export default function Sidebar(props: Props) {
       </Section.Title>
       <SidebarFilters>
         <FormGroup>
-          <ControlLabel>Date</ControlLabel>
+          <ControlLabel>Start Date</ControlLabel>
           <DateControl
             value={date}
-            timeFormat={'HH:mm'}
             name="date"
-            placeholder={'date'}
+            placeholder={'Start Date'}
             dateFormat={'YYYY-MM-DD'}
             onChange={(date: any) =>
-              setFilter('date', dayjs(date).format('YYYY-MM-DD HH:mm'))
+              setFilter('date', dayjs(date).format('YYYY-MM-DD'))
+            }
+          />
+        </FormGroup>
+        <FormGroup>
+          <ControlLabel>End Date</ControlLabel>
+          <DateControl
+            value={endDate}
+            name="endDate"
+            placeholder={'End Date'}
+            dateFormat={'YYYY-MM-DD'}
+            onChange={(endDate: any) =>
+              setFilter('endDate', dayjs(endDate).format('YYYY-MM-DD'))
             }
           />
         </FormGroup>
