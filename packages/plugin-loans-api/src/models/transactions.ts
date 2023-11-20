@@ -495,16 +495,12 @@ export const loadTransactionClass = (models: IModels) => {
         interestNonce = 0,
         insurance = 0,
         debt = 0,
-        balance = 0
+        balance = 0,
+        commitmentInterest,
+        storedInterest
       } = paymentInfo;
 
-      paymentInfo.calcInterest =
-        paymentInfo.interestEve +
-        paymentInfo.interestNonce -
-        paymentInfo.storedInterest;
-
-      paymentInfo.commitmentInterest =
-        paymentInfo.commitmentInterestEve + paymentInfo.commitmentInterestNonce;
+      paymentInfo.calcInterest = interestEve + interestNonce - storedInterest;
 
       paymentInfo.total =
         payment +
@@ -513,7 +509,7 @@ export const loadTransactionClass = (models: IModels) => {
         interestNonce +
         insurance +
         debt +
-        paymentInfo.commitmentInterest;
+        commitmentInterest;
 
       paymentInfo.closeAmount =
         balance +
@@ -522,7 +518,7 @@ export const loadTransactionClass = (models: IModels) => {
         interestEve +
         interestNonce +
         insurance +
-        paymentInfo.commitmentInterest +
+        commitmentInterest +
         debt;
 
       return paymentInfo;
