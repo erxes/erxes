@@ -4,7 +4,7 @@ import { generateFieldsFromSchema } from '@erxes/api-utils/src/fieldUtils';
 import redis from '@erxes/api-utils/src/redis';
 import { sendRequest } from '@erxes/api-utils/src/requests';
 import { getNextMonth, getToday } from '@erxes/api-utils/src';
-import { IUserDocument } from './../../api-utils/src/types';
+import { IUserDocument } from '@erxes/api-utils/src/types';
 import { graphqlPubsub } from './configs';
 import { generateModels, IContext, IModels } from './connectionResolver';
 import {

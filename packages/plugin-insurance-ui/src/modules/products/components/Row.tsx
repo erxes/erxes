@@ -1,5 +1,4 @@
 import { RowTitle } from '@erxes/ui-engage/src/styles';
-import { IUser } from '@erxes/ui/src/auth/types';
 import ActionButtons from '@erxes/ui/src/components/ActionButtons';
 import Button from '@erxes/ui/src/components/Button';
 import Icon from '@erxes/ui/src/components/Icon';
@@ -54,6 +53,10 @@ const Row = (props: Props) => {
       </td>
 
       <td key={Math.random()}>
+        <RowTitle>{product.category ? product.category.name : '-'}</RowTitle>
+      </td>
+
+      <td key={Math.random()}>
         <RowTitle>{product.name || '-'} </RowTitle>
       </td>
 
@@ -83,7 +86,7 @@ const Row = (props: Props) => {
             title={'Edit product'}
             trigger={<Button btnStyle="link" icon="edit-3" />}
             content={formContent}
-            size={'lg'}
+            size={'xl'}
           />
           {renderRemoveAction()}
         </ActionButtons>

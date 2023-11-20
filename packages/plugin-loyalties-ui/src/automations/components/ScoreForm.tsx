@@ -112,9 +112,11 @@ export default class ScoreForm extends React.Component<Props, State> {
   renderDefaultContent(config, handleChange) {
     const { triggerType } = this.props;
 
-    const additionalAttributes: any[] = ['contacts', 'user'].some(c =>
-      triggerType.includes(c)
-    )
+    const additionalAttributes: any[] = [
+      'contacts',
+      'user',
+      'posOrder'
+    ].some(c => triggerType.includes(c))
       ? [
           {
             _id: String(Math.random()),

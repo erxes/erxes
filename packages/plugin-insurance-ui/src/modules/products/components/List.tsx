@@ -44,7 +44,7 @@ const List = (props: Props) => {
 
   const righActionBar = (
     <ModalTrigger
-      size="lg"
+      size="xl"
       title="Add product"
       autoOpenKey="showAppAddModal"
       trigger={trigger}
@@ -59,6 +59,7 @@ const List = (props: Props) => {
       <thead>
         <tr>
           <th>{__('Code')}</th>
+          <th>{__('Category')}</th>
           <th>{__('Name')}</th>
           <th>{__('Description')}</th>
           <th>{__('Price')}</th>

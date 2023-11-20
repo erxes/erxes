@@ -141,9 +141,21 @@ class ContractsList extends React.Component<IProps, State> {
               </th>
               <th>
                 <SortHandler
+                  sortField={'classification'}
+                  label={__('Classification')}
+                />
+              </th>
+              <th>
+                <SortHandler
                   sortField={'number'}
                   label={__('Contract Number')}
                 />
+              </th>
+              <th>
+                <SortHandler sortField={'firstName'} label={__('First Name')} />
+              </th>
+              <th>
+                <SortHandler sortField={'code'} label={__('Code')} />
               </th>
               <th>
                 <SortHandler
@@ -157,9 +169,7 @@ class ContractsList extends React.Component<IProps, State> {
                   label={__('leaseAmount')}
                 />
               </th>
-              <th>
-                <SortHandler sortField={'tenor'} label={__('Status')} />
-              </th>
+
               <th>
                 <SortHandler sortField={'tenor'} label={__('Tenor')} />
               </th>
@@ -172,18 +182,17 @@ class ContractsList extends React.Component<IProps, State> {
               <th>
                 <SortHandler sortField={'repayment'} label={__('Repayment')} />
               </th>
-              <th>
-                <SortHandler
-                  sortField={'classification'}
-                  label={__('Classification')}
-                />
-              </th>
+
               <th>
                 <SortHandler
                   sortField={'scheduleDays'}
                   label={__('Schedule Day')}
                 />
               </th>
+              <th>
+                <SortHandler sortField={'tenor'} label={__('Status')} />
+              </th>
+              <th />
             </tr>
           </thead>
           <tbody id="contracts">

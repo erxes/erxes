@@ -22,6 +22,8 @@ import tags from './tags';
 import exporter from './exporter';
 import cronjobs from './cronjobs/common';
 import dashboards from './dashboards';
+import reports from './reports';
+
 import { NOTIFICATION_MODULES } from './constants';
 
 export let mainDb;
@@ -42,10 +44,17 @@ export default {
     };
   },
   hasSubscriptions: true,
+  subscriptionPluginPath: require('path').resolve(
+    __dirname,
+    'graphql',
+    'subscriptionPlugin.js'
+  ),
+
   hasDashboard: true,
 
   meta: {
     cronjobs,
+    reports,
     forms,
     logs: { providesActivityLog: true, consumers: logs },
     segments,

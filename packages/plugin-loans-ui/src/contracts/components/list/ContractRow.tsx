@@ -47,18 +47,24 @@ function ContractRow({ contract, history, isChecked, toggleBulk }: Props) {
           onChange={onChange}
         />
       </td>
-
+      <td key={'classification'}>{displayValue(contract, 'classification')}</td>
       <td key={'number'}>{displayValue(contract, 'number')} </td>
+      <td key={'firstName'}>
+        {displayValue(contract?.customers, 'firstName')}{' '}
+      </td>
+      <td key={'code'}>{displayValue(contract?.customers, 'code')} </td>
       <td key={'loanBalanceAmount'}>
         {displayValue(contract, 'loanBalanceAmount')}
       </td>
       <td key={'leaseAmount'}>{displayValue(contract, 'leaseAmount')}</td>
-      <td key={'status'}>{displayValue(contract, 'status')}</td>
+
       <td key={'tenor'}>{displayValue(contract, 'tenor')}</td>
       <td key={'interestRate'}>{displayValue(contract, 'interestRate')}</td>
       <td key={'repayment'}>{displayValue(contract, 'repayment')}</td>
-      <td key={'classification'}>{displayValue(contract, 'classification')}</td>
+
       <td key={'scheduleDays'}>{displayValue(contract, 'scheduleDays')}</td>
+      <td key={'status'}>{displayValue(contract, 'status')}</td>
+      <td />
     </tr>
   );
 }

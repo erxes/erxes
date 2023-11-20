@@ -97,31 +97,33 @@ export const executeActions = async (
     }
 
     if (action.type === ACTIONS.IF) {
-      let ifActionId;
+      setTimeout(async () => {
+        let ifActionId;
 
-      const isIn = await isInSegment(
-        subdomain,
-        action.config.contentId,
-        execution.targetId
-      );
-      if (isIn) {
-        ifActionId = action.config.yes;
-      } else {
-        ifActionId = action.config.no;
-      }
+        const isIn = await isInSegment(
+          subdomain,
+          action.config.contentId,
+          execution.targetId
+        );
+        if (isIn) {
+          ifActionId = action.config.yes;
+        } else {
+          ifActionId = action.config.no;
+        }
 
-      execAction.nextActionId = ifActionId;
-      execAction.result = { condition: isIn };
-      execution.actions = [...(execution.actions || []), execAction];
-      execution = await execution.save();
+        execAction.nextActionId = ifActionId;
+        execAction.result = { condition: isIn };
+        execution.actions = [...(execution.actions || []), execAction];
+        execution = await execution.save();
 
-      return executeActions(
-        subdomain,
-        triggerType,
-        execution,
-        actionsMap,
-        ifActionId
-      );
+        return executeActions(
+          subdomain,
+          triggerType,
+          execution,
+          actionsMap,
+          ifActionId
+        );
+      }, 10000);
     }
 
     if (action.type === ACTIONS.SET_PROPERTY) {
@@ -319,6 +321,61 @@ export const calculateExecution = async ({
   });
 };
 
+const isWaitingDateConfig = dateConfig => {
+  if (dateConfig) {
+    const NOW = new Date();
+
+    if (dateConfig.type === 'range') {
+      const { startDate, endDate } = dateConfig;
+      if (startDate < NOW && endDate > NOW) {
+        return true;
+      }
+    }
+
+    if (dateConfig?.type === 'cycle') {
+      const { frequencyType } = dateConfig;
+
+      const generateDate = (inputDate, isMonth?) => {
+        const date = new Date(inputDate);
+
+        return new Date(
+          NOW.getFullYear(),
+          isMonth ? NOW.getMonth() : date.getMonth(),
+          date.getDay()
+        );
+      };
+
+      if (frequencyType === 'everyYear') {
+        const startDate = generateDate(dateConfig.startDate);
+        if (dateConfig?.endDate) {
+          const endDate = generateDate(dateConfig.endDate);
+
+          if (NOW < startDate && NOW > endDate) {
+            return true;
+          }
+        }
+        if (NOW < startDate) {
+          return true;
+        }
+      }
+      if (frequencyType === 'everyMonth') {
+        const startDate = generateDate(dateConfig.startDate, true);
+        if (dateConfig?.endDate) {
+          const endDate = generateDate(dateConfig.endDate, true);
+
+          if (NOW < startDate && NOW > endDate) {
+            return true;
+          }
+        }
+        if (NOW < startDate) {
+          return true;
+        }
+      }
+    }
+  }
+  return false;
+};
+
 /*
  * target is one of the TriggerType objects
  */
@@ -346,6 +403,10 @@ export const receiveTrigger = async ({
     for (const automation of automations) {
       for (const trigger of automation.triggers) {
         if (trigger.type !== type) {
+          continue;
+        }
+
+        if (isWaitingDateConfig(trigger?.config?.dateConfig)) {
           continue;
         }
 

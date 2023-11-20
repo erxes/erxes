@@ -15,6 +15,12 @@ const ProductList = asyncComponent(() =>
   )
 );
 
+const CategoryList = asyncComponent(() =>
+  import(
+    /* webpackChunkName: "List - Categories" */ './modules/categories/containers/List'
+  )
+);
+
 const risks = ({ location, history }) => {
   const queryParams = queryString.parse(location.search);
   const { type } = queryParams;
@@ -29,8 +35,16 @@ const products = ({ location, history }) => {
   return <ProductList typeId={type} history={history} />;
 };
 
+const categories = ({ location, history }) => {
+  const queryParams = queryString.parse(location.search);
+  const { type } = queryParams;
+
+  return <CategoryList typeId={type} history={history} />;
+};
+
 export const menu = [
   { title: 'Risks', link: '/insurance/risks' },
+  { title: 'Categories', link: '/insurance/categories' },
   { title: 'Products', link: '/insurance/products' }
 ];
 
@@ -38,6 +52,7 @@ const routes = () => {
   return (
     <React.Fragment>
       <Route path="/insurance/risks/" component={risks} />
+      <Route path="/insurance/categories/" component={categories} />
       <Route path="/insurance/products/" component={products} />
     </React.Fragment>
   );

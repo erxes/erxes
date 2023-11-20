@@ -32,8 +32,10 @@ packages/core-ui/public/js/plugins.js
 /api/src/__tests__/coverage
 
 /enabled-services.js
+/enabled-services.json
 cli/permissions.json
 cli/enabled-services.js
+cli/enabled-services.json
 cli/configs.json
 essyncer/plugins.json
 packages/core/src/private/uploads/

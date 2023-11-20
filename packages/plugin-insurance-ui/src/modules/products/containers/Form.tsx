@@ -31,7 +31,7 @@ const ProductFormContainer = (props: Props) => {
         type="submit"
         icon="check-circle"
         successMessage={`You successfully ${
-          object ? 'updated' : 'added'
+          props.product ? 'updated' : 'added'
         } a product`}
       />
     );

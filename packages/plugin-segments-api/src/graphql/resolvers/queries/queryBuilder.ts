@@ -437,19 +437,20 @@ export const generateQueryBySegment = async (
             if (ct.type !== propertyContentType) {
               continue;
             }
-
-            const { positive } = await sendMessage({
+            const { positive, ignoreThisPostiveQuery } = await sendMessage({
               subdomain,
               serviceName: propertyServiceName,
               isRPC: true,
               action: 'segments.propertyConditionExtender',
-              data: { condition }
+              data: { condition, positiveQuery }
             });
 
             if (positive) {
               positiveQuery = {
                 bool: {
-                  must: [positiveQuery, positive]
+                  must: ignoreThisPostiveQuery
+                    ? [positive]
+                    : [positiveQuery, positive]
                 }
               };
             }

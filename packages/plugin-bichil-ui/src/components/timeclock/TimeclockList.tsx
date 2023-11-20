@@ -8,7 +8,12 @@ import {
   dayOfTheWeekFormat,
   timeFormat
 } from '../../constants';
-import { BorderedTd, RequestInfo, TimeclockInfo } from '../../styles';
+import {
+  BorderedTd,
+  RequestInfo,
+  TimeclockInfo,
+  TimeclockTableWrapper
+} from '../../styles';
 import { IShift, IUserReport } from '../../types';
 
 import Tip from '@erxes/ui/src/components/Tip';
@@ -96,7 +101,11 @@ const TimeclockList = (props: Props) => {
           >
             {__('Employee Id')}
           </th>
-          <th rowSpan={2} style={{ border: '1px solid #EEE' }}>
+          <th
+            rowSpan={2}
+            style={{ border: '1px solid #EEE' }}
+            className="fixed-column"
+          >
             {__('Team members')}
           </th>
 
@@ -199,7 +208,10 @@ const TimeclockList = (props: Props) => {
       <>
         <td>{index}</td>
         <td>{user.employeeId || '-'}</td>
-        <td style={{ width: '10%', textAlign: 'left' }}>
+        <td
+          style={{ width: '10%', textAlign: 'left' }}
+          className="fixed-column"
+        >
           <div>
             {`${
               user.details?.lastName ? user.details?.lastName.charAt(0) : ''
@@ -454,15 +466,17 @@ const TimeclockList = (props: Props) => {
   getPagination(<Pagination count={totalCount} />);
 
   return (
-    <Table bordered={true}>
-      {renderTableHeaders()}
-      {showModal && renderEditForm()}
-      <tbody>
-        {reportByUsers.map((r, i) =>
-          renderUserReportRow({ ...r, index: i + 1 })
-        )}
-      </tbody>
-    </Table>
+    <TimeclockTableWrapper>
+      <Table bordered={true}>
+        {renderTableHeaders()}
+        {showModal && renderEditForm()}
+        <tbody>
+          {reportByUsers.map((r, i) =>
+            renderUserReportRow({ ...r, index: i + 1 })
+          )}
+        </tbody>
+      </Table>
+    </TimeclockTableWrapper>
   );
 };
 

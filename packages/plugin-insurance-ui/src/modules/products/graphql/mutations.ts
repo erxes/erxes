@@ -6,16 +6,20 @@ const PRODUCTS_ADD = gql`
     $code: String!
     $description: String!
     $price: Float!
-    $riskIds: [ID]
+    $riskConfigs: [RiskConfigInput]
+    $categoryId: ID!
     $companyProductConfigs: [CompanyProductConfigInput]
+    $customFieldsData: JSON
   ) {
     insuranceProductsAdd(
       name: $name
       code: $code
       description: $description
       price: $price
-      riskIds: $riskIds
+      riskConfigs: $riskConfigs
       companyProductConfigs: $companyProductConfigs
+      categoryId: $categoryId
+      customFieldsData: $customFieldsData
     ) {
       _id
     }
@@ -29,8 +33,10 @@ const PRODUCTS_EDIT = gql`
     $code: String
     $description: String
     $price: Float
-    $riskIds: [ID]
+    $riskConfigs: [RiskConfigInput]
+    $categoryId: ID
     $companyProductConfigs: [CompanyProductConfigInput]
+    $customFieldsData: JSON
   ) {
     insuranceProductsEdit(
       _id: $_id
@@ -38,8 +44,10 @@ const PRODUCTS_EDIT = gql`
       code: $code
       description: $description
       price: $price
-      riskIds: $riskIds
+      riskConfigs: $riskConfigs
+      categoryId: $categoryId
       companyProductConfigs: $companyProductConfigs
+      customFieldsData: $customFieldsData
     ) {
       _id
     }

@@ -117,6 +117,7 @@ function List({
           <th>{__('Name')}</th>
           <th>{__('Total item counts')}</th>
           <th>{__('Item counts')}</th>
+          <th>{__('Type')}</th>
           <th>{__('Actions')}</th>
         </tr>
       </thead>

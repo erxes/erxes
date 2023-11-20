@@ -1,7 +1,7 @@
 import dimensions from '@erxes/ui/src/styles/dimensions';
 import styled from 'styled-components';
 
-const PriceRow = styled.div`
+const FlexRow = styled.div`
   display: flex;
   align-items: baseline;
 
@@ -11,4 +11,4 @@ const PriceRow = styled.div`
   }
 `;
 
-export { PriceRow };
+export { FlexRow };
