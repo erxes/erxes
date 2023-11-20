@@ -52,8 +52,8 @@ export default class RightSidebar extends React.Component<Props> {
           <>
             {contract.customerType === 'customer' && (
               <CustomerSection
-                mainType="contract"
-                mainTypeId={contract._id}
+                mainType="customers"
+                mainTypeId={contract.customerId}
                 title={'Primary Customers'}
                 name={'Contract'}
               />

@@ -9,8 +9,6 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
   ({ className, ...props }, ref) => {
     const value = props.value || (" " as any)
 
-    console.log(props.value)
-
     const textareaStyle = {
       minHeight: "50px",
       height: `${Math.max(50, value.split("\n").length * 20)}px`,

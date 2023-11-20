@@ -1,5 +1,6 @@
 import { BasicInfo, TabContent } from './styles';
 import { TabTitle, Tabs } from '@erxes/ui/src/components/tabs';
+import { isEnabled, loadDynamicComponent } from '@erxes/ui/src/utils/core';
 
 import Box from '@erxes/ui/src/components/Box';
 import CompanySection from '@erxes/ui-contacts/src/companies/components/CompanySection';
@@ -13,7 +14,6 @@ import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
 import WebsiteActivity from '@erxes/ui-contacts/src/customers/components/common/WebsiteActivity';
 import { __ } from 'coreui/utils';
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
-import { isEnabled, loadDynamicComponent } from '@erxes/ui/src/utils/core';
 
 const ActionSection = asyncComponent(() =>
   import(
@@ -222,6 +222,7 @@ class Index extends React.Component<IndexProps, IndexState> {
             loading={loading}
             customer={customer}
             isDetail={false}
+            collapseCallback={toggleSection}
           />
           <Box
             title={__('Conversation details')}

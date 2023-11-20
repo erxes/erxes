@@ -1,26 +1,25 @@
-import {
-  Button,
-  ModalTrigger,
-  BarItems,
-  FormControl,
-  Table,
-  Wrapper,
-  DataWithLoader,
-  Pagination,
-  router,
-  __
-} from '@erxes/ui/src';
 import { BranchesMainQueryResponse, IBranch } from '@erxes/ui/src/team/types';
+import { FilterContainer, InputBar } from '@erxes/ui-settings/src/styles';
+import { __, router } from '@erxes/ui/src/utils';
+
+import ActionButtons from '@erxes/ui/src/components/ActionButtons';
+import { BarItems } from 'modules/layout/styles';
+import Button from 'modules/common/components/Button';
+import DataWithLoader from 'modules/common/components/DataWithLoader';
+import Form from '../../containers/common/BlockForm';
+import FormControl from 'modules/common/components/form/Control';
+import Icon from '@erxes/ui/src/components/Icon';
+import ModalTrigger from 'modules/common/components/ModalTrigger';
+import Pagination from 'modules/common/components/pagination/Pagination';
 import React from 'react';
 import SettingsSideBar from '../../containers/common/SettingSideBar';
-import Form from '../../containers/branch/Form';
-import { generateTree } from '../../utils';
-import { queries } from '@erxes/ui/src/team/graphql';
-import { gql } from '@apollo/client';
-import { generatePaginationParams } from '@erxes/ui/src/utils/router';
-import ActionButtons from '@erxes/ui/src/components/ActionButtons';
+import Table from 'modules/common/components/table';
 import Tip from '@erxes/ui/src/components/Tip';
-import Icon from '@erxes/ui/src/components/Icon';
+import Wrapper from 'modules/layout/components/Wrapper';
+import { generatePaginationParams } from '@erxes/ui/src/utils/router';
+import { generateTree } from '../../utils';
+import { gql } from '@apollo/client';
+import { queries } from '@erxes/ui/src/team/graphql';
 
 type Props = {
   listQuery: BranchesMainQueryResponse;
@@ -78,6 +77,7 @@ class MainList extends React.Component<Props, State> {
     const content = ({ closeModal }) => (
       <Form
         closeModal={closeModal}
+        queryType="branches"
         additionalRefetchQueries={this.refetchQueries()}
       />
     );
@@ -112,14 +112,19 @@ class MainList extends React.Component<Props, State> {
     };
 
     return (
-      <FormControl
-        type="text"
-        placeholder={__('Type to search')}
-        onChange={search}
-        value={this.state.searchValue}
-        autoFocus={true}
-        onFocus={moveCursorAtTheEnd}
-      />
+      <FilterContainer marginRight={true}>
+        <InputBar type="searchBar">
+          <Icon icon="search-1" size={20} />
+          <FormControl
+            type="text"
+            placeholder={__('Type to search')}
+            onChange={search}
+            value={this.state.searchValue}
+            autoFocus={true}
+            onFocus={moveCursorAtTheEnd}
+          />
+        </InputBar>
+      </FilterContainer>
     );
   }
 
@@ -169,7 +174,8 @@ class MainList extends React.Component<Props, State> {
               title="Edit Branch"
               content={({ closeModal }) => (
                 <Form
-                  branch={branch}
+                  item={branch}
+                  queryType="branches"
                   closeModal={closeModal}
                   additionalRefetchQueries={this.refetchQueries()}
                 />

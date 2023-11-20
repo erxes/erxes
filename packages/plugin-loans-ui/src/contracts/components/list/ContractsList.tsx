@@ -30,6 +30,7 @@ import { __ } from 'coreui/utils';
 import ClassificationForm from '../../containers/ClassificationForm';
 // import Sidebar from './Sidebar';
 
+type ContractAlert = { name: string; count: number; filter: any };
 interface IProps extends IRouterProps {
   contracts: IContract[];
   loading: boolean;
@@ -53,6 +54,7 @@ interface IProps extends IRouterProps {
   isFiltered: boolean;
   clearFilter: () => void;
   currentUser: IUser;
+  alerts: ContractAlert[];
 }
 
 type State = {
@@ -121,7 +123,8 @@ class ContractsList extends React.Component<IProps, State> {
       onSearch,
       isFiltered,
       clearFilter,
-      currentUser
+      currentUser,
+      alerts
     } = this.props;
 
     const mainContent = (
@@ -138,14 +141,26 @@ class ContractsList extends React.Component<IProps, State> {
               </th>
               <th>
                 <SortHandler
+                  sortField={'classification'}
+                  label={__('Classification')}
+                />
+              </th>
+              <th>
+                <SortHandler
                   sortField={'number'}
                   label={__('Contract Number')}
                 />
               </th>
               <th>
+                <SortHandler sortField={'firstName'} label={__('First Name')} />
+              </th>
+              <th>
+                <SortHandler sortField={'code'} label={__('Code')} />
+              </th>
+              <th>
                 <SortHandler
-                  sortField={'marginAmount'}
-                  label={__('marginAmount')}
+                  sortField={'loanBalanceAmount'}
+                  label={__('Loan Balance')}
                 />
               </th>
               <th>
@@ -154,9 +169,7 @@ class ContractsList extends React.Component<IProps, State> {
                   label={__('leaseAmount')}
                 />
               </th>
-              <th>
-                <SortHandler sortField={'tenor'} label={__('Status')} />
-              </th>
+
               <th>
                 <SortHandler sortField={'tenor'} label={__('Tenor')} />
               </th>
@@ -169,18 +182,17 @@ class ContractsList extends React.Component<IProps, State> {
               <th>
                 <SortHandler sortField={'repayment'} label={__('Repayment')} />
               </th>
-              <th>
-                <SortHandler
-                  sortField={'classification'}
-                  label={__('Classification')}
-                />
-              </th>
+
               <th>
                 <SortHandler
                   sortField={'scheduleDays'}
                   label={__('Schedule Day')}
                 />
               </th>
+              <th>
+                <SortHandler sortField={'tenor'} label={__('Status')} />
+              </th>
+              <th />
             </tr>
           </thead>
           <tbody id="contracts">
@@ -244,6 +256,21 @@ class ContractsList extends React.Component<IProps, State> {
               {__('Delete')}
             </Button>
           )}
+          {alerts.map(mur => (
+            <Button onClick={() => onSelect(mur.filter, 'ids')}>
+              {mur.name}:{mur.count}
+            </Button>
+          ))}
+        </BarItems>
+      );
+    } else {
+      actionBarLeft = (
+        <BarItems>
+          {alerts.map(mur => (
+            <Button onClick={() => onSelect(mur.filter, 'ids')}>
+              {mur.name}:{mur.count}
+            </Button>
+          ))}
         </BarItems>
       );
     }

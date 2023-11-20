@@ -1,27 +1,30 @@
-import { Callss, Types, Integrations } from '../../models';
-import { IContext } from '@erxes/api-utils/src/types';
+import { IContext } from '../../connectionResolver';
+import { sendCommonMessage } from '../../messageBroker';
 
 const callsQueries = {
-  callss(_root, { typeId }, _context: IContext) {
-    const selector: any = {};
-
-    if (typeId) {
-      selector.typeId = typeId;
-    }
-
-    return Callss.find(selector).sort({ order: 1, name: 1 });
+  callsIntegrationDetail(_root, { integrationId }, { models }: IContext) {
+    return models.Integrations.findOne({ inboxId: integrationId });
   },
 
-  callsTypes(_root, _args, _context: IContext) {
-    return Types.find({});
+  async callIntegrationsOfUser(_root, _args, { models, user }: IContext) {
+    const res = models.Integrations.getIntegrations(user._id);
+
+    return res;
   },
 
-  callssTotalCount(_root, _args, _context: IContext) {
-    return Callss.find({}).countDocuments();
-  },
+  async callsCustomerDetail(_root, { callerNumber }, { subdomain }: IContext) {
+    let customer = await sendCommonMessage({
+      subdomain,
+      isRPC: true,
+      serviceName: 'contacts',
+      action: 'customers.findOne',
+      data: {
+        primaryPhone: callerNumber
+      },
+      defaultValue: null
+    });
 
-  callsIntegrationDetail(_root, { integrationId }, _context: IContext) {
-    return Integrations.findOne({ inboxId: integrationId });
+    return customer;
   }
 };
 

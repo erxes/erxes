@@ -38,6 +38,7 @@ export interface IContractConfig {
   repaymentTemp: string;
 
   isAutoSendEBarimt: boolean;
+  productType: string;
 }
 
 export interface IContractType {
@@ -52,6 +53,8 @@ export interface IContractType {
   useMargin: boolean;
   useSkipInterest: boolean;
   useDebt: boolean;
+  useManualNumbering: boolean;
+  useFee: boolean;
   leaseType: string;
   createdAt: Date;
   productCategoryIds: string[];
@@ -101,6 +104,8 @@ export const contractTypeSchema = schemaHooksWrapper(
       optional: true
     }),
     useSkipInterest: field({ type: Boolean, label: 'use skip interest' }),
+    useManualNumbering: field({ type: Boolean, label: 'use manual numbering' }),
+    useFee: field({ type: Boolean, label: 'use fee' }),
     leaseType: field({
       type: String,
       enum: LEASE_TYPES.ALL,
@@ -122,6 +127,11 @@ export const contractTypeSchema = schemaHooksWrapper(
       type: String,
       default: 'MNT',
       label: 'contract type currency of lease'
+    }),
+    productType: field({
+      type: String,
+      default: 'private',
+      label: 'product Type'
     })
   }),
   'erxes_contractTypeSchema'

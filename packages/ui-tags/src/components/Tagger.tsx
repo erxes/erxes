@@ -1,5 +1,6 @@
 import { ITag, ITagTypes } from '../types';
 
+import Button from '@erxes/ui/src/components/Button';
 import FilterableList from '@erxes/ui/src/components/filterableList/FilterableList';
 import React from 'react';
 import Spinner from '@erxes/ui/src/components/Spinner';
@@ -12,18 +13,20 @@ type Props = {
   event?: 'onClick' | 'onExit';
   className?: string;
   disableTreeView?: boolean;
-
   // from container
   loading: boolean;
   tags: ITag[];
   tag: (tags: ITag[]) => void;
+  totalCount: number;
   singleSelect?: boolean;
+  onLoadMore?: (page: number) => void;
 };
 
 type State = {
   tagsForList: any[];
   keysPressed: any;
   cursor: number;
+  page: number;
 };
 
 class Tagger extends React.Component<Props, State> {
@@ -33,7 +36,8 @@ class Tagger extends React.Component<Props, State> {
     this.state = {
       tagsForList: this.generateTagsParams(props.tags, props.targets),
       keysPressed: {},
-      cursor: 0
+      cursor: 0,
+      page: 1
     };
   }
 
@@ -80,7 +84,7 @@ class Tagger extends React.Component<Props, State> {
           this.setState({ cursor: cursor - 1 });
         }
         if (cursor === 0) {
-          this.setState({ cursor: maxCursor });
+          this.setState({ cursor: maxCursor - 1 });
         }
         break;
       case 40:
@@ -128,10 +132,26 @@ class Tagger extends React.Component<Props, State> {
           this.props.type === 'inbox:conversation' && this.state
             ? `tag-${i}`
             : '',
-        itemActiveClass: this.state && this.state.cursor === i && 'active'
+        itemActiveClass:
+          this.props.type === 'inbox:conversation' &&
+          this.state &&
+          this.state.cursor === i &&
+          'active'
       };
     });
   }
+
+  onLoad = () => {
+    this.setState(
+      {
+        page: this.state.page + 1
+      },
+      () => {
+        // tslint:disable-next-line:no-unused-expression
+        this.props.onLoadMore && this.props.onLoadMore(this.state.page);
+      }
+    );
+  };
 
   tag = tags => {
     const { tag } = this.props;
@@ -152,6 +172,26 @@ class Tagger extends React.Component<Props, State> {
     tag(tags.filter(t => t.selectedBy === 'all').map(t => t._id));
   };
 
+  renderLoadMore = () => {
+    const { loading, tags, totalCount = 0 } = this.props;
+
+    if (tags.length >= totalCount) {
+      return null;
+    }
+
+    return (
+      <Button
+        block={true}
+        btnStyle="link"
+        onClick={() => this.onLoad()}
+        icon="redo"
+        uppercase={false}
+      >
+        {loading ? 'Loading...' : 'Load more'}
+      </Button>
+    );
+  };
+
   render() {
     const { className, event, type, loading, disableTreeView } = this.props;
 
@@ -162,7 +202,7 @@ class Tagger extends React.Component<Props, State> {
     const links = [
       {
         title: __('Manage tags'),
-        href: `/tags/${type}`
+        href: `/settings/tags/${type}`
       }
     ];
 
@@ -172,8 +212,9 @@ class Tagger extends React.Component<Props, State> {
       selectable: true,
       treeView: disableTreeView ? false : true,
       items: JSON.parse(JSON.stringify(this.state.tagsForList)),
-      isIndented: true,
-      singleSelect: this.props.singleSelect
+      isIndented: false,
+      singleSelect: this.props.singleSelect,
+      renderLoadMore: this.renderLoadMore
     };
 
     if (event) {

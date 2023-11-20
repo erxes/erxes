@@ -5,7 +5,7 @@ import {
   IContract
 } from './definitions/contracts';
 import { getCloseInfo } from './utils/closeUtils';
-import { getFullDate, getNumber } from './utils/utils';
+import { addMonths, getFullDate, getNumber } from './utils/utils';
 import { Model } from 'mongoose';
 import { IContractDocument } from './definitions/contracts';
 import { IModels } from '../connectionResolver';
@@ -66,7 +66,9 @@ export const loadContractClass = (models: IModels) => {
     }: IContract & { schedule: any }): Promise<IContractDocument> {
       doc.startDate = getFullDate(doc.startDate || new Date());
       doc.lastStoredDate = getFullDate(doc.startDate || new Date());
-      doc.number = await getNumber(models, doc.contractTypeId);
+      doc.endDate = addMonths(new Date(doc.startDate), doc.tenor);
+      if (!doc.useManualNumbering || !doc.number)
+        doc.number = await getNumber(models, doc.contractTypeId);
 
       doc.insuranceAmount = getInsurancAmount(
         doc.insurancesData || [],
@@ -120,7 +122,7 @@ export const loadContractClass = (models: IModels) => {
       }
 
       doc.startDate = getFullDate(doc.startDate || new Date());
-
+      doc.endDate = addMonths(new Date(doc.startDate), doc.tenor);
       doc.insuranceAmount = getInsurancAmount(
         doc.insurancesData || [],
         doc.collateralsData || []

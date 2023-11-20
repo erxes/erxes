@@ -14,6 +14,15 @@ const userFields = `
   }
 `
 
+export const commonStructureParamsDef = `
+    $ids: [String]
+    $excludeIds: Boolean,
+    $perPage: Int,
+    $page: Int
+    $searchValue: String,
+    $status:String,
+`
+
 const commonFeedFields = `
   _id
   title
@@ -68,6 +77,7 @@ const feed = gql`
         title
         isPinned
         recipientIds
+        images
         eventData {
           visibility
           where
@@ -115,27 +125,27 @@ const fields = `
   }
 `
 
-const departmentField = `
-  _id
-  title
-  description
-  parentId
-  code
-  supervisorId
-  userIds
-`
-
 const departments = gql`
-  query departments {
-    departments {
-      ${departmentField}
+  query departments(
+    $ids: [String]
+    $searchValue: String
+    $excludeIds: Boolean
+  ) {
+    departments(ids: $ids, searchValue: $searchValue, excludeIds: $excludeIds) {
+      _id
+      title
+      description
+      parentId
+      code
+      supervisorId
+      userIds
     }
   }
 `
 
 const branches = gql`
-  query branches {
-    branches {
+  query branches($ids: [String], $searchValue: String, $excludeIds: Boolean) {
+    branches(ids: $ids, searchValue: $searchValue, excludeIds: $excludeIds) {
       _id
       code
       title
@@ -145,8 +155,8 @@ const branches = gql`
 `
 
 const unitsMain = gql`
-  query unitsMain {
-    unitsMain {
+  query unitsMain($ids: [String], $searchValue: String, $excludeIds: Boolean) {
+    unitsMain(ids: $ids, searchValue: $searchValue, excludeIds: $excludeIds) {
       list {
         _id
         title
@@ -297,9 +307,21 @@ const getChatIdByUserIds = `
   }
 `
 
-const comments = `
-  query comments($contentId: String!, $contentType: ReactionContentType!, $parentId: String) {
-    comments(contentId: $contentId, contentType: $contentType, parentId: $parentId) {
+const comments = gql`
+  query comments(
+    $contentId: String!
+    $contentType: ReactionContentType!
+    $parentId: String
+    $limit: Int
+    $skip: Int
+  ) {
+    comments(
+      contentId: $contentId
+      contentType: $contentType
+      parentId: $parentId
+      limit: $limit
+      skip: $skip
+    ) {
       list {
         _id
         comment
@@ -319,6 +341,7 @@ const comments = `
         parentId
         contentId
       }
+      totalCount
     }
   }
 `

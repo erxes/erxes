@@ -54,8 +54,6 @@ function ScheduleRow({ schedule }: Props) {
       <td>{renderCell('payment', 'didPayment')}</td>
       <td>{renderCell('interest', 'didInterest')}</td>
       <td>{renderCell('undue', 'didUndue')}</td>
-      <td>{renderCell('insurance', 'didInsurance')}</td>
-      <td>{renderCell('debt', 'didDebt')}</td>
       <td>{renderCell('total', 'didTotal')}</td>
     </ExtraRow>
   );

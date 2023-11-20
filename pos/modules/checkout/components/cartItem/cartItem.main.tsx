@@ -1,10 +1,12 @@
+import ProductPrice from "@/modules/products/productPriceInfo"
 import { updateCartAtom } from "@/store/cart.store"
+import { orderTypeAtom } from "@/store/order.store"
 import { motion, Variants } from "framer-motion"
-import { useSetAtom } from "jotai"
+import { useAtomValue, useSetAtom } from "jotai"
 import { ChevronDown, Minus, Plus } from "lucide-react"
 
 import { OrderItem } from "@/types/order.types"
-import { cn, formatNum } from "@/lib/utils"
+import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import {
@@ -12,6 +14,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible"
+import { FocusChanger } from "@/components/ui/focus-changer"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import {
@@ -34,8 +37,10 @@ const CartItem = ({
   description,
   attachment,
   idx,
+  productId,
 }: OrderItem & { idx: number }) => {
   const changeItem = useSetAtom(updateCartAtom)
+  const type = useAtomValue(orderTypeAtom)
 
   return (
     <Collapsible className={cn(idx === 0 && "bg-primary/10")}>
@@ -60,6 +65,7 @@ const CartItem = ({
                   <Checkbox
                     id={_id}
                     checked={isTake}
+                    disabled={type !== "eat"}
                     onCheckedChange={(checked) =>
                       changeItem({ _id, isTake: !!checked })
                     }
@@ -70,6 +76,7 @@ const CartItem = ({
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
+
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -100,9 +107,11 @@ const CartItem = ({
             </TooltipProvider>
             <div className="mt-1 flex items-center">
               <CartItemStatus status={status} />
-              <div className="ml-2 text-xs font-extrabold">
-                {formatNum(unitPrice)}₮
-              </div>
+              <ProductPrice
+                unitPrice={unitPrice}
+                productId={productId}
+                className="ml-2 text-xs"
+              />
             </div>
           </div>
           <div className="flex w-5/12 items-center justify-end">
@@ -112,14 +121,19 @@ const CartItem = ({
             >
               <Minus className="h-3 w-3" strokeWidth={4} />
             </Button>
-            <Input
-              className="mx-2 w-8 border-none p-1 text-center text-sm font-semibold [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
-              type="number"
-              onChange={(e) =>
-                changeItem({ _id, count: Number(e.target.value) })
-              }
-              value={count}
-            />
+            <FocusChanger>
+              <Input
+                className="mx-2 w-8 border-none p-1 text-center text-sm font-semibold [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                type="number"
+                onChange={(e) =>
+                  changeItem({
+                    _id,
+                    count: Number(e.target.value),
+                  })
+                }
+                value={count}
+              />
+            </FocusChanger>
             <Button
               className={countBtnClass}
               onClick={() => changeItem({ _id, count: (count || 0) + 1 })}

@@ -1,21 +1,30 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import useCheckRegister from "@/modules/checkout/hooks/useCheckRegister"
 import { registerNumberAtom } from "@/store/order.store"
 import { useSetAtom } from "jotai"
 import { CornerDownLeft } from "lucide-react"
 
+import useFocus from "@/lib/useFocus"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { toast } from "@/components/ui/use-toast"
 
 const CheckRegister = () => {
   const [current, setCurrent] = useState("")
   const setRegister = useSetAtom(registerNumberAtom)
   const { checkRegister, loading, data } = useCheckRegister()
   const { found, name } = data || {}
+  const [htmlElRef, setFocus] = useFocus()
+
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
+    if (!current.match(/^[А-ЯЁӨҮ]{2}[0-9]{8}$|^\d{7}$/))
+      return toast({
+        description: "Зөв регистерийн дугаараа оруулана уу",
+        variant: "destructive",
+      })
     checkRegister({
       variables: {
         registerNumber: current,
@@ -28,6 +37,11 @@ const CheckRegister = () => {
       },
     })
   }
+
+  useEffect(() => {
+    setFocus()
+  }, [])
+
   return (
     <form onSubmit={handleSubmit}>
       <Label className="block pb-2" htmlFor="registerNumber">
@@ -38,10 +52,10 @@ const CheckRegister = () => {
           className="pl-4 pr-8"
           id="registerNumber"
           placeholder="Байгууллагын РД"
-          type="number"
           disabled={loading}
           value={current}
           onChange={(e) => setCurrent(e.target.value)}
+          ref={htmlElRef}
         ></Input>
         <Button
           className="absolute right-0 top-0 bg-white"
@@ -63,13 +77,6 @@ const CheckRegister = () => {
           {found ? name || "Test company" : "Байгуулга олдсонгүй"}
         </p>
       )}
-
-      {/* <input
-        type="submit"
-        className="absolute"
-        style={{ left: -9999, width: 1, height: 1 }}
-        tabIndex={-1}
-      /> */}
     </form>
   )
 }

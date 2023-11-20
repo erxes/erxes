@@ -928,7 +928,6 @@ a:hover {
 .sidebar-accordion {
   border-top: 1px solid ${colors.borderPrimary};
   border-bottom: 1px solid ${colors.borderPrimary};
-  margin-bottom: 10px;
 
   ul {
     padding-top: 0;

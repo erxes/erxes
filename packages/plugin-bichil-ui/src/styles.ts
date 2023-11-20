@@ -143,3 +143,12 @@ export const ColoredSquare = styledTS<{ color: string }>(styled.div)`
   background-color: ${props => props.color}; 
   }
 `;
+
+export const TimeclockTableWrapper = styled.div`
+  .fixed-column {
+    position: sticky;
+    left: 0;
+    background: #fff;
+    z-index: 99;
+  }
+`;

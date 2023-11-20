@@ -9,7 +9,7 @@ import {
   sendCoreMessage,
   sendKbMessage
 } from '../../../messageBroker';
-import { getCards } from '../../../utils';
+import { getCards, getUserCards } from '../../../utils';
 
 const getByHost = async (models, requestInfo) => {
   const origin = requestInfo.headers.origin;
@@ -29,10 +29,12 @@ const getByHost = async (models, requestInfo) => {
 const configClientPortalQueries = {
   async clientPortalGetConfigs(
     _root,
-    args: { page?: number; perPage?: number },
+    args: { kind?: string; page?: number; perPage?: number },
     { models }: IContext
   ) {
-    return paginate(models.ClientPortals.find({}), args);
+    const { kind = 'client' } = args;
+
+    return paginate(models.ClientPortals.find({ kind }), args);
   },
 
   async clientPortalConfigsTotalCount(_root, _args, { models }: IContext) {
@@ -42,8 +44,8 @@ const configClientPortalQueries = {
   /**
    * Get last config
    */
-  clientPortalGetLast(_root, _args, { models }: IContext) {
-    return models.ClientPortals.findOne({}).sort({
+  clientPortalGetLast(_root, { kind }, { models }: IContext) {
+    return models.ClientPortals.findOne({ kind }).sort({
       createdAt: -1
     });
   },
@@ -253,6 +255,102 @@ const configClientPortalQueries = {
         isRequired: true
       };
     });
+  },
+
+  async clientPortalCardUsers(
+    _root,
+    { contentType, contentTypeId, userKind },
+    { models }: IContext
+  ) {
+    const userIds = await models.ClientPortalUserCards.getUserIds(
+      contentType,
+      contentTypeId
+    );
+
+    if (!userIds || userIds.length === 0) {
+      return [];
+    }
+
+    const users = await models.ClientPortalUsers.aggregate([
+      {
+        $match: {
+          _id: { $in: userIds }
+        }
+      },
+      {
+        $lookup: {
+          from: 'client_portals',
+          localField: 'clientPortalId',
+          foreignField: '_id',
+          as: 'clientPortal'
+        }
+      },
+      {
+        $unwind: '$clientPortal'
+      },
+      {
+        $match: {
+          'clientPortal.kind': userKind
+        }
+      }
+    ]);
+
+    return users;
+  },
+
+  clientPortalUserTickets(
+    _root,
+    { userId }: { userId: string },
+    { models, cpUser, subdomain }: IContext
+  ) {
+    const id = userId || (cpUser && cpUser._id);
+
+    if (!id) {
+      return [];
+    }
+    return getUserCards(id, 'ticket', models, subdomain);
+  },
+
+  clientPortalUserDeals(
+    _root,
+    { userId }: { userId: string },
+    { models, cpUser, subdomain }: IContext
+  ) {
+    const id = userId || (cpUser && cpUser._id);
+
+    if (!id) {
+      return [];
+    }
+
+    return getUserCards(id, 'deal', models, subdomain);
+  },
+
+  clientPortalUserPurchases(
+    _root,
+    { userId }: { userId: string },
+    { models, cpUser, subdomain }: IContext
+  ) {
+    const id = userId || (cpUser && cpUser._id);
+
+    if (!id) {
+      return [];
+    }
+
+    return getUserCards(id, 'purchase', models, subdomain);
+  },
+
+  clientPortalUserTasks(
+    _root,
+    { userId }: { userId: string },
+    { models, cpUser, subdomain }: IContext
+  ) {
+    const id = userId || (cpUser && cpUser._id);
+
+    if (!id) {
+      return [];
+    }
+
+    return getUserCards(id, 'task', models, subdomain);
   }
 };
 

@@ -30,7 +30,7 @@ export default function RootLayout({ children }: LayoutProps) {
                }
             `}
           </style>
-          <EventListener />
+          {/* <EventListener /> */}
         </>
       )}
     </Configs>

@@ -130,6 +130,7 @@ const HeaderItems = styledTS<{
   align-self: center;
   flex: ${props => props.hasFlex && 1};
   margin-left: ${props => props.rightAligned && 'auto'};
+  flex-shrink: ${props => props.rightAligned && '0'};
   > * + * {
     margin-left: ${dimensions.unitSpacing}px;
   }
@@ -224,11 +225,20 @@ const SidebarBox = styledTS<{
   }
 `;
 
-const BoxContent = styled.div`
+const BoxContent = styledTS<{ noPadding?: boolean }>(styled.div)`
   flex: 1;
-  ul:first-child {
-    padding: 10px 0;
-  }
+  ${props =>
+    props.noPadding
+      ? `
+    ul {
+      padding: 0 !important;;
+    }
+  `
+      : `
+    ul:first-child {
+      padding: 10px 0;
+    }
+  `}
 `;
 
 const SidebarToggle = styledTS<{ inverse?: boolean }>(styled.a)`

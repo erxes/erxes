@@ -20,6 +20,7 @@ export interface IContractType {
   branchId: string;
   isAllowIncome: boolean;
   isAllowOutcome: boolean;
+  isDeposit: boolean;
 }
 
 export interface IContractTypeDocument extends IContractType, Document {
@@ -67,7 +68,8 @@ export const contractTypeSchema = schemaHooksWrapper(
     }),
     branchId: field({ type: String, label: 'Branch Id' }),
     isAllowIncome: field({ type: Boolean, label: 'Is Allow income' }),
-    isAllowOutcome: field({ type: Boolean, label: 'Is Allow outcome' })
+    isAllowOutcome: field({ type: Boolean, label: 'Is Allow outcome' }),
+    isDeposit: field({ type: Boolean, label: 'Is Deposit' })
   }),
   'erxes_contractTypeSchema'
 );

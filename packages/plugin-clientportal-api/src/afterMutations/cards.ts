@@ -98,7 +98,7 @@ export const cardDeleteHandler = async (models: IModels, subdomain, params) => {
     card._id
   );
 
-  await models.ClientPortalUserCards.remove({ cardId: card._id });
+  await models.ClientPortalUserCards.deleteMany({ cardId: card._id });
 
   if (userIds.length === 0) {
     return;

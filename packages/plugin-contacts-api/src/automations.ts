@@ -150,7 +150,8 @@ export default {
         rules,
         execution,
         sendCommonMessage,
-        relatedItems
+        relatedItems,
+        triggerType
       });
     }
   },

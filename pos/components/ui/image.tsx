@@ -32,8 +32,10 @@ const Image: FC<
   const handleComplete = () => setIsImageLoading(false)
 
   useEffect(() => {
-    const fixedSrc = readFile(src || "")
-    setSrcI(fixedSrc)
+    if (src) {
+      const fixedSrc = readFile(src || "")
+      setSrcI(fixedSrc)
+    }
   }, [src])
 
   const updatedProps = {

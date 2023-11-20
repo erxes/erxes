@@ -1,17 +1,18 @@
-import React from 'react';
-import { isEnabled, generateTree } from '@erxes/ui/src/utils/core';
 import {
+  BarItems,
   Box,
-  Spinner,
   EmptyState,
   Icon,
-  BarItems,
-  SidebarList
+  SidebarList,
+  Spinner
 } from '@erxes/ui/src';
-import { SidebarListItem } from '@erxes/ui-settings/src/styles';
-import { Link } from 'react-router-dom';
-import { removeParams, setParams } from '@erxes/ui/src/utils/router';
+import { generateTree, isEnabled } from '@erxes/ui/src/utils/core';
 import { gql, useQuery } from '@apollo/client';
+import { removeParams, setParams } from '@erxes/ui/src/utils/router';
+
+import { Link } from 'react-router-dom';
+import React from 'react';
+import { SidebarListItem } from '@erxes/ui-settings/src/styles';
 import { queries } from '../graphql';
 
 export function TagsSection({
@@ -61,7 +62,7 @@ export function TagsSection({
   };
   const extraButtons = (
     <BarItems>
-      <Link to={`/tags?type=${type}`}>
+      <Link to={`/settings/tags?type=${type}`}>
         <button>
           <Icon icon="cog" />
         </button>

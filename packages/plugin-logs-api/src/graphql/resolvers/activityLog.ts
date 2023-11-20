@@ -65,6 +65,29 @@ export default {
       return { type: 'clientPortal', content: clientPortal };
     }
 
+    const cpUser = await sendClientPortalMessage({
+      subdomain,
+      action: 'clientPortalUsers.findOne',
+      data: { _id: activityLog.createdBy },
+      isRPC: true,
+      defaultValue: null
+    });
+
+    if (cpUser) {
+      const cp = await sendClientPortalMessage({
+        subdomain,
+        action: 'clientPortals.findOne',
+        data: { _id: cpUser.clientPortalId },
+        isRPC: true,
+        defaultValue: null
+      });
+
+      return {
+        type: 'clientPortalUser',
+        content: { ...cpUser, clientPortal: cp }
+      };
+    }
+
     return;
   }
 };

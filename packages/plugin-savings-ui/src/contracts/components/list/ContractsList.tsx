@@ -29,6 +29,7 @@ import { IUser } from '@erxes/ui/src/auth/types';
 import { __ } from 'coreui/utils';
 // import Sidebar from './Sidebar';
 
+type SavingAlert = { name: string; count: number; filter: any };
 interface IProps extends IRouterProps {
   contracts: IContract[];
   loading: boolean;
@@ -52,6 +53,7 @@ interface IProps extends IRouterProps {
   isFiltered: boolean;
   clearFilter: () => void;
   currentUser: IUser;
+  alerts: SavingAlert[];
 }
 
 type State = {
@@ -120,7 +122,8 @@ class ContractsList extends React.Component<IProps, State> {
       onSearch,
       isFiltered,
       clearFilter,
-      currentUser
+      currentUser,
+      alerts
     } = this.props;
 
     const mainContent = (
@@ -140,6 +143,15 @@ class ContractsList extends React.Component<IProps, State> {
                   sortField={'number'}
                   label={__('Contract Number')}
                 />
+              </th>
+              <th>
+                <SortHandler
+                  sortField={'First Name'}
+                  label={__('First Name')}
+                />
+              </th>
+              <th>
+                <SortHandler sortField={'Code'} label={__('Code')} />
               </th>
               <th>
                 <SortHandler
@@ -206,6 +218,21 @@ class ContractsList extends React.Component<IProps, State> {
               {__('Delete')}
             </Button>
           )}
+          {alerts.map(mur => (
+            <Button onClick={() => onSelect(mur.filter, 'ids')}>
+              {mur.name}:{mur.count}
+            </Button>
+          ))}
+        </BarItems>
+      );
+    } else {
+      actionBarLeft = (
+        <BarItems>
+          {alerts.map(mur => (
+            <Button onClick={() => onSelect(mur.filter, 'ids')}>
+              {mur.name}:{mur.count}
+            </Button>
+          ))}
         </BarItems>
       );
     }

@@ -83,7 +83,7 @@ const ScheduleFormContainer = (props: FinalProps) => {
 
 export default withProps<Props>(
   compose(
-    graphql<Props, PayDatesQueryResponse>(gql(queries.scheduleConfigs), {
+    graphql<Props, ScheduleConfigQueryResponse>(gql(queries.scheduleConfigs), {
       name: 'listScheduleConfigsQuery',
       options: () => ({
         fetchPolicy: 'network-only'

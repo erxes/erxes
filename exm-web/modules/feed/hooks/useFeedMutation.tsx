@@ -17,17 +17,11 @@ const useFeedMutation = ({
   }
 
   const [feedAdd, { loading }] = useMutation(mutations.addFeed, {
-    onCompleted(data) {
-      toast({ description: "added", variant: "destructive" })
-    },
     refetchQueries: ["feed"],
     onError,
   })
 
   const [feedEdit, { loading: loadingEdit }] = useMutation(mutations.editFeed, {
-    onCompleted(data) {
-      toast({ description: "edited", variant: "destructive" })
-    },
     refetchQueries: ["feed", "exmFeedDetail"],
     onError,
   })
@@ -35,21 +29,23 @@ const useFeedMutation = ({
   const [feedDelete, { loading: loadingDelete }] = useMutation(
     mutations.deleteFeed,
     {
-      onCompleted(data) {
-        toast({ description: "edited", variant: "destructive" })
-      },
       refetchQueries: ["feed", "exmFeedDetail"],
       onError,
     }
   )
 
   const [feedPin, { loading: loadingPin }] = useMutation(mutations.pinFeed, {
-    onCompleted(data) {
-      toast({ description: "edited", variant: "destructive" })
-    },
     refetchQueries: ["feed", "exmFeedDetail"],
     onError,
   })
+
+  const [eventGoingOrInterested, { loading: loadingEvent }] = useMutation(
+    mutations.eventGoingOrInterested,
+    {
+      refetchQueries: ["feed", "exmFeedDetail"],
+      onError,
+    }
+  )
 
   const feedMutation = (variables: IFeedVariable, _id?: string) => {
     if (!_id) {
@@ -74,6 +70,10 @@ const useFeedMutation = ({
       variables: { _id },
     }).then(() => {
       callBack("success")
+
+      return toast({
+        description: `Success`,
+      })
     })
   }
 
@@ -82,6 +82,22 @@ const useFeedMutation = ({
       variables: { _id },
     }).then(() => {
       callBack("success")
+
+      return toast({
+        description: `Success`,
+      })
+    })
+  }
+
+  const eventAction = (id: string, type: string) => {
+    eventGoingOrInterested({
+      variables: { id, goingOrInterested: type },
+    }).then(() => {
+      callBack("success")
+
+      return toast({
+        description: `Success`,
+      })
     })
   }
 
@@ -89,7 +105,9 @@ const useFeedMutation = ({
     feedMutation,
     deleteFeed,
     pinFeed,
-    loading: loading || loadingEdit || loadingDelete || loadingPin,
+    eventAction,
+    loading:
+      loading || loadingEdit || loadingDelete || loadingPin || loadingEvent,
   }
 }
 

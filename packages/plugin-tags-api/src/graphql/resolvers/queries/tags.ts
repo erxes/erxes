@@ -4,6 +4,7 @@ import {
 } from '@erxes/api-utils/src/permissions';
 import { serviceDiscovery } from '../../../configs';
 import { IContext } from '../../../connectionResolver';
+import { paginate } from '@erxes/api-utils/src';
 
 const tagQueries = {
   /**
@@ -32,18 +33,48 @@ const tagQueries = {
     return fieldTypes;
   },
 
+  async tagsQueryCount(
+    _root,
+    {
+      type,
+      searchValue
+    }: {
+      type: string;
+      searchValue?: string;
+    },
+    { models, commonQuerySelector }: IContext
+  ) {
+    const selector: any = { ...commonQuerySelector };
+
+    if (type) {
+      selector.type = type;
+    }
+
+    if (searchValue) {
+      selector.name = new RegExp(`.*${searchValue}.*`, 'i');
+    }
+
+    const tagsCount = await models.Tags.find(selector).count();
+
+    return tagsCount;
+  },
+
   async tags(
     _root,
     {
       type,
       searchValue,
       tagIds,
-      parentId
+      parentId,
+      page,
+      perPage
     }: {
       type: string;
       searchValue?: string;
       tagIds?: string[];
       parentId?: string;
+      page: any;
+      perPage: any;
     },
     { models, commonQuerySelector, serverTiming }: IContext
   ) {
@@ -85,10 +116,13 @@ const tagQueries = {
       selector._id = { $in: ids };
     }
 
-    const tags = await models.Tags.find(selector).sort({
-      order: 1,
-      name: 1
-    });
+    const tags = await paginate(
+      models.Tags.find(selector).sort({
+        order: 1,
+        name: 1
+      }),
+      { page, perPage }
+    );
 
     serverTiming.endTime('query');
 
