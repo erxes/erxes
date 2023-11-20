@@ -499,8 +499,8 @@ export const loadTransactionClass = (models: IModels) => {
         commitmentInterest,
         storedInterest
       } = paymentInfo;
-
-      paymentInfo.calcInterest = interestEve + interestNonce - storedInterest;
+      if (interestEve + interestNonce > storedInterest)
+        paymentInfo.calcInterest = interestEve + interestNonce - storedInterest;
 
       paymentInfo.total =
         payment +
