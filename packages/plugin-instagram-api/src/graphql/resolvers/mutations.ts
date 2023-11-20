@@ -53,19 +53,6 @@ const instagramMutations = {
 
     const comment = await models.Comments.findOne({ commentId });
 
-    const post = await models.Posts.findOne({
-      $or: [
-        { erxesApiId: conversationId },
-        { postId: comment ? comment.postId : '' }
-      ]
-    });
-
-    if (!post) {
-      throw new Error('Post not found');
-    }
-
-    const { recipientId } = post;
-
     let attachment: {
       url?: string;
       type?: string;
@@ -86,7 +73,7 @@ const instagramMutations = {
       attachment_url: attachment.url
     };
 
-    const id = comment ? comment.commentId : post.postId;
+    const id = comment;
 
     if (comment && comment.commentId) {
       data = {
@@ -107,7 +94,6 @@ const instagramMutations = {
         models,
         `${id}/comments`,
         data,
-        recipientId,
         inboxConversation && inboxConversation.integrationId
       );
 

@@ -1,6 +1,5 @@
 import { QueryResponse } from '@erxes/ui/src/types';
 import { ICustomer } from '@erxes/ui-contacts/src/customers/types';
-import { IConversation } from '@erxes/ui-inbox/src/inbox/types';
 import { IUser } from '@erxes/ui/src/auth/types';
 
 export interface IAccount {
@@ -54,17 +53,6 @@ export type MessagesTotalCountQuery = {
   instagramConversationMessagesCount: number;
 };
 
-export interface IInstagramPost {
-  postId: string;
-  recipientId: string;
-  senderId: string;
-  content: string;
-  erxesApiId?: string;
-  attachments: string[];
-  timestamp: Date;
-  permalink_url: string;
-}
-
 export interface IInstagramComment {
   _id: string;
   postId: string;
@@ -111,14 +99,6 @@ export type ResolveInstagramCommentResponse = {
     variables: ResolveInstagramCommentMutationVariables;
   }) => Promise<any>;
 };
-
-export interface IFbConversation extends IConversation {
-  instagramPost?: IInstagramPost;
-}
-
-export type InstagramPostQueryResponse = {
-  instagramGetPost: IInstagramPost;
-} & QueryResponse;
 
 export type TaggedMessagesQueryResponse = {
   instagramHasTaggedMessages: boolean;

@@ -148,15 +148,6 @@ const instagramConversationMessagesCount = `
   }
 `;
 
-const instagramGetPost = `
-  query instagramGetPost($erxesApiId: String) {
-    instagramGetPost(erxesApiId: $erxesApiId) {
-      _id
-      ${commonPostAndCommentFields}
-    }
-  }
-`;
-
 const instagramHasTaggedMessages = `
   query instagramHasTaggedMessages($conversationId: String!) {
     instagramHasTaggedMessages(conversationId: $conversationId)
@@ -173,6 +164,5 @@ export default {
   instagramGetAccounts,
   instagramConversationMessages,
   instagramConversationMessagesCount,
-  instagramGetPost,
   instagramHasTaggedMessages
 };

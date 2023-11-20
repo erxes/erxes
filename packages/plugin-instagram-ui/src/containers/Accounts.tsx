@@ -46,7 +46,7 @@ class AccountContainer extends React.Component<FinalProps, {}> {
     const { REACT_APP_API_URL } = getEnv();
 
     this.popupWindow(
-      `${REACT_APP_API_URL}/pl:instagram/iglogin?kind=${kind}`,
+      `${REACT_APP_API_URL}/pl:instagram/instagram/login?kind=${kind}`,
       'Integration',
       window,
       660,
@@ -75,7 +75,6 @@ class AccountContainer extends React.Component<FinalProps, {}> {
       onSelect,
       formProps
     } = this.props;
-
     if (getAccountsQuery.loading) {
       return <Spinner objective={true} />;
     }

@@ -1,18 +1,17 @@
 module.exports = {
   srcDir: __dirname,
   name: 'instagram',
-  port: 3017,
+  port: 3037,
   scope: 'instagram',
   exposes: {
     './routes': './src/routes.tsx',
     './inboxIntegrationSettings': './src/containers/UpdateConfigsContainer.tsx',
     './activityLog': './src/containers/ActivityLogsContainer.tsx',
     './inboxConversationDetailRespondBoxMask':
-      './src/containers/TagMessageContainer.tsx',
-    './inboxConversationDetail': './src/containers/post/FbCommentsContainer.tsx'
+      './src/containers/TagMessageContainer.tsx'
   },
   routes: {
-    url: 'http://localhost:3017/remoteEntry.js',
+    url: 'http://localhost:3037/remoteEntry.js',
     scope: 'instagram',
     module: './routes'
   },
@@ -95,26 +94,13 @@ module.exports = {
   },
   inboxIntegrations: [
     {
-      name: 'Instagram Post',
-      description: 'Connect to Instagram posts right from your Team Inbox',
-      inMessenger: false,
-      isAvailable: true,
-      kind: 'instagram-post',
-      logo: '/images/integrations/instagram.png',
-      createModal: 'instagram-post',
-      createUrl: '/settings/integrations/createInstagram',
-      category:
-        'All integrations, For support teams, Marketing automation, Social media',
-      components: ['inboxConversationDetail']
-    },
-    {
       name: 'Instagram Messenger',
       description:
         'Connect and manage Instagram Messages right from your Team Inbox',
       inMessenger: false,
       isAvailable: true,
       kind: 'instagram-messenger',
-      logo: '/images/integrations/fb-messenger.png',
+      logo: '/images/integrations/instagram.png',
       createModal: 'instagram-messenger',
       createUrl: '/settings/integrations/createInstagram',
       category:

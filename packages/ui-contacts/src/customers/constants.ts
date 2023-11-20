@@ -51,6 +51,7 @@ export const CUSTOMER_LINKS = {
   linkedIn: 'LinkedIn',
   twitter: 'Twitter',
   facebook: 'Facebook',
+  instagram: 'Instagram',
   youtube: 'Youtube',
   github: 'Github',
   website: 'Website',
@@ -59,6 +60,7 @@ export const CUSTOMER_LINKS = {
     { field: 'linkedIn', label: 'LinkedIn' },
     { field: 'twitter', label: 'Twitter' },
     { field: 'facebook', label: 'Facebook' },
+    { field: 'instagram', label: 'Instagram' },
     { field: 'youtube', label: 'Youtube' },
     { field: 'github', label: 'Github' },
     { field: 'website', label: 'Website' }

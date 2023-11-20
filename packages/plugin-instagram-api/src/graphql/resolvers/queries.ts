@@ -66,110 +66,13 @@ const instagramQueries = {
     return models.Configs.find({}).lean();
   },
 
-  async instagramGetComments(
-    _root,
-    args: ICommentsParams,
-    { models }: IContext
-  ) {
-    const {
-      conversationId,
-      isResolved,
-      commentId,
-      senderId,
-      limit = 10
-    } = args;
-    const post = await models.Posts.getPost({ erxesApiId: conversationId });
-
-    const query: {
-      postId: string;
-      isResolved?: boolean;
-      parentId?: string;
-      senderId?: string;
-    } = {
-      postId: post.postId,
-      isResolved: isResolved === true
-    };
-
-    if (senderId && senderId !== 'undefined') {
-      const customer = await models.Customers.findOne({ erxesApiId: senderId });
-
-      if (customer && customer.userId) {
-        query.senderId = customer.userId;
-      }
-    } else {
-      query.parentId = commentId !== 'undefined' ? commentId : '';
-    }
-
-    const result = await models.Comments.aggregate([
-      {
-        $match: query
-      },
-      {
-        $lookup: {
-          from: 'customers_instagrams',
-          localField: 'senderId',
-          foreignField: 'userId',
-          as: 'customer'
-        }
-      },
-      {
-        $unwind: {
-          path: '$customer',
-          preserveNullAndEmptyArrays: true
-        }
-      },
-      {
-        $lookup: {
-          from: 'posts_instagrams',
-          localField: 'postId',
-          foreignField: 'postId',
-          as: 'post'
-        }
-      },
-      {
-        $unwind: {
-          path: '$post',
-          preserveNullAndEmptyArrays: true
-        }
-      },
-      {
-        $lookup: {
-          from: 'comments_instagrams',
-          localField: 'commentId',
-          foreignField: 'parentId',
-          as: 'replies'
-        }
-      },
-      {
-        $addFields: {
-          commentCount: { $size: '$replies' },
-          'customer.avatar': '$customer.profilePic',
-          'customer._id': '$customer.erxesApiId',
-          conversationId: '$post.erxesApiId'
-        }
-      },
-
-      { $sort: { timestamp: -1 } },
-      { $limit: limit }
-    ]);
-
-    return result.reverse();
-  },
-
   async instagramGetCommentCount(_root, args, { models }: IContext) {
     const { conversationId, isResolved = false } = args;
 
-    const post = await models.Posts.getPost(
-      { erxesApiId: conversationId },
-      true
-    );
-
     const commentCount = await models.Comments.countDocuments({
-      postId: post.postId,
       isResolved
     });
     const commentCountWithoutReplies = await models.Comments.countDocuments({
-      postId: post.postId,
       isResolved,
       parentId: null
     });
@@ -247,10 +150,6 @@ const instagramQueries = {
     const selector = await buildSelector(conversationId, models);
 
     return models.ConversationMessages.countDocuments(selector);
-  },
-
-  instagramGetPost(_root, { erxesApiId }: IDetailParams, { models }: IContext) {
-    return models.Posts.findOne({ erxesApiId });
   },
 
   async instagramHasTaggedMessages(

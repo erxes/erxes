@@ -90,7 +90,6 @@ export const queries = `
   instagramConversationDetail(_id: String!): JSON
   instagramConversationMessages(conversationId: String! getFirst: Boolean, ${pageParams}): [InstagramConversationMessage]
   instagramConversationMessagesCount(conversationId: String!): Int
-  instagramGetPost(erxesApiId: String): InstagramPost
   instagramHasTaggedMessages(conversationId: String!): Boolean
 `;
 

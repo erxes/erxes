@@ -9,7 +9,6 @@ import { debugBase, debugError, debugInstagram } from './debuggers';
 import { IIntegrationDocument } from './models/Integrations';
 import { generateAttachmentUrl, getConfig } from './commonUtils';
 import { IAttachment, IAttachmentMessage } from './types';
-import { getFileUploadConfigs } from './messageBroker';
 
 export const graphRequest = {
   base(method: string, path?: any, accessToken?: any, ...otherParams) {
@@ -38,33 +37,61 @@ export const graphRequest = {
     return this.base('del', ...args);
   }
 };
-
-export const getPageList = async (
-  models: IModels,
-  accessToken?: string,
-  kind?: string
+export const getFacebookPageIdsForInsta = async (
+  accessToken: string,
+  instagramPageId: string[]
 ) => {
   const response: any = await graphRequest.get(
-    '/me/accounts?limit=100',
+    '/me/accounts?fields=instagram_business_account, access_token,id,name',
     accessToken
   );
 
-  const pages: any[] = [];
-
+  const pageIds: any[] = [];
   for (const page of response.data) {
-    const integration = await models.Integrations.findOne({
-      instagramPageIds: page.id,
-      kind
-    });
-
-    pages.push({
-      id: page.id,
-      name: page.name,
-      isUsed: integration ? true : false
-    });
+    if (page.instagram_business_account) {
+      const pageId = page.instagram_business_account.id;
+      if (pageId === instagramPageId[0]) {
+        pageIds.push(page.id);
+      }
+    }
   }
 
-  return pages;
+  return pageIds;
+};
+
+// export const getPageList = async (accessToken?: string) => {
+//   const response: any = await graphRequest.get(
+//     '/me/accounts?fields=instagram_business_account, access_token,id,name',
+//     accessToken
+//   );
+
+//   const pages = [];
+
+//   for (const page of response.data) {
+//     if (page.instagram_business_account) {
+//       const pageId = page.instagram_business_account.id;
+//       const accounInfo: any = await graphRequest.get(
+//         `${pageId}?fields=username`,
+//         accessToken
+//       );
+
+//       pages.push({
+//         id: accounInfo.id,
+//         name: accounInfo.username
+//       });
+//     }
+//   }
+
+//   return pages;
+// };
+
+export const subscribePage = async (
+  pageId,
+  pageToken
+): Promise<{ success: true } | any> => {
+  return graphRequest.post(`${pageId}/subscribed_apps`, pageToken, {
+    subscribed_fields: ['conversations', 'feed', 'messages']
+  });
 };
 
 export const getPageAccessToken = async (
@@ -79,225 +106,62 @@ export const getPageAccessToken = async (
   return response.access_token;
 };
 
-export const refreshPageAccesToken = async (
+export const getPageList = async (
   models: IModels,
-  pageId: string,
-  integration: IIntegrationDocument
+  accessToken?: string,
+  kind?: string
 ) => {
-  const account = await models.Accounts.getAccount({
-    _id: integration.accountId
-  });
-
-  const instagramPageTokensMap = integration.instagramPageTokensMap || {};
-
-  const pageAccessToken = await getPageAccessToken(pageId, account.token);
-
-  instagramPageTokensMap[pageId] = pageAccessToken;
-
-  await models.Integrations.updateOne(
-    { _id: integration._id },
-    { $set: { instagramPageTokensMap } }
+  const response: any = await graphRequest.get(
+    '/me/accounts?fields=instagram_business_account, access_token,id,name',
+    accessToken
   );
 
-  return instagramPageTokensMap;
+  const pages: any[] = [];
+
+  for (const page of response.data) {
+    if (page.instagram_business_account) {
+      const pageId = page.instagram_business_account.id;
+      const accounInfo: any = await graphRequest.get(
+        `${pageId}?fields=username`,
+        accessToken
+      );
+
+      pages.push({ id: accounInfo.id, name: accounInfo.username });
+    }
+  }
+
+  return pages;
 };
 
 export const getPageAccessTokenFromMap = (
   pageId: string,
   pageTokens: { [key: string]: string }
-): string => {
-  return (pageTokens || {})[pageId];
-};
-
-export const subscribePage = async (
-  pageId,
-  pageToken
-): Promise<{ success: true } | any> => {
-  return graphRequest.post(`${pageId}/subscribed_apps`, pageToken, {
-    subscribed_fields: ['conversations', 'feed', 'messages']
-  });
-};
-
-export const getPostLink = async (
-  pageId: string,
-  pageTokens: { [key: string]: string },
-  postId: string
-) => {
-  let pageAccessToken;
-
-  try {
-    pageAccessToken = getPageAccessTokenFromMap(pageId, pageTokens);
-  } catch (e) {
-    debugError(`Error occurred while getting page access token: ${e.message}`);
-    throw new Error();
-  }
-
-  try {
-    const response: any = await graphRequest.get(
-      `/${postId}?fields=permalink_url`,
-      pageAccessToken
-    );
-    return response.permalink_url ? response.permalink_url : '';
-  } catch (e) {
-    debugError(`Error occurred while getting instagram post: ${e.message}`);
-    return null;
-  }
-};
-
-export const unsubscribePage = async (
-  pageId,
-  pageToken
-): Promise<{ success: true } | any> => {
-  return graphRequest
-    .delete(`${pageId}/subscribed_apps`, pageToken)
-    .then(res => res)
-    .catch(e => {
-      debugError(e);
-      throw e;
-    });
+): string | null => {
+  return (pageTokens || {})[pageId] || null;
 };
 
 export const getInstagramUser = async (
-  models: IModels,
-  pageId: string,
-  pageTokens: { [key: string]: string },
-  fbUserId: string
+  userId: string,
+  facebookPageIds: string[],
+  facebookPageTokensMap: { [key: string]: string }
 ) => {
-  let pageAccessToken;
+  const token = await getPageAccessTokenFromMap(
+    facebookPageIds[0],
+    facebookPageTokensMap
+  );
 
-  try {
-    pageAccessToken = getPageAccessTokenFromMap(pageId, pageTokens);
-  } catch (e) {
-    debugError(`Error occurred while getting page access token: ${e.message}`);
-    return null;
-  }
+  const accounInfo: any = await graphRequest.get(
+    `${userId}?fields=name,profile_pic`,
+    token
+  );
 
-  const pageToken = pageAccessToken;
-
-  try {
-    const response = await graphRequest.get(`/${fbUserId}`, pageToken);
-
-    return response;
-  } catch (e) {
-    if (e.message.includes('access token')) {
-      await models.Integrations.updateOne(
-        { instagramPageIds: pageId },
-        { $set: { healthStatus: 'page-token', error: `${e.message}` } }
-      );
-    }
-
-    throw new Error(e);
-  }
-};
-
-export const uploadMedia = async (response: any, video) => {
-  const mediaFile = `${Math.random()}.${video ? 'mp4' : 'jpg'}`;
-
-  const { AWS_BUCKET, FILE_SYSTEM_PUBLIC } = await getFileUploadConfigs();
-
-  // initialize s3
-  const s3 = await createAWS();
-
-  try {
-    return new Promise((resolve, reject) => {
-      request(response)
-        .pipe(fs.createWriteStream(mediaFile))
-        .on('close', () => {
-          // Upload the file to S3
-          s3.upload(
-            {
-              Bucket: AWS_BUCKET,
-              Key: mediaFile,
-              Body: fs.readFileSync(mediaFile),
-              ACL: FILE_SYSTEM_PUBLIC === 'true' ? 'public-read' : undefined
-            },
-            (err, res) => {
-              if (err) {
-                reject(err);
-              }
-              const file =
-                FILE_SYSTEM_PUBLIC === 'true' ? res.Location : res.key;
-
-              return resolve(file);
-            }
-          );
-        });
-    });
-  } catch (e) {
-    debugError(
-      `Error occurred while getting instagram user profile pic: ${e.message}`
-    );
-
-    return null;
-  }
-};
-
-export const getInstagramUserProfilePic = async (
-  pageId: string,
-  pageTokens: { [key: string]: string },
-  fbId: string
-) => {
-  let pageAccessToken;
-
-  try {
-    pageAccessToken = getPageAccessTokenFromMap(pageId, pageTokens);
-  } catch (e) {
-    debugError(`Error occurred while getting page access token: ${e.message}`);
-    throw new Error();
-  }
-
-  try {
-    const response: any = await graphRequest.get(
-      `/${fbId}/picture?height=600`,
-      pageAccessToken
-    );
-
-    const { UPLOAD_SERVICE_TYPE } = await getFileUploadConfigs();
-
-    if (UPLOAD_SERVICE_TYPE === 'AWS') {
-      const awsResponse = await uploadMedia(response.location, false);
-
-      return awsResponse;
-    }
-
-    return null;
-  } catch (e) {
-    debugError(
-      `Error occurred while getting instagram user profile pic: ${e.message}`
-    );
-    return null;
-  }
-};
-
-export const restorePost = async (
-  postId: string,
-  pageId: string,
-  pageTokens: { [key: string]: string }
-) => {
-  let pageAccessToken;
-
-  try {
-    pageAccessToken = await getPageAccessTokenFromMap(pageId, pageTokens);
-  } catch (e) {
-    debugError(
-      `Error ocurred while trying to get page access token with ${e.message}`
-    );
-  }
-
-  const fields = `/${postId}?fields=caption,description,link,picture,source,message,from,created_time,comments.summary(true)`;
-
-  try {
-    return await graphRequest.get(fields, pageAccessToken);
-  } catch (e) {
-    throw new Error(e);
-  }
+  return accounInfo;
 };
 
 export const sendReply = async (
   models: IModels,
   url: string,
   data: any,
-  recipientId: string,
   integrationId: string
 ) => {
   const integration = await models.Integrations.getIntegration({
@@ -306,13 +170,10 @@ export const sendReply = async (
 
   const { instagramPageTokensMap = {} } = integration;
 
-  let pageAccessToken;
+  // let pageAccessToken;
 
   try {
-    pageAccessToken = getPageAccessTokenFromMap(
-      recipientId,
-      instagramPageTokensMap
-    );
+    // pageAccessToken = getPageAccessTokenFromMap(instagramPageTokensMap);
   } catch (e) {
     debugError(
       `Error ocurred while trying to get page access token with ${e.message}`
@@ -321,13 +182,13 @@ export const sendReply = async (
   }
 
   try {
-    const response = await graphRequest.post(`${url}`, pageAccessToken, {
-      ...data
-    });
+    // const response = await graphRequest.post(`${url}`, pageAccessToken, {
+    //   ...data
+    // });
     debugInstagram(
       `Successfully sent data to instagram ${JSON.stringify(data)}`
     );
-    return response;
+    // return response;
   } catch (e) {
     debugError(
       `Error ocurred while trying to send post request to instagram ${
@@ -378,71 +239,4 @@ export const generateAttachmentMessages = (attachments: IAttachment[]) => {
   }
 
   return messages;
-};
-
-export const checkInstagramPages = async (models: IModels, pages: any) => {
-  for (const page of pages) {
-    const integration = await models.Integrations.findOne({ pageId: page.id });
-
-    page.isUsed = integration ? true : false;
-  }
-
-  return pages;
-};
-
-export const getAdapter = async (models: IModels): Promise<any> => {
-  const accessTokensByPageId = {};
-
-  const INSTAGRAM_VERIFY_TOKEN = await getConfig(
-    models,
-    'INSTAGRAM_VERIFY_TOKEN'
-  );
-  const INSTAGRAM_APP_SECRET = await getConfig(models, 'INSTAGRAM_APP_SECRET');
-
-  if (!INSTAGRAM_VERIFY_TOKEN || !INSTAGRAM_APP_SECRET) {
-    return debugBase('Invalid instagram config');
-  }
-
-  return new FacebookAdapter({
-    verify_token: INSTAGRAM_VERIFY_TOKEN,
-    app_secret: INSTAGRAM_APP_SECRET,
-    getAccessTokenForPage: async (pageId: string) => {
-      return accessTokensByPageId[pageId];
-    }
-  });
-};
-
-export const createAWS = async () => {
-  const {
-    AWS_FORCE_PATH_STYLE,
-    AWS_COMPATIBLE_SERVICE_ENDPOINT,
-    AWS_BUCKET,
-    AWS_SECRET_ACCESS_KEY,
-    AWS_ACCESS_KEY_ID
-  } = await getFileUploadConfigs();
-
-  if (!AWS_ACCESS_KEY_ID || !AWS_SECRET_ACCESS_KEY || !AWS_BUCKET) {
-    throw new Error('AWS credentials are not configured');
-  }
-
-  const options: {
-    accessKeyId: string;
-    secretAccessKey: string;
-    endpoint?: string;
-    s3ForcePathStyle?: boolean;
-  } = {
-    accessKeyId: AWS_ACCESS_KEY_ID,
-    secretAccessKey: AWS_SECRET_ACCESS_KEY
-  };
-
-  if (AWS_FORCE_PATH_STYLE === 'true') {
-    options.s3ForcePathStyle = true;
-  }
-
-  if (AWS_COMPATIBLE_SERVICE_ENDPOINT) {
-    options.endpoint = AWS_COMPATIBLE_SERVICE_ENDPOINT;
-  }
-
-  // initialize s3
-  return new AWS.S3(options);
 };

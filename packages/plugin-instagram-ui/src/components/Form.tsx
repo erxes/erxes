@@ -226,10 +226,8 @@ class Instagram extends React.Component<Props, State> {
   };
 
   render() {
-    let title = __('Instagram Posts');
-    let description = __(
-      'Connect your Instagram Posts to start receiving Instagram post and comments in your team inbox'
-    );
+    let title;
+    let description;
 
     if (this.props.kind === INTEGRATION_KINDS.INSTAGRAM_MESSENGER) {
       title = __('Instagram Messenger');

@@ -15,9 +15,6 @@ import { IConversationDocument } from './models/definitions/conversations';
 import { ICustomerModel, loadCustomerClass } from './models/Customers';
 import { ICustomerDocument } from './models/definitions/customers';
 
-import { IPostModel, loadPostClass } from './models/Posts';
-import { IPostDocument } from './models/definitions/posts';
-
 import { IConversationMessageDocument } from './models/definitions/conversationMessages';
 import {
   IConversationMessageModel,
@@ -45,7 +42,6 @@ export interface IModels {
   Comments: ICommentModel;
   Conversations: IConversationModel;
   Customers: ICustomerModel;
-  Posts: IPostModel;
   ConversationMessages: IConversationMessageModel;
   Accounts: IAccountModel;
   Configs: IConfigModel;
@@ -90,11 +86,6 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
   models.Customers = db.model<ICustomerDocument, ICustomerModel>(
     'customers_instagrams',
     loadCustomerClass(models)
-  );
-
-  models.Posts = db.model<IPostDocument, IPostModel>(
-    'posts_instagrams',
-    loadPostClass(models)
   );
 
   models.ConversationMessages = db.model<

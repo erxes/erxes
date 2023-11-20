@@ -46,12 +46,8 @@ let IntConfigs;
 
 const FB_MSNGR = 'facebook-messenger';
 const FB_POST = 'facebook-post';
-
-const checkAndInsert = async (
-  list,
-  collection,
-  isConvMsg
-) => {
+const IG_MSNGR = 'instagram-messenger';
+const checkAndInsert = async (list, collection, isConvMsg) => {
   for (const item of list) {
     let exists = await collection.findOne({ _id: item._id });
 
@@ -109,7 +105,7 @@ const command = async () => {
 
     /** integrations-api */
     const intIntegrations = await IntIntegrations.find({
-      kind: { $in: [FB_MSNGR, FB_POST] }
+      kind: { $in: [FB_MSNGR, FB_POST, IG_MSNGR, IG_POST] }
     }).toArray();
     await checkAndInsert(intIntegrations, FbIntegrations);
 
@@ -123,7 +119,7 @@ const command = async () => {
     await checkAndInsert(intAccounts, FbAccounts);
 
     const inboxIntegrations = await InboxIntegrations.find({
-      kind: { $in: [FB_MSNGR, FB_POST] }
+      kind: { $in: [FB_MSNGR, FB_POST, IG_MSNGR, IG_POST] }
     }).toArray();
 
     for (const i of inboxIntegrations) {
@@ -146,8 +142,9 @@ const command = async () => {
     await checkAndInsert(intConfigs, FbConfigs);
 
     /** inbox-api */
+
     const fbMsgIntegrations = await InboxIntegrations.find({
-      kind: FB_MSNGR
+      kind: { $in: [FB_MSNGR, IG_MSNGR] }
     }).toArray();
 
     for (const i of fbMsgIntegrations) {
@@ -168,7 +165,8 @@ const command = async () => {
 
           for (const msg of inboxMessages) {
             const exists = oldMessages.find(
-              o => o.content === msg.content && o.conversationId === oldConv._id
+              (o) =>
+                o.content === msg.content && o.conversationId === oldConv._id
             );
 
             const doc = { ...msg, conversationId: oldConv._id };

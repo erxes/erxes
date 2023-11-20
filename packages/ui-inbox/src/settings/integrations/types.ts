@@ -171,6 +171,7 @@ export interface IBookingData {
 export interface ILink {
   twitter?: string;
   facebook?: string;
+  instagram?: string;
   youtube?: string;
 }
 
@@ -361,6 +362,7 @@ export type ByKindTotalCount = {
   messenger: number;
   lead: number;
   facebook: number;
+  instagram: number;
   gmail: number;
   callpro: number;
   chatfuel: number;

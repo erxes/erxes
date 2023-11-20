@@ -23,10 +23,9 @@ dotenv.config();
 
 let client;
 
-export const sendRPCMessage = async (channel, message): Promise<any> => {
-  return client.sendRPCMessage(channel, message);
+export const sendRPCMessage = async (message): Promise<any> => {
+  return client.sendRPCMessage('rpc_queue:integrations_to_api', message);
 };
-
 export const initBroker = async cl => {
   client = cl;
 
@@ -113,19 +112,6 @@ export const initBroker = async cl => {
     }
   );
 
-  // /instagram/get-post
-  consumeRPCQueue(
-    'instagram:getPost',
-    async ({ subdomain, data: { erxesApiId } }) => {
-      const models = await generateModels(subdomain);
-
-      return {
-        data: await models.Posts.getPost({ erxesApiId }, true),
-        status: 'success'
-      };
-    }
-  );
-
   // app.get('/instagram/get-customer-posts'
   consumeRPCQueue('instagram:getCustomerPosts', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
@@ -206,6 +192,3 @@ export const sendInboxMessage = (args: ISendMessageArgs) => {
     ...args
   });
 };
-
-export const getFileUploadConfigs = async () =>
-  sendRPCMessage('core:getFileUploadConfigs', {});

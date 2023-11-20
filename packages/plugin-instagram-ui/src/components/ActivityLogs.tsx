@@ -16,10 +16,7 @@ import {
   FlexCenterContent,
   Header
 } from '@erxes/ui-log/src/activityLogs/styles';
-import {
-  Comment,
-  PostContainer
-} from '@erxes/ui-inbox/src/inbox/components/conversationDetail/workarea/facebook/styles';
+import { Comment } from '@erxes/ui-inbox/src/inbox/components/conversationDetail/workarea/facebook/styles';
 import { IConversation } from '@erxes/ui-inbox/src/inbox/types';
 import { __, renderFullName } from '@erxes/ui/src/utils';
 import {
@@ -84,17 +81,6 @@ class ActivityLogs extends React.Component<Props, { toggleMessage: boolean }> {
       return null;
     }
 
-    const { kind } = conversation.integration;
-
-    if (kind === 'instagram-post') {
-      return (
-        <>
-          <PostContainer>{conversation.content}</PostContainer>
-          {this.renderComments()}
-        </>
-      );
-    }
-
     const rows: React.ReactNode[] = [];
     let tempId;
 
@@ -149,11 +135,6 @@ class ActivityLogs extends React.Component<Props, { toggleMessage: boolean }> {
         action = '';
         kind = 'commented';
         item = `on ${renderFullName(customer)}'s instagram post`;
-        break;
-      case 'instagram-post':
-        action = 'wrote a Instagram';
-        kind = 'Post';
-        item = '';
         break;
       case 'instagram-messenger':
         kind = 'message';
