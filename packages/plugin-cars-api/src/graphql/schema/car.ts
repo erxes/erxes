@@ -46,6 +46,8 @@ export const types = ({ contacts, tags }) => `
     order: String!
     isRoot: Boolean
     carCount: Int
+    image: Attachment
+    secondaryImages: [Attachment]
   }
   type Car {
     _id: String!
@@ -140,6 +142,8 @@ const carCategoryParams = `
   code: String!,
   description: String,
   parentId: String,
+  image: AttachmentInput,
+  secondaryImages: [AttachmentInput]
 `;
 
 export const mutations = `

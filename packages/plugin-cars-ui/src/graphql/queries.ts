@@ -11,8 +11,19 @@ const carCategoryFields = `
   code
   parentId
   description
-
   isRoot
+  image {
+      url
+      name
+      size
+      type
+    }
+  secondaryImages {
+      url
+      name
+      size
+      type
+    }
 `;
 
 const carFields = `

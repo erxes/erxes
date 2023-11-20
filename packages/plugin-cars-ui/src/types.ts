@@ -39,6 +39,7 @@ export interface ICarDoc {
 }
 
 export interface ICarCategory {
+  object: IAttachment;
   _id: string;
   name: string;
   order: string;
@@ -48,6 +49,8 @@ export interface ICarCategory {
   createdAt: Date;
   carCount: number;
   isRoot: boolean;
+  image?: IAttachment;
+  secondaryImages?: IAttachment[];
 }
 
 export type CarCategoriesQueryResponse = {
