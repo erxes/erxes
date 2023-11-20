@@ -14,7 +14,6 @@ import fetch from 'node-fetch';
 import { IModels } from '../connectionResolver';
 import { IUserDocument } from '../db/models/definitions/users';
 import { debugBase, debugError } from '../debuggers';
-import memoryStorage from '../inmemoryStorage';
 import {
   sendCommonMessage,
   sendContactsMessage,
@@ -607,8 +606,9 @@ export const uploadFileCloudflare = async (
   }
 
   if (
-    CLOUDFLARE_USE_CDN === 'true' ||
-    (CLOUDFLARE_USE_CDN === true && detectedType && isVideo(detectedType.mime))
+    (CLOUDFLARE_USE_CDN === 'true' || CLOUDFLARE_USE_CDN === true) &&
+    detectedType &&
+    isVideo(detectedType.mime)
   ) {
     return uploadToCFStream(file, models);
   }
@@ -1197,8 +1197,8 @@ export const getConfig = async (
   return configs[code];
 };
 
-export const resetConfigsCache = () => {
-  memoryStorage().set('configs_erxes_api', '');
+export const resetConfigsCache = async () => {
+  await redis.set('configs_erxes_api', '');
 };
 
 export const getCoreDomain = () => {
@@ -1368,13 +1368,39 @@ export const getFileUploadConfigs = async (models: IModels) => {
     models
   );
 
+  const CLOUDFLARE_BUCKET_NAME = await getConfig(
+    'CLOUDFLARE_BUCKET_NAME',
+    'erxes',
+    models
+  );
+
+  const CLOUDFLARE_ACCOUNT_ID = await getConfig(
+    'CLOUDFLARE_ACCOUNT_ID',
+    '',
+    models
+  );
+  const CLOUDFLARE_ACCESS_KEY_ID = await getConfig(
+    'CLOUDFLARE_ACCESS_KEY_ID',
+    '',
+    models
+  );
+  const CLOUDFLARE_SECRET_ACCESS_KEY = await getConfig(
+    'CLOUDFLARE_SECRET_ACCESS_KEY',
+    '',
+    models
+  );
+
   return {
     AWS_FORCE_PATH_STYLE,
     AWS_COMPATIBLE_SERVICE_ENDPOINT,
     AWS_BUCKET,
     AWS_SECRET_ACCESS_KEY,
     AWS_ACCESS_KEY_ID,
-    UPLOAD_SERVICE_TYPE
+    UPLOAD_SERVICE_TYPE,
+    CLOUDFLARE_BUCKET_NAME,
+    CLOUDFLARE_ACCOUNT_ID,
+    CLOUDFLARE_ACCESS_KEY_ID,
+    CLOUDFLARE_SECRET_ACCESS_KEY
   };
 };
 

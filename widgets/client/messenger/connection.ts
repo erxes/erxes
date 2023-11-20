@@ -3,5 +3,6 @@ export const connection: any = {
   data: {},
   leadData: {},
   queryVariables: "$integrationId: String!, $customerId: String, $visitorId: String",
-  queryParams: "integrationId: $integrationId, customerId: $customerId, visitorId: $visitorId"
+  queryParams: "integrationId: $integrationId, customerId: $customerId, visitorId: $visitorId",
+  enabledServices: {},
 };

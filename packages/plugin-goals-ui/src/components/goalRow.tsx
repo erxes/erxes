@@ -14,14 +14,6 @@ type Props = {
   toggleBulk: (goalType: IGoalType, isChecked?: boolean) => void;
 };
 
-type State = {
-  showModal: boolean;
-  checkbox: boolean;
-  pipName: string;
-  boardName: string;
-  stageName: string;
-};
-
 function displayValue(goalType, name) {
   const value = _.get(goalType, name);
 
@@ -30,7 +22,6 @@ function displayValue(goalType, name) {
 
 function renderFormTrigger(trigger: React.ReactNode, goalType: IGoalType) {
   const content = props => <GoalTypeForm {...props} goalType={goalType} />;
-
   return (
     <ModalTrigger
       size="lg"
@@ -40,7 +31,7 @@ function renderFormTrigger(trigger: React.ReactNode, goalType: IGoalType) {
     />
   );
 }
-function renderFormTViewrigger(
+function renderFormTViewier(
   trigger: React.ReactNode,
   goalType: IGoalType,
   boardName: string,
@@ -72,7 +63,6 @@ function renderFormTViewrigger(
 
 function renderEditAction(goalType: IGoalType) {
   const trigger = <Button btnStyle="link" icon="edit-1" />;
-
   return renderFormTrigger(trigger, goalType);
 }
 function renderViewAction(
@@ -83,7 +73,7 @@ function renderViewAction(
   emailName: string
 ) {
   const trigger = <Button btnStyle="link" icon="eye" />;
-  return renderFormTViewrigger(
+  return renderFormTViewier(
     trigger,
     goalType,
     boardName,
@@ -173,10 +163,11 @@ function GoalRow({ goalType, isChecked, toggleBulk }: Props) {
       <td>{pipelineName}</td>
       <td>{stageName}</td>
       <td key={'contributionType'}>
+        {' '}
         {displayValue(goalType, 'contributionType')}
       </td>
       <td key={'metric'}>{displayValue(goalType, 'metric')}</td>
-      <td key={'goalType'}>{displayValue(goalType, 'goalType')}</td>
+      <td key={'goalTypeChoose'}>{displayValue(goalType, 'goalTypeChoose')}</td>
       <td key={'startDate'}>{displayValue(goalType, 'startDate')}</td>
       <td key={'endDate'}>{displayValue(goalType, 'endDate')}</td>
       <td key={'current'}>{displayValue(goalType.progress, 'current')}</td>
