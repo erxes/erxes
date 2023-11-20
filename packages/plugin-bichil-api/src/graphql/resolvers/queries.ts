@@ -2,8 +2,8 @@ import { Bichils } from '../../models';
 import { IContext } from '../../connectionResolver';
 import {
   findAllTeamMembers,
-  findAllTeamMembersWithEmpId,
   findTeamMembers,
+  findTimeclockTeamMemberIds,
   generateCommonUserIds,
   paginateArray,
   returnDepartmentsBranchesDict,
@@ -63,8 +63,12 @@ const bichilQueries = {
     } else {
       if (isCurrentUserAdmin) {
         // return all team member ids
-        totalMembers = await findAllTeamMembers(subdomain);
-        totalTeamMemberIds = totalMembers.map(usr => usr._id);
+        totalTeamMemberIds = await findTimeclockTeamMemberIds(
+          models,
+          startDate,
+          endDate
+        );
+        totalMembers = await findTeamMembers(subdomain, totalTeamMemberIds);
       } else {
         // return supervisod users including current user
         totalMembers = await returnSupervisedUsers(user, subdomain);

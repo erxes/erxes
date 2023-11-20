@@ -27,7 +27,14 @@ type FinalProps = {
   TimeclockMutationResponse;
 
 const TimeclockContainer = (props: FinalProps) => {
-  const { listReportByUsersQuery, timeclockEditMutation } = props;
+  const {
+    listReportByUsersQuery,
+    timeclockEditMutation,
+    isCurrentUserAdmin,
+    isCurrentUserSupervisor,
+    getPagination,
+    queryParams
+  } = props;
 
   if (listReportByUsersQuery.loading) {
     return <Spinner />;
@@ -45,10 +52,13 @@ const TimeclockContainer = (props: FinalProps) => {
 
   return (
     <TimeclockList
+      queryParams={queryParams}
       reportByUsers={list}
       totalCount={totalCount}
+      isCurrentUserSupervisor={isCurrentUserSupervisor}
+      isCurrentUserAdmin={isCurrentUserAdmin}
       timeclockEdit={timeclockEdit}
-      {...props}
+      getPagination={getPagination}
     />
   );
 };
