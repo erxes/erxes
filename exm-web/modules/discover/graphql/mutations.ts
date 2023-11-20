@@ -9,110 +9,6 @@ const ticketFields = `
   source
 `
 
-const commonFields = `
-  _id
-  name
-  stageId
-  hasNotified
-  pipeline {
-    _id
-    name
-    tagId
-      tag {
-        order
-      }
-  }
-  boardId
-  
-    ... @defer {
-      companies {
-        _id
-        primaryName
-        links
-      }
-    }
-
-  }
-
-    ... @defer {
-      customers {
-        _id
-        firstName
-        middleName
-        lastName
-        primaryEmail
-        primaryPhone
-        visitorContactInfo
-      }
-    }
-
-  tags {
-    _id
-    name
-    colorCode
-  }
-
-  tagIds
-  startDate
-  closeDate
-  description
-  priority
-  assignedUsers {
-    _id
-    username
-    email
-    isActive
-
-    details {
-      avatar
-      fullName
-    }
-  }
-  labels {
-    _id
-    name
-    colorCode
-  }
-  labelIds
-  stage {
-    probability
-    type
-    defaultTick
-  }
-  isWatched
-  attachments {
-    name
-    url
-    type
-    size
-  }
-  createdAt
-  modifiedAt
-  modifiedBy
-  reminderMinute
-  isComplete
-  status
-  createdUser {
-    _id
-    details {
-      fullName
-      avatar
-    }
-  }
-  order
-  customFieldsData
-  score
-  timeTrack {
-    status
-    timeSpent
-    startDate
-  }
-  number
-  customProperties
-  branchIds
-  departmentIds
-`
-
 const commonMutationVariables = `
   $parentId: String,
   $proccessId: String,
@@ -168,11 +64,10 @@ const ticketMutationParams = `
 const copyVariables = `$customerIds: [String], $companyIds: [String], $labelIds: [String]`
 const copyParams = `customerIds: $customerIds, companyIds: $companyIds, labelIds: $labelIds`
 
-const ticketsAdd = `
+const ticketsAdd = gql`
   mutation ticketsAdd($name: String!, ${copyVariables}, ${ticketMutationVariables}, ${commonMutationVariables}) {
     ticketsAdd(name: $name, ${copyParams}, ${ticketMutationParams}, ${commonMutationParams}) {
       ${ticketFields}
-      ${commonFields}
     }
   }
 `

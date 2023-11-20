@@ -100,8 +100,8 @@ const Request = ({ queryParams }: Props) => {
   }
 
   return (
-    <div className="h-[calc(100vh-66px)] px-10 py-12 flex flex-col justify-between">
-      <div className="h-full flex flex-col gap-5">
+    <div className="h-[calc(100vh-66px)] p-9 pt-5 flex flex-col justify-between">
+      <div className="h-full flex flex-col gap-2">
         <AbsenceAction queryParams={queryParams} absenceTypes={absenceTypes} />
         {renderTable()}
         <div className="flex items-center justify-between mt-auto">

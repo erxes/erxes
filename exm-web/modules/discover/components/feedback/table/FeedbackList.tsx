@@ -1,10 +1,8 @@
 import React from "react"
-import { currentUserAtom } from "@/modules/JotaiProiveder"
-import { useAtomValue } from "jotai"
+import EmptyTable from "@/modules/timeclock/component/EmptyTable"
 
 import Loader from "@/components/ui/loader"
 import Pagination from "@/components/ui/pagination"
-import { ScrollArea } from "@/components/ui/scroll-area"
 import {
   Table,
   TableBody,
@@ -13,38 +11,31 @@ import {
   TableRow,
 } from "@/components/ui/table"
 
-import { useTimeclocksList } from "../../hooks/useTimeclocksList"
-import EmptyTable from "../EmptyTable"
-import TimeclockTableFooter from "../TimeclockTableFooter"
-import TimeClockRow from "./TimeclockRow"
-import TimeclockAction from "./action/TImeclockAction"
+import { useFeedback } from "../../../hooks/useFeedback"
+import FeedbackAction from "../action/FeedbackAction"
+import FeedbackRow from "./FeedbackRow"
+import FeedbackTableFooter from "./FeedbackTableFooter"
 
-const list = [
-  "Team member",
-  "Shift date",
-  "Check in",
-  "In device",
-  "Location",
-  "Check out",
-  "Overnight",
-  "Out device",
-  "Location",
-  "Action",
-]
+type Props = {
+  setToggleView: (view: boolean) => void
+}
 
-const TimeclockList = ({ queryParams }: any) => {
-  const currentUser = useAtomValue(currentUserAtom)
+const FeedbackList = ({ setToggleView }: Props) => {
+  const { stages, tickets, loading } = useFeedback({
+    pipelineId: "KKDqVWAU53tjUb9ecefLs",
+  })
 
-  const { timeclocksMainList, timeclocksMainTotalCount, loading } =
-    useTimeclocksList({
-      ...queryParams,
-    })
+  console.log("tickets", tickets)
+  console.log("stages", stages)
+
+  const list = ["Name", "Reason", "Total Hours", "Date", "Status"]
+  const queryParams = { page: 1, perPage: 10 }
 
   const renderTableBody = () => {
     return (
       <TableBody>
-        {timeclocksMainList.map((timeclock, index) => (
-          <TimeClockRow timeclock={timeclock} key={index} />
+        {tickets.map((ticket: any, index: number) => (
+          <FeedbackRow ticket={ticket} key={index} />
         ))}
       </TableBody>
     )
@@ -55,7 +46,7 @@ const TimeclockList = ({ queryParams }: any) => {
       return <Loader />
     }
 
-    if (timeclocksMainTotalCount === 0) {
+    if (tickets.length === 0) {
       return <EmptyTable />
     }
 
@@ -84,18 +75,18 @@ const TimeclockList = ({ queryParams }: any) => {
   return (
     <div className="h-[calc(100vh-66px)] p-9 pt-5 flex flex-col justify-between">
       <div className="flex flex-col gap-2 h-full">
-        <TimeclockAction />
+        <FeedbackAction setToggleView={setToggleView} />
         {renderTable()}
         <div className="flex items-center justify-between mt-auto">
-          <TimeclockTableFooter
+          <FeedbackTableFooter
             queryParams={queryParams}
-            totalCount={timeclocksMainTotalCount}
+            totalCount={tickets.length}
           />
-          <Pagination count={timeclocksMainTotalCount} />
+          <Pagination count={tickets.length} />
         </div>
       </div>
     </div>
   )
 }
 
-export default TimeclockList
+export default FeedbackList

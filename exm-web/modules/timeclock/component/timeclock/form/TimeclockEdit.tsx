@@ -158,17 +158,29 @@ const TimeclockEdit = ({ timeclock }: Props) => {
     )
 
     if (shiftStartInput === "insert" && !getShiftStart) {
-      toast({ description: "Please insert shift start" })
+      toast({
+        description: "Please insert shift start",
+        title: "Modify shift",
+        variant: "warning",
+      })
       return false
     }
     if (shiftEndInput === "insert" && !getShiftEnd) {
-      toast({ description: "Please insert shift end" })
+      toast({
+        description: "Please insert shift end",
+        title: "Modify shift",
+        variant: "warning",
+      })
 
       return false
     }
 
     if (getShiftStart && getShiftEnd && getShiftEnd < getShiftStart) {
-      toast({ description: "Shift end can not be sooner than shift start" })
+      toast({
+        description: "Shift end can not be sooner than shift start",
+        title: "Modify shift",
+        variant: "warning",
+      })
       return false
     }
 

@@ -9,13 +9,13 @@ import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import uploadHandler from "@/components/uploader/uploadHandler"
 
+import userFeedbackMutation from "../../../hooks/userFeedbackMutation"
+
 type Props = {
   type: string
-  step: number
-  setStep: (step: number) => void
 }
 
-const Form = ({ type, step, setStep }: Props) => {
+const Form = ({ type }: Props) => {
   const currentUser = useAtomValue(currentUserAtom) || ({} as IUser)
 
   const [message, setMessage] = useState("")
@@ -40,7 +40,19 @@ const Form = ({ type, step, setStep }: Props) => {
       <span>Холбоо барих утас: ${phone}</span>
     </p>
   `
-  const buttonText = step === 2 ? "Илгээх" : "Үргэжлүүлэх"
+  const buttonText = "Үргэжлүүлэх"
+
+  const { addTickets, loading } = userFeedbackMutation()
+
+  const onSubmit = () => {
+    addTickets({
+      name: `[${type}] ${title}`,
+      description: message,
+      attachments,
+      stageId: "9Swe0SSUjbZpYBxcbv4IU",
+      customFieldsData: [],
+    })
+  }
 
   const handleAttachmentChange = (e: any) => {
     const files = e.target.files
@@ -155,10 +167,8 @@ const Form = ({ type, step, setStep }: Props) => {
           <EmojiPicker
             emojiHandler={(emojiData: any) => emojiHandler(emojiData)}
           />
-          {(step === 2 || 3) && (
-            <Button onClick={() => setStep(1)}>Буцах</Button>
-          )}
-          <Button onClick={() => setStep(step + 1)}>{buttonText}</Button>
+
+          <Button onClick={onSubmit}>{buttonText}</Button>
         </div>
       </div>
     </div>

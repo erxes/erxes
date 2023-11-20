@@ -56,10 +56,18 @@ export const useAbsenceMutation = ({
     })
       .then((res) => {
         callBack("success")
-        toast({ description: `Successfully sent ${checkType} request` })
+        toast({
+          description: `Successfully sent ${checkType} request`,
+          title: `${checkType} request`,
+          variant: "success",
+        })
       })
       .catch((error) => {
-        toast({ description: error.message, variant: "destructive" })
+        toast({
+          description: error.message,
+          title: `${checkType} request`,
+          variant: "destructive",
+        })
       })
   }
 
@@ -71,10 +79,18 @@ export const useAbsenceMutation = ({
     })
       .then((res) => {
         callBack("success")
-        toast({ description: `Successfully removed absence request` })
+        toast({
+          description: `Successfully removed absence request`,
+          title: `Remove absence`,
+          variant: "success",
+        })
       })
       .catch((error) => {
-        toast({ description: error.message, variant: "destructive" })
+        toast({
+          description: error.message,
+          title: `Remove absence`,
+          variant: "destructive",
+        })
       })
   }
 
@@ -83,10 +99,18 @@ export const useAbsenceMutation = ({
       variables: { variables: values },
     })
       .then((res) => {
-        toast({ description: `Successfully solved absence request` })
+        toast({
+          description: `Successfully solved absence request`,
+          title: "Solve absence",
+          variant: "success",
+        })
       })
       .catch((error) => {
-        toast({ description: error.message, variant: "destructive" })
+        toast({
+          description: error.message,
+          title: "Solve absence",
+          variant: "destructive",
+        })
       })
   }
 
@@ -122,10 +146,18 @@ export const useAbsenceMutation = ({
         .then((res) => {
           callBack("success")
 
-          toast({ description: `Successfully sent an absence request'` })
+          toast({
+            description: `Successfully sent an absence request`,
+            title: "Absence request",
+            variant: "success",
+          })
         })
         .catch((error) => {
-          toast({ description: error.message, variant: "destructive" })
+          toast({
+            description: error.message,
+            title: "Absence request",
+            variant: "destructive",
+          })
         })
 
       return
@@ -147,10 +179,18 @@ export const useAbsenceMutation = ({
       .then((res) => {
         callBack("success")
 
-        toast({ description: `Successfully sent an absence request'` })
+        toast({
+          description: `Successfully sent an absence request'`,
+          title: "Absence request",
+          variant: "success",
+        })
       })
       .catch((error) => {
-        toast({ description: error.message, variant: "destructive" })
+        toast({
+          description: error.message,
+          title: "Absence request",
+          variant: "destructive",
+        })
       })
   }
 

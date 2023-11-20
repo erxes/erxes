@@ -104,9 +104,9 @@ const CheckInOutRequest = (props: Props) => {
   return (
     <Dialog open={open} onOpenChange={() => setOpen(!open)}>
       <DialogTrigger asChild={true}>
-        <button className="px-3 py-2 bg-[#6569df] text-[#fff] rounded-md">
+        <Button className="bg-[#6569df] text-[#fff] rounded-md">
           Create Check In/Out Request
-        </button>
+        </Button>
       </DialogTrigger>
       {renderRequestForm()}
     </Dialog>

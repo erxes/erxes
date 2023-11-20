@@ -2,31 +2,21 @@ import { useQuery } from "@apollo/client"
 
 import { queries } from "../graphql"
 
-export const useArticle = ({
-  searchValue,
-  id,
-  topicId,
-}: {
-  searchValue?: string
-  id: string
-  topicId?: string
-}) => {
+export const useArticle = (id: string) => {
   const {
-    data: articlesDate,
-    loading: articlesLoading,
-    error: articlesError,
-  } = useQuery(queries.articlesQuery, {
+    data: articleDate,
+    loading: articleLoading,
+    error: articleError,
+  } = useQuery(queries.articleDetailQuery, {
     variables: {
-      searchValue,
       _id: id,
-      topicId,
     },
   })
-  const articles = (articlesDate || {}).clientPortalKnowledgeBaseArticles
-    ? (articlesDate || {}).clientPortalKnowledgeBaseArticles
+  const article = (articleDate || {}).knowledgeBaseArticleDetail
+    ? (articleDate || {}).knowledgeBaseArticleDetail
     : {}
   return {
-    articles,
-    loading: articlesLoading,
+    article,
+    loading: articleLoading,
   }
 }

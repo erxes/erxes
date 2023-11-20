@@ -16,7 +16,7 @@ export const useDiscover = ({ id }: { id: string }) => {
     error: topicError,
   } = useQuery(queries.getKbTopicQuery, {
     variables: {
-      _id: id || "fsaoY2qwDMpaEddPQ",
+      _id: id,
     },
   })
 

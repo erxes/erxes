@@ -7,13 +7,11 @@ import RightNavbar from "@/modules/navbar/component/RightNavbar"
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
-import { useDiscover } from "../hooks/useDiscover"
-
 const Knowledgebase = dynamic(
   () => import("@/modules/discover/components/knowledgebase/Knowledgebase")
 )
 const Feedback = dynamic(
-  () => import("@/modules/discover/components/feedback/Feedback")
+  () => import("@/modules/discover/components/feedback/form/FeedbackForm")
 )
 
 const Discover = () => {
@@ -28,8 +26,6 @@ const Discover = () => {
 
   const style =
     "text-[#A1A1A1] data-[state=active]:text-primary data-[state=active]:border-[#5629B6] data-[state=active]:border-b-2 h-16 hover:font-medium hover:text-[#A1A1A1]"
-
-  const { config, topic, loading } = useDiscover({ id: "fsaoY2qwDMpaEddPQ" })
 
   return (
     <Tabs defaultValue={tab || "guide"}>

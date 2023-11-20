@@ -1,26 +1,53 @@
 import React, { useState } from "react"
+import Link from "next/link"
+import { ChevronRight } from "lucide-react"
 
-type Props = {}
+import { IKbCategory, IKbParentCategory } from "../../types"
 
-const Breadcrumb = (props: Props) => {
-  const navigations = [
-    { id: "1", name: "Getting Started" },
-    { id: "2", name: "Initial Setup" },
-    { id: "3", name: "Getting Started" },
-  ]
+type Props = {
+  categories: IKbParentCategory[]
+  selectedCat: IKbCategory
+}
 
-  const [active, setActive] = useState(false)
+const Breadcrumb = ({ categories, selectedCat }: Props) => {
+  let subCats
 
-  const navigation = navigations.map((nav, index) => (
-    <p
-      key={index}
-      className={`${active ? "text-[#000]" : "text-gray-600 text-opacity-50"}`}
-    >
-      {nav.name}
-    </p>
-  ))
+  if (categories && categories.length > 0) {
+    subCats = categories.find((cat) =>
+      cat.childrens.find((child) => child._id === selectedCat._id)
+    )
+  }
 
-  return <div className={`w-full px-10 py-5 flex`}>{navigation}</div>
+  const renderCat = (cat: IKbCategory | undefined) => {
+    if (!cat) {
+      return null
+    }
+
+    if (cat) {
+      return (
+        <>
+          <ChevronRight size={16} />
+          <Link href={`/discover/category?catId=${cat._id}`}>
+            <span>{cat.title}</span>
+          </Link>
+        </>
+      )
+    }
+  }
+
+  return (
+    <div className="mx-10 mt-5 flex items-center">
+      <Link href="/discover">
+        <div className="flex">
+          <span className="inline-block text-[14px] cursor-pointer text-[#6c718b] mr-1">
+            All categories
+          </span>
+          {renderCat(subCats)}
+          {renderCat(selectedCat) || ""}
+        </div>
+      </Link>
+    </div>
+  )
 }
 
 export default Breadcrumb

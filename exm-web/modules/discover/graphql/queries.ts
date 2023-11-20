@@ -212,10 +212,178 @@ export const articlesQuery = gql`
   }
 `
 
+const commonParams = `
+  $search: String,
+  $customerIds: [String],
+  $companyIds: [String],
+  $assignedUserIds: [String],
+  $labelIds: [String],
+  $extraParams: JSON,
+  $closeDateType: String,
+  $assignedToMe: String,
+  $branchIds: [String]
+  $departmentIds: [String]
+  $segment: String
+  $segmentData:String
+  $createdStartDate: Date
+  $createdEndDate: Date
+  $stateChangedStartDate: Date
+  $stateChangedEndDate: Date
+  $startDateStartDate: Date
+  $startDateEndDate: Date
+  $closeDateStartDate: Date
+  $closeDateEndDate: Date
+`
+
+const commonParamDefs = `
+  search: $search,
+  customerIds: $customerIds,
+  companyIds: $companyIds,
+  assignedUserIds: $assignedUserIds,
+  labelIds: $labelIds,
+  closeDateType: $closeDateType,
+  assignedToMe: $assignedToMe,
+  branchIds:$branchIds
+  departmentIds:$departmentIds
+  segment: $segment
+  segmentData:$segmentData
+  createdStartDate: $createdStartDate
+  createdEndDate: $createdEndDate
+  stateChangedStartDate: $stateChangedStartDate
+  stateChangedEndDate: $stateChangedEndDate
+  startDateStartDate: $startDateStartDate
+  startDateEndDate: $startDateEndDate
+  closeDateStartDate: $closeDateStartDate
+  closeDateEndDate: $closeDateEndDate
+`
+
+const commonListFields = `
+  _id
+  name
+  assignedUsers
+  labels
+  stage
+  isComplete
+  isWatched
+  relations
+  startDate
+  closeDate
+  createdAt
+  modifiedAt
+  priority
+  hasNotified
+  score
+  number
+  tagIds
+  customProperties
+  status
+`
+
+const stageDetail = gql`
+  query stageDetail(
+    $_id: String!,
+    ${commonParams}
+  ) {
+    stageDetail(
+      _id: $_id,
+      ${commonParamDefs}
+    ) {
+      _id
+      name
+      pipelineId
+      amount
+      itemsTotalCount
+    }
+  }
+`
+
+const stageParams = `
+  $isNotLost: Boolean,
+  $pipelineId: String!,
+  ${commonParams}
+`
+
+const stageParamDefs = `
+  isNotLost: $isNotLost,
+  pipelineId: $pipelineId,
+  ${commonParamDefs}
+`
+
+const stageCommon = `
+  _id
+  name
+  order
+  unUsedAmount
+  amount
+  itemsTotalCount
+  pipelineId
+  code
+  age
+  defaultTick
+  probability
+`
+
+const stages = gql`
+  query stages(
+    ${stageParams}
+  ) {
+    stages(
+      ${stageParamDefs}
+    ) {
+      ${stageCommon}
+    }
+  }
+`
+
+const tickets = gql`
+  query tickets(
+    $pipelineId: String,
+    $stageId: String,
+    $date: ItemDate,
+    $skip: Int,
+    $limit: Int,
+    ${commonParams}
+  ) {
+    tickets(
+      pipelineId: $pipelineId,
+      stageId: $stageId,
+      date: $date,
+      skip: $skip,
+      limit: $limit,
+      ${commonParamDefs}
+    ) {
+      ${commonListFields}
+    }
+  }
+`
+
+const ticketsTotalCount = `
+  query ticketsTotalCount(
+    $pipelineId: String,
+    $stageId: String,
+    $date: ItemDate,
+    $skip: Int,
+    $search: String,
+    ${commonParams}
+  ) {
+    ticketsTotalCount(
+      pipelineId: $pipelineId,
+      stageId: $stageId,
+      date: $date,
+      skip: $skip,
+      search: $search,
+      ${commonParamDefs}
+    )
+  }
+`
+
 export default {
   clientPortalGetConfig,
   getKbTopicQuery,
   categoryDetailQuery,
   articleDetailQuery,
   articlesQuery,
+  stageDetail,
+  stages,
+  tickets,
 }

@@ -1,6 +1,7 @@
 import React, { useState } from "react"
 import { IAbsenceType } from "@/modules/timeclock/types"
 
+import { Button } from "@/components/ui/button"
 import {
   Dialog,
   DialogContent,
@@ -24,9 +25,9 @@ const AbsenceAction = ({ queryParams, absenceTypes }: Props) => {
     <div className="flex gap-2 p-0 justify-end">
       <Dialog open={open} onOpenChange={() => setOpen(!open)}>
         <DialogTrigger asChild={true}>
-          <button className="px-3 py-2 bg-[#3dcc38] text-[#fff] rounded-md">
+          <Button className="bg-[#3dcc38] text-[#fff] rounded-md">
             Create Request
-          </button>
+          </Button>
         </DialogTrigger>
         <DialogContent>
           <DialogHeader>Create Request</DialogHeader>

@@ -1,4 +1,5 @@
 import React, { useState } from "react"
+import { useSearchParams } from "next/navigation"
 
 import { Calendar } from "@/components/ui/calendar"
 import Loader from "@/components/ui/loader"
@@ -34,8 +35,13 @@ const list = [
 ]
 
 const Schedule = ({ queryParams }: Props) => {
-  const [status, setStatus] = useState("Approved")
-  const [toggleView, setToggleView] = useState(false)
+  const statusParam = useSearchParams().get("status")
+  const viewParam = useSearchParams().get("view")
+
+  const [status, setStatus] = useState(statusParam || "Approved")
+  const [toggleView, setToggleView] = useState(
+    viewParam === "calendar" ? true : false
+  )
 
   const {
     schedulesList,
@@ -107,8 +113,8 @@ const Schedule = ({ queryParams }: Props) => {
   }
 
   return (
-    <div className="h-[calc(100vh-66px)] px-10 py-12 flex flex-col justify-between">
-      <div className="flex flex-col gap-5 h-full">
+    <div className="h-[calc(100vh-66px)] p-9 pt-5 flex flex-col justify-between">
+      <div className="flex flex-col gap-2 h-full">
         <ScheduleAction
           status={status}
           setStatus={setStatus}

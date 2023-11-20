@@ -10,7 +10,7 @@ export const useCategory = ({ id }: { id: string }) => {
     error: categoryError,
   } = useQuery(queries.categoryDetailQuery, {
     variables: {
-      _id: "rWgiSJ6LPMFijp3SP",
+      _id: id,
     },
   })
 

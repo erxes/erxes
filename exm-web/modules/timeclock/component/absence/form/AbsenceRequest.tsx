@@ -54,7 +54,9 @@ const AbsenceRequest = ({ queryParams, absenceTypes, setOpen }: Props) => {
   const currentUser = useAtomValue(currentUserAtom)
 
   const [selectedAbsenceType, setSelectedAbsenceType] = useState(
-    absenceTypes && absenceTypes[0].name ? absenceTypes[0].name : ""
+    absenceTypes.length !== 0 && absenceTypes[0].name
+      ? absenceTypes[0].name
+      : ""
   )
   const [absenceIndex, setAbsenceIndex] = useState(0)
 
