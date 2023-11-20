@@ -131,18 +131,12 @@ query meetingPinnedUsers {
   }
 }`;
 
-const deals = `
-  query deals(
-    $searchValue: String,
-  ) {
-    deals(
-      search: $searchValue,
-    ) {
-      _id
+const deals = `query deals($pipelineIds: [String], $companyIds: [String], $boardIds: [String], $searchValue: String) {
+  deals( pipelineIds: $pipelineIds, companyIds: $companyIds, boardIds: $boardIds, search: $searchValue) {
+     _id
       name
-    }
   }
-`;
+}`;
 
 export default {
   meetings,
