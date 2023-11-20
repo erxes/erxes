@@ -51,7 +51,6 @@ export default {
     'subscriptionPlugin.js'
   ),
 
-  hasDashboard: true,
   meta: {
     imports,
     segments,

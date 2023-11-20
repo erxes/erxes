@@ -95,6 +95,36 @@ export const createAWS = async () => {
   return new AWS.S3(options);
 };
 
+export const createCFR2 = async () => {
+  const {
+    CLOUDFLARE_ACCOUNT_ID,
+    CLOUDFLARE_ACCESS_KEY_ID,
+    CLOUDFLARE_SECRET_ACCESS_KEY
+  } = await getFileUploadConfigs();
+
+  const CLOUDFLARE_ENDPOINT = `https://${CLOUDFLARE_ACCOUNT_ID}.r2.cloudflarestorage.com`;
+
+  if (!CLOUDFLARE_ACCESS_KEY_ID || !CLOUDFLARE_SECRET_ACCESS_KEY) {
+    throw new Error('Cloudflare Credentials are not configured');
+  }
+
+  const options: {
+    endpoint?: string;
+    accessKeyId: string;
+    secretAccessKey: string;
+    signatureVersion: 'v4';
+    region: string;
+  } = {
+    endpoint: CLOUDFLARE_ENDPOINT,
+    accessKeyId: CLOUDFLARE_ACCESS_KEY_ID,
+    secretAccessKey: CLOUDFLARE_SECRET_ACCESS_KEY,
+    signatureVersion: 'v4',
+    region: 'auto'
+  };
+
+  return new AWS.S3(options);
+};
+
 export const getImportCsvInfo = async (fileName: string) => {
   const { UPLOAD_SERVICE_TYPE } = await getFileUploadConfigs();
 
@@ -145,10 +175,17 @@ export const getImportCsvInfo = async (fileName: string) => {
           reject();
         });
     } else {
-      const { AWS_BUCKET } = await getFileUploadConfigs();
-      const s3 = await createAWS();
+      const {
+        AWS_BUCKET,
+        CLOUDFLARE_BUCKET_NAME
+      } = await getFileUploadConfigs();
+      const s3 =
+        UPLOAD_SERVICE_TYPE === 'AWS' ? await createAWS() : await createCFR2();
 
-      const params = { Bucket: AWS_BUCKET, Key: fileName };
+      const bucket =
+        UPLOAD_SERVICE_TYPE === 'AWS' ? AWS_BUCKET : CLOUDFLARE_BUCKET_NAME;
+
+      const params = { Bucket: bucket, Key: fileName };
 
       const request = s3.getObject(params);
       const readStream = request.createReadStream();
@@ -209,11 +246,18 @@ export const getCsvHeadersInfo = async (fileName: string) => {
         resolve(columns);
       });
     } else {
-      const { AWS_BUCKET } = await getFileUploadConfigs();
-      const s3 = await createAWS();
+      const {
+        AWS_BUCKET,
+        CLOUDFLARE_BUCKET_NAME
+      } = await getFileUploadConfigs();
 
-      const params = { Bucket: AWS_BUCKET, Key: fileName };
+      const s3 =
+        UPLOAD_SERVICE_TYPE === 'AWS' ? await createAWS() : await createCFR2();
 
+      const bucket =
+        UPLOAD_SERVICE_TYPE === 'AWS' ? AWS_BUCKET : CLOUDFLARE_BUCKET_NAME;
+
+      const params = { Bucket: bucket, Key: fileName };
       // exclude column
 
       const columns = await getS3FileInfo({

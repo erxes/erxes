@@ -649,6 +649,28 @@ jobs:
 
           docker push erxes/plugin-zalo-api:${GITHUB_REF#refs/tags/}
 
+      - name: plugin-riskassessment-api
+        run: >
+          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
+          secrets.DOCKERHUB_USERNAME }} --password-stdin 
+
+          docker image pull erxes/plugin-riskassessment-api:master  
+
+          docker tag erxes/plugin-riskassessment-api:master  erxes/plugin-riskassessment-api:${GITHUB_REF#refs/tags/} 
+
+          docker push erxes/plugin-riskassessment-api:${GITHUB_REF#refs/tags/}
+
+      - name: plugin-forum-api
+        run: >
+          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
+          secrets.DOCKERHUB_USERNAME }} --password-stdin 
+
+          docker image pull erxes/plugin-forum-api:master  
+
+          docker tag erxes/plugin-forum-api:master  erxes/plugin-forum-api:${GITHUB_REF#refs/tags/} 
+
+          docker push erxes/plugin-forum-api:${GITHUB_REF#refs/tags/}
+
       - name: inbox ui
         run: aws s3 sync s3://erxes-master-plugins/uis/plugin-inbox-ui
           s3://erxes-release-plugins/uis/plugin-inbox-ui/${GITHUB_REF#refs/tags/}/
@@ -799,3 +821,15 @@ jobs:
       - name: zalo ui
         run: aws s3 sync s3://erxes-master-plugins/uis/plugin-zalo-ui
           s3://erxes-release-plugins/uis/plugin-zalo-ui/${GITHUB_REF#refs/tags/}/
+
+      - name: riskassessment ui
+        run: aws s3 sync s3://erxes-master-plugins/uis/plugin-riskassessment-ui
+          s3://erxes-release-plugins/uis/plugin-riskassessment-ui/${GITHUB_REF#refs/tags/}/
+
+      - name: assets ui
+        run: aws s3 sync s3://erxes-master-plugins/uis/plugin-assets-ui
+          s3://erxes-release-plugins/uis/plugin-assets-ui/${GITHUB_REF#refs/tags/}/
+
+      - name: forum ui
+        run: aws s3 sync s3://erxes-master-plugins/uis/plugin-forum-ui
+          s3://erxes-release-plugins/uis/plugin-forum-ui/${GITHUB_REF#refs/tags/}/

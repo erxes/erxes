@@ -357,7 +357,6 @@ httpServer.listen(PORT, async () => {
     port: PORT,
     dbConnectionString: MONGO_URL,
     hasSubscriptions: false,
-    hasDashboard: true,
     meta: {
       logs: { providesActivityLog: true, consumers: logs },
       forms,
