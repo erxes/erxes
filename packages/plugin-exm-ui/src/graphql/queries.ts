@@ -8,10 +8,8 @@ const exmGet = `
       
       features {
         _id
-        icon
         name
         description
-        contentType
         contentId
         subContentId
       }
