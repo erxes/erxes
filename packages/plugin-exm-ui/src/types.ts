@@ -9,10 +9,8 @@ interface IAppearence {
 }
 interface IFeature {
   _id: string;
-  icon: string;
   name: string;
   description: string;
-  contentType: string;
   contentId: string;
   subContentId: string;
 }
