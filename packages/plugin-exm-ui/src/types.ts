@@ -30,4 +30,9 @@ export interface IExm {
   vision?: string;
   structure?: string;
   appearance?: IAppearence;
+  knowledgeBaseLabel?: string;
+  knowledgeBaseTopicId?: string;
+  ticketLabel?: string;
+  ticketPipelineId?: string;
+  ticketBoardId?: string;
 }

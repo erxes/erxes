@@ -31,6 +31,12 @@ const exmGet = `
       webDescription
       vision
       structure
+      structure
+      knowledgeBaseLabel
+      knowledgeBaseTopicId
+      ticketLabel
+      ticketPipelineId
+      ticketBoardId
     }
   }
 `;
