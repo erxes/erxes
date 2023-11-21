@@ -55,15 +55,12 @@ export const timeclockReportByUsers = async (
   const returnReport: any[] = [];
 
   const { startDate, endDate } = queryParams;
-  const shiftsOfSchedules: IShiftDocument[] = [];
 
   const schedules = await models.Schedules.find({
     userId: { $in: userIds },
     solved: true,
     status: /approved/gi
   });
-
-  console.log('ccs ', getPureDate(startDate), customFixDate(endDate));
 
   // find total Timeclocks
   const timeclocks = await models.Timeclocks.find({
