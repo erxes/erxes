@@ -39,10 +39,12 @@ export const useChatMessages = (): IUseChats => {
   }, [id])
 
   const [sendMessageMutation] = useMutation(mutations.chatMessageAdd, {
-    update(cache, { data }: any) {
+    update(cache, { data: updateData }: any) {
       const messagesQuery = queries.chatMessages
 
-      const chatMessageAdd = data.chatMessageAdd ? data.chatMessageAdd : data
+      const chatMessageAdd = updateData.chatMessageAdd
+        ? updateData.chatMessageAdd
+        : updateData
 
       const selector = {
         query: messagesQuery,
@@ -112,7 +114,7 @@ export const useChatMessages = (): IUseChats => {
 
   useSubscription(subscriptions.chatMessageInserted, {
     variables: { chatId: id },
-    onSubscriptionData: ({ subscriptionData: { data } }) => {
+    onData: ({ data }) => {
       if (!data) {
         return null
       }

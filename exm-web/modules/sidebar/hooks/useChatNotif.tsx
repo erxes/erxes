@@ -30,7 +30,7 @@ export const useChatNotif = (): IUseChats => {
 
   useSubscription(subscriptions.chatUnreadCountChanged, {
     variables: { userId: currentUser._id },
-    onSubscriptionData: ({ subscriptionData }) => {
+    onData: ({ data: subscriptionData }) => {
       if (!subscriptionData) {
         return null
       }

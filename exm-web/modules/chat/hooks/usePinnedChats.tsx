@@ -18,7 +18,7 @@ export const usePinnedChats = (): IUseChats => {
 
   useSubscription(subscriptions.chatMessageInserted, {
     variables: { chatId: id },
-    onSubscriptionData: ({ subscriptionData: { data } }) => {
+    onData: ({ data }) => {
       if (!data) {
         return null
       }
