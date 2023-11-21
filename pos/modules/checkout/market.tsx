@@ -21,8 +21,7 @@ const Checkout = () => {
   const paidAmount = useAtomValue(getTotalPaidAmountAtom)
   const totalAmount = useAtomValue(totalAmountAtom)
   const orderTotal = useAtomValue(orderTotalAmountAtom)
-
-  const isReadyToPrint = !!activeOrder && paidAmount === totalAmount
+  const isReadyToPrint = !!activeOrder && paidAmount === orderTotal
   const isItemsRegistered = !!activeOrder && orderTotal === totalAmount
 
   return (

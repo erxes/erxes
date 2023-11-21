@@ -19,6 +19,7 @@ import {
   StopCircle,
   StoreIcon,
   TruckIcon,
+  User,
   UserCog,
 } from "lucide-react"
 
@@ -43,9 +44,6 @@ const TypeIcons = {
   eat: StoreIcon,
   take: Luggage,
   delivery: TruckIcon,
-}
-const typeLabel = {
-  eat: "",
 }
 
 const OrderDetail = () => {
@@ -73,6 +71,7 @@ const OrderDetail = () => {
     paidDate,
     items,
     description,
+    customer,
   } = data?.orderDetail || {}
   const { primaryPhone, primaryEmail, email } = user || {}
 
@@ -143,6 +142,16 @@ const OrderDetail = () => {
               title="Кассчин"
               value={`${primaryEmail || email || ""} ${primaryPhone || ""}`}
               Icon={UserCog}
+            />
+            <DescriptionCard
+              title="Харилцагч"
+              value={
+                `${customer?.firstName || ""} ${customer?.lastName || ""}` ||
+                `${customer?.primaryEmail || customer?.email || ""} ${
+                  customer?.primaryPhone || ""
+                }`
+              }
+              Icon={User}
             />
             {!!description && (
               <Card className="col-span-3">
