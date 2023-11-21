@@ -519,8 +519,8 @@ export const loadTransactionClass = (models: IModels) => {
         balance +
         payment +
         undue +
-        interestEve +
-        interestNonce +
+        calcInterest +
+        storedInterest +
         insurance +
         commitmentInterest +
         debt;

@@ -123,25 +123,28 @@ async function fillCommitmentInterest(
   const schedules = await models.Schedules.find({
     contractId: contract._id,
     status: SCHEDULE_STATUS.PENDING
-  });
+  }).sort({ payDate: 1 });
 
   let beginDate = contract.startDate;
+  let unUsedBalance = contract.leaseAmount;
 
   for await (let schedule of schedules) {
     const { diffEve, diffNonce } = getDatesDiffMonth(
       beginDate,
       schedule.payDate
     );
+
     beginDate = schedule.payDate;
+    unUsedBalance = contract.leaseAmount - schedule.balance;
 
     result.commitmentInterestEve += calcInterest({
-      balance: result.unUsedBalance,
+      balance: unUsedBalance,
       interestRate: contract.commitmentInterest,
       dayOfMonth: diffEve
     });
 
     result.commitmentInterestNonce += calcInterest({
-      balance: result.unUsedBalance,
+      balance: unUsedBalance,
       interestRate: contract.commitmentInterest,
       dayOfMonth: diffNonce
     });
@@ -149,6 +152,8 @@ async function fillCommitmentInterest(
 
   result.commitmentInterest =
     result.commitmentInterestEve + result.commitmentInterestNonce;
+
+  result.balance = result.schedule?.[-1]?.balance;
 
   return result;
 }
