@@ -82,8 +82,12 @@ const Notifications = () => {
   }
 
   const renderNotifRow = (notification: INotification) => {
-    const { details, username, email } = notification.createdUser
-    const { avatar, fullName } = details
+    const {
+      details = {},
+      username = "",
+      email,
+    } = notification.createdUser || {}
+    const { avatar, fullName } = details || {}
 
     return (
       <li
@@ -94,7 +98,11 @@ const Notifications = () => {
         <div className="flex gap-2 items-center">
           <div className="w-10 h-10 shrink-0">
             <Image
-              src={details && avatar ? avatar : "/avatar-colored.svg"}
+              src={
+                Object.keys(details || {}).length > 0 && avatar
+                  ? avatar
+                  : "/avatar-colored.svg"
+              }
               alt="User Profile"
               width={80}
               height={80}
@@ -103,7 +111,11 @@ const Notifications = () => {
           </div>
           <div className="text-[12px]">
             <div className="flex flex-col">
-              <b>{details ? fullName : username || email} </b>
+              <b>
+                {Object.keys(details || {}).length > 0
+                  ? fullName
+                  : username || email}{" "}
+              </b>
               {renderNotifInfo(notification)}
             </div>
             <div
