@@ -30,4 +30,5 @@ const createdUsersParams = `
 
 export const queries = `
   getCreatedUsersCards(${createdUsersParams}):[User]
+  getAssignedUsersCards(${createdUsersParams}):[User]
 `;

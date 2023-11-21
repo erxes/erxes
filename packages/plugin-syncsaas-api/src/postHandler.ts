@@ -3,6 +3,7 @@ import { debugError } from '@erxes/api-utils/src/debuggers';
 import { CUSTOMER_STATUSES } from './common/constants';
 import { generateModels } from './connectionResolver';
 import { sendCustomerMobileNotification } from './utils';
+import { sendCPMessage } from './messageBroker';
 
 const sendErrorMessage = messsage => {
   return { message: messsage };
@@ -83,20 +84,33 @@ const customerRequest = async (subdomain, data, triggerType) => {
     const syncNames = syncs.map(sync => sync.name).join(',');
 
     try {
-      await sendCustomerMobileNotification({
+      await sendCPMessage({
         subdomain,
-        title: `Customer Approved`,
-        body: `You approved on ${syncNames}`,
-        recieverIds: customerIds,
-        data: customersSyncs.map(({ customerId, syncId }) => {
-          const syncDetail = syncs.find(sync => sync._id === syncId);
-          return {
-            customerId,
-            subdomain: syncDetail?.subdomain,
-            name: syncDetail?.name
-          };
-        })
+        action: 'sendNotification',
+        data: {
+          title: `Customer Approved`,
+          receivers: customerIds,
+          notifType: 'system',
+          content: `You approved on ${syncNames}`,
+          eventData: customersSyncs.map(({ customerId, syncId }) => {
+            const syncDetail = syncs.find(sync => sync._id === syncId);
+            return {
+              customerId,
+              subdomain: syncDetail?.subdomain,
+              name: syncDetail?.name
+            };
+          }),
+          isMobile: true
+        },
+        isRPC: true
       });
+      // await sendCustomerMobileNotification({
+      //   subdomain,
+      //   title: `Customer Approved`,
+      //   body: `You approved on ${syncNames}`,
+      //   recieverIds: customerIds,
+      // data:
+      // });
     } catch (error) {
       debugError(
         `Error occurred during send customer notification: ${error.message}`
@@ -139,12 +153,18 @@ const dealDone = async (subdomain, data, triggerType) => {
   });
 
   try {
-    await sendCustomerMobileNotification({
+    await sendCPMessage({
       subdomain,
-      title: `Deal`,
-      body: `${dealDetail?.name} moved to ${dealDetail?.stage?.name} on ${sync.subdomain}`,
-      recieverIds: customerIds,
-      data: { appToken: sync?.appToken, subdomain: sync?.subdomain }
+      action: 'sendNotification',
+      data: {
+        title: `${triggerType.split(':')[1]} changed`,
+        receivers: customerIds,
+        notifType: 'system',
+        content: `${dealDetail?.name} moved to ${dealDetail?.stage?.name} on ${sync.subdomain}`,
+        eventData: { appToken: sync?.appToken, subdomain: sync?.subdomain },
+        isMobile: true
+      },
+      isRPC: true
     });
     return 'done';
   } catch (error) {

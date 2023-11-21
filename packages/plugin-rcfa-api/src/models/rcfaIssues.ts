@@ -150,7 +150,7 @@ export const loadRCFAIssuesClass = (models: IModels, subdomain: string) => {
         isRPC: true
       });
 
-      return await models.Issues.updateOne(
+      return await models.Issues.findOneAndUpdate(
         { _id: issue?._id },
         { $addToSet: { taskIds: rootAction._id } }
       );
@@ -197,7 +197,7 @@ export const loadRCFAIssuesClass = (models: IModels, subdomain: string) => {
         isRPC: true
       });
 
-      return await models.Issues.updateOne(
+      return await models.Issues.findOneAndUpdate(
         { _id: issue?._id },
         {
           $addToSet: { actionIds: newItem._id },
