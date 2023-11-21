@@ -224,10 +224,6 @@ const TimeclockList = (props: Props) => {
       </>
     );
 
-    if (!requests?.length && !schedules?.length && timeclocks?.length) {
-      return <tr>{renderUserInfo}</tr>;
-    }
-
     const scheduleShifts: IShift[] = [];
 
     // scheduled: true
@@ -406,7 +402,6 @@ const TimeclockList = (props: Props) => {
       if (dateField in timeclocksInfo) {
         contentInsideCell.push(
           timeclocksInfo[dateField].map(timeclock => {
-            console.log(timeclock);
             return (
               <Tip
                 text="Edit timeclock"

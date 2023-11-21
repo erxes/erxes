@@ -1,4 +1,4 @@
-import { fixDate } from '@erxes/api-utils/src';
+import { fixDate, getPureDate } from '@erxes/api-utils/src';
 import * as dayjs from 'dayjs';
 import { generateModels, IModels } from '../../connectionResolver';
 import {
@@ -62,6 +62,8 @@ export const timeclockReportByUsers = async (
     solved: true,
     status: /approved/gi
   });
+
+  console.log('ccs ', getPureDate(startDate), customFixDate(endDate));
 
   // find total Timeclocks
   const timeclocks = await models.Timeclocks.find({
