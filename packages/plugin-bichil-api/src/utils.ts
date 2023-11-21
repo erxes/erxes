@@ -121,20 +121,13 @@ export const findTimeclockTeamMemberIds = async (
     shiftStart: {
       $gte: fixDate(startDate),
       $lte: customFixDate(endDate)
-    },
-    shiftEnd: {
-      $gte: fixDate(startDate),
-      $lte: customFixDate(endDate)
     }
   }).distinct('userId');
 
   const requestsUserIds = await models.Absences.find({
     solved: true,
+    status: /approved/gi,
     startTime: {
-      $gte: fixDate(startDate),
-      $lte: customFixDate(endDate)
-    },
-    endTime: {
       $gte: fixDate(startDate),
       $lte: customFixDate(endDate)
     }
