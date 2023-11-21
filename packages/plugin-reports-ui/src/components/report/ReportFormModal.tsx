@@ -112,13 +112,16 @@ const ReportFormModal = (props: Props) => {
         />
       )}
 
-      {totalFilters.map(c => {
+      {chartTemplates.map(chartTemplate => {
         return (
-          <FlexRow key={c.fieldName} justifyContent="space-between">
-            <ControlLabel>{c.fieldLabel}</ControlLabel>
+          <FlexRow
+            key={chartTemplate.templateType}
+            justifyContent="space-between"
+          >
+            <ControlLabel>{chartTemplate.name}</ControlLabel>
             <FormControl
               componentClass="checkbox"
-              key={c.name}
+              key={chartTemplate.name}
               checked={true}
             />
           </FlexRow>
