@@ -1,9 +1,13 @@
 import React from "react"
+import { currentUserAtom } from "@/modules/JotaiProiveder"
 import { useQuery } from "@apollo/client"
+import { useAtomValue } from "jotai"
 
 import { queries } from "../graphql"
 
 export const useFeedback = ({ pipelineId }: { pipelineId: string }) => {
+  const currentUser = useAtomValue(currentUserAtom)
+
   const {
     data: stagesDate,
     loading: stagesLoading,
@@ -11,6 +15,7 @@ export const useFeedback = ({ pipelineId }: { pipelineId: string }) => {
   } = useQuery(queries.stages, {
     variables: {
       pipelineId,
+      userIds: [currentUser?._id],
     },
   })
 
@@ -21,6 +26,7 @@ export const useFeedback = ({ pipelineId }: { pipelineId: string }) => {
   } = useQuery(queries.tickets, {
     variables: {
       pipelineId,
+      userIds: [currentUser?._id],
     },
   })
 

@@ -9,7 +9,7 @@ const userFeedbackMutation = () => {
   const [ticketsAdd, { loading: loadingTicket }] = useMutation(
     mutations.ticketsAdd,
     {
-      refetchQueries: ["stageDetail"],
+      refetchQueries: ["tickets"],
     }
   )
 

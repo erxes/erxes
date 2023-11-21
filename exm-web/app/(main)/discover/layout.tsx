@@ -1,15 +1,25 @@
 "use client"
 
-import KnowledgebaseHeader from "@/modules/discover/components/knowledgebase/KnowledgebaseHeader"
+import "@/styles/globals.css"
+import dynamic from "next/dynamic"
+import { useRouter, useSearchParams } from "next/navigation"
+import KnowledgebaseProvider from "@/modules/discover/components/knowledgebase/KnowledgebaseProvider"
 
 import { ScrollArea } from "@/components/ui/scroll-area"
-
-import "@/styles/globals.css"
-import { useRouter, useSearchParams } from "next/navigation"
-import Feedback from "@/modules/discover/components/feedback/Feedback"
-import RightNavbar from "@/modules/navbar/component/RightNavbar"
-
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+
+const KnowledgebaseHeader = dynamic(
+  () =>
+    import("@/modules/discover/components/knowledgebase/KnowledgebaseHeader")
+)
+
+const RightNavbar = dynamic(
+  () => import("@/modules/navbar/component/RightNavbar")
+)
+
+const Feedback = dynamic(
+  () => import("@/modules/discover/components/feedback/Feedback")
+)
 
 interface ILayoutProps {
   children: React.ReactNode
@@ -41,14 +51,14 @@ export default function DiscoverLayout({ children }: ILayoutProps) {
                     value="guide"
                     onClick={() => handleClick("guide")}
                   >
-                    Гарын авлага
+                    Guide
                   </TabsTrigger>
                   <TabsTrigger
                     className={style}
                     value="feedback"
                     onClick={() => handleClick("feedback")}
                   >
-                    Санал хүсэлт
+                    Feedback
                   </TabsTrigger>
                 </div>
                 <RightNavbar />
@@ -56,10 +66,12 @@ export default function DiscoverLayout({ children }: ILayoutProps) {
             </TabsList>
 
             <TabsContent value={"guide"} className="h-full w-full bg-[#F8F9FA]">
-              <ScrollArea className="h-[calc(100vh-66px)]">
-                <KnowledgebaseHeader />
-                {children}
-              </ScrollArea>
+              <KnowledgebaseProvider>
+                <ScrollArea className="h-[calc(100vh-66px)]">
+                  <KnowledgebaseHeader />
+                  {children}
+                </ScrollArea>
+              </KnowledgebaseProvider>
             </TabsContent>
             <TabsContent
               value={"feedback"}

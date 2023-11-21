@@ -16,19 +16,12 @@ import FeedbackAction from "../action/FeedbackAction"
 import FeedbackRow from "./FeedbackRow"
 import FeedbackTableFooter from "./FeedbackTableFooter"
 
-type Props = {
-  setToggleView: (view: boolean) => void
-}
-
-const FeedbackList = ({ setToggleView }: Props) => {
-  const { stages, tickets, loading } = useFeedback({
+const FeedbackList = () => {
+  const { tickets, loading } = useFeedback({
     pipelineId: "KKDqVWAU53tjUb9ecefLs",
   })
 
-  console.log("tickets", tickets)
-  console.log("stages", stages)
-
-  const list = ["Name", "Reason", "Total Hours", "Date", "Status"]
+  const list = ["Name", "Type", "Created", "Closed", "Status"]
   const queryParams = { page: 1, perPage: 10 }
 
   const renderTableBody = () => {
@@ -73,17 +66,14 @@ const FeedbackList = ({ setToggleView }: Props) => {
   }
 
   return (
-    <div className="h-[calc(100vh-66px)] p-9 pt-5 flex flex-col justify-between">
-      <div className="flex flex-col gap-2 h-full">
-        <FeedbackAction setToggleView={setToggleView} />
-        {renderTable()}
-        <div className="flex items-center justify-between mt-auto">
-          <FeedbackTableFooter
-            queryParams={queryParams}
-            totalCount={tickets.length}
-          />
-          <Pagination count={tickets.length} />
-        </div>
+    <div className="flex flex-col justify-between h-full pt-2">
+      {renderTable()}
+      <div className="flex items-center justify-between">
+        <FeedbackTableFooter
+          queryParams={queryParams}
+          totalCount={tickets.length}
+        />
+        <Pagination count={tickets.length} />
       </div>
     </div>
   )

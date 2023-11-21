@@ -8,13 +8,12 @@ import { useDiscover } from "@/modules/discover/hooks/useDiscover"
 type Props = {
   categoryId: string
   topic: any
-  config: any
 }
 
-const CategoryList = ({ categoryId, topic, config }: Props) => {
+const CategoryList = ({ categoryId, topic }: Props) => {
   return (
     <div className="w-3/12 px-10 py-5 flex flex-col gap-5">
-      {topic?.parentCategories?.map((n, index) => (
+      {topic?.parentCategories?.map((n, index: number) => (
         <div key={index}>
           <Link href={`/discover/category?catId=${n._id}`}>
             <h1 className="text-[16px] font-medium">
@@ -22,7 +21,7 @@ const CategoryList = ({ categoryId, topic, config }: Props) => {
             </h1>
           </Link>
           <ul className="pl-8 pt-2">
-            {n.childrens.map((i, index) => (
+            {n.childrens.map((i, index: number) => (
               <Link
                 href={`/discover/category?catId=${i._id}`}
                 key={index}

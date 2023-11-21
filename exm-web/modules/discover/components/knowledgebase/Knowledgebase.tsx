@@ -1,18 +1,24 @@
 "use client"
 
-import React from "react"
+import React, { useContext } from "react"
+import { useAtomValue } from "jotai"
+
+import Loader from "@/components/ui/loader"
 
 import { useDiscover } from "../../hooks/useDiscover"
 import KnowledgebaseList from "../knowledgebase/KnowledgebaseList"
+import { KnowledgebaseContext } from "./KnowledgebaseProvider"
 
 type Props = {}
 
 const Knowledgebase = (props: Props) => {
-  const { config, topic, loading } = useDiscover({
-    id: "-WK9kACSlXMqIoS8-Qqdy",
-  })
+  const { knowledgebase } = useContext(KnowledgebaseContext)
 
-  return <KnowledgebaseList configs={config} topics={topic} />
+  if (!knowledgebase) {
+    return <Loader />
+  }
+
+  return <KnowledgebaseList topics={knowledgebase} />
 }
 
 export default Knowledgebase

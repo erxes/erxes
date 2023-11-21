@@ -1,12 +1,15 @@
 "use client"
 
-import React from "react"
+import React, { useContext } from "react"
 import { useSearchParams } from "next/navigation"
 import { useCategory } from "@/modules/discover/hooks/useCategory"
 import { useDiscover } from "@/modules/discover/hooks/useDiscover"
 import { Topic } from "@/modules/discover/types"
 
+import Loader from "@/components/ui/loader"
+
 import Breadcrumb from "../Breadcrumb"
+import { KnowledgebaseContext } from "../KnowledgebaseProvider"
 import ArticleList from "../article/ArticleList"
 import CategoryList from "./CategoryList"
 
@@ -17,19 +20,24 @@ const CategoryDetail = (props: Props) => {
   const categoryId = searchParams.get("catId")
   const searchValue = searchParams.get("searchValue")
 
-  const { config, topic, loading } = useDiscover({
-    id: "-WK9kACSlXMqIoS8-Qqdy",
-  })
+  const { knowledgebase } = useContext(KnowledgebaseContext)
 
   const { category } = useCategory({
     id: categoryId || "",
   })
 
+  if (!knowledgebase) {
+    return <Loader />
+  }
+
   return (
     <div className="flex flex-col">
-      <Breadcrumb categories={topic?.parentCategories} selectedCat={category} />
+      <Breadcrumb
+        categories={knowledgebase?.parentCategories}
+        selectedCat={category}
+      />
       <div className="flex">
-        <CategoryList categoryId={categoryId!} topic={topic} config={config} />
+        <CategoryList categoryId={categoryId!} topic={knowledgebase} />
         <ArticleList categoryId={categoryId!} searchValue={searchValue!} />
       </div>
     </div>

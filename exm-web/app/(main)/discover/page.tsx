@@ -1,7 +1,8 @@
 import dynamic from "next/dynamic"
-import Knowledgebase from "@/modules/discover/components/knowledgebase/Knowledgebase"
 
-const Discover = dynamic(() => import("@/modules/discover/components/Discover"))
+const Knowledgebase = dynamic(
+  () => import("@/modules/discover/components/knowledgebase/Knowledgebase")
+)
 
 export default function IndexPage() {
   return (

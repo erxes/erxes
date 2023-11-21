@@ -6,17 +6,29 @@ import { useSetAtom } from "jotai"
 
 import { useToast } from "@/components/ui/use-toast"
 
-import { setCurrentUserAtom } from "../JotaiProiveder"
+import { setCurrentUserAtom, setExmAtom } from "../JotaiProiveder"
 import { queries } from "./graphql"
 
 const Configs = ({ children }: { children: ReactNode }) => {
   const setCurrentUser = useSetAtom(setCurrentUserAtom)
+  const setExm = useSetAtom(setExmAtom)
   const [loadingConfigs, setLoadingConfigs] = useState(true)
   const { onError } = useToast()
 
   useQuery(queries.currentUser, {
     onCompleted: (data) => {
       setCurrentUser(data?.currentUser)
+      setLoadingConfigs(false)
+    },
+    onError: (error) => {
+      setLoadingConfigs(false)
+      onError(error)
+    },
+  })
+
+  useQuery(queries.exmGets, {
+    onCompleted: (data) => {
+      setExm(data?.exmGet)
       setLoadingConfigs(false)
     },
     onError: (error) => {

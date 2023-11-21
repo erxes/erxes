@@ -8,11 +8,18 @@ import Form from "./Form"
 type Props = {
   tab: string
   setTab: (tab: string) => void
+  currentStep: number
+  setCurrentStep: (step: number) => void
 }
 
-const FeedbackTabs = ({ tab, setTab }: Props) => {
+const FeedbackTabs = ({ tab, setTab, currentStep, setCurrentStep }: Props) => {
   const style =
     "text-[#A1A1A1] data-[state=active]:text-primary data-[state=active]:border-[#5629B6] data-[state=active]:border-b-2 h-8 hover:font-medium hover:text-[#A1A1A1]"
+
+  const handleTabClick = (type: string) => {
+    setTab(type)
+    setCurrentStep(1)
+  }
 
   return (
     <Tabs defaultValue={tab || "feedback"}>
@@ -21,23 +28,23 @@ const FeedbackTabs = ({ tab, setTab }: Props) => {
           <TabsTrigger
             className={style}
             value="feedback"
-            onClick={() => setTab("feedback")}
+            onClick={() => handleTabClick("feedback")}
           >
-            Санал хүсэлт
+            Feedback
           </TabsTrigger>
           <TabsTrigger
             className={style}
             value="application"
-            onClick={() => setTab("application")}
+            onClick={() => handleTabClick("application")}
           >
-            Өргөдөл
+            Application
           </TabsTrigger>
           <TabsTrigger
             className={style}
             value="complaint"
-            onClick={() => setTab("complaint")}
+            onClick={() => handleTabClick("complaint")}
           >
-            Гомдол
+            Complaint
           </TabsTrigger>
         </div>
       </TabsList>
@@ -47,21 +54,33 @@ const FeedbackTabs = ({ tab, setTab }: Props) => {
         // value="feedback"
         className="h-full w-full bg-[#F8F9FA]"
       >
-        <Form type={tab} />
+        <Form
+          type={tab}
+          currentStep={currentStep}
+          setCurrentStep={setCurrentStep}
+        />
       </TabsContent>
       <TabsContent
         value="application"
         // value="application"
         className="h-full w-full bg-[#F8F9FA]"
       >
-        <Form type={tab} />
+        <Form
+          type={tab}
+          currentStep={currentStep}
+          setCurrentStep={setCurrentStep}
+        />
       </TabsContent>
       <TabsContent
         value="complaint"
         // value="complain"
         className="h-full w-full bg-[#F8F9FA]"
       >
-        <Form type={tab} />
+        <Form
+          type={tab}
+          currentStep={currentStep}
+          setCurrentStep={setCurrentStep}
+        />
       </TabsContent>
     </Tabs>
   )

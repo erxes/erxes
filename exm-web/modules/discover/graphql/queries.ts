@@ -1,70 +1,6 @@
 import { gql } from "@apollo/client"
 import { queries as teamQueries } from "common/team/graphql"
 
-const detailFields = teamQueries.detailFields
-const allUsers = teamQueries.allUsers
-const users = teamQueries.users
-
-const clientPortalGetConfig = gql`
-  query clientPortalGetConfigByDomain {
-    clientPortalGetConfigByDomain {
-      _id
-      name
-      description
-      logo
-      icon
-      headerHtml
-      footerHtml
-      url
-      messengerBrandCode
-      knowledgeBaseLabel
-      knowledgeBaseTopicId
-      taskLabel
-      taskPublicPipelineId
-      taskPublicBoardId
-      taskPublicLabel
-      taskPipelineId
-      taskStageId
-      dealLabel
-      dealPipelineId
-      dealStageId
-      purchaseLabel
-      purchasePipelineId
-      purchaseStageId
-      ticketLabel
-      ticketStageId
-      ticketPipelineId
-      publicTaskToggle
-      ticketToggle
-      taskToggle
-      dealToggle
-      purchaseToggle
-      kbToggle
-      googleClientId
-      facebookAppId
-      erxesAppToken
-
-      styles {
-        bodyColor
-        headerColor
-        footerColor
-        helpColor
-        backgroundColor
-        activeTabColor
-        baseColor
-        headingColor
-        linkColor
-        linkHoverColor
-        baseFont
-        headingFont
-        dividerColor
-        primaryBtnColor
-        secondaryBtnColor
-      }
-    }
-  }
-`
-
 const categoryFields = `
   _id
   title
@@ -212,19 +148,26 @@ export const articlesQuery = gql`
   }
 `
 
-const commonParams = `
-  $search: String,
-  $customerIds: [String],
+const ticketsCommonParams = `
   $companyIds: [String],
+  $parentId: String,
+  $customerIds: [String],
   $assignedUserIds: [String],
-  $labelIds: [String],
-  $extraParams: JSON,
   $closeDateType: String,
+  $priority: [String],
+  $source: [String],
+  $labelIds: [String],
+  $sortField: String,
+  $sortDirection: Int,
+  $userIds: [String],
+  $segment: String,
+  $segmentData:String,
   $assignedToMe: String,
-  $branchIds: [String]
-  $departmentIds: [String]
-  $segment: String
-  $segmentData:String
+  $startDate: String,
+  $endDate: String,
+  $noSkipArchive: Boolean,
+  $branchIds:[String]
+  $departmentIds:[String]
   $createdStartDate: Date
   $createdEndDate: Date
   $stateChangedStartDate: Date
@@ -235,18 +178,26 @@ const commonParams = `
   $closeDateEndDate: Date
 `
 
-const commonParamDefs = `
-  search: $search,
-  customerIds: $customerIds,
+const ticketsCommonParamDefs = `
   companyIds: $companyIds,
+  customerIds: $customerIds,
+  parentId: $parentId,
   assignedUserIds: $assignedUserIds,
-  labelIds: $labelIds,
   closeDateType: $closeDateType,
+  priority: $priority,
+  source: $source,
+  labelIds: $labelIds,
+  sortField: $sortField,
+  sortDirection: $sortDirection,
+  userIds: $userIds,
+  segment: $segment,
+  segmentData: $segmentData,
   assignedToMe: $assignedToMe,
-  branchIds:$branchIds
-  departmentIds:$departmentIds
-  segment: $segment
-  segmentData:$segmentData
+  startDate: $startDate,
+  endDate: $endDate,
+  noSkipArchive: $noSkipArchive,
+  branchIds: $branchIds,
+  departmentIds: $departmentIds,
   createdStartDate: $createdStartDate
   createdEndDate: $createdEndDate
   stateChangedStartDate: $stateChangedStartDate
@@ -279,34 +230,62 @@ const commonListFields = `
   status
 `
 
-const stageDetail = gql`
-  query stageDetail(
-    $_id: String!,
-    ${commonParams}
-  ) {
-    stageDetail(
-      _id: $_id,
-      ${commonParamDefs}
-    ) {
-      _id
-      name
-      pipelineId
-      amount
-      itemsTotalCount
-    }
-  }
+const stagesCommonParams = `
+  $search: String,
+  $customerIds: [String],
+  $companyIds: [String],
+  $assignedUserIds: [String],
+  $labelIds: [String],
+  $extraParams: JSON,
+  $closeDateType: String,
+  $assignedToMe: String,
+  $branchIds: [String]
+  $departmentIds: [String]
+  $segment: String
+  $segmentData:String
+  $createdStartDate: Date
+  $createdEndDate: Date
+  $stateChangedStartDate: Date
+  $stateChangedEndDate: Date
+  $startDateStartDate: Date
+  $startDateEndDate: Date
+  $closeDateStartDate: Date
+  $closeDateEndDate: Date
+`
+
+const stagesCommonParamDefs = `
+  search: $search,
+  customerIds: $customerIds,
+  companyIds: $companyIds,
+  assignedUserIds: $assignedUserIds,
+  labelIds: $labelIds,
+  extraParams: $extraParams,
+  closeDateType: $closeDateType,
+  assignedToMe: $assignedToMe,
+  branchIds:$branchIds
+  departmentIds:$departmentIds
+  segment: $segment
+  segmentData:$segmentData
+  createdStartDate: $createdStartDate
+  createdEndDate: $createdEndDate
+  stateChangedStartDate: $stateChangedStartDate
+  stateChangedEndDate: $stateChangedEndDate
+  startDateStartDate: $startDateStartDate
+  startDateEndDate: $startDateEndDate
+  closeDateStartDate: $closeDateStartDate
+  closeDateEndDate: $closeDateEndDate
 `
 
 const stageParams = `
   $isNotLost: Boolean,
   $pipelineId: String!,
-  ${commonParams}
+  ${stagesCommonParams}
 `
 
 const stageParamDefs = `
   isNotLost: $isNotLost,
   pipelineId: $pipelineId,
-  ${commonParamDefs}
+  ${stagesCommonParamDefs}
 `
 
 const stageCommon = `
@@ -342,7 +321,7 @@ const tickets = gql`
     $date: ItemDate,
     $skip: Int,
     $limit: Int,
-    ${commonParams}
+    ${ticketsCommonParams}
   ) {
     tickets(
       pipelineId: $pipelineId,
@@ -350,7 +329,7 @@ const tickets = gql`
       date: $date,
       skip: $skip,
       limit: $limit,
-      ${commonParamDefs}
+      ${ticketsCommonParamDefs}
     ) {
       ${commonListFields}
     }
@@ -364,7 +343,7 @@ const ticketsTotalCount = `
     $date: ItemDate,
     $skip: Int,
     $search: String,
-    ${commonParams}
+    ${ticketsCommonParams}
   ) {
     ticketsTotalCount(
       pipelineId: $pipelineId,
@@ -372,18 +351,16 @@ const ticketsTotalCount = `
       date: $date,
       skip: $skip,
       search: $search,
-      ${commonParamDefs}
+      ${ticketsCommonParamDefs}
     )
   }
 `
 
 export default {
-  clientPortalGetConfig,
   getKbTopicQuery,
   categoryDetailQuery,
   articleDetailQuery,
   articlesQuery,
-  stageDetail,
   stages,
   tickets,
 }

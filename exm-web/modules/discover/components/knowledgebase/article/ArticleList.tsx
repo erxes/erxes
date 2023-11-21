@@ -6,7 +6,6 @@ import dayjs from "dayjs"
 import Loader from "@/components/ui/loader"
 
 type Props = {
-  config?: any
   searchValue?: any
   categoryId?: string
   topicId?: string
@@ -15,7 +14,7 @@ type Props = {
 const ArticleList = ({ searchValue, categoryId, topicId }: Props) => {
   const { articles, loading } = useArticles({
     searchValue: searchValue || "",
-    categoryIds: categoryId && [categoryId],
+    categoryIds: [categoryId!],
     topicId: topicId || "",
   })
 
@@ -24,8 +23,8 @@ const ArticleList = ({ searchValue, categoryId, topicId }: Props) => {
   }
 
   return (
-    <div className="w-9/12 px-10 py-5 flex flex-col gap-5">
-      {articles.map((article, index) => (
+    <div className="w-full px-10 py-5 flex flex-col gap-5">
+      {articles.map((article, index: number) => (
         <Link
           key={index}
           href={`/discover/article?id=${article._id}&catId=${categoryId}`}

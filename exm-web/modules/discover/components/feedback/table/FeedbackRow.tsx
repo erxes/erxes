@@ -8,36 +8,26 @@ type Props = {
 }
 
 const FeedbackRow = ({ ticket }: Props) => {
-  console.log(ticket)
+  const matches = ticket.name.match(/\b\w+\b/g)
+
+  const name = matches[1]
+  const type = matches[0]
 
   return (
     <>
-      {/* <TableRow className="border-none">
+      <TableRow className="border-none">
+        <TableCell className="py-5">{name}</TableCell>
+        <TableCell className="py-5 capitalize">{type}</TableCell>
         <TableCell className="py-5">
-          {timeclock.user && timeclock.user.details
-            ? timeclock.user.details.fullName ||
-              `${timeclock.user.details.firstName} ${timeclock.user.details.lastName}`
-            : timeclock.employeeUserName || timeclock.employeeId}
+          {dayjs(ticket.createdAt).format("MMM DD YYYY")}
         </TableCell>
-        <TableCell className="py-5">{shiftDate}</TableCell>
-        <TableCell className="py-5">{shiftStartTime}</TableCell>
         <TableCell className="py-5">
-          {timeclock.inDeviceType || returnDeviceTypes(timeclock.deviceType)[0]}
+          {ticket.closeDate
+            ? dayjs(ticket.closeDate).format("MMM DD YYYY")
+            : "-"}
         </TableCell>
-        <TableCell className="py-5">{timeclock.inDevice || "-"}</TableCell>
-        <TableCell className="py-5">{shiftEndTime}</TableCell>
-        <TableCell className="py-5">{overNightShift ? "O" : "-"}</TableCell>
-        <TableCell className="py-5">
-          {timeclock.shiftActive
-            ? "-"
-            : timeclock.outDeviceType ||
-              returnDeviceTypes(timeclock.deviceType)[1]}
-        </TableCell>
-        <TableCell className="py-5">{timeclock.outDevice || "-"}</TableCell>
-        <TableCell className="py-5">
-          <TimeclockRowAction timeclock={timeclock} />
-        </TableCell>
-      </TableRow> */}
+        <TableCell className="py-5">{ticket.stage.name}</TableCell>
+      </TableRow>
     </>
   )
 }

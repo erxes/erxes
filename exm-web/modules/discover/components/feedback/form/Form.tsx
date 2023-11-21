@@ -13,15 +13,18 @@ import userFeedbackMutation from "../../../hooks/userFeedbackMutation"
 
 type Props = {
   type: string
+  currentStep: number
+  setCurrentStep: (step: number) => void
 }
 
-const Form = ({ type }: Props) => {
+const Form = ({ type, currentStep, setCurrentStep }: Props) => {
   const currentUser = useAtomValue(currentUserAtom) || ({} as IUser)
 
   const [message, setMessage] = useState("")
   const [title, setTitle] = useState("")
   const [attachments, setAttachments] = useState<any[]>([])
   const [uploading, setUploading] = useState(false)
+  const [inCheck, setInCheck] = useState(false)
 
   const [personalInfo, setPersonalInfo] = useState(false)
 
@@ -34,24 +37,59 @@ const Form = ({ type }: Props) => {
   const phone = currentUser.details ? currentUser : ""
 
   const signature = `
-    &nbps
-    <p>
-      <span>Хүсэлт гаргасан: ${position} ${name}</span>
-      <span>Холбоо барих утас: ${phone}</span>
-    </p>
+    
   `
-  const buttonText = "Үргэжлүүлэх"
+  useEffect(() => {
+    if (currentStep === 2) {
+      setInCheck(true)
+    } else {
+      setInCheck(false)
+    }
+  }, [currentStep])
+
+  let buttonText
+
+  switch (currentStep) {
+    case 2:
+      buttonText = "Send"
+      break
+    case 3:
+      buttonText = "Done"
+      break
+    default:
+      buttonText = "Continue"
+  }
 
   const { addTickets, loading } = userFeedbackMutation()
 
   const onSubmit = () => {
-    addTickets({
-      name: `[${type}] ${title}`,
-      description: message,
-      attachments,
-      stageId: "9Swe0SSUjbZpYBxcbv4IU",
-      customFieldsData: [],
-    })
+    setCurrentStep(currentStep + 1)
+
+    if (currentStep === 2) {
+      // addTickets({
+      //   name: `[${type}] ${title}`,
+      //   description: message,
+      //   attachments,
+      //   stageId: "9Swe0SSUjbZpYBxcbv4IU",
+      //   customFieldsData: [],
+      // })
+
+      console.log({
+        name: `[${type}] ${title}`,
+        description: message,
+        attachments,
+        stageId: "9Swe0SSUjbZpYBxcbv4IU",
+        customFieldsData: [],
+      })
+    }
+
+    if (currentStep === 3) {
+      setCurrentStep(1)
+    }
+  }
+
+  const onBack = () => {
+    setCurrentStep(currentStep - 1)
   }
 
   const handleAttachmentChange = (e: any) => {
@@ -97,26 +135,28 @@ const Form = ({ type }: Props) => {
   return (
     <div className="flex flex-col gap-5 bg-white px-5 py-5 mt-5 border rounded divide-y ">
       <div className="flex gap-1 w-full">
-        <p>Гарчиг</p>
+        <p>Title</p>
         {" : "}
         <input
           type="text"
           className="w-full outline-none"
           onChange={handleTitleChange}
+          disabled={inCheck}
         />
       </div>
       <div className="flex flex-col pt-5 h-full">
         <textarea
           className="w-full resize-none outline-none scrollbar-hide"
-          rows={10}
+          rows={15}
           value={message}
           onChange={handleInputChange}
           autoComplete="off"
           ref={textareaRef}
-          placeholder="Энд дэлгэрэнгүй бичнэ үү ..."
+          placeholder="Write more here ..."
+          disabled={inCheck}
         />
         {attachments && attachments.length !== 0 && (
-          <ScrollArea className="max-h-[100px]">
+          <ScrollArea className="h-[100px]">
             {attachments.map((attachment, index) => (
               <div
                 key={index}
@@ -149,25 +189,31 @@ const Form = ({ type }: Props) => {
             htmlFor="remember"
             className="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300"
           >
-            Хувийн мэдээлэл оруулах эсэх
+            Whether to include signature
           </label>
         </div>
 
         <div className="relative flex gap-3 items-center">
-          <label className="items-center cursor-pointer">
-            <input
-              autoComplete="off"
-              type="file"
-              multiple={true}
-              onChange={handleAttachmentChange}
-              className="hidden"
-            />
-            <Paperclip size={16} />
-          </label>
-          <EmojiPicker
-            emojiHandler={(emojiData: any) => emojiHandler(emojiData)}
-          />
+          {!inCheck && (
+            <>
+              <label className="items-center cursor-pointer">
+                <input
+                  autoComplete="off"
+                  type="file"
+                  multiple={true}
+                  onChange={handleAttachmentChange}
+                  className="hidden"
+                  disabled={inCheck}
+                />
+                <Paperclip size={16} />
+              </label>
+              <EmojiPicker
+                emojiHandler={(emojiData: any) => emojiHandler(emojiData)}
+              />
+            </>
+          )}
 
+          {inCheck && <Button onClick={onBack}>Back</Button>}
           <Button onClick={onSubmit}>{buttonText}</Button>
         </div>
       </div>

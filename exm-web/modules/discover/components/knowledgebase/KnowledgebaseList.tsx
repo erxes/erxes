@@ -6,19 +6,18 @@ import { Button } from "@/components/ui/button"
 
 type Props = {
   topics: any
-  configs: any
 }
 
-const KnowledgebaseList = ({ topics, configs }: Props) => {
+const KnowledgebaseList = ({ topics }: Props) => {
   return (
     <div className="flex flex-col px-9 py-5">
-      {topics.parentCategories?.map((topic, index) => (
+      {topics?.parentCategories?.map((topic, index: number) => (
         <div key={index} className="flex flex-col gap-2">
           <h1 className="text-[18px] font-semibold">{topic.title}</h1>
           <h4 className="text-[14px] font-normal">{topic.description}</h4>
 
           <div className="grid grid-cols-3 gap-4 py-4">
-            {topic.childrens?.map((child, index) => (
+            {topic.childrens?.map((child, index: number) => (
               <article
                 key={index}
                 className="bg-white rounded-lg p-[24px] flex flex-col gap-4 justify-center"
