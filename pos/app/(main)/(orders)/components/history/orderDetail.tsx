@@ -143,16 +143,19 @@ const OrderDetail = () => {
               value={`${primaryEmail || email || ""} ${primaryPhone || ""}`}
               Icon={UserCog}
             />
-            <DescriptionCard
-              title="Харилцагч"
-              value={
-                `${customer?.firstName || ""} ${customer?.lastName || ""}` ||
-                `${customer?.primaryEmail || customer?.email || ""} ${
-                  customer?.primaryPhone || ""
-                }`
-              }
-              Icon={User}
-            />
+            {!!customer && (
+              <DescriptionCard
+                title="Харилцагч"
+                value={
+                  customer?.firstName || customer?.lastName
+                    ? `${customer.firstName || ""} ${customer.lastName || ""}`
+                    : `${customer.primaryEmail || customer.email || ""} ${
+                        customer.primaryPhone || ""
+                      }`
+                }
+                Icon={User}
+              />
+            )}
             {!!description && (
               <Card className="col-span-3">
                 <CardHeader className="p-2 pb-1">
