@@ -132,7 +132,13 @@ class Histories extends React.Component<Props & IRouterProps> {
             wideSpacing={true}
           />
         }
-        leftSidebar={<Sidebar history={history} currentType={currentType} />}
+        leftSidebar={
+          <Sidebar
+            history={history}
+            currentType={currentType}
+            mainType="import"
+          />
+        }
         mainHead={headerDescription}
         footer={<Pagination count={totalCount} />}
         content={

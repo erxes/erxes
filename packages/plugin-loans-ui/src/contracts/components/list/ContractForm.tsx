@@ -783,7 +783,7 @@ class ContractForm extends React.Component<Props, State> {
                 })}
             </FormColumn>
             <FormColumn>
-              {this.state.leaseType !== 'linear' && (
+              {this.state.leaseType === 'finance' && (
                 <FormGroup>
                   <ControlLabel required={true}>{__('Repayment')}</ControlLabel>
                   <FormControl
@@ -869,7 +869,7 @@ class ContractForm extends React.Component<Props, State> {
                   onChange: this.onChangeField,
                   onClick: this.onFieldClick
                 })}
-              {this.state.leaseType !== 'linear' &&
+              {this.state.leaseType === 'finance' &&
                 this.renderFormGroup('Is Pay First Month', {
                   className: 'flex-item',
                   type: 'checkbox',

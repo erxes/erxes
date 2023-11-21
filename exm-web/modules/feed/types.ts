@@ -67,6 +67,7 @@ export interface IFeed {
   _id: string
   title: string
   description?: string
+  category?: string
   images?: IAttachment[]
   attachments?: IAttachment[]
   isPinned?: boolean
@@ -96,6 +97,7 @@ export interface IFeedVariable {
   attachments?: IAttachment[]
   isPinned?: boolean
   contentType?: string
+  category?: string
   recipientIds?: string[]
   customFieldsData?: string
   ceremonyData?: string

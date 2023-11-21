@@ -94,7 +94,7 @@ connect().then(async () => {
 
   let bulkDoc = [];
   const modifier: { $inc?; $push? } = {
-    $inc: { percentage }
+    $inc: {}
   };
 
   try {

@@ -67,12 +67,15 @@ const fillAmounts = async (
     doc.insurance = tr?.calcedInfo?.insurance || 0;
     doc.debt = tr?.calcedInfo?.debt || 0;
     doc.total = tr?.calcedInfo?.total || 0;
+    doc.commitmentInterest = tr?.calcedInfo?.commitmentInterest || 0;
   }
 
   doc.undue = doc.undue || 0;
   doc.didUndue = (doc.didUndue || 0) + (tr.undue || 0);
   doc.didInterestEve = (doc.didInterestEve || 0) + (tr.interestEve || 0);
   doc.didInterestNonce = (doc.didInterestNonce || 0) + (tr.interestNonce || 0);
+  doc.didCommitmentInterest =
+    (doc.didCommitmentInterest || 0) + (tr.commitmentInterest || 0);
   doc.didPayment = (doc.didPayment || 0) + (tr.payment || 0);
   doc.didInsurance = (doc.didInsurance || 0) + (tr.insurance || 0);
   doc.didDebt = (doc.didDebt || 0) + (tr.debt || 0);

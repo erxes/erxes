@@ -52,8 +52,6 @@ export default {
     'graphql',
     'subscriptionPlugin.js'
   ),
-
-  hasDashboard: true,
   meta: {
     forms,
     segments,
