@@ -25,8 +25,7 @@ export const types = tagsAvailable => `
     tagIds: [String]
     
     members: [User]
-    tags: [Tag]
-
+    ${tagsAvailable ? 'tags: [Tag]' : ''}
     charts: [ReportChart]
     chartsCount: Int
 
@@ -155,6 +154,8 @@ const report_chart_common_params = `
   vizState: String
   layout: String
   filter: JSON
+  serviceName: String
+  templateType: String
 `;
 
 const report_params = `

@@ -90,7 +90,8 @@ const Report = (props: Props) => {
     setName(e.target.value);
   };
 
-  const toggleChartForm = () => {
+  const toggleChartAddForm = () => {
+    setCurrentChart(null);
     setShowChartForm(!showChartForm);
   };
 
@@ -101,7 +102,7 @@ const Report = (props: Props) => {
           btnStyle="primary"
           size="small"
           icon="plus-circle"
-          onClick={toggleChartForm}
+          onClick={toggleChartAddForm}
         >
           Add a chart
         </Button>
@@ -120,7 +121,6 @@ const Report = (props: Props) => {
   };
 
   const reportItem = (item: IChart) => {
-    console.log('report item ', item);
     if (item.layout) {
       return (
         <div key={item._id || Math.random()} data-grid={defaultLayout(item)}>

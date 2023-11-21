@@ -57,7 +57,6 @@ const ReportFormModal = (props: FinalProps) => {
       });
   };
 
-  console.log('ajasjasjd ', props.reportTemplateType);
   return (
     <ReportFormModalComponent
       {...props}

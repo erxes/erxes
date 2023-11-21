@@ -60,7 +60,7 @@ const ChartForm = (props: Props) => {
   const [name, setName] = useState(chart?.name || '');
 
   const [serviceName, setServiceName] = useState(chart?.serviceName || '');
-  const [chartTemplate, setChartTemplate] = useState(chart?.templateType || '');
+  const [templateType, setChartTemplate] = useState(chart?.templateType || '');
 
   const [chartTypes, setChartTypes] = useState([]);
   const [chartType, setChartType] = useState<string>(chart?.chartType || 'bar');
@@ -69,7 +69,7 @@ const ChartForm = (props: Props) => {
 
   useEffect(() => {
     const findChartTemplate = chartTemplates.find(
-      t => t.templateType === chartTemplate
+      t => t.templateType === templateType
     );
 
     if (findChartTemplate) {
@@ -97,6 +97,7 @@ const ChartForm = (props: Props) => {
 
   const onChartTemplateChange = selVal => {
     router.setParams(history, { chartTemplateType: selVal.value });
+    setName(selVal.label);
     setChartTemplate(selVal.value);
   };
 
@@ -107,14 +108,21 @@ const ChartForm = (props: Props) => {
   const onSave = () => {
     chart
       ? chartsEdit(
-          { _id: chart._id, chartType, name, filter: filters },
+          {
+            _id: chart._id,
+            chartType,
+            name,
+            filter: filters,
+            serviceName,
+            templateType
+          },
           toggleForm
         )
       : chartsAdd({
           chartType,
           name,
           serviceName,
-          templateType: chartTemplate,
+          templateType,
           filter: filters
         });
   };
@@ -129,7 +137,7 @@ const ChartForm = (props: Props) => {
     setFilters({ ...filters, [fieldName]: value });
   };
 
-  const renderFilterTypes = (
+  const renderFilterTypes = filterTypes.length ? (
     <FlexColumn style={{ gap: '20px' }}>
       {filterTypes.map((f: IFilterType) => (
         <ChartFormField
@@ -140,6 +148,8 @@ const ChartForm = (props: Props) => {
         />
       ))}
     </FlexColumn>
+  ) : (
+    <></>
   );
 
   return (
@@ -154,7 +164,7 @@ const ChartForm = (props: Props) => {
           {showChartForm ? (
             <ChartRenderer
               chartType={chartType}
-              chartVariables={{ ...chart }}
+              chartVariables={{ serviceName, templateType }}
               filter={filters}
               history={history}
               queryParams={queryParams}
@@ -200,30 +210,37 @@ const ChartForm = (props: Props) => {
                 />
               </FormGroup>
 
-              <FormGroup>
-                <ControlLabel required={true}>
-                  {__('Chart template')}
-                </ControlLabel>
+              {chartTemplates.length ? (
+                <>
+                  <FormGroup>
+                    <ControlLabel required={true}>
+                      {__('Chart template')}
+                    </ControlLabel>
 
-                <Select
-                  options={renderChartTemplates}
-                  value={chartTemplate}
-                  onChange={onChartTemplateChange}
-                  placeholder={__(`Choose template`)}
-                />
-              </FormGroup>
+                    <Select
+                      options={renderChartTemplates}
+                      value={templateType}
+                      onChange={onChartTemplateChange}
+                      placeholder={__(`Choose template`)}
+                    />
+                  </FormGroup>
+                  <FormGroup>
+                    <ControlLabel required={true}>
+                      {__('Chart type')}
+                    </ControlLabel>
 
-              <FormGroup>
-                <ControlLabel required={true}>{__('Chart type')}</ControlLabel>
-
-                <Select
-                  options={renderChartTypes}
-                  value={chartType}
-                  onChange={onChartTypeChange}
-                  placeholder={__(`Choose type`)}
-                />
-              </FormGroup>
-              <FormGroup>{renderFilterTypes}</FormGroup>
+                    <Select
+                      options={renderChartTypes}
+                      value={chartType}
+                      onChange={onChartTypeChange}
+                      placeholder={__(`Choose type`)}
+                    />
+                  </FormGroup>
+                  <FormGroup>{renderFilterTypes}</FormGroup>
+                </>
+              ) : (
+                <></>
+              )}
             </DrawerDetail>
             <ActionFooter>
               <ModalFooter>

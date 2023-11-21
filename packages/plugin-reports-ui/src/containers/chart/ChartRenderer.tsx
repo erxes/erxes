@@ -49,8 +49,6 @@ type FinalProps = {
 const ChartRendererList = (props: FinalProps) => {
   const { reportChartGetResultQuery, chartVariables, filter } = props;
 
-  console.log({ ...filter });
-
   if (reportChartGetResultQuery && reportChartGetResultQuery.loading) {
     return <Spinner />;
   }

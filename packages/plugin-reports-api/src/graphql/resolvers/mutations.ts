@@ -29,14 +29,11 @@ const reportsMutations = {
       const { charts, serviceName } = reportTemplate;
       let getChartTemplates;
 
-      console.log('sda ', charts);
       if (charts) {
         getChartTemplates = chartTemplates?.filter(t =>
           charts.includes(t.templateType)
         );
       }
-
-      console.log('gett ', getChartTemplates);
 
       if (getChartTemplates) {
         await models.Charts.insertMany(

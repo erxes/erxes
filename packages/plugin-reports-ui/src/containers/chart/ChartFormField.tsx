@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { useQuery, gql } from '@apollo/client';
 import ChartFormField from '../../components/chart/ChartFormField';
 import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
 import { ControlLabel } from '@erxes/ui/src/components';
@@ -22,10 +21,6 @@ type Props = {
   setFilter: (fieldName: string, value: any) => void;
   initialValue?: any;
 };
-
-// const FIELD_QUERIES_MAP = {
-//   users:
-// }
 
 const ChartFormFieldList = (props: Props) => {
   const { filterType, setFilter, initialValue } = props;

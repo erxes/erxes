@@ -11,7 +11,7 @@ import {
   ReportChartTemplatesListQueryResponse,
   reportServicesListQueryResponse
 } from '../../types';
-import { Alert } from '@erxes/ui/src/utils';
+import { Alert, router } from '@erxes/ui/src/utils';
 import { Spinner } from '@erxes/ui/src/components';
 type Props = {
   history: any;
@@ -37,17 +37,22 @@ const ChartFormList = (props: FinalProps) => {
     reportChartsEditMutation,
     reportChartsRemoveMutation,
     toggleForm,
-    chart
+    history
   } = props;
 
   if (reportServicesListQuery.loading) {
     return <Spinner />;
   }
 
+  const removeReportChartParams = () => {
+    router.removeParams(history, 'serviceName', 'chartTemplateType');
+  };
+
   const chartsEdit = (values, callback) => {
     reportChartsEditMutation({ variables: values });
     if (callback) {
       callback();
+      removeReportChartParams();
     }
   };
 
@@ -55,6 +60,7 @@ const ChartFormList = (props: FinalProps) => {
     reportChartsAddMutation({ variables: values })
       .then(() => {
         Alert.success('Successfully added chart');
+        removeReportChartParams();
         toggleForm();
       })
       .catch(err => Alert.error(err.message));

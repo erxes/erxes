@@ -87,8 +87,6 @@ const ChartRenderer = (props: IChartProps) => {
     }
   }, [chartData, chartType]);
 
-  console.log('chart height ', chartHeight);
-
   return (
     <div style={{ width: `auto`, height: `${chartHeight}px` }}>
       <canvas ref={chartRef} />

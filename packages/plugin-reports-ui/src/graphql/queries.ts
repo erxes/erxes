@@ -1,3 +1,6 @@
+import { isEnabled } from '@erxes/ui/src/utils/core';
+const tagsAvailable = isEnabled('tags') ? true : false;
+
 const userFields = `
   _id
   username
@@ -69,10 +72,14 @@ const reportsList = `
             filterType
           }
         }
-        tags{
-          _id
-          name
-          colorCode
+        ${
+          tagsAvailable
+            ? `tags  {
+            _id
+            name
+            colorCode
+          }`
+            : ``
         }
       }
 
@@ -142,10 +149,14 @@ const reportDetail = `
           }
         }
 
-        tags  {
-          _id
-          name
-          colorCode
+        ${
+          tagsAvailable
+            ? `tags  {
+            _id
+            name
+            colorCode
+          }`
+            : ``
         }
 
         assignedDepartmentIds

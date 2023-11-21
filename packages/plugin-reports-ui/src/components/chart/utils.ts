@@ -62,7 +62,7 @@ const lastSixMonths = [
     'default',
     { month: 'long' }
   )
-];
+].reverse();
 
 export const DEFAULT_LABELS_PER_CHART: {
   [template: string]: number[] | any[];

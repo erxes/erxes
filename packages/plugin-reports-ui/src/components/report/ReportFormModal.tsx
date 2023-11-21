@@ -31,8 +31,6 @@ const ReportFormModal = (props: Props) => {
     chartTemplates
   } = props;
 
-  console.log('t type ', reportTemplateType, chartTemplates);
-
   const [totalFilters, setTotalFilters] = useState<any[]>([{}]);
   const [visibility, setVisibility] = useState('public');
   const [userIds, setUserIds] = useState([]);
@@ -49,8 +47,6 @@ const ReportFormModal = (props: Props) => {
     }
     setTotalFilters(getFilters);
   }, [chartTemplates]);
-
-  console.log('aeer ', totalFilters);
 
   const handleUserChange = _userIds => {
     setUserIds(_userIds);
