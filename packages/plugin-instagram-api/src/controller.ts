@@ -3,7 +3,6 @@ import { getConfig } from './commonUtils';
 import loginMiddleware from './middlewares/loginMiddleware';
 import receiveMessage from './receiveMessage';
 import { generateModels } from './connectionResolver';
-import { IMessageData } from './types';
 import {
   getFacebookPageIdsForInsta,
   getPageList,
@@ -21,67 +20,69 @@ import {
 const init = async app => {
   app.get('/instagram/login', loginMiddleware);
 
-  app.post('/instagram/create-integration', async (req, res, next) => {
-    debugRequest(debugInstagram, req);
-    const subdomain = getSubdomain(req);
-    const models = await generateModels(subdomain);
-    const { accountId, integrationId, data, kind } = req.body;
-    const instagramPageId = JSON.parse(data).pageIds;
-    const account = await models.Accounts.getAccount({
-      _id: accountId
-    });
+  // app.post('/instagram/create-integration', async (req, res, next) => {
+  //   const subdomain = getSubdomain(req);
+  //   const models = await generateModels(subdomain);
+  //   debugRequest(debugInstagram, req);
+  //   const { accountId, integrationId, data, kind } = req.body;
 
-    const facebookPageIds = await getFacebookPageIdsForInsta(
-      account.token,
-      instagramPageId
-    );
+  //   const instagramPageIds = JSON.parse(data).pageIds;
+  //   const account = await models.Accounts.getAccount({
+  //     _id: accountId
+  //   });
 
-    const integration = await models.Integrations.create({
-      kind: 'instagram',
-      accountId,
-      erxesApiId: integrationId,
-      instagramPageId,
-      facebookPageIds
-    });
+  //   const facebookPageIds = await getFacebookPageIdsForInsta(
+  //     account.token,
+  //     instagramPageIds
+  //   );
 
-    const facebookPageTokensMap: {
-      [key: string]: string;
-    } = {};
+  //   const integration = await models.Integrations.create({
+  //     kind,
+  //     accountId,
+  //     erxesApiId: integrationId,
+  //     instagramPageIds,
+  //     facebookPageIds
+  //   });
 
-    for (const pageId of facebookPageIds) {
-      try {
-        const pageAccessToken = await getPageAccessToken(pageId, account.token);
+  //   const facebookPageTokensMap: {
+  //     [key: string]: string;
+  //   } = {};
 
-        facebookPageTokensMap[pageId] = pageAccessToken;
+  //   for (const pageId of facebookPageIds) {
+  //     try {
+  //       const pageAccessToken = await getPageAccessToken(pageId, account.token);
 
-        try {
-          await subscribePage(pageId, pageAccessToken);
-          debugFacebook(`Successfully subscribed page ${pageId}`);
-        } catch (e) {
-          debugError(
-            `Error ocurred while trying to subscribe page ${e.message || e}`
-          );
-          return next(e);
-        }
-      } catch (e) {
-        debugError(
-          `Error ocurred while trying to get page access token with ${e.message ||
-            e}`
-        );
-        return next(e);
-      }
-    }
+  //       facebookPageTokensMap[pageId] = pageAccessToken;
 
-    integration.facebookPageTokensMap = facebookPageTokensMap;
+  //       try {
+  //         await subscribePage(pageId, pageAccessToken);
+  //         debugFacebook(`Successfully subscribed page ${pageId}`);
+  //       } catch (e) {
+  //         debugError(
+  //           `Error ocurred while trying to subscribe page ${e.message || e}`
+  //         );
+  //         return next(e);
+  //       }
+  //     } catch (e) {
+  //       debugError(
+  //         `Error ocurred while trying to get page access token with ${e.message ||
+  //           e}`
+  //       );
+  //       return next(e);
+  //     }
+  //   }
 
-    await integration.save();
+  //   integration.facebookPageTokensMap = facebookPageTokensMap;
 
-    debugResponse(debugInstagram, req);
+  //   await integration.save();
 
-    return res.json({
-      status: 'ok '
-    });
-  });
+  //   debugResponse(debugInstagram, req);
+
+  //   return res.json({
+  //     status: 'ok '
+  //   });
+  // });
+
   app.get('/instagram/get-accounts', async (req, res, next) => {
     debugRequest(debugInstagram, req);
     const accountId = req.query.accountId;
@@ -131,7 +132,7 @@ const init = async app => {
     // when the endpoint is registered as a webhook, it must echo back
     // the 'hub.challenge' value it receives in the query arguments
     if (req.query['hub.mode'] === 'subscribe') {
-      if (req.query['hub.verify_token'] === FACEBOOK_VERIFY_TOKEN) {
+      if (req.query['hub.verify_token'] === '477832793072863') {
         res.send(req.query['hub.challenge']);
       } else {
         res.send('OK');
@@ -147,14 +148,12 @@ const init = async app => {
     if (data.object !== 'instagram') {
       return;
     }
-
     for (const entry of data.entry) {
       // receive chat
       if (entry.messaging[0]) {
         const messageData = entry.messaging[0];
-
         try {
-          await receiveMessage(models, messageData);
+          await receiveMessage(models, subdomain, messageData);
 
           return res.send('success');
         } catch (e) {
@@ -165,137 +164,6 @@ const init = async app => {
 
     next();
   });
-
-  // app.post('/instagram/create-integration', async (req, res, next) => {
-  //   debugRequest(debugInstagram, req);
-  //   const subdomain = getSubdomain(req);
-  //   const models = await generateModels(subdomain);
-  //   const { accountId, integrationId, data, kind } = req.body;
-
-  //   const instagramPageId = JSON.parse(data).pageIds;
-  //   const account = await models.Accounts.getAccount({ _id: accountId });
-
-  //   const facebookPageIds = await getFacebookPageIdsForInsta(
-  //     account.token,
-  //     instagramPageId
-  //   );
-
-  //   const integration = await models.Integrations.create({
-  //     kind,
-  //     accountId,
-  //     erxesApiId: integrationId,
-  //     instagramPageId,
-  //     facebookPageIds
-  //   });
-
-  //   const facebookPageTokensMap: { [key: string]: string } = {};
-
-  //   for (const pageId of facebookPageIds) {
-  //     try {
-  //       const pageAccessToken = await getPageAccessToken(pageId, account.token);
-
-  //       facebookPageTokensMap[pageId] = pageAccessToken;
-
-  //       try {
-  //         await subscribePage(pageId, pageAccessToken);
-  //         debugFacebook(`Successfully subscribed page ${pageId}`);
-  //       } catch (e) {
-  //         debugError(
-  //           `Error ocurred while trying to subscribe page ${e.message || e}`
-  //         );
-  //         return next(e);
-  //       }
-  //     } catch (e) {
-  //       debugError(
-  //         `Error ocurred while trying to get page access token with ${e.message ||
-  //           e}`
-  //       );
-  //       return next(e);
-  //     }
-  //   }
-
-  //   integration.facebookPageTokensMap = facebookPageTokensMap;
-
-  //   await integration.save();
-
-  //   debugResponse(debugInstagram, req);
-
-  //   return res.json({ status: 'ok ' });
-  // });
-
-  // app.get('/instagram/get-status', async (req, res) => {
-  //   const subdomain = getSubdomain(req);
-  //   const models = await generateModels(subdomain);
-
-  //   const { integrationId } = req.query;
-
-  //   const integration = await models.Integrations.findOne({
-  //     erxesApiId: integrationId
-  //   });
-
-  //   let result = {
-  //     status: 'healthy'
-  //   } as any;
-
-  //   if (integration) {
-  //     result = {
-  //       status: integration.healthStatus || 'healthy',
-  //       error: integration.error
-  //     };
-  //   }
-
-  //   return res.send(result);
-  // });
-
-  // // Instagram endpoint verifier
-  // app.get('/instagram/receive', async (req, res) => {
-  //   const subdomain = getSubdomain(req);
-  //   const models = await generateModels(subdomain);
-
-  //   const FACEBOOK_VERIFY_TOKEN = await getConfig(
-  //     models,
-  //     'FACEBOOK_VERIFY_TOKEN'
-  //   );
-
-  //   // when the endpoint is registered as a webhook, it must echo back
-  //   // the 'hub.challenge' value it receives in the query arguments
-  //   if (req.query['hub.mode'] === 'subscribe') {
-  //     if (req.query['hub.verify_token'] === FACEBOOK_VERIFY_TOKEN) {
-  //       res.send(req.query['hub.challenge']);
-  //     } else {
-  //       res.send('OK');
-  //     }
-  //   }
-  // });
-
-  // app.post('/instagram/receive', async (req, res, next) => {
-
-  //   const subdomain = getSubdomain(req);
-  //   const models = await generateModels(subdomain);
-
-  //   const data = req.body;
-
-  //   if (data.object !== 'instagram') {
-  //     return;
-  //   }
-
-  //   for (const entry of data.entry) {
-  //     // receive chat
-  //     if (entry.messaging[0]) {
-  //       const messageData = entry.messaging[0];
-
-  //       try {
-  //         await receiveMessage(models, subdomain, messageData);
-
-  //         return res.send('success');
-  //       } catch (e) {
-  //         return res.send('success');
-  //       }
-  //     }
-  //   }
-
-  //   next();
-  // });
 };
 
 export default init;

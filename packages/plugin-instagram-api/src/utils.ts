@@ -1,14 +1,10 @@
 import * as graph from 'fbgraph';
-import { FacebookAdapter } from 'botbuilder-adapter-facebook-erxes';
-import * as AWS from 'aws-sdk';
-import * as request from 'request';
-import * as fs from 'fs';
 
 import { IModels } from './connectionResolver';
 import { debugBase, debugError, debugInstagram } from './debuggers';
-import { IIntegrationDocument } from './models/Integrations';
 import { generateAttachmentUrl, getConfig } from './commonUtils';
 import { IAttachment, IAttachmentMessage } from './types';
+import { IIntegrationDocument } from './models/Integrations';
 
 export const graphRequest = {
   base(method: string, path?: any, accessToken?: any, ...otherParams) {
@@ -59,32 +55,6 @@ export const getFacebookPageIdsForInsta = async (
   return pageIds;
 };
 
-// export const getPageList = async (accessToken?: string) => {
-//   const response: any = await graphRequest.get(
-//     '/me/accounts?fields=instagram_business_account, access_token,id,name',
-//     accessToken
-//   );
-
-//   const pages = [];
-
-//   for (const page of response.data) {
-//     if (page.instagram_business_account) {
-//       const pageId = page.instagram_business_account.id;
-//       const accounInfo: any = await graphRequest.get(
-//         `${pageId}?fields=username`,
-//         accessToken
-//       );
-
-//       pages.push({
-//         id: accounInfo.id,
-//         name: accounInfo.username
-//       });
-//     }
-//   }
-
-//   return pages;
-// };
-
 export const subscribePage = async (
   pageId,
   pageToken
@@ -106,6 +76,41 @@ export const getPageAccessToken = async (
   return response.access_token;
 };
 
+export const refreshPageAccesToken = async (
+  models: IModels,
+  pageId: string,
+  integration: IIntegrationDocument
+) => {
+  const account = await models.Accounts.getAccount({
+    _id: integration.accountId
+  });
+
+  const facebookPageTokensMap = integration.facebookPageTokensMap || {};
+
+  const pageAccessToken = await getPageAccessToken(pageId, account.token);
+
+  facebookPageTokensMap[pageId] = pageAccessToken;
+
+  await models.Integrations.updateOne(
+    { _id: integration._id },
+    { $set: { facebookPageTokensMap } }
+  );
+
+  return facebookPageTokensMap;
+};
+
+export const unsubscribePage = async (
+  pageId,
+  pageToken
+): Promise<{ success: true } | any> => {
+  return graphRequest
+    .delete(`${pageId}/subscribed_apps`, pageToken)
+    .then(res => res)
+    .catch(e => {
+      debugError(e);
+      throw e;
+    });
+};
 export const getPageList = async (
   models: IModels,
   accessToken?: string,
@@ -140,26 +145,70 @@ export const getPageAccessTokenFromMap = (
   return (pageTokens || {})[pageId] || null;
 };
 
+export const getFacebookUser = async (
+  models: IModels,
+  pageId: string,
+  pageTokens: { [key: string]: string },
+  fbUserId: string
+) => {
+  let pageAccessToken;
+
+  try {
+    pageAccessToken = getPageAccessTokenFromMap(pageId, pageTokens);
+  } catch (e) {
+    debugError(`Error occurred while getting page access token: ${e.message}`);
+    return null;
+  }
+
+  const pageToken = pageAccessToken;
+
+  try {
+    const response = await graphRequest.get(`/${fbUserId}`, pageToken);
+
+    return response;
+  } catch (e) {
+    if (e.message.includes('access token')) {
+      await models.Integrations.updateOne(
+        { facebookPageIds: pageId },
+        { $set: { healthStatus: 'page-token', error: `${e.message}` } }
+      );
+    }
+
+    throw new Error(e);
+  }
+};
+
 export const getInstagramUser = async (
   userId: string,
   facebookPageIds: string[],
-  facebookPageTokensMap: { [key: string]: string }
+  facebookPageTokensMap?: { [key: string]: string }
 ) => {
-  const token = await getPageAccessTokenFromMap(
-    facebookPageIds[0],
-    facebookPageTokensMap
-  );
+  if (facebookPageTokensMap !== undefined) {
+    const token = await getPageAccessTokenFromMap(
+      facebookPageIds[0],
+      facebookPageTokensMap
+    );
+    const accounInfo: any = await graphRequest.get(
+      `${userId}?fields=name,profile_pic`,
+      token
+    );
 
-  const accounInfo: any = await graphRequest.get(
-    `${userId}?fields=name,profile_pic`,
-    token
-  );
+    return accounInfo;
+    // Rest of the function logic
+  } else {
+    // Handle the case where facebookPageTokensMap is undefined, for example:
+    // You can return a default value
+    // return someDefaultValue;
 
-  return accounInfo;
+    // Or throw an error
+    throw new Error(
+      'facebookPageTokensMap is undefined. Unable to get Instagram user.'
+    );
+  }
 };
 
 export const sendReply = async (
-  models: IModels,
+  models,
   url: string,
   data: any,
   integrationId: string
@@ -168,12 +217,15 @@ export const sendReply = async (
     erxesApiId: integrationId
   });
 
-  const { instagramPageTokensMap = {} } = integration;
+  const { facebookPageTokensMap, facebookPageIds } = integration;
 
-  // let pageAccessToken;
+  let pageAccessToken;
 
   try {
-    // pageAccessToken = getPageAccessTokenFromMap(instagramPageTokensMap);
+    pageAccessToken = getPageAccessTokenFromMap(
+      facebookPageIds[0],
+      facebookPageTokensMap
+    );
   } catch (e) {
     debugError(
       `Error ocurred while trying to get page access token with ${e.message}`
@@ -182,41 +234,26 @@ export const sendReply = async (
   }
 
   try {
-    // const response = await graphRequest.post(`${url}`, pageAccessToken, {
-    //   ...data
-    // });
+    const response = await graphRequest.post(`${url}`, pageAccessToken, {
+      ...data
+    });
     debugInstagram(
       `Successfully sent data to instagram ${JSON.stringify(data)}`
     );
-    // return response;
+    return response;
   } catch (e) {
     debugError(
-      `Error ocurred while trying to send post request to instagram ${
+      `Error ocurred while trying to send post request to facebook ${
         e.message
       } data: ${JSON.stringify(data)}`
     );
-
-    if (e.message.includes('access token')) {
-      await models.Integrations.updateOne(
-        { _id: integration._id },
-        { $set: { healthStatus: 'page-token', error: `${e.message}` } }
-      );
-    } else if (e.code !== 10) {
-      await models.Integrations.updateOne(
-        { _id: integration._id },
-        { $set: { healthStatus: 'account-token', error: `${e.message}` } }
-      );
-    }
-
-    if (e.message.includes('does not exist')) {
-      throw new Error('Comment has been deleted by the customer');
-    }
 
     throw new Error(e.message);
   }
 };
 
 export const generateAttachmentMessages = (attachments: IAttachment[]) => {
+  console.log('aisodjaiosdj');
   const messages: IAttachmentMessage[] = [];
 
   for (const attachment of attachments || []) {

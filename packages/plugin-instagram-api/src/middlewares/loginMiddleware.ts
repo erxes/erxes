@@ -18,7 +18,8 @@ const loginMiddleware = async (req, res) => {
   );
 
   const MAIN_APP_DOMAIN = getEnv({ name: 'MAIN_APP_DOMAIN' });
-  const DOMAIN = 'https://0bdd-202-21-104-34.ngrok-free.app/pl:instagram';
+  // const DOMAIN = 'https://0bdd-202-21-104-34.ngrok-free.app/pl:instagram';
+  const DOMAIN = 'https://78cc-202-9-40-140.ngrok-free.app/pl:instagram';
 
   const conf = {
     client_id: FACEBOOK_APP_ID,

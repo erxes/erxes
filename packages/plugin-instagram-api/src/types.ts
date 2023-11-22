@@ -8,6 +8,10 @@ export interface IMessageData {
     payload: { url: string };
   }>;
   message: {
+    // attachments?: Array<{
+    //   type: string;
+    //   payload: { url: string };
+    // }>;
     mid: string;
     text: string;
   };

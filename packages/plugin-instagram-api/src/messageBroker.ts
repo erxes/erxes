@@ -2,7 +2,6 @@ import * as dotenv from 'dotenv';
 
 import {
   instagramCreateIntegration,
-  instagramGetCustomerPosts,
   removeAccount,
   removeCustomers,
   removeIntegration,
@@ -26,6 +25,7 @@ let client;
 export const sendRPCMessage = async (message): Promise<any> => {
   return client.sendRPCMessage('rpc_queue:integrations_to_api', message);
 };
+
 export const initBroker = async cl => {
   client = cl;
 
@@ -54,7 +54,6 @@ export const initBroker = async cl => {
       const { action, type } = data;
 
       let response: any = null;
-
       try {
         if (action === 'remove-account') {
           response = { data: await removeAccount(models, data._id) };
@@ -64,14 +63,12 @@ export const initBroker = async cl => {
           response = { data: await repairIntegrations(models, data._id) };
         }
 
-        if (type === 'instagram') {
+        if (action === 'reply-messenger') {
           response = { data: await handleInstagramMessage(models, data) };
         }
-
         if (action === 'getConfigs') {
           response = { data: await models.Configs.find({}) };
         }
-
         response.status = 'success';
       } catch (e) {
         response = {
@@ -112,16 +109,6 @@ export const initBroker = async cl => {
     }
   );
 
-  // app.get('/instagram/get-customer-posts'
-  consumeRPCQueue('instagram:getCustomerPosts', async ({ subdomain, data }) => {
-    const models = await generateModels(subdomain);
-
-    return {
-      data: await instagramGetCustomerPosts(models, data),
-      status: 'success'
-    };
-  });
-
   consumeRPCQueue(
     'instagram:createIntegration',
     async ({ subdomain, data: { doc, kind } }) => {
@@ -154,7 +141,6 @@ export const initBroker = async cl => {
     const models = await generateModels(subdomain);
 
     const { payload, type } = data;
-
     switch (type) {
       case 'removeCustomers':
         await removeCustomers(models, data);

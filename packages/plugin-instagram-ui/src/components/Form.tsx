@@ -256,7 +256,7 @@ class Instagram extends React.Component<Props, State> {
                     {__('Connect your')} {title}
                   </h1>
                   <p>{description}</p>
-                  <img alt={title} src="/images/previews/instagram.png" />
+                  <img alt={title} src="/images/previews/facebook.png" />
                 </TextWrapper>
               </ImageWrapper>
             </Preview>

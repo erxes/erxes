@@ -6,6 +6,8 @@ import { field } from './definitions/utils';
 export interface IAccount {
   kind: string;
   token: string;
+  username?: string;
+  email: string;
   tokenSecret?: string;
   expireDate?: string;
   scope?: string;
