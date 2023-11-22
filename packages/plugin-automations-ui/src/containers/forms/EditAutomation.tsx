@@ -6,7 +6,7 @@ import { router, withProps, Alert } from '@erxes/ui/src/utils';
 import React, { useState } from 'react';
 import { graphql } from '@apollo/client/react/hoc';
 import { IUser } from '@erxes/ui/src/auth/types';
-import AutomationForm from '../../components/forms/Test';
+import AutomationForm from '../../components/layout/Test';
 import { queries, mutations } from '../../graphql';
 import {
   DetailQueryResponse,
