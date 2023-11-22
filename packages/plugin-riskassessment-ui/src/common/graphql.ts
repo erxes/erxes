@@ -40,6 +40,7 @@ export const riskIndicatorParams = `
             _id
             name
             value
+            value2
             logic
             color
         }

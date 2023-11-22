@@ -671,6 +671,17 @@ jobs:
 
           docker push erxes/plugin-forum-api:${GITHUB_REF#refs/tags/}
 
+      - name: plugin-dailyco-api
+        run: >
+          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
+          secrets.DOCKERHUB_USERNAME }} --password-stdin 
+
+          docker image pull erxes/plugin-dailyco-api:master  
+
+          docker tag erxes/plugin-dailyco-api:master  erxes/plugin-dailyco-api:${GITHUB_REF#refs/tags/} 
+
+          docker push erxes/plugin-dailyco-api:${GITHUB_REF#refs/tags/}
+
       - name: inbox ui
         run: aws s3 sync s3://erxes-master-plugins/uis/plugin-inbox-ui
           s3://erxes-release-plugins/uis/plugin-inbox-ui/${GITHUB_REF#refs/tags/}/
@@ -827,3 +838,7 @@ jobs:
       - name: forum ui
         run: aws s3 sync s3://erxes-master-plugins/uis/plugin-forum-ui
           s3://erxes-release-plugins/uis/plugin-forum-ui/${GITHUB_REF#refs/tags/}/
+
+      - name: dailyco ui
+        run: aws s3 sync s3://erxes-master-plugins/uis/plugin-dailyco-ui
+          s3://erxes-release-plugins/uis/plugin-dailyco-ui/${GITHUB_REF#refs/tags/}/
