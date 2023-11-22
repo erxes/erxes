@@ -3,6 +3,10 @@ import { ICommonParams } from '../../../models/definitions/common';
 import { IContext } from '../../../connectionResolver';
 import { paginate } from '@erxes/api-utils/src/core';
 import { AssignmentCheckResponse, isInSegment } from '../../../utils';
+import {
+  sendContactsMessage,
+  sendSegmentsMessage
+} from '../../../messageBroker';
 
 const generateFilter = (params: ICommonParams) => {
   const filter: any = {};
@@ -16,6 +20,54 @@ const generateFilter = (params: ICommonParams) => {
   }
 
   return filter;
+};
+
+const generateFieldMaxValue = async (
+  subdomain,
+  fieldId,
+  segments,
+  customerId
+) => {
+  const customer = await sendContactsMessage({
+    subdomain,
+    action: 'customers.findOne',
+    data: { _id: customerId },
+    isRPC: true,
+    defaultValue: null
+  });
+
+  //get property value and value to check from sub segments
+  for (const { _id, conditions } of segments || []) {
+    for (const {
+      propertyName,
+      propertyValue,
+      propertyOperator
+    } of conditions || []) {
+      if (propertyName.includes(fieldId) && propertyOperator === 'numbere') {
+        const { customFieldsData = [] } = customer || {};
+
+        const customFieldData = customFieldsData.find(
+          customFieldData => customFieldData?.field === fieldId
+        );
+
+        const segment = await sendSegmentsMessage({
+          subdomain,
+          action: 'findOne',
+          data: {
+            'conditions.subSegmentId': _id
+          },
+          isRPC: true,
+          defaultValue: null
+        });
+
+        return {
+          checkValue: propertyValue,
+          segmentId: segment?._id,
+          currentValue: customFieldData.value
+        };
+      }
+    }
+  }
 };
 
 const assignmentQueries = {
@@ -73,6 +125,7 @@ const assignmentQueries = {
 
     for (const assignmentCampaign of assignmentCampaigns) {
       if (
+        !assignmentCampaign?.allowMultiWin &&
         (assignments.map(a => a.campaignId) || []).includes(
           assignmentCampaign._id
         )
@@ -93,22 +146,74 @@ const assignmentQueries = {
           }
         }
 
-        if (positiveSegments.every(segment => segment.isIn)) {
-          const voucher = await models.Vouchers.createVoucher({
-            campaignId: assignmentCampaign.voucherCampaignId,
-            ownerId: customerId,
-            ownerType: 'customer',
-            status: 'new'
+        if (assignmentCampaign?.fieldId) {
+          const subSegments = await sendSegmentsMessage({
+            subdomain,
+            action: 'findSubSegments',
+            data: { segmentIds },
+            isRPC: true,
+            defaultValue: []
           });
 
-          await models.Assignments.createAssignment({
-            campaignId: assignmentCampaign._id,
-            ownerType: 'customer',
-            ownerId: customerId,
-            status: 'new',
-            voucherId: voucher._id,
-            voucherCampaignId: assignmentCampaign.voucherCampaignId
-          });
+          let { checkValue, currentValue, segmentId } =
+            (await generateFieldMaxValue(
+              subdomain,
+              assignmentCampaign.fieldId,
+              subSegments,
+              customerId
+            )) || {};
+
+          if (currentValue >= checkValue) {
+            positiveSegments = positiveSegments.map(positiveSegment =>
+              positiveSegment.segmentId === segmentId
+                ? { ...positiveSegment, isIn: true }
+                : positiveSegment
+            );
+
+            const count = Math.floor(currentValue / checkValue);
+
+            if (positiveSegments.every(segment => segment.isIn)) {
+              for (let i = 1; i <= count; i++) {
+                try {
+                  await models.AssignmentCampaigns.awardAssignmentCampaign(
+                    assignmentCampaign._id,
+                    customerId
+                  );
+
+                  await sendContactsMessage({
+                    subdomain,
+                    action: 'customers.updateOne',
+                    data: {
+                      selector: {
+                        _id: customerId,
+                        'customFieldsData.field': assignmentCampaign.fieldId
+                      },
+                      modifier: {
+                        $set: {
+                          'customFieldsData.$.value':
+                            currentValue - checkValue * count
+                        }
+                      }
+                    },
+                    isRPC: true
+                  });
+                } catch (error) {
+                  throw new Error(error.message);
+                }
+              }
+            }
+          }
+        } else {
+          if (positiveSegments.every(segment => segment.isIn)) {
+            try {
+              await models.AssignmentCampaigns.awardAssignmentCampaign(
+                assignmentCampaign._id,
+                customerId
+              );
+            } catch (error) {
+              throw new Error(error.message);
+            }
+          }
         }
       }
     }
