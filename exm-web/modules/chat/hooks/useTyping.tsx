@@ -15,13 +15,13 @@ export const useTyping = (): IUseTyping => {
 
   useSubscription(subscriptions.chatTypingStatusChanged, {
     variables: { chatId: id },
-    onSubscriptionData: (subscriptionData: any) => {
+    onData: (subscriptionData: any) => {
       if (!subscriptionData) {
         return null
       }
 
       setTyping(
-        subscriptionData.subscriptionData.data.chatTypingStatusChanged.userId
+        subscriptionData?.subscriptionData?.data?.chatTypingStatusChanged?.userId
       )
     },
   })
