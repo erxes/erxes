@@ -5,7 +5,7 @@ import { useAtom, useAtomValue } from "jotai"
 import { Check, ChevronsUpDown, XIcon } from "lucide-react"
 
 import { Customer, CustomerType as CustomerTypeT } from "@/types/customer.types"
-import { cn } from "@/lib/utils"
+import { cn, getCustomerLabel } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import {
   Command,
@@ -60,8 +60,6 @@ const Customer = () => {
     return () => clearTimeout(timeOutId)
   }, [value, setSearchValue])
 
-  const getCustomerLabel = ({ firstName, lastName, primaryPhone }: Customer) =>
-    `${firstName || ""} ${lastName || ""} ${primaryPhone || ""}`
 
   const handleSelect = (cus: Customer) => {
     setCustomer(cus._id === customer?._id ? null : cus)

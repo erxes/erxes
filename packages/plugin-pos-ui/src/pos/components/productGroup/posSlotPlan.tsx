@@ -24,7 +24,8 @@ const PosSlotPlan = ({ slots: savedSlots, onSave, posId }) => {
       rotateAngle,
       borderRadius,
       color,
-      zIndex
+      zIndex,
+      isShape
     } = option || {};
 
     return {
@@ -40,7 +41,8 @@ const PosSlotPlan = ({ slots: savedSlots, onSave, posId }) => {
         rotateAngle: rotateAngle || 0,
         borderRadius: borderRadius || 0,
         color: color || '#6569DF',
-        zIndex: zIndex || 0
+        zIndex: zIndex || 0,
+        isShape
       }
     };
   });
