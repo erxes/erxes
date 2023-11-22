@@ -11,11 +11,11 @@ try {
   console.log('register error', e.message);
 }
 
-const getWorkerFile = () => {
-  const filePath = path.resolve(__dirname, `./bulkInsert.worker.ts`);
+let filePath = path.resolve(__dirname, `./bulkInsert.worker.js`);
 
-  return filePath;
-};
+if (process.env.NODE_ENV !== 'production') {
+  filePath = path.resolve(__dirname, `./bulkInsert.worker.ts`);
+}
 
 try {
   require(path.resolve(__dirname, `${getWorkerFile()}`));
