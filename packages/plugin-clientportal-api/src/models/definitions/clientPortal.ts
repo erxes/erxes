@@ -94,7 +94,7 @@ export interface IClientPortal {
   testUserEmail?: string;
   testUserPhone?: string;
   testUserPassword?: string;
-  testUserOTP?: string;
+  testUserOTP?: number;
 
   vendorParentProductCategoryId?: string;
 }
@@ -245,7 +245,7 @@ export const clientPortalSchema = new Schema({
   testUserEmail: field({ type: String, optional: true }),
   testUserPhone: field({ type: String, optional: true }),
   testUserPassword: field({ type: String, optional: true }),
-  testUserOTP: field({ type: String, optional: true }),
+  testUserOTP: field({ type: Number, optional: true }),
 
   createdAt: field({
     type: Date,
