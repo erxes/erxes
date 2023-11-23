@@ -1,6 +1,29 @@
 import { generateFieldsFromSchema } from '@erxes/api-utils/src';
 import { generateModels } from './connectionResolver';
 import { EXTEND_FIELDS, POS_ORDER_INFO } from './contants';
+import { sendProductsMessage } from './messageBroker';
+
+const generateProductsOptions = async (
+  subdomain: string,
+  name: string,
+  label: string,
+  type: string
+) => {
+  const products = await sendProductsMessage({
+    subdomain,
+    action: 'find',
+    data: {
+      query: {}
+    },
+    isRPC: true,
+    defaultValue: []
+  });
+
+  return products.map(product => ({
+    value: product._id,
+    label: `${product.code} - ${product.name}`
+  }));
+};
 
 export default {
   types: [{ description: 'Pos Order', type: 'pos' }],
@@ -36,6 +59,21 @@ export default {
           ];
         }
       }
+    }
+
+    if (fields.find(field => field.name === 'items.productId')) {
+      const productOptions = await generateProductsOptions(
+        subdomain,
+        'items.productId',
+        'Product',
+        'product'
+      );
+
+      fields = fields.map(field =>
+        field.name === 'items.productId'
+          ? { ...field, selectOptions: productOptions }
+          : field
+      );
     }
 
     return fields;
