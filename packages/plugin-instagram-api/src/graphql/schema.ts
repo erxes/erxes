@@ -79,15 +79,7 @@ export const queries = `
   instagramGetIntegrations(kind: String): JSON
   instagramGetIntegrationDetail(erxesApiId: String): JSON 
   instagramGetConfigs: JSON
-  instagramGetComments(
-    ${commentQueryParamDefs},
-    commentId: String,
-    senderId: String,
-    ${pageParams}
-  ): [InstagramComment]
-  instagramGetCommentCount(${commentQueryParamDefs}): JSON
   instagramGetPages(accountId: String! kind: String!): JSON
-  instagramConversationDetail(_id: String!): JSON
   instagramConversationMessages(conversationId: String! getFirst: Boolean, ${pageParams}): [InstagramConversationMessage]
   instagramConversationMessagesCount(conversationId: String!): Int
   instagramHasTaggedMessages(conversationId: String!): Boolean
@@ -96,6 +88,5 @@ export const queries = `
 export const mutations = `
   instagramUpdateConfigs(configsMap: JSON!): JSON
   instagramRepair(_id: String!): JSON
-  instagramChangeCommentStatus(commentId: String): InstagramComment
-  instagramReplyToComment(conversationId: String, commentId: String, content: String): InstagramComment
+
 `;

@@ -3,9 +3,6 @@ import * as mongoose from 'mongoose';
 import { IContext as IMainContext } from '@erxes/api-utils/src';
 import { createGenerateModels } from '@erxes/api-utils/src/core';
 
-import { ICommentModel, loadCommentClass } from './models/Comments';
-import { ICommentDocument } from './models/definitions/comments';
-
 import {
   IConversationModel,
   loadConversationClass
@@ -39,7 +36,6 @@ import { ILogModel, loadLogClass } from './models/Logs';
 import { ILogDocument } from './models/definitions/logs';
 
 export interface IModels {
-  Comments: ICommentModel;
   Conversations: IConversationModel;
   Customers: ICustomerModel;
   ConversationMessages: IConversationMessageModel;
@@ -72,11 +68,6 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
     loadIntegrationClass(models)
   );
   models.Logs = db.model<ILogDocument, ILogModel>('logs', loadLogClass(models));
-
-  models.Comments = db.model<ICommentDocument, ICommentModel>(
-    'comments_instagrams',
-    loadCommentClass(models)
-  );
 
   models.Conversations = db.model<IConversationDocument, IConversationModel>(
     'conversations_instagrams',

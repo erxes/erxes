@@ -1,7 +1,7 @@
 import * as bodyParser from 'body-parser';
 
-import { debugInstagram, debugRequest } from './debuggers';
-import initInstagram from './controller';
+import { debugFacebook, debugRequest } from './debuggers';
+import initFacebook from './controller';
 import systemStatus from './systemStatus';
 import userMiddleware from './middlewares/userMiddleware';
 
@@ -30,7 +30,7 @@ const initApp = async app => {
   app.use(bodyParser.raw({ limit: '10mb', verify: rawBodySaver, type: '*/*' }));
 
   app.use((req, _res, next) => {
-    debugRequest(debugInstagram, req);
+    debugRequest(debugFacebook, req);
 
     next();
   });
@@ -40,7 +40,7 @@ const initApp = async app => {
   });
 
   // init bots
-  initInstagram(app);
+  initFacebook(app);
 
   // Error handling middleware
   app.use((error, _req, res, _next) => {

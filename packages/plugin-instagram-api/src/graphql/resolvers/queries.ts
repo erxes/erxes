@@ -66,23 +66,6 @@ const instagramQueries = {
     return models.Configs.find({}).lean();
   },
 
-  async instagramGetCommentCount(_root, args, { models }: IContext) {
-    const { conversationId, isResolved = false } = args;
-
-    const commentCount = await models.Comments.countDocuments({
-      isResolved
-    });
-    const commentCountWithoutReplies = await models.Comments.countDocuments({
-      isResolved,
-      parentId: null
-    });
-
-    return {
-      commentCount,
-      commentCountWithoutReplies
-    };
-  },
-
   async instagramGetPages(_root, args, { models }: IContext) {
     const { kind, accountId } = args;
     const account = await models.Accounts.getAccount({ _id: accountId });
@@ -101,14 +84,6 @@ const instagramQueries = {
     }
 
     return pages;
-  },
-
-  instagramConversationDetail(
-    _root,
-    { _id }: { _id: string },
-    { models }: IContext
-  ) {
-    return models.Conversations.findOne({ _id });
   },
 
   async instagramConversationMessages(

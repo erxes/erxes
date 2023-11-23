@@ -40,31 +40,6 @@ const instagramGetIntegrationDetail = `
   }
 `;
 
-const instagramGetComments = `
-  query instagramGetComments(${commentsParamDefs}) {
-    instagramGetComments(${commentsParams}) {
-      ${commonCommentAndMessageFields}
-      ${commonPostAndCommentFields}
-      commentId
-      parentId
-      customer {
-        _id
-        firstName
-        lastName
-        profilePic
-      }
-      commentCount
-      isResolved
-    }
-  }
-`;
-
-const instagramGetCommentCount = `
-  query instagramGetCommentCount($conversationId: String!, $isResolved: Boolean) {
-    instagramGetCommentCount(conversationId: $conversationId, isResolved: $isResolved)
-  }
-`;
-
 const instagramGetPages = `
   query instagramGetPages($accountId: String!, $kind: String!) {
     instagramGetPages(accountId: $accountId, kind: $kind)
@@ -158,8 +133,6 @@ export default {
   instagramGetConfigs,
   instagramGetIntegrations,
   instagramGetIntegrationDetail,
-  instagramGetComments,
-  instagramGetCommentCount,
   instagramGetPages,
   instagramGetAccounts,
   instagramConversationMessages,

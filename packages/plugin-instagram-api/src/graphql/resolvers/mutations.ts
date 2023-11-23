@@ -25,26 +25,6 @@ const instagramMutations = {
 
     return 'success';
   }
-  // async instagramChangeCommentStatus(
-
-  //   _root,
-  //   params: ICommentStatusParams,
-  //   { models }: IContext
-  // ) {
-  //   const { commentId } = params;
-  //   const comment = await models.Comments.findOne({ commentId });
-
-  //   if (!comment) {
-  //     throw new Error('Comment not found');
-  //   }
-
-  //   await models.Comments.updateOne(
-  //     { commentId },
-  //     { $set: { isResolved: comment.isResolved ? false : true } }
-  //   );
-
-  //   return models.Comments.findOne({ _id: comment._id });
-  // }
 };
 
 export default instagramMutations;
