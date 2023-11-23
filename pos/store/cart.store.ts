@@ -136,7 +136,7 @@ export const orderItemInput = atom<OrderItemInput[]>((get) =>
 )
 export const totalAmountAtom = atom<number>((get) =>
   (get(cartAtom) || []).reduce(
-    (total, item) => total + item.count * item.unitPrice,
+    (total, item) => total + (item?.count || 0) * (item.unitPrice || 0),
     0
   )
 )

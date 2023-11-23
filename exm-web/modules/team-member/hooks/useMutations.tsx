@@ -3,7 +3,7 @@ import { gql, useMutation } from "@apollo/client"
 
 import { toast } from "@/components/ui/use-toast"
 
-const useMutations = () => {
+const useMutations = ({ callBack }: { callBack: (result: string) => void }) => {
   const [usersEditProfileMutation, { loading }] = useMutation(
     gql(mutations.usersEditProfile)
   )
@@ -15,11 +15,7 @@ const useMutations = () => {
     usersEditProfileMutation({
       variables: { ...newVariables },
     })
-      .then(() =>
-        toast({
-          description: "Looking good!",
-        })
-      )
+      .then(() => callBack("success"))
       .catch((e) =>
         toast({
           description: e.message,

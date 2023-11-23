@@ -101,6 +101,12 @@ const Resipients = styledTS<{ isActive?: boolean }>(styled.a)`
 const EditorFooter = styled.div`
   padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
   display: flex;
+  justify-content: space-between;
+  gap: 15px;
+`;
+
+const EditorFooterGroup = styled.div`
+  display: flex;
   gap: 15px;
 `;
 
@@ -199,7 +205,7 @@ const Subject = styledTS<{ noBorder?: boolean }>(styled.div)`
 
 const ShowReplyButtonWrapper = styled.div`
   position: absolute;
-  z-index: 100;
+  z-index: 1;
   width: 100%;
   height: 50px;
   bottom: 42px;
@@ -424,5 +430,6 @@ export {
   SignatureChooserFooter,
   SignatureOptionWrapper,
   SignatureHiderButton,
-  SignatureDropdownWrapper
+  SignatureDropdownWrapper,
+  EditorFooterGroup
 };

@@ -1,15 +1,15 @@
 import React from 'react';
-import {
-  Button,
-  ControlLabel,
-  Form as CommonForm,
-  FormControl,
-  FormGroup,
-  DateControl,
-  Uploader,
-  DataWithLoader
-} from '@erxes/ui/src/components';
+
+import Button from '@erxes/ui/src/components/Button';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import CommonForm from '@erxes/ui/src/components/form/Form';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import DateControl from '@erxes/ui/src/components/form/DateControl';
+import Uploader from '@erxes/ui/src/components/Uploader';
+import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import EditorCK from '@erxes/ui/src/components/EditorCK';
+import Toggle from '@erxes/ui/src/components/Toggle';
 import {
   MainStyleFormColumn as FormColumn,
   MainStyleFormWrapper as FormWrapper,
@@ -31,6 +31,7 @@ import Sidebar from '../../general/components/Sidebar';
 import { FormFooter, SettingsContent } from '../../../styles';
 import { Link } from 'react-router-dom';
 import SelectSegments from '@erxes/ui-segments/src/containers/SelectSegments';
+import SegmentFields from '../common/SegmentFields';
 
 type Props = {
   assignmentCampaign: IAssignmentCampaign;
@@ -71,28 +72,24 @@ class EditForm extends React.Component<Props, State> {
     };
   };
 
-  onChangeDescription = e => {
+  onChange = (value, name) => {
+    const { assignmentCampaign } = this.state;
+
     this.setState({
-      assignmentCampaign: {
-        ...this.state.assignmentCampaign,
-        description: e.editor.getData()
-      }
+      assignmentCampaign: { ...assignmentCampaign, [name]: value }
     });
+  };
+
+  onChangeDescription = e => {
+    this.onChange(e.editor.getData(), 'description');
   };
 
   onChangeAttachment = (files: IAttachment[]) => {
-    this.setState({
-      assignmentCampaign: {
-        ...this.state.assignmentCampaign,
-        attachment: files.length ? files[0] : undefined
-      }
-    });
+    this.onChange(files.length ? files[0] : undefined, 'attachment');
   };
 
   onDateInputChange = (type: string, date) => {
-    this.setState({
-      assignmentCampaign: { ...this.state.assignmentCampaign, [type]: date }
-    });
+    this.onChange(date, type);
   };
 
   onInputChange = e => {
@@ -100,9 +97,7 @@ class EditForm extends React.Component<Props, State> {
     const value = e.target.value;
     const name = e.target.name;
 
-    this.setState({
-      assignmentCampaign: { ...this.state.assignmentCampaign, [name]: value }
-    });
+    this.onChange(value, name);
   };
 
   renderContent = (formProps: IFormProps) => {
@@ -112,21 +107,11 @@ class EditForm extends React.Component<Props, State> {
     const onChangeVoucherCampaign = selected => {
       const value = (selected || {}).value;
 
-      this.setState({
-        assignmentCampaign: {
-          ...this.state.assignmentCampaign,
-          voucherCampaignId: value
-        }
-      });
+      this.onChange(value, 'voucherCampaignId');
     };
 
     const onChangeSegments = segmentIds => {
-      this.setState({
-        assignmentCampaign: {
-          ...this.state.assignmentCampaign,
-          segmentIds
-        }
-      });
+      this.onChange(segmentIds, 'segmentIds');
     };
 
     const { assignmentCampaign } = this.state;
@@ -220,6 +205,11 @@ class EditForm extends React.Component<Props, State> {
                 onSelect={segmentIds => onChangeSegments(segmentIds)}
               />
             </FormGroup>
+            <SegmentFields
+              onChange={this.onChange}
+              segmentIds={this.state.assignmentCampaign.segmentIds || []}
+              assignmentCampaign={assignmentCampaign}
+            />
           </>
         )}
         <FormGroup>
@@ -272,6 +262,21 @@ class EditForm extends React.Component<Props, State> {
             multiple={false}
             single={true}
           />
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel>
+            {__('Allow Multiple Wins')}
+            <Toggle
+              checked={assignmentCampaign?.allowMultiWin}
+              onChange={() =>
+                this.onChange(
+                  !assignmentCampaign?.allowMultiWin,
+                  'allowMultiWin'
+                )
+              }
+            />
+          </ControlLabel>
         </FormGroup>
         <FormFooter>
           <Link to={`/erxes-plugin-loyalty/settings/assignment`}>

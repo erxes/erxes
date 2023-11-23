@@ -48,7 +48,10 @@ export const getAOESchedules = async (
     contractId: contract._id,
     payDate: { $lt: trDate },
     status: {
-      $in: [SCHEDULE_STATUS.DONE, SCHEDULE_STATUS.LESS, SCHEDULE_STATUS.PRE]
+      $in:
+        contract.leaseType === LEASE_TYPES.LINEAR
+          ? [SCHEDULE_STATUS.PENDING]
+          : [SCHEDULE_STATUS.DONE, SCHEDULE_STATUS.LESS, SCHEDULE_STATUS.PRE]
     }
   })
     .sort({ payDate: -1 })
@@ -111,6 +114,43 @@ export const calcUndue = async (
   }
   return result;
 };
+
+function fillCommitmentInterest(
+  contract: IContractDocument,
+  result: any,
+  diffEve,
+  diffNonce,
+  preSchedule
+) {
+  if (
+    contract.leaseType === LEASE_TYPES.LINEAR &&
+    contract.commitmentInterest > 0
+  ) {
+    result.commitmentInterestEve =
+      (preSchedule.interestEve || 0) -
+      (preSchedule.didInterestEve || 0) +
+      calcInterest({
+        balance: result.unUsedBalance,
+        interestRate: contract.commitmentInterest,
+        dayOfMonth: diffEve
+      });
+
+    result.commitmentInterestNonce =
+      (preSchedule.interestNonce || 0) -
+      (preSchedule.didInterestNonce || 0) +
+      calcInterest({
+        balance: result.unUsedBalance,
+        interestRate: contract.commitmentInterest,
+        dayOfMonth: diffNonce
+      });
+
+    result.commitmentInterest =
+      result.commitmentInterestEve + result.commitmentInterestNonce;
+
+    return result;
+  }
+  return;
+}
 
 /**
  * this method generate loan payment data
@@ -211,7 +251,6 @@ export const getCalcedAmounts = async (
 
   const prePayDate = getFullDate(preSchedule.payDate);
   result.preSchedule = preSchedule;
-
   result.balance = preSchedule.balance;
   result.unUsedBalance = contract.leaseAmount - preSchedule.balance;
 
@@ -261,22 +300,13 @@ export const getCalcedAmounts = async (
         contract.leaseType === LEASE_TYPES.LINEAR &&
         contract.commitmentInterest > 0
       ) {
-        result.commitmentInterestEve =
-          (preSchedule.interestEve || 0) -
-          (preSchedule.didInterestEve || 0) +
-          calcInterest({
-            balance: result.unUsedBalance,
-            interestRate: contract.commitmentInterest,
-            dayOfMonth: diffEve
-          });
-        result.commitmentInterestNonce =
-          (preSchedule.interestNonce || 0) -
-          (preSchedule.didInterestNonce || 0) +
-          calcInterest({
-            balance: result.unUsedBalance,
-            interestRate: contract.commitmentInterest,
-            dayOfMonth: diffNonce
-          });
+        result = fillCommitmentInterest(
+          contract,
+          result,
+          diffEve,
+          diffNonce,
+          preSchedule
+        );
       }
     }
 
@@ -386,22 +416,13 @@ export const getCalcedAmounts = async (
         contract.leaseType === LEASE_TYPES.LINEAR &&
         contract.commitmentInterest > 0
       ) {
-        result.commitmentInterestEve =
-          (preSchedule.interestEve || 0) -
-          (preSchedule.didInterestEve || 0) +
-          calcInterest({
-            balance: result.unUsedBalance,
-            interestRate: contract.commitmentInterest,
-            dayOfMonth: diffEve
-          });
-        result.commitmentInterestNonce =
-          (preSchedule.interestNonce || 0) -
-          (preSchedule.didInterestNonce || 0) +
-          calcInterest({
-            balance: result.unUsedBalance,
-            interestRate: contract.commitmentInterest,
-            dayOfMonth: diffNonce
-          });
+        result = fillCommitmentInterest(
+          contract,
+          result,
+          diffEve,
+          diffNonce,
+          preSchedule
+        );
       }
     }
 
@@ -508,22 +529,13 @@ export const getCalcedAmounts = async (
       contract.leaseType === LEASE_TYPES.LINEAR &&
       contract.commitmentInterest > 0
     ) {
-      result.commitmentInterestEve =
-        (preSchedule.interestEve || 0) -
-        (preSchedule.didInterestEve || 0) +
-        calcInterest({
-          balance: result.unUsedBalance,
-          interestRate: contract.commitmentInterest,
-          dayOfMonth: diffEve
-        });
-      result.commitmentInterestNonce =
-        (preSchedule.interestNonce || 0) -
-        (preSchedule.didInterestNonce || 0) +
-        calcInterest({
-          balance: result.unUsedBalance,
-          interestRate: contract.commitmentInterest,
-          dayOfMonth: diffNonce
-        });
+      result = fillCommitmentInterest(
+        contract,
+        result,
+        diffEve,
+        diffNonce,
+        preSchedule
+      );
     }
   }
 
@@ -607,10 +619,17 @@ export const transactionRule = async (
     interestNonce = 0,
     insurance = 0,
     debt = 0,
-    preSchedule
+    preSchedule,
+    commitmentInterest
   } = result.calcedInfo;
   result.calcedInfo.total =
-    payment + undue + interestEve + interestNonce + insurance + debt;
+    payment +
+    undue +
+    interestEve +
+    interestNonce +
+    insurance +
+    debt +
+    commitmentInterest;
 
   delete result.calcedInfo.preSchedule;
 
@@ -630,6 +649,13 @@ export const transactionRule = async (
 
   result.undue = undue;
   mainAmount = mainAmount - undue;
+  if (commitmentInterest > mainAmount) {
+    result.commitmentInterest = mainAmount;
+    return result;
+  }
+
+  result.commitmentInterest = commitmentInterest;
+  mainAmount = mainAmount - commitmentInterest;
   if (interestEve > mainAmount) {
     result.interestEve = mainAmount;
     return result;

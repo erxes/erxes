@@ -11,8 +11,8 @@ const fieldsCombinedByContentType = `
 `;
 
 const historyGetTypes = `
-  query historyGetTypes {
-    historyGetTypes
+  query historyGetTypes($type: String) {
+    historyGetTypes(type: $type)
   }
 `;
 

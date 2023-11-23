@@ -6,7 +6,7 @@ import {
 import { IContext } from '../../../connectionResolver';
 import { sendProductsMessage } from '../../../messageBroker';
 
-const generateFilterItems = async (subdomain: string, params: any) => {
+export const generateFilterItems = async (subdomain: string, params: any) => {
   const { remainderId, productCategoryIds, status, diffType } = params;
   const query: any = { remainderId };
 
