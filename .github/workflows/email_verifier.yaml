@@ -8,7 +8,7 @@ on:
       - staging
     paths:
       - 'email-verifier/**'
-      - '.github/workflows/exm.yaml'
+      - '.github/workflows/email_verifier.yaml'
 
   pull_request:
     branches:
@@ -17,7 +17,7 @@ on:
       - staging
     paths:
       - 'email-verifier/**'
-      - '.github/workflows/exm.yaml'
+      - '.github/workflows/email_verifier.yaml'
 
 jobs:
   email-verifier:
