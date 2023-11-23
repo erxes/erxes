@@ -28,7 +28,6 @@
 
     --primary: 257 63% 44%;
     --primary-foreground: 210 40% 98%;
-    --primary-light: 	254 55% 64%;
 
     --secondary: 210 40% 96.1%;
     --secondary-foreground: 222.2 47.4% 11.2%;
@@ -139,11 +138,11 @@
 }
 
 .text-primary-light {
-  color: hsl(var(--primary-light));
+  color: #6569DF;
 }
 
 .bg-primary-light {
-  background-color: hsl(var(--primary-light));
+  background-color: #6569DF;
 }
 
 .chat-list-max-height {
@@ -235,4 +234,7 @@
 }
 .react-datetime-picker__clock {
   display: none;
+}
+.whitespace-wrap {
+  white-space: wrap
 }

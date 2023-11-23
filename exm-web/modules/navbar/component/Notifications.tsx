@@ -82,7 +82,11 @@ const Notifications = () => {
   }
 
   const renderNotifRow = (notification: INotification) => {
-    const { details = {}, username = "", email } = notification.createdUser || {}
+    const {
+      details = {},
+      username = "",
+      email,
+    } = notification.createdUser || {}
     const { avatar, fullName } = details || {}
 
     return (
@@ -202,11 +206,15 @@ const Notifications = () => {
             </span>
           </p>
           <TabsContent value="all">
-            <ul className="max-h-[300px] overflow-y-auto">
+            <ul className="max-h-[400px] overflow-y-auto">
               {renderNotification()}
             </ul>
           </TabsContent>
-          <TabsContent value="unread">{renderNotification(true)}</TabsContent>
+          <TabsContent value="unread">
+            <ul className="max-h-[400px] overflow-y-auto">
+              {renderNotification(true)}
+            </ul>
+          </TabsContent>
         </Tabs>
       </PopoverContent>
     </Popover>

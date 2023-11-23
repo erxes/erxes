@@ -144,15 +144,15 @@ const ChatList = () => {
             {currentUser?.details.fullName || currentUser?.email}
           </div>
           <DropdownMenu>
-            <DropdownMenuTrigger>
-              <div className="bg-success text-success-foreground text-[11px] px-4 py-[1px] rounded-lg flex items-center">
+            <DropdownMenuTrigger disabled={true}>
+              <div className="bg-success text-success-foreground text-[11px] px-4 py-[1px] rounded-lg flex items-center w-[100px]">
                 <div className="indicator bg-success-foreground w-3 h-3 rounded-full border border-white mr-1" />
                 Active
                 <ChevronDown size={18} />
               </div>
             </DropdownMenuTrigger>
-            <DropdownMenuContent className="bg-transparent border-0 shadow-none px-2.5">
-              <button className="bg-warning-foreground text-warning text-[11px] px-4 py-[1px] rounded-lg flex items-center w-full">
+            <DropdownMenuContent className="bg-transparent border-0 shadow-none px-2.5 flex justify-center">
+              <button className="bg-warning-foreground text-warning text-[11px] px-4 py-[1px] rounded-lg flex items-center w-full w-[100px]">
                 <div className="indicator bg-warning w-3 h-3 rounded-full border border-white mr-1" />
                 Busy
               </button>

@@ -30,6 +30,8 @@ import {
   Dialog,
   DialogContent,
   DialogFooter,
+  DialogHeader,
+  DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
 import LoadingCard from "@/components/ui/loading-card"
@@ -48,6 +50,7 @@ import { useReactionQuery } from "../hooks/useReactionQuery"
 import CommentItem from "./CommentItem"
 import EventDropDown from "./EventDropDown"
 import EventUsersAvatar from "./EventUsersAvatar"
+import UsersList from "./UsersList"
 import CommentForm from "./form/CommentForm"
 
 const EventForm = dynamic(() => import("./form/EventForm"))
@@ -55,6 +58,7 @@ const EventForm = dynamic(() => import("./form/EventForm"))
 const EventItem = ({ postId }: { postId: string }): JSX.Element => {
   const [open, setOpen] = useState(false)
   const [seeMore, setSeeMore] = useState(false)
+  const [emojiOpen, setEmojiOpen] = useState(false)
   const [formOpen, setFormOpen] = useState(false)
   const [commentOpen, setCommentOpen] = useState(false)
   const currentUser = useAtomValue(currentUserAtom) || ({} as IUser)
@@ -164,7 +168,7 @@ const EventItem = ({ postId }: { postId: string }): JSX.Element => {
               loading={commentLoading}
               handleLoadMore={handleLoadMore}
               currentUserId={currentUser._id}
-              emojiReactedUser={emojiReactedUser}
+              emojiReactedUser={emojiReactedUser.map((u) => u._id)}
               emojiCount={emojiCount}
             />
           )}
@@ -283,7 +287,7 @@ const EventItem = ({ postId }: { postId: string }): JSX.Element => {
         {(feed.attachments || []).map((a, index) => {
           return (
             <a key={index} href={readFile(a.url)}>
-              <div className="flex items-center bg-primary-light text-sm font-medium text-white attachment-shadow px-2.5 py-[5px] justify-between w-full rounded-lg rounded-tr-none mt-4">
+              <div className="flex items-center bg-[#EAEAEA] text-sm font-medium text-[#444] attachment-shadow px-2.5 py-[5px] justify-between w-full rounded-lg rounded-tr-none mt-4">
                 {a.name} <ExternalLinkIcon size={18} />
               </div>
             </a>
@@ -309,11 +313,24 @@ const EventItem = ({ postId }: { postId: string }): JSX.Element => {
     }
 
     return (
-      <div className="flex mt-4">
-        <div className="bg-primary-light rounded-full w-[22px] h-[22px] flex items-center justify-center text-white mr-2">
-          <ThumbsUp size={12} fill="#fff" />
-        </div>
-        <div className="text-[#5E5B5B]">{text} </div>
+      <div className="flex mt-4 justify-between text-[#5E5B5B]">
+        <Dialog open={emojiOpen} onOpenChange={() => setEmojiOpen(!emojiOpen)}>
+          <DialogTrigger asChild={true}>
+            <div className="flex cursor-pointer items-center">
+              <div className="bg-primary-light rounded-full w-[22px] h-[22px] flex items-center justify-center text-white mr-2">
+                <ThumbsUp size={12} fill="#fff" />
+              </div>
+              <div>{text}</div>
+            </div>
+          </DialogTrigger>
+          <DialogContent className="p-0 gap-0 max-w-md">
+            <DialogHeader className="border-b p-4">
+              <DialogTitle className="flex justify-around">People</DialogTitle>
+            </DialogHeader>
+            <UsersList users={emojiReactedUser} />
+          </DialogContent>
+        </Dialog>
+        <div>{commentsCount} comments</div>
       </div>
     )
   }
@@ -324,7 +341,7 @@ const EventItem = ({ postId }: { postId: string }): JSX.Element => {
     }
 
     return (
-      <div className="overflow-hidden rounded-[10px] h-[150px] w-[150px] mr-[20px] shrink-0">
+      <div className="overflow-hidden rounded-[6px] h-[150px] w-[150px] mr-[20px] shrink-0">
         <FilePreview
           attachments={[feed.images[0]]}
           fileUrl={feed.images[0].url}

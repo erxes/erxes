@@ -27,6 +27,8 @@ import {
   Dialog,
   DialogContent,
   DialogFooter,
+  DialogHeader,
+  DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
 import Image from "@/components/ui/image"
@@ -44,7 +46,9 @@ import { useComments } from "../hooks/useComment"
 import useFeedMutation from "../hooks/useFeedMutation"
 import { useReactionMutaion } from "../hooks/useReactionMutation"
 import { useReactionQuery } from "../hooks/useReactionQuery"
+import { useTeamMembers } from "../hooks/useTeamMembers"
 import CommentItem from "./CommentItem"
+import UsersList from "./UsersList"
 import CommentForm from "./form/CommentForm"
 
 const BravoForm = dynamic(() => import("./form/BravoForm"))
@@ -54,9 +58,9 @@ const PostForm = dynamic(() => import("./form/PostForm"))
 const PostItem = ({ postId }: { postId: string }): JSX.Element => {
   const [open, setOpen] = useState(false)
   const [formOpen, setFormOpen] = useState(false)
+  const [emojiOpen, setEmojiOpen] = useState(false)
   const [commentOpen, setCommentOpen] = useState(false)
   const currentUser = useAtomValue(currentUserAtom) || ({} as IUser)
-  let recipientUsers
 
   const callBack = (result: string) => {
     if (result === "success") {
@@ -66,6 +70,7 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
 
   const { feed, loading } = useFeedDetail({ feedId: postId })
   const { users } = useUsers({})
+  const { departments, loading: departmentLoading } = useTeamMembers({})
 
   const {
     comments,
@@ -169,7 +174,7 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
           onOpenChange={() => setCommentOpen(!commentOpen)}
         >
           <DialogTrigger asChild={true} id="delete-form">
-            <div className="cursor-pointer flex items-center py-2 px-4 hover:bg-[#F0F0F0]">
+            <div className="cursor-pointer flex items-center py-3 px-4 hover:bg-[#F0F0F0]">
               <MessageCircleIcon size={20} className="mr-1" color="black" />
               Comment
             </div>
@@ -183,7 +188,7 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
               loading={commentLoading}
               handleLoadMore={handleLoadMore}
               currentUserId={currentUser._id}
-              emojiReactedUser={emojiReactedUser}
+              emojiReactedUser={emojiReactedUser.map((u) => u._id)}
               emojiCount={emojiCount}
             />
           )}
@@ -315,11 +320,24 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
     }
 
     return (
-      <div className="flex mt-4">
-        <div className="bg-primary-light rounded-full w-[22px] h-[22px] flex items-center justify-center text-white mr-2">
-          <ThumbsUp size={12} fill="#fff" />
-        </div>
-        <div className="text-[#5E5B5B]">{text} </div>
+      <div className="flex mt-4 justify-between text-[#5E5B5B] items-center">
+        <Dialog open={emojiOpen} onOpenChange={() => setEmojiOpen(!emojiOpen)}>
+          <DialogTrigger asChild={true}>
+            <div className="flex cursor-pointer items-center">
+              <div className="bg-primary-light rounded-full w-[22px] h-[22px] flex items-center justify-center text-white mr-2">
+                <ThumbsUp size={12} fill="#fff" />
+              </div>
+              <div>{text}</div>
+            </div>
+          </DialogTrigger>
+          <DialogContent className="p-0 gap-0 max-w-md">
+            <DialogHeader className="border-b p-4">
+              <DialogTitle className="flex justify-around">People</DialogTitle>
+            </DialogHeader>
+            <UsersList users={emojiReactedUser} />
+          </DialogContent>
+        </Dialog>
+        <div>{commentsCount} comments</div>
       </div>
     )
   }
@@ -334,7 +352,7 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
         {(feed.attachments || []).map((a, index) => {
           return (
             <a key={index} href={readFile(a.url)} className="w-1/2 flex-1">
-              <div className="flex bg-[#EAEAEA] text-sm font-medium text-[#444] attachment-shadow px-2.5 py-[5px] justify-between w-full rounded-lg rounded-tr-none">
+              <div className="flex bg-[#EAEAEA] text-sm font-medium text-[#444] attachment-shadow px-2.5 py-[5px] justify-between w-full rounded-[6px] rounded-tr-none">
                 <span className="truncate">{a.name}</span>{" "}
                 <ExternalLinkIcon size={18} />
               </div>
@@ -374,7 +392,7 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
     }
 
     return (
-      <div className="border-t">
+      <div className="border-t pb-4">
         <CommentItem comment={comments[0]} currentUserId={currentUser._id} />
       </div>
     )
@@ -385,31 +403,72 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
       return null
     }
 
-    recipientUsers = feed.recipientIds.map((id) =>
-      users.find((item) => item._id === id)
+    if(departmentLoading) {
+      return <div />
+    }
+
+    const recipientUsers = users.filter((u) =>
+      feed.recipientIds.includes(u._id)
+    )
+
+    const recipientDepartments = departments.filter((u) =>
+      feed.recipientIds.includes(u._id)
     )
 
     const more = () => {
-      if (recipientUsers.length < 3) {
+      if (recipientUsers.length + recipientDepartments.length < 3) {
         return null
       }
 
-      return <> and {recipientUsers.length - 2} more people</>
+      return (
+        <>
+          {" "}
+          and {recipientUsers.length + recipientDepartments.length - 2} more
+          people
+        </>
+      )
     }
 
     return (
-      <>
-        <span className="text-[#5E5B5B] font-medium"> with </span>
-        {recipientUsers.slice(0, 2).map((item, index) => {
-          return (
-            <>
-              {item?.details.fullName || item?.username || item?.email}
-              {index + 1 !== recipientUsers.length && ", "}
-            </>
-          )
-        })}
-        {more()}
-      </>
+      <Dialog open={emojiOpen} onOpenChange={() => setEmojiOpen(!emojiOpen)}>
+        <DialogTrigger asChild={true}>
+          <span className="cursor-pointer">
+            <span className="text-[#5E5B5B] font-medium">&nbsp;with </span>
+            {recipientUsers.slice(0, 2).map((item, index) => {
+              return (
+                <span key={Math.random()}>
+                  {item?.details?.fullName || item?.username || item?.email}
+                  {index + 1 !==
+                    recipientUsers.length + recipientDepartments.length && ", "}
+                </span>
+              )
+            })}
+            {recipientUsers.length < 2 &&
+              recipientDepartments
+                .slice(0, recipientUsers.length || 2)
+                .map((item, index) => {
+                  return (
+                    <span key={Math.random()}>
+                      {item.title}
+                      {index + 1 !==
+                        recipientUsers.length + recipientDepartments.length &&
+                        ", "}
+                    </span>
+                  )
+                })}
+            {more()}
+          </span>
+        </DialogTrigger>
+        <DialogContent className="p-0 gap-0 max-w-md">
+          <DialogHeader className="border-b p-4">
+            <DialogTitle className="flex justify-around">People</DialogTitle>
+          </DialogHeader>
+          <UsersList
+            users={recipientUsers}
+            departments={recipientDepartments}
+          />
+        </DialogContent>
+      </Dialog>
     )
   }
 
@@ -436,7 +495,7 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
 
   return (
     <>
-      <Card className="w-full mx-auto my-4 border-0 p-4">
+      <Card className="w-full mx-auto my-4 border-0 p-4 pb-0">
         <CardHeader className="p-0 pb-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center">
@@ -500,16 +559,18 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
 
         <CardFooter className="border-t mt-5 p-0 justify-between">
           <div
-            className="cursor-pointer flex items-center py-2 px-4 hover:bg-[#F0F0F0]"
+            className="cursor-pointer flex items-center py-3 px-4 hover:bg-[#F0F0F0]"
             onClick={reactionAdd}
           >
             <ThumbsUp
               size={20}
               className="mr-1"
-              fill={`${idExists ? "#8771D5" : "white"}`}
-              color={`${idExists ? "#8771D5" : "black"}`}
+              fill={`${idExists ? "#6569DF" : "white"}`}
+              color={`${idExists ? "#6569DF" : "black"}`}
             />
-            <div className={`${idExists ? "text-primary" : "text-black"}`}>
+            <div
+              className={`${idExists ? "text-primary-light" : "text-black"}`}
+            >
               Like
             </div>
           </div>
