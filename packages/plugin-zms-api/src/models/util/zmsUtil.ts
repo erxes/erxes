@@ -65,7 +65,7 @@ function zmsObjectValidator(
   resultList
 ) {
   try {
-    objectValidator.map(el => {
+    objectValidator.forEach(el => {
       const { hasError, errorMessage, field } = fieldValidator(
         zms,
         el,
@@ -83,7 +83,7 @@ export function zmsListValidator(
   validationFieldConfig: Validation[] = validationFields,
   resultList = []
 ) {
-  zmsList.map(zms => {
+  zmsList.forEach(zms => {
     zmsObjectValidator(zms, validationFieldConfig, resultList);
   });
   return resultList;

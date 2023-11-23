@@ -202,7 +202,7 @@ const zmsMutations = {
    * Creates a new zmsDictionary
    */
 
-  async createZms(_root, {}, _context: IContext) {
+  async createZms() {
     const result = await zmsListValidator(zmsList);
     if (result.length > 0) {
       return result;

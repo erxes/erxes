@@ -19,7 +19,7 @@ const zmsQueries = {
     return Zmss.findOne({ _id });
   },
 
-  async getZmses(_root, {}, _context: IContext) {
+  async getZmses() {
     const zmss = await Zmss.find({}).lean();
     return zmss;
   }
