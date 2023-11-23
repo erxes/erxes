@@ -33,6 +33,9 @@ export const handleInstagramMessage = async (models: IModels, msg) => {
       attachments = [],
       extraInfo
     } = doc;
+
+    // const { integrationId, conversationId, content, attachments } = doc;
+
     const tag = extraInfo && extraInfo.tag ? extraInfo.tag : '';
     const regex = new RegExp('<img[^>]* src="([^"]*)"', 'g');
 
@@ -89,14 +92,12 @@ export const handleInstagramMessage = async (models: IModels, msg) => {
         }
       }
 
-      const generatedAttachments = generateAttachmentMessages(attachments);
-
-      for (const message of generatedAttachments) {
+      for (const message of generateAttachmentMessages(attachments)) {
         try {
           await sendReply(
             models,
             'me/messages',
-            { recipient: { id: senderId }, message, tag },
+            { recipient: { id: senderId }, message },
             integrationId
           );
         } catch (e) {

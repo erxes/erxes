@@ -138,11 +138,18 @@ export const getPageList = async (
   return pages;
 };
 
+// export const getPageAccessTokenFromMap = (
+//   pageId: string,
+//   pageTokens: { [key: string]: string }
+// ): string => {
+//   return (pageTokens || {})[pageId] || null;
+// };
+
 export const getPageAccessTokenFromMap = (
   pageId: string,
   pageTokens: { [key: string]: string }
-): string | null => {
-  return (pageTokens || {})[pageId] || null;
+): string => {
+  return (pageTokens || {})[pageId];
 };
 
 export const getFacebookUser = async (
@@ -208,16 +215,26 @@ export const getInstagramUser = async (
 };
 
 export const sendReply = async (
-  models,
+  models: IModels,
   url: string,
   data: any,
   integrationId: string
 ) => {
-  const integration = await models.Integrations.getIntegration({
-    erxesApiId: integrationId
-  });
+  let integration;
+  try {
+    integration = await models.Integrations.getIntegration({
+      erxesApiId: integrationId
+    });
 
-  const { facebookPageTokensMap, facebookPageIds } = integration;
+    // Continue with the code assuming the integration was successfully retrieved
+  } catch (error) {
+    // Handle the error
+    console.error(`Error getting integration: ${error.message}`);
+  }
+
+  // const { facebookPageTokensMap, facebookPageIds } = integration;
+
+  const { facebookPageTokensMap = {}, facebookPageIds } = integration;
 
   let pageAccessToken;
 
@@ -248,12 +265,27 @@ export const sendReply = async (
       } data: ${JSON.stringify(data)}`
     );
 
+    if (e.message.includes('access token')) {
+      await models.Integrations.updateOne(
+        { _id: integration._id },
+        { $set: { healthStatus: 'page-token', error: `${e.message}` } }
+      );
+    } else if (e.code !== 10) {
+      await models.Integrations.updateOne(
+        { _id: integration._id },
+        { $set: { healthStatus: 'account-token', error: `${e.message}` } }
+      );
+    }
+
+    if (e.message.includes('does not exist')) {
+      throw new Error('Comment has been deleted by the customer');
+    }
+
     throw new Error(e.message);
   }
 };
 
 export const generateAttachmentMessages = (attachments: IAttachment[]) => {
-  console.log('aisodjaiosdj');
   const messages: IAttachmentMessage[] = [];
 
   for (const attachment of attachments || []) {

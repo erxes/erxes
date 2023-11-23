@@ -17,9 +17,12 @@ const loginMiddleware = async (req, res) => {
     'pages_messaging,pages_manage_ads,pages_manage_engagement,pages_manage_metadata,pages_read_user_content'
   );
 
-  const MAIN_APP_DOMAIN = getEnv({ name: 'MAIN_APP_DOMAIN' });
+  const MAIN_APP_DOMAIN = getEnv({
+    name: 'MAIN_APP_DOMAIN'
+  });
   // const DOMAIN = 'https://0bdd-202-21-104-34.ngrok-free.app/pl:instagram';
-  const DOMAIN = 'https://78cc-202-9-40-140.ngrok-free.app/pl:instagram';
+  const DOMAIN = 'https://0969-202-9-40-44.ngrok-free.app/pl:instagram';
+  //  8950-202-9-40-44.ngrok-free.app/pl:instagram/instagram/login
 
   const conf = {
     client_id: FACEBOOK_APP_ID,
@@ -80,7 +83,12 @@ const loginMiddleware = async (req, res) => {
     if (account) {
       await models.Accounts.updateOne(
         { _id: account._id },
-        { $set: { token: access_token, allowedInstagram: true } }
+        {
+          $set: {
+            token: access_token,
+            allowedInstagram: true
+          }
+        }
       );
 
       const integrations = await models.Integrations.find({

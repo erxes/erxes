@@ -3,15 +3,11 @@ export interface IMessageData {
   recipient: { id: string };
   timestamp: number;
   text?: string;
-  attachments?: Array<{
-    type: string;
-    payload: { url: string };
-  }>;
   message: {
-    // attachments?: Array<{
-    //   type: string;
-    //   payload: { url: string };
-    // }>;
+    attachments?: Array<{
+      type: string;
+      payload: { url: string };
+    }>;
     mid: string;
     text: string;
   };

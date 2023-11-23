@@ -9,7 +9,7 @@ const receiveMessage = async (
   subdomain: string,
   messageData: IMessageData
 ) => {
-  const { recipient, sender, timestamp, message, attachments } = messageData;
+  const { recipient, sender, timestamp, message } = messageData;
   // const attachments = messageData.message.attachments;
 
   const integration = await models.Integrations.getIntegration({
@@ -22,7 +22,7 @@ const receiveMessage = async (
 
   const userId = sender.id;
   const pageId = recipient.id;
-  const { text, mid } = message;
+  const { text, attachments } = message;
   // get or create customer
   const customer = await getOrCreateCustomer(
     models,
@@ -65,7 +65,6 @@ const receiveMessage = async (
       type: att.type,
       url: att.payload ? att.payload.url : ''
     }));
-  console.log(formattedAttachments, 'formattedAttachments');
 
   // save on api
   try {
@@ -94,7 +93,7 @@ const receiveMessage = async (
   }
   // get conversation message
   const conversationMessage = await models.ConversationMessages.findOne({
-    mid
+    mid: message.mid
   });
 
   if (!conversationMessage) {

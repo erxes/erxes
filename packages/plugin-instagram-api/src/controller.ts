@@ -144,7 +144,6 @@ const init = async app => {
     const models = await generateModels(subdomain);
 
     const data = req.body;
-
     if (data.object !== 'instagram') {
       return;
     }

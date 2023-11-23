@@ -28,7 +28,7 @@ export const integrationSchema = new Schema({
   emailScope: String,
   instagramPageIds: field({
     type: [String],
-    label: 'Facebook page ids',
+    label: 'Instagram page ids',
     optional: true
   }),
   facebookPageIds: field({
