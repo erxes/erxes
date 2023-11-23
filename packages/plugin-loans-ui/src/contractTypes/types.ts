@@ -44,6 +44,8 @@ export interface IContractConfig {
   doubtExpirationDay: number;
   negativeExpirationDay: number;
   badExpirationDay: number;
+  minCommitmentInterest: number;
+  maxCommitmentInterest: number;
 }
 
 export interface IContractTypeDoc {

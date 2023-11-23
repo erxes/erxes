@@ -46,7 +46,7 @@ class SchedulesList extends React.Component<IProps> {
     return (
       <>
         <ScheduleYears>{this.renderYear()}</ScheduleYears>
-        <Table>
+        <Table striped>
           <thead>
             <tr>
               <th />

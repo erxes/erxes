@@ -1,10 +1,9 @@
-import {
-  Alert,
-  Button,
-  EmptyState,
-  MainStyleModalFooter as ModalFooter,
-  Table
-} from '@erxes/ui/src';
+import Alert from '@erxes/ui/src/utils/Alert';
+import Button from '@erxes/ui/src/components/Button';
+import EmptyState from '@erxes/ui/src/components/EmptyState';
+import Table from '@erxes/ui/src/components/table';
+import { MainStyleModalFooter as ModalFooter } from '@erxes/ui/src/styles/eindex';
+
 import { IProduct } from '@erxes/ui-products/src/types';
 import React from 'react';
 
@@ -93,7 +92,7 @@ class CollateralForm extends React.Component<Props, State> {
 
     return (
       <CollateralTableWrapper>
-        <Table>
+        <Table striped>
           <thead>
             <tr>
               <th>{__('Insurance type')}</th>

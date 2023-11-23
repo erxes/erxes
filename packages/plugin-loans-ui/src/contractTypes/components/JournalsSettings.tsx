@@ -14,7 +14,7 @@ import { dimensions } from '@erxes/ui/src';
 import styled from 'styled-components';
 
 import React from 'react';
-import { JOURNALS_KEY_LABELS } from '../constants';
+import { JOURNALS_KEY_LABELS, LEASE_TYPES } from '../constants';
 import { IContractTypeDetail } from '../types';
 import { __ } from 'coreui/utils';
 import ProductChooser from '@erxes/ui-products/src/containers/ProductChooser';
@@ -336,14 +336,15 @@ class GeneralSettings extends React.Component<Props, State> {
               type: 'number'
             })}
           </CollapseContent>
+
           <CollapseContent title={__('Range config')}>
-            {this.renderItem('minInterest', 'Min interest /Month/', {
+            {this.renderItem('minInterest', 'Min interest', {
               type: 'number'
             })}
-            {this.renderItem('maxInterest', 'Max interest /Month/', {
+            {this.renderItem('maxInterest', 'Max interest', {
               type: 'number'
             })}
-            {this.renderItem('defaultInterest', 'Default interest /Month/', {
+            {this.renderItem('defaultInterest', 'Default interest', {
               type: 'number'
             })}
             {this.renderItem('minTenor', 'Min tenor /Month/', {
@@ -352,14 +353,32 @@ class GeneralSettings extends React.Component<Props, State> {
             {this.renderItem('maxTenor', 'Max tenor /Month/', {
               type: 'number'
             })}
-            {this.renderItem('minAmount', 'Min amount /Month/', {
+            {this.renderItem('minAmount', 'Min amount', {
               type: 'number',
               useNumberFormat: true
             })}
-            {this.renderItem('maxAmount', 'Max amount /Month/', {
+            {this.renderItem('maxAmount', 'Max amount', {
               type: 'number',
               useNumberFormat: true
             })}
+            {this.props.contractType?.leaseType === LEASE_TYPES.LINEAR &&
+              this.renderItem(
+                'minCommitmentInterest',
+                'Min Commitment Interest',
+                {
+                  type: 'number',
+                  useNumberFormat: true
+                }
+              )}
+            {this.props.contractType?.leaseType === LEASE_TYPES.LINEAR &&
+              this.renderItem(
+                'maxCommitmentInterest',
+                'Max Commitment Interest',
+                {
+                  type: 'number',
+                  useNumberFormat: true
+                }
+              )}
           </CollapseContent>
         </ContentBox>
       </ScrollWrapper>

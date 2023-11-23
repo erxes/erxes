@@ -1,7 +1,6 @@
-import { Spinner, Table, Button } from '@erxes/ui/src';
+import Table from '@erxes/ui/src/components/table';
 import { __ } from 'coreui/utils';
 import React from 'react';
-import { withRouter } from 'react-router-dom';
 
 import { IInvoice } from '../../types';
 import ScheduleRow from './InvoiceRow';
@@ -22,7 +21,7 @@ class InvoiceList extends React.Component<IProps> {
 
     return (
       <>
-        <Table>
+        <Table striped>
           <thead>
             <tr>
               <th>{__('Date')}</th>
