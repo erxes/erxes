@@ -133,7 +133,7 @@ const SlotDetail = ({ handleChange, _id, name, code, handleBack, option }) => {
         <input
           id="isShape"
           type="checkbox"
-          value={isShape || 0}
+          checked={isShape}
           onChange={e => handleChange({ isShape: e.target.checked }, _id)}
         />
         <label htmlFor="isShape">Disabled</label>

@@ -74,6 +74,4 @@ export function cloudflareLoader({ src, width, quality }: ImageLoaderProps) {
   return `https://erxes.io/cdn-cgi/image/${params.join(",")}/${src}`
 }
 
-//xos.techstore.mn/gateway/read-file?key=0.021508049013006180.51531201349981501.png
-
 export default Image
