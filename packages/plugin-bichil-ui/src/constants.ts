@@ -7,6 +7,7 @@ const dateOfTheMonthFormat = 'MM/DD';
 
 const COLORS = {
   absent: 'rgba(255,88,87,0.5)',
+  absentBorder: 'rgba(255,88,87,0.1)',
   shiftRequest: '#85C7F2',
   paidAbsence: 'rgba(72,191,132, 0.5)',
   unpaidAbsence: '#E7C8DD',

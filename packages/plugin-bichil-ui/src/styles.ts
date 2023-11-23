@@ -57,6 +57,7 @@ export const TimeclockInfo = styledTS<{
 
 export const RequestInfo = styledTS<{
   backgroundColor: string;
+  borderColor?: string;
   textColor?: string;
   hoverContent?: string;
 }>(styled.div)`
@@ -64,7 +65,8 @@ export const RequestInfo = styledTS<{
   overflow:hidden; 
   white-space:nowrap; 
   text-overflow: ellipsis;
-  border: 2px solid ${props => props.backgroundColor};
+  border: 2px solid ${props =>
+    props.borderColor ? props.borderColor : props.backgroundColor};
   border-radius: 20px;
   padding: 6px;
   margin: 5px auto;

@@ -1,4 +1,4 @@
-import { fixDate } from '@erxes/api-utils/src';
+import { fixDate, getPureDate } from '@erxes/api-utils/src';
 import * as dayjs from 'dayjs';
 import { generateModels, IModels } from '../../connectionResolver';
 import {
@@ -55,7 +55,6 @@ export const timeclockReportByUsers = async (
   const returnReport: any[] = [];
 
   const { startDate, endDate } = queryParams;
-  const shiftsOfSchedules: IShiftDocument[] = [];
 
   const schedules = await models.Schedules.find({
     userId: { $in: userIds },

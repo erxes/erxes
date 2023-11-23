@@ -224,10 +224,6 @@ const TimeclockList = (props: Props) => {
       </>
     );
 
-    if (!requests?.length && !schedules?.length && timeclocks?.length) {
-      return <tr>{renderUserInfo}</tr>;
-    }
-
     const scheduleShifts: IShift[] = [];
 
     // scheduled: true
@@ -387,14 +383,22 @@ const TimeclockList = (props: Props) => {
 
       const contentInsideCell: any = [];
 
+      const getDate = new Date(
+        new Date(dateField).setFullYear(new Date().getFullYear())
+      );
       // absent day
       if (
         !timeclocksInfo[dateField] &&
         !requestsInfo[dateField] &&
-        scheduleShiftsInfo[dateField]
+        scheduleShiftsInfo[dateField] &&
+        getDate.getTime() < new Date().getTime()
       ) {
         contentInsideCell.push(
-          <RequestInfo backgroundColor={COLORS.absent} textColor={COLORS.white}>
+          <RequestInfo
+            backgroundColor={COLORS.absent}
+            borderColor={COLORS.absentBorder}
+            textColor={COLORS.white}
+          >
             Absent
           </RequestInfo>
         );
@@ -406,7 +410,6 @@ const TimeclockList = (props: Props) => {
       if (dateField in timeclocksInfo) {
         contentInsideCell.push(
           timeclocksInfo[dateField].map(timeclock => {
-            console.log(timeclock);
             return (
               <Tip
                 text="Edit timeclock"
