@@ -11,26 +11,31 @@ const generateDateFilter = value => {
   return filter;
 };
 
-const generateChildrenIds = async ({ subdomain, action, query }) => {
+const generateChildrenIds = async ({ subdomain, action, query, type }) => {
+  const parentFilter = type === 'branch' ? { query } : query;
+
   const orders = (
     await sendCoreMessage({
       subdomain,
       action,
-      data: {
-        query
-      },
+      data: parentFilter,
       isRPC: true,
       defaultValue: []
     })
   ).map(item => item.order);
 
+  const childrenFilter = { order: { $regex: orders.join('|'), $options: 'i' } };
+
   const ids = (
     await sendCoreMessage({
       subdomain,
       action: action,
-      data: {
-        query: { order: { $regex: orders.join('|'), $options: 'i' } }
-      },
+      data:
+        type === 'branch'
+          ? {
+              query: childrenFilter
+            }
+          : childrenFilter,
       isRPC: true,
       defaultValue: []
     })
@@ -119,7 +124,8 @@ const queryBuilderCards = async ({ subdomain, params }) => {
       $in: await generateChildrenIds({
         subdomain,
         action: 'branches.find',
-        query: { _id: { $in: branchIds } }
+        query: { _id: { $in: branchIds } },
+        type: 'branch'
       })
     };
   }
@@ -129,7 +135,8 @@ const queryBuilderCards = async ({ subdomain, params }) => {
       $in: await generateChildrenIds({
         subdomain,
         action: 'departments.find',
-        query: { _id: { $in: departmentIds } }
+        query: { _id: { $in: departmentIds } },
+        type: 'department'
       })
     };
   }
@@ -170,7 +177,8 @@ const queryBuilderUsers = async ({ subdomain, params }) => {
       $in: await generateChildrenIds({
         subdomain,
         action: 'branches.find',
-        query: { _id: { $in: branchIds } }
+        query: { _id: { $in: branchIds } },
+        type: 'branch'
       })
     };
   }
@@ -180,10 +188,12 @@ const queryBuilderUsers = async ({ subdomain, params }) => {
       $in: await generateChildrenIds({
         subdomain,
         action: 'departments.find',
-        query: { _id: { $in: departmentIds } }
+        query: { _id: { $in: departmentIds } },
+        type: 'department'
       })
     };
   }
+
   return filter;
 };
 
@@ -234,5 +244,6 @@ export const generateCreatedUsersCards = async ({
     isRPC: true,
     defaultValue: []
   });
+
   return users;
 };
