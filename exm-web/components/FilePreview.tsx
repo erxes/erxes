@@ -116,7 +116,7 @@ export const FilePreview = ({
         <>
           <Dialog>
             <DialogTrigger asChild={true}>
-              <div className="w-full h-[462px] flex flex-wrap overflow-hidden relative gap-2">
+              <div className="w-full h-[462px] flex flex-wrap overflow-hidden relative gap-3">
                 {attachments.map((image, index) => {
                   const length = attachments.length
                   let width

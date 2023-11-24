@@ -44,8 +44,20 @@ const FormSchema = z.object({
   firstName: z.string().optional(),
   lastName: z.string().optional(),
   position: z.string().optional(),
-  username: z.string(),
-  password: z.string(),
+  username: z
+    .any({
+      required_error: "Please enter an username",
+    })
+    .refine((val) => val !== null, {
+      message: "Please enter an username",
+    }),
+  password: z
+    .string({
+      required_error: "Please enter a password",
+    })
+    .refine((val) => val.trim().length !== 0, {
+      message: "Please enter a password",
+    }),
   location: z.string().optional(),
   facebook: z.string().optional(),
   twitter: z.string().optional(),
@@ -218,7 +230,11 @@ const Detail = ({
                           <FormLabel>Bio</FormLabel>
                           <FormControl>
                             <Textarea
-                              placeholder={isProfile ? "They haven't uploaded this section yet" : "Type your bio"}
+                              placeholder={
+                                !isProfile
+                                  ? "They haven't uploaded this section yet"
+                                  : "Type your bio"
+                              }
                               {...field}
                               className="p-0 border-none disabled:opacity-100 !h-[60px]"
                               disabled={disable}
@@ -238,7 +254,11 @@ const Detail = ({
                           <FormLabel>Email</FormLabel>
                           <FormControl>
                             <Input
-                              placeholder={isProfile ? "They haven't uploaded this section yet" : "Type your email"}
+                              placeholder={
+                                !isProfile
+                                  ? "They haven't uploaded this section yet"
+                                  : "Type your email"
+                              }
                               {...field}
                               className="p-0 border-none disabled:opacity-100 h-8"
                               disabled={disable}
@@ -258,7 +278,11 @@ const Detail = ({
                           <FormLabel>Phone</FormLabel>
                           <FormControl>
                             <Input
-                              placeholder={isProfile ? "They haven't uploaded this section yet" : "Type your phone number"}
+                              placeholder={
+                                !isProfile
+                                  ? "They haven't uploaded this section yet"
+                                  : "Type your phone number"
+                              }
                               {...field}
                               className="p-0 border-none disabled:opacity-100 h-8"
                               disabled={disable}
@@ -307,7 +331,11 @@ const Detail = ({
                           <FormLabel>Employee ID</FormLabel>
                           <FormControl>
                             <Input
-                              placeholder={isProfile ? "They haven't uploaded this section yet" : "Type your employee id"}
+                              placeholder={
+                                !isProfile
+                                  ? "They haven't uploaded this section yet"
+                                  : "Type your employee id"
+                              }
                               {...field}
                               className="p-0 border-none disabled:opacity-100 h-8"
                               disabled={disable}
@@ -382,7 +410,11 @@ const Detail = ({
                         </FormLabel>
                         <FormControl>
                           <Input
-                            placeholder={isProfile ? "They haven't uploaded this section yet" : "Type your first name"}
+                            placeholder={
+                              !isProfile
+                                ? "They haven't uploaded this section yet"
+                                : "Type your first name"
+                            }
                             {...field}
                             className="p-0 border-none disabled:opacity-100"
                             disabled={disable}
@@ -403,7 +435,11 @@ const Detail = ({
                         </FormLabel>
                         <FormControl>
                           <Input
-                            placeholder={isProfile ? "They haven't uploaded this section yet" : "Type your last name"}
+                            placeholder={
+                              !isProfile
+                                ? "They haven't uploaded this section yet"
+                                : "Type your last name"
+                            }
                             {...field}
                             className="p-0 border-none disabled:opacity-100"
                             disabled={disable}
@@ -424,7 +460,11 @@ const Detail = ({
                         </FormLabel>
                         <FormControl>
                           <Input
-                            placeholder={isProfile ? "They haven't uploaded this section yet" : "Type your username"}
+                            placeholder={
+                              !isProfile
+                                ? "They haven't uploaded this section yet"
+                                : "Type your username"
+                            }
                             {...field}
                             className="p-0 border-none disabled:opacity-100"
                             disabled={disable}
@@ -445,7 +485,11 @@ const Detail = ({
                         </FormLabel>
                         <FormControl>
                           <Input
-                            placeholder={isProfile ? "They haven't uploaded this section yet" : "Type your position"}
+                            placeholder={
+                              !isProfile
+                                ? "They haven't uploaded this section yet"
+                                : "Type your position"
+                            }
                             {...field}
                             className="p-0 border-none disabled:opacity-100"
                             disabled={disable}
@@ -489,7 +533,11 @@ const Detail = ({
                         </FormLabel>
                         <FormControl>
                           <Input
-                            placeholder={isProfile ? "They haven't uploaded this section yet" : "Type your location"}
+                            placeholder={
+                              !isProfile
+                                ? "They haven't uploaded this section yet"
+                                : "Type your location"
+                            }
                             {...field}
                             className="p-0 border-none disabled:opacity-100"
                             disabled={disable}

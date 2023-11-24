@@ -77,7 +77,7 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
     commentsCount,
     loading: commentLoading,
     handleLoadMore,
-  } = useComments(feed._id)
+  } = useComments(postId)
   const { emojiCount, emojiReactedUser, loadingReactedUsers } =
     useReactionQuery({
       feedId: postId,
@@ -353,7 +353,7 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
           return (
             <a key={index} href={readFile(a.url)} className="w-1/2 flex-1">
               <div className="flex bg-[#EAEAEA] text-sm font-medium text-[#444] attachment-shadow px-2.5 py-[5px] justify-between w-full rounded-[6px] rounded-tr-none">
-                <span className="truncate">{a.name}</span>{" "}
+                <span className="truncate w-[calc(100%-50px)]">{a.name}</span>{" "}
                 <ExternalLinkIcon size={18} />
               </div>
             </a>

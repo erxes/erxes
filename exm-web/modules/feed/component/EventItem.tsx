@@ -75,7 +75,7 @@ const EventItem = ({ postId }: { postId: string }): JSX.Element => {
     commentsCount,
     loading: commentLoading,
     handleLoadMore,
-  } = useComments(feed._id)
+  } = useComments(postId)
   const { emojiCount, emojiReactedUser, loadingReactedUsers } =
     useReactionQuery({
       feedId: postId,
