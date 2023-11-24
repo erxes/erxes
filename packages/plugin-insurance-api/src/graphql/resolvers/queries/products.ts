@@ -11,13 +11,15 @@ const queries = {
       perPage,
       sortField,
       sortDirection,
-      searchValue
+      searchValue,
+      categoryId
     }: {
       page: number;
       perPage: number;
       sortField: string;
       sortDirection: 'ASC' | 'DESC';
       searchValue: string;
+      categoryId: string;
     },
     { models }: IContext
   ) => {
@@ -31,6 +33,10 @@ const queries = {
 
     if (sortDirection === 'DESC') {
       sortOrder = -1;
+    }
+
+    if (categoryId) {
+      qry.categoryId = categoryId;
     }
 
     return {
@@ -50,14 +56,24 @@ const queries = {
     {
       searchValue,
       page,
-      perPage
-    }: { searchValue: string; page: number; perPage: number },
+      perPage,
+      categoryId
+    }: {
+      searchValue: string;
+      page: number;
+      perPage: number;
+      categoryId: string;
+    },
     { models }: IContext
   ) => {
     const qry: any = {};
 
     if (searchValue) {
       qry.searchText = { $in: [new RegExp(`.*${searchValue}.*`, 'i')] };
+    }
+
+    if (categoryId) {
+      qry.categoryId = categoryId;
     }
 
     return paginate(models.Products.find(qry), {

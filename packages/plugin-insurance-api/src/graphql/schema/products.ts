@@ -61,13 +61,14 @@ type CompanyProductConfig {
 `;
 
 export const queries = `
-    insuranceProducts(searchValue: String, page: Int, perPage: Int): [InsuranceProduct]
+    insuranceProducts(searchValue: String, page: Int, perPage: Int, categoryId: ID): [InsuranceProduct]
     insuranceProductList(
     page: Int
     perPage: Int
     sortField: String
     sortDirection: SortDirection
     searchValue: String
+    categoryId: ID
     ): InsuranceProductList
     insuranceProduct(_id: ID!): InsuranceProduct
     insuranceProductsOfVendor(categoryId:ID): [InsuranceProductOfVendor]
