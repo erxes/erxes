@@ -9,6 +9,7 @@ import { queries } from '../../graphql';
 import { ReportsQueryResponse } from '../../types';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { generateParams } from '../../utils';
+import Pagination from '@erxes/ui/src/components/pagination/Pagination';
 
 type Props = {
   history: any;
@@ -17,6 +18,7 @@ type Props = {
 
   reportType: string;
   isCurrentUserAdmin: boolean;
+  getPagination: (pagination: any) => void;
 };
 
 type FinalProps = {
@@ -24,7 +26,7 @@ type FinalProps = {
 } & Props;
 
 const ListContainer = (props: FinalProps) => {
-  const { bichilTimeclockReportQuery, queryParams } = props;
+  const { bichilTimeclockReportQuery, queryParams, getPagination } = props;
   const { deptId, branchId } = queryParams;
 
   if (bichilTimeclockReportQuery.loading) {
@@ -69,6 +71,8 @@ const ListContainer = (props: FinalProps) => {
     deptId,
     deductionInfo
   };
+
+  getPagination(<Pagination count={totalCount} />);
 
   return <ReportList {...updatedProps} />;
 };

@@ -592,3 +592,39 @@ export const findUnfinishedShiftsAndUpdate = async (subdomain: any) => {
 
   return models.Timeclocks.bulkWrite(bulkWriteOps);
 };
+
+export const getNextNthColumnChar = (currentChar, n: number) => {
+  // Convert currentChar to uppercase for consistency
+  currentChar = currentChar.toUpperCase();
+
+  // Function to convert a number to a base-26 string representation
+  function toBase26String(num) {
+    let result = '';
+    while (num > 0) {
+      let remainder = (num - 1) % 26; // Adjusting the remainder to 0-25 range
+      result = String.fromCharCode(remainder + 'A'.charCodeAt(0)) + result;
+      num = Math.floor((num - 1) / 26); // Update num for the next iteration
+    }
+    return result;
+  }
+
+  // Function to convert a base-26 string to a number
+  function fromBase26String(str) {
+    let result = 0;
+    for (let i = 0; i < str.length; i++) {
+      result = result * 26 + (str.charCodeAt(i) - 'A'.charCodeAt(0) + 1);
+    }
+    return result;
+  }
+
+  // Convert the currentChar to its numeric equivalent in the base-26 system
+  const currentColumnNumber = fromBase26String(currentChar);
+
+  // Calculate the next column number by adding n to the current column number
+  const nextColumnNumber = currentColumnNumber + n;
+
+  // Convert the nextColumnNumber back to its corresponding character representation
+  const nextColumnChar = toBase26String(nextColumnNumber);
+
+  return nextColumnChar;
+};

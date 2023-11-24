@@ -6,6 +6,7 @@ import {
   IAbsenceTypeDocument,
   IScheduleDocument,
   IShiftDocument,
+  ITeamMembersObj,
   IUserAbsenceInfo,
   IUserReport,
   IUsersReport
@@ -51,7 +52,7 @@ export const timeclockReportByUsers = async (
   userIds: string[],
   models: IModels,
   queryParams: any
-) => {
+): Promise<IUserReport[]> => {
   const returnReport: any[] = [];
 
   const { startDate, endDate } = queryParams;
