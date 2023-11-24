@@ -1,4 +1,5 @@
 import { field } from '@erxes/api-utils/src';
+import { IUserDocument } from '@erxes/api-utils/src/types';
 import { Document, Schema } from 'mongoose';
 
 export interface ITimeClock {
@@ -46,9 +47,9 @@ export interface IAbsence {
   absenceTypeId?: string;
 
   absenceTimeType?: string;
-  totalHoursOfAbsence?: string;
-
-  requestDates?: string[];
+  requestDates: string[];
+  totalHoursOfAbsence: string;
+  absenceType?: string;
 }
 export interface IAbsenceType {
   name: string;
@@ -75,6 +76,8 @@ export interface ISchedule {
   status?: string;
   solved?: boolean;
   scheduleConfigId?: string;
+
+  shifts?: IShift[];
 }
 
 export interface IScheduleDocument extends ISchedule, Document {
@@ -491,4 +494,8 @@ export interface IReport {
   groupTotalMinsLate?: number;
   groupTotalAbsenceMins?: number;
   groupTotalMinsScheduled?: number;
+}
+
+export interface ITeamMembersObj {
+  [userId: string]: IUserDocument;
 }
