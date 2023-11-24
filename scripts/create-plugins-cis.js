@@ -40,6 +40,7 @@ var plugins = [
   { name: 'reactions', api: true },
   { name: 'segments', ui: true, api: true },
   { name: 'syncerkhet', ui: true, api: true },
+  { name: 'multierkhet', api: true, ui: true },
   { name: 'tags', ui: true, api: true },
   { name: 'salesplans', ui: true, api: true },
   { name: 'processes', ui: true, api: true },
@@ -71,7 +72,7 @@ var plugins = [
   { name: 'goals', api: true, ui: true },
   { name: 'msdynamic', api: true, ui: true },
   { name: 'dailyco', api: true, ui: true },
-  { name: 'zms', api: true, ui: true }
+  { name: 'zms', api: true, ui: true },  
 ];
 
 const pluginsMap = {};
