@@ -28,7 +28,7 @@ export const types = `
     syncedCustomer: String
   }
 
-  type manyErkhetRemainder {
+  type multiErkhetRemainder {
     _id: String!
     remainder: Int
     remainders: [JSON]

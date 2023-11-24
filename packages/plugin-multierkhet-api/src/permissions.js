@@ -1,11 +1,11 @@
 module.exports = {
   multierkhet: {
-    name: "manyerkhet",
-    description: "Many Erkhet",
+    name: "multierkhet",
+    description: "Multi Erkhet",
     actions: [
       {
         name: "multiErkhetConfig",
-        description: "Manage many erkhet config",
+        description: "Manage Multi Erkhet config",
       },
     ],
   },

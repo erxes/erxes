@@ -18,7 +18,7 @@ export const KEY_LABELS = {
 };
 
 export const menuMultierkhet = [
-  { title: 'Sync history', link: '/sync-many-erkhet-history' },
+  { title: 'Sync history', link: '/multi-erkhet-history' },
   {
     title: 'Check deals',
     link: '/check-many-synced-deals?dateType=firstOrMove'

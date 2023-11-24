@@ -12,8 +12,8 @@ module.exports = {
   },
   menus: [
     {
-      text: 'Sync Many Erkhet',
-      to: '/erxes-plugin-sync-many-erkhet/settings/general',
+      text: 'Sync Multi Erkhet',
+      to: '/erxes-plugin-multi-erkhet/settings/general',
       image: '/images/icons/erxes-04.svg',
       location: "settings",
       scope: "multierkhet",
@@ -21,8 +21,8 @@ module.exports = {
       permission: "multiErkhetConfig",
     },
     {
-      text: 'Sync Many Erkhet',
-      url: '/sync-many-erkhet-history',
+      text: 'Sync Multi Erkhet',
+      url: '/multi-erkhet-history',
       icon: 'icon-file-check-alt',
       location: "mainNavigation",
       scope: 'multierkhet',

@@ -139,44 +139,44 @@ const routes = () => {
   return (
     <React.Fragment>
       <Route
-        key="/erxes-plugin-sync-many-erkhet/settings/general"
+        key="/erxes-plugin-multi-erkhet/settings/general"
         exact={true}
-        path="/erxes-plugin-sync-many-erkhet/settings/general"
+        path="/erxes-plugin-multi-erkhet/settings/general"
         component={GeneralSetting}
       />
 
       <Route
-        key="/erxes-plugin-sync-many-erkhet/settings/stage"
+        key="/erxes-plugin-multi-erkhet/settings/stage"
         exact={true}
-        path="/erxes-plugin-sync-many-erkhet/settings/stage"
+        path="/erxes-plugin-multi-erkhet/settings/stage"
         component={StageSetting}
       />
 
       <Route
-        key="/erxes-plugin-sync-many-erkhet/settings/move-stage"
+        key="/erxes-plugin-multi-erkhet/settings/move-stage"
         exact={true}
-        path="/erxes-plugin-sync-many-erkhet/settings/move-stage"
+        path="/erxes-plugin-multi-erkhet/settings/move-stage"
         component={StageMoveSetting}
       />
 
       <Route
-        key="/erxes-plugin-sync-many-erkhet/settings/return-stage"
+        key="/erxes-plugin-multi-erkhet/settings/return-stage"
         exact={true}
-        path="/erxes-plugin-sync-many-erkhet/settings/return-stage"
+        path="/erxes-plugin-multi-erkhet/settings/return-stage"
         component={ReturnStageSetting}
       />
 
       <Route
-        key="/erxes-plugin-sync-many-erkhet/settings/pipeline"
+        key="/erxes-plugin-multi-erkhet/settings/pipeline"
         exact={true}
-        path="/erxes-plugin-sync-many-erkhet/settings/pipeline"
+        path="/erxes-plugin-multi-erkhet/settings/pipeline"
         component={PipelineSetting}
       />
 
       <Route
-        key="/sync-many-erkhet-history"
+        key="/multi-erkhet-history"
         exact={true}
-        path="/sync-many-erkhet-history"
+        path="/multi-erkhet-history"
         component={syncHistoryList}
       />
 

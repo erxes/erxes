@@ -55,7 +55,6 @@ class CheckSyncedDealsContainer extends React.Component<FinalProps, State> {
 
     // remove action
     const checkSynced = async ({ dealIds }, emptyBulk) => {
-      console.log(manyToCheckSynced, 'kkkkkkkkkkkkkkkkkkkkk');
       await manyToCheckSynced({
         variables: { ids: dealIds, type: 'deal' }
       })

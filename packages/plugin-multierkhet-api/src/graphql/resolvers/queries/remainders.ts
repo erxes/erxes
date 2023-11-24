@@ -9,7 +9,7 @@ import {
 import { getPureDate } from '@erxes/api-utils/src';
 
 const erkhetQueries = {
-  async manyErkhetRemainders(
+  async multiErkhetRemainders(
     _root,
     { productIds, stageId, pipelineId },
     { subdomain, models }: IContext
@@ -141,7 +141,7 @@ const erkhetQueries = {
     return result;
   },
 
-  async manyErkhetDebt(
+  async multiErkhetDebt(
     _root,
     {
       contentType,
