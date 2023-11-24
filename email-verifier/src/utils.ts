@@ -1,5 +1,5 @@
 import * as debug from 'debug';
-import * as requestify from 'requestify';
+import fetch from 'node-fetch';
 
 export const debugBase = debug('erxes-email-verifier:base');
 export const debugCrons = debug('erxes-email-verifier:crons');
@@ -40,22 +40,31 @@ export const sendRequest = async (
   `);
 
   try {
-    const response = await requestify.request(url, {
+    const options = {
       method,
-      headers: { 'Content-Type': 'application/json', ...(headers || {}) },
-      form,
-      body,
-      params
-    });
+      headers: { 'Content-Type': 'application/json', ...(headers || {}) }
+    } as any;
 
-    const responseBody = response.getBody();
+    if (method !== 'GET') {
+      options.body = JSON.stringify(body);
+    }
+    const response = await fetch(url, options);
 
-    debugBase(`
-      Success from : ${url}
-      responseBody: ${JSON.stringify(responseBody)}
-    `);
+    if (!response.ok) {
+      const errorBody = await response.text();
+      throw new Error(
+        `Request failed with status ${response.status}. Response body: ${errorBody}`
+      );
+    }
 
-    return responseBody;
+    const contentType = response.headers.get('content-type');
+    if (contentType && contentType.includes('application/json')) {
+      return response.json();
+    } else if (contentType && contentType.includes('text/html')) {
+      return response.text();
+    } else {
+      return response.text();
+    }
   } catch (e) {
     if (e.code === 'ECONNREFUSED' || e.code === 'ENOTFOUND') {
       throw new Error(errorMessage);
