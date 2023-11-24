@@ -10,13 +10,12 @@ import {
 import { sendRPCMessage, sendTRPCMessage } from '../../../messageBrokerErkhet';
 
 const checkSyncedMutations = {
-  async manyToCheckSynced(
+  async toMultiCheckSynced(
     _root,
     { ids, type }: { ids: string[]; type: string },
     { models, subdomain, res }: IContext
   ) {
     const configs = await models.Configs.getConfig('erkhetConfig', {});
-    console.log(configs);
 
     if (!configs || !Object.keys(configs)) {
       throw new Error('Erkhet config not found');
@@ -133,7 +132,6 @@ const checkSyncedMutations = {
     }
 
     for (const brand of Object.keys(idsByBrandId)) {
-      console.log(brand);
       const orderIds = idsByBrandId[brand];
       if (!orderIds.length) {
         continue;
@@ -142,8 +140,6 @@ const checkSyncedMutations = {
       orderIds.forEach(id => {
         results[id].mustBrands.push(brand);
       });
-
-      console.log(results);
 
       const config = configs[brand];
       const postData = {
@@ -182,13 +178,12 @@ const checkSyncedMutations = {
       });
     }
 
-    console.log('zzzzzzzzzzzzzzzzzzzz');
     const k = Object.keys(results).map(r => ({ ...results[r], _id: r }));
     console.log(k);
     return k;
   },
 
-  async manyToSyncDeals(
+  async toMultiSyncDeals(
     _root,
     {
       dealIds,
@@ -343,7 +338,7 @@ const checkSyncedMutations = {
     return result;
   },
 
-  async manyToSyncOrders(
+  async toMultiSyncOrders(
     _root,
     { orderIds }: { orderIds: string[] },
     { subdomain, user }: IContext

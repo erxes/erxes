@@ -181,30 +181,30 @@ const routes = () => {
       />
 
       <Route
-        key="/check-many-synced-deals"
+        key="/check-multi-synced-deals"
         exact={true}
-        path="/check-many-synced-deals"
+        path="/check-multi-synced-deals"
         component={checkSyncedDealList}
       />
 
       <Route
-        key="/check-many-pos-orders"
+        key="/check-multi-pos-orders"
         exact={true}
-        path="/check-many-pos-orders"
+        path="/check-multi-pos-orders"
         component={CheckSyncedOrderList}
       />
 
       <Route
-        key="/many-inventory-products"
+        key="/multi-inventory-products"
         exact={true}
-        path="/many-inventory-products"
+        path="/multi-inventory-products"
         component={InventoryProductList}
       />
 
       <Route
-        key="/many-inventory-category"
+        key="/multi-inventory-category"
         exact={true}
-        path="/many-inventory-category"
+        path="/multi-inventory-category"
         component={InventoryCategoryList}
       />
     </React.Fragment>

@@ -47,20 +47,20 @@ class CheckSyncedDealsContainer extends React.Component<FinalProps, State> {
 
   render() {
     const {
-      manyToCheckSynced,
-      manyToSyncDeals,
+      toMultiCheckSynced,
+      toMultiSyncDeals,
       checkSyncItemsQuery,
       checkSyncedDealsTotalCountQuery
     } = this.props;
 
     // remove action
     const checkSynced = async ({ dealIds }, emptyBulk) => {
-      await manyToCheckSynced({
+      await toMultiCheckSynced({
         variables: { ids: dealIds, type: 'deal' }
       })
         .then(response => {
           emptyBulk();
-          const statuses = response.data.manyToCheckSynced;
+          const statuses = response.data.toMultiCheckSynced;
 
           const unSyncedDealIds = (statuses.filter(s => !s.isSynced) || []).map(
             s => s._id
@@ -83,7 +83,7 @@ class CheckSyncedDealsContainer extends React.Component<FinalProps, State> {
     };
 
     const toSyncDeals = (dealIds, configStageId, dateType) => {
-      manyToSyncDeals({
+      toMultiSyncDeals({
         variables: { dealIds, configStageId, dateType }
       })
         .then(response => {
@@ -173,13 +173,13 @@ export default withProps<Props>(
     graphql<Props, CheckSyncedMutationResponse, { dealIds: string[] }>(
       gql(mutations.toCheckSynced),
       {
-        name: 'manyToCheckSynced'
+        name: 'toMultiCheckSynced'
       }
     ),
     graphql<Props, ToSyncDealsMutationResponse, { dealIds: string[] }>(
       gql(mutations.toSyncDeals),
       {
-        name: 'manyToSyncDeals'
+        name: 'toMultiSyncDeals'
       }
     )
   )(withRouter<IRouterProps>(CheckSyncedDealsContainer))

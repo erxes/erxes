@@ -21,9 +21,9 @@ export const menuMultierkhet = [
   { title: 'Sync history', link: '/multi-erkhet-history' },
   {
     title: 'Check deals',
-    link: '/check-many-synced-deals?dateType=firstOrMove'
+    link: '/check-multi-synced-deals?dateType=firstOrMove'
   },
-  { title: 'Check orders', link: '/check-many-pos-orders' },
-  { title: 'Check Category', link: '/many-inventory-category' },
-  { title: 'Check Products', link: '/many-inventory-products' }
+  { title: 'Check orders', link: '/check-multi-pos-orders' },
+  { title: 'Check Category', link: '/multi-inventory-category' },
+  { title: 'Check Products', link: '/multi-inventory-products' }
 ];

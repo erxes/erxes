@@ -72,7 +72,7 @@ class InventoryCategoryContainer extends React.Component<FinalProps, State> {
     const toSyncCategories = (action: string, categories: any[]) => {
       this.setState({ loading: true });
       this.props
-        .manyToSyncCategories({
+        .toMultiSyncCategories({
           variables: {
             brandId,
             action: action,
@@ -99,15 +99,15 @@ class InventoryCategoryContainer extends React.Component<FinalProps, State> {
     const toCheckCategories = () => {
       this.setState({ loading: true });
       this.props
-        .manyToCheckCategories({ variables: { brandId } })
+        .toMultiCheckCategories({ variables: { brandId } })
         .then(response => {
-          let data = response.data.manyToCheckCategories;
+          let data = response.data.toMultiCheckCategories;
 
           setSyncStatus(data, 'create');
           setSyncStatus(data, 'update');
           setSyncStatus(data, 'delete');
 
-          this.setState({ items: response.data.manyToCheckCategories });
+          this.setState({ items: response.data.toMultiCheckCategories });
           this.setState({ loading: false });
         })
         .catch(e => {
@@ -140,13 +140,13 @@ export default withProps<Props>(
     graphql<Props, ToCheckCategoriesMutationResponse, {}>(
       gql(mutations.toCheckCategories),
       {
-        name: 'manyToCheckCategories'
+        name: 'toMultiCheckCategories'
       }
     ),
     graphql<Props, ToSyncCategoriesMutationResponse, {}>(
       gql(mutations.toSyncCategories),
       {
-        name: 'manyToSyncCategories'
+        name: 'toMultiSyncCategories'
       }
     )
   )(withRouter<IRouterProps>(InventoryCategoryContainer))

@@ -32,37 +32,37 @@ export type CheckSyncedDealsTotalCountQueryResponse = {
 } & QueryResponse;
 
 export type CheckSyncedMutationResponse = {
-  manyToCheckSynced: (mutation: {
+  toMultiCheckSynced: (mutation: {
     variables: { ids: string[]; type: string };
   }) => Promise<any>;
 };
 
 export type ToSyncDealsMutationResponse = {
-  manyToSyncDeals: (mutation: {
+  toMultiSyncDeals: (mutation: {
     variables: { dealIds: string[]; configStageId: string; dateType: string };
   }) => Promise<any>;
 };
 
 export type ToCheckProductsMutationResponse = {
-  manyToCheckProducts: (mutation: {
+  toMultiCheckProducts: (mutation: {
     variables: { brandId: string };
   }) => Promise<any>;
 };
 
 export type ToCheckCategoriesMutationResponse = {
-  manyToCheckCategories: (mutation: {
+  toMultiCheckCategories: (mutation: {
     variables: { brandId: string };
   }) => Promise<any>;
 };
 
 export type ToSyncCategoriesMutationResponse = {
-  manyToSyncCategories: (mutation: {
+  toMultiSyncCategories: (mutation: {
     variables: { brandId: string; action: string; categories: any[] };
   }) => Promise<any>;
 };
 
 export type ToSyncProductsMutationResponse = {
-  manyToSyncProducts: (mutation: {
+  toMultiSyncProducts: (mutation: {
     variables: { brandId: string; action: string; products: any[] };
   }) => Promise<any>;
 };
@@ -76,7 +76,7 @@ export type CheckSyncedOrdersTotalCountQueryResponse = {
 } & QueryResponse;
 
 export type ToSyncOrdersMutationResponse = {
-  manyToSyncOrders: (mutation: {
+  toMultiSyncOrders: (mutation: {
     variables: { orderIds: string[] };
   }) => Promise<any>;
 };

@@ -49,8 +49,8 @@ class CheckSyncedOrdersContainer extends React.Component<FinalProps, State> {
 
   render() {
     const {
-      manyToCheckSynced,
-      manyToSyncOrders,
+      toMultiCheckSynced,
+      toMultiSyncOrders,
       checkSyncItemsQuery,
       checkSyncedOrdersTotalCountQuery,
       posListQuery
@@ -58,12 +58,12 @@ class CheckSyncedOrdersContainer extends React.Component<FinalProps, State> {
 
     // remove action
     const checkSynced = async ({ orderIds }, emptyBulk) => {
-      await manyToCheckSynced({
+      await toMultiCheckSynced({
         variables: { ids: orderIds, type: 'pos' }
       })
         .then(response => {
           emptyBulk();
-          const statuses = response.data.manyToCheckSynced;
+          const statuses = response.data.toMultiCheckSynced;
 
           const unSyncedOrderIds = (
             statuses.filter(s => !s.isSynced) || []
@@ -88,11 +88,11 @@ class CheckSyncedOrdersContainer extends React.Component<FinalProps, State> {
     };
 
     const toSyncOrders = orderIds => {
-      manyToSyncOrders({
+      toMultiSyncOrders({
         variables: { orderIds }
       })
         .then(response => {
-          const { skipped, error, success } = response.data.manyToSyncOrders;
+          const { skipped, error, success } = response.data.toMultiSyncOrders;
           const changed = this.state.unSyncedOrderIds.filter(
             u => !orderIds.includes(u)
           );

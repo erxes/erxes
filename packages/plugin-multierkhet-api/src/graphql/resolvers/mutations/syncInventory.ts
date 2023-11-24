@@ -7,7 +7,7 @@ import {
 } from '../../../utils/consumeInventory';
 
 const inventoryMutations = {
-  async manyToCheckProducts(
+  async toMultiCheckProducts(
     _root,
     { brandId }: { brandId: string },
     { subdomain, models }: IContext
@@ -137,7 +137,7 @@ const inventoryMutations = {
     };
   },
 
-  async manyToCheckCategories(
+  async toMultiCheckCategories(
     _root,
     { brandId }: { brandId: string },
     { subdomain, models }: IContext
@@ -220,7 +220,7 @@ const inventoryMutations = {
     };
   },
 
-  async manyToSyncCategories(
+  async toMultiSyncCategories(
     _root,
     {
       brandId,
@@ -285,7 +285,7 @@ const inventoryMutations = {
     }
   },
 
-  async manyToSyncProducts(
+  async toMultiSyncProducts(
     _root,
     {
       brandId,
