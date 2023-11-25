@@ -12,6 +12,7 @@ import Loader from "@/components/ui/loader"
 
 import { useDiscover } from "../../hooks/useDiscover"
 import { IKbCategory, IKbParentCategory, Topic } from "../../types"
+import EmptyList from "./EmptyList"
 import ArticleList from "./article/ArticleList"
 
 const Knowledgebase = () => {
@@ -25,6 +26,16 @@ const Knowledgebase = () => {
     : topics
     ? topics.color
     : "#4f46e5"
+
+  if (!topics || Object.keys(topics).length === 0) {
+    console.log("wtf")
+
+    return (
+      <div className="px-9 w-full">
+        <EmptyList />
+      </div>
+    )
+  }
 
   if (loading) {
     return (
@@ -108,7 +119,7 @@ const Knowledgebase = () => {
                 {topic.description}
               </p>
             </div>
-            <div className="mx-auto mt-5 grid grid-cols-1 gap-x-8 gap-y-5 sm:mt-5 lg:mx-0 lg:max-w-none lg:grid-cols-3 ">
+            <div className="mx-auto mt-5 grid grid-cols-1 gap-x-9 gap-y-5 sm:mt-5 lg:mx-0 lg:max-w-none lg:grid-cols-3 ">
               {topic.childrens.map((child: IKbCategory, childIndex: number) => (
                 <>{renderArticle(child, childIndex)}</>
               ))}

@@ -11,7 +11,7 @@ type Props = {
 
 const CategoryList = ({ categoryId, topics }: Props) => {
   return (
-    <div className="pl-9 w-4/12 max-w-sm">
+    <div className="pl-9 w-3/12 max-w-sm">
       {topics?.parentCategories.map(
         (topic: IKbParentCategory, index: number) => (
           <ul key={index} className="text-slate-700 text-sm mb-5">

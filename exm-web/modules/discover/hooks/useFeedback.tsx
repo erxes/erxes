@@ -39,7 +39,6 @@ export const useFeedback = ({
       userIds: [currentUser?._id],
       ...generatePaginationParams({ page, perPage }),
     },
-    fetchPolicy: "cache-and-network",
   })
 
   const {

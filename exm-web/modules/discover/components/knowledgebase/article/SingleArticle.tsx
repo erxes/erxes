@@ -31,12 +31,14 @@ const SingleArticle = ({ articleId }: Props) => {
               {article.title}
             </h3>
 
-            <p className="mt-5 prose max-w-none">{article.summary}</p>
+            <p className="mt-5 prose max-w-none text-[14px]">
+              {article.summary}
+            </p>
           </div>
           <div className="my-5">
             <div
               dangerouslySetInnerHTML={{ __html: article.content }}
-              className="prose mt-5 max-w-none"
+              className="prose mt-5 max-w-none text-[14px]"
             />
           </div>
           <div className="relative w-full mt-auto pt-5 flex items-center justify-between text-[14px]">

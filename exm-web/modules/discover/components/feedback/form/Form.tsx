@@ -69,7 +69,7 @@ const Form = ({ type, currentStep, setCurrentStep, setToggleView }: Props) => {
           name: `[${type}] ${title}`,
           description: message,
           attachments,
-          stageId: stage._id,
+          stageId: stage?._id,
           customFieldsData: [],
         })
       }
@@ -135,18 +135,24 @@ const Form = ({ type, currentStep, setCurrentStep, setToggleView }: Props) => {
     setMessage(e.target.value)
   }
 
-  const handleSignatureChange = () => {
-    if (currentUser.emailSignatures && currentUser.emailSignatures.length > 0) {
-      setSignature(!signature)
+  const handleSignatureChange = (e: any) => {
+    if (
+      currentUser?.emailSignatures &&
+      currentUser.emailSignatures.length > 0
+    ) {
+      if (e.target.checked) {
+        setSignature(true)
 
-      if (signature) {
-        setMessage((prevMessage) => prevMessage.split("\n\n\n")[0])
+        const signatureText =
+          currentUser.emailSignatures[0]?.signature
+            ?.replace(/<[^>]*>/g, "")
+            .replace(/\n\s*/g, "\n") || ""
+
+        setMessage(`${message}\n\n${signatureText.trim()}\n`)
       } else {
-        const signatureText = currentUser.emailSignatures[0].signature
-          .replace(/<[^>]*>/g, "")
-          .replace(/\n\s*/g, "\n")
+        setSignature(false)
 
-        setMessage(`${message}\n\n\n${signatureText.trim()}`)
+        setMessage((prevMessage) => prevMessage.replace(/\n\n[\s\S]*\n/, "\n"))
       }
     } else {
       toast({

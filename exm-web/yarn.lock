@@ -4550,10 +4550,10 @@ watchpack@2.4.0:
     glob-to-regexp "^0.4.1"
     graceful-fs "^4.1.2"
 
-wavesurfer.js@^7.4.2:
-  version "7.4.2"
-  resolved "https://registry.yarnpkg.com/wavesurfer.js/-/wavesurfer.js-7.4.2.tgz#59f5c87193d4eeeb199858688ddac1ad7ba86b3a"
-  integrity sha512-4pNQ1porOCUBYBmd2F1TqVuBnB2wBPipaw2qI920zYLuPnada0Rd1CURgh8HRuPGKxijj2iyZDFN2UZwsaEuhA==
+wavesurfer.js@^7.4.6:
+  version "7.4.6"
+  resolved "https://registry.yarnpkg.com/wavesurfer.js/-/wavesurfer.js-7.4.6.tgz#5fd381c773d2e184b2def732fabe41aa3ce767e5"
+  integrity sha512-uQDw132ucreP6rqJKou9vWe59QPZQ4PGftQml58JbwMzna4pJjUxXDZv+ubV7LJBkX1kaO/9BEmBRpmR64O3rQ==
 
 which-boxed-primitive@^1.0.2:
   version "1.0.2"

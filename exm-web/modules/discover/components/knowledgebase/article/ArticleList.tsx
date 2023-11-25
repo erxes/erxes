@@ -50,7 +50,6 @@ const ArticleList = ({ categoryId, topicId, searchValue }: Props) => {
             <li className="flex justify-between gap-x-6 p-5 bg-white mb-5 rounded-md">
               <div className="group relative w-full">
                 <h3 className="text-[18px] font-semibold leading-5 text-gray-900 group-hover:text-gray-600">
-                  <span className="absolute inset-0" />
                   {article.title}
                 </h3>
                 <p className="mt-5 line-clamp-3 text-[14px] leading-5 text-gray-600 text-justify">
