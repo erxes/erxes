@@ -30,7 +30,9 @@ const AbsenceAction = ({ queryParams, absenceTypes }: Props) => {
           </Button>
         </DialogTrigger>
         <DialogContent>
-          <DialogHeader>Create Request</DialogHeader>
+          <DialogHeader>
+            <DialogTitle>Create Request</DialogTitle>
+          </DialogHeader>
           <AbsenceRequest
             queryParams={queryParams}
             absenceTypes={absenceTypes}

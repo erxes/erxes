@@ -12,6 +12,7 @@ import {
   Dialog,
   DialogContent,
   DialogHeader,
+  DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
 
@@ -54,7 +55,9 @@ const CheckInOutRequest = (props: Props) => {
   const renderRequestForm = () => {
     return (
       <DialogContent>
-        <DialogHeader>Create Check In/Out Request</DialogHeader>
+        <DialogHeader>
+          <DialogTitle>Create Check In/Out Request</DialogTitle>
+        </DialogHeader>
 
         <div className="flex flex-col gap-2">
           <>

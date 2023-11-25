@@ -3,9 +3,19 @@ import { currentUserAtom } from "@/modules/JotaiProiveder"
 import { useQuery } from "@apollo/client"
 import { useAtomValue } from "jotai"
 
+import { generatePaginationParams } from "@/lib/utils"
+
 import { queries } from "../graphql"
 
-export const useFeedback = ({ pipelineId }: { pipelineId: string }) => {
+export const useFeedback = ({
+  page,
+  perPage,
+  pipelineId,
+}: {
+  page?: string
+  perPage?: string
+  pipelineId: string
+}) => {
   const currentUser = useAtomValue(currentUserAtom)
 
   const {
@@ -27,16 +37,32 @@ export const useFeedback = ({ pipelineId }: { pipelineId: string }) => {
     variables: {
       pipelineId,
       userIds: [currentUser?._id],
+      ...generatePaginationParams({ page, perPage }),
+    },
+    fetchPolicy: "cache-and-network",
+  })
+
+  const {
+    data: ticketsCount,
+    loading: ticketsCountLoading,
+    error: ticketsCountError,
+  } = useQuery(queries.ticketsTotalCount, {
+    variables: {
+      pipelineId,
+      userIds: [currentUser?._id],
     },
   })
 
-  const stages = (stagesDate || []).stages ? (stagesDate || []).stages : []
+  const stage = (stagesDate || []).stages ? (stagesDate || []).stages[0] : []
 
   const tickets = (ticketsDate || []).tickets ? (ticketsDate || []).tickets : []
 
+  const totalCount = ticketsCount ? ticketsCount.ticketsTotalCount : 0
+
   return {
-    stages,
+    stage,
     tickets,
-    loading: stagesLoading || ticketsLoading,
+    totalCount,
+    loading: stagesLoading || ticketsLoading || ticketsCountLoading,
   }
 }

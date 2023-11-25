@@ -1,41 +1,46 @@
 "use client"
 
-import React, { useState } from "react"
+import React from "react"
 import Link from "next/link"
-import { useCategory } from "@/modules/discover/hooks/useCategory"
-import { useDiscover } from "@/modules/discover/hooks/useDiscover"
+import { IKbCategory, IKbParentCategory, Topic } from "@/modules/discover/types"
 
 type Props = {
   categoryId: string
-  topic: any
+  topics: Topic
 }
 
-const CategoryList = ({ categoryId, topic }: Props) => {
+const CategoryList = ({ categoryId, topics }: Props) => {
   return (
-    <div className="w-3/12 px-10 py-5 flex flex-col gap-5">
-      {topic?.parentCategories?.map((n, index: number) => (
-        <div key={index}>
-          <Link href={`/discover/category?catId=${n._id}`}>
-            <h1 className="text-[16px] font-medium">
-              {index + 1} . {n.title}
-            </h1>
-          </Link>
-          <ul className="pl-8 pt-2">
-            {n.childrens.map((i, index: number) => (
+    <div className="pl-9 w-4/12 max-w-sm">
+      {topics?.parentCategories.map(
+        (topic: IKbParentCategory, index: number) => (
+          <ul key={index} className="text-slate-700 text-sm mb-5">
+            <li>
               <Link
-                href={`/discover/category?catId=${i._id}`}
-                key={index}
-                className={`flex justify-between py-2 ${
-                  categoryId === i._id ? "#551A8B font-bold" : ""
+                href={`/discover/category?catId=${topic._id}`}
+                className={`block py-1 text-[14px] ${
+                  categoryId === topic._id ? "font-bold" : "font-bold"
                 }`}
               >
-                <p>{i.title}</p>
-                <p>{i.numOfArticles}</p>
+                {index + 1}. {topic.title}
               </Link>
+            </li>
+            {topic.childrens.map((child: IKbCategory, childIndex: number) => (
+              <li key={childIndex} className="ml-4">
+                <Link
+                  href={`/discover/category?catId=${child._id}`}
+                  className={`group flex justify-between gap-2 items-center py-1 dark:hover:text-slate-300 ${
+                    categoryId === child._id ? "font-semibold" : "font-medium"
+                  }`}
+                >
+                  <p>{child.title}</p>
+                  <p>{child.numOfArticles}</p>
+                </Link>
+              </li>
             ))}
           </ul>
-        </div>
-      ))}
+        )
+      )}
     </div>
   )
 }

@@ -6,18 +6,17 @@ import { useSetAtom } from "jotai"
 
 import { useToast } from "@/components/ui/use-toast"
 
-import { setCurrentUserAtom, setExmAtom } from "../JotaiProiveder"
-import { queries } from "./graphql"
+import { setExmAtom } from "./JotaiProiveder"
+import { queries } from "./auth/graphql"
 
-const Configs = ({ children }: { children: ReactNode }) => {
-  const setCurrentUser = useSetAtom(setCurrentUserAtom)
+const ExmProvider = ({ children }: { children: ReactNode }) => {
   const setExm = useSetAtom(setExmAtom)
   const [loadingConfigs, setLoadingConfigs] = useState(true)
   const { onError } = useToast()
 
-  useQuery(queries.currentUser, {
+  useQuery(queries.exmGets, {
     onCompleted: (data) => {
-      setCurrentUser(data?.currentUser)
+      setExm(data?.exmGet)
       setLoadingConfigs(false)
     },
     onError: (error) => {
@@ -33,4 +32,4 @@ const Configs = ({ children }: { children: ReactNode }) => {
   }
 }
 
-export default Configs
+export default ExmProvider

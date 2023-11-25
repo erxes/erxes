@@ -1,15 +1,18 @@
-import React from "react"
 import { useMutation } from "@apollo/client"
 
 import { toast } from "@/components/ui/use-toast"
 
 import { mutations } from "../graphql"
 
-const userFeedbackMutation = () => {
+const userFeedbackMutation = ({
+  callBack,
+}: {
+  callBack: (result: string) => void
+}) => {
   const [ticketsAdd, { loading: loadingTicket }] = useMutation(
     mutations.ticketsAdd,
     {
-      refetchQueries: ["tickets"],
+      refetchQueries: ["tickets", "ticketsTotalCount"],
     }
   )
 
@@ -23,6 +26,8 @@ const userFeedbackMutation = () => {
           description: `Successfully sent your feedback`,
           variant: "success",
         })
+
+        callBack("success")
       })
       .catch((error) => {
         toast({

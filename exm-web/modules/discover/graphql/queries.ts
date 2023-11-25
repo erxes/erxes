@@ -149,6 +149,8 @@ export const articlesQuery = gql`
 `
 
 const ticketsCommonParams = `
+  $page: Int,
+  $perPage: Int,
   $companyIds: [String],
   $parentId: String,
   $customerIds: [String],
@@ -179,6 +181,8 @@ const ticketsCommonParams = `
 `
 
 const ticketsCommonParamDefs = `
+  page: $page,
+  perPage : $perPage,
   companyIds: $companyIds,
   customerIds: $customerIds,
   parentId: $parentId,
@@ -336,7 +340,7 @@ const tickets = gql`
   }
 `
 
-const ticketsTotalCount = `
+const ticketsTotalCount = gql`
   query ticketsTotalCount(
     $pipelineId: String,
     $stageId: String,
@@ -363,4 +367,5 @@ export default {
   articlesQuery,
   stages,
   tickets,
+  ticketsTotalCount,
 }

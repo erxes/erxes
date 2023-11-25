@@ -1,65 +1,69 @@
-"use client"
-
-import React, { useContext, useState } from "react"
+import React, { useState } from "react"
 import { useRouter } from "next/navigation"
 import { exmAtom } from "@/modules/JotaiProiveder"
 import { useAtomValue } from "jotai"
 import { Search } from "lucide-react"
 
-import { KnowledgebaseContext } from "./KnowledgebaseProvider"
+import { useDiscover } from "../../hooks/useDiscover"
 
 const KnowledgebaseHeader = () => {
   const exm = useAtomValue(exmAtom)
-  const { knowledgebase } = useContext(KnowledgebaseContext)
 
   const router = useRouter()
-  const [searchValue, setSearchValue] = useState("")
+  const [searchValue, setSearchValue] = useState<string>("")
 
-  const handleSearchInput = (e: any) => {
-    setSearchValue(e.target.value)
-  }
+  const { topics } = useDiscover({ id: exm?.knowledgeBaseTopicId! })
 
   const onSubmit = () => {
-    router.push(`/discover/article?searchValue=${searchValue}`)
+    router.replace(`?searchValue=${searchValue}`)
   }
 
-  const onEnterPress = (e: any) => {
+  const handleKeyDown = (e: any) => {
     if (e.keyCode === 13 && e.shiftKey === false) {
       e.preventDefault()
       onSubmit()
     }
   }
 
-  const color = knowledgebase?.color
-    ? knowledgebase?.color
-    : exm?.appearance.headerColor
-    ? exm?.appearance.headerColor
-    : "#4F33AF"
-
-  const description = knowledgebase?.description
-    ? knowledgebase?.description
-    : exm?.webDescription
-    ? exm?.webDescription
+  const title = exm ? exm.webName : topics ? topics.title : "Exm"
+  const description = exm
+    ? exm.webDescription
+    : topics
+    ? topics.description
     : ""
+  const color = exm
+    ? exm.appearance.primaryColor
+    : topics
+    ? topics.color
+    : "#4f46e5"
+
+  console.log(color)
 
   return (
-    <div className={`flex flex-col bg-[${color}] p-9 text-[#fff] gap-3`}>
-      <div className="text-[18px] font-normal leading-7">
-        <span className="text-[#A251E1] font-medium">
-          {exm?.webName || "Exm"}{" "}
-        </span>
-        Guide
-      </div>
-      <div className="font-normal text-[12px] leading-6">{description}</div>
-      <div className="flex justify-between items-center px-4 py-2 border border-white rounded-md w-5/5">
-        <input
-          type="text"
-          placeholder="Search for articles"
-          className="bg-transparent w-full"
-          onChange={handleSearchInput}
-          onKeyDown={onEnterPress}
-        />
-        <Search color="#fff" size={16} />
+    <div
+      className={`relative isolate p-9`}
+      style={{
+        backgroundColor: color,
+      }}
+    >
+      <h1 className="text-[18px] font-bold tracking-tight text-gray-200">
+        {title} User Guide
+      </h1>
+      <p className="mt-5 text-[14px] leading-5 text-gray-200 line-clamp-3">
+        {description}
+      </p>
+      <div className="mt-5 flex items-center justify-center gap-x-6">
+        <div className="w-full py-2.5 px-3.5 flex justify-between items-center text-gray-200 border rounded">
+          <input
+            type="text"
+            placeholder="Search for articles"
+            className="text-sm font-semibold pr-3.5 w-full bg-transparent"
+            onChange={(e) => setSearchValue(e.target.value)}
+            value={searchValue}
+            onKeyDown={handleKeyDown}
+          />
+          <Search size={16} className="cursor-pointer" onClick={onSubmit} />
+        </div>
       </div>
     </div>
   )

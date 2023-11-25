@@ -1,6 +1,3 @@
-"use client"
-
-import React from "react"
 import dynamic from "next/dynamic"
 
 const ArticleDetail = dynamic(
@@ -8,8 +5,6 @@ const ArticleDetail = dynamic(
     import("@/modules/discover/components/knowledgebase/article/ArticleDetail")
 )
 
-const page = () => {
+export default function IndexPage() {
   return <ArticleDetail />
 }
-
-export default page

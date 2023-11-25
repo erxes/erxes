@@ -8,16 +8,15 @@ type Props = {
 }
 
 const FeedbackRow = ({ ticket }: Props) => {
-  const matches = ticket.name.match(/\b\w+\b/g)
-
-  const name = matches[1]
-  const type = matches[0]
+  const matches = ticket.name.match(/\[(.*?)\]\s(.*)/)
 
   return (
     <>
       <TableRow className="border-none">
-        <TableCell className="py-5">{name}</TableCell>
-        <TableCell className="py-5 capitalize">{type}</TableCell>
+        <TableCell className="py-5">{matches ? matches[2] : "-"}</TableCell>
+        <TableCell className="py-5 capitalize">
+          {matches ? matches[1] : "-"}
+        </TableCell>
         <TableCell className="py-5">
           {dayjs(ticket.createdAt).format("MMM DD YYYY")}
         </TableCell>
@@ -26,7 +25,7 @@ const FeedbackRow = ({ ticket }: Props) => {
             ? dayjs(ticket.closeDate).format("MMM DD YYYY")
             : "-"}
         </TableCell>
-        <TableCell className="py-5">{ticket.stage.name}</TableCell>
+        <TableCell className="py-5">{ticket?.stage?.name || "-"}</TableCell>
       </TableRow>
     </>
   )

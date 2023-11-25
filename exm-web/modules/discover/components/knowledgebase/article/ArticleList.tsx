@@ -1,59 +1,80 @@
+"use client"
+
 import React from "react"
 import Link from "next/link"
-import { useArticles } from "@/modules/discover/hooks/useArticles"
+import { IArticle, IKbArticle } from "@/modules/discover/types"
 import dayjs from "dayjs"
 
 import Loader from "@/components/ui/loader"
 
+import { useArticles } from "../../../hooks/useArticles"
+import EmptyList from "../EmptyList"
+
 type Props = {
-  searchValue?: any
   categoryId?: string
   topicId?: string
+  searchValue?: string
 }
 
-const ArticleList = ({ searchValue, categoryId, topicId }: Props) => {
+const ArticleList = ({ categoryId, topicId, searchValue }: Props) => {
   const { articles, loading } = useArticles({
-    searchValue: searchValue || "",
-    categoryIds: [categoryId!],
-    topicId: topicId || "",
+    topicId,
+    categoryId,
+    searchValue,
   })
 
   if (loading) {
-    return <Loader />
+    return (
+      <div className="flex w-full h-[200px] justify-center">
+        <Loader />
+      </div>
+    )
+  }
+  if (articles.length === 0) {
+    return (
+      <div className="px-9 w-full">
+        <EmptyList />
+      </div>
+    )
   }
 
   return (
-    <div className="w-full px-10 py-5 flex flex-col gap-5">
-      {articles.map((article, index: number) => (
-        <Link
-          key={index}
-          href={`/discover/article?id=${article._id}&catId=${categoryId}`}
-        >
-          <div className="bg-white p-5 flex flex-col gap-4">
-            <h6 className="text-[16px] font-semibold">{article.title}</h6>
-            <p className="text-[14px] font-normal line-clamp-4 text-justify">
-              {article.summary}
-            </p>
-            <div className="text-[14px] font-normal flex justify-between">
-              <p>written by {article.createdUser.details.fullName}</p>
-              <div className="flex gap-2 items-center">
-                <p>{dayjs(article.createdDate).format("MMM DD YYYY")}</p>
-                <p>viewed {article.viewCount}</p>
-                <div className="flex -space-x-4 rtl:space-x-reverse">
-                  {[1, 2, 3, 4].map((i) => (
-                    <img
-                      key={i}
-                      className="w-5 h-5 border-2 border-white rounded-full dark:border-gray-800"
-                      src="/docs/images/people/profile-picture-5.jpg"
-                      alt=""
-                    />
-                  ))}
+    <div className="px-9 w-full">
+      <ul role="list">
+        {articles.map((article: any, index: number) => (
+          <Link
+            key={index}
+            href={`/discover/article?id=${article._id}&catId=${article.categoryId}`}
+            className="cursor-pointer"
+          >
+            <li className="flex justify-between gap-x-6 p-5 bg-white mb-5 rounded-md">
+              <div className="group relative w-full">
+                <h3 className="text-[18px] font-semibold leading-5 text-gray-900 group-hover:text-gray-600">
+                  <span className="absolute inset-0" />
+                  {article.title}
+                </h3>
+                <p className="mt-5 line-clamp-3 text-[14px] leading-5 text-gray-600 text-justify">
+                  {article.summary}
+                </p>
+                <div className="relative w-full mt-auto pt-5 flex items-center justify-between text-[14px]">
+                  <span className="flex items-center space-x-1">
+                    Written by
+                    <span className="capitalize ml-1">
+                      {article.createdUser.details.fullName || ""}
+                    </span>
+                  </span>
+                  <span className="flex items-center space-x-1">
+                    <p className="text-gray-600">
+                      {dayjs(article.createdDate).format("MMM DD YYYY")}
+                    </p>
+                    <p className="text-gray-600">Viewed {article.viewCount}</p>
+                  </span>
                 </div>
               </div>
-            </div>
-          </div>
-        </Link>
-      ))}
+            </li>
+          </Link>
+        ))}
+      </ul>
     </div>
   )
 }

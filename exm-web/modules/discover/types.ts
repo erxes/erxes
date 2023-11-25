@@ -82,3 +82,51 @@ export interface IArticle {
 export type ArticlesQueryResponse = {
   knowledgeBaseArticles: IArticle[]
 } & QueryResponse
+
+export interface IStage {
+  _id: string
+  name: string
+  type: string
+  probability: string
+  index?: number
+  itemId?: string
+  amount?: any
+  itemsTotalCount: number
+  formId: string
+  pipelineId: string
+  status: string
+  order: number
+}
+
+export interface ITicket {
+  source?: string
+  _id: string
+  name: string
+  order: number
+  stageId: string
+  boardId?: string
+  closeDate: Date
+  description: string
+  amount: number
+  modifiedAt: Date
+  assignedUserIds?: string[]
+  assignedUsers: IUser[]
+  createdUser?: IUser
+  stage?: IStage
+  isWatched?: boolean
+  priority?: string
+  hasNotified?: boolean
+  isComplete: boolean
+  reminderMinute: number
+  labelIds: string[]
+  status?: string
+  createdAt: Date
+  timeTrack: {
+    status: string
+    timeSpent: number
+    startDate?: string
+  }
+  customFieldsData?: {
+    [key: string]: any
+  }
+}

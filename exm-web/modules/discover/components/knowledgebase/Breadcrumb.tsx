@@ -36,9 +36,9 @@ const Breadcrumb = ({ categories, selectedCat }: Props) => {
   }
 
   return (
-    <div className="mx-10 mt-5 flex items-center">
+    <div className="mx-9 my-5 flex items-center">
       <Link href="/discover">
-        <div className="flex">
+        <div className="flex items-center">
           <span className="inline-block text-[14px] cursor-pointer text-[#6c718b] mr-1">
             All categories
           </span>

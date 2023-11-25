@@ -169,6 +169,12 @@ const exmGets = gql`
       structure
       createdAt
       createdBy
+      structure
+      knowledgeBaseLabel
+      knowledgeBaseTopicId
+      ticketLabel
+      ticketPipelineId
+      ticketBoardId
     }
   }
 `

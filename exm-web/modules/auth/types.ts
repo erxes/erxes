@@ -166,6 +166,11 @@ export type IExm = {
   vision: string
   webDescription: string
   webName: string
+  knowledgeBaseLabel?: string
+  knowledgeBaseTopicId?: string
+  ticketLabel?: string
+  ticketPipelineId?: string
+  ticketBoardId?: string
 }
 export type IUserDetails = IUserDetailsC
 export type IUserLinks = IUserLinksC

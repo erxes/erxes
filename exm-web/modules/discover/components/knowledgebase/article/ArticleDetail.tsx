@@ -1,54 +1,38 @@
 "use client"
 
-import React, { useContext } from "react"
+import React from "react"
 import { useSearchParams } from "next/navigation"
-import { useCategory } from "@/modules/discover/hooks/useCategory"
-import { useDiscover } from "@/modules/discover/hooks/useDiscover"
+import { exmAtom } from "@/modules/JotaiProiveder"
+import { useAtomValue } from "jotai"
 
 import Loader from "@/components/ui/loader"
 
-import Breadcrumb from "../Breadcrumb"
-import { KnowledgebaseContext } from "../KnowledgebaseProvider"
+import { useDiscover } from "../../../hooks/useDiscover"
 import CategoryList from "../category/CategoryList"
-import ArticleList from "./ArticleList"
 import SingleArticle from "./SingleArticle"
 
-type Props = {}
+const CategoryDetail = () => {
+  const exm = useAtomValue(exmAtom)
 
-const ArticleDetail = (props: Props) => {
   const searchParams = useSearchParams()
   const categoryId = searchParams.get("catId")
   const articleId = searchParams.get("id")
-  const searchValue = searchParams.get("searchValue")
 
-  const { knowledgebase } = useContext(KnowledgebaseContext)
+  const { topics, loading } = useDiscover({ id: exm?.knowledgeBaseTopicId! })
 
-  const { category } = useCategory({
-    id: categoryId || "",
-  })
-
-  if (!knowledgebase) {
-    return <Loader />
-  }
-
-  if (searchValue) {
+  if (loading) {
     return (
-      <ArticleList searchValue={searchValue!} topicId={knowledgebase._id} />
+      <div className="flex w-full h-[200px] justify-center">
+        <Loader />
+      </div>
     )
   }
-
   return (
-    <div className="flex flex-col">
-      <Breadcrumb
-        categories={knowledgebase?.parentCategories}
-        selectedCat={category}
-      />
-      <div className="flex">
-        <CategoryList categoryId={categoryId!} topic={knowledgebase} />
-        <SingleArticle articleId={articleId} />
-      </div>
+    <div className="flex w-full justify-between">
+      <CategoryList topics={topics} categoryId={categoryId!} />
+      <SingleArticle articleId={articleId!} />
     </div>
   )
 }
 
-export default ArticleDetail
+export default CategoryDetail

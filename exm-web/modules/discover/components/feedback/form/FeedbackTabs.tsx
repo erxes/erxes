@@ -1,5 +1,5 @@
 import React, { useState } from "react"
-import { useSearchParams } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
@@ -10,19 +10,31 @@ type Props = {
   setTab: (tab: string) => void
   currentStep: number
   setCurrentStep: (step: number) => void
+  setToggleView: (view: boolean) => void
 }
 
-const FeedbackTabs = ({ tab, setTab, currentStep, setCurrentStep }: Props) => {
+const FeedbackTabs = ({
+  tab,
+  setTab,
+  currentStep,
+  setCurrentStep,
+  setToggleView,
+}: Props) => {
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const type = searchParams.get("type")
+
   const style =
     "text-[#A1A1A1] data-[state=active]:text-primary data-[state=active]:border-[#5629B6] data-[state=active]:border-b-2 h-8 hover:font-medium hover:text-[#A1A1A1]"
 
-  const handleTabClick = (type: string) => {
-    setTab(type)
+  const handleTabClick = (tabType: string) => {
+    setTab(tabType)
     setCurrentStep(1)
+    router.push(`/discover?tab=feedback&view=form&type=${tabType}`)
   }
 
   return (
-    <Tabs defaultValue={tab || "feedback"}>
+    <Tabs defaultValue={type || "feedback"}>
       <TabsList className="w-full items-center border-b border-[#eee] h-7">
         <div className="items-center flex mr-auto h-[20px] ml-[35px]">
           <TabsTrigger
@@ -58,6 +70,7 @@ const FeedbackTabs = ({ tab, setTab, currentStep, setCurrentStep }: Props) => {
           type={tab}
           currentStep={currentStep}
           setCurrentStep={setCurrentStep}
+          setToggleView={setToggleView}
         />
       </TabsContent>
       <TabsContent
@@ -69,6 +82,7 @@ const FeedbackTabs = ({ tab, setTab, currentStep, setCurrentStep }: Props) => {
           type={tab}
           currentStep={currentStep}
           setCurrentStep={setCurrentStep}
+          setToggleView={setToggleView}
         />
       </TabsContent>
       <TabsContent
@@ -80,6 +94,7 @@ const FeedbackTabs = ({ tab, setTab, currentStep, setCurrentStep }: Props) => {
           type={tab}
           currentStep={currentStep}
           setCurrentStep={setCurrentStep}
+          setToggleView={setToggleView}
         />
       </TabsContent>
     </Tabs>

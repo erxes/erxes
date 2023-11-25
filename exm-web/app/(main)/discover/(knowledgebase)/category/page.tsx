@@ -1,4 +1,3 @@
-import React from "react"
 import dynamic from "next/dynamic"
 
 const CategoryDetail = dynamic(
@@ -8,8 +7,6 @@ const CategoryDetail = dynamic(
     )
 )
 
-const page = () => {
+export default function IndexPage() {
   return <CategoryDetail />
 }
-
-export default page

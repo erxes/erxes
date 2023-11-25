@@ -1,6 +1,11 @@
 import React from "react"
+import { useRouter, useSearchParams } from "next/navigation"
+import { exmAtom } from "@/modules/JotaiProiveder"
+import { useFeedback } from "@/modules/discover/hooks/useFeedback"
 import EmptyTable from "@/modules/timeclock/component/EmptyTable"
+import { useAtomValue } from "jotai"
 
+import { Button } from "@/components/ui/button"
 import Loader from "@/components/ui/loader"
 import Pagination from "@/components/ui/pagination"
 import {
@@ -11,18 +16,30 @@ import {
   TableRow,
 } from "@/components/ui/table"
 
-import { useFeedback } from "../../../hooks/useFeedback"
-import FeedbackAction from "../action/FeedbackAction"
 import FeedbackRow from "./FeedbackRow"
 import FeedbackTableFooter from "./FeedbackTableFooter"
 
-const FeedbackList = () => {
-  const { tickets, loading } = useFeedback({
-    pipelineId: "KKDqVWAU53tjUb9ecefLs",
+type Props = {
+  queryParams: any
+  setToggleView: (view: boolean) => void
+}
+
+const FeedbackList = ({ queryParams, setToggleView }: Props) => {
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const currentParams = Object.fromEntries(searchParams)
+  const params = new URLSearchParams(currentParams)
+
+  const exm = useAtomValue(exmAtom)
+
+  const { tickets, totalCount, loading } = useFeedback({
+    ...queryParams,
+    pipelineId: exm?.ticketPipelineId!,
   })
 
+  const color = exm ? exm.appearance.primaryColor : "#4f46e5"
+
   const list = ["Name", "Type", "Created", "Closed", "Status"]
-  const queryParams = { page: 1, perPage: 10 }
 
   const renderTableBody = () => {
     return (
@@ -39,7 +56,7 @@ const FeedbackList = () => {
       return <Loader />
     }
 
-    if (tickets.length === 0) {
+    if (totalCount === 0) {
       return <EmptyTable />
     }
 
@@ -66,14 +83,32 @@ const FeedbackList = () => {
   }
 
   return (
-    <div className="flex flex-col justify-between h-full pt-2">
+    <div className="flex flex-col justify-between h-full gap-2">
+      <div className="flex justify-end mb-2">
+        <Button
+          onClick={() => {
+            setToggleView(true)
+
+            params.set("view", "form")
+
+            router.push(`?${params.toString()}`, {
+              scroll: false,
+            })
+          }}
+          style={{
+            backgroundColor: color,
+          }}
+        >
+          Send Feedback
+        </Button>
+      </div>
       {renderTable()}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between mt-auto">
         <FeedbackTableFooter
           queryParams={queryParams}
-          totalCount={tickets.length}
+          totalCount={totalCount}
         />
-        <Pagination count={tickets.length} />
+        <Pagination count={totalCount} />
       </div>
     </div>
   )

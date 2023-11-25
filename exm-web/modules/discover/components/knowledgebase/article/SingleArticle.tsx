@@ -1,44 +1,60 @@
+"use client"
+
 import React from "react"
-import { useArticle } from "@/modules/discover/hooks/useArticle"
 import dayjs from "dayjs"
 
 import Loader from "@/components/ui/loader"
 
+import { useArticle } from "../../../hooks/useArticle"
+
 type Props = {
-  articleId: any
+  articleId: string
 }
 
 const SingleArticle = ({ articleId }: Props) => {
   const { article, loading } = useArticle(articleId)
 
   if (loading) {
-    return <Loader />
+    return (
+      <div className="flex w-full h-[200px] justify-center">
+        <Loader />
+      </div>
+    )
   }
 
   return (
-    <div className="bg-white w-9/12 px-10 py-5 flex flex-col  gap-4">
-      <div className="text-[14px] font-normal flex justify-between">
-        <p className="capitalize">
-          written by {article.createdUser?.details?.fullName}
-        </p>
-        <div className="flex gap-2 items-center">
-          <p>{dayjs(article.createdDate).format("MMM DD YYYY")}</p>
-          <p>viewed {article.viewCount}</p>
-          <div className="flex -space-x-4 rtl:space-x-reverse">
-            {[1, 2, 3, 4].map((i) => (
-              <img
-                key={i}
-                className="w-5 h-5 border-2 border-white rounded-full dark:border-gray-800"
-                src="/docs/images/people/profile-picture-5.jpg"
-                alt=""
-              />
-            ))}
+    <div className="px-9 w-full">
+      <div className="flex justify-between p-5 bg-white mb-5 rounded-md">
+        <div className="flex flex-col group w-full divide-y">
+          <div>
+            <h3 className="w-full text-[18px] font-semibold leading-5 text-gray-900">
+              {article.title}
+            </h3>
+
+            <p className="mt-5 prose max-w-none">{article.summary}</p>
+          </div>
+          <div className="my-5">
+            <div
+              dangerouslySetInnerHTML={{ __html: article.content }}
+              className="prose mt-5 max-w-none"
+            />
+          </div>
+          <div className="relative w-full mt-auto pt-5 flex items-center justify-between text-[14px]">
+            <span className="flex items-center space-x-1">
+              Written by
+              <span className="capitalize ml-1">
+                {article?.createdUser?.details.fullName}
+              </span>
+            </span>
+            <span className="flex items-center space-x-1">
+              <p className="text-gray-600">
+                {dayjs(article.createdDate).format("MMM DD YYYY")}
+              </p>
+              <p className="text-gray-600">Viewed {article.viewCount}</p>
+            </span>
           </div>
         </div>
       </div>
-      <h1 className="text-[16px] font-semibold">{article.title}</h1>
-
-      <div dangerouslySetInnerHTML={{ __html: article.content }} />
     </div>
   )
 }

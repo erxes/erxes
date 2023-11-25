@@ -12,6 +12,7 @@ import {
   Dialog,
   DialogContent,
   DialogHeader,
+  DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
@@ -199,7 +200,9 @@ const TimeclockEdit = ({ timeclock }: Props) => {
   const renderEditForm = () => {
     return (
       <DialogContent>
-        <DialogHeader>Edit Shift</DialogHeader>
+        <DialogHeader>
+          <DialogTitle>Edit Shift</DialogTitle>
+        </DialogHeader>
         <Label /> SHIFT START
         <div className="flex gap-2 justify-between">
           <RadioGroup

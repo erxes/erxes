@@ -11,11 +11,11 @@ const FeedbackForm = ({ setToggleView }: Props) => {
   const [tab, setTab] = useState("feedback")
   const [currentStep, setCurrentStep] = useState(1)
 
-  const steps = ["Write", "Check", "Send"]
+  const steps = ["Write", "Check", "Done"]
 
-  if (currentStep === steps.length + 1) {
-    setToggleView(false)
-  }
+  //   if (currentStep === steps.length + 1) {
+  //     setToggleView(false)
+  //   }
 
   return (
     <div className="h-full pt-2 flex flex-col justify-between">
@@ -42,6 +42,7 @@ const FeedbackForm = ({ setToggleView }: Props) => {
           setTab={setTab}
           currentStep={currentStep}
           setCurrentStep={setCurrentStep}
+          setToggleView={setToggleView}
         />
       </div>
     </div>

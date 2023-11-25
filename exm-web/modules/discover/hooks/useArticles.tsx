@@ -4,32 +4,28 @@ import { queries } from "../graphql"
 
 export const useArticles = ({
   searchValue,
-  id,
   topicId,
-  categoryIds,
+  categoryId,
 }: {
   searchValue?: string
-  id?: string
   topicId?: string
-  categoryIds?: string[]
+  categoryId?: string
 }) => {
-  const {
-    data: articlesDate,
-    loading: articlesLoading,
-    error: articlesError,
-  } = useQuery(queries.articlesQuery, {
-    variables: {
-      searchValue,
-      _id: id,
-      topicId,
-      categoryIds,
-    },
+  const variables = {
+    ...(searchValue && { searchValue }),
+    ...(topicId && { topicId }),
+    ...(categoryId && { categoryIds: [categoryId] }),
+  }
+
+  const { data, loading, error } = useQuery(queries.articlesQuery, {
+    variables,
   })
-  const articles = (articlesDate || {}).clientPortalKnowledgeBaseArticles
-    ? (articlesDate || {}).clientPortalKnowledgeBaseArticles
+
+  const articles = (data || {}).clientPortalKnowledgeBaseArticles
+    ? (data || {}).clientPortalKnowledgeBaseArticles
     : {}
   return {
     articles,
-    loading: articlesLoading,
+    loading,
   }
 }
