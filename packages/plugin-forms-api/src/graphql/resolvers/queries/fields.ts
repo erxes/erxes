@@ -246,10 +246,12 @@ const fieldsGroupQueries = {
     {
       contentType,
       isDefinedByErxes,
+      codes,
       config
     }: {
       contentType: string;
       isDefinedByErxes: boolean;
+      codes: string[];
       config;
     },
     { commonQuerySelector, models, subdomain }: IContext
@@ -273,6 +275,10 @@ const fieldsGroupQueries = {
 
     if (isDefinedByErxes !== undefined) {
       query.isDefinedByErxes = isDefinedByErxes;
+    }
+
+    if (codes && codes.length > 0) {
+      query.code = { $in: codes };
     }
 
     const groups = await models.FieldsGroups.find(query).sort({ order: 1 });
