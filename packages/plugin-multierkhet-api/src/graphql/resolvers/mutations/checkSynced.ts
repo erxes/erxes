@@ -4,6 +4,7 @@ import { getMoveData, getPostData } from '../../../utils/ebarimtData';
 import { generateModels, IContext } from '../../../connectionResolver';
 import {
   sendCardsMessage,
+  sendCoreMessage,
   sendPosMessage,
   sendProductsMessage
 } from '../../../messageBroker';
@@ -68,10 +69,22 @@ const checkSyncedMutations = {
     }
 
     const configBrandIds = Object.keys(configs);
+
+    const brands = await sendCoreMessage({
+      subdomain,
+      action: 'brands.find',
+      data: { _id: { $in: configBrandIds } },
+      isRPC: true
+    });
+    const brandById = {};
+    for (const brand of brands) {
+      brandById[brand._id] = brand;
+    }
+
     const idsByBrandId = {};
 
     for (const tr of trs) {
-      let trItems = [];
+      let trItems: any[] = [];
 
       switch (type) {
         case 'deal':
@@ -82,9 +95,9 @@ const checkSyncedMutations = {
           break;
       }
 
-      for (const productData of tr.productsData) {
+      for (const productData of trItems) {
         // not tickUsed product not sent
-        if (!productData.tickUsed) {
+        if (type === 'deal' && !productData.tickUsed) {
           continue;
         }
 
@@ -167,20 +180,20 @@ const checkSyncedMutations = {
 
       (Object.keys(perData) || []).forEach(_id => {
         const res: any = perData[_id] || {};
-
-        results[_id][brand] = {
-          xid: _id,
-          isSynced: res.isSynced,
-          syncedDate: res.date,
-          syncedBillNumber: res.bill_number,
-          syncedCustomer: res.customer
-        };
+        if (res.isSynced) {
+          results[_id][brand] = {
+            _id,
+            isSynced: res.isSynced,
+            syncedDate: res.date,
+            syncedBillNumber: res.bill_number,
+            syncedCustomer: res.customer,
+            brandName: brand === 'noBrand' ? 'noBrand' : brandById[brand] || ''
+          };
+        }
       });
     }
 
-    const k = Object.keys(results).map(r => ({ ...results[r], _id: r }));
-    console.log(k);
-    return k;
+    return Object.keys(results).map(r => ({ ...results[r], _id: r }));
   },
 
   async toMultiSyncDeals(

@@ -92,8 +92,7 @@ class CheckSyncedOrders extends React.Component<Props, State> {
       loading,
       unSyncedOrderIds,
       toSyncOrders,
-      posList,
-      syncedOrderInfos
+      posList
     } = this.props;
     const tablehead = [
       'Number',
@@ -101,6 +100,7 @@ class CheckSyncedOrders extends React.Component<Props, State> {
       'Created At',
       'Paid At',
       'Synced',
+      'Brand',
       'Synced Date',
       'Synced bill Number',
       'Synced customer',

@@ -29,6 +29,8 @@ class Row extends React.Component<Props> {
 
   render() {
     const { order, toggleBulk, isChecked, isUnsynced, syncedInfo } = this.props;
+    const mustBrands = [...(syncedInfo.mustBrands || [])];
+    const brandLen = mustBrands.length || 1;
 
     const onChange = e => {
       if (toggleBulk) {
@@ -48,52 +50,82 @@ class Row extends React.Component<Props> {
     const onTrClick = () => {};
 
     const { number, createdAt, totalAmount, paidDate } = order;
+    const firstBrand = mustBrands[0] || '';
+    const firstInfo = syncedInfo[firstBrand] || {};
+    const otherBrands = mustBrands.splice(1, brandLen) || [];
+
+    const renderOtherTr = () => {
+      if (!otherBrands.length) {
+        return <></>;
+      }
+
+      return otherBrands.map(ob => {
+        const otherInfo = syncedInfo[ob] || {};
+
+        return (
+          <tr key={`${otherInfo._id}_${ob}`}>
+            <td>{otherInfo.brandName || ''}</td>
+            <td>
+              {otherInfo.syncedDate &&
+                dayjs(otherInfo.syncedDate || '').format('ll')}
+            </td>
+            <td>{otherInfo.syncedBillNumber || ''}</td>
+            <td>{otherInfo.syncedCustomer || ''}</td>
+          </tr>
+        );
+      });
+    };
 
     const trigger = (
-      <tr onClick={onTrClick}>
-        <td onClick={onClick}>
-          <FormControl
-            checked={isChecked}
-            componentClass="checkbox"
-            onChange={onChange}
-          />
-        </td>
-        <td>{number}</td>
-        <td>{totalAmount.toLocaleString()}</td>
-        <td>{dayjs(createdAt).format('lll')}</td>
-        <td>{dayjs(paidDate).format('lll')}</td>
-        <td onClick={onClick}>
-          {isUnsynced && (
+      <>
+        <tr onClick={onTrClick}>
+          <td onClick={onClick} rowSpan={brandLen}>
             <FormControl
-              checked={isUnsynced}
+              checked={isChecked}
               componentClass="checkbox"
               onChange={onChange}
             />
-          )}
-        </td>
-        <td>
-          {syncedInfo?.syncedDate &&
-            dayjs(syncedInfo?.syncedDate || '').format('ll')}
-        </td>
-        <td>{syncedInfo?.syncedBillNumber || ''}</td>
-        <td>{syncedInfo?.syncedCustomer || ''}</td>
-        <td>
-          {isUnsynced && (
-            <Tip text="Sync">
-              <Button btnStyle="link" onClick={onClickSync} icon="sync" />
-            </Tip>
-          )}
-          {isUnsynced === false && syncedInfo.syncedDate && (
-            <Tip text="ReSync">
-              <Button
-                btnStyle="link"
-                onClick={onClickSync}
-                icon="sync-exclamation"
+          </td>
+          <td rowSpan={brandLen}>{number}</td>
+          <td rowSpan={brandLen}>{totalAmount.toLocaleString()}</td>
+          <td rowSpan={brandLen}>{dayjs(createdAt).format('lll')}</td>
+          <td rowSpan={brandLen}>{dayjs(paidDate).format('lll')}</td>
+          <td onClick={onClick} rowSpan={brandLen}>
+            {isUnsynced && (
+              <FormControl
+                checked={isUnsynced}
+                componentClass="checkbox"
+                onChange={onChange}
               />
-            </Tip>
-          )}
-        </td>
-      </tr>
+            )}
+          </td>
+
+          <td>{firstInfo.brandName || ''}</td>
+          <td>
+            {firstInfo?.syncedDate &&
+              dayjs(firstInfo?.syncedDate || '').format('ll')}
+          </td>
+          <td>{firstInfo?.syncedBillNumber || ''}</td>
+          <td>{firstInfo?.syncedCustomer || ''}</td>
+          <td rowSpan={brandLen}>
+            {isUnsynced && (
+              <Tip text="Sync">
+                <Button btnStyle="link" onClick={onClickSync} icon="sync" />
+              </Tip>
+            )}
+            {isUnsynced === false && firstInfo.syncedDate && (
+              <Tip text="ReSync">
+                <Button
+                  btnStyle="link"
+                  onClick={onClickSync}
+                  icon="sync-exclamation"
+                />
+              </Tip>
+            )}
+          </td>
+        </tr>
+        {renderOtherTr()}
+      </>
     );
 
     return (

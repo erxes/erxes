@@ -63,24 +63,25 @@ class CheckSyncedOrdersContainer extends React.Component<FinalProps, State> {
       })
         .then(response => {
           emptyBulk();
-          const statuses = response.data.toMultiCheckSynced;
+          const syncedOrderInfos: any[] = [];
+          const items: any[] = response.data.toMultiCheckSynced;
 
-          const unSyncedOrderIds = (
-            statuses.filter(s => !s.isSynced) || []
-          ).map(s => s._id);
-          const syncedOrderInfos = {};
-          const syncedOrders = statuses.filter(s => s.isSynced) || [];
+          const unSyncedOrderIds: string[] = items
+            .filter(item => {
+              const brands = item.mustBrands || [];
+              for (const b of brands) {
+                if (!item[b]) {
+                  return true;
+                }
+              }
+              return false;
+            })
+            .map(i => i._id);
 
-          syncedOrders.forEach(item => {
-            syncedOrderInfos[item._id] = {
-              syncedBillNumber: item.syncedBillNumber || '',
-              syncedDate: item.syncedDate || '',
-              syncedCustomer: item.syncedCustomer || ''
-            };
+          items.forEach(item => {
+            syncedOrderInfos[item._id] = item;
           });
-
           this.setState({ unSyncedOrderIds, syncedOrderInfos });
-          Alert.success('Check finished');
         })
         .catch(e => {
           Alert.error(e.message);
@@ -180,13 +181,13 @@ export default withProps<Props>(
     graphql<Props, CheckSyncedMutationResponse, { orderIds: string[] }>(
       gql(mutations.toCheckSynced),
       {
-        name: 'toCheckSynced'
+        name: 'toMultiCheckSynced'
       }
     ),
     graphql<Props, ToSyncOrdersMutationResponse, { orderIds: string[] }>(
       gql(mutations.toSyncOrders),
       {
-        name: 'toSyncOrders'
+        name: 'toMultiSyncOrders'
       }
     ),
 

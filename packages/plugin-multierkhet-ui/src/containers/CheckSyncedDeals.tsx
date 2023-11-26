@@ -60,20 +60,23 @@ class CheckSyncedDealsContainer extends React.Component<FinalProps, State> {
       })
         .then(response => {
           emptyBulk();
-          const statuses = response.data.toMultiCheckSynced;
+          const items = response.data.toMultiCheckSynced;
+          const unSyncedDealIds: string[] = items
+            .filter(item => {
+              const brands = item.mustBrands || [];
+              for (const b of brands) {
+                if (!item[b]) {
+                  return true;
+                }
+              }
+              return false;
+            })
+            .map(i => i._id);
 
-          const unSyncedDealIds = (statuses.filter(s => !s.isSynced) || []).map(
-            s => s._id
-          );
-          const syncedDealInfos = {};
-          const syncedDeals = statuses.filter(s => s.isSynced) || [];
+          const syncedDealInfos: any[] = [];
 
-          syncedDeals.forEach(item => {
-            syncedDealInfos[item._id] = {
-              syncedBillNumber: item.syncedBillNumber || '',
-              syncedDate: item.syncedDate || '',
-              syncedCustomer: item.syncedCustomer || ''
-            };
+          items.forEach(item => {
+            syncedDealInfos[item._id] = item;
           });
           this.setState({ unSyncedDealIds, syncedDealInfos });
         })
