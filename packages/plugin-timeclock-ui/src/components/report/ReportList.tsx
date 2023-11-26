@@ -180,7 +180,8 @@ function ReportList(props: Props) {
     const bichilTable = loadDynamicComponent('bichilReportTable', {
       reportType,
       queryParams,
-      isCurrentUserAdmin
+      isCurrentUserAdmin,
+      getPagination
     });
 
     if (bichilTable) {
@@ -208,6 +209,7 @@ function ReportList(props: Props) {
   const renderSelectionBar = () => {
     const onTypeSelect = type => {
       router.setParams(history, { reportType: type.value });
+      router.removeParams(history, 'page', 'perPage');
       setType(type.value);
     };
 
