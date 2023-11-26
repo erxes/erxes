@@ -14,7 +14,12 @@ export const checkRemainders = async (
 
   if (config.erkhetConfig && config.erkhetConfig.getRemainder) {
     const configs = config.erkhetConfig;
-    if (configs && configs.url && configs.apiKey && configs.apiSecret) {
+    if (
+      configs &&
+      configs.getRemainderApiUrl &&
+      configs.apiKey &&
+      configs.apiSecret
+    ) {
       try {
         let account = configs.account;
         let location = configs.location;
@@ -30,8 +35,7 @@ export const checkRemainders = async (
 
         if (account && location) {
           const response = await sendRequest({
-            url: `${configs.url ||
-              'https://erkhet.biz'}/get-api/?kind=remainder`,
+            url: configs.getRemainderApiUrl,
             method: 'GET',
             params: {
               kind: 'remainder',

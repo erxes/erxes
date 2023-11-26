@@ -5,8 +5,7 @@ import { IPosDocument } from './models/definitions/pos';
 import {
   sendCoreMessage,
   sendPricingMessage,
-  sendProductsMessage,
-  sendSyncerkhetMessage
+  sendProductsMessage
 } from './messageBroker';
 import { USER_FIELDS } from './contants';
 
@@ -46,7 +45,7 @@ export const getConfigData = async (subdomain: string, pos: IPosDocument) => {
   }
 
   if (pos.erkhetConfig && pos.erkhetConfig.isSyncErkhet) {
-    const configs = await sendSyncerkhetMessage({
+    const configs = await sendCoreMessage({
       subdomain,
       action: 'getConfig',
       data: { code: 'ERKHET', defaultValue: {} },
@@ -55,7 +54,7 @@ export const getConfigData = async (subdomain: string, pos: IPosDocument) => {
 
     data.pos.erkhetConfig = {
       ...pos.erkhetConfig,
-      url: process.env.ERKHET_URL,
+      getRemainderApiUrl: configs.getRemainderApiUrl,
       apiKey: configs.apiKey,
       apiSecret: configs.apiSecret,
       apiToken: configs.apiToken
@@ -310,12 +309,7 @@ export const unfetchOrderInfo = async (req, res) => {
   const models = await generateModels(subdomain);
 
   const { orderId, token } = req.body;
-  let erkhetConfig = await sendSyncerkhetMessage({
-    subdomain,
-    action: 'getConfig',
-    data: { code: 'ERKHET', defaultValue: {} },
-    isRPC: true
-  });
+  let erkhetConfig = await getConfig(subdomain, 'ERKHET', {});
 
   if (
     !erkhetConfig ||
