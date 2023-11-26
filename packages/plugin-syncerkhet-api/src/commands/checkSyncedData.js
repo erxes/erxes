@@ -111,7 +111,7 @@ const command = async () => {
         }
 
         if (erkhetTrs.length > 1) {
-          console.log(`Multi Erkhet> id: ${deal._id}, number: ${deal.number}`);
+          console.log(`many Erkhet> id: ${deal._id}, number: ${deal.number}`);
           continue;
         }
 
@@ -194,7 +194,7 @@ const command = async () => {
         }
 
         if (erkhetTrs.length > 1) {
-          console.log(`Multi Erkhet> id: ${order._id}, number: ${order.number}`);
+          console.log(`many Erkhet> id: ${order._id}, number: ${order.number}`);
           continue;
         }
 
