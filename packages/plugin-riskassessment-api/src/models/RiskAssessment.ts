@@ -697,7 +697,12 @@ export const loadRiskAssessments = (models: IModels, subdomain: string) => {
           $project: {
             _id: 0,
             ids: 1,
-            averageScore: { $round: ['$averageScore', 2] },
+            averageScore: {
+              $subtract: [
+                { $add: ['$averageScore', 0.005] },
+                { $mod: [{ $add: ['$averageScore', 0.005] }, 0.01] }
+              ]
+            },
             submittedAssessmentCount: 1,
             totalCount: 1
           }

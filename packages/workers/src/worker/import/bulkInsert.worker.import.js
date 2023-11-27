@@ -12,7 +12,11 @@ try {
 }
 
 const getWorkerFile = () => {
-  const filePath = path.resolve(__dirname, `./bulkInsert.worker.ts`);
+  let filePath = path.resolve(__dirname, `./bulkInsert.worker.js`);
+
+  if (process.env.NODE_ENV !== 'production') {
+    filePath = path.resolve(__dirname, `./bulkInsert.worker.ts`);
+  }
 
   return filePath;
 };

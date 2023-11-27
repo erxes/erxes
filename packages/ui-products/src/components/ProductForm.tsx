@@ -1,3 +1,18 @@
+import SelectCompanies from '@erxes/ui-contacts/src/companies/containers/SelectCompanies';
+import { Row } from '@erxes/ui-inbox/src/settings/integrations/styles';
+import SelectBrands from '@erxes/ui/src/brands/containers/SelectBrands';
+import ActionButtons from '@erxes/ui/src/components/ActionButtons';
+import AutoCompletionSelect from '@erxes/ui/src/components/AutoCompletionSelect';
+import Button from '@erxes/ui/src/components/Button';
+import EditorCK from '@erxes/ui/src/components/EditorCK';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import CommonForm from '@erxes/ui/src/components/form/Form';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import Icon from '@erxes/ui/src/components/Icon';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import Tip from '@erxes/ui/src/components/Tip';
+import Uploader from '@erxes/ui/src/components/Uploader';
 import {
   FormColumn,
   FormWrapper,
@@ -8,32 +23,17 @@ import {
   IButtonMutateProps,
   IFormProps
 } from '@erxes/ui/src/types';
-import { IProduct, IProductCategory, IUom, IVariant } from '../types';
-import { TAX_TYPES, TYPES } from '../constants';
-import { BarcodeItem, TableBarcode } from '../styles';
 import {
   extractAttachment,
   generateCategoryOptions
 } from '@erxes/ui/src/utils';
-
-import ActionButtons from '@erxes/ui/src/components/ActionButtons';
-import Button from '@erxes/ui/src/components/Button';
-import CategoryForm from '../containers/CategoryForm';
-import CommonForm from '@erxes/ui/src/components/form/Form';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import EditorCK from '@erxes/ui/src/components/EditorCK';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import Icon from '@erxes/ui/src/components/Icon';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import React from 'react';
-import { Row } from '@erxes/ui-inbox/src/settings/integrations/styles';
-import SelectCompanies from '@erxes/ui-contacts/src/companies/containers/SelectCompanies';
-import Tip from '@erxes/ui/src/components/Tip';
-import Uploader from '@erxes/ui/src/components/Uploader';
-import AutoCompletionSelect from '@erxes/ui/src/components/AutoCompletionSelect';
 import { __ } from '@erxes/ui/src/utils/core';
+import React from 'react';
+import { TAX_TYPES, TYPES } from '../constants';
+import CategoryForm from '../containers/CategoryForm';
 import { queries } from '../graphql';
+import { BarcodeItem, TableBarcode } from '../styles';
+import { IProduct, IProductCategory, IUom, IVariant } from '../types';
 
 type Props = {
   product?: IProduct;
@@ -56,6 +56,7 @@ type State = {
   subUoms: any[];
   taxType: string;
   taxCode: string;
+  scopeBrandIds: string[];
   categoryId: string;
   code: string;
   category?: IProductCategory;
@@ -79,6 +80,7 @@ class Form extends React.Component<Props, State> {
       subUoms,
       taxType,
       taxCode,
+      scopeBrandIds,
       code,
       categoryId
     } = product;
@@ -101,6 +103,7 @@ class Form extends React.Component<Props, State> {
       subUoms: subUoms ? subUoms : [],
       taxType,
       taxCode,
+      scopeBrandIds,
       code: code || '',
       categoryId
     };
@@ -169,6 +172,7 @@ class Form extends React.Component<Props, State> {
       description,
       uom,
       subUoms,
+      scopeBrandIds,
       code,
       categoryId
     } = this.state;
@@ -183,6 +187,7 @@ class Form extends React.Component<Props, State> {
       ...finalValues,
       code,
       categoryId,
+      scopeBrandIds,
       attachment,
       attachmentMore,
       barcodes,
@@ -389,6 +394,10 @@ class Form extends React.Component<Props, State> {
     });
   };
 
+  onChangeBrand = (brandIds: string[]) => {
+    this.setState({ scopeBrandIds: brandIds });
+  };
+
   renderBarcodes = () => {
     const { barcodes, variants, attachmentMore } = this.state;
     if (!barcodes.length) {
@@ -511,6 +520,7 @@ class Form extends React.Component<Props, State> {
       barcodeDescription,
       taxType,
       taxCode,
+      scopeBrandIds,
       code,
       categoryId,
       maskStr
@@ -682,6 +692,16 @@ class Form extends React.Component<Props, State> {
             </FormGroup>
           </FormColumn>
           <FormColumn>
+            <FormGroup>
+              <ControlLabel>Brand</ControlLabel>
+              <SelectBrands
+                label={__('Choose brands')}
+                onSelect={brandIds => this.onChangeBrand(brandIds as string[])}
+                initialValue={scopeBrandIds}
+                multi={true}
+                name="selectedBrands"
+              />
+            </FormGroup>
             <FormGroup>
               <ControlLabel>Featured image</ControlLabel>
               <Uploader

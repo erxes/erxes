@@ -4,17 +4,10 @@ import * as redis from 'redis';
 // load environment variables
 dotenv.config();
 
-const {
-  REDIS_HOST = 'localhost',
-  REDIS_PORT = 6379,
-  REDIS_PASSWORD,
-  NODE_ENV
-}: {
-  REDIS_HOST?: string;
-  REDIS_PORT?: number;
-  REDIS_PASSWORD?: string;
-  NODE_ENV?: string;
-} = process.env;
+const REDIS_HOST = process.env.REDIS_HOST || 'localhost';
+const REDIS_PORT = process.env.REDIS_PORT || 6379;
+const REDIS_PASSWORD = process.env.REDIS_PASSWORD;
+const NODE_ENV = process.env.NODE_ENV || 'development';
 
 let client;
 
