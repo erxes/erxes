@@ -5,6 +5,7 @@ import { IUser } from "@/modules/types"
 import { useAtomValue } from "jotai"
 import { Mic, Paperclip } from "lucide-react"
 
+import Loader from "@/components/ui/loader"
 import { AttachmentWithChatPreview } from "@/components/AttachmentWithChatPreview"
 import uploadHandler from "@/components/uploader/uploadHandler"
 
@@ -39,6 +40,7 @@ const Editor = ({ sendMessage, reply, setReply, showSidebar }: IProps) => {
   const { chatTyping } = useChatsMutation({ callBack })
 
   const [loading, setLoading] = useState(false)
+  const [voiceUploaded, setVoiceUploaded] = useState(false)
   const searchParams = useSearchParams()
   const chatId = searchParams.get("id")
 
@@ -114,7 +116,7 @@ const Editor = ({ sendMessage, reply, setReply, showSidebar }: IProps) => {
         {attachments && attachments.length > 0 && (
           <AttachmentWithChatPreview
             attachments={attachments || []}
-            className="pb-2 flex w-full gap-3"
+            className="pb-2 flex w-full gap-3 items-center"
             deleteImage={deleteImage}
           />
         )}
@@ -146,6 +148,7 @@ const Editor = ({ sendMessage, reply, setReply, showSidebar }: IProps) => {
       afterUpload: ({ response, fileInfo }) => {
         setLoading(false)
         setIsRecording(false)
+        setVoiceUploaded(true)
         setAttachments([
           ...(attachments || []),
           Object.assign({ url: response }, fileInfo),
@@ -161,7 +164,11 @@ const Editor = ({ sendMessage, reply, setReply, showSidebar }: IProps) => {
 
     if (type === "button") {
       return (
-        <button onClick={() => setIsRecording(true)}>
+        <button
+          onClick={() => setIsRecording(true)}
+          disabled={voiceUploaded}
+          className="disabled:cursor-not-allowed"
+        >
           <Mic size={18} />
         </button>
       )
@@ -190,6 +197,7 @@ const Editor = ({ sendMessage, reply, setReply, showSidebar }: IProps) => {
   return (
     <div className={`border-t py-4 px-[30px] ${showSidebar && "w-[72.5%]"}`}>
       {attachments && attachments.length > 0 && attachmentsSection()}
+      {loading && <Loader />}
       <div className="flex items-center justify-around gap-7 ">
         {isRecording ? (
           <AudioRecorder sendAudio={sendAudio} />

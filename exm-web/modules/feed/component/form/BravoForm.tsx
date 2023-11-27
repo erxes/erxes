@@ -185,7 +185,7 @@ const BravoForm = ({
               defaultValue={departmentOptions?.filter((departmentOption) =>
                 department.includes(departmentOption?.value)
               )}
-              placeholder="All departments"
+              placeholder="Choose department"
               isSearchable={true}
               onInputChange={setDepartmentSearchValue}
               onChange={(data) => onChangeMultiValue(data)}

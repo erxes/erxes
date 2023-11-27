@@ -166,7 +166,17 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
     )
   }
 
-  const renderComment = () => {
+  const renderComment = (triggerType: string) => {
+    const trigger =
+      triggerType === "button" ? (
+        <div className="cursor-pointer flex items-center py-3 px-4 hover:bg-[#F0F0F0]">
+          <MessageCircleIcon size={20} className="mr-1" color="black" />
+          Comment
+        </div>
+      ) : (
+        <div className="cursor-pointer">{commentsCount} comments</div>
+      )
+
     return (
       <>
         <Dialog
@@ -174,10 +184,7 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
           onOpenChange={() => setCommentOpen(!commentOpen)}
         >
           <DialogTrigger asChild={true} id="delete-form">
-            <div className="cursor-pointer flex items-center py-3 px-4 hover:bg-[#F0F0F0]">
-              <MessageCircleIcon size={20} className="mr-1" color="black" />
-              Comment
-            </div>
+            {trigger}
           </DialogTrigger>
 
           {commentOpen && (
@@ -337,7 +344,7 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
             <UsersList users={emojiReactedUser} />
           </DialogContent>
         </Dialog>
-        <div>{commentsCount} comments</div>
+        {renderComment("count")}
       </div>
     )
   }
@@ -403,7 +410,7 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
       return null
     }
 
-    if(departmentLoading) {
+    if (departmentLoading) {
       return <div />
     }
 
@@ -574,7 +581,7 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
               Like
             </div>
           </div>
-          {renderComment()}
+          {renderComment("button")}
         </CardFooter>
         {renderComments()}
       </Card>

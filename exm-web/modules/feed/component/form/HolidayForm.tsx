@@ -105,7 +105,6 @@ const HolidayForm = ({
 
   const typeOptions = [
     { label: "Ceremony", value: "ceremony" },
-    { label: "Birthday", value: "birthday" },
     { label: "Public holiday", value: "publicHoliday" },
   ]
 

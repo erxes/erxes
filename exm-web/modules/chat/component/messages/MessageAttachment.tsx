@@ -38,6 +38,7 @@ const MessageAttachmentSection = ({
               : "grid-cols-1"
           }`} gap-3 py-1`}
           isDownload={true}
+          isMe={isMe}
         />
       )}
       {files && (
@@ -45,6 +46,7 @@ const MessageAttachmentSection = ({
           attachments={files}
           className={`flex flex-col gap-3 py-1`}
           isDownload={true}
+          isMe={isMe}
         />
       )}
       {audios && (
