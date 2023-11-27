@@ -132,7 +132,8 @@ export const getPageList = async (
       );
 
       const integration = await models.Integrations.findOne({
-        instagramPageId: accounInfo.id
+        instagramPageId: accounInfo.id,
+        kind
       });
 
       pages.push({
