@@ -131,7 +131,15 @@ export const getPageList = async (
         accessToken
       );
 
-      pages.push({ id: accounInfo.id, name: accounInfo.username });
+      const integration = await models.Integrations.findOne({
+        instagramPageId: accounInfo.id
+      });
+
+      pages.push({
+        id: accounInfo.id,
+        name: accounInfo.username,
+        isUsed: integration ? true : false
+      });
     }
   }
 
