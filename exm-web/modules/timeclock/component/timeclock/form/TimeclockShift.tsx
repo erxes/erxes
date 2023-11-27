@@ -58,16 +58,16 @@ const TimeclockShift = () => {
   return (
     <Dialog open={open} onOpenChange={() => setOpen(!open)}>
       <DialogTrigger asChild={true}>
-        <button className="px-3 py-2 bg-[#3dcc38] text-[#fff] rounded-md">
+        <Button className="bg-[#3dcc38] text-[#fff] rounded-md">
           Start Shift
-        </button>
+        </Button>
       </DialogTrigger>
-      <DialogContent className="px-5 max-w-lg">
+      <DialogContent className="max-w-[200px]">
         <DialogHeader>
           <DialogTitle>Start Shift</DialogTitle>
         </DialogHeader>
         <div className="flex flex-col">
-          <div className="flex font-bold text-[86px] py-10 justify-center">
+          <div className="flex font-bold text-[24px] py-5 justify-center">
             <div>{currentTime}</div>
           </div>
           <Button

@@ -173,7 +173,7 @@ const ebarimtDetail = gql`
       ${commonDetailFields}
       description
       items {
-        ${orderItemFields}
+        ${orderItemBaseFields}
       }
       customer {
         ${customerFields}

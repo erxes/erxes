@@ -50,19 +50,9 @@ const generateFieldMaxValue = async (
           customFieldData => customFieldData?.field === fieldId
         );
 
-        const segment = await sendSegmentsMessage({
-          subdomain,
-          action: 'findOne',
-          data: {
-            'conditions.subSegmentId': _id
-          },
-          isRPC: true,
-          defaultValue: null
-        });
-
         return {
           checkValue: propertyValue,
-          segmentId: segment?._id,
+          segmentId: _id,
           currentValue: customFieldData.value
         };
       }
@@ -164,13 +154,11 @@ const assignmentQueries = {
             )) || {};
 
           if (currentValue >= checkValue) {
-            positiveSegments = positiveSegments.map(positiveSegment =>
-              positiveSegment.segmentId === segmentId
-                ? { ...positiveSegment, isIn: true }
-                : positiveSegment
+            positiveSegments = positiveSegments.filter(
+              positiveSegment => positiveSegment.segmentId !== segmentId
             );
 
-            const count = Math.floor(currentValue / checkValue);
+            const count = Math.ceil(currentValue / checkValue) - 1;
 
             if (positiveSegments.every(segment => segment.isIn)) {
               for (let i = 1; i <= count; i++) {
@@ -202,6 +190,12 @@ const assignmentQueries = {
                 }
               }
             }
+
+            positiveSegments = positiveSegments.map(positiveSegment =>
+              positiveSegment.segmentId === segmentId
+                ? { ...positiveSegment, isIn: true }
+                : positiveSegment
+            );
           }
         } else {
           if (positiveSegments.every(segment => segment.isIn)) {

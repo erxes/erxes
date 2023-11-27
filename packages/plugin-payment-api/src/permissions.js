@@ -40,16 +40,11 @@ module.exports = {
         description: 'All',
         use: [
           'showInvoices',
-          'createInvoice'
         ],
       },
       {
         name: 'showInvoices',
         description: 'Show invoices',
-      },
-      {
-        name: 'createInvoice',
-        description: 'Create invoice',
       },
     ],
   },

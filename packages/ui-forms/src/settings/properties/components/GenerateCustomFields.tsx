@@ -45,6 +45,7 @@ const STORAGE_KEY = `erxes_sidebar_section_config`;
 class GenerateGroup extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
+
     this.state = {
       editing: false,
       data: JSON.parse(JSON.stringify(props.data)),
@@ -244,9 +245,8 @@ class GenerateGroup extends React.Component<Props, State> {
 
   renderContent() {
     const { fieldGroup, isDetail, object = {} } = this.props;
-
     const { data } = this.state;
-    const { fields = [], isMultiple } = fieldGroup;
+    const { fields, isMultiple } = fieldGroup;
 
     const groupData = data[fieldGroup._id] || [];
     const isVisibleKey = isDetail ? 'isVisibleInDetail' : 'isVisible';
@@ -483,17 +483,12 @@ class GenerateGroup extends React.Component<Props, State> {
   };
 
   render() {
-    const { fieldGroup, fieldsGroups, isDetail, collapseCallback } = this.props;
-
-    const childGroups = fieldsGroups.filter(
-      gro => gro.parentId === fieldGroup._id
-    );
-
+    const { fieldGroup, isDetail, collapseCallback } = this.props;
     const isVisibleKey = isDetail ? 'isVisibleInDetail' : 'isVisible';
     let extraButtons = <></>;
     const visibleField = fieldGroup.fields.find(el => el.isVisible === true);
 
-    if (!visibleField && childGroups.length === 0) {
+    if (!visibleField) {
       return null;
     }
 
@@ -501,7 +496,7 @@ class GenerateGroup extends React.Component<Props, State> {
       return null;
     }
 
-    if (fieldGroup.fields.length === 0 && childGroups.length === 0) {
+    if (fieldGroup.fields.length === 0) {
       return null;
     }
 

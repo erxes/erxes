@@ -1,12 +1,12 @@
 import { cartAtom } from "@/store/cart.store"
-import { useAtomValue } from "jotai"
+import { useAtom } from "jotai"
 
 import { ScrollArea } from "@/components/ui/scroll-area"
 
 import CartItem from "../cartItem/cartItem.market"
 
 const Cart = () => {
-  const cart = useAtomValue(cartAtom)
+  const [cart] = useAtom(cartAtom)
   return (
     <>
       <div className="mb-1 flex rounded border-transparent bg-primary px-3.5 py-3 text-sm leading-4 text-white">

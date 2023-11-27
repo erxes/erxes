@@ -37,7 +37,6 @@ export interface IProduct {
   customFieldsData?: any;
   createdAt: Date;
   vendorId?: string;
-  scopeBrandIds: string[];
 
   attachment?: any;
   attachmentMore?: any[];

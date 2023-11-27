@@ -62,7 +62,7 @@ export const Sidebar = () => {
           >
             <Icon
               size={18}
-              color={activeClass === active ? "#ffffff" : color}
+              color={`${activeClass === active ? "#FFF" : color}`}
             />
           </div>
           {active === "chats" && unreadCount > 0 ? (
@@ -147,11 +147,10 @@ export const MAIN_NAVIGATION = [
   },
   {
     active: "discover",
-    href: "#",
+    href: "discover",
     value: "Discover",
     Icon: StarIcon,
     color: "#EA475D",
-    desc: "Coming soon",
     backgroundClass: "bg-[#EA475D]",
   },
   {

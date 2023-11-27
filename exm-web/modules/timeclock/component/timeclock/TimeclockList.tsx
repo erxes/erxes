@@ -4,6 +4,7 @@ import { useAtomValue } from "jotai"
 
 import Loader from "@/components/ui/loader"
 import Pagination from "@/components/ui/pagination"
+import { ScrollArea } from "@/components/ui/scroll-area"
 import {
   Table,
   TableBody,
@@ -13,6 +14,7 @@ import {
 } from "@/components/ui/table"
 
 import { useTimeclocksList } from "../../hooks/useTimeclocksList"
+import EmptyTable from "../EmptyTable"
 import TimeclockTableFooter from "../TimeclockTableFooter"
 import TimeClockRow from "./TimeclockRow"
 import TimeclockAction from "./action/TImeclockAction"
@@ -39,14 +41,6 @@ const TimeclockList = ({ queryParams }: any) => {
     })
 
   const renderTableBody = () => {
-    if (loading) {
-      return (
-        <div className="absolute left-1/2">
-          <Loader />
-        </div>
-      )
-    }
-
     return (
       <TableBody>
         {timeclocksMainList.map((timeclock, index) => (
@@ -56,10 +50,17 @@ const TimeclockList = ({ queryParams }: any) => {
     )
   }
 
-  return (
-    <div className="h-[94vh] mt-2 flex flex-col gap-3">
-      <TimeclockAction />
-      <div className="flex overflow-y-auto max-h-[70vh] scrollbar-hide">
+  const renderTable = () => {
+    if (loading) {
+      return <Loader />
+    }
+
+    if (timeclocksMainTotalCount === 0) {
+      return <EmptyTable />
+    }
+
+    return (
+      <div className="flex overflow-y-auto ">
         <Table>
           <TableHeader className="sticky top-0 bg-[#f8f9fa] border-none">
             <TableRow className="border-none">
@@ -73,15 +74,25 @@ const TimeclockList = ({ queryParams }: any) => {
               ))}
             </TableRow>
           </TableHeader>
+
           {renderTableBody()}
         </Table>
       </div>
-      <div className="flex items-center justify-between">
-        <TimeclockTableFooter
-          queryParams={queryParams}
-          totalCount={timeclocksMainTotalCount}
-        />
-        <Pagination count={timeclocksMainTotalCount} />
+    )
+  }
+
+  return (
+    <div className="h-[calc(100vh-66px)] p-9 pt-5 flex flex-col justify-between">
+      <div className="flex flex-col gap-2 h-full">
+        <TimeclockAction />
+        {renderTable()}
+        <div className="flex items-center justify-between mt-auto">
+          <TimeclockTableFooter
+            queryParams={queryParams}
+            totalCount={timeclocksMainTotalCount}
+          />
+          <Pagination count={timeclocksMainTotalCount} />
+        </div>
       </div>
     </div>
   )

@@ -1,4 +1,4 @@
-import { modeAtom, refetchOrderAtom, refetchUserAtom } from "@/store"
+import { modeAtom, refetchUserAtom } from "@/store"
 import { cartChangedAtom } from "@/store/cart.store"
 import { orderValuesAtom } from "@/store/order.store"
 import { ApolloError, useMutation } from "@apollo/client"
@@ -16,7 +16,6 @@ const useOrderCU = (onCompleted?: (id: string) => void) => {
 
   const origin = useAtomValue(modeAtom)
   const setRefetchUser = useSetAtom(refetchUserAtom)
-  const setRefetchOrder = useSetAtom(refetchOrderAtom)
   const setCartChanged = useSetAtom(cartChangedAtom)
 
   // TODO: get type default from config
@@ -38,7 +37,6 @@ const useOrderCU = (onCompleted?: (id: string) => void) => {
     onCompleted(data) {
       const { _id } = (data || {}).ordersAdd || {}
       setRefetchUser(true)
-      setRefetchOrder(true)
       setCartChanged(false)
       onCompleted && onCompleted(_id)
     },
@@ -53,7 +51,6 @@ const useOrderCU = (onCompleted?: (id: string) => void) => {
       onCompleted(data) {
         const { _id } = (data || {}).ordersEdit || {}
         setRefetchUser(true)
-        setRefetchOrder(true)
         setCartChanged(false)
         return onCompleted && onCompleted(_id)
       },

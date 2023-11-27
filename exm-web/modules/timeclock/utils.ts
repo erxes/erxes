@@ -1,5 +1,7 @@
 import dayjs from "dayjs"
 
+import { generatePaginationParams } from "@/lib/utils"
+
 import { IScheduleForm } from "./types"
 
 export const isCurrentUserAdmin = (currentUser: any) => {
@@ -35,16 +37,6 @@ export const returnDeviceTypes = (deviceType: any) => {
   }
 
   return [checkInDevice, checkOutDevice]
-}
-
-export const generatePaginationParams = (queryParams: {
-  page?: string
-  perPage?: string
-}) => {
-  return {
-    page: queryParams.page ? parseInt(queryParams.page, 10) : 1,
-    perPage: queryParams.perPage ? parseInt(queryParams.perPage, 10) : 20,
-  }
 }
 
 export const generateParams = (queryParams: any) => {

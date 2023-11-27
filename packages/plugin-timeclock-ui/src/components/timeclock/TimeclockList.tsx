@@ -281,8 +281,7 @@ function List(props: Props) {
   );
 
   const bichilTimeclockActionBar = loadDynamicComponent(
-    'bichilTimeclockActionBar',
-    { currentUserId: currentUser._id, queryParams, isCurrentUserAdmin }
+    'bichilTimeclockActionBar'
   );
 
   const actionBarLeft = (

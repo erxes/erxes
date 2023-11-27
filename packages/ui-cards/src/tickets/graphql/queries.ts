@@ -7,6 +7,8 @@ import {
 const commonParams = `
   $companyIds: [String],
   $parentId: String,
+  $page: Int,
+  $perPage : Int,
   $customerIds: [String],
   $assignedUserIds: [String],
   $closeDateType: String,
@@ -39,6 +41,8 @@ const commonParamDefs = `
   companyIds: $companyIds,
   customerIds: $customerIds,
   parentId: $parentId,
+  page: $page,
+  perPage: $perPage,
   assignedUserIds: $assignedUserIds,
   closeDateType: $closeDateType,
   priority: $priority,

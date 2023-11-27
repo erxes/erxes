@@ -1,10 +1,9 @@
 import React, { useState } from "react"
 import { currentUserAtom } from "@/modules/JotaiProiveder"
 import { useAbsenceMutation } from "@/modules/timeclock/hooks/useAbsenceMutation"
-import { useTimeclocksMutation } from "@/modules/timeclock/hooks/useTimeclocksMutations"
-import { IAttachment } from "@/modules/types"
 import dayjs from "dayjs"
 import { useAtomValue } from "jotai"
+import { Undo2 } from "lucide-react"
 import Select from "react-select"
 
 import { Button } from "@/components/ui/button"
@@ -13,9 +12,9 @@ import {
   Dialog,
   DialogContent,
   DialogHeader,
+  DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
-import { Label } from "@/components/ui/label"
 
 type Props = {}
 
@@ -33,9 +32,19 @@ const CheckInOutRequest = (props: Props) => {
     new Date()
   )
 
+  const [backTo, setBackTo] = useState(false)
+  const [time, setTime] = useState(dayjs().format("HH:mm"))
+
   const callBack = (result: string) => {
-    return
+    if (result === "success") {
+      setOpen(false)
+    }
   }
+
+  const timePart = time.split(":")
+
+  checkInOutDate?.setHours(Number(timePart[0]))
+  checkInOutDate?.setMinutes(Number(timePart[1]))
 
   const { checkInOutRequest, loading } = useAbsenceMutation({ callBack })
 
@@ -46,22 +55,34 @@ const CheckInOutRequest = (props: Props) => {
   const renderRequestForm = () => {
     return (
       <DialogContent>
-        <DialogHeader>Create Check In/Out Request</DialogHeader>
+        <DialogHeader>
+          <DialogTitle>Create Check In/Out Request</DialogTitle>
+        </DialogHeader>
 
         <div className="flex flex-col gap-2">
-          <div className="flex flex-col gap-1">
-            <DatePicker
-              date={checkInOutDate}
-              setDate={setCheckInOutDate}
-              className="w-full"
-            />
-            {/* <input
-              type="time"
-              defaultValue={time}
-              onChange={(e) => setTime(e.target.value)}
-            /> */}
-          </div>
-
+          <>
+            {backTo ? (
+              <div className="flex items-center text-center border border-input hover:bg-accent hover:text-accent-foreground rounded-md py-2.5 px-5 outline-none justify-around">
+                <Undo2 size={15} onClick={() => setBackTo(false)} />
+                <input
+                  type="time"
+                  name="shiftStart"
+                  className="w-full text-center bg-transparent outline-none"
+                  defaultValue={time}
+                  onChange={(e) => setTime(e.target.value)}
+                />
+              </div>
+            ) : (
+              <DatePicker
+                date={checkInOutDate}
+                setDate={(date) => {
+                  setCheckInOutDate(date)
+                  setBackTo(true)
+                }}
+                className="w-full"
+              />
+            )}
+          </>
           <Select
             defaultValue={options[0]}
             value={options.filter((option) => option.value === checkInOutType)}
@@ -86,9 +107,9 @@ const CheckInOutRequest = (props: Props) => {
   return (
     <Dialog open={open} onOpenChange={() => setOpen(!open)}>
       <DialogTrigger asChild={true}>
-        <button className="px-3 py-2 bg-[#6569df] text-[#fff] rounded-md">
+        <Button className="bg-[#6569df] text-[#fff] rounded-md">
           Create Check In/Out Request
-        </button>
+        </Button>
       </DialogTrigger>
       {renderRequestForm()}
     </Dialog>

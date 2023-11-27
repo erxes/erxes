@@ -12,11 +12,7 @@ try {
 }
 
 const getWorkerFile = () => {
-  let filePath = path.resolve(__dirname, `./export.worker.js`);
-
-  if (process.env.NODE_ENV !== 'production') {
-    filePath = path.resolve(__dirname, `./export.worker.ts`);
-  }
+  const filePath = path.resolve(__dirname, `./export.worker.ts`);
 
   return filePath;
 };

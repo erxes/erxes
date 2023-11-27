@@ -1,5 +1,3 @@
-"use client"
-
 import { customerAtom, customerTypeAtom } from "@/store/order.store"
 import { useAtom } from "jotai"
 import { Building2Icon, UserCheckIcon, UserCircleIcon } from "lucide-react"

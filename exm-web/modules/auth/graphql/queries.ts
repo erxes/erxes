@@ -138,6 +138,48 @@ const currentUser = gql`
   }
 `
 
+const exmGets = gql`
+  query ExmGet {
+    exmGet {
+      _id
+      name
+      webName
+      webDescription
+      description
+      logo
+      url
+      favicon
+      features {
+        _id
+        icon
+        name
+        description
+        contentType
+        contentId
+        subContentId
+      }
+      appearance {
+        primaryColor
+        secondaryColor
+        bodyColor
+        headerColor
+        footerColor
+      }
+      vision
+      structure
+      createdAt
+      createdBy
+      structure
+      knowledgeBaseLabel
+      knowledgeBaseTopicId
+      ticketLabel
+      ticketPipelineId
+      ticketBoardId
+    }
+  }
+`
+
 export default {
   currentUser,
+  exmGets,
 }

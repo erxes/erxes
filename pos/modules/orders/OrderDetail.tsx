@@ -24,9 +24,11 @@ const OrderDetail = ({ children }: { children: React.ReactNode }) => {
   )
 
   useEffect(() => {
-    const { orderDetail } = data || {}
-    if (orderDetail?._id === _id) {
-      setOrderStates(orderDetail)
+    if (data) {
+      const { orderDetail } = data
+      if (orderDetail?._id === _id) {
+        setOrderStates(orderDetail)
+      }
     }
   }, [_id, data, setOrderStates])
 

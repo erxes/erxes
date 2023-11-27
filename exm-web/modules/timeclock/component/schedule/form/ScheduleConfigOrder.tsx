@@ -8,6 +8,8 @@ import {
 import { useAtomValue } from "jotai"
 import { ChevronDown, ChevronUp, Pin } from "lucide-react"
 
+import { ScrollArea } from "@/components/ui/scroll-area"
+
 type Props = {
   scheduleConfigsOrderData: any
   setScheduleConfigsOrderData: (data: any) => void
@@ -123,7 +125,7 @@ const ScheduleConfigOrder = ({
         </div>
       </button>
       {toggleOrder && (
-        <div className="flex flex-col gap-2 px-3 h-[200px] overflow-y-auto">
+        <ScrollArea className="max-h-[200px] overflow-y-auto">
           {scheduleConfigsOrderData.orderedList
             ?.sort((a: any, b: any) => a.order - b.order)
             ?.map((s: any) => (
@@ -144,7 +146,7 @@ const ScheduleConfigOrder = ({
                 )}
               </div>
             ))}
-        </div>
+        </ScrollArea>
       )}
     </div>
   )

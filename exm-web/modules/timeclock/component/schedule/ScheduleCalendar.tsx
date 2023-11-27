@@ -45,9 +45,9 @@ const ScheduleCalendar = ({ shifts, configsList }: Props) => {
   return (
     <DayPicker
       weekStartsOn={1}
-      showOutsideDays
+      showOutsideDays={true}
       classNames={{
-        root: "m-0 border border-gray-300 rounded-md",
+        root: "mt-2 border border-gray-300 rounded-md",
         months: "flex flex-col",
         caption:
           "flex p-4 border-b items-center justify-between bg-gray-100 rounded-t-md",
@@ -56,7 +56,7 @@ const ScheduleCalendar = ({ shifts, configsList }: Props) => {
           "h-6 w-6 bg-transparent p-0 opacity-50 hover:opacity-75 transition-opacity duration-300",
         table: "w-full border-collapse border-0",
         head_cell: "py-3 text-gray-600 w-8 font-normal text-sm",
-        cell: "relative h-24 border-t border-r border-gray-300 rounded-md hover:shadow-md transition-all duration-300",
+        cell: "w-[calc(100vw/7)] relative h-24 border-t border-r border-gray-300 last:border-r-0 rounded-md hover:shadow-md transition-all duration-300",
         day: "absolute top-0 h-8 w-8 p-3 font-normal text-gray-700 cursor-pointer transition-all duration-300",
         day_selected: "bg-blue-400",
         day_outside: "text-gray-500",

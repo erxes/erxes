@@ -37,9 +37,9 @@ const Ebarimt = ({
         {Number(cityTax) > 0 && <p>НXАТ: {formatNum(Number(cityTax))}</p>}
         <p>Дүн: {formatNum(amount || 0)}</p>
         {!type && (
-          <div>
-            Сугалаа: <div className="font-semibold">{lottery}</div>
-          </div>
+          <p>
+            Сугалаа: <p className="font-semibold">{lottery}</p>
+          </p>
         )}
       </>
     )

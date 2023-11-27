@@ -8,24 +8,21 @@ import { getEnv, sendRequest } from '@erxes/api-utils/src';
 import { IModels } from './connectionResolver';
 
 export const validateSingle = async (
-  subdomain: string,
+  _subdomain: string,
   contact: IVisitorContact
 ) => {
   const EMAIL_VERIFIER_ENDPOINT = getEnv({
     name: 'EMAIL_VERIFIER_ENDPOINT',
-    defaultValue: 'http://localhost:4100'
+    defaultValue: ''
   });
+
   if (!EMAIL_VERIFIER_ENDPOINT) {
     return;
   }
+
   const { email, phone } = contact;
 
-  const DOMAIN = getEnv({ name: 'DOMAIN' })
-    ? `${getEnv({ name: 'DOMAIN' })}/gateway`
-    : 'http://localhost:4000';
-  const domain = DOMAIN.replace('<subdomain>', subdomain);
-
-  const callback_url = `${domain}/pl:contacts`;
+  const callback_url = `${await redis.get('hostname')}/gateway/pl:contacts`;
 
   let body = {};
 
@@ -71,7 +68,7 @@ export const updateContactValidationStatus = async (
 
 export const validateBulk = async (
   models: IModels,
-  subdomain: string,
+  _subdomain: string,
   verificationType: string
 ) => {
   const EMAIL_VERIFIER_ENDPOINT = getEnv({
@@ -79,12 +76,7 @@ export const validateBulk = async (
     defaultValue: ''
   });
 
-  const DOMAIN = getEnv({ name: 'DOMAIN' })
-    ? `${getEnv({ name: 'DOMAIN' })}/gateway`
-    : 'http://localhost:4000';
-  const domain = DOMAIN.replace('<subdomain>', subdomain);
-
-  const callback_url = `${domain}/pl:contacts`;
+  const callback_url = `${await redis.get('hostname')}/gateway/pl:contacts`;
 
   if (verificationType === 'email') {
     const emails: Array<{}> = [];
@@ -170,6 +162,7 @@ export const validateBulk = async (
           method: 'POST',
           body: { phones, hostname: callback_url }
         };
+
         sendRequest(requestOptions)
           .then(res => {
             debug.info(`Response: ${res}`);
@@ -180,6 +173,7 @@ export const validateBulk = async (
       } catch (e) {
         return reject(e);
       }
+
       resolve('done');
     });
   });

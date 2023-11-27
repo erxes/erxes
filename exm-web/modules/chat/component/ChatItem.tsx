@@ -257,9 +257,7 @@ export const ChatItem = ({
             {chat.type === "direct" ? (
               user?.details.position ? (
                 <span className="text-[10px]"> ({user?.details.position})</span>
-              ) : (
-                "(Active now)"
-              )
+              ) : null
             ) : (
               "(Active now)"
             )}
