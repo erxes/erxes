@@ -70,19 +70,19 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
   models.Logs = db.model<ILogDocument, ILogModel>('logs', loadLogClass(models));
 
   models.Conversations = db.model<IConversationDocument, IConversationModel>(
-    'conversations_instagrams',
+    'instagram_conversations',
     loadConversationClass(models)
   );
 
   models.Customers = db.model<ICustomerDocument, ICustomerModel>(
-    'customers_instagrams',
+    'instagram_customers',
     loadCustomerClass(models)
   );
 
   models.ConversationMessages = db.model<
     IConversationMessageDocument,
     IConversationMessageModel
-  >('conversation_messages_instagrams', loadConversationMessageClass(models));
+  >('instagram_conversation_messages', loadConversationMessageClass(models));
 
   return models;
 };
