@@ -112,6 +112,7 @@ export interface IScheduleConfig {
   scheduleName?: string;
   shiftStart?: string;
   shiftEnd?: string;
+  lunchBreakInMins: number;
 }
 
 export interface IScheduleConfigDocument extends IScheduleConfig, Document {
@@ -335,6 +336,7 @@ export const payDateSchema = new Schema({
 export const scheduleConfigSchema = new Schema({
   _id: field({ pkey: true }),
   scheduleName: field({ type: String, label: 'Name of the schedule' }),
+  lunchBreakInMins: field({ type: Number }),
   shiftStart: field({
     type: String,
     label: 'starting time of shift'

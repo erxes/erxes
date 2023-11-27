@@ -705,6 +705,13 @@ export const bichilTimeclockReportFinal = async (
     }))
   );
 
+  const shiftsOfScheduleConfigIds = shiftsOfSchedule.map(
+    scheduleShift => scheduleShift.scheduleConfigId
+  );
+  const scheduleShiftsConfigs = await models.ScheduleConfigs.find({
+    _id: { $in: shiftsOfScheduleConfigIds }
+  });
+
   const schedulesObj = createSchedulesObj(userIds, schedules, shiftsOfSchedule);
 
   const requests = await models.Absences.find({
@@ -751,6 +758,24 @@ export const bichilTimeclockReportFinal = async (
         )
       );
     });
+
+    const scheduleShiftConfigsMap: { [scheduleConfigId: string]: number } = {};
+
+    for (const scheduleConfig of scheduleShiftsConfigs) {
+      scheduleShiftConfigsMap[scheduleConfig._id] =
+        scheduleConfig.lunchBreakInMins;
+    }
+
+    // calculate total break time from schedules of an user
+    const totalBreakOfSchedulesInHrs =
+      currUserScheduleShifts.reduce(
+        (partialBreakSum, userScheduleShift) =>
+          partialBreakSum +
+          (userScheduleShift.lunchBreakInMins ||
+            scheduleShiftConfigsMap[userScheduleShift.scheduleConfigId] ||
+            0),
+        0
+      ) / 60;
 
     let totalDaysWorkedPerUser = 0;
     let totalRegularHoursWorkedPerUser = 0;
@@ -916,6 +941,10 @@ export const bichilTimeclockReportFinal = async (
       shiftNotClosedDaysPerUser * shiftNotClosedFee;
     const totalMinsLateDeduction = totalMinsLatePerUser * latenessFee;
     const totalDeduction = shiftNotClosedDeduction + totalMinsLateDeduction;
+
+    if (totalHoursScheduledPerUser > 0) {
+      totalHoursScheduledPerUser -= totalBreakOfSchedulesInHrs;
+    }
 
     totalHoursScheduled += totalHoursScheduledPerUser;
     totalHoursWorked += totalHoursWorkedPerUser;
