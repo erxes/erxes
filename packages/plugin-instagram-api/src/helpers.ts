@@ -57,7 +57,7 @@ export const removeIntegration = async (
       }
     }
 
-    integrationRemoveBy = { fbPageIds: integration.facebookPageId };
+    integrationRemoveBy = { igPageId: integration.instagramPageId };
 
     const conversationIds = await models.Conversations.find(selector).distinct(
       '_id'
@@ -178,7 +178,7 @@ export const repairIntegrations = async (
         body: {
           domain: `${DOMAIN}/gateway/pl:instagram`,
           instagramPageId: integration.instagramPageId,
-          facebookPageId: integration.facebookPageId
+          igPageId: integration.instagramPageId
         }
       });
     } catch (e) {
@@ -231,7 +231,6 @@ export const instagramCreateIntegration = async (
     account.token,
     instagramPageId
   );
-
   let integration;
   try {
     integration = await models.Integrations.create({
@@ -244,6 +243,33 @@ export const instagramCreateIntegration = async (
   } catch (error) {
     // You can also throw the error again or perform additional error handling here
     throw error;
+  }
+
+  const ENDPOINT_URL = getEnv({ name: 'ENDPOINT_URL' });
+  const DOMAIN = getEnv({ name: 'DOMAIN' });
+
+  let domain = `${DOMAIN}/gateway/pl:instagram`;
+
+  if (process.env.NODE_ENV !== 'production') {
+    domain = `${DOMAIN}/pl:instagram`;
+  }
+
+  if (ENDPOINT_URL) {
+    // send domain to core endpoints
+    try {
+      await sendRequest({
+        url: `${ENDPOINT_URL}/register-endpoint`,
+        method: 'POST',
+        body: {
+          domain,
+          instagramPageId,
+          igPageId: instagramPageId
+        }
+      });
+    } catch (e) {
+      await models.Integrations.deleteOne({ _id: integration._id });
+      throw e;
+    }
   }
 
   const facebookPageTokensMap: { [key: string]: string } = {};
