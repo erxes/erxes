@@ -22,16 +22,12 @@ export const useNotification = (): IUseNotifications => {
     variables: {
       page: 1,
       perPage: 5,
-      contentTypes: ["exmFeed"],
     },
   })
 
-  const totalCountQuery = useQuery(queries.notificationCounts, {
-    variables: { contentTypes: ["exmFeed"] },
-  })
-
+  const totalCountQuery = useQuery(queries.notificationCounts)
   const unreadCountQuery = useQuery(queries.notificationCounts, {
-    variables: { requireRead: true, contentTypes: ["exmFeed"] },
+    variables: { requireRead: true },
   })
 
   const [markAsReadMutation] = useMutation(mutations.markAsRead)

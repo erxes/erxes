@@ -3,7 +3,6 @@ import { ZmsLogs } from '.';
 
 interface IZmsLog {
   createdAt: Date;
-  zmsId: String;
   ipAddress: string;
   action: string;
   object: any;
@@ -14,7 +13,6 @@ interface IZmsLog {
 }
 export const zmsLogSchema = new Schema<IZmsLog>({
   createdAt: Date,
-  zmsId: String,
   ipAddress: String,
   action: String,
   object: Schema.Types.Mixed,
@@ -34,6 +32,14 @@ export const loadZmsLogClass = () => {
       }
 
       return zmsLog;
+    }
+
+    // create
+    public static async createZms(doc) {
+      return ZmsLogs.create({
+        ...doc,
+        createdAt: new Date()
+      });
     }
   }
 

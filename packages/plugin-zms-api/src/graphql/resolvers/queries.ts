@@ -1,5 +1,5 @@
 import { IContext } from '@erxes/api-utils/src/types';
-import { ZmsDictionaries, Zmss } from '../../models';
+import { ZmsDictionaries } from '../../models';
 
 const zmsQueries = {
   async getZmsDictionary(_root, { _id }, _context: IContext) {
@@ -11,17 +11,9 @@ const zmsQueries = {
     if (parentId) {
       query.parentId = parentId;
     }
-    const dictionaries = await ZmsDictionaries.find(query).lean();
+    const dictionaries = ZmsDictionaries.find(query).lean();
+
     return dictionaries;
-  },
-
-  async getZms(_root, { _id }, _context: IContext) {
-    return Zmss.findOne({ _id });
-  },
-
-  async getZmses() {
-    const zmss = await Zmss.find({}).lean();
-    return zmss;
   }
 };
 export default zmsQueries;

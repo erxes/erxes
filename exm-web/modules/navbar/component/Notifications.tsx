@@ -69,16 +69,6 @@ const Notifications = () => {
     if (notification.action === "publicHoliday created") {
       return <span>Created public holiday</span>
     }
-    if (
-      notification.action === "birthday notification" ||
-      notification.action === "Work Anniversary notification"
-    ) {
-      return (
-        <span>
-          Today is <b>{notification.content}</b>
-        </span>
-      )
-    }
   }
 
   const notificationClick = (notification: INotification) => {
@@ -86,24 +76,13 @@ const Notifications = () => {
       markAsRead([notification._id])
     }
 
-    if (
-      notification.action === "birthday notification" ||
-      notification.action === "Work Anniversary notification"
-    ) {
-      return (window.location.href = `/company/team-members/detail?id=${notification.link.slice(23)}`)
-    } else {
-      return (window.location.href = `detail?contentType=${
-        notification.action.split(" ")[0]
-      }&id=${notification.link.slice(28)}`)
-    }
+    return (window.location.href = `detail?contentType=${
+      notification.action.split(" ")[0]
+    }&id=${notification.link.slice(28)}`)
   }
 
   const renderNotifRow = (notification: INotification) => {
-    const {
-      details = {},
-      username = "",
-      email,
-    } = notification.createdUser || {}
+    const { details = {}, username = "", email } = notification.createdUser || {}
     const { avatar, fullName } = details || {}
 
     return (
@@ -223,15 +202,11 @@ const Notifications = () => {
             </span>
           </p>
           <TabsContent value="all">
-            <ul className="max-h-[400px] overflow-y-auto">
+            <ul className="max-h-[300px] overflow-y-auto">
               {renderNotification()}
             </ul>
           </TabsContent>
-          <TabsContent value="unread">
-            <ul className="max-h-[400px] overflow-y-auto">
-              {renderNotification(true)}
-            </ul>
-          </TabsContent>
+          <TabsContent value="unread">{renderNotification(true)}</TabsContent>
         </Tabs>
       </PopoverContent>
     </Popover>

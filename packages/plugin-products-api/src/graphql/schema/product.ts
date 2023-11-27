@@ -35,7 +35,6 @@ export const types = (tagsAvailable, contactsAvailable) => `
     parentId: String
     code: String!
     order: String!
-    scopeBrandIds: [String]
     attachment: Attachment
     status: String
     isRoot: Boolean
@@ -67,7 +66,6 @@ export const types = (tagsAvailable, contactsAvailable) => `
     attachment: Attachment
     attachmentMore: [Attachment]
     vendorId: String
-    scopeBrandIds: [String]
     uom: String
     subUoms: JSON
 
@@ -104,7 +102,6 @@ const productParams = `
   attachment: AttachmentInput,
   attachmentMore: [AttachmentInput],
   vendorId: String,
-  scopeBrandIds: [String]
   uom: String,
   subUoms: JSON,
   taxType: String,
@@ -117,7 +114,6 @@ const productCategoryParams = `
   description: String,
   meta: String,
   parentId: String,
-  scopeBrandIds: [String]
   attachment: AttachmentInput,
   status: String
   maskType: String
@@ -132,7 +128,6 @@ const productsQueryParams = `
   categoryId: String,
   searchValue: String,
   vendorId: String,
-  brand: String
   tag: String,
   ids: [String],
   excludeIds: Boolean,
@@ -144,7 +139,7 @@ const productsQueryParams = `
 `;
 
 export const queries = `
-  productCategories(parentId: String, withChild: Boolean, searchValue: String, status: String, meta: String, brand: String): [ProductCategory]
+  productCategories(parentId: String, withChild: Boolean, searchValue: String, status: String, meta: String): [ProductCategory]
   productCategoriesTotalCount(parentId: String, withChild: Boolean, searchValue: String, status: String, meta: String): Int
   productCategoryDetail(_id: String): ProductCategory
   products(

@@ -25,7 +25,7 @@ interface c_job {
 }
 
 interface o_c_related_orgs {
-  '-action': string;
+  '-action': number;
   o_c_related_org_index: number;
   o_c_related_org_name: string;
   o_c_related_org_isforeign: boolean;
@@ -44,7 +44,7 @@ interface o_c_loan_transactions {
 }
 
 interface o_c_loan_schedule {
-  '-action': string;
+  '-action': number;
   o_c_schedule_due_date: Date;
   o_c_schedule_principal: number;
   o_c_schedule_interest: number;
@@ -53,7 +53,7 @@ interface o_c_loan_schedule {
 }
 
 interface o_c_loan_payment {
-  '-action': string;
+  '-action': number;
   o_c_payment_due_date: Date;
   o_c_payment_date: Date;
   o_c_payment_principal: number;
@@ -62,7 +62,7 @@ interface o_c_loan_payment {
 }
 
 interface o_c_related_customers {
-  '-action': string;
+  '-action': number;
   o_c_related_customer_index: number;
   o_c_related_customer_firstname: string;
   o_c_related_customer_lastname: string;
@@ -124,7 +124,7 @@ interface o_ceo {
 }
 
 interface o_shareholder_orgs {
-  '-action': string;
+  '-action': number;
   o_shareholder_org_name: string;
   o_shareholder_org_isforeign: string;
   o_shareholder_org_state_regnum: string;
@@ -134,7 +134,7 @@ interface o_shareholder_orgs {
   o_shareholder_org_email: string;
 }
 interface o_shareholder_customers {
-  '-action': string;
+  '-action': number;
   o_shareholder_customer_civil_id: string;
   o_shareholder_customer_regnum: string;
   o_shareholder_customer_firstname: string;
@@ -147,11 +147,9 @@ interface o_shareholder_customers {
 }
 // end legal
 
-export interface IZms {
-  patch_number: number;
-  data_provider_regnum: number;
+interface IZms {
   o_c_customer_information: {
-    '-action': string;
+    '-action': number;
     c_civil_id: string;
     o_c_regnum: string;
     o_c_customer_name: string;
@@ -186,7 +184,7 @@ export interface IZms {
 
   o_c_loan_information: [
     {
-      '-action': string;
+      '-action': number;
       o_c_loan_contract_date: Date;
       o_c_loan_contractno: string;
       o_c_loan_contract_change_reason: string;
@@ -226,7 +224,7 @@ export interface IZms {
 
   o_c_loanline: [
     {
-      '-action': string;
+      '-action': number;
       o_c_loanline_contract_date: Date;
       o_c_loanline_contractno: string;
       o_c_loanline_contract_change_reason: string;
@@ -248,7 +246,7 @@ export interface IZms {
 
   o_c_coll_information: [
     {
-      '-action': string;
+      '-action': number;
       o_c_coll_index: number;
       o_c_coll_internalno: string;
       o_c_coll_type: string; // хавсралт В
@@ -268,10 +266,8 @@ export interface IZms {
 }
 
 export const zmsSchema = new Schema<IZms>({
-  patch_number: Number,
-  data_provider_regnum: Number,
   o_c_customer_information: {
-    '-action': String,
+    '-action': Number,
     c_civil_id: String,
     o_c_regnum: String,
     o_c_customer_name: String,
@@ -309,7 +305,7 @@ export const zmsSchema = new Schema<IZms>({
     },
     o_c_related_orgs: [
       {
-        '-action': String,
+        '-action': Number,
         o_c_related_org_index: Number,
         o_c_related_org_name: String,
         o_c_related_org_isforeign: Boolean,
@@ -321,7 +317,7 @@ export const zmsSchema = new Schema<IZms>({
     ],
     o_c_related_customers: [
       {
-        '-action': String,
+        '-action': Number,
         o_c_related_customer_index: Number,
         o_c_related_customer_firstname: String,
         o_c_related_customer_lastname: String,
@@ -358,7 +354,7 @@ export const zmsSchema = new Schema<IZms>({
     o_numof_shareholder_orgs: Number,
     o_shareholder_orgs: [
       {
-        '-action': String,
+        '-action': Number,
         o_shareholder_org_name: String,
         o_shareholder_org_isforeign: String,
         o_shareholder_org_state_regnum: String,
@@ -371,7 +367,7 @@ export const zmsSchema = new Schema<IZms>({
     o_numof_shareholder_customers: Number,
     o_shareholder_customers: [
       {
-        '-action': String,
+        '-action': Number,
         o_shareholder_customer_civil_id: String,
         o_shareholder_customer_regnum: String,
         o_sharehoslder_customer_firstname: String,
@@ -386,7 +382,7 @@ export const zmsSchema = new Schema<IZms>({
   },
   o_c_loan_information: [
     {
-      '-action': String,
+      '-action': Number,
       o_c_loan_contract_date: Date,
       o_c_loan_contractno: String,
       o_c_loan_contract_change_reason: String,
@@ -425,7 +421,7 @@ export const zmsSchema = new Schema<IZms>({
         o_c_loan_schedule_change_reason: String,
         o_c_loan_schedule: [
           {
-            '-action': String,
+            '-action': Number,
             o_c_schedule_due_date: Date,
             o_c_schedule_principal: Number,
             o_c_schedule_interest: Number,
@@ -435,7 +431,7 @@ export const zmsSchema = new Schema<IZms>({
         ],
         o_c_loan_payment: [
           {
-            '-action': String,
+            '-action': Number,
             o_c_payment_due_date: Date,
             o_c_payment_date: Date,
             o_c_payment_principal: Number,
@@ -448,7 +444,7 @@ export const zmsSchema = new Schema<IZms>({
   ],
   o_c_loanline: [
     {
-      '-action': String,
+      '-action': Number,
       o_c_loanline_contract_date: Date,
       o_c_loanline_contractno: String,
       o_c_loanline_contract_change_reason: String,
@@ -469,7 +465,7 @@ export const zmsSchema = new Schema<IZms>({
   ],
   o_c_coll_information: [
     {
-      '-action': String,
+      '-action': Number,
       o_c_coll_index: Number,
       o_c_coll_internalno: String,
       o_c_coll_type: String, // attachment B
@@ -521,7 +517,7 @@ export const loadZmsClass = () => {
       return zms;
     }
 
-    // create zms
+    // create
     public static async createZms(doc) {
       return Zmss.create({
         ...doc,
@@ -534,3 +530,5 @@ export const loadZmsClass = () => {
 
   return zmsSchema;
 };
+
+// tslint:disable-next-line

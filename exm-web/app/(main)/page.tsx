@@ -9,7 +9,7 @@ const RightSideBar = dynamic(
 export default function IndexPage() {
   return (
     <>
-      <div className="flex h-full w-[61%] flex-col shrink-0">
+      <div className="flex h-full w-[62%] flex-col">
         <Feed />
       </div>
       <div className="flex w-[22%] shrink-0 flex-col">

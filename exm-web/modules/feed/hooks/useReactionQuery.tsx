@@ -1,4 +1,3 @@
-import { IUser } from "@/modules/auth/types"
 import { useQuery } from "@apollo/client"
 
 import { queries } from "../graphql"
@@ -7,7 +6,7 @@ export interface IReactionDetail {
   loading: boolean
   loadingReactedUsers: boolean
   emojiCount: number
-  emojiReactedUser: IUser[]
+  emojiReactedUser: string[]
 }
 
 export const useReactionQuery = ({

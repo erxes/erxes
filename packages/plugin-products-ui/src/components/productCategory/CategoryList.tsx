@@ -1,25 +1,23 @@
-import { router, __ } from '@erxes/ui/src/utils';
+import { __, router } from '@erxes/ui/src/utils';
 
-import CategoryForm from '@erxes/ui-products/src/containers/CategoryForm';
-import { Header } from '@erxes/ui-settings/src/styles';
-import BrandFilter from '@erxes/ui/src/brands/components/BrandFilter';
-import { IBrand } from '@erxes/ui/src/brands/types';
 import Button from '@erxes/ui/src/components/Button';
+import CategoryForm from '@erxes/ui-products/src/containers/CategoryForm';
+import CategoryStatusFilter from '../product/filters/CategoryStatusFilter';
 import CollapsibleList from '@erxes/ui/src/components/collapsibleList/CollapsibleList';
+import { Header } from '@erxes/ui-settings/src/styles';
+import { IProductCategory } from '../../types';
 import Icon from '@erxes/ui/src/components/Icon';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import Tip from '@erxes/ui/src/components/Tip';
+import ProductTypeFilter from '../product/filters/ProdcutTypeFilter';
+import React from 'react';
+import SegmentFilter from '../product/filters/SegmentFilter';
 import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { SidebarList } from '@erxes/ui/src/layout/styles';
+import TagFilter from '../../containers/TagFilter';
+import Tip from '@erxes/ui/src/components/Tip';
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { isEnabled } from '@erxes/ui/src/utils/core';
 import { pluginsOfProductCategoryActions } from 'coreui/pluginUtils';
-import React from 'react';
-import TagFilter from '../../containers/TagFilter';
-import { IProductCategory } from '../../types';
-import CategoryStatusFilter from '../product/filters/CategoryStatusFilter';
-import ProductTypeFilter from '../product/filters/ProdcutTypeFilter';
-import SegmentFilter from '../product/filters/SegmentFilter';
 
 const { Section } = Wrapper.Sidebar;
 
@@ -30,8 +28,6 @@ interface IProps {
   productCategories: IProductCategory[];
   productCategoriesCount: number;
   loading: boolean;
-  brands: IBrand[];
-  brandsLoading: boolean;
 }
 
 class List extends React.Component<IProps> {
@@ -145,11 +141,6 @@ class List extends React.Component<IProps> {
         )}
         <CategoryStatusFilter />
         <ProductTypeFilter />
-        <BrandFilter
-          counts={{}}
-          brands={this.props.brands}
-          loading={this.props.brandsLoading}
-        />
         {isEnabled('tags') && <TagFilter />}
       </Sidebar>
     );
