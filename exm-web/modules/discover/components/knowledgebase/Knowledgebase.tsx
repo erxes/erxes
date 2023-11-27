@@ -27,20 +27,18 @@ const Knowledgebase = () => {
     ? topics.color
     : "#4f46e5"
 
-  if (!topics || Object.keys(topics).length === 0) {
-    console.log("wtf")
-
-    return (
-      <div className="px-9 w-full">
-        <EmptyList />
-      </div>
-    )
-  }
-
   if (loading) {
     return (
       <div className="flex w-full h-[200px] justify-center">
         <Loader />
+      </div>
+    )
+  }
+
+  if (!topics || Object.keys(topics).length === 0) {
+    return (
+      <div className="px-9 w-full">
+        <EmptyList />
       </div>
     )
   }

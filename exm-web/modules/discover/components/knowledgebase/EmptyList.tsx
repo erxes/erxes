@@ -8,8 +8,8 @@ const EmptyList = () => {
           <h1 className="text-[60px] mb-8 text-[#818C8B]">Oh no!</h1>
           <p className="w-[60%] text-center">
             The content you're looking for is not available as there are
-            currently no items in this list. You can proceed to make a request
-            or check back later for updates.
+            currently no items in this list. You can check back later for
+            updates.
           </p>
         </div>
         <img src="/images/error.png" />

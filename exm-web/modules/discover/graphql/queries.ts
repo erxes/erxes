@@ -1,5 +1,6 @@
 import { gql } from "@apollo/client"
-import { queries as teamQueries } from "common/team/graphql"
+
+import { commonFields, ticketFields } from "./mutations"
 
 const categoryFields = `
   _id
@@ -97,6 +98,7 @@ const articleDetailQuery = gql`
       reactionCounts
       createdBy
       createdUser {
+        _id
         details {
           fullName
           avatar
@@ -139,6 +141,7 @@ export const articlesQuery = gql`
       modifiedDate
       categoryId
       createdUser {
+        _id
         details {
           fullName
           avatar
@@ -215,6 +218,7 @@ const ticketsCommonParamDefs = `
 const commonListFields = `
   _id
   name
+  attachments
   assignedUsers
   labels
   stage
@@ -340,6 +344,15 @@ const tickets = gql`
   }
 `
 
+const ticketDetail = gql`
+  query ticketDetail($_id: String!) {
+    ticketDetail(_id: $_id) {
+      ${ticketFields}
+      ${commonFields}
+    }
+  }
+`
+
 const ticketsTotalCount = gql`
   query ticketsTotalCount(
     $pipelineId: String,
@@ -367,5 +380,6 @@ export default {
   articlesQuery,
   stages,
   tickets,
+  ticketDetail,
   ticketsTotalCount,
 }

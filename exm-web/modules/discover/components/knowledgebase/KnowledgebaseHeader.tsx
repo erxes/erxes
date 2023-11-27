@@ -11,6 +11,7 @@ const KnowledgebaseHeader = () => {
 
   const router = useRouter()
   const [searchValue, setSearchValue] = useState<string>("")
+  const [toggleBar, setToggleBar] = useState(false)
 
   const { topics } = useDiscover({ id: exm?.knowledgeBaseTopicId! })
 
@@ -23,6 +24,22 @@ const KnowledgebaseHeader = () => {
       e.preventDefault()
       onSubmit()
     }
+  }
+
+  const renderSearchBar = () => {
+    return (
+      <div className="mt-3 w-full py-2.5 px-3.5 flex justify-between items-center text-gray-300 border rounded">
+        <input
+          type="text"
+          placeholder="Search for articles"
+          className="text-sm font-semibold pr-3.5 w-full bg-transparent"
+          onChange={(e) => setSearchValue(e.target.value)}
+          value={searchValue}
+          onKeyDown={handleKeyDown}
+        />
+        <Search size={16} className="cursor-pointer" onClick={onSubmit} />
+      </div>
+    )
   }
 
   const title = exm ? exm.webName : topics ? topics.title : "Exm"
@@ -55,19 +72,8 @@ const KnowledgebaseHeader = () => {
         <p className="mt-5 text-[14px] leading-5 text-gray-200 line-clamp-3">
           {description}
         </p>
-        <div className="mt-5 flex items-center justify-center gap-x-6">
-          <div className="w-full py-2.5 px-3.5 flex justify-between items-center text-gray-200 border rounded">
-            <input
-              type="text"
-              placeholder="Search for articles"
-              className="text-sm font-semibold pr-3.5 w-full bg-transparent"
-              onChange={(e) => setSearchValue(e.target.value)}
-              value={searchValue}
-              onKeyDown={handleKeyDown}
-            />
-            <Search size={16} className="cursor-pointer" onClick={onSubmit} />
-          </div>
-        </div>
+
+        {renderSearchBar()}
       </div>
     </div>
   )

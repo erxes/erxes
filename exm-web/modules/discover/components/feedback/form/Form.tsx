@@ -72,6 +72,12 @@ const Form = ({ type, currentStep, setCurrentStep, setToggleView }: Props) => {
           stageId: stage?._id,
           customFieldsData: [],
         })
+
+        params.set("page", "1")
+
+        router.push(`?${params.toString()}`, {
+          scroll: false,
+        })
       }
     } else {
       toast({
@@ -240,6 +246,34 @@ const Form = ({ type, currentStep, setCurrentStep, setToggleView }: Props) => {
     )
   }
 
+  const renderActionSection = () => {
+    return (
+      <div className="relative flex gap-3 items-center">
+        {renderActions()}
+
+        {currentStep < 3 && (
+          <Button
+            onClick={onBack}
+            style={{
+              backgroundColor: color,
+            }}
+          >
+            {currentStep === 1 ? "Cancel" : "Back"}
+          </Button>
+        )}
+        <Button
+          onClick={onSubmit}
+          disabled={loading}
+          style={{
+            backgroundColor: color,
+          }}
+        >
+          {buttonText}
+        </Button>
+      </div>
+    )
+  }
+
   return (
     <div className="flex flex-col gap-5 bg-white px-5 py-5 mt-5 border rounded divide-y">
       <div className="flex gap-1 w-full">
@@ -287,29 +321,7 @@ const Form = ({ type, currentStep, setCurrentStep, setToggleView }: Props) => {
           </div>
         </div>
 
-        <div className="relative flex gap-3 items-center">
-          {renderActions()}
-
-          {currentStep < 3 && (
-            <Button
-              onClick={onBack}
-              style={{
-                backgroundColor: color,
-              }}
-            >
-              {currentStep === 1 ? "Cancel" : "Back"}
-            </Button>
-          )}
-          <Button
-            onClick={onSubmit}
-            disabled={loading}
-            style={{
-              backgroundColor: color,
-            }}
-          >
-            {buttonText}
-          </Button>
-        </div>
+        {renderActionSection()}
       </div>
     </div>
   )

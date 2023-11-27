@@ -34,6 +34,19 @@ const Stepper = ({ steps = [], currentStep = 1, setCurrentStep }: Props) => {
       currentStep >= i + 1 ? "cursor-pointer" : "cursor-not-allowed"
     )
 
+  const circleBackgroundColor = (i: number) =>
+    i + 1 <= currentStep || complete
+      ? exm?.appearance.primaryColor || "#4f46e5"
+      : "#d1d5db"
+
+  const stepLineStyle = {
+    backgroundColor: circleBackgroundColor,
+  }
+
+  const circleStyle = {
+    backgroundColor: circleBackgroundColor,
+  }
+
   return (
     <nav aria-label="Progress">
       <ol role="list" className="flex items-center">
@@ -45,27 +58,18 @@ const Stepper = ({ steps = [], currentStep = 1, setCurrentStep }: Props) => {
             >
               <div
                 className="h-0.5 w-full"
-                style={{
-                  backgroundColor:
-                    i + 1 < currentStep || complete
-                      ? exm?.appearance.primaryColor || "#4f46e5"
-                      : "#d1d5db",
-                }}
+                style={{ backgroundColor: circleBackgroundColor(i) }}
               />
             </div>
             <a
               onClick={() => {
                 if (currentStep >= i + 1) {
-                  setCurrentStep(i + 1), setComplete(false)
+                  setCurrentStep(i + 1)
+                  setComplete(false)
                 }
               }}
               className={getCircleClasses(i)}
-              style={{
-                backgroundColor:
-                  i + 1 <= currentStep || complete
-                    ? exm?.appearance.primaryColor || "#4f46e5"
-                    : "#d1d5db",
-              }}
+              style={{ backgroundColor: circleBackgroundColor(i) }}
             >
               {i + 1 < currentStep || complete ? (
                 <Check

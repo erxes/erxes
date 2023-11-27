@@ -61,11 +61,7 @@ const FeedbackTabs = ({
         </div>
       </TabsList>
 
-      <TabsContent
-        value="feedback"
-        // value="feedback"
-        className="h-full w-full bg-[#F8F9FA]"
-      >
+      <TabsContent value="feedback" className="h-full w-full bg-[#F8F9FA]">
         <Form
           type={tab}
           currentStep={currentStep}
@@ -73,11 +69,7 @@ const FeedbackTabs = ({
           setToggleView={setToggleView}
         />
       </TabsContent>
-      <TabsContent
-        value="application"
-        // value="application"
-        className="h-full w-full bg-[#F8F9FA]"
-      >
+      <TabsContent value="application" className="h-full w-full bg-[#F8F9FA]">
         <Form
           type={tab}
           currentStep={currentStep}
@@ -85,11 +77,7 @@ const FeedbackTabs = ({
           setToggleView={setToggleView}
         />
       </TabsContent>
-      <TabsContent
-        value="complaint"
-        // value="complain"
-        className="h-full w-full bg-[#F8F9FA]"
-      >
+      <TabsContent value="complaint" className="h-full w-full bg-[#F8F9FA]">
         <Form
           type={tab}
           currentStep={currentStep}

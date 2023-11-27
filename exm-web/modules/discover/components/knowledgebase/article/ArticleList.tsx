@@ -2,7 +2,7 @@
 
 import React from "react"
 import Link from "next/link"
-import { IArticle, IKbArticle } from "@/modules/discover/types"
+import { IKbArticle } from "@/modules/discover/types"
 import dayjs from "dayjs"
 
 import Loader from "@/components/ui/loader"
@@ -38,10 +38,41 @@ const ArticleList = ({ categoryId, topicId, searchValue }: Props) => {
     )
   }
 
+  const getAuthor = (article: IKbArticle) => {
+    const author = article?.createdUser?.details?.fullName || ""
+    const authorId = article?.createdUser?._id || ""
+
+    console.log(article)
+
+    return (
+      <span className="flex items-center space-x-1">
+        <span className="ml-1">
+          Written by{" "}
+          <Link href={`/company/team-members/detail?id=${authorId}`}>
+            <span className="text-[#4F33AF] cursor-pointer capitalize ">
+              {author}
+            </span>
+          </Link>
+        </span>
+      </span>
+    )
+  }
+
+  const getViewCount = (article: IKbArticle) => {
+    return (
+      <span className="flex items-center space-x-5">
+        <p className="text-gray-600">
+          Modified at {dayjs(article.modifiedDate).format("MMM DD YYYY")}
+        </p>
+        <p className="text-gray-600">viewed {article.viewCount}</p>
+      </span>
+    )
+  }
+
   return (
     <div className="px-9 w-full">
       <ul role="list">
-        {articles.map((article: any, index: number) => (
+        {articles.map((article: IKbArticle, index: number) => (
           <Link
             key={index}
             href={`/discover/article?id=${article._id}&catId=${article.categoryId}`}
@@ -55,19 +86,9 @@ const ArticleList = ({ categoryId, topicId, searchValue }: Props) => {
                 <p className="mt-5 line-clamp-3 text-[14px] leading-5 text-gray-600 text-justify">
                   {article.summary}
                 </p>
-                <div className="relative w-full mt-auto pt-5 flex items-center justify-between text-[14px]">
-                  <span className="flex items-center space-x-1">
-                    Written by
-                    <span className="capitalize ml-1">
-                      {article.createdUser.details.fullName || ""}
-                    </span>
-                  </span>
-                  <span className="flex items-center space-x-1">
-                    <p className="text-gray-600">
-                      {dayjs(article.createdDate).format("MMM DD YYYY")}
-                    </p>
-                    <p className="text-gray-600">Viewed {article.viewCount}</p>
-                  </span>
+                <div className="relative w-full mt-auto pt-5 flex items-center justify-between text-[12px]">
+                  {getAuthor(article)}
+                  {getViewCount(article)}
                 </div>
               </div>
             </li>

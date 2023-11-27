@@ -1,11 +1,12 @@
-import React from "react"
-import { useRouter, useSearchParams } from "next/navigation"
+import React, { use, useState } from "react"
+import { redirect, useRouter, useSearchParams } from "next/navigation"
 import { exmAtom } from "@/modules/JotaiProiveder"
 import { useFeedback } from "@/modules/discover/hooks/useFeedback"
 import EmptyTable from "@/modules/timeclock/component/EmptyTable"
 import { useAtomValue } from "jotai"
 
 import { Button } from "@/components/ui/button"
+import { Dialog } from "@/components/ui/dialog"
 import Loader from "@/components/ui/loader"
 import Pagination from "@/components/ui/pagination"
 import {
@@ -16,6 +17,7 @@ import {
   TableRow,
 } from "@/components/ui/table"
 
+import FeedbackDialog from "./FeedbackDialog"
 import FeedbackRow from "./FeedbackRow"
 import FeedbackTableFooter from "./FeedbackTableFooter"
 
@@ -29,6 +31,8 @@ const FeedbackList = ({ queryParams, setToggleView }: Props) => {
   const searchParams = useSearchParams()
   const currentParams = Object.fromEntries(searchParams)
   const params = new URLSearchParams(currentParams)
+  const [feedBackId, setFeedBackId] = useState("")
+  const [showModal, setShowModal] = useState(false)
 
   const exm = useAtomValue(exmAtom)
 
@@ -41,11 +45,17 @@ const FeedbackList = ({ queryParams, setToggleView }: Props) => {
 
   const list = ["Name", "Type", "Created", "Closed", "Status"]
 
+  const showDetail = (id: string) => {
+    setFeedBackId(id)
+    // tslint:disable-next-line:no-unused-expression
+    id && setShowModal(true)
+  }
+
   const renderTableBody = () => {
     return (
       <TableBody>
         {tickets.map((ticket: any, index: number) => (
-          <FeedbackRow ticket={ticket} key={index} />
+          <FeedbackRow ticket={ticket} key={index} setFeedBackId={showDetail} />
         ))}
       </TableBody>
     )
@@ -78,6 +88,15 @@ const FeedbackList = ({ queryParams, setToggleView }: Props) => {
 
           {renderTableBody()}
         </Table>
+
+        {feedBackId && (
+          <Dialog
+            open={showModal}
+            onOpenChange={() => setShowModal(!showModal)}
+          >
+            <FeedbackDialog ticketId={feedBackId} />
+          </Dialog>
+        )}
       </div>
     )
   }

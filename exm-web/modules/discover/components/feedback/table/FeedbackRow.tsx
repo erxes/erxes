@@ -1,31 +1,39 @@
-import React from "react"
+import React, { useState } from "react"
 import dayjs from "dayjs"
 
 import { TableCell, TableRow } from "@/components/ui/table"
 
 type Props = {
   ticket: any
+  setFeedBackId: (feedbackId: string) => void
 }
 
-const FeedbackRow = ({ ticket }: Props) => {
+const FeedbackRow = ({ ticket, setFeedBackId }: Props) => {
   const matches = ticket.name.match(/\[(.*?)\]\s(.*)/)
 
   return (
     <>
-      <TableRow className="border-none">
-        <TableCell className="py-5">{matches ? matches[2] : "-"}</TableCell>
-        <TableCell className="py-5 capitalize">
+      <TableRow
+        className="border-none"
+        onClick={() => setFeedBackId(ticket._id)}
+      >
+        <TableCell className="py-5 w-[calc(100vw/5)] truncate">
+          {matches ? matches[2] : "-"}
+        </TableCell>
+        <TableCell className="py-5 w-[calc(100vw/5)] capitalize">
           {matches ? matches[1] : "-"}
         </TableCell>
-        <TableCell className="py-5">
+        <TableCell className="py-5 w-[calc(100vw/5)]">
           {dayjs(ticket.createdAt).format("MMM DD YYYY")}
         </TableCell>
-        <TableCell className="py-5">
+        <TableCell className="py-5 w-[calc(100vw/5)]">
           {ticket.closeDate
             ? dayjs(ticket.closeDate).format("MMM DD YYYY")
             : "-"}
         </TableCell>
-        <TableCell className="py-5">{ticket?.stage?.name || "-"}</TableCell>
+        <TableCell className="py-5 w-[calc(100vw/5)]">
+          {ticket?.stage?.name || "-"}
+        </TableCell>
       </TableRow>
     </>
   )

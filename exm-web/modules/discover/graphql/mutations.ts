@@ -1,12 +1,78 @@
 import { gql } from "@apollo/client"
-import { queries as teamQueries } from "common/team/graphql"
 
-const detailFields = teamQueries.detailFields
-const allUsers = teamQueries.allUsers
-const users = teamQueries.users
-
-const ticketFields = `
+export const ticketFields = `
   source
+`
+
+export const commonFields = `
+  _id
+  name
+  stageId
+  hasNotified
+  pipeline {
+    _id
+    name
+  }
+  boardId
+  tagIds
+  startDate
+  closeDate
+  description
+  priority
+  assignedUsers {
+    _id
+    username
+    email
+    isActive
+
+    details {
+      avatar
+      fullName
+    }
+  }
+  labels {
+    _id
+    name
+    colorCode
+  }
+  labelIds
+  stage {
+    probability
+    type
+    defaultTick
+  }
+  isWatched
+  attachments {
+    name
+    url
+    type
+    size
+  }
+  createdAt
+  modifiedAt
+  modifiedBy
+  reminderMinute
+  isComplete
+  status
+  createdUser {
+    _id
+    details {
+      fullName
+      avatar
+    }
+  }
+  order
+  customFieldsData
+  score
+  timeTrack {
+    status
+    timeSpent
+    startDate
+  }
+  number
+  customProperties
+  branchIds
+  departmentIds
 `
 
 const commonMutationVariables = `

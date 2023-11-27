@@ -1,6 +1,7 @@
 "use client"
 
 import React from "react"
+import Link from "next/link"
 import dayjs from "dayjs"
 
 import Loader from "@/components/ui/loader"
@@ -19,6 +20,35 @@ const SingleArticle = ({ articleId }: Props) => {
       <div className="flex w-full h-[200px] justify-center">
         <Loader />
       </div>
+    )
+  }
+
+  const getAuthor = () => {
+    const author = article?.createdUser?.details.fullName || ""
+    const authorId = article?.createdUser?._id || ""
+
+    return (
+      <span className="flex items-center space-x-1">
+        <span className="ml-1">
+          Written by{" "}
+          <Link href={`/company/team-members/detail?id=${authorId}`}>
+            <span className="text-[#4F33AF] cursor-pointer capitalize ">
+              {author}
+            </span>
+          </Link>
+        </span>
+      </span>
+    )
+  }
+
+  const getViewCount = () => {
+    return (
+      <span className="flex items-center space-x-5">
+        <p className="text-gray-600">
+          Modified at {dayjs(article.modifiedDate).format("MMM DD YYYY")}
+        </p>
+        <p className="text-gray-600">viewed {article.viewCount}</p>
+      </span>
     )
   }
 
@@ -41,19 +71,9 @@ const SingleArticle = ({ articleId }: Props) => {
               className="prose mt-5 max-w-none text-[14px]"
             />
           </div>
-          <div className="relative w-full mt-auto pt-5 flex items-center justify-between text-[14px]">
-            <span className="flex items-center space-x-1">
-              Written by
-              <span className="capitalize ml-1">
-                {article?.createdUser?.details.fullName}
-              </span>
-            </span>
-            <span className="flex items-center space-x-1">
-              <p className="text-gray-600">
-                {dayjs(article.createdDate).format("MMM DD YYYY")}
-              </p>
-              <p className="text-gray-600">Viewed {article.viewCount}</p>
-            </span>
+          <div className="relative w-full mt-auto pt-5 flex items-center justify-between text-[12px]">
+            {getAuthor()}
+            {getViewCount()}
           </div>
         </div>
       </div>
