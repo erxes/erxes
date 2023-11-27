@@ -21,7 +21,7 @@ function EditFrom(props: Props) {
       return <General {...props} />;
     }
 
-    return <Appearance {...props} />;
+    return <Appearance {...props} renderButton={props.renderButton} />;
   };
 
   return (
