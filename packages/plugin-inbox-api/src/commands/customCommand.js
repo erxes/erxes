@@ -47,7 +47,12 @@ let IntConfigs;
 const FB_MSNGR = 'facebook-messenger';
 const FB_POST = 'facebook-post';
 
-const checkAndInsert = async (list, collection, isConvMsg) => {
+
+const checkAndInsert = async (
+  list,
+  collection,
+  isConvMsg
+) => {
   for (const item of list) {
     let exists = await collection.findOne({ _id: item._id });
 
@@ -161,11 +166,9 @@ const command = async () => {
           const oldMessages = await FbConversationMessages.find({
             conversationId: oldConv._id
           }).toArray();
-
           for (const msg of inboxMessages) {
             const exists = oldMessages.find(
-              (o) =>
-                o.content === msg.content && o.conversationId === oldConv._id
+               o => o.content === msg.content && o.conversationId === oldConv._id
             );
 
             const doc = { ...msg, conversationId: oldConv._id };
