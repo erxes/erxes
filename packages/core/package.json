@@ -46,7 +46,7 @@
     "csv-parser": "^3.0.0",
     "faker": "^4.1.0",
     "file-type": "^10.4.0",
-    "firebase-admin": "^8.6.1",
+    "firebase-admin": "^10.3.0",
     "formidable": "1.2.6",
     "fs-extra": "^9.0.1",
     "handlebars": "^4.7.3",
