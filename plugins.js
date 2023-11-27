@@ -156,7 +156,9 @@ window.plugins = [
         './src/containers/UpdateConfigsContainer.tsx',
       './activityLog': './src/containers/ActivityLogsContainer.tsx',
       './inboxConversationDetailRespondBoxMask':
-        './src/containers/TagMessageContainer.tsx'
+        './src/containers/TagMessageContainer.tsx',
+      './inboxConversationDetail':
+        './src/containers/post/FbCommentsContainer.tsx'
     },
     routes: {
       url:
