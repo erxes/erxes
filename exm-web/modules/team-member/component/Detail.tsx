@@ -39,11 +39,11 @@ import { useUserDetail } from "../hooks/useUserDetail"
 import ChangePassword from "./ChangePassword"
 
 const FormSchema = z.object({
-  operatorPhone: z.string().optional(),
-  description: z.string().optional(),
-  firstName: z.string().optional(),
-  lastName: z.string().optional(),
-  position: z.string().optional(),
+  operatorPhone: z.string().optional().nullable(),
+  description: z.string().optional().nullable(),
+  firstName: z.string().optional().nullable(),
+  lastName: z.string().optional().nullable(),
+  position: z.string().optional().nullable(),
   username: z
     .any({
       required_error: "Please enter an username",
@@ -58,12 +58,12 @@ const FormSchema = z.object({
     .refine((val) => val.trim().length !== 0, {
       message: "Please enter a password",
     }),
-  location: z.string().optional(),
-  facebook: z.string().optional(),
-  twitter: z.string().optional(),
-  youtube: z.string().optional(),
-  website: z.string().optional(),
-  employeeId: z.string().optional(),
+  location: z.string().optional().nullable(),
+  facebook: z.string().optional().nullable(),
+  twitter: z.string().optional().nullable(),
+  youtube: z.string().optional().nullable(),
+  website: z.string().optional().nullable(),
+  employeeId: z.string().optional().nullable(),
   email: z.string().email(),
   birthDate: z.union([z.string().optional(), z.date().optional()]),
   workStartedDate: z.union([z.string().optional(), z.date().optional()]),
@@ -236,6 +236,7 @@ const Detail = ({
                                   : "Type your bio"
                               }
                               {...field}
+                              value={field.value || ""}
                               className="p-0 border-none disabled:opacity-100 !h-[60px]"
                               disabled={disable}
                               {...form.register("description")}
@@ -287,6 +288,7 @@ const Detail = ({
                               className="p-0 border-none disabled:opacity-100 h-8"
                               disabled={disable}
                               {...form.register("operatorPhone")}
+                              value={field.value || ""}
                             />
                           </FormControl>
                           <FormMessage />
@@ -337,6 +339,7 @@ const Detail = ({
                                   : "Type your employee id"
                               }
                               {...field}
+                              value={field.value || ""}
                               className="p-0 border-none disabled:opacity-100 h-8"
                               disabled={disable}
                               {...form.register("employeeId")}
@@ -416,6 +419,7 @@ const Detail = ({
                                 : "Type your first name"
                             }
                             {...field}
+                            value={field.value || ""}
                             className="p-0 border-none disabled:opacity-100"
                             disabled={disable}
                             {...form.register("firstName")}
@@ -441,6 +445,7 @@ const Detail = ({
                                 : "Type your last name"
                             }
                             {...field}
+                            value={field.value || ""}
                             className="p-0 border-none disabled:opacity-100"
                             disabled={disable}
                             {...form.register("lastName")}
@@ -494,6 +499,7 @@ const Detail = ({
                             className="p-0 border-none disabled:opacity-100"
                             disabled={disable}
                             {...form.register("position")}
+                            value={field.value || ""}
                           />
                         </FormControl>
                         <FormMessage />
@@ -542,6 +548,7 @@ const Detail = ({
                             className="p-0 border-none disabled:opacity-100"
                             disabled={disable}
                             {...form.register("location")}
+                            value={field.value || ""}
                           />
                         </FormControl>
                         <FormMessage />
@@ -618,6 +625,7 @@ const Detail = ({
                               {...field}
                               className="p-0 border-none"
                               {...form.register("facebook")}
+                              value={field.value || ""}
                             />
                           </FormControl>
                           <FormMessage />
@@ -638,6 +646,7 @@ const Detail = ({
                               {...field}
                               className="p-0 border-none"
                               {...form.register("twitter")}
+                              value={field.value || ""}
                             />
                           </FormControl>
                           <FormMessage />
@@ -658,6 +667,7 @@ const Detail = ({
                               {...field}
                               {...form.register("youtube")}
                               className="p-0 border-none"
+                              value={field.value || ""}
                             />
                           </FormControl>
                           <FormMessage />
@@ -678,6 +688,7 @@ const Detail = ({
                               {...form.register("website")}
                               {...field}
                               className="p-0 border-none"
+                              value={field.value || ""}
                             />
                           </FormControl>
                           <FormMessage />
