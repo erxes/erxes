@@ -230,12 +230,8 @@ const Detail = ({
                             <Textarea
                               placeholder="Type your bio"
                               {...field}
-<<<<<<< HEAD
-                              className="p-0 border-none disabled:opacity-100"
-=======
                               value={field.value || ""}
                               className="p-0 border-none disabled:opacity-100 !h-[60px]"
->>>>>>> 16e06f53f032203da7d15121c2f3023920430dfa
                               disabled={disable}
                               {...form.register("description")}
                             />
