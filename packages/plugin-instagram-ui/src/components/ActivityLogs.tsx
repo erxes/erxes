@@ -47,7 +47,11 @@ class ActivityLogs extends React.Component<Props, { toggleMessage: boolean }> {
   }
 
   onCollapse = () => {
-    this.setState({ toggleMessage: !this.state.toggleMessage });
+    this.setState(prevState => {
+      return {
+        toggleMessage: !prevState.toggleMessage
+      };
+    });
   };
 
   renderComments() {
