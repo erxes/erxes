@@ -101,7 +101,7 @@ const MessageItem = ({
       : ` ${"bg-[#F2F3F5] text-[#000] rounded-tl-none rounded-tr-lg rounded-br-lg rounded-bl-lg"} font-medium`
     return (
       <div
-        className={`${style} py-2.5 px-5 max-w-md drop-shadow-md`}
+        className={`${style} py-2.5 px-5 max-w-md drop-shadow-md truncate whitespace-wrap`}
         dangerouslySetInnerHTML={{ __html: messageSectionContent || "" }}
       />
     )

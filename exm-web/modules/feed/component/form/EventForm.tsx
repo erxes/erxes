@@ -36,6 +36,7 @@ import {
 } from "@/components/ui/popover"
 import SuccessPost from "@/components/ui/successPost"
 import { Textarea } from "@/components/ui/textarea"
+import { toast } from "@/components/ui/use-toast"
 import SelectUsers from "@/components/select/SelectUsers"
 
 import useFeedMutation from "../../hooks/useFeedMutation"
@@ -119,7 +120,6 @@ const EventForm = ({
   const [imageUploading, setImageUploading] = useState(false)
   const [attachmentUploading, setAttachmentUploading] = useState(false)
   const [recipientIds, setRecipientIds] = useState(feed?.recipientIds || [])
-  const [value, setValue] = useState(new Date())
 
   const callBack = (result: string) => {
     if (result === "success") {
@@ -171,26 +171,31 @@ const EventForm = ({
   }, [feed])
 
   const onSubmit = (data: z.infer<typeof FormSchema>) => {
-    feedMutation(
-      {
-        title: data.title,
-        description: data.description ? data.description : "",
-        contentType: "event",
-        departmentIds,
-        branchIds,
-        unitId,
-        images,
-        attachments,
-        recipientIds,
-        eventData: {
-          visibility,
-          where: data.where || "",
-          startDate: data.startDate,
-          endDate: data.endDate,
+    if (!images || images.length === 0) {
+      toast({ description: "Add Image" })
+    }
+    if (images && images.length > 0) {
+      feedMutation(
+        {
+          title: data.title,
+          description: data.description ? data.description : "",
+          contentType: "event",
+          departmentIds,
+          branchIds,
+          unitId,
+          images,
+          attachments,
+          recipientIds,
+          eventData: {
+            visibility,
+            where: data.where || "",
+            startDate: data.startDate,
+            endDate: data.endDate,
+          },
         },
-      },
-      feed?._id || ""
-    )
+        feed?._id || ""
+      )
+    }
   }
 
   const onChangeMultiValue = (type: string, datas: any) => {
@@ -318,7 +323,7 @@ const EventForm = ({
               <FormItem>
                 <FormControl>
                   <Input
-                    placeholder="Event name"
+                    placeholder="Event name..."
                     {...field}
                     className="border-light"
                   />
@@ -335,7 +340,7 @@ const EventForm = ({
               <FormItem>
                 <FormControl>
                   <Textarea
-                    placeholder="Event description"
+                    placeholder="Event description..."
                     {...field}
                     defaultValue={feed?.description || ""}
                     className="border-light"
@@ -354,7 +359,7 @@ const EventForm = ({
                 <FormControl>
                   <Textarea
                     className="rounded-md px-3 py-2 border-light"
-                    placeholder="Add location"
+                    placeholder="Add location..."
                     {...field}
                     defaultValue={feed?.eventData?.where || ""}
                   />

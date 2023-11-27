@@ -8,7 +8,7 @@ export default {
 
   async users(branch: IBranchDocument, _args, { models }: IContext) {
     return models.Users.findUsers({
-      branchIds: { $in: branch._id },
+      branchIds: { $in: [branch._id] },
       isActive: true
     });
   },
@@ -27,7 +27,7 @@ export default {
 
   async userIds(branch: IBranchDocument, _args, { models }: IContext) {
     const branchUsers = await models.Users.findUsers({
-      branchIds: { $in: branch._id },
+      branchIds: { $in: [branch._id] },
       isActive: true
     });
 
@@ -35,8 +35,8 @@ export default {
     return userIds;
   },
   async userCount(branch: IBranchDocument, _args, { models }: IContext) {
-    return await models.Users.countDocuments({
-      branchIds: { $in: branch._id },
+    return await models.Users.find({
+      branchIds: { $in: [branch._id] },
       isActive: true
     });
   }
