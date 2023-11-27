@@ -13,10 +13,6 @@ const FeedbackForm = ({ setToggleView }: Props) => {
 
   const steps = ["Write", "Check", "Done"]
 
-  //   if (currentStep === steps.length + 1) {
-  //     setToggleView(false)
-  //   }
-
   return (
     <div className="h-full pt-2 flex flex-col justify-between">
       <div className="flex w-full h-20 items-center justify-center">

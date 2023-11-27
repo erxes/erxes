@@ -42,14 +42,12 @@ const ArticleList = ({ categoryId, topicId, searchValue }: Props) => {
     const author = article?.createdUser?.details?.fullName || ""
     const authorId = article?.createdUser?._id || ""
 
-    console.log(article)
-
     return (
       <span className="flex items-center space-x-1">
         <span className="ml-1">
           Written by{" "}
           <Link href={`/company/team-members/detail?id=${authorId}`}>
-            <span className="text-[#4F33AF] cursor-pointer capitalize ">
+            <span className="text-[#4F33AF] cursor-pointer capitalize font-semibold">
               {author}
             </span>
           </Link>

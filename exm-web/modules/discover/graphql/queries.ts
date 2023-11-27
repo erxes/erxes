@@ -218,7 +218,6 @@ const ticketsCommonParamDefs = `
 const commonListFields = `
   _id
   name
-  attachments
   assignedUsers
   labels
   stage

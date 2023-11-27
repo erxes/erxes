@@ -56,16 +56,13 @@ const Knowledgebase = () => {
     )
   }
 
-  const renderArticle = (child: IKbCategory, childIndex: number) => {
+  const renderArticle = (child: IKbCategory) => {
     const numOfAuthors = child.authors
       ? new Set(child.authors.map((author: any) => author._id)).size
       : 0
 
     return (
-      <article
-        key={childIndex}
-        className="flex flex-col items-start justify-between bg-white py-5 px-3.5 rounded-md"
-      >
+      <article className="flex flex-col items-start justify-between bg-white py-5 px-3.5 rounded-md">
         <div className="group relative">
           <h3 className="text-[18px] font-semibold leading-5 text-gray-900 group-hover:text-gray-600">
             <span className="absolute inset-0" />
@@ -119,7 +116,9 @@ const Knowledgebase = () => {
             </div>
             <div className="mx-auto mt-5 grid grid-cols-1 gap-x-9 gap-y-5 sm:mt-5 lg:mx-0 lg:max-w-none lg:grid-cols-3 ">
               {topic.childrens.map((child: IKbCategory, childIndex: number) => (
-                <>{renderArticle(child, childIndex)}</>
+                <React.Fragment key={childIndex}>
+                  {renderArticle(child)}
+                </React.Fragment>
               ))}
             </div>
           </div>

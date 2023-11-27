@@ -32,7 +32,7 @@ const SingleArticle = ({ articleId }: Props) => {
         <span className="ml-1">
           Written by{" "}
           <Link href={`/company/team-members/detail?id=${authorId}`}>
-            <span className="text-[#4F33AF] cursor-pointer capitalize ">
+            <span className="text-[#4F33AF] cursor-pointer capitalize font-semibold">
               {author}
             </span>
           </Link>
