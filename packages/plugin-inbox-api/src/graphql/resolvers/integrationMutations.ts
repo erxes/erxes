@@ -229,7 +229,19 @@ const integrationMutations = {
     { user, models, subdomain }: IContext
   ) {
     const modifiedDoc: any = { ...doc };
-
+    let instagram;
+    if (modifiedDoc.kind === 'instagram-messenger') {
+      try {
+        instagram = await models.Integrations.find({
+          kind: modifiedDoc.kind // Correct syntax for specifying the query condition
+        }).lean();
+      } catch (error) {
+        console.error('Error in MongoDB search:', error);
+      }
+    }
+    if (instagram.length > 0) {
+      throw new Error('Instagram integration already exists');
+    }
     if (modifiedDoc.kind === 'webhook') {
       modifiedDoc.webhookData = { ...data };
 

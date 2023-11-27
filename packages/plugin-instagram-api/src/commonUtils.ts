@@ -119,10 +119,10 @@ export const getEnv = ({
 /*
  * Generate url depending on given file upload publicly or not
  */
+
 export const generateAttachmentUrl = (urlOrName: string) => {
   const DOMAIN = getEnv({ name: 'DOMAIN' });
   const NODE_ENV = getEnv({ name: 'NODE_ENV' });
-
   if (urlOrName.startsWith('http')) {
     return urlOrName;
   }

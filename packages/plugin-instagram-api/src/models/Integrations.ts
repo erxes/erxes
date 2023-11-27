@@ -8,8 +8,8 @@ export interface IIntegration {
   accountId: string;
   emailScope?: string;
   erxesApiId: string;
-  facebookPageIds?: string[];
-  instagramPageIds?: string[];
+  facebookPageId?: string;
+  instagramPageId?: string;
   facebookPageTokensMap?: { [key: string]: string };
   email: string;
   expiration?: string;
@@ -26,16 +26,9 @@ export const integrationSchema = new Schema({
   accountId: String,
   erxesApiId: String,
   emailScope: String,
-  instagramPageIds: field({
-    type: [String],
-    label: 'Instagram page ids',
-    optional: true
-  }),
-  facebookPageIds: field({
-    type: [String],
-    label: 'Facebook page ids',
-    optional: true
-  }),
+  instagramPageId: String,
+  facebookPageId: String,
+
   email: String,
   expiration: String,
 

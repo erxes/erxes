@@ -80,19 +80,6 @@ export default withProps<Props>(
           }
         })
       }
-    ),
-    graphql<Props, InstagramCommentsQueryResponse>(
-      gql(queries.instagramGetComments),
-      {
-        name: 'commentsQuery',
-        skip: ({ activity }) => activity.contentType !== 'comment',
-        options: ({ conversationId, activity }) => ({
-          variables: {
-            conversationId,
-            senderId: activity.contentId
-          }
-        })
-      }
     )
   )(ConversationContainer)
 );

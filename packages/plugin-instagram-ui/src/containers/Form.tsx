@@ -77,7 +77,6 @@ class InstagramContainer extends React.Component<FinalProps, State> {
     callback
   }: IButtonMutateProps) => {
     const { kind } = this.props;
-
     return (
       <ButtonMutate
         mutation={inboxMutations.integrationsCreateExternalIntegration}
@@ -94,7 +93,6 @@ class InstagramContainer extends React.Component<FinalProps, State> {
   render() {
     const { callBack, kind } = this.props;
     const { accountId, pages, loadingPages } = this.state;
-
     const updatedProps = {
       kind,
       callBack,

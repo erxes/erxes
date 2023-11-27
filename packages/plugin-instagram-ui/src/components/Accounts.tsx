@@ -2,7 +2,7 @@ import {
   AccountBox,
   AccountItem,
   AccountTitle,
-  InstagramButton
+  FacebookButton
 } from '@erxes/ui-inbox/src/settings/integrations/styles';
 import {
   IAccount,
@@ -62,10 +62,10 @@ class Accounts extends React.Component<Props, { accountId?: string }> {
 
     if (kind === 'instagram') {
       return (
-        <InstagramButton onClick={onAdd}>
-          <Icon icon="instagram" />
-          {__('Continue with instagram')}
-        </InstagramButton>
+        <FacebookButton onClick={onAdd}>
+          <Icon icon="facebook" />
+          {__('Continue with facebook')}
+        </FacebookButton>
       );
     }
 

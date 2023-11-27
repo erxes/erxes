@@ -3,6 +3,7 @@ import { sendInboxMessage } from './messageBroker';
 import { getOrCreateCustomer } from './store';
 import { IMessageData } from './types';
 import { graphqlPubsub } from './configs';
+import { INTEGRATION_KINDS } from './constants';
 
 const receiveMessage = async (
   models: IModels,
@@ -11,14 +12,13 @@ const receiveMessage = async (
 ) => {
   const { recipient, sender, timestamp, message } = messageData;
   // const attachments = messageData.message.attachments;
-
   const integration = await models.Integrations.getIntegration({
     $and: [
-      { instagramPageIds: { $in: [recipient.id] } },
-      { kind: 'instagram-messenger' }
+      { instagramPageId: { $in: [recipient.id] } },
+      { kind: INTEGRATION_KINDS.MESSENGER }
     ]
   });
-  const { facebookPageTokensMap, facebookPageIds } = integration;
+  const { facebookPageTokensMap, facebookPageId } = integration;
 
   const userId = sender.id;
   const pageId = recipient.id;
@@ -29,7 +29,7 @@ const receiveMessage = async (
     subdomain,
     pageId,
     userId,
-    facebookPageIds,
+    facebookPageId,
     facebookPageTokensMap
   );
 

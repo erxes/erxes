@@ -110,36 +110,6 @@ const FacebookButton = styled.button`
     border-color: rgb(54, 88, 153);
   }
 `;
-const InstagramButton = styled.button`
-  background-color: rgb(179, 89, 163);
-  border-color: rgb(179, 89, 163);
-  color: ${colors.colorWhite};
-  line-height: 16px;
-  font-size: 14px;
-  padding: 11px 24px;
-  font-weight: 500;
-  border-radius: 3px;
-  border-style: solid;
-  border-width: 1px;
-  text-align: center;
-  transition: all 0.15s ease-out;
-  display: inline-block;
-  max-width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  vertical-align: middle;
-  white-space: nowrap;
-
-  i {
-    margin-right: 5px;
-  }
-
-  &:hover {
-    cursor: pointer;
-    background-color: rgb(179, 89, 163);
-    border-color: rgb(179, 89, 163);
-  }
-`;
 
 const AccountBox = styled.div`
   border: 1px solid ${colors.borderPrimary};
@@ -455,7 +425,6 @@ export {
   AccountTitle,
   AccountItem,
   FacebookButton,
-  InstagramButton,
   ImageWrapper,
   TextWrapper,
   Attachments,

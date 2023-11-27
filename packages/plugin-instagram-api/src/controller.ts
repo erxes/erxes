@@ -3,15 +3,9 @@ import { getConfig } from './commonUtils';
 import loginMiddleware from './middlewares/loginMiddleware';
 import receiveMessage from './receiveMessage';
 import { generateModels } from './connectionResolver';
-import {
-  getFacebookPageIdsForInsta,
-  getPageList,
-  subscribePage,
-  getPageAccessToken
-} from './utils';
+import { getPageList } from './utils';
 import {
   debugError,
-  debugFacebook,
   debugInstagram,
   debugRequest,
   debugResponse
@@ -61,15 +55,14 @@ const init = async app => {
     const subdomain = getSubdomain(req);
     const models = await generateModels(subdomain);
 
-    const FACEBOOK_VERIFY_TOKEN = await getConfig(
+    const INSTAGRAM_VERIFY_TOKEN = await getConfig(
       models,
-      'FACEBOOK_VERIFY_TOKEN'
+      'INSTAGRAM_VERIFY_TOKEN'
     );
-
     // when the endpoint is registered as a webhook, it must echo back
     // the 'hub.challenge' value it receives in the query arguments
     if (req.query['hub.mode'] === 'subscribe') {
-      if (req.query['hub.verify_token'] === '477832793072863') {
+      if (req.query['hub.verify_token'] === INSTAGRAM_VERIFY_TOKEN) {
         res.send(req.query['hub.challenge']);
       } else {
         res.send('OK');
@@ -79,7 +72,6 @@ const init = async app => {
   app.post('/instagram/receive', async (req, res, next) => {
     const subdomain = getSubdomain(req);
     const models = await generateModels(subdomain);
-
     const data = req.body;
     if (data.object !== 'instagram') {
       return;

@@ -35,24 +35,24 @@ export const graphRequest = {
 };
 export const getFacebookPageIdsForInsta = async (
   accessToken: string,
-  instagramPageId: string[]
-) => {
+  instagramPageId: string
+): Promise<string | null> => {
   const response: any = await graphRequest.get(
     '/me/accounts?fields=instagram_business_account, access_token,id,name',
     accessToken
   );
 
-  const pageIds: any[] = [];
   for (const page of response.data) {
     if (page.instagram_business_account) {
       const pageId = page.instagram_business_account.id;
-      if (pageId === instagramPageId[0]) {
-        pageIds.push(page.id);
+      if (pageId === instagramPageId) {
+        return page.id; // Return the found page ID as a string
       }
     }
   }
 
-  return pageIds;
+  // Return null if no matching page is found
+  return null;
 };
 
 export const subscribePage = async (
@@ -138,13 +138,6 @@ export const getPageList = async (
   return pages;
 };
 
-// export const getPageAccessTokenFromMap = (
-//   pageId: string,
-//   pageTokens: { [key: string]: string }
-// ): string => {
-//   return (pageTokens || {})[pageId] || null;
-// };
-
 export const getPageAccessTokenFromMap = (
   pageId: string,
   pageTokens: { [key: string]: string }
@@ -152,47 +145,14 @@ export const getPageAccessTokenFromMap = (
   return (pageTokens || {})[pageId];
 };
 
-export const getFacebookUser = async (
-  models: IModels,
-  pageId: string,
-  pageTokens: { [key: string]: string },
-  fbUserId: string
-) => {
-  let pageAccessToken;
-
-  try {
-    pageAccessToken = getPageAccessTokenFromMap(pageId, pageTokens);
-  } catch (e) {
-    debugError(`Error occurred while getting page access token: ${e.message}`);
-    return null;
-  }
-
-  const pageToken = pageAccessToken;
-
-  try {
-    const response = await graphRequest.get(`/${fbUserId}`, pageToken);
-
-    return response;
-  } catch (e) {
-    if (e.message.includes('access token')) {
-      await models.Integrations.updateOne(
-        { facebookPageIds: pageId },
-        { $set: { healthStatus: 'page-token', error: `${e.message}` } }
-      );
-    }
-
-    throw new Error(e);
-  }
-};
-
 export const getInstagramUser = async (
   userId: string,
-  facebookPageIds: string[],
+  facebookPageId: string,
   facebookPageTokensMap?: { [key: string]: string }
 ) => {
   if (facebookPageTokensMap !== undefined) {
     const token = await getPageAccessTokenFromMap(
-      facebookPageIds[0],
+      facebookPageId,
       facebookPageTokensMap
     );
     const accounInfo: any = await graphRequest.get(
@@ -229,18 +189,16 @@ export const sendReply = async (
     // Continue with the code assuming the integration was successfully retrieved
   } catch (error) {
     // Handle the error
-    console.error(`Error getting integration: ${error.message}`);
+    throw new Error(error);
   }
 
-  // const { facebookPageTokensMap, facebookPageIds } = integration;
-
-  const { facebookPageTokensMap = {}, facebookPageIds } = integration;
+  const { facebookPageTokensMap = {}, facebookPageId } = integration;
 
   let pageAccessToken;
 
   try {
     pageAccessToken = getPageAccessTokenFromMap(
-      facebookPageIds[0],
+      facebookPageId,
       facebookPageTokensMap
     );
   } catch (e) {
@@ -255,7 +213,7 @@ export const sendReply = async (
       ...data
     });
     debugInstagram(
-      `Successfully sent data to instagram ${JSON.stringify(data)}`
+      `Successfully sent data to Instagram ${JSON.stringify(data)}`
     );
     return response;
   } catch (e) {
@@ -264,39 +222,19 @@ export const sendReply = async (
         e.message
       } data: ${JSON.stringify(data)}`
     );
-
-    if (e.message.includes('access token')) {
-      await models.Integrations.updateOne(
-        { _id: integration._id },
-        { $set: { healthStatus: 'page-token', error: `${e.message}` } }
-      );
-    } else if (e.code !== 10) {
-      await models.Integrations.updateOne(
-        { _id: integration._id },
-        { $set: { healthStatus: 'account-token', error: `${e.message}` } }
-      );
-    }
-
-    if (e.message.includes('does not exist')) {
-      throw new Error('Comment has been deleted by the customer');
-    }
-
     throw new Error(e.message);
   }
 };
 
 export const generateAttachmentMessages = (attachments: IAttachment[]) => {
   const messages: IAttachmentMessage[] = [];
-
   for (const attachment of attachments || []) {
     let type = 'file';
 
     if (attachment.type.startsWith('image')) {
       type = 'image';
     }
-
     const url = generateAttachmentUrl(attachment.url);
-
     messages.push({
       attachment: {
         type,

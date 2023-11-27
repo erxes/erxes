@@ -1,17 +1,5 @@
 import { IContext } from '../../connectionResolver';
 import { repairIntegrations, updateConfigs } from '../../helpers';
-import { sendInboxMessage } from '../../messageBroker';
-import { sendReply } from '../../utils';
-
-interface ICommentStatusParams {
-  commentId: string;
-}
-
-interface IReplyParams extends ICommentStatusParams {
-  conversationId: string;
-  content: string;
-  attachments: any;
-}
 
 const instagramMutations = {
   async instagramUpdateConfigs(_root, { configsMap }, { models }: IContext) {

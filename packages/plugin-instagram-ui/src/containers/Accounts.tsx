@@ -44,7 +44,6 @@ class AccountContainer extends React.Component<FinalProps, {}> {
   onAdd = () => {
     const { kind } = this.props;
     const { REACT_APP_API_URL } = getEnv();
-
     this.popupWindow(
       `${REACT_APP_API_URL}/pl:instagram/instagram/login?kind=${kind}`,
       'Integration',

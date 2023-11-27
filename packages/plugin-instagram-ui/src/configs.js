@@ -6,9 +6,7 @@ module.exports = {
   exposes: {
     './routes': './src/routes.tsx',
     './inboxIntegrationSettings': './src/containers/UpdateConfigsContainer.tsx',
-    './activityLog': './src/containers/ActivityLogsContainer.tsx',
-    './inboxConversationDetailRespondBoxMask':
-      './src/containers/TagMessageContainer.tsx'
+    './activityLog': './src/containers/ActivityLogsContainer.tsx'
   },
   routes: {
     url: 'http://localhost:3037/remoteEntry.js',

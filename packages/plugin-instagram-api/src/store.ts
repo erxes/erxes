@@ -1,13 +1,14 @@
 import { debugError } from './debuggers';
-import { sendInboxMessage, sendRPCMessage } from './messageBroker';
+import { sendInboxMessage } from './messageBroker';
 import { getInstagramUser } from './utils';
 import { IModels } from './connectionResolver';
+import { INTEGRATION_KINDS } from './constants';
 export const getOrCreateCustomer = async (
   models: IModels,
   subdomain: string,
   pageId: string,
   userId: string,
-  facebookPageIds: string[] | undefined,
+  facebookPageId: string | undefined,
   facebookPageTokensMap?: { [key: string]: string }
 ) => {
   let customer = await models.Customers.findOne({ userId });
@@ -17,8 +18,8 @@ export const getOrCreateCustomer = async (
 
   const integration = await models.Integrations.getIntegration({
     $and: [
-      { instagramPageIds: { $in: pageId } },
-      { kind: 'instagram-messenger' }
+      { instagramPageId: { $in: pageId } },
+      { kind: INTEGRATION_KINDS.MESSENGER }
     ]
   });
 
@@ -32,7 +33,7 @@ export const getOrCreateCustomer = async (
   try {
     instagramUser = await getInstagramUser(
       userId,
-      facebookPageIds || [],
+      facebookPageId || '',
       facebookPageTokensMap
     );
   } catch (e) {

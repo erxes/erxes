@@ -20,15 +20,16 @@ const loginMiddleware = async (req, res) => {
   const MAIN_APP_DOMAIN = getEnv({
     name: 'MAIN_APP_DOMAIN'
   });
-  // const DOMAIN = 'https://0bdd-202-21-104-34.ngrok-free.app/pl:instagram';
-  const DOMAIN = 'https://0969-202-9-40-44.ngrok-free.app/pl:instagram';
-  //  8950-202-9-40-44.ngrok-free.app/pl:instagram/instagram/login
+
+  const DOMAIN = getEnv({
+    name: 'DOMAIN'
+  });
 
   const conf = {
     client_id: FACEBOOK_APP_ID,
     client_secret: FACEBOOK_APP_SECRET,
     scope: `${FACEBOOK_PERMISSIONS},instagram_basic,instagram_manage_messages`,
-    redirect_uri: `${DOMAIN}/instagram/login`
+    redirect_uri: `${DOMAIN}/pl:instagram/instagram/login`
   };
 
   debugRequest(debugFacebook, req);

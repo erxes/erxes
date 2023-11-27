@@ -10,7 +10,6 @@ import { generateAttachmentMessages, sendReply } from './utils';
 export const handleInstagramMessage = async (models: IModels, msg) => {
   const { action, payload } = msg;
   const doc = JSON.parse(payload || '{}');
-
   if (doc.internal) {
     const conversation = await models.Conversations.getConversation({
       erxesApiId: doc.conversationId
@@ -24,7 +23,6 @@ export const handleInstagramMessage = async (models: IModels, msg) => {
       doc.userId
     );
   }
-
   if (action === 'reply-messenger') {
     const {
       integrationId,
@@ -33,8 +31,6 @@ export const handleInstagramMessage = async (models: IModels, msg) => {
       attachments = [],
       extraInfo
     } = doc;
-
-    // const { integrationId, conversationId, content, attachments } = doc;
 
     const tag = extraInfo && extraInfo.tag ? extraInfo.tag : '';
     const regex = new RegExp('<img[^>]* src="([^"]*)"', 'g');
@@ -50,14 +46,12 @@ export const handleInstagramMessage = async (models: IModels, msg) => {
     let strippedContent = strip(content);
 
     strippedContent = strippedContent.replace(/&amp;/g, '&');
-
     const conversation = await models.Conversations.getConversation({
       erxesApiId: conversationId
     });
 
     const { senderId } = conversation;
     let localMessage;
-
     try {
       if (strippedContent) {
         try {
@@ -87,17 +81,18 @@ export const handleInstagramMessage = async (models: IModels, msg) => {
           await models.ConversationMessages.deleteOne({
             _id: localMessage && localMessage._id
           });
-
           throw new Error(e.message);
         }
       }
 
-      for (const message of generateAttachmentMessages(attachments)) {
+      const generatedAttachments = generateAttachmentMessages(attachments);
+
+      for (const message of generatedAttachments) {
         try {
           await sendReply(
             models,
             'me/messages',
-            { recipient: { id: senderId }, message },
+            { recipient: { id: senderId }, message, tag },
             integrationId
           );
         } catch (e) {
