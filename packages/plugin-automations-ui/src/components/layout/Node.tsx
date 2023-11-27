@@ -1,105 +1,134 @@
-import { colors, dimensions } from '@erxes/ui/src';
-import { rgba } from '@erxes/ui/src/styles/ecolor';
-import React from 'react';
+import { __, colors } from '@erxes/ui/src';
+import React, { memo, useState } from 'react';
 import { Handle, Position } from 'reactflow';
-import styledTS from 'styled-components-ts';
 
-import styled from 'styled-components';
+import { DEFAULT_HANDLE_OPTIONS, DEFAULT_HANDLE_STYLE } from './constants';
+import { Trigger } from './styles';
+import { renderDynamicComponent } from '../../utils';
 
-const Trigger = styledTS<{ type: string }>(styled.div)`
-  max-width: 300px;
-  padding: 3px;
-  background: #f5f5f5;
-  border: 1px solid ${colors.borderPrimary};
-  border-radius: 8px;
-  cursor: pointer;
-
-  .header {
-    background: ${props =>
-      props.type === 'trigger'
-        ? rgba(colors.colorPrimary, 0.12)
-        : rgba(colors.colorCoreOrange, 0.12)};
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    border-radius: 4px;
-    font-weight: 500;
-    font-size: 14px;
-    padding: ${dimensions.unitSpacing}px;
-
-    > div {
-      display: flex;
-      align-items: center;
-      margin-right: ${dimensions.coreSpacing}px;
-
-      > i {
-        width: 40px;
-        height: 40px;
-        border-radius: 4px;
-        font-size: 24px;
-        line-height: 40px;
-        text-align: center;
-        flex-shrink: 0;
-        margin-right: ${dimensions.unitSpacing}px;
-        background: ${colors.colorWhite};
-        color: ${props =>
-          props.type === 'trigger'
-            ? `${colors.colorCoreOrange} !important`
-            : colors.colorSecondary};
-      }
-    }
+const showHandler = (data, option) => {
+  if (data.nodeType === 'trigger' && ['left'].includes(option.id)) {
+    return false;
   }
 
-  > p {
-    font-size: 13px;
-    text-align: center;
-    margin: 0;
-    padding: ${dimensions.unitSpacing + 5}px ${dimensions.unitSpacing}px;
-    color: ${colors.colorCoreGray};
-  }
-
-  &.scratch {
-    top: 40%;
-    display: flex;
-    align-items: center;
-    flex-direction: column;
-    padding: 20px 10px 10px;
-    transition: all ease 0.3s;
-
-    > i {
-      width: 40px;
-      height: 40px;
-      line-height: 40px;
-      background: ${rgba(colors.colorSecondary, 0.12)};
-      border-radius: 40px;
-      color: ${colors.colorSecondary};
-      text-align: center;
-    }
-
-    &:hover {
-      border-color: ${colors.colorSecondary};
-    }
-  }
-`;
-
-interface CustomNodeProps {
-  data: any;
-}
-
-const CustomNode = ({ data }: CustomNodeProps) => {
-  return (
-    <Trigger type={data.type}>
-      <div className="header">
-        {data.label}
-        <i className={`icon-${data.icon}`}></i>
-      </div>
-      <p>{data.description}</p>
-      <Handle type="source" position={Position.Top} id="a" />
-      <Handle type="source" position={Position.Right} id="b" />
-      <Handle type="source" position={Position.Bottom} id="c" />
-      <Handle type="source" position={Position.Left} id="d" />
-    </Trigger>
-  );
+  return true;
 };
 
-export default CustomNode;
+export default memo(({ id, data, x, y }: any) => {
+  const [isHovered, setIsHovered] = useState(false);
+
+  const { toggleDrawer, onDoubleClick, removeItem, constants } = data;
+
+  const onMouseEnter = () => {
+    setIsHovered(true);
+  };
+
+  const onMouseLeave = () => {
+    setIsHovered(false);
+  };
+
+  const handleOnClick = optionId => {
+    if (optionId.includes('right')) {
+      console.log('dasfsdgfh');
+      toggleDrawer(`actions`, id);
+    }
+  };
+
+  const handleDoubleClick = () => {
+    onDoubleClick(data.nodeType, id);
+  };
+
+  const removeNode = e => {
+    e.persist();
+    removeItem(data.nodeType, id);
+  };
+
+  const renderOptionalContent = () => {
+    const constant = (constants[`${data.nodeType}sConst`] || []).find(
+      c => c.type === data[`${data.nodeType}Type`]
+    );
+
+    if (constant && constant?.isAvailableOptionalConnect) {
+      return (
+        <div className="optional-connects">
+          {renderDynamicComponent(
+            {
+              componentType: 'optionalContent',
+              data,
+              handle: id => (
+                <Handle
+                  id={`${id}-right`}
+                  type="source"
+                  position={Position.Right}
+                  onClick={handleOnClick.bind(this, `${id}-right`)}
+                  isConnectable
+                  style={{
+                    right: '20px',
+                    width: 10,
+                    height: 10,
+                    backgroundColor: colors.colorShadowGray,
+                    zIndex: 4
+                  }}
+                />
+              )
+            },
+            constant.type
+          )}
+        </div>
+      );
+    }
+    // if (data?.isAvailableOptionalConnect && data[`${data.nodeType}Type`]) {
+    //   return renderDynamicComponent(
+    //     { componentType: 'optionalContent', data },
+    //     data[`${data.nodeType}`]
+    //   );
+    // }
+  };
+
+  return (
+    <>
+      <Trigger
+        type={data.nodeType}
+        isHoverActionBar={isHovered}
+        key={id}
+        onDoubleClick={handleDoubleClick}
+        onMouseEnter={onMouseEnter}
+        onMouseLeave={onMouseLeave}
+      >
+        <div className="header">
+          <div className="custom-menu">
+            <div>
+              <i className="icon-notes add-note" title={__('Write Note')}></i>
+              <i
+                className="icon-trash-alt delete-control"
+                onClick={removeNode}
+                title={__('Delete')}
+              ></i>
+            </div>
+          </div>
+          <div>
+            <i className={`icon-${data.icon}`} />
+            {data.label}
+          </div>
+        </div>
+
+        {renderOptionalContent()}
+
+        <p>{data.description}</p>
+      </Trigger>
+      {DEFAULT_HANDLE_OPTIONS.map(
+        option =>
+          showHandler(data, option) && (
+            <Handle
+              key={option.id}
+              type="source"
+              position={option.position}
+              id={option.id}
+              onClick={handleOnClick.bind(this, option.id)}
+              style={{ ...DEFAULT_HANDLE_STYLE, ...option.style }}
+            />
+          )
+      )}
+    </>
+  );
+});

@@ -164,20 +164,16 @@ export const connection = (
   info: any,
   actionId: any
 ) => {
-  const sourceId = info.sourceId;
+  const { sourceId, type } = info || {};
 
-  if (sourceId.includes('trigger')) {
-    const trigger = triggers.find(
-      t => t.id.toString() === sourceId.replace('trigger-', '')
-    );
+  if (type === 'trigger') {
+    const trigger = triggers.find(t => t.id.toString() === sourceId);
 
     if (trigger) {
       trigger.actionId = actionId;
     }
   } else {
-    const sourceAction = actions.find(
-      a => a.id.toString() === sourceId.replace('action-', '')
-    );
+    const sourceAction = actions.find(a => a.id.toString() === sourceId);
 
     if (sourceAction) {
       if (sourceAction.type === 'if') {

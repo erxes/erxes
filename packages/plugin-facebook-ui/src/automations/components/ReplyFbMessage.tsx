@@ -105,6 +105,15 @@ class ReplyFbMessage extends React.Component<Props, State> {
       onChange('image', null);
     };
 
+    const onChangeButtons = buttons => {
+      // const convertedButtons = buttons.map(button => ({
+      //   text: button,
+      //   _id: Math.random().toString()
+      // }));
+
+      onChange('buttons', buttons);
+    };
+
     return (
       <>
         {messageTemplates?.length > 1 && (
@@ -138,7 +147,7 @@ class ReplyFbMessage extends React.Component<Props, State> {
           options={template?.buttons || []}
           addButtonLabel="Add Buttons"
           showAddButton
-          onChangeOption={buttons => onChange('buttons', buttons)}
+          onChangeOption={onChangeButtons}
         />
       </>
     );

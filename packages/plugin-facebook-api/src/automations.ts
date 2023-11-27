@@ -1,7 +1,6 @@
-import { IModels, generateModels } from './connectionResolver';
-import { handleFacebookMessage } from './handleFacebookMessage';
-import { sendReply } from './utils';
 import { readFileUrl } from '@erxes/api-utils/src/commonUtils';
+import { IModels, generateModels } from './connectionResolver';
+import { sendReply } from './utils';
 
 export default {
   constants: {
@@ -11,7 +10,8 @@ export default {
         icon: 'messenger',
         label: 'Send Facebook Message',
         description: 'Send Facebook Message',
-        isAvailable: true
+        isAvailable: true,
+        isAvailableOptionalConnect: true
       },
       {
         type: 'facebook:comment.create',

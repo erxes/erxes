@@ -1,11 +1,16 @@
 import React from 'react';
 import ReplyFbMessage from './components/ReplyFbMessage';
+import OptionalContent from './components/OptionalContent';
 
 const Automations = props => {
   const { componentType, activeAction } = props;
 
   if (componentType === 'historyActionResult') {
     return <>{'-'}</>;
+  }
+
+  if (componentType === 'optionalContent') {
+    return <OptionalContent action={props.data} handle={props.handle} />;
   }
 
   if (componentType === 'actionForm') {
@@ -21,6 +26,7 @@ const Automations = props => {
         return null;
     }
   }
+
   if (componentType === 'historyActionResult') {
     const { result } = props;
     return <>{JSON.stringify(result || {})}</>;
