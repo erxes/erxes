@@ -686,12 +686,6 @@ export const bichilTimeclockReportFinal = async (
           $gte: fixDate(startDate),
           $lte: customFixDate(endDate)
         }
-      },
-      {
-        shiftEnd: {
-          $gte: fixDate(startDate),
-          $lte: customFixDate(endDate)
-        }
       }
     ]
   }).sort({ userId: 1 });
@@ -791,6 +785,7 @@ export const bichilTimeclockReportFinal = async (
           shiftEnd?.getTime() === midnightOfShiftDay.getTime()
         ) {
           shiftNotClosedDaysPerUser += 1;
+          return;
         }
 
         if (shiftStart && shiftEnd) {
