@@ -384,6 +384,12 @@ const emojiReactedUsers = gql`
       type: $type
     ) {
       _id
+      email
+      details {
+        avatar
+        fullName
+        position
+      }
     }
   }
 `
