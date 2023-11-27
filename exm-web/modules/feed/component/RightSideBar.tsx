@@ -28,7 +28,8 @@ const RightSideBar = () => {
   const currentUser = useAtomValue(currentUserAtom) || ({} as IUser)
   const { events, handleLoadMore, loading, totalCount } = useEvents()
   const { users } = useUsers({})
-  const [date, setDate] = useState(new Date())
+  const [date, setDate] = useState()
+  const [onDateClick, setOnDateClick] = useState(false)
 
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -45,6 +46,16 @@ const RightSideBar = () => {
       handleLoadMore()
     }
   }, [inView, handleLoadMore])
+
+  useEffect(() => {
+    if (onDateClick) {
+      router.push(
+        `/?contentType=publicHoliday&dateFilter=${dayjs(date).format(
+          "MMM DD YYYY"
+        )}`
+      )
+    }
+  }, [date])
 
   if (loading) {
     return <Loader />
@@ -193,6 +204,16 @@ const RightSideBar = () => {
     )
   }
 
+  const onDateChange = (e: any) => {
+    setDate(e || new Date())
+    setOnDateClick(true)
+  }
+
+  const onClearFilter = () => {
+    router.push(`/?contentType=publicHoliday`)
+    setOnDateClick(false)
+  }
+
   const renderRightSidebar = () => {
     if (type === "publicHoliday") {
       return (
@@ -201,31 +222,23 @@ const RightSideBar = () => {
             Select Calendar
           </CardHeader>
           <Calendar
-            className="bg-white mr-4 rounded-lg py-[30px] flex justify-center"
+            className={`bg-white mr-4 rounded-lg ${
+              dateFilter && "rounded-bl-none rounded-br-none"
+            } py-[30px] flex justify-center`}
             mode="single"
             selected={date}
-            onSelect={(e) => setDate(e || new Date())}
+            onSelect={(e) => onDateChange(e)}
           />
 
-          <Button
-            className="mt-6 bg-primary-light"
-            onClick={() =>
-              router.push(
-                `/?contentType=publicHoliday&dateFilter=${dayjs(date).format(
-                  "MMM DD YYYY"
-                )}`
-              )
-            }
-          >
-            Apply
-          </Button>
           {dateFilter && (
-            <Button
-              className="mt-6 ml-6 bg-[#BFBFBF]"
-              onClick={() => router.push(`/?contentType=publicHoliday`)}
-            >
-              Cancel
-            </Button>
+            <div className="bg-white flex justify-center rounded-lg rounded-tl-none rounded-tr-none mr-4">
+              <Button
+                className="mb-6 bg-[#BFBFBF] hover:bg-[#BFBFBF]"
+                onClick={() => onClearFilter()}
+              >
+                Cancel
+              </Button>
+            </div>
           )}
           <CardHeader className="text-black font-bold text-lg pl-0">
             Today's events
@@ -250,7 +263,7 @@ const RightSideBar = () => {
   return (
     <div className="bg-[#F8F9FA]">
       <RightNavbar withBorder={true} />
-      {renderRightSidebar()}
+      <div className=" pl-[8px]">{renderRightSidebar()}</div>
     </div>
   )
 }

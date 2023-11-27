@@ -32,9 +32,12 @@ const MemberCard = ({ user }: { user: IUser }): JSX.Element => {
               <p className="font-normal text-sm mt-2">{userDetail.position}</p>
             )}
             {userDetail.description && (
-              <p className="text-[#5E5B5B] font-normal text-sm mt-2">
-                {userDetail.description}
-              </p>
+              <>
+                <p className="text-[#5E5B5B] font-normal text-sm mt-2 max-h-[60px] truncate w-[90%] m-auto whitespace-wrap">
+                  {userDetail.description}
+                </p>
+                {userDetail.description.length > 70 && "..."}
+              </>
             )}
           </div>
         </a>

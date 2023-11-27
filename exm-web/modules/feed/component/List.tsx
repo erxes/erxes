@@ -55,7 +55,7 @@ const List = ({ contentType }: { contentType: string }) => {
   }
 
   return (
-    <div className="h-[calc(100vh-65px)] px-[25px]overflow-auto">
+    <div className="h-[calc(100vh-65px)] pl-[25px] pr-[20px] overflow-auto">
       <FeedForm contentType={contentType} />
       {showList(pinnedList)}
       {showList(normalList)}
