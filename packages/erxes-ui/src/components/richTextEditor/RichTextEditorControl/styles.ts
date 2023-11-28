@@ -19,6 +19,11 @@ const EditorControl = styled.button`
     background-color: #f8f9fa;
   }
 
+  &:disabled {
+    color: ${colors.colorCoreLightGray} !important;
+    background-color: transparent !important;
+  }
+
   &[data-rich-text-editor-control] {
     border-radius: 0;
     &:not(:last-of-type) {
@@ -221,6 +226,66 @@ const FontSelectWrapper = styled.div`
   }
 `;
 
+const MenuItem = styled.button`
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  background: white;
+  border: none;
+  &:first-of-type {
+    border-top-right-radius: 0.25rem;
+    border-top-left-radius: 0.25rem;
+  }
+  &:last-of-type {
+    border-bottom-right-radius: 0.25rem;
+    border-bottom-left-radius: 0.25rem;
+  }
+  box-shadow: rgba(0, 0, 0, 0.1) 0px 1px 1px;
+  width: 100%;
+  &:hover {
+    background: rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+  }
+`;
+
+const PickerAction = styled.button`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0.5rem 0.75rem;
+  background: white;
+  border: none;
+  &:first-of-type {
+    border-bottom-left-radius: 0.25rem;
+  }
+  &:last-of-type {
+    border-bottom-right-radius: 0.25rem;
+  }
+  width: 100%;
+  &:hover {
+    background: rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+  }
+`;
+
+const ColorPickerWrapper = styled.div`
+  .compact-picker {
+    border: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+  }
+  > div {
+    > div {
+      box-shadow: none !important;
+    }
+  }
+  .chrome-picker {
+    box-shadow: none !important;
+  }
+`;
+
 export {
   EditorControl,
   LinkWrapper,
@@ -233,5 +298,8 @@ export {
   Input,
   FormItemWrapper,
   ImageHandlingForm,
-  FormActionWrapper
+  FormActionWrapper,
+  ColorPickerWrapper,
+  MenuItem,
+  PickerAction
 };
