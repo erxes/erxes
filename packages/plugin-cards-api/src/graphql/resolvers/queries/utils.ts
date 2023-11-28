@@ -653,6 +653,7 @@ export const generateDealCommonFilters = async (
     currentUserId,
     args
   );
+
   if (extraParams) {
     filter = await generateExtraFilters(filter, extraParams);
   }
