@@ -21,6 +21,7 @@ import Spinner from '@erxes/ui/src/components/Spinner';
 import Uploader from '@erxes/ui/src/components/Uploader';
 import { generateEmailTemplateParams } from '@erxes/ui-engage/src/utils';
 import { isEnabled } from '@erxes/ui/src/utils/core';
+import Toggle from '@erxes/ui/src/components/Toggle';
 
 type Name =
   | 'successAction'
@@ -37,7 +38,8 @@ type Name =
   | 'attachments'
   | 'successImageSize'
   | 'successImage'
-  | 'successPreviewStyle';
+  | 'successPreviewStyle'
+  | 'verifyEmail';
 
 type Props = {
   type: string;
@@ -54,6 +56,7 @@ type Props = {
   successPreviewStyle?: { opacity?: string };
   successImageSize?: string;
   formData: IFormData;
+  verifyEmail?: boolean;
 };
 
 type State = {
@@ -156,8 +159,20 @@ class SuccessStep extends React.Component<Props, State> {
       <div>
         <FormGroup>
           <ControlLabel>
-            Send a confirmation email to the responder
+            Verify the responder's email address with a confirmation email
           </ControlLabel>
+          <p>{__('Verification button would be added to the email.')}</p>
+          <Toggle
+            id="saveAsCustomer"
+            checked={this.props.verifyEmail || false}
+            onChange={(e: any) => {
+              this.onChangeFunction('verifyEmail', e.target.checked);
+            }}
+            icons={{
+              checked: <span>Yes</span>,
+              unchecked: <span>No</span>
+            }}
+          />
         </FormGroup>
         <FormGroup>
           <label>Send from</label>
