@@ -24,7 +24,6 @@ import {
 import LoadingPost from "@/components/ui/loadingPost"
 import SuccessPost from "@/components/ui/successPost"
 import { Textarea } from "@/components/ui/textarea"
-import { AttachmentWithPreview } from "@/components/AttachmentWithPreview"
 
 import useFeedMutation from "../../hooks/useFeedMutation"
 import { IFeed } from "../../types"
@@ -106,7 +105,6 @@ const HolidayForm = ({
 
   const typeOptions = [
     { label: "Ceremony", value: "ceremony" },
-    { label: "Birthday", value: "birthday" },
     { label: "Public holiday", value: "publicHoliday" },
   ]
 

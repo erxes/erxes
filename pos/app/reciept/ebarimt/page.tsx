@@ -44,7 +44,7 @@ const Reciept = () => {
   useEffect(() => {
     if (data) {
       const { orderDetail } = data
-      if (orderDetail._id === _id) {
+      if (orderDetail?._id === _id) {
         setOrderStates(orderDetail)
         data.billType === BILL_TYPES.INNER && setType("inner")
         setTimeout(() => window.print(), 50)

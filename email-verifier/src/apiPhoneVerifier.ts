@@ -9,6 +9,7 @@ import { debugBase, debugError, getEnv, sendRequest } from './utils';
 dotenv.config();
 
 const CLEAR_OUT_PHONE_API_KEY = getEnv({ name: 'CLEAR_OUT_PHONE_API_KEY' });
+const CLEAR_OUT_PHONE_API_URL = 'https://api.clearoutphone.io/v1';
 
 const savePhone = async (doc: {
   phone: string;
@@ -27,7 +28,7 @@ const savePhone = async (doc: {
 const singleClearOut = async (phone: string): Promise<any> => {
   try {
     const response = await sendRequest({
-      url: 'https://api.clearoutphone.io/v1/phonenumber/validate',
+      url: `${CLEAR_OUT_PHONE_API_URL}/phonenumber/validate`,
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -81,7 +82,7 @@ export const sendFile = async (fileName: string, hostname: string) => {
   try {
     const result = await request({
       method: 'POST',
-      url: 'https://api.clearoutphone.io/v1/phonenumber/bulk',
+      url: `${CLEAR_OUT_PHONE_API_URL}/phonenumber/bulk`,
       headers: {
         'Content-Type': 'multipart/form-data',
         Authorization: `Bearer:${CLEAR_OUT_PHONE_API_KEY}`
@@ -120,7 +121,7 @@ export const sendFile = async (fileName: string, hostname: string) => {
 };
 
 export const getStatus = async (listId: string) => {
-  const url = `https://api.clearoutphone.io/v1/phonenumber/bulk/progress_status?list_id=${listId}`;
+  const url = `${CLEAR_OUT_PHONE_API_URL}/phonenumber/bulk/progress_status?list_id=${listId}`;
   try {
     const result = await request({
       method: 'GET',
@@ -257,7 +258,7 @@ export const validateBulkPhones = async (
 };
 
 export const getBulkResult = async (listId: string, hostname: string) => {
-  const url = 'https://api.clearoutphone.io/v1/download/result';
+  const url = `${CLEAR_OUT_PHONE_API_URL}/download/result`;
   const headers = {
     'Content-Type': 'application/json',
     Authorization: `Bearer:${CLEAR_OUT_PHONE_API_KEY}`

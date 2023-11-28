@@ -3,9 +3,8 @@ name: Widgets CI
 on:
   push:
     branches:
-      - 'dev'
+      - dev
       - master
-      - 'staging'
     paths:
       - 'widgets/**'
       - '.github/workflows/widgets.yaml'
@@ -14,7 +13,6 @@ on:
       - master
       - dev
       - master
-      - staging
     paths:
       - 'widgets/**'
 

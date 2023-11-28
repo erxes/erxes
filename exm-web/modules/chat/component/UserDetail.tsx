@@ -28,7 +28,7 @@ const UserDetail = ({
     }
     if (array && array.length > 0) {
       return array.map((data) => (
-        <li className="text-[#444] text-xs" key={data._id}>
+        <li className="text-[#444] text-xs text-right" key={data._id}>
           {data.title}
         </li>
       ))
@@ -86,13 +86,13 @@ const UserDetail = ({
           <p className="text-[#444] text-xs">{user?.employeeId || "-"}</p>
         </div>
         <div className="flex items-center justify-between mt-2 mb-4">
-          <p className="text-black text-xs font-semibold">Departments</p>
+          <p className="text-black text-xs font-semibold mr-2">Departments</p>
           <ul className="text-[#444]">
             {renderBrachDepartments("departments")}
           </ul>
         </div>
         <div className="flex items-center justify-between mt-2 mb-4">
-          <p className="text-black text-xs font-semibold">Branches</p>
+          <p className="text-black text-xs font-semibold mr-2">Branches</p>
           <ul className="text-[#444]">{renderBrachDepartments("branch")}</ul>
         </div>
         {renderPinnedMessage()}

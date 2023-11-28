@@ -1,3 +1,57 @@
+# [1.5.0-alpha.2](https://github.com/erxes/erxes/compare/1.5.0-alpha.1...1.5.0-alpha.2) (2023-11-23)
+
+# [1.5.0-alpha.1](https://github.com/erxes/erxes/compare/1.5.0-alpha.0...1.5.0-alpha.1) (2023-11-17)
+
+
+
+# [1.5.0-alpha.0](https://github.com/erxes/erxes/compare/1.4.0...1.5.0-alpha.0) (2023-11-16)
+
+
+### Bug Fixes
+
+* **activitylog:** Show internal note in facebook conversation activity log ([20f7fb1](https://github.com/erxes/erxes/commit/20f7fb16e7688473f8f2f9ef4cc1b3ad2a8cfc49))
+* development environment try force copy supergraph.graphql.next into supergraph.graphql ([6c8171e](https://github.com/erxes/erxes/commit/6c8171e0f9a8b05272f972387b932517bb19ffcd))
+* widgetsInsertMessage redis call ([dff55ce](https://github.com/erxes/erxes/commit/dff55ce58793acb6a9e5943585360389d9b1171c))
+
+
+### Features
+
+* **dailyco:** video call in inbox ([#4748](https://github.com/erxes/erxes/issues/4748)) ([6b2c6cb](https://github.com/erxes/erxes/commit/6b2c6cb772dd931472052ea129c35671a1622752))
+
+
+### Performance Improvements
+
+* **exm:** feed navbar ([#4730](https://github.com/erxes/erxes/issues/4730)) ([a3752f0](https://github.com/erxes/erxes/commit/a3752f0528d232e77406036aa0fd6820e0cd37b2))
+* **exm:** post ([#4737](https://github.com/erxes/erxes/issues/4737)) ([60496bc](https://github.com/erxes/erxes/commit/60496bcb36f857a4142feafbc4deb365fbda4d10))
+* **inbox:** Add skeleton loader in inbox conversation ([6ae4cb7](https://github.com/erxes/erxes/commit/6ae4cb7a78a4a2ea165e18dde90f941f3515c6d4))
+
+# [1.5.0](https://github.com/erxes/erxes/compare/1.4.0...1.5.0) (2023-11-16)
+
+
+### Bug Fixes
+
+* **activitylog:** Show internal note in facebook conversation activity log ([20f7fb1](https://github.com/erxes/erxes/commit/20f7fb16e7688473f8f2f9ef4cc1b3ad2a8cfc49))
+* development environment try force copy supergraph.graphql.next into supergraph.graphql ([6c8171e](https://github.com/erxes/erxes/commit/6c8171e0f9a8b05272f972387b932517bb19ffcd))
+* widgetsInsertMessage redis call ([dff55ce](https://github.com/erxes/erxes/commit/dff55ce58793acb6a9e5943585360389d9b1171c))
+
+
+### Features
+
+* **dailyco:** video call in inbox ([#4748](https://github.com/erxes/erxes/issues/4748)) ([6b2c6cb](https://github.com/erxes/erxes/commit/6b2c6cb772dd931472052ea129c35671a1622752))
+
+
+### Performance Improvements
+
+* **exm:** feed navbar ([#4730](https://github.com/erxes/erxes/issues/4730)) ([a3752f0](https://github.com/erxes/erxes/commit/a3752f0528d232e77406036aa0fd6820e0cd37b2))
+* **exm:** post ([#4737](https://github.com/erxes/erxes/issues/4737)) ([60496bc](https://github.com/erxes/erxes/commit/60496bcb36f857a4142feafbc4deb365fbda4d10))
+* **inbox:** Add skeleton loader in inbox conversation ([6ae4cb7](https://github.com/erxes/erxes/commit/6ae4cb7a78a4a2ea165e18dde90f941f3515c6d4))
+
+
+
+
+
+
+
 # [1.4.0](https://github.com/erxes/erxes/compare/1.4.0-alpha.7...1.4.0) (2023-11-16)
 
 # [1.4.0-alpha.7](https://github.com/erxes/erxes/compare/1.4.0-alpha.6...1.4.0-alpha.7) (2023-11-16)

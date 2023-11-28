@@ -1,4 +1,3 @@
-import { colors } from '@erxes/ui/src';
 import styled from 'styled-components';
 
 const ClassificationHistoryTableWrapper = styled.div`
@@ -7,9 +6,6 @@ const ClassificationHistoryTableWrapper = styled.div`
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-  }
-  tr:nth-child(odd) {
-    background-color: ${colors.colorShadowGray};
   }
 `;
 
