@@ -32,7 +32,6 @@ const dealQueries = {
     args: IDealListParams,
     { user, models, subdomain, serverTiming }: IContext
   ) {
-    console.log('args:', args);
     const filter = {
       ...(await generateDealCommonFilters(models, subdomain, user._id, args))
     };

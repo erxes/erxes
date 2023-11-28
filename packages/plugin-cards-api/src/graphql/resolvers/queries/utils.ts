@@ -432,7 +432,6 @@ export const generateCommonFilters = async (
   if (stageId) {
     filter.stageId = stageId;
   } else if (pipelineId || pipelineIds) {
-    console.log(pipelineId, pipelineIds, 'pipelineId, pipelineIds');
     let filterPipeline = pipelineId;
 
     if (pipelineIds) {

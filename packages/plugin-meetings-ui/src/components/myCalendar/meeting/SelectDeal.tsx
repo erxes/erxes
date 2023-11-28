@@ -46,8 +46,6 @@ const SelectDeal = (props: Props) => {
     setFilter(filterParams);
   }, [filterParams]);
 
-  console.log(filter, 'filter...');
-
   return (
     <SelectWithSearch
       label={label}
