@@ -77,6 +77,7 @@ type State = {
   loadType: string;
   successImage?: string;
   successImageSize?: string;
+  verifyEmail?: boolean;
 };
 
 function Booking(props: Props) {
@@ -195,7 +196,8 @@ function Booking(props: Props) {
         redirectUrl: state.redirectUrl,
         loadType: 'popup',
         successImage: state.successImage,
-        successImageSize: state.successImageSize
+        successImageSize: state.successImageSize,
+        verifyEmail: state.verifyEmail
       },
 
       bookingData: {
