@@ -38,9 +38,9 @@ export interface IUser {
   resetPasswordExpires?: Date;
   registrationToken?: string;
   registrationTokenExpires?: Date;
-  isOnline: boolean;
-  lastSeenAt: Date;
-  sessionCount: number;
+  isOnline?: boolean;
+  lastSeenAt?: Date;
+  sessionCount?: number;
   notificationSettings: INotifcationSettings;
   avatar?: string;
   customFieldsData?: any;

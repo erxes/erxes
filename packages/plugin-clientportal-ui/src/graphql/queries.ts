@@ -96,6 +96,11 @@ export const commonFields = `
     smsContent
   }
 
+  testUserEmail
+  testUserPhone
+  testUserPassword
+  testUserOTP
+
   tokenExpiration
   refreshTokenExpiration
   tokenPassMethod
