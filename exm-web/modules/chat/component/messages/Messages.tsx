@@ -58,7 +58,7 @@ const Messages = ({
 
   return (
     <div className="flex flex-col h-screen relative">
-      <div className="h-16 border-b flex items-center justify-between px-5">
+      <div className="h-16 border-b flex items-center justify-between px-10">
         <MessagesHeader
           chatDetail={chatDetail}
           setShowSidebar={setShowSidebar}
@@ -66,7 +66,7 @@ const Messages = ({
       </div>
       <div
         ref={chatContainerRef}
-        className="flex-1 overflow-y-auto overflow-x-hidden p-5 border-0 flex flex-col-reverse scrollbar-hide "
+        className="flex-1 overflow-y-auto overflow-x-hidden p-5 px-[30px] border-0 flex flex-col-reverse scrollbar-hide "
       >
         <div className="w-full pt-2">
           {typing && typing !== currentUser._id && (

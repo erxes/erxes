@@ -1,22 +1,26 @@
 import { IContext, IModels } from '../../connectionResolver';
 import { IBranchDocument } from '../../db/models/definitions/structures';
 
-const getAllChildrenIds = async (
-  models: IModels,
-  parentId: string,
-  allChildren: any[] = []
-) => {
-  const children = await models.Branches.find({
-    parentId
-  });
+const getAllChildrenIds = async (models: IModels, parentId: string) => {
+  const pipeline = [
+    {
+      $match: { parentId } // Match the starting parent
+    },
+    {
+      $graphLookup: {
+        from: 'branches', // Collection name
+        startWith: '$_id', // Assuming '_id' is the unique identifier
+        connectFromField: '_id',
+        connectToField: 'parentId',
+        as: 'descendants',
+        depthField: 'depth'
+      }
+    }
+  ];
 
-  for (const child of children) {
-    console.log(child._id, 'children', parentId);
-    allChildren.push(child._id);
-    await getAllChildrenIds(models, child._id, allChildren);
-  }
+  const result = await models.Branches.aggregate(pipeline).exec();
 
-  return allChildren;
+  return result.map(r => r._id);
 };
 
 export default {
