@@ -72,7 +72,9 @@ const ListContainer = (props: FinalProps) => {
     deductionInfo
   };
 
-  getPagination(<Pagination count={totalCount} />);
+  if (getPagination) {
+    getPagination(<Pagination count={totalCount} />);
+  }
 
   return <ReportList {...updatedProps} />;
 };
