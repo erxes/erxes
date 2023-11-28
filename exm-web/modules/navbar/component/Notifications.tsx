@@ -90,7 +90,9 @@ const Notifications = () => {
       notification.action === "birthday notification" ||
       notification.action === "Work Anniversary notification"
     ) {
-      return (window.location.href = `/company/team-members/detail?id=${notification.link.slice(23)}`)
+      return (window.location.href = `/company/team-members/detail?id=${notification.link.slice(
+        23
+      )}`)
     } else {
       return (window.location.href = `detail?contentType=${
         notification.action.split(" ")[0]
@@ -181,9 +183,13 @@ const Notifications = () => {
       return renderNoNotification()
     }
 
+    const filteredNotif = isUnread
+      ? notifications.filter((notif) => !notif.isRead)
+      : notifications
+
     return (
       <>
-        {notifications.map((notification) => renderNotifRow(notification))}
+        {filteredNotif.map((notification) => renderNotifRow(notification))}
         {renderLoadMore()}
       </>
     )

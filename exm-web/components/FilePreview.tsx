@@ -89,7 +89,7 @@ export const FilePreview = ({
   }
 
   const renderImagePreview = () => {
-    if (deleteImage && fileIndex) {
+    if (deleteImage && fileIndex + 1) {
       return (
         <div className="relative shrink-0 w-14 h-14">
           <button

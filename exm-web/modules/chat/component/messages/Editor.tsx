@@ -197,7 +197,7 @@ const Editor = ({ sendMessage, reply, setReply, showSidebar }: IProps) => {
   return (
     <div className={`border-t py-4 px-[30px] ${showSidebar && "w-[72.5%]"}`}>
       {attachments && attachments.length > 0 && attachmentsSection()}
-      {loading && <Loader />}
+      {loading && <Loader className="mb-3" />}
       <div className="flex items-center justify-around gap-7 ">
         {isRecording ? (
           <AudioRecorder sendAudio={sendAudio} />
