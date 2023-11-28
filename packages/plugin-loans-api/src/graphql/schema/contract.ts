@@ -71,6 +71,7 @@ export const types = () => `
     collaterals: JSON
     insurancesData: JSON
     collateralsData: JSON
+    invoices: JSON
     currentSchedule: LoanCurrentSchedule
 
     weekends: [Int]

@@ -1,11 +1,12 @@
-import typeDefs from './graphql/typeDefs';
-import resolvers from './graphql/resolvers';
 import { generateModels } from './connectionResolver';
+import resolvers from './graphql/resolvers';
+import typeDefs from './graphql/typeDefs';
 
 import { initBroker } from './messageBroker';
 // import logs from './logUtils';
-import * as permissions from './permissions';
 import { getSubdomain } from '@erxes/api-utils/src/core';
+import { exportCensusRunner } from './exporterByUrl';
+import * as permissions from './permissions';
 
 export let debug;
 export let graphqlPubsub;
@@ -15,6 +16,7 @@ export let serviceDiscovery;
 export default {
   name: 'inventories',
   permissions,
+  getHandlers: [{ path: `/file-export-census`, method: exportCensusRunner }],
   graphql: async sd => {
     serviceDiscovery = sd;
 

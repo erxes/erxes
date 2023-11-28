@@ -1,5 +1,7 @@
 import * as compose from 'lodash.flowright';
-import { withProps, ButtonMutate, withCurrentUser } from '@erxes/ui/src';
+import { withProps } from '@erxes/ui/src/utils/core';
+import withCurrentUser from '@erxes/ui/src/auth/containers/withCurrentUser';
+import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import React from 'react';
 import ContractForm from '../components/list/ContractForm';

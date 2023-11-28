@@ -147,6 +147,16 @@ export interface IUserModel extends Model<IUserDocument> {
     doc: any,
     deviceToken?: string
   ): IUserDocument;
+  setSecondaryPassword(
+    userId: string,
+    secondaryPassword: string,
+    oldPassword?: string
+  ): Promise<string>;
+  validatePassword(
+    userId: string,
+    password: string,
+    secondary?: boolean
+  ): boolean;
 }
 
 export const loadClientPortalUserClass = (models: IModels) => {
@@ -1118,6 +1128,81 @@ export const loadClientPortalUserClass = (models: IModels) => {
       this.updateSession(user._id);
 
       return user;
+    }
+
+    public static async setSecondaryPassword(
+      userId,
+      secondaryPassword,
+      oldPassword
+    ) {
+      // check if already secondaryPassword exists or not null
+      const user = await models.ClientPortalUsers.findOne({
+        _id: userId
+      });
+
+      if (!user) {
+        throw new Error('User not found');
+      }
+
+      const newPassword = await this.generatePassword(secondaryPassword);
+
+      if (
+        user.secondaryPassword === null ||
+        user.secondaryPassword === undefined ||
+        !user.secondaryPassword ||
+        user.secondaryPassword === ''
+      ) {
+        // create secondary password
+        await models.ClientPortalUsers.updateOne(
+          { _id: userId },
+          { $set: { secondaryPassword: newPassword } }
+        );
+
+        return 'Secondary password created';
+      }
+
+      // check if old password is correct or not
+      if (!oldPassword) {
+        throw new Error('Old password is required');
+      }
+
+      const valid = await models.ClientPortalUsers.comparePassword(
+        oldPassword,
+        user.secondaryPassword || ''
+      );
+
+      if (!valid) {
+        // bad password
+        throw new Error('Invalid old password');
+      }
+
+      // update secondary password
+      await models.ClientPortalUsers.updateOne(
+        { _id: userId },
+        { $set: { secondaryPassword: newPassword } }
+      );
+
+      return 'Secondary password changed';
+    }
+
+    public static async validatePassword(
+      userId: string,
+      password: string,
+      secondary?: boolean
+    ) {
+      const user = await models.ClientPortalUsers.findOne({
+        _id: userId
+      });
+
+      if (!user) {
+        throw new Error('User not found');
+      }
+
+      if (secondary) {
+        return this.comparePassword(password, user.secondaryPassword || '');
+      }
+
+      return this.comparePassword(password, user.password || '');
     }
   }
 

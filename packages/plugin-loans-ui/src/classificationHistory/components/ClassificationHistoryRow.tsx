@@ -1,4 +1,5 @@
-import { formatValue, FormControl } from '@erxes/ui/src';
+import { formatValue } from '@erxes/ui/src/utils';
+import FormControl from '@erxes/ui/src/components/form/Control';
 import _ from 'lodash';
 import React from 'react';
 

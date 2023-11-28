@@ -1,19 +1,19 @@
-import { Button, formatValue, FormControl, ModalTrigger } from '@erxes/ui/src';
 import _ from 'lodash';
 import React from 'react';
 
 import PeriodLockForm from '../containers/PeriodLockForm';
 import { IPeriodLock } from '../types';
+import { ActionButton } from '@erxes/ui/src/components/ActionButtons';
+import Icon from '@erxes/ui/src/components/Icon';
+import { formatValue } from '@erxes/ui/src/utils/core';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 
 type Props = {
   periodLock: IPeriodLock;
   history: any;
   isChecked: boolean;
   toggleBulk: (periodLock: IPeriodLock, isChecked?: boolean) => void;
-};
-
-type State = {
-  showModal: boolean;
 };
 
 function displayValue(periodLock, name) {
@@ -33,15 +33,17 @@ function renderFormTrigger(trigger: React.ReactNode, periodLock: IPeriodLock) {
 }
 
 function renderEditAction(periodLock: IPeriodLock) {
-  const trigger = <Button btnStyle="link" icon="edit-1" />;
+  const trigger = (
+    <ActionButton
+      style={{ cursor: 'pointer' }}
+      children={<Icon icon="edit-1" />}
+    />
+  );
 
   return renderFormTrigger(trigger, periodLock);
 }
 
-function PeriodLockRow(
-  { periodLock, history, isChecked, toggleBulk }: Props,
-  { showModal }: State
-) {
+function PeriodLockRow({ periodLock, history, isChecked, toggleBulk }: Props) {
   const onChange = e => {
     if (toggleBulk) {
       toggleBulk(periodLock, e.target.checked);

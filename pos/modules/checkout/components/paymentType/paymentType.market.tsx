@@ -40,11 +40,11 @@ const PaymentType = () => {
         handlePay()
       }}
     >
-      <div className="flex flex-auto">
-        <div className="w-1/2 pr-1">
+      <div className="flex flex-auto gap-2">
+        <div className="w-1/2">
           <SelectPaymentType onSelect={onSelectType} />
         </div>
-        <div className="w-1/2 pl-1">
+        <div className="w-1/2">
           <Input
             value={currentAmount.toLocaleString()}
             disabled={disableInput || loading}

@@ -1,10 +1,11 @@
-import React from 'react';
 import * as compose from 'lodash.flowright';
+
+import { ProductCategoriesQueryResponse } from '@erxes/ui-products/src/types';
+import React from 'react';
+import Select from 'react-select-plus';
 import { gql } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
 import { queries } from '../graphql';
-import Select from 'react-select-plus';
-import { ProductCategoriesQueryResponse } from '@erxes/ui-products/src/types';
 
 type Props = {
   productCategoriesQuery: ProductCategoriesQueryResponse;
@@ -19,7 +20,9 @@ function SelectProductCategory(props: Props) {
   if (productCategoriesQuery.loading) {
     return null;
   }
-  const { productCategories } = productCategoriesQuery;
+
+  const { productCategories = [] } = productCategoriesQuery;
+
   const mainCategory = productCategories.filter(item => item.isRoot);
 
   return (

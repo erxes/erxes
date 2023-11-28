@@ -35,7 +35,12 @@ class FormContainer extends React.Component<FinalProps, State> {
 export default withProps<Props>(
   compose(
     graphql<Props>(gql(queries.historyGetTypes), {
-      name: 'historyGetTypes'
+      name: 'historyGetTypes',
+      options: () => ({
+        variables: {
+          type: 'export'
+        }
+      })
     })
   )(FormContainer)
 );

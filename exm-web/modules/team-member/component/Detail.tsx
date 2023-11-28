@@ -26,10 +26,12 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form"
+import Image from "@/components/ui/image"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Textarea } from "@/components/ui/textarea"
+import { toast } from "@/components/ui/use-toast"
 import AvatarUpload from "@/components/AvatarUpload"
 
 import useMutations from "../hooks/useMutations"
@@ -37,19 +39,31 @@ import { useUserDetail } from "../hooks/useUserDetail"
 import ChangePassword from "./ChangePassword"
 
 const FormSchema = z.object({
-  operatorPhone: z.string().optional(),
-  description: z.string().optional(),
-  firstName: z.string().optional(),
-  lastName: z.string().optional(),
-  position: z.string().optional(),
-  username: z.string(),
-  password: z.string(),
-  location: z.string().optional(),
-  facebook: z.string().optional(),
-  twitter: z.string().optional(),
-  youtube: z.string().optional(),
-  website: z.string().optional(),
-  employeeId: z.string().optional(),
+  operatorPhone: z.string().optional().nullable(),
+  description: z.string().optional().nullable(),
+  firstName: z.string().optional().nullable(),
+  lastName: z.string().optional().nullable(),
+  position: z.string().optional().nullable(),
+  username: z
+    .any({
+      required_error: "Please enter an username",
+    })
+    .refine((val) => val !== null, {
+      message: "Please enter an username",
+    }),
+  password: z
+    .string({
+      required_error: "Please enter a password",
+    })
+    .refine((val) => val.trim().length !== 0, {
+      message: "Please enter a password",
+    }),
+  location: z.string().optional().nullable(),
+  facebook: z.string().optional().nullable(),
+  twitter: z.string().optional().nullable(),
+  youtube: z.string().optional().nullable(),
+  website: z.string().optional().nullable(),
+  employeeId: z.string().optional().nullable(),
   email: z.string().email(),
   birthDate: z.union([z.string().optional(), z.date().optional()]),
   workStartedDate: z.union([z.string().optional(), z.date().optional()]),
@@ -65,12 +79,22 @@ const Detail = ({
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
   })
-  
+
+  const callBack = (result: string) => {
+    if (result === "success") {
+      toast({
+        description: "Looking good!",
+      })
+      setValueIsChanged(false)
+    }
+  }
   const { userDetail } = useUserDetail({ userId: id })
   const { usersEditProfile, changePassword, changePasswordLoading } =
-    useMutations()
+    useMutations({ callBack })
   const [open, setOpen] = useState(false)
+  const [valueIsChanged, setValueIsChanged] = useState(false)
   const currentUser = useAtomValue(currentUserAtom)
+  const isProfile = id === currentUser?._id
   const [avatar, setAvatar] = useState(
     userDetail.details?.avatar || "/avatar-colored.svg"
   )
@@ -86,11 +110,23 @@ const Detail = ({
       }
     }
 
+    setAvatar(defaultValues.avatar)
+
     form.reset({ ...defaultValues })
   }, [userDetail])
 
-  const style =
-    "text-[#A1A1A1] data-[state=active]:text-primary data-[state=active]:border-[#5629B6] data-[state=active]:border-b-2 h-16 hover:font-medium hover:text-[#A1A1A1]"
+  useEffect(() => {
+    const subscription = form.watch((value, { name, type }) => {
+      if (name) {
+        setValueIsChanged(true)
+      }
+    })
+    return () => subscription.unsubscribe()
+  }, [form.watch])
+
+  const style = `text-[#A1A1A1] data-[state=active]:text-primary data-[state=active]:border-[#5629B6] data-[state=active]:border-b-2 h-16 hover:font-medium hover:text-[#A1A1A1] ${
+    isProfile && "cursor-default"
+  }`
 
   const disable = currentUser?._id !== id
 
@@ -122,6 +158,23 @@ const Detail = ({
 
   const onAvatarUpload = (url: string) => {
     setAvatar(url)
+    setValueIsChanged(true)
+  }
+
+  const renderAvatar = () => {
+    if (isProfile) {
+      return <AvatarUpload avatar={avatar} onAvatarUpload={onAvatarUpload} />
+    }
+
+    return (
+      <Image
+        src={avatar}
+        alt="User Profile"
+        width={100}
+        height={100}
+        className="w-[90px] h-[90px] rounded-full object-cover border border-primary"
+      />
+    )
   }
 
   return (
@@ -130,27 +183,15 @@ const Detail = ({
         <Tabs defaultValue="teamMembers">
           <TabsList className="border-b border-[#eee]">
             <div className="flex justify-between">
-              <div className="w-[50%] items-center flex mr-auto h-[2.5rem] my-3 ml-[25px]">
+              <div className="w-[17%] items-center flex mr-auto h-[2.5rem] my-3 ml-[25px]">
                 <TabsTrigger
                   className={style}
                   value="teamMembers"
-                  onClick={() => handleTabClick("teamMembers")}
+                  onClick={() =>
+                    id !== currentUser?._id && handleTabClick("teamMembers")
+                  }
                 >
-                  Team members
-                </TabsTrigger>
-                <TabsTrigger
-                  className={style}
-                  value="structure"
-                  onClick={() => handleTabClick("structure")}
-                >
-                  Structure
-                </TabsTrigger>
-                <TabsTrigger
-                  className={style}
-                  value="company"
-                  onClick={() => handleTabClick("company")}
-                >
-                  Company
+                  {id === currentUser?._id ? "Profile" : "Team members"}
                 </TabsTrigger>
               </div>
               <RightNavbar />
@@ -166,14 +207,9 @@ const Detail = ({
             onSubmit={form.handleSubmit(onSubmit)}
           >
             <div className="flex w-full h-full gap-2">
-              <div className="flex flex-col justify-between items-center w-1/4 bg-white rounded-[5px] h-full gap-3 p-8">
+              <div className="flex flex-col justify-between items-center w-1/4 bg-white rounded-[5px] h-full gap-3 px-8 py-6">
                 <div className="flex flex-col gap-3 w-full items-center">
-                  <div className="items-end flex mr-2">
-                    <AvatarUpload
-                      avatar={avatar}
-                      onAvatarUpload={onAvatarUpload}
-                    />
-                  </div>
+                  <div className="items-end flex mr-2">{renderAvatar()}</div>
                   <div className="flex flex-col justify-center items-center">
                     <h3 className="text-lg font-semibold text-black">
                       {userDetail?.details?.fullName || userDetail?.email}
@@ -194,10 +230,16 @@ const Detail = ({
                           <FormLabel>Bio</FormLabel>
                           <FormControl>
                             <Textarea
-                              placeholder="Type your bio"
+                              placeholder={
+                                !isProfile
+                                  ? "They haven't uploaded this section yet"
+                                  : "Type your bio"
+                              }
                               {...field}
-                              className="p-0 border-none disabled:opacity-100"
+                              value={field.value || ""}
+                              className="p-0 border-none disabled:opacity-100 !h-[60px]"
                               disabled={disable}
+                              {...form.register("description")}
                             />
                           </FormControl>
                           <FormMessage />
@@ -213,10 +255,15 @@ const Detail = ({
                           <FormLabel>Email</FormLabel>
                           <FormControl>
                             <Input
-                              placeholder="Type your email"
+                              placeholder={
+                                !isProfile
+                                  ? "They haven't uploaded this section yet"
+                                  : "Type your email"
+                              }
                               {...field}
                               className="p-0 border-none disabled:opacity-100 h-8"
                               disabled={disable}
+                              {...form.register("email")}
                             />
                           </FormControl>
                           <FormMessage />
@@ -232,10 +279,16 @@ const Detail = ({
                           <FormLabel>Phone</FormLabel>
                           <FormControl>
                             <Input
-                              placeholder="Type your phone number"
+                              placeholder={
+                                !isProfile
+                                  ? "They haven't uploaded this section yet"
+                                  : "Type your phone number"
+                              }
                               {...field}
                               className="p-0 border-none disabled:opacity-100 h-8"
                               disabled={disable}
+                              {...form.register("operatorPhone")}
+                              value={field.value || ""}
                             />
                           </FormControl>
                           <FormMessage />
@@ -256,7 +309,8 @@ const Detail = ({
                               }
                               setDate={field.onChange}
                               className="w-full p-0 border-none disabled:opacity-100 hover:bg-transparent h-8"
-                              disabled={disable}
+                              // disabled={disable}
+                              {...form.register("birthDate")}
                             />
                           </FormControl>
                           <FormMessage />
@@ -279,10 +333,16 @@ const Detail = ({
                           <FormLabel>Employee ID</FormLabel>
                           <FormControl>
                             <Input
-                              placeholder="Type your employee id"
+                              placeholder={
+                                !isProfile
+                                  ? "They haven't uploaded this section yet"
+                                  : "Type your employee id"
+                              }
                               {...field}
+                              value={field.value || ""}
                               className="p-0 border-none disabled:opacity-100 h-8"
                               disabled={disable}
+                              {...form.register("employeeId")}
                             />
                           </FormControl>
                           <FormMessage />
@@ -291,7 +351,15 @@ const Detail = ({
                     />
                   </div>
                 </div>
-                <div className="flex">
+                {!disable && valueIsChanged && (
+                  <Button
+                    type="submit"
+                    className="bg-[#F8F9FA] text-[#33363F] hover:bg-[#F8F9FA] border w-full"
+                  >
+                    Save
+                  </Button>
+                )}
+                <div className="flex w-full justify-evenly">
                   <a href={userDetail.links?.facebook} target="_blank">
                     <Facebook
                       size={25}
@@ -326,10 +394,10 @@ const Detail = ({
                     <Label className="text-base text-black font-semibold">
                       Profile Details
                     </Label>
-                    {!disable && (
+                    {!disable && valueIsChanged && (
                       <Button
                         type="submit"
-                        className="bg-transparent text-[#33363F] hover:bg-transparent"
+                        className="bg-[#F8F9FA] text-[#33363F] hover:bg-[#F8F9FA] border"
                       >
                         Save
                       </Button>
@@ -345,10 +413,16 @@ const Detail = ({
                         </FormLabel>
                         <FormControl>
                           <Input
-                            placeholder="Type your first name"
+                            placeholder={
+                              !isProfile
+                                ? "They haven't uploaded this section yet"
+                                : "Type your first name"
+                            }
                             {...field}
+                            value={field.value || ""}
                             className="p-0 border-none disabled:opacity-100"
                             disabled={disable}
+                            {...form.register("firstName")}
                           />
                         </FormControl>
                         <FormMessage />
@@ -365,10 +439,16 @@ const Detail = ({
                         </FormLabel>
                         <FormControl>
                           <Input
-                            placeholder="Type your last name"
+                            placeholder={
+                              !isProfile
+                                ? "They haven't uploaded this section yet"
+                                : "Type your last name"
+                            }
                             {...field}
+                            value={field.value || ""}
                             className="p-0 border-none disabled:opacity-100"
                             disabled={disable}
+                            {...form.register("lastName")}
                           />
                         </FormControl>
                         <FormMessage />
@@ -385,10 +465,15 @@ const Detail = ({
                         </FormLabel>
                         <FormControl>
                           <Input
-                            placeholder="Type your username"
+                            placeholder={
+                              !isProfile
+                                ? "They haven't uploaded this section yet"
+                                : "Type your username"
+                            }
                             {...field}
                             className="p-0 border-none disabled:opacity-100"
                             disabled={disable}
+                            {...form.register("username")}
                           />
                         </FormControl>
                         <FormMessage />
@@ -405,10 +490,16 @@ const Detail = ({
                         </FormLabel>
                         <FormControl>
                           <Input
-                            placeholder="Type your position"
+                            placeholder={
+                              !isProfile
+                                ? "They haven't uploaded this section yet"
+                                : "Type your position"
+                            }
                             {...field}
                             className="p-0 border-none disabled:opacity-100"
                             disabled={disable}
+                            {...form.register("position")}
+                            value={field.value || ""}
                           />
                         </FormControl>
                         <FormMessage />
@@ -430,7 +521,8 @@ const Detail = ({
                             }
                             setDate={field.onChange}
                             className="w-full p-0 border-none disabled:opacity-100 hover:bg-transparent"
-                            disabled={disable}
+                            // disabled={disable}
+                            {...form.register("workStartedDate")}
                           />
                         </FormControl>
                         <FormMessage />
@@ -447,10 +539,16 @@ const Detail = ({
                         </FormLabel>
                         <FormControl>
                           <Input
-                            placeholder="Type your location"
+                            placeholder={
+                              !isProfile
+                                ? "They haven't uploaded this section yet"
+                                : "Type your location"
+                            }
                             {...field}
                             className="p-0 border-none disabled:opacity-100"
                             disabled={disable}
+                            {...form.register("location")}
+                            value={field.value || ""}
                           />
                         </FormControl>
                         <FormMessage />
@@ -504,10 +602,10 @@ const Detail = ({
                       <Label className="text-base text-black font-semibold">
                         Social Accounts
                       </Label>
-                      {!disable && (
+                      {valueIsChanged && (
                         <Button
                           type="submit"
-                          className="bg-transparent text-[#33363F] hover:bg-transparent"
+                          className="bg-[#F8F9FA] text-[#33363F] hover:bg-[#F8F9FA] border"
                         >
                           Save
                         </Button>
@@ -526,6 +624,8 @@ const Detail = ({
                               placeholder="Type your facebook"
                               {...field}
                               className="p-0 border-none"
+                              {...form.register("facebook")}
+                              value={field.value || ""}
                             />
                           </FormControl>
                           <FormMessage />
@@ -545,6 +645,8 @@ const Detail = ({
                               placeholder="Type your twitter"
                               {...field}
                               className="p-0 border-none"
+                              {...form.register("twitter")}
+                              value={field.value || ""}
                             />
                           </FormControl>
                           <FormMessage />
@@ -563,7 +665,9 @@ const Detail = ({
                             <Input
                               placeholder="Type your youtube"
                               {...field}
+                              {...form.register("youtube")}
                               className="p-0 border-none"
+                              value={field.value || ""}
                             />
                           </FormControl>
                           <FormMessage />
@@ -581,8 +685,10 @@ const Detail = ({
                           <FormControl>
                             <Input
                               placeholder="Type your website"
+                              {...form.register("website")}
                               {...field}
                               className="p-0 border-none"
+                              value={field.value || ""}
                             />
                           </FormControl>
                           <FormMessage />

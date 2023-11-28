@@ -378,7 +378,7 @@ ${({ show }) =>
         min-height: 450px !important;
       }
   `
-    : ``}`;
+    : `z-index: 3;`}`;
 
 export {
   PopoverButton,

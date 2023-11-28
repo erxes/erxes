@@ -1010,6 +1010,24 @@ const clientPortalUserMutations = {
     );
 
     return newToken;
+  },
+
+  clientPortalUserSetSecondaryPassword: async (
+    _root,
+    args: { newPassword: string; oldPassword?: string },
+    { models, cpUser }: IContext
+  ) => {
+    if (!cpUser) {
+      throw new Error('login required');
+    }
+
+    const { newPassword, oldPassword } = args;
+
+    return models.ClientPortalUsers.setSecondaryPassword(
+      cpUser._id,
+      newPassword,
+      oldPassword
+    );
   }
 };
 
