@@ -25,10 +25,6 @@ export const TeamPortal = styled.div`
   > div {
     > div {
       margin-right: 80px;
-
-      &:last-child {
-        min-width: 450px;
-      }
     }
   }
 `;
