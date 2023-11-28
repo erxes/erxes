@@ -575,6 +575,7 @@ class ContractForm extends React.Component<Props, State> {
                   <DateControl
                     {...formProps}
                     required={false}
+                    dateFormat="YYYY/MM/DD"
                     name="contractDate"
                     value={this.state.contractDate}
                     onChange={onChangeContractDate}
@@ -758,6 +759,7 @@ class ContractForm extends React.Component<Props, State> {
                     {...formProps}
                     required={false}
                     name="startDate"
+                    dateFormat="YYYY/MM/DD"
                     value={this.state.startDate}
                     onChange={onChangeStartDate}
                   />
@@ -915,6 +917,7 @@ class ContractForm extends React.Component<Props, State> {
                             <DateControl
                               required={false}
                               name="payDate"
+                              dateFormat="YYYY/MM/DD"
                               value={mur.payDate}
                               onChange={v =>
                                 onChangeRow(v, 'payDate', rowIndex)

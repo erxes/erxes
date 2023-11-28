@@ -93,6 +93,7 @@ class PeriodLockForm extends React.Component<Props, State> {
               <DateControl
                 {...formProps}
                 required={false}
+                dateFormat="YYYY/MM/DD"
                 name="date"
                 value={this.state.date}
                 onChange={onChangeStartDate}
