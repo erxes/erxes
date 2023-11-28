@@ -166,7 +166,6 @@ class SuccessStep extends React.Component<Props, State> {
             id="saveAsCustomer"
             checked={this.props.verifyEmail || false}
             onChange={(e: any) => {
-              console.log(e.target.checked, 'e.target.checked');
               this.onChangeFunction('verifyEmail', e.target.checked);
             }}
             icons={{
