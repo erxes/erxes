@@ -46,6 +46,7 @@ export interface IUserModel extends Model<IUserDocument> {
     code?: string;
   }): never;
   invite(subdomain: string, doc: IInvitiation): Promise<IUserDocument>;
+  createTestUser(subdomain: string, doc: IInvitiation): Promise<IUserDocument>;
   getUser(doc: any): Promise<IUserDocument>;
   createUser(subdomain: string, doc: IUser): Promise<IUserDocument>;
   updateUser(
@@ -96,7 +97,8 @@ export interface IUserModel extends Model<IUserDocument> {
     phone,
     email,
     isRessetting,
-    expireAfter
+    expireAfter,
+    testUserOTP
   }: {
     codeLength: number;
     clientPortalId: string;
@@ -104,6 +106,7 @@ export interface IUserModel extends Model<IUserDocument> {
     phone?: string;
     email?: string;
     isRessetting?: boolean;
+    testUserOTP?: number;
   }): string;
   changePasswordWithCode({
     phone,
@@ -652,7 +655,8 @@ export const loadClientPortalUserClass = (models: IModels) => {
       phone,
       email,
       expireAfter,
-      isRessetting
+      isRessetting,
+      testUserOTP
     }: {
       codeLength: number;
       clientPortalId: string;
@@ -660,8 +664,11 @@ export const loadClientPortalUserClass = (models: IModels) => {
       email?: string;
       expireAfter?: number;
       isRessetting?: boolean;
+      testUserOTP?: number;
     }) {
-      const code = this.generateVerificationCode(codeLength);
+      const code = testUserOTP
+        ? testUserOTP
+        : this.generateVerificationCode(codeLength);
       const codeExpires = Date.now() + 60000 * (expireAfter || 5);
 
       let query: any = {};
@@ -826,6 +833,40 @@ export const loadClientPortalUserClass = (models: IModels) => {
         user,
         clientPortal: cp
       };
+    }
+
+    public static async createTestUser(
+      subdomain: string,
+      { password, clientPortalId, ...doc }: IInvitiation
+    ) {
+      if (!password) {
+        password = generateRandomPassword();
+      }
+
+      if (password) {
+        this.checkPassword(password);
+      }
+
+      const user = await handleContacts({
+        subdomain,
+        models,
+        clientPortalId,
+        document: doc,
+        password
+      });
+
+      const clientPortal = await models.ClientPortals.getConfig(clientPortalId);
+
+      await sendAfterMutation(
+        subdomain,
+        'clientportal:user',
+        'create',
+        user,
+        user,
+        `User's profile has been created on ${clientPortal.name}`
+      );
+
+      return user;
     }
 
     public static async invite(

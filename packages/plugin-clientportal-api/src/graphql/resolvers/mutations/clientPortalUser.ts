@@ -602,6 +602,59 @@ const clientPortalUserMutations = {
       deviceToken
     );
 
+    try {
+      if (clientPortal?.testUserPhone && clientPortal._id) {
+        const cpUser = await models.ClientPortalUsers.findOne({
+          firstName: 'test clientportal user',
+          clientPortalId: clientPortal._id
+        });
+
+        if (cpUser) {
+          if (!clientPortal?.testUserOTP) {
+            throw new Error('Test user phone otp not provided!');
+          }
+
+          if (
+            config.codeLength !== clientPortal?.testUserOTP?.toString().length
+          ) {
+            throw new Error(
+              'Client portal otp config and test user otp does not same length!'
+            );
+          }
+
+          if (
+            clientPortal?.testUserOTP &&
+            config.codeLength === clientPortal?.testUserOTP?.toString().length
+          ) {
+            const testPhoneCode = await models.ClientPortalUsers.imposeVerificationCode(
+              {
+                clientPortalId: clientPortal._id,
+                codeLength: config.codeLength,
+                phone: clientPortal?.testUserPhone,
+                expireAfter: config.expireAfter,
+                testUserOTP: clientPortal?.testUserOTP
+              }
+            );
+
+            const body =
+              config.content.replace(/{.*}/, testPhoneCode) ||
+              `Your verification code is ${testPhoneCode}`;
+
+            await sendSms(
+              subdomain,
+              'messagePro',
+              clientPortal?.testUserPhone,
+              body
+            );
+          }
+
+          return { userId: user._id, message: 'Sms sent' };
+        }
+      }
+    } catch (e) {
+      console.log(e.message);
+    }
+
     const phoneCode = await models.ClientPortalUsers.imposeVerificationCode({
       clientPortalId: clientPortal._id,
       codeLength: config.codeLength,
