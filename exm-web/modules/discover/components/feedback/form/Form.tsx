@@ -1,17 +1,16 @@
-import React, { useEffect, useRef, useState } from "react"
-import { useRouter, useSearchParams } from "next/navigation"
-import { currentUserAtom, exmAtom } from "@/modules/JotaiProiveder"
-import { IUser } from "@/modules/auth/types"
-import EmojiPicker from "@/modules/chat/component/messages/EmojiPicker"
-import { useFeedback } from "@/modules/discover/hooks/useFeedback"
-import { useAtomValue } from "jotai"
 import { Paperclip, X } from "lucide-react"
+import React, { useEffect, useRef, useState } from "react"
+import { currentUserAtom, exmAtom } from "@/modules/JotaiProiveder"
+import { useRouter, useSearchParams } from "next/navigation"
 
 import { Button } from "@/components/ui/button"
+import EmojiPicker from "@/modules/chat/component/messages/EmojiPicker"
+import { IUser } from "@/modules/auth/types"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { toast } from "@/components/ui/use-toast"
 import uploadHandler from "@/components/uploader/uploadHandler"
-
+import { useAtomValue } from "jotai"
+import { useFeedback } from "@/modules/discover/hooks/useFeedback"
 import userFeedbackMutation from "../../../hooks/userFeedbackMutation"
 
 type Props = {
@@ -47,7 +46,7 @@ const Form = ({ type, currentStep, setCurrentStep, setToggleView }: Props) => {
     setInCheck(currentStep !== 1)
   }, [currentStep])
 
-  const color = exm ? exm.appearance.primaryColor : "#4f46e5"
+  const color = exm ? exm.appearance?.primaryColor : "#4f46e5"
 
   const buttonText =
     currentStep === 2 ? "Send" : currentStep === 1 ? "Continue" : "Done"

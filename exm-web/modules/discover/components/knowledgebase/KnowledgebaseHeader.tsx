@@ -1,10 +1,10 @@
 import React, { useState } from "react"
-import { useRouter } from "next/navigation"
+
+import { Search } from "lucide-react"
 import { exmAtom } from "@/modules/JotaiProiveder"
 import { useAtomValue } from "jotai"
-import { Search } from "lucide-react"
-
 import { useDiscover } from "../../hooks/useDiscover"
+import { useRouter } from "next/navigation"
 
 const KnowledgebaseHeader = () => {
   const exm = useAtomValue(exmAtom)
@@ -49,7 +49,7 @@ const KnowledgebaseHeader = () => {
     ? topics.description
     : ""
   const color = exm
-    ? exm.appearance.primaryColor
+    ? exm.appearance?.primaryColor
     : topics
     ? topics.color
     : "#4f46e5"

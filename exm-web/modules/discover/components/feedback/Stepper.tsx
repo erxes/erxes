@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react"
+
+import { Check } from "lucide-react"
 import { exmAtom } from "@/modules/JotaiProiveder"
 import { useAtomValue } from "jotai"
-import { Check } from "lucide-react"
 
 type Props = {
   steps: string[]
@@ -36,7 +37,7 @@ const Stepper = ({ steps = [], currentStep = 1, setCurrentStep }: Props) => {
 
   const circleBackgroundColor = (i: number) =>
     i + 1 <= currentStep || complete
-      ? exm?.appearance.primaryColor || "#4f46e5"
+      ? exm?.appearance?.primaryColor || "#4f46e5"
       : "#d1d5db"
 
   const stepLineStyle = {

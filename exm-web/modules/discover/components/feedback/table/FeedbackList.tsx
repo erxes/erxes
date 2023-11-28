@@ -1,14 +1,4 @@
 import React, { use, useState } from "react"
-import { redirect, useRouter, useSearchParams } from "next/navigation"
-import { exmAtom } from "@/modules/JotaiProiveder"
-import { useFeedback } from "@/modules/discover/hooks/useFeedback"
-import EmptyTable from "@/modules/timeclock/component/EmptyTable"
-import { useAtomValue } from "jotai"
-
-import { Button } from "@/components/ui/button"
-import { Dialog } from "@/components/ui/dialog"
-import Loader from "@/components/ui/loader"
-import Pagination from "@/components/ui/pagination"
 import {
   Table,
   TableBody,
@@ -16,10 +6,19 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import { redirect, useRouter, useSearchParams } from "next/navigation"
 
+import { Button } from "@/components/ui/button"
+import { Dialog } from "@/components/ui/dialog"
+import EmptyTable from "@/modules/timeclock/component/EmptyTable"
 import FeedbackDialog from "./FeedbackDialog"
 import FeedbackRow from "./FeedbackRow"
 import FeedbackTableFooter from "./FeedbackTableFooter"
+import Loader from "@/components/ui/loader"
+import Pagination from "@/components/ui/pagination"
+import { exmAtom } from "@/modules/JotaiProiveder"
+import { useAtomValue } from "jotai"
+import { useFeedback } from "@/modules/discover/hooks/useFeedback"
 
 type Props = {
   queryParams: any
@@ -41,7 +40,7 @@ const FeedbackList = ({ queryParams, setToggleView }: Props) => {
     pipelineId: exm?.ticketPipelineId!,
   })
 
-  const color = exm ? exm.appearance.primaryColor : "#4f46e5"
+  const color = exm ? exm.appearance?.primaryColor : "#4f46e5"
 
   const list = ["Name", "Type", "Created", "Closed", "Status"]
 

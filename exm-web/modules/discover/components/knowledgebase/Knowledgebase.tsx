@@ -1,19 +1,18 @@
 "use client"
 
-import React from "react"
-import Link from "next/link"
-import { useSearchParams } from "next/navigation"
-import { exmAtom } from "@/modules/JotaiProiveder"
-import { useAtomValue } from "jotai"
+import { IKbCategory, IKbParentCategory, Topic } from "../../types"
 import { MenuSquare, UserSquare } from "lucide-react"
 
-import { Button } from "@/components/ui/button"
-import Loader from "@/components/ui/loader"
-
-import { useDiscover } from "../../hooks/useDiscover"
-import { IKbCategory, IKbParentCategory, Topic } from "../../types"
-import EmptyList from "./EmptyList"
 import ArticleList from "./article/ArticleList"
+import { Button } from "@/components/ui/button"
+import EmptyList from "./EmptyList"
+import Link from "next/link"
+import Loader from "@/components/ui/loader"
+import React from "react"
+import { exmAtom } from "@/modules/JotaiProiveder"
+import { useAtomValue } from "jotai"
+import { useDiscover } from "../../hooks/useDiscover"
+import { useSearchParams } from "next/navigation"
 
 const Knowledgebase = () => {
   const searchParams = useSearchParams()
@@ -22,7 +21,7 @@ const Knowledgebase = () => {
   const { topics, loading } = useDiscover({ id: exm?.knowledgeBaseTopicId! })
 
   const color = exm
-    ? exm.appearance.primaryColor
+    ? exm.appearance?.primaryColor
     : topics
     ? topics.color
     : "#4f46e5"
