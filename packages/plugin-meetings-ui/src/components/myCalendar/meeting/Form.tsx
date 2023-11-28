@@ -4,21 +4,25 @@ import FormGroup from '@erxes/ui/src/components/form/Group';
 import Button from '@erxes/ui/src/components/Button';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
-import { IButtonMutateProps, IFormProps, IOption } from '@erxes/ui/src/types';
+import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import { __, Alert } from '@erxes/ui/src/utils';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { ICommonFormProps } from '@erxes/ui-settings/src/common/types';
 import { IMeeting } from '../../../types';
-import { CustomRangeContainer } from '../../../styles';
+import {
+  CustomRangeContainer,
+  MeetingDetailColumn,
+  MeetingDetailRow
+} from '../../../styles';
 import DateControl from '@erxes/ui/src/components/form/DateControl';
 import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
 import { IUser } from '@erxes/ui/src/auth/types';
 import { CompaniesQueryResponse } from '@erxes/ui-contacts/src/companies/types';
-import SelectCompanies from '@erxes/ui-contacts/src/companies/containers/SelectCompanies';
-import { DealsQueryResponse } from '@erxes/ui-cards/src/deals/types';
-import SelectDeal from './SelectDeal';
-import SelectBoards from '@erxes/ui-forms/src/settings/properties/containers/SelectBoardPipeline';
-import { Chooser, ModalTrigger } from '@erxes/ui/src/components';
+import { DealsQueryResponse, IDeal } from '@erxes/ui-cards/src/deals/types';
+
+import { ModalTrigger } from '@erxes/ui/src/components';
+import DealChooser from '../../../containers/myCalendar/meeting/Chooser';
+import { DrawerDetail } from '@erxes/ui-automations/src/styles';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -32,28 +36,15 @@ type Props = {
 } & ICommonFormProps;
 
 export const MeetingForm = (props: Props) => {
-  const {
-    companiesQuery,
-    meeting,
-    queryParams,
-    calendarDate,
-    dealsQuery,
-    dealId
-  } = props;
-  const { companies } = companiesQuery || {};
-  const { deals } = dealsQuery || {};
+  const { meeting, queryParams, calendarDate, dealId } = props;
 
-  let dealInitialId = dealId ? [dealId] : '';
+  const dealInitialId = dealId ? [dealId] : '';
 
   const [userIds, setUserIds] = useState([props.currentUser._id] || []);
   const [companyId, setCompanyId] = useState(meeting?.companyId || '');
   const [title, setTitle] = useState('');
   const [selectedMethod, setSelectedMethod] = useState('');
   const [dealIds, setDealIds] = useState(dealInitialId);
-
-  const [pipelineIds, setPipelineIds] = useState([]);
-  const [boardIds, setBoardIds] = useState([]);
-  const [selectedItems, setSelectedItems] = useState();
 
   const [startDate, setStartDate] = useState<string | Date>(
     calendarDate?.startDate || new Date()
@@ -62,9 +53,7 @@ export const MeetingForm = (props: Props) => {
     calendarDate?.endDate || ''
   );
 
-  useEffect(() => {
-    setTitle(companies?.find(c => c._id === companyId)?.primaryName || '');
-  }, [companyId]);
+  const [selectedDeals, setSelectedDeals] = useState(meeting?.deals || []);
 
   const generateDoc = (values: {
     _id?: string;
@@ -120,7 +109,9 @@ export const MeetingForm = (props: Props) => {
   const onEndDateChange = dateVal => {
     if (new Date() < dateVal) {
       setEndDate(dateVal);
-    } else Alert.warning('Please choose the correct date');
+    } else {
+      Alert.warning('Please choose the correct date');
+    }
   };
 
   const renderDatePicker = () => {
@@ -152,118 +143,110 @@ export const MeetingForm = (props: Props) => {
     setUserIds(users);
   };
 
-  const onDealSelect = ids => {
-    setDealIds(ids);
-  };
-
-  const onCompanySelect = companyId => {
-    setCompanyId(companyId);
-  };
-
   const onMethodSelect = e => {
     setSelectedMethod((e.target as HTMLInputElement).value);
   };
 
-  const itemsChange = items => {
-    console.log(items, 'hha');
+  const renderBulkProductChooser = () => {
+    const dealsOnChange = (datas: any, selectedCompanyId: string) => {
+      const dealsId = datas?.map(data => data._id);
 
-    const itemPipelineIds = items.flatMap(params => params.pipelineIds);
-    const itemBoardIds = items.flatMap(params => params.boardId);
-    setPipelineIds([...itemPipelineIds]);
-    setBoardIds([...itemBoardIds]);
+      const { companyId: cId } = JSON.parse(
+        localStorage.getItem('erxes_deals:chooser_filter') || '{}'
+      );
 
-    setSelectedItems(items);
+      const filterId = selectedCompanyId || cId;
 
-    // this.setState({ selectedItems: items }, () => {
-    //   const boardsPipelines =
-    //     items &&
-    //     items.map((e) => {
-    //       const boardsPipeline = {
-    //         boardId: e.boardId,
-    //         pipelineIds: e.pipelineIds,
-    //       };
+      const companyName =
+        datas?.find(deal => {
+          const selectedCompanies =
+            deal.companies && deal.companies.filter(c => c._id === filterId);
+          return selectedCompanies && selectedCompanies.length > 0;
+        })?.companies?.[0]?.primaryName || '';
 
-    //       return boardsPipeline;
-    //     });
+      setDealIds(dealsId);
+      setSelectedDeals(datas);
+      setCompanyId(filterId);
+      setTitle(companyName);
+    };
 
-    //   this.props.onChangeItems(boardsPipelines);
-    // });
+    const content = ({ closeModal }) => {
+      const updatedProps = {
+        ...props,
+        closeModal
+      };
+      return (
+        <DealChooser
+          {...updatedProps}
+          onSelect={dealsOnChange}
+          data={{
+            name: 'Deal',
+            deals: []
+          }}
+        />
+      );
+    };
+
+    const trigger = (
+      <Button btnStyle="primary" icon="plus-circle">
+        Choose deal and company
+      </Button>
+    );
+
+    return (
+      <ModalTrigger
+        title="Choose deal and company"
+        trigger={trigger}
+        size="xl"
+        content={content}
+      />
+    );
   };
 
   const renderContent = (formProps: IFormProps) => {
     const { closeModal, renderButton } = props;
     const { values, isSubmitted } = formProps;
     const object = meeting || ({} as IMeeting);
-    let dealOptions =
-      (deals &&
-        deals.map((deal: any) => ({
-          value: deal._id,
-          label: deal.name || ''
-        }))) ||
-      [];
-    dealOptions = [{ value: '', label: '' }, ...dealOptions];
-
-    // console.log(pipelineIds, 'pipelineIds:', boardIds, 'boardIds');
-    const filterParams = {
-      relType: 'deal'
-    } as any;
-
-    if (companyId) {
-      filterParams.companyIds = [companyId];
-    }
-    if (pipelineIds && pipelineIds.length > 0) {
-      filterParams.pipelineIds = pipelineIds;
-    }
-
-    if (boardIds && boardIds.length > 0) {
-      filterParams.boardIds = boardIds;
-    }
-
-    const trigger = (
-      <Button btnStyle="success" icon="plus-circle">
-        {__('Add deal')}
-      </Button>
-    );
-
-    const content = props => {
-      const onCloseModal = () => {
-        props.closeModal();
-      };
-
-      return (
-        <></>
-        // <JobReferChooser
-        //   {...props}
-        //   closeModal={onCloseModal}
-        //   onSelect={() => {}}
-        //   types={['end']}
-        //   // categoryId={this.state.categoryId}
-        //   data={{
-        //     name: 'Deals',
-        //     datas: [],
-        //   }}
-        //   limit={1}
-        // />
-      );
-    };
-    // filterParams.companyIds = companyId ? [companyId] : undefined;
-    // filterParams.pipelineIds = pipelineIds ? pipelineIds : undefined;
-    // filterParams.boardIds = boardIds ? boardIds : undefined;
 
     return (
       <>
         <FormGroup>
-          <h4>{object?.title || title}</h4>
+          <h4>{title || object?.title}</h4>
         </FormGroup>
+
         <FormGroup>
-          <ControlLabel>Choose Company</ControlLabel>
-          <SelectCompanies
-            label={__('Select a company')}
-            name="companyId"
-            onSelect={onCompanySelect}
-            multi={false}
-            initialValue={companyId}
-          />
+          <ControlLabel required={false}> Deal and company </ControlLabel>
+          {selectedDeals.length > 0 && (
+            <MeetingDetailRow>
+              <MeetingDetailColumn>
+                <DrawerDetail>
+                  <span>Deal names: </span>
+                  {selectedDeals?.map((deal, index) => (
+                    <label key={index}>{deal.name},</label>
+                  ))}
+                </DrawerDetail>
+              </MeetingDetailColumn>
+            </MeetingDetailRow>
+          )}
+          <CustomRangeContainer>
+            {selectedDeals.length === 0 && (
+              <FormControl
+                componentClass="input"
+                placeholder="Deal name"
+                type="string"
+                value={''}
+                disabled={true}
+              />
+            )}
+            <FormControl
+              componentClass="input"
+              placeholder="Company name"
+              type="string"
+              value={title || object?.title}
+              disabled={true}
+            />
+            {renderBulkProductChooser()}
+          </CustomRangeContainer>
         </FormGroup>
 
         <FormGroup>
@@ -324,64 +307,6 @@ export const MeetingForm = (props: Props) => {
             type="text"
             required={true}
             autoFocus={true}
-          />
-        </FormGroup>
-        {/* <FormGroup>
-          <ControlLabel>Select Board </ControlLabel>
-          <SelectDeal
-            label="Choose board"
-            name="boardId"
-            initialValue={object?.dealIds || dealIds}
-            onSelect={onDealSelect}
-            multi={true}
-          />
-        </FormGroup>
-        <FormGroup>
-          <ControlLabel>Select Pipeline </ControlLabel>
-          <SelectDeal
-            label="Choose pipeline"
-            name="pipelineId"
-            initialValue={object?.dealIds || dealIds}
-            onSelect={onDealSelect}
-            multi={true}
-          />
-        </FormGroup> */}
-
-        <SelectBoards
-          isRequired={false}
-          onChangeItems={itemsChange}
-          type={'deal'}
-          selectedItems={selectedItems}
-        />
-
-        <FormGroup>
-          <ControlLabel>Select Deal</ControlLabel>
-          {/* <ModalTrigger
-            title="Choose a JOB"
-            trigger={trigger}
-            size="lg"
-            content={content}
-          /> */}
-
-          {/* <Chooser
-            title="Choose deal"
-            datas={[]}
-            data={{}}
-            search={() => {}}
-            clearState={() => {}}
-            onSelect={() => {}}
-            closeModal={() => closeModal()}
-            renderName={(file) => file.name}
-            perPage={5}
-            limit={100}
-          /> */}
-          <SelectDeal
-            label="Choose deal"
-            name="dealIds"
-            initialValue={object?.dealIds || dealIds}
-            onSelect={onDealSelect}
-            multi={true}
-            filterParams={filterParams}
           />
         </FormGroup>
 
