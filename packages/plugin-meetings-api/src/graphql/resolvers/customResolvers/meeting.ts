@@ -1,15 +1,19 @@
-import { IContext, sendCardsMessage } from '../../../messageBroker';
+import { IContext } from '../../../messageBroker';
 import { IMeeting } from '../../../models/definitions/meeting';
 
 export default {
   async topics({ id }, {}, { models }: IContext) {
-    if (!id) return null;
+    if (!id) {
+      return null;
+    }
 
     return await models.Topics.find({ meetingId: id });
   },
 
   async participantUser(meeting) {
-    if (!meeting.participantIds) return null;
+    if (!meeting.participantIds) {
+      return null;
+    }
 
     return meeting.participantIds.map(participantId => {
       return {
@@ -29,15 +33,16 @@ export default {
   },
 
   async deals({ dealIds }: IMeeting) {
-    if (!dealIds?.length) {
-      return [];
+    if (dealIds?.length === 0) {
+      return;
     }
-
     return (dealIds || [])?.map(async dealId => {
-      return {
-        __typename: 'Deal',
-        _id: dealId
-      };
+      if (dealId) {
+        return {
+          __typename: 'Deal',
+          _id: dealId
+        };
+      }
     });
   }
 };
