@@ -25,7 +25,7 @@ type ControlItem = {
   label: string;
   subtitle?: string;
   formValueName: string;
-  formValue?: string | object;
+  formValue?: string | number | object;
   placeholder?: string;
   formProps?: any;
 };
@@ -45,6 +45,10 @@ function General({
   tokenPassMethod = 'cookie',
   tokenExpiration = 1,
   refreshTokenExpiration = 7,
+  testUserEmail,
+  testUserPhone,
+  testUserPassword,
+  testUserOTP,
   handleFormChange
 }: Props) {
   const [otpEnabled, setOtpEnabled] = useState<boolean>(
@@ -574,6 +578,37 @@ function General({
               }
             />
           </Formgroup>
+        </BlockRow>
+      </CollapseContent>
+      <CollapseContent
+        title={__('Test user settings')}
+        compact={true}
+        open={false}
+      >
+        <BlockRow>
+          {renderControl({
+            label: 'Test User Email',
+            formValueName: 'testUserEmail',
+            formValue: testUserEmail
+          })}
+          {renderControl({
+            label: 'Test User Phone',
+            formValueName: 'testUserPhone',
+            formValue: testUserPhone
+          })}
+        </BlockRow>
+        <BlockRow>
+          {renderControl({
+            label: 'Test User Password',
+            formValueName: 'testUserPassword',
+            formValue: testUserPassword
+          })}
+          {renderControl({
+            label: 'Test User OTP',
+            formProps: { type: 'number' },
+            formValueName: 'testUserOTP',
+            formValue: testUserOTP
+          })}
         </BlockRow>
       </CollapseContent>
       {renderOtp()}

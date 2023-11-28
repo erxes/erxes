@@ -73,6 +73,8 @@ export interface ICarCategory {
   code: string;
   parentId?: string;
   description?: string;
+  image?: any;
+  secondaryImages?: any[];
 }
 
 export interface ICarCategoryDocument extends ICarCategory, Document {
@@ -88,7 +90,13 @@ export const carCategorySchema = schemaHooksWrapper(
     code: field({ type: String, unique: true, label: 'Code' }),
     order: field({ type: String, label: 'Order' }),
     parentId: field({ type: String, optional: true, label: 'Parent' }),
-    description: field({ type: String, optional: true, label: 'Description' }),
+    description: field({
+      type: String,
+      optional: true,
+      label: 'Description'
+    }),
+    image: field({ type: attachmentSchema }),
+    secondaryImages: field({ type: [attachmentSchema] }),
     createdAt: field({
       type: Date,
       default: new Date(),
