@@ -218,6 +218,9 @@ export const contractsMain = `
           firstName
           lastName
         }
+        contractType {
+          name
+        }
       }
       totalCount
     }

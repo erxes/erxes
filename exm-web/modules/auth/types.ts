@@ -60,7 +60,7 @@ export interface IUserDocC {
   links?: IUserLinks
   getNotificationByEmail?: boolean
   participatedConversations?: IUserConversation[]
-  permissionActions?: string[]
+  permissionActions?: any
   configs?: any
   configsConstants?: any
   score?: number

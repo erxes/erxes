@@ -1,4 +1,5 @@
-import { ButtonMutate, withProps } from '@erxes/ui/src';
+import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
+import { withProps } from '@erxes/ui/src/utils/core';
 import { __ } from 'coreui/utils';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { gql } from '@apollo/client';
