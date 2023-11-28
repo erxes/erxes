@@ -1,6 +1,5 @@
-import * as crypto from 'crypto';
 import { sendRequest } from '@erxes/api-utils/src/requests';
-import { SOCIALPAY_API_URL } from './constants';
+import * as crypto from 'crypto';
 
 export const encrypt = (data, publicKey) => {
   try {
