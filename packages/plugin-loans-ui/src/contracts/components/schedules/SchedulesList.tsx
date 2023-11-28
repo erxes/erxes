@@ -1,4 +1,7 @@
-import { Spinner, Table, Button } from '@erxes/ui/src';
+import Spinner from '@erxes/ui/src/components/Spinner';
+import Table from '@erxes/ui/src/components/table';
+import Button from '@erxes/ui/src/components/Button';
+
 import { __ } from 'coreui/utils';
 import { IRouterProps } from '@erxes/ui/src/types';
 import React from 'react';

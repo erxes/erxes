@@ -1,25 +1,22 @@
-import {
-  Button,
-  Chooser,
-  CollapseContent,
-  ControlLabel,
-  FormControl,
-  FormGroup,
-  Icon,
-  ModalTrigger,
-  MainStyleTitle as Title,
-  Wrapper
-} from '@erxes/ui/src';
-import { dimensions } from '@erxes/ui/src';
-import styled from 'styled-components';
+import Button from '@erxes/ui/src/components/Button';
+import Chooser from '@erxes/ui/src/components/Chooser';
+import CollapseContent from '@erxes/ui/src/components/CollapseContent';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import Icon from '@erxes/ui/src/components/Icon';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
+import dimensions from '@erxes/ui/src/styles/dimensions';
+import { MainStyleTitle as Title } from '@erxes/ui/src/styles/eindex';
 
+import styled from 'styled-components';
 import React from 'react';
 import { JOURNALS_KEY_LABELS, LEASE_TYPES } from '../constants';
 import { IContractTypeDetail } from '../types';
 import { __ } from 'coreui/utils';
 import ProductChooser from '@erxes/ui-products/src/containers/ProductChooser';
 import { CollateralButton } from '../../contracts/styles';
-import { ScrolledContent } from '@erxes/ui-cards/src/boards/styles/common';
 import { ScrollWrapper } from '@erxes/ui/src/styles/main';
 
 export const DISTRICTS = [

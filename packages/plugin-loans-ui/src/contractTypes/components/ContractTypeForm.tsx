@@ -1,14 +1,15 @@
+import Button from '@erxes/ui/src/components/Button';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import Form from '@erxes/ui/src/components/form/Form';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import FormGroup from '@erxes/ui/src/components/form/Group';
 import {
-  Button,
-  ControlLabel,
-  Form,
-  FormControl,
-  FormGroup,
   MainStyleFormColumn as FormColumn,
   MainStyleFormWrapper as FormWrapper,
   MainStyleModalFooter as ModalFooter,
   MainStyleScrollWrapper as ScrollWrapper
-} from '@erxes/ui/src';
+} from '@erxes/ui/src/styles/eindex';
+
 import { IProductCategory } from '@erxes/ui-products/src/types';
 import Select from 'react-select-plus';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
