@@ -62,7 +62,8 @@ const LoginContainer = ({
 
   return (
     <Login
-      loading={loading || forgotPasswordLoading}
+      loading={loading}
+      forgotPasswordLoading={forgotPasswordLoading}
       login={handleLogin}
       setType={setType}
     />
