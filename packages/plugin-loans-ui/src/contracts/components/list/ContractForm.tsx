@@ -827,6 +827,18 @@ class ContractForm extends React.Component<Props, State> {
                   value: this.state.skipInterestCalcMonth,
                   onChange: this.onChangeField
                 })}
+              {this.state.leaseType === 'linear' &&
+                this.renderFormGroup('Commitment interest', {
+                  ...formProps,
+                  type: 'number',
+                  useNumberFormat: true,
+                  fixed: 2,
+                  name: 'commitmentInterest',
+                  value: this.state.commitmentInterest || 0,
+                  errors: this.checkValidation(),
+                  onChange: this.onChangeField,
+                  onClick: this.onFieldClick
+                })}
             </FormColumn>
             <FormColumn>
               {this.state.leaseType !== 'linear' && (
