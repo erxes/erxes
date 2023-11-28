@@ -75,7 +75,8 @@ const generateSendData = async (
       action: `${title} notification`,
       content: `${getUserInfo(user)}'s ${title}`,
       link: `/settings/team/details/${user._id}`,
-      receivers
+      receivers,
+      contentType: 'exmFeed'
     });
 
     sendCoreMessage({
@@ -119,7 +120,8 @@ const generateSendEventData = async (exmList, type, subdomain) => {
       action: 'event notification',
       content: `${exm.title} is today`,
       link: `/erxes-plugin-exm-feed/list`,
-      receivers
+      receivers,
+      contentType: 'exmFeed'
     });
 
     sendCoreMessage({
