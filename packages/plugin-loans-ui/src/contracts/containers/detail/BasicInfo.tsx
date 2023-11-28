@@ -1,6 +1,7 @@
 import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
-import { Alert, withProps } from '@erxes/ui/src';
+import Alert from '@erxes/ui/src/utils/Alert';
+import { withProps } from '@erxes/ui/src/utils/core';
 import { mutations } from '../../graphql';
 import BasicInfoSection from '../../components/common/BasicInfoSection';
 import React from 'react';

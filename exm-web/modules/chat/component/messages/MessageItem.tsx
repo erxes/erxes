@@ -226,6 +226,9 @@ const MessageItem = ({
       </div>
       <div className={`flex justify-end mt-1`}>
         {message.seenList.map((item) => {
+          if(item.lastSeenMessageId === 'temp-d'){
+            return null
+          }
           if (currentUser._id === item.user._id) {
             return null
           }

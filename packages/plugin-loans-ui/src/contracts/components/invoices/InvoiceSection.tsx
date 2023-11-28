@@ -1,4 +1,4 @@
-import { Box } from '@erxes/ui/src';
+import Box from '@erxes/ui/src/components/Box';
 import { __ } from 'coreui/utils';
 import React from 'react';
 
