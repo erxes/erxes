@@ -1,20 +1,21 @@
 import {
-  Button,
-  ControlLabel,
-  DateControl,
-  Form,
-  FormControl,
-  FormGroup,
   MainStyleFormColumn as FormColumn,
   MainStyleFormWrapper as FormWrapper,
   MainStyleModalFooter as ModalFooter,
-  MainStyleScrollWrapper as ScrollWrapper,
-  SelectTeamMembers,
-  TabTitle,
-  Tabs as MainTabs,
-  Table,
-  Icon
-} from '@erxes/ui/src';
+  MainStyleScrollWrapper as ScrollWrapper
+} from '@erxes/ui/src/styles/eindex';
+
+import Button from '@erxes/ui/src/components/Button';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import DateControl from '@erxes/ui/src/components/form/DateControl';
+import Form from '@erxes/ui/src/components/form/Form';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
+import { TabTitle, Tabs as MainTabs } from '@erxes/ui/src/components/tabs';
+import Table from '@erxes/ui/src/components/table';
+import Icon from '@erxes/ui/src/components/Icon';
+
 import { __ } from 'coreui/utils';
 import { DateContainer } from '@erxes/ui/src/styles/main';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
@@ -76,12 +77,10 @@ function Tabs({ tabs }: ITabs) {
 
   return (
     <>
-      <MainTabs grayBorder>
+      <MainTabs>
         {tabs.map((tab, index) => (
           <TabTitle
-            style={{
-              backgroundColor: index === tabIndex && 'rgba(128,128,128,0.2)'
-            }}
+            className={tabIndex === index ? 'active' : ''}
             key={`tab${tab.label}`}
             onClick={() => setTabIndex(index)}
           >
@@ -353,7 +352,7 @@ class ContractForm extends React.Component<Props, State> {
         contractTypeObj?.config?.defaultInterest
       );
       changingStateValue['interestRate'] = Number(
-        (Number(contractTypeObj?.config?.defaultInterest || 0) * 12).toFixed(2)
+        contractTypeObj?.config?.defaultInterest || 0
       );
     }
 
@@ -439,23 +438,23 @@ class ContractForm extends React.Component<Props, State> {
     if (
       this.state.config &&
       this.state.config.minInterest &&
-      isGreaterNumber(this.state.config.minInterest, this.state.interestMonth)
+      isGreaterNumber(this.state.config.minInterest, this.state.interestRate)
     )
       errors.interestRate = errorWrapper(
-        `${__('Interest must greater than')} ${(
-          this.state.config.minInterest * 12
-        ).toFixed(0)}`
+        `${__(
+          'Interest must greater than'
+        )} ${this.state.config.minInterest.toFixed(0)}`
       );
 
     if (
       this.state.config &&
       this.state.config.maxInterest &&
-      isGreaterNumber(this.state.interestMonth, this.state.config.maxInterest)
+      isGreaterNumber(this.state.interestRate, this.state.config.maxInterest)
     )
       errors.interestRate = errorWrapper(
-        `${__('Interest must less than')} ${(
-          this.state.config.maxInterest * 12
-        ).toFixed(0)}`
+        `${__(
+          'Interest must less than'
+        )} ${this.state.config.maxInterest.toFixed(0)}`
       );
 
     return errors;
@@ -828,6 +827,18 @@ class ContractForm extends React.Component<Props, State> {
                   value: this.state.skipInterestCalcMonth,
                   onChange: this.onChangeField
                 })}
+              {this.state.leaseType === 'linear' &&
+                this.renderFormGroup('Commitment interest', {
+                  ...formProps,
+                  type: 'number',
+                  useNumberFormat: true,
+                  fixed: 2,
+                  name: 'commitmentInterest',
+                  value: this.state.commitmentInterest || 0,
+                  errors: this.checkValidation(),
+                  onChange: this.onChangeField,
+                  onClick: this.onFieldClick
+                })}
             </FormColumn>
             <FormColumn>
               {this.state.leaseType !== 'linear' && (
@@ -881,7 +892,7 @@ class ContractForm extends React.Component<Props, State> {
             </FormColumn>
           </FormWrapper>
           {this.state.repayment === 'custom' && (
-            <Table>
+            <Table striped>
               <thead>
                 <tr>
                   <th></th>
