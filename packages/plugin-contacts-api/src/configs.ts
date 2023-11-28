@@ -154,10 +154,10 @@ export default {
         return res.send('Customer email does not match');
       }
 
-      await updateContactValidationStatus(models, {
-        email,
-        status: EMAIL_VALIDATION_STATUSES.VALID
-      });
+      await models.Customers.updateOne(
+        { _id: customerId },
+        { $set: { primaryEmail: email, emailValidationStatus: 'valid' } }
+      );
 
       return res.send('Successfully verified, you can close this tab now');
     });
