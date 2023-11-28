@@ -1,13 +1,19 @@
 "use client"
 
 import { ReactNode, useState } from "react"
-import { useQuery } from "@apollo/client"
+import { gql, useQuery } from "@apollo/client"
 import { useSetAtom } from "jotai"
 
 import { useToast } from "@/components/ui/use-toast"
 
 import { setCurrentUserAtom } from "../JotaiProiveder"
 import { queries } from "./graphql"
+
+const ENABLED_SERVICES_QRY = gql`
+  query Query {
+    enabledServices
+  }
+`
 
 const Configs = ({ children }: { children: ReactNode }) => {
   const setCurrentUser = useSetAtom(setCurrentUserAtom)
@@ -25,7 +31,13 @@ const Configs = ({ children }: { children: ReactNode }) => {
     },
   })
 
-  if (loadingConfigs) {
+  const enabledServicesQry = useQuery(ENABLED_SERVICES_QRY)
+
+  const enabledServices = enabledServicesQry.data?.enabledServices || []
+
+  localStorage.setItem("enabledServices", JSON.stringify(enabledServices))
+
+  if (loadingConfigs || enabledServicesQry.loading) {
     return <div />
   } else {
     return <>{children}</>

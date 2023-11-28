@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react"
 import dynamic from "next/dynamic"
+import { gql, useQuery } from "@apollo/client"
 
 const Apollo = dynamic(() => import("./apolloClient"))
 

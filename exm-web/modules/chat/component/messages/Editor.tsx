@@ -3,7 +3,7 @@ import { useSearchParams } from "next/navigation"
 import { currentUserAtom } from "@/modules/JotaiProiveder"
 import { IUser } from "@/modules/types"
 import { useAtomValue } from "jotai"
-import { Mic, Paperclip } from "lucide-react"
+import { Mic, Paperclip, VideoIcon } from "lucide-react"
 
 import Loader from "@/components/ui/loader"
 import { AttachmentWithChatPreview } from "@/components/AttachmentWithChatPreview"
@@ -32,6 +32,7 @@ type IProps = {
 const Editor = ({ sendMessage, reply, setReply, showSidebar }: IProps) => {
   const [message, setMessage] = useState("")
   const [attachments, setAttachments] = useState<any[]>([])
+  const [enabledServices, setEnabledServices] = useState<any>()
   const relatedId = (reply && reply._id) || null
   const currentUser = useAtomValue(currentUserAtom) || ({} as IUser)
   const callBack = (result: string) => {
@@ -46,6 +47,10 @@ const Editor = ({ sendMessage, reply, setReply, showSidebar }: IProps) => {
 
   const textareaRef = useRef<any>(null)
 
+  // const enabledServices = JSON.parse(localStorage.getItem("enabledServices") || '');
+
+  console.log("enabledServices", enabledServices)
+
   let typingTimeout: any
 
   useEffect(() => {
@@ -58,6 +63,12 @@ const Editor = ({ sendMessage, reply, setReply, showSidebar }: IProps) => {
       typingTimeout = setTimeout(() => {
         chatTyping(chatId, currentUser._id)
       }, 1000)
+    }
+
+    if (!enabledServices) {
+      setEnabledServices(
+        JSON.parse(localStorage.getItem("enabledServices") || "")
+      )
     }
   }, [message])
 
@@ -215,7 +226,20 @@ const Editor = ({ sendMessage, reply, setReply, showSidebar }: IProps) => {
                 />
                 <Paperclip size={16} />
               </label>
+
+              {enabledServices?.dailyco && (
+                <label className="cursor-pointer">
+                  <button
+                    onClick={() => setIsRecording(true)}
+                    disabled={voiceUploaded}
+                    className="disabled:cursor-not-allowed"
+                  >
+                    <VideoIcon size={18} />
+                  </button>
+                </label>
+              )}
             </div>
+
             <div className="w-full">
               <ReplyInfo reply={reply} setReply={setReply} />
               <div className="relative flex flex-1 items-center gap-4 p-5 rounded-lg bg-[#F5FAFF] drop-shadow-md">
