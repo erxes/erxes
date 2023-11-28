@@ -90,3 +90,5 @@ export const CLOSE_DATE_TYPES = {
 
 export const SOCIALPAY_TOKEN_URL =
   'https://p2p.golomtbank.com/rpc/smartapptoken/';
+
+export const SOCIALPAY_API_URL = 'http://uat.golomtbank.com:8443';
