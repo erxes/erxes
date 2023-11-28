@@ -5,3 +5,12 @@ export interface PaymentType {
   icon: string
   config?: string
 }
+
+export interface IPaymentOption {
+  _id: string
+  name: string
+  kind: string
+  config: {
+    [key: string]: string
+  }
+}
