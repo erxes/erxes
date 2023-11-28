@@ -3,7 +3,6 @@ export interface IContractConfig {
   temp: string;
   giving: string;
   tempDebt: string;
-
   mainUserEmail: string;
   mainHasVat: string;
   mainHasCitytax: string;
@@ -68,6 +67,7 @@ export interface IContractTypeDoc {
   useManualNumbering: boolean;
   useFee: boolean;
   currency: string;
+  collateralType: string;
 }
 
 export interface IContractType extends IContractTypeDoc {
