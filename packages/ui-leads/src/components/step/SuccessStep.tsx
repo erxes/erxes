@@ -159,13 +159,9 @@ class SuccessStep extends React.Component<Props, State> {
       <div>
         <FormGroup>
           <ControlLabel>
-            Send a confirmation email to the responder
-          </ControlLabel>
-        </FormGroup>
-        <FormGroup>
-          <ControlLabel>
             Verify the responder's email address with a confirmation email
           </ControlLabel>
+          <p>{__('Verification button would be added to the email.')}</p>
           <Toggle
             id="saveAsCustomer"
             checked={this.props.verifyEmail || false}
