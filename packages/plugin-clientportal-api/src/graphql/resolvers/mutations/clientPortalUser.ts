@@ -16,7 +16,7 @@ import redis from '../../../redis';
 import { sendSms } from '../../../utils';
 import { sendCommonMessage } from './../../../messageBroker';
 import * as jwt from 'jsonwebtoken';
-import { fetchUserFromSocialpay } from '../../../models/utils';
+import { fetchUserFromSocialpay } from '../../../socialpayUtils';
 
 export interface IVerificationParams {
   userId: string;
@@ -683,14 +683,22 @@ const clientPortalUserMutations = {
     const clientPortal = await models.ClientPortals.getConfig(clientPortalId);
 
     const data = await fetchUserFromSocialpay(token);
-    const { FirstName, LastName, MobileNumber, Email, IndividualId } = data;
+    const {
+      individualId,
+      mobileNumber,
+      email,
+      firstName,
+      lastName,
+      imgUrl
+    } = data;
 
     const doc = {
-      firstName: FirstName,
-      lastName: LastName,
-      phone: MobileNumber,
-      email: Email,
-      code: IndividualId
+      firstName,
+      lastName,
+      phone: mobileNumber,
+      email,
+      code: individualId,
+      avatar: imgUrl
     };
 
     const user = await models.ClientPortalUsers.loginWithoutPassword(

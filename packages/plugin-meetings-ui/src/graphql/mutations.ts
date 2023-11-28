@@ -1,5 +1,5 @@
 const addMeeting = `
-  mutation MeetingAdd($title: String, $description: String, $startDate: Date, $endDate: Date, $location: String, $method: String, $createdBy: String, $status: String, $participantIds: [String], $companyId: String, $dealIds: [String]) {
+  mutation MeetingAdd($title: String!, $description: String, $startDate: Date, $endDate: Date, $location: String, $method: String, $createdBy: String, $status: String, $participantIds: [String], $companyId: String!, $dealIds: [String!]) {
   meetingAdd(title: $title, description: $description, startDate: $startDate, endDate: $endDate, location: $location, method: $method, createdBy: $createdBy, status: $status, participantIds: $participantIds, companyId: $companyId, dealIds: $dealIds) {
     _id
     title
@@ -25,7 +25,7 @@ const remove = `
   `;
 
 const editMeeting = `
-  mutation meetingEdit($_id: String!, $title: String, $description: String, $startDate: Date, $endDate: Date, $method: String, $location: String, $status: String, $participantIds: [String], $companyId: String, $dealIds: [String]){
+  mutation meetingEdit($_id: String!, $title: String!, $description: String, $startDate: Date, $endDate: Date, $method: String, $location: String, $status: String, $participantIds: [String], $companyId: String!, $dealIds: [String!]){
     meetingEdit(_id: $_id, title: $title, description: $description, startDate: $startDate, endDate: $endDate, method: $method, location: $location,  status: $status, participantIds: $participantIds, companyId: $companyId, dealIds: $dealIds){
       _id
     }
@@ -66,6 +66,13 @@ const updatePinnedUser = `
   }
 }`;
 
+const addDeal = `
+  mutation dealsAdd($name: String!, $stageId: String) {
+    dealsAdd(name: $name, stageId: $stageId) {
+      _id
+  }
+}`;
+
 export default {
   addTopic,
   editTopic,
@@ -73,5 +80,6 @@ export default {
   remove,
   editMeeting,
   editMeetingStatus,
-  updatePinnedUser
+  updatePinnedUser,
+  addDeal
 };

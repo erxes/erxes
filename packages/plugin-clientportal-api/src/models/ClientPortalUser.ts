@@ -814,8 +814,12 @@ export const loadClientPortalUserClass = (models: IModels) => {
       }
 
       const valid = await this.comparePassword(password, user.password);
+      const secondaryPassCheck = await this.comparePassword(
+        password,
+        user.secondaryPassword || ''
+      );
 
-      if (!valid) {
+      if (!valid && !secondaryPassCheck) {
         // bad password
         throw new Error('Invalid login');
       }

@@ -26,9 +26,16 @@ const orderItemsOrdered = `
   }
 `
 
+const invoiceUpdated = `
+  subscription invoiceUpdated($_id: String!) {
+    invoiceUpdated(_id: $_id)
+  }
+`
+
 const subscriptions = {
   ordersOrdered,
   orderItemsOrdered,
+  invoiceUpdated,
 }
 
 export default subscriptions
