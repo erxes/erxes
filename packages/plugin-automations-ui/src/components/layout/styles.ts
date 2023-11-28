@@ -89,6 +89,10 @@ export const Trigger = styledTS<{ type: string; isHoverActionBar?: boolean }>(
     }
   }
 
+  .optional-connects:empty {
+    display: none;
+  }
+
   .optional-connects {
     background-color:${props =>
       props.type === 'trigger'

@@ -1,4 +1,4 @@
-import React, { useCallback, useRef, useEffect } from 'react';
+import React, { useCallback, useRef, useEffect, useState } from 'react';
 
 import ReactFlow, {
   Background,
@@ -15,6 +15,7 @@ import { generateEdges, generateNodes } from './utils';
 import CustomNode from './Node';
 import { AutomationConstants, ITrigger } from '../../types';
 import { IAction } from '@erxes/ui-automations/src/types';
+import { Button, Icon } from '@erxes/ui/src';
 
 type Props = {
   triggers: ITrigger[];
@@ -33,21 +34,25 @@ type Props = {
   onDoubleClick: (type: string, id: string) => void;
   removeItem: (type: string, id: string) => void;
   constants: AutomationConstants;
+  onChangePositions: (type: string, id: string, postions: any) => void;
 };
 
 const nodeTypes = {
   custom: CustomNode
 };
 
-const fitViewOptions = { padding: 4 };
+const fitViewOptions = { padding: 2 };
 
 function AutomationEditor({
   triggers,
   actions,
   onConnection,
+  onChangePositions,
   ...props
 }: Props) {
   const edgeUpdateSuccessful = useRef(true);
+  const [align, setAlign] = useState('right');
+  const [hoveredNodeId, setHoveredNodeId] = useState(null);
   const [edges, setEdges, onEdgesChange] = useEdgesState(
     generateEdges({ triggers, actions })
   );
@@ -74,20 +79,34 @@ function AutomationEditor({
     setNodes(mergedArray);
   };
 
+  const generateConnect = (params, source) => {
+    const { sourceHandle } = params;
+
+    let info: any = {
+      ...params,
+      sourceId: params.source,
+      targetId: params.target,
+      type: source?.data?.nodeType
+    };
+
+    if (sourceHandle) {
+      if (params?.sourceHandle.includes(params?.source)) {
+        const [_sourceId, optionalConnectId] = params.sourceHandle.split('-');
+        info.optionalConnectId = optionalConnectId;
+        info.connectType = 'optional';
+      }
+    }
+
+    return info;
+  };
+
   const onConnect = useCallback(params => {
-    console.log({ params });
     setEdges(eds => {
       const updatedEdges = addEdge({ ...params }, eds);
 
       const source = nodes.find(node => node.id === params.source);
 
-      console.log({ params, eds });
-
-      onConnection({
-        sourceId: params.source,
-        targetId: params.target,
-        type: source?.data?.type
-      });
+      onConnection(generateConnect(params, source));
 
       return updatedEdges;
     });
@@ -101,7 +120,16 @@ function AutomationEditor({
   const onEdgeUpdateEnd = useCallback((_, edge) => {
     if (!edgeUpdateSuccessful.current) {
       setEdges(eds => eds.filter(e => e.id !== edge.id));
-      onConnect({ sourceId: edge.source, targetId: undefined });
+      let info: any = { source: edge.source, target: undefined };
+
+      const sourceNode = nodes.find(n => n.id === edge.source);
+
+      if (edge.sourceHandle.includes(sourceNode?.id)) {
+        info.optionalConnectId = undefined;
+        info.connectType = 'optional';
+      }
+
+      onConnect(info);
     }
 
     edgeUpdateSuccessful.current = true;
@@ -136,6 +164,40 @@ function AutomationEditor({
     }
   };
 
+  const onNodeMouseEnter = (event, node) => {
+    setHoveredNodeId(node.id);
+  };
+
+  const onNodeMouseLeave = () => {
+    setHoveredNodeId(null);
+  };
+
+  const onNodeDragStop = (e, node) => {
+    onChangePositions(node?.data?.nodeType, node.id, node.position);
+  };
+
+  const renderActionBar = () => {
+    if (!hoveredNodeId) {
+      return null;
+    }
+
+    // Customize your action bar content and styling
+    const actionBarStyle: any = {
+      position: 'absolute',
+      top: 100 + 5,
+      left: 300 / 2,
+      transform: 'translateX(-50%)',
+      background: 'white',
+      border: '1px solid #ddd',
+      padding: '8px',
+      borderRadius: '4px',
+      boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+      zIndex: 1
+    };
+
+    return <div style={actionBarStyle}>{hoveredNodeId}</div>;
+  };
+
   return (
     <>
       <ReactFlow
@@ -153,9 +215,17 @@ function AutomationEditor({
         connectionMode={ConnectionMode.Loose}
         onPaneClick={onPaneClick}
         isValidConnection={isValidConnection}
+        onNodeDragStop={onNodeDragStop}
+        onNodeMouseEnter={onNodeMouseEnter}
+        onNodeMouseLeave={onNodeMouseLeave}
       >
-        <Controls />
+        <Controls>
+          <button>
+            <Icon icon="sitemap-1" />
+          </button>
+        </Controls>
         <Background />
+        {renderActionBar()}
       </ReactFlow>
     </>
   );

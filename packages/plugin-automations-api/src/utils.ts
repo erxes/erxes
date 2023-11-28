@@ -191,6 +191,7 @@ export const executeActions = async (
   }
 
   execAction.result = actionResponse;
+
   execution.actions = [...(execution.actions || []), execAction];
   execution = await execution.save();
 
@@ -201,6 +202,11 @@ export const executeActions = async (
     actionsMap,
     action.nextActionId
   );
+};
+
+const checkOptionalConnectAction = action => {
+  const { optionalConnects = [] } = action?.config || {};
+  return !!optionalConnects.length;
 };
 
 const isDiffValue = (latest, target, field) => {

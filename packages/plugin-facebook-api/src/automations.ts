@@ -1,6 +1,7 @@
 import { readFileUrl } from '@erxes/api-utils/src/commonUtils';
 import { IModels, generateModels } from './connectionResolver';
 import { sendReply } from './utils';
+import { IConversation } from './models/definitions/conversations';
 
 export default {
   constants: {
@@ -61,7 +62,7 @@ export default {
   }
 };
 
-const generateMessage = config => {
+const generateMessage = (config, conversation: IConversation) => {
   if (config?.messageTemplates?.length > 1) {
     return {
       attachment: {
@@ -110,7 +111,11 @@ const generateMessage = config => {
       quick_replies: quickReplies.map(quickReply => ({
         content_type: 'text',
         title: quickReply.label,
-        payload: quickReply._id
+        payload: JSON.stringify({
+          btnId: quickReply._id,
+          erxesApiId: conversation.erxesApiId,
+          recipientId: conversation.recipientId
+        })
       }))
     };
   }
@@ -144,7 +149,7 @@ const actionCreateMessage = async (
   const { recipientId, senderId } = conversation;
 
   try {
-    const message = generateMessage(config);
+    const message = generateMessage(config, conversation);
 
     console.log({ message: JSON.stringify(message) });
 

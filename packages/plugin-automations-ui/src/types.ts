@@ -12,6 +12,7 @@ export type ITrigger = {
   actionId?: string;
   style?: any;
   config?: any;
+  position?: any;
 
   count?: number;
 };

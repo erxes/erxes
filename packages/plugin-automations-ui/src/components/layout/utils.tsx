@@ -80,6 +80,10 @@ export const generateEdges = ({
 }) => {
   const generatedEdges: any = [];
 
+  const commonStyle = {
+    strokeWidth: 2
+  };
+
   const commonEdgeDoc = {
     updatable: 'target',
     type: 'floating',
@@ -94,15 +98,37 @@ export const generateEdges = ({
     const targetField = type === 'trigger' ? 'actionId' : 'nextActionId';
 
     for (const edge of edges) {
-      generatedEdges.push({
+      const edgeObj = {
         ...commonEdgeDoc,
         id: `${type}-${edge.id}`,
         source: edge.id,
         target: edge[targetField],
+        style: { ...commonStyle },
         data: {
           type
         }
-      });
+      };
+
+      const { optionalConnects = [] } = edge?.config || {};
+
+      if (!!optionalConnects?.length) {
+        for (const {
+          actionId,
+          sourceId,
+          optionalConnectId
+        } of optionalConnects) {
+          generatedEdges.push({
+            ...edgeObj,
+            id: `${type}-${edge.id}-${optionalConnectId}`,
+            sourceHandle: `${sourceId}-${optionalConnectId}-${edgeObj.sourceHandle}`,
+            target: actionId,
+            animated: true,
+            style: { ...commonStyle }
+          });
+        }
+      }
+
+      generatedEdges.push(edgeObj);
     }
   }
 
@@ -135,9 +161,12 @@ export const generateNodes = (
         config,
         ...props
       },
-      position: { x: 2, y: 2 },
+      position: node?.position || { x: 2, y: 2 },
       isConnectable: true,
-      type: 'custom'
+      type: 'custom',
+      style: {
+        zIndex: -1
+      }
     };
   };
 

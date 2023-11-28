@@ -15,7 +15,7 @@ class OptionalContent extends React.Component<Props> {
 
     return (
       <>
-        {messageTemplates.map(msgTemplate =>
+        {/* {messageTemplates.map(msgTemplate =>
           (msgTemplate?.buttons || []).map(btn => {
             const id = Math.random();
 
@@ -26,7 +26,7 @@ class OptionalContent extends React.Component<Props> {
               </li>
             );
           })
-        )}
+        )} */}
       </>
     );
   }

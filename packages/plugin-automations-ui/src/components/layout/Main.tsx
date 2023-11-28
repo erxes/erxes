@@ -41,6 +41,7 @@ import ActionDetailForm from '../forms/actions/ActionDetailForm';
 import ActionsForm from '../forms/actions/ActionsForm';
 import TriggerDetailForm from '../forms/triggers/TriggerDetailForm';
 import AutomationEditor from './RFEditor';
+import jquery from 'jquery';
 
 type Props = {
   automation: IAutomation;
@@ -168,8 +169,8 @@ class Editor extends React.Component<Props, State> {
           icon: t.icon,
           label: t.label,
           description: t.description,
-          actionId: t.actionId
-          // style: jquery(`#trigger-${t.id}`).attr('style')
+          actionId: t.actionId,
+          position: t.position
         })),
         actions: actions.map(a => ({
           id: a.id,
@@ -178,8 +179,8 @@ class Editor extends React.Component<Props, State> {
           config: a.config,
           icon: a.icon,
           label: a.label,
-          description: a.description
-          // style: jquery(`#action-${a.id}`).attr('style')
+          description: a.description,
+          position: a.position
         }))
       };
 
@@ -245,8 +246,6 @@ class Editor extends React.Component<Props, State> {
   onConnection = info => {
     const { triggers, actions } = this.state;
 
-    console.log({ info });
-
     connection(triggers, actions, info, info.targetId);
 
     this.setState({ triggers, actions });
@@ -276,9 +275,31 @@ class Editor extends React.Component<Props, State> {
     }
 
     if (awaitingActionId) {
-      actions = actions.map(a =>
-        a.id === awaitingActionId ? { ...a, nextActionId: action.id } : a
-      );
+      const [awaitActionId, optionalConnectId] = awaitingActionId.split('-');
+
+      actions = actions.map(a => {
+        if (a.id === awaitActionId && optionalConnectId) {
+          const { config } = a || {};
+          const { optionalConnects } = config || {};
+
+          return {
+            ...a,
+            config: {
+              ...config,
+              optionalConnects: [
+                ...optionalConnects,
+                { sourceId: a.id, actionId: action.id, optionalConnectId }
+              ]
+            }
+          };
+        }
+
+        if (a.id === awaitActionId) {
+          return { ...a, nextActionId: action.id };
+        }
+
+        return a;
+      });
     }
 
     this.setState({
@@ -468,6 +489,19 @@ class Editor extends React.Component<Props, State> {
     );
   }
 
+  onChangeItemPosition = (type: string, id: string, position: any) => {
+    const { triggers, actions } = this.state;
+    const items: IAction[] | ITrigger[] =
+      type === 'trigger' ? triggers : actions;
+
+    this.setState({
+      ...this.state,
+      [`${type}s`]: items.map(item =>
+        item.id === id ? { ...item, position } : item
+      )
+    });
+  };
+
   rendeRightActionBar() {
     const { isActive } = this.state;
 
@@ -535,6 +569,7 @@ class Editor extends React.Component<Props, State> {
             onDoubleClick={this.onSelectActiveTriggerAction}
             removeItem={this.removeItem}
             onConnection={this.onConnection}
+            onChangePositions={this.onChangeItemPosition}
           />
         </PageContent>
 

@@ -5,6 +5,7 @@ import { Handle, Position } from 'reactflow';
 import { DEFAULT_HANDLE_OPTIONS, DEFAULT_HANDLE_STYLE } from './constants';
 import { Trigger } from './styles';
 import { renderDynamicComponent } from '../../utils';
+import { AutomationConstants } from '../../types';
 
 const showHandler = (data, option) => {
   if (data.nodeType === 'trigger' && ['left'].includes(option.id)) {
@@ -14,7 +15,22 @@ const showHandler = (data, option) => {
   return true;
 };
 
-export default memo(({ id, data, x, y }: any) => {
+type Props = {
+  id: string;
+  data: {
+    type: string;
+    nodeType: string;
+    icon: string;
+    label: string;
+    description: string;
+    toggleDrawer: (type: string, awaitingActionId?: string) => void;
+    onDoubleClick: (type: string, id: string) => void;
+    removeItem: (type: string, id: string) => void;
+    constants: AutomationConstants;
+  };
+};
+
+export default memo(({ id, data }: Props) => {
   const [isHovered, setIsHovered] = useState(false);
 
   const { toggleDrawer, onDoubleClick, removeItem, constants } = data;
@@ -27,10 +43,12 @@ export default memo(({ id, data, x, y }: any) => {
     setIsHovered(false);
   };
 
-  const handleOnClick = optionId => {
+  const handleOnClick = (optionId, isOptionalConnect) => {
     if (optionId.includes('right')) {
-      console.log('dasfsdgfh');
-      toggleDrawer(`actions`, id);
+      toggleDrawer(
+        `actions`,
+        isOptionalConnect ? optionId.replace('-right', '') : id
+      );
     }
   };
 
@@ -48,41 +66,40 @@ export default memo(({ id, data, x, y }: any) => {
       c => c.type === data[`${data.nodeType}Type`]
     );
 
-    if (constant && constant?.isAvailableOptionalConnect) {
-      return (
-        <div className="optional-connects">
-          {renderDynamicComponent(
-            {
-              componentType: 'optionalContent',
-              data,
-              handle: id => (
-                <Handle
-                  id={`${id}-right`}
-                  type="source"
-                  position={Position.Right}
-                  onClick={handleOnClick.bind(this, `${id}-right`)}
-                  isConnectable
-                  style={{
-                    right: '20px',
-                    width: 10,
-                    height: 10,
-                    backgroundColor: colors.colorShadowGray,
-                    zIndex: 4
-                  }}
-                />
-              )
-            },
-            constant.type
-          )}
-        </div>
-      );
+    if (!constant || !constant?.isAvailableOptionalConnect) {
+      return null;
     }
-    // if (data?.isAvailableOptionalConnect && data[`${data.nodeType}Type`]) {
-    //   return renderDynamicComponent(
-    //     { componentType: 'optionalContent', data },
-    //     data[`${data.nodeType}`]
-    //   );
-    // }
+
+    const handle = optionalId => (
+      <Handle
+        key={`${id}-${optionalId}-right`}
+        id={`${id}-${optionalId}-right`}
+        type="source"
+        position={Position.Right}
+        onClick={handleOnClick.bind(this, `${id}-${optionalId}-right`)}
+        isConnectable
+        style={{
+          right: '20px',
+          width: 10,
+          height: 10,
+          backgroundColor: colors.colorShadowGray,
+          zIndex: 4
+        }}
+      />
+    );
+
+    return (
+      <div className="optional-connects">
+        {renderDynamicComponent(
+          {
+            componentType: 'optionalContent',
+            data,
+            handle
+          },
+          constant.type
+        )}
+      </div>
+    );
   };
 
   return (
