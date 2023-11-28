@@ -1,23 +1,17 @@
-import {
-  colors,
-  dimensions,
-  SidebarList,
-  animations,
-  typography
-} from '@erxes/ui/src';
+import colors from '@erxes/ui/src/styles/colors';
+import { SidebarList } from '@erxes/ui/src/layout/styles';
+import dimensions from '@erxes/ui/src/styles/dimensions';
+import * as animations from '@erxes/ui/src/utils/animations';
+import typography from '@erxes/ui/src/styles/typography';
 import { Input } from '@erxes/ui/src/components/form/styles';
 import styledTS from 'styled-components-ts';
 import styled, { css } from 'styled-components';
-
 const ContractsTableWrapper = styled.div`
   td {
     max-width: 250px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-  }
-  tr:nth-child(odd) {
-    background-color: ${colors.colorShadowGray};
   }
 `;
 

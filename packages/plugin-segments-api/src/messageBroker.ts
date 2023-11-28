@@ -9,6 +9,11 @@ import {
 } from './graphql/resolvers/queries/queryBuilder';
 import { serviceDiscovery } from './configs';
 
+const sendSuccessMessage = data => ({ data, status: 'success' });
+const sendErrorMessage = (message?) => ({
+  status: 'error',
+  message
+});
 let client;
 
 export const initBroker = async cl => {
@@ -85,6 +90,37 @@ export const initBroker = async cl => {
         status: 'success',
         data: await models.Segments.removeSegment(segmentId)
       };
+    }
+  );
+
+  consumeRPCQueue(
+    'segments:findSubSegments',
+    async ({ subdomain, data: { segmentIds } }) => {
+      const models = await generateModels(subdomain);
+
+      const segments = await models.Segments.find({ _id: { $in: segmentIds } });
+
+      if (!segments?.length) {
+        return sendErrorMessage('Not Found');
+      }
+
+      let subSegmentIds: string[] = [];
+
+      for (const { conditions } of segments || []) {
+        for (const { subSegmentId } of conditions || []) {
+          if (subSegmentId) {
+            subSegmentIds.push(subSegmentId);
+          }
+        }
+      }
+
+      return sendSuccessMessage(
+        await models.Segments.find({
+          _id: {
+            $in: subSegmentIds
+          }
+        })
+      );
     }
   );
 };

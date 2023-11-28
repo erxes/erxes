@@ -2,6 +2,9 @@
 
 import { useEffect } from "react"
 import dynamic from "next/dynamic"
+import { currentUserAtom } from "@/modules/JotaiProiveder"
+import { IUser } from "@/modules/auth/types"
+import { useAtomValue } from "jotai"
 import { useInView } from "react-intersection-observer"
 
 import LoadingCard from "@/components/ui/loading-card"
@@ -23,6 +26,12 @@ const List = ({ contentType }: { contentType: string }) => {
   const { feeds, feedsCount, loading, handleLoadMore } = useFeeds(contentType)
 
   const datas = feeds || []
+  const currentUser = useAtomValue(currentUserAtom) || ({} as IUser)
+
+  const checkExmPermission =
+    (currentUser.permissionActions &&
+      currentUser.permissionActions.manageExmActivityFeed) ||
+    false
 
   const pinnedList = datas.filter((data) => data.isPinned)
   const normalList = datas.filter((data) => !data.isPinned)
@@ -54,9 +63,17 @@ const List = ({ contentType }: { contentType: string }) => {
     )
   }
 
+  const renderForm = () => {
+    if (contentType === "publicHoliday") {
+      return checkExmPermission && <FeedForm contentType={contentType} />
+    }
+
+    return <FeedForm contentType={contentType} />
+  }
+
   return (
-    <ScrollArea className="h-[calc(100vh-65px)] px-[25px]">
-      <FeedForm contentType={contentType} />
+    <div className="h-[calc(100vh-65px)] pl-[25px] pr-[20px] overflow-auto">
+      {renderForm()}
       {showList(pinnedList)}
       {showList(normalList)}
 
@@ -71,7 +88,7 @@ const List = ({ contentType }: { contentType: string }) => {
           <LoadingCard />
         </div>
       )}
-    </ScrollArea>
+    </div>
   )
 }
 

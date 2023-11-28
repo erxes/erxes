@@ -1,8 +1,8 @@
-import { Icon, __ } from '@erxes/ui/src';
-
+import Icon from '@erxes/ui/src/components/Icon';
 import React from 'react';
 import { NameWrapper, RemoveRow } from '../../styles';
 import { ICollateralData } from '../../types';
+import { __ } from 'coreui/utils';
 
 type Props = {
   collateralData: ICollateralData;

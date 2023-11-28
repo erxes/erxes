@@ -8,9 +8,6 @@ const PeriodLocksTableWrapper = styled.div`
     text-overflow: ellipsis;
     white-space: nowrap;
   }
-  tr:nth-child(odd) {
-    background-color: ${colors.colorShadowGray};
-  }
   tr:nth-child(even) {
     background-color: #fff;
   }

@@ -55,7 +55,7 @@ const List = () => {
   const filteredUsers = () => {
     if (activeTab === "all") {
       return (
-        <div className="w-full gap-3 mt-4 grid grid-cols-4 overflow-x-hidden overflow-y-auto">
+        <div className="w-full gap-5 mt-4 grid grid-cols-4 overflow-x-hidden overflow-y-auto">
           {users.map((user) => (
             <MemberCard key={Math.random()} user={user} />
           ))}
@@ -78,7 +78,11 @@ const List = () => {
         {(items || []).map((item) => (
           <div key={Math.random()}>
             <h3 className="mt-4 font-bold text-[16px] flex items-center">
-              <GitFork size={15} className="mr-2" />
+              {activeTab === "branch" ? (
+                <Building size={15} className="mr-2" />
+              ) : (
+                <GitFork size={15} className="mr-2" />
+              )}
               {item.title}
             </h3>
             <div className="w-full gap-3 mt-4 grid grid-cols-4 overflow-x-hidden overflow-y-auto">

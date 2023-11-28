@@ -83,14 +83,14 @@ const AvatarUpload = ({ avatar, defaultAvatar, onAvatarUpload }: Props) => {
   }
 
   return (
-    <div className="w-[90px] h-[90px] relative mb-[20px] flex items-center overflow-hidden rounded-full border border-primary">
+    <div className="w-[90px] h-[90px] relative flex items-center overflow-hidden rounded-full border border-primary">
       <Image
         src={readFile(avatarPreviewUrl)}
         alt="User Profile"
         width={100}
         height={100}
         style={avatarPreviewStyle}
-        className="w-[90px] h-[90px] rounded-full object-cover"
+        className="w-[90px] h-[90px] rounded-full object-cover border border-primary"
       />
       <label className="text-white transition-all absolute top-0 bottom-0 left-0 right-0 flex justify-center items-center z-2 hover:bg-[#00000066] opacity-0 hover:opacity-100">
         <Upload size={30} className="cursor-pointer" />

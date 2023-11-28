@@ -299,6 +299,7 @@ class List extends React.Component<IProps, State> {
         header={
           <Wrapper.Header
             title={__('Product & Service')}
+            queryParams={queryParams}
             breadcrumb={breadcrumb}
           />
         }

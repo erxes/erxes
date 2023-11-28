@@ -112,7 +112,7 @@ class PeriodLocksList extends React.Component<IProps, State> {
 
     const mainContent = (
       <PeriodLocksTableWrapper>
-        <Table whiteSpace="nowrap" bordered={true} hover={true}>
+        <Table whiteSpace="nowrap" bordered={true} hover={true} striped>
           <thead>
             <tr>
               <th>
@@ -209,6 +209,7 @@ class PeriodLocksList extends React.Component<IProps, State> {
 
     return (
       <Wrapper
+        hasBorder
         header={
           <Wrapper.Header
             title={__(`Period Locks`) + ` (${totalCount})`}
