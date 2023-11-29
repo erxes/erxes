@@ -228,7 +228,7 @@ const Form = ({ type, currentStep, setCurrentStep, setToggleView }: Props) => {
     }
 
     return (
-      <div className="h-full max-h-[100px] overflow-y-auto scrollbar-hide">
+      <div className="max-h-[100px] overflow-y-auto scrollbar-hide mt-auto">
         {attachments.map((attachment, index) => (
           <div
             key={index}
@@ -255,7 +255,8 @@ const Form = ({ type, currentStep, setCurrentStep, setToggleView }: Props) => {
           <Button
             onClick={onBack}
             style={{
-              backgroundColor: color,
+              backgroundColor: "#ededed",
+              color: "#9e9e9e",
             }}
           >
             {currentStep === 1 ? "Cancel" : "Back"}
@@ -287,10 +288,9 @@ const Form = ({ type, currentStep, setCurrentStep, setToggleView }: Props) => {
           disabled={inCheck}
         />
       </div>
-      <div className="flex flex-col pt-5 h-full">
+      <div className="flex flex-col pt-5 h-[300px]">
         <textarea
-          className="w-full resize-none outline-none scrollbar-hide disabled:bg-transparent"
-          rows={15}
+          className="w-full flex-1 resize-none outline-none scrollbar-hide disabled:bg-transparent"
           value={message}
           onChange={handleMessageChange}
           autoComplete="off"
@@ -316,7 +316,7 @@ const Form = ({ type, currentStep, setCurrentStep, setToggleView }: Props) => {
               htmlFor="remember"
               className="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300"
             >
-              Whether to include signature
+              Include signature
             </label>
           </div>
         </div>

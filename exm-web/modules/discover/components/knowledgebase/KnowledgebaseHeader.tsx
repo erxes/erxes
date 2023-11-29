@@ -11,7 +11,6 @@ const KnowledgebaseHeader = () => {
 
   const router = useRouter()
   const [searchValue, setSearchValue] = useState<string>("")
-  const [toggleBar, setToggleBar] = useState(false)
 
   const { topics } = useDiscover({ id: exm?.knowledgeBaseTopicId! })
 
@@ -45,12 +44,12 @@ const KnowledgebaseHeader = () => {
   const title = exm ? exm.webName : topics ? topics.title : "Exm"
   const description = exm
     ? exm.webDescription
-    : topics
+    : Object.keys(topics).length !== 0 && topics.description !== undefined
     ? topics.description
     : ""
   const color = exm
-    ? exm.appearance.primaryColor
-    : topics
+    ? exm.appearance?.primaryColor
+    : Object.keys(topics).length !== 0 && topics.color !== undefined
     ? topics.color
     : "#4f46e5"
 

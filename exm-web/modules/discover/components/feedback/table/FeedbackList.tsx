@@ -1,8 +1,7 @@
-import React, { use, useState } from "react"
-import { redirect, useRouter, useSearchParams } from "next/navigation"
+import React, { useState } from "react"
+import { useRouter, useSearchParams } from "next/navigation"
 import { exmAtom } from "@/modules/JotaiProiveder"
 import { useFeedback } from "@/modules/discover/hooks/useFeedback"
-import EmptyTable from "@/modules/timeclock/component/EmptyTable"
 import { useAtomValue } from "jotai"
 
 import { Button } from "@/components/ui/button"
@@ -17,6 +16,7 @@ import {
   TableRow,
 } from "@/components/ui/table"
 
+import EmptyList from "../../knowledgebase/EmptyList"
 import FeedbackDialog from "./FeedbackDialog"
 import FeedbackRow from "./FeedbackRow"
 import FeedbackTableFooter from "./FeedbackTableFooter"
@@ -41,7 +41,7 @@ const FeedbackList = ({ queryParams, setToggleView }: Props) => {
     pipelineId: exm?.ticketPipelineId!,
   })
 
-  const color = exm ? exm.appearance.primaryColor : "#4f46e5"
+  const color = exm ? exm?.appearance?.primaryColor : "#4f46e5"
 
   const list = ["Name", "Type", "Created", "Closed", "Status"]
 
@@ -67,7 +67,7 @@ const FeedbackList = ({ queryParams, setToggleView }: Props) => {
     }
 
     if (totalCount === 0) {
-      return <EmptyTable />
+      return <EmptyList />
     }
 
     return (
