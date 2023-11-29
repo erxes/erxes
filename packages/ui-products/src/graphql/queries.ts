@@ -8,6 +8,7 @@ const productFields = `
   code
   categoryId
   vendorId
+  scopeBrandIds
   status,
   description
   unitPrice
@@ -58,6 +59,7 @@ const products = `
     $status: String,
     $searchValue: String,
     $vendorId: String,
+    $brand: String,
     $perPage: Int,
     $page: Int $ids: [String],
     $excludeIds: Boolean,
@@ -73,6 +75,7 @@ const products = `
       status: $status,
       searchValue: $searchValue,
       vendorId: $vendorId,
+      brand: $brand,
       perPage: $perPage,
       page: $page ids: $ids,
       excludeIds: $excludeIds,
@@ -96,13 +99,14 @@ const productDetail = `
 `;
 
 const productCategories = `
-  query productCategories($status: String) {
-    productCategories(status: $status) {
+  query productCategories($status: String, $brand: String) {
+    productCategories(status: $status, brand: $brand) {
       _id
       name
       order
       code
       parentId
+      scopeBrandIds
       description
       status
       meta

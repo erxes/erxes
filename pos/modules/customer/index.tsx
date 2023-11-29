@@ -1,11 +1,20 @@
 import React, { useEffect, useState } from "react"
-import { activeOrderIdAtom, customerAtom, customerTypeAtom } from "@/store/order.store"
+import {
+  activeOrderIdAtom,
+  customerAtom,
+  customerTypeAtom,
+} from "@/store/order.store"
+import { customerPopoverAtom } from "@/store/ui.store"
 import { useQuery } from "@apollo/client"
 import { useAtom, useAtomValue } from "jotai"
 import { Check, ChevronsUpDown, XIcon } from "lucide-react"
 
-import { Customer, CustomerType as CustomerTypeT } from "@/types/customer.types"
-import { cn } from "@/lib/utils"
+import {
+  Customer as CustomerT,
+  CustomerType as CustomerTypeT,
+} from "@/types/customer.types"
+import useKeyEvent from "@/lib/useKeyEvent"
+import { cn, getCustomerLabel } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import {
   Command,
@@ -14,6 +23,8 @@ import {
   CommandInput,
   CommandItem,
 } from "@/components/ui/command"
+import { Kbd } from "@/components/ui/kbd"
+import Loader from "@/components/ui/loader"
 import {
   Popover,
   PopoverContent,
@@ -21,13 +32,10 @@ import {
 } from "@/components/ui/popover"
 import { ScrollArea } from "@/components/ui/scroll-area"
 
+import useOrderCU from "../orders/hooks/useOrderCU"
 import CustomerType from "./CustomerType"
 import { queries } from "./graphql"
-import { customerPopoverAtom } from '@/store/ui.store'
-import useOrderCU from '../orders/hooks/useOrderCU'
-import Loader from '@/components/ui/loader'
-import useKeyEvent from '@/lib/useKeyEvent'
-import { Kbd } from '@/components/ui/kbd'
+
 const placeHolder = (type: CustomerTypeT) => {
   if (type === "company") return "Байгууллага"
   if (type === "user") return "Ажилтан"
@@ -41,7 +49,7 @@ const Customer = () => {
   const [value, setValue] = React.useState("")
   const [searchValue, setSearchValue] = useState("")
   const { orderCU, loading: loadingCU } = useOrderCU()
-  useKeyEvent(() => setOpen(true), 'F9')
+  useKeyEvent(() => setOpen(true), "F9")
 
   const { loading, data } = useQuery(queries.poscCustomers, {
     fetchPolicy: "network-only",
@@ -54,16 +62,12 @@ const Customer = () => {
 
   const { poscCustomers } = data || {}
   
-
   useEffect(() => {
     const timeOutId = setTimeout(() => setSearchValue(value), 500)
     return () => clearTimeout(timeOutId)
   }, [value, setSearchValue])
 
-  const getCustomerLabel = ({ firstName, lastName, primaryPhone }: Customer) =>
-    `${firstName || ""} ${lastName || ""} ${primaryPhone || ""}`
-
-  const handleSelect = (cus: Customer) => {
+  const handleSelect = (cus: CustomerT) => {
     setCustomer(cus._id === customer?._id ? null : cus)
     setOpen(false)
     _id && setTimeout(orderCU, 100)
@@ -76,62 +80,76 @@ const Customer = () => {
 
   return (
     <>
-    <div className="flex items-center gap-1 relative">
-      <CustomerType className="h-5 w-5" />
-      <Popover open={open} onOpenChange={setOpen}>
-        <PopoverTrigger asChild>
-          <Button
-            variant="outline"
-            role="combobox"
-            aria-expanded={open}
-            className="w-full justify-between px-2"
-          >
-            {!!customer ? getCustomerLabel(customer) : <span>{`${placeHolder(customerType)} сонгох`} <Kbd className='bg-neutral-200/70 px-1'>F9</Kbd></span>}
-            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-          </Button>
-        </PopoverTrigger>
-        {!!customer &&
-               <Button variant="secondary" className='h-5 w-5 p-0.5 rounded-full absolute right-2 top-1/2 -translate-y-1/2' onClick={handleClean}>
-                  <XIcon className='h-4 w-4'/> 
-                </Button>
-        }
-        <PopoverContent className="w-[var(--radix-popper-anchor-width)] p-0">
-          <Command shouldFilter={false}>
-            <CommandInput
-              placeholder={`${placeHolder(customerType)} хайх`}
-              onValueChange={(value) => setValue(value)}
-              value={value}
-            />
-            <CommandEmpty>
-              {loading ? "Хайж байна..." :`${placeHolder(customerType)} олдсонгүй`}
-            </CommandEmpty>
-            {!!(poscCustomers || []).length && (
-              <CommandGroup>
-                <ScrollArea className="h-[300px]">
-                  {(poscCustomers || []).map((cus: Customer) => (
-                    <CommandItem
-                      key={cus._id + "_" + value}
-                      onSelect={() => handleSelect(cus)}
-                    >
-                      <Check
-                        className={cn(
-                          "mr-2 h-4 w-4",
-                          customer?._id === cus._id
-                            ? "opacity-100"
-                            : "opacity-0"
-                        )}
-                      />
-                      {getCustomerLabel(cus)}
-                    </CommandItem>
-                  ))}{" "}
-                </ScrollArea>
-              </CommandGroup>
-            )}
-          </Command>
-        </PopoverContent>
-      </Popover>
-      
-    </div>{loadingCU && <Loader className='absolute inset-0 bg-white/50'/>}</>
+      <div className="flex items-center gap-1 relative">
+        <CustomerType className="h-5 w-5" />
+        <Popover open={open} onOpenChange={setOpen}>
+          <PopoverTrigger asChild>
+            <Button
+              variant="outline"
+              role="combobox"
+              aria-expanded={open}
+              className="w-full justify-between px-2"
+            >
+              {!!customer ? (
+                getCustomerLabel(customer)
+              ) : (
+                <span>
+                  {`${placeHolder(customerType)} сонгох`}{" "}
+                  <Kbd className="bg-neutral-200/70 px-1">F9</Kbd>
+                </span>
+              )}
+              <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+            </Button>
+          </PopoverTrigger>
+          {!!customer && (
+            <Button
+              variant="secondary"
+              className="h-5 w-5 p-0.5 rounded-full absolute right-2 top-1/2 -translate-y-1/2"
+              onClick={handleClean}
+            >
+              <XIcon className="h-4 w-4" />
+            </Button>
+          )}
+          <PopoverContent className="w-[var(--radix-popper-anchor-width)] p-0">
+            <Command shouldFilter={false}>
+              <CommandInput
+                placeholder={`${placeHolder(customerType)} хайх`}
+                onValueChange={(value) => setValue(value)}
+                value={value}
+              />
+              <CommandEmpty>
+                {loading
+                  ? "Хайж байна..."
+                  : `${placeHolder(customerType)} олдсонгүй`}
+              </CommandEmpty>
+              {!!(poscCustomers || []).length && (
+                <CommandGroup>
+                  <ScrollArea className="h-[300px]">
+                    {(poscCustomers || []).map((cus: CustomerT) => (
+                      <CommandItem
+                        key={cus._id + "_" + value}
+                        onSelect={() => handleSelect(cus)}
+                      >
+                        <Check
+                          className={cn(
+                            "mr-2 h-4 w-4",
+                            customer?._id === cus._id
+                              ? "opacity-100"
+                              : "opacity-0"
+                          )}
+                        />
+                        {getCustomerLabel(cus)}
+                      </CommandItem>
+                    ))}{" "}
+                  </ScrollArea>
+                </CommandGroup>
+              )}
+            </Command>
+          </PopoverContent>
+        </Popover>
+      </div>
+      {loadingCU && <Loader className="absolute inset-0 bg-white/50" />}
+    </>
   )
 }
 

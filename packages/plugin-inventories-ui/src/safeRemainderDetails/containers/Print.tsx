@@ -7,6 +7,8 @@ import * as compose from 'lodash.flowright';
 // local
 import { queries } from '../graphql';
 import Spinner from '@erxes/ui/src/components/Spinner';
+import { getEnv } from '@erxes/ui/src/utils/core';
+import { generateParams } from './List';
 
 type Props = {
   component: any;
@@ -74,12 +76,29 @@ function ListContainer(props: Props) {
       safeRemainderItemsQuery.data.safeRemainderItems) ||
     [];
 
+  const exportCensus = () => {
+    const { REACT_APP_API_URL } = getEnv();
+    const params = generateParams({ queryParams });
+
+    const stringified = queryString.stringify({
+      remainderId: id,
+      ...params
+    });
+
+    window.open(
+      `${REACT_APP_API_URL}/pl:inventories/file-export-census?${stringified}`,
+      '_blank'
+    );
+  };
+
   const componentProps = {
     loading: safeRemainderItemsQuery.loading,
     safeRemainder,
     safeRemainderItems,
-    totalCount
+    totalCount,
+    exportCensus
   };
+
   const Component = props.component;
   return <Component {...componentProps} />;
 }

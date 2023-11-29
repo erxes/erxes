@@ -3,7 +3,6 @@ import { MemberAvatars } from '@erxes/ui/src/components/';
 import { FlexCenter } from '@erxes/ui/src/styles/main';
 import React from 'react';
 import { IMeeting } from '../../types';
-'@erxes/ui/src/components/MemberAvatars';
 import ActionButtons from '@erxes/ui/src/components/ActionButtons';
 import Form from '../../containers/myCalendar/meeting/Form';
 import { useHistory } from 'react-router-dom';

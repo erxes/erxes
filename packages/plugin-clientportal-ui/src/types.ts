@@ -164,6 +164,11 @@ export type ClientPortalConfig = {
   manualVerificationConfig?: ManualVerificationConfig;
   passwordVerificationConfig?: PasswordVerificationConfig;
 
+  testUserEmail: string;
+  testUserPhone: string;
+  testUserPassword: string;
+  testUserOTP: number;
+
   tokenExpiration?: number;
   refreshTokenExpiration?: number;
   tokenPassMethod: 'cookie' | 'header';

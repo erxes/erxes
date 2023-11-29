@@ -1,5 +1,6 @@
 import { IFieldGroup } from '@erxes/ui-forms/src/settings/properties/types';
 import { GroupWrapper } from '@erxes/ui-segments/src/styles';
+import SelectBrands from '@erxes/ui/src/brands/containers/SelectBrands';
 import Button from '@erxes/ui/src/components/Button';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import CommonForm from '@erxes/ui/src/components/form/Form';
@@ -42,6 +43,7 @@ type State = {
   mask: any;
   parentId: string;
   code: string;
+  scopeBrandIds: string[];
   isSimilarity: boolean;
   similarities: any[];
 };
@@ -59,6 +61,7 @@ class CategoryForm extends React.Component<Props, State> {
       mask: category.mask || {},
       parentId: category.parentId || '',
       code: category.code || '',
+      scopeBrandIds: category.scopeBrandIds || [],
       isSimilarity: category.isSimilarity || false,
       similarities: category.similarities || []
     };
@@ -73,6 +76,7 @@ class CategoryForm extends React.Component<Props, State> {
       mask,
       parentId,
       code,
+      scopeBrandIds,
       isSimilarity,
       similarities
     } = this.state;
@@ -103,6 +107,7 @@ class CategoryForm extends React.Component<Props, State> {
       mask: genMask,
       parentId,
       code,
+      scopeBrandIds,
       attachment,
       isSimilarity,
       similarities: isSimilarity ? similarities : undefined
@@ -361,7 +366,7 @@ class CategoryForm extends React.Component<Props, State> {
 
   renderContent = (formProps: IFormProps) => {
     const { renderButton, closeModal, category, categories } = this.props;
-    const { maskType, parentId, isSimilarity } = this.state;
+    const { maskType, parentId, isSimilarity, scopeBrandIds } = this.state;
     const { values, isSubmitted } = formProps;
     const object = category || ({} as IProductCategory);
 
@@ -425,6 +430,19 @@ class CategoryForm extends React.Component<Props, State> {
         <FormGroup>
           <ControlLabel>Meta</ControlLabel>
           <FormControl {...formProps} name="meta" defaultValue={object.meta} />
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel>Brand</ControlLabel>
+          <SelectBrands
+            label={__('Choose brands')}
+            onSelect={brandIds => {
+              this.setState({ scopeBrandIds: brandIds as string[] });
+            }}
+            initialValue={scopeBrandIds}
+            multi={true}
+            name="selectedBrands"
+          />
         </FormGroup>
 
         <FormGroup>

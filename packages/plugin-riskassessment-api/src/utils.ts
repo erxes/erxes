@@ -547,3 +547,15 @@ export const getFilterTagIds = async (subdomain, ids) => {
 
   return tagIds;
 };
+
+export const generateFormFields = fields => {
+  const groupedFields = fields.reduce((acc, doc) => {
+    if (!acc[doc.contentTypeId]) {
+      acc[doc.contentTypeId] = [];
+    }
+    acc[doc.contentTypeId].push(doc);
+    return acc;
+  }, {});
+
+  return Object.values(groupedFields).flat();
+};

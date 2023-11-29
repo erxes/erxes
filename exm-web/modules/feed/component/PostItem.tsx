@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import dynamic from "next/dynamic"
+import { useSearchParams } from "next/navigation"
 import { currentUserAtom } from "@/modules/JotaiProiveder"
 import { IUser } from "@/modules/auth/types"
 import { useFeedDetail } from "@/modules/feed/hooks/useFeedDetail"
@@ -26,6 +27,8 @@ import {
   Dialog,
   DialogContent,
   DialogFooter,
+  DialogHeader,
+  DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
 import Image from "@/components/ui/image"
@@ -37,12 +40,15 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover"
 import { FilePreview } from "@/components/FilePreview"
+import { useUsers } from "@/components/hooks/useUsers"
 
 import { useComments } from "../hooks/useComment"
 import useFeedMutation from "../hooks/useFeedMutation"
 import { useReactionMutaion } from "../hooks/useReactionMutation"
 import { useReactionQuery } from "../hooks/useReactionQuery"
+import { useTeamMembers } from "../hooks/useTeamMembers"
 import CommentItem from "./CommentItem"
+import UsersList from "./UsersList"
 import CommentForm from "./form/CommentForm"
 
 const BravoForm = dynamic(() => import("./form/BravoForm"))
@@ -52,6 +58,7 @@ const PostForm = dynamic(() => import("./form/PostForm"))
 const PostItem = ({ postId }: { postId: string }): JSX.Element => {
   const [open, setOpen] = useState(false)
   const [formOpen, setFormOpen] = useState(false)
+  const [emojiOpen, setEmojiOpen] = useState(false)
   const [commentOpen, setCommentOpen] = useState(false)
   const currentUser = useAtomValue(currentUserAtom) || ({} as IUser)
 
@@ -62,12 +69,15 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
   }
 
   const { feed, loading } = useFeedDetail({ feedId: postId })
+  const { users } = useUsers({})
+  const { departments, loading: departmentLoading } = useTeamMembers({})
+
   const {
     comments,
     commentsCount,
     loading: commentLoading,
     handleLoadMore,
-  } = useComments(feed._id)
+  } = useComments(postId)
   const { emojiCount, emojiReactedUser, loadingReactedUsers } =
     useReactionQuery({
       feedId: postId,
@@ -83,6 +93,9 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
   const { reactionMutation } = useReactionMutaion({
     callBack,
   })
+
+  const searchParams = useSearchParams()
+  const dateFilter = searchParams.get("dateFilter")
 
   if (loading) {
     return <LoadingCard />
@@ -153,7 +166,17 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
     )
   }
 
-  const renderComment = () => {
+  const renderComment = (triggerType: string) => {
+    const trigger =
+      triggerType === "button" ? (
+        <div className="cursor-pointer flex items-center py-3 px-4 hover:bg-[#F0F0F0]">
+          <MessageCircleIcon size={20} className="mr-1" color="black" />
+          Comment
+        </div>
+      ) : (
+        <div className="cursor-pointer">{commentsCount} comments</div>
+      )
+
     return (
       <>
         <Dialog
@@ -161,10 +184,7 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
           onOpenChange={() => setCommentOpen(!commentOpen)}
         >
           <DialogTrigger asChild={true} id="delete-form">
-            <div className="cursor-pointer flex items-center py-2 px-4 hover:bg-[#F0F0F0]">
-              <MessageCircleIcon size={20} className="mr-1" color="black" />
-              Comment
-            </div>
+            {trigger}
           </DialogTrigger>
 
           {commentOpen && (
@@ -175,7 +195,7 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
               loading={commentLoading}
               handleLoadMore={handleLoadMore}
               currentUserId={currentUser._id}
-              emojiReactedUser={emojiReactedUser}
+              emojiReactedUser={emojiReactedUser.map((u) => u._id)}
               emojiCount={emojiCount}
             />
           )}
@@ -279,6 +299,10 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
       const monthsDifference =
         differenceInMilliseconds / (1000 * 60 * 60 * 24 * 30.44)
 
+      if (feed.contentType === "publicHoliday") {
+        return dayjs(feed.createdAt).format("• MMM DD")
+      }
+
       if (monthsDifference >= 2) {
         return dayjs(feed.createdAt).format("MM/DD/YYYY h:mm A")
       }
@@ -303,11 +327,24 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
     }
 
     return (
-      <div className="flex mt-4">
-        <div className="bg-primary-light rounded-full w-[22px] h-[22px] flex items-center justify-center text-white mr-2">
-          <ThumbsUp size={12} fill="#fff" />
-        </div>
-        <div className="text-[#5E5B5B]">{text} </div>
+      <div className="flex mt-4 justify-between text-[#5E5B5B] items-center">
+        <Dialog open={emojiOpen} onOpenChange={() => setEmojiOpen(!emojiOpen)}>
+          <DialogTrigger asChild={true}>
+            <div className="flex cursor-pointer items-center">
+              <div className="bg-primary-light rounded-full w-[22px] h-[22px] flex items-center justify-center text-white mr-2">
+                <ThumbsUp size={12} fill="#fff" />
+              </div>
+              <div>{text}</div>
+            </div>
+          </DialogTrigger>
+          <DialogContent className="p-0 gap-0 max-w-md">
+            <DialogHeader className="border-b p-4">
+              <DialogTitle className="flex justify-around">People</DialogTitle>
+            </DialogHeader>
+            <UsersList users={emojiReactedUser} />
+          </DialogContent>
+        </Dialog>
+        {renderComment("count")}
       </div>
     )
   }
@@ -322,8 +359,8 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
         {(feed.attachments || []).map((a, index) => {
           return (
             <a key={index} href={readFile(a.url)} className="w-1/2 flex-1">
-              <div className="flex bg-[#EAEAEA] text-sm font-medium text-[#444] attachment-shadow px-2.5 py-[5px] justify-between w-full rounded-lg rounded-tr-none">
-                <span className="truncate">{a.name}</span>{" "}
+              <div className="flex bg-[#EAEAEA] text-sm font-medium text-[#444] attachment-shadow px-2.5 py-[5px] justify-between w-full rounded-[6px] rounded-tr-none">
+                <span className="truncate w-[calc(100%-50px)]">{a.name}</span>{" "}
                 <ExternalLinkIcon size={18} />
               </div>
             </a>
@@ -350,9 +387,122 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
     )
   }
 
+  if (feed.contentType === "publicHoliday") {
+    const date = new Date(feed.createdAt ? feed.createdAt : "")
+    if (dateFilter && !date.toString().includes(dateFilter)) {
+      return <></>
+    }
+  }
+  const renderComments = () => {
+    if (!comments || comments.length === 0) {
+      return null
+    }
+
+    return (
+      <div className="border-t pb-4">
+        <CommentItem comment={comments[0]} currentUserId={currentUser._id} />
+      </div>
+    )
+  }
+
+  const renderRecipientUsers = () => {
+    if (feed.recipientIds.length === 0 || !feed.recipientIds) {
+      return null
+    }
+
+    if (departmentLoading) {
+      return <div />
+    }
+
+    const recipientUsers = users.filter((u) =>
+      feed.recipientIds.includes(u._id)
+    )
+
+    const recipientDepartments = departments.filter((u) =>
+      feed.recipientIds.includes(u._id)
+    )
+
+    const more = () => {
+      if (recipientUsers.length + recipientDepartments.length < 3) {
+        return null
+      }
+
+      return (
+        <>
+          {" "}
+          and {recipientUsers.length + recipientDepartments.length - 2} more
+          people
+        </>
+      )
+    }
+
+    return (
+      <Dialog open={emojiOpen} onOpenChange={() => setEmojiOpen(!emojiOpen)}>
+        <DialogTrigger asChild={true}>
+          <span className="cursor-pointer">
+            <span className="text-[#5E5B5B] font-medium">&nbsp;with </span>
+            {recipientUsers.slice(0, 2).map((item, index) => {
+              return (
+                <span key={Math.random()}>
+                  {item?.details?.fullName || item?.username || item?.email}
+                  {index + 1 !==
+                    recipientUsers.length + recipientDepartments.length && ", "}
+                </span>
+              )
+            })}
+            {recipientUsers.length < 2 &&
+              recipientDepartments
+                .slice(0, recipientUsers.length || 2)
+                .map((item, index) => {
+                  return (
+                    <span key={Math.random()}>
+                      {item.title}
+                      {index + 1 !==
+                        recipientUsers.length + recipientDepartments.length &&
+                        ", "}
+                    </span>
+                  )
+                })}
+            {more()}
+          </span>
+        </DialogTrigger>
+        <DialogContent className="p-0 gap-0 max-w-md">
+          <DialogHeader className="border-b p-4">
+            <DialogTitle className="flex justify-around">People</DialogTitle>
+          </DialogHeader>
+          <UsersList
+            users={recipientUsers}
+            departments={recipientDepartments}
+          />
+        </DialogContent>
+      </Dialog>
+    )
+  }
+
+  const renderHolidayType = () => {
+    if (feed.contentType !== "publicHoliday") {
+      return null
+    }
+    if (!feed.category) {
+      return null
+    }
+    const bgColor =
+      feed.category === "ceremony"
+        ? "bg-primary"
+        : feed.category === "birthday"
+        ? "bg-[#AC43C6]"
+        : "bg-success-foreground"
+
+    return (
+      <div className={`text-white capitalize ${bgColor} px-3 py-1 rounded-lg`}>
+        {feed.category}
+      </div>
+    )
+  }
+
   return (
     <>
-      <Card className="max-w-2xl mx-auto my-4 border-0 p-4">
+      <Card className="w-full mx-auto my-4 border-0 p-4 pb-0">
         <CardHeader className="p-0 pb-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center">
@@ -363,12 +513,19 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
                 height={100}
                 className="w-10 h-10 rounded-full object-cover border border-primary"
               />
-              <div className="ml-3">
-                <div className="text-sm font-bold text-gray-700 mb-1">
+              <div
+                className={`ml-3 ${
+                  feed.contentType === "publicHoliday" &&
+                  "flex items-center gap-3"
+                }`}
+              >
+                <div className="text-sm font-bold text-gray-700">
                   {userDetail?.fullName ||
                     userDetail?.username ||
                     userDetail?.email}
+                  {feed.contentType === "bravo" && renderRecipientUsers()}
                 </div>
+                {renderHolidayType()}
                 <div className="text-xs text-[#666] font-normal">
                   {renderCreatedDate()}{" "}
                 </div>
@@ -389,7 +546,7 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
             return (
               <iframe
                 key={index}
-                width="640"
+                width="860"
                 height="390"
                 src={String(link)
                   .replace("watch?v=", "embed/")
@@ -409,29 +566,24 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
 
         <CardFooter className="border-t mt-5 p-0 justify-between">
           <div
-            className="cursor-pointer flex items-center py-2 px-4 hover:bg-[#F0F0F0]"
+            className="cursor-pointer flex items-center py-3 px-4 hover:bg-[#F0F0F0]"
             onClick={reactionAdd}
           >
             <ThumbsUp
               size={20}
               className="mr-1"
-              fill={`${idExists ? "#8771D5" : "white"}`}
-              color={`${idExists ? "#8771D5" : "black"}`}
+              fill={`${idExists ? "#6569DF" : "white"}`}
+              color={`${idExists ? "#6569DF" : "black"}`}
             />
-            <div className={`${idExists ? "text-primary" : "text-black"}`}>
+            <div
+              className={`${idExists ? "text-primary-light" : "text-black"}`}
+            >
               Like
             </div>
           </div>
-          {renderComment()}
+          {renderComment("button")}
         </CardFooter>
-        {comments && comments.length > 0 && (
-          <div className="border-t">
-            <CommentItem
-              comment={comments[0]}
-              currentUserId={currentUser._id}
-            />
-          </div>
-        )}
+        {renderComments()}
       </Card>
     </>
   )

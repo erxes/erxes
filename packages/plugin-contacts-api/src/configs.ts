@@ -23,7 +23,7 @@ import {
 } from './verifierUtils';
 import exporter from './exporter';
 import documents from './documents';
-import { NOTIFICATION_MODULES } from './constants';
+import { EMAIL_VALIDATION_STATUSES, NOTIFICATION_MODULES } from './constants';
 
 export let mainDb;
 export let graphqlPubsub;
@@ -51,7 +51,6 @@ export default {
     'subscriptionPlugin.js'
   ),
 
-  hasDashboard: true,
   meta: {
     imports,
     segments,
@@ -128,6 +127,40 @@ export default {
         return res.send('success');
       })
     );
+
+    app.get('/verify', async (req, res) => {
+      const { p } = req.query;
+
+      const data = JSON.parse(
+        Buffer.from(p as string, 'base64').toString('utf8')
+      );
+
+      const { email, customerId } = data;
+
+      const subdomain = getSubdomain(req);
+      const models = await generateModels(subdomain);
+
+      const customer = await models.Customers.findOne({ _id: customerId });
+
+      if (!customer) {
+        return res.send('Can not find customer');
+      }
+
+      if (customer.primaryEmail !== email) {
+        return res.send('Customer email does not match');
+      }
+
+      if (customer.emails?.findIndex(e => e === email) === -1) {
+        return res.send('Customer email does not match');
+      }
+
+      await models.Customers.updateOne(
+        { _id: customerId },
+        { $set: { primaryEmail: email, emailValidationStatus: 'valid' } }
+      );
+
+      return res.send('Successfully verified, you can close this tab now');
+    });
 
     initBroker(options.messageBrokerClient);
 

@@ -1,19 +1,12 @@
 import * as compose from 'lodash.flowright';
 
 import { Alert, withProps } from '@erxes/ui/src';
-import {
-  MainQueryResponse,
-  RemoveMutationResponse,
-  RemoveMutationVariables
-} from '../types';
+import { MainQueryResponse, RemoveMutationResponse } from '../types';
 
 import { IActivityLog } from '@erxes/ui-log/src/activityLogs/types';
 import { IRouterProps } from '@erxes/ui/src/types';
 import PerInvoice from '../components/PerInvoice';
 import React from 'react';
-import { gql } from '@apollo/client';
-import { graphql } from '@apollo/client/react/hoc';
-import { mutations } from '../graphql';
 import { withRouter } from 'react-router-dom';
 
 type Props = {
@@ -58,19 +51,6 @@ class InvoiceListContainer extends React.Component<FinalProps> {
   }
 }
 
-const generateOptions = () => ({
-  refetchQueries: ['invoicesMain', 'activityLogs']
-});
-
 export default withProps<Props>(
-  compose(
-    // mutations
-    graphql<{}, RemoveMutationResponse, RemoveMutationVariables>(
-      gql(mutations.invoicesRemove),
-      {
-        name: 'invoicesRemove',
-        options: generateOptions
-      }
-    )
-  )(withRouter<IRouterProps>(InvoiceListContainer))
+  compose()(withRouter<IRouterProps>(InvoiceListContainer))
 );

@@ -1,13 +1,11 @@
-import {
-  BarItems,
-  DataWithLoader,
-  FormControl,
-  Pagination,
-  router,
-  SortHandler,
-  Table,
-  Wrapper
-} from '@erxes/ui/src';
+import { BarItems } from '@erxes/ui/src/layout/styles';
+import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import Pagination from '@erxes/ui/src/components/pagination/Pagination';
+import SortHandler from '@erxes/ui/src/components/SortHandler';
+import Table from '@erxes/ui/src/components/table';
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
+
 import SelectProducts from '@erxes/ui-products/src/containers/SelectProducts';
 import { IRouterProps } from '@erxes/ui/src/types';
 import React from 'react';
@@ -17,7 +15,7 @@ import { CollateralsTableWrapper } from '../styles';
 import { ICollateral } from '../types';
 import CollateralRow from './CollateralRow';
 import Sidebar from './Sidebar';
-import { can } from '@erxes/ui/src/utils/core';
+import { can, router } from '@erxes/ui/src/utils/core';
 import withConsumer from '../../withConsumer';
 import { IUser } from '@erxes/ui/src/auth/types';
 import { __ } from 'coreui/utils';
@@ -91,7 +89,7 @@ class CollateralsList extends React.Component<IProps, State> {
 
     const mainContent = (
       <CollateralsTableWrapper>
-        <Table whiteSpace="nowrap" bordered={true} hover={true}>
+        <Table whiteSpace="nowrap" bordered={true} hover={true} striped>
           <thead>
             <tr>
               <th>
@@ -175,6 +173,7 @@ class CollateralsList extends React.Component<IProps, State> {
           />
         }
         actionBar={actionBar}
+        hasBorder
         footer={<Pagination count={totalCount} />}
         leftSidebar={
           <Sidebar

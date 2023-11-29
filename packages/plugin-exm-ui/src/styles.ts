@@ -1,6 +1,5 @@
 import styled from 'styled-components';
 import colors from '@erxes/ui/src/styles/colors';
-import styledTS from 'styled-components-ts';
 
 export const GeneralWrapper = styled.div`
   padding: 40px;
@@ -26,10 +25,6 @@ export const TeamPortal = styled.div`
   > div {
     > div {
       margin-right: 80px;
-
-      &:last-child {
-        min-width: 450px;
-      }
     }
   }
 `;
@@ -115,17 +110,4 @@ export const ColorPicker = styled.div`
   width: 80px;
   height: 27px;
   border-radius: 2px;
-`;
-
-export const Padding = styledTS<{
-  horizontal?: boolean;
-  vertical?: boolean;
-  padding?: string;
-}>(styled.div)`
-  padding: ${({ horizontal, vertical, padding }) =>
-    !horizontal && !vertical
-      ? '10px'
-      : `${vertical ? (padding ? `${padding}px` : '10px') : '0px'} ${
-          horizontal ? (padding ? `${padding}px` : '10px') : '0px'
-        }`}
 `;

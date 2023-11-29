@@ -179,7 +179,7 @@ class MessageSender extends React.Component<Props, State> {
   }
 
   renderVideoCallRequest() {
-    if (!this.props.showVideoCallRequest || !connection.dailyco) {
+    if (!this.props.showVideoCallRequest || !connection.enabledServices.dailyco) {
       return null;
     }
 

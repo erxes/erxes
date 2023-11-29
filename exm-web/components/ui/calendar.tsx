@@ -40,11 +40,11 @@ function Calendar({
         cell: "text-center  p-0 relative [&:has([aria-selected])]:bg-slate-100 first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20 ",
         day: cn(
           buttonVariants({ variant: "ghost" }),
-          "h-8 w-8 p-0 font-normal aria-selected:opacity-100"
+          "h-6 w-8 p-0 font-normal aria-selected:opacity-100"
         ),
         day_today: "bg-slate-100 text-slate-900",
         day_selected:
-          "bg-slate-900 !text-slate-50 hover:bg-slate-900 hover:text-slate-50 focus:bg-slate-900 focus:text-slate-50",
+          "m-[2px] bg-slate-900 !text-slate-50 hover:bg-slate-900 hover:text-slate-50 focus:bg-slate-900 focus:text-slate-50",
         day_outside: "text-slate-500 opacity-50",
         day_disabled: "text-slate-500 opacity-50",
         day_range_middle:

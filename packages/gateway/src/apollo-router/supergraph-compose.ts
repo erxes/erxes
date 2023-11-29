@@ -71,7 +71,7 @@ const supergraphComposeOnce = async () => {
     const superGraphqlNext = supergraphPath + '.next';
 
     await execSync(
-      `yarn rover supergraph compose --config ${supergraphConfigPath} --output ${superGraphqlNext} --elv2-license=accept`
+      `yarn rover supergraph compose --config ${supergraphConfigPath} --output ${superGraphqlNext} --elv2-license=accept  --client-timeout=80000`
     );
 
     if (

@@ -48,7 +48,6 @@ const scheduleQueries = {
     if (!!lastTransaction) {
       filter.payDate = { $lte: lastTransaction.payDate };
     } else filter.payDate = { $lte: new Date() };
-    filter.didTotal = { $gt: 0 };
 
     return models.Schedules.find(filter).sort({ payDate: 1 });
   },

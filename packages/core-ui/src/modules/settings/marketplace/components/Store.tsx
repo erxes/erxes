@@ -7,6 +7,7 @@ import {
   SearchBar,
   SearchIcon,
   SearchInput,
+  Services,
   StoreBlock,
   Tag
 } from './styles';
@@ -212,7 +213,7 @@ class Store extends React.Component<Props, State> {
               'Upgrade your plan with these premium services for expert help and guidance'
             )}
           </p>
-          <FlexWrapContainer>{this.renderServices()}</FlexWrapContainer>
+          <Services>{this.renderServices()}</Services>
         </StoreBlock>
 
         <StoreBlock>
