@@ -1,16 +1,16 @@
-import { Paperclip, X } from "lucide-react"
 import React, { useEffect, useRef, useState } from "react"
-import { currentUserAtom, exmAtom } from "@/modules/JotaiProiveder"
 import { useRouter, useSearchParams } from "next/navigation"
+import { currentUserAtom, exmAtom } from "@/modules/JotaiProiveder"
+import { IUser } from "@/modules/auth/types"
+import EmojiPicker from "@/modules/chat/component/messages/EmojiPicker"
+import { useFeedback } from "@/modules/discover/hooks/useFeedback"
+import { useAtomValue } from "jotai"
+import { Paperclip, X } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
-import EmojiPicker from "@/modules/chat/component/messages/EmojiPicker"
-import { IUser } from "@/modules/auth/types"
-import { ScrollArea } from "@/components/ui/scroll-area"
 import { toast } from "@/components/ui/use-toast"
 import uploadHandler from "@/components/uploader/uploadHandler"
-import { useAtomValue } from "jotai"
-import { useFeedback } from "@/modules/discover/hooks/useFeedback"
+
 import userFeedbackMutation from "../../../hooks/userFeedbackMutation"
 
 type Props = {
@@ -287,7 +287,7 @@ const Form = ({ type, currentStep, setCurrentStep, setToggleView }: Props) => {
           disabled={inCheck}
         />
       </div>
-      <div className="flex flex-col pt-5 h-[300px]">
+      <div className="flex flex-col pt-5 min-h-[calc(100vh/3)]">
         <textarea
           className="w-full flex-1 resize-none outline-none scrollbar-hide disabled:bg-transparent"
           value={message}

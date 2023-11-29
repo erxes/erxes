@@ -22,7 +22,7 @@ const FeedbackForm = ({ setToggleView }: Props) => {
           setCurrentStep={setCurrentStep}
         />
       </div>
-      <div className="w-full mt-10">
+      <div className="w-full my-10">
         <h2 className="text-[18px] font-semibold capitalize">Send {tab} </h2>
         <p className="text-[14px] font-normal mt-2">
           We will solve your problem.
