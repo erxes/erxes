@@ -367,6 +367,19 @@ const ordersTotalCount = gql`
   }
 `
 
+const payment = gql`
+  query Payments {
+    payments {
+      _id
+      name
+      kind
+      status
+      config
+      createdAt
+    }
+  }
+`
+
 const queries = {
   commonFields,
   orderFields,
@@ -385,6 +398,7 @@ const queries = {
   ordersAtWaiting,
   historyItemDetail,
   ebarimtDetail,
+  payment
 }
 
 export default queries
