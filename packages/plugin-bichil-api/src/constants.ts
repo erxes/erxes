@@ -56,6 +56,12 @@ export const PIVOT_REPORT_COLUMNS = [
   ]
 ];
 
+export const TIMECLOCK_EXPORT_COLUMNS = [
+  [[''], ['Д/Д']],
+  [[''], ['Овог нэр']],
+  [[''], ['Ажилтаны код']]
+];
+
 export const SALARY_FIELDS = [
   'employeeId',
   'totalWorkHours',
