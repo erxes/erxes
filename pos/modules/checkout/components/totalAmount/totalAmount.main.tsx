@@ -14,7 +14,7 @@ const TotalAmount = () => {
         {number && <Hash className="h-3 w-3" strokeWidth={3} />}
         <div className="font-black leading-none">{number?.split("_")[1]}</div>
         <small className="font-normal text-xs leading-none">
-          {number.split("_")[0]}
+          {number?.split("_")[0]}
         </small>
       </div>
       <div>{formatNum(total)}₮</div>
