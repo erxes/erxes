@@ -44,9 +44,18 @@ export const useTimeclocksMutation = ({
     })
       .then(() => {
         callBack("success")
+        toast({
+          description: `Successfully removed timeclock shift`,
+          title: `Remove timeclock`,
+          variant: "success",
+        })
       })
-      .catch((e) => {
-        callBack("error")
+      .catch((error) => {
+        toast({
+          description: error.message,
+          title: `Remove timeclock`,
+          variant: "destructive",
+        })
       })
   }
 
@@ -56,9 +65,18 @@ export const useTimeclocksMutation = ({
     })
       .then(() => {
         callBack("success")
+        toast({
+          description: `Successfully edited timeclock shift`,
+          title: `Modify timeclock`,
+          variant: "success",
+        })
       })
-      .catch((e) => {
-        callBack("error")
+      .catch((error) => {
+        toast({
+          description: error.message,
+          title: `Modify timeclock`,
+          variant: "destructive",
+        })
       })
   }
 
@@ -81,9 +99,18 @@ export const useTimeclocksMutation = ({
     })
       .then(() => {
         callBack("success")
+        toast({
+          description: "Successfully started a shift",
+          title: "Start shift",
+          variant: "success",
+        })
       })
       .catch((error) =>
-        toast({ description: error.message, variant: "destructive" })
+        toast({
+          description: error.message,
+          title: "Start shift",
+          variant: "destructive",
+        })
       )
   }
 
@@ -99,8 +126,19 @@ export const useTimeclocksMutation = ({
     })
       .then(() => {
         callBack("success")
+        toast({
+          description: "Successfully started a shift",
+          title: "Stop shift",
+          variant: "success",
+        })
       })
-      .catch(() => callBack("error"))
+      .catch((error) =>
+        toast({
+          description: error.message,
+          title: "Stop shift",
+          variant: "destructive",
+        })
+      )
   }
 
   return {
