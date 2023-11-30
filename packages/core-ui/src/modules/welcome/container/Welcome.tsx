@@ -24,21 +24,18 @@ type FinalProps = {
 
 class WelcomeContainer extends React.Component<FinalProps> {
   render() {
-    const { currentUser } = this.props;
+    const { currentUser, branchListQuery, departmentListQuery } = this.props;
 
-    if (
-      this.props.branchListQuery.loading ||
-      this.props.departmentListQuery.loading
-    ) {
+    if (branchListQuery.loading || departmentListQuery.loading) {
       return <Spinner />;
     }
 
     return (
       <Welcome
         currentUser={currentUser}
-        branchesLength={this.props.branchListQuery.branchesMain.list.length}
+        branchesLength={(branchListQuery?.branchesMain?.list || []).length || 0}
         departmentLength={
-          this.props.departmentListQuery.departmentsMain.list.length
+          (departmentListQuery?.departmentsMain?.list || []).length || 0
         }
       />
     );
