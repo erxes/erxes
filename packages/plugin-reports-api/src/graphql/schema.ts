@@ -166,6 +166,7 @@ const report_params = `
   tagIds: [String],
   reportTemplateType: String
   serviceName: String
+  charts: [String]
 `;
 
 export const mutations = `

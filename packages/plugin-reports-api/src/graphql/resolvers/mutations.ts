@@ -26,12 +26,18 @@ const reportsMutations = {
 
       const chartTemplates = service.config?.meta?.reports?.chartTemplates;
 
-      const { charts, serviceName } = reportTemplate;
+      const { charts } = doc;
+      const { serviceName } = reportTemplate;
       let getChartTemplates;
 
       if (charts) {
         getChartTemplates = chartTemplates?.filter(t =>
           charts.includes(t.templateType)
+        );
+      } else {
+        // create with default charts
+        getChartTemplates = chartTemplates?.filter(t =>
+          reportTemplate.charts.includes(t.templateType)
         );
       }
 

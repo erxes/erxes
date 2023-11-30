@@ -35,7 +35,9 @@ const ReportFormModal = (props: FinalProps) => {
     reportsAddMutation,
     setShowModal,
     serviceName,
-    history
+    history,
+    charts,
+    reportTemplateType
   } = props;
 
   if (reportChartTemplatesListQuery?.loading) {
@@ -60,6 +62,7 @@ const ReportFormModal = (props: FinalProps) => {
   return (
     <ReportFormModalComponent
       {...props}
+      chartsOfReportTemplate={charts || []}
       chartTemplates={
         reportChartTemplatesListQuery?.reportChartTemplatesList || []
       }

@@ -179,6 +179,7 @@ export type ReportFormMutationVariables = {
   assignedDepartmentIds: string[];
   reportTemplateType: string;
   serviceName?: string;
+  charts?: string[];
 };
 
 export type ReportChartFormMutationVariables = {
