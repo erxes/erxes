@@ -22,6 +22,7 @@ export const types = `
     
     type CustomerSyncedSaaS  {
         ${commonTypes},
+        syncId:String,
         customerId:String,
         customerStatus:String,
         syncedCustomerId:String
