@@ -1,4 +1,5 @@
 module.exports = {
+  srcDir: __dirname,
   name: 'webhooks',
   port: 3024,
   scope: 'webhooks',

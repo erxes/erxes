@@ -116,7 +116,7 @@ export const FlexRowLeft = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
-  justify-content: start;
+  justify-content: space-between;
 `;
 
 export const FlexRowEven = styled.div`

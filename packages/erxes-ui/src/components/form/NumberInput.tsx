@@ -23,8 +23,10 @@ function NumberInput(
       cursorPosition = e.target.value.length - e.target.selectionStart;
       e.target.value = numberParser(e.target.value, fixed);
 
-      if (e.target.value > max) e.target.value = max;
-      if (min > e.target.value) e.target.value = min;
+      if (max && Number(e.target.value ?? 0) > Number(max ?? 0))
+        e.target.value = max;
+      if (min && Number(min ?? 0) > Number(e.target.value ?? 0))
+        e.target.value = min;
 
       setNumberValue(e.target.value);
       onChange(e);

@@ -44,6 +44,13 @@ export const types = _serviceDiscovery => {
       favicon: JSON
       features: [ExmFeature]
       appearance: ExmAppearance
+      vision: String
+      structure: String
+      knowledgeBaseLabel: String
+      knowledgeBaseTopicId: String
+      ticketLabel: String
+      ticketPipelineId: String
+      ticketBoardId: String
       createdAt: Date
       createdBy: String
     }
@@ -88,6 +95,13 @@ const commonParams = `
   logo: AttachmentInput
   favicon: AttachmentInput
   appearance: ExmAppearanceInput
+  vision: String
+  structure: String
+  knowledgeBaseLabel: String
+  knowledgeBaseTopicId: String
+  ticketLabel: String
+  ticketPipelineId: String
+  ticketBoardId: String
 `;
 
 export const mutations = `

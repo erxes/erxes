@@ -5,10 +5,11 @@ extend type Deal @key(fields: "_id") {
 
 type InsuranceItem @key(fields: "_id") @cacheControl(maxAge: 3) {
     _id: ID!
-    customerID: ID
-    companyID: ID
+    customerId: ID
+    companyId: ID
     vendorUserId: ID
     userId: ID
+    price: Float
     customFieldsData: JSON
   
     customer: ${contacts ? 'Customer' : 'JSON'}
@@ -29,8 +30,9 @@ type InsuranceItem @key(fields: "_id") @cacheControl(maxAge: 3) {
     companyId: ID
     productId: ID!
     customFieldsData: JSON
-
-
+    closeDate: Date
+    startDate: Date
+    price: Float
   }
   
   type InsuranceItemListResult {

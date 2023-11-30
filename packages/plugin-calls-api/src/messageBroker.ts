@@ -36,11 +36,13 @@ export const initBroker = async cl => {
     'calls:api_to_integrations',
     async (args: ISendMessageArgs): Promise<any> => {
       const { subdomain, data } = args;
-      const { inboxId, action } = data;
+      const { integrationId, action } = data;
 
       const models = await generateModels(subdomain);
 
-      const integration = await models.Integrations.findOne({ inboxId });
+      const integration = await models.Integrations.findOne({
+        inboxId: integrationId
+      });
 
       if (!integration) {
         return {

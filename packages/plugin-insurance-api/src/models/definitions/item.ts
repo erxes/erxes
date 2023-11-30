@@ -3,8 +3,8 @@ import { customFieldSchema } from '@erxes/api-utils/src/types';
 import { field } from './utils';
 
 export interface IInsuranceItem {
-  customerId: string;
-  companyId: string;
+  customerId?: string;
+  companyId?: string;
   vendorUserId: string;
   productId: string;
 
@@ -13,6 +13,8 @@ export interface IInsuranceItem {
   customFieldsData?: any;
 
   status: string;
+
+  price?: number;
 }
 
 export interface IInsuranceItemDocument extends IInsuranceItem, Document {
@@ -24,12 +26,13 @@ export interface IInsuranceItemDocument extends IInsuranceItem, Document {
 
 export const itemSchema = new Schema({
   _id: field({ pkey: true }),
-  customerId: field({ type: String, sparse: true }),
-  companyId: field({ type: String, sparse: true }),
+  customerId: field({ type: String }),
+  companyId: field({ type: String }),
   vendorUserId: field({ type: String, required: true }),
   productId: field({ type: String, required: true }),
   dealId: field({ type: String }),
   status: field({ type: String, required: true }),
   customFieldsData: field({ type: [customFieldSchema] }),
-  lastModifiedBy: field({ type: String })
+  lastModifiedBy: field({ type: String }),
+  price: field({ type: Number })
 });

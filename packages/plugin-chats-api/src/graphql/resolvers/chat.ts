@@ -46,6 +46,12 @@ const Chat = {
     return getIsSeen(models, chat, user);
   },
 
+  async isArchived(chat, {}, { models, user }) {
+    const archivedUserIds = chat.archivedUserIds || [];
+
+    return archivedUserIds.includes(user._id);
+  },
+
   async participantUsers(chat, {}, { subdomain }) {
     const users = await sendCoreMessage({
       subdomain,

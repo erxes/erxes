@@ -22,6 +22,7 @@ export default ({
   initialValue,
   multi = true,
   label,
+  customOption,
   name
 }: {
   queryParams?: IQueryParams;
@@ -46,6 +47,7 @@ export default ({
       generateOptions={generateBrandOptions}
       onSelect={onSelect}
       multi={multi}
+      customOption={customOption}
     />
   );
 };

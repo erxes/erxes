@@ -101,6 +101,10 @@ const queries = {
       }),
       totalCount: models.Products.find(qry).count()
     };
+  },
+
+  insuranceItems: async (_root, _args, { models }: IContext) => {
+    return models.Items.find({});
   }
 };
 

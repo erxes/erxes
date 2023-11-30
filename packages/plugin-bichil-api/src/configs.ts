@@ -6,11 +6,11 @@ import { routeErrorHandling } from '@erxes/api-utils/src/requests';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import { generateModels } from './connectionResolver';
 import cronjobs from './cronjobs/bichil';
+import { buildFile as timeclockBuildFile } from './timeclockExport';
 import { buildFile } from './reportExport';
 import * as bodyParser from 'body-parser';
 import * as multer from 'multer';
 import * as cors from 'cors';
-import * as path from 'path';
 import * as cookieParser from 'cookie-parser';
 import userMiddleware, { checkPermission, handleUpload } from './utils';
 import * as permissions from './permissions';
@@ -85,6 +85,22 @@ export default {
         const models = await generateModels(subdomain);
 
         const result = await buildFile(models, subdomain, query);
+
+        res.attachment(`${result.name}.xlsx`);
+
+        return res.send(result.response);
+      })
+    );
+
+    app.get(
+      '/timeclock-export',
+      routeErrorHandling(async (req: any, res) => {
+        const { query } = req;
+
+        const subdomain = getSubdomain(req);
+        const models = await generateModels(subdomain);
+
+        const result = await timeclockBuildFile(models, subdomain, query);
 
         res.attachment(`${result.name}.xlsx`);
 

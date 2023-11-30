@@ -3,13 +3,17 @@ import { assignmentCampaignFields } from './queries';
 
 const paramDefs = `
   ${commonParamDefs},
+  $fieldId: String,
+  $allowMultiWin:Boolean,
   $segmentIds: [String] 
   $voucherCampaignId: String
 `;
 
 const params = `
   ${commonParams},
-  segmentIds: $segmentIds
+  fieldId: $fieldId,
+  segmentIds: $segmentIds,
+  allowMultiWin: $allowMultiWin
   voucherCampaignId: $voucherCampaignId
 `;
 

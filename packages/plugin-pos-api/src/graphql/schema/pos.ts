@@ -107,6 +107,7 @@ export const types = ({ contactsEnabled, productsEnabled }) => `
     posId: String
     code: String
     name: String
+    option: JSON
   }
 
   type ProductGroups {
@@ -133,6 +134,7 @@ export const types = ({ contactsEnabled, productsEnabled }) => `
     posId: String!
     code: String
     name: String
+    option: JSON
   }
 
   input CatProdInput {

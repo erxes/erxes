@@ -18,6 +18,7 @@ import {
   findTeamMember,
   findTeamMembers,
   generateCommonUserIds,
+  getNextNthColumnChar,
   returnDepartmentsBranchesDict,
   returnSupervisedUsers
 } from './utils';
@@ -45,10 +46,6 @@ export const createXlsFile = async () => {
  */
 export const generateXlsx = async (workbook: any): Promise<string> => {
   return workbook.outputAsync();
-};
-
-const getNextChar = (char, num: number) => {
-  return String.fromCharCode(char.charCodeAt(0) + num);
 };
 
 const addIntoSheet = async (
@@ -162,7 +159,7 @@ const prepareHeader = async (
 
       for (const header of final_headers) {
         total_columns += header[1].length;
-        column_end = getNextChar(column_start, header[1].length - 1);
+        column_end = getNextNthColumnChar(column_start, header[1].length - 1);
 
         if (!header[0][0].length) {
           addIntoSheet(
@@ -173,7 +170,7 @@ const prepareHeader = async (
             reportType,
             true
           );
-          column_start = getNextChar(column_end, 1);
+          column_start = getNextNthColumnChar(column_end, 1);
           continue;
         }
 
@@ -192,7 +189,7 @@ const prepareHeader = async (
           sheet,
           reportType
         );
-        column_start = getNextChar(column_end, 1);
+        column_start = getNextNthColumnChar(column_end, 1);
       }
 
       addIntoSheet(
@@ -347,7 +344,7 @@ const extractAndAddIntoSheet = async (
       }
 
       for (const branchTitle of Object.keys(groupedByBranch)) {
-        const getUserReportEndColumn = getNextChar('C', total_columns);
+        const getUserReportEndColumn = getNextNthColumnChar('C', total_columns);
         const getTotalUsersLengthPerBranch =
           groupedByBranch[branchTitle].length - 1;
 

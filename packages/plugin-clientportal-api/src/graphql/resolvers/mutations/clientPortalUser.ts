@@ -8,12 +8,15 @@ import { tokenHandler } from '../../../auth/authUtils';
 import { IContext } from '../../../connectionResolver';
 import { sendContactsMessage, sendCoreMessage } from '../../../messageBroker';
 import { ILoginParams } from '../../../models/ClientPortalUser';
-import { IUser } from '../../../models/definitions/clientPortalUser';
+import {
+  IInvitiation,
+  IUser
+} from '../../../models/definitions/clientPortalUser';
 import redis from '../../../redis';
 import { sendSms } from '../../../utils';
 import { sendCommonMessage } from './../../../messageBroker';
 import * as jwt from 'jsonwebtoken';
-import { fetchUserFromSocialpay } from '../../../models/utils';
+import { fetchUserFromSocialpay } from '../../../socialpayUtils';
 
 export interface IVerificationParams {
   userId: string;
@@ -555,7 +558,11 @@ const clientPortalUserMutations = {
     return 'sent';
   },
 
-  clientPortalUsersInvite: async (_root, args: IUser, context: IContext) => {
+  clientPortalUsersInvite: async (
+    _root,
+    args: IInvitiation,
+    context: IContext
+  ) => {
     const { models, subdomain } = context;
 
     const user = await models.ClientPortalUsers.invite(subdomain, {
@@ -595,6 +602,59 @@ const clientPortalUserMutations = {
       deviceToken
     );
 
+    try {
+      if (clientPortal?.testUserPhone && clientPortal._id) {
+        const cpUser = await models.ClientPortalUsers.findOne({
+          firstName: 'test clientportal user',
+          clientPortalId: clientPortal._id
+        });
+
+        if (cpUser) {
+          if (!clientPortal?.testUserOTP) {
+            throw new Error('Test user phone otp not provided!');
+          }
+
+          if (
+            config.codeLength !== clientPortal?.testUserOTP?.toString().length
+          ) {
+            throw new Error(
+              'Client portal otp config and test user otp does not same length!'
+            );
+          }
+
+          if (
+            clientPortal?.testUserOTP &&
+            config.codeLength === clientPortal?.testUserOTP?.toString().length
+          ) {
+            const testPhoneCode = await models.ClientPortalUsers.imposeVerificationCode(
+              {
+                clientPortalId: clientPortal._id,
+                codeLength: config.codeLength,
+                phone: clientPortal?.testUserPhone,
+                expireAfter: config.expireAfter,
+                testUserOTP: clientPortal?.testUserOTP
+              }
+            );
+
+            const body =
+              config.content.replace(/{.*}/, testPhoneCode) ||
+              `Your verification code is ${testPhoneCode}`;
+
+            await sendSms(
+              subdomain,
+              'messagePro',
+              clientPortal?.testUserPhone,
+              body
+            );
+          }
+
+          return { userId: user._id, message: 'Sms sent' };
+        }
+      }
+    } catch (e) {
+      console.log(e.message);
+    }
+
     const phoneCode = await models.ClientPortalUsers.imposeVerificationCode({
       clientPortalId: clientPortal._id,
       codeLength: config.codeLength,
@@ -623,14 +683,22 @@ const clientPortalUserMutations = {
     const clientPortal = await models.ClientPortals.getConfig(clientPortalId);
 
     const data = await fetchUserFromSocialpay(token);
-    const { FirstName, LastName, MobileNumber, Email, IndividualId } = data;
+    const {
+      individualId,
+      mobileNumber,
+      email,
+      firstName,
+      lastName,
+      imgUrl
+    } = data;
 
     const doc = {
-      firstName: FirstName,
-      lastName: LastName,
-      phone: MobileNumber,
-      email: Email,
-      code: IndividualId
+      firstName,
+      lastName,
+      phone: mobileNumber,
+      email,
+      code: individualId,
+      avatar: imgUrl
     };
 
     const user = await models.ClientPortalUsers.loginWithoutPassword(
@@ -861,9 +929,9 @@ const clientPortalUserMutations = {
   clientPortalUserAssignCompany: async (
     _root,
     args: { userId: string; erxesCompanyId: string; erxesCustomerId: string },
-    { models, subdomain, cpUser }: IContext
+    { models, subdomain, cpUser, user }: IContext
   ) => {
-    if (!cpUser) {
+    if (!cpUser && !user) {
       throw new Error('login required');
     }
 
@@ -898,7 +966,9 @@ const clientPortalUserMutations = {
       throw new Error(error);
     }
 
-    const cp = await models.ClientPortals.findOne(cpUser.clientPortalId).lean();
+    const cp = await models.ClientPortals.findOne(
+      cpUser?.clientPortalId
+    ).lean();
 
     if (cp || cp.kind === 'vendor') {
       await models.Companies.createOrUpdateCompany({
@@ -1001,6 +1071,24 @@ const clientPortalUserMutations = {
     );
 
     return newToken;
+  },
+
+  clientPortalUserSetSecondaryPassword: async (
+    _root,
+    args: { newPassword: string; oldPassword?: string },
+    { models, cpUser }: IContext
+  ) => {
+    if (!cpUser) {
+      throw new Error('login required');
+    }
+
+    const { newPassword, oldPassword } = args;
+
+    return models.ClientPortalUsers.setSecondaryPassword(
+      cpUser._id,
+      newPassword,
+      oldPassword
+    );
   }
 };
 

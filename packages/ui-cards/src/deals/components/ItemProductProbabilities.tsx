@@ -7,6 +7,7 @@ import { __ } from '@erxes/ui/src/utils/core';
 
 type Props = {
   totalAmount?: any;
+  unusedTotalAmount?: any;
   deals?: any[];
   dealTotalAmounts?: any[];
   probability?: string;
@@ -57,6 +58,7 @@ class ItemProductProbabilities extends React.Component<Props, {}> {
     const {
       probability,
       totalAmount,
+      unusedTotalAmount,
       deals = [] as IDeal[],
       dealTotalAmounts = []
     } = this.props;
@@ -95,6 +97,12 @@ class ItemProductProbabilities extends React.Component<Props, {}> {
             <div>
               <span>{__('Total')}</span>
               {renderAmount(totalAmount)}
+            </div>
+          )}
+          {unusedTotalAmount && Object.keys(unusedTotalAmount).length > 0 && (
+            <div>
+              <span>{__('Unused Total')}</span>
+              {renderAmount(unusedTotalAmount)}
             </div>
           )}
           {probability &&

@@ -36,7 +36,9 @@ const mutations = {
       cpUser,
       doc: {
         type: 'deal',
-        subject: 'Insurance Deal',
+        subject: `Даатгалын гэрээ - ${company.name}`,
+        closeDate: doc.closeDate,
+        startDate: doc.startDate,
 
         stageId: clientportal.dealStageId
       }

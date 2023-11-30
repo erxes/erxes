@@ -1,5 +1,6 @@
 import ProductPrice from "@/modules/products/productPriceInfo"
 import { updateCartAtom } from "@/store/cart.store"
+import { banFractionsAtom } from "@/store/config.store"
 import { orderTypeAtom } from "@/store/order.store"
 import { motion, Variants } from "framer-motion"
 import { useAtomValue, useSetAtom } from "jotai"
@@ -40,6 +41,7 @@ const CartItem = ({
   productId,
 }: OrderItem & { idx: number }) => {
   const changeItem = useSetAtom(updateCartAtom)
+  const banFractions = useAtomValue(banFractionsAtom)
   const type = useAtomValue(orderTypeAtom)
 
   return (
@@ -128,7 +130,9 @@ const CartItem = ({
                 onChange={(e) =>
                   changeItem({
                     _id,
-                    count: Number(e.target.value),
+                    count: banFractions
+                      ? parseInt(e.target.value)
+                      : Number(e.target.value),
                   })
                 }
                 value={count}

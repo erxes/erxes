@@ -14,13 +14,13 @@ import {
 } from '../../styles/stage';
 import { Dropdown, OverlayTrigger, Popover } from 'react-bootstrap';
 import { IItem, IOptions, IStage } from '../../types';
-import ItemProductProbabilities from '../../../deals/components/ItemProductProbabilities';
 
 import { AddForm } from '../../containers/portable';
 import { Draggable } from 'react-beautiful-dnd';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
 import Icon from '@erxes/ui/src/components/Icon';
 import ItemList from '../stage/ItemList';
+import ItemProductProbabilities from '../../../deals/components/ItemProductProbabilities';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import React from 'react';
 import { __ } from '@erxes/ui/src/utils/core';
@@ -355,6 +355,7 @@ export default class Stage extends React.Component<Props, State> {
         return (
           <ItemProductProbabilities
             totalAmount={stage.amount}
+            unusedTotalAmount={stage.unUsedAmount}
             probability={stage.probability}
           />
         );

@@ -1,44 +1,39 @@
-import { IItemParams, SaveMutation } from '@erxes/ui-cards/src/boards/types';
+import { gql, useMutation, useQuery } from '@apollo/client';
 import GenerateCustomFields from '@erxes/ui-forms/src/settings/properties/components/GenerateCustomFields';
 import { queries as fieldQueries } from '@erxes/ui-forms/src/settings/properties/graphql';
-import { FieldsGroupsQueryResponse } from '@erxes/ui-forms/src/settings/properties/types';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
-import { withProps } from '@erxes/ui/src/utils';
 import { isEnabled } from '@erxes/ui/src/utils/core';
-import { gql } from '@apollo/client';
-import * as compose from 'lodash.flowright';
+
 import React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
-import { queries, mutations } from '../graphql';
+
+import { mutations, queries } from '../graphql';
 
 type Props = {
   isDetail: boolean;
   _id: string;
 };
 
-type FinalProps = {
-  fieldsGroupsQuery: FieldsGroupsQueryResponse;
-  productDetailQuery: any;
-  editMutation: SaveMutation;
-  id;
-} & Props;
+const CustomFieldsSection = (props: Props) => {
+  const { isDetail, _id } = props;
 
-const CustomFieldsSection = (props: FinalProps) => {
-  const {
-    _id,
-    fieldsGroupsQuery,
-    isDetail,
-    productDetailQuery,
-    editMutation
-  } = props;
+  const fieldsGroupsQuery = useQuery(gql(fieldQueries.fieldsGroups), {
+    variables: {
+      contentType: 'insurance:product',
+      isDefinedByErxes: false
+    },
+    skip: !isEnabled('forms') ? true : false
+  });
 
-  if (
-    fieldsGroupsQuery &&
-    fieldsGroupsQuery.loading &&
-    productDetailQuery &&
-    productDetailQuery.loading
-  ) {
+  const productDetailQuery = useQuery(queries.GET_PRODUCT, {
+    variables: {
+      _id
+    }
+  });
+
+  const [editMutation] = useMutation(mutations.PRODUCTS_EDIT);
+
+  if (fieldsGroupsQuery.loading || productDetailQuery.loading) {
     return (
       <Sidebar full={true}>
         <Spinner />
@@ -58,45 +53,18 @@ const CustomFieldsSection = (props: FinalProps) => {
       });
   };
 
+  const { customFieldsData = [] } = productDetailQuery.data.insuranceProduct;
+  const fieldsGroups = fieldsGroupsQuery.data.fieldsGroups || [];
+
   const updatedProps = {
     save,
-    customFieldsData:
-      (productDetailQuery &&
-        productDetailQuery.insuranceProduct.customFieldsData) ||
-      [],
-    fieldsGroups: fieldsGroupsQuery ? fieldsGroupsQuery.fieldsGroups : [],
+    customFieldsData,
+    fieldsGroups,
     isDetail,
-    object: productDetailQuery.insuranceProduct
+    object: productDetailQuery.data.insuranceProduct
   };
 
   return <GenerateCustomFields {...updatedProps} />;
 };
 
-export default withProps<Props>(
-  compose(
-    graphql<Props, FieldsGroupsQueryResponse, { contentType: string }>(
-      gql(fieldQueries.fieldsGroups),
-      {
-        name: 'fieldsGroupsQuery',
-        options: () => ({
-          variables: {
-            contentType: 'insurance:product',
-            isDefinedByErxes: false
-          }
-        }),
-        skip: !isEnabled('forms') ? true : false
-      }
-    ),
-    graphql<Props, any, { _id: string }>(queries.GET_PRODUCT, {
-      name: 'productDetailQuery',
-      options: ({ _id }: any) => ({
-        variables: {
-          _id
-        }
-      })
-    }),
-    graphql<Props, SaveMutation, IItemParams>(mutations.PRODUCTS_EDIT, {
-      name: 'editMutation'
-    })
-  )(CustomFieldsSection)
-);
+export default CustomFieldsSection;

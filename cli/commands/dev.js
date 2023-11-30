@@ -84,9 +84,9 @@ module.exports.devCmd = async program => {
     `
   );
 
-  await execCommand(
-    `cd ${filePath(`../packages/core-ui`)} && yarn generate-doterxes`
-  );
+  // await execCommand(
+  //   `cd ${filePath(`../packages/core-ui`)} && yarn generate-doterxes`
+  // );
 
   if (configs.widgets) {
     if (program.deps) {

@@ -128,7 +128,7 @@ class ContractsList extends React.Component<IProps, State> {
 
     const mainContent = (
       <ContractsTableWrapper>
-        <Table whiteSpace="nowrap" bordered={true} hover={true}>
+        <Table whiteSpace="nowrap" bordered={true} hover={true} striped>
           <thead>
             <tr>
               <th>
@@ -189,7 +189,7 @@ class ContractsList extends React.Component<IProps, State> {
     );
 
     const addTrigger = (
-      <Button btnStyle="success" size="small" icon="plus-circle">
+      <Button btnStyle="success" icon="plus-circle">
         {__('Add contract')}
       </Button>
     );
@@ -279,6 +279,7 @@ class ContractsList extends React.Component<IProps, State> {
 
     return (
       <Wrapper
+        hasBorder
         header={
           <Wrapper.Header
             title={__(`Contracts`) + ` (${totalCount})`}
