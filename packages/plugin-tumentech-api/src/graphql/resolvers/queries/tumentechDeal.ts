@@ -1,6 +1,8 @@
 import { paginate } from '@erxes/api-utils/src';
 import { IContext } from '../../../connectionResolver';
 import { sendCardsMessage } from '../../../messageBroker';
+import { ITracking, ITrackingItem } from '../../../models/definitions/trips';
+import { ITrackingData } from '../../../models/definitions/tumentechDeal';
 
 const tumentechDealsQuery = {
   tumentechDeals: async (
@@ -85,7 +87,7 @@ const tumentechDealsQuery = {
       const stages = await sendCardsMessage({
         subdomain,
         action: 'stages.find',
-        data: { pipelineId: pipelineId },
+        data: { pipelineId },
         isRPC: true
       });
 
@@ -160,7 +162,9 @@ const tumentechDealsQuery = {
       }
     ]);
 
-    if (tumenDeals?.length > 0) return tumenDeals[0];
+    if (tumenDeals?.length > 0) {
+      return tumenDeals[0];
+    }
     return null;
   },
 
@@ -186,6 +190,73 @@ const tumentechDealsQuery = {
       '',
       isFilterCreatedBy ? cpUser.userId : undefined
     );
+  },
+
+  // get tracking datas with dealId
+  tumentechTrackingDatas: async (
+    _root,
+    { dealId }: { dealId: string },
+    { models }: IContext
+  ) => {
+    const trackingDatas: ITracking[] = await models.Tracking.find({ dealId });
+
+    const sortList = (trackingData: ITrackingItem[]) => {
+      const sorted = trackingData.sort((a, b) => a[2] - b[2]);
+
+      return sorted.map(t => ({
+        lat: t[0],
+        lng: t[1],
+        trackedDate: new Date(t[2] * 1000)
+      }));
+    };
+
+    const sortedData: ITrackingData[] = [];
+
+    for (const trackingData of trackingDatas) {
+      const car = await models.Cars.findOne({ _id: trackingData.carId });
+
+      const obj = {
+        carId: trackingData.carId,
+        car,
+        dealId,
+        list: sortList(trackingData.trackingData)
+      };
+
+      sortedData.push(obj);
+    }
+
+    return sortedData;
+  },
+
+  tumentechTrackingData: async (
+    _root,
+    { dealId, carId }: { dealId: string; carId: string },
+    { models }: IContext
+  ) => {
+    const data = await models.Tracking.findOne({ dealId, carId }).lean();
+
+    const sortList = (trackingData: ITrackingItem[]) => {
+      const sorted = trackingData.sort((a, b) => a[2] - b[2]);
+
+      return sorted.map(t => ({
+        lat: t[0],
+        lng: t[1],
+        trackedDate: new Date(t[2] * 1000)
+      }));
+    };
+
+    if (!data) {
+      return null;
+    }
+
+    const car = await models.Cars.findOne({ _id: carId });
+
+    return {
+      carId,
+      car,
+      dealId,
+      list: sortList(data.trackingData)
+    };
   }
 };
 

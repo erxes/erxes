@@ -37,6 +37,7 @@ import { ITopupModel, loadTopupClass } from './models/Topup';
 import { ITripModel, loadTripClass } from './models/Trips';
 import {
   ITumentechDealModel,
+  loadTrackingClass,
   loadTumentechDealClass
 } from './models/TumentechDeal';
 import {
@@ -69,6 +70,7 @@ export interface IModels {
   Topups: ITopupModel;
   PurchaseHistories: IPurchaseHistoryModel;
   TransportDatas: ITransportDataModel;
+  Tracking: any;
 }
 
 export interface IContext extends IMainContext {
@@ -168,6 +170,8 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
     'tumentech_transport_datas',
     loadTransportDataClass(models)
   );
+
+  models.Tracking = db.model('tumentech_tracking', loadTrackingClass(models));
 
   return models;
 };

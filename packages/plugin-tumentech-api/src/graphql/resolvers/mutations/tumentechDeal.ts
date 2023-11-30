@@ -90,37 +90,46 @@ const tumentechDealMutations = {
   tumentechDealAddTrackingData: async (
     _root,
     { dealId, carId, trackingData },
-    { models, cpUser }: IContext
+    { models }: IContext
   ) => {
-    const deal =
-      (await models.TumentechDeals.findOne({ dealId })) || ({} as any);
-
     const newTrackingData = trackingData.map(e => [
       e.lat,
       e.lng,
       e.trackedDate.getTime() / 1000
     ]);
 
-    const existingData = (deal.trackingData || []).find(e => e.carId === carId);
+    const tracking = await models.Tracking.findOne({ dealId, carId });
 
-    if (existingData) {
-      existingData.list = [...existingData.list, ...newTrackingData];
+    if (!tracking) {
+      models.Tracking.create({ dealId, carId, trackingData: newTrackingData });
     } else {
-      deal.trackingData = [
-        {
-          carId,
-          list: newTrackingData
-        }
-      ];
+      models.Tracking.updateOne(
+        { dealId, carId },
+        { $push: { trackingData: { $each: newTrackingData } } }
+      );
     }
 
-    await models.TumentechDeals.updateOne(
-      { _id: deal._id },
-      { $set: { trackingData: deal.trackingData } }
-    );
-
-    return models.TumentechDeals.getTumentechDeal(deal._id, '', cpUser.userId);
+    return models.TumentechDeals.findOne({ _id: dealId });
   }
 };
 
 export default tumentechDealMutations;
+
+// await models.Trips.getTrip({ _id });
+
+// await models.Trips.updateOne(
+//   { _id },
+//   {
+//     $push: {
+//       trackingData: {
+//         $each: trackingData.map(e => [
+//           e.lat,
+//           e.lng,
+//           e.trackedDate.getTime() / 1000
+//         ])
+//       }
+//     }
+//   }
+// );
+
+// return models.Trips.findOne({ _id });

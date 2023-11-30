@@ -1,5 +1,5 @@
-import { IContext } from '../../connectionResolver';
-import { ITrackingItem } from '../../models/definitions/trips';
+import { IContext, models } from '../../connectionResolver';
+import { ITracking, ITrackingItem } from '../../models/definitions/trips';
 import {
   ITumentechDeal,
   ITrackingData
@@ -47,16 +47,10 @@ const TumentechDeal = {
     return Places.getPlace({ _id: endPlaceId });
   },
 
-  async trackingData(
-    tumentechDeal,
-    _params,
-    { models: { TumentechDeals, Cars } }: IContext
-  ) {
-    const trackingDatas = await TumentechDeals.findOne({
-      _id: tumentechDeal._id
-    }).distinct('trackingData');
-
-    console.log('trackingDatas', trackingDatas);
+  async trackingData(tumentechDeal, _params, { models: { Cars } }: IContext) {
+    const trackingDatas: ITracking[] = await models.Tracking.find({
+      dealId: tumentechDeal.dealId
+    });
 
     const sortList = (trackingData: ITrackingItem[]) => {
       const sorted = trackingData.sort((a, b) => a[2] - b[2]);
@@ -76,7 +70,8 @@ const TumentechDeal = {
       const obj = {
         carId: trackingData.carId,
         car,
-        list: sortList(trackingData.list)
+        dealId: tumentechDeal.dealId,
+        list: sortList(trackingData.trackingData)
       };
 
       sortedData.push(obj);

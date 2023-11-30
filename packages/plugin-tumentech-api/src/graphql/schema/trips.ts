@@ -1,21 +1,5 @@
 export const types = ({ contacts, cards }) => `
-type TrackingItem {
-  lat: Float
-  lng: Float
-  trackedDate: Date
-}
 
-type TrackingData {
-  carId: String
-  car: Car
-  list: [TrackingItem]
-}
-
-input TrackingItemInput {
-  lat: Float
-  lng: Float
-  trackedDate: Date
-}
 
 type TumentechDealInfo {
   deal: Deal

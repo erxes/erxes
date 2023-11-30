@@ -7,6 +7,7 @@ import {
   ITumentechDealDocument,
   tumentechDealSchema
 } from './definitions/tumentechDeal';
+import { trackingSchema } from './definitions/trips';
 
 export interface ITumentechDealModel extends Model<ITumentechDealDocument> {
   getTumentechDeal(
@@ -66,4 +67,22 @@ export const loadTumentechDealClass = (models: IModels) => {
   tumentechDealSchema.loadClass(TumentechDeal);
 
   return tumentechDealSchema;
+};
+
+export const loadTrackingClass = (models: IModels) => {
+  class Tracking {
+    public static async getTracking(doc: any) {
+      const tracking = await models.Tracking.findOne(doc);
+
+      if (!tracking) {
+        throw new Error('tracking not found');
+      }
+
+      return tracking;
+    }
+  }
+
+  trackingSchema.loadClass(Tracking);
+
+  return trackingSchema;
 };

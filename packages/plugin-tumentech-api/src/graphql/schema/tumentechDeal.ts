@@ -1,5 +1,24 @@
 export const types = ({ cards }) => `
 
+type TrackingItem {
+  lat: Float
+  lng: Float
+  trackedDate: Date
+}
+
+type TrackingData {
+  carId: String
+  car: Car
+  dealId: String
+  list: [TrackingItem]
+}
+
+input TrackingItemInput {
+  lat: Float
+  lng: Float
+  trackedDate: Date
+}
+
   type TumentechDeal @key(fields: "_id") @cacheControl(maxAge: 3) {
     _id: String!
     dealId: String
@@ -40,6 +59,9 @@ export const types = ({ cards }) => `
 export const queries = `
     tumentechDeals(page: Int, perPage: Int, dealIds: [String],stageId: String, driverType: Int, pipelineId: String, isFilterCreatedBy: Boolean): TumentechDealsResponse
     tumentechDealDetail(_id: String, dealId: String, isFilterCreatedBy: Boolean): TumentechDeal
+
+    tumentechTrackingDatas(dealId: String!): [TrackingData]
+    tumentechTrackingData(carId: String!, dealId: String!): TrackingData
 `;
 
 const params = `
