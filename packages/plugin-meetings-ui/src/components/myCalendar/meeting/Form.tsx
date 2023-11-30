@@ -4,19 +4,25 @@ import FormGroup from '@erxes/ui/src/components/form/Group';
 import Button from '@erxes/ui/src/components/Button';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
-import { IButtonMutateProps, IFormProps, IOption } from '@erxes/ui/src/types';
+import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import { __, Alert } from '@erxes/ui/src/utils';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { ICommonFormProps } from '@erxes/ui-settings/src/common/types';
 import { IMeeting } from '../../../types';
-import { CustomRangeContainer } from '../../../styles';
+import {
+  CustomRangeContainer,
+  MeetingDetailColumn,
+  MeetingDetailRow
+} from '../../../styles';
 import DateControl from '@erxes/ui/src/components/form/DateControl';
 import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
 import { IUser } from '@erxes/ui/src/auth/types';
 import { CompaniesQueryResponse } from '@erxes/ui-contacts/src/companies/types';
-import SelectCompanies from '@erxes/ui-contacts/src/companies/containers/SelectCompanies';
-import { DealsQueryResponse } from '@erxes/ui-cards/src/deals/types';
-import SelectDeal from './SelectDeal';
+import { DealsQueryResponse, IDeal } from '@erxes/ui-cards/src/deals/types';
+
+import { ModalTrigger } from '@erxes/ui/src/components';
+import DealChooser from '../../../containers/myCalendar/meeting/Chooser';
+import { DrawerDetail } from '@erxes/ui-automations/src/styles';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -30,18 +36,9 @@ type Props = {
 } & ICommonFormProps;
 
 export const MeetingForm = (props: Props) => {
-  const {
-    companiesQuery,
-    meeting,
-    queryParams,
-    calendarDate,
-    dealsQuery,
-    dealId
-  } = props;
-  const { companies } = companiesQuery || {};
-  const { deals } = dealsQuery || {};
+  const { meeting, queryParams, calendarDate, dealId } = props;
 
-  let dealInitialId = dealId ? [dealId] : '';
+  const dealInitialId = dealId ? [dealId] : '';
 
   const [userIds, setUserIds] = useState([props.currentUser._id] || []);
   const [companyId, setCompanyId] = useState(meeting?.companyId || '');
@@ -56,9 +53,7 @@ export const MeetingForm = (props: Props) => {
     calendarDate?.endDate || ''
   );
 
-  useEffect(() => {
-    setTitle(companies?.find(c => c._id === companyId)?.primaryName || '');
-  }, [companyId]);
+  const [selectedDeals, setSelectedDeals] = useState(meeting?.deals || []);
 
   const generateDoc = (values: {
     _id?: string;
@@ -114,7 +109,9 @@ export const MeetingForm = (props: Props) => {
   const onEndDateChange = dateVal => {
     if (new Date() < dateVal) {
       setEndDate(dateVal);
-    } else Alert.warning('Please choose the correct date');
+    } else {
+      Alert.warning('Please choose the correct date');
+    }
   };
 
   const renderDatePicker = () => {
@@ -146,45 +143,110 @@ export const MeetingForm = (props: Props) => {
     setUserIds(users);
   };
 
-  const onDealSelect = ids => {
-    setDealIds(ids);
-  };
-
-  const onCompanySelect = companyId => {
-    setCompanyId(companyId);
-  };
-
   const onMethodSelect = e => {
     setSelectedMethod((e.target as HTMLInputElement).value);
+  };
+
+  const renderBulkProductChooser = () => {
+    const dealsOnChange = (datas: any, selectedCompanyId: string) => {
+      const dealsId = datas?.map(data => data._id);
+
+      const { companyId: cId } = JSON.parse(
+        localStorage.getItem('erxes_deals:chooser_filter') || '{}'
+      );
+
+      const filterId = selectedCompanyId || cId;
+
+      const companyName =
+        datas?.find(deal => {
+          const selectedCompanies =
+            deal.companies && deal.companies.filter(c => c._id === filterId);
+          return selectedCompanies && selectedCompanies.length > 0;
+        })?.companies?.[0]?.primaryName || '';
+
+      setDealIds(dealsId);
+      setSelectedDeals(datas);
+      setCompanyId(filterId);
+      setTitle(companyName);
+    };
+
+    const content = ({ closeModal }) => {
+      const updatedProps = {
+        ...props,
+        closeModal
+      };
+      return (
+        <DealChooser
+          {...updatedProps}
+          onSelect={dealsOnChange}
+          data={{
+            name: 'Deal',
+            deals: []
+          }}
+        />
+      );
+    };
+
+    const trigger = (
+      <Button btnStyle="primary" icon="plus-circle">
+        Choose deal and company
+      </Button>
+    );
+
+    return (
+      <ModalTrigger
+        title="Choose deal and company"
+        trigger={trigger}
+        size="xl"
+        content={content}
+      />
+    );
   };
 
   const renderContent = (formProps: IFormProps) => {
     const { closeModal, renderButton } = props;
     const { values, isSubmitted } = formProps;
     const object = meeting || ({} as IMeeting);
-    let dealOptions =
-      (deals &&
-        deals.map((deal: any) => ({
-          value: deal._id,
-          label: deal.name || ''
-        }))) ||
-      [];
-    dealOptions = [{ value: '', label: '' }, ...dealOptions];
 
     return (
       <>
         <FormGroup>
-          <h4>{object?.title || title}</h4>
+          <h4>{title || object?.title}</h4>
         </FormGroup>
+
         <FormGroup>
-          <ControlLabel>Choose Company</ControlLabel>
-          <SelectCompanies
-            label={__('Select a company')}
-            name="companyId"
-            onSelect={onCompanySelect}
-            multi={false}
-            initialValue={companyId}
-          />
+          <ControlLabel required={false}> Deal and company </ControlLabel>
+          {selectedDeals.length > 0 && (
+            <MeetingDetailRow>
+              <MeetingDetailColumn>
+                <DrawerDetail>
+                  <span>Deal names: </span>
+                  {selectedDeals?.map((deal, index) => (
+                    <label key={index}>{deal.name},</label>
+                  ))}
+                </DrawerDetail>
+              </MeetingDetailColumn>
+            </MeetingDetailRow>
+          )}
+          <CustomRangeContainer>
+            {selectedDeals.length === 0 && (
+              <FormControl
+                componentClass="input"
+                placeholder="Deal name"
+                type="string"
+                value={''}
+                disabled={true}
+              />
+            )}
+            <FormControl
+              componentClass="input"
+              placeholder="Company name"
+              type="string"
+              value={title || object?.title}
+              disabled={true}
+            />
+            {renderBulkProductChooser()}
+          </CustomRangeContainer>
         </FormGroup>
 
         <FormGroup>
@@ -245,17 +307,6 @@ export const MeetingForm = (props: Props) => {
             type="text"
             required={true}
             autoFocus={true}
-          />
-        </FormGroup>
-
-        <FormGroup>
-          <ControlLabel>Select Deal </ControlLabel>
-          <SelectDeal
-            label="Choose deal"
-            name="dealIds"
-            initialValue={object?.dealIds || dealIds}
-            onSelect={onDealSelect}
-            multi={true}
           />
         </FormGroup>
 

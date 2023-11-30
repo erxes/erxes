@@ -27,6 +27,7 @@ const commonUserFields = `
   $links: JSON,
   $customFieldsData: JSON,
   $avatar: String
+  $erxesCompanyId: String
 `;
 
 const commonUserVariables = `
@@ -44,11 +45,12 @@ const commonUserVariables = `
   links: $links,
   customFieldsData: $customFieldsData
   avatar: $avatar
+  erxesCompanyId: $erxesCompanyId
 `;
 
 const clientPortalUsersInvite = `
-  mutation clientPortalUsersInvite(${commonUserFields}) {
-    clientPortalUsersInvite(${commonUserVariables}) {
+  mutation clientPortalUsersInvite(${commonUserFields}, $disableVerificationMail:Boolean, $password: String) {
+    clientPortalUsersInvite(${commonUserVariables}, disableVerificationMail: $disableVerificationMail, password: $password) {
       ${clientPortalUserFields}
     }
   }

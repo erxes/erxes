@@ -57,7 +57,7 @@ const Image: FC<
     <NextImage
       {...updatedProps}
       loader={!srcI.startsWith("/") ? cloudflareLoader : undefined}
-      onLoadingComplete={handleComplete}
+      onLoad={handleComplete}
       className={cn(className, isImageLoading && "blur-2xl", "text-black")}
       sizes={
         sizes ||
@@ -73,7 +73,5 @@ export function cloudflareLoader({ src, width, quality }: ImageLoaderProps) {
   const params = [`width=${width}`, `quality=${quality || 75}`, "format=auto"]
   return `https://erxes.io/cdn-cgi/image/${params.join(",")}/${src}`
 }
-
-//xos.techstore.mn/gateway/read-file?key=0.021508049013006180.51531201349981501.png
 
 export default Image

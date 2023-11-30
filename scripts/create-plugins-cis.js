@@ -2,7 +2,7 @@ const yaml = require('yaml');
 var { resolve } = require('path');
 var fs = require('fs-extra');
 
-const filePath = (pathName) => {
+const filePath = pathName => {
   if (pathName) {
     return resolve(__dirname, '..', pathName);
   }
@@ -10,7 +10,7 @@ const filePath = (pathName) => {
   return resolve(__dirname, '..');
 };
 
-var workflowsPath = (fileName) => filePath(`./.github/workflows/${fileName}`);
+var workflowsPath = fileName => filePath(`./.github/workflows/${fileName}`);
 
 var plugins = [
   { name: 'ads', api: true },
@@ -122,7 +122,7 @@ var main = async () => {
     }
   }
 
-  const actions = permissionCheckers.map((action) => action.name);
+  const actions = permissionCheckers.map(action => action.name);
   const dups = actions.filter((item, index) => actions.indexOf(item) !== index);
 
   if (dups.length) {

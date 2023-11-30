@@ -71,12 +71,12 @@ function findAccounts(
   insuranceAccount: string;
 } {
   const accounts = {
-    paymentAccount: config.normalAccount,
-    interestAccount: config.interestAccount,
-    undueAccount: config.undueAccount,
-    transAccount: config.transAccount,
-    debtAccount: config.debtAccount,
-    insuranceAccount: config.insuranceAccount
+    paymentAccount: config?.normalAccount,
+    interestAccount: config?.interestAccount,
+    undueAccount: config?.undueAccount,
+    transAccount: config?.transAccount,
+    debtAccount: config?.debtAccount,
+    insuranceAccount: config?.insuranceAccount
   };
 
   switch (classification) {
@@ -121,7 +121,7 @@ function fillTransaction(
   if (tr.payment && tr.payment > 0) {
     dtl.push({
       amount: tr.payment,
-      account: account.paymentAccount,
+      account: account?.paymentAccount,
       side: 'credit'
     });
   }
@@ -130,7 +130,7 @@ function fillTransaction(
     dtl.push({
       amount: interest,
       side: 'credit',
-      account: account.interestAccount
+      account: account?.interestAccount
     });
   }
 
@@ -138,7 +138,7 @@ function fillTransaction(
     dtl.push({
       amount: tr.undue,
       side: 'credit',
-      account: account.undueAccount
+      account: account?.undueAccount
     });
   }
 
@@ -146,7 +146,7 @@ function fillTransaction(
     dtl.push({
       amount: tr.debt,
       side: 'credit',
-      account: account.debtAccount
+      account: account?.debtAccount
     });
   }
 
@@ -154,14 +154,14 @@ function fillTransaction(
     dtl.push({
       amount: tr.insurance,
       side: 'credit',
-      account: account.insuranceAccount
+      account: account?.insuranceAccount
     });
   }
 
   dtl.push({
     side: 'debit',
     amount: tr.total,
-    account: account.transAccount
+    account: account?.transAccount
   });
 
   return {

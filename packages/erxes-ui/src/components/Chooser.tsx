@@ -25,6 +25,7 @@ export type CommonProps = {
   onSelect: (datas: any[]) => void;
   renderExtra?: () => any;
   handleExtra?: (data: any) => void;
+  extraChecker?: (data: any) => any;
   modalSize?: 'sm' | 'lg' | 'xl';
 };
 
@@ -54,8 +55,12 @@ class CommonChooser extends React.Component<Props, State> {
   }
 
   onSelect = () => {
-    this.props.onSelect(this.state.datas);
-    this.props.closeModal();
+    if (this.props.extraChecker) {
+      return this.props.extraChecker(this.state.datas);
+    } else {
+      this.props.onSelect(this.state.datas);
+      this.props.closeModal();
+    }
   };
 
   componentWillUnmount() {

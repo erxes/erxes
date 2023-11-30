@@ -1,4 +1,8 @@
-import { Box, Icon, Alert, confirm } from '@erxes/ui/src';
+import Box from '@erxes/ui/src/components/Box';
+import Icon from '@erxes/ui/src/components/Icon';
+import Alert from '@erxes/ui/src/utils/Alert';
+import confirm from '@erxes/ui/src/utils/confirmation/confirm';
+
 import { __ } from 'coreui/utils';
 import React from 'react';
 
@@ -15,11 +19,13 @@ type Props = {
   fixSchedules?: (contractId: string) => void;
   hasTransaction?: boolean;
   currentUser: IUser;
+  leaseType?: string;
 };
 
 function ScheduleSection({
   contractId,
   isFirst,
+  leaseType,
   regenSchedules,
   fixSchedules,
   hasTransaction,
@@ -40,7 +46,7 @@ function ScheduleSection({
       });
 
   const renderExtraButton = () => {
-    if (isFirst) {
+    if (isFirst || leaseType !== 'finance') {
       return <></>;
     }
 
@@ -69,6 +75,7 @@ function ScheduleSection({
         <SchedulesList
           contractId={contractId}
           isFirst={isFirst}
+          leaseType={leaseType}
         ></SchedulesList>
       </ScrollTableColls>
     </Box>

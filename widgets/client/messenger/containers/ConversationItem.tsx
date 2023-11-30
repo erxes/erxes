@@ -4,6 +4,7 @@ import { ChildProps, graphql } from "react-apollo";
 import DumbConversationItem from "../components/ConversationItem";
 import graphqlTypes from "../graphql";
 import { IConversation } from "../types";
+import { connection } from "../connection";
 
 type Props = {
   conversation: IConversation;
@@ -27,7 +28,7 @@ class ConversationItem extends React.PureComponent<
 
     // lister for all conversation changes for this customer
     data.subscribeToMore({
-      document: gql(graphqlTypes.conversationMessageInserted),
+      document: gql(graphqlTypes.conversationMessageInserted(connection.enabledServices.dailyco)),
       variables: { _id: conversation._id },
       updateQuery: () => {
         data.refetch();

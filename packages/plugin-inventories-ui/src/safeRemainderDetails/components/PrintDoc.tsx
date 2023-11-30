@@ -10,6 +10,7 @@ import { __ } from '@erxes/ui/src/utils/core';
 type Props = {
   safeRemainder: any;
   safeRemainderItems: any[];
+  exportCensus: () => void;
 };
 
 const displayNumber = (value: number) => {
@@ -291,6 +292,14 @@ export default function List(props: Props) {
                 onClick={handlePrint}
               >
                 {__('Print')}
+              </Button>
+              <Button
+                btnStyle="success"
+                icon="export"
+                size="small"
+                onClick={props.exportCensus}
+              >
+                {__('ExportJ')}
               </Button>
             </>
           }

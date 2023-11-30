@@ -12,7 +12,7 @@ import { ALL_BANK_CARD_TYPES } from "@/lib/constants"
 import { filterPaymentTypes } from "@/lib/utils"
 
 const usePaymentType = (type: string) => {
-  const [config] = useAtom(paymentConfigAtom)
+  const config = useAtomValue(paymentConfigAtom)
   const { paymentTypes } = config || {}
 
   return paymentTypes?.find((pt) => pt.type === type)

@@ -27,7 +27,7 @@ const CartItem = ({
 
   return (
     <motion.div
-      className="mb-0.5 flex items-center rounded bg-gray-100 px-4 first:bg-primary/10 first:font-medium"
+      className="mb-0.5 flex items-center rounded bg-gray-100 px-3.5 first:bg-primary/10 first:font-medium"
       variants={itemVariants}
       initial="initial"
       exit="exit"
@@ -36,8 +36,10 @@ const CartItem = ({
         opacity: { duration: 0.1 },
       }}
     >
-      <div className="w-1/12">{formattedIndex}</div>
-      <div className="w-4/12">{productName}</div>
+      <div className="flex w-5/12">
+        <div className="w-1/12">{formattedIndex}</div>
+        <div className="w-11/12">{productName}</div>
+      </div>
       <div className="w-3/12">
         <div className="inline-flex overflow-hidden rounded border border-primary/40">
           <Button
@@ -53,7 +55,7 @@ const CartItem = ({
               focus={false}
               type="number"
               value={count}
-              onChange={(e) => handleUpdate(e.target.value)}
+              onChange={e => handleUpdate(e.target.value)}
             />
           </FocusChanger>
           <Button
@@ -65,7 +67,7 @@ const CartItem = ({
           </Button>
         </div>
       </div>
-      <div className="flex w-4/12 items-center">
+      <div className="flex items-center w-4/12">
         <span className="block h-4 w-6/12 overflow-hidden">{"-"}</span>
         <span className="w-5/12">
           <ProductPrice

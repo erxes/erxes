@@ -39,8 +39,6 @@ export const readFileImage = (value: string, width?: number): string => {
 }
 
 export const readFile = (url: string = "", width?: any) => {
-  const READ_FILE = "/read-file?key="
-
   const env = getEnv()
   const NEXT_PUBLIC_MAIN_API_DOMAIN = env.NEXT_PUBLIC_MAIN_API_DOMAIN || ""
 

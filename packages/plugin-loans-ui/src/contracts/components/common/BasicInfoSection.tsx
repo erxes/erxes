@@ -1,13 +1,12 @@
-import {
-  Alert,
-  Button,
-  confirm,
-  DropdownToggle,
-  Icon,
-  MainStyleInfoWrapper as InfoWrapper,
-  ModalTrigger,
-  Sidebar
-} from '@erxes/ui/src';
+import Alert from '@erxes/ui/src/utils/Alert';
+import Button from '@erxes/ui/src/components/Button';
+import confirm from '@erxes/ui/src/utils/confirmation/confirm';
+import DropdownToggle from '@erxes/ui/src/components/DropdownToggle';
+import Icon from '@erxes/ui/src/components/Icon';
+import { MainStyleInfoWrapper as InfoWrapper } from '@erxes/ui/src/styles/eindex';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
+
 import { __ } from 'coreui/utils';
 import React from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';

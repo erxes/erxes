@@ -253,7 +253,7 @@
               font-size: 12px;    font-family: Helvetica Neue;
               font-weight: 300;"
           >
-            Copyright © 2020
+            Copyright © <span id="year"></span>
             <a style="color:#ccc; text-decoration: none;" target="_blank" href="https://erxes.io">erxes Inc</a>. All
             rights reserved.
           </td>
@@ -262,3 +262,7 @@
     </table>
   </div>
 </body>
+
+<script>
+  document.getElementById("year").innerHTML = new Date().getFullYear();
+</script>

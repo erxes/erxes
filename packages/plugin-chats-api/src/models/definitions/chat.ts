@@ -17,6 +17,7 @@ export interface IAttachment {
 }
 export interface IChat {
   participantIds: string[];
+  archivedUserIds?: string[];
   name?: string;
   type: string;
   featuredImage?: IAttachment;
@@ -61,7 +62,7 @@ export const chatMessageSchema = schemaHooksWrapper(
       default: false,
       label: 'Has pinned'
     }),
-    content: field({ type: String, label: 'Content' }),
+    content: field({ type: String, label: 'Content', optional: true }),
     createdAt: field({ type: Date, label: 'Created at' }),
     createdBy: field({ type: String, label: 'Created by' })
   }),
@@ -107,6 +108,7 @@ export const chatSchema = schemaHooksWrapper(
       label: 'Featured image'
     }),
     participantIds: field({ type: [String], label: 'User ids' }),
+    archivedUserIds: field({ type: [String], label: 'User ids' }),
     adminIds: field({ type: [String], label: 'Admin user ids' }),
     seenInfos: field({
       type: [seenSchema],

@@ -11,7 +11,6 @@ import { IContractDocument } from './definitions/contracts';
 import { IModels } from '../connectionResolver';
 import { FilterQuery } from 'mongodb';
 import { ITransaction } from './definitions/transactions';
-import { ICollateralDataDoc } from './definitions/contracts';
 import { IInsurancesData } from './definitions/contracts';
 import { ICollateralData } from './definitions/contracts';
 
@@ -99,6 +98,24 @@ export const loadContractClass = (models: IModels) => {
         await models.Schedules.insertMany(schedules);
       }
 
+      if (doc.leaseType === 'linear') {
+        const schedules = [
+          {
+            contractId: contract._id,
+            status: SCHEDULE_STATUS.PENDING,
+            payDate: doc.endDate,
+
+            balance: doc.leaseAmount,
+            interestNonce: 0,
+            payment: doc.leaseAmount,
+            total: doc.leaseAmount
+          }
+        ];
+
+        await models.FirstSchedules.insertMany(schedules);
+        await models.Schedules.insertMany(schedules);
+      }
+
       return contract;
     }
 
@@ -143,7 +160,7 @@ export const loadContractClass = (models: IModels) => {
           return {
             contractId: _id,
             status: SCHEDULE_STATUS.PENDING,
-            payDate: a.payDate,
+            payDate: getFullDate(a.payDate),
             balance: a.balance,
             interestNonce: a.interestNonce,
             payment: a.payment,
