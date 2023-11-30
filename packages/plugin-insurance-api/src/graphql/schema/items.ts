@@ -5,8 +5,8 @@ extend type Deal @key(fields: "_id") {
 
 type InsuranceItem @key(fields: "_id") @cacheControl(maxAge: 3) {
     _id: ID!
-    customerID: ID
-    companyID: ID
+    customerId: ID
+    companyId: ID
     vendorUserId: ID
     userId: ID
     customFieldsData: JSON
