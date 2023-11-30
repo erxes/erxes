@@ -26,7 +26,7 @@ export const postHandler = async (req, res) => {
   }
 
   if (action === 'dealStageChanged') {
-    res.send(await dealDone(subdomain, data, triggerType));
+    res.send(await dealStageChange(subdomain, data, triggerType));
     return;
   }
 
@@ -128,7 +128,7 @@ const customerRequest = async (subdomain, data, triggerType) => {
   return { message: 'done' };
 };
 
-const dealDone = async (subdomain, data, triggerType) => {
+const dealStageChange = async (subdomain, data, triggerType) => {
   if (!triggerType.includes('cards')) {
     return 'unsupported trigger type';
   }
@@ -163,8 +163,7 @@ const dealDone = async (subdomain, data, triggerType) => {
         content: `${dealDetail?.name} moved to ${dealDetail?.stage?.name} on ${sync.subdomain}`,
         eventData: { appToken: sync?.appToken, subdomain: sync?.subdomain },
         isMobile: true
-      },
-      isRPC: true
+      }
     });
     return 'done';
   } catch (error) {
