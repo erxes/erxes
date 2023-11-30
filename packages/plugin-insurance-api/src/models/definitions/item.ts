@@ -13,6 +13,8 @@ export interface IInsuranceItem {
   customFieldsData?: any;
 
   status: string;
+
+  price?: number;
 }
 
 export interface IInsuranceItemDocument extends IInsuranceItem, Document {
@@ -31,5 +33,6 @@ export const itemSchema = new Schema({
   dealId: field({ type: String }),
   status: field({ type: String, required: true }),
   customFieldsData: field({ type: [customFieldSchema] }),
-  lastModifiedBy: field({ type: String })
+  lastModifiedBy: field({ type: String }),
+  price: field({ type: Number })
 });
