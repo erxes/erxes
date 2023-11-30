@@ -310,13 +310,6 @@ export async function startPlugin(configs: any): Promise<express.Express> {
     configs.reconnectRMQ
   );
 
-  if (configs.permissions) {
-    await messageBrokerClient.sendMessage(
-      'registerPermissions',
-      configs.permissions
-    );
-  }
-
   if (configs.meta) {
     const {
       segments,
