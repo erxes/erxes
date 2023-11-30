@@ -1,17 +1,16 @@
-import {
-  Box,
-  EmptyState,
-  Icon,
-  ModalTrigger,
-  MainStyleButtonRelated as ButtonRelated,
-  __,
-  SectionBodyItem,
-  Alert
-} from '@erxes/ui/src';
+import Box from '@erxes/ui/src/components/Box';
+import EmptyState from '@erxes/ui/src/components/EmptyState';
+import Icon from '@erxes/ui/src/components/Icon';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import { MainStyleButtonRelated as ButtonRelated } from '@erxes/ui/src/styles/eindex';
+import { SectionBodyItem } from '@erxes/ui/src/layout/styles';
+import Alert from '@erxes/ui/src/utils/Alert';
+
 import React from 'react';
 import { Link } from 'react-router-dom';
 import ContractChooser from '../../containers/ContractChooser';
 import { mutations, queries } from '../../graphql';
+import { __ } from 'coreui/utils';
 import {
   EditMutationResponse,
   IContract,

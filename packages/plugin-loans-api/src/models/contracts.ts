@@ -11,7 +11,6 @@ import { IContractDocument } from './definitions/contracts';
 import { IModels } from '../connectionResolver';
 import { FilterQuery } from 'mongodb';
 import { ITransaction } from './definitions/transactions';
-import { ICollateralDataDoc } from './definitions/contracts';
 import { IInsurancesData } from './definitions/contracts';
 import { ICollateralData } from './definitions/contracts';
 
@@ -161,7 +160,7 @@ export const loadContractClass = (models: IModels) => {
           return {
             contractId: _id,
             status: SCHEDULE_STATUS.PENDING,
-            payDate: a.payDate,
+            payDate: getFullDate(a.payDate),
             balance: a.balance,
             interestNonce: a.interestNonce,
             payment: a.payment,

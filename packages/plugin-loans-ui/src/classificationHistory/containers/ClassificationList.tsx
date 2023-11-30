@@ -1,4 +1,6 @@
-import { Alert, Bulk, router, withProps } from '@erxes/ui/src';
+import Alert from '@erxes/ui/src/utils/Alert';
+import Bulk from '@erxes/ui/src/components/Bulk';
+import { withProps, router } from '@erxes/ui/src/utils';
 import { IRouterProps } from '@erxes/ui/src/types';
 import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';

@@ -1,4 +1,3 @@
-import * as bodyParser from 'body-parser';
 import * as dotenv from 'dotenv';
 import * as express from 'express';
 import { filterXSS } from 'xss';
@@ -14,8 +13,14 @@ dotenv.config();
 
 const app = express();
 
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+const urlencodedMiddleware = express.urlencoded({
+  extended: true
+}) as express.RequestHandler;
+const jsonMiddleware = express.json() as express.RequestHandler;
+
+// Use the explicitly typed middleware function
+app.use(urlencodedMiddleware);
+app.use(jsonMiddleware);
 
 app.post('/verify-single', async (req, res, next) => {
   debugRequest(debugBase, req);

@@ -24,13 +24,13 @@ export default function Detail() {
 
   return (
     <>
-      <div className="flex h-full w-full flex-col">
+      <div className="flex h-full w-[62%] flex-col">
         <div className="h-[65px] border-b border-[#eee] shrink-0" />
-        <div className="bg-[#F8F9FA] h-full">
+        <div className="bg-[#F8F9FA] h-full px-[25px]">
           {renderDetail()}
         </div>
       </div>
-      <div className="flex w-1/3 flex-col">
+      <div className="flex w-[22%] shrink-0 flex-col">
         <RightSideBar />
       </div>
     </>

@@ -17,7 +17,6 @@ export let serviceDiscovery;
 export default {
   name: 'forms',
   permissions,
-  hasDashboard: true,
   meta: {
     dashboards,
     forms,

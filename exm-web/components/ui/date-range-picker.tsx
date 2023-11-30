@@ -32,7 +32,7 @@ export function DatePickerWithRange({
           id="date"
           variant={"outline"}
           className={cn(
-            "w-full min-w-[220px] justify-start text-left font-normal",
+            "w-full justify-start text-left font-normal",
             !date && "text-muted-foreground"
           )}
         >
@@ -40,8 +40,8 @@ export function DatePickerWithRange({
           {date?.from ? (
             date.to ? (
               <>
-                {format(date.from, "LLL dd, y")} -{" "}
-                {format(date.to, "LLL dd, y")}
+                {format(new Date(date.from), "LLL dd, y")} -{" "}
+                {format(new Date(date.to), "LLL dd, y")}
               </>
             ) : (
               format(date.from, "LLL dd, y")

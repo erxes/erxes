@@ -2,7 +2,6 @@
 
 import { useState } from "react"
 import { IUser } from "@/modules/auth/types"
-import dayjs from "dayjs"
 import {
   AlertTriangleIcon,
   MoreHorizontalIcon,

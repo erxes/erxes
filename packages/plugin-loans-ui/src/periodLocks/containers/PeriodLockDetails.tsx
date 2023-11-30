@@ -1,4 +1,4 @@
-import { Alert, EmptyState, Spinner, router, withProps } from '@erxes/ui/src';
+import { Alert, EmptyState, Spinner, withProps } from '@erxes/ui/src';
 import { IUser } from '@erxes/ui/src/auth/types';
 import { IRouterProps } from '@erxes/ui/src/types';
 import { gql } from '@apollo/client';

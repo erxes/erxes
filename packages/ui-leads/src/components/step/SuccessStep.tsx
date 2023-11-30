@@ -1,25 +1,27 @@
-import FormControl from '@erxes/ui/src/components/form/Control';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import { LeftItem } from '@erxes/ui/src/components/step/styles';
-import EditorCK from '@erxes/ui/src/containers/EditorCK';
-import { readFile, uploadHandler, __ } from '@erxes/ui/src/utils';
-import { generateEmailTemplateParams } from '@erxes/ui-engage/src/utils';
-import { ILeadData } from '../../types';
-import { FORM_SUCCESS_ACTIONS } from '@erxes/ui/src/constants/integrations';
-import React from 'react';
-import Select from 'react-select-plus';
 import {
   FlexItem,
   ImagePreview,
   ImageUpload
 } from '@erxes/ui/src/components/step/style';
-import Uploader from '@erxes/ui/src/components/Uploader';
+import { __, readFile, uploadHandler } from '@erxes/ui/src/utils';
+
 import Button from '@erxes/ui/src/components/Button';
-import Icon from '@erxes/ui/src/components/Icon';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import { isEnabled } from '@erxes/ui/src/utils/core';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import EditorCK from '@erxes/ui/src/containers/EditorCK';
+import { FORM_SUCCESS_ACTIONS } from '@erxes/ui/src/constants/integrations';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import FormGroup from '@erxes/ui/src/components/form/Group';
 import { IFormData } from '@erxes/ui-forms/src/forms/types';
+import { ILeadData } from '../../types';
+import Icon from '@erxes/ui/src/components/Icon';
+import { LeftItem } from '@erxes/ui/src/components/step/styles';
+import React from 'react';
+import Select from 'react-select-plus';
+import Spinner from '@erxes/ui/src/components/Spinner';
+import Uploader from '@erxes/ui/src/components/Uploader';
+import { generateEmailTemplateParams } from '@erxes/ui-engage/src/utils';
+import { isEnabled } from '@erxes/ui/src/utils/core';
+import Toggle from '@erxes/ui/src/components/Toggle';
 
 type Name =
   | 'successAction'
@@ -36,7 +38,8 @@ type Name =
   | 'attachments'
   | 'successImageSize'
   | 'successImage'
-  | 'successPreviewStyle';
+  | 'successPreviewStyle'
+  | 'verifyEmail';
 
 type Props = {
   type: string;
@@ -53,6 +56,7 @@ type Props = {
   successPreviewStyle?: { opacity?: string };
   successImageSize?: string;
   formData: IFormData;
+  verifyEmail?: boolean;
 };
 
 type State = {
@@ -155,8 +159,20 @@ class SuccessStep extends React.Component<Props, State> {
       <div>
         <FormGroup>
           <ControlLabel>
-            Send a confirmation email to the responder
+            Verify the responder's email address with a confirmation email
           </ControlLabel>
+          <p>{__('Verification button would be added to the email.')}</p>
+          <Toggle
+            id="saveAsCustomer"
+            checked={this.props.verifyEmail || false}
+            onChange={(e: any) => {
+              this.onChangeFunction('verifyEmail', e.target.checked);
+            }}
+            icons={{
+              checked: <span>Yes</span>,
+              unchecked: <span>No</span>
+            }}
+          />
         </FormGroup>
         <FormGroup>
           <label>Send from</label>
@@ -340,7 +356,7 @@ class SuccessStep extends React.Component<Props, State> {
   }
 
   renderSelectOptions() {
-    const hasEmailField = this.props.formData.fields?.find(
+    const hasEmailField = this.props.formData?.fields?.find(
       e => e.type === 'email' || e.validation === 'email'
     );
 

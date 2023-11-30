@@ -106,7 +106,7 @@ class InsuranceTypesList extends React.Component<IProps, State> {
 
     const mainContent = (
       <InsuranceTypesTableWrapper>
-        <Table whiteSpace="nowrap" bordered={true} hover={true}>
+        <Table whiteSpace="nowrap" bordered={true} hover={true} striped>
           <thead>
             <tr>
               <th>

@@ -5,9 +5,15 @@ import {
   Form as CommonForm,
   ControlLabel,
   FormControl,
-  FormGroup
+  FormGroup,
+  Uploader,
+  extractAttachment
 } from '@erxes/ui/src';
-import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
+import {
+  IAttachment,
+  IButtonMutateProps,
+  IFormProps
+} from '@erxes/ui/src/types';
 import React from 'react';
 import { ICarCategory } from '../../types';
 
@@ -18,12 +24,64 @@ type Props = {
   closeModal: () => void;
 };
 
-class CategoryForm extends React.Component<Props> {
+type State = {
+  image?: IAttachment;
+  secondaryImages?: IAttachment[];
+};
+
+class CategoryForm extends React.Component<Props, State> {
+  constructor(props) {
+    super(props);
+
+    const category = props.category || ({} as ICarCategory);
+    const { image, secondaryImages } = category;
+
+    this.state = {
+      image: image ? image : undefined,
+      secondaryImages: secondaryImages ? secondaryImages : undefined
+    };
+  }
+
+  generateDoc = (values: {
+    _id?: string;
+    image?: IAttachment;
+    secondaryImages?: IAttachment[];
+  }) => {
+    const { category } = this.props;
+    const finalValues = values;
+    const { image, secondaryImages } = this.state;
+
+    if (category) {
+      finalValues._id = category._id;
+    }
+
+    finalValues.image = image;
+
+    return {
+      ...finalValues,
+      image,
+      secondaryImages
+    };
+  };
+  onChangeAttachment = (files: IAttachment[]) => {
+    this.setState({ image: files.length ? files[0] : undefined });
+  };
+
+  onChangeAttachmentMore = (files: IAttachment[]) => {
+    this.setState({ secondaryImages: files ? files : undefined });
+  };
+
   renderContent = (formProps: IFormProps) => {
     const { renderButton, closeModal, category, categories } = this.props;
     const { values, isSubmitted } = formProps;
 
     const object = category || ({} as ICarCategory);
+
+    const image = (object.image && extractAttachment([object.image])) || [];
+
+    const secondaryImages =
+      (object.secondaryImages && extractAttachment(object.secondaryImages)) ||
+      [];
 
     if (category) {
       values._id = category._id;
@@ -77,6 +135,28 @@ class CategoryForm extends React.Component<Props> {
           </FormControl>
         </FormGroup>
 
+        <FormGroup>
+          <ControlLabel>Image</ControlLabel>
+
+          <Uploader
+            defaultFileList={image}
+            onChange={this.onChangeAttachment}
+            multiple={false}
+            single={true}
+          />
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel>Secondary Images</ControlLabel>
+
+          <Uploader
+            defaultFileList={secondaryImages}
+            onChange={this.onChangeAttachmentMore}
+            multiple={true}
+            single={false}
+          />
+        </FormGroup>
+
         <ModalFooter>
           <Button
             btnStyle="simple"
@@ -89,7 +169,7 @@ class CategoryForm extends React.Component<Props> {
 
           {renderButton({
             name: 'car category',
-            values,
+            values: this.generateDoc(values),
             isSubmitted,
             callback: closeModal,
             object: category

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
+import Select from "react-select"
 import * as z from "zod"
 
 import { Button } from "@/components/ui/button"
@@ -16,26 +17,23 @@ import {
   FormControl,
   FormField,
   FormItem,
-  FormLabel,
   FormMessage,
 } from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
+import Loader from "@/components/ui/loader"
 import LoadingPost from "@/components/ui/loadingPost"
 import SuccessPost from "@/components/ui/successPost"
 import { Textarea } from "@/components/ui/textarea"
+import { toast } from "@/components/ui/use-toast"
 import SelectUsers from "@/components/select/SelectUsers"
 
 import useFeedMutation from "../../hooks/useFeedMutation"
+import { useTeamMembers } from "../../hooks/useTeamMembers"
 import { IFeed } from "../../types"
+import FormAttachments from "./FormAttachments"
+import FormImages from "./FormImages"
+import Uploader from "./uploader/Uploader"
 
 const FormSchema = z.object({
-  title: z
-    .string({
-      required_error: "Please enter an title",
-    })
-    .refine((val) => val.trim().length !== 0, {
-      message: "Please enter an title",
-    }),
   description: z
     .string({
       required_error: "Please enter an description",
@@ -43,9 +41,7 @@ const FormSchema = z.object({
     .refine((val) => val.trim().length !== 0, {
       message: "Please enter an description",
     }),
-  recipientIds: z.array(z.object({})).refine((val) => val.length !== 0, {
-    message: "Please choose users",
-  }),
+  recipientIds: z.array(z.object({})).optional(),
 })
 
 const BravoForm = ({
@@ -61,6 +57,18 @@ const BravoForm = ({
 
   const [recipientIds, setRecipientIds] = useState(feed?.recipientIds || [])
   const [success, setSuccess] = useState(false)
+  const [images, setImage] = useState(feed?.images || [])
+  const [attachments, setAttachments] = useState(feed?.attachments || [])
+  const [imageUploading, setImageUploading] = useState(false)
+  const [attachmentUploading, setAttachmentUploading] = useState(false)
+  const [department, setDepartment] = useState(
+    feed?.recipientIds || ([] as string[])
+  )
+  const [departmentSearchValue, setDepartmentSearchValue] = useState("")
+
+  const { departmentOptions, loading } = useTeamMembers({
+    departmentSearchValue,
+  })
 
   const callBack = (result: string) => {
     if (result === "success") {
@@ -90,20 +98,37 @@ const BravoForm = ({
     form.reset({ ...defaultValues })
   }, [feed])
 
+  const onChangeMultiValue = (datas: any) => {
+    const ids = datas.map((data: any) => data.value)
+    setDepartment(ids)
+  }
+
   const onSubmit = (data: z.infer<typeof FormSchema>) => {
-    feedMutation(
-      {
-        title: data.title,
-        description: data.description ? data.description : "",
-        contentType: "bravo",
-        recipientIds,
-      },
-      feed?._id || ""
-    )
+    if (
+      (!recipientIds || recipientIds.length === 0) &&
+      (!department || department.length === 0)
+    ) {
+      return toast({
+        description: "Please choose users or department",
+        variant: "destructive",
+      })
+    } else {
+      feedMutation(
+        {
+          title: "title",
+          description: data.description ? data.description : "",
+          contentType: "bravo",
+          recipientIds: recipientIds.concat(department),
+          images,
+          attachments,
+        },
+        feed?._id || ""
+      )
+    }
   }
 
   return (
-    <DialogContent className="max-h-[80vh] overflow-auto">
+    <DialogContent className="max-h-[80vh] max-w-2xl">
       <DialogHeader>
         <DialogTitle>Create bravo</DialogTitle>
       </DialogHeader>
@@ -115,46 +140,31 @@ const BravoForm = ({
         <form className="space-y-3" onSubmit={form.handleSubmit(onSubmit)}>
           <FormField
             control={form.control}
-            name="title"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Title</FormLabel>
-                <FormControl>
-                  <Input
-                    placeholder="title"
-                    {...field}
-                    defaultValue={feed?.title || ""}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
             name="description"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Description</FormLabel>
                 <FormControl>
                   <Textarea
-                    placeholder="description"
+                    placeholder="Write a bravo"
                     {...field}
                     defaultValue={feed?.description || ""}
+                    className="p-0 border-none"
                   />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
-
+          <FormAttachments
+            attachments={attachments || []}
+            setAttachments={setAttachments}
+          />
+          <FormImages images={images} setImage={setImage} />{" "}
           <FormField
             control={form.control}
             name="recipientIds"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Select users</FormLabel>
                 <FormControl>
                   <SelectUsers
                     userIds={recipientIds}
@@ -166,8 +176,47 @@ const BravoForm = ({
               </FormItem>
             )}
           />
+          {loading ? (
+            <Loader />
+          ) : (
+            <Select
+              isMulti={true}
+              options={departmentOptions}
+              defaultValue={departmentOptions?.filter((departmentOption) =>
+                department.includes(departmentOption?.value)
+              )}
+              placeholder="Choose department"
+              isSearchable={true}
+              onInputChange={setDepartmentSearchValue}
+              onChange={(data) => onChangeMultiValue(data)}
+            />
+          )}
+          <div className="flex items-center border rounded-lg px-2 border-[#cccccc] justify-between">
+            <p className="text-[#444]">Add attachments</p>
+            <div className="flex">
+              <Uploader
+                defaultFileList={images || []}
+                onChange={setImage}
+                type={"image"}
+                icon={true}
+                iconSize={20}
+                setUploading={setImageUploading}
+              />
 
-          <Button type="submit" className="font-semibold w-full rounded-full">
+              <Uploader
+                defaultFileList={attachments || []}
+                onChange={setAttachments}
+                icon={true}
+                iconSize={20}
+                setUploading={setAttachmentUploading}
+              />
+            </div>
+          </div>
+          <Button
+            type="submit"
+            className="font-semibold w-full rounded-full"
+            disabled={imageUploading || attachmentUploading}
+          >
             Post
           </Button>
         </form>

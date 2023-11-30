@@ -206,14 +206,16 @@ const LeftSideBar = (props: Props) => {
 
   const onDateButtonClick = (type: string) => {
     if (type === 'today') {
-      setStartDate(NOW);
-      setEndDate(NOW);
-      setParams('startDate', NOW);
-      setParams('endDate', NOW);
+      const startOfToday = new Date(NOW.setHours(0, 0, 0, 0));
+      const endOfToday = new Date(NOW.setHours(23, 59, 59, 999));
+      setStartDate(startOfToday);
+      setEndDate(endOfToday);
+      setParams('startDate', startOfToday);
+      setParams('endDate', endOfToday);
     }
 
     if (type === 'this month') {
-      const endOfThisMonth = new Date(startOfNextMonth - 1);
+      const endOfThisMonth = new Date(startOfNextMonth.getTime() - 1);
 
       setStartDate(startOfThisMonth);
       setParams('startDate', startOfThisMonth);
@@ -223,8 +225,8 @@ const LeftSideBar = (props: Props) => {
     }
 
     if (type === 'this week') {
-      const startOfThisWeek = new Date(NOW);
-      const endOfThisWeek = new Date(NOW);
+      const startOfThisWeek = new Date(NOW.setHours(0, 0, 0, 0));
+      const endOfThisWeek = new Date(NOW.setHours(23, 59, 59, 999));
 
       // Set the date to the beginning of the current week (Monday)
       startOfThisWeek.setDate(NOW.getDate() - NOW.getDay() + 1);

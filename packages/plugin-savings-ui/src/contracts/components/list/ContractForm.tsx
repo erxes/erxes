@@ -306,6 +306,16 @@ class ContractForm extends React.Component<Props, State> {
               })}
             </FormColumn>
             <FormColumn>
+              {this.renderFormGroup('Interest Rate', {
+                ...formProps,
+                className: 'flex-item',
+                type: 'number',
+                useNumberFormat: true,
+                name: 'interestRate',
+                value: this.state.interestRate,
+                onChange: this.onChangeField
+              })}
+
               <FormGroup>
                 <ControlLabel required={true}>
                   {__('Close or extend of time')}

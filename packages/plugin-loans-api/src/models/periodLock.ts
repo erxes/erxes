@@ -66,6 +66,8 @@ export const loadPeriodLockClass = (models: IModels) => {
         subdomain
       );
 
+      await models.Invoices.createCreditMassInvoice(subdomain, doc.date);
+
       await sendMessageBroker(
         {
           action: 'loanTransaction',
