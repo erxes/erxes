@@ -101,16 +101,8 @@ const customerRequest = async (subdomain, data, triggerType) => {
             };
           }),
           isMobile: true
-        },
-        isRPC: true
+        }
       });
-      // await sendCustomerMobileNotification({
-      //   subdomain,
-      //   title: `Customer Approved`,
-      //   body: `You approved on ${syncNames}`,
-      //   recieverIds: customerIds,
-      // data:
-      // });
     } catch (error) {
       debugError(
         `Error occurred during send customer notification: ${error.message}`
@@ -150,7 +142,7 @@ const dealStageChange = async (subdomain, data, triggerType) => {
 
   const customerIds = await models.SyncedCustomers.find({
     syncedCustomerId: syncedDeal.syncedCustomerId
-  });
+  }).distinct('customerId');
 
   try {
     await sendCPMessage({
