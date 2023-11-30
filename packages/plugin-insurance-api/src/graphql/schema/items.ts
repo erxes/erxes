@@ -9,6 +9,7 @@ type InsuranceItem @key(fields: "_id") @cacheControl(maxAge: 3) {
     companyId: ID
     vendorUserId: ID
     userId: ID
+    price: Float
     customFieldsData: JSON
   
     customer: ${contacts ? 'Customer' : 'JSON'}
@@ -31,7 +32,7 @@ type InsuranceItem @key(fields: "_id") @cacheControl(maxAge: 3) {
     customFieldsData: JSON
     closeDate: Date
     startDate: Date
-
+    price: Float
   }
   
   type InsuranceItemListResult {
