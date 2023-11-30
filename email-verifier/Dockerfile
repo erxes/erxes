@@ -1,4 +1,4 @@
-FROM node:12.19-alpine
+FROM node:18.17.1-alpine
 WORKDIR /erxes-email-verifier
 RUN chown -R node:node /erxes-email-verifier \
  && apk add --no-cache tzdata

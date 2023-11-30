@@ -1,13 +1,85 @@
+import { IUserDocument } from '@erxes/api-utils/src/types';
 import { serviceDiscovery } from '../../configs';
 import { IContext } from '../../connectionResolver';
-import { sendCommonMessage } from '../../messageBroker';
+import {
+  sendCommonMessage,
+  sendCoreMessage,
+  sendTagsMessage
+} from '../../messageBroker';
+
+interface IListParams {
+  searchValue: string;
+  ids?: string;
+  page?: number;
+  perPage?: number;
+  sortField: string;
+  sortDirection: number;
+  tag: string;
+  departmentId: string;
+}
+
+const generateFilter = async (
+  params: IListParams,
+  user: IUserDocument,
+  subdomain: string
+) => {
+  const { searchValue, tag, departmentId } = params;
+
+  let filter: any = {};
+
+  if (!user.isOwner) {
+    const departments = await sendCoreMessage({
+      subdomain,
+      action: 'departments.find',
+      data: {
+        userIds: { $in: [user._id] }
+      },
+      isRPC: true,
+      defaultValue: []
+    });
+
+    const departmentIds = departments.map(d => d._id);
+
+    filter = {
+      $or: [
+        { visibility: { $exists: null } },
+        { visibility: 'public' },
+        {
+          $and: [
+            { visibility: 'private' },
+            {
+              $or: [
+                { selectedMemberIds: user._id },
+                { createdBy: user._id },
+                { departmentIds: { $in: departmentIds } }
+              ]
+            }
+          ]
+        }
+      ]
+    };
+  }
+
+  if (searchValue) {
+    filter.name = new RegExp(`.*${searchValue}.*`, 'i');
+  }
+  if (tag) {
+    filter.tagIds = { $in: [tag] };
+  }
+  if (departmentId) {
+    filter.departmentIds = { $in: [departmentId] };
+  }
+
+  return filter;
+};
 
 const reportsQueries = {
-  reportsList(_root, {}, { models }: IContext) {
-    const selector: any = {};
-    const totalCount = models.Reports.count(selector);
+  async reportsList(_root, params, { models, subdomain, user }: IContext) {
+    const totalCount = models.Reports.count({});
 
-    const list = models.Reports.find(selector).sort({
+    const filter = await generateFilter(params, user, subdomain);
+
+    const list = models.Reports.find(filter).sort({
       createdAt: 1,
       name: 1
     });
@@ -15,19 +87,78 @@ const reportsQueries = {
     return { list, totalCount };
   },
 
-  reportDetail(_root, { _id }, { models }: IContext) {
-    return models.Reports.getReport(_id);
+  reportDetail(_root, { reportId }, { models }: IContext) {
+    return models.Reports.getReport(reportId);
   },
 
-  chartsList(_root, {}, { models }: IContext) {
-    const selector: any = {};
-    const totalCount = models.Charts.count(selector);
-    const list = models.Charts.find(selector).sort({ name: 1 });
-    return { list, totalCount };
+  // return service names list that exports reports
+  async reportServicesList(_root, _params, { models }: IContext) {
+    const serviceNames = await serviceDiscovery.getServices();
+    const totalServicesNamesList: string[] = [];
+
+    for (const serviceName of serviceNames) {
+      const service = await serviceDiscovery.getService(serviceName, true);
+      const chartTemplates = service.config?.meta?.reports?.chartTemplates;
+
+      if (chartTemplates && chartTemplates.length) {
+        totalServicesNamesList.push(serviceName);
+      }
+    }
+
+    return totalServicesNamesList;
   },
 
-  chartDetail(_root, { _id }, { models }: IContext) {
-    return models.Charts.getChart(_id);
+  // return total templates list from available services
+  async reportTemplatesList(
+    _root,
+    { searchValue, serviceName },
+    { models }: IContext
+  ) {
+    const totalTemplatesList: any = [];
+
+    const filterBySearchValue = (reportTemplates: any[], searchVal: string) => {
+      return reportTemplates.filter(t =>
+        t.title.toLowerCase().includes(searchVal.toLowerCase())
+      );
+    };
+
+    if (serviceName) {
+      const service = await serviceDiscovery.getService(serviceName, true);
+      const reportTemplates = service.config?.meta?.reports?.reportTemplates;
+
+      if (reportTemplates) {
+        totalTemplatesList.push(
+          ...filterBySearchValue(reportTemplates, searchValue || '')
+        );
+      }
+
+      return totalTemplatesList;
+    }
+
+    const serviceNames = await serviceDiscovery.getServices();
+
+    for (const srviceName of serviceNames) {
+      const service = await serviceDiscovery.getService(srviceName, true);
+      const reportTemplates = service.config?.meta?.reports?.reportTemplates;
+
+      if (reportTemplates) {
+        totalTemplatesList.push(
+          ...filterBySearchValue(reportTemplates, searchValue || '')
+        );
+      }
+    }
+
+    return totalTemplatesList;
+  },
+
+  async reportChartTemplatesList(
+    _root,
+    { serviceName }: { serviceName: string },
+    {}: IContext
+  ) {
+    const service = await serviceDiscovery.getService(serviceName, true);
+    const chartTemplates = service.config?.meta?.reports?.chartTemplates;
+    return chartTemplates;
   },
 
   reportChartGetFilterTypes(
@@ -37,7 +168,7 @@ const reportsQueries = {
   ) {
     const service = serviceDiscovery.getService(serviceName);
 
-    const templates = service.configs.meta.reports || {};
+    const templates = service.configs.meta.reports.templates || {};
 
     let filterTypes = [];
 
@@ -83,6 +214,28 @@ const reportsQueries = {
     });
 
     return reportResult;
+  },
+  async reportsCountByTags(_root, _params, { models, subdomain }: IContext) {
+    const counts = {};
+
+    const tags = await sendTagsMessage({
+      subdomain,
+      action: 'find',
+      data: {
+        type: 'reports:reports'
+      },
+      isRPC: true,
+      defaultValue: []
+    });
+
+    for (const tag of tags) {
+      counts[tag._id] = await models.Reports.find({
+        tagIds: tag._id,
+        status: { $ne: 'deleted' }
+      }).countDocuments();
+    }
+
+    return counts;
   }
 };
 
