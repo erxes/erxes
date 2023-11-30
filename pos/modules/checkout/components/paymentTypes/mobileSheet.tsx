@@ -34,11 +34,6 @@ const MobileSheet = () => {
     gql(mutations.generateInvoiceUrl),
     {
       client: clientMain,
-      context: {
-        headers: {
-          "erxes-app-token": config?.erxesAppToken,
-        },
-      },
       onError,
     }
   )
@@ -60,7 +55,7 @@ const MobileSheet = () => {
         },
       })
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   if (loading) return <Loader />

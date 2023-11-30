@@ -5,7 +5,6 @@ import { ChevronDown, ChevronRight } from "lucide-react"
 
 import Loader from "@/components/ui/loader"
 import Pagination from "@/components/ui/pagination"
-import { ScrollArea } from "@/components/ui/scroll-area"
 import {
   Table,
   TableBody,
@@ -15,7 +14,6 @@ import {
 } from "@/components/ui/table"
 
 import { useAbsence } from "../../hooks/useAbsence"
-import EmptyTable from "../EmptyTable"
 import TableFooter from "../TimeclockTableFooter"
 import RequestRow from "./AbsenceRow"
 import AbsenceAction from "./action/AbsenceAction"
@@ -60,6 +58,14 @@ const Request = ({ queryParams }: Props) => {
   ]
 
   const renderTableBody = () => {
+    if (loading) {
+      return (
+        <div className="absolute left-1/2">
+          <Loader />
+        </div>
+      )
+    }
+
     return (
       <TableBody>
         {absenceList.map((absence, index) => (
@@ -69,17 +75,12 @@ const Request = ({ queryParams }: Props) => {
     )
   }
 
-  const renderTable = () => {
-    if (loading) {
-      return <Loader />
-    }
-
-    if (absenceTotalCount === 0) {
-      return <EmptyTable />
-    }
-
-    return (
-      <div className="flex overflow-y-auto">
+  return (
+    <div className="h-[94vh] mt-2 flex flex-col gap-3">
+      {!loading && (
+        <AbsenceAction queryParams={queryParams} absenceTypes={absenceTypes} />
+      )}
+      <div className="flex overflow-y-auto max-h-[70vh] scrollbar-hide">
         <Table>
           <TableHeader className="sticky top-0 bg-[#f8f9fa] border-none">
             <TableRow className="border-none">
@@ -96,21 +97,9 @@ const Request = ({ queryParams }: Props) => {
           {renderTableBody()}
         </Table>
       </div>
-    )
-  }
-
-  return (
-    <div className="h-[calc(100vh-66px)] p-9 pt-5 flex flex-col justify-between">
-      <div className="h-full flex flex-col gap-2">
-        <AbsenceAction queryParams={queryParams} absenceTypes={absenceTypes} />
-        {renderTable()}
-        <div className="flex items-center justify-between mt-auto">
-          <TableFooter
-            queryParams={queryParams}
-            totalCount={absenceTotalCount}
-          />
-          <Pagination count={absenceTotalCount} />
-        </div>
+      <div className="flex items-center justify-between">
+        <TableFooter queryParams={queryParams} totalCount={absenceTotalCount} />
+        <Pagination count={absenceTotalCount} />
       </div>
     </div>
   )

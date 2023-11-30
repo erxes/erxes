@@ -88,7 +88,6 @@ type State = {
   templateId?: string;
   carousel: string;
   attachments?: IAttachment[];
-  verifyEmail?: boolean;
 
   currentMode: 'create' | 'update' | undefined;
   currentField?: IField;
@@ -127,7 +126,6 @@ class Lead extends React.Component<Props, State> {
       redirectUrl: leadData.redirectUrl || '',
       rules: leadData.rules || [],
       isStepActive: false,
-      verifyEmail: leadData.verifyEmail || false,
 
       brand: integration.brandId,
       channelIds: channels.map(item => item._id) || [],
@@ -234,8 +232,7 @@ class Lead extends React.Component<Props, State> {
         saveAsCustomer: this.state.saveAsCustomer,
         css: this.state.css,
         successImage: this.state.successImage,
-        successImageSize: this.state.successImageSize,
-        verifyEmail: this.state.verifyEmail
+        successImageSize: this.state.successImageSize
       }
     };
 
@@ -461,7 +458,6 @@ class Lead extends React.Component<Props, State> {
                   successPreviewStyle={successPreviewStyle}
                   successImageSize={successImageSize}
                   formData={formData}
-                  verifyEmail={this.state.verifyEmail}
                 />
               </Step>
             </Steps>

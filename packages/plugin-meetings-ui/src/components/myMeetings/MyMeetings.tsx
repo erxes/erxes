@@ -28,9 +28,9 @@ function MyMeetings(props: Props) {
   const [searchText, setSearchValue] = useState(searchValue);
 
   const searchHandler = e => {
-    const searchingValue = e.target.value;
+    const searchValue = e.target.value;
 
-    setSearchValue(searchingValue);
+    setSearchValue(searchValue);
 
     setTimeout(() => {
       router.removeParams(history, 'page');
@@ -56,9 +56,7 @@ function MyMeetings(props: Props) {
     />
   );
 
-  const actionBar = (
-    <Wrapper.ActionBar right={actionBarRight} wideSpacing={true} />
-  );
+  const actionBar = <Wrapper.ActionBar right={actionBarRight} wideSpacing />;
   return (
     <Wrapper
       header={
@@ -81,7 +79,7 @@ function MyMeetings(props: Props) {
       }
       leftSidebar={leftSideBar}
       transparent={true}
-      hasBorder={true}
+      hasBorder
     />
   );
 }

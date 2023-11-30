@@ -7,7 +7,6 @@ import { getSubdomain } from '@erxes/api-utils/src/core';
 import * as permissions from './permissions';
 import { posInit, posSyncConfig, unfetchOrderInfo } from './routes';
 import afterMutations from './afterMutations';
-import beforeResolvers from './beforeResolvers';
 import automations from './automations';
 import forms from './forms';
 import segments from './segments';
@@ -61,7 +60,6 @@ export default {
     segments,
     permissions,
     dashboards,
-    beforeResolvers,
     imports,
     exporter,
     payment

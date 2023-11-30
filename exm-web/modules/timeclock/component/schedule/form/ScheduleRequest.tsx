@@ -14,7 +14,6 @@ import { Button } from "@/components/ui/button"
 import { Calendar } from "@/components/ui/calendar"
 import { DatePicker } from "@/components/ui/date-picker"
 import ScheduleConfigOrder from "./ScheduleConfigOrder"
-import { ScrollArea } from "@/components/ui/scroll-area"
 import Select from "react-select"
 import { currentUserAtom } from "@/modules/JotaiProiveder"
 import dayjs from "dayjs"
@@ -295,7 +294,7 @@ const ScheduleRequest = ({
   }
 
   return (
-    <div className="flex flex-col gap-3 h-full">
+    <div className="flex flex-col gap-3">
       {displayTotalDaysHoursBreakMins()}
       <ScheduleConfigOrder
         scheduleConfigsOrderData={scheduleConfigsOrderData}
@@ -340,7 +339,6 @@ const ScheduleRequest = ({
           <Plus size={16} />
         </Button>
       </div>
-
       <div className="flex flex-col gap-2">
         {days?.map((day, index) => (
           <div key={index} className="flex gap-1">
@@ -348,14 +346,13 @@ const ScheduleRequest = ({
               date={day}
               setDate={(selectedDay) => handleDatePicker(selectedDay!, index)}
               className="w-2/6"
-              selected={days}
+              disabled={days}
             />
             <Select
               options={renderScheduleConfigOptions()}
-              className="w-2/6 rounded-md"
+              className="w-2/6"
               onChange={(value) => handleConfigsChange(value, index)}
               value={selectedValues[index]}
-              menuPlacement="auto"
             />
             <input
               type="time"
@@ -405,7 +402,6 @@ const ScheduleRequest = ({
           </div>
         ))}
       </div>
-
       <Button onClick={onSubmitClick} disabled={loading || shifts.length === 0}>
         Submit
       </Button>

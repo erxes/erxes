@@ -10,11 +10,6 @@ const commonParamsDef = `
   $webDescription: String
   $vision: String
   $structure: String
-  $knowledgeBaseLabel: String
-  $knowledgeBaseTopicId: String
-  $ticketLabel: String
-  $ticketPipelineId: String
-  $ticketBoardId: String
 `;
 
 const commonParams = `
@@ -29,11 +24,6 @@ const commonParams = `
   webDescription: $webDescription
   vision: $vision
   structure: $structure
-  knowledgeBaseLabel: $knowledgeBaseLabel
-  knowledgeBaseTopicId: $knowledgeBaseTopicId
-  ticketLabel: $ticketLabel
-  ticketPipelineId: $ticketPipelineId
-  ticketBoardId: $ticketBoardId
 `;
 
 const exmsAdd = `

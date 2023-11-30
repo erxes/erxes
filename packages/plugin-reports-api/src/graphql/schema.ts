@@ -1,37 +1,18 @@
-export const types = tagsAvailable => `
-  
+export const types = `
   extend type User @key(fields: "_id") {
     _id: String! @external
   }
-
-  ${
-    tagsAvailable
-      ? `
-      extend type Tag @key(fields: "_id"){
-        _id: String! @external
-      }
-    `
-      : ``
-  }
-
 
   type Report {
     _id: String!
     name: String
     visibility: VisibilityType
-    
-    assignedUserIds: [String]
-    assignedDepartmentIds: [String]
+    memberIds: [String]
     tagIds: [String]
-    
-    members: [User]
-    ${tagsAvailable ? 'tags: [Tag]' : ''}
     charts: [ReportChart]
-    chartsCount: Int
-
-    updatedAt:Date
-    updatedBy: User
-
+    
+    lastUpdatedAt:Date
+    lastUpdatedBy: User
     createdAt:Date
     createdBy: User
   }
@@ -40,59 +21,25 @@ export const types = tagsAvailable => `
     public
     private
   }
-
-  type ReportTemplate {
-    title: String
-    description: String
-    charts: [String]
-    img: String
-    serviceName: String
-    serviceType: String
-    type: String
-  }
-
-  type ReportFilter {
-    fieldName: String
-    fieldType: String
-    multi: Boolean
-    fieldQuery: String
-    fieldLabel: String
-  }
  
   type ReportChart {
-    _id: String
     name: String
     reportId: String!
     contentType: String
-    serviceName: String
-    templateType: String
+    template: String
     order: Int
     chartType: ChartType
-    chartTypes: [ChartType]
-    filter: JSON
+    filters: [ChartFilter]
     defaultFilter: ChartFilter
-    layout: String
-    vizState: String
   }
 
   enum ChartType {
     pie
     line
     bar
-    doughnut
-    polarArea
-    radar
-    bubble
-    scatter
   }
 
   type ChartFilter {
-    fieldName: String
-    filterValue: String
-    filterType: FilterType
-  }
-
-  input ChartFilterInput {
     fieldName: String
     filterValue: String
     filterType: FilterType
@@ -115,28 +62,20 @@ export const types = tagsAvailable => `
   }
 `;
 
-const queryParams = `
-  searchValue: String
-  perPage: Int
-  page: Int
-  departmentId: String
-  tagId: String
-`;
+const query_params = `
+  userId: String`;
 
 export const queries = `
-  reportsList(${queryParams}): ReportsListResponse
+  reportsList: ReportsListResponse
   reportDetail(reportId: String!): Report
   
   reportChartsList: ChartsListResponse
   reportChartDetail(chartId: String!): ReportChart
-  reportTemplatesList(searchValue: String, serviceName: String): [ReportTemplate]  
-  reportChartTemplatesList(serviceName: String!, charts: [String]): [JSON] 
-  reportServicesList: [String]
-
+  
   reportChartGetTemplates(serviceName: String!): JSON
   reportChartGetFilterTypes(serviceName: String!, templateType: String!): JSON
   reportChartGetResult(serviceName: String!, templateType: String!, filter: JSON): JSON
-  reportsCountByTags:JSON
+  
 `;
 
 export const params = `
@@ -146,36 +85,16 @@ export const params = `
   typeId:String
 `;
 
-const report_chart_common_params = `
-  name: String
-  chartType: String
-  templateType: String
+const chart_params = `
   order: Int
-  vizState: String
-  layout: String
-  filter: JSON
-  serviceName: String
-  templateType: String
-`;
-
-const report_params = `
-  name: String,
-  visibility: VisibilityType,
-  assignedUserIds: [String],
-  assignedDepartmentIds: [String],
-  tagIds: [String],
-  reportTemplateType: String
-  serviceName: String
 `;
 
 export const mutations = `
-  reportsAdd(${report_params}): Report
+  reportsAdd(${params}): Report
   reportsRemove(_id: String!): JSON
-  reportsRemoveMany(ids: [String]!): JSON 
-   
-  reportsEdit(_id:String!, ${report_params}): Report
+  reportsEdit(_id:String!, ${params}): Report
 
-  reportChartsAdd(${report_chart_common_params}, reportId: String!): ReportChart
+  reportChartsAdd(${chart_params}): ReportChart
   reportChartsRemove(_id: String!): JSON
-  reportChartsEdit(_id: String!, ${report_chart_common_params}): ReportChart
+  reportChartsEdit(_id: String, ${chart_params}): ReportChart
 `;

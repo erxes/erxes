@@ -62,9 +62,8 @@ export const MeetingDetail = (props: Props) => {
   };
 
   const renderMeetingAgenda = () => {
-    if (!topics || topics.length === 0) {
+    if (!topics || topics.length === 0)
       return <EmptyState text={`Empty`} icon="clipboard-blank" />;
-    }
 
     return topics?.map((topic: ITopic) => topic && renderTopicItem(topic));
   };
@@ -75,9 +74,9 @@ export const MeetingDetail = (props: Props) => {
     </Button>
   );
 
-  const modalContent = args => (
+  const modalContent = props => (
     <TopicFormContainer
-      {...args}
+      {...props}
       meetingId={meetingDetail?._id}
       participantUserIds={meetingDetail?.participantUser?.map(user => user._id)}
       meetingStatus={meetingDetail?.status}
@@ -99,9 +98,9 @@ export const MeetingDetail = (props: Props) => {
     </Button>
   );
 
-  const editModalContent = args => (
+  const editModalContent = props => (
     <Form
-      {...args}
+      {...props}
       meeting={meetingDetail}
       refetch={[
         {
@@ -151,9 +150,8 @@ export const MeetingDetail = (props: Props) => {
           <MeetingDetailColumn>
             <span>Team members:</span>{' '}
             {meetingDetail?.participantUser?.map((user, index) => {
-              if (index !== meetingDetail?.participantUser?.length - 1) {
+              if (index != meetingDetail?.participantUser?.length - 1)
                 return <span key={index}>{user.details?.fullName},</span>;
-              }
               return <span key={index}>{user.details?.fullName}</span>;
             })}
           </MeetingDetailColumn>
@@ -162,15 +160,12 @@ export const MeetingDetail = (props: Props) => {
           <MeetingDetailColumn>
             <DrawerDetail>
               <span>Deals:</span>{' '}
-              {deals?.map((deal, index) => {
+              {deals?.map(deal => {
                 const { boardId, _id, pipeline } = deal;
                 const link = `/deal/board?id=${boardId}&pipelineId=${pipeline._id}&itemId=${_id}`;
                 return (
                   <>
-                    <Link to={link} key={index}>
-                      {deal.name}{' '}
-                    </Link>
-                    ,
+                    <Link to={link}>{deal.name} </Link>,
                   </>
                 );
               })}

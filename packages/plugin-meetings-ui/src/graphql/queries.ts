@@ -11,14 +11,6 @@ const meetingFields = `
   companyId
   participantIds
   dealIds
-  deals{
-     _id
-     boardId
-     pipeline{
-       _id
-     }
-     name
-   }
    createdUser {
      _id
      username
@@ -139,13 +131,18 @@ query meetingPinnedUsers {
   }
 }`;
 
-const deals = `query deals($pipelineId: String, $companyIds: [String], $boardIds: [String], $searchValue: String, $stageId: String) {
-  deals( pipelineId: $pipelineId, companyIds: $companyIds, boardIds: $boardIds, search: $searchValue, stageId: $stageId) {
-     _id
+const deals = `
+  query deals(
+    $searchValue: String,
+  ) {
+    deals(
+      search: $searchValue,
+    ) {
+      _id
       name
-      companies
+    }
   }
-}`;
+`;
 
 export default {
   meetings,

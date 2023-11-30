@@ -10,13 +10,10 @@ import {
   Tip,
   Wrapper
 } from '@erxes/ui/src';
-import { isEnabled } from '@erxes/ui/src/utils/core';
 import React from 'react';
 import { Link } from 'react-router-dom';
 
 import CategoryForm from '../../containers/carCategory/CategoryForm';
-import SegmentFilter from '../../containers/SegmentFilter';
-import TagFilter from '../../containers/TagFilter';
 import { ActionButtons, SidebarListItem } from '../../styles';
 import { ICarCategory } from '../../types';
 
@@ -182,14 +179,6 @@ class List extends React.Component<IProps> {
           {this.renderCategoryHeader()}
           {this.renderCategoryList()}
         </Section>
-
-        {isEnabled('segments') && (
-          <SegmentFilter loadingMainQuery={this.props.loading} />
-        )}
-
-        {isEnabled('tags') && (
-          <TagFilter loadingMainQuery={this.props.loading} />
-        )}
       </Sidebar>
     );
   }

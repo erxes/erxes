@@ -1,14 +1,12 @@
 import gql from 'graphql-tag';
 import { mutations, queries, types } from './schema';
 
-const typeDefs = async serviceDiscovery => {
-  const tagsAvailable = await serviceDiscovery.isEnabled('tags');
-
+const typeDefs = async _serviceDiscovery => {
   return gql`
     scalar JSON
     scalar Date
 
-    ${types(tagsAvailable)}
+    ${types}
     
     extend type Query {
       ${queries}

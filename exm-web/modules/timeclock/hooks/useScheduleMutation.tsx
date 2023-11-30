@@ -32,18 +32,10 @@ export const useScheduleMutation = ({
       variables,
     })
       .then((res) => {
-        toast({
-          description: `Successfully saved schedule configs order`,
-          title: `Schedule configs order`,
-          variant: "success",
-        })
+        toast({ description: `Successfully saved schedule configs order` })
       })
       .catch((error) => {
-        toast({
-          description: error.message,
-          title: `Schedule configs order`,
-          variant: "destructive",
-        })
+        toast({ description: error.message, variant: "destructive" })
       })
   }
 
@@ -56,20 +48,10 @@ export const useScheduleMutation = ({
       },
     })
       .then(() => {
-        toast({
-          description: "Successfully sent a schedule request",
-          title: `Schedule request`,
-          variant: "success",
-        })
+        toast({ description: "Successfully sent a schedule request" })
         callBack("success")
       })
-      .catch((err) =>
-        toast({
-          description: err.message,
-          title: `Schedule request`,
-          variant: "destructive",
-        })
-      )
+      .catch((err) => toast({ description: err.message }))
   }
 
   const checkDuplicateScheduleShifts = async (variables: any) => {
@@ -82,11 +64,7 @@ export const useScheduleMutation = ({
 
     duplicateSchedules = await res.data.checkDuplicateScheduleShifts
     if (!duplicateSchedules.length) {
-      toast({
-        description: "No duplicate schedules",
-        title: `Check duplicate`,
-        variant: "success",
-      })
+      toast({ description: "No duplicate schedules" })
       if (checkOnly) {
         return duplicateSchedules
       }
@@ -144,8 +122,6 @@ export const useScheduleMutation = ({
       alertMessages.push(
         (toast({
           description: `You has duplicate schedule:\n${displayDuplicateShifts}`,
-          title: `Check duplicate`,
-          variant: "warning",
         }),
         200000)
       )

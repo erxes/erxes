@@ -17,8 +17,6 @@ const Slots = () => {
 
   if (!loading && !slots?.length) return null
 
-  const activeSlots = (slots || []).filter((sl: any) => !sl?.option?.isShape)
-
   return (
     <ScrollArea>
       <RadioGroup
@@ -33,7 +31,7 @@ const Slots = () => {
           <LoaderIcon />
         ) : (
           <>
-            {(activeSlots || []).map((slot: ISlot) => (
+            {(slots || []).map((slot: ISlot) => (
               <Slot
                 {...slot}
                 key={slot.code}

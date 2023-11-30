@@ -144,7 +144,6 @@ export interface ILeadData {
   css?: string;
   successImage?: string;
   successImageSize?: string;
-  verifyEmail?: boolean;
 }
 
 export interface IWebhookData {
@@ -391,11 +390,6 @@ export const leadDataSchema = new Schema(
       type: String,
       optional: true,
       label: 'Success image size'
-    }),
-    verifyEmail: field({
-      type: Boolean,
-      optional: true,
-      label: 'Verify email'
     })
   },
   { _id: false }

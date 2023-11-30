@@ -122,20 +122,15 @@ export const can = async (
   action: string,
   user?: IUser
 ): Promise<boolean> => {
-  console.log('user', user);
   if (!user || !user._id) {
     return false;
   }
-
-  console.log(user);
 
   if (user.isOwner) {
     return true;
   }
 
   const actionMap = await getUserActionsMap(subdomain, user);
-
-  console.log(actionMap, 'actionsMap');
 
   if (!actionMap) {
     return false;

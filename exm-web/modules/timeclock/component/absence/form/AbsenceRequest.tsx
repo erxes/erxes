@@ -32,7 +32,6 @@ import uploadHandler from "@/components/uploader/uploadHandler"
 type Props = {
   queryParams: any
   absenceTypes: IAbsenceType[]
-  setOpen: (value: boolean) => void
 }
 
 type RequestByTime = {
@@ -49,15 +48,12 @@ type Request = {
   byTime: RequestByTime
 }
 
-const AbsenceRequest = ({ queryParams, absenceTypes, setOpen }: Props) => {
+const AbsenceRequest = ({ queryParams, absenceTypes }: Props) => {
   const { toast } = useToast()
   const currentUser = useAtomValue(currentUserAtom)
 
-  const [selectedAbsenceType, setSelectedAbsenceType] = useState(
-    absenceTypes.length !== 0 && absenceTypes[0].name
-      ? absenceTypes[0].name
-      : ""
-  )
+  const [open, setOpen] = useState(false)
+  const [selectedAbsenceType, setSelectedAbsenceType] = useState("")
   const [absenceIndex, setAbsenceIndex] = useState(0)
 
   const [explanation, setExplanation] = useState("")
@@ -185,9 +181,6 @@ const AbsenceRequest = ({ queryParams, absenceTypes, setOpen }: Props) => {
   }
 
   const calculateTotalHoursOfAbsence = () => {
-    let hours
-    let minutes
-
     const absenceTimeType = absenceTypes[absenceIndex]?.requestTimeType
 
     if (absenceTimeType === "by day") {
@@ -197,14 +190,7 @@ const AbsenceRequest = ({ queryParams, absenceTypes, setOpen }: Props) => {
         totalRequestedDays *
         (absenceTypes[absenceIndex].requestHoursPerDay || 0)
 
-      hours = Math.floor(totalRequestedDaysTime)
-      minutes = Math.round((totalRequestedDaysTime % 1) * 60)
-
-      // Add leading zero if needed
-      const formattedHours = hours < 10 ? `0${hours}` : `${hours}`
-      const formattedMinutes = minutes < 10 ? `0${minutes}` : `${minutes}`
-
-      return `${formattedHours}h:${formattedMinutes}m`
+      return totalRequestedDaysTime.toFixed(1)
     }
 
     const totalHours = parseInt(
@@ -216,13 +202,13 @@ const AbsenceRequest = ({ queryParams, absenceTypes, setOpen }: Props) => {
       10
     )
 
-    hours = Math.floor(totalHours)
-    minutes = Math.round((totalHours - hours) * 60)
+    const hours = Math.floor(totalHours)
+    const minutes = Math.round((totalHours - hours) * 60)
 
     const formattedTime = dayjs()
       .hour(hours)
       .minute(minutes)
-      .format("HH[h]:mm[m]")
+      .format("HH[h] mm[m]")
     return formattedTime
   }
 
@@ -393,7 +379,8 @@ const AbsenceRequest = ({ queryParams, absenceTypes, setOpen }: Props) => {
 
   const renderRequestForm = () => {
     return (
-      <>
+      <DialogContent>
+        <DialogHeader>Create Request</DialogHeader>
         {requestTimeByDay
           ? renderDateSelection()
           : renderDateAndTimeSelection()}
@@ -423,10 +410,19 @@ const AbsenceRequest = ({ queryParams, absenceTypes, setOpen }: Props) => {
         >
           Submit
         </Button>
-      </>
+      </DialogContent>
     )
   }
-  return renderRequestForm()
+  return (
+    <Dialog open={open} onOpenChange={() => setOpen(!open)}>
+      <DialogTrigger asChild={true}>
+        <button className="px-3 py-2 bg-[#3dcc38] text-[#fff] rounded-md">
+          Create Request
+        </button>
+      </DialogTrigger>
+      {renderRequestForm()}
+    </Dialog>
+  )
 }
 
 export default AbsenceRequest

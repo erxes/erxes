@@ -1,4 +1,3 @@
-import { IContext } from '../../connectionResolver';
 import { sendCoreMessage } from '../../messageBroker';
 import { ICarDocument } from '../../models/definitions/cars';
 
@@ -30,11 +29,6 @@ const cars = {
 
   category(car: ICarDocument, {}, { models }) {
     return models.CarCategories.findOne({ _id: car.categoryId });
-  },
-
-  async getTags(car: ICarDocument, _, { dataLoaders }: IContext) {
-    const tags = await dataLoaders.tag.loadMany(car.tagIds || []);
-    return tags.filter(tag => tag);
   }
 };
 

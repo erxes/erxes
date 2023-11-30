@@ -107,9 +107,6 @@ const generateParams = ({ queryParams }) => ({
     ids: queryParams.ids,
     categoryId: queryParams.categoryId,
     searchValue: queryParams.searchValue,
-    tag: queryParams.tag,
-    segment: queryParams.segment,
-    segmentData: queryParams.segmentData,
     sortField: queryParams.sortField,
     sortDirection: queryParams.sortDirection
       ? parseInt(queryParams.sortDirection, 10)

@@ -125,25 +125,7 @@ const Editor = ({ sendMessage, reply, setReply, showSidebar }: IProps) => {
   }
 
   const emojiHandler = (emojiData: any) => {
-    const cursorPosition = textareaRef.current.selectionStart
-
-    setMessage((prevMessage) => {
-      const beforeCursor = prevMessage.slice(0, cursorPosition)
-      const afterCursor = prevMessage.slice(cursorPosition)
-
-      const newMessage = beforeCursor + emojiData.native + afterCursor
-      const newCursorPosition = beforeCursor.length + emojiData.native.length
-
-      setTimeout(() => {
-        textareaRef.current.setSelectionRange(
-          newCursorPosition,
-          newCursorPosition
-        )
-        textareaRef.current.focus()
-      }, 0)
-
-      return newMessage
-    })
+    setMessage((inputValue) => inputValue + emojiData.native)
   }
 
   const convertBlobToFileList = (blob: Blob) => {

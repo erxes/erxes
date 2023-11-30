@@ -1,51 +1,74 @@
-import { BANNER, COMMUNITY, STEPS } from '../constants';
+import { COMMUNITY, STEPS, SETUP, DOCS, VIDEO } from '../constants';
 import {
   BoxHeader,
   BoxedStep,
   Boxes,
-  Card,
   Header,
   Left,
   LinkedButton,
-  SideNumber
+  Setup,
+  SetupContent,
+  BoxContent,
+  VideoLink,
+  Card,
+  VideoFrame
 } from '../styles';
-import { Step, Steps } from '@erxes/ui/src/components/step';
-
-import Box from '@erxes/ui/src/components/Box';
 import Button from '@erxes/ui/src/components/Button';
 import { DescImg } from '@erxes/ui/src/components/HeaderDescription';
 import { IUser } from 'modules/auth/types';
 import Icon from '@erxes/ui/src/components/Icon';
 import ProgressBar from '@erxes/ui/src/components/ProgressBar';
-import React from 'react';
+import React, { useState } from 'react';
 import { WidgetBackgrounds } from '@erxes/ui-settings/src/styles';
 import Wrapper from 'modules/layout/components/Wrapper';
 import _ from 'lodash';
 import { __ } from 'modules/common/utils';
 import { useHistory } from 'react-router-dom';
+import Dropdown from 'react-bootstrap/Dropdown';
+import DropdownToggle from 'modules/common/components/DropdownToggle';
 
 type Props = {
   currentUser: IUser;
+  branchesLength: number;
+  departmentLength: number;
 };
 
-function Welcome({ currentUser }: Props) {
+function Welcome({ currentUser, branchesLength, departmentLength }: Props) {
   const history = useHistory();
-  const { onboardingHistory, username } = currentUser;
+  const { onboardingHistory } = currentUser;
   const completedSteps = onboardingHistory && onboardingHistory.completedSteps;
+
+  const [collapsed, setCollapsed] = useState([] as string[]);
+  const handleClick = (id: string) => {
+    if (collapsed.includes(id)) {
+      const index = collapsed.indexOf(id);
+      setCollapsed(collapsed.splice(index, 1));
+    } else {
+      setCollapsed(collapsed.splice(1, 0, id));
+    }
+  };
+
   let active = 0;
 
-  if (username) active = 1;
+  if (completedSteps && completedSteps.includes('generalSettingsCreate')) {
+    active = active + 1;
+  }
 
-  if (completedSteps && completedSteps.indexOf('generalSettingsCreate') > -1)
-    active = 2;
+  if (completedSteps && completedSteps.includes('brandCreate')) {
+    active = active + 1;
+  }
 
-  if (completedSteps && completedSteps.indexOf('brandCreate') !== -1)
-    active = 3;
+  if (completedSteps && completedSteps.includes('userGroupCreate')) {
+    active = active + 1;
+  }
 
-  if (completedSteps && completedSteps.indexOf('userGroupCreate') > -1)
-    active = 4;
+  if (completedSteps && completedSteps.includes('userCreate')) {
+    active = active + 1;
+  }
 
-  if (completedSteps && completedSteps.indexOf('userCreate') > 1) active = 5;
+  if (branchesLength > 0 || departmentLength > 0) {
+    active = active + 1;
+  }
 
   const renderUserName = () => {
     if (!currentUser) {
@@ -74,14 +97,12 @@ function Welcome({ currentUser }: Props) {
         </h1>
         <div>
           {__(
-            'Enjoy a frictionless development experience and expand upon the erxes platform without modifying the core platform'
+            'Enjoy a single yet complete experience operating system (XOS) to build your own experience.'
           )}
-          <ul>
-            <li>
-              {__('Free and fair code licensed experience operating system')}
-            </li>
-            <li>{__('Monetization - earn from your creations')}</li>
-          </ul>
+          <br />
+          {__(
+            'All-in-one cost-effective platform for customer service, marketing, sales, and employees. '
+          )}
         </div>
       </Header>
     );
@@ -89,20 +110,26 @@ function Welcome({ currentUser }: Props) {
 
   const renderBoxHeader = (
     title: string,
+    handleOpen: () => void,
     image?: string,
-    description?: string
+    isOpen?: boolean
   ) => {
     const percentage = Math.floor((active / 5) * 100);
+    const icon = isOpen ? 'angle-down' : 'angle-right';
+
     return (
-      <BoxHeader>
+      <BoxHeader
+        onClick={() => handleOpen()}
+        isOpen={isOpen}
+        isSetup={title === 'Getting Started'}
+      >
         <Left>
           {image && <DescImg src={image} />}
           <div>
             <h4>{title}</h4>
-            {description}
           </div>
         </Left>
-        {title === 'Setup Process' && (
+        {title === 'Getting Started' && (
           <ProgressBar
             percentage={percentage}
             color={percentage === 100 ? '#3CCC38' : '#673FBD'}
@@ -110,17 +137,26 @@ function Welcome({ currentUser }: Props) {
             height="70px"
           />
         )}
+        {title !== 'Getting Started' && (
+          <Icon icon={icon} size={25} color="#673FBD" />
+        )}
       </BoxHeader>
     );
   };
 
-  const renderDocContent = (title: string, url: string) => {
+  const renderDocContent = (
+    title: string,
+    description: string,
+    url: string,
+    icon: string
+  ) => {
     return (
       <LinkedButton href={url} target="_blank">
-        <h3>
-          {title}
-          <Icon icon="angle-right" />
-        </h3>
+        <Icon icon={icon} size={20} color="#888888" />
+        <div>
+          <h3>{title}</h3>
+          <span>{description}</span>
+        </div>
       </LinkedButton>
     );
   };
@@ -129,209 +165,185 @@ function Welcome({ currentUser }: Props) {
     return (
       <WidgetBackgrounds>
         <Boxes>
-          {renderDocContent(
-            'Documentation',
-            'https://docs.erxes.io/docs/category/deployment'
-          )}
-          {renderDocContent(
-            "User's guide",
-            'https://docs.erxes.io/docs/user-guide/'
+          {DOCS.slice(0, 2).map(item =>
+            renderDocContent(item.title, item.desc, item.url, item.icon)
           )}
         </Boxes>
         <Boxes>
-          {renderDocContent('Invest', 'https://erxes.io/invest')}
-          {renderDocContent(
-            'Service',
-            'https://docs.erxes.io/docs/user-guide/services/intro-service'
+          {DOCS.slice(2, 4).map(item =>
+            renderDocContent(item.title, item.desc, item.url, item.icon)
           )}
         </Boxes>
       </WidgetBackgrounds>
     );
   };
 
-  const renderSetupStep = (title: string, text: string, url: string) => {
-    return (
-      <Step title={title} active={active}>
-        <Button
-          size="small"
-          icon="arrow-right"
-          onClick={() => history.push(url)}
-        >
-          {text}
-        </Button>
-      </Step>
-    );
-  };
-
   const renderSetup = () => {
-    return (
-      <Steps direction="vertical" active={active}>
-        {renderSetupStep(
-          'General Information',
-          'Go to your profile',
-          '/profile'
-        )}
-        {renderSetupStep(
-          'General system configuration',
-          'Go to the general setting',
-          '/settings/general'
-        )}
-        {renderSetupStep(
-          'Create a brand',
-          'Go to the brand settings',
-          '/settings/brands#showBrandAddModal=true'
-        )}
-        {renderSetupStep(
-          'Create a user group',
-          'Go to permissions',
-          '/settings/permissions'
-        )}
-        {renderSetupStep(
-          'Invite team members',
-          'Go to team members',
-          '/settings/team'
-        )}
-      </Steps>
-    );
+    return SETUP.map(item => {
+      const { url, title, icon, btnText, action } = item;
+      const [isOpen, setIsOpen] = useState(false);
+      const isComplete =
+        url === '/settings/structure'
+          ? branchesLength > 0 || departmentLength > 0
+          : completedSteps?.includes(action);
+
+      const handleOpen = () => {
+        setIsOpen(!isOpen);
+      };
+
+      const dropdownIcon = isComplete
+        ? 'check'
+        : isOpen
+        ? 'uparrow'
+        : 'downarrow-2';
+
+      return (
+        <Setup key={title}>
+          <LinkedButton onClick={() => handleOpen()}>
+            <Icon
+              icon={icon}
+              size={20}
+              color={isComplete ? '#3CCC38' : '#888888'}
+            />
+            <div>
+              <h3>{title}</h3>
+            </div>
+            <Button
+              icon={dropdownIcon}
+              btnStyle={isComplete ? 'success' : 'link'}
+              size="small"
+            />
+          </LinkedButton>
+          {isOpen && (
+            <SetupContent>
+              <div dangerouslySetInnerHTML={{ __html: item.content }} />
+              <Button onClick={() => history.push(url)}>{btnText}</Button>
+            </SetupContent>
+          )}
+        </Setup>
+      );
+    });
   };
 
-  const renderVideo = (title: string, url: string) => {
+  const renderVideo = (
+    title: string,
+    description: string,
+    icon: string,
+    url: string
+  ) => {
     return (
-      <Box title={title}>
-        <iframe
-          title="erxes tutorial"
-          width="100%"
-          height="478"
-          src={url}
-          frameBorder="0"
-          allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
-          allowFullScreen={true}
-        />
-      </Box>
+      <Dropdown alignRight={true}>
+        <Dropdown.Toggle as={DropdownToggle} id="dropdown-user">
+          <LinkedButton>
+            <Icon icon={icon} size={20} color="#888888" />
+            <div>
+              <h3>{title}</h3>
+              <span>{description}</span>
+            </div>
+            <VideoLink onClick={() => handleClick(title)}>
+              {__('Watch video')}
+              <Icon icon="play-1" size={15} color="#fff" />
+            </VideoLink>
+          </LinkedButton>
+        </Dropdown.Toggle>
+        <Dropdown.Menu>
+          <VideoFrame>
+            <iframe
+              width="100%"
+              height="478"
+              src={url}
+              title="YouTube video player"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            />
+          </VideoFrame>
+        </Dropdown.Menu>
+      </Dropdown>
     );
   };
 
   const renderGuide = () => {
     return (
       <WidgetBackgrounds>
-        <Boxes>
-          {renderVideo(
-            'Profile settings',
-            'https://www.youtube-nocookie.com/embed/sDzPEEBSp44'
-          )}
-          {renderVideo(
-            'System configuration',
-            'https://www.youtube-nocookie.com/embed/PDP9Jd7BCZs'
-          )}
-          {renderVideo(
-            'Notification',
-            'https://www.youtube-nocookie.com/embed/PDP9Jd7BCZs'
-          )}
-          {renderVideo(
-            'Logs',
-            'https://www.youtube-nocookie.com/embed/AHOtbefxwaw'
-          )}
-        </Boxes>
-        <Boxes>
-          {renderVideo(
-            'Organization settings',
-            'https://www.youtube-nocookie.com/embed/wzOyqmoxhmo'
-          )}
-          {renderVideo(
-            'Signature',
-            'https://www.youtube-nocookie.com/embed/Eg9D4r38aso'
-          )}
-          {renderVideo(
-            'Brands',
-            'https://www.youtube-nocookie.com/embed/ri17N4J478E'
-          )}
-          {renderVideo(
-            'Use cases',
-            'https://www.youtube.com/embed/videoseries?list=PLwRYODuwm31um-syg-C2j6QhCDByopXNQ'
-          )}
-        </Boxes>
+        {VIDEO.map(item => {
+          return renderVideo(item.title, item.desc, item.icon, item.url);
+        })}
       </WidgetBackgrounds>
     );
   };
 
   const renderCommunity = () => {
     return (
-      <BoxedStep>
-        {renderBoxHeader(
-          'Join our community',
-          '',
-          'Discuss with team member, contributors and developers on different channels'
-        )}
-        <BoxHeader>
-          <WidgetBackgrounds>
-            {COMMUNITY.map((com, index) => (
-              <Button
-                key={index}
-                href={com.link}
-                btnStyle="simple"
-                icon={com.icon}
-                img={com.image}
-                iconColor="black"
-                target="_blank"
-              >
-                {com.name}
-              </Button>
-            ))}
-          </WidgetBackgrounds>
-        </BoxHeader>
-      </BoxedStep>
-    );
-  };
-
-  const renderBanner = (banner, index) => {
-    const { key, background, title, desc, button, img, href } = banner;
-
-    return (
-      <React.Fragment key={index}>
-        <Card background={background} img={img}>
-          <div>
-            <h4>{title}</h4>
-            <p>{desc}</p>
-            <br />
-            <Button size="large" btnStyle="white" href={href} target="_blank">
-              {button}
-            </Button>
-          </div>
-          {key === 'market' && (
-            <SideNumber>
-              <h3>+1200</h3>
-              <p>plugin added</p>
-            </SideNumber>
-          )}
-        </Card>
-        {key === 'market' && renderCommunity()}
-      </React.Fragment>
+      <WidgetBackgrounds>
+        <h5>
+          Join our community to engage in discussions with team members,
+          contributors, and developers across various channels.
+        </h5>
+        <br />
+        {COMMUNITY.map((com, index) => (
+          <Button
+            key={index}
+            href={com.link}
+            btnStyle="simple"
+            icon={com.icon}
+            img={com.image}
+            iconColor="black"
+            target="_blank"
+          >
+            {com.name}
+          </Button>
+        ))}
+      </WidgetBackgrounds>
     );
   };
 
   const content = (
     <>
-      {STEPS.map((group, index) => (
-        <BoxedStep key={index}>
-          {renderBoxHeader(group.title, group.image, group.description)}
-          {group.key === 'documentation' && renderDocumentation()}
-          {group.key === 'usingGuide' && renderGuide()}
-          {group.key === 'setup' && renderSetup()}
-        </BoxedStep>
-      ))}
-      {BANNER.map((banner, index) => renderBanner(banner, index))}
+      {renderHeader()}
+      {STEPS.map((group, index) => {
+        const [isOpen, setIsOpen] = useState(false);
+
+        const handleOpen = () => {
+          if (group.key !== 'setup') {
+            setIsOpen(!isOpen);
+          }
+        };
+
+        return (
+          <BoxedStep key={index}>
+            {renderBoxHeader(group.title, handleOpen, group.image, isOpen)}
+            {isOpen && (
+              <BoxContent>
+                {group.key === 'documentation' && renderDocumentation()}
+                {group.key === 'usingGuide' && renderGuide()}
+                {group.key === 'community' && renderCommunity()}
+              </BoxContent>
+            )}
+            {group.key === 'setup' && renderSetup()}
+          </BoxedStep>
+        );
+      })}
+      <React.Fragment>
+        <Card>
+          <div>
+            <h4>{__('Onboarding optimized for you')}</h4>
+            <p>{__('Contact us to start the onboarding process')}</p>
+            <br />
+            <Button
+              size="large"
+              btnStyle="white"
+              href={'https://erxes.io/service'}
+              target="_blank"
+            >
+              {__('Request')}
+            </Button>
+          </div>
+        </Card>
+      </React.Fragment>
     </>
   );
 
   return (
     <Wrapper
-      actionBar={
-        <Wrapper.ActionBar
-          background="transparent"
-          noBorder={true}
-          left={renderHeader()}
-        />
-      }
       content={content}
       transparent={true}
       center={true}

@@ -14,51 +14,11 @@ export interface IVerificationParams {
 }
 
 const clientPortalMutations = {
-  async clientPortalConfigUpdate(
+  clientPortalConfigUpdate(
     _root,
     { config }: { config: IClientPortal },
-    { models, subdomain }: IContext
+    { models }: IContext
   ) {
-    try {
-      const cpUser = await models.ClientPortalUsers.findOne({
-        $or: [
-          { email: { $regex: new RegExp(`^${config?.testUserEmail}$`, 'i') } },
-          { phone: { $regex: new RegExp(`^${config?.testUserPhone}$`, 'i') } }
-        ],
-        clientPortalId: config._id
-      });
-
-      if (!cpUser) {
-        if (
-          config?.testUserEmail &&
-          config?.testUserPhone &&
-          config?.testUserPassword &&
-          config._id
-        ) {
-          const args = {
-            firstName: 'test clientportal user',
-            email: config.testUserEmail,
-            phone: config.testUserPhone,
-            password: config.testUserPassword,
-            clientPortalId: config._id,
-            isPhoneVerified: true,
-            isEmailVerified: true,
-            notificationSettings: {
-              receiveByEmail: false,
-              receiveBySms: false,
-              configs: []
-            }
-          };
-
-          await models.ClientPortalUsers.createTestUser(subdomain, {
-            ...args
-          });
-        }
-      }
-    } catch (e) {
-      console.log(e.message);
-    }
-
     return models.ClientPortals.createOrUpdateConfig(config);
   },
 

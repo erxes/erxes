@@ -1,10 +1,8 @@
 import React, { useState } from "react"
-import { useSearchParams } from "next/navigation"
 
 import { Calendar } from "@/components/ui/calendar"
 import Loader from "@/components/ui/loader"
 import Pagination from "@/components/ui/pagination"
-import { ScrollArea } from "@/components/ui/scroll-area"
 import {
   Table,
   TableBody,
@@ -15,7 +13,6 @@ import {
 
 import { useSchedules } from "../../hooks/useSchedule"
 import { ISchedule } from "../../types"
-import EmptyTable from "../EmptyTable"
 import TableFooter from "../TimeclockTableFooter"
 import ScheduleCalendar from "./ScheduleCalendar"
 import ScheduleRow from "./ScheduleRow"
@@ -35,13 +32,8 @@ const list = [
 ]
 
 const Schedule = ({ queryParams }: Props) => {
-  const statusParam = useSearchParams().get("status")
-  const viewParam = useSearchParams().get("view")
-
-  const [status, setStatus] = useState(statusParam || "Approved")
-  const [toggleView, setToggleView] = useState(
-    viewParam === "calendar" ? true : false
-  )
+  const [status, setStatus] = useState("Approved")
+  const [toggleView, setToggleView] = useState(false)
 
   const {
     schedulesList,
@@ -61,6 +53,14 @@ const Schedule = ({ queryParams }: Props) => {
     .flat()
 
   const renderTableBody = () => {
+    if (loading) {
+      return (
+        <div className="absolute left-1/2">
+          <Loader />
+        </div>
+      )
+    }
+
     return (
       <TableBody>
         {schedulesList.map((schedule: ISchedule, index: number) => (
@@ -83,16 +83,8 @@ const Schedule = ({ queryParams }: Props) => {
       return null
     }
 
-    if (loading) {
-      return <Loader />
-    }
-
-    if (schedulesTotalCount === 0 && !toggleView) {
-      return <EmptyTable />
-    }
-
     return (
-      <div className="flex overflow-y-auto">
+      <>
         <Table>
           <TableHeader className="sticky top-0 bg-[#f8f9fa] border-none">
             <TableRow className="border-none">
@@ -108,34 +100,31 @@ const Schedule = ({ queryParams }: Props) => {
           </TableHeader>
           {renderTableBody()}
         </Table>
-      </div>
-    )
-  }
-
-  return (
-    <div className="h-[calc(100vh-66px)] p-9 pt-5 flex flex-col justify-between">
-      <div className="flex flex-col gap-2 h-full">
-        <ScheduleAction
-          status={status}
-          setStatus={setStatus}
-          configsList={configsList || []}
-          scheduleConfigOrder={scheduleConfigOrder || []}
-          toggleView={toggleView}
-          setToggleView={setToggleView}
-        />
-
-        {renderCalendar()}
-        {renderTable()}
-      </div>
-      {!toggleView && (
-        <div className="flex items-center justify-between mt-auto">
+        <div className="flex items-center justify-between">
           <TableFooter
             queryParams={queryParams}
             totalCount={schedulesTotalCount}
           />
           <Pagination count={schedulesTotalCount} />
         </div>
-      )}
+      </>
+    )
+  }
+
+  return (
+    <div className="h-[94vh] mt-2 flex flex-col gap-3 ">
+      <ScheduleAction
+        status={status}
+        setStatus={setStatus}
+        configsList={configsList || []}
+        scheduleConfigOrder={scheduleConfigOrder || []}
+        toggleView={toggleView}
+        setToggleView={setToggleView}
+      />
+      <div className="flex flex-col max-h-[70vh] scrollbar-hide">
+        {renderCalendar()}
+        {renderTable()}
+      </div>
     </div>
   )
 }

@@ -147,10 +147,11 @@ export const MAIN_NAVIGATION = [
   },
   {
     active: "discover",
-    href: "discover",
+    href: "#",
     value: "Discover",
     Icon: StarIcon,
     color: "#EA475D",
+    desc: "Coming soon",
     backgroundClass: "bg-[#EA475D]",
   },
   {

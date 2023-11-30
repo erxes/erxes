@@ -46,11 +46,6 @@ export const types = _serviceDiscovery => {
       appearance: ExmAppearance
       vision: String
       structure: String
-      knowledgeBaseLabel: String
-      knowledgeBaseTopicId: String
-      ticketLabel: String
-      ticketPipelineId: String
-      ticketBoardId: String
       createdAt: Date
       createdBy: String
     }
@@ -97,11 +92,6 @@ const commonParams = `
   appearance: ExmAppearanceInput
   vision: String
   structure: String
-  knowledgeBaseLabel: String
-  knowledgeBaseTopicId: String
-  ticketLabel: String
-  ticketPipelineId: String
-  ticketBoardId: String
 `;
 
 export const mutations = `

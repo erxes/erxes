@@ -3,23 +3,13 @@ import {
   attachmentInput
 } from '@erxes/api-utils/src/commonTypeDefs';
 
-export const types = ({ contacts, tags }) => `
+export const types = ({ contacts }) => `
 
   ${attachmentType}
   ${attachmentInput}
 
   extend type User @key(fields: "_id") {
     _id: String! @external
-  }
-
-  ${
-    tags
-      ? `
-        extend type Tag @key(fields: "_id") {
-          _id: String! @external
-        }
-      `
-      : ''
   }
 
   ${
@@ -46,8 +36,6 @@ export const types = ({ contacts, tags }) => `
     order: String!
     isRoot: Boolean
     carCount: Int
-    image: Attachment
-    secondaryImages: [Attachment]
   }
   type Car {
     _id: String!
@@ -65,9 +53,7 @@ export const types = ({ contacts, tags }) => `
       `
         : ''
     }
-
-    ${tags ? `getTags: [Tag]` : ''}
-    tagIds: [String]
+    
     plateNumber: String
     vinNumber: String
     colorCode: String
@@ -90,9 +76,7 @@ export const types = ({ contacts, tags }) => `
 const queryParams = `
   page: Int
   perPage: Int
-  tag: String
   segment: String
-  segmentData: String
   categoryId: String
   ids: [String]
   searchValue: String
@@ -111,7 +95,6 @@ export const queries = `
   cars(${queryParams}): [Car]
   carCounts(${queryParams}, only: String): JSON
   carDetail(_id: String!): Car
-  carCountByTags: JSON
   carCategories(parentId: String, searchValue: String): [CarCategory]
   carCategoriesTotalCount: Int
   carCategoryDetail(_id: String): CarCategory
@@ -142,8 +125,6 @@ const carCategoryParams = `
   code: String!,
   description: String,
   parentId: String,
-  image: AttachmentInput,
-  secondaryImages: [AttachmentInput]
 `;
 
 export const mutations = `

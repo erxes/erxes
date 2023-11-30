@@ -16,7 +16,6 @@ export interface IConfig {
   waitingScreen?: {
     isActive?: boolean
   }
-  erxesAppToken?: string
   kitchenScreen?: IKitchenScreen
   uiOptions?: IUIOptions
 }

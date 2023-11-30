@@ -6,12 +6,11 @@ import { useSetAtom } from "jotai"
 
 import { useToast } from "@/components/ui/use-toast"
 
-import { setCurrentUserAtom, setExmAtom } from "../JotaiProiveder"
+import { setCurrentUserAtom } from "../JotaiProiveder"
 import { queries } from "./graphql"
 
 const Configs = ({ children }: { children: ReactNode }) => {
   const setCurrentUser = useSetAtom(setCurrentUserAtom)
-  const setExm = useSetAtom(setExmAtom)
   const [loadingConfigs, setLoadingConfigs] = useState(true)
   const { onError } = useToast()
 
