@@ -189,6 +189,18 @@ const BoxContent = styled.div`
     font-size: 13px;
     margin-top: 0;
   }
+
+  .dropdown {
+    width: 100%;
+
+    a {
+      margin-bottom: 20px;
+    }
+  }
+
+  .dropdown-menu {
+    padding: 6px 6px 0;
+  }
 `;
 
 const VideoLink = styled.button`
@@ -257,7 +269,6 @@ const SetupContent = styled.div`
 `;
 
 const VideoFrame = styled.div`
-  margin-bottom: 20px;
   width: 100%;
 `;
 

@@ -24,6 +24,8 @@ import Wrapper from 'modules/layout/components/Wrapper';
 import _ from 'lodash';
 import { __ } from 'modules/common/utils';
 import { useHistory } from 'react-router-dom';
+import Dropdown from 'react-bootstrap/Dropdown';
+import DropdownToggle from 'modules/common/components/DropdownToggle';
 
 type Props = {
   currentUser: IUser;
@@ -229,22 +231,22 @@ function Welcome({ currentUser, branchesLength, departmentLength }: Props) {
     icon: string,
     url: string
   ) => {
-    const isOpen = collapsed.includes(title);
-
     return (
-      <>
-        <LinkedButton>
-          <Icon icon={icon} size={20} color="#888888" />
-          <div>
-            <h3>{title}</h3>
-            <span>{description}</span>
-          </div>
-          <VideoLink onClick={() => handleClick(title)}>
-            {__(isOpen ? 'Close video' : 'Watch video')}
-            <Icon icon="play-1" size={15} color="#fff" />
-          </VideoLink>
-        </LinkedButton>
-        {isOpen && (
+      <Dropdown alignRight={true}>
+        <Dropdown.Toggle as={DropdownToggle} id="dropdown-user">
+          <LinkedButton>
+            <Icon icon={icon} size={20} color="#888888" />
+            <div>
+              <h3>{title}</h3>
+              <span>{description}</span>
+            </div>
+            <VideoLink onClick={() => handleClick(title)}>
+              {__('Watch video')}
+              <Icon icon="play-1" size={15} color="#fff" />
+            </VideoLink>
+          </LinkedButton>
+        </Dropdown.Toggle>
+        <Dropdown.Menu>
           <VideoFrame>
             <iframe
               width="100%"
@@ -254,8 +256,8 @@ function Welcome({ currentUser, branchesLength, departmentLength }: Props) {
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
             />
           </VideoFrame>
-        )}
-      </>
+        </Dropdown.Menu>
+      </Dropdown>
     );
   };
 
