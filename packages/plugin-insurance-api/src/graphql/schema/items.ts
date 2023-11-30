@@ -29,7 +29,8 @@ type InsuranceItem @key(fields: "_id") @cacheControl(maxAge: 3) {
     companyId: ID
     productId: ID!
     customFieldsData: JSON
-
+    closeDate: Date
+    startDate: Date
 
   }
   
