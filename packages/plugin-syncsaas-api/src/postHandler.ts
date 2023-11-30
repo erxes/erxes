@@ -144,13 +144,23 @@ const dealStageChange = async (subdomain, data, triggerType) => {
     syncedCustomerId: syncedDeal.syncedCustomerId
   }).distinct('customerId');
 
+  const cpUsers = await sendCPMessage({
+    subdomain,
+    action: 'clientPortalUsers.find',
+    data: {
+      erxesCustomerId: { $in: customerIds }
+    },
+    isRPC: true,
+    defaultValue: []
+  });
+
   try {
     await sendCPMessage({
       subdomain,
       action: 'sendNotification',
       data: {
         title: `${triggerType.split(':')[1]} changed`,
-        receivers: customerIds,
+        receivers: cpUsers.map(cpUser => cpUser._id),
         notifType: 'system',
         content: `${dealDetail?.name} moved to ${dealDetail?.stage?.name} on ${sync.subdomain}`,
         eventData: { appToken: sync?.appToken, subdomain: sync?.subdomain },
