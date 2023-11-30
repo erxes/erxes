@@ -103,7 +103,7 @@ export const DOCS = [
   {
     title: 'Documentation',
     desc: 'Resources for developers',
-    url: 'https://docs.erxes.io/docs/intro',
+    url: 'https://docs.erxes.io/',
     icon: 'copy-1'
   },
   {
