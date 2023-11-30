@@ -6,8 +6,11 @@ export const menuDynamic = [
 
 export const KEY_LABELS = {
   itemApi: 'item api',
+  itemCategoryApi: 'item category api',
+  priceApi: 'price api',
   customerApi: 'customer api',
   salesApi: 'sales api',
+  salesLineApi: 'sales line api',
   username: 'username',
   password: 'password',
   category: 'category'

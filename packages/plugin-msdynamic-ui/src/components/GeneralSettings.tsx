@@ -77,8 +77,11 @@ class GeneralSettings extends React.Component<Props, State> {
       <ContentBox id={'GeneralSettingsMenu'}>
         <CollapseContent title="General settings" open={true}>
           {this.renderItem('itemApi')}
+          {this.renderItem('itemCategoryApi')}
+          {this.renderItem('priceApi')}
           {this.renderItem('customerApi')}
           {this.renderItem('salesApi')}
+          {this.renderItem('salesLineApi')}
           {this.renderItem('username')}
           {this.renderItem('password')}
         </CollapseContent>
