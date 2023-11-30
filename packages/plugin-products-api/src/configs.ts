@@ -46,8 +46,6 @@ export default {
     return context;
   },
 
-  hasDashboard: true,
-
   meta: {
     logs: { consumers: logs },
     tags,

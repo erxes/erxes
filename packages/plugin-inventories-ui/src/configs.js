@@ -1,4 +1,5 @@
 module.exports = {
+  srcDir: __dirname,
   name: "inventories",
   port: 3028,
   exposes: {

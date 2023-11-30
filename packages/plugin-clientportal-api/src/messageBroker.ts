@@ -4,6 +4,7 @@ import { afterMutationHandlers } from './afterMutations';
 import { serviceDiscovery } from './configs';
 import { generateModels, IModels } from './connectionResolver';
 import { sendNotification, sendSms } from './utils';
+import { createCard } from './models/utils';
 
 let client;
 
@@ -139,6 +140,46 @@ export const initBroker = async cl => {
 
       return {
         data: models.ClientPortalUsers.bulkWrite(operations),
+        status: 'success'
+      };
+    }
+  );
+
+  consumeRPCQueue('clientportal:createCard', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    const { cpUser, doc } = data;
+
+    const card = await createCard(subdomain, models, cpUser, doc);
+
+    return {
+      data: card,
+      status: 'success'
+    };
+  });
+
+  consumeRPCQueue(
+    'clientportal:clientPortalUsers.validatePassword',
+    async ({ subdomain, data }) => {
+      const models = await generateModels(subdomain);
+
+      const { userId, password, secondary } = data;
+
+      const valid = await models.ClientPortalUsers.validatePassword(
+        userId,
+        password,
+        secondary
+      );
+
+      if (!valid) {
+        return {
+          status: 'error',
+          message: 'Invalid password'
+        };
+      }
+
+      return {
+        data: valid,
         status: 'success'
       };
     }

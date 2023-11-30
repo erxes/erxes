@@ -23,6 +23,19 @@ const types = `
     ${integrationCommonFields}
   }
 
+  type CallConversation {
+    _id: String 
+    erxesApiId: String
+    integrationId: String
+    senderPhoneNumber: String
+    recipientPhoneNumber: String
+    callId: String
+  }
+
+  type CallConversationDetail {
+    customer: Customer
+    conversation: CallConversation
+  }
 `;
 
 const queries = `
@@ -32,9 +45,8 @@ const queries = `
 `;
 
 const mutations = `
-
   callsIntegrationUpdate(configs: CallIntegrationConfigs): JSON
-  callAddCustomer(inboxIntegrationId: String, primaryPhone: String): Customer
+  callAddCustomer(inboxIntegrationId: String, primaryPhone: String, direction: String, callID: String): CallConversationDetail
 `;
 
 const typeDefs = async _serviceDiscovery => {

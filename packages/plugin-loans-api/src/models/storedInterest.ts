@@ -43,8 +43,21 @@ export const loanStoredInterestClass = (models: IModels) => {
             ).toFixed(0)
           );
 
+          if (Number.isNaN(storedInterest)) continue;
+
+          let commitmentInterest = Number(
+            (
+              ((((contract.leaseAmount || 0) - (contract.balanceAmount || 0)) *
+                (contract.commitmentInterest || 0)) /
+                100 /
+                365) *
+              getDiffDay(contract.lastStoredDate, storeInterestDate)
+            ).toFixed(0)
+          );
+
           await models.StoredInterest.create({
             amount: storedInterest,
+            commitmentInterest: commitmentInterest,
             contractId: contract._id,
             invDate: storeInterestDate,
             prevStoredDate: contract.lastStoredDate,

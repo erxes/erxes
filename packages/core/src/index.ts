@@ -27,7 +27,6 @@ import {
 } from './data/utils';
 
 import { debugBase, debugError, debugInit } from './debuggers';
-import { initMemoryStorage } from './inmemoryStorage';
 import { initBroker, sendCommonMessage } from './messageBroker';
 import { uploader } from './middlewares/fileMiddleware';
 import {
@@ -342,8 +341,6 @@ httpServer.listen(PORT, async () => {
     debugError(`Error ocurred during message broker init ${e.message}`);
   });
 
-  initMemoryStorage();
-
   init()
     .then(() => {
       telemetry.trackCli('server_started');
@@ -360,7 +357,6 @@ httpServer.listen(PORT, async () => {
     port: PORT,
     dbConnectionString: MONGO_URL,
     hasSubscriptions: false,
-    hasDashboard: true,
     meta: {
       logs: { providesActivityLog: true, consumers: logs },
       forms,

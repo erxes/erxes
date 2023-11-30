@@ -1,10 +1,9 @@
-import { Wrapper } from '@erxes/ui/src';
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import React from 'react';
 
 import CategoryList from '../containers/CategoryList';
 
 function Sidebar({
-  loadingMainQuery,
   history,
   queryParams
 }: {

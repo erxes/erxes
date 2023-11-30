@@ -14,6 +14,7 @@ import {
   IClientPortalDocument
 } from './definitions/clientPortal';
 import {
+  IInvitiation,
   INotifcationSettings,
   IUser,
   IUserDocument,
@@ -44,7 +45,8 @@ export interface IUserModel extends Model<IUserDocument> {
     phone?: string;
     code?: string;
   }): never;
-  invite(subdomain: string, doc: IUser): Promise<IUserDocument>;
+  invite(subdomain: string, doc: IInvitiation): Promise<IUserDocument>;
+  createTestUser(subdomain: string, doc: IInvitiation): Promise<IUserDocument>;
   getUser(doc: any): Promise<IUserDocument>;
   createUser(subdomain: string, doc: IUser): Promise<IUserDocument>;
   updateUser(
@@ -95,7 +97,8 @@ export interface IUserModel extends Model<IUserDocument> {
     phone,
     email,
     isRessetting,
-    expireAfter
+    expireAfter,
+    testUserOTP
   }: {
     codeLength: number;
     clientPortalId: string;
@@ -103,6 +106,7 @@ export interface IUserModel extends Model<IUserDocument> {
     phone?: string;
     email?: string;
     isRessetting?: boolean;
+    testUserOTP?: number;
   }): string;
   changePasswordWithCode({
     phone,
@@ -146,6 +150,16 @@ export interface IUserModel extends Model<IUserDocument> {
     doc: any,
     deviceToken?: string
   ): IUserDocument;
+  setSecondaryPassword(
+    userId: string,
+    secondaryPassword: string,
+    oldPassword?: string
+  ): Promise<string>;
+  validatePassword(
+    userId: string,
+    password: string,
+    secondary?: boolean
+  ): boolean;
 }
 
 export const loadClientPortalUserClass = (models: IModels) => {
@@ -641,7 +655,8 @@ export const loadClientPortalUserClass = (models: IModels) => {
       phone,
       email,
       expireAfter,
-      isRessetting
+      isRessetting,
+      testUserOTP
     }: {
       codeLength: number;
       clientPortalId: string;
@@ -649,8 +664,11 @@ export const loadClientPortalUserClass = (models: IModels) => {
       email?: string;
       expireAfter?: number;
       isRessetting?: boolean;
+      testUserOTP?: number;
     }) {
-      const code = this.generateVerificationCode(codeLength);
+      const code = testUserOTP
+        ? testUserOTP
+        : this.generateVerificationCode(codeLength);
       const codeExpires = Date.now() + 60000 * (expireAfter || 5);
 
       let query: any = {};
@@ -796,8 +814,12 @@ export const loadClientPortalUserClass = (models: IModels) => {
       }
 
       const valid = await this.comparePassword(password, user.password);
+      const secondaryPassCheck = await this.comparePassword(
+        password,
+        user.secondaryPassword || ''
+      );
 
-      if (!valid) {
+      if (!valid && !secondaryPassCheck) {
         // bad password
         throw new Error('Invalid login');
       }
@@ -817,9 +839,43 @@ export const loadClientPortalUserClass = (models: IModels) => {
       };
     }
 
+    public static async createTestUser(
+      subdomain: string,
+      { password, clientPortalId, ...doc }: IInvitiation
+    ) {
+      if (!password) {
+        password = generateRandomPassword();
+      }
+
+      if (password) {
+        this.checkPassword(password);
+      }
+
+      const user = await handleContacts({
+        subdomain,
+        models,
+        clientPortalId,
+        document: doc,
+        password
+      });
+
+      const clientPortal = await models.ClientPortals.getConfig(clientPortalId);
+
+      await sendAfterMutation(
+        subdomain,
+        'clientportal:user',
+        'create',
+        user,
+        user,
+        `User's profile has been created on ${clientPortal.name}`
+      );
+
+      return user;
+    }
+
     public static async invite(
       subdomain: string,
-      { password, clientPortalId, ...doc }: IUser
+      { password, clientPortalId, ...doc }: IInvitiation
     ) {
       if (!password) {
         password = generateRandomPassword();
@@ -839,38 +895,43 @@ export const loadClientPortalUserClass = (models: IModels) => {
         password
       });
 
-      const { token, expires } = await models.ClientPortalUsers.generateToken();
-
-      user.registrationToken = token;
-      user.registrationTokenExpires = expires;
-
-      await user.save();
-
       const clientPortal = await models.ClientPortals.getConfig(clientPortalId);
 
-      const config = clientPortal.mailConfig || {
-        invitationContent: DEFAULT_MAIL_CONFIG.INVITE
-      };
+      if (!doc.disableVerificationMail) {
+        const {
+          token,
+          expires
+        } = await models.ClientPortalUsers.generateToken();
 
-      const link = `${clientPortal.url}/verify?token=${token}`;
+        user.registrationToken = token;
+        user.registrationTokenExpires = expires;
 
-      let content = config.invitationContent.replace(/{{ link }}/, link);
-      content = content.replace(/{{ password }}/, plainPassword);
+        await user.save();
 
-      await sendCoreMessage({
-        subdomain,
-        action: 'sendEmail',
-        data: {
-          toEmails: [doc.email],
-          title: `${clientPortal.name} invitation`,
-          template: {
-            name: 'base',
-            data: {
-              content
+        const config = clientPortal.mailConfig || {
+          invitationContent: DEFAULT_MAIL_CONFIG.INVITE
+        };
+
+        const link = `${clientPortal.url}/verify?token=${token}`;
+
+        let content = config.invitationContent.replace(/{{ link }}/, link);
+        content = content.replace(/{{ password }}/, plainPassword);
+
+        await sendCoreMessage({
+          subdomain,
+          action: 'sendEmail',
+          data: {
+            toEmails: [doc.email],
+            title: `${clientPortal.name} invitation`,
+            template: {
+              name: 'base',
+              data: {
+                content
+              }
             }
           }
-        }
-      });
+        });
+      }
 
       await sendAfterMutation(
         subdomain,
@@ -1112,6 +1173,81 @@ export const loadClientPortalUserClass = (models: IModels) => {
       this.updateSession(user._id);
 
       return user;
+    }
+
+    public static async setSecondaryPassword(
+      userId,
+      secondaryPassword,
+      oldPassword
+    ) {
+      // check if already secondaryPassword exists or not null
+      const user = await models.ClientPortalUsers.findOne({
+        _id: userId
+      });
+
+      if (!user) {
+        throw new Error('User not found');
+      }
+
+      const newPassword = await this.generatePassword(secondaryPassword);
+
+      if (
+        user.secondaryPassword === null ||
+        user.secondaryPassword === undefined ||
+        !user.secondaryPassword ||
+        user.secondaryPassword === ''
+      ) {
+        // create secondary password
+        await models.ClientPortalUsers.updateOne(
+          { _id: userId },
+          { $set: { secondaryPassword: newPassword } }
+        );
+
+        return 'Secondary password created';
+      }
+
+      // check if old password is correct or not
+      if (!oldPassword) {
+        throw new Error('Old password is required');
+      }
+
+      const valid = await models.ClientPortalUsers.comparePassword(
+        oldPassword,
+        user.secondaryPassword || ''
+      );
+
+      if (!valid) {
+        // bad password
+        throw new Error('Invalid old password');
+      }
+
+      // update secondary password
+      await models.ClientPortalUsers.updateOne(
+        { _id: userId },
+        { $set: { secondaryPassword: newPassword } }
+      );
+
+      return 'Secondary password changed';
+    }
+
+    public static async validatePassword(
+      userId: string,
+      password: string,
+      secondary?: boolean
+    ) {
+      const user = await models.ClientPortalUsers.findOne({
+        _id: userId
+      });
+
+      if (!user) {
+        throw new Error('User not found');
+      }
+
+      if (secondary) {
+        return this.comparePassword(password, user.secondaryPassword || '');
+      }
+
+      return this.comparePassword(password, user.password || '');
     }
   }
 

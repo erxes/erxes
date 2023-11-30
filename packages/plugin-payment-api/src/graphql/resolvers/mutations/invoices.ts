@@ -1,7 +1,8 @@
-import { getEnv } from '@erxes/api-utils/src';
+import { checkPermission, getEnv, requireLogin } from '@erxes/api-utils/src';
 import { IContext } from '../../../connectionResolver';
 import { randomAlphanumeric } from '@erxes/api-utils/src/random';
 
+import { IInvoice } from '../../../models/definitions/invoices';
 type InvoiceParams = {
   amount: number;
   phone: string;
@@ -88,6 +89,23 @@ const mutations = {
     return `${domain}/pl:payment/gateway?params=${base64}`;
   },
 
+  async invoiceCreate(
+    _root,
+    params: IInvoice,
+    { models, subdomain }: IContext
+  ) {
+    const DOMAIN = getEnv({ name: 'DOMAIN' })
+      ? `${getEnv({ name: 'DOMAIN' })}/gateway`
+      : 'http://localhost:4000';
+    const domain = DOMAIN.replace('<subdomain>', subdomain);
+
+    const invoice = await models.Invoices.createInvoice({
+      ...params,
+      domain
+    });
+    return invoice;
+  },
+
   async invoicesCheck(_root, { _id }: { _id: string }, { models }: IContext) {
     return models.Invoices.checkInvoice(_id);
   },
@@ -100,5 +118,9 @@ const mutations = {
     return models.Invoices.removeInvoices(_ids);
   }
 };
+
+requireLogin(mutations, 'invoiceCreate');
+
+checkPermission(mutations, 'invoiceCreate', 'createInvoice', []);
 
 export default mutations;

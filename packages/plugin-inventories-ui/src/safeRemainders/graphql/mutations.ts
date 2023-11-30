@@ -5,7 +5,9 @@ const addSafeRemainderFields = `
   $departmentId: String,
   $date: Date,
   $description: String,
-  $productCategoryId: String
+  $productCategoryId: String,
+  $attachment: AttachmentInput
+  $filterField: String
 `;
 
 const addSafeRemainderVariables = `
@@ -13,7 +15,9 @@ const addSafeRemainderVariables = `
   departmentId: $departmentId,
   date: $date,
   description: $description,
-  productCategoryId: $productCategoryId
+  productCategoryId: $productCategoryId,
+  attachment: $attachment,
+  filterField: $filterField,
 `;
 
 const safeRemainderAdd = `

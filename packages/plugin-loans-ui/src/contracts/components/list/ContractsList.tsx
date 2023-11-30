@@ -1,21 +1,21 @@
-import {
-  Alert,
-  Button,
-  confirm,
-  DataWithLoader,
-  FormControl,
-  ModalTrigger,
-  Pagination,
-  router,
-  SortHandler,
-  Table,
-  Wrapper,
-  BarItems
-} from '@erxes/ui/src';
+import Alert from '@erxes/ui/src/utils/Alert';
+import Button from '@erxes/ui/src/components/Button';
+import confirm from '@erxes/ui/src/utils/confirmation/confirm';
+import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import Pagination from '@erxes/ui/src/components/pagination/Pagination';
+import { router } from '@erxes/ui/src/utils';
+
+import SortHandler from '@erxes/ui/src/components/SortHandler';
+import Table from '@erxes/ui/src/components/table';
+import { BarItems } from '@erxes/ui/src/layout/styles';
+
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { IRouterProps } from '@erxes/ui/src/types';
 import React from 'react';
 import { withRouter } from 'react-router-dom';
-import { menuContracts } from '../../../constants';
+import { ORGANIZATION_TYPE, menuContracts } from '../../../constants';
 
 import ContractForm from '../../containers/ContractForm';
 import { ContractsTableWrapper } from '../../styles';
@@ -129,7 +129,7 @@ class ContractsList extends React.Component<IProps, State> {
 
     const mainContent = (
       <ContractsTableWrapper>
-        <Table whiteSpace="nowrap" bordered={true} hover={true}>
+        <Table whiteSpace="nowrap" bordered={true} hover={true} striped>
           <thead>
             <tr>
               <th>
@@ -137,6 +137,15 @@ class ContractsList extends React.Component<IProps, State> {
                   checked={isAllSelected}
                   componentClass="checkbox"
                   onChange={this.onChange}
+                />
+              </th>
+              <th>
+                <SortHandler sortField={'type'} label={__('Type')} />
+              </th>
+              <th>
+                <SortHandler
+                  sortField={'contractType'}
+                  label={__('Contract Type')}
                 />
               </th>
               <th>
@@ -211,7 +220,7 @@ class ContractsList extends React.Component<IProps, State> {
     );
 
     const addTrigger = (
-      <Button btnStyle="success" size="small" icon="plus-circle">
+      <Button btnStyle="success" icon="plus-circle">
         {__('Add contract')}
       </Button>
     );
@@ -246,16 +255,18 @@ class ContractsList extends React.Component<IProps, State> {
             content={classificationForm}
             backDrop="static"
           />
-          {can('contractsRemove', currentUser) && (
-            <Button
-              btnStyle="danger"
-              size="small"
-              icon="cancel-1"
-              onClick={onClick}
-            >
-              {__('Delete')}
-            </Button>
-          )}
+          {currentUser?.configs?.loansConfig?.organizationType ===
+            ORGANIZATION_TYPE.ENTITY &&
+            can('contractsRemove', currentUser) && (
+              <Button
+                btnStyle="danger"
+                size="small"
+                icon="cancel-1"
+                onClick={onClick}
+              >
+                {__('Delete')}
+              </Button>
+            )}
           {alerts.map(mur => (
             <Button onClick={() => onSelect(mur.filter, 'ids')}>
               {mur.name}:{mur.count}
@@ -328,6 +339,7 @@ class ContractsList extends React.Component<IProps, State> {
         }
         actionBar={actionBar}
         footer={<Pagination count={totalCount} />}
+        hasBorder={true}
         content={
           <DataWithLoader
             data={mainContent}

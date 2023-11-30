@@ -1,14 +1,15 @@
+import Button from '@erxes/ui/src/components/Button';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import Form from '@erxes/ui/src/components/form/Form';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import FormGroup from '@erxes/ui/src/components/form/Group';
 import {
-  Button,
-  ControlLabel,
-  Form,
-  FormControl,
-  FormGroup,
   MainStyleFormColumn as FormColumn,
   MainStyleFormWrapper as FormWrapper,
   MainStyleModalFooter as ModalFooter,
   MainStyleScrollWrapper as ScrollWrapper
-} from '@erxes/ui/src';
+} from '@erxes/ui/src/styles/eindex';
+
 import { IProductCategory } from '@erxes/ui-products/src/types';
 import Select from 'react-select-plus';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
@@ -18,6 +19,7 @@ import { __ } from 'coreui/utils';
 import { IContractType, IContractTypeDoc } from '../types';
 import { IUser } from '@erxes/ui/src/auth/types';
 import { ORGANIZATION_TYPE } from '../../constants';
+import { COLLATERAL_TYPE, LEASE_TYPES } from '../constants';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -38,6 +40,7 @@ type State = {
   useManualNumbering: boolean;
   useFee: boolean;
   productType: string;
+  collateralType: string;
 };
 
 class ContractTypeForm extends React.Component<Props, State> {
@@ -56,6 +59,7 @@ class ContractTypeForm extends React.Component<Props, State> {
       useManualNumbering: contractType.useManualNumbering,
       useFee: contractType.useFee,
       productType: contractType.productType,
+      collateralType: contractType.collateralType,
       currency:
         contractType.currency || this.props.currentUser.configs?.dealCurrency[0]
     };
@@ -86,7 +90,8 @@ class ContractTypeForm extends React.Component<Props, State> {
       productCategoryIds: this.state.productCategoryIds,
       description: finalValues.description,
       productType: this.state.productType,
-      currency: finalValues.currency
+      currency: finalValues.currency,
+      commitmentInterest: Number(finalValues.commitmentInterest)
     };
   };
 
@@ -175,7 +180,7 @@ class ContractTypeForm extends React.Component<Props, State> {
               </FormGroup>
               <FormGroup>
                 <ControlLabel required={true}>
-                  {__('Loss calc type')}
+                  {__('Product Type')}
                 </ControlLabel>
                 <FormControl
                   {...formProps}
@@ -221,6 +226,24 @@ class ContractTypeForm extends React.Component<Props, State> {
                 </FormControl>
               </FormGroup>
               <FormGroup>
+                <ControlLabel>{__('Collateral Type')}:</ControlLabel>
+
+                <FormControl
+                  {...this.props}
+                  name="leaseType"
+                  componentClass="select"
+                  value={this.state.collateralType}
+                  required={true}
+                  onChange={this.onChangeField}
+                >
+                  {COLLATERAL_TYPE.ALL.map((typeName, index) => (
+                    <option key={index} value={typeName}>
+                      {typeName}
+                    </option>
+                  ))}
+                </FormControl>
+              </FormGroup>
+              <FormGroup>
                 <ControlLabel>{__('Lease Type')}:</ControlLabel>
 
                 <FormControl
@@ -231,15 +254,22 @@ class ContractTypeForm extends React.Component<Props, State> {
                   required={true}
                   onChange={this.onChangeField}
                 >
-                  {['finance', 'linear', 'creditCard'].map(
-                    (typeName, index) => (
-                      <option key={index} value={typeName}>
-                        {typeName}
-                      </option>
-                    )
-                  )}
+                  {LEASE_TYPES.ALL.map((typeName, index) => (
+                    <option key={index} value={typeName}>
+                      {typeName}
+                    </option>
+                  ))}
                 </FormControl>
               </FormGroup>
+              {this.state.leaseType === LEASE_TYPES.LINEAR &&
+                this.renderFormGroup('Commitment interest', {
+                  ...formProps,
+                  name: 'commitmentInterest',
+                  required: true,
+                  type: 'number',
+                  useNumberFormat: true,
+                  value: contractType.commitmentInterest
+                })}
               {currentUser?.configs?.loansConfig?.organizationType ===
                 ORGANIZATION_TYPE.ENTITY && (
                 <FormGroup>

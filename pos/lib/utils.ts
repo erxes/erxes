@@ -2,6 +2,7 @@ import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
 
 import { IEbarimtConfig, IPaymentType } from "@/types/config.types"
+import { Customer } from "@/types/customer.types"
 import { ALL_BANK_CARD_TYPES } from "@/lib/constants"
 
 import { IPaidAmount } from "../types/order.types"
@@ -207,3 +208,9 @@ export const parseBase64 = (str: string) => {
   const json = Buffer.from(str, "base64").toString()
   return JSON.parse(json)
 }
+
+export const getCustomerLabel = ({
+  firstName,
+  lastName,
+  primaryPhone,
+}: Customer) => `${firstName || ""} ${lastName || ""} ${primaryPhone || ""}`
