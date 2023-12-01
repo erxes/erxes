@@ -1,16 +1,15 @@
 import { IUserDocument } from '@erxes/api-utils/src/types';
-import { models } from './connectionResolver';
+import { models, generateModels } from './connectionResolver';
 import { sendCoreMessage } from './messageBroker';
 import * as dayjs from 'dayjs';
+import { table } from 'console';
 
 const reportTemplates = [
   {
     serviceType: 'deal',
     title: 'Deals chart',
     serviceName: 'cards',
-    description:
-      "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
-    charts: ['dealsChart', 'dealsChartByMonth'],
+    charts: ['dealsChart', 'dealsChartByMonth', 'CompanyFirstConversionTable'],
     img: 'https://sciter.com/wp-content/uploads/2022/08/chart-js.png'
   },
   {
@@ -35,6 +34,83 @@ const reportTemplates = [
 
 const chartTemplates = [
   {
+    templateType: 'CompanyFirstConversionTable',
+    name: 'Company revenue by first conversion',
+    chartTypes: ['bar'],
+    getChartResult: async (
+      filter: any,
+      subdomain: string,
+      currentUser: IUserDocument,
+      getDefaultPipelineId?: string
+    ) => {
+      // if (
+      //   filter.assignedDepartmentIds.length === 0 ||
+      //   !filter.assignedDepartmentIds
+      // ) {
+      //   console.error('No filter');
+      //   return null;
+      // }
+      const getTotalAssignedUserIds: string[] = [];
+
+      const totalDeals = await models?.Deals.find({
+        assignedUserIds: { $exists: true }
+      });
+      if (totalDeals) {
+        for (const deal of totalDeals) {
+          if (deal.assignedUserIds) {
+            getTotalAssignedUserIds.push(...deal.assignedUserIds);
+          }
+        }
+      }
+      const totalAssignedUserIds = new Set(getTotalAssignedUserIds);
+      const DEFAULT_FILTER = {
+        assignedUserIds: Array.from(totalAssignedUserIds),
+        userId: currentUser._id,
+        pipelineId: getDefaultPipelineId
+      };
+
+      const query = {
+        assignedUserIds: { $in: DEFAULT_FILTER.assignedUserIds }
+        // pipelineId: DEFAULT_FILTER.pipelineId
+      } as any;
+
+      // // Retrieve deals based on the provided filter (departmentIds and status)
+      if (filter && filter.assignedUserIds) {
+        query.assignedUserIds.$in = filter.assignedUserIds;
+      }
+
+      const items = await models?.Deals.find({
+        departmentIds: { $in: filter.assignedDepartmentIds },
+        status: { $ne: 'archived' }
+      }).lean();
+      const assignedUsersMap = {};
+      const title = 'Deals Company FirstConversion';
+      // const labels = items.map((deal: any) => deal.name);
+      const labels = Object.values(assignedUsersMap).map(
+        (t: any) => t.fullName
+      );
+
+      console.log(labels, 'labels');
+      // const labels =
+      //   'View the recent company revenue by their first conversion. See which conversion points are leading to the most deal revenue.';
+      // Assemble chart dataset with title, data, and labels
+      const datasets = { title, data: 'items', labels };
+      console.log(datasets, 'datasets');
+
+      return datasets;
+    },
+    // Filter configuration for the chart
+    filterTypes: [
+      {
+        fieldName: 'departmentIds',
+        fieldType: 'select',
+        multi: true,
+        fieldQuery: 'departments',
+        fieldLabel: 'Select assigned departments'
+      }
+    ]
+  },
+  {
     templateType: 'dealsChart',
     name: 'Deals chart',
     chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea'],
@@ -50,7 +126,6 @@ const chartTemplates = [
       const totalDeals = await models?.Deals.find({
         assignedUserIds: { $exists: true }
       });
-
       if (totalDeals) {
         for (const deal of totalDeals) {
           if (deal.assignedUserIds) {
@@ -175,6 +250,8 @@ const chartTemplates = [
   {
     templateType: 'dealsChartByMonth',
     name: 'Deals chart by month',
+    description:
+      'Closed revenue by month with deal total and closed revenue breakdown',
     chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea'],
     getChartResult: async (
       filter: any,
@@ -231,10 +308,8 @@ const chartTemplates = [
 
 const getChartResult = async ({ subdomain, data }) => {
   const { templateType, filter, currentUser } = data;
-
   const template =
     chartTemplates.find(t => t.templateType === templateType) || ({} as any);
-
   return template.getChartResult(filter, subdomain, currentUser);
 };
 
