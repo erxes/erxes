@@ -1,30 +1,32 @@
-import React, { useEffect, useMemo, useRef } from 'react';
-import { DEFAULT_LABELS, IRichTextEditorLabels } from './labels';
-import { RichTextEditorProvider } from './RichTextEditor.context';
-import {
-  RichTextEditorContent,
-  IRichTextEditorContentProps
-} from './RichTextEditorContent/RichTextEditorContent';
-import { RichTextEditorControlsGroup } from './RichTextEditorControlsGroup/RichTextEditorControlsGroup';
-import { RichTextEditorToolbar } from './RichTextEditorToolbar/RichTextEditorToolbar';
-import { RichTextEditorControl } from './RichTextEditorControl/RichTextEditorControl';
-
 import * as controls from './RichTextEditorControl/controls';
 
+import { DEFAULT_LABELS, IRichTextEditorLabels } from './labels';
+import {
+  IRichTextEditorContentProps,
+  RichTextEditorContent
+} from './RichTextEditorContent/RichTextEditorContent';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   RichTextEditorColorControl,
   RichTextEditorFontControl,
+  RichTextEditorHighlightControl,
   RichTextEditorImageControl,
-  RichTextEditorLinkControl
+  RichTextEditorLinkControl,
+  RichTextEditorSourceControl
 } from './RichTextEditorControl';
+
+import { ReactCodeMirrorRef } from '@uiw/react-codemirror';
+import { RichTextEditorControl } from './RichTextEditorControl/RichTextEditorControl';
+import { RichTextEditorControlsGroup } from './RichTextEditorControlsGroup/RichTextEditorControlsGroup';
+import { RichTextEditorProvider } from './RichTextEditor.context';
+import { RichTextEditorToolbar } from './RichTextEditorToolbar/RichTextEditorToolbar';
+import { RichTextEditorWrapper } from './styles';
 import { useEditor } from '@tiptap/react';
 import useExtensions from './hooks/useExtensions';
-import { RichTextEditorWrapper } from './styles';
 
 const POSITION_TOP = 'top';
 const POSITION_BOTTOM = 'bottom';
 type toolbarLocationOption = 'bottom' | 'top';
-
 export interface IRichTextEditorProps extends IRichTextEditorContentProps {
   /** Controlled value */
   content: string;
@@ -41,6 +43,8 @@ let editorContent: string;
 
 export const RichTextEditor = (props: IRichTextEditorProps) => {
   const ref = useRef<HTMLDivElement>(null);
+  const codeMirrorRef = useRef<ReactCodeMirrorRef>(null);
+  const [isSourceEnabled, setIsSourceEnabled] = useState(false);
   const {
     content,
     onChange,
@@ -53,12 +57,14 @@ export const RichTextEditor = (props: IRichTextEditorProps) => {
     name,
     isSubmitted
   } = props;
+
   const editorContentProps = {
     height,
     autoGrow,
     autoGrowMaxHeight,
     autoGrowMinHeight
   };
+
   const mergedLabels = useMemo(() => ({ ...DEFAULT_LABELS, ...labels }), [
     labels
   ]);
@@ -67,6 +73,10 @@ export const RichTextEditor = (props: IRichTextEditorProps) => {
     if (onChange) {
       onChange(editorInstance.getHTML());
     }
+  };
+
+  const toggleSource = () => {
+    setIsSourceEnabled(!isSourceEnabled);
   };
 
   const extensions = useExtensions({
@@ -123,50 +133,57 @@ export const RichTextEditor = (props: IRichTextEditorProps) => {
     };
   }, []);
 
-  const editorParts = [
-    <RichTextEditor.Toolbar key="rich-text-editor-toolbar-key">
-      <RichTextEditor.ControlsGroup>
-        <RichTextEditor.Bold />
-        <RichTextEditor.Italic />
-        <RichTextEditor.Strikethrough />
-      </RichTextEditor.ControlsGroup>
+  const editorParts = useMemo(
+    () => [
+      <RichTextEditor.Toolbar key="rich-text-editor-toolbar-key">
+        <RichTextEditor.ControlsGroup>
+          <RichTextEditor.SourceControl />
+          <RichTextEditor.Bold />
+          <RichTextEditor.Italic />
+          <RichTextEditor.Strikethrough />
+          <RichTextEditor.ImageControl />
+        </RichTextEditor.ControlsGroup>
 
-      <RichTextEditor.ControlsGroup>
-        <RichTextEditor.H1 />
-        <RichTextEditor.H2 />
-        <RichTextEditor.H3 />
-      </RichTextEditor.ControlsGroup>
+        <RichTextEditor.ControlsGroup>
+          <RichTextEditor.ColorControl />
+          <RichTextEditor.HighlightControl />
+        </RichTextEditor.ControlsGroup>
 
-      <RichTextEditor.ControlsGroup>
-        <RichTextEditor.BulletList />
-        <RichTextEditor.OrderedList />
-      </RichTextEditor.ControlsGroup>
+        <RichTextEditor.ControlsGroup>
+          <RichTextEditor.H1 />
+          <RichTextEditor.H2 />
+          <RichTextEditor.H3 />
+        </RichTextEditor.ControlsGroup>
 
-      <RichTextEditor.ControlsGroup>
-        <RichTextEditor.Link />
-        <RichTextEditor.Unlink />
-      </RichTextEditor.ControlsGroup>
+        <RichTextEditor.ControlsGroup>
+          <RichTextEditor.BulletList />
+          <RichTextEditor.OrderedList />
+        </RichTextEditor.ControlsGroup>
 
-      <RichTextEditor.ControlsGroup>
-        <RichTextEditor.FontSize />
-      </RichTextEditor.ControlsGroup>
+        <RichTextEditor.ControlsGroup>
+          <RichTextEditor.Link />
+          <RichTextEditor.Unlink />
+        </RichTextEditor.ControlsGroup>
 
-      <RichTextEditor.ControlsGroup>
-        <RichTextEditor.AlignLeft />
-        <RichTextEditor.AlignRight />
-        <RichTextEditor.AlignCenter />
-        <RichTextEditor.AlignJustify />
-      </RichTextEditor.ControlsGroup>
-      <RichTextEditor.ControlsGroup>
-        <RichTextEditor.ImageControl />
-      </RichTextEditor.ControlsGroup>
-    </RichTextEditor.Toolbar>,
+        <RichTextEditor.ControlsGroup>
+          <RichTextEditor.AlignLeft />
+          <RichTextEditor.AlignRight />
+          <RichTextEditor.AlignCenter />
+          <RichTextEditor.AlignJustify />
+        </RichTextEditor.ControlsGroup>
 
-    <RichTextEditorContent
-      {...editorContentProps}
-      key="rich-text-editor-content-key"
-    />
-  ];
+        <RichTextEditor.ControlsGroup>
+          <RichTextEditor.FontSize />
+        </RichTextEditor.ControlsGroup>
+      </RichTextEditor.Toolbar>,
+
+      <RichTextEditorContent
+        {...editorContentProps}
+        key="rich-text-editor-content-key"
+      />
+    ],
+    []
+  );
 
   const renderEditor = () => {
     if (toolbarLocation === POSITION_TOP) {
@@ -189,7 +206,10 @@ export const RichTextEditor = (props: IRichTextEditorProps) => {
     <RichTextEditorProvider
       value={{
         editor,
-        labels: mergedLabels
+        labels: mergedLabels,
+        isSourceEnabled,
+        toggleSource,
+        codeMirrorRef
       }}
     >
       <RichTextEditorWrapper innerRef={ref}>
@@ -226,3 +246,6 @@ RichTextEditor.FontSize = RichTextEditorFontControl;
 RichTextEditor.ImageControl = RichTextEditorImageControl;
 
 RichTextEditor.ColorControl = RichTextEditorColorControl;
+RichTextEditor.HighlightControl = RichTextEditorHighlightControl;
+
+RichTextEditor.SourceControl = RichTextEditorSourceControl;

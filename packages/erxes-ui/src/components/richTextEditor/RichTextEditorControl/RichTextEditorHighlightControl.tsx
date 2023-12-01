@@ -17,10 +17,9 @@ import { getAttributesForEachSelected } from '../utils/getAttributesForEachSelec
 import { useRichTextEditorContext } from '../RichTextEditor.context';
 
 const LinkIcon: IRichTextEditorControlBaseProps['icon'] = () => (
-  <span className="editor_icon textcolor_icon" />
+  <span className="editor_icon bgcolor_icon" />
 );
-
-export const RichTextEditorColorControl = () => {
+export const RichTextEditorHighlightControl = () => {
   let overLayRef;
   const [isPickerVisible, setIsPickerVisible] = useState(false);
   const [pickerColor, setPickerColor] = useState(colors.colorPrimary);
@@ -32,13 +31,13 @@ export const RichTextEditorColorControl = () => {
     editor
       ?.chain()
       .focus()
-      .setColor(color)
+      .setHighlight({ color })
       .run();
   }, [color]);
 
   useEffect(() => {
     const allSelectionTextStyleAttrs = editor
-      ? getAttributesForEachSelected(editor?.state, 'textStyle')
+      ? getAttributesForEachSelected(editor?.state, 'highlight')
       : [];
 
     const currentSelectionTextColors: string[] = allSelectionTextStyleAttrs.map(
@@ -65,7 +64,7 @@ export const RichTextEditorColorControl = () => {
     editor
       ?.chain()
       .focus()
-      .unsetColor()
+      .unsetHighlight()
       .run();
     overLayRef.hide();
   };
@@ -88,17 +87,17 @@ export const RichTextEditorColorControl = () => {
   };
 
   const allCurrentTextStyleAttrs = editor
-    ? getAttributesForEachSelected(editor?.state, 'textStyle')
+    ? getAttributesForEachSelected(editor?.state, 'highlight')
     : [];
 
-  const currentTextColors: string[] = allCurrentTextStyleAttrs.map(
+  const currentHighlights: string[] = allCurrentTextStyleAttrs.map(
     attrs => attrs.color
   );
 
-  const numUniqueCurrentTextColors = new Set(currentTextColors).size;
+  const numUniqueCurrentHighlights = new Set(currentHighlights).size;
 
   let isActive: boolean;
-  if (numUniqueCurrentTextColors > 0) {
+  if (numUniqueCurrentHighlights > 0) {
     isActive = true;
   } else {
     isActive = false;
@@ -134,7 +133,7 @@ export const RichTextEditorColorControl = () => {
               Remove color
             </MenuItem>
             <CompactPicker
-              style={{ border: 'none', boxShadow: 'none' }}
+              style={{ border: 'none' }}
               triangle="hide"
               color={color}
               onChange={handleColorChange}
@@ -161,8 +160,8 @@ export const RichTextEditorColorControl = () => {
     >
       <RichTextEditorControlBase
         icon={LinkIcon}
-        aria-label={labels.colorPickerControlLabel}
-        title={labels.colorPickerControlLabel}
+        aria-label={labels.highlightControlLabel}
+        title={labels.highlightControlLabel}
         active={isActive}
       />
     </OverlayTrigger>
