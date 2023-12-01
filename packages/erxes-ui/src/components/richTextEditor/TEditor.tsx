@@ -1,16 +1,11 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { DEFAULT_LABELS, IRichTextEditorLabels } from './labels';
-import { RichTextEditorProvider } from './RichTextEditor.context';
-import {
-  RichTextEditorContent,
-  IRichTextEditorContentProps
-} from './RichTextEditorContent/RichTextEditorContent';
-import { RichTextEditorControlsGroup } from './RichTextEditorControlsGroup/RichTextEditorControlsGroup';
-import { RichTextEditorToolbar } from './RichTextEditorToolbar/RichTextEditorToolbar';
-import { RichTextEditorControl } from './RichTextEditorControl/RichTextEditorControl';
-import { ReactCodeMirrorRef } from '@uiw/react-codemirror';
 import * as controls from './RichTextEditorControl/controls';
 
+import { DEFAULT_LABELS, IRichTextEditorLabels } from './labels';
+import {
+  IRichTextEditorContentProps,
+  RichTextEditorContent
+} from './RichTextEditorContent/RichTextEditorContent';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   RichTextEditorColorControl,
   RichTextEditorFontControl,
@@ -19,9 +14,15 @@ import {
   RichTextEditorLinkControl,
   RichTextEditorSourceControl
 } from './RichTextEditorControl';
+
+import { ReactCodeMirrorRef } from '@uiw/react-codemirror';
+import { RichTextEditorControl } from './RichTextEditorControl/RichTextEditorControl';
+import { RichTextEditorControlsGroup } from './RichTextEditorControlsGroup/RichTextEditorControlsGroup';
+import { RichTextEditorProvider } from './RichTextEditor.context';
+import { RichTextEditorToolbar } from './RichTextEditorToolbar/RichTextEditorToolbar';
+import { RichTextEditorWrapper } from './styles';
 import { useEditor } from '@tiptap/react';
 import useExtensions from './hooks/useExtensions';
-import { RichTextEditorWrapper } from './styles';
 
 const POSITION_TOP = 'top';
 const POSITION_BOTTOM = 'bottom';
@@ -137,11 +138,15 @@ export const RichTextEditor = (props: IRichTextEditorProps) => {
       <RichTextEditor.Toolbar key="rich-text-editor-toolbar-key">
         <RichTextEditor.ControlsGroup>
           <RichTextEditor.SourceControl />
-          <RichTextEditor.ColorControl />
-          <RichTextEditor.HighlightControl />
           <RichTextEditor.Bold />
           <RichTextEditor.Italic />
           <RichTextEditor.Strikethrough />
+          <RichTextEditor.ImageControl />
+        </RichTextEditor.ControlsGroup>
+
+        <RichTextEditor.ControlsGroup>
+          <RichTextEditor.ColorControl />
+          <RichTextEditor.HighlightControl />
         </RichTextEditor.ControlsGroup>
 
         <RichTextEditor.ControlsGroup>
@@ -161,17 +166,14 @@ export const RichTextEditor = (props: IRichTextEditorProps) => {
         </RichTextEditor.ControlsGroup>
 
         <RichTextEditor.ControlsGroup>
-          <RichTextEditor.FontSize />
-        </RichTextEditor.ControlsGroup>
-
-        <RichTextEditor.ControlsGroup>
           <RichTextEditor.AlignLeft />
           <RichTextEditor.AlignRight />
           <RichTextEditor.AlignCenter />
           <RichTextEditor.AlignJustify />
         </RichTextEditor.ControlsGroup>
+
         <RichTextEditor.ControlsGroup>
-          <RichTextEditor.ImageControl />
+          <RichTextEditor.FontSize />
         </RichTextEditor.ControlsGroup>
       </RichTextEditor.Toolbar>,
 
