@@ -1,23 +1,25 @@
+import { ColorPickerWrapper, MenuItem, PickerAction } from './styles';
+import {
+  IRichTextEditorControlBaseProps,
+  RichTextEditorControlBase
+} from './RichTextEditorControl';
 import React, { useEffect, useState } from 'react';
-import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
-import Popover from 'react-bootstrap/Popover';
+
 import ChromePicker from 'react-color/lib/Chrome';
 import CompactPicker from 'react-color/lib/Compact';
-import {
-  RichTextEditorControlBase,
-  IRichTextEditorControlBaseProps
-} from './RichTextEditorControl';
-import { useRichTextEditorContext } from '../RichTextEditor.context';
-import Icon from '../../Icon';
-import { colors } from '../../../styles';
-import { ColorPickerWrapper, MenuItem, PickerAction } from './styles';
-import Tip from '../../Tip';
 import { Flex } from '../../../styles/main';
+import Icon from '../../Icon';
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import Popover from 'react-bootstrap/Popover';
+import Tip from '../../Tip';
+import { colors } from '../../../styles';
 import { getAttributesForEachSelected } from '../utils/getAttributesForEachSelected';
+import { useRichTextEditorContext } from '../RichTextEditor.context';
 
 const LinkIcon: IRichTextEditorControlBaseProps['icon'] = () => (
-  <Icon icon="stopwatch" />
+  <span className="editor_icon textcolor_icon" />
 );
+
 export const RichTextEditorColorControl = () => {
   let overLayRef;
   const [isPickerVisible, setIsPickerVisible] = useState(false);
@@ -55,7 +57,7 @@ export const RichTextEditorColorControl = () => {
   const handleColorChange = (selectedColor: {
     hex: React.SetStateAction<string>;
   }) => {
-    setColor(selectedColor.hex);
+    setColor(selectedColor?.hex);
     overLayRef.hide();
   };
 
@@ -71,7 +73,7 @@ export const RichTextEditorColorControl = () => {
   const handlePicker = (selectedColor: {
     hex: React.SetStateAction<string>;
   }) => {
-    setPickerColor(selectedColor.hex);
+    setPickerColor(selectedColor?.hex);
   };
 
   const handleColorSelection = () => {

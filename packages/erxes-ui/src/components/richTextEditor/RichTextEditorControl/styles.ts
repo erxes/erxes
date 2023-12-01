@@ -1,6 +1,6 @@
-import styled from 'styled-components';
 import { colors } from '../../../styles';
 import { rgba } from '../../../styles/ecolor';
+import styled from 'styled-components';
 
 const EditorControl = styled.button`
   display: flex;
@@ -13,6 +13,21 @@ const EditorControl = styled.button`
   height: 1.75rem;
   padding: 0.25rem;
   width: 1.75rem;
+
+  .editor_icon {
+    width: 16px;
+    height: 16px;
+    display: inline-block;
+    opacity: 0.8;
+  }
+
+  .textcolor_icon {
+    background: url(/images/editor_icons.png) no-repeat 0 -384px !important;
+  }
+
+  .bgcolor_icon {
+    background: url(/images/editor_icons.png) no-repeat 0 -360px !important;
+  }
 
   &:hover,
   &.is-active {
