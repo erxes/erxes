@@ -7,17 +7,17 @@ import {
   orderTotalAmountAtom,
   paidAmountsAtom,
 } from "@/store/order.store"
-import { useAtom } from "jotai"
+import { useAtomValue } from "jotai"
 
 import { cn, formatNum, getSumsOfAmount } from "@/lib/utils"
 
 const Amount = () => {
-  const [cash] = useAtom(cashAmountAtom)
-  const [mobile] = useAtom(mobileAmountAtom)
-  const [total] = useAtom(orderTotalAmountAtom)
-  const [items] = useAtom(cartAtom)
-  const [config] = useAtom(ebarimtConfigAtom)
-  const [paidAmounts] = useAtom(paidAmountsAtom)
+  const cash = useAtomValue(cashAmountAtom)
+  const mobile = useAtomValue(mobileAmountAtom)
+  const total = useAtomValue(orderTotalAmountAtom)
+  const items = useAtomValue(cartAtom)
+  const config = useAtomValue(ebarimtConfigAtom)
+  const paidAmounts = useAtomValue(paidAmountsAtom)
   const { paymentTypes } = config || {}
 
   const discountAmounts = useCallback(() => {

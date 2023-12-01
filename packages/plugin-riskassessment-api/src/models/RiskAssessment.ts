@@ -2,7 +2,11 @@ import { IUserDocument } from '@erxes/api-utils/src/types';
 import { Model } from 'mongoose';
 import { IModels } from '../connectionResolver';
 import { sendFormsMessage } from '../messageBroker';
-import { getAsssignedUsers, getIndicatorSubmissions } from '../utils';
+import {
+  generateFormFields,
+  getAsssignedUsers,
+  getIndicatorSubmissions
+} from '../utils';
 import {
   IRiskAssessmentIndicatorsDocument,
   IRiskAssessmentsDocument,
@@ -493,13 +497,15 @@ export const loadRiskAssessments = (models: IModels, subdomain: string) => {
       const query = { contentType: 'form', contentTypeId: { $in: formIds } };
       const sort = { order: 1 };
 
-      const fields = await sendFormsMessage({
-        subdomain,
-        action: 'fields.find',
-        data: { query, sort },
-        isRPC: true,
-        defaultValue: []
-      });
+      const fields = generateFormFields(
+        await sendFormsMessage({
+          subdomain,
+          action: 'fields.find',
+          data: { query, sort },
+          isRPC: true,
+          defaultValue: []
+        })
+      );
 
       const submittedFields = await models.RiskFormSubmissions.find({
         assessmentId: riskAssessment._id,
@@ -691,7 +697,12 @@ export const loadRiskAssessments = (models: IModels, subdomain: string) => {
           $project: {
             _id: 0,
             ids: 1,
-            averageScore: { $round: ['$averageScore', 2] },
+            averageScore: {
+              $subtract: [
+                { $add: ['$averageScore', 0.005] },
+                { $mod: [{ $add: ['$averageScore', 0.005] }, 0.01] }
+              ]
+            },
             submittedAssessmentCount: 1,
             totalCount: 1
           }

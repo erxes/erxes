@@ -5762,7 +5762,7 @@
     "@types/node" "*"
     form-data "^4.0.0"
 
-"@types/node@*", "@types/node@^17.0.7", "@types/node@^17.0.8":
+"@types/node@*":
   version "17.0.45"
   resolved "https://registry.npmjs.org/@types/node/-/node-17.0.45.tgz"
   integrity sha512-w+tIMs3rq2afQdsPJlODhoUEKzFP1ayaoyl1CcnwtIlsVe7K7bA1NGm4s3PraqTLlXnbIN84zuBlxBWo1u9BLw==
@@ -5772,12 +5772,17 @@
   resolved "https://registry.npmjs.org/@types/node/-/node-16.9.1.tgz"
   integrity sha512-QpLcX9ZSsq3YYUUnD3nFDY8H7wctAhQj/TFKL8Ya8v5fMm3CFXxo8zStsLAl780ltoYoo1WvKUVGBQK+1ifr7g==
 
+"@types/node@18.17.1":
+  version "18.17.1"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-18.17.1.tgz#84c32903bf3a09f7878c391d31ff08f6fe7d8335"
+  integrity sha512-xlR1jahfizdplZYRU59JlUx9uzF1ARa8jbhM11ccpCJya8kvos5jwdm2ZAgxSCwOl0fq21svP18EVwPBXMQudw==
+
 "@types/node@>= 8":
   version "18.11.9"
   resolved "https://registry.npmjs.org/@types/node/-/node-18.11.9.tgz"
   integrity sha512-CRpX21/kGdzjOpFsZSkcrXMGIBWMGNIHXXBVFSH+ggkftxg+XYP20TESbh+zFvFj3EQOl5byk0HTRn1IL6hbqg==
 
-"@types/node@>=12.12.47", "@types/node@>=13.7.0", "@types/node@^17.0.3":
+"@types/node@>=12.12.47", "@types/node@>=13.7.0":
   version "17.0.16"
   resolved "https://registry.npmjs.org/@types/node/-/node-17.0.16.tgz"
   integrity sha512-ydLaGVfQOQ6hI1xK2A5nVh8bl0OGoIfYMxPWHqqYe9bTkWCfqiVvZoh2I/QF2sNSkZzZyROBoTefIEI+PB6iIA==
@@ -5786,11 +5791,6 @@
   version "10.17.60"
   resolved "https://registry.npmjs.org/@types/node/-/node-10.17.60.tgz"
   integrity sha512-F0KIgDJfy2nA3zMLmWGKxcH2ZVEtCZXHHdOQs2gSaQ27+lNeEfGxzkIw90aXswATX7AZ33tahPbzy6KAfUreVw==
-
-"@types/node@^10.9.4":
-  version "10.12.10"
-  resolved "https://registry.npmjs.org/@types/node/-/node-10.12.10.tgz"
-  integrity sha512-8xZEYckCbUVgK8Eg7lf5Iy4COKJ5uXlnIOnePN0WUwSQggy9tolM+tDJf7wMOnT/JT/W9xDYIaYggt3mRV2O5w==
 
 "@types/node@^12.12.30":
   version "12.20.48"
@@ -7239,11 +7239,6 @@ atob@^2.1.1, atob@^2.1.2:
   version "2.1.2"
   resolved "https://registry.npmjs.org/atob/-/atob-2.1.2.tgz"
   integrity sha512-Wm6ukoaOGJi/73p/cl2GvLjTI5JM1k/O14isD73YML8StrH/7/lRFgmg8nICZgD3bZZvjwCGxtMOD3wWNAu8cg==
-
-audio-recorder-polyfill@0.4.1:
-  version "0.4.1"
-  resolved "https://registry.npmjs.org/audio-recorder-polyfill/-/audio-recorder-polyfill-0.4.1.tgz"
-  integrity sha512-SS4qVOzuVwlS/tjQdd0uR+9cCKBTkx4jsAdjM+rMNqoTEWf6bMnBSTfv+FO4Zn9ngxviJOxhkgRWWXsAMqM96Q==
 
 auto-bind@~4.0.0:
   version "4.0.0"
@@ -8932,6 +8927,11 @@ chart.js@^4.4.0:
   integrity sha512-vQEj6d+z0dcsKLlQvbKIMYFHd3t8W/7L2vfJIbYcfyPcRx92CsHqECpueN8qVGNlKyDcr5wBrYAYKnfu/9Q1hQ==
   dependencies:
     "@kurkle/color" "^0.3.0"
+
+chartjs-plugin-datalabels@2.2.0:
+  version "2.2.0"
+  resolved "https://registry.yarnpkg.com/chartjs-plugin-datalabels/-/chartjs-plugin-datalabels-2.2.0.tgz#369578e131d743c2e34b5fbe2d3f9335f6639b8f"
+  integrity sha512-14ZU30lH7n89oq+A4bWaJPnAG8a7ZTk7dKf48YAzMvJjQtjrgg5Dpk9f+LbjCF6bpx3RAGTeL13IXpKQYyRvlw==
 
 check-error@^1.0.1, check-error@^1.0.2:
   version "1.0.2"

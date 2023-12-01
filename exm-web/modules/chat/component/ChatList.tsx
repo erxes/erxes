@@ -22,6 +22,7 @@ import LoadingCard from "@/components/ui/loading-card"
 import { useChats } from "../hooks/useChats"
 import { ChatItem } from "./ChatItem"
 import { ChatForm } from "./form/ChatForm"
+import { IChat } from "../types"
 
 dayjs.extend(relativeTime)
 
@@ -137,22 +138,22 @@ const ChatList = () => {
           alt="avatar"
           width={45}
           height={45}
-          className="w-[45px] h-[45px] rounded-full object-cover mr-3 border border-primary"
+          className="w-[45px] h-[45px] rounded-full object-cover mr-3 border border-primary shrink-0"
         />
         <div className="flex items-start flex-col">
           <div className="text-[16px] w-[280px] truncate mb-1">
             {currentUser?.details.fullName || currentUser?.email}
           </div>
           <DropdownMenu>
-            <DropdownMenuTrigger>
-              <div className="bg-success text-success-foreground text-[11px] px-4 py-[1px] rounded-lg flex items-center">
+            <DropdownMenuTrigger disabled={true}>
+              <div className="bg-success text-success-foreground text-[11px] px-4 py-[1px] rounded-lg flex items-center w-[100px]">
                 <div className="indicator bg-success-foreground w-3 h-3 rounded-full border border-white mr-1" />
                 Active
                 <ChevronDown size={18} />
               </div>
             </DropdownMenuTrigger>
-            <DropdownMenuContent className="bg-transparent border-0 shadow-none px-2.5">
-              <button className="bg-warning-foreground text-warning text-[11px] px-4 py-[1px] rounded-lg flex items-center w-full">
+            <DropdownMenuContent className="bg-transparent border-0 shadow-none px-2.5 flex justify-center">
+              <button className="bg-warning-foreground text-warning text-[11px] px-4 py-[1px] rounded-lg flex items-center w-full w-[100px]">
                 <div className="indicator bg-warning w-3 h-3 rounded-full border border-white mr-1" />
                 Busy
               </button>
@@ -183,18 +184,31 @@ const ChatList = () => {
       )
     }
 
+    const directChatUnreadCount = chats.filter((c: IChat) => c.type === 'direct' && !c.isSeen).length
+    const groupChatUnreadCount = chats.filter((c: IChat) => c.type === 'group' && !c.isSeen).length
+    const pinnedChatUnreadCount = pinnedChats.filter((c: IChat) =>  !c.isSeen).length
+
+    const renderUnreadCount = (type:string) => {
+      return type === "Chat" ? directChatUnreadCount : type === "Groups" ? groupChatUnreadCount : pinnedChatUnreadCount
+    }
+
     return (
       <div>
         <div className="flex px-4">
           {["Chat", "Groups", "Pinned"].map((type, index) => (
             <button
               key={index}
-              className={`py-2 px-4 flex-1 ${
+              className={`py-2 px-4 flex-1 flex items-center gap-2 justify-center ${
                 activeTabIndex === index && "border-b border-primary"
               }`}
               onClick={() => handleTabClick(index)}
             >
               {type}
+              {renderUnreadCount(type) > 0 && <div className="">
+              <span className="bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-xs">
+                {renderUnreadCount(type)}
+              </span>
+            </div>}
             </button>
           ))}
         </div>

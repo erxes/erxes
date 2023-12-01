@@ -1,4 +1,4 @@
 export const queries = `
-  historyGetTypes: JSON
+  historyGetTypes(type: String): JSON
   historyPreviewCount(segmentId: String, contentType: String!): String
 `;

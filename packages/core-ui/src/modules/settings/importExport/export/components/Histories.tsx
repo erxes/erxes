@@ -108,7 +108,13 @@ class ExportHistories extends React.Component<Props & IRouterProps> {
             wideSpacing={true}
           />
         }
-        leftSidebar={<Sidebar history={history} currentType={currentType} />}
+        leftSidebar={
+          <Sidebar
+            history={history}
+            currentType={currentType}
+            mainType="export"
+          />
+        }
         mainHead={headerDescription}
         footer={<Pagination count={totalCount} />}
         content={

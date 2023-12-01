@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { TabTitle, Tabs } from '@erxes/ui/src/components/tabs';
 
-import Appearance from './Appearance';
 import General from '../containers/General';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { IExm } from '../types';
 import { __ } from '@erxes/ui/src/utils';
+import Appearance from '../containers/Appearance';
 
 type Props = {
   exm: IExm;
@@ -21,7 +21,7 @@ function EditFrom(props: Props) {
       return <General {...props} />;
     }
 
-    return <Appearance {...props} />;
+    return <Appearance {...props} renderButton={props.renderButton} />;
   };
 
   return (

@@ -22,12 +22,16 @@ export const useNotification = (): IUseNotifications => {
     variables: {
       page: 1,
       perPage: 5,
+      contentTypes: ["exmFeed"],
     },
   })
 
-  const totalCountQuery = useQuery(queries.notificationCounts)
+  const totalCountQuery = useQuery(queries.notificationCounts, {
+    variables: { contentTypes: ["exmFeed"] },
+  })
+
   const unreadCountQuery = useQuery(queries.notificationCounts, {
-    variables: { requireRead: true },
+    variables: { requireRead: true, contentTypes: ["exmFeed"] },
   })
 
   const [markAsReadMutation] = useMutation(mutations.markAsRead)
@@ -38,7 +42,7 @@ export const useNotification = (): IUseNotifications => {
     fetchMore({
       variables: {
         page: notificationsLength / 5 + 1,
-        perPage: 5,
+        perPage: notificationsLength,
       },
       updateQuery(prev, { fetchMoreResult }) {
         if (!fetchMoreResult) {
@@ -60,7 +64,7 @@ export const useNotification = (): IUseNotifications => {
 
   useSubscription(subscriptions.notificationSubscription, {
     variables: { userId: currentUser._id },
-    onSubscriptionData: (subscriptionData: any) => {
+    onData: (subscriptionData: any) => {
       if (!subscriptionData) {
         return null
       }
@@ -71,7 +75,7 @@ export const useNotification = (): IUseNotifications => {
 
   useSubscription(subscriptions.notificationRead, {
     variables: { userId: currentUser._id },
-    onSubscriptionData: (subscriptionData: any) => {
+    onData: (subscriptionData: any) => {
       if (!subscriptionData) {
         return null
       }

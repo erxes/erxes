@@ -77,3 +77,23 @@ export const NOTIFICATION_MODULES = [
     ]
   }
 ];
+
+export const VERIFY_EMAIL_TRANSLATIONS = {
+  en: 'Click here to verify your email',
+  mn: 'Имэйл хаягаа баталгаажуулахын тулд энд дарна уу',
+  tr: 'E-postanızı doğrulamak için buraya tıklayın',
+  zh: '点击此处验证您的电子邮件',
+  es: 'Haga clic aquí para verificar su correo electrónico',
+  pt: 'Clique aqui para verificar seu email',
+  fr: 'Cliquez ici pour vérifier votre email',
+  de: 'Klicken Sie hier, um Ihre E-Mail zu bestätigen',
+  it: 'Clicca qui per verificare la tua email',
+  ru: 'Нажмите здесь, чтобы подтвердить свой ​​электронный адрес',
+  ja: 'ここをクリックしてメールアドレスを確認してください',
+  nl: 'Klik hier om uw e-mail te verifiëren',
+  ko: '이메일을 확인하려면 여기를 클릭하세요',
+  ro: 'Faceți clic aici pentru a vă verifica adresa de email',
+  pl: 'Kliknij tutaj, aby zweryfikować swój adres e-mail',
+  hu: 'Kattintson ide az e-mail címének ellenőrzéséhez',
+  sv: 'Klicka här för att verifiera din e-postadress'
+};

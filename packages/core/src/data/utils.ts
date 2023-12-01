@@ -21,6 +21,7 @@ import {
 } from '../messageBroker';
 import { graphqlPubsub } from '../pubsub';
 import { getService, getServices, redis } from '../serviceDiscovery';
+import { IActionsMap, IModuleMap } from './permissions/utils';
 
 export interface IEmailParams {
   toEmails?: string[];

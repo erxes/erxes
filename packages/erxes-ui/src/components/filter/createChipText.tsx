@@ -16,6 +16,7 @@ const ChipText = (props: any) => {
   const branch = query.branchDetail;
   const department = query.departmentDetail;
   const unit = query.unitDetail;
+  const productCategory = query.productCategoryDetail;
 
   return (
     (brand && brand.name) ||
@@ -26,7 +27,8 @@ const ChipText = (props: any) => {
     (forum && forum.name) ||
     (branch && branch.title) ||
     (department && department.title) ||
-    (unit && unit.title)
+    (unit && unit.title) ||
+    (productCategory && `${productCategory.code} - ${productCategory.name}`)
   );
 };
 
