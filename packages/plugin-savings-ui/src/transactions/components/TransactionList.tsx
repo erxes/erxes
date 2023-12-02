@@ -94,7 +94,7 @@ class TransactionsList extends React.Component<IProps> {
 
     const mainContent = (
       <ContractsTableWrapper>
-        <Table whiteSpace="nowrap" bordered={true} hover={true}>
+        <Table whiteSpace="nowrap" bordered={true} hover={true} striped>
           <thead>
             <tr>
               <th>
@@ -267,6 +267,7 @@ class TransactionsList extends React.Component<IProps> {
 
     return (
       <Wrapper
+        hasBorder
         header={
           <Wrapper.Header
             title={__(`Transactions`) + ` (${totalCount})`}

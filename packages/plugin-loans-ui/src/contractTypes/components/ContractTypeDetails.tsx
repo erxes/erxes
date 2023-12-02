@@ -1,4 +1,4 @@
-import { Wrapper } from '@erxes/ui/src';
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { __ } from 'coreui/utils';
 import React from 'react';
 

@@ -172,6 +172,11 @@ ${
     refreshTokenExpiration: Int
     tokenPassMethod: TokenPassMethod
     vendorParentProductCategoryId: String
+
+    testUserEmail: String
+    testUserPhone: String
+    testUserPassword: String
+    testUserOTP: String
   }
 
   type Styles {
@@ -265,6 +270,11 @@ ${
     erxesAppToken: String
     styles: StylesParams
     mobileResponsive: Boolean
+
+    testUserEmail: String
+    testUserPhone: String
+    testUserPassword: String
+    testUserOTP: String
 
     otpConfig: OTPConfigInput
     mailConfig: MailConfigInput

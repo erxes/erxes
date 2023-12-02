@@ -11,6 +11,7 @@
     "bcryptjs": "^2.4.3",
     "randomatic": "^3.0.0",
     "sha256": "^0.2.0",
-    "firebase-admin": "^8.6.1"
+    "firebase-admin": "^8.6.1",
+    "crypto": "^1.0.1"
   }
 }

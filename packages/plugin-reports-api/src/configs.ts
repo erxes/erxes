@@ -4,6 +4,7 @@ import resolvers from './graphql/resolvers';
 import { initBroker } from './messageBroker';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import { generateModels } from './connectionResolver';
+import tags from './tags';
 
 export let mainDb;
 export let debug;
@@ -21,6 +22,7 @@ export default {
     };
   },
 
+  meta: { logs: {}, tags },
   apolloServerContext: async (context, req) => {
     const subdomain = getSubdomain(req);
     const models = await generateModels(subdomain);

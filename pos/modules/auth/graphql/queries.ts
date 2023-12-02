@@ -27,6 +27,7 @@ const configFields = `
   token
   waitingScreen
   kitchenScreen
+  erxesAppToken
   uiOptions {
     colors
     logo
