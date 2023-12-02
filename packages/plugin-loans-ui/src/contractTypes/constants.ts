@@ -46,6 +46,14 @@ export const LEASE_TYPES = {
   ALL: ['finance', 'salvage', 'linear', 'credit']
 };
 
+export const COLLATERAL_TYPE = {
+  ALL: ['car', 'saving', 'realEstate', 'other'],
+  CAR: 'car',
+  SAVING: 'saving',
+  REAL_ESTATE: 'realEstate',
+  OTHER: 'other'
+};
+
 // erkhet.role.cashAccount ==== journalConfig.repaymentTemp
 // erkhet.role.debAccount ==== journalConfig.tempDebt
 // erkhet.mainInventory.saleAccount ==== denchinDans |

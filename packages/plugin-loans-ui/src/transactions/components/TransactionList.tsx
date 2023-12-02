@@ -93,7 +93,7 @@ class TransactionsList extends React.Component<IProps> {
 
     const mainContent = (
       <ContractsTableWrapper>
-        <Table whiteSpace="nowrap" bordered={true} hover={true}>
+        <Table whiteSpace="nowrap" bordered={true} hover={true} striped>
           <thead>
             <tr>
               <th>
@@ -304,6 +304,7 @@ class TransactionsList extends React.Component<IProps> {
             )}
           />
         }
+        hasBorder
         actionBar={actionBar}
         footer={<Pagination count={totalCount} />}
         content={

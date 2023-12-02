@@ -91,8 +91,12 @@ class BulkDocuments extends React.Component<Props, State> {
         c: 1,
         product: b
       })),
-      copies: 1,
-      width: 300,
+      copies: Number(
+        localStorage.getItem('erxes_products_documents_copies') || 1
+      ),
+      width: Number(
+        localStorage.getItem('erxes_products_documents_width') || 300
+      ),
       isDate: false,
       date: new Date(),
       branchId: localStorage.getItem('erxes_products_documents_branchId') || '',
@@ -153,7 +157,12 @@ class BulkDocuments extends React.Component<Props, State> {
   };
 
   onChange = (name, e) => {
-    this.setState({ [name]: e.currentTarget.value } as any);
+    this.setState({ [name]: e.currentTarget.value } as any, () => {
+      localStorage.setItem(
+        `erxes_products_documents_${name}`,
+        e.currentTarget.value
+      );
+    });
   };
 
   onChangeSelect = (name, value) => {

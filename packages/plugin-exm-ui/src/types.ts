@@ -9,10 +9,8 @@ interface IAppearence {
 }
 interface IFeature {
   _id: string;
-  icon: string;
   name: string;
   description: string;
-  contentType: string;
   contentId: string;
   subContentId: string;
 }
@@ -30,4 +28,9 @@ export interface IExm {
   vision?: string;
   structure?: string;
   appearance?: IAppearence;
+  knowledgeBaseLabel?: string;
+  knowledgeBaseTopicId?: string;
+  ticketLabel?: string;
+  ticketPipelineId?: string;
+  ticketBoardId?: string;
 }

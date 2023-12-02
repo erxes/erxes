@@ -52,6 +52,7 @@ export interface ILeadData {
   conversionRate?: number;
   successImage?: string;
   successImageSize?: string;
+  verifyEmail?: boolean;
 }
 
 export interface IWebhookData {

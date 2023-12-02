@@ -1,6 +1,8 @@
 import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
-import { Bulk, Alert, withProps, router } from '@erxes/ui/src';
+import { withProps, router } from '@erxes/ui/src/utils/core';
+import Alert from '@erxes/ui/src/utils/Alert';
+import Bulk from '@erxes/ui/src/components/Bulk';
 import React from 'react';
 import { graphql } from '@apollo/client/react/hoc';
 import { withRouter } from 'react-router-dom';

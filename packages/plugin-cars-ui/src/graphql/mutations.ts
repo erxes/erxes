@@ -90,6 +90,8 @@ const carCategoryParamsDef = `
   $code: String!,
   $parentId: String,
   $description: String,
+  $image: AttachmentInput
+  $secondaryImages: [AttachmentInput]
 `;
 
 const carCategoryParams = `
@@ -97,6 +99,8 @@ const carCategoryParams = `
   code: $code,
   parentId: $parentId,
   description: $description,
+  image: $image
+  secondaryImages: $secondaryImages
 `;
 
 const carCategoryAdd = `

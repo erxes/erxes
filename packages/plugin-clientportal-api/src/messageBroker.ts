@@ -157,6 +157,33 @@ export const initBroker = async cl => {
       status: 'success'
     };
   });
+
+  consumeRPCQueue(
+    'clientportal:clientPortalUsers.validatePassword',
+    async ({ subdomain, data }) => {
+      const models = await generateModels(subdomain);
+
+      const { userId, password, secondary } = data;
+
+      const valid = await models.ClientPortalUsers.validatePassword(
+        userId,
+        password,
+        secondary
+      );
+
+      if (!valid) {
+        return {
+          status: 'error',
+          message: 'Invalid password'
+        };
+      }
+
+      return {
+        data: valid,
+        status: 'success'
+      };
+    }
+  );
 };
 
 export const sendCoreMessage = async (args: ISendMessageArgs) => {

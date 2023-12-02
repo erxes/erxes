@@ -3,7 +3,7 @@ import { __ } from 'coreui/utils';
 import _ from 'lodash';
 import React from 'react';
 
-import { ExtraRow, DidAmount, WillAmount } from '../../styles';
+import { ExtraRow, WillAmount } from '../../styles';
 import { IInvoice } from '../../types';
 
 type Props = {

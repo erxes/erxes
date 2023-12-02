@@ -37,27 +37,66 @@ export const FlexWrapContainer = styled.div`
   }
 `;
 
-export const ReadMore = styled.a`
+export const Services = styled.div`
   display: flex;
-  align-items: center;
-  color: ${colors.colorWhite};
-  cursor: pointer;
+  flex-wrap: wrap;
+`;
 
-  > span {
-    width: 0%;
-    font-weight: bold;
-    white-space: nowrap;
-    transition: width 0.5s ease-in-out;
-    overflow: hidden;
-  }
+export const Description = styledTS<{ showmore: boolean }>(styled.div)`
+  color: #666;
+  margin-top: ${dimensions.unitSpacing}px;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: ${props => !props.showmore && '3'};
+  -webkit-box-orient: vertical;
+  position: relative;
+  transition: all ease .3s;
 
-  > i:before {
-    font-weight: 900;
+  ul {
+    padding-inline-start: ${dimensions.unitSpacing + 5}px;
+
+    li {
+      margin-bottom: ${dimensions.unitSpacing}px;
+    }
   }
 `;
 
-export const Service = styled.div`
-  flex-basis: 300px;
+export const ServiceText = styledTS<{ showMore: boolean }>(styled.div)`
+  position: relative;
+
+  > span {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    color: #888;
+    font-size: 14px;
+    width: 20px;
+    height: 20px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #eee;
+    border: 1px solid #ddd;
+    cursor: pointer;
+    transition: all ease 0.3s;
+    z-index: 999;
+
+    i {
+      transform: ${props => props.showMore && 'rotate(180deg)'};
+    }
+
+    &:hover {
+      box-shadow: 0px 16px 24px rgb(0 0 0 / 6%), 0px 2px 6px rgb(0 0 0 / 4%),
+        0px 0px 1px rgb(0 0 0 / 4%);
+    }
+  }
+`;
+
+export const Service = styled.a`
+  width: 31.66666%;
+  flex-shrink: 0;
+  color: ${colors.textPrimary};
   padding: ${dimensions.coreSpacing}px 30px;
   margin: 0 ${dimensions.coreSpacing}px ${dimensions.coreSpacing}px 0;
   display: flex;
@@ -67,113 +106,64 @@ export const Service = styled.div`
   position: relative;
   z-index: 1;
   overflow: hidden;
-  flex: 1;
   min-height: 200px;
-  border: 1px solid ${colors.borderPrimary};
-  color: ${colors.colorWhite};
+  border: 1px solid rgba(0, 0, 0, 0.05);
   transition: all ease 0.3s;
+  background: #f1f3f5;
 
   h5 {
-    margin: ${dimensions.unitSpacing}px 0 15px;
-    font-size: 18px;
-    font-weight: bold;
-    text-transform: capitalize;
+    font-size: 15px;
+    font-weight: 300;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin: ${dimensions.unitSpacing}px 0;
   }
 
   &:before {
     content: '';
     position: absolute;
     left: 0;
-    top: 28px;
-    width: 4px;
-    height: 30px;
-    background: ${colors.colorWhite};
+    right: 0;
+    top: 0;
+    bottom: 0;
+    background-image: url('/images/patterns/pn-1.svg');
+    background-repeat: no-repeat;
+    opacity: 0.2;
   }
 
-  &:after {
-    content: '';
-    position: absolute;
-    z-index: -1;
-    width: 175px;
-    height: 220px;
-    border-radius: 16px;
-    transform: rotate(-150deg);
-  }
-
-  &:nth-child(1n) {
-    background: linear-gradient(118.62deg, #f42251 1.08%, #ec6535 101.09%);
-
-    &:after {
-      right: -85px;
-      top: -40px;
-      background: linear-gradient(180deg, #f42451 0%, #ea4111 100%);
+  &:nth-child(3n + 1) {
+    &:before {
+      background-position: center;
     }
   }
 
-  &:nth-child(2n) {
-    background: linear-gradient(112.98deg, #7919f6 1.84%, #3584ed 100%);
-
-    &:after {
-      right: -70px;
-      top: -140px;
-      background: linear-gradient(180deg, #e537ec 0%, #7260ea 100%);
+  &:nth-child(3n + 2) {
+    &:before {
+      background-position: left top;
     }
   }
 
-  &:nth-child(3n) {
-    background: linear-gradient(117.96deg, #00c3fb 0%, #0060eb 98.73%);
-
-    &:after {
-      left: -20px;
-      bottom: -120px;
-      background: linear-gradient(180.96deg, #0070ee 0.82%, #0094f4 105.38%);
-    }
-  }
-
-  &:nth-child(4n) {
-    background: linear-gradient(117.5deg, #179b8d 0%, #add268 100%);
-
-    &:after {
-      left: -20px;
-      bottom: -80px;
-      background: linear-gradient(180deg, #97ca6c 0%, #79c074 100%);
-      width: 200px;
-      height: 200px;
-      border-radius: 200px;
-    }
-  }
-
-  &:nth-child(5n) {
-    background: linear-gradient(118.62deg, #ffc107 1.08%, #ec35d1 101.09%);
-
-    &:after {
-      right: -65px;
-      top: -70px;
-      background: linear-gradient(180deg, #f57a7d 0%, #ea3d11 100%);
+  &:nth-child(3n + 3) {
+    &:before {
+      background-position: right center;
     }
   }
 
   &:hover {
     box-shadow: 0px 16px 24px rgb(0 0 0 / 6%), 0px 2px 6px rgb(0 0 0 / 4%),
       0px 0px 1px rgb(0 0 0 / 4%);
-
-    ${ReadMore} > span {
-      width: 30%;
-      margin-right: 5px;
-    }
   }
 `;
 
 export const Price = styled.div`
   font-size: 30px;
-  font-weight: 900;
+  font-weight: 800;
   display: flex;
-  align-items: center;
+  align-items: baseline;
 
   span {
     font-size: 14px;
-    font-weight: 400;
-    opacity: 0.9;
+    font-weight: 300;
     padding-left: 5px;
   }
 `;
@@ -191,6 +181,7 @@ export const MoreBtn = styled.div`
   border: 1px solid ${colors.borderPrimary};
   background: ${colors.bgLight};
   color: #666;
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -390,7 +381,7 @@ export const Addon = styled.div`
   font-size: 10px;
   font-weight: 700;
   padding: 3px 5px 3px 3px;
-  margin-right: 5px;
+  margin: 0 0 5px 5px;
 
   > img {
     max-width: 20px;
@@ -403,14 +394,14 @@ export const StoreBlock = styled.div`
   margin-bottom: ${dimensions.coreSpacing}px;
 
   > h4 {
-    margin: 0;
+    margin: ${dimensions.unitSpacing}px 0 0;
     font-size: ${dimensions.coreSpacing}px;
   }
 
   > p {
     color: ${colors.colorCoreGray};
     font-size: 14px;
-    margin: ${dimensions.unitSpacing}px 0;
+    margin: ${dimensions.unitSpacing - 5}px 0 ${dimensions.coreSpacing}px 0;
   }
 `;
 

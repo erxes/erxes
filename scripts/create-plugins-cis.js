@@ -40,6 +40,7 @@ var plugins = [
   { name: 'reactions', api: true },
   { name: 'segments', ui: true, api: true },
   { name: 'syncerkhet', ui: true, api: true },
+  { name: 'multierkhet', api: true, ui: true },
   { name: 'tags', ui: true, api: true },
   { name: 'salesplans', ui: true, api: true },
   { name: 'processes', ui: true, api: true },
