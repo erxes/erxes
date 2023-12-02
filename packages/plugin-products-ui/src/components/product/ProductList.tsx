@@ -45,6 +45,7 @@ interface IProps extends IRouterProps {
 
 type State = {
   searchValue?: string;
+  checked?: boolean;
 };
 
 class List extends React.Component<IProps, State> {
@@ -54,7 +55,8 @@ class List extends React.Component<IProps, State> {
     super(props);
 
     this.state = {
-      searchValue: this.props.searchValue
+      searchValue: this.props.searchValue,
+      checked: false
     };
   }
 
@@ -67,7 +69,7 @@ class List extends React.Component<IProps, State> {
         key={product._id}
         product={product}
         toggleBulk={toggleBulk}
-        isChecked={bulk.includes(product)}
+        isChecked={(bulk || []).map(b => b._id).includes(product._id)}
       />
     ));
   };
@@ -117,6 +119,22 @@ class List extends React.Component<IProps, State> {
     e.target.value = '';
     e.target.value = tmpValue;
   }
+
+  onChangeChecked = e => {
+    const { bulk, history } = this.props;
+    const checked = e.target.checked;
+    this.setState({ checked }, () => {
+      if (checked) {
+        this.setState({ searchValue: '' });
+        router.removeParams(history, 'page', 'searchValue', 'categoryId');
+        router.setParams(history, {
+          ids: (bulk || []).map(b => b._id).join(',')
+        });
+      } else {
+        router.removeParams(history, 'page', 'ids');
+      }
+    });
+  };
 
   renderContent = () => {
     const {
@@ -256,6 +274,19 @@ class List extends React.Component<IProps, State> {
 
       actionBarRight = (
         <BarItems>
+          <FormControl
+            type="text"
+            placeholder={__('Type to search')}
+            onChange={this.search}
+            value={this.state.searchValue}
+            autoFocus={true}
+            onFocus={this.moveCursorAtTheEnd}
+          />
+          <FormControl
+            componentClass="checkbox"
+            onChange={this.onChangeChecked}
+            checked={this.state.checked}
+          />
           {(isEnabled('documents') && (
             <ProductsPrintAction bulk={this.props.bulk} />
           )) || <></>}
