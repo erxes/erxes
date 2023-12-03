@@ -4,6 +4,7 @@ import { field, schemaHooksWrapper } from './utils';
 export interface IPos {
   name: string;
   description?: string;
+  orderPassword?: string;
   pdomain?: string;
   userId: string;
   createdAt: Date;
@@ -76,6 +77,11 @@ export const posSchema = schemaHooksWrapper(
     _id: field({ pkey: true }),
     name: field({ type: String, label: 'Name' }),
     description: field({ type: String, label: 'Description', optional: true }),
+    orderPassword: field({
+      type: String,
+      label: 'OrderPassword',
+      optional: true
+    }),
     pdomain: field({ type: String, optional: true, label: 'Domain' }),
     userId: field({ type: String, optional: true, label: 'Created by' }),
     createdAt: field({ type: Date, label: 'Created at' }),
