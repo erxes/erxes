@@ -61,7 +61,8 @@ export default {
   types: [
     {
       label: 'Cards',
-      type: 'cards'
+      type: 'cards',
+      subTypes: ['deal', 'task', 'ticket', 'purchase', 'stageDeal']
     }
   ],
 
@@ -74,14 +75,16 @@ export default {
     return [...commonFields, ...uniqueFields];
   },
 
-  replaceContent: async ({ subdomain, data: { stageId, itemId, content } }) => {
+  replaceContent: async ({
+    subdomain,
+    data: { stageId, itemId, content, contentype, itemIds }
+  }) => {
     const models = await generateModels(subdomain);
     const stage = await models.Stages.findOne({ _id: stageId });
 
     if (!stage) {
       return '';
     }
-
     let collection;
 
     if (stage.type == 'deal') {
@@ -101,15 +104,27 @@ export default {
     if (stage.type == 'growthHack') {
       collection = models.GrowthHacks;
     }
-
     if (!collection) {
       return '';
     }
-
-    const item = await collection.findOne({ _id: itemId });
-
-    if (!item) {
-      return '';
+    let item;
+    if (contentype == 'cards:stage') {
+      const items = await collection.find({
+        stageId: stageId,
+        _id: { $in: itemIds.split(',') }
+      });
+      if (!items) {
+        return '';
+      }
+      item = await cardsStage(items);
+      if (!item) {
+        return '';
+      }
+    } else {
+      item = await collection.findOne({ _id: itemId });
+      if (!item) {
+        return '';
+      }
     }
 
     const simpleFields = ['name', 'description'];
@@ -406,3 +421,76 @@ export default {
     return [replacedContent];
   }
 };
+
+function cardsStage(items: any[]) {
+  try {
+    const itemsArray = items;
+    const aggregatedData: Record<string, any> = {
+      amount: {
+        AED: 0
+      },
+      productsData: []
+    };
+    itemsArray.forEach(item => {
+      const combinedNames = itemsArray.map(item => item.name).join(',');
+      aggregatedData.isComplete = item.isComplete;
+      aggregatedData.assignedUserIds = item.assignedUserIds;
+      aggregatedData.watchedUserIds = item.watchedUserIds;
+      aggregatedData.labelIds = item.labelIds;
+      aggregatedData.tagIds = item.tagIds;
+      aggregatedData.branchIds = item.branchIds;
+      aggregatedData.departmentIds = item.departmentIds;
+      aggregatedData.modifiedAt = item.modifiedAt;
+      aggregatedData.createdAt = item.createdAt;
+      aggregatedData.stageChangedDate = item.stageChangedDate;
+      aggregatedData.sourceConversationIds = item.sourceConversationIds;
+      aggregatedData.status = item.status;
+      aggregatedData.name = combinedNames;
+      aggregatedData.stageId = item.stageId;
+      aggregatedData.customFieldsData = item.customFieldsData;
+      aggregatedData.initialStageId = item.initialStageId;
+      aggregatedData.modifiedBy = item.modifiedBy;
+      aggregatedData.userId = item.userId;
+      aggregatedData.searchText = combinedNames;
+
+      if (item.productsData) {
+        item.productsData.forEach(product => {
+          const existingProduct = aggregatedData.productsData.find(
+            p =>
+              p.productId === product.productId &&
+              p.branchId === product.branchId &&
+              p.departmentId === product.departmentId
+          );
+
+          if (existingProduct) {
+            existingProduct.quantity += product.quantity;
+            existingProduct.amount += product.amount;
+          } else {
+            aggregatedData.productsData.push({
+              tax: product.tax,
+              taxPercent: product.taxPercent,
+              discount: product.discount,
+              vatPercent: product.vatPercent,
+              discountPercent: product.discountPercent,
+              amount: product.amount,
+              currency: product.currency,
+              tickUsed: product.tickUsed,
+              maxQuantity: product.maxQuantity,
+              quantity: product.quantity,
+              productId: product.productId,
+              unitPrice: product.unitPrice,
+              globalUnitPrice: product.globalUnitPrice,
+              unitPricePercent: product.unitPricePercent
+            });
+          }
+
+          // Update the total amount for this stage
+          aggregatedData.amount.AED += product.amount * product.quantity;
+        });
+      }
+    });
+    return aggregatedData;
+  } catch (error) {
+    return { error: error.message };
+  }
+}
