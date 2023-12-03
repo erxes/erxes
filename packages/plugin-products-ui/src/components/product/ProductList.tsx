@@ -312,6 +312,7 @@ class List extends React.Component<IProps, State> {
               successCallback={emptyBulk}
               targets={bulk}
               trigger={tagButton}
+              perPage={1000}
               refetchQueries={['productCountByTags']}
             />
           )}
