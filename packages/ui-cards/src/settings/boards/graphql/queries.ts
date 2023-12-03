@@ -89,6 +89,11 @@ const costs = `
 	  costs 
   }
 `;
+const payment_types = `
+  query paymentTypes {
+    paymentTypes
+  }
+`;
 
 export default {
   boards,
@@ -96,5 +101,6 @@ export default {
   stages,
   boardGetLast,
   boardDetail,
-  costs
+  costs,
+  payment_types
 };

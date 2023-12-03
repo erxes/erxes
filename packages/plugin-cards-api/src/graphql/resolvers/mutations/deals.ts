@@ -15,7 +15,7 @@ import {
 import { IContext } from '../../../connectionResolver';
 import { sendProductsMessage } from '../../../messageBroker';
 import { graphqlPubsub } from '../../../configs';
-
+import { IPaymentType } from '../../../models/definitions/payments';
 interface IDealsEdit extends IDeal {
   _id: string;
 }
@@ -24,6 +24,64 @@ const dealMutations = {
   /**
    * Creates a new deal
    */
+
+  async paymentTypes(
+    _root,
+    doc: IPaymentType,
+    { models, user, subdomain }: IContext
+  ) {
+    try {
+      const oldPaymentTypes = await models.PaymentTypes.find({
+        status: 'active'
+      }).lean();
+
+      let bulkOps: Array<{
+        updateOne: {
+          filter: { _id: string };
+          update: any;
+          upsert?: boolean;
+        };
+      }> = [];
+
+      if (doc._id && doc._id === oldPaymentTypes[0]._id) {
+        bulkOps.push({
+          updateOne: {
+            filter: { _id: doc._id },
+            update: {
+              erxesAppToken: doc.erxesAppToken,
+              paymentIds: doc.paymentIds || [],
+              paymentTypes: doc.paymentTypes,
+              status: 'active',
+              createdBy: user._id,
+              createdAt: new Date()
+            },
+            upsert: true
+          }
+        });
+      } else if (doc._id === undefined) {
+        bulkOps.push({
+          updateOne: {
+            filter: { _id: Math.random().toString() },
+            update: {
+              erxesAppToken: doc.erxesAppToken,
+              paymentIds: doc.paymentIds || [],
+              paymentTypes: doc.paymentTypes,
+              status: 'active',
+              createdBy: user._id,
+              createdAt: new Date()
+            },
+            upsert: true
+          }
+        });
+      }
+      await models.PaymentTypes.bulkWrite(bulkOps);
+      return await models.PaymentTypes.find({ status: 'active' }).lean();
+    } catch (error) {
+      console.error('Error in paymentTypes:', error);
+      throw error;
+    }
+  },
+
   async dealsAdd(
     _root,
     doc: IDeal & { proccessId: string; aboveItemId: string },
@@ -48,7 +106,6 @@ const dealMutations = {
     { user, models, subdomain }: IContext
   ) {
     const oldDeal = await models.Deals.getDeal(_id);
-
     if (doc.assignedUserIds) {
       const { removedUserIds } = checkUserIds(
         oldDeal.assignedUserIds,
@@ -158,7 +215,7 @@ const dealMutations = {
       proccessId,
       'deal',
       user,
-      ['productsData', 'paymentsData'],
+      ['productsData', 'paymentsData', 'mobileAmounts'],
       models.Deals.createDeal
     );
   },

@@ -25,6 +25,7 @@ import dashboards from './dashboards';
 import reports from './reports';
 
 import { NOTIFICATION_MODULES } from './constants';
+import payment from './payment';
 
 export let mainDb;
 export let graphqlPubsub;
@@ -66,7 +67,8 @@ export default {
     permissions,
     documents,
     dashboards,
-    notificationModules: NOTIFICATION_MODULES
+    notificationModules: NOTIFICATION_MODULES,
+    payment
   },
 
   apolloServerContext: async (context, req, res) => {

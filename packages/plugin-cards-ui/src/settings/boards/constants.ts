@@ -70,3 +70,36 @@ export const BOARD_NUMBERS = [
     value: '/'
   }
 ];
+
+export const PAYMENT_TYPE_ICONS = [
+  'sign-alt',
+  'trees',
+  'food',
+  'fast-mail',
+  'euro',
+  'dollar-alt',
+  'dollar-sign',
+  'calcualtor',
+  'at',
+  'briefcase-alt',
+  'atm-card',
+  'hold',
+  'shoppingcart',
+  'scale',
+  'piggybank',
+  'pencil',
+  'clicker',
+  'alarm',
+  'diamond',
+  'medal',
+  'bell',
+  'capsule',
+  'cart',
+  'coffee',
+  'attach',
+  'pound',
+  'usd-circle',
+  'yen',
+  'ticket',
+  'sync'
+];

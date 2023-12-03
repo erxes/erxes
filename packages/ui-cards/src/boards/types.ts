@@ -10,6 +10,7 @@ import { ICustomer } from '@erxes/ui-contacts/src/customers/types';
 import { ISavedConformity } from '../conformity/types';
 import { ITag } from '@erxes/ui-tags/src/types';
 import { IUser } from '@erxes/ui/src/auth/types';
+import { IPaymentType } from '../../../plugin-cards-ui/src/settings/boards/types';
 
 export interface IOptions {
   EditForm: any;
@@ -309,6 +310,11 @@ export type BoardsGetLastQueryResponse = {
 
 export type BoardDetailQueryResponse = {
   boardDetail: IBoard;
+  loading: boolean;
+};
+
+export type PaymentTypeQueryResponse = {
+  paymentTypes: IPaymentType;
   loading: boolean;
 };
 

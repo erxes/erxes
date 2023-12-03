@@ -1,5 +1,5 @@
 import { CustomField, ProductName } from '../styles';
-import { IDeal, IPaymentsData, IProductData } from '../types';
+import { IDeal, IPaymentsData, IProductData, IMobileAmounts } from '../types';
 
 import Box from '@erxes/ui/src/components/Box';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
@@ -22,12 +22,14 @@ type Props = {
   onChangeProducts: (prs: IProduct[]) => void;
   saveProductsData: () => void;
   dealQuery: IDeal;
+  mobileAmounts: IMobileAmounts;
 };
 
 function ProductSection({
   products,
   productsData,
   paymentsData,
+  mobileAmounts,
   onChangeProductsData,
   onChangePaymentsData,
   saveProductsData,
@@ -43,6 +45,7 @@ function ProductSection({
         productsData={productsData}
         products={products}
         paymentsData={paymentsData}
+        mobileAmounts={mobileAmounts}
         saveProductsData={saveProductsData}
         dealQuery={dealQuery}
       />

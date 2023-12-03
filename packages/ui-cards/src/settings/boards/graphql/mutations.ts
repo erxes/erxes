@@ -3,6 +3,24 @@ const commonParamsDef = `
   $type: String!
 `;
 
+const commonFields = `
+    $_id: String
+   $erxesAppToken: String
+   $paymentIds: [String]
+  $paymentTypes: [JSON]
+ 
+
+`;
+
+const commonVariablesPayment = `
+  _id: $_id
+  erxesAppToken: $erxesAppToken
+  paymentIds: $paymentIds
+  paymentTypes: $paymentTypes
+
+
+`;
+
 const commonParams = `
   name: $name,
   type: $type
@@ -123,6 +141,17 @@ const costAdd = `
   }
 `;
 
+const paymentTypeAdd = `
+  mutation paymentTypes(${commonFields}) {
+    paymentTypes(${commonVariablesPayment}) {
+      _id
+      paymentIds
+      paymentTypes
+      erxesAppToken
+    }
+  }
+`;
+
 export default {
   boardAdd,
   costAdd,
@@ -133,5 +162,6 @@ export default {
   pipelinesArchive,
   pipelinesCopied,
   pipelineRemove,
-  pipelinesUpdateOrder
+  pipelinesUpdateOrder,
+  paymentTypeAdd
 };

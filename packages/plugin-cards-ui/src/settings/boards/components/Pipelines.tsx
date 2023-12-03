@@ -12,7 +12,7 @@ import Button from '@erxes/ui/src/components/Button';
 import EmptyContent from '@erxes/ui/src/components/empty/EmptyContent';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
 import FormControl from '@erxes/ui/src/components/form/Control';
-import { IOption } from '../types';
+import { IOption, IPaymentType } from '../types';
 import { PipelineCount } from '@erxes/ui-cards/src/settings/boards/styles';
 import PipelineForm from '../containers/PipelineForm';
 import PipelineRow from './PipelineRow';
@@ -23,21 +23,26 @@ import { Title } from '@erxes/ui-settings/src/styles';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { collectOrders } from '@erxes/ui-cards/src/boards/utils';
 import CostForm from './CostForm';
+import PaymentForm from './PaymentForm';
+import { ModalTrigger } from '@erxes/ui/src';
+
 type Props = {
+  payment?: IPaymentType;
   type: string;
   pipelines: IPipeline[];
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   updateOrder?: any;
   remove: (pipelineId: string) => void;
   archive: (pipelineId: string, status: string) => void;
+  paymentSave: (payment: IPaymentType) => void;
   copied: (pipelineId: string) => void;
   boardId: string;
   options?: IOption;
   refetch: ({ boardId }: { boardId?: string }) => Promise<any>;
   currentBoard?: IBoard;
 } & IRouterProps;
-
 type State = {
+  payment: IPaymentType;
   showModal: boolean;
   pipelines: IPipeline[];
   isDragDisabled: boolean;
@@ -66,14 +71,16 @@ const sortItems = (arr, direction, field) => {
 };
 
 class Pipelines extends React.Component<Props, State> {
+  payment: IPaymentType;
   constructor(props: Props) {
     super(props);
 
     const { history } = props;
-
+    const payment = props.payment || ({} as IPaymentType);
     const showModal = history.location.hash.includes('showPipelineModal');
 
     this.state = {
+      payment,
       showModal,
       pipelines: props.pipelines,
       isDragDisabled: false,
@@ -116,6 +123,9 @@ class Pipelines extends React.Component<Props, State> {
     this.props.updateOrder(collectOrders(pipelines));
   };
 
+  onChange = (key: string, value: any) => {
+    this.setState({ [key]: value } as any);
+  };
   onTogglePopup = () => {
     const { isDragDisabled } = this.state;
 
@@ -225,8 +235,13 @@ class Pipelines extends React.Component<Props, State> {
   }
 
   renderAdditionalButton = () => {
-    const { options } = this.props;
-
+    const { options, type } = this.props;
+    const { payment } = this.state;
+    const trigger = (
+      <Button btnStyle="primary" icon="plus-circle">
+        {'Payment'}
+      </Button>
+    );
     if (options && options.additionalButton) {
       return (
         <Link to={options.additionalButton}>
@@ -239,6 +254,23 @@ class Pipelines extends React.Component<Props, State> {
     if (options && options.modal === 'true') {
       return <CostForm />;
     }
+    if (type === 'deal') {
+      return (
+        <ModalTrigger
+          title="Add Payment"
+          size="xl"
+          trigger={trigger}
+          content={props => (
+            <PaymentForm
+              payment={payment}
+              {...props}
+              onChange={this.onChange}
+              paymentSave={this.props.paymentSave}
+            />
+          )}
+        />
+      );
+    }
 
     return null;
   };
@@ -250,7 +282,6 @@ class Pipelines extends React.Component<Props, State> {
     if (!boardId) {
       return null;
     }
-
     return (
       <BarItems>
         <FormControl

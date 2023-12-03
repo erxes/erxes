@@ -7,11 +7,13 @@ import {
   IOption,
   RemovePipelineMutationResponse,
   UpdateOrderPipelineMutationResponse,
-  UpdateOrderPipelineMutationVariables
+  UpdateOrderPipelineMutationVariables,
+  PaymentTypeMutationVariable
 } from '../types';
 import {
   BoardDetailQueryResponse,
-  PipelinesQueryResponse
+  PipelinesQueryResponse,
+  PaymentTypeQueryResponse
 } from '@erxes/ui-cards/src/boards/types';
 import { IButtonMutateProps, MutationVariables } from '@erxes/ui/src/types';
 import {
@@ -37,11 +39,13 @@ type Props = {
 type FinalProps = {
   pipelinesQuery: PipelinesQueryResponse;
   boardDetailQuery: BoardDetailQueryResponse;
+  paymentTypesQuery: PaymentTypeQueryResponse;
 } & Props &
   RemovePipelineMutationResponse &
   ArchivePipelineMutationResponse &
   CopiedPipelineMutationResponse &
-  UpdateOrderPipelineMutationResponse;
+  UpdateOrderPipelineMutationResponse &
+  PaymentTypeMutationVariable;
 
 class PipelinesContainer extends React.Component<FinalProps> {
   render() {
@@ -52,14 +56,18 @@ class PipelinesContainer extends React.Component<FinalProps> {
       archivePipelineMutation,
       copiedPipelineMutation,
       pipelinesUpdateOrderMutation,
+      paymentTypesMutation,
+      paymentTypesQuery,
       boardDetailQuery
     } = this.props;
 
-    if (pipelinesQuery?.loading) {
+    if (pipelinesQuery?.loading && paymentTypesQuery?.loading) {
       return <Spinner />;
     }
 
     const pipelines = pipelinesQuery.pipelines || [];
+
+    const paymentTypes = paymentTypesQuery.paymentTypes[0];
 
     // archive action
     const archive = (pipelineId: string, status: string) => {
@@ -175,6 +183,20 @@ class PipelinesContainer extends React.Component<FinalProps> {
         Alert.error(error.message);
       });
     };
+    const paymentSave = doc => {
+      confirm().then(() => {
+        paymentTypesMutation({
+          variables: { ...doc }
+        })
+          .then(() => {
+            Alert.success('Successfully created');
+            window.location.reload();
+          })
+          .catch(error => {
+            Alert.error(error.message);
+          });
+      });
+    };
 
     const extendedProps = {
       ...this.props,
@@ -182,6 +204,8 @@ class PipelinesContainer extends React.Component<FinalProps> {
       refetch: pipelinesQuery?.refetch,
       loading: pipelinesQuery?.loading,
       remove,
+      paymentSave,
+      payment: paymentTypes,
       archive,
       copied,
       renderButton,
@@ -243,6 +267,9 @@ export default withProps<Props>(
         fetchPolicy: 'network-only'
       })
     }),
+    graphql<Props, PaymentTypeQueryResponse>(gql(queries?.payment_types), {
+      name: 'paymentTypesQuery'
+    }),
     graphql<Props, RemovePipelineMutationResponse, MutationVariables>(
       gql(mutations?.pipelineRemove),
       {
@@ -259,6 +286,12 @@ export default withProps<Props>(
       gql(mutations?.pipelinesCopied),
       {
         name: 'copiedPipelineMutation'
+      }
+    ),
+    graphql<Props, PaymentTypeMutationVariable, MutationVariables>(
+      gql(mutations?.paymentTypeAdd),
+      {
+        name: 'paymentTypesMutation'
       }
     ),
 

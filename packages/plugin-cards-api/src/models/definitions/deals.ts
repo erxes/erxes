@@ -29,12 +29,20 @@ interface IPaymentsData {
   [key: string]: {
     currency?: string;
     amount?: number;
+    type?: string;
+    title?: string;
+    icon?: string;
+    config?: string;
   };
 }
-
+export interface IMobileAmounts {
+  _id?: string;
+  amount: number;
+}
 export interface IDeal extends IItemCommonFields {
   productsData?: IProductData[];
   paymentsData?: IPaymentsData[];
+  mobileAmounts?: IMobileAmounts[];
 }
 
 export interface IDealDocument extends IDeal, Document {
@@ -72,5 +80,10 @@ export const dealSchema = new Schema({
   ...commonItemFieldsSchema,
 
   productsData: field({ type: [productDataSchema], label: 'Products' }),
-  paymentsData: field({ type: Object, optional: true, label: 'Payments' })
+  paymentsData: field({ type: Object, optional: true, label: 'Payments' }),
+  mobileAmounts: field({
+    type: Object,
+    optional: true,
+    label: 'Mobile Amounts'
+  })
 });

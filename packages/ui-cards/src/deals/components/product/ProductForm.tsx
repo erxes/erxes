@@ -6,7 +6,12 @@ import {
   ModalTrigger,
   Table
 } from '@erxes/ui/src/components';
-import { IDeal, IPaymentsData, IProductData } from '../../types';
+import {
+  IDeal,
+  IPaymentsData,
+  IProductData,
+  IMobileAmounts
+} from '../../types';
 import { TabTitle, Tabs } from '@erxes/ui/src/components/tabs';
 
 import Button from '@erxes/ui/src/components/Button';
@@ -62,9 +67,11 @@ type Props = {
   dealQuery: IDeal;
   categories: IProductCategory[];
   loading: boolean;
+  paymentQuery?: any;
 };
 
 type State = {
+  paymentQuery: any;
   total: { [currency: string]: number };
   unUsedTotal: { [currency: string]: number };
   bothTotal: { [currency: string]: number };
@@ -83,6 +90,7 @@ class ProductForm extends React.Component<Props, State> {
     super(props);
 
     this.state = {
+      paymentQuery: props.paymentQuery,
       total: {},
       unUsedTotal: {},
       bothTotal: {},
@@ -339,7 +347,6 @@ class ProductForm extends React.Component<Props, State> {
   calcChangePay = () => {
     const { paymentsData } = this.props;
     const { total } = this.state;
-
     const changePayData = Object.assign({}, total);
     const payments = paymentsData || {};
 
@@ -364,7 +371,6 @@ class ProductForm extends React.Component<Props, State> {
     const { saveProductsData, productsData, closeModal } = this.props;
 
     const { total, changePayData } = this.state;
-
     if (productsData.length !== 0) {
       for (const data of productsData) {
         if (!data.product) {
@@ -633,11 +639,13 @@ class ProductForm extends React.Component<Props, State> {
 
     if (currentTab === 'payments') {
       const { onChangePaymentsData } = this.props;
-
       return (
         <PaymentForm
           total={total}
           payments={this.props.paymentsData}
+          mobileAmounts={this.props.dealQuery.mobileAmounts}
+          dealQuery={this.props.dealQuery}
+          paymentQuery={this.props.paymentQuery}
           onChangePaymentsData={onChangePaymentsData}
           currencies={this.props.currencies}
           calcChangePay={this.calcChangePay}

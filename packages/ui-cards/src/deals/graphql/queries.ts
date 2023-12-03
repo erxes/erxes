@@ -81,6 +81,7 @@ export const dealFields = `
   products
   productsData
   paymentsData
+  mobileAmounts
   unUsedAmount
   amount
 `;
@@ -222,6 +223,11 @@ const checkDiscount = `
 
 const productCategories = queries.productCategories;
 
+const payment_types = `
+  query paymentTypes {
+    paymentTypes 
+  }
+`;
 export default {
   deals,
   dealsTotalCount,
@@ -231,5 +237,6 @@ export default {
   dealsTotalAmounts,
   archivedDeals,
   archivedDealsCount,
-  checkDiscount
+  checkDiscount,
+  payment_types
 };
