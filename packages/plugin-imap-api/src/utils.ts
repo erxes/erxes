@@ -18,7 +18,7 @@ export const findAttachmentParts = (struct, attachments?) => {
       if (
         struct[i].disposition &&
         ['INLINE', 'ATTACHMENT'].indexOf(toUpper(struct[i].disposition.type)) >
-          -1
+        -1
       ) {
         attachments.push(struct[i]);
       }
@@ -227,33 +227,44 @@ export const listenIntegration = async (
   let stop = false;
   let shouldReconnect = true;
 
+  let lastFetchDate = integration.lastFetchDate ? new Date(integration.lastFetchDate) : undefined;
+  let lastFetchDateUpdatedAt = new Date();
+
   // TODO: Promisify this callback API of node-imap
-  while(true) {
-    if(stop) {
+  while (true) {
+    if (stop) {
       break;
     }
-    if(!shouldReconnect) {
+    if (!shouldReconnect) {
       await new Promise(resolve => setTimeout(resolve, 60 * 1000));
       continue;
-    }    
+    }
+
+    shouldReconnect = false;
 
     const imap = new Imap({
       user: integration.mainUser || integration.user,
       password: integration.password,
       host: integration.host,
-      keepalive: { 
-        forceNoop: true, 
-        idleInterval: 60* 1000, 
+      keepalive: {
+        forceNoop: true,
+        idleInterval: 60 * 1000,
       },
       port: 993,
       tls: true
-    });  
-  
+    });
+
     imap.once('ready', _response => {
       imap.openBox('INBOX', true, async (_err, _box) => {
         try {
-          // TODO: Use since criteria to avoid fetching all messages
-          await saveMessages(subdomain, imap, integration, ['UNSEEN']);
+          const criteria: any[] = ['UNSEEN'];
+          if (lastFetchDate) {
+            criteria.push(['SINCE', lastFetchDate.toISOString()]);
+          }
+          const nextLastFetchDate = new Date();
+          await saveMessages(subdomain, imap, integration, criteria);
+          await models.Integrations.updateOne({ _id: integration._id }, { $set: { lastFetchDate: nextLastFetchDate } });
+          lastFetchDate = nextLastFetchDate;
         } catch (e) {
           await models.Logs.createLog({
             type: 'error',
@@ -264,27 +275,37 @@ export const listenIntegration = async (
         }
       });
     });
-  
+
     imap.on('mail', async response => {
       console.log('new messages ========', response);
-  
+
       const updatedIntegration = await models.Integrations.findOne({
         _id: integration._id,
         healthStatus: 'healthy'
       });
-  
+
       if (!updatedIntegration) {
         console.log(`ending ${integration.user} imap`);
         stop = true;
         try {
           imap.end();
-        } catch (e) {}
+        } catch (e) { }
         return;
       }
-  
+
       try {
-        // TODO: Use since criteria to avoid fetching all messages
-        await saveMessages(subdomain, imap, integration, ['UNSEEN']);
+        const criteria: any = ['UNSEEN'];
+        if (lastFetchDate) {
+          criteria.push(['SINCE', lastFetchDate.toISOString()]);
+        }
+        const nextLastFetchDate = new Date();
+        await saveMessages(subdomain, imap, integration, criteria);
+        lastFetchDate = nextLastFetchDate;
+
+        if(lastFetchDate.getTime() - lastFetchDateUpdatedAt.getTime() > 60 * 1000 ) {
+          await models.Integrations.updateOne({ _id: integration._id }, { $set: { lastFetchDate } });
+          lastFetchDateUpdatedAt = new Date();
+        }
       } catch (e) {
         await models.Logs.createLog({
           type: 'error',
@@ -292,20 +313,20 @@ export const listenIntegration = async (
           errorStack: e.stack
         });
         console.log('save message error ============', e);
-  
+
         throw e;
       }
     });
-  
+
     imap.once('error', async e => {
       await models.Logs.createLog({
         type: 'error',
         message: e.message + ' 2 ',
         errorStack: e.stack
       });
-  
+
       console.log('on imap.once =============', e);
-  
+
       if (e.message.includes('Invalid credentials')) {
         await models.Integrations.updateOne(
           { _id: integration._id },
@@ -321,24 +342,22 @@ export const listenIntegration = async (
 
         try {
           imap.end();
-        } catch (e){}
-  
+        } catch (e) { }
+
         return;
       }
     });
-  
+
     imap.once('end', e => {
       shouldReconnect = true;
-      if(stop) {
-        console.log(`Imap connection is ending. Will not reconnect because stop is set to true.`, e);
+      if (stop) {
+        console.log(`Imap connection is ending. Will not reconnect because "stop" is set to true.`, e);
       } else {
         console.log(`Imap connection ended. It will try to reconnect`, e);
       }
     });
-  
-    imap.connect();
 
-    shouldReconnect = false;
+    imap.connect();
   }
 };
 
