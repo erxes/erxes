@@ -48,14 +48,12 @@ const FeedbackDialog = ({ ticketId }: Props) => {
       )
     }
 
-    const matches = ticketDetail.name.match(/\[(.*?)\]\s(.*)/)
-
     return (
       <div className="flex justify-between py-5 px-0 bg-white rounded-md h-[400px]">
         <div className="flex flex-col group w-full divide-y">
           <div>
             <h3 className="w-full text-[16px] font-semibold leading-5 text-gray-900 capitalize">
-              Title : {matches ? matches[2] : "-"}
+              Title : {ticketDetail?.name || "-"}
             </h3>
           </div>
           <ScrollArea className="my-5 ">

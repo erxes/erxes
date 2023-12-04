@@ -14,11 +14,11 @@ const FeedbackRow = ({ ticket, setFeedBackId }: Props) => {
   return (
     <>
       <TableRow
-        className="border-none"
+        className="border-none text-xs"
         onClick={() => setFeedBackId(ticket._id)}
       >
         <TableCell className="py-5 w-[calc(100vw/5)] truncate">
-          {matches ? matches[2] : "-"}
+          {ticket.name ? ticket.name : "-"}
         </TableCell>
         <TableCell className="py-5 w-[calc(100vw/5)] capitalize">
           {matches ? matches[1] : "-"}
