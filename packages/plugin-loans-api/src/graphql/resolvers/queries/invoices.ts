@@ -75,7 +75,7 @@ const invoiceQueries = {
    * Invoices for only main list
    */
 
-  invoicesMain: async (
+  loanInvoicesMain: async (
     _root,
     params,
     { commonQuerySelector, models }: IContext

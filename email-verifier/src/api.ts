@@ -8,16 +8,16 @@ import { getArray, setArray } from './redisClient';
 import { debugBase, debugError, sendRequest } from './utils';
 
 const { TRUE_MAIL_API_KEY, EMAIL_VERIFICATION_TYPE = 'truemail' } = process.env;
+const TRUE_MAIL_API_URL = 'https://app.truemail.io/api/v1';
 
 const singleTrueMail = async (email: string) => {
   try {
-    const url = `https://truemail.io/api/v1/verify/single?access_token=${TRUE_MAIL_API_KEY}&email=${email}`;
+    const url = `${TRUE_MAIL_API_URL}/verify/single?access_token=${TRUE_MAIL_API_KEY}&email=${email}`;
 
     const response = await sendRequest({
       url,
       method: 'GET'
     });
-
     if (typeof response === 'string') {
       return JSON.parse(response);
     }
@@ -30,7 +30,7 @@ const singleTrueMail = async (email: string) => {
 };
 
 const bulkTrueMail = async (unverifiedEmails: string[], hostname: string) => {
-  const url = `https://truemail.io/api/v1/tasks/bulk?access_token=${TRUE_MAIL_API_KEY}`;
+  const url = `${TRUE_MAIL_API_URL}/tasks/bulk?access_token=${TRUE_MAIL_API_KEY}`;
 
   try {
     const result = await sendRequest({
@@ -194,7 +194,7 @@ export const bulk = async (emails: string[], hostname: string) => {
 };
 
 export const checkTask = async (taskId: string) => {
-  const url = `https://truemail.io/api/v1/tasks/${taskId}/status?access_token=${TRUE_MAIL_API_KEY}`;
+  const url = `${TRUE_MAIL_API_URL}/tasks/${taskId}/status?access_token=${TRUE_MAIL_API_KEY}`;
 
   const response = await sendRequest({
     url,
@@ -207,7 +207,7 @@ export const checkTask = async (taskId: string) => {
 export const getTrueMailBulk = async (taskId: string, hostname: string) => {
   debugBase(`Downloading bulk email validation result`);
 
-  const url = `https://truemail.io/api/v1/tasks/${taskId}/download?access_token=${TRUE_MAIL_API_KEY}&timeout=30000`;
+  const url = `${TRUE_MAIL_API_URL}/tasks/${taskId}/download?access_token=${TRUE_MAIL_API_KEY}&timeout=30000`;
 
   const response = await sendRequest({
     url,

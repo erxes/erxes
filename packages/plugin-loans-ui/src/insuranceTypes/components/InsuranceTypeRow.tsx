@@ -1,10 +1,11 @@
-import { Button, formatValue, FormControl, ModalTrigger } from '@erxes/ui/src';
+import { formatValue, FormControl, Icon, ModalTrigger } from '@erxes/ui/src';
 import _ from 'lodash';
 import React from 'react';
 import { Link } from 'react-router-dom';
 
 import InsuranceTypeForm from '../containers/InsuranceTypeForm';
 import { IInsuranceType } from '../types';
+import { ActionButton } from '@erxes/ui/src/components/ActionButtons';
 
 type Props = {
   insuranceType: IInsuranceType;
@@ -50,7 +51,12 @@ function renderFormTrigger(
 }
 
 function renderEditAction(insuranceType: IInsuranceType) {
-  const trigger = <Button btnStyle="link" icon="edit-1" />;
+  const trigger = (
+    <ActionButton
+      style={{ cursor: 'pointer' }}
+      children={<Icon icon="edit-1" />}
+    />
+  );
 
   return renderFormTrigger(trigger, insuranceType);
 }

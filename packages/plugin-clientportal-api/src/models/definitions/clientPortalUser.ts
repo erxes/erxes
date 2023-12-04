@@ -26,6 +26,7 @@ export interface IUser {
   companyRegistrationNumber?: string;
   code?: string;
   password?: string;
+  secondaryPassword?: string;
   type?: string;
   deviceTokens?: string[];
   clientPortalId: string;
@@ -37,9 +38,9 @@ export interface IUser {
   resetPasswordExpires?: Date;
   registrationToken?: string;
   registrationTokenExpires?: Date;
-  isOnline: boolean;
-  lastSeenAt: Date;
-  sessionCount: number;
+  isOnline?: boolean;
+  lastSeenAt?: Date;
+  sessionCount?: number;
   notificationSettings: INotifcationSettings;
   avatar?: string;
   customFieldsData?: any;
@@ -160,6 +161,7 @@ export const clientPortalUserSchema = new Schema({
     optional: true,
     label: 'First name'
   }),
+  secondaryPassword: field({ type: String, optional: true }),
   lastName: field({ type: String, optional: true, label: 'Last name' }),
   companyName: field({
     type: String,

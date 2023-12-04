@@ -1246,6 +1246,146 @@ a:hover {
     font:inherit;
     color:inherit
   }
+
+  /* Tiptap */
+  .tiptap {
+    > * + * {
+      margin-top: 0.75em;
+    }
+
+    a {
+      color: #228be6;
+    }
+    
+    a:hover {
+      text-decoration: underline;
+    }
+
+    ul,
+    ol {
+      padding: 0 1rem;
+    }
+  
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+      line-height: 1.1;
+    }
+  
+    code {
+      background-color: rgba(#616161, 0.1);
+      color: #616161;
+    }
+  
+    pre {
+      background: #0D0D0D;
+      color: #FFF;
+      font-family: 'JetBrainsMono', monospace;
+      padding: 0.75rem 1rem;
+      border-radius: 0.5rem;
+  
+      code {
+        color: inherit;
+        padding: 0;
+        background: none;
+        font-size: 0.8rem;
+      }
+    }
+  
+    img {
+      max-width: 100%;
+      height: auto;
+    }
+  
+    blockquote {
+      padding-left: 1rem;
+      border-left: 2px solid rgba(#0D0D0D, 0.1);
+    }
+  
+    hr {
+      border-top: 2px solid rgba(#0D0D0D, 0.1);
+      margin: 2rem 0;
+    }
+
+    table {
+      border-collapse: collapse;
+      margin: 0;
+      overflow: hidden;
+      table-layout: fixed;
+      
+      td {
+        display: table-cell;
+      }
+      
+      td,
+      th {
+        border: 2px solid #ced4da;
+        box-sizing: border-box;
+        min-width: 1em;
+        padding: 3px 5px;
+        position: relative;
+        vertical-align: top;
+
+        > * {
+          margin-bottom: 0;
+        }
+      }
+  
+      th {
+        background-color: #f1f3f5;
+        font-weight: bold;
+        text-align: left;
+      }
+  
+      .selectedCell:after {
+        background: rgba(200, 200, 255, 0.4);
+        content: "";
+        left: 0;
+        right: 0;
+        top: 0;
+        bottom: 0;
+        pointer-events: none;
+        position: absolute;
+        z-index: 2;
+      }
+  
+      .column-resize-handle {
+        background-color: #adf;
+        bottom: -2px;
+        position: absolute;
+        right: -2px;
+        pointer-events: none;
+        top: 0;
+        width: 4px;
+      }
+  
+      p {
+        margin: 0;
+      }
+    }
+    .tableWrapper {
+      padding: 1rem 0;
+      overflow-x: auto;
+    }
+    
+    .resize-cursor {
+      cursor: ew-resize;
+      cursor: col-resize;
+    }
+  }
+
+  /* ProseMirror (actual editable section of editor) */
+  
+  .ProseMirror{
+    padding: 1rem;
+    outline: 0px;
+    height: 100%;
+    overflow-y: auto;
+  }
+ 
 `;
 
 const globalStyle = [`${style}`] as any;

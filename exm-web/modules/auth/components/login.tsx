@@ -19,10 +19,12 @@ import { IHandleLogin } from "../login"
 
 const Login = ({
   loading,
+  forgotPasswordLoading,
   login,
   setType,
 }: {
   loading?: boolean
+  forgotPasswordLoading?: boolean
   login: IHandleLogin
   setType: (type: string) => void
 }) => {
@@ -87,7 +89,7 @@ const Login = ({
         <Button
           onClick={() => setType("forgotPassword")}
           className="w-full"
-          loading={loading}
+          loading={forgotPasswordLoading}
           variant="ghost"
           size="sm"
         >

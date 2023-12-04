@@ -12,8 +12,8 @@ import { cn } from "@/lib/utils"
 import { Toaster } from "@/components/ui/toaster"
 
 export const metadata: Metadata = {
-  title: "exm",
-  description: "exm",
+  title: "Employee Experience Management",
+  description: "Employee Experience Management",
   icons: {
     icon: "/favicon.png",
     shortcut: "/favicon.png",
@@ -44,6 +44,7 @@ export default function RootLayout({
           type="text/css"
           href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.6.0/slick-theme.min.css"
         />
+        <script src="https://unpkg.com/wavesurfer.js@7" />
       </head>
       <body
         className={cn(

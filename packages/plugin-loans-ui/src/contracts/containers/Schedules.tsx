@@ -1,6 +1,7 @@
 import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
-import { Bulk, withProps } from '@erxes/ui/src';
+import Bulk from '@erxes/ui/src/components/Bulk';
+import { withProps } from '@erxes/ui/src/utils/core';
 import React from 'react';
 import { graphql } from '@apollo/client/react/hoc';
 import SchedulesList from '../components/schedules/SchedulesList';

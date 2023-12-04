@@ -9,7 +9,7 @@ import { withProps } from '@erxes/ui/src/utils';
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import withCurrentUser from '@erxes/ui/src/auth/containers/withCurrentUser';
 import { queries as companyQueries } from '@erxes/ui-contacts/src/companies/graphql';
-import { queries as dealsQuery } from '@erxes/ui-cards/src/deals/graphql';
+import { queries as dealQueries } from '@erxes/ui-cards/src/deals/graphql';
 
 import { IMeeting, RemoveMutationResponse } from '../../../types';
 import { mutations } from '../../../graphql';
@@ -46,8 +46,8 @@ const MeetingFormContainer = (props: FinalProps) => {
     object
   }: IButtonMutateProps) => {
     values.title =
-      values.title ||
-      companiesQuery.companies.find(c => c._id === values.companyId)
+      values?.title ||
+      companiesQuery.companies.find(c => c._id === values?.companyId)
         ?.primaryName ||
       '';
     return (
@@ -85,7 +85,7 @@ export default withProps<Props>(
       name: 'companiesQuery',
       options: () => ({})
     }),
-    graphql(gql(dealsQuery.deals), {
+    graphql(gql(dealQueries.deals), {
       name: 'dealsQuery',
       options: () => ({
         fetchPolicy: 'network-only'

@@ -39,7 +39,7 @@ const RightNavbar = ({ withBorder }: { withBorder?: boolean }) => {
                 alt="User Profile"
                 width={80}
                 height={80}
-                className="w-9 h-9 rounded-full object-cover mr-6"
+                className="w-9 h-9 rounded-full object-cover mr-6 border border-primary"
               />
             </div>
           </PopoverTrigger>

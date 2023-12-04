@@ -6,7 +6,6 @@ import {
   GeneralWrapper,
   TeamPortal
 } from '../styles';
-import { ICON_OPTIONS, TYPE_OPTIONS } from '../constants';
 import React, { useState } from 'react';
 import { generateTree, removeTypename } from '../utils';
 
@@ -17,8 +16,6 @@ import { __ } from '@erxes/ui/src/utils';
 
 const getEmptyFeature = () => ({
   _id: Math.random().toString(),
-  icon: 'reply',
-  contentType: 'form',
   name: '',
   description: '',
   contentId: '',
@@ -28,25 +25,13 @@ const getEmptyFeature = () => ({
 type Props = {
   exm: IExm;
   edit: (variables: IExm) => void;
-  brands: any[];
-  forms: any[];
   kbTopics: any[];
   kbCategories: { [key: string]: any[] };
   getKbCategories: (topicId: string) => void;
-  getForms: (brandId: string) => void;
 };
 
 export default function General(props: Props) {
-  const {
-    forms,
-    brands,
-    kbTopics,
-    exm,
-    edit,
-    getKbCategories,
-    getForms,
-    kbCategories
-  } = props;
+  const { kbTopics, exm, edit, getKbCategories, kbCategories } = props;
   const exmFeatures = exm.features || [];
 
   const [name, setName] = useState(exm.name || '');
@@ -75,11 +60,7 @@ export default function General(props: Props) {
     }
   };
 
-  const getContentValues = (contentType: string) => {
-    if (contentType === 'form') {
-      return brands.map(f => ({ value: f._id, label: f.name }));
-    }
-
+  const getContentValues = () => {
     return kbTopics.map(c => ({ value: c._id, label: c.title }));
   };
 
@@ -99,20 +80,6 @@ export default function General(props: Props) {
         'parentCategoryId'
       );
     }
-  };
-
-  const getFormValues = contentId => {
-    if (!contentId) {
-      return [];
-    }
-
-    if (!forms || forms.length === 0) {
-      getForms(contentId);
-
-      return [];
-    }
-
-    return forms.map(f => ({ value: f._id, label: f.name }));
   };
 
   const onSave = () => {
@@ -148,30 +115,6 @@ export default function General(props: Props) {
           <FeatureRow key={feature._id}>
             <FeatureRowItem>
               <FormControl
-                componentClass="select"
-                value={feature.contentType}
-                options={TYPE_OPTIONS}
-                onChange={(e: any) => {
-                  onChangeFeatureItem(
-                    feature._id,
-                    'contentType',
-                    e.target.value
-                  );
-                }}
-              />
-            </FeatureRowItem>
-            <FeatureRowItem>
-              <FormControl
-                componentClass="select"
-                value={feature.icon}
-                options={ICON_OPTIONS}
-                onChange={(e: any) =>
-                  onChangeFeatureItem(feature._id, 'icon', e.target.value)
-                }
-              />
-            </FeatureRowItem>
-            <FeatureRowItem>
-              <FormControl
                 name="name"
                 placeholder="Name"
                 value={feature.name}
@@ -196,21 +139,11 @@ export default function General(props: Props) {
             </FeatureRowItem>
             <FeatureRowItem>
               <Select
-                placeholder={__(
-                  `Choose a ${
-                    feature.contentType === 'knowledgeBase'
-                      ? 'knowledge base'
-                      : 'brand'
-                  }`
-                )}
+                placeholder={__(`Choose a knowledge base`)}
                 value={feature.contentId}
-                options={getContentValues(feature.contentType)}
+                options={getContentValues()}
                 onChange={item => {
-                  if (feature.contentType === 'knowledgeBase') {
-                    getKbCategories(item.value);
-                  } else {
-                    getForms(item.value);
-                  }
+                  getKbCategories(item.value);
 
                   onChangeFeatureItem(feature._id, 'contentId', item.value);
                 }}
@@ -218,37 +151,22 @@ export default function General(props: Props) {
               />
             </FeatureRowItem>
 
-            {feature.contentType === 'knowledgeBase' ? (
-              <FeatureRowItem>
-                <Select
-                  placeholder={__('Choose a category')}
-                  value={feature.subContentId}
-                  options={getCategoryValues(
-                    feature.contentId,
-                    kbCategories[feature.contentId],
-                    null
-                  )}
-                  style={{ width: 200 }}
-                  onChange={item =>
-                    onChangeFeatureItem(feature._id, 'subContentId', item.value)
-                  }
-                  clearable={false}
-                />
-              </FeatureRowItem>
-            ) : (
-              <FeatureRowItem>
-                <Select
-                  placeholder={__('Choose a form')}
-                  value={feature.subContentId}
-                  options={getFormValues(feature.contentId)}
-                  style={{ width: 200 }}
-                  onChange={form =>
-                    onChangeFeatureItem(feature._id, 'subContentId', form.value)
-                  }
-                  clearable={false}
-                />
-              </FeatureRowItem>
-            )}
+            <FeatureRowItem>
+              <Select
+                placeholder={__('Choose a category')}
+                value={feature.subContentId}
+                options={getCategoryValues(
+                  feature.contentId,
+                  kbCategories[feature.contentId],
+                  null
+                )}
+                style={{ width: 200 }}
+                onChange={item =>
+                  onChangeFeatureItem(feature._id, 'subContentId', item.value)
+                }
+                clearable={false}
+              />
+            </FeatureRowItem>
 
             <Button
               btnStyle="danger"

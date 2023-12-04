@@ -3,6 +3,8 @@ import { Mic, MicOff, Pause, Play } from "lucide-react"
 import WaveSurfer from "wavesurfer.js"
 import RecordPlugin from "wavesurfer.js/dist/plugins/record"
 
+import { toast } from "@/components/ui/use-toast"
+
 type Props = {
   sendAudio: (blob: Blob) => void
 }
@@ -17,8 +19,20 @@ const AudioRecorder = ({ sendAudio }: Props) => {
   const [isRecording, setIsRecording] = useState<boolean>(false)
   const [isPaused, setIsPaused] = useState<boolean>(false)
 
+  const [recordTime, setRecordTime] = useState(0)
+
+  const formatTime = (seconds: number) => {
+    const minutes = Math.floor(seconds / 60)
+    const remainingSeconds = seconds % 60
+    const formattedMinutes = String(minutes).padStart(2, "0")
+    const formattedSeconds = String(remainingSeconds).padStart(2, "0")
+    return `${formattedMinutes}:${formattedSeconds}`
+  }
+
   useEffect(() => {
-    if (!containerRef.current) {return}
+    if (!containerRef.current) {
+      return
+    }
 
     const ws = WaveSurfer.create({
       container: containerRef.current,
@@ -33,11 +47,23 @@ const AudioRecorder = ({ sendAudio }: Props) => {
 
     setWavesurfer(ws)
 
-    RecordPlugin.getAvailableAudioDevices().then((devices: any) =>
-      setDeviceId(devices[0].deviceId)
-    )
+    RecordPlugin.getAvailableAudioDevices()
+      .then((devices: any) => setDeviceId(devices[0].deviceId))
+      .catch((e) => {
+        setIsRecording(false)
+        toast({
+          title: "Accessing the microphone",
+          description: "Requested device not found",
+          variant: "warning",
+        })
+      })
 
-    const recordEffect = ws.registerPlugin(RecordPlugin.create())
+    const recordEffect = ws.registerPlugin(
+      RecordPlugin.create({
+        // scrollingWaveform: true,
+        // renderRecordedAudio : true
+      })
+    )
     setRecord(recordEffect)
 
     recordEffect.on("record-end", (blob: any) => {
@@ -51,6 +77,23 @@ const AudioRecorder = ({ sendAudio }: Props) => {
       ws.destroy()
     }
   }, [])
+
+  useEffect(() => {
+    const timerInterval = setInterval(() => {
+      if (isRecording && !isPaused) {
+        if (recordTime >= 59) {
+          record.stopRecording()
+          record.stopMic()
+          setIsRecording(false)
+          clearInterval(timerInterval)
+        } else {
+          setRecordTime((prevTime) => prevTime + 1)
+        }
+      }
+    }, 1000)
+
+    return () => clearInterval(timerInterval)
+  }, [isRecording, isPaused, recordTime])
 
   const startRecording = () => {
     record.startRecording({ deviceId })
@@ -87,7 +130,10 @@ const AudioRecorder = ({ sendAudio }: Props) => {
       </div>
 
       <div className="flex w-full items-center gap-4 p-5 rounded-lg bg-[#F5FAFF] drop-shadow-md">
-        <div ref={containerRef} className="w-full "/>
+        <div className=" w-1/12 text-center text-[14px] text-semibold">
+          {formatTime(recordTime)}
+        </div>
+        <div ref={containerRef} className="w-full " />
       </div>
     </>
   )

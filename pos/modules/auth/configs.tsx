@@ -4,6 +4,7 @@ import { ReactNode, useEffect, useState } from "react"
 import { refetchUserAtom } from "@/store"
 import {
   configAtom,
+  orderPasswordAtom,
   setConfigsAtom,
   setCurrentUserAtom,
 } from "@/store/config.store"
@@ -20,6 +21,7 @@ const Configs = ({ children }: { children: ReactNode }) => {
   const setConfigs = useSetAtom(setConfigsAtom)
   const setCurrentUser = useSetAtom(setCurrentUserAtom)
   const setConfig = useSetAtom(configAtom)
+  const setOrderPassword = useSetAtom(orderPasswordAtom)
   const [loadingConfigs, setLoadingConfigs] = useState(true)
   const { onError } = useToast()
   const [fetchUser, setFetchUser] = useAtom(refetchUserAtom)
@@ -53,13 +55,15 @@ const Configs = ({ children }: { children: ReactNode }) => {
   }, [data, setCurrentUser])
 
   useEffect(() => {
-    const currentConfig = (config || {}).currentConfig
+    const { uiOptions, orderPassword, ...restConfig } =
+      (config || {}).currentConfig || {}
 
-    if (currentConfig) {
-      setConfig(currentConfig)
+    if (restConfig) {
+      setConfig(restConfig)
     }
+    setOrderPassword(orderPassword)
 
-    const { primary } = currentConfig?.uiOptions?.colors || {}
+    const { primary } = uiOptions?.colors || {}
 
     if (primary) {
       document.documentElement.style.setProperty(
@@ -67,7 +71,7 @@ const Configs = ({ children }: { children: ReactNode }) => {
         hexToHsl(primary || "#4f33af")
       )
     }
-  }, [config, setConfig])
+  }, [config, setConfig, setOrderPassword])
 
   if (loading || loadingConfig || loadingConfigs)
     return <Loader className="h-screen" />

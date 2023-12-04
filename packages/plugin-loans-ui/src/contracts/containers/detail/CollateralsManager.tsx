@@ -1,4 +1,4 @@
-import { AppConsumer } from '@erxes/ui/src';
+import { AppConsumer } from '@erxes/ui/src/appContext';
 import { Alert, withProps } from '@erxes/ui/src';
 import { IProduct } from '@erxes/ui-products/src/types';
 import { gql } from '@apollo/client';

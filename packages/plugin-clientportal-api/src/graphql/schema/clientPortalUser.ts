@@ -145,6 +145,7 @@ const userParams = `
   email: String,
   username: String,
   password: String,
+  secondaryPassword: String,
 
   companyName: String
   companyRegistrationNumber: String
@@ -189,4 +190,6 @@ export const mutations = () => `
   clientPortalUsersSendVerificationRequest(login: String!, password: String!, clientPortalId: String!,  attachments: [AttachmentInput]!, description: String): String
   clientPortalUsersChangeVerificationStatus(userId: String!, status: ClientPortalUserVerificationStatus!): String
   clientPortalUpdateUser(_id: String!, doc: ClientPortalUserUpdate!): JSON
+
+  clientPortalUserSetSecondaryPassword(newPassword: String!, oldPassword:String): String
 `;

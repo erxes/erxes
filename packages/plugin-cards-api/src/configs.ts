@@ -50,8 +50,6 @@ export default {
     'subscriptionPlugin.js'
   ),
 
-  hasDashboard: true,
-
   meta: {
     cronjobs,
     reports,

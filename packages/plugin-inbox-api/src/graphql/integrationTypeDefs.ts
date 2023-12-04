@@ -117,6 +117,7 @@ export const types = ({ products, tags, forms }) => `
     css: String
     successImage: String
     successImageSize: String
+    verifyEmail: Boolean
   }
 
   input BookingStyleInput {
