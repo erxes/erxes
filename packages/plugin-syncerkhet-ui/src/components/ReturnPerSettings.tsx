@@ -3,7 +3,8 @@ import {
   CollapseContent,
   ControlLabel,
   FormControl,
-  FormGroup
+  FormGroup,
+  Icon
 } from '@erxes/ui/src/components';
 import BoardSelectContainer from '@erxes/ui-cards/src/boards/containers/BoardSelect';
 import { __ } from '@erxes/ui/src/utils';
@@ -118,6 +119,8 @@ class PerSettings extends React.Component<Props, State> {
     return (
       <CollapseContent
         title={__(config.title)}
+        beforeTitle={<Icon icon="settings" />}
+        transparent={true}
         open={this.props.currentConfigKey === 'newEbarimtConfig' ? true : false}
       >
         <FormGroup>

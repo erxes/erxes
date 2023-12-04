@@ -54,7 +54,7 @@ class InventoryCategoryContainer extends React.Component<FinalProps, State> {
     const setSyncStatusTrue = (data: any, categories: any, action: string) => {
       data[action].items = data[action].items.map(i => {
         if (categories.find(c => c.code === i.code)) {
-          let temp = i;
+          const temp = i;
           temp.syncStatus = true;
           return temp;
         }
@@ -67,8 +67,8 @@ class InventoryCategoryContainer extends React.Component<FinalProps, State> {
       this.props
         .toSyncCategories({
           variables: {
-            action: action,
-            categories: categories
+            action,
+            categories
           }
         })
         .then(() => {
@@ -76,7 +76,7 @@ class InventoryCategoryContainer extends React.Component<FinalProps, State> {
           Alert.success('Success. Please check again.');
         })
         .finally(() => {
-          let data = this.state.items;
+          const data = this.state.items;
 
           setSyncStatusTrue(data, categories, action.toLowerCase());
 
@@ -93,7 +93,7 @@ class InventoryCategoryContainer extends React.Component<FinalProps, State> {
       this.props
         .toCheckCategories({ variables: {} })
         .then(response => {
-          let data = response.data.toCheckCategories;
+          const data = response.data.toCheckCategories;
 
           setSyncStatus(data, 'create');
           setSyncStatus(data, 'update');
@@ -108,13 +108,13 @@ class InventoryCategoryContainer extends React.Component<FinalProps, State> {
         });
     };
 
-    if (loading) {
-      return <Spinner />;
-    }
+    // if (loading) {
+    //   return <Spinner />;
+    // }
 
     const updatedProps = {
       ...this.props,
-      loading: loading,
+      loading,
       toCheckCategories,
       toSyncCategories,
       items
