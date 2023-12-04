@@ -344,9 +344,8 @@ const msdynamicMutations = {
 
       for (const customer of customers) {
         const document: any = {
-          Name: 'TEST GERELSUKH',
-          Name_MN: 'Тестгэрэлсүх',
-          Search_Name: 'TEST GERELSUKH',
+          Name: 'TEST GERELSUKHw',
+          Search_Name: 'TEST GERELSUKHw',
           Phone_No: customer.phone
         };
 
@@ -375,6 +374,8 @@ const msdynamicMutations = {
             },
             body: document
           });
+
+          await consumeCustomers(subdomain, postResponse, 'create');
         }
       }
 
