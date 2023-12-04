@@ -79,6 +79,10 @@ export type ReportByUsersQueryResponse = {
 export interface IReport {
   groupTitle: string;
   groupReport: IUserReport[];
+
+  groupParentsCount: number;
+  groupParentsTitles: [string];
+
   groupTotalMinsLate: number;
   groupTotalAbsenceMins?: number;
   groupTotalMinsWorked?: number;

@@ -5,14 +5,14 @@ import Button from '@erxes/ui/src/components/Button';
 
 type Props = {
   queryParams: any;
+  isCurrentUserAdmin: boolean;
+  reportType: string;
 };
 
 export default (props: Props) => {
-  const { queryParams } = props;
-
   const exportReport = () => {
     const stringified = queryString.stringify({
-      ...queryParams
+      ...props
     });
 
     const { REACT_APP_API_URL } = getEnv();

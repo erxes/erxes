@@ -48,6 +48,9 @@ const bichilTimeclockReport = `
       list {
             groupTitle
             
+            groupParentsCount
+            groupParentsTitles
+            
             groupReport{
               user {
                 ${userFields}

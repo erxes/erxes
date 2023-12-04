@@ -12,10 +12,11 @@ type Props = {
   deductionInfo?: any;
 };
 
-const ReportRow = (
+export const ReportRow = (
   userReport: IUserReport,
   reportType: string,
-  index: number
+  index: number,
+  tr?: boolean
 ) => {
   switch (reportType) {
     case 'Урьдчилсан':
@@ -40,8 +41,8 @@ const ReportRow = (
       const getFullName = `${getLastName.charAt(0)}.${getFirstName}`;
 
       return (
-        <tr>
-          <td>{getFullName || '-'}</td>
+        <>
+          <td style={{ textAlign: 'center' }}>{getFullName || '-'}</td>
           <td>{userReport.user.employeeId || '-'}</td>
 
           <td>{userReport.user.details?.position || '-'}</td>
@@ -61,8 +62,10 @@ const ReportRow = (
           <td>{userReport.latenessFee}</td>
           <td>{userReport.totalMinsLateDeduction?.toFixed(2)}</td>
 
-          <td>{userReport.totalDeduction?.toFixed(2)}</td>
-        </tr>
+          <td style={{ textAlign: 'end' }}>
+            {userReport.totalDeduction?.toFixed(2)}
+          </td>
+        </>
       );
 
     case 'Pivot':
@@ -216,18 +219,25 @@ function TableRow(props: Props) {
     const groupReportLength = bichilReport.groupReport.length;
 
     return (
-      <tbody>
-        <>
-          <tr>
-            <td rowSpan={groupReportLength + 1} style={{ textAlign: 'center' }}>
-              <b>{groupTitle}</b>
-            </td>
-          </tr>
-          {bichilReport.groupReport.map((userReport, i) =>
-            ReportRow(userReport, reportType, i)
-          )}
-        </>
-      </tbody>
+      <>
+        <tr>
+          <td
+            rowSpan={groupReportLength}
+            style={{
+              textAlign: 'center',
+              border: '1px solid #EEE'
+            }}
+          >
+            <b>{groupTitle}</b>
+          </td>
+          {ReportRow(bichilReport.groupReport[0], reportType, index)}
+        </tr>
+        {bichilReport.groupReport.map((userReport, i) => {
+          if (i !== 0) {
+            return <tr>{ReportRow(userReport, reportType, i + 1)}</tr>;
+          }
+        })}
+      </>
     );
   }
 
