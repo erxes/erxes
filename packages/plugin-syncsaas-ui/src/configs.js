@@ -1,4 +1,5 @@
 module.exports = {
+  srcDir: __dirname,
   name: 'syncsaas',
   port: 3030,
   scope: 'syncsaas',
