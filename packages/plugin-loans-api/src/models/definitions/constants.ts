@@ -4,6 +4,12 @@ export const REPAYMENT_TYPE = [
   { label: 'Custom Rate Payment', value: 'custom' } // duriin tulbur
 ];
 
+export const REPAYMENT = {
+  EQUAL: 'equal', // undsen tulbur tentsuu
+  FIXED: 'fixed', // niit tulbur tentsuu
+  CUSTOM: 'custom' // duriin tulbur
+};
+
 export const CONTRACT_STATUS = {
   DRAFT: 'draft',
   NORMAL: 'normal',

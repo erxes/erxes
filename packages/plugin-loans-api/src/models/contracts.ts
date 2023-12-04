@@ -1,4 +1,9 @@
-import { CONTRACT_STATUS, SCHEDULE_STATUS } from './definitions/constants';
+import {
+  CONTRACT_STATUS,
+  LEASE_TYPES,
+  REPAYMENT,
+  SCHEDULE_STATUS
+} from './definitions/constants';
 import {
   contractSchema,
   ICloseVariable,
@@ -80,7 +85,7 @@ export const loadContractClass = (models: IModels) => {
 
       const contract = await models.Contracts.create(doc);
 
-      if (doc.repayment === 'custom' && schedule.length > 0) {
+      if (doc.repayment === REPAYMENT.CUSTOM && schedule.length > 0) {
         const schedules = schedule.map(a => {
           return {
             contractId: contract._id,
@@ -98,13 +103,12 @@ export const loadContractClass = (models: IModels) => {
         await models.Schedules.insertMany(schedules);
       }
 
-      if (doc.leaseType === 'linear') {
+      if (doc.leaseType === LEASE_TYPES.LINEAR) {
         const schedules = [
           {
             contractId: contract._id,
             status: SCHEDULE_STATUS.PENDING,
             payDate: doc.endDate,
-
             balance: doc.leaseAmount,
             interestNonce: 0,
             payment: doc.leaseAmount,
@@ -113,7 +117,6 @@ export const loadContractClass = (models: IModels) => {
         ];
 
         await models.FirstSchedules.insertMany(schedules);
-        await models.Schedules.insertMany(schedules);
       }
 
       return contract;
