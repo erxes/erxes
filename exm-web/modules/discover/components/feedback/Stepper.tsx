@@ -1,8 +1,5 @@
 import { useEffect, useState } from "react"
-
 import { Check } from "lucide-react"
-import { exmAtom } from "@/modules/JotaiProiveder"
-import { useAtomValue } from "jotai"
 
 type Props = {
   steps: string[]
@@ -16,7 +13,6 @@ function classNames(...classes: string[]) {
 
 const Stepper = ({ steps = [], currentStep = 1, setCurrentStep }: Props) => {
   const [complete, setComplete] = useState(false)
-  const exm = useAtomValue(exmAtom)
 
   useEffect(() => {
     setComplete(currentStep === steps.length + 1)
@@ -31,22 +27,12 @@ const Stepper = ({ steps = [], currentStep = 1, setCurrentStep }: Props) => {
 
   const getCircleClasses = (i: number) =>
     classNames(
-      "relative flex h-12 w-12 items-center justify-center rounded-full hover:bg-[#4f46e5]",
+      "relative flex h-10 w-10 items-center justify-center rounded-full hover:bg-[#4f46e5]",
       currentStep >= i + 1 ? "cursor-pointer" : "cursor-not-allowed"
     )
 
   const circleBackgroundColor = (i: number) =>
-    i + 1 <= currentStep || complete
-      ? exm?.appearance?.primaryColor || "#4f46e5"
-      : "#d1d5db"
-
-  const stepLineStyle = {
-    backgroundColor: circleBackgroundColor,
-  }
-
-  const circleStyle = {
-    backgroundColor: circleBackgroundColor,
-  }
+    i + 1 <= currentStep || complete ? "#4F33AF" : "#d1d5db"
 
   return (
     <nav aria-label="Progress">

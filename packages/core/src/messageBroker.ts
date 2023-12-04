@@ -455,6 +455,17 @@ export const initBroker = async options => {
     };
   });
 
+  consumeRPCQueue('core:branches.aggregate', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    const { pipeline } = data;
+
+    return {
+      status: 'success',
+      data: await models.Branches.aggregate(pipeline).exec()
+    };
+  });
+
   consumeRPCQueue('core:branches.find', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
