@@ -234,6 +234,7 @@ export const getCalcedAmounts = async (
 
   const startDate = getFullDate(contract.startDate);
   startDate.setDate(startDate.getDate() + 1);
+
   const skipInterestCalcDate = addMonths(
     new Date(startDate),
     contract.skipInterestCalcMonth || 0
@@ -256,6 +257,7 @@ export const getCalcedAmounts = async (
   }
 
   const prePayDate = getFullDate(preSchedule.payDate);
+
   result.preSchedule = preSchedule;
   result.balance = preSchedule.balance;
   result.unUsedBalance = contract.leaseAmount - preSchedule.balance;
@@ -314,6 +316,7 @@ export const getCalcedAmounts = async (
     result.payment = preSchedule.balance;
     return result;
   }
+
   // correct run
   if (trDate < prePayDate) {
     return result;
@@ -464,6 +467,7 @@ export const getCalcedAmounts = async (
     result.debt += nextSchedule.debt || 0;
 
     result.payment += nextSchedule.payment || 0;
+
     if (preSchedule.status === SCHEDULE_STATUS.LESS) {
       result.undue = (preSchedule.undue || 0) - (preSchedule.didUndue || 0);
       const unduePercent = await getUnduePercent(
