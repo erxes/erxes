@@ -271,6 +271,10 @@ export default {
           continue;
         }
 
+        if (!pd.tickUsed) {
+          continue;
+        }
+
         const product = await sendProductsMessage({
           subdomain,
           action: 'findOne',
@@ -309,9 +313,9 @@ export default {
                 <thead>
                   <tr>
                     <th>№</th>
-                    <th>${
-                      type === 'product' ? 'Product name' : 'Service name'
-                    }</th>
+                    <th>
+                      ${type === 'product' ? 'Product name' : 'Service name'}
+                    </th>
                     <th>Quantity</th>
                     <th>Unit price</th>
                     <th>Total amount</th>

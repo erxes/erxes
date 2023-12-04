@@ -21,8 +21,8 @@ type State = {
   loading: boolean;
   selectedDocumentId: string;
   selectedDocumentName: string;
-  copies: string;
-  width: string;
+  copies: number;
+  width: number;
   item: any;
   checked: boolean;
   renderModal: boolean;
@@ -41,8 +41,12 @@ export default class StageModal extends React.Component<Props, State> {
       item: [],
       selectedDocumentId: '',
       selectedDocumentName: '',
-      copies: '',
-      width: '',
+      copies: Number(
+        localStorage.getItem('erxes_stages_documents_copies') || 1
+      ),
+      width: Number(
+        localStorage.getItem('erxes_stages_documents_width') || 300
+      ),
       toggleModal: () => {}
     };
   }
@@ -58,15 +62,12 @@ export default class StageModal extends React.Component<Props, State> {
 
     this.setState({ item: changeItems });
   };
-  onChangeWidth = (e: React.FormEvent<HTMLElement>) => {
-    this.setState({
-      width: (e.currentTarget as HTMLInputElement).value
-    });
-  };
 
-  onChangeCopies = (e: React.FormEvent<HTMLElement>) => {
-    this.setState({
-      copies: (e.currentTarget as HTMLInputElement).value
+  onChange = e => {
+    const name = e.target.name;
+    const value = e.target.value;
+    this.setState({ [name]: value } as any, () => {
+      localStorage.setItem(`erxes_stages_documents_${name}`, value);
     });
   };
 
@@ -170,7 +171,7 @@ export default class StageModal extends React.Component<Props, State> {
                   name="copies"
                   required={true}
                   autoFocus={true}
-                  onChange={this.onChangeCopies}
+                  onChange={this.onChange}
                   value={this.state.copies}
                 />
               </FormGroup>
@@ -182,7 +183,7 @@ export default class StageModal extends React.Component<Props, State> {
                   required={true}
                   autoFocus={true}
                   value={this.state.width}
-                  onChange={this.onChangeWidth}
+                  onChange={this.onChange}
                 />
               </FormGroup>
               <FormGroup>
@@ -190,16 +191,16 @@ export default class StageModal extends React.Component<Props, State> {
                 {this.renderDropdown()}
               </FormGroup>
               <tr>
-                <th>{__('Name')}</th>
                 <th>{__('Number')}</th>
+                <th>{__('Name')}</th>
                 <th>{__('Action')}</th>
               </tr>
             </thead>
             <tbody>
               {item.map(item => (
                 <tr key={item._id}>
-                  <td>{item.name}</td>
                   <td>{item.number}</td>
+                  <td>{item.name}</td>
                   <td>
                     <input
                       type="checkbox"
