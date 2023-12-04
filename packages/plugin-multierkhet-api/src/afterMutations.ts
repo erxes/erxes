@@ -1,5 +1,5 @@
 import { sendRPCMessage } from './messageBrokerErkhet';
-import { getPostData, getMoveData } from './utils/ebarimtData';
+import { getPostData } from './utils/ebarimtData';
 import {
   productToErkhet,
   productCategoryToErkhet
@@ -44,10 +44,6 @@ export const afterMutationHandlers = async (subdomain, params) => {
         {}
       );
 
-      const moveConfigs = await models.Configs.getConfig(
-        'stageInMoveConfig',
-        {}
-      );
       const returnConfigs = await models.Configs.getConfig(
         'returnEbarimtConfig',
         {}
@@ -91,41 +87,6 @@ export const afterMutationHandlers = async (subdomain, params) => {
             thirdService: true
           }
         );
-
-        return;
-      }
-
-      // move
-      if (Object.keys(moveConfigs).includes(destinationStageId)) {
-        const moveConfig = {
-          ...moveConfigs[destinationStageId],
-          ...(await models.Configs.getConfig('ERKHET', {}))
-        };
-
-        const postData = await getMoveData(subdomain, moveConfig, deal);
-        const syncLog = await models.SyncLogs.syncLogsAdd(
-          getSyncLogDoc(params)
-        );
-        const response = await sendRPCMessage(
-          models,
-          syncLog,
-          'rpc_queue:erxes-automation-erkhet',
-          {
-            action: 'get-response-inv-movement-info',
-            isJson: true,
-            isEbarimt: false,
-            payload: JSON.stringify(postData),
-            thirdService: true
-          }
-        );
-
-        if (response.message || response.error) {
-          const txt = JSON.stringify({
-            message: response.message,
-            error: response.error
-          });
-          console.log(txt);
-        }
 
         return;
       }
