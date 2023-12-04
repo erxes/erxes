@@ -25,11 +25,7 @@ const dealMutations = {
    * Creates a new deal
    */
 
-  async paymentTypes(
-    _root,
-    doc: IPaymentType,
-    { models, user, subdomain }: IContext
-  ) {
+  async paymentTypes(_root, doc: IPaymentType, { models, user }: IContext) {
     try {
       const oldPaymentTypes = await models.PaymentTypes.find({
         status: 'active'

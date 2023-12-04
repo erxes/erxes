@@ -1,19 +1,12 @@
-import {
-  ContentColumn,
-  ContentRowTitle,
-  Divider,
-  WrongLess
-} from '../../styles';
-import { isEnabled } from '@erxes/ui/src/utils/core';
+import { ContentColumn, ContentRowTitle, WrongLess } from '../../styles';
 import CURRENCIES from '@erxes/ui/src/constants/currencies';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { Flex } from '@erxes/ui/src/styles/main';
 import FormControl from '@erxes/ui/src/components/form/Control';
-import { IPaymentsData, IDeal, IMobileAmounts } from '../../types';
+import { IPaymentsData, IDeal } from '../../types';
 import { PAYMENT_TYPES } from '../../constants';
 import React from 'react';
 import Select from 'react-select-plus';
-import { pluginsOfPaymentForm } from 'coreui/pluginUtils';
 import { selectConfigOptions } from '../../utils';
 import { __ } from '@erxes/ui/src';
 import PaymentModal from './PaymentModal';
@@ -260,8 +253,6 @@ class PaymentForm extends React.Component<Props, State> {
         </ContentRowTitle>
 
         {this.renderPayments()}
-
-        {pluginsOfPaymentForm(type => this.renderPaymentsByType(type))}
       </>
     );
   }
