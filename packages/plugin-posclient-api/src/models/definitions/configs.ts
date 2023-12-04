@@ -43,6 +43,7 @@ interface ICatProd {
 export interface IConfig {
   name: string;
   description?: string;
+  orderPassword?: string;
   pdomain?: string;
   productDetails?: string[];
   adminIds: string[];
@@ -114,6 +115,11 @@ export const configSchema = new Schema({
   _id: field({ pkey: true }),
   name: field({ type: String, unique: true, label: 'Name' }),
   description: field({ type: String, optional: true, label: 'Description' }),
+  orderPassword: field({
+    type: String,
+    optional: true,
+    label: ' OrderPassword'
+  }),
   pdomain: field({ type: String, optional: true, label: 'Domain' }),
   userId: field({ type: String, optional: true, label: 'Created by' }),
   createdAt: getDateFieldDefinition('Created at'),

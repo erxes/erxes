@@ -36,6 +36,7 @@ import {
   leave,
   redis
 } from '@erxes/api-utils/src/serviceDiscovery';
+import { applyInspectorEndpoints } from '../inspect';
 
 const {
   MONGO_URL,
@@ -686,6 +687,8 @@ export async function startPlugin(configs: any): Promise<express.Express> {
       error: debugError
     }
   });
+
+  applyInspectorEndpoints(app, configs.name);
 
   debugInfo(`${configs.name} server is running on port: ${PORT}`);
 
