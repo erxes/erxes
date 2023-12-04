@@ -1,6 +1,6 @@
 import * as Imap from 'node-imap';
 import { simpleParser } from 'mailparser';
-import { generateModels } from './connectionResolver';
+import { IModels, generateModels } from './connectionResolver';
 import { sendContactsMessage, sendInboxMessage } from './messageBroker';
 import { IIntegrationDocument } from './models';
 
@@ -83,10 +83,9 @@ const saveMessages = async (
   subdomain: string,
   imap,
   integration: IIntegrationDocument,
-  criteria
+  criteria,
+  models: IModels
 ) => {
-  const models = await generateModels(subdomain);
-
   const msgs: any = await searchMessages(imap, criteria);
 
   console.log(`======== found ${msgs.length} messages`);
@@ -220,10 +219,9 @@ const saveMessages = async (
 
 export const listenIntegration = async (
   subdomain: string,
-  integration: IIntegrationDocument
+  integration: IIntegrationDocument,
+  models: IModels
 ) => {
-  const models = await generateModels(subdomain);
-
   let lastFetchDate = integration.lastFetchDate
     ? new Date(integration.lastFetchDate)
     : undefined;
@@ -254,7 +252,7 @@ export const listenIntegration = async (
               criteria.push(['SINCE', lastFetchDate.toISOString()]);
             }
             const nextLastFetchDate = new Date();
-            await saveMessages(subdomain, imap, integration, criteria);
+            await saveMessages(subdomain, imap, integration, criteria, models);
             await models.Integrations.updateOne(
               { _id: integration._id },
               { $set: { lastFetchDate: nextLastFetchDate } }
@@ -391,7 +389,8 @@ const listen = async (subdomain: string) => {
   });
 
   for (const integration of integrations) {
-    listenIntegration(subdomain, integration);
+    // Don't use await, ideally, lisening to imap integration should never finish
+    listenIntegration(subdomain, integration, models);
   }
 };
 
