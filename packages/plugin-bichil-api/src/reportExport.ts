@@ -326,7 +326,7 @@ const extractAndAddIntoSheet = async (
 
         for (const userBranchId of userBranchIds) {
           if (structuresDict[userBranchId]) {
-            branchTitles.push(structuresDict[userBranchId]);
+            branchTitles.push(structuresDict[userBranchId].title);
           }
         }
 
@@ -553,6 +553,7 @@ export const buildFile = async (
   params: any
 ) => {
   const isCurrentUserAdmin = params.isCurrentUserAdmin;
+
   const reportType = params.reportType;
   const userIds =
     params.userIds instanceof Array || !params.userIds
@@ -647,8 +648,8 @@ export const buildFile = async (
         true
       );
 
-      report = reportFinal.report;
-      deductionInfo = reportFinal.deductionInfo;
+      report = reportFinal?.report || {};
+      deductionInfo = reportFinal?.deductionInfo || {};
 
       break;
     case 'Pivot':

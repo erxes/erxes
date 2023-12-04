@@ -96,6 +96,7 @@ export interface IShift {
   configShiftStart?: string;
   configShiftEnd?: string;
   scheduleConfigId?: string;
+  lunchBreakInMins?: number;
 }
 
 export interface IShiftDocument extends IShift, Document {
@@ -311,7 +312,10 @@ export const scheduleShiftSchema = new Schema({
     type: Boolean,
     label: 'to be sure of whether shift occurs overnight'
   }),
-
+  lunchBreakInMins: field({
+    type: Number,
+    label: 'lunch break of the shift'
+  }),
   solved: field({
     type: Boolean,
     default: false,
@@ -492,6 +496,8 @@ export interface IGroup {
 export interface IReport {
   groupTitle?: string;
   groupReport?: IUserReport[];
+  groupParentsCount?: number;
+  groupParentsTitles?: string[];
   groupTotalMinsWorked?: number;
   groupTotalMinsLate?: number;
   groupTotalAbsenceMins?: number;
