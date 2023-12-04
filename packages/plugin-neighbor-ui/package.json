@@ -5,7 +5,7 @@
     "install-deps": "yarn install",
     "start": "webpack serve --mode development",
     "build": "webpack --mode production"
-  },,
+  },
   "dependencies": {
     "react-rating-stars-component": "^2.2.0"
   }
