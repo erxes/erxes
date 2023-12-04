@@ -23,11 +23,8 @@ import ItemList from '../stage/ItemList';
 import ItemProductProbabilities from '../../../deals/components/ItemProductProbabilities';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import React from 'react';
-import { __ } from '@erxes/ui/src/utils/core';
-import { Row } from '@erxes/ui-settings/src/styles';
-import { isEnabled } from '@erxes/ui/src/utils/core';
+import { __, isEnabled } from '@erxes/ui/src/utils/core';
 import StageModal from './StageModal';
-import { renderAmount } from '../../utils';
 
 type Props = {
   loadingItems: () => boolean;
@@ -138,17 +135,6 @@ export default class Stage extends React.Component<Props, State> {
       renderModal: !prevState.renderModal
     }));
     this.onClosePopover();
-  };
-
-  onChangeCheckbox = (id: string, isChecked: boolean) => {
-    const { items } = this.props;
-    const changeItems = [...items];
-    changeItems.map(item => {
-      if (item._id === id) {
-        item.checked = isChecked;
-      }
-    });
-    this.setState({ items: changeItems });
   };
 
   renderPopover() {

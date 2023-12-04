@@ -113,15 +113,19 @@ export default {
         stageId: stageId,
         _id: { $in: itemIds.split(',') }
       });
+
       if (!items) {
         return '';
       }
+
       item = await cardsStage(items);
+
       if (!item) {
         return '';
       }
     } else {
       item = await collection.findOne({ _id: itemId });
+
       if (!item) {
         return '';
       }
@@ -426,7 +430,7 @@ export default {
   }
 };
 
-function cardsStage(items: any[]) {
+const cardsStage = async (items: any[]) => {
   try {
     const itemsArray = items;
     const aggregatedData: Record<string, any> = {
@@ -497,4 +501,4 @@ function cardsStage(items: any[]) {
   } catch (error) {
     return { error: error.message };
   }
-}
+};
