@@ -7,8 +7,9 @@ import Form from '../components/Form';
 import { mutations, queries } from '../graphql';
 
 type Props = {
-  contentType?: String;
-  _id: String;
+  contentType?: string;
+  _id: string;
+  closeModal: () => void;
 };
 
 type FinalProps = {
@@ -25,7 +26,7 @@ class Container extends React.Component<FinalProps> {
       contentType,
       detailQuery,
       saveMutation,
-      history
+      closeModal
     } = this.props;
 
     if (detailQuery && detailQuery.loading) {
@@ -41,7 +42,7 @@ class Container extends React.Component<FinalProps> {
 
       saveMutation({ variables })
         .then(() => {
-          history.push('/settings/documents');
+          closeModal();
         })
         .catch(e => {
           Alert.error(e.message);
@@ -62,7 +63,8 @@ class Container extends React.Component<FinalProps> {
       obj,
       contentType: contentType || 'cards',
       subTypes,
-      save
+      save,
+      closeModal
     };
 
     return <Form {...updatedProps} />;
@@ -86,6 +88,11 @@ export default withProps<Props>(
     }),
 
     // mutations
-    graphql(gql(mutations.documentsSave), { name: 'saveMutation' })
+    graphql(gql(mutations.documentsSave), {
+      name: 'saveMutation',
+      options: {
+        refetchQueries: ['documents', 'documentsDetail']
+      }
+    })
   )(Container)
 );

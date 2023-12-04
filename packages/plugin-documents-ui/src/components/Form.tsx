@@ -1,20 +1,25 @@
 import styled from 'styled-components';
-import Button from '@erxes/ui/src/components/Button';
+
 import React from 'react';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import EditorCK from '../containers/EditorCK';
 import { __ } from 'coreui/utils';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import { Title } from '@erxes/ui/src/styles/main';
+
+import { ModalFooter } from '@erxes/ui/src/styles/main';
+import {
+  Button,
+  ControlLabel,
+  Form as CommonForm,
+  FormControl,
+  FormGroup
+} from '@erxes/ui/src/components';
+import { IFormProps } from '@erxes/ui/src/types';
 
 type Props = {
-  contentType: String;
+  contentType: string;
   subTypes: string[];
-  history: any;
   obj: any;
   save: (doc) => void;
+  closeModal: () => void;
 };
 
 type State = {
@@ -44,12 +49,6 @@ class Form extends React.Component<Props, State> {
     this.setState({ [key]: e.currentTarget.value });
   };
 
-  onCancel = () => {
-    const { history } = this.props;
-
-    history.push('/settings/documents');
-  };
-
   onSave = () => {
     const { name, content, replacer, subType } = this.state;
 
@@ -61,107 +60,87 @@ class Form extends React.Component<Props, State> {
     });
   };
 
-  render() {
-    const { obj, contentType, subTypes } = this.props;
+  renderContent = (formProps: IFormProps) => {
+    const { obj, contentType, subTypes, closeModal } = this.props;
     const { content, subType } = this.state;
 
-    const formContent = (
-      <FormWrapper>
-        <FormGroup>
-          <ControlLabel required={true}>Name</ControlLabel>
-
-          <FormControl
-            name="name"
-            required={true}
-            autoFocus={true}
-            defaultValue={obj.name}
-            onChange={this.onChangeField.bind(this, 'name')}
-          />
-        </FormGroup>
-
-        <FormGroup>
-          <div style={{ float: 'left', width: '800px', marginRight: '50px' }}>
-            <EditorCK
-              contentType={obj.contentType || contentType}
-              content={obj.content}
-              onChange={this.onContentChange}
-              height={600}
-              name="document-form"
-            />
-          </div>
-
-          <div
-            style={{ float: 'left' }}
-            dangerouslySetInnerHTML={{ __html: content || '' }}
-          ></div>
-
-          <div style={{ clear: 'both' }} />
-        </FormGroup>
-
-        <FormGroup>
-          <ControlLabel required={true}>Replacer</ControlLabel>
-
-          <FormControl
-            componentClass="textarea"
-            name="name"
-            required={true}
-            defaultValue={obj.replacer}
-            onChange={this.onChangeField.bind(this, 'replacer')}
-          />
-        </FormGroup>
-        <FormGroup>
-          <ControlLabel required={true}>Sub Type</ControlLabel>
-
-          <FormControl
-            componentClass="select"
-            name="subType"
-            value={subType}
-            onChange={this.onChangeField.bind(this, 'subType')}
-          >
-            <option key="" value=""></option>
-            {(subTypes || []).map(e => (
-              <option key={e} value={e}>
-                {e}
-              </option>
-            ))}
-          </FormControl>
-        </FormGroup>
-      </FormWrapper>
-    );
-
-    const actionButtons = (
+    return (
       <>
-        <Button btnStyle="simple" type="button" onClick={this.onCancel}>
-          {__('Cancel')}
-        </Button>
+        <FormWrapper>
+          <FormGroup>
+            <ControlLabel required={true}>Name</ControlLabel>
 
-        <Button onClick={this.onSave} btnStyle="success" type="button">
-          {__('Save')}
-        </Button>
+            <FormControl
+              name="name"
+              required={true}
+              autoFocus={true}
+              defaultValue={obj.name}
+              onChange={this.onChangeField.bind(this, 'name')}
+              {...formProps}
+            />
+          </FormGroup>
+
+          <FormGroup>
+            <div style={{ float: 'left', width: '100%' }}>
+              <EditorCK
+                contentType={obj.contentType || contentType}
+                content={obj.content}
+                onChange={this.onContentChange}
+                height={200}
+                name="document-form"
+              />
+            </div>
+
+            <div style={{ clear: 'both' }} />
+          </FormGroup>
+
+          <FormGroup>
+            <ControlLabel required={true}>Replacer</ControlLabel>
+
+            <FormControl
+              componentClass="textarea"
+              name="name"
+              required={true}
+              defaultValue={obj.replacer}
+              onChange={this.onChangeField.bind(this, 'replacer')}
+              {...formProps}
+            />
+          </FormGroup>
+          <FormGroup>
+            <ControlLabel required={true}>Sub Type</ControlLabel>
+
+            <FormControl
+              componentClass="select"
+              name="subType"
+              value={subType}
+              onChange={this.onChangeField.bind(this, 'subType')}
+              {...formProps}
+            >
+              <option key="" value="" />
+              {(subTypes || []).map(e => (
+                <option key={e} value={e}>
+                  {e}
+                </option>
+              ))}
+            </FormControl>
+          </FormGroup>
+        </FormWrapper>
+
+        <ModalFooter>
+          <Button btnStyle="simple" type="button" onClick={closeModal}>
+            {__('Cancel')}
+          </Button>
+
+          <Button onClick={this.onSave} btnStyle="success" type="button">
+            {__('Save')}
+          </Button>
+        </ModalFooter>
       </>
     );
+  };
 
-    const breadcrumb = [
-      { title: __('Settings'), link: '/settings' },
-      { title: __('Documents'), link: '/documents' }
-    ];
-
-    return (
-      <Wrapper
-        header={
-          <Wrapper.Header title={__('Documents')} breadcrumb={breadcrumb} />
-        }
-        actionBar={
-          <Wrapper.ActionBar
-            left={<Title>{__('Document form')}</Title>}
-            right={actionButtons}
-          />
-        }
-        content={formContent}
-        transparent={true}
-        hasBorder
-      />
-    );
+  render() {
+    return <CommonForm autoComplete="off" renderContent={this.renderContent} />;
   }
 }
 
