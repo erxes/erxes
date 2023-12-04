@@ -1,20 +1,7 @@
-import { orderFields } from "./queries"
-
 const ordersOrdered = `
   subscription ordersOrdered($statuses: [String], $customerId: String, $token: String) {
     ordersOrdered(statuses: $statuses, customerId: $customerId, posToken: $token) {
-      ${orderFields}
-      items {
-        _id
-        unitPrice
-        orderId
-        productName
-        count
-        productId
-        isPackage
-        isTake
-        status
-      }
+      _id
     }
   }
 `
