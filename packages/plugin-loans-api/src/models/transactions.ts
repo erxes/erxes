@@ -501,15 +501,13 @@ export const loadTransactionClass = (models: IModels) => {
         calcInterest = 0
       } = paymentInfo;
 
-      console.log('paymentInfo', paymentInfo);
-
       if (interestEve + interestNonce > storedInterest)
-        calcInterest = interestEve + interestNonce - storedInterest;
+        paymentInfo.calcInterest = interestEve + interestNonce - storedInterest;
 
       paymentInfo.total =
         payment +
         undue +
-        calcInterest +
+        paymentInfo.calcInterest +
         storedInterest +
         insurance +
         debt +
@@ -519,7 +517,7 @@ export const loadTransactionClass = (models: IModels) => {
         balance +
         payment +
         undue +
-        calcInterest +
+        paymentInfo.calcInterest +
         storedInterest +
         insurance +
         commitmentInterest +
