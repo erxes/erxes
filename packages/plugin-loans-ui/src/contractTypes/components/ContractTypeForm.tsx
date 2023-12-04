@@ -270,6 +270,15 @@ class ContractTypeForm extends React.Component<Props, State> {
                   useNumberFormat: true,
                   value: contractType.commitmentInterest
                 })}
+              {this.state.leaseType === LEASE_TYPES.LINEAR &&
+                this.renderFormGroup('Bill day', {
+                  ...formProps,
+                  name: 'billDay',
+                  required: true,
+                  type: '',
+                  useNumberFormat: true,
+                  value: contractType.commitmentInterest
+                })}
               {currentUser?.configs?.loansConfig?.organizationType ===
                 ORGANIZATION_TYPE.ENTITY && (
                 <FormGroup>
@@ -340,6 +349,15 @@ class ContractTypeForm extends React.Component<Props, State> {
                 componentClass: 'checkbox',
                 name: 'useFee',
                 checked: this.state.useFee,
+                onChange: this.onChangeField
+              })}
+              {this.renderFormGroup('Is use pre payment', {
+                ...formProps,
+                className: 'flex-item',
+                type: 'checkbox',
+                componentClass: 'checkbox',
+                name: 'usePrePayment',
+                checked: this.state.usePrePayment,
                 onChange: this.onChangeField
               })}
             </FormColumn>
