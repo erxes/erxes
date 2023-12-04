@@ -1,5 +1,6 @@
 import { paginate } from '@erxes/api-utils/src';
 import { IContext } from '../../../connectionResolver';
+import { sendCardsMessage } from '../../../messageBroker';
 
 const generateFilters = async (params: any) => {
   const filter: any = {};
@@ -55,6 +56,56 @@ const RCFAQueries = {
     }
 
     return rcfaItem;
+  },
+
+  async checkRCFA(
+    _root,
+    {
+      rcfaId,
+      stageIds = [],
+      types = []
+    }: { rcfaId: string; stageIds: string[]; types: string[] },
+    { models, subdomain }: IContext
+  ) {
+    if (
+      !types?.length ||
+      !['action', 'task'].some(type => types.includes(type))
+    ) {
+      throw new Error('Invalid types');
+    }
+
+    const rcfa = await models.RCFA.findOne({ _id: rcfaId });
+
+    if (!rcfa) {
+      throw new Error('Cannot find RCFA');
+    }
+
+    const issues = await models.Issues.find({ rcfaId: rcfa._id });
+
+    let cardIds: string[] = [];
+
+    let totalCardCount = 0;
+
+    for (const issue of issues) {
+      for (const type of types) {
+        const ids = issue[`${type}Ids`];
+        cardIds = [...cardIds, ...ids];
+        totalCardCount += ids.length;
+      }
+    }
+
+    const cards = await sendCardsMessage({
+      subdomain,
+      action: 'tasks.find',
+      data: {
+        _id: { $in: cardIds },
+        stageId: { $in: stageIds }
+      },
+      isRPC: true,
+      defaultValue: []
+    });
+
+    return totalCardCount === cards.length;
   }
 };
 

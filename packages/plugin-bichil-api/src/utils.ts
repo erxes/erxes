@@ -74,6 +74,33 @@ export const findUser = async (subdomain: string, userId: string) => {
 
   return user;
 };
+export const findSubBranches = async (subdomain: string, branchId: string) => {
+  const pipeline = [
+    {
+      $match: { parentId: branchId } // Match the starting parent
+    },
+    {
+      $graphLookup: {
+        from: 'branches', // Collection name
+        startWith: '$_id', // Assuming '_id' is the unique identifier
+        connectFromField: '_id',
+        connectToField: 'parentId',
+        as: 'descendants',
+        depthField: 'depth'
+      }
+    }
+  ];
+
+  const subBranches = await sendCoreMessage({
+    subdomain,
+    action: 'branches.aggregate',
+    data: { pipeline },
+    isRPC: true
+  });
+
+  return subBranches;
+};
+
 export const findBranchUsers = async (
   subdomain: string,
   branchIds: string[]
@@ -178,22 +205,49 @@ export const findTeamMembers = (subdomain: string, userIds: string[]) => {
   });
 };
 
+const returnTotalBranchesDict = async (subdomain: any, branchIds: string[]) => {
+  let dictionary: { [_id: string]: { title: string; parentId: string } } = {};
+
+  const branches = await findBranches(subdomain, branchIds);
+  const parentIds: string[] = [];
+
+  for (const branch of branches) {
+    dictionary[branch._id] = {
+      title: branch.title,
+      parentId: branch.parentId || null
+    };
+    if (branch.parentId) {
+      parentIds.push(branch.parentId);
+    }
+  }
+
+  if (parentIds.length) {
+    const getParentsDictionary = await returnTotalBranchesDict(
+      subdomain,
+      parentIds
+    );
+    dictionary = { ...dictionary, ...getParentsDictionary };
+  }
+
+  return dictionary;
+};
+
 export const returnDepartmentsBranchesDict = async (
   subdomain: any,
   branchIds: string[],
   departmentIds: string[]
-): Promise<{ [_id: string]: string }> => {
-  const dictionary: { [_id: string]: string } = {};
+): Promise<{ [_id: string]: { title: string; parentId: string } }> => {
+  let dictionary: { [_id: string]: { title: string; parentId: string } } = {};
 
-  const branches = await findBranches(subdomain, branchIds);
+  dictionary = await returnTotalBranchesDict(subdomain, branchIds);
+
   const departments = await findDepartments(subdomain, departmentIds);
 
-  for (const branch of branches) {
-    dictionary[branch._id] = branch.title;
-  }
-
   for (const department of departments) {
-    dictionary[department._id] = department.title;
+    dictionary[department._id] = {
+      title: department.title,
+      parentId: department.parentId
+    };
   }
 
   return dictionary;
@@ -221,6 +275,21 @@ export const generateCommonUserIds = async (
 ) => {
   const totalUserIds: string[] = [];
   let commonUser: boolean = false;
+  const totalBranchIds = [branchIds];
+
+  const branchIdsGivenOnly = !departmentIds && !userIds && branchIds;
+  if (branchIdsGivenOnly) {
+    for (const branchId of branchIds) {
+      const getSubBranches = await findSubBranches(subdomain, branchId);
+      totalBranchIds.push(getSubBranches.map(b => b._id));
+    }
+
+    const branchUsersIds = (await findBranchUsers(subdomain, branchIds)).map(
+      b => b._id
+    );
+
+    return branchUsersIds;
+  }
 
   if (branchIds) {
     const branchUsers = await findBranchUsers(subdomain, branchIds);
@@ -590,7 +659,13 @@ export const findUnfinishedShiftsAndUpdate = async (subdomain: any) => {
     });
   }
 
-  return models.Timeclocks.bulkWrite(bulkWriteOps);
+  let result;
+
+  if (bulkWriteOps.length) {
+    result = await models.Timeclocks.bulkWrite(bulkWriteOps);
+  }
+
+  return result;
 };
 
 export const getNextNthColumnChar = (currentChar, n: number) => {

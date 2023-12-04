@@ -263,7 +263,7 @@ function ReportList(props: Props) {
   const renderExportBtn = () => {
     const bichilExportReportBtn = loadDynamicComponent(
       'bichilExportReportBtn',
-      { queryParams }
+      { ...queryParams, reportType, isCurrentUserAdmin }
     );
 
     if (bichilExportReportBtn) {
