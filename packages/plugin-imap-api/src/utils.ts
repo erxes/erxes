@@ -18,7 +18,7 @@ export const findAttachmentParts = (struct, attachments?) => {
       if (
         struct[i].disposition &&
         ['INLINE', 'ATTACHMENT'].indexOf(toUpper(struct[i].disposition.type)) >
-        -1
+          -1
       ) {
         attachments.push(struct[i]);
       }
@@ -224,140 +224,157 @@ export const listenIntegration = async (
 ) => {
   const models = await generateModels(subdomain);
 
-  let stop = false;
-  let shouldReconnect = true;
-
-  let lastFetchDate = integration.lastFetchDate ? new Date(integration.lastFetchDate) : undefined;
+  let lastFetchDate = integration.lastFetchDate
+    ? new Date(integration.lastFetchDate)
+    : undefined;
   let lastFetchDateUpdatedAt = new Date();
 
-  // TODO: Promisify this callback API of node-imap
-  while (true) {
-    if (stop) {
-      break;
-    }
-    if (!shouldReconnect) {
-      await new Promise(resolve => setTimeout(resolve, 60 * 1000));
-      continue;
-    }
+  async function listen() {
+    // resolve isn't used. Because, ideally, this should run forever unless an Error occurs
+    return new Promise((_resolve, reject) => {
+      let reconnect = true;
 
-    shouldReconnect = false;
+      const imap = new Imap({
+        user: integration.mainUser || integration.user,
+        password: integration.password,
+        host: integration.host,
+        keepalive: {
+          forceNoop: true,
+          idleInterval: 60 * 1000
+        },
+        port: 993,
+        tls: true
+      });
 
-    const imap = new Imap({
-      user: integration.mainUser || integration.user,
-      password: integration.password,
-      host: integration.host,
-      keepalive: {
-        forceNoop: true,
-        idleInterval: 60 * 1000,
-      },
-      port: 993,
-      tls: true
-    });
+      imap.once('ready', _response => {
+        imap.openBox('INBOX', true, async (_err, _box) => {
+          try {
+            const criteria: any[] = ['UNSEEN'];
+            if (lastFetchDate) {
+              criteria.push(['SINCE', lastFetchDate.toISOString()]);
+            }
+            const nextLastFetchDate = new Date();
+            await saveMessages(subdomain, imap, integration, criteria);
+            await models.Integrations.updateOne(
+              { _id: integration._id },
+              { $set: { lastFetchDate: nextLastFetchDate } }
+            );
+            lastFetchDate = nextLastFetchDate;
+          } catch (e) {
+            await models.Logs.createLog({
+              type: 'error',
+              message: e.message + ' 3 ',
+              errorStack: e.stack
+            });
+            console.log('listen integration error ============', e);
+          }
+        });
+      });
 
-    imap.once('ready', _response => {
-      imap.openBox('INBOX', true, async (_err, _box) => {
+      imap.on('mail', async response => {
+        console.log('new messages ========', response);
+
+        const updatedIntegration = await models.Integrations.findOne({
+          _id: integration._id,
+          healthStatus: 'healthy'
+        });
+
+        if (!updatedIntegration) {
+          console.log(`ending ${integration.user} imap`);
+          reconnect = false;
+          try {
+            imap.end();
+          } catch (e) {}
+          return;
+        }
+
         try {
-          const criteria: any[] = ['UNSEEN'];
+          const criteria: any = ['UNSEEN'];
           if (lastFetchDate) {
             criteria.push(['SINCE', lastFetchDate.toISOString()]);
           }
           const nextLastFetchDate = new Date();
           await saveMessages(subdomain, imap, integration, criteria);
-          await models.Integrations.updateOne({ _id: integration._id }, { $set: { lastFetchDate: nextLastFetchDate } });
           lastFetchDate = nextLastFetchDate;
+
+          if (
+            lastFetchDate.getTime() - lastFetchDateUpdatedAt.getTime() >
+            60 * 1000
+          ) {
+            await models.Integrations.updateOne(
+              { _id: integration._id },
+              { $set: { lastFetchDate } }
+            );
+            lastFetchDateUpdatedAt = new Date();
+          }
         } catch (e) {
           await models.Logs.createLog({
             type: 'error',
-            message: e.message + ' 3 ',
+            message: e.message + ' 1 ',
             errorStack: e.stack
           });
-          console.log('listen integration error ============', e);
+          console.log('save message error ============', e);
+
+          return reject(e);
         }
       });
-    });
 
-    imap.on('mail', async response => {
-      console.log('new messages ========', response);
-
-      const updatedIntegration = await models.Integrations.findOne({
-        _id: integration._id,
-        healthStatus: 'healthy'
-      });
-
-      if (!updatedIntegration) {
-        console.log(`ending ${integration.user} imap`);
-        stop = true;
-        try {
-          imap.end();
-        } catch (e) { }
-        return;
-      }
-
-      try {
-        const criteria: any = ['UNSEEN'];
-        if (lastFetchDate) {
-          criteria.push(['SINCE', lastFetchDate.toISOString()]);
-        }
-        const nextLastFetchDate = new Date();
-        await saveMessages(subdomain, imap, integration, criteria);
-        lastFetchDate = nextLastFetchDate;
-
-        if(lastFetchDate.getTime() - lastFetchDateUpdatedAt.getTime() > 60 * 1000 ) {
-          await models.Integrations.updateOne({ _id: integration._id }, { $set: { lastFetchDate } });
-          lastFetchDateUpdatedAt = new Date();
-        }
-      } catch (e) {
+      imap.once('error', async e => {
         await models.Logs.createLog({
           type: 'error',
-          message: e.message + ' 1 ',
+          message: e.message + ' 2 ',
           errorStack: e.stack
         });
-        console.log('save message error ============', e);
 
-        throw e;
-      }
-    });
+        console.log('on imap.once =============', e);
 
-    imap.once('error', async e => {
-      await models.Logs.createLog({
-        type: 'error',
-        message: e.message + ' 2 ',
-        errorStack: e.stack
+        if (e.message.includes('Invalid credentials')) {
+          await models.Integrations.updateOne(
+            { _id: integration._id },
+            {
+              $set: {
+                healthStatus: 'unHealthy',
+                error: `${e.message}`
+              }
+            }
+          );
+
+          // We shouldn't try to reconnect, since it's impossible to connect when credential configuration is wrong.
+          reconnect = false;
+
+          try {
+            imap.end();
+          } catch (e) {}
+        }
       });
 
-      console.log('on imap.once =============', e);
+      imap.once('end', e => {
+        if (!reconnect) {
+          console.log(
+            `Imap connection is ending. Will not reconnect because "reconnect" is set to false.`,
+            e
+          );
+          reject(e);
+        } else {
+          console.log(`Imap connection ended. It will try to reconnect`, e);
+          return reject(new Error('reconnect'));
+        }
+      });
 
-      if (e.message.includes('Invalid credentials')) {
-        await models.Integrations.updateOne(
-          { _id: integration._id },
-          {
-            $set: {
-              healthStatus: 'unHealthy',
-              error: `${e.message}`
-            }
-          }
-        );
-
-        stop = true;
-
-        try {
-          imap.end();
-        } catch (e) { }
-
-        return;
-      }
+      imap.connect();
     });
+  }
 
-    imap.once('end', e => {
-      shouldReconnect = true;
-      if (stop) {
-        console.log(`Imap connection is ending. Will not reconnect because "stop" is set to true.`, e);
+  while (true) {
+    try {
+      await listen();
+    } catch (e) {
+      if (e.message === 'reconnect') {
+        continue;
       } else {
-        console.log(`Imap connection ended. It will try to reconnect`, e);
+        break;
       }
-    });
-
-    imap.connect();
+    }
   }
 };
 
