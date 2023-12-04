@@ -55,7 +55,7 @@ export default function DiscoverLayout({ children }: ILayoutProps) {
             {children}
           </ScrollArea>
         </TabsContent>
-        <TabsContent value={"feedback"} className="h-full w-full bg-[#F8F9FA]">
+        <TabsContent value={"feedback"} className="h-full w-full">
           <Feedback />
         </TabsContent>
       </Tabs>
