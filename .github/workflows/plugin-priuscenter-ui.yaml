@@ -76,7 +76,7 @@ jobs:
       - name: Deploy
         if: github.event_name == 'push' && ( github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/build-test')
         run: |
-          tar -cf build.tar --directory=packages/plugin-priuscenter-ui/.erxes/dist .
-          cp build.tar packages/plugin-priuscenter-ui/.erxes/dist
-          rm -rf packages/plugin-priuscenter-ui/.erxes/dist/*.js
-          aws s3 sync packages/plugin-priuscenter-ui/.erxes/dist s3://erxes-enterprise-plugins/uis/plugin-priuscenter-ui --delete
+          tar -cf build.tar --directory=packages/plugin-priuscenter-ui/dist .
+          cp build.tar packages/plugin-priuscenter-ui/dist
+          rm -rf packages/plugin-priuscenter-ui/dist/*.js
+          aws s3 sync packages/plugin-priuscenter-ui/dist s3://erxes-enterprise-plugins/uis/plugin-priuscenter-ui --delete
