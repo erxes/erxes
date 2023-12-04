@@ -1,3 +1,31 @@
+## [1.5.1](https://github.com/erxes/erxes/compare/1.5.0-alpha.2...1.5.1) (2023-12-04)
+
+
+### Bug Fixes
+
+* **exm:** bug ([1ef2069](https://github.com/erxes/erxes/commit/1ef2069c74bed010cad10c6c2f7ee429b72ac55c))
+* **exm:** bug ([1866f44](https://github.com/erxes/erxes/commit/1866f449bf7f4f3b75dddf128fee4e9b5c117a14))
+* **exm:** form bug ([f974f22](https://github.com/erxes/erxes/commit/f974f22bd14db1657b3405729f3951de8528839c))
+* **exm:** notificatoin ([a216d27](https://github.com/erxes/erxes/commit/a216d2722448cb7bb0d0b317907e6d8f5432fa63))
+* matching version of @types/node and node in CI yaml, Dockerfiles images and package.json ([d61639b](https://github.com/erxes/erxes/commit/d61639b9c11ee2f7761f3cd46408a195ff33328a))
+
+
+### Features
+
+* add extended display on pos ui ([#4783](https://github.com/erxes/erxes/issues/4783)) ([79c54b8](https://github.com/erxes/erxes/commit/79c54b81664ce198556e6503bb7907fdf2e56f14))
+* add pricing rule filter by tag ([ba3aa16](https://github.com/erxes/erxes/commit/ba3aa16acafcd37d9f3ca7381515ee8c92ff778a))
+* cards-stage print document with many cards ([#4827](https://github.com/erxes/erxes/issues/4827)) ([f1b511e](https://github.com/erxes/erxes/commit/f1b511e2bfca9d03071c3e35dbdf725e601bd044))
+* option to enable inspector api through http endpoints ([1145c1b](https://github.com/erxes/erxes/commit/1145c1b6315feb50d4d3ee755eda2ef864f080d5))
+* Products by brand and multi erkhet ([#4718](https://github.com/erxes/erxes/issues/4718)) ([bbf4fd8](https://github.com/erxes/erxes/commit/bbf4fd80546803d9fb714311b8fb877db8876947))
+* products list bulk fix ([7944e6b](https://github.com/erxes/erxes/commit/7944e6bc187e3cbd5d40b8937e66ff77d4c74f3d))
+* **verifier:** add email & phone verifier ([#4796](https://github.com/erxes/erxes/issues/4796)) ([5869545](https://github.com/erxes/erxes/commit/5869545d1a754f7abb984938af63ab4015ca4ad4))
+* Zms receive ([#4788](https://github.com/erxes/erxes/issues/4788)) ([309b698](https://github.com/erxes/erxes/commit/309b6982cc7d03d1a84f87d06a30c31dc549f81d))
+
+
+### Performance Improvements
+
+* added more control props to editor component ([6a4af8d](https://github.com/erxes/erxes/commit/6a4af8dc69b28e32416bf648b251fd4f87dee495))
+
 # [1.5.0-alpha.2](https://github.com/erxes/erxes/compare/1.5.0-alpha.1...1.5.0-alpha.2) (2023-11-23)
 
 # [1.5.0-alpha.1](https://github.com/erxes/erxes/compare/1.5.0-alpha.0...1.5.0-alpha.1) (2023-11-17)
