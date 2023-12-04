@@ -61,12 +61,9 @@ jobs:
       - name: Build
         run: |
           yarn install --frozen-lockfile
-          cp -r packages/ui-plugin-template/.erxes packages/plugin-dac-ui/.erxes
-          cp -r packages/plugin-dac-ui/src packages/plugin-dac-ui/.erxes/plugin-src
           cd packages/plugin-dac-ui
-          yarn install
-          yarn install-deps
           yarn build
+          cp -r ./src/locales/ ./dist/locales 2>/dev/null || true
 
       - name: Configure AWS credentials
         if: github.event_name == 'push' && ( github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/build-test')
