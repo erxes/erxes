@@ -159,12 +159,7 @@ class TransactionsList extends React.Component<IProps> {
       actionBarLeft = (
         <BarItems>
           {can('transactionsRemove', currentUser) && (
-            <Button
-              btnStyle="danger"
-              size="small"
-              icon="cancel-1"
-              onClick={onClick}
-            >
+            <Button btnStyle="danger" icon="cancel-1" onClick={onClick}>
               {__('Delete')}
             </Button>
           )}

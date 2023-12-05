@@ -129,6 +129,7 @@ class CloseForm extends React.Component<Props, State> {
                   <DateControl
                     {...formProps}
                     required={false}
+                    dateFormat="YYYY/MM/DD"
                     name="closeDate"
                     value={this.props.closeDate}
                     onChange={onChangeCloseDate}

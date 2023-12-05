@@ -1,6 +1,7 @@
 export type LoanContract = {
   contractDate: Date;
   loanPurpose: string;
+  loanDestination: string;
   loanSubPurpose: string;
   contractTypeId: string;
   status: string;
@@ -46,6 +47,8 @@ export type LoanContract = {
   useManualNumbering: boolean;
   useFee: boolean;
   commitmentInterest: number;
+  savingContractId: string;
+  endDate: Date;
 };
 
 export type LoanSchedule = {
