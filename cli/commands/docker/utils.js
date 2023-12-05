@@ -127,6 +127,7 @@ const generatePluginBlock = (configs, plugin) => {
       PORT: plugin.port || SERVICE_INTERNAL_PORT || 80,
       API_MONGO_URL: api_mongo_url,
       MONGO_URL: mongo_url,
+      NODE_INSPECTOR: configs.nodeInspector ? 'enabled' : undefined,
       LOAD_BALANCER_ADDRESS: generateLBaddress(`http://plugin-${plugin.name}-api`),
       ...commonEnvs(configs),
       ...(plugin.extra_env || {})
@@ -492,6 +493,7 @@ const up = async ({ uis, downloadLocales, fromInstaller }) => {
           JWT_TOKEN_SECRET: configs.jwt_token_secret,
           LOAD_BALANCER_ADDRESS: generateLBaddress('http://plugin-core-api'),
           MONGO_URL: mongoEnv(configs),
+          NODE_INSPECTOR: configs.nodeInspector ? 'enabled' : undefined,
           EMAIL_VERIFIER_ENDPOINT:
             configs.email_verifier_endpoint ||
             'https://email-verifier.erxes.io',
@@ -514,6 +516,7 @@ const up = async ({ uis, downloadLocales, fromInstaller }) => {
           JWT_TOKEN_SECRET: configs.jwt_token_secret,
           CLIENT_PORTAL_DOMAINS: configs.client_portal_domains || '',
           MONGO_URL: mongoEnv(configs),
+          NODE_INSPECTOR: configs.nodeInspector ? 'enabled' : undefined,
           ...commonEnvs(configs),
           ...((configs.gateway || {}).extra_env || {})
         },
@@ -525,6 +528,7 @@ const up = async ({ uis, downloadLocales, fromInstaller }) => {
       crons: {
         image: `erxes/crons:${image_tag}`,
         environment: {
+          NODE_INSPECTOR: configs.nodeInspector ? 'enabled' : undefined,
           MONGO_URL: mongoEnv(configs),
           ...commonEnvs(configs)
         },
@@ -538,6 +542,7 @@ const up = async ({ uis, downloadLocales, fromInstaller }) => {
           JWT_TOKEN_SECRET: configs.jwt_token_secret,
           LOAD_BALANCER_ADDRESS: generateLBaddress('http://plugin-workers-api'),
           MONGO_URL: mongoEnv(configs),
+          NODE_INSPECTOR: configs.nodeInspector ? 'enabled' : undefined,
           ...commonEnvs(configs),
           ...((configs.workers || {}).extra_env || {})
         },

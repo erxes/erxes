@@ -10,7 +10,7 @@ import Appearance from '../containers/Appearance';
 type Props = {
   exm: IExm;
   edit: (variables: IExm) => void;
-  renderButton?: (props: IButtonMutateProps) => JSX.Element;
+  renderButton: (props: IButtonMutateProps) => JSX.Element;
 };
 
 function EditFrom(props: Props) {
