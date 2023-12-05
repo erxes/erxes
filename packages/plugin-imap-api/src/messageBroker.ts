@@ -28,7 +28,7 @@ export const initBroker = async cl => {
         ...JSON.parse(doc.data)
       });
 
-      await listenIntegration(subdomain, integration, models);
+      listenIntegration(subdomain, integration, models);
 
       await models.Logs.createLog({
         type: 'info',
@@ -71,7 +71,7 @@ export const initBroker = async cl => {
       });
 
       if (updatedIntegration) {
-        await listenIntegration(subdomain, integration, models);
+        listenIntegration(subdomain, integration, models);
       }
 
       return {

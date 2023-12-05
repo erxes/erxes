@@ -240,19 +240,19 @@ export const listenIntegration = async (
 ) => {
 
 
-  async function listen() {
+  const listen = async () => {
+    return new Promise<any>(async (resolve, reject) => {
 
-    const updatedIntegration = await models.Integrations.findById(integration._id);
+      const updatedIntegration = await models.Integrations.findById(integration._id);
 
-    if(!updatedIntegration) {
-      throw new Error(`Integration ${integration._id} not found`);
-    }
+      if (!updatedIntegration) {
+        throw new Error(`Integration ${integration._id} not found`);
+      }
 
-    let lastFetchDate = updatedIntegration.lastFetchDate
-      ? new Date(updatedIntegration.lastFetchDate)
-      : new Date(Date.now() - 3 * 24 * 60 * 60 * 1000);
-    
-    return new Promise<any>((resolve, reject) => {
+      let lastFetchDate = updatedIntegration.lastFetchDate
+        ? new Date(updatedIntegration.lastFetchDate)
+        : new Date(Date.now() - 3 * 24 * 60 * 60 * 1000);
+
       let reconnect = true;
 
       const imap = createImap(updatedIntegration);
@@ -316,7 +316,7 @@ export const listenIntegration = async (
                 error: `${e.message}`
               }
             }
-          );          
+          );
         }
 
         await models.Logs.createLog({
@@ -328,10 +328,10 @@ export const listenIntegration = async (
         imap.end();
       });
 
-      const closeEndHandler = (...args)  => {
+      const closeEndHandler = (...args) => {
         try {
           imap.removeAllListeners();
-        } catch (e) {}
+        } catch (e) { }
         if (reconnect) {
           console.log(
             `Integration= ${updatedIntegration._id}. Imap connection ended. Reconnecting...`,
@@ -358,10 +358,10 @@ export const listenIntegration = async (
     try {
       await listen();
       await new Promise(resolve => setTimeout(resolve, 5000));
-      // disconnect due to recoverable error, reconnect
+      // disconnected due to recoverable error, reconnect
       continue;
     } catch (e) {
-      // disconnect due to unrecoverable error
+      // disconnected due to unrecoverable error
       break;
     }
   }
