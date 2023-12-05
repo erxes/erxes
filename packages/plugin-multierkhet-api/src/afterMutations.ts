@@ -1,5 +1,6 @@
+import { graphqlPubsub } from './configs';
 import { sendRPCMessage } from './messageBrokerErkhet';
-import { getPostData, getMoveData } from './utils/ebarimtData';
+import { getPostData } from './utils/ebarimtData';
 import {
   productToErkhet,
   productCategoryToErkhet
@@ -44,10 +45,6 @@ export const afterMutationHandlers = async (subdomain, params) => {
         {}
       );
 
-      const moveConfigs = await models.Configs.getConfig(
-        'stageInMoveConfig',
-        {}
-      );
       const returnConfigs = await models.Configs.getConfig(
         'returnEbarimtConfig',
         {}
@@ -95,41 +92,6 @@ export const afterMutationHandlers = async (subdomain, params) => {
         return;
       }
 
-      // move
-      if (Object.keys(moveConfigs).includes(destinationStageId)) {
-        const moveConfig = {
-          ...moveConfigs[destinationStageId],
-          ...(await models.Configs.getConfig('ERKHET', {}))
-        };
-
-        const postData = await getMoveData(subdomain, moveConfig, deal);
-        const syncLog = await models.SyncLogs.syncLogsAdd(
-          getSyncLogDoc(params)
-        );
-        const response = await sendRPCMessage(
-          models,
-          syncLog,
-          'rpc_queue:erxes-automation-erkhet',
-          {
-            action: 'get-response-inv-movement-info',
-            isJson: true,
-            isEbarimt: false,
-            payload: JSON.stringify(postData),
-            thirdService: true
-          }
-        );
-
-        if (response.message || response.error) {
-          const txt = JSON.stringify({
-            message: response.message,
-            error: response.error
-          });
-          console.log(txt);
-        }
-
-        return;
-      }
-
       // create sale
       if (Object.keys(saleConfigs).includes(destinationStageId)) {
         const brandRules = saleConfigs[destinationStageId].brandRules || {};
@@ -155,6 +117,8 @@ export const afterMutationHandlers = async (subdomain, params) => {
           deal
         )) as any;
 
+        const ebarimtResponses: any[] = [];
+
         for (const data of postDatas) {
           const { syncLog, postData } = data;
           const response = await sendRPCMessage(
@@ -163,12 +127,14 @@ export const afterMutationHandlers = async (subdomain, params) => {
             'rpc_queue:erxes-automation-erkhet',
             {
               action: 'get-response-send-order-info',
-              isEbarimt: false,
+              isEbarimt: true,
               payload: JSON.stringify(postData),
               isJson: true,
               thirdService: true
             }
           );
+
+          ebarimtResponses.push({ ...response, _id: Math.random() });
 
           if (response && (response.message || response.error)) {
             const txt = JSON.stringify({
@@ -178,6 +144,21 @@ export const afterMutationHandlers = async (subdomain, params) => {
             console.log(txt);
           }
         }
+
+        await graphqlPubsub.publish('automationResponded', {
+          automationResponded: {
+            userId: user._id,
+            responseId: ebarimtResponses.map(er => er._id).join('-'),
+            sessionCode: user.sessionCode || '',
+            content: ebarimtResponses.map(er => ({
+              ...er.ebarimt,
+              _id: er._id,
+              error: er.error,
+              success: er.success,
+              message: er.message
+            }))
+          }
+        });
         return;
       }
       return;
