@@ -3,6 +3,7 @@ import { simpleParser } from 'mailparser';
 import { IModels, generateModels } from './connectionResolver';
 import { sendContactsMessage, sendInboxMessage } from './messageBroker';
 import { IIntegrationDocument } from './models';
+import { throttle } from 'lodash';
 
 export const toUpper = thing => {
   return thing && thing.toUpperCase ? thing.toUpperCase() : thing;
@@ -281,7 +282,7 @@ export const listenIntegration = async (
         imap.openBox('INBOX', true, sync);
       });
 
-      imap.on('mail', sync);
+      imap.on('mail', throttle(sync, 5000, { leading: true }));
 
       imap.once('error', async e => {
         await models.Logs.createLog({
