@@ -241,7 +241,7 @@ export const listenIntegration = async (
     : undefined;
 
   async function listen() {
-    return new Promise<void>((resolve, reject) => {
+    return new Promise<any>((resolve, reject) => {
       let reconnect = true;
 
       const imap = createImap(integration);
@@ -360,21 +360,24 @@ export const listenIntegration = async (
         }
       });
 
-      imap.once('end', e => {
+      function closeEndHandler(...args) {
         if (reconnect) {
           console.log(
             `Integration= ${integration._id}. Imap connection ended. Reconnecting...`,
-            e
+            args
           );
-          return resolve(e);
+          return resolve(args);
         } else {
           console.log(
             `Integration=${integration._id}. Imap connection ended.`,
-            e
+            args
           );
-          return reject(e);
+          return reject(args);
         }
-      });
+      }
+
+      imap.once('close', closeEndHandler);
+      imap.once('end', closeEndHandler);
 
       imap.connect();
     });
@@ -383,6 +386,7 @@ export const listenIntegration = async (
   while (true) {
     try {
       await listen();
+      await new Promise(resolve => setTimeout(resolve, 5000));
     } catch (e) {
       break;
     }
