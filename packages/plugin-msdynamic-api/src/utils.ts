@@ -89,12 +89,6 @@ const customerRequest = async (subdomain, action, updateCode, doc) => {
 export const consumeInventory = async (subdomain, doc, action) => {
   const updateCode = action === 'delete' ? doc.code : doc.No.replace(/\s/g, '');
 
-  const config = await getConfig(subdomain, 'DYNAMIC', {});
-
-  if (!config.category) {
-    throw new Error('MS Dynamic config category not found.');
-  }
-
   const product = await sendProductsMessage({
     subdomain,
     action: 'findOne',
@@ -107,7 +101,7 @@ export const consumeInventory = async (subdomain, doc, action) => {
     const productCategory = await sendProductsMessage({
       subdomain,
       action: 'categories.findOne',
-      data: { name: config.category },
+      data: { name: doc.Item_Category_Code },
       isRPC: true
     });
 
