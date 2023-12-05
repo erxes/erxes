@@ -238,102 +238,112 @@ export const listenIntegration = async (
   integration: IIntegrationDocument,
   models: IModels
 ) => {
-  let lastFetchDate = integration.lastFetchDate
-    ? new Date(integration.lastFetchDate)
-    : new Date(Date.now() - 3 * 24 * 60 * 60 * 1000);
+
 
   async function listen() {
+
+    const updatedIntegration = await models.Integrations.findById(integration._id);
+
+    if(!updatedIntegration) {
+      throw new Error(`Integration ${integration._id} not found`);
+    }
+
+    let lastFetchDate = updatedIntegration.lastFetchDate
+      ? new Date(updatedIntegration.lastFetchDate)
+      : new Date(Date.now() - 3 * 24 * 60 * 60 * 1000);
+    
     return new Promise<any>((resolve, reject) => {
       let reconnect = true;
 
-      const imap = createImap(integration);
+      const imap = createImap(updatedIntegration);
 
-      const sync = async () => {
-        console.log("--------------------------sync-----------------------------");
+      const syncEmail = async () => {
         try {
           const criteria: any = ['UNSEEN', ['SINCE', lastFetchDate.toISOString()]];
           const nextLastFetchDate = new Date();
-          await saveMessages(subdomain, imap, integration, criteria, models);
+          await saveMessages(subdomain, imap, updatedIntegration, criteria, models);
           lastFetchDate = nextLastFetchDate;
 
           await models.Integrations.updateOne(
-            { _id: integration._id },
+            { _id: updatedIntegration._id },
             { $set: { lastFetchDate } }
           );
         } catch (e) {
+          console.log("sync error", e);
           await models.Logs.createLog({
             type: 'error',
             message: e.message + ' 1 ',
             errorStack: e.stack
           });
-          console.log('save message error ============', e);
 
-          return reject(e);
+          reconnect = false;
+
+          imap.end();
         }
       }
 
       imap.once('ready', _response => {
-        console.log("-----------------ready-----------------")
-        imap.openBox('INBOX', true, async (err, box) => {
-
-          console.log("open_inbox", err, box);
-
-          return sync()
+        imap.openBox('INBOX', true, async (e, box) => {
+          if (e) {
+            // if we can't open the inbox, we can't sync emails
+            reconnect = false;
+            console.log("openBox error", e)
+            await models.Logs.createLog({
+              type: 'error',
+              message: e.message + ' 1 ',
+              errorStack: e.stack
+            });
+            return imap.end();
+          }
+          return syncEmail()
         });
       });
 
-      imap.on('mail', throttle(sync, 5000, { leading: true }));
+      imap.on('mail', throttle(syncEmail, 5000, { leading: true }));
 
       imap.once('error', async e => {
-        await models.Logs.createLog({
-          type: 'error',
-          message: e.message + ' 2 ',
-          errorStack: e.stack
-        });
 
-        console.log('on imap.once =============', e);
+        console.log('imap.once error', e);
 
         if (e.message.includes('Invalid credentials')) {
+          // We shouldn't try to reconnect, since it's impossible to connect when the credentials are wrong.
+          reconnect = false;
           await models.Integrations.updateOne(
-            { _id: integration._id },
+            { _id: updatedIntegration._id },
             {
               $set: {
                 healthStatus: 'unHealthy',
                 error: `${e.message}`
               }
             }
-          );
-
-          // We shouldn't try to reconnect, since it's impossible to connect when the credentials are wrong.
-          reconnect = false;
-
-          try {
-            imap.end();
-          } catch (e) {
-            return reject(e);
-          }
-        } else {
-          try {
-            imap.end();
-          } catch (e) {
-            return resolve(e);
-          }
+          );          
         }
+
+        await models.Logs.createLog({
+          type: 'error',
+          message: e.message + ' 2 ',
+          errorStack: e.stack
+        });
+
+        imap.end();
       });
 
-      function closeEndHandler(...args) {
+      const closeEndHandler = (...args)  => {
+        try {
+          imap.removeAllListeners();
+        } catch (e) {}
         if (reconnect) {
           console.log(
-            `Integration= ${integration._id}. Imap connection ended. Reconnecting...`,
+            `Integration= ${updatedIntegration._id}. Imap connection ended. Reconnecting...`,
             args
           );
-          return resolve(args);
+          resolve(args);
         } else {
           console.log(
-            `Integration=${integration._id}. Imap connection ended.`,
+            `Integration=${updatedIntegration._id}. Imap connection ended.`,
             args
           );
-          return reject(args);
+          reject(args);
         }
       }
 
@@ -348,7 +358,10 @@ export const listenIntegration = async (
     try {
       await listen();
       await new Promise(resolve => setTimeout(resolve, 5000));
+      // disconnect due to recoverable error, reconnect
+      continue;
     } catch (e) {
+      // disconnect due to unrecoverable error
       break;
     }
   }
