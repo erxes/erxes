@@ -57,6 +57,7 @@ const Progress = styledTS<{ color?: string }>(styled.div)`
 
 const Container = styled.div`
   position: relative;
+  display: flex;
 `;
 
 const Circle = styled.circle`

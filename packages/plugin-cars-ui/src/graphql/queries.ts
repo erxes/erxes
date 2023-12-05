@@ -11,8 +11,19 @@ const carCategoryFields = `
   code
   parentId
   description
-
   isRoot
+  image {
+      url
+      name
+      size
+      type
+    }
+  secondaryImages {
+      url
+      name
+      size
+      type
+    }
 `;
 
 const carFields = `
@@ -46,6 +57,7 @@ const carFields = `
 const listParamsDef = `
   $page: Int
   $perPage: Int
+  $tag: String
   $segment: String
   $categoryId: String
   $ids: [String]
@@ -59,6 +71,7 @@ const listParamsDef = `
 const listParamsValue = `
   page: $page
   perPage: $perPage
+  tag: $tag
   segment: $segment
   categoryId: $categoryId
   ids: $ids
@@ -92,6 +105,12 @@ export const carsMain = `
 export const carCounts = `
   query carCounts(${listParamsDef}, $only: String) {
     carCounts(${listParamsValue}, only: $only)
+  }
+`;
+
+const carCountByTags = `
+  query carCountByTags {
+    carCountByTags
   }
 `;
 
@@ -166,5 +185,6 @@ export default {
   carsExport,
   carCategories,
   carCategoriesCount,
-  carCategoryDetail
+  carCategoryDetail,
+  carCountByTags
 };

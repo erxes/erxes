@@ -384,7 +384,7 @@ class GeneralSettings extends React.Component<Props, State> {
           <Info>
             <a
               target="_blank"
-              href="https://docs.erxes.io/docs/user-guide/xos/system-configuration#file-upload"
+              href="https://docs.erxes.io/conversations"
               rel="noopener noreferrer"
             >
               {__('Learn how to set file uploading') + '.'}
@@ -462,7 +462,7 @@ class GeneralSettings extends React.Component<Props, State> {
           <Info>
             <a
               target="_blank"
-              href="https://docs.erxes.io/docs/user-guide/xos/system-configuration#google-cloud-storage"
+              href="https://docs.erxes.io/conversations"
               rel="noopener noreferrer"
             >
               {__(
@@ -486,7 +486,7 @@ class GeneralSettings extends React.Component<Props, State> {
           <Info>
             <a
               target="_blank"
-              href="https://docs.erxes.io/docs/user-guide/xos/system-configuration#aws-s3"
+              href="https://docs.erxes.io/conversations"
               rel="noopener noreferrer"
             >
               {__('Learn how to set AWS S3 Variables')}
@@ -520,7 +520,7 @@ class GeneralSettings extends React.Component<Props, State> {
             </p>
             <a
               target="_blank"
-              href="https://docs.erxes.io/docs/user-guide/xos/system-configuration#aws-ses"
+              href="https://docs.erxes.io/conversations"
               rel="noopener noreferrer"
             >
               {__('Learn how to set Amazon SES variables')}
@@ -544,7 +544,7 @@ class GeneralSettings extends React.Component<Props, State> {
           <Info>
             <a
               target="_blank"
-              href="https://docs.erxes.io/docs/user-guide/xos/system-configuration#google"
+              href="https://docs.erxes.io/conversations"
               rel="noopener noreferrer"
             >
               {__('Learn how to set Google variables')}
@@ -581,7 +581,7 @@ class GeneralSettings extends React.Component<Props, State> {
           <Info>
             <a
               target="_blank"
-              href="https://docs.erxes.io/docs/user-guide/xos/system-configuration#common-mail-config"
+              href="https://docs.erxes.io/conversations"
               rel="noopener noreferrer"
             >
               {__('Learn more about Email Settings')}
@@ -629,7 +629,7 @@ class GeneralSettings extends React.Component<Props, State> {
           <Info>
             <a
               target="_blank"
-              href="https://docs.erxes.io/docs/user-guide/xos/system-configuration#custom-mail-service"
+              href="https://docs.erxes.io/conversations"
               rel="noopener noreferrer"
             >
               {__('Learn the case of custom email service')}

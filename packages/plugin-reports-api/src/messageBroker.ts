@@ -1,7 +1,3 @@
-// import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
-// import { serviceDiscovery } from './configs';
-// import { Reportss } from './models';
-
 import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
 import { serviceDiscovery } from './configs';
 
@@ -38,12 +34,30 @@ export const initBroker = async cl => {
 //   });
 // };
 
+export const sendCoreMessage = (args: ISendMessageArgs): Promise<any> => {
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName: 'core',
+    ...args
+  });
+};
+
 export const sendCommonMessage = async (
   args: ISendMessageArgs & { serviceName: string }
 ) => {
   return sendMessage({
     serviceDiscovery,
     client,
+    ...args
+  });
+};
+
+export const sendTagsMessage = async (args: ISendMessageArgs): Promise<any> => {
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName: 'tags',
     ...args
   });
 };

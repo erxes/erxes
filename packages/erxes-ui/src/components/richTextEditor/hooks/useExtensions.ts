@@ -1,3 +1,4 @@
+import { Document } from '@tiptap/extension-document';
 import { EditorOptions } from '@tiptap/core';
 import { Blockquote } from '@tiptap/extension-blockquote';
 import { Bold } from '@tiptap/extension-bold';
@@ -5,7 +6,6 @@ import { BulletList } from '@tiptap/extension-bullet-list';
 import { Code } from '@tiptap/extension-code';
 import { CodeBlock } from '@tiptap/extension-code-block';
 import { Color } from '@tiptap/extension-color';
-import { Document } from '@tiptap/extension-document';
 import { Dropcursor } from '@tiptap/extension-dropcursor';
 import { FontFamily } from '@tiptap/extension-font-family';
 import { Gapcursor } from '@tiptap/extension-gapcursor';
@@ -16,7 +16,6 @@ import { HorizontalRule } from '@tiptap/extension-horizontal-rule';
 import { Italic } from '@tiptap/extension-italic';
 import { Link } from '@tiptap/extension-link';
 import { ListItem } from '@tiptap/extension-list-item';
-import { Mention } from '@tiptap/extension-mention/src/index';
 import { OrderedList } from '@tiptap/extension-ordered-list';
 import { Paragraph } from '@tiptap/extension-paragraph';
 import { Placeholder } from '@tiptap/extension-placeholder';
@@ -25,14 +24,17 @@ import { Subscript } from '@tiptap/extension-subscript';
 import { Superscript } from '@tiptap/extension-superscript';
 import { Text } from '@tiptap/extension-text';
 import { TextAlign } from '@tiptap/extension-text-align';
-import { TextStyle } from '@tiptap/extension-text-style';
 import { Underline } from '@tiptap/extension-underline';
 import { Heading } from '@tiptap/extension-heading';
 import { useMemo } from 'react';
 import { FontSize } from '../extensions';
-import Image from '@tiptap/extension-image';
-import { DivTag } from '../nodes';
+import Table from '@tiptap/extension-table';
+import TableCell from '@tiptap/extension-table-cell';
+import TableHeader from '@tiptap/extension-table-header';
+import TableRow from '@tiptap/extension-table-row';
+import { DivTag, SpanNode, StyleNode } from '../nodes';
 import { ImageResize } from '../extensions/Image';
+import TextStyle from '@tiptap/extension-text-style';
 
 export type UseExtensionsOptions = {
   /** Placeholder hint to show in the text input area before a user types a message. */
@@ -79,11 +81,11 @@ const CustomSuperscript = Superscript.extend({
 export default function useExtensions({
   placeholder
 }: UseExtensionsOptions = {}): EditorOptions['extensions'] {
-  return useMemo(() => {
-    return [
+  return useMemo(
+    () => [
+      Document,
       BulletList,
       CodeBlock,
-      Document,
       HardBreak,
       ListItem,
       OrderedList,
@@ -96,7 +98,7 @@ export default function useExtensions({
       Code,
       Italic,
       Underline,
-      Image.configure({
+      ImageResize.configure({
         inline: true,
         allowBase64: true
       }),
@@ -133,7 +135,14 @@ export default function useExtensions({
       }),
       History,
       FontSize,
-      DivTag
-    ];
-  }, [placeholder]);
+      DivTag,
+      Table.configure({ resizable: true }),
+      TableRow,
+      TableHeader,
+      TableCell,
+      SpanNode,
+      StyleNode
+    ],
+    [placeholder]
+  );
 }

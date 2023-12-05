@@ -90,7 +90,9 @@ const Notifications = () => {
       notification.action === "birthday notification" ||
       notification.action === "Work Anniversary notification"
     ) {
-      return (window.location.href = `/company/team-members/detail?id=${notification.link.slice(23)}`)
+      return (window.location.href = `/company/team-members/detail?id=${notification.link.slice(
+        23
+      )}`)
     } else {
       return (window.location.href = `detail?contentType=${
         notification.action.split(" ")[0]
@@ -181,9 +183,13 @@ const Notifications = () => {
       return renderNoNotification()
     }
 
+    const filteredNotif = isUnread
+      ? notifications.filter((notif) => !notif.isRead)
+      : notifications
+
     return (
       <>
-        {notifications.map((notification) => renderNotifRow(notification))}
+        {filteredNotif.map((notification) => renderNotifRow(notification))}
         {renderLoadMore()}
       </>
     )
@@ -195,7 +201,7 @@ const Notifications = () => {
         <div className="p-2.5 bg-[#F0F0F0] rounded-full mr-4 relative cursor-pointer">
           <BellRing size={16} />
           {unreadCount > 0 && (
-            <div className="absolute top-[-6px] right-[-9px] bg-destructive text-white text-[9px] flex w-[20px] justify-center items-center rounded-full">
+            <div className="absolute top-[-6px] right-[-9px] bg-destructive text-white text-[9px] flex w-[20px] h-[20px] justify-center items-center rounded-full">
               {unreadCount}
             </div>
           )}

@@ -13,19 +13,34 @@ export interface IRichTextEditorControlProps
 
   /** Determines whether the control can be interacted with, set `false` to make the control to act as a label */
   interactive?: boolean;
+
+  /** Determines whether the control is source mode toggler */
+  isSourceControl?: boolean;
 }
 
 export const RichTextEditorControl = (props: IRichTextEditorControlProps) => {
+  const { isSourceEnabled } = useRichTextEditorContext();
   const ref = useRef<HTMLButtonElement>(null);
-  const { interactive, active, onMouseDown, ...others } = props;
+
+  const {
+    interactive,
+    active,
+    onMouseDown,
+    isSourceControl,
+    ...others
+  } = props;
 
   return (
     <EditorControl
       {...others}
+      type="button"
+      disabled={isSourceControl ? false : isSourceEnabled}
       data-rich-text-editor-control={true}
       tabIndex={interactive ? 0 : -1}
       data-interactive={interactive || undefined}
-      data-active={active || undefined}
+      data-active={
+        isSourceEnabled && isSourceControl ? true : active || undefined
+      }
       aria-pressed={(active && interactive) || undefined}
       aria-hidden={!interactive || undefined}
       innerRef={ref}
@@ -75,7 +90,6 @@ export function createControl({
   ) => {
     const { editor, labels } = useRichTextEditorContext();
     const _label = labels[label] as string;
-    // const ref = useRef<HTMLButtonElement>(null);
     return (
       <RichTextEditorControlBase
         aria-label={_label}

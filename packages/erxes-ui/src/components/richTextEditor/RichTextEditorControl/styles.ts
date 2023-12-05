@@ -1,6 +1,6 @@
-import styled from 'styled-components';
 import { colors } from '../../../styles';
 import { rgba } from '../../../styles/ecolor';
+import styled from 'styled-components';
 
 const EditorControl = styled.button`
   display: flex;
@@ -14,9 +14,29 @@ const EditorControl = styled.button`
   padding: 0.25rem;
   width: 1.75rem;
 
+  .editor_icon {
+    width: 16px;
+    height: 16px;
+    display: inline-block;
+    opacity: 0.8;
+  }
+
+  .textcolor_icon {
+    background: url(/images/editor_icons.png) no-repeat 0 -384px !important;
+  }
+
+  .bgcolor_icon {
+    background: url(/images/editor_icons.png) no-repeat 0 -360px !important;
+  }
+
   &:hover,
   &.is-active {
     background-color: #f8f9fa;
+  }
+
+  &:disabled {
+    color: ${colors.colorCoreLightGray} !important;
+    background-color: transparent !important;
   }
 
   &[data-rich-text-editor-control] {
@@ -221,6 +241,66 @@ const FontSelectWrapper = styled.div`
   }
 `;
 
+const MenuItem = styled.button`
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  background: white;
+  border: none;
+  &:first-of-type {
+    border-top-right-radius: 0.25rem;
+    border-top-left-radius: 0.25rem;
+  }
+  &:last-of-type {
+    border-bottom-right-radius: 0.25rem;
+    border-bottom-left-radius: 0.25rem;
+  }
+  box-shadow: rgba(0, 0, 0, 0.1) 0px 1px 1px;
+  width: 100%;
+  &:hover {
+    background: rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+  }
+`;
+
+const PickerAction = styled.button`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0.5rem 0.75rem;
+  background: white;
+  border: none;
+  &:first-of-type {
+    border-bottom-left-radius: 0.25rem;
+  }
+  &:last-of-type {
+    border-bottom-right-radius: 0.25rem;
+  }
+  width: 100%;
+  &:hover {
+    background: rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+  }
+`;
+
+const ColorPickerWrapper = styled.div`
+  .compact-picker {
+    border: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+  }
+  > div {
+    > div {
+      box-shadow: none !important;
+    }
+  }
+  .chrome-picker {
+    box-shadow: none !important;
+  }
+`;
+
 export {
   EditorControl,
   LinkWrapper,
@@ -233,5 +313,8 @@ export {
   Input,
   FormItemWrapper,
   ImageHandlingForm,
-  FormActionWrapper
+  FormActionWrapper,
+  ColorPickerWrapper,
+  MenuItem,
+  PickerAction
 };

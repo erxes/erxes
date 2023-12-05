@@ -13,7 +13,7 @@ const Header = styled.div`
   > div {
     margin: 0;
     font-size: 14px;
-    padding: ${dimensions.coreSpacing}px 0;
+    padding: ${dimensions.unitSpacing}px 0 ${dimensions.coreSpacing * 1.5}px;
     color: ${colors.colorCoreGray};
 
     ul {
@@ -30,11 +30,10 @@ const Left = styled.div`
 const BoxedStep = styled.div`
   border: 1px solid ${colors.borderPrimary};
   border-radius: ${dimensions.unitSpacing}px;
-  padding: ${dimensions.unitSpacing}px;
   margin-bottom: ${dimensions.coreSpacing}px;
 `;
 
-const BoxHeader = styled.div`
+const BoxHeader = styledTS<{ isOpen?: boolean; isSetup?: boolean }>(styled.div)`
   h4 {
     color: ${colors.colorPrimary};
     font-weight: 700;
@@ -42,11 +41,34 @@ const BoxHeader = styled.div`
   }
   color: ${colors.colorCoreGray};
   align-items: center;
-  margin: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px
-    ${dimensions.coreSpacing}px;
   display: flex;
   flex-direction: row;
   justify-content: space-between;
+  ${props => !props.isSetup && `cursor: pointer;`}
+  padding: 17px 30px;
+  position: relative;
+  ${props =>
+    props.isOpen &&
+    `
+    border-bottom: 1px solid #F0F0F0;
+    margin-bottom: 23px;
+
+    &:before {
+      content: "";
+      background: ${colors.colorPrimary};
+      width: 110px;
+      height: 2px;
+      position: absolute;
+      left: 0px;
+      bottom: 0px;
+    }
+  `}
+
+  img {
+    width: 50px;
+    height: 50px;
+    margin-right: 35px;
+  }
 `;
 
 const Boxes = styled.div`
@@ -72,17 +94,26 @@ const Boxes = styled.div`
   }
 `;
 
-const Card = styledTS<{ background: string; img: string }>(styled.div)`
+const Card = styled.div`
   border-radius: ${dimensions.unitSpacing}px;
   border: 1px solid ${colors.borderPrimary};
   margin: ${dimensions.coreSpacing}px 0;
-  background: ${props => props.background};
+  background: linear-gradient(
+    0deg,
+    #f883af -30.54%,
+    #f47fb0 -18.64%,
+    #e772b4 -4.1%,
+    #d25dbb 9.12%,
+    #b53fc4 22.34%,
+    #941ece 35.56%,
+    #2a1e81 99.02%
+  );
   padding: ${dimensions.coreSpacing * 2}px;
   color: white;
   position: relative;
   overflow: hidden;
   display: flex;
-  
+
   h4 {
     margin: 0 0 10px;
     font-weight: 700;
@@ -92,80 +123,151 @@ const Card = styledTS<{ background: string; img: string }>(styled.div)`
   }
 
   &:after {
-    content: "";
-    background: url("${props => props.img}") no-repeat;
+    content: '';
+    background: url('/images/astronaut.png') no-repeat;
     bottom: 0;
-    right: ${props =>
-      props.img === '/images/shootingStars.png' ? '0' : '-90px'};
+    right: -90px;
     width: 50%;
     height: 201px;
     position: absolute;
   }
 `;
 
-const SideNumber = styled.div`
-  margin: ${dimensions.unitSpacing}px 0 25px 170px;
-  display: flex;
-  flex-direction: column;
-  text-align: center;
-  position: relative;
-
-  h3 {
-    margin-bottom: 0;
-    font-size: 42px;
-    font-weight: 900;
-  }
-
-  &:before {
-    content: '';
-    position: absolute;
-    width: 196px;
-    height: 196px;
-    left: -26px;
-    top: -52px;
-    border-radius: 50%;
-    background: linear-gradient(
-      211.46deg,
-      #a96bfe 14.09%,
-      rgba(120, 23, 254, 0) 31.12%
-    );
-    transform: rotate(-180deg);
-  }
-  &:after {
-    content: '';
-    position: absolute;
-    width: 196px;
-    height: 196px;
-    left: -36px;
-    top: -34px;
-    border-radius: 50%;
-    background: linear-gradient(
-      211.46deg,
-      #a96bfe 14.09%,
-      rgba(120, 23, 254, 0) 31.12%
-    );
-  }
-`;
-
 const LinkedButton = styled.a`
   color: black;
   width: 100%;
+  display: flex;
+  margin-bottom: 20px;
+  align-items: center;
+
+  &:last-child {
+    margin-bottom: 0px;
+  }
 
   h3 {
-    border-top: 1px solid #eee;
-    padding: 0 20px;
-    font-size: 12px;
-    font-weight: 500;
-    display: flex;
-    justify-content: space-between;
-    padding-top: 18px;
+    font-size: 16px;
+    font-weight: 600;
     cursor: pointer;
+    color: #444;
     transition: all ease 0.3s;
+    margin: 0;
+  }
 
-    &:hover {
-      color: ${colors.colorSecondary};
+  > div {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    font-size: 12px;
+
+    span {
+      color: #888;
+    }
+
+    h3 {
+      font-size: 14px;
     }
   }
+
+  > i {
+    margin-right: 30px;
+    height: 40px;
+    padding: 10px;
+    background: ${colors.colorWhite};
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    border-radius: 7px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+`;
+
+const BoxContent = styled.div`
+  padding: 0 30px 25px;
+
+  h5 {
+    color: #888;
+    font-size: 13px;
+    margin-top: 0;
+  }
+
+  .dropdown {
+    width: 100%;
+    a {
+      margin-bottom: 20px;
+    }
+  }
+  .dropdown-menu {
+    padding: 6px 6px 0;
+  }
+`;
+
+const VideoLink = styled.button`
+  display: flex;
+  margin-left: auto;
+  background: ${colors.colorPrimary};
+  border-radius: 7px;
+  padding: 7px 12px;
+  justify-content: center;
+  align-items: center;
+  color: ${colors.colorWhite};
+  height: 40px;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  font-size: 12px;
+  height: 30px;
+
+  i {
+    background: none;
+    padding: 0;
+    margin-right: 0;
+    margin-left: 5px;
+  }
+`;
+
+const Setup = styled.div`
+  border-top: 1px solid #f0f0f0;
+  padding: 0 30px;
+
+  > a {
+    margin-bottom: 0;
+    padding: 12px 0;
+
+    button {
+      margin-left: auto;
+      display: flex;
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      justify-content: center;
+      align-items: center;
+    }
+  }
+`;
+
+const SetupContent = styled.div`
+  margin-left: 50px;
+  padding-bottom: ${dimensions.coreSpacing}px;
+
+  > button {
+    margin-left: auto;
+    display: flex;
+    font-size: 12px;
+  }
+
+  ul {
+    padding-inline-start: 15px;
+  }
+
+  ol {
+    margin-top: 0;
+    font-size: 14px;
+    line-height: 28px;
+  }
+`;
+
+const VideoFrame = styled.div`
+  width: 100%;
 `;
 
 export {
@@ -173,8 +275,12 @@ export {
   BoxHeader,
   Left,
   Boxes,
-  Card,
   Header,
-  SideNumber,
-  LinkedButton
+  LinkedButton,
+  BoxContent,
+  VideoLink,
+  Setup,
+  SetupContent,
+  Card,
+  VideoFrame
 };

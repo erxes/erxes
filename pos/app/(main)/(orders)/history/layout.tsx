@@ -9,7 +9,7 @@ const HistoryLayout = ({ children }: { children: React.ReactNode }) => {
       <HeaderLayout>
         <Link
           className="inline-flex items-end text-sm font-semibold"
-          href={"/cover"}
+          href={"/history"}
         >
           <HistoryIcon className="mr-1" />
           Захиалгын түүх
