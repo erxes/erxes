@@ -264,9 +264,7 @@ const Form = ({ type, currentStep, setCurrentStep, setToggleView }: Props) => {
         <Button
           onClick={onSubmit}
           disabled={loading}
-          style={{
-            backgroundColor: currentStep === 1 ? color : "#3dcc38",
-          }}
+          className={`${currentStep === 1 ? 'bg-[#4F33AF]' : "bg-[#3dcc38]"}`}
         >
           {buttonText}
         </Button>
