@@ -16,6 +16,18 @@ const toSyncProducts = `
   }
 `;
 
+const toCheckCategories = `
+  mutation toCheckProductCategories {
+    toCheckProductCategories
+  }
+`;
+
+const toSyncCategories = `
+  mutation toSyncProductCategories($action: String, $categories: [JSON]) {
+    toSyncProductCategories(action: $action, categories: $categories)
+  }
+`;
+
 const toCheckCustomers = `
   mutation toCheckCustomers {
     toCheckCustomers
@@ -32,6 +44,8 @@ export default {
   updateConfigs,
   toCheckProducts,
   toSyncProducts,
+  toCheckCategories,
+  toSyncCategories,
   toCheckCustomers,
   toSyncCustomers
 };

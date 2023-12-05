@@ -148,7 +148,7 @@ export const consumeInventory = async (subdomain, doc, action) => {
 };
 
 export const consumeCategory = async (subdomain, doc, action) => {
-  const updateCode = action === 'delete' ? doc.code : doc.No.replace(/\s/g, '');
+  const updateCode = action === 'delete' ? doc.code : doc.Code;
 
   const productCategory = await sendProductsMessage({
     subdomain,
@@ -158,7 +158,7 @@ export const consumeCategory = async (subdomain, doc, action) => {
     defaultValue: {}
   });
 
-  if ((action === 'update' && doc.No) || action === 'create') {
+  if ((action === 'update' && doc.Code) || action === 'create') {
     const document: any = {
       name: doc?.Code || 'default',
       code: doc?.Code,

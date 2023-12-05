@@ -21,6 +21,11 @@ const InventoryProducts = asyncComponent(() =>
   )
 );
 
+const InventoryCategory = asyncComponent(() =>
+  import(
+    /* webpackChunkName: "InventoryProducts" */ './containers/InventoryCategory'
+  )
+);
 const Customers = asyncComponent(() =>
   import(/* webpackChunkName: "InventoryProducts" */ './containers/Customers')
 );
@@ -41,6 +46,15 @@ const syncHistoryList = ({ location, history }) => {
 const InventoryProductList = ({ location, history }) => {
   return (
     <InventoryProducts
+      queryParams={queryString.parse(location.search)}
+      history={history}
+    />
+  );
+};
+
+const InventoryCategoryList = ({ location, history }) => {
+  return (
+    <InventoryCategory
       queryParams={queryString.parse(location.search)}
       history={history}
     />
@@ -73,6 +87,13 @@ const routes = () => {
         exact={true}
         path="/msdynamic-products"
         component={InventoryProductList}
+      />
+
+      <Route
+        key="/msdynamic-category"
+        exact={true}
+        path="/msdynamic-category"
+        component={InventoryCategoryList}
       />
 
       <Route

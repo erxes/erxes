@@ -171,7 +171,7 @@ const msdynamicMutations = {
 
       const categories = await sendProductsMessage({
         subdomain,
-        action: 'categories.findOne',
+        action: 'categories.find',
         data: {
           query: { status: { $ne: 'deleted' } },
           limit: categoriesCount
@@ -193,11 +193,10 @@ const msdynamicMutations = {
         }
       });
 
-      const resultCodes =
-        response.value.map(r => r.Code.replace(/\s/g, '')) || [];
+      const resultCodes = response.value.map(r => r.Code) || [];
 
       const categoryByCode = {};
-      for (const category of categoryCodes) {
+      for (const category of categories) {
         categoryByCode[category.code] = category;
 
         if (!resultCodes.includes(category.code)) {
@@ -206,8 +205,8 @@ const msdynamicMutations = {
       }
 
       for (const resProd of response.value) {
-        if (categoryCodes.includes(resProd.Code.replace(/\s/g, ''))) {
-          const category = categoryByCode[resProd.Code.replace(/\s/g, '')];
+        if (categoryCodes.includes(resProd.Code)) {
+          const category = categoryByCode[resProd.Code];
 
           if (resProd?.Code === category.code) {
             matchedCount = matchedCount + 1;
