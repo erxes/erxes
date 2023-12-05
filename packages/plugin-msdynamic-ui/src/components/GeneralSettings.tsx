@@ -85,9 +85,6 @@ class GeneralSettings extends React.Component<Props, State> {
           {this.renderItem('username')}
           {this.renderItem('password')}
         </CollapseContent>
-        <CollapseContent title="Product to dynamic">
-          {this.renderItem('category')}
-        </CollapseContent>
       </ContentBox>
     );
 

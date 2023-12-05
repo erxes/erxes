@@ -12,6 +12,5 @@ export const KEY_LABELS = {
   salesApi: 'sales api',
   salesLineApi: 'sales line api',
   username: 'username',
-  password: 'password',
-  category: 'category'
+  password: 'password'
 };
