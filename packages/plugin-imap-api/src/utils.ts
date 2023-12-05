@@ -48,6 +48,8 @@ const searchMessages = (imap, criteria) => {
         throw err;
       }
 
+      console.log("results", results);
+
       let f;
 
       try {
@@ -79,6 +81,8 @@ const searchMessages = (imap, criteria) => {
 
       f.once('end', async () => {
         const data: any = [];
+
+        console.log("messages.length", messages.length);
 
         for (const buffer of messages) {
           const parsed = await simpleParser(buffer);
@@ -236,7 +240,7 @@ export const listenIntegration = async (
 ) => {
   let lastFetchDate = integration.lastFetchDate
     ? new Date(integration.lastFetchDate)
-    : undefined;
+    : new Date(Date.now() - 3 * 24 * 60 * 60 * 1000);
 
   async function listen() {
     return new Promise<any>((resolve, reject) => {
@@ -245,11 +249,9 @@ export const listenIntegration = async (
       const imap = createImap(integration);
 
       const sync = async () => {
+        console.log("--------------------------sync-----------------------------");
         try {
-          const criteria: any = ['UNSEEN'];
-          if (lastFetchDate) {
-            criteria.push(['SINCE', lastFetchDate.toISOString()]);
-          }
+          const criteria: any = ['UNSEEN', ['SINCE', lastFetchDate.toISOString()]];
           const nextLastFetchDate = new Date();
           await saveMessages(subdomain, imap, integration, criteria, models);
           lastFetchDate = nextLastFetchDate;
@@ -271,7 +273,13 @@ export const listenIntegration = async (
       }
 
       imap.once('ready', _response => {
-        imap.openBox('INBOX', true, sync);
+        console.log("-----------------ready-----------------")
+        imap.openBox('INBOX', true, async (err, box) => {
+
+          console.log("open_inbox", err, box);
+
+          return sync()
+        });
       });
 
       imap.on('mail', throttle(sync, 5000, { leading: true }));
