@@ -27,6 +27,17 @@ export const findAttachmentParts = (struct, attachments?) => {
   return attachments;
 };
 
+export const createImap = (integration: IIntegrationDocument) => {
+  return new Imap({
+    user: integration.mainUser || integration.user,
+    password: integration.password,
+    host: integration.host,
+    keepalive: { forceNoop: true },
+    port: 993,
+    tls: true
+  });
+};
+
 const searchMessages = (imap, criteria) => {
   return new Promise((resolve, reject) => {
     const messages: any = [];
@@ -225,27 +236,19 @@ export const listenIntegration = async (
   let lastFetchDate = integration.lastFetchDate
     ? new Date(integration.lastFetchDate)
     : undefined;
-  let lastFetchDateUpdatedAt = new Date();
+  let dbLastFetchDate = integration.lastFetchDate
+    ? new Date(integration.lastFetchDate)
+    : undefined;
 
   async function listen() {
-    // resolve isn't used. Because, ideally, this should run forever unless an Error occurs
-    return new Promise((_resolve, reject) => {
+    return new Promise<void>((resolve, reject) => {
       let reconnect = true;
 
-      const imap = new Imap({
-        user: integration.mainUser || integration.user,
-        password: integration.password,
-        host: integration.host,
-        keepalive: {
-          forceNoop: true,
-          idleInterval: 60 * 1000
-        },
-        port: 993,
-        tls: true
-      });
+      const imap = createImap(integration);
 
       imap.once('ready', _response => {
         imap.openBox('INBOX', true, async (_err, _box) => {
+          console.log('openBox: success');
           try {
             const criteria: any[] = ['UNSEEN'];
             if (lastFetchDate) {
@@ -258,6 +261,7 @@ export const listenIntegration = async (
               { $set: { lastFetchDate: nextLastFetchDate } }
             );
             lastFetchDate = nextLastFetchDate;
+            dbLastFetchDate = new Date(nextLastFetchDate);
           } catch (e) {
             await models.Logs.createLog({
               type: 'error',
@@ -282,7 +286,9 @@ export const listenIntegration = async (
           reconnect = false;
           try {
             imap.end();
-          } catch (e) {}
+          } catch (e) {
+            return reject(e);
+          }
           return;
         }
 
@@ -292,18 +298,18 @@ export const listenIntegration = async (
             criteria.push(['SINCE', lastFetchDate.toISOString()]);
           }
           const nextLastFetchDate = new Date();
-          await saveMessages(subdomain, imap, integration, criteria);
+          await saveMessages(subdomain, imap, integration, criteria, models);
           lastFetchDate = nextLastFetchDate;
 
           if (
-            lastFetchDate.getTime() - lastFetchDateUpdatedAt.getTime() >
-            60 * 1000
+            !dbLastFetchDate ||
+            lastFetchDate.getTime() - dbLastFetchDate.getTime() > 60 * 1000
           ) {
             await models.Integrations.updateOne(
               { _id: integration._id },
               { $set: { lastFetchDate } }
             );
-            lastFetchDateUpdatedAt = new Date();
+            dbLastFetchDate = new Date(lastFetchDate);
           }
         } catch (e) {
           await models.Logs.createLog({
@@ -337,25 +343,36 @@ export const listenIntegration = async (
             }
           );
 
-          // We shouldn't try to reconnect, since it's impossible to connect when credential configuration is wrong.
+          // We shouldn't try to reconnect, since it's impossible to connect when the credentials are wrong.
           reconnect = false;
 
           try {
             imap.end();
-          } catch (e) {}
+          } catch (e) {
+            return reject(e);
+          }
+        } else {
+          try {
+            imap.end();
+          } catch (e) {
+            return resolve(e);
+          }
         }
       });
 
       imap.once('end', e => {
-        if (!reconnect) {
+        if (reconnect) {
           console.log(
-            `Imap connection is ending. Will not reconnect because "reconnect" is set to false.`,
+            `Integration= ${integration._id}. Imap connection ended. Reconnecting...`,
             e
           );
-          reject(e);
+          return resolve(e);
         } else {
-          console.log(`Imap connection ended. It will try to reconnect`, e);
-          return reject(new Error('reconnect'));
+          console.log(
+            `Integration=${integration._id}. Imap connection ended.`,
+            e
+          );
+          return reject(e);
         }
       });
 
@@ -367,11 +384,7 @@ export const listenIntegration = async (
     try {
       await listen();
     } catch (e) {
-      if (e.message === 'reconnect') {
-        continue;
-      } else {
-        break;
-      }
+      break;
     }
   }
 };
@@ -389,7 +402,7 @@ const listen = async (subdomain: string) => {
   });
 
   for (const integration of integrations) {
-    // Don't use await, ideally, lisening to imap integration should never finish
+    // Don't use await, ideally, listening to imap integration should never finish
     listenIntegration(subdomain, integration, models);
   }
 };
