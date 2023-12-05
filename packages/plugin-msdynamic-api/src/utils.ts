@@ -147,6 +147,50 @@ export const consumeInventory = async (subdomain, doc, action) => {
   }
 };
 
+export const consumeCategory = async (subdomain, doc, action) => {
+  const updateCode = action === 'delete' ? doc.code : doc.No.replace(/\s/g, '');
+
+  const productCategory = await sendProductsMessage({
+    subdomain,
+    action: 'categories.findOne',
+    data: { code: updateCode },
+    isRPC: true,
+    defaultValue: {}
+  });
+
+  if ((action === 'update' && doc.No) || action === 'create') {
+    const document: any = {
+      name: doc?.Code || 'default',
+      code: doc?.Code,
+      description: doc?.Description,
+      status: 'active'
+    };
+
+    if (productCategory) {
+      await sendProductsMessage({
+        subdomain,
+        action: 'categories.updateProductCategory',
+        data: { _id: productCategory._id, doc: { ...document } },
+        isRPC: true
+      });
+    } else {
+      await sendProductsMessage({
+        subdomain,
+        action: 'categories.createProductCategory',
+        data: { doc: { ...document } },
+        isRPC: true
+      });
+    }
+  } else if (action === 'delete' && productCategory) {
+    await sendProductsMessage({
+      subdomain,
+      action: 'categories.removeProductCategory',
+      data: { _id: productCategory._id },
+      isRPC: true
+    });
+  }
+};
+
 export const consumeCustomers = async (subdomain, doc, action) => {
   const updateCode = action === 'delete' ? doc.code : doc.No.replace(/\s/g, '');
 

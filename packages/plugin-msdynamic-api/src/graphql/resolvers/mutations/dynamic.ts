@@ -4,7 +4,12 @@ import {
   sendContactsMessage,
   sendProductsMessage
 } from '../../../messageBroker';
-import { consumeCustomers, consumeInventory, getConfig } from '../../../utils';
+import {
+  consumeCategory,
+  consumeCustomers,
+  consumeInventory,
+  getConfig
+} from '../../../utils';
 
 const msdynamicMutations = {
   async toCheckProducts(_root, _args, { subdomain }: IContext) {
@@ -39,7 +44,7 @@ const msdynamicMutations = {
         isRPC: true
       });
 
-      const productCodes = products.map(p => p.code) || [];
+      const productCodes = (products || []).map(p => p.code) || [];
 
       const response = await sendRequest({
         url: itemApi,
@@ -142,6 +147,137 @@ const msdynamicMutations = {
     }
   },
 
+  async toCheckProductCategories(_root, _args, { subdomain }: IContext) {
+    const config = await getConfig(subdomain, 'DYNAMIC', {});
+
+    const updateCategories: any = [];
+    const createCategories: any = [];
+    const deleteCategories: any = [];
+    let matchedCount = 0;
+
+    if (!config.itemCategoryApi || !config.username || !config.password) {
+      throw new Error('MS Dynamic config not found.');
+    }
+
+    const { itemCategoryApi, username, password } = config;
+
+    try {
+      const categoriesCount = await sendProductsMessage({
+        subdomain,
+        action: 'categories.count',
+        data: { query: { status: { $ne: 'deleted' } } },
+        isRPC: true
+      });
+
+      const categories = await sendProductsMessage({
+        subdomain,
+        action: 'categories.findOne',
+        data: {
+          query: { status: { $ne: 'deleted' } },
+          limit: categoriesCount
+        },
+        isRPC: true
+      });
+
+      const categoryCodes = (categories || []).map(p => p.code) || [];
+
+      const response = await sendRequest({
+        url: itemCategoryApi,
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          Accept: 'application/json',
+          Authorization: `Basic ${Buffer.from(
+            `${username}:${password}`
+          ).toString('base64')}`
+        }
+      });
+
+      const resultCodes =
+        response.value.map(r => r.Code.replace(/\s/g, '')) || [];
+
+      const categoryByCode = {};
+      for (const category of categoryCodes) {
+        categoryByCode[category.code] = category;
+
+        if (!resultCodes.includes(category.code)) {
+          deleteCategories.push(category);
+        }
+      }
+
+      for (const resProd of response.value) {
+        if (categoryCodes.includes(resProd.Code.replace(/\s/g, ''))) {
+          const category = categoryByCode[resProd.Code.replace(/\s/g, '')];
+
+          if (resProd?.Code === category.code) {
+            matchedCount = matchedCount + 1;
+          } else {
+            updateCategories.push(resProd);
+          }
+        } else {
+          createCategories.push(resProd);
+        }
+      }
+    } catch (e) {
+      console.log(e, 'error');
+    }
+
+    return {
+      create: {
+        count: createCategories.length,
+        items: createCategories
+      },
+      update: {
+        count: updateCategories.length,
+        items: updateCategories
+      },
+      delete: {
+        count: deleteCategories.length,
+        items: deleteCategories
+      },
+      matched: {
+        count: matchedCount
+      }
+    };
+  },
+
+  async toSyncProductCategories(
+    _root,
+    { action, categories }: { action: string; categories: any[] },
+    { subdomain }: IContext
+  ) {
+    try {
+      switch (action) {
+        case 'CREATE': {
+          for (const category of categories) {
+            await consumeCategory(subdomain, category, 'create');
+          }
+          break;
+        }
+        case 'UPDATE': {
+          for (const category of categories) {
+            await consumeCategory(subdomain, category, 'update');
+          }
+          break;
+        }
+        case 'DELETE': {
+          for (const category of categories) {
+            await consumeCategory(subdomain, category, 'delete');
+          }
+          break;
+        }
+        default:
+          break;
+      }
+
+      return {
+        status: 'success'
+      };
+    } catch (e) {
+      console.log(e, 'error');
+    }
+  },
+
   async toCheckCustomers(_root, _args, { subdomain }: IContext) {
     const config = await getConfig(subdomain, 'DYNAMIC', {});
 
@@ -173,8 +309,8 @@ const msdynamicMutations = {
         defaultValue: {}
       });
 
-      const companyCodes = companies.map(c => c.code) || [];
-      const customerCodes = customers.map(c => c.code) || [];
+      const companyCodes = (companies || []).map(c => c.code) || [];
+      const customerCodes = (customers || []).map(c => c.code) || [];
 
       const response = await sendRequest({
         url: customerApi,
