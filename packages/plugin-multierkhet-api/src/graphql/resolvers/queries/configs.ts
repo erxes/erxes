@@ -3,6 +3,7 @@ import { requireLogin } from '@erxes/api-utils/src/permissions';
 import * as dotenv from 'dotenv';
 import { IContext } from '../../../connectionResolver';
 import { sendCardsMessage, sendProductsMessage } from '../../../messageBroker';
+
 dotenv.config();
 
 const configQueries = {

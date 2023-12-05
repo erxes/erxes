@@ -95,6 +95,7 @@ class InventoryProductsContainer extends React.Component<FinalProps, State> {
           this.setState({ loading: false });
         });
     };
+
     const toCheckProducts = () => {
       this.setState({ loading: true });
       this.props
