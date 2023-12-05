@@ -103,7 +103,6 @@ class InventoryProductsContainer extends React.Component<FinalProps, State> {
         })
         .then(response => {
           let data = response.data.toMultiCheckProducts;
-          console.log(data);
 
           setSyncStatus(data, 'create');
           setSyncStatus(data, 'update');

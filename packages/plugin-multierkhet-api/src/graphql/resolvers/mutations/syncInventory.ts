@@ -28,7 +28,7 @@ const inventoryMutations = {
         { scopeBrandIds: { $size: 0 } }
       ];
     }
-    console.log(JSON.stringify(productQry));
+
     const productsCount = await sendProductsMessage({
       subdomain,
       action: 'count',
@@ -142,7 +142,6 @@ const inventoryMutations = {
     { brandId }: { brandId: string },
     { subdomain, models }: IContext
   ) {
-    console.log('qqqqqqqqqqqqqqqqqqqqq');
     const configs = await models.Configs.getConfig('erkhetConfig', {});
     const config = configs[brandId || 'noBrand'];
 
@@ -301,7 +300,6 @@ const inventoryMutations = {
       throw new Error('Erkhet config not found.');
     }
 
-    console.log(config);
     try {
       switch (action) {
         case 'CREATE': {
