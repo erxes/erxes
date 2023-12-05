@@ -134,7 +134,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
             }
           );
 
-          ebarimtResponses.push(response);
+          ebarimtResponses.push({ ...response, _id: Math.random() });
 
           if (response && (response.message || response.error)) {
             const txt = JSON.stringify({
@@ -152,6 +152,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
             sessionCode: user.sessionCode || '',
             content: ebarimtResponses.map(er => ({
               ...er.ebarimt,
+              _id: er._id,
               error: er.error,
               success: er.success,
               message: er.message
