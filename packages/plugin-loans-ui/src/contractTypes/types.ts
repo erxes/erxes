@@ -68,6 +68,9 @@ export interface IContractTypeDoc {
   useFee: boolean;
   currency: string;
   collateralType: string;
+  savingPlusLoanInterest: number;
+  savingUpperPercent: number;
+  usePrePayment: boolean;
 }
 
 export interface IContractType extends IContractTypeDoc {

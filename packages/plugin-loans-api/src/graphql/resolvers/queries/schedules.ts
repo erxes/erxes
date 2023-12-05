@@ -10,7 +10,7 @@ const scheduleQueries = {
     params: { contractId: string },
     { models }: IContext
   ) => {
-    const dates = await models.Schedules.find(
+    const dates = await models.FirstSchedules.find(
       { contractId: params.contractId },
       { payDate: 1 }
     ).sort({ payDate: 1 });
