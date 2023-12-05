@@ -1,12 +1,11 @@
 import { gql } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
-import Spinner from '@erxes/ui/src/components/Spinner';
 import { IRouterProps } from '@erxes/ui/src/types';
 import { router, withProps } from '@erxes/ui/src/utils/core';
 import { withRouter } from 'react-router-dom';
 import * as compose from 'lodash.flowright';
 import React from 'react';
-import SyncHistoryList from '../components/SyncHistoryList';
+import SyncHistoryList from '../components/syncHistories/SyncHistoryList';
 import { queries } from '../graphql';
 import {
   SyncHistoriesCountQueryResponse,
@@ -49,7 +48,8 @@ class SyncHistoryListContainer extends React.Component<FinalProps, {}> {
       ...this.props,
       queryParams,
       syncHistories,
-      totalCount
+      totalCount,
+      loading: syncHistoriesQuery.loading || syncHistoriesCountQuery.loading
     };
 
     return <SyncHistoryList {...updatedProps} />;

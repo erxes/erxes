@@ -2,11 +2,12 @@ import {
   Button,
   CollapseContent,
   ControlLabel,
+  DataWithLoader,
   FormControl,
   FormGroup,
   Icon
 } from '@erxes/ui/src/components';
-import { MainStyleTitle as Title } from '@erxes/ui/src/styles/eindex';
+import { Title } from '@erxes/ui-settings/src/styles';
 import { __ } from '@erxes/ui/src/utils';
 import { Wrapper } from '@erxes/ui/src/layout';
 import React from 'react';
@@ -20,6 +21,7 @@ import { isEnabled } from '@erxes/ui/src/utils/core';
 type Props = {
   save: (configsMap: IConfigsMap) => void;
   configsMap: IConfigsMap;
+  loading: boolean;
 };
 
 type State = {
@@ -35,12 +37,19 @@ class GeneralSettings extends React.Component<Props, State> {
     };
   }
 
+  componentDidUpdate(prevProps: Readonly<Props>): void {
+    if (prevProps.configsMap !== this.props.configsMap) {
+      this.setState({ currentMap: this.props.configsMap.ERKHET || {} });
+    }
+  }
+
   save = e => {
     e.preventDefault();
 
     const { currentMap } = this.state;
     const { configsMap } = this.props;
     configsMap.ERKHET = currentMap;
+
     this.props.save(configsMap);
   };
 
@@ -64,31 +73,15 @@ class GeneralSettings extends React.Component<Props, State> {
         <ControlLabel>{KEY_LABELS[key]}</ControlLabel>
         {description && <p>{__(description)}</p>}
         <FormControl
-          defaultValue={currentMap[key]}
+          value={currentMap[key]}
           onChange={this.onChangeInput.bind(this, key)}
         />
       </FormGroup>
     );
   };
 
-  render() {
-    const breadcrumb = [
-      { title: __('Settings'), link: '/settings' },
-      { title: __('Sync erkhet config') }
-    ];
-
-    const actionButtons = (
-      <Button
-        btnStyle="primary"
-        onClick={this.save}
-        icon="check-circle"
-        uppercase={false}
-      >
-        Save
-      </Button>
-    );
-
-    const content = (
+  renderContent = () => {
+    return (
       <ContentBox id={'GeneralSettingsMenu'}>
         <CollapseContent
           title="General settings"
@@ -154,6 +147,27 @@ class GeneralSettings extends React.Component<Props, State> {
         )}
       </ContentBox>
     );
+  };
+
+  render() {
+    const { loading, configsMap } = this.props;
+    const configCount = Object.keys(configsMap.ERKHET || {}).length;
+
+    const breadcrumb = [
+      { title: __('Settings'), link: '/settings' },
+      { title: __('Sync erkhet config') }
+    ];
+
+    const actionButtons = (
+      <Button
+        btnStyle="success"
+        onClick={this.save}
+        icon="check-circle"
+        uppercase={false}
+      >
+        Save
+      </Button>
+    );
 
     return (
       <Wrapper
@@ -172,7 +186,15 @@ class GeneralSettings extends React.Component<Props, State> {
           />
         }
         leftSidebar={<Sidebar />}
-        content={content}
+        content={
+          <DataWithLoader
+            data={this.renderContent()}
+            loading={loading}
+            count={configCount}
+            emptyText={__('There is no config') + '.'}
+            emptyImage="/images/actions/8.svg"
+          />
+        }
         transparent={true}
         hasBorder={true}
       />

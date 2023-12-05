@@ -1,7 +1,6 @@
 import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
 import { Alert, withProps } from '@erxes/ui/src/utils';
-import { Spinner } from '@erxes/ui/src/components';
 import React from 'react';
 import { graphql } from '@apollo/client/react/hoc';
 import { mutations, queries } from '../graphql';
@@ -19,10 +18,6 @@ type FinalProps = {
 class SettingsContainer extends React.Component<FinalProps> {
   render() {
     const { updateConfigs, configsQuery } = this.props;
-
-    // if (configsQuery.loading) {
-    //   return <Spinner objective={true} />;
-    // }
 
     // create or update action
     const save = (map: IConfigsMap) => {
@@ -46,7 +41,15 @@ class SettingsContainer extends React.Component<FinalProps> {
     const configsMap = { [config.code]: config.value };
 
     const Component = this.props.component;
-    return <Component {...this.props} configsMap={configsMap} save={save} />;
+
+    const updatedProps = {
+      ...this.props,
+      configsMap,
+      save,
+      loading: configsQuery.loading
+    };
+
+    return <Component {...updatedProps} />;
   }
 }
 
@@ -57,8 +60,8 @@ export default withProps<Props>(
       options: props => ({
         variables: {
           code: props.configCode
-        },
-        fetchPolicy: 'network-only'
+        }
+        // fetchPolicy: 'network-only'
       })
     }),
     graphql<{}>(gql(mutations.updateConfigs), {
