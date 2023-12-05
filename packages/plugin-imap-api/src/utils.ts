@@ -19,7 +19,7 @@ export const findAttachmentParts = (struct, attachments?) => {
       if (
         struct[i].disposition &&
         ['INLINE', 'ATTACHMENT'].indexOf(toUpper(struct[i].disposition.type)) >
-          -1
+        -1
       ) {
         attachments.push(struct[i]);
       }
@@ -237,9 +237,6 @@ export const listenIntegration = async (
   let lastFetchDate = integration.lastFetchDate
     ? new Date(integration.lastFetchDate)
     : undefined;
-  let dbLastFetchDate = integration.lastFetchDate
-    ? new Date(integration.lastFetchDate)
-    : new Date(0);
 
   async function listen() {
     return new Promise<any>((resolve, reject) => {
@@ -257,15 +254,10 @@ export const listenIntegration = async (
           await saveMessages(subdomain, imap, integration, criteria, models);
           lastFetchDate = nextLastFetchDate;
 
-          if (
-            lastFetchDate.getTime() - dbLastFetchDate.getTime() > 60 * 1000
-          ) {
-            await models.Integrations.updateOne(
-              { _id: integration._id },
-              { $set: { lastFetchDate } }
-            );
-            dbLastFetchDate = new Date(lastFetchDate);
-          }
+          await models.Integrations.updateOne(
+            { _id: integration._id },
+            { $set: { lastFetchDate } }
+          );
         } catch (e) {
           await models.Logs.createLog({
             type: 'error',
