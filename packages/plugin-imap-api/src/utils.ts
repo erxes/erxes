@@ -238,7 +238,7 @@ export const listenIntegration = async (
     : undefined;
   let dbLastFetchDate = integration.lastFetchDate
     ? new Date(integration.lastFetchDate)
-    : undefined;
+    : new Date(0);
 
   async function listen() {
     return new Promise<any>((resolve, reject) => {
@@ -246,52 +246,7 @@ export const listenIntegration = async (
 
       const imap = createImap(integration);
 
-      imap.once('ready', _response => {
-        imap.openBox('INBOX', true, async (_err, _box) => {
-          console.log('openBox: success');
-          try {
-            const criteria: any[] = ['UNSEEN'];
-            if (lastFetchDate) {
-              criteria.push(['SINCE', lastFetchDate.toISOString()]);
-            }
-            const nextLastFetchDate = new Date();
-            await saveMessages(subdomain, imap, integration, criteria, models);
-            await models.Integrations.updateOne(
-              { _id: integration._id },
-              { $set: { lastFetchDate: nextLastFetchDate } }
-            );
-            lastFetchDate = nextLastFetchDate;
-            dbLastFetchDate = new Date(nextLastFetchDate);
-          } catch (e) {
-            await models.Logs.createLog({
-              type: 'error',
-              message: e.message + ' 3 ',
-              errorStack: e.stack
-            });
-            console.log('listen integration error ============', e);
-          }
-        });
-      });
-
-      imap.on('mail', async response => {
-        console.log('new messages ========', response);
-
-        const updatedIntegration = await models.Integrations.findOne({
-          _id: integration._id,
-          healthStatus: 'healthy'
-        });
-
-        if (!updatedIntegration) {
-          console.log(`ending ${integration.user} imap`);
-          reconnect = false;
-          try {
-            imap.end();
-          } catch (e) {
-            return reject(e);
-          }
-          return;
-        }
-
+      const sync = async () => {
         try {
           const criteria: any = ['UNSEEN'];
           if (lastFetchDate) {
@@ -302,7 +257,6 @@ export const listenIntegration = async (
           lastFetchDate = nextLastFetchDate;
 
           if (
-            !dbLastFetchDate ||
             lastFetchDate.getTime() - dbLastFetchDate.getTime() > 60 * 1000
           ) {
             await models.Integrations.updateOne(
@@ -321,7 +275,13 @@ export const listenIntegration = async (
 
           return reject(e);
         }
+      }
+
+      imap.once('ready', _response => {
+        imap.openBox('INBOX', true, sync);
       });
+
+      imap.on('mail', sync);
 
       imap.once('error', async e => {
         await models.Logs.createLog({
