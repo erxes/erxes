@@ -70,7 +70,8 @@ export const loadContractClass = (models: IModels) => {
     }: IContract & { schedule: any }): Promise<IContractDocument> {
       doc.startDate = getFullDate(doc.startDate || new Date());
       doc.lastStoredDate = getFullDate(doc.startDate || new Date());
-      doc.endDate = addMonths(new Date(doc.startDate), doc.tenor);
+      doc.endDate =
+        doc.endDate ?? addMonths(new Date(doc.startDate), doc.tenor);
       if (!doc.useManualNumbering || !doc.number)
         doc.number = await getNumber(models, doc.contractTypeId);
 
@@ -79,7 +80,7 @@ export const loadContractClass = (models: IModels) => {
         doc.collateralsData || []
       );
 
-      if (doc.repayment === 'custom' && !schedule) {
+      if (doc.repayment === REPAYMENT.CUSTOM && !schedule) {
         throw new Error('Custom graphic not exists');
       }
 
@@ -103,7 +104,10 @@ export const loadContractClass = (models: IModels) => {
         await models.Schedules.insertMany(schedules);
       }
 
-      if (doc.leaseType === LEASE_TYPES.LINEAR) {
+      if (
+        doc.leaseType === LEASE_TYPES.LINEAR ||
+        doc.leaseType === LEASE_TYPES.SAVING
+      ) {
         const schedules = [
           {
             contractId: contract._id,
@@ -115,6 +119,8 @@ export const loadContractClass = (models: IModels) => {
             total: doc.leaseAmount
           }
         ];
+
+        console.log('schedules', schedules);
 
         await models.FirstSchedules.insertMany(schedules);
       }
@@ -142,7 +148,8 @@ export const loadContractClass = (models: IModels) => {
       }
 
       doc.startDate = getFullDate(doc.startDate || new Date());
-      doc.endDate = addMonths(new Date(doc.startDate), doc.tenor);
+      doc.endDate =
+        doc.endDate ?? addMonths(new Date(doc.startDate), doc.tenor);
       doc.insuranceAmount = getInsurancAmount(
         doc.insurancesData || [],
         doc.collateralsData || []
@@ -152,7 +159,7 @@ export const loadContractClass = (models: IModels) => {
         contractId: _id
       }).lean();
       if (
-        doc.repayment === 'custom' &&
+        doc.repayment === REPAYMENT.CUSTOM &&
         schedule.length > 0 &&
         transactions.length === 0
       ) {

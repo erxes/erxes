@@ -20,7 +20,10 @@ const commonFields = `
   $productCategoryIds: [String],
   $config: JSON,
   $currency: String,
-  $productType: String
+  $productType: String,
+  $savingPlusLoanInterest:Float,
+  $savingUpperPercent:Float,
+  $usePrePayment:Boolean
 `;
 
 const commonVariables = `
@@ -43,7 +46,10 @@ const commonVariables = `
   productCategoryIds: $productCategoryIds,
   config: $config,
   currency: $currency,
-  productType: $productType
+  productType: $productType,
+  savingPlusLoanInterest: $savingPlusLoanInterest,
+  savingUpperPercent: $savingUpperPercent,
+  usePrePayment: $usePrePayment
 `;
 
 const contractTypesAdd = `

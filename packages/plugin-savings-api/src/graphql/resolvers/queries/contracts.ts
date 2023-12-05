@@ -182,8 +182,8 @@ const generateFilter = async (models, params, commonQuerySelector) => {
     filter.interestRate = params.interestRate;
   }
 
-  if (params.isDeposit) {
-    filter.isDeposit = params.isDeposit;
+  if (params.isDeposit !== undefined) {
+    filter.isDeposit = params.isDeposit || { $ne: true };
   }
 
   if (params.dealId) {
@@ -214,15 +214,15 @@ const contractQueries = {
     params,
     { commonQuerySelector, models }: IContext
   ) => {
-    return paginate(
-      models.Contracts.find(
-        await generateFilter(models, params, commonQuerySelector)
-      ),
-      {
-        page: params.page,
-        perPage: params.perPage
-      }
+    const loanContractsQuery = await generateFilter(
+      models,
+      params,
+      commonQuerySelector
     );
+    return paginate(models.Contracts.find(loanContractsQuery), {
+      page: params.page,
+      perPage: params.perPage
+    });
   },
 
   /**

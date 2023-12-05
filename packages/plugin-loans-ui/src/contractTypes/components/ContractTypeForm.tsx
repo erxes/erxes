@@ -41,6 +41,9 @@ type State = {
   useFee: boolean;
   productType: string;
   collateralType: string;
+  savingPlusLoanInterest: number;
+  savingUpperPercent: number;
+  usePrePayment: boolean;
 };
 
 class ContractTypeForm extends React.Component<Props, State> {
@@ -61,7 +64,11 @@ class ContractTypeForm extends React.Component<Props, State> {
       productType: contractType.productType,
       collateralType: contractType.collateralType,
       currency:
-        contractType.currency || this.props.currentUser.configs?.dealCurrency[0]
+        contractType.currency ||
+        this.props.currentUser.configs?.dealCurrency[0],
+      usePrePayment: contractType.usePrePayment || false,
+      savingPlusLoanInterest: contractType.savingPlusLoanInterest,
+      savingUpperPercent: contractType.savingUpperPercent
     };
   }
 
@@ -91,7 +98,10 @@ class ContractTypeForm extends React.Component<Props, State> {
       description: finalValues.description,
       productType: this.state.productType,
       currency: finalValues.currency,
-      commitmentInterest: Number(finalValues.commitmentInterest)
+      commitmentInterest: Number(finalValues.commitmentInterest),
+      savingPlusLoanInterest: Number(finalValues.savingPlusLoanInterest),
+      savingUpperPercent: Number(finalValues.savingUpperPercent),
+      usePrePayment: this.state.usePrePayment
     };
   };
 
@@ -314,14 +324,14 @@ class ContractTypeForm extends React.Component<Props, State> {
               {this.state.leaseType === LEASE_TYPES.SAVING &&
                 this.renderFormGroup('Saving upper interest', {
                   ...formProps,
-                  name: 'number',
+                  name: 'savingPlusLoanInterest',
                   required: true,
-                  defaultValue: contractType.savingUpperInterest || 0
+                  defaultValue: contractType.savingPlusLoanInterest || 0
                 })}
               {this.state.leaseType === LEASE_TYPES.SAVING &&
                 this.renderFormGroup('Saving upper percent', {
                   ...formProps,
-                  name: 'number',
+                  name: 'savingUpperPercent',
                   required: true,
                   max: 100,
                   defaultValue: contractType.savingUpperPercent || 0

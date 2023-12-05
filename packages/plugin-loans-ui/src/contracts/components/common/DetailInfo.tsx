@@ -92,6 +92,10 @@ class DetailInfo extends React.Component<Props> {
         )}
         {this.renderRow('Schedule Days', contract.scheduleDays.join(','))}
         {this.renderRow(
+          'End Date',
+          dayjs(contract.endDate).format('YYYY/MM/DD')
+        )}
+        {this.renderRow(
           'Loss Percent',
           contract.unduePercent && contract.unduePercent.toLocaleString()
         )}

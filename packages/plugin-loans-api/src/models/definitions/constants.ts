@@ -65,8 +65,9 @@ export const LEASE_TYPES = {
   SALVAGE: 'salvage',
   LINEAR: 'linear',
   CREDIT: 'credit',
+  SAVING: 'saving',
 
-  ALL: ['finance', 'salvage', 'linear', 'credit']
+  ALL: ['finance', 'salvage', 'linear', 'credit', 'saving']
 };
 
 export const STORED_INTEREST_TYPES = {

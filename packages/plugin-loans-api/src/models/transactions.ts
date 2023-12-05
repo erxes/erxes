@@ -448,6 +448,8 @@ export const loadTransactionClass = (models: IModels) => {
         .sort({ payDate: -1 })
         .lean();
 
+      console.log('transactions', transactions);
+
       for await (const oldTr of transactions) {
         if (oldTr) {
           const periodLock = await models.PeriodLocks.findOne({
