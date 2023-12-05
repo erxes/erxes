@@ -162,7 +162,11 @@ const receiveMessage = async (
   putCreateLog(
     models,
     subdomain,
-    { type: 'messages', newData: message, object: conversationMessage },
+    {
+      type: 'messages',
+      newData: { ...message, payload: JSON.parse(postback.payload || '{}') },
+      object: conversationMessage
+    },
     customer._id
   );
 };

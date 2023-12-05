@@ -20,7 +20,7 @@ export const initBroker = async cl => {
     const { type, actionType, targets } = data;
 
     if (actionType && actionType === 'waiting') {
-      await playWait(models, subdomain);
+      await playWait(models, subdomain, data);
       return;
     }
 

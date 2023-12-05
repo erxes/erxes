@@ -47,6 +47,7 @@ export interface IChannelData {
   postback: {
     title: 'Get Started';
     mid: string;
+    payload: string;
   };
 }
 

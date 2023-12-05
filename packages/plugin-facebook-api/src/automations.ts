@@ -170,11 +170,21 @@ const actionCreateMessage = async (
     );
 
     if (resp) {
-      setActionWait(subdomain, {
-        execution,
-        checkData: {},
-        waitActionId: action._id
-      });
+      const { optionalConnections = [] } = config;
+
+      if (optionalConnections.length) {
+        setActionWait(subdomain, {
+          execution,
+          objToCheck: {
+            propertyName: 'btnId',
+            general: {
+              erxesApiId: conversation.erxesApiId,
+              recipientId: conversation.recipientId
+            }
+          },
+          waitActionId: action._id
+        });
+      }
       return await models.ConversationMessages.addMessage(
         {
           // ...doc,
