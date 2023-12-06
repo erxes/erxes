@@ -1,20 +1,21 @@
 import * as compose from 'lodash.flowright';
-import Alert from '@erxes/ui/src/utils/Alert';
-import CheckSyncedDeals from '../components/syncedDeals/CheckSyncedDeals';
-import { gql } from '@apollo/client';
-import React from 'react';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import { Bulk } from '@erxes/ui/src/components';
+
 import {
-  CheckSyncedMutationResponse,
   CheckSyncedDealsQueryResponse,
   CheckSyncedDealsTotalCountQueryResponse,
+  CheckSyncedMutationResponse,
   ToSyncDealsMutationResponse
 } from '../types';
-import { graphql } from '@apollo/client/react/hoc';
-import { IRouterProps } from '@erxes/ui/src/types';
 import { mutations, queries } from '../graphql';
 import { router, withProps } from '@erxes/ui/src/utils/core';
+
+import Alert from '@erxes/ui/src/utils/Alert';
+import { Bulk } from '@erxes/ui/src/components';
+import CheckSyncedDeals from '../components/syncedDeals/CheckSyncedDeals';
+import { IRouterProps } from '@erxes/ui/src/types';
+import React from 'react';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
 import { withRouter } from 'react-router-dom';
 
 type Props = {
@@ -100,13 +101,6 @@ class CheckSyncedDealsContainer extends React.Component<FinalProps, State> {
           Alert.error(e.message);
         });
     };
-
-    // if (
-    //   checkSyncItemsQuery.loading ||
-    //   checkSyncedDealsTotalCountQuery.loading
-    // ) {
-    //   return <Spinner />;
-    // }
 
     const deals = checkSyncItemsQuery.deals || [];
     const totalCount = checkSyncedDealsTotalCountQuery.dealsTotalCount || 0;

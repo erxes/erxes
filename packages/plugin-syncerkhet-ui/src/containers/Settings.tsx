@@ -1,10 +1,12 @@
-import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
+
 import { Alert, withProps } from '@erxes/ui/src/utils';
-import React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
-import { mutations, queries } from '../graphql';
 import { ConfigsQueryResponse, IConfigsMap } from '../types';
+import { mutations, queries } from '../graphql';
+
+import React from 'react';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
 
 type Props = {
   component: any;
@@ -61,7 +63,6 @@ export default withProps<Props>(
         variables: {
           code: props.configCode
         }
-        // fetchPolicy: 'network-only'
       })
     }),
     graphql<{}>(gql(mutations.updateConfigs), {

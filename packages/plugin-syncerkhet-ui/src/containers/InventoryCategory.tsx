@@ -1,19 +1,20 @@
 import * as compose from 'lodash.flowright';
-import Alert from '@erxes/ui/src/utils/Alert';
-import { gql } from '@apollo/client';
-import React from 'react';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import { Bulk } from '@erxes/ui/src/components';
-import { graphql } from '@apollo/client/react/hoc';
-import { IRouterProps } from '@erxes/ui/src/types';
-import { mutations } from '../graphql';
-import { withProps } from '@erxes/ui/src/utils/core';
-import { withRouter } from 'react-router-dom';
-import InventoryCategory from '../components/inventoryCategory/InventoryCategory';
+
 import {
   ToCheckCategoriesMutationResponse,
   ToSyncCategoriesMutationResponse
 } from '../types';
+
+import Alert from '@erxes/ui/src/utils/Alert';
+import { Bulk } from '@erxes/ui/src/components';
+import { IRouterProps } from '@erxes/ui/src/types';
+import InventoryCategory from '../components/inventoryCategory/InventoryCategory';
+import React from 'react';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
+import { mutations } from '../graphql';
+import { withProps } from '@erxes/ui/src/utils/core';
+import { withRouter } from 'react-router-dom';
 
 type Props = {
   queryParams: any;
@@ -107,10 +108,6 @@ class InventoryCategoryContainer extends React.Component<FinalProps, State> {
           this.setState({ loading: false });
         });
     };
-
-    // if (loading) {
-    //   return <Spinner />;
-    // }
 
     const updatedProps = {
       ...this.props,

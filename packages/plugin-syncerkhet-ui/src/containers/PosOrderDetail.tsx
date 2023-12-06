@@ -1,11 +1,12 @@
 import * as compose from 'lodash.flowright';
+
 import Detail from '../components/syncedOrders/PosOrderDetail';
-import { gql } from '@apollo/client';
+import { OrderDetailQueryResponse } from '../types';
 import React from 'react';
+import { gql } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
 import { queries } from '../graphql';
-import { OrderDetailQueryResponse } from '../types';
-import { Spinner, withProps } from '@erxes/ui/src';
+import { withProps } from '@erxes/ui/src';
 
 type Props = {
   order: any;
@@ -26,10 +27,6 @@ class OrdersDetailContainer extends React.Component<FinalProps> {
 
   render() {
     const { orderDetailQuery } = this.props;
-
-    // if (orderDetailQuery.loading) {
-    //   return <Spinner />;
-    // }
 
     const order = orderDetailQuery.posOrderDetail;
 

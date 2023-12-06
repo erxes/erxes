@@ -1,16 +1,18 @@
-import { gql } from '@apollo/client';
-import { graphql } from '@apollo/client/react/hoc';
-import { IRouterProps } from '@erxes/ui/src/types';
-import { router, withProps } from '@erxes/ui/src/utils/core';
-import { withRouter } from 'react-router-dom';
 import * as compose from 'lodash.flowright';
-import React from 'react';
-import SyncHistoryList from '../components/syncHistories/SyncHistoryList';
-import { queries } from '../graphql';
+
 import {
   SyncHistoriesCountQueryResponse,
   SyncHistoriesQueryResponse
 } from '../types';
+import { router, withProps } from '@erxes/ui/src/utils/core';
+
+import { IRouterProps } from '@erxes/ui/src/types';
+import React from 'react';
+import SyncHistoryList from '../components/syncHistories/SyncHistoryList';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
+import { queries } from '../graphql';
+import { withRouter } from 'react-router-dom';
 
 type Props = {
   history: any;
@@ -36,10 +38,6 @@ class SyncHistoryListContainer extends React.Component<FinalProps, {}> {
       syncHistoriesQuery,
       syncHistoriesCountQuery
     } = this.props;
-
-    // if (syncHistoriesQuery.loading || syncHistoriesCountQuery.loading) {
-    //   return <Spinner />;
-    // }
 
     const syncHistories = syncHistoriesQuery.syncHistories || [];
     const totalCount = syncHistoriesCountQuery.syncHistoriesCount || 0;
