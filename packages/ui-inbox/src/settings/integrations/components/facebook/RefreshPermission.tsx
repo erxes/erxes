@@ -73,12 +73,35 @@ class RefreshPermissionForm extends React.PureComponent<Props, CommonTypes> {
     );
   };
 
+  renderInstagramContent = () => {
+    const onClick = () => {
+      const { REACT_APP_API_URL } = getEnv();
+      const url = `${REACT_APP_API_URL}/pl:instagram/instagram/login?kind=instagram`;
+
+      this.popupWindow(url, 'Integration', window, 660, 750);
+    };
+
+    return (
+      <>
+        <Info>
+          {__(
+            'Page permissions can be dropped by Messenger platform if the admin of the page changes their account password or due to some other unexpected reason. In case of any trouble with message sending, or in using some other service, please refresh your permissions using the below button.'
+          )}
+          <RefreshPermission onClick={onClick}>
+            Refresh permissions
+          </RefreshPermission>
+        </Info>
+      </>
+    );
+  };
+
   render() {
     const { closeModal } = this.props;
 
     return (
       <>
         {this.renderFacebookContent()}
+        {this.renderInstagramContent()}
         <ModalFooter>
           <Button
             btnStyle="simple"

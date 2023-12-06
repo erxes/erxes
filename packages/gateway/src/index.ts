@@ -25,6 +25,7 @@ import {
   startSubscriptionServer,
   stopSubscriptionServer
 } from './subscription';
+import { applyInspectorEndpoints } from '@erxes/api-utils/src/inspect';
 
 const {
   DOMAIN,
@@ -115,6 +116,8 @@ const {
   );
 
   app.use(express.urlencoded({ limit: '15mb', extended: true }));
+
+  applyInspectorEndpoints(app, 'gateway');
 
   const port = PORT || 4000;
 

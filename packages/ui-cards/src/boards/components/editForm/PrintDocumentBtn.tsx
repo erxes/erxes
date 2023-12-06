@@ -65,12 +65,13 @@ export default class PrintActionButton extends React.Component<Props, State> {
   }
 
   loadDocuments = () => {
+    const { item } = this.props;
     this.setState({ loading: true });
 
     client
       .mutate({
         mutation: gql(queries.documents),
-        variables: { contentType: 'cards' }
+        variables: { contentType: 'cards', subType: item.stage?.type }
       })
       .then(({ data }) => {
         this.setState({ documents: data.documents });
