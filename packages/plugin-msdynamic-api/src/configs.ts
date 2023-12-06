@@ -4,6 +4,7 @@ import resolvers from './graphql/resolvers';
 import { initBroker } from './messageBroker';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import { generateModels } from './connectionResolver';
+import afterMutations from './afterMutations';
 
 export let mainDb;
 export let debug;
@@ -19,6 +20,10 @@ export default {
       typeDefs: await typeDefs(sd),
       resolvers: await resolvers(sd)
     };
+  },
+
+  meta: {
+    afterMutations
   },
 
   apolloServerContext: async (context, req) => {

@@ -1,3 +1,4 @@
+import { sendRequest } from '@erxes/api-utils/src';
 import {
   sendContactsMessage,
   sendCoreMessage,
@@ -241,5 +242,69 @@ export const consumeCustomers = async (subdomain, doc, action) => {
         data: { customerIds: [customer._id] }
       });
     }
+  }
+};
+
+export const customerToDynamic = async (subdomain, params) => {
+  const customer = params.object;
+
+  let name = customer.primaryName || '';
+
+  name =
+    name && customer.firstName
+      ? name.concat(' ').concat(customer.firstName || '')
+      : name || customer.firstName || '';
+
+  name =
+    name && customer.lastName
+      ? name.concat(' ').concat(customer.lastName || '')
+      : name || customer.lastName || '';
+
+  name = name ? name : '';
+
+  const sendData = {
+    Name: name,
+    E_Mail: customer.primaryEmail || '',
+    Phone_No: customer.primaryPhone || '',
+    Search_Name: name
+  };
+
+  try {
+    const config = await getConfig(subdomain, 'DYNAMIC', {});
+
+    if (!config.customerApi || !config.username || !config.password) {
+      throw new Error('MS Dynamic config not found.');
+    }
+
+    const { customerApi, username, password } = config;
+
+    const response = await sendRequest({
+      url: `${customerApi}?$filter=Phone_No eq '${customer.primaryPhone}'`,
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        Accept: 'application/json',
+        Authorization: `Basic ${Buffer.from(`${username}:${password}`).toString(
+          'base64'
+        )}`
+      },
+      body: sendData
+    });
+
+    if (response.value.length === 0) {
+      await sendRequest({
+        url: customerApi,
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Basic ${Buffer.from(
+            `${username}:${password}`
+          ).toString('base64')}`
+        },
+        body: sendData
+      });
+    }
+  } catch (e) {
+    console.log(e, 'error');
   }
 };
