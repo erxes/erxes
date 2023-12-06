@@ -262,9 +262,8 @@ const bichilQueries = {
               while (!noFurtherParent && currentParentId) {
                 branchParentIds.push(currentParentId);
                 branchParentTitles.push(structuresDict[currentParentId].title);
-
                 if (structuresDict[currentParentId].parentId) {
-                  currentParentId = structuresDict[userBranchId].parentId;
+                  currentParentId = structuresDict[currentParentId].parentId;
                 } else {
                   noFurtherParent = true;
                 }
