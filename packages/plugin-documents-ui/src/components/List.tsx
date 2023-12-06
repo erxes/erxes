@@ -1,7 +1,3 @@
-import Button from '@erxes/ui/src/components/Button';
-import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
-import React from 'react';
-import Table from '@erxes/ui/src/components/table';
 import {
   FilterContainer,
   FlexItem,
@@ -9,19 +5,23 @@ import {
   InputBar,
   Title
 } from '@erxes/ui-settings/src/styles';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { __ } from 'coreui/utils';
-import Icon from '@erxes/ui/src/components/Icon';
-
 import {
   FormControl,
   ModalTrigger,
   Pagination
 } from '@erxes/ui/src/components';
-import { router } from '@erxes/ui/src/utils';
+
+import Button from '@erxes/ui/src/components/Button';
+import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import Form from '../containers/Form';
+import Icon from '@erxes/ui/src/components/Icon';
+import React from 'react';
 import Row from './Row';
 import Sidebar from './Sidebar';
+import Table from '@erxes/ui/src/components/table';
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
+import { __ } from 'coreui/utils';
+import { router } from '@erxes/ui/src/utils';
 
 type Props = {
   queryParams: any;
@@ -95,7 +95,7 @@ function List({
 
   const trigger = (
     <Button btnStyle="success" icon="plus-circle">
-      Add
+      Add Document
     </Button>
   );
 

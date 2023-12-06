@@ -1,18 +1,17 @@
-import styled from 'styled-components';
-
-import React from 'react';
-import EditorCK from '../containers/EditorCK';
-import { __ } from 'coreui/utils';
-
-import { ModalFooter } from '@erxes/ui/src/styles/main';
 import {
   Button,
-  ControlLabel,
   Form as CommonForm,
+  ControlLabel,
   FormControl,
   FormGroup
 } from '@erxes/ui/src/components';
+
+import EditorCK from '../containers/EditorCK';
 import { IFormProps } from '@erxes/ui/src/types';
+import { ModalFooter } from '@erxes/ui/src/styles/main';
+import React from 'react';
+import { __ } from 'coreui/utils';
+import styled from 'styled-components';
 
 type Props = {
   contentType: string;
@@ -29,9 +28,6 @@ type State = {
   subType?: string;
 };
 
-const FormWrapper = styled.div`
-  padding: 10px 20px;
-`;
 class Form extends React.Component<Props, State> {
   constructor(props) {
     super(props);
@@ -66,65 +62,63 @@ class Form extends React.Component<Props, State> {
 
     return (
       <>
-        <FormWrapper>
-          <FormGroup>
-            <ControlLabel required={true}>Name</ControlLabel>
+        <FormGroup>
+          <ControlLabel required={true}>Name</ControlLabel>
 
-            <FormControl
-              name="name"
-              required={true}
-              autoFocus={true}
-              defaultValue={obj.name}
-              onChange={this.onChangeField.bind(this, 'name')}
-              {...formProps}
+          <FormControl
+            name="name"
+            required={true}
+            autoFocus={true}
+            defaultValue={obj.name}
+            onChange={this.onChangeField.bind(this, 'name')}
+            {...formProps}
+          />
+        </FormGroup>
+
+        <FormGroup>
+          <div style={{ float: 'left', width: '100%' }}>
+            <EditorCK
+              contentType={obj.contentType || contentType}
+              content={obj.content}
+              onChange={this.onContentChange}
+              height={200}
+              name="document-form"
             />
-          </FormGroup>
+          </div>
 
-          <FormGroup>
-            <div style={{ float: 'left', width: '100%' }}>
-              <EditorCK
-                contentType={obj.contentType || contentType}
-                content={obj.content}
-                onChange={this.onContentChange}
-                height={200}
-                name="document-form"
-              />
-            </div>
+          <div style={{ clear: 'both' }} />
+        </FormGroup>
 
-            <div style={{ clear: 'both' }} />
-          </FormGroup>
+        <FormGroup>
+          <ControlLabel required={true}>Replacer</ControlLabel>
 
-          <FormGroup>
-            <ControlLabel required={true}>Replacer</ControlLabel>
+          <FormControl
+            componentClass="textarea"
+            name="name"
+            required={true}
+            defaultValue={obj.replacer}
+            onChange={this.onChangeField.bind(this, 'replacer')}
+            {...formProps}
+          />
+        </FormGroup>
+        <FormGroup>
+          <ControlLabel required={true}>Sub Type</ControlLabel>
 
-            <FormControl
-              componentClass="textarea"
-              name="name"
-              required={true}
-              defaultValue={obj.replacer}
-              onChange={this.onChangeField.bind(this, 'replacer')}
-              {...formProps}
-            />
-          </FormGroup>
-          <FormGroup>
-            <ControlLabel required={true}>Sub Type</ControlLabel>
-
-            <FormControl
-              componentClass="select"
-              name="subType"
-              value={subType}
-              onChange={this.onChangeField.bind(this, 'subType')}
-              {...formProps}
-            >
-              <option key="" value="" />
-              {(subTypes || []).map(e => (
-                <option key={e} value={e}>
-                  {e}
-                </option>
-              ))}
-            </FormControl>
-          </FormGroup>
-        </FormWrapper>
+          <FormControl
+            componentClass="select"
+            name="subType"
+            value={subType}
+            onChange={this.onChangeField.bind(this, 'subType')}
+            {...formProps}
+          >
+            <option key="" value="" />
+            {(subTypes || []).map(e => (
+              <option key={e} value={e}>
+                {e}
+              </option>
+            ))}
+          </FormControl>
+        </FormGroup>
 
         <ModalFooter>
           <Button btnStyle="simple" type="button" onClick={closeModal}>
