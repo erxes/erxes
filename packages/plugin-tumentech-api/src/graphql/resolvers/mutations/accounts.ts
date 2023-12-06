@@ -83,6 +83,10 @@ const accountMutations = {
     }: { driverId: string; carId: string; dealId: string },
     { models, cpUser, subdomain }: IContext
   ) => {
+    if (!cpUser) {
+      throw new Error('login required');
+    }
+
     const user = await sendClientPortalMessage({
       subdomain,
       action: 'clientPortalUsers.findOne',
@@ -92,10 +96,6 @@ const accountMutations = {
       isRPC: true,
       defaultValue: undefined
     });
-
-    if (!user) {
-      throw new Error('login required');
-    }
 
     const account = await models.CustomerAccounts.findOne({
       customerId: user.erxesCustomerId
@@ -240,6 +240,10 @@ const accountMutations = {
     { driverGroups }: { driverGroups: any[] },
     { models, cpUser, subdomain }: IContext
   ) => {
+    if (!cpUser) {
+      throw new Error('login required');
+    }
+
     const user = await sendClientPortalMessage({
       subdomain,
       action: 'clientPortalUsers.findOne',
@@ -249,10 +253,6 @@ const accountMutations = {
       isRPC: true,
       defaultValue: undefined
     });
-
-    if (!user) {
-      throw new Error('login required');
-    }
 
     const account = await models.CustomerAccounts.findOne({
       customerId: user.erxesCustomerId

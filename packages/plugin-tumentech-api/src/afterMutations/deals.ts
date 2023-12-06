@@ -130,10 +130,7 @@ export const afterDealUpdate = async (subdomain, params) => {
   await notifyUnloadConfirmationFilesAttached(subdomain, deal, oldDeal);
 
   if (deal.stageId !== oldDeal.stageId) {
-    if (
-      (stage.code && stage.code === 'negotiationAccepted') ||
-      stage.code === 'dealsNegotiated'
-    ) {
+    if (stage.code && stage.code === 'dealsNegotiated') {
       await notifyDealRelatedUsers(
         subdomain,
         process.env.WEB_CP_ID || '',
@@ -159,10 +156,7 @@ export const afterDealUpdate = async (subdomain, params) => {
       );
     }
 
-    if (
-      (stage.code && stage.code === 'start') ||
-      stage.code === 'dispatchStarted'
-    ) {
+    if (stage.code && stage.code === 'dispatchStarted') {
       const trip = await models.Trips.findOne({ dealId: deal._id });
       const dealRoute = await models.DealRoutes.findOne({ dealId: deal._id });
       const dealPlace = await models.DealPlaces.findOne({ dealId: deal._id });
@@ -243,10 +237,7 @@ export const afterDealUpdate = async (subdomain, params) => {
       );
     }
 
-    if (
-      (stage.code && stage.code === 'ready') ||
-      stage.code === 'dispatchReady'
-    ) {
+    if (stage.code && stage.code === 'dispatchReady') {
       await notifyDealRelatedUsers(
         subdomain,
         process.env.WEB_CP_ID || '',
@@ -259,10 +250,7 @@ export const afterDealUpdate = async (subdomain, params) => {
       );
     }
 
-    if (
-      (stage.code && stage.code === 'loadAccepted') ||
-      stage.code === 'dispatchLoadAccepted'
-    ) {
+    if (stage.code && stage.code === 'dispatchLoadAccepted') {
       await notifyDealRelatedUsers(
         subdomain,
         process.env.MOBILE_CP_ID || '',
@@ -275,10 +263,33 @@ export const afterDealUpdate = async (subdomain, params) => {
       );
     }
 
-    if (
-      (stage.code && stage.code === 'gone') ||
-      stage.code === 'dispatchOngoing'
-    ) {
+    if (stage.code && stage.code === 'dispatchUnloadUnconfirmed') {
+      await notifyDealRelatedUsers(
+        subdomain,
+        process.env.MOBILE_CP_ID || '',
+        deal,
+        {
+          title: 'Буулгалт баталгаажаагүй',
+          content: `Таны ${deal.name} ажлын буулгалт баталгаажсангүй, Та дахин баталгаажуулна уу!`,
+          isMobile: true
+        }
+      );
+    }
+
+    if (stage.code && stage.code === 'dispatchLoadUnconfirmed') {
+      await notifyDealRelatedUsers(
+        subdomain,
+        process.env.MOBILE_CP_ID || '',
+        deal,
+        {
+          title: 'Ачилт баталгаажаагүй',
+          content: `Таны ${deal.name} ажлын ачилт баталгаажсангүй, Та дахин баталгаажуулна уу!`,
+          isMobile: true
+        }
+      );
+    }
+
+    if (stage.code && stage.code === 'dispatchOngoing') {
       await models.Trips.updateOne(
         { dealIds: deal._id },
         { $set: { status: 'ongoing' } }
@@ -296,10 +307,7 @@ export const afterDealUpdate = async (subdomain, params) => {
       );
     }
 
-    if (
-      (stage.code && stage.code === 'break') ||
-      stage.code === 'dispatchDelayed'
-    ) {
+    if (stage.code && stage.code === 'dispatchDelayed') {
       await notifyDealRelatedUsers(
         subdomain,
         process.env.WEB_CP_ID || '',
@@ -312,10 +320,7 @@ export const afterDealUpdate = async (subdomain, params) => {
       );
     }
 
-    if (
-      (stage.code && stage.code === 'discoveredBreak') ||
-      stage.code === 'dispatchSolved'
-    ) {
+    if (stage.code && stage.code === 'dispatchSolved') {
       await notifyDealRelatedUsers(
         subdomain,
         process.env.WEB_CP_ID || '',
@@ -328,10 +333,7 @@ export const afterDealUpdate = async (subdomain, params) => {
       );
     }
 
-    if (
-      (stage.code && stage.code === 'end') ||
-      stage.code === 'dispatchArrived'
-    ) {
+    if (stage.code && stage.code === 'dispatchArrived') {
       await notifyDealRelatedUsers(
         subdomain,
         process.env.WEB_CP_ID || '',
@@ -344,10 +346,7 @@ export const afterDealUpdate = async (subdomain, params) => {
       );
     }
 
-    if (
-      (stage.code && stage.code === 'unloadAccepted') ||
-      stage.code === 'dispatchUnloadConfirmed'
-    ) {
+    if (stage.code && stage.code === 'dispatchUnloadConfirmed') {
       await models.Trips.updateOne(
         { dealIds: deal._id },
         { $set: { status: 'closed' } }
@@ -364,7 +363,7 @@ export const afterDealUpdate = async (subdomain, params) => {
       );
     }
 
-    if (stage.code === 'dispatchContractPayment') {
+    if (stage.code && stage.code === 'dispatchContractPayment') {
       await notifyDealRelatedUsers(
         subdomain,
         process.env.MOBILE_CP_ID || '',
@@ -377,10 +376,7 @@ export const afterDealUpdate = async (subdomain, params) => {
       );
     }
 
-    if (
-      (stage.code && stage.code === 'complete') ||
-      stage.code === 'dispatchSuccess'
-    ) {
+    if (stage.code && stage.code === 'dispatchSuccess') {
       await notifyDealRelatedUsers(
         subdomain,
         process.env.MOBILE_CP_ID || '',
