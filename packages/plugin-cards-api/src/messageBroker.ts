@@ -195,7 +195,7 @@ export const initBroker = async cl => {
 
   consumeRPCQueue('cards:deals.create', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
-    const deals = await models.Deals.create(data);
+    const deals = await models.Deals.createDeal(data);
 
     const { customerId = '' } = data;
 
