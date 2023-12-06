@@ -101,9 +101,13 @@ const tumentechDealMutations = {
     const tracking = await models.Tracking.findOne({ dealId, carId });
 
     if (!tracking) {
-      models.Tracking.create({ dealId, carId, trackingData: newTrackingData });
+      await models.Tracking.create({
+        dealId,
+        carId,
+        trackingData: newTrackingData
+      });
     } else {
-      models.Tracking.updateOne(
+      await models.Tracking.updateOne(
         { dealId, carId },
         { $push: { trackingData: { $each: newTrackingData } } }
       );
