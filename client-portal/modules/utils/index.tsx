@@ -67,7 +67,9 @@ const getUserAvatar = (user) => {
 };
 
 const renderUserFullName = (data) => {
-  const { details = {} as any } = data;
+  if (!data) {
+    return null;
+  }
 
   if (
     (data.details && data.details.fullName) ||
