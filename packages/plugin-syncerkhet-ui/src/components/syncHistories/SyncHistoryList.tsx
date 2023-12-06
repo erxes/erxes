@@ -5,14 +5,16 @@ import {
   SortHandler,
   Table,
   Wrapper,
-  ModalTrigger
+  ModalTrigger,
+  FormControl
 } from '@erxes/ui/src';
 import dayjs from 'dayjs';
 import { IRouterProps, IQueryParams } from '@erxes/ui/src/types';
 import React from 'react';
 import { withRouter } from 'react-router-dom';
-import { menuSyncerkhet } from '../constants';
+import { menuSyncerkhet } from '../../constants';
 import SyncHistorySidebar from './syncHistorySidebar';
+import { Title } from '@erxes/ui-settings/src/styles';
 
 interface IProps extends IRouterProps {
   syncHistories: any[];
@@ -54,11 +56,13 @@ class SyncHistoryList extends React.Component<IProps, {}> {
       queryParams
     } = this.props;
 
+    const tablehead = ['Date', 'User', 'Content Type', 'Content', 'Error'];
+
     const mainContent = (
       <Table whiteSpace="nowrap" bordered={true} hover={true}>
         <thead>
           <tr>
-            <th>
+            {/* <th>
               <SortHandler sortField={'createdAt'} label={__('Date')} />
             </th>
             <th>
@@ -75,11 +79,15 @@ class SyncHistoryList extends React.Component<IProps, {}> {
             </th>
             <th>
               <SortHandler sortField={'error'} label={__('Error')} />
-            </th>
+            </th> */}
+            {tablehead.map(p => (
+              <th key={p}>{p || ''}</th>
+            ))}
           </tr>
         </thead>
         <tbody id="orders">
           {(syncHistories || []).map(item => (
+            // tslint:disable-next-line:jsx-key
             <ModalTrigger
               title="Sync erkhet information"
               trigger={
@@ -122,7 +130,19 @@ class SyncHistoryList extends React.Component<IProps, {}> {
           />
         }
         leftSidebar={
-          <SyncHistorySidebar queryParams={queryParams} history={history} />
+          <SyncHistorySidebar
+            queryParams={queryParams}
+            history={history}
+            loading={loading}
+          />
+        }
+        actionBar={
+          <Wrapper.ActionBar
+            left={<Title>{__(`Sync Histories (${totalCount})`)}</Title>}
+            // right={actionBarRight}
+            background="colorWhite"
+            wideSpacing={true}
+          />
         }
         footer={<Pagination count={totalCount || 0} />}
         content={
@@ -133,6 +153,8 @@ class SyncHistoryList extends React.Component<IProps, {}> {
             emptyImage="/images/actions/1.svg"
           />
         }
+        hasBorder={true}
+        transparent={true}
       />
     );
   }

@@ -3,22 +3,25 @@ import {
   CollapseContent,
   ControlLabel,
   FormControl,
-  FormGroup
+  FormGroup,
+  Icon
 } from '@erxes/ui/src/components';
-import { MainStyleTitle as Title } from '@erxes/ui/src/styles/eindex';
-import { __ } from '@erxes/ui/src/utils';
-import { Wrapper } from '@erxes/ui/src/layout';
-import React from 'react';
-import { KEY_LABELS } from '../constants';
+
 import { ContentBox } from '../styles';
-import { IConfigsMap } from '../types';
 import Header from './Header';
+import { IConfigsMap } from '../types';
+import { KEY_LABELS } from '../constants';
+import React from 'react';
 import Sidebar from './Sidebar';
+import { Title } from '@erxes/ui-settings/src/styles';
+import { Wrapper } from '@erxes/ui/src/layout';
+import { __ } from '@erxes/ui/src/utils';
 import { isEnabled } from '@erxes/ui/src/utils/core';
 
 type Props = {
   save: (configsMap: IConfigsMap) => void;
   configsMap: IConfigsMap;
+  loading: boolean;
 };
 
 type State = {
@@ -34,12 +37,19 @@ class GeneralSettings extends React.Component<Props, State> {
     };
   }
 
+  componentDidUpdate(prevProps: Readonly<Props>): void {
+    if (prevProps.configsMap !== this.props.configsMap) {
+      this.setState({ currentMap: this.props.configsMap.ERKHET || {} });
+    }
+  }
+
   save = e => {
     e.preventDefault();
 
     const { currentMap } = this.state;
     const { configsMap } = this.props;
     configsMap.ERKHET = currentMap;
+
     this.props.save(configsMap);
   };
 
@@ -63,33 +73,21 @@ class GeneralSettings extends React.Component<Props, State> {
         <ControlLabel>{KEY_LABELS[key]}</ControlLabel>
         {description && <p>{__(description)}</p>}
         <FormControl
-          defaultValue={currentMap[key]}
+          value={currentMap[key]}
           onChange={this.onChangeInput.bind(this, key)}
         />
       </FormGroup>
     );
   };
 
-  render() {
-    const breadcrumb = [
-      { title: __('Settings'), link: '/settings' },
-      { title: __('Sync erkhet config') }
-    ];
-
-    const actionButtons = (
-      <Button
-        btnStyle="primary"
-        onClick={this.save}
-        icon="check-circle"
-        uppercase={false}
-      >
-        Save
-      </Button>
-    );
-
-    const content = (
+  renderContent = () => {
+    return (
       <ContentBox id={'GeneralSettingsMenu'}>
-        <CollapseContent title="General settings">
+        <CollapseContent
+          title="General settings"
+          beforeTitle={<Icon icon="settings" />}
+          transparent={true}
+        >
           {this.renderItem('apiKey')}
           {this.renderItem('apiSecret')}
           {this.renderItem('apiToken')}
@@ -98,7 +96,11 @@ class GeneralSettings extends React.Component<Props, State> {
             'Get remainder from erkhet api url'
           )}
         </CollapseContent>
-        <CollapseContent title="Product to erkhet">
+        <CollapseContent
+          title="Product to erkhet"
+          beforeTitle={<Icon icon="settings" />}
+          transparent={true}
+        >
           {this.renderItem('costAccount', 'Cost Account fullCode on erkhet')}
           {this.renderItem('saleAccount', 'Sale Account fullCode on erkhet')}
           {this.renderItem(
@@ -110,7 +112,11 @@ class GeneralSettings extends React.Component<Props, State> {
             'Set description when incoming erkhet inventory'
           )}
         </CollapseContent>
-        <CollapseContent title="Customer to erkhet">
+        <CollapseContent
+          title="Customer to erkhet"
+          beforeTitle={<Icon icon="settings" />}
+          transparent={true}
+        >
           {this.renderItem('checkCompanyUrl')}
           {this.renderItem(
             'customerDefaultName',
@@ -127,7 +133,11 @@ class GeneralSettings extends React.Component<Props, State> {
           {this.renderItem('debtAccounts', 'Split "," account fullcode')}
         </CollapseContent>
         {isEnabled('loans') && (
-          <CollapseContent title="Loan transaction to erkhet">
+          <CollapseContent
+            title="Loan transaction to erkhet"
+            beforeTitle={<Icon icon="settings" />}
+            transparent={true}
+          >
             {this.renderItem('userEmail', 'user email')}
             {this.renderItem(
               'defaultCustomer',
@@ -136,6 +146,27 @@ class GeneralSettings extends React.Component<Props, State> {
           </CollapseContent>
         )}
       </ContentBox>
+    );
+  };
+
+  render() {
+    const { loading, configsMap } = this.props;
+    const configCount = Object.keys(configsMap.ERKHET || {}).length;
+
+    const breadcrumb = [
+      { title: __('Settings'), link: '/settings' },
+      { title: __('Sync erkhet config') }
+    ];
+
+    const actionButtons = (
+      <Button
+        btnStyle="success"
+        onClick={this.save}
+        icon="check-circle"
+        uppercase={false}
+      >
+        Save
+      </Button>
     );
 
     return (
@@ -155,7 +186,7 @@ class GeneralSettings extends React.Component<Props, State> {
           />
         }
         leftSidebar={<Sidebar />}
-        content={content}
+        content={this.renderContent()}
         transparent={true}
         hasBorder={true}
       />
