@@ -239,6 +239,27 @@ const chatQueries = {
     };
   },
 
+  chatMessageAttachments: async (
+    _root,
+    { chatId, limit, skip },
+    { models }: { models: IModels; user: IUserDocument; subdomain: string }
+  ) => {
+    const filter = {
+      chatId,
+      attachments: { $exists: true, $type: 'array', $ne: [] }
+    };
+
+    const list = await models.ChatMessages.find(filter)
+      .sort({ attachments: -1, createdAt: -1 })
+      .skip(skip || 0)
+      .limit(limit || 20);
+
+    return {
+      list,
+      totalCount: await models.ChatMessages.find(filter).countDocuments()
+    };
+  },
+
   chatMessageDetail: async (
     _root,
     { _id },

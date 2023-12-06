@@ -37,6 +37,7 @@ type Props = {
   timezone?: string;
   showTimezone?: boolean;
   facebook?: string;
+  instagram?: string;
   twitter?: string;
   youtube?: string;
 };
@@ -179,7 +180,7 @@ class TopBar extends React.Component<Props> {
   }
 
   renderGreetingTopbar() {
-    const { facebook, twitter, youtube } = this.props;
+    const { facebook, instagram, twitter, youtube } = this.props;
 
     return (
       <>
@@ -187,6 +188,7 @@ class TopBar extends React.Component<Props> {
           <Links>
             <Socials>
               {this.renderLink(facebook, 'facebook-official')}
+              {this.renderLink(instagram, 'instagram')}
               {this.renderLink(twitter, 'twitter')}
               {this.renderLink(youtube, 'youtube-play')}
             </Socials>

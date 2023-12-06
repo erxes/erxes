@@ -448,6 +448,8 @@ export const loadTransactionClass = (models: IModels) => {
         .sort({ payDate: -1 })
         .lean();
 
+      console.log('transactions', transactions);
+
       for await (const oldTr of transactions) {
         if (oldTr) {
           const periodLock = await models.PeriodLocks.findOne({
@@ -496,17 +498,19 @@ export const loadTransactionClass = (models: IModels) => {
         insurance = 0,
         debt = 0,
         balance = 0,
-        commitmentInterest,
-        storedInterest
+        commitmentInterest = 0,
+        storedInterest = 0,
+        calcInterest = 0
       } = paymentInfo;
 
-      paymentInfo.calcInterest = interestEve + interestNonce - storedInterest;
+      if (interestEve + interestNonce > storedInterest)
+        paymentInfo.calcInterest = interestEve + interestNonce - storedInterest;
 
       paymentInfo.total =
         payment +
         undue +
-        interestEve +
-        interestNonce +
+        paymentInfo.calcInterest +
+        storedInterest +
         insurance +
         debt +
         commitmentInterest;
@@ -515,8 +519,8 @@ export const loadTransactionClass = (models: IModels) => {
         balance +
         payment +
         undue +
-        interestEve +
-        interestNonce +
+        paymentInfo.calcInterest +
+        storedInterest +
         insurance +
         commitmentInterest +
         debt;

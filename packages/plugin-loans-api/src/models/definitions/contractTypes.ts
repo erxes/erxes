@@ -61,6 +61,9 @@ export interface IContractType {
   productCategoryIds: string[];
   config: IContractConfig;
   currency: string;
+  savingPlusLoanInterest: number;
+  savingUpperPercent: number;
+  usePrePayment: boolean;
 }
 
 export interface IContractTypeDocument extends IContractType, Document {
@@ -138,6 +141,21 @@ export const contractTypeSchema = schemaHooksWrapper(
       type: String,
       default: 'private',
       label: 'product Type'
+    }),
+    savingPlusLoanInterest: field({
+      type: Number,
+      default: 0,
+      label: 'Saving loan plus interest'
+    }),
+    savingUpperPercent: field({
+      type: Number,
+      default: 0,
+      label: 'Saving loan upper percent'
+    }),
+    usePrePayment: field({
+      type: Boolean,
+      default: false,
+      label: 'use pre payment'
     })
   }),
   'erxes_contractTypeSchema'

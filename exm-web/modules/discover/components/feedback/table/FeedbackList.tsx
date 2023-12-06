@@ -3,6 +3,7 @@ import { useRouter, useSearchParams } from "next/navigation"
 import { exmAtom } from "@/modules/JotaiProiveder"
 import { useFeedback } from "@/modules/discover/hooks/useFeedback"
 import { useAtomValue } from "jotai"
+import { PenSquare } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Dialog } from "@/components/ui/dialog"
@@ -38,10 +39,8 @@ const FeedbackList = ({ queryParams, setToggleView }: Props) => {
 
   const { tickets, totalCount, loading } = useFeedback({
     ...queryParams,
-    pipelineId: exm?.ticketPipelineId!,
+    pipelineId: exm?.ticketPipelineId! || "",
   })
-
-  const color = exm ? exm?.appearance?.primaryColor : "#4f46e5"
 
   const list = ["Name", "Type", "Created", "Closed", "Status"]
 
@@ -73,8 +72,8 @@ const FeedbackList = ({ queryParams, setToggleView }: Props) => {
     return (
       <div className="flex overflow-y-auto ">
         <Table>
-          <TableHeader className="sticky top-0 bg-[#f8f9fa] border-none">
-            <TableRow className="border-none">
+          <TableHeader className="sticky top-0 border-none">
+            <TableRow className="border-none hover:bg-transparent">
               {list.map((item, index) => (
                 <TableHead
                   key={index}
@@ -114,10 +113,9 @@ const FeedbackList = ({ queryParams, setToggleView }: Props) => {
               scroll: false,
             })
           }}
-          style={{
-            backgroundColor: color,
-          }}
+          className="bg-success-foreground h-8 hover:bg-success-foreground rounded-lg"
         >
+          <PenSquare size={15} className="mr-2" />
           Send Feedback
         </Button>
       </div>

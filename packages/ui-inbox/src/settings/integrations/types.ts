@@ -53,7 +53,7 @@ export interface IAccount {
 
 // query types
 export type IntegrationTypes = 'facebook';
-
+export type IntegrationTypesInstagram = 'instagram';
 export type IntegrationDetailQueryResponse = {
   integrationDetail: IIntegration;
 } & QueryResponse;
@@ -171,6 +171,7 @@ export interface IBookingData {
 export interface ILink {
   twitter?: string;
   facebook?: string;
+  instagram?: string;
   youtube?: string;
 }
 
@@ -361,6 +362,7 @@ export type ByKindTotalCount = {
   messenger: number;
   lead: number;
   facebook: number;
+  instagram: number;
   gmail: number;
   callpro: number;
   chatfuel: number;
