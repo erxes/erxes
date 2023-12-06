@@ -91,7 +91,7 @@ export default withProps<Props>(
     graphql(gql(mutations.documentsSave), {
       name: 'saveMutation',
       options: {
-        refetchQueries: ['documents', 'documentsDetail']
+        refetchQueries: ['documents', 'documentsDetail', 'documentsTotalCount']
       }
     })
   )(Container)
