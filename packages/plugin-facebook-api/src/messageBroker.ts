@@ -218,5 +218,16 @@ export const sendContactsMessage = async (
   });
 };
 
+export const sendAutomationsMessage = async (
+  args: ISendMessageArgs
+): Promise<any> => {
+  return sendCommonMessage({
+    client,
+    serviceDiscovery,
+    serviceName: 'automations',
+    ...args
+  });
+};
+
 export const getFileUploadConfigs = async () =>
   sendRPCMessage('core:getFileUploadConfigs', {});

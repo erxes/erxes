@@ -5,7 +5,7 @@ import OptionalContent from './components/OptionalContent';
 const Automations = props => {
   const { componentType, activeAction } = props;
 
-  if (componentType === 'historyActionResult') {
+  if (componentType === 'historyName') {
     return <>{'-'}</>;
   }
 

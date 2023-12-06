@@ -41,7 +41,7 @@ import ActionDetailForm from '../forms/actions/ActionDetailForm';
 import ActionsForm from '../forms/actions/ActionsForm';
 import TriggerDetailForm from '../forms/triggers/TriggerDetailForm';
 import AutomationEditor from './RFEditor';
-import jquery from 'jquery';
+import Histories from '../../components/histories/Wrapper';
 
 type Props = {
   automation: IAutomation;
@@ -537,9 +537,45 @@ class Editor extends React.Component<Props, State> {
     );
   }
 
+  renderContent() {
+    const { triggers, actions, showDrawer } = this.state;
+    const {
+      automation,
+      constants: { triggersConst, actionsConst }
+    } = this.props;
+
+    if (!this.state.isActionTab) {
+      if (!automation) {
+        return <div />;
+      }
+
+      return (
+        <Histories
+          automation={automation}
+          triggersConst={triggersConst}
+          actionsConst={actionsConst}
+        />
+      );
+    }
+
+    return (
+      <AutomationEditor
+        triggers={triggers}
+        actions={actions}
+        constants={this.props.constants}
+        showDrawer={showDrawer}
+        toggleDrawer={this.toggleDrawer}
+        onDoubleClick={this.onSelectActiveTriggerAction}
+        removeItem={this.removeItem}
+        onConnection={this.onConnection}
+        onChangePositions={this.onChangeItemPosition}
+      />
+    );
+  }
+
   render() {
-    const { automation, constants } = this.props;
-    const { actions, triggers, showDrawer } = this.state;
+    const { automation } = this.props;
+    const { showDrawer } = this.state;
 
     return (
       <>
@@ -560,17 +596,7 @@ class Editor extends React.Component<Props, State> {
           }
           transparent={false}
         >
-          <AutomationEditor
-            triggers={triggers}
-            actions={actions}
-            constants={constants}
-            showDrawer={showDrawer}
-            toggleDrawer={this.toggleDrawer}
-            onDoubleClick={this.onSelectActiveTriggerAction}
-            removeItem={this.removeItem}
-            onConnection={this.onConnection}
-            onChangePositions={this.onChangeItemPosition}
-          />
+          {this.renderContent()}
         </PageContent>
 
         <div ref={this.setWrapperRef}>

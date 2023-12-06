@@ -24,6 +24,7 @@ export interface IExecution {
   actions?: IExecAction[];
   startWaitingDate?: Date;
   waitingActionId?: string;
+  objToCheck?: any;
 }
 
 export interface IExecutionDocument extends IExecution, Document {

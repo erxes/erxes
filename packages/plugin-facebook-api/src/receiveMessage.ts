@@ -23,6 +23,8 @@ const receiveMessage = async (
     postback
   } = activity.channelData as IChannelData;
 
+  console.log({ message });
+
   if (!text && !message && !!postback && postback?.title === 'Get Started') {
     text = postback.title;
 
@@ -159,16 +161,23 @@ const receiveMessage = async (
     }
   }
 
-  putCreateLog(
-    models,
-    subdomain,
-    {
-      type: 'messages',
-      newData: { ...message, payload: JSON.parse(postback.payload || '{}') },
-      object: conversationMessage
-    },
-    customer._id
-  );
+  try {
+    await putCreateLog(
+      models,
+      subdomain,
+      {
+        type: 'messages',
+        newData: message,
+        object: {
+          ...conversationMessage.toObject(),
+          payload: JSON.parse(message.quick_reply?.payload || '{}')
+        }
+      },
+      customer._id
+    );
+  } catch (error) {
+    console.log(error.message);
+  }
 };
 
 export default receiveMessage;

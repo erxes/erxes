@@ -15,7 +15,7 @@ import { getActionsMap } from './helpers';
 import { sendCommonMessage, sendSegmentsMessage } from './messageBroker';
 
 import { debugBase } from '@erxes/api-utils/src/debuggers';
-import { IModels } from './connectionResolver';
+import { IModels, generateModels } from './connectionResolver';
 import { handleEmail } from './common/emailUtils';
 import { setActionWait } from './actions/wait';
 
@@ -50,6 +50,8 @@ export const isInSegment = async (
     data: { segmentId, idToCheck: targetId },
     isRPC: true
   });
+
+  console.log({ isInSegment: response });
 
   return response;
 };
@@ -171,11 +173,21 @@ export const executeActions = async (
           actionType: 'create',
           action,
           execution,
-          collectionType: type.replace('.create', ''),
-          setActionWait
+          collectionType: type.replace('.create', '')
         },
         isRPC: true
       });
+
+      if (actionResponse?.objToWait) {
+        setActionWait(subdomain, {
+          ...actionResponse.objToWait,
+          execution,
+          action,
+          result: actionResponse?.result
+        });
+
+        return 'paused';
+      }
 
       if (actionResponse.error) {
         throw new Error(actionResponse.error);
@@ -189,6 +201,8 @@ export const executeActions = async (
     await execution.save();
     return;
   }
+
+  console.log({ _id: execution._id, actionResponse });
 
   execAction.result = actionResponse;
 
@@ -398,7 +412,6 @@ export const receiveTrigger = async ({
   type: TriggerType;
   targets: any[];
 }) => {
-  console.log({ targets });
   const automations = await models.Automations.find({
     status: 'active',
     'triggers.type': { $in: [type] }

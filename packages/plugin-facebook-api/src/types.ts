@@ -43,6 +43,7 @@ export interface IChannelData {
   }>;
   message: {
     mid: string;
+    quick_reply?: any;
   };
   postback: {
     title: 'Get Started';

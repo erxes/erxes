@@ -2,6 +2,8 @@ import { readFileUrl } from '@erxes/api-utils/src/commonUtils';
 import { IModels, generateModels } from './connectionResolver';
 import { sendReply } from './utils';
 import { IConversation } from './models/definitions/conversations';
+import { sendAutomationsMessage } from './messageBroker';
+import { debugError } from './debuggers';
 
 export default {
   constants: {
@@ -43,19 +45,13 @@ export default {
   },
   receiveActions: async ({
     subdomain,
-    data: { action, execution, actionType, collectionType, playWait }
+    data: { action, execution, actionType, collectionType }
   }) => {
     console.log('works', actionType, collectionType);
     const models = await generateModels(subdomain);
 
     if (actionType === 'create' && collectionType === 'messages') {
-      return await actionCreateMessage(
-        models,
-        subdomain,
-        action,
-        execution,
-        playWait
-      );
+      return await actionCreateMessage(models, subdomain, action, execution);
     }
 
     return;
@@ -125,8 +121,7 @@ const actionCreateMessage = async (
   models: IModels,
   subdomain,
   action,
-  execution,
-  setActionWait
+  execution
 ) => {
   const { target } = execution || {};
   const { config } = action || {};
@@ -170,22 +165,7 @@ const actionCreateMessage = async (
     );
 
     if (resp) {
-      const { optionalConnections = [] } = config;
-
-      if (optionalConnections.length) {
-        setActionWait(subdomain, {
-          execution,
-          objToCheck: {
-            propertyName: 'btnId',
-            general: {
-              erxesApiId: conversation.erxesApiId,
-              recipientId: conversation.recipientId
-            }
-          },
-          waitActionId: action._id
-        });
-      }
-      return await models.ConversationMessages.addMessage(
+      const conversationMessage = await models.ConversationMessages.addMessage(
         {
           // ...doc,
           // inbox conv id comes, so override
@@ -197,8 +177,24 @@ const actionCreateMessage = async (
         },
         config.fromUserId
       );
+
+      const { optionalConnects = [] } = config;
+
+      console.log({ conversationMessage });
+
+      return {
+        result: conversationMessage,
+        objToWait: {
+          objToCheck: {
+            propertyName: 'payload.btnId',
+            general: {
+              conversationId: conversation._id
+            }
+          }
+        }
+      };
     }
   } catch (error) {
-    console.log(error.message);
+    debugError(error.message);
   }
 };

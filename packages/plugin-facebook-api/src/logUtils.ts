@@ -15,16 +15,14 @@ export const putCreateLog = async (
   logDoc,
   customerId
 ) => {
-  const { description, extraDesc } = await gatherDescriptions(
-    models,
-    subdomain,
-    {
-      ...logDoc,
-      action: 'create'
-    }
-  );
+  const { description, extraDesc } = gatherDescriptions(models, subdomain, {
+    ...logDoc,
+    action: 'create'
+  });
 
   const customer = await models.Customers.findOne({ _id: customerId }).lean();
+
+  console.log({ object: logDoc.object });
 
   await commonPutCreateLog(
     subdomain,

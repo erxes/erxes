@@ -5,13 +5,15 @@ import { receiveTrigger } from './utils';
 import { serviceDiscovery } from './configs';
 import { playWait } from './actions';
 import { generateModels } from './connectionResolver';
+import { setActionWait, doWaitingResponseAction } from './actions/wait';
+import { EXECUTION_STATUS } from './models/definitions/executions';
 
 let client;
 
 export const initBroker = async cl => {
   client = cl;
 
-  const { consumeQueue } = cl;
+  const { consumeQueue, consumeRPCQueue } = cl;
 
   consumeQueue('automations:trigger', async ({ subdomain, data }) => {
     debugBase(`Receiving queue data: ${JSON.stringify(data)}`);
@@ -21,6 +23,31 @@ export const initBroker = async cl => {
 
     if (actionType && actionType === 'waiting') {
       await playWait(models, subdomain, data);
+      return;
+    }
+
+    console.log(
+      (await models.Executions.find({
+        triggerType: type,
+        status: EXECUTION_STATUS.WAITING,
+        $and: [{ objToCheck: { $exists: true } }, { objToCheck: { $ne: null } }]
+      }).count()) > 0
+    );
+
+    if (
+      !actionType &&
+      (await models.Executions.find({
+        triggerType: type,
+        status: EXECUTION_STATUS.WAITING,
+        $and: [{ objToCheck: { $exists: true } }, { objToCheck: { $ne: null } }]
+      }).count()) > 0
+    ) {
+      console.log({
+        ...data,
+        actionType: 'optionalConnect'
+      });
+
+      await doWaitingResponseAction(models, subdomain, data);
       return;
     }
 
@@ -37,6 +64,14 @@ export const initBroker = async cl => {
     return {
       status: 'success',
       data: await models.Automations.countDocuments(query)
+    };
+  });
+
+  consumeRPCQueue('automations:setActionWait', async ({ subdomain, data }) => {
+    return {
+      // data: await models.Accounts.find(selector).lean(),
+      data: await setActionWait(subdomain, data),
+      status: 'success'
     };
   });
 };
