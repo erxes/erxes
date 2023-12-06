@@ -38,9 +38,9 @@ class SyncHistoryListContainer extends React.Component<FinalProps, {}> {
       syncHistoriesCountQuery
     } = this.props;
 
-    if (syncHistoriesQuery.loading || syncHistoriesCountQuery.loading) {
-      return <Spinner />;
-    }
+    // if (syncHistoriesQuery.loading || syncHistoriesCountQuery.loading) {
+    //   return <Spinner />;
+    // }
 
     const syncHistories = syncHistoriesQuery.syncHistories || [];
     const totalCount = syncHistoriesCountQuery.syncHistoriesCount || 0;

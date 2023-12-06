@@ -1,5 +1,5 @@
 import { MainStyleTitle as Title } from '@erxes/ui/src/styles/eindex';
-import { __ } from '@erxes/ui/src/utils';
+import { __, confirm } from '@erxes/ui/src/utils';
 import { Button } from '@erxes/ui/src/components';
 import { Wrapper } from '@erxes/ui/src/layout';
 import React from 'react';
@@ -49,19 +49,21 @@ class GeneralSettings extends React.Component<Props, State> {
   };
 
   delete = (currentConfigKey: string) => {
-    const { configsMap } = this.state;
-    delete configsMap.remainderConfig[currentConfigKey];
-    delete configsMap.remainderConfig['newPipelineConfig'];
+    confirm('This Action will delete this config are you sure?').then(() => {
+      const { configsMap } = this.state;
+      delete configsMap.remainderConfig[currentConfigKey];
+      delete configsMap.remainderConfig.newPipelineConfig;
+      this.setState({ configsMap });
 
-    this.setState({ configsMap });
-
-    this.props.save(configsMap);
+      this.props.save(configsMap);
+    });
   };
 
   renderConfigs(configs) {
     return Object.keys(configs).map(key => {
       return (
         <PerRemSettings
+          key={key}
           configsMap={this.state.configsMap}
           config={configs[key]}
           currentConfigKey={key}

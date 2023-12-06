@@ -106,13 +106,14 @@ class CheckSyncedOrdersContainer extends React.Component<FinalProps, State> {
         });
     };
 
-    if (
-      checkSyncItemsQuery.loading ||
-      checkSyncedOrdersTotalCountQuery.loading ||
-      posListQuery.loading
-    ) {
-      return <Spinner />;
-    }
+    // if (
+    //   checkSyncItemsQuery.loading ||
+    //   checkSyncedOrdersTotalCountQuery.loading ||
+    //   posListQuery.loading
+    // ) {
+    //   return <Spinner />;
+    // }
+
     const orders = checkSyncItemsQuery.posOrders || [];
     const totalCount =
       checkSyncedOrdersTotalCountQuery.posOrdersTotalCount || 0;

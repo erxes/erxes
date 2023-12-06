@@ -27,9 +27,9 @@ class OrdersDetailContainer extends React.Component<FinalProps> {
   render() {
     const { orderDetailQuery } = this.props;
 
-    if (orderDetailQuery.loading) {
-      return <Spinner />;
-    }
+    // if (orderDetailQuery.loading) {
+    //   return <Spinner />;
+    // }
 
     const order = orderDetailQuery.posOrderDetail;
 

@@ -3,7 +3,8 @@ import {
   CollapseContent,
   ControlLabel,
   FormControl,
-  FormGroup
+  FormGroup,
+  Icon
 } from '@erxes/ui/src/components';
 import client from '@erxes/ui/src/apolloClient';
 import { gql } from '@apollo/client';
@@ -147,6 +148,8 @@ class PerSettings extends React.Component<Props, State> {
     return (
       <CollapseContent
         title={__(config.title)}
+        beforeTitle={<Icon icon="settings" />}
+        transparent={true}
         open={this.props.currentConfigKey === 'newEbarimtConfig' ? true : false}
       >
         <FormGroup>
