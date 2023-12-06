@@ -120,7 +120,7 @@ class StoreInterestForm extends React.Component<Props, State> {
               <tr>
                 <td style={{ fontSize: 'bold' }}>{mur.number}</td>
                 <td>
-                  {moment(mur.lastStoredDate || undefined).format('YYYY-MM-DD')}
+                  {moment(mur.lastStoredDate || undefined).format('YYYY/MM/DD')}
                 </td>
                 <td>{mur.expiredDays}</td>
                 <td>{mur.interestNounce}</td>

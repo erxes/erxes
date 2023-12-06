@@ -301,6 +301,7 @@ export const COMPANY_LINKS = {
   linkedIn: 'LinkedIn',
   twitter: 'Twitter',
   facebook: 'Facebook',
+  instagram: 'Instagram',
   youtube: 'Youtube',
   github: 'Github',
   website: 'Website',
@@ -309,6 +310,7 @@ export const COMPANY_LINKS = {
     { field: 'linkedIn', label: 'LinkedIn' },
     { field: 'twitter', label: 'Twitter' },
     { field: 'facebook', label: 'Facebook' },
+    { field: 'instagram', label: 'Instagram' },
     { field: 'youtube', label: 'Youtube' },
     { field: 'github', label: 'Github' },
     { field: 'website', label: 'Website' }

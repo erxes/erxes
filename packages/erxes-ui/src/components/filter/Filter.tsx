@@ -158,6 +158,7 @@ function Filter({ queryParams = {}, filterTitle, history }: IProps) {
       {renderFilterWithData('unitId', 'unit', '_id title')}
       {renderFilterParam('groupId', true, filterTitle)}
       {renderFilterParam('tagType', true, filterTitle)}
+      {renderFilterParam('contentType', true, filterTitle)}
     </Filters>
   );
 }
