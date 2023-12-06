@@ -40,7 +40,8 @@ module.exports.devCmd = async program => {
     RABBITMQ_HOST: 'amqp://127.0.0.1',
     ELASTICSEARCH_URL: 'http://127.0.0.1:9200',
     ENABLED_SERVICES_JSON: enabledServicesJson,
-    ALLOWED_ORIGINS: configs.allowed_origins
+    ALLOWED_ORIGINS: configs.allowed_origins,
+    NODE_INSPECTOR: 'enabled',
   };
 
   let port = 3300;
@@ -125,7 +126,7 @@ module.exports.devCmd = async program => {
         await execCommand(
           `cd ${filePath(
             `../packages/plugin-${plugin.name}-ui`
-          )} && yarn install-deps`
+          )} && yarn install`
         );
       }
 

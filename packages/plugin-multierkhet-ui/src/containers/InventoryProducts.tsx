@@ -95,6 +95,7 @@ class InventoryProductsContainer extends React.Component<FinalProps, State> {
           this.setState({ loading: false });
         });
     };
+
     const toCheckProducts = () => {
       this.setState({ loading: true });
       this.props
@@ -103,7 +104,6 @@ class InventoryProductsContainer extends React.Component<FinalProps, State> {
         })
         .then(response => {
           let data = response.data.toMultiCheckProducts;
-          console.log(data);
 
           setSyncStatus(data, 'create');
           setSyncStatus(data, 'update');

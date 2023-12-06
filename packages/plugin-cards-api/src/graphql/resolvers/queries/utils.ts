@@ -1010,8 +1010,9 @@ export const getItemList = async (
   serverTiming?
 ) => {
   const { collection } = getCollection(models, type);
+  const { page, perPage } = args;
   const sort = generateSort(args);
-  const limit = args.limit !== undefined ? args.limit : 10;
+  let limit = args.limit !== undefined ? args.limit : 10;
 
   const pipelines: any[] = [
     {
@@ -1073,6 +1074,13 @@ export const getItemList = async (
       }
     }
   ];
+
+  if (page && perPage) {
+    pipelines[2] = {
+      $skip: (page - 1) * perPage
+    };
+    limit = perPage;
+  }
 
   if (limit > 0) {
     pipelines.splice(3, 0, { $limit: limit });

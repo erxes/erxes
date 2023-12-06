@@ -163,12 +163,7 @@ class PeriodLocksList extends React.Component<IProps, State> {
       actionBarLeft = (
         <BarItems>
           {can('managePeriodLocks', currentUser) && (
-            <Button
-              btnStyle="danger"
-              size="small"
-              icon="cancel-1"
-              onClick={onClick}
-            >
+            <Button btnStyle="danger" icon="cancel-1" onClick={onClick}>
               {__('Delete')}
             </Button>
           )}

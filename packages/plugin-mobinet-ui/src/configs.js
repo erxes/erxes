@@ -1,4 +1,5 @@
 module.exports = {
+  srcDir: __dirname,
   name: 'mobinet',
   port: 3029,
   scope: 'mobinet',

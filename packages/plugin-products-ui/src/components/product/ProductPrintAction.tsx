@@ -91,8 +91,12 @@ class BulkDocuments extends React.Component<Props, State> {
         c: 1,
         product: b
       })),
-      copies: 1,
-      width: 300,
+      copies: Number(
+        localStorage.getItem('erxes_products_documents_copies') || 1
+      ),
+      width: Number(
+        localStorage.getItem('erxes_products_documents_width') || 300
+      ),
       isDate: false,
       date: new Date(),
       branchId: localStorage.getItem('erxes_products_documents_branchId') || '',
@@ -152,8 +156,12 @@ class BulkDocuments extends React.Component<Props, State> {
     this.setState({ showPopup: true, selectedDocumentId });
   };
 
-  onChange = (name, e) => {
-    this.setState({ [name]: e.currentTarget.value } as any);
+  onChange = e => {
+    const name = e.target.name;
+    const value = e.target.value;
+    this.setState({ [name]: value } as any, () => {
+      localStorage.setItem(`erxes_products_documents_${name}`, value);
+    });
   };
 
   onChangeSelect = (name, value) => {
@@ -217,7 +225,7 @@ class BulkDocuments extends React.Component<Props, State> {
                   {...formProps}
                   name="copies"
                   value={copies}
-                  onChange={this.onChange.bind(this, 'copies')}
+                  onChange={this.onChange}
                 />
               </FormGroup>
               <FormGroup>
@@ -226,7 +234,7 @@ class BulkDocuments extends React.Component<Props, State> {
                   {...formProps}
                   name="width"
                   value={width}
-                  onChange={this.onChange.bind(this, 'width')}
+                  onChange={this.onChange}
                 />
               </FormGroup>
               <FormGroup>

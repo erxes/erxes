@@ -61,12 +61,9 @@ jobs:
       - name: Build
         run: |
           yarn install --frozen-lockfile
-          cp -r packages/ui-plugin-template/.erxes packages/plugin-rcfa-ui/.erxes
-          cp -r packages/plugin-rcfa-ui/src packages/plugin-rcfa-ui/.erxes/plugin-src
           cd packages/plugin-rcfa-ui
-          yarn install
-          yarn install-deps
           yarn build
+          cp -r ./src/locales/ ./dist/locales 2>/dev/null || true
 
       - name: Configure AWS credentials
         if: github.event_name == 'push' && ( github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/build-test')
@@ -79,7 +76,7 @@ jobs:
       - name: Deploy
         if: github.event_name == 'push' && ( github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/build-test')
         run: |
-          tar -cf build.tar --directory=packages/plugin-rcfa-ui/.erxes/dist .
-          cp build.tar packages/plugin-rcfa-ui/.erxes/dist
-          rm -rf packages/plugin-rcfa-ui/.erxes/dist/*.js
-          aws s3 sync packages/plugin-rcfa-ui/.erxes/dist s3://erxes-enterprise-plugins/uis/plugin-rcfa-ui --delete
+          tar -cf build.tar --directory=packages/plugin-rcfa-ui/dist .
+          cp build.tar packages/plugin-rcfa-ui/dist
+          rm -rf packages/plugin-rcfa-ui/dist/*.js
+          aws s3 sync packages/plugin-rcfa-ui/dist s3://erxes-enterprise-plugins/uis/plugin-rcfa-ui --delete

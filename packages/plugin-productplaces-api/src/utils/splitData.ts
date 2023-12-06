@@ -1,15 +1,13 @@
-import {
-  sendCardsMessage,
-  sendProductsMessage,
-  sendSegmentsMessage
-} from '../messageBroker';
-import { getChildCategories } from './utils';
+import * as _ from 'lodash';
+import { sendCardsMessage, sendSegmentsMessage } from '../messageBroker';
+import { getChildCategories, getChildTags } from './utils';
 
 const checkSplit = async (
   subdomain,
   pdata,
   config,
   categoryIds,
+  tagIds,
   productById
 ) => {
   const product = productById[pdata.productId];
@@ -36,6 +34,7 @@ const checkSplit = async (
 
   let catRes = true;
   let segmentRes = true;
+  let tagRes = true;
 
   if (categoryIds && categoryIds.length) {
     catRes = false;
@@ -44,6 +43,16 @@ const checkSplit = async (
       categoryIds.includes(product.categoryId)
     ) {
       catRes = true;
+    }
+  }
+
+  if (tagIds && tagIds.length) {
+    tagRes = false;
+    if (
+      !(config.excludeProductIds || []).includes(product._id) &&
+      _.intersection(tagIds, product.tagIds).length
+    ) {
+      tagRes = true;
     }
   }
 
@@ -63,7 +72,7 @@ const checkSplit = async (
     }
   }
 
-  if (!(catRes && segmentRes)) {
+  if (!(catRes && segmentRes && tagRes)) {
     return;
   }
 
@@ -80,7 +89,8 @@ export const splitData = async (
   productById
 ) => {
   let pdatas = [...productsData];
-  let calcedCatIds = [];
+  let calcedCatIds: string[] = [];
+  let calcedTagIds: string[] = [];
 
   if (config.productCategoryIds && config.productCategoryIds.length) {
     const includeCatIds = await getChildCategories(
@@ -89,25 +99,20 @@ export const splitData = async (
     );
     const excludeCatIds = await getChildCategories(
       subdomain,
-      config.excludedCategoryIds || []
+      config.excludeCategoryIds || []
     );
 
-    const productCategoryIds = includeCatIds.filter(
-      c => !excludeCatIds.includes(c)
-    );
+    calcedCatIds = includeCatIds.filter(c => !excludeCatIds.includes(c));
+  }
 
-    const productCategories = await sendProductsMessage({
+  if (config.productTagIds && config.productTagIds.length) {
+    const includeCatIds = await getChildTags(subdomain, config.productTagIds);
+    const excludeCatIds = await getChildTags(
       subdomain,
-      action: 'categories.find',
-      data: {
-        query: { _id: { $in: productCategoryIds } },
-        sort: { order: 1 }
-      },
-      isRPC: true,
-      defaultValue: []
-    });
+      config.excludeTagIds || []
+    );
 
-    calcedCatIds = (productCategories || []).map(pc => pc._id);
+    calcedTagIds = includeCatIds.filter(c => !excludeCatIds.includes(c));
   }
 
   for (const pdata of productsData) {
@@ -116,6 +121,7 @@ export const splitData = async (
       pdata,
       config,
       calcedCatIds,
+      calcedTagIds,
       productById
     );
 

@@ -103,7 +103,6 @@ class List extends React.Component<IProps> {
         count={collateralCategoriesCount}
         emptyText="There is no collateral category"
         emptyIcon="folder-2"
-        size="small"
       />
     );
   }

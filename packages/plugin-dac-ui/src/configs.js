@@ -1,4 +1,5 @@
 module.exports = {
+  srcDir: __dirname,
   name: 'dac',
   port: 3017,
   scope: 'dac',
