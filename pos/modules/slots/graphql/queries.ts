@@ -1,11 +1,18 @@
-const slots = `
-  query poscSlots {
-    poscSlots{
+import { gql } from "@apollo/client"
+
+const slots = gql`
+  query PoscSlots {
+    poscSlots {
       _id
+      posToken
       code
       name
+      option
       status
-      isPreDates
+      isPreDates {
+        dueDate
+        _id
+      }
     }
   }
 `

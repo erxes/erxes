@@ -1,0 +1,14 @@
+{
+  "name": "plugin-reports-ui",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "webpack serve --mode development",
+    "build": "webpack --mode production"
+  },
+  "dependencies": {
+    "@erxes/ui" : "*",
+    "chart.js": "^4.4.0",
+    "chartjs-plugin-datalabels": "2.2.0",
+    "react-grid-layout": "^1.3.4"
+  }
+}

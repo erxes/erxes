@@ -4,6 +4,7 @@ import { field, schemaHooksWrapper } from './utils';
 export interface IPos {
   name: string;
   description?: string;
+  orderPassword?: string;
   pdomain?: string;
   userId: string;
   createdAt: Date;
@@ -62,6 +63,9 @@ export interface IPosSlot {
   posId: string;
   name: string;
   code: string;
+  options: {
+    [key: string]: string | number;
+  };
 }
 
 export interface IPosSlotDocument extends IPosSlot, Document {
@@ -73,6 +77,11 @@ export const posSchema = schemaHooksWrapper(
     _id: field({ pkey: true }),
     name: field({ type: String, label: 'Name' }),
     description: field({ type: String, label: 'Description', optional: true }),
+    orderPassword: field({
+      type: String,
+      label: 'OrderPassword',
+      optional: true
+    }),
     pdomain: field({ type: String, optional: true, label: 'Domain' }),
     userId: field({ type: String, optional: true, label: 'Created by' }),
     createdAt: field({ type: Date, label: 'Created at' }),
@@ -178,7 +187,8 @@ export const posSlotSchema = schemaHooksWrapper(
     _id: field({ pkey: true }),
     name: field({ type: String, label: 'Name' }),
     code: field({ type: String, label: 'Code' }),
-    posId: field({ type: String, label: 'Pos' })
+    posId: field({ type: String, label: 'Pos' }),
+    option: field({ type: Object, label: 'Option' })
   }),
   'erxes_pos_slot'
 );

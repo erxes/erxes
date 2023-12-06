@@ -4,6 +4,12 @@ export const REPAYMENT_TYPE = [
   { label: 'Custom Rate Payment', value: 'custom' } // duriin tulbur
 ];
 
+export const REPAYMENT = {
+  EQUAL: 'equal', // undsen tulbur tentsuu
+  FIXED: 'fixed', // niit tulbur tentsuu
+  CUSTOM: 'custom' // duriin tulbur
+};
+
 export const CONTRACT_STATUS = {
   DRAFT: 'draft',
   NORMAL: 'normal',
@@ -57,8 +63,11 @@ export const SCHEDULE_STATUS = {
 export const LEASE_TYPES = {
   FINANCE: 'finance',
   SALVAGE: 'salvage',
+  LINEAR: 'linear',
+  CREDIT: 'credit',
+  SAVING: 'saving',
 
-  ALL: ['finance', 'salvage']
+  ALL: ['finance', 'salvage', 'linear', 'credit', 'saving']
 };
 
 export const STORED_INTEREST_TYPES = {

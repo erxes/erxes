@@ -37,6 +37,23 @@ export const JOURNALS_KEY_LABELS = {
   isHasVat: 'isHasVat'
 };
 
+export const LEASE_TYPES = {
+  FINANCE: 'finance',
+  SALVAGE: 'salvage',
+  LINEAR: 'linear',
+  CREDIT: 'credit',
+  SAVING: 'saving',
+  ALL: ['finance', 'salvage', 'linear', 'credit', 'saving']
+};
+
+export const COLLATERAL_TYPE = {
+  ALL: ['car', 'saving', 'realEstate', 'other'],
+  CAR: 'car',
+  SAVING: 'saving',
+  REAL_ESTATE: 'realEstate',
+  OTHER: 'other'
+};
+
 // erkhet.role.cashAccount ==== journalConfig.repaymentTemp
 // erkhet.role.debAccount ==== journalConfig.tempDebt
 // erkhet.mainInventory.saleAccount ==== denchinDans |

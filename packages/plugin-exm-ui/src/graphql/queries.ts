@@ -8,10 +8,8 @@ const exmGet = `
       
       features {
         _id
-        icon
         name
         description
-        contentType
         contentId
         subContentId
       }
@@ -29,6 +27,14 @@ const exmGet = `
       favicon
       webName
       webDescription
+      vision
+      structure
+      structure
+      knowledgeBaseLabel
+      knowledgeBaseTopicId
+      ticketLabel
+      ticketPipelineId
+      ticketBoardId
     }
   }
 `;

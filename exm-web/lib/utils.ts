@@ -39,8 +39,6 @@ export const readFileImage = (value: string, width?: number): string => {
 }
 
 export const readFile = (url: string = "", width?: any) => {
-  const READ_FILE = "/read-file?key="
-
   const env = getEnv()
   const NEXT_PUBLIC_MAIN_API_DOMAIN = env.NEXT_PUBLIC_MAIN_API_DOMAIN || ""
 
@@ -107,5 +105,15 @@ export function setLocal<T>(key: string, value: T): void {
     localStorage.setItem(key, serializedValue)
   } catch (error) {
     console.error("Error storing data in localStorage:", error)
+  }
+}
+
+export const generatePaginationParams = (queryParams: {
+  page?: string
+  perPage?: string
+}) => {
+  return {
+    page: queryParams.page ? parseInt(queryParams.page, 10) : 1,
+    perPage: queryParams.perPage ? parseInt(queryParams.perPage, 10) : 10,
   }
 }

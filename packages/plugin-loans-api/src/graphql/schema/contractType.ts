@@ -15,12 +15,18 @@ export const types = () => `
     useManualNumbering: Boolean
     useFee: Boolean
     leaseType: String
+    commitmentInterest: Float
     createdAt: Date
     productCategoryIds: [String]
     config: JSON
+    
 
     productCategories: [ProductCategory]
     currency:String
+    productType:String
+    savingPlusLoanInterest:Float
+    savingUpperPercent:Float
+    usePrePayment:Boolean
   }
 
   type ContractTypesListResponse {
@@ -57,11 +63,17 @@ const commonFields = `
   useSkipInterest: Boolean
   useManualNumbering: Boolean
   useDebt: Boolean
+  useFee: Boolean
   leaseType: String
+  commitmentInterest: Float
   createdAt: Date
   productCategoryIds: [String]
   config: JSON
   currency:String
+  productType:String
+  savingPlusLoanInterest:Float
+  savingUpperPercent:Float
+  usePrePayment:Boolean
 `;
 
 export const mutations = `

@@ -2,6 +2,7 @@ export const posCommonFields = `
   _id
   name
   description
+  orderPassword
   pdomain
   createdAt
   token
@@ -102,6 +103,7 @@ const posSlots = `
       posId
       code
       name
+      option
     }
   }
 `;

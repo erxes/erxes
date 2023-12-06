@@ -10,7 +10,7 @@ const scheduleQueries = {
     params: { contractId: string },
     { models }: IContext
   ) => {
-    const dates = await models.Schedules.find(
+    const dates = await models.FirstSchedules.find(
       { contractId: params.contractId },
       { payDate: 1 }
     ).sort({ payDate: 1 });
@@ -48,7 +48,6 @@ const scheduleQueries = {
     if (!!lastTransaction) {
       filter.payDate = { $lte: lastTransaction.payDate };
     } else filter.payDate = { $lte: new Date() };
-    filter.didTotal = { $gt: 0 };
 
     return models.Schedules.find(filter).sort({ payDate: 1 });
   },

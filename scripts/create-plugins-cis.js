@@ -2,7 +2,7 @@ const yaml = require('yaml');
 var { resolve } = require('path');
 var fs = require('fs-extra');
 
-const filePath = (pathName) => {
+const filePath = pathName => {
   if (pathName) {
     return resolve(__dirname, '..', pathName);
   }
@@ -10,7 +10,7 @@ const filePath = (pathName) => {
   return resolve(__dirname, '..');
 };
 
-var workflowsPath = (fileName) => filePath(`./.github/workflows/${fileName}`);
+var workflowsPath = fileName => filePath(`./.github/workflows/${fileName}`);
 
 var plugins = [
   { name: 'inbox', ui: true, api: true },
@@ -19,15 +19,14 @@ var plugins = [
   { name: 'calls', ui: true, api: true },
   { name: 'cars', ui: true, api: true },
   { name: 'cards', ui: true, api: true },
-  { name: 'chats', ui: true, api: true },
+  { name: 'chats', api: true },
   { name: 'clientportal', ui: true, api: true },
   { name: 'contacts', ui: true, api: true },
-  { name: 'dashboard', ui: true, api: true },
   { name: 'ebarimt', ui: true, api: true },
   { name: 'emailtemplates', ui: true, api: true },
   { name: 'engages', ui: true, api: true },
   { name: 'exm', ui: true, api: true },
-  { name: 'exmfeed', ui: true, api: true },
+  { name: 'exmfeed', api: true },
   { name: 'forms', ui: true, api: true },
   { name: 'integrations', api: true },
   { name: 'internalnotes', api: true },
@@ -41,6 +40,7 @@ var plugins = [
   { name: 'reactions', api: true },
   { name: 'segments', ui: true, api: true },
   { name: 'syncerkhet', ui: true, api: true },
+  { name: 'multierkhet', api: true, ui: true },
   { name: 'tags', ui: true, api: true },
   { name: 'salesplans', ui: true, api: true },
   { name: 'processes', ui: true, api: true },
@@ -69,6 +69,12 @@ var plugins = [
   { name: 'xyp', api: true, ui: true },
   { name: 'polarissync', api: true, ui: true },
   { name: 'savings', api: true, ui: true },
+  { name: 'goals', api: true, ui: true },
+  { name: 'msdynamic', api: true, ui: true },
+  { name: 'dailyco', api: true, ui: true },
+  { name: 'zms', api: true, ui: true },
+  { name: 'reports', api: true, ui: true },
+  { name: 'instagram', api: true, ui: true }
 ];
 
 const pluginsMap = {};
@@ -163,7 +169,7 @@ var main = async () => {
     }
   }
 
-  const actions = permissionCheckers.map((action) => action.name);
+  const actions = permissionCheckers.map(action => action.name);
   const dups = actions.filter((item, index) => actions.indexOf(item) !== index);
 
   if (dups.length) {

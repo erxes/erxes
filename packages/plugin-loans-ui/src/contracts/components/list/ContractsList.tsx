@@ -1,21 +1,21 @@
-import {
-  Alert,
-  Button,
-  confirm,
-  DataWithLoader,
-  FormControl,
-  ModalTrigger,
-  Pagination,
-  router,
-  SortHandler,
-  Table,
-  Wrapper,
-  BarItems
-} from '@erxes/ui/src';
+import Alert from '@erxes/ui/src/utils/Alert';
+import Button from '@erxes/ui/src/components/Button';
+import confirm from '@erxes/ui/src/utils/confirmation/confirm';
+import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import Pagination from '@erxes/ui/src/components/pagination/Pagination';
+import { router } from '@erxes/ui/src/utils';
+
+import SortHandler from '@erxes/ui/src/components/SortHandler';
+import Table from '@erxes/ui/src/components/table';
+import { BarItems } from '@erxes/ui/src/layout/styles';
+
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { IRouterProps } from '@erxes/ui/src/types';
 import React from 'react';
 import { withRouter } from 'react-router-dom';
-import { menuContracts } from '../../../constants';
+import { ORGANIZATION_TYPE, menuContracts } from '../../../constants';
 
 import ContractForm from '../../containers/ContractForm';
 import { ContractsTableWrapper } from '../../styles';
@@ -129,7 +129,7 @@ class ContractsList extends React.Component<IProps, State> {
 
     const mainContent = (
       <ContractsTableWrapper>
-        <Table whiteSpace="nowrap" bordered={true} hover={true}>
+        <Table whiteSpace="nowrap" bordered={true} hover={true} striped>
           <thead>
             <tr>
               <th>
@@ -140,10 +140,31 @@ class ContractsList extends React.Component<IProps, State> {
                 />
               </th>
               <th>
+                <SortHandler sortField={'type'} label={__('Type')} />
+              </th>
+              <th>
+                <SortHandler
+                  sortField={'contractType'}
+                  label={__('Contract Type')}
+                />
+              </th>
+              <th>
+                <SortHandler
+                  sortField={'classification'}
+                  label={__('Classification')}
+                />
+              </th>
+              <th>
                 <SortHandler
                   sortField={'number'}
                   label={__('Contract Number')}
                 />
+              </th>
+              <th>
+                <SortHandler sortField={'firstName'} label={__('First Name')} />
+              </th>
+              <th>
+                <SortHandler sortField={'code'} label={__('Code')} />
               </th>
               <th>
                 <SortHandler
@@ -157,9 +178,7 @@ class ContractsList extends React.Component<IProps, State> {
                   label={__('leaseAmount')}
                 />
               </th>
-              <th>
-                <SortHandler sortField={'tenor'} label={__('Status')} />
-              </th>
+
               <th>
                 <SortHandler sortField={'tenor'} label={__('Tenor')} />
               </th>
@@ -172,18 +191,17 @@ class ContractsList extends React.Component<IProps, State> {
               <th>
                 <SortHandler sortField={'repayment'} label={__('Repayment')} />
               </th>
-              <th>
-                <SortHandler
-                  sortField={'classification'}
-                  label={__('Classification')}
-                />
-              </th>
+
               <th>
                 <SortHandler
                   sortField={'scheduleDays'}
                   label={__('Schedule Day')}
                 />
               </th>
+              <th>
+                <SortHandler sortField={'tenor'} label={__('Status')} />
+              </th>
+              <th />
             </tr>
           </thead>
           <tbody id="contracts">
@@ -202,7 +220,7 @@ class ContractsList extends React.Component<IProps, State> {
     );
 
     const addTrigger = (
-      <Button btnStyle="success" size="small" icon="plus-circle">
+      <Button btnStyle="success" icon="plus-circle">
         {__('Add contract')}
       </Button>
     );
@@ -228,7 +246,7 @@ class ContractsList extends React.Component<IProps, State> {
           <ModalTrigger
             title={`${__('Change classification')}`}
             trigger={
-              <Button btnStyle="warning" size="small" icon="cancel-1">
+              <Button btnStyle="warning" icon="cancel-1">
                 {__('Change classification')}
               </Button>
             }
@@ -237,16 +255,13 @@ class ContractsList extends React.Component<IProps, State> {
             content={classificationForm}
             backDrop="static"
           />
-          {can('contractsRemove', currentUser) && (
-            <Button
-              btnStyle="danger"
-              size="small"
-              icon="cancel-1"
-              onClick={onClick}
-            >
-              {__('Delete')}
-            </Button>
-          )}
+          {currentUser?.configs?.loansConfig?.organizationType ===
+            ORGANIZATION_TYPE.ENTITY &&
+            can('contractsRemove', currentUser) && (
+              <Button btnStyle="danger" icon="cancel-1" onClick={onClick}>
+                {__('Delete')}
+              </Button>
+            )}
           {alerts.map(mur => (
             <Button onClick={() => onSelect(mur.filter, 'ids')}>
               {mur.name}:{mur.count}
@@ -319,6 +334,7 @@ class ContractsList extends React.Component<IProps, State> {
         }
         actionBar={actionBar}
         footer={<Pagination count={totalCount} />}
+        hasBorder={true}
         content={
           <DataWithLoader
             data={mainContent}

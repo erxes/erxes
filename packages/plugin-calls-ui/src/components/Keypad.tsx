@@ -1,65 +1,194 @@
-import Icon from '@erxes/ui/src/components/Icon';
-import Button from '@erxes/ui/src/components/Button';
-import { __ } from '@erxes/ui/src/utils';
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   InputBar,
   NumberInput,
-  CountryCode,
   BackIcon,
   ChooseCountry,
-  Country,
   Keypad,
-  CountryContainer
+  InCall,
+  CallInfo,
+  Actions,
+  CallAction,
+  InCallFooter,
+  PhoneNumber,
+  ContactItem,
+  CallTabsContainer,
+  CallTab,
+  CallTabContent
 } from '../styles';
-import { countryNumbers, ourPhone, numbers, symbols } from '../constants';
+import { inCallTabs, numbers, symbols } from '../constants';
 import { FormControl } from '@erxes/ui/src/components/form';
 import Select from 'react-select-plus';
+import { Button, Icon } from '@erxes/ui/src/components';
+import { Alert, __ } from '@erxes/ui/src/utils';
+import * as PropTypes from 'prop-types';
+import {
+  CALL_DIRECTION_INCOMING,
+  CALL_STATUS_ACTIVE,
+  CALL_STATUS_IDLE,
+  CALL_STATUS_STARTING,
+  SIP_STATUS_REGISTERED
+} from '../lib/enums';
+import { callPropType, sipPropType } from '../lib/types';
+import { formatPhone, getSpentTime } from '../utils';
+import Popover from 'react-bootstrap/Popover';
+import AssignBox from '@erxes/ui-inbox/src/inbox/containers/AssignBox';
+import { isEnabled } from '@erxes/ui/src/utils/core';
+import TaggerSection from '@erxes/ui-contacts/src/customers/components/common/TaggerSection';
+import { ICallConversation, ICustomer } from '../types';
+import { StepContent } from '@erxes/ui/src/components/step/styles';
 
 type Props = {
-  history?: any;
+  addCustomer: (firstName: string, phoneNumber: string, callID: string) => void;
+  callIntegrationsOfUser: any;
+  setConfig: any;
+  customer: ICustomer;
+  toggleSectionWithPhone: (phoneNumber: string) => void;
+  taggerRefetchQueries: any;
+  conversation: ICallConversation;
+  addNote: (conversationId: string, content: string) => void;
 };
+const KeyPad = (props: Props, context) => {
+  const Sip = context;
+  const { call, mute, unmute, isMuted, isHolded, hold, unhold } = Sip;
+  const {
+    addCustomer,
+    callIntegrationsOfUser,
+    setConfig,
+    customer,
+    toggleSectionWithPhone,
+    taggerRefetchQueries,
+    conversation,
+    addNote
+  } = props;
 
-type State = {
-  chosenCountry: any;
-  number: string;
-  showTrigger: boolean;
-  searchValue: string;
-  callFrom: any;
-};
+  const defaultCallIntegration = localStorage.getItem(
+    'config:call_integrations'
+  );
 
-class KeyPad extends React.Component<Props, State> {
-  constructor(props: Props) {
-    super(props);
+  const [currentTab, setCurrentTab] = useState('');
+  const [shrink, setShrink] = useState(customer ? true : false);
 
-    this.state = {
-      chosenCountry: countryNumbers[0],
-      number: '',
-      searchValue: '',
-      showTrigger: false,
-      callFrom: '+976 7777 7777'
+  const [number, setNumber] = useState('');
+  const [showTrigger, setShowTrigger] = useState(false);
+  const [searchValue, setSearchValue] = useState('');
+  const [callFrom, setCallFrom] = useState(
+    JSON.parse(defaultCallIntegration)?.phone ||
+      callIntegrationsOfUser?.[0]?.phone ||
+      ''
+  );
+  const [hasMicrophone, setHasMicrophone] = useState(false);
+  const [noteContent, setNoteContent] = useState('');
+
+  const [timeSpent, setTimeSpent] = useState(0);
+  const formatedPhone = formatPhone(number);
+
+  const ourPhone = callIntegrationsOfUser?.map(user => ({
+    value: user.phone,
+    label: user.phone
+  }));
+  let conversationDetail;
+
+  if (conversation) {
+    conversationDetail = {
+      ...conversation,
+      _id: conversation.erxesApiId
     };
   }
 
-  handNumPad = e => {
-    const { number } = this.state;
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
 
-    let num = number;
+    navigator.mediaDevices
+      .getUserMedia({ audio: true })
+      .then(() => {
+        setHasMicrophone(true);
+      })
+      .catch(error => {
+        const errorMessage = error
+          ?.toString()
+          .replace('DOMException:', '')
+          .replace('NotFoundError: ', '');
+        setHasMicrophone(false);
+        return Alert.error(errorMessage);
+      });
 
-    if (e === 'delete') {
-      num = number.slice(0, -1);
-      this.setState({ number: num });
-    } else {
-      num += e;
-      this.setState({ number: num });
+    if (call?.status === CALL_STATUS_STARTING && hasMicrophone) {
+      const inboxId =
+        JSON.parse(defaultCallIntegration)?.inboxId ||
+        callIntegrationsOfUser?.[0]?.inboxId;
+
+      addCustomer(inboxId, formatedPhone, call?.id);
+    }
+    if (call?.status === CALL_STATUS_ACTIVE) {
+      timer = setInterval(() => {
+        setTimeSpent(prevTimeSpent => prevTimeSpent + 1);
+      }, 1000);
+    }
+
+    return () => clearInterval(timer);
+  }, [call?.status]);
+
+  const onTabClick = (tab: string) => {
+    setCurrentTab(tab);
+    setShrink(true);
+  };
+
+  const handleCall = () => {
+    if (!hasMicrophone) {
+      return Alert.error('Check your microphone');
+    }
+
+    if (Sip.sip?.status !== SIP_STATUS_REGISTERED) {
+      return;
+    }
+    if (Sip.call?.status !== CALL_STATUS_IDLE) {
+      return;
+    }
+
+    if (formatedPhone.length !== 8) {
+      return Alert.warning('Check phone number');
+    }
+
+    const { startCall } = context;
+
+    if (startCall && hasMicrophone) {
+      startCall(formatedPhone);
     }
   };
 
-  renderKeyPad = () => {
+  const handleCallStop = () => {
+    const { stopCall, call } = context;
+
+    if (stopCall) {
+      stopCall();
+    }
+  };
+
+  const handNumPad = e => {
+    let num = number;
+    if (e === 'delete') {
+      num = number.slice(0, -1);
+      setNumber(num);
+    } else {
+      // notfy by sound
+      const audio = new Audio('/sound/clickNumPad.mp3');
+      audio.play();
+
+      num += e;
+      setNumber(num);
+    }
+  };
+
+  const toggleSection = () => {
+    toggleSectionWithPhone(formatedPhone);
+  };
+
+  const renderKeyPad = () => {
     return (
       <Keypad>
         {numbers.map(n => (
-          <div className="number" key={n} onClick={() => this.handNumPad(n)}>
+          <div className="number" key={n} onClick={() => handNumPad(n)}>
             {n}
           </div>
         ))}
@@ -68,110 +197,280 @@ class KeyPad extends React.Component<Props, State> {
             <div
               key={s.class}
               className={s.class}
-              onClick={() => this.handNumPad(s.symbol)}
+              onClick={() => handNumPad(s.symbol)}
             >
               {s.toShow || s.symbol}
             </div>
           ))}
         </div>
-        <div className="number" onClick={() => this.handNumPad(0)}>
+        <div className="number" onClick={() => handNumPad(0)}>
           0
         </div>
-        <div className="symbols" onClick={() => this.handNumPad('delete')}>
+        <div className="symbols" onClick={() => handNumPad('delete')}>
           <Icon icon="backspace" />
         </div>
       </Keypad>
     );
   };
 
-  render() {
-    const {
-      chosenCountry,
-      number,
-      showTrigger,
-      searchValue,
-      callFrom
-    } = this.state;
+  const onBack = () => setShowTrigger(false);
+  const onTrigger = () => setShowTrigger(true);
 
-    const onBack = () => this.setState({ showTrigger: false });
-    const onTrigger = () => this.setState({ showTrigger: true });
-    const onCountryChange = country => {
-      this.setState({ chosenCountry: country });
-      this.setState({ showTrigger: false });
-    };
+  const search = e => {
+    const inputValue = e.target.value;
+    setSearchValue(inputValue);
+  };
 
-    const search = e => {
-      const inputValue = e.target.value;
-      this.setState({ searchValue: inputValue });
-    };
+  const onStatusChange = status => {
+    setCallFrom(status.value);
 
-    const onStatusChange = (status: { label: string; value: boolean }) => {
-      this.setState({ callFrom: status.value });
-    };
+    const integration = callIntegrationsOfUser?.find(
+      integration => integration.phone === status.value
+    );
+    localStorage.setItem(
+      'config:call_integrations',
+      JSON.stringify({
+        inboxId: integration?.inboxId,
+        phone: integration?.phone,
+        wsServer: integration?.wsServer,
+        token: integration?.token,
+        operators: integration?.operators,
+        isAvailable: true
+      })
+    );
 
-    if (showTrigger) {
+    setConfig({
+      inboxId: integration?.inboxId,
+      phone: integration?.phone,
+      wsServer: integration?.wsServer,
+      token: integration?.token,
+      operators: integration?.operators,
+      isAvailable: true
+    });
+  };
+
+  if (showTrigger) {
+    return (
+      <ChooseCountry>
+        <BackIcon onClick={onBack}>
+          <Icon icon="angle-left" size={20} /> {__('Back')}
+        </BackIcon>
+        <InputBar type="country">
+          <Icon icon="search-1" size={20} />
+          <FormControl
+            placeholder={__('Search')}
+            name="searchValue"
+            onChange={search}
+            value={searchValue}
+            autoFocus={true}
+          />
+        </InputBar>
+      </ChooseCountry>
+    );
+  }
+
+  const handleAudioToggle = () => {
+    if (!isMuted()) {
+      mute();
+    } else {
+      unmute();
+    }
+  };
+
+  const handleHold = () => {
+    if (!isHolded().localHold) {
+      hold();
+    } else {
+      unhold();
+    }
+  };
+
+  const renderCallerInfo = () => {
+    if (!formatedPhone) {
+      return null;
+    }
+
+    return <PhoneNumber>{formatedPhone}</PhoneNumber>;
+  };
+
+  const onChangeText = e =>
+    setNoteContent((e.currentTarget as HTMLInputElement).value);
+
+  const sendMessage = () => {
+    addNote(conversationDetail?._id, noteContent);
+  };
+
+  const renderFooter = () => {
+    if (!shrink) {
       return (
-        <ChooseCountry>
-          <BackIcon onClick={onBack}>
-            <Icon icon="angle-left" size={20} /> {__('Back')}
-          </BackIcon>
-          <InputBar type="country">
-            <Icon icon="search-1" size={20} />
-            <FormControl
-              placeholder={__('Search')}
-              name="searchValue"
-              onChange={search}
-              value={searchValue}
-              autoFocus={true}
-            />
-          </InputBar>
-          <CountryContainer>
-            {countryNumbers.map(c => {
-              return (
-                <Country key={c.code} onClick={() => onCountryChange(c)}>
-                  <CountryCode>
-                    <img src={c.flag} />
-                    {c.code}
-                  </CountryCode>
-                  {c.country}
-                </Country>
-              );
-            })}
-          </CountryContainer>
-        </ChooseCountry>
+        <InCallFooter>
+          <Button btnStyle="link">{__('Add or call')}</Button>
+          <CallAction onClick={handleCallStop} isDecline={true}>
+            <Icon icon="phone-slash" />
+          </CallAction>
+          <Button btnStyle="link">{__('Transfer call')}</Button>
+        </InCallFooter>
       );
     }
 
     return (
-      <NumberInput>
-        <InputBar type="keypad">
-          <CountryCode onClick={onTrigger}>
-            <img src={chosenCountry.flag} />
-            {chosenCountry.code}
-            <Icon icon="downarrow-2" size={8} />
-          </CountryCode>
+      <>
+        <CallTabContent
+          tab="Notes"
+          show={currentTab === 'Notes' ? true : false}
+        >
           <FormControl
-            placeholder={__('Enter Phone Number')}
-            name="searchValue"
-            value={number}
-            disabled={true}
-            autoFocus={true}
+            componentClass="textarea"
+            placeholder="Send a note..."
+            onChange={onChangeText}
           />
-        </InputBar>
-        {this.renderKeyPad()}
-        <p>Calling from your own phone number</p>
-        <Select
-          placeholder={__('Choose phone number')}
-          value={callFrom}
-          onChange={onStatusChange}
-          clearable={false}
-          options={ourPhone}
-          scrollMenuIntoView={true}
-        />
-        <Button icon="outgoing-call">Call</Button>
-      </NumberInput>
+          <Button btnStyle="success" onClick={sendMessage}>
+            {__('Send')}
+          </Button>
+        </CallTabContent>
+        <CallTabContent tab="Tags" show={currentTab === 'Tags' ? true : false}>
+          {isEnabled('tags') && (
+            <TaggerSection
+              data={customer}
+              type="contacts:customer"
+              refetchQueries={taggerRefetchQueries}
+              collapseCallback={toggleSection}
+            />
+          )}
+        </CallTabContent>
+        <CallTabContent
+          tab="Assign"
+          show={currentTab === 'Assign' ? true : false}
+        >
+          <AssignBox
+            targets={[conversationDetail]}
+            event="onClick"
+            afterSave={() => {}}
+          />
+        </CallTabContent>
+        <CallAction onClick={handleCallStop} isDecline={true}>
+          <Icon icon="phone-slash" />
+        </CallAction>
+      </>
     );
-  }
-}
+  };
 
+  return (
+    <>
+      {Sip.call?.status === CALL_STATUS_ACTIVE && (
+        <Popover id="call-popover" className="call-popover">
+          <InCall>
+            <CallInfo shrink={shrink}>
+              <p>
+                {__('Call duration:')} <b>{getSpentTime(timeSpent)}</b>
+              </p>
+              <div>{renderCallerInfo()}</div>
+              <Actions>
+                {!isMuted() && (
+                  <CallAction
+                    key={'Mute'}
+                    shrink={false}
+                    onClick={handleAudioToggle}
+                  >
+                    <Icon icon={'phone-times'} />
+                    {__('Mute')}
+                  </CallAction>
+                )}
+                {isMuted() && (
+                  <CallAction
+                    key={'UnMute'}
+                    shrink={true}
+                    onClick={handleAudioToggle}
+                  >
+                    <Icon icon={'phone-times'} />
+                    {__('UnMute')}
+                  </CallAction>
+                )}
+
+                {!isHolded().localHold && (
+                  <CallAction key={'Hold'} shrink={false} onClick={handleHold}>
+                    <Icon icon={'pause-1'} />
+                    {__('Hold')}
+                  </CallAction>
+                )}
+                {isHolded().localHold && (
+                  <CallAction key={'UnHold'} shrink={true} onClick={handleHold}>
+                    <Icon icon={'pause-1'} />
+                    {__('UnHold')}
+                  </CallAction>
+                )}
+              </Actions>
+            </CallInfo>
+            <ContactItem>
+              <CallTabsContainer full={true}>
+                {inCallTabs.map(tab => (
+                  <CallTab
+                    key={tab}
+                    className={currentTab === tab ? 'active' : ''}
+                    onClick={() => onTabClick(tab)}
+                  >
+                    {__(tab)}
+                  </CallTab>
+                ))}
+              </CallTabsContainer>
+            </ContactItem>
+            {renderFooter()}
+          </InCall>
+        </Popover>
+      )}
+      {Sip.call?.direction !== CALL_DIRECTION_INCOMING && (
+        <NumberInput>
+          <InputBar type="keypad">
+            <FormControl
+              placeholder={__('Enter Phone Number')}
+              name="searchValue"
+              value={number}
+              disabled={true}
+              autoFocus={true}
+            />
+          </InputBar>
+          {renderKeyPad()}
+          <p>Calling from your own phone number</p>
+          <Select
+            placeholder={__('Choose phone number')}
+            value={callFrom}
+            onChange={onStatusChange}
+            clearable={false}
+            options={ourPhone}
+            scrollMenuIntoView={true}
+          />
+          <>
+            {Sip.call?.status === CALL_STATUS_IDLE && (
+              <Button icon="outgoing-call" onClick={handleCall}>
+                Call
+              </Button>
+            )}
+            {Sip.call?.status !== CALL_STATUS_IDLE && (
+              <Button
+                icon="phone-slash"
+                btnStyle="danger"
+                onClick={handleCallStop}
+              >
+                End Call
+              </Button>
+            )}
+          </>
+        </NumberInput>
+      )}
+    </>
+  );
+};
+KeyPad.contextTypes = {
+  sip: sipPropType,
+  call: callPropType,
+  startCall: PropTypes.func,
+  stopCall: PropTypes.func,
+  answerCall: PropTypes.func,
+  mute: PropTypes.func,
+  unmute: PropTypes.func,
+  hold: PropTypes.func,
+  unhold: PropTypes.func,
+  isMuted: PropTypes.func,
+  isHolded: PropTypes.func
+};
 export default KeyPad;

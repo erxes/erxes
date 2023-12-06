@@ -31,7 +31,7 @@ const chatMarkAsRead = gql`
 const chatMessageAdd = gql`
   mutation chatMessageAdd(
     $chatId: String!
-    $content: String!
+    $content: String
     $relatedId: String
     $attachments: [JSON]
   ) {
@@ -52,11 +52,18 @@ const chatMessageAdd = gql`
         details {
           avatar
           fullName
+          position
         }
       }
 
       seenList {
         lastSeenMessageId
+        user {
+          _id
+          details {
+            avatar
+          }
+        }
       }
 
       relatedMessage {
@@ -86,6 +93,12 @@ const chatMakeOrRemoveAdmin = gql`
 const chatToggleIsPinned = gql`
   mutation chatToggleIsPinned($id: String!) {
     chatToggleIsPinned(_id: $id)
+  }
+`
+
+const chatToggleIsWithNotification = gql`
+  mutation chatToggleIsWithNotification($id: String!) {
+    chatToggleIsWithNotification(_id: $id)
   }
 `
 
@@ -141,6 +154,24 @@ const chatForward = gql`
   }
 `
 
+const pinMessage = gql`
+  mutation ChatMessageToggleIsPinned($id: String!) {
+    chatMessageToggleIsPinned(_id: $id)
+  }
+`
+
+const chatArchive = gql`
+  mutation ChatArchive($id: String!) {
+    chatArchive(_id: $id)
+  }
+`
+
+const chatTyping = gql`
+  mutation ChatTypingInfo($chatId: String!, $userId: String!) {
+    chatTypingInfo(chatId: $chatId, userId: $userId)
+  }
+`
+
 export default {
   chatAdd,
   chatEdit,
@@ -154,4 +185,8 @@ export default {
   commentAdd,
   commentRemove,
   chatForward,
+  chatToggleIsWithNotification,
+  pinMessage,
+  chatArchive,
+  chatTyping
 }

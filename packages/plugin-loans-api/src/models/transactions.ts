@@ -1,5 +1,9 @@
 import { ITransaction, transactionSchema } from './definitions/transactions';
-import { INVOICE_STATUS, SCHEDULE_STATUS } from './definitions/constants';
+import {
+  INVOICE_STATUS,
+  LEASE_TYPES,
+  SCHEDULE_STATUS
+} from './definitions/constants';
 import { findContractOfTr } from './utils/findUtils';
 import { generatePendingSchedules } from './utils/scheduleUtils';
 import {
@@ -15,6 +19,7 @@ import { FilterQuery } from 'mongodb';
 import { IContractDocument } from './definitions/contracts';
 import { getPureDate } from '@erxes/api-utils/src';
 import { createEbarimt } from './utils/ebarimtUtils';
+import { getFullDate } from './utils/utils';
 
 export interface ITransactionModel extends Model<ITransactionDocument> {
   getTransaction(selector: FilterQuery<ITransactionDocument>);
@@ -112,6 +117,32 @@ export const loadTransactionClass = (models: IModels) => {
           { _id: contract._id },
           { $inc: { givenAmount: doc.give } }
         );
+
+        if (
+          contract.leaseType === LEASE_TYPES.LINEAR ||
+          contract.leaseType === LEASE_TYPES.CREDIT
+        ) {
+          const prevSchedule = await models.Schedules.findOne({
+            payDate: { $lte: getFullDate(doc.payDate) },
+            contractId: contract._id
+          })
+            .sort({ payDate: -1 })
+            .lean();
+
+          const schedules = [
+            {
+              contractId: contract._id,
+              status: SCHEDULE_STATUS.PENDING,
+              payDate: getFullDate(doc.payDate),
+              balance: (doc.total || 0) + (prevSchedule?.balance || 0),
+              interestNonce: 0,
+              payment: doc.total,
+              total: doc.total
+            }
+          ];
+
+          await models.Schedules.insertMany(schedules);
+        }
         return tr;
       }
 
@@ -120,6 +151,7 @@ export const loadTransactionClass = (models: IModels) => {
       });
 
       trInfo.calcInterest = trInfo.interestEve + trInfo.interestNonce;
+
       if (contract.storedInterest) {
         let payedInterest = trInfo.interestEve + trInfo.interestNonce;
 
@@ -416,6 +448,8 @@ export const loadTransactionClass = (models: IModels) => {
         .sort({ payDate: -1 })
         .lean();
 
+      console.log('transactions', transactions);
+
       for await (const oldTr of transactions) {
         if (oldTr) {
           const periodLock = await models.PeriodLocks.findOne({
@@ -463,24 +497,32 @@ export const loadTransactionClass = (models: IModels) => {
         interestNonce = 0,
         insurance = 0,
         debt = 0,
-        balance = 0
+        balance = 0,
+        commitmentInterest = 0,
+        storedInterest = 0,
+        calcInterest = 0
       } = paymentInfo;
 
-      paymentInfo.calcInterest =
-        paymentInfo.interestEve +
-        paymentInfo.interestNonce -
-        paymentInfo.storedInterest;
+      if (interestEve + interestNonce > storedInterest)
+        paymentInfo.calcInterest = interestEve + interestNonce - storedInterest;
 
       paymentInfo.total =
-        payment + undue + interestEve + interestNonce + insurance + debt;
+        payment +
+        undue +
+        paymentInfo.calcInterest +
+        storedInterest +
+        insurance +
+        debt +
+        commitmentInterest;
 
       paymentInfo.closeAmount =
         balance +
         payment +
         undue +
-        interestEve +
-        interestNonce +
+        paymentInfo.calcInterest +
+        storedInterest +
         insurance +
+        commitmentInterest +
         debt;
 
       return paymentInfo;

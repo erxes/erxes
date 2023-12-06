@@ -1,6 +1,6 @@
 "use client"
 
-import { FC, memo, useEffect, useState } from "react"
+import { FC, useEffect, useState } from "react"
 import NextImage, { ImageLoaderProps, ImageProps } from "next/image"
 import { Package } from "lucide-react"
 
@@ -32,13 +32,15 @@ const Image: FC<
   const handleComplete = () => setIsImageLoading(false)
 
   useEffect(() => {
-    const fixedSrc = readFile(src || "")
-    setSrcI(fixedSrc)
+    if (src) {
+      const fixedSrc = readFile(src || "")
+      setSrcI(fixedSrc)
+    }
   }, [src])
 
   const updatedProps = {
     ...rest,
-    src: readFile(src || ""),
+    src: srcI,
     alt,
     fill: !width && !height ? true : undefined,
     width,
@@ -55,7 +57,7 @@ const Image: FC<
     <NextImage
       {...updatedProps}
       loader={!srcI.startsWith("/") ? cloudflareLoader : undefined}
-      onLoadingComplete={handleComplete}
+      onLoad={handleComplete}
       className={cn(className, isImageLoading && "blur-2xl", "text-black")}
       sizes={
         sizes ||
@@ -72,6 +74,4 @@ export function cloudflareLoader({ src, width, quality }: ImageLoaderProps) {
   return `https://erxes.io/cdn-cgi/image/${params.join(",")}/${src}`
 }
 
-//xos.techstore.mn/gateway/read-file?key=0.021508049013006180.51531201349981501.png
-
-export default memo(Image)
+export default Image

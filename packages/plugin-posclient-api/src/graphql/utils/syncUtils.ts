@@ -57,7 +57,7 @@ export const importSlots = async (
 ) => {
   const pos = await models.Configs.getConfig({ token });
   await models.PosSlots.deleteMany({ posId: pos.posId });
-  await models.PosSlots.insertMany(slots);
+  await models.PosSlots.insertMany(slots.map(s => ({ ...s, posToken: token })));
 };
 
 export const preImportProducts = async (
@@ -253,7 +253,7 @@ export const extractConfig = async (subdomain, doc) => {
         ? `${FILE_PATH}?key=${uiOptions.qrCodeImage}`
         : uiOptions.qrCodeImage;
   } catch (e) {
-    console.log(e, '-------');
+    console.log(e.message);
   }
 
   return {
@@ -267,6 +267,7 @@ export const extractConfig = async (subdomain, doc) => {
     paymentTypes: doc.paymentTypes,
     beginNumber: doc.beginNumber,
     maxSkipNumber: doc.maxSkipNumber,
+    orderPassword: doc.orderPassword,
     uiOptions,
     ebarimtConfig: doc.ebarimtConfig,
     erkhetConfig: doc.erkhetConfig,

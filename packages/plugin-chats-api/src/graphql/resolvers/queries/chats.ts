@@ -14,7 +14,8 @@ const chatQueries = {
     const filter: any = {
       $and: [
         { isPinnedUserIds: { $nin: [user._id] } },
-        { participantIds: { $in: [user._id] } }
+        { participantIds: { $in: [user._id] } },
+        { archivedUserIds: { $nin: [user._id] } }
       ]
     };
 
@@ -238,6 +239,27 @@ const chatQueries = {
     };
   },
 
+  chatMessageAttachments: async (
+    _root,
+    { chatId, limit, skip },
+    { models }: { models: IModels; user: IUserDocument; subdomain: string }
+  ) => {
+    const filter = {
+      chatId,
+      attachments: { $exists: true, $type: 'array', $ne: [] }
+    };
+
+    const list = await models.ChatMessages.find(filter)
+      .sort({ attachments: -1, createdAt: -1 })
+      .skip(skip || 0)
+      .limit(limit || 20);
+
+    return {
+      list,
+      totalCount: await models.ChatMessages.find(filter).countDocuments()
+    };
+  },
+
   chatMessageDetail: async (
     _root,
     { _id },
@@ -276,6 +298,15 @@ const chatQueries = {
       graphqlPubsub.publish('chatInserted', {
         userId: user._id
       });
+    } else {
+      const isArchived = chat.archivedUserIds?.includes(user._id);
+
+      if (isArchived) {
+        await models.Chats.updateOne(
+          { _id: chat._id },
+          { $pull: { archivedUserIds: { $in: [user._id] } } }
+        );
+      }
     }
 
     return chat._id;
@@ -305,6 +336,7 @@ const chatQueries = {
     });
     return userstatus;
   },
+
   activeMe: async (_root, { userId }, { models, user }) => {
     let userstatus = await models.UserStatus.findOne({
       userId: userId

@@ -1,4 +1,5 @@
 module.exports = {
+  srcDir: __dirname,
   name: "zerocodeai",
   scope: 'zerocodeai',
   port: 3014,

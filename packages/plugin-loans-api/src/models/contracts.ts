@@ -1,4 +1,9 @@
-import { CONTRACT_STATUS, SCHEDULE_STATUS } from './definitions/constants';
+import {
+  CONTRACT_STATUS,
+  LEASE_TYPES,
+  REPAYMENT,
+  SCHEDULE_STATUS
+} from './definitions/constants';
 import {
   contractSchema,
   ICloseVariable,
@@ -11,7 +16,6 @@ import { IContractDocument } from './definitions/contracts';
 import { IModels } from '../connectionResolver';
 import { FilterQuery } from 'mongodb';
 import { ITransaction } from './definitions/transactions';
-import { ICollateralDataDoc } from './definitions/contracts';
 import { IInsurancesData } from './definitions/contracts';
 import { ICollateralData } from './definitions/contracts';
 
@@ -66,7 +70,8 @@ export const loadContractClass = (models: IModels) => {
     }: IContract & { schedule: any }): Promise<IContractDocument> {
       doc.startDate = getFullDate(doc.startDate || new Date());
       doc.lastStoredDate = getFullDate(doc.startDate || new Date());
-      doc.endDate = addMonths(new Date(doc.startDate), doc.tenor);
+      doc.endDate =
+        doc.endDate ?? addMonths(new Date(doc.startDate), doc.tenor);
       if (!doc.useManualNumbering || !doc.number)
         doc.number = await getNumber(models, doc.contractTypeId);
 
@@ -75,13 +80,13 @@ export const loadContractClass = (models: IModels) => {
         doc.collateralsData || []
       );
 
-      if (doc.repayment === 'custom' && !schedule) {
+      if (doc.repayment === REPAYMENT.CUSTOM && !schedule) {
         throw new Error('Custom graphic not exists');
       }
 
       const contract = await models.Contracts.create(doc);
 
-      if (doc.repayment === 'custom' && schedule.length > 0) {
+      if (doc.repayment === REPAYMENT.CUSTOM && schedule.length > 0) {
         const schedules = schedule.map(a => {
           return {
             contractId: contract._id,
@@ -97,6 +102,27 @@ export const loadContractClass = (models: IModels) => {
 
         await models.FirstSchedules.insertMany(schedules);
         await models.Schedules.insertMany(schedules);
+      }
+
+      if (
+        doc.leaseType === LEASE_TYPES.LINEAR ||
+        doc.leaseType === LEASE_TYPES.SAVING
+      ) {
+        const schedules = [
+          {
+            contractId: contract._id,
+            status: SCHEDULE_STATUS.PENDING,
+            payDate: doc.endDate,
+            balance: doc.leaseAmount,
+            interestNonce: 0,
+            payment: doc.leaseAmount,
+            total: doc.leaseAmount
+          }
+        ];
+
+        console.log('schedules', schedules);
+
+        await models.FirstSchedules.insertMany(schedules);
       }
 
       return contract;
@@ -122,7 +148,8 @@ export const loadContractClass = (models: IModels) => {
       }
 
       doc.startDate = getFullDate(doc.startDate || new Date());
-      doc.endDate = addMonths(new Date(doc.startDate), doc.tenor);
+      doc.endDate =
+        doc.endDate ?? addMonths(new Date(doc.startDate), doc.tenor);
       doc.insuranceAmount = getInsurancAmount(
         doc.insurancesData || [],
         doc.collateralsData || []
@@ -132,7 +159,7 @@ export const loadContractClass = (models: IModels) => {
         contractId: _id
       }).lean();
       if (
-        doc.repayment === 'custom' &&
+        doc.repayment === REPAYMENT.CUSTOM &&
         schedule.length > 0 &&
         transactions.length === 0
       ) {
@@ -143,7 +170,7 @@ export const loadContractClass = (models: IModels) => {
           return {
             contractId: _id,
             status: SCHEDULE_STATUS.PENDING,
-            payDate: a.payDate,
+            payDate: getFullDate(a.payDate),
             balance: a.balance,
             interestNonce: a.interestNonce,
             payment: a.payment,

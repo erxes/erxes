@@ -224,19 +224,6 @@ class ContractForm extends React.Component<Props, State> {
         <ScrollWrapper>
           <FormWrapper>
             <FormColumn>
-              <FormGroup>
-                <ControlLabel required={true}>
-                  {__('Contract Type')}
-                </ControlLabel>
-                <SelectContractType
-                  label={__('Choose type')}
-                  name="contractTypeId"
-                  value={this.state.contractTypeId || ''}
-                  onSelect={this.onSelectContractType}
-                  multi={false}
-                ></SelectContractType>
-              </FormGroup>
-
               <div style={{ paddingBottom: '13px', paddingTop: '20px' }}>
                 {this.renderFormGroup('Is Organization', {
                   ...formProps,
@@ -273,6 +260,18 @@ class ContractForm extends React.Component<Props, State> {
                   />
                 </FormGroup>
               )}
+              <FormGroup>
+                <ControlLabel required={true}>
+                  {__('Contract Type')}
+                </ControlLabel>
+                <SelectContractType
+                  label={__('Choose type')}
+                  name="contractTypeId"
+                  value={this.state.contractTypeId || ''}
+                  onSelect={this.onSelectContractType}
+                  multi={false}
+                ></SelectContractType>
+              </FormGroup>
             </FormColumn>
             <FormColumn>
               <FormGroup>
@@ -280,6 +279,7 @@ class ContractForm extends React.Component<Props, State> {
                 <DateContainer>
                   <DateControl
                     {...formProps}
+                    dateFormat="YYYY/MM/DD"
                     required={false}
                     name="startDate"
                     value={this.state.startDate}
@@ -307,6 +307,16 @@ class ContractForm extends React.Component<Props, State> {
               })}
             </FormColumn>
             <FormColumn>
+              {this.renderFormGroup('Interest Rate', {
+                ...formProps,
+                className: 'flex-item',
+                type: 'number',
+                useNumberFormat: true,
+                name: 'interestRate',
+                value: this.state.interestRate,
+                onChange: this.onChangeField
+              })}
+
               <FormGroup>
                 <ControlLabel required={true}>
                   {__('Close or extend of time')}

@@ -5,7 +5,7 @@ import {
   sendSegmentsMessage
 } from '../../../messageBroker';
 import { IPricingPlanDocument } from '../../../models/definitions/pricingPlan';
-import { getChildCategories } from '../../../utils/product';
+import { getChildCategories, getChildTags } from '../../../utils/product';
 
 const PricingPlan = {
   createdUser(pricingPlan: IPricingPlanDocument) {
@@ -114,6 +114,47 @@ const PricingPlan = {
           data: {
             query: {
               categoryId: { $in: plansCategoryIds },
+              _id: { $nin: plan.productsExcluded }
+            },
+            field: { _id: 1 },
+            limit
+          },
+          isRPC: true,
+          defaultValue: []
+        });
+
+        productIds = products.map(p => p._id);
+        break;
+      }
+      case 'tag': {
+        const includeTagIds = await getChildTags(subdomain, plan.tags);
+        const excludeTagIds = await getChildTags(
+          subdomain,
+          plan.tagsExcluded || []
+        );
+
+        const plansTagIds = includeTagIds.filter(
+          c => !excludeTagIds.includes(c)
+        );
+        const limit = await sendProductsMessage({
+          subdomain,
+          action: 'count',
+          data: {
+            query: {
+              tagIds: { $in: plansTagIds },
+              _id: { $nin: plan.productsExcluded }
+            }
+          },
+          isRPC: true,
+          defaultValue: 0
+        });
+
+        const products = await sendProductsMessage({
+          subdomain,
+          action: 'find',
+          data: {
+            query: {
+              tagIds: { $in: plansTagIds },
               _id: { $nin: plan.productsExcluded }
             },
             field: { _id: 1 },

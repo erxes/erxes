@@ -193,7 +193,7 @@ export const caller = {
 
 export const callActionButtons = [
   { icon: 'phone-times', text: 'Mute' },
-  { icon: 'pause-1', text: 'Pause' },
+  { icon: 'pause-1', text: 'Hold' },
   { icon: 'play-circle', text: 'Record' }
 ];
 

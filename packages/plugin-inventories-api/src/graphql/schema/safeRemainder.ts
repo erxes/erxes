@@ -6,6 +6,8 @@ export const types = `
     department: Department
     departmentId: String
     productCategory: ProductCategory
+    attachment: Attachment
+    filterField: String
     productCategoryId: String
 
     date: Date
@@ -56,7 +58,9 @@ export const mutations = `
     departmentId: String,
     date: Date,
     description: String,
-    productCategoryId: String
+    productCategoryId: String,
+    attachment: AttachmentInput,
+    filterField: String
   ): SafeRemainder
   safeRemainderRemove(_id: String!): JSON
   safeRemainderSubmit( _id: String! ): JSON

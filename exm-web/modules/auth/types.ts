@@ -60,7 +60,7 @@ export interface IUserDocC {
   links?: IUserLinks
   getNotificationByEmail?: boolean
   participatedConversations?: IUserConversation[]
-  permissionActions?: string[]
+  permissionActions?: any
   configs?: any
   configsConstants?: any
   score?: number
@@ -78,9 +78,16 @@ export interface IBrand {
   emailConfig: { type: string; template: string }
 }
 
+export interface IBranch {
+  _id: string
+  title?: string
+  address?: string
+}
+
 export interface IUserC extends IUserDoc {
   _id: string
   brands?: IBrand[]
+  branches?: IBranch[]
   emailSignatures?: IEmailSignature[]
   onboardingHistory?: IOnboardingHistory
   branchIds: string[]
@@ -117,7 +124,7 @@ export interface IDepartment extends IStructureCommon {
 export type IUser = IUserC & {
   isSubscribed?: boolean
   isAdmin?: boolean
-  department?: IDepartment
+  departments?: IDepartment[]
 } & {
   isShowNotification?: boolean
 } & {
@@ -125,6 +132,47 @@ export type IUser = IUserC & {
     [key: string]: any
   }
 }
+
+export interface IExmAppearance {
+  bodyColor: string
+  footerColor: string
+  headerColor: string
+  primaryColor: string
+  secondaryColor: string
+}
+
+export interface IExmFeature {
+  _id: string
+  contentId: string
+  contentType: string
+  description: string
+  icon: string
+  name: string
+  subContentId: string
+}
+
+export type IExm = {
+  _id: string
+  appearance: IExmAppearance
+  createdAt: Date
+  createdBy: string
+  description: string
+  favicon: JSON
+  features: [IExmFeature]
+  logo: JSON
+  name: string
+  structure: string
+  url: string
+  vision: string
+  webDescription: string
+  webName: string
+  knowledgeBaseLabel?: string
+  knowledgeBaseTopicId?: string
+  ticketLabel?: string
+  ticketPipelineId?: string
+  ticketBoardId?: string
+}
+
 export type IUserDetails = IUserDetailsC
 export type IUserLinks = IUserLinksC
 export type IUserConversation = IUserConversationC

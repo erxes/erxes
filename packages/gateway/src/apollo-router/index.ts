@@ -5,7 +5,7 @@ import { spawn, spawnSync, ChildProcess } from 'child_process';
 import * as path from 'path';
 import * as fs from 'fs';
 import * as yaml from 'yaml';
-import { ErxesProxyTarget } from 'src/proxy/targets';
+import { ErxesProxyTarget } from '../proxy/targets';
 import {
   dirTempPath,
   routerConfigPath,
@@ -13,7 +13,6 @@ import {
   supergraphPath
 } from './paths';
 import supergraphCompose from './supergraph-compose';
-// import * as getPort from 'get-port';
 
 const {
   DOMAIN,
@@ -27,12 +26,12 @@ const {
 
 let routerProcess: ChildProcess | undefined = undefined;
 
-export const stopRouter = (sig: NodeJS.Signals) => {
+export const stopRouter = (_sig: NodeJS.Signals) => {
   if (!routerProcess) {
     return;
   }
   try {
-    routerProcess.kill(sig);
+    routerProcess.kill('SIGKILL');
   } catch (e) {
     console.error(e);
   }

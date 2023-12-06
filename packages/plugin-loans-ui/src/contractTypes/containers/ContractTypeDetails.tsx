@@ -1,4 +1,8 @@
-import { Alert, EmptyState, Spinner, withProps } from '@erxes/ui/src';
+import Alert from '@erxes/ui/src/utils/Alert';
+import EmptyState from '@erxes/ui/src/components/EmptyState';
+import Spinner from '@erxes/ui/src/components/Spinner';
+import { withProps } from '@erxes/ui/src/utils/core';
+
 import { IUser } from '@erxes/ui/src/auth/types';
 import { IRouterProps } from '@erxes/ui/src/types';
 import { gql } from '@apollo/client';

@@ -16,6 +16,11 @@ export default {
   name: 'ebarimt',
   permissions,
   hasSubscriptions: true,
+  subscriptionPluginPath: require('path').resolve(
+    __dirname,
+    'graphql',
+    'subscriptionPlugin.js'
+  ),
   graphql: async sd => {
     serviceDiscovery = sd;
     return {

@@ -2,7 +2,11 @@ import { IUserDocument } from '@erxes/api-utils/src/types';
 import { Model } from 'mongoose';
 import { IModels } from '../connectionResolver';
 import { sendFormsMessage } from '../messageBroker';
-import { getAsssignedUsers, getIndicatorSubmissions } from '../utils';
+import {
+  generateFormFields,
+  getAsssignedUsers,
+  getIndicatorSubmissions
+} from '../utils';
 import {
   IRiskAssessmentIndicatorsDocument,
   IRiskAssessmentsDocument,
@@ -17,6 +21,7 @@ export interface IRiskAssessmentsModel extends Model<IRiskAssessmentsDocument> {
     user: IUserDocument
   ): Promise<any>;
   riskAssessmentFormSubmissionDetail(parmas): Promise<any>;
+  getStatistic(filter: any): Promise<any>;
   editRiskAssessment(_id: string, doc: any): Promise<IRiskAssessmentsDocument>;
   removeRiskAssessment(_id: string);
   riskAssessmentAssignedMembers(
@@ -492,13 +497,15 @@ export const loadRiskAssessments = (models: IModels, subdomain: string) => {
       const query = { contentType: 'form', contentTypeId: { $in: formIds } };
       const sort = { order: 1 };
 
-      const fields = await sendFormsMessage({
-        subdomain,
-        action: 'fields.find',
-        data: { query, sort },
-        isRPC: true,
-        defaultValue: []
-      });
+      const fields = generateFormFields(
+        await sendFormsMessage({
+          subdomain,
+          action: 'fields.find',
+          data: { query, sort },
+          isRPC: true,
+          defaultValue: []
+        })
+      );
 
       const submittedFields = await models.RiskFormSubmissions.find({
         assessmentId: riskAssessment._id,
@@ -662,6 +669,47 @@ export const loadRiskAssessments = (models: IModels, subdomain: string) => {
         ]);
         return;
       }
+    }
+
+    public static async getStatistic(filter) {
+      const [statistic] = await models.RiskAssessments.aggregate([
+        { $match: { ...filter } },
+        {
+          $group: {
+            _id: null,
+            ids: { $push: '$_id' },
+            averageScore: {
+              $avg: {
+                $cond: [
+                  { $ne: ['$status', 'In Progress'] },
+                  '$resultScore',
+                  null
+                ]
+              }
+            },
+            totalCount: { $sum: 1 },
+            submittedAssessmentCount: {
+              $sum: { $cond: [{ $ne: ['$status', 'In Progress'] }, 1, 0] }
+            }
+          }
+        },
+        {
+          $project: {
+            _id: 0,
+            ids: 1,
+            averageScore: {
+              $subtract: [
+                { $add: ['$averageScore', 0.005] },
+                { $mod: [{ $add: ['$averageScore', 0.005] }, 0.01] }
+              ]
+            },
+            submittedAssessmentCount: 1,
+            totalCount: 1
+          }
+        }
+      ]);
+
+      return statistic;
     }
 
     static async getGroupsIndicatorIds(groupId: string) {

@@ -25,7 +25,7 @@ export function DatePicker({
 }) {
   return (
     <Popover>
-      <PopoverTrigger asChild>
+      <PopoverTrigger asChild={true}>
         <Button
           variant={"outline"}
           className={cn(
@@ -33,14 +33,14 @@ export function DatePicker({
             !date && "text-muted-foreground",
             className
           )}
-          disabled={!!disabled}
+          disabled={typeof disabled === "boolean" ? true : false}
         >
-          <CalendarIcon className="mr-2 h-4 w-4" />
           {date ? (
             format(new Date(date), "yyyy-MM-dd")
-          ) : (
-            <span>Pick a date</span>
-          )}
+            ) : (
+              <span>Pick a date</span>
+              )}
+              <CalendarIcon className="ml-2 h-4 w-4" />
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-auto p-0">
@@ -49,8 +49,8 @@ export function DatePicker({
           disabled={disabled}
           mode="single"
           selected={date}
-          onSelect={(date) => setDate(date)}
-          initialFocus
+          onSelect={(e) => setDate(e)}
+          initialFocus={true}
         />
       </PopoverContent>
     </Popover>

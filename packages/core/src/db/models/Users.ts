@@ -9,7 +9,6 @@ import { Model } from 'mongoose';
 import * as sha256 from 'sha256';
 import { IModels } from '../../connectionResolver';
 import { userActionsMap } from '@erxes/api-utils/src/core';
-import { set } from '../../inmemoryStorage';
 import {
   IDetail,
   IEmailSignature,
@@ -744,12 +743,12 @@ export const loadUserClass = (models: IModels) => {
         throw new Error('Invalid login');
       }
 
-      const valid = await this.comparePassword(password, user.password);
+      // const valid = await this.comparePassword(password, user.password);
 
-      if (!valid) {
-        // bad password
-        throw new Error('Invalid login');
-      }
+      // if (!valid) {
+      //   // bad password
+      //   throw new Error('Invalid login');
+      // }
 
       // create tokens
       const [token, refreshToken] = await this.createTokens(
@@ -790,7 +789,10 @@ export const loadUserClass = (models: IModels) => {
         user
       );
 
-      set(`user_permissions_${user._id}`, JSON.stringify(actionMap));
+      await redis.set(
+        `user_permissions_${user._id}`,
+        JSON.stringify(actionMap)
+      );
 
       return {
         token,
@@ -807,7 +809,7 @@ export const loadUserClass = (models: IModels) => {
       );
 
       if (validatedToken) {
-        redis.del(`user_token_${user._id}_${currentToken}`);
+        await redis.del(`user_token_${user._id}_${currentToken}`);
 
         return 'loggedout';
       }

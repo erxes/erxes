@@ -27,7 +27,6 @@ import {
 } from './data/utils';
 
 import { debugBase, debugError, debugInit } from './debuggers';
-import { initMemoryStorage } from './inmemoryStorage';
 import { initBroker, sendCommonMessage } from './messageBroker';
 import { uploader } from './middlewares/fileMiddleware';
 import {
@@ -51,6 +50,7 @@ import exporter from './exporter';
 import { moduleObjects } from './data/permissions/actions/permission';
 import dashboards from './dashboards';
 import { getEnabledServices } from '@erxes/api-utils/src/serviceDiscovery';
+import { applyInspectorEndpoints } from '@erxes/api-utils/src/inspect';
 
 const {
   JWT_TOKEN_SECRET,
@@ -327,6 +327,8 @@ app.get('/plugins/enabled', async (_req, res) => {
 // The error handler must be before any other error middleware and after all controllers
 app.use(Sentry.Handlers.errorHandler());
 
+applyInspectorEndpoints(app, 'core');
+
 // Wrap the Express server
 const httpServer = createServer(app);
 
@@ -341,8 +343,6 @@ httpServer.listen(PORT, async () => {
   initBroker({ RABBITMQ_HOST, MESSAGE_BROKER_PREFIX, redis, app }).catch(e => {
     debugError(`Error ocurred during message broker init ${e.message}`);
   });
-
-  initMemoryStorage();
 
   init()
     .then(() => {
@@ -360,7 +360,6 @@ httpServer.listen(PORT, async () => {
     port: PORT,
     dbConnectionString: MONGO_URL,
     hasSubscriptions: false,
-    hasDashboard: true,
     meta: {
       logs: { providesActivityLog: true, consumers: logs },
       forms,

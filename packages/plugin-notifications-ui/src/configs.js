@@ -1,4 +1,5 @@
 module.exports = {
+  srcDir: __dirname,
   name: "notifications",
   port: 3014,
   scope:'notifications',

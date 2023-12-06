@@ -1,12 +1,15 @@
 import { atom } from "jotai"
+import { atomWithStorage } from "jotai/utils"
 
 import {
+  IAddToCartInput,
   IOrderItemStatus,
   OrderItem,
   OrderItemInput,
 } from "@/types/order.types"
-import { IProduct } from "@/types/product.types"
 import { ORDER_STATUSES } from "@/lib/constants"
+
+import { banFractionsAtom, orderPasswordAtom } from "./config.store"
 
 interface IUpdateItem {
   _id: string
@@ -15,13 +18,15 @@ interface IUpdateItem {
   description?: string
   attachment?: { url?: string } | null
   fromAdd?: boolean
+  allowed?: boolean
 }
 
 export const changeCartItem = (
   product: IUpdateItem,
-  cart: OrderItem[]
+  cart: OrderItem[],
+  banFractions?: boolean
 ): OrderItem[] => {
-  const { _id, count, fromAdd, ...rest } = product
+  const { _id, count, fromAdd, allowed, ...rest } = product
 
   const fieldKeys = Object.keys(rest)
   if (fieldKeys.length) {
@@ -37,23 +42,28 @@ export const changeCartItem = (
 
   if (typeof count !== "undefined") {
     const exceptCurrent = cart.filter((item) => item._id !== _id)
-    if (count === -1) return exceptCurrent
+
+    const validCount = banFractions ? Math.floor(count) : count
+
+    if (validCount === (banFractions ? 0 : -1)) return exceptCurrent
 
     if (!fromAdd) {
-      return cart.map((item) => (item._id === _id ? { ...item, count } : item))
+      return cart.map((item) =>
+        item._id === _id ? { ...item, count: validCount } : item
+      )
     }
 
     const currentItem =
       cart.find((item) => item._id === _id) || ({} as OrderItem)
 
-    return [{ ...currentItem, count }, ...exceptCurrent]
+    return [{ ...currentItem, count: validCount }, ...exceptCurrent]
   }
 
   return cart
 }
 
 export const addToCart = (
-  product: IProduct,
+  product: IAddToCartInput,
   cart: OrderItem[]
 ): OrderItem[] => {
   const prevItem = cart.find(
@@ -95,7 +105,9 @@ export const addToCart = (
 
 // Atoms
 // cart
-export const cartAtom = atom<OrderItem[]>([])
+export const cartAtom = atomWithStorage<OrderItem[]>("cart", [])
+export const cartChangedAtom = atomWithStorage<boolean>("cartChanged", false)
+
 export const orderItemInput = atom<OrderItemInput[]>((get) =>
   get(cartAtom).map(
     ({
@@ -123,22 +135,36 @@ export const orderItemInput = atom<OrderItemInput[]>((get) =>
     })
   )
 )
+export const requirePasswordAtom = atom<IUpdateItem | null>(null)
 export const totalAmountAtom = atom<number>((get) =>
   (get(cartAtom) || []).reduce(
-    (total, item) => total + item.count * item.unitPrice,
+    (total, item) => total + (item?.count || 0) * (item.unitPrice || 0),
     0
   )
 )
 export const addToCartAtom = atom(
   () => "",
-  (get, set, update: IProduct) => {
+  (get, set, update: IAddToCartInput) => {
+    set(cartChangedAtom, true)
     set(cartAtom, addToCart(update, get(cartAtom)))
   }
 )
 export const updateCartAtom = atom(
   () => "",
   (get, set, update: IUpdateItem) => {
-    set(cartAtom, changeCartItem(update, get(cartAtom)))
+    if (
+      !!get(orderPasswordAtom) &&
+      !update.allowed &&
+      update.count === (get(banFractionsAtom) ? 0 : -1)
+    ) {
+      set(requirePasswordAtom, update)
+      return
+    }
+    set(cartChangedAtom, true)
+    set(
+      cartAtom,
+      changeCartItem(update, get(cartAtom), !!get(banFractionsAtom))
+    )
   }
 )
 export const setCartAtom = atom(

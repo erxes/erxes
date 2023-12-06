@@ -5,6 +5,7 @@ import { IContext } from '../../../connectionResolver';
 import { checkPermission } from '@erxes/api-utils/src';
 import { putActivityLog } from '../../../logUtils';
 import { getUserName } from '../../../utils';
+import { createCard } from '../../../models/utils';
 
 export interface IVerificationParams {
   userId: string;
@@ -13,11 +14,51 @@ export interface IVerificationParams {
 }
 
 const clientPortalMutations = {
-  clientPortalConfigUpdate(
+  async clientPortalConfigUpdate(
     _root,
     { config }: { config: IClientPortal },
-    { models }: IContext
+    { models, subdomain }: IContext
   ) {
+    try {
+      const cpUser = await models.ClientPortalUsers.findOne({
+        $or: [
+          { email: { $regex: new RegExp(`^${config?.testUserEmail}$`, 'i') } },
+          { phone: { $regex: new RegExp(`^${config?.testUserPhone}$`, 'i') } }
+        ],
+        clientPortalId: config._id
+      });
+
+      if (!cpUser) {
+        if (
+          config?.testUserEmail &&
+          config?.testUserPhone &&
+          config?.testUserPassword &&
+          config._id
+        ) {
+          const args = {
+            firstName: 'test clientportal user',
+            email: config.testUserEmail,
+            phone: config.testUserPhone,
+            password: config.testUserPassword,
+            clientPortalId: config._id,
+            isPhoneVerified: true,
+            isEmailVerified: true,
+            notificationSettings: {
+              receiveByEmail: false,
+              receiveBySms: false,
+              configs: []
+            }
+          };
+
+          await models.ClientPortalUsers.createTestUser(subdomain, {
+            ...args
+          });
+        }
+      }
+    } catch (e) {
+      console.log(e.message);
+    }
+
     return models.ClientPortals.createOrUpdateConfig(config);
   },
 
@@ -27,74 +68,14 @@ const clientPortalMutations = {
 
   async clientPortalCreateCard(
     _root,
-    {
-      type,
-      subject,
-      priority,
-      description,
-      stageId,
-      parentId,
-      closeDate,
-      startDate,
-      customFieldsData,
-      attachments,
-      labelIds,
-      productsData
-    },
+    args,
     { subdomain, cpUser, models }: IContext
   ) {
     if (!cpUser) {
       throw new Error('You are not logged in');
     }
 
-    const customer = await sendContactsMessage({
-      subdomain,
-      action: 'customers.findOne',
-      data: {
-        _id: cpUser.erxesCustomerId
-      },
-      isRPC: true
-    });
-
-    if (!customer) {
-      throw new Error('Customer not registered');
-    }
-
-    if (['High', 'Critical'].includes(priority)) {
-      priority = 'Normal';
-    }
-
-    const card = await sendCardsMessage({
-      subdomain,
-      action: `${type}s.create`,
-      data: {
-        userId: cpUser._id,
-        name: subject,
-        description,
-        priority,
-        stageId,
-        status: 'active',
-        customerId: customer._id,
-        createdAt: new Date(),
-        stageChangedDate: null,
-        parentId,
-        closeDate,
-        startDate,
-        customFieldsData,
-        attachments,
-        labelIds,
-        productsData
-      },
-      isRPC: true
-    });
-
-    await models.ClientPortalUserCards.createOrUpdateCard({
-      contentType: type,
-      contentTypeId: card._id,
-      cpUserId: cpUser._id
-    });
-
-    return card;
+    return createCard(subdomain, models, cpUser, args);
   }
 };
 

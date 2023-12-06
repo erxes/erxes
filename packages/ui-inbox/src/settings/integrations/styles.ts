@@ -324,7 +324,7 @@ const Subject = styledTS<{ noBorder?: boolean }>(styled.div)`
 
 const ShowReplyButtonWrapper = styled.div`
   position: absolute;
-  z-index: 100;
+  z-index: 1;
   width: 100%;
   height: 50px;
   bottom: 42px;

@@ -25,10 +25,9 @@ import {
   startSubscriptionServer,
   stopSubscriptionServer
 } from './subscription';
-import { publishRefreshEnabledServices } from '@erxes/api-utils/src/serviceDiscovery';
+import { applyInspectorEndpoints } from '@erxes/api-utils/src/inspect';
 
 const {
-  NODE_ENV,
   DOMAIN,
   WIDGETS_DOMAIN,
   CLIENT_PORTAL_DOMAINS,
@@ -46,8 +45,6 @@ const {
   app.get('/health', async (_req, res) => {
     res.end('ok');
   });
-
-  await publishRefreshEnabledServices();
 
   if (SENTRY_DSN) {
     Sentry.init({
@@ -120,6 +117,8 @@ const {
 
   app.use(express.urlencoded({ limit: '15mb', extended: true }));
 
+  applyInspectorEndpoints(app, 'gateway');
+
   const port = PORT || 4000;
 
   await new Promise<void>(resolve => httpServer.listen({ port }, resolve));
@@ -139,13 +138,6 @@ const {
 (['SIGINT', 'SIGTERM'] as NodeJS.Signals[]).forEach(sig => {
   process.on(sig, async () => {
     console.log(`Exiting on signal ${sig}`);
-    if (NODE_ENV === 'development') {
-      try {
-        await publishRefreshEnabledServices();
-      } catch (e) {
-        console.error(e);
-      }
-    }
     await stopSubscriptionServer();
     await stopRouter(sig);
     process.exit(0);

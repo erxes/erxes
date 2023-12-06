@@ -16,8 +16,13 @@ export const contractTypeFields = `
   productCategoryIds
   config
   currency
+  productType
   useManualNumbering
   useFee
+  commitmentInterest
+  savingPlusLoanInterest
+  savingUpperPercent
+  usePrePayment
 `;
 
 const listParamsDef = `

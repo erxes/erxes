@@ -34,18 +34,26 @@ export const types = `
     productId: String
   }
 
+  type PreDate {
+    _id: String
+    dueDate: Date
+  }
+
   type PosclientSlot {
     _id: String
+    posToken: String
     code: String
     name: String
     status: String
-    isPreDates: [Date]
+    isPreDates: [PreDate]
+    option: JSON
   }
 
   type PosConfig {
     _id: String
     name: String
     description: String
+    orderPassword: String
     pdomain: String
     userId: String
     createdAt: Date

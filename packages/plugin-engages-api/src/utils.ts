@@ -21,11 +21,16 @@ export const isUsingElk = () => {
 export const createTransporter = async (models: IModels) => {
   const config: ISESConfig = await models.Configs.getSESConfigs();
 
-  AWS.config.update(config);
+  try {
+    AWS.config.update(config);
 
-  return nodemailer.createTransport({
-    SES: new AWS.SES({ apiVersion: '2010-12-01' })
-  });
+    return nodemailer.createTransport({
+      SES: new AWS.SES({ apiVersion: '2010-12-01' })
+    });
+  } catch (error) {
+    debugError(`Error during create transporter: ${error.message}`);
+    throw new Error(error.message);
+  }
 };
 
 export interface IUser {

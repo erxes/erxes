@@ -52,7 +52,7 @@ const Loading = () => (
   </LoaderWrapper>
 )
 
-const MobileSheet = dynamic(() => import("../paymentTypes/mobileSheet"))
+const MobileSheet = dynamic(() => import("../paymentTypes/mobileSheetNew"))
 const KhanSheet = dynamic(() => import("../paymentTypes/khanCardSheet"), {
   loading: Loading,
 })
@@ -63,4 +63,4 @@ const TDBSheet = dynamic(() => import("../paymentTypes/TDBCardSheet"), {
 
 const GolomtSheet = dynamic(() => import("../paymentTypes/golomtSheet"), {
   loading: Loading,
-})
+}) 

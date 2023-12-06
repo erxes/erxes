@@ -1,11 +1,13 @@
-import React from 'react';
 import { renderAmount, renderPercentedAmount } from '../../boards/utils';
-import { __ } from '@erxes/ui/src/utils/core';
-import { StageInfo } from '../../boards/styles/stage';
+
 import { IDeal } from '../types';
+import React from 'react';
+import { StageInfo } from '../../boards/styles/stage';
+import { __ } from '@erxes/ui/src/utils/core';
 
 type Props = {
   totalAmount?: any;
+  unusedTotalAmount?: any;
   deals?: any[];
   dealTotalAmounts?: any[];
   probability?: string;
@@ -56,6 +58,7 @@ class ItemProductProbabilities extends React.Component<Props, {}> {
     const {
       probability,
       totalAmount,
+      unusedTotalAmount,
       deals = [] as IDeal[],
       dealTotalAmounts = []
     } = this.props;
@@ -96,7 +99,15 @@ class ItemProductProbabilities extends React.Component<Props, {}> {
               {renderAmount(totalAmount)}
             </div>
           )}
+          {unusedTotalAmount && Object.keys(unusedTotalAmount).length > 0 && (
+            <div>
+              <span>{__('Unused Total')}</span>
+              {renderAmount(unusedTotalAmount)}
+            </div>
+          )}
           {probability &&
+            (window.location.pathname.includes('deal/board') ||
+              window.location.pathname.includes('deal/calendar')) &&
             this.renderForecast(
               parseInt(this.renderPercentage(probability), 10)
             )}
@@ -110,12 +121,13 @@ class ItemProductProbabilities extends React.Component<Props, {}> {
           <span>Total </span>
           {this.renderSum(totalAmountArray)}
         </li>
-        {forecastArray.length > 0 && (
-          <li>
-            <span>Forecasted </span>
-            {this.renderSum(forecastArray)}
-          </li>
-        )}
+        {forecastArray.length > 0 &&
+          window.location.pathname.includes('deal/calendar') && (
+            <li>
+              <span>Forecasted </span>
+              {this.renderSum(forecastArray)}
+            </li>
+          )}
       </>
     );
   };

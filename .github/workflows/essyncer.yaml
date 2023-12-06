@@ -5,6 +5,7 @@ on:
     branches:
       - master
       - dev
+      - master
     paths:
       - 'essyncer/**'
       - '.github/workflows/essyncer.yaml'
@@ -12,7 +13,8 @@ on:
   pull_request:
     branches:
       - master
-      - develop
+      - dev
+      - masterelop
     paths:
       - 'essyncer/**'
       - '.github/workflows/essyncer.yaml'

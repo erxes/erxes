@@ -254,6 +254,15 @@ export default class WorkArea extends React.Component<Props, State> {
       );
     }
 
+    if (kind === 'calls') {
+      return (
+        <>
+          <CallPro conversation={currentConversation} />
+          {this.renderMessages(messages, firstMessage)}
+        </>
+      );
+    }
+
     return this.renderMessages(messages, firstMessage);
   }
 

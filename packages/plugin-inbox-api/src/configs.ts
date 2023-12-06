@@ -47,7 +47,11 @@ export default {
     };
   },
   hasSubscriptions: true,
-  hasDashboard: true,
+  subscriptionPluginPath: require('path').resolve(
+    __dirname,
+    'graphql',
+    'subscriptionPlugin.js'
+  ),
   meta: {
     forms,
     segments,
