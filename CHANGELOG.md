@@ -1,3 +1,10 @@
+## [1.5.2](https://github.com/erxes/erxes/compare/1.5.1...1.5.2) (2023-12-06)
+
+
+### Features
+
+* **instagram:** implement instagram integration  ([9dca7a8](https://github.com/erxes/erxes/commit/9dca7a8c164c7870349631901a1d690b1486596b))
+
 ## [1.5.1](https://github.com/erxes/erxes/compare/1.5.0-alpha.2...1.5.1) (2023-12-04)
 
 
