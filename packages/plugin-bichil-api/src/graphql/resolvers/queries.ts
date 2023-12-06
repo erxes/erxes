@@ -227,7 +227,7 @@ const bichilQueries = {
           };
         }
 
-        const structuresDict = await returnDepartmentsBranchesDict(
+        let structuresDict = await returnDepartmentsBranchesDict(
           subdomain,
           totalBranchIdsOfMembers,
           totalDeptIdsOfMembers
@@ -248,13 +248,18 @@ const bichilQueries = {
 
         for (const userId of Object.keys(getReport)) {
           const userBranchIds = usersStructure[userId].branchIds;
-          const branchTitles: string[] = [];
-          const branchParentIds: string[] = [];
-          const branchParentTitles: string[] = [];
+          const userBranchTitles: string[] = [];
+          const userBranchTitleToIdDict: { [branchTitle: string]: string } = {};
 
           for (const userBranchId of userBranchIds) {
+            const branchParentIds: string[] = [];
+            const branchParentTitles: string[] = [];
+
             if (structuresDict[userBranchId]) {
-              branchTitles.push(structuresDict[userBranchId].title);
+              userBranchTitleToIdDict[
+                structuresDict[userBranchId].title
+              ] = userBranchId;
+              userBranchTitles.push(structuresDict[userBranchId].title);
 
               let noFurtherParent = false;
               let currentParentId = structuresDict[userBranchId].parentId;
@@ -268,10 +273,22 @@ const bichilQueries = {
                   noFurtherParent = true;
                 }
               }
+
+              const parentsCount = new Set(branchParentIds).size;
+              // from greatest to closest parent
+              const parentsTitles = Array.from(
+                new Set(branchParentTitles.reverse())
+              );
+
+              structuresDict[userBranchId] = {
+                ...structuresDict[userBranchId],
+                parentsCount,
+                parentsTitles
+              };
             }
           }
 
-          for (const userBranchTitle of branchTitles) {
+          for (const userBranchTitle of userBranchTitles) {
             if (userBranchTitle in groupedByBranch) {
               groupedByBranch[userBranchTitle].report = [
                 ...groupedByBranch[userBranchTitle].report,
@@ -280,9 +297,11 @@ const bichilQueries = {
               continue;
             }
 
+            const branchId = userBranchTitleToIdDict[userBranchTitle];
+
             groupedByBranch[userBranchTitle] = {
-              parentsCount: branchParentIds.length,
-              parentsTitles: branchParentTitles,
+              parentsCount: structuresDict[branchId].parentsCount || 0,
+              parentsTitles: structuresDict[branchId].parentsTitles || [],
               report: [{ userId, ...getReport[userId] }]
             };
           }

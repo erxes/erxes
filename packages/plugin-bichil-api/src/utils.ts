@@ -236,7 +236,14 @@ export const returnDepartmentsBranchesDict = async (
   subdomain: any,
   branchIds: string[],
   departmentIds: string[]
-): Promise<{ [_id: string]: { title: string; parentId: string } }> => {
+): Promise<{
+  [_id: string]: {
+    title: string;
+    parentId: string;
+    parentsCount?: number;
+    parentsTitles?: string[];
+  };
+}> => {
   let dictionary: { [_id: string]: { title: string; parentId: string } } = {};
 
   dictionary = await returnTotalBranchesDict(subdomain, branchIds);
@@ -275,21 +282,6 @@ export const generateCommonUserIds = async (
 ) => {
   const totalUserIds: string[] = [];
   let commonUser: boolean = false;
-  const totalBranchIds = [branchIds];
-
-  const branchIdsGivenOnly = !departmentIds && !userIds && branchIds;
-  if (branchIdsGivenOnly) {
-    for (const branchId of branchIds) {
-      const getSubBranches = await findSubBranches(subdomain, branchId);
-      totalBranchIds.push(getSubBranches.map(b => b._id));
-    }
-
-    const branchUsersIds = (await findBranchUsers(subdomain, branchIds)).map(
-      b => b._id
-    );
-
-    return branchUsersIds;
-  }
 
   if (branchIds) {
     const branchUsers = await findBranchUsers(subdomain, branchIds);

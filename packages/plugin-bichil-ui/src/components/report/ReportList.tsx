@@ -58,6 +58,62 @@ function ReportList(props: Props) {
   };
 
   const renderTableBody = () => {
+    // if(reportType === 'Сүүлд'){
+    //   return bichilReports.map((bichilReport, i) => {
+    //     const { groupParentsTitles, groupParentsCount, groupTitle, groupReport } = bichilReport;
+
+    //     const reportRow: any = [];
+    //     const titleRow : any = [];
+    //     const rowSpan = groupReport.length;
+
+    //     if(groupParentsCount < maxParents){
+    //       for(let i = groupParentsCount ; i < maxParents; i ++){
+    //         titleRow.push(<td rowSpan={rowSpan}>{'-'}</td>)
+    //       }
+    //     }
+
+    //     for(const parentTitle of groupParentsTitles){
+    //       titleRow.push(<td rowSpan={rowSpan}>
+    //         {parentTitle}
+    //       </td>
+    //       )
+    //     }
+
+    //     titleRow.push(<td>
+    //       <b>
+
+    //       {groupTitle}
+    //       </b>
+    //       </td>)
+
+    //     titleRow.push(ReportRow(groupReport[0], reportType, i))
+
+    //     reportRow.push(<tr>{titleRow.map(t=> t)}</tr>)
+
+    //     console.log('report row ' ,reportRow);
+
+    //     groupReport.forEach((userReport, i) => {
+    //       if (i !== 0) {
+    //         reportRow.push(<tr>{ReportRow(userReport, reportType, i)}</tr>)
+    //       }
+    //     })
+
+    //     if(rowSpan > 1){
+
+    //       reportRow.push(<TableRow
+    //         index={i + 1}
+    //         key={Math.random()}
+    //         bichilReport={bichilReport}
+    //         reportType={reportType}
+    //         />)
+    //       }
+
+    //     console.log();
+
+    //     return reportRow
+    //   })
+    // }
+
     if (reportType === 'Сүүлд' && Object.keys(parentBranchesDict).length) {
       return (
         <>

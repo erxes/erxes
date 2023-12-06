@@ -15,6 +15,9 @@ import { IUsersReport } from './models/definitions/timeclock';
 import {
   createTeamMembersObject,
   findAllTeamMembers,
+  findBranchUsers,
+  findBranches,
+  findSubBranches,
   findTeamMember,
   findTeamMembers,
   generateCommonUserIds,
@@ -252,14 +255,6 @@ const extractAndAddIntoSheet = async (
   const usersStructure: { [userId: string]: Structure } = {};
   const extractValuesIntoArr: any[][] = [];
 
-  const showBranch = queryParams.showBranch
-    ? JSON.parse(queryParams.showBranch)
-    : false;
-
-  const showDepartment = queryParams.showDepartment
-    ? JSON.parse(queryParams.showDepartment)
-    : false;
-
   // get department, branch titles
   for (const teamMember of teamMembers) {
     if (teamMember.branchIds) {
@@ -276,7 +271,7 @@ const extractAndAddIntoSheet = async (
     };
   }
 
-  const structuresDict = await returnDepartmentsBranchesDict(
+  let structuresDict = await returnDepartmentsBranchesDict(
     subdomain,
     totalBranchIdsOfMembers,
     totalDeptIdsOfMembers
@@ -311,6 +306,7 @@ const extractAndAddIntoSheet = async (
 
       let startRowIdxPerBranch: number = startRowIdx;
       let endRowIdxPerBranch: number = startRowIdxPerBranch;
+      let maxParentsCount: number = 0;
 
       const numeration: number[][] = [];
 
@@ -323,31 +319,72 @@ const extractAndAddIntoSheet = async (
 
         const userReport: any[] = Object.values(empReports[userId]);
         const userBranchIds = usersStructure[userId].branchIds;
-        const branchTitles: string[] = [];
+        const userBranchTitles: string[] = [];
+        const userBranchTitleToIdDict: { [branchTitle: string]: string } = {};
 
         for (const userBranchId of userBranchIds) {
+          const branchParentIds: string[] = [];
+          const branchParentTitles: string[] = [];
+
           if (structuresDict[userBranchId]) {
-            branchTitles.push(structuresDict[userBranchId].title);
+            userBranchTitleToIdDict[
+              structuresDict[userBranchId].title
+            ] = userBranchId;
+            userBranchTitles.push(structuresDict[userBranchId].title);
+
+            let noFurtherParent = false;
+            let currentParentId = structuresDict[userBranchId].parentId;
+
+            // get all parent branches till no parent
+            while (!noFurtherParent && currentParentId) {
+              branchParentIds.push(currentParentId);
+              branchParentTitles.push(structuresDict[currentParentId].title);
+              if (structuresDict[currentParentId].parentId) {
+                currentParentId = structuresDict[currentParentId].parentId;
+              } else {
+                noFurtherParent = true;
+              }
+            }
+
+            const parentsCount = new Set(branchParentIds).size;
+            maxParentsCount =
+              parentsCount > maxParentsCount ? parentsCount : maxParentsCount;
+            // from greatest to closest parent
+            const parentsTitles = Array.from(
+              new Set(branchParentTitles.reverse())
+            );
+
+            structuresDict[userBranchId] = {
+              ...structuresDict[userBranchId],
+              parentsCount,
+              parentsTitles
+            };
           }
         }
 
-        for (const userBranchTitle of branchTitles) {
+        for (const userBranchTitle of userBranchTitles) {
           if (userBranchTitle in groupedByBranch) {
-            groupedByBranch[userBranchTitle] = [
-              ...groupedByBranch[userBranchTitle],
+            groupedByBranch[userBranchTitle].report = [
+              ...groupedByBranch[userBranchTitle].report,
               userReport
             ];
             continue;
           }
 
-          groupedByBranch[userBranchTitle] = [userReport];
+          const branchId = userBranchTitleToIdDict[userBranchTitle];
+
+          groupedByBranch[userBranchTitle] = {
+            parentsCount: structuresDict[branchId].parentsCount || 0,
+            parentsTitles: structuresDict[branchId].parentsTitles || [],
+            report: [userReport]
+          };
         }
       }
 
       for (const branchTitle of Object.keys(groupedByBranch)) {
         const getUserReportEndColumn = getNextNthColumnChar('C', total_columns);
         const getTotalUsersLengthPerBranch =
-          groupedByBranch[branchTitle].length - 1;
+          groupedByBranch[branchTitle].report.length - 1;
 
         endRowIdxPerBranch =
           startRowIdxPerBranch + getTotalUsersLengthPerBranch;
@@ -365,7 +402,7 @@ const extractAndAddIntoSheet = async (
         );
 
         addIntoSheet(
-          groupedByBranch[branchTitle],
+          groupedByBranch[branchTitle].report,
           `C${startRowIdxPerBranch}`,
           `${getUserReportEndColumn}${endRowIdxPerBranch}`,
           sheet,
@@ -584,31 +621,69 @@ export const buildFile = async (
 
   let filterGiven = false;
   let totalTeamMemberIds;
-  let totalMembers;
+  let totalTeamMembers;
+
+  const branchIdsGivenOnly = !departmentIds && !userIds && branchIds;
 
   if (userIds || branchIds || departmentIds) {
     filterGiven = true;
   }
 
-  if (filterGiven) {
-    totalTeamMemberIds = await generateCommonUserIds(
-      subdomain,
-      userIds,
-      branchIds,
-      departmentIds
-    );
+  const branchesReportStructure: {
+    [branchTitle: string]: IUserDocument[];
+  } = {};
 
-    totalMembers = await findTeamMembers(subdomain, totalTeamMemberIds);
+  const parentBranchesDict: { [branchId: string]: string } = {};
+
+  if (branchIdsGivenOnly) {
+    const totalUsers: IUserDocument[] = [];
+    const totalUserIds: string[] = [];
+
+    const getParentBranches = await findBranches(subdomain, branchIds);
+
+    for (const branchId of branchIds) {
+      const getSubBranches = await findSubBranches(subdomain, branchId);
+      const subBranchIds = getSubBranches.map(b => b._id);
+
+      const totalBranchIds = [branchId, ...subBranchIds];
+      const branchUsers = await findBranchUsers(subdomain, totalBranchIds);
+      const parentBranch = getParentBranches.filter(p => p._id === branchId);
+
+      for (const subBranchId of subBranchIds) {
+        parentBranchesDict[subBranchId] = parentBranch[0].title;
+      }
+
+      branchesReportStructure[parentBranch.title] = branchUsers.map(b => b._id);
+
+      totalUserIds.push(...branchUsers.map(u => u._id));
+      totalUsers.push(...branchUsers);
+    }
+
+    totalTeamMembers = totalUsers;
+    totalTeamMemberIds = totalUserIds;
   } else {
-    // return supervisod users including current user
-    if (isCurrentUserAdmin) {
-      // return all team member ids
-      totalMembers = await findAllTeamMembers(subdomain);
-      totalTeamMemberIds = totalMembers.map(usr => usr._id);
+    if (filterGiven) {
+      totalTeamMemberIds = await generateCommonUserIds(
+        subdomain,
+        userIds,
+        branchIds,
+        departmentIds
+      );
+
+      totalTeamMembers = await findTeamMembers(subdomain, totalTeamMemberIds);
     } else {
       // return supervisod users including current user
-      totalMembers = await returnSupervisedUsers(currentUser, subdomain);
-      totalTeamMemberIds = totalMembers.map(usr => usr._id);
+      if (isCurrentUserAdmin) {
+        // return all team member ids
+        totalTeamMembers = await findAllTeamMembers(subdomain);
+        totalTeamMemberIds = totalTeamMembers.map(usr => usr._id);
+        console.log('admin');
+      } else {
+        // return supervisod users including current user
+        totalTeamMembers = await returnSupervisedUsers(currentUser, subdomain);
+        totalTeamMemberIds = totalTeamMembers.map(usr => usr._id);
+        console.log('none');
+      }
     }
   }
 
@@ -638,10 +713,11 @@ export const buildFile = async (
     totalTeamMemberIds.length > 20
       ? paginatedTeamMemberIds
       : totalTeamMemberIds;
+
   const getCorrectTeamMembers =
-    totalMembers.length > 20
-      ? paginateArray(totalMembers, perPage, page)
-      : totalMembers;
+    totalTeamMembers.length > 20
+      ? paginateArray(totalTeamMembers, perPage, page)
+      : totalTeamMembers;
 
   switch (reportType) {
     case 'Урьдчилсан' || 'Preliminary':
@@ -656,6 +732,8 @@ export const buildFile = async (
       break;
 
     case 'Сүүлд' || 'Final':
+      console.log('total ', getCorrectTeamMemberIds.length);
+
       const reportFinal = await bichilTimeclockReportFinal(
         subdomain,
         getCorrectTeamMemberIds,
