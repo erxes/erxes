@@ -8,6 +8,7 @@ import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 import dayjs from 'dayjs';
 import { isEnabled } from '@erxes/ui/src/utils/core';
 import DealSection from './DealSection';
+import LoanContractSection from './LoanContractSection';
 
 const CompanySection = asyncComponent(
   () =>
@@ -69,6 +70,9 @@ export default class RightSidebar extends React.Component<Props> {
             )}
             {isEnabled('cards') && <DealSection contract={contract} />}
           </>
+        )}
+        {isEnabled('loans') && (
+          <LoanContractSection loanContracts={contract.loansOfForeclosed} />
         )}
 
         <Box title={__('Other')} name="showOthers">

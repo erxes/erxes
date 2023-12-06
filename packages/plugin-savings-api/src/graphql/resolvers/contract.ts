@@ -69,6 +69,23 @@ const Contracts = {
       .lean();
 
     return transactions;
+  },
+  async loansOfForeclosed(
+    contract: IContractDocument,
+    {},
+    { subdomain }: IContext
+  ) {
+    const loans = await sendMessageBroker(
+      {
+        subdomain,
+        action: 'contracts.find',
+        data: { savingContractId: contract._id, status: { $ne: 'closed' } },
+        isRPC: true
+      },
+      'loans'
+    );
+
+    return loans;
   }
 };
 
