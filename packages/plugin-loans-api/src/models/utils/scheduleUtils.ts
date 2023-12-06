@@ -281,7 +281,7 @@ export const reGenerateSchedules = async (
   // diff from startDate to nextDate valid: max 42 min 10 day, IsValid then undefined or equal nextMonthDay
   let nextDate: any = undefined;
 
-  if (diffDay > 42) {
+  if (diffDay > 42 || contract.isPayFirstMonth) {
     nextDate = new Date(
       contract.startDate.getFullYear(),
       contract.startDate.getMonth(),
@@ -339,6 +339,7 @@ export const reGenerateSchedules = async (
   let first10 = 0;
   let on11 = 0;
   let monthCounter = 1;
+
   while (insuranceIndex < bulkEntries.length - 12) {
     const currentYear = parseInt(String(insuranceIndex / 12)) + 1;
     if (monthCounter === 1) {

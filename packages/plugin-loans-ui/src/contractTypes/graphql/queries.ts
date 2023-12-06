@@ -20,6 +20,9 @@ export const contractTypeFields = `
   useManualNumbering
   useFee
   commitmentInterest
+  savingPlusLoanInterest
+  savingUpperPercent
+  usePrePayment
 `;
 
 const listParamsDef = `

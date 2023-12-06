@@ -87,6 +87,7 @@ class PerSettings extends React.Component<Props, State> {
           <DateContainer>
             <DateControl
               name="startDate"
+              dateFormat="YYYY/MM/DD"
               value={config['startDate']}
               onChange={this.onChangeDate.bind(this, 'startDate')}
             />
