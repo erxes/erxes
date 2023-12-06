@@ -83,8 +83,12 @@ const queries = {
       sortOrder = -1;
     }
 
+    const sortQuery = {
+      [`searchDictionary.${sortField}`]: sortOrder
+    };
+
     return {
-      list: paginate(models.Items.find(qry).sort({ [sortField]: sortOrder }), {
+      list: paginate(models.Items.find(qry).sort(sortQuery), {
         page,
         perPage
       }),
@@ -188,8 +192,12 @@ const queries = {
       sortOrder = -1;
     }
 
+    const sortQuery = {
+      [`searchDictionary.${sortField}`]: sortOrder
+    };
+
     return {
-      list: paginate(models.Items.find(qry).sort({ [sortField]: sortOrder }), {
+      list: paginate(models.Items.find(qry).sort(sortQuery), {
         page,
         perPage
       }),
