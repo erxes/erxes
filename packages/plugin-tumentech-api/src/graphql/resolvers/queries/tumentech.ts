@@ -274,7 +274,7 @@ const carQueries = {
 
   carCategories: async (
     _root,
-    { parentId, searchValue, onlyParent },
+    { parentId, searchValue, onlyParent, ids },
     { commonQuerySelector, models }: IContext
   ) => {
     const filter: any = commonQuerySelector;
@@ -291,6 +291,10 @@ const carQueries = {
       return models.CarCategories.find({ ...filter, parentId: '' }).sort({
         order: 1
       });
+    }
+
+    if (ids) {
+      filter._id = { $in: ids };
     }
 
     return models.CarCategories.find(filter).sort({ order: 1 });

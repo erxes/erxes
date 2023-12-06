@@ -74,24 +74,6 @@ const Trip = {
 
   async cars(trip: ITripDocument, _params, { models: { Cars } }: IContext) {
     return Cars.find({ _id: { $in: trip.carIds } }).lean();
-  },
-
-  async trackingData(
-    trip: ITripDocument,
-    _params,
-    { models: { Trips } }: IContext
-  ) {
-    const trackingData = await Trips.findOne({ _id: trip._id }).distinct(
-      'trackingData'
-    );
-
-    const sortedData = trackingData.sort((a, b) => a[2] - b[2]);
-
-    return sortedData.map(t => ({
-      lat: t[0],
-      lng: t[1],
-      trackedDate: new Date(t[2] * 1000)
-    }));
   }
 };
 

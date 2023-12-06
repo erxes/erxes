@@ -3,7 +3,6 @@ import { checkPermission } from '@erxes/api-utils/src';
 import { IContext } from '../../../connectionResolver';
 import { putCreateLog, putDeleteLog, putUpdateLog } from '../../../logUtils';
 import {
-  sendCardsMessage,
   sendClientPortalMessage,
   sendCommonMessage,
   sendContactsMessage,
@@ -12,6 +11,7 @@ import {
 import { ICarDocument } from '../../../models/definitions/tumentech';
 import { generateRandomString } from '../../../utils';
 import { ICarCategoryDocument } from './../../../models/definitions/tumentech';
+import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
 
 const carMutations = {
   carsAdd: async (
@@ -32,6 +32,66 @@ const carMutations = {
       },
       user
     );
+
+    const xypEnabled = await isEnabled('xyp');
+    return car;
+
+    if (!xypEnabled) {
+      return car;
+    }
+
+    const xypServices = [
+      {
+        value: 'WS100401_getVehicleInfo',
+        label: 'Тээврийн хэрэгслийн мэдээлэл дамжуулах сервис'
+      },
+      {
+        value: 'WS100409_getVehicleInspectionInfo',
+        label: 'Тээврийн хэрэгслийн оншилгооний мэдээлэл шалгах сервис'
+      }
+    ];
+
+    for (const service of xypServices) {
+      await new Promise(resolve => setTimeout(resolve, 10000));
+      const response = await sendCommonMessage({
+        subdomain,
+        serviceName: 'xyp',
+        action: 'fetch',
+        data: {
+          wsOperationName: service.value,
+          params: {
+            plateNumber: car.plateNumber
+          }
+        },
+        isRPC: true,
+        defaultValue: null
+      });
+
+      if (!response) {
+        continue;
+      }
+
+      const xypData = {
+        serviceName: service.value,
+        serviceDescription: service.label,
+        data: response.return.response
+      };
+
+      const xypDoc = {
+        contentType: 'tumentech:car',
+        contentTypeId: car._id,
+        data: [xypData]
+      };
+
+      await sendCommonMessage({
+        subdomain,
+        serviceName: 'xyp',
+        action: 'insertOrUpdate',
+        data: xypDoc,
+        isRPC: true,
+        defaultValue: null
+      });
+    }
 
     return car;
   },
