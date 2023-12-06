@@ -41,6 +41,9 @@ type State = {
   useFee: boolean;
   productType: string;
   collateralType: string;
+  savingPlusLoanInterest: number;
+  savingUpperPercent: number;
+  usePrePayment: boolean;
 };
 
 class ContractTypeForm extends React.Component<Props, State> {
@@ -61,7 +64,11 @@ class ContractTypeForm extends React.Component<Props, State> {
       productType: contractType.productType,
       collateralType: contractType.collateralType,
       currency:
-        contractType.currency || this.props.currentUser.configs?.dealCurrency[0]
+        contractType.currency ||
+        this.props.currentUser.configs?.dealCurrency[0],
+      usePrePayment: contractType.usePrePayment || false,
+      savingPlusLoanInterest: contractType.savingPlusLoanInterest,
+      savingUpperPercent: contractType.savingUpperPercent
     };
   }
 
@@ -91,7 +98,10 @@ class ContractTypeForm extends React.Component<Props, State> {
       description: finalValues.description,
       productType: this.state.productType,
       currency: finalValues.currency,
-      commitmentInterest: Number(finalValues.commitmentInterest)
+      commitmentInterest: Number(finalValues.commitmentInterest),
+      savingPlusLoanInterest: Number(finalValues.savingPlusLoanInterest),
+      savingUpperPercent: Number(finalValues.savingUpperPercent),
+      usePrePayment: this.state.usePrePayment
     };
   };
 
@@ -162,22 +172,24 @@ class ContractTypeForm extends React.Component<Props, State> {
                 max: 20
               })}
 
-              <FormGroup>
-                <ControlLabel>{__('Allow Product Categories')}</ControlLabel>
-                <Select
-                  className="flex-item"
-                  placeholder={__('Select product categories')}
-                  value={this.state.productCategoryIds}
-                  onChange={onSelectProductCategory}
-                  multi={true}
-                  options={this.props.productCategories.map(category => ({
-                    value: category._id,
-                    label: `${'\u00A0  '.repeat(
-                      (category.order.match(/[/]/gi) || []).length
-                    )}${category.code} - ${category.name}`
-                  }))}
-                />
-              </FormGroup>
+              {this.state.leaseType !== LEASE_TYPES.SAVING && (
+                <FormGroup>
+                  <ControlLabel>{__('Allow Product Categories')}</ControlLabel>
+                  <Select
+                    className="flex-item"
+                    placeholder={__('Select product categories')}
+                    value={this.state.productCategoryIds}
+                    onChange={onSelectProductCategory}
+                    multi={true}
+                    options={this.props.productCategories.map(category => ({
+                      value: category._id,
+                      label: `${'\u00A0  '.repeat(
+                        (category.order.match(/[/]/gi) || []).length
+                      )}${category.code} - ${category.name}`
+                    }))}
+                  />
+                </FormGroup>
+              )}
               <FormGroup>
                 <ControlLabel required={true}>
                   {__('Product Type')}
@@ -225,24 +237,7 @@ class ContractTypeForm extends React.Component<Props, State> {
                   )}
                 </FormControl>
               </FormGroup>
-              <FormGroup>
-                <ControlLabel>{__('Collateral Type')}:</ControlLabel>
 
-                <FormControl
-                  {...this.props}
-                  name="leaseType"
-                  componentClass="select"
-                  value={this.state.collateralType}
-                  required={true}
-                  onChange={this.onChangeField}
-                >
-                  {COLLATERAL_TYPE.ALL.map((typeName, index) => (
-                    <option key={index} value={typeName}>
-                      {typeName}
-                    </option>
-                  ))}
-                </FormControl>
-              </FormGroup>
               <FormGroup>
                 <ControlLabel>{__('Lease Type')}:</ControlLabel>
 
@@ -261,12 +256,41 @@ class ContractTypeForm extends React.Component<Props, State> {
                   ))}
                 </FormControl>
               </FormGroup>
+              {this.state.leaseType !== LEASE_TYPES.SAVING && (
+                <FormGroup>
+                  <ControlLabel>{__('Collateral Type')}:</ControlLabel>
+
+                  <FormControl
+                    {...this.props}
+                    name="collateralType"
+                    componentClass="select"
+                    value={this.state.collateralType}
+                    required={true}
+                    onChange={this.onChangeField}
+                  >
+                    {COLLATERAL_TYPE.ALL.map((typeName, index) => (
+                      <option key={index} value={typeName}>
+                        {typeName}
+                      </option>
+                    ))}
+                  </FormControl>
+                </FormGroup>
+              )}
               {this.state.leaseType === LEASE_TYPES.LINEAR &&
                 this.renderFormGroup('Commitment interest', {
                   ...formProps,
                   name: 'commitmentInterest',
                   required: true,
                   type: 'number',
+                  useNumberFormat: true,
+                  value: contractType.commitmentInterest
+                })}
+              {this.state.leaseType === LEASE_TYPES.LINEAR &&
+                this.renderFormGroup('Bill day', {
+                  ...formProps,
+                  name: 'billDay',
+                  required: true,
+                  type: '',
                   useNumberFormat: true,
                   value: contractType.commitmentInterest
                 })}
@@ -297,51 +321,81 @@ class ContractTypeForm extends React.Component<Props, State> {
                   </FormControl>
                 </FormGroup>
               )}
-              {this.renderFormGroup('Is use debt', {
-                ...formProps,
-                className: 'flex-item',
-                type: 'checkbox',
-                componentClass: 'checkbox',
-                name: 'useDebt',
-                checked: this.state.useDebt,
-                onChange: this.onChangeField
-              })}
-              {this.renderFormGroup('Is use margin amount', {
-                ...formProps,
-                className: 'flex-item',
-                type: 'checkbox',
-                componentClass: 'checkbox',
-                name: 'useMargin',
-                checked: this.state.useMargin,
-                onChange: this.onChangeField
-              })}
-              {this.renderFormGroup('Is use skip interest', {
-                ...formProps,
-                className: 'flex-item',
-                type: 'checkbox',
-                componentClass: 'checkbox',
-                name: 'useSkipInterest',
-                checked: this.state.useSkipInterest,
-                onChange: this.onChangeField
-              })}
-              {this.renderFormGroup('Is use manual numbering', {
-                ...formProps,
-                className: 'flex-item',
-                type: 'checkbox',
-                componentClass: 'checkbox',
-                name: 'useManualNumbering',
-                checked: this.state.useManualNumbering,
-                onChange: this.onChangeField
-              })}
-              {this.renderFormGroup('Is use fee', {
-                ...formProps,
-                className: 'flex-item',
-                type: 'checkbox',
-                componentClass: 'checkbox',
-                name: 'useFee',
-                checked: this.state.useFee,
-                onChange: this.onChangeField
-              })}
+              {this.state.leaseType === LEASE_TYPES.SAVING &&
+                this.renderFormGroup('Saving upper interest', {
+                  ...formProps,
+                  name: 'savingPlusLoanInterest',
+                  required: true,
+                  defaultValue: contractType.savingPlusLoanInterest || 0
+                })}
+              {this.state.leaseType === LEASE_TYPES.SAVING &&
+                this.renderFormGroup('Saving upper percent', {
+                  ...formProps,
+                  name: 'savingUpperPercent',
+                  required: true,
+                  max: 100,
+                  defaultValue: contractType.savingUpperPercent || 0
+                })}
+              {this.state.leaseType !== LEASE_TYPES.SAVING &&
+                this.renderFormGroup('Is use debt', {
+                  ...formProps,
+                  className: 'flex-item',
+                  type: 'checkbox',
+                  componentClass: 'checkbox',
+                  name: 'useDebt',
+                  checked: this.state.useDebt,
+                  onChange: this.onChangeField
+                })}
+              {this.state.leaseType !== LEASE_TYPES.SAVING &&
+                this.renderFormGroup('Is use margin amount', {
+                  ...formProps,
+                  className: 'flex-item',
+                  type: 'checkbox',
+                  componentClass: 'checkbox',
+                  name: 'useMargin',
+                  checked: this.state.useMargin,
+                  onChange: this.onChangeField
+                })}
+              {this.state.leaseType !== LEASE_TYPES.SAVING &&
+                this.renderFormGroup('Is use skip interest', {
+                  ...formProps,
+                  className: 'flex-item',
+                  type: 'checkbox',
+                  componentClass: 'checkbox',
+                  name: 'useSkipInterest',
+                  checked: this.state.useSkipInterest,
+                  onChange: this.onChangeField
+                })}
+              {this.state.leaseType !== LEASE_TYPES.SAVING &&
+                this.renderFormGroup('Is use manual numbering', {
+                  ...formProps,
+                  className: 'flex-item',
+                  type: 'checkbox',
+                  componentClass: 'checkbox',
+                  name: 'useManualNumbering',
+                  checked: this.state.useManualNumbering,
+                  onChange: this.onChangeField
+                })}
+              {this.state.leaseType !== LEASE_TYPES.SAVING &&
+                this.renderFormGroup('Is use fee', {
+                  ...formProps,
+                  className: 'flex-item',
+                  type: 'checkbox',
+                  componentClass: 'checkbox',
+                  name: 'useFee',
+                  checked: this.state.useFee,
+                  onChange: this.onChangeField
+                })}
+              {this.state.leaseType !== LEASE_TYPES.SAVING &&
+                this.renderFormGroup('Is use pre payment', {
+                  ...formProps,
+                  className: 'flex-item',
+                  type: 'checkbox',
+                  componentClass: 'checkbox',
+                  name: 'usePrePayment',
+                  checked: this.state.usePrePayment,
+                  onChange: this.onChangeField
+                })}
             </FormColumn>
           </FormWrapper>
           <FormWrapper>

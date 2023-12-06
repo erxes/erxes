@@ -37,6 +37,7 @@
     "@radix-ui/react-toast": "^1.1.4",
     "@radix-ui/react-toggle": "^1.0.3",
     "@radix-ui/react-tooltip": "^1.0.6",
+    "@tailwindcss/typography": "^0.5.10",
     "@tanstack/react-table": "^8.9.3",
     "class-variance-authority": "^0.6.1",
     "clsx": "^1.2.1",
@@ -66,7 +67,7 @@
     "tailwind-merge": "^1.13.2",
     "tailwind-scrollbar-hide": "^1.1.7",
     "tailwindcss-animate": "^1.0.6",
-    "wavesurfer.js": "^7.4.2",
+    "wavesurfer.js": "^7.4.11",
     "zod": "^3.21.4"
   },
   "devDependencies": {

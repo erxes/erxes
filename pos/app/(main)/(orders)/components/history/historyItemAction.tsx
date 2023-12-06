@@ -34,48 +34,50 @@ const HistoryItemAction = ({ row }: CellContext<IOrderHistory, unknown>) => {
   })
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="h-8 w-8 p-0">
-          <MoreHorizontal className="h-4 w-4" />
-          {showEbarimt && (
-            <iframe
-              src={`/reciept/ebarimt?id=${_id}`}
-              className="absolute h-1 w-1"
-              style={{ top: 10000, left: 10000 }}
-              ref={iframeRef}
-            />
-          )}
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
-        <DropdownMenuLabel>Үйлдэлүүд</DropdownMenuLabel>
-        <DropdownMenuItem
-          onClick={() => {
-            router.push("/")
-            setActiveOrder(_id)
-          }}
-          disabled={!!paidDate}
-        >
-          Идэвхтэй захиалга
-        </DropdownMenuItem>
-        <DropdownMenuItem
-          onClick={() => setShowEbarimt(true)}
-          disabled={!paidDate}
-        >
-          Баримт хэвлэх
-        </DropdownMenuItem>
+    <>
+      <DropdownMenu modal={false}>
+        <DropdownMenuTrigger asChild>
+          <Button variant="ghost" className="h-8 w-8 p-0">
+            <MoreHorizontal className="h-4 w-4" />
+            {showEbarimt && (
+              <iframe
+                src={`/reciept/ebarimt?id=${_id}`}
+                className="absolute h-1 w-1"
+                style={{ top: 10000, left: 10000 }}
+                ref={iframeRef}
+              />
+            )}
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuLabel>Үйлдэлүүд</DropdownMenuLabel>
+          <DropdownMenuItem
+            onClick={() => {
+              router.push("/")
+              setActiveOrder(_id)
+            }}
+            disabled={!!paidDate}
+          >
+            Идэвхтэй захиалга
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={() => setShowEbarimt(true)}
+            disabled={!paidDate}
+          >
+            Баримт хэвлэх
+          </DropdownMenuItem>
 
-        <DropdownMenuItem onClick={() => setOpenDetail(_id)}>
-          Дэлгэрэнгүй
-        </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => setOpenDetail(_id)}>
+            Дэлгэрэнгүй
+          </DropdownMenuItem>
 
-        <PaymentDetail _id={_id} paidDate={paidDate}/>
-      </DropdownMenuContent>
+          <PaymentDetail _id={_id} paidDate={paidDate} />
+        </DropdownMenuContent>
+      </DropdownMenu>
       <OrderReturn _id={_id} number={number} totalAmount={totalAmount} />
 
       <OrderCancel _id={_id} number={number} />
-    </DropdownMenu>
+    </>
   )
 }
 

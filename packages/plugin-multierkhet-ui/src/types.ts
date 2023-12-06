@@ -94,13 +94,13 @@ export type OrderDetailQueryResponse = {
 };
 
 export type SyncHistoriesQueryResponse = {
-  syncHistories: any[];
+  manySyncHistories: any[];
   loading: boolean;
   refetch: () => void;
 };
 
 export type SyncHistoriesCountQueryResponse = {
-  syncHistoriesCount: number;
+  manySyncHistoriesCount: number;
   loading: boolean;
   refetch: () => void;
 };

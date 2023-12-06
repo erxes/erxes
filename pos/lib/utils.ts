@@ -15,7 +15,7 @@ export const READ_FILE = "/read-file?key="
 export const readFile = (url: string = "") => {
   if (url.includes(READ_FILE)) {
     const apiUrl = url.split(READ_FILE)[0]
-    return url.replace(apiUrl, getEnv().NEXT_PUBLIC_MAIN_API_DOMAIN || "")
+    return url.replace(apiUrl, getEnv().NEXT_PUBLIC_SERVER_API_DOMAIN || "")
   }
   // if (url.startsWith("/") && typeof window !== "undefined") {
   //   const { protocol, host } = window.location

@@ -28,6 +28,7 @@ const configFields = `
   waitingScreen
   kitchenScreen
   erxesAppToken
+  orderPassword
   uiOptions {
     colors
     logo
