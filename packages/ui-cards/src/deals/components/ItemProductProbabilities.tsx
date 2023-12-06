@@ -19,7 +19,7 @@ class ItemProductProbabilities extends React.Component<Props, {}> {
 
     return (
       <div>
-        <span>{__('Forecasted') + `(${probabilityPercentage})`}</span>
+        <span>{__('Forecasted') + `(${probabilityPercentage}%)`}</span>
         {renderPercentedAmount(totalAmount, probabilityPercentage)}
       </div>
     );
