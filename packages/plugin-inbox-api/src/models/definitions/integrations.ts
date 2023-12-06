@@ -20,6 +20,7 @@ export interface ISubmission extends Document {
 export interface ILink {
   twitter?: string;
   facebook?: string;
+  instagram?: string;
   youtube?: string;
 }
 
@@ -238,6 +239,7 @@ const messengerDataSchema = new Schema(
     messages: field({ type: Object, optional: true }),
     links: {
       facebook: String,
+      instagram: String,
       twitter: String,
       youtube: String
     },

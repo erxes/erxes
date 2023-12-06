@@ -74,6 +74,7 @@ type State = {
   logoPreviewStyle: any;
   logoPreviewUrl: string;
   facebook: string;
+  instagram: string;
   twitter: string;
   youtube: string;
   messages: IMessages;
@@ -144,6 +145,7 @@ class CreateMessenger extends React.Component<Props, State> {
       logoPreviewStyle: {},
       logoPreviewUrl: uiOptions.logo || '/images/erxes.png',
       facebook: links.facebook || '',
+      instagram: links.instagram || '',
       twitter: links.twitter || '',
       youtube: links.youtube || '',
       messages: { ...this.generateMessages(messages) },
@@ -193,6 +195,7 @@ class CreateMessenger extends React.Component<Props, State> {
       channelIds,
       messages,
       facebook,
+      instagram,
       twitter,
       youtube,
       requireAuth,
@@ -251,6 +254,7 @@ class CreateMessenger extends React.Component<Props, State> {
 
     const links = {
       facebook: linkify(facebook),
+      instagram: linkify(instagram),
       twitter: linkify(twitter),
       youtube: linkify(youtube)
     };
@@ -353,6 +357,7 @@ class CreateMessenger extends React.Component<Props, State> {
       notifyCustomer,
       logoPreviewStyle,
       facebook,
+      instagram,
       twitter,
       youtube,
       messages,
@@ -409,6 +414,7 @@ class CreateMessenger extends React.Component<Props, State> {
                   supporterIds={supporterIds}
                   messages={messages}
                   facebook={facebook}
+                  instagram={instagram}
                   languageCode={languageCode}
                   twitter={twitter}
                   youtube={youtube}
@@ -530,6 +536,7 @@ class CreateMessenger extends React.Component<Props, State> {
                 showVideoCallRequest={showVideoCallRequest}
                 messengerApps={messengerApps}
                 facebook={facebook}
+                instagram={instagram}
                 twitter={twitter}
                 youtube={youtube}
               />
