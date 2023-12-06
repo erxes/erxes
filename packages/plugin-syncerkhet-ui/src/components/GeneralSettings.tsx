@@ -2,20 +2,20 @@ import {
   Button,
   CollapseContent,
   ControlLabel,
-  DataWithLoader,
   FormControl,
   FormGroup,
   Icon
 } from '@erxes/ui/src/components';
-import { Title } from '@erxes/ui-settings/src/styles';
-import { __ } from '@erxes/ui/src/utils';
-import { Wrapper } from '@erxes/ui/src/layout';
-import React from 'react';
-import { KEY_LABELS } from '../constants';
+
 import { ContentBox } from '../styles';
-import { IConfigsMap } from '../types';
 import Header from './Header';
+import { IConfigsMap } from '../types';
+import { KEY_LABELS } from '../constants';
+import React from 'react';
 import Sidebar from './Sidebar';
+import { Title } from '@erxes/ui-settings/src/styles';
+import { Wrapper } from '@erxes/ui/src/layout';
+import { __ } from '@erxes/ui/src/utils';
 import { isEnabled } from '@erxes/ui/src/utils/core';
 
 type Props = {
@@ -186,15 +186,7 @@ class GeneralSettings extends React.Component<Props, State> {
           />
         }
         leftSidebar={<Sidebar />}
-        content={
-          <DataWithLoader
-            data={this.renderContent()}
-            loading={loading}
-            count={configCount}
-            emptyText={__('There is no config') + '.'}
-            emptyImage="/images/actions/8.svg"
-          />
-        }
+        content={this.renderContent()}
         transparent={true}
         hasBorder={true}
       />
