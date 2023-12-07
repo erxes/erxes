@@ -48,8 +48,6 @@ const searchMessages = (imap, criteria) => {
         throw err;
       }
 
-      console.log('results', results);
-
       let f;
 
       try {
@@ -81,8 +79,6 @@ const searchMessages = (imap, criteria) => {
 
       f.once('end', async () => {
         const data: any = [];
-
-        console.log('messages.length', messages.length);
 
         for (const buffer of messages) {
           const parsed = await simpleParser(buffer);
