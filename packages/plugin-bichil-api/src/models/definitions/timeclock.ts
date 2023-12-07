@@ -429,6 +429,7 @@ export interface IUserAbsenceInfo {
 export interface IUserExportReport {
   firstName?: string;
   lastName?: string;
+  fullName?: string;
   branchName?: string;
   employeeId?: string;
 
@@ -478,6 +479,10 @@ export interface IUserExportReport {
 
   latenessFee?: number;
   totalMinsLateDeduction?: string | number;
+
+  totalDaysAbsent?: number;
+  absentFee?: number;
+  absentDeduction?: number;
 
   totalDeduction?: string | number;
 

@@ -80,9 +80,13 @@ const types = `
     shiftNotClosedDaysPerUser: String
     shiftNotClosedFee: String
     shiftNotClosedDeduction: String
-
+    
     latenessFee: String
     totalMinsLateDeduction: Float
+    
+    totalDaysAbsent: Int
+    absentFee: Int
+    absentDeduction: Int
 
     totalDeduction: Float
 
@@ -119,6 +123,7 @@ const types = `
     totalHoursWorked: Float
     totalShiftNotClosedDeduction: Float
     totalLateMinsDeduction: Float
+    totalAbsentDeduction: Float
     totalDeductionPerGroup: Float
   }
 

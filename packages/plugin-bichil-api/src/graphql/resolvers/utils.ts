@@ -662,6 +662,7 @@ export const bichilTimeclockReportFinal = async (
   let totalShiftNotClosedDeduction = 0;
   let totalLateMinsDeduction = 0;
   let totalDeductionPerGroup = 0;
+  let totalAbsentDeduction = 0;
 
   const models = await generateModels(subdomain);
   const usersReport: IUsersReport = {};
@@ -669,6 +670,7 @@ export const bichilTimeclockReportFinal = async (
 
   const shiftNotClosedFee = 3000;
   const latenessFee = 200;
+  const absentFee = 86000;
 
   // get the schedule data of this month
   const schedules = await models.Schedules.find({
@@ -746,6 +748,10 @@ export const bichilTimeclockReportFinal = async (
       timeclock => timeclock.userId === currUserId
     );
 
+    const currUserRequests = requests.filter(
+      request => request.userId === currUserId
+    );
+
     const currUserSchedules = schedules.filter(
       schedule => schedule.userId === currUserId
     );
@@ -784,6 +790,7 @@ export const bichilTimeclockReportFinal = async (
 
     let totalDaysScheduledPerUser = 0;
     let totalHoursScheduledPerUser = 0;
+    let totalDaysAbsentPerUser = 0;
 
     let totalHoursOvertimePerUser = 0;
     let totalMinsLatePerUser = 0;
@@ -796,6 +803,49 @@ export const bichilTimeclockReportFinal = async (
         totalScheduledHours: number;
       };
     } = {};
+
+    const totalTimeclocksDict: {
+      [dayString: string]: {
+        shiftStart: Date;
+        shiftEnd?: Date;
+      };
+    } = {};
+
+    const totalRequestsDict: {
+      [dayString: string]: {
+        request: true;
+      };
+    } = {};
+
+    for (const request of currUserRequests) {
+      // const requestDay = dayjs(userRequest.req)
+      const { absenceTimeType, reason } = request;
+      const lowerCasedReason = reason.toLowerCase();
+
+      if (lowerCasedReason.includes('check')) {
+        continue;
+      }
+
+      if (absenceTimeType === 'by day') {
+        for (const requestDate of request.requestDates) {
+          const date = dayjs(new Date(requestDate)).format(dateFormat);
+
+          totalRequestsDict[date] = { request: true };
+        }
+      }
+
+      // by hour
+      const date = dayjs(request.startTime).format(dateFormat);
+
+      totalRequestsDict[date] = { request: true };
+    }
+
+    for (const currUserTimeclock of currUserTimeclocks) {
+      const { shiftStart, shiftEnd } = currUserTimeclock;
+      const shiftDay = dayjs(shiftStart).format(dateFormat);
+
+      totalTimeclocksDict[shiftDay] = { shiftStart, shiftEnd };
+    }
 
     for (const userScheduleShift of currUserScheduleShifts) {
       const scheduledDay = dayjs(userScheduleShift.shiftStart).format(
@@ -812,6 +862,17 @@ export const bichilTimeclockReportFinal = async (
         shiftEnd: userScheduleShift.shiftEnd,
         totalScheduledHours: getTotalScheduledHours
       };
+
+      // if user didnt work on scheduled day and didnt send any request, count as absent day
+      if (
+        !(
+          scheduledDay in totalTimeclocksDict ||
+          scheduledDay in totalRequestsDict
+        ) &&
+        new Date(scheduledDay).getTime() <= new Date().getTime()
+      ) {
+        totalDaysAbsentPerUser += 1;
+      }
     }
 
     if (currUserTimeclocks) {
@@ -939,6 +1000,7 @@ export const bichilTimeclockReportFinal = async (
     // shiftNotClosedDeduction
     // totalMinsLate
     // latenessFee 200
+    // absentFee 86000
     // totalMinsLateDeduction
     // totalDeduction
 
@@ -960,7 +1022,10 @@ export const bichilTimeclockReportFinal = async (
     const shiftNotClosedDeduction =
       shiftNotClosedDaysPerUser * shiftNotClosedFee;
     const totalMinsLateDeduction = totalMinsLatePerUser * latenessFee;
-    const totalDeduction = shiftNotClosedDeduction + totalMinsLateDeduction;
+    const absentDeductionPerUser = totalDaysAbsentPerUser * absentFee;
+
+    const totalDeduction =
+      shiftNotClosedDeduction + totalMinsLateDeduction + absentDeductionPerUser;
 
     if (totalHoursScheduledPerUser > 0) {
       totalHoursScheduledPerUser -= totalBreakOfSchedulesInHrs;
@@ -970,6 +1035,7 @@ export const bichilTimeclockReportFinal = async (
     totalHoursWorked += totalHoursWorkedPerUser;
     totalShiftNotClosedDeduction += shiftNotClosedDeduction;
     totalLateMinsDeduction += totalMinsLateDeduction;
+    totalAbsentDeduction += absentDeductionPerUser;
     totalDeductionPerGroup += totalDeduction;
 
     usersReport[currUserId] = {
@@ -992,6 +1058,10 @@ export const bichilTimeclockReportFinal = async (
       latenessFee,
       totalMinsLateDeduction,
 
+      totalDaysAbsent: totalDaysAbsentPerUser,
+      absentFee,
+      absentDeduction: absentDeductionPerUser,
+
       totalDeduction
     };
   });
@@ -1003,6 +1073,7 @@ export const bichilTimeclockReportFinal = async (
       totalHoursWorked,
       totalShiftNotClosedDeduction,
       totalLateMinsDeduction,
+      totalAbsentDeduction,
       totalDeductionPerGroup
     }
   };

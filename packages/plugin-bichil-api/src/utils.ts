@@ -37,7 +37,10 @@ export const customFixDate = (date?: Date) => {
 export const paginateArray = (array, perPage = 20, page = 1) =>
   array.slice((page - 1) * perPage, page * perPage);
 
-export const findBranches = async (subdomain: string, branchIds: string[]) => {
+export const findBranches = async (
+  subdomain: string,
+  branchIds: string[]
+): Promise<any> => {
   const branches = await sendCoreMessage({
     subdomain,
     action: 'branches.find',
@@ -131,7 +134,9 @@ export const findAllTeamMembers = async (subdomain: string) => {
   const users = await sendCoreMessage({
     subdomain,
     action: 'users.find',
-    data: {},
+    data: {
+      query: { isActive: true }
+    },
     isRPC: true,
     defaultValue: []
   });
@@ -198,7 +203,7 @@ export const findTeamMembers = (subdomain: string, userIds: string[]) => {
     subdomain,
     action: 'users.find',
     data: {
-      query: { _id: { $in: userIds } }
+      query: { _id: { $in: userIds }, isActive: true }
     },
     isRPC: true,
     defaultValue: []
@@ -206,27 +211,61 @@ export const findTeamMembers = (subdomain: string, userIds: string[]) => {
 };
 
 const returnTotalBranchesDict = async (subdomain: any, branchIds: string[]) => {
-  let dictionary: { [_id: string]: { title: string; parentId: string } } = {};
+  let dictionary: {
+    [_id: string]: {
+      title: string;
+      parentId: string;
+      parentsCount?: number;
+      parentsTitles?: string[];
+    };
+  } = {};
 
-  const branches = await findBranches(subdomain, branchIds);
-  const parentIds: string[] = [];
+  const totalBranches: any[] = await findBranches(subdomain, branchIds);
 
-  for (const branch of branches) {
+  for (const branchId of branchIds) {
+    const getSubBranches = await findSubBranches(subdomain, branchId);
+    totalBranches.push(...getSubBranches);
+  }
+
+  for (const branch of totalBranches) {
     dictionary[branch._id] = {
       title: branch.title,
       parentId: branch.parentId || null
     };
-    if (branch.parentId) {
-      parentIds.push(branch.parentId);
-    }
   }
 
-  if (parentIds.length) {
-    const getParentsDictionary = await returnTotalBranchesDict(
-      subdomain,
-      parentIds
-    );
-    dictionary = { ...dictionary, ...getParentsDictionary };
+  for (const branchId of branchIds) {
+    const branchParentIds: string[] = [];
+    const branchParentTitles: string[] = [];
+
+    let noFurtherParent = false;
+    let currentParentId = dictionary[branchId]?.parentId;
+
+    while (
+      !noFurtherParent &&
+      currentParentId &&
+      dictionary[currentParentId] &&
+      branchId !== currentParentId
+    ) {
+      branchParentIds.push(currentParentId);
+      branchParentTitles.push(dictionary[currentParentId].title);
+
+      if (dictionary[currentParentId].parentId) {
+        currentParentId = dictionary[currentParentId].parentId;
+      } else {
+        noFurtherParent = true;
+      }
+    }
+
+    const parentsCount = new Set(branchParentIds).size;
+    // from greatest to closest parent
+    const parentsTitles = Array.from(new Set(branchParentTitles.reverse()));
+
+    dictionary[branchId] = {
+      ...dictionary[branchId],
+      parentsCount,
+      parentsTitles
+    };
   }
 
   return dictionary;

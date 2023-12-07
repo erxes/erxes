@@ -90,8 +90,6 @@ function ReportList(props: Props) {
 
     //     reportRow.push(<tr>{titleRow.map(t=> t)}</tr>)
 
-    //     console.log('report row ' ,reportRow);
-
     //     groupReport.forEach((userReport, i) => {
     //       if (i !== 0) {
     //         reportRow.push(<tr>{ReportRow(userReport, reportType, i)}</tr>)
@@ -107,8 +105,6 @@ function ReportList(props: Props) {
     //         reportType={reportType}
     //         />)
     //       }
-
-    //     console.log();
 
     //     return reportRow
     //   })
@@ -184,6 +180,7 @@ function ReportList(props: Props) {
       ))
     );
   };
+
   return (
     <Table>
       <thead>{renderTableHead()}</thead>
@@ -197,26 +194,33 @@ function ReportList(props: Props) {
         <td>{''}</td>
         <td>{''}</td>
         <td>
-          <b>{deductionInfo.totalHoursScheduled}</b>
+          <b>{deductionInfo.totalHoursScheduled.toFixed(2)}</b>
         </td>
         <td>
-          <b>{deductionInfo.totalHoursWorked}</b>
-        </td>
-        <td>{''}</td>
-        <td>{''}</td>
-        <td>{''}</td>
-        <td>{''}</td>
-        <td>{''}</td>
-        <td>
-          <b>{deductionInfo.totalShiftNotClosedDeduction}</b>
+          <b>{deductionInfo.totalHoursWorked.toFixed(2)}</b>
         </td>
         <td>{''}</td>
         <td>{''}</td>
+        <td>{''}</td>
+        <td>{''}</td>
+        <td>{''}</td>
         <td>
-          <b>{deductionInfo.totalLateMinsDeduction?.toFixed(2)}</b>
+          <b>
+            {deductionInfo.totalShiftNotClosedDeduction.toLocaleString('en-US')}
+          </b>
+        </td>
+        <td>{''}</td>
+        <td>{''}</td>
+        <td>
+          <b>{deductionInfo.totalLateMinsDeduction?.toFixed()}</b>
+        </td>
+        <td>{''}</td>
+        <td>{''}</td>
+        <td>
+          <b>{deductionInfo.totalAbsentDeduction?.toLocaleString('en-US')}</b>
         </td>
         <td>
-          <b>{deductionInfo.totalDeductionPerGroup?.toFixed(2)}</b>
+          <b>{deductionInfo.totalDeductionPerGroup?.toLocaleString('en-US')}</b>
         </td>
       </tr>
     </Table>
