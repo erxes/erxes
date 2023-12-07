@@ -6,7 +6,7 @@ import resolvers from './graphql/resolvers';
 import { initBroker } from './messageBroker';
 import { generateModels } from './connectionResolver';
 import { getSubdomain } from '@erxes/api-utils/src/core';
-import listen, { findAttachmentParts, createImap, toUpper } from './utils';
+import startListeningtoAll, { findAttachmentParts, createImap, toUpper } from './utils';
 import { debugError } from '@erxes/api-utils/src/debuggers';
 import { routeErrorHandling } from '@erxes/api-utils/src/requests';
 import logs from './logUtils';
@@ -157,6 +157,6 @@ export default {
       )
     );
 
-    await listen('os');
+    await startListeningtoAll('os');
   }
 };
