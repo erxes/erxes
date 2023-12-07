@@ -15,7 +15,7 @@ function LoanContractSection({ loanContracts }: Props) {
   const content = (
     <>
       {loanContracts?.map((contract, index) => (
-        <SectionBodyItem key={index}>
+        <SectionBodyItem key={contract._id}>
           <Link to={`/erxes-plugin-loan/contract-details/${contract._id}`}>
             <Icon icon="arrow-to-right" style={{ marginRight: 5 }} />
             <span>{contract.number || 'Unknown'}</span>
