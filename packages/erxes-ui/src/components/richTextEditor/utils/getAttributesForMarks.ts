@@ -27,7 +27,7 @@ export function getAttributesForMarks(
       marks.push(...state.storedMarks);
     }
 
-    marks.push(...state.selection.$head.marks());
+    marks.push(...state.selection.$from.marks());
   } else {
     state.doc.nodesBetween(from, to, node => {
       marks.push(...node.marks);

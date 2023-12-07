@@ -72,7 +72,9 @@ var plugins = [
   { name: 'goals', api: true, ui: true },
   { name: 'msdynamic', api: true, ui: true },
   { name: 'dailyco', api: true, ui: true },
-  { name: 'zms', api: true, ui: true }
+  { name: 'zms', api: true, ui: true },
+  { name: 'reports', api: true, ui: true },
+  { name: 'instagram', api: true, ui: true }
 ];
 
 const pluginsMap = {};

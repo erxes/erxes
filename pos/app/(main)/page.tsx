@@ -1,6 +1,7 @@
 "use client"
 
 import dynamic from "next/dynamic"
+import RequirePassword from "@/modules/checkout/components/cart/RequirePassword"
 import { modeAtom } from "@/store"
 import { useAtomValue } from "jotai"
 
@@ -17,6 +18,7 @@ export default function IndexPage() {
       {["main", "coffee-shop"].includes(mode) && <Main />}
       {mode === "restaurant" && <Restaurant />}
       {mode === "kiosk" && <Kiosk />}
+      <RequirePassword />
     </>
   )
 }

@@ -267,6 +267,7 @@ export const extractConfig = async (subdomain, doc) => {
     paymentTypes: doc.paymentTypes,
     beginNumber: doc.beginNumber,
     maxSkipNumber: doc.maxSkipNumber,
+    orderPassword: doc.orderPassword,
     uiOptions,
     ebarimtConfig: doc.ebarimtConfig,
     erkhetConfig: doc.erkhetConfig,

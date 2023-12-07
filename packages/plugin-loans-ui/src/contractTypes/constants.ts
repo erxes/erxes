@@ -42,8 +42,8 @@ export const LEASE_TYPES = {
   SALVAGE: 'salvage',
   LINEAR: 'linear',
   CREDIT: 'credit',
-
-  ALL: ['finance', 'salvage', 'linear', 'credit']
+  SAVING: 'saving',
+  ALL: ['finance', 'salvage', 'linear', 'credit', 'saving']
 };
 
 export const COLLATERAL_TYPE = {

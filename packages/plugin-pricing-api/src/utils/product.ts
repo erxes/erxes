@@ -1,5 +1,9 @@
 import * as _ from 'lodash';
-import { sendProductsMessage, sendSegmentsMessage } from '../messageBroker';
+import {
+  sendProductsMessage,
+  sendSegmentsMessage,
+  sendTagsMessage
+} from '../messageBroker';
 import { IPricingPlanDocument } from '../models/definitions/pricingPlan';
 
 /**
@@ -33,6 +37,19 @@ export const getChildCategories = async (subdomain: string, categoryIds) => {
 
   const catIds: string[] = (childs || []).map(ch => ch._id) || [];
   return Array.from(new Set(catIds));
+};
+
+export const getChildTags = async (subdomain: string, tagIds) => {
+  const childs = await sendTagsMessage({
+    subdomain,
+    action: 'withChilds',
+    data: { query: { _id: { $in: tagIds } }, fields: { _id: 1 } },
+    isRPC: true,
+    defaultValue: []
+  });
+
+  const foundTagIds: string[] = (childs || []).map(ch => ch._id) || [];
+  return Array.from(new Set(foundTagIds));
 };
 
 /**
@@ -148,6 +165,43 @@ export const getAllowedProducts = async (
 
       return products
         .filter(p => plansCategoryIds.includes(p.categoryId))
+        .map(p => p._id);
+    }
+    case 'tag': {
+      const filterProductIds = productIds.filter(
+        pId => !(plan.productsExcluded || []).includes(pId)
+      );
+
+      if (!filterProductIds.length) {
+        return [];
+      }
+
+      if (!(plan.tags && plan.tags.length)) {
+        return [];
+      }
+
+      const products = await sendProductsMessage({
+        subdomain,
+        action: 'find',
+        data: {
+          query: { _id: { $in: filterProductIds } },
+          sort: { _id: 1, categoryId: 1 },
+          limit: filterProductIds.length
+        },
+        isRPC: true,
+        defaultValue: []
+      });
+
+      const includeTagIds = await getChildTags(subdomain, plan.tags);
+      const excludeTagIds = await getChildTags(
+        subdomain,
+        plan.tagsExcluded || []
+      );
+
+      const plansTagIds = includeTagIds.filter(c => !excludeTagIds.includes(c));
+
+      return products
+        .filter(p => _.intersection(plansTagIds, p.tagIds).length)
         .map(p => p._id);
     }
 

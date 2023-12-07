@@ -682,6 +682,28 @@ jobs:
 
           docker push erxes/plugin-dailyco-api:${GITHUB_REF#refs/tags/}
 
+      - name: plugin-reports-api
+        run: >
+          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
+          secrets.DOCKERHUB_USERNAME }} --password-stdin 
+
+          docker image pull erxes/plugin-reports-api:master  
+
+          docker tag erxes/plugin-reports-api:master  erxes/plugin-reports-api:${GITHUB_REF#refs/tags/} 
+
+          docker push erxes/plugin-reports-api:${GITHUB_REF#refs/tags/}
+
+      - name: plugin-instagram-api
+        run: >
+          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
+          secrets.DOCKERHUB_USERNAME }} --password-stdin 
+
+          docker image pull erxes/plugin-instagram-api:master  
+
+          docker tag erxes/plugin-instagram-api:master  erxes/plugin-instagram-api:${GITHUB_REF#refs/tags/} 
+
+          docker push erxes/plugin-instagram-api:${GITHUB_REF#refs/tags/}
+
       - name: inbox ui
         run: aws s3 sync s3://erxes-master-plugins/uis/plugin-inbox-ui
           s3://erxes-release-plugins/uis/plugin-inbox-ui/${GITHUB_REF#refs/tags/}/
@@ -842,3 +864,11 @@ jobs:
       - name: dailyco ui
         run: aws s3 sync s3://erxes-master-plugins/uis/plugin-dailyco-ui
           s3://erxes-release-plugins/uis/plugin-dailyco-ui/${GITHUB_REF#refs/tags/}/
+
+      - name: reports ui
+        run: aws s3 sync s3://erxes-master-plugins/uis/plugin-reports-ui
+          s3://erxes-release-plugins/uis/plugin-reports-ui/${GITHUB_REF#refs/tags/}/
+
+      - name: instagram ui
+        run: aws s3 sync s3://erxes-master-plugins/uis/plugin-instagram-ui
+          s3://erxes-release-plugins/uis/plugin-instagram-ui/${GITHUB_REF#refs/tags/}/

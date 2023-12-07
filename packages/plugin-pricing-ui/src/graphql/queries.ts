@@ -17,6 +17,8 @@ export const commonFields = `
   categoriesExcluded
   segments
   vendors
+  tags
+  tagsExcluded
 
   isStartDateEnabled
   isEndDateEnabled
