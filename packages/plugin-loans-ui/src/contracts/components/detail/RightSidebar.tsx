@@ -1,5 +1,5 @@
 import Box from '@erxes/ui/src/components/Box';
-import { IContract } from '../../types';
+import { IContract, IContractGql } from '../../types';
 import { List } from '../../styles';
 import React from 'react';
 import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
@@ -26,7 +26,7 @@ const CustomerSection = asyncComponent(
 );
 
 type Props = {
-  contract: IContract;
+  contract: IContract & IContractGql;
 };
 
 export default class RightSidebar extends React.Component<Props> {
@@ -50,23 +50,27 @@ export default class RightSidebar extends React.Component<Props> {
       <Sidebar>
         {isEnabled('contacts') && (
           <>
-            {contract.customerType === 'customer' && (
+            {contract.customerType === 'customer' && contract.customers && (
               <CustomerSection
-                mainType="contract"
-                mainTypeId={contract._id}
-                title={'Primary Customers'}
+                customers={[contract.customers]}
+                title={__('Loan Primary Customers')}
+                name={'Contract'}
+              />
+            )}
+            {contract.customerType === 'company' && contract.companies && (
+              <CompanySection
+                companies={[contract.companies]}
+                title={__('Loan Primary Companies')}
                 name={'Contract'}
               />
             )}
             <CustomerSection
               mainType="contractSub"
               mainTypeId={contract._id}
-              title={'Collectively Customers'}
+              title={__('Loan Collectively Customers')}
               name={'Contract'}
             />
-            {contract.customerType === 'company' && (
-              <CompanySection mainType="contract" mainTypeId={contract._id} />
-            )}
+
             <DealSection contract={contract} />
           </>
         )}

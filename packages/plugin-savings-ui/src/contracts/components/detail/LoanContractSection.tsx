@@ -22,7 +22,7 @@ function LoanContractSection({ loanContracts }: Props) {
           </Link>
         </SectionBodyItem>
       ))}
-      {!!loanContracts?.length && (
+      {!loanContracts?.length && (
         <EmptyState icon="building" text="No contract" />
       )}
     </>

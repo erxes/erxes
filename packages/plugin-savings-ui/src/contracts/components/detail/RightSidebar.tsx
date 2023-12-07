@@ -55,23 +55,29 @@ export default class RightSidebar extends React.Component<Props> {
               <CustomerSection
                 mainType="customers"
                 mainTypeId={contract.customerId}
-                title={'Primary Customers'}
+                title={__('Saving Primary Customers')}
+                name={'Contract'}
+              />
+            )}
+            {contract.customerType === 'company' && (
+              <CompanySection
+                mainType="contract"
+                mainTypeId={contract._id}
+                title={__('Saving Primary Companies')}
                 name={'Contract'}
               />
             )}
             <CustomerSection
               mainType="contractSub"
               mainTypeId={contract._id}
-              title={'Collectively Customers'}
+              title={__('Saving Collectively Customers')}
               name={'Contract'}
             />
-            {contract.customerType === 'company' && (
-              <CompanySection mainType="contract" mainTypeId={contract._id} />
-            )}
+
             {isEnabled('cards') && <DealSection contract={contract} />}
           </>
         )}
-        {isEnabled('loans') && (
+        {isEnabled('loans') && !!contract.loansOfForeclosed?.length && (
           <LoanContractSection loanContracts={contract.loansOfForeclosed} />
         )}
 
