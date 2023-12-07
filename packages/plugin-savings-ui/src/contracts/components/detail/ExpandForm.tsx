@@ -1,7 +1,6 @@
 import {
   Button,
   ControlLabel,
-  DateControl,
   Form,
   FormControl,
   FormGroup,
@@ -13,7 +12,7 @@ import {
 } from '@erxes/ui/src';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import React from 'react';
-import { IContract, IContractDoc } from '../../types';
+import { IContract } from '../../types';
 import { __ } from 'coreui/utils';
 import SelectContractType from '../../../contractTypes/containers/SelectContractType';
 
