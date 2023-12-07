@@ -6,7 +6,11 @@ import resolvers from './graphql/resolvers';
 import { initBroker } from './messageBroker';
 import { generateModels } from './connectionResolver';
 import { getSubdomain } from '@erxes/api-utils/src/core';
-import startListeningtoAll, { findAttachmentParts, createImap, toUpper } from './utils';
+import startDistributingJobs, {
+  findAttachmentParts,
+  createImap,
+  toUpper
+} from './utils';
 import { debugError } from '@erxes/api-utils/src/debuggers';
 import { routeErrorHandling } from '@erxes/api-utils/src/requests';
 import logs from './logUtils';
@@ -157,6 +161,6 @@ export default {
       )
     );
 
-    await startListeningtoAll('os');
+    startDistributingJobs('os');
   }
 };
