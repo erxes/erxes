@@ -3,6 +3,7 @@ import { posCommonFields } from './queries';
 const commonFields = `
   $name: String
   $description: String
+  $orderPassword: String
   $pdomain: String
   $erxesAppToken: String
   $productDetails: [String]
@@ -40,6 +41,7 @@ const commonFields = `
 const commonVariables = `
   name: $name,
   description: $description,
+  orderPassword: $orderPassword,
   pdomain: $pdomain,
   erxesAppToken: $erxesAppToken
   productDetails: $productDetails

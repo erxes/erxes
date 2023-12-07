@@ -42,8 +42,16 @@ export const LEASE_TYPES = {
   SALVAGE: 'salvage',
   LINEAR: 'linear',
   CREDIT: 'credit',
+  SAVING: 'saving',
+  ALL: ['finance', 'salvage', 'linear', 'credit', 'saving']
+};
 
-  ALL: ['finance', 'salvage', 'linear', 'credit']
+export const COLLATERAL_TYPE = {
+  ALL: ['car', 'saving', 'realEstate', 'other'],
+  CAR: 'car',
+  SAVING: 'saving',
+  REAL_ESTATE: 'realEstate',
+  OTHER: 'other'
 };
 
 // erkhet.role.cashAccount ==== journalConfig.repaymentTemp

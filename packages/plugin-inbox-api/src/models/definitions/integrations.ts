@@ -20,6 +20,7 @@ export interface ISubmission extends Document {
 export interface ILink {
   twitter?: string;
   facebook?: string;
+  instagram?: string;
   youtube?: string;
 }
 
@@ -144,6 +145,7 @@ export interface ILeadData {
   css?: string;
   successImage?: string;
   successImageSize?: string;
+  verifyEmail?: boolean;
 }
 
 export interface IWebhookData {
@@ -237,6 +239,7 @@ const messengerDataSchema = new Schema(
     messages: field({ type: Object, optional: true }),
     links: {
       facebook: String,
+      instagram: String,
       twitter: String,
       youtube: String
     },
@@ -390,6 +393,11 @@ export const leadDataSchema = new Schema(
       type: String,
       optional: true,
       label: 'Success image size'
+    }),
+    verifyEmail: field({
+      type: Boolean,
+      optional: true,
+      label: 'Verify email'
     })
   },
   { _id: false }

@@ -9,7 +9,7 @@ import {
 } from "@/types/order.types"
 import { ORDER_STATUSES } from "@/lib/constants"
 
-import { banFractionsAtom } from "./config.store"
+import { banFractionsAtom, orderPasswordAtom } from "./config.store"
 
 interface IUpdateItem {
   _id: string
@@ -18,6 +18,7 @@ interface IUpdateItem {
   description?: string
   attachment?: { url?: string } | null
   fromAdd?: boolean
+  allowed?: boolean
 }
 
 export const changeCartItem = (
@@ -25,7 +26,7 @@ export const changeCartItem = (
   cart: OrderItem[],
   banFractions?: boolean
 ): OrderItem[] => {
-  const { _id, count, fromAdd, ...rest } = product
+  const { _id, count, fromAdd, allowed, ...rest } = product
 
   const fieldKeys = Object.keys(rest)
   if (fieldKeys.length) {
@@ -134,9 +135,10 @@ export const orderItemInput = atom<OrderItemInput[]>((get) =>
     })
   )
 )
+export const requirePasswordAtom = atom<IUpdateItem | null>(null)
 export const totalAmountAtom = atom<number>((get) =>
   (get(cartAtom) || []).reduce(
-    (total, item) => total + item.count * item.unitPrice,
+    (total, item) => total + (item?.count || 0) * (item.unitPrice || 0),
     0
   )
 )
@@ -150,6 +152,14 @@ export const addToCartAtom = atom(
 export const updateCartAtom = atom(
   () => "",
   (get, set, update: IUpdateItem) => {
+    if (
+      !!get(orderPasswordAtom) &&
+      !update.allowed &&
+      update.count === (get(banFractionsAtom) ? 0 : -1)
+    ) {
+      set(requirePasswordAtom, update)
+      return
+    }
     set(cartChangedAtom, true)
     set(
       cartAtom,

@@ -100,7 +100,7 @@ const RightSideBar = () => {
   const renderTodaysEvents = () => {
     if (!checkedTodaysEvent || checkedTodaysEvent.length === 0) {
       return (
-        <div className="pb-4 pr-4">
+        <div className="pb-4 pr-4 ">
           <Card className="border-0 mb-2">
             <CardContent className="pt-6 pb-6 flex flex-col items-center justify-center">
               <Image
@@ -118,7 +118,7 @@ const RightSideBar = () => {
     }
 
     return (
-      <div className="pb-4 pr-4">
+      <div className="pb-4 pr-4 ">
         {(checkedTodaysEvent || []).map((item: any) => {
           if (item === null) {
             return null

@@ -53,6 +53,8 @@ const contractFields = `
   loanPurpose
   givenAmount
   leaseType
+  commitmentInterest
+  endDate
 `;
 
 const listParamsDef = `
@@ -123,6 +125,86 @@ export const contracts = `
   }
 `;
 
+export const savingContracts = `
+  query savingsContracts(
+    $page: Int
+    $perPage: Int
+    $searchValue: String
+    $isExpired: String
+    $startStartDate:Date
+    $endStartDate:Date
+    $startCloseDate:Date
+    $endCloseDate:Date
+    $dealId: String
+    $customerId: String
+    $sortField: String
+    $sortDirection: Int
+    $contractTypeId: String
+    $interestRate: Float
+    $closeDate: Date
+    $closeDateType:String
+    $branchId:String
+    $status:String
+    $isDeposit:Boolean
+  ) {
+    savingsContracts(
+      page: $page
+      perPage: $perPage
+      searchValue: $searchValue
+      isExpired: $isExpired
+      startStartDate: $startStartDate
+      endStartDate: $endStartDate
+      startCloseDate: $startCloseDate
+      endCloseDate: $endCloseDate
+      dealId: $dealId
+      customerId: $customerId
+      sortField: $sortField
+      sortDirection: $sortDirection
+      contractTypeId: $contractTypeId
+      interestRate: $interestRate
+      closeDate: $closeDate
+      closeDateType: $closeDateType
+      branchId: $branchId
+      status: $status
+      isDeposit: $isDeposit
+    ) {
+        _id
+        contractTypeId
+        number
+        branchId
+        status
+        description
+        createdBy
+        createdAt
+        savingAmount
+        duration
+        interestRate
+        closeInterestRate
+        startDate
+        customerId
+        customerType
+        closeDate
+        closeType
+        closeDescription
+        dealId
+        hasTransaction
+        currency
+        closeInterestRate
+        interestCalcType
+        storedInterest
+        endDate
+        isAllowIncome
+        isAllowOutcome
+        isDeposit
+        customers {
+          code
+          firstName
+          lastName
+        }
+    }
+  }
+`;
+
 export const contractsMain = `
   query contractsMain(${listParamsMainDef}) {
     contractsMain(${listParamsMainValue}) {
@@ -133,6 +215,9 @@ export const contractsMain = `
           code
           firstName
           lastName
+        }
+        contractType {
+          name
         }
       }
       totalCount
@@ -146,6 +231,7 @@ export const contractDetailFields = `
   skipAmountCalcMonth
   customPayment
   customInterest
+  invoices
   contractType {
     code
     name
@@ -291,5 +377,6 @@ export default {
   scheduleYears,
   closeInfo,
   documents,
-  contractsAlert
+  contractsAlert,
+  savingContracts
 };

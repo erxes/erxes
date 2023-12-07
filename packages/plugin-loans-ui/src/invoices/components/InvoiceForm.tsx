@@ -199,6 +199,7 @@ class InvoiceForm extends React.Component<Props, State> {
                   <DateControl
                     {...formProps}
                     required={false}
+                    dateFormat="YYYY/MM/DD"
                     name="payDate"
                     value={this.state.payDate}
                     onChange={onChangePayDate}

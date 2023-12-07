@@ -1,8 +1,6 @@
-import * as path from 'path';
-
 import ActivityItem from './ActivityItem';
 import CollateralsSection from './CollateralsSection';
-import { IContractDoc } from '../../types';
+import { IContractDoc, IInvoice } from '../../types';
 import { IProduct } from '@erxes/ui-products/src/types';
 import { IUser } from '@erxes/ui/src/auth/types';
 import LeftSidebar from './LeftSidebar';
@@ -13,6 +11,8 @@ import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { __ } from 'coreui/utils';
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 import { isEnabled } from '@erxes/ui/src/utils/core';
+import InvoiceSection from '../invoices/InvoiceSection';
+import { LEASE_TYPES } from '../../../contractTypes/constants';
 
 const ActivityInputs = asyncComponent(
   () =>
@@ -31,7 +31,7 @@ const ActivityLogs = asyncComponent(
 );
 
 type Props = {
-  contract: IContractDoc;
+  contract: IContractDoc & { invoices: IInvoice[] };
   currentUser: IUser;
   saveItem: (doc: IContractDoc, callback?: (item) => void) => void;
   regenSchedules: (contractId: string) => void;
@@ -133,11 +133,17 @@ class ContractDetails extends React.Component<Props, State> {
           regenSchedules={regenSchedules}
           fixSchedules={fixSchedules}
         ></ScheduleSection>
-        <ScheduleSection
-          contractId={contract._id}
-          isFirst={true}
-          regenSchedules={regenSchedules}
-        ></ScheduleSection>
+        {(contract.leaseType === LEASE_TYPES.FINANCE ||
+          contract.leaseType === LEASE_TYPES.SAVING) && (
+          <ScheduleSection
+            contractId={contract._id}
+            isFirst={true}
+            regenSchedules={regenSchedules}
+          ></ScheduleSection>
+        )}
+        {contract.leaseType === LEASE_TYPES.CREDIT && (
+          <InvoiceSection invoices={contract.invoices} />
+        )}
 
         {isEnabled('logs') && (
           <>

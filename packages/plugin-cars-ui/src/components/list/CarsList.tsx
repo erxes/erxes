@@ -1,3 +1,4 @@
+import TaggerPopover from '@erxes/ui-tags/src/components/TaggerPopover';
 import {
   __,
   Alert,
@@ -14,6 +15,7 @@ import {
   BarItems
 } from '@erxes/ui/src';
 import { IRouterProps } from '@erxes/ui/src/types';
+import { isEnabled } from '@erxes/ui/src/utils/core';
 import React from 'react';
 import { withRouter } from 'react-router-dom';
 
@@ -99,6 +101,7 @@ class CarsList extends React.Component<IProps, State> {
       loading,
       toggleBulk,
       bulk,
+      emptyBulk,
       isAllSelected,
       totalCount,
       mergeCars,
@@ -173,6 +176,12 @@ class CarsList extends React.Component<IProps, State> {
       </Button>
     );
 
+    const tagButton = (
+      <Button btnStyle="simple" size="small" icon="tag-alt">
+        Tag
+      </Button>
+    );
+
     let actionBarLeft: React.ReactNode;
 
     const carsMerge = props => {
@@ -197,6 +206,16 @@ class CarsList extends React.Component<IProps, State> {
               size="lg"
               trigger={mergeButton}
               content={carsMerge}
+            />
+          )}
+
+          {isEnabled('tags') && (
+            <TaggerPopover
+              type={'cars:car'}
+              successCallback={emptyBulk}
+              targets={bulk}
+              trigger={tagButton}
+              refetchQueries={['productCountByTags']}
             />
           )}
 

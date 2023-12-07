@@ -575,7 +575,9 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
               fill={`${idExists ? "#6569DF" : "white"}`}
               color={`${idExists ? "#6569DF" : "black"}`}
             />
-            <div className={`${idExists ? "text-primary" : "text-black"}`}>
+            <div
+              className={`${idExists ? "text-primary-light" : "text-black"}`}
+            >
               Like
             </div>
           </div>

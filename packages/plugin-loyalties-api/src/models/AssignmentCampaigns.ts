@@ -7,6 +7,7 @@ import {
   IAssignmentCampaign,
   IAssignmentCampaignDocument
 } from './definitions/assignmentCampaigns';
+import { IAssignmentDocument } from './definitions/assignments';
 
 export interface IAssignmentCampaignModel
   extends Model<IAssignmentCampaignDocument> {
@@ -19,6 +20,10 @@ export interface IAssignmentCampaignModel
     doc: IAssignmentCampaign
   ): Promise<IAssignmentCampaignDocument>;
   removeAssignmentCampaigns(_ids: string[]): void;
+  awardAssignmentCampaign(
+    _id: string,
+    customerId: string
+  ): Promise<IAssignmentDocument>;
 }
 
 export const loadAssignmentCampaignClass = (
@@ -58,6 +63,35 @@ export const loadAssignmentCampaignClass = (
       };
 
       return models.AssignmentCampaigns.updateOne({ _id }, { $set: modifier });
+    }
+
+    public static async awardAssignmentCampaign(
+      _id: string,
+      customerId: string
+    ) {
+      const assignmentCampaign = await models.AssignmentCampaigns.findOne({
+        _id
+      });
+
+      if (!assignmentCampaign) {
+        throw new Error('Not found assignment campaign');
+      }
+
+      const voucher = await models.Vouchers.createVoucher({
+        campaignId: assignmentCampaign.voucherCampaignId,
+        ownerId: customerId,
+        ownerType: 'customer',
+        status: 'new'
+      });
+
+      return await models.Assignments.createAssignment({
+        campaignId: assignmentCampaign._id,
+        ownerType: 'customer',
+        ownerId: customerId,
+        status: 'new',
+        voucherId: voucher._id,
+        voucherCampaignId: assignmentCampaign.voucherCampaignId
+      });
     }
 
     public static async removeAssignmentCampaigns(ids: string[]) {

@@ -22,7 +22,7 @@ import {
   BOT_MESSAGE_TYPES
 } from '../../models/definitions/constants';
 
-import { sendRequest } from '@erxes/api-utils/src';
+import { getEnv, sendRequest } from '@erxes/api-utils/src';
 
 import { solveSubmissions } from '../../widgetUtils';
 import { conversationNotifReceivers } from './conversationMutations';
@@ -42,6 +42,7 @@ import { trackViewPageEvent } from '../../events';
 import EditorAttributeUtil from '@erxes/api-utils/src/editorAttributeUtils';
 import { getServices } from '@erxes/api-utils/src/serviceDiscovery';
 import { IContext, IModels } from '../../connectionResolver';
+import { VERIFY_EMAIL_TRANSLATIONS } from '../../constants';
 
 interface IWidgetEmailParams {
   toEmails: string[];
@@ -1085,7 +1086,7 @@ const widgetMutations = {
   async widgetsSendEmail(
     _root,
     args: IWidgetEmailParams,
-    { subdomain }: IContext
+    { subdomain, models }: IContext
   ) {
     const { toEmails, fromEmail, title, content, customerId, formId } = args;
 
@@ -1143,6 +1144,55 @@ const widgetMutations = {
           path: file.url || ''
         };
       });
+    }
+
+    const integration = await models.Integrations.findOne({
+      formId
+    });
+
+    if (!integration) {
+      throw new Error('Integration not found');
+    }
+
+    const { verifyEmail = false } = integration.leadData || {};
+
+    if (verifyEmail) {
+      const domain = getEnv({ name: 'DOMAIN', subdomain })
+        ? `${getEnv({ name: 'DOMAIN', subdomain })}/gateway`
+        : 'http://localhost:4000';
+
+      for (const email of toEmails) {
+        const params = Buffer.from(
+          JSON.stringify({
+            email,
+            formId,
+            customerId
+          })
+        ).toString('base64');
+
+        const emailValidationUrl = `${domain}/pl:contacts/verify?p=${params}`;
+
+        const languageCode = integration.languageCode || 'en';
+        const text =
+          VERIFY_EMAIL_TRANSLATIONS[languageCode] ||
+          VERIFY_EMAIL_TRANSLATIONS.en;
+
+        finalContent += `\n<p><a href="${emailValidationUrl}" target="_blank">${text}</a></p>`;
+
+        await sendCoreMessage({
+          subdomain,
+          action: 'sendEmail',
+          data: {
+            toEmails: [email],
+            fromEmail,
+            title,
+            template: { data: { content: finalContent } },
+            attachments: mailAttachment
+          }
+        });
+      }
+
+      return;
     }
 
     await sendCoreMessage({

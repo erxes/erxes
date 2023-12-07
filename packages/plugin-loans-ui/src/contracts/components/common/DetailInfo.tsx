@@ -12,6 +12,7 @@ type Props = {
 
 class DetailInfo extends React.Component<Props> {
   renderRow = (label, value) => {
+    if (!value) return <></>;
     return (
       <li>
         <FieldStyle>{__(`${label}`)}</FieldStyle>
@@ -22,7 +23,7 @@ class DetailInfo extends React.Component<Props> {
 
   renderTeamMember = (label, field) => {
     const { contract } = this.props;
-
+    if (!contract[field]) return <></>;
     return this.renderRow(
       label,
       contract[field]
@@ -47,62 +48,78 @@ class DetailInfo extends React.Component<Props> {
         {this.renderRow('Lease Type', contract.leaseType)}
         {this.renderRow(
           'Margin Amount',
-          (contract.marginAmount || 0).toLocaleString()
+          contract.marginAmount && contract.marginAmount.toLocaleString()
         )}
         {this.renderRow(
           'Lease Amount',
-          (contract.leaseAmount || 0).toLocaleString()
+          contract.leaseAmount && contract.leaseAmount.toLocaleString()
         )}
         {this.renderRow(
           'Given Amount',
-          (contract.givenAmount || 0).toLocaleString()
+          contract.givenAmount && contract.givenAmount.toLocaleString()
         )}
         {this.renderRow(
           'Fee Amount',
-          (contract.feeAmount || 0).toLocaleString()
+          contract.feeAmount && contract.feeAmount.toLocaleString()
         )}
         {this.renderRow(
+          'Stored Interest',
+          contract.storedInterest && contract.storedInterest.toLocaleString()
+        )}
+
+        {this.renderRow(
           'Tenor (in months)',
-          (contract.tenor || 0).toLocaleString()
+          contract.tenor && contract.tenor.toLocaleString()
         )}
         {this.renderRow(
           'Interest Month',
-          ((contract.interestRate || 0) / 12).toLocaleString()
+          contract.interestRate && (contract.interestRate / 12).toLocaleString()
         )}
         {this.renderRow(
           'Interest Rate',
-          (contract.interestRate || 0).toLocaleString()
+          contract.interestRate && contract.interestRate.toLocaleString()
         )}
         {contract.leaseType === 'linear' &&
           this.renderRow(
             'Commitment interest',
-            (contract.commitmentInterest || 0).toLocaleString()
+            contract.commitmentInterest &&
+              contract.commitmentInterest.toLocaleString()
           )}
         {this.renderRow('Loan Repayment', contract.repayment)}
-        {this.renderRow('Start Date', dayjs(contract.startDate).format('ll'))}
+        {this.renderRow(
+          'Start Date',
+          dayjs(contract.startDate).format('YYYY/MM/DD')
+        )}
         {this.renderRow('Schedule Days', contract.scheduleDays.join(','))}
         {this.renderRow(
+          'End Date',
+          dayjs(contract.endDate).format('YYYY/MM/DD')
+        )}
+        {this.renderRow(
           'Loss Percent',
-          (contract.unduePercent || 0).toLocaleString()
+          contract.unduePercent && contract.unduePercent.toLocaleString()
         )}
         {this.renderRow('Loss calc type', contract.undueCalcType)}
-        {this.renderRow('Debt Limit', (contract.debt || 0).toLocaleString())}
+        {this.renderRow(
+          'Debt Limit',
+          contract.debt && contract.debt.toLocaleString()
+        )}
         {this.renderRow(
           'Insurance On Year',
-          (contract.insuranceAmount || 0).toLocaleString()
+          contract.insuranceAmount && contract.insuranceAmount.toLocaleString()
         )}
 
         {this.renderRow(
           'Salvage Amount',
-          (contract.salvageAmount || 0).toLocaleString()
+          contract.salvageAmount && contract.salvageAmount.toLocaleString()
         )}
         {this.renderRow(
           'Salvage Percent',
-          (contract.salvagePercent || 0).toLocaleString()
+          contract.salvagePercent && contract.salvagePercent.toLocaleString()
         )}
         {this.renderRow(
           'Salvage Tenor',
-          (contract.salvageTenor || 0).toLocaleString()
+          contract.salvageTenor && contract.salvageTenor.toLocaleString()
         )}
         {this.renderTeamMember('Relationship officer', 'relationExpert')}
         {this.renderTeamMember('Leasing officer', 'leasingExpert')}

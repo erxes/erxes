@@ -17,6 +17,7 @@ import Datetime from '@nateradebaugh/react-datetime';
 import React from 'react';
 import { PricingPlan } from '../../../types';
 import DiscountInput from '../form/DiscountInput';
+import SelectTags from '@erxes/ui-tags/src/containers/SelectTags';
 
 type Props = {
   formValues: PricingPlan;
@@ -106,6 +107,43 @@ export default function General(props: Props) {
               showAvatar={false}
             />
           </FormGroup>
+        );
+      case 'tag':
+        return (
+          <>
+            <FormGroup>
+              <FormLabel>{__('Product tags')}</FormLabel>
+              <SelectTags
+                tagsType="products:product"
+                name="tags"
+                label="Choose tags"
+                initialValue={formValues.tags}
+                onSelect={tags => handleState('tags', tags)}
+                multi={true}
+              />
+            </FormGroup>
+            <FormGroup>
+              <FormLabel>{__('Exclude tags')}</FormLabel>
+              <SelectTags
+                tagsType="products:product"
+                name="tagsExcluded"
+                label="Choose tags to exclude"
+                initialValue={formValues.tagsExcluded}
+                onSelect={tags => handleState('tagsExcluded', tags)}
+                multi={true}
+              />
+            </FormGroup>
+            <FormGroup>
+              <FormLabel>{__('Exclude products')}</FormLabel>
+              <SelectProducts
+                name="productsExcluded"
+                label="Choose products to exclude"
+                initialValue={formValues.productsExcluded}
+                onSelect={products => handleState('productsExcluded', products)}
+                multi={true}
+              />
+            </FormGroup>
+          </>
         );
       case 'bundle':
         return (
@@ -395,6 +433,14 @@ export default function General(props: Props) {
                 defaultChecked={formValues.applyType === 'vendor'}
               >
                 Specific Vendor
+              </FormControl>
+              <FormControl
+                componentClass="radio"
+                name="applyType"
+                onChange={() => handleState('applyType', 'tag')}
+                defaultChecked={formValues.applyType === 'tag'}
+              >
+                Specific Tag
               </FormControl>
               <FormControl
                 componentClass="radio"

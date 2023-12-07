@@ -1,17 +1,16 @@
-import {
-  Alert,
-  BarItems,
-  Button,
-  confirm,
-  DataWithLoader,
-  FormControl,
-  ModalTrigger,
-  Pagination,
-  router,
-  SortHandler,
-  Table,
-  Wrapper
-} from '@erxes/ui/src';
+import Alert from '@erxes/ui/src/utils/Alert';
+import { BarItems } from '@erxes/ui/src/layout/styles';
+import Button from '@erxes/ui/src/components/Button';
+import confirm from '@erxes/ui/src/utils/confirmation/confirm';
+import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import Pagination from '@erxes/ui/src/components/pagination/Pagination';
+import { router } from '@erxes/ui/src/utils/core';
+import SortHandler from '@erxes/ui/src/components/SortHandler';
+import Table from '@erxes/ui/src/components/table';
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
+
 import { __ } from 'coreui/utils';
 import { IRouterProps } from '@erxes/ui/src/types';
 import React from 'react';
@@ -112,7 +111,7 @@ class PeriodLocksList extends React.Component<IProps, State> {
 
     const mainContent = (
       <PeriodLocksTableWrapper>
-        <Table whiteSpace="nowrap" bordered={true} hover={true}>
+        <Table whiteSpace="nowrap" bordered={true} hover={true} striped>
           <thead>
             <tr>
               <th>
@@ -144,7 +143,7 @@ class PeriodLocksList extends React.Component<IProps, State> {
     );
 
     const addTrigger = (
-      <Button btnStyle="success" size="small" icon="plus-circle">
+      <Button btnStyle="success" icon="plus-circle">
         {__('Add periodLock')}
       </Button>
     );
@@ -164,12 +163,7 @@ class PeriodLocksList extends React.Component<IProps, State> {
       actionBarLeft = (
         <BarItems>
           {can('managePeriodLocks', currentUser) && (
-            <Button
-              btnStyle="danger"
-              size="small"
-              icon="cancel-1"
-              onClick={onClick}
-            >
+            <Button btnStyle="danger" icon="cancel-1" onClick={onClick}>
               {__('Delete')}
             </Button>
           )}
@@ -209,6 +203,7 @@ class PeriodLocksList extends React.Component<IProps, State> {
 
     return (
       <Wrapper
+        hasBorder
         header={
           <Wrapper.Header
             title={__(`Period Locks`) + ` (${totalCount})`}

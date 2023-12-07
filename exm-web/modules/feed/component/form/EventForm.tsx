@@ -120,7 +120,6 @@ const EventForm = ({
   const [imageUploading, setImageUploading] = useState(false)
   const [attachmentUploading, setAttachmentUploading] = useState(false)
   const [recipientIds, setRecipientIds] = useState(feed?.recipientIds || [])
-  const [value, setValue] = useState(new Date())
 
   const callBack = (result: string) => {
     if (result === "success") {

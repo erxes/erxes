@@ -45,12 +45,26 @@ export const initBroker = async cl => {
     async ({ subdomain, data: { query, fields } }) => {
       const models = await generateModels(subdomain);
 
-      const tag = await models.Tags.getTag((query || {})._id || '');
+      const tags = await models.Tags.find(query);
+
+      if (!tags.length) {
+        return {
+          data: [],
+          status: 'success'
+        };
+      }
+
+      const orderQry: any[] = [];
+      for (const tag of tags) {
+        orderQry.push({
+          order: { $regex: new RegExp(`^${tag.order}`) }
+        });
+      }
 
       return {
         data: await models.Tags.find(
           {
-            order: { $regex: new RegExp(escapeRegExp(tag.order || ''), 'i') }
+            $or: orderQry
           },
           fields || {}
         )

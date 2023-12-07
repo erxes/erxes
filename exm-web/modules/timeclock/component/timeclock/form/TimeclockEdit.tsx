@@ -12,6 +12,7 @@ import {
   Dialog,
   DialogContent,
   DialogHeader,
+  DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
@@ -32,7 +33,7 @@ const TimeclockEdit = ({ timeclock }: Props) => {
     dayjs(timeclock.shiftStart).format("HH:mm")
   )
   const [shiftStartInsert, setShiftStartInsert] = useState<Date | undefined>(
-    timeclock.shiftStart
+    new Date(timeclock.shiftStart)
   )
 
   const [inDevice, setInDevice] = useState(null)
@@ -40,10 +41,10 @@ const TimeclockEdit = ({ timeclock }: Props) => {
 
   const [shiftEnd, setShiftEnd] = useState(timeclock.shiftEnd)
   const [timeEnd, setTimeEnd] = useState(
-    dayjs(timeclock.shiftEnd).format("HH:mm")
+    dayjs(timeclock.shiftEnd || timeclock.shiftStart).format("HH:mm")
   )
   const [shiftEndInsert, setShiftEndInsert] = useState<Date | undefined>(
-    timeclock.shiftEnd || timeclock.shiftStart
+    new Date(timeclock.shiftEnd || timeclock.shiftStart)
   )
 
   const [backToStart, setBackToStart] = useState(false)
@@ -59,6 +60,15 @@ const TimeclockEdit = ({ timeclock }: Props) => {
     startDate: dayjs(timeclock.shiftStart).format("MM/DD/YYYY"),
     endDate: dayjs(timeclock.shiftEnd).format("MM/DD/YYYY"),
   })
+
+  const timeStartPart = timeStart.split(":")
+  const timeEndPart = timeEnd.split(":")
+
+  shiftStartInsert?.setHours(Number(timeStartPart[0]))
+  shiftStartInsert?.setMinutes(Number(timeStartPart[1]))
+
+  shiftEndInsert?.setHours(Number(timeEndPart[0]))
+  shiftEndInsert?.setMinutes(Number(timeEndPart[1]))
 
   const callBack = (result: string) => {
     if (result === "success") {
@@ -149,17 +159,29 @@ const TimeclockEdit = ({ timeclock }: Props) => {
     )
 
     if (shiftStartInput === "insert" && !getShiftStart) {
-      toast({ description: "Please insert shift start" })
+      toast({
+        description: "Please insert shift start",
+        title: "Modify shift",
+        variant: "warning",
+      })
       return false
     }
     if (shiftEndInput === "insert" && !getShiftEnd) {
-      toast({ description: "Please insert shift end" })
+      toast({
+        description: "Please insert shift end",
+        title: "Modify shift",
+        variant: "warning",
+      })
 
       return false
     }
 
     if (getShiftStart && getShiftEnd && getShiftEnd < getShiftStart) {
-      toast({ description: "Shift end can not be sooner than shift start" })
+      toast({
+        description: "Shift end can not be sooner than shift start",
+        title: "Modify shift",
+        variant: "warning",
+      })
       return false
     }
 
@@ -178,7 +200,9 @@ const TimeclockEdit = ({ timeclock }: Props) => {
   const renderEditForm = () => {
     return (
       <DialogContent>
-        <DialogHeader>Edit Shift</DialogHeader>
+        <DialogHeader>
+          <DialogTitle>Edit Shift</DialogTitle>
+        </DialogHeader>
         <Label /> SHIFT START
         <div className="flex gap-2 justify-between">
           <RadioGroup

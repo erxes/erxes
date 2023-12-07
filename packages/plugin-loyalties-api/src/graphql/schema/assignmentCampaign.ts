@@ -8,8 +8,10 @@ import {
 export const types = `
   type AssignmentCampaign @key(fields: "_id") @cacheControl(maxAge: 3) {
     _id: String,
-    ${commonCampaignTypes}
+    ${commonCampaignTypes},
+    fieldId: String
     segmentIds: [String]
+    allowMultiWin:Boolean
     voucherCampaignId: String
   }
 `;
@@ -23,6 +25,8 @@ export const queries = `
 const AssignmentCampaignDoc = `
   ${commonCampaignInputs}
   segmentIds: [String]
+  fieldId: String
+  allowMultiWin:Boolean
   voucherCampaignId: String
 `;
 

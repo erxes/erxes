@@ -1,4 +1,7 @@
-import { Button, ControlLabel, FormControl, Icon } from '@erxes/ui/src';
+import Button from '@erxes/ui/src/components/Button';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import Icon from '@erxes/ui/src/components/Icon';
 import {
   CustomRangeContainer,
   FilterBox,

@@ -138,7 +138,7 @@ const ChatList = () => {
           alt="avatar"
           width={45}
           height={45}
-          className="w-[45px] h-[45px] rounded-full object-cover mr-3 border border-primary"
+          className="w-[45px] h-[45px] rounded-full object-cover mr-3 border border-primary shrink-0"
         />
         <div className="flex items-start flex-col">
           <div className="text-[16px] w-[280px] truncate mb-1">

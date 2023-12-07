@@ -173,6 +173,7 @@ class Pos extends React.Component<Props, State> {
       allowBranchIds: pos.allowBranchIds,
       beginNumber: pos.beginNumber,
       maxSkipNumber: Number(pos.maxSkipNumber) || 0,
+      orderPassword: pos.orderPassword,
       initialCategoryIds: pos.initialCategoryIds || [],
       kioskExcludeCategoryIds: pos.kioskExcludeCategoryIds || [],
       kioskExcludeProductIds: pos.kioskExcludeProductIds || [],

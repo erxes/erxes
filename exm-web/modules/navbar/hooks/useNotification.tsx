@@ -41,7 +41,7 @@ export const useNotification = (): IUseNotifications => {
     fetchMore({
       variables: {
         page: notificationsLength / 5 + 1,
-        perPage: 5,
+        perPage: notificationsLength,
       },
       updateQuery(prev, { fetchMoreResult }) {
         if (!fetchMoreResult) {

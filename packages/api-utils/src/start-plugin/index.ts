@@ -36,6 +36,7 @@ import {
   leave,
   redis
 } from '@erxes/api-utils/src/serviceDiscovery';
+import { applyInspectorEndpoints } from '../inspect';
 
 const {
   MONGO_URL,
@@ -114,22 +115,6 @@ export async function startPlugin(configs: any): Promise<express.Express> {
     app.get('/subscriptionPlugin.js', async (req, res) => {
       res.sendFile(path.join(configs.subscriptionPluginPath));
     });
-  }
-
-  if (configs.hasDashboard) {
-    if (configs.hasDashboard) {
-      app.get('/dashboard', async (req, res) => {
-        const headers = req.rawHeaders;
-
-        const index = headers.indexOf('schemaName') + 1;
-
-        const schemaName = headers[index];
-
-        res.sendFile(
-          path.join(__dirname, `../../src/dashboardSchemas/${schemaName}.js`)
-        );
-      });
-    }
   }
 
   app.use((req: any, _res, next) => {
@@ -325,13 +310,6 @@ export async function startPlugin(configs: any): Promise<express.Express> {
     },
     configs.reconnectRMQ
   );
-
-  if (configs.permissions) {
-    await messageBrokerClient.sendMessage(
-      'registerPermissions',
-      configs.permissions
-    );
-  }
 
   if (configs.meta) {
     const {
@@ -694,7 +672,6 @@ export async function startPlugin(configs: any): Promise<express.Express> {
     port: PORT || '',
     dbConnectionString: mongoUrl,
     hasSubscriptions: configs.hasSubscriptions,
-    hasDashboard: configs.hasDashboard,
     importExportTypes: configs.importExportTypes,
     meta: configs.meta
   });
@@ -710,6 +687,8 @@ export async function startPlugin(configs: any): Promise<express.Express> {
       error: debugError
     }
   });
+
+  applyInspectorEndpoints(app, configs.name);
 
   debugInfo(`${configs.name} server is running on port: ${PORT}`);
 

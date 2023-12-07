@@ -47,6 +47,8 @@ export default function Form(props: Props) {
     categoriesExcluded: data.categoriesExcluded || [],
     segments: data.segments || [],
     vendors: data.vendors || [],
+    tags: data.tags || [],
+    tagsExcluded: data.tagsExcluded || [],
 
     isStartDateEnabled: data.isStartDateEnabled || false,
     isEndDateEnabled: data.isEndDateEnabled || false,
