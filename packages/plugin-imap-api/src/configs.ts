@@ -6,7 +6,7 @@ import resolvers from './graphql/resolvers';
 import { initBroker } from './messageBroker';
 import { generateModels } from './connectionResolver';
 import { getSubdomain } from '@erxes/api-utils/src/core';
-import listen, { findAttachmentParts, generateImap, toUpper } from './utils';
+import listen, { findAttachmentParts, createImap, toUpper } from './utils';
 import { debugError } from '@erxes/api-utils/src/debuggers';
 import { routeErrorHandling } from '@erxes/api-utils/src/requests';
 import logs from './logUtils';
@@ -80,7 +80,7 @@ export default {
             folderType = '[Gmail]/Sent Mail';
           }
 
-          const imap = generateImap(integration);
+          const imap = createImap(integration);
 
           imap.once('ready', () => {
             imap.openBox(folderType, true, async (err, box) => {
