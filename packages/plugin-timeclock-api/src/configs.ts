@@ -29,7 +29,8 @@ export default {
   },
 
   meta: {
-    cronjobs
+    cronjobs,
+    permissions
   },
 
   apolloServerContext: async (context, req) => {

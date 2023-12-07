@@ -41,6 +41,7 @@ class InfoSection extends React.Component<Props> {
     return (
       <Links>
         {this.renderLink(links.facebook, 'facebook')}
+        {this.renderLink(links.instagram, 'instagram')}
         {this.renderLink(links.linkedIn, 'linkedin')}
         {this.renderLink(links.twitter, 'twitter')}
         {this.renderLink(links.youtube, 'youtube-play')}

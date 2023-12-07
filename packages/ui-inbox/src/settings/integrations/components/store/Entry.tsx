@@ -17,6 +17,7 @@ type TotalCount = {
   messenger: number;
   form: number;
   facebook: number;
+  instagram: number;
   callpro: number;
   chatfuel: number;
   gmail: number;
@@ -79,9 +80,23 @@ function renderCreate(createUrl, kind, isAvailable) {
     );
   }
 
+  if (kind === INTEGRATION_KINDS.INSTAGRAM_MESSENGER) {
+    return (
+      <Link to={`${createUrl}?kind=${INTEGRATION_KINDS.INSTAGRAM_MESSENGER}`}>
+        + {__('Add')}
+      </Link>
+    );
+  }
   if (kind === INTEGRATION_KINDS.FACEBOOK_POST) {
     return (
       <Link to={`${createUrl}?kind=${INTEGRATION_KINDS.FACEBOOK_POST}`}>
+        + {__('Add')}
+      </Link>
+    );
+  }
+  if (kind === INTEGRATION_KINDS.INSTAGRAM_POST) {
+    return (
+      <Link to={`${createUrl}?kind=${INTEGRATION_KINDS.INSTAGRAM_POST}`}>
         + {__('Add')}
       </Link>
     );

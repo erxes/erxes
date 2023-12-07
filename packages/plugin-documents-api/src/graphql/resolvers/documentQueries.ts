@@ -4,39 +4,52 @@ import { IContext } from '../../connectionResolver';
 import { sendCommonMessage } from '../../messageBroker';
 import { serviceDiscovery } from '../../configs';
 
+interface IListParams {
+  limit: number;
+  contentType: string;
+  subType?: string;
+  page: number;
+  perPage: number;
+  searchValue: string;
+}
+
+const generateFilter = (args: IListParams) => {
+  const { searchValue, contentType, subType } = args;
+
+  const filter: any = {};
+
+  if (contentType) {
+    filter.contentType = contentType;
+  }
+
+  if (subType) {
+    filter.$or = [
+      { subType },
+      { subType: { $exists: false } },
+      { subType: { $in: ['', null, undefined] } }
+    ];
+  }
+
+  if (searchValue) {
+    filter.name = new RegExp(`.*${searchValue}.*`, 'i');
+  }
+
+  return filter;
+};
+
 const documentQueries = {
-  documents(
-    _root,
-    {
-      limit,
-      contentType,
-      subType
-    }: { limit: number; contentType: string; subType?: string },
-    { models }: IContext
-  ) {
+  documents(_root, args: IListParams, { models }: IContext) {
     const sort = { date: -1 };
 
-    const selector: any = {};
+    const selector = generateFilter(args);
 
-    if (contentType) {
-      selector.contentType = contentType;
-    }
-
-    if (subType) {
-      selector.$or = [
-        { subType },
-        { subType: { $exists: false } },
-        { subType: { $in: ['', null, undefined] } }
-      ];
-    }
-
-    if (limit) {
+    if (args.limit) {
       return models.Documents.find(selector)
         .sort(sort)
-        .limit(limit);
+        .limit(args.limit);
     }
 
-    return paginate(models.Documents.find(selector), {}).sort(sort);
+    return paginate(models.Documents.find(selector).sort(sort), args);
   },
 
   documentsDetail(_root, { _id }, { models }: IContext) {
@@ -110,8 +123,10 @@ const documentQueries = {
     });
   },
 
-  documentsTotalCount(_root, _args, { models }: IContext) {
-    return models.Documents.find({}).countDocuments();
+  documentsTotalCount(_root, args: IListParams, { models }: IContext) {
+    const selector = generateFilter(args);
+
+    return models.Documents.find(selector).countDocuments();
   }
 };
 

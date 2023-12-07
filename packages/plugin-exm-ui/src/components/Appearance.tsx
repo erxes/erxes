@@ -33,7 +33,7 @@ type Props = {
   boards: IBoard[];
   pipelines: IPipeline[];
   fetchPipelines: (boardId: string) => void;
-  renderButton?: (props: IButtonMutateProps) => JSX.Element;
+  renderButton: (props: IButtonMutateProps) => JSX.Element;
 };
 
 export default function Appearance(props: Props) {

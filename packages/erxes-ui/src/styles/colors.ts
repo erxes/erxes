@@ -61,7 +61,7 @@ const socialTelegram = '#0088cc';
 const socialViber = '#8f5db7';
 const socialLine = '#00c300';
 const socialTwilio = '#cf272d';
-
+const socialInstagramMessenger = '#C13584';
 export default {
   colorPrimary,
   colorPrimaryDark,
@@ -114,5 +114,6 @@ export default {
   socialViber,
   socialLine,
   socialTwilio,
-  socialWhatsApp
+  socialWhatsApp,
+  socialInstagramMessenger
 };
