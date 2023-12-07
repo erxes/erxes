@@ -3,7 +3,7 @@ import { sendMessageBroker } from '../../messageBroker';
 import { ICollateralDataDoc } from '../../models/definitions/contracts';
 
 const Collaterals = {
-  async category(collateral: ICollateralDataDoc, {}, { subdomain }: IContext) {
+  async category(collateral: ICollateralDataDoc, _, { subdomain }: IContext) {
     const product: any = await sendMessageBroker(
       {
         subdomain,
@@ -25,7 +25,7 @@ const Collaterals = {
     );
     return categories;
   },
-  async vendor(collateral: ICollateralDataDoc, {}, { subdomain }: IContext) {
+  async vendor(collateral: ICollateralDataDoc, _, { subdomain }: IContext) {
     const product: any = await sendMessageBroker(
       {
         subdomain,
@@ -48,7 +48,7 @@ const Collaterals = {
 
     return company;
   },
-  async product(collateral: ICollateralDataDoc, {}, { subdomain }: IContext) {
+  async product(collateral: ICollateralDataDoc, _, { subdomain }: IContext) {
     const product: any = await sendMessageBroker(
       {
         subdomain,

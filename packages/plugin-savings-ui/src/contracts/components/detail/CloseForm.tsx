@@ -1,16 +1,18 @@
+import Button from '@erxes/ui/src/components/Button';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import DateControl from '@erxes/ui/src/components/form/DateControl';
+import Form from '@erxes/ui/src/components/form/Form';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+
 import {
-  Button,
-  ControlLabel,
-  DateControl,
-  Form,
-  FormControl,
-  FormGroup,
   MainStyleFormColumn as FormColumn,
   MainStyleFormWrapper as FormWrapper,
   MainStyleModalFooter as ModalFooter,
-  MainStyleScrollWrapper as ScrollWrapper,
-  SelectTeamMembers
-} from '@erxes/ui/src';
+  MainStyleScrollWrapper as ScrollWrapper
+} from '@erxes/ui/src/styles/eindex';
+
+import Info from '@erxes/ui/src/components/Info';
 import { DateContainer } from '@erxes/ui/src/styles/main';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import React from 'react';
@@ -74,7 +76,7 @@ class CloseForm extends React.Component<Props, State> {
   onChangeField = e => {
     const name = (e.target as HTMLInputElement).name;
     const value = (e.target as HTMLInputElement).value;
-    this.setState({ [name]: value } as unknown);
+    this.setState({ [name]: value } as any);
   };
 
   onFieldClick = e => {
@@ -103,6 +105,11 @@ class CloseForm extends React.Component<Props, State> {
         {this.renderRow('Saving Amount', 'savingAmount')}
         {this.renderRow('Stored Interest', 'storedInterest')}
         {this.renderRow('Total', 'total')}
+        {!!this.props.contract.loansOfForeclosed?.length && (
+          <Info type="danger" title="Анхаар">
+            This saving is collateraled on Loans
+          </Info>
+        )}
       </>
     );
   };
@@ -127,6 +134,7 @@ class CloseForm extends React.Component<Props, State> {
                   <DateControl
                     {...formProps}
                     required={false}
+                    dateFormat={'YYYY/MM/DD'}
                     name="closeDate"
                     value={this.props.closeDate}
                     onChange={onChangeCloseDate}

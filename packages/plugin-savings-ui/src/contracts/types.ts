@@ -23,7 +23,7 @@ export interface IContract {
 
   currency: string;
   createdBy: string;
-  createdAt: boolean;
+  createdAt: Date;
   contractType?: any;
 
   closeDate?: Date;
@@ -41,6 +41,7 @@ export interface IContract {
   closeOrExtendConfig: string;
   depositAccount: string;
   customers?: any;
+  loansOfForeclosed?: any;
 }
 
 export interface IContractDoc extends IContract {
@@ -156,7 +157,7 @@ type ListConfig = {
 };
 
 export type MainQueryResponse = {
-  savingsContractsMain: { list: IContract[]; totalCount: number };
+  contractsMain: { list: IContract[]; totalCount: number };
   loading: boolean;
   refetch: () => void;
 };
