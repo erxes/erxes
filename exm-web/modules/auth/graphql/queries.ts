@@ -111,6 +111,7 @@ const currentUser = gql`
         position
         location
         description
+        operatorPhone
       }
       links
       emailSignatures

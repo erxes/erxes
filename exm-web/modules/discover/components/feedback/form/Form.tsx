@@ -142,16 +142,26 @@ const Form = ({ type, currentStep, setCurrentStep, setToggleView }: Props) => {
 
   const handleSignatureChange = (e: any) => {
     if (
-      currentUser?.emailSignatures &&
-      currentUser.emailSignatures.length > 0
+      currentUser?.details?.fullName.length > 1 ||
+      currentUser?.details?.position.length > 0 ||
+      currentUser?.details?.operatorPhone.length > 0
     ) {
       if (e.target.checked) {
         setSignature(true)
 
-        const signatureText =
-          currentUser.emailSignatures[0]?.signature
-            ?.replace(/<[^>]*>/g, "")
-            .replace(/\n\s*/g, "\n") || ""
+        const signatureText = `
+        Sincerely,\n${
+          currentUser?.details?.fullName.length > 1
+            ? currentUser?.details?.fullName
+            : currentUser?.email
+        }\n${
+          currentUser?.details?.position &&
+          currentUser?.details?.position + `\n`
+        }${
+          currentUser?.details?.operatorPhone &&
+          currentUser?.details?.operatorPhone + `\n`
+        }
+        `
 
         setMessage(`${message}\n\n${signatureText.trim()}\n`)
       } else {
@@ -161,8 +171,8 @@ const Form = ({ type, currentStep, setCurrentStep, setToggleView }: Props) => {
       }
     } else {
       toast({
-        title: "Signature required",
-        description: "Please add a signature to your account.",
+        title: "Personal information required",
+        description: "Please add a some personal information to your account.",
         variant: "warning",
       })
     }
@@ -264,7 +274,7 @@ const Form = ({ type, currentStep, setCurrentStep, setToggleView }: Props) => {
         <Button
           onClick={onSubmit}
           disabled={loading}
-          className={`${currentStep === 1 ? 'bg-[#4F33AF]' : "bg-[#3dcc38]"}`}
+          className={`${currentStep === 1 ? "bg-[#4F33AF]" : "bg-[#3dcc38]"}`}
         >
           {buttonText}
         </Button>

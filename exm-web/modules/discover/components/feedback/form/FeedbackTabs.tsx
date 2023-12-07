@@ -36,7 +36,7 @@ const FeedbackTabs = ({
   return (
     <Tabs defaultValue={type || "feedback"}>
       <TabsList className="w-full items-center border-b border-[#eee] h-7">
-        <div className="items-center flex mr-auto h-[20px] ml-[35px]">
+        <div className="items-center flex mr-auto h-[20px]">
           <TabsTrigger
             className={style}
             value="feedback"
