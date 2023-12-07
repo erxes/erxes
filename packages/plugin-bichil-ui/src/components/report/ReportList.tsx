@@ -50,9 +50,7 @@ function ReportList(props: Props) {
   const renderExtraColumns = () => {
     const returnColumns: any = [];
 
-    for (let j = 0; j < maxParents; j++) {
-      returnColumns.push(<td>{''}</td>);
-    }
+    returnColumns.push(<td>{''}</td>);
 
     return returnColumns;
   };
