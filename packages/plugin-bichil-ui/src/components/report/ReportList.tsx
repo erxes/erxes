@@ -192,10 +192,10 @@ function ReportList(props: Props) {
         <td>{''}</td>
         <td>{''}</td>
         <td>
-          <b>{deductionInfo.totalHoursScheduled.toFixed(2)}</b>
+          <b>{deductionInfo.totalHoursScheduled?.toFixed(2)}</b>
         </td>
         <td>
-          <b>{deductionInfo.totalHoursWorked.toFixed(2)}</b>
+          <b>{deductionInfo.totalHoursWorked?.toFixed(2)}</b>
         </td>
         <td>{''}</td>
         <td>{''}</td>
@@ -204,7 +204,9 @@ function ReportList(props: Props) {
         <td>{''}</td>
         <td>
           <b>
-            {deductionInfo.totalShiftNotClosedDeduction.toLocaleString('en-US')}
+            {deductionInfo.totalShiftNotClosedDeduction?.toLocaleString(
+              'en-US'
+            )}
           </b>
         </td>
         <td>{''}</td>
