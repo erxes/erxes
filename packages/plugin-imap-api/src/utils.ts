@@ -1,9 +1,10 @@
 import * as Imap from 'node-imap';
 import { simpleParser } from 'mailparser';
 import { IModels, generateModels } from './connectionResolver';
-import { sendContactsMessage, sendInboxMessage } from './messageBroker';
+import { sendContactsMessage, sendImapMessage, sendInboxMessage } from './messageBroker';
 import { IIntegrationDocument } from './models';
 import { throttle } from 'lodash';
+import { redlock } from './redlock';
 
 export const toUpper = thing => {
   return thing && thing.toUpperCase ? thing.toUpperCase() : thing;
@@ -19,7 +20,7 @@ export const findAttachmentParts = (struct, attachments?) => {
       if (
         struct[i].disposition &&
         ['INLINE', 'ATTACHMENT'].indexOf(toUpper(struct[i].disposition.type)) >
-          -1
+        -1
       ) {
         attachments.push(struct[i]);
       }
@@ -236,8 +237,41 @@ export const listenIntegration = async (
 ) => {
   const listen = async (): Promise<any> => {
     return new Promise<any>(async (resolve, reject) => {
+      let lock;
       let reconnect = true;
       let disconnectReason;
+
+      
+      try {
+        lock = await redlock.lock(
+          `${subdomain}:imap:integration:${integration._id}`,
+          60000
+        );
+      } catch (e) {
+        // 1 other pod or container is already working on it
+        return reject(e);
+      }
+
+      await lock.extend(60000);
+      let lockRenewInterval = setInterval(async () => {
+        try {
+          await lock.extend(60000);
+        } catch (e) {
+          // 1 other pod or container is already working on it
+          reconnect = false;
+          disconnectReason = e;
+          await cleanupLock();
+          imap.end();
+        }
+      }, 60000);
+
+      const cleanupLock = async () => {
+        clearInterval(lockRenewInterval);
+        try {
+          await lock.unlock();
+        } catch (e) {}
+      }
+
       const updatedIntegration = await models.Integrations.findById(
         integration._id
       );
@@ -329,18 +363,19 @@ export const listenIntegration = async (
           message: e.message + ' 2 ',
           errorStack: e.stack
         });
-
         imap.end();
       });
 
-      const closeEndHandler = () => {
+      const closeEndHandler = async () => {
         try {
           imap.removeAllListeners();
-        } catch (e) {}
+        } catch (e) { }
 
         try {
           imap.end();
-        } catch (e) {}
+        } catch (e) { }
+
+        await cleanupLock();
 
         if (reconnect) {
           resolve(disconnectReason);
@@ -374,22 +409,56 @@ export const listenIntegration = async (
   }
 };
 
-const listen = async (subdomain: string) => {
-  const models = await generateModels(subdomain);
+const startListeningtoAll = async (subdomain: string) => {
+  const distributeWork = async () => {
+    let lock;
+    try {
+      lock = await redlock.lock(`${subdomain}:imap:lock:work_distributor`, 60000);
+    } catch (e) {
+      // 1 other pod or container is already working on it
+      return;
+    }
+    if (!lock) {
+      // 1 other pod or container is already working on it
+      return;
+    }
 
-  await models.Logs.createLog({
-    type: 'info',
-    message: `Started syncing integrations`
-  });
+    try {
+      const models = await generateModels(subdomain);
 
-  const integrations = await models.Integrations.find({
-    healthStatus: 'healthy'
-  });
+      await models.Logs.createLog({
+        type: 'info',
+        message: `Started syncing integrations`
+      });
 
-  for (const integration of integrations) {
-    // Don't use await, ideally, listening to imap integration should never finish
-    listenIntegration(subdomain, integration, models);
+      const integrations = await models.Integrations.find({
+        healthStatus: 'healthy'
+      });
+
+      for (const integration of integrations) {
+        sendImapMessage({
+          subdomain,
+          action: 'listen',
+          data: {
+            _id: integration._id,
+          }
+        });
+      }
+    } catch (e) {
+      await lock.unlock();
+    }
+  }
+  // wait for other containers to start up
+  await new Promise(resolve => setTimeout(resolve, 60000));
+
+  while (true) {
+    try {
+      await distributeWork();
+      await new Promise(resolve => setTimeout(resolve, 5 * 60 * 1000));
+    } catch (e) {
+      console.log('distributeWork error', e);
+    }
   }
 };
 
-export default listen;
+export default startListeningtoAll;
