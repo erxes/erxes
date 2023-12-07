@@ -12,6 +12,7 @@ export interface IVisitorContact {
 export interface ICustomerLinks {
   website?: string;
   facebook?: string;
+  instagram?: string;
   twitter?: string;
   linkedIn?: string;
   youtube?: string;

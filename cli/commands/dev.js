@@ -126,7 +126,7 @@ module.exports.devCmd = async program => {
         await execCommand(
           `cd ${filePath(
             `../packages/plugin-${plugin.name}-ui`
-          )} && yarn install-deps`
+          )} && yarn install`
         );
       }
 

@@ -1,6 +1,6 @@
 import { sendCardInfo } from '../../../utils/utils';
 import { getPostData as getPostDataOrders } from '../../../utils/orders';
-import { getMoveData, getPostData } from '../../../utils/ebarimtData';
+import { getPostData } from '../../../utils/ebarimtData';
 import { generateModels, IContext } from '../../../connectionResolver';
 import {
   sendCardsMessage,
@@ -291,60 +291,6 @@ const checkSyncedMutations = {
         }
       }
 
-      if (Object.keys(moveConfigs).includes(syncedStageId)) {
-        const syncLog = await models.SyncLogs.syncLogsAdd({
-          ...syncLogDoc,
-          contentId: deal._id,
-          consumeData: deal,
-          consumeStr: JSON.stringify(deal)
-        });
-        try {
-          const config = {
-            ...moveConfigs[syncedStageId],
-            ...mainConfig
-          };
-
-          const postData = await getMoveData(subdomain, config, deal, dateType);
-
-          const response = await sendRPCMessage(
-            models,
-            syncLog,
-            'rpc_queue:erxes-automation-erkhet',
-            {
-              action: 'get-response-inv-movement-info',
-              isEbarimt: false,
-              payload: JSON.stringify(postData),
-              thirdService: true,
-              isJson: true
-            }
-          );
-
-          if (response.message || response.error) {
-            const txt = JSON.stringify({
-              message: response.message,
-              error: response.error
-            });
-            if (config.responseField) {
-              await sendCardInfo(subdomain, deal, config, txt);
-            } else {
-              console.log(txt);
-            }
-          }
-
-          if (response.error) {
-            result.error.push(deal._id);
-            continue;
-          }
-
-          result.success.push(deal._id);
-          continue;
-        } catch (e) {
-          await models.SyncLogs.updateOne(
-            { _id: syncLog._id },
-            { $set: { error: e.message } }
-          );
-        }
-      }
       result.skipped.push(deal._id);
     }
 
