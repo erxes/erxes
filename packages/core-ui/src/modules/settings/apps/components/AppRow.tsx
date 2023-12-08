@@ -58,9 +58,10 @@ export default class AppRow extends React.Component<Props> {
           </Tip>
         </td>
         <td>
-          {app.expireDate
+          {app.noExpire ? 'No expire date' : ''}
+          {app.expireDate && !app.noExpire
             ? dayjs(app.expireDate).format(dateFormat)
-            : 'No expire date set'}
+            : ''}
         </td>
         <td>
           <ActionButtons>
