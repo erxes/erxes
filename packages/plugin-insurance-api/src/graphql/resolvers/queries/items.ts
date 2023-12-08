@@ -4,6 +4,7 @@ import { paginate } from '@erxes/api-utils/src';
 
 import { IContext } from '../../../connectionResolver';
 import { sendCommonMessage } from '../../../messageBroker';
+import { verifyVendor } from '../utils';
 
 const query = (searchField, searchValue) => {
   const qry: any = {};
@@ -209,6 +210,44 @@ const queries = {
 
   insuranceItems: async (_root, _args, { models }: IContext) => {
     return models.Items.find({});
+  },
+
+  vendorInsuranceItem: async (
+    _root,
+    { _id }: { _id: string },
+    { models, cpUser, subdomain }: IContext
+  ) => {
+    if (!cpUser) {
+      throw new Error('login required');
+    }
+
+    const { company, clientportal } = await verifyVendor({
+      subdomain,
+      cpUser
+    });
+
+    const users = await sendCommonMessage({
+      subdomain,
+      action: 'clientPortalUsers.find',
+      serviceName: 'clientportal',
+      isRPC: true,
+      defaultValue: [],
+      data: {
+        erxesCompanyId: company._id
+      }
+    });
+
+    const item = await models.Items.findOne({ _id });
+
+    if (!item) {
+      throw new Error('Item not found');
+    }
+
+    if (!users.map((u: any) => u._id).includes(item.vendorUserId)) {
+      throw new Error('Item not found');
+    }
+
+    return item;
   }
 };
 
