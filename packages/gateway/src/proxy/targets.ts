@@ -89,16 +89,11 @@ export async function retryGetProxyTargets(): Promise<ErxesProxyTarget[]> {
   try {
     const serviceNames = await getServices();
 
-    const proxyTargets: ErxesProxyTarget[] = [];
+    const proxyTargets: ErxesProxyTarget[] = await Promise.all(
+      serviceNames.map(retryGetProxyTarget)
+    );
 
-    for (const name of serviceNames) {
-      const target = await retryGetProxyTarget(name);
-      proxyTargets.push(target);
-    }
-
-    for (const target of proxyTargets) {
-      await retryEnsureGraphqlEndpointIsUp(target);
-    }
+    await Promise.all(proxyTargets.map(retryEnsureGraphqlEndpointIsUp));
 
     return proxyTargets;
   } catch (e) {

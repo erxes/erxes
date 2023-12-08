@@ -135,9 +135,9 @@ function Component(
       {contractsQuery?.contractsMain?.list.map((contract, index) => (
         <SectionBodyItem key={index}>
           <Link to={`/erxes-plugin-loan/contract-details/${contract._id}`}>
-            <Icon icon="arrow-to-right" />
+            <Icon icon="arrow-to-right" style={{ marginRight: 5 }} />
+            <span>{contract.number || 'Unknown'}</span>
           </Link>
-          <span>{contract.number || 'Unknown'}</span>
         </SectionBodyItem>
       ))}
       {contractsQuery?.contractsMain?.list.length === 0 && (
@@ -149,7 +149,7 @@ function Component(
 
   return (
     <Box
-      title={__(`${title || 'Contracts'}`)}
+      title={__(`${title || 'Loan Contracts'}`)}
       name="showContracts"
       extraButtons={quickButtons}
       isOpen={true}

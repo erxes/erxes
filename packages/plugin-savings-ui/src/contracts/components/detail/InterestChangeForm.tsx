@@ -135,6 +135,7 @@ class InterestChangeForm extends React.Component<Props, State> {
                     {...formProps}
                     required={false}
                     name="invDate"
+                    dateFormat="YYYY/MM/DD"
                     value={this.props.invDate}
                     onChange={onChangeinvDate}
                   />

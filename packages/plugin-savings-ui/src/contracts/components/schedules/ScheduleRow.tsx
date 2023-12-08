@@ -21,7 +21,7 @@ function ScheduleRow({ transaction }: Props) {
 
   return (
     <ExtraRow key={transaction._id}>
-      <td>{dayjs(transaction.payDate).format('ll')}</td>
+      <td>{dayjs(transaction.payDate).format('YYYY/MM/DD')}</td>
       <td>{renderCell('balance')}</td>
       <td>{renderCell('payment')}</td>
       <td>{renderCell('storedInterest')}</td>

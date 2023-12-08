@@ -253,6 +253,10 @@ const checkSyncedMutations = {
         const pos = posByToken[order.posToken];
 
         const postData = await getPostDataOrders(subdomain, pos, order);
+        if (!postData) {
+          result.skipped.push(order._id);
+          throw new Error('maybe, has not config');
+        }
 
         const response = await sendRPCMessage(
           models,
