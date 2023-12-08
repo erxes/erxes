@@ -52,12 +52,13 @@ export const INVOICE_STATUS = {
 
 export const SCHEDULE_STATUS = {
   PENDING: 'pending',
+  EXPIRED: 'expired',
   DONE: 'done',
   SKIPPED: 'skipped',
   LESS: 'less',
   PRE: 'pre',
 
-  ALL: ['pending', 'done', 'skipped', 'pre', 'less']
+  ALL: ['pending', 'done', 'skipped', 'pre', 'less', 'expired']
 };
 
 export const LEASE_TYPES = {

@@ -155,7 +155,7 @@ class ContractDetails extends React.Component<Props, State> {
             <ActivityLogs
               target={contract.number || ''}
               contentId={contract._id}
-              contentType="contract"
+              contentType="loans:contract"
               extraTabs={[
                 { name: 'plugin_invoices', label: 'Invoices / Transaction' }
               ]}

@@ -380,9 +380,6 @@ export const reGenerateSchedules = async (
     }
   }
 
-  await models.Schedules.deleteMany({ contractId: contract._id });
-  await models.Schedules.insertMany(bulkEntries);
-
   await models.FirstSchedules.deleteMany({ contractId: contract._id });
   await models.FirstSchedules.insertMany(bulkEntries);
 };
