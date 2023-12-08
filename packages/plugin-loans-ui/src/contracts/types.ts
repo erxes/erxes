@@ -82,6 +82,11 @@ export interface IContract {
   endDate?: number;
 }
 
+export interface IContractGql {
+  customers: [any];
+  companies: [any];
+}
+
 export interface IContractDoc extends IContract {
   _id: string;
 }

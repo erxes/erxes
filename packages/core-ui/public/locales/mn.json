@@ -2470,5 +2470,12 @@
   "Is allow income":"Орлого зөвшөөрөх эсэх",
   "Deposit account":"Депозит данс",
   "Commitment interest":"Коммитмент хүү",
-  "Loan Type":"Зээлийн төрөл"
+  "Loan Type":"Зээлийн төрөл",
+  "Loan Primary Customers":"Үндсэн зээлдэгч",
+  "Loan Primary Companies":"Үндсэн зээлдэгч",
+  "Loan Collectively Customers":"Хамтран зээлдэгч",
+  "Saving Primary Customers":"Үндсэн эзэмшигч",
+  "Saving Primary Companies":"Үндсэн эзэмшигч",
+  "Saving Collectively Customers":"Хамтран эзэмшигч",
+  "Loan Contracts":"Зээлийн гэрээ"
 }

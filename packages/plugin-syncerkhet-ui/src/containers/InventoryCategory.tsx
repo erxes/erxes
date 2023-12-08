@@ -1,19 +1,20 @@
 import * as compose from 'lodash.flowright';
-import Alert from '@erxes/ui/src/utils/Alert';
-import { gql } from '@apollo/client';
-import React from 'react';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import { Bulk } from '@erxes/ui/src/components';
-import { graphql } from '@apollo/client/react/hoc';
-import { IRouterProps } from '@erxes/ui/src/types';
-import { mutations } from '../graphql';
-import { withProps } from '@erxes/ui/src/utils/core';
-import { withRouter } from 'react-router-dom';
-import InventoryCategory from '../components/inventoryCategory/InventoryCategory';
+
 import {
   ToCheckCategoriesMutationResponse,
   ToSyncCategoriesMutationResponse
 } from '../types';
+
+import Alert from '@erxes/ui/src/utils/Alert';
+import { Bulk } from '@erxes/ui/src/components';
+import { IRouterProps } from '@erxes/ui/src/types';
+import InventoryCategory from '../components/inventoryCategory/InventoryCategory';
+import React from 'react';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
+import { mutations } from '../graphql';
+import { withProps } from '@erxes/ui/src/utils/core';
+import { withRouter } from 'react-router-dom';
 
 type Props = {
   queryParams: any;
@@ -54,7 +55,7 @@ class InventoryCategoryContainer extends React.Component<FinalProps, State> {
     const setSyncStatusTrue = (data: any, categories: any, action: string) => {
       data[action].items = data[action].items.map(i => {
         if (categories.find(c => c.code === i.code)) {
-          let temp = i;
+          const temp = i;
           temp.syncStatus = true;
           return temp;
         }
@@ -67,8 +68,8 @@ class InventoryCategoryContainer extends React.Component<FinalProps, State> {
       this.props
         .toSyncCategories({
           variables: {
-            action: action,
-            categories: categories
+            action,
+            categories
           }
         })
         .then(() => {
@@ -76,7 +77,7 @@ class InventoryCategoryContainer extends React.Component<FinalProps, State> {
           Alert.success('Success. Please check again.');
         })
         .finally(() => {
-          let data = this.state.items;
+          const data = this.state.items;
 
           setSyncStatusTrue(data, categories, action.toLowerCase());
 
@@ -93,7 +94,7 @@ class InventoryCategoryContainer extends React.Component<FinalProps, State> {
       this.props
         .toCheckCategories({ variables: {} })
         .then(response => {
-          let data = response.data.toCheckCategories;
+          const data = response.data.toCheckCategories;
 
           setSyncStatus(data, 'create');
           setSyncStatus(data, 'update');
@@ -108,13 +109,9 @@ class InventoryCategoryContainer extends React.Component<FinalProps, State> {
         });
     };
 
-    if (loading) {
-      return <Spinner />;
-    }
-
     const updatedProps = {
       ...this.props,
-      loading: loading,
+      loading,
       toCheckCategories,
       toSyncCategories,
       items

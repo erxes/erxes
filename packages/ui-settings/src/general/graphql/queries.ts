@@ -12,6 +12,7 @@ const configsGetEnv = `
   query configsGetEnv {
     configsGetEnv {
       USE_BRAND_RESTRICTIONS
+      VERSION
     }
   }
 `;
