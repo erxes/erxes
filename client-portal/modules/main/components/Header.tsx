@@ -33,7 +33,6 @@ import Notifications from '../components/notifications/Notifications';
 import Popup from 'reactjs-popup';
 import RegisterContainer from '../../user/containers/Register';
 import { withRouter } from 'next/router';
-import Label from '../../common/Label';
 
 type Props = {
   config: Config;
@@ -139,22 +138,22 @@ function Header({
             <Dropdown.Item
               className="d-flex align-items-center justify-content-between"
               eventKey="1"
+              href="/profile"
             >
               <div>
                 <Icon icon="user" />
                 {renderUserFullName(currentUser)}
               </div>
-              <Label lblStyle="simple">Soon</Label>
             </Dropdown.Item>
             <Dropdown.Item
               className="d-flex align-items-center justify-content-between"
-              eventKey="1"
+              eventKey="2"
+              href="/settings"
             >
               <div>
                 <Icon icon="settings" />
                 Settings
               </div>
-              <Label lblStyle="simple">Soon</Label>
             </Dropdown.Item>
             <Dropdown.Divider />
             <Dropdown.Item

@@ -79,7 +79,7 @@ const TaggerContainer = (props: FinalProps) => {
       tagsQuery &&
       tagsQuery.fetchMore({
         variables: {
-          perPage: 20,
+          perPage: props.perPage || 20,
           page
         },
         updateQuery: (prevResult, { fetchMoreResult }) => {

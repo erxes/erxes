@@ -6,7 +6,7 @@ import { internalNoteConsumers } from '@erxes/api-utils/src/internalNotes';
 import { formConsumers } from '@erxes/api-utils/src/forms';
 import { graphqlPubsub } from './pubsub';
 import { registerOnboardHistory } from './data/modules/robot';
-import { registerModule } from './data/permissions/utils';
+
 import {
   getConfig,
   getConfigs,
@@ -59,10 +59,6 @@ export const initBroker = async options => {
 
   consumeQueue('core:runCrons', async () => {
     console.log('Running crons ........');
-  });
-
-  consumeQueue('registerPermissions', async permissions => {
-    await registerModule(permissions);
   });
 
   consumeRPCQueue('core:permissions.find', async ({ subdomain, data }) => {

@@ -25,6 +25,13 @@ export interface ITrip {
   path: string;
 }
 
+export interface ITracking {
+  trackingData: ITrackingItem[];
+  dealId: string;
+  carId: string;
+  path?: string;
+}
+
 export interface ITripDocument extends ITrip, Document {
   _id: string;
 }
@@ -52,4 +59,14 @@ export const tripSchema = schemaHooksWrapper(
     path: field({ type: String, label: 'Path' })
   }),
   'trips'
+);
+
+export const trackingSchema = schemaHooksWrapper(
+  new Schema({
+    trackingData: field({ type: [[Number]], label: 'tracking history' }),
+    dealId: field({ type: String, label: 'Deal id' }),
+    carId: field({ type: String, label: 'Car id' }),
+    path: field({ type: String, label: 'Path' })
+  }),
+  'tumentech_tracking'
 );

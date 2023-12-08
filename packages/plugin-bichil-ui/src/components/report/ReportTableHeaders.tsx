@@ -11,17 +11,11 @@ function TableHeaders(props: Props) {
 
   const renderParentBranchColumns = () => {
     const returnElements: any = [];
-    for (let j = 0; j < maxParents; j++) {
-      returnElements.push(
-        <th
-          key={j}
-          rowSpan={2}
-          style={{ textAlign: 'center', border: '1px solid #EEE' }}
-        >
-          {__('Parent Branch')}
-        </th>
-      );
-    }
+    returnElements.push(
+      <th rowSpan={2} style={{ textAlign: 'center', border: '1px solid #EEE' }}>
+        {__('Parent Branch')}
+      </th>
+    );
 
     return returnElements;
   };
@@ -90,6 +84,9 @@ function TableHeaders(props: Props) {
             <th>{__('Үр дүн хасалт')}</th>
             <th>{__('Хоцорсон миниут')}</th>
             <th>{__('Хоцролтын мөнгө')}</th>
+            <th>{__('Үр дүн хасалт')}</th>
+            <th>{__('Тасалсан өдөр')}</th>
+            <th>{__('Торгууль')}</th>
             <th>{__('Үр дүн хасалт')}</th>
             <th>{__('Суутгал нэгдсэн')}</th>
           </tr>

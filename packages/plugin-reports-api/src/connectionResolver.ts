@@ -30,7 +30,7 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
   );
 
   models.Charts = db.model<IChartDocument, IChartModel>(
-    'chart',
+    'report_chart',
     loadChartClass(models)
   );
 

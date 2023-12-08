@@ -80,7 +80,7 @@ const mutations = {
       itemDoc.feePercent = companyProductConfig.specificPrice;
     }
 
-    itemDoc.totalFee = itemDoc.price * itemDoc.feePercent;
+    itemDoc.totalFee = (itemDoc.price / 100) * itemDoc.feePercent;
 
     const customer = await sendCommonMessage({
       subdomain,

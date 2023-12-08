@@ -1,6 +1,11 @@
-import { mergeAttributes, nodeInputRule } from '@tiptap/core';
-
 import Image from '@tiptap/extension-image';
+
+export const enum ImageDisplay {
+  INLINE = 'inline',
+  BREAK_TEXT = 'block',
+  FLOAT_LEFT = 'left',
+  FLOAT_RIGHT = 'right'
+}
 
 export interface IImageOptions {
   inline: boolean;
@@ -22,21 +27,18 @@ declare module '@tiptap/core' {
     };
   }
 }
-export const inputRegex = /(!\[(.+|:?)]\((\S+)(?:(?:\s+)["'](\S+)["'])?\))$/;
 export const ImageResize = Image.extend<IImageOptions>({
   name: 'imageResize',
-  addOptions() {
-    return {
-      inline: false,
-      allowBase64: false,
-      HTMLAttributes: {},
-      useFigure: false
-    };
-  },
   addAttributes() {
     return {
+      ...this.parent?.(),
       width: {
-        default: '100%',
+        default: null,
+        parseHTML: element => {
+          const width =
+            element.style.width || element.getAttribute('width') || null;
+          return width;
+        },
         renderHTML: attributes => {
           return {
             width: attributes.width
@@ -44,38 +46,25 @@ export const ImageResize = Image.extend<IImageOptions>({
         }
       },
       height: {
-        default: 'auto',
+        default: null,
+        parseHTML: element => {
+          const height =
+            element.style.height || element.getAttribute('height') || null;
+          return height;
+        },
         renderHTML: attributes => {
           return {
             height: attributes.height
           };
         }
-      },
-      isDraggable: {
-        default: true,
-        renderHTML: attributes => {
-          return {};
-        }
       }
     };
   },
-  renderHTML({ HTMLAttributes }) {
+  parseHTML() {
     return [
-      'img',
-      mergeAttributes(this.options.HTMLAttributes, HTMLAttributes)
-    ];
-  },
-
-  addInputRules() {
-    return [
-      nodeInputRule({
-        find: inputRegex,
-        type: this.type,
-        getAttributes: match => {
-          const [, , alt, src, title, height, width, isDraggable] = match;
-          return { src, alt, title, height, width, isDraggable };
-        }
-      })
+      {
+        tag: 'img[src]'
+      }
     ];
   }
 });

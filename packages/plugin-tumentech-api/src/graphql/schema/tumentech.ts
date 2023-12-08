@@ -3,7 +3,7 @@ import {
   attachmentType
 } from '@erxes/api-utils/src/commonTypeDefs';
 
-export const types = ({ contacts, cards }) => `
+export const types = ({ contacts, cards, xyp }) => `
 
   ${attachmentType}
   ${attachmentInput}
@@ -11,6 +11,17 @@ export const types = ({ contacts, cards }) => `
   extend type User @key(fields: "_id") {
     _id: String! @external
   }
+
+  ${
+    xyp
+      ? `
+        extend type XypData @key(fields: "_id") {
+          _id: String! @external
+        }
+        `
+      : ''
+  }
+
 
   ${
     contacts
@@ -67,6 +78,14 @@ type Car {
       ? `
     customers: [Customer]
     companies: [Company]
+    `
+      : ''
+  }
+
+  ${
+    xyp
+      ? `
+    xypdata: XypData
     `
       : ''
   }
@@ -155,6 +174,7 @@ type Car {
   backAttachments: [Attachment]
   floorAttachments: [Attachment]
   transformationAttachments: [Attachment]
+  
 }
 
 type CarsListResponse {
@@ -180,6 +200,7 @@ type ProductCarCategories {
 type ParticipantsTotalCount {
   dealId: String
   count: Int
+  revealedPhoneCount: Int
 }
 type Participant @key(fields: "_id") @cacheControl(maxAge: 3) {
   _id: String!
@@ -212,6 +233,11 @@ type Topup @key(fields: "_id") @cacheControl(maxAge: 3) {
 type TopupListResponse {
   list: [Topup],
   totalCount: Int,
+}
+
+type TumenTripTotal{
+  total:Float
+  numberOfWorks:Int
 }
 
 input ParticipantsRemove {
@@ -257,7 +283,7 @@ export const queries = `
   cars(${tumentechParams}): [Car]
   carCounts(${tumentechParams}, only: String): JSON
   carDetail(_id: String!): Car
-  carCategories(parentId: String, searchValue: String, onlyParent: Boolean): [CarCategory]
+  carCategories(parentId: String, searchValue: String, onlyParent: Boolean, ids: [String]): [CarCategory]
   carCategoriesTotalCount: Int
   carCategoryDetail(_id: String): CarCategory
   carCategoryMatchProducts(carCategoryId: String): CarCategoryProducts
@@ -277,6 +303,8 @@ export const queries = `
   topupHistory(page: Int, perPage: Int, customerId: String): TopupListResponse
 
   tumentechCategoryIcons: [String]
+
+  tumentechTripDistance(driverId:String!):TumenTripTotal
 `;
 
 const tumentechCommonFields = `

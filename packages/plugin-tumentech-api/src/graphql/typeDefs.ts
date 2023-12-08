@@ -21,6 +21,11 @@ import {
   types as tripTypes
 } from './schema/trips';
 import {
+  mutations as tumentechDealMutations,
+  queries as tumentechDealQueries,
+  types as tumentechDealTypes
+} from './schema/tumentechDeal';
+import {
   mutations as tumentechMutations,
   queries as tumentechQueries,
   types as tumentechTypes
@@ -35,10 +40,12 @@ import {
 const typeDefs = async serviceDiscovery => {
   const isContactsEnabled = await serviceDiscovery.isEnabled('contacts');
   const cardsAvailable = await serviceDiscovery.isEnabled('cards');
+  const xypAvailable = await serviceDiscovery.isEnabled('xyp');
 
   const isEnabled = {
     contacts: isContactsEnabled,
-    cards: cardsAvailable
+    cards: cardsAvailable,
+    xyp: xypAvailable
   };
 
   return gql`
@@ -61,6 +68,7 @@ const typeDefs = async serviceDiscovery => {
     ${routeTypes}
     ${directionTypes}
     ${tripTypes(isEnabled)}
+    ${tumentechDealTypes(isEnabled)}
     ${accountTypes(isEnabled)}
     
     extend type Query {
@@ -69,6 +77,7 @@ const typeDefs = async serviceDiscovery => {
       ${directionQueries}
       ${routeQueries}
       ${tripQueries}
+      ${tumentechDealQueries}
       ${accountQueries}
     }
     
@@ -78,6 +87,7 @@ const typeDefs = async serviceDiscovery => {
       ${directionMutations}
       ${routeMutations}
       ${tripMutations}
+      ${tumentechDealMutations}
       ${accountMutations}
     }
   `;
