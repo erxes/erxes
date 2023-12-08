@@ -384,6 +384,8 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
         ...doc
       });
 
+      console.log('updateCustomer', doc);
+
       await models.Customers.updateOne(
         { _id },
         { $set: { ...doc, ...pssDoc, modifiedAt: new Date() } }
