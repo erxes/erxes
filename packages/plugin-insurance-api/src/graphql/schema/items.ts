@@ -82,6 +82,7 @@ export const queries = `
       sortDirection: SortDirection
       searchField: SearchField
       searchValue: JSON): InsuranceItemListResult
+    vendorInsuranceItem(_id: ID!): InsuranceItem
 `;
 
 export const mutations = `
