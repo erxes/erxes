@@ -1,3 +1,11 @@
+## [1.5.3](https://github.com/erxes/erxes/compare/1.5.2...1.5.3) (2023-12-08)
+
+
+### Bug Fixes
+
+* **cards:** fix forecast percentage in salespipeline ([4e3ce1a](https://github.com/erxes/erxes/commit/4e3ce1adef03cb203172124a564bf1def48ebea1))
+* **settings:** commented loaders and fixed collapse content ui ([b2690ea](https://github.com/erxes/erxes/commit/b2690ea1a0c20d1581b1ba2289d695a2634d01e1))
+
 ## [1.5.2](https://github.com/erxes/erxes/compare/1.5.1...1.5.2) (2023-12-06)
 
 
