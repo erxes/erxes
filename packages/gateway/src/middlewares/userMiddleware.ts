@@ -24,7 +24,7 @@ export default async function userMiddleware(
   const url = req.headers['erxes-core-website-url'];
   const erxesCoreToken = req.headers['erxes-core-token'];
 
-  if(Array.isArray(erxesCoreToken)) {
+  if (Array.isArray(erxesCoreToken)) {
     throw new Error(`Multiple erxes-core-tokens found`);
   }
 
@@ -94,7 +94,7 @@ export default async function userMiddleware(
             role: USER_ROLES.SYSTEM,
             groupIds: { $in: [app.userGroupId] },
             appId: app._id
-          });
+          }).lean();
 
           if (user) {
             const key = `user_permissions_${user._id}`;
@@ -122,7 +122,9 @@ export default async function userMiddleware(
 
             req.user = {
               _id: user._id || 'userId',
+              ...user,
               role: USER_ROLES.SYSTEM,
+              isOwner: appInDb.allowAllPermission || false,
               customPermissions: permissions.map(p => ({
                 action: p.action,
                 allowed: p.allowed,
