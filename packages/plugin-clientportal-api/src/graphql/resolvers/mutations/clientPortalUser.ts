@@ -966,15 +966,17 @@ const clientPortalUserMutations = {
       throw new Error(error);
     }
 
-    const cp = await models.ClientPortals.findOne({
-      _id: cpUser?.clientPortalId
-    }).lean();
+    if (cpUser) {
+      const cp = await models.ClientPortals.findOne({
+        _id: cpUser.clientPortalId
+      }).lean();
 
-    if (cp || cp.kind === 'vendor') {
-      await models.Companies.createOrUpdateCompany({
-        erxesCompanyId,
-        clientPortalId: cp._id
-      });
+      if (cp || cp.kind === 'vendor') {
+        await models.Companies.createOrUpdateCompany({
+          erxesCompanyId,
+          clientPortalId: cp._id
+        });
+      }
     }
 
     return models.ClientPortalUsers.updateOne(
