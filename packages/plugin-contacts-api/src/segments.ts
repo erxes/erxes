@@ -64,8 +64,15 @@ export default {
         negativeQuery
       });
     } else {
+      const serviceName = getServiceName(propertyType);
+      console.log('segments.ts.associationFilter RPC call to ', serviceName);
+      if (serviceName === 'contacts') {
+        console.log(
+          '------------------------------------calling itself------------------------------------------------'
+        );
+      }
       ids = await sendCommonMessage({
-        serviceName: getServiceName(propertyType),
+        serviceName,
         subdomain,
         action: 'segments.associationFilter',
         data: {
