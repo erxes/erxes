@@ -51,8 +51,7 @@ const commonEnvs = configs => {
       (isSwarm ? 'erxes-dbs_elasticsearch' : 'elasticsearch')}:9200`,
     ENABLED_SERVICES_JSON: enabledServicesJson,
     VERSION: configs.image_tag || '',
-    MESSAGE_BROKER_PREFIX: rabbitmq.prefix || '',
-    SENTRY_DSN: configs.sentry_dsn
+    MESSAGE_BROKER_PREFIX: rabbitmq.prefix || ''
   };
 };
 
