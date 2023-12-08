@@ -23,8 +23,6 @@ const updateTimeclocks = async (subdomain: any) => {
   const bulkWriteResult = await findUnfinishedShiftsAndUpdate(subdomain);
 
   if (bulkWriteResult) {
-    console.log('resulst ', bulkWriteResult);
-
     await db
       .collection('bichil_unfinished_shifts')
       .insertOne({
