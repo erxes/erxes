@@ -8,6 +8,7 @@ export const types = `
 
   type ENV {
     USE_BRAND_RESTRICTIONS: String
+    VERSION: String
   }
 `;
 

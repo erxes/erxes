@@ -1,9 +1,10 @@
-import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
-import React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
 
 import { ConformityQueryResponse, ISavedConformity } from '../types';
+
+import React from 'react';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
 import { renderWithProps } from '@erxes/ui/src/utils/core';
 
 type IProps = {
@@ -71,6 +72,7 @@ export default (props: IProps) =>
               mainType,
               mainTypeId,
               relType,
+              limit: 40,
               isSaved: true
             };
 

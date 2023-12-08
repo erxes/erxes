@@ -1,12 +1,18 @@
+import { useEffect } from "react"
 import PaymentType from "@/modules/checkout/components/paymentType/paymentType.main"
 import SelectPaymentTypeMain from "@/modules/checkout/components/paymentType/selectPaymentType.main"
 import usePaymentLabel from "@/modules/checkout/hooks/usePaymentLabel"
 import { currentPaymentTypeAtom } from "@/store"
-import { useAtomValue } from "jotai"
+import { useAtom } from "jotai"
 
 const Payment = () => {
-  const paymentTerm = useAtomValue(currentPaymentTypeAtom)
+  const [paymentTerm, setPaymentTerm] = useAtom(currentPaymentTypeAtom)
   const { getLabel } = usePaymentLabel()
+
+  useEffect(() => {
+    // reset on go back
+    setPaymentTerm("")
+  }, [])
 
   return (
     <div className="mr-4 w-7/12">
