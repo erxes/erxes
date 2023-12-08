@@ -39,7 +39,9 @@ const query = (searchField, searchValue) => {
   }
 
   if (searchField.includes('item')) {
-    qry[`searchDictionary.${searchField}`] = searchValue;
+    qry[`searchDictionary.${searchField}`] = {
+      $gte: Number(searchValue)
+    };
   }
 
   return qry;
