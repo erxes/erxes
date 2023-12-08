@@ -229,7 +229,13 @@ class Editor extends React.Component<Props, State> {
     }
   };
 
-  toggleDrawer = (type: string, awaitingActionId?) => {
+  toggleDrawer = ({
+    type,
+    awaitingActionId
+  }: {
+    type: string;
+    awaitingActionId?: string;
+  }) => {
     const { showDrawer, triggers } = this.state;
 
     if (type === 'actions' && triggers.length === 0) {
@@ -277,10 +283,12 @@ class Editor extends React.Component<Props, State> {
     if (awaitingActionId) {
       const [awaitActionId, optionalConnectId] = awaitingActionId.split('-');
 
+      console.log({ awaitActionId, optionalConnectId });
+
       actions = actions.map(a => {
         if (a.id === awaitActionId && optionalConnectId) {
           const { config } = a || {};
-          const { optionalConnects } = config || {};
+          const { optionalConnects = [] } = config || {};
 
           return {
             ...a,
@@ -433,7 +441,7 @@ class Editor extends React.Component<Props, State> {
           btnStyle="primary"
           size="small"
           icon="plus-circle"
-          onClick={this.toggleDrawer.bind(this, 'triggers')}
+          onClick={this.toggleDrawer.bind(this, { type: 'triggers' })}
         >
           Add a Trigger
         </Button>
@@ -441,7 +449,7 @@ class Editor extends React.Component<Props, State> {
           btnStyle="primary"
           size="small"
           icon="plus-circle"
-          onClick={this.toggleDrawer.bind(this, 'actions')}
+          onClick={this.toggleDrawer.bind(this, { type: 'actions' })}
         >
           Add an Action
         </Button>

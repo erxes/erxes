@@ -23,7 +23,13 @@ type Props = {
     icon: string;
     label: string;
     description: string;
-    toggleDrawer: (type: string, awaitingActionId?: string) => void;
+    toggleDrawer: ({
+      type,
+      awaitingActionId
+    }: {
+      type: string;
+      awaitingActionId?: string;
+    }) => void;
     onDoubleClick: (type: string, id: string) => void;
     removeItem: (type: string, id: string) => void;
     constants: AutomationConstants;
@@ -45,10 +51,12 @@ export default memo(({ id, data }: Props) => {
 
   const handleOnClick = (optionId, isOptionalConnect) => {
     if (optionId.includes('right')) {
-      toggleDrawer(
-        `actions`,
-        isOptionalConnect ? optionId.replace('-right', '') : id
-      );
+      toggleDrawer({
+        type: `actions`,
+        awaitingActionId: isOptionalConnect
+          ? optionId.replace('-right', '')
+          : id
+      });
     }
   };
 

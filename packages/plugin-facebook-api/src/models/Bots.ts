@@ -47,9 +47,11 @@ export const loadBotClass = (models: IModels) => {
 
       const integration = await models.Integrations.findOne({
         accountId,
-        facebookPageIds: { $in: [pageId] },
-        healthStatus: 'healthy'
+        facebookPageIds: { $in: [pageId] }
+        // healthStatus: 'healthy'
       });
+
+      console.log({ integration });
 
       try {
         return await this.connectBotPageMessenger(integration, pageId, doc);
@@ -97,8 +99,8 @@ export const loadBotClass = (models: IModels) => {
 
           await this.connectBotPageMessenger(
             await models.Integrations.findOne({
-              accountId,
-              healthStatus: 'healthy'
+              accountId
+              // healthStatus: 'healthy'
             }),
             pageId,
             doc
@@ -190,8 +192,7 @@ export const loadBotClass = (models: IModels) => {
       const bot = await models.Bots.findOne({ _id });
 
       const integration = await models.Integrations.findOne({
-        accountId: bot?.accountId,
-        healthStatus: 'healthy'
+        accountId: bot?.accountId
       });
 
       if (!bot || !integration) {

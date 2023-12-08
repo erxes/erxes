@@ -1,13 +1,18 @@
-import { IModels, generateModels } from '../connectionResolver';
+import { IModels } from '../connectionResolver';
 import { ACTIONS } from '../constants';
 import { getActionsMap } from '../helpers';
-import { IAction, IAutomation } from '../models/definitions/automaions';
+import { IAction } from '../models/definitions/automaions';
 import {
   EXECUTION_STATUS,
   IExecAction,
+  IExecution,
   IExecutionDocument
 } from '../models/definitions/executions';
-import { executeActions, receiveTrigger } from '../utils';
+import { executeActions } from '../utils';
+
+function accessNestedObject(obj, keys) {
+  return keys.reduce((acc, key) => acc && acc[key], obj) || '';
+}
 
 export const playWait = async (models: IModels, subdomain: string, data) => {
   const waitingExecutions = await models.Executions.find({
@@ -72,12 +77,13 @@ export const playWait = async (models: IModels, subdomain: string, data) => {
 
 export const doWaitingResponseAction = async (
   models: IModels,
-  subdomain,
+  subdomain: string,
   data
 ) => {
   const { type, targets } = data;
 
   const waitingExecutions = await models.Executions.find({
+    triggerType: type,
     status: EXECUTION_STATUS.WAITING,
     $and: [
       { objToCheck: { $exists: true } },
@@ -87,8 +93,19 @@ export const doWaitingResponseAction = async (
     ]
   });
 
+  const clearExecution = (exec: IExecutionDocument, status?: string) => {
+    exec.waitingActionId = undefined;
+    exec.startWaitingDate = undefined;
+    exec.objToCheck = undefined;
+
+    if (status) {
+      exec.status = status;
+    }
+
+    exec.save();
+  };
+
   for (const exec of waitingExecutions) {
-    console.log(exec);
     const automation = await models.Automations.findOne({
       _id: exec.automationId
     }).lean();
@@ -102,69 +119,47 @@ export const doWaitingResponseAction = async (
     );
 
     if (!currentAction) {
-      // waiting action is deleted or changed type from interface
-      exec.waitingActionId = undefined;
-      exec.startWaitingDate = undefined;
-      exec.status = EXECUTION_STATUS.MISSID;
-      exec.objToCheck = undefined;
+      clearExecution(exec, EXECUTION_STATUS.MISSID);
       exec.save();
       continue;
     }
 
-    if (!currentAction?.config?.optionalConnects?.length) {
-      exec.objToCheck = undefined;
-      exec.waitingActionId = undefined;
-      exec.startWaitingDate = undefined;
-      exec.save();
+    const { config } = currentAction;
+
+    if (!config?.optionalConnects?.length) {
+      clearExecution(exec);
+      continue;
     }
 
-    const optionalConnects = currentAction.config.optionalConnects;
+    const optionalConnects = config.optionalConnects;
     const { objToCheck } = exec;
-    const { propertyName, general } = objToCheck;
-
-    const generalKeys = Object.keys(general);
-
-    function accessNestedObject(obj, keys) {
-      return keys.reduce((acc, key) => acc && acc[key], obj);
-    }
+    const { propertyName } = objToCheck;
 
     for (const target of targets) {
-      if (generalKeys.every(key => target[key] === general[key])) {
-        console.log({ target, propertyNames: propertyName.split('.') });
-        const propertyValue = accessNestedObject(
-          target,
-          propertyName.split('.')
-        );
-        if (propertyValue) {
-          const optionalConnection = optionalConnects.find(
-            ({ optionalConnectId }) =>
-              optionalConnectId === String(propertyValue)
-          );
+      //check every general properties in the target
+      const propertyValue = accessNestedObject(target, propertyName.split('.'));
+      const optionalConnection = optionalConnects.find(
+        ({ optionalConnectId }) => optionalConnectId === String(propertyValue)
+      );
 
-          console.log({ optionalConnection, optionalConnects, propertyName });
-          if (optionalConnection) {
-            exec.waitingActionId = undefined;
-            exec.startWaitingDate = undefined;
-            exec.objToCheck = undefined;
-            exec.save();
+      exec.waitingActionId = undefined;
+      exec.startWaitingDate = undefined;
+      exec.objToCheck = undefined;
 
-            await executeActions(
-              subdomain,
-              exec.triggerType,
-              exec,
-              await getActionsMap(automation.actions || []),
-              optionalConnection.actionId
-            );
-          }
-        }
-      }
+      await executeActions(
+        subdomain,
+        exec.triggerType,
+        exec,
+        await getActionsMap(automation.actions || []),
+        optionalConnection.actionId
+      );
     }
   }
 
   return 'success';
 };
 
-export const setActionWait = async (subdomain: string, data) => {
+export const setActionWait = async data => {
   const { objToCheck, execution, action, result } = data;
 
   const execAction: IExecAction = {
@@ -183,4 +178,50 @@ export const setActionWait = async (subdomain: string, data) => {
   await execution.save();
 
   return 'paused';
+};
+
+export const checkWaitingResponseAction = async (
+  models: IModels,
+  type: string,
+  actionType: string,
+  targets: any[]
+) => {
+  console.log({ actionType });
+  if (actionType) {
+    false;
+  }
+
+  const waitingResponseExecution = await models.Executions.find({
+    triggerType: type,
+    status: EXECUTION_STATUS.WAITING,
+    $and: [{ objToCheck: { $exists: true } }, { objToCheck: { $ne: null } }]
+  });
+
+  console.log(waitingResponseExecution.length);
+
+  for (const { objToCheck, actions } of waitingResponseExecution) {
+    const { general, propertyName } = objToCheck;
+
+    const generalKeys = Object.keys(general);
+    console.log({ generalKeys });
+    for (const target of targets) {
+      const valueToCheck = accessNestedObject(target, propertyName.split('.'));
+
+      console.log({ valueToCheck });
+
+      if (
+        generalKeys.every(key => target[key] === general[key]) &&
+        (actions || []).some(({ actionConfig }) =>
+          actionConfig.optionalConnects.some(
+            ({ optionalConnectId }) => optionalConnectId == valueToCheck
+          )
+        )
+      ) {
+        console.log('passed');
+        return true;
+      }
+    }
+  }
+
+  return false;
 };

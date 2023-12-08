@@ -58,6 +58,16 @@ export default {
   }
 };
 
+const generatePayloadString = (conversation, btn) => {
+  console.log(btn);
+
+  return JSON.stringify({
+    btnId: btn._id,
+    erxesApiId: conversation.erxesApiId,
+    recipientId: conversation.recipientId
+  });
+};
+
 const generateMessage = (config, conversation: IConversation) => {
   if (config?.messageTemplates?.length > 1) {
     return {
@@ -71,8 +81,8 @@ const generateMessage = (config, conversation: IConversation) => {
             image_url: readFileUrl(temp?.image?.url),
             buttons: (temp?.buttons || []).map(btn => ({
               type: 'postback',
-              title: btn,
-              payload: 'hi'
+              title: btn.text,
+              payload: generatePayloadString(conversation, btn)
             }))
           }))
         }
@@ -91,8 +101,8 @@ const generateMessage = (config, conversation: IConversation) => {
           text: messageTemplate?.title,
           buttons: (messageTemplate?.buttons || []).map(btn => ({
             type: 'postback',
-            title: btn,
-            payload: 'hi'
+            title: btn.text,
+            payload: generatePayloadString(conversation, btn)
           }))
         }
       }
@@ -107,12 +117,14 @@ const generateMessage = (config, conversation: IConversation) => {
       quick_replies: quickReplies.map(quickReply => ({
         content_type: 'text',
         title: quickReply.label,
-        payload: JSON.stringify({
-          btnId: quickReply._id,
-          erxesApiId: conversation.erxesApiId,
-          recipientId: conversation.recipientId
-        })
+        payload: generatePayloadString(conversation, quickReplies)
       }))
+    };
+  }
+
+  if (config?.text) {
+    return {
+      text: config.text
     };
   }
 };
@@ -146,10 +158,9 @@ const actionCreateMessage = async (
   try {
     const message = generateMessage(config, conversation);
 
-    console.log({ message: JSON.stringify(message) });
+    console.log({ message });
 
     if (!message) {
-      console.log('no message to generate message');
       return;
     }
 
@@ -180,19 +191,22 @@ const actionCreateMessage = async (
 
       const { optionalConnects = [] } = config;
 
-      console.log({ conversationMessage });
-
-      return {
-        result: conversationMessage,
-        objToWait: {
-          objToCheck: {
-            propertyName: 'payload.btnId',
-            general: {
-              conversationId: conversation._id
+      if (optionalConnects?.length > 0) {
+        return {
+          result: conversationMessage,
+          objToWait: {
+            objToCheck: {
+              propertyName: 'payload.btnId',
+              general: {
+                conversationId: conversation._id,
+                customerId: conversationMessage.customerId
+              }
             }
           }
-        }
-      };
+        };
+      }
+
+      return conversationMessage;
     }
   } catch (error) {
     debugError(error.message);

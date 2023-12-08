@@ -1,21 +1,33 @@
-import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import FormGroup from '@erxes/ui/src/components/form/Group';
 import Common from '@erxes/ui-automations/src/components/forms/actions/Common';
 import PlaceHolderInput from '@erxes/ui-automations/src/components/forms/actions/placeHolder/PlaceHolderInput';
 import { DrawerDetail } from '@erxes/ui-automations/src/styles';
 import { IAction } from '@erxes/ui-automations/src/types';
-import React from 'react';
 import {
   __,
   Button,
+  colors,
+  dimensions,
   FormControl,
   Icon,
   ModifiableList,
   Uploader
 } from '@erxes/ui/src';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { Tabs, TabTitle } from '@erxes/ui/src/components/tabs';
-import { LinkButton } from '@erxes/ui/src/styles/main';
+import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
+import React from 'react';
+import styled from 'styled-components';
+
+export const TabAction = styled.div`
+  padding-left: ${dimensions.unitSpacing}px;
+  color: ${colors.colorCoreGray};
+  text-align: end;
+
+  &:hover {
+    cursor: pointer;
+  }
+`;
 
 type Props = {
   onSave: () => void;
@@ -82,6 +94,8 @@ class ReplyFbMessage extends React.Component<Props, State> {
   }
 
   renderTemplateContent(_id, template, config, messageTemplates: any[]) {
+    const { image, title, description, buttons } = template;
+
     const onChange = (name, value) => {
       const updatedTemplates = messageTemplates.map(temp =>
         temp._id === _id ? { ...temp, [name]: value } : temp
@@ -106,12 +120,12 @@ class ReplyFbMessage extends React.Component<Props, State> {
     };
 
     const onChangeButtons = buttons => {
-      // const convertedButtons = buttons.map(button => ({
-      //   text: button,
-      //   _id: Math.random().toString()
-      // }));
+      const convertedButtons = buttons.map(button => ({
+        text: button,
+        _id: Math.random().toString()
+      }));
 
-      onChange('buttons', buttons);
+      onChange('buttons', convertedButtons);
     };
 
     return (
@@ -121,7 +135,7 @@ class ReplyFbMessage extends React.Component<Props, State> {
             single
             text="Upload Image"
             onChange={handleUpload}
-            defaultFileList={template?.image ? [template?.image] : []}
+            defaultFileList={image ? [image] : []}
           />
         )}
         <FormGroup>
@@ -129,7 +143,7 @@ class ReplyFbMessage extends React.Component<Props, State> {
           <FormControl
             name="title"
             onChange={handleChange}
-            value={template?.title}
+            value={title || ''}
           />
         </FormGroup>
         {messageTemplates?.length > 1 && (
@@ -138,13 +152,13 @@ class ReplyFbMessage extends React.Component<Props, State> {
             <FormControl
               name="description"
               componentClass="textarea"
-              value={template?.description}
+              value={description || ''}
               onChange={handleChange}
             />
           </FormGroup>
         )}
         <ModifiableList
-          options={template?.buttons || []}
+          options={(buttons || []).map(btn => btn.text) || []}
           addButtonLabel="Add Buttons"
           showAddButton
           onChangeOption={onChangeButtons}
@@ -158,7 +172,7 @@ class ReplyFbMessage extends React.Component<Props, State> {
     const messageTemplates = config?.messageTemplates || [];
 
     const selectedTemplatePage = messageTemplates.find(
-      tepmplate => tepmplate._id === selectedTemplatePageId
+      temp => temp._id === selectedTemplatePageId
     );
 
     const addPage = () => {
@@ -180,6 +194,21 @@ class ReplyFbMessage extends React.Component<Props, State> {
       this.setState({ selectedTemplatePageId: value });
     };
 
+    console.log('dasdas');
+
+    const handleRemovePage = _id => {
+      const filteredTemplatePages = messageTemplates.filter(
+        messageTemplate => messageTemplate._id !== _id
+      );
+
+      this.setState({
+        config: {
+          ...config,
+          messageTemplates: filteredTemplatePages
+        }
+      });
+    };
+
     return (
       <>
         <Tabs>
@@ -190,6 +219,9 @@ class ReplyFbMessage extends React.Component<Props, State> {
               onClick={onSelectTab.bind(this, _id)}
             >
               {__(label)}
+              <TabAction onClick={handleRemovePage.bind(this, _id)}>
+                <Icon icon="times-circle" />
+              </TabAction>
             </TabTitle>
           ))}
 

@@ -44,11 +44,13 @@ export interface IChannelData {
   message: {
     mid: string;
     quick_reply?: any;
+    payload?: any;
   };
   postback: {
-    title: 'Get Started';
+    title: string;
     mid: string;
     payload: string;
+    quick_reply?: any;
   };
 }
 

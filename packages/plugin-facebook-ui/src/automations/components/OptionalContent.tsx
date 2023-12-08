@@ -15,18 +15,16 @@ class OptionalContent extends React.Component<Props> {
 
     return (
       <>
-        {/* {messageTemplates.map(msgTemplate =>
-          (msgTemplate?.buttons || []).map(btn => {
-            const id = Math.random();
-
+        {messageTemplates.map(msgTemplate =>
+          (msgTemplate?.buttons || []).map(({ _id, text }) => {
             return (
-              <li key={`${id}-right`}>
-                {btn}
-                {handle(id)}
+              <li key={`${_id}-right`}>
+                {text}
+                {handle(_id)}
               </li>
             );
           })
-        )} */}
+        )}
       </>
     );
   }

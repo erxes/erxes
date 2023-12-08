@@ -1,12 +1,15 @@
 import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
 import { debugBase } from '@erxes/api-utils/src/debuggers';
 import { setTimeout } from 'timers';
-import { receiveTrigger } from './utils';
-import { serviceDiscovery } from './configs';
 import { playWait } from './actions';
+import {
+  checkWaitingResponseAction,
+  doWaitingResponseAction,
+  setActionWait
+} from './actions/wait';
+import { serviceDiscovery } from './configs';
 import { generateModels } from './connectionResolver';
-import { setActionWait, doWaitingResponseAction } from './actions/wait';
-import { EXECUTION_STATUS } from './models/definitions/executions';
+import { receiveTrigger } from './utils';
 
 let client;
 
@@ -20,33 +23,14 @@ export const initBroker = async cl => {
 
     const models = await generateModels(subdomain);
     const { type, actionType, targets } = data;
+    console.log({ targets });
 
     if (actionType && actionType === 'waiting') {
       await playWait(models, subdomain, data);
       return;
     }
 
-    console.log(
-      (await models.Executions.find({
-        triggerType: type,
-        status: EXECUTION_STATUS.WAITING,
-        $and: [{ objToCheck: { $exists: true } }, { objToCheck: { $ne: null } }]
-      }).count()) > 0
-    );
-
-    if (
-      !actionType &&
-      (await models.Executions.find({
-        triggerType: type,
-        status: EXECUTION_STATUS.WAITING,
-        $and: [{ objToCheck: { $exists: true } }, { objToCheck: { $ne: null } }]
-      }).count()) > 0
-    ) {
-      console.log({
-        ...data,
-        actionType: 'optionalConnect'
-      });
-
+    if (await checkWaitingResponseAction(models, type, actionType, targets)) {
       await doWaitingResponseAction(models, subdomain, data);
       return;
     }
@@ -67,10 +51,10 @@ export const initBroker = async cl => {
     };
   });
 
-  consumeRPCQueue('automations:setActionWait', async ({ subdomain, data }) => {
+  consumeRPCQueue('automations:setActionWait', async ({ data }) => {
     return {
       // data: await models.Accounts.find(selector).lean(),
-      data: await setActionWait(subdomain, data),
+      data: await setActionWait(data),
       status: 'success'
     };
   });

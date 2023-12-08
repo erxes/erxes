@@ -178,8 +178,10 @@ export const executeActions = async (
         isRPC: true
       });
 
+      console.log({ actionResponse });
+
       if (actionResponse?.objToWait) {
-        setActionWait(subdomain, {
+        setActionWait({
           ...actionResponse.objToWait,
           execution,
           action,

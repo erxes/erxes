@@ -30,7 +30,13 @@ type Props = {
     type: string;
   }) => void;
   showDrawer: boolean;
-  toggleDrawer: (type: string, awaitingActionId?: string) => void;
+  toggleDrawer: ({
+    type,
+    awaitingActionId
+  }: {
+    type: string;
+    awaitingActionId?: string;
+  }) => void;
   onDoubleClick: (type: string, id: string) => void;
   removeItem: (type: string, id: string) => void;
   constants: AutomationConstants;
@@ -160,7 +166,7 @@ function AutomationEditor({
 
   const onPaneClick = () => {
     if (props.showDrawer) {
-      props.toggleDrawer('actions');
+      props.toggleDrawer({ type: 'actions' });
     }
   };
 
