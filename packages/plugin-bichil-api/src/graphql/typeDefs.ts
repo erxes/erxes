@@ -93,7 +93,20 @@ const types = `
     totalHoursVacation : Float
     totalHoursUnpaidAbsence : Float
     totalHoursSick : Float
+
+
+
+    totalHoursWorkedSelectedDay: Float
+    totalHoursScheduledSelectedDay: Float
+    totalMinsLateSelectedDay: Float
     
+    totalHoursWorkedSelectedMonth: Float
+    totalDaysWorkedSelectedMonth: Int
+    totalHoursScheduledSelectedMonth: Float
+    totalDaysScheduledSelectedMonth:Int
+    totalMinsLateSelectedMonth: Float
+    totalDaysAbsentSelectedMonth: Int
+    totalHoursRequestsSelectedMonth: Float
   }
 
   type BichilScheduleReport {
@@ -193,6 +206,8 @@ const queries = `
   bichilSalaryReport(page: Int, perPage: Int, employeeId: String): BichilSalaryReportsListResponse
 
   bichilSalaryByEmployee(password: String!): BichilSalaryReportsListResponse
+
+  bichilTimeclockReportByUser(selectedUser: String, selectedMonth: String, selectedYear: String, selectedDate:String): BichilUserReport
 
   bichilSalaryLabels: JSON
   bichilSalarySymbols: JSON
