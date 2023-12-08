@@ -1,9 +1,5 @@
-import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
-import { withProps } from '@erxes/ui/src/utils';
-import ConformityChooser from '../../../conformity/containers/ConformityChooser';
-import React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
+
 import {
   IFilterParams,
   IItem,
@@ -11,7 +7,13 @@ import {
   ItemsQueryResponse,
   SaveMutation
 } from '../../types';
+
 import AddForm from './AddForm';
+import ConformityChooser from '../../../conformity/containers/ConformityChooser';
+import React from 'react';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
+import { withProps } from '@erxes/ui/src/utils';
 
 type IProps = {
   search: (value: string, loadMore?: boolean) => void;
@@ -21,6 +23,7 @@ type IProps = {
     boardId?: string,
     pipelineId?: string
   ) => void;
+  perPage?: number;
   stageId?: string;
   boardId?: string;
   pipelineId?: string;
@@ -49,7 +52,10 @@ class ItemChooserContainer extends React.Component<
   };
 
   render() {
-    const { data, itemsQuery, search } = this.props;
+    const { data, itemsQuery, search, perPage } = this.props;
+
+    const queryName = data.options.queriesName.itemsQuery;
+    const datas = itemsQuery[queryName] || [];
 
     const renderName = item => {
       return item.name || 'Unknown';
@@ -57,6 +63,38 @@ class ItemChooserContainer extends React.Component<
 
     const getAssociatedItem = (newItem: IItem) => {
       this.setState({ newItem });
+    };
+
+    const onLoadMore = () => {
+      return (
+        itemsQuery &&
+        itemsQuery.fetchMore({
+          variables: {
+            skip: datas.length
+          },
+          updateQuery: (prevResult, { fetchMoreResult }) => {
+            if (!fetchMoreResult || fetchMoreResult[queryName].length === 0) {
+              return prevResult;
+            }
+
+            const prevItems = prevResult[queryName] || [];
+            const prevItemIds = prevItems.map(item => item._id);
+
+            const fetchedItems: any[] = [];
+
+            for (const item of fetchMoreResult[queryName]) {
+              if (!prevItemIds.includes(item._id)) {
+                fetchedItems.push(item);
+              }
+            }
+
+            return {
+              ...prevResult,
+              [queryName]: [...prevItems, ...fetchedItems]
+            };
+          }
+        })
+      );
     };
 
     const updatedProps = {
@@ -72,8 +110,9 @@ class ItemChooserContainer extends React.Component<
         options: data.options
       },
       search,
+      onLoadMore,
       clearState: () => search(''),
-      perPage: 0,
+      perPage: perPage || 10,
       title: data.options.title,
       renderName,
       renderForm: formProps => (
@@ -90,7 +129,8 @@ class ItemChooserContainer extends React.Component<
       ),
       newItem: this.state.newItem,
       resetAssociatedItem: this.resetAssociatedItem,
-      datas: itemsQuery[data.options.queriesName.itemsQuery] || [],
+      datas,
+      loading: itemsQuery.loading,
       refetchQuery: data.options.queries.itemsQuery
     };
 
