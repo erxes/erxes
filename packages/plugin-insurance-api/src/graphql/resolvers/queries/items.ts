@@ -277,25 +277,17 @@ const queries = {
 
     const userIds = users.map((u: any) => u._id);
 
-    console.log('userIds', userIds);
-
     const categories = await models.Categories.find({});
     const totalItemsCountOfCompany = await models.Items.find({
       vendorUserId: { $in: userIds }
     }).countDocuments();
 
-    console.log('totalItemsCountOfCompany', totalItemsCountOfCompany);
-
     const result: any = [];
-
-    console.log('categories', categories);
 
     for (const cat of categories) {
       const productIds = await models.Products.find({
         categoryId: cat._id
       }).distinct('_id');
-
-      console.log('productIds', productIds);
 
       const items: any = await models.Items.find({
         productId: { $in: productIds },
@@ -304,7 +296,6 @@ const queries = {
 
       let totalFee = 0;
 
-      console.log('items', items);
       if (items.length !== 0) {
         totalFee = items.reduce(
           (acc, obj) => acc + obj.searchDictionary.itemTotalFee,
