@@ -966,9 +966,9 @@ const clientPortalUserMutations = {
       throw new Error(error);
     }
 
-    const cp = await models.ClientPortals.findOne(
-      cpUser?.clientPortalId
-    ).lean();
+    const cp = await models.ClientPortals.findOne({
+      _id: cpUser?.clientPortalId
+    }).lean();
 
     if (cp || cp.kind === 'vendor') {
       await models.Companies.createOrUpdateCompany({
