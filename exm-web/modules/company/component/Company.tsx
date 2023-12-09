@@ -1,6 +1,6 @@
 import { useExm } from "../hooks/useExm"
 
-const Company = ({ type }: { type: string }) => {
+const Company = () => {
   const { exm } = useExm()
 
   const emptyMessage = () => {
@@ -15,14 +15,6 @@ const Company = ({ type }: { type: string }) => {
         </div>
         <img src="/images/error.png" />
       </div>
-    )
-  }
-
-  if (type === "structure") {
-    return exm.structure ? (
-      <div dangerouslySetInnerHTML={{ __html: exm.structure || "" }} />
-    ) : (
-      emptyMessage()
     )
   }
 

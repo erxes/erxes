@@ -238,3 +238,39 @@
 .whitespace-wrap {
   white-space: wrap
 }
+.react-flow .react-flow__handle {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #56CCF2;
+}
+
+.react-flow .react-flow__node {
+  height: fit-content;
+  width: fit-content;
+  min-width: 150px;
+  max-width: 270px;
+  justify-content: center;
+  align-items: center;
+  display: flex;
+  border: 1px solid #fff;
+  box-shadow: 0 1px 4px 1px rgba(0, 0, 0, 0.08);
+  font-weight: 700;
+}
+
+.react-flow .react-flow__edge path,
+.react-flow__connectionline path {
+  stroke-width: 2;
+  stroke: #56CCF2;
+}
+
+.wrapper {
+  flex-grow: 1;
+  height: 100%;
+}
+.react-flow__panel {
+  display: none;
+}
+.react-flow__node-input.selectable.selected, .react-flow__node-default.selectable.selected, .react-flow__node-default.selectable:focus {
+  box-shadow: 0 1px 4px 1px rgba(0, 0, 0, 0.08) !important;
+}

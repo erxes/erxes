@@ -10,7 +10,7 @@ const Feedback = () => {
 
   const view = searchParams.get("view")
 
-  const [toggleView, setToggleView] = useState(view === "table" ? false : true)
+  const [toggleView, setToggleView] = useState(view === "table" ? true : false)
 
   const queryParams = {
     page: params.page || 1,

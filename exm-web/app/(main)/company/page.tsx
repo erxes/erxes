@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 const List = dynamic(() => import("@/modules/team-member/component/List"))
 const Company = dynamic(() => import("@/modules/company/component/Company"))
+const Structure = dynamic(() => import("@/modules/company/component/Structure"))
 
 const CompanyPage = () => {
   const router = useRouter()
@@ -64,13 +65,13 @@ const CompanyPage = () => {
           value={"structure"}
           className="bg-[#F8F9FA] h-[calc(100vh-70px)] py-6 px-10 overflow-auto"
         >
-          <Company type="structure" />
+          <Structure  />
         </TabsContent>
         <TabsContent
           value={"company"}
           className="bg-[#F8F9FA] h-[calc(100vh-70px)] py-6 px-10 overflow-auto"
         >
-          <Company type="vision" />
+          <Company />
         </TabsContent>
       </Tabs>
     </div>
