@@ -1,7 +1,7 @@
+import { IAction } from '@erxes/ui-automations/src/types';
 import { Position, internalsSymbol } from 'reactflow';
 import { ITrigger } from '../../types';
-import { IAction } from '@erxes/ui-automations/src/types';
-
+import { NodeType } from './types';
 function getParams(nodeA, nodeB) {
   const centerA = getNodeCenter(nodeA);
   const centerB = getNodeCenter(nodeB);
@@ -109,7 +109,21 @@ export const generateEdges = ({
         }
       };
 
-      const { optionalConnects = [] } = edge?.config || {};
+      const { optionalConnects = [], ...config } = edge?.config || {};
+
+      if (edge.type === 'if') {
+        const { yes, no } = config;
+
+        for (const [key, value] of Object.entries({ yes, no })) {
+          generatedEdges.push({
+            ...edgeObj,
+            id: `${type}-${edge.id}-${key}-${edgeObj.sourceHandle}`,
+            sourceHandle: `${key}-${edgeObj.sourceHandle}`,
+            target: value
+          });
+        }
+        continue;
+      }
 
       if (!!optionalConnects?.length) {
         for (const {
@@ -134,43 +148,58 @@ export const generateEdges = ({
 
   return generatedEdges;
 };
+const generateNode = (
+  node: IAction & ITrigger,
+  nodeType: string,
+  nodes: IAction[] & ITrigger[],
+  props: any
+) => {
+  const {
+    isAvailableOptionalConnect,
+    id,
+    label,
+    description,
+    icon,
+    config
+  } = node;
+
+  return {
+    id,
+    data: {
+      label,
+      description,
+      icon,
+      nodeType,
+      [`${nodeType}Type`]: node.type,
+      isAvailableOptionalConnect,
+      config,
+      ...props
+    },
+    position: node?.position || generatNodePosition(nodes, node),
+    isConnectable: true,
+    type: 'custom',
+    style: {
+      zIndex: -1
+    }
+  };
+};
 
 export const generateNodes = (
   { actions, triggers }: { actions: IAction[]; triggers: ITrigger[] },
   props
 ) => {
-  const generateNode = (node, nodeType) => {
-    const {
-      isAvailableOptionalConnect,
-      id,
-      label,
-      description,
-      icon,
-      config
-    } = node;
-
-    return {
-      id,
-      data: {
-        label,
-        description,
-        icon,
-        nodeType,
-        [`${nodeType}Type`]: node.type,
-        isAvailableOptionalConnect,
-        config,
-        ...props
-      },
-      position: node?.position || { x: 2, y: 2 },
-      isConnectable: true,
-      type: 'custom',
-      style: {
-        zIndex: -1
+  if (triggers.length === 0 && actions.length === 0) {
+    return [
+      {
+        id: 'scratch-node',
+        type: 'scratch',
+        data: { ...props },
+        position: { x: 0, y: 0 }
       }
-    };
-  };
+    ];
+  }
 
-  const generatedNodes: any[] = [];
+  const generatedNodes: NodeType[] = [];
 
   for (const { type, nodes } of [
     { type: 'trigger', nodes: triggers },
@@ -178,10 +207,30 @@ export const generateNodes = (
   ]) {
     for (const node of nodes) {
       generatedNodes.push({
-        ...generateNode(node, type)
+        ...generateNode(node, type, nodes, props)
       });
     }
   }
 
   return generatedNodes;
+};
+
+const generatNodePosition = (
+  nodes: IAction[] & ITrigger[],
+  node: IAction & ITrigger
+) => {
+  const targetField = node.type === 'trigger' ? 'actionId' : 'nextActionId';
+
+  const prevNode = nodes.find(n => n[targetField] === node.id);
+
+  if (!prevNode) {
+    return { x: 2, y: 2 };
+  }
+
+  const { position } = prevNode;
+
+  return {
+    x: position?.x + 500,
+    y: position?.y
+  };
 };

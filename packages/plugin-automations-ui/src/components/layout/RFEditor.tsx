@@ -1,5 +1,7 @@
-import React, { useCallback, useRef, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 
+import { IAction } from '@erxes/ui-automations/src/types';
+import { Icon } from '@erxes/ui/src';
 import ReactFlow, {
   Background,
   ConnectionMode,
@@ -11,11 +13,10 @@ import ReactFlow, {
   useNodesState
 } from 'reactflow';
 import 'reactflow/dist/style.css';
-import { generateEdges, generateNodes } from './utils';
-import CustomNode from './Node';
 import { AutomationConstants, ITrigger } from '../../types';
-import { IAction } from '@erxes/ui-automations/src/types';
-import { Button, Icon } from '@erxes/ui/src';
+import CustomNode, { ScratchNode } from './Node';
+import { generateEdges, generateNodes } from './utils';
+import { ActionContent } from './styles';
 
 type Props = {
   triggers: ITrigger[];
@@ -44,7 +45,8 @@ type Props = {
 };
 
 const nodeTypes = {
-  custom: CustomNode
+  custom: CustomNode,
+  scratch: ScratchNode
 };
 
 const fitViewOptions = { padding: 2 };
@@ -57,7 +59,6 @@ function AutomationEditor({
   ...props
 }: Props) {
   const edgeUpdateSuccessful = useRef(true);
-  const [align, setAlign] = useState('right');
   const [hoveredNodeId, setHoveredNodeId] = useState(null);
   const [edges, setEdges, onEdgesChange] = useEdgesState(
     generateEdges({ triggers, actions })
@@ -170,7 +171,7 @@ function AutomationEditor({
     }
   };
 
-  const onNodeMouseEnter = (event, node) => {
+  const onNodeMouseEnter = (_, node) => {
     setHoveredNodeId(node.id);
   };
 
@@ -178,7 +179,7 @@ function AutomationEditor({
     setHoveredNodeId(null);
   };
 
-  const onNodeDragStop = (e, node) => {
+  const onNodeDragStop = (_, node) => {
     onChangePositions(node?.data?.nodeType, node.id, node.position);
   };
 
@@ -187,21 +188,20 @@ function AutomationEditor({
       return null;
     }
 
-    // Customize your action bar content and styling
+    const action = actions.find(a => a.id === hoveredNodeId);
+
+    if (!action) {
+      return null;
+    }
+
     const actionBarStyle: any = {
-      position: 'absolute',
       top: 100 + 5,
-      left: 300 / 2,
-      transform: 'translateX(-50%)',
-      background: 'white',
-      border: '1px solid #ddd',
-      padding: '8px',
-      borderRadius: '4px',
-      boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-      zIndex: 1
+      left: 300 / 2
     };
 
-    return <div style={actionBarStyle}>{hoveredNodeId}</div>;
+    return (
+      <ActionContent style={actionBarStyle}>{hoveredNodeId}</ActionContent>
+    );
   };
 
   return (

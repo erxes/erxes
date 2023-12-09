@@ -283,8 +283,6 @@ class Editor extends React.Component<Props, State> {
     if (awaitingActionId) {
       const [awaitActionId, optionalConnectId] = awaitingActionId.split('-');
 
-      console.log({ awaitActionId, optionalConnectId });
-
       actions = actions.map(a => {
         if (a.id === awaitActionId && optionalConnectId) {
           const { config } = a || {};

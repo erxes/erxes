@@ -9,6 +9,7 @@ export type IAction = {
   style?: any;
   config?: any;
   position?: any;
+  isAvailableOptionalConnect?: boolean;
 
   count?: number;
 };

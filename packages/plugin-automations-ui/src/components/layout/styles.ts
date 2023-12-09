@@ -14,6 +14,14 @@ export const Trigger = styledTS<{ type: string; isHoverActionBar?: boolean }>(
   border-radius: 8px;
   cursor: pointer;
 
+  > p {
+    font-size: 13px;
+    text-align: center;
+    margin: 0;
+    padding: ${dimensions.unitSpacing + 5}px ${dimensions.unitSpacing}px;
+    color: ${colors.colorCoreGray};
+  }
+
   .header {
     background: ${props =>
       props.type === 'trigger'
@@ -115,35 +123,53 @@ export const Trigger = styledTS<{ type: string; isHoverActionBar?: boolean }>(
         color: ${colors.colorCoreGray};
       }
   }
+`;
+
+export const ScratchNode = styled.div`
+  max-width: 300px;
+  padding: 3px;
+  background: #f5f5f5;
+  border: 1px solid ${colors.borderPrimary};
+  border-radius: 8px;
+  cursor: pointer;
+  top: 40%;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  padding: 20px 10px 10px;
+  transition: all ease 0.3s;
+
+  > i {
+    width: 40px;
+    height: 40px;
+    line-height: 40px;
+    background: ${rgba(colors.colorSecondary, 0.12)};
+    border-radius: 40px;
+    color: ${colors.colorSecondary};
+    text-align: center;
+  }
 
   > p {
-    font-size: 13px;
+    font-size: 12px;
     text-align: center;
     margin: 0;
     padding: ${dimensions.unitSpacing + 5}px ${dimensions.unitSpacing}px;
     color: ${colors.colorCoreGray};
   }
 
-  &.scratch {
-    top: 40%;
-    display: flex;
-    align-items: center;
-    flex-direction: column;
-    padding: 20px 10px 10px;
+  :hover {
+    border-color: ${colors.colorSecondary};
     transition: all ease 0.3s;
-
-    > i {
-      width: 40px;
-      height: 40px;
-      line-height: 40px;
-      background: ${rgba(colors.colorSecondary, 0.12)};
-      border-radius: 40px;
-      color: ${colors.colorSecondary};
-      text-align: center;
-    }
-
-    &:hover {
-      border-color: ${colors.colorSecondary};
-    }
   }
+`;
+
+export const ActionContent = styled.div`
+  position: absolute;
+  transform: translateX(-50%);
+  background: white;
+  border: 1px solid #ddd;
+  padding: 8px;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  z-index: 2px;
 `;

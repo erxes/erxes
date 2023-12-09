@@ -1,9 +1,13 @@
-import { __, colors } from '@erxes/ui/src';
+import { Icon, __, colors } from '@erxes/ui/src';
 import React, { memo, useState } from 'react';
 import { Handle, Position } from 'reactflow';
 
-import { DEFAULT_HANDLE_OPTIONS, DEFAULT_HANDLE_STYLE } from './constants';
-import { Trigger } from './styles';
+import {
+  BRANCH_HANDLE_OPTIONS,
+  DEFAULT_HANDLE_OPTIONS,
+  DEFAULT_HANDLE_STYLE
+} from './constants';
+import { Trigger, ScratchNode as CommonScratchNode } from './styles';
 import { renderDynamicComponent } from '../../utils';
 import { AutomationConstants } from '../../types';
 
@@ -20,6 +24,7 @@ type Props = {
   data: {
     type: string;
     nodeType: string;
+    actionType: string;
     icon: string;
     label: string;
     description: string;
@@ -36,6 +41,27 @@ type Props = {
   };
 };
 
+type HandleProps = {
+  id: string;
+  position: any;
+  style: any;
+  label?: string;
+  labelStyle?: any;
+};
+
+export const ScratchNode = ({ data }: Props) => {
+  const { toggleDrawer } = data;
+
+  return (
+    // <Trigger type='scratch'>
+    <CommonScratchNode onClick={toggleDrawer.bind(this, { type: 'triggers' })}>
+      <Icon icon="file-plus" size={25} />
+      <p>{__('How do you want to trigger this automation')}?</p>
+    </CommonScratchNode>
+    // </Trigger>
+  );
+};
+
 export default memo(({ id, data }: Props) => {
   const [isHovered, setIsHovered] = useState(false);
 
@@ -49,7 +75,13 @@ export default memo(({ id, data }: Props) => {
     setIsHovered(false);
   };
 
-  const handleOnClick = (optionId, isOptionalConnect) => {
+  const handleOnClick = ({
+    optionId,
+    isOptionalConnect
+  }: {
+    optionId: string;
+    isOptionalConnect?: boolean;
+  }) => {
     if (optionId.includes('right')) {
       toggleDrawer({
         type: `actions`,
@@ -70,6 +102,10 @@ export default memo(({ id, data }: Props) => {
   };
 
   const renderOptionalContent = () => {
+    if (!data.nodeType) {
+      return;
+    }
+
     const constant = (constants[`${data.nodeType}sConst`] || []).find(
       c => c.type === data[`${data.nodeType}Type`]
     );
@@ -84,7 +120,10 @@ export default memo(({ id, data }: Props) => {
         id={`${id}-${optionalId}-right`}
         type="source"
         position={Position.Right}
-        onClick={handleOnClick.bind(this, `${id}-${optionalId}-right`)}
+        onClick={handleOnClick.bind(this, {
+          optionId: `${id}-${optionalId}-right`,
+          isOptionalConnect: true
+        })}
         isConnectable
         style={{
           right: '20px',
@@ -109,6 +148,9 @@ export default memo(({ id, data }: Props) => {
       </div>
     );
   };
+
+  const handleOptions: HandleProps[] =
+    data?.actionType === 'if' ? BRANCH_HANDLE_OPTIONS : DEFAULT_HANDLE_OPTIONS;
 
   return (
     <>
@@ -141,7 +183,7 @@ export default memo(({ id, data }: Props) => {
 
         <p>{data.description}</p>
       </Trigger>
-      {DEFAULT_HANDLE_OPTIONS.map(
+      {handleOptions.map(
         option =>
           showHandler(data, option) && (
             <Handle
@@ -149,9 +191,20 @@ export default memo(({ id, data }: Props) => {
               type="source"
               position={option.position}
               id={option.id}
-              onClick={handleOnClick.bind(this, option.id)}
+              onClick={handleOnClick.bind(this, { optionId: option.id })}
               style={{ ...DEFAULT_HANDLE_STYLE, ...option.style }}
-            />
+            >
+              {option?.label && (
+                <div
+                  style={{
+                    ...option.labelStyle,
+                    color: option.style.background
+                  }}
+                >
+                  {option.label}
+                </div>
+              )}
+            </Handle>
           )
       )}
     </>

@@ -25,3 +25,40 @@ export const DEFAULT_HANDLE_OPTIONS = [
     }
   }
 ];
+
+export const BRANCH_HANDLE_OPTIONS = [
+  {
+    id: 'yes-right',
+    position: Position.Right,
+    label: 'True',
+    labelStyle: {
+      marginLeft: 20
+    },
+    style: {
+      right: -10,
+      top: 40,
+      background: colors.colorCoreGreen
+    }
+  },
+  {
+    id: 'no-right',
+    position: Position.Right,
+    label: 'False',
+    labelStyle: {
+      marginLeft: 20
+    },
+    style: {
+      right: -10,
+      top: 80,
+      background: colors.colorCoreRed
+    }
+  },
+  {
+    id: 'left',
+    position: Position.Left,
+    style: {
+      left: -10,
+      background: colors.colorCoreYellow
+    }
+  }
+];

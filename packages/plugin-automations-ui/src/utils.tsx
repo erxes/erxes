@@ -181,9 +181,11 @@ export const connection = (
           sourceAction.config = {};
         }
 
-        sourceAction.config[
-          info.sourceEndpoint.anchor.y === 0.3 ? 'yes' : 'no'
-        ] = actionId;
+        console.log({ info });
+
+        const [sourceHandle] = info.sourceHandle.split('-');
+
+        sourceAction.config[sourceHandle] = actionId;
       }
 
       if (connectType === 'optional') {
