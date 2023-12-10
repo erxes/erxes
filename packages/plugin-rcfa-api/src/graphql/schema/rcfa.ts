@@ -35,3 +35,7 @@ export const queries = `
   rcfaDetail(_id:String, mainType:String, mainTypeId:String): RCFAType
   checkRCFA(rcfaId:String,types:[String],stageIds:[String]):Boolean
 `;
+
+export const mutations = `
+  setRCFALabels(mainType:String,mainTypeId:String,labelIds:[String]):RCFAType
+`;

@@ -187,7 +187,8 @@ export const loadRCFAIssuesClass = (models: IModels, subdomain: string) => {
         sourceType: mainType,
         itemId: mainTypeId,
         name: name || issue?.issue || '',
-        stageId: destinationStageId
+        stageId: destinationStageId,
+        labelIds: rcfa.labelIds
       };
 
       const newItem = await sendCardsMessage({
