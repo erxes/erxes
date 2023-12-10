@@ -238,6 +238,14 @@ class GeneralStep extends React.Component<Props, State> {
                     onChange={this.onChangeInput}
                   />
                 </FormGroup>
+                <FormGroup>
+                  <ControlLabel>Order Password</ControlLabel>
+                  <FormControl
+                    id="orderPassword"
+                    value={pos.orderPassword || ''}
+                    onChange={this.onChangeInput}
+                  />
+                </FormGroup>
               </BlockRow>
             </Block>
 

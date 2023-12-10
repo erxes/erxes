@@ -23,6 +23,9 @@ type InsuranceItem @key(fields: "_id") @cacheControl(maxAge: 3) {
     productId: ID
 
     product: InsuranceProduct
+
+    feePercent: Float
+    totalFee: Float
   }
   
   input InsuranceItemInput {
@@ -39,19 +42,49 @@ type InsuranceItem @key(fields: "_id") @cacheControl(maxAge: 3) {
     list: [InsuranceItem]
     totalCount: Int
   }
+
+  enum SearchField {
+    dealNumber
+    dealCreatedAt
+    dealCloseDate
+    dealStartDate
+    
+    customerRegister
+    customerFirstName
+    customerLastName
+  
+    itemPrice
+    itemFeePercent
+    itemTotalFee
+  }
     
 `;
 
 export const queries = `
-    insuranceItems: [InsuranceItem]
-    insuranceItemList: InsuranceItemListResult
-    insuranceItem(_id: ID!): InsuranceItem
-
-    vendorInsuranceItems(   page: Int
+    insuranceItems(
+      sortField: String
+      sortDirection: SortDirection
+      searchField: SearchField
+      searchValue: JSON): [InsuranceItem]
+    insuranceItemList(
+      page: Int
       perPage: Int
       sortField: String
       sortDirection: SortDirection
-      searchValue: String): InsuranceItemListResult
+      searchField: SearchField
+      searchValue: JSON): InsuranceItemListResult
+    insuranceItem(_id: ID!): InsuranceItem
+
+    vendorInsuranceItems(  
+      page: Int
+      perPage: Int
+      sortField: String
+      sortDirection: SortDirection
+      searchField: SearchField
+      searchValue: JSON): InsuranceItemListResult
+    vendorInsuranceItem(_id: ID!): InsuranceItem
+
+    vendorInsuranceItemsInfo: JSON
 `;
 
 export const mutations = `

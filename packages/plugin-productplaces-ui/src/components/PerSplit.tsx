@@ -2,6 +2,7 @@ import BoardSelectContainer from '@erxes/ui-cards/src/boards/containers/BoardSel
 import SelectProductCategory from '@erxes/ui-products/src/containers/SelectProductCategory';
 import SelectProducts from '@erxes/ui-products/src/containers/SelectProducts';
 import SelectSegments from '@erxes/ui-segments/src/containers/SelectSegments';
+import SelectTags from '@erxes/ui-tags/src/containers/SelectTags';
 import {
   Button,
   CollapseContent,
@@ -117,10 +118,6 @@ class PerSettings extends React.Component<Props, State> {
                 label="Choose product category"
                 name="productCategoryIds"
                 initialValue={config.productCategoryIds || ''}
-                customOption={{
-                  value: '',
-                  label: '...Clear product category filter'
-                }}
                 onSelect={categoryIds =>
                   this.onChangeConfig('productCategoryIds', categoryIds)
                 }
@@ -135,6 +132,32 @@ class PerSettings extends React.Component<Props, State> {
                 initialValue={config.excludeCategoryIds}
                 onSelect={categoryIds =>
                   this.onChangeConfig('excludeCategoryIds', categoryIds)
+                }
+                multi={true}
+              />
+            </FormGroup>
+            <FormGroup>
+              <ControlLabel>{'Product Tags'}</ControlLabel>
+              <SelectTags
+                tagsType="products:product"
+                name="productTagIds"
+                label="Choose product tags"
+                initialValue={config.productTagIds || ''}
+                onSelect={tagsIds =>
+                  this.onChangeConfig('productTagIds', tagsIds)
+                }
+                multi={true}
+              />
+            </FormGroup>
+            <FormGroup>
+              <ControlLabel>{__('Exclude tags')}</ControlLabel>
+              <SelectTags
+                tagsType="products:product"
+                name="excludeTagIds"
+                label="Choose tags to exclude"
+                initialValue={config.excludeTagIds}
+                onSelect={tagIds =>
+                  this.onChangeConfig('excludeTagIds', tagIds)
                 }
                 multi={true}
               />

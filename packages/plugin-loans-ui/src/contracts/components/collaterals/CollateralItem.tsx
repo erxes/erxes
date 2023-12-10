@@ -351,7 +351,6 @@ class CollateralItem extends React.Component<Props, State> {
                 label={__('Choose an contract')}
                 name="depositAccount"
                 initialValue={this.state.currentCollateral}
-                filterParams={{ isDeposit: false }}
                 onSelect={v => {
                   if (typeof v === 'string') {
                     this.setState({

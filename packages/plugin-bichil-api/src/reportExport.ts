@@ -15,10 +15,14 @@ import { IUsersReport } from './models/definitions/timeclock';
 import {
   createTeamMembersObject,
   findAllTeamMembers,
+  findBranchUsers,
+  findBranches,
+  findSubBranches,
   findTeamMember,
   findTeamMembers,
   generateCommonUserIds,
   getNextNthColumnChar,
+  paginateArray,
   returnDepartmentsBranchesDict,
   returnSupervisedUsers
 } from './utils';
@@ -125,10 +129,9 @@ const addIntoSheet = async (
 const prepareHeader = async (
   sheet: any,
   reportType: string,
-  showDepartment?: boolean,
-  showBranch?: boolean,
   startDate?: Date,
-  endDate?: Date
+  endDate?: Date,
+  parentColumnsCount?: number
 ) => {
   let total_columns = 0;
 
@@ -139,23 +142,10 @@ const prepareHeader = async (
       addIntoSheet([pre_headers], 'A1', 'I1', sheet, reportType);
       break;
     case 'Сүүлд' || 'Final':
-      const final_headers = [...FINAL_REPORT_COLUMNS];
+      const final_headers = [...FINAL_REPORT_COLUMNS(parentColumnsCount)];
+
       let column_start = 'A';
       let column_end = 'A';
-
-      // if (showBranch || showDepartment) {
-      //   const structure: string[] = [];
-
-      //   if (showDepartment) {
-      //     structure.push('Цех, тасаг, багийн нэр');
-      //   }
-      //   if (showBranch) {
-      //     structure.push('Салбар нэгж');
-      //   }
-      //   final_headers.unshift([['Structure'], ['№', ...structure]]);
-      // } else {
-      //   final_headers.unshift([[''], ['№']]);
-      // }
 
       for (const header of final_headers) {
         total_columns += header[1].length;
@@ -193,15 +183,6 @@ const prepareHeader = async (
       }
 
       addIntoSheet(
-        'БЭРС ФИНАНС ББСБ ХХК',
-        'A1',
-        `${column_end}1`,
-        sheet,
-        reportType,
-        true
-      );
-
-      addIntoSheet(
         `${dayjs(startDate).format(dateFormat2)} - ${dayjs(endDate).format(
           dateFormat2
         )}`,
@@ -217,17 +198,17 @@ const prepareHeader = async (
     case 'Pivot':
       const pivot_headers = PIVOT_REPORT_COLUMNS;
 
-      addIntoSheet([pivot_headers[0][0]], 'A1', 'E1', sheet, reportType, true);
-      addIntoSheet([pivot_headers[0][1]], 'A2', 'E2', sheet, reportType);
+      addIntoSheet([pivot_headers[0][0]], 'A1', 'D1', sheet, reportType, true);
+      addIntoSheet([pivot_headers[0][1]], 'A2', 'D2', sheet, reportType);
 
-      addIntoSheet([pivot_headers[1][0]], 'F1', 'F1', sheet, reportType, true);
-      addIntoSheet([pivot_headers[1][1]], 'F2', 'F2', sheet, reportType);
+      addIntoSheet([pivot_headers[1][0]], 'E1', 'E1', sheet, reportType, true);
+      addIntoSheet([pivot_headers[1][1]], 'E2', 'E2', sheet, reportType);
 
-      addIntoSheet([pivot_headers[2][0]], 'G1', 'J1', sheet, reportType, true);
-      addIntoSheet([pivot_headers[2][1]], 'G2', 'J2', sheet, reportType);
+      addIntoSheet([pivot_headers[2][0]], 'F1', 'I1', sheet, reportType, true);
+      addIntoSheet([pivot_headers[2][1]], 'F2', 'I2', sheet, reportType);
 
-      addIntoSheet([pivot_headers[3][0]], 'K1', 'S1', sheet, reportType, true);
-      addIntoSheet([pivot_headers[3][1]], 'K2', 'S2', sheet, reportType);
+      addIntoSheet([pivot_headers[3][0]], 'J1', 'R1', sheet, reportType, true);
+      addIntoSheet([pivot_headers[3][1]], 'J2', 'R2', sheet, reportType);
 
       break;
   }
@@ -251,13 +232,9 @@ const extractAndAddIntoSheet = async (
   const usersStructure: { [userId: string]: Structure } = {};
   const extractValuesIntoArr: any[][] = [];
 
-  const showBranch = queryParams.showBranch
-    ? JSON.parse(queryParams.showBranch)
-    : false;
+  let total_columns_num = total_columns;
 
-  const showDepartment = queryParams.showDepartment
-    ? JSON.parse(queryParams.showDepartment)
-    : false;
+  const { startDate, endDate } = queryParams;
 
   // get department, branch titles
   for (const teamMember of teamMembers) {
@@ -275,10 +252,10 @@ const extractAndAddIntoSheet = async (
     };
   }
 
-  const structuresDict = await returnDepartmentsBranchesDict(
+  let structuresDict = await returnDepartmentsBranchesDict(
     subdomain,
-    totalBranchIdsOfMembers,
-    totalDeptIdsOfMembers
+    Array.from(new Set(totalBranchIdsOfMembers)),
+    Array.from(new Set(totalDeptIdsOfMembers))
   );
 
   let rowNum = 1;
@@ -308,12 +285,16 @@ const extractAndAddIntoSheet = async (
       startRowIdx = 5;
       rowNum = 5;
 
+      let startRowIdxPerParentTitle: number = startRowIdx;
+      let endRowIdxPerParentTitle: number = startRowIdxPerParentTitle;
       let startRowIdxPerBranch: number = startRowIdx;
       let endRowIdxPerBranch: number = startRowIdxPerBranch;
+      let maxParentsCount: number = 0;
 
       const numeration: number[][] = [];
 
       const groupedByBranch: { [branchTitle: string]: any } = {};
+      const parentBranchesDict: any = {};
 
       for (const userId of Object.keys(empReports)) {
         if (!usersStructure[userId]) {
@@ -322,56 +303,160 @@ const extractAndAddIntoSheet = async (
 
         const userReport: any[] = Object.values(empReports[userId]);
         const userBranchIds = usersStructure[userId].branchIds;
-        const branchTitles: string[] = [];
+        const userBranchTitleToIdDict: { [branchTitle: string]: string } = {};
 
-        for (const userBranchId of userBranchIds) {
-          if (structuresDict[userBranchId]) {
-            branchTitles.push(structuresDict[userBranchId]);
+        const userBranchTitles: any[] = userBranchIds.map(branchId => {
+          if (structuresDict[branchId]) {
+            userBranchTitleToIdDict[structuresDict[branchId].title] = branchId;
+            return structuresDict[branchId].title;
           }
-        }
+        });
 
-        for (const userBranchTitle of branchTitles) {
+        for (const userBranchTitle of userBranchTitles) {
           if (userBranchTitle in groupedByBranch) {
-            groupedByBranch[userBranchTitle] = [
-              ...groupedByBranch[userBranchTitle],
+            groupedByBranch[userBranchTitle].report = [
+              ...groupedByBranch[userBranchTitle].report,
               userReport
             ];
             continue;
           }
 
-          groupedByBranch[userBranchTitle] = [userReport];
+          const branchId = userBranchTitleToIdDict[userBranchTitle];
+
+          const parentsCount = structuresDict[branchId].parentsCount || 0;
+
+          maxParentsCount =
+            parentsCount > maxParentsCount ? parentsCount : maxParentsCount;
+
+          groupedByBranch[userBranchTitle] = {
+            parentsCount,
+            parentsTitles: structuresDict[branchId].parentsTitles || [],
+            groupTitle: userBranchTitle,
+            report: [userReport]
+          };
         }
       }
 
+      total_columns_num = await prepareHeader(
+        sheet,
+        reportType,
+        startDate,
+        endDate,
+        maxParentsCount
+      );
+
       for (const branchTitle of Object.keys(groupedByBranch)) {
-        const getUserReportEndColumn = getNextNthColumnChar('C', total_columns);
-        const getTotalUsersLengthPerBranch =
-          groupedByBranch[branchTitle].length - 1;
+        const bichilReport = groupedByBranch[branchTitle];
 
-        endRowIdxPerBranch =
-          startRowIdxPerBranch + getTotalUsersLengthPerBranch;
+        const { parentsTitles, parentsCount } = bichilReport;
 
-        endRowIdx = endRowIdxPerBranch;
+        for (const parentTitle of parentsTitles) {
+          if (parentBranchesDict[parentTitle]) {
+            parentBranchesDict[parentTitle] = [
+              ...parentBranchesDict[parentTitle],
+              bichilReport
+            ];
+            continue;
+          }
 
-        addIntoSheet(
-          [[branchTitle]],
-          `B${startRowIdxPerBranch}`,
-          `B${endRowIdxPerBranch}`,
-          sheet,
-          reportType,
-          true,
-          [{ style: 'bold', value: false }]
-        );
+          parentBranchesDict[parentTitle] = [bichilReport];
+        }
+      }
 
-        addIntoSheet(
-          groupedByBranch[branchTitle],
-          `C${startRowIdxPerBranch}`,
-          `${getUserReportEndColumn}${endRowIdxPerBranch}`,
-          sheet,
-          reportType
-        );
+      const hasParentBranches = Object.keys(parentBranchesDict).length;
 
-        startRowIdxPerBranch = endRowIdxPerBranch + 1;
+      const branchTitleColumn = getNextNthColumnChar(
+        'B',
+        hasParentBranches ? 1 : 0
+      );
+
+      const userReportStartColumn = getNextNthColumnChar(branchTitleColumn, 1);
+
+      const userReportEndColumn = getNextNthColumnChar(
+        userReportStartColumn,
+        total_columns_num
+      );
+
+      if (hasParentBranches) {
+        for (const parentBranchTitle of Object.keys(parentBranchesDict)) {
+          const groupReports = parentBranchesDict[parentBranchTitle];
+
+          const totalRowsPerParent = groupReports.reduce(
+            (sum, userReport) => sum + userReport.report.length || 0,
+            0
+          );
+
+          endRowIdxPerParentTitle =
+            startRowIdxPerParentTitle + totalRowsPerParent - 1;
+
+          addIntoSheet(
+            [[parentBranchTitle]],
+            `B${startRowIdxPerParentTitle}`,
+            `B${endRowIdxPerParentTitle}`,
+            sheet,
+            reportType,
+            true
+          );
+
+          startRowIdxPerParentTitle = endRowIdxPerParentTitle + 1;
+
+          for (const groupReport of groupReports) {
+            const { groupTitle } = groupReport;
+
+            const getTotalUsersLengthPerBranch = groupReport.report.length - 1;
+
+            endRowIdxPerBranch =
+              startRowIdxPerBranch + getTotalUsersLengthPerBranch;
+
+            endRowIdx = endRowIdxPerBranch;
+
+            addIntoSheet(
+              [[groupTitle]],
+              `${branchTitleColumn}${startRowIdxPerBranch}`,
+              `${branchTitleColumn}${endRowIdxPerBranch}`,
+              sheet,
+              reportType,
+              true,
+              [{ style: 'bold', value: false }]
+            );
+            addIntoSheet(
+              groupReport.report,
+              `${userReportStartColumn}${startRowIdxPerBranch}`,
+              `${userReportEndColumn}${endRowIdxPerBranch}`,
+              sheet,
+              reportType
+            );
+
+            startRowIdxPerBranch = endRowIdxPerBranch + 1;
+          }
+        }
+      }
+      // no parent branches
+      else {
+        for (const branchTitle of Object.keys(groupedByBranch)) {
+          const getTotalUsersLengthPerBranch =
+            groupedByBranch[branchTitle].report.length - 1;
+          endRowIdxPerBranch =
+            startRowIdxPerBranch + getTotalUsersLengthPerBranch;
+          endRowIdx = endRowIdxPerBranch;
+          addIntoSheet(
+            [[branchTitle]],
+            `${branchTitleColumn}${startRowIdxPerBranch}`,
+            `${branchTitleColumn}${endRowIdxPerBranch}`,
+            sheet,
+            reportType,
+            true,
+            [{ style: 'bold', value: false }]
+          );
+          addIntoSheet(
+            groupedByBranch[branchTitle].report,
+            `${userReportStartColumn}${startRowIdxPerBranch}`,
+            `${userReportEndColumn}${endRowIdxPerBranch}`,
+            sheet,
+            reportType
+          );
+          startRowIdxPerBranch = endRowIdxPerBranch + 1;
+        }
       }
 
       for (let num = 1; num < endRowIdx - 3; num++) {
@@ -391,10 +476,12 @@ const extractAndAddIntoSheet = async (
 
       endRowIdx++;
 
+      const getStartColumn = hasParentBranches ? 'G' : 'F';
+
       addIntoSheet(
         deductionInfo.totalHoursScheduled,
-        `F${endRowIdx}`,
-        `F${endRowIdx}`,
+        `${getStartColumn}${endRowIdx}`,
+        `${getStartColumn}${endRowIdx}`,
         sheet,
         reportType,
         false,
@@ -403,8 +490,8 @@ const extractAndAddIntoSheet = async (
 
       addIntoSheet(
         deductionInfo.totalHoursWorked,
-        `G${endRowIdx}`,
-        `G${endRowIdx}`,
+        `${getNextNthColumnChar(getStartColumn, 1)}${endRowIdx}`,
+        `${getNextNthColumnChar(getStartColumn, 1)}${endRowIdx}`,
         sheet,
         reportType,
         false,
@@ -413,8 +500,8 @@ const extractAndAddIntoSheet = async (
 
       addIntoSheet(
         deductionInfo.totalShiftNotClosedDeduction,
-        `P${endRowIdx}`,
-        `P${endRowIdx}`,
+        `${getNextNthColumnChar(getStartColumn, 10)}${endRowIdx}`,
+        `${getNextNthColumnChar(getStartColumn, 10)}${endRowIdx}`,
         sheet,
         reportType,
         false,
@@ -423,8 +510,18 @@ const extractAndAddIntoSheet = async (
 
       addIntoSheet(
         deductionInfo.totalLateMinsDeduction,
-        `S${endRowIdx}`,
-        `S${endRowIdx}`,
+        `${getNextNthColumnChar(getStartColumn, 13)}${endRowIdx}`,
+        `${getNextNthColumnChar(getStartColumn, 13)}${endRowIdx}`,
+        sheet,
+        reportType,
+        false,
+        [{ style: 'bold', value: true }]
+      );
+
+      addIntoSheet(
+        deductionInfo.totalAbsentDeduction,
+        `${getNextNthColumnChar(getStartColumn, 16)}${endRowIdx}`,
+        `${getNextNthColumnChar(getStartColumn, 16)}${endRowIdx}`,
         sheet,
         reportType,
         false,
@@ -433,8 +530,8 @@ const extractAndAddIntoSheet = async (
 
       addIntoSheet(
         deductionInfo.totalDeductionPerGroup,
-        `T${endRowIdx}`,
-        `T${endRowIdx}`,
+        `${getNextNthColumnChar(getStartColumn, 17)}${endRowIdx}`,
+        `${getNextNthColumnChar(getStartColumn, 17)}${endRowIdx}`,
         sheet,
         reportType,
         false,
@@ -449,15 +546,15 @@ const extractAndAddIntoSheet = async (
 
       for (const userId of Object.keys(empReports)) {
         const empReport = empReports[userId];
+
         const rowArray: any = [
           userNum,
           empReport.employeeId,
-          empReport.firstName,
-          empReport.lastName,
+          empReport.fullName,
           empReport.position
         ];
 
-        addIntoSheet([rowArray], `A${rowNum}`, `E${rowNum}`, sheet, reportType);
+        addIntoSheet([rowArray], `A${rowNum}`, `D${rowNum}`, sheet, reportType);
 
         if (empReport.scheduleReport && empReport.scheduleReport.length) {
           empReport.scheduleReport.forEach(scheduleShift => {
@@ -505,13 +602,9 @@ const extractAndAddIntoSheet = async (
               .split(' ')[0];
 
             shiftInfo.push(
-              empReport.employeeId,
-              empReport.lastName,
-              empReport.firstName,
-              empReport.position,
               scheduleShift.timeclockDate,
-              scheduledStart,
-              scheduledEnd,
+              scheduledStart || '-',
+              scheduledEnd || '-',
               scheduleShift.scheduledDuration,
               scheduleShift.lunchBreakInHrs,
               shiftStart,
@@ -527,8 +620,8 @@ const extractAndAddIntoSheet = async (
 
             addIntoSheet(
               [shiftInfo],
-              `B${rowNum}`,
-              `S${rowNum}`,
+              `E${rowNum}`,
+              `R${rowNum}`,
               sheet,
               reportType
             );
@@ -553,6 +646,7 @@ export const buildFile = async (
   params: any
 ) => {
   const isCurrentUserAdmin = params.isCurrentUserAdmin;
+
   const reportType = params.reportType;
   const userIds =
     params.userIds instanceof Array || !params.userIds
@@ -568,7 +662,8 @@ export const buildFile = async (
       ? params.departmentIds
       : [params.departmentIds];
 
-  const { currentUserId } = params;
+  const { currentUserId, page = 1, perPage = 20 } = params;
+
   const currentUser = await findTeamMember(subdomain, currentUserId);
 
   const startDate = params.startDate;
@@ -581,31 +676,67 @@ export const buildFile = async (
 
   let filterGiven = false;
   let totalTeamMemberIds;
-  let totalMembers;
+  let totalTeamMembers;
+
+  const branchIdsGivenOnly = !departmentIds && !userIds && branchIds;
 
   if (userIds || branchIds || departmentIds) {
     filterGiven = true;
   }
 
-  if (filterGiven) {
-    totalTeamMemberIds = await generateCommonUserIds(
-      subdomain,
-      userIds,
-      branchIds,
-      departmentIds
-    );
+  const branchesReportStructure: {
+    [branchTitle: string]: IUserDocument[];
+  } = {};
 
-    totalMembers = await findTeamMembers(subdomain, totalTeamMemberIds);
+  const parentBranchesDict: { [branchId: string]: string } = {};
+
+  if (branchIdsGivenOnly) {
+    const totalUsers: IUserDocument[] = [];
+    const totalUserIds: string[] = [];
+
+    const getParentBranches = await findBranches(subdomain, branchIds);
+
+    for (const branchId of branchIds) {
+      const getSubBranches = await findSubBranches(subdomain, branchId);
+      const subBranchIds = getSubBranches.map(b => b._id);
+
+      const totalBranchIds = [branchId, ...subBranchIds];
+      const branchUsers = await findBranchUsers(subdomain, totalBranchIds);
+      const parentBranch = getParentBranches.filter(p => p._id === branchId);
+
+      for (const subBranchId of subBranchIds) {
+        parentBranchesDict[subBranchId] = parentBranch[0].title;
+      }
+
+      branchesReportStructure[parentBranch.title] = branchUsers.map(b => b._id);
+
+      totalUserIds.push(...branchUsers.map(u => u._id));
+      totalUsers.push(...branchUsers);
+    }
+
+    totalTeamMembers = totalUsers;
+    totalTeamMemberIds = totalUserIds;
   } else {
-    // return supervisod users including current user
-    if (isCurrentUserAdmin) {
-      // return all team member ids
-      totalMembers = await findAllTeamMembers(subdomain);
-      totalTeamMemberIds = totalMembers.map(usr => usr._id);
+    if (filterGiven) {
+      totalTeamMemberIds = await generateCommonUserIds(
+        subdomain,
+        userIds,
+        branchIds,
+        departmentIds
+      );
+
+      totalTeamMembers = await findTeamMembers(subdomain, totalTeamMemberIds);
     } else {
       // return supervisod users including current user
-      totalMembers = await returnSupervisedUsers(currentUser, subdomain);
-      totalTeamMemberIds = totalMembers.map(usr => usr._id);
+      if (isCurrentUserAdmin) {
+        // return all team member ids
+        totalTeamMembers = await findAllTeamMembers(subdomain);
+        totalTeamMemberIds = totalTeamMembers.map(usr => usr._id);
+      } else {
+        // return supervisod users including current user
+        totalTeamMembers = await returnSupervisedUsers(currentUser, subdomain);
+        totalTeamMemberIds = totalTeamMembers.map(usr => usr._id);
+      }
     }
   }
 
@@ -616,20 +747,38 @@ export const buildFile = async (
 
   let report: IUsersReport = {};
   let deductionInfo = {};
-  const totalColumnsNum = await prepareHeader(
-    sheet,
-    reportType,
-    params.showDepartment ? JSON.parse(params.showDepartment) : false,
-    params.showBranch ? JSON.parse(params.showBranch) : false,
-    startDate,
-    endDate
+  let totalColumnsNum;
+
+  if (!(reportType == 'Сүүлд' || reportType === 'Final')) {
+    totalColumnsNum = await prepareHeader(
+      sheet,
+      reportType,
+      startDate,
+      endDate
+    );
+  }
+
+  const paginatedTeamMemberIds = paginateArray(
+    totalTeamMemberIds,
+    perPage,
+    page
   );
+
+  const getCorrectTeamMemberIds =
+    totalTeamMemberIds.length > 20
+      ? paginatedTeamMemberIds
+      : totalTeamMemberIds;
+
+  const getCorrectTeamMembers =
+    totalTeamMembers.length > 20
+      ? paginateArray(totalTeamMembers, perPage, page)
+      : totalTeamMembers;
 
   switch (reportType) {
     case 'Урьдчилсан' || 'Preliminary':
       report = await bichilTimeclockReportPreliminary(
         subdomain,
-        totalTeamMemberIds,
+        getCorrectTeamMemberIds,
         startDate,
         endDate,
         teamMembersObject,
@@ -640,21 +789,21 @@ export const buildFile = async (
     case 'Сүүлд' || 'Final':
       const reportFinal = await bichilTimeclockReportFinal(
         subdomain,
-        totalTeamMemberIds,
+        getCorrectTeamMemberIds,
         startDate,
         endDate,
         teamMembersObject,
         true
       );
 
-      report = reportFinal.report;
-      deductionInfo = reportFinal.deductionInfo;
+      report = reportFinal?.report || {};
+      deductionInfo = reportFinal?.deductionInfo || {};
 
       break;
     case 'Pivot':
       report = await bichilTimeclockReportPivot(
         subdomain,
-        totalTeamMemberIds,
+        getCorrectTeamMemberIds,
         startDate,
         endDate,
         teamMembersObject,
@@ -668,8 +817,8 @@ export const buildFile = async (
     subdomain,
     params,
     report,
-    totalTeamMemberIds,
-    totalMembers,
+    getCorrectTeamMemberIds,
+    getCorrectTeamMembers,
     sheet,
     reportType,
     totalColumnsNum,

@@ -26,6 +26,10 @@ const types = `
   type BichilReport {
     groupTitle: String
     groupReport: [BichilUserReport]
+    
+    groupParentsCount: Int
+    groupParentsTitles: [String]
+
     groupTotalMinsLate: Int
     groupTotalAbsenceMins: Int
     groupTotalMinsWorked: Int
@@ -76,16 +80,33 @@ const types = `
     shiftNotClosedDaysPerUser: String
     shiftNotClosedFee: String
     shiftNotClosedDeduction: String
-
+    
     latenessFee: String
     totalMinsLateDeduction: Float
+    
+    totalDaysAbsent: Int
+    absentFee: Int
+    absentDeduction: Int
 
     totalDeduction: Float
 
     totalHoursVacation : Float
     totalHoursUnpaidAbsence : Float
     totalHoursSick : Float
+
+
+
+    totalHoursWorkedSelectedDay: Float
+    totalHoursScheduledSelectedDay: Float
+    totalMinsLateSelectedDay: Float
     
+    totalHoursWorkedSelectedMonth: Float
+    totalDaysWorkedSelectedMonth: Int
+    totalHoursScheduledSelectedMonth: Float
+    totalDaysScheduledSelectedMonth:Int
+    totalMinsLateSelectedMonth: Float
+    totalDaysAbsentSelectedMonth: Int
+    totalHoursRequestsSelectedMonth: Float
   }
 
   type BichilScheduleReport {
@@ -115,6 +136,7 @@ const types = `
     totalHoursWorked: Float
     totalShiftNotClosedDeduction: Float
     totalLateMinsDeduction: Float
+    totalAbsentDeduction: Float
     totalDeductionPerGroup: Float
   }
 
@@ -184,6 +206,8 @@ const queries = `
   bichilSalaryReport(page: Int, perPage: Int, employeeId: String): BichilSalaryReportsListResponse
 
   bichilSalaryByEmployee(password: String!): BichilSalaryReportsListResponse
+
+  bichilTimeclockReportByUser(selectedUser: String, selectedMonth: String, selectedYear: String, selectedDate:String): BichilUserReport
 
   bichilSalaryLabels: JSON
   bichilSalarySymbols: JSON

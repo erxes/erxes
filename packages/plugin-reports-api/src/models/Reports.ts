@@ -6,8 +6,11 @@ import {
   IChartDocument,
   IReport,
   IReportDocument,
-  reportSchema
+  reportSchema,
+  chartSchema,
+  IChartEdit
 } from './definitions/reports';
+import { Z_ASCII } from 'zlib';
 
 export interface IReportModel extends Model<IReportDocument> {
   getReport(_id: string): Promise<IReportDocument>;
@@ -34,6 +37,11 @@ export const loadReportClass = (models: IModels) => {
     }
     // update
     public static async updateReport(_id: string, doc: IReport) {
+      const report = await models.Reports.findOne({ _id });
+      if (!report) {
+        throw new Error('Report not found');
+      }
+
       return models.Reports.updateOne({ _id }, { $set: { ...doc } });
     }
     // remove
@@ -54,12 +62,12 @@ export const loadReportClass = (models: IModels) => {
 export interface IChartModel extends Model<IChartDocument> {
   getChart(_id: string): Promise<IChartDocument>;
   createChart(doc: IChart): Promise<IChartDocument>;
-  updateChart(_id: string, doc: IChart): Promise<IChartDocument>;
+  updateChart(_id: string, doc: IChartEdit): Promise<IChartDocument>;
   removeChart(_id: string): void;
 }
 
 export const loadChartClass = (models: IModels) => {
-  class Report {
+  class Chart {
     // get
     public static async getChart(_id: string) {
       const chart = await models.Charts.findOne({ _id });
@@ -75,19 +83,20 @@ export const loadChartClass = (models: IModels) => {
     }
     // update
     public static async updateChart(_id: string, doc: IChart) {
-      return models.Charts.updateOne({ _id }, { $set: { ...doc } });
+      await models.Charts.updateOne({ _id }, { $set: doc });
+      return models.Charts.findOne({ _id });
     }
     // remove
     public static async removeChart(_id: string) {
       const chart = await models.Charts.getChart(_id);
       if (!chart) {
-        throw new Error('Report not found');
+        throw new Error('Chart not found');
       }
-      return models.Reports.deleteOne({ _id });
+      return models.Charts.deleteOne({ _id });
     }
   }
 
-  reportSchema.loadClass(Report);
+  chartSchema.loadClass(Chart);
 
-  return reportSchema;
+  return chartSchema;
 };

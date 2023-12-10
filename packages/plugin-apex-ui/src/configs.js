@@ -1,4 +1,5 @@
 module.exports = {
+  srcDir: __dirname,
   name: "apex",
   scope: "apex",
   port: 3020,

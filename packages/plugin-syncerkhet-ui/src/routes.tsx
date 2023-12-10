@@ -1,35 +1,15 @@
-import Settings from './containers/Settings';
 import React from 'react';
 import { Route } from 'react-router-dom';
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 import queryString from 'query-string';
+import GeneralSettings from './components/GeneralSettings';
+import StageSettings from './components/StageSettings';
+import StageMoveSettings from './components/StageMoveSettings';
+import ReturnStageSettings from './components/ReturnStageSettings';
+import PipelineSettings from './components/PipelineSettings';
 
-const GeneralSettings = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "GeneralSettings" */ './components/GeneralSettings'
-  )
-);
-
-const StageSettings = asyncComponent(() =>
-  import(/* webpackChunkName: "StageSettings" */ './components/StageSettings')
-);
-
-const StageMoveSettings = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "StageSettings" */ './components/StageMoveSettings'
-  )
-);
-
-const ReturnStageSettings = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "ReturnStageSettings" */ './components/ReturnStageSettings'
-  )
-);
-
-const PipelineSettings = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "PipelineSettings" */ './components/PipelineSettings'
-  )
+const Settings = asyncComponent(() =>
+  import(/* webpackChunkName: "Settings" */ './containers/Settings')
 );
 
 const SyncHistoryList = asyncComponent(() =>

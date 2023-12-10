@@ -91,6 +91,10 @@ export default {
     { subdomain }: IContext
   ) {
     const kind = integration.kind.split('-')[0];
+    if (kind === 'messenger') {
+      return { status: 'healthy' };
+    }
+
     const serviceRunning = await isServiceRunning(kind);
 
     if (serviceRunning) {
@@ -121,6 +125,10 @@ export default {
   ) {
     const inboxId: string = integration._id;
 
+    if (integration.kind === 'messenger') {
+      return null;
+    }
+
     return await sendCommonMessage({
       serviceName: integration.kind,
       subdomain,
@@ -136,6 +144,10 @@ export default {
     { subdomain }: IContext
   ) {
     const inboxId: string = integration._id;
+
+    if (integration.kind === 'messenger') {
+      return null;
+    }
 
     if (integration.kind === 'callpro') {
       return await sendIntegrationsMessage({

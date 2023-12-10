@@ -30,7 +30,7 @@ export const syncLogSchema = schemaWrapper(
       label: 'Created at',
       index: true
     }),
-    createdBy: field({ type: String, label: 'Created by' }),
+    createdBy: field({ type: String, optional: true, label: 'Created by' }),
     consumeData: field({ type: Object }),
     consumeStr: field({ type: String }),
     sendData: field({ type: Object, optional: true }),

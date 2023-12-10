@@ -15,6 +15,7 @@ const groupCommonFields = `
 const posCommonFields = `
   name: String
   description: String
+  orderPassword: String
   pdomain: String
   productDetails: [String]
   adminIds: [String]
@@ -152,7 +153,6 @@ export const queries = `
 `;
 
 export const mutations = `
-  posAdd(${posCommonFields}, catProdMappings: [CatProdInput]): Pos
   posEdit(_id: String, ${posCommonFields}, catProdMappings: [CatProdInput]): Pos
   posRemove(_id: String!): JSON
   productGroupsAdd(${groupCommonFields}): ProductGroups

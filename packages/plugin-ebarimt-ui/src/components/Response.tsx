@@ -108,10 +108,9 @@ export default content => {
         }
       </style>
       <script>
-        setTimeout(
-          window.print(),
-          150
-        )
+        setTimeout(() => {
+          window.print();
+        }, "150");
       </script>
     </body>
 

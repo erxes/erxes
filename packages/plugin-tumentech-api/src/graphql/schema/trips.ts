@@ -1,17 +1,7 @@
 export const types = ({ contacts, cards }) => `
-type TrackingItem {
-  lat: Float
-  lng: Float
-  trackedDate: Date
-}
 
-input TrackingItemInput {
-  lat: Float
-  lng: Float
-  trackedDate: Date
-}
 
-type TumentechDeal {
+type TumentechDealInfo {
   deal: Deal
   dealPlace: DealPlace
 }

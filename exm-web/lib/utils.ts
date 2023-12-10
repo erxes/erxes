@@ -107,3 +107,13 @@ export function setLocal<T>(key: string, value: T): void {
     console.error("Error storing data in localStorage:", error)
   }
 }
+
+export const generatePaginationParams = (queryParams: {
+  page?: string
+  perPage?: string
+}) => {
+  return {
+    page: queryParams.page ? parseInt(queryParams.page, 10) : 1,
+    perPage: queryParams.perPage ? parseInt(queryParams.perPage, 10) : 10,
+  }
+}

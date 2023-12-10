@@ -1,9 +1,8 @@
 const documents = `
-  query documents($page: Int, $perPage: Int, $contentType: String) {
-    documents(page: $page, perPage: $perPage, contentType: $contentType) {
+  query documents($page: Int, $perPage: Int, $contentType: String, $subType: String, $searchValue: String) {
+    documents(page: $page, perPage: $perPage, contentType: $contentType, subType: $subType, searchValue: $searchValue) {
       _id
       contentType
-      subType
       name
       createdAt
     }
@@ -33,8 +32,8 @@ const editorAttributes = `
 `;
 
 const totalCount = `
-  query documentsTotalCount {
-    documentsTotalCount
+  query documentsTotalCount($contentType: String, $searchValue: String) {
+    documentsTotalCount(contentType: $contentType, searchValue: $searchValue)
   }
 `;
 

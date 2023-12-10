@@ -37,7 +37,10 @@ export const customFixDate = (date?: Date) => {
 export const paginateArray = (array, perPage = 20, page = 1) =>
   array.slice((page - 1) * perPage, page * perPage);
 
-export const findBranches = async (subdomain: string, branchIds: string[]) => {
+export const findBranches = async (
+  subdomain: string,
+  branchIds: string[]
+): Promise<any> => {
   const branches = await sendCoreMessage({
     subdomain,
     action: 'branches.find',
@@ -74,6 +77,33 @@ export const findUser = async (subdomain: string, userId: string) => {
 
   return user;
 };
+export const findSubBranches = async (subdomain: string, branchId: string) => {
+  const pipeline = [
+    {
+      $match: { parentId: branchId } // Match the starting parent
+    },
+    {
+      $graphLookup: {
+        from: 'branches', // Collection name
+        startWith: '$_id', // Assuming '_id' is the unique identifier
+        connectFromField: '_id',
+        connectToField: 'parentId',
+        as: 'descendants',
+        depthField: 'depth'
+      }
+    }
+  ];
+
+  const subBranches = await sendCoreMessage({
+    subdomain,
+    action: 'branches.aggregate',
+    data: { pipeline },
+    isRPC: true
+  });
+
+  return subBranches;
+};
+
 export const findBranchUsers = async (
   subdomain: string,
   branchIds: string[]
@@ -104,7 +134,9 @@ export const findAllTeamMembers = async (subdomain: string) => {
   const users = await sendCoreMessage({
     subdomain,
     action: 'users.find',
-    data: {},
+    data: {
+      query: { isActive: true }
+    },
     isRPC: true,
     defaultValue: []
   });
@@ -171,29 +203,97 @@ export const findTeamMembers = (subdomain: string, userIds: string[]) => {
     subdomain,
     action: 'users.find',
     data: {
-      query: { _id: { $in: userIds } }
+      query: { _id: { $in: userIds }, isActive: true }
     },
     isRPC: true,
     defaultValue: []
   });
 };
 
+const returnTotalBranchesDict = async (subdomain: any, branchIds: string[]) => {
+  let dictionary: {
+    [_id: string]: {
+      title: string;
+      parentId: string;
+      parentsCount?: number;
+      parentsTitles?: string[];
+    };
+  } = {};
+
+  const totalBranches: any[] = await findBranches(subdomain, branchIds);
+
+  for (const branchId of branchIds) {
+    const getSubBranches = await findSubBranches(subdomain, branchId);
+    totalBranches.push(...getSubBranches);
+  }
+
+  for (const branch of totalBranches) {
+    dictionary[branch._id] = {
+      title: branch.title,
+      parentId: branch.parentId || null
+    };
+  }
+
+  for (const branchId of branchIds) {
+    const branchParentIds: string[] = [];
+    const branchParentTitles: string[] = [];
+
+    let noFurtherParent = false;
+    let currentParentId = dictionary[branchId]?.parentId;
+
+    while (
+      !noFurtherParent &&
+      currentParentId &&
+      dictionary[currentParentId] &&
+      branchId !== currentParentId
+    ) {
+      branchParentIds.push(currentParentId);
+      branchParentTitles.push(dictionary[currentParentId].title);
+
+      if (dictionary[currentParentId].parentId) {
+        currentParentId = dictionary[currentParentId].parentId;
+      } else {
+        noFurtherParent = true;
+      }
+    }
+
+    const parentsCount = new Set(branchParentIds).size;
+    // from greatest to closest parent
+    const parentsTitles = Array.from(new Set(branchParentTitles.reverse()));
+
+    dictionary[branchId] = {
+      ...dictionary[branchId],
+      parentsCount,
+      parentsTitles
+    };
+  }
+
+  return dictionary;
+};
+
 export const returnDepartmentsBranchesDict = async (
   subdomain: any,
   branchIds: string[],
   departmentIds: string[]
-): Promise<{ [_id: string]: string }> => {
-  const dictionary: { [_id: string]: string } = {};
+): Promise<{
+  [_id: string]: {
+    title: string;
+    parentId: string;
+    parentsCount?: number;
+    parentsTitles?: string[];
+  };
+}> => {
+  let dictionary: { [_id: string]: { title: string; parentId: string } } = {};
 
-  const branches = await findBranches(subdomain, branchIds);
+  dictionary = await returnTotalBranchesDict(subdomain, branchIds);
+
   const departments = await findDepartments(subdomain, departmentIds);
 
-  for (const branch of branches) {
-    dictionary[branch._id] = branch.title;
-  }
-
   for (const department of departments) {
-    dictionary[department._id] = department.title;
+    dictionary[department._id] = {
+      title: department.title,
+      parentId: department.parentId
+    };
   }
 
   return dictionary;
@@ -590,7 +690,13 @@ export const findUnfinishedShiftsAndUpdate = async (subdomain: any) => {
     });
   }
 
-  return models.Timeclocks.bulkWrite(bulkWriteOps);
+  let result;
+
+  if (bulkWriteOps.length) {
+    result = await models.Timeclocks.bulkWrite(bulkWriteOps);
+  }
+
+  return result;
 };
 
 export const getNextNthColumnChar = (currentChar, n: number) => {

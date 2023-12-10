@@ -151,7 +151,7 @@ class InsuranceTypesList extends React.Component<IProps, State> {
     );
 
     const addTrigger = (
-      <Button btnStyle="success" size="small" icon="plus-circle">
+      <Button btnStyle="success" icon="plus-circle">
         {__('Add insuranceType')}
       </Button>
     );
@@ -170,12 +170,7 @@ class InsuranceTypesList extends React.Component<IProps, State> {
 
       actionBarLeft = (
         <BarItems>
-          <Button
-            btnStyle="danger"
-            size="small"
-            icon="cancel-1"
-            onClick={onClick}
-          >
+          <Button btnStyle="danger" icon="cancel-1" onClick={onClick}>
             {__('Delete')}
           </Button>
         </BarItems>

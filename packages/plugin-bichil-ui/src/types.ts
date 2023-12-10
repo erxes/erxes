@@ -69,6 +69,7 @@ export type ReportsQueryResponse = {
     totalHoursWorked: number;
     totalShiftNotClosedDeduction: number;
     totalLateMinsDeduction: number;
+    totalAbsentDeduction: number;
     totalDeductionPerGroup: number;
   };
 } & QueryResponse;
@@ -79,6 +80,10 @@ export type ReportByUsersQueryResponse = {
 export interface IReport {
   groupTitle: string;
   groupReport: IUserReport[];
+
+  groupParentsCount: number;
+  groupParentsTitles: [string];
+
   groupTotalMinsLate: number;
   groupTotalAbsenceMins?: number;
   groupTotalMinsWorked?: number;
@@ -131,6 +136,10 @@ export interface IUserReport {
   totalMinsLateDeduction?: number;
 
   totalDeduction?: number;
+
+  totalDaysAbsent?: number;
+  absentFee?: number;
+  absentDeduction?: number;
 
   totalHoursVacation?: number;
   totalHoursUnpaidAbsence?: number;

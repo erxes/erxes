@@ -1,7 +1,8 @@
-import React from "react";
-import { Container, MainContent } from "../../styles/main";
-import Header from "../containers/Header";
 import { Config, IUser } from "../../types";
+import { Container, MainContent } from "../../styles/main";
+
+import Header from "../containers/Header";
+import React from "react";
 import { getConfigColor } from "../../common/utils";
 
 type Props = {
@@ -21,7 +22,7 @@ function Layout({
   currentUser,
   headingSpacing,
   headerBottomComponent,
-  notificationsCount
+  notificationsCount,
 }: Props) {
   return (
     <>

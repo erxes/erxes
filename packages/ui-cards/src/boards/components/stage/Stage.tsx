@@ -23,7 +23,8 @@ import ItemList from '../stage/ItemList';
 import ItemProductProbabilities from '../../../deals/components/ItemProductProbabilities';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import React from 'react';
-import { __ } from '@erxes/ui/src/utils/core';
+import { __, isEnabled } from '@erxes/ui/src/utils/core';
+import StageModal from './StageModal';
 
 type Props = {
   loadingItems: () => boolean;
@@ -31,7 +32,7 @@ type Props = {
   index: number;
   stage: IStage;
   length: number;
-  items: IItem[];
+  items: any[];
   onAddItem: (stageId: string, item: IItem) => void;
   onRemoveItem: (itemId: string, stageId: string) => void;
   loadMore: () => void;
@@ -43,6 +44,8 @@ type Props = {
 
 type State = {
   showSortOptions: boolean;
+  renderModal: boolean;
+  items: any[];
 };
 
 export default class Stage extends React.Component<Props, State> {
@@ -51,14 +54,16 @@ export default class Stage extends React.Component<Props, State> {
 
   constructor(props: Props) {
     super(props);
-
     this.bodyRef = React.createRef();
 
-    this.state = { showSortOptions: false };
+    this.state = {
+      showSortOptions: false,
+      renderModal: false,
+      items: []
+    };
   }
 
   componentDidMount() {
-    // Load items until scroll created
     const handle = setInterval(() => {
       if (this.props.loadingItems()) {
         return;
@@ -98,10 +103,11 @@ export default class Stage extends React.Component<Props, State> {
 
   shouldComponentUpdate(nextProps: Props, nextState: State) {
     const { stage, index, length, items, loadingItems } = this.props;
-    const { showSortOptions } = this.state;
+    const { showSortOptions, renderModal } = this.state;
 
     if (
       showSortOptions !== nextState.showSortOptions ||
+      renderModal !== nextState.renderModal ||
       index !== nextProps.index ||
       loadingItems() !== nextProps.loadingItems() ||
       length !== nextProps.length ||
@@ -124,10 +130,16 @@ export default class Stage extends React.Component<Props, State> {
     this.setState({ showSortOptions: !showSortOptions });
   };
 
-  renderPopover() {
-    const { stage } = this.props;
-    const { showSortOptions } = this.state;
+  toggleModal = () => {
+    this.setState(prevState => ({
+      renderModal: !prevState.renderModal
+    }));
+    this.onClosePopover();
+  };
 
+  renderPopover() {
+    const { stage, options } = this.props;
+    const { showSortOptions } = this.state;
     const archiveList = () => {
       this.props.archiveList();
       this.onClosePopover();
@@ -159,10 +171,13 @@ export default class Stage extends React.Component<Props, State> {
               <li onClick={removeStage} key="remove-stage">
                 {__('Remove stage')}
               </li>
-
               <Dropdown.Divider />
-
               <li onClick={this.toggleSortOptions}>{__('Sort By')}</li>
+              {isEnabled('documents') && options.type === 'deal' && (
+                <li>
+                  <a onClick={this.toggleModal}>{__('Print document')}</a>
+                </li>
+              )}
             </>
           )}
         </ActionList>
@@ -343,6 +358,16 @@ export default class Stage extends React.Component<Props, State> {
     );
   }
 
+  renderTriggerModal() {
+    return this.state.renderModal ? (
+      <StageModal
+        item={this.props.items}
+        toggleModal={this.toggleModal}
+        stage={this.props.stage}
+      />
+    ) : null;
+  }
+
   render() {
     const { index, stage } = this.props;
 
@@ -378,10 +403,12 @@ export default class Stage extends React.Component<Props, State> {
                   {this.renderCtrl()}
                 </StageTitle>
                 {renderDetail()}
+
                 <Indicator>{this.renderIndicator()}</Indicator>
               </Header>
               <Body innerRef={this.bodyRef} onScroll={this.onScroll}>
                 {this.renderItemList()}
+                {this.renderTriggerModal()},
               </Body>
               {this.renderAddItemTrigger()}
             </StageRoot>

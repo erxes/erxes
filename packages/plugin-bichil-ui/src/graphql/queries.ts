@@ -48,6 +48,9 @@ const bichilTimeclockReport = `
       list {
             groupTitle
             
+            groupParentsCount
+            groupParentsTitles
+            
             groupReport{
               user {
                 ${userFields}
@@ -100,13 +103,13 @@ const bichilTimeclockReport = `
               shiftNotClosedDeduction
               latenessFee
               totalMinsLateDeduction
+              totalDaysAbsent
+              absentFee
+              absentDeduction
               totalDeduction
               totalHoursVacation
               totalHoursUnpaidAbsence
               totalHoursSick
-
-
-              
             }
         groupTotalMinsLate
         groupTotalAbsenceMins
@@ -118,6 +121,7 @@ const bichilTimeclockReport = `
       totalHoursWorked
       totalShiftNotClosedDeduction
       totalLateMinsDeduction
+      totalAbsentDeduction
       totalDeductionPerGroup
     }
   

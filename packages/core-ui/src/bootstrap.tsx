@@ -1,7 +1,6 @@
 import '@nateradebaugh/react-datetime/css/react-datetime.css';
 import 'abortcontroller-polyfill/dist/polyfill-patch-fetch';
 import dayjs from 'dayjs';
-import * as Sentry from '@sentry/react';
 import localizedFormat from 'dayjs/plugin/localizedFormat';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import utc from 'dayjs/plugin/utc';
@@ -51,15 +50,7 @@ fetch(`${envs.REACT_APP_API_URL}/initial-setup?envs=${JSON.stringify(envs)}`, {
       .default;
 
     if (envs.REACT_APP_APM_SERVER_URL) {
-      Sentry.init({
-        dsn: envs.REACT_APP_APM_SERVER_URL,
-        integrations: [new Sentry.BrowserTracing(), new Sentry.Replay()],
-        // Performance Monitoring
-        tracesSampleRate: 1.0, // Capture 100% of the transactions, reduce in production!
-        // Session Replay
-        replaysSessionSampleRate: 0.1, // This sets the sample rate at 10%. You may want to change it to 100% while in development and then sample at a lower rate in production.
-        replaysOnErrorSampleRate: 1.0 // If you're not already sampling the entire session, change the sample rate to 100% when sampling sessions where errors occur.
-      });
+      // TODO: Grafana Faro
     }
 
     let body = <Routes />;

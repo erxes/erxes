@@ -4,8 +4,101 @@ import { paginate } from '@erxes/api-utils/src';
 
 import { IContext } from '../../../connectionResolver';
 import { sendCommonMessage } from '../../../messageBroker';
+import { verifyVendor } from '../utils';
+
+const query = (searchField, searchValue) => {
+  const qry: any = {};
+
+  if (!searchField) {
+    return qry;
+  }
+
+  qry[`searchDictionary.${searchField}`] = {
+    $regex: searchValue,
+    $options: 'i'
+  };
+
+  if (
+    ['dealCreatedAt', 'dealCloseDate', 'dealStartDate'].includes(searchField)
+  ) {
+    const dateValue = new Date(searchValue);
+    const searchDate = new Date(
+      dateValue.getFullYear(),
+      dateValue.getMonth(),
+      dateValue.getDate()
+    );
+    const nextDate = new Date(
+      dateValue.getFullYear(),
+      dateValue.getMonth(),
+      dateValue.getDate() + 1
+    );
+
+    qry[`searchDictionary.${searchField}`] = {
+      $gte: searchDate,
+      $lt: nextDate
+    };
+  }
+
+  if (searchField.includes('item')) {
+    qry[`searchDictionary.${searchField}`] = {
+      $gte: Number(searchValue)
+    };
+  }
+
+  return qry;
+};
 
 const queries = {
+  insuranceItemList: async (
+    _root,
+    {
+      page,
+      perPage,
+      sortField,
+      sortDirection,
+      searchValue,
+      searchField
+    }: {
+      page: number;
+      perPage: number;
+      sortField: string;
+      sortDirection: 'ASC' | 'DESC';
+      searchValue: any;
+      searchField:
+        | 'dealNumber'
+        | 'dealCreatedAt'
+        | 'dealCloseDate'
+        | 'dealStartDate'
+        | 'customerRegister'
+        | 'customerFirstName'
+        | 'customerLastName'
+        | 'itemPrice'
+        | 'itemFeePercent'
+        | 'itemTotalFee';
+    },
+    { models, subdomain }: IContext
+  ) => {
+    const qry: any = query(searchField, searchValue);
+
+    let sortOrder = 1;
+
+    if (sortDirection === 'DESC') {
+      sortOrder = -1;
+    }
+
+    const sortQuery = {
+      [`searchDictionary.${sortField}`]: sortOrder
+    };
+
+    return {
+      list: paginate(models.Items.find(qry).sort(sortQuery), {
+        page,
+        perPage
+      }),
+      totalCount: models.Products.find(qry).count()
+    };
+  },
+
   vendorInsuranceItems: async (
     _root,
     {
@@ -13,13 +106,25 @@ const queries = {
       perPage,
       sortField,
       sortDirection,
-      searchValue
+      searchValue,
+      searchField
     }: {
       page: number;
       perPage: number;
       sortField: string;
       sortDirection: 'ASC' | 'DESC';
-      searchValue: string;
+      searchValue: any;
+      searchField:
+        | 'dealNumber'
+        | 'dealCreatedAt'
+        | 'dealCloseDate'
+        | 'dealStartDate'
+        | 'customerRegister'
+        | 'customerFirstName'
+        | 'customerLastName'
+        | 'itemPrice'
+        | 'itemFeePercent'
+        | 'itemTotalFee';
     },
     { models, cpUser, subdomain }: IContext
   ) => {
@@ -78,11 +183,7 @@ const queries = {
 
     const vendorUserIds = vendorUsers.map((u: any) => u._id);
 
-    const qry: any = {};
-
-    if (searchValue) {
-      qry.searchText = { $in: [new RegExp(`.*${searchValue}.*`, 'i')] };
-    }
+    const qry: any = query(searchField, searchValue);
 
     if (vendorUserIds.length > 0) {
       qry.vendorUserId = { $in: vendorUserIds };
@@ -94,17 +195,135 @@ const queries = {
       sortOrder = -1;
     }
 
+    const sortQuery = {
+      [`searchDictionary.${sortField}`]: sortOrder
+    };
+
     return {
-      list: paginate(models.Items.find(qry).sort({ [sortField]: sortOrder }), {
+      list: paginate(models.Items.find(qry).sort(sortQuery), {
         page,
         perPage
       }),
-      totalCount: models.Products.find(qry).count()
+      totalCount: models.Items.find(qry).count()
     };
   },
 
   insuranceItems: async (_root, _args, { models }: IContext) => {
     return models.Items.find({});
+  },
+
+  vendorInsuranceItem: async (
+    _root,
+    { _id }: { _id: string },
+    { models, cpUser, subdomain }: IContext
+  ) => {
+    if (!cpUser) {
+      throw new Error('login required');
+    }
+
+    const { company, clientportal } = await verifyVendor({
+      subdomain,
+      cpUser
+    });
+
+    const users = await sendCommonMessage({
+      subdomain,
+      action: 'clientPortalUsers.find',
+      serviceName: 'clientportal',
+      isRPC: true,
+      defaultValue: [],
+      data: {
+        erxesCompanyId: company._id
+      }
+    });
+
+    const item = await models.Items.findOne({ _id });
+
+    if (!item) {
+      throw new Error('Item not found');
+    }
+
+    if (!users.map((u: any) => u._id).includes(item.vendorUserId)) {
+      throw new Error('Item not found');
+    }
+
+    return item;
+  },
+
+  vendorInsuranceItemsInfo: async (
+    _root,
+    _args,
+    { models, cpUser, subdomain }: IContext
+  ) => {
+    if (!cpUser) {
+      throw new Error('login required');
+    }
+
+    const { company } = await verifyVendor({
+      subdomain,
+      cpUser
+    });
+
+    const users = await sendCommonMessage({
+      subdomain,
+      action: 'clientPortalUsers.find',
+      serviceName: 'clientportal',
+      isRPC: true,
+      defaultValue: [],
+      data: {
+        erxesCompanyId: company._id
+      }
+    });
+
+    const userIds = users.map((u: any) => u._id);
+
+    console.log('userIds', userIds);
+
+    const categories = await models.Categories.find({});
+    const totalItemsCountOfCompany = await models.Items.find({
+      vendorUserId: { $in: userIds }
+    }).countDocuments();
+
+    console.log('totalItemsCountOfCompany', totalItemsCountOfCompany);
+
+    const result: any = [];
+
+    console.log('categories', categories);
+
+    for (const cat of categories) {
+      const productIds = await models.Products.find({
+        categoryId: cat._id
+      }).distinct('_id');
+
+      console.log('productIds', productIds);
+
+      const items: any = await models.Items.find({
+        productId: { $in: productIds },
+        vendorUserId: { $in: userIds }
+      });
+
+      let totalFee = 0;
+
+      console.log('items', items);
+      if (items.length !== 0) {
+        totalFee = items.reduce(
+          (acc, obj) => acc + obj.searchDictionary.itemTotalFee,
+          0
+        );
+      }
+
+      const itemsCount = items.length;
+
+      result.push({
+        categoryId: cat._id,
+        categoryName: cat.name,
+        itemsCount,
+        percent: Math.round((itemsCount / totalItemsCountOfCompany) * 100),
+        totalFee
+      });
+    }
+
+    return result;
   }
 };
 

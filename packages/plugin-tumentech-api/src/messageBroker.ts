@@ -54,6 +54,15 @@ export const sendReactionsMessage = async (
   });
 };
 
+export const sendXypMessage = async (args: ISendMessageArgs): Promise<any> => {
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName: 'xyp',
+    ...args
+  });
+};
+
 export const sendInternalNotesMessage = async (
   args: ISendMessageArgs
 ): Promise<any> => {

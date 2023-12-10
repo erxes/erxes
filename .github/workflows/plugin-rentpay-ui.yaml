@@ -61,12 +61,9 @@ jobs:
       - name: Build
         run: |
           yarn install --frozen-lockfile
-          cp -r packages/ui-plugin-template/.erxes packages/plugin-rentpay-ui/.erxes
-          cp -r packages/plugin-rentpay-ui/src packages/plugin-rentpay-ui/.erxes/plugin-src
           cd packages/plugin-rentpay-ui
-          yarn install
-          yarn install-deps
           yarn build
+          cp -r ./src/locales/ ./dist/locales 2>/dev/null || true
 
       - name: Configure AWS credentials
         if: github.event_name == 'push' && ( github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/build-test')
@@ -79,7 +76,7 @@ jobs:
       - name: Deploy
         if: github.event_name == 'push' && ( github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/build-test')
         run: |
-          tar -cf build.tar --directory=packages/plugin-rentpay-ui/.erxes/dist .
-          cp build.tar packages/plugin-rentpay-ui/.erxes/dist
-          rm -rf packages/plugin-rentpay-ui/.erxes/dist/*.js
-          aws s3 sync packages/plugin-rentpay-ui/.erxes/dist s3://erxes-enterprise-plugins/uis/plugin-rentpay-ui --delete
+          tar -cf build.tar --directory=packages/plugin-rentpay-ui/dist .
+          cp build.tar packages/plugin-rentpay-ui/dist
+          rm -rf packages/plugin-rentpay-ui/dist/*.js
+          aws s3 sync packages/plugin-rentpay-ui/dist s3://erxes-enterprise-plugins/uis/plugin-rentpay-ui --delete

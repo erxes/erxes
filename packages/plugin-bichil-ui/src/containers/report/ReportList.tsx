@@ -51,6 +51,7 @@ const ListContainer = (props: FinalProps) => {
     totalHoursWorked = 0,
     totalShiftNotClosedDeduction = 0,
     totalLateMinsDeduction = 0,
+    totalAbsentDeduction = 0,
     totalDeductionPerGroup = 0
   } = bichilTimeclockReportQuery.bichilTimeclockReport;
 
@@ -59,6 +60,7 @@ const ListContainer = (props: FinalProps) => {
     totalHoursWorked,
     totalShiftNotClosedDeduction,
     totalLateMinsDeduction,
+    totalAbsentDeduction,
     totalDeductionPerGroup
   };
 

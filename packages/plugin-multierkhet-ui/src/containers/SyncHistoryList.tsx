@@ -42,8 +42,8 @@ class SyncHistoryListContainer extends React.Component<FinalProps, {}> {
       return <Spinner />;
     }
 
-    const syncHistories = syncHistoriesQuery.syncHistories || [];
-    const totalCount = syncHistoriesCountQuery.syncHistoriesCount || 0;
+    const syncHistories = syncHistoriesQuery.manySyncHistories || [];
+    const totalCount = syncHistoriesCountQuery.manySyncHistoriesCount || 0;
 
     const updatedProps = {
       ...this.props,

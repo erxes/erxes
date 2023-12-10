@@ -1,4 +1,5 @@
 module.exports = {
+  srcDir: __dirname,
   name: 'priuscenter',
   port: 3017,
   scope: 'priuscenter',

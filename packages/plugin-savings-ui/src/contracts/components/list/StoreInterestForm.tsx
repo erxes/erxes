@@ -120,7 +120,7 @@ class StoreInterestForm extends React.Component<Props, State> {
               <tr>
                 <td style={{ fontSize: 'bold' }}>{mur.number}</td>
                 <td>
-                  {moment(mur.lastStoredDate || undefined).format('YYYY-MM-DD')}
+                  {moment(mur.lastStoredDate || undefined).format('YYYY/MM/DD')}
                 </td>
                 <td>{mur.expiredDays}</td>
                 <td>{mur.interestNounce}</td>
@@ -145,7 +145,12 @@ class StoreInterestForm extends React.Component<Props, State> {
                 {__('Transaction Date')}
               </ControlLabel>
               <DateContainer>
-                <DateControl {...formProps} required={false} name="startDate" />
+                <DateControl
+                  {...formProps}
+                  dateFormat="YYYY/MM/DD"
+                  required={false}
+                  name="startDate"
+                />
               </DateContainer>
             </FormGroup>
           </FormColumn>

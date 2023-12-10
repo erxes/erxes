@@ -1,4 +1,5 @@
 module.exports = {
+  srcDir: __dirname,
   name: "neighbor",
   port: 3021,
   exposes: {
