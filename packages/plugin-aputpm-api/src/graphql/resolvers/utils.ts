@@ -212,11 +212,7 @@ const getCardsTypeMBAction = cardType => {
   return action;
 };
 
-export const generateCreatedUsersCards = async ({
-  subdomain,
-  params,
-  fieldName
-}) => {
+export const generateUsersCards = async ({ subdomain, params, fieldName }) => {
   const query = await queryBuilderCards({ subdomain, params: params });
 
   const cards = await sendCardsMessage({
@@ -228,7 +224,21 @@ export const generateCreatedUsersCards = async ({
   });
 
   const userIds = cards
-    .map(card => card[fieldName])
+    .map(card => {
+      if (fieldName.includes('customFieldsData')) {
+        const customFieldData = card.customFieldsData.find(
+          cfData => cfData.field === params.fieldId
+        );
+
+        if (customFieldData) {
+          const [_, propertyName] = fieldName.split('.');
+
+          return customFieldData[propertyName];
+        }
+      }
+
+      return card[fieldName];
+    })
     .filter(id => id)
     .flat();
 
