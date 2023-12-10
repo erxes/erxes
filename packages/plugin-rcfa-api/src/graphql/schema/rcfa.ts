@@ -34,6 +34,7 @@ export const queries = `
   rcfaList(perPage:Int, page:Int, searchValue:String, mainType:String, createdAtFrom:String, createdAtTo:String, closedAtFrom:String, closedAtTo:String, status:String): rcfaListQueryResponse
   rcfaDetail(_id:String, mainType:String, mainTypeId:String): RCFAType
   checkRCFA(rcfaId:String,types:[String],stageIds:[String]):Boolean
+  getAssessmentsScoreRCFA(ticketIds:[String]):JSON
 `;
 
 export const mutations = `
