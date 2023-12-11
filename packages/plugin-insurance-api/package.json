@@ -12,6 +12,7 @@
     "@erxes/api-utils": "*",
     "axios": "^1.2.2",
     "request-promise": "^4.2.6",
-    "xlsx-populate": "^1.20.1"
+    "xlsx-populate": "^1.20.1",
+    "moment": "^2.29.4"
   }
 }
