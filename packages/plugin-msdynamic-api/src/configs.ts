@@ -5,6 +5,7 @@ import { initBroker } from './messageBroker';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import { generateModels } from './connectionResolver';
 import afterMutations from './afterMutations';
+import cpCustomerHandle from './cpCustomerHandle';
 
 export let mainDb;
 export let debug;
@@ -23,7 +24,8 @@ export default {
   },
 
   meta: {
-    afterMutations
+    afterMutations,
+    cpCustomerHandle
   },
 
   apolloServerContext: async (context, req) => {

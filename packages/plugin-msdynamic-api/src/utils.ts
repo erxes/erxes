@@ -246,7 +246,7 @@ export const consumeCustomers = async (subdomain, doc, action) => {
 };
 
 export const customerToDynamic = async (subdomain, params) => {
-  const customer = params.object;
+  const customer = params;
 
   let name = customer.primaryName || '';
 

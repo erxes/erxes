@@ -1,4 +1,3 @@
-import { generateModels } from './connectionResolver';
 import { customerToDynamic } from './utils';
 
 const allowTypes = {
@@ -7,19 +6,7 @@ const allowTypes = {
 };
 
 export const afterMutationHandlers = async (subdomain, params) => {
-  const { type, action, user } = params;
-
-  const models = await generateModels(subdomain);
-
-  const syncLogDoc = {
-    type: '',
-    contentType: type,
-    contentId: params.object._id,
-    createdAt: new Date(),
-    createdBy: user._id,
-    consumeData: params,
-    consumeStr: JSON.stringify(params)
-  };
+  const { type, action } = params;
 
   if (!Object.keys(allowTypes).includes(type)) {
     return;
@@ -29,30 +16,22 @@ export const afterMutationHandlers = async (subdomain, params) => {
     return;
   }
 
-  // let syncLog;
-
   try {
     if (type === 'contacts:customer') {
-      // syncLog = await models.SyncLogs.syncLogsAdd(syncLogDoc);
       if (action === 'create') {
-        customerToDynamic(subdomain, params);
+        customerToDynamic(subdomain, params.object);
         return;
       }
     }
 
     if (type === 'contacts:company') {
-      // syncLog = await models.SyncLogs.syncLogsAdd(syncLogDoc);
       if (action === 'create') {
-        customerToDynamic(subdomain, params);
+        customerToDynamic(subdomain, params.object);
         return;
       }
     }
   } catch (e) {
     console.log(e, 'error');
-    // await models.SyncLogs.updateOne(
-    //   { _id: syncLog._id },
-    //   { $set: { error: e.message } }
-    // );
   }
 };
 
