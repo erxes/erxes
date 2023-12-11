@@ -1,6 +1,7 @@
 // vendorInsuranceItems
 
 import { paginate } from '@erxes/api-utils/src';
+import * as xlsxPopulate from 'xlsx-populate';
 
 import { IContext } from '../../../connectionResolver';
 import { sendCommonMessage } from '../../../messageBroker';
@@ -315,6 +316,92 @@ const queries = {
     }
 
     return result;
+  },
+
+  vendorItemsExport: async (
+    _root,
+    {
+      page,
+      perPage,
+      sortField,
+      sortDirection,
+      searchValue,
+      searchField
+    }: {
+      page: number;
+      perPage: number;
+      sortField: string;
+      sortDirection: 'ASC' | 'DESC';
+      searchValue: any;
+      searchField:
+        | 'dealNumber'
+        | 'dealCreatedAt'
+        | 'dealCloseDate'
+        | 'dealStartDate'
+        | 'customerRegister'
+        | 'customerFirstName'
+        | 'customerLastName'
+        | 'itemPrice'
+        | 'itemFeePercent'
+        | 'itemTotalFee';
+    },
+    { models, cpUser, subdomain }: IContext
+  ) => {
+    if (!cpUser) {
+      throw new Error('login required');
+    }
+    await verifyVendor({
+      subdomain,
+      cpUser
+    });
+
+    const qry: any = query(searchField, searchValue);
+
+    let sortOrder = 1;
+
+    if (sortDirection === 'DESC') {
+      sortOrder = -1;
+    }
+
+    const sortQuery = {
+      [`searchDictionary.${sortField}`]: sortOrder
+    };
+
+    const items = await paginate(models.Items.find(qry).sort(sortQuery), {
+      page,
+      perPage
+    });
+
+    const wb = await xlsxPopulate.fromBlankAsync();
+    const ws = wb.addSheet('Insurance Items');
+    const header = [
+      'Баталгааны дугаар',
+      'Регистерийн дугаар',
+      'Овог',
+      'Нэр',
+      'Гэрээний огноо',
+      'Да.Эхлэх огноо',
+      'Да.Дуусах огноо',
+      'Үнэлгээ',
+      'Хураамжийн хувь',
+      'Нийт хураамж',
+      'Тайлбар',
+      'Гэрээний дугаар (Хорооны)',
+      'Үнэт цаасны №',
+      'Даатгуулагчийн овог, нэр',
+      'Регистрийн №',
+      'Жол.Үнэмлэх №',
+      'Утас',
+      'И-мэйл',
+      'Эзэмшигчийн нэр',
+      'Марк',
+      'Улсын дугаар',
+      'Үйлдвэрлэсэн он',
+      'Аралын дугаар',
+      'ТХ-ийн гэрчилгээний дугаар',
+      'ТХ-ийн өнгө',
+      'Хамгаалалтын төрөл'
+    ];
   }
 };
 
