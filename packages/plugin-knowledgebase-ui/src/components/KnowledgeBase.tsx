@@ -1,14 +1,14 @@
-import Button from '@erxes/ui/src/components/Button';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import Pagination from '@erxes/ui/src/components/pagination/Pagination';
-import { Title } from '@erxes/ui/src/styles/main';
-import { __ } from '@erxes/ui/src/utils/core';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import React from 'react';
 import ArticleForm from '../containers/article/ArticleForm';
 import ArticleList from '../containers/article/ArticleList';
-import KnowledgeList from '../containers/knowledge/KnowledgeList';
+import Button from '@erxes/ui/src/components/Button';
 import { ICategory } from '@erxes/ui-knowledgeBase/src/types';
+import KnowledgeList from '../containers/knowledge/KnowledgeList';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import Pagination from '@erxes/ui/src/components/pagination/Pagination';
+import React from 'react';
+import { Title } from '@erxes/ui/src/styles/main';
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
+import { __ } from '@erxes/ui/src/utils/core';
 
 type Props = {
   queryParams: any;
@@ -112,7 +112,7 @@ class KnowledgeBase extends React.Component<Props> {
             }
           />
         }
-        hasBorder
+        hasBorder={true}
       />
     );
   }
