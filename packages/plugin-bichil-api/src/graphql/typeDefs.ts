@@ -26,6 +26,10 @@ const types = `
   type BichilReport {
     groupTitle: String
     groupReport: [BichilUserReport]
+    
+    groupParentsCount: Int
+    groupParentsTitles: [String]
+
     groupTotalMinsLate: Int
     groupTotalAbsenceMins: Int
     groupTotalMinsWorked: Int

@@ -115,41 +115,47 @@ export const calcUndue = async (
   return result;
 };
 
-function fillCommitmentInterest(
+async function fillCommitmentInterest(
   contract: IContractDocument,
   result: any,
-  diffEve,
-  diffNonce,
-  preSchedule
+  models: IModels
 ) {
-  if (
-    contract.leaseType === LEASE_TYPES.LINEAR &&
-    contract.commitmentInterest > 0
-  ) {
-    result.commitmentInterestEve =
-      (preSchedule.interestEve || 0) -
-      (preSchedule.didInterestEve || 0) +
-      calcInterest({
-        balance: result.unUsedBalance,
-        interestRate: contract.commitmentInterest,
-        dayOfMonth: diffEve
-      });
+  const schedules = await models.Schedules.find({
+    contractId: contract._id,
+    status: SCHEDULE_STATUS.PENDING
+  }).sort({ payDate: 1 });
 
-    result.commitmentInterestNonce =
-      (preSchedule.interestNonce || 0) -
-      (preSchedule.didInterestNonce || 0) +
-      calcInterest({
-        balance: result.unUsedBalance,
-        interestRate: contract.commitmentInterest,
-        dayOfMonth: diffNonce
-      });
+  let beginDate = contract.startDate;
+  let unUsedBalance = contract.leaseAmount;
 
-    result.commitmentInterest =
-      result.commitmentInterestEve + result.commitmentInterestNonce;
+  for await (let schedule of schedules) {
+    const { diffEve, diffNonce } = getDatesDiffMonth(
+      beginDate,
+      schedule.payDate
+    );
 
-    return result;
+    beginDate = schedule.payDate;
+    unUsedBalance = contract.leaseAmount - schedule.balance;
+
+    result.commitmentInterestEve += calcInterest({
+      balance: unUsedBalance,
+      interestRate: contract.commitmentInterest,
+      dayOfMonth: diffEve
+    });
+
+    result.commitmentInterestNonce += calcInterest({
+      balance: unUsedBalance,
+      interestRate: contract.commitmentInterest,
+      dayOfMonth: diffNonce
+    });
   }
-  return;
+
+  result.commitmentInterest =
+    result.commitmentInterestEve + result.commitmentInterestNonce;
+
+  result.balance = result.schedule?.[-1]?.balance;
+
+  return result;
 }
 
 /**
@@ -228,6 +234,7 @@ export const getCalcedAmounts = async (
 
   const startDate = getFullDate(contract.startDate);
   startDate.setDate(startDate.getDate() + 1);
+
   const skipInterestCalcDate = addMonths(
     new Date(startDate),
     contract.skipInterestCalcMonth || 0
@@ -250,6 +257,7 @@ export const getCalcedAmounts = async (
   }
 
   const prePayDate = getFullDate(preSchedule.payDate);
+
   result.preSchedule = preSchedule;
   result.balance = preSchedule.balance;
   result.unUsedBalance = contract.leaseAmount - preSchedule.balance;
@@ -300,13 +308,7 @@ export const getCalcedAmounts = async (
         contract.leaseType === LEASE_TYPES.LINEAR &&
         contract.commitmentInterest > 0
       ) {
-        result = fillCommitmentInterest(
-          contract,
-          result,
-          diffEve,
-          diffNonce,
-          preSchedule
-        );
+        result = await fillCommitmentInterest(contract, result, models);
       }
     }
 
@@ -314,6 +316,7 @@ export const getCalcedAmounts = async (
     result.payment = preSchedule.balance;
     return result;
   }
+
   // correct run
   if (trDate < prePayDate) {
     return result;
@@ -416,13 +419,7 @@ export const getCalcedAmounts = async (
         contract.leaseType === LEASE_TYPES.LINEAR &&
         contract.commitmentInterest > 0
       ) {
-        result = fillCommitmentInterest(
-          contract,
-          result,
-          diffEve,
-          diffNonce,
-          preSchedule
-        );
+        result = await fillCommitmentInterest(contract, result, models);
       }
     }
 
@@ -470,6 +467,7 @@ export const getCalcedAmounts = async (
     result.debt += nextSchedule.debt || 0;
 
     result.payment += nextSchedule.payment || 0;
+
     if (preSchedule.status === SCHEDULE_STATUS.LESS) {
       result.undue = (preSchedule.undue || 0) - (preSchedule.didUndue || 0);
       const unduePercent = await getUnduePercent(
@@ -529,13 +527,7 @@ export const getCalcedAmounts = async (
       contract.leaseType === LEASE_TYPES.LINEAR &&
       contract.commitmentInterest > 0
     ) {
-      result = fillCommitmentInterest(
-        contract,
-        result,
-        diffEve,
-        diffNonce,
-        preSchedule
-      );
+      result = await fillCommitmentInterest(contract, result, models);
     }
   }
 

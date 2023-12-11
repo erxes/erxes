@@ -3,32 +3,50 @@ import React from 'react';
 
 type Props = {
   reportType: string;
+  maxParents: number;
 };
 
 function TableHeaders(props: Props) {
-  const { reportType } = props;
+  const { reportType, maxParents } = props;
 
+  const renderParentBranchColumns = () => {
+    const returnElements: any = [];
+    for (let j = 0; j < maxParents; j++) {
+      returnElements.push(
+        <th
+          key={j}
+          rowSpan={2}
+          style={{ textAlign: 'center', border: '1px solid #EEE' }}
+        >
+          {__('Parent Branch')}
+        </th>
+      );
+    }
+
+    return returnElements;
+  };
   switch (reportType) {
     case 'Урьдчилсан':
       return (
-        <tr>
-          <th>{__('№')}</th>
-          <th>{__('Team member Id')}</th>
-          <th>{__('Last Name')}</th>
-          <th>{__('First Name')}</th>
-          <th>{__('Position')}</th>
-          <th>{__('Scheduled days')}</th>
-          <th>{__('Worked days')}</th>
-          <th>{__('Explanation')}</th>
-        </tr>
+        <>
+          <tr>
+            <th>{__('№')}</th>
+            <th>{__('Team member Id')}</th>
+            <th>{__('Last Name')}</th>
+            <th>{__('First Name')}</th>
+            <th>{__('Position')}</th>
+            <th>{__('Scheduled days')}</th>
+            <th>{__('Worked days')}</th>
+            <th>{__('Explanation')}</th>
+          </tr>
+        </>
       );
     case 'Сүүлд':
       return (
         <>
           <tr>
-            {/* <th rowSpan={2} style={{ border: '1px solid #EEE' }}>
-              {__('№')}
-            </th> */}
+            {renderParentBranchColumns()}
+
             <th
               rowSpan={2}
               style={{ textAlign: 'center', border: '1px solid #EEE' }}

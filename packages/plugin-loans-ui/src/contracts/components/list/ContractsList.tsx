@@ -246,7 +246,7 @@ class ContractsList extends React.Component<IProps, State> {
           <ModalTrigger
             title={`${__('Change classification')}`}
             trigger={
-              <Button btnStyle="warning" size="small" icon="cancel-1">
+              <Button btnStyle="warning" icon="cancel-1">
                 {__('Change classification')}
               </Button>
             }
@@ -258,12 +258,7 @@ class ContractsList extends React.Component<IProps, State> {
           {currentUser?.configs?.loansConfig?.organizationType ===
             ORGANIZATION_TYPE.ENTITY &&
             can('contractsRemove', currentUser) && (
-              <Button
-                btnStyle="danger"
-                size="small"
-                icon="cancel-1"
-                onClick={onClick}
-              >
+              <Button btnStyle="danger" icon="cancel-1" onClick={onClick}>
                 {__('Delete')}
               </Button>
             )}

@@ -19,6 +19,7 @@ const MMSTOMINS = 60000;
 const MMSTOHRS = MMSTOMINS * 60;
 // millieseconds to days
 const MMSTODAYS = MMSTOHRS * 24;
+const dateFormat = 'YYYY-MM-DD';
 
 export const createScheduleShiftsByUserIds = async (
   userIds: string[],
@@ -788,6 +789,31 @@ export const bichilTimeclockReportFinal = async (
     let totalMinsLatePerUser = 0;
     let totalHoursOvernightPerUser = 0;
 
+    const totalScheduledDaysDict: {
+      [dayString: string]: {
+        shiftStart: Date;
+        shiftEnd: Date;
+        totalScheduledHours: number;
+      };
+    } = {};
+
+    for (const userScheduleShift of currUserScheduleShifts) {
+      const scheduledDay = dayjs(userScheduleShift.shiftStart).format(
+        dateFormat
+      );
+
+      const getTotalScheduledHours =
+        (new Date(userScheduleShift.shiftEnd).getTime() -
+          new Date(userScheduleShift.shiftStart).getTime()) /
+        MMSTOHRS;
+
+      totalScheduledDaysDict[scheduledDay] = {
+        shiftStart: userScheduleShift.shiftStart,
+        shiftEnd: userScheduleShift.shiftEnd,
+        totalScheduledHours: getTotalScheduledHours
+      };
+    }
+
     if (currUserTimeclocks) {
       totalDaysWorkedPerUser = new Set(
         currUserTimeclocks.map(shift =>
@@ -801,7 +827,7 @@ export const bichilTimeclockReportFinal = async (
 
         const nextDay = dayjs(shiftStart)
           .add(1, 'day')
-          .format('YYYY-MM-DD');
+          .format(dateFormat);
 
         const midnightOfShiftDay = new Date(nextDay + ' 00:00:00');
 
@@ -837,30 +863,28 @@ export const bichilTimeclockReportFinal = async (
 
             const scheduleShiftStart = getScheduleOfTheDay.shiftStart;
             const scheduleShiftEnd = getScheduleOfTheDay.shiftEnd;
+            const lunchBreakInHrs = getScheduleOfTheDay.lunchBreakInMins / 60;
 
-            const getScheduleDuration = Math.abs(
-              scheduleShiftEnd.getTime() - scheduleShiftStart.getTime()
-            );
+            const getScheduleDuration =
+              Math.abs(
+                scheduleShiftEnd.getTime() - scheduleShiftStart.getTime()
+              ) /
+                MMSTOHRS -
+              lunchBreakInHrs;
 
-            const getTimeClockDuration = Math.abs(
-              shiftEnd.getTime() - shiftStart.getTime()
-            );
+            const getTimeClockDuration =
+              Math.abs(shiftEnd.getTime() - shiftStart.getTime()) / MMSTOHRS;
 
             // get difference in schedule duration and time clock duration
             const getShiftDurationDiff =
               getTimeClockDuration - getScheduleDuration;
 
-            // get difference in shift start and scheduled start
-            const getShiftStartDiff =
-              shiftStart.getTime() - scheduleShiftStart.getTime();
-
-            // if shift start is later than scheduled start --> late
-            if (getShiftStartDiff > 0) {
-              totalMinsLatePerUser += getShiftStartDiff / MMSTOMINS;
-            }
-            // if timeclock > schedule --> overtime
+            // if timeclock > schedule --> deduct overtime
             if (getShiftDurationDiff > 0) {
-              totalHoursOvertimePerUser += getShiftDurationDiff / MMSTOHRS;
+              totalRegularHoursWorkedPerUser -= getShiftDurationDiff;
+            } else {
+              totalMinsLatePerUser +=
+                Math.abs(getShiftDurationDiff) / MMSTOMINS;
             }
           }
         }
@@ -868,6 +892,7 @@ export const bichilTimeclockReportFinal = async (
 
       // deduct overtime from worked hours
       totalRegularHoursWorkedPerUser -= totalHoursOvertimePerUser;
+
       totalHoursWorkedPerUser =
         totalRegularHoursWorkedPerUser + totalHoursOvertimePerUser;
     }
@@ -902,11 +927,6 @@ export const bichilTimeclockReportFinal = async (
 
     // add 1 day due end day is not inclusive
     totalDaysBetweenInterval++;
-
-    const totalWeekendDaysBetweenInterval = calculateWeekendDays(
-      new Date(startDate),
-      new Date(endDate)
-    );
 
     // total hours scheduled
     // total hours worked
@@ -1207,7 +1227,8 @@ const createSchedulesObj = (
         const date_key = currEmpScheduleShift.shiftStart?.toLocaleDateString();
         returnObject[userId][date_key] = {
           shiftStart: currEmpScheduleShift.shiftStart,
-          shiftEnd: currEmpScheduleShift.shiftEnd
+          shiftEnd: currEmpScheduleShift.shiftEnd,
+          lunchBreakInMins: currEmpScheduleShift.lunchBreakInMins || 0
         };
       });
     }

@@ -54,6 +54,7 @@ const contractFields = `
   givenAmount
   leaseType
   commitmentInterest
+  endDate
 `;
 
 const listParamsDef = `
@@ -125,7 +126,7 @@ export const contracts = `
 `;
 
 export const savingContracts = `
-  query savingsContractsMain(
+  query savingsContracts(
     $page: Int
     $perPage: Int
     $searchValue: String
@@ -146,7 +147,7 @@ export const savingContracts = `
     $status:String
     $isDeposit:Boolean
   ) {
-    savingsContractsMain(
+    savingsContracts(
       page: $page
       perPage: $perPage
       searchValue: $searchValue
@@ -167,7 +168,6 @@ export const savingContracts = `
       status: $status
       isDeposit: $isDeposit
     ) {
-      list {
         _id
         contractTypeId
         number
@@ -201,8 +201,6 @@ export const savingContracts = `
           firstName
           lastName
         }
-      }
-      totalCount
     }
   }
 `;

@@ -37,6 +37,7 @@ const contractTypeMutations = {
     const contractType = await models.ContractTypes.getContractType({
       _id
     });
+
     const updated = await models.ContractTypes.updateContractType(_id, doc);
 
     const logData = {

@@ -231,7 +231,7 @@ class Form extends React.Component<Props, State> {
         const name = e.currentTarget.name;
         let value = e.currentTarget.value;
         if (name === 'inverse') {
-          value = 1 / e.currentTarget.value || 1;
+          value = Number((1 / e.currentTarget.value || 1).toFixed(13));
         }
         updateUoms('ratio', value);
       };

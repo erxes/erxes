@@ -20,19 +20,22 @@ const updateTimeclocks = async (subdomain: any) => {
 
   const NOW = dayjs(new Date()).format('YYYY-MM-DD HH:mm');
 
-  const updatedTimeclocks = await findUnfinishedShiftsAndUpdate(subdomain);
+  const bulkWriteResult = await findUnfinishedShiftsAndUpdate(subdomain);
 
-  await db
-    .collection('bichil_unfinished_shifts')
-    .insertOne({
-      createdAt: NOW,
-      updated: updatedTimeclocks.map(t => t._id),
-      totalCount: updateTimeclocks.length
-    })
-    .catch(async err => {
-      console.error(err);
-      await db.collection('bichil_unfinished_shifts').insertOne({ err });
-    });
+  if (bulkWriteResult) {
+    console.log('resulst ', bulkWriteResult);
+
+    await db
+      .collection('bichil_unfinished_shifts')
+      .insertOne({
+        createdAt: NOW,
+        totalCount: bulkWriteResult.modifiedCount
+      })
+      .catch(async err => {
+        console.error(err);
+        await db.collection('bichil_unfinished_shifts').insertOne({ err });
+      });
+  }
 
   console.log('Created log at ' + NOW);
 };

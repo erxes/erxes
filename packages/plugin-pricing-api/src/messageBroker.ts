@@ -125,6 +125,15 @@ export const sendProductsMessage = async (
   });
 };
 
+export const sendTagsMessage = async (args: ISendMessageArgs): Promise<any> => {
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName: 'tags',
+    ...args
+  });
+};
+
 export const sendSegmentsMessage = async (
   args: ISendMessageArgs
 ): Promise<any> => {

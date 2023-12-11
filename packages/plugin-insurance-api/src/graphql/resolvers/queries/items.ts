@@ -5,7 +5,93 @@ import { paginate } from '@erxes/api-utils/src';
 import { IContext } from '../../../connectionResolver';
 import { sendCommonMessage } from '../../../messageBroker';
 
+const query = (searchField, searchValue) => {
+  const qry: any = {};
+
+  if (!searchField) {
+    return qry;
+  }
+
+  qry[`searchDictionary.${searchField}`] = {
+    $regex: searchValue,
+    $options: 'i'
+  };
+
+  if (
+    ['dealCreatedAt', 'dealCloseDate', 'dealStartDate'].includes(searchField)
+  ) {
+    const dateValue = new Date(searchValue);
+    const searchDate = new Date(
+      dateValue.getFullYear(),
+      dateValue.getMonth(),
+      dateValue.getDate()
+    );
+    const nextDate = new Date(
+      dateValue.getFullYear(),
+      dateValue.getMonth(),
+      dateValue.getDate() + 1
+    );
+
+    qry[`searchDictionary.${searchField}`] = {
+      $gte: searchDate,
+      $lt: nextDate
+    };
+  }
+
+  if (searchField.includes('item')) {
+    qry[`searchDictionary.${searchField}`] = searchValue;
+  }
+
+  return qry;
+};
+
 const queries = {
+  insuranceItemList: async (
+    _root,
+    {
+      page,
+      perPage,
+      sortField,
+      sortDirection,
+      searchValue,
+      searchField
+    }: {
+      page: number;
+      perPage: number;
+      sortField: string;
+      sortDirection: 'ASC' | 'DESC';
+      searchValue: any;
+      searchField:
+        | 'dealNumber'
+        | 'dealCreatedAt'
+        | 'dealCloseDate'
+        | 'dealStartDate'
+        | 'customerRegister'
+        | 'customerFirstName'
+        | 'customerLastName'
+        | 'itemPrice'
+        | 'itemFeePercent'
+        | 'itemTotalFee';
+    },
+    { models, subdomain }: IContext
+  ) => {
+    const qry: any = query(searchField, searchValue);
+
+    let sortOrder = 1;
+
+    if (sortDirection === 'DESC') {
+      sortOrder = -1;
+    }
+
+    return {
+      list: paginate(models.Items.find(qry).sort({ [sortField]: sortOrder }), {
+        page,
+        perPage
+      }),
+      totalCount: models.Products.find(qry).count()
+    };
+  },
+
   vendorInsuranceItems: async (
     _root,
     {
@@ -13,13 +99,25 @@ const queries = {
       perPage,
       sortField,
       sortDirection,
-      searchValue
+      searchValue,
+      searchField
     }: {
       page: number;
       perPage: number;
       sortField: string;
       sortDirection: 'ASC' | 'DESC';
-      searchValue: string;
+      searchValue: any;
+      searchField:
+        | 'dealNumber'
+        | 'dealCreatedAt'
+        | 'dealCloseDate'
+        | 'dealStartDate'
+        | 'customerRegister'
+        | 'customerFirstName'
+        | 'customerLastName'
+        | 'itemPrice'
+        | 'itemFeePercent'
+        | 'itemTotalFee';
     },
     { models, cpUser, subdomain }: IContext
   ) => {
@@ -78,11 +176,7 @@ const queries = {
 
     const vendorUserIds = vendorUsers.map((u: any) => u._id);
 
-    const qry: any = {};
-
-    if (searchValue) {
-      qry.searchText = { $in: [new RegExp(`.*${searchValue}.*`, 'i')] };
-    }
+    const qry: any = query(searchField, searchValue);
 
     if (vendorUserIds.length > 0) {
       qry.vendorUserId = { $in: vendorUserIds };
@@ -99,8 +193,12 @@ const queries = {
         page,
         perPage
       }),
-      totalCount: models.Products.find(qry).count()
+      totalCount: models.Items.find(qry).count()
     };
+  },
+
+  insuranceItems: async (_root, _args, { models }: IContext) => {
+    return models.Items.find({});
   }
 };
 

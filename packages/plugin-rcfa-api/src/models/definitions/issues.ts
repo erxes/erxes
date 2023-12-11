@@ -10,6 +10,8 @@ export interface IRCFAIssues {
   code: string;
   order: string;
   isRootCause?: boolean;
+  taskIds: string[];
+  actionIds: string[];
   __v?: number;
 }
 

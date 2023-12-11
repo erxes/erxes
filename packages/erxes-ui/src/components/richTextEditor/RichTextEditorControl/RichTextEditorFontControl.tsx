@@ -30,7 +30,7 @@ const DEFAULT_FONT_SIZE_SELECT_OPTIONS: Array<string | number> = [
 ];
 
 export const RichTextEditorFontControl = () => {
-  const ctx = useRichTextEditorContext();
+  const { editor, isSourceEnabled } = useRichTextEditorContext();
   // Determine if all of the selected content shares the same set font size.
   // Scenarios:
   // 1) If there is exactly one font size amongst the selected content and all
@@ -43,12 +43,10 @@ export const RichTextEditorFontControl = () => {
   // 3) Otherwise (no font size is set in any selected content), we'll show the
   //    unsetOption as selected.
 
-  const allCurrentTextStyleAttrs = ctx.editor
-    ? getAttributesForEachSelected(ctx.editor?.state, 'textStyle')
+  const allCurrentTextStyleAttrs = editor
+    ? getAttributesForEachSelected(editor?.state, 'textStyle')
     : [];
-  const isTextStyleAppliedToEntireSelection = !!ctx.editor?.isActive(
-    'textStyle'
-  );
+  const isTextStyleAppliedToEntireSelection = !!editor?.isActive('textStyle');
   const currentFontSizes: string[] = allCurrentTextStyleAttrs.map(
     attrs => attrs.fontSize ?? '' // Treat any null/missing font-size as ""
   );
@@ -83,14 +81,14 @@ export const RichTextEditorFontControl = () => {
 
   const setSize = (size: string) => {
     if (size === 'default') {
-      ctx.editor
+      editor
         ?.chain()
         .unsetFontSize()
         .focus()
         .run();
       return;
     }
-    ctx.editor
+    editor
       ?.chain()
       .setFontSize(size)
       .focus()
@@ -109,6 +107,7 @@ export const RichTextEditorFontControl = () => {
           value: size,
           label: size
         }))}
+        disabled={isSourceEnabled}
       />
     </FontSelectWrapper>
   );

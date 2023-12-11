@@ -1,4 +1,5 @@
 module.exports = {
+  srcDir: __dirname,
   name: 'rcfa',
   port: 3030,
   scope: 'rcfa',

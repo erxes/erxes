@@ -19,6 +19,7 @@ import {
   findTeamMembers,
   generateCommonUserIds,
   getNextNthColumnChar,
+  paginateArray,
   returnDepartmentsBranchesDict,
   returnSupervisedUsers
 } from './utils';
@@ -326,7 +327,7 @@ const extractAndAddIntoSheet = async (
 
         for (const userBranchId of userBranchIds) {
           if (structuresDict[userBranchId]) {
-            branchTitles.push(structuresDict[userBranchId]);
+            branchTitles.push(structuresDict[userBranchId].title);
           }
         }
 
@@ -553,6 +554,7 @@ export const buildFile = async (
   params: any
 ) => {
   const isCurrentUserAdmin = params.isCurrentUserAdmin;
+
   const reportType = params.reportType;
   const userIds =
     params.userIds instanceof Array || !params.userIds
@@ -568,7 +570,8 @@ export const buildFile = async (
       ? params.departmentIds
       : [params.departmentIds];
 
-  const { currentUserId } = params;
+  const { currentUserId, page = 1, perPage = 20 } = params;
+
   const currentUser = await findTeamMember(subdomain, currentUserId);
 
   const startDate = params.startDate;
@@ -625,11 +628,26 @@ export const buildFile = async (
     endDate
   );
 
+  const paginatedTeamMemberIds = paginateArray(
+    totalTeamMemberIds,
+    perPage,
+    page
+  );
+
+  const getCorrectTeamMemberIds =
+    totalTeamMemberIds.length > 20
+      ? paginatedTeamMemberIds
+      : totalTeamMemberIds;
+  const getCorrectTeamMembers =
+    totalMembers.length > 20
+      ? paginateArray(totalMembers, perPage, page)
+      : totalMembers;
+
   switch (reportType) {
     case 'Урьдчилсан' || 'Preliminary':
       report = await bichilTimeclockReportPreliminary(
         subdomain,
-        totalTeamMemberIds,
+        getCorrectTeamMemberIds,
         startDate,
         endDate,
         teamMembersObject,
@@ -640,21 +658,21 @@ export const buildFile = async (
     case 'Сүүлд' || 'Final':
       const reportFinal = await bichilTimeclockReportFinal(
         subdomain,
-        totalTeamMemberIds,
+        getCorrectTeamMemberIds,
         startDate,
         endDate,
         teamMembersObject,
         true
       );
 
-      report = reportFinal.report;
-      deductionInfo = reportFinal.deductionInfo;
+      report = reportFinal?.report || {};
+      deductionInfo = reportFinal?.deductionInfo || {};
 
       break;
     case 'Pivot':
       report = await bichilTimeclockReportPivot(
         subdomain,
-        totalTeamMemberIds,
+        getCorrectTeamMemberIds,
         startDate,
         endDate,
         teamMembersObject,
@@ -668,8 +686,8 @@ export const buildFile = async (
     subdomain,
     params,
     report,
-    totalTeamMemberIds,
-    totalMembers,
+    getCorrectTeamMemberIds,
+    getCorrectTeamMembers,
     sheet,
     reportType,
     totalColumnsNum,

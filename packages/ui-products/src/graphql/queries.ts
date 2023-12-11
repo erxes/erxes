@@ -61,7 +61,8 @@ const products = `
     $vendorId: String,
     $brand: String,
     $perPage: Int,
-    $page: Int $ids: [String],
+    $page: Int
+    $ids: [String],
     $excludeIds: Boolean,
     $pipelineId: String,
     $boardId: String,
@@ -77,7 +78,8 @@ const products = `
       vendorId: $vendorId,
       brand: $brand,
       perPage: $perPage,
-      page: $page ids: $ids,
+      page: $page
+      ids: $ids,
       excludeIds: $excludeIds,
       pipelineId: $pipelineId,
       boardId: $boardId,
