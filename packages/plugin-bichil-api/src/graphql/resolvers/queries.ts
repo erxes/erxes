@@ -16,7 +16,8 @@ import {
   bichilTimeclockReportFinal,
   bichilTimeclockReportPivot,
   bichilTimeclockReportPreliminary,
-  timeclockReportByUsers
+  timeclockReportByUsers,
+  bichilTimeclockReportPerUser
 } from './utils';
 import { paginate } from '@erxes/api-utils/src/core';
 import { IReport } from '../../models/definitions/timeclock';
@@ -31,6 +32,22 @@ import { IUserDocument } from '@erxes/api-utils/src/types';
 const bichilQueries = {
   bichils(_root, _args, _context: IContext) {
     return Bichils.find({});
+  },
+
+  async bichilTimeclockReportByUser(
+    _root,
+    { selectedUser, selectedMonth, selectedYear, selectedDate },
+    { models, user }: IContext
+  ) {
+    const userId = selectedUser || user._id;
+
+    return bichilTimeclockReportPerUser(
+      models,
+      userId,
+      selectedMonth,
+      selectedYear,
+      selectedDate
+    );
   },
 
   async bichilTimeclockReportByUsers(

@@ -4,6 +4,7 @@ import { paginate } from '@erxes/api-utils/src';
 
 import { IContext } from '../../../connectionResolver';
 import { sendCommonMessage } from '../../../messageBroker';
+import { verifyVendor } from '../utils';
 
 const query = (searchField, searchValue) => {
   const qry: any = {};
@@ -39,7 +40,9 @@ const query = (searchField, searchValue) => {
   }
 
   if (searchField.includes('item')) {
-    qry[`searchDictionary.${searchField}`] = searchValue;
+    qry[`searchDictionary.${searchField}`] = {
+      $gte: Number(searchValue)
+    };
   }
 
   return qry;
@@ -207,6 +210,120 @@ const queries = {
 
   insuranceItems: async (_root, _args, { models }: IContext) => {
     return models.Items.find({});
+  },
+
+  vendorInsuranceItem: async (
+    _root,
+    { _id }: { _id: string },
+    { models, cpUser, subdomain }: IContext
+  ) => {
+    if (!cpUser) {
+      throw new Error('login required');
+    }
+
+    const { company, clientportal } = await verifyVendor({
+      subdomain,
+      cpUser
+    });
+
+    const users = await sendCommonMessage({
+      subdomain,
+      action: 'clientPortalUsers.find',
+      serviceName: 'clientportal',
+      isRPC: true,
+      defaultValue: [],
+      data: {
+        erxesCompanyId: company._id
+      }
+    });
+
+    const item = await models.Items.findOne({ _id });
+
+    if (!item) {
+      throw new Error('Item not found');
+    }
+
+    if (!users.map((u: any) => u._id).includes(item.vendorUserId)) {
+      throw new Error('Item not found');
+    }
+
+    return item;
+  },
+
+  vendorInsuranceItemsInfo: async (
+    _root,
+    _args,
+    { models, cpUser, subdomain }: IContext
+  ) => {
+    if (!cpUser) {
+      throw new Error('login required');
+    }
+
+    const { company } = await verifyVendor({
+      subdomain,
+      cpUser
+    });
+
+    const users = await sendCommonMessage({
+      subdomain,
+      action: 'clientPortalUsers.find',
+      serviceName: 'clientportal',
+      isRPC: true,
+      defaultValue: [],
+      data: {
+        erxesCompanyId: company._id
+      }
+    });
+
+    const userIds = users.map((u: any) => u._id);
+
+    console.log('userIds', userIds);
+
+    const categories = await models.Categories.find({});
+    const totalItemsCountOfCompany = await models.Items.find({
+      vendorUserId: { $in: userIds }
+    }).countDocuments();
+
+    console.log('totalItemsCountOfCompany', totalItemsCountOfCompany);
+
+    const result: any = [];
+
+    console.log('categories', categories);
+
+    for (const cat of categories) {
+      const productIds = await models.Products.find({
+        categoryId: cat._id
+      }).distinct('_id');
+
+      console.log('productIds', productIds);
+
+      const items: any = await models.Items.find({
+        productId: { $in: productIds },
+        vendorUserId: { $in: userIds }
+      });
+
+      let totalFee = 0;
+
+      console.log('items', items);
+      if (items.length !== 0) {
+        totalFee = items.reduce(
+          (acc, obj) => acc + obj.searchDictionary.itemTotalFee,
+          0
+        );
+      }
+
+      const itemsCount = items.length;
+
+      result.push({
+        categoryId: cat._id,
+        categoryName: cat.name,
+        itemsCount,
+        percent: Math.round((itemsCount / totalItemsCountOfCompany) * 100),
+        totalFee
+      });
+    }
+
+    return result;
   }
 };
 

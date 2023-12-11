@@ -89,16 +89,16 @@ export const types = tagsAvailable => `
   type ChartFilter {
     fieldName: String
     filterValue: String
-    filterType: FilterType
+    filterType: ChartFilterType
   }
 
   input ChartFilterInput {
     fieldName: String
     filterValue: String
-    filterType: FilterType
+    filterType: ChartFilterType
   }
 
-  enum FilterType {
+  enum ChartFilterType {
     DATE
     STRING
     NUMBER

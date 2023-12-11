@@ -66,7 +66,8 @@ export const queries = `
       sortDirection: SortDirection
       searchField: SearchField
       searchValue: JSON): [InsuranceItem]
-    insuranceItemList(page: Int
+    insuranceItemList(
+      page: Int
       perPage: Int
       sortField: String
       sortDirection: SortDirection
@@ -74,12 +75,16 @@ export const queries = `
       searchValue: JSON): InsuranceItemListResult
     insuranceItem(_id: ID!): InsuranceItem
 
-    vendorInsuranceItems(   page: Int
+    vendorInsuranceItems(  
+      page: Int
       perPage: Int
       sortField: String
       sortDirection: SortDirection
       searchField: SearchField
       searchValue: JSON): InsuranceItemListResult
+    vendorInsuranceItem(_id: ID!): InsuranceItem
+
+    vendorInsuranceItemsInfo: JSON
 `;
 
 export const mutations = `

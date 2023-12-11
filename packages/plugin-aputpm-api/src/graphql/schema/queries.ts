@@ -31,4 +31,5 @@ const createdUsersParams = `
 export const queries = `
   getCreatedUsersCards(${createdUsersParams}):[User]
   getAssignedUsersCards(${createdUsersParams}):[User]
+  getCustomFieldUsersCards(fieldId:String,${createdUsersParams}):[User]
 `;
