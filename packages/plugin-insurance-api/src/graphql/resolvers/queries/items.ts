@@ -349,15 +349,32 @@ const queries = {
     },
     { models, cpUser, subdomain }: IContext
   ) => {
-    //   if (!cpUser) {
-    //     throw new Error('login required');
-    //   }
-    // await verifyVendor({
-    //     subdomain,
-    //     cpUser
-    //   });
+    if (!cpUser) {
+      throw new Error('login required');
+    }
+    const { company } = await verifyVendor({
+      subdomain,
+      cpUser
+    });
+
+    const users = await sendCommonMessage({
+      subdomain,
+      action: 'clientPortalUsers.find',
+      serviceName: 'clientportal',
+      isRPC: true,
+      defaultValue: [],
+      data: {
+        erxesCompanyId: company._id
+      }
+    });
+
+    const userIds = users.map((u: any) => u._id);
 
     const qry: any = query(searchField, searchValue);
+
+    if (userIds.length > 0) {
+      qry.vendorUserId = { $in: userIds };
+    }
 
     let sortOrder = 1;
 
@@ -403,8 +420,6 @@ const queries = {
         fieldIdsMap[f.code] = f._id;
       }
     });
-
-    console.log('fieldIdsMap', fieldIdsMap);
 
     const wb = await xlsxPopulate.fromBlankAsync();
     const ws = wb.sheet(0);
