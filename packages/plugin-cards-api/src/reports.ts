@@ -3,7 +3,7 @@ import { models } from './connectionResolver';
 import { sendCoreMessage, sendTagsMessage } from './messageBroker';
 import * as dayjs from 'dayjs';
 import { PRIORITIES } from './constants';
-
+import { del } from '@erxes/api-utils/src/redisSubstitute';
 const reportTemplates = [
   {
     serviceType: 'deal',
@@ -11,7 +11,14 @@ const reportTemplates = [
     serviceName: 'cards',
     description:
       "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
-    charts: ['dealsChart', 'dealsChartByMonth'],
+    charts: [
+      'ClosedRevenueByMonthWithDealTotalAndClosedRevenueBreakdown',
+      'dealsChartByMonth',
+      'DealAmountAverageByRep',
+      'DealLeaderboardAmountClosedByRep',
+      'DealsByLastModifiedDate',
+      'DealsClosedLostAllTimeByRep'
+    ],
     img: 'https://sciter.com/wp-content/uploads/2022/08/chart-js.png'
   },
   {
@@ -35,7 +42,7 @@ const reportTemplates = [
       'TicketTotalsByStatus',
       'TicketTotalsByLabelPriorityTag',
       'TicketTotalsOverTime',
-      'TicketAverageTimeToCloseByEep',
+      'TicketAverageTimeToCloseByRep',
       'TicketAverageTimeToClose',
       'TicketTotalsBySource'
     ],
@@ -44,6 +51,402 @@ const reportTemplates = [
 ];
 
 const chartTemplates = [
+  {
+    templateType: 'ClosedRevenueByMonthWithDealTotalAndClosedRevenueBreakdown',
+    name:
+      'Closed revenue by month with deal total and closed revenue breakdown',
+    chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea'],
+    // Bar Chart Table
+    getChartResult: async (
+      filter: any,
+      subdomain: string,
+      currentUser: IUserDocument,
+      getDefaultPipelineId?: string
+    ) => {
+      const totalDeal = await models?.Deals.find({}).sort({
+        createdAt: -1
+      });
+      const monthNames: string[] = [];
+      const monthlyDealCount: number[] = [];
+      if (totalDeal) {
+        const now = new Date();
+        const startOfYear = new Date(now.getFullYear(), 0, 1); // Get the start of the year
+        const endOfYear = new Date(now.getFullYear(), 12, 31); // Get the start of the year
+        const endRange = dayjs(
+          new Date(totalDeal.at(-1)?.createdAt || endOfYear)
+        );
+        let rangeStart = dayjs(startOfYear).add(1, 'month');
+        let rangeEnd = dayjs(startOfYear).add(2, 'month');
+        while (rangeStart < endRange) {
+          monthNames.push(rangeStart.format('MMMM'));
+          const getDealsCountOfMonth = totalDeal.filter(
+            deal =>
+              new Date(deal.createdAt || '').getTime() >=
+                rangeStart.toDate().getTime() &&
+              new Date(deal.createdAt || '').getTime() <
+                rangeEnd.toDate().getTime()
+          );
+          monthlyDealCount.push(getDealsCountOfMonth.length);
+          rangeStart = rangeStart.add(1, 'month');
+          rangeEnd = rangeEnd.add(1, 'month');
+        }
+      }
+      const label = 'Deals count by created month';
+      const datasets = [{ label, data: monthlyDealCount, labels: monthNames }];
+      return datasets;
+    },
+    filterTypes: [
+      {
+        fieldName: 'dateRange',
+        fieldType: 'date',
+        fieldQuery: 'createdAt',
+        fieldLabel: 'Date range'
+      }
+    ]
+  },
+
+  {
+    templateType: 'DealAmountAverageByRep',
+    name: 'Deal amount average by rep',
+    chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea'],
+    getChartResult: async (filter: any, subdomain: string) => {
+      const selectedUserIds = filter.assignedUserIds || [];
+      let deals;
+      try {
+        if (selectedUserIds.length === 0) {
+          deals = await models?.Deals.find({}).lean();
+        } else {
+          deals = await models?.Deals.find({
+            assignedUserIds: {
+              $in: selectedUserIds
+            }
+          }).lean();
+        }
+        if (!Array.isArray(deals)) {
+          throw new Error('Invalid data: deals is not an array.');
+        }
+      } catch (error) {
+        console.error('Error fetching tickets:', error);
+
+        // Handle the error or return an appropriate response.
+        // For example, you might set tickets to an empty array to avoid further issues
+        deals = [];
+      }
+      const dealCounts = calculateAverageDealAmountByRep(deals);
+      const getTotalAssignedUserIds = await Promise.all(
+        dealCounts.map(async result => {
+          return await sendCoreMessage({
+            subdomain,
+            action: 'users.find',
+            data: {
+              query: {
+                _id: {
+                  $in: result.userId
+                }
+              }
+            },
+            isRPC: true,
+            defaultValue: []
+          });
+        })
+      );
+      const assignedUsersMap = {};
+
+      for (let i = 0; i < getTotalAssignedUserIds.length; i++) {
+        const assignedUsers = getTotalAssignedUserIds[i];
+        for (const assignedUser of assignedUsers) {
+          assignedUsersMap[assignedUser._id] = {
+            fullName: assignedUser.details?.fullName,
+            amount: dealCounts[i].amount // Match the amount with the correct index
+          };
+        }
+      }
+      const data = Object.values(assignedUsersMap).map((t: any) => t.amount);
+      const labels = Object.values(assignedUsersMap).map(
+        (t: any) => t.fullName
+      );
+
+      const title = 'Deal amount average by rep';
+      const datasets = { title, data, labels };
+      return datasets;
+    },
+
+    filterTypes: [
+      {
+        fieldName: 'assignedUserIds',
+        fieldType: 'select',
+        multi: true,
+        fieldQuery: 'users',
+        fieldLabel: 'Select assigned users'
+      }
+    ]
+  },
+  {
+    templateType: 'DealLeaderboardAmountClosedByRep',
+    name: 'Deal leader board - amount closed by rep',
+    chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea'],
+    getChartResult: async (filter: any, subdomain: string) => {
+      const selectedUserIds = filter.assignedUserIds || [];
+      let deals;
+      try {
+        if (selectedUserIds.length === 0) {
+          deals = await models?.Deals.find({
+            isComplete: true
+          }).lean();
+        } else {
+          deals = await models?.Deals.find({
+            $and: [
+              { isComplete: true },
+              { assignedUserIds: { $in: selectedUserIds } }
+            ]
+          }).lean();
+        }
+        if (!Array.isArray(deals)) {
+          throw new Error('Invalid data: deals is not an array.');
+        }
+      } catch (error) {
+        console.error('Error fetching tickets:', error);
+
+        // Handle the error or return an appropriate response.
+        // For example, you might set tickets to an empty array to avoid further issues
+        deals = [];
+      }
+      const dealCounts = calculateAverageDealAmountByRep(deals);
+      const getTotalAssignedUserIds = await Promise.all(
+        dealCounts.map(async result => {
+          return await sendCoreMessage({
+            subdomain,
+            action: 'users.find',
+            data: {
+              query: {
+                _id: {
+                  $in: result.userId
+                }
+              }
+            },
+            isRPC: true,
+            defaultValue: []
+          });
+        })
+      );
+      const assignedUsersMap = {};
+
+      for (let i = 0; i < getTotalAssignedUserIds.length; i++) {
+        const assignedUsers = getTotalAssignedUserIds[i];
+        for (const assignedUser of assignedUsers) {
+          assignedUsersMap[assignedUser._id] = {
+            fullName: assignedUser.details?.fullName,
+            amount: dealCounts[i].amount // Match the amount with the correct index
+          };
+        }
+      }
+      const data = Object.values(assignedUsersMap).map((t: any) => t.amount);
+      const labels = Object.values(assignedUsersMap).map(
+        (t: any) => t.fullName
+      );
+
+      const title = 'Deal amount average by rep';
+      const datasets = { title, data, labels };
+      return datasets;
+    },
+    filterTypes: [
+      {
+        fieldName: 'assignedUserIds',
+        fieldType: 'select',
+        multi: true,
+        fieldQuery: 'users',
+        fieldLabel: 'Select assigned users'
+      }
+    ]
+  },
+  {
+    templateType: 'DealsByLastModifiedDate',
+    name: 'Deals by last modified date',
+    chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea'],
+    getChartResult: async (filter: any, subdomain: string) => {
+      const deals = await await models?.Deals.find({});
+
+      const dealsCount = deals?.map(deal => {
+        return {
+          dealName: deal.name,
+          dealStage: deal.stageId,
+          currentStatus: deal.status,
+          lastModifiedDate: deal.modifiedAt,
+          stageChangedDate: deal.stageChangedDate
+        };
+      });
+
+      const sortedData = dealsCount?.sort((a, b) => {
+        const dateA = new Date(a.lastModifiedDate ?? 0);
+        const dateB = new Date(b.lastModifiedDate ?? 0);
+        return dateB.getTime() - dateA.getTime();
+      });
+
+      // const data = sortedData?.map((deal: any) => {
+      //   return new Date(deal.lastModifiedDate); // return date objects
+      // });
+
+      const data = sortedData?.map((deal: any) => {
+        const dateWithTime = new Date(deal.lastModifiedDate);
+        const dateOnly = dateWithTime.toISOString().substring(0, 10); // Extract YYYY-MM-DD
+        return dateOnly;
+      });
+
+      const labels = sortedData?.map((deal: any) => deal.dealName);
+      const label = 'Deals count by modified month';
+
+      const datasets = [
+        {
+          label,
+          data: data || [], // Ensure data is an array even if sortedData is undefined
+          labels
+        }
+      ];
+
+      console.log(data, 'data');
+
+      return datasets;
+    },
+
+    filterTypes: [
+      {
+        fieldName: 'dateRange',
+        fieldType: 'date',
+        fieldQuery: 'createdAt',
+        fieldLabel: 'Date range'
+      }
+    ]
+  },
+
+  {
+    templateType: 'DealsClosedLostAllTimeByRep',
+    name: 'Deals closed lost all time by rep',
+    chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea'],
+    // Bar Chart Table
+    getChartResult: async (
+      filter: any,
+      subdomain: string,
+      currentUser: IUserDocument,
+      getDefaultPipelineId?: string
+    ) => {
+      const selectedUserIds = filter.assignedUserIds || [];
+      const stages = await models?.Stages.find({
+        $and: [{ type: 'deal' }, { probability: 'Won' }]
+      }).lean();
+      let dealCounts;
+      if (stages) {
+        if (selectedUserIds.length === 0) {
+          dealCounts = await Promise.all(
+            stages.map(async result => {
+              return await models?.Deals.find({
+                stageId: result._id
+              }).lean();
+            })
+          );
+        } else {
+          dealCounts = await Promise.all(
+            stages.map(async result => {
+              return await models?.Deals.find({
+                stageId: result._id,
+                assignedUserIds: { $in: selectedUserIds }
+              }).lean();
+            })
+          );
+        }
+
+        const data = await Promise.all(
+          dealCounts.map(async result => {
+            const counts = result.filter(element => element.status === 'active')
+              .length;
+            const users = await Promise.all(
+              result
+                .flat() // Flatten the array of arrays
+                .map(async item => {
+                  const assignedUserIds = item.assignedUserIds;
+
+                  if (assignedUserIds && assignedUserIds.length > 0) {
+                    return assignedUserIds;
+                  }
+                })
+            );
+
+            return [counts, users];
+          })
+        );
+        const result = data.map(([counts, users]) => ({
+          count: counts,
+          userid: users
+        }));
+        console.log(result);
+        // const ownerIds = data.map((item) => item.counts);
+        // const assignedUsersMap = data.reduce((acc, user) => {
+        //   // Assuming user.users contains an array of user details
+        //   user.users.forEach((userDetail) => {
+        //     acc[userDetail._id] = userDetail.details; // Assuming details contains user information
+        //   });
+        //   return acc;
+        // }, {});
+
+        // const labels = Object.values(assignedUsersMap).map(
+        //   (t: any) => t.fullName
+        // );
+        // console.log(ownerIds, 'owner');
+        // console.log(labels, ';sss');
+        // const title = 'Deals closed lost all time by rep';
+        // const datasets = { title, data, labels };
+        // console.log(datasets, 'datasets');
+        // return datasets;
+        // const count = await dealCounts.map((result) => {
+        //   const counts = result.filter((element) => element.status === 'active')
+        //     .length;
+
+        // });
+        // console.log(count, 'askdopaksdop');
+        // const getTotalAssignedUsers = await Promise.all(
+        //   dealCounts
+        //     .flat() // Flatten the array of arrays
+        //     .map(async (item) => {
+        //       const assignedUserIds = item?.assignedUserIds;
+
+        //       if (assignedUserIds && assignedUserIds.length > 0) {
+        //         return await sendCoreMessage({
+        //           subdomain,
+        //           action: 'users.find',
+        //           data: {
+        //             query: {
+        //               _id: {
+        //                 $in: assignedUserIds
+        //               }
+        //             }
+        //           },
+        //           isRPC: true,
+        //           defaultValue: []
+        //         });
+        //       }
+        //     })
+        // );
+
+        // console.log('getTotalAssignedUsers');
+        // const assignedUsersMap = {};
+
+        // const data = Object.values(assignedUsersMap).map(
+        //   (t: any) => t.assignedDealsCount
+        // );
+      } else {
+        console.error('Stages are undefined.');
+      }
+    },
+    filterTypes: [
+      {
+        fieldName: 'assignedUserIds',
+        fieldType: 'select',
+        multi: true,
+        fieldQuery: 'users',
+        fieldLabel: 'Select assigned users'
+      }
+    ]
+  },
+
   {
     templateType: 'TicketTotalsBySource',
     name: 'Ticket totals by source',
@@ -73,7 +476,6 @@ const chartTemplates = [
     },
     filterTypes: []
   },
-
   {
     templateType: 'TicketAverageTimeToCloseOverTime',
     name: 'Ticket average time to close over time',
@@ -392,7 +794,7 @@ const chartTemplates = [
     ]
   },
   {
-    templateType: 'TicketAverageTimeToCloseByEep',
+    templateType: 'TicketAverageTimeToCloseByRep',
     name: 'Ticket average time to close by rep',
     chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea'],
     // Bar Chart Table
@@ -716,6 +1118,85 @@ function calculateTicketCounts(tickets: any) {
   return ticketCounts;
 }
 
+// Function to calculate the average deal amounts by rep
+function calculateAverageDealAmountByRep(deals) {
+  const repAmounts = {};
+
+  deals.forEach(deal => {
+    if (deal.productsData && deal.status === 'active') {
+      const productsData = deal.productsData;
+
+      productsData.forEach(product => {
+        if (deal.assignedUserIds && product.amount) {
+          const assignedUserIds = deal.assignedUserIds;
+
+          assignedUserIds.forEach(userId => {
+            repAmounts[userId] = repAmounts[userId] || {
+              totalAmount: 0,
+              count: 0
+            };
+            repAmounts[userId].totalAmount += product.amount;
+            repAmounts[userId].count += 1;
+          });
+        }
+      });
+    }
+  });
+
+  const result: Array<{ userId: string; amount: string }> = [];
+
+  // tslint:disable-next-line:forin
+  for (const userId in repAmounts) {
+    const totalAmount = repAmounts[userId].totalAmount;
+    const count = repAmounts[userId].count;
+    const averageAmount = count > 0 ? totalAmount / count : 0;
+
+    result.push({ userId, amount: averageAmount.toFixed(3) });
+  }
+
+  return result;
+}
+
+// function calculateDealAmountAverage(deals: any) {
+//   const averageAmounts: Record<string, number> = {};
+
+//   if (!Array.isArray(deals)) {
+//     console.error('Invalid input: deals should be an array.');
+//     return averageAmounts;
+//   }
+
+//   const userDealCounts: Record<
+//     string,
+//     { totalAmount: number; count: number }
+//   > = {};
+
+//   deals.forEach((deal) => {
+//     deal.productsData?.forEach((product) => {
+//       if (product.assignedUserIds && deal.status === 'active') {
+//         const assignedUsers = product.assignedUserIds;
+//         const amount = product.amount;
+
+//         assignedUsers.forEach((userId) => {
+//           if (!userDealCounts[userId]) {
+//             userDealCounts[userId] = { totalAmount: 0, count: 0 };
+//           }
+
+//           userDealCounts[userId].totalAmount += amount;
+//           userDealCounts[userId].count += 1;
+//         });
+//       }
+//     });
+//   });
+
+//   Object.keys(userDealCounts).forEach((userId) => {
+//     const { totalAmount, count } = userDealCounts[userId];
+//     const averageAmount = count > 0 ? totalAmount / count : 0;
+//     averageAmounts[userId] = averageAmount;
+//   });
+
+//   return averageAmounts;
+// }
+
 function calculateTicketTotalsByStatus(tickets: any) {
   const ticketTotals = {};
 
@@ -847,3 +1328,55 @@ const calculateAverageTimeToCloseUser = tickets => {
 
   return timeToCloseInHoursArray;
 };
+
+function calculateDealsByLastModifiedDate(deals) {
+  const dealsByDate = {};
+
+  deals.forEach(deal => {
+    const modifiedAt = new Date(deal.modifiedAt);
+    const dealName = deal.name;
+
+    if (dealName && !isNaN(modifiedAt.getTime())) {
+      const formattedDate = modifiedAt.toLocaleDateString();
+      dealsByDate[formattedDate] = dealsByDate[formattedDate] || [];
+      dealsByDate[formattedDate].push({ name: dealName });
+    }
+  });
+
+  // Sort keys (dates) in ascending order
+  const sortedDates = Object.keys(dealsByDate).sort(
+    (a, b) => new Date(a).getTime() - new Date(b).getTime()
+  );
+
+  // Create an array of objects with date and deals properties
+  const result = sortedDates.map(date => ({
+    date,
+    deals: dealsByDate[date]
+  }));
+
+  return result;
+}
+
+// function calculateDealsByLastModifiedDate(deals) {
+//   const dealsByDate = {};
+//   deals.forEach((deal) => {
+//     const modifiedAt = new Date(deal.modifiedAt);
+//     if (!isNaN(modifiedAt.getTime())) {
+//       const formattedDate = modifiedAt.toLocaleDateString();
+//       dealsByDate[formattedDate] = (dealsByDate[formattedDate] || 0) + 1;
+//     }
+//   });
+
+//   // Sort keys (dates) in ascending order
+//   const sortedDates = Object.keys(dealsByDate).sort((a: string, b: string) => {
+//     return new Date(a).getTime() - new Date(b).getTime();
+//   });
+
+//   // Create a new object with sorted keys
+//   const sortedDealsByDate = {};
+//   sortedDates.forEach((date) => {
+//     sortedDealsByDate[date] = dealsByDate[date];
+//   });
+
+//   return sortedDealsByDate;
+// }
