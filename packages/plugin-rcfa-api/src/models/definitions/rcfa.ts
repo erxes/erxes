@@ -8,6 +8,7 @@ export interface IRCFA {
   createdAt: Date;
   userId: string;
   closedAt?: Date;
+  labelIds: string[];
 }
 
 export interface IRCFADocument extends IRCFA, Document {
@@ -21,5 +22,6 @@ export const rcfaSchema = new Schema({
   mainTypeId: field({ type: String }),
   createdAt: field({ type: Date, default: Date.now }),
   userId: field({ type: String, optional: true }),
-  closedAt: field({ type: Date, optional: true })
+  closedAt: field({ type: Date, optional: true }),
+  labelIds: field({ type: [String], optional: true })
 });

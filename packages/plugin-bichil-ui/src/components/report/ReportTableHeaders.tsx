@@ -11,11 +11,17 @@ function TableHeaders(props: Props) {
 
   const renderParentBranchColumns = () => {
     const returnElements: any = [];
-    returnElements.push(
-      <th rowSpan={2} style={{ textAlign: 'center', border: '1px solid #EEE' }}>
-        {__('Parent Branch')}
-      </th>
-    );
+
+    if (maxParents) {
+      returnElements.push(
+        <th
+          rowSpan={2}
+          style={{ textAlign: 'center', border: '1px solid #EEE' }}
+        >
+          {__('Parent Branch')}
+        </th>
+      );
+    }
 
     return returnElements;
   };

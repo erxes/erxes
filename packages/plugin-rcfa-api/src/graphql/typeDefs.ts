@@ -1,6 +1,10 @@
 import gql from 'graphql-tag';
 
-import { queries as rcfaQueries, types as rcfaTypes } from './schema/rcfa';
+import {
+  queries as rcfaQueries,
+  types as rcfaTypes,
+  mutations as rcfaMutations
+} from './schema/rcfa';
 import {
   mutations as rcfaQuestionMutations,
   queries as rcfaQuestionQueries,
@@ -32,6 +36,7 @@ const typeDefs = async (_serviceDiscovery: any) => {
     }
     
     extend type Mutation {
+      ${rcfaMutations}
       ${rcfaQuestionMutations}
     }
   `;
