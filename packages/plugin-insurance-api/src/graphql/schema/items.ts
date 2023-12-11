@@ -83,6 +83,7 @@ export const queries = `
       searchField: SearchField
       searchValue: JSON): InsuranceItemListResult
     vendorInsuranceItem(_id: ID!): InsuranceItem
+    vendorItemsExport: JSON
 
     vendorInsuranceItemsInfo: JSON
 `;
