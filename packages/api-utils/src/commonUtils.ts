@@ -127,5 +127,5 @@ export const readFileUrl = (value: string) => {
     name: 'DOMAIN'
   });
 
-  return `${DOMAIN}/gateway/read-file?key=${value}`;
+  return `${DOMAIN}/read-file?key=${value}`;
 };

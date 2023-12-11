@@ -43,15 +43,12 @@ export const loadBotClass = (models: IModels) => {
       }
 
       const { accountId, pageId } = doc;
-      console.log(doc);
 
       const integration = await models.Integrations.findOne({
         accountId,
         facebookPageIds: { $in: [pageId] }
         // healthStatus: 'healthy'
       });
-
-      console.log({ integration });
 
       try {
         return await this.connectBotPageMessenger(integration, pageId, doc);
@@ -61,7 +58,6 @@ export const loadBotClass = (models: IModels) => {
     }
 
     public static async updateBot(_id, doc) {
-      console.log({ _id });
       try {
         await validateDoc(models, doc, true);
       } catch (error) {
@@ -82,13 +78,6 @@ export const loadBotClass = (models: IModels) => {
       if (!bot) {
         throw new Error('Not found');
       }
-
-      console.log(
-        'first',
-        JSON.stringify({ accountId, pageId, persistentMenus })
-      );
-
-      console.log('second', JSON.stringify({ ...bot }));
 
       if (
         JSON.stringify({ accountId, pageId, persistentMenus }) !==

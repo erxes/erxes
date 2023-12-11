@@ -178,8 +178,6 @@ export const executeActions = async (
         isRPC: true
       });
 
-      console.log({ actionResponse });
-
       if (actionResponse?.objToWait) {
         setActionWait({
           ...actionResponse.objToWait,
@@ -204,8 +202,6 @@ export const executeActions = async (
     return;
   }
 
-  console.log({ _id: execution._id, actionResponse });
-
   execAction.result = actionResponse;
 
   execution.actions = [...(execution.actions || []), execAction];
@@ -218,11 +214,6 @@ export const executeActions = async (
     actionsMap,
     action.nextActionId
   );
-};
-
-const checkOptionalConnectAction = action => {
-  const { optionalConnects = [] } = action?.config || {};
-  return !!optionalConnects.length;
 };
 
 const isDiffValue = (latest, target, field) => {

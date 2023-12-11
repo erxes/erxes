@@ -22,8 +22,6 @@ export const putCreateLog = async (
 
   const customer = await models.Customers.findOne({ _id: customerId }).lean();
 
-  console.log({ object: logDoc.object });
-
   await commonPutCreateLog(
     subdomain,
     messageBroker(),

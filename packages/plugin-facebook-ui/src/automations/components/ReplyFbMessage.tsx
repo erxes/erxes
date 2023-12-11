@@ -2,22 +2,20 @@ import Common from '@erxes/ui-automations/src/components/forms/actions/Common';
 import PlaceHolderInput from '@erxes/ui-automations/src/components/forms/actions/placeHolder/PlaceHolderInput';
 import { DrawerDetail } from '@erxes/ui-automations/src/styles';
 import { IAction } from '@erxes/ui-automations/src/types';
-import {
-  __,
-  Button,
-  colors,
-  dimensions,
-  FormControl,
-  Icon,
-  ModifiableList,
-  Uploader
-} from '@erxes/ui/src';
+import { __ } from '@erxes/ui/src/utils/core';
+import ModifiableList from '@erxes/ui/src/components/ModifiableList';
+import dimensions from '@erxes/ui/src/styles/dimensions';
+import colors from '@erxes/ui/src/styles/colors';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { Tabs, TabTitle } from '@erxes/ui/src/components/tabs';
 import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
 import React from 'react';
 import styled from 'styled-components';
+import { Container } from '../styles';
+import Template from './Templates';
+import { Config } from '../types';
+import LinkAction from './LinkAction';
 
 export const TabAction = styled.div`
   padding-left: ${dimensions.unitSpacing}px;
@@ -38,7 +36,7 @@ type Props = {
 };
 
 type State = {
-  config: any;
+  config: Config;
   selectedTab: string;
   selectedTemplatePageId?: string;
 };
@@ -59,10 +57,6 @@ const tableConst = [
 ];
 
 const getSelectedTab = config => {
-  if (config?.text) {
-    return 'text';
-  }
-
   if (config?.messageTemplate) {
     return 'messageTemplate';
   }
@@ -71,13 +65,11 @@ const getSelectedTab = config => {
     return 'quickReplies';
   }
 
+  if (config?.text) {
+    return 'text';
+  }
+
   return localStorage.getItem('fb_selected_message_action_tab') || '';
-};
-
-const generateSelectedPageId = config => {
-  const messageTemplates = config?.messageTemplates || [];
-
-  return messageTemplates[0]?._id || '';
 };
 
 class ReplyFbMessage extends React.Component<Props, State> {
@@ -86,159 +78,12 @@ class ReplyFbMessage extends React.Component<Props, State> {
 
     this.state = {
       config: props?.activeAction?.config || null,
-      selectedTab: getSelectedTab(props?.activeAction?.config),
-      selectedTemplatePageId: generateSelectedPageId(
-        props?.activeAction?.config
-      )
+      selectedTab: getSelectedTab(props?.activeAction?.config)
     };
-  }
-
-  renderTemplateContent(_id, template, config, messageTemplates: any[]) {
-    const { image, title, description, buttons } = template;
-
-    const onChange = (name, value) => {
-      const updatedTemplates = messageTemplates.map(temp =>
-        temp._id === _id ? { ...temp, [name]: value } : temp
-      );
-
-      this.setState({
-        config: { ...config, messageTemplates: updatedTemplates }
-      });
-    };
-
-    const handleChange = e => {
-      const { name, value } = e.currentTarget as HTMLInputElement;
-      onChange(name, value);
-    };
-
-    const handleUpload = value => {
-      if (value.length > 0) {
-        const image = value[0];
-        return onChange('image', image);
-      }
-      onChange('image', null);
-    };
-
-    const onChangeButtons = buttons => {
-      const convertedButtons = buttons.map(button => ({
-        text: button,
-        _id: Math.random().toString()
-      }));
-
-      onChange('buttons', convertedButtons);
-    };
-
-    return (
-      <>
-        {messageTemplates?.length > 1 && (
-          <Uploader
-            single
-            text="Upload Image"
-            onChange={handleUpload}
-            defaultFileList={image ? [image] : []}
-          />
-        )}
-        <FormGroup>
-          <ControlLabel>{__('Title')}</ControlLabel>
-          <FormControl
-            name="title"
-            onChange={handleChange}
-            value={title || ''}
-          />
-        </FormGroup>
-        {messageTemplates?.length > 1 && (
-          <FormGroup>
-            <ControlLabel>{__('Description')}</ControlLabel>
-            <FormControl
-              name="description"
-              componentClass="textarea"
-              value={description || ''}
-              onChange={handleChange}
-            />
-          </FormGroup>
-        )}
-        <ModifiableList
-          options={(buttons || []).map(btn => btn.text) || []}
-          addButtonLabel="Add Buttons"
-          showAddButton
-          onChangeOption={onChangeButtons}
-        />
-      </>
-    );
-  }
-
-  renderTemplates(config) {
-    const { selectedTemplatePageId } = this.state;
-    const messageTemplates = config?.messageTemplates || [];
-
-    const selectedTemplatePage = messageTemplates.find(
-      temp => temp._id === selectedTemplatePageId
-    );
-
-    const addPage = () => {
-      const updatedConfig = {
-        ...config,
-        messageTemplates: [
-          ...messageTemplates,
-          {
-            _id: Math.random(),
-            label: `Page ${(messageTemplates?.length || 0) + 1}`
-          }
-        ]
-      };
-
-      this.setState({ config: updatedConfig });
-    };
-
-    const onSelectTab = value => {
-      this.setState({ selectedTemplatePageId: value });
-    };
-
-    console.log('dasdas');
-
-    const handleRemovePage = _id => {
-      const filteredTemplatePages = messageTemplates.filter(
-        messageTemplate => messageTemplate._id !== _id
-      );
-
-      this.setState({
-        config: {
-          ...config,
-          messageTemplates: filteredTemplatePages
-        }
-      });
-    };
-
-    return (
-      <>
-        <Tabs>
-          {messageTemplates.map(({ _id, label }) => (
-            <TabTitle
-              key={_id}
-              className={_id === selectedTemplatePageId ? 'active' : ''}
-              onClick={onSelectTab.bind(this, _id)}
-            >
-              {__(label)}
-              <TabAction onClick={handleRemovePage.bind(this, _id)}>
-                <Icon icon="times-circle" />
-              </TabAction>
-            </TabTitle>
-          ))}
-
-          <Button btnStyle="link" icon="focus-add" onClick={addPage} />
-        </Tabs>
-        {selectedTemplatePage &&
-          this.renderTemplateContent(
-            selectedTemplatePageId,
-            selectedTemplatePage,
-            config,
-            messageTemplates
-          )}
-      </>
-    );
   }
 
   renderQuickReplies(config) {
+    const { triggerType } = this.props;
     const quickReplies = config?.quickReplies || [];
 
     const onChange = options => {
@@ -258,10 +103,21 @@ class ReplyFbMessage extends React.Component<Props, State> {
     };
 
     return (
-      <ModifiableList
-        options={quickReplies.map(quickReply => quickReply?.label || '') || []}
-        onChangeOption={onChange}
-      />
+      <Container>
+        <PlaceHolderInput
+          config={config}
+          triggerType={triggerType}
+          inputName="text"
+          label="Text"
+          onChange={config => this.setState({ config })}
+        />
+        <ModifiableList
+          options={
+            quickReplies.map(quickReply => quickReply?.label || '') || []
+          }
+          onChangeOption={onChange}
+        />
+      </Container>
     );
   }
 
@@ -269,24 +125,31 @@ class ReplyFbMessage extends React.Component<Props, State> {
     const { config } = this.state;
     const { triggerType } = this.props;
 
-    if (selectedTab === 'text') {
+    if (selectedTab === 'messageTemplate') {
       return (
-        <PlaceHolderInput
+        <Template
           config={config}
-          triggerType={triggerType}
-          inputName="text"
-          label="Reply Text"
-          onChange={config => this.setState({ config })}
+          onChangeConfig={config => this.setState({ config })}
         />
       );
     }
 
-    if (selectedTab === 'messageTemplate') {
-      return this.renderTemplates(config);
-    }
-
     if (selectedTab === 'quickReplies') {
       return this.renderQuickReplies(config);
+    }
+
+    if (selectedTab === 'text') {
+      return (
+        <Container>
+          <PlaceHolderInput
+            config={config}
+            triggerType={triggerType}
+            inputName="text"
+            label="Reply Text"
+            onChange={config => this.setState({ config })}
+          />
+        </Container>
+      );
     }
 
     return null;
@@ -296,7 +159,6 @@ class ReplyFbMessage extends React.Component<Props, State> {
     const { selectedTab } = this.state;
 
     const onSelectTab = value => {
-      console.log({ value });
       const { text, quickReplies, messageTemplates, ...config } =
         this.state.config || {};
 
@@ -340,7 +202,9 @@ class ReplyFbMessage extends React.Component<Props, State> {
               initialValue={config?.fromUserId}
               label="Select from user"
               onSelect={value =>
-                this.setState({ config: { ...config, fromUserId: value } })
+                this.setState({
+                  config: { ...config, fromUserId: value as string }
+                })
               }
               filterParams={{
                 status: 'Verified'

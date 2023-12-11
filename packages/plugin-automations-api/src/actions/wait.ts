@@ -142,11 +142,15 @@ export const doWaitingResponseAction = async (
         ({ optionalConnectId }) => optionalConnectId === String(propertyValue)
       );
 
+      if (!optionalConnection) {
+        continue;
+      }
+
       exec.waitingActionId = undefined;
       exec.startWaitingDate = undefined;
       exec.objToCheck = undefined;
 
-      await executeActions(
+      return await executeActions(
         subdomain,
         exec.triggerType,
         exec,
@@ -186,7 +190,6 @@ export const checkWaitingResponseAction = async (
   actionType: string,
   targets: any[]
 ) => {
-  console.log({ actionType });
   if (actionType) {
     false;
   }
@@ -197,28 +200,23 @@ export const checkWaitingResponseAction = async (
     $and: [{ objToCheck: { $exists: true } }, { objToCheck: { $ne: null } }]
   });
 
-  console.log(waitingResponseExecution.length);
-
-  for (const { objToCheck, actions } of waitingResponseExecution) {
+  for (const { objToCheck, actions = [] } of waitingResponseExecution) {
     const { general, propertyName } = objToCheck;
 
     const generalKeys = Object.keys(general);
-    console.log({ generalKeys });
     for (const target of targets) {
       const valueToCheck = accessNestedObject(target, propertyName.split('.'));
 
-      console.log({ valueToCheck });
-
-      if (
-        generalKeys.every(key => target[key] === general[key]) &&
-        (actions || []).some(({ actionConfig }) =>
-          actionConfig.optionalConnects.some(
-            ({ optionalConnectId }) => optionalConnectId == valueToCheck
-          )
-        )
-      ) {
-        console.log('passed');
-        return true;
+      if (generalKeys.every(key => target[key] === general[key])) {
+        for (const { actionConfig } of actions) {
+          if (
+            (actionConfig?.optionalConnects || []).some(
+              ({ optionalConnectId }) => optionalConnectId == valueToCheck
+            )
+          ) {
+            return true;
+          }
+        }
       }
     }
   }

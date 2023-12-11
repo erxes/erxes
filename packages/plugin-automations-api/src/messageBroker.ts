@@ -23,7 +23,6 @@ export const initBroker = async cl => {
 
     const models = await generateModels(subdomain);
     const { type, actionType, targets } = data;
-    console.log({ targets });
 
     if (actionType && actionType === 'waiting') {
       await playWait(models, subdomain, data);

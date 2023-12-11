@@ -34,11 +34,10 @@ const receiveMessage = async (
       if (postback.payload) {
         message.payload = postback.payload;
       }
-
-      if (postback.quick_reply) {
-        message.payload = postback.quick_reply.payload;
-      }
     }
+  }
+  if (message.quick_reply) {
+    message.payload = message.quick_reply.payload;
   }
 
   const integration = await models.Integrations.getIntegration({
@@ -67,12 +66,14 @@ const receiveMessage = async (
     recipientId: recipient.id
   });
 
+  const isBot = postback && postback.title === 'Get Started' ? true : false;
+  const botId = isBot ? postback.payload : undefined;
+
+  console.log({ isBot, postback });
+
   // create conversation
   if (!conversation) {
     // save on integrations db
-
-    const isBot = postback && postback.title === 'Get Started' ? true : false;
-    const botId = isBot ? postback.payload : undefined;
 
     try {
       conversation = await models.Conversations.create({
@@ -92,6 +93,11 @@ const receiveMessage = async (
       );
     }
   } else {
+    const bot = await models.Bots.findOne({ _id: botId });
+
+    if (bot) {
+      conversation.botId = botId;
+    }
     conversation.content = text || '';
   }
 
@@ -141,7 +147,8 @@ const receiveMessage = async (
         createdAt: timestamp,
         content: text,
         customerId: customer.erxesApiId,
-        attachments: formattedAttachments
+        attachments: formattedAttachments,
+        botId
       });
 
       await sendInboxMessage({
@@ -184,9 +191,7 @@ const receiveMessage = async (
       },
       customer._id
     );
-  } catch (error) {
-    console.log(error.message);
-  }
+  } catch (error) {}
 };
 
 export default receiveMessage;

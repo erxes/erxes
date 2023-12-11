@@ -16,7 +16,10 @@ class OptionalContent extends React.Component<Props> {
     return (
       <>
         {messageTemplates.map(msgTemplate =>
-          (msgTemplate?.buttons || []).map(({ _id, text }) => {
+          (msgTemplate?.buttons || []).map(({ _id, text, link }) => {
+            if (link) {
+              return null;
+            }
             return (
               <li key={`${_id}-right`}>
                 {text}
@@ -33,12 +36,15 @@ class OptionalContent extends React.Component<Props> {
     const { handle } = this.props;
     return (
       <>
-        {quickReplies.map(quickReply => (
-          <li key={`${quickReply._id}-right`}>
-            {quickReply?.label}
-            {handle(quickReply._id)}
-          </li>
-        ))}
+        {quickReplies.map(
+          quickReply =>
+            !quickReply?.link && (
+              <li key={`${quickReply._id}-right`}>
+                {quickReply?.label}
+                {handle(quickReply._id)}
+              </li>
+            )
+        )}
       </>
     );
   }

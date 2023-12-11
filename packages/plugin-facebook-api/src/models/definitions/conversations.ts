@@ -10,6 +10,8 @@ export interface IConversation {
   recipientId: string;
   content: string;
   integrationId: string;
+  isBot: boolean;
+  botId?: string;
 }
 
 export interface IConversationDocument extends IConversation, Document {}

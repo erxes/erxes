@@ -1,53 +1,21 @@
 import { generateFieldsFromSchema } from '@erxes/api-utils/src';
-import { generateModels } from './connectionResolver';
-import { sendContactsMessage } from './messageBroker';
+import { IModels, generateModels } from './connectionResolver';
 
-const generateCustomerOptions = async (
-  subdomain: string,
-  name: string,
-  label: string,
-  type: string
-) => {
-  const contacts = await sendContactsMessage({
-    subdomain,
-    action: `${name}.findActiveCustomers`,
-    data: {
-      selector: {},
-      fields: {
-        _id: 1,
-        primaryEmail: 1,
-        primaryName: 1,
-        firstName: 1,
-        lastName: 1
-      },
-      limit: 20
-    },
-    isRPC: true,
-    defaultValue: []
-  });
+const generateBotOptions = async (models: IModels, fields) => {
+  const bots = await models.Bots.find({});
 
-  const options: Array<{ label: string; value: any }> = contacts.map(
-    ({ _id, primaryEmail, primaryName, firstName, lastName }) => ({
-      value: _id,
-      label: `${
-        primaryEmail || primaryName || (firstName && lastName)
-          ? `${firstName} ${lastName}`
-          : ''
-      }`
-    })
+  const selectOptions: Array<{ label: string; value: any }> = bots.map(bot => ({
+    value: bot._id,
+    label: bot.name
+  }));
+
+  return fields.map(field =>
+    field.name === 'botId' ? { ...field, selectOptions } : field
   );
-
-  return {
-    _id: Math.random(),
-    name,
-    label,
-    type,
-    selectOptions: options
-  };
 };
 
 const generateFields = async ({ subdomain, data }) => {
-  const { type, usageType } = data;
+  const { type } = data;
 
   const models = await generateModels(subdomain);
 
@@ -99,13 +67,7 @@ const generateFields = async ({ subdomain, data }) => {
     ]
   ];
 
-  // if (usageType === 'automation') {
-
-  //   fields = [
-
-  //   ]
-
-  // }
+  fields = await generateBotOptions(models, fields);
 
   return fields;
 };
