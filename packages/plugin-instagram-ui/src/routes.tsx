@@ -33,9 +33,9 @@ const routes = () => (
     />
 
     <Route
-      key="/settings/fb-authorization"
+      key="/settings/instagram-authorization"
       exact={true}
-      path="/settings/fb-authorization"
+      path="/settings/instagram-authorization"
       component={auth}
     />
   </React.Fragment>
