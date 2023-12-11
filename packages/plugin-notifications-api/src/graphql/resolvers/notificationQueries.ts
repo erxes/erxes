@@ -104,6 +104,7 @@ const notificationQueries = {
     const modules: Array<{
       name: string;
       types: any[];
+      icon: string;
       description: string;
     }> = [];
 
