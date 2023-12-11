@@ -2,7 +2,7 @@ import { useEffect, useState } from "react"
 import clientMain from "@/modules/apolloClientMain"
 import { queries } from "@/modules/orders/graphql"
 import { currentAmountAtom, invoiceIdAtom, paymentDataAtom } from "@/store"
-import { configAtom } from "@/store/config.store"
+import { configAtom, paymentConfigAtom } from "@/store/config.store"
 import {
   activeOrderIdAtom,
   customerAtom,
@@ -28,6 +28,8 @@ const MobileSheetNew = () => {
     client: clientMain,
   })
   const config = useAtomValue(configAtom)
+  const paymentConfig = useAtomValue(paymentConfigAtom)
+
   const [createInvoice, { reset, data: invoiceData, loading: loadingInvoice }] =
     useMutation(mutations.createInvoice, {
       client: clientMain,
@@ -42,12 +44,16 @@ const MobileSheetNew = () => {
   const [selected, setSelected] = useState("")
   const { onError } = useToast()
 
-  const { payments } = data || {}
+  const { payments: allPayments } = data || {}
   const { errorDescription, status, apiResponse } =
     invoiceData?.invoiceCreate || {}
 
   const QR_PAYMENTS = ["qpay", "monpay", "pocket", "qpayQuickqr"]
   const PHONE_PAYMENTS = ["socialpay", "storepay"]
+
+  const payments = allPayments.filter((pm: IPaymentOption) =>
+    paymentConfig?.paymentIds.includes(pm._id)
+  )
 
   const getKindById = (_id: string) =>
     payments?.find((p: IPaymentOption) => p._id === _id)?.kind

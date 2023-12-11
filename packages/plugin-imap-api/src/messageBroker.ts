@@ -14,7 +14,7 @@ let client;
 export const initBroker = async cl => {
   client = cl;
 
-  const { consumeRPCQueue } = client;
+  const { consumeRPCQueue, consumeQueue } = client;
 
   consumeRPCQueue(
     'imap:createIntegration',
@@ -28,7 +28,7 @@ export const initBroker = async cl => {
         ...JSON.parse(doc.data)
       });
 
-      await listenIntegration(subdomain, integration);
+      listenIntegration(subdomain, integration, models);
 
       await models.Logs.createLog({
         type: 'info',
@@ -71,7 +71,7 @@ export const initBroker = async cl => {
       });
 
       if (updatedIntegration) {
-        await listenIntegration(subdomain, integration);
+        listenIntegration(subdomain, integration, models);
       }
 
       return {
@@ -153,6 +153,19 @@ export const initBroker = async cl => {
       };
     }
   );
+
+  consumeQueue('imap:listen', async ({ subdomain, data: { _id } }) => {
+    const models = await generateModels(subdomain);
+
+    const integration = await models.Integrations.findById(_id);
+
+    if(!integration) {
+      console.log(`Queue: imap:listen. Integration not found ${_id}`);
+      return;
+    }
+
+    listenIntegration(subdomain, integration, models);
+  });
 };
 
 export default function() {
@@ -173,6 +186,15 @@ export const sendInboxMessage = (args: ISendMessageArgs) => {
     client,
     serviceDiscovery,
     serviceName: 'inbox',
+    ...args
+  });
+};
+
+export const sendImapMessage = (args: ISendMessageArgs) => {
+  return sendCommonMessage({
+    client,
+    serviceDiscovery,
+    serviceName: 'imap',
     ...args
   });
 };

@@ -31,7 +31,6 @@
   "dependencies": {
     "@apollo/server" : "^4.9.3",
     "@apollo/subgraph": "^2.4.12",
-    "@sentry/node": "^7.50.0",
     "agentkeepalive": "^4.3.0",
     "amqplib": "^0.10.2",
     "crypto": "^1.0.1",

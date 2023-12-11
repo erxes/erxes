@@ -14,11 +14,11 @@ import {
 } from '../../models/utils/utils';
 
 const Contracts = {
-  contractType(contract: IContract, {}, { models }: IContext) {
+  contractType(contract: IContract, _, { models }: IContext) {
     return models.ContractTypes.findOne({ _id: contract.contractTypeId });
   },
 
-  relationExpert(contract: IContract, {}, { subdomain }: IContext) {
+  relationExpert(contract: IContract, _, { subdomain }: IContext) {
     if (!contract.relationExpertId) return null;
 
     return sendCoreMessage({
@@ -29,7 +29,7 @@ const Contracts = {
     });
   },
 
-  leasingExpert(contract: IContract, {}, { subdomain }: IContext) {
+  leasingExpert(contract: IContract, _, { subdomain }: IContext) {
     if (!contract.leasingExpertId) return null;
 
     return sendCoreMessage({
@@ -40,7 +40,7 @@ const Contracts = {
     });
   },
 
-  riskExpert(contract: IContract, {}, { subdomain }: IContext) {
+  riskExpert(contract: IContract, _, { subdomain }: IContext) {
     if (!contract.riskExpertId) return null;
 
     return sendCoreMessage({
@@ -51,7 +51,7 @@ const Contracts = {
     });
   },
 
-  async customers(contract: IContract, {}, { subdomain }: IContext) {
+  async customers(contract: IContract, _, { subdomain }: IContext) {
     if (contract.customerType !== 'customer') return null;
 
     const customer = await sendMessageBroker(
@@ -67,7 +67,7 @@ const Contracts = {
     return customer;
   },
 
-  async companies(contract: IContract, {}, { subdomain }: IContext) {
+  async companies(contract: IContract, _, { subdomain }: IContext) {
     if (contract.customerType !== 'company') return null;
 
     const company = await sendMessageBroker(
@@ -85,7 +85,7 @@ const Contracts = {
 
   async insurances(
     contract: IContractDocument,
-    {},
+    _,
     { models, subdomain }: IContext
   ) {
     const insurances: any = [];
@@ -121,7 +121,7 @@ const Contracts = {
 
   async collaterals(
     contract: IContractDocument,
-    {},
+    _,
     { models, subdomain }: IContext
   ) {
     const collaterals: any = [];
@@ -151,7 +151,7 @@ const Contracts = {
     return collaterals;
   },
 
-  async currentSchedule(contract: IContractDocument, {}, { models }: IContext) {
+  async currentSchedule(contract: IContractDocument, _, { models }: IContext) {
     const currentSchedule: any = await models.Schedules.findOne({
       contractId: contract._id,
       status: { $in: [SCHEDULE_STATUS.LESS, SCHEDULE_STATUS.PENDING] }
@@ -193,7 +193,7 @@ const Contracts = {
     return currentSchedule;
   },
 
-  relContract(contract: IContractDocument, {}, { models }: IContext) {
+  relContract(contract: IContractDocument, _, { models }: IContext) {
     if (!contract.relContractId) {
       return;
     }
@@ -201,7 +201,7 @@ const Contracts = {
     return models.Contracts.findOne({ _id: contract.relContractId });
   },
 
-  async hasTransaction(contract: IContractDocument, {}, { models }: IContext) {
+  async hasTransaction(contract: IContractDocument, _, { models }: IContext) {
     return (
       (await models.Transactions.countDocuments({
         contractId: contract._id
@@ -209,7 +209,7 @@ const Contracts = {
     );
   },
 
-  async expiredDays(contract: IContractDocument, {}, { models }: IContext) {
+  async expiredDays(contract: IContractDocument, _, { models }: IContext) {
     const today = getFullDate(new Date());
     const expiredSchedule = await models.Schedules.findOne({
       contractId: contract._id,
@@ -227,7 +227,7 @@ const Contracts = {
 
   async loanBalanceAmount(
     contract: IContractDocument,
-    {},
+    _,
     { models }: IContext
   ) {
     const today = getFullDate(new Date());
@@ -254,7 +254,7 @@ const Contracts = {
     return prevSchedule?.balance || 0;
   },
 
-  async payedAmountSum(contract: IContractDocument, {}, { models }: IContext) {
+  async payedAmountSum(contract: IContractDocument, _, { models }: IContext) {
     const today = getFullDate(new Date());
     const schedules = await models.Schedules.find({
       contractId: contract._id,
@@ -266,7 +266,7 @@ const Contracts = {
 
   async nextPayment(
     contract: IContractDocument,
-    {},
+    _,
     { models, subdomain }: IContext
   ) {
     const today = getFullDate(new Date());
