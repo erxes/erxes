@@ -2146,8 +2146,9 @@ const chartTemplates = [
         }
       }
 
-      const label = 'Deals count by created month';
-      const datasets = [{ label, data: monthlyDealsCount, labels: monthNames }];
+      const title = 'Deals count by created month';
+      const datasets = { title, data: monthlyDealsCount, labels: monthNames };
+
       return datasets;
     },
 
