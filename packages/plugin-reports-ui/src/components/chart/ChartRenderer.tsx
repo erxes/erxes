@@ -44,7 +44,7 @@ const ChartRenderer = (props: IChartProps) => {
   const chartRef = useRef<HTMLCanvasElement>(null);
 
   const chartData = {
-    labels: labels || DEFAULT_LABELS_PER_CHART[chartType],
+    labels,
     datasets: datasets || [
       {
         label: title || 'Default Dataset',
