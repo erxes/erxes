@@ -11,6 +11,8 @@
     "jsonwebtoken": "^8.5.1",
     "@erxes/api-utils": "*",
     "axios": "^1.2.2",
-    "request-promise": "^4.2.6"
+    "request-promise": "^4.2.6",
+    "xlsx-populate": "^1.20.1",
+    "moment": "^2.29.4"
   }
 }

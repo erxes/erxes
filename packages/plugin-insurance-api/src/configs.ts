@@ -7,6 +7,7 @@ import { getSubdomain } from '@erxes/api-utils/src/core';
 import { generateModels } from './connectionResolver';
 import cpUserMiddleware from './middlewares/cpUserMiddleware';
 import forms from './forms';
+import * as fs from 'fs';
 
 export let mainDb;
 export let debug;
@@ -50,5 +51,25 @@ export default {
     graphqlPubsub = options.pubsubClient;
 
     debug = options.debug;
+
+    const app = options.app;
+
+    app.get('/download', async (req, res) => {
+      const { name } = req.query;
+
+      const filePath = `./public/${name}`;
+
+      // res.download(filePath, name);
+
+      res.download(filePath, name, err => {
+        if (err) {
+          console.log(err);
+        } else {
+          // remove file from server
+          fs.unlinkSync(filePath);
+          console.log('success');
+        }
+      });
+    });
   }
 };
