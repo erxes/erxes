@@ -51,7 +51,6 @@ const SipProviderContainer = props => {
     );
   }
   if (!config.isAvailable) {
-    console.log(config.isAvailable, 'callsActiveSession');
     return (
       <WidgetContainer
         {...props}
