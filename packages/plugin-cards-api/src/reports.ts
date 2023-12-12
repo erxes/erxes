@@ -3,14 +3,14 @@ import { models } from './connectionResolver';
 import { sendCoreMessage, sendTagsMessage } from './messageBroker';
 import * as dayjs from 'dayjs';
 import { PRIORITIES } from './constants';
+import task from './graphql/resolvers/customResolvers/task';
 
 const reportTemplates = [
   {
     serviceType: 'deal',
     title: 'Deals chart',
     serviceName: 'cards',
-    description:
-      '1:Closed revenue by month with deal total and closed revenue breakdown:View the revenue amount and number of deals closed each month this year so far. See which months brought in the most deal revenue. 2:Deal amount average by rep:View the average deal amounts by rep. See which reps have the highest average revenue amount on their deals. And which reps have the lowest. 3:Deal average time spent in each stage:View the average amount of time deals spend in each stage of your pipeline. See how your deals are moving through your pipeline. And where deals might be getting stuck. 4:Deal leader board - amount closed by rep:View which reps have closed the most deal revenue. See who brought in the least revenue from their deals. 5:Deal revenue by stage:View the total open revenue amounts per deal stage. 6:Deals by last modified date:View a list of deals that have most recently been updated by someone on your team. See what date they were updated and their current deal stage. 7:Deals closed lost all time by rep:View the number of deals that were closed lost by reps over all time. See who has lost the most deals. 8:Deals closed won all time by rep:View the number of deals that were closed won by rep over all time. See who has won the most deals. 9:Deals open by current stage:View the total number of deals open in each deal stage. See which deal stages have the most open deals.',
+    description: 'Deal conversation charts',
     charts: [
       'ClosedRevenueByMonthWithDealTotalAndClosedRevenueBreakdown',
       'dealsChartByMonth',
@@ -28,8 +28,7 @@ const reportTemplates = [
     serviceType: 'task',
     title: 'Tasks chart',
     serviceName: 'cards',
-    description:
-      '1:Task average time to close by reps:View the average amount of time to close a task by reps. 2:Task average time to close by label:View the average amount of time to close a task by labels. 3:Task average time to close by tags:View the average amount of time to close a task by tags. 4:Task closed totals by reps:View the total number of closed tasks by reps. 5:Task closed totals by label:View the total number of closed tasks by labels. 6:Task closed totals by tags:View the total number of closed tasks by tags. 7:Tasks incomplete totals by reps:View the total number of incomplete tasks by reps. 8:Tasks incomplete totals by label:View the total number of incomplete tasks by labels. 9:Tasks incomplete totals by tags:View the total number of incomplete tasks by tags.',
+    description: 'Cards conversation charts',
     charts: [
       'TaskAverageTimeToCloseByReps',
       'TaskAverageTimeToCloseByLabel',
@@ -47,8 +46,7 @@ const reportTemplates = [
     serviceType: 'ticket',
     title: 'Tickets chart',
     serviceName: 'cards',
-    description:
-      '1:Ticket average time to close:View the average amount of time it takes for your reps to close tickets. 2:Ticket average time to close by rep:View the average amount of time it takes for a rep to close a ticket. See which reps close tickets the fastest. 3:Ticket average time to close over time:View the average amount of time it takes your reps to close tickets. See how this tracks over time. 4:View the total number of tickets closed by their assigned owner. See which reps are closing the most and least amount of tickets. 5:Ticket totals by source:View the total number of tickets coming from each source. See which channels are getting the most volume. 6:Ticket totals by status :View the total number of tickets in each part of your support queue. See how many tickets are new, closed, and more. 7:Ticket totals over time:View the total number of tickets created over a set time. See how it compares to a previous period of time. 8:Ticket totals by label/priority/tag :View the total number of tickets by label/priority/tag.  ',
+    description: 'Tickets conversation charts',
     charts: [
       'TicketAverageTimeToCloseOverTime',
       'TicketClosedTotalsByRep',
@@ -257,7 +255,6 @@ const chartTemplates = [
     getChartResult: async (filter: any, subdomain: string) => {
       const selectedUserIds = filter.assignedUserIds || [];
       let tasks;
-
       try {
         if (selectedUserIds.length === 0) {
           // No selected users, so get all tasks
@@ -279,23 +276,22 @@ const chartTemplates = [
       } catch (error) {
         console.error('Error fetching tasks:', error);
 
-        // Handle the error or return an appropriate response.
-        // For example, you might set tasks to an empty array to avoid further issues
         tasks = [];
       }
 
+      console.log(tasks, 'tasks');
       // Calculate task counts
-      const taskCounts = calculateTicketCounts(tasks);
+      const taskCounts = calculateTicketCounts(tasks, selectedUserIds);
 
       // Convert the counts object to an array of objects with ownerId and count
       const countsArray = Object.entries(taskCounts).map(
         // tslint:disable-next-line:no-shadowed-variable
+
         ([ownerId, count]) => ({
           ownerId,
           count
         })
       );
-
       // Sort the array based on task counts
       countsArray.sort((a, b) => b.count - a.count);
 
@@ -562,7 +558,7 @@ const chartTemplates = [
       }
 
       // Calculate task counts
-      const taskCounts = calculateTicketCounts(tasks);
+      const taskCounts = calculateTicketCounts(tasks, selectedUserIds);
 
       // Convert the counts object to an array of objects with ownerId and count
       const countsArray = Object.entries(taskCounts).map(
@@ -1619,7 +1615,7 @@ const chartTemplates = [
       }
 
       // Calculate ticket counts
-      const ticketCounts = calculateTicketCounts(tickets);
+      const ticketCounts = calculateTicketCounts(tickets, selectedUserIds);
 
       // Convert the counts object to an array of objects with ownerId and count
       const countsArray = Object.entries(ticketCounts).map(
@@ -2223,7 +2219,8 @@ function taskClosedByTagsRep(tasks: any) {
 
   return ticketCounts;
 }
-function calculateTicketCounts(tickets: any) {
+
+function calculateTicketCounts(tickets: any, selectedUserIds: string[]) {
   // tslint:disable-next-line:no-shadowed-variable
   const ticketCounts: Record<string, number> = {};
 
@@ -2239,10 +2236,17 @@ function calculateTicketCounts(tickets: any) {
     if (assignedUserIds.length === 0) {
       return;
     }
-
-    assignedUserIds.forEach(ownerId => {
-      ticketCounts[ownerId] = (ticketCounts[ownerId] || 0) + 1;
-    });
+    if (selectedUserIds.length > 0) {
+      assignedUserIds.forEach(ownerId => {
+        if (selectedUserIds.includes(ownerId)) {
+          ticketCounts[ownerId] = (ticketCounts[ownerId] || 0) + 1;
+        }
+      });
+    } else {
+      assignedUserIds.forEach(ownerId => {
+        ticketCounts[ownerId] = (ticketCounts[ownerId] || 0) + 1;
+      });
+    }
   });
 
   return ticketCounts;
