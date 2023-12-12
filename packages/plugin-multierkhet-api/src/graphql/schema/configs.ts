@@ -9,6 +9,7 @@ export const types = `
     _id: String
     name: String
     amount: Float
+    paymentIds: [String]
   }
 `;
 

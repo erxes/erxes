@@ -1,19 +1,18 @@
+import { ActionButtons } from '@erxes/ui-settings/src/styles';
 import Button from '@erxes/ui/src/components/Button';
+import CategoryForm from '../../containers/category/CategoryForm';
+import { CategoryItem } from './styles';
+import { ICategory } from '@erxes/ui-knowledgeBase/src/types';
 import Icon from '@erxes/ui/src/components/Icon';
+import { Link } from 'react-router-dom';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import React from 'react';
 import Tip from '@erxes/ui/src/components/Tip';
 import { __ } from '@erxes/ui/src/utils/core';
-import React from 'react';
-import { Link } from 'react-router-dom';
-import CategoryForm from '../../containers/category/CategoryForm';
-import { ICategory } from '@erxes/ui-knowledgeBase/src/types';
-import { CategoryItem } from './styles';
-import { ActionButtons } from '@erxes/ui-settings/src/styles';
 
 type Props = {
   topicId: string;
   category: ICategory;
-  articlesCount: number;
   remove: (categoryId: string) => void;
   isActive: boolean;
   isChild?: boolean;
