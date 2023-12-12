@@ -57,7 +57,7 @@ input TrackingItemInput {
 `;
 
 export const queries = `
-    tumentechDeals(page: Int, perPage: Int, dealIds: [String],stageId: String, driverType: Int, pipelineId: String, isFilterCreatedBy: Boolean): TumentechDealsResponse
+    tumentechDeals(page: Int, perPage: Int, dealIds: [String],stageId: String, driverType: Int, pipelineId: String, isFilterCreatedBy: Boolean,startPlaceId:String,endPlaceId:String,productCategoryId:String,productSubCategoryId:String,requiredCarCategoryIds:[String]): TumentechDealsResponse
     tumentechDealDetail(_id: String, dealId: String, isFilterCreatedBy: Boolean): TumentechDeal
 
     tumentechTrackingDatas(dealId: String!): [TrackingData]
