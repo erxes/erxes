@@ -162,7 +162,7 @@ const Report = (props: Props) => {
 
   const handleBackButtonClick = () => {
     if (showChartForm) {
-      toggleChartForm();
+      toggleChartAddForm();
       return;
     }
 
