@@ -671,7 +671,7 @@ export const bichilTimeclockReportFinal = async (
 
   const shiftNotClosedFee = 3000;
   const latenessFee = 200;
-  const absentFee = 86000;
+  const absentFee = 96000;
 
   // get the schedule data of this month
   const schedules = await models.Schedules.find({
@@ -1001,7 +1001,7 @@ export const bichilTimeclockReportFinal = async (
     // shiftNotClosedDeduction
     // totalMinsLate
     // latenessFee 200
-    // absentFee 86000
+    // absentFee 96000
     // totalMinsLateDeduction
     // totalDeduction
 
