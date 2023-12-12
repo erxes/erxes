@@ -95,5 +95,5 @@ export const queries = `
 
 export const mutations = `
     vendorAddInsuranceItem(doc: InsuranceItemInput): InsuranceItem
-    vendorEditInsuranceItem(_id: ID!, doc: InsuranceItemInput): InsuranceItem
+    vendorEditInsuranceItem(_id: ID!, firstName: String, lastName: String, customFieldsData: JSON ): InsuranceItem
 `;
