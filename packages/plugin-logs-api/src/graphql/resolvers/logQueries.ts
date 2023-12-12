@@ -17,6 +17,7 @@ interface ILogQueryParams extends ICommonParams {
   objectId?: string;
   $or: any[];
   desc?: string;
+  searchValue?: string;
 }
 
 export interface IFilter extends ICommonParams {

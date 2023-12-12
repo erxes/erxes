@@ -1,25 +1,24 @@
 import * as React from 'react';
 
-import {
-  FilterItem,
-  FilterWrapper
-} from '@erxes/ui-settings/src/permissions/styles';
 import { __, router } from '@erxes/ui/src/utils';
 
-import Button from '@erxes/ui/src/components/Button';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
-import Datetime from '@nateradebaugh/react-datetime';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
-import { FormControl } from '@erxes/ui/src/components/form';
 import { ILog } from '../types';
 import LogRow from './LogRow';
 import Pagination from '@erxes/ui/src/components/pagination/Pagination';
-import Select from 'react-select-plus';
-import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
 import Table from '@erxes/ui/src/components/table';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import _ from 'lodash';
-import dayjs from 'dayjs';
+import Sidebar from './Sidebar';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import Icon from '@erxes/ui/src/components/Icon';
+import {
+  FilterContainer,
+  FlexItem,
+  FlexRow,
+  InputBar,
+  Title
+} from '@erxes/ui-settings/src/styles';
 
 type Props = {
   history: any;
@@ -28,94 +27,15 @@ type Props = {
   errorMessage: string;
 } & commonProps;
 
-type State = {
-  start?: string;
-  end?: string;
-  action?: string;
-  page?: string;
-  perPage?: string;
-  userId?: string;
-  type?: string;
-  objectId?: string;
-};
-
 type commonProps = {
   logs: ILog[];
   count: number;
   refetchQueries: any;
 };
 
-const actionOptions = [
-  { value: 'create', label: __('Create') },
-  { value: 'update', label: __('Update') },
-  { value: 'delete', label: __('Delete') }
-];
-
-// module names are saved exactly as these values in backend
-// consider both ends when changing
-const moduleOptions = [
-  // cards service items
-  { value: 'cards:board', label: 'Boards' },
-  { value: 'cards:dealBoards', label: 'Deal boards' },
-  { value: 'cards:purchaseBoards', label: 'Purchase boards' },
-  { value: 'cards:taskBoards', label: 'Task boards' },
-  { value: 'cards:ticketBoards', label: 'Ticket boards' },
-  { value: 'cards:growthHackBoards', label: 'Growth hack boards' },
-  { value: 'cards:dealPipelines', label: 'Deal pipelines' },
-  { value: 'cards:purchasePipelines', label: 'Purchase pipelines' },
-  { value: 'cards:taskPipelines', label: 'Task pipelines' },
-  { value: 'cards:ticketPipelines', label: 'Ticket pipelines' },
-  { value: 'cards:growthHackPipelines', label: 'Growth hack pipelines' },
-  { value: 'cards:checklist', label: 'Checklists' },
-  { value: 'cards:checkListItem', label: 'Checklist items' },
-  { value: 'cards:deal', label: 'Deals' },
-  { value: 'cards:purchase', label: 'Purchases' },
-  { value: 'cards:task', label: 'Tasks' },
-  { value: 'cards:ticket', label: 'Tickets' },
-  { value: 'cards:pipelineLabel', label: 'Pipeline labels' },
-  { value: 'cards:pipelineTemplate', label: 'Pipeline templates' },
-  { value: 'cards:growthHack', label: 'Growth hacks' },
-  { value: 'cards:dealStages', label: 'Deal stages' },
-  { value: 'cards:purchaseStages', label: 'Purchase stages' },
-  { value: 'cards:taskStages', label: 'Task stages' },
-  { value: 'cards:ticketStages', label: 'Ticket stages' },
-  { value: 'cards:growthHackStages', label: 'Growth hack stages' },
-  // core-api service items
-  { value: 'core:brand', label: 'Brands' },
-  { value: 'core:permission', label: 'Permissions' },
-  { value: 'core:user', label: 'Users' },
-  { value: 'core:userGroup', label: 'User groups' },
-  { value: 'core:config', label: 'Config' },
-  // inbox service items
-  { value: 'inbox:integration', label: 'Integrations' },
-  { value: 'inbox:channel', label: 'Channels' },
-  // contacts service items
-  { value: 'contacts:company', label: 'Companies' },
-  { value: 'contacts:customer', label: 'Customers' },
-  // products service items
-  { value: 'products:product', label: 'Products' },
-  { value: 'products:product-category', label: 'Product categories' },
-  // knowledgebase service items
-  { value: 'knowledgebase:knowledgeBaseTopic', label: 'Knowledgebase topics' },
-  {
-    value: 'knowledgebase:knowledgeBaseCategory',
-    label: 'Knowledgebase categories'
-  },
-  {
-    value: 'knowledgebase:knowledgeBaseArticle',
-    label: 'Knowledgebase articles'
-  },
-  // others
-  { value: 'engages:engage', label: 'Campaigns' },
-  { value: 'internalnotes:internalNote', label: 'Internal notes' },
-  { value: 'tags:tag', label: 'Tags' },
-  { value: 'segments:segment', label: 'Segments' },
-  { value: 'responseTemplate', label: 'Response templates' },
-  { value: 'emailTemplate', label: 'Email templates' },
-  { value: 'importHistory', label: 'Import histories' },
-  { value: 'script', label: 'Scripts' },
-  { value: 'pricing:pricingPlan', label: 'PricingPlan' }
-];
+type State = {
+  searchValue?: string;
+};
 
 const breadcrumb = [
   { title: 'Settings', link: '/settings' },
@@ -123,70 +43,30 @@ const breadcrumb = [
 ];
 
 class LogList extends React.Component<Props, State> {
-  constructor(props) {
+  private timer?: NodeJS.Timer;
+
+  constructor(props: Props) {
     super(props);
 
-    const qp = props.queryParams || {
-      start: '',
-      end: '',
-      action: '',
-      userId: '',
-      type: ''
-    };
-
     this.state = {
-      start: qp.start,
-      end: qp.end,
-      action: qp.action,
-      userId: qp.userId,
-      type: qp.type,
-      objectId: qp.objectId
+      searchValue: this.props.queryParams.searchValue || ''
     };
   }
 
-  setFilter(
-    name: string,
-    selectedItem: string | { value: string; label?: string }
-  ) {
-    const value =
-      typeof selectedItem === 'string'
-        ? selectedItem
-        : selectedItem
-        ? selectedItem.value
-        : '';
+  searchHandler = e => {
+    const { history } = this.props;
 
-    this.setState({
-      [name]: value,
-      page: '',
-      perPage: ''
-    });
-  }
-
-  onDateChange(type: string, date) {
-    const filter = { ...this.state };
-
-    if (date) {
-      filter[type] = dayjs(date).format('YYYY-MM-DD HH:mm');
-    } else {
-      filter.start = '';
-      filter.end = '';
+    if (this.timer) {
+      clearTimeout(this.timer);
     }
 
-    this.setState(filter);
-  }
+    const inputValue = e.target.value;
+    this.setState({ searchValue: inputValue });
 
-  onClick = () => {
-    const { history } = this.props;
-    const { start, end, action, userId, type, objectId } = this.state;
-
-    router.setParams(history, {
-      start,
-      end,
-      action,
-      userId,
-      type,
-      objectId
-    });
+    this.timer = setTimeout(() => {
+      router.removeParams(history, 'page');
+      router.setParams(history, { searchValue: inputValue });
+    }, 500);
   };
 
   renderObjects() {
@@ -222,86 +102,31 @@ class LogList extends React.Component<Props, State> {
     );
   }
 
-  renderDateFilter = (name: string) => {
-    const props = {
-      value: this.state[name],
-      onChange: this.onDateChange.bind(this, name),
-      inputProps: {
-        placeholder: `${__(`Choose ${name} date`)}`
-      }
-    };
+  actionBarRight() {
+    const { searchValue } = this.state;
 
     return (
-      <FilterItem>
-        <Datetime
-          {...props}
-          dateFormat="YYYY/MM/DD"
-          timeFormat="HH:mm"
-          closeOnSelect={true}
-        />
-      </FilterItem>
-    );
-  };
-
-  renderFilter() {
-    const { action, userId, type, objectId } = this.state;
-
-    const onUserChange = user => {
-      this.setFilter('userId', user);
-    };
-
-    return (
-      <FilterWrapper style={{ padding: '10px 0px' }}>
-        <strong>{__('Filters')}:</strong>
-        {this.renderDateFilter('start')}
-        {this.renderDateFilter('end')}
-        <FilterItem>
-          <Select
-            placeholder={__('Choose module')}
-            value={type}
-            options={_.sortBy(moduleOptions, ['label'])}
-            onChange={this.setFilter.bind(this, 'type')}
-          />
-        </FilterItem>
-        <FilterItem>
-          <Select
-            placeholder={__('Choose action')}
-            value={action}
-            options={actionOptions}
-            onChange={this.setFilter.bind(this, 'action')}
-          />
-        </FilterItem>
-        <FilterItem>
-          <SelectTeamMembers
-            label="Choose users"
-            name="userId"
-            initialValue={userId || ''}
-            onSelect={onUserChange}
-            multi={false}
-          />
-        </FilterItem>
-        <FilterItem>
-          <FormControl
-            name="objectId"
-            placeholder="Object ID paste"
-            defaultValue={objectId || ''}
-            onChange={e => this.setState({ objectId: (e.target as any).value })}
-          />
-        </FilterItem>
-        <Button
-          btnStyle="primary"
-          icon="filter-1"
-          onClick={this.onClick}
-          size="small"
-        >
-          {__('Filter')}
-        </Button>
-      </FilterWrapper>
+      <FilterContainer>
+        <FlexRow>
+          <InputBar type="searchBar">
+            <Icon icon="search-1" size={20} />
+            <FlexItem>
+              <FormControl
+                type="text"
+                placeholder={__('Type to search')}
+                onChange={this.searchHandler}
+                autoFocus={true}
+                value={searchValue}
+              />
+            </FlexItem>
+          </InputBar>
+        </FlexRow>
+      </FilterContainer>
     );
   }
 
   render() {
-    const { isLoading, count, errorMessage } = this.props;
+    const { isLoading, count, errorMessage, queryParams, history } = this.props;
 
     if (errorMessage.indexOf('Permission required') !== -1) {
       return (
@@ -314,21 +139,33 @@ class LogList extends React.Component<Props, State> {
 
     return (
       <Wrapper
-        header={<Wrapper.Header title={__('Logs')} breadcrumb={breadcrumb} />}
+        header={
+          <Wrapper.Header
+            title={__('Logs')}
+            breadcrumb={breadcrumb}
+            queryParams={queryParams}
+          />
+        }
+        actionBar={
+          <Wrapper.ActionBar
+            left={<Title>{__(`Logs (${count})`)}</Title>}
+            right={this.actionBarRight()}
+            background="colorWhite"
+            wideSpacing={true}
+          />
+        }
         footer={<Pagination count={count} />}
         content={
-          <>
-            {this.renderFilter()}
-            <DataWithLoader
-              data={this.renderContent()}
-              loading={isLoading}
-              count={count}
-              emptyText={__('There are no logs recorded')}
-              emptyImage="/images/actions/21.svg"
-            />
-          </>
+          <DataWithLoader
+            data={this.renderContent()}
+            loading={isLoading}
+            count={count}
+            emptyText={__('There are no logs recorded')}
+            emptyImage="/images/actions/21.svg"
+          />
         }
         hasBorder={true}
+        leftSidebar={<Sidebar queryParams={queryParams} history={history} />}
       />
     );
   }
