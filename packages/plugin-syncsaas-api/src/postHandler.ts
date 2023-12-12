@@ -163,7 +163,11 @@ const dealStageChange = async (subdomain, data, triggerType) => {
         receivers: cpUsers.map(cpUser => cpUser._id),
         notifType: 'system',
         content: `${dealDetail?.name} moved to ${dealDetail?.stage?.name} on ${sync.subdomain}`,
-        eventData: { appToken: sync?.appToken, subdomain: sync?.subdomain },
+        eventData: {
+          appToken: sync?.appToken,
+          subdomain: sync?.subdomain,
+          dealId: dealDetail._id
+        },
         isMobile: true
       }
     });
