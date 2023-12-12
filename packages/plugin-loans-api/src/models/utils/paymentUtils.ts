@@ -6,11 +6,12 @@ import { IStoredInterestDocument } from '../definitions/storedInterest';
 import { calcUndue } from '../utils/transactionUtils';
 import { calcInterest, getDiffDay } from '../utils/utils';
 
-interface IPaymentInfo {
+export interface IPaymentInfo {
   payment: number;
   calcInterest: number;
   storedInterest: number;
   loss: number;
+  debt: number;
   insurance: number;
   commitmentInterest: number;
   payDate: Date;
@@ -35,6 +36,7 @@ export async function getPaymentInfo(
     storedInterest: 0,
     loss: 0,
     insurance: 0,
+    debt: 0,
     commitmentInterest: 0,
     payDate: payDate,
     expiredDay: 0,
@@ -43,11 +45,10 @@ export async function getPaymentInfo(
     closeAmount: 0
   };
 
-  const lastSchedule = await models.Schedules.findOne({
-    contractId: contract._id
-  })
-    .sort({ payDate: -1 })
-    .lean<IScheduleDocument>();
+  const lastSchedule = await models.Schedules.getLastSchedule(
+    contract._id,
+    payDate
+  );
 
   if (!lastSchedule) return paymentInfo;
 
@@ -85,6 +86,7 @@ export async function getPaymentInfo(
   paymentInfo.calcInterest =
     getValue(interestValue, 0) - getValue(paymentInfo.storedInterest, 0);
 
+  //loss calculation from expiration
   if (
     lastSchedule.status === SCHEDULE_STATUS.EXPIRED &&
     contract.unduePercent > 0
@@ -122,19 +124,24 @@ export async function getPaymentInfo(
     getValue(lastSchedule.insurance, 0) -
     getValue(lastSchedule.didInsurance, 0);
 
+  paymentInfo.debt =
+    getValue(lastSchedule.debt, 0) - getValue(lastSchedule.didDebt, 0);
+
   paymentInfo.total =
     paymentInfo.payment +
     paymentInfo.storedInterest +
     paymentInfo.calcInterest +
     paymentInfo.loss +
-    paymentInfo.insurance;
+    paymentInfo.insurance +
+    paymentInfo.debt;
 
   paymentInfo.closeAmount =
     paymentInfo.balance +
     paymentInfo.storedInterest +
     paymentInfo.calcInterest +
     paymentInfo.loss +
-    paymentInfo.insurance;
+    paymentInfo.insurance +
+    paymentInfo.debt;
 
   return paymentInfo;
 }
@@ -189,8 +196,3 @@ export async function didPayment(
 
   await models.Schedules.create(scheduleValue);
 }
-
-function afterPaymentUpdateSchedule(
-  contract: IContractDocument,
-  models: IModels
-) {}

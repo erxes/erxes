@@ -39,6 +39,11 @@ export interface IContractConfig {
 
   isAutoSendEBarimt: boolean;
   productType: string;
+  normalExpirationDay: number;
+  expiredExpirationDay: number;
+  doubtExpirationDay: number;
+  negativeExpirationDay: number;
+  badExpirationDay: number;
 }
 
 export interface IContractType {

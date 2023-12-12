@@ -13,9 +13,8 @@ export const REPAYMENT = {
 export const CONTRACT_STATUS = {
   DRAFT: 'draft',
   NORMAL: 'normal',
-  BAD: 'bad',
   CLOSED: 'closed',
-  ALL: ['draft', 'normal', 'bad', 'closed']
+  ALL: ['draft', 'normal', 'closed']
 };
 
 export const UNDUE_CALC_TYPE = {
