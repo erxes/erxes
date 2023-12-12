@@ -51,6 +51,7 @@ export const NOTIFICATION_MODULES = [
   {
     name: 'conversations',
     description: 'Conversations',
+    icon: 'chat',
     types: [
       {
         name: 'conversationStateChange',
@@ -69,6 +70,7 @@ export const NOTIFICATION_MODULES = [
   {
     name: 'channels',
     description: 'Channels',
+    icon: 'laptop',
     types: [
       {
         name: 'channelMembersChange',
