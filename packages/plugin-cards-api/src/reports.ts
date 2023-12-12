@@ -3,21 +3,24 @@ import { models } from './connectionResolver';
 import { sendCoreMessage, sendTagsMessage } from './messageBroker';
 import * as dayjs from 'dayjs';
 import { PRIORITIES } from './constants';
-import { del } from '@erxes/api-utils/src/redisSubstitute';
+
 const reportTemplates = [
   {
     serviceType: 'deal',
     title: 'Deals chart',
     serviceName: 'cards',
     description:
-      "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
+      '1:Closed revenue by month with deal total and closed revenue breakdown:View the revenue amount and number of deals closed each month this year so far. See which months brought in the most deal revenue. 2:Deal amount average by rep:View the average deal amounts by rep. See which reps have the highest average revenue amount on their deals. And which reps have the lowest. 3:Deal average time spent in each stage:View the average amount of time deals spend in each stage of your pipeline. See how your deals are moving through your pipeline. And where deals might be getting stuck. 4:Deal leader board - amount closed by rep:View which reps have closed the most deal revenue. See who brought in the least revenue from their deals. 5:Deal revenue by stage:View the total open revenue amounts per deal stage. 6:Deals by last modified date:View a list of deals that have most recently been updated by someone on your team. See what date they were updated and their current deal stage. 7:Deals closed lost all time by rep:View the number of deals that were closed lost by reps over all time. See who has lost the most deals. 8:Deals closed won all time by rep:View the number of deals that were closed won by rep over all time. See who has won the most deals. 9:Deals open by current stage:View the total number of deals open in each deal stage. See which deal stages have the most open deals.',
     charts: [
       'ClosedRevenueByMonthWithDealTotalAndClosedRevenueBreakdown',
       'dealsChartByMonth',
       'DealAmountAverageByRep',
       'DealLeaderboardAmountClosedByRep',
       'DealsByLastModifiedDate',
-      'DealsClosedLostAllTimeByRep'
+      'DealsClosedLostAllTimeByRep',
+      'DealsOpenByCurrentStage',
+      'DealsClosedWonAllTimeByRep',
+      'DealRevenueByStage'
     ],
     img: 'https://sciter.com/wp-content/uploads/2022/08/chart-js.png'
   },
@@ -26,8 +29,20 @@ const reportTemplates = [
     title: 'Tasks chart',
     serviceName: 'cards',
     description:
-      "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
-    charts: ['dealsChart', 'dealsChartByMonth'],
+      '1:Task average time to close by reps:View the average amount of time to close a task by reps. 2:Task average time to close by label:View the average amount of time to close a task by labels. 3:Task average time to close by tags:View the average amount of time to close a task by tags. 4:Task closed totals by reps:View the total number of closed tasks by reps. 5:Task closed totals by label:View the total number of closed tasks by labels. 6:Task closed totals by tags:View the total number of closed tasks by tags. 7:Tasks incomplete totals by reps:View the total number of incomplete tasks by reps. 8:Tasks incomplete totals by label:View the total number of incomplete tasks by labels. 9:Tasks incomplete totals by tags:View the total number of incomplete tasks by tags.',
+    charts: [
+      'dealsChart',
+      'dealsChartByMonth',
+      'TaskAverageTimeToCloseByReps',
+      'TaskAverageTimeToCloseByLabel',
+      'TaskAverageTimeToCloseByTags',
+      'TaskClosedTotalsByReps',
+      'TaskClosedTotalsByLabel',
+      'TaskClosedTotalsByTags',
+      'TasksIncompleteTotalsByReps',
+      'TasksIncompleteTotalsByLabel',
+      'TasksIncompleteTotalsByTags'
+    ],
     img: 'https://cdn.mos.cms.futurecdn.net/S5bicwPe8vbP9nt3iwAwwi.jpg'
   },
   {
@@ -35,7 +50,7 @@ const reportTemplates = [
     title: 'Tickets chart',
     serviceName: 'cards',
     description:
-      ' 1:Average time to respond:This report shows the average time to respond to tickets over the selected time range. 2:Ticket average response time by source with time comparison :View the average amount of time it takes for a rep to respond to a ticket by the source. See this across chats, emails, and calls. 3:Ticket average time to close:View the average amount of time it takes for your reps to close tickets. 4:Ticket average time to close by rep:View the average amount of time it takes for a rep to close a ticket. See which reps close tickets the fastest. 5:Ticket average time to close over time:View the average amount of time it takes your reps to close tickets. See how this tracks over time. 6::View the total number of tickets closed by their assigned owner. See which reps are closing the most and least amount of tickets. 7:Ticket totals by source:View the total number of tickets coming from each source. See which channels are getting the most volume. 8:Ticket totals by status :View the total number of tickets in each part of your support queue. See how many tickets are new, closed, and more. 9:Ticket totals over time:View the total number of tickets created over a set time. See how it compares to a previous period of time. 10:Ticket totals by label/priority/tag :View the total number of tickets by label/priority/tag.  ',
+      '1:Ticket average time to close:View the average amount of time it takes for your reps to close tickets. 2:Ticket average time to close by rep:View the average amount of time it takes for a rep to close a ticket. See which reps close tickets the fastest. 3:Ticket average time to close over time:View the average amount of time it takes your reps to close tickets. See how this tracks over time. 4:View the total number of tickets closed by their assigned owner. See which reps are closing the most and least amount of tickets. 5:Ticket totals by source:View the total number of tickets coming from each source. See which channels are getting the most volume. 6:Ticket totals by status :View the total number of tickets in each part of your support queue. See how many tickets are new, closed, and more. 7:Ticket totals over time:View the total number of tickets created over a set time. See how it compares to a previous period of time. 8:Ticket totals by label/priority/tag :View the total number of tickets by label/priority/tag.  ',
     charts: [
       'TicketAverageTimeToCloseOverTime',
       'TicketClosedTotalsByRep',
@@ -43,14 +58,1001 @@ const reportTemplates = [
       'TicketTotalsByLabelPriorityTag',
       'TicketTotalsOverTime',
       'TicketAverageTimeToCloseByRep',
-      'TicketAverageTimeToClose',
-      'TicketTotalsBySource'
+      'TicketAverageTimeToClose'
     ],
     img: 'https://sciter.com/wp-content/uploads/2022/08/chart-js.png'
   }
 ];
 
 const chartTemplates = [
+  {
+    templateType: 'TasksIncompleteTotalsByTags',
+    name: 'Tasks incomplete totals by tags',
+    chartTypes: ['bar'],
+    // Bar Chart Table
+    getChartResult: async (filter: any, subdomain: string) => {
+      const selectedTagIds = filter.tagIds || [];
+      let tasksCount;
+      try {
+        if (selectedTagIds.length === 0) {
+          // No selected users, so get all tasks
+          tasksCount = await models?.Tasks.find({ isComplete: false }).lean();
+        } else {
+          // Filter tasks based on selectedLabelIds
+          tasksCount = await models?.Tasks.find({
+            tagIds: { $in: selectedTagIds },
+            isComplete: false
+          }).lean();
+        }
+
+        // Check if the returned value is not an array
+        if (!Array.isArray(tasksCount)) {
+          throw new Error('Invalid data: tasks is not an array.');
+        }
+
+        // Continue processing tasks...
+      } catch (error) {
+        console.error('Error fetching tasks:', error);
+
+        // Handle the error or return an appropriate response.
+        // For example, you might set tasks to an empty array to avoid further issues
+        tasksCount = [];
+      }
+      const taskCounts = taskClosedByTagsRep(tasksCount);
+
+      // Convert the counts object to an array of objects with ownerId and count
+      const countsArray = Object.entries(taskCounts).map(
+        ([ownerId, count]) => ({
+          ownerId,
+          count
+        })
+      );
+      countsArray.sort((a, b) => b.count - a.count);
+
+      // Extract unique ownerIds for user lookup
+      const ownerIds = countsArray.map(item => item.ownerId);
+
+      const tagInfo = await sendTagsMessage({
+        subdomain,
+        action: 'find',
+        data: {
+          _id: { $in: ownerIds || [] }
+        },
+        isRPC: true,
+        defaultValue: []
+      });
+
+      if (!tagInfo || tagInfo.length === 0) {
+        // Handle the case where no labels are found
+        return {
+          title: '',
+          data: [],
+          tagIds: [],
+          count: []
+        };
+      }
+      const enrichedTicketData = countsArray.map(item => {
+        const ownerId = item.ownerId;
+        const matchingLabel = tagInfo.find(
+          label => label && label._id === ownerId
+        );
+
+        // Use the spread operator (...) to include all properties of the item object
+        return {
+          ...item,
+          labels: matchingLabel ? [matchingLabel.name] : []
+        };
+      });
+      const data = enrichedTicketData.map(t => t.count);
+
+      // Flatten the label array and remove any empty arrays
+      const label = enrichedTicketData
+        .map(t => t.labels)
+        .flat()
+        .filter(item => item.length > 0);
+      const title = 'Tasks incomplete totals by tags';
+
+      const datasets = { title, data, labels: label };
+
+      return datasets;
+    },
+
+    filterTypes: []
+  },
+
+  {
+    templateType: 'TasksIncompleteTotalsByLabel',
+    name: 'Tasks incomplete totals by label',
+    chartTypes: ['bar'],
+    // Bar Chart Table
+    getChartResult: async (filter: any, subdomain: string) => {
+      const selectedLabelIds = filter.labelIds || [];
+      let tasks;
+      try {
+        if (selectedLabelIds.length === 0) {
+          // No selected users, so get all tasks
+          tasks = await models?.Tasks.find({ isComplete: false }).lean();
+        } else {
+          // Filter tasks based on selectedLabelIds
+          tasks = await models?.Tasks.find({
+            labelIds: { $in: selectedLabelIds },
+            isComplete: false
+          }).lean();
+        }
+
+        // Check if the returned value is not an array
+        if (!Array.isArray(tasks)) {
+          throw new Error('Invalid data: tasks is not an array.');
+        }
+
+        // Continue processing tasks...
+      } catch (error) {
+        console.error('Error fetching tasks:', error);
+
+        // Handle the error or return an appropriate response.
+        // For example, you might set tasks to an empty array to avoid further issues
+        tasks = [];
+      }
+      const taskCounts = taskClosedByRep(tasks);
+
+      // Convert the counts object to an array of objects with ownerId and count
+      const countsArray = Object.entries(taskCounts).map(
+        ([ownerId, count]) => ({
+          ownerId,
+          count
+        })
+      );
+      countsArray.sort((a, b) => b.count - a.count);
+
+      // Extract unique ownerIds for user lookup
+      const ownerIds = countsArray.map(item => item.ownerId);
+
+      const labels = await models?.PipelineLabels.find({
+        _id: {
+          $in: ownerIds
+        }
+      }).lean();
+
+      if (!labels || labels.length === 0) {
+        // Handle the case where no labels are found
+        return {
+          title: '',
+          data: [],
+          labels: [],
+          count: []
+        };
+      }
+      const enrichedTicketData = countsArray.map(item => {
+        const ownerId = item.ownerId;
+        const matchingLabel = labels.find(
+          label => label && label._id === ownerId
+        );
+
+        // Use the spread operator (...) to include all properties of the item object
+        return {
+          ...item,
+          labels: matchingLabel ? [matchingLabel.name] : []
+        };
+      });
+      const data = enrichedTicketData.map(t => t.count);
+
+      // Flatten the label array and remove any empty arrays
+      const label = enrichedTicketData
+        .map(t => t.labels)
+        .flat()
+        .filter(item => item.length > 0);
+      const title = 'Tasks incomplete totals by label';
+
+      const datasets = { title, data, labels: label };
+
+      return datasets;
+    },
+
+    filterTypes: []
+  },
+
+  {
+    templateType: 'TasksIncompleteTotalsByReps',
+    name: 'Tasks incomplete totals by reps',
+    chartTypes: ['bar'],
+    // Bar Chart Table
+    getChartResult: async (filter: any, subdomain: string) => {
+      const selectedUserIds = filter.assignedUserIds || [];
+      let tasks;
+
+      try {
+        if (selectedUserIds.length === 0) {
+          // No selected users, so get all tasks
+          tasks = await models?.Tasks.find({ isComplete: false }).lean();
+        } else {
+          // Filter tasks based on selectedUserIds
+          tasks = await models?.Tasks.find({
+            assignedUserIds: { $in: selectedUserIds },
+            isComplete: false
+          }).lean();
+        }
+
+        // Check if the returned value is not an array
+        if (!Array.isArray(tasks)) {
+          throw new Error('Invalid data: tasks is not an array.');
+        }
+
+        // Continue processing tasks...
+      } catch (error) {
+        console.error('Error fetching tasks:', error);
+
+        // Handle the error or return an appropriate response.
+        // For example, you might set tasks to an empty array to avoid further issues
+        tasks = [];
+      }
+
+      // Calculate task counts
+      const taskCounts = calculateTicketCounts(tasks);
+
+      // Convert the counts object to an array of objects with ownerId and count
+      const countsArray = Object.entries(taskCounts).map(
+        // tslint:disable-next-line:no-shadowed-variable
+        ([ownerId, count]) => ({
+          ownerId,
+          count
+        })
+      );
+
+      // Sort the array based on task counts
+      countsArray.sort((a, b) => b.count - a.count);
+
+      // Extract unique ownerIds for user lookup
+      const ownerIds = countsArray.map(item => item.ownerId);
+
+      // Fetch information about assigned users
+      const getTotalAssignedUsers = await sendCoreMessage({
+        subdomain,
+        action: 'users.find',
+        data: {
+          query: { _id: { $in: ownerIds } }
+        },
+        isRPC: true,
+        defaultValue: []
+      });
+      // Create a map for faster user lookup
+      const assignedUsersMap = getTotalAssignedUsers.reduce((acc, user) => {
+        acc[user._id] = user.details; // Assuming details contains user information
+        return acc;
+      }, {});
+
+      const title = 'Tasks incomplete totals by reps';
+      const data = countsArray.map(item => item.count);
+
+      const labels = Object.values(assignedUsersMap).map(
+        (t: any) => t.fullName
+      );
+
+      const datasets = { title, data, labels };
+      return datasets;
+    },
+
+    filterTypes: [
+      {
+        fieldName: 'assignedUserIds',
+        fieldType: 'select',
+        multi: true,
+        fieldQuery: 'users',
+        fieldLabel: 'Select assigned users'
+      }
+    ]
+  },
+
+  {
+    templateType: 'TaskClosedTotalsByLabel',
+    name: 'Task closed totals by label',
+    chartTypes: ['bar'],
+    // Bar Chart Table
+    getChartResult: async (filter: any, subdomain: string) => {
+      const selectedLabelIds = filter.labelIds || [];
+      let tasks;
+      try {
+        if (selectedLabelIds.length === 0) {
+          // No selected users, so get all tasks
+          tasks = await models?.Tasks.find({ isComplete: true }).lean();
+        } else {
+          // Filter tasks based on selectedLabelIds
+          tasks = await models?.Tasks.find({
+            labelIds: { $in: selectedLabelIds },
+            isComplete: true
+          }).lean();
+        }
+
+        // Check if the returned value is not an array
+        if (!Array.isArray(tasks)) {
+          throw new Error('Invalid data: tasks is not an array.');
+        }
+
+        // Continue processing tasks...
+      } catch (error) {
+        console.error('Error fetching tasks:', error);
+
+        // Handle the error or return an appropriate response.
+        // For example, you might set tasks to an empty array to avoid further issues
+        tasks = [];
+      }
+      const taskCounts = taskClosedByRep(tasks);
+
+      // Convert the counts object to an array of objects with ownerId and count
+      const countsArray = Object.entries(taskCounts).map(
+        ([ownerId, count]) => ({
+          ownerId,
+          count
+        })
+      );
+      countsArray.sort((a, b) => b.count - a.count);
+
+      // Extract unique ownerIds for user lookup
+      const ownerIds = countsArray.map(item => item.ownerId);
+
+      const labels = await models?.PipelineLabels.find({
+        _id: {
+          $in: ownerIds
+        }
+      }).lean();
+
+      if (!labels || labels.length === 0) {
+        // Handle the case where no labels are found
+        return {
+          title: '',
+          data: [],
+          labels: [],
+          count: []
+        };
+      }
+      const enrichedTicketData = countsArray.map(item => {
+        const ownerId = item.ownerId;
+        const matchingLabel = labels.find(
+          label => label && label._id === ownerId
+        );
+
+        // Use the spread operator (...) to include all properties of the item object
+        return {
+          ...item,
+          labels: matchingLabel ? [matchingLabel.name] : []
+        };
+      });
+      const data = enrichedTicketData.map(t => t.count);
+
+      // Flatten the label array and remove any empty arrays
+      const label = enrichedTicketData
+        .map(t => t.labels)
+        .flat()
+        .filter(item => item.length > 0);
+      const title = 'Task closed totals by label';
+
+      const datasets = { title, data, labels: label };
+
+      return datasets;
+    },
+
+    filterTypes: []
+  },
+
+  {
+    templateType: 'TaskClosedTotalsByTags',
+    name: 'Task closed totals by tags',
+    chartTypes: ['bar'],
+    // Bar Chart Table
+    getChartResult: async (filter: any, subdomain: string) => {
+      const selectedTagIds = filter.tagIds || [];
+      let tasksCount;
+      //  tasksCount = await models?.Tasks.find({ isComplete: true }).lean();
+      try {
+        if (selectedTagIds.length === 0) {
+          // No selected users, so get all tasks
+          tasksCount = await models?.Tasks.find({ isComplete: true }).lean();
+        } else {
+          // Filter tasks based on selectedLabelIds
+          tasksCount = await models?.Tasks.find({
+            tagIds: { $in: selectedTagIds },
+            isComplete: true
+          }).lean();
+        }
+
+        // Check if the returned value is not an array
+        if (!Array.isArray(tasksCount)) {
+          throw new Error('Invalid data: tasks is not an array.');
+        }
+
+        // Continue processing tasks...
+      } catch (error) {
+        console.error('Error fetching tasks:', error);
+
+        // Handle the error or return an appropriate response.
+        // For example, you might set tasks to an empty array to avoid further issues
+        tasksCount = [];
+      }
+      const taskCounts = taskClosedByTagsRep(tasksCount);
+
+      // Convert the counts object to an array of objects with ownerId and count
+      const countsArray = Object.entries(taskCounts).map(
+        ([ownerId, count]) => ({
+          ownerId,
+          count
+        })
+      );
+      countsArray.sort((a, b) => b.count - a.count);
+
+      // Extract unique ownerIds for user lookup
+      const ownerIds = countsArray.map(item => item.ownerId);
+
+      const tagInfo = await sendTagsMessage({
+        subdomain,
+        action: 'find',
+        data: {
+          _id: { $in: ownerIds || [] }
+        },
+        isRPC: true,
+        defaultValue: []
+      });
+
+      if (!tagInfo || tagInfo.length === 0) {
+        // Handle the case where no labels are found
+        return {
+          title: '',
+          data: [],
+          tagIds: [],
+          count: []
+        };
+      }
+      const enrichedTicketData = countsArray.map(item => {
+        const ownerId = item.ownerId;
+        const matchingLabel = tagInfo.find(
+          label => label && label._id === ownerId
+        );
+
+        // Use the spread operator (...) to include all properties of the item object
+        return {
+          ...item,
+          labels: matchingLabel ? [matchingLabel.name] : []
+        };
+      });
+      const data = enrichedTicketData.map(t => t.count);
+
+      // Flatten the label array and remove any empty arrays
+      const label = enrichedTicketData
+        .map(t => t.labels)
+        .flat()
+        .filter(item => item.length > 0);
+      const title = 'Task closed totals by tags';
+
+      const datasets = { title, data, labels: label };
+
+      return datasets;
+    },
+
+    filterTypes: []
+  },
+  {
+    templateType: 'TaskClosedTotalsByReps',
+    name: 'Task closed totals by reps',
+    chartTypes: ['bar'],
+    // Bar Chart Table
+    getChartResult: async (filter: any, subdomain: string) => {
+      const selectedUserIds = filter.assignedUserIds || [];
+      let tasks;
+
+      try {
+        if (selectedUserIds.length === 0) {
+          // No selected users, so get all tasks
+          tasks = await models?.Tasks.find({ isComplete: true }).lean();
+        } else {
+          // Filter tasks based on selectedUserIds
+          tasks = await models?.Tasks.find({
+            assignedUserIds: { $in: selectedUserIds },
+            isComplete: true
+          }).lean();
+        }
+
+        // Check if the returned value is not an array
+        if (!Array.isArray(tasks)) {
+          throw new Error('Invalid data: tasks is not an array.');
+        }
+
+        // Continue processing tasks...
+      } catch (error) {
+        console.error('Error fetching tasks:', error);
+
+        // Handle the error or return an appropriate response.
+        // For example, you might set tasks to an empty array to avoid further issues
+        tasks = [];
+      }
+
+      // Calculate task counts
+      const taskCounts = calculateTicketCounts(tasks);
+
+      // Convert the counts object to an array of objects with ownerId and count
+      const countsArray = Object.entries(taskCounts).map(
+        // tslint:disable-next-line:no-shadowed-variable
+        ([ownerId, count]) => ({
+          ownerId,
+          count
+        })
+      );
+
+      // Sort the array based on task counts
+      countsArray.sort((a, b) => b.count - a.count);
+
+      // Extract unique ownerIds for user lookup
+      const ownerIds = countsArray.map(item => item.ownerId);
+
+      // Fetch information about assigned users
+      const getTotalAssignedUsers = await sendCoreMessage({
+        subdomain,
+        action: 'users.find',
+        data: {
+          query: { _id: { $in: ownerIds } }
+        },
+        isRPC: true,
+        defaultValue: []
+      });
+      // Create a map for faster user lookup
+      const assignedUsersMap = getTotalAssignedUsers.reduce((acc, user) => {
+        acc[user._id] = user.details; // Assuming details contains user information
+        return acc;
+      }, {});
+
+      const title = 'View the total number of closed tasks by reps';
+      const data = countsArray.map(item => item.count);
+
+      const labels = Object.values(assignedUsersMap).map(
+        (t: any) => t.fullName
+      );
+
+      const datasets = { title, data, labels };
+      return datasets;
+    },
+
+    filterTypes: [
+      {
+        fieldName: 'assignedUserIds',
+        fieldType: 'select',
+        multi: true,
+        fieldQuery: 'users',
+        fieldLabel: 'Select assigned users'
+      }
+    ]
+  },
+
+  {
+    templateType: 'TaskAverageTimeToCloseByLabel',
+    name: 'Task average time to close by label',
+    chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea'],
+    // Bar Chart Table
+    getChartResult: async (filter: any, subdomain: string) => {
+      const tasks = await models?.Tasks.find({
+        isComplete: false
+      }).lean();
+
+      const ticketData = await taskAverageTimeToCloseByLabel(tasks);
+      // const labelIds = ticketData.map((result) => result.labelIds);
+      const labelIdsCount = ticketData.flatMap(result => result.labelIds);
+
+      const labels = await models?.PipelineLabels.find({
+        _id: {
+          $in: labelIdsCount
+        }
+      }).lean();
+
+      if (!labels || labels.length === 0) {
+        // Handle the case where no labels are found
+        return {
+          title: '',
+          data: [],
+          labels: []
+        };
+      }
+      const enrichedTicketData = ticketData.map(task => {
+        // Ensure labelIds is an array (default to empty array if undefined)
+        const labelIds = Array.isArray(task.labelIds) ? task.labelIds : [];
+
+        // Check if labelIds is not empty before mapping
+        if (labelIds.length > 0) {
+          const labelNames = labelIds.map(labelId => {
+            const matchingLabel = labels.find(
+              label => label && label._id === labelId
+            ); // Check for undefined label
+            return matchingLabel ? matchingLabel.name : '';
+          });
+
+          // Filter out undefined and empty string labels
+          const filteredLabels = labelNames.filter(label => label !== '');
+
+          return {
+            ...task,
+            labels: filteredLabels
+          };
+        } else {
+          // If labelIds is empty, return the task as is
+          return task;
+        }
+      });
+
+      let setData: string[] = [];
+      let stablesNames: string[] = [];
+
+      enrichedTicketData
+        .filter(t => t.timeDifference && t.labels && t.labels.length > 0)
+        .slice(0, 100) // Limit to the first 10 elements
+        .map(t => {
+          setData.push(t.timeDifference);
+
+          // Flatten and join the labels array into a single string
+          const flattenedLabels = t.labels.join(' ');
+          stablesNames.push(flattenedLabels);
+
+          return {
+            timeDifference: t.timeDifference,
+            stageId: t.stageId,
+            labelIds: t.labelIds,
+            labels: flattenedLabels
+            /* Add other properties as needed */
+          };
+        });
+
+      const title = 'Task average time to close by label';
+
+      const datasets = {
+        title,
+        data: setData,
+        labels: stablesNames
+      };
+      return datasets;
+    },
+    filterTypes: []
+  },
+
+  {
+    templateType: 'TaskAverageTimeToCloseByTags',
+    name: 'Task average time to close by tags',
+    chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea'],
+    // Bar Chart Table
+    getChartResult: async (filter: any, subdomain: string) => {
+      const tasks = await models?.Tasks.find({
+        isComplete: false
+      }).lean();
+
+      const ticketData = await taskAverageTimeToCloseByLabel(tasks);
+      // const labelIds = ticketData.map((result) => result.labelIds);
+      const tagIdsCount = ticketData.flatMap(result => result.tagIds);
+
+      const tagInfo = await sendTagsMessage({
+        subdomain,
+        action: 'find',
+        data: {
+          _id: { $in: tagIdsCount || [] }
+        },
+        isRPC: true,
+        defaultValue: []
+      });
+
+      if (!tagIdsCount || tagIdsCount.length === 0) {
+        // Handle the case where no labels are found
+        return {
+          title: '',
+          data: [],
+          tagIds: []
+        };
+      }
+      const enrichedTicketData = ticketData.map(task => {
+        // Ensure tagIds is an array (default to empty array if undefined)
+        const tagIds = Array.isArray(task.tagIds) ? task.tagIds : [];
+
+        // Check if tagIds is not empty before mapping
+        if (tagIds.length > 0) {
+          const tagNames = tagIds.map(tagId => {
+            const matchingTag = tagInfo.find(tag => tag && tag._id === tagId); // Check for undefined tag
+            return matchingTag ? matchingTag.name : '';
+          });
+
+          // Filter out undefined and empty string Tags
+          const filteredTags = tagNames.filter(tag => tag !== '');
+
+          return {
+            ...task,
+            tagIds: filteredTags
+          };
+        } else {
+          // If tagIds is empty, return the task as is
+          return task;
+        }
+      });
+
+      let setData: string[] = [];
+      let stagsNames: string[] = [];
+
+      enrichedTicketData
+        .filter(t => t.timeDifference && t.tags && t.tags.length > 0)
+        .slice(0, 100) // Limit to the first 10 elements
+        .map(t => {
+          setData.push(t.timeDifference);
+
+          // Flatten and join the tags array into a single string
+          const flattenedTagss = t.tags.join(' ');
+          stagsNames.push(flattenedTagss);
+
+          return {
+            timeDifference: t.timeDifference,
+            stageId: t.stageId,
+            tagIds: t.tagIds,
+            tags: flattenedTagss
+            /* Add other properties as needed */
+          };
+        });
+
+      const title = 'Task average time to close by tags';
+
+      const datasets = {
+        title,
+        data: setData,
+        tags: stagsNames
+      };
+      return datasets;
+    },
+    filterTypes: []
+  },
+
+  {
+    templateType: 'TaskAverageTimeToCloseByReps',
+    name: 'Task average time to close by reps',
+    chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea'],
+    // Bar Chart Table
+    getChartResult: async (filter: any, subdomain: string) => {
+      const selectedUserIds = filter.assignedUserIds || [];
+      let tasks;
+      try {
+        if (selectedUserIds.length === 0) {
+          // No selected users, so get all tickets
+          tasks = await models?.Tasks.find({
+            isComplete: true
+          }).lean();
+        } else {
+          // Filter tickets based on selectedUserIds
+          tasks = await models?.Tasks.find({
+            assignedUserIds: {
+              $in: selectedUserIds
+            },
+            isComplete: true
+          }).lean();
+        }
+
+        // Check if the returned value is not an array
+        if (!Array.isArray(tasks)) {
+          throw new Error('Invalid data: tickets is not an array.');
+        }
+
+        // Continue processing tickets...
+      } catch (error) {
+        console.error('Error fetching tickets:', error);
+
+        // Handle the error or return an appropriate response.
+        // For example, you might set tickets to an empty array to avoid further issues
+        tasks = [];
+      }
+
+      const ticketData = await calculateAverageTimeToCloseUser(tasks);
+      // progress
+      const getTotalAssignedUsers = await Promise.all(
+        ticketData.map(async result => {
+          return await sendCoreMessage({
+            subdomain,
+            action: 'users.find',
+            data: {
+              query: {
+                _id: {
+                  $in: result.assignedUserIds
+                }
+              }
+            },
+            isRPC: true,
+            defaultValue: []
+          });
+        })
+      );
+
+      const result: any[] = [];
+
+      for (const assignedUser of getTotalAssignedUsers) {
+        assignedUser.map(itemsAdd => {
+          const ticket = ticketData.find(item =>
+            item.assignedUserIds.includes(itemsAdd._id)
+          );
+
+          if (ticket) {
+            result.push({
+              timeDifference: ticket.timeDifference,
+              assignedUserIds: ticket.assignedUserIds,
+              FullName: itemsAdd.details?.fullName || ''
+            });
+          }
+        });
+      }
+
+      const data = Object.values(result).map((t: any) => t.timeDifference);
+      const labels = Object.values(result).map((t: any) => t.FullName);
+
+      const title = 'Task average time to close by reps';
+
+      const datasets = { title, data, labels };
+
+      return datasets;
+    },
+    filterTypes: [
+      {
+        fieldName: 'assignedUserIds',
+        fieldType: 'select',
+        fieldQuery: 'users',
+        fieldLabel: 'Select assigned user'
+      }
+    ]
+  },
+  {
+    templateType: 'DealRevenueByStage',
+    name: 'Deal revenue by stage',
+    chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea'],
+    // Bar Chart Table
+    getChartResult: async () => {
+      const stages = await models?.Stages.find({
+        $and: [
+          { type: 'deal' },
+          {
+            $or: [
+              { probability: { $lt: 0 } }, // Less than 0%
+              { probability: { $gte: 100 } } // Greater than or equal to 100%
+            ]
+          }
+        ]
+      }).lean();
+      if (stages) {
+        let deals;
+        await Promise.all(
+          stages.map(async result => {
+            deals = await models?.Deals.find({
+              stageId: result._id,
+              status: 'active' // Assuming 'active' is the status for open deals
+            }).lean();
+          })
+        );
+        // Example usage
+        async function processData() {
+          const dealsCounts = await amountProductData(deals);
+
+          // Consolidate totalAmounts for the same stageId
+          const consolidatedData = dealsCounts.reduce((consolidated, item) => {
+            const existingItem = consolidated.find(
+              c => c.stageId === item.stageId
+            );
+
+            if (existingItem) {
+              existingItem.totalAmount += item.totalAmount;
+            } else {
+              consolidated.push({ ...item });
+            }
+
+            return consolidated;
+          }, []);
+
+          const data = consolidatedData.map((t: any) =>
+            t.totalAmount.toString()
+          );
+
+          const stageIds = consolidatedData.map((t: any) => t.stageId);
+
+          const stagesName = await models?.Stages.find({
+            $and: [
+              { type: 'deal' },
+              {
+                _id: {
+                  $in: stageIds
+                }
+              }
+            ]
+          }).lean();
+
+          const stageIdToNameMap =
+            stagesName?.reduce((map, stage) => {
+              map[stage._id] = stage.name;
+              return map;
+            }, {}) || {};
+
+          const labels = consolidatedData.map(
+            (t: any) => stageIdToNameMap[t.stageId]
+          );
+
+          const title = 'Deals open by current stage';
+          const datasets = {
+            title,
+            data,
+            labels
+          };
+
+          return datasets;
+        }
+
+        // Call processData function
+        const data = await processData();
+
+        return data;
+      } else {
+        throw new Error('No deal stages found');
+      }
+    },
+    filterTypes: [
+      {
+        fieldName: 'assignedUserIds',
+        fieldType: 'select',
+        multi: true,
+        fieldQuery: 'users',
+        fieldLabel: 'Select assigned users'
+      }
+    ]
+  },
+
+  {
+    templateType: 'DealsOpenByCurrentStage',
+    name: 'Deals open by current stage',
+    chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea'],
+    // Bar Chart Table
+    getChartResult: async () => {
+      const stages = await models?.Stages.find({
+        $and: [
+          { type: 'deal' },
+          {
+            $or: [
+              { probability: { $lt: 0 } }, // Less than 0%
+              { probability: { $gte: 100 } } // Greater than or equal to 100%
+            ]
+          }
+        ]
+      }).lean();
+      if (stages) {
+        const openDealsCounts = await Promise.all(
+          stages.map(async stage => {
+            const openDealsCount = await models?.Deals.countDocuments({
+              stageId: stage._id,
+              status: 'active' // Assuming 'active' is the status for open deals
+            });
+
+            const stageDetails = await models?.Stages.findById(
+              stage._id
+            ).lean();
+
+            return {
+              stageId: stage._id,
+              stageName: stageDetails?.name, // Include other relevant stage information
+              count: openDealsCount
+            };
+          })
+        );
+
+        const setData = Object.values(openDealsCounts).map((t: any) => t.count);
+        const setLabels = Object.values(openDealsCounts).map(
+          (t: any) => t.stageName
+        );
+        const title = 'Deals open by current stage';
+        const datasets = { title, data: setData, labels: setLabels };
+
+        return datasets;
+      } else {
+        throw new Error('No deal stages found');
+      }
+    },
+    filterTypes: [
+      {
+        fieldName: 'assignedUserIds',
+        fieldType: 'select',
+        multi: true,
+        fieldQuery: 'users',
+        fieldLabel: 'Select assigned users'
+      }
+    ]
+  },
+
   {
     templateType: 'ClosedRevenueByMonthWithDealTotalAndClosedRevenueBreakdown',
     name:
@@ -264,7 +1266,7 @@ const chartTemplates = [
     name: 'Deals by last modified date',
     chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea'],
     getChartResult: async (filter: any, subdomain: string) => {
-      const deals = await await models?.Deals.find({});
+      const deals = await models?.Deals.find({});
 
       const dealsCount = deals?.map(deal => {
         return {
@@ -282,10 +1284,6 @@ const chartTemplates = [
         return dateB.getTime() - dateA.getTime();
       });
 
-      // const data = sortedData?.map((deal: any) => {
-      //   return new Date(deal.lastModifiedDate); // return date objects
-      // });
-
       const data = sortedData?.map((deal: any) => {
         const dateWithTime = new Date(deal.lastModifiedDate);
         const dateOnly = dateWithTime.toISOString().substring(0, 10); // Extract YYYY-MM-DD
@@ -294,17 +1292,26 @@ const chartTemplates = [
 
       const labels = sortedData?.map((deal: any) => deal.dealName);
       const label = 'Deals count by modified month';
-
       const datasets = [
         {
+          type: 'line',
           label,
           data: data || [], // Ensure data is an array even if sortedData is undefined
+          options: {
+            scales: {
+              x: {
+                type: 'time',
+                time: {
+                  displayFormats: {
+                    quarter: 'MMM YYYY'
+                  }
+                }
+              }
+            }
+          },
           labels
         }
       ];
-
-      console.log(data, 'data');
-
       return datasets;
     },
 
@@ -323,17 +1330,13 @@ const chartTemplates = [
     name: 'Deals closed lost all time by rep',
     chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea'],
     // Bar Chart Table
-    getChartResult: async (
-      filter: any,
-      subdomain: string,
-      currentUser: IUserDocument,
-      getDefaultPipelineId?: string
-    ) => {
+    getChartResult: async (filter: any, subdomain: string) => {
       const selectedUserIds = filter.assignedUserIds || [];
       const stages = await models?.Stages.find({
-        $and: [{ type: 'deal' }, { probability: 'Won' }]
+        $and: [{ type: 'deal' }, { probability: 'Lost' }]
       }).lean();
       let dealCounts;
+      let data;
       if (stages) {
         if (selectedUserIds.length === 0) {
           dealCounts = await Promise.all(
@@ -347,14 +1350,16 @@ const chartTemplates = [
           dealCounts = await Promise.all(
             stages.map(async result => {
               return await models?.Deals.find({
-                stageId: result._id,
-                assignedUserIds: { $in: selectedUserIds }
+                $and: [
+                  { stageId: result._id },
+                  { assignedUserIds: { $in: selectedUserIds } }
+                ]
               }).lean();
             })
           );
         }
 
-        const data = await Promise.all(
+        data = await Promise.all(
           dealCounts.map(async result => {
             const counts = result.filter(element => element.status === 'active')
               .length;
@@ -363,78 +1368,64 @@ const chartTemplates = [
                 .flat() // Flatten the array of arrays
                 .map(async item => {
                   const assignedUserIds = item.assignedUserIds;
-
                   if (assignedUserIds && assignedUserIds.length > 0) {
-                    return assignedUserIds;
+                    return await sendCoreMessage({
+                      subdomain,
+                      action: 'users.find',
+                      data: {
+                        query: {
+                          _id: {
+                            $in: assignedUserIds
+                          }
+                        }
+                      },
+                      isRPC: true,
+                      defaultValue: []
+                    });
                   }
                 })
             );
-
-            return [counts, users];
+            return { count: counts, user: users }; // Removed the extra array here
           })
         );
-        const result = data.map(([counts, users]) => ({
-          count: counts,
-          userid: users
-        }));
-        console.log(result);
-        // const ownerIds = data.map((item) => item.counts);
-        // const assignedUsersMap = data.reduce((acc, user) => {
-        //   // Assuming user.users contains an array of user details
-        //   user.users.forEach((userDetail) => {
-        //     acc[userDetail._id] = userDetail.details; // Assuming details contains user information
-        //   });
-        //   return acc;
-        // }, {});
-
-        // const labels = Object.values(assignedUsersMap).map(
-        //   (t: any) => t.fullName
-        // );
-        // console.log(ownerIds, 'owner');
-        // console.log(labels, ';sss');
-        // const title = 'Deals closed lost all time by rep';
-        // const datasets = { title, data, labels };
-        // console.log(datasets, 'datasets');
-        // return datasets;
-        // const count = await dealCounts.map((result) => {
-        //   const counts = result.filter((element) => element.status === 'active')
-        //     .length;
-
-        // });
-        // console.log(count, 'askdopaksdop');
-        // const getTotalAssignedUsers = await Promise.all(
-        //   dealCounts
-        //     .flat() // Flatten the array of arrays
-        //     .map(async (item) => {
-        //       const assignedUserIds = item?.assignedUserIds;
-
-        //       if (assignedUserIds && assignedUserIds.length > 0) {
-        //         return await sendCoreMessage({
-        //           subdomain,
-        //           action: 'users.find',
-        //           data: {
-        //             query: {
-        //               _id: {
-        //                 $in: assignedUserIds
-        //               }
-        //             }
-        //           },
-        //           isRPC: true,
-        //           defaultValue: []
-        //         });
-        //       }
-        //     })
-        // );
-
-        // console.log('getTotalAssignedUsers');
-        // const assignedUsersMap = {};
-
-        // const data = Object.values(assignedUsersMap).map(
-        //   (t: any) => t.assignedDealsCount
-        // );
       } else {
-        console.error('Stages are undefined.');
+        throw new Error('Stages are undefined.');
       }
+      // Extract counts
+
+      const resultArray: Array<{ count: string; fullName: string }> = [];
+      data.map(item => {
+        const users = item.user;
+
+        if (Array.isArray(users)) {
+          users.forEach(result => {
+            if (Array.isArray(result)) {
+              result.forEach(items => {
+                if (items && items.details) {
+                  resultArray.push({
+                    count: item.count.toString(),
+                    fullName: items.details.fullName
+                  });
+                }
+              });
+            }
+          });
+        }
+
+        return resultArray;
+      });
+
+      const uniqueUserEntries = Array.from(
+        new Set(resultArray.map(entry => JSON.stringify(entry))),
+        str => JSON.parse(str)
+      );
+      const setData = Object.values(uniqueUserEntries).map((t: any) => t.count);
+      const setLabels = Object.values(uniqueUserEntries).map(
+        (t: any) => t.fullName
+      );
+      const title = 'Deals closed lost all time by rep';
+      const datasets = { title, data: setData, labels: setLabels };
+      return datasets;
     },
     filterTypes: [
       {
@@ -448,34 +1439,120 @@ const chartTemplates = [
   },
 
   {
-    templateType: 'TicketTotalsBySource',
-    name: 'Ticket totals by source',
+    templateType: 'DealsClosedWonAllTimeByRep',
+    name: 'Deals closed won all time by rep',
     chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea'],
     // Bar Chart Table
-    getChartResult: async () => {
-      // progress
-      // const ticket = await models?.Tickets.find({
-      //   isComplete: true
-      // }).lean();
-      // if (!ticket || ticket.length === 0) {
-      //   console.error(
-      //     'No ticket found in the database matching the specified criteria.'
-      //   );
-      //   // Handle the case when no items are found
-      //   return null; // or some default value
-      // }
-      // const title =
-      //   'View the average amount of time it takes your reps to close tickets. See how this tracks over time.';
-      // const ticketData = await calculateAverageTimeToClose(ticket);
-      // const labels = ticketData.map((duration) => {
-      //   const { hours, minutes, seconds } = convertHoursToHMS(duration);
-      //   return `${hours}h ${minutes}m ${seconds}s`;
-      // });
-      // const datasets = { title, ticketData, labels };
-      // return datasets;
+    getChartResult: async (filter: any, subdomain: string) => {
+      const selectedUserIds = filter.assignedUserIds || [];
+      const stages = await models?.Stages.find({
+        $and: [{ type: 'deal' }, { probability: 'Won' }]
+      }).lean();
+      let dealCounts;
+      let data;
+      if (stages) {
+        if (selectedUserIds.length === 0) {
+          dealCounts = await Promise.all(
+            // tslint:disable-next-line:no-shadowed-variable
+            stages.map(async result => {
+              return await models?.Deals.find({
+                stageId: result._id
+              }).lean();
+            })
+          );
+        } else {
+          dealCounts = await Promise.all(
+            // tslint:disable-next-line:no-shadowed-variable
+            stages.map(async result => {
+              return await models?.Deals.find({
+                $and: [
+                  { stageId: result._id },
+                  { assignedUserIds: { $in: selectedUserIds } }
+                ]
+              }).lean();
+            })
+          );
+        }
+
+        data = await Promise.all(
+          dealCounts.map(async result => {
+            const counts = result.filter(element => element.status === 'active')
+              .length;
+            const users = await Promise.all(
+              result
+                .flat() // Flatten the array of arrays
+                .map(async item => {
+                  const assignedUserIds = item.assignedUserIds;
+                  if (assignedUserIds && assignedUserIds.length > 0) {
+                    return await sendCoreMessage({
+                      subdomain,
+                      action: 'users.find',
+                      data: {
+                        query: {
+                          _id: {
+                            $in: assignedUserIds
+                          }
+                        }
+                      },
+                      isRPC: true,
+                      defaultValue: []
+                    });
+                  }
+                })
+            );
+            return { count: counts, user: users }; // Removed the extra array here
+          })
+        );
+      } else {
+        throw new Error('Stages are undefined.');
+      }
+      // Extract counts
+
+      const resultArray: Array<{ count: string; fullName: string }> = [];
+      data.map(item => {
+        const users = item.user;
+
+        if (Array.isArray(users)) {
+          users.forEach(result => {
+            if (Array.isArray(result)) {
+              result.forEach(items => {
+                if (items && items.details) {
+                  resultArray.push({
+                    count: item.count.toString(),
+                    fullName: items.details.fullName
+                  });
+                }
+              });
+            }
+          });
+        }
+
+        return resultArray;
+      });
+
+      const uniqueUserEntries = Array.from(
+        new Set(resultArray.map(entry => JSON.stringify(entry))),
+        str => JSON.parse(str)
+      );
+      const setData = Object.values(uniqueUserEntries).map((t: any) => t.count);
+      const setLabels = Object.values(uniqueUserEntries).map(
+        (t: any) => t.fullName
+      );
+      const title = 'Deals closed lost all time by rep';
+      const datasets = { title, data: setData, labels: setLabels };
+      return datasets;
     },
-    filterTypes: []
+    filterTypes: [
+      {
+        fieldName: 'assignedUserIds',
+        fieldType: 'select',
+        multi: true,
+        fieldQuery: 'users',
+        fieldLabel: 'Select assigned users'
+      }
+    ]
   },
+
   {
     templateType: 'TicketAverageTimeToCloseOverTime',
     name: 'Ticket average time to close over time',
@@ -570,7 +1647,6 @@ const chartTemplates = [
         isRPC: true,
         defaultValue: []
       });
-
       // Create a map for faster user lookup
       const assignedUsersMap = getTotalAssignedUsers.reduce((acc, user) => {
         acc[user._id] = user.details; // Assuming details contains user information
@@ -713,7 +1789,6 @@ const chartTemplates = [
         return { title: '', data: [], labels: [] };
       }
     },
-    /// not working filter type
     filterTypes: [
       {
         fieldName: 'name',
@@ -783,7 +1858,6 @@ const chartTemplates = [
       ];
       return datasets;
     },
-    /// filterType not working
     filterTypes: [
       {
         fieldName: 'createdAt',
@@ -806,7 +1880,9 @@ const chartTemplates = [
           // No selected users, so get all tickets
           tickets = await models?.Tickets.find({
             isComplete: true
-          }).lean();
+          })
+            .lean()
+            .limit(30);
         } else {
           // Filter tickets based on selectedUserIds
           tickets = await models?.Tickets.find({
@@ -832,7 +1908,7 @@ const chartTemplates = [
       }
 
       const ticketData = await calculateAverageTimeToCloseUser(tickets);
-      // progress
+
       const getTotalAssignedUsers = await Promise.all(
         tickets.map(async result => {
           return await sendCoreMessage({
@@ -841,7 +1917,7 @@ const chartTemplates = [
             data: {
               query: {
                 _id: {
-                  $in: result.assignedUserIds[0]
+                  $in: result.assignedUserIds
                 }
               }
             },
@@ -851,27 +1927,35 @@ const chartTemplates = [
         })
       );
 
-      const assignedUsersMap = {};
+      const result: any[] = [];
 
-      let index = 0;
-      for (const assignedUsers of getTotalAssignedUsers) {
-        for (const assignedUser of assignedUsers) {
-          assignedUsersMap[assignedUser._id] = {
-            fullName: assignedUser.details?.fullName,
-            time: ticketData[index++] ? ticketData[index - 1].timeDifference : 0
-          };
-        }
+      for (const assignedUser of getTotalAssignedUsers) {
+        assignedUser.map(itemsAdd => {
+          const ticket = ticketData.find(item =>
+            item.assignedUserIds.includes(itemsAdd._id)
+          );
+
+          if (ticket) {
+            result.push({
+              timeDifference: ticket.timeDifference,
+              assignedUserIds: ticket.assignedUserIds,
+              FullName: itemsAdd.details?.fullName || ''
+            });
+          }
+        });
       }
 
-      const data = Object.values(assignedUsersMap).map((t: any) => t.time);
-      const labels = Object.values(assignedUsersMap).map(
-        (t: any) => t.fullName
-      );
+      const data = Object.values(result).map((t: any) => t.timeDifference);
+      const labels = Object.values(result).map((t: any) => t.FullName);
 
       const title =
         'View the average amount of time it takes for a rep to close a ticket';
 
-      const datasets = { title, data, labels };
+      const datasets = {
+        title,
+        data,
+        labels
+      };
 
       return datasets;
     },
@@ -974,7 +2058,6 @@ const chartTemplates = [
       });
 
       const assignedUsersMap = {};
-
       const deals = await models?.Deals.find(query);
 
       for (const assignedUser of getTotalAssignedUsers) {
@@ -1093,6 +2176,53 @@ export default {
   getChartResult
 };
 
+function taskClosedByRep(tickets: any) {
+  // tslint:disable-next-line:no-shadowed-variable
+  const ticketCounts: Record<string, number> = {};
+
+  // Check if tickets is an array
+  if (!Array.isArray(tickets)) {
+    console.error('Invalid input: tickets should be an array.');
+    return ticketCounts;
+  }
+
+  tickets.forEach(ticket => {
+    const labelIds = (ticket.labelIds as string[]) || [];
+
+    if (labelIds.length === 0) {
+      return;
+    }
+    labelIds.forEach(ownerId => {
+      ticketCounts[ownerId] = (ticketCounts[ownerId] || 0) + 1;
+    });
+  });
+
+  return ticketCounts;
+}
+
+function taskClosedByTagsRep(tasks: any) {
+  // tslint:disable-next-line:no-shadowed-variable
+  const ticketCounts: Record<string, number> = {};
+
+  // Check if tickets is an array
+  if (!Array.isArray(tasks)) {
+    console.error('Invalid input: tasks should be an array.');
+    return ticketCounts;
+  }
+
+  tasks.forEach(ticket => {
+    const tagIds = (ticket.tagIds as string[]) || [];
+
+    if (tagIds.length === 0) {
+      return;
+    }
+    tagIds.forEach(ownerId => {
+      ticketCounts[ownerId] = (ticketCounts[ownerId] || 0) + 1;
+    });
+  });
+
+  return ticketCounts;
+}
 function calculateTicketCounts(tickets: any) {
   // tslint:disable-next-line:no-shadowed-variable
   const ticketCounts: Record<string, number> = {};
@@ -1116,6 +2246,35 @@ function calculateTicketCounts(tickets: any) {
   });
 
   return ticketCounts;
+}
+
+function amountProductData(deals: any[]): Promise<any[]> {
+  return new Promise(resolve => {
+    const repAmounts: Record<string, any> = {};
+
+    deals.forEach(deal => {
+      if (deal.productsData && deal.status === 'active') {
+        const productsData = deal.productsData;
+        productsData.forEach(product => {
+          if (product.amount) {
+            if (!repAmounts[deal.stageId]) {
+              repAmounts[deal.stageId] = {
+                totalAmount: 0,
+                stageId: deal.stageId
+              };
+            }
+
+            repAmounts[deal.stageId].totalAmount += product.amount;
+          }
+        });
+      }
+    });
+
+    // Convert the repAmounts object into an array
+    const resultArray = Object.values(repAmounts);
+
+    resolve(resultArray);
+  });
 }
 
 // Function to calculate the average deal amounts by rep
@@ -1156,46 +2315,6 @@ function calculateAverageDealAmountByRep(deals) {
 
   return result;
 }
-
-// function calculateDealAmountAverage(deals: any) {
-//   const averageAmounts: Record<string, number> = {};
-
-//   if (!Array.isArray(deals)) {
-//     console.error('Invalid input: deals should be an array.');
-//     return averageAmounts;
-//   }
-
-//   const userDealCounts: Record<
-//     string,
-//     { totalAmount: number; count: number }
-//   > = {};
-
-//   deals.forEach((deal) => {
-//     deal.productsData?.forEach((product) => {
-//       if (product.assignedUserIds && deal.status === 'active') {
-//         const assignedUsers = product.assignedUserIds;
-//         const amount = product.amount;
-
-//         assignedUsers.forEach((userId) => {
-//           if (!userDealCounts[userId]) {
-//             userDealCounts[userId] = { totalAmount: 0, count: 0 };
-//           }
-
-//           userDealCounts[userId].totalAmount += amount;
-//           userDealCounts[userId].count += 1;
-//         });
-//       }
-//     });
-//   });
-
-//   Object.keys(userDealCounts).forEach((userId) => {
-//     const { totalAmount, count } = userDealCounts[userId];
-//     const averageAmount = count > 0 ? totalAmount / count : 0;
-//     averageAmounts[userId] = averageAmount;
-//   });
-
-//   return averageAmounts;
-// }
 
 function calculateTicketTotalsByStatus(tickets: any) {
   const ticketTotals = {};
@@ -1238,6 +2357,7 @@ function calculateTicketTotalsByLabelPriorityTag(tickets: any) {
     return ticketTotals;
   }, {});
 }
+
 const calculateAverageTimeToClose = tickets => {
   // Filter out tickets without close dates
   const closedTickets = tickets.filter(
@@ -1284,6 +2404,52 @@ function convertHoursToHMS(durationInHours) {
 
   return { hours, minutes, seconds };
 }
+const taskAverageTimeToCloseByLabel = async tasks => {
+  const closedTasks = tasks.filter(
+    ticketItem => ticketItem.modifiedAt && ticketItem.createdAt
+  );
+
+  if (closedTasks.length === 0) {
+    console.error('No closed Tasks found.');
+    return null;
+  }
+
+  // Calculate time to close for each ticket in milliseconds
+  const timeToCloseArray = closedTasks.map(ticketItem => {
+    const createdAt = new Date(ticketItem.createdAt).getTime();
+    const modifiedAt = new Date(ticketItem.modifiedAt).getTime();
+
+    // Check if both dates are valid
+    if (!isNaN(createdAt) && !isNaN(modifiedAt)) {
+      return {
+        timeDifference: modifiedAt - createdAt,
+        stageId: ticketItem.stageId, // Include assignedUserIds
+        labelIds: ticketItem.labelIds,
+        tagIds: ticketItem.tagIds
+      };
+    } else {
+      console.error('Invalid date format for a ticket:', ticketItem);
+      return null;
+    }
+  });
+
+  // Filter out invalid date differences
+  const validTimeToCloseArray = timeToCloseArray.filter(time => time !== null);
+
+  if (validTimeToCloseArray.length === 0) {
+    console.error('No valid time differences found.');
+    return null;
+  }
+
+  const timeToCloseInHoursArray = validTimeToCloseArray.map(time => ({
+    timeDifference: (time.timeDifference / (1000 * 60 * 60)).toFixed(3),
+    stageId: time.stageId, // Include assignedUserIds
+    labelIds: time.labelIds,
+    tagIds: time.tagIds
+  }));
+
+  return timeToCloseInHoursArray;
+};
 
 const calculateAverageTimeToCloseUser = tickets => {
   // Filter out tickets without close dates
@@ -1325,7 +2491,6 @@ const calculateAverageTimeToCloseUser = tickets => {
     timeDifference: (time.timeDifference / (1000 * 60 * 60)).toFixed(3),
     assignedUserIds: time.assignedUserIds // Include assignedUserIds
   }));
-
   return timeToCloseInHoursArray;
 };
 
@@ -1356,27 +2521,3 @@ function calculateDealsByLastModifiedDate(deals) {
 
   return result;
 }
-
-// function calculateDealsByLastModifiedDate(deals) {
-//   const dealsByDate = {};
-//   deals.forEach((deal) => {
-//     const modifiedAt = new Date(deal.modifiedAt);
-//     if (!isNaN(modifiedAt.getTime())) {
-//       const formattedDate = modifiedAt.toLocaleDateString();
-//       dealsByDate[formattedDate] = (dealsByDate[formattedDate] || 0) + 1;
-//     }
-//   });
-
-//   // Sort keys (dates) in ascending order
-//   const sortedDates = Object.keys(dealsByDate).sort((a: string, b: string) => {
-//     return new Date(a).getTime() - new Date(b).getTime();
-//   });
-
-//   // Create a new object with sorted keys
-//   const sortedDealsByDate = {};
-//   sortedDates.forEach((date) => {
-//     sortedDealsByDate[date] = dealsByDate[date];
-//   });
-
-//   return sortedDealsByDate;
-// }
