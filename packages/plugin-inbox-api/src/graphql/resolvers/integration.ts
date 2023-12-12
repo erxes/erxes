@@ -90,7 +90,10 @@ export default {
     _args,
     { subdomain }: IContext
   ) {
-    const kind = integration.kind.split('-')[0];
+    const kind = integration.kind.includes('facebook')
+      ? 'facebook'
+      : integration.kind.split('-')[0];
+
     if (kind === 'messenger') {
       return { status: 'healthy' };
     }
@@ -125,17 +128,31 @@ export default {
   ) {
     const inboxId: string = integration._id;
 
+    const serviceName = integration.kind.includes('facebook')
+      ? 'facebook'
+      : integration.kind;
+
     if (integration.kind === 'messenger') {
       return null;
     }
 
-    return await sendCommonMessage({
-      serviceName: integration.kind,
-      subdomain,
-      action: 'api_to_integrations',
-      data: { inboxId, action: 'getConfigs', integrationId: inboxId },
-      isRPC: true
-    });
+    const serviceRunning = await isServiceRunning(serviceName);
+
+    if (serviceRunning) {
+      try {
+        return await sendCommonMessage({
+          serviceName,
+          subdomain,
+          action: 'api_to_integrations',
+          data: { inboxId, action: 'getData', integrationId: inboxId },
+          isRPC: true
+        });
+      } catch (e) {
+        console.error('error', e);
+
+        return null;
+      }
+    }
   },
 
   async details(
@@ -145,11 +162,18 @@ export default {
   ) {
     const inboxId: string = integration._id;
 
+    const serviceName = integration.kind.includes('facebook')
+      ? 'facebook'
+      : integration.kind;
+
     if (integration.kind === 'messenger') {
       return null;
     }
 
-    if (integration.kind === 'callpro') {
+    if (
+      integration.kind === 'callpro' &&
+      (await isServiceRunning('integrations'))
+    ) {
       return await sendIntegrationsMessage({
         subdomain,
         action: 'api_to_integrations',
@@ -158,12 +182,25 @@ export default {
       });
     }
 
-    return await sendCommonMessage({
-      serviceName: integration.kind,
-      subdomain,
-      action: 'api_to_integrations',
-      data: { inboxId, integrationId: inboxId, action: 'getDetails' },
-      isRPC: true
-    });
+    const serviceRunning = await isServiceRunning(serviceName);
+
+    if (serviceRunning) {
+      try {
+        const a = await sendCommonMessage({
+          serviceName,
+          subdomain,
+          action: 'api_to_integrations',
+          data: { inboxId, integrationId: inboxId, action: 'getDetails' },
+          isRPC: true,
+          defaultValue: null
+        });
+
+        return a;
+      } catch (e) {
+        console.error('error', e);
+
+        return null;
+      }
+    }
   }
 };

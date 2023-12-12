@@ -226,11 +226,15 @@ class CreateMessenger extends React.Component<Props, State> {
 
     if (messengerApps.websites && messengerApps.websites.length > 0) {
       for (const website of messengerApps.websites) {
-        if (website.url === '') return Alert.error(`Set Website URL`);
-        if (website.description === '')
+        if (website.url === '') {
+          return Alert.error(`Set Website URL`);
+        }
+        if (website.description === '') {
           return Alert.error(`Set Website Description`);
-        if (website.buttonText === '')
+        }
+        if (website.buttonText === '') {
           return Alert.error(`Set Website Button Text`);
+        }
       }
     }
 
