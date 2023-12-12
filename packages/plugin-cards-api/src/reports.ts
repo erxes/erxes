@@ -31,8 +31,6 @@ const reportTemplates = [
     description:
       '1:Task average time to close by reps:View the average amount of time to close a task by reps. 2:Task average time to close by label:View the average amount of time to close a task by labels. 3:Task average time to close by tags:View the average amount of time to close a task by tags. 4:Task closed totals by reps:View the total number of closed tasks by reps. 5:Task closed totals by label:View the total number of closed tasks by labels. 6:Task closed totals by tags:View the total number of closed tasks by tags. 7:Tasks incomplete totals by reps:View the total number of incomplete tasks by reps. 8:Tasks incomplete totals by label:View the total number of incomplete tasks by labels. 9:Tasks incomplete totals by tags:View the total number of incomplete tasks by tags.',
     charts: [
-      'dealsChart',
-      'dealsChartByMonth',
       'TaskAverageTimeToCloseByReps',
       'TaskAverageTimeToCloseByLabel',
       'TaskAverageTimeToCloseByTags',
