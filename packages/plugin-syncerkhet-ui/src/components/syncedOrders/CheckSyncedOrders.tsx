@@ -3,11 +3,18 @@ import CheckSyncedOrdersSidebar from './CheckSyncedOrdersSidebar';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import React from 'react';
 import Row from './CheckSyncedOrdersRow';
-import { __, DataWithLoader, Pagination, Table } from '@erxes/ui/src';
+import {
+  __,
+  BarItems,
+  Wrapper,
+  DataWithLoader,
+  Pagination,
+  Table
+} from '@erxes/ui/src';
 import { Alert, confirm } from '@erxes/ui/src/utils';
-import { BarItems, Wrapper } from '@erxes/ui/src/layout';
-import { Title } from '@erxes/ui/src/styles/main';
+
 import { menuSyncerkhet } from '../../constants';
+import { Title } from '@erxes/ui-settings/src/styles';
 
 type Props = {
   totalCount: number;
@@ -30,17 +37,9 @@ type Props = {
   posList?: any[];
 };
 
-type State = {
-  contentLoading: boolean;
-};
-
-class CheckSyncedOrders extends React.Component<Props, State> {
+class CheckSyncedOrders extends React.Component<Props> {
   constructor(props: Props) {
     super(props);
-
-    this.state = {
-      contentLoading: this.props.loading
-    };
   }
 
   renderRow = () => {
@@ -107,7 +106,7 @@ class CheckSyncedOrders extends React.Component<Props, State> {
       'Sync Actions'
     ];
     const Content = (
-      <Table>
+      <Table bordered={true}>
         <thead>
           <tr>
             <th style={{ width: 60 }}>
@@ -159,12 +158,7 @@ class CheckSyncedOrders extends React.Component<Props, State> {
     const actionBarRight = (
       <BarItems>
         {bulk.length > 0 && (
-          <Button
-            btnStyle="success"
-            size="small"
-            icon="check-1"
-            onClick={onClickCheck}
-          >
+          <Button btnStyle="success" icon="check-circle" onClick={onClickCheck}>
             Check
           </Button>
         )}
@@ -184,7 +178,7 @@ class CheckSyncedOrders extends React.Component<Props, State> {
     const content = (
       <DataWithLoader
         data={Content}
-        loading={this.state.contentLoading && loading}
+        loading={loading}
         count={totalCount}
         emptyText="Empty list"
         emptyImage="/images/actions/1.svg"
@@ -203,15 +197,18 @@ class CheckSyncedOrders extends React.Component<Props, State> {
         leftSidebar={sidebar}
         actionBar={
           <Wrapper.ActionBar
-            left={<Title>Orders</Title>}
+            left={<Title>{__(`Orders (${totalCount})`)}</Title>}
             right={actionBarRight}
             // withMargin
             // wide
             background="colorWhite"
+            wideSpacing={true}
           />
         }
         content={content}
         footer={<Pagination count={totalCount} />}
+        hasBorder={true}
+        transparent={true}
       />
     );
   }

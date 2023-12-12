@@ -24,7 +24,9 @@ const getRows = stocks => {
 
 export default (response, counter?) => {
   return `
-    <div class="receipt" id="taxtype-${response.taxType}">
+    <div class="receipt" id="taxtype-${response.taxType}${(response._id || '')
+    .toString()
+    .replace('.', '')}">
       ${(counter > 0 && '<div class="splitter"></div>') || ''}
       <div class="center">
         <img src="https://nmgplugins.s3.us-west-2.amazonaws.com/ebarimt/ebarimt.png">
@@ -95,12 +97,13 @@ export default (response, counter?) => {
               ${
                 response.qrData
                   ? `
-                    <canvas id="qrcode${response.taxType}"></canvas>
+                    <canvas id="qrcode${response.taxType}${(response._id || '')
+                      .toString()
+                      .replace('.', '')}"></canvas>
                   `
                   : ''
               }
 
-              <img id="barcode${response.taxType}" width="90%" />
               <p>Манайхаар үйлчлүүлсэн танд баярлалаа !!!</p>
             </div>
           `
@@ -118,7 +121,11 @@ export default (response, counter?) => {
         response.qrData
           ? `
         // QRCODE
-        var canvas = document.getElementById("qrcode${response.taxType}");
+        var canvas = document.getElementById("qrcode${response.taxType}${(
+              response._id || ''
+            )
+              .toString()
+              .replace('.', '')}");
         var ecl = qrcodegen.QrCode.Ecc.LOW;
         var text = '${response.qrData}';
         var segs = qrcodegen.QrSegment.makeSegments(text);
@@ -127,18 +134,15 @@ export default (response, counter?) => {
         // 4=Scale, 1=border
         qr.drawCanvas(4, 0, canvas);
 
-        $("#qrcode${response.taxType}").after('<img src="' + canvas.toDataURL() + '" />')
+        $("#qrcode${response.taxType}${(response._id || '')
+              .toString()
+              .replace(
+                '.',
+                ''
+              )}").after('<img src="' + canvas.toDataURL() + '" />')
       `
           : ''
       }
-
-      $("#barcode${response.taxType}").JsBarcode('${response.billId}', {
-        width: 1,
-        height: 25,
-        quite: 0,
-        fontSize: 15,
-        displayValue: false,
-      });
     </script>
   `;
 };

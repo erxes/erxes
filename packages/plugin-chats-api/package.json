@@ -8,7 +8,6 @@
   "dependencies": {
     "@erxes/api-utils" : "*",
     "aws-sdk": "^2.493.0",
-    "erxes-api-utils": "^0.0.39",
     "firebase-admin": "^8.6.1",
     "nodemailer": "^6.2.1",
     "telnyx": "^1.7.2"

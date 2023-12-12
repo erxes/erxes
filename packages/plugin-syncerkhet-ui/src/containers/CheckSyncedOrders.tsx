@@ -1,10 +1,5 @@
 import * as compose from 'lodash.flowright';
-import Alert from '@erxes/ui/src/utils/Alert';
-import CheckSyncedOrders from '../components/syncedOrders/CheckSyncedOrders';
-import { gql } from '@apollo/client';
-import React from 'react';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import { Bulk } from '@erxes/ui/src/components';
+
 import {
   CheckSyncedMutationResponse,
   CheckSyncedOrdersQueryResponse,
@@ -12,10 +7,16 @@ import {
   PosListQueryResponse,
   ToSyncOrdersMutationResponse
 } from '../types';
-import { graphql } from '@apollo/client/react/hoc';
-import { IRouterProps } from '@erxes/ui/src/types';
 import { mutations, queries } from '../graphql';
 import { router, withProps } from '@erxes/ui/src/utils/core';
+
+import Alert from '@erxes/ui/src/utils/Alert';
+import { Bulk } from '@erxes/ui/src/components';
+import CheckSyncedOrders from '../components/syncedOrders/CheckSyncedOrders';
+import { IRouterProps } from '@erxes/ui/src/types';
+import React from 'react';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
 import { withRouter } from 'react-router-dom';
 
 type Props = {
@@ -106,13 +107,6 @@ class CheckSyncedOrdersContainer extends React.Component<FinalProps, State> {
         });
     };
 
-    if (
-      checkSyncItemsQuery.loading ||
-      checkSyncedOrdersTotalCountQuery.loading ||
-      posListQuery.loading
-    ) {
-      return <Spinner />;
-    }
     const orders = checkSyncItemsQuery.posOrders || [];
     const totalCount =
       checkSyncedOrdersTotalCountQuery.posOrdersTotalCount || 0;

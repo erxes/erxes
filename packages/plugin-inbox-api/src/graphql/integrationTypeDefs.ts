@@ -156,6 +156,7 @@ export const types = ({ products, tags, forms }) => `
   input IntegrationLinks {
     twitter: String
     facebook: String
+    instagram:String
     youtube: String
   }
 
