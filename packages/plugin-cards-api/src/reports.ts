@@ -886,8 +886,9 @@ const chartTemplates = [
       {
         fieldName: 'assignedUserIds',
         fieldType: 'select',
+        multi: true,
         fieldQuery: 'users',
-        fieldLabel: 'Select assigned user'
+        fieldLabel: 'Select assigned users'
       }
     ]
   },
