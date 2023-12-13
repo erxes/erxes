@@ -13,6 +13,7 @@ export type IFilterType = {
   fieldType: string;
   fieldQuery: string;
   fieldLabel: string;
+  fieldOptions: any[];
   multi?: boolean;
 };
 
@@ -24,7 +25,14 @@ type Props = {
 
 const ChartFormFieldList = (props: Props) => {
   const { filterType, setFilter, initialValue } = props;
-  const { fieldName, fieldType, fieldQuery, fieldLabel, multi } = filterType;
+  const {
+    fieldName,
+    fieldType,
+    fieldQuery,
+    fieldLabel,
+    multi,
+    fieldOptions
+  } = filterType;
   const [fieldValue, setFieldValue] = useState(initialValue);
 
   const onChange = (input: any) => {
@@ -77,7 +85,14 @@ const ChartFormFieldList = (props: Props) => {
     default:
       break;
   }
-  return <ChartFormField fieldType={fieldType} />;
+
+  return (
+    <ChartFormField
+      fieldType={fieldType}
+      fieldOptions={fieldOptions}
+      fieldLabel={fieldLabel}
+    />
+  );
 };
 
 export default ChartFormFieldList;
