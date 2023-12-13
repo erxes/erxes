@@ -10,9 +10,9 @@ const dictionary = {
 };
 
 const stringRegex = (to: number = 50) =>
-  new RegExp(`^[a-zA-Zа-яА-ЯёЁөӨүҮ -]{1,${to}}$`);
+  new RegExp(`^[a-zA-Zа-яА-ЯёЁөӨүҮЪЬ -]{1,${to}}$`);
 const IdRegex = /^[a-zA-Z.0-9._@!#$%^&*()+-=]{1,12}$/;
-const registerRegex = /^[a-zA-Zа-яА-ЯёЁөӨүҮ0-9]{1,16}$/;
+const registerRegex = /^[a-zA-Zа-яА-ЯёЁөӨүҮЪЬ0-9]{1,16}$/;
 const pureDateRegex = /([12]\d{3}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01]))/;
 const numberRegex = /^\d+$/;
 const booleanRegex = /^[0-1]{1}$/;

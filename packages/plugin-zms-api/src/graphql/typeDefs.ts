@@ -276,12 +276,29 @@ type CustomerRelatedCustomers {
     o_c_coll_information: [CustomerCollInformation],
   }
 `;
+const paramsZmsInquire = `
+  keyword: String,
+  foreignCitizen: Boolean,
+  reportPurpose: String,
+  liveStockYear: String,
+  resultType: String,
+  organizationType: String,
+  typeInquire: String
+`;
+
+const paramsAction = `
+rd: String,
+createAt: Date,
+loanAmount: Float
+`;
 
 const queries = `
   getZmsDictionary(_id:String!): ZmsDictionary
   getZms(_id:String!): JSON
   getDictionaries(isParent: Boolean, parentId: String): [ZmsDictionary]
   getZmses(isClosed: Boolean): [Zms]
+  getInquire(${paramsZmsInquire}): JSON
+  getSupply(isClosed: Boolean): JSON,
 `;
 
 const params = `
