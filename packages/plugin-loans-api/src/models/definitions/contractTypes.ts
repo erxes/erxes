@@ -69,6 +69,7 @@ export interface IContractType {
   savingPlusLoanInterest: number;
   savingUpperPercent: number;
   usePrePayment: boolean;
+  invoiceDay: string;
 }
 
 export interface IContractTypeDocument extends IContractType, Document {
@@ -161,6 +162,10 @@ export const contractTypeSchema = schemaHooksWrapper(
       type: Boolean,
       default: false,
       label: 'use pre payment'
+    }),
+    invoiceDay: field({
+      type: String,
+      label: 'invoiceDay'
     })
   }),
   'erxes_contractTypeSchema'
