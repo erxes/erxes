@@ -26,6 +26,7 @@ export const types = ({ products, tags, forms }) => `
     code: String
     formId: String
     tagIds: [String]
+    createdAt: Date
 
     ${tags ? `tags: [Tag]` : ''}
     
