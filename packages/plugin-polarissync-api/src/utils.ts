@@ -81,71 +81,25 @@ export const fetchPolarisData = async (subdomain: string, doc: any) => {
   }
 
   try {
-    // const url = `${configs.value}/user/info`;
+    const url = `${configs.value}/user/info`;
 
-    // const response = await fetch(url, {
-    //   method: 'POST',
-    //   headers: {
-    //     'Content-Type': 'application/json',
-    //   },
-    //   body: JSON.stringify(body),
-    // });
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(body)
+    });
 
-    // if (response.status !== 200) {
-    //   throw new Error('Failed to fetch data');
-    // }
+    if (response.status !== 200) {
+      throw new Error('Failed to fetch data');
+    }
 
-    // const res = await response.json();
+    const res = await response.json();
 
-    // if (res.errors) {
-    //   throw new Error(res.errors[0]);
-    // }
-    // test data
-    const res = {
-      _id: '652f576b422e2f86a062cdfa',
-      createdAt: '2023-10-18T03:56:27.817Z',
-      customerId: 'BB93oqp5L5JRA98OvwwD7',
-      updatedAt: '2023-12-08T07:01:09.931Z',
-      data: {
-        customer_code: 'CIF1050001299',
-        register_number: 'УИ96100433',
-        phone_number: '88619535',
-        lastname: 'ЭНХБОЛД',
-        firstname: 'ЧИЛҮГЭН',
-        birth_date: '1996-10-04T00:00:00Z',
-        email: 'CCHILUGEN@GMAIL.COM',
-        facebook: 'Э.Чилүгэн',
-        emergency_contact_phone_number: '90173889',
-        loan_info: [
-          {
-            product_name: 'CREDIT CARD',
-            adv_amount: '0',
-            balance: '290773.04'
-          },
-          {
-            product_name: 'CREDIT CARD 2',
-            adv_amount: '10',
-            balance: '290773.04'
-          }
-        ],
-        saving_info: [
-          {
-            name: 'ХАГАС ЖИЛ',
-            balance: '0'
-          }
-        ],
-        investment_info: [
-          {
-            name: '50% өсгө',
-            balance: '100'
-          },
-          {
-            name: '100% өсгө',
-            balance: '100'
-          }
-        ]
-      }
-    };
+    if (res.errors) {
+      throw new Error(res.errors[0]);
+    }
 
     const fields = await sendCommonMessage({
       subdomain,
