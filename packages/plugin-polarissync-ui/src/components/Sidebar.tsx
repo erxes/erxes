@@ -87,7 +87,11 @@ export default function Component(props: Props) {
       adv_amount: string;
       balance: string;
     };
-    const loanData: loan[] = polarisData.data.loan_info;
+    const loanData: loan[] = polarisData.data.loan_info || [];
+
+    if (!loanData || loanData.length === 0) {
+      return <EmptyState icon="piggybank" text="No data" />;
+    }
 
     return (
       <SectionBodyItem>
@@ -140,6 +144,10 @@ export default function Component(props: Props) {
 
     if (type === 'investment') {
       info = polarisData.data.investment_info || [];
+    }
+
+    if (!info || info.length === 0) {
+      return <EmptyState icon="piggybank" text="No data" />;
     }
 
     return (

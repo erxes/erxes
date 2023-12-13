@@ -682,7 +682,7 @@ const clientPortalUserMutations = {
 
     const clientPortal = await models.ClientPortals.getConfig(clientPortalId);
 
-    const data = await fetchUserFromSocialpay(token);
+    const data = await fetchUserFromSocialpay(token, clientPortal);
     const {
       individualId,
       mobileNumber,
