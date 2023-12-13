@@ -354,6 +354,13 @@ class ContractForm extends React.Component<Props, State> {
       useFee: contractTypeObj?.useFee
     };
 
+    if (
+      contractTypeObj.invoiceDay &&
+      contractTypeObj.leaseType === LEASE_TYPES.CREDIT
+    ) {
+      changingStateValue['scheduleDays'] = [contractTypeObj.invoiceDay];
+    }
+
     if (!this.state.unduePercent) {
       changingStateValue['unduePercent'] = contractTypeObj?.unduePercent;
     }
