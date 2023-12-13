@@ -184,7 +184,7 @@ export const fetchPolarisData = async (subdomain: string, doc: any) => {
       defaultValue: []
     });
 
-    const customFieldsData: any[] = [];
+    const customFieldsData: any[] = customer.customFieldsData || [];
 
     const data = res.data;
 
