@@ -9,8 +9,9 @@ import { SettingsContent } from './styles';
 import { __ } from '@erxes/ui/src/utils';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
 import Button from '@erxes/ui/src/components/Button';
-import { PAYMENT_KINDS, BANK_CODES } from '../constants';
+import { PAYMENT_KINDS, BANK_CODES, MCC_CODES } from '../constants';
 import Toggle from '@erxes/ui/src/components/Toggle';
+import Select from 'react-select-plus';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -126,7 +127,8 @@ const QuickQrForm = (props: Props) => {
         {state.type === 'person' && renderItem('lastName', 'Last Name')}
 
         {renderItem('registerNumber', 'Register Number')}
-        {renderItem('mccCode', 'MCC Code')}
+        {/* {renderItem('mccCode', 'MCC Code')} */}
+        {renderMccCode()}
         {renderItem('city', 'City')}
         {renderItem('district', 'District')}
         {renderItem('address', 'Address')}
@@ -161,6 +163,25 @@ const QuickQrForm = (props: Props) => {
         </FormGroup>
         {renderItem('bankAccountName', 'Account Name', 'Account holder name')}
       </div>
+    );
+  };
+
+  const renderMccCode = () => {
+    const onChangeMccCode = e => {
+      setState({ ...state, mccCode: e.value });
+    };
+
+    return (
+      <FormGroup>
+        <ControlLabel required={true}>MCC Code</ControlLabel>
+        <Select
+          placeholder={__('Select MCC Code')}
+          value={state.mccCode}
+          onChange={onChangeMccCode}
+          options={MCC_CODES}
+          multi={false}
+        />
+      </FormGroup>
     );
   };
 
