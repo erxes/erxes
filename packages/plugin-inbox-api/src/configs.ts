@@ -28,6 +28,7 @@ import dashboards from './dashboards';
 import webhookMiddleware from './middlewares/webhookMiddleware';
 import { NOTIFICATION_MODULES } from './constants';
 import payment from './payment';
+import reports from './reports';
 
 export let mainDb;
 export let graphqlPubsub;
@@ -53,6 +54,7 @@ export default {
     'subscriptionPlugin.js'
   ),
   meta: {
+    reports,
     forms,
     segments,
     tags,

@@ -133,7 +133,8 @@ export const itemsAdd = async (
       subdomain,
       action: 'fields.prepareCustomFieldsData',
       data: extendedDoc.customFieldsData,
-      isRPC: true
+      isRPC: true,
+      defaultValue: []
     });
   }
 

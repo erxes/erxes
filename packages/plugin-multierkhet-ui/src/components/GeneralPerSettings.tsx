@@ -11,7 +11,7 @@ import React from 'react';
 import { KEY_LABELS } from '../constants';
 import { ContentBox } from '../styles';
 import { IConfigsMap } from '../types';
-import { isEnabled } from '@erxes/ui/src/utils/core';
+import { isEnabled, loadDynamicComponent } from '@erxes/ui/src/utils/core';
 import {
   FormColumn,
   FormWrapper,
@@ -73,6 +73,10 @@ class PerSettings extends React.Component<Props, State> {
 
   onChangeBrand = (brandId: string) => {
     this.setState({ config: { ...this.state.config, brandId } });
+  };
+
+  onChangePayments = ids => {
+    this.setState({ config: { ...this.state.config, paymentIds: ids } });
   };
 
   renderItem = (key: string, description?: string) => {
@@ -178,6 +182,18 @@ class PerSettings extends React.Component<Props, State> {
                 'defaultCustomer',
                 'Customer default code on erkhet'
               )}
+            </CollapseContent>
+          )}
+          {isEnabled('payment') && (
+            <CollapseContent title="Allow online payments">
+              <FormWrapper>
+                <FormColumn>
+                  {loadDynamicComponent('selectPayments', {
+                    defaultValue: config.paymentIds || [],
+                    onChange: (ids: string[]) => this.onChangePayments(ids)
+                  })}
+                </FormColumn>
+              </FormWrapper>
             </CollapseContent>
           )}
         </ContentBox>
