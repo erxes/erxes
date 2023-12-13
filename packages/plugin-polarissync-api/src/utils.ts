@@ -2,8 +2,39 @@ import fetch from 'node-fetch';
 import { sendCommonMessage } from './messageBroker';
 import { Polarissyncs } from './models';
 
+import { nanoid } from 'nanoid';
+
+/*
+ * Mongoose field options wrapper
+ */
+export const field = options => {
+  const { pkey, type, optional } = options;
+
+  if (type === String && !pkey && !optional) {
+    options.validate = /\S+/;
+  }
+
+  // TODO: remove
+  if (pkey) {
+    options.type = String;
+    options.default = () => nanoid();
+  }
+
+  return options;
+};
+
+export const schemaWrapper = schema => {
+  schema.add({ scopeBrandIds: [String] });
+
+  return schema;
+};
+
+export const schemaHooksWrapper = (schema, _cacheKey: string) => {
+  return schemaWrapper(schema);
+};
+
 export const fetchPolarisData = async (subdomain: string, doc: any) => {
-  const customerId = doc.customerId;
+  const customerId = doc.customerId || 'BB93oqp5L5JRA98OvwwD7';
 
   const customer = await sendCommonMessage({
     serviceName: 'contacts',
@@ -60,36 +91,202 @@ export const fetchPolarisData = async (subdomain: string, doc: any) => {
       body: JSON.stringify(body)
     });
 
+    if (response.status !== 200) {
+      throw new Error('Failed to fetch data');
+    }
+
     const res = await response.json();
 
     if (res.errors) {
       throw new Error(res.errors[0]);
     }
+    // test data
+    // const res = {
+    //   _id: '652f576b422e2f86a062cdfa',
+    //   createdAt: '2023-10-18T03:56:27.817Z',
+    //   customerId: 'BB93oqp5L5JRA98OvwwD7',
+    //   updatedAt: '2023-12-08T07:01:09.931Z',
+    //   data: {
+    //     customer_code: 'CIF1050001299',
+    //     register_number: 'УИ96100433',
+    //     phone_number: '88619535',
+    //     lastname: 'ЭНХБОЛД',
+    //     firstname: 'ЧИЛҮГЭН',
+    //     birth_date: '1996-10-04T00:00:00Z',
+    //     email: 'CCHILUGEN@GMAIL.COM',
+    //     facebook: 'Э.Чилүгэн',
+    //     emergency_contact_phone_number: '90173889',
+    //     loan_info: [
+    //       {
+    //         product_name: 'CREDIT CARD',
+    //         adv_amount: '0',
+    //         balance: '290773.04',
+    //       },
+    //       {
+    //         product_name: 'CREDIT CARD 2',
+    //         adv_amount: '10',
+    //         balance: '290773.04',
+    //       },
+    //     ],
+    //     saving_info: [
+    //       {
+    //         name: 'ХАГАС ЖИЛ',
+    //         balance: '0',
+    //       },
+    //     ],
+    //     investment_info: [
+    //       {
+    //         name: '50% өсгө',
+    //         balance: '100',
+    //       },
+    //       {
+    //         name: '100% өсгө',
+    //         balance: '100',
+    //       },
+    //     ],
+    //   },
+    // };
 
-    console.log('res', res);
-
-    console.log('customer.state', customer.state);
-
-    if (customer.state !== 'customer') {
-      await sendCommonMessage({
-        serviceName: 'contacts',
-        action: 'customers.updateCustomer',
-        data: {
-          _id: customerId,
-          doc: {
-            state: 'customer',
-            firstName: res.data.firstname,
-            lastName: res.data.lastname,
-            primaryEmail: res.data.email,
-            birthDate: new Date(res.data.birth_date),
-            code: res.data.customer_code
-          }
+    const fields = await sendCommonMessage({
+      subdomain,
+      serviceName: 'forms',
+      action: 'fields.find',
+      data: {
+        query: {
+          contentType: 'contacts:customer',
+          code: { $exists: true, $ne: '' }
         },
-        isRPC: true,
-        defaultValue: null,
-        subdomain
+        projection: {
+          groupId: 1,
+          code: 1,
+          _id: 1
+        }
+      },
+      isRPC: true,
+      defaultValue: []
+    });
+
+    const groups = await sendCommonMessage({
+      subdomain,
+      serviceName: 'forms',
+      action: 'fieldsGroups.find',
+      data: {
+        query: {
+          contentType: 'contacts:customer',
+          code: { $in: ['loan_info', 'saving_info', 'investment_info'] }
+        },
+        projection: {
+          code: 1,
+          _id: 1
+        }
+      },
+      isRPC: true,
+      defaultValue: []
+    });
+
+    const customFieldsData: any[] = [];
+
+    const data = res.data;
+
+    for (const f of fields) {
+      if (data[f.code]) {
+        customFieldsData.push({
+          field: f._id,
+          value: data[f.code]
+        });
+      }
+    }
+
+    const loanInfoGroup = groups.find(g => g.code === 'loan_info');
+
+    if (loanInfoGroup) {
+      const value: any = [];
+      for (const loan of data.loan_info) {
+        const fieldsOfGroup = fields.filter(
+          f => f.groupId === loanInfoGroup._id
+        );
+        const val = {};
+        for (const f of fieldsOfGroup) {
+          if (loan[f.code]) {
+            val[f._id] = loan[f.code];
+          }
+        }
+        value.push(val);
+      }
+
+      customFieldsData.push({
+        field: loanInfoGroup._id,
+        value
       });
     }
+
+    const savingInfoGroup = groups.find(g => g.code === 'saving_info');
+
+    if (savingInfoGroup) {
+      const value: any = [];
+      for (const saving of data.saving_info) {
+        const fieldsOfGroup = fields.filter(
+          f => f.groupId === savingInfoGroup._id
+        );
+        const val = {};
+        for (const f of fieldsOfGroup) {
+          const code = f.code.replace('saving_', '');
+          if (saving[code]) {
+            val[f._id] = saving[code];
+          }
+        }
+        value.push(val);
+      }
+
+      customFieldsData.push({
+        field: savingInfoGroup._id,
+        value
+      });
+    }
+
+    const investmentInfoGroup = groups.find(g => g.code === 'investment_info');
+
+    if (investmentInfoGroup) {
+      const value: any = [];
+      for (const investment of data.investment_info) {
+        const fieldsOfGroup = fields.filter(
+          f => f.groupId === investmentInfoGroup._id
+        );
+        const val = {};
+        for (const f of fieldsOfGroup) {
+          const code = f.code.replace('invest_', '');
+          if (investment[code]) {
+            val[f._id] = investment[code];
+          }
+        }
+        value.push(val);
+      }
+
+      customFieldsData.push({
+        field: investmentInfoGroup._id,
+        value
+      });
+    }
+
+    await sendCommonMessage({
+      serviceName: 'contacts',
+      action: 'customers.updateCustomer',
+      data: {
+        _id: customerId,
+        doc: {
+          state: 'customer',
+          firstName: data.firstname,
+          lastName: data.lastname,
+          primaryEmail: res.data.email,
+          birthDate: new Date(res.data.birth_date),
+          code: res.data.customer_code,
+          customFieldsData
+        }
+      },
+      isRPC: true,
+      defaultValue: null,
+      subdomain
+    });
 
     return Polarissyncs.createOrUpdate({
       customerId,
