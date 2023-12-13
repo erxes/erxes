@@ -6,7 +6,7 @@ const report_params = `
   $tagIds: [String],
   $reportTemplateType: String
   $serviceName: String
-  $charts: [String]
+  $charts: [JSON]
 `;
 
 const report_params_def = `

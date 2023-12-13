@@ -272,6 +272,17 @@ class Index extends React.Component<IndexProps, IndexState> {
       );
     }
 
+    if (currentSubTab === 'polaris') {
+      return (
+        <>
+          {isEnabled('polarissync') &&
+            loadDynamicComponent('polarisInfo', {
+              id: customer._id
+            })}
+        </>
+      );
+    }
+
     return (
       <>
         <PortableDeals mainType="customer" mainTypeId={customer._id} />
@@ -318,6 +329,17 @@ class Index extends React.Component<IndexProps, IndexState> {
                 onClick={relatedOnClick}
               >
                 {__('Related')}
+              </TabTitle>
+            )}
+
+            {isEnabled('polarissync') && (
+              <TabTitle
+                className={currentSubTab === 'polaris' ? 'active' : ''}
+                onClick={() => {
+                  this.onSubtabClick('polaris');
+                }}
+              >
+                {__('Polaris')}
               </TabTitle>
             )}
           </Tabs>

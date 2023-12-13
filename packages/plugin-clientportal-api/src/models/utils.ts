@@ -1,3 +1,8 @@
+import {
+  getService,
+  getServices,
+  isEnabled
+} from '@erxes/api-utils/src/serviceDiscovery';
 import { IModels } from '../connectionResolver';
 import messageBroker, {
   sendCardsMessage,
@@ -81,6 +86,19 @@ export const handleContacts = async (args: IContactsParams) => {
         { _id: user._id },
         { $set: { erxesCustomerId: customer._id } }
       );
+
+      for (const serviceName of await getServices()) {
+        const serviceConfig = await getService(serviceName, true);
+
+        if (serviceConfig.config?.meta?.hasOwnProperty('cpCustomerHandle')) {
+          if (await isEnabled(serviceName)) {
+            messageBroker().sendMessage(`${serviceName}:cpCustomerHandle`, {
+              subdomain,
+              data: { customer }
+            });
+          }
+        }
+      }
     }
   }
 
@@ -138,6 +156,19 @@ export const handleContacts = async (args: IContactsParams) => {
         { _id: user._id },
         { $set: { erxesCompanyId: company._id } }
       );
+
+      for (const serviceName of await getServices()) {
+        const serviceConfig = await getService(serviceName, true);
+
+        if (serviceConfig.config?.meta?.hasOwnProperty('cpCustomerHandle')) {
+          if (await isEnabled(serviceName)) {
+            messageBroker().sendMessage(`${serviceName}:cpCustomerHandle`, {
+              subdomain,
+              data: { company }
+            });
+          }
+        }
+      }
     }
   }
 

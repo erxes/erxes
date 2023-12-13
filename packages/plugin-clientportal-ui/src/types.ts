@@ -113,6 +113,11 @@ export type ClientPortalVerifyUsersMutationResponse = {
   }) => Promise<any>;
 };
 
+export type SocialpayConfig = {
+  publicKey: string;
+  certId: string;
+};
+
 export type ClientPortalConfig = {
   _id?: string;
   name?: string;
@@ -173,6 +178,7 @@ export type ClientPortalConfig = {
   refreshTokenExpiration?: number;
   tokenPassMethod: 'cookie' | 'header';
   vendorParentProductCategoryId?: string;
+  socialpayConfig?: SocialpayConfig;
 };
 
 export type Styles = {

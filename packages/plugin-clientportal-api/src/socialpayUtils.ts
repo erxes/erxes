@@ -1,5 +1,6 @@
 import { sendRequest } from '@erxes/api-utils/src/requests';
 import * as crypto from 'crypto';
+import { IClientPortal } from './models/definitions/clientPortal';
 
 export const encrypt = (data, publicKey) => {
   try {
@@ -44,11 +45,19 @@ export const getHex = data => {
     .digest('hex');
 };
 
-export const fetchUserFromSocialpay = async (token: string) => {
-  const pubKey = process.env.SOCIALPAY_PUBLIC_KEY;
-  const certId = process.env.SOCIALPAY_CERT_ID;
+export const fetchUserFromSocialpay = async (
+  token: string,
+  clientPortal: IClientPortal
+) => {
+  const socialpayConfig = clientPortal.socialpayConfig || {
+    certId: undefined,
+    publicKey: undefined
+  };
+  const pubKey = socialpayConfig.publicKey;
+  const certId = socialpayConfig.certId;
+
   if (!pubKey || !certId) {
-    throw new Error('Socialpay public key or cert id is not set');
+    throw new Error('Socialpay configs are not set');
   }
 
   // generate x-golomt-signature using token and public key
