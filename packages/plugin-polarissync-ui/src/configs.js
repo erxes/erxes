@@ -14,6 +14,7 @@ module.exports = {
     module: './routes'
   },
   extendSystemConfig: './extendSystemConfig',
+  polarisInfo: './customerSidebar',
   menus:[],
   customerRightSidebarSection: [
     {
