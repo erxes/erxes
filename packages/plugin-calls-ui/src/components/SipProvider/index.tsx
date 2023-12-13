@@ -167,6 +167,14 @@ export default class SipProvider extends React.Component<
   }
 
   public componentDidMount() {
+    const callConfig = JSON.parse(
+      localStorage.getItem('config:call_integrations')
+    );
+
+    if (callConfig && !callConfig.isAvailable) {
+      return this.props.children(this.state);
+    }
+
     if (window.document.getElementById('sip-provider-audio')) {
       throw new Error(
         `Creating two SipProviders in one application is forbidden. If that's not the case ` +
@@ -184,6 +192,14 @@ export default class SipProvider extends React.Component<
   }
 
   public componentDidUpdate(prevProps) {
+    const callConfig = JSON.parse(
+      localStorage.getItem('config:call_integrations')
+    );
+
+    if (callConfig && !callConfig.isAvailable) {
+      return this.props.children(this.state);
+    }
+
     if (this.props.debug !== prevProps.debug) {
       this.reconfigureDebug();
     }
