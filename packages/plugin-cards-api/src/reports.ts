@@ -261,10 +261,21 @@ const chartTemplates = [
           tasks = await models?.Tasks.find({ isComplete: false }).lean();
         } else {
           // Filter tasks based on selectedUserIds
-          tasks = await models?.Tasks.find({
+          const taskCount = await models?.Tasks.find({
             assignedUserIds: { $in: selectedUserIds },
             isComplete: false
           }).lean();
+          if (taskCount) {
+            tasks = taskCount.filter(task => {
+              return task.assignedUserIds.some(userId =>
+                selectedUserIds.includes(userId)
+              );
+            });
+          } else {
+            // Handle the case where datats is undefined
+            console.error('No tasks found based on the selected user IDs.');
+            tasks = [];
+          }
         }
 
         // Check if the returned value is not an array
@@ -279,7 +290,6 @@ const chartTemplates = [
         tasks = [];
       }
 
-      console.log(tasks, 'tasks');
       // Calculate task counts
       const taskCounts = calculateTicketCounts(tasks, selectedUserIds);
 
@@ -315,11 +325,18 @@ const chartTemplates = [
       }, {});
 
       const title = 'Tasks incomplete totals by reps';
-      const data = countsArray.map(item => item.count);
+      const sort = ownerIds.map(ownerId => {
+        const user = assignedUsersMap[ownerId];
+        const count = taskCounts[ownerId];
 
-      const labels = Object.values(assignedUsersMap).map(
-        (t: any) => t.fullName
-      );
+        return {
+          name: user.fullName,
+          count: count || 0 // Set count to 0 if not found in ticketCounts
+        };
+      });
+
+      const data = Object.values(sort).map((t: any) => t.count);
+      const labels = Object.values(sort).map((t: any) => t.name);
 
       const datasets = { title, data, labels };
       return datasets;
@@ -592,11 +609,18 @@ const chartTemplates = [
       }, {});
 
       const title = 'View the total number of closed tasks by reps';
-      const data = countsArray.map(item => item.count);
 
-      const labels = Object.values(assignedUsersMap).map(
-        (t: any) => t.fullName
-      );
+      const sort = ownerIds.map(ownerId => {
+        const user = assignedUsersMap[ownerId];
+        const count = taskCounts[ownerId];
+
+        return {
+          name: user.fullName,
+          count: count || 0 // Set count to 0 if not found in ticketCounts
+        };
+      });
+      const data = Object.values(sort).map((t: any) => t.count);
+      const labels = Object.values(sort).map((t: any) => t.name);
 
       const datasets = { title, data, labels };
       return datasets;
@@ -799,6 +823,7 @@ const chartTemplates = [
     getChartResult: async (filter: any, subdomain: string) => {
       const selectedUserIds = filter.assignedUserIds || [];
       let tasks;
+
       try {
         if (selectedUserIds.length === 0) {
           // No selected users, so get all tickets
@@ -829,10 +854,13 @@ const chartTemplates = [
         tasks = [];
       }
 
-      const ticketData = await calculateAverageTimeToCloseUser(tasks);
-      // progress
+      const ticketData = await calculateAverageTimeToCloseUser(
+        tasks,
+        selectedUserIds
+      );
+
       const getTotalAssignedUsers = await Promise.all(
-        ticketData.map(async result => {
+        ticketData?.map(async result => {
           return await sendCoreMessage({
             subdomain,
             action: 'users.find',
@@ -846,14 +874,14 @@ const chartTemplates = [
             isRPC: true,
             defaultValue: []
           });
-        })
+        }) ?? []
       );
 
       const result: any[] = [];
 
       for (const assignedUser of getTotalAssignedUsers) {
         assignedUser.map(itemsAdd => {
-          const ticket = ticketData.find(item =>
+          const ticket = ticketData?.find(item =>
             item.assignedUserIds.includes(itemsAdd._id)
           );
 
@@ -977,15 +1005,7 @@ const chartTemplates = [
         throw new Error('No deal stages found');
       }
     },
-    filterTypes: [
-      {
-        fieldName: 'assignedUserIds',
-        fieldType: 'select',
-        multi: true,
-        fieldQuery: 'users',
-        fieldLabel: 'Select assigned users'
-      }
-    ]
+    filterTypes: []
   },
 
   {
@@ -1037,15 +1057,7 @@ const chartTemplates = [
         throw new Error('No deal stages found');
       }
     },
-    filterTypes: [
-      {
-        fieldName: 'assignedUserIds',
-        fieldType: 'select',
-        multi: true,
-        fieldQuery: 'users',
-        fieldLabel: 'Select assigned users'
-      }
-    ]
+    filterTypes: []
   },
 
   {
@@ -1129,7 +1141,11 @@ const chartTemplates = [
         // For example, you might set tickets to an empty array to avoid further issues
         deals = [];
       }
-      const dealCounts = calculateAverageDealAmountByRep(deals);
+      const dealCounts = calculateAverageDealAmountByRep(
+        deals,
+        selectedUserIds
+      );
+
       const getTotalAssignedUserIds = await Promise.all(
         dealCounts.map(async result => {
           return await sendCoreMessage({
@@ -1208,7 +1224,10 @@ const chartTemplates = [
         // For example, you might set tickets to an empty array to avoid further issues
         deals = [];
       }
-      const dealCounts = calculateAverageDealAmountByRep(deals);
+      const dealCounts = calculateAverageDealAmountByRep(
+        deals,
+        selectedUserIds
+      );
       const getTotalAssignedUserIds = await Promise.all(
         dealCounts.map(async result => {
           return await sendCoreMessage({
@@ -1335,6 +1354,7 @@ const chartTemplates = [
       if (stages) {
         if (selectedUserIds.length === 0) {
           dealCounts = await Promise.all(
+            // tslint:disable-next-line:no-shadowed-variable
             stages.map(async result => {
               return await models?.Deals.find({
                 stageId: result._id
@@ -1343,6 +1363,7 @@ const chartTemplates = [
           );
         } else {
           dealCounts = await Promise.all(
+            // tslint:disable-next-line:no-shadowed-variable
             stages.map(async result => {
               return await models?.Deals.find({
                 $and: [
@@ -1388,7 +1409,11 @@ const chartTemplates = [
       }
       // Extract counts
 
-      const resultArray: Array<{ count: string; fullName: string }> = [];
+      const resultArray: Array<{
+        count: string;
+        fullName: string;
+        userId: string;
+      }> = [];
       data.map(item => {
         const users = item.user;
 
@@ -1397,9 +1422,14 @@ const chartTemplates = [
             if (Array.isArray(result)) {
               result.forEach(items => {
                 if (items && items.details) {
+                  const countValue =
+                    item.count !== null && item.count !== undefined
+                      ? item.count.toString()
+                      : null;
                   resultArray.push({
-                    count: item.count.toString(),
-                    fullName: items.details.fullName
+                    count: countValue,
+                    fullName: items.details.fullName,
+                    userId: items._id
                   });
                 }
               });
@@ -1414,8 +1444,9 @@ const chartTemplates = [
         new Set(resultArray.map(entry => JSON.stringify(entry))),
         str => JSON.parse(str)
       );
-      const setData = Object.values(uniqueUserEntries).map((t: any) => t.count);
-      const setLabels = Object.values(uniqueUserEntries).map(
+      const summedResultArray = await sumCountsByUserIdName(uniqueUserEntries);
+      const setData = Object.values(summedResultArray).map((t: any) => t.count);
+      const setLabels = Object.values(summedResultArray).map(
         (t: any) => t.fullName
       );
       const title = 'Deals closed lost all time by rep';
@@ -1478,6 +1509,7 @@ const chartTemplates = [
                 .flat() // Flatten the array of arrays
                 .map(async item => {
                   const assignedUserIds = item.assignedUserIds;
+
                   if (assignedUserIds && assignedUserIds.length > 0) {
                     return await sendCoreMessage({
                       subdomain,
@@ -1503,7 +1535,11 @@ const chartTemplates = [
       }
       // Extract counts
 
-      const resultArray: Array<{ count: string; fullName: string }> = [];
+      const resultArray: Array<{
+        count: string;
+        fullName: string;
+        userId: string;
+      }> = [];
       data.map(item => {
         const users = item.user;
 
@@ -1512,9 +1548,14 @@ const chartTemplates = [
             if (Array.isArray(result)) {
               result.forEach(items => {
                 if (items && items.details) {
+                  const countValue =
+                    item.count !== null && item.count !== undefined
+                      ? item.count.toString()
+                      : null;
                   resultArray.push({
-                    count: item.count.toString(),
-                    fullName: items.details.fullName
+                    count: countValue,
+                    fullName: items.details.fullName,
+                    userId: items._id
                   });
                 }
               });
@@ -1529,11 +1570,23 @@ const chartTemplates = [
         new Set(resultArray.map(entry => JSON.stringify(entry))),
         str => JSON.parse(str)
       );
-      const setData = Object.values(uniqueUserEntries).map((t: any) => t.count);
-      const setLabels = Object.values(uniqueUserEntries).map(
+      const summedResultArray = await sumCountsByUserIdName(uniqueUserEntries);
+      let filteredResultArray;
+      if (selectedUserIds.length > 0) {
+        filteredResultArray = summedResultArray.filter(item =>
+          selectedUserIds.includes(item.userId)
+        );
+      } else {
+        filteredResultArray = summedResultArray;
+      }
+      const setData = Object.values(filteredResultArray).map(
+        (t: any) => t.count
+      );
+      const setLabels = Object.values(filteredResultArray).map(
         (t: any) => t.fullName
       );
-      const title = 'Deals closed lost all time by rep';
+
+      const title = 'Deals closed won all time by rep';
       const datasets = { title, data: setData, labels: setLabels };
       return datasets;
     },
@@ -1613,10 +1666,8 @@ const chartTemplates = [
         // For example, you might set tickets to an empty array to avoid further issues
         tickets = [];
       }
-
       // Calculate ticket counts
       const ticketCounts = calculateTicketCounts(tickets, selectedUserIds);
-
       // Convert the counts object to an array of objects with ownerId and count
       const countsArray = Object.entries(ticketCounts).map(
         // tslint:disable-next-line:no-shadowed-variable
@@ -1648,13 +1699,20 @@ const chartTemplates = [
         return acc;
       }, {});
 
+      const sort = ownerIds.map(ownerId => {
+        const user = assignedUsersMap[ownerId];
+        const count = ticketCounts[ownerId];
+
+        return {
+          name: user.fullName,
+          count: count || 0 // Set count to 0 if not found in ticketCounts
+        };
+      });
+
       const title =
         'View the total number of tickets closed by their assigned owner';
-      const data = countsArray.map(item => item.count);
-
-      const labels = Object.values(assignedUsersMap).map(
-        (t: any) => t.fullName
-      );
+      const data = Object.values(sort).map((t: any) => t.count);
+      const labels = Object.values(sort).map((t: any) => t.name);
 
       const datasets = { title, data, labels };
 
@@ -1784,30 +1842,7 @@ const chartTemplates = [
         return { title: '', data: [], labels: [] };
       }
     },
-    filterTypes: [
-      {
-        fieldName: 'name',
-        fieldType: 'select',
-        fieldQuery: 'pipeline_labels',
-        fieldLabel: 'Select Labels'
-      },
-      {
-        fieldName: 'tagIds',
-        fieldType: 'select',
-        fieldQuery: 'tags',
-        fieldLabel: 'Select tag'
-      },
-      {
-        fieldName: 'priority',
-        fieldType: 'select',
-        fieldQuery: PRIORITIES.ALL.map(priority => ({
-          value: priority.name,
-          label: priority.name,
-          color: priority.color
-        })),
-        fieldLabel: 'Select priority'
-      }
-    ]
+    filterTypes: []
   },
   {
     templateType: 'TicketTotalsOverTime',
@@ -1902,7 +1937,10 @@ const chartTemplates = [
         tickets = [];
       }
 
-      const ticketData = await calculateAverageTimeToCloseUser(tickets);
+      const ticketData = await calculateAverageTimeToCloseUser(
+        tickets,
+        selectedUserIds
+      );
 
       const getTotalAssignedUsers = await Promise.all(
         tickets.map(async result => {
@@ -1926,7 +1964,7 @@ const chartTemplates = [
 
       for (const assignedUser of getTotalAssignedUsers) {
         assignedUser.map(itemsAdd => {
-          const ticket = ticketData.find(item =>
+          const ticket = ticketData?.find(item =>
             item.assignedUserIds.includes(itemsAdd._id)
           );
 
@@ -2220,7 +2258,7 @@ function taskClosedByTagsRep(tasks: any) {
   return ticketCounts;
 }
 
-function calculateTicketCounts(tickets: any, selectedUserIds: string[]) {
+function calculateTicketCounts(tickets: any, selectedUserIds: any) {
   // tslint:disable-next-line:no-shadowed-variable
   const ticketCounts: Record<string, number> = {};
 
@@ -2228,6 +2266,11 @@ function calculateTicketCounts(tickets: any, selectedUserIds: string[]) {
   if (!Array.isArray(tickets)) {
     console.error('Invalid input: tickets should be an array.');
     return ticketCounts;
+  }
+  if (selectedUserIds.length > 0) {
+    selectedUserIds.forEach(userId => {
+      ticketCounts[userId] = 0;
+    });
   }
 
   tickets.forEach(ticket => {
@@ -2282,9 +2325,16 @@ function amountProductData(deals: any[]): Promise<any[]> {
 }
 
 // Function to calculate the average deal amounts by rep
-function calculateAverageDealAmountByRep(deals) {
+function calculateAverageDealAmountByRep(deals: any, selectedUserIds: any) {
   const repAmounts = {};
+  const dealCounts: Record<string, number> = {};
 
+  if (selectedUserIds.length > 0) {
+    selectedUserIds.forEach(userId => {
+      repAmounts[userId] = { totalAmount: 0, count: 0 };
+      dealCounts[userId] = 0;
+    });
+  }
   deals.forEach(deal => {
     if (deal.productsData && deal.status === 'active') {
       const productsData = deal.productsData;
@@ -2292,15 +2342,30 @@ function calculateAverageDealAmountByRep(deals) {
       productsData.forEach(product => {
         if (deal.assignedUserIds && product.amount) {
           const assignedUserIds = deal.assignedUserIds;
+          if (selectedUserIds.length > 0) {
+            assignedUserIds.forEach(userId => {
+              if (selectedUserIds.includes(userId)) {
+                repAmounts[userId] = repAmounts[userId] || {
+                  totalAmount: 0,
+                  count: 0
+                };
+                repAmounts[userId].totalAmount += product.amount;
+                repAmounts[userId].count += 1;
 
-          assignedUserIds.forEach(userId => {
-            repAmounts[userId] = repAmounts[userId] || {
-              totalAmount: 0,
-              count: 0
-            };
-            repAmounts[userId].totalAmount += product.amount;
-            repAmounts[userId].count += 1;
-          });
+                // If you want counts for each user, increment the deal count
+                dealCounts[userId] = (dealCounts[userId] || 0) + 1;
+              }
+            });
+          } else {
+            assignedUserIds.forEach(userId => {
+              repAmounts[userId] = repAmounts[userId] || {
+                totalAmount: 0,
+                count: 0
+              };
+              repAmounts[userId].totalAmount += product.amount;
+              repAmounts[userId].count += 1;
+            });
+          }
         }
       });
     }
@@ -2455,7 +2520,10 @@ const taskAverageTimeToCloseByLabel = async tasks => {
   return timeToCloseInHoursArray;
 };
 
-const calculateAverageTimeToCloseUser = tickets => {
+const calculateAverageTimeToCloseUser = (
+  tickets: any,
+  selectedUserIds: any
+) => {
   // Filter out tickets without close dates
   const closedTickets = tickets.filter(
     ticketItem => ticketItem.modifiedAt && ticketItem.createdAt
@@ -2465,18 +2533,32 @@ const calculateAverageTimeToCloseUser = tickets => {
     console.error('No closed tickets found.');
     return null;
   }
-
+  if (selectedUserIds.length > 0) {
+    selectedUserIds.forEach(userId => {
+      closedTickets[userId] = 0;
+    });
+  }
   // Calculate time to close for each ticket in milliseconds
   const timeToCloseArray = closedTickets.map(ticketItem => {
     const createdAt = new Date(ticketItem.createdAt).getTime();
     const modifiedAt = new Date(ticketItem.modifiedAt).getTime();
+    const user_id = ticketItem.assignedUserIds;
 
-    // Check if both dates are valid
     if (!isNaN(createdAt) && !isNaN(modifiedAt)) {
-      return {
-        timeDifference: modifiedAt - createdAt,
-        assignedUserIds: ticketItem.assignedUserIds // Include assignedUserIds
-      };
+      if (selectedUserIds.length > 0) {
+        const matchingUserIds = user_id.filter(result =>
+          selectedUserIds.includes(result)
+        );
+        return {
+          timeDifference: modifiedAt - createdAt,
+          assignedUserIds: matchingUserIds // Include assignedUserIds
+        };
+      } else {
+        return {
+          timeDifference: modifiedAt - createdAt,
+          assignedUserIds: user_id // Include assignedUserIds
+        };
+      }
     } else {
       console.error('Invalid date format for a ticket:', ticketItem);
       return null;
@@ -2491,11 +2573,66 @@ const calculateAverageTimeToCloseUser = tickets => {
     return null;
   }
 
-  const timeToCloseInHoursArray = validTimeToCloseArray.map(time => ({
-    timeDifference: (time.timeDifference / (1000 * 60 * 60)).toFixed(3),
-    assignedUserIds: time.assignedUserIds // Include assignedUserIds
-  }));
-  return timeToCloseInHoursArray;
+  // Calculate the sum of timeDifference for each unique user
+  const userTotals = {};
+
+  validTimeToCloseArray.forEach(entry => {
+    if (entry !== null) {
+      entry.assignedUserIds.forEach(userId => {
+        userTotals[userId] = (userTotals[userId] || 0) + entry.timeDifference;
+      });
+    }
+  });
+
+  // Create the final result array with sum of timeDifference for each user
+  // const resultArray = Object.entries(userTotals).map(
+  //   ([userId, timeDifferenceSum]) => ({
+  //     timeDifference: timeDifferenceSum.toFixed(3),
+  //     assignedUserIds: [userId]
+  //   })
+  // );
+  const resultArray = Object.entries(userTotals).map(
+    (
+      value: [string, unknown],
+      index: number,
+      array: Array<[string, unknown]>
+    ) => {
+      const [userId, timeDifferenceSum] = value;
+      return {
+        timeDifference: (timeDifferenceSum as number).toFixed(3),
+        assignedUserIds: [userId]
+      };
+    }
+  );
+  return resultArray;
+};
+const sumCountsByUserIdName = (inputArray: any[]) => {
+  const resultMap = new Map<string, { count: number; fullName: string }>();
+
+  inputArray.forEach(entry => {
+    const userId = entry.userId;
+    const count = parseInt(entry.count, 10);
+    const fullName = entry.fullName;
+
+    if (isNaN(count)) {
+      console.error(`Invalid count for ${userId}: ${entry.count}`);
+      return;
+    }
+
+    if (resultMap.has(userId)) {
+      resultMap.get(userId)!.count += count;
+    } else {
+      resultMap.set(userId, { count, fullName });
+    }
+  });
+
+  return Array.from(resultMap.entries()).map(
+    ([userId, { count, fullName }]) => ({
+      userId,
+      fullName,
+      count: count.toString()
+    })
+  );
 };
 
 function calculateDealsByLastModifiedDate(deals) {
