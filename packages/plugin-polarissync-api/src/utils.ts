@@ -81,71 +81,71 @@ export const fetchPolarisData = async (subdomain: string, doc: any) => {
   }
 
   try {
-    const url = `${configs.value}/user/info`;
+    // const url = `${configs.value}/user/info`;
 
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(body)
-    });
-
-    if (response.status !== 200) {
-      throw new Error('Failed to fetch data');
-    }
-
-    const res = await response.json();
-
-    if (res.errors) {
-      throw new Error(res.errors[0]);
-    }
-    // test data
-    // const res = {
-    //   _id: '652f576b422e2f86a062cdfa',
-    //   createdAt: '2023-10-18T03:56:27.817Z',
-    //   customerId: 'BB93oqp5L5JRA98OvwwD7',
-    //   updatedAt: '2023-12-08T07:01:09.931Z',
-    //   data: {
-    //     customer_code: 'CIF1050001299',
-    //     register_number: 'УИ96100433',
-    //     phone_number: '88619535',
-    //     lastname: 'ЭНХБОЛД',
-    //     firstname: 'ЧИЛҮГЭН',
-    //     birth_date: '1996-10-04T00:00:00Z',
-    //     email: 'CCHILUGEN@GMAIL.COM',
-    //     facebook: 'Э.Чилүгэн',
-    //     emergency_contact_phone_number: '90173889',
-    //     loan_info: [
-    //       {
-    //         product_name: 'CREDIT CARD',
-    //         adv_amount: '0',
-    //         balance: '290773.04',
-    //       },
-    //       {
-    //         product_name: 'CREDIT CARD 2',
-    //         adv_amount: '10',
-    //         balance: '290773.04',
-    //       },
-    //     ],
-    //     saving_info: [
-    //       {
-    //         name: 'ХАГАС ЖИЛ',
-    //         balance: '0',
-    //       },
-    //     ],
-    //     investment_info: [
-    //       {
-    //         name: '50% өсгө',
-    //         balance: '100',
-    //       },
-    //       {
-    //         name: '100% өсгө',
-    //         balance: '100',
-    //       },
-    //     ],
+    // const response = await fetch(url, {
+    //   method: 'POST',
+    //   headers: {
+    //     'Content-Type': 'application/json',
     //   },
-    // };
+    //   body: JSON.stringify(body),
+    // });
+
+    // if (response.status !== 200) {
+    //   throw new Error('Failed to fetch data');
+    // }
+
+    // const res = await response.json();
+
+    // if (res.errors) {
+    //   throw new Error(res.errors[0]);
+    // }
+    // test data
+    const res = {
+      _id: '652f576b422e2f86a062cdfa',
+      createdAt: '2023-10-18T03:56:27.817Z',
+      customerId: 'BB93oqp5L5JRA98OvwwD7',
+      updatedAt: '2023-12-08T07:01:09.931Z',
+      data: {
+        customer_code: 'CIF1050001299',
+        register_number: 'УИ96100433',
+        phone_number: '88619535',
+        lastname: 'ЭНХБОЛД',
+        firstname: 'ЧИЛҮГЭН',
+        birth_date: '1996-10-04T00:00:00Z',
+        email: 'CCHILUGEN@GMAIL.COM',
+        facebook: 'Э.Чилүгэн',
+        emergency_contact_phone_number: '90173889',
+        loan_info: [
+          {
+            product_name: 'CREDIT CARD',
+            adv_amount: '0',
+            balance: '290773.04'
+          },
+          {
+            product_name: 'CREDIT CARD 2',
+            adv_amount: '10',
+            balance: '290773.04'
+          }
+        ],
+        saving_info: [
+          {
+            name: 'ХАГАС ЖИЛ',
+            balance: '0'
+          }
+        ],
+        investment_info: [
+          {
+            name: '50% өсгө',
+            balance: '100'
+          },
+          {
+            name: '100% өсгө',
+            balance: '100'
+          }
+        ]
+      }
+    };
 
     const fields = await sendCommonMessage({
       subdomain,
@@ -189,16 +189,23 @@ export const fetchPolarisData = async (subdomain: string, doc: any) => {
     const data = res.data;
 
     for (const f of fields) {
+      const existingIndex = customFieldsData.findIndex(c => c.field === f._id);
+
       if (data[f.code]) {
-        customFieldsData.push({
-          field: f._id,
-          value: data[f.code]
-        });
+        if (existingIndex !== -1) {
+          // replace existing value
+          customFieldsData[existingIndex].value = data[f.code];
+        } else {
+          customFieldsData.push({
+            field: f._id,
+            value: data[f.code]
+          });
+        }
       }
     }
 
     const prepareGroupValue = (groupCode: string, prefix?: string) => {
-      const group = groups.find(g => g.groupCode === 'code');
+      const group = groups.find(g => g.code === groupCode);
 
       if (group) {
         const value: any = [];
@@ -221,12 +228,25 @@ export const fetchPolarisData = async (subdomain: string, doc: any) => {
       }
     };
 
-    const groupCodes = ['loan_info', 'saving_info', 'investment_info'];
+    const groupCodes = [
+      { code: 'loan_info' },
+      { code: 'saving_info', prefix: 'saving_' },
+      { code: 'investment_info', prefix: 'invest_' }
+    ];
 
-    for (const groupCode of groupCodes) {
-      const groupValue = prepareGroupValue(groupCode);
+    for (const g of groupCodes) {
+      const groupValue = prepareGroupValue(g.code, g.prefix);
       if (groupValue) {
-        customFieldsData.push(groupValue);
+        const existingIndex = customFieldsData.findIndex(
+          c => c.field === groupValue.field
+        );
+
+        if (existingIndex !== -1) {
+          // replace existing value
+          customFieldsData[existingIndex].value = groupValue.value;
+        } else {
+          customFieldsData.push(groupValue);
+        }
       }
     }
 
