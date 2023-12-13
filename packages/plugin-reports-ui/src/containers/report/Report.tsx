@@ -4,12 +4,12 @@ import Spinner from '@erxes/ui/src/components/Spinner';
 import { Alert, withProps } from '@erxes/ui/src/utils';
 import * as compose from 'lodash.flowright';
 import React from 'react';
+import Report from '../../components/report/Report';
 import { mutations, queries } from '../../graphql';
 import {
   ReportDetailQueryResponse,
   ReportsMutationResponse
 } from '../../types';
-import Report from '../../components/report/Report';
 
 type Props = {
   history: any;
@@ -24,7 +24,6 @@ type FinalProps = {
 const ReportList = (props: FinalProps) => {
   const {
     reportDetailQuery,
-    reportId,
     reportsEditMutation,
     reportChartsEditMutation,
     reportChartsRemoveMutation
