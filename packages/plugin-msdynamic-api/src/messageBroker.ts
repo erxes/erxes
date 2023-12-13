@@ -2,6 +2,7 @@ import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
 import { IContext as IMainContext } from '@erxes/api-utils/src';
 import { serviceDiscovery } from './configs';
 import { IModels } from './connectionResolver';
+import { afterMutationHandlers } from './afterMutations';
 
 let client;
 
@@ -12,6 +13,22 @@ export interface IContext extends IMainContext {
 
 export const initBroker = async cl => {
   client = cl;
+
+  const { consumeQueue } = client;
+
+  consumeQueue('msdynamic:afterMutation', async ({ subdomain, data }) => {
+    await afterMutationHandlers(subdomain, data);
+    return;
+  });
+};
+
+export const sendContactsMessage = async (args: ISendMessageArgs) => {
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName: 'contacts',
+    ...args
+  });
 };
 
 export const sendProductsMessage = async (
