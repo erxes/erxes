@@ -1,13 +1,10 @@
-import { __ } from '@erxes/ui/src/utils/core';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import Icon from '@erxes/ui/src/components/Icon';
 import ModifiableList from '@erxes/ui/src/components/ModifiableList';
 import Uploader from '@erxes/ui/src/components/Uploader';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
-import React, { useRef } from 'react';
-import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
-import Popover from 'react-bootstrap/Popover';
+import { __ } from '@erxes/ui/src/utils/core';
+import React from 'react';
 import { Container } from '../styles';
 import { Config, PageTemplate } from '../types';
 import LinkAction from './LinkAction';
@@ -27,7 +24,6 @@ function TemplateContent({
   messageTemplates,
   onChangeConfig
 }: Props) {
-  let overlay = useRef<any>(null);
   const { image, title, description, buttons = [] } = template;
 
   const onChange = (name, value) => {
@@ -51,57 +47,17 @@ function TemplateContent({
     onChange('image', null);
   };
 
-  const onChangeButtons = buttons => {
-    const convertedButtons = buttons.map(button => ({
+  const onChangeButtons = list => {
+    const uniqueButtons = list.filter(
+      item => !buttons.some(btn => btn.text === item)
+    );
+
+    const convertedButtons = uniqueButtons.map(button => ({
       text: button,
       _id: Math.random().toString()
     }));
 
-    onChange('buttons', convertedButtons);
-  };
-
-  const linkAction = text => {
-    const button = buttons.find(btn => btn.text === text);
-
-    const renderOverlay = () => {
-      const handleChange = e => {
-        const { value } = e.currentTarget as HTMLInputElement;
-
-        onChange(
-          'buttons',
-          buttons.map(btn =>
-            btn.text === text ? { ...btn, link: value } : btn
-          )
-        );
-      };
-
-      return (
-        <Popover id="attribute-popover">
-          <FormControl
-            onChange={handleChange}
-            value={button?.link || ''}
-            placeholder="type or paste link"
-          />
-        </Popover>
-      );
-    };
-
-    return (
-      <OverlayTrigger
-        ref={ovrlay => {
-          overlay = ovrlay;
-        }}
-        trigger="click"
-        placement="top"
-        overlay={renderOverlay()}
-        rootClose={true}
-        container={this}
-      >
-        <span>
-          <Icon icon="link" />
-        </span>
-      </OverlayTrigger>
-    );
+    onChange('buttons', [...buttons, ...convertedButtons]);
   };
 
   const onChangeLink = ({ e, text }) => {
@@ -145,6 +101,7 @@ function TemplateContent({
         onChangeOption={onChangeButtons}
         extraActions={text => (
           <LinkAction
+            container={this}
             onChange={e => onChangeLink({ e, text })}
             link={buttons.find(btn => btn.text === text)?.link}
           />

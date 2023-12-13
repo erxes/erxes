@@ -1,4 +1,4 @@
-import { colors } from '@erxes/ui/src';
+import colors from '@erxes/ui/src/styles/colors';
 import { Position } from 'reactflow';
 
 export const DEFAULT_HANDLE_STYLE = {

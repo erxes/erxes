@@ -1,75 +1,6 @@
 import { IAction } from '@erxes/ui-automations/src/types';
-import { Position, internalsSymbol } from 'reactflow';
 import { ITrigger } from '../../types';
 import { NodeType } from './types';
-function getParams(nodeA, nodeB) {
-  const centerA = getNodeCenter(nodeA);
-  const centerB = getNodeCenter(nodeB);
-
-  const horizontalDiff = Math.abs(centerA.x - centerB.x);
-  const verticalDiff = Math.abs(centerA.y - centerB.y);
-
-  let position;
-
-  if (horizontalDiff > verticalDiff) {
-    position = centerA.x > centerB.x ? Position.Left : Position.Right;
-  } else {
-    position = centerA.y > centerB.y ? Position.Top : Position.Bottom;
-  }
-
-  const [x, y] = getHandleCoordsByPosition(nodeA, position);
-  return [x, y, position];
-}
-
-function getHandleCoordsByPosition(node, handlePosition) {
-  const handle = node[internalsSymbol].handleBounds.source.find(
-    h => h.position === handlePosition
-  );
-
-  let offsetX = handle.width / 2;
-  let offsetY = handle.height / 2;
-
-  switch (handlePosition) {
-    case Position.Left:
-      offsetX = 0;
-      break;
-    case Position.Right:
-      offsetX = handle.width;
-      break;
-    case Position.Top:
-      offsetY = 0;
-      break;
-    case Position.Bottom:
-      offsetY = handle.height;
-      break;
-  }
-
-  const x = node.positionAbsolute.x + handle.x + offsetX;
-  const y = node.positionAbsolute.y + handle.y + offsetY;
-
-  return [x, y];
-}
-
-function getNodeCenter(node) {
-  return {
-    x: node.positionAbsolute.x + node.width / 2,
-    y: node.positionAbsolute.y + node.height / 2
-  };
-}
-
-export function getEdgeParams(source, target) {
-  const [sx, sy, sourcePos] = getParams(source, target);
-  const [tx, ty, targetPos] = getParams(target, source);
-
-  return {
-    sx,
-    sy,
-    tx,
-    ty,
-    sourcePos,
-    targetPos
-  };
-}
 
 export const generateEdges = ({
   actions,
@@ -224,7 +155,7 @@ const generatNodePosition = (
   const prevNode = nodes.find(n => n[targetField] === node.id);
 
   if (!prevNode) {
-    return { x: 2, y: 2 };
+    return { x: 0, y: 0 };
   }
 
   const { position } = prevNode;
@@ -233,4 +164,21 @@ const generatNodePosition = (
     x: position?.x + 500,
     y: position?.y
   };
+};
+
+export const checkNote = (automationNotes, activeId: string) => {
+  const item = activeId.split('-');
+  const type = item[0];
+
+  return (automationNotes || []).filter(note => {
+    if (type === 'trigger' && note.triggerId !== item[1]) {
+      return null;
+    }
+
+    if (type === 'action' && note.actionId !== item[1]) {
+      return null;
+    }
+
+    return note;
+  });
 };

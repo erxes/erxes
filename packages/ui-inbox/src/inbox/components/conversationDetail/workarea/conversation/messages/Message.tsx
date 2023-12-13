@@ -1,5 +1,5 @@
 import React from 'react';
-import  BookingMessage  from './BookingMessage';
+import BookingMessage from './BookingMessage';
 import { IMessage } from '../../../../../types';
 import AppMessage from './AppMessage';
 import FormMessage from './FormMessage';

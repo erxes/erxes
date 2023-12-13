@@ -6,3 +6,25 @@ export const Features = styledTS<{ isToggled: boolean }>(styled.span)`
   filter: ${props => !props.isToggled && `blur(4px)`};
   pointer-events: ${props => !props.isToggled && `none`};
 `;
+
+export const PagesContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+
+  > div {
+    flex: 1;
+    display: flex;
+    gap: 20px;
+    align-items: center;
+
+    > label {
+      > span {
+        margin-top: 0;
+      }
+    }
+  }
+
+  > div::last-of-type {
+    margin-right: 10px;
+  }
+`;

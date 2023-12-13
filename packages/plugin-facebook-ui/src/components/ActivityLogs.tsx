@@ -101,7 +101,6 @@ class ActivityLogs extends React.Component<Props, { toggleMessage: boolean }> {
 
     messages.forEach(message => {
       tempId = message.userId ? message.userId : message.customerId;
-
       rows.push(
         <Message
           isSameUser={

@@ -6,9 +6,8 @@ import React, { useState } from 'react';
 import { TabAction } from './ReplyFbMessage';
 import TemplateContent from './TemplateContent';
 import { Config } from '../types';
-const generateSelectedPageId = config => {
-  const messageTemplates = config?.messageTemplates || [];
-
+const generateSelectedPageId = ({ messageTemplates = [] }: Config) => {
+  console.log({ messageTemplates });
   return messageTemplates[0]?._id || '';
 };
 
@@ -22,7 +21,7 @@ function Template({ config, onChangeConfig }: Props) {
     generateSelectedPageId(config)
   );
 
-  const messageTemplates = config?.messageTemplates || [];
+  const { messageTemplates = [] } = config;
 
   const selectedTemplatePage = messageTemplates.find(
     temp => temp._id === selectedTemplatePageId

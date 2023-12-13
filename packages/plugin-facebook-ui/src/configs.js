@@ -52,6 +52,8 @@ module.exports = {
               isCustomerRead
               internal
 
+              botData
+
               attachments {
                 url
                 name

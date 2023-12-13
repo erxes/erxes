@@ -2,20 +2,19 @@ import Common from '@erxes/ui-automations/src/components/forms/actions/Common';
 import PlaceHolderInput from '@erxes/ui-automations/src/components/forms/actions/placeHolder/PlaceHolderInput';
 import { DrawerDetail } from '@erxes/ui-automations/src/styles';
 import { IAction } from '@erxes/ui-automations/src/types';
-import { __ } from '@erxes/ui/src/utils/core';
-import ModifiableList from '@erxes/ui/src/components/ModifiableList';
-import dimensions from '@erxes/ui/src/styles/dimensions';
-import colors from '@erxes/ui/src/styles/colors';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
+import ModifiableList from '@erxes/ui/src/components/ModifiableList';
 import { Tabs, TabTitle } from '@erxes/ui/src/components/tabs';
+import colors from '@erxes/ui/src/styles/colors';
+import dimensions from '@erxes/ui/src/styles/dimensions';
 import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
+import { __ } from '@erxes/ui/src/utils/core';
 import React from 'react';
 import styled from 'styled-components';
 import { Container } from '../styles';
-import Template from './Templates';
 import { Config } from '../types';
-import LinkAction from './LinkAction';
+import Template from './Templates';
 
 export const TabAction = styled.div`
   padding-left: ${dimensions.unitSpacing}px;
@@ -76,10 +75,22 @@ class ReplyFbMessage extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
+    const { activeAction } = props as Props;
+
     this.state = {
-      config: props?.activeAction?.config || null,
+      config: activeAction?.config || null,
       selectedTab: getSelectedTab(props?.activeAction?.config)
     };
+  }
+
+  componentDidUpdate(prevProps: Readonly<Props>): void {
+    const prevActiveAction = prevProps?.activeAction;
+
+    const activeAction = this.props.activeAction;
+
+    if (JSON.stringify(activeAction) !== JSON.stringify(prevActiveAction)) {
+      this.setState({ config: activeAction.config });
+    }
   }
 
   renderQuickReplies(config) {

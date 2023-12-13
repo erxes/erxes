@@ -181,8 +181,6 @@ export const connection = (
           sourceAction.config = {};
         }
 
-        console.log({ info });
-
         const [sourceHandle] = info.sourceHandle.split('-');
 
         sourceAction.config[sourceHandle] = actionId;

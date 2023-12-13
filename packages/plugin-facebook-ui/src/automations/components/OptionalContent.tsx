@@ -15,8 +15,8 @@ class OptionalContent extends React.Component<Props> {
 
     return (
       <>
-        {messageTemplates.map(msgTemplate =>
-          (msgTemplate?.buttons || []).map(({ _id, text, link }) => {
+        {messageTemplates.map(({ buttons = [] }) =>
+          buttons.map(({ _id, text, link }) => {
             if (link) {
               return null;
             }

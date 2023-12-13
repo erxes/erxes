@@ -5,15 +5,17 @@ import {
   FormGroup,
   Icon,
   SortItem,
-  __
+  __,
+  colors
 } from '@erxes/ui/src';
+import { ActionButton } from '@erxes/ui/src/components/ActionButtons';
 import CommonForm from '@erxes/ui/src/components/form/Form';
-import { Column, LinkButton, ModalFooter } from '@erxes/ui/src/styles/main';
+import { LinkButton, ModalFooter } from '@erxes/ui/src/styles/main';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import React from 'react';
-import { SelectAccount, SelectAccountPages } from '../utils';
+import LinkAction from '../../automations/components/LinkAction';
 import { Features } from '../styles';
-import { Columns } from '@erxes/ui/src/styles/chooser';
+import { SelectAccount, SelectAccountPages } from '../utils';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -88,13 +90,10 @@ class Form extends React.Component<Props, State> {
     };
 
     const handleChange = (_id, e) => {
-      const { name, value } = e.currentTarget as HTMLInputElement;
+      const { value, name } = e.currentTarget as HTMLInputElement;
 
-      onChange(_id, name, value);
-    };
-
-    const setUseUrl = _id => {
       onChange(_id, 'type', 'web_url');
+      onChange(_id, name, value);
     };
 
     const handleRemove = _id => {
@@ -109,43 +108,36 @@ class Form extends React.Component<Props, State> {
     };
 
     return (
-      <>
-        {persistentMenus.map(persistentMenu => (
-          <SortItem isDragging={false} isModal={false}>
-            <Columns>
-              <Column>
-                <FormControl
-                  name="title"
-                  value={persistentMenu?.title}
-                  onChange={e => handleChange(persistentMenu._id, e)}
-                />
-              </Column>
-
-              {persistentMenu?.type === 'web_url' ? (
-                <Column>
-                  <FormControl
-                    name="url"
-                    onChange={e => handleChange(persistentMenu._id, e)}
-                    value={persistentMenu?.url}
-                  />
-                </Column>
-              ) : (
-                <LinkButton onClick={setUseUrl.bind(this, persistentMenu._id)}>
-                  {__('Set Url')}
-                </LinkButton>
-              )}
-            </Columns>
-            <Icon
-              icon="cancel-1"
-              style={{ cursor: 'pointer' }}
-              onClick={handleRemove.bind(this, persistentMenu?._id)}
+      <FormGroup>
+        <ControlLabel>{__('Persistence Menu')}</ControlLabel>
+        {persistentMenus.map(({ _id, title, url }) => (
+          <SortItem key={_id} isDragging={false} isModal={false}>
+            <FormControl
+              placeholder="type a title"
+              name="title"
+              value={title}
+              onChange={e => handleChange(_id, e)}
             />
+            <ActionButton>
+              <LinkAction
+                container={this}
+                name="url"
+                link={url}
+                onChange={e => handleChange(_id, e)}
+              />
+              <Icon
+                icon="cancel-1"
+                color={colors.colorCoreRed}
+                style={{ cursor: 'pointer' }}
+                onClick={handleRemove.bind(this, _id)}
+              />
+            </ActionButton>
           </SortItem>
         ))}
         <LinkButton onClick={addPersistentMenu}>
           {__('Add Persistent Menu')}
         </LinkButton>
-      </>
+      </FormGroup>
     );
   }
 
@@ -181,8 +173,6 @@ class Form extends React.Component<Props, State> {
             <SelectAccountPages
               accountId={doc?.accountId}
               initialValue={doc?.pageId}
-              name="pageId"
-              label="select a page"
               onSelect={onSelect}
             />
           </FormGroup>

@@ -1,7 +1,6 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
-
+import React, { useCallback, useEffect, useRef } from 'react';
+import 'reactflow/dist/style.css';
 import { IAction } from '@erxes/ui-automations/src/types';
-import { Icon } from '@erxes/ui/src';
 import ReactFlow, {
   Background,
   ConnectionMode,
@@ -13,14 +12,20 @@ import ReactFlow, {
   useNodesState
 } from 'reactflow';
 import 'reactflow/dist/style.css';
-import { AutomationConstants, ITrigger } from '../../types';
+import {
+  AutomationConstants,
+  IAutomation,
+  IAutomationNote,
+  ITrigger
+} from '../../types';
 import CustomNode, { ScratchNode } from './Node';
 import { generateEdges, generateNodes } from './utils';
-import { ActionContent } from './styles';
 
 type Props = {
+  automation: IAutomation;
   triggers: ITrigger[];
   actions: IAction[];
+  automationNotes?: IAutomationNote[];
   onConnection: ({
     sourceId,
     targetId,
@@ -59,7 +64,6 @@ function AutomationEditor({
   ...props
 }: Props) {
   const edgeUpdateSuccessful = useRef(true);
-  const [hoveredNodeId, setHoveredNodeId] = useState(null);
   const [edges, setEdges, onEdgesChange] = useEdgesState(
     generateEdges({ triggers, actions })
   );
@@ -69,8 +73,7 @@ function AutomationEditor({
 
   useEffect(() => {
     resetNodes();
-    setEdges(generateEdges({ triggers, actions }));
-  }, [triggers?.length, actions?.length]);
+  }, [JSON.stringify(triggers), JSON.stringify(actions)]);
 
   const resetNodes = () => {
     const updatedNodes: any[] = generateNodes({ triggers, actions }, props);
@@ -84,6 +87,7 @@ function AutomationEditor({
       return node1;
     });
     setNodes(mergedArray);
+    setEdges(generateEdges({ triggers, actions }));
   };
 
   const generateConnect = (params, source) => {
@@ -167,41 +171,12 @@ function AutomationEditor({
 
   const onPaneClick = () => {
     if (props.showDrawer) {
-      props.toggleDrawer({ type: 'actions' });
+      props.toggleDrawer({ type: '' });
     }
-  };
-
-  const onNodeMouseEnter = (_, node) => {
-    setHoveredNodeId(node.id);
-  };
-
-  const onNodeMouseLeave = () => {
-    setHoveredNodeId(null);
   };
 
   const onNodeDragStop = (_, node) => {
     onChangePositions(node?.data?.nodeType, node.id, node.position);
-  };
-
-  const renderActionBar = () => {
-    if (!hoveredNodeId) {
-      return null;
-    }
-
-    const action = actions.find(a => a.id === hoveredNodeId);
-
-    if (!action) {
-      return null;
-    }
-
-    const actionBarStyle: any = {
-      top: 100 + 5,
-      left: 300 / 2
-    };
-
-    return (
-      <ActionContent style={actionBarStyle}>{hoveredNodeId}</ActionContent>
-    );
   };
 
   return (
@@ -222,16 +197,9 @@ function AutomationEditor({
         onPaneClick={onPaneClick}
         isValidConnection={isValidConnection}
         onNodeDragStop={onNodeDragStop}
-        onNodeMouseEnter={onNodeMouseEnter}
-        onNodeMouseLeave={onNodeMouseLeave}
       >
-        <Controls>
-          <button>
-            <Icon icon="sitemap-1" />
-          </button>
-        </Controls>
+        <Controls />
         <Background />
-        {renderActionBar()}
       </ReactFlow>
     </>
   );

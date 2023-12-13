@@ -156,61 +156,55 @@ const generateMessage = async (
   }
 };
 
-const generateMessageHtml = ({ messageTemplates, quickReplies, text }) => {
+const generateBotData = ({ messageTemplates, quickReplies, text }) => {
   if (messageTemplates?.length > 1) {
-    const elementsHTML = messageTemplates
-      .map(element => {
-        const buttonsHTML = element.buttons
-          .map(button => {
-            return `<button type="button" class="generic-template-button" data-url="${readFileUrl(
-              button?.url
-            )}">${button.title}</button>`;
+    return [
+      {
+        type: 'carousel',
+        elements: messageTemplates.map(
+          ({ title, description, image, buttons }) => ({
+            picture: readFileUrl(image.url),
+            title,
+            subtitle: description,
+            buttons: buttons.map(btn => ({
+              title: btn.text,
+              url: btn.link || null,
+              type: btn.link ? 'openUrl' : null
+            }))
           })
-          .join('');
-
-        return `
-      <div class="generic-template-element">
-        <h2>${element.title || ''}</h2>
-        <p>${element.description || ''}</p>
-        <img src="${readFileUrl(element.image.url)}" alt="${element.title}">
-        <div dangerouslySetInnerHTML={{__html:${buttonsHTML}}}/>
-      </div>`;
-      })
-      .join('');
-
-    const templateHTML = `<div class="generic-template-container">${elementsHTML}</div>`;
-
-    return templateHTML;
+        )
+      }
+    ];
   }
+
   if (messageTemplates?.length === 1) {
-    const messageTemplate = messageTemplates[0];
-    const buttonsHTML = messageTemplate?.buttons
-      .map(button => {
-        return `<button type="button" class="button-template" >${button.title}</button>`;
-      })
-      .join('');
-
-    const templateHTML = `
-    <div class="button-template-container">
-      <p>${messageTemplate?.title}</p>
-      <div dangerouslySetInnerHTML={{__html:${buttonsHTML}}}/>
-    </div>`;
-
-    return templateHTML;
+    return [
+      {
+        type: 'carousel',
+        elements: messageTemplates.map(({ title, buttons }) => ({
+          title,
+          buttons: buttons.map(btn => ({
+            title: btn.text,
+            url: btn.link || null,
+            type: btn.link ? 'openUrl' : null
+          }))
+        }))
+      }
+    ];
   }
   if (quickReplies) {
-    const buttonsHTML = quickReplies
-      .map(reply => {
-        return `<button type="button" class="quick-reply">${reply.label}</button>`;
-      })
-      .join('');
-
-    const quickReplyContainerHTML = `<div class="quick-reply-container"><div dangerouslySetInnerHTML={{__html:${buttonsHTML}}}/></div>`;
-
-    return quickReplyContainerHTML;
+    return [
+      {
+        type: 'custom',
+        component: 'QuickReplies',
+        quick_replies: quickReplies.map(qReplies => ({
+          title: qReplies.label
+        }))
+      }
+    ];
   }
 
-  return `<p>${text}</p>`;
+  return text;
 };
 
 const actionCreateMessage = async (
@@ -271,10 +265,11 @@ const actionCreateMessage = async (
           // inbox conv id comes, so override
           // integrationId: integration.erxesApiId,
           conversationId: conversation._id,
-          content: generateMessageHtml(config),
+          content: '<p>Bot Data</p>',
           internal: false,
           mid: resp.message_id,
-          botId
+          botId,
+          botData: generateBotData(config)
         },
         config.fromUserId
       );

@@ -1,25 +1,24 @@
 import React from 'react';
 
-import 'reactflow/dist/style.css';
-
 import { ScrolledContent } from '@erxes/ui-automations/src/styles';
 import { IAction } from '@erxes/ui-automations/src/types';
-import {
-  Alert,
-  Button,
-  FlexContent,
-  FormControl,
-  Icon,
-  PageContent,
-  TabTitle,
-  Tabs,
-  Toggle,
-  Wrapper,
-  __
-} from '@erxes/ui/src';
-import { BarItems } from '@erxes/ui/src/layout/styles';
+import Button from '@erxes/ui/src/components/Button';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import Form from '@erxes/ui/src/components/form/Form';
+import Icon from '@erxes/ui/src/components/Icon';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import { Tabs, TabTitle } from '@erxes/ui/src/components/tabs';
+import Toggle from '@erxes/ui/src/components/Toggle';
+import PageContent from '@erxes/ui/src/layout/components/PageContent';
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
+import { BarItems, FlexContent } from '@erxes/ui/src/layout/styles';
+import Alert from '@erxes/ui/src/utils/Alert/index';
+import { __ } from '@erxes/ui/src/utils/core';
 import { Link } from 'react-router-dom';
 import RTG from 'react-transition-group';
+import Histories from '../histories/Wrapper';
+import Confirmation from '../../containers/forms/Confirmation';
+import TemplateForm from '../../containers/forms/TemplateForm';
 import TriggerForm from '../../containers/forms/triggers/TriggerForm';
 import {
   ActionBarButtonsWrapper,
@@ -41,7 +40,6 @@ import ActionDetailForm from '../forms/actions/ActionDetailForm';
 import ActionsForm from '../forms/actions/ActionsForm';
 import TriggerDetailForm from '../forms/triggers/TriggerDetailForm';
 import AutomationEditor from './RFEditor';
-import Histories from '../../components/histories/Wrapper';
 
 type Props = {
   automation: IAutomation;
@@ -63,18 +61,12 @@ type State = {
   showAction: boolean;
   isActionTab: boolean;
   isActive: boolean;
-  showNoteForm: boolean;
   editNoteForm?: boolean;
-  showTemplateForm: boolean;
   actions: IAction[];
   triggers: ITrigger[];
   activeTrigger: ITrigger;
   activeAction: IAction;
   selectedContentId?: string;
-  isZoomable: boolean;
-  zoomStep: number;
-  zoom: number;
-  percentage: number;
   automationNotes: IAutomationNote[];
   awaitingActionId?: string;
 };
@@ -95,15 +87,9 @@ class Editor extends React.Component<Props, State> {
       currentTab: 'triggers',
       isActionTab: true,
       isActive: automation.status === 'active',
-      showNoteForm: false,
-      showTemplateForm: false,
       showTrigger: false,
       showDrawer: false,
       showAction: false,
-      isZoomable: false,
-      zoomStep: 0.025,
-      zoom: 1,
-      percentage: 100,
       activeAction: {} as IAction,
       automationNotes
     };
@@ -123,10 +109,6 @@ class Editor extends React.Component<Props, State> {
 
   setWrapperRef = node => {
     this.wrapperRef = node;
-  };
-
-  handleTemplateModal = () => {
-    this.setState({ showTemplateForm: !this.state.showTemplateForm });
   };
 
   onNameChange = (e: React.FormEvent<HTMLElement>) => {
@@ -508,6 +490,62 @@ class Editor extends React.Component<Props, State> {
     });
   };
 
+  renderConfirmation() {
+    const { id, queryParams, history, saveLoading, automation } = this.props;
+    const { triggers, actions, name } = this.state;
+
+    if (saveLoading) {
+      return null;
+    }
+
+    const when = queryParams.isCreate
+      ? !!id
+      : JSON.stringify(triggers) !==
+          JSON.stringify(automation.triggers || []) ||
+        JSON.stringify(actions) !== JSON.stringify(automation.actions || []) ||
+        automation.name !== this.state.name;
+
+    return (
+      <Confirmation
+        when={when}
+        id={id}
+        name={name}
+        save={this.handleSubmit}
+        history={history}
+        queryParams={queryParams}
+      />
+    );
+  }
+
+  renderTemplateModal() {
+    const { automation } = this.props;
+
+    const content = ({ closeModal }) => {
+      return (
+        <Form
+          renderContent={formProps => (
+            <TemplateForm
+              formProps={formProps}
+              closeModal={closeModal}
+              id={automation._id}
+              name={automation.name}
+            />
+          )}
+        />
+      );
+    };
+
+    const trigger = (
+      <Button btnStyle="primary" size="small" icon={'check-circle'}>
+        Save as a template
+      </Button>
+    );
+
+    return (
+      <ModalTrigger content={content} trigger={trigger} title="" hideHeader />
+    );
+  }
+
   rendeRightActionBar() {
     const { isActive } = this.state;
 
@@ -520,16 +558,7 @@ class Editor extends React.Component<Props, State> {
         </ToggleWrapper>
         <ActionBarButtonsWrapper>
           {this.renderButtons()}
-          {
-            <Button
-              btnStyle="primary"
-              size="small"
-              icon={'check-circle'}
-              onClick={this.handleTemplateModal}
-            >
-              Save as a template
-            </Button>
-          }
+          {this.renderTemplateModal()}
           <Button
             btnStyle="success"
             size="small"
@@ -547,7 +576,8 @@ class Editor extends React.Component<Props, State> {
     const { triggers, actions, showDrawer } = this.state;
     const {
       automation,
-      constants: { triggersConst, actionsConst }
+      constants: { triggersConst, actionsConst },
+      automationNotes
     } = this.props;
 
     if (!this.state.isActionTab) {
@@ -566,9 +596,11 @@ class Editor extends React.Component<Props, State> {
 
     return (
       <AutomationEditor
+        automation={automation}
         triggers={triggers}
         actions={actions}
         constants={this.props.constants}
+        automationNotes={automationNotes}
         showDrawer={showDrawer}
         toggleDrawer={this.toggleDrawer}
         onDoubleClick={this.onSelectActiveTriggerAction}
@@ -585,6 +617,7 @@ class Editor extends React.Component<Props, State> {
 
     return (
       <>
+        {this.renderConfirmation()}
         <Wrapper.Header
           title={`${(automation && automation.name) || 'Automation'}`}
           breadcrumb={[

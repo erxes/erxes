@@ -1,15 +1,21 @@
-import { Icon, __, colors } from '@erxes/ui/src';
 import React, { memo, useState } from 'react';
 import { Handle, Position } from 'reactflow';
 
+import Icon from '@erxes/ui/src/components/Icon';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import CommonForm from '@erxes/ui/src/components/form/Form';
+import colors from '@erxes/ui/src/styles/colors';
+import { __ } from '@erxes/ui/src/utils/core';
+import NoteFormContainer from '../../containers/forms/NoteForm';
+import { AutomationConstants, IAutomation, IAutomationNote } from '../../types';
+import { renderDynamicComponent } from '../../utils';
 import {
   BRANCH_HANDLE_OPTIONS,
   DEFAULT_HANDLE_OPTIONS,
   DEFAULT_HANDLE_STYLE
 } from './constants';
-import { Trigger, ScratchNode as CommonScratchNode } from './styles';
-import { renderDynamicComponent } from '../../utils';
-import { AutomationConstants } from '../../types';
+import { ScratchNode as CommonScratchNode, Trigger } from './styles';
+import { checkNote } from './utils';
 
 const showHandler = (data, option) => {
   if (data.nodeType === 'trigger' && ['left'].includes(option.id)) {
@@ -22,6 +28,8 @@ const showHandler = (data, option) => {
 type Props = {
   id: string;
   data: {
+    automation: IAutomation;
+    automationNotes?: IAutomationNote[];
     type: string;
     nodeType: string;
     actionType: string;
@@ -53,12 +61,10 @@ export const ScratchNode = ({ data }: Props) => {
   const { toggleDrawer } = data;
 
   return (
-    // <Trigger type='scratch'>
     <CommonScratchNode onClick={toggleDrawer.bind(this, { type: 'triggers' })}>
       <Icon icon="file-plus" size={25} />
       <p>{__('How do you want to trigger this automation')}?</p>
     </CommonScratchNode>
-    // </Trigger>
   );
 };
 
@@ -99,6 +105,35 @@ export default memo(({ id, data }: Props) => {
   const removeNode = e => {
     e.persist();
     removeItem(data.nodeType, id);
+  };
+
+  const renderNote = () => {
+    const content = ({ closeModal }) => {
+      const { automation, automationNotes = [] } = data;
+
+      return (
+        <CommonForm
+          renderContent={formProps => (
+            <NoteFormContainer
+              formProps={formProps}
+              automationId={automation?._id || ''}
+              isEdit={true}
+              itemId={id}
+              notes={checkNote(automationNotes, id)}
+              closeModal={closeModal}
+            />
+          )}
+        />
+      );
+    };
+
+    const trigger = (
+      <i className="icon-notes add-note" title={__('Write Note')}></i>
+    );
+
+    return (
+      <ModalTrigger content={content} trigger={trigger} title="" hideHeader />
+    );
   };
 
   const renderOptionalContent = () => {
@@ -165,7 +200,7 @@ export default memo(({ id, data }: Props) => {
         <div className="header">
           <div className="custom-menu">
             <div>
-              <i className="icon-notes add-note" title={__('Write Note')}></i>
+              {renderNote()}
               <i
                 className="icon-trash-alt delete-control"
                 onClick={removeNode}

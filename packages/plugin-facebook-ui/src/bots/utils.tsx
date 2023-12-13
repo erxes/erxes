@@ -1,7 +1,16 @@
-import React from 'react';
-import { EmptyState, SelectWithSearch } from '@erxes/ui/src';
+import React, { useState } from 'react';
+import {
+  EmptyState,
+  FormControl,
+  SelectWithSearch,
+  Spinner
+} from '@erxes/ui/src';
 import { IOption, IQueryParams } from '@erxes/ui/src/types';
 import { queries } from '../graphql';
+import { useQuery } from '@apollo/client';
+import { gql } from '@apollo/client';
+import { Box } from '@erxes/ui-contacts/src/customers/styles';
+import { PagesContainer } from './styles';
 
 type Props = {
   queryParams?: IQueryParams;
@@ -55,51 +64,55 @@ export function SelectAccount({
 }
 
 export function SelectAccountPages({
-  label,
-  name,
-  queryParams,
   initialValue,
-  multi,
-  customOption,
-  onSelect,
   filterParams,
-  accountId
-}: { accountId: string } & Props) {
-  const defaultValue = queryParams ? queryParams[name] : initialValue;
+  accountId,
+  onSelect
+}: {
+  accountId: string;
+  initialValue: string;
+  filterParams?: any;
+  onSelect: (value: string, name: string) => void;
+}) {
+  const { error, loading, data } = useQuery(gql(queries.facebookGetPages), {
+    variables: {
+      ...filterParams,
+      accountId,
+      kind: 'facebook-messenger'
+    },
+    skip: !accountId
+  });
 
-  const generateOptions = (array: any[] = []): IOption[] => {
-    return array.map(item => ({
-      label: item.name,
-      extraValue: item.name,
-      value: item.id
-    }));
-  };
-
-  if (!accountId) {
-    return (
-      <EmptyState
-        icon="facebook"
-        text="Please select a integrated facebook account"
-      />
-    );
+  if (error) {
+    return <EmptyState icon="info-circle" text={error.message} />;
   }
 
+  if (loading) {
+    return <Spinner objective />;
+  }
+
+  const pages = data?.facebookGetPages || [];
+
+  const handleSelectPage = pageId => {
+    if (initialValue === pageId) {
+      return onSelect('', 'pageId');
+    }
+
+    onSelect(pageId, 'pageId');
+  };
+
   return (
-    <SelectWithSearch
-      label={label}
-      queryName="facebookGetPages"
-      filterParams={{
-        ...filterParams,
-        accountId,
-        kind: 'facebook-messenger'
-      }}
-      name={name}
-      initialValue={defaultValue}
-      generateOptions={generateOptions}
-      onSelect={onSelect}
-      customQuery={queries.facebookGetPages}
-      customOption={customOption}
-      multi={multi}
-    />
+    <PagesContainer>
+      {pages.map(({ id, name }) => (
+        <Box key={id}>
+          <FormControl
+            componentClass="checkbox"
+            onChange={() => handleSelectPage(id)}
+            checked={initialValue === id}
+          />
+          {name}
+        </Box>
+      ))}
+    </PagesContainer>
   );
 }
