@@ -34,7 +34,7 @@ export const schemaHooksWrapper = (schema, _cacheKey: string) => {
 };
 
 export const fetchPolarisData = async (subdomain: string, doc: any) => {
-  const customerId = doc.customerId || 'BB93oqp5L5JRA98OvwwD7';
+  const customerId = doc.customerId;
 
   const customer = await sendCommonMessage({
     serviceName: 'contacts',
@@ -197,75 +197,37 @@ export const fetchPolarisData = async (subdomain: string, doc: any) => {
       }
     }
 
-    const loanInfoGroup = groups.find(g => g.code === 'loan_info');
+    const prepareGroupValue = (groupCode: string, prefix?: string) => {
+      const group = groups.find(g => g.groupCode === 'code');
 
-    if (loanInfoGroup) {
-      const value: any = [];
-      for (const loan of data.loan_info) {
-        const fieldsOfGroup = fields.filter(
-          f => f.groupId === loanInfoGroup._id
-        );
-        const val = {};
-        for (const f of fieldsOfGroup) {
-          if (loan[f.code]) {
-            val[f._id] = loan[f.code];
+      if (group) {
+        const value: any = [];
+        for (const obj of data[groupCode]) {
+          const fieldsOfGroup = fields.filter(f => f.groupId === group._id);
+          const val = {};
+          for (const f of fieldsOfGroup) {
+            const code = prefix ? f.code.replace(prefix, '') : f.code;
+            if (obj[code]) {
+              val[f._id] = obj[code];
+            }
           }
+          value.push(val);
         }
-        value.push(val);
+
+        return {
+          field: group._id,
+          value
+        };
       }
+    };
 
-      customFieldsData.push({
-        field: loanInfoGroup._id,
-        value
-      });
-    }
+    const groupCodes = ['loan_info', 'saving_info', 'investment_info'];
 
-    const savingInfoGroup = groups.find(g => g.code === 'saving_info');
-
-    if (savingInfoGroup) {
-      const value: any = [];
-      for (const saving of data.saving_info) {
-        const fieldsOfGroup = fields.filter(
-          f => f.groupId === savingInfoGroup._id
-        );
-        const val = {};
-        for (const f of fieldsOfGroup) {
-          const code = f.code.replace('saving_', '');
-          if (saving[code]) {
-            val[f._id] = saving[code];
-          }
-        }
-        value.push(val);
+    for (const groupCode of groupCodes) {
+      const groupValue = prepareGroupValue(groupCode);
+      if (groupValue) {
+        customFieldsData.push(groupValue);
       }
-
-      customFieldsData.push({
-        field: savingInfoGroup._id,
-        value
-      });
-    }
-
-    const investmentInfoGroup = groups.find(g => g.code === 'investment_info');
-
-    if (investmentInfoGroup) {
-      const value: any = [];
-      for (const investment of data.investment_info) {
-        const fieldsOfGroup = fields.filter(
-          f => f.groupId === investmentInfoGroup._id
-        );
-        const val = {};
-        for (const f of fieldsOfGroup) {
-          const code = f.code.replace('invest_', '');
-          if (investment[code]) {
-            val[f._id] = investment[code];
-          }
-        }
-        value.push(val);
-      }
-
-      customFieldsData.push({
-        field: investmentInfoGroup._id,
-        value
-      });
     }
 
     await sendCommonMessage({
