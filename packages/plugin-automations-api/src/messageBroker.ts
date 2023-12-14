@@ -16,7 +16,7 @@ let client;
 export const initBroker = async cl => {
   client = cl;
 
-  const { consumeQueue, consumeRPCQueue } = cl;
+  const { consumeQueue } = cl;
 
   consumeQueue('automations:trigger', async ({ subdomain, data }) => {
     debugBase(`Receiving queue data: ${JSON.stringify(data)}`);
@@ -47,14 +47,6 @@ export const initBroker = async cl => {
     return {
       status: 'success',
       data: await models.Automations.countDocuments(query)
-    };
-  });
-
-  consumeRPCQueue('automations:setActionWait', async ({ data }) => {
-    return {
-      // data: await models.Accounts.find(selector).lean(),
-      data: await setActionWait(data),
-      status: 'success'
     };
   });
 };
