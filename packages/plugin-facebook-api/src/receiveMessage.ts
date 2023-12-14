@@ -2,24 +2,43 @@ import { Activity } from 'botbuilder';
 import { graphqlPubsub } from './configs';
 
 import { IModels } from './connectionResolver';
+import { INTEGRATION_KINDS } from './constants';
+import { putCreateLog } from './logUtils';
 import { sendInboxMessage } from './messageBroker';
 import { getOrCreateCustomer } from './store';
 import { IChannelData } from './types';
-import { INTEGRATION_KINDS } from './constants';
 
 const receiveMessage = async (
   models: IModels,
   subdomain: string,
   activity: Activity
 ) => {
-  const {
+  let {
     recipient,
     sender,
     timestamp,
     text,
     attachments = [],
-    message
+    message,
+    postback
   } = activity.channelData as IChannelData;
+
+  if (!text && !message && !!postback) {
+    text = postback.title;
+
+    message = {
+      mid: postback.mid
+    };
+
+    if (text !== 'Get Started') {
+      if (postback.payload) {
+        message.payload = postback.payload;
+      }
+    }
+  }
+  if (message.quick_reply) {
+    message.payload = message.quick_reply.payload;
+  }
 
   const integration = await models.Integrations.getIntegration({
     $and: [
@@ -47,16 +66,22 @@ const receiveMessage = async (
     recipientId: recipient.id
   });
 
+  const isBot = postback && postback.title === 'Get Started' ? true : false;
+  const botId = isBot ? postback.payload : undefined;
+
   // create conversation
   if (!conversation) {
     // save on integrations db
+
     try {
       conversation = await models.Conversations.create({
         timestamp,
         senderId: userId,
         recipientId: recipient.id,
         content: text,
-        integrationId: integration._id
+        integrationId: integration._id,
+        isBot,
+        botId
       });
     } catch (e) {
       throw new Error(
@@ -65,6 +90,13 @@ const receiveMessage = async (
           : e
       );
     }
+  } else {
+    const bot = await models.Bots.findOne({ _id: botId });
+
+    if (bot) {
+      conversation.botId = botId;
+    }
+    conversation.content = text || '';
   }
 
   const formattedAttachments = (attachments || [])
@@ -100,9 +132,8 @@ const receiveMessage = async (
     await models.Conversations.deleteOne({ _id: conversation._id });
     throw new Error(e);
   }
-
   // get conversation message
-  const conversationMessage = await models.ConversationMessages.findOne({
+  let conversationMessage = await models.ConversationMessages.findOne({
     mid: message.mid
   });
 
@@ -114,7 +145,8 @@ const receiveMessage = async (
         createdAt: timestamp,
         content: text,
         customerId: customer.erxesApiId,
-        attachments: formattedAttachments
+        attachments: formattedAttachments,
+        botId
       });
 
       await sendInboxMessage({
@@ -132,6 +164,8 @@ const receiveMessage = async (
           conversationId: conversation.erxesApiId
         }
       });
+
+      conversationMessage = created;
     } catch (e) {
       throw new Error(
         e.message.includes('duplicate')
@@ -140,6 +174,22 @@ const receiveMessage = async (
       );
     }
   }
+
+  try {
+    await putCreateLog(
+      models,
+      subdomain,
+      {
+        type: 'messages',
+        newData: message,
+        object: {
+          ...conversationMessage.toObject(),
+          payload: JSON.parse(message.payload || '{}')
+        }
+      },
+      customer._id
+    );
+  } catch (error) {}
 };
 
 export default receiveMessage;
