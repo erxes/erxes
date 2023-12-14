@@ -1,6 +1,6 @@
 import * as AWS from 'aws-sdk';
 
-import { debugBase } from '../debuggers';
+import { debugBase, debugError } from '../debuggers';
 import messageBroker, { sendContactsMessage } from '../messageBroker';
 import { ISESConfig } from '../models/Configs';
 import { SES_DELIVERY_STATUSES } from '../constants';
@@ -14,7 +14,13 @@ export const getApi = async (models: IModels, type: string): Promise<any> => {
     return;
   }
 
-  AWS.config.update(config);
+  try {
+    AWS.config.update(config);
+  } catch (error) {
+    console.log(`Error during create transporter: ${error.message}`);
+    debugError(`Error during create transporter: ${error.message}`);
+    throw new Error(`Error during create transporter: ${error.message}`);
+  }
 
   if (type === 'ses') {
     return new AWS.SES();
@@ -161,7 +167,9 @@ export const awsRequests = {
   },
 
   async verifyEmail(models: IModels, email: string) {
-    const api = await getApi(models, 'ses');
+    const api = await getApi(models, 'ses').catch(error => {
+      debugError(`Error during get api: ${error.message}`);
+    });
 
     return new Promise((resolve, reject) => {
       api.verifyEmailAddress({ EmailAddress: email }, (error, data) => {

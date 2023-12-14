@@ -1,17 +1,22 @@
 import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
 import { debugBase } from '@erxes/api-utils/src/debuggers';
 import { setTimeout } from 'timers';
-import { receiveTrigger } from './utils';
-import { serviceDiscovery } from './configs';
 import { playWait } from './actions';
+import {
+  checkWaitingResponseAction,
+  doWaitingResponseAction,
+  setActionWait
+} from './actions/wait';
+import { serviceDiscovery } from './configs';
 import { generateModels } from './connectionResolver';
+import { receiveTrigger } from './utils';
 
 let client;
 
 export const initBroker = async cl => {
   client = cl;
 
-  const { consumeQueue } = cl;
+  const { consumeQueue, consumeRPCQueue } = cl;
 
   consumeQueue('automations:trigger', async ({ subdomain, data }) => {
     debugBase(`Receiving queue data: ${JSON.stringify(data)}`);
@@ -20,7 +25,12 @@ export const initBroker = async cl => {
     const { type, actionType, targets } = data;
 
     if (actionType && actionType === 'waiting') {
-      await playWait(models, subdomain);
+      await playWait(models, subdomain, data);
+      return;
+    }
+
+    if (await checkWaitingResponseAction(models, type, actionType, targets)) {
+      await doWaitingResponseAction(models, subdomain, data);
       return;
     }
 
@@ -37,6 +47,14 @@ export const initBroker = async cl => {
     return {
       status: 'success',
       data: await models.Automations.countDocuments(query)
+    };
+  });
+
+  consumeRPCQueue('automations:setActionWait', async ({ data }) => {
+    return {
+      // data: await models.Accounts.find(selector).lean(),
+      data: await setActionWait(data),
+      status: 'success'
     };
   });
 };

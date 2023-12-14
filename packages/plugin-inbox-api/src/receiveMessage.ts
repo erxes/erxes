@@ -8,6 +8,7 @@ import {
 import { generateModels } from './connectionResolver';
 import { IConversationDocument } from './models/definitions/conversations';
 import { pConversationClientMessageInserted } from './graphql/resolvers/widgetMutations';
+import { putCreateLog } from './logUtils';
 
 const sendError = message => ({
   status: 'error',

@@ -15,8 +15,9 @@ import { getActionsMap } from './helpers';
 import { sendCommonMessage, sendSegmentsMessage } from './messageBroker';
 
 import { debugBase } from '@erxes/api-utils/src/debuggers';
-import { IModels } from './connectionResolver';
+import { IModels, generateModels } from './connectionResolver';
 import { handleEmail } from './common/emailUtils';
+import { setActionWait } from './actions/wait';
 
 export const getEnv = ({
   name,
@@ -49,6 +50,8 @@ export const isInSegment = async (
     data: { segmentId, idToCheck: targetId },
     isRPC: true
   });
+
+  console.log({ isInSegment: response });
 
   return response;
 };
@@ -175,6 +178,17 @@ export const executeActions = async (
         isRPC: true
       });
 
+      if (actionResponse?.objToWait) {
+        setActionWait({
+          ...actionResponse.objToWait,
+          execution,
+          action,
+          result: actionResponse?.result
+        });
+
+        return 'paused';
+      }
+
       if (actionResponse.error) {
         throw new Error(actionResponse.error);
       }
@@ -189,6 +203,7 @@ export const executeActions = async (
   }
 
   execAction.result = actionResponse;
+
   execution.actions = [...(execution.actions || []), execAction];
   execution = await execution.save();
 
