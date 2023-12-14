@@ -65,6 +65,7 @@ export const triggerSchema = new Schema(
     actionId: { type: String },
     config: { type: Object },
     style: { type: Object },
+    position: { type: Object },
     icon: { type: String, optional: true },
     label: { type: String, optional: true },
     description: { type: String, optional: true }
@@ -79,6 +80,7 @@ export const actionSchema = new Schema(
     nextActionId: { type: String },
     config: { type: Object },
     style: { type: Object },
+    position: { type: Object },
     icon: { type: String, optional: true },
     label: { type: String, optional: true },
     description: { type: String, optional: true }
