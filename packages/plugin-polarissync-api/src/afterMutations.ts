@@ -1,6 +1,7 @@
 import { sendCommonMessage } from './messageBroker';
 import fetch from 'node-fetch';
 import { Polarissyncs } from './models';
+import { fetchPolarisData } from './utils';
 
 export default {
   'contacts:customer': ['create', 'update']
@@ -11,7 +12,11 @@ export const afterMutationHandlers = async (subdomain, params) => {
 
   if (type === 'contacts:customer') {
     if (action === 'create') {
-      console.log('params ', params);
+      const doc: any = params.object;
+      doc.customerId = doc._id;
+
+      await fetchPolarisData(subdomain, doc);
+      return;
     }
 
     if (action === 'update') {

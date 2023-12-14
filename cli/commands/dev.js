@@ -23,7 +23,7 @@ module.exports.devCmd = async program => {
   }
 
   if (configs.workers) {
-    enabledServices.push("workers");
+    enabledServices.push('workers');
   }
 
   const enabledServicesJson = JSON.stringify(enabledServices);
@@ -40,8 +40,9 @@ module.exports.devCmd = async program => {
     RABBITMQ_HOST: 'amqp://127.0.0.1',
     ELASTICSEARCH_URL: 'http://127.0.0.1:9200',
     ENABLED_SERVICES_JSON: enabledServicesJson,
+    VERSION: configs.image_tag || 'latest',
     ALLOWED_ORIGINS: configs.allowed_origins,
-    NODE_INSPECTOR: 'enabled',
+    NODE_INSPECTOR: 'enabled'
   };
 
   let port = 3300;
@@ -126,7 +127,7 @@ module.exports.devCmd = async program => {
         await execCommand(
           `cd ${filePath(
             `../packages/plugin-${plugin.name}-ui`
-          )} && yarn install-deps`
+          )} && yarn install`
         );
       }
 

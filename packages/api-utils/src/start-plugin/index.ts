@@ -1,5 +1,4 @@
 import * as dotenv from 'dotenv';
-import * as Sentry from '@sentry/node';
 
 // load environment variables
 dotenv.config();
@@ -43,34 +42,10 @@ const {
   RABBITMQ_HOST,
   MESSAGE_BROKER_PREFIX,
   PORT,
-  USE_BRAND_RESTRICTIONS,
-  SENTRY_DSN
+  USE_BRAND_RESTRICTIONS
 } = process.env;
 
 export const app = express();
-
-if (SENTRY_DSN) {
-  Sentry.init({
-    dsn: SENTRY_DSN,
-    integrations: [
-      // enable HTTP calls tracing
-      new Sentry.Integrations.Http({ tracing: true }),
-      // Automatically instrument Node.js libraries and frameworks
-      ...Sentry.autoDiscoverNodePerformanceMonitoringIntegrations()
-    ],
-    // Set tracesSampleRate to 1.0 to capture 100%
-    // of transactions for performance monitoring.
-    // We recommend adjusting this value in production
-    tracesSampleRate: 1.0,
-    profilesSampleRate: 1.0 // Profiling sample rate is relative to tracesSampleRate
-  });
-}
-
-// RequestHandler creates a separate execution context, so that all
-// transactions/spans/breadcrumbs are isolated across requests
-app.use(Sentry.Handlers.requestHandler());
-// TracingHandler creates a trace for every incoming request
-app.use(Sentry.Handlers.tracingHandler());
 
 app.use(bodyParser.json({ limit: '15mb' }));
 app.use(bodyParser.urlencoded({ limit: '15mb', extended: true }));
@@ -135,9 +110,6 @@ export async function startPlugin(configs: any): Promise<express.Express> {
 
     res.status(500).send(msg);
   });
-
-  // The error handler must be before any other error middleware and after all controllers
-  app.use(Sentry.Handlers.errorHandler());
 
   const httpServer = http.createServer(app);
 
@@ -328,7 +300,8 @@ export async function startPlugin(configs: any): Promise<express.Express> {
       documentPrintHook,
       readFileHook,
       payment,
-      reports
+      reports,
+      cpCustomerHandle
     } = configs.meta;
 
     const { consumeRPCQueue, consumeQueue } = messageBrokerClient;
@@ -664,6 +637,13 @@ export async function startPlugin(configs: any): Promise<express.Express> {
           data: await payment.callback(args)
         }));
       }
+    }
+
+    if (cpCustomerHandle) {
+      consumeQueue(`${configs.name}:cpCustomerHandle`, async args => ({
+        status: 'success',
+        data: await cpCustomerHandle.cpCustomerHandle(args)
+      }));
     }
   } // end configs.meta if
 

@@ -327,7 +327,8 @@ export const fetchLogs = async (models: IModels, params) => {
     perPage,
     type,
     desc,
-    objectId
+    objectId,
+    searchValue
   } = params;
   const filter: any = {};
 
@@ -354,6 +355,13 @@ export const fetchLogs = async (models: IModels, params) => {
   }
   if (objectId) {
     filter.objectId = objectId;
+  }
+
+  if (searchValue) {
+    filter.$or = [
+      { objectId: new RegExp(`.*${params.searchValue}.*`, 'i') },
+      { description: new RegExp(`.*${params.searchValue}.*`, 'i') }
+    ];
   }
 
   const _page = Number(page || '1');

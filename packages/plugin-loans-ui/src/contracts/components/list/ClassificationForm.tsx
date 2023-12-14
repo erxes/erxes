@@ -270,7 +270,12 @@ class ClassificationForm extends React.Component<Props, State> {
                 {__('Transaction Date')}
               </ControlLabel>
               <DateContainer>
-                <DateControl {...formProps} required={false} name="startDate" />
+                <DateControl
+                  {...formProps}
+                  dateFormat="YYYY/MM/DD"
+                  required={false}
+                  name="startDate"
+                />
               </DateContainer>
             </FormGroup>
           </FormColumn>

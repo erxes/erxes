@@ -58,6 +58,8 @@ const commonFields = `
   $loanPurpose: String
   $leaseType: String
   $commitmentInterest: Float
+  $endDate: Date
+  $savingContractId: String
 `;
 
 const commonVariables = `
@@ -117,6 +119,8 @@ const commonVariables = `
   loanPurpose: $loanPurpose
   leaseType:$leaseType
   commitmentInterest:$commitmentInterest
+  endDate:$endDate
+  savingContractId: $savingContractId
 `;
 
 const contractsAdd = `

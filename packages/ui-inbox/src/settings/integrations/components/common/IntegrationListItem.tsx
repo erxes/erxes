@@ -244,7 +244,10 @@ class IntegrationListItem extends React.Component<Props, State> {
   renderRepairAction() {
     const { repair, integration } = this.props;
 
-    if (!integration.kind.includes('facebook')) {
+    if (
+      !integration.kind.includes('facebook') ||
+      !integration.kind.includes('instagram')
+    ) {
       return null;
     }
 
@@ -312,7 +315,8 @@ class IntegrationListItem extends React.Component<Props, State> {
   renderFetchAction(integration: IIntegration) {
     if (
       integration.kind === INTEGRATION_KINDS.MESSENGER ||
-      integration.kind.includes('facebook')
+      integration.kind.includes('facebook') ||
+      integration.kind.includes('instagram')
     ) {
       return null;
     }

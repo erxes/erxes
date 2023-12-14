@@ -49,6 +49,7 @@ export type NotificationModuleType = {
 export type NotificationModule = {
   name: string;
   description: string;
+  icon: string;
   types: NotificationModuleType[];
 };
 
