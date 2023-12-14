@@ -47,7 +47,6 @@ export const loadBotClass = (models: IModels) => {
       const integration = await models.Integrations.findOne({
         accountId,
         facebookPageIds: { $in: [pageId] }
-        // healthStatus: 'healthy'
       });
 
       try {
@@ -89,7 +88,6 @@ export const loadBotClass = (models: IModels) => {
           await this.connectBotPageMessenger(
             await models.Integrations.findOne({
               accountId
-              // healthStatus: 'healthy'
             }),
             pageId,
             doc
