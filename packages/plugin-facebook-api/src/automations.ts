@@ -189,7 +189,12 @@ const generateBotData = ({ messageTemplates, quickReplies, text }) => {
     ];
   }
 
-  return text;
+  return [
+    {
+      type: 'text',
+      text: `<p>${text}</p>`
+    }
+  ];
 };
 
 const actionCreateMessage = async (
@@ -246,13 +251,13 @@ const actionCreateMessage = async (
         {
           // ...doc,
           // inbox conv id comes, so override
-          // integrationId: integration.erxesApiId,
           conversationId: conversation._id,
-          content: '<p>Bot Data</p>',
+          content: '<p>Bot Message</p>',
           internal: false,
           mid: resp.message_id,
           botId,
-          botData: generateBotData(config)
+          botData: generateBotData(config),
+          fromBot: true
         },
         config.fromUserId
       );
