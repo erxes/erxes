@@ -1,11 +1,18 @@
 import { Document, Schema } from 'mongoose';
 import { field } from './utils';
 
+interface IPersistentMenus {
+  _id: number;
+  title: string;
+  type: string;
+  url?: string;
+}
 export interface IBot {
   name: string;
   accountId: string;
   pageId: string;
   status: string;
+  persistentMenus: IPersistentMenus[];
 }
 
 export interface IBotDocument extends IBot, Document {
