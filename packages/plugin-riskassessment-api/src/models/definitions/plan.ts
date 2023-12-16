@@ -14,6 +14,7 @@ export type IPlan = {
   startDate: string;
   closeDate: string;
   cardIds: string[];
+  tagId: string;
 };
 
 export type ISchedule = {

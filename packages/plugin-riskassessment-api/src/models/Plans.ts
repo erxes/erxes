@@ -146,7 +146,8 @@ export const loadPlans = (models: IModels, subdomain: string) => {
         startDate,
         closeDate,
         stageId: configs.stageId,
-        userId: plannerId
+        userId: plannerId,
+        tagIds: plan.tagId ? [plan.tagId] : undefined
       };
 
       let newItemIds: string[] = [];
