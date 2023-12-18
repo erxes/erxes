@@ -98,7 +98,7 @@ export const afterDealCreate = async (subdomain, params) => {
     });
 
     const notifData: any = {
-      title: 'Шинэ зар орлоо',
+      title: 'Шинэ захиалга ирлээ',
       content: notificationContent,
       receivers: cpUsers.map(cpUser => cpUser._id),
       notifType: 'system',
