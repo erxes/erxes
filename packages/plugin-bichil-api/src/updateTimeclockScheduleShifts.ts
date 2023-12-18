@@ -29,7 +29,7 @@ export const findAndUpdateTimeclockScheduleShifts = async params => {
 
   console.log('Connected to mongo server');
 
-  db = client.db('bichil-erxes') as Db;
+  db = client.db('erxes') as Db;
 
   const query = {
     scheduleId: { $exists: true },
@@ -93,5 +93,6 @@ export const findAndUpdateTimeclockScheduleShifts = async params => {
     return error;
   }
 
+  console.log('updated count: ', bulkOps.length);
   return 'success';
 };
