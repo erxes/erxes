@@ -71,8 +71,8 @@ export const afterDealCreate = async (subdomain, params) => {
 
     const notificationContent =
       startPlace && endPlace
-        ? `${startPlace}-с ${endPlace} хүртэлх ажлын зар орсон байна`
-        : 'Шинэ ажлын зар орсон байна!';
+        ? `${startPlace}-с ${endPlace} чиглэлд захиалга ирлээ`
+        : 'Шинэ захиалга ирлээ!';
 
     const drivers = await sendContactsMessage({
       subdomain,
