@@ -88,9 +88,9 @@ function TableHeaders(props: Props) {
             <th>{__('Бүртгэл дутуу')}</th>
             <th>{__('Б/Д мөнгө')}</th>
             <th>{__('Үр дүн хасалт')}</th>
-            <th>{__('Хоцорсон миниут')}</th>
+            {/* <th>{__('Хоцорсон миниут')}</th>
             <th>{__('Хоцролтын мөнгө')}</th>
-            <th>{__('Үр дүн хасалт')}</th>
+            <th>{__('Үр дүн хасалт')}</th> */}
             <th>{__('Тасалсан өдөр')}</th>
             <th>{__('Торгууль')}</th>
             <th>{__('Үр дүн хасалт')}</th>
@@ -108,7 +108,9 @@ function TableHeaders(props: Props) {
             >
               {__('Generar Information')}
             </th>
-            <th>{__('Time')}</th>
+            <th style={{ textAlign: 'center', border: '1px solid #EEE' }}>
+              {__('Time')}
+            </th>
             <th
               colSpan={3}
               style={{ textAlign: 'center', border: '1px solid #EEE' }}
@@ -116,7 +118,7 @@ function TableHeaders(props: Props) {
               {__('Schedule')}
             </th>
             <th
-              colSpan={8}
+              colSpan={10}
               style={{ textAlign: 'center', border: '1px solid #EEE' }}
             >
               {__('Performance')}

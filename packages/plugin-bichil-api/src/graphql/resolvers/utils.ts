@@ -661,7 +661,7 @@ export const bichilTimeclockReportFinal = async (
   let totalHoursScheduled = 0;
   let totalHoursWorked = 0;
   let totalShiftNotClosedDeduction = 0;
-  let totalLateMinsDeduction = 0;
+  // let totalLateMinsDeduction = 0;
   let totalDeductionPerGroup = 0;
   let totalAbsentDeduction = 0;
 
@@ -671,7 +671,7 @@ export const bichilTimeclockReportFinal = async (
 
   const shiftNotClosedFee = 3000;
   const latenessFee = 200;
-  const absentFee = 96000;
+  const absentFee = 86000;
 
   // get the schedule data of this month
   const schedules = await models.Schedules.find({
@@ -1020,13 +1020,16 @@ export const bichilTimeclockReportFinal = async (
       relatedAbsenceTypes
     );
 
-    const shiftNotClosedDeduction =
-      shiftNotClosedDaysPerUser * shiftNotClosedFee;
-    const totalMinsLateDeduction = totalMinsLatePerUser * latenessFee;
+    const shiftNotClosedDeduction = Math.floor(
+      shiftNotClosedDaysPerUser * shiftNotClosedFee
+    );
+    const totalMinsLateDeduction = Math.floor(
+      totalMinsLatePerUser * latenessFee
+    );
+
     const absentDeductionPerUser = totalDaysAbsentPerUser * absentFee;
 
-    const totalDeduction =
-      shiftNotClosedDeduction + totalMinsLateDeduction + absentDeductionPerUser;
+    const totalDeduction = shiftNotClosedDeduction + absentDeductionPerUser;
 
     if (totalHoursScheduledPerUser > 0) {
       totalHoursScheduledPerUser -= totalBreakOfSchedulesInHrs;
@@ -1035,15 +1038,15 @@ export const bichilTimeclockReportFinal = async (
     totalHoursScheduled += totalHoursScheduledPerUser;
     totalHoursWorked += totalHoursWorkedPerUser;
     totalShiftNotClosedDeduction += shiftNotClosedDeduction;
-    totalLateMinsDeduction += totalMinsLateDeduction;
+    // totalLateMinsDeduction += totalMinsLateDeduction;
     totalAbsentDeduction += absentDeductionPerUser;
     totalDeductionPerGroup += totalDeduction;
 
     usersReport[currUserId] = {
       ...usersReport[currUserId],
 
-      totalHoursScheduled: totalHoursScheduledPerUser.toFixed(2),
-      totalHoursWorked: totalHoursWorkedPerUser.toFixed(2),
+      totalHoursScheduled: Math.floor(totalHoursScheduledPerUser * 100) / 100,
+      totalHoursWorked: Math.floor(totalHoursWorkedPerUser * 100) / 100,
 
       ...userAbsenceInfo,
 
@@ -1055,9 +1058,9 @@ export const bichilTimeclockReportFinal = async (
       shiftNotClosedFee,
       shiftNotClosedDeduction,
 
-      totalMinsLate: totalMinsLatePerUser,
-      latenessFee,
-      totalMinsLateDeduction,
+      // totalMinsLate: Math.floor(totalMinsLatePerUser),
+      // latenessFee,
+      // totalMinsLateDeduction: totalMinsLateDeduction,
 
       totalDaysAbsent: totalDaysAbsentPerUser,
       absentFee,
@@ -1070,10 +1073,10 @@ export const bichilTimeclockReportFinal = async (
   return {
     report: usersReport,
     deductionInfo: {
-      totalHoursScheduled,
-      totalHoursWorked,
+      totalHoursScheduled: Math.floor(totalHoursScheduled * 100) / 100,
+      totalHoursWorked: Math.floor(totalHoursWorked * 100) / 100,
       totalShiftNotClosedDeduction,
-      totalLateMinsDeduction,
+      // totalLateMinsDeduction,
       totalAbsentDeduction,
       totalDeductionPerGroup
     }
