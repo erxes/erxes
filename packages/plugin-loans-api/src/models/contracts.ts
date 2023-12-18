@@ -10,7 +10,13 @@ import {
   IContract
 } from './definitions/contracts';
 import { getCloseInfo } from './utils/closeUtils';
-import { addMonths, getFullDate, getNumber } from './utils/utils';
+import {
+  addMonths,
+  calcInterest,
+  getDiffDay,
+  getFullDate,
+  getNumber
+} from './utils/utils';
 import { Model } from 'mongoose';
 import { IContractDocument } from './definitions/contracts';
 import { IModels } from '../connectionResolver';
@@ -108,19 +114,25 @@ export const loadContractClass = (models: IModels) => {
         doc.leaseType === LEASE_TYPES.LINEAR ||
         doc.leaseType === LEASE_TYPES.SAVING
       ) {
+        const diffDays = getDiffDay(doc.startDate, doc.endDate);
+
+        const interest = calcInterest({
+          balance: doc.leaseAmount,
+          interestRate: doc.interestRate,
+          dayOfMonth: diffDays
+        });
+
         const schedules = [
           {
             contractId: contract._id,
             status: SCHEDULE_STATUS.PENDING,
             payDate: doc.endDate,
             balance: doc.leaseAmount,
-            interestNonce: 0,
+            interestNonce: interest,
             payment: doc.leaseAmount,
             total: doc.leaseAmount
           }
         ];
-
-        console.log('schedules', schedules);
 
         await models.FirstSchedules.insertMany(schedules);
       }

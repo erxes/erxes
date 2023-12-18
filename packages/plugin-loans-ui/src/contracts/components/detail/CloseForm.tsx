@@ -15,6 +15,7 @@ import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import React from 'react';
 import { ChangeAmount } from '../../styles';
 import { ICloseInfo, IContract, IContractDoc } from '../../types';
+import FormControl from '@erxes/ui/src/components/form/Control';
 import { __ } from 'coreui/utils';
 
 type Props = {
