@@ -88,7 +88,9 @@ export const queries = `
       sortField: String
       sortDirection: SortDirection
       searchField: SearchField
-      searchValue: JSON): JSON
+      searchValue: JSON
+      categoryId: ID
+      ): JSON
 
     vendorInsuranceItemsInfo: JSON
 `;
