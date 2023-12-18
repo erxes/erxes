@@ -299,6 +299,7 @@ const queries = `
   getZmses(isClosed: Boolean): [Zms]
   getInquire(${paramsZmsInquire}): JSON
   getSupply(isClosed: Boolean): JSON,
+  getcustomerList( regum: String): JSON
 `;
 
 const params = `

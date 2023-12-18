@@ -26,6 +26,14 @@ const zmsQueries = {
     return zmss;
   },
 
+  async getcustomerList(_root, { regum }, _context: IContext) {
+    const query: any = {
+      'customer.o_c_customer_information.o_c_registerno': regum
+    };
+    const zmss = await Zmss.find(query).lean();
+    return zmss;
+  },
+
   async getInquire(
     _root,
     {
@@ -94,25 +102,9 @@ const zmsQueries = {
                   o_c_loanline_commissionperc: 9.9,
                   o_c_loanline_fee: 0.0,
                   o_c_loanline_balance: 1.0
-                },
-                {
-                  o_c_loanline_type: '03',
-                  o_c_loanline_advamount: 183000.0,
-                  o_c_loanline_starteddate: '2023-11-20 20:19:47',
-                  o_c_loanline_expdate: '2018-08-20 10:19:47',
-                  o_c_loanline_currencycode: 'MNT',
-                  o_c_loanline_sectorcode: 'G47',
-                  o_c_loanline_loanclasscode: '01',
-                  o_c_loanline_loaninterest: 9.9,
-                  o_c_loanline_timestoloan: 1,
-                  o_c_loanline_interestinperc: 1.9,
-                  o_c_loanline_commissionperc: 9.9,
-                  o_c_loanline_fee: 0.0,
-                  o_c_loanline_balance: 1.0
                 }
               ]
             },
-
             o_c_mortgage_information: {
               o_c_mortgage: {
                 o_c_mrtno: 25,
