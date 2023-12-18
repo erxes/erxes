@@ -146,7 +146,7 @@ export async function getPaymentInfo(
   return paymentInfo;
 }
 
-export async function didPayment(
+export async function doPayment(
   contract: IContractDocument,
   didPayment: IPaymentInfo,
   models: IModels

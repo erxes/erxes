@@ -45,6 +45,7 @@ type Props = {
   ) => JSX.Element;
   contract: IContract;
   closeModal: () => void;
+  change?: boolean;
 };
 
 interface State extends LoanContract {
@@ -1111,6 +1112,8 @@ class ContractForm extends React.Component<Props, State> {
   };
 
   render() {
+    const { change } = this.props;
+    if (change) return <Form renderContent={this.renderGraphic} />;
     return (
       <Tabs
         tabs={[
