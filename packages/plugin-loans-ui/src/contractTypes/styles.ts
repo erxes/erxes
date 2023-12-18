@@ -8,9 +8,6 @@ const ContractTypesTableWrapper = styled.div`
     text-overflow: ellipsis;
     white-space: nowrap;
   }
-  tr:nth-child(odd) {
-    background-color: ${colors.colorShadowGray};
-  }
 `;
 
 export { ContractTypesTableWrapper };

@@ -15,6 +15,7 @@ import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
 import { __ } from '@erxes/ui/src/utils';
 import React from 'react';
 import { LittleGroup } from '../styles';
+import SelectTags from '@erxes/ui-tags/src/containers/SelectTags';
 
 type Props = {
   condition: any;
@@ -56,10 +57,6 @@ class PerConditions extends React.Component<Props, State> {
                 label="Choose product category"
                 name="productCategoryIds"
                 initialValue={condition.productCategoryIds || ''}
-                customOption={{
-                  value: '',
-                  label: '...Clear product category filter'
-                }}
                 onSelect={categoryIds =>
                   this.onChange('productCategoryIds', categoryIds)
                 }
@@ -75,6 +72,28 @@ class PerConditions extends React.Component<Props, State> {
                 onSelect={categoryIds =>
                   this.onChange('excludeCategoryIds', categoryIds)
                 }
+                multi={true}
+              />
+            </FormGroup>
+            <FormGroup>
+              <ControlLabel>{'Product Tags'}</ControlLabel>
+              <SelectTags
+                tagsType="products:product"
+                label="Choose product tag"
+                name="productTagIds"
+                initialValue={condition.productTagIds || ''}
+                onSelect={tagIds => this.onChange('productTagIds', tagIds)}
+                multi={true}
+              />
+            </FormGroup>
+            <FormGroup>
+              <ControlLabel>{__('Exclude tags')}</ControlLabel>
+              <SelectTags
+                tagsType="products:product"
+                name="excludeTagIds"
+                label="Choose tags to exclude"
+                initialValue={condition.excludeTagIds}
+                onSelect={tagIds => this.onChange('excludeTagIds', tagIds)}
                 multi={true}
               />
             </FormGroup>

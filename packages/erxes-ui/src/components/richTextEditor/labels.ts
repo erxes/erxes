@@ -119,6 +119,8 @@ export interface IRichTextEditorLabels {
   /** RichTextEditor.Highlight control aria-label */
   highlightControlLabel: string;
 
+  sourceControlLabel: string;
+
   /** A function go get RichTextEditor.Color control aria-label based on color that control applies */
   colorControlLabel(color: string): string;
 
@@ -175,5 +177,8 @@ export const DEFAULT_LABELS: IRichTextEditorLabels = {
 
   // Image control
   imageControlLabel: `Insert image`,
-  imageUrlControlLabel: 'Insert image link'
+  imageUrlControlLabel: 'Insert image link',
+
+  // Source control
+  sourceControlLabel: 'Source'
 };

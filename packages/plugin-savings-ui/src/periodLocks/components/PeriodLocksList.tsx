@@ -112,7 +112,7 @@ class PeriodLocksList extends React.Component<IProps, State> {
 
     const mainContent = (
       <PeriodLocksTableWrapper>
-        <Table whiteSpace="nowrap" bordered={true} hover={true}>
+        <Table whiteSpace="nowrap" bordered={true} hover={true} striped>
           <thead>
             <tr>
               <th>
@@ -144,7 +144,7 @@ class PeriodLocksList extends React.Component<IProps, State> {
     );
 
     const addTrigger = (
-      <Button btnStyle="success" size="small" icon="plus-circle">
+      <Button btnStyle="success" icon="plus-circle">
         {__('Add periodLock')}
       </Button>
     );
@@ -164,12 +164,7 @@ class PeriodLocksList extends React.Component<IProps, State> {
       actionBarLeft = (
         <BarItems>
           {can('managePeriodLocks', currentUser) && (
-            <Button
-              btnStyle="danger"
-              size="small"
-              icon="cancel-1"
-              onClick={onClick}
-            >
+            <Button btnStyle="danger" icon="cancel-1" onClick={onClick}>
               {__('Delete')}
             </Button>
           )}
@@ -209,6 +204,7 @@ class PeriodLocksList extends React.Component<IProps, State> {
 
     return (
       <Wrapper
+        hasBorder
         header={
           <Wrapper.Header
             title={__(`Period Locks`) + ` (${totalCount})`}

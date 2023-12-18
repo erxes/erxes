@@ -86,6 +86,7 @@ class DealItem extends React.PureComponent<Props> {
       const data: any = { ...p.product };
       data.quantity = p.quantity;
       data.uom = p.uom;
+      data.unitPrice = p.unitPrice;
 
       return data;
     };

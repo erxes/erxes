@@ -7,6 +7,7 @@ const transactionEmailDeliveries = `
         subject
         to
         cc
+        bcc
         from
         status
         createdAt

@@ -121,6 +121,7 @@ export interface IContract {
   loanPurpose: string;
   leaseType: string;
   commitmentInterest: number;
+  savingContractId: string;
 }
 
 export interface IContractDocument extends IContract, Document {
@@ -449,6 +450,10 @@ export const contractSchema = schemaHooksWrapper(
     loanPurpose: field({
       type: String,
       label: 'Loan purpose'
+    }),
+    savingContractId: field({
+      type: String,
+      label: 'Saving contract Id'
     })
   }),
   'erxes_contractSchema'

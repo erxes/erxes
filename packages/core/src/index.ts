@@ -1,5 +1,4 @@
 import * as dotenv from 'dotenv';
-import * as Sentry from '@sentry/node';
 
 // load environment variables
 dotenv.config();
@@ -50,13 +49,13 @@ import exporter from './exporter';
 import { moduleObjects } from './data/permissions/actions/permission';
 import dashboards from './dashboards';
 import { getEnabledServices } from '@erxes/api-utils/src/serviceDiscovery';
+import { applyInspectorEndpoints } from '@erxes/api-utils/src/inspect';
 
 const {
   JWT_TOKEN_SECRET,
   WIDGETS_DOMAIN,
   DOMAIN,
-  CLIENT_PORTAL_DOMAINS,
-  SENTRY_DSN
+  CLIENT_PORTAL_DOMAINS
 } = process.env;
 
 if (!JWT_TOKEN_SECRET) {
@@ -64,30 +63,6 @@ if (!JWT_TOKEN_SECRET) {
 }
 
 export const app = express();
-
-if (SENTRY_DSN) {
-  Sentry.init({
-    dsn: SENTRY_DSN,
-    integrations: [
-      // enable HTTP calls tracing
-      new Sentry.Integrations.Http({ tracing: true }),
-      // Automatically instrument Node.js libraries and frameworks
-      ...Sentry.autoDiscoverNodePerformanceMonitoringIntegrations()
-    ],
-
-    // Set tracesSampleRate to 1.0 to capture 100%
-    // of transactions for performance monitoring.
-    // We recommend adjusting this value in production
-    tracesSampleRate: 1.0,
-    profilesSampleRate: 1.0 // Profiling sample rate is relative to tracesSampleRate
-  });
-}
-
-// RequestHandler creates a separate execution context, so that all
-// transactions/spans/breadcrumbs are isolated across requests
-app.use(Sentry.Handlers.requestHandler());
-// TracingHandler creates a trace for every incoming request
-app.use(Sentry.Handlers.tracingHandler());
 
 app.disable('x-powered-by');
 
@@ -323,8 +298,7 @@ app.get('/plugins/enabled', async (_req, res) => {
   res.json(result);
 });
 
-// The error handler must be before any other error middleware and after all controllers
-app.use(Sentry.Handlers.errorHandler());
+applyInspectorEndpoints(app, 'core');
 
 // Wrap the Express server
 const httpServer = createServer(app);

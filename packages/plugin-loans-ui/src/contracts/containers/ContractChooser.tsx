@@ -1,4 +1,5 @@
-import { Chooser, withProps } from '@erxes/ui/src';
+import Chooser from '@erxes/ui/src/components/Chooser';
+import { withProps } from '@erxes/ui/src/utils/core';
 import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
 import React from 'react';

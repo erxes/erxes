@@ -23,6 +23,14 @@ export const PinnedMessages = () => {
   const { chatPinnedMessages } = usePinnedChats()
   const [open, setOpen] = useState(false)
 
+  const messageContent = (text: string) => {
+    const urlRegex =
+      /(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/gi
+    return text.replace(urlRegex, (url) => {
+      return `<a href="${url}" target="_blank" class="text-blue-500 font-bold">${url}</a>`
+    })
+  }
+
   const renderPinnedMessages = () => {
     if (chatPinnedMessages.length === 0) {
       return (
@@ -42,8 +50,11 @@ export const PinnedMessages = () => {
         }
 
         return (
-          <div className="bg-[#F0F0F0] p-3 rounded-lg">
-            <div dangerouslySetInnerHTML={{ __html: content || "" }} />
+          <div className="bg-[#F0F0F0] p-3 rounded-lg rounded-tl-none w-fit max-w-[396px]">
+            <div
+              dangerouslySetInnerHTML={{ __html: messageContent(content) || "" }}
+              className=" truncate whitespace-wrap"
+            />
           </div>
         )
       }
@@ -61,7 +72,7 @@ export const PinnedMessages = () => {
                   alt="avatar"
                   width={60}
                   height={60}
-                  className="w-12 h-12 rounded-full object-cover"
+                  className="w-12 h-12 rounded-full object-cover border border-primary"
                 />
                 <div className="indicator bg-success-foreground w-3 h-3 rounded-full border border-white mr-1 absolute bottom-0 right-0" />
               </div>
@@ -80,7 +91,7 @@ export const PinnedMessages = () => {
           </div>
           {renderContent()}
           {attachments && attachments.length > 0 && (
-            <MessageAttachmentSection attachments={attachments} />
+            <MessageAttachmentSection attachments={attachments} isPinned={true} />
           )}
         </div>
       )
@@ -102,7 +113,7 @@ export const PinnedMessages = () => {
             Pinned messages
           </DialogTitle>
         </DialogHeader>
-        <div className="px-4 pt-4 max-h-[60vh] overflow-y-auto">
+        <div className="px-[25px] pt-[25px] max-h-[60vh] overflow-y-auto">
           {renderPinnedMessages()}
         </div>
       </DialogContent>

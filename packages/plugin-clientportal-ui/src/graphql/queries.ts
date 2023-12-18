@@ -96,6 +96,16 @@ export const commonFields = `
     smsContent
   }
 
+  socialpayConfig {
+    certId
+    publicKey
+  }
+
+  testUserEmail
+  testUserPhone
+  testUserPassword
+  testUserOTP
+
   tokenExpiration
   refreshTokenExpiration
   tokenPassMethod

@@ -124,6 +124,7 @@ export const queries = `
   getUnreadChatCount: Int
   chatMessages(chatId: String, isPinned: Boolean, ${paginationParams}): ChatMessageResponse
   chatMessageDetail(_id : String) : ChatMessage
+  chatMessageAttachments(chatId: String, ${paginationParams}): ChatMessageResponse
   getChatIdByUserIds(userIds: [String]): String
   isChatUserOnline(userIds:[String]): [UserStatus]
   activeMe(userId:String!):UserStatus

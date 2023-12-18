@@ -112,6 +112,11 @@ ${
     vendor
   }
 
+  type SocialpayConfig {
+    publicKey: String
+    certId: String
+  }
+
   type ClientPortal {
     _id: String!
     name: String!
@@ -172,6 +177,13 @@ ${
     refreshTokenExpiration: Int
     tokenPassMethod: TokenPassMethod
     vendorParentProductCategoryId: String
+
+    testUserEmail: String
+    testUserPhone: String
+    testUserPassword: String
+    testUserOTP: String
+
+    socialpayConfig: SocialpayConfig
   }
 
   type Styles {
@@ -266,6 +278,11 @@ ${
     styles: StylesParams
     mobileResponsive: Boolean
 
+    testUserEmail: String
+    testUserPhone: String
+    testUserPassword: String
+    testUserOTP: String
+
     otpConfig: OTPConfigInput
     mailConfig: MailConfigInput
     manualVerificationConfig: JSON
@@ -274,6 +291,7 @@ ${
     tokenExpiration: Int
     refreshTokenExpiration: Int
     vendorParentProductCategoryId: String
+    socialpayConfig: JSON
   }
 `;
 

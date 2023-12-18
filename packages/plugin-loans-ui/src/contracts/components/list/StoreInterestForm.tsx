@@ -1,15 +1,16 @@
 import {
-  Button,
-  ControlLabel,
-  Form,
-  FormControl,
-  FormGroup,
   MainStyleFormColumn as FormColumn,
   MainStyleFormWrapper as FormWrapper,
   MainStyleModalFooter as ModalFooter,
-  MainStyleScrollWrapper as ScrollWrapper,
-  DateControl
-} from '@erxes/ui/src';
+  MainStyleScrollWrapper as ScrollWrapper
+} from '@erxes/ui/src/styles/eindex';
+import Button from '@erxes/ui/src/components/Button';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import Form from '@erxes/ui/src/components/form/Form';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import DateControl from '@erxes/ui/src/components/form/DateControl';
+
 import { __ } from 'coreui/utils';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import React from 'react';
@@ -120,7 +121,7 @@ class StoreInterestForm extends React.Component<Props, State> {
               <tr>
                 <td style={{ fontSize: 'bold' }}>{mur.number}</td>
                 <td>
-                  {moment(mur.lastStoredDate || undefined).format('YYYY-MM-DD')}
+                  {moment(mur.lastStoredDate || undefined).format('YYYY/MM/DD')}
                 </td>
                 <td>{mur.expiredDays}</td>
                 <td>{mur.interestNounce}</td>
@@ -145,7 +146,12 @@ class StoreInterestForm extends React.Component<Props, State> {
                 {__('Transaction Date')}
               </ControlLabel>
               <DateContainer>
-                <DateControl {...formProps} required={false} name="startDate" />
+                <DateControl
+                  {...formProps}
+                  dateFormat="YYYY/MM/DD"
+                  required={false}
+                  name="startDate"
+                />
               </DateContainer>
             </FormGroup>
           </FormColumn>

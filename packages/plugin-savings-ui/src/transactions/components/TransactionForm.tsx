@@ -187,6 +187,7 @@ class TransactionForm extends React.Component<Props, State> {
                     {...formProps}
                     required={false}
                     name="payDate"
+                    dateFormat="YYYY/MM/DD"
                     value={this.state.payDate}
                     onChange={onChangePayDate}
                   />

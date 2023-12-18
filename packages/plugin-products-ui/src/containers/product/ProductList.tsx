@@ -145,10 +145,12 @@ export default withProps<Props>(
             categoryId: queryParams.categoryId,
             status: queryParams.productStatus,
             tag: queryParams.tag,
+            brand: queryParams.brand,
             searchValue: queryParams.searchValue,
             type: queryParams.type,
             segment: queryParams.segment,
             segmentData: queryParams.segmentData,
+            ids: queryParams.ids && queryParams.ids.split(','),
             ...generatePaginationParams(queryParams)
           },
           fetchPolicy: 'network-only'
@@ -165,7 +167,8 @@ export default withProps<Props>(
           searchValue: queryParams.searchValue,
           type: queryParams.type,
           segment: queryParams.segment,
-          segmentData: queryParams.segmentData
+          segmentData: queryParams.segmentData,
+          ids: queryParams.ids && queryParams.ids.split(',')
         },
         fetchPolicy: 'network-only'
       })

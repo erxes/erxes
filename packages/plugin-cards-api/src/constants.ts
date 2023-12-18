@@ -372,6 +372,7 @@ export const NOTIFICATION_MODULES = [
   {
     name: 'deals',
     description: 'Deals',
+    icon: 'piggy-bank',
     types: [
       {
         name: 'dealAdd',
@@ -403,6 +404,7 @@ export const NOTIFICATION_MODULES = [
   {
     name: 'purchases',
     description: 'Purchases',
+    icon: 'bag-alt',
     types: [
       {
         name: 'purchaseAdd',
@@ -434,6 +436,7 @@ export const NOTIFICATION_MODULES = [
   {
     name: 'tickets',
     description: 'Tickets',
+    icon: 'ticket',
     types: [
       {
         name: 'ticketAdd',
@@ -465,6 +468,7 @@ export const NOTIFICATION_MODULES = [
   {
     name: 'tasks',
     description: 'Tasks',
+    icon: 'file-check-alt',
     types: [
       {
         name: 'taskAdd',

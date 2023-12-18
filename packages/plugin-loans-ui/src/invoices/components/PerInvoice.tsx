@@ -38,7 +38,7 @@ const renderAddInvoice = content => {
   };
 
   const addTrigger = (
-    <Button btnStyle="success" size="small" icon="plus-circle">
+    <Button btnStyle="success" icon="plus-circle">
       {__('Add invoice')}
     </Button>
   );
@@ -61,7 +61,7 @@ const renderAddTransaction = invoice => {
   };
 
   const addTrigger = (
-    <Button btnStyle="success" size="small" icon="check-circle">
+    <Button btnStyle="success" icon="check-circle">
       {__('To Pay')}
     </Button>
   );
@@ -108,7 +108,7 @@ const renderButtons = (content, removeInvoices) => {
   }
   return (
     <>
-      <Button btnStyle="danger" size="small" icon="cancel-1" onClick={onDelete}>
+      <Button btnStyle="danger" icon="cancel-1" onClick={onDelete}>
         {__('Delete')}
       </Button>
       {renderAddTransaction(content)}

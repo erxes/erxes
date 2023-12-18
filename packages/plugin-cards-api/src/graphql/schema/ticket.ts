@@ -35,6 +35,8 @@ const listQueryParams = `
   _ids: [String]
   pipelineId: String
   pipelineIds: [String]
+  page: Int
+  perPage: Int
   parentId:String
   stageId: String
   customerIds: [String]
