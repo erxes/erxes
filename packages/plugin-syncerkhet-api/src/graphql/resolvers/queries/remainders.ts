@@ -72,7 +72,7 @@ const erkhetQueries = {
       });
 
       const jsonRes = JSON.parse(response);
-      let responseByCode = jsonRes;
+      let responseByCode = {};
 
       if (remConfig.account && remConfig.location) {
         const accounts = remConfig.account.split(',') || [];

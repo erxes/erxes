@@ -29,7 +29,6 @@ export const useNotification = (): IUseNotifications => {
   const totalCountQuery = useQuery(queries.notificationCounts, {
     variables: { contentTypes: ["exmFeed"] },
   })
-
   const unreadCountQuery = useQuery(queries.notificationCounts, {
     variables: { requireRead: true, contentTypes: ["exmFeed"] },
   })

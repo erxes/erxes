@@ -1,3 +1,29 @@
+## [1.5.5](https://github.com/erxes/erxes/compare/1.5.4...1.5.5) (2023-12-13)
+
+
+### Bug Fixes
+
+* **inbox:** fix integration resolvers ([06e6d6d](https://github.com/erxes/erxes/commit/06e6d6d3166db98e99a531181cb2dcb9f2811a87))
+* **inbox:** fix integration resolvers ([c5a5efe](https://github.com/erxes/erxes/commit/c5a5efec3a8f2daeb3b8b21ae8d3e76bb3bc6b86))
+* **inbox:** integrations loading bug when create ([b0e44da](https://github.com/erxes/erxes/commit/b0e44da907892097338742852499c344cbe8942f))
+* **knowledgebase:** Background image preview not showing ([e721839](https://github.com/erxes/erxes/commit/e721839fd14be6cffd279fe74bb1edae64561df7))
+* **knowledgebase:** fix count query ([#4843](https://github.com/erxes/erxes/issues/4843)) ([f887d1a](https://github.com/erxes/erxes/commit/f887d1a8ef92a5a28c94a44354a9e43cb1b70981))
+
+
+### Features
+
+* **cards:** show private cards to system user ([898741b](https://github.com/erxes/erxes/commit/898741b0a5919c9a1723433f007c2ccc56917268))
+
+## [1.5.4](https://github.com/erxes/erxes/compare/1.5.3...1.5.4) (2023-12-08)
+
+## [1.5.3](https://github.com/erxes/erxes/compare/1.5.2...1.5.3) (2023-12-08)
+
+
+### Bug Fixes
+
+* **cards:** fix forecast percentage in salespipeline ([4e3ce1a](https://github.com/erxes/erxes/commit/4e3ce1adef03cb203172124a564bf1def48ebea1))
+* **settings:** commented loaders and fixed collapse content ui ([b2690ea](https://github.com/erxes/erxes/commit/b2690ea1a0c20d1581b1ba2289d695a2634d01e1))
+
 ## [1.5.2](https://github.com/erxes/erxes/compare/1.5.1...1.5.2) (2023-12-06)
 
 
