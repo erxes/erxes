@@ -37,6 +37,7 @@ const configQueries = {
     if (!deal || !deal.productsData || !deal.productsData.length) {
       return [];
     }
+
     const mainConfigs = await models.Configs.getConfig('erkhetConfig', {});
 
     const brandIds = Object.keys(mainConfigs);
