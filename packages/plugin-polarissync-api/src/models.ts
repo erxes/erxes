@@ -1,6 +1,4 @@
-import { model } from 'mongoose';
-import { Schema } from 'mongoose';
-import * as _ from 'underscore';
+import { Schema, model } from 'mongoose';
 
 export const polarissyncSchema = new Schema({
   customerId: String,

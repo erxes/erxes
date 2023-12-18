@@ -40,6 +40,11 @@ export const types = `
     clientPortalId: String
     eventData: JSON
   }
+
+  input EventDataFilter {
+    field: String,
+    values: [String]
+  }
 `;
 
 const params = `
@@ -50,7 +55,8 @@ const params = `
   notifType: NotificationType
   search: String
   startDate: String
-  endDate: String
+  endDate: String,
+  eventDataFilter: EventDataFilter
 `;
 
 export const queries = `

@@ -272,7 +272,7 @@ export const sendMessage = async (
   } = args;
 
   if (serviceName && !(await serviceDiscovery.isEnabled(serviceName))) {
-    if (isRPC) {
+    if (isRPC && defaultValue === undefined) {
       throw new Error(`${serviceName} service is not enabled`);
     } else {
       return defaultValue;

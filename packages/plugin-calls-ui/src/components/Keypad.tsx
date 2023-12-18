@@ -14,7 +14,8 @@ import {
   ContactItem,
   CallTabsContainer,
   CallTab,
-  CallTabContent
+  CallTabContent,
+  DisconnectCall
 } from '../styles';
 import { inCallTabs, numbers, symbols } from '../constants';
 import { FormControl } from '@erxes/ui/src/components/form';
@@ -158,11 +159,62 @@ const KeyPad = (props: Props, context) => {
   };
 
   const handleCallStop = () => {
-    const { stopCall, call } = context;
+    const { stopCall } = context;
 
     if (stopCall) {
       stopCall();
     }
+  };
+
+  const handleCallConnect = () => {
+    const integration = callIntegrationsOfUser?.find(
+      integration => integration.phone === callFrom
+    );
+
+    localStorage.setItem(
+      'config:call_integrations',
+      JSON.stringify({
+        inboxId: integration?.inboxId,
+        phone: integration?.phone,
+        wsServer: integration?.wsServer,
+        token: integration?.token,
+        operators: integration?.operators,
+        isAvailable: true
+      })
+    );
+    setConfig({
+      inboxId: integration?.inboxId,
+      phone: integration?.phone,
+      wsServer: integration?.wsServer,
+      token: integration?.token,
+      operators: integration?.operators,
+      isAvailable: true
+    });
+  };
+
+  const handleCallDisConnect = () => {
+    const integration = callIntegrationsOfUser?.find(
+      integration => integration.phone === callFrom
+    );
+    localStorage.setItem(
+      'config:call_integrations',
+      JSON.stringify({
+        inboxId: integration?.inboxId,
+        phone: integration?.phone,
+        wsServer: integration?.wsServer,
+        token: integration?.token,
+        operators: integration?.operators,
+        isAvailable: false
+      })
+    );
+    setConfig({
+      inboxId: integration?.inboxId,
+      phone: integration?.phone,
+      wsServer: integration?.wsServer,
+      token: integration?.token,
+      operators: integration?.operators,
+      isAvailable: false
+    });
   };
 
   const handNumPad = e => {
@@ -441,17 +493,33 @@ const KeyPad = (props: Props, context) => {
           />
           <>
             {Sip.call?.status === CALL_STATUS_IDLE && (
-              <Button icon="outgoing-call" onClick={handleCall}>
-                Call
-              </Button>
+              <>
+                <Button icon="outgoing-call" onClick={handleCall}>
+                  Call
+                </Button>
+                <DisconnectCall>
+                  <Button
+                    btnStyle="danger"
+                    icon="signal-slash"
+                    onClick={handleCallDisConnect}
+                  >
+                    Disconnect Call
+                  </Button>
+                </DisconnectCall>
+              </>
             )}
-            {Sip.call?.status !== CALL_STATUS_IDLE && (
+            {Sip.call && Sip.call?.status !== CALL_STATUS_IDLE && (
               <Button
                 icon="phone-slash"
                 btnStyle="danger"
                 onClick={handleCallStop}
               >
                 End Call
+              </Button>
+            )}
+            {!Sip.call && (
+              <Button btnStyle="success" onClick={handleCallConnect}>
+                Connect to Call
               </Button>
             )}
           </>

@@ -43,6 +43,14 @@ export interface IChannelData {
   }>;
   message: {
     mid: string;
+    quick_reply?: any;
+    payload?: any;
+  };
+  postback: {
+    title: string;
+    mid: string;
+    payload: string;
+    quick_reply?: any;
   };
 }
 

@@ -39,6 +39,7 @@ function General({
   erxesAppToken,
   otpConfig,
   mailConfig,
+  socialpayConfig,
   name,
   manualVerificationConfig,
   passwordVerificationConfig,
@@ -313,6 +314,56 @@ function General({
             </FormGroup>
           </>
         )}
+      </CollapseContent>
+    );
+  };
+
+  const renderSocialPayConfig = () => {
+    const config = socialpayConfig || {
+      certId: '',
+      publicKey: ''
+    };
+
+    const handleChange = e => {
+      const key = e.currentTarget.id;
+      const value = (e.currentTarget as HTMLInputElement).value;
+
+      config[key] = value;
+
+      handleFormChange('socialpayConfig', config);
+    };
+
+    return (
+      <CollapseContent
+        title={__('SocialPay Config')}
+        compact={true}
+        open={false}
+      >
+        <FormGroup>
+          <ControlLabel required={true}>Certificate ID</ControlLabel>
+
+          <FlexContent>
+            <FormControl
+              id="certId"
+              name="certId"
+              value={config.certId}
+              onChange={handleChange}
+            />
+          </FlexContent>
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel required={true}>Public key</ControlLabel>
+
+          <FlexContent>
+            <FormControl
+              id="publicKey"
+              name="publicKey"
+              value={config.publicKey}
+              onChange={handleChange}
+            />
+          </FlexContent>
+        </FormGroup>
       </CollapseContent>
     );
   };
@@ -612,6 +663,7 @@ function General({
         </BlockRow>
       </CollapseContent>
       {renderOtp()}
+      {renderSocialPayConfig()}
       {renderMailConfig()}
       <PasswordConfig
         config={passwordVerificationConfig}

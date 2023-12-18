@@ -9,6 +9,7 @@ import {
 } from './utils';
 import { IModels } from './connectionResolver';
 import { INTEGRATION_KINDS } from './constants';
+import { putCreateLog } from './logUtils';
 
 interface IDoc {
   postId?: string;
@@ -255,6 +256,13 @@ export const getOrCreateComment = async (
       }
     });
   }
+
+  await putCreateLog(
+    models,
+    subdomain,
+    { type: 'comment', newData: comment, object: doc },
+    userId
+  );
 };
 
 export const getOrCreateCustomer = async (
