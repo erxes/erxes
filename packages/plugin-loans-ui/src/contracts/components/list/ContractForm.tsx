@@ -355,6 +355,13 @@ class ContractForm extends React.Component<Props, State> {
       useFee: contractTypeObj?.useFee
     };
 
+    if (
+      contractTypeObj.invoiceDay &&
+      contractTypeObj.leaseType === LEASE_TYPES.CREDIT
+    ) {
+      changingStateValue['scheduleDays'] = [contractTypeObj.invoiceDay];
+    }
+
     if (!this.state.unduePercent) {
       changingStateValue['unduePercent'] = contractTypeObj?.unduePercent;
     }
@@ -903,24 +910,23 @@ class ContractForm extends React.Component<Props, State> {
                 })}
             </FormColumn>
             <FormColumn>
-              {this.state.leaseType !== LEASE_TYPES.LINEAR &&
-                this.state.leaseType !== LEASE_TYPES.SAVING && (
-                  <FormGroup>
-                    <ControlLabel required>{__('Schedule Days')}</ControlLabel>
-                    <Select
-                      required
-                      className="flex-item"
-                      placeholder={__('Choose an schedule Days')}
-                      value={this.state.scheduleDays}
-                      onChange={onSelectScheduleDays}
-                      multi={true}
-                      options={new Array(31).fill(1).map((row, index) => ({
-                        value: row + index,
-                        label: row + index
-                      }))}
-                    />
-                  </FormGroup>
-                )}
+              {this.state.leaseType === LEASE_TYPES.FINANCE && (
+                <FormGroup>
+                  <ControlLabel required>{__('Schedule Days')}</ControlLabel>
+                  <Select
+                    required
+                    className="flex-item"
+                    placeholder={__('Choose an schedule Days')}
+                    value={this.state.scheduleDays}
+                    onChange={onSelectScheduleDays}
+                    multi={true}
+                    options={new Array(31).fill(1).map((row, index) => ({
+                      value: row + index,
+                      label: row + index
+                    }))}
+                  />
+                </FormGroup>
+              )}
               {this.state.leaseType === LEASE_TYPES.SAVING && (
                 <FormGroup>
                   <ControlLabel required={true}>{__('End Date')}</ControlLabel>
