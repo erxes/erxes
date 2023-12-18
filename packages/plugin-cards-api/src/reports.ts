@@ -732,31 +732,7 @@ const chartTemplates = [
       } catch (error) {
         console.error('Error fetching tags:', error);
       }
-      // try {
-      //   if (selectedTagIds.length === 0) {
-      //     // No selected users, so get all tasks
-      //     tasksCount = await models?.Tasks.find({ isComplete: true }).lean();
-      //   } else {
-      //     // Filter tasks based on selectedLabelIds
-      //     tasksCount = await models?.Tasks.find({
-      //       tagIds: { $in: selectedTagIds },
-      //       isComplete: true
-      //     }).lean();
-      //   }
 
-      //   // Check if the returned value is not an array
-      //   if (!Array.isArray(tasksCount)) {
-      //     throw new Error('Invalid data: tasks is not an array.');
-      //   }
-
-      //   // Continue processing tasks...
-      // } catch (error) {
-      //   console.error('Error fetching tasks:', error);
-
-      //   // Handle the error or return an appropriate response.
-      //   // For example, you might set tasks to an empty array to avoid further issues
-      //   tasksCount = [];
-      // }
       const taskCounts = taskClosedByTagsRep(tasksCount);
 
       // Convert the counts object to an array of objects with ownerId and count
@@ -839,32 +815,6 @@ const chartTemplates = [
       } catch (error) {
         console.error('Error fetching deals:', error);
       }
-
-      // try {
-      //   if (selectedUserIds.length === 0) {
-      //     // No selected users, so get all tasks
-      //     tasks = await models?.Tasks.find({ isComplete: true }).lean();
-      //   } else {
-      //     // Filter tasks based on selectedUserIds
-      //     tasks = await models?.Tasks.find({
-      //       assignedUserIds: { $in: selectedUserIds },
-      //       isComplete: true
-      //     }).lean();
-      //   }
-
-      //   // Check if the returned value is not an array
-      //   if (!Array.isArray(tasks)) {
-      //     throw new Error('Invalid data: tasks is not an array.');
-      //   }
-
-      //   // Continue processing tasks...
-      // } catch (error) {
-      //   console.error('Error fetching tasks:', error);
-
-      //   // Handle the error or return an appropriate response.
-      //   // For example, you might set tasks to an empty array to avoid further issues
-      //   tasks = [];
-      // }
 
       // Calculate task counts
       const taskCounts = calculateTicketCounts(tasks, selectedUserIds);
@@ -1127,35 +1077,6 @@ const chartTemplates = [
       } catch (error) {
         console.error('Error fetching deals:', error);
       }
-      // try {
-      //   if (selectedUserIds.length === 0) {
-      //     // No selected users, so get all tickets
-      //     tasks = await models?.Tasks.find({
-      //       isComplete: true
-      //     }).lean();
-      //   } else {
-      //     // Filter tickets based on selectedUserIds
-      //     tasks = await models?.Tasks.find({
-      //       assignedUserIds: {
-      //         $in: selectedUserIds
-      //       },
-      //       isComplete: true
-      //     }).lean();
-      //   }
-
-      //   // Check if the returned value is not an array
-      //   if (!Array.isArray(tasks)) {
-      //     throw new Error('Invalid data: tickets is not an array.');
-      //   }
-
-      //   // Continue processing tickets...
-      // } catch (error) {
-      //   console.error('Error fetching tickets:', error);
-
-      //   // Handle the error or return an appropriate response.
-      //   // For example, you might set tickets to an empty array to avoid further issues
-      //   tasks = [];
-      // }
 
       const ticketData = await calculateAverageTimeToCloseUser(
         tasks,
@@ -1437,26 +1358,7 @@ const chartTemplates = [
       } catch (error) {
         console.error('Error fetching deals:', error);
       }
-      // try {
-      //   if (selectedUserIds.length === 0) {
-      //     deals = await models?.Deals.find({}).lean();
-      //   } else {
-      //     deals = await models?.Deals.find({
-      //       assignedUserIds: {
-      //         $in: selectedUserIds
-      //       }
-      //     }).lean();
-      //   }
-      //   if (!Array.isArray(deals)) {
-      //     throw new Error('Invalid data: deals is not an array.');
-      //   }
-      // } catch (error) {
-      //   console.error('Error fetching tickets:', error);
 
-      //   // Handle the error or return an appropriate response.
-      //   // For example, you might set tickets to an empty array to avoid further issues
-      //   deals = [];
-      // }
       const dealCounts = calculateAverageDealAmountByRep(
         deals,
         selectedUserIds
@@ -1530,29 +1432,7 @@ const chartTemplates = [
       } catch (error) {
         console.error('Error fetching deals:', error);
       }
-      // try {
-      //   if (selectedUserIds.length === 0) {
-      //     deals = await models?.Deals.find({
-      //       isComplete: true
-      //     }).lean();
-      //   } else {
-      //     deals = await models?.Deals.find({
-      //       $and: [
-      //         { isComplete: true },
-      //         { assignedUserIds: { $in: selectedUserIds } }
-      //       ]
-      //     }).lean();
-      //   }
-      //   if (!Array.isArray(deals)) {
-      //     throw new Error('Invalid data: deals is not an array.');
-      //   }
-      // } catch (error) {
-      //   console.error('Error fetching tickets:', error);
 
-      //   // Handle the error or return an appropriate response.
-      //   // For example, you might set tickets to an empty array to avoid further issues
-      //   deals = [];
-      // }
       const dealCounts = calculateAverageDealAmountByRep(
         deals,
         selectedUserIds
@@ -2607,30 +2487,6 @@ function departmentCount(tasks: any) {
   return taskCounts;
 }
 
-function incompleteAssignedCount(tasks: any) {
-  // tslint:disable-next-line:no-shadowed-variable
-  const taskCounts: Record<string, number> = {};
-
-  // Check if tasks is an array
-  if (!Array.isArray(tasks)) {
-    console.error('Invalid input: tasks should be an array.');
-    return taskCounts;
-  }
-
-  tasks.forEach(task => {
-    const taskIds = (task.assignedUserIds as string[]) || [];
-
-    if (taskIds.length === 0) {
-      return;
-    }
-    taskIds.forEach(ownerId => {
-      taskCounts[ownerId] = (taskCounts[ownerId] || 0) + 1;
-    });
-  });
-
-  return taskCounts;
-}
-
 function calculateTicketCounts(tickets: any, selectedUserIds: any) {
   // tslint:disable-next-line:no-shadowed-variable
   const ticketCounts: Record<string, number> = {};
@@ -2957,13 +2813,6 @@ const calculateAverageTimeToCloseUser = (
     }
   });
 
-  // Create the final result array with sum of timeDifference for each user
-  // const resultArray = Object.entries(userTotals).map(
-  //   ([userId, timeDifferenceSum]) => ({
-  //     timeDifference: timeDifferenceSum.toFixed(3),
-  //     assignedUserIds: [userId]
-  //   })
-  // );
   const resultArray = Object.entries(userTotals).map(
     (
       value: [string, unknown],
@@ -3004,32 +2853,4 @@ function sumCountsByUserIdName(inputArray: any[]) {
   });
 
   return Array.from(resultMap.values());
-}
-
-function calculateDealsByLastModifiedDate(deals) {
-  const dealsByDate = {};
-
-  deals.forEach(deal => {
-    const modifiedAt = new Date(deal.modifiedAt);
-    const dealName = deal.name;
-
-    if (dealName && !isNaN(modifiedAt.getTime())) {
-      const formattedDate = modifiedAt.toLocaleDateString();
-      dealsByDate[formattedDate] = dealsByDate[formattedDate] || [];
-      dealsByDate[formattedDate].push({ name: dealName });
-    }
-  });
-
-  // Sort keys (dates) in ascending order
-  const sortedDates = Object.keys(dealsByDate).sort(
-    (a, b) => new Date(a).getTime() - new Date(b).getTime()
-  );
-
-  // Create an array of objects with date and deals properties
-  const result = sortedDates.map(date => ({
-    date,
-    deals: dealsByDate[date]
-  }));
-
-  return result;
 }
