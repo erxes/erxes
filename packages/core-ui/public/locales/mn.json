@@ -2479,5 +2479,8 @@
   "Saving Collectively Customers":"Хамтран эзэмшигч",
   "Loan Contracts":"Зээлийн гэрээ",
   "Saving upper interest":"Итгэлцлийн нэмэгдүүлэх зээлийн хүү",
-  "Saving upper percent":"Итгэлцлийн зээлжих хувь"
+  "Saving upper percent":"Итгэлцлийн зээлжих хувь",
+  "Change contract":"Гэрээ өөрчлөх",
+  "Saving contracts":"Итгэлцлийн гэрээ",
+  "Collateral type":"Барьцаа хөрөнгийн төрөл"
 }

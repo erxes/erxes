@@ -262,7 +262,7 @@ class ContractTypeForm extends React.Component<Props, State> {
               {this.state.leaseType !== LEASE_TYPES.SAVING &&
                 this.state.leaseType !== LEASE_TYPES.CREDIT && (
                   <FormGroup>
-                    <ControlLabel>{__('Collateral Type')}:</ControlLabel>
+                    <ControlLabel>{__('Collateral type')}:</ControlLabel>
                     <FormControl
                       {...this.props}
                       name="collateralType"
