@@ -59,6 +59,32 @@ export const CustomRangeContainer = styled.div`
   }
 `;
 
+export const BlockRow = styled(FlexRow)`
+  align-items: center;
+  margin-bottom: ${dimensions.unitSpacing}px;
+
+  > label {
+    margin-right: 10px;
+  }
+
+  > div {
+    padding-right: ${dimensions.coreSpacing}px;
+    width: 33%;
+
+    &.description {
+      width: 50%;
+    }
+
+    .jJKBbS {
+      margin: 0;
+    }
+
+    @media (max-width: 1250px) {
+      flex: 1;
+    }
+  }
+`;
+
 export const FilterContainer = styled.div`
   padding: 10px 20px 20px;
 `;
