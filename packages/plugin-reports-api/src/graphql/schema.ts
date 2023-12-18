@@ -120,7 +120,7 @@ const queryParams = `
   perPage: Int
   page: Int
   departmentId: String
-  tagId: String
+  tag: String
 `;
 
 export const queries = `
@@ -166,7 +166,7 @@ const report_params = `
   tagIds: [String],
   reportTemplateType: String
   serviceName: String
-  charts: [String]
+  charts: [JSON]
 `;
 
 export const mutations = `

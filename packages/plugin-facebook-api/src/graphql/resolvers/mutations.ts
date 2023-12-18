@@ -24,6 +24,22 @@ const facebookMutations = {
 
     return 'success';
   },
+
+  async facebookMessengerAddBot(_root, args, { models }: IContext) {
+    return await models.Bots.addBot(args);
+  },
+
+  async facebookMessengerUpdateBot(
+    _root,
+    { _id, ...args },
+    { models }: IContext
+  ) {
+    return await models.Bots.updateBot(_id, args);
+  },
+
+  async facebookMessengerRemoveBot(_root, { _id }, { models }: IContext) {
+    return await models.Bots.removeBot(_id);
+  },
   async facebookChangeCommentStatus(
     _root,
     params: ICommentStatusParams,

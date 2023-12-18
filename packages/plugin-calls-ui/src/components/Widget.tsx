@@ -3,7 +3,7 @@ import Tip from '@erxes/ui/src/components/Tip';
 import { __ } from '@erxes/ui/src/utils';
 import React from 'react';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
-import { NotifButton } from '@erxes/ui-notifications/src/components/styles';
+import { NotifButton } from '../styles';
 import WidgetPopover from './WidgetPopover';
 
 type Props = {

@@ -58,7 +58,8 @@ export const generateProducts = async (
           _id: { $in: fieldIds }
         }
       },
-      isRPC: true
+      isRPC: true,
+      defaultValue: []
     });
 
     for (const customFieldData of customFieldsData || []) {

@@ -4,7 +4,10 @@ import Icon from '@erxes/ui/src/components/Icon';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
 import React from 'react';
-import { __ } from 'coreui/utils';
+import { __ } from '@erxes/ui/src';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import FormGroup from '@erxes/ui/src/components/form/Group';
 
 type Props = {
   config: any;
@@ -18,8 +21,23 @@ type Props = {
   onlySet?: boolean;
 };
 
-export default class Attribution extends React.Component<Props> {
+type State = {
+  searchValue: string;
+};
+
+function capitalizeFirstLetter(string) {
+  return string.charAt(0).toUpperCase() + string.slice(1);
+}
+export default class Attribution extends React.Component<Props, State> {
   private overlay: any;
+
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      searchValue: ''
+    };
+  }
 
   hideContent = () => {
     this.overlay.hide();
@@ -55,19 +73,48 @@ export default class Attribution extends React.Component<Props> {
 
   renderContent() {
     const { attributions, attrType, attrTypes } = this.props;
+    const { searchValue } = this.state;
     let filterAttrs = attributions;
 
+    const onSearch = e => {
+      const { value } = e.currentTarget as HTMLInputElement;
+
+      this.setState({ searchValue: value });
+    };
+
     if (attrType && attrType !== 'String') {
-      filterAttrs = filterAttrs.filter(f => f.type === attrType);
+      filterAttrs = filterAttrs.filter(
+        ({ type, validation = '' }) =>
+          type === attrType || validation === attrType.toLowerCase()
+      );
     }
+
     if (attrTypes?.length) {
-      filterAttrs = filterAttrs.filter(f => attrTypes.includes(f.type));
+      filterAttrs = filterAttrs.filter(
+        ({ type, validation = '' }) =>
+          attrTypes.includes(type) ||
+          attrTypes.includes(capitalizeFirstLetter(validation))
+      );
+    }
+
+    if (searchValue) {
+      filterAttrs = filterAttrs.filter(option =>
+        new RegExp(searchValue, 'i').test(option.label)
+      );
     }
 
     return (
       <Popover id="attribute-popover">
         <Attributes>
           <React.Fragment>
+            <FormGroup>
+              <ControlLabel>{__('Search')}</ControlLabel>
+              <FormControl
+                placeholder="type a search"
+                value={searchValue}
+                onChange={onSearch}
+              />
+            </FormGroup>
             <li>
               <b>{__('Attributions')}</b>
             </li>
