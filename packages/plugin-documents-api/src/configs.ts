@@ -30,6 +30,9 @@ export default {
     context.subdomain = subdomain;
     context.models = await generateModels(subdomain);
   },
+  meta: {
+    permissions
+  },
 
   getHandlers: [
     {

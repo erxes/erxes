@@ -14,6 +14,7 @@ export const TAG_TYPES = {
   TASK: __('cards:task'),
   PURCHASE: __('cards:purchase'),
   DASHBOARD: __('dashboard:dashboard'),
+  REPORT: __('reports:reports'),
   ALL_LIST: [
     'conversation',
     'customer',

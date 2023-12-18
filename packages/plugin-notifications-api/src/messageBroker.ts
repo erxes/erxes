@@ -227,3 +227,14 @@ export const sendSegmentsMessage = async (
     ...args
   });
 };
+
+export const sendClientPortalMessagge = async (
+  args: ISendMessageArgs
+): Promise<any> => {
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName: 'clientportal',
+    ...args
+  });
+};

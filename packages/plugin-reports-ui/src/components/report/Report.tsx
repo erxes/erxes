@@ -22,6 +22,9 @@ import SelectMembersForm from '../utils/SelectMembersForm';
 import Participators from './Participators';
 import ChartForm from '../../containers/chart/ChartForm';
 import ChartRenderer from '../../containers/chart/ChartRenderer';
+import { withRouter } from 'react-router-dom';
+import { IRouterProps } from '@erxes/ui/src/types';
+import withTableWrapper from '@erxes/ui/src/components/table/withTableWrapper';
 
 const DEFAULT_GRID_DIMENSIONS = {
   w: 3,
@@ -162,7 +165,7 @@ const Report = (props: Props) => {
 
   const handleBackButtonClick = () => {
     if (showChartForm) {
-      toggleChartForm();
+      toggleChartAddForm();
       return;
     }
 
@@ -341,11 +344,13 @@ const Report = (props: Props) => {
       }
     });
   };
+
   return (
     <HeightedWrapper>
       <ReportContainer>
         <Wrapper.Header
           title={report.name || 'Report'}
+          queryParams={queryParams}
           breadcrumb={[
             { title: __('Reports'), link: '/reports' },
             { title: `${(report && report.name) || ''}` }
