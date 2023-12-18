@@ -9,7 +9,6 @@ const Login = () => {
           <div className="mb-5 flex w-full justify-center rounded-lg border py-3">
             <Logo />
           </div>
-
           <LoginContainer />
         </div>
       </div>
