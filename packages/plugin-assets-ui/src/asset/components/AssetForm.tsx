@@ -1,41 +1,41 @@
-import SelectCompanies from '@erxes/ui-contacts/src/companies/containers/SelectCompanies';
 import {
   Button,
-  ControlLabel,
-  extractAttachment,
   Form as CommonForm,
+  ControlLabel,
+  FlexContent,
+  FlexItem,
   FormControl,
   FormGroup,
   ModalTrigger,
-  Tabs,
   TabTitle,
+  Tabs,
   Uploader,
-  FlexContent,
-  FlexItem
+  extractAttachment
 } from '@erxes/ui/src';
-import EditorCK from '@erxes/ui/src/components/EditorCK';
-import { FormColumn, ModalFooter } from '@erxes/ui/src/styles/main';
-import {
-  IAttachment,
-  IButtonMutateProps,
-  IFormProps
-} from '@erxes/ui/src/types';
-import { isEnabled } from '@erxes/ui/src/utils/core';
-import React from 'react';
-import { IAsset, IAssetCategoryTypes } from '../../common/types';
 import {
   CommonFormGroup,
   SelectWithAssetCategory,
   SelectWithAssets
 } from '../../common/utils';
+import { FormColumn, ModalFooter } from '@erxes/ui/src/styles/main';
 import {
   FormWrapper,
   TabContainer,
   TabContent,
   TriggerTabs
 } from '../../style';
+import { IAsset, IAssetCategoryTypes } from '../../common/types';
+import {
+  IAttachment,
+  IButtonMutateProps,
+  IFormProps
+} from '@erxes/ui/src/types';
+
 import CategoryForm from '../containers/CategoryForm';
-// import CategoryForm from '../category/containers/Form';
+import EditorCK from '@erxes/ui/src/components/EditorCK';
+import React from 'react';
+import SelectCompanies from '@erxes/ui-contacts/src/companies/containers/SelectCompanies';
+import { isEnabled } from '@erxes/ui/src/utils/core';
 
 type Props = {
   asset?: IAsset;
