@@ -5,6 +5,7 @@ import { atom, Provider } from "jotai"
 import { atomWithStorage } from "jotai/utils"
 
 import { modeT } from "@/types/config.types"
+import { IPaymentAmountType } from "@/types/order.types"
 
 // products
 export const searchAtom = atom<string>("")
@@ -19,7 +20,7 @@ export const modeAtom = atomWithStorage<modeT>("mode", "main")
 
 export const currentPaymentTypeAtom = atom<string>("")
 
-export const byPercentTypesAtom = atom<string[]>([])
+export const paymentAmountTypeAtom = atom<IPaymentAmountType>("amount")
 
 export const customerSearchAtom = atom<string>("")
 
