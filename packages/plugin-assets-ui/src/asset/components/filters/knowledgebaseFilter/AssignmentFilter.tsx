@@ -38,7 +38,7 @@ function KnowledgebaseAssignmentFilter({ queryParams, history }: Props) {
     <Box
       title={__('Filter by Knowledgebase Assign')}
       name="showFilterByType"
-      isOpen={queryParams.withKnowledge}
+      isOpen={queryParams.state}
     >
       {renderTypeContent()}
     </Box>

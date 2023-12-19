@@ -108,14 +108,7 @@ function CategoryFilter({
       isOpen={true}
       collapsible={parentCount > 6}
     >
-      <DataWithLoader
-        data={renderContent()}
-        loading={loading}
-        count={totalCount}
-        emptyText="There is no asset category"
-        emptyIcon="folder-2"
-        size="small"
-      />
+      {renderContent()}
     </Box>
   );
 }

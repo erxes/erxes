@@ -62,14 +62,7 @@ function ArticleFilter({ articles, queryParams, history, loading }: Props) {
       isOpen={true}
       collapsible={articles.length > 6}
     >
-      <DataWithLoader
-        data={renderArticlesContent()}
-        loading={loading}
-        count={articles?.length}
-        emptyText="There has no article in this knowledgebase category"
-        emptyIcon="folder-2"
-        size="small"
-      />
+      {renderArticlesContent()}
     </Box>
   );
 }

@@ -136,14 +136,7 @@ function KnowledgebaseFilter({
         isOpen={queryParams.articleIds || queryParams.knowledgebaseCategoryId}
         collapsible={knowledgeBaseTopics.length > 6}
       >
-        <DataWithLoader
-          data={renderContent()}
-          loading={loading}
-          count={knowledgeBaseTopics.length}
-          emptyText="There is no asset knowledgebase"
-          emptyIcon="folder-2"
-          size="small"
-        />
+        {renderContent()}
       </Box>
       {queryParams.knowledgebaseCategoryId && (
         <ArticleFilter
