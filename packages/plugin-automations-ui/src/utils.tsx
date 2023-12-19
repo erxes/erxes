@@ -164,20 +164,16 @@ export const connection = (
   info: any,
   actionId: any
 ) => {
-  const sourceId = info.sourceId;
+  const { sourceId, type, connectType } = info || {};
 
-  if (sourceId.includes('trigger')) {
-    const trigger = triggers.find(
-      t => t.id.toString() === sourceId.replace('trigger-', '')
-    );
+  if (type === 'trigger') {
+    const trigger = triggers.find(t => t.id.toString() === sourceId);
 
     if (trigger) {
       trigger.actionId = actionId;
     }
   } else {
-    const sourceAction = actions.find(
-      a => a.id.toString() === sourceId.replace('action-', '')
-    );
+    const sourceAction = actions.find(a => a.id.toString() === sourceId);
 
     if (sourceAction) {
       if (sourceAction.type === 'if') {
@@ -185,9 +181,54 @@ export const connection = (
           sourceAction.config = {};
         }
 
-        sourceAction.config[
-          info.sourceEndpoint.anchor.y === 0.3 ? 'yes' : 'no'
-        ] = actionId;
+        const [sourceHandle] = info.sourceHandle.split('-');
+
+        sourceAction.config[sourceHandle] = actionId;
+      }
+
+      if (connectType === 'optional') {
+        const sourceConfig = sourceAction?.config || {};
+
+        const optionalConnects = sourceConfig?.optionalConnects || [];
+
+        //update optionalConnects if optional connect exists in sourceAction
+        let updatedOptionalConnects = optionalConnects.map(optConnect =>
+          optConnect.sourceId === sourceId &&
+          optConnect.optionalConnectId === info.optionalConnectId
+            ? { ...optConnect, actionId }
+            : optConnect
+        );
+
+        // add optionalConnect if optional connect not exists in sourceAction
+        if (
+          !optionalConnects.some(
+            optConnect =>
+              optConnect.sourceId === sourceId &&
+              optConnect.optionalConnectId === info?.optionalConnectId
+          )
+        ) {
+          updatedOptionalConnects.push({
+            sourceId,
+            actionId,
+            optionalConnectId: info?.optionalConnectId
+          });
+        }
+
+        // disconnect optionalConnect if optional connect exists in sourceAction but info.optionalConnectId is undefined
+
+        if (
+          !info?.optionalConnectId &&
+          optionalConnects.some(optConnect => optConnect.sourceId === sourceId)
+        ) {
+          updatedOptionalConnects = updatedOptionalConnects.filter(
+            optConnect => optConnect.sourceId !== sourceId
+          );
+        }
+
+        sourceAction.config = {
+          ...sourceConfig,
+          optionalConnects: updatedOptionalConnects
+        };
       } else {
         sourceAction.nextActionId = actionId;
       }

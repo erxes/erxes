@@ -40,12 +40,32 @@ export type EditMutationResponse = {
   editMutation: (params: { variables: MutationVariables }) => Promise<any>;
 };
 
+export type ToCheckProductsMutationResponse = {
+  toCheckProducts: (mutation: { variables: {} }) => Promise<any>;
+};
+
 export type ToSyncProductsMutationResponse = {
   toSyncProducts: (mutation: {
     variables: { action: string; products: any[] };
   }) => Promise<any>;
 };
 
-export type ToCheckProductsMutationResponse = {
-  toCheckProducts: (mutation: { variables: {} }) => Promise<any>;
+export type ToCheckCategoriesMutationResponse = {
+  toCheckProductCategories: (mutation: { variables: {} }) => Promise<any>;
+};
+
+export type ToSyncCategoriesMutationResponse = {
+  toSyncProductCategories: (mutation: {
+    variables: { action: string; categories: any[] };
+  }) => Promise<any>;
+};
+
+export type ToCheckCustomersMutationResponse = {
+  toCheckCustomers: (mutation: { variables: {} }) => Promise<any>;
+};
+
+export type ToSyncCustomersMutationResponse = {
+  toSyncCustomers: (mutation: {
+    variables: { action: string; customers: any[] };
+  }) => Promise<any>;
 };

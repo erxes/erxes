@@ -120,7 +120,7 @@ const queryParams = `
   perPage: Int
   page: Int
   departmentId: String
-  tagId: String
+  tag: String
 `;
 
 export const queries = `
