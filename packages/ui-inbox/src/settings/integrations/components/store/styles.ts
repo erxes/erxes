@@ -171,11 +171,11 @@ const IntegrationItem = styled.div`
 `;
 
 const CollapsibleContent = styled.div`
-  margin: ${dimensions.coreSpacing}px 0 0 ${dimensions.coreSpacing}px;
-  padding: 10px 40px 20px 10px;
+  margin: ${dimensions.coreSpacing}px;
+  padding: 10px 10px 20px 10px;
   background: ${collapsibleBackground};
   box-shadow: inset 10px 11px 5px -10px ${colors.colorShadowGray},
-    inset 11px -11px 5px -10px ${colors.colorShadowGray};
+    inset -11px -11px 5px -10px ${colors.colorShadowGray};
 
   img {
     width: 300px;
@@ -230,6 +230,11 @@ const FullHeight = styled.div`
   height: 100%;
 `;
 
+const ContentFooter = styled.div`
+  text-align: right;
+  margin-top: 20px;
+`;
+
 export {
   IntegrationWrapper,
   IntegrationRow,
@@ -238,6 +243,7 @@ export {
   Box,
   Type,
   Content,
+  ContentFooter,
   SearchInput,
   Ribbon,
   FullHeight

@@ -1,17 +1,15 @@
-import { Title } from '@erxes/ui-settings/src/styles';
+import { FlexItem, InputBar, Title } from '@erxes/ui-settings/src/styles';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import Icon from '@erxes/ui/src/components/Icon';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { __ } from '@erxes/ui/src/utils';
-import { isEnabled } from '@erxes/ui/src/utils/core';
 import React from 'react';
-import { getSubMenu } from '../containers/utils';
 
 import { ByKindTotalCount } from '../types';
 import { PAYMENTCONFIGS } from './constants';
 import PaymentRow from './PaymentRow';
-import { Content, FullHeight, PaymentWrapper, SearchInput } from './styles';
+import { FullHeight, PaymentWrapper, SearchInput } from './styles';
 
 type Props = {
   queryParams: any;
@@ -90,24 +88,31 @@ class Home extends React.Component<Props, State> {
 
   renderSearch() {
     return (
-      <SearchInput isInPopover={false}>
-        <Icon icon="search-1" />
-        <FormControl
-          type="text"
-          placeholder={__('Type to search for an payments') + '...'}
-          onChange={this.onSearch}
-        />
-      </SearchInput>
+      <InputBar type="searchBar">
+        <Icon icon="search-1" size={20} />
+        <FlexItem>
+          <FormControl
+            type="text"
+            placeholder={__('Type to search')}
+            onChange={this.onSearch}
+          />
+        </FlexItem>
+      </InputBar>
     );
   }
 
   render() {
     const { queryParams } = this.props;
 
+    const breadcrumb = [
+      { title: __('Settings'), link: '/settings' },
+      { title: __('Payments') }
+    ];
+
     return (
       <Wrapper
         header={
-          <Wrapper.Header title={__('Payments')} submenu={getSubMenu()} />
+          <Wrapper.Header title={__('Payments')} breadcrumb={breadcrumb} />
         }
         actionBar={
           <Wrapper.ActionBar
@@ -116,11 +121,7 @@ class Home extends React.Component<Props, State> {
             background="colorWhite"
           />
         }
-        content={
-          <Content>
-            <PaymentWrapper>{this.renderPayments()}</PaymentWrapper>
-          </Content>
-        }
+        content={<PaymentWrapper>{this.renderPayments()}</PaymentWrapper>}
         hasBorder={true}
         transparent={true}
       />

@@ -1,27 +1,29 @@
 import {
-  Content,
   FullHeight,
   IntegrationWrapper
 } from '@erxes/ui-inbox/src/settings/integrations/components/store/styles';
 
 import { ByKindTotalCount } from '@erxes/ui-inbox/src/settings/integrations/types';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
-import HeaderDescription from '@erxes/ui/src/components/HeaderDescription';
 import { INTEGRATIONS } from '@erxes/ui/src/constants/integrations';
 import React from 'react';
 import Row from './Row';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { __ } from 'coreui/utils';
+import { DataWithLoader, FormControl, Icon } from '@erxes/ui/src/components';
+import { FlexItem, InputBar } from '@erxes/ui-settings/src/styles';
+import Integration from '../../../Integration';
 
 type Props = {
   totalCount: ByKindTotalCount;
   queryParams: any;
   customLink: (kind: string, addLink: string) => void;
+  loading: boolean;
 };
 
 type State = {
   searchValue: string;
   integrations: any;
+  filteredIntegrations: any;
 };
 
 class Home extends React.Component<Props, State> {
@@ -39,8 +41,29 @@ class Home extends React.Component<Props, State> {
 
     this.state = {
       searchValue: '',
-      integrations
+      integrations,
+      filteredIntegrations: integrations
     };
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    const { searchValue, integrations } = this.state;
+    const { queryParams } = this.props;
+
+    if (
+      prevProps.queryParams.kind !== queryParams.kind ||
+      prevState.searchValue !== searchValue
+    ) {
+      this.setState({
+        filteredIntegrations: integrations.filter(
+          integration =>
+            integration.name.toLowerCase().indexOf(searchValue) !== -1 &&
+            integration.category.indexOf(
+              queryParams.type || 'All integrations'
+            ) !== -1
+        )
+      });
+    }
   }
 
   onSearch = e => {
@@ -48,11 +71,11 @@ class Home extends React.Component<Props, State> {
   };
 
   renderIntegrations() {
-    const { integrations, searchValue } = this.state;
+    const { filteredIntegrations, searchValue } = this.state;
     const { totalCount, queryParams, customLink } = this.props;
 
     const datas = [] as any;
-    const rows = [...integrations];
+    const rows = [...filteredIntegrations];
 
     while (rows.length > 0) {
       datas.push(
@@ -70,7 +93,7 @@ class Home extends React.Component<Props, State> {
       return (
         <FullHeight>
           <EmptyState
-            text={`No results for "${searchValue}"`}
+            text={`No results for "${searchValue}`}
             image="/images/actions/2.svg"
           />
         </FullHeight>
@@ -80,35 +103,45 @@ class Home extends React.Component<Props, State> {
     return datas;
   }
 
-  render() {
-    const breadcrumb = [
-      { title: __('Settings'), link: '/settings' },
-      { title: __('Integrations') }
-    ];
-
-    const headerDescription = (
-      <HeaderDescription
-        icon="/images/actions/33.svg"
-        title="Integrations"
-        description={`${__(
-          'Set up your integrations and start connecting with your customers'
-        )}`}
-      />
+  renderContent = () => {
+    const content = (
+      <IntegrationWrapper>{this.renderIntegrations()}</IntegrationWrapper>
     );
 
     return (
-      <Wrapper
-        header={
-          <Wrapper.Header title={__('Integrations')} breadcrumb={breadcrumb} />
-        }
-        mainHead={headerDescription}
-        content={
-          <Content>
-            <IntegrationWrapper>{this.renderIntegrations()}</IntegrationWrapper>
-          </Content>
-        }
-        transparent={true}
-        hasBorder={true}
+      <DataWithLoader
+        data={content}
+        loading={this.props.loading}
+        emptyText={'There is no Action'}
+        emptyIcon="leaf"
+        size="small"
+        objective={true}
+      />
+    );
+  };
+
+  actionButtons = () => {
+    return (
+      <InputBar type="searchBar">
+        <Icon icon="search-1" size={20} />
+        <FlexItem>
+          <FormControl
+            placeholder={__('Type to search')}
+            name="searchValue"
+            onChange={this.onSearch}
+            autoFocus={true}
+          />
+        </FlexItem>
+      </InputBar>
+    );
+  };
+
+  render() {
+    return (
+      <Integration
+        action={this.actionButtons()}
+        content={this.renderContent()}
+        tab="integrations"
       />
     );
   }
