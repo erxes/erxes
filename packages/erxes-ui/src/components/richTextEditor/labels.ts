@@ -121,6 +121,21 @@ export interface IRichTextEditorLabels {
 
   sourceControlLabel: string;
 
+  /** RichTextEditor.TableControl aria-label */
+  tableControlLabel: string;
+  insertColumnBefore: string;
+  insertColumnAfter: string;
+  deleteColumn: string;
+  insertRowAbove: string;
+  insertRowBelow: string;
+  deleteRow: string;
+  mergeCells: string;
+  splitCell: string;
+  toggleHeaderRow: string;
+  toggleHeaderColumn: string;
+  toggleHeaderCell: string;
+  deleteTable: string;
+
   /** A function go get RichTextEditor.Color control aria-label based on color that control applies */
   colorControlLabel(color: string): string;
 
@@ -180,5 +195,20 @@ export const DEFAULT_LABELS: IRichTextEditorLabels = {
   imageUrlControlLabel: 'Insert image link',
 
   // Source control
-  sourceControlLabel: 'Source'
+  sourceControlLabel: 'Source',
+
+  // Table controls
+  tableControlLabel: 'Insert table',
+  insertColumnBefore: 'Insert column before',
+  insertColumnAfter: 'Insert column after',
+  deleteColumn: 'Delete column',
+  insertRowAbove: 'Insert row above',
+  insertRowBelow: 'Insert row below',
+  deleteRow: 'Delete row',
+  mergeCells: 'Merge cells',
+  splitCell: 'split cell',
+  toggleHeaderRow: 'Toggle header row',
+  toggleHeaderColumn: 'Toggle header column',
+  toggleHeaderCell: 'Toggle header cell',
+  deleteTable: 'Delete table'
 };

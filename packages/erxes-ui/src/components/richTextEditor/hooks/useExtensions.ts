@@ -26,19 +26,31 @@ import { Text } from '@tiptap/extension-text';
 import { TextAlign } from '@tiptap/extension-text-align';
 import { Underline } from '@tiptap/extension-underline';
 import { Heading } from '@tiptap/extension-heading';
+import { Mention } from '@tiptap/extension-mention';
+import CharacterCount from '@tiptap/extension-character-count';
 import { useMemo } from 'react';
-import { FontSize } from '../extensions';
-import Table from '@tiptap/extension-table';
+import { FontSize, Variable } from '../extensions';
 import TableCell from '@tiptap/extension-table-cell';
 import TableHeader from '@tiptap/extension-table-header';
 import TableRow from '@tiptap/extension-table-row';
 import { DivTag, SpanNode, StyleNode } from '../nodes';
 import { ImageResize } from '../extensions/Image';
 import TextStyle from '@tiptap/extension-text-style';
+import { IMentionUser } from '../../../types';
+import { getMentionSuggestions } from '../utils/getMentionSuggestions';
+import { generateJSON } from '@tiptap/html';
+import { TableImproved } from '../extensions/TableImproved';
 
 export type UseExtensionsOptions = {
   /** Placeholder hint to show in the text input area before a user types a message. */
   placeholder?: string;
+
+  showMentions?: boolean;
+
+  mentionSuggestions?: { list: IMentionUser[]; loading: boolean };
+
+  /** Character count limit. */
+  limit?: number;
 };
 
 // Don't treat the end cursor as "inclusive" of the Link mark, so that users can
@@ -79,10 +91,19 @@ const CustomSuperscript = Superscript.extend({
  * A hook for providing a default set of useful extensions for the editor.
  */
 export default function useExtensions({
-  placeholder
+  placeholder,
+  showMentions,
+  mentionSuggestions,
+  limit
 }: UseExtensionsOptions = {}): EditorOptions['extensions'] {
   return useMemo(
     () => [
+      TableImproved.configure({
+        resizable: true
+      }),
+      TableRow,
+      TableHeader,
+      TableCell,
       Document,
       BulletList,
       CodeBlock,
@@ -102,10 +123,6 @@ export default function useExtensions({
         inline: true,
         allowBase64: true
       }),
-      // ImageResize.configure({
-      //   inline: true,
-      //   allowBase64: true,
-      // }),
       Strike,
       CustomLinkExtension.configure({
         // autolink is generally useful for changing text into links if they
@@ -120,6 +137,7 @@ export default function useExtensions({
         openOnClick: false
       }),
       Gapcursor,
+
       TextAlign.configure({
         types: ['heading', 'paragraph', 'image']
       }),
@@ -130,19 +148,75 @@ export default function useExtensions({
       HorizontalRule,
       Dropcursor,
       Heading,
-      Placeholder.configure({
-        placeholder
-      }),
+
       History,
       FontSize,
       DivTag,
-      Table.configure({ resizable: true }),
-      TableRow,
-      TableHeader,
-      TableCell,
+
+      ...(showMentions && mentionSuggestions
+        ? [
+            Mention.configure({
+              renderLabel({ options, node }) {
+                return `${options.suggestion.char}${node.attrs.label ??
+                  node.attrs.id}`;
+              },
+              suggestion: getMentionSuggestions(mentionSuggestions?.list || [])
+            })
+          ]
+        : []),
       SpanNode,
-      StyleNode
+      StyleNode,
+      CharacterCount.configure({
+        limit
+      }),
+      Placeholder.configure({
+        placeholder
+      })
     ],
-    [placeholder]
+    [mentionSuggestions?.loading, showMentions]
   );
+}
+
+export function useGenerateJSON(html: string) {
+  return generateJSON(html, [
+    TableImproved,
+    TableRow,
+    TableHeader,
+    TableCell,
+    Document,
+    BulletList,
+    CodeBlock,
+    HardBreak,
+    ListItem,
+    OrderedList,
+    Paragraph,
+    CustomSubscript,
+    CustomSuperscript,
+    Text,
+    Bold,
+    Blockquote,
+    Code,
+    Italic,
+    Underline,
+    ImageResize,
+    Strike,
+    CustomLinkExtension,
+    Gapcursor,
+    TextAlign,
+    TextStyle,
+    Color,
+    FontFamily,
+    Highlight,
+    HorizontalRule,
+    Dropcursor,
+    Heading,
+    History,
+    FontSize,
+    DivTag,
+    Mention,
+    SpanNode,
+    StyleNode,
+    CharacterCount,
+    Placeholder
+  ]);
 }

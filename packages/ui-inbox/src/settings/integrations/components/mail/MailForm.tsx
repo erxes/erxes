@@ -25,7 +25,7 @@ import { isEnabled, readFile } from '@erxes/ui/src/utils/core';
 import Attachment from '@erxes/ui/src/components/Attachment';
 import Button from '@erxes/ui/src/components/Button';
 import { Column } from '@erxes/ui/src/styles/main';
-import { RichTextEditor } from '@erxes/ui/src/components/richTextEditor/TEditor';
+import RichTextEditor from '@erxes/ui/src/containers/RichTextEditor';
 import EmailTemplate from '../../containers/mail/EmailTemplate';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import { IAttachment } from '@erxes/ui/src/types';
@@ -832,9 +832,10 @@ class MailForm extends React.Component<Props, State> {
       <MailEditorWrapper>
         {this.renderShowReplies()}
         <RichTextEditor
+          toolbarLocation="bottom"
           content={this.state.content}
           onChange={this.onEditorChange}
-          autoGrow
+          autoGrow={true}
           autoGrowMinHeight={300}
           autoGrowMaxHeight={300}
         />

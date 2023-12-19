@@ -36,7 +36,10 @@ const EditorControl = styled.button`
 
   &:disabled {
     color: ${colors.colorCoreLightGray} !important;
-    background-color: transparent !important;
+    svg {
+      fill: ${colors.colorCoreLightGray} !important;
+    }
+    pointer-events: none;
   }
 
   &[data-rich-text-editor-control] {
@@ -207,6 +210,9 @@ const FontSelectWrapper = styled.div`
     z-index: 10;
     position: absolute;
   }
+  .Select.is-disabled > .Select-control {
+    background-color: unset !important;
+  }
   .Select-control {
     width: 56px;
     border-bottom: none;
@@ -301,6 +307,46 @@ const ColorPickerWrapper = styled.div`
   }
 `;
 
+const PlaceholderWrapper = styled.div`
+  > div > button {
+    border: 0.0625rem solid #ced4da;
+    border-radius: 0.25rem;
+    height: 1.75rem;
+    background-color: #fff;
+  }
+  .dropdown-toggle {
+    &:after {
+      margin-left: 1rem;
+    }
+  }
+  button {
+    &:disabled {
+      color: #aaaeb3;
+    }
+  }
+  .dropdown-menu {
+    max-height: 250px;
+    overflow-y: auto;
+    .dropdown-header {
+      display: block;
+      padding: 0.5rem 0.65rem;
+      margin-bottom: 0;
+      font-size: 0.65rem;
+      color: #6c757d;
+      font-weight: bold;
+      white-space: nowrap;
+    }
+  }
+  .dropdown-item {
+    padding: 0.25rem 0.75rem;
+    font-size: 0.75rem;
+    &:hover {
+      cursor: pointer;
+      background-color: #f0f6ff;
+    }
+  }
+`;
+
 export {
   EditorControl,
   LinkWrapper,
@@ -316,5 +362,6 @@ export {
   FormActionWrapper,
   ColorPickerWrapper,
   MenuItem,
-  PickerAction
+  PickerAction,
+  PlaceholderWrapper
 };

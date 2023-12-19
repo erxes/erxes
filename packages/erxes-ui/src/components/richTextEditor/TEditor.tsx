@@ -12,7 +12,9 @@ import {
   RichTextEditorHighlightControl,
   RichTextEditorImageControl,
   RichTextEditorLinkControl,
-  RichTextEditorSourceControl
+  RichTextEditorPlaceholderControl,
+  RichTextEditorSourceControl,
+  TableControl
 } from './RichTextEditorControl';
 
 import { ReactCodeMirrorRef } from '@uiw/react-codemirror';
@@ -23,11 +25,13 @@ import { RichTextEditorToolbar } from './RichTextEditorToolbar/RichTextEditorToo
 import { RichTextEditorWrapper } from './styles';
 import { useEditor } from '@tiptap/react';
 import useExtensions from './hooks/useExtensions';
+import { IMentionUser } from '../../types';
 
 const POSITION_TOP = 'top';
 const POSITION_BOTTOM = 'bottom';
 type toolbarLocationOption = 'bottom' | 'top';
 export interface IRichTextEditorProps extends IRichTextEditorContentProps {
+  placeholder?: string;
   /** Controlled value */
   content: string;
   /** Exposing editor onChange to outer component via props */
@@ -38,6 +42,13 @@ export interface IRichTextEditorProps extends IRichTextEditorContentProps {
   toolbar?: string[];
   name?: string;
   isSubmitted?: boolean;
+  /** Mention suggestion string list */
+  mentionSuggestions?: { list: IMentionUser[]; loading: boolean };
+  /** Mention suggestion string list */
+  placeholderProp?: any;
+  showMentions?: boolean;
+  /** Character count limit. */
+  limit?: number;
 }
 let editorContent: string;
 
@@ -46,6 +57,7 @@ export const RichTextEditor = (props: IRichTextEditorProps) => {
   const codeMirrorRef = useRef<ReactCodeMirrorRef>(null);
   const [isSourceEnabled, setIsSourceEnabled] = useState(false);
   const {
+    placeholder,
     content,
     onChange,
     labels,
@@ -55,7 +67,12 @@ export const RichTextEditor = (props: IRichTextEditorProps) => {
     autoGrowMaxHeight,
     autoGrowMinHeight,
     name,
-    isSubmitted
+    isSubmitted,
+    showMentions = false,
+    mentionSuggestions,
+
+    placeholderProp,
+    limit
   } = props;
 
   const editorContentProps = {
@@ -80,15 +97,20 @@ export const RichTextEditor = (props: IRichTextEditorProps) => {
   };
 
   const extensions = useExtensions({
-    placeholder: 'Custom placeholder...'
+    placeholder: placeholder ?? '',
+    showMentions,
+    mentionSuggestions: showMentions ? mentionSuggestions : undefined
   });
 
-  const editor = useEditor({
-    extensions,
-    content,
-    parseOptions: { preserveWhitespace: 'full' },
-    onUpdate: handleEditorChange
-  });
+  const editor = useEditor(
+    {
+      extensions,
+      content,
+      parseOptions: { preserveWhitespace: 'full' },
+      onUpdate: handleEditorChange
+    },
+    [showMentions]
+  );
 
   useEffect(() => {
     if (!editor) {
@@ -140,6 +162,7 @@ export const RichTextEditor = (props: IRichTextEditorProps) => {
           <RichTextEditor.SourceControl />
           <RichTextEditor.Bold />
           <RichTextEditor.Italic />
+          <RichTextEditor.Underline />
           <RichTextEditor.Strikethrough />
           <RichTextEditor.ImageControl />
         </RichTextEditor.ControlsGroup>
@@ -158,11 +181,8 @@ export const RichTextEditor = (props: IRichTextEditorProps) => {
         <RichTextEditor.ControlsGroup>
           <RichTextEditor.BulletList />
           <RichTextEditor.OrderedList />
-        </RichTextEditor.ControlsGroup>
-
-        <RichTextEditor.ControlsGroup>
-          <RichTextEditor.Link />
-          <RichTextEditor.Unlink />
+          <RichTextEditor.Blockquote />
+          <RichTextEditor.HorizontalRule />
         </RichTextEditor.ControlsGroup>
 
         <RichTextEditor.ControlsGroup>
@@ -173,13 +193,20 @@ export const RichTextEditor = (props: IRichTextEditorProps) => {
         </RichTextEditor.ControlsGroup>
 
         <RichTextEditor.ControlsGroup>
-          <RichTextEditor.FontSize />
+          <RichTextEditor.Link />
+          <RichTextEditor.Unlink />
+          <RichTextEditor.TableControl />
         </RichTextEditor.ControlsGroup>
+
+        <RichTextEditor.FontSize />
+        {placeholderProp && (
+          <RichTextEditor.Placeholder placeholderProp={placeholderProp} />
+        )}
       </RichTextEditor.Toolbar>,
 
       <RichTextEditorContent
         {...editorContentProps}
-        key="rich-text-editor-content-key"
+        key="erxes-rte-content-key"
       />
     ],
     []
@@ -212,7 +239,7 @@ export const RichTextEditor = (props: IRichTextEditorProps) => {
         codeMirrorRef
       }}
     >
-      <RichTextEditorWrapper innerRef={ref}>
+      <RichTextEditorWrapper innerRef={ref} $position={toolbarLocation}>
         {renderEditor()}
       </RichTextEditorWrapper>
     </RichTextEditorProvider>
@@ -228,14 +255,17 @@ RichTextEditor.ControlsGroup = RichTextEditorControlsGroup;
 // Controls components
 RichTextEditor.Bold = controls.BoldControl;
 RichTextEditor.Italic = controls.ItalicControl;
+RichTextEditor.Underline = controls.UnderlineControl;
 RichTextEditor.Strikethrough = controls.StrikeThroughControl;
 RichTextEditor.H1 = controls.H1Control;
 RichTextEditor.H2 = controls.H2Control;
 RichTextEditor.H3 = controls.H3Control;
 RichTextEditor.BulletList = controls.BulletListControl;
 RichTextEditor.OrderedList = controls.OrderedListControl;
+RichTextEditor.Blockquote = controls.BlockquoteControl;
 RichTextEditor.Link = RichTextEditorLinkControl;
 RichTextEditor.Unlink = controls.UnlinkControl;
+RichTextEditor.HorizontalRule = controls.HorizontalRuleControl;
 RichTextEditor.AlignLeft = controls.AlignLeftControl;
 RichTextEditor.AlignRight = controls.AlignRightControl;
 RichTextEditor.AlignCenter = controls.AlignCenterControl;
@@ -249,3 +279,5 @@ RichTextEditor.ColorControl = RichTextEditorColorControl;
 RichTextEditor.HighlightControl = RichTextEditorHighlightControl;
 
 RichTextEditor.SourceControl = RichTextEditorSourceControl;
+RichTextEditor.Placeholder = RichTextEditorPlaceholderControl;
+RichTextEditor.TableControl = TableControl;

@@ -37,15 +37,9 @@ import { SmallLoader } from '@erxes/ui/src/components/ButtonMutate';
 import Tip from '@erxes/ui/src/components/Tip';
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 import { deleteHandler } from '@erxes/ui/src/utils/uploadHandler';
-
-const Editor = asyncComponent(
-  () => import(/* webpackChunkName: "Editor-in-Inbox" */ './Editor'),
-  {
-    height: '137px',
-    width: '100%',
-    color: '#fff'
-  }
-);
+import RichTextEditor from '@erxes/ui/src/containers/RichTextEditor';
+import { useGenerateJSON } from '@erxes/ui/src/components/richTextEditor/hooks/useExtensions';
+import { getParsedMentions } from '@erxes/ui/src/components/richTextEditor/utils/getParsedMentions';
 
 type Props = {
   conversation: IConversation;
@@ -292,10 +286,9 @@ class RespondBox extends React.Component<Props, State> {
       isInternal,
       attachments,
       content,
-      mentionedUserIds,
+      // mentionedUserIds,
       extraInfo
     } = this.state;
-
     const message = {
       conversationId: conversation._id,
       content: this.cleanText(content) || ' ',
@@ -303,19 +296,15 @@ class RespondBox extends React.Component<Props, State> {
       contentType: 'text',
       internal: isInternal,
       attachments,
-      mentionedUserIds
+      mentionedUserIds: getParsedMentions(useGenerateJSON(this.state.content))
     };
-
     if (this.state.content && !this.state.sending) {
       this.setState({ sending: true });
-
       sendMessage(message, error => {
         if (error) {
           return Alert.error(error.message);
         }
-
         localStorage.removeItem(this.props.conversation._id);
-
         // clear attachments, content, mentioned user ids
         return this.setState({
           attachments: [],
@@ -409,21 +398,13 @@ class RespondBox extends React.Component<Props, State> {
     );
 
     return (
-      <Editor
-        currentConversation={conversation._id}
-        defaultContent={this.getUnsendMessage(conversation._id)}
-        integrationKind={conversation.integration.kind}
-        key={this.state.editorKey}
-        onChange={this.onEditorContentChange}
-        onAddMention={this.onAddMention}
-        onAddMessage={this.addMessage}
-        onSearchChange={this.onSearchChange}
+      <RichTextEditor
         placeholder={placeholder}
-        mentions={this.props.teamMembers}
         showMentions={isInternal}
-        responseTemplate={responseTemplate}
-        responseTemplates={responseTemplates}
-        handleFileInput={this.handleFileInput}
+        content={this.state.content}
+        onChange={this.onEditorContentChange}
+        autoGrowMinHeight={137}
+        autoGrowMaxHeight={137}
       />
     );
   }

@@ -57,6 +57,10 @@ const RespondBoxStyled = styledTS<{
   background: ${props =>
     props.isInternal ? colors.bgInternal : colors.colorWhite};
   filter: ${props => props.isInactive && 'blur(2px)'};
+  div[data-promise-mirror-editor]{
+    background: ${props =>
+      props.isInternal ? colors.bgInternal : colors.colorWhite};
+  }
 `;
 
 const MailRespondBox = styled(RespondBoxStyled)`
