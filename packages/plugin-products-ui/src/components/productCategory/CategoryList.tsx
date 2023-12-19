@@ -90,6 +90,8 @@ class List extends React.Component<IProps> {
   };
 
   onClick = (id: string) => {
+    const { history } = this.props;
+
     router.removeParams(history, 'page');
     router.setParams(history, { categoryId: id });
   };
