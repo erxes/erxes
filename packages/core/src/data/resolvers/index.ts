@@ -1,4 +1,3 @@
-import * as permissionActions from '../permissions/actions';
 import Brand from './brand';
 import customScalars from './customScalars';
 import Mutation from './mutations';
@@ -16,7 +15,6 @@ import UserMovement from './userMovements';
 
 const resolvers: any = {
   ...customScalars,
-  ...permissionActions,
 
   Brand,
 

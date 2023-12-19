@@ -13,6 +13,7 @@ import { INTEGRATION_KINDS } from './constants';
 import { ICustomerDocument } from './models/definitions/customers';
 import { IPostDocument } from './models/definitions/posts';
 import { IIntegrationDocument } from './models/Integrations';
+import { putCreateLog } from './logUtils';
 
 interface IDoc {
   postId?: string;

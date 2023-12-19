@@ -5,7 +5,7 @@ import { spawn, spawnSync, ChildProcess } from 'child_process';
 import * as path from 'path';
 import * as fs from 'fs';
 import * as yaml from 'yaml';
-import { ErxesProxyTarget } from 'src/proxy/targets';
+import { ErxesProxyTarget } from '../proxy/targets';
 import {
   dirTempPath,
   routerConfigPath,
@@ -13,7 +13,6 @@ import {
   supergraphPath
 } from './paths';
 import supergraphCompose from './supergraph-compose';
-// import * as getPort from 'get-port';
 
 const {
   DOMAIN,
@@ -21,20 +20,22 @@ const {
   CLIENT_PORTAL_DOMAINS,
   ALLOWED_ORIGINS,
   NODE_ENV,
-  APOLLO_ROUTER_PORT
+  APOLLO_ROUTER_PORT,
+  INTROSPECTION
 } = process.env;
 
-// let _apolloRouterPort: number | undefined;
-// export const getApolloRouterPort = async (): Promise<number> => {
-// if(!_apolloRouterPort) {
-//   _apolloRouterPort = Number(APOLLO_ROUTER_PORT) || (await getPort());
-// }
-// if(!_apolloRouterPort){
-//   throw new Error("Cannot find free port for Apollo Router");
-// }
-// console.log("router port ", _apolloRouterPort);
-// return _apolloRouterPort;
-// }
+let routerProcess: ChildProcess | undefined = undefined;
+
+export const stopRouter = (_sig: NodeJS.Signals) => {
+  if (!routerProcess) {
+    return;
+  }
+  try {
+    routerProcess.kill('SIGKILL');
+  } catch (e) {
+    console.error(e);
+  }
+};
 
 export const apolloRouterPort = Number(APOLLO_ROUTER_PORT) || 50_000;
 
@@ -58,7 +59,21 @@ const createRouterConfig = async () => {
     // Don't rewrite in production if it exists. Delete and restart to update the config
     return;
   }
-  // const rhaiPath = path.resolve(__dirname, 'rhai/main.rhai');
+
+  if (
+    NODE_ENV === 'production' &&
+    (INTROSPECTION || '').trim().toLowerCase() === 'true'
+  ) {
+    console.warn(
+      '----------------------------------------------------------------------------------------------'
+    );
+    console.warn(
+      "Graphql introspection is enabled in production environment. Disable it, if it isn't required for front-end development. Hint: Check gateway config in configs.json"
+    );
+    console.warn(
+      '----------------------------------------------------------------------------------------------'
+    );
+  }
 
   const config = {
     include_subgraph_errors: {
@@ -90,35 +105,24 @@ const createRouterConfig = async () => {
       }
     },
     supergraph: {
-      listen: `127.0.0.1:${apolloRouterPort}`
+      listen: `127.0.0.1:${apolloRouterPort}`,
+      introspection:
+        NODE_ENV === 'development' ||
+        (INTROSPECTION || '').trim().toLowerCase() === 'true'
     }
   };
 
   fs.writeFileSync(routerConfigPath, yaml.stringify(config));
 };
 
-const startRouter = async (
-  proxyTargets: ErxesProxyTarget[]
-): Promise<ChildProcess> => {
+export const startRouter = async (proxyTargets: ErxesProxyTarget[]) => {
   await supergraphCompose(proxyTargets);
   await createRouterConfig();
   await downloadRouter();
 
   const devOptions = ['--dev', '--hot-reload'];
 
-  console.log("-------------------------------routerConfigPath--------------------------------")
-  console.log([
-    ...(NODE_ENV === 'development' ? devOptions : []),
-    '--log',
-    NODE_ENV === 'development' ? 'warn' : 'error',
-    `--supergraph`,
-    supergraphPath,
-    `--config`,
-    routerConfigPath
-  ]);
-  console.log("----------------------------------------------------------------------")
-
-  const routerProcess = spawn(
+  routerProcess = spawn(
     routerPath,
     [
       ...(NODE_ENV === 'development' ? devOptions : []),
@@ -129,10 +133,6 @@ const startRouter = async (
       `--config`,
       routerConfigPath
     ],
-    { stdio: 'inherit' }
+    { stdio: 'pipe' }
   );
-
-  return routerProcess;
 };
-
-export default startRouter;

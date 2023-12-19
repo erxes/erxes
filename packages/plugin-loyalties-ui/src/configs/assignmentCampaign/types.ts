@@ -1,6 +1,8 @@
 import { ICommonTypes } from '../../types';
 
 export interface IAssignmentCampaign extends ICommonTypes {
+  fieldId: string;
+  allowMultiWin: boolean;
   segmentIds?: string[];
   voucherCampaignId?: string;
 }

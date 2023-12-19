@@ -7,7 +7,8 @@ import DatePicker from '../datepicker/DatePicker';
 import {
   IScheduleForm,
   IScheduleConfig,
-  IScheduleConfigOrder
+  IScheduleConfigOrder,
+  ISchedule
 } from '../../types';
 import Select from 'react-select-plus';
 import SelectDepartments from '@erxes/ui-settings/src/departments/containers/SelectDepartments';
@@ -17,7 +18,6 @@ import {
   FlexRow,
   MarginX,
   MarginY,
-  CustomBoxWrapper,
   SortItem,
   CustomContainer
 } from '../../styles';
@@ -37,7 +37,6 @@ import Datetime from '@nateradebaugh/react-datetime';
 import { dateFormat, timeFormat } from '../../constants';
 import { IUser } from '@erxes/ui/src/auth/types';
 import { FormControl } from '@erxes/ui/src/components/form';
-import Box from '@erxes/ui/src/components/Box';
 
 import * as icons from 'react-bootstrap-icons';
 
@@ -48,7 +47,7 @@ type Props = {
   branches: IBranch[];
   departments: IDepartment[];
 
-  scheduleOfMembers: any;
+  scheduleOfMember?: any;
   queryParams: any;
   history: any;
   modalContentType: string;
@@ -57,6 +56,7 @@ type Props = {
 
   checkDuplicateScheduleShifts: (values: any) => any;
   scheduleConfigOrderEdit: (values: any) => any;
+  editSchedule: (scheduleId: string, shifts: any, closeModal: any) => any;
 
   closeModal: any;
 };
@@ -65,7 +65,6 @@ function ScheduleForm(props: Props) {
   const {
     currentUser,
     isCurrentUserAdmin,
-    queryParams,
     closeModal,
 
     branches,
@@ -75,8 +74,29 @@ function ScheduleForm(props: Props) {
     scheduleConfigs,
     scheduleConfigOrder,
     checkDuplicateScheduleShifts,
-    scheduleConfigOrderEdit
+    scheduleConfigOrderEdit,
+    editSchedule,
+
+    scheduleOfMember
   } = props;
+
+  const convertScheduleIntoScheduleForm = (schedule: ISchedule) => {
+    const returnObject: IScheduleForm = {};
+
+    schedule?.shifts?.map((shift, i) => {
+      returnObject[i] = {
+        _id: shift._id,
+        shiftDate: new Date(shift.shiftStart),
+        shiftStart: new Date(shift.shiftStart),
+        shiftEnd: new Date(shift.shiftEnd),
+        scheduleConfigId: shift.scheduleConfigId,
+        lunchBreakInMins: shift.lunchBreakInMins,
+        inputChecked: shift.scheduleConfigId ? false : true
+      };
+    });
+
+    return returnObject;
+  };
 
   const returnTotalUserOptions = () => {
     const totalUserOptions: string[] = [];
@@ -116,41 +136,56 @@ function ScheduleForm(props: Props) {
 
   const [scheduleConfigsOrderData, setScheduleConfigsOrderData] = useState({
     userId: currentUser._id,
-    orderedList: scheduleConfigOrder
-      ? scheduleConfigOrder.orderedList
-      : scheduleConfigs.map((s, index) => ({
-          scheduleConfigId: s._id,
-          order: index,
-          pinned: false,
-          label: `${s.shiftStart} ~ ${s.shiftEnd}\xa0\xa0\xa0(${s.scheduleName})`
-        }))
+    orderedList:
+      scheduleConfigOrder &&
+      scheduleConfigOrder.orderedList.length === scheduleConfigs.length
+        ? scheduleConfigOrder.orderedList
+        : scheduleConfigs.map((s, index) => {
+            return {
+              scheduleConfigId: s._id,
+              order: index,
+              pinned: false,
+              label: `${s.shiftStart} ~ ${s.shiftEnd}\xa0\xa0\xa0(${s.scheduleName})`
+            };
+          })
   });
 
   const [inputDefaultChecked, setInputDefaultChecked] = useState(false);
 
   const [selectedScheduleConfigId, setScheduleConfigId] = useState(
-    scheduleConfigsOrderData.orderedList[0].scheduleConfigId
+    scheduleConfigsOrderData.orderedList[0]?.scheduleConfigId
   );
 
   const [lastSelectedDate, setlastSelectedDate] = useState(new Date());
 
-  const [scheduleDaysLastIdx, setScheduleDaysLastIdx] = useState(0);
+  const [scheduleId, setScheduleId] = useState(scheduleOfMember?._id);
 
   const [defaultStartTime, setDefaultStartTime] = useState(
-    scheduleConfigsObject[selectedScheduleConfigId].shiftStart
+    scheduleConfigsObject[selectedScheduleConfigId]?.shiftStart
   );
   const [defaultEndTime, setDefaultEndTime] = useState(
-    scheduleConfigsObject[selectedScheduleConfigId].shiftEnd
+    scheduleConfigsObject[selectedScheduleConfigId]?.shiftEnd
   );
 
   const [dateRangeStart, setDateStart] = useState(new Date());
   const [dateRangeEnd, setDateEnd] = useState(new Date());
 
-  const [scheduleDates, setScheduleDates] = useState<IScheduleForm>({});
+  const [scheduleDates, setScheduleDates] = useState<IScheduleForm>(
+    convertScheduleIntoScheduleForm(scheduleOfMember)
+  );
+
+  const [scheduleDaysLastIdx, setScheduleDaysLastIdx] = useState(
+    Object.keys(scheduleDates).length
+      ? Object.keys(scheduleDates).length + 1
+      : 0
+  );
 
   const [contentType, setContentType] = useState('By Date Range');
 
-  const [userIds, setUserIds] = useState([]);
+  const [userIds, setUserIds] = useState(
+    scheduleOfMember?.user?._id ? [scheduleOfMember?.user?._id] : []
+  );
+
   const [departmentIds, setDepartmentIds] = useState([]);
   const [branchIds, setBranchIds] = useState([]);
 
@@ -273,6 +308,7 @@ function ScheduleForm(props: Props) {
 
   const pickSubset = Object.values(scheduleDates).map(shift => {
     return {
+      _id: shift._id,
       shiftStart: shift.shiftStart,
       shiftEnd: shift.shiftEnd,
       scheduleConfigId: shift.inputChecked ? null : shift.scheduleConfigId,
@@ -302,7 +338,27 @@ function ScheduleForm(props: Props) {
     ];
   };
 
+  // const onScheduleEdit = async () => {
+  //   const checkDuplicateShifts = await checkDuplicateScheduleShifts({
+  //     branchIds,
+  //     departmentIds,
+  //     userIds,
+  //     shifts: pickSubset,
+  //     checkOnly: true,
+  //     status: 'Approved'
+  //   });
+
+  //   if (!checkDuplicateShifts.length) {
+  //     editSchedule(scheduleId, pickSubset);
+  //   }
+  // };
+
   const onSubmitClick = () => {
+    if (scheduleId) {
+      editSchedule(scheduleId, pickSubset, closeModal);
+      return;
+    }
+
     checkDuplicateScheduleShifts({
       branchIds,
       departmentIds,
@@ -315,6 +371,11 @@ function ScheduleForm(props: Props) {
   };
 
   const onAdminSubmitClick = () => {
+    if (scheduleId) {
+      editSchedule(scheduleId, pickSubset, closeModal);
+      return;
+    }
+
     checkDuplicateScheduleShifts({
       branchIds,
       departmentIds,
@@ -407,6 +468,7 @@ function ScheduleForm(props: Props) {
     );
 
     prevScheduleDates[curr_day_key] = {
+      _id: scheduleDates[curr_day_key]._id,
       shiftDate: scheduleDates[curr_day_key].shiftDate,
       shiftStart: getCorrectShiftStart,
       shiftEnd: getCorrectShiftEnd,
@@ -536,21 +598,26 @@ function ScheduleForm(props: Props) {
   };
 
   const dateSelection = () => (
-    <div style={{ width: '78%', marginRight: '0.5rem' }}>
-      <OverlayTrigger
-        ref={overlay => setOverlayTrigger(overlay)}
-        placement="top-start"
-        trigger="click"
-        overlay={renderDateSelection()}
-        container={this}
-        rootClose={this}
-      >
-        <PopoverButton>
-          {__('Please select date')}
-          <Icon icon="angle-down" />
-        </PopoverButton>
-      </OverlayTrigger>
-    </div>
+    <FlexColumn marginNum={20}>
+      <FlexRow>
+        <div style={{ width: '60%' }}>
+          <OverlayTrigger
+            ref={overlay => setOverlayTrigger(overlay)}
+            placement="top-start"
+            trigger="click"
+            overlay={renderDateSelection()}
+            container={this}
+            rootClose={this}
+          >
+            <PopoverButton>
+              {__('Please select date')}
+              <Icon icon="angle-down" />
+            </PopoverButton>
+          </OverlayTrigger>
+        </div>
+        {displayStartEndBreak}
+      </FlexRow>
+    </FlexColumn>
   );
 
   const modalContent = () => (
@@ -558,8 +625,8 @@ function ScheduleForm(props: Props) {
       <SelectTeamMembers
         customField="employeeId"
         filterParams={filterParams}
+        initialValue={userIds}
         customOption={prepareCurrentUserOption(currentUser)}
-        queryParams={queryParams}
         label={'Team member'}
         onSelect={onUserSelect}
         multi={false}
@@ -718,7 +785,7 @@ function ScheduleForm(props: Props) {
       {scheduleConfigsOrderData.orderedList
         .sort((a, b) => a.order - b.order)
         .map((s: any) => (
-          <SortItem key={s.order}>
+          <SortItem key={s.scheduleConfigId}>
             <div>{s.label}</div>
             {s.pinned ? (
               <icons.PinFill
@@ -738,6 +805,7 @@ function ScheduleForm(props: Props) {
       <FlexColumn marginNum={10}>
         <div style={{ marginBottom: '0' }}>
           <SelectDepartments
+            disabled={scheduleId ? true : false}
             isRequired={false}
             defaultValue={departmentIds}
             onChange={onDepartmentSelect}
@@ -748,6 +816,7 @@ function ScheduleForm(props: Props) {
             <ControlLabel>Branches</ControlLabel>
             <Row>
               <Select
+                disabled={scheduleId ? true : false}
                 value={branchIds}
                 onChange={onBranchSelect}
                 placeholder="Select branch"
@@ -765,7 +834,7 @@ function ScheduleForm(props: Props) {
                 customField="employeeId"
                 filterParams={filterParams}
                 customOption={prepareCurrentUserOption(currentUser)}
-                queryParams={queryParams}
+                initialValue={userIds}
                 label={'Select team member'}
                 onSelect={onUserSelect}
                 name="userId"

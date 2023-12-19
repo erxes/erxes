@@ -136,6 +136,7 @@ const facebookConversationMessages = `
       userId
       createdAt
       isCustomerRead
+      internal
 
       attachments {
         url

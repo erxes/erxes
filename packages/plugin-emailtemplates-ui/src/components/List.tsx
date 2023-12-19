@@ -1,23 +1,26 @@
-import HeaderDescription from '@erxes/ui/src/components/HeaderDescription';
-import Icon from '@erxes/ui/src/components/Icon';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
-import { __ } from '@erxes/ui/src/utils';
-import React from 'react';
-import List from '@erxes/ui-settings/src/common/components/List';
-import { ICommonListProps } from '@erxes/ui-settings/src/common/types';
 import {
   Actions,
   IframePreview,
   Template,
   TemplateBox,
-  Templates,
-  TemplateInfo
+  TemplateBoxInfo,
+  TemplateInfo,
+  Templates
 } from '@erxes/ui-emailtemplates/src/styles';
+import { FilterContainer, InputBar } from '@erxes/ui-settings/src/styles';
+
 import Form from '@erxes/ui-emailtemplates/src/components/Form';
 import FormControl from '@erxes/ui/src/components/form/Control';
-import { router } from '@erxes/ui/src';
+import HeaderDescription from '@erxes/ui/src/components/HeaderDescription';
+import { IButtonMutateProps } from '@erxes/ui/src/types';
+import { ICommonListProps } from '@erxes/ui-settings/src/common/types';
+import Icon from '@erxes/ui/src/components/Icon';
+import List from '@erxes/ui-settings/src/common/components/List';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import React from 'react';
+import { __ } from '@erxes/ui/src/utils';
 import dayjs from 'dayjs';
+import { router } from '@erxes/ui/src';
 
 type Props = {
   queryParams: any;
@@ -72,7 +75,9 @@ class EmailTemplateList extends React.Component<Props> {
 
   renderDate(createdAt, modifiedAt) {
     if (createdAt === modifiedAt) {
-      if (createdAt === null) return '-';
+      if (createdAt === null) {
+        return '-';
+      }
 
       return dayjs(createdAt).format('DD MMM YYYY');
     }
@@ -87,7 +92,6 @@ class EmailTemplateList extends React.Component<Props> {
 
       return (
         <Template key={index} isLongName={name.length > 46}>
-          <h5>{name}</h5>
           <TemplateBox>
             <Actions>
               {this.renderEditAction(object)}
@@ -100,20 +104,25 @@ class EmailTemplateList extends React.Component<Props> {
               <iframe title="content-iframe" srcDoc={content} />
             </IframePreview>
           </TemplateBox>
-          <TemplateInfo>
-            <p>{createdAt === modifiedAt ? `Created at` : `Modified at`}</p>
-            <p>{this.renderDate(createdAt, modifiedAt)}</p>
-          </TemplateInfo>
-          <TemplateInfo>
-            <p>Created by</p>
-            {createdUser ? (
-              createdUser.details.fullName && (
-                <p>{createdUser.details.fullName}</p>
-              )
-            ) : (
-              <p>erxes Inc</p>
-            )}
-          </TemplateInfo>
+          <TemplateBoxInfo>
+            <h5>{name}</h5>
+            <div>
+              <TemplateInfo>
+                <p>{createdAt === modifiedAt ? `Created at` : `Modified at`}</p>
+                <p>{this.renderDate(createdAt, modifiedAt)}</p>
+              </TemplateInfo>
+              <TemplateInfo>
+                <p>Created by</p>
+                {createdUser ? (
+                  createdUser.details.fullName && (
+                    <p>{createdUser.details.fullName}</p>
+                  )
+                ) : (
+                  <p>erxes Inc</p>
+                )}
+              </TemplateInfo>
+            </div>
+          </TemplateBoxInfo>
         </Template>
       );
     });
@@ -127,6 +136,23 @@ class EmailTemplateList extends React.Component<Props> {
 
   renderContent = () => {
     return <Templates>{this.renderRow()}</Templates>;
+  };
+
+  renderSearch = () => {
+    return (
+      <FilterContainer marginRight={true}>
+        <InputBar type="searchBar">
+          <Icon icon="search-1" size={20} />
+          <FormControl
+            type="text"
+            placeholder={__('Type to search')}
+            onChange={this.searchHandler}
+            value={router.getParam(this.props.history, 'searchValue')}
+            autoFocus={true}
+          />
+        </InputBar>
+      </FilterContainer>
+    );
   };
 
   render() {
@@ -157,15 +183,7 @@ class EmailTemplateList extends React.Component<Props> {
         {...this.props}
         queryParams={this.props.queryParams}
         history={this.props.history}
-        additionalButton={
-          <FormControl
-            type="text"
-            placeholder={__('Type to search')}
-            onChange={this.searchHandler}
-            value={router.getParam(this.props.history, 'searchValue')}
-            autoFocus={true}
-          />
-        }
+        additionalButton={this.renderSearch()}
       />
     );
   }

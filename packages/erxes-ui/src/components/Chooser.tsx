@@ -23,8 +23,11 @@ export type CommonProps = {
   resetAssociatedItem?: () => void;
   closeModal: () => void;
   onSelect: (datas: any[]) => void;
+  loading?: boolean;
+  onLoadMore?: () => void;
   renderExtra?: () => any;
   handleExtra?: (data: any) => void;
+  extraChecker?: (data: any) => any;
   modalSize?: 'sm' | 'lg' | 'xl';
 };
 
@@ -54,8 +57,12 @@ class CommonChooser extends React.Component<Props, State> {
   }
 
   onSelect = () => {
-    this.props.onSelect(this.state.datas);
-    this.props.closeModal();
+    if (this.props.extraChecker) {
+      return this.props.extraChecker(this.state.datas);
+    } else {
+      this.props.onSelect(this.state.datas);
+      this.props.closeModal();
+    }
   };
 
   componentWillUnmount() {
@@ -107,8 +114,12 @@ class CommonChooser extends React.Component<Props, State> {
   };
 
   loadMore = () => {
+    const { onLoadMore, search } = this.props;
+
     this.setState({ loadmore: false });
-    this.props.search(this.state.searchValue, true);
+    search(this.state.searchValue, true);
+    // tslint:disable-next-line:no-unused-expression
+    onLoadMore && onLoadMore();
   };
 
   renderRow(data, icon) {
@@ -117,6 +128,7 @@ class CommonChooser extends React.Component<Props, State> {
     }
 
     const onClick = () => {
+      // tslint:disable-next-line:no-unused-expression
       this.props.handleExtra && this.props.handleExtra(data);
       this.handleChange(icon, data);
     };
@@ -143,7 +155,7 @@ class CommonChooser extends React.Component<Props, State> {
   }
 
   content() {
-    const { datas } = this.props;
+    const { datas, loading } = this.props;
 
     if (datas.length === 0) {
       return <EmptyState text="No matching items found" icon="list-ul" />;
@@ -160,7 +172,7 @@ class CommonChooser extends React.Component<Props, State> {
               onClick={this.loadMore}
               icon="angle-double-down"
             >
-              Load More
+              {loading ? 'Loading' : 'Load More'}
             </Button>
           </CenterContent>
         )}

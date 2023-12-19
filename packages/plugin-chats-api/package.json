@@ -1,0 +1,18 @@
+{
+  "name": "@erxes/plugin-chats-api",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "nodemon src/index.ts",
+    "build" : "tsc"
+  },
+  "dependencies": {
+    "@erxes/api-utils" : "*",
+    "aws-sdk": "^2.493.0",
+    "firebase-admin": "^8.6.1",
+    "nodemailer": "^6.2.1",
+    "telnyx": "^1.7.2"
+  },
+  "peerOptionalDependencies": {
+    "kerberos": "^1.0.0"
+  }
+}

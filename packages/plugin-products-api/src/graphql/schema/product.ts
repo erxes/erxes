@@ -35,6 +35,7 @@ export const types = (tagsAvailable, contactsAvailable) => `
     parentId: String
     code: String!
     order: String!
+    scopeBrandIds: [String]
     attachment: Attachment
     status: String
     isRoot: Boolean
@@ -48,6 +49,7 @@ export const types = (tagsAvailable, contactsAvailable) => `
   type Product @key(fields: "_id") @cacheControl(maxAge: 3) {
     _id: String!
     name: String
+    shortName: String
     status: String
     code: String
     type: String
@@ -65,6 +67,7 @@ export const types = (tagsAvailable, contactsAvailable) => `
     attachment: Attachment
     attachmentMore: [Attachment]
     vendorId: String
+    scopeBrandIds: [String]
     uom: String
     subUoms: JSON
 
@@ -88,6 +91,7 @@ export const types = (tagsAvailable, contactsAvailable) => `
 
 const productParams = `
   name: String,
+  shortName: String,
   categoryId: String,
   type: String,
   description: String,
@@ -100,6 +104,7 @@ const productParams = `
   attachment: AttachmentInput,
   attachmentMore: [AttachmentInput],
   vendorId: String,
+  scopeBrandIds: [String]
   uom: String,
   subUoms: JSON,
   taxType: String,
@@ -112,6 +117,7 @@ const productCategoryParams = `
   description: String,
   meta: String,
   parentId: String,
+  scopeBrandIds: [String]
   attachment: AttachmentInput,
   status: String
   maskType: String
@@ -126,6 +132,7 @@ const productsQueryParams = `
   categoryId: String,
   searchValue: String,
   vendorId: String,
+  brand: String
   tag: String,
   ids: [String],
   excludeIds: Boolean,
@@ -137,7 +144,7 @@ const productsQueryParams = `
 `;
 
 export const queries = `
-  productCategories(parentId: String, withChild: Boolean, searchValue: String, status: String, meta: String): [ProductCategory]
+  productCategories(parentId: String, withChild: Boolean, searchValue: String, status: String, meta: String, brand: String): [ProductCategory]
   productCategoriesTotalCount(parentId: String, withChild: Boolean, searchValue: String, status: String, meta: String): Int
   productCategoryDetail(_id: String): ProductCategory
   products(

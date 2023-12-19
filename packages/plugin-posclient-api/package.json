@@ -1,0 +1,15 @@
+{
+  "name": "@erxes/plugin-posclient-api",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "DEBUG=erxes* nodemon src/index.ts",
+    "build" : "tsc"
+  },
+  "dependencies": {
+    "@erxes/api-utils": "*",
+    "bcryptjs": "^2.4.3",
+    "graphql-ws": "5.5.5",
+    "jsonwebtoken": "^8.5.1",
+    "sha256": "^0.2.0"
+  }
+}

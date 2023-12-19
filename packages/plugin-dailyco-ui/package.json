@@ -1,0 +1,12 @@
+{
+  "name": "plugin-dailyco-ui",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "webpack serve --mode development",
+    "build": "webpack --mode production"
+  },
+  "dependencies": {
+    "@daily-co/daily-js": "^0.54.0",
+    "@erxes/ui" : "*"
+  }
+}

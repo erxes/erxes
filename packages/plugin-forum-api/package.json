@@ -1,0 +1,13 @@
+{
+  "name": "@erxes/plugin-forum-api",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "nodemon src/index.ts",
+    "build" : "tsc"
+  },
+  "dependencies": {
+    "@erxes/api-utils" : "*",
+    "server-timing": "3.3.1",
+    "jsonwebtoken": "^8.5.1"
+  }
+}

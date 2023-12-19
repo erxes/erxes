@@ -12,6 +12,7 @@ import { queries } from '../../graphql';
 import React, { useState } from 'react';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { mutations } from '../../graphql';
+import dayjs from 'dayjs';
 import { generateParams } from '../../utils';
 import { IUser } from '@erxes/ui/src/auth/types';
 import { IDepartment, IBranch } from '@erxes/ui/src/team/types';
@@ -40,7 +41,11 @@ type FinalProps = {
   TimeClockMutationResponse;
 
 const ListContainer = (props: FinalProps) => {
-  const { timeclocksMainQuery, timeclockRemove } = props;
+  const {
+    timeclocksMainQuery,
+    extractAllMsSqlDataMutation,
+    timeclockRemove
+  } = props;
 
   const dateFormat = 'YYYY-MM-DD';
   const [loading, setLoading] = useState(false);
@@ -57,6 +62,34 @@ const ListContainer = (props: FinalProps) => {
     });
   };
 
+  const extractAllMsSqlData = (start: Date, end: Date, params: any) => {
+    setLoading(true);
+    extractAllMsSqlDataMutation({
+      variables: {
+        startDate: dayjs(start).format(dateFormat),
+        endDate: dayjs(end).format(dateFormat),
+        ...params
+      }
+    })
+      .then(res => {
+        const returnMsg = res.data.extractAllDataFromMsSQL.message;
+
+        if (returnMsg) {
+          Alert.info(returnMsg);
+          setLoading(false);
+          return;
+        }
+
+        setLoading(false);
+        timeclocksMainQuery.refetch();
+        Alert.success('Successfully extracted data');
+      })
+      .catch(e => {
+        setLoading(false);
+        Alert.error(e.message);
+      });
+  };
+
   const { list = [], totalCount = 0 } =
     timeclocksMainQuery.timeclocksMain || {};
 
@@ -65,7 +98,8 @@ const ListContainer = (props: FinalProps) => {
     totalCount,
     timeclocks: list,
     loading: timeclocksMainQuery.loading || loading,
-    removeTimeclock
+    removeTimeclock,
+    extractAllMsSqlData
   };
 
   return <List {...updatedProps} />;
@@ -80,6 +114,12 @@ export default withProps<Props>(
         fetchPolicy: 'network-only'
       })
     }),
+    graphql<Props, TimeClockMutationResponse>(
+      gql(mutations.extractAllDataFromMsSQL),
+      {
+        name: 'extractAllMsSqlDataMutation'
+      }
+    ),
     graphql<Props, TimeClockMutationResponse>(gql(mutations.timeclockRemove), {
       name: 'timeclockRemove',
       options: ({ timeclockId }) => ({

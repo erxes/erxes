@@ -25,7 +25,7 @@ type ControlItem = {
   label: string;
   subtitle?: string;
   formValueName: string;
-  formValue?: string | object;
+  formValue?: string | number | object;
   placeholder?: string;
   formProps?: any;
 };
@@ -39,12 +39,17 @@ function General({
   erxesAppToken,
   otpConfig,
   mailConfig,
+  socialpayConfig,
   name,
   manualVerificationConfig,
   passwordVerificationConfig,
   tokenPassMethod = 'cookie',
   tokenExpiration = 1,
   refreshTokenExpiration = 7,
+  testUserEmail,
+  testUserPhone,
+  testUserPassword,
+  testUserOTP,
   handleFormChange
 }: Props) {
   const [otpEnabled, setOtpEnabled] = useState<boolean>(
@@ -313,6 +318,56 @@ function General({
     );
   };
 
+  const renderSocialPayConfig = () => {
+    const config = socialpayConfig || {
+      certId: '',
+      publicKey: ''
+    };
+
+    const handleChange = e => {
+      const key = e.currentTarget.id;
+      const value = (e.currentTarget as HTMLInputElement).value;
+
+      config[key] = value;
+
+      handleFormChange('socialpayConfig', config);
+    };
+
+    return (
+      <CollapseContent
+        title={__('SocialPay Config')}
+        compact={true}
+        open={false}
+      >
+        <FormGroup>
+          <ControlLabel required={true}>Certificate ID</ControlLabel>
+
+          <FlexContent>
+            <FormControl
+              id="certId"
+              name="certId"
+              value={config.certId}
+              onChange={handleChange}
+            />
+          </FlexContent>
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel required={true}>Public key</ControlLabel>
+
+          <FlexContent>
+            <FormControl
+              id="publicKey"
+              name="publicKey"
+              value={config.publicKey}
+              onChange={handleChange}
+            />
+          </FlexContent>
+        </FormGroup>
+      </CollapseContent>
+    );
+  };
+
   const renderMailConfig = () => {
     const obj = mailConfig || {
       registrationContent: `Hello <br /><br />Your verification link is {{ link }}.<br /><br />Thanks<br />${name}`,
@@ -576,7 +631,39 @@ function General({
           </Formgroup>
         </BlockRow>
       </CollapseContent>
+      <CollapseContent
+        title={__('Test user settings')}
+        compact={true}
+        open={false}
+      >
+        <BlockRow>
+          {renderControl({
+            label: 'Test User Email',
+            formValueName: 'testUserEmail',
+            formValue: testUserEmail
+          })}
+          {renderControl({
+            label: 'Test User Phone',
+            formValueName: 'testUserPhone',
+            formValue: testUserPhone
+          })}
+        </BlockRow>
+        <BlockRow>
+          {renderControl({
+            label: 'Test User Password',
+            formValueName: 'testUserPassword',
+            formValue: testUserPassword
+          })}
+          {renderControl({
+            label: 'Test User OTP',
+            formProps: { type: 'number' },
+            formValueName: 'testUserOTP',
+            formValue: testUserOTP
+          })}
+        </BlockRow>
+      </CollapseContent>
       {renderOtp()}
+      {renderSocialPayConfig()}
       {renderMailConfig()}
       <PasswordConfig
         config={passwordVerificationConfig}

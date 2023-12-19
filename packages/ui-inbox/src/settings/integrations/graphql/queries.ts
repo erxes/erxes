@@ -95,6 +95,7 @@ const integrations = `
         name
         code
       }
+      createdAt
       webhookData
       leadData
       formId
@@ -189,8 +190,8 @@ const integrationsGetFbPages = `
 `;
 
 const integrationsVideoCallUsageStatus = `
-  query integrationsVideoCallUsageStatus {
-    integrationsVideoCallUsageStatus
+  query VideoCallUsageStatus {
+    videoCallUsageStatus
   }
 `;
 

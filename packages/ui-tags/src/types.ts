@@ -22,6 +22,7 @@ export type ITagTypes =
 export type TagsQueryResponse = {
   tags: ITag[];
   loading: boolean;
+  fetchMore: any;
   refetch: () => void;
 };
 

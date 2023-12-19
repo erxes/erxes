@@ -322,6 +322,13 @@ const facebookQueries = {
       .limit(50);
 
     return messages.reverse();
+  },
+
+  async facebootMessengerBots(_root, _args, { models }: IContext) {
+    return await models.Bots.find({});
+  },
+  async facebootMessengerBotsTotalCount(_root, _args, { models }: IContext) {
+    return await models.Bots.find({}).count();
   }
 };
 

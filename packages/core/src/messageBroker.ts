@@ -6,7 +6,7 @@ import { internalNoteConsumers } from '@erxes/api-utils/src/internalNotes';
 import { formConsumers } from '@erxes/api-utils/src/forms';
 import { graphqlPubsub } from './pubsub';
 import { registerOnboardHistory } from './data/modules/robot';
-import { registerModule } from './data/permissions/utils';
+
 import {
   getConfig,
   getConfigs,
@@ -59,10 +59,6 @@ export const initBroker = async options => {
 
   consumeQueue('core:runCrons', async () => {
     console.log('Running crons ........');
-  });
-
-  consumeQueue('registerPermissions', async permissions => {
-    await registerModule(permissions);
   });
 
   consumeRPCQueue('core:permissions.find', async ({ subdomain, data }) => {
@@ -258,6 +254,15 @@ export const initBroker = async options => {
   });
 
   consumeRPCQueue(
+    'core:configs.createOrUpdateConfig',
+    async ({ subdomain, data }) => {
+      const models = await generateModels(subdomain);
+
+      return await models.Configs.createOrUpdateConfig(data);
+    }
+  );
+
+  consumeRPCQueue(
     'core:configs.findOne',
     async ({ subdomain, data: { query } }) => {
       const models = await generateModels(subdomain);
@@ -296,6 +301,39 @@ export const initBroker = async options => {
     return {
       status: 'success',
       data: await models.Users.findUsers(data, { _id: 1 })
+    };
+  });
+
+  consumeRPCQueue(
+    'core:users.getIdsBySearchParams',
+    async ({ subdomain, data }) => {
+      const models = await generateModels(subdomain);
+
+      const { searchValue } = data;
+
+      const query: any = {};
+
+      query.$or = [
+        { email: new RegExp(`.*${searchValue}.*`, 'i') },
+        { employeeId: new RegExp(`.*${searchValue}.*`, 'i') },
+        { username: new RegExp(`.*${searchValue}.*`, 'i') },
+        { 'details.fullName': new RegExp(`.*${searchValue}.*`, 'i') },
+        { 'details.position': new RegExp(`.*${searchValue}.*`, 'i') }
+      ];
+
+      return {
+        status: 'success',
+        data: await models.Users.find(query).distinct('_id')
+      };
+    }
+  );
+
+  consumeRPCQueue('core:users.checkLoginAuth', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    return {
+      status: 'success',
+      data: await models.Users.checkLoginAuth(data)
     };
   });
 
@@ -365,15 +403,20 @@ export const initBroker = async options => {
   consumeRPCQueue('core:users.find', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
-    const { query, sort = {} } = data;
+    const { query, sort = {}, fields, skip, limit } = data;
 
     return {
       status: 'success',
-      data: await models.Users.find({
-        ...query,
-        role: { $ne: USER_ROLES.SYSTEM }
-      })
+      data: await models.Users.find(
+        {
+          ...query,
+          role: { $ne: USER_ROLES.SYSTEM }
+        },
+        fields
+      )
         .sort(sort)
+        .skip(skip || 0)
+        .limit(limit || 0)
         .lean()
     };
   });
@@ -412,14 +455,25 @@ export const initBroker = async options => {
     };
   });
 
-  consumeRPCQueue('core:branches.find', async ({ subdomain, data }) => {
+  consumeRPCQueue('core:branches.aggregate', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
-    const { query } = data;
+    const { pipeline } = data;
 
     return {
       status: 'success',
-      data: await models.Branches.find(query).lean()
+      data: await models.Branches.aggregate(pipeline).exec()
+    };
+  });
+
+  consumeRPCQueue('core:branches.find', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    const { query, fields } = data;
+
+    return {
+      status: 'success',
+      data: await models.Branches.find(query, fields).lean()
     };
   });
 

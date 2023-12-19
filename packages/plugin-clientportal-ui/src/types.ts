@@ -74,6 +74,7 @@ export interface IClientPortalUser extends IClientPortalUserDoc {
   createdAt: Date;
   modifiedAt: Date;
   forumSubscriptionEndsAfter?: string;
+  clientPortal: ClientPortalConfig;
 }
 
 export type ClientPortalUsersQueryResponse = {
@@ -110,6 +111,11 @@ export type ClientPortalVerifyUsersMutationResponse = {
   clientPortalUsersVerify: (mutation: {
     variables: { type: string; userIds: string[] };
   }) => Promise<any>;
+};
+
+export type SocialpayConfig = {
+  publicKey: string;
+  certId: string;
 };
 
 export type ClientPortalConfig = {
@@ -163,9 +169,16 @@ export type ClientPortalConfig = {
   manualVerificationConfig?: ManualVerificationConfig;
   passwordVerificationConfig?: PasswordVerificationConfig;
 
+  testUserEmail: string;
+  testUserPhone: string;
+  testUserPassword: string;
+  testUserOTP: number;
+
   tokenExpiration?: number;
   refreshTokenExpiration?: number;
   tokenPassMethod: 'cookie' | 'header';
+  vendorParentProductCategoryId?: string;
+  socialpayConfig?: SocialpayConfig;
 };
 
 export type Styles = {

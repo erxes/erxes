@@ -46,7 +46,7 @@ export const initBroker = async cl => {
   consumeRPCQueue('cards:tasks.create', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
-    const task = await models.Tasks.create(data);
+    const task = await models.Tasks.createTask(data);
 
     const { customerId = '' } = data;
 
@@ -195,7 +195,7 @@ export const initBroker = async cl => {
 
   consumeRPCQueue('cards:deals.create', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
-    const deals = await models.Deals.create(data);
+    const deals = await models.Deals.createDeal(data);
 
     const { customerId = '' } = data;
 

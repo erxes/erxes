@@ -1,12 +1,14 @@
 import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers';
 
-import { initMemoryStorage } from './inmemoryStorage';
 import { initBroker } from './messageBroker';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import { generateModels } from './connectionResolver';
-import initApp from './index';
+import initApp from './initApp';
 import { INTEGRATION_KINDS } from './constants';
+import automations from './automations';
+import forms from './forms';
+import segments from './segments';
 
 export let mainDb;
 export let debug;
@@ -24,6 +26,9 @@ export default {
     };
   },
   meta: {
+    automations,
+    forms,
+    segments,
     inboxIntegrations: [
       {
         kind: INTEGRATION_KINDS.MESSENGER,
@@ -49,8 +54,6 @@ export default {
     mainDb = options.db;
 
     const app = options.app;
-
-    initMemoryStorage();
 
     initBroker(options.messageBrokerClient);
 

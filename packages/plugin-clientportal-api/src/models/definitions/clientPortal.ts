@@ -10,6 +10,11 @@ export interface IOTPConfig {
   expireAfter: number;
 }
 
+export interface ISocialpayConfig {
+  publicKey: string;
+  certId: string;
+}
+
 export interface IMailConfig {
   subject: string;
   invitationContent: string;
@@ -36,6 +41,7 @@ export interface IPasswordVerificationConfig {
 export interface IClientPortal {
   _id?: string;
   name?: string;
+  kind: 'client' | 'vendor';
   description?: string;
   logo?: string;
   icon?: string;
@@ -54,6 +60,7 @@ export interface IClientPortal {
   mailConfig?: IMailConfig;
   manualVerificationConfig?: IManualVerificationConfig;
   passwordVerificationConfig?: IPasswordVerificationConfig;
+  socialpayConfig?: ISocialpayConfig;
 
   googleCredentials?: string;
   googleClientId?: string;
@@ -89,6 +96,13 @@ export interface IClientPortal {
   dealToggle?: boolean;
   purchaseToggle?: boolean;
   taskToggle?: boolean;
+
+  testUserEmail?: string;
+  testUserPhone?: string;
+  testUserPassword?: string;
+  testUserOTP?: number;
+
+  vendorParentProductCategoryId?: string;
 }
 
 interface IStyles {
@@ -164,6 +178,11 @@ export const clientPortalSchema = new Schema({
   _id: field({ pkey: true }),
   name: field({ type: String }),
   description: field({ type: String, optional: true }),
+  kind: field({
+    type: String,
+    enum: ['client', 'vendor'],
+    default: 'client'
+  }),
   url: field({ type: String }),
   logo: field({ type: String, optional: true }),
   icon: field({ type: String, optional: true }),
@@ -179,8 +198,16 @@ export const clientPortalSchema = new Schema({
   manualVerificationConfig: field({
     type: {
       userIds: field({ type: [String], required: true }),
-      verifyCustomer: field({ type: Boolean, optional: true, default: false }),
-      verifyCompany: field({ type: Boolean, optional: true, default: false })
+      verifyCustomer: field({
+        type: Boolean,
+        optional: true,
+        default: false
+      }),
+      verifyCompany: field({
+        type: Boolean,
+        optional: true,
+        default: false
+      })
     },
     optional: true
   }),
@@ -221,6 +248,11 @@ export const clientPortalSchema = new Schema({
   dealToggle: field({ type: Boolean }),
   purchaseToggle: field({ type: Boolean }),
 
+  testUserEmail: field({ type: String, optional: true }),
+  testUserPhone: field({ type: String, optional: true }),
+  testUserPassword: field({ type: String, optional: true }),
+  testUserOTP: field({ type: Number, optional: true }),
+
   createdAt: field({
     type: Date,
     default: new Date(),
@@ -229,7 +261,11 @@ export const clientPortalSchema = new Schema({
 
   passwordVerificationConfig: field({
     type: {
-      verifyByOTP: field({ type: Boolean, optional: true, default: false }),
+      verifyByOTP: field({
+        type: Boolean,
+        optional: true,
+        default: false
+      }),
       emailSubject: field({ type: String, optional: true }),
       emailContent: field({ type: String, optional: true }),
       smsContent: field({ type: String, optional: true })
@@ -261,5 +297,18 @@ export const clientPortalSchema = new Schema({
     default: 'cookie',
     label: 'Token pass method',
     enum: ['cookie', 'header']
+  }),
+
+  vendorParentProductCategoryId: field({
+    type: String,
+    optional: true
+  }),
+
+  socialpayConfig: field({
+    type: {
+      publicKey: field({ type: String, optional: true }),
+      certId: field({ type: String, optional: true })
+    },
+    optional: true
   })
 });

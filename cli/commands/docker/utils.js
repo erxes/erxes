@@ -20,6 +20,10 @@ const isSwarm = DEPLOYMENT_METHOD !== 'docker-compose';
 const buildPlugins = ['dev', 'staging', 'build-test'];
 
 const commonEnvs = configs => {
+  const enabledServices = (configs.plugins || []).map(plugin => plugin.name);
+  enabledServices.push('workers');
+  const enabledServicesJson = JSON.stringify(enabledServices);
+
   const db_server_address = configs.db_server_address;
   const widgets = configs.widgets || {};
   const redis = configs.redis || {};
@@ -45,9 +49,9 @@ const commonEnvs = configs => {
     RABBITMQ_HOST: rabbitmq_host,
     ELASTICSEARCH_URL: `http://${db_server_address ||
       (isSwarm ? 'erxes-dbs_elasticsearch' : 'elasticsearch')}:9200`,
-    ENABLED_SERVICES_PATH: '/data/enabled-services.js',
-    MESSAGE_BROKER_PREFIX: rabbitmq.prefix || '',
-    SENTRY_DSN: configs.sentry_dsn,
+    ENABLED_SERVICES_JSON: enabledServicesJson,
+    VERSION: configs.image_tag || '',
+    MESSAGE_BROKER_PREFIX: rabbitmq.prefix || ''
   };
 };
 
@@ -122,11 +126,13 @@ const generatePluginBlock = (configs, plugin) => {
       PORT: plugin.port || SERVICE_INTERNAL_PORT || 80,
       API_MONGO_URL: api_mongo_url,
       MONGO_URL: mongo_url,
-      LOAD_BALANCER_ADDRESS: generateLBaddress(`http://plugin-${plugin.name}-api`),
+      NODE_INSPECTOR: configs.nodeInspector ? 'enabled' : undefined,
+      LOAD_BALANCER_ADDRESS: generateLBaddress(
+        `http://plugin-${plugin.name}-api`
+      ),
       ...commonEnvs(configs),
       ...(plugin.extra_env || {})
     },
-    volumes: ['./enabled-services.js:/data/enabled-services.js'],
     networks: ['erxes'],
     extra_hosts
   };
@@ -283,7 +289,7 @@ const deployDbs = async () => {
 
     dockerComposeConfig.services.mongo = {
       hostname: 'mongo',
-      image: 'mongo:4.0.20',
+      image: 'mongo:4.4.25',
       ports: [`0.0.0.0:${MONGO_PORT}:27017`],
       environment: {
         MONGO_INITDB_ROOT_USERNAME: configs.mongo.username,
@@ -366,7 +372,7 @@ const deployDbs = async () => {
     }
 
     dockerComposeConfig.services.redis = {
-      image: 'redis:5.0.5',
+      image: 'redis:7.2.1',
       command: `redis-server --appendonly yes --requirepass ${configs.redis.password}`,
       ports: [`${REDIS_PORT}:6379`],
       networks: ['erxes'],
@@ -479,7 +485,7 @@ const up = async ({ uis, downloadLocales, fromInstaller }) => {
         ],
         networks: ['erxes']
       },
-      "plugin-core-api": {
+      'plugin-core-api': {
         image: `erxes/core:${(configs.core || {}).image_tag || image_tag}`,
         environment: {
           SERVICE_NAME: 'core-api',
@@ -488,23 +494,23 @@ const up = async ({ uis, downloadLocales, fromInstaller }) => {
           JWT_TOKEN_SECRET: configs.jwt_token_secret,
           LOAD_BALANCER_ADDRESS: generateLBaddress('http://plugin-core-api'),
           MONGO_URL: mongoEnv(configs),
+          NODE_INSPECTOR: configs.nodeInspector ? 'enabled' : undefined,
           EMAIL_VERIFIER_ENDPOINT:
             configs.email_verifier_endpoint ||
             'https://email-verifier.erxes.io',
-          ENABLED_SERVICES_PATH: '/data/enabled-services.js',
           ...commonEnvs(configs),
           ...((configs.core || {}).extra_env || {})
         },
         extra_hosts,
         volumes: [
-          './enabled-services.js:/data/enabled-services.js',
           './permissions.json:/core-api/permissions.json',
           './core-api-uploads:/core-api/dist/core/src/private/uploads'
         ],
         networks: ['erxes']
       },
       gateway: {
-        image: `erxes/gateway:${(configs.gateway || {}).image_tag || image_tag}`,
+        image: `erxes/gateway:${(configs.gateway || {}).image_tag ||
+          image_tag}`,
         environment: {
           SERVICE_NAME: 'gateway',
           PORT: SERVICE_INTERNAL_PORT,
@@ -512,10 +518,10 @@ const up = async ({ uis, downloadLocales, fromInstaller }) => {
           JWT_TOKEN_SECRET: configs.jwt_token_secret,
           CLIENT_PORTAL_DOMAINS: configs.client_portal_domains || '',
           MONGO_URL: mongoEnv(configs),
+          NODE_INSPECTOR: configs.nodeInspector ? 'enabled' : undefined,
           ...commonEnvs(configs),
           ...((configs.gateway || {}).extra_env || {})
         },
-        volumes: ['./enabled-services.js:/data/enabled-services.js'],
         healthcheck,
         extra_hosts,
         ports: [`${GATEWAY_PORT}:${SERVICE_INTERNAL_PORT}`],
@@ -524,13 +530,13 @@ const up = async ({ uis, downloadLocales, fromInstaller }) => {
       crons: {
         image: `erxes/crons:${image_tag}`,
         environment: {
+          NODE_INSPECTOR: configs.nodeInspector ? 'enabled' : undefined,
           MONGO_URL: mongoEnv(configs),
           ...commonEnvs(configs)
         },
-        volumes: ['./enabled-services.js:/data/enabled-services.js'],
         networks: ['erxes']
       },
-      "plugin-workers-api": {
+      'plugin-workers-api': {
         image: `erxes/workers:${image_tag}`,
         environment: {
           SERVICE_NAME: 'workers',
@@ -538,10 +544,10 @@ const up = async ({ uis, downloadLocales, fromInstaller }) => {
           JWT_TOKEN_SECRET: configs.jwt_token_secret,
           LOAD_BALANCER_ADDRESS: generateLBaddress('http://plugin-workers-api'),
           MONGO_URL: mongoEnv(configs),
+          NODE_INSPECTOR: configs.nodeInspector ? 'enabled' : undefined,
           ...commonEnvs(configs),
           ...((configs.workers || {}).extra_env || {})
         },
-        volumes: ['./enabled-services.js:/data/enabled-services.js'],
         extra_hosts,
         networks: ['erxes']
       }
@@ -559,6 +565,12 @@ const up = async ({ uis, downloadLocales, fromInstaller }) => {
       }
     };
 
+    dockerComposeConfig.services['plugin-core-api'].deploy = deploy;
+    if (configs.core && Number(configs.core.replicas)) {
+      dockerComposeConfig.services['plugin-core-api'].deploy.replicas = Number(
+        configs.core.replicas
+      );
+    }
     dockerComposeConfig.services.coreui.deploy = deploy;
     dockerComposeConfig.services.gateway.deploy = deploy;
   }
@@ -611,10 +623,9 @@ const up = async ({ uis, downloadLocales, fromInstaller }) => {
         CUBEJS_REDIS_URL: `redis://${db_server_address ||
           'redis'}:${REDIS_PORT}`,
         CUBEJS_REDIS_PASSWORD: configs.redis.password || '',
-        ENABLED_SERVICES_PATH: '/data/enabled-services.js',
+        ENABLED_SERVICES_JSON: commonEnvs(configs).ENABLED_SERVICES_JSON,
         ...(dashboard.extra_env || {})
       },
-      volumes: ['./enabled-services.js:/data/enabled-services.js'],
       extra_hosts,
       networks: ['erxes']
     };
@@ -644,8 +655,7 @@ const up = async ({ uis, downloadLocales, fromInstaller }) => {
 
   if (configs.image_tag) {
     if (buildPlugins.includes(configs.image_tag)) {
-      pluginsMapLocation =
-        `https://erxes-${configs.image_tag}-plugins.s3.us-west-2.amazonaws.com/pluginsMap.js`;
+      pluginsMapLocation = `https://erxes-${configs.image_tag}-plugins.s3.us-west-2.amazonaws.com/pluginsMap.js`;
     } else {
       pluginsMapLocation = `https://erxes-release-plugins.s3.us-west-2.amazonaws.com/${image_tag}/pluginsMap.js`;
     }
@@ -674,7 +684,6 @@ const up = async ({ uis, downloadLocales, fromInstaller }) => {
     updateLocales();
   }
 
-  const enabledPlugins = ["'workers'"];
   const uiPlugins = [];
   const essyncerJSON = {
     plugins: [
@@ -717,8 +726,6 @@ const up = async ({ uis, downloadLocales, fromInstaller }) => {
     dockerComposeConfig.services[
       `plugin-${plugin.name}-api`
     ] = generatePluginBlock(configs, plugin);
-
-    enabledPlugins.push(`'${plugin.name}'`);
 
     if (pluginsMap[plugin.name]) {
       const uiConfig = pluginsMap[plugin.name].ui;
@@ -770,17 +777,6 @@ const up = async ({ uis, downloadLocales, fromInstaller }) => {
       ${uiPlugins.join(',')}
     ]
   `.replace(/plugin-uis.s3.us-west-2.amazonaws.com/g, NGINX_HOST)
-  );
-
-  log('Generating enabled-services.js ....');
-
-  await fs.promises.writeFile(
-    filePath('enabled-services.js'),
-    `
-    module.exports = [
-      ${enabledPlugins.join(',')}
-    ]
-  `
   );
 
   const extraServices = configs.extra_services || {};
@@ -863,7 +859,6 @@ const up = async ({ uis, downloadLocales, fromInstaller }) => {
   log('Deploy ......');
 
   if (isSwarm) {
-
     await execCommand('docker service rm erxes_gateway', true);
 
     return execCommand(
@@ -878,10 +873,14 @@ const update = async ({ serviceNames, noimage, uis }) => {
   await cleaning();
 
   const configs = await fse.readJSON(filePath('configs.json'));
-  
+
   for (const name of serviceNames.split(',')) {
     const pluginConfig = (configs.plugins || []).find(p => p.name === name);
-    const image_tag = (pluginConfig && pluginConfig.image_tag) || (configs[name] && configs[name].image_tag) || configs.image_tag || 'federation';
+    const image_tag =
+      (pluginConfig && pluginConfig.image_tag) ||
+      (configs[name] && configs[name].image_tag) ||
+      configs.image_tag ||
+      'federation';
 
     if (!noimage) {
       log(`Updating image ${name}......`);
@@ -1102,7 +1101,7 @@ const deployMongoBi = async program => {
 
   dockerComposeConfig.services.mongo = {
     hostname: 'mongo-secondary',
-    image: 'mongo:4.0.20',
+    image: 'mongo:4.4.25',
     ports: [`0.0.0.0:${MONGO_PORT}:27017`],
     environment: {
       MONGO_INITDB_ROOT_USERNAME: configs.mongo_username,

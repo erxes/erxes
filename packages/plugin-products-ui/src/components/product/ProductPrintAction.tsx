@@ -1,24 +1,24 @@
-import { gql } from '@apollo/client';
-import client from '@erxes/ui/src/apolloClient';
+import { Flex, FormColumn, FormWrapper } from '@erxes/ui/src/styles/main';
+import { __, getEnv } from '@erxes/ui/src/utils';
+
 import Button from '@erxes/ui/src/components/Button';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import Datetime from '@nateradebaugh/react-datetime';
+import Dropdown from 'react-bootstrap/Dropdown';
 import DropdownToggle from '@erxes/ui/src/components/DropdownToggle';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import FormGroup from '@erxes/ui/src/components/form/Group';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
+import { Label } from '@erxes/ui/src/components/form/styles';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import React from 'react';
 import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
 import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
-import { getEnv, __ } from '@erxes/ui/src/utils';
-import Datetime from '@nateradebaugh/react-datetime';
 import WithPermission from 'coreui/withPermission';
-import React from 'react';
-import Dropdown from 'react-bootstrap/Dropdown';
-import { queries } from '../../graphql';
-
-import { Label } from '@erxes/ui/src/components/form/styles';
+import client from '@erxes/ui/src/apolloClient';
 import { colors } from '@erxes/ui/src/styles';
+import { gql } from '@apollo/client';
+import { queries } from '../../graphql';
 import { rgba } from '@erxes/ui/src/styles/ecolor';
-import { Flex, FormColumn, FormWrapper } from '@erxes/ui/src/styles/main';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 
@@ -86,9 +86,17 @@ class BulkDocuments extends React.Component<Props, State> {
       documents: [],
       loading: false,
       showPopup: false,
-      copyInfos: (props.bulk || []).map(b => ({ id: b._id, c: 1, product: b })),
-      copies: 1,
-      width: 300,
+      copyInfos: (props.bulk || []).map(b => ({
+        id: b._id,
+        c: 1,
+        product: b
+      })),
+      copies: Number(
+        localStorage.getItem('erxes_products_documents_copies') || 1
+      ),
+      width: Number(
+        localStorage.getItem('erxes_products_documents_width') || 300
+      ),
       isDate: false,
       date: new Date(),
       branchId: localStorage.getItem('erxes_products_documents_branchId') || '',
@@ -148,8 +156,12 @@ class BulkDocuments extends React.Component<Props, State> {
     this.setState({ showPopup: true, selectedDocumentId });
   };
 
-  onChange = (name, e) => {
-    this.setState({ [name]: e.currentTarget.value } as any);
+  onChange = e => {
+    const name = e.target.name;
+    const value = e.target.value;
+    this.setState({ [name]: value } as any, () => {
+      localStorage.setItem(`erxes_products_documents_${name}`, value);
+    });
   };
 
   onChangeSelect = (name, value) => {
@@ -177,7 +189,6 @@ class BulkDocuments extends React.Component<Props, State> {
   };
 
   onKeyDown = (ind, e) => {
-    console.log(ind);
     if (e.key === 'Enter') {
       e.preventDefault();
       if (e.shiftKey) {
@@ -214,7 +225,7 @@ class BulkDocuments extends React.Component<Props, State> {
                   {...formProps}
                   name="copies"
                   value={copies}
-                  onChange={this.onChange.bind(this, 'copies')}
+                  onChange={this.onChange}
                 />
               </FormGroup>
               <FormGroup>
@@ -223,7 +234,7 @@ class BulkDocuments extends React.Component<Props, State> {
                   {...formProps}
                   name="width"
                   value={width}
-                  onChange={this.onChange.bind(this, 'width')}
+                  onChange={this.onChange}
                 />
               </FormGroup>
               <FormGroup>

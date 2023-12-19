@@ -1,4 +1,4 @@
-import { Alert, __ } from 'coreui/utils';
+import { Alert, __ } from '@erxes/ui/src/utils';
 import { Appearance, Availability, Greeting, Intro, Options } from './steps';
 import {
   Content,
@@ -74,6 +74,7 @@ type State = {
   logoPreviewStyle: any;
   logoPreviewUrl: string;
   facebook: string;
+  instagram: string;
   twitter: string;
   youtube: string;
   messages: IMessages;
@@ -144,6 +145,7 @@ class CreateMessenger extends React.Component<Props, State> {
       logoPreviewStyle: {},
       logoPreviewUrl: uiOptions.logo || '/images/erxes.png',
       facebook: links.facebook || '',
+      instagram: links.instagram || '',
       twitter: links.twitter || '',
       youtube: links.youtube || '',
       messages: { ...this.generateMessages(messages) },
@@ -193,6 +195,7 @@ class CreateMessenger extends React.Component<Props, State> {
       channelIds,
       messages,
       facebook,
+      instagram,
       twitter,
       youtube,
       requireAuth,
@@ -217,6 +220,24 @@ class CreateMessenger extends React.Component<Props, State> {
       return Alert.error('Choose a brand');
     }
 
+    if (channelIds.length < 1) {
+      return Alert.error('Choose a channel');
+    }
+
+    if (messengerApps.websites && messengerApps.websites.length > 0) {
+      for (const website of messengerApps.websites) {
+        if (website.url === '') {
+          return Alert.error(`Set Website URL`);
+        }
+        if (website.description === '') {
+          return Alert.error(`Set Website Description`);
+        }
+        if (website.buttonText === '') {
+          return Alert.error(`Set Website Button Text`);
+        }
+      }
+    }
+
     if (skillData && Object.keys(skillData).length !== 0) {
       const skillOptions = (skillData as ISkillData).options || [];
 
@@ -237,6 +258,7 @@ class CreateMessenger extends React.Component<Props, State> {
 
     const links = {
       facebook: linkify(facebook),
+      instagram: linkify(instagram),
       twitter: linkify(twitter),
       youtube: linkify(youtube)
     };
@@ -339,6 +361,7 @@ class CreateMessenger extends React.Component<Props, State> {
       notifyCustomer,
       logoPreviewStyle,
       facebook,
+      instagram,
       twitter,
       youtube,
       messages,
@@ -395,6 +418,7 @@ class CreateMessenger extends React.Component<Props, State> {
                   supporterIds={supporterIds}
                   messages={messages}
                   facebook={facebook}
+                  instagram={instagram}
                   languageCode={languageCode}
                   twitter={twitter}
                   youtube={youtube}
@@ -516,6 +540,7 @@ class CreateMessenger extends React.Component<Props, State> {
                 showVideoCallRequest={showVideoCallRequest}
                 messengerApps={messengerApps}
                 facebook={facebook}
+                instagram={instagram}
                 twitter={twitter}
                 youtube={youtube}
               />

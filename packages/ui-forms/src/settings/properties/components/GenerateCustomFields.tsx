@@ -1,6 +1,7 @@
-import { Divider, SidebarContent } from '../styles';
+import { Divider, SidebarContent, SidebarFooter } from '../styles';
 import { IField, ILocationOption } from '@erxes/ui/src/types';
 import { IFieldGroup, LogicParams } from '../types';
+import { getConfig, setConfig } from '@erxes/ui/src/utils/core';
 
 import { Alert } from '@erxes/ui/src/utils';
 import Box from '@erxes/ui/src/components/Box';
@@ -10,8 +11,8 @@ import GenerateField from './GenerateField';
 import Icon from '@erxes/ui/src/components/Icon';
 import { ModalTrigger } from '@erxes/ui/src';
 import React from 'react';
-import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
 import Tip from '@erxes/ui/src/components/Tip';
+import _ from 'lodash';
 import { checkLogic } from '../utils';
 
 declare const navigator: any;
@@ -31,6 +32,7 @@ type Props = {
     callback: (error: Error) => void,
     extraValues?: any
   ) => void;
+  collapseCallback: () => void;
 };
 
 type State = {
@@ -39,11 +41,10 @@ type State = {
   extraValues?: any;
   currentLocation: ILocationOption;
 };
-
+const STORAGE_KEY = `erxes_sidebar_section_config`;
 class GenerateGroup extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
-
     this.state = {
       editing: false,
       data: JSON.parse(JSON.stringify(props.data)),
@@ -52,6 +53,24 @@ class GenerateGroup extends React.Component<Props, State> {
   }
 
   async componentDidMount() {
+    const { fieldGroup, collapseCallback } = this.props;
+
+    if (fieldGroup.alwaysOpen) {
+      const customField = getConfig(STORAGE_KEY) || {};
+
+      if (
+        _.isEmpty(customField) ||
+        !customField[`showCustomFields${fieldGroup.order}`]
+      ) {
+        setConfig(STORAGE_KEY, {
+          ...customField,
+          [`showCustomFields${fieldGroup.order}`]: true
+        });
+        // tslint:disable-next-line:no-unused-expression
+        collapseCallback && collapseCallback();
+      }
+    }
+
     if (this.props.fieldGroup.fields.findIndex(e => e.type === 'map') === -1) {
       return;
     }
@@ -193,13 +212,13 @@ class GenerateGroup extends React.Component<Props, State> {
     this.setState({ data, editing: true });
   };
 
-  renderButtons() {
+  renderButtons(isModal?: boolean) {
     if (!this.state.editing) {
       return null;
     }
 
     return (
-      <Sidebar.Footer>
+      <SidebarFooter>
         <Button
           btnStyle="simple"
           onClick={this.cancelEditing}
@@ -207,17 +226,27 @@ class GenerateGroup extends React.Component<Props, State> {
         >
           Discard
         </Button>
-        <Button btnStyle="success" onClick={this.save} icon="check-circle">
-          Save
-        </Button>
-      </Sidebar.Footer>
+        <div>
+          {this.props.fieldGroup.isMultiple && isModal && (
+            <Tip placement="top" text="Add Group Input">
+              <Button btnStyle="primary" onClick={this.onAddGroupInput}>
+                <Icon icon="plus-circle" />
+              </Button>
+            </Tip>
+          )}
+          <Button btnStyle="success" onClick={this.save} icon="check-circle">
+            Save
+          </Button>
+        </div>
+      </SidebarFooter>
     );
   }
 
   renderContent() {
     const { fieldGroup, isDetail, object = {} } = this.props;
+
     const { data } = this.state;
-    const { fields, isMultiple } = fieldGroup;
+    const { fields = [], isMultiple } = fieldGroup;
 
     const groupData = data[fieldGroup._id] || [];
     const isVisibleKey = isDetail ? 'isVisibleInDetail' : 'isVisible';
@@ -246,7 +275,7 @@ class GenerateGroup extends React.Component<Props, State> {
       <SidebarContent>
         {Array(numberToIterate)
           .fill(0)
-          .map((_, groupDataIndex) => {
+          .map((___, groupDataIndex) => {
             const groupDataValue = groupData[groupDataIndex] || {};
 
             const fieldRenders = fields.map((field, index) => {
@@ -340,7 +369,8 @@ class GenerateGroup extends React.Component<Props, State> {
       fieldGroup,
       fieldsGroups,
       customFieldsData = [],
-      isDetail
+      isDetail,
+      collapseCallback
     } = this.props;
 
     const childGroups = fieldsGroups.filter(
@@ -436,43 +466,34 @@ class GenerateGroup extends React.Component<Props, State> {
           save={this.props.save}
           saveGroup={saveGroup}
           object={this.props.object}
+          collapseCallback={collapseCallback}
         />
       );
     });
   }
 
-  modalContent = (fieldGroup: IFieldGroup) => {
-    let extraButtons = <></>;
-    if (fieldGroup.isMultiple) {
-      extraButtons = (
-        <Tip placement="top" text="Add Group Input">
-          <button onClick={this.onAddGroupInput}>
-            <Icon icon="plus-circle" />
-          </button>
-        </Tip>
-      );
-    }
+  modalContent = () => {
     return (
-      <Box
-        extraButtons={extraButtons}
-        title={fieldGroup.name}
-        name="showCustomFields"
-        isOpen={true}
-      >
+      <>
         {this.renderContent()}
-        {this.renderButtons()}
+        {this.renderButtons(true)}
         {this.renderChildGroups()}
-      </Box>
+      </>
     );
   };
 
   render() {
-    const { fieldGroup, isDetail } = this.props;
+    const { fieldGroup, fieldsGroups, isDetail, collapseCallback } = this.props;
+
+    const childGroups = fieldsGroups.filter(
+      gro => gro.parentId === fieldGroup._id
+    );
+
     const isVisibleKey = isDetail ? 'isVisibleInDetail' : 'isVisible';
     let extraButtons = <></>;
     const visibleField = fieldGroup.fields.find(el => el.isVisible === true);
 
-    if (!visibleField) {
+    if (!visibleField && childGroups.length === 0) {
       return null;
     }
 
@@ -480,7 +501,7 @@ class GenerateGroup extends React.Component<Props, State> {
       return null;
     }
 
-    if (fieldGroup.fields.length === 0) {
+    if (fieldGroup.fields.length === 0 && childGroups.length === 0) {
       return null;
     }
 
@@ -489,12 +510,12 @@ class GenerateGroup extends React.Component<Props, State> {
         <>
           {
             <ModalTrigger
-              title={'Edit'}
+              title={fieldGroup.name}
               trigger={
                 <Icon icon="expand-arrows-alt" style={{ cursor: 'pointer' }} />
               }
-              size="xl"
-              content={() => this.modalContent(fieldGroup)}
+              content={() => this.modalContent()}
+              paddingContent="less-padding"
             />
           }
           <Tip placement="top" text="Add Group Input">
@@ -508,12 +529,12 @@ class GenerateGroup extends React.Component<Props, State> {
     if (!fieldGroup.isMultiple) {
       extraButtons = (
         <ModalTrigger
-          title={'Edit'}
+          title={fieldGroup.name}
           trigger={
             <Icon icon="expand-arrows-alt" style={{ cursor: 'pointer' }} />
           }
-          size="xl"
-          content={() => this.modalContent(fieldGroup)}
+          content={() => this.modalContent()}
+          paddingContent="less-padding"
         />
       );
     }
@@ -522,8 +543,9 @@ class GenerateGroup extends React.Component<Props, State> {
       <Box
         extraButtons={extraButtons}
         title={fieldGroup.name}
-        name="showCustomFields"
+        name={`showCustomFields${fieldGroup.order}`}
         isOpen={fieldGroup.alwaysOpen}
+        callback={collapseCallback}
       >
         {this.renderContent()}
         {this.renderButtons()}
@@ -540,6 +562,7 @@ type GroupsProps = {
   loading?: boolean;
   object?: any;
   save: (data: { customFieldsData: any }, callback: () => any) => void;
+  collapseCallback: () => void;
 };
 
 class GenerateGroups extends React.Component<GroupsProps> {
@@ -571,7 +594,8 @@ class GenerateGroups extends React.Component<GroupsProps> {
       loading,
       fieldsGroups = [],
       customFieldsData,
-      isDetail
+      isDetail,
+      collapseCallback
     } = this.props;
 
     const groups = fieldsGroups.filter(gro => !gro.parentId);
@@ -644,6 +668,7 @@ class GenerateGroups extends React.Component<GroupsProps> {
           object={this.props.object}
           saveGroup={this.saveGroup}
           save={this.props.save}
+          collapseCallback={collapseCallback}
         />
       );
     });

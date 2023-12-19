@@ -1,4 +1,5 @@
 import * as dayjs from 'dayjs';
+import * as relativeTime from 'dayjs/plugin/relativeTime';
 
 import {
   AssigneeImg,
@@ -37,6 +38,8 @@ import Tags from '@erxes/ui/src/components/Tags';
 import Tip from '@erxes/ui/src/components/Tip';
 import strip from 'strip';
 import withCurrentUser from '@erxes/ui/src/auth/containers/withCurrentUser';
+
+dayjs.extend(relativeTime);
 
 type Props = {
   conversation: IConversation;

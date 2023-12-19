@@ -1,0 +1,12 @@
+{
+  "name": "plugin-instagram-ui",
+  "version": "1.0.0",
+  "scripts": {
+    "install-deps": "yarn install",
+    "start": "webpack serve --mode development",
+    "build": "webpack --mode production"
+  },
+  "dependencies": {
+    "@erxes/ui": "*"
+  }
+}

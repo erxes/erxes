@@ -1,5 +1,6 @@
 const productParamsDef = `
   $name: String,
+  $shortName: String,
   $type: String,
   $categoryId: String,
   $description: String,
@@ -12,6 +13,7 @@ const productParamsDef = `
   $attachment: AttachmentInput,
   $attachmentMore: [AttachmentInput],
   $vendorId: String,
+  $scopeBrandIds: [String]
   $uom: String,
   $subUoms: JSON,
   $taxType: String,
@@ -22,6 +24,7 @@ const productCategoryParamsDef = `
   $name: String!,
   $code: String!,
   $parentId: String,
+  $scopeBrandIds: [String]
   $description: String,
   $attachment: AttachmentInput,
   $status: String,
@@ -34,6 +37,7 @@ const productCategoryParamsDef = `
 
 const productParams = `
   name: $name,
+  shortName: $shortName,
   type: $type,
   categoryId: $categoryId,
   description: $description,
@@ -46,6 +50,7 @@ const productParams = `
   attachment: $attachment,
   attachmentMore: $attachmentMore,
   vendorId: $vendorId,
+  scopeBrandIds: $scopeBrandIds,
   uom: $uom,
   subUoms: $subUoms,
   taxType: $taxType,
@@ -56,6 +61,7 @@ const productCategoryParams = `
   name: $name,
   code: $code,
   parentId: $parentId,
+  scopeBrandIds: $scopeBrandIds,
   description: $description,
   attachment: $attachment,
   status: $status,

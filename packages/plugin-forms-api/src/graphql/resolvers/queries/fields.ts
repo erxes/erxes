@@ -105,6 +105,7 @@ const fieldQueries = {
     { models }: IContext
   ) {
     const query: IFieldsQuery = { contentType };
+    console.log('query', query);
 
     if (contentTypeId) {
       query.contentTypeId = contentTypeId;
@@ -125,7 +126,8 @@ const fieldQueries = {
 
       const erxesDefinedGroup = await models.FieldsGroups.findOne({
         contentType,
-        isDefinedByErxes: true
+        isDefinedByErxes: true,
+        code: { $exists: false }
       });
 
       if (erxesDefinedGroup) {
@@ -244,10 +246,12 @@ const fieldsGroupQueries = {
     {
       contentType,
       isDefinedByErxes,
+      codes,
       config
     }: {
       contentType: string;
       isDefinedByErxes: boolean;
+      codes: string[];
       config;
     },
     { commonQuerySelector, models, subdomain }: IContext
@@ -271,6 +275,10 @@ const fieldsGroupQueries = {
 
     if (isDefinedByErxes !== undefined) {
       query.isDefinedByErxes = isDefinedByErxes;
+    }
+
+    if (codes && codes.length > 0) {
+      query.code = { $in: codes };
     }
 
     const groups = await models.FieldsGroups.find(query).sort({ order: 1 });

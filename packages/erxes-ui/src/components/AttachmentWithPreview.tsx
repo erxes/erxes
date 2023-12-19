@@ -187,7 +187,7 @@ class AttachmentWithPreview extends React.Component<Props, State> {
           '&embedded=true'
         }
         width="100%"
-      ></iframe>
+      />
     );
   };
 
@@ -303,7 +303,7 @@ class AttachmentWithPreview extends React.Component<Props, State> {
   renderAttachmentPreview() {
     const { onLoad, attachment, icon } = this.props;
 
-    if (icon) {
+    if (!attachment.url && icon) {
       return <Icon icon={icon} onClick={this.onToggle} />;
     }
 

@@ -1,7 +1,13 @@
+import {
+  getService,
+  getServices,
+  isEnabled
+} from '@erxes/api-utils/src/serviceDiscovery';
 import { IModels } from '../connectionResolver';
-import { SOCIALPAY_TOKEN_URL } from '../constants';
-import messageBroker, { sendContactsMessage } from '../messageBroker';
-import { sendRequest } from '@erxes/api-utils/src/requests';
+import messageBroker, {
+  sendCardsMessage,
+  sendContactsMessage
+} from '../messageBroker';
 
 export interface IContactsParams {
   subdomain: string;
@@ -80,6 +86,19 @@ export const handleContacts = async (args: IContactsParams) => {
         { _id: user._id },
         { $set: { erxesCustomerId: customer._id } }
       );
+
+      for (const serviceName of await getServices()) {
+        const serviceConfig = await getService(serviceName, true);
+
+        if (serviceConfig.config?.meta?.hasOwnProperty('cpCustomerHandle')) {
+          if (await isEnabled(serviceName)) {
+            messageBroker().sendMessage(`${serviceName}:cpCustomerHandle`, {
+              subdomain,
+              data: { customer }
+            });
+          }
+        }
+      }
     }
   }
 
@@ -137,6 +156,19 @@ export const handleContacts = async (args: IContactsParams) => {
         { _id: user._id },
         { $set: { erxesCompanyId: company._id } }
       );
+
+      for (const serviceName of await getServices()) {
+        const serviceConfig = await getService(serviceName, true);
+
+        if (serviceConfig.config?.meta?.hasOwnProperty('cpCustomerHandle')) {
+          if (await isEnabled(serviceName)) {
+            messageBroker().sendMessage(`${serviceName}:cpCustomerHandle`, {
+              subdomain,
+              data: { company }
+            });
+          }
+        }
+      }
     }
   }
 
@@ -165,32 +197,6 @@ export const putActivityLog = async user => {
   });
 };
 
-export const fetchUserFromSocialpay = async (token: string) => {
-  try {
-    const response = await sendRequest({
-      url: SOCIALPAY_TOKEN_URL,
-      method: 'POST',
-      headers: {
-        'content-type': 'application/json'
-      },
-      body: {
-        method: 'checkAdditionalToken',
-        params: [token]
-      }
-    });
-
-    const { result } = response;
-
-    if (!result || result.Result !== 'SUCCESS') {
-      return null;
-    }
-
-    return result;
-  } catch (e) {
-    return null;
-  }
-};
-
 export const handleDeviceToken = async (user, deviceToken) => {
   if (deviceToken) {
     const deviceTokens: string[] = user.deviceTokens || [];
@@ -201,4 +207,70 @@ export const handleDeviceToken = async (user, deviceToken) => {
       await user.update({ $set: { deviceTokens } });
     }
   }
+};
+
+export const createCard = async (subdomain, models, cpUser, doc) => {
+  const customer = await sendContactsMessage({
+    subdomain,
+    action: 'customers.findOne',
+    data: {
+      _id: cpUser.erxesCustomerId
+    },
+    isRPC: true
+  });
+
+  if (!customer) {
+    throw new Error('Customer not registered');
+  }
+
+  const {
+    type,
+    subject,
+    description,
+    stageId,
+    parentId,
+    closeDate,
+    startDate,
+    customFieldsData,
+    attachments,
+    labelIds,
+    productsData
+  } = doc;
+  let priority = doc.priority;
+
+  if (['High', 'Critical'].includes(priority)) {
+    priority = 'Normal';
+  }
+
+  const card = await sendCardsMessage({
+    subdomain,
+    action: `${type}s.create`,
+    data: {
+      userId: cpUser._id,
+      name: subject,
+      description,
+      priority,
+      stageId,
+      status: 'active',
+      customerId: customer._id,
+      createdAt: new Date(),
+      stageChangedDate: null,
+      parentId,
+      closeDate,
+      startDate,
+      customFieldsData,
+      attachments,
+      labelIds,
+      productsData
+    },
+    isRPC: true
+  });
+
+  await models.ClientPortalUserCards.createOrUpdateCard({
+    contentType: type,
+    contentTypeId: card._id,
+    cpUserId: cpUser._id
+  });
+
+  return card;
 };

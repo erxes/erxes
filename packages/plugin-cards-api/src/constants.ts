@@ -348,6 +348,22 @@ export const CARD_PROPERTIES_INFO = {
       canHide: false,
       validation: null,
       type: 'textarea'
+    },
+    {
+      label: 'Branches',
+      field: 'branchIds',
+      canHide: false,
+      validation: null,
+      type: 'select',
+      options: []
+    },
+    {
+      label: 'Departments',
+      field: 'departmentIds',
+      canHide: false,
+      validation: null,
+      type: 'select',
+      options: []
     }
   ]
 };
@@ -356,6 +372,7 @@ export const NOTIFICATION_MODULES = [
   {
     name: 'deals',
     description: 'Deals',
+    icon: 'piggy-bank',
     types: [
       {
         name: 'dealAdd',
@@ -387,6 +404,7 @@ export const NOTIFICATION_MODULES = [
   {
     name: 'purchases',
     description: 'Purchases',
+    icon: 'bag-alt',
     types: [
       {
         name: 'purchaseAdd',
@@ -418,6 +436,7 @@ export const NOTIFICATION_MODULES = [
   {
     name: 'tickets',
     description: 'Tickets',
+    icon: 'ticket',
     types: [
       {
         name: 'ticketAdd',
@@ -449,6 +468,7 @@ export const NOTIFICATION_MODULES = [
   {
     name: 'tasks',
     description: 'Tasks',
+    icon: 'file-check-alt',
     types: [
       {
         name: 'taskAdd',

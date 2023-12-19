@@ -12,15 +12,17 @@ try {
 }
 
 const getWorkerFile = () => {
+  let filePath = path.resolve(__dirname, `./export.worker.js`);
+
   if (process.env.NODE_ENV !== 'production') {
-    return './export.worker.ts';
+    filePath = path.resolve(__dirname, `./export.worker.ts`);
   }
 
-  return './export.worker.js';
+  return filePath;
 };
 
 try {
-  require(path.resolve(__dirname, `${getWorkerFile()}`));
+  require(path.resolve('erxes/packages/workers', `${getWorkerFile()}`));
 } catch (e) {
   console.log(e);
 }

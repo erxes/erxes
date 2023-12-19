@@ -1,0 +1,13 @@
+{
+  "name": "@erxes/plugin-zalo-api",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "nodemon src/index.ts",
+    "build" : "tsc"
+  },
+  "dependencies": {
+    "@erxes/api-utils": "*",
+    "axios": "^1.2.2",
+    "request-promise": "^4.2.6"
+  }
+}

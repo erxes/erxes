@@ -61,7 +61,7 @@ class ConversationDetail extends React.Component<
 
     // lister for new message
     data.subscribeToMore({
-      document: gql(graphqlTypes.conversationMessageInserted),
+      document: gql(graphqlTypes.conversationMessageInserted(connection.enabledServices.dailyco)),
       variables: { _id: conversationId },
       updateQuery: (prev, { subscriptionData }) => {
         const message = subscriptionData.data.conversationMessageInserted;
@@ -158,7 +158,7 @@ class ConversationDetail extends React.Component<
 
 const query = compose(
   graphql<{ conversationId: string }>(
-    gql(graphqlTypes.conversationDetailQuery),
+    gql(graphqlTypes.conversationDetailQuery(connection.enabledServices.dailyco)),
     {
       options: ownProps => ({
         variables: {

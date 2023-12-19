@@ -202,7 +202,7 @@ export const updateConfigs = async (
 ): Promise<void> => {
   await models.Configs.updateConfigs(configsMap);
 
-  resetConfigsCache();
+  await resetConfigsCache();
 };
 
 export const routeErrorHandling = (fn, callback?: any) => {

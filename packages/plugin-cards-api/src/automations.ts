@@ -157,7 +157,29 @@ const getRelatedValue = async (
     return result;
   }
 
+  if (targetKey.includes('productsData')) {
+    const [_parentFieldName, childFieldName] = targetKey.split('.');
+
+    if (childFieldName === 'amount') {
+      return generateTotalAmount(target.productsData);
+    }
+  }
+
   return false;
+};
+
+const generateTotalAmount = productsData => {
+  let totalAmount = 0;
+
+  (productsData || []).forEach(product => {
+    if (product.tickUsed) {
+      return;
+    }
+
+    totalAmount += product?.amount || 0;
+  });
+
+  return totalAmount;
 };
 
 // module related services
@@ -315,7 +337,8 @@ export default {
       rules,
       execution,
       relatedItems,
-      sendCommonMessage
+      sendCommonMessage,
+      triggerType
     });
   },
   replacePlaceHolders: async ({
@@ -330,7 +353,8 @@ export default {
       getRelatedValue,
       actionData: config,
       target,
-      relatedValueProps
+      relatedValueProps,
+      complexFields: ['productsData']
     });
   },
   constants: {

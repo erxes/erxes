@@ -66,18 +66,33 @@ export const NavItem = styled.div`
   }
 `;
 
+const Version = styled.li`
+  padding: 0.25rem 1.5rem;
+
+  span:first-child {
+    font-weight: bold;
+    color: ${colors.colorCoreGray};
+  }
+
+  span {
+    font-weight: bold;
+  }
+`;
+
 const QuickNavigation = ({
   logout,
   currentUser,
   showBrands,
   selectedBrands,
-  onChangeBrands
+  onChangeBrands,
+  version
 }: {
   logout: () => void;
   currentUser: IUser;
   showBrands: boolean;
   selectedBrands: string[];
   onChangeBrands: (value: string) => void;
+  version: string;
 }) => {
   const passContent = props => <ChangePassword {...props} />;
   const signatureContent = props => <Signature {...props} />;
@@ -126,11 +141,9 @@ const QuickNavigation = ({
               <NameCard user={currentUser} />
             </NameCardWrapper>
             <Dropdown.Divider />
-
             <li>
               <Link to="/profile">{__('My Profile')}</Link>
             </li>
-
             <li>
               <DropNav>
                 {__('Account Settings')}
@@ -159,9 +172,14 @@ const QuickNavigation = ({
                 </ul>
               </DropNav>
             </li>
-
             <Dropdown.Divider />
+
             <Dropdown.Item onClick={logout}>{__('Sign out')}</Dropdown.Item>
+            {version ? (
+              <Version>
+                <span>version</span> <span>{version}</span>
+              </Version>
+            ) : null}
           </Dropdown.Menu>
         </Dropdown>
       </NavItem>

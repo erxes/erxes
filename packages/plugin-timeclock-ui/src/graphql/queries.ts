@@ -37,6 +37,7 @@ const listParamsDef = `
   $reportType: String
   $scheduleStatus: String
   $isCurrentUserAdmin: Boolean
+  $searchValue: String
 `;
 
 const listParamsValue = `
@@ -50,6 +51,7 @@ const listParamsValue = `
   reportType: $reportType
   scheduleStatus: $scheduleStatus
   isCurrentUserAdmin: $isCurrentUserAdmin
+  searchValue: $searchValue
 `;
 
 const timelogsMain = `
@@ -117,6 +119,7 @@ const schedulesMain = `
             status
             scheduleConfigId
             lunchBreakInMins
+            scheduleId
           }
           scheduleConfigId
           solved
@@ -180,6 +183,7 @@ const requestsMain = `
           absenceTimeType
           requestDates
           totalHoursOfAbsence
+          note
         }
         totalCount
   }
@@ -323,6 +327,30 @@ const scheduleConfigs = `
 
 `;
 
+const deviceConfigs = `
+query deviceConfigs (${listParamsDef}){
+  deviceConfigs(${listParamsValue}) {
+    list {
+      _id 
+      deviceName
+      serialNo
+      extractRequired
+    }
+    totalCount
+  }
+}`;
+
+const timeLogsPerUser = `
+  query timeLogsPerUser($userId: String, $startDate: String, $endDate: String){
+    timeLogsPerUser(userId: $userId, startDate: $startDate, endDate: $endDate){
+      _id
+      timelog
+      deviceName
+      deviceSerialNo
+    }
+  }
+`;
+
 const timeclockBranches = `
 query timeclockBranches($searchValue: String){
   timeclockBranches(searchValue: $searchValue){
@@ -363,6 +391,7 @@ export default {
   timeclocksPerUser,
 
   timelogsMain,
+  timeLogsPerUser,
 
   schedulesMain,
   requestsMain,
@@ -373,6 +402,7 @@ export default {
   holidays,
 
   scheduleConfigs,
+  deviceConfigs,
   scheduleConfigOrder,
 
   timeclockBranches,

@@ -244,14 +244,30 @@ const queryBuilder = async (
     selector.departmentIds = { $in: [departmentId] };
   }
 
-  if (branchIds && branchIds.length) {
-    selector.branchIds = { $in: await getChildIds(models.Branches, branchIds) };
-  }
+  if (branchIds && branchIds.length && departmentIds && departmentIds.length) {
+    const oldOr = selector.$or || [];
+    oldOr.push({
+      branchIds: { $in: await getChildIds(models.Branches, branchIds) }
+    });
+    oldOr.push({
+      departmentIds: {
+        $in: await getChildIds(models.Departments, departmentIds)
+      }
+    });
 
-  if (departmentIds && departmentIds.length) {
-    selector.departmentIds = {
-      $in: await getChildIds(models.Departments, departmentIds)
-    };
+    selector.$or = oldOr;
+  } else {
+    if (branchIds && branchIds.length) {
+      selector.branchIds = {
+        $in: await getChildIds(models.Branches, branchIds)
+      };
+    }
+
+    if (departmentIds && departmentIds.length) {
+      selector.departmentIds = {
+        $in: await getChildIds(models.Departments, departmentIds)
+      };
+    }
   }
 
   if (unitId) {

@@ -7,11 +7,13 @@ import {
 
 import { CustomerDetailQueryResponse } from '@erxes/ui-contacts/src/customers/types';
 import DumbSidebar from '../../components/conversationDetail/sidebar/Sidebar';
+import EmptySidebar from '@erxes/ui/src/layout/components/Sidebar';
 import { IConversation } from '@erxes/ui-inbox/src/inbox/types';
 import { ICustomer } from '@erxes/ui-contacts/src/customers/types';
 import { IField } from '@erxes/ui/src/types';
 import { IUser } from '@erxes/ui/src/auth/types';
 import React from 'react';
+import SidebarLoader from '../../components/conversationDetail/sidebar/SidebarLoader';
 import client from '@erxes/ui/src/apolloClient';
 import { getConfig } from '@erxes/ui-inbox/src/inbox/utils';
 import { gql } from '@apollo/client';
@@ -63,18 +65,27 @@ class Sidebar extends React.Component<FinalProps, State> {
     }
   }
 
+  mergeProperties = () => {
+    const config = getConfig(STORAGE_KEY) || {};
+
+    return Object.entries(config)?.reduce((result, [key, value]) => {
+      const keys = key.replace(/[0-9]+$/, '');
+      result[keys] = keys in result ? result[keys] || value : value;
+
+      return result;
+    }, {});
+  };
+
   getCustomerDetail(customerId?: string) {
     if (!customerId) {
       return null;
     }
 
-    const sectionParams = getConfig(STORAGE_KEY);
-
     this.setState({ loading: true });
 
     client
       .query({
-        query: gql(queries.generateCustomerDetailQuery(sectionParams)),
+        query: gql(queries.generateCustomerDetailQuery(this.mergeProperties())),
         fetchPolicy: 'network-only',
         variables: { _id: customerId }
       })
@@ -99,12 +110,22 @@ class Sidebar extends React.Component<FinalProps, State> {
   render() {
     const { customer, loading } = this.state;
 
+    const mergedProperties = this.mergeProperties();
+
     const taggerRefetchQueries = [
       {
-        query: gql(queries.generateCustomerDetailQuery(getConfig(STORAGE_KEY))),
+        query: gql(queries.generateCustomerDetailQuery(mergedProperties)),
         variables: { _id: customer._id }
       }
     ];
+
+    if (loading) {
+      return (
+        <EmptySidebar full={true}>
+          <SidebarLoader />
+        </EmptySidebar>
+      );
+    }
 
     return (
       <PropertyProvider>

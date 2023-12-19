@@ -23,7 +23,7 @@ type Props = {
   branches: IBranch[];
   departments: IDepartment[];
 
-  scheduleOfMembers: any;
+  scheduleOfMember?: any;
   queryParams: any;
   history: any;
   modalContentType: string;
@@ -43,7 +43,8 @@ const ScheduleFormContainer = (props: FinalProps) => {
   const {
     listScheduleConfigsQuery,
     scheduleConfigOrderQuery,
-    scheduleConfigOrderEditMutation
+    scheduleConfigOrderEditMutation,
+    editScheduleMutation
   } = props;
 
   if (listScheduleConfigsQuery.loading) {
@@ -60,19 +61,29 @@ const ScheduleFormContainer = (props: FinalProps) => {
       .catch(err => Alert.error(err.message));
   };
 
+  const editSchedule = (scheduleId: string, shifts: any, closeModal: any) => {
+    editScheduleMutation({ variables: { _id: scheduleId, shifts } })
+      .then(() => {
+        Alert.success('Successfully edited schedule');
+        closeModal();
+      })
+      .catch(err => Alert.error(err.message));
+  };
+
   return (
     <ScheduleForm
       scheduleConfigs={scheduleConfigs}
       {...props}
       scheduleConfigOrder={scheduleConfigOrderQuery.scheduleConfigOrder}
       scheduleConfigOrderEdit={scheduleConfigOrderEdit}
+      editSchedule={editSchedule}
     />
   );
 };
 
 export default withProps<Props>(
   compose(
-    graphql<Props, PayDatesQueryResponse>(gql(queries.scheduleConfigs), {
+    graphql<Props, ScheduleConfigQueryResponse>(gql(queries.scheduleConfigs), {
       name: 'listScheduleConfigsQuery',
       options: () => ({
         fetchPolicy: 'network-only'
@@ -96,6 +107,13 @@ export default withProps<Props>(
           refetchQueries: ['scheduleConfigOrder']
         })
       }
-    )
+    ),
+
+    graphql<Props, ScheduleMutationResponse>(gql(mutations.editSchedule), {
+      name: 'editScheduleMutation',
+      options: () => ({
+        refetchQueries: ['schedulesMain']
+      })
+    })
   )(withCurrentUser(ScheduleFormContainer))
 );

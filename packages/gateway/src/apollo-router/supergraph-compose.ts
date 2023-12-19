@@ -1,7 +1,7 @@
 import * as dotenv from 'dotenv';
 dotenv.config();
 
-import { ErxesProxyTarget } from 'src/proxy/targets';
+import { ErxesProxyTarget } from '../proxy/targets';
 import { supergraphConfigPath, supergraphPath } from './paths';
 import * as fs from 'fs';
 import { execSync } from 'child_process';
@@ -55,7 +55,9 @@ const createSupergraphConfig = (proxyTargets: ErxesProxyTarget[]) => {
       !fs.existsSync(supergraphConfigPath) ||
       !isSameFile(supergraphConfigPath, superGraphConfigNext)
     ) {
-      execSync(`cp ${superGraphConfigNext}  ${supergraphConfigPath}`);
+      execSync(`cp -f ${superGraphConfigNext}  ${supergraphConfigPath}`, {
+        stdio: 'inherit'
+      });
     }
   }
 };
@@ -69,14 +71,16 @@ const supergraphComposeOnce = async () => {
     const superGraphqlNext = supergraphPath + '.next';
 
     await execSync(
-      `yarn rover supergraph compose --config ${supergraphConfigPath} --output ${superGraphqlNext} --elv2-license=accept`
+      `yarn rover supergraph compose --config ${supergraphConfigPath} --output ${superGraphqlNext} --elv2-license=accept  --client-timeout=80000`
     );
 
     if (
       !fs.existsSync(supergraphPath) ||
       !isSameFile(supergraphPath, superGraphqlNext)
     ) {
-      execSync(`cp ${superGraphqlNext} ${supergraphPath}`);
+      execSync(`cp -f ${superGraphqlNext} ${supergraphPath}`, {
+        stdio: 'inherit'
+      });
       console.log(`NEW Supergraph Schema was printed to ${supergraphPath}`);
     }
   }
