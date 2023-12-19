@@ -1395,7 +1395,7 @@ a:hover {
       border-color: #93c5fd;
       line-height: 1;
       background-color: #f1f5f9;
-      display: inline-box;
+      display: inline-block;
     }
 
   }

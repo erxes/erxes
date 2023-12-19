@@ -45,7 +45,7 @@ const MessageContent = styledTS<{ internal?: boolean; staff?: boolean }>(
 
   span[data-type="mention"]{
     font-weight: bold;
-    display: inline-box;
+    display: inline-block;
   }
 
   img {

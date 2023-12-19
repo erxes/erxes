@@ -82,7 +82,7 @@ const EditorContainer = (props: FinalProps) => {
 
   const teamMembers: IMentionUser[] = [];
 
-  for (const user of usersQuery.users || []) {
+  for (const user of usersQuery?.users || []) {
     teamMembers.push({
       id: user._id,
       username: user.username,

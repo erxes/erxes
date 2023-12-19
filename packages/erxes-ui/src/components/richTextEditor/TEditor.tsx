@@ -30,6 +30,7 @@ import { IMentionUser } from '../../types';
 const POSITION_TOP = 'top';
 const POSITION_BOTTOM = 'bottom';
 type toolbarLocationOption = 'bottom' | 'top';
+
 export interface IRichTextEditorProps extends IRichTextEditorContentProps {
   placeholder?: string;
   /** Controlled value */
@@ -70,7 +71,6 @@ export const RichTextEditor = (props: IRichTextEditorProps) => {
     isSubmitted,
     showMentions = false,
     mentionSuggestions,
-
     placeholderProp,
     limit
   } = props;
@@ -109,7 +109,7 @@ export const RichTextEditor = (props: IRichTextEditorProps) => {
       parseOptions: { preserveWhitespace: 'full' },
       onUpdate: handleEditorChange
     },
-    [showMentions]
+    [showMentions, mentionSuggestions?.loading]
   );
 
   useEffect(() => {
@@ -158,6 +158,17 @@ export const RichTextEditor = (props: IRichTextEditorProps) => {
   const editorParts = useMemo(
     () => [
       <RichTextEditor.Toolbar key="rich-text-editor-toolbar-key">
+        {placeholderProp && (
+          <RichTextEditor.Placeholder placeholderProp={placeholderProp} />
+        )}
+        <RichTextEditor.FontSize />
+
+        <RichTextEditor.ControlsGroup isDropdown={true}>
+          <RichTextEditor.H1 />
+          <RichTextEditor.H2 />
+          <RichTextEditor.H3 />
+        </RichTextEditor.ControlsGroup>
+
         <RichTextEditor.ControlsGroup>
           <RichTextEditor.SourceControl />
           <RichTextEditor.Bold />
@@ -167,29 +178,18 @@ export const RichTextEditor = (props: IRichTextEditorProps) => {
           <RichTextEditor.ImageControl />
         </RichTextEditor.ControlsGroup>
 
-        <RichTextEditor.ControlsGroup>
-          <RichTextEditor.ColorControl />
-          <RichTextEditor.HighlightControl />
-        </RichTextEditor.ControlsGroup>
-
-        <RichTextEditor.ControlsGroup>
-          <RichTextEditor.H1 />
-          <RichTextEditor.H2 />
-          <RichTextEditor.H3 />
-        </RichTextEditor.ControlsGroup>
-
-        <RichTextEditor.ControlsGroup>
-          <RichTextEditor.BulletList />
-          <RichTextEditor.OrderedList />
-          <RichTextEditor.Blockquote />
-          <RichTextEditor.HorizontalRule />
-        </RichTextEditor.ControlsGroup>
-
-        <RichTextEditor.ControlsGroup>
+        <RichTextEditor.ControlsGroup isDropdown={true}>
           <RichTextEditor.AlignLeft />
           <RichTextEditor.AlignRight />
           <RichTextEditor.AlignCenter />
           <RichTextEditor.AlignJustify />
+        </RichTextEditor.ControlsGroup>
+
+        <RichTextEditor.ControlsGroup isDropdown={true}>
+          <RichTextEditor.BulletList />
+          <RichTextEditor.OrderedList />
+          <RichTextEditor.Blockquote />
+          <RichTextEditor.HorizontalRule />
         </RichTextEditor.ControlsGroup>
 
         <RichTextEditor.ControlsGroup>
@@ -198,10 +198,10 @@ export const RichTextEditor = (props: IRichTextEditorProps) => {
           <RichTextEditor.TableControl />
         </RichTextEditor.ControlsGroup>
 
-        <RichTextEditor.FontSize />
-        {placeholderProp && (
-          <RichTextEditor.Placeholder placeholderProp={placeholderProp} />
-        )}
+        <RichTextEditor.ControlsGroup>
+          <RichTextEditor.ColorControl />
+          <RichTextEditor.HighlightControl />
+        </RichTextEditor.ControlsGroup>
       </RichTextEditor.Toolbar>,
 
       <RichTextEditorContent
