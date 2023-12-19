@@ -1,4 +1,4 @@
-import { Button, FormControl, Uploader } from '@erxes/ui/src';
+import { __, Button, FormControl, Uploader } from '@erxes/ui/src';
 import CommonForm from '@erxes/ui/src/components/form/Form';
 import {
   FormColumn,
@@ -12,12 +12,10 @@ import {
 } from '@erxes/ui/src/types';
 import { extractAttachment } from '@erxes/ui/src/utils/core';
 import React from 'react';
-import { ASSET_CATEGORY_STATUSES } from '../../../common/constant';
-import { IAssetCategory, IAssetCategoryTypes } from '../../../common/types';
-import {
-  CommonFormGroup,
-  generateCategoryOptions
-} from '../../../common/utils';
+import { ASSET_CATEGORY_STATUSES } from '../../common/constant';
+import { IAssetCategory, IAssetCategoryTypes } from '../../common/types';
+import { CommonFormGroup, SelectWithAssetCategory } from '../../common/utils';
+import Select from 'react-select-plus';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -26,36 +24,41 @@ type Props = {
   categories: IAssetCategoryTypes[];
 };
 
-class Form extends React.Component<Props> {
-  constructor(props) {
-    super(props);
+function CategoryForm({
+  renderButton,
+  closeModal,
+  category,
+  categories
+}: Props) {
+  const [attachment, setAttachment] = React.useState<IAttachment | undefined>(
+    undefined
+  );
+  const [status, setStatus] = React.useState<string>('');
+  const [parentId, setParentId] = React.useState<string>('');
 
-    const category = props.category || ({} as IAssetCategory);
-    const attachment = category.attachment || undefined;
-    this.state = {
-      attachment
-    };
+  React.useEffect(() => {
+    if (category) {
+      setStatus(category.status || '');
+      setParentId(category.parentId || '');
+    }
+  }, []);
 
-    this.renderForm = this.renderForm.bind(this);
-  }
-
-  generateDocs(values) {
-    const { category } = this.props;
-
+  const generateDocs = values => {
     const finalValues = values;
 
     if (category) {
       finalValues._id = category._id;
     }
 
-    return { ...finalValues };
-  }
-
-  onChangeAttachment = (files: IAttachment[]) => {
-    this.setState({ attachment: files ? files[0] : undefined });
+    return { ...finalValues, attachment, status, parentId };
   };
-  renderForm(formProps: IFormProps) {
-    const { renderButton, closeModal, category, categories } = this.props;
+
+  const onChangeAttachment = (files: IAttachment[]) => {
+    const file = files ? files[0] : undefined;
+    setAttachment(file);
+  };
+
+  const renderForm = (formProps: IFormProps) => {
     const { isSubmitted, values } = formProps;
 
     const object = category || ({} as IAssetCategory);
@@ -93,37 +96,37 @@ class Form extends React.Component<Props> {
         <FormWrapper>
           <FormColumn>
             <CommonFormGroup label="Status">
-              <FormControl
-                name="status"
-                {...formProps}
-                componentClass="select"
+              <Select
+                placeholder={__('Choose status')}
+                value={status}
                 options={ASSET_CATEGORY_STATUSES}
-                defaultValue={object.status}
+                onChange={option => setStatus(option.value)}
+                {...formProps}
               />
             </CommonFormGroup>
           </FormColumn>
           <FormColumn>
-            <CommonFormGroup label="Image">
-              <Uploader
-                onChange={this.onChangeAttachment}
-                defaultFileList={attachments}
-                multiple={false}
-                single={false}
+            <CommonFormGroup label="Parent Category">
+              <SelectWithAssetCategory
+                label="Choose Asset Category"
+                name="categoryId"
+                multi={false}
+                initialValue={object.parentId}
+                onSelect={value => setParentId(value as string)}
+                customOption={{ value: '', label: 'Choose Asset Category' }}
+                {...formProps}
               />
             </CommonFormGroup>
           </FormColumn>
         </FormWrapper>
 
-        <CommonFormGroup label="Parent Category">
-          <FormControl
-            name="parentId"
-            {...formProps}
-            componentClass="select"
-            defaultValue={object.parentId}
-          >
-            <option value="" />
-            {generateCategoryOptions(categories, object._id)}
-          </FormControl>
+        <CommonFormGroup label="Image">
+          <Uploader
+            onChange={onChangeAttachment}
+            defaultFileList={attachments}
+            multiple={false}
+            single={false}
+          />
         </CommonFormGroup>
 
         <ModalFooter>
@@ -133,7 +136,7 @@ class Form extends React.Component<Props> {
 
           {renderButton({
             text: 'Asset Category',
-            values: this.generateDocs(values),
+            values: generateDocs(values),
             isSubmitted,
             callback: closeModal,
             object: category
@@ -141,11 +144,9 @@ class Form extends React.Component<Props> {
         </ModalFooter>
       </>
     );
-  }
+  };
 
-  render() {
-    return <CommonForm renderContent={this.renderForm} />;
-  }
+  return <CommonForm renderContent={renderForm} />;
 }
 
-export default Form;
+export default CategoryForm;

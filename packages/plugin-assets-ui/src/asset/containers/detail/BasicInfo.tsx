@@ -8,7 +8,7 @@ import { graphql } from '@apollo/client/react/hoc';
 import { withRouter } from 'react-router-dom';
 import { AssetRemoveMutationResponse, IAsset } from '../../../common/types';
 import { mutations } from '../../graphql';
-import BasicInfo from '../components/BasicInfo';
+import BasicInfo from '../../components/detail/BasicInfo';
 
 type Props = {
   asset: IAsset;
