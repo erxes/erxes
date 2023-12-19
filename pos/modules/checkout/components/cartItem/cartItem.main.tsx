@@ -172,7 +172,7 @@ const CartItem = ({
   )
 }
 
-const countBtnClass =
+export const countBtnClass =
   "h-7 w-7 rounded-full p-0 bg-amber-400 hover:bg-amber-400/90 text-black"
 
 const itemVariants: Variants = {
