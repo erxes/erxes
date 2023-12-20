@@ -1,21 +1,22 @@
-import { __, Button, FormControl, Uploader } from '@erxes/ui/src';
-import CommonForm from '@erxes/ui/src/components/form/Form';
+import { Button, FormControl, Uploader, __ } from '@erxes/ui/src';
+import { CommonFormGroup, SelectWithAssetCategory } from '../../common/utils';
 import {
   FormColumn,
   FormWrapper,
   ModalFooter
 } from '@erxes/ui/src/styles/main';
+import { IAssetCategory, IAssetCategoryTypes } from '../../common/types';
 import {
   IAttachment,
   IButtonMutateProps,
   IFormProps
 } from '@erxes/ui/src/types';
-import { extractAttachment } from '@erxes/ui/src/utils/core';
-import React from 'react';
+
 import { ASSET_CATEGORY_STATUSES } from '../../common/constant';
-import { IAssetCategory, IAssetCategoryTypes } from '../../common/types';
-import { CommonFormGroup, SelectWithAssetCategory } from '../../common/utils';
+import CommonForm from '@erxes/ui/src/components/form/Form';
+import React from 'react';
 import Select from 'react-select-plus';
+import { extractAttachment } from '@erxes/ui/src/utils/core';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -68,20 +69,22 @@ function CategoryForm({
 
     return (
       <>
-        <CommonFormGroup label="Name">
+        <CommonFormGroup required={true} label="Name">
           <FormControl
             name="name"
             {...formProps}
             type="text"
             defaultValue={object.name}
+            required={true}
           />
         </CommonFormGroup>
-        <CommonFormGroup label="Code">
+        <CommonFormGroup required={true} label="Code">
           <FormControl
             name="code"
             {...formProps}
             type="text"
             defaultValue={object.code}
+            required={true}
           />
         </CommonFormGroup>
         <CommonFormGroup label="Description">
