@@ -94,10 +94,12 @@ const mutations = {
     params: IInvoice,
     { models, subdomain }: IContext
   ) {
+    console.log('1***', params);
     const DOMAIN = getEnv({ name: 'DOMAIN' })
       ? `${getEnv({ name: 'DOMAIN' })}/gateway`
       : 'http://localhost:4000';
     const domain = DOMAIN.replace('<subdomain>', subdomain);
+    console.log('2');
 
     const invoice = await models.Invoices.createInvoice({
       ...params,
@@ -121,6 +123,6 @@ const mutations = {
 
 requireLogin(mutations, 'invoiceCreate');
 
-checkPermission(mutations, 'invoiceCreate', 'createInvoice', []);
+checkPermission(mutations, 'invoiceCreate', 'createInvoice');
 
 export default mutations;
