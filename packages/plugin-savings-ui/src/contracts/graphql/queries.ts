@@ -117,6 +117,11 @@ export const contractsMain = `
 
 export const contractDetailFields = `
   branchId
+
+  loansOfForeclosed{
+    _id
+    number
+  }
   
   contractType {
     code

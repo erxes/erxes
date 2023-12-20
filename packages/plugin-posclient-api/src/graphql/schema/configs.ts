@@ -53,6 +53,7 @@ export const types = `
     _id: String
     name: String
     description: String
+    orderPassword: String
     pdomain: String
     userId: String
     createdAt: Date

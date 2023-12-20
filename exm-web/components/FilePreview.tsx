@@ -46,7 +46,7 @@ export const FilePreview = ({
 
   const renderImageForm = () => {
     return (
-      <DialogContent className="bg-transparent border-0 shadow-none max-w-2xl">
+      <DialogContent className="bg-transparent border-0 shadow-none max-w-[60rem]">
         <DialogHeader />
         <AttachmentWithPreview
           images={attachments || []}
@@ -89,7 +89,7 @@ export const FilePreview = ({
   }
 
   const renderImagePreview = () => {
-    if (deleteImage && fileIndex) {
+    if (deleteImage && fileIndex + 1) {
       return (
         <div className="relative shrink-0 w-14 h-14">
           <button
@@ -116,7 +116,7 @@ export const FilePreview = ({
         <>
           <Dialog>
             <DialogTrigger asChild={true}>
-              <div className="w-full h-[462px] flex flex-wrap overflow-hidden relative gap-2">
+              <div className="w-full h-[462px] flex flex-wrap overflow-hidden relative gap-3">
                 {attachments.map((image, index) => {
                   const length = attachments.length
                   let width
@@ -145,7 +145,7 @@ export const FilePreview = ({
                       src={image.url || ""}
                       width={500}
                       height={500}
-                      className={`overflow-hidden rounded-lg object-cover cursor-pointer ${width} ${
+                      className={`overflow-hidden rounded-[6px] object-cover cursor-pointer ${width} ${
                         length !== 1 ? "h-[227px]" : "h-full"
                       }`}
                       onClick={() => setGridImageIndex(index)}
@@ -154,7 +154,7 @@ export const FilePreview = ({
                 })}
                 {attachments.length > 4 && (
                   <div
-                    className="text-white bg-black/50 w-[calc(50%-4px)] h-[227px] absolute bottom-0 right-0 rounded-lg flex items-center justify-center text-[30px] cursor-pointer"
+                    className="text-white bg-black/50 w-[calc(50%-4px)] h-[227px] absolute bottom-0 right-0 rounded-[6px] flex items-center justify-center text-[30px] cursor-pointer"
                     onClick={() => setGridImageIndex(3)}
                   >
                     + {attachments.length - 4}
@@ -176,7 +176,7 @@ export const FilePreview = ({
             <div
               className={`shrink-0 ${
                 isChat ? "w-[80px] h-[80px]" : "w-full h-full"
-              } cursor-pointer bg-slate-600 rounded-lg`}
+              } cursor-pointer bg-slate-600 rounded-[6px]`}
             >
               <Image
                 alt="image"
@@ -185,7 +185,7 @@ export const FilePreview = ({
                 height={500}
                 className={`object-cover ${
                   isChat ? "w-[80px] h-[80px]" : "w-full h-full"
-                } rounded-lg`}
+                } rounded-[6px]`}
               />
             </div>
           </DialogTrigger>

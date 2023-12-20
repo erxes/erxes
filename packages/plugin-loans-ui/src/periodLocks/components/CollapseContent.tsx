@@ -1,10 +1,8 @@
 import React, { useState } from 'react';
 import Collapse from 'react-bootstrap/Collapse';
-import styled, { css } from 'styled-components';
+import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
-import { rgba } from '@erxes/ui/src/styles/ecolor';
 import colors from '@erxes/ui/src/styles/colors';
-import Icon from '@erxes/ui/src/components/Icon';
 
 const Container = styledTS<{ open: boolean }>(styled.div)`
   margin-bottom: 10px;

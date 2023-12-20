@@ -35,7 +35,7 @@ const Slot = (
 
   return (
     <SlotActions {...props}>
-      <DropdownMenuTrigger>
+      <DropdownMenuTrigger asChild>
         <Button className={className({ status })} Component={"div"}>
           {name}
           <RadioGroupItem

@@ -79,6 +79,12 @@ export interface IContract {
   hasTransaction?: boolean;
   currency: string;
   expiredDays?: number;
+  endDate?: number;
+}
+
+export interface IContractGql {
+  customers: [any];
+  companies: [any];
 }
 
 export interface IContractDoc extends IContract {

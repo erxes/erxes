@@ -30,6 +30,8 @@ export interface IPricingPlan {
   categoriesExcluded?: string[];
   segments?: string[];
   vendors?: string[];
+  tags?: string[];
+  tagsExcluded?: string[];
 
   isStartDateEnabled?: boolean;
   isEndDateEnabled?: boolean;
@@ -133,6 +135,14 @@ export const pricingPlanSchema = new Schema({
   categoriesExcluded: field({
     type: [String],
     label: 'Excluded Categories'
+  }),
+  tags: field({
+    type: [String],
+    label: 'Product Tags'
+  }),
+  tagsExcluded: field({
+    type: [String],
+    label: 'Excluded Tags'
   }),
   segments: field({
     type: [String],

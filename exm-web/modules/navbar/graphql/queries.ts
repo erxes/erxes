@@ -28,6 +28,7 @@ $page: Int,
 $perPage: Int,
 $requireRead: Boolean,
 $title: String,
+$contentTypes: [String],
 `;
 
 const listParamsValue = `
@@ -35,7 +36,8 @@ limit: $limit,
 page: $page,
 perPage: $perPage,
 requireRead: $requireRead,
-title: $title
+title: $title,
+contentTypes: $contentTypes
 `;
 
 const notifications = gql`
@@ -47,8 +49,8 @@ query notifications(${listParamsDef}) {
 `;
 
 const notificationCounts = gql`
-query notificationCounts($requireRead: Boolean) {
-  notificationCounts(requireRead: $requireRead)
+query notificationCounts($requireRead: Boolean, $contentTypes: [String]) {
+  notificationCounts(requireRead: $requireRead, contentTypes: $contentTypes)
 }
 `;
 

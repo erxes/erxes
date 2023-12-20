@@ -7,7 +7,7 @@ import { useAtomValue, useSetAtom } from "jotai"
 import { ChevronDown, Minus, Plus } from "lucide-react"
 
 import { OrderItem } from "@/types/order.types"
-import { cn, formatNum } from "@/lib/utils"
+import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import {
@@ -124,19 +124,19 @@ const CartItem = ({
               <Minus className="h-3 w-3" strokeWidth={4} />
             </Button>
             <FocusChanger>
-            <Input
-              className="mx-2 w-8 border-none p-1 text-center text-sm font-semibold [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
-              type="number"
-              onChange={(e) =>
-                changeItem({
-                  _id,
-                  count: banFractions
-                    ? parseInt(e.target.value)
-                    : Number(e.target.value),
-                })
-              }
-              value={count}
-            />
+              <Input
+                className="mx-2 w-8 border-none p-1 text-center text-sm font-semibold [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                type="number"
+                onChange={(e) =>
+                  changeItem({
+                    _id,
+                    count: banFractions
+                      ? parseInt(e.target.value)
+                      : Number(e.target.value),
+                  })
+                }
+                value={count}
+              />
             </FocusChanger>
             <Button
               className={countBtnClass}
@@ -172,7 +172,7 @@ const CartItem = ({
   )
 }
 
-const countBtnClass =
+export const countBtnClass =
   "h-7 w-7 rounded-full p-0 bg-amber-400 hover:bg-amber-400/90 text-black"
 
 const itemVariants: Variants = {

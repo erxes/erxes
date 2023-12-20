@@ -4,6 +4,7 @@ import { generateModels } from './connectionResolver';
 import { IPosDocument } from './models/definitions/pos';
 import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
 import { serviceDiscovery } from './configs';
+import { beforeResolverHandlers } from './beforeResolvers';
 
 let client;
 
@@ -248,6 +249,15 @@ export const initBroker = async cl => {
       status: 'success',
       data: await models.Covers.findOne({ _id: cover._id })
     };
+  });
+
+  consumeRPCQueue('pos:beforeResolver', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+    return {
+      data: await beforeResolverHandlers(models, subdomain, data),
+      status: 'success'
+    };
+    return;
   });
 };
 

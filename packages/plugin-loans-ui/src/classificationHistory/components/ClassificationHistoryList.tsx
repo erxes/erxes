@@ -1,17 +1,15 @@
-import {
-  Alert,
-  BarItems,
-  Button,
-  confirm,
-  DataWithLoader,
-  FormControl,
-  ModalTrigger,
-  Pagination,
-  router,
-  SortHandler,
-  Table,
-  Wrapper
-} from '@erxes/ui/src';
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
+import Table from '@erxes/ui/src/components/table';
+import Pagination from '@erxes/ui/src/components/pagination/Pagination';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
+import SortHandler from '@erxes/ui/src/components/SortHandler';
+
+import confirm from '@erxes/ui/src/utils/confirmation/confirm';
+import Button from '@erxes/ui/src/components/Button';
+import Alert from '@erxes/ui/src/utils/Alert';
+import { BarItems } from '@erxes/ui/src/layout/styles';
+
 import { __ } from 'coreui/utils';
 import { IRouterProps } from '@erxes/ui/src/types';
 import React from 'react';
@@ -21,7 +19,7 @@ import { menuContracts } from '../../constants';
 import { ClassificationHistoryTableWrapper } from '../styles';
 import { IPeriodLock } from '../types';
 import PeriodLockRow from './ClassificationHistoryRow';
-import { can } from '@erxes/ui/src/utils/core';
+import { can, router } from '@erxes/ui/src/utils/core';
 import withConsumer from '../../withConsumer';
 import { IUser } from '@erxes/ui/src/auth/types';
 
@@ -114,7 +112,7 @@ class ClassificationHistoryList extends React.Component<IProps, State> {
 
     const mainContent = (
       <ClassificationHistoryTableWrapper>
-        <Table whiteSpace="nowrap" bordered={true} hover={true}>
+        <Table whiteSpace="nowrap" bordered={true} hover={true} striped>
           <thead>
             <tr>
               <th>
@@ -158,7 +156,7 @@ class ClassificationHistoryList extends React.Component<IProps, State> {
     );
 
     const addTrigger = (
-      <Button btnStyle="success" size="small" icon="plus-circle">
+      <Button btnStyle="success" icon="plus-circle">
         {__('Add periodLock')}
       </Button>
     );
@@ -178,12 +176,7 @@ class ClassificationHistoryList extends React.Component<IProps, State> {
       actionBarLeft = (
         <BarItems>
           {can('manageClassificationHistory', currentUser) && (
-            <Button
-              btnStyle="danger"
-              size="small"
-              icon="cancel-1"
-              onClick={onClick}
-            >
+            <Button btnStyle="danger" icon="cancel-1" onClick={onClick}>
               {__('Delete')}
             </Button>
           )}
@@ -210,6 +203,7 @@ class ClassificationHistoryList extends React.Component<IProps, State> {
 
     return (
       <Wrapper
+        hasBorder
         header={
           <Wrapper.Header
             title={__(`Period Locks`) + ` (${totalCount})`}

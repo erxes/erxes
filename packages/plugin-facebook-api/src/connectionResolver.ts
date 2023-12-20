@@ -19,6 +19,7 @@ import { IPostModel, loadPostClass } from './models/Posts';
 import { IPostDocument } from './models/definitions/posts';
 
 import { IConversationMessageDocument } from './models/definitions/conversationMessages';
+import { IBotDocument } from './models/definitions/bots';
 import {
   IConversationMessageModel,
   loadConversationMessageClass
@@ -38,6 +39,7 @@ import {
   IIntegrationModel,
   loadIntegrationClass
 } from './models/Integrations';
+import { IBotModel, loadBotClass } from './models/Bots';
 import { ILogModel, loadLogClass } from './models/Logs';
 import { ILogDocument } from './models/definitions/logs';
 
@@ -51,6 +53,7 @@ export interface IModels {
   Configs: IConfigModel;
   Integrations: IIntegrationModel;
   Logs: ILogModel;
+  Bots: IBotModel;
 }
 
 export interface IContext extends IMainContext {
@@ -101,6 +104,11 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
     IConversationMessageDocument,
     IConversationMessageModel
   >('conversation_messages_facebooks', loadConversationMessageClass(models));
+
+  models.Bots = db.model<IBotDocument, IBotModel>(
+    'facebook_messengers_bots',
+    loadBotClass(models)
+  );
 
   return models;
 };

@@ -124,6 +124,17 @@ function Filter({ queryParams = {}, filterTitle, history }: IProps) {
       );
     }
 
+    if (queryParams.startDate || queryParams.endDate) {
+      const onClick = () =>
+        onClickClose([queryParams.startDate ? 'startDate' : 'endDate']);
+
+      return (
+        <Chip onClick={onClick}>
+          {queryParams.startDate || queryParams.endDate}
+        </Chip>
+      );
+    }
+
     return null;
   };
 
@@ -133,7 +144,14 @@ function Filter({ queryParams = {}, filterTitle, history }: IProps) {
       {renderFilterParam('status', false)}
       {renderFilterParam('state', false)}
       {renderFilterParam('categoryApprovalState', false)}
-      {renderFilterWithData('categoryId', 'forum')}
+      {location.href.includes('forum') &&
+        renderFilterWithData('categoryId', 'forum')}
+      {location.href.includes('product') &&
+        renderFilterWithData(
+          'categoryId',
+          'productCategory',
+          '_id, code, name'
+        )}
       {renderFilterParam('participating', true)}
       {renderFilterParam('unassigned', true)}
       {renderFilterParam('awaitingResponse', true, 'Awaiting Response')}
@@ -151,6 +169,10 @@ function Filter({ queryParams = {}, filterTitle, history }: IProps) {
       {renderFilterWithData('unitId', 'unit', '_id title')}
       {renderFilterParam('groupId', true, filterTitle)}
       {renderFilterParam('tagType', true, filterTitle)}
+      {renderFilterParam('contentType', true, filterTitle)}
+      {renderFilterParam('type', false, filterTitle)}
+      {renderFilterParam('action', false, filterTitle)}
+      {renderFilterWithData('userId', 'user', 'details{fullName}, email')}
     </Filters>
   );
 }

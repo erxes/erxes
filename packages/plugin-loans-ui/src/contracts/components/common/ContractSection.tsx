@@ -1,17 +1,16 @@
-import {
-  Box,
-  EmptyState,
-  Icon,
-  ModalTrigger,
-  MainStyleButtonRelated as ButtonRelated,
-  __,
-  SectionBodyItem,
-  Alert
-} from '@erxes/ui/src';
+import Box from '@erxes/ui/src/components/Box';
+import EmptyState from '@erxes/ui/src/components/EmptyState';
+import Icon from '@erxes/ui/src/components/Icon';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import { MainStyleButtonRelated as ButtonRelated } from '@erxes/ui/src/styles/eindex';
+import { SectionBodyItem } from '@erxes/ui/src/layout/styles';
+import Alert from '@erxes/ui/src/utils/Alert';
+
 import React from 'react';
 import { Link } from 'react-router-dom';
 import ContractChooser from '../../containers/ContractChooser';
 import { mutations, queries } from '../../graphql';
+import { __ } from 'coreui/utils';
 import {
   EditMutationResponse,
   IContract,
@@ -136,9 +135,9 @@ function Component(
       {contractsQuery?.contractsMain?.list.map((contract, index) => (
         <SectionBodyItem key={index}>
           <Link to={`/erxes-plugin-loan/contract-details/${contract._id}`}>
-            <Icon icon="arrow-to-right" />
+            <Icon icon="arrow-to-right" style={{ marginRight: 5 }} />
+            <span>{contract.number || 'Unknown'}</span>
           </Link>
-          <span>{contract.number || 'Unknown'}</span>
         </SectionBodyItem>
       ))}
       {contractsQuery?.contractsMain?.list.length === 0 && (
@@ -150,7 +149,7 @@ function Component(
 
   return (
     <Box
-      title={__(`${title || 'Contracts'}`)}
+      title={__(`${title || 'Loan Contracts'}`)}
       name="showContracts"
       extraButtons={quickButtons}
       isOpen={true}

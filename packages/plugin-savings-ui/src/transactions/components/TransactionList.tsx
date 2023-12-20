@@ -94,7 +94,7 @@ class TransactionsList extends React.Component<IProps> {
 
     const mainContent = (
       <ContractsTableWrapper>
-        <Table whiteSpace="nowrap" bordered={true} hover={true}>
+        <Table whiteSpace="nowrap" bordered={true} hover={true} striped>
           <thead>
             <tr>
               <th>
@@ -159,12 +159,7 @@ class TransactionsList extends React.Component<IProps> {
       actionBarLeft = (
         <BarItems>
           {can('transactionsRemove', currentUser) && (
-            <Button
-              btnStyle="danger"
-              size="small"
-              icon="cancel-1"
-              onClick={onClick}
-            >
+            <Button btnStyle="danger" icon="cancel-1" onClick={onClick}>
               {__('Delete')}
             </Button>
           )}
@@ -267,6 +262,7 @@ class TransactionsList extends React.Component<IProps> {
 
     return (
       <Wrapper
+        hasBorder
         header={
           <Wrapper.Header
             title={__(`Transactions`) + ` (${totalCount})`}

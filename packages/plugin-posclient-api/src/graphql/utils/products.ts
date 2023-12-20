@@ -49,16 +49,36 @@ export const checkRemainders = async (
           });
 
           const jsonRes = JSON.parse(response);
+          let responseByCode = {};
 
-          let responseByCode = jsonRes;
+          if (account && location) {
+            const accounts = account.split(',') || [];
+            const locations = location.split(',') || [];
 
-          responseByCode =
-            (jsonRes[account] && jsonRes[account][location]) || {};
+            for (const acc of accounts) {
+              for (const loc of locations) {
+                const resp = (jsonRes[acc] || {})[loc] || {};
+                for (const invCode of Object.keys(resp)) {
+                  if (!Object.keys(responseByCode).includes(invCode)) {
+                    responseByCode[invCode] = { rem: 0, rems: [] };
+                  }
+                  const remainder = Number(resp[invCode]) || 0;
+
+                  responseByCode[invCode].rem =
+                    responseByCode[invCode].rem + remainder;
+                  responseByCode[invCode].rems.push({
+                    account: acc,
+                    location: loc,
+                    remainder
+                  });
+                }
+              }
+            }
+          }
 
           for (const product of products) {
-            product.remainder = responseByCode[product.code]
-              ? responseByCode[product.code]
-              : undefined;
+            product.remainders = (responseByCode[product.code] || {}).rems;
+            product.remainder = (responseByCode[product.code] || {}).rem;
           }
         }
       } catch (e) {

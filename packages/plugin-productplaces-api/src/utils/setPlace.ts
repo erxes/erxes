@@ -1,5 +1,5 @@
-import { sendCardsMessage, sendProductsMessage } from '../messageBroker';
-import { checkCondition, getChildCategories } from './utils';
+import { sendCardsMessage } from '../messageBroker';
+import { checkCondition, getChildCategories, getChildTags } from './utils';
 
 export const setPlace = async (
   subdomain,
@@ -21,38 +21,39 @@ export const setPlace = async (
 
   // const categoryIds =
   for (const condition of conditions) {
-    if (
-      !(condition.productCategoryIds && condition.productCategoryIds.length)
-    ) {
+    if (condition.productCategoryIds && condition.productCategoryIds.length) {
+      const includeCatIds = await getChildCategories(
+        subdomain,
+        condition.productCategoryIds
+      );
+      const excludeCatIds = await getChildCategories(
+        subdomain,
+        condition.excludeCategoryIds || []
+      );
+
+      condition.calcedCatIds = includeCatIds.filter(
+        c => !excludeCatIds.includes(c)
+      );
+    } else {
       condition.calcedCatIds = [];
-      continue;
     }
 
-    const includeCatIds = await getChildCategories(
-      subdomain,
-      condition.productCategoryIds
-    );
-    const excludeCatIds = await getChildCategories(
-      subdomain,
-      condition.excludedCategoryIds || []
-    );
+    if (condition.productTagIds && condition.productTagIds.length) {
+      const includeTagIds = await getChildTags(
+        subdomain,
+        condition.productTagIds
+      );
+      const excludeTagIds = await getChildTags(
+        subdomain,
+        condition.excludeTagIds || []
+      );
 
-    const productCategoryIds = includeCatIds.filter(
-      c => !excludeCatIds.includes(c)
-    );
-
-    const productCategories = await sendProductsMessage({
-      subdomain,
-      action: 'categories.find',
-      data: {
-        query: { _id: { $in: productCategoryIds } },
-        sort: { order: 1 }
-      },
-      isRPC: true,
-      defaultValue: []
-    });
-
-    condition.calcedCatIds = (productCategories || []).map(pc => pc._id);
+      condition.calcedTagIds = includeTagIds.filter(
+        c => !excludeTagIds.includes(c)
+      );
+    } else {
+      condition.calcedTagIds = [];
+    }
   }
 
   for (const pdata of pdatas) {

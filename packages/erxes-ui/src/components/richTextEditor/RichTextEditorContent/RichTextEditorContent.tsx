@@ -1,5 +1,7 @@
 import React from 'react';
 import { EditorContent } from '@tiptap/react';
+import CodeMirror from '@uiw/react-codemirror';
+import { html } from '@codemirror/lang-html';
 import { useRichTextEditorContext } from '../RichTextEditor.context';
 export interface IRichTextEditorContentProps {
   /** The height of the editing area that includes the editor content. */
@@ -13,20 +15,37 @@ export interface IRichTextEditorContentProps {
 }
 
 export const RichTextEditorContent = (props: IRichTextEditorContentProps) => {
-  const ctx = useRichTextEditorContext();
+  const { editor, isSourceEnabled, codeMirrorRef } = useRichTextEditorContext();
   const {
     height = 200,
     autoGrowMinHeight = 200,
     autoGrowMaxHeight = 0,
     autoGrow = false
   } = props;
+
   const editorStyle = {
     ...(autoGrow && { minHeight: autoGrowMinHeight }),
     height: autoGrow ? autoGrowMaxHeight : height
   };
+
   return (
     <div data-promise-mirror-editor={true}>
-      <EditorContent editor={ctx.editor} style={editorStyle} />
+      <CodeMirror
+        ref={codeMirrorRef}
+        style={{ outline: 'none' }}
+        hidden={!isSourceEnabled}
+        height="300px"
+        minHeight="300px"
+        autoFocus={true}
+        extensions={[
+          html({ matchClosingTags: true, selfClosingTags: true }).extension
+        ]}
+      />
+      <EditorContent
+        hidden={isSourceEnabled}
+        editor={editor}
+        style={editorStyle}
+      />
     </div>
   );
 };

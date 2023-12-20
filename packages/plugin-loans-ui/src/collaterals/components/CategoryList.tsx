@@ -1,11 +1,10 @@
-import {
-  DataWithLoader,
-  Icon,
-  router,
-  Sidebar,
-  Tip,
-  Wrapper
-} from '@erxes/ui/src';
+import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
+import Icon from '@erxes/ui/src/components/Icon';
+import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
+import Tip from '@erxes/ui/src/components/Tip';
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
+
+import { router } from '@erxes/ui/src/utils';
 import { IProductCategory } from '@erxes/ui-products/src/types';
 import React from 'react';
 import { Link } from 'react-router-dom';
@@ -104,7 +103,6 @@ class List extends React.Component<IProps> {
         count={collateralCategoriesCount}
         emptyText="There is no collateral category"
         emptyIcon="folder-2"
-        size="small"
       />
     );
   }

@@ -69,6 +69,7 @@ class QuickNavigationContainer extends React.Component<Props, State> {
     return (
       <QuickNavigation
         showBrands={config.USE_BRAND_RESTRICTIONS === 'true'}
+        version={config.VERSION || ''}
         onChangeBrands={this.onChangeBrands}
         selectedBrands={this.state.selectedBrands}
         logout={this.logout}

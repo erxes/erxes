@@ -1,5 +1,3 @@
-import * as path from 'path';
-
 import ActivityItem from './ActivityItem';
 import CollateralsSection from './CollateralsSection';
 import { IContractDoc, IInvoice } from '../../types';
@@ -13,9 +11,8 @@ import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { __ } from 'coreui/utils';
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 import { isEnabled } from '@erxes/ui/src/utils/core';
-import PerInvoice from '../../../invoices/containers/PerInvoice';
-import InvoiceList from '../invoices/InvoiceList';
 import InvoiceSection from '../invoices/InvoiceSection';
+import { LEASE_TYPES } from '../../../contractTypes/constants';
 
 const ActivityInputs = asyncComponent(
   () =>
@@ -136,14 +133,15 @@ class ContractDetails extends React.Component<Props, State> {
           regenSchedules={regenSchedules}
           fixSchedules={fixSchedules}
         ></ScheduleSection>
-        {contract.leaseType === 'finance' && (
+        {(contract.leaseType === LEASE_TYPES.FINANCE ||
+          contract.leaseType === LEASE_TYPES.SAVING) && (
           <ScheduleSection
             contractId={contract._id}
             isFirst={true}
             regenSchedules={regenSchedules}
           ></ScheduleSection>
         )}
-        {contract.leaseType === 'credit' && (
+        {contract.leaseType === LEASE_TYPES.CREDIT && (
           <InvoiceSection invoices={contract.invoices} />
         )}
 

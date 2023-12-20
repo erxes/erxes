@@ -9,6 +9,8 @@ import {
 export const assignmentCampaignFields = `
   _id
   ${commonFields}
+  fieldId
+  allowMultiWin
   segmentIds
   voucherCampaignId
 `;

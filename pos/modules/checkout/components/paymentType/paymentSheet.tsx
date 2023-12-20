@@ -63,4 +63,4 @@ const TDBSheet = dynamic(() => import("../paymentTypes/TDBCardSheet"), {
 
 const GolomtSheet = dynamic(() => import("../paymentTypes/golomtSheet"), {
   loading: Loading,
-})
+}) 

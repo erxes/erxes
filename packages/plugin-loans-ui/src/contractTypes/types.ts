@@ -3,7 +3,6 @@ export interface IContractConfig {
   temp: string;
   giving: string;
   tempDebt: string;
-
   mainUserEmail: string;
   mainHasVat: string;
   mainHasCitytax: string;
@@ -44,6 +43,8 @@ export interface IContractConfig {
   doubtExpirationDay: number;
   negativeExpirationDay: number;
   badExpirationDay: number;
+  minCommitmentInterest: number;
+  maxCommitmentInterest: number;
 }
 
 export interface IContractTypeDoc {
@@ -66,6 +67,10 @@ export interface IContractTypeDoc {
   useManualNumbering: boolean;
   useFee: boolean;
   currency: string;
+  collateralType: string;
+  savingPlusLoanInterest: number;
+  savingUpperPercent: number;
+  usePrePayment: boolean;
 }
 
 export interface IContractType extends IContractTypeDoc {

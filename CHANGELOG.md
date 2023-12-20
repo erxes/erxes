@@ -1,3 +1,66 @@
+## [1.5.5](https://github.com/erxes/erxes/compare/1.5.4...1.5.5) (2023-12-13)
+
+
+### Bug Fixes
+
+* **inbox:** fix integration resolvers ([06e6d6d](https://github.com/erxes/erxes/commit/06e6d6d3166db98e99a531181cb2dcb9f2811a87))
+* **inbox:** fix integration resolvers ([c5a5efe](https://github.com/erxes/erxes/commit/c5a5efec3a8f2daeb3b8b21ae8d3e76bb3bc6b86))
+* **inbox:** integrations loading bug when create ([b0e44da](https://github.com/erxes/erxes/commit/b0e44da907892097338742852499c344cbe8942f))
+* **knowledgebase:** Background image preview not showing ([e721839](https://github.com/erxes/erxes/commit/e721839fd14be6cffd279fe74bb1edae64561df7))
+* **knowledgebase:** fix count query ([#4843](https://github.com/erxes/erxes/issues/4843)) ([f887d1a](https://github.com/erxes/erxes/commit/f887d1a8ef92a5a28c94a44354a9e43cb1b70981))
+
+
+### Features
+
+* **cards:** show private cards to system user ([898741b](https://github.com/erxes/erxes/commit/898741b0a5919c9a1723433f007c2ccc56917268))
+
+## [1.5.4](https://github.com/erxes/erxes/compare/1.5.3...1.5.4) (2023-12-08)
+
+## [1.5.3](https://github.com/erxes/erxes/compare/1.5.2...1.5.3) (2023-12-08)
+
+
+### Bug Fixes
+
+* **cards:** fix forecast percentage in salespipeline ([4e3ce1a](https://github.com/erxes/erxes/commit/4e3ce1adef03cb203172124a564bf1def48ebea1))
+* **settings:** commented loaders and fixed collapse content ui ([b2690ea](https://github.com/erxes/erxes/commit/b2690ea1a0c20d1581b1ba2289d695a2634d01e1))
+
+## [1.5.2](https://github.com/erxes/erxes/compare/1.5.1...1.5.2) (2023-12-06)
+
+
+### Features
+
+* **instagram:** implement instagram integration  ([9dca7a8](https://github.com/erxes/erxes/commit/9dca7a8c164c7870349631901a1d690b1486596b))
+
+## [1.5.1](https://github.com/erxes/erxes/compare/1.5.0-alpha.2...1.5.1) (2023-12-04)
+
+
+### Bug Fixes
+
+* **exm:** bug ([1ef2069](https://github.com/erxes/erxes/commit/1ef2069c74bed010cad10c6c2f7ee429b72ac55c))
+* **exm:** bug ([1866f44](https://github.com/erxes/erxes/commit/1866f449bf7f4f3b75dddf128fee4e9b5c117a14))
+* **exm:** form bug ([f974f22](https://github.com/erxes/erxes/commit/f974f22bd14db1657b3405729f3951de8528839c))
+* **exm:** notificatoin ([a216d27](https://github.com/erxes/erxes/commit/a216d2722448cb7bb0d0b317907e6d8f5432fa63))
+* matching version of @types/node and node in CI yaml, Dockerfiles images and package.json ([d61639b](https://github.com/erxes/erxes/commit/d61639b9c11ee2f7761f3cd46408a195ff33328a))
+
+
+### Features
+
+* add extended display on pos ui ([#4783](https://github.com/erxes/erxes/issues/4783)) ([79c54b8](https://github.com/erxes/erxes/commit/79c54b81664ce198556e6503bb7907fdf2e56f14))
+* add pricing rule filter by tag ([ba3aa16](https://github.com/erxes/erxes/commit/ba3aa16acafcd37d9f3ca7381515ee8c92ff778a))
+* cards-stage print document with many cards ([#4827](https://github.com/erxes/erxes/issues/4827)) ([f1b511e](https://github.com/erxes/erxes/commit/f1b511e2bfca9d03071c3e35dbdf725e601bd044))
+* option to enable inspector api through http endpoints ([1145c1b](https://github.com/erxes/erxes/commit/1145c1b6315feb50d4d3ee755eda2ef864f080d5))
+* Products by brand and multi erkhet ([#4718](https://github.com/erxes/erxes/issues/4718)) ([bbf4fd8](https://github.com/erxes/erxes/commit/bbf4fd80546803d9fb714311b8fb877db8876947))
+* products list bulk fix ([7944e6b](https://github.com/erxes/erxes/commit/7944e6bc187e3cbd5d40b8937e66ff77d4c74f3d))
+* **verifier:** add email & phone verifier ([#4796](https://github.com/erxes/erxes/issues/4796)) ([5869545](https://github.com/erxes/erxes/commit/5869545d1a754f7abb984938af63ab4015ca4ad4))
+* Zms receive ([#4788](https://github.com/erxes/erxes/issues/4788)) ([309b698](https://github.com/erxes/erxes/commit/309b6982cc7d03d1a84f87d06a30c31dc549f81d))
+
+
+### Performance Improvements
+
+* added more control props to editor component ([6a4af8d](https://github.com/erxes/erxes/commit/6a4af8dc69b28e32416bf648b251fd4f87dee495))
+
+# [1.5.0-alpha.2](https://github.com/erxes/erxes/compare/1.5.0-alpha.1...1.5.0-alpha.2) (2023-11-23)
+
 # [1.5.0-alpha.1](https://github.com/erxes/erxes/compare/1.5.0-alpha.0...1.5.0-alpha.1) (2023-11-17)
 
 

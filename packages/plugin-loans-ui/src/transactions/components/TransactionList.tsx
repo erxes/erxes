@@ -93,7 +93,7 @@ class TransactionsList extends React.Component<IProps> {
 
     const mainContent = (
       <ContractsTableWrapper>
-        <Table whiteSpace="nowrap" bordered={true} hover={true}>
+        <Table whiteSpace="nowrap" bordered={true} hover={true} striped>
           <thead>
             <tr>
               <th>
@@ -163,11 +163,7 @@ class TransactionsList extends React.Component<IProps> {
       </ContractsTableWrapper>
     );
 
-    const addTrigger = (
-      <Button size="small" icon="plus-circle">
-        {__('Repayment')}
-      </Button>
-    );
+    const addTrigger = <Button icon="plus-circle">{__('Repayment')}</Button>;
 
     let actionBarLeft: React.ReactNode;
 
@@ -186,12 +182,7 @@ class TransactionsList extends React.Component<IProps> {
           {currentUser?.configs?.loansConfig?.organizationType ===
             ORGANIZATION_TYPE.ENTITY &&
             can('transactionsRemove', currentUser) && (
-              <Button
-                btnStyle="danger"
-                size="small"
-                icon="cancel-1"
-                onClick={onClick}
-              >
+              <Button btnStyle="danger" icon="cancel-1" onClick={onClick}>
                 {__('Delete')}
               </Button>
             )}
@@ -304,6 +295,7 @@ class TransactionsList extends React.Component<IProps> {
             )}
           />
         }
+        hasBorder
         actionBar={actionBar}
         footer={<Pagination count={totalCount} />}
         content={

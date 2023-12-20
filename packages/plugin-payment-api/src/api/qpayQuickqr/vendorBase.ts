@@ -8,7 +8,7 @@ export class VendorBaseAPI {
   private password: string;
   private accessToken: string;
 
-  constructor() {
+  constructor(config) {
     this.username = process.env.QUICK_QR_USERNAME || '';
     this.password = process.env.QUICK_QR_PASSWORD || '';
     this.apiUrl = meta.apiUrl + '/' + meta.apiVersion;

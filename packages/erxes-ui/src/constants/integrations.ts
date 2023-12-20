@@ -68,6 +68,7 @@ export const hours = [
 export const INTEGRATION_KINDS = {
   MESSENGER: 'messenger',
   FACEBOOK_MESSENGER: 'facebook-messenger',
+  INSTAGRAM_MESSENGER: 'instagram-messenger',
   FACEBOOK_POST: 'facebook-post',
   FORMS: 'lead',
   CALLPRO: 'callpro',
@@ -80,7 +81,10 @@ export const INTEGRATION_KINDS = {
       text: 'Facebook Messenger',
       value: 'facebook-messenger'
     },
-    { text: 'Facebook Post', value: 'facebook-post' },
+    {
+      text: 'Instagram Messenger',
+      value: 'instagram-messenger'
+    },
     { text: 'Webhook', value: 'webhook' },
     { text: 'Callpro', value: 'callpro' },
     { text: 'Booking', value: 'booking' }

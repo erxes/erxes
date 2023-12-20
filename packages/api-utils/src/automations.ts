@@ -170,6 +170,7 @@ const getPerValue = async (args: {
   triggerType?;
   serviceName?;
   sendCommonMessage;
+  execution;
 }) => {
   const {
     models,
@@ -180,7 +181,8 @@ const getPerValue = async (args: {
     getRelatedValue,
     serviceName,
     triggerType,
-    sendCommonMessage
+    sendCommonMessage,
+    execution
   } = args;
   let { field, operator, value } = rule;
 
@@ -200,6 +202,7 @@ const getPerValue = async (args: {
           subdomain,
           action: 'automations.replacePlaceHolders',
           data: {
+            execution,
             target,
             config: { value }
           },
@@ -221,6 +224,10 @@ const getPerValue = async (args: {
       isRelated: op1Type === 'string' ? true : false
     })
   ).config;
+
+  if (updatedValue.match(/[+\-*/]/)) {
+    updatedValue = eval(updatedValue.replace(/{{.*}}/, '0'));
+  }
 
   if (field.includes('Ids')) {
     //
@@ -331,7 +338,8 @@ export const setProperty = async ({
         getRelatedValue,
         triggerType,
         serviceName,
-        sendCommonMessage
+        sendCommonMessage,
+        execution
       });
 
       if (rule.forwardTo) {

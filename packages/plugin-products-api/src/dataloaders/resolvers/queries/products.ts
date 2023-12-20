@@ -21,6 +21,7 @@ interface IQueryParams {
   categoryId?: string;
   searchValue?: string;
   vendorId?: string;
+  brand?: string;
   tag: string;
   page?: number;
   perPage?: number;
@@ -44,6 +45,7 @@ const generateFilter = async (
     categoryId,
     searchValue,
     vendorId,
+    brand,
     tag,
     ids,
     excludeIds,
@@ -87,10 +89,6 @@ const generateFilter = async (
 
   if (ids && ids.length > 0) {
     filter._id = { [excludeIds ? '$nin' : '$in']: ids };
-    if (!pagintationArgs.page && !pagintationArgs.perPage) {
-      pagintationArgs.page = 1;
-      pagintationArgs.perPage = 100;
-    }
   }
 
   if (tag) {
@@ -131,6 +129,10 @@ const generateFilter = async (
     filter.vendorId = vendorId;
   }
 
+  if (brand) {
+    filter.scopeBrandIds = { $in: [brand] };
+  }
+
   return filter;
 };
 
@@ -140,6 +142,7 @@ const generateFilterCat = async ({
   withChild,
   searchValue,
   meta,
+  brand,
   status
 }) => {
   const filter: any = {};
@@ -168,6 +171,10 @@ const generateFilterCat = async ({
     } else {
       filter.parentId = parentId;
     }
+  }
+
+  if (brand) {
+    filter.scopeBrandIds = { $in: [brand] };
   }
 
   if (meta) {
@@ -201,7 +208,18 @@ const productQueries = {
       params
     );
 
-    const { sortField, sortDirection, ...pagintationArgs } = params;
+    const { sortField, sortDirection, page, perPage, ids, excludeIds } = params;
+
+    const pagintationArgs = { page, perPage };
+    if (
+      ids &&
+      ids.length &&
+      !excludeIds &&
+      ids.length > (pagintationArgs.perPage || 20)
+    ) {
+      pagintationArgs.page = 1;
+      pagintationArgs.perPage = ids.length;
+    }
 
     let sort: any = { code: 1 };
     if (sortField) {
@@ -391,7 +409,7 @@ const productQueries = {
 
   async productCategories(
     _root,
-    { parentId, withChild, searchValue, status, meta },
+    { parentId, withChild, searchValue, status, brand, meta },
     { models }: IContext
   ) {
     const filter = await generateFilterCat({
@@ -400,6 +418,7 @@ const productQueries = {
       parentId,
       withChild,
       searchValue,
+      brand,
       meta
     });
 
@@ -412,7 +431,7 @@ const productQueries = {
 
   async productCategoriesTotalCount(
     _root,
-    { parentId, searchValue, status, withChild, meta },
+    { parentId, searchValue, status, withChild, brand, meta },
     { models }: IContext
   ) {
     const filter = await generateFilterCat({
@@ -421,6 +440,7 @@ const productQueries = {
       withChild,
       searchValue,
       status,
+      brand,
       meta
     });
     return models.ProductCategories.find(filter).countDocuments();

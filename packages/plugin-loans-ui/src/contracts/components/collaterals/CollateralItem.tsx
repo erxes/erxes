@@ -1,4 +1,8 @@
-import { Chooser, FormControl, Icon, ModalTrigger } from '@erxes/ui/src';
+import Chooser from '@erxes/ui/src/components/Chooser';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import Icon from '@erxes/ui/src/components/Icon';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+
 import { __ } from 'coreui/utils';
 import ProductChooser from '@erxes/ui-products/src/containers/ProductChooser';
 import { IProduct } from '@erxes/ui-products/src/types';
@@ -347,7 +351,6 @@ class CollateralItem extends React.Component<Props, State> {
                 label={__('Choose an contract')}
                 name="depositAccount"
                 initialValue={this.state.currentCollateral}
-                filterParams={{ isDeposit: false }}
                 onSelect={v => {
                   if (typeof v === 'string') {
                     this.setState({

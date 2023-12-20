@@ -113,6 +113,11 @@ export type ClientPortalVerifyUsersMutationResponse = {
   }) => Promise<any>;
 };
 
+export type SocialpayConfig = {
+  publicKey: string;
+  certId: string;
+};
+
 export type ClientPortalConfig = {
   _id?: string;
   name?: string;
@@ -164,10 +169,16 @@ export type ClientPortalConfig = {
   manualVerificationConfig?: ManualVerificationConfig;
   passwordVerificationConfig?: PasswordVerificationConfig;
 
+  testUserEmail: string;
+  testUserPhone: string;
+  testUserPassword: string;
+  testUserOTP: number;
+
   tokenExpiration?: number;
   refreshTokenExpiration?: number;
   tokenPassMethod: 'cookie' | 'header';
   vendorParentProductCategoryId?: string;
+  socialpayConfig?: SocialpayConfig;
 };
 
 export type Styles = {
