@@ -58,10 +58,7 @@ const invoiceCreateMutationParams = `
   phone: String
   email: String
   description: String
-<<<<<<< HEAD
   createdAt: Date
-=======
->>>>>>> 08c8413ccceba89c0bf96a707d061215c984568a
   customerId: String
   customerType: String
   contentType: String
@@ -70,12 +67,9 @@ const invoiceCreateMutationParams = `
   couponCode: String
   couponAmount: Int
   data: JSON
-<<<<<<< HEAD
   status: String
 
   identifier: String
-=======
->>>>>>> 08c8413ccceba89c0bf96a707d061215c984568a
 `;
 
 export const mutations = `
