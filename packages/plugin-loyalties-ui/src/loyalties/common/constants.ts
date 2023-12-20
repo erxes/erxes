@@ -13,22 +13,22 @@ export const getOwnerTypes = () => {
   const ownerTypes = [
     {
       label: 'Customer',
-      name: 'customer'
+      value: 'customer'
     },
     {
       label: 'Company',
-      name: 'company'
+      value: 'company'
     },
     {
       label: 'Team Members',
-      name: 'user'
+      value: 'user'
     }
   ];
 
   if (isEnabled('clientportal')) {
     ownerTypes.push({
       label: 'Client Portal User',
-      name: 'cpUser'
+      value: 'cpUser'
     });
   }
 

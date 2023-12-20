@@ -159,3 +159,16 @@ export const FormFooter = styled.div`
   gap: 15px;
   justify-content: flex-end;
 `;
+
+export const PaddingHorizontal = styled.div`
+  padding: 0 ${dimensions.unitSpacing}px;
+`;
+
+export const SideBarRow = styled.div`
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  .arrow {
+    left: ${dimensions.unitSpacing}px;
+  }
+`;

@@ -1,19 +1,27 @@
-import { Bulk } from '@erxes/ui/src/components';
-import { IRouterProps } from '@erxes/ui/src/types';
-import { withProps, router } from '@erxes/ui/src/utils/core';
 import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
+import { Bulk, EmptyState, Spinner } from '@erxes/ui/src/components';
+import { IRouterProps, QueryResponse } from '@erxes/ui/src/types';
+import { router, withProps } from '@erxes/ui/src/utils/core';
 import * as compose from 'lodash.flowright';
 import React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
-import { withRouter } from 'react-router-dom';
 import ScoreLogsListComponent from '../components/List';
 import { queries } from '../graphql';
+import { IScore } from '../types';
 type Props = {
   queryParams: any;
   history: any;
 };
+
+type ScoreLogsQueryRespnse = {
+  scoreLogList: {
+    list: IScore[];
+    total: number;
+  };
+} & QueryResponse;
+
 type FinalProps = {
-  scoreLogs: any;
+  scoreLogsQueryResponse: ScoreLogsQueryRespnse;
 } & Props &
   IRouterProps;
 
@@ -27,27 +35,29 @@ class ScoreLogsListContainer extends React.Component<FinalProps, State> {
   }
 
   render() {
-    const { scoreLogs } = this.props;
+    const { scoreLogsQueryResponse } = this.props;
 
-    const handlerefetch = variables => {
-      this.props.scoreLogs.refetch(variables);
-    };
+    const { loading, error, scoreLogList, refetch } = scoreLogsQueryResponse;
+
+    if (error) {
+      return <EmptyState text={error || ''} />;
+    }
+
+    if (loading) {
+      return <Spinner />;
+    }
 
     const updatedProps = {
       ...this.props,
-      scoreLogs: scoreLogs.scoreLogList?.list,
-      total: scoreLogs.scoreLogList?.total,
-      loading: scoreLogs.loading,
-      error: scoreLogs.error,
-      refetch: handlerefetch
+      scoreLogs: scoreLogList?.list,
+      total: scoreLogList?.total,
+      loading,
+      error,
+      refetch
     };
     const content = props => (
       <ScoreLogsListComponent {...props} {...updatedProps} />
     );
-
-    const refetch = () => {
-      this.props.scoreLogs.refetch();
-    };
 
     return <Bulk content={content} refetch={refetch} />;
   }
@@ -68,10 +78,10 @@ const generateParams = ({ queryParams }) => ({
 export default withProps<Props>(
   compose(
     graphql<Props>(gql(queries.getScoreLogs), {
-      name: 'scoreLogs',
+      name: 'scoreLogsQueryResponse',
       options: ({ queryParams }) => ({
         variables: generateParams({ queryParams })
       })
     })
-  )(withRouter<IRouterProps>(ScoreLogsListContainer))
+  )(ScoreLogsListContainer)
 );

@@ -5,7 +5,9 @@ import React from 'react';
 import ScoreForm from '../components/Form';
 import mutations from '../graphql/mutations';
 
-type Props = {};
+type Props = {
+  closeModal: () => void;
+};
 
 type FinalProps = {} & Props;
 
@@ -31,7 +33,7 @@ class ScoreFormContainer extends React.Component<FinalProps> {
 
     const updatedProps = {
       ...this.props,
-      renderBtn: renderButton
+      renderButton
     };
 
     return <ScoreForm {...updatedProps} />;

@@ -1,29 +1,28 @@
 import {
+  Button,
   DataWithLoader,
-  FormControl,
-  Info,
+  ModalTrigger,
   Pagination,
-  Spinner,
+  SortHandler,
   Table,
   __
 } from '@erxes/ui/src';
-import { Wrapper } from '@erxes/ui/src/layout';
+import { BarItems, Wrapper } from '@erxes/ui/src/layout';
+import { Title } from '@erxes/ui/src/styles/main';
 import { IRouterProps } from '@erxes/ui/src/types';
 import React from 'react';
-import { withRouter, Link } from 'react-router-dom';
 import { menuLoyalties } from '../../common/constants';
 import Sidebar from '../components/Sidebar';
-import { IScoreLogParams } from '../types';
-import * as dayjs from 'dayjs';
-import ScoreFormContainer from '../containers/Form';
-import { Title } from '@erxes/ui/src/styles/main';
+import Form from '../containers/Form';
+import { IScore } from '../types';
+import Row from './Row';
 
 interface IProps extends IRouterProps {
   loading: boolean;
   error: any;
   queryParams: any;
   history: any;
-  scoreLogs: [IScoreLogParams];
+  scoreLogs: IScore[];
   total: number;
   refetch: (variables: any) => void;
 }
@@ -33,104 +32,52 @@ class ScoreLogsListComponent extends React.Component<IProps> {
     super(props);
   }
 
-  render() {
-    const {
-      loading,
-      queryParams,
-      history,
-      scoreLogs,
-      total,
-      error,
-      refetch
-    } = this.props;
-
-    const tablehead = [
-      'Email',
-      'Owner Name',
-      'Owner Type',
-      'Changed Score',
-      'Total Score',
-      'Created At'
-    ];
-
-    if (loading) {
-      return <Spinner />;
-    }
-
-    const route = type => {
-      switch (type) {
-        case 'customer':
-          return 'contacts';
-        case 'user':
-          return 'settings/team';
-        case 'company':
-          return 'companies';
-        case 'cpUser':
-          return 'settings/client-portal/users';
-      }
-    };
-    const email = (type, owner) => {
-      if (!owner) {
-        return '-';
-      }
-      switch (type) {
-        case 'customer':
-          return owner?.primaryEmail;
-        case 'user':
-          return owner?.email;
-        case 'company':
-          return owner?.primaryEmail ? owner?.primaryEmail : owner?.primaryName;
-        case 'cpUser':
-          return owner?.email || '-';
-      }
-    };
-    const name = (type, owner) => {
-      if (!owner) {
-        return '-';
-      }
-      switch (type) {
-        case 'customer':
-          return `${owner?.firstName} ${owner?.lastName}`;
-        case 'user':
-          return owner?.details?.fullName;
-        case 'company':
-          return owner?.primaryName;
-        case 'cpUser':
-          return owner?.username || (owner?.firstName && owner?.lastName)
-            ? `${owner?.firstName} ${owner.lastName}`
-            : '-';
-      }
-    };
-
-    const Content = error ? (
-      <Info>{error.message}</Info>
-    ) : (
+  renderContent() {
+    const { scoreLogs } = this.props;
+    return (
       <Table>
         <thead>
           <tr>
-            {tablehead.map(p => (
-              <th key={p}>{p}</th>
-            ))}
+            <th>{__('Email')}</th>
+            <th>{__('Owner Name')}</th>
+            <th>{__('Owner Type')}</th>
+            <th>
+              <SortHandler sortField="changedScore" />
+              {__('Changed Score')}
+            </th>
+            <th>
+              <SortHandler sortField="totalScore" />
+              {__('Total Score')}
+            </th>
+            <th>
+              <SortHandler sortField="createdAt" />
+              {__('Created At')}
+            </th>
+            {/* {tablehead.map((head, i) => (
+              <th key={i}>{head}</th>
+            ))} */}
           </tr>
         </thead>
         <tbody>
-          {scoreLogs?.map((p, i) => (
-            <tr key={i}>
-              <td>
-                <Link to={`/${route(p.ownerType)}/details/${p.ownerId}`}>
-                  {email(p.ownerType, p.owner)}
-                </Link>
-              </td>
-              <td>{name(p.ownerType, p.owner)}</td>
-              <td>{p.ownerType}</td>
-              <td>{p.changeScore}</td>
-              <td>{p.owner.score}</td>
-              <td>{dayjs(p.createdAt).format('lll')}</td>
-            </tr>
+          {scoreLogs?.map(item => (
+            <Row key={item._id} item={item} />
           ))}
         </tbody>
       </Table>
     );
+  }
+
+  renderForm() {
+    const content = ({ closeModal }) => <Form closeModal={closeModal} />;
+    const trigger = <Button btnStyle="success">{__('Give Score')}</Button>;
+
+    return (
+      <ModalTrigger title="Give Score" trigger={trigger} content={content} />
+    );
+  }
+
+  render() {
+    const { loading, queryParams, history, total, refetch } = this.props;
 
     const header = (
       <Wrapper.Header title={__('Score') + `(${1})`} submenu={menuLoyalties} />
@@ -145,14 +92,16 @@ class ScoreLogsListComponent extends React.Component<IProps> {
       />
     );
 
+    const rightActionBar = <BarItems>{this.renderForm()}</BarItems>;
+
     const content = (
       <>
         <Wrapper.ActionBar
           left={<Title>All Score List</Title>}
-          right={<ScoreFormContainer />}
+          right={rightActionBar}
         />
         <DataWithLoader
-          data={Content}
+          data={this.renderContent()}
           loading={loading}
           count={total}
           emptyText="Empty list"
@@ -173,4 +122,4 @@ class ScoreLogsListComponent extends React.Component<IProps> {
   }
 }
 
-export default withRouter<IRouterProps>(ScoreLogsListComponent);
+export default ScoreLogsListComponent;

@@ -195,6 +195,7 @@ const scorelogs = ({ history, location }) => {
     <ScoreLogs
       queryParams={queryString.parse(location.search)}
       history={history}
+      location={location}
     />
   );
 };

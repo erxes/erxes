@@ -21,6 +21,17 @@ export interface IScoreLogParams {
   ownerType: string;
 }
 
+export type IScore = {
+  _id: string;
+  createdAt: string;
+  createdBy: string;
+  ownerType: string;
+  ownerId: string;
+  changeScore: number;
+  description: string;
+  owner: Owner;
+};
+
 export interface Owner {
   starredConversationIds: any[];
   details: Details;
