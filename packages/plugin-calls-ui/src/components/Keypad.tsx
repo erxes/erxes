@@ -48,6 +48,7 @@ type Props = {
   taggerRefetchQueries: any;
   conversation: ICallConversation;
   addNote: (conversationId: string, content: string) => void;
+  disconnectCall: () => void;
 };
 const KeyPad = (props: Props, context) => {
   const Sip = context;
@@ -60,7 +61,8 @@ const KeyPad = (props: Props, context) => {
     toggleSectionWithPhone,
     taggerRefetchQueries,
     conversation,
-    addNote
+    addNote,
+    disconnectCall
   } = props;
 
   const defaultCallIntegration = localStorage.getItem(
@@ -172,24 +174,14 @@ const KeyPad = (props: Props, context) => {
     );
 
     localStorage.setItem(
-      'config:call_integrations',
+      'callInfo',
       JSON.stringify({
-        inboxId: integration?.inboxId,
-        phone: integration?.phone,
-        wsServer: integration?.wsServer,
-        token: integration?.token,
-        operators: integration?.operators,
-        isAvailable: true
+        isRegistered: true,
+        isLogin: true
       })
     );
-    setConfig({
-      inboxId: integration?.inboxId,
-      phone: integration?.phone,
-      wsServer: integration?.wsServer,
-      token: integration?.token,
-      operators: integration?.operators,
-      isAvailable: true
-    });
+
+    disconnectCall();
   };
 
   const handleCallDisConnect = () => {
