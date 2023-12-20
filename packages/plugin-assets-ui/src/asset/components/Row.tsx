@@ -6,7 +6,9 @@ import {
   Icon,
   ModalTrigger,
   Tip,
-  router
+  router,
+  __,
+  ActionButtons
 } from '@erxes/ui/src';
 import { Badge, ContainerBox, MoreContainer } from '../../style';
 import { isEnabled } from '@erxes/ui/src/utils/core';
@@ -48,7 +50,13 @@ function Row(props: Props) {
       />
     );
 
-    const trigger = <Icon icon="light-bulb" />;
+    const trigger = (
+      <Button btnStyle="link">
+        <Tip text={__('Assign Knowledgebase')} placement="bottom">
+          <Icon icon="light-bulb" />
+        </Tip>
+      </Button>
+    );
 
     return (
       <ModalTrigger
@@ -99,23 +107,29 @@ function Row(props: Props) {
       <td>{parent ? parent.name : ''}</td>
       <td>{(unitPrice || 0).toLocaleString()}</td>
       <td onClick={onCellClick}>
-        <ContainerBox row={true} gap={10} justifyEnd={true}>
+        <ActionButtons>
           {childAssetCount > 0 && (
-            <MoreContainer>
+            <Button btnStyle="link">
               <Tip text="See sub assets">
                 <Icon icon="sitemap-1" onClick={handleParent} />
               </Tip>
               {/* <Badge>{childAssetCount}</Badge> */}
-            </MoreContainer>
+            </Button>
           )}
           {isEnabled('knowledgebase') && renderKbAssignForm()}
           <ModalTrigger
             title="Edit basic info"
-            trigger={<Icon icon="edit-3" />}
+            trigger={
+              <Button btnStyle="link">
+                <Tip text={__('Edit')} placement="bottom">
+                  <Icon icon="edit-3" />
+                </Tip>
+              </Button>
+            }
             size="lg"
             content={content}
           />
-        </ContainerBox>
+        </ActionButtons>
       </td>
     </tr>
   );
