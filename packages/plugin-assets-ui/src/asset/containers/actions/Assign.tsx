@@ -5,9 +5,9 @@ import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
 import React from 'react';
 import { graphql } from '@apollo/client/react/hoc';
-import { IAsset } from '../../common/types';
-import { queries } from '../category/graphql';
-import AssignArticles from '../components/AssignArticles';
+import { IAsset } from '../../../common/types';
+import { queries } from '../../graphql';
+import AssignArticles from '../../components/actions/Assign/Assign';
 
 type Props = {
   objects?: IAsset[];
@@ -23,18 +23,12 @@ type FinalProps = {
   assetKbDetail: any;
 } & Props;
 
-type State = {
-  articles: any[];
-};
+function AssignContainer(props: FinalProps) {
+  const { assignedArticleIds, knowledgeBaseTopics, assetKbDetail } = props;
 
-class AssignContainer extends React.Component<FinalProps, State> {
-  constructor(props) {
-    super(props);
+  const [articles, setArticles] = React.useState<any>([]);
 
-    this.state = { articles: [] };
-  }
-
-  loadArticles = categoryIds => {
+  const loadArticles = categoryIds => {
     client
       .query({
         query: gql(queries.knowledgeBaseArticles),
@@ -43,42 +37,29 @@ class AssignContainer extends React.Component<FinalProps, State> {
       })
       .then(({ data }) => {
         const kbArticles = data.knowledgeBaseArticles || [];
-        const articleIds = this.state.articles.map(article => article._id);
+        const articleIds = articles.map(article => article._id);
 
         const uniqueArticles = kbArticles.filter(
           kbArticle => !articleIds.includes(kbArticle._id)
         );
 
-        this.setState({
-          articles: [...this.state.articles, ...uniqueArticles]
-        });
+        setArticles([...articles, ...uniqueArticles]);
       });
   };
 
-  render() {
-    const {
-      knowledgeBaseTopics,
-      assetKbDetail,
-      assignedArticleIds
-    } = this.props;
+  const selectedArticleIds =
+    assetKbDetail?.assetDetail?.kbArticleIds || assignedArticleIds || [];
 
-    if (knowledgeBaseTopics.loading) {
-      return <Spinner />;
-    }
+  const updatedProps = {
+    ...props,
+    kbTopics: knowledgeBaseTopics.knowledgeBaseTopics || [],
+    loadArticles,
+    loadedArticles: articles,
+    selectedArticleIds: [...selectedArticleIds],
+    loading: knowledgeBaseTopics.loading
+  };
 
-    const selectedArticleIds =
-      assetKbDetail?.assetDetail?.kbArticleIds || assignedArticleIds || [];
-
-    const updatedProps = {
-      ...this.props,
-      kbTopics: knowledgeBaseTopics.knowledgeBaseTopics || [],
-      loadArticles: this.loadArticles,
-      loadedArticles: this.state.articles,
-      selectedArticleIds: [...selectedArticleIds]
-    };
-
-    return <AssignArticles {...updatedProps} />;
-  }
+  return <AssignArticles {...updatedProps} />;
 }
 
 export default withProps<Props>(

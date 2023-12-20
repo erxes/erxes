@@ -4,7 +4,7 @@ import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
 import React from 'react';
 import { graphql } from '@apollo/client/react/hoc';
-import AssetForm from '../../asset/containers/Form';
+import AssetForm from '../../asset/containers/AssetForm';
 import { queries } from '../graphql';
 import { IAsset, IAssetQueryResponse } from '../../common/types';
 type Props = {
