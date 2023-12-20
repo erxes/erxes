@@ -1,19 +1,18 @@
-import { ButtonMutate, Spinner } from '@erxes/ui/src';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
-import { withProps } from '@erxes/ui/src/utils/core';
-import { gql } from '@apollo/client';
-import * as compose from 'lodash.flowright';
 import React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
 import {
   IAsset,
   IAssetCategoryQeuryResponse,
   IAssetQueryResponse
 } from '../../common/types';
+import { ButtonMutate } from '@erxes/ui/src';
+import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { getRefetchQueries } from '../../common/utils';
-import { queries as categoryQueries } from '../category/graphql';
-import Form from '../components/Form';
-import { mutations, queries } from '../graphql';
+import { withProps } from '@erxes/ui/src/utils/core';
+import { gql } from '@apollo/client';
+import * as compose from 'lodash.flowright';
+import { graphql } from '@apollo/client/react/hoc';
+import AssetForm from '../components/AssetForm';
+import { queries, mutations } from '../graphql';
 
 type Props = {
   asset: IAsset;
@@ -26,18 +25,16 @@ type FinalProps = {
   assets: IAssetQueryResponse;
 } & Props;
 
-class FormContainer extends React.Component<FinalProps> {
-  constructor(props) {
-    super(props);
-  }
+function AssetFormContainer(props: FinalProps) {
+  const { assetCategories, assets } = props;
 
-  renderButton({
+  const renderButton = ({
     text,
     values,
     isSubmitted,
     callback,
     object
-  }: IButtonMutateProps) {
+  }: IButtonMutateProps) => {
     const { unitPrice, assetCount, minimiumCount } = values;
     const attachmentMoreArray: any[] = [];
     const attachment = values.attachment || undefined;
@@ -69,33 +66,26 @@ class FormContainer extends React.Component<FinalProps> {
         } a ${text}`}
       />
     );
-  }
+  };
 
-  render() {
-    const { assetCategories, assets } = this.props;
+  const updatedProps = {
+    ...props,
+    categories: assetCategories.assetCategories,
+    assets: assets.assets,
+    renderButton,
+    loading: assetCategories.loading || assets.loading
+  };
 
-    if (assetCategories.loading || assets.loading) {
-      return <Spinner />;
-    }
-
-    const updatedProps = {
-      ...this.props,
-      categories: assetCategories.assetCategories,
-      assets: assets.assets,
-      renderButton: this.renderButton
-    };
-
-    return <Form {...updatedProps} />;
-  }
+  return <AssetForm {...updatedProps} />;
 }
 
 export default withProps<Props>(
   compose(
-    graphql(gql(categoryQueries.assetCategory), {
+    graphql(gql(queries.assetCategory), {
       name: 'assetCategories'
     }),
     graphql(gql(queries.assets), {
       name: 'assets'
     })
-  )(FormContainer)
+  )(AssetFormContainer)
 );

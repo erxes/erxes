@@ -201,6 +201,7 @@ export const unitField = `
   }
   code
   userIds
+  userCount
   users {
     _id
     details {
