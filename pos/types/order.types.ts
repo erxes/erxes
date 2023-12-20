@@ -133,3 +133,6 @@ export interface IOrderHistory {
   modifiedAt: string
   paidDate: string
 }
+
+export type IPaymentAmountType = "amount" | "percent" | "items"
+export type PayByProductItem = { _id: string; count: number; unitPrice: number }
