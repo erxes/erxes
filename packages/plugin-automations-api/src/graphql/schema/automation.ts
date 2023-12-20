@@ -22,6 +22,7 @@ export const types = ({ tags }) => `
     icon: String
     label: String
     description: String
+    position:JSON
 
     count: Int
   }
@@ -35,6 +36,7 @@ export const types = ({ tags }) => `
     icon: String
     label: String
     description: String
+    position:JSON
 
   }
 
@@ -101,6 +103,7 @@ export const types = ({ tags }) => `
     icon: String
     label: String
     description: String
+    position:JSON
   }
 
   input ActionInput {
@@ -112,6 +115,7 @@ export const types = ({ tags }) => `
     icon: String
     label: String
     description: String
+    position:JSON
   }
 `;
 

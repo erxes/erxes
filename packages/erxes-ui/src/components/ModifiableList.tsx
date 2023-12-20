@@ -7,6 +7,7 @@ import Button from './Button';
 import FormControl from './form/Control';
 import Icon from './Icon';
 import SortableList from './SortableList';
+import { ActionButton } from './ActionButtons';
 
 const List = styled.ul`
   list-style: none;
@@ -54,6 +55,7 @@ type Props = {
   showAddButton?: boolean;
   emptyMessage?: string;
   onChangeOption?: (options?: string[], optionValue?: string) => void;
+  extraActions?: (text: string) => JSX.Element;
 };
 
 type State = {
@@ -246,10 +248,13 @@ class ModifiableList extends React.Component<Props, State> {
         ) : (
           option.text
         )}
-        <Icon
-          icon="cancel-1"
-          onClick={this.handleRemoveOption.bind(this, option)}
-        />
+        <ActionButton>
+          {this.props.extraActions && this.props.extraActions(option?.text)}
+          <Icon
+            icon="cancel-1"
+            onClick={this.handleRemoveOption.bind(this, option)}
+          />
+        </ActionButton>
       </li>
     );
   };

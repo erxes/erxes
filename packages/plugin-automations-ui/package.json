@@ -9,6 +9,7 @@
     "@erxes/ui" : "*",
     "jsplumb": "^2.15.6",
     "prismjs": "^1.26.0",
+    "reactflow": "11.10.1",
     "react-simple-code-editor": "^0.11.0"
   }
 }

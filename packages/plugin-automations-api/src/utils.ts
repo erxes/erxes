@@ -15,8 +15,9 @@ import { getActionsMap } from './helpers';
 import { sendCommonMessage, sendSegmentsMessage } from './messageBroker';
 
 import { debugBase } from '@erxes/api-utils/src/debuggers';
-import { IModels } from './connectionResolver';
+import { IModels, generateModels } from './connectionResolver';
 import { handleEmail } from './common/emailUtils';
+import { setActionWait } from './actions/wait';
 
 export const getEnv = ({
   name,
@@ -174,6 +175,17 @@ export const executeActions = async (
         },
         isRPC: true
       });
+
+      if (actionResponse?.objToWait) {
+        setActionWait({
+          ...actionResponse.objToWait,
+          execution,
+          action,
+          result: actionResponse?.result
+        });
+
+        return 'paused';
+      }
 
       if (actionResponse.error) {
         throw new Error(actionResponse.error);
