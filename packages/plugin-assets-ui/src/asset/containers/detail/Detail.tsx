@@ -8,7 +8,7 @@ import React from 'react';
 import { graphql } from '@apollo/client/react/hoc';
 import { IAsset, IAssetDetailQueryResponse } from '../../../common/types';
 import { queries } from '../../graphql';
-import AssetDetails from '../components/Details';
+import AssetDetails from '../../components/detail/Detail';
 
 type Props = {
   id: string;

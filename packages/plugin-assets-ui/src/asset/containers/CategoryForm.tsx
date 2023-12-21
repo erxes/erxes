@@ -3,25 +3,19 @@ import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { withProps } from '@erxes/ui/src/utils/core';
 import * as compose from 'lodash.flowright';
 import React from 'react';
-import { IAssetCategoryTypes } from '../../../common/types';
-import Form from '../components/Form';
+import { IAssetCategoryTypes } from '../../common/types';
 import { mutations } from '../graphql';
+
+import CategoryForm from '../components/CategoryForm';
 
 type Props = {
   closeModal: () => void;
-  refetchAssetCategories: () => void;
   category: IAssetCategoryTypes;
   categories: IAssetCategoryTypes[];
 };
 
-type FinalProps = {} & Props;
-
-class FormContainer extends React.Component<FinalProps> {
-  constructor(props) {
-    super(props);
-  }
-
-  renderButton = ({
+function CategoryFormContainer({ closeModal, category, categories }: Props) {
+  const renderButton = ({
     text,
     values,
     isSubmitted,
@@ -52,18 +46,14 @@ class FormContainer extends React.Component<FinalProps> {
     );
   };
 
-  render() {
-    const { closeModal, category, categories } = this.props;
+  const updatedProps = {
+    renderButton,
+    closeModal,
+    category,
+    categories
+  };
 
-    const updatedProps = {
-      renderButton: this.renderButton,
-      closeModal,
-      category,
-      categories
-    };
-
-    return <Form {...updatedProps} />;
-  }
+  return <CategoryForm {...updatedProps} />;
 }
 
-export default withProps<Props>(compose()(FormContainer));
+export default withProps<Props>(compose()(CategoryFormContainer));
