@@ -1,7 +1,6 @@
 import { generateModels, IModels } from './connectionResolver';
 import {
   sendCoreMessage,
-  sendProductsMessage,
   fetchSegment,
   sendContactsMessage,
   sendCommonMessage
