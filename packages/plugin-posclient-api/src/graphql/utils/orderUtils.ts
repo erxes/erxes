@@ -24,6 +24,7 @@ import { checkPricing } from './pricing';
 import { checkRemainders } from './products';
 import { getPureDate } from '@erxes/api-utils/src';
 import { checkDirectDiscount } from './directDiscount';
+import { IPosUserDocument } from '../../models/definitions/posUsers';
 
 interface IDetailItem {
   count: number;
@@ -512,13 +513,13 @@ const getMatchMaps = (matchOrders, lastCatProdMaps, product) => {
   return;
 };
 
-const checkPrices = async (subdomain, preparedDoc, config) => {
+const checkPrices = async (subdomain, preparedDoc, config, posUser) => {
   const { type } = preparedDoc;
 
   if (ORDER_TYPES.SALES.includes(type)) {
     preparedDoc = await checkLoyalties(subdomain, preparedDoc);
     preparedDoc = await checkPricing(subdomain, preparedDoc, config);
-    preparedDoc = checkDirectDiscount(preparedDoc);
+    preparedDoc = checkDirectDiscount(preparedDoc, config, posUser);
     return preparedDoc;
   }
 
@@ -537,7 +538,8 @@ export const prepareOrderDoc = async (
   subdomain: string,
   doc: IOrderInput,
   config: IConfigDocument,
-  models: IModels
+  models: IModels,
+  posUser: IPosUserDocument
 ) => {
   const { catProdMappings = [] } = config;
 
@@ -668,7 +670,7 @@ export const prepareOrderDoc = async (
     }
   }
 
-  return await checkPrices(subdomain, { ...doc, items }, config);
+  return await checkPrices(subdomain, { ...doc, items }, config, posUser);
 };
 
 export const checkOrderStatus = (order: IOrderDocument) => {
