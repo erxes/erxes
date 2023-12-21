@@ -303,6 +303,7 @@ const ordersEdit = async (
     userId: posUser ? posUser._id : '',
     type: doc.type,
     totalAmount: getTotalAmount(preparedDoc.items),
+    directDiscount: doc.directDiscount,
     billType: doc.billType || BILL_TYPES.CITIZEN,
     registerNumber: doc.registerNumber || '',
     slotCode: doc.slotCode,

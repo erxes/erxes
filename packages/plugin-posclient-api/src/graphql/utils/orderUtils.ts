@@ -23,6 +23,7 @@ import { checkLoyalties } from './loyalties';
 import { checkPricing } from './pricing';
 import { checkRemainders } from './products';
 import { getPureDate } from '@erxes/api-utils/src';
+import { checkDirectDiscount } from './directDiscount';
 
 interface IDetailItem {
   count: number;
@@ -517,6 +518,7 @@ const checkPrices = async (subdomain, preparedDoc, config) => {
   if (ORDER_TYPES.SALES.includes(type)) {
     preparedDoc = await checkLoyalties(subdomain, preparedDoc);
     preparedDoc = await checkPricing(subdomain, preparedDoc, config);
+    preparedDoc = await checkDirectDiscount(preparedDoc);
     return preparedDoc;
   }
 

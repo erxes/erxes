@@ -58,6 +58,7 @@ export const isPreAtom = atom<boolean | undefined>(undefined)
 export const orderTotalAmountAtom = atom<number>(0)
 export const cashAmountAtom = atom<number>(0)
 export const mobileAmountAtom = atom<number>(0)
+export const directDiscountAtom = atom<number>(0)
 export const paidAmountsAtom = atom<IPaidAmount[]>([])
 export const payByProductAtom = atom<PayByProductItem[]>([])
 export const payByProductTotalAtom = atom<number>((get) =>
@@ -112,6 +113,7 @@ export const setInitialAtom = atom(
     set(isPreAtom, undefined)
     set(buttonTypeAtom, null)
     set(selectedTabAtom, "plan")
+    set(directDiscountAtom, 0)
   }
 )
 
@@ -140,10 +142,12 @@ export const setOrderStatesAtom = atom(
       number,
       dueDate,
       isPre,
+      directDiscount,
     }: IOrder
   ) => {
     set(activeOrderIdAtom, _id || null)
     set(customerAtom, customer || null)
+    set(directDiscountAtom, directDiscount || 0)
     set(customerTypeAtom, customerType || "")
     !get(cartChangedAtom) && set(cartAtom, items)
     set(orderTypeAtom, type || "eat")
@@ -168,6 +172,7 @@ export const setOrderStatesAtom = atom(
 export const orderValuesAtom = atom((get) => ({
   items: get(orderItemInput),
   totalAmount: get(totalAmountAtom),
+  directDiscount: get(directDiscountAtom),
   type: get(orderTypeAtom),
   _id: get(activeOrderIdAtom),
   customerType: get(customerTypeAtom),

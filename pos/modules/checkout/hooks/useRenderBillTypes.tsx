@@ -1,12 +1,13 @@
 import useUser from "@/modules/auth/hooks/useUser"
-import { paymentConfigAtom } from "@/store/config.store"
+import { coverConfigAtom, permissionConfigAtom } from "@/store/config.store"
 import { paidAmountsAtom } from "@/store/order.store"
-import { useAtom, useAtomValue } from "jotai"
+import { useAtomValue } from "jotai"
 
 const useRenderEbarimt = () => {
-  const [paymentConfig] = useAtom(paymentConfigAtom)
+  const coverConfig = useAtomValue(coverConfigAtom)
+  const permissionConfig = useAtomValue(permissionConfigAtom)
   const { isAdmin } = useUser()
-  const { permissionConfig, paymentTypes } = paymentConfig || {}
+  const { paymentTypes } = coverConfig || {}
   const { admins, cashiers } = permissionConfig || {}
   const paidAmounts = useAtomValue(paidAmountsAtom)
 
