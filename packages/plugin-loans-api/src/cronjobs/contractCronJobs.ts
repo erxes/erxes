@@ -14,34 +14,36 @@ import { massChangeClassification } from '../models/utils/changeClassificationUt
 
 export async function checkContractScheduleAnd(subdomain: string) {
   const models: IModels = await generateModels(subdomain);
-  const today = getFullDate(new Date());
-  console.log('today', today);
-  /*
-  const loanContracts: IContractDocument[] = await models.Contracts.find({
-    status: CONTRACT_STATUS.NORMAL
-  }).lean();
+  const now = new Date();
+  const today = getFullDate(now);
+  const exactTime = `${now.getHours()}:${now.getMinutes()}:${now.getSeconds()}`;
 
-  if (!loanContracts.length) return;
+  if (exactTime === '23:59:59') {
+    const loanContracts: IContractDocument[] = await models.Contracts.find({
+      status: CONTRACT_STATUS.NORMAL
+    }).lean();
 
-  const periodLock = await createPeriodLock(today, [], models);
+    if (!loanContracts.length) return;
 
-  for await (let contract of loanContracts) {
-    await storeInterestContract(contract, today, models, periodLock._id);
+    const periodLock = await createPeriodLock(today, [], models);
 
-    const schedule = await checkCurrentDateSchedule(contract, today, models);
+    for await (let contract of loanContracts) {
+      await storeInterestContract(contract, today, models, periodLock._id);
 
-    if (
-      schedule?.status === SCHEDULE_STATUS.PENDING ||
-      schedule?.status === SCHEDULE_STATUS.EXPIRED ||
-      schedule?.status === SCHEDULE_STATUS.LESS
-    ) {
-      const invoice = await createInvoice(contract, today, models);
+      const schedule = await checkCurrentDateSchedule(contract, today, models);
+      if (!schedule) return;
+      if (
+        schedule.status === SCHEDULE_STATUS.PENDING ||
+        schedule.status === SCHEDULE_STATUS.EXPIRED ||
+        schedule.status === SCHEDULE_STATUS.LESS
+      ) {
+        const invoice = await createInvoice(contract, today, models);
 
-      if (invoice.total > 0)
-        await sendNotification(subdomain, contract, invoice);
+        if (invoice.total > 0)
+          await sendNotification(subdomain, contract, invoice);
+      }
     }
-  }
 
-  await massChangeClassification(loanContracts, today, models);
-  */
+    await massChangeClassification(loanContracts, today, models);
+  }
 }
