@@ -518,7 +518,7 @@ const checkPrices = async (subdomain, preparedDoc, config) => {
   if (ORDER_TYPES.SALES.includes(type)) {
     preparedDoc = await checkLoyalties(subdomain, preparedDoc);
     preparedDoc = await checkPricing(subdomain, preparedDoc, config);
-    preparedDoc = await checkDirectDiscount(preparedDoc);
+    preparedDoc = checkDirectDiscount(preparedDoc);
     return preparedDoc;
   }
 
