@@ -15,7 +15,8 @@ import { massChangeClassification } from '../models/utils/changeClassificationUt
 export async function checkContractScheduleAnd(subdomain: string) {
   const models: IModels = await generateModels(subdomain);
   const today = getFullDate(new Date());
-
+  console.log('today', today);
+  /*
   const loanContracts: IContractDocument[] = await models.Contracts.find({
     status: CONTRACT_STATUS.NORMAL
   }).lean();
@@ -42,4 +43,5 @@ export async function checkContractScheduleAnd(subdomain: string) {
   }
 
   await massChangeClassification(loanContracts, today, models);
+  */
 }

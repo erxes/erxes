@@ -149,7 +149,7 @@ class ContractDetails extends React.Component<Props, State> {
           <>
             <ActivityInputs
               contentTypeId={contract._id}
-              contentType="contract"
+              contentType="loans:contract"
               showEmail={false}
             />
             <ActivityLogs
@@ -157,7 +157,14 @@ class ContractDetails extends React.Component<Props, State> {
               contentId={contract._id}
               contentType="loans:contract"
               extraTabs={[
-                { name: 'plugin_invoices', label: 'Invoices / Transaction' }
+                { name: 'loans:transaction', label: 'Transaction' },
+                { name: 'loans:interestStore', label: 'Interest store' },
+                ...(contract.leaseType === LEASE_TYPES.CREDIT
+                  ? [{ name: 'loans:invoice', label: 'Invoice' }]
+                  : []),
+                ...(isEnabled('zms')
+                  ? [{ name: 'loans:zms', label: 'Zms' }]
+                  : [])
               ]}
               activityRenderItem={ActivityItem}
             />

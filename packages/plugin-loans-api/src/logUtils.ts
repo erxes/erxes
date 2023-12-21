@@ -1,4 +1,4 @@
-import { getSchemaLabels } from '@erxes/api-utils/src/logUtils';
+import { getSchemaLabels, putActivityLog } from '@erxes/api-utils/src/logUtils';
 
 import { contractSchema } from './models/definitions/contracts';
 import { transactionSchema } from './models/definitions/transactions';
@@ -56,6 +56,15 @@ export const gatherDescriptions = async (params: IParams) => {
 
 export async function createLog(subdomain, user, logData) {
   const descriptions = gatherDescriptions(logData);
+
+  await putActivityLog(subdomain, {
+    ...logData,
+    ...descriptions,
+    type: `loans:${logData.type}`,
+    activityType: `loans:${logData.type}`,
+    contentType: `loans:contract`,
+    contentId: logData.contractId
+  });
 
   await putCreateLog(
     subdomain,

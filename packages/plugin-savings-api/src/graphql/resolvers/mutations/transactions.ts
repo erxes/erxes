@@ -13,10 +13,7 @@ const transactionMutations = {
     doc: ITransaction,
     { user, models, subdomain }: IContext
   ) => {
-    const transaction = await models.Transactions.createTransaction(
-      subdomain,
-      doc
-    );
+    const transaction = await models.Transactions.createTransaction(doc);
 
     const logData = {
       type: 'transaction',
@@ -43,11 +40,7 @@ const transactionMutations = {
       _id
     });
 
-    const updated = await models.Transactions.updateTransaction(
-      subdomain,
-      _id,
-      doc
-    );
+    const updated = await models.Transactions.updateTransaction(_id, doc);
 
     const logData = {
       type: 'transaction',

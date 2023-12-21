@@ -4,42 +4,61 @@ import {
   STORE_INTEREST_INTERVAL
 } from '../models/definitions/constants';
 import { IContractDocument } from '../models/definitions/contracts';
+import { closeOrExtend } from '../models/utils/closeOrExtendUtils';
+import { checkContractInterestGive } from '../models/utils/giveInterestResult';
 import storeInterest from '../models/utils/storeInterestUtils';
 import { getDaysInMonth, getDiffDay, getFullDate } from '../models/utils/utils';
 
 export async function storeInterestCron(subdomain: string) {
   const models: IModels = await generateModels(subdomain);
-  const nowDate = getFullDate(new Date());
-  const contracts = await models.Contracts.find({
-    lastStoredDate: { $lt: nowDate },
-    status: CONTRACT_STATUS.NORMAL,
-    interestRate: { $gt: 0 }
-  }).lean();
+  const now = new Date();
+  const nowDate = getFullDate(now);
+  const exactTime = `${now.getHours()}:${now.getMinutes()}:${now.getSeconds()}`;
 
-  contracts.forEach((contract: IContractDocument) => {
-    const lastStoredDate = getFullDate(contract.lastStoredDate);
-    const diffDay = getDiffDay(lastStoredDate, nowDate);
+  if (exactTime === '23:59:59') {
+    now.setTime(now.getTime() + 2 * 60 * 1000);
+    const nextDate = getFullDate(now);
 
-    switch (contract.storeInterestInterval) {
-      case STORE_INTEREST_INTERVAL.DAILY:
-        if (diffDay > 0) storeInterest(contract, models);
-        break;
-      case STORE_INTEREST_INTERVAL.MONTLY:
-        let nextMonth = new Date(lastStoredDate);
-        nextMonth.setMonth(lastStoredDate.getMonth() + 1);
+    const contracts = await models.Contracts.find({
+      lastStoredDate: { $lt: nextDate },
+      status: CONTRACT_STATUS.NORMAL,
+      interestRate: { $gt: 0 }
+    }).lean<IContractDocument>();
 
-        if (lastStoredDate === nextMonth) storeInterest(contract, models);
-        break;
-      case STORE_INTEREST_INTERVAL.END_OF_MONTH:
-        if (getDaysInMonth(nowDate) === nowDate.getDate())
-          storeInterest(contract, models);
-        break;
-      case STORE_INTEREST_INTERVAL.END_OF_CONTRACT:
-        if (contract.endDate === nowDate) storeInterest(contract, models);
-        break;
+    for await (const contract of contracts) {
+      const lastStoredDate = getFullDate(contract.lastStoredDate);
+      const diffDay = getDiffDay(lastStoredDate, nextDate);
 
-      default:
-        break;
+      switch (contract.storeInterestInterval) {
+        case STORE_INTEREST_INTERVAL.DAILY:
+          if (diffDay > 0) await storeInterest(contract, models, nextDate);
+
+          break;
+        case STORE_INTEREST_INTERVAL.MONTLY:
+          let nextMonth = new Date(lastStoredDate);
+          nextMonth.setMonth(lastStoredDate.getMonth() + 1);
+
+          if (lastStoredDate === nextMonth)
+            await storeInterest(contract, models, nextDate);
+
+          break;
+        case STORE_INTEREST_INTERVAL.END_OF_MONTH:
+          if (getDaysInMonth(nowDate) === nowDate.getDate())
+            await storeInterest(contract, models, nextDate);
+
+          break;
+        case STORE_INTEREST_INTERVAL.END_OF_CONTRACT:
+          if (contract.endDate === nowDate)
+            await storeInterest(contract, models, nextDate);
+
+          break;
+
+        default:
+          break;
+      }
+
+      await checkContractInterestGive(contract, nextDate, models);
+      await closeOrExtend(contract, models, nextDate);
     }
-  });
+  }
 }
