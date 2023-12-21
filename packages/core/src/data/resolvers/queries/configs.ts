@@ -97,7 +97,7 @@ const configQueries = {
     let results: Array<{ module: string; items: any[] }> = [];
 
     for (const serviceName of services) {
-      const service = await getService(serviceName, true);
+      const service = await getService(serviceName);
       const meta = service.config ? service.config.meta : {};
 
       if (meta && meta.isSearchable) {
