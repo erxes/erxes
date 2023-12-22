@@ -678,8 +678,9 @@ const orderMutations = {
 
     if (
       order.mobileAmount ||
-      (order.paidAmounts || []).filter(pa => Object.keys(pa.info).length)
-        .length > 0
+      (order.paidAmounts || []).filter(
+        pa => pa.info && Object.keys(pa.info).length
+      ).length > 0
     ) {
       throw new Error('Card payment exists for this order');
     }
