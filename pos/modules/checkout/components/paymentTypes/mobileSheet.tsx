@@ -2,7 +2,7 @@ import { useEffect, useState } from "react"
 import clientMain from "@/modules/apolloClientMain"
 import { queries } from "@/modules/orders/graphql"
 import { currentAmountAtom, invoiceIdAtom, paymentDataAtom } from "@/store"
-import { configAtom, paymentConfigAtom } from "@/store/config.store"
+import { configAtom, coverConfigAtom } from "@/store/config.store"
 import {
   activeOrderIdAtom,
   customerAtom,
@@ -11,8 +11,11 @@ import {
 } from "@/store/order.store"
 import { useMutation, useQuery } from "@apollo/client"
 import { useAtomValue, useSetAtom } from "jotai"
+import { ShieldAlert } from "lucide-react"
 
 import { IPaymentOption } from "@/types/payment.types"
+import { INSTRUCTIONS } from "@/lib/constants"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { AspectRatio } from "@/components/ui/aspect-ratio"
 import Loader from "@/components/ui/loader"
 import { RadioGroup } from "@/components/ui/radio-group"
@@ -30,12 +33,12 @@ const MobileSheet = () => {
       "erxes-app-token": config?.erxesAppToken,
     },
   }
-  const { data, loading } = useQuery(queries.payment, {
+  const { data, loading, error } = useQuery(queries.payment, {
     client: clientMain,
     context,
   })
 
-  const paymentConfig = useAtomValue(paymentConfigAtom)
+  const coverConfig = useAtomValue(coverConfigAtom)
 
   const [createInvoice, { reset, data: invoiceData, loading: loadingInvoice }] =
     useMutation(mutations.createInvoice, {
@@ -53,14 +56,14 @@ const MobileSheet = () => {
   const { onError } = useToast()
 
   const { payments: allPayments } = data || {}
-  const { errorDescription, status, apiResponse } =
+  const { errorDescription, status, apiResponse, idOfProvider } =
     invoiceData?.invoiceCreate || {}
 
   const QR_PAYMENTS = ["qpay", "monpay", "pocket", "qpayQuickqr"]
   const PHONE_PAYMENTS = ["socialpay", "storepay"]
 
   const payments = (allPayments || []).filter((pm: IPaymentOption) =>
-    paymentConfig?.paymentIds.includes(pm._id)
+    coverConfig?.paymentIds.includes(pm._id)
   )
 
   const getKindById = (_id: string) =>
@@ -126,7 +129,10 @@ const MobileSheet = () => {
       <h1 className="font-bold text-lg mb-4 pb-1 border-b border-dashed">
         Цахимаар төлөх
       </h1>
-      <div className="text-black/60 mb-1">Төлбөрийн хэрэгслээ сонгоно уу</div>
+      {!error && (
+        <div className="text-black/60 mb-1">Төлбөрийн хэрэгслээ сонгоно уу</div>
+      )}
+      {!!error && <Error />}
       <RadioGroup
         className="grid grid-cols-2 gap-2 mb-6"
         value={selected}
@@ -136,6 +142,12 @@ const MobileSheet = () => {
           <PaymentType {...p} key={p._id} selected={p._id === selected} />
         ))}
       </RadioGroup>
+
+      {idOfProvider === "not supported" && (
+        <div className="py-3">
+          <Error />
+        </div>
+      )}
 
       {loadingInvoice && QR_PAYMENTS.includes(getKindById(selected)) && (
         <div className="relative">
@@ -166,5 +178,24 @@ const MobileSheet = () => {
     </div>
   )
 }
+
+const Error = () => (
+  <Alert variant="destructive">
+    <ShieldAlert className="h-4 w-4" />
+    <AlertTitle className="font-semibold">
+      Та erxes-app-token тохируулаагүй эсвэл erxes-app-token-ий эрх хүрэлцэхгүй
+      байна
+    </AlertTitle>
+    <AlertDescription>Дараах зааврын дагуу тохируулана уу</AlertDescription>
+    <div className="relative pb-[56.25%] h-0 mt-2 overflow-hidden rounded-lg">
+      <iframe
+        src={INSTRUCTIONS.PAYMENT_APP_TOKEN}
+        frameBorder="0"
+        allowFullScreen
+        className="absolute top-0 left-0 h-full w-full"
+      />
+    </div>
+  </Alert>
+)
 
 export default MobileSheet

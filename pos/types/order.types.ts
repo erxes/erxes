@@ -111,6 +111,7 @@ export interface IOrder extends IOrderCommon {
   paidDate?: string
   cashAmount?: number
   mobileAmount?: number
+  directDiscount?: number
   printedEbarimt?: boolean
   number?: string
   status?: IOrderStatus

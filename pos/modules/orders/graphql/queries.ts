@@ -18,6 +18,7 @@ export const orderFields = `
   type
   description
   isPre
+  directDiscount
 `
 export const orderItemBaseFields = `
  _id
@@ -398,7 +399,7 @@ const queries = {
   ordersAtWaiting,
   historyItemDetail,
   ebarimtDetail,
-  payment
+  payment,
 }
 
 export default queries
