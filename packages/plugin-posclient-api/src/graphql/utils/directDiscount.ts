@@ -19,8 +19,13 @@ export const checkDirectDiscount = (
   }
 
   const isAdmin = adminIds.includes(posUser._id);
-  const limit =
-    permissionConfig[isAdmin ? 'admins' : 'cashiers'].directDiscountLimit;
+  const staffConfig = permissionConfig[isAdmin ? 'admins' : 'cashiers'];
+
+  if (!staffConfig?.directDiscount) return orderInput;
+
+  const limit = parseFloat(staffConfig?.directDiscountLimit);
+
+  if (isNaN(limit)) return orderInput;
 
   if (directDiscount > limit) {
     throw new Error(
@@ -46,15 +51,10 @@ const applyDiscount = (
   directDiscount: number
 ): void => {
   for (const item of items || []) {
-    const discountValue = calculateDiscount(item.unitPrice, directDiscount);
+    const discountValue = parseFloat(
+      ((item.unitPrice * directDiscount) / 100).toFixed(2)
+    );
     item.unitPrice -= discountValue;
     item.discountAmount = discountValue * item.count;
   }
-};
-
-const calculateDiscount = (
-  unitPrice: number,
-  directDiscount: number
-): number => {
-  return parseFloat(((unitPrice * directDiscount) / 100).toFixed(2));
 };
