@@ -39,7 +39,7 @@ export interface IKitchenScreen {
 export interface IStaff {
   isTempBill?: boolean
   directDiscount?: boolean
-  directDiscountAmount?: number
+  directDiscountLimit?: number
 }
 export interface IPermissionConfig {
   admins?: IStaff

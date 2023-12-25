@@ -20,7 +20,7 @@ export const checkDirectDiscount = (
 
   const isAdmin = adminIds.includes(posUser._id);
   const limit =
-    permissionConfig[isAdmin ? 'admins' : 'cashiers'].directDiscountAmount;
+    permissionConfig[isAdmin ? 'admins' : 'cashiers'].directDiscountLimit;
 
   if (directDiscount > limit) {
     throw new Error(

@@ -13,8 +13,8 @@ const DirectDiscount: React.FC = () => {
   const isAdmin = useAtomValue(isAdminAtom)
   const [directDiscount, setDirectDiscount] = useAtom(directDiscountAtom)
   const allowDirectDiscount = isAdmin
-    ? admins?.directDiscount && admins.directDiscountAmount
-    : cashiers?.directDiscount && cashiers.directDiscountAmount
+    ? admins?.directDiscount && admins.directDiscountLimit
+    : cashiers?.directDiscount && cashiers.directDiscountLimit
 
   if (!allowDirectDiscount) {
     return null

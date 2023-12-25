@@ -92,8 +92,8 @@ class PermissionStep extends React.Component<Props, State> {
         <ControlLabel>{title}</ControlLabel>
         <FormControl
           id={`${type}${name}`}
-          name={`${type}.${name}Amount`}
-          value={config[type] && config[type][`${name}Amount`]}
+          name={`${type}.${name}Limit`}
+          value={config[type] && config[type][`${name}Limit`]}
           onChange={e => this.onChangeValue(e, 'value')}
           max={100}
         />
@@ -148,7 +148,7 @@ class PermissionStep extends React.Component<Props, State> {
                   'directDiscount'
                 )}
                 {this.renderDiscountInput(
-                  'Direct discount amount',
+                  'Direct discount limit',
                   'admins',
                   'directDiscount'
                 )}
@@ -179,7 +179,7 @@ class PermissionStep extends React.Component<Props, State> {
                   'directDiscount'
                 )}
                 {this.renderDiscountInput(
-                  'Direct discount amount',
+                  'Direct discount limit',
                   'cashiers',
                   'directDiscount'
                 )}
