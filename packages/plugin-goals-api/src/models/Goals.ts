@@ -2,6 +2,7 @@ import { Model } from 'mongoose';
 import { IModels } from '../connectionResolver';
 import { sendCardsMessage, sendSegmentsMessage } from '../messageBroker';
 import { goalSchema, IGoal, IGoalDocument } from './definitions/goals';
+import { CONTRIBUTIONTYPE, TEAMGOALTYPE } from '../constants';
 export interface IGoalModel extends Model<IGoalDocument> {
   getGoal(_id: string): Promise<IGoalDocument>;
   createGoal(doc: IGoal): Promise<IGoalDocument>;
@@ -94,23 +95,21 @@ export const loadGoalClass = (models: IModels, subdomain: string) => {
     }
 
     const data: DataItem[] = [];
-
     for (const item of doc) {
       let amount;
 
-      // Check if any of the conditions are met to send the request
       let requestData: any;
 
-      if (item.contributionType === 'person') {
+      if (item.contributionType === CONTRIBUTIONTYPE.PERSON) {
         requestData = {
           assignedUserIds: item.contribution
         };
-      } else if (item.contributionType === 'team') {
-        if (item.teamGoalType === 'Departments') {
+      } else if (item.contributionType === CONTRIBUTIONTYPE.TEAM) {
+        if (item.teamGoalType === TEAMGOALTYPE.DEPARTMENT) {
           requestData = {
             departmentIds: item.department
           };
-        } else if (item.teamGoalType === 'Branches') {
+        } else if (item.teamGoalType === TEAMGOALTYPE.BRANCH) {
           requestData = {
             branchIds: item.branch
           };
@@ -208,43 +207,15 @@ export const loadGoalClass = (models: IModels, subdomain: string) => {
           item.specificPeriodGoals &&
           Array.isArray(item.specificPeriodGoals)
         ) {
-          const updatedSpecificPeriodGoals = item.specificPeriodGoals.map(
-            result => {
-              let convertedNumber;
-              if (totalAmount === 0 || result.addTarget === 0) {
-                convertedNumber = 100;
-              } else {
-                const diff = (totalAmount / result.addTarget) * 100;
-                convertedNumber = diff.toFixed(3);
-              }
-
-              return {
-                ...result,
-                addMonthly: result.addMonthly, // Update other properties as needed
-                progress: convertedNumber // Update the progress property
-              };
-            }
-          );
-          await models.Goals.updateOne(
-            { _id: item._id },
-            {
-              $set: {
-                specificPeriodGoals: updatedSpecificPeriodGoals
-              }
-            }
-          );
-        }
-      } else if (item.metric === 'Count') {
-        const activeElements = amount.filter(item => item.status === 'active');
-        current = activeElements.length;
-
-        progress = await differenceFunction(current, item.target);
-        if (
-          item.specificPeriodGoals &&
-          Array.isArray(item.specificPeriodGoals)
-        ) {
-          const updatedSpecificPeriodGoals = item.specificPeriodGoals.map(
-            result => {
+          const updatedSpecificPeriodGoals = item.specificPeriodGoals
+            .filter(
+              result =>
+                current !== 0 &&
+                !isNaN(current) &&
+                result.addTarget !== 0 &&
+                result.addTarget !== null
+            )
+            .map(result => {
               let convertedNumber;
               if (current === 0 || result.addTarget === 0) {
                 convertedNumber = 100;
@@ -259,8 +230,51 @@ export const loadGoalClass = (models: IModels, subdomain: string) => {
                 current,
                 progress: convertedNumber // updating the progress property
               };
+            });
+
+          await models.Goals.updateOne(
+            { _id: item._id },
+            {
+              $set: {
+                specificPeriodGoals: updatedSpecificPeriodGoals
+              }
             }
           );
+        }
+      } else if (item.metric === 'Count') {
+        const activeElements = amount.filter(item => item.status === 'active');
+        current = activeElements.length;
+        progress = await differenceFunction(current, item.target);
+
+        if (
+          item.specificPeriodGoals &&
+          Array.isArray(item.specificPeriodGoals)
+        ) {
+          const updatedSpecificPeriodGoals = item.specificPeriodGoals
+            .filter(
+              result =>
+                current !== 0 &&
+                !isNaN(current) &&
+                result.addTarget !== 0 &&
+                result.addTarget !== null
+            )
+            .map(result => {
+              let convertedNumber;
+              if (current === 0 || result.addTarget === 0) {
+                convertedNumber = 100;
+              } else {
+                const diff = (current / result.addTarget) * 100;
+                convertedNumber = diff.toFixed(3);
+              }
+
+              return {
+                ...result,
+                addMonthly: result.addMonthly, // update other properties as needed
+                current,
+                progress: convertedNumber // updating the progress property
+              };
+            });
+
           await models.Goals.updateOne(
             { _id: item._id },
             {
@@ -313,8 +327,8 @@ export const loadGoalClass = (models: IModels, subdomain: string) => {
 
   async function differenceFunction(amount: number, target: number) {
     let convertedNumber;
-    if (amount === 0 || target === 0) {
-      convertedNumber = 100;
+    if (amount === 0 || target === 0 || isNaN(amount)) {
+      convertedNumber = 0;
     } else {
       const diff = (amount / target) * 100;
       convertedNumber = diff.toFixed(3);
