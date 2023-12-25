@@ -3,7 +3,8 @@
   "private": true,
   "version": "1.5.6",
   "workspaces": [
-    "packages/*"
+    "packages/*",
+    "scripts"
   ],
   "description": "Free and open fair-code licensed all-in-one growth marketing & management software",
   "homepage": "https://erxes.io",
@@ -64,7 +65,7 @@
     "vite-plugin-eslint": "^1.8.1",
     "vite-plugin-istanbul": "^5.0.0",
     "vitest": "^0.34.1",
-    "//": "UI development dependencies",
+    "//": "UI development dependencies, since sibling devDependencies are not being installed we moved them from packages/erxes-ui/package.json to here",
     "@babel/core": "^7.15.8",
     "@babel/plugin-transform-runtime": "^7.15.8",
     "@babel/preset-env": "^7.15.8",
@@ -92,8 +93,6 @@
     "process": "0.11.10"
   },
   "dependencies": {
-    "enquirer": "2.3.6",
-    "fs-extra": "^9.0.1",
-    "mongodb": "3.7.3"
+    "//" : "Only put dependencies that are required by all packages here!!!"
   }
 }
