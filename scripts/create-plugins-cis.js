@@ -26,8 +26,8 @@ var plugins = [
   { name: 'rcfa', ui: true, api: true },
   { name: 'syncsaas', ui: true, api: true },
   { name: 'golomtces', ui: false, api: true },
-  { name: 'aputpm', api: true },
-  { name: "insurance", ui: true, api: true },
+  { name: 'aputpm', ui: true, api: true },
+  { name: 'insurance', ui: true, api: true }
 ];
 
 const pluginsMap = {};
