@@ -33,22 +33,32 @@ enabledServices.push('core');
 
 export const redis = redisClient;
 
-const generateKey = name => `service:config:${name}`;
+const keyForConfig = name => `service:config:${name}`;
 
 export const getServices = async (): Promise<string[]> => {
   return enabledServices;
 };
 
-export const getService = async (name: string, config?: boolean) => {
-  const result: { address: string; config: any } = {
+type ServiceInfo = { address: string; config: any };
+const serviceInfoCache: { [name in string]: Readonly<ServiceInfo> } = {};
+
+export const getService = async (
+  name: string
+): Promise<Readonly<ServiceInfo>> => {
+  if (serviceInfoCache[name]) {
+    return serviceInfoCache[name];
+  }
+
+  const result: ServiceInfo = {
     address: (await redis.get(`service:${name}`)) || '',
     config: { meta: {} }
   };
 
-  if (config) {
-    const value = await redis.get(generateKey(name));
-    result.config = JSON.parse(value || '{}');
-  }
+  const configJson = await redis.get(keyForConfig(name));
+  result.config = JSON.parse(configJson || '{}');
+
+  Object.freeze(result);
+  serviceInfoCache[name] = result;
 
   return result;
 };
@@ -69,7 +79,7 @@ export const join = async ({
   meta?: any;
 }) => {
   await redis.set(
-    generateKey(name),
+    keyForConfig(name),
 
     JSON.stringify({
       dbConnectionString,
