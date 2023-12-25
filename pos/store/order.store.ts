@@ -11,6 +11,7 @@ import {
   IOrderUser,
   IPaidAmount,
   IPutResponse,
+  PayByProductItem,
 } from "@/types/order.types"
 
 import { customerSearchAtom, selectedTabAtom } from "."
@@ -58,6 +59,18 @@ export const orderTotalAmountAtom = atom<number>(0)
 export const cashAmountAtom = atom<number>(0)
 export const mobileAmountAtom = atom<number>(0)
 export const paidAmountsAtom = atom<IPaidAmount[]>([])
+export const payByProductAtom = atom<PayByProductItem[]>([])
+export const payByProductTotalAtom = atom<number>((get) =>
+  get(payByProductAtom).reduce((prev, pr) => prev + pr.count * pr.unitPrice, 0)
+)
+export const paidProductsAtom = atomWithStorage<PayByProductItem[]>(
+  "paidProducts",
+  []
+)
+export const paidOrderIdAtom = atomWithStorage<string | null>(
+  "paidOrderId",
+  null
+)
 
 export const getTotalPaidAmountAtom = atom(
   (get) =>

@@ -16,7 +16,7 @@ const sendMessage = async (
   services: string[]
 ) => {
   for (const serviceName of services) {
-    const service = await getService(serviceName, true);
+    const service = await getService(serviceName);
 
     if ((await isAvailable(serviceName)) && service) {
       const meta = service.config ? service.config.meta : {};

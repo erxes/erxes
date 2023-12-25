@@ -88,7 +88,7 @@ export const handleContacts = async (args: IContactsParams) => {
       );
 
       for (const serviceName of await getServices()) {
-        const serviceConfig = await getService(serviceName, true);
+        const serviceConfig = await getService(serviceName);
 
         if (serviceConfig.config?.meta?.hasOwnProperty('cpCustomerHandle')) {
           if (await isEnabled(serviceName)) {
@@ -158,7 +158,7 @@ export const handleContacts = async (args: IContactsParams) => {
       );
 
       for (const serviceName of await getServices()) {
-        const serviceConfig = await getService(serviceName, true);
+        const serviceConfig = await getService(serviceName);
 
         if (serviceConfig.config?.meta?.hasOwnProperty('cpCustomerHandle')) {
           if (await isEnabled(serviceName)) {
