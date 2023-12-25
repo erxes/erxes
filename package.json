@@ -65,7 +65,7 @@
     "vite-plugin-eslint": "^1.8.1",
     "vite-plugin-istanbul": "^5.0.0",
     "vitest": "^0.34.1",
-    "//": "UI development dependencies",
+    "//": "UI development dependencies, since sibling devDependencies are not being installed we moved them from packages/erxes-ui/package.json to here",
     "@babel/core": "^7.15.8",
     "@babel/plugin-transform-runtime": "^7.15.8",
     "@babel/preset-env": "^7.15.8",
