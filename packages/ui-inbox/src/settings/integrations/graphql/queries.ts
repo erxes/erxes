@@ -221,9 +221,22 @@ const imapIntegrations = `
   }
 `;
 
+const contacts = `
+query Contacts($searchValue: String) {
+  contacts(searchValue: $searchValue) {
+    _id
+    avatar
+    contentType
+    fullName
+    primaryEmail
+  }
+}
+`;
+
 export default {
   users,
   brands,
+  contacts,
   messengerApps,
   integrationDetail,
   integrationTotalCount,

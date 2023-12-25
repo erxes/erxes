@@ -114,14 +114,15 @@ const Attachments = styled.div`
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
-  padding: 6px ${dimensions.coreSpacing}px 2px ${dimensions.coreSpacing}px
+  padding: 6px ${dimensions.coreSpacing}px 2px ${dimensions.coreSpacing}px;
   border-bottom: 1px solid ${colors.borderPrimary};
 `;
 
 const FlexRow = styledTS<{ isEmail?: boolean }>(styled.div)`
   display: flex;
   align-items: center;
-  height: ${props => props.isEmail && '28px'};
+  ${props => props.isEmail && 'min-height: 28px'};
+  padding: ${props => (props.isEmail ? '2px' : '0')};
 
   > label {
     margin: ${props =>

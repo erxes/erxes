@@ -44,6 +44,7 @@ import Uploader from '@erxes/ui/src/components/Uploader';
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 import dayjs from 'dayjs';
 import { generateEmailTemplateParams } from '@erxes/ui-engage/src/utils';
+import MailSuggestion from './mailSuggestion/MailSuggestion';
 
 const Signature = asyncComponent(() =>
   import(
@@ -69,6 +70,8 @@ type Props = {
   toggleReply?: () => void;
   emailSignatures: IEmailSignature[];
   fetchMoreEmailTemplates: (page: number) => void;
+  searchContact: (searchValue: string) => void;
+  contacts: any;
   createdAt?: Date;
   isEmptyEmail?: boolean;
   loading?: boolean;
@@ -112,6 +115,9 @@ type State = {
   name: string;
   showReply: string;
   isRepliesRetrieved: boolean;
+  toCollection: any[];
+  ccCollection: any[];
+  bccCollection: any[];
 };
 
 class MailForm extends React.Component<Props, State> {
@@ -192,7 +198,11 @@ class MailForm extends React.Component<Props, State> {
       name: `mail_${mailKey}`,
       showReply: `reply_${mailKey}`,
 
-      isRepliesRetrieved: false
+      isRepliesRetrieved: false,
+
+      toCollection: [],
+      ccCollection: [],
+      bccCollection: []
     };
   }
 
@@ -208,8 +218,14 @@ class MailForm extends React.Component<Props, State> {
       this.clearContent();
     }
 
+    // if (prevProps.emailTo !== emailTo) {
+    //   this.setState({ to: emailTo });
+    // }
+
     if (prevProps.emailTo !== emailTo) {
-      this.setState({ to: emailTo });
+      this.setState({
+        toCollection: [{ primaryEmail: emailTo }]
+      });
     }
   }
 
@@ -233,13 +249,24 @@ class MailForm extends React.Component<Props, State> {
   }
 
   prepareData() {
-    const { from, to, cc, bcc, subject, content, attachments } = this.state;
-
-    const variables = {
+    const {
       from,
       to,
       cc,
       bcc,
+      subject,
+      content,
+      attachments,
+      toCollection,
+      ccCollection,
+      bccCollection
+    } = this.state;
+
+    const variables = {
+      from,
+      to: [...toCollection.map(mail => mail.primaryEmail), to].join(', '),
+      cc: [...ccCollection.map(mail => mail.primaryEmail), cc].join(', '),
+      bcc: [...bccCollection.map(mail => mail.primaryEmail), bcc].join(', '),
       subject,
       content,
       attachments
@@ -330,7 +357,10 @@ class MailForm extends React.Component<Props, State> {
       bcc: '',
       subject: '',
       content: '',
-      attachments: []
+      attachments: [],
+      toCollection: [],
+      ccCollection: [],
+      bccCollection: []
     });
 
     this.prepareData();
@@ -367,15 +397,15 @@ class MailForm extends React.Component<Props, State> {
       content,
       from,
       attachments,
-      to,
-      cc,
-      bcc,
+      toCollection,
+      ccCollection,
+      bccCollection,
       subject,
       kind,
       isRepliesRetrieved
     } = this.state;
 
-    if (!to) {
+    if (toCollection.length === 0) {
       return Alert.warning('This message must have at least one recipient.');
     }
 
@@ -415,9 +445,9 @@ class MailForm extends React.Component<Props, State> {
       shouldOpen:
         shouldResolve && conversationStatus === 'closed' ? true : false,
       ...(!isForward ? { replyToMessageId: mailData.messageId } : {}),
-      to: formatStr(to),
-      cc: formatStr(cc),
-      bcc: formatStr(bcc),
+      to: toCollection.map(mail => mail.primaryEmail),
+      cc: ccCollection.map(mail => mail.primaryEmail),
+      bcc: bccCollection.map(mail => mail.primaryEmail),
       from,
       subject:
         isForward && !subjectValue.includes('Fw:')
@@ -425,24 +455,26 @@ class MailForm extends React.Component<Props, State> {
           : subjectValue
     };
 
-    return sendMail({
-      variables,
-      callback: () => {
-        shouldResolve
-          ? this.setState({ isSubmitResolveLoading: true })
-          : this.setState({ isSubmitLoading: true });
+    console.log('variables', variables);
 
-        if (clearOnSubmit) {
-          this.clearContent();
-        }
+    // return sendMail({
+    //   variables,
+    //   callback: () => {
+    //     shouldResolve
+    //       ? this.setState({ isSubmitResolveLoading: true })
+    //       : this.setState({ isSubmitLoading: true });
 
-        if (isReply) {
-          return toggleReply && toggleReply();
-        } else {
-          return closeModal && closeModal();
-        }
-      }
-    });
+    //     if (clearOnSubmit) {
+    //       this.clearContent();
+    //     }
+
+    //     if (isReply) {
+    //       return toggleReply && toggleReply();
+    //     } else {
+    //       return closeModal && closeModal();
+    //     }
+    //   }
+    // });
   };
 
   onEditorChange = (value: string) => {
@@ -464,6 +496,7 @@ class MailForm extends React.Component<Props, State> {
       keyof State
     >);
 
+    this.props.searchContact(e ? e.target.value : '');
     this.prepareData();
   };
 
@@ -569,16 +602,39 @@ class MailForm extends React.Component<Props, State> {
     );
   }
 
+  handleRemoveRecipient = (index, fieldName) => {
+    const field = [...this.state[`${fieldName}Collection`]];
+    field.splice(index, 1);
+    this.setState(({
+      [`${fieldName}Collection`]: [...field]
+    } as unknown) as Pick<State, keyof State>);
+  };
+
+  handleSuggestionSelect = (contact, fieldName) => {
+    const field = [...this.state[`${fieldName}Collection`]];
+
+    this.setState(({
+      [fieldName]: '',
+      [`${fieldName}Collection`]: [...field, contact]
+    } as unknown) as Pick<State, keyof State>);
+
+    this.props.searchContact('');
+  };
+
   renderTo() {
+    const { to, toCollection } = this.state;
+
     return (
       <FlexRow isEmail={true}>
         <label>To:</label>
-        <FormControl
-          autoFocus={this.props.isForward}
-          value={this.state.to}
-          onChange={this.onSelectChange.bind(this, 'to')}
+        <MailSuggestion
           name="to"
-          required={true}
+          value={to || ''}
+          onChange={this.onSelectChange.bind(this, 'to')}
+          contacts={this.props.contacts}
+          collection={toCollection}
+          onSelect={contact => this.handleSuggestionSelect(contact, 'to')}
+          onRemove={index => this.handleRemoveRecipient(index, 'to')}
         />
         {this.renderRightSide()}
       </FlexRow>
@@ -586,43 +642,51 @@ class MailForm extends React.Component<Props, State> {
   }
 
   renderCC() {
-    const { cc, hasCc } = this.state;
+    const { cc, ccCollection, hasCc } = this.state;
 
     if (!hasCc) {
       return null;
     }
 
     return (
-      <FlexRow>
+      <FlexRow isEmail={true}>
         <label>Cc:</label>
-        <FormControl
-          autoFocus={true}
-          componentClass="textarea"
-          onChange={this.onSelectChange.bind(this, 'cc')}
+
+        <MailSuggestion
           name="cc"
-          value={cc}
+          value={cc || ''}
+          onChange={this.onSelectChange.bind(this, 'cc')}
+          contacts={this.props.contacts}
+          collection={ccCollection}
+          onSelect={contact => this.handleSuggestionSelect(contact, 'cc')}
+          onRemove={index => this.handleRemoveRecipient(index, 'cc')}
         />
+        {/* <MailSuggestion contacts={this.props.contacts} /> */}
       </FlexRow>
     );
   }
 
   renderBCC() {
-    const { bcc, hasBcc } = this.state;
+    const { bcc, bccCollection, hasBcc } = this.state;
 
     if (!hasBcc) {
       return null;
     }
 
     return (
-      <FlexRow>
+      <FlexRow isEmail={true}>
         <label>Bcc:</label>
-        <FormControl
-          autoFocus={true}
-          onChange={this.onSelectChange.bind(this, 'bcc')}
-          componentClass="textarea"
+
+        <MailSuggestion
           name="bcc"
-          value={bcc}
+          value={bcc || ''}
+          onChange={this.onSelectChange.bind(this, 'bcc')}
+          contacts={this.props.contacts}
+          collection={bccCollection}
+          onSelect={contact => this.handleSuggestionSelect(contact, 'bcc')}
+          onRemove={index => this.handleRemoveRecipient(index, 'bcc')}
         />
+        {/* <MailSuggestion contacts={this.props.contacts} /> */}
       </FlexRow>
     );
   }

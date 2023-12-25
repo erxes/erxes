@@ -61,6 +61,7 @@ class MailFormContainer extends React.Component<
     loadedEmails: boolean;
     verifiedImapEmails: string[];
     verifiedEngageEmails: string[];
+    contacts: any;
   }
 > {
   constructor(props: FinalProps) {
@@ -69,7 +70,8 @@ class MailFormContainer extends React.Component<
     this.state = {
       loadedEmails: false,
       verifiedImapEmails: [],
-      verifiedEngageEmails: []
+      verifiedEngageEmails: [],
+      contacts: []
     };
   }
 
@@ -91,7 +93,8 @@ class MailFormContainer extends React.Component<
     const {
       loadedEmails,
       verifiedImapEmails,
-      verifiedEngageEmails
+      verifiedEngageEmails,
+      contacts
     } = this.state;
 
     if (!loadedEmails) {
@@ -266,6 +269,68 @@ class MailFormContainer extends React.Component<
       });
     };
 
+    // const searchContact = (searchValue: string) => {
+    //   if (searchValue.trim() === '') {
+    //     this.setState({
+    //       contacts: []
+    //     });
+
+    //     return;
+    //   }
+
+    //   debounce(() => {
+    //     client
+    //       .query({
+    //         query: gql(queries.contacts),
+    //         variables: {
+    //           searchValue
+    //         }
+    //       })
+    //       .then((response: { loading: boolean; data: { contacts } }) => {
+    //         const data = response.data.contacts || [];
+
+    //         this.setState({
+    //           contacts: data
+    //         });
+    //       })
+    //       .catch(error => {
+    //         Alert.error(error.message);
+    //         this.setState({
+    //           contacts: []
+    //         });
+    //       });
+    //   }, 500)();
+    // };
+
+    const searchContact = debounce((searchValue: string) => {
+      if (searchValue.trim() === '') {
+        this.setState({
+          contacts: []
+        });
+        return;
+      }
+
+      client
+        .query({
+          query: gql(queries.contacts),
+          variables: {
+            searchValue
+          }
+        })
+        .then((response: { loading: boolean; data: { contacts } }) => {
+          const data = response.data.contacts || [];
+          this.setState({
+            contacts: data
+          });
+        })
+        .catch(error => {
+          Alert.error(error.message);
+          this.setState({
+            contacts: []
+          });
+        });
+    }, 500);
+
     const updatedProps = {
       ...this.props,
       sendMail,
@@ -279,7 +344,9 @@ class MailFormContainer extends React.Component<
       mails,
       messageId,
       verifiedImapEmails: verifiedImapEmails || [],
-      verifiedEngageEmails: verifiedEngageEmails || []
+      verifiedEngageEmails: verifiedEngageEmails || [],
+      searchContact,
+      contacts
     };
 
     return <MailForm {...updatedProps} />;
