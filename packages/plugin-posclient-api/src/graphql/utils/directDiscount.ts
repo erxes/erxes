@@ -9,23 +9,23 @@ export const checkDirectDiscount = (
 ): IOrderInput => {
   const { directDiscount, items } = orderInput;
   const { adminIds, cashierIds, permissionConfig } = config;
-
+  const output = { ...orderInput, directDiscount: 0 };
   if (
     !directDiscount ||
     !posUser ||
     !isAuthorizedUser(posUser._id, adminIds, cashierIds)
   ) {
-    return orderInput;
+    return output;
   }
 
   const isAdmin = adminIds.includes(posUser._id);
   const staffConfig = permissionConfig[isAdmin ? 'admins' : 'cashiers'];
 
-  if (!staffConfig?.directDiscount) return orderInput;
+  if (!staffConfig?.directDiscount) return output;
 
   const limit = parseFloat(staffConfig?.directDiscountLimit);
 
-  if (isNaN(limit)) return orderInput;
+  if (isNaN(limit)) return output;
 
   if (directDiscount > limit) {
     throw new Error(
