@@ -19,10 +19,13 @@ import PipelineRow from './PipelineRow';
 import React from 'react';
 import SortHandler from '@erxes/ui/src/components/SortHandler';
 import Table from '@erxes/ui/src/components/table';
-import { Title } from '@erxes/ui-settings/src/styles';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { collectOrders } from '@erxes/ui-cards/src/boards/utils';
 import CostForm from './CostForm';
+
+import { FlexItem, InputBar, Title } from '@erxes/ui-settings/src/styles';
+import Icon from '@erxes/ui/src/components/Icon';
+
 type Props = {
   type: string;
   pipelines: IPipeline[];
@@ -253,13 +256,18 @@ class Pipelines extends React.Component<Props, State> {
 
     return (
       <BarItems>
-        <FormControl
-          type="text"
-          placeholder={__('Type to search')}
-          onChange={this.searchHandler}
-          value={router.getParam(history, 'searchValue')}
-          autoFocus={true}
-        />
+        <InputBar type="searchBar">
+          <Icon icon="search-1" size={20} />
+          <FlexItem>
+            <FormControl
+              type="text"
+              placeholder={__('Type to search')}
+              onChange={this.searchHandler}
+              value={router.getParam(history, 'searchValue')}
+              autoFocus={true}
+            />
+          </FlexItem>
+        </InputBar>
 
         {this.renderAdditionalButton()}
         <Button
@@ -279,19 +287,19 @@ class Pipelines extends React.Component<Props, State> {
 
     const leftActionBar = (
       <Title>
-        {currentBoard ? currentBoard.name : ''}
+        {currentBoard ? `${currentBoard.name} (${pipelines.length})` : ''}
 
-        <PipelineCount>
-          ({pipelines.length} {__(pipelineName)}
+        {/* <PipelineCount>
+          ({} {__(pipelineName)}
           {pipelines.length > 1 && 's'})
-        </PipelineCount>
+        </PipelineCount> */}
       </Title>
     );
 
     return (
       <div id="pipelines-content">
         <Wrapper.ActionBar
-          wideSpacing
+          wideSpacing={true}
           left={leftActionBar}
           right={this.renderButton()}
         />

@@ -22,13 +22,13 @@ class SettingsSideBarContainer extends React.Component<FinalProps> {
   render() {
     const { branchListQuery, unitListQuery, departmentListQuery } = this.props;
 
-    if (
-      branchListQuery.loading ||
-      unitListQuery.loading ||
-      departmentListQuery.loading
-    ) {
-      return <Spinner />;
-    }
+    // if (
+    //   branchListQuery.loading ||
+    //   unitListQuery.loading ||
+    //   departmentListQuery.loading
+    // ) {
+    //   return <Spinner />;
+    // }
 
     if (
       branchListQuery.error ||
@@ -40,13 +40,14 @@ class SettingsSideBarContainer extends React.Component<FinalProps> {
       );
     }
 
-    return (
-      <SettingsSideBar
-        branchTotalCount={branchListQuery.branchesMain.totalCount}
-        unitTotalCount={unitListQuery.unitsMain.totalCount}
-        departmentTotalCount={departmentListQuery.departmentsMain.totalCount}
-      />
-    );
+    const updatedProps = {
+      branchTotalCount: branchListQuery?.branchesMain?.totalCount || 0,
+      unitTotalCount: unitListQuery?.unitsMain?.totalCount || 0,
+      departmentTotalCount:
+        departmentListQuery?.departmentsMain?.totalCount || 0
+    };
+
+    return <SettingsSideBar {...updatedProps} />;
   }
 }
 

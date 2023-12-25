@@ -158,6 +158,7 @@ const departments = `
   query departments(${commonStructureParamsDef},$withoutUserFilter:Boolean) {
     departments(${commonStructureParamsValue},withoutUserFilter:$withoutUserFilter) {
       ${departmentField}
+      parent {${departmentField}}
     }
   }
 `;
@@ -167,6 +168,7 @@ const departmentsMain = `
     departmentsMain(${commonStructureParamsValue},withoutUserFilter:$withoutUserFilter) {
       list {
         ${departmentField}
+        parent {${departmentField}}
       }
       totalCount
       totalUsersCount

@@ -81,7 +81,7 @@ class Brands extends React.Component<Props, {}> {
       />
     );
 
-    const leftActionBar = <Title>{currentBrand.name}</Title>;
+    const leftActionBar = <Title>{`Brands (${brandsTotalCount})`}</Title>;
 
     const righActionBar = (
       <ModalTrigger

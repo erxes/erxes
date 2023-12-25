@@ -7,7 +7,11 @@ import {
   TemplateInfo,
   Templates
 } from '@erxes/ui-emailtemplates/src/styles';
-import { FilterContainer, InputBar } from '@erxes/ui-settings/src/styles';
+import {
+  FilterContainer,
+  InputBar,
+  FlexItem
+} from '@erxes/ui-settings/src/styles';
 
 import Form from '@erxes/ui-emailtemplates/src/components/Form';
 import FormControl from '@erxes/ui/src/components/form/Control';
@@ -143,13 +147,15 @@ class EmailTemplateList extends React.Component<Props> {
       <FilterContainer marginRight={true}>
         <InputBar type="searchBar">
           <Icon icon="search-1" size={20} />
-          <FormControl
-            type="text"
-            placeholder={__('Type to search')}
-            onChange={this.searchHandler}
-            value={router.getParam(this.props.history, 'searchValue')}
-            autoFocus={true}
-          />
+          <FlexItem>
+            <FormControl
+              type="text"
+              placeholder={__('Type to search')}
+              onChange={this.searchHandler}
+              value={router.getParam(this.props.history, 'searchValue')}
+              autoFocus={true}
+            />
+          </FlexItem>
         </InputBar>
       </FilterContainer>
     );

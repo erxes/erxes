@@ -21,7 +21,7 @@ const Templates = styled.div`
     }
 
     @media (min-width: 768px) {
-      flex-basis: 34%;
+      flex-basis: 45%;
     }
 
     @media (min-width: 1170px) {

@@ -9,6 +9,7 @@ import { EmptyState, Spinner } from '@erxes/ui/src';
 import MainListCompoenent from '../../components/unit/MainList';
 import { Alert, confirm } from '@erxes/ui/src/utils';
 import client from '@erxes/ui/src/apolloClient';
+
 type Props = {
   queryParams: any;
   history: any;
@@ -26,9 +27,9 @@ class MainList extends React.Component<FinalProps> {
   render() {
     const { listQuery } = this.props;
 
-    if (listQuery.loading) {
-      return <Spinner />;
-    }
+    // if (listQuery.loading) {
+    //   return <Spinner />;
+    // }
 
     if (listQuery.error) {
       return (
@@ -53,7 +54,19 @@ class MainList extends React.Component<FinalProps> {
           });
       });
     };
-    return <MainListCompoenent {...this.props} deleteUnits={deleteUnits} />;
+
+    const units = listQuery?.unitsMain?.list || [];
+    const totalCount = listQuery?.unitsMain?.totalCount || 0;
+
+    const updatedProps = {
+      ...this.props,
+      deleteUnits,
+      units,
+      totalCount,
+      loading: listQuery.loading
+    };
+
+    return <MainListCompoenent {...updatedProps} />;
   }
 }
 

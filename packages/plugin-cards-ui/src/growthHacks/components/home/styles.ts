@@ -5,31 +5,20 @@ import styled, { css } from 'styled-components';
 import styledTS from 'styled-components-ts';
 
 const BoxContainer = styled.div`
-  display: flex;
-  padding: 20px 0 20px 20px;
-  flex-wrap: wrap;
+  display: grid;
+  padding: 20px 20px 20px 20px;
+  column-gap: 20px;
 
-  > a,
-  > div {
-    flex-basis: 20%;
-    display: flex;
-    flex-shrink: 0;
+  @media (min-width: 630px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
 
-    @media (min-width: 480px) {
-      flex-basis: 50%;
-    }
+  @media (min-width: 970px) {
+    grid-template-columns: repeat(3, 1fr);
+  }
 
-    @media (min-width: 768px) {
-      flex-basis: 33.3333333%;
-    }
-
-    @media (min-width: 1170px) {
-      flex-basis: 25%;
-    }
-
-    @media (min-width: 1400px) {
-      flex-basis: 20%;
-    }
+  @media (min-width: 1170px) {
+    grid-template-columns: repeat(4, 1fr);
   }
 `;
 

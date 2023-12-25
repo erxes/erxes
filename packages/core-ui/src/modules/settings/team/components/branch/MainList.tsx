@@ -1,5 +1,14 @@
-import { BranchesMainQueryResponse, IBranch } from '@erxes/ui/src/team/types';
-import { FilterContainer, InputBar } from '@erxes/ui-settings/src/styles';
+import {
+  BranchesMainQueryResponse,
+  IBranch,
+  IDepartment
+} from '@erxes/ui/src/team/types';
+import {
+  FilterContainer,
+  InputBar,
+  FlexItem,
+  Title
+} from '@erxes/ui-settings/src/styles';
 import { __, router } from '@erxes/ui/src/utils';
 
 import ActionButtons from '@erxes/ui/src/components/ActionButtons';
@@ -22,10 +31,13 @@ import { gql } from '@apollo/client';
 import { queries } from '@erxes/ui/src/team/graphql';
 
 type Props = {
+  branches: IDepartment[];
   listQuery: BranchesMainQueryResponse;
   deleteBranches: (ids: string[], callback: () => void) => void;
   queryParams: any;
   history: any;
+  loading: boolean;
+  totalCount: number;
 };
 
 type State = {
@@ -115,14 +127,16 @@ class MainList extends React.Component<Props, State> {
       <FilterContainer marginRight={true}>
         <InputBar type="searchBar">
           <Icon icon="search-1" size={20} />
-          <FormControl
-            type="text"
-            placeholder={__('Type to search')}
-            onChange={search}
-            value={this.state.searchValue}
-            autoFocus={true}
-            onFocus={moveCursorAtTheEnd}
-          />
+          <FlexItem>
+            <FormControl
+              type="text"
+              placeholder={__('Type to search')}
+              onChange={search}
+              value={this.state.searchValue}
+              autoFocus={true}
+              onFocus={moveCursorAtTheEnd}
+            />
+          </FlexItem>
         </InputBar>
       </FilterContainer>
     );
@@ -182,13 +196,6 @@ class MainList extends React.Component<Props, State> {
               )}
               trigger={trigger}
             />
-            <Tip text={__('Delete')} placement="top">
-              <Button
-                btnStyle="link"
-                onClick={() => this.remove(branch._id)}
-                icon="times-circle"
-              />
-            </Tip>
           </ActionButtons>
         </td>
       </tr>
@@ -196,9 +203,7 @@ class MainList extends React.Component<Props, State> {
   }
 
   renderContent() {
-    const { listQuery } = this.props;
-    const branches = listQuery?.branchesMain?.list || [];
-
+    const { branches } = this.props;
     const { selectedItems } = this.state;
 
     const handleSelectAll = () => {
@@ -241,30 +246,41 @@ class MainList extends React.Component<Props, State> {
     );
   }
 
-  render() {
-    const { listQuery } = this.props;
-
-    const { totalCount } = listQuery.branchesMain;
-
+  renderButtons = () => {
     const { selectedItems } = this.state;
+
+    if (selectedItems.length > 0) {
+      return (
+        <Button
+          btnStyle="danger"
+          icon="times-circle"
+          onClick={() => this.remove()}
+        >
+          Remove
+        </Button>
+      );
+    }
+
+    return this.renderForm();
+  };
+
+  renderActionBar = () => {
+    const { totalCount } = this.props;
 
     const rightActionBar = (
       <BarItems>
         {this.renderSearch()}
-        {this.renderForm()}
+        {this.renderButtons()}
       </BarItems>
     );
 
-    const leftActionBar = selectedItems.length > 0 && (
-      <Button
-        btnStyle="danger"
-        size="small"
-        icon="times-circle"
-        onClick={() => this.remove()}
-      >
-        Remove
-      </Button>
-    );
+    const leftActionBar = <Title>{`Branches (${totalCount})`}</Title>;
+
+    return <Wrapper.ActionBar right={rightActionBar} left={leftActionBar} />;
+  };
+
+  render() {
+    const { totalCount, loading } = this.props;
 
     return (
       <Wrapper
@@ -277,12 +293,10 @@ class MainList extends React.Component<Props, State> {
             ]}
           />
         }
-        actionBar={
-          <Wrapper.ActionBar left={leftActionBar} right={rightActionBar} />
-        }
+        actionBar={this.renderActionBar()}
         content={
           <DataWithLoader
-            loading={listQuery.loading}
+            loading={loading}
             count={totalCount || 0}
             data={this.renderContent()}
             emptyImage="/images/actions/5.svg"
