@@ -1,4 +1,4 @@
-import React, { ChangeEvent } from "react"
+import React, { ChangeEvent, useEffect } from "react"
 import { isAdminAtom, permissionConfigAtom } from "@/store/config.store"
 import { directDiscountAtom } from "@/store/order.store"
 import { useAtom, useAtomValue } from "jotai"
@@ -15,6 +15,12 @@ const DirectDiscount: React.FC = () => {
   const allowDirectDiscount = isAdmin
     ? admins?.directDiscount && admins.directDiscountLimit
     : cashiers?.directDiscount && cashiers.directDiscountLimit
+
+  useEffect(() => {
+    if (!allowDirectDiscount) {
+      setDirectDiscount(0)
+    }
+  }, [allowDirectDiscount, setDirectDiscount])
 
   if (!allowDirectDiscount) {
     return null
