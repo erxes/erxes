@@ -16,7 +16,7 @@ const tagQueries = {
     const fieldTypes: Array<{ description: string; contentType: string }> = [];
 
     for (const serviceName of services) {
-      const service = await serviceDiscovery.getService(serviceName, true);
+      const service = await serviceDiscovery.getService(serviceName);
       const meta = service.config.meta || {};
       if (meta && meta.tags) {
         const types = meta.tags.types || [];
@@ -66,6 +66,8 @@ const tagQueries = {
       searchValue,
       tagIds,
       parentId,
+      ids,
+      excludeIds,
       page,
       perPage
     }: {
@@ -73,6 +75,8 @@ const tagQueries = {
       searchValue?: string;
       tagIds?: string[];
       parentId?: string;
+      ids: string[];
+      excludeIds: boolean;
       page: any;
       perPage: any;
     },
@@ -92,6 +96,16 @@ const tagQueries = {
 
     if (tagIds) {
       selector._id = { $in: tagIds };
+    }
+
+    if (ids && ids.length > 0) {
+      selector._id = { [excludeIds ? '$nin' : '$in']: ids };
+    }
+
+    const pagintationArgs = { page, perPage };
+    if (ids && ids.length && !excludeIds && ids.length > (perPage || 20)) {
+      pagintationArgs.page = 1;
+      pagintationArgs.perPage = ids.length;
     }
 
     if (parentId) {
@@ -121,7 +135,7 @@ const tagQueries = {
         order: 1,
         name: 1
       }),
-      { page, perPage }
+      pagintationArgs
     );
 
     serverTiming.endTime('query');

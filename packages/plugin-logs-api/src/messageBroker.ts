@@ -9,7 +9,7 @@ import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
 let client;
 
 const hasMetaLogs = async (serviceName: string) => {
-  const service = await getService(serviceName, true);
+  const service = await getService(serviceName);
 
   if (!service) {
     return false;

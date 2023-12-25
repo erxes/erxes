@@ -4,11 +4,18 @@ import { Polarissyncs } from './models';
 import { fetchPolarisData } from './utils';
 
 export default {
-  'contacts:customer': ['create', 'update']
+  'contacts:customer': ['create', 'update'],
+  'inbox:conversation': ['create']
 };
 
 export const afterMutationHandlers = async (subdomain, params) => {
   const { type, action } = params;
+  if (type === 'inbox:conversation' && action === 'create') {
+    const doc: any = params.object;
+
+    await fetchPolarisData(subdomain, doc);
+    return;
+  }
 
   if (type === 'contacts:customer') {
     if (action === 'create') {

@@ -106,7 +106,7 @@ const tagMutations = {
         continue;
       }
 
-      const service = await serviceDiscovery.getService(serviceName, true);
+      const service = await serviceDiscovery.getService(serviceName);
       const meta = service.config?.meta || {};
 
       if (meta && meta.tags && meta.tags.publishChangeAvailable) {

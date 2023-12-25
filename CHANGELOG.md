@@ -1,3 +1,69 @@
+## [1.5.6](https://github.com/erxes/erxes/compare/1.5.5...1.5.6) (2023-12-21)
+
+
+### Bug Fixes
+
+* **inbox:** can't choose filter by brand value in response template ([f90d983](https://github.com/erxes/erxes/commit/f90d98386f943a11310979977e7a34ac320b7a96))
+* **inbox:** convert modal written values disappear when conversation updated ([c3f152c](https://github.com/erxes/erxes/commit/c3f152cabd1bf4cfcb3f7fae0524a283dcc0ed70))
+* **inbox:** right sidebar glitch ([4d64275](https://github.com/erxes/erxes/commit/4d642753476ad3a2072ab9de6773fe67b63a79ab))
+
+
+### Features
+
+* deal productsData print to documents by brand ([3cb0aa2](https://github.com/erxes/erxes/commit/3cb0aa2e20a39bc1a6d2ed9d19b3c38309991fd1))
+
+
+### Performance Improvements
+
+* **assets:** fix layout and some refactor ([a174c25](https://github.com/erxes/erxes/commit/a174c255c8020dde0b3c7ee667f103e2759e6f4c))
+* **modal:** Add possibility of show modal open or close in queryParam ([2a502d2](https://github.com/erxes/erxes/commit/2a502d20f686b4a756dbd9d0648a26432ee8ceb3))
+
+# [1.6.0](https://github.com/erxes/erxes/compare/1.5.5...1.6.0) (2023-12-21)
+
+
+### Bug Fixes
+
+* **inbox:** can't choose filter by brand value in response template ([f90d983](https://github.com/erxes/erxes/commit/f90d98386f943a11310979977e7a34ac320b7a96))
+* **inbox:** convert modal written values disappear when conversation updated ([c3f152c](https://github.com/erxes/erxes/commit/c3f152cabd1bf4cfcb3f7fae0524a283dcc0ed70))
+* **inbox:** right sidebar glitch ([4d64275](https://github.com/erxes/erxes/commit/4d642753476ad3a2072ab9de6773fe67b63a79ab))
+
+
+### Features
+
+* deal productsData print to documents by brand ([3cb0aa2](https://github.com/erxes/erxes/commit/3cb0aa2e20a39bc1a6d2ed9d19b3c38309991fd1))
+
+
+### Performance Improvements
+
+* **assets:** fix layout and some refactor ([a174c25](https://github.com/erxes/erxes/commit/a174c255c8020dde0b3c7ee667f103e2759e6f4c))
+* **modal:** Add possibility of show modal open or close in queryParam ([2a502d2](https://github.com/erxes/erxes/commit/2a502d20f686b4a756dbd9d0648a26432ee8ceb3))
+
+## [1.5.5](https://github.com/erxes/erxes/compare/1.5.4...1.5.5) (2023-12-13)
+
+
+### Bug Fixes
+
+* **inbox:** fix integration resolvers ([06e6d6d](https://github.com/erxes/erxes/commit/06e6d6d3166db98e99a531181cb2dcb9f2811a87))
+* **inbox:** fix integration resolvers ([c5a5efe](https://github.com/erxes/erxes/commit/c5a5efec3a8f2daeb3b8b21ae8d3e76bb3bc6b86))
+* **inbox:** integrations loading bug when create ([b0e44da](https://github.com/erxes/erxes/commit/b0e44da907892097338742852499c344cbe8942f))
+* **knowledgebase:** Background image preview not showing ([e721839](https://github.com/erxes/erxes/commit/e721839fd14be6cffd279fe74bb1edae64561df7))
+* **knowledgebase:** fix count query ([#4843](https://github.com/erxes/erxes/issues/4843)) ([f887d1a](https://github.com/erxes/erxes/commit/f887d1a8ef92a5a28c94a44354a9e43cb1b70981))
+
+
+### Features
+
+* **cards:** show private cards to system user ([898741b](https://github.com/erxes/erxes/commit/898741b0a5919c9a1723433f007c2ccc56917268))
+
+## [1.5.4](https://github.com/erxes/erxes/compare/1.5.3...1.5.4) (2023-12-08)
+
+## [1.5.3](https://github.com/erxes/erxes/compare/1.5.2...1.5.3) (2023-12-08)
+
+
+### Bug Fixes
+
+* **cards:** fix forecast percentage in salespipeline ([4e3ce1a](https://github.com/erxes/erxes/commit/4e3ce1adef03cb203172124a564bf1def48ebea1))
+* **settings:** commented loaders and fixed collapse content ui ([b2690ea](https://github.com/erxes/erxes/commit/b2690ea1a0c20d1581b1ba2289d695a2634d01e1))
+
 ## [1.5.2](https://github.com/erxes/erxes/compare/1.5.1...1.5.2) (2023-12-06)
 
 
