@@ -20,7 +20,9 @@ export const types = `
     createdAt: Date
     userId: String
     closedAt: Date
+    labelIds:[String]
 
+    labels:JSON
     issues:[RCFAIssue]
   }
 
