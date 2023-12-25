@@ -8,7 +8,7 @@ const generalHistoryQueries = {
     const importExportTypes: Array<{ text: string; contentType: string }> = [];
 
     for (const serviceName of services) {
-      const service = await getService(serviceName, true);
+      const service = await getService(serviceName);
 
       const meta = service.config?.meta || {};
 

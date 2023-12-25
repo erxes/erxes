@@ -9,6 +9,8 @@ import { Button, Alert } from '@erxes/ui/src';
 import { IStage } from '../../types';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import { ControlLabel, FormGroup, Table } from '@erxes/ui/src/components';
+import { FormColumn, FormWrapper } from '@erxes/ui/src/styles/main';
+import SelectBrands from '@erxes/ui/src/brands/containers/SelectBrands';
 
 type Props = {
   item: any;
@@ -23,6 +25,7 @@ type State = {
   selectedDocumentName: string;
   copies: number;
   width: number;
+  brandId: string;
   item: any;
   checked: boolean;
   renderModal: boolean;
@@ -47,6 +50,7 @@ export default class StageModal extends React.Component<Props, State> {
       width: Number(
         localStorage.getItem('erxes_stages_documents_width') || 300
       ),
+      brandId: localStorage.getItem('erxes_stages_documents_brandIds') || '',
       toggleModal: () => {}
     };
   }
@@ -71,6 +75,12 @@ export default class StageModal extends React.Component<Props, State> {
     });
   };
 
+  onChangeBrand = brandId => {
+    this.setState({ brandId }, () => {
+      localStorage.setItem(`erxes_stages_documents_brandIds`, brandId);
+    });
+  };
+
   loadDocuments = () => {
     this.setState({ loading: true });
 
@@ -90,7 +100,7 @@ export default class StageModal extends React.Component<Props, State> {
       });
   };
   print = () => {
-    const { item, selectedDocumentId, copies, width } = this.state;
+    const { item, selectedDocumentId, copies, width, brandId } = this.state;
 
     const apiUrl = getEnv().REACT_APP_API_URL; // Replace this with your API URL
     if (!selectedDocumentId) return Alert.error('Please select document !!!');
@@ -98,10 +108,13 @@ export default class StageModal extends React.Component<Props, State> {
       const checkedItemIds = item
         .filter(item => item.checked) // Filter only checked items
         .map(item => item._id); // Map to an array of _id values
+
       if (checkedItemIds.length === 0) {
         return Alert.error('Please select item !!!');
       }
-      const url = `${apiUrl}/pl:documents/print?_id=${selectedDocumentId}&itemIds=${checkedItemIds}&stageId=${this.props.stage._id}&copies=${copies}&width=${width}&contentype=cards:stage`;
+
+      const url = `${apiUrl}/pl:documents/print?_id=${selectedDocumentId}&itemIds=${checkedItemIds}&stageId=${this.props.stage._id}&copies=${copies}&width=${width}&brandId=${brandId}&contentype=cards:stage`;
+
       // Open the URL in a new browser window
       window.open(url);
     } catch (error) {
@@ -162,8 +175,8 @@ export default class StageModal extends React.Component<Props, State> {
           <Modal.Title>{__('Print document')}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <Table>
-            <thead>
+          <FormWrapper>
+            <FormColumn>
               <FormGroup>
                 <ControlLabel required={true}>Copies</ControlLabel>
                 <FormControl
@@ -186,10 +199,30 @@ export default class StageModal extends React.Component<Props, State> {
                   onChange={this.onChange}
                 />
               </FormGroup>
+            </FormColumn>
+            <FormColumn>
+              <FormGroup>
+                <ControlLabel>Brand</ControlLabel>
+                <SelectBrands
+                  label={__('Choose brands')}
+                  initialValue={this.state.brandId}
+                  name="brandId"
+                  customOption={{
+                    label: 'No Brand (noBrand)',
+                    value: 'noBrand'
+                  }}
+                  onSelect={brandId => this.onChangeBrand(brandId)}
+                  multi={false}
+                />
+              </FormGroup>
               <FormGroup>
                 <ControlLabel required={true}>Select a document</ControlLabel>
                 {this.renderDropdown()}
               </FormGroup>
+            </FormColumn>
+          </FormWrapper>
+          <Table>
+            <thead>
               <tr>
                 <th>{__('Number')}</th>
                 <th>{__('Name')}</th>
