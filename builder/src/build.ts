@@ -49,28 +49,22 @@ export default async function build(folderName: string) {
 
   execSync(`yarn workspaces run build`, { stdio: "inherit" });
 
-  execSync(
-    `cp -RT ${artifactDir}/packages/api-utils/dist ${artifactDir}/packages/api-utils/src`
-  );
-  execSync(
-    `cp -RT ${artifactDir}/packages/${folderName}/dist ${artifactDir}/packages/${folderName}/src`
-  );
+  fs.cpSync(`${artifactDir}/packages/api-utils/dist`, `${artifactDir}/packages/api-utils/src`, { recursive: true, force: false });
+  fs.cpSync(`${artifactDir}/packages/${folderName}/dist`, `${artifactDir}/packages/${folderName}/src`, { recursive: true, force: false });
 
-  execSync(`rm -rf ${artifactDir}/node_modules`);
-  execSync(`rm -rf ${artifactDir}/packages/api-utils/node_modules`);
-  execSync(`rm -rf ${artifactDir}/packages/${folderName}/node_modules`);
-  execSync(`rm -rf ${artifactDir}/packages/api-utils/dist`);
-  execSync(`rm -rf ${artifactDir}/packages/${folderName}/dist`);
+  fs.rmSync(`${artifactDir}/node_modules`, { recursive: true, force: true});
+  fs.rmSync(`${artifactDir}/packages/api-utils/node_modules`, { recursive: true, force: true});
+  fs.rmSync(`${artifactDir}/packages/${folderName}/node_modules`, { recursive: true, force: true});
+  fs.rmSync(`${artifactDir}/packages/api-utils/dist`, { recursive: true, force: true});
+  fs.rmSync(`${artifactDir}/packages/${folderName}/dist`, { recursive: true, force: true});
 
   execSync("yarn install --production", { stdio: "inherit" });
   process.chdir(builderDir);
 
   // if it has custom Dockerfile
   if (fs.existsSync(`${artifactDir}/packages/${folderName}/Dockerfile`)) {
-    execSync(
-      `cp ${erxesDir}/packages/${folderName}/Dockerfile ${artifactDir}/Dockerfile`
-    );
-  } // provide default Dockerfile
+    fs.cpSync(`${erxesDir}/packages/${folderName}/Dockerfile`, `${artifactDir}/Dockerfile`);
+  } // else provide default Dockerfile
   else {
     const dockerfileTemplate = fs
       .readFileSync(`${erxesDir}/packages/default.template.Dockerfile`)
@@ -78,6 +72,4 @@ export default async function build(folderName: string) {
     const dockerfile = dockerfileTemplate.replace("${folderName}", folderName);
     fs.writeFileSync(`${artifactDir}/Dockerfile`, dockerfile);
   }
-
-  // execSync(`find ${builderDir}/erxes -type f -name "*.ts" -delete`);
 }
