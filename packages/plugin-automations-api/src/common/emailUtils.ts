@@ -20,7 +20,7 @@ export const getEmailRecipientTypes = async () => {
   const services = await serviceDiscovery.getServices();
 
   for (const serviceName of services) {
-    const service = await serviceDiscovery.getService(serviceName, true);
+    const service = await serviceDiscovery.getService(serviceName);
     const meta = service.config?.meta || {};
 
     if (meta?.automations?.constants?.emailRecipIentTypes) {

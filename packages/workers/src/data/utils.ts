@@ -128,7 +128,7 @@ export const createCFR2 = async () => {
 export const getImportCsvInfo = async (fileName: string) => {
   const { UPLOAD_SERVICE_TYPE } = await getFileUploadConfigs();
 
-  const service: any = await getService('core', true);
+  const service: any = await getService('core');
 
   const url = `${service.address}/get-import-file`;
 

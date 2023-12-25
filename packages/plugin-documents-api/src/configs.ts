@@ -60,7 +60,7 @@ export default {
         const services = await getServices();
 
         for (const serviceName of services) {
-          const service = await getService(serviceName, true);
+          const service = await getService(serviceName);
           const meta = service.config?.meta || {};
 
           if (meta && meta.documentPrintHook) {
