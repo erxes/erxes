@@ -36,14 +36,10 @@ export interface IKitchenScreen {
   isPrint?: boolean
 }
 
-export interface IStaff {
+export interface IPermissionConfig {
   isTempBill?: boolean
   directDiscount?: boolean
   directDiscountLimit?: number
-}
-export interface IPermissionConfig {
-  admins?: IStaff
-  cashiers?: IStaff
 }
 
 export interface ICoverConfig {

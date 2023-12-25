@@ -37,6 +37,26 @@ export const setCurrentUserAtom = atom(
 export const allowTypesAtom = atom<IOrderType[] | null>(null)
 export const banFractionsAtom = atom<boolean | null>(null)
 export const permissionConfigAtom = atom<IPermissionConfig | null>(null)
+export const setPermissionConfigAtom = atom(
+  () => "",
+  (
+    get,
+    set,
+    update: { admins: IPermissionConfig; cashiers: IPermissionConfig }
+  ) => {
+    const pConfig =
+      (update || {})[get(isAdminAtom) ? "admins" : "cashiers"] || {}
+
+    const limit = parseFloat(pConfig.directDiscountLimit + "")
+
+    set(
+      permissionConfigAtom,
+      pConfig
+        ? { ...pConfig, directDiscountLimit: isNaN(limit) ? 0 : limit }
+        : null
+    )
+  }
+)
 
 export const setWholeConfigAtom = atom(
   null,

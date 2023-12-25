@@ -1,5 +1,5 @@
-import React, { ChangeEvent, useEffect } from "react"
-import { isAdminAtom, permissionConfigAtom } from "@/store/config.store"
+import React, { ChangeEvent } from "react"
+import { permissionConfigAtom } from "@/store/config.store"
 import { directDiscountAtom } from "@/store/order.store"
 import { useAtom, useAtomValue } from "jotai"
 
@@ -9,18 +9,10 @@ import { Separator } from "@/components/ui/separator"
 
 const DirectDiscount: React.FC = () => {
   const permissionConfig = useAtomValue(permissionConfigAtom)
-  const { admins, cashiers } = permissionConfig || {}
-  const isAdmin = useAtomValue(isAdminAtom)
+  const { directDiscount: directDiscountCheck, directDiscountLimit } =
+    permissionConfig || {}
   const [directDiscount, setDirectDiscount] = useAtom(directDiscountAtom)
-  const allowDirectDiscount = isAdmin
-    ? admins?.directDiscount && admins.directDiscountLimit
-    : cashiers?.directDiscount && cashiers.directDiscountLimit
-
-  useEffect(() => {
-    if (!allowDirectDiscount) {
-      setDirectDiscount(0)
-    }
-  }, [allowDirectDiscount, setDirectDiscount])
+  const allowDirectDiscount = directDiscountCheck && directDiscountLimit
 
   if (!allowDirectDiscount) {
     return null
@@ -28,7 +20,7 @@ const DirectDiscount: React.FC = () => {
 
   const handleDirectDiscountChange = (e: ChangeEvent<HTMLInputElement>) => {
     const value = parseFloat(Number(e.target.value).toFixed(2))
-    const clampedValue = Math.min(Math.max(value, 0), allowDirectDiscount)
+    const clampedValue = Math.min(Math.max(value, 0), directDiscountLimit)
     setDirectDiscount(clampedValue)
   }
 

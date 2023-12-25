@@ -1,7 +1,7 @@
 import {
   allowTypesAtom,
   banFractionsAtom,
-  permissionConfigAtom,
+  setPermissionConfigAtom,
 } from "@/store/config.store"
 import { orderTypeAtom } from "@/store/order.store"
 import { useQuery } from "@apollo/client"
@@ -15,7 +15,7 @@ const CheckoutConfig = ({ children }: { children: React.ReactNode }) => {
   const [allowTypes, setAllowTypes] = useAtom(allowTypesAtom)
   const setType = useSetAtom(orderTypeAtom)
   const setBanFractions = useSetAtom(banFractionsAtom)
-  const setPermissionConfig = useSetAtom(permissionConfigAtom)
+  const setPermissionConfig = useSetAtom(setPermissionConfigAtom)
 
   const { loading } = useQuery(queries.getCheckoutConfig, {
     onCompleted(data) {

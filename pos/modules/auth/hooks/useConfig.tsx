@@ -2,7 +2,7 @@ import {
   configAtom,
   coverConfigAtom,
   ebarimtConfigAtom,
-  permissionConfigAtom,
+  setPermissionConfigAtom,
 } from "@/store/config.store"
 import { useQuery } from "@apollo/client"
 import { useSetAtom } from "jotai"
@@ -41,7 +41,7 @@ const useConfig = (
   const { onCompleted, skip } = options || {}
   const setEbarimtConfig = useSetAtom(ebarimtConfigAtom)
   const setCoverConfig = useSetAtom(coverConfigAtom)
-  const setPermissionConfig = useSetAtom(permissionConfigAtom)
+  const setPermissionConfig = useSetAtom(setPermissionConfigAtom)
 
   const setConfig = useSetAtom(configAtom)
 

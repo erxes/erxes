@@ -21,7 +21,7 @@ import {
   orderItemInput,
   totalAmountAtom,
 } from "./cart.store"
-import { allowTypesAtom } from "./config.store"
+import { allowTypesAtom, permissionConfigAtom } from "./config.store"
 import { paymentSheetAtom } from "./ui.store"
 
 // order
@@ -147,7 +147,11 @@ export const setOrderStatesAtom = atom(
   ) => {
     set(activeOrderIdAtom, _id || null)
     set(customerAtom, customer || null)
-    set(directDiscountAtom, directDiscount || 0)
+    const { directDiscount: allowDirectDiscount, directDiscountLimit } =
+      get(permissionConfigAtom) || {}
+    allowDirectDiscount &&
+      directDiscountLimit &&
+      set(directDiscountAtom, directDiscount || 0)
     set(customerTypeAtom, customerType || "")
     !get(cartChangedAtom) && set(cartAtom, items)
     set(orderTypeAtom, type || "eat")
