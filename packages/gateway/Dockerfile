@@ -7,7 +7,7 @@ COPY --chown=node:node . .
 RUN apt-get update -y \
     && apt-get install -y curl ca-certificates \
     && rm -rf /var/lib/apt/lists/* \
-    && yarn global add @apollo/rover@0.19.1 \
+    && yarn global add @apollo/rover@0.22.0 \
     && yarn cache clean \
     && rover supergraph compose --config /erxes/packages/gateway/src/apollo-router/dummy/supergraph.yaml --elv2-license=accept 
 
