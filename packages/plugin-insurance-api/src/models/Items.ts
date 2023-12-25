@@ -45,7 +45,7 @@ export const loadItemClass = (models: IModels) => {
       doc: IInsuranceItemDocument,
       userId?: string
     ) {
-      const item = await models.Items.getInsuranceItem({ _id: doc._id });
+      await models.Items.getInsuranceItem({ _id: doc._id });
 
       const updatedDoc: any = {
         ...doc

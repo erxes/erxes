@@ -225,6 +225,10 @@ const getPerValue = async (args: {
     })
   ).config;
 
+  if (updatedValue.match(/[+\-*/]/)) {
+    updatedValue = eval(updatedValue.replace(/{{.*}}/, '0'));
+  }
+
   if (field.includes('Ids')) {
     //
     const set = [

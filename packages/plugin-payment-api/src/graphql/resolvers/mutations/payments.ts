@@ -12,7 +12,7 @@ import { getEnv } from '@erxes/api-utils/src/core';
 const mutations = {
   async paymentAdd(_root, doc: IPayment, { models, subdomain }: IContext) {
     if (doc.kind === 'qpayQuickqr') {
-      const api = new QPayQuickQrAPI();
+      const api = new QPayQuickQrAPI(doc.config);
 
       const { isCompany } = doc.config;
 

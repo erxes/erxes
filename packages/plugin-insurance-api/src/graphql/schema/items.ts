@@ -88,12 +88,14 @@ export const queries = `
       sortField: String
       sortDirection: SortDirection
       searchField: SearchField
-      searchValue: JSON): JSON
+      searchValue: JSON
+      categoryId: ID
+      ): JSON
 
     vendorInsuranceItemsInfo: JSON
 `;
 
 export const mutations = `
     vendorAddInsuranceItem(doc: InsuranceItemInput): InsuranceItem
-    vendorEditInsuranceItem(_id: ID!, doc: InsuranceItemInput): InsuranceItem
+    vendorEditInsuranceItem(_id: ID!, firstName: String, lastName: String, customFieldsData: JSON ): InsuranceItem
 `;

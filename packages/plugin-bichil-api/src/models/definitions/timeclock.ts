@@ -435,13 +435,13 @@ export interface IUserExportReport {
 
   position?: string;
   totalDaysWorked?: number;
-  totalHoursWorked?: string;
+  totalHoursWorked?: string | number;
   totalRegularHoursWorked?: string;
   totalDays?: number;
   totalWeekendDays?: number;
 
   totalDaysScheduled?: number;
-  totalHoursScheduled?: string;
+  totalHoursScheduled?: string | number;
 
   totalHoursOvertime?: string;
   totalHoursOvernight?: string;

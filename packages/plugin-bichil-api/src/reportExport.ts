@@ -99,12 +99,15 @@ const addIntoSheet = async (
       sheet.column('S').width(20);
       sheet.column('T').width(20);
       sheet.column('U').width(30);
+      sheet.column('W').width(30);
+      sheet.column('X').width(30);
 
       sheet.row(1).height(40);
 
-      sheet.column('Q').style('numberFormat', '#,##0.00');
-      sheet.column('S').style('numberFormat', '#,##0.00');
-      sheet.column('T').style('numberFormat', '#,##0.00');
+      sheet.column('Q').style('numberFormat', '#,##0');
+      sheet.column('S').style('numberFormat', '#,##0');
+      sheet.column('T').style('numberFormat', '#,##0');
+      sheet.column('U').style('numberFormat', '#,##0');
     }
     if (reportType === 'Pivot') {
       sheet.column('E').width(50);
@@ -430,7 +433,10 @@ const extractAndAddIntoSheet = async (
             startRowIdxPerBranch = endRowIdxPerBranch + 1;
           }
         }
+
+        console.log('parents dict ', parentBranchesDict);
       }
+
       // no parent branches
       else {
         for (const branchTitle of Object.keys(groupedByBranch)) {
@@ -508,20 +514,20 @@ const extractAndAddIntoSheet = async (
         [{ style: 'bold', value: true }]
       );
 
-      addIntoSheet(
-        deductionInfo.totalLateMinsDeduction,
-        `${getNextNthColumnChar(getStartColumn, 13)}${endRowIdx}`,
-        `${getNextNthColumnChar(getStartColumn, 13)}${endRowIdx}`,
-        sheet,
-        reportType,
-        false,
-        [{ style: 'bold', value: true }]
-      );
+      // addIntoSheet(
+      //   deductionInfo.totalLateMinsDeduction,
+      //   `${getNextNthColumnChar(getStartColumn, 13)}${endRowIdx}`,
+      //   `${getNextNthColumnChar(getStartColumn, 13)}${endRowIdx}`,
+      //   sheet,
+      //   reportType,
+      //   false,
+      //   [{ style: 'bold', value: true }]
+      // );
 
       addIntoSheet(
         deductionInfo.totalAbsentDeduction,
-        `${getNextNthColumnChar(getStartColumn, 16)}${endRowIdx}`,
-        `${getNextNthColumnChar(getStartColumn, 16)}${endRowIdx}`,
+        `${getNextNthColumnChar(getStartColumn, 13)}${endRowIdx}`,
+        `${getNextNthColumnChar(getStartColumn, 13)}${endRowIdx}`,
         sheet,
         reportType,
         false,
@@ -530,8 +536,8 @@ const extractAndAddIntoSheet = async (
 
       addIntoSheet(
         deductionInfo.totalDeductionPerGroup,
-        `${getNextNthColumnChar(getStartColumn, 17)}${endRowIdx}`,
-        `${getNextNthColumnChar(getStartColumn, 17)}${endRowIdx}`,
+        `${getNextNthColumnChar(getStartColumn, 14)}${endRowIdx}`,
+        `${getNextNthColumnChar(getStartColumn, 14)}${endRowIdx}`,
         sheet,
         reportType,
         false,

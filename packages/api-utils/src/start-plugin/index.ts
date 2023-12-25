@@ -300,7 +300,8 @@ export async function startPlugin(configs: any): Promise<express.Express> {
       documentPrintHook,
       readFileHook,
       payment,
-      reports
+      reports,
+      cpCustomerHandle
     } = configs.meta;
 
     const { consumeRPCQueue, consumeQueue } = messageBrokerClient;
@@ -636,6 +637,13 @@ export async function startPlugin(configs: any): Promise<express.Express> {
           data: await payment.callback(args)
         }));
       }
+    }
+
+    if (cpCustomerHandle) {
+      consumeQueue(`${configs.name}:cpCustomerHandle`, async args => ({
+        status: 'success',
+        data: await cpCustomerHandle.cpCustomerHandle(args)
+      }));
     }
   } // end configs.meta if
 

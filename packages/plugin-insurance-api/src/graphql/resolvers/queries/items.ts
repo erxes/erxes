@@ -328,8 +328,10 @@ const queries = {
       sortField,
       sortDirection,
       searchValue,
-      searchField
+      searchField,
+      categoryId
     }: {
+      categoryId: string;
       page: number;
       perPage: number;
       sortField: string;
@@ -370,7 +372,13 @@ const queries = {
 
     const userIds = users.map((u: any) => u._id);
 
+    const productIDs = await models.Products.find({
+      categoryId
+    }).distinct('_id');
+
     const qry: any = query(searchField, searchValue);
+
+    qry.productId = { $in: productIDs };
 
     if (userIds.length > 0) {
       qry.vendorUserId = { $in: userIds };

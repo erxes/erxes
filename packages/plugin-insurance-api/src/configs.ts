@@ -8,6 +8,7 @@ import { generateModels } from './connectionResolver';
 import cpUserMiddleware from './middlewares/cpUserMiddleware';
 import forms from './forms';
 import * as fs from 'fs';
+import * as path from 'path';
 
 export let mainDb;
 export let debug;
@@ -53,6 +54,24 @@ export default {
     debug = options.debug;
 
     const app = options.app;
+
+    const publicDir = path.join('./public');
+
+    fs.access(publicDir, fs.constants.F_OK, err => {
+      if (err) {
+        // 'public' directory doesn't exist, create it
+        fs.mkdir(publicDir, mkdirErr => {
+          if (mkdirErr) {
+            console.error('Error creating public directory:', mkdirErr);
+          } else {
+            console.log('Public directory created');
+          }
+        });
+      } else {
+        // 'public' directory exists
+        console.log('Public directory already exists');
+      }
+    });
 
     app.get('/download', async (req, res) => {
       const { name } = req.query;

@@ -211,11 +211,11 @@ function ReportList(props: Props) {
             )}
           </b>
         </td>
-        <td>{''}</td>
+        {/* <td>{''}</td>
         <td>{''}</td>
         <td>
           <b>{deductionInfo.totalLateMinsDeduction?.toFixed()}</b>
-        </td>
+        </td> */}
         <td>{''}</td>
         <td>{''}</td>
         <td>

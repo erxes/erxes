@@ -37,7 +37,8 @@ const handleDailyJob = async ({ subdomain }) => {
 
     const commonDoc = {
       startDate: plan.startDate,
-      closeDate: plan.closeDate
+      closeDate: plan.closeDate,
+      tagIds: plan.tagId ? [plan.tagId] : undefined
     };
 
     const { configs, plannerId, structureType } = plan;

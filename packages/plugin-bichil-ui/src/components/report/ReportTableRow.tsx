@@ -58,9 +58,9 @@ export const ReportRow = (
           <td>{userReport.shiftNotClosedFee}</td>
           <td>{userReport.shiftNotClosedDeduction}</td>
 
-          <td>{userReport.totalMinsLate?.toFixed()}</td>
+          {/* <td>{userReport.totalMinsLate?.toFixed()}</td>
           <td>{userReport.latenessFee}</td>
-          <td>{userReport.totalMinsLateDeduction?.toFixed()}</td>
+          <td>{userReport.totalMinsLateDeduction?.toFixed()}</td> */}
 
           <td>{userReport.totalDaysAbsent}</td>
           <td>{userReport.absentFee?.toLocaleString('en-US')}</td>

@@ -10,10 +10,10 @@ import { IFormProps } from '@erxes/ui/src/types';
 import { __ } from '@erxes/ui/src/utils';
 import React, { useState } from 'react';
 
-interface Props {
+interface IProps {
   closeModal?: () => void;
   data: any;
-  callData?: { callerNumber: String };
+  callData?: { callerNumber: string };
   setConfig?: any;
 }
 
@@ -26,12 +26,17 @@ const renderInput = (
   return (
     <FormGroup>
       <ControlLabel>{label}</ControlLabel>
-      <FormControl name={name} value={defaultValue} disabled {...formProps} />
+      <FormControl
+        name={name}
+        value={defaultValue}
+        disabled={true}
+        {...formProps}
+      />
     </FormGroup>
   );
 };
 
-const CallIntegrationForm = (props: Props) => {
+const CallIntegrationForm = (props: IProps) => {
   const { closeModal, data = {}, setConfig } = props;
   const [selectedIntegrationId, setSelectedIntegrationId] = useState('');
   const integration = selectedIntegrationId
@@ -39,6 +44,7 @@ const CallIntegrationForm = (props: Props) => {
     : data?.[0];
 
   const saveCallConfig = () => {
+    // tslint:disable-next-line:no-unused-expression
     integration &&
       localStorage.setItem(
         'config:call_integrations',
@@ -51,6 +57,7 @@ const CallIntegrationForm = (props: Props) => {
           isAvailable: true
         })
       );
+    // tslint:disable-next-line:no-unused-expression
     integration &&
       setConfig({
         inboxId: integration.inboxId,
@@ -59,6 +66,33 @@ const CallIntegrationForm = (props: Props) => {
         token: integration.token,
         operators: integration.operators,
         isAvailable: true
+      });
+    closeModal();
+  };
+
+  const skipCallConnection = () => {
+    // tslint:disable-next-line:no-unused-expression
+    integration &&
+      localStorage.setItem(
+        'config:call_integrations',
+        JSON.stringify({
+          inboxId: integration?.inboxId,
+          phone: integration?.phone,
+          wsServer: integration?.wsServer,
+          token: integration?.token,
+          operators: integration?.operators,
+          isAvailable: false
+        })
+      );
+    // tslint:disable-next-line:no-unused-expression
+    integration &&
+      setConfig({
+        inboxId: integration.inboxId,
+        phone: integration.phone,
+        wsServer: integration.wsServer,
+        token: integration.token,
+        operators: integration.operators,
+        isAvailable: false
       });
     closeModal();
   };
@@ -123,6 +157,15 @@ const CallIntegrationForm = (props: Props) => {
             icon="times-circle"
           >
             Cancel
+          </Button>
+
+          <Button
+            btnStyle="primary"
+            type="button"
+            onClick={skipCallConnection}
+            icon="times-circle"
+          >
+            Skip connection
           </Button>
           <Button
             type="submit"

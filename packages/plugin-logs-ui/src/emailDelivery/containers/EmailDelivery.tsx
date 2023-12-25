@@ -90,12 +90,12 @@ function EmailDeliveryContainer(props: Props) {
   let loading;
 
   if (emailType === EMAIL_TYPES.TRANSACTION) {
-    list = emailDeliveries.list;
-    count = emailDeliveries.totalCount;
+    list = emailDeliveries.list || [];
+    count = emailDeliveries.totalCount || 0;
     loading = emailDeliveriesLoading;
   } else {
-    list = reportsList.list;
-    count = reportsList.totalCount;
+    list = reportsList.list || [];
+    count = reportsList.totalCount || 0;
     loading = reportsListLoading;
   }
 
