@@ -13,6 +13,7 @@
     "vite-plugin-istanbul": "^5.0.0",
     "vitest": "^0.34.1",
     "@vitejs/plugin-react": "^4.0.4",
-    "cypress": "^12.13.2"
+    "cypress": "^12.13.2",
+    "mongodb": "3.7.4"
   }
 }
