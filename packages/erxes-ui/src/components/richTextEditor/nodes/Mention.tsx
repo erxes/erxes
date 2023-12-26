@@ -30,8 +30,7 @@ export type SuggestionListRef = {
 
 // This type is based on
 // https://github.com/ueberdosis/tiptap/blob/a27c35ac8f1afc9d51f235271814702bc72f1e01/packages/extension-mention/src/mention.ts#L73-L103.
-// TODO(Steven DeMartini): Use the Tiptap exported MentionNodeAttrs interface
-// once https://github.com/ueberdosis/tiptap/pull/4136 is merged.
+
 // tslint:disable-next-line:interface-name
 interface MentionNodeAttrs {
   id: string | null;
@@ -50,10 +49,6 @@ export const MentionList = forwardRef<SuggestionListRef, SuggestionListProps>(
     const [selectedIndex, setSelectedIndex] = useState(0);
 
     const selectItem = (index: number) => {
-      const {
-        items: []
-      } = props || {};
-
       if (index >= items.length) {
         // Make sure we actually have enough items to select the given index. For
         // instance, if a user presses "Enter" when there are no options, the index will
@@ -181,10 +176,6 @@ export function VariableComponent(props: NodeViewProps) {
   // Hack: This is hack to close popover in inline-nodes
   // otherwise it stays open when we move the cursor outside the variable
   useEffect(() => {
-    // if (!isOpen ) {
-    //   return;
-    // }
-
     if (!overLayRef.state.show) {
       return;
     }
@@ -193,7 +184,6 @@ export function VariableComponent(props: NodeViewProps) {
       editorPosition < variableStartPosition ||
       editorPosition > variableEndPosition
     ) {
-      // setIsOpen(false);
       overLayRef.hide();
       return;
     }

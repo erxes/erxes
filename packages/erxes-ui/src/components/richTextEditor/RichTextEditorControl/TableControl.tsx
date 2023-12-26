@@ -1,14 +1,14 @@
 import React from 'react';
+import { BubbleMenu, isTextSelection } from '@tiptap/react';
+import { Editor } from '@tiptap/core';
+import { EditorView } from '@tiptap/pm/view';
+import { EditorState } from '@tiptap/pm/state';
 import { useRichTextEditorContext } from '../RichTextEditor.context';
 import {
   IRichTextEditorControlBaseProps,
   RichTextEditorControlBase
 } from './RichTextEditorControl';
 import Icon from '../../Icon';
-import { BubbleMenu, BubbleMenuProps, isTextSelection } from '@tiptap/react';
-import { Editor } from '@tiptap/core';
-import { EditorView } from '@tiptap/pm/view';
-import { EditorState } from '@tiptap/pm/state';
 import TableMenuControls from './TableMenuControls';
 
 type BubbleMenuShowProps = {
