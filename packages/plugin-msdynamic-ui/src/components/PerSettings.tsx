@@ -8,6 +8,7 @@ import {
 } from '@erxes/ui/src/components';
 import { __ } from '@erxes/ui/src/utils';
 import { MainStyleModalFooter as ModalFooter } from '@erxes/ui/src/styles/eindex';
+import { FormColumn, FormWrapper } from '@erxes/ui/src/styles/main';
 import React from 'react';
 import { IConfigsMap } from '../types';
 import SelectBrand from '@erxes/ui-inbox/src/settings/integrations/containers/SelectBrand';
@@ -122,14 +123,21 @@ class PerSettings extends React.Component<Props, State> {
           />
         </FormGroup>
 
-        {this.renderInput('itemApi', 'itemApi')}
-        {this.renderInput('itemCategoryApi', 'itemCategoryApi')}
-        {this.renderInput('priceApi', 'priceApi')}
-        {this.renderInput('customerApi', 'customerApi')}
-        {this.renderInput('salesApi', 'salesApi')}
-        {this.renderInput('salesLineApi', 'salesLineApi')}
-        {this.renderInput('username', 'username')}
-        {this.renderInput('password', 'password')}
+        <FormWrapper>
+          <FormColumn>
+            {this.renderInput('itemApi', 'itemApi')}
+            {this.renderInput('itemCategoryApi', 'itemCategoryApi')}
+            {this.renderInput('priceApi', 'priceApi')}
+            {this.renderInput('username', 'username')}
+          </FormColumn>
+
+          <FormColumn>
+            {this.renderInput('customerApi', 'customerApi')}
+            {this.renderInput('salesApi', 'salesApi')}
+            {this.renderInput('salesLineApi', 'salesLineApi')}
+            {this.renderInput('password', 'password')}
+          </FormColumn>
+        </FormWrapper>
 
         <ModalFooter>
           <Button
