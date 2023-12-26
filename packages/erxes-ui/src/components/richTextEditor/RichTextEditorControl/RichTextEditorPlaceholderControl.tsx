@@ -4,12 +4,10 @@ import DropdownButton from 'react-bootstrap/DropdownButton';
 import { useRichTextEditorContext } from '../RichTextEditor.context';
 import { PlaceholderWrapper } from './styles';
 
-type SelectProps = {
-  value: string;
-  label: string | number;
-};
-
-export const RichTextEditorPlaceholderControl = ({ placeholderProp }) => {
+export const RichTextEditorPlaceholderControl = ({
+  placeholderProp,
+  toolbarPlacement
+}) => {
   const { editor, isSourceEnabled } = useRichTextEditorContext();
 
   const handlePlaceholder = (placeholderValue: string) => {
@@ -21,7 +19,7 @@ export const RichTextEditorPlaceholderControl = ({ placeholderProp }) => {
   };
 
   return (
-    <PlaceholderWrapper>
+    <PlaceholderWrapper $toolbarPlacement={toolbarPlacement}>
       <DropdownButton
         id="dropdown-item-button"
         title={placeholderProp?.title}

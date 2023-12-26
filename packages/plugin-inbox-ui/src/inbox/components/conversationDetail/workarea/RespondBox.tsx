@@ -403,8 +403,9 @@ class RespondBox extends React.Component<Props, State> {
         showMentions={isInternal}
         content={this.state.content}
         onChange={this.onEditorContentChange}
-        autoGrowMinHeight={137}
-        autoGrowMaxHeight={137}
+        autoGrow={true}
+        autoGrowMinHeight={100}
+        autoGrowMaxHeight={'55vh'}
       />
     );
   }

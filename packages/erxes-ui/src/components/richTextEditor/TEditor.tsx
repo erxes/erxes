@@ -159,11 +159,18 @@ export const RichTextEditor = (props: IRichTextEditorProps) => {
     () => [
       <RichTextEditor.Toolbar key="rich-text-editor-toolbar-key">
         {placeholderProp && (
-          <RichTextEditor.Placeholder placeholderProp={placeholderProp} />
+          <RichTextEditor.Placeholder
+            placeholderProp={placeholderProp}
+            toolbarPlacement={toolbarLocation}
+          />
         )}
-        <RichTextEditor.FontSize />
+        <RichTextEditor.FontSize toolbarPlacement={toolbarLocation} />
 
-        <RichTextEditor.ControlsGroup isDropdown={true}>
+        <RichTextEditor.ControlsGroup
+          isDropdown={true}
+          controlNames={['heading']}
+          toolbarPlacement={toolbarLocation}
+        >
           <RichTextEditor.H1 />
           <RichTextEditor.H2 />
           <RichTextEditor.H3 />
@@ -176,18 +183,35 @@ export const RichTextEditor = (props: IRichTextEditorProps) => {
           <RichTextEditor.Underline />
           <RichTextEditor.Strikethrough />
           <RichTextEditor.ImageControl />
+          <RichTextEditor.TableControl />
         </RichTextEditor.ControlsGroup>
 
-        <RichTextEditor.ControlsGroup isDropdown={true}>
+        <RichTextEditor.ControlsGroup
+          isDropdown={true}
+          controlNames={[
+            { textAlign: 'left' },
+            { textAlign: 'center' },
+            { textAlign: 'right' },
+            { textAlign: 'justify' }
+          ]}
+          toolbarPlacement={toolbarLocation}
+        >
           <RichTextEditor.AlignLeft />
           <RichTextEditor.AlignRight />
           <RichTextEditor.AlignCenter />
           <RichTextEditor.AlignJustify />
         </RichTextEditor.ControlsGroup>
 
-        <RichTextEditor.ControlsGroup isDropdown={true}>
+        <RichTextEditor.ControlsGroup
+          isDropdown={true}
+          controlNames={['orderedList', 'bulletList']}
+          toolbarPlacement={toolbarLocation}
+        >
           <RichTextEditor.BulletList />
           <RichTextEditor.OrderedList />
+        </RichTextEditor.ControlsGroup>
+
+        <RichTextEditor.ControlsGroup>
           <RichTextEditor.Blockquote />
           <RichTextEditor.HorizontalRule />
         </RichTextEditor.ControlsGroup>
@@ -195,7 +219,6 @@ export const RichTextEditor = (props: IRichTextEditorProps) => {
         <RichTextEditor.ControlsGroup>
           <RichTextEditor.Link />
           <RichTextEditor.Unlink />
-          <RichTextEditor.TableControl />
         </RichTextEditor.ControlsGroup>
 
         <RichTextEditor.ControlsGroup>
