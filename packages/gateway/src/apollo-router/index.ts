@@ -1,7 +1,7 @@
 import * as dotenv from 'dotenv';
 dotenv.config();
 
-import { spawn, spawnSync, ChildProcess } from 'child_process';
+import { spawn, ChildProcess, execSync } from 'child_process';
 import * as path from 'path';
 import * as fs from 'fs';
 import * as yaml from 'yaml';
@@ -47,11 +47,15 @@ const downloadRouter = async () => {
   if (fs.existsSync(routerPath)) {
     return routerPath;
   }
-  const args = [
-    '-c',
-    `cd ${dirTempPath} && curl -sSL https://router.apollo.dev/download/nix/v1.26.0 | sh`
-  ];
-  spawnSync('sh', args, { stdio: 'inherit' });
+
+  const version = 'v1.35.0';
+  const downloadCommand = `(export VERSION=${version}; curl -sSL https://router.apollo.dev/download/nix/${version} | sh)`;
+  try {
+    execSync(`cd ${dirTempPath} && ${downloadCommand}`);
+  } catch (e) {
+    console.error(`Could not download apollo router. Run \`${downloadCommand}\` inside ${dirTempPath} manually`);
+    throw e;
+  }
 };
 
 const createRouterConfig = async () => {

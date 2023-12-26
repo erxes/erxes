@@ -8,14 +8,13 @@ import {
   ICoverConfig,
   ICurrentUser,
   IEbarimtConfig,
-  IPaymentConfig,
+  IPermissionConfig,
   ISettingsConfig,
 } from "@/types/config.types"
 import { IOrderType } from "@/types/order.types"
 
 export const configAtom = atom<IConfig | null>(null)
 
-export const paymentConfigAtom = atom<IPaymentConfig | null>(null)
 export const ebarimtConfigAtom = atom<IEbarimtConfig | null>(null)
 export const coverConfigAtom = atom<ICoverConfig | null>(null)
 export const orderPasswordAtom = atom<string | null>(null)
@@ -37,6 +36,27 @@ export const setCurrentUserAtom = atom(
 )
 export const allowTypesAtom = atom<IOrderType[] | null>(null)
 export const banFractionsAtom = atom<boolean | null>(null)
+export const permissionConfigAtom = atom<IPermissionConfig | null>(null)
+export const setPermissionConfigAtom = atom(
+  () => "",
+  (
+    get,
+    set,
+    update: { admins: IPermissionConfig; cashiers: IPermissionConfig }
+  ) => {
+    const pConfig =
+      (update || {})[get(isAdminAtom) ? "admins" : "cashiers"] || {}
+
+    const limit = parseFloat(pConfig.directDiscountLimit + "")
+
+    set(
+      permissionConfigAtom,
+      pConfig
+        ? { ...pConfig, directDiscountLimit: isNaN(limit) ? 0 : limit }
+        : null
+    )
+  }
+)
 
 export const setWholeConfigAtom = atom(
   null,
@@ -44,14 +64,14 @@ export const setWholeConfigAtom = atom(
     get,
     set,
     update: IConfig &
-      IPaymentConfig &
-      IEbarimtConfig &
       ICoverConfig &
+      IEbarimtConfig &
       ISettingsConfig & {
         allowTypes: IOrderType[]
         banFractions: boolean | null
       } & {
         orderPassword: string | null
+        permissionConfig: IPermissionConfig
       }
   ) => {
     const {
@@ -83,11 +103,7 @@ export const setWholeConfigAtom = atom(
       waitingScreen,
       kitchenScreen,
     })
-    set(paymentConfigAtom, {
-      paymentIds,
-      paymentTypes,
-      permissionConfig,
-    })
+    set(permissionConfigAtom, permissionConfig || null)
     set(ebarimtConfigAtom, {
       ebarimtConfig,
       uiOptions,

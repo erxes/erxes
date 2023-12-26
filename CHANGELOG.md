@@ -1,3 +1,43 @@
+## [1.5.6](https://github.com/erxes/erxes/compare/1.5.5...1.5.6) (2023-12-21)
+
+
+### Bug Fixes
+
+* **inbox:** can't choose filter by brand value in response template ([f90d983](https://github.com/erxes/erxes/commit/f90d98386f943a11310979977e7a34ac320b7a96))
+* **inbox:** convert modal written values disappear when conversation updated ([c3f152c](https://github.com/erxes/erxes/commit/c3f152cabd1bf4cfcb3f7fae0524a283dcc0ed70))
+* **inbox:** right sidebar glitch ([4d64275](https://github.com/erxes/erxes/commit/4d642753476ad3a2072ab9de6773fe67b63a79ab))
+
+
+### Features
+
+* deal productsData print to documents by brand ([3cb0aa2](https://github.com/erxes/erxes/commit/3cb0aa2e20a39bc1a6d2ed9d19b3c38309991fd1))
+
+
+### Performance Improvements
+
+* **assets:** fix layout and some refactor ([a174c25](https://github.com/erxes/erxes/commit/a174c255c8020dde0b3c7ee667f103e2759e6f4c))
+* **modal:** Add possibility of show modal open or close in queryParam ([2a502d2](https://github.com/erxes/erxes/commit/2a502d20f686b4a756dbd9d0648a26432ee8ceb3))
+
+# [1.6.0](https://github.com/erxes/erxes/compare/1.5.5...1.6.0) (2023-12-21)
+
+
+### Bug Fixes
+
+* **inbox:** can't choose filter by brand value in response template ([f90d983](https://github.com/erxes/erxes/commit/f90d98386f943a11310979977e7a34ac320b7a96))
+* **inbox:** convert modal written values disappear when conversation updated ([c3f152c](https://github.com/erxes/erxes/commit/c3f152cabd1bf4cfcb3f7fae0524a283dcc0ed70))
+* **inbox:** right sidebar glitch ([4d64275](https://github.com/erxes/erxes/commit/4d642753476ad3a2072ab9de6773fe67b63a79ab))
+
+
+### Features
+
+* deal productsData print to documents by brand ([3cb0aa2](https://github.com/erxes/erxes/commit/3cb0aa2e20a39bc1a6d2ed9d19b3c38309991fd1))
+
+
+### Performance Improvements
+
+* **assets:** fix layout and some refactor ([a174c25](https://github.com/erxes/erxes/commit/a174c255c8020dde0b3c7ee667f103e2759e6f4c))
+* **modal:** Add possibility of show modal open or close in queryParam ([2a502d2](https://github.com/erxes/erxes/commit/2a502d20f686b4a756dbd9d0648a26432ee8ceb3))
+
 ## [1.5.5](https://github.com/erxes/erxes/compare/1.5.4...1.5.5) (2023-12-13)
 
 
