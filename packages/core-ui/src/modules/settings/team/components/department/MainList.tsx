@@ -6,7 +6,8 @@ import {
   FilterContainer,
   InputBar,
   FlexItem,
-  Title
+  Title,
+  LeftActionBar
 } from '@erxes/ui-settings/src/styles';
 import { __, router } from '@erxes/ui/src/utils';
 
@@ -17,10 +18,12 @@ import DataWithLoader from 'modules/common/components/DataWithLoader';
 import Form from '../../containers/common/BlockForm';
 import FormControl from 'modules/common/components/form/Control';
 import Icon from '@erxes/ui/src/components/Icon';
+import LeftSidebar from '@erxes/ui/src/layout/components/Sidebar';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import Pagination from 'modules/common/components/pagination/Pagination';
 import React from 'react';
 import SettingsSideBar from '../../containers/common/SettingSideBar';
+import SidebarHeader from '@erxes/ui-settings/src/common/components/SidebarHeader';
 import Table from 'modules/common/components/table';
 import Tip from '@erxes/ui/src/components/Tip';
 import Wrapper from 'modules/layout/components/Wrapper';
@@ -276,7 +279,11 @@ class MainList extends React.Component<Props, State> {
       </BarItems>
     );
 
-    const leftActionBar = <Title>{`Departments (${totalCount})`}</Title>;
+    const leftActionBar = (
+      <LeftActionBar>
+        <Title>{`Departments (${totalCount})`}</Title>
+      </LeftActionBar>
+    );
 
     return <Wrapper.ActionBar right={rightActionBar} left={leftActionBar} />;
   };
@@ -305,7 +312,11 @@ class MainList extends React.Component<Props, State> {
             emptyText="No Branches"
           />
         }
-        leftSidebar={<SettingsSideBar />}
+        leftSidebar={
+          <LeftSidebar header={<SidebarHeader />} hasBorder={true}>
+            <SettingsSideBar />
+          </LeftSidebar>
+        }
         footer={<Pagination count={totalCount || 0} />}
         hasBorder={true}
       />
