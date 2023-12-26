@@ -1,16 +1,18 @@
-import React from 'react';
 import * as compose from 'lodash.flowright';
-import { withProps } from '@erxes/ui/src/utils/core';
-import { graphql } from '@apollo/client/react/hoc';
-import { gql } from '@apollo/client';
-import { queries } from '@erxes/ui/src/team/graphql';
+
 import {
   BranchesMainQueryResponse,
   DepartmentsMainQueryResponse,
   UnitsMainQueryResponse
 } from '@erxes/ui/src/team/types';
 import { EmptyState, Spinner } from '@erxes/ui/src';
+
+import React from 'react';
 import SettingsSideBar from '../../components/common/SettingsSideBar';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
+import { queries } from '@erxes/ui/src/team/graphql';
+import { withProps } from '@erxes/ui/src/utils/core';
 
 type FinalProps = {
   branchListQuery: BranchesMainQueryResponse;
@@ -42,9 +44,11 @@ class SettingsSideBarContainer extends React.Component<FinalProps> {
 
     return (
       <SettingsSideBar
-        branchTotalCount={branchListQuery.branchesMain.totalCount}
-        unitTotalCount={unitListQuery.unitsMain.totalCount}
-        departmentTotalCount={departmentListQuery.departmentsMain.totalCount}
+        branchTotalCount={branchListQuery?.branchesMain?.totalCount || 0}
+        unitTotalCount={unitListQuery?.unitsMain?.totalCount || 0}
+        departmentTotalCount={
+          departmentListQuery?.departmentsMain?.totalCount || 0
+        }
       />
     );
   }
