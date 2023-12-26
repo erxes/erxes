@@ -22,9 +22,6 @@ import SelectMembersForm from '../utils/SelectMembersForm';
 import Participators from './Participators';
 import ChartForm from '../../containers/chart/ChartForm';
 import ChartRenderer from '../../containers/chart/ChartRenderer';
-import { withRouter } from 'react-router-dom';
-import { IRouterProps } from '@erxes/ui/src/types';
-import withTableWrapper from '@erxes/ui/src/components/table/withTableWrapper';
 
 const DEFAULT_GRID_DIMENSIONS = {
   w: 3,

@@ -15,10 +15,6 @@ const ChartFormField = (props: Props) => {
   const { fieldType, fieldOptions, fieldLabel } = props;
   const [selectValue, setSelectValue] = useState();
 
-  const renderOptions = (options: string[]) => {
-    return options.map(t => ({ value: t, label: t }));
-  };
-
   const onSelect = e => {
     setSelectValue(e.value);
   };
@@ -31,7 +27,7 @@ const ChartFormField = (props: Props) => {
           <Select
             value={selectValue}
             onChange={onSelect}
-            options={renderOptions(fieldOptions)}
+            options={fieldOptions}
             placeholder={fieldLabel}
           />
         </div>

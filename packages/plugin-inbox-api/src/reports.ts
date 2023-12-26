@@ -21,6 +21,34 @@ const reportTemplates = [
   }
 ];
 
+const integrationTypes = async () => {
+  const integrationTypes = Array.from(
+    new Set((await models?.Integrations.find())?.map(i => i.kind))
+  );
+
+  return integrationTypes;
+};
+
+// XOS messenger
+// email
+// Call
+// CallPro
+// FB post
+// FB messenger
+// SMS
+// All
+
+const INTEGRATION_TYPES = [
+  { label: 'XOS Messenger', value: 'messenger' },
+  { label: 'Email', value: 'email' },
+  { label: 'Call', value: 'calls' },
+  { label: 'Callpro', value: 'callpro' },
+  { label: 'SMS', value: 'sms' },
+  { label: 'Facebook Messenger', value: 'facebook-messenger' },
+  { label: 'Facebook Post', value: 'facebook-post' },
+  { label: 'All', value: 'all' }
+];
+
 const calculateAverage = (arr: number[]) => {
   if (!arr || !arr.length) {
     return 0; // Handle division by zero for an empty array
@@ -40,6 +68,16 @@ const chartTemplates = [
         'conversationMessages.internal': false,
         'conversationMessages.content': { $ne: '' }
       };
+
+      if (filter.integrationType && filter.integrationType !== 'all') {
+        const [integrationType] = filter;
+
+        const integration: any = await models?.Integrations.find({
+          kind: integrationType
+        });
+
+        matchfilter['conversationMessages.integrationId'] = integration._id;
+      }
 
       matchfilter['conversationMessages.userId'] =
         filter && filter.userIds
@@ -69,6 +107,7 @@ const chartTemplates = [
             _id: 1,
             createdAt: 1,
             conversationMessages: 1,
+            integrationId: 1,
             closedAt: 1,
             closedUserId: 1,
             firstRespondedDate: 1,
@@ -198,6 +237,13 @@ const chartTemplates = [
         multi: true,
         fieldQuery: 'users',
         fieldLabel: 'Select users'
+      },
+      {
+        fieldName: 'integrationType',
+        fieldType: 'select',
+        multi: true,
+        fieldOptions: INTEGRATION_TYPES,
+        fieldLabel: 'Select source'
       }
     ]
   },
