@@ -1,13 +1,15 @@
 "use client"
 
 /* eslint-disable react-hooks/exhaustive-deps */
-import { useEffect } from "react"
-import { usePathname, useRouter } from "next/navigation"
+import { useEffect, useState } from "react"
 import { configAtom, configsAtom, currentUserAtom } from "@/store/config.store"
 import { useAtomValue } from "jotai"
 import { Loader2, ServerOffIcon } from "lucide-react"
 
 import { cn } from "@/lib/utils"
+
+import ConfigsFetch from "./configsFetch"
+import Login from "./LoginPage"
 
 const checkValidAuth = (currentUser: any, config: any) => {
   const { _id } = currentUser || {}
@@ -21,7 +23,9 @@ const checkValidAuth = (currentUser: any, config: any) => {
     return false
   }
 
-  if (![...(cashierIds || {}), ...(adminIds || {})].includes(currentUser._id)) {
+  if (
+    ![...(cashierIds || []).concat(adminIds || [])].includes(currentUser._id)
+  ) {
     return false
   }
 
@@ -32,32 +36,19 @@ const CheckAuth = ({ children }: any) => {
   const configs = useAtomValue(configsAtom)
   const currentUser = useAtomValue(currentUserAtom)
   const config = useAtomValue(configAtom)
+  const [show, setShow] = useState<"login" | "init" | "private" | null>(null)
 
-  const pathname = usePathname()
-  const router = useRouter()
-  const LOGIN = "/login"
-
-  const checkConfigs = Array.isArray(configs) && !!configs.length
-  const checkConfigsPath = pathname !== "/init"
+  const isConfigsFetched = Array.isArray(configs) && !!configs.length
 
   useEffect(() => {
-    if (!checkConfigs) {
-      if (checkConfigsPath) {
-        router.push("/init")
-      }
-    } else {
-      const checkValid = checkValidAuth(currentUser, config)
+    if (!isConfigsFetched) return setShow("init")
 
-      if (!checkValid && pathname !== LOGIN) {
-        router.push(LOGIN)
-        return
-      }
+    const checkValid = checkValidAuth(currentUser, config)
 
-      if ((checkValid && pathname === LOGIN) || !checkConfigsPath) {
-        router.push("/")
-      }
-    }
-  }, [currentUser, pathname, checkConfigs, config])
+    if (!checkValid) return setShow("login")
+
+    if (checkValid) return setShow("private")
+  }, [currentUser, isConfigsFetched, config])
 
   if (!Array.isArray(configs))
     return (
@@ -69,12 +60,11 @@ const CheckAuth = ({ children }: any) => {
       </div>
     )
 
-  if (!checkConfigs) return checkConfigsPath ? null : children
+  if (show === "init") return <ConfigsFetch />
 
-  const checkValid = checkValidAuth(currentUser, config)
+  if (show === "login") return <Login />
 
-  if (checkValid && pathname === LOGIN) return null
-  if (checkValid || pathname === LOGIN) return <>{children}</>
+  if (show === "private") return children
 
   return (
     <div className="flex h-screen  items-center justify-center">

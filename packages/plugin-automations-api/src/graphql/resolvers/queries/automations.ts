@@ -220,7 +220,7 @@ const automationQueries = {
     };
 
     for (const serviceName of services) {
-      const service = await serviceDiscovery.getService(serviceName, true);
+      const service = await serviceDiscovery.getService(serviceName);
       const meta = service.config?.meta || {};
 
       if (meta && meta.automations && meta.automations.constants) {

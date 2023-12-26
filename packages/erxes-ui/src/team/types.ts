@@ -99,6 +99,7 @@ export interface IUnit extends IStructureCommon {
   department: IDepartment;
   description: string;
   userIds: string[];
+  userCount: number;
   users: IUser[];
 }
 

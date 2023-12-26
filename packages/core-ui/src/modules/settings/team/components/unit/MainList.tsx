@@ -146,6 +146,7 @@ class MainList extends React.Component<Props, State> {
         <td>{__(unit?.supervisor?.email)}</td>
         <td>{__(unit?.department?.title || '')}</td>
         <td>{unit.userIds?.length || 0}</td>
+        <td>{unit.userCount}</td>
         <td>
           <ActionButtons>
             <ModalTrigger

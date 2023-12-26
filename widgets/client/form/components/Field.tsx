@@ -1,10 +1,10 @@
-import * as React from 'react';
+import * as React from "react";
 
 import {
   COMPANY_BUSINESS_TYPES,
   COUNTRIES,
   DEFAULT_COMPANY_INDUSTRY_TYPES,
-} from '../constants';
+} from "../constants";
 import {
   FieldValue,
   IField,
@@ -12,17 +12,17 @@ import {
   ILocationOption,
   IObjectListConfig,
   IProduct,
-} from '../types';
+} from "../types";
 
-import Datetime from '@nateradebaugh/react-datetime';
-import MSFmultiSelect from '../multipleSelectScript';
-import Map from './Map';
-import Marker from './Marker';
-import ObjectList from './ObjectList';
-import { __ } from '../../utils';
-import { connection } from '../connection';
-import uploadHandler from '../../uploadHandler';
-import Product from './Product';
+import Datetime from "@nateradebaugh/react-datetime";
+import MSFmultiSelect from "../multipleSelectScript";
+import Map from "./Map";
+import Marker from "./Marker";
+import ObjectList from "./ObjectList";
+import Product from "./Product";
+import { __ } from "../../utils";
+import { connection } from "../connection";
+import uploadHandler from "../../uploadHandler";
 
 type Props = {
   field: IField;
@@ -62,7 +62,7 @@ export default class Field extends React.Component<Props, State> {
       <select
         {...attrs}
         className="form-control"
-        id={attrs.multiple ? `_id${attrs.id}` : ''}
+        id={attrs.multiple ? `_id${attrs.id}` : ""}
       >
         {options.map((option, index) => (
           <option key={index} value={option} selected={true}>
@@ -90,7 +90,7 @@ export default class Field extends React.Component<Props, State> {
   ) {
     let values: string[] = [];
     if (value) {
-      values = value.split(',,');
+      values = value.split(",,");
     }
 
     return (
@@ -102,8 +102,8 @@ export default class Field extends React.Component<Props, State> {
             <div key={index}>
               <label>
                 {Field.renderInput({
-                  type: 'checkbox',
-                  'data-option': option,
+                  type: "checkbox",
+                  "data-option": option,
                   name,
                   id,
                   onChange,
@@ -125,15 +125,15 @@ export default class Field extends React.Component<Props, State> {
     onChange: (e: React.FormEvent<HTMLInputElement>) => void,
     value?: string
   ) {
-    const selectedIndex = options.indexOf(value || '');
+    const selectedIndex = options.indexOf(value || "");
 
     return (
       <div>
         {options.map((option, index) => (
           <div key={index}>
             {Field.renderInput({
-              type: 'radio',
-              'data-option': option,
+              type: "radio",
+              "data-option": option,
               name,
               id,
               onChange,
@@ -159,8 +159,8 @@ export default class Field extends React.Component<Props, State> {
 
     this.state = {
       editing: false,
-      dateValue: '',
-      dateTimeValue: '',
+      dateValue: "",
+      dateTimeValue: "",
       multipleSelectValues: [],
       isMapDraggable,
       currentLocation: props.currentLocation || {
@@ -176,7 +176,7 @@ export default class Field extends React.Component<Props, State> {
   componentDidMount() {
     const { field } = this.props;
 
-    if (field.type === 'multiSelect' || field.type === 'industry') {
+    if (field.type === "multiSelect" || field.type === "industry") {
       const multiSelects = Array.from(
         document.querySelectorAll(`#_id${field._id}`)
       );
@@ -204,7 +204,7 @@ export default class Field extends React.Component<Props, State> {
 
       multiSelects.map((query) => {
         const select = new MSFmultiSelect(query, {
-          theme: 'theme2',
+          theme: "theme2",
           selectAll: true,
           searchBox: true,
           onChange,
@@ -212,7 +212,7 @@ export default class Field extends React.Component<Props, State> {
         });
 
         const options =
-          field.type === 'industry'
+          field.type === "industry"
             ? DEFAULT_COMPANY_INDUSTRY_TYPES
             : field.options || [];
 
@@ -280,17 +280,17 @@ export default class Field extends React.Component<Props, State> {
   };
 
   onDateChange = (date?: Date | string) => {
-    this.setState({ dateValue: date || '' });
-    this.onChange(date || '');
+    this.setState({ dateValue: date || "" });
+    this.onChange(date || "");
   };
 
   onDateTimeChange = (date?: Date | string) => {
-    this.setState({ dateTimeValue: date || '' });
-    this.onChange(date || '');
+    this.setState({ dateTimeValue: date || "" });
+    this.onChange(date || "");
   };
 
   onRadioButtonsChange = (e: React.FormEvent<HTMLInputElement>) => {
-    this.onChange(e.currentTarget.getAttribute('data-option') || '');
+    this.onChange(e.currentTarget.getAttribute("data-option") || "");
   };
 
   onCheckboxesChange = () => {
@@ -308,7 +308,7 @@ export default class Field extends React.Component<Props, State> {
       }
     }
 
-    this.onChange(values.join(',,'));
+    this.onChange(values.join(",,"));
   };
 
   onTextAreaChange = (e: React.FormEvent<HTMLTextAreaElement>) => {
@@ -336,7 +336,7 @@ export default class Field extends React.Component<Props, State> {
   };
 
   onLocationChange = (option: ILocationOption) => {
-    this.onChange(option || '');
+    this.onChange(option || "");
   };
 
   renderDatepicker(id: string) {
@@ -405,7 +405,7 @@ export default class Field extends React.Component<Props, State> {
     }
 
     return (
-      <div style={{ height: '250px', width: '100%' }}>
+      <div style={{ height: "250px", width: "100%" }}>
         {this.props.mapScriptLoaded && (
           <Map
             center={
@@ -414,7 +414,7 @@ export default class Field extends React.Component<Props, State> {
             controlSize={25}
             streetViewControl={false}
             zoom={4}
-            style={{ width: '100%', height: '250px' }}
+            style={{ width: "100%", height: "250px" }}
           >
             {locationOptions.length > 0 ? (
               locationOptions.map((option, index) => (
@@ -422,7 +422,7 @@ export default class Field extends React.Component<Props, State> {
                   color={
                     option.lat === selectedOption.lat &&
                     option.lng === selectedOption.lng
-                      ? 'red'
+                      ? "red"
                       : this.props.color
                   }
                   key={index}
@@ -441,7 +441,7 @@ export default class Field extends React.Component<Props, State> {
                     currentLocation.lng
                   )
                 }
-                content={__('Select your location')}
+                content={__("Select your location")}
                 draggable={true}
                 onChange={this.onLocationChange}
               />
@@ -508,7 +508,7 @@ export default class Field extends React.Component<Props, State> {
           _id: e._id,
           type: e.type,
           text: e.text,
-          value: '',
+          value: "",
         })) || []
       );
       this.setState({ subFields, subValues: values });
@@ -537,48 +537,37 @@ export default class Field extends React.Component<Props, State> {
                     X
                   </button>
                 )}
-                <div style={{ display: 'flex', marginLeft: '-5px', marginRight: '-5px'}}>{fields.map((subField: IField) => {
-                  const value = values[index]
-                    ? values[index].find((v: any) => v._id === subField._id)
-                    : '';
+                <div className="field-group-row">
+                  {fields.map((subField: IField) => {
+                    const value = values[index]
+                      ? values[index].find((v: any) => v._id === subField._id)
+                      : "";
 
-                  const fieldStyle = () => {
-                    if (subField.column) {
-                      return {
-                        // width: `${100 / subField.column}%` ,
-                        width: `100%` ,
-                        margin: '0 5px',
-                        display: 'inline-block',
-                      };
-                    }
-                  };
-
-                  return (
-                    
+                    return (
                       <div
                         key={`${subField._id}-${index}`}
-                        style={fieldStyle()}
+                        className="subField-item"
                       >
                         <Field
                           key={subField._id}
                           field={subField}
-                          value={value ? value.value : ''}
+                          value={value ? value.value : ""}
                           isSubField={true}
                           onChange={(e) => {
                             onChangeSubField(subField, index, e);
                           }}
                         />
                       </div>
-                  
-                  );
-                })}</div>
+                    );
+                  })}
+                </div>
               </div>
             );
           }
         })}
 
         <button onClick={onAddClick} type="button">
-          {__('add more')}
+          {__("add more")}
         </button>
       </div>
     );
@@ -587,7 +576,7 @@ export default class Field extends React.Component<Props, State> {
   renderObjectList(objectListConfigs: any, attrs: any) {
     let { value = [] } = attrs;
 
-    if (typeof value === 'string' && value.length > 0) {
+    if (typeof value === "string" && value.length > 0) {
       try {
         value = JSON.parse(value);
       } catch {
@@ -615,39 +604,39 @@ export default class Field extends React.Component<Props, State> {
   renderControl() {
     const { value } = this.props;
     const field = this.props.field;
-    const { options = [], validation = 'text' } = field;
+    const { options = [], validation = "text" } = field;
     const name = field._id;
 
     const attrs = {
       id: field._id,
       value: this.state.objectListConfigs,
       onChange: this.onChange,
-      name: '',
+      name: "",
     };
 
-    if (validation === 'date') {
+    if (validation === "date") {
       return (
         <div className="date-input">{this.renderDatepicker(field._id)} </div>
       );
     }
 
-    if (validation === 'datetime') {
+    if (validation === "datetime") {
       return (
         <div className="date-input">
-          {this.renderDateTimepicker(field._id)}{' '}
+          {this.renderDateTimepicker(field._id)}{" "}
         </div>
       );
     }
 
     switch (field.type) {
-      case 'select':
+      case "select":
         return Field.renderSelect(options, {
           onChange: this.onSelectChange,
           id: field._id,
           value: String(value),
         });
 
-      case 'multiSelect':
+      case "multiSelect":
         return Field.renderSelect(options, {
           value: this.state.multipleSelectValues,
           onChange: this.onMultpleSelectChange,
@@ -655,28 +644,28 @@ export default class Field extends React.Component<Props, State> {
           multiple: true,
         });
 
-      case 'pronoun':
-        return Field.renderSelect(['Male', 'Female', 'Not applicable'], {
+      case "pronoun":
+        return Field.renderSelect(["Male", "Female", "Not applicable"], {
           onChange: this.onSelectChange,
           id: field._id,
           value: String(value),
         });
 
-      case 'businessType':
+      case "businessType":
         return Field.renderSelect(COMPANY_BUSINESS_TYPES, {
           onChange: this.onSelectChange,
           id: field._id,
           value: String(value),
         });
 
-      case 'location':
+      case "location":
         return Field.renderSelect(COUNTRIES, {
           onChange: this.onSelectChange,
           id: field._id,
           value: String(value),
         });
 
-      case 'industry':
+      case "industry":
         return Field.renderSelect(DEFAULT_COMPANY_INDUSTRY_TYPES, {
           value: this.state.multipleSelectValues,
           onChange: this.onMultpleSelectChange,
@@ -684,7 +673,7 @@ export default class Field extends React.Component<Props, State> {
           multiple: true,
         });
 
-      case 'check':
+      case "check":
         const values: any = value;
 
         return Field.renderCheckboxes(
@@ -695,7 +684,7 @@ export default class Field extends React.Component<Props, State> {
           values
         );
 
-      case 'radio':
+      case "radio":
         return Field.renderRadioButtons(
           name,
           options,
@@ -704,96 +693,96 @@ export default class Field extends React.Component<Props, State> {
           String(value)
         );
 
-      case 'isSubscribed':
+      case "isSubscribed":
         return Field.renderRadioButtons(
           name,
-          ['Yes', 'No'],
+          ["Yes", "No"],
           field._id,
           this.onRadioButtonsChange,
           String(value)
         );
 
-      case 'company_isSubscribed':
+      case "company_isSubscribed":
         return Field.renderRadioButtons(
           name,
-          ['Yes', 'No'],
+          ["Yes", "No"],
           field._id,
           this.onRadioButtonsChange,
           String(value)
         );
 
-      case 'hasAuthority':
+      case "hasAuthority":
         return Field.renderRadioButtons(
           name,
-          ['Yes', 'No'],
+          ["Yes", "No"],
           field._id,
           this.onRadioButtonsChange,
           String(value)
         );
 
-      case 'file':
+      case "file":
         return Field.renderInput({
           onChange: this.handleFileInput,
-          type: 'file',
+          type: "file",
           id: field._id,
           multiple: true,
         });
 
-      case 'avatar':
+      case "avatar":
         return Field.renderInput({
           onChange: this.handleFileInput,
-          type: 'file',
+          type: "file",
           id: field._id,
         });
 
-      case 'company_avatar':
+      case "company_avatar":
         return Field.renderInput({
           onChange: this.handleFileInput,
-          type: 'file',
+          type: "file",
           id: field._id,
         });
 
-      case 'textarea':
+      case "textarea":
         return Field.renderTextarea({
           onChange: this.onTextAreaChange,
           id: field._id,
           value,
         });
 
-      case 'description':
+      case "description":
         return Field.renderTextarea({
           onChange: this.onTextAreaChange,
           id: field._id,
           value,
         });
 
-      case 'company_description':
+      case "company_description":
         return Field.renderTextarea({
           onChange: this.onTextAreaChange,
           id: field._id,
           value,
         });
 
-      case 'birthDate':
+      case "birthDate":
         return this.renderDatepicker(field._id);
 
-      case 'html':
-        return this.renderHtml(field.content || '', field._id);
+      case "html":
+        return this.renderHtml(field.content || "", field._id);
 
-      case 'map':
+      case "map":
         return this.renderMap(field, value);
 
-      case 'productCategory':
+      case "productCategory":
         if (!connection.enabledServices.products) {
           return null;
         }
 
         return this.renderProduct(field);
 
-      case 'parentField':
+      case "parentField":
         return this.renderSubFields(field);
 
-      case 'objectList':
+      case "objectList":
         return this.renderObjectList(field.objectListConfigs, attrs);
 
       default:
@@ -810,14 +799,14 @@ export default class Field extends React.Component<Props, State> {
     const { field } = this.props;
     const { objectListConfigs = [] } = field;
 
-    if (field.type !== 'objectList' || !field.objectListConfigs) {
+    if (field.type !== "objectList" || !field.objectListConfigs) {
       return null;
     }
 
     const onClick = () => {
       const object = objectListConfigs.reduce(
         (previousValue: any, currentValue: any) => {
-          previousValue[`${currentValue.key}`] = '';
+          previousValue[`${currentValue.key}`] = "";
 
           return previousValue;
         },
@@ -845,12 +834,12 @@ export default class Field extends React.Component<Props, State> {
       if (field.column && !isSubField) {
         return {
           width: `${100 / field.column}%`,
-          display: 'inline-block',
+          display: "inline-block",
         };
       }
       if (!field.subFields || field.subFields.length !== 0) {
         return {
-          paddingRight: '0',
+          paddingRight: "0",
         };
       }
     };

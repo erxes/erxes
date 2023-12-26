@@ -15,5 +15,12 @@ export default {
 
   supervisor(unit: IUnitDocument, _args, { models }: IContext) {
     return models.Users.findOne({ _id: unit.supervisorId, isActive: true });
+  },
+
+  userCount(unit: IUnitDocument, _args, { models }: IContext) {
+    return models.Users.countDocuments({
+      _id: { $in: unit.userIds || [] },
+      isActive: true
+    });
   }
 };
