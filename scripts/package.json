@@ -1,0 +1,9 @@
+{
+  "name": "@erxes/scripts",
+  "version": "1.0.0",
+  "license": "MIT",
+  "dependencies": {
+    "enquirer": "2.3.6",
+    "fs-extra": "^9.0.1"
+  }
+}

@@ -2,6 +2,7 @@ import React from 'react';
 import {
   __,
   ControlLabel,
+  FormControl,
   FormGroup,
   SelectTeamMembers,
   Toggle
@@ -35,16 +36,26 @@ class PermissionStep extends React.Component<Props, State> {
     this.props.onChange('pos', value);
   };
 
-  onChangeSwitch = e => {
+  onChangeValue = (e, valueType?: string) => {
     const { pos } = this.props;
     const { config } = this.state;
 
     const keys = e.target.name.split('.');
     const type = keys[0];
     const name = keys[1];
-    const value = e.target.checked;
-
-    const newConfig = { ...config, [type]: { ...config[type], [name]: value } };
+    const value = e.target[valueType || 'checked'];
+    const numericValue = parseFloat(value);
+    const newConfig = {
+      ...config,
+      [type]: {
+        ...config[type],
+        [name]: isNaN(numericValue)
+          ? value
+          : numericValue > 100
+          ? 100
+          : numericValue
+      }
+    };
 
     this.setState({ config: newConfig });
 
@@ -61,11 +72,30 @@ class PermissionStep extends React.Component<Props, State> {
           id={`${type}${name}`}
           name={`${type}.${name}`}
           checked={config[type] && config[type][name] ? true : false}
-          onChange={this.onChangeSwitch}
+          onChange={this.onChangeValue}
           icons={{
             checked: <span>Yes</span>,
             unchecked: <span>No</span>
           }}
+        />
+      </FormGroup>
+    );
+  }
+
+  renderDiscountInput(title: string, type: string, name: string) {
+    const { config } = this.state;
+
+    if (!(config[type] && config[type][name])) return null;
+
+    return (
+      <FormGroup>
+        <ControlLabel>{title}</ControlLabel>
+        <FormControl
+          id={`${type}${name}`}
+          name={`${type}.${name}Limit`}
+          value={config[type] && config[type][`${name}Limit`]}
+          onChange={e => this.onChangeValue(e, 'value')}
+          max={100}
         />
       </FormGroup>
     );
@@ -112,12 +142,17 @@ class PermissionStep extends React.Component<Props, State> {
                   'admins',
                   'isTempBill'
                 )}
-                {this.renderToggle('Set unit price', 'admins', 'setUnitPrice')}
                 {this.renderToggle(
-                  'Allow receivable',
+                  'Direct discount',
                   'admins',
-                  'allowReceivable'
+                  'directDiscount'
                 )}
+                {this.renderDiscountInput(
+                  'Direct discount limit',
+                  'admins',
+                  'directDiscount'
+                )}
+                {/* {this.renderToggle('Set unit price', 'admins', 'setUnitPrice')} */}
               </BlockRow>
             </Block>
 
@@ -139,15 +174,20 @@ class PermissionStep extends React.Component<Props, State> {
                   'isTempBill'
                 )}
                 {this.renderToggle(
+                  'Direct Discount',
+                  'cashiers',
+                  'directDiscount'
+                )}
+                {this.renderDiscountInput(
+                  'Direct discount limit',
+                  'cashiers',
+                  'directDiscount'
+                )}
+                {/* {this.renderToggle(
                   'Set unit price',
                   'cashiers',
                   'setUnitPrice'
-                )}
-                {this.renderToggle(
-                  'Allow receivable',
-                  'cashiers',
-                  'allowReceivable'
-                )}
+                )} */}
               </BlockRow>
             </Block>
           </LeftItem>
