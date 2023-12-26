@@ -34,9 +34,7 @@
     "xss": "1.0.14"
   },
   "scripts": {
-    "generate-doterxes": "node commands/generate-doterxes.js",
     "start": "webpack serve --open --mode development",
-    "generateVersion": "node commands/generateVersion.js",
     "build": "node commands/build.js",
     "compress": "gzip -5 --keep -r build/static/js",
     "componentTest": "jest --runInBand --forceExit --detectOpenHandles --coverage",
@@ -46,7 +44,6 @@
   "devDependencies": {
     "cypress": "^4.9.0",
     "cypress-file-upload": "^4.0.7",
-    "fs-extra": "^9.0.1",
     "node-watch": "^0.7.2",
     "path-browserify": "^1.0.1",
     "timers-browserify": "^2.0.12",
