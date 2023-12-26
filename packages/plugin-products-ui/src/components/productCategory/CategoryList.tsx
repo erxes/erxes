@@ -89,6 +89,13 @@ class List extends React.Component<IProps> {
     );
   };
 
+  onClick = (id: string) => {
+    const { history } = this.props;
+
+    router.removeParams(history, 'page');
+    router.setParams(history, { categoryId: id });
+  };
+
   renderContent() {
     const { productCategories, loading, queryParams } = this.props;
 
@@ -99,10 +106,10 @@ class List extends React.Component<IProps> {
         removeAction={this.renderRemoveAction}
         additionalActions={pluginsOfProductCategoryActions}
         loading={loading}
-        linkToText={'?categoryId='}
+        onClick={this.onClick}
         queryParams={queryParams}
-        isProductCategory={true}
         treeView={true}
+        keyCount="productCount"
       />
     );
   }
