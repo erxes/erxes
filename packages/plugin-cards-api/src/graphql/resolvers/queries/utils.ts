@@ -18,6 +18,7 @@ import {
 } from '../../../messageBroker';
 import { IUserDocument } from '@erxes/api-utils/src/types';
 import { IModels } from '../../../connectionResolver';
+import { USER_ROLES } from '@erxes/api-utils/src/constants';
 
 export interface IArchiveArgs {
   pipelineId: string;
@@ -859,7 +860,8 @@ export const checkItemPermByUser = async (
   if (
     visibility === 'private' &&
     !(memberIds || []).includes(user._id) &&
-    !hasUserInDepartment
+    !hasUserInDepartment &&
+    user?.role !== USER_ROLES.SYSTEM
   ) {
     throw new Error('You do not have permission to view.');
   }

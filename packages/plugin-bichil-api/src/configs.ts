@@ -15,6 +15,7 @@ import * as cookieParser from 'cookie-parser';
 import userMiddleware, { checkPermission, handleUpload } from './utils';
 import * as permissions from './permissions';
 import { removeAndUpdateTimeclocks } from './updateTimeclocks';
+import { findAndUpdateTimeclockScheduleShifts } from './updateTimeclockScheduleShifts';
 
 export let mainDb;
 export let debug;
@@ -113,6 +114,16 @@ export default {
       routeErrorHandling(async (req: any, res) => {
         const { query } = req;
         const update = await removeAndUpdateTimeclocks(query);
+
+        return res.send(update);
+      })
+    );
+
+    app.get(
+      '/update-timeclock-schedule-shifts',
+      routeErrorHandling(async (req: any, res) => {
+        const { query } = req;
+        const update = await findAndUpdateTimeclockScheduleShifts(query);
 
         return res.send(update);
       })
