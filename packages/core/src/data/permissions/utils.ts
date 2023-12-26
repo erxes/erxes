@@ -43,7 +43,7 @@ export const getPermissionModules = async () => {
   const services = await getServices();
 
   for (const name of services) {
-    const service = await getService(name, true);
+    const service = await getService(name);
     if (!service) continue;
     if (!service.config) continue;
 
@@ -70,7 +70,7 @@ export const getPermissionActions = async () => {
   const services = await getServices();
 
   for (const name of services) {
-    const service = await getService(name, true);
+    const service = await getService(name);
     if (!service) continue;
     if (!service.config) continue;
 
@@ -105,7 +105,7 @@ export const getPermissionActionsMap = async (): Promise<IActionsMap> => {
   const services = await getServices();
 
   for (const name of services) {
-    const service = await getService(name, true);
+    const service = await getService(name);
     if (!service) continue;
     if (!service.config) continue;
 

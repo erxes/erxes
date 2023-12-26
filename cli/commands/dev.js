@@ -1,14 +1,14 @@
 const fse = require('fs-extra');
-const os = require('os');
-const { execCommand, filePath, log, sleep } = require('./utils');
+const { filePath, log, sleep } = require('./utils');
+const { execSync } = require('child_process');
 
 module.exports.devOnly = async () => {
   const name = process.argv[3];
-  await execCommand(`pm2 start ecosystem.config.js --only ${name}`);
+  execSync(`pm2 start ecosystem.config.js --only ${name}`);
 };
 
 module.exports.devStop = async () => {
-  await execCommand('pm2 delete all');
+  execSync('pm2 delete all');
 };
 
 module.exports.devCmd = async program => {
@@ -72,7 +72,7 @@ module.exports.devCmd = async program => {
     }
   ];
 
-  log('Generated ui coreui .env file ....');
+  log('Written ui coreui .env file ....');
   await fse.writeFile(
     filePath('../packages/core-ui/.env'),
     `
@@ -86,14 +86,10 @@ module.exports.devCmd = async program => {
     `
   );
 
-  // await execCommand(
-  //   `cd ${filePath(`../packages/core-ui`)} && yarn generate-doterxes`
-  // );
-
   if (configs.widgets) {
     if (program.deps) {
       log('Installing dependencies in widgets .........');
-      await execCommand(`cd ${filePath(`../widgets`)} && yarn install`);
+      execSync(`cd ${filePath(`../widgets`)} && yarn install`);
     }
 
     await fse.writeFile(
@@ -124,7 +120,7 @@ module.exports.devCmd = async program => {
     if (plugin.ui) {
       if (program.deps && plugin.ui === 'local') {
         log(`Installing dependencies in ${plugin.name} .........`);
-        await execCommand(
+        execSync(
           `cd ${filePath(
             `../packages/plugin-${plugin.name}-ui`
           )} && yarn install`
@@ -197,7 +193,7 @@ module.exports.devCmd = async program => {
   }
 
   if (configs.dashboard) {
-    await execCommand(
+    execSync(
       `cd ${filePath(`../packages/dashboard`)} && yarn install`
     );
 
@@ -241,7 +237,7 @@ module.exports.devCmd = async program => {
     `
   );
 
-  log('Generated ui plugins.js file ....');
+  log('Written ui plugins.js file ....');
 
   await fse.writeFile(
     filePath('../packages/core-ui/public/js/plugins.js'),
@@ -254,35 +250,28 @@ module.exports.devCmd = async program => {
     if (program.deps) {
       log(`Installing dependencies in core-ui .........`);
 
-      await execCommand(
+      execSync(
         `cd ${filePath(`../packages/core-ui`)} && yarn install`
       );
     }
 
-    const intervalMs = Number(program.interval);
+    const intervalMs = Number(program.interval) || 0;
 
-    // start everything
-    if (!intervalMs) {
-      await execCommand('pm2 start ecosystem.config.js');
-      return;
-    }
-
-    // or start things one by one with an interval
     if (!program.ignoreCore) {
       log('starting core ....');
-      await execCommand('pm2 start ecosystem.config.js --only core');
+      execSync('pm2 start ecosystem.config.js --only core');
       await sleep(intervalMs);
     }
 
     for (const plugin of configs.plugins) {
       log(`starting ${plugin.name} ....`);
-      await execCommand(
+      execSync(
         `pm2 start ecosystem.config.js --only ${plugin.name}-api`
       );
       await sleep(intervalMs);
 
       if (plugin.ui === 'local') {
-        await execCommand(
+        execSync(
           `pm2 start ecosystem.config.js --only ${plugin.name}-ui`
         );
         await sleep(intervalMs);
@@ -291,27 +280,32 @@ module.exports.devCmd = async program => {
 
     if (configs.workers) {
       log('starting workers ....');
-      await execCommand('pm2 start ecosystem.config.js --only workers');
+      execSync('pm2 start ecosystem.config.js --only workers');
       await sleep(intervalMs);
     }
 
     if (configs.dashboard) {
       log('starting workers ....');
-      await execCommand('pm2 start ecosystem.config.js --only dashboard');
+      execSync('pm2 start ecosystem.config.js --only dashboard');
       await sleep(intervalMs);
     }
 
+    if(intervalMs < 5000){
+      /* Plugin addresses are not getting updated fast enough after enabling more plugins and restarting. 
+         Thus resulting in overlapped addresses */
+      await sleep(5000);
+    }
     log(`starting gateway ....`);
-    await execCommand(`pm2 start ecosystem.config.js --only gateway`);
+    execSync(`pm2 start ecosystem.config.js --only gateway`);
     await sleep(intervalMs);
 
     if (!program.ignoreCoreUI) {
       log('starting coreui ....');
-      await execCommand('pm2 start ecosystem.config.js --only coreui');
+      execSync('pm2 start ecosystem.config.js --only coreui');
 
       if (configs.widgets) {
         log('starting widgets ....');
-        await execCommand('pm2 start ecosystem.config.js --only widgets');
+        execSync('pm2 start ecosystem.config.js --only widgets');
       }
     }
   }

@@ -47,7 +47,7 @@ type State = {
   specificPeriodGoals: Array<{
     _id: string;
     addMonthly: string;
-    addTarget: string;
+    addTarget: number;
   }>;
   periodGoal: string;
   entity: string;
@@ -109,15 +109,16 @@ class GoalTypeForm extends React.Component<Props, State> {
   onChangeTargetPeriod = event => {
     const { value } = event.target;
     const parsedValue = parseInt(value);
+    this.setState({ target: parsedValue });
+    // if (!isNaN(parsedValue)) {
 
-    if (!isNaN(parsedValue)) {
-      this.setState({ target: parsedValue });
-    } else {
-      // Handle the case where the value is not a valid integer
-      // You might want to set the state to a default value or display an error message
-      this.setState({ target: 0 }); // Set a default value of 0
-      // You can also display an error message to the user
-    }
+    // }
+    //  else {
+    //   // Handle the case where the value is not a valid integer
+    //   // You might want to set the state to a default value or display an error message
+    //   this.setState({ target: 0 }); // Set a default value of 0
+    //   // You can also display an error message to the user
+    // }
   };
   onChangeBranchId = value => {
     this.setState({ branch: value });
@@ -232,8 +233,14 @@ class GoalTypeForm extends React.Component<Props, State> {
   };
 
   onChangeEndDate = value => {
-    this.setState({ endDate: value });
+    const { periodGoal } = this.state;
+
+    this.setState({
+      endDate: value,
+      periodGoal: periodGoal || 'Weekly' // Use 'Weekly' if periodGoal is falsy
+    });
   };
+
   onUserChange = userId => {
     this.setState({ contribution: userId });
   };
@@ -244,12 +251,10 @@ class GoalTypeForm extends React.Component<Props, State> {
   onChangeTarget = (date, event) => {
     const { specificPeriodGoals, periodGoal } = this.state;
     const { value } = event.target;
-
-    // Update the addTarget property based on the date
+    const parsedValue = parseInt(value);
     const updatedSpecificPeriodGoals = specificPeriodGoals.map(goal =>
-      goal.addMonthly === date ? { ...goal, addTarget: value } : goal
+      goal.addMonthly === date ? { ...goal, addTarget: parsedValue } : goal
     );
-
     // Add new periods to specificPeriodGoals if they don't exist
     const periods =
       periodGoal === 'Monthly' ? this.mapMonths() : this.mapWeeks();
@@ -258,12 +263,11 @@ class GoalTypeForm extends React.Component<Props, State> {
       const exists = updatedSpecificPeriodGoals.some(
         goal => goal.addMonthly === period
       );
-
       if (!exists) {
         updatedSpecificPeriodGoals.push({
           _id: Math.random().toString(),
           addMonthly: period,
-          addTarget: 0
+          addTarget: NaN
         });
       }
     });
@@ -610,7 +614,7 @@ class GoalTypeForm extends React.Component<Props, State> {
                         value={
                           this.state.specificPeriodGoals.find(
                             goal => goal.addMonthly === month
-                          )?.addTarget || 0
+                          )?.addTarget
                         }
                         onChange={event => this.onChangeTarget(month, event)}
                       />
@@ -639,7 +643,7 @@ class GoalTypeForm extends React.Component<Props, State> {
                         value={
                           this.state.specificPeriodGoals.find(
                             goal => goal.addMonthly === week
-                          )?.addTarget || 0
+                          )?.addTarget
                         }
                         onChange={event => this.onChangeTarget(week, event)}
                       />

@@ -11,6 +11,7 @@ import {
   IOrderUser,
   IPaidAmount,
   IPutResponse,
+  PayByProductItem,
 } from "@/types/order.types"
 
 import { customerSearchAtom, selectedTabAtom } from "."
@@ -20,7 +21,7 @@ import {
   orderItemInput,
   totalAmountAtom,
 } from "./cart.store"
-import { allowTypesAtom } from "./config.store"
+import { allowTypesAtom, permissionConfigAtom } from "./config.store"
 import { paymentSheetAtom } from "./ui.store"
 
 // order
@@ -57,7 +58,20 @@ export const isPreAtom = atom<boolean | undefined>(undefined)
 export const orderTotalAmountAtom = atom<number>(0)
 export const cashAmountAtom = atom<number>(0)
 export const mobileAmountAtom = atom<number>(0)
+export const directDiscountAtom = atom<number>(0)
 export const paidAmountsAtom = atom<IPaidAmount[]>([])
+export const payByProductAtom = atom<PayByProductItem[]>([])
+export const payByProductTotalAtom = atom<number>((get) =>
+  get(payByProductAtom).reduce((prev, pr) => prev + pr.count * pr.unitPrice, 0)
+)
+export const paidProductsAtom = atomWithStorage<PayByProductItem[]>(
+  "paidProducts",
+  []
+)
+export const paidOrderIdAtom = atomWithStorage<string | null>(
+  "paidOrderId",
+  null
+)
 
 export const getTotalPaidAmountAtom = atom(
   (get) =>
@@ -99,6 +113,7 @@ export const setInitialAtom = atom(
     set(isPreAtom, undefined)
     set(buttonTypeAtom, null)
     set(selectedTabAtom, "plan")
+    set(directDiscountAtom, 0)
   }
 )
 
@@ -127,10 +142,16 @@ export const setOrderStatesAtom = atom(
       number,
       dueDate,
       isPre,
+      directDiscount,
     }: IOrder
   ) => {
     set(activeOrderIdAtom, _id || null)
     set(customerAtom, customer || null)
+    const { directDiscount: allowDirectDiscount, directDiscountLimit } =
+      get(permissionConfigAtom) || {}
+    allowDirectDiscount &&
+      directDiscountLimit &&
+      set(directDiscountAtom, directDiscount || 0)
     set(customerTypeAtom, customerType || "")
     !get(cartChangedAtom) && set(cartAtom, items)
     set(orderTypeAtom, type || "eat")
@@ -155,6 +176,7 @@ export const setOrderStatesAtom = atom(
 export const orderValuesAtom = atom((get) => ({
   items: get(orderItemInput),
   totalAmount: get(totalAmountAtom),
+  directDiscount: get(directDiscountAtom),
   type: get(orderTypeAtom),
   _id: get(activeOrderIdAtom),
   customerType: get(customerTypeAtom),
