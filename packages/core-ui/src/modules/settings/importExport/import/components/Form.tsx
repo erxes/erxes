@@ -14,7 +14,7 @@ import { __ } from 'modules/common/utils';
 
 type Props = {
   contentType: string;
-  addImportHistory: (doc: any) => void;
+  addImportHistory: (doc: any, columnAllSelected: boolean) => void;
 };
 
 type State = {
@@ -28,6 +28,9 @@ type State = {
 
   associatedField: string;
   associatedContentType: string;
+
+  columnWithSelected: any;
+  columnNumber: number;
 };
 
 class Form extends React.Component<Props, State> {
@@ -42,7 +45,9 @@ class Form extends React.Component<Props, State> {
       type: 'single',
       contentTypes: [],
       associatedField: '',
-      associatedContentType: ''
+      associatedContentType: '',
+      columnNumber: 0,
+      columnWithSelected: 0
     };
   }
 
@@ -58,7 +63,7 @@ class Form extends React.Component<Props, State> {
     this.setState({ attachments: temp });
   };
 
-  onChangeColumn = (column, value, contentType) => {
+  onChangeColumn = (column, value, contentType, columns) => {
     const { columnWithChosenField } = this.state;
 
     const temp = columnWithChosenField[contentType] || {};
@@ -71,10 +76,16 @@ class Form extends React.Component<Props, State> {
     temp2[contentType] = temp;
 
     this.setState({ columnWithChosenField: temp2 });
+    this.setState({ columnWithSelected: Object.keys(temp).length });
+    this.setState({ columnNumber: Object.keys(columns).length });
   };
 
   onChangeImportName = value => {
     this.setState({ importName: value });
+  };
+
+  onChangecolumnNumber = value => {
+    this.setState({ columnNumber: value });
   };
 
   onChangeDisclaimer = value => {
@@ -126,7 +137,9 @@ class Form extends React.Component<Props, State> {
       attachments,
       contentTypes,
       associatedField,
-      associatedContentType
+      associatedContentType,
+      columnNumber,
+      columnWithSelected
     } = this.state;
 
     const files = [] as any;
@@ -148,7 +161,11 @@ class Form extends React.Component<Props, State> {
       associatedContentType
     };
 
-    return this.props.addImportHistory(doc);
+    if (columnWithSelected === columnNumber) {
+      return this.props.addImportHistory(doc, true);
+    }
+
+    return this.props.addImportHistory(doc, false);
   };
 
   renderImportButton = () => {
