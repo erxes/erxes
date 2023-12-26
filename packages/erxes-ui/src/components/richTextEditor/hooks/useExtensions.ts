@@ -38,7 +38,6 @@ import TableCell from '@tiptap/extension-table-cell';
 import TableHeader from '@tiptap/extension-table-header';
 import TableRow from '@tiptap/extension-table-row';
 import { DivTag, SpanNode, StyleNode } from '../nodes';
-import TextStyle from '@tiptap/extension-text-style';
 import { IMentionUser } from '../../../types';
 import { getMentionSuggestions } from '../utils/getMentionSuggestions';
 import { generateJSON } from '@tiptap/html';
@@ -142,7 +141,6 @@ export default function useExtensions({
       TextAlign.configure({
         types: ['heading', 'paragraph', 'image']
       }),
-      TextStyle,
       Color,
       FontFamily,
       Highlight.configure({ multicolor: true }),
@@ -202,7 +200,6 @@ export function useGenerateJSON(html: string) {
     CustomLinkExtension,
     Gapcursor,
     TextAlign,
-    TextStyle,
     Color,
     FontFamily,
     Highlight,

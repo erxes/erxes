@@ -184,8 +184,8 @@ export type IEditorProps = {
   autoFocus?: boolean;
   toolbarLocation?: 'top' | 'bottom';
   autoGrow?: boolean;
-  autoGrowMinHeight?: number;
-  autoGrowMaxHeight?: number;
+  autoGrowMinHeight?: number | string;
+  autoGrowMaxHeight?: number | string;
   name?: string;
   isSubmitted?: boolean;
   formItems?: any;

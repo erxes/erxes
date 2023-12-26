@@ -1,8 +1,8 @@
 import React, { ReactNode, useRef } from 'react';
-import ButtonGroup from 'react-bootstrap/ButtonGroup';
 import Dropdown from 'react-bootstrap/Dropdown';
 import { ControlsGroupWrapper } from './styles';
-
+import { useRichTextEditorContext } from '../RichTextEditor.context';
+import DropdownButton from 'react-bootstrap/DropdownButton';
 export interface IRichTextEditorControlsGroupProps
   extends React.HTMLAttributes<HTMLDivElement> {
   /**
@@ -11,34 +11,46 @@ export interface IRichTextEditorControlsGroupProps
    * while the subsequent children are presented as items within the menu list.
    */
   isDropdown?: boolean;
+  controlNames?: Record<string, any> | string[];
+  toolbarPlacement?: 'top' | 'bottom';
   children: ReactNode;
 }
 
 export const RichTextEditorControlsGroup = (
   props: IRichTextEditorControlsGroupProps
 ) => {
-  const { isDropdown, children } = props;
+  const { isDropdown, controlNames, toolbarPlacement, children } = props;
+  const { editor, isSourceEnabled } = useRichTextEditorContext();
   const ref = useRef<HTMLDivElement>(null);
+
+  const isActive = isDropdown
+    ? controlNames
+        ?.map((name: Record<string, any> | string) => !!editor?.isActive(name))
+        .some(Boolean)
+    : false;
 
   if (isDropdown) {
     const childrenArray = React.Children.toArray(children);
     const firstChild = childrenArray?.length > 0 ? childrenArray[0] : null;
-    const dropdownMenuChildren = childrenArray.slice(1);
+
     return (
-      <ControlsGroupWrapper>
-        <Dropdown as={ButtonGroup}>
-          {firstChild}
-          <Dropdown.Toggle split={true} id="dropdown-split-basic" />
-          <Dropdown.Menu>
-            {React.Children.map(dropdownMenuChildren, (child, index) => {
-              return (
-                <Dropdown.Item key={index} as="button">
-                  {child}
-                </Dropdown.Item>
-              );
-            })}
-          </Dropdown.Menu>
-        </Dropdown>
+      <ControlsGroupWrapper
+        $isActive={isActive}
+        $toolbarPlacement={toolbarPlacement}
+      >
+        <DropdownButton
+          id="rte-controls-group-dropdown-button"
+          title={firstChild}
+          disabled={isSourceEnabled}
+        >
+          {React.Children.map(childrenArray, (child, index) => {
+            return (
+              <Dropdown.Item as="button" key={index}>
+                {child}
+              </Dropdown.Item>
+            );
+          })}
+        </DropdownButton>
       </ControlsGroupWrapper>
     );
   }

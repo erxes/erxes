@@ -21,6 +21,13 @@ const RichTextEditorWrapper = styled.div<{ $position: string }>`
   `}
   }
 `;
+
+const ProseMirrorWrapper = styled.div`
+   {
+    overflow-y: auto;
+  }
+`;
+
 const VariableWrapper = styled.div`
   padding-top: 0.25rem;
   padding-bottom: 0.25rem;
@@ -33,6 +40,7 @@ const VariableWrapper = styled.div`
   line-height: 1;
   background-color: #f1f5f9;
 `;
+
 const VariableListWrapper = styled.div`
   z-index: 50;
   padding: 0.25rem;
@@ -48,6 +56,7 @@ const VariableListWrapper = styled.div`
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
     0 2px 4px -1px rgba(0, 0, 0, 0.06);
 `;
+
 const VariableListBtn = styled.button<{ $focused?: boolean }>`
   display: flex;
   padding-top: 0.25rem;
@@ -101,6 +110,7 @@ const VariableLabel = styled.label`
 
 export {
   RichTextEditorWrapper,
+  ProseMirrorWrapper,
   VariableWrapper,
   VariableListWrapper,
   VariableListBtn,
