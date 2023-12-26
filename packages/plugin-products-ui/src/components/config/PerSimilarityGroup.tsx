@@ -6,11 +6,12 @@ import {
   ControlLabel,
   FormControl,
   FormGroup,
+  Icon,
   Tip
 } from '@erxes/ui/src/components';
 import { MainStyleModalFooter as ModalFooter } from '@erxes/ui/src/styles/eindex';
 import { FormColumn, FormWrapper } from '@erxes/ui/src/styles/main';
-import { __ } from '@erxes/ui/src/utils';
+import { Alert, __, confirm } from '@erxes/ui/src/utils';
 import React from 'react';
 import { IConfigsMap } from '../../types';
 
@@ -55,7 +56,13 @@ class PerSettings extends React.Component<Props, State> {
   onDelete = e => {
     e.preventDefault();
 
-    this.props.delete(this.props.currentConfigKey);
+    confirm(`This action will remove the config. Are you sure?`)
+      .then(() => {
+        this.props.delete(this.props.currentConfigKey);
+      })
+      .catch(error => {
+        Alert.error(error.message);
+      });
   };
 
   onChange = e => {
@@ -187,7 +194,7 @@ class PerSettings extends React.Component<Props, State> {
         </FormWrapper>
         <Tip text={'Delete'}>
           <Button
-            btnStyle="simple"
+            btnStyle="danger"
             size="small"
             onClick={onRemove.bind(this, rule.id)}
             icon="times"
@@ -205,6 +212,8 @@ class PerSettings extends React.Component<Props, State> {
         open={
           this.props.currentConfigKey === 'newSimilarityGroup' ? true : false
         }
+        transparent={true}
+        beforeTitle={<Icon icon="settings" />}
       >
         <FormWrapper>
           <FormColumn>{this.renderInput('title', 'Title', '')}</FormColumn>
@@ -215,15 +224,15 @@ class PerSettings extends React.Component<Props, State> {
         {this.renderRules()}
         <ModalFooter>
           <Button
-            btnStyle="primary"
+            btnStyle="success"
             onClick={this.addRule}
-            icon="plus"
+            icon="plus-circle"
             uppercase={false}
           >
             Add Rule
           </Button>
           <Button
-            btnStyle="simple"
+            btnStyle="danger"
             icon="cancel-1"
             onClick={this.onDelete}
             uppercase={false}
@@ -232,7 +241,7 @@ class PerSettings extends React.Component<Props, State> {
           </Button>
 
           <Button
-            btnStyle="primary"
+            btnStyle="success"
             icon="check-circle"
             onClick={this.onSave}
             uppercase={false}

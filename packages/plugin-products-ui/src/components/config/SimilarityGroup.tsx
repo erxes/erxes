@@ -5,7 +5,6 @@ import { IFieldGroup } from '@erxes/ui-forms/src/settings/properties/types';
 import client from '@erxes/ui/src/apolloClient';
 import { Button, HeaderDescription } from '@erxes/ui/src/components';
 import { Wrapper } from '@erxes/ui/src/layout';
-import { MainStyleTitle as Title } from '@erxes/ui/src/styles/eindex';
 import { __ } from '@erxes/ui/src/utils';
 import { isEnabled } from '@erxes/ui/src/utils/core';
 import React from 'react';
@@ -13,6 +12,7 @@ import { ContentBox } from '../../styles';
 import { IConfigsMap } from '../../types';
 import PerSettings from './PerSimilarityGroup';
 import Sidebar from './Sidebar';
+import { Title } from '@erxes/ui-settings/src/styles';
 
 type Props = {
   save: (configsMap: IConfigsMap) => void;
@@ -46,6 +46,12 @@ class GeneralSettings extends React.Component<Props, State> {
             fieldGroups: data ? data.fieldsGroups : [] || []
           });
         });
+    }
+  }
+
+  componentDidUpdate(prevProps: Readonly<Props>): void {
+    if (prevProps.configsMap !== this.props.configsMap) {
+      this.setState({ configsMap: this.props.configsMap || {} });
     }
   }
 
@@ -115,9 +121,9 @@ class GeneralSettings extends React.Component<Props, State> {
 
     const actionButtons = (
       <Button
-        btnStyle="primary"
+        btnStyle="success"
         onClick={this.add}
-        icon="plus"
+        icon="plus-circle"
         uppercase={false}
       >
         New config

@@ -23,10 +23,7 @@ import {
   IButtonMutateProps,
   IFormProps
 } from '@erxes/ui/src/types';
-import {
-  extractAttachment,
-  generateCategoryOptions
-} from '@erxes/ui/src/utils';
+import { extractAttachment } from '@erxes/ui/src/utils';
 import { __ } from '@erxes/ui/src/utils/core';
 import React from 'react';
 import { TAX_TYPES, TYPES } from '../constants';
@@ -34,6 +31,7 @@ import CategoryForm from '../containers/CategoryForm';
 import { queries } from '../graphql';
 import { BarcodeItem, TableBarcode } from '../styles';
 import { IProduct, IProductCategory, IUom, IVariant } from '../types';
+import Select from 'react-select-plus';
 
 type Props = {
   product?: IProduct;
@@ -385,8 +383,8 @@ class Form extends React.Component<Props, State> {
     } as any);
   };
 
-  onChangeCateogry = e => {
-    const value = e.target.value;
+  onChangeCateogry = option => {
+    const value = option.value;
 
     this.setState({
       categoryId: value,
@@ -526,6 +524,13 @@ class Form extends React.Component<Props, State> {
       maskStr
     } = this.state;
 
+    const generateOptions = () => {
+      return productCategories.map(item => ({
+        label: item.name,
+        value: item._id
+      }));
+    };
+
     return (
       <>
         <FormWrapper>
@@ -533,17 +538,13 @@ class Form extends React.Component<Props, State> {
             <FormGroup>
               <ControlLabel required={true}>Category</ControlLabel>
               <Row>
-                <FormControl
+                <Select
                   {...formProps}
-                  name="categoryId"
-                  componentClass="select"
-                  defaultValue={categoryId}
-                  required={true}
+                  placeholder={__('Choose a category')}
+                  value={categoryId}
+                  options={generateOptions()}
                   onChange={this.onChangeCateogry}
-                >
-                  {generateCategoryOptions(productCategories)}
-                </FormControl>
-
+                />
                 {this.renderFormTrigger(trigger)}
               </Row>
             </FormGroup>

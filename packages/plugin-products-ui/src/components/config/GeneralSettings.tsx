@@ -4,7 +4,8 @@ import {
   CollapseContent,
   ControlLabel,
   FormControl,
-  FormGroup
+  FormGroup,
+  Icon
 } from '@erxes/ui/src/components';
 import { Title } from '@erxes/ui-settings/src/styles';
 import { __ } from '@erxes/ui/src/utils';
@@ -37,6 +38,12 @@ class GeneralSettings extends React.Component<Props, State> {
       is_uom: props.configsMap.isRequireUOM || false,
       defaultUOM: props.configsMap.defaultUOM ? props.configsMap.defaultUOM : ''
     };
+  }
+
+  componentDidUpdate(prevProps: Readonly<Props>): void {
+    if (prevProps.configsMap !== this.props.configsMap) {
+      this.setState({ currentMap: this.props.configsMap.ERKHET || {} });
+    }
   }
 
   save = e => {
@@ -113,7 +120,7 @@ class GeneralSettings extends React.Component<Props, State> {
 
     const actionButtons = (
       <Button
-        btnStyle="primary"
+        btnStyle="success"
         onClick={this.save}
         icon="check-circle"
         uppercase={false}
@@ -124,7 +131,11 @@ class GeneralSettings extends React.Component<Props, State> {
 
     const content = (
       <ContentBox id={'GeneralSettingsMenu'}>
-        <CollapseContent title="General settings">
+        <CollapseContent
+          title="General settings"
+          beforeTitle={<Icon icon="settings" />}
+          transparent={true}
+        >
           {this.renderCheckbox('isRequireUOM', 'is Required UOM', '')}
           {this.state.is_uom &&
             this.renderCombobox('defaultUOM', 'default uom')}
