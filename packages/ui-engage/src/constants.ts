@@ -38,6 +38,7 @@ export const METHODS = {
   MESSENGER: 'messenger',
   EMAIL: 'email',
   SMS: 'sms',
+  NOTIFICATION: 'notification',
   ALL_LIST: ['messenger', 'email', 'sms']
 };
 
