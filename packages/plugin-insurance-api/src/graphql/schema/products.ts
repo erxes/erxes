@@ -16,6 +16,22 @@ type CompanyProductConfig {
     coverage: Float
     coverageLimit: Float
   }
+
+  type TravelProductConfig {
+    duration: Int
+    prices: JSON
+  }
+
+  input TravelProductConfigInput {
+    duration: Int
+    prices: JSON
+  }
+
+  type TravelDestination {
+    _id: ID!
+    name: String
+    code: String
+  }
   
   type InsuranceProduct @key(fields: "_id") @cacheControl(maxAge: 3) {
     _id: ID!
@@ -34,6 +50,8 @@ type CompanyProductConfig {
     category: InsuranceCategory
 
     customFieldsData: JSON
+
+    travelProductConfigs: [TravelProductConfig]
   }
   
   type InsuranceProductOfVendor @key(fields: "_id") @cacheControl(maxAge: 3) {
@@ -84,6 +102,7 @@ export const mutations = `
         categoryId: ID
         companyProductConfigs: [CompanyProductConfigInput]
         customFieldsData: JSON
+        travelProductConfigs: [TravelProductConfigInput]
     ): InsuranceProduct
     insuranceProductsEdit(
         _id: ID!
@@ -91,10 +110,24 @@ export const mutations = `
         code: String
         description: String
         price: Float
-      riskConfigs: [RiskConfigInput]
-      categoryId: ID
+        riskConfigs: [RiskConfigInput]
+        categoryId: ID
         companyProductConfigs: [CompanyProductConfigInput]
         customFieldsData: JSON
+        travelProductConfigs: [TravelProductConfigInput]
     ): InsuranceProduct
     insuranceProductsRemove(_id: ID!): String
+
+    insuranceDestinationAdd(
+        name: String!
+        code: String!
+    ): TravelDestination
+
+    insuranceDestinationEdit(
+        _id: ID!
+        name: String
+        code: String
+    ): TravelDestination
+
+    insuranceDestinationRemove(_id: ID!): String
 `;

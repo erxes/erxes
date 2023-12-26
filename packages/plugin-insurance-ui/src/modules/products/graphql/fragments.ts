@@ -37,6 +37,11 @@ export const PRODUCT_CORE_FIELDS = gql`
         name
       }
     }
+
+    travelProductConfigs {
+      duration
+      prices
+    }
   }
 `;
 

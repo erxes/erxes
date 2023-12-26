@@ -21,6 +21,7 @@ export type InsuranceProductListQuery = {
       price?: number | null;
       description?: string | null;
       updatedAt?: any | null;
+      customFieldsData?: any | null;
       categoryId?: string | null;
       lastModifiedBy?: {
         __typename?: 'User';
@@ -58,6 +59,11 @@ export type InsuranceProductListQuery = {
           name?: string | null;
         } | null> | null;
       } | null;
+      travelProductConfigs?: Array<{
+        __typename?: 'TravelProductConfig';
+        duration?: number | null;
+        prices?: any | null;
+      } | null> | null;
     } | null> | null;
   } | null;
 };
@@ -75,4 +81,49 @@ export type InsuranceProductsQuery = {
     _id: string;
     name?: string | null;
   } | null> | null;
+};
+
+export type InsuranceProductQueryVariables = Types.Exact<{
+  _id: Types.Scalars['ID']['input'];
+}>;
+
+export type InsuranceProductQuery = {
+  __typename?: 'Query';
+  insuranceProduct?: {
+    __typename?: 'InsuranceProduct';
+    _id: string;
+    name?: string | null;
+    code?: string | null;
+    price?: number | null;
+    description?: string | null;
+    updatedAt?: any | null;
+    customFieldsData?: any | null;
+    categoryId?: string | null;
+    companyProductConfigs?: Array<{
+      __typename?: 'CompanyProductConfig';
+      companyId: string;
+      specificPrice?: number | null;
+    } | null> | null;
+    riskConfigs?: Array<{
+      __typename?: 'RiskConfig';
+      riskId: string;
+      coverage?: number | null;
+      coverageLimit?: number | null;
+    } | null> | null;
+    category?: {
+      __typename?: 'InsuranceCategory';
+      _id: string;
+      name?: string | null;
+      risks?: Array<{
+        __typename?: 'Risk';
+        _id: string;
+        name?: string | null;
+      } | null> | null;
+    } | null;
+    travelProductConfigs?: Array<{
+      __typename?: 'TravelProductConfig';
+      duration?: number | null;
+      prices?: any | null;
+    } | null> | null;
+  } | null;
 };
