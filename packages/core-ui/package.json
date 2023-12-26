@@ -44,7 +44,6 @@
   "devDependencies": {
     "cypress": "^4.9.0",
     "cypress-file-upload": "^4.0.7",
-    "fs-extra": "^9.0.1",
     "node-watch": "^0.7.2",
     "path-browserify": "^1.0.1",
     "timers-browserify": "^2.0.12",
