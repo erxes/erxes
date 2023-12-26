@@ -14,8 +14,8 @@ import {
 
 import { debug } from '../../configs';
 
-import { graphqlPubsub } from '../../configs';
 import redis from '@erxes/api-utils/src/redis';
+import { graphqlPubsub } from '../../configs';
 
 import {
   AUTO_BOT_MESSAGES,
@@ -24,25 +24,24 @@ import {
 
 import { getEnv, sendRequest } from '@erxes/api-utils/src';
 
-import { solveSubmissions } from '../../widgetUtils';
-import { conversationNotifReceivers } from './conversationMutations';
 import { IBrowserInfo } from '@erxes/api-utils/src/definitions/common';
-import {
-  client as msgBrokerClient,
-  sendContactsMessage,
-  sendProductsMessage,
-  sendFormsMessage,
-  sendCoreMessage,
-  sendIntegrationsMessage,
-  sendLogsMessage,
-  sendToWebhook,
-  sendAutomationsMessage
-} from '../../messageBroker';
-import { trackViewPageEvent } from '../../events';
 import EditorAttributeUtil from '@erxes/api-utils/src/editorAttributeUtils';
 import { getServices } from '@erxes/api-utils/src/serviceDiscovery';
 import { IContext, IModels } from '../../connectionResolver';
 import { VERIFY_EMAIL_TRANSLATIONS } from '../../constants';
+import { trackViewPageEvent } from '../../events';
+import {
+  client as msgBrokerClient,
+  sendAutomationsMessage,
+  sendContactsMessage,
+  sendCoreMessage,
+  sendFormsMessage,
+  sendIntegrationsMessage,
+  sendLogsMessage,
+  sendProductsMessage,
+  sendToWebhook
+} from '../../messageBroker';
+import { solveSubmissions } from '../../widgetUtils';
 
 interface IWidgetEmailParams {
   toEmails: string[];

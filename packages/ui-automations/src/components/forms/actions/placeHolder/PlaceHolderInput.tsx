@@ -145,40 +145,29 @@ class PlaceHolderInput extends React.Component<Props, State> {
       return '';
     }
 
+    const updatedProps = {
+      inputName: inputName,
+      config: this.state.config,
+      setConfig: conf => this.onSelect(conf),
+      triggerType: this.props.triggerType,
+      onlySet: this.getOnlySet(),
+      fieldType: fieldType,
+      attrType: attrType,
+      attrTypes: attrTypes,
+      customAttributions: this.props.customAttributions
+    };
+
     if (attrWithSegmentConfig) {
       return (
         <AttriibutionForms segmentId={triggerConfig?.contentId}>
           {config => {
-            return (
-              <Attribution
-                inputName={inputName}
-                config={this.state.config}
-                setConfig={conf => this.onSelect(conf)}
-                triggerType={this.props.triggerType}
-                onlySet={this.getOnlySet()}
-                fieldType={fieldType}
-                attrConfig={config}
-                customAttributions={this.props.customAttributions}
-              />
-            );
+            return <Attribution {...updatedProps} attrConfig={config} />;
           }}
         </AttriibutionForms>
       );
     }
 
-    return (
-      <Attribution
-        inputName={inputName}
-        config={this.state.config}
-        setConfig={conf => this.onSelect(conf)}
-        triggerType={this.props.triggerType}
-        onlySet={this.getOnlySet()}
-        fieldType={fieldType}
-        attrType={attrType}
-        attrTypes={attrTypes}
-        customAttributions={this.props.customAttributions}
-      />
-    );
+    return <Attribution {...updatedProps} />;
   }
 
   onChange = e => {

@@ -96,7 +96,7 @@ const ReportFormModal = (props: Props) => {
     const { values } = formProps;
 
     return (
-      <FlexColumn style={{ gap: '20px' }}>
+      <FlexColumn style={{ gap: '30px' }}>
         <div>
           <ControlLabel>Report Name</ControlLabel>
           <FormControl
@@ -133,29 +133,31 @@ const ReportFormModal = (props: Props) => {
           />
         )}
 
-        {chartTemplates
-          .filter(c => c.templateType in templateCharts)
-          .map(chartTemplate => {
-            return (
-              <FlexRow
-                key={chartTemplate.templateType}
-                justifyContent="space-between"
-              >
-                <ControlLabel>{chartTemplate.name}</ControlLabel>
-                <FormControl
-                  componentClass="checkbox"
-                  name={chartTemplate.templateType}
-                  checked={templateCharts[chartTemplate.templateType]}
-                  key={chartTemplate.name}
-                  onChange={(v: any) => {
-                    templateCharts[chartTemplate.templateType] =
-                      v.target.checked;
-                    setTemplateCharts({ ...templateCharts });
-                  }}
-                />
-              </FlexRow>
-            );
-          })}
+        <FlexColumn style={{ gap: '20px' }}>
+          {chartTemplates
+            .filter(c => c.templateType in templateCharts)
+            .map(chartTemplate => {
+              return (
+                <FlexRow
+                  key={chartTemplate.templateType}
+                  justifyContent="space-between"
+                >
+                  <ControlLabel>{chartTemplate.name}</ControlLabel>
+                  <FormControl
+                    componentClass="checkbox"
+                    name={chartTemplate.templateType}
+                    checked={templateCharts[chartTemplate.templateType]}
+                    key={chartTemplate.name}
+                    onChange={(v: any) => {
+                      templateCharts[chartTemplate.templateType] =
+                        v.target.checked;
+                      setTemplateCharts({ ...templateCharts });
+                    }}
+                  />
+                </FlexRow>
+              );
+            })}
+        </FlexColumn>
 
         <FlexCenter>
           <Button btnStyle="primary" onClick={() => setShowModal(false)}>

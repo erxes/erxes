@@ -24,7 +24,9 @@ const SipProviderContainer = props => {
     return null;
   }
 
-  if (error) return Alert.error(error.message);
+  if (error) {
+    return Alert.error(error.message);
+  }
   const { callIntegrationsOfUser } = data;
 
   if (!callIntegrationsOfUser || callIntegrationsOfUser.length === 0) {
@@ -46,6 +48,15 @@ const SipProviderContainer = props => {
   if (!config) {
     return (
       <ModalTrigger title="Call Config Modal" content={content} isOpen={true} />
+    );
+  }
+  if (!config.isAvailable) {
+    return (
+      <WidgetContainer
+        {...props}
+        callIntegrationsOfUser={callIntegrationsOfUser}
+        setConfig={handleSetConfig}
+      />
     );
   }
 

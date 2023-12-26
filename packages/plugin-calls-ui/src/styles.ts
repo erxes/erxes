@@ -392,3 +392,31 @@ export const CallTabContent = styledTS<{ tab: string; show: boolean }>(
     flex: 1;
   }
 `;
+
+export const NotifButton = styled.div`
+  cursor: pointer;
+  text-align: center;
+  width: 100%;
+  position: relative;
+  transition: all 0.3s ease;
+  color: ${colors.textSecondary};
+
+  span {
+    position: absolute;
+    top: -4px;
+    right: -8px;
+    padding: 3px;
+    min-width: 18px;
+    min-height: 18px;
+    line-height: 12px;
+  }
+`;
+
+export const DisconnectCall = styled.div`
+  padding: 10px 20px;
+  width: 100%;
+  button {
+    margin: 0;
+    width: 100%;
+  }
+`;

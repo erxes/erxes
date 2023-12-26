@@ -24,6 +24,7 @@ export interface IExecution {
   actions?: IExecAction[];
   startWaitingDate?: Date;
   waitingActionId?: string;
+  objToCheck?: any;
 }
 
 export interface IExecutionDocument extends IExecution, Document {
@@ -37,7 +38,7 @@ export const EXECUTION_STATUS = {
   MISSID: 'missed',
   COMPLETE: 'complete',
   ALL: ['active', 'waiting', 'error', 'missed', 'complete']
-}
+};
 
 const execActionSchema = new Schema({
   createdAt: { type: Date, default: Date.now(), required: true },
@@ -46,7 +47,7 @@ const execActionSchema = new Schema({
   actionConfig: { type: Object },
   nextActionId: { type: String },
   result: { type: Object }
-})
+});
 
 export const executionSchema = new Schema({
   createdAt: { type: Date, default: Date.now(), required: true },
@@ -69,4 +70,5 @@ export const executionSchema = new Schema({
   actions: { type: [execActionSchema] },
   startWaitingDate: { type: Date },
   waitingActionId: { type: String },
+  objToCheck: { type: Object, optional: true }
 });

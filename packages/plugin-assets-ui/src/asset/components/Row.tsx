@@ -1,17 +1,20 @@
 import React from 'react';
-import {
-  ModalTrigger,
-  Icon,
-  FormControl,
-  Button,
-  Tip,
-  router
-} from '@erxes/ui/src';
 import { IAsset } from '../../common/types';
-import AssetForm from '../containers/Form';
-import { MoreContainer, Badge, ContainerBox } from '../../style';
-import AssignArticles from '../containers/AssignArticles';
+import {
+  Button,
+  FormControl,
+  Icon,
+  ModalTrigger,
+  Tip,
+  router,
+  __,
+  ActionButtons
+} from '@erxes/ui/src';
+import { Badge, ContainerBox, MoreContainer } from '../../style';
 import { isEnabled } from '@erxes/ui/src/utils/core';
+import AssetForm from '../containers/AssetForm';
+import AssignArticles from '../containers/actions/Assign';
+
 type Props = {
   asset: IAsset;
   history: any;
@@ -24,17 +27,22 @@ type Props = {
   ) => void;
 };
 
-class Row extends React.Component<Props> {
-  constructor(props) {
-    super(props);
-  }
+function Row(props: Props) {
+  const {
+    asset,
+    history,
+    queryParams,
+    isChecked,
+    toggleBulk,
+    assignKbArticles
+  } = props;
 
-  renderKbAssignForm() {
-    const { asset, assignKbArticles, queryParams } = this.props;
+  const { code, name, category, parent, childAssetCount, unitPrice } = asset;
 
-    const content = props => (
+  const renderKbAssignForm = () => {
+    const articleContent = articleProps => (
       <AssignArticles
-        {...props}
+        {...articleProps}
         assignedArticleIds={asset.kbArticleIds}
         objects={[asset]}
         queryParams={queryParams}
@@ -42,7 +50,13 @@ class Row extends React.Component<Props> {
       />
     );
 
-    const trigger = <Icon icon="light-bulb" />;
+    const trigger = (
+      <Button btnStyle="link">
+        <Tip text={__('Assign Knowledgebase')} placement="bottom">
+          <Icon icon="light-bulb" />
+        </Tip>
+      </Button>
+    );
 
     return (
       <ModalTrigger
@@ -50,76 +64,75 @@ class Row extends React.Component<Props> {
         size="lg"
         dialogClassName="modal-1000w"
         trigger={trigger}
-        content={content}
+        content={articleContent}
       />
     );
-  }
-  render() {
-    const { asset, history, queryParams, toggleBulk, isChecked } = this.props;
+  };
 
-    const onChange = e => {
-      if (toggleBulk) {
-        toggleBulk(asset, e.target.checked);
-      }
-    };
+  const onRowClick = () => {
+    history.push(`/settings/assets/detail/${asset._id}`);
+  };
 
-    const onClick = e => {
-      e.stopPropagation();
-    };
+  const onCellClick = e => {
+    e.stopPropagation();
+  };
 
-    const onTrClick = () => {
-      history.push(`/settings/assets/detail/${asset._id}`);
-    };
+  const onChange = e => {
+    if (toggleBulk) {
+      toggleBulk(asset, e.target.checked);
+    }
+  };
 
-    const handleParent = () => {
-      if (queryParams.categoryId) {
-        router.removeParams(history, 'categoryId');
-      }
-      router.setParams(history, { parentId: this.props.asset._id });
-    };
+  const handleParent = () => {
+    if (queryParams.categoryId) {
+      router.removeParams(history, 'categoryId');
+    }
+    router.setParams(history, { assetId: asset._id });
+  };
 
-    const content = props => <AssetForm {...props} asset={asset} />;
+  const content = formProps => <AssetForm {...formProps} asset={asset} />;
 
-    const { code, name, category, parent, childAssetCount, unitPrice } = asset;
-
-    return (
-      <tr onClick={onTrClick}>
-        <td onClick={onClick}>
-          <FormControl
-            checked={isChecked}
-            componentClass="checkbox"
-            onChange={onChange}
+  return (
+    <tr onClick={onRowClick}>
+      <td onClick={onCellClick}>
+        <FormControl
+          checked={isChecked}
+          componentClass="checkbox"
+          onChange={onChange}
+        />
+      </td>
+      <td>{code}</td>
+      <td>{name}</td>
+      <td>{category ? category.name : ''}</td>
+      <td>{parent ? parent.name : ''}</td>
+      <td>{(unitPrice || 0).toLocaleString()}</td>
+      <td onClick={onCellClick}>
+        <ActionButtons>
+          {childAssetCount > 0 && (
+            <Button btnStyle="link">
+              <Tip text="See sub assets">
+                <Icon icon="sitemap-1" onClick={handleParent} />
+              </Tip>
+              {/* <Badge>{childAssetCount}</Badge> */}
+            </Button>
+          )}
+          {isEnabled('knowledgebase') && renderKbAssignForm()}
+          <ModalTrigger
+            title="Edit basic info"
+            trigger={
+              <Button btnStyle="link">
+                <Tip text={__('Edit')} placement="bottom">
+                  <Icon icon="edit-3" />
+                </Tip>
+              </Button>
+            }
+            size="lg"
+            content={content}
           />
-        </td>
-        <td>{code}</td>
-        <td>{name}</td>
-        <td>{category ? category.name : ''}</td>
-        <td>{parent ? parent.name : ''}</td>
-        <td>{(unitPrice || 0).toLocaleString()}</td>
-        <td onClick={onClick}>
-          <ContainerBox row gap={10} justifyEnd>
-            {childAssetCount > 0 && (
-              <MoreContainer>
-                <Button btnStyle="link" onClick={handleParent}>
-                  <Tip text="See sub assets">
-                    <Icon icon="sitemap-1" />
-                  </Tip>
-                </Button>
-                <Badge>{childAssetCount}</Badge>
-              </MoreContainer>
-            )}
-            {isEnabled('knowledgebase') && this.renderKbAssignForm()}
-            <ModalTrigger
-              title="Edit basic info"
-              trigger={<Icon icon="edit" />}
-              enforceFocus={false}
-              size="lg"
-              content={content}
-            />
-          </ContainerBox>
-        </td>
-      </tr>
-    );
-  }
+        </ActionButtons>
+      </td>
+    </tr>
+  );
 }
+
 export default Row;

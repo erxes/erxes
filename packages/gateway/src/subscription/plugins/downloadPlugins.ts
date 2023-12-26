@@ -26,9 +26,8 @@ export default async function downloadPlugins(): Promise<void> {
 
   const allServices: any[] = await Promise.all(
     serviceNames.map(async serviceName => {
-      const service: any = await getService(serviceName, true);
-      service.name = serviceName;
-      return service;
+      const service: any = await getService(serviceName);
+      return { ...service, name: serviceName };
     })
   );
 

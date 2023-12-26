@@ -124,6 +124,17 @@ function Filter({ queryParams = {}, filterTitle, history }: IProps) {
       );
     }
 
+    if (queryParams.startDate || queryParams.endDate) {
+      const onClick = () =>
+        onClickClose([queryParams.startDate ? 'startDate' : 'endDate']);
+
+      return (
+        <Chip onClick={onClick}>
+          {queryParams.startDate || queryParams.endDate}
+        </Chip>
+      );
+    }
+
     return null;
   };
 
@@ -159,6 +170,20 @@ function Filter({ queryParams = {}, filterTitle, history }: IProps) {
       {renderFilterParam('groupId', true, filterTitle)}
       {renderFilterParam('tagType', true, filterTitle)}
       {renderFilterParam('contentType', true, filterTitle)}
+      {renderFilterParam('type', false, filterTitle)}
+      {renderFilterParam('action', false, filterTitle)}
+      {renderFilterWithData('userId', 'user', 'details{fullName}, email')}
+      {renderFilterWithData(
+        'assetCategoryId',
+        'assetCategory',
+        '_id, code, name'
+      )}
+      {renderFilterWithData(
+        'knowledgebaseCategoryId',
+        'knowledgeBaseCategory',
+        '_id, title'
+      )}
+      {renderFilterWithData('assetId', 'asset', '_id, code, name')}
     </Filters>
   );
 }

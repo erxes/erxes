@@ -31,7 +31,7 @@ const segmentQueries = {
     let types: Array<{ name: string; description: string }> = [];
 
     for (const serviceName of serviceNames) {
-      const service = await serviceDiscovery.getService(serviceName, true);
+      const service = await serviceDiscovery.getService(serviceName);
       const meta = service.config.meta || {};
 
       if (meta.segments) {
@@ -58,7 +58,7 @@ const segmentQueries = {
   async segmentsGetAssociationTypes(_root, { contentType }) {
     const [serviceName] = contentType.split(':');
 
-    const service = await serviceDiscovery.getService(serviceName, true);
+    const service = await serviceDiscovery.getService(serviceName);
     const meta = service.config.meta || {};
 
     if (!meta.segments) {
@@ -83,7 +83,7 @@ const segmentQueries = {
         continue;
       }
 
-      const depService = await serviceDiscovery.getService(dService.name, true);
+      const depService = await serviceDiscovery.getService(dService.name);
       const depServiceMeta = depService.config.meta || {};
 
       if (depServiceMeta.segments) {

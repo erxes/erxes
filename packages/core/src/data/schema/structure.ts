@@ -53,6 +53,7 @@ export const types = `
         description: String
         department: Department
         users: [User]
+        userCount: Int
         userIds: [String]
     }
 

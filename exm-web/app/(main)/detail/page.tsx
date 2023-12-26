@@ -24,7 +24,7 @@ export default function Detail() {
 
   return (
     <>
-      <div className="flex h-full w-[62%] flex-col">
+      <div className="flex h-full w-[61%] flex-col">
         <div className="h-[65px] border-b border-[#eee] shrink-0" />
         <div className="bg-[#F8F9FA] h-full px-[25px]">
           {renderDetail()}

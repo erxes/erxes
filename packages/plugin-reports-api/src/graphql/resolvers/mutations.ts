@@ -18,7 +18,7 @@ const reportsMutations = {
     });
 
     if (doc.reportTemplateType) {
-      const service = await serviceDiscovery.getService(doc.serviceName, true);
+      const service = await serviceDiscovery.getService(doc.serviceName);
 
       const reportTemplate = service.config?.meta?.reports?.reportTemplates?.find(
         t => t.serviceType === doc.reportTemplateType
