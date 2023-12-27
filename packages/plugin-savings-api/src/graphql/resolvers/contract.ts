@@ -4,11 +4,11 @@ import { IContractDocument } from '../../models/definitions/contracts';
 import { IContract } from '../../models/definitions/contracts';
 
 const Contracts = {
-  contractType(contract: IContract, {}, { models }: IContext) {
+  contractType(contract: IContract, _, { models }: IContext) {
     return models.ContractTypes.findOne({ _id: contract.contractTypeId });
   },
 
-  async customers(contract: IContract, {}, { subdomain }: IContext) {
+  async customers(contract: IContract, _, { subdomain }: IContext) {
     if (contract.customerType !== 'customer') return null;
 
     const customer = await sendMessageBroker(
@@ -24,7 +24,7 @@ const Contracts = {
     return customer;
   },
 
-  async companies(contract: IContract, {}, { subdomain }: IContext) {
+  async companies(contract: IContract, _, { subdomain }: IContext) {
     if (contract.customerType !== 'company') return null;
 
     const company = await sendMessageBroker(
@@ -40,7 +40,7 @@ const Contracts = {
     return company;
   },
 
-  async hasTransaction(contract: IContractDocument, {}, { models }: IContext) {
+  async hasTransaction(contract: IContractDocument, _, { models }: IContext) {
     return (
       (await models.Transactions.countDocuments({
         contractId: contract._id
@@ -50,7 +50,7 @@ const Contracts = {
 
   async savingTransactionHistory(
     contract: IContractDocument,
-    {},
+    _,
     { models }: IContext
   ) {
     const transactions = await models.Transactions.find({
@@ -61,7 +61,7 @@ const Contracts = {
 
     return transactions;
   },
-  async storeInterest(contract: IContractDocument, {}, { models }: IContext) {
+  async storeInterest(contract: IContractDocument, _, { models }: IContext) {
     const transactions = await models.Transactions.find({
       contractId: contract._id
     })
@@ -69,6 +69,23 @@ const Contracts = {
       .lean();
 
     return transactions;
+  },
+  async loansOfForeclosed(
+    contract: IContractDocument,
+    _,
+    { subdomain }: IContext
+  ) {
+    const loans = await sendMessageBroker(
+      {
+        subdomain,
+        action: 'contracts.find',
+        data: { savingContractId: contract._id, status: { $ne: 'closed' } },
+        isRPC: true
+      },
+      'loans'
+    );
+
+    return loans;
   }
 };
 

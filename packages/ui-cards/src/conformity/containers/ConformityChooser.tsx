@@ -1,12 +1,14 @@
-import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
-import React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
-import ItemChooser from '../../boards/components/portable/ItemChooser';
-import Chooser, { CommonProps } from '@erxes/ui/src/components/Chooser';
+
 import { Alert, withProps } from '@erxes/ui/src/utils';
-import { mutations } from '../graphql';
+import Chooser, { CommonProps } from '@erxes/ui/src/components/Chooser';
 import { EditConformityMutation, IConformityEdit } from '../types';
+
+import ItemChooser from '../../boards/components/portable/ItemChooser';
+import React from 'react';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
+import { mutations } from '../graphql';
 
 type Props = {
   filterStageId?: (
@@ -15,11 +17,13 @@ type Props = {
     pipelineId?: string
   ) => void;
   onSelect?: (datas: any[]) => void;
+  onLoadMore?: () => void;
   stageId?: string;
   boardId?: string;
   pipelineId?: string;
   refetchQuery: string;
   chooserComponent?: any;
+  loading?: boolean;
 } & CommonProps;
 
 type FinalProps = {

@@ -28,6 +28,7 @@ const configFields = `
   waitingScreen
   kitchenScreen
   erxesAppToken
+  orderPassword
   uiOptions {
     colors
     logo
@@ -167,6 +168,7 @@ const getCheckoutConfig = gql`
     currentConfig {
       allowTypes
       banFractions
+      permissionConfig
     }
   }
 `

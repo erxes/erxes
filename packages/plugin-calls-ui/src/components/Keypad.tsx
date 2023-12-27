@@ -170,7 +170,7 @@ const KeyPad = (props: Props, context) => {
 
   const handleCallConnect = () => {
     const integration = callIntegrationsOfUser?.find(
-      integration => integration.phone === callFrom
+      userIntegration => userIntegration.phone === callFrom
     );
 
     localStorage.setItem(
@@ -204,7 +204,7 @@ const KeyPad = (props: Props, context) => {
 
   const handleCallDisConnect = () => {
     const integration = callIntegrationsOfUser?.find(
-      integration => integration.phone === callFrom
+      userIntegration => userIntegration.phone === callFrom
     );
     localStorage.setItem(
       'config:call_integrations',
@@ -287,7 +287,7 @@ const KeyPad = (props: Props, context) => {
     setCallFrom(status.value);
 
     const integration = callIntegrationsOfUser?.find(
-      integration => integration.phone === status.value
+      userIntegration => userIntegration.phone === status.value
     );
     localStorage.setItem(
       'config:call_integrations',

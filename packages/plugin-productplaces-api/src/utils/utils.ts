@@ -1,8 +1,10 @@
+import * as _ from 'lodash';
 import {
   sendContactsMessage,
   sendCoreMessage,
   sendProductsMessage,
-  sendSegmentsMessage
+  sendSegmentsMessage,
+  sendTagsMessage
 } from '../messageBroker';
 
 export const getConfig = async (subdomain, code, defaultValue?) => {
@@ -27,6 +29,19 @@ export const getChildCategories = async (subdomain: string, categoryIds) => {
   return Array.from(new Set(catIds));
 };
 
+export const getChildTags = async (subdomain: string, tagIds) => {
+  const childs = await sendTagsMessage({
+    subdomain,
+    action: 'withChilds',
+    data: { query: { _id: { $in: tagIds } }, fields: { _id: 1 } },
+    isRPC: true,
+    defaultValue: []
+  });
+
+  const foundTagIds: string[] = (childs || []).map(ch => ch._id) || [];
+  return Array.from(new Set(foundTagIds));
+};
+
 export const checkCondition = async (
   subdomain,
   pdata,
@@ -34,6 +49,7 @@ export const checkCondition = async (
   productById
 ) => {
   let categoryRes = true;
+  let tagRes = true;
   let segmentRes = true;
   let numberRes = true;
   let checkUomRes = true;
@@ -122,6 +138,22 @@ export const checkCondition = async (
     return false;
   }
 
+  if (condition.productTagIds && condition.productTagIds.length) {
+    tagRes = false;
+    const product = productById[pdata.productId];
+
+    if (
+      !(condition.excludeProductIds || []).includes(product._id) &&
+      _.intersection(condition.calcedTagIds, product.tagIds).length
+    ) {
+      tagRes = true;
+    }
+  }
+
+  if (!tagRes) {
+    return false;
+  }
+
   if (condition.segmentIds && condition.segmentIds.length) {
     segmentRes = false;
     for (const segmentId of condition.segmentIds) {
@@ -142,7 +174,7 @@ export const checkCondition = async (
     return false;
   }
 
-  return categoryRes && segmentRes && numberRes && checkUomRes;
+  return categoryRes && segmentRes && numberRes && checkUomRes && tagRes;
 };
 
 const getCustomerName = customer => {

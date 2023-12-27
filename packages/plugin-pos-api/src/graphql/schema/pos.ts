@@ -15,6 +15,7 @@ const groupCommonFields = `
 const posCommonFields = `
   name: String
   description: String
+  orderPassword: String
   pdomain: String
   productDetails: [String]
   adminIds: [String]

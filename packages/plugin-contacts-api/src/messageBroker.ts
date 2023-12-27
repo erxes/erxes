@@ -8,9 +8,14 @@ import { serviceDiscovery } from './configs';
 import { generateModels } from './connectionResolver';
 import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
 import { getNumberOfVisits } from './events';
-import { AWS_EMAIL_STATUSES, EMAIL_VALIDATION_STATUSES } from './constants';
+import {
+  AWS_EMAIL_STATUSES,
+  EMAIL_VALIDATION_STATUSES,
+  MODULE_NAMES
+} from './constants';
 import { updateContactsField } from './utils';
 import { sendToWebhook as sendWebhook } from '@erxes/api-utils/src';
+import { putCreateLog } from './logUtils';
 
 export let client;
 
@@ -336,9 +341,22 @@ export const initBroker = cl => {
     async ({ subdomain, data }) => {
       const models = await generateModels(subdomain);
 
+      const customer = await models.Customers.createMessengerCustomer(data);
+
+      await putCreateLog(
+        models,
+        subdomain,
+        {
+          type: MODULE_NAMES.CUSTOMER,
+          newData: customer,
+          object: customer
+        },
+        null
+      );
+
       return {
         status: 'success',
-        data: await models.Customers.createMessengerCustomer(data)
+        data: customer
       };
     }
   );

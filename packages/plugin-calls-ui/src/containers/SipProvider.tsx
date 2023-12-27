@@ -211,7 +211,6 @@ const SipProviderContainer = props => {
         {...props}
         callIntegrationsOfUser={callIntegrationsOfUser}
         setConfig={handleSetConfig}
-        removeActiveSession={removeSession}
       />
     );
   }

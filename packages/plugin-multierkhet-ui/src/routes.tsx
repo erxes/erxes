@@ -16,12 +16,6 @@ const StageSettings = asyncComponent(() =>
   )
 );
 
-const StageMoveSettings = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "StageSettings" */ './components/MoveStageSettings'
-  )
-);
-
 const ReturnStageSettings = asyncComponent(() =>
   import(
     /* webpackChunkName: "ReturnStageSettings" */ './components/ReturnStageSettings'
@@ -70,12 +64,6 @@ const GeneralSetting = () => {
 
 const StageSetting = () => {
   return <Settings component={StageSettings} configCode="stageInSaleConfig" />;
-};
-
-const StageMoveSetting = () => {
-  return (
-    <Settings component={StageMoveSettings} configCode="stageInMoveConfig" />
-  );
 };
 
 const ReturnStageSetting = () => {
@@ -150,13 +138,6 @@ const routes = () => {
         exact={true}
         path="/erxes-plugin-multi-erkhet/settings/stage"
         component={StageSetting}
-      />
-
-      <Route
-        key="/erxes-plugin-multi-erkhet/settings/move-stage"
-        exact={true}
-        path="/erxes-plugin-multi-erkhet/settings/move-stage"
-        component={StageMoveSetting}
       />
 
       <Route

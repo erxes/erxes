@@ -3,8 +3,6 @@ import {
   SidebarList as List
 } from '@erxes/ui/src/layout';
 import { __ } from '@erxes/ui/src/utils';
-import { Button } from '@erxes/ui/src/components';
-import { MainStyleTopHeader as TopHeader } from '@erxes/ui/src/styles/eindex';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import SidebarHeader from '@erxes/ui-settings/src/common/components/SidebarHeader';
@@ -42,10 +40,6 @@ class Sidebar extends React.Component {
           {this.renderListItem(
             '/erxes-plugin-multi-erkhet/settings/pipeline',
             'Pipeline remiainder config'
-          )}
-          {this.renderListItem(
-            '/erxes-plugin-multi-erkhet/settings/move-stage',
-            'Stage in Erkhet movement config'
           )}
         </List>
       </LeftSidebar>

@@ -19,7 +19,7 @@ class ItemProductProbabilities extends React.Component<Props, {}> {
 
     return (
       <div>
-        <span>{__('Forecasted') + `(${probabilityPercentage})`}</span>
+        <span>{__('Forecasted') + `(${probabilityPercentage}%)`}</span>
         {renderPercentedAmount(totalAmount, probabilityPercentage)}
       </div>
     );
@@ -106,7 +106,8 @@ class ItemProductProbabilities extends React.Component<Props, {}> {
             </div>
           )}
           {probability &&
-            window.location.pathname.includes('deal/calendar') &&
+            (window.location.pathname.includes('deal/board') ||
+              window.location.pathname.includes('deal/calendar')) &&
             this.renderForecast(
               parseInt(this.renderPercentage(probability), 10)
             )}

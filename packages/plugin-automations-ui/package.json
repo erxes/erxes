@@ -2,7 +2,6 @@
   "name": "@erxes/plugin-automations-ui",
   "version": "1.0.0",
   "scripts": {
-    "install-deps": "yarn install",
     "start": "webpack serve --mode development",
     "build": "webpack --mode production"
   },
@@ -10,6 +9,7 @@
     "@erxes/ui" : "*",
     "jsplumb": "^2.15.6",
     "prismjs": "^1.26.0",
+    "reactflow": "11.10.1",
     "react-simple-code-editor": "^0.11.0"
   }
 }

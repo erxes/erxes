@@ -34,6 +34,7 @@ type Props = {
   messengerApps?: IMessengerApps;
   activeStep?: string;
   facebook?: string;
+  instagram?: string;
   twitter?: string;
   youtube?: string;
 };

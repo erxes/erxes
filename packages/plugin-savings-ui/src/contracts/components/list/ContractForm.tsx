@@ -279,6 +279,7 @@ class ContractForm extends React.Component<Props, State> {
                 <DateContainer>
                   <DateControl
                     {...formProps}
+                    dateFormat="YYYY/MM/DD"
                     required={false}
                     name="startDate"
                     value={this.state.startDate}

@@ -112,6 +112,11 @@ ${
     vendor
   }
 
+  type SocialpayConfig {
+    publicKey: String
+    certId: String
+  }
+
   type ClientPortal {
     _id: String!
     name: String!
@@ -177,6 +182,8 @@ ${
     testUserPhone: String
     testUserPassword: String
     testUserOTP: String
+
+    socialpayConfig: SocialpayConfig
   }
 
   type Styles {
@@ -284,6 +291,7 @@ ${
     tokenExpiration: Int
     refreshTokenExpiration: Int
     vendorParentProductCategoryId: String
+    socialpayConfig: JSON
   }
 `;
 

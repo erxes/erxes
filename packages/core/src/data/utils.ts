@@ -21,6 +21,7 @@ import {
 } from '../messageBroker';
 import { graphqlPubsub } from '../pubsub';
 import { getService, getServices, redis } from '../serviceDiscovery';
+import { IActionsMap, IModuleMap } from './permissions/utils';
 
 export interface IEmailParams {
   toEmails?: string[];
@@ -964,7 +965,7 @@ export const readFileRequest = async ({
   const services = await getServices();
 
   for (const serviceName of services) {
-    const service = await getService(serviceName, true);
+    const service = await getService(serviceName);
     const meta = service.config?.meta || {};
 
     if (meta && meta.readFileHook) {

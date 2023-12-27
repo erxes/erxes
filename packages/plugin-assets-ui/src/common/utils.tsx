@@ -16,7 +16,7 @@ import {
 } from '@erxes/ui/src';
 import { IOption, IQueryParams } from '@erxes/ui/src/types';
 import React from 'react';
-import { queries as assetCategoryQueries } from '../asset/category/graphql';
+import { queries as assetCategoryQueries } from '../asset/graphql';
 import { queries as assetQueries } from '../asset/graphql';
 import { ASSET_CATEGORY_STATUS_FILTER } from './constant';
 import { CommonFormGroupTypes, IAsset, IAssetCategoryTypes } from './types';
@@ -34,7 +34,8 @@ export const DefaultWrapper = ({
   sidebar,
   isPaginationHide,
   breadcrumb,
-  subMenu
+  subMenu,
+  queryParams
 }: {
   title: string;
   rightActionBar?: JSX.Element;
@@ -45,11 +46,13 @@ export const DefaultWrapper = ({
   sidebar?: JSX.Element;
   isPaginationHide?: boolean;
   breadcrumb?: any[];
-  subMenu?: { title: string; link: string }[];
+  subMenu?: Array<{ title: string; link: string }>;
+  queryParams: any;
 }) => {
   if (loading) {
-    return <Spinner objective />;
+    return <Spinner />;
   }
+
   return (
     <Wrapper
       header={
@@ -57,6 +60,7 @@ export const DefaultWrapper = ({
           title={title}
           submenu={subMenu}
           breadcrumb={breadcrumb}
+          queryParams={queryParams}
         />
       }
       actionBar={
@@ -71,6 +75,7 @@ export const DefaultWrapper = ({
           emptyText={__('No data')}
         />
       }
+      hasBorder={true}
       leftSidebar={sidebar}
       footer={!isPaginationHide && <Pagination count={totalCount} />}
     />
@@ -160,7 +165,7 @@ export const generateParentOptions = (
   return result;
 };
 
-export const assetStatusChoises = __ => {
+export const assetStatusChoises = () => {
   const options: Array<{ value: string; label: string }> = [];
 
   for (const key of Object.keys(ASSET_CATEGORY_STATUS_FILTER)) {

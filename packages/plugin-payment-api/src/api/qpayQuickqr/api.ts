@@ -2,6 +2,7 @@ import { IModels } from '../../connectionResolver';
 import { IInvoiceDocument } from '../../models/definitions/invoices';
 import { PAYMENTS, PAYMENT_STATUS } from '../constants';
 import { VendorBaseAPI } from './vendorBase';
+import * as QRCode from 'qrcode';
 
 export type QPayMerchantConfig = {
   username: string;
@@ -87,7 +88,7 @@ export class QPayQuickQrAPI extends VendorBaseAPI {
   private config: any;
 
   constructor(config?: any, domain?: string) {
-    super();
+    super(config);
     this.domain = domain || '';
     this.config = config;
   }
@@ -147,7 +148,7 @@ export class QPayQuickQrAPI extends VendorBaseAPI {
 
     return {
       ...res,
-      qrData: res.qr_image
+      qrData: await QRCode.toDataURL(res.qr_code)
     };
   }
 

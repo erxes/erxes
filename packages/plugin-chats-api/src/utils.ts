@@ -1,5 +1,5 @@
 import * as admin from 'firebase-admin';
-import { debugExternalApi } from 'erxes-api-utils/lib/debuggers';
+import { debugExternalApi } from '@erxes/api-utils/src/debuggers';
 import { USER_ROLES } from '@erxes/api-utils/src/constants';
 
 const initFirebase = async (models): Promise<void> => {

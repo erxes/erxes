@@ -10,6 +10,8 @@ import {
   Pagination
 } from '@erxes/ui/src/components';
 import { menuSyncerkhet } from '../../constants';
+import { Title } from '@erxes/ui-settings/src/styles';
+import { ContentBox } from '../../styles';
 
 type Props = {
   loading: boolean;
@@ -20,7 +22,7 @@ type Props = {
 };
 
 type State = {
-  openCollapse: Number;
+  openCollapse: number;
   loading: boolean;
 };
 
@@ -44,7 +46,7 @@ class InventoryProducts extends React.Component<Props, State> {
     const { queryParams } = this.props;
 
     if (Object.keys(queryParams).length !== 0) {
-      if (queryParams.perPage !== undefined && queryParams.page == undefined) {
+      if (queryParams.perPage !== undefined && queryParams.page === undefined) {
         data = data.slice(queryParams.perPage * 0, queryParams.perPage * 1);
       }
 
@@ -70,7 +72,7 @@ class InventoryProducts extends React.Component<Props, State> {
   };
 
   excludeSyncTrue = (data: any) => {
-    return data.filter(d => d.syncStatus == false);
+    return data.filter(d => d.syncStatus === false);
   };
 
   renderTable = (data: any, action: string) => {
@@ -82,35 +84,50 @@ class InventoryProducts extends React.Component<Props, State> {
     };
     const syncButton = (
       <>
-        <Button
-          btnStyle="primary"
-          size="small"
-          icon="check-1"
-          onClick={onClickSync}
-        >
+        <Button btnStyle="success" icon="check-circle" onClick={onClickSync}>
           Sync
         </Button>
       </>
     );
 
-    const header = <Wrapper.ActionBar right={syncButton} />;
+    const header = (
+      <Wrapper.ActionBar
+        left={<Title>{__(`Products`)}</Title>}
+        right={syncButton}
+        background="colorWhite"
+        wideSpacing={true}
+      />
+    );
+
+    const content = (
+      <Table hover={true}>
+        <thead>
+          <tr>
+            <th>{__('Code')}</th>
+            <th>{__('Name')}</th>
+            <th>{__('Barcode')}</th>
+            <th>{__('Unit price')}</th>
+            {action === 'UPDATE' ? <th>{__('Update Status')}</th> : <></>}
+            {action === 'CREATE' ? <th>{__('Create Status')}</th> : <></>}
+            {action === 'DELETE' ? <th>{__('Delete Status')}</th> : <></>}
+          </tr>
+        </thead>
+        <tbody>{this.renderRow(data, action)}</tbody>
+      </Table>
+    );
+
     return (
       <>
         {header}
-        <Table hover={true}>
-          <thead>
-            <tr>
-              <th>{__('Code')}</th>
-              <th>{__('Name')}</th>
-              <th>{__('Barcode')}</th>
-              <th>{__('Unit price')}</th>
-              {action === 'UPDATE' ? <th>{__('Update Status')}</th> : <></>}
-              {action === 'CREATE' ? <th>{__('Create Status')}</th> : <></>}
-              {action === 'DELETE' ? <th>{__('Delete Status')}</th> : <></>}
-            </tr>
-          </thead>
-          <tbody>{this.renderRow(data, action)}</tbody>
-        </Table>
+        <DataWithLoader
+          data={content}
+          loading={false}
+          count={data.length}
+          emptyText={'Please sync again.'}
+          emptyIcon="leaf"
+          size="large"
+          objective={true}
+        />
       </>
     );
   };
@@ -124,7 +141,7 @@ class InventoryProducts extends React.Component<Props, State> {
     };
 
     const checkOpenCollapse = (num: number): boolean => {
-      return openCollapse == num ? true : false;
+      return openCollapse === num ? true : false;
     };
 
     const onChangeCollapse = (num: number): void => {
@@ -145,22 +162,14 @@ class InventoryProducts extends React.Component<Props, State> {
             items.matched.count &&
             `Matched: ${items.matched.count}`}
         </span>
-        <Button
-          btnStyle="warning"
-          size="small"
-          icon="check-1"
-          onClick={onClickCheck}
-        >
+        <Button btnStyle="success" icon="check-circle" onClick={onClickCheck}>
           Check
         </Button>
       </>
     );
 
-    const header = <Wrapper.ActionBar right={checkButton} />;
-
     const content = (
-      <>
-        {header}
+      <ContentBox>
         <br />
         <CollapseContent
           title={__(
@@ -238,7 +247,7 @@ class InventoryProducts extends React.Component<Props, State> {
             <Pagination count={items.delete?.count || 0} />
           </>
         </CollapseContent>
-      </>
+      </ContentBox>
     );
 
     return (
@@ -256,7 +265,18 @@ class InventoryProducts extends React.Component<Props, State> {
             loading={this.props.loading || this.state.loading}
           />
         }
-        hasBorder
+        actionBar={
+          <Wrapper.ActionBar
+            left={<Title>{__(`Products`)}</Title>}
+            right={checkButton}
+            // withMargin
+            // wide
+            background="colorWhite"
+            wideSpacing={true}
+          />
+        }
+        hasBorder={true}
+        transparent={true}
       />
     );
   }

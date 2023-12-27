@@ -18,6 +18,7 @@ import {
 } from '../../../messageBroker';
 import { IUserDocument } from '@erxes/api-utils/src/types';
 import { IModels } from '../../../connectionResolver';
+import { USER_ROLES } from '@erxes/api-utils/src/constants';
 
 export interface IArchiveArgs {
   pipelineId: string;
@@ -859,7 +860,8 @@ export const checkItemPermByUser = async (
   if (
     visibility === 'private' &&
     !(memberIds || []).includes(user._id) &&
-    !hasUserInDepartment
+    !hasUserInDepartment &&
+    user?.role !== USER_ROLES.SYSTEM
   ) {
     throw new Error('You do not have permission to view.');
   }
@@ -1010,8 +1012,9 @@ export const getItemList = async (
   serverTiming?
 ) => {
   const { collection } = getCollection(models, type);
+  const { page, perPage } = args;
   const sort = generateSort(args);
-  const limit = args.limit !== undefined ? args.limit : 10;
+  let limit = args.limit !== undefined ? args.limit : 10;
 
   const pipelines: any[] = [
     {
@@ -1073,6 +1076,13 @@ export const getItemList = async (
       }
     }
   ];
+
+  if (page && perPage) {
+    pipelines[2] = {
+      $skip: (page - 1) * perPage
+    };
+    limit = perPage;
+  }
 
   if (limit > 0) {
     pipelines.splice(3, 0, { $limit: limit });

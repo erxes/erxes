@@ -27,7 +27,16 @@ const notificationQueries = {
 
   async clientPortalNotifications(
     _root,
-    { page, perPage, requireRead, notifType, search, startDate, endDate },
+    {
+      page,
+      perPage,
+      requireRead,
+      notifType,
+      search,
+      startDate,
+      endDate,
+      eventDataFilter
+    },
     { models, cpUser }: IContext
   ) {
     if (!cpUser) {
@@ -60,6 +69,11 @@ const notificationQueries = {
       query.createdAt = {
         $lte: new Date(endDate)
       };
+    }
+
+    if (eventDataFilter) {
+      const { field, values } = eventDataFilter || {};
+      query[`eventData.${field}`] = { $in: values || [] };
     }
 
     return paginate(

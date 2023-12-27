@@ -11,7 +11,7 @@ import { SchedulesQueryResponse, ScheduleYearsQueryResponse } from '../types';
 type Props = {
   contractId: string;
   isFirst: boolean;
-  leaseType: string;
+  leaseType?: string;
 };
 
 type FinalProps = {

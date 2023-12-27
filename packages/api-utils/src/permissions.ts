@@ -1,3 +1,4 @@
+import { all } from 'underscore';
 import { userActionsMap } from './core';
 import { sendRPCMessage } from './messageBroker';
 import redis from './redis';

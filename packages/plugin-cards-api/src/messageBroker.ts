@@ -195,7 +195,7 @@ export const initBroker = async cl => {
 
   consumeRPCQueue('cards:deals.create', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
-    const deals = await models.Deals.create(data);
+    const deals = await models.Deals.createDeal(data);
 
     const { customerId = '' } = data;
 
@@ -652,6 +652,18 @@ export const initBroker = async cl => {
       return {
         status: 'success',
         data: await models.Pipelines.getPipeline(pipelineId)
+      };
+    }
+  );
+
+  consumeRPCQueue(
+    'cards:pipelineLabels.find',
+    async ({ subdomain, data: { query, fields } }) => {
+      const models = await generateModels(subdomain);
+
+      return {
+        status: 'success',
+        data: await models.PipelineLabels.find(query, fields)
       };
     }
   );

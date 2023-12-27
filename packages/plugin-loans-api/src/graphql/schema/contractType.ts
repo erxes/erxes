@@ -19,10 +19,14 @@ export const types = () => `
     createdAt: Date
     productCategoryIds: [String]
     config: JSON
+    
 
     productCategories: [ProductCategory]
     currency:String
     productType:String
+    savingPlusLoanInterest:Float
+    savingUpperPercent:Float
+    usePrePayment:Boolean
   }
 
   type ContractTypesListResponse {
@@ -67,6 +71,9 @@ const commonFields = `
   config: JSON
   currency:String
   productType:String
+  savingPlusLoanInterest:Float
+  savingUpperPercent:Float
+  usePrePayment:Boolean
 `;
 
 export const mutations = `

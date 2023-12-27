@@ -26,6 +26,7 @@ export const types = ({ products, tags, forms }) => `
     code: String
     formId: String
     tagIds: [String]
+    createdAt: Date
 
     ${tags ? `tags: [Tag]` : ''}
     
@@ -156,6 +157,7 @@ export const types = ({ products, tags, forms }) => `
   input IntegrationLinks {
     twitter: String
     facebook: String
+    instagram:String
     youtube: String
   }
 

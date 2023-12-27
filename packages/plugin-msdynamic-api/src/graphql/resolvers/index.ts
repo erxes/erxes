@@ -1,12 +1,14 @@
 import customScalars from '@erxes/api-utils/src/customScalars';
 
-import { Dynamic } from './mutations';
+import { SendDynamic, CheckDynamic, SyncDynamic } from './mutations';
 import Query from './queries';
 
 const resolvers: any = async _serviceDiscovery => ({
   ...customScalars,
   Mutation: {
-    ...Dynamic
+    ...SendDynamic,
+    ...SyncDynamic,
+    ...CheckDynamic
   },
   Query
 });

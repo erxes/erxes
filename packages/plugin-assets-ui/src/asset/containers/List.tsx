@@ -1,10 +1,13 @@
+import React from 'react';
 import { Alert, Bulk, Spinner } from '@erxes/ui/src';
 import { withProps } from '@erxes/ui/src/utils/core';
-import { generatePaginationParams } from '@erxes/ui/src/utils/router';
-import { gql } from '@apollo/client';
-import * as compose from 'lodash.flowright';
-import React from 'react';
 import { graphql } from '@apollo/client/react/hoc';
+import { generatePaginationParams } from '@erxes/ui/src/utils/router';
+import { generateParamsIds, getRefetchQueries } from '../../common/utils';
+import * as compose from 'lodash.flowright';
+import { queries, mutations } from '../graphql';
+
+import { gql } from '@apollo/client';
 import {
   AssetRemoveMutationResponse,
   IAssetCategoryDetailQueryResponse,
@@ -13,17 +16,13 @@ import {
   IAssetTotalCountQueryResponse,
   MergeMutationResponse
 } from '../../common/types';
-import { queries as categoryQueries } from '../category/graphql';
 import List from '../components/List';
-import { mutations, queries } from '../graphql';
-
-import { generateParamsIds, getRefetchQueries } from '../../common/utils';
 
 type Props = {
   queryParams: any;
   history: any;
-  type?: string;
 };
+
 type FinalProps = {
   assets: IAssetQueryResponse;
   assetsCount: IAssetTotalCountQueryResponse;
@@ -33,19 +32,21 @@ type FinalProps = {
 } & Props &
   AssetRemoveMutationResponse &
   MergeMutationResponse;
-class ListContainer extends React.Component<FinalProps> {
-  constructor(props) {
-    super(props);
-    this.state = {
-      mergeAssetLoading: false
-    };
 
-    this.assetList = this.assetList.bind(this);
-  }
+function ListContainer(props: FinalProps) {
+  const {
+    queryParams,
+    history,
+    assets,
+    assetsCount,
+    assetCategoryDetailQuery,
+    assetDetailQuery,
+    assetsMerge,
+    assetsRemove,
+    assetsAssignKbArticles
+  } = props;
 
-  remove = ({ assetIds }, emptyBulk) => {
-    const { assetsRemove } = this.props;
-
+  const remove = ({ assetIds }, emptyBulk) => {
     assetsRemove({
       variables: { assetIds }
     })
@@ -63,9 +64,7 @@ class ListContainer extends React.Component<FinalProps> {
       });
   };
 
-  assignKbArticles = ({ ids, data, callback }) => {
-    const { queryParams, assetsAssignKbArticles } = this.props;
-
+  const assignKbArticles = ({ ids, data, callback }) => {
     assetsAssignKbArticles({
       variables: { ids, ...generateQueryParams(queryParams), ...data }
     })
@@ -79,11 +78,7 @@ class ListContainer extends React.Component<FinalProps> {
       });
   };
 
-  mergeAssets = ({ ids, data, callback }) => {
-    const { assetsMerge, history } = this.props;
-
-    this.setState({ mergeAssetLoading: true });
-
+  const mergeAssets = ({ ids, data, callback }) => {
     assetsMerge({
       variables: {
         assetIds: ids,
@@ -92,7 +87,7 @@ class ListContainer extends React.Component<FinalProps> {
     })
       .then((result: any) => {
         callback();
-        this.setState({ mergeAssetLoading: false });
+
         Alert.success('You successfully merged a asset');
         history.push(
           `/settings/asset-movements/detail/${result.data.assetsMerge._id}`
@@ -100,58 +95,46 @@ class ListContainer extends React.Component<FinalProps> {
       })
       .catch(e => {
         Alert.error(e.message);
-        this.setState({ mergeAssetLoading: false });
       });
   };
 
-  assetList(props) {
-    const {
-      assets,
-      assetsCount,
-      queryParams,
-      assetCategoryDetailQuery,
-      assetDetailQuery
-    } = this.props;
-    if (assets.loading || assetsCount.loading) {
-      return <Spinner />;
-    }
-
+  const assetList = bulkProps => {
     const updatedProps = {
-      ...this.props,
-      assets: assets?.assets,
-      assetsCount: assetsCount.assetsTotalCount,
-      remove: this.remove,
-      assignKbArticles: this.assignKbArticles,
-      mergeAssets: this.mergeAssets,
-      loading: assets.loading,
+      ...props,
+      assets: assets?.assets || [],
+      assetsCount: assetsCount.assetsTotalCount || 0,
+      remove,
+      assignKbArticles,
+      mergeAssets,
+      loading: assets.loading || assetsCount.loading,
       queryParams,
       currentCategory: assetCategoryDetailQuery.assetCategoryDetail || {},
       currentParent: assetDetailQuery.assetDetail || {},
       searchValue: queryParams.searchValue || ''
     };
 
-    return <List {...props} {...updatedProps} />;
-  }
+    return <List {...bulkProps} {...updatedProps} />;
+  };
 
-  render() {
-    const refetch = () => {
-      this.props.assets.refetch();
-    };
+  const refetch = () => {
+    assets.refetch();
+  };
 
-    return <Bulk content={this.assetList} refetch={refetch} />;
-  }
+  return <Bulk content={assetList} refetch={refetch} />;
 }
 
 const generateQueryParams = queryParams => {
   return {
-    categoryId: queryParams?.categoryId,
-    parentId: queryParams?.parentId,
+    categoryId: queryParams?.assetCategoryId,
+    parentId: queryParams?.assetId,
     searchValue: queryParams?.searchValue,
     type: queryParams?.type,
     irregular: Boolean(queryParams?.irregular),
     articleIds: generateParamsIds(queryParams?.articleIds),
-    withKnowledgebase: queryParams?.withKnowledge
-      ? queryParams?.withKnowledge === 'true'
+    withKnowledgebase: queryParams?.state
+      ? queryParams?.state === 'Assigned'
+        ? true
+        : false
       : undefined,
     ...generatePaginationParams(queryParams || {})
   };
@@ -181,11 +164,11 @@ export default withProps<Props>(
         }
       })
     }),
-    graphql<Props>(gql(categoryQueries.assetCategoryDetail), {
+    graphql<Props>(gql(queries.assetCategoryDetail), {
       name: 'assetCategoryDetailQuery',
       options: ({ queryParams }) => ({
         variables: {
-          _id: queryParams?.categoryId
+          _id: queryParams?.assetCategoryId
         }
       })
     }),
