@@ -2,32 +2,40 @@ import { IContext } from '../../../messageBroker';
 import {
   consumeCategory,
   consumeCustomers,
-  consumeInventory
+  consumeInventory,
+  getConfig
 } from '../../../utils';
 
 const msdynamicSyncMutations = {
   async toSyncProducts(
     _root,
-    { action, products }: { action: string; products: any[] },
+    {
+      brandId,
+      action,
+      products
+    }: { brandId: string; action: string; products: any[] },
     { subdomain }: IContext
   ) {
+    const configs = await getConfig(subdomain, 'DYNAMIC', {});
+    const config = configs[brandId || 'noBrand'];
+
     try {
       switch (action) {
         case 'CREATE': {
           for (const product of products) {
-            await consumeInventory(subdomain, product, 'create');
+            await consumeInventory(subdomain, config, product, 'create');
           }
           break;
         }
         case 'UPDATE': {
           for (const product of products) {
-            await consumeInventory(subdomain, product, 'update');
+            await consumeInventory(subdomain, config, product, 'update');
           }
           break;
         }
         case 'DELETE': {
           for (const product of products) {
-            await consumeInventory(subdomain, product, 'delete');
+            await consumeInventory(subdomain, config, product, 'delete');
           }
           break;
         }
@@ -45,26 +53,33 @@ const msdynamicSyncMutations = {
 
   async toSyncProductCategories(
     _root,
-    { action, categories }: { action: string; categories: any[] },
+    {
+      brandId,
+      action,
+      categories
+    }: { brandId: string; action: string; categories: any[] },
     { subdomain }: IContext
   ) {
+    const configs = await getConfig(subdomain, 'DYNAMIC', {});
+    const config = configs[brandId || 'noBrand'];
+
     try {
       switch (action) {
         case 'CREATE': {
           for (const category of categories) {
-            await consumeCategory(subdomain, category, 'create');
+            await consumeCategory(subdomain, config, category, 'create');
           }
           break;
         }
         case 'UPDATE': {
           for (const category of categories) {
-            await consumeCategory(subdomain, category, 'update');
+            await consumeCategory(subdomain, config, category, 'update');
           }
           break;
         }
         case 'DELETE': {
           for (const category of categories) {
-            await consumeCategory(subdomain, category, 'delete');
+            await consumeCategory(subdomain, config, category, 'delete');
           }
           break;
         }
@@ -82,26 +97,33 @@ const msdynamicSyncMutations = {
 
   async toSyncCustomers(
     _root,
-    { action, customers }: { action: string; customers: any[] },
+    {
+      brandId,
+      action,
+      customers
+    }: { brandId: string; action: string; customers: any[] },
     { subdomain }: IContext
   ) {
+    const configs = await getConfig(subdomain, 'DYNAMIC', {});
+    const config = configs[brandId || 'noBrand'];
+
     try {
       switch (action) {
         case 'CREATE': {
           for (const customer of customers) {
-            await consumeCustomers(subdomain, customer, 'create');
+            await consumeCustomers(subdomain, config, customer, 'create');
           }
           break;
         }
         case 'UPDATE': {
           for (const customer of customers) {
-            await consumeCustomers(subdomain, customer, 'update');
+            await consumeCustomers(subdomain, config, customer, 'update');
           }
           break;
         }
         case 'DELETE': {
           for (const customer of customers) {
-            await consumeCustomers(subdomain, customer, 'delete');
+            await consumeCustomers(subdomain, config, customer, 'delete');
           }
           break;
         }

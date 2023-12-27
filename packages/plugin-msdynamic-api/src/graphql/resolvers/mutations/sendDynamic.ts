@@ -5,11 +5,12 @@ import { consumeCustomers, getConfig } from '../../../utils';
 const msdynamicSendMutations = {
   async toSendCustomers(
     _root,
-    { customers }: { customers: any[] },
+    { brandId, customers }: { brandId: string; customers: any[] },
     { subdomain }: IContext
   ) {
     try {
-      const config = await getConfig(subdomain, 'DYNAMIC', {});
+      const configs = await getConfig(subdomain, 'DYNAMIC', {});
+      const config = configs[brandId || 'noBrand'];
 
       if (!config.customerApi || !config.username || !config.password) {
         throw new Error('MS Dynamic config not found.');
@@ -50,7 +51,7 @@ const msdynamicSendMutations = {
             body: document
           });
 
-          await consumeCustomers(subdomain, postResponse, 'create');
+          await consumeCustomers(subdomain, config, postResponse, 'create');
         }
       }
 

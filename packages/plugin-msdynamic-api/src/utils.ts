@@ -14,7 +14,7 @@ export const getConfig = async (subdomain, code, defaultValue?) => {
   });
 };
 
-const companyRequest = async (subdomain, action, updateCode, doc) => {
+const companyRequest = async (subdomain, config, action, updateCode, doc) => {
   const company = await sendContactsMessage({
     subdomain,
     action: 'companies.findOne',
@@ -23,14 +23,21 @@ const companyRequest = async (subdomain, action, updateCode, doc) => {
     defaultValue: {}
   });
 
+  const brandIds = (company || {}).scopeBrandIds || [];
+
   if ((action === 'update' && doc.No) || action === 'create') {
+    if (!brandIds.includes(config.brandId) && config.brandId !== 'noBrand') {
+      brandIds.push(config.brandId);
+    }
+
     const document: any = {
       primaryName: doc?.Name || 'default',
       code: doc.No,
       primaryPhone: doc?.Mobile_Phone_No,
       phones: [doc?.Phone_No],
       location: doc?.Country_Region_Code === 'MN' ? 'Mongolia' : '',
-      businessType: doc?.Partner_Type === 'Person' ? 'Customer' : 'Partner'
+      businessType: doc?.Partner_Type === 'Person' ? 'Customer' : 'Partner',
+      scopeBrandIds: brandIds
     };
 
     if (company) {
@@ -51,7 +58,7 @@ const companyRequest = async (subdomain, action, updateCode, doc) => {
   }
 };
 
-const customerRequest = async (subdomain, action, updateCode, doc) => {
+const customerRequest = async (subdomain, config, action, updateCode, doc) => {
   const customer = await sendContactsMessage({
     subdomain,
     action: 'customers.findOne',
@@ -60,12 +67,19 @@ const customerRequest = async (subdomain, action, updateCode, doc) => {
     defaultValue: {}
   });
 
+  const brandIds = (customer || {}).scopeBrandIds || [];
+
   if ((action === 'update' && doc.No) || action === 'create') {
+    if (!brandIds.includes(config.brandId) && config.brandId !== 'noBrand') {
+      brandIds.push(config.brandId);
+    }
+
     const document: any = {
       firstName: doc?.Name || 'default',
       code: doc.No,
       primaryPhone: doc?.Mobile_Phone_No,
       phones: [doc?.Phone_No],
+      scopeBrandIds: brandIds,
       state: 'customer'
     };
 
@@ -87,7 +101,7 @@ const customerRequest = async (subdomain, action, updateCode, doc) => {
   }
 };
 
-export const consumeInventory = async (subdomain, doc, action) => {
+export const consumeInventory = async (subdomain, config, doc, action) => {
   const updateCode = action === 'delete' ? doc.code : doc.No.replace(/\s/g, '');
 
   const product = await sendProductsMessage({
@@ -98,6 +112,8 @@ export const consumeInventory = async (subdomain, doc, action) => {
     defaultValue: {}
   });
 
+  const brandIds = (product || {}).scopeBrandIds || [];
+
   if ((action === 'update' && doc.No) || action === 'create') {
     const productCategory = await sendProductsMessage({
       subdomain,
@@ -105,6 +121,10 @@ export const consumeInventory = async (subdomain, doc, action) => {
       data: { name: doc.Item_Category_Code },
       isRPC: true
     });
+
+    if (!brandIds.includes(config.brandId) && config.brandId !== 'noBrand') {
+      brandIds.push(config.brandId);
+    }
 
     const document: any = {
       name: doc?.Description || 'default',
@@ -114,6 +134,7 @@ export const consumeInventory = async (subdomain, doc, action) => {
       code: doc.No,
       uom: doc?.Base_Unit_of_Measure || 'PCS',
       categoryId: productCategory ? productCategory._id : product.categoryId,
+      scopeBrandIds: brandIds,
       status: 'active'
     };
 
@@ -133,16 +154,29 @@ export const consumeInventory = async (subdomain, doc, action) => {
       });
     }
   } else if (action === 'delete' && product) {
-    await sendProductsMessage({
-      subdomain,
-      action: 'removeProducts',
-      data: { _ids: [product._id] },
-      isRPC: true
-    });
+    const anotherBrandIds = brandIds.filter(b => b && b !== config.brandId);
+    if (anotherBrandIds.length) {
+      await sendProductsMessage({
+        subdomain,
+        action: 'updateProduct',
+        data: {
+          _id: product._id,
+          doc: { ...product, scopeBrandIds: anotherBrandIds }
+        },
+        isRPC: true
+      });
+    } else {
+      await sendProductsMessage({
+        subdomain,
+        action: 'removeProducts',
+        data: { _ids: [product._id] },
+        isRPC: true
+      });
+    }
   }
 };
 
-export const consumeCategory = async (subdomain, doc, action) => {
+export const consumeCategory = async (subdomain, config, doc, action) => {
   const updateCode = action === 'delete' ? doc.code : doc.Code;
 
   const productCategory = await sendProductsMessage({
@@ -153,11 +187,18 @@ export const consumeCategory = async (subdomain, doc, action) => {
     defaultValue: {}
   });
 
+  const brandIds = (productCategory || {}).scopeBrandIds || [];
+
   if ((action === 'update' && doc.Code) || action === 'create') {
+    if (!brandIds.includes(config.brandId) && config.brandId !== 'noBrand') {
+      brandIds.push(config.brandId);
+    }
+
     const document: any = {
       name: doc?.Code || 'default',
       code: doc?.Code,
       description: doc?.Description,
+      scopeBrandIds: brandIds,
       status: 'active'
     };
 
@@ -186,27 +227,27 @@ export const consumeCategory = async (subdomain, doc, action) => {
   }
 };
 
-export const consumeCustomers = async (subdomain, doc, action) => {
+export const consumeCustomers = async (subdomain, config, doc, action) => {
   const updateCode = action === 'delete' ? doc.code : doc.No.replace(/\s/g, '');
 
   if (doc?.Partner_Type === 'Company') {
-    companyRequest(subdomain, action, updateCode, doc);
+    companyRequest(subdomain, config, action, updateCode, doc);
   }
 
   if (doc?.Partner_Type === 'Person') {
     if (doc.VAT_Registration_No.length === 7) {
-      companyRequest(subdomain, action, updateCode, doc);
+      companyRequest(subdomain, config, action, updateCode, doc);
     } else {
-      customerRequest(subdomain, action, updateCode, doc);
+      customerRequest(subdomain, config, action, updateCode, doc);
     }
   }
 
   if (doc?.Partner_Type === ' ' && doc.VAT_Registration_No) {
-    companyRequest(subdomain, action, updateCode, doc);
+    companyRequest(subdomain, config, action, updateCode, doc);
   }
 
   if (doc?.Partner_Type === ' ' && !doc.VAT_Registration_No) {
-    customerRequest(subdomain, action, updateCode, doc);
+    customerRequest(subdomain, config, action, updateCode, doc);
   }
 
   if (action === 'delete') {

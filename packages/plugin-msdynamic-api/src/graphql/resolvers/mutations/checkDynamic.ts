@@ -7,8 +7,13 @@ import {
 import { getConfig } from '../../../utils';
 
 const msdynamicCheckMutations = {
-  async toCheckProducts(_root, _args, { subdomain }: IContext) {
-    const config = await getConfig(subdomain, 'DYNAMIC', {});
+  async toCheckProducts(
+    _root,
+    { brandId }: { brandId: string },
+    { subdomain }: IContext
+  ) {
+    const configs = await getConfig(subdomain, 'DYNAMIC', {});
+    const config = configs[brandId || 'noBrand'];
 
     const updateProducts: any = [];
     const createProducts: any = [];
@@ -21,11 +26,21 @@ const msdynamicCheckMutations = {
 
     const { itemApi, username, password } = config;
 
+    const productQry: any = { status: { $ne: 'deleted' } };
+    if (brandId && brandId !== 'noBrand') {
+      productQry.scopeBrandIds = { $in: [brandId] };
+    } else {
+      productQry.$or = [
+        { scopeBrandIds: { $exists: false } },
+        { scopeBrandIds: { $size: 0 } }
+      ];
+    }
+
     try {
       const productsCount = await sendProductsMessage({
         subdomain,
         action: 'count',
-        data: { query: { status: { $ne: 'deleted' } } },
+        data: { query: productQry },
         isRPC: true
       });
 
@@ -33,7 +48,7 @@ const msdynamicCheckMutations = {
         subdomain,
         action: 'find',
         data: {
-          query: { status: { $ne: 'deleted' } },
+          query: productQry,
           limit: productsCount
         },
         isRPC: true
@@ -105,8 +120,13 @@ const msdynamicCheckMutations = {
     };
   },
 
-  async toCheckProductCategories(_root, _args, { subdomain }: IContext) {
-    const config = await getConfig(subdomain, 'DYNAMIC', {});
+  async toCheckProductCategories(
+    _root,
+    { brandId }: { brandId: string },
+    { subdomain }: IContext
+  ) {
+    const configs = await getConfig(subdomain, 'DYNAMIC', {});
+    const config = configs[brandId || 'noBrand'];
 
     const updateCategories: any = [];
     const createCategories: any = [];
@@ -198,8 +218,13 @@ const msdynamicCheckMutations = {
     };
   },
 
-  async toCheckCustomers(_root, _args, { subdomain }: IContext) {
-    const config = await getConfig(subdomain, 'DYNAMIC', {});
+  async toCheckCustomers(
+    _root,
+    { brandId }: { brandId: string },
+    { subdomain }: IContext
+  ) {
+    const configs = await getConfig(subdomain, 'DYNAMIC', {});
+    const config = configs[brandId || 'noBrand'];
 
     const createCustomers: any = [];
     const updateCustomers: any = [];
