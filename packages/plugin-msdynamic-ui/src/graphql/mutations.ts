@@ -5,38 +5,38 @@ const updateConfigs = `
 `;
 
 const toCheckProducts = `
-  mutation toCheckProducts {
-    toCheckProducts
+  mutation toCheckProducts($brandId: String) {
+    toCheckProducts(brandId: $brandId)
   }
 `;
 
 const toSyncProducts = `
-  mutation toSyncProducts($action: String, $products: [JSON]) {
-    toSyncProducts(action: $action, products: $products)
+  mutation toSyncProducts($brandId: String, $action: String, $products: [JSON]) {
+    toSyncProducts(brandId: $brandId, action: $action, products: $products)
   }
 `;
 
 const toCheckCategories = `
-  mutation toCheckProductCategories {
-    toCheckProductCategories
+  mutation toCheckProductCategories($brandId: String) {
+    toCheckProductCategories(brandId: $brandId)
   }
 `;
 
 const toSyncCategories = `
-  mutation toSyncProductCategories($action: String, $categories: [JSON]) {
-    toSyncProductCategories(action: $action, categories: $categories)
+  mutation toSyncProductCategories($brandId: String, $action: String, $categories: [JSON]) {
+    toSyncProductCategories(brandId: $brandId, action: $action, categories: $categories)
   }
 `;
 
 const toCheckCustomers = `
-  mutation toCheckCustomers {
-    toCheckCustomers
+  mutation toCheckCustomers($brandId: String) {
+    toCheckCustomers(brandId: $brandId)
   }
 `;
 
 const toSyncCustomers = `
-  mutation toSyncCustomers($action: String, $customers: [JSON]) {
-    toSyncCustomers(action: $action, customers: $customers)
+  mutation toSyncCustomers($brandId: String, $action: String, $customers: [JSON]) {
+    toSyncCustomers(brandId: $brandId, action: $action, customers: $customers)
   }
 `;
 

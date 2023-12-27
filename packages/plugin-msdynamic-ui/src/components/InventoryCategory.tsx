@@ -8,13 +8,16 @@ import {
   Table
 } from '@erxes/ui/src/components';
 import Button from '@erxes/ui/src/components/Button';
+import { BarItems } from '@erxes/ui/src/layout/styles';
 import { menuDynamic } from '../constants';
 import Row from './InventoryCategoryRow';
+import SelectBrands from '@erxes/ui/src/brands/containers/SelectBrands';
 
 type Props = {
   history: any;
   queryParams: any;
   loading: boolean;
+  setBrand: (brandId: string) => void;
   toCheckCategory: () => void;
   toSyncCategory: (action: string, categories: any[]) => void;
   items: any;
@@ -24,12 +27,25 @@ const InventoryCategory = ({
   items,
   loading,
   queryParams,
+  setBrand,
   toCheckCategory,
   toSyncCategory
 }: Props) => {
   const checkButton = (
-    <>
+    <BarItems>
       <span>{items && items.matched && `Matched: ${items.matched.count}`}</span>
+      <SelectBrands
+        label={__('Choose brands')}
+        onSelect={brand => setBrand(brand as string)}
+        initialValue={queryParams.brandId}
+        multi={false}
+        name="selectedBrands"
+        customOption={{
+          label: 'No Brand (noBrand)',
+          value: ''
+        }}
+      />
+
       <Button
         btnStyle="warning"
         size="small"
@@ -38,7 +54,7 @@ const InventoryCategory = ({
       >
         Check
       </Button>
-    </>
+    </BarItems>
   );
 
   const header = <Wrapper.ActionBar right={checkButton} />;

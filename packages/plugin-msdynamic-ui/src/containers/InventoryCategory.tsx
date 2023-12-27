@@ -6,6 +6,7 @@ import {
   ToCheckCategoriesMutationResponse,
   ToSyncCategoriesMutationResponse
 } from '../types';
+import { router } from '@erxes/ui/src';
 import { Bulk } from '@erxes/ui/src/components';
 import Alert from '@erxes/ui/src/utils/Alert';
 import { mutations } from '../graphql';
@@ -25,6 +26,12 @@ type FinalProps = {} & Props &
 const InventoryCategoryContainer = (props: FinalProps) => {
   const [items, setItems] = useState({});
   const [loading, setLoading] = useState(false);
+  const brandId = props.queryParams.brandId || 'noBrand';
+
+  const setBrand = (brandId: string) => {
+    router.setParams(props.history, { brandId: brandId });
+    return router;
+  };
 
   if (loading) {
     return <Spinner />;
@@ -55,7 +62,7 @@ const InventoryCategoryContainer = (props: FinalProps) => {
     setLoading(true);
     props
       .toCheckProductCategories({
-        variables: {}
+        variables: { brandId }
       })
       .then(response => {
         const data = response.data.toCheckProductCategories;
@@ -78,6 +85,7 @@ const InventoryCategoryContainer = (props: FinalProps) => {
     props
       .toSyncProductCategories({
         variables: {
+          brandId,
           action,
           categories
         }
@@ -102,6 +110,7 @@ const InventoryCategoryContainer = (props: FinalProps) => {
     ...props,
     loading,
     items,
+    setBrand,
     toCheckCategory,
     toSyncCategory
   };
