@@ -185,13 +185,16 @@ employee {
       vacation
       addition
       totalAddition
+      otherAddition
       lateHoursDeduction
       resultDeduction
       totalDeduction
       totalSalary
       preliminarySalary
+      endSalary
       kpiDeduction
       onDeduction
+      otherDeduction
       bonusDeduction
       vacationDeduction
       ndsh
@@ -200,7 +203,7 @@ employee {
       salaryOnHand
       receivable
       biSan
-      toSendBank
+      toSendBank  
 title
 
 `;

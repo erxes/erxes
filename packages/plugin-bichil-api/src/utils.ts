@@ -596,12 +596,12 @@ export const handleUpload = async (
         salaryDoc.employeeId = value;
       }
 
-      if (value && index > 3) {
-        salaryDoc[SALARY_FIELDS[index - 3]] = value;
+      if (value) {
+        salaryDoc[SALARY_FIELDS[index]] = value;
       }
 
       if (value === '-') {
-        salaryDoc[SALARY_FIELDS[index - 3]] = 0;
+        salaryDoc[SALARY_FIELDS[index]] = 0;
       }
     }
 

@@ -152,6 +152,7 @@ const types = `
     adequateSalary: Float
     kpi: Float
     onAddition: Float
+    otherAddition: Float
     bonus: Float
     vacation: Float
     addition: Float
@@ -161,6 +162,7 @@ const types = `
     totalDeduction: Float
     totalSalary: Float
     preliminarySalary: Float
+    endSalary: Float
     kpiDeduction: Float
     onDeduction: Float
     bonusDeduction: Float
@@ -168,6 +170,7 @@ const types = `
     ndsh: Float
     hhoat: Float
     mainDeduction: Float
+    otherDeduction: Float
     salaryOnHand: Float
     receivable: Float
     biSan: Float
