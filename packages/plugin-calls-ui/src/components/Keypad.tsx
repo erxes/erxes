@@ -37,7 +37,6 @@ import AssignBox from '@erxes/ui-inbox/src/inbox/containers/AssignBox';
 import { isEnabled } from '@erxes/ui/src/utils/core';
 import TaggerSection from '@erxes/ui-contacts/src/customers/components/common/TaggerSection';
 import { ICallConversation, ICustomer } from '../types';
-import { StepContent } from '@erxes/ui/src/components/step/styles';
 
 type Props = {
   addCustomer: (firstName: string, phoneNumber: string, callID: string) => void;
@@ -61,8 +60,7 @@ const KeyPad = (props: Props, context) => {
     toggleSectionWithPhone,
     taggerRefetchQueries,
     conversation,
-    addNote,
-    disconnectCall
+    addNote
   } = props;
 
   const defaultCallIntegration = localStorage.getItem(
@@ -129,7 +127,9 @@ const KeyPad = (props: Props, context) => {
       }, 1000);
     }
 
-    return () => clearInterval(timer);
+    return () => {
+      clearInterval(timer);
+    };
   }, [call?.status]);
 
   const onTabClick = (tab: string) => {
@@ -181,7 +181,25 @@ const KeyPad = (props: Props, context) => {
       })
     );
 
-    disconnectCall();
+    localStorage.setItem(
+      'config:call_integrations',
+      JSON.stringify({
+        inboxId: integration?.inboxId,
+        phone: integration?.phone,
+        wsServer: integration?.wsServer,
+        token: integration?.token,
+        operators: integration?.operators,
+        isAvailable: true
+      })
+    );
+    setConfig({
+      inboxId: integration?.inboxId,
+      phone: integration?.phone,
+      wsServer: integration?.wsServer,
+      token: integration?.token,
+      operators: integration?.operators,
+      isAvailable: true
+    });
   };
 
   const handleCallDisConnect = () => {

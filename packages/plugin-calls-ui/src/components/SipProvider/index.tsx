@@ -1,4 +1,3 @@
-import { Alert } from '@erxes/ui/src/utils';
 import * as JsSIP from 'jssip';
 import * as PropTypes from 'prop-types';
 import React from 'react';
@@ -140,8 +139,8 @@ export default class SipProvider extends React.Component<
     this.ua = null;
     this.outgoingAudio = null;
 
-    // this.remoteAudio = window.document.getElementById('sip-provider-audio');
-    // this.remoteAudio?.remove();
+    this.remoteAudio = window.document.getElementById('sip-provider-audio');
+    this.remoteAudio?.remove();
   }
 
   public getChildContext() {
@@ -181,7 +180,10 @@ export default class SipProvider extends React.Component<
     );
     const callInfo = JSON.parse(localStorage.getItem('callInfo'));
 
-    if (callInfo.isUnRegistered) {
+    if (
+      this.state.sipStatus === SIP_STATUS_REGISTERED &&
+      callInfo?.isUnRegistered
+    ) {
       this.unregisterSip();
     }
 
@@ -232,9 +234,6 @@ export default class SipProvider extends React.Component<
   public componentWillUnmount() {
     this.remoteAudio?.parentNode?.removeChild(this.remoteAudio);
     this.remoteAudio = null;
-    if (this.props.disconnectCall) {
-      this.props.disconnectCall();
-    }
     if (this.ua) {
       this.ua.stop();
       this.ua = null;
@@ -381,16 +380,7 @@ export default class SipProvider extends React.Component<
       this.ua = null;
     }
 
-    const {
-      host,
-      port,
-      pathname,
-      user,
-      password,
-      autoRegister,
-      callsActiveSession
-    } = this.props;
-
+    const { host, port, pathname, user, password, autoRegister } = this.props;
     if (!host || !port || !user) {
       this.setState({
         sipStatus: SIP_STATUS_DISCONNECTED,
@@ -449,24 +439,22 @@ export default class SipProvider extends React.Component<
 
     ua.on('disconnected', () => {
       this.logger.debug('UA "disconnected" event');
-      console.log('disconnected');
 
-      if (this.ua !== ua) {
-        return;
-      }
       localStorage.setItem(
         'callInfo',
         JSON.stringify({
           isRegistered: false
         })
       );
-      // this.props.setisRegistered(false);
+
+      if (this.ua !== ua) {
+        return;
+      }
       this.setState({
         sipStatus: SIP_STATUS_ERROR,
         sipErrorType: SIP_ERROR_TYPE_CONNECTION,
         sipErrorMessage: 'disconnected'
       });
-      // this.props.disconnectCall();
     });
 
     ua.on('registered', data => {
@@ -485,11 +473,8 @@ export default class SipProvider extends React.Component<
           isRegistered: true
         })
       );
-      // this.props.setisRegistered(true);
 
       if (!this.props.callsActiveSession) {
-        console.log(callsActiveSession, 'callsActiveSession*');
-
         this.props.createSession();
       }
     });
@@ -511,35 +496,27 @@ export default class SipProvider extends React.Component<
           callStatus: CALL_STATUS_IDLE,
           callDirection: null
         });
-        // localStorage.setItem(
-        //   'callInfo',
-        //   JSON.stringify({
-        //     isRegistered: false,
-        //   })
-        // );
-        // this.props.setisRegistered(false);
-        // this.props.disconnectCall();
       }
     });
 
     ua.on('registrationFailed', data => {
       this.logger.debug('UA "registrationFailed" event');
-      if (this.ua !== ua) {
-        return;
-      }
+
       localStorage.setItem(
         'callInfo',
         JSON.stringify({
           isRegistered: false
         })
       );
-      // this.props.setisRegistered(false);
+      if (this.ua !== ua) {
+        return;
+      }
+
       this.setState({
         sipStatus: SIP_STATUS_ERROR,
         sipErrorType: SIP_ERROR_TYPE_REGISTRATION,
         sipErrorMessage: data
       });
-      // this.props.disconnectCall();
     });
 
     // ua.on('muted', data => {});
@@ -585,8 +562,6 @@ export default class SipProvider extends React.Component<
         }
         this.setState({ rtcSession });
         rtcSession.on('failed', e => {
-          console.log('failed', e);
-
           if (this.ua !== ua) {
             return;
           }
@@ -603,8 +578,6 @@ export default class SipProvider extends React.Component<
           // this.outgoingAudio?.pause();
         });
         rtcSession.on('peerconnection', e => {
-          console.log('peerconnection', e);
-
           if (this.ua !== ua) {
             return;
           }
@@ -613,8 +586,6 @@ export default class SipProvider extends React.Component<
         });
 
         rtcSession.on('ended', data => {
-          console.log('ended', data);
-
           if (this.ua !== ua) {
             return;
           }

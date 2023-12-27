@@ -37,19 +37,7 @@ const SipProviderContainer = props => {
     );
 
     const handleBeforeUnload = () => {
-      console.log('handleBeforeUnload...');
       localStorage.removeItem('callInfo');
-      localStorage.setItem(
-        'config:call_integrations',
-        JSON.stringify({
-          inboxId: config?.inboxId,
-          phone: config?.phone,
-          wsServer: config?.wsServer,
-          token: config?.token,
-          operators: config?.operators,
-          isAvailable: true
-        })
-      );
       disconnectCall();
     };
 
@@ -79,7 +67,7 @@ const SipProviderContainer = props => {
   useSubscription(gql(subscriptions.sessionTerminateRequested), {
     variables: { userId: props.currentUser._id },
     onSubscriptionData: () => {
-      if (!callInfo?.isRegistered) {
+      if (!callInfo?.isLogin) {
         localStorage.setItem(
           'config:call_integrations',
           JSON.stringify({
@@ -124,9 +112,7 @@ const SipProviderContainer = props => {
 
   const createSession = () => {
     createActiveSession()
-      .then(({ data: result }: any) => {
-        // console.log('data:', result);
-      })
+      .then(({ data: result }: any) => {})
       .catch(e => {
         Alert.error(e.message);
       });
@@ -179,8 +165,6 @@ const SipProviderContainer = props => {
   }
 
   const { callIntegrationsOfUser } = data;
-  // console.log(callsActiveSession, 'activeSessionData');
-
   if (!callIntegrationsOfUser || callIntegrationsOfUser.length === 0) {
     return null;
   }
@@ -207,7 +191,6 @@ const SipProviderContainer = props => {
       setCallInfo={setCallInfo}
     />
   );
-
   if (
     activeSession &&
     activeSession.callsActiveSession &&
@@ -217,12 +200,11 @@ const SipProviderContainer = props => {
     return <ModalTrigger title="A" content={terminateContent} isOpen={true} />;
   }
 
-  if (!config) {
+  if (!config || !config.inboxId) {
     return (
       <ModalTrigger title="Call Config Modal" content={content} isOpen={true} />
     );
   }
-
   if (!config.isAvailable) {
     return (
       <WidgetContainer
@@ -256,7 +238,7 @@ const SipProviderContainer = props => {
       {...sipConfig}
       createSession={createSession}
       callsActiveSession={activeSession?.callsActiveSession}
-      // disconnectCall={CallDisconnect}
+      disconnectCall={CallDisconnect}
     >
       {state =>
         state?.callDirection === CALL_DIRECTION_INCOMING ? (

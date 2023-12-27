@@ -40,17 +40,6 @@ const TerminateSessionForm = (props: IProps) => {
   };
 
   const onCancel = () => {
-    // localStorage.setItem(
-    //   'config:call_integrations',
-    //   JSON.stringify({
-    //     ...JSON.parse(localStorage.getItem('config:call_integrations')),
-    //     isAvailable: false,
-    //   })
-    // );
-    // setConfig({
-    //   ...JSON.parse(localStorage.getItem('config:call_integrations')),
-    //   isAvailable: false,
-    // });
     localStorage.setItem(
       'callInfo',
       JSON.stringify({
