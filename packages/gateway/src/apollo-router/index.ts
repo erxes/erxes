@@ -53,7 +53,9 @@ const downloadRouter = async () => {
   try {
     execSync(`cd ${dirTempPath} && ${downloadCommand}`);
   } catch (e) {
-    console.error(`Could not download apollo router. Run \`${downloadCommand}\` inside ${dirTempPath} manually`);
+    console.error(
+      `Could not download apollo router. Run \`${downloadCommand}\` inside ${dirTempPath} manually`
+    );
     throw e;
   }
 };
