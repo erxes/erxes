@@ -6,31 +6,20 @@ import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 
 const Templates = styled.div`
-  display: flex;
+  display: grid;
   background: ${colors.colorWhite};
   padding: 20px 0 20px 20px;
-  flex-wrap: wrap;
 
-  > div {
-    flex-basis: 50%;
-    display: flex;
-    flex-shrink: 0;
+  @media (min-width: 630px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
 
-    @media (min-width: 480px) {
-      flex-basis: 97%;
-    }
+  @media (min-width: 970px) {
+    grid-template-columns: repeat(3, 1fr);
+  }
 
-    @media (min-width: 768px) {
-      flex-basis: 45%;
-    }
-
-    @media (min-width: 1170px) {
-      flex-basis: 31%;
-    }
-
-    @media (min-width: 1400px) {
-      flex-basis: 23.4%;
-    }
+  @media (min-width: 1170px) {
+    grid-template-columns: repeat(4, 1fr);
   }
 `;
 

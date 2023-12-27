@@ -247,18 +247,18 @@ class MainList extends React.Component<Props, State> {
       );
     }
 
-    return this.renderForm();
+    return (
+      <>
+        {this.renderSearch()}
+        {this.renderForm()}
+      </>
+    );
   };
 
   renderActionBar = () => {
     const { totalCount } = this.props;
 
-    const rightActionBar = (
-      <BarItems>
-        {this.renderSearch()}
-        {this.renderButtons()}
-      </BarItems>
-    );
+    const rightActionBar = <BarItems>{this.renderButtons()}</BarItems>;
 
     const leftActionBar = (
       <LeftActionBar>

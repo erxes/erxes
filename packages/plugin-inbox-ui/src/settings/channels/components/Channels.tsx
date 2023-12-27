@@ -59,7 +59,10 @@ class Channels extends React.Component<Props, {}> {
       />
     );
 
-    const leftActionBar = <Title>{currentChannel.name}</Title>;
+    const leftActionBar = (
+      <Title>{`${currentChannel.name ||
+        'Channel'} (${integrationsCount})`}</Title>
+    );
 
     return (
       <Wrapper

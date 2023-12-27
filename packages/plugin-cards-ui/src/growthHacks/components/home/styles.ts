@@ -6,7 +6,7 @@ import styledTS from 'styled-components-ts';
 
 const BoxContainer = styled.div`
   display: grid;
-  padding: 20px 20px 20px 20px;
+  padding: 20px;
   column-gap: 20px;
 
   @media (min-width: 630px) {

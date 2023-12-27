@@ -159,7 +159,7 @@ export default class AppForm extends React.Component<Props, State> {
           >
             {__('Cancel')}
           </Button>
-          <Button btnStyle="success" type="submit" icon="checked-1">
+          <Button btnStyle="success" type="submit" icon="check-circle">
             {__(app ? 'Edit' : 'Add')}
           </Button>
         </ModalFooter>

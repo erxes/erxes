@@ -24,14 +24,6 @@ class SettingsSideBarContainer extends React.Component<FinalProps> {
   render() {
     const { branchListQuery, unitListQuery, departmentListQuery } = this.props;
 
-    // if (
-    //   branchListQuery.loading ||
-    //   unitListQuery.loading ||
-    //   departmentListQuery.loading
-    // ) {
-    //   return <Spinner />;
-    // }
-
     if (
       branchListQuery.error ||
       unitListQuery.error ||

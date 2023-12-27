@@ -49,10 +49,6 @@ type LastBoardProps = {
 const LastBoard = (props: LastBoardProps & Props) => {
   const { boardGetLastQuery } = props;
 
-  if (boardGetLastQuery.loading) {
-    return <Spinner objective={true} />;
-  }
-
   const lastBoard = boardGetLastQuery.boardGetLast || ({} as IBoard);
 
   const extendedProps = {

@@ -38,6 +38,7 @@ type Props = {
   options?: IOption;
   refetch: ({ boardId }: { boardId?: string }) => Promise<any>;
   currentBoard?: IBoard;
+  loading: boolean;
 } & IRouterProps;
 
 type State = {
@@ -171,11 +172,11 @@ class Pipelines extends React.Component<Props, State> {
   }
 
   renderContent() {
-    const { pipelines, options, type } = this.props;
+    const { pipelines, options, type, loading } = this.props;
 
     const pipelineName = options ? options.pipelineName : 'pipeline';
 
-    if (pipelines.length === 0) {
+    if (!loading && pipelines.length === 0) {
       if (type === 'deal' || type === 'task') {
         return (
           <EmptyContent
@@ -288,11 +289,6 @@ class Pipelines extends React.Component<Props, State> {
     const leftActionBar = (
       <Title>
         {currentBoard ? `${currentBoard.name} (${pipelines.length})` : ''}
-
-        {/* <PipelineCount>
-          ({} {__(pipelineName)}
-          {pipelines.length > 1 && 's'})
-        </PipelineCount> */}
       </Title>
     );
 
