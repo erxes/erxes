@@ -53,7 +53,6 @@ export default class SipProvider extends React.Component<
     disconnectCall: () => void;
 
     callsActiveSession: any;
-    instance_id: string;
   },
   {
     sipStatus: SipStatus;
@@ -97,8 +96,7 @@ export default class SipProvider extends React.Component<
     sessionTimersExpires: PropTypes.number,
     extraHeaders: extraHeadersPropType,
     iceServers: iceServersPropType,
-    debug: PropTypes.bool,
-    instance_id: PropTypes.string
+    debug: PropTypes.bool
   };
 
   public static defaultProps = {
@@ -113,8 +111,7 @@ export default class SipProvider extends React.Component<
     sessionTimersExpires: 120,
     extraHeaders: { register: [], invite: [] },
     iceServers: [],
-    debug: false,
-    instance_id: ''
+    debug: false
   };
   private ua;
   private remoteAudio;
@@ -519,7 +516,7 @@ export default class SipProvider extends React.Component<
       });
     });
 
-    // ua.on('muted', data => {});
+    ua.on('muted', data => {});
 
     ua.on(
       'newRTCSession',
