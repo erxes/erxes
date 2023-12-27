@@ -60,7 +60,12 @@ const InventoryProducts = ({
   const header = <Wrapper.ActionBar right={checkButton} />;
 
   const calculatePagination = (data: any) => {
-    if (Object.keys(queryParams).length !== 0) {
+    console.log(
+      Object.keys(queryParams).length,
+      'Object.keys(queryParams).length'
+    );
+
+    if (Object.keys(queryParams).length !== 1) {
       if (queryParams.perPage !== undefined && queryParams.page === undefined) {
         data = data.slice(queryParams.perPage * 0, queryParams.perPage * 1);
       }
