@@ -39,6 +39,12 @@ export interface IEngageSms {
   fromIntegrationId: string;
 }
 
+export interface IEngageNotification {
+  from?: string;
+  content: string;
+  fromIntegrationId: string;
+  isMobile: boolean;
+}
 export interface IEngageStats {
   send: number;
   delivery: number;
@@ -105,6 +111,7 @@ export interface IEngageMessageDoc {
   isLive?: boolean;
   email?: IEngageEmail;
   messenger?: IEngageMessenger;
+  notification?: IEngageNotification;
   scheduleDate?: IEngageScheduleDate;
   shortMessage?: IEngageSms;
 }

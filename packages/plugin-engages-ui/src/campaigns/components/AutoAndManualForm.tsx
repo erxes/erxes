@@ -24,10 +24,12 @@ import {
   IEngageMessenger,
   IEngageScheduleDate,
   IEngageSms,
+  IEngageNotification,
   IEmailTemplate,
   IIntegrationWithPhone
 } from '@erxes/ui-engage/src/types';
 import SmsForm from './SmsForm';
+import NotificationForm from './NotificationForm';
 import ChannelStep from './step/ChannelStep';
 import FullPreviewStep from './step/FullPreviewStep';
 import MessageStep from './step/MessageStep';
@@ -65,6 +67,7 @@ type State = {
   email?: IEngageEmail;
   scheduleDate: IEngageScheduleDate;
   shortMessage?: IEngageSms;
+  notification?: IEngageNotification;
   rules: IConditionsRule[];
   isSaved: boolean;
 };
@@ -88,7 +91,7 @@ class AutoAndManualForm extends React.Component<Props, State> {
     }
 
     this.state = {
-      method: message.method || METHODS.EMAIL,
+      method: message.method || METHODS.EMAIL || METHODS.NOTIFICATION,
       title: message.title || '',
       segmentIds: message.segmentIds || [],
       brandIds: message.brandIds || [],
@@ -99,6 +102,7 @@ class AutoAndManualForm extends React.Component<Props, State> {
       email: message.email,
       scheduleDate: message.scheduleDate,
       shortMessage: message.shortMessage,
+      notification: message.notification,
       rules,
       isSaved: false
     };
@@ -126,7 +130,8 @@ class AutoAndManualForm extends React.Component<Props, State> {
       fromUserId: this.state.fromUserId,
       method: this.state.method,
       scheduleDate: this.state.scheduleDate,
-      shortMessage: this.state.shortMessage
+      shortMessage: this.state.shortMessage,
+      notification: this.state.notification
     } as IEngageMessageDoc;
 
     if (this.state.method === METHODS.EMAIL) {
@@ -179,6 +184,30 @@ class AutoAndManualForm extends React.Component<Props, State> {
         fromIntegrationId: shortMessage.fromIntegrationId
       };
 
+      if (doc.email) {
+        delete doc.email;
+      }
+      if (doc.messenger) {
+        delete doc.messenger;
+      }
+    }
+
+    if (this.state.method === METHODS.NOTIFICATION) {
+      const notification = this.state.notification || {
+        from: '',
+        content: '',
+        fromIntegrationId: '',
+        isMobile: false
+      };
+
+      doc.notification = {
+        from: notification.from,
+        content: notification.content,
+        fromIntegrationId: notification.fromIntegrationId,
+        isMobile: notification.isMobile
+      };
+
+      console.log('doc', doc);
       if (doc.email) {
         delete doc.email;
       }
@@ -262,6 +291,7 @@ class AutoAndManualForm extends React.Component<Props, State> {
       scheduleDate,
       method,
       shortMessage,
+      notification,
       isSaved
     } = this.state;
 
@@ -277,6 +307,20 @@ class AutoAndManualForm extends React.Component<Props, State> {
             shortMessage={shortMessage}
             fromUserId={fromUserId}
             smsConfig={smsConfig}
+            integrations={integrations}
+          />
+        </Step>
+      );
+    }
+    if (method === METHODS.NOTIFICATION) {
+      return (
+        <Step noButton={true} title="Compose your notification" img={imagePath}>
+          <NotificationForm
+            onChange={this.changeState}
+            messageKind={kind}
+            scheduleDate={scheduleDate}
+            notification={notification}
+            fromUserId={fromUserId}
             integrations={integrations}
           />
         </Step>
