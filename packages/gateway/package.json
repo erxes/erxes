@@ -13,7 +13,6 @@
     "agentkeepalive": "^4.3.0",
     "cookie-parser": "^1.4.6",
     "cors": "^2.8.4",
-    "dotenv": "^10.0.0",
     "erxes-telemetry": "^1.0.4",
     "jsonwebtoken": "^8.5.1",
     "express": "^4.17.2",
