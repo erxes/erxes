@@ -49,6 +49,10 @@ export default class SipProvider extends React.Component<
     iceServers: IceServers;
     debug: boolean;
     children: any;
+    createSession: () => void;
+    disconnectCall: () => void;
+
+    callsActiveSession: any;
   },
   {
     sipStatus: SipStatus;
@@ -57,6 +61,7 @@ export default class SipProvider extends React.Component<
     callStatus: CallStatus;
     callDirection: CallDirection | null;
     callCounterpart: string | null;
+    callId: string | null;
     rtcSession;
   }
 > {
@@ -115,7 +120,6 @@ export default class SipProvider extends React.Component<
 
   constructor(props) {
     super(props);
-
     this.state = {
       sipStatus: SIP_STATUS_DISCONNECTED,
       sipErrorType: null,
@@ -125,7 +129,8 @@ export default class SipProvider extends React.Component<
       // errorLog: [],
       callStatus: CALL_STATUS_IDLE,
       callDirection: null,
-      callCounterpart: null
+      callCounterpart: null,
+      callId: null
     };
 
     this.ua = null;
@@ -170,6 +175,14 @@ export default class SipProvider extends React.Component<
     const callConfig = JSON.parse(
       localStorage.getItem('config:call_integrations')
     );
+    const callInfo = JSON.parse(localStorage.getItem('callInfo'));
+
+    if (
+      this.state.sipStatus === SIP_STATUS_REGISTERED &&
+      callInfo?.isUnRegistered
+    ) {
+      this.unregisterSip();
+    }
 
     if (callConfig && !callConfig.isAvailable) {
       return this.props.children(this.state);
@@ -216,8 +229,8 @@ export default class SipProvider extends React.Component<
   }
 
   public componentWillUnmount() {
-    // this.remoteAudio.parentNode.removeChild(this.remoteAudio);
-    delete this.remoteAudio;
+    this.remoteAudio?.parentNode?.removeChild(this.remoteAudio);
+    this.remoteAudio = null;
     if (this.ua) {
       this.ua.stop();
       this.ua = null;
@@ -365,7 +378,6 @@ export default class SipProvider extends React.Component<
     }
 
     const { host, port, pathname, user, password, autoRegister } = this.props;
-
     if (!host || !port || !user) {
       this.setState({
         sipStatus: SIP_STATUS_DISCONNECTED,
@@ -379,12 +391,14 @@ export default class SipProvider extends React.Component<
       const socket = new JsSIP.WebSocketInterface(
         `wss://${host}:${port}${pathname}`
       );
-      this.ua = new JsSIP.UA({
+      const options = {
         uri: `sip:${user}@${host}`,
         password,
         sockets: [socket],
         register: autoRegister
-      });
+      } as any;
+
+      this.ua = new JsSIP.UA(options);
     } catch (error) {
       this.logger.debug('Error', error.message, error);
       this.setState({
@@ -422,6 +436,14 @@ export default class SipProvider extends React.Component<
 
     ua.on('disconnected', () => {
       this.logger.debug('UA "disconnected" event');
+
+      localStorage.setItem(
+        'callInfo',
+        JSON.stringify({
+          isRegistered: false
+        })
+      );
+
       if (this.ua !== ua) {
         return;
       }
@@ -441,6 +463,17 @@ export default class SipProvider extends React.Component<
         sipStatus: SIP_STATUS_REGISTERED,
         callStatus: CALL_STATUS_IDLE
       });
+
+      localStorage.setItem(
+        'callInfo',
+        JSON.stringify({
+          isRegistered: true
+        })
+      );
+
+      if (!this.props.callsActiveSession) {
+        this.props.createSession();
+      }
     });
 
     ua.on('unregistered', () => {
@@ -465,9 +498,17 @@ export default class SipProvider extends React.Component<
 
     ua.on('registrationFailed', data => {
       this.logger.debug('UA "registrationFailed" event');
+
+      localStorage.setItem(
+        'callInfo',
+        JSON.stringify({
+          isRegistered: false
+        })
+      );
       if (this.ua !== ua) {
         return;
       }
+
       this.setState({
         sipStatus: SIP_STATUS_ERROR,
         sipErrorType: SIP_ERROR_TYPE_REGISTRATION,
@@ -497,7 +538,6 @@ export default class SipProvider extends React.Component<
         } else if (originator === 'remote') {
           const foundUri = rtcRequest.from.toString();
           const delimiterPosition = foundUri.indexOf(';') || null;
-
           this.setState({
             callDirection: CALL_DIRECTION_INCOMING,
             callStatus: CALL_STATUS_STARTING,
@@ -518,7 +558,31 @@ export default class SipProvider extends React.Component<
           return;
         }
         this.setState({ rtcSession });
-        rtcSession.on('failed', () => {
+        rtcSession.on('failed', e => {
+          if (this.ua !== ua) {
+            return;
+          }
+
+          this.setState({
+            rtcSession: null,
+            callStatus: CALL_STATUS_IDLE,
+            callDirection: null,
+            callCounterpart: null
+          });
+          this.ua?.terminateSessions();
+
+          rtcSession = null;
+          // this.outgoingAudio?.pause();
+        });
+        rtcSession.on('peerconnection', e => {
+          if (this.ua !== ua) {
+            return;
+          }
+
+          // this.outgoingAudio?.pause();
+        });
+
+        rtcSession.on('ended', data => {
           if (this.ua !== ua) {
             return;
           }
@@ -534,7 +598,7 @@ export default class SipProvider extends React.Component<
           // this.outgoingAudio?.pause();
         });
 
-        rtcSession.on('ended', () => {
+        rtcSession.on('bye', () => {
           if (this.ua !== ua) {
             return;
           }
