@@ -18113,11 +18113,6 @@ node-schedule@^1.2.5, node-schedule@^1.3.2:
     long-timeout "0.1.1"
     sorted-array-functions "^1.3.0"
 
-node-watch@^0.7.2, node-watch@^0.7.3:
-  version "0.7.3"
-  resolved "https://registry.npmjs.org/node-watch/-/node-watch-0.7.3.tgz"
-  integrity sha512-3l4E8uMPY1HdMMryPRUAl+oIHtXtyiTlIiESNSVSNxcPfzAFzeTbXFQkZfAwBbo0B1qMSG8nUABx+Gd+YrbKrQ==
-
 nodejs-file-downloader@^4.10.6:
   version "4.10.6"
   resolved "https://registry.npmjs.org/nodejs-file-downloader/-/nodejs-file-downloader-4.10.6.tgz"
