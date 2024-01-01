@@ -33,6 +33,7 @@ export interface IOrder {
   cashAmount?: number;
   mobileAmount?: number;
   mobileAmounts?: IMobileAmount[];
+  directDiscount?: number;
   paidAmounts?: IPaidAmount[];
   totalAmount: number;
   finalAmount?: number;
@@ -119,6 +120,10 @@ export const orderSchema = schemaHooksWrapper(
     cashAmount: getNumberFieldDefinition({
       ...commonAttributes,
       label: 'Cash amount'
+    }),
+    directDiscount: getNumberFieldDefinition({
+      ...commonAttributes,
+      label: 'Direct Discount'
     }),
     mobileAmount: getNumberFieldDefinition({
       ...commonAttributes,

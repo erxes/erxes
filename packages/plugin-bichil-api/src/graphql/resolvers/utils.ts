@@ -1223,15 +1223,15 @@ export const bichilTimeclockReportPivot = async (
             timeclockDate: scheduledDay,
             timeclockStart: shiftStart,
             timeclockEnd: shiftEnd,
-            timeclockDuration: (getTimeClockDuration / MMSTOHRS).toFixed(2),
+            timeclockDuration: (getTimeClockDuration / MMSTOHRS).toFixed(1),
             deviceType: currUserTimeclock.deviceType,
             deviceName: currUserTimeclock.deviceName,
             scheduledStart: scheduleShiftStart,
             scheduledEnd: scheduleShiftEnd,
-            scheduledDuration: (getScheduleDuration / MMSTOHRS).toFixed(2),
-            totalMinsLate: totalMinsLatePerShift.toFixed(2),
-            totalHoursOvertime: totalHoursOvertimePerShift.toFixed(2),
-            totalHoursOvernight: totalHoursOvernightPerShift.toFixed(2)
+            scheduledDuration: (getScheduleDuration / MMSTOHRS).toFixed(1),
+            totalMinsLate: totalMinsLatePerShift.toFixed(1),
+            totalHoursOvertime: totalHoursOvertimePerShift.toFixed(1),
+            totalHoursOvernight: totalHoursOvernightPerShift.toFixed(1)
           });
         }
       });

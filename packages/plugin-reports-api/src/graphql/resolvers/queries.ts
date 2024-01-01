@@ -97,7 +97,7 @@ const reportsQueries = {
     const totalServicesNamesList: string[] = [];
 
     for (const serviceName of serviceNames) {
-      const service = await serviceDiscovery.getService(serviceName, true);
+      const service = await serviceDiscovery.getService(serviceName);
       const chartTemplates = service.config?.meta?.reports?.chartTemplates;
 
       if (chartTemplates && chartTemplates.length) {
@@ -123,7 +123,7 @@ const reportsQueries = {
     };
 
     if (serviceName) {
-      const service = await serviceDiscovery.getService(serviceName, true);
+      const service = await serviceDiscovery.getService(serviceName);
       const reportTemplates = service.config?.meta?.reports?.reportTemplates;
 
       if (reportTemplates) {
@@ -138,7 +138,7 @@ const reportsQueries = {
     const serviceNames = await serviceDiscovery.getServices();
 
     for (const srviceName of serviceNames) {
-      const service = await serviceDiscovery.getService(srviceName, true);
+      const service = await serviceDiscovery.getService(srviceName);
       const reportTemplates = service.config?.meta?.reports?.reportTemplates;
 
       if (reportTemplates) {
@@ -156,7 +156,7 @@ const reportsQueries = {
     { serviceName }: { serviceName: string },
     {}: IContext
   ) {
-    const service = await serviceDiscovery.getService(serviceName, true);
+    const service = await serviceDiscovery.getService(serviceName);
     const chartTemplates = service.config?.meta?.reports?.chartTemplates;
     return chartTemplates;
   },
@@ -183,7 +183,7 @@ const reportsQueries = {
   },
 
   async reportChartGetTemplates(_root, { serviceName }, { models }: IContext) {
-    const service = await serviceDiscovery.getService(serviceName, true);
+    const service = await serviceDiscovery.getService(serviceName);
 
     const reportConfig = service.config.meta.reports || {};
 

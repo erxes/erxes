@@ -311,7 +311,7 @@ const TimeclockList = (props: Props) => {
             (
               parseFloat(request.totalHoursOfAbsence) /
               request.requestDates.length
-            ).toFixed(2) + ' hours';
+            ).toFixed(1) + ' hours';
 
           for (const requestDate of request.requestDates) {
             const date = dayjs(new Date(requestDate)).format(

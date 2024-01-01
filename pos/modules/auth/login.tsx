@@ -10,9 +10,6 @@ import { mutations } from "./graphql"
 const LoginContainer = () => {
   const { toast } = useToast()
   const [login, { loading }] = useMutation(mutations.login, {
-    onCompleted(data) {
-      if (data.posLogin === "loggedIn") return (window.location.href = "/")
-    },
     onError(error) {
       return toast({ description: error.message, variant: "destructive" })
     },

@@ -1,6 +1,5 @@
 "use client"
 
-import { useRouter } from "next/navigation"
 import { useMutation } from "@apollo/client"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
@@ -29,15 +28,11 @@ const FormSchema = z.object({
 })
 
 const ConfigsFetch = () => {
-  const router = useRouter()
   const { toast } = useToast()
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
   })
   const [posConfigsFetch, { loading }] = useMutation(mutations.configsFetch, {
-    onCompleted() {
-      router.push("/login")
-    },
     onError(error) {
       return toast({ description: error.message, variant: "destructive" })
     },

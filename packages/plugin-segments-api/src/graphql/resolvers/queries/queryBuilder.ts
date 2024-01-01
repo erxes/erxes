@@ -64,7 +64,7 @@ export const fetchSegment = async (
   const serviceConfigs: any = [];
 
   for (const serviceName of serviceNames) {
-    const service = await serviceDiscovery.getService(serviceName, true);
+    const service = await serviceDiscovery.getService(serviceName);
     const segmentMeta = (service.config.meta || {}).segments;
 
     if (segmentMeta) {
@@ -838,7 +838,7 @@ const associationPropertyFilter = async (
     negativeQuery: any;
   }
 ) => {
-  const service = await serviceDiscovery.getService(serviceName, true);
+  const service = await serviceDiscovery.getService(serviceName);
   const segmentMeta = (service.config.meta || {}).segments;
 
   if (segmentMeta && segmentMeta.associationFilterAvailable) {

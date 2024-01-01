@@ -314,7 +314,7 @@ export const listenIntegration = async (
           if (e) {
             // if we can't open the inbox, we can't sync emails
             disconnectReason = e;
-            reconnect = false;
+            reconnect = true;
             console.error('openBox error', e);
             await models.Logs.createLog({
               type: 'error',
@@ -388,7 +388,7 @@ export const listenIntegration = async (
           await cleanupLock();
           imap.end();
         }
-      }, 60000);
+      }, 30_000);
 
       const cleanupLock = async () => {
         try {
@@ -412,7 +412,7 @@ export const listenIntegration = async (
       // disconnected due to recoverable error, reconnect
       continue;
     } catch (e) {
-      console.log(`IMAP ${integration._id} disconnected. Non recoverable.`, e);
+      console.log(`IMAP ${integration._id} disconnected. Not reconnecting.`, e);
       // disconnected due to unrecoverable error
       break;
     }
