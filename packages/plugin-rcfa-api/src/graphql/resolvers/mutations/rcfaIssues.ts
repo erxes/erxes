@@ -1,4 +1,6 @@
 import { IContext } from '../../../connectionResolver';
+import { sendCardsMessage } from '../../../messageBroker';
+import { areArraysIdentical } from './rcfa';
 
 interface ICreateQuestion {
   question: string;
@@ -34,6 +36,44 @@ const rcfaIssuesMutations = {
   },
   async createAssessmentOfRcfa(_root, params, { models }: IContext) {
     return await models.RCFA.createAssessment(params);
+  },
+  async setLabelsRcfaIssues(
+    _root,
+    { issueId, labelIds },
+    { models, subdomain }: IContext
+  ) {
+    if (!labelIds?.length) {
+      throw new Error('labelIds required');
+    }
+
+    const issue = await models.Issues.findOne({ _id: issueId });
+
+    if (!issue) {
+      throw new Error('Not found');
+    }
+
+    if (!areArraysIdentical(issue.labelIds, labelIds)) {
+      const { actionIds = [], taskIds = [] } = issue;
+
+      let cardIds: string[] = [...actionIds, ...taskIds];
+
+      await sendCardsMessage({
+        subdomain,
+        action: 'tasks.updateMany',
+        data: {
+          selector: { _id: { $in: [...new Set(cardIds)] } },
+          modifier: { $set: { labelIds } }
+        },
+        isRPC: true
+      });
+    }
+
+    return await models.Issues.findOneAndUpdate(
+      {
+        _id: issueId
+      },
+      { $set: { labelIds } }
+    );
   }
 };
 

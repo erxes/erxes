@@ -1,7 +1,7 @@
 import { IContext } from '../../../connectionResolver';
 import { sendCardsMessage } from '../../../messageBroker';
 
-function areArraysIdentical(arr1, arr2) {
+export function areArraysIdentical(arr1, arr2) {
   if (arr1.length !== arr2.length) {
     return false;
   }

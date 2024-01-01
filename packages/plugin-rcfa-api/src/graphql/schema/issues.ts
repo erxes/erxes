@@ -43,4 +43,5 @@ export const mutations = `
   createTaskRcfaRoot(issueId:String,name:String,stageId:String):JSON
   createActionRcfaRoot(${createActionMutationParams}):JSON
   createAssessmentOfRcfa(${createAssesmentParams}):JSON
+  setLabelsRcfaIssues(issueId:String,labelIds:[String]):JSON
 `;
