@@ -1,6 +1,5 @@
 import { generateFieldsFromSchema, sendRequest } from '@erxes/api-utils/src';
 import { generateModels } from './connectionResolver';
-import { EXTEND_FIELDS } from './contants';
 import { sendCommonMessage } from './messageBroker';
 import { IXypConfig } from './graphql/resolvers/queries';
 
@@ -87,35 +86,15 @@ export default {
       selectOptions?: Array<{ label: string; value: string }>;
     }> = [];
 
-    fields = EXTEND_FIELDS;
+    fields = [];
 
     const { fieldsForExcel, list } =
       (await getServiceToFields(subdomain)) || [];
 
     if (schema) {
       fields = [...list, ...(await generateFieldsFromSchema(schema, ''))];
-
-      for (const name of Object.keys(schema.paths)) {
-        const path = schema.paths[name];
-        // if (path.schema) {
-        //   fields = [
-        //     ...fields,
-        //     ...(await generateFieldsFromSchema(path.schema, `${name}.`))
-        //   ];
-        // }
-      }
     }
 
     return fields;
   }
-  // systemFields: ({ data: { groupId, type } }) =>
-  //   POS_ORDER_INFO.ALL.map(e => ({
-  //     text: e.label,
-  //     type: e.field,
-  //     field: e.field,
-  //     canHide: false,
-  //     groupId,
-  //     contentType: `pos:pos`,
-  //     isDefinedByErxes: true
-  //   }))
 };
