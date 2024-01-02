@@ -381,7 +381,6 @@ class ProductForm extends React.Component<Props, State> {
 
     const { total, changePayData } = this.state;
     if (expensesData.length !== 0) {
-      console.log(expensesData);
       for (const data of expensesData) {
         if (!data.type) {
           return Alert.error('Please choose a type');
