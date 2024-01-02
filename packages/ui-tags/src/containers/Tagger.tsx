@@ -1,19 +1,11 @@
-import * as compose from 'lodash.flowright';
-
-import { Alert, withProps } from '@erxes/ui/src/utils';
-import {
-  ITag,
-  ITagTypes,
-  TagMutationResponse,
-  TagMutationVariables,
-  TagsQueryResponse
-} from '../types';
+import { Alert } from '@erxes/ui/src/utils';
+import { ITag, ITagTypes, TagsQueryResponse } from '../types';
 import { mutations, queries } from '../graphql';
 
 import React from 'react';
 import Tagger from '../components/Tagger';
 import { gql } from '@apollo/client';
-import { graphql } from '@apollo/client/react/hoc';
+import { useQuery, useMutation } from '@apollo/client';
 
 type Props = {
   // targets can be conversation, customer, company etc ...
@@ -29,24 +21,33 @@ type Props = {
   disableTreeView?: boolean;
 };
 
-type FinalProps = {
-  tagsQuery: TagsQueryResponse;
-  tagsCountQuery: any;
-} & Props &
-  TagMutationResponse;
+const TaggerContainer = (props: Props) => {
+  const tagsQuery = useQuery<TagsQueryResponse>(query, {
+    variables: {
+      type: props.type,
+      parentId: props.parentTagId
+    },
+    fetchPolicy: 'network-only'
+  });
 
-const TaggerContainer = (props: FinalProps) => {
-  const {
-    type,
-    targets = [],
-    successCallback,
-    tagsQuery,
-    tagsCountQuery,
-    tagMutation
-  } = props;
+  const tagsCountQuery = useQuery(gql(queries.tagsQueryCount), {
+    variables: {
+      type: props.type,
+      parentId: props.parentTagId,
+      perPage: props.perPage || 20
+    },
+    fetchPolicy: 'network-only'
+  });
 
-  const tags = tagsQuery.tags || [];
-  const totalCount = tagsCountQuery.tagsQueryCount || 0;
+  const [tagMutation] = useMutation(gql(mutations.tagsTag), {
+    refetchQueries: props.refetchQueries
+  });
+
+  const { type, targets = [], successCallback } = props;
+
+  const tags = (tagsQuery.data && tagsQuery.data.tags) || [];
+  const totalCount =
+    (tagsCountQuery.data && tagsCountQuery.data.tagsQueryCount) || 0;
 
   const tag = selectedTagIds => {
     const variables = {
@@ -54,7 +55,7 @@ const TaggerContainer = (props: FinalProps) => {
       targetIds: targets.map(t => t._id),
       tagIds: selectedTagIds
     };
-
+    console.log('selectedTagIds', selectedTagIds);
     tagMutation({ variables })
       .then(() => {
         let message = `The ${type} has been tagged!`;
@@ -142,35 +143,4 @@ const query = gql`
   }
 `;
 
-export default withProps<Props>(
-  compose(
-    graphql<Props, any, { type: string }>(gql(queries.tagsQueryCount), {
-      name: 'tagsCountQuery',
-      options: (props: Props) => ({
-        variables: {
-          type: props.type,
-          parentId: props.parentTagId
-        }
-      })
-    }),
-    graphql<Props, TagsQueryResponse, { type: string }>(query, {
-      name: 'tagsQuery',
-      options: (props: Props) => ({
-        variables: {
-          type: props.type,
-          parentId: props.parentTagId,
-          perPage: props.perPage || 20
-        }
-      })
-    }),
-    graphql<Props, TagMutationResponse, TagMutationVariables>(
-      gql(mutations.tagsTag),
-      {
-        name: 'tagMutation',
-        options: ({ refetchQueries }) => ({
-          refetchQueries
-        })
-      }
-    )
-  )(TaggerContainer)
-);
+export default TaggerContainer;

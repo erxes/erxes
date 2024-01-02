@@ -7,6 +7,7 @@ export interface ITag {
   parentId?: string;
   order?: string;
   totalObjectCount?: number;
+  selectedBy?: any;
 }
 
 export type ITagTypes =
@@ -24,14 +25,4 @@ export type TagsQueryResponse = {
   loading: boolean;
   fetchMore: any;
   refetch: () => void;
-};
-
-export type TagMutationResponse = {
-  tagMutation: (params: { variables: TagMutationVariables }) => Promise<any>;
-};
-
-export type TagMutationVariables = {
-  type: string;
-  targetIds: string[];
-  tagIds: string[];
 };

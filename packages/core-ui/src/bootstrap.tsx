@@ -10,14 +10,15 @@ import '@erxes/ui/src/styles/global-styles.ts';
 import { getEnv, readFile } from 'modules/common/utils';
 import React from 'react';
 import { ApolloProvider } from '@apollo/client';
-import { render } from 'react-dom';
 import { getThemeItem } from '@erxes/ui/src/utils/core';
+import { createRoot } from 'react-dom/client';
 
 dayjs.extend(localizedFormat);
 dayjs.extend(relativeTime);
 dayjs.extend(utc, { parseLocal: true });
 
-const target = document.querySelector('#root');
+const container = document.querySelector('#root');
+const root = createRoot(container!); // createRoot(container!) if you use TypeScript
 
 const envs = getEnv();
 
@@ -65,8 +66,7 @@ fetch(`${envs.REACT_APP_API_URL}/initial-setup?envs=${JSON.stringify(envs)}`, {
       );
     }
 
-    return render(
-      <ApolloProvider client={apolloClient}>{body}</ApolloProvider>,
-      target
+    return root.render(
+      <ApolloProvider client={apolloClient}>{body}</ApolloProvider>
     );
   });

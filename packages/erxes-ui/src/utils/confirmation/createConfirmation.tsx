@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import ConfirmDialog from '@erxes/ui/src/components/ConfirmDialog';
+import { createRoot } from 'react-dom/client';
 
 const createConfirmation = (unmountDelay = 1000) => {
   return props => {
@@ -19,9 +20,8 @@ const createConfirmation = (unmountDelay = 1000) => {
 
     const promise = new Promise(proceed => {
       try {
-        ReactDOM.render(
-          <ConfirmDialog proceed={proceed} dismiss={dismiss} {...props} />,
-          wrapper
+        createRoot(wrapper).render(
+          <ConfirmDialog proceed={proceed} dismiss={dismiss} {...props} />
         );
       } catch (e) {
         throw e;

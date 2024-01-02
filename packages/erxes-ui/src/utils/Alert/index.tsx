@@ -1,8 +1,8 @@
 import T from 'i18n-react';
 import React from 'react';
-import ReactDOM from 'react-dom';
 import styled from 'styled-components';
 import AlertStyled from './Alert';
+import { createRoot } from 'react-dom/client';
 
 const AlertsWrapper = styled.div.attrs({
   id: 'alerts-wrapper'
@@ -28,7 +28,8 @@ const createAlert = (type: string, text: string, time?: number) => {
 
     document.body.appendChild(alertContainer);
 
-    ReactDOM.render(<AlertsWrapper />, alertContainer);
+    const root = createRoot(alertContainer);
+    root.render(<AlertsWrapper />);
   }
 
   const alertsWrapper = document.getElementById(`alerts-wrapper`);
@@ -70,7 +71,8 @@ const createAlert = (type: string, text: string, time?: number) => {
       }
     };
 
-    ReactDOM.render(
+    const root = createRoot(alertContainer);
+    root.render(
       <AlertStyled
         key={alertcount}
         index={alertcount}
@@ -78,8 +80,7 @@ const createAlert = (type: string, text: string, time?: number) => {
         type={type}
       >
         {T.translate(text)}
-      </AlertStyled>,
-      alertContainer
+      </AlertStyled>
     );
   }
 };

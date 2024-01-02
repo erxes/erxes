@@ -1,16 +1,15 @@
-import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-
+import React, { useState } from 'react';
 import Button from '@erxes/ui/src/components/Button';
 import { COLORS } from '@erxes/ui/src/constants/colors';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import Form from '@erxes/ui/src/components/form/Form';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import FormGroup from '@erxes/ui/src/components/form/Group';
+import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import { ITag } from '../types';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
-import React from 'react';
 import TwitterPicker from 'react-color/lib/Twitter';
 import { colors } from '@erxes/ui/src/styles';
 import { getRandomNumber } from '@erxes/ui/src/utils';
@@ -30,7 +29,7 @@ const ColorPicker = styled.div`
   border-radius: 2px;
 `;
 
-type Props = {
+type FormComponentProps = {
   tag?: ITag;
   tagType: string;
   types: any[];
@@ -40,38 +39,29 @@ type Props = {
   tags: ITag[];
 };
 
-type State = {
-  colorCode: string;
-};
+const FormComponent: React.FC<FormComponentProps> = ({
+  tag,
+  closeModal,
+  afterSave,
+  renderButton,
+  tags,
+  tagType,
+  types
+}) => {
+  const [colorCode, setColorCode] = useState<string>(
+    tag ? tag.colorCode || '' : COLORS[getRandomNumber(7)]
+  );
 
-type IItem = {
-  order?: string;
-  name: string;
-  _id: string;
-};
-
-class FormComponent extends React.Component<Props, State> {
-  constructor(props: Props) {
-    super(props);
-
-    const { tag } = this.props;
-
-    this.state = {
-      colorCode: tag ? tag.colorCode || '' : COLORS[getRandomNumber(7)]
-    };
-  }
-
-  onColorChange = e => {
-    this.setState({ colorCode: e.hex });
+  const onColorChange = (e: { hex: string }) => {
+    setColorCode(e.hex);
   };
 
-  generateDoc = (values: {
+  const generateDoc = (values: {
     _id?: string;
     name: string;
     type: string;
     parentId?: string;
   }) => {
-    const { tag } = this.props;
     const finalValues = values;
 
     if (tag) {
@@ -81,13 +71,13 @@ class FormComponent extends React.Component<Props, State> {
     return {
       _id: finalValues._id,
       name: finalValues.name,
-      colorCode: this.state.colorCode,
+      colorCode: colorCode,
       type: finalValues.type,
       parentId: finalValues.parentId
     };
   };
 
-  generateTagOptions = (tags: IItem[], currentTagId?: string) => {
+  const generateTagOptions = (tags: ITag[], currentTagId?: string) => {
     const result: React.ReactNode[] = [];
 
     for (const tag of tags) {
@@ -114,18 +104,8 @@ class FormComponent extends React.Component<Props, State> {
     return result;
   };
 
-  renderContent = (formProps: IFormProps) => {
-    const {
-      tag,
-      closeModal,
-      afterSave,
-      renderButton,
-      tags,
-      tagType,
-      types
-    } = this.props;
+  const renderContent = (formProps: IFormProps) => {
     const { values, isSubmitted } = formProps;
-    const { colorCode } = this.state;
     const object = tag || ({} as ITag);
 
     const popoverContent = (
@@ -133,7 +113,7 @@ class FormComponent extends React.Component<Props, State> {
         <TwitterPicker
           width="266px"
           color={colorCode}
-          onChange={this.onColorChange}
+          onChange={onColorChange}
           colors={COLORS}
         />
       </Popover>
@@ -194,7 +174,7 @@ class FormComponent extends React.Component<Props, State> {
               defaultValue={object.parentId}
             >
               <option value="" />
-              {this.generateTagOptions(tags, object._id)}
+              {generateTagOptions(tags, object._id)}
             </FormControl>
           </FormGroup>
         )}
@@ -206,7 +186,7 @@ class FormComponent extends React.Component<Props, State> {
 
           {renderButton({
             name: 'tag',
-            values: this.generateDoc(values),
+            values: generateDoc(values),
             isSubmitted,
             callback: closeModal || afterSave,
             object: tag
@@ -216,9 +196,7 @@ class FormComponent extends React.Component<Props, State> {
     );
   };
 
-  render() {
-    return <Form renderContent={this.renderContent} />;
-  }
-}
+  return <Form renderContent={renderContent} />;
+};
 
 export default FormComponent;
