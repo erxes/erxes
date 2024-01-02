@@ -22,6 +22,13 @@ const receivePost = async (
 
   const userId = params.from.id;
 
+  await getOrCreateCustomer(
+    models,
+    subdomain,
+    pageId,
+    userId,
+    INTEGRATION_KINDS.POST
+  );
   const customer = await getOrCreateCustomer(
     models,
     subdomain,
@@ -29,7 +36,6 @@ const receivePost = async (
     userId,
     INTEGRATION_KINDS.POST
   );
-
   await getOrCreatePost(
     models,
     subdomain,
