@@ -71,7 +71,9 @@ function ReportList(props: Props) {
   };
 
   const extractTrigger = isCurrentUserAdmin ? (
-    <Button icon="plus-circle">Extract time logs</Button>
+    <Button icon="plus-circle" btnStyle="primary">
+      Extract time logs
+    </Button>
   ) : (
     <></>
   );

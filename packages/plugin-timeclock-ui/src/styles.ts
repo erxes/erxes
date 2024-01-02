@@ -1,7 +1,7 @@
+import { colors, dimensions, typography } from '@erxes/ui/src/styles';
+import { DateContainer, SimpleButton } from '@erxes/ui/src/styles/main';
 import styled, { css } from 'styled-components';
 import styledTS from 'styled-components-ts';
-import { DateContainer, SimpleButton } from '@erxes/ui/src/styles/main';
-import { colors, dimensions, typography } from '@erxes/ui/src/styles';
 
 const FilterWrapper = styled.div`
   margin: 10px 20px 0 20px;
@@ -14,6 +14,48 @@ const FilterWrapper = styled.div`
 
   strong {
     margin-right: 2 0px;
+  }
+`;
+
+export const Trigger = styledTS<{ type: string; isHoverActionBar?: boolean }>(
+  styled.div
+)`
+  cursor: pointer;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+
+  > p {
+    font-size: 13px;
+    text-align: center;
+    margin: 0;
+    padding: ${dimensions.unitSpacing + 5}px ${dimensions.unitSpacing}px;
+    color: ${colors.colorCoreGray};
+  }
+
+  > div {
+    width: 30%;
+    padding: 5px;
+    border-radius: 8px;
+    display: flex;
+    justify-content: center;
+    transition: all 0.3s ease-in-out;
+
+  }
+
+  .active {
+    background: ${colors.colorSecondary}
+    color: ${colors.colorWhite}
+  }
+  
+  .passive {
+    background: ${colors.bgActive};
+    border: 1px solid ${colors.borderPrimary};
+    &:hover {
+      color: ${colors.colorWhite}
+      background: ${colors.colorSecondary};
+    }
   }
 `;
 
@@ -507,42 +549,42 @@ const SchedulesTableWrapper = styled.div`
 `;
 
 export {
+  AlertContainer,
+  ConfigFormWrapper,
+  CustomBoxWrapper,
+  CustomCollapseRow,
+  CustomContainer,
+  CustomFlexRow,
+  CustomLabel,
+  CustomRangeContainer,
+  CustomRow,
+  CustomWidth,
+  CustomWidthDiv,
+  DateName,
+  DropdownWrapper,
   FilterItem,
   FilterWrapper,
-  Row,
   FlexCenter,
-  DropdownWrapper,
-  SidebarActions,
-  Input,
-  FlexRow,
-  FlexRowLeft,
-  CustomFlexRow,
-  CustomWidthDiv,
   FlexColumn,
-  FlexColumnMargined,
   FlexColumnCustom,
-  DateName,
-  CustomRangeContainer,
-  SidebarHeader,
-  CustomRow,
+  FlexColumnMargined,
+  FlexRow,
   FlexRowEven,
-  ToggleDisplay,
-  ConfigFormWrapper,
-  ToggleButton,
+  FlexRowLeft,
   InlineBlock,
+  Input,
   MarginX,
   MarginY,
+  RoundBox,
+  Row,
   RowField,
+  SchedulesTableWrapper,
+  SearchInput,
+  SidebarActions,
+  SidebarHeader,
+  SortItem,
   TextAlignCenter,
   TextAlignRight,
-  CustomCollapseRow,
-  CustomLabel,
-  AlertContainer,
-  CustomWidth,
-  CustomBoxWrapper,
-  RoundBox,
-  SortItem,
-  CustomContainer,
-  SearchInput,
-  SchedulesTableWrapper
+  ToggleButton,
+  ToggleDisplay
 };
