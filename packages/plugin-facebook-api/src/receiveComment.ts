@@ -2,13 +2,11 @@ import { IModels } from './connectionResolver';
 import {
   getOrCreateComment,
   getOrCreateCustomer,
-  getOrCreatePost,
   getOrCreatePostConversation
 } from './store';
 import { ICommentParams } from './types';
 import { INTEGRATION_KINDS } from './constants';
 import { sendInboxMessage } from './messageBroker';
-
 const receiveComment = async (
   models: IModels,
   subdomain: string,
@@ -28,7 +26,6 @@ const receiveComment = async (
   if (!integration) {
     throw new Error('Integration not found');
   }
-
   const customer = await getOrCreateCustomer(
     models,
     subdomain,
@@ -57,7 +54,6 @@ const receiveComment = async (
     integration,
     customer
   );
-
   try {
     await sendInboxMessage({
       subdomain,
@@ -67,13 +63,6 @@ const receiveComment = async (
         conversationId: postConversation.erxesApiId
       }
     });
-
-    // graphqlPubsub.publish('conversationMessageInserted', {
-    //   conversationMessageInserted: {
-    //     ...created.toObject(),
-    //     conversationId: conversation.erxesApiId
-    //   }
-    // });
   } catch (e) {
     throw new Error(
       e.message.includes('duplicate')

@@ -175,10 +175,11 @@ export const getOrCreatePostConversation = async (
 
   if (!postConversation) {
     postConversation = await models.PostConversations.create({
+      erxesApiId: integration.erxesApiId,
       postId,
       integrationId: integration._id,
-      customerId: customer._id,
-      content: post.content
+      content: post.content,
+      customerId: customer._id
     });
   }
 
@@ -207,10 +208,11 @@ export const getOrCreatePostConversation = async (
 
     await postConversation.save();
   } catch (e) {
-    await models.PostConversations.deleteOne({ _id: postConversation._id });
+    await models.PostConversations.deleteOne({
+      _id: postConversation._id
+    });
     throw new Error(e);
   }
-
   return postConversation;
 };
 
@@ -219,8 +221,8 @@ export const getOrCreatePost = async (
   subdomain: string,
   postParams: IPostParams,
   pageId: string,
-  userId: string
-  // customerId: string
+  userId: string,
+  customerErxesApiId: string
 ) => {
   const { post_id } = postParams;
 
@@ -263,27 +265,27 @@ export const getOrCreatePost = async (
   post = await models.Posts.create(doc);
 
   // create conversation in api
-  // try {
-  //   const apiConversationResponse = await sendInboxMessage({
-  //     subdomain,
-  //     action: 'integrations.receive',
-  //     data: {
-  //       action: 'create-or-update-conversation',
-  //       payload: JSON.stringify({
-  //         customerId: customerErxesApiId,
-  //         integrationId: integration.erxesApiId,
-  //         content: post.content
-  //       })
-  //     },
-  //     isRPC: true
-  //   });
+  try {
+    const apiConversationResponse = await sendInboxMessage({
+      subdomain,
+      action: 'integrations.receive',
+      data: {
+        action: 'create-or-update-conversation',
+        payload: JSON.stringify({
+          customerId: customerErxesApiId,
+          integrationId: integration.erxesApiId,
+          content: post.content
+        })
+      },
+      isRPC: true
+    });
 
-  //   post.erxesApiId = apiConversationResponse._id;
-  //   await post.save();
-  // } catch (e) {
-  //   await models.Posts.deleteOne({ _id: post._id });
-  //   throw new Error(e);
-  // }
+    post.erxesApiId = apiConversationResponse._id;
+    await post.save();
+  } catch (e) {
+    await models.Posts.deleteOne({ _id: post._id });
+    throw new Error(e);
+  }
 
   return post;
 };
@@ -313,23 +315,13 @@ export const getOrCreateComment = async (
       { $set: { ...doc } }
     );
   }
-
   if (!comment) {
     comment = await models.Comments.create({ ...doc, conversationId });
   }
 
-  return models.Comments.getComment({ commentId: commentParams.comment_id });
-
-  // if (post) {
-  //   sendInboxMessage({
-  //     subdomain,
-  //     action: 'integrationsNotification',
-  //     data: {
-  //       action: 'external-integration-entry-added',
-  //       conversationId: post.erxesApiId
-  //     }
-  //   });
-  // }
+  return await models.Comments.getComment({
+    commentId: commentParams.comment_id
+  });
 };
 
 export const getOrCreateCustomer = async (

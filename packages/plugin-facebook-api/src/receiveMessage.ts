@@ -189,7 +189,9 @@ const receiveMessage = async (
       },
       customer._id
     );
-  } catch (error) {}
+  } catch (error) {
+    throw new Error(error.message);
+  }
 };
 
 export default receiveMessage;

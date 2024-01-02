@@ -259,7 +259,6 @@ const facebookQueries = {
     { models, subdomain }: IContext
   ) {
     const commonParams = { isRPC: true, subdomain };
-
     const inboxConversation = await sendInboxMessage({
       ...commonParams,
       action: 'conversations.findOne',
