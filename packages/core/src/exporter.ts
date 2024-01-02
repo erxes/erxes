@@ -95,7 +95,13 @@ export const fillValue = async (
   column: string,
   item: IUserDocument
 ): Promise<string> => {
-  let value = item[column];
+  const [splitedColumn, detail] = column.split('.');
+
+  let value = item[splitedColumn];
+
+  if (detail) {
+    value = item[splitedColumn][detail];
+  }
 
   switch (column) {
     case 'createdAt':
