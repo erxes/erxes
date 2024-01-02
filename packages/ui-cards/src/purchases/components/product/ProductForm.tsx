@@ -68,8 +68,8 @@ type Props = {
   currencies: string[];
   currentProduct?: string;
   purchaseQuery: IPurchase;
-  costsQueryData: any;
-  costPriceQuery: any;
+  expensesQueryData: any;
+  expenseAmountData: any;
   categories: IProductCategory[];
   loading: boolean;
   expensesData: IExpensesData[];
@@ -381,6 +381,7 @@ class ProductForm extends React.Component<Props, State> {
 
     const { total, changePayData } = this.state;
     if (expensesData.length !== 0) {
+      console.log(expensesData);
       for (const data of expensesData) {
         if (!data.type) {
           return Alert.error('Please choose a type');
@@ -388,11 +389,8 @@ class ProductForm extends React.Component<Props, State> {
         if (!data.name) {
           return Alert.error('Please choose a name');
         }
-        if (!data.price) {
-          return Alert.error('Please choose a price');
-        }
-        if (!data.expenseId) {
-          return Alert.error('expenseId null');
+        if (!data.value) {
+          return Alert.error('Please choose a amount');
         }
       }
     }
@@ -679,10 +677,14 @@ class ProductForm extends React.Component<Props, State> {
     }
 
     if (currentTab === 'expenses') {
-      const { expensesData, onchangeExpensesData, costsQueryData } = this.props;
+      const {
+        expensesData,
+        onchangeExpensesData,
+        expensesQueryData
+      } = this.props;
       return (
         <ExpensesForm
-          costsQueryData={costsQueryData}
+          expensesQueryData={expensesQueryData}
           expensesData={expensesData}
           onChangeExpensesData={onchangeExpensesData}
         />
@@ -690,7 +692,9 @@ class ProductForm extends React.Component<Props, State> {
     }
 
     if (currentTab === 'lastExpenses') {
-      return <LastExpensesForm costPriceQuery={this.props.costPriceQuery} />;
+      return (
+        <LastExpensesForm expenseAmountData={this.props.expenseAmountData} />
+      );
     }
 
     const avStyle = { display: advancedView ? 'inherit' : 'none' };

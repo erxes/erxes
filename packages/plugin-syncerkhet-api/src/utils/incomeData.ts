@@ -154,7 +154,7 @@ export const getIncomeData = async (
       discount: productData.discount,
       inventoryCode: productCodeById[productData.productId],
       otherCode,
-      expense: productData.costPrice
+      expense: productData.expenseAmount
     });
   }
 
@@ -166,7 +166,7 @@ export const getIncomeData = async (
       return { amount: predet.amount + detail.amount };
     }).amount +
     purchase.expensesData.reduce((preEx, exp) => {
-      return { expense: preEx.price + exp.price };
+      return { expense: preEx.value + exp.value };
     }).expense;
 
   for (const paymentKind of Object.keys(purchase.paymentsData || [])) {
@@ -179,8 +179,8 @@ export const getIncomeData = async (
 
   for (const expense of purchase.expensesData) {
     const accountStr = config.defaultPayAccount;
-    payments[accountStr] = (payments[accountStr] || 0) + expense.price;
-    sumSaleAmount = sumSaleAmount - expense.price;
+    payments[accountStr] = (payments[accountStr] || 0) + expense.value;
+    sumSaleAmount = sumSaleAmount - expense.value;
   }
 
   // if payments is less sum sale amount then create debt

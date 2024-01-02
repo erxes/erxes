@@ -221,12 +221,6 @@ const checkDiscount = `
 
 const productCategories = queries.productCategories;
 
-const costs = `
-  query costs {
-	  costs
-  }
-`;
-
 export default {
   purchases,
   purchasesTotalCount,
@@ -236,6 +230,5 @@ export default {
   purchasesTotalAmounts,
   archivedPurchases,
   archivedPurchasesCount,
-  checkDiscount,
-  costs
+  checkDiscount
 };

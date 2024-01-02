@@ -43,9 +43,13 @@ export const types = ({ contacts, tags }) => `
     name: String
   }
 
-  type Cost {
+  type Expense {
+    _id: String
     name: String
-    code: String
+    description: String
+    createdAt: Date
+    createdBy: String
+    createdUser: User
   }
 
 
@@ -59,10 +63,10 @@ export const types = ({ contacts, tags }) => `
     productId : String
     quantity: Int
   }
-  input CostObjectInput {
+  input ExpenseInput {
     _id: String
     name: String
-    code: String
+    description: String
   }
 `;
 
@@ -152,9 +156,9 @@ export const queries = `
    ${commonQueryParams}
    ${conformityQueryFields}
  ): [TotalForType]
-  costs:[JSON]
-  costTotalCount:JSON
-  costDetail(_id: String!): JSON
+  expenses: [Expense]
+  expensesTotalCount: JSON
+  expenseDetail(_id: String!): Expense
 
 `;
 
@@ -169,5 +173,5 @@ export const mutations = `
  purchasesCreateProductsData(proccessId: String, purchaseId: String, docs: JSON): JSON
  purchasesEditProductData(proccessId: String, purchaseId: String, dataId: String, doc: JSON): JSON
  purchasesDeleteProductData(proccessId: String, purchaseId: String, dataId: String): JSON
- manageExpenses(costObjects: [CostObjectInput]): [Cost]
+ manageExpenses(expenseDocs: [ExpenseInput]): [Expense]
 `;
