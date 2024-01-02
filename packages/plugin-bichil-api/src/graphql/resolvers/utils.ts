@@ -1045,8 +1045,8 @@ export const bichilTimeclockReportFinal = async (
     usersReport[currUserId] = {
       ...usersReport[currUserId],
 
-      totalHoursScheduled: Math.floor(totalHoursScheduledPerUser * 100) / 100,
-      totalHoursWorked: Math.floor(totalHoursWorkedPerUser * 100) / 100,
+      totalHoursScheduled: Math.floor(totalHoursScheduledPerUser * 10) / 10,
+      totalHoursWorked: Math.floor(totalHoursWorkedPerUser * 10) / 10,
 
       ...userAbsenceInfo,
 
@@ -1073,8 +1073,8 @@ export const bichilTimeclockReportFinal = async (
   return {
     report: usersReport,
     deductionInfo: {
-      totalHoursScheduled: Math.floor(totalHoursScheduled * 100) / 100,
-      totalHoursWorked: Math.floor(totalHoursWorked * 100) / 100,
+      totalHoursScheduled: Math.floor(totalHoursScheduled * 10) / 10,
+      totalHoursWorked: Math.floor(totalHoursWorked * 10) / 10,
       totalShiftNotClosedDeduction,
       // totalLateMinsDeduction,
       totalAbsentDeduction,

@@ -66,8 +66,6 @@ const checkTimeclocksAndUpdate = async (subdomain: any) => {
       const deleteIds: string[] = [];
 
       if (timeclocksPerUser && timeclocksPerUser.length > 1) {
-        console.log(timeclocksPerUser, 'hehe');
-
         // if more than one shift exists
         // get the earliest shift start
         // if no shift end, check shift start
@@ -127,8 +125,6 @@ const checkTimeclocksAndUpdate = async (subdomain: any) => {
     }
 
     if (bulkWriteOps.length) {
-      console.log(bulkWriteOps, ' ops');
-
       await models?.Timeclocks.bulkWrite(bulkWriteOps);
     }
 
@@ -180,12 +176,7 @@ const updateTimeclocks = async (subdomain: any) => {
 
 export default {
   handleDailyJob: async ({ subdomain }) => {
-    await updateTimeclocks(subdomain);
-  },
-  handleMinutelyJob: async ({ subdomain }) => {
-    console.log('minutely job is working');
     await checkTimeclocksAndUpdate(subdomain);
     await updateTimeclocks(subdomain);
-    console.log('minutely job is done');
   }
 };
