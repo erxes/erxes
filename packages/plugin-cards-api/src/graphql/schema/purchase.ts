@@ -159,7 +159,7 @@ export const queries = `
   expenses: [Expense]
   expensesTotalCount: JSON
   expenseDetail(_id: String!): Expense
-
+  productsPriceLast(purchaseId: String, productIds: [String]): JSON
 `;
 
 export const mutations = `

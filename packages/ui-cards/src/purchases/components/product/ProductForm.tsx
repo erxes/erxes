@@ -1,9 +1,12 @@
 import { Add, FlexRowGap, FooterInfo, FormContainer } from '../../styles';
+import { gql } from '@apollo/client';
+import client from '@erxes/ui/src/apolloClient';
 import { Alert, __ } from '@erxes/ui/src/utils';
 import {
   ControlLabel,
   FormGroup,
   ModalTrigger,
+  Spinner,
   Table
 } from '@erxes/ui/src/components';
 import {
@@ -34,6 +37,7 @@ import styled from 'styled-components';
 import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
 import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
 import SelectCompanies from '@erxes/ui-contacts/src/companies/containers/SelectCompanies';
+import { queries } from '../../graphql';
 
 const TableWrapper = styled.div`
   table thead tr th {
@@ -585,38 +589,68 @@ class ProductForm extends React.Component<Props, State> {
       this.clearFilter();
 
       const { onChangeProductsData, currencies } = this.props;
+      console.log({
+        purchaseId: purchaseQuery._id,
+        productIds: products.map(p => p._id)
+      });
 
-      const { tax, discount } = this.state;
-      const currency = currencies ? currencies[0] : '';
+      client
+        .query({
+          query: gql(queries.productsPriceLast),
+          fetchPolicy: 'network-only',
+          variables: {
+            purchaseId: purchaseQuery._id,
+            productIds: products.map(p => p._id)
+          }
+        })
+        .then((response: any) => {
+          const prices = response.data.productsPriceLast || [];
+          console.log(prices);
 
-      for (const product of products) {
-        productsData.push({
-          tax: 0,
-          taxPercent: tax[currency] ? tax[currency].percent || 0 : 0,
-          discount: 0,
-          vatPercent: 0,
-          discountPercent: discount[currency]
-            ? discount[currency].percent || 0
-            : 0,
-          amount: 0,
-          currency,
-          tickUsed: purchaseQuery.stage?.defaultTick === false ? false : true, // undefined or null then true
-          maxQuantity: 0,
-          product,
-          quantity: 1,
-          productId: product._id,
-          unitPrice: product.unitPrice,
-          globalUnitPrice: product.unitPrice,
-          unitPricePercent: 100,
-          _id: Math.random().toString()
+          const { tax, discount } = this.state;
+          const currency = currencies ? currencies[0] : '';
+
+          for (const product of products) {
+            console.log(
+              product._id,
+              prices.find(pr => pr.productId === product._id),
+              (prices.find(pr => pr.productId === product._id) || { price: 0 })
+                .price || 0
+            );
+            productsData.push({
+              tax: 0,
+              taxPercent: tax[currency] ? tax[currency].percent || 0 : 0,
+              discount: 0,
+              vatPercent: 0,
+              discountPercent: discount[currency]
+                ? discount[currency].percent || 0
+                : 0,
+              amount: 0,
+              currency,
+              tickUsed:
+                purchaseQuery.stage?.defaultTick === false ? false : true, // undefined or null then true
+              maxQuantity: 0,
+              product,
+              quantity: 1,
+              productId: product._id,
+              unitPrice:
+                (
+                  prices.find(pr => pr.productId === product._id) || {
+                    price: 0
+                  }
+                ).price || 0,
+              globalUnitPrice: product.unitPrice,
+              unitPricePercent: 100,
+              _id: Math.random().toString()
+            });
+          }
+
+          onChangeProductsData(productsData);
+
+          for (const productData of productsData) {
+            this.calculatePerProductAmount('discount', productData);
+          }
         });
-      }
-
-      onChangeProductsData(productsData);
-
-      for (const productData of productsData) {
-        this.calculatePerProductAmount('discount', productData);
-      }
     };
 
     const content = props => (

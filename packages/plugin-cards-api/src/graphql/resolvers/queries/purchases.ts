@@ -325,6 +325,35 @@ const purchaseQueries = {
       },
       isRPC: true
     });
+  },
+
+  async productsPriceLast(
+    _root,
+    { purchaseId, productIds }: { purchaseId: string; productIds: string[] },
+    { subdomain, models }: IContext
+  ) {
+    const result: { productId: string; price: number }[] = [];
+    for (const productId of productIds) {
+      const lastPurchase = await models.Purchases.findOne({
+        'productsData.productId': productIds,
+        _id: { $ne: purchaseId }
+      }).sort({ modifiedAt: -1 });
+      if (!lastPurchase) {
+        result.push({ productId, price: 0 });
+        continue;
+      }
+      const productData = (lastPurchase?.productsData || []).find(
+        pd => pd.productId === productId
+      );
+
+      if (!productData) {
+        result.push({ productId, price: 0 });
+        continue;
+      }
+
+      result.push({ productId, price: productData.unitPrice });
+    }
+    return result;
   }
 };
 
