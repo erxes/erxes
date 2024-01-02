@@ -55,7 +55,7 @@ const TaggerContainer = (props: Props) => {
       targetIds: targets.map(t => t._id),
       tagIds: selectedTagIds
     };
-    console.log('selectedTagIds', selectedTagIds);
+
     tagMutation({ variables })
       .then(() => {
         let message = `The ${type} has been tagged!`;

@@ -52,10 +52,9 @@ const Tagger: React.FC<TaggerProps> = props => {
       tagsForList: generateTagsParams(tags, targets)
     }));
   }, [tags, targets]);
-  console.log('out', state, state.tagsForList, tags);
+
   useEffect(() => {
     const handleArrowSelection = (event: any) => {
-      console.log('state', state, state.tagsForList);
       const { cursor, tagsForList } = state;
       const maxCursor: number = tagsForList.length;
 
