@@ -10,7 +10,7 @@ type Props = {
   allCategories: InsuranceCategory[];
   value: string | string[];
   onSearch: (value: string) => void;
-  onChange: (categoryId: string, risks: Risk[]) => void;
+  onChange: (category: InsuranceCategory, risks: Risk[]) => void;
 };
 
 const SelectCategory: React.FC<Props> = props => {
@@ -42,7 +42,7 @@ const SelectCategory: React.FC<Props> = props => {
 
     if (selected) {
       const risks = (selected.risks || []) as Risk[];
-      props.onChange(value.value, risks);
+      props.onChange(selected, risks);
     }
   };
 

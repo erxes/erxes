@@ -9,6 +9,7 @@ import cpUserMiddleware from './middlewares/cpUserMiddleware';
 import forms from './forms';
 import * as fs from 'fs';
 import * as path from 'path';
+import * as moment from 'moment';
 
 export let mainDb;
 export let debug;
@@ -78,17 +79,10 @@ export default {
 
       const filePath = `./public/${name}`;
 
-      // res.download(filePath, name);
-
-      res.download(filePath, name, err => {
-        if (err) {
-          console.log(err);
-        } else {
-          // remove file from server
-          fs.unlinkSync(filePath);
-          console.log('success');
-        }
-      });
+      // return {
+      //   name: `${moment().format('YYYY-MM-DD HH:mm')}`,
+      //   response: await generateXlsx(workbook)
+      // };
     });
   }
 };
