@@ -37,7 +37,6 @@ import AssignBox from '@erxes/ui-inbox/src/inbox/containers/AssignBox';
 import { isEnabled } from '@erxes/ui/src/utils/core';
 import TaggerSection from '@erxes/ui-contacts/src/customers/components/common/TaggerSection';
 import { ICallConversation, ICustomer } from '../types';
-import { StepContent } from '@erxes/ui/src/components/step/styles';
 
 type Props = {
   addCustomer: (firstName: string, phoneNumber: string, callID: string) => void;
@@ -48,6 +47,7 @@ type Props = {
   taggerRefetchQueries: any;
   conversation: ICallConversation;
   addNote: (conversationId: string, content: string) => void;
+  disconnectCall: () => void;
 };
 const KeyPad = (props: Props, context) => {
   const Sip = context;
@@ -127,7 +127,9 @@ const KeyPad = (props: Props, context) => {
       }, 1000);
     }
 
-    return () => clearInterval(timer);
+    return () => {
+      clearInterval(timer);
+    };
   }, [call?.status]);
 
   const onTabClick = (tab: string) => {
@@ -168,7 +170,15 @@ const KeyPad = (props: Props, context) => {
 
   const handleCallConnect = () => {
     const integration = callIntegrationsOfUser?.find(
-      integration => integration.phone === callFrom
+      userIntegration => userIntegration.phone === callFrom
+    );
+
+    localStorage.setItem(
+      'callInfo',
+      JSON.stringify({
+        isRegistered: true,
+        isLogin: true
+      })
     );
 
     localStorage.setItem(
@@ -194,7 +204,7 @@ const KeyPad = (props: Props, context) => {
 
   const handleCallDisConnect = () => {
     const integration = callIntegrationsOfUser?.find(
-      integration => integration.phone === callFrom
+      userIntegration => userIntegration.phone === callFrom
     );
     localStorage.setItem(
       'config:call_integrations',
@@ -277,7 +287,7 @@ const KeyPad = (props: Props, context) => {
     setCallFrom(status.value);
 
     const integration = callIntegrationsOfUser?.find(
-      integration => integration.phone === status.value
+      userIntegration => userIntegration.phone === status.value
     );
     localStorage.setItem(
       'config:call_integrations',

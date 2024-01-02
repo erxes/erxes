@@ -1,18 +1,12 @@
 import Button from '@erxes/ui/src/components/Button';
 import { IConfigsMap } from '../types';
-import { __ } from '@erxes/ui/src/utils';
-import React, { useState } from 'react';
+import { __, confirm } from '@erxes/ui/src/utils';
+import React from 'react';
 import { MainStyleTitle as Title } from '@erxes/ui/src/styles/eindex';
 import { Wrapper } from '@erxes/ui/src/layout';
 import SideBar from './SideBar';
-import {
-  CollapseContent,
-  ControlLabel,
-  FormControl,
-  FormGroup
-} from '@erxes/ui/src/components';
 import { ContentBox } from '../styles';
-import { KEY_LABELS } from '../constants';
+import PerSettings from './PerSettings';
 
 type Props = {
   save: (configsMap: IConfigsMap) => void;
@@ -20,7 +14,7 @@ type Props = {
 };
 
 type State = {
-  currentMap: IConfigsMap;
+  configsMap: IConfigsMap;
 };
 
 class GeneralSettings extends React.Component<Props, State> {
@@ -28,65 +22,84 @@ class GeneralSettings extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      currentMap: props.configsMap.DYNAMIC || {}
+      configsMap: props.configsMap
     };
   }
 
-  onSave = e => {
+  componentDidUpdate(prevProps: Readonly<Props>): void {
+    if (prevProps.configsMap !== this.props.configsMap) {
+      this.setState({ configsMap: this.props.configsMap || {} });
+    }
+  }
+
+  add = e => {
     e.preventDefault();
+    const { configsMap } = this.state;
 
-    const { currentMap } = this.state;
-    const { configsMap } = this.props;
-    configsMap.DYNAMIC = currentMap;
-    this.props.save(configsMap);
+    if (!configsMap.DYNAMIC) {
+      configsMap.DYNAMIC = {};
+    }
+
+    // must save prev item saved then new item
+    configsMap.DYNAMIC.newDYNAMIC = {
+      title: 'New MSDynamic Config',
+      brandId: '',
+      itemApi: '',
+      itemCategoryApi: '',
+      priceApi: '',
+      customerApi: '',
+      salesApi: '',
+      salesLineApi: '',
+      username: '',
+      password: ''
+    };
+
+    this.setState({ configsMap });
   };
 
-  onChangeConfig = (code: string, value) => {
-    const { currentMap } = this.state;
+  delete = (currentConfigKey: string) => {
+    confirm('This Action will delete this config are you sure?').then(() => {
+      const { configsMap } = this.state;
+      delete configsMap.DYNAMIC[currentConfigKey];
+      delete configsMap.DYNAMIC.newDYNAMIC;
 
-    currentMap[code] = value;
+      this.setState({ configsMap });
 
-    this.setState({ currentMap });
+      this.props.save(configsMap);
+    });
   };
 
-  onChangeInput = (code: string, e) => {
-    this.onChangeConfig(code, e.target.value);
-  };
+  renderConfigs(configs) {
+    return Object.keys(configs).map(key => {
+      return (
+        <PerSettings
+          key={key}
+          configsMap={this.state.configsMap}
+          config={configs[key]}
+          currentConfigKey={key}
+          save={this.props.save}
+          delete={this.delete}
+        />
+      );
+    });
+  }
 
-  renderItem = (key: string) => {
-    const { currentMap } = this.state;
+  renderContent() {
+    const { configsMap } = this.state;
+    const configs = configsMap.DYNAMIC || {};
 
     return (
-      <FormGroup>
-        <ControlLabel>{KEY_LABELS[key]}</ControlLabel>
-        <FormControl
-          defaultValue={currentMap[key]}
-          onChange={this.onChangeInput.bind(this, key)}
-        />
-      </FormGroup>
+      <ContentBox id={'GeneralSettingsMenu'}>
+        {this.renderConfigs(configs)}
+      </ContentBox>
     );
-  };
+  }
 
   render() {
     const breadcrumb = [
       { title: __('Settings'), link: '/settings' },
       { title: __('Msdynamics'), link: '/msdynamics' }
     ];
-
-    const content = (
-      <ContentBox id={'GeneralSettingsMenu'}>
-        <CollapseContent title="General settings" open={true}>
-          {this.renderItem('itemApi')}
-          {this.renderItem('itemCategoryApi')}
-          {this.renderItem('priceApi')}
-          {this.renderItem('customerApi')}
-          {this.renderItem('salesApi')}
-          {this.renderItem('salesLineApi')}
-          {this.renderItem('username')}
-          {this.renderItem('password')}
-        </CollapseContent>
-      </ContentBox>
-    );
 
     return (
       <Wrapper
@@ -103,17 +116,17 @@ class GeneralSettings extends React.Component<Props, State> {
               <Button
                 btnStyle="primary"
                 icon="check-circle"
-                onClick={this.onSave}
+                onClick={this.add}
                 uppercase={false}
               >
-                Save
+                New config
               </Button>
             }
             background="colorWhite"
           />
         }
         leftSidebar={<SideBar />}
-        content={content}
+        content={this.renderContent()}
         transparent={true}
         hasBorder={true}
       />

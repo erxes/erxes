@@ -250,8 +250,6 @@ const bichilQueries = {
           Array.from(new Set(totalDeptIdsOfMembers))
         );
 
-        console.log('sda umaa ', paginatedTeamMemberIds);
-
         const reportFinal: any = await bichilTimeclockReportFinal(
           subdomain,
           paginatedTeamMemberIds,
