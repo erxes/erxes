@@ -336,7 +336,6 @@ export const sendNotification = async (
       if (deviceTokens.length > chunkSize) {
         for (let i = 0; i < deviceTokens.length; i += chunkSize) {
           const chunk = deviceTokens.slice(i, i + chunkSize);
-          console.log(chunk);
           tokenChunks.push(chunk);
         }
       } else {
