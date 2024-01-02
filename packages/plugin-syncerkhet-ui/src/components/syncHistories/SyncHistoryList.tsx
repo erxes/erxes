@@ -62,24 +62,6 @@ class SyncHistoryList extends React.Component<IProps, {}> {
       <Table whiteSpace="nowrap" bordered={true} hover={true}>
         <thead>
           <tr>
-            {/* <th>
-              <SortHandler sortField={'createdAt'} label={__('Date')} />
-            </th>
-            <th>
-              <SortHandler sortField={'createdBy'} label={__('User')} />
-            </th>
-            <th>
-              <SortHandler
-                sortField={'contentType'}
-                label={__('Content Type')}
-              />
-            </th>
-            <th>
-              <SortHandler sortField={'content'} label={__('Content')} />
-            </th>
-            <th>
-              <SortHandler sortField={'error'} label={__('Error')} />
-            </th> */}
             {tablehead.map(p => (
               <th key={p}>{p || ''}</th>
             ))}
@@ -104,10 +86,11 @@ class SyncHistoryList extends React.Component<IProps, {}> {
                       ${item.responseData?.extra_info?.warnings || ''}
                       ${item.responseData?.message || ''}
                       ${item.error || ''}
-                      ${(item.responseData?.error || '').replace(
-                        'ЕБаримт руу илгээгдээгүй түр баримт болно.',
-                        ''
-                      )}
+                      ${typeof (item.responseData?.error || '') === 'string' &&
+                        typeof (item.responseData?.error || '').replace(
+                          'ЕБаримт руу илгээгдээгүй түр баримт болно.',
+                          ''
+                        )}
                       `}
                   </td>
                 </tr>

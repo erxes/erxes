@@ -7,13 +7,14 @@ import { graphql } from '@apollo/client/react/hoc';
 import { IProduct } from '@erxes/ui-products/src/types';
 import { ProductCategoriesQueryResponse } from '@erxes/ui-products/src/types';
 import { queries } from '../../graphql';
+import { queries as settingsQueries } from '../../../settings/boards/graphql';
 import { withProps } from '@erxes/ui/src/utils/core';
 import {
   IPurchase,
   IPaymentsData,
   IProductData,
   IExpensesData,
-  CostQueryResponse
+  ExpenseQueryResponse
 } from '../../types';
 
 type Props = {
@@ -29,8 +30,8 @@ type Props = {
   closeModal: () => void;
   purchaseQuery: IPurchase;
   productCategoriesQuery: ProductCategoriesQueryResponse;
-  CostQueryResponse: CostQueryResponse;
-  costsQuery: any;
+  ExpenseQueryResponse: ExpenseQueryResponse;
+  expensesQuery: any;
 };
 
 class ProductFormContainer extends React.Component<Props> {
@@ -46,19 +47,19 @@ class ProductFormContainer extends React.Component<Props> {
 
           const {
             productCategoriesQuery,
-            costsQuery,
+            expensesQuery,
             purchaseQuery
           } = this.props;
 
           const categories = productCategoriesQuery.productCategories || [];
 
-          const costsQueryData = costsQuery.costs;
+          const expensesQueryData = expensesQuery.expenses;
 
-          const costPriceQuery = purchaseQuery.products || 0;
+          const expenseAmountData = purchaseQuery.products || 0;
           const extendedProps = {
             ...this.props,
-            costsQueryData,
-            costPriceQuery,
+            expensesQueryData,
+            expenseAmountData,
             categories: categories,
             loading: productCategoriesQuery.loading,
             currencies: configs.dealCurrency || []
@@ -77,8 +78,8 @@ export default withProps<Props>(
         name: 'productCategoriesQuery'
       }
     ),
-    graphql<{}, CostQueryResponse, {}>(gql(queries.costs), {
-      name: 'costsQuery'
+    graphql<{}, ExpenseQueryResponse, {}>(gql(settingsQueries.expenses), {
+      name: 'expensesQuery'
     })
   )(ProductFormContainer)
 );

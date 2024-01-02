@@ -331,7 +331,7 @@ const usersGroupMutations = {
     let messages: string[] = [];
 
     for (const name of services) {
-      const service = await getService(name, true);
+      const service = await getService(name);
       if (!service) continue;
       if (!service.config) continue;
 

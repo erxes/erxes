@@ -1,6 +1,5 @@
-const yaml = require('yaml');
 var { resolve } = require('path');
-var fs = require('fs-extra');
+var fs = require('fs');
 
 const filePath = pathName => {
   if (pathName) {

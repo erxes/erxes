@@ -163,6 +163,11 @@ export const fetchPolarisData = async (subdomain: string, doc: any) => {
 
       if (group) {
         const value: any = [];
+
+        if (!data[groupCode]) {
+          return null;
+        }
+
         for (const obj of data[groupCode]) {
           const fieldsOfGroup = fields.filter(f => f.groupId === group._id);
           const val = {};
