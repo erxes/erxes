@@ -12,7 +12,7 @@ export const types = `
 
 `;
 
-const createdUsersParams = `
+const commonParams = `
   cardType:String,
   stageIds:[String],
   stageCodes:[String],
@@ -26,10 +26,11 @@ const createdUsersParams = `
   closedAt:DateFilter,
   pipelineIds:[String],
   boardId:String,
+  withoutUserFilter:Boolean
 `;
 
 export const queries = `
-  getCreatedUsersCards(${createdUsersParams}):[User]
-  getAssignedUsersCards(${createdUsersParams}):[User]
-  getCustomFieldUsersCards(fieldId:String,${createdUsersParams}):[User]
+  getCreatedUsersCards(${commonParams}):[User]
+  getAssignedUsersCards(${commonParams}):[User]
+  getCustomFieldUsersCards(fieldId:String,${commonParams}):[User]
 `;

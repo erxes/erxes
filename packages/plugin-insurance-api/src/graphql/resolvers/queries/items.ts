@@ -537,7 +537,9 @@ const queries = {
     const name = `vendor-insurance-items-${moment().format(
       'YYYY-MM-DD-hh-mm'
     )}.xlsx`;
-    const filePath = path.join(__dirname, `../../../../public/${name}`);
+
+    const publicDir = path.join('./uploads');
+    const filePath = path.join(publicDir, name);
 
     await wb.toFileAsync(filePath);
 

@@ -170,7 +170,11 @@ const queryBuilderCards = async ({ subdomain, params }) => {
 const queryBuilderUsers = async ({ subdomain, params }) => {
   let filter: any = { isActive: true };
 
-  const { branchIds, departmentIds } = params || {};
+  const { branchIds, departmentIds, withoutUserFilter } = params || {};
+
+  if (withoutUserFilter) {
+    return filter;
+  }
 
   if (!!branchIds?.length) {
     filter.branchIds = {
