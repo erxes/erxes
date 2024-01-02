@@ -201,6 +201,8 @@ const reportsQueries = {
     { serviceName, templateType, filter },
     { subdomain, user }: IContext
   ) {
+    console.log('sda vee ', filter);
+
     const reportResult = await sendCommonMessage({
       subdomain,
       serviceName,

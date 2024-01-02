@@ -39,7 +39,8 @@ const ChartFormFieldList = (props: Props) => {
     switch (fieldType) {
       case 'select':
         const value =
-          fieldQuery.includes('user') || fieldQuery.includes('department')
+          fieldQuery &&
+          (fieldQuery.includes('user') || fieldQuery.includes('department'))
             ? input
             : input.value;
 
@@ -91,6 +92,8 @@ const ChartFormFieldList = (props: Props) => {
       fieldType={fieldType}
       fieldOptions={fieldOptions}
       fieldLabel={fieldLabel}
+      initialValue={initialValue}
+      onChange={onChange}
     />
   );
 };

@@ -38,6 +38,22 @@ const integrationTypes = async () => {
 // SMS
 // All
 
+// All time
+// Today
+// Yesterday
+// Last week/month/year
+// This week/month/year
+// Rolling date range
+// Custom date range
+
+const DATERANGE_TYPES = [
+  { label: 'All time', value: 'all' },
+  { label: 'Today', value: 'today' },
+  { label: 'Yesterday', value: 'today' },
+  { label: 'Last Week', value: 'lastweek' },
+  { label: 'This Week', value: 'thisweek' }
+];
+
 const INTEGRATION_TYPES = [
   { label: 'XOS Messenger', value: 'messenger' },
   { label: 'Email', value: 'email' },
@@ -69,14 +85,17 @@ const chartTemplates = [
         'conversationMessages.content': { $ne: '' }
       };
 
+      // filter by source
       if (filter.integrationType && filter.integrationType !== 'all') {
-        const [integrationType] = filter;
+        const { integrationType } = filter;
 
-        const integration: any = await models?.Integrations.find({
+        const integrations: any = await models?.Integrations.find({
           kind: integrationType
         });
 
-        matchfilter['conversationMessages.integrationId'] = integration._id;
+        const integrationIds = integrations.map(i => i._id);
+
+        matchfilter['integrationId'] = { $in: integrationIds };
       }
 
       matchfilter['conversationMessages.userId'] =
@@ -135,6 +154,7 @@ const chartTemplates = [
             _id: '$_id',
             conversationMessages: { $push: '$conversationMessages' },
             customerMessagedAt: { $first: '$createdAt' },
+            integrationId: { $first: '$integrationId' },
             closedAt: { $first: '$closedAt' },
             closedUserId: { $first: '$closedUserId' },
             firstRespondedDate: { $first: '$firstRespondedDate' },
@@ -149,9 +169,12 @@ const chartTemplates = [
 
       const usersWithRespondTime: UserWithFirstRespondTime = {};
 
+      console.log(matchfilter, ' filter');
+
       if (conversations) {
+        console.log(conversations?.length, ' length');
+
         for (const convo of conversations) {
-          // if no conversation messages found skip
           const {
             conversationMessages,
             firstRespondedDate,
@@ -244,6 +267,13 @@ const chartTemplates = [
         multi: true,
         fieldOptions: INTEGRATION_TYPES,
         fieldLabel: 'Select source'
+      },
+      {
+        fieldName: 'dateRange',
+        fieldType: 'select',
+        multi: true,
+        fieldOptions: DATERANGE_TYPES,
+        fieldLabel: 'Select date range'
       }
     ]
   },
@@ -257,6 +287,17 @@ const chartTemplates = [
         status: /closed/gi,
         closedAt: { $exists: true }
       };
+
+      // filter by source
+      if (filter.integrationType && filter.integrationType !== 'all') {
+        const [integrationType] = filter;
+
+        const integration: any = await models?.Integrations.find({
+          kind: integrationType
+        });
+
+        matchfilter['conversationMessages.integrationId'] = integration._id;
+      }
 
       matchfilter['closedUserId'] =
         filter && filter.userIds
@@ -335,6 +376,13 @@ const chartTemplates = [
         multi: true,
         fieldQuery: 'users',
         fieldLabel: 'Select users'
+      },
+      {
+        fieldName: 'integrationType',
+        fieldType: 'select',
+        multi: true,
+        fieldOptions: INTEGRATION_TYPES,
+        fieldLabel: 'Select source'
       }
     ]
   },
@@ -342,16 +390,22 @@ const chartTemplates = [
     templateType: 'closedConversationsCount',
     name: 'Closed conversations count by rep',
     chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea'],
-    getChartResult: async (
-      filter: any,
-      subdomain: string,
-      currentUser: IUserDocument,
-      getDefaultPipelineId?: string
-    ) => {
+    getChartResult: async (filter: any, subdomain: string) => {
       const matchfilter = {
         status: /closed/gi,
         closedAt: { $exists: true }
       };
+
+      // filter by source
+      if (filter.integrationType && filter.integrationType !== 'all') {
+        const [integrationType] = filter;
+
+        const integration: any = await models?.Integrations.find({
+          kind: integrationType
+        });
+
+        matchfilter['conversationMessages.integrationId'] = integration._id;
+      }
 
       matchfilter['closedUserId'] =
         filter && filter.userIds
@@ -421,6 +475,13 @@ const chartTemplates = [
         multi: true,
         fieldQuery: 'users',
         fieldLabel: 'Select users'
+      },
+      {
+        fieldName: 'integrationType',
+        fieldType: 'select',
+        multi: true,
+        fieldOptions: INTEGRATION_TYPES,
+        fieldLabel: 'Select source'
       }
     ]
   }

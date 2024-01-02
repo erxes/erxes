@@ -8,15 +8,17 @@ type Props = {
   multi?: boolean;
   fieldLabel: string;
   fieldOptions: any[];
-  onChange?: (input: any) => void;
+  initialValue?: any;
+  onChange: (input: any) => void;
   value?: any;
 };
 const ChartFormField = (props: Props) => {
-  const { fieldType, fieldOptions, fieldLabel } = props;
-  const [selectValue, setSelectValue] = useState();
+  const { fieldType, fieldOptions, fieldLabel, initialValue, onChange } = props;
+  const [selectValue, setSelectValue] = useState(initialValue);
 
   const onSelect = e => {
     setSelectValue(e.value);
+    onChange(e);
   };
 
   switch (fieldType) {
