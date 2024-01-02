@@ -7,10 +7,10 @@ import {
   Pagination,
   Table
 } from '@erxes/ui/src/components';
-import Button from '@erxes/ui/src/components/Button';
 import { BarItems } from '@erxes/ui/src/layout/styles';
-import { menuDynamic } from '../constants';
-import Row from './InventoryCategoryRow';
+import Button from '@erxes/ui/src/components/Button';
+import { menuDynamic } from '../../constants';
+import Row from './InventoryProductsRow';
 import SelectBrands from '@erxes/ui/src/brands/containers/SelectBrands';
 
 type Props = {
@@ -18,18 +18,18 @@ type Props = {
   queryParams: any;
   loading: boolean;
   setBrand: (brandId: string) => void;
-  toCheckCategory: () => void;
-  toSyncCategory: (action: string, categories: any[]) => void;
+  toCheckProducts: () => void;
+  toSyncProducts: (action: string, products: any[]) => void;
   items: any;
 };
 
-const InventoryCategory = ({
+const InventoryProducts = ({
   items,
   loading,
   queryParams,
   setBrand,
-  toCheckCategory,
-  toSyncCategory
+  toCheckProducts,
+  toSyncProducts
 }: Props) => {
   const checkButton = (
     <BarItems>
@@ -50,7 +50,7 @@ const InventoryCategory = ({
         btnStyle="warning"
         size="small"
         icon="check-1"
-        onClick={toCheckCategory}
+        onClick={toCheckProducts}
       >
         Check
       </Button>
@@ -60,6 +60,11 @@ const InventoryCategory = ({
   const header = <Wrapper.ActionBar right={checkButton} />;
 
   const calculatePagination = (data: any) => {
+    console.log(
+      Object.keys(queryParams).length,
+      'Object.keys(queryParams).length'
+    );
+
     if (Object.keys(queryParams).length !== 1) {
       if (queryParams.perPage !== undefined && queryParams.page === undefined) {
         data = data.slice(queryParams.perPage * 0, queryParams.perPage * 1);
@@ -95,7 +100,7 @@ const InventoryCategory = ({
 
     const onClickSync = () => {
       data = excludeSyncTrue(data);
-      toSyncCategory(action, data);
+      toSyncProducts(action, data);
     };
 
     const renderRow = (rowData: any, rowSction: string) => {
@@ -104,7 +109,7 @@ const InventoryCategory = ({
       }
 
       return rowData.map(p => (
-        <Row key={p.code} category={p} action={rowSction} />
+        <Row key={p.code} product={p} action={rowSction} />
       ));
     };
 
@@ -130,7 +135,7 @@ const InventoryCategory = ({
             <tr>
               <th>{__('Code')}</th>
               <th>{__('Name')}</th>
-              <th>{__('Description')}</th>
+              <th>{__('Unit price')}</th>
               {action === 'UPDATE' ? <th>{__('Update Status')}</th> : <></>}
               {action === 'CREATE' ? <th>{__('Create Status')}</th> : <></>}
               {action === 'DELETE' ? <th>{__('Delete Status')}</th> : <></>}
@@ -148,7 +153,7 @@ const InventoryCategory = ({
       <br />
       <CollapseContent
         title={__(
-          'Create categories' + (items.create ? ':  ' + items.create.count : '')
+          'Create products' + (items.create ? ':  ' + items.create.count : '')
         )}
       >
         <>
@@ -167,7 +172,7 @@ const InventoryCategory = ({
       </CollapseContent>
       <CollapseContent
         title={__(
-          'Update categories' + (items.update ? ':  ' + items.update.count : '')
+          'Update products' + (items.update ? ':  ' + items.update.count : '')
         )}
       >
         <>
@@ -186,7 +191,7 @@ const InventoryCategory = ({
       </CollapseContent>
       <CollapseContent
         title={__(
-          'Delete categories' + (items.delete ? ':  ' + items.delete.count : '')
+          'Delete products' + (items.delete ? ':  ' + items.delete.count : '')
         )}
       >
         <>
@@ -210,7 +215,7 @@ const InventoryCategory = ({
     <Wrapper
       header={
         <Wrapper.Header
-          title={__('Check category')}
+          title={__('Check product')}
           queryParams={queryParams}
           submenu={menuDynamic}
         />
@@ -229,4 +234,4 @@ const InventoryCategory = ({
   );
 };
 
-export default InventoryCategory;
+export default InventoryProducts;

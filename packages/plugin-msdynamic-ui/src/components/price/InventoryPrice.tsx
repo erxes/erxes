@@ -7,10 +7,10 @@ import {
   Pagination,
   Table
 } from '@erxes/ui/src/components';
-import Button from '@erxes/ui/src/components/Button';
-import { menuDynamic } from '../constants';
-import Row from './CustomersRow';
 import { BarItems } from '@erxes/ui/src/layout/styles';
+import Button from '@erxes/ui/src/components/Button';
+import { menuDynamic } from '../../constants';
+import Row from './InventoryPriceRow';
 import SelectBrands from '@erxes/ui/src/brands/containers/SelectBrands';
 
 type Props = {
@@ -18,18 +18,18 @@ type Props = {
   queryParams: any;
   loading: boolean;
   setBrand: (brandId: string) => void;
-  toCheckCustomers: () => void;
-  toSyncCustomers: (action: string, customers: any[]) => void;
+  toCheckProducts: () => void;
+  toSyncProducts: (action: string, products: any[]) => void;
   items: any;
 };
 
-const Customers = ({
+const InventoryProducts = ({
   items,
   loading,
   queryParams,
   setBrand,
-  toCheckCustomers,
-  toSyncCustomers
+  toCheckProducts,
+  toSyncProducts
 }: Props) => {
   const checkButton = (
     <BarItems>
@@ -45,11 +45,12 @@ const Customers = ({
           value: ''
         }}
       />
+
       <Button
         btnStyle="warning"
         size="small"
         icon="check-1"
-        onClick={toCheckCustomers}
+        onClick={toCheckProducts}
       >
         Check
       </Button>
@@ -59,6 +60,11 @@ const Customers = ({
   const header = <Wrapper.ActionBar right={checkButton} />;
 
   const calculatePagination = (data: any) => {
+    console.log(
+      Object.keys(queryParams).length,
+      'Object.keys(queryParams).length'
+    );
+
     if (Object.keys(queryParams).length !== 1) {
       if (queryParams.perPage !== undefined && queryParams.page === undefined) {
         data = data.slice(queryParams.perPage * 0, queryParams.perPage * 1);
@@ -94,7 +100,7 @@ const Customers = ({
 
     const onClickSync = () => {
       data = excludeSyncTrue(data);
-      toSyncCustomers(action, data);
+      toSyncProducts(action, data);
     };
 
     const renderRow = (rowData: any, rowSction: string) => {
@@ -102,8 +108,8 @@ const Customers = ({
         rowData = rowData.slice(0, 100);
       }
 
-      return rowData.map((c: any, i: number) => (
-        <Row key={i} customers={c} action={rowSction} />
+      return rowData.map(p => (
+        <Row key={p.code} product={p} action={rowSction} />
       ));
     };
 
@@ -129,6 +135,7 @@ const Customers = ({
             <tr>
               <th>{__('Code')}</th>
               <th>{__('Name')}</th>
+              <th>{__('Unit price')}</th>
               {action === 'UPDATE' ? <th>{__('Update Status')}</th> : <></>}
               {action === 'CREATE' ? <th>{__('Create Status')}</th> : <></>}
               {action === 'DELETE' ? <th>{__('Delete Status')}</th> : <></>}
@@ -146,7 +153,7 @@ const Customers = ({
       <br />
       <CollapseContent
         title={__(
-          'Create customers' + (items.create ? ':  ' + items.create.count : '')
+          'Create products' + (items.create ? ':  ' + items.create.count : '')
         )}
       >
         <>
@@ -165,7 +172,7 @@ const Customers = ({
       </CollapseContent>
       <CollapseContent
         title={__(
-          'Update customers' + (items.update ? ':  ' + items.update.count : '')
+          'Update products' + (items.update ? ':  ' + items.update.count : '')
         )}
       >
         <>
@@ -184,7 +191,7 @@ const Customers = ({
       </CollapseContent>
       <CollapseContent
         title={__(
-          'Delete customers' + (items.delete ? ':  ' + items.delete.count : '')
+          'Delete products' + (items.delete ? ':  ' + items.delete.count : '')
         )}
       >
         <>
@@ -208,7 +215,7 @@ const Customers = ({
     <Wrapper
       header={
         <Wrapper.Header
-          title={__('Check customers')}
+          title={__('Check product')}
           queryParams={queryParams}
           submenu={menuDynamic}
         />
@@ -227,4 +234,4 @@ const Customers = ({
   );
 };
 
-export default Customers;
+export default InventoryProducts;

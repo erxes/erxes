@@ -40,6 +40,18 @@ const toSyncCustomers = `
   }
 `;
 
+const toCheckPrices = `
+  mutation toCheckPrices($brandId: String) {
+    toCheckPrices(brandId: $brandId)
+  }
+`;
+
+const toSyncPrices = `
+  mutation toSyncPrices($brandId: String, $action: String, $prices: [JSON]) {
+    toSyncPrices(brandId: $brandId, action: $action, prices: $prices)
+  }
+`;
+
 export default {
   updateConfigs,
   toCheckProducts,
@@ -47,5 +59,7 @@ export default {
   toCheckCategories,
   toSyncCategories,
   toCheckCustomers,
-  toSyncCustomers
+  toSyncCustomers,
+  toCheckPrices,
+  toSyncPrices
 };

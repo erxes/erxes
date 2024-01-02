@@ -7,10 +7,10 @@ import {
   Pagination,
   Table
 } from '@erxes/ui/src/components';
-import { BarItems } from '@erxes/ui/src/layout/styles';
 import Button from '@erxes/ui/src/components/Button';
-import { menuDynamic } from '../constants';
-import Row from './InventoryProductsRow';
+import { BarItems } from '@erxes/ui/src/layout/styles';
+import { menuDynamic } from '../../constants';
+import Row from './InventoryCategoryRow';
 import SelectBrands from '@erxes/ui/src/brands/containers/SelectBrands';
 
 type Props = {
@@ -18,18 +18,18 @@ type Props = {
   queryParams: any;
   loading: boolean;
   setBrand: (brandId: string) => void;
-  toCheckProducts: () => void;
-  toSyncProducts: (action: string, products: any[]) => void;
+  toCheckCategory: () => void;
+  toSyncCategory: (action: string, categories: any[]) => void;
   items: any;
 };
 
-const InventoryProducts = ({
+const InventoryCategory = ({
   items,
   loading,
   queryParams,
   setBrand,
-  toCheckProducts,
-  toSyncProducts
+  toCheckCategory,
+  toSyncCategory
 }: Props) => {
   const checkButton = (
     <BarItems>
@@ -50,7 +50,7 @@ const InventoryProducts = ({
         btnStyle="warning"
         size="small"
         icon="check-1"
-        onClick={toCheckProducts}
+        onClick={toCheckCategory}
       >
         Check
       </Button>
@@ -60,11 +60,6 @@ const InventoryProducts = ({
   const header = <Wrapper.ActionBar right={checkButton} />;
 
   const calculatePagination = (data: any) => {
-    console.log(
-      Object.keys(queryParams).length,
-      'Object.keys(queryParams).length'
-    );
-
     if (Object.keys(queryParams).length !== 1) {
       if (queryParams.perPage !== undefined && queryParams.page === undefined) {
         data = data.slice(queryParams.perPage * 0, queryParams.perPage * 1);
@@ -100,7 +95,7 @@ const InventoryProducts = ({
 
     const onClickSync = () => {
       data = excludeSyncTrue(data);
-      toSyncProducts(action, data);
+      toSyncCategory(action, data);
     };
 
     const renderRow = (rowData: any, rowSction: string) => {
@@ -109,7 +104,7 @@ const InventoryProducts = ({
       }
 
       return rowData.map(p => (
-        <Row key={p.code} product={p} action={rowSction} />
+        <Row key={p.code} category={p} action={rowSction} />
       ));
     };
 
@@ -135,7 +130,7 @@ const InventoryProducts = ({
             <tr>
               <th>{__('Code')}</th>
               <th>{__('Name')}</th>
-              <th>{__('Unit price')}</th>
+              <th>{__('Description')}</th>
               {action === 'UPDATE' ? <th>{__('Update Status')}</th> : <></>}
               {action === 'CREATE' ? <th>{__('Create Status')}</th> : <></>}
               {action === 'DELETE' ? <th>{__('Delete Status')}</th> : <></>}
@@ -153,7 +148,7 @@ const InventoryProducts = ({
       <br />
       <CollapseContent
         title={__(
-          'Create products' + (items.create ? ':  ' + items.create.count : '')
+          'Create categories' + (items.create ? ':  ' + items.create.count : '')
         )}
       >
         <>
@@ -172,7 +167,7 @@ const InventoryProducts = ({
       </CollapseContent>
       <CollapseContent
         title={__(
-          'Update products' + (items.update ? ':  ' + items.update.count : '')
+          'Update categories' + (items.update ? ':  ' + items.update.count : '')
         )}
       >
         <>
@@ -191,7 +186,7 @@ const InventoryProducts = ({
       </CollapseContent>
       <CollapseContent
         title={__(
-          'Delete products' + (items.delete ? ':  ' + items.delete.count : '')
+          'Delete categories' + (items.delete ? ':  ' + items.delete.count : '')
         )}
       >
         <>
@@ -215,7 +210,7 @@ const InventoryProducts = ({
     <Wrapper
       header={
         <Wrapper.Header
-          title={__('Check product')}
+          title={__('Check category')}
           queryParams={queryParams}
           submenu={menuDynamic}
         />
@@ -234,4 +229,4 @@ const InventoryProducts = ({
   );
 };
 
-export default InventoryProducts;
+export default InventoryCategory;

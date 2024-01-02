@@ -11,7 +11,7 @@ import { Bulk } from '@erxes/ui/src/components';
 import Alert from '@erxes/ui/src/utils/Alert';
 import { mutations } from '../graphql';
 import React, { useState } from 'react';
-import InventoryProducts from '../components/InventoryProducts';
+import InventoryProducts from '../components/product/InventoryProducts';
 import Spinner from '@erxes/ui/src/components/Spinner';
 
 type Props = {
