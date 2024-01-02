@@ -8,6 +8,7 @@ import { getConfig, sendCardInfo } from './utils/utils';
 import { customerToErkhet, companyToErkhet } from './utils/customerToErkhet';
 import { generateModels } from './connectionResolver';
 import { getIncomeData } from './utils/incomeData';
+import { userToErkhet } from './utils/userToErkhet';
 
 const allowTypes = {
   'core:user': ['create', 'update'],
@@ -333,6 +334,22 @@ export const afterMutationHandlers = async (subdomain, params) => {
     }
 
     if (type === 'core:user') {
+      if (action === 'create' || action === 'update') {
+        const user = params.updatedDocument || params.object;
+        const oldUser = params.object;
+
+        if (!user.email) {
+          return;
+        }
+
+        if (user.email === oldUser.email) {
+          return;
+        }
+
+        syncLog = await models.SyncLogs.syncLogsAdd(syncLogDoc);
+        userToErkhet(subdomain, models, syncLog, params, 'create');
+        return;
+      }
     }
   } catch (e) {
     await models.SyncLogs.updateOne(

@@ -69,6 +69,11 @@ export default {
       return info.number || contentId;
     }
 
+    if (contentType === 'core:user') {
+      const info = syncLog.consumeData.object;
+      return info.email || contentId;
+    }
+
     return contentId;
   }
 };
