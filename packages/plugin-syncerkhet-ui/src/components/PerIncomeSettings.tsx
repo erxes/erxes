@@ -123,7 +123,7 @@ class PerSettings extends React.Component<Props, State> {
     this.setState({
       config: {
         ...config,
-        payAccounts: { ...(config.payAccounts || {}), type: value }
+        payAccounts: { ...(config.payAccounts || {}), [type]: value }
       }
     });
   };
