@@ -8,6 +8,18 @@ import {
 } from './messageBroker';
 import { productSchema } from './models/definitions/products';
 import { fetchEs } from '@erxes/api-utils/src/elasticsearch';
+import { BILL_TYPES, ORDER_TYPES } from './models/definitions/constants';
+import {
+  checkOrderStatus,
+  getDistrictName,
+  prepareEbarimtData,
+  validateOrderPayment
+} from './graphql/utils/orderUtils';
+import { PutData } from './models/PutData';
+import {
+  ISettlePaymentParams,
+  getStatus
+} from './graphql/resolvers/mutations/orders';
 
 type TSortBuilder = { primaryName: number } | { [index: string]: number };
 
@@ -238,10 +250,25 @@ export const updateMobileAmount = async (models, paymentParams: any[]) => {
     (sum, i) => sum + i.amount,
     0
   );
-
   await models.Orders.updateOne(orderSelector, {
     $set: { mobileAmount: sumMobileAmount }
   });
+
+  const { billType, totalAmount, registerNumber, _id } = order;
+  if (totalAmount === sumMobileAmount) {
+    if (
+      (billType === BILL_TYPES.CITIZEN && registerNumber) ||
+      billType === BILL_TYPES.ENTITY
+    ) {
+      const conf = await models.Configs.findOne({ token: posToken });
+      await prepareSettlePayment(models, order, conf, {
+        _id,
+        billType,
+        registerNumber,
+        items: order.items
+      });
+    }
+  }
 
   graphqlPubsub.publish('ordersOrdered', {
     ordersOrdered: {
@@ -254,4 +281,139 @@ export const updateMobileAmount = async (models, paymentParams: any[]) => {
   });
 
   return sumMobileAmount;
+};
+
+export const prepareSettlePayment = async (
+  models,
+  order,
+  config,
+  {
+    _id,
+    billType,
+    registerNumber,
+    items
+  }: ISettlePaymentParams & { items: any[] }
+) => {
+  if (!ORDER_TYPES.SALES.includes(order.type || '')) {
+    throw new Error(
+      'Зөвхөн борлуулах төрөлтэй захиалгын төлбөрийг төлөх боломжтой'
+    );
+  }
+
+  checkOrderStatus(order);
+
+  await validateOrderPayment(order, { billType });
+  const now = new Date();
+
+  const ebarimtConfig: any = config.ebarimtConfig;
+
+  if (
+    !ebarimtConfig ||
+    !Object.keys(ebarimtConfig) ||
+    !ebarimtConfig.districtCode ||
+    !ebarimtConfig.companyRD
+  ) {
+    billType = BILL_TYPES.INNER;
+  }
+
+  const ebarimtResponses: any[] = [];
+
+  if (billType !== BILL_TYPES.INNER) {
+    const ebarimtDatas = await prepareEbarimtData(
+      models,
+      order,
+      ebarimtConfig,
+      items,
+      billType,
+      registerNumber,
+      config.paymentTypes
+    );
+
+    ebarimtConfig.districtName = getDistrictName(
+      (ebarimtConfig && ebarimtConfig.districtCode) || ''
+    );
+
+    for (const data of ebarimtDatas) {
+      let response;
+
+      if (data.inner) {
+        const putData = new PutData({
+          ...config,
+          ...data,
+          config,
+          models
+        });
+
+        response = {
+          _id: Math.random(),
+          billId: 'Түр баримт',
+          ...(await putData.generateTransactionInfo()),
+          registerNo: ebarimtConfig.companyRD || '',
+          success: 'true'
+        };
+        ebarimtResponses.push(response);
+
+        await models.OrderItems.updateOne(
+          { _id: { $in: data.itemIds } },
+          { $set: { isInner: true } }
+        );
+
+        continue;
+      }
+
+      response = await models.PutResponses.putData({
+        ...data,
+        config: ebarimtConfig,
+        models
+      });
+      ebarimtResponses.push(response);
+    }
+  }
+
+  if (
+    billType === BILL_TYPES.INNER ||
+    (ebarimtResponses.length &&
+      !ebarimtResponses.filter(er => er.success !== 'true').length)
+  ) {
+    await models.Orders.updateOne(
+      { _id },
+      {
+        $set: {
+          billType,
+          registerNumber,
+          paidDate: now,
+          modifiedAt: now,
+          status: getStatus(
+            config,
+            'settle',
+            { ...order, paidDate: now },
+            { ...order }
+          )
+        }
+      }
+    );
+  }
+
+  order = await models.Orders.getOrder(_id);
+
+  graphqlPubsub.publish('ordersOrdered', {
+    ordersOrdered: {
+      ...order,
+      _id,
+      status: order.status,
+      customerId: order.customerId
+    }
+  });
+
+  if (config.isOnline) {
+    const products = await models.Products.find({
+      _id: { $in: items.map(i => i.productId) }
+    }).lean();
+    for (const item of items) {
+      const product = products.find(p => p._id === item.productId) || {};
+      item.productName = `${product.code} - ${product.name}`;
+    }
+  }
+
+  return ebarimtResponses;
 };
