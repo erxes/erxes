@@ -1,5 +1,5 @@
-// import { Xyps, Types } from '../../models';
 import { IContext } from '../../connectionResolver';
+import { convertToPropertyData } from '../../utils';
 
 const xypMutations = {
   /**
@@ -12,15 +12,20 @@ const xypMutations = {
    * Edits a new xyp
    */
   async xypDataUpdate(_root, { _id, ...doc }, { models, user }: IContext) {
-    // return Xyps.updateXyp(_id, doc);
     return models.XypData.updateXypData(_id, doc, user);
   },
   /**
    * Removes a single xyp
    */
   async xypDataRemove(_root, { _id }, { models, user }: IContext) {
-    // return Xyps.removeXyp(_id);
     return models.XypData.removeXypData(_id);
+  },
+  async xypConvertToCustomeFields(
+    _root,
+    { _id },
+    { models, user, subdomain }: IContext
+  ) {
+    return await convertToPropertyData(subdomain, { customerId: _id });
   }
 };
 

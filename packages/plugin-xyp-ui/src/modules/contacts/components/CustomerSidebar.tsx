@@ -30,6 +30,8 @@ type Props = {
   refetch: any;
   loading: any;
   error: string;
+  showConvertButton: boolean;
+  convertToProperty: () => void;
 };
 
 function Sidebar({
@@ -38,8 +40,10 @@ function Sidebar({
   fetchData,
   xypServiceList,
   refetch,
+  showConvertButton,
   error,
-  loading
+  loading,
+  convertToProperty
 }: Props) {
   const [params, setParams] = useState({});
   const [operation, setOperation] = useState<IOperation>({
@@ -193,6 +197,21 @@ function Sidebar({
     return (
       <Table striped bordered responsive>
         <tbody id="hurData"> {renderRows()}</tbody>
+        {showConvertButton && (
+          <div>
+            {' '}
+            <Button
+              btnStyle="success"
+              onClick={() => {
+                convertToProperty();
+              }}
+              icon="check-circle"
+              uppercase={false}
+            >
+              Convert to property
+            </Button>
+          </div>
+        )}
       </Table>
     );
   };
