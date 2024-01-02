@@ -55,28 +55,28 @@ export default {
 
     const app = options.app;
 
-    const publicDir = path.join('./public');
+    const publicDir = path.join('./uploads');
 
     fs.access(publicDir, fs.constants.F_OK, err => {
       if (err) {
         // 'public' directory doesn't exist, create it
         fs.mkdir(publicDir, mkdirErr => {
           if (mkdirErr) {
-            console.error('Error creating public directory:', mkdirErr);
+            console.error('Error creating uploads directory:', mkdirErr);
           } else {
-            console.log('Public directory created');
+            console.log('uploads directory created');
           }
         });
       } else {
         // 'public' directory exists
-        console.log('Public directory already exists');
+        console.log('uploads directory already exists');
       }
     });
 
     app.get('/download', async (req, res) => {
       const { name } = req.query;
 
-      const filePath = `./public/${name}`;
+      const filePath = `./uploads/${name}`;
 
       // res.download(filePath, name);
 
