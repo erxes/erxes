@@ -40,9 +40,8 @@ export interface IEngageSms {
 }
 
 export interface IEngageNotification {
-  from?: string;
+  title: string;
   content: string;
-  fromIntegrationId: string;
   isMobile: boolean;
 }
 export interface IEngageStats {

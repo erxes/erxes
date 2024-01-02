@@ -3,19 +3,16 @@ import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { FlexItem, FlexPad } from '@erxes/ui/src/components/step/styles';
 import colors from '@erxes/ui/src/styles/colors';
-import { ISelectedOption } from '@erxes/ui/src/types';
 import { __ } from '@erxes/ui/src/utils/core';
 import React from 'react';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 import {
   IEngageScheduleDate,
-  IEngageNotification,
-  IIntegrationWithPhone
+  IEngageNotification
 } from '@erxes/ui-engage/src/types';
 import Scheduler from './Scheduler';
-import SmsPreview from './SmsPreview';
-import { IConfig } from '@erxes/ui-settings/src/general/types';
+import NotificationPreview from './NotificationPreview';
 
 const FlexInfo = styled.div`
   display: flex;
@@ -33,14 +30,12 @@ const Char = styledTS<{ count: number }>(styled.div)`
 
 type Props = {
   onChange: (
-    name: 'shortMessage' | 'scheduleDate' | 'fromUserId',
-    value?: IEngageScheduleDate | IEngageNotification | string
+    name: 'shortMessage' | 'scheduleDate' | 'notification',
+    value?: IEngageNotification | IEngageScheduleDate | IEngageNotification
   ) => void;
   messageKind: string;
   scheduleDate: IEngageScheduleDate;
   notification?: IEngageNotification;
-  fromUserId: string;
-  integrations: IIntegrationWithPhone[];
 };
 
 type State = {
@@ -49,14 +44,7 @@ type State = {
   titleCount: number;
   message: string;
   title: string;
-  fromIntegrationId: string;
-};
-
-type IOption = {
-  value: string;
-  label: string;
-  phoneNumber: string;
-  disabled: boolean;
+  isMobile: boolean;
 };
 
 class NotificationForm extends React.Component<Props, State> {
@@ -66,19 +54,19 @@ class NotificationForm extends React.Component<Props, State> {
     this.state = {
       scheduleDate: props.scheduleDate,
       characterCount: this.calcCharacterCount(160, this.getContent('content')),
-      titleCount: this.calcCharacterCount(15, this.getContent('from')),
+      titleCount: this.calcCharacterCount(15, this.getContent('title')),
       message: this.getContent('content'),
-      title: this.getContent('from'),
-      fromIntegrationId: this.getContent('fromIntegrationId')
+      title: this.getContent('title'),
+      isMobile: this.getContent('isMobile') || false
     };
   }
 
-  onChangeSms = (key: string, value: string) => {
+  onChangeNotification = (key: string, value: string | boolean) => {
     const shortMessage = { ...this.props.notification } as IEngageNotification;
-
+    console.log('shortMessage', shortMessage);
     shortMessage[key] = value;
 
-    this.props.onChange('shortMessage', shortMessage);
+    this.props.onChange('notification', shortMessage);
   };
 
   getContent(key: string) {
@@ -114,72 +102,41 @@ class NotificationForm extends React.Component<Props, State> {
     );
   }
 
-  fromSelectOptions = () => {
-    const { integrations } = this.props;
-    const options: IOption[] = [];
-
-    integrations.map(i =>
-      options.push({
-        value: i._id,
-        label: i.name,
-        phoneNumber: i.phoneNumber,
-        disabled: !i.isActive
-      })
-    );
-
-    return options;
-  };
-
-  fromOptionRenderer = option => (
-    <div>
-      <strong>{option.label}</strong> (<i>{option.phoneNumber}</i>)
-    </div>
-  );
-
   render() {
     const { notification } = this.props;
-    const {
-      message,
-      title,
-      titleCount,
-      characterCount,
-      fromIntegrationId
-    } = this.state;
+    const { message, title, isMobile, titleCount, characterCount } = this.state;
 
     const onChangeTitle = e =>
-      this.onChangeSms('from', (e.target as HTMLInputElement).value);
+      this.onChangeNotification('title', (e.target as HTMLInputElement).value);
 
     const onChangeContent = e =>
-      this.onChangeSms('content', (e.target as HTMLInputElement).value);
+      this.onChangeNotification(
+        'content',
+        (e.target as HTMLInputElement).value
+      );
 
-    const onChangeFrom = (value: ISelectedOption) => {
-      const integrationId = value ? value.value : '';
-
-      this.setState({ fromIntegrationId: integrationId });
-      this.onChangeSms('fromIntegrationId', integrationId);
+    const onChangeIsMobile = e => {
+      this.onChangeNotification(
+        'isMobile',
+        (e.target as HTMLInputElement).checked
+      );
     };
 
-    const onChangeFromContent = e => {
-      const from = (e.target as HTMLInputElement).value;
+    const onChangeTitleContent = e => {
+      const title = (e.target as HTMLInputElement).value;
 
       this.setState({
-        title: from,
-        titleCount: this.calcCharacterCount(15, from)
+        title: title,
+        titleCount: this.calcCharacterCount(15, title)
       });
     };
 
-    const onChangeSmsContent = e => {
+    const onChangeNotificationContent = e => {
       const content = (e.target as HTMLInputElement).value;
       this.setState({
         message: content,
         characterCount: this.calcCharacterCount(160, content)
       });
-    };
-
-    const onChangeIsMobile = e => {
-      const isMobile = (e.target as HTMLInputElement).value;
-      console.log('isMobile', isMobile);
-      this.onChangeSms('isMobile', isMobile);
     };
 
     return (
@@ -192,9 +149,10 @@ class NotificationForm extends React.Component<Props, State> {
             </FlexInfo>
             <FormControl
               onBlur={onChangeTitle}
-              defaultValue={notification && notification.from}
-              onChange={onChangeFromContent}
+              defaultValue={notification && notification.title}
+              onChange={onChangeTitleContent}
               maxLength={15}
+              required
             />
           </FormGroup>
           <FormGroup>
@@ -206,18 +164,20 @@ class NotificationForm extends React.Component<Props, State> {
               componentClass="textarea"
               defaultValue={notification && notification.content}
               onBlur={onChangeContent}
-              onChange={onChangeSmsContent}
+              onChange={onChangeNotificationContent}
               maxLength={160}
+              required
             />
           </FormGroup>
-          <FormGroup>
+
+          <FormGroup horizontal>
             <FlexInfo>
               <ControlLabel>{__('Is mobile notification')}:</ControlLabel>
             </FlexInfo>
-            <FormControl
-              // onBlur={onChangeTitle}
-              defaultValue={notification && notification.isMobile}
-              onChange={onChangeFromContent}
+            <input
+              onBlur={onChangeIsMobile}
+              defaultChecked={notification?.isMobile || false}
+              onChange={e => onChangeIsMobile(e)}
               type="checkbox"
             />
           </FormGroup>
@@ -225,7 +185,11 @@ class NotificationForm extends React.Component<Props, State> {
         </FlexPad>
 
         <FlexItem overflow="auto" count="2">
-          <SmsPreview title={title} message={message} />
+          <NotificationPreview
+            title={title}
+            message={message}
+            isMobile={isMobile}
+          />
         </FlexItem>
       </FlexItem>
     );

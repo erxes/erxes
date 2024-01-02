@@ -1,66 +1,50 @@
 import Icon from '@erxes/ui/src/components/Icon';
-import colors from '@erxes/ui/src/styles/colors';
 import { __ } from '@erxes/ui/src/utils/core';
 import React from 'react';
-import styled from 'styled-components';
+import {
+  DesktopPreviewContent,
+  MobilePreviewContent
+} from '@erxes/ui-engage/src/styles';
 
-const Preview = styled.div`
-  position: realative;
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  width: 100%;
-  flex-direction: column;
-
-  h3 {
-    font-size: 16px;
-    color: ${colors.colorCoreGray};
-  }
-`;
-
-const From = styled.div`
-  margin-top: 91px;
-  font-size: 11px;
-`;
-
-const Message = styled.div`
-  position: absolute;
-  padding: 6px 10px;
-  background: #e9e9eb;
-  border-radius: 18px;
-  top: 120px;
-  left: 35px;
-  max-width: 60%;
-  word-break: break-word;
-  color: #0a0a0a;
-`;
-
-const MobileFrame = styled.div`
-  width: 360px;
-  height: 555px;
-  background: url('/images/previews/iphone-mockup.png') no-repeat;
-  background-size: 100%;
-  position: relative;
-  display: flex;
-  justify-content: center;
-`;
+import {
+  DesktopPreview,
+  FlexItem,
+  FullPreview,
+  MobilePreview,
+  TabletPreview
+} from '@erxes/ui/src/components/step/style';
+import { PreviewContainer } from '@erxes/ui/src/components/step/preview/styles';
 
 type Props = {
   message: string;
   title: string;
+  isMobile: boolean;
 };
 
 function NotificationPreview(props: Props) {
   return (
-    <Preview>
+    <FullPreview>
       <h3>
         <Icon icon="eye" /> {__('Preview')}
       </h3>
-      <MobileFrame>
-        <From>{props.title || '[From]'}</From>
-        {props.message && <Message>{props.message}</Message>}
-      </MobileFrame>
-    </Preview>
+      {props?.isMobile ? (
+        <MobilePreview>
+          <PreviewContainer>
+            <MobilePreviewContent
+              dangerouslySetInnerHTML={{ __html: props.message }}
+            />
+          </PreviewContainer>
+        </MobilePreview>
+      ) : (
+        <DesktopPreview>
+          <PreviewContainer>
+            <DesktopPreviewContent
+              dangerouslySetInnerHTML={{ __html: props.message }}
+            />
+          </PreviewContainer>
+        </DesktopPreview>
+      )}
+    </FullPreview>
   );
 }
 

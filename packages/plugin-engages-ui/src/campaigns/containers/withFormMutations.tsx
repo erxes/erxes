@@ -79,7 +79,7 @@ function withSaveAndEdit<IComponentProps>(Component) {
       // save
       const save = doc => {
         doc.kind = message.kind ? message.kind : kind;
-
+        console.log('doc', doc);
         if (messageId) {
           return doMutation(
             editMutation,

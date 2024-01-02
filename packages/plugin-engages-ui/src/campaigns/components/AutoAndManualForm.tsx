@@ -65,9 +65,9 @@ type State = {
   fromUserId: string;
   messenger?: IEngageMessenger;
   email?: IEngageEmail;
+  notification?: IEngageNotification;
   scheduleDate: IEngageScheduleDate;
   shortMessage?: IEngageSms;
-  notification?: IEngageNotification;
   rules: IConditionsRule[];
   isSaved: boolean;
 };
@@ -152,6 +152,9 @@ class AutoAndManualForm extends React.Component<Props, State> {
       if (doc.shortMessage) {
         delete doc.shortMessage;
       }
+      if (doc.notification) {
+        delete doc.notification;
+      }
     }
     if (this.state.method === METHODS.MESSENGER) {
       const messenger = this.state.messenger || ({} as IEngageMessenger);
@@ -169,6 +172,9 @@ class AutoAndManualForm extends React.Component<Props, State> {
       }
       if (doc.shortMessage) {
         delete doc.shortMessage;
+      }
+      if (doc.notification) {
+        delete doc.notification;
       }
     }
     if (this.state.method === METHODS.SMS) {
@@ -190,29 +196,33 @@ class AutoAndManualForm extends React.Component<Props, State> {
       if (doc.messenger) {
         delete doc.messenger;
       }
+      if (doc.notification) {
+        delete doc.notification;
+      }
     }
 
     if (this.state.method === METHODS.NOTIFICATION) {
-      const notification = this.state.notification || {
-        from: '',
+      const notification = this.state?.notification || {
+        title: '',
         content: '',
-        fromIntegrationId: '',
         isMobile: false
       };
 
       doc.notification = {
-        from: notification.from,
+        title: notification.title,
         content: notification.content,
-        fromIntegrationId: notification.fromIntegrationId,
-        isMobile: notification.isMobile
+        isMobile: notification.isMobile || false
       };
+      doc.fromUserId = this.state.fromUserId || 'jddjdjdjdj';
 
-      console.log('doc', doc);
       if (doc.email) {
         delete doc.email;
       }
       if (doc.messenger) {
         delete doc.messenger;
+      }
+      if (doc.shortMessage) {
+        delete doc.shortMessage;
       }
     }
 
@@ -320,8 +330,6 @@ class AutoAndManualForm extends React.Component<Props, State> {
             messageKind={kind}
             scheduleDate={scheduleDate}
             notification={notification}
-            fromUserId={fromUserId}
-            integrations={integrations}
           />
         </Step>
       );
