@@ -1,10 +1,5 @@
 import { Schema, Document } from 'mongoose';
 import { field } from './utils';
-// import { customFieldSchema } from '@erxes/api-utils/src/types';
-import {
-  ICustomField,
-  customFieldSchema
-} from '@erxes/api-utils/src/definitions/common';
 
 export interface IXypData {
   contentType: string;

@@ -2,6 +2,7 @@ import { generateToken } from '../../utils';
 import { IContext } from '../../connectionResolver';
 
 import receiveCall from '../../receiveCall';
+import { graphqlPubsub } from '../../configs';
 
 const callsMutations = {
   async callsIntegrationUpdate(_root, { configs }, { models }: IContext) {
@@ -31,6 +32,47 @@ const callsMutations = {
       },
       conversation
     };
+  },
+
+  async callUpdateActiveSession(_root, {}, { models, user }: IContext) {
+    const activeSession = await models.ActiveSessions.findOne({
+      userId: user._id
+    });
+
+    if (activeSession) {
+      return activeSession;
+    }
+
+    await models.ActiveSessions.create({
+      userId: user._id
+    });
+
+    return await models.ActiveSessions.findOne({
+      userId: user._id
+    });
+  },
+
+  async callTerminateSession(_root, {}, { models, user }: IContext) {
+    await models.ActiveSessions.deleteOne({
+      userId: user._id
+    });
+
+    graphqlPubsub.publish('sessionTerminateRequested', {
+      userId: user._id
+    });
+    return user._id;
+  },
+
+  async callDisconnect(_root, {}, { models, user }: IContext) {
+    await models.ActiveSessions.deleteOne({
+      userId: user._id
+    });
+
+    graphqlPubsub.publish('sessionTerminateRequested', {
+      userId: user._id
+    });
+
+    return 'disconnected';
   }
 };
 

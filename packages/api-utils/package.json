@@ -35,7 +35,7 @@
     "amqplib": "^0.10.2",
     "crypto": "^1.0.1",
     "debug": "^4.1.1",
-    "dotenv": "^4.0.0",
+    "dotenv": "^10.0.0",
     "elasticsearch": "^16.7.2",
     "graphql": "^16.7.1",
     "graphql-redis-subscriptions": "^2.4.2",

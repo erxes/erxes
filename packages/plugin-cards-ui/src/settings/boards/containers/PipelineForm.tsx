@@ -73,7 +73,7 @@ class PipelineFormContainer extends React.Component<FinalProps> {
       tags
     };
 
-    const Form = options ? options.PipelineForm : PipelineForm;
+    const Form = options?.PipelineForm || PipelineForm;
 
     return <Form {...extendedProps} />;
   }
