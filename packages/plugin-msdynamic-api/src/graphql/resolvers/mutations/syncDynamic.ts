@@ -3,6 +3,7 @@ import {
   consumeCategory,
   consumeCustomers,
   consumeInventory,
+  consumePrice,
   getConfig
 } from '../../../utils';
 
@@ -37,6 +38,44 @@ const msdynamicSyncMutations = {
           for (const product of products) {
             await consumeInventory(subdomain, config, product, 'delete');
           }
+          break;
+        }
+        default:
+          break;
+      }
+
+      return {
+        status: 'success'
+      };
+    } catch (e) {
+      console.log(e, 'error');
+    }
+  },
+
+  async toSyncPrices(
+    _root,
+    {
+      brandId,
+      action,
+      prices
+    }: { brandId: string; action: string; prices: any[] },
+    { subdomain }: IContext
+  ) {
+    const configs = await getConfig(subdomain, 'DYNAMIC', {});
+    const config = configs[brandId || 'noBrand'];
+
+    try {
+      switch (action) {
+        case 'CREATE': {
+          break;
+        }
+        case 'UPDATE': {
+          for (const price of prices) {
+            await consumePrice(subdomain, config, price, 'update');
+          }
+          break;
+        }
+        case 'DELETE': {
           break;
         }
         default:

@@ -11,7 +11,7 @@ import { Bulk } from '@erxes/ui/src/components';
 import Alert from '@erxes/ui/src/utils/Alert';
 import { mutations } from '../graphql';
 import React, { useState } from 'react';
-import InventoryProducts from '../components/price/InventoryPrice';
+import InventoryPrices from '../components/price/InventoryPrice';
 import Spinner from '@erxes/ui/src/components/Spinner';
 
 type Props = {
@@ -37,9 +37,9 @@ const InventoryPriceContainer = (props: FinalProps) => {
     return <Spinner />;
   }
 
-  const setSyncStatusTrue = (data: any, products: any, action: string) => {
+  const setSyncStatusTrue = (data: any, prices: any, action: string) => {
     data[action].items = data[action].items.map(i => {
-      if (products.find(c => c.code === i.code)) {
+      if (prices.find(c => c.code === i.code)) {
         const temp = i;
         temp.syncStatus = true;
         return temp;
@@ -58,20 +58,20 @@ const InventoryPriceContainer = (props: FinalProps) => {
     return data;
   };
 
-  const toCheckProducts = () => {
+  const toCheckPrices = () => {
     setLoading(true);
     props
-      .toCheckProducts({
+      .toCheckPrices({
         variables: { brandId }
       })
       .then(response => {
-        const data = response.data.toCheckProducts;
+        const data = response.data.toCheckPrices;
 
         setSyncStatus(data, 'create');
         setSyncStatus(data, 'update');
         setSyncStatus(data, 'delete');
 
-        setItems(response.data.toCheckProducts);
+        setItems(response.data.toCheckPrices);
         setLoading(false);
       })
       .catch(e => {
@@ -80,10 +80,10 @@ const InventoryPriceContainer = (props: FinalProps) => {
       });
   };
 
-  const toSyncProducts = (action: string, prices: any[]) => {
+  const toSyncPrices = (action: string, prices: any[]) => {
     setLoading(true);
     props
-      .toSyncProducts({
+      .toSyncPrices({
         variables: {
           brandId,
           action,
@@ -111,11 +111,11 @@ const InventoryPriceContainer = (props: FinalProps) => {
     loading,
     items,
     setBrand,
-    toCheckProducts,
-    toSyncProducts
+    toCheckPrices,
+    toSyncPrices
   };
 
-  const content = () => <InventoryProducts {...updatedProps} />;
+  const content = () => <InventoryPrices {...updatedProps} />;
 
   return <Bulk content={content} />;
 };

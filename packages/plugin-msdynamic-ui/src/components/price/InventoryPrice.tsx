@@ -18,18 +18,18 @@ type Props = {
   queryParams: any;
   loading: boolean;
   setBrand: (brandId: string) => void;
-  toCheckProducts: () => void;
-  toSyncProducts: (action: string, products: any[]) => void;
+  toCheckPrices: () => void;
+  toSyncPrices: (action: string, prices: any[]) => void;
   items: any;
 };
 
-const InventoryProducts = ({
+const InventoryPrice = ({
   items,
   loading,
   queryParams,
   setBrand,
-  toCheckProducts,
-  toSyncProducts
+  toCheckPrices,
+  toSyncPrices
 }: Props) => {
   const checkButton = (
     <BarItems>
@@ -50,7 +50,7 @@ const InventoryProducts = ({
         btnStyle="warning"
         size="small"
         icon="check-1"
-        onClick={toCheckProducts}
+        onClick={toCheckPrices}
       >
         Check
       </Button>
@@ -60,11 +60,6 @@ const InventoryProducts = ({
   const header = <Wrapper.ActionBar right={checkButton} />;
 
   const calculatePagination = (data: any) => {
-    console.log(
-      Object.keys(queryParams).length,
-      'Object.keys(queryParams).length'
-    );
-
     if (Object.keys(queryParams).length !== 1) {
       if (queryParams.perPage !== undefined && queryParams.page === undefined) {
         data = data.slice(queryParams.perPage * 0, queryParams.perPage * 1);
@@ -100,7 +95,7 @@ const InventoryProducts = ({
 
     const onClickSync = () => {
       data = excludeSyncTrue(data);
-      toSyncProducts(action, data);
+      toSyncPrices(action, data);
     };
 
     const renderRow = (rowData: any, rowSction: string) => {
@@ -109,7 +104,7 @@ const InventoryProducts = ({
       }
 
       return rowData.map(p => (
-        <Row key={p.code} product={p} action={rowSction} />
+        <Row key={p.code} price={p} action={rowSction} />
       ));
     };
 
@@ -127,15 +122,16 @@ const InventoryProducts = ({
     );
 
     const subHeader = <Wrapper.ActionBar right={syncButton} />;
+
     return (
       <>
-        {subHeader}
+        {action === 'UPDATE' && subHeader}
         <Table hover={true}>
           <thead>
             <tr>
               <th>{__('Code')}</th>
-              <th>{__('Name')}</th>
               <th>{__('Unit price')}</th>
+              <th>{__('Ending Date')}</th>
               {action === 'UPDATE' ? <th>{__('Update Status')}</th> : <></>}
               {action === 'CREATE' ? <th>{__('Create Status')}</th> : <></>}
               {action === 'DELETE' ? <th>{__('Delete Status')}</th> : <></>}
@@ -153,26 +149,8 @@ const InventoryProducts = ({
       <br />
       <CollapseContent
         title={__(
-          'Create products' + (items.create ? ':  ' + items.create.count : '')
-        )}
-      >
-        <>
-          <DataWithLoader
-            data={
-              items.create ? renderTable(items.create?.items, 'CREATE') : []
-            }
-            loading={false}
-            emptyText={'Please check first.'}
-            emptyIcon="leaf"
-            size="large"
-            objective={true}
-          />
-          <Pagination count={items.create?.count || 0} />
-        </>
-      </CollapseContent>
-      <CollapseContent
-        title={__(
-          'Update products' + (items.update ? ':  ' + items.update.count : '')
+          'Update product price' +
+            (items.update ? ':  ' + items.update.count : '')
         )}
       >
         <>
@@ -189,9 +167,31 @@ const InventoryProducts = ({
           <Pagination count={items.update?.count || 0} />
         </>
       </CollapseContent>
+
       <CollapseContent
         title={__(
-          'Delete products' + (items.delete ? ':  ' + items.delete.count : '')
+          'Not created product' +
+            (items.create ? ':  ' + items.create.count : '')
+        )}
+      >
+        <>
+          <DataWithLoader
+            data={
+              items.create ? renderTable(items.create?.items, 'CREATE') : []
+            }
+            loading={false}
+            emptyText={'Please check first.'}
+            emptyIcon="leaf"
+            size="large"
+            objective={true}
+          />
+          <Pagination count={items.create?.count || 0} />
+        </>
+      </CollapseContent>
+
+      <CollapseContent
+        title={__(
+          'Unmatched product' + (items.delete ? ':  ' + items.delete.count : '')
         )}
       >
         <>
@@ -215,7 +215,7 @@ const InventoryProducts = ({
     <Wrapper
       header={
         <Wrapper.Header
-          title={__('Check product')}
+          title={__('Check product price')}
           queryParams={queryParams}
           submenu={menuDynamic}
         />
@@ -234,4 +234,4 @@ const InventoryProducts = ({
   );
 };
 
-export default InventoryProducts;
+export default InventoryPrice;
