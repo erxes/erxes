@@ -51,12 +51,15 @@ const engageMutations = {
     doc: IEngageMessage,
     { user, docModifier, models, subdomain }: IContext
   ) {
+    console.log('----', doc);
     await checkCampaignDoc(models, subdomain, doc);
 
     // fromUserId is not required in sms engage, so set it here
     if (!doc.fromUserId) {
       doc.fromUserId = user._id;
     }
+
+    console.log('doc', doc);
 
     const engageMessage = await models.EngageMessages.createEngageMessage(
       docModifier({ ...doc, createdBy: user._id })

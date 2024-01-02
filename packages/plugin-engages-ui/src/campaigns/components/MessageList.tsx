@@ -221,7 +221,7 @@ class List extends React.Component<Props> {
       isAllSelected,
       refetch
     } = this.props;
-
+    console.log('messages', messages);
     const actionBar = (
       <Wrapper.ActionBar
         left={isEnabled('tags') && this.renderTagger()}

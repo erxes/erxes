@@ -213,7 +213,7 @@ class AutoAndManualForm extends React.Component<Props, State> {
         content: notification.content,
         isMobile: notification.isMobile || false
       };
-      doc.fromUserId = this.state.fromUserId || 'jddjdjdjdj';
+      doc.fromUserId = this.state.fromUserId || 'uGpu2qDXpCSPftyYg';
 
       if (doc.email) {
         delete doc.email;

@@ -60,7 +60,7 @@ const WidgetContainer = (props: FinalProps) => {
     doc.kind = MESSAGE_KINDS.MANUAL;
     doc.isLive = true;
     doc.fromUserId = currentUser._id;
-
+    console.log('docccc-----', doc);
     if (doc.method === METHODS.EMAIL && !doc.email.content) {
       return Alert.warning('Please fill in email content');
     }

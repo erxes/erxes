@@ -40,6 +40,13 @@ interface IMessenger {
 
 interface IMessengerDocument extends IMessenger, Document {}
 
+interface INotification {
+  title?: string;
+  content?: string;
+  isMobile?: boolean;
+}
+
+interface INotificationDocument extends INotification, Document {}
 export interface IShortMessage {
   content: string;
   from?: string;
@@ -65,8 +72,33 @@ export interface IEngageMessage {
   email?: IEmail;
   scheduleDate?: IScheduleDate;
   messenger?: IMessenger;
+  notification?: INotification;
   lastRunAt?: Date;
   shortMessage?: IShortMessage;
+
+  totalCustomersCount?: number;
+  validCustomersCount?: number;
+  runCount?: number;
+  createdBy?: string;
+  forceCreateConversation?: boolean;
+}
+
+export interface IEngageNotification {
+  kind: string;
+  segmentIds?: string[];
+  brandIds?: string[];
+  tagIds?: string[];
+  // customer selection tags
+  customerTagIds?: string[];
+  customerIds?: string[];
+  title: string;
+  fromUserId?: string;
+  method: string;
+  isDraft?: boolean;
+  isLive?: boolean;
+  notification: INotification;
+  scheduleDate?: IScheduleDate;
+  lastRunAt?: Date;
 
   totalCustomersCount?: number;
   validCustomersCount?: number;
@@ -81,6 +113,7 @@ export interface IEngageMessageDocument extends IEngageMessage, Document {
 
   email?: IEmailDocument;
   messenger?: IMessengerDocument;
+  notification?: INotificationDocument;
 
   _id: string;
 }
@@ -141,6 +174,15 @@ export const smsSchema = new Schema(
   { _id: false }
 );
 
+export const notificationSchema = new Schema(
+  {
+    title: field({ type: String, label: 'Title' }),
+    content: field({ type: String, label: 'Notification content' }),
+    isMobile: field({ type: Boolean, label: 'Is mobile' })
+  },
+  { _id: false }
+);
+
 export const engageMessageSchema = schemaWrapper(
   new Schema({
     _id: field({ pkey: true }),
@@ -193,6 +235,7 @@ export const engageMessageSchema = schemaWrapper(
     scheduleDate: field({ type: scheduleDateSchema, label: 'Schedule date' }),
     messenger: field({ type: messengerSchema, label: 'Messenger' }),
     lastRunAt: field({ type: Date, optional: true }),
+    notification: field({ type: notificationSchema, label: 'Notification' }),
 
     totalCustomersCount: field({ type: Number, optional: true }),
     validCustomersCount: field({ type: Number, optional: true }),

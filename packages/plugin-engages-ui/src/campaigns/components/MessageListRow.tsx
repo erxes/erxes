@@ -234,6 +234,11 @@ class Row extends React.Component<Props> {
         label = __('Messenger');
 
         break;
+      case METHODS.NOTIFICATION:
+        icon = 'message';
+        label = __('Notification');
+
+        break;
       default:
         break;
     }

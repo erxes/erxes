@@ -69,6 +69,7 @@ export const types = async serviceDiscovery => {
 
       email: JSON
       messenger: JSON
+      notification: JSON
       shortMessage: EngageMessageSms
       createdBy: String
 
@@ -206,6 +207,12 @@ export const types = async serviceDiscovery => {
       content: String!
       fromIntegrationId: String!
     }
+
+    input EngageMessageNotification {
+      title: String!,
+      content: String!,
+      isMobile: Boolean,
+    }
   `;
 };
 
@@ -247,7 +254,8 @@ const commonParams = `
   email: EngageMessageEmail,
   scheduleDate: EngageScheduleDateInput,
   messenger: EngageMessageMessenger,
-  shortMessage: EngageMessageSmsInput
+  notification: EngageMessageNotification,
+  shortMessage: EngageMessageSmsInput,
   forceCreateConversation: Boolean
 `;
 
