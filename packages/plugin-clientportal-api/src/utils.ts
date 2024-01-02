@@ -327,19 +327,51 @@ export const sendNotification = async (
     }
 
     const expiredTokens = [''];
-    for (const token of deviceTokens) {
-      try {
-        await transporter.send({
-          token,
-          notification: { title, body: content },
-          data: eventData || {}
-        });
-      } catch (e) {
-        debugError(`Error occurred during firebase send: ${e.message}`);
-        expiredTokens.push(token);
+
+    const chunkSize = 500;
+
+    if (deviceTokens.length > 1) {
+      const tokenChunks = [] as string[][];
+
+      if (deviceTokens.length > chunkSize) {
+        for (let i = 0; i < deviceTokens.length; i += chunkSize) {
+          const chunk = deviceTokens.slice(i, i + chunkSize);
+          tokenChunks.push(chunk);
+        }
+      } else {
+        tokenChunks.push(deviceTokens);
+      }
+
+      for (const tokensChunk of tokenChunks) {
+        try {
+          const multicastMessage = {
+            tokens: tokensChunk,
+            notification: { title, body: content },
+            data: eventData || {}
+          };
+
+          await transporter.sendMulticast(multicastMessage);
+        } catch (e) {
+          debugError(
+            `Error occurred during Firebase multicast send: ${e.message}`
+          );
+          expiredTokens.push(...tokensChunk);
+        }
+      }
+    } else {
+      for (const token of deviceTokens) {
+        try {
+          await transporter.send({
+            token,
+            notification: { title, body: content },
+            data: eventData || {}
+          });
+        } catch (e) {
+          debugError(`Error occurred during firebase send: ${e.message}`);
+          expiredTokens.push(token);
+        }
       }
     }
-
     if (expiredTokens.length > 0) {
       await models.ClientPortalUsers.updateMany(
         {},
