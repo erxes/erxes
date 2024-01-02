@@ -17,8 +17,8 @@ class Home extends React.Component<Props, {}> {
   render() {
     const { boardId, type, title, options } = this.props;
 
-    const boardName = options ? options.boardName : 'Board';
-    const pipelineName = options ? options.pipelineName : 'Pipeline';
+    const boardName = options?.boardName || 'Board';
+    const pipelineName = options?.pipelineName || 'Pipeline';
 
     const breadcrumb = [
       { title: __('Settings'), link: '/settings' },
