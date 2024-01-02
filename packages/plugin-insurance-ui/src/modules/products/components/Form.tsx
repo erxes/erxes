@@ -24,6 +24,7 @@ import CustomFieldSection from './CustomFieldSection';
 type Props = {
   product?: InsuranceProduct;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
+  refetch: () => void;
   closeModal: () => void;
 };
 
@@ -37,6 +38,12 @@ const ProductForm = (props: Props) => {
       categoryId: ''
     }
   );
+
+  React.useEffect(() => {
+    if (props.product) {
+      setProduct(props.product);
+    }
+  }, [props.product]);
 
   const [riskConfigs, setRiskConfigs] = React.useState<any[]>(
     product.riskConfigs || []
@@ -79,6 +86,19 @@ const ProductForm = (props: Props) => {
       ...finalValues
     };
   };
+
+  // const save = (data, callback) => {
+  //   editMutation({
+  //     variables: { _id, ...data }
+  //   })
+  //     .then(() => {
+  //       productDetailQuery.refetch();
+  //       callback();
+  //     })
+  //     .catch(e => {
+  //       callback(e);
+  //     });
+  // };
 
   const renderContent = (formProps: IFormProps) => {
     const { closeModal, renderButton } = props;
@@ -228,7 +248,12 @@ const ProductForm = (props: Props) => {
           </div>
           {props.product && (
             <div style={{ width: '50%', padding: '20px', height: '100%' }}>
-              <CustomFieldSection isDetail={true} _id={props.product._id} />
+              <CustomFieldSection
+                isDetail={true}
+                _id={props.product._id}
+                product={product}
+                refetch={props.refetch}
+              />
             </div>
           )}
         </div>

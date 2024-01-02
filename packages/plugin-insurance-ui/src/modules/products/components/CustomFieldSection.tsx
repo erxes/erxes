@@ -12,6 +12,8 @@ import { mutations, queries } from '../graphql';
 type Props = {
   isDetail: boolean;
   _id: string;
+  product?: any;
+  refetch: () => void;
 };
 
 const CustomFieldsSection = (props: Props) => {
@@ -25,15 +27,15 @@ const CustomFieldsSection = (props: Props) => {
     skip: !isEnabled('forms') ? true : false
   });
 
-  const productDetailQuery = useQuery(queries.GET_PRODUCT, {
-    variables: {
-      _id
-    }
-  });
+  // const productDetailQuery = useQuery(queries.GET_PRODUCT, {
+  //   variables: {
+  //     _id
+  //   }
+  // });
 
   const [editMutation] = useMutation(mutations.PRODUCTS_EDIT);
 
-  if (fieldsGroupsQuery.loading || productDetailQuery.loading) {
+  if (fieldsGroupsQuery.loading) {
     return (
       <Sidebar full={true}>
         <Spinner />
@@ -45,7 +47,8 @@ const CustomFieldsSection = (props: Props) => {
       variables: { _id, ...data }
     })
       .then(() => {
-        productDetailQuery.refetch();
+        // productDetailQuery.refetch();
+        props.refetch();
         callback();
       })
       .catch(e => {
@@ -53,7 +56,7 @@ const CustomFieldsSection = (props: Props) => {
       });
   };
 
-  const { customFieldsData = [] } = productDetailQuery.data.insuranceProduct;
+  const { customFieldsData = [] } = props.product || {};
   const fieldsGroups = fieldsGroupsQuery.data.fieldsGroups || [];
 
   const updatedProps = {
@@ -61,7 +64,7 @@ const CustomFieldsSection = (props: Props) => {
     customFieldsData,
     fieldsGroups,
     isDetail,
-    object: productDetailQuery.data.insuranceProduct
+    object: props.product
   };
 
   return <GenerateCustomFields {...updatedProps} />;
