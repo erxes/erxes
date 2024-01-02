@@ -25,6 +25,11 @@ const callsQueries = {
     });
 
     return customer;
+  },
+  async callsActiveSession(_root, {}, { models, user }: IContext) {
+    const activeSession = models.ActiveSessions.getActiveSession(user._id);
+
+    return activeSession;
   }
 };
 

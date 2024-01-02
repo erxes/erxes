@@ -16,48 +16,47 @@ import Table from '@erxes/ui/src/components/table';
 type array = {
   _id: string;
   name: string;
-  code: string;
+  description: string;
 };
 
-function CostForm() {
+function ExpensesForm() {
   const [show, setShow] = useState(false);
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
   const [elements, setElements] = useState<array[]>([]);
-  const [costMutation] = useMutation(gql(mutations.costAdd));
-  const { data, loading } = useQuery(gql(queries.costs));
+  const [expenseMutation] = useMutation(gql(mutations.manageExpenses));
+  const { data, loading } = useQuery(gql(queries.expenses));
   useEffect(() => {
     if (data) {
-      setElements(data.costs);
+      setElements(data.expenses);
     }
   }, [data]);
 
   const [inputValues, setInputValues] = useState({
     _id: '',
     name: '',
-    code: ''
+    description: ''
   });
 
   const addElement = () => {
     const newElement = {
       _id: Math.random().toString(),
-      code: inputValues.code,
-      name: inputValues.name
+      name: inputValues.name,
+      description: inputValues.description
     };
     setElements(prevElements => [...prevElements, newElement]);
     setInputValues({
       _id: '',
-      code: '',
-      name: ''
+      name: '',
+      description: ''
     });
   };
 
-  const changeElement = (index, newValue1, newValue2) => {
+  const changeElement = (index, key, value) => {
     const updatedElements = [...elements];
     updatedElements[index] = {
-      _id: elements[index]._id,
-      code: newValue1,
-      name: newValue2
+      ...updatedElements[index],
+      [key]: value
     };
     setElements(updatedElements);
   };
@@ -70,19 +69,19 @@ function CostForm() {
 
   const handleSubmit = event => {
     const setData = elements.map((element, index) => {
-      if (element.name === '' || element.code === '') {
+      if (!element.name) {
         Alert.error('Please fill all fields');
         throw new Error('Please fill all fields');
       }
       return {
         name: element.name,
-        code: element.code,
+        description: element.description,
         _id: element._id
       };
     });
     event.preventDefault();
     confirm().then(() => {
-      costMutation({ variables: { costObjects: setData } })
+      expenseMutation({ variables: { expenseDocs: setData } })
         .then(() => {
           Alert.success('Successfully created');
           handleClose();
@@ -106,37 +105,37 @@ function CostForm() {
         keyboard={false}
       >
         <Modal.Header closeButton>
-          <Modal.Title>{__('Add Expenses')}</Modal.Title>
+          <Modal.Title>{__('Manage Expenses')}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Table whiteSpace="nowrap" hover={true}>
             <thead>
               <tr>
-                <th>{__('Code')}</th>
                 <th>{__('Name')}</th>
+                <th>{__('Description')}</th>
                 <th>{__('Action')}</th>
               </tr>
             </thead>
             <tbody>
-              {elements.map((element, index) => (
+              {(elements || []).map((element, index) => (
                 <tr key={index}>
                   <td>
                     <FormControl
                       type="text"
-                      placeholder="Enter Code"
-                      defaultValue={element.code}
+                      placeholder="Enter Name"
+                      defaultValue={element.name}
                       onChange={(e: any) =>
-                        changeElement(index, e.target.value, element.name)
+                        changeElement(index, 'name', e.target.value)
                       }
                     />
                   </td>
                   <td>
                     <FormControl
                       type="text"
-                      defaultValue={element.name}
-                      placeholder="Enter Name"
+                      defaultValue={element.description}
+                      placeholder="Enter description"
                       onChange={(e: any) =>
-                        changeElement(index, element.code, e.target.value)
+                        changeElement(index, 'description', e.target.value)
                       }
                     />
                   </td>
@@ -176,4 +175,4 @@ function CostForm() {
   );
 }
 
-export default CostForm;
+export default ExpensesForm;
