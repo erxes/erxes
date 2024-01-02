@@ -2,14 +2,14 @@
 
 import { paginate } from '@erxes/api-utils/src';
 import * as xlsxPopulate from 'xlsx-populate';
+import * as moment from 'moment';
+import * as path from 'path';
 
 import { IContext } from '../../../connectionResolver';
 import { sendCommonMessage } from '../../../messageBroker';
 import { verifyVendor } from '../utils';
-import * as path from 'path';
-import * as moment from 'moment';
 
-const query = (searchField, searchValue) => {
+export const query = (searchField, searchValue) => {
   const qry: any = {};
 
   if (!searchField) {
