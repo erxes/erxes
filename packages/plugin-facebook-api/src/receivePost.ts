@@ -29,14 +29,20 @@ const receivePost = async (
     userId,
     INTEGRATION_KINDS.POST
   );
-
+  const customer = await getOrCreateCustomer(
+    models,
+    subdomain,
+    pageId,
+    userId,
+    INTEGRATION_KINDS.POST
+  );
   await getOrCreatePost(
     models,
     subdomain,
     params,
     pageId,
-    userId
-    // customer.erxesApiId || ''
+    userId,
+    customer.erxesApiId || ''
   );
 };
 

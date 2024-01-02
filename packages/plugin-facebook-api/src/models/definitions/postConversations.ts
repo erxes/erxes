@@ -23,8 +23,6 @@ export const postConversationSchema = new Schema({
   erxesApiId: String,
   postId: { type: String, index: true },
   timestamp: Date,
-  senderId: { type: String, index: true },
-  recipientId: { type: String, index: true },
   integrationId: String,
   content: String,
   customerId: { type: String, optional: true }
