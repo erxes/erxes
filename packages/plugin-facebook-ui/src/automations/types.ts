@@ -19,5 +19,4 @@ export type Config = {
   messageTemplates?: PageTemplate[];
   text?: string;
   quickReplies?: any[];
-  fromUserId: string;
 };
