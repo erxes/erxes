@@ -18,8 +18,8 @@ export const userToErkhet = async (
     action,
     oldEmail: oldUser.email || '',
     object: {
-      firstName: user.firstName,
-      lastName: user.lastName,
+      firstName: user.details?.firstName,
+      lastName: user.details?.lastName,
       email: user.email || '',
       employeeId: user.employeeId
     }
