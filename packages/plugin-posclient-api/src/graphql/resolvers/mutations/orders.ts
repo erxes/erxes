@@ -182,7 +182,13 @@ const ordersAdd = async (
   };
 
   try {
-    let preparedDoc = await prepareOrderDoc(subdomain, doc, config, models);
+    let preparedDoc = await prepareOrderDoc(
+      subdomain,
+      doc,
+      config,
+      models,
+      posUser
+    );
 
     const status = getStatus(config, doc.buttonType, doc);
 
@@ -285,7 +291,13 @@ const ordersEdit = async (
 
   await cleanOrderItems(doc._id, doc.items, models);
 
-  let preparedDoc = await prepareOrderDoc(subdomain, doc, config, models);
+  let preparedDoc = await prepareOrderDoc(
+    subdomain,
+    doc,
+    config,
+    models,
+    posUser
+  );
 
   preparedDoc.items = await reverseItemStatus(models, preparedDoc.items);
 
@@ -303,6 +315,7 @@ const ordersEdit = async (
     userId: posUser ? posUser._id : '',
     type: doc.type,
     totalAmount: getTotalAmount(preparedDoc.items),
+    directDiscount: doc.directDiscount,
     billType: doc.billType || BILL_TYPES.CITIZEN,
     registerNumber: doc.registerNumber || '',
     slotCode: doc.slotCode,

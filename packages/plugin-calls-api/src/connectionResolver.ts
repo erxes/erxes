@@ -12,11 +12,20 @@ import {
 } from './models/Conversations';
 
 import { ICustomerDocument } from './models/definitions/customers';
+import {
+  IActiveSessionDocument,
+  IActiveSessions
+} from './models/definitions/activeSessions';
+import {
+  IActiveSessionModel,
+  loadActiveSessionClass
+} from './models/ActiveSessions';
 
 export interface IModels {
   Integrations: IIntegrationModel;
   Conversations: IConversationModel;
   Customers: ICustomerModel;
+  ActiveSessions: IActiveSessionModel;
 }
 
 export interface IContext extends IMainContext {
@@ -42,6 +51,10 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
   models.Customers = db.model<ICustomerDocument, ICustomerModel>(
     'calls_customers',
     loadCustomerClass(models)
+  );
+  models.ActiveSessions = db.model<IActiveSessionDocument, IActiveSessionModel>(
+    'calls_active_sessions',
+    loadActiveSessionClass(models)
   );
 
   return models;

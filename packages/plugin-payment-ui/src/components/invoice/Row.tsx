@@ -119,7 +119,9 @@ class Row extends React.Component<Props> {
       return renderFullName(customer);
     };
 
-    const meta: any = PAYMENTCONFIGS.find(p => p.kind === payment.kind);
+    const meta: any = PAYMENTCONFIGS.find(
+      p => p.kind === (payment?.kind || '')
+    );
     const kind = meta ? meta.name : 'NA';
 
     return (
