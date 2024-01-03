@@ -131,7 +131,7 @@ export const checkNextDay = (
   return date;
 };
 
-export const calcPerMonthEqual = (
+export const calcPerMonthEqual = async (
   doc: IContractDocument,
   balance: number,
   currentDate: Date,

@@ -45,29 +45,13 @@ const insuranceHelper = (
   return { first10, on11 };
 };
 
-export const scheduleHelper = async (
+const paymentDatesGenerate = async (
   contract: IContractDocument,
-  bulkEntries: any[],
   startDate: Date,
-  balance: number,
-  tenor: number,
-  salvageAmount: number,
-  salvageTenor: number,
-  nextDate: Date,
   perHolidays: IPerHoliday[]
 ) => {
-  if (tenor === 0) {
-    return bulkEntries;
-  }
-  let currentDate = getFullDate(startDate);
-
   const dateRange = contract.scheduleDays.sort((a, b) => a - b);
   let mainDate = new Date(startDate);
-
-  var skipInterestCalcDate = addMonths(
-    new Date(currentDate),
-    contract.skipInterestCalcMonth || 0
-  );
 
   let endDate = addMonths(new Date(startDate), contract.tenor);
 
@@ -86,7 +70,7 @@ export const scheduleHelper = async (
     });
   }
 
-  const paymentDates = dateRanges.filter(date => {
+  let paymentDates = dateRanges.filter(date => {
     const diffDay =
       date.getMonth() === startDate.getMonth() && getDiffDay(startDate, date);
 
@@ -107,6 +91,36 @@ export const scheduleHelper = async (
   });
 
   if (paymentDates.length === 0) paymentDates.push(endDate);
+
+  return paymentDates;
+};
+
+export const scheduleHelper = async (
+  contract: IContractDocument,
+  bulkEntries: any[],
+  startDate: Date,
+  balance: number,
+  tenor: number,
+  salvageAmount: number,
+  salvageTenor: number,
+  nextDate: Date,
+  perHolidays: IPerHoliday[]
+) => {
+  if (tenor === 0) {
+    return bulkEntries;
+  }
+  let currentDate = getFullDate(startDate);
+
+  let skipInterestCalcDate = addMonths(
+    new Date(currentDate),
+    contract.skipInterestCalcMonth || 0
+  );
+
+  let paymentDates = await paymentDatesGenerate(
+    contract,
+    startDate,
+    perHolidays
+  );
 
   if (contract.repayment === 'equal') {
     const payment = Math.round(
