@@ -32,11 +32,13 @@ const mutations = {
       status: 'active'
     };
 
+    const subject = `Даатгалын гэрээ - ${company.primaryName}`;
+
     const dealDoc = {
       cpUser,
       doc: {
         type: 'deal',
-        subject: `Даатгалын гэрээ - ${company.name}`,
+        subject,
         closeDate: doc.closeDate,
         startDate: doc.startDate,
         customerId: doc.customerId,
