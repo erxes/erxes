@@ -21,5 +21,5 @@ export const mutations = `
   toCheckCustomers(brandId: String): JSON
   toSyncCustomers(brandId: String, action: String, customers: [JSON]): JSON
   toSendCustomers(brandId: String, customers: [JSON]): JSON
-  toSendDeals(deals: [JSON]): JSON
+  toSendDeals(brandId: String, deals: [JSON]): JSON
 `;

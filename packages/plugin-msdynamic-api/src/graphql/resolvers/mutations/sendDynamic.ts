@@ -65,11 +65,12 @@ const msdynamicSendMutations = {
 
   async toSendDeals(
     _root,
-    { deals }: { deals: any[] },
+    { brandId, deals }: { brandId: string; deals: any[] },
     { subdomain }: IContext
   ) {
     try {
-      const config = await getConfig(subdomain, 'DYNAMIC', {});
+      const configs = await getConfig(subdomain, 'DYNAMIC', {});
+      const config = configs[brandId || 'noBrand'];
 
       if (!config.salesApi || !config.username || !config.password) {
         throw new Error('MS Dynamic config not found.');
