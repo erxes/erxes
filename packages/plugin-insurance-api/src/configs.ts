@@ -10,6 +10,7 @@ import forms from './forms';
 import * as fs from 'fs';
 import * as path from 'path';
 import { buildFile } from './graphql/resolvers/utils';
+import documents from './documents';
 
 export let mainDb;
 export let debug;
@@ -28,7 +29,8 @@ export default {
   },
 
   meta: {
-    forms
+    forms,
+    documents
   },
 
   apolloServerContext: async (context, req) => {
