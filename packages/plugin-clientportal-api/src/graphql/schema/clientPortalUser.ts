@@ -191,5 +191,5 @@ export const mutations = () => `
   clientPortalUsersChangeVerificationStatus(userId: String!, status: ClientPortalUserVerificationStatus!): String
   clientPortalUpdateUser(_id: String!, doc: ClientPortalUserUpdate!): JSON
 
-  clientPortalUserSetSecondaryPassword(newPassword: String!): String
+  clientPortalUserSetSecondaryPassword(newPassword: String!, oldPassword:String): String
 `;
