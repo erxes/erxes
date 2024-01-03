@@ -3,7 +3,6 @@ import { IScheduleDocument } from './definitions/schedules';
 import { Model } from 'mongoose';
 import { IModels } from '../connectionResolver';
 import { FilterQuery } from 'mongodb';
-import { IContractDocument } from './definitions/contracts';
 export interface IScheduleModel extends Model<IScheduleDocument> {
   getLastSchedule(
     contractId: string,
