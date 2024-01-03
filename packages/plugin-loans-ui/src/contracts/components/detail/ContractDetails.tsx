@@ -11,8 +11,12 @@ import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { __ } from 'coreui/utils';
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 import { isEnabled } from '@erxes/ui/src/utils/core';
-import InvoiceSection from '../invoices/InvoiceSection';
 import { LEASE_TYPES } from '../../../contractTypes/constants';
+import { Tabs } from '../list/ContractForm';
+import InvoiceList from '../invoices/InvoiceList';
+import StoreInterestSection from '../storeInterest/StoreInterestSection';
+import TransactionSection from '../transaction/TransactionSection';
+import { ITransaction } from '../../../transactions/types';
 
 const ActivityInputs = asyncComponent(
   () =>
@@ -31,7 +35,10 @@ const ActivityLogs = asyncComponent(
 );
 
 type Props = {
-  contract: IContractDoc & { invoices: IInvoice[] };
+  contract: IContractDoc & {
+    invoices: IInvoice[];
+    loanTransactionHistory: ITransaction[];
+  };
   currentUser: IUser;
   saveItem: (doc: IContractDoc, callback?: (item) => void) => void;
   regenSchedules: (contractId: string) => void;
@@ -115,35 +122,57 @@ class ContractDetails extends React.Component<Props, State> {
 
     const content = (
       <>
-        <CollateralsSection
-          {...this.props}
-          onChangeCollateralsData={pDataChange}
-          onChangeCollaterals={prsChange}
-          saveCollateralsData={this.saveCollateralsData}
-          collateralsData={this.state.collateralsData}
-          collaterals={this.state.collaterals}
-          contractId={contract._id}
-        ></CollateralsSection>
+        <Tabs
+          tabs={[
+            {
+              label: __(`First Schedules`),
+              component: (contract.leaseType === LEASE_TYPES.FINANCE ||
+                contract.leaseType === LEASE_TYPES.SAVING) && (
+                <ScheduleSection contractId={contract._id} isFirst={true} />
+              )
+            },
+            {
+              label: __(`Schedules`),
+              component: (
+                <ScheduleSection contractId={contract._id} isFirst={false} />
+              )
+            },
+            {
+              label: __(`Invoice`),
+              component: <InvoiceList invoices={contract.invoices} />
+            },
+            {
+              label: __(`Transaction`),
+              component: (
+                <TransactionSection
+                  contractId={contract._id}
+                  transactions={contract.loanTransactionHistory}
+                />
+              )
+            },
+            {
+              label: __('Interest store'),
+              component: (
+                <StoreInterestSection invoices={contract.storeInterest} />
+              )
+            },
 
-        <ScheduleSection
-          contractId={contract._id}
-          hasTransaction={contract.hasTransaction}
-          leaseType={contract.leaseType}
-          isFirst={false}
-          regenSchedules={regenSchedules}
-          fixSchedules={fixSchedules}
-        ></ScheduleSection>
-        {(contract.leaseType === LEASE_TYPES.FINANCE ||
-          contract.leaseType === LEASE_TYPES.SAVING) && (
-          <ScheduleSection
-            contractId={contract._id}
-            isFirst={true}
-            regenSchedules={regenSchedules}
-          ></ScheduleSection>
-        )}
-        {contract.leaseType === LEASE_TYPES.CREDIT && (
-          <InvoiceSection invoices={contract.invoices} />
-        )}
+            {
+              label: __('Collaterals'),
+              component: (
+                <CollateralsSection
+                  {...this.props}
+                  onChangeCollateralsData={pDataChange}
+                  onChangeCollaterals={prsChange}
+                  saveCollateralsData={this.saveCollateralsData}
+                  collateralsData={this.state.collateralsData}
+                  collaterals={this.state.collaterals}
+                  contractId={contract._id}
+                ></CollateralsSection>
+              )
+            }
+          ]}
+        />
 
         {isEnabled('logs') && (
           <>
@@ -156,16 +185,7 @@ class ContractDetails extends React.Component<Props, State> {
               target={contract.number || ''}
               contentId={contract._id}
               contentType="loans:contract"
-              extraTabs={[
-                { name: 'loans:transaction', label: 'Transaction' },
-                { name: 'loans:interestStore', label: 'Interest store' },
-                ...(contract.leaseType === LEASE_TYPES.CREDIT
-                  ? [{ name: 'loans:invoice', label: 'Invoice' }]
-                  : []),
-                ...(isEnabled('zms')
-                  ? [{ name: 'loans:zms', label: 'Zms' }]
-                  : [])
-              ]}
+              extraTabs={[]}
               activityRenderItem={ActivityItem}
             />
           </>

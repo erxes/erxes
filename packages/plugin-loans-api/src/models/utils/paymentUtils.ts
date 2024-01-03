@@ -7,10 +7,12 @@ import { calcUndue } from '../utils/transactionUtils';
 import { calcInterest, getDiffDay } from '../utils/utils';
 
 export interface IPaymentInfo {
+  interestEve: Number;
+  interestNonce: Number;
   payment: number;
   calcInterest: number;
   storedInterest: number;
-  loss: number;
+  undue: number;
   debt: number;
   insurance: number;
   commitmentInterest: number;
@@ -25,6 +27,36 @@ function getValue(value: any, defaultValue: any) {
   return value ?? defaultValue;
 }
 
+function getDiffFromLast(
+  paymentInfo: IPaymentInfo,
+  lastSchedule: IScheduleDocument
+) {
+  paymentInfo['balance'] = lastSchedule.balance;
+  paymentInfo['payment'] =
+    getValue(lastSchedule.payment, 0) - getValue(lastSchedule.didPayment, 0);
+  paymentInfo['storedInterest'] =
+    getValue(lastSchedule.storedInterest, 0) -
+    getValue(lastSchedule.didStoredInterest, 0);
+  paymentInfo['undue'] =
+    getValue(lastSchedule.undue, 0) - getValue(lastSchedule.didUndue, 0);
+  paymentInfo['insurance'] =
+    getValue(lastSchedule.insurance, 0) -
+    getValue(lastSchedule.didInsurance, 0);
+  paymentInfo['debt'] =
+    getValue(lastSchedule.debt, 0) - getValue(lastSchedule.didDebt, 0);
+  paymentInfo['commitmentInterest'] =
+    getValue(lastSchedule.commitmentInterest, 0) -
+    getValue(lastSchedule.didCommitmentInterest, 0);
+  paymentInfo['interestEve'] =
+    getValue(lastSchedule.interestEve, 0) -
+    getValue(lastSchedule.didInterestEve, 0);
+  paymentInfo['interestNonce'] =
+    getValue(lastSchedule.interestNonce, 0) -
+    getValue(lastSchedule.didInterestNonce, 0);
+
+  return paymentInfo;
+}
+
 export async function getPaymentInfo(
   contract: IContractDocument,
   payDate: Date = new Date(),
@@ -34,7 +66,9 @@ export async function getPaymentInfo(
     payment: 0,
     calcInterest: 0,
     storedInterest: 0,
-    loss: 0,
+    interestEve: 0,
+    interestNonce: 0,
+    undue: 0,
     insurance: 0,
     debt: 0,
     commitmentInterest: 0,
@@ -50,27 +84,23 @@ export async function getPaymentInfo(
     payDate
   );
 
+  paymentInfo = getDiffFromLast(paymentInfo, lastSchedule);
+
   if (!lastSchedule) return paymentInfo;
 
   paymentInfo.balance = lastSchedule.balance;
 
   const diffDay = getDiffDay(lastSchedule.payDate, payDate);
-
-  paymentInfo.payment =
-    getValue(lastSchedule.payment, 0) - getValue(lastSchedule.didPayment, 0);
+  const diffInterestDay = getDiffDay(lastSchedule.payDate, payDate);
 
   if (paymentInfo.payment < 0) paymentInfo.payment = 0;
   if (lastSchedule.balance < paymentInfo.payment)
     paymentInfo.payment = lastSchedule.balance;
 
-  paymentInfo.storedInterest =
-    getValue(lastSchedule.storedInterest, 0) -
-    getValue(lastSchedule.didStoredInterest, 0);
-
   const storedInterest = await models.StoredInterest.findOne({
     contractId: contract._id
   })
-    .sort({})
+    .sort({ invDate: -1 })
     .lean<IStoredInterestDocument>();
 
   if (storedInterest && storedInterest.invDate > lastSchedule.payDate) {
@@ -80,11 +110,10 @@ export async function getPaymentInfo(
   const interestValue = calcInterest({
     balance: lastSchedule.balance,
     interestRate: contract.interestRate,
-    dayOfMonth: diffDay
+    dayOfMonth: diffInterestDay
   });
 
-  paymentInfo.calcInterest =
-    getValue(interestValue, 0) - getValue(paymentInfo.storedInterest, 0);
+  paymentInfo.calcInterest = getValue(interestValue, 0);
 
   //loss calculation from expiration
   if (
@@ -92,8 +121,6 @@ export async function getPaymentInfo(
     contract.unduePercent > 0
   ) {
     paymentInfo.expiredDay = diffDay;
-    paymentInfo.loss =
-      getValue(lastSchedule.undue, 0) - getValue(lastSchedule.didUndue, 0);
 
     const loss = await calcUndue(
       lastSchedule,
@@ -102,7 +129,7 @@ export async function getPaymentInfo(
       diffDay
     );
 
-    if (loss > 0) paymentInfo.loss += loss;
+    if (loss > 0) paymentInfo.undue += loss;
   }
 
   if (contract.commitmentInterest > 0) {
@@ -131,7 +158,7 @@ export async function getPaymentInfo(
     paymentInfo.payment +
     paymentInfo.storedInterest +
     paymentInfo.calcInterest +
-    paymentInfo.loss +
+    paymentInfo.undue +
     paymentInfo.insurance +
     paymentInfo.debt;
 
@@ -139,7 +166,7 @@ export async function getPaymentInfo(
     paymentInfo.balance +
     paymentInfo.storedInterest +
     paymentInfo.calcInterest +
-    paymentInfo.loss +
+    paymentInfo.undue +
     paymentInfo.insurance +
     paymentInfo.debt;
 
@@ -170,7 +197,7 @@ export async function doPayment(
       getValue(lastSchedule.didCommitmentInterest, 0) +
       getValue(didPayment.commitmentInterest, 0);
     lastSchedule.didUndue =
-      getValue(lastSchedule.didUndue, 0) + getValue(didPayment.loss, 0);
+      getValue(lastSchedule.didUndue, 0) + getValue(didPayment.undue, 0);
 
     await models.Schedules.updateOne(
       { _id: lastSchedule._id },
@@ -191,7 +218,7 @@ export async function doPayment(
     didStoredInterest: getValue(didPayment.storedInterest, 0),
     didInterestEve: getValue(didPayment.calcInterest, 0),
     didCommitmentInterest: getValue(didPayment.commitmentInterest, 0),
-    didUndue: getValue(didPayment.loss, 0)
+    didUndue: getValue(didPayment.undue, 0)
   };
 
   await models.Schedules.create(scheduleValue);

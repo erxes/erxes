@@ -79,7 +79,7 @@ interface ITabs {
   tabs: ITabItem[];
 }
 
-function Tabs({ tabs }: ITabs) {
+export function Tabs({ tabs }: ITabs) {
   const [tabIndex, setTabIndex] = React.useState(0);
 
   return (

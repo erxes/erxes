@@ -24,6 +24,7 @@ import { FilterQuery } from 'mongodb';
 import { ITransaction } from './definitions/transactions';
 import { IInsurancesData } from './definitions/contracts';
 import { ICollateralData } from './definitions/contracts';
+import { reGenerateSchedules } from './utils/scheduleUtils';
 
 const getInsurancAmount = (
   insurancesData: IInsurancesData[],
@@ -76,6 +77,7 @@ export const loadContractClass = (models: IModels) => {
     }: IContract & { schedule: any }): Promise<IContractDocument> {
       doc.startDate = getFullDate(doc.startDate || new Date());
       doc.lastStoredDate = getFullDate(doc.startDate || new Date());
+      doc.lastStoredDate.setDate(doc.lastStoredDate.getDate() + 1);
       doc.endDate =
         doc.endDate ?? addMonths(new Date(doc.startDate), doc.tenor);
       if (!doc.useManualNumbering || !doc.number)
@@ -135,6 +137,10 @@ export const loadContractClass = (models: IModels) => {
         ];
 
         await models.FirstSchedules.insertMany(schedules);
+      }
+
+      if (doc.leaseType === LEASE_TYPES.FINANCE) {
+        await reGenerateSchedules(models, contract, []);
       }
 
       return contract;

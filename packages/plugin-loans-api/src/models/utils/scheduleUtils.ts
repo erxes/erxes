@@ -1100,8 +1100,6 @@ export const generatePendingSchedules = async (
   updatePrevSchedulesBulk.length > 0 &&
     (await models.Schedules.bulkWrite(updatePrevSchedulesBulk));
 
-  console.log('updatedSchedule', updatedSchedule);
-
   if (tr._id) {
     var transactionReaction: any = {
       reactions: [...trReaction, ...updatePrevScheduleReactions]
@@ -1112,7 +1110,6 @@ export const generatePendingSchedules = async (
         _id: contract._id,
         status: contract.status
       };
-
       await models.Contracts.updateOne(
         { _id: contract._id },
         { $set: { status: CONTRACT_STATUS.CLOSED } }

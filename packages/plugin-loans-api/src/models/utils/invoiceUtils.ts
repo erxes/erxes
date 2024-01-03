@@ -10,7 +10,6 @@ export async function createInvoice(
   models: IModels
 ): Promise<IInvoiceDocument> {
   const paymentInfo = await getPaymentInfo(contract, payDate, models);
-
   const invoiceData: IInvoice = {
     contractId: contract._id,
     payment: paymentInfo.payment,
@@ -19,7 +18,7 @@ export async function createInvoice(
     storedInterest: paymentInfo.storedInterest,
     debt: paymentInfo.debt,
     insurance: paymentInfo.insurance,
-    undue: paymentInfo.loss,
+    undue: paymentInfo.undue,
     total: paymentInfo.total,
     createdAt: new Date(),
     interestEve: 0,

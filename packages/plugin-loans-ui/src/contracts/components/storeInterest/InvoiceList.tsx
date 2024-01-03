@@ -25,10 +25,7 @@ class InvoiceList extends React.Component<IProps> {
           <thead>
             <tr>
               <th>{__('Date')}</th>
-              <th>{__('Loan Payment')}</th>
-              <th>{__('Interest')}</th>
-              <th>{__('Loss')}</th>
-              <th>{__('Total')}</th>
+              <th>{__('Stored interest')}</th>
             </tr>
           </thead>
           <tbody id="schedules">

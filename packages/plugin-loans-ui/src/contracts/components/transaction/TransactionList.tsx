@@ -2,14 +2,14 @@ import Table from '@erxes/ui/src/components/table';
 import { __ } from 'coreui/utils';
 import React from 'react';
 
-import { IInvoice } from '../../types';
-import ScheduleRow from './InvoiceRow';
+import TransactionRow from './TransactionRow';
+import { ITransaction } from '../../../transactions/types';
 
 interface IProps {
-  invoices: IInvoice[];
+  transactions: ITransaction[];
 }
 
-class InvoiceList extends React.Component<IProps> {
+class TransactionList extends React.Component<IProps> {
   constructor(props) {
     super(props);
 
@@ -17,7 +17,7 @@ class InvoiceList extends React.Component<IProps> {
   }
 
   render() {
-    const { invoices } = this.props;
+    const { transactions } = this.props;
 
     return (
       <>
@@ -25,6 +25,7 @@ class InvoiceList extends React.Component<IProps> {
           <thead>
             <tr>
               <th>{__('Date')}</th>
+              <th>{__('Type')}</th>
               <th>{__('Loan Payment')}</th>
               <th>{__('Interest')}</th>
               <th>{__('Loss')}</th>
@@ -32,8 +33,11 @@ class InvoiceList extends React.Component<IProps> {
             </tr>
           </thead>
           <tbody id="schedules">
-            {invoices.map(schedule => (
-              <ScheduleRow schedule={schedule} key={schedule._id}></ScheduleRow>
+            {transactions.map(transaction => (
+              <TransactionRow
+                transaction={transaction}
+                key={transaction._id}
+              ></TransactionRow>
             ))}
           </tbody>
         </Table>
@@ -42,4 +46,4 @@ class InvoiceList extends React.Component<IProps> {
   }
 }
 
-export default InvoiceList;
+export default TransactionList;

@@ -396,16 +396,6 @@ class ContractTypeForm extends React.Component<Props, State> {
                   checked: this.state.useFee,
                   onChange: this.onChangeField
                 })}
-              {this.state.leaseType !== LEASE_TYPES.SAVING &&
-                this.renderFormGroup('Is use pre payment', {
-                  ...formProps,
-                  className: 'flex-item',
-                  type: 'checkbox',
-                  componentClass: 'checkbox',
-                  name: 'usePrePayment',
-                  checked: this.state.usePrePayment,
-                  onChange: this.onChangeField
-                })}
             </FormColumn>
           </FormWrapper>
           <FormWrapper>

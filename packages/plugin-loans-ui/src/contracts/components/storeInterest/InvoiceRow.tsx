@@ -21,11 +21,9 @@ function ScheduleRow({ schedule }: Props) {
 
   return (
     <ExtraRow isDefault={false} key={schedule._id}>
-      <td>{dayjs(schedule.payDate).format('ll')}</td>
-      <td>{renderCell('payment')}</td>
-      <td>{renderCell('storedInterest')}</td>
-      <td>{renderCell('undue')}</td>
-      <td>{renderCell('total')}</td>
+      <td>{dayjs(schedule.invDate).format('ll')}</td>
+
+      <td>{renderCell('amount')}</td>
     </ExtraRow>
   );
 }
