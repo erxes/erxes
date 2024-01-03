@@ -55,7 +55,7 @@ export const gatherDescriptions = async (params: IParams) => {
 };
 
 export async function createLog(subdomain, user, logData) {
-  const descriptions = gatherDescriptions(logData);
+  const descriptions = await gatherDescriptions(logData);
 
   await putActivityLog(subdomain, {
     ...logData,

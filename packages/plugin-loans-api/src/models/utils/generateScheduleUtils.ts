@@ -74,7 +74,7 @@ export const scheduleHelper = async (
   var dateRanges: Date[] = [];
 
   for (let index = 0; index < contract.tenor + 2; index++) {
-    dateRange.map((day, i) => {
+    dateRange.forEach((day, i) => {
       const ndate = getFullDate(new Date(mainDate));
       const year = ndate.getFullYear();
       const month = i === 0 ? ndate.getMonth() + 1 : ndate.getMonth();
