@@ -45,6 +45,17 @@ const insuranceHelper = (
   return { first10, on11 };
 };
 
+const getMainDate = (mainDate: Date, index: number, day: number) => {
+  const nDate = getFullDate(new Date(mainDate));
+  const year = nDate.getFullYear();
+  const month = index === 0 ? nDate.getMonth() + 1 : nDate.getMonth();
+
+  if (day > 28 && new Date(year, month, day).getDate() !== day)
+    mainDate = new Date(year, month + 1, 0);
+  else mainDate = new Date(year, month, day);
+  return mainDate;
+};
+
 const paymentDatesGenerate = async (
   contract: IContractDocument,
   startDate: Date,
@@ -59,13 +70,7 @@ const paymentDatesGenerate = async (
 
   for (let index = 0; index < contract.tenor + 2; index++) {
     dateRange.forEach((day, i) => {
-      const ndate = getFullDate(new Date(mainDate));
-      const year = ndate.getFullYear();
-      const month = i === 0 ? ndate.getMonth() + 1 : ndate.getMonth();
-
-      if (day > 28 && new Date(year, month, day).getDate() !== day)
-        mainDate = new Date(year, month + 1, 0);
-      else mainDate = new Date(year, month, day);
+      mainDate = getMainDate(mainDate, i, day);
       dateRanges.push(mainDate);
     });
   }
