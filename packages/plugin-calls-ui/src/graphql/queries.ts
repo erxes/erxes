@@ -103,9 +103,18 @@ const customers = `
     }
   }
 `;
+
+const activeSession = `
+  query callsActiveSession {
+  callsActiveSession{
+    _id
+    userId
+  }
+}`;
 export default {
   callsIntegrationDetail,
   callIntegrationsOfUser,
   callCustomerDetail,
-  customers
+  customers,
+  activeSession
 };

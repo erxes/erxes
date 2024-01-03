@@ -218,14 +218,14 @@ class Editor extends React.Component<Props, State> {
     type: string;
     awaitingActionId?: string;
   }) => {
-    const { showDrawer, triggers } = this.state;
+    const { showDrawer, triggers, currentTab } = this.state;
 
     if (type === 'actions' && triggers.length === 0) {
       return Alert.warning('Please add a Trigger first!');
     }
 
     this.setState({
-      showDrawer: !showDrawer,
+      showDrawer: !!type && currentTab !== type ? true : !showDrawer,
       currentTab: type,
       awaitingActionId
     });

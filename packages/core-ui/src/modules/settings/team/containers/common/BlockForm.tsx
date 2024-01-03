@@ -16,11 +16,13 @@ type Props = {
   closeModal: () => void;
   additionalRefetchQueries?: any[];
   queryType?: any;
+  showMainList?: boolean;
 };
 
 const FormContainer = ({
   queryType,
   item,
+  showMainList,
   additionalRefetchQueries,
   closeModal
 }: Props) => {
@@ -43,6 +45,9 @@ const FormContainer = ({
     object,
     callback
   }: IButtonMutateProps) => {
+    const qType =
+      queryType === 'units' && showMainList ? 'unitsMain' : queryType;
+
     return (
       <ButtonMutate
         mutation={
@@ -52,7 +57,7 @@ const FormContainer = ({
         }
         refetchQueries={[
           {
-            query: gql(queries[queryType]),
+            query: gql(queries[qType]),
             variables: {
               withoutUserFilter: true,
               searchValue: undefined

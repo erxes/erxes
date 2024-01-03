@@ -8,13 +8,20 @@ import { Alert } from '@erxes/ui/src/utils';
 import KeyPad from '../components/Keypad';
 import { ICallConversation } from '../types';
 
-const KeyPadContainer = ({ callIntegrationsOfUser, setConfig }) => {
+type IProps = {
+  callIntegrationsOfUser: any;
+  setConfig: any;
+};
+const KeyPadContainer = (props: IProps) => {
+  const { callIntegrationsOfUser, setConfig } = props;
+
   const [customer, setCustomer] = useState<any>(undefined);
   const [conversation, setConversation] = useState<ICallConversation>(
     undefined
   );
   const [createCustomerMutation] = useMutation(gql(mutations.customersAdd));
   const [addInternalNotes] = useMutation(gql(mutations.conversationMessageAdd));
+  const [disconnectCall] = useMutation(gql(mutations.callDisconnect));
 
   const getCustomerDetail = (phoneNumber?: string) => {
     if (!phoneNumber) {
@@ -100,6 +107,7 @@ const KeyPadContainer = ({ callIntegrationsOfUser, setConfig }) => {
       taggerRefetchQueries={taggerRefetchQueries}
       conversation={conversation}
       addNote={addNote}
+      disconnectCall={disconnectCall}
     />
   );
 };

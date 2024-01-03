@@ -168,6 +168,7 @@ const getCheckoutConfig = gql`
     currentConfig {
       allowTypes
       banFractions
+      permissionConfig
     }
   }
 `

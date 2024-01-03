@@ -146,7 +146,9 @@ function List(props: Props) {
   );
 
   const extractTrigger = isCurrentUserAdmin ? (
-    <Button icon="plus-circle">Extract all data</Button>
+    <Button icon="plus-circle" btnStyle="primary">
+      Extract all data
+    </Button>
   ) : (
     <></>
   );
@@ -274,7 +276,9 @@ function List(props: Props) {
 
       <MarginY margin={10}>
         <FlexCenter>
-          <Button onClick={extractAllData}>Extract all data</Button>
+          <Button onClick={extractAllData} btnStyle="primary">
+            Extract all data
+          </Button>
         </FlexCenter>
       </MarginY>
     </FlexColumnCustom>

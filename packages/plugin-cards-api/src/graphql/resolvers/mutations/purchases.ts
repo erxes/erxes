@@ -1,10 +1,11 @@
 import * as _ from 'underscore';
+import { nanoid } from 'nanoid';
 import { IItemDragCommonFields } from '../../../models/definitions/boards';
 import {
   IPurchase,
   IProductPurchaseData
 } from '../../../models/definitions/purchases';
-import { ICost } from '../../../models/definitions/costs';
+import { IExpense } from '../../../models/definitions/expenses';
 import { checkPermission } from '@erxes/api-utils/src/permissions';
 import { checkUserIds } from '@erxes/api-utils/src';
 import {
@@ -17,7 +18,6 @@ import {
   itemsRemove
 } from './utils';
 import { IContext } from '../../../connectionResolver';
-import { sendProductsMessage } from '../../../messageBroker';
 import { graphqlPubsub } from '../../../configs';
 import { EXPENSE_DIVIDE_TYPES } from '../../../models/definitions/constants';
 
@@ -32,61 +32,44 @@ const purchaseMutations = {
 
   async manageExpenses(
     _root,
-    doc: { costObjects: ICost[] },
+    doc: { expenseDocs: IExpense[] },
     { user, models }: IContext
   ) {
-    const oldCosts = await models.Costs.find({ status: 'active' }).lean();
+    await models.Expenses.updateMany({}, { $set: { status: 'deleted' } });
 
     let bulkOps: Array<{
       updateOne: {
-        filter: { _id: string };
+        filter: any;
         update: any;
         upsert?: boolean;
       };
     }> = [];
 
     const updatedIds: string[] = [];
-    for (const cost of doc.costObjects) {
-      if (cost._id) {
-        updatedIds.push(cost._id);
-      }
-      const _id = cost._id || Math.random().toString();
-
+    for (const expenseDoc of doc.expenseDocs) {
       bulkOps.push({
         updateOne: {
-          filter: { _id },
+          filter: { $or: [{ _id: expenseDoc._id }, { name: expenseDoc.name }] },
           update: {
-            ...cost,
-            status: 'active',
-            createdBy: user._id,
-            createdAt: new Date()
+            $set: {
+              name: expenseDoc.name,
+              description: expenseDoc.description,
+              status: 'active'
+            },
+            $setOnInsert: {
+              _id: nanoid(),
+              createdBy: user._id,
+              createdAt: new Date()
+            }
           },
           upsert: true
         }
       });
     }
 
-    await models.Costs.bulkWrite(bulkOps);
-    const toDeleteCosts = oldCosts.filter(
-      cost => !updatedIds.includes(cost._id)
-    );
+    await models.Expenses.bulkWrite(bulkOps);
 
-    bulkOps = [];
-    for (const cost of toDeleteCosts) {
-      bulkOps.push({
-        updateOne: {
-          filter: { _id: cost._id || '' },
-
-          update: {
-            $set: { status: 'deleted' }
-          }
-        }
-      });
-    }
-    if (bulkOps.length) {
-      await models.Costs.bulkWrite(bulkOps);
-    }
-    return models.Costs.find({ status: 'active' }).lean();
+    return models.Expenses.find({ status: 'active' }).lean();
   },
 
   // create new purchase
@@ -172,37 +155,38 @@ const purchaseMutations = {
       );
 
       for (const pdata of doc.productsData) {
-        pdata.costPrice = 0;
+        pdata.expenseAmount = 0;
       }
 
       if (dataOfQuantity.length) {
         const sumOfQuantity = dataOfQuantity
-          .map((item: any) => Number(item.price))
+          .map((expense: any) => Number(expense.value))
           .reduce((sum: any, currency: any) => sum + currency, 0);
 
         const sumQuantity = doc.productsData
-          .map((item: any) => Number(item.quantity))
+          .map((expense: any) => Number(expense.quantity))
           .reduce((sum: any, currency: any) => sum + currency, 0);
 
         const perExpense = sumOfQuantity / sumQuantity;
 
         for (const pdata of doc.productsData) {
-          pdata.costPrice = perExpense * pdata.quantity;
+          pdata.expenseAmount = perExpense * pdata.quantity;
         }
       }
       if (dataOfAmount.length) {
         const sumOfAmount = dataOfAmount
-          .map((item: any) => Number(item.price))
+          .map((expense: any) => Number(expense.value))
           .reduce((sum: any, currency: any) => sum + currency, 0);
 
         const sumAmount = doc.productsData
-          .map((item: any) => item.amount)
+          .map((expense: any) => expense.amount)
           .reduce((sum: any, currency: any) => sum + currency, 0);
 
         const perExpense = sumOfAmount / sumAmount;
 
         for (const pdata of doc.productsData) {
-          pdata.costPrice += perExpense * (pdata.amount || 0);
+          pdata.expenseAmount =
+            (pdata.expenseAmount || 0) + perExpense * (pdata.amount || 0);
         }
       }
     }

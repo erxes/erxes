@@ -108,8 +108,29 @@ const conversationMessageAdd = `
   }
 `;
 
+const addActiveSession = `
+  mutation CallUpdateActiveSession {
+    callUpdateActiveSession
+  }
+`;
+
+const callTerminateSession = `
+  mutation callTerminateSession {
+    callTerminateSession
+  }
+`;
+
+const callDisconnect = `
+  mutation callDisconnect {
+    callDisconnect
+  }
+`;
+
 export default {
   callsIntegrationUpdate,
   customersAdd,
-  conversationMessageAdd
+  conversationMessageAdd,
+  addActiveSession,
+  callTerminateSession,
+  callDisconnect
 };

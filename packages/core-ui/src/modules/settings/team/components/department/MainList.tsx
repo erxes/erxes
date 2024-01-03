@@ -2,7 +2,12 @@ import {
   DepartmentsMainQueryResponse,
   IDepartment
 } from '@erxes/ui/src/team/types';
-import { FilterContainer, InputBar } from '@erxes/ui-settings/src/styles';
+import {
+  FilterContainer,
+  InputBar,
+  LeftActionBar,
+  Title
+} from '@erxes/ui-settings/src/styles';
 import { __, router } from '@erxes/ui/src/utils';
 
 import ActionButtons from '@erxes/ui/src/components/ActionButtons';
@@ -12,10 +17,12 @@ import DataWithLoader from 'modules/common/components/DataWithLoader';
 import Form from '../../containers/common/BlockForm';
 import FormControl from 'modules/common/components/form/Control';
 import Icon from '@erxes/ui/src/components/Icon';
+import LeftSidebar from '@erxes/ui/src/layout/components/Sidebar';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import Pagination from 'modules/common/components/pagination/Pagination';
 import React from 'react';
 import SettingsSideBar from '../../containers/common/SettingSideBar';
+import SidebarHeader from '@erxes/ui-settings/src/common/components/SidebarHeader';
 import Table from 'modules/common/components/table';
 import Tip from '@erxes/ui/src/components/Tip';
 import Wrapper from 'modules/layout/components/Wrapper';
@@ -281,7 +288,18 @@ class MainList extends React.Component<Props, State> {
           />
         }
         actionBar={
-          <Wrapper.ActionBar right={rightActionBar} left={leftActionBar} />
+          <Wrapper.ActionBar
+            right={rightActionBar}
+            left={
+              <LeftActionBar>
+                <Title capitalize={true}>
+                  {__('Departments')}&nbsp;
+                  {`(${totalCount || 0})`}
+                </Title>
+                {leftActionBar}
+              </LeftActionBar>
+            }
+          />
         }
         content={
           <DataWithLoader
@@ -292,7 +310,11 @@ class MainList extends React.Component<Props, State> {
             emptyText="No Branches"
           />
         }
-        leftSidebar={<SettingsSideBar />}
+        leftSidebar={
+          <LeftSidebar header={<SidebarHeader />} hasBorder={true}>
+            <SettingsSideBar />
+          </LeftSidebar>
+        }
         footer={<Pagination count={totalCount || 0} />}
         hasBorder={true}
       />

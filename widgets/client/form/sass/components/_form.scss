@@ -127,6 +127,20 @@ button{
   border: 1px solid #d8d8d8;
   .field-group{
     border-top: 1px solid #d8d8d8;
+
+    .field-group-row {
+      display: flex;
+      flex-wrap: wrap;
+
+      .subField-item {
+        margin-right: 20px;
+
+        &:last-child {
+          margin: 0;
+        }
+      }
+    }
+
     &:first-child{
       border-top: none;
     }
