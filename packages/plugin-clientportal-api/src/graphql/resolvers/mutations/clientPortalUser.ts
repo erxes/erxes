@@ -1077,19 +1077,18 @@ const clientPortalUserMutations = {
 
   clientPortalUserSetSecondaryPassword: async (
     _root,
-    args: { newPassword: string; oldPassword?: string },
+    args: { newPassword: string },
     { models, cpUser }: IContext
   ) => {
     if (!cpUser) {
       throw new Error('login required');
     }
 
-    const { newPassword, oldPassword } = args;
+    const { newPassword } = args;
 
     return models.ClientPortalUsers.setSecondaryPassword(
       cpUser._id,
-      newPassword,
-      oldPassword
+      newPassword
     );
   }
 };

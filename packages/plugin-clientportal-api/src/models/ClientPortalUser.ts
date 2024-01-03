@@ -152,8 +152,7 @@ export interface IUserModel extends Model<IUserDocument> {
   ): IUserDocument;
   setSecondaryPassword(
     userId: string,
-    secondaryPassword: string,
-    oldPassword?: string
+    secondaryPassword: string
   ): Promise<string>;
   validatePassword(
     userId: string,
@@ -773,7 +772,6 @@ export const loadClientPortalUserClass = (models: IModels) => {
       if (!login || !password || !clientPortalId) {
         throw new Error('Invalid login');
       }
-
       const user = await models.ClientPortalUsers.findOne({
         $or: [
           { email: { $regex: new RegExp(`^${login}$`, 'i') } },
@@ -783,7 +781,7 @@ export const loadClientPortalUserClass = (models: IModels) => {
         clientPortalId
       });
 
-      if (!user || !user.password) {
+      if (!user || !(user.password || user.secondaryPassword)) {
         throw new Error('Invalid login');
       }
 
@@ -813,7 +811,7 @@ export const loadClientPortalUserClass = (models: IModels) => {
         throw new Error('User is not verified');
       }
 
-      const valid = await this.comparePassword(password, user.password);
+      const valid = await this.comparePassword(password, user.password || '');
       const secondaryPassCheck = await this.comparePassword(
         password,
         user.secondaryPassword || ''
@@ -1175,11 +1173,7 @@ export const loadClientPortalUserClass = (models: IModels) => {
       return user;
     }
 
-    public static async setSecondaryPassword(
-      userId,
-      secondaryPassword,
-      oldPassword
-    ) {
+    public static async setSecondaryPassword(userId, secondaryPassword) {
       // check if already secondaryPassword exists or not null
       const user = await models.ClientPortalUsers.findOne({
         _id: userId
@@ -1204,21 +1198,6 @@ export const loadClientPortalUserClass = (models: IModels) => {
         );
 
         return 'Secondary password created';
-      }
-
-      // check if old password is correct or not
-      if (!oldPassword) {
-        throw new Error('Old password is required');
-      }
-
-      const valid = await models.ClientPortalUsers.comparePassword(
-        oldPassword,
-        user.secondaryPassword || ''
-      );
-
-      if (!valid) {
-        // bad password
-        throw new Error('Invalid old password');
       }
 
       // update secondary password
