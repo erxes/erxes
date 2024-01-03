@@ -89,16 +89,16 @@ export const types = tagsAvailable => `
   type ChartFilter {
     fieldName: String
     filterValue: String
-    filterType: FilterType
+    filterType: ChartFilterType
   }
 
   input ChartFilterInput {
     fieldName: String
     filterValue: String
-    filterType: FilterType
+    filterType: ChartFilterType
   }
 
-  enum FilterType {
+  enum ChartFilterType {
     DATE
     STRING
     NUMBER
@@ -120,7 +120,7 @@ const queryParams = `
   perPage: Int
   page: Int
   departmentId: String
-  tagId: String
+  tag: String
 `;
 
 export const queries = `
@@ -166,7 +166,7 @@ const report_params = `
   tagIds: [String],
   reportTemplateType: String
   serviceName: String
-  charts: [String]
+  charts: [JSON]
 `;
 
 export const mutations = `

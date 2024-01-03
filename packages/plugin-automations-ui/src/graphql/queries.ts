@@ -29,6 +29,7 @@ export const automationFields = `
     icon
     label
     description
+    position
     count
   }
   actions {
@@ -40,6 +41,7 @@ export const automationFields = `
     icon
     label
     description
+    position
   }
   createdAt
   updatedAt

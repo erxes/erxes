@@ -101,7 +101,8 @@ const configQueries = {
     return (Object.keys(amountByBrandId) || []).map(brandId => ({
       _id: brandId,
       name: mainConfigs[brandId].title,
-      amount: amountByBrandId[brandId]
+      amount: amountByBrandId[brandId],
+      paymentIds: mainConfigs[brandId].paymentIds || []
     }));
   }
 };

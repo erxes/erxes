@@ -69,6 +69,7 @@ export type ReportsQueryResponse = {
     totalHoursWorked: number;
     totalShiftNotClosedDeduction: number;
     totalLateMinsDeduction: number;
+    totalAbsentDeduction: number;
     totalDeductionPerGroup: number;
   };
 } & QueryResponse;
@@ -135,6 +136,10 @@ export interface IUserReport {
   totalMinsLateDeduction?: number;
 
   totalDeduction?: number;
+
+  totalDaysAbsent?: number;
+  absentFee?: number;
+  absentDeduction?: number;
 
   totalHoursVacation?: number;
   totalHoursUnpaidAbsence?: number;

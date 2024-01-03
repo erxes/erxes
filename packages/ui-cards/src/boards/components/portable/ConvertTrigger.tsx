@@ -71,5 +71,12 @@ export default function ConvertTrigger(props: Props) {
     />
   );
 
-  return <ModalTrigger title={title} trigger={trigger} content={content} />;
+  return (
+    <ModalTrigger
+      title={title}
+      trigger={trigger}
+      content={content}
+      addisOpenToQueryParam={true}
+    />
+  );
 }

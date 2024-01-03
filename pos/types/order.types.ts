@@ -111,6 +111,7 @@ export interface IOrder extends IOrderCommon {
   paidDate?: string
   cashAmount?: number
   mobileAmount?: number
+  directDiscount?: number
   printedEbarimt?: boolean
   number?: string
   status?: IOrderStatus
@@ -133,3 +134,6 @@ export interface IOrderHistory {
   modifiedAt: string
   paidDate: string
 }
+
+export type IPaymentAmountType = "amount" | "percent" | "items"
+export type PayByProductItem = { _id: string; count: number; unitPrice: number }

@@ -78,8 +78,15 @@ const ChartRendererList = (props: FinalProps) => {
   const { data, labels, title } =
     reportChartGetResultQuery?.reportChartGetResult || {};
 
+  const datasets =
+    !data &&
+    !labels &&
+    !title &&
+    reportChartGetResultQuery.reportChartGetResult;
+
   finalProps = {
     ...props,
+    datasets,
     data,
     labels,
     title,

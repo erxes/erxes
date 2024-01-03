@@ -103,13 +103,13 @@ const bichilTimeclockReport = `
               shiftNotClosedDeduction
               latenessFee
               totalMinsLateDeduction
+              totalDaysAbsent
+              absentFee
+              absentDeduction
               totalDeduction
               totalHoursVacation
               totalHoursUnpaidAbsence
               totalHoursSick
-
-
-              
             }
         groupTotalMinsLate
         groupTotalAbsenceMins
@@ -121,6 +121,7 @@ const bichilTimeclockReport = `
       totalHoursWorked
       totalShiftNotClosedDeduction
       totalLateMinsDeduction
+      totalAbsentDeduction
       totalDeductionPerGroup
     }
   
@@ -184,13 +185,16 @@ employee {
       vacation
       addition
       totalAddition
+      otherAddition
       lateHoursDeduction
       resultDeduction
       totalDeduction
       totalSalary
       preliminarySalary
+      endSalary
       kpiDeduction
       onDeduction
+      otherDeduction
       bonusDeduction
       vacationDeduction
       ndsh
@@ -199,7 +203,7 @@ employee {
       salaryOnHand
       receivable
       biSan
-      toSendBank
+      toSendBank  
 title
 
 `;

@@ -1,13 +1,12 @@
 // @ts-ignore
 import * as telemetry from 'erxes-telemetry';
 import * as jwt from 'jsonwebtoken';
-// @ts-ignore
-import { sendRequest } from 'erxes-api-utils';
 import { NextFunction, Request, Response } from 'express';
 import { redis } from '../redis';
 import { generateModels } from '../connectionResolver';
 import { getSubdomain, userActionsMap } from '@erxes/api-utils/src/core';
 import { USER_ROLES } from '@erxes/api-utils/src/constants';
+import { sendRequest } from '@erxes/api-utils/src/requests';
 
 const generateBase64 = req => {
   if (req.user) {
@@ -24,6 +23,10 @@ export default async function userMiddleware(
 ) {
   const url = req.headers['erxes-core-website-url'];
   const erxesCoreToken = req.headers['erxes-core-token'];
+
+  if (Array.isArray(erxesCoreToken)) {
+    throw new Error(`Multiple erxes-core-tokens found`);
+  }
 
   if (erxesCoreToken && url) {
     try {
@@ -91,7 +94,7 @@ export default async function userMiddleware(
             role: USER_ROLES.SYSTEM,
             groupIds: { $in: [app.userGroupId] },
             appId: app._id
-          });
+          }).lean();
 
           if (user) {
             const key = `user_permissions_${user._id}`;
@@ -119,7 +122,9 @@ export default async function userMiddleware(
 
             req.user = {
               _id: user._id || 'userId',
+              ...user,
               role: USER_ROLES.SYSTEM,
+              isOwner: appInDb.allowAllPermission || false,
               customPermissions: permissions.map(p => ({
                 action: p.action,
                 allowed: p.allowed,

@@ -2,6 +2,7 @@ export const NOTIFICATION_MODULES = [
   {
     name: 'chats',
     description: 'Chats',
+    icon: 'chat-1',
     types: [
       {
         name: 'chatMention',

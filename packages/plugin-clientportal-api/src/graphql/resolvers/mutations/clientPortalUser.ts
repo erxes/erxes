@@ -682,7 +682,7 @@ const clientPortalUserMutations = {
 
     const clientPortal = await models.ClientPortals.getConfig(clientPortalId);
 
-    const data = await fetchUserFromSocialpay(token);
+    const data = await fetchUserFromSocialpay(token, clientPortal);
     const {
       individualId,
       mobileNumber,
@@ -966,15 +966,17 @@ const clientPortalUserMutations = {
       throw new Error(error);
     }
 
-    const cp = await models.ClientPortals.findOne(
-      cpUser?.clientPortalId
-    ).lean();
+    if (cpUser) {
+      const cp = await models.ClientPortals.findOne({
+        _id: cpUser.clientPortalId
+      }).lean();
 
-    if (cp || cp.kind === 'vendor') {
-      await models.Companies.createOrUpdateCompany({
-        erxesCompanyId,
-        clientPortalId: cp._id
-      });
+      if (cp || cp.kind === 'vendor') {
+        await models.Companies.createOrUpdateCompany({
+          erxesCompanyId,
+          clientPortalId: cp._id
+        });
+      }
     }
 
     return models.ClientPortalUsers.updateOne(

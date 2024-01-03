@@ -80,7 +80,7 @@ const prepareWebhookContent = async (subdomain: string, type, action, data) => {
   const isEnabled = await serviceDiscovery.isEnabled(serviceName);
 
   if (isEnabled) {
-    const service = await serviceDiscovery.getService(serviceName, true);
+    const service = await serviceDiscovery.getService(serviceName);
 
     const meta = service.config?.meta || {};
 

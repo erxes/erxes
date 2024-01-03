@@ -16,7 +16,8 @@ import {
   bichilTimeclockReportFinal,
   bichilTimeclockReportPivot,
   bichilTimeclockReportPreliminary,
-  timeclockReportByUsers
+  timeclockReportByUsers,
+  bichilTimeclockReportPerUser
 } from './utils';
 import { paginate } from '@erxes/api-utils/src/core';
 import { IReport } from '../../models/definitions/timeclock';
@@ -31,6 +32,22 @@ import { IUserDocument } from '@erxes/api-utils/src/types';
 const bichilQueries = {
   bichils(_root, _args, _context: IContext) {
     return Bichils.find({});
+  },
+
+  async bichilTimeclockReportByUser(
+    _root,
+    { selectedUser, selectedMonth, selectedYear, selectedDate },
+    { models, user }: IContext
+  ) {
+    const userId = selectedUser || user._id;
+
+    return bichilTimeclockReportPerUser(
+      models,
+      userId,
+      selectedMonth,
+      selectedYear,
+      selectedDate
+    );
   },
 
   async bichilTimeclockReportByUsers(
@@ -227,10 +244,10 @@ const bichilQueries = {
           };
         }
 
-        const structuresDict = await returnDepartmentsBranchesDict(
+        let structuresDict = await returnDepartmentsBranchesDict(
           subdomain,
-          totalBranchIdsOfMembers,
-          totalDeptIdsOfMembers
+          Array.from(new Set(totalBranchIdsOfMembers)),
+          Array.from(new Set(totalDeptIdsOfMembers))
         );
 
         const reportFinal: any = await bichilTimeclockReportFinal(
@@ -248,30 +265,17 @@ const bichilQueries = {
 
         for (const userId of Object.keys(getReport)) {
           const userBranchIds = usersStructure[userId].branchIds;
-          const branchTitles: string[] = [];
-          const branchParentIds: string[] = [];
-          const branchParentTitles: string[] = [];
-
-          for (const userBranchId of userBranchIds) {
-            if (structuresDict[userBranchId]) {
-              branchTitles.push(structuresDict[userBranchId].title);
-
-              let noFurtherParent = false;
-              let currentParentId = structuresDict[userBranchId].parentId;
-
-              while (!noFurtherParent && currentParentId) {
-                branchParentIds.push(currentParentId);
-                branchParentTitles.push(structuresDict[currentParentId].title);
-                if (structuresDict[currentParentId].parentId) {
-                  currentParentId = structuresDict[currentParentId].parentId;
-                } else {
-                  noFurtherParent = true;
-                }
-              }
+          const userBranchTitleToIdDict: { [branchTitle: string]: string } = {};
+          const userBranchTitles: any[] = userBranchIds.map(branchId => {
+            if (structuresDict[branchId]) {
+              userBranchTitleToIdDict[
+                structuresDict[branchId].title
+              ] = branchId;
+              return structuresDict[branchId].title;
             }
-          }
+          });
 
-          for (const userBranchTitle of branchTitles) {
+          for (const userBranchTitle of userBranchTitles) {
             if (userBranchTitle in groupedByBranch) {
               groupedByBranch[userBranchTitle].report = [
                 ...groupedByBranch[userBranchTitle].report,
@@ -280,9 +284,11 @@ const bichilQueries = {
               continue;
             }
 
+            const branchId = userBranchTitleToIdDict[userBranchTitle];
+
             groupedByBranch[userBranchTitle] = {
-              parentsCount: branchParentIds.length,
-              parentsTitles: branchParentTitles,
+              parentsCount: structuresDict[branchId].parentsCount || 0,
+              parentsTitles: structuresDict[branchId].parentsTitles || [],
               report: [{ userId, ...getReport[userId] }]
             };
           }

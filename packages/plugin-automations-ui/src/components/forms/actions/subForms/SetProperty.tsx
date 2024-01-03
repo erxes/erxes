@@ -23,6 +23,7 @@ type Props = {
   closeModal: () => void;
   activeAction: IAction;
   triggerType: string;
+  triggerConfig: any;
   addAction: (action: IAction, actionId?: string, config?: any) => void;
   fields: FieldsCombinedByType[];
   propertyTypesConst: any[];
@@ -98,13 +99,21 @@ class SetProperty extends React.Component<Props, State> {
       return 'date';
     }
 
+    if (chosenField.name.includes('customFieldsData')) {
+      return chosenField.validation;
+    }
+
     return chosenField.type;
   };
 
   getIsMulti = (chosenField: FieldsCombinedByType) => {
-    if (chosenField.selectOptions && !chosenField.name.includes('Ids')) {
+    if (
+      !!chosenField?.selectOptions?.length &&
+      !chosenField.name.includes('Ids')
+    ) {
       return false;
     }
+
     return true;
   };
 
@@ -121,7 +130,7 @@ class SetProperty extends React.Component<Props, State> {
   };
 
   renderPerValue() {
-    const { triggerType } = this.props;
+    const { triggerType, triggerConfig } = this.props;
     const { type, config, fields } = this.state;
 
     return config.rules.map(rule => {
@@ -137,6 +146,8 @@ class SetProperty extends React.Component<Props, State> {
       const operatorType: string = chosenField.name.includes('customFieldsData')
         ? capitalizeFirstLetter(chosenField.validation || chosenField.type)
         : chosenField.type;
+
+      console.log({ operatorType });
 
       const operators =
         PROPERTY_OPERATOR[operatorType] || PROPERTY_OPERATOR.Default;
@@ -211,6 +222,8 @@ class SetProperty extends React.Component<Props, State> {
             isMulti={this.getIsMulti(chosenField)}
             attrType={operatorType}
             options={chosenField.selectOptions}
+            triggerConfig={triggerConfig}
+            attrWithSegmentConfig={true}
           />
 
           <FormGroup>

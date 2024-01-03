@@ -80,7 +80,7 @@ const mutations = {
       itemDoc.feePercent = companyProductConfig.specificPrice;
     }
 
-    itemDoc.totalFee = itemDoc.price * itemDoc.feePercent;
+    itemDoc.totalFee = (itemDoc.price / 100) * itemDoc.feePercent;
 
     const customer = await sendCommonMessage({
       subdomain,
@@ -118,7 +118,7 @@ const mutations = {
 
   vendorEditInsuranceItem: async (
     _root,
-    { _id, doc },
+    { _id, firstName, lastName, customFieldsData },
     { models, cpUser, subdomain }: IContext
   ) => {
     if (!cpUser) {
@@ -130,7 +130,62 @@ const mutations = {
       cpUser
     });
 
-    return models.Items.updateInsuranceItem({ _id, ...doc });
+    const item = await models.Items.findOne({ _id });
+
+    if (!item) {
+      throw new Error('Item not found');
+    }
+
+    if (firstName || lastName) {
+      const customer = await sendCommonMessage({
+        subdomain,
+        action: 'customers.findOne',
+        serviceName: 'contacts',
+        isRPC: true,
+        data: { _id: item.customerId },
+        defaultValue: null
+      });
+
+      if (!customer) {
+        throw new Error('Customer not found');
+      }
+
+      const modifier: any = {};
+
+      if (firstName) {
+        modifier.firstName = firstName;
+      }
+
+      if (lastName) {
+        modifier.lastName = lastName;
+      }
+
+      await sendCommonMessage({
+        subdomain,
+        action: 'customers.updateOne',
+        serviceName: 'contacts',
+        isRPC: true,
+        data: {
+          selector: { _id: item.customerId },
+          modifier
+        }
+      });
+    }
+
+    const doc: any = {
+      _id: item._id,
+      ...customFieldsData
+    };
+
+    if (firstName) {
+      doc.searchDictionary.customerFirstName = firstName;
+    }
+
+    if (lastName) {
+      doc.searchDictionary.customerLastName = lastName;
+    }
+
+    return models.Items.updateInsuranceItem(item, cpUser.userId);
   }
 };
 

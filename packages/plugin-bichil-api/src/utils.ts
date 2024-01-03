@@ -37,7 +37,10 @@ export const customFixDate = (date?: Date) => {
 export const paginateArray = (array, perPage = 20, page = 1) =>
   array.slice((page - 1) * perPage, page * perPage);
 
-export const findBranches = async (subdomain: string, branchIds: string[]) => {
+export const findBranches = async (
+  subdomain: string,
+  branchIds: string[]
+): Promise<any> => {
   const branches = await sendCoreMessage({
     subdomain,
     action: 'branches.find',
@@ -131,7 +134,9 @@ export const findAllTeamMembers = async (subdomain: string) => {
   const users = await sendCoreMessage({
     subdomain,
     action: 'users.find',
-    data: {},
+    data: {
+      query: { isActive: true }
+    },
     isRPC: true,
     defaultValue: []
   });
@@ -198,7 +203,7 @@ export const findTeamMembers = (subdomain: string, userIds: string[]) => {
     subdomain,
     action: 'users.find',
     data: {
-      query: { _id: { $in: userIds } }
+      query: { _id: { $in: userIds }, isActive: true }
     },
     isRPC: true,
     defaultValue: []
@@ -206,27 +211,61 @@ export const findTeamMembers = (subdomain: string, userIds: string[]) => {
 };
 
 const returnTotalBranchesDict = async (subdomain: any, branchIds: string[]) => {
-  let dictionary: { [_id: string]: { title: string; parentId: string } } = {};
+  let dictionary: {
+    [_id: string]: {
+      title: string;
+      parentId: string;
+      parentsCount?: number;
+      parentsTitles?: string[];
+    };
+  } = {};
 
-  const branches = await findBranches(subdomain, branchIds);
-  const parentIds: string[] = [];
+  const totalBranches: any[] = await findBranches(subdomain, branchIds);
 
-  for (const branch of branches) {
+  for (const branchId of branchIds) {
+    const getSubBranches = await findSubBranches(subdomain, branchId);
+    totalBranches.push(...getSubBranches);
+  }
+
+  for (const branch of totalBranches) {
     dictionary[branch._id] = {
       title: branch.title,
       parentId: branch.parentId || null
     };
-    if (branch.parentId) {
-      parentIds.push(branch.parentId);
-    }
   }
 
-  if (parentIds.length) {
-    const getParentsDictionary = await returnTotalBranchesDict(
-      subdomain,
-      parentIds
-    );
-    dictionary = { ...dictionary, ...getParentsDictionary };
+  for (const branchId of branchIds) {
+    const branchParentIds: string[] = [];
+    const branchParentTitles: string[] = [];
+
+    let noFurtherParent = false;
+    let currentParentId = dictionary[branchId]?.parentId;
+
+    while (
+      !noFurtherParent &&
+      currentParentId &&
+      dictionary[currentParentId] &&
+      branchId !== currentParentId
+    ) {
+      branchParentIds.push(currentParentId);
+      branchParentTitles.push(dictionary[currentParentId].title);
+
+      if (dictionary[currentParentId].parentId) {
+        currentParentId = dictionary[currentParentId].parentId;
+      } else {
+        noFurtherParent = true;
+      }
+    }
+
+    const parentsCount = new Set(branchParentIds).size;
+    // from greatest to closest parent
+    const parentsTitles = Array.from(new Set(branchParentTitles.reverse()));
+
+    dictionary[branchId] = {
+      ...dictionary[branchId],
+      parentsCount,
+      parentsTitles
+    };
   }
 
   return dictionary;
@@ -236,7 +275,14 @@ export const returnDepartmentsBranchesDict = async (
   subdomain: any,
   branchIds: string[],
   departmentIds: string[]
-): Promise<{ [_id: string]: { title: string; parentId: string } }> => {
+): Promise<{
+  [_id: string]: {
+    title: string;
+    parentId: string;
+    parentsCount?: number;
+    parentsTitles?: string[];
+  };
+}> => {
   let dictionary: { [_id: string]: { title: string; parentId: string } } = {};
 
   dictionary = await returnTotalBranchesDict(subdomain, branchIds);
@@ -275,21 +321,6 @@ export const generateCommonUserIds = async (
 ) => {
   const totalUserIds: string[] = [];
   let commonUser: boolean = false;
-  const totalBranchIds = [branchIds];
-
-  const branchIdsGivenOnly = !departmentIds && !userIds && branchIds;
-  if (branchIdsGivenOnly) {
-    for (const branchId of branchIds) {
-      const getSubBranches = await findSubBranches(subdomain, branchId);
-      totalBranchIds.push(getSubBranches.map(b => b._id));
-    }
-
-    const branchUsersIds = (await findBranchUsers(subdomain, branchIds)).map(
-      b => b._id
-    );
-
-    return branchUsersIds;
-  }
 
   if (branchIds) {
     const branchUsers = await findBranchUsers(subdomain, branchIds);
@@ -565,12 +596,12 @@ export const handleUpload = async (
         salaryDoc.employeeId = value;
       }
 
-      if (value && index > 3) {
-        salaryDoc[SALARY_FIELDS[index - 3]] = value;
+      if (value) {
+        salaryDoc[SALARY_FIELDS[index]] = value;
       }
 
       if (value === '-') {
-        salaryDoc[SALARY_FIELDS[index - 3]] = 0;
+        salaryDoc[SALARY_FIELDS[index]] = 0;
       }
     }
 
@@ -636,11 +667,87 @@ export const findUnfinishedShiftsAndUpdate = async (subdomain: any) => {
     shiftStart: { $gte: YESTERDAY }
   });
 
+  const requestsObj: any = {};
+
+  const dateFormat = 'YYYY-MM-DD';
+
+  const agg = await models.Absences.aggregate([
+    {
+      $match: {
+        startTime: {
+          $gte: YESTERDAY
+        },
+        solved: true,
+        status: /Approved/gi
+      }
+    },
+    {
+      $sort: {
+        startTime: 1
+      }
+    },
+
+    {
+      $group: {
+        _id: '$userId',
+        docs: { $push: '$$ROOT' }
+      }
+    }
+  ]);
+
+  for (const a of agg) {
+    const userId = a._id;
+    const requests = a.docs;
+    const requestObj = {};
+
+    for (const req of requests) {
+      const { absenceTimeType } = req;
+
+      // by day
+      if (absenceTimeType === 'by day') {
+        for (const requestDate of req.requestDates) {
+          const date = dayjs(new Date(requestDate)).format(dateFormat);
+
+          requestObj[date] = { request: true };
+        }
+      }
+
+      // by hour
+      const date = dayjs(req.startTime).format(dateFormat);
+      requestObj[date] = { request: true };
+    }
+
+    requestsObj[userId] = requestObj;
+  }
+
   const bulkWriteOps: any[] = [];
 
   for (const unfinishedShift of unfinishedShifts) {
-    const getDateTimeOfShift = unfinishedShift.shiftStart;
-    const nextDay = dayjs(getDateTimeOfShift)
+    const { userId } = unfinishedShift;
+    const shiftStart = unfinishedShift.shiftStart;
+    const getTimeclockDay = dayjs(new Date(shiftStart)).format(dateFormat);
+
+    // if user sent request and request is approved for that day, prevent updating timeclock as shiftNotClosed:true
+    if (
+      userId &&
+      userId in requestsObj &&
+      getTimeclockDay in requestsObj[userId]
+    ) {
+      bulkWriteOps.push({
+        updateOne: {
+          filter: { _id: unfinishedShift._id },
+          update: {
+            $set: {
+              shiftEnd: shiftStart,
+              shiftActive: false
+            }
+          }
+        }
+      });
+      continue;
+    }
+
+    const nextDay = dayjs(shiftStart)
       .add(1, 'day')
       .format('YYYY-MM-DD');
 

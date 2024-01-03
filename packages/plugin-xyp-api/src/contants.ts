@@ -8,18 +8,3 @@ export const USER_FIELDS = {
   isActive: 1,
   details: 1
 };
-
-export const EXTEND_FIELDS = [
-  // {
-  //   _id: Math.random(),
-  //   name: 'data.xyp_data',
-  //   label: 'data',
-  //   type: 'string'
-  // },
-  // {
-  //   _id: Math.random(),
-  //   name: 'data.xyp_data',
-  //   label: 'Хувь хүний мэдээлэл',
-  //   type: 'string'
-  // }
-];

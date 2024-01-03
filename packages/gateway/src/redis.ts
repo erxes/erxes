@@ -11,7 +11,7 @@ const setAfterMutations = async () => {
   const result = {};
 
   for (const service of services) {
-    const info = await getService(service, true);
+    const info = await getService(service);
     const meta = Object.keys(info.config).includes('meta')
       ? (info.config as any).meta
       : {};
@@ -43,7 +43,7 @@ const setCommonResolvers = async name => {
   const result = {};
 
   for (const service of services) {
-    const info = await getService(service, true);
+    const info = await getService(service);
     const meta = Object.keys(info.config).includes('meta')
       ? (info.config as any).meta
       : {};

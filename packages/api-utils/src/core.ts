@@ -271,17 +271,11 @@ export const sendMessage = async (
     timeout
   } = args;
 
-  if (serviceName) {
-    if (!(await serviceDiscovery.isEnabled(serviceName))) {
+  if (serviceName && !(await serviceDiscovery.isEnabled(serviceName))) {
+    if (isRPC && defaultValue === undefined) {
+      throw new Error(`${serviceName} service is not enabled`);
+    } else {
       return defaultValue;
-    }
-
-    if (isRPC && !(await serviceDiscovery.isAvailable(serviceName))) {
-      if (process.env.NODE_ENV === 'development') {
-        throw new Error(`${serviceName} service is not available`);
-      } else {
-        return defaultValue;
-      }
     }
   }
 

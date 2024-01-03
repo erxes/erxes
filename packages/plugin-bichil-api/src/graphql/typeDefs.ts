@@ -80,16 +80,33 @@ const types = `
     shiftNotClosedDaysPerUser: String
     shiftNotClosedFee: String
     shiftNotClosedDeduction: String
-
+    
     latenessFee: String
     totalMinsLateDeduction: Float
+    
+    totalDaysAbsent: Int
+    absentFee: Int
+    absentDeduction: Int
 
     totalDeduction: Float
 
     totalHoursVacation : Float
     totalHoursUnpaidAbsence : Float
     totalHoursSick : Float
+
+
+
+    totalHoursWorkedSelectedDay: Float
+    totalHoursScheduledSelectedDay: Float
+    totalMinsLateSelectedDay: Float
     
+    totalHoursWorkedSelectedMonth: Float
+    totalDaysWorkedSelectedMonth: Int
+    totalHoursScheduledSelectedMonth: Float
+    totalDaysScheduledSelectedMonth:Int
+    totalMinsLateSelectedMonth: Float
+    totalDaysAbsentSelectedMonth: Int
+    totalHoursRequestsSelectedMonth: Float
   }
 
   type BichilScheduleReport {
@@ -119,6 +136,7 @@ const types = `
     totalHoursWorked: Float
     totalShiftNotClosedDeduction: Float
     totalLateMinsDeduction: Float
+    totalAbsentDeduction: Float
     totalDeductionPerGroup: Float
   }
 
@@ -134,6 +152,7 @@ const types = `
     adequateSalary: Float
     kpi: Float
     onAddition: Float
+    otherAddition: Float
     bonus: Float
     vacation: Float
     addition: Float
@@ -143,6 +162,7 @@ const types = `
     totalDeduction: Float
     totalSalary: Float
     preliminarySalary: Float
+    endSalary: Float
     kpiDeduction: Float
     onDeduction: Float
     bonusDeduction: Float
@@ -150,6 +170,7 @@ const types = `
     ndsh: Float
     hhoat: Float
     mainDeduction: Float
+    otherDeduction: Float
     salaryOnHand: Float
     receivable: Float
     biSan: Float
@@ -188,6 +209,8 @@ const queries = `
   bichilSalaryReport(page: Int, perPage: Int, employeeId: String): BichilSalaryReportsListResponse
 
   bichilSalaryByEmployee(password: String!): BichilSalaryReportsListResponse
+
+  bichilTimeclockReportByUser(selectedUser: String, selectedMonth: String, selectedYear: String, selectedDate:String): BichilUserReport
 
   bichilSalaryLabels: JSON
   bichilSalarySymbols: JSON

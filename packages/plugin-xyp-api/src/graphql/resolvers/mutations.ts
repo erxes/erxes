@@ -1,4 +1,3 @@
-// import { Xyps, Types } from '../../models';
 import { IContext } from '../../connectionResolver';
 import { convertToPropertyData } from '../../utils';
 

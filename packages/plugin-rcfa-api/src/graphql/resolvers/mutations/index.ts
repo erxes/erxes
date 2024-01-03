@@ -1,3 +1,3 @@
 import rfcaIssuesMutations from './rcfaIssues';
-
-export { rfcaIssuesMutations };
+import rcfaMutations from './rcfa';
+export { rfcaIssuesMutations, rcfaMutations };

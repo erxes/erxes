@@ -429,18 +429,19 @@ export interface IUserAbsenceInfo {
 export interface IUserExportReport {
   firstName?: string;
   lastName?: string;
+  fullName?: string;
   branchName?: string;
   employeeId?: string;
 
   position?: string;
   totalDaysWorked?: number;
-  totalHoursWorked?: string;
+  totalHoursWorked?: string | number;
   totalRegularHoursWorked?: string;
   totalDays?: number;
   totalWeekendDays?: number;
 
   totalDaysScheduled?: number;
-  totalHoursScheduled?: string;
+  totalHoursScheduled?: string | number;
 
   totalHoursOvertime?: string;
   totalHoursOvernight?: string;
@@ -478,6 +479,10 @@ export interface IUserExportReport {
 
   latenessFee?: number;
   totalMinsLateDeduction?: string | number;
+
+  totalDaysAbsent?: number;
+  absentFee?: number;
+  absentDeduction?: number;
 
   totalDeduction?: string | number;
 

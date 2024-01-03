@@ -265,7 +265,6 @@ function ReportList(props: Props) {
       'bichilExportReportBtn',
       { ...queryParams, reportType, isCurrentUserAdmin }
     );
-
     if (bichilExportReportBtn) {
       return bichilExportReportBtn;
     }

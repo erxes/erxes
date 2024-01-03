@@ -14,7 +14,8 @@ import {
   ContactItem,
   CallTabsContainer,
   CallTab,
-  CallTabContent
+  CallTabContent,
+  DisconnectCall
 } from '../styles';
 import { inCallTabs, numbers, symbols } from '../constants';
 import { FormControl } from '@erxes/ui/src/components/form';
@@ -36,7 +37,6 @@ import AssignBox from '@erxes/ui-inbox/src/inbox/containers/AssignBox';
 import { isEnabled } from '@erxes/ui/src/utils/core';
 import TaggerSection from '@erxes/ui-contacts/src/customers/components/common/TaggerSection';
 import { ICallConversation, ICustomer } from '../types';
-import { StepContent } from '@erxes/ui/src/components/step/styles';
 
 type Props = {
   addCustomer: (firstName: string, phoneNumber: string, callID: string) => void;
@@ -47,6 +47,7 @@ type Props = {
   taggerRefetchQueries: any;
   conversation: ICallConversation;
   addNote: (conversationId: string, content: string) => void;
+  disconnectCall: () => void;
 };
 const KeyPad = (props: Props, context) => {
   const Sip = context;
@@ -126,7 +127,9 @@ const KeyPad = (props: Props, context) => {
       }, 1000);
     }
 
-    return () => clearInterval(timer);
+    return () => {
+      clearInterval(timer);
+    };
   }, [call?.status]);
 
   const onTabClick = (tab: string) => {
@@ -158,11 +161,70 @@ const KeyPad = (props: Props, context) => {
   };
 
   const handleCallStop = () => {
-    const { stopCall, call } = context;
+    const { stopCall } = context;
 
     if (stopCall) {
       stopCall();
     }
+  };
+
+  const handleCallConnect = () => {
+    const integration = callIntegrationsOfUser?.find(
+      userIntegration => userIntegration.phone === callFrom
+    );
+
+    localStorage.setItem(
+      'callInfo',
+      JSON.stringify({
+        isRegistered: true,
+        isLogin: true
+      })
+    );
+
+    localStorage.setItem(
+      'config:call_integrations',
+      JSON.stringify({
+        inboxId: integration?.inboxId,
+        phone: integration?.phone,
+        wsServer: integration?.wsServer,
+        token: integration?.token,
+        operators: integration?.operators,
+        isAvailable: true
+      })
+    );
+    setConfig({
+      inboxId: integration?.inboxId,
+      phone: integration?.phone,
+      wsServer: integration?.wsServer,
+      token: integration?.token,
+      operators: integration?.operators,
+      isAvailable: true
+    });
+  };
+
+  const handleCallDisConnect = () => {
+    const integration = callIntegrationsOfUser?.find(
+      userIntegration => userIntegration.phone === callFrom
+    );
+    localStorage.setItem(
+      'config:call_integrations',
+      JSON.stringify({
+        inboxId: integration?.inboxId,
+        phone: integration?.phone,
+        wsServer: integration?.wsServer,
+        token: integration?.token,
+        operators: integration?.operators,
+        isAvailable: false
+      })
+    );
+    setConfig({
+      inboxId: integration?.inboxId,
+      phone: integration?.phone,
+      wsServer: integration?.wsServer,
+      token: integration?.token,
+      operators: integration?.operators,
+      isAvailable: false
+    });
   };
 
   const handNumPad = e => {
@@ -225,7 +287,7 @@ const KeyPad = (props: Props, context) => {
     setCallFrom(status.value);
 
     const integration = callIntegrationsOfUser?.find(
-      integration => integration.phone === status.value
+      userIntegration => userIntegration.phone === status.value
     );
     localStorage.setItem(
       'config:call_integrations',
@@ -441,17 +503,33 @@ const KeyPad = (props: Props, context) => {
           />
           <>
             {Sip.call?.status === CALL_STATUS_IDLE && (
-              <Button icon="outgoing-call" onClick={handleCall}>
-                Call
-              </Button>
+              <>
+                <Button icon="outgoing-call" onClick={handleCall}>
+                  Call
+                </Button>
+                <DisconnectCall>
+                  <Button
+                    btnStyle="danger"
+                    icon="signal-slash"
+                    onClick={handleCallDisConnect}
+                  >
+                    Disconnect Call
+                  </Button>
+                </DisconnectCall>
+              </>
             )}
-            {Sip.call?.status !== CALL_STATUS_IDLE && (
+            {Sip.call && Sip.call?.status !== CALL_STATUS_IDLE && (
               <Button
                 icon="phone-slash"
                 btnStyle="danger"
                 onClick={handleCallStop}
               >
                 End Call
+              </Button>
+            )}
+            {!Sip.call && (
+              <Button btnStyle="success" onClick={handleCallConnect}>
+                Connect to Call
               </Button>
             )}
           </>

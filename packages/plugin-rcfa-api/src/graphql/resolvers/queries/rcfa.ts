@@ -1,6 +1,10 @@
 import { paginate } from '@erxes/api-utils/src';
 import { IContext } from '../../../connectionResolver';
-import { sendCardsMessage } from '../../../messageBroker';
+import {
+  sendCardsMessage,
+  sendCoreMessage,
+  sendRiskAssessmentsMessage
+} from '../../../messageBroker';
 
 const generateFilters = async (params: any) => {
   const filter: any = {};
@@ -106,6 +110,61 @@ const RCFAQueries = {
     });
 
     return totalCardCount === cards.length;
+  },
+
+  async getAssessmentsScoreRCFA(
+    _root,
+    { ticketIds },
+    { models, subdomain }: IContext
+  ) {
+    const rcfa = await models.RCFA.find({
+      mainType: 'ticket',
+      mainTypeId: { $in: ticketIds }
+    });
+
+    const rcfaMainTypeIds = rcfa.map(r => r.mainTypeId);
+
+    const conformities = await sendCoreMessage({
+      subdomain,
+      action: 'conformities.findConformities',
+      data: {
+        mainType: 'ticket',
+        mainTypeId: { $in: rcfaMainTypeIds },
+        relType: 'task'
+      },
+      isRPC: true,
+      defaultValue: []
+    });
+
+    const conformityRelTypeIds = conformities.map(c => c.relTypeId);
+
+    const riskAssessments = await sendRiskAssessmentsMessage({
+      subdomain,
+      action: 'riskAssessments.find',
+      data: {
+        cardId: { $in: conformityRelTypeIds },
+        cardType: 'task'
+      },
+      isRPC: true,
+      defaultValue: []
+    });
+
+    return riskAssessments.map(riskAssessment => {
+      const ticketId = conformities.find(
+        c => c.relTypeId === riskAssessment?.cardId
+      )?.mainTypeId;
+
+      return {
+        ticketId,
+        taskId: riskAssessment?.cardId,
+        resultScore: riskAssessment?.resultScore,
+        statusColor: riskAssessment?.statusColor,
+        status: riskAssessment?.status,
+        createdAt: riskAssessment?.createdAt,
+        closedAt: riskAssessment?.closedAt,
+        indicatorId: riskAssessment?.indicatorId
+      };
+    });
   }
 };
 

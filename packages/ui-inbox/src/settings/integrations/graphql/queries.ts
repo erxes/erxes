@@ -95,6 +95,7 @@ const integrations = `
         name
         code
       }
+      createdAt
       webhookData
       leadData
       formId

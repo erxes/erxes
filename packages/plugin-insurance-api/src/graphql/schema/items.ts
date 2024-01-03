@@ -66,7 +66,8 @@ export const queries = `
       sortDirection: SortDirection
       searchField: SearchField
       searchValue: JSON): [InsuranceItem]
-    insuranceItemList(page: Int
+    insuranceItemList(
+      page: Int
       perPage: Int
       sortField: String
       sortDirection: SortDirection
@@ -74,15 +75,27 @@ export const queries = `
       searchValue: JSON): InsuranceItemListResult
     insuranceItem(_id: ID!): InsuranceItem
 
-    vendorInsuranceItems(   page: Int
+    vendorInsuranceItems(  
+      page: Int
       perPage: Int
       sortField: String
       sortDirection: SortDirection
       searchField: SearchField
       searchValue: JSON): InsuranceItemListResult
+    vendorInsuranceItem(_id: ID!): InsuranceItem
+    vendorItemsExport(page: Int
+      perPage: Int
+      sortField: String
+      sortDirection: SortDirection
+      searchField: SearchField
+      searchValue: JSON
+      categoryId: ID
+      ): JSON
+
+    vendorInsuranceItemsInfo: JSON
 `;
 
 export const mutations = `
     vendorAddInsuranceItem(doc: InsuranceItemInput): InsuranceItem
-    vendorEditInsuranceItem(_id: ID!, doc: InsuranceItemInput): InsuranceItem
+    vendorEditInsuranceItem(_id: ID!, firstName: String, lastName: String, customFieldsData: JSON ): InsuranceItem
 `;

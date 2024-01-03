@@ -22,6 +22,7 @@ const RoundedBackground = styledTS<{ type: string; size?: number }>(
     (props.type === 'twitter-dm' && colors.socialTwitter) ||
     (props.type === 'facebook-post' && colors.socialFacebook) ||
     (props.type === 'facebook-messenger' && colors.socialFacebookMessenger) ||
+    (props.type === 'instagram-messenger' && colors.socialInstagramMessenger) ||
     (props.type === 'gmail' && colors.socialGmail) ||
     (props.type === 'whatsapp' && colors.socialWhatsApp) ||
     (props.type.includes('nylas') && colors.socialGmail) ||
@@ -55,6 +56,9 @@ class IntegrationIcon extends React.PureComponent<Props> {
         break;
       case 'facebook-post':
         icon = 'facebook';
+        break;
+      case 'instagram-messenger':
+        icon = 'instagram';
         break;
       case 'messenger':
         icon = 'comment';

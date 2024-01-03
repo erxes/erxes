@@ -6,6 +6,7 @@ import { getGqlString } from '@erxes/ui/src/utils/core';
 import { InsuranceProduct } from '../../../gql/types';
 import ProductForm from '../components/Form';
 import { mutations, queries } from '../graphql';
+import { useQuery } from '@apollo/client';
 
 type Props = {
   product?: InsuranceProduct;
@@ -13,6 +14,14 @@ type Props = {
 };
 
 const ProductFormContainer = (props: Props) => {
+  let product = props.product;
+  const productQuery = useQuery(queries.GET_PRODUCT, {
+    skip: !props.product,
+    variables: {
+      _id: props.product && props.product._id
+    }
+  });
+
   const renderButton = ({
     values,
     isSubmitted,
@@ -37,9 +46,15 @@ const ProductFormContainer = (props: Props) => {
     );
   };
 
+  if (productQuery.data && productQuery.data.insuranceProduct) {
+    product = productQuery.data.insuranceProduct;
+  }
+
   const updatedProps = {
     ...props,
-    renderButton
+    product,
+    renderButton,
+    refetch: productQuery.refetch
   };
 
   return <ProductForm {...updatedProps} />;
