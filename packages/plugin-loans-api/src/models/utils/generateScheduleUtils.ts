@@ -62,16 +62,16 @@ export const scheduleHelper = async (
   let currentDate = getFullDate(startDate);
 
   const dateRange = contract.scheduleDays.sort((a, b) => a - b);
-  var mainDate = new Date(startDate);
+  let mainDate = new Date(startDate);
 
   var skipInterestCalcDate = addMonths(
     new Date(currentDate),
     contract.skipInterestCalcMonth || 0
   );
 
-  var endDate = addMonths(new Date(startDate), contract.tenor);
+  let endDate = addMonths(new Date(startDate), contract.tenor);
 
-  var dateRanges: Date[] = [];
+  let dateRanges: Date[] = [];
 
   for (let index = 0; index < contract.tenor + 2; index++) {
     dateRange.forEach((day, i) => {
@@ -245,8 +245,8 @@ export const reGenerateSchedules = async (
     startDate,
     balance,
     tenor,
-    contract.salvageAmount || 0,
-    contract.salvageTenor || 0,
+    contract.salvageAmount ?? 0,
+    contract.salvageTenor ?? 0,
     nextDate,
     perHolidays
   );
@@ -260,8 +260,8 @@ export const reGenerateSchedules = async (
     contract,
     bulkEntries,
     startDate,
-    contract.salvageAmount || 0,
-    contract.salvageTenor || 0,
+    contract.salvageAmount ?? 0,
+    contract.salvageTenor ?? 0,
     0,
     0,
     nextDate,

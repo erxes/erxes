@@ -228,7 +228,7 @@ export const getEqualPay = async ({
   return Math.round((leaseAmount - (salvage || 0) * ratio) / mainRatio);
 };
 
-export const calcPerMonthFixed = (
+export const calcPerMonthFixed = async (
   doc: IContractDocument,
   balance: number,
   currentDate: Date,
