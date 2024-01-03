@@ -494,14 +494,14 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
       _limit = 10000;
     }
 
-    // if (
-    //   !unlimited &&
-    //   page === 1 &&
-    //   perPage === 20 &&
-    //   (paramKeys === 'page,perPage' || paramKeys === 'page,perPage,type')
-    // ) {
-    return this.findAllMongo(_limit);
-    // }
+    if (
+      !unlimited &&
+      page === 1 &&
+      perPage === 20 &&
+      (paramKeys === 'page,perPage' || paramKeys === 'page,perPage,type')
+    ) {
+      return this.findAllMongo(_limit);
+    }
 
     const queryOptions: any = {
       query: {
