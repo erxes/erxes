@@ -1,28 +1,36 @@
 import {
-  Button,
-  ModalTrigger,
-  BarItems,
-  HeaderDescription,
-  FormControl,
-  DataWithLoader,
-  Wrapper,
-  Pagination,
-  Table,
-  router,
-  __,
-  generateTree
-} from '@erxes/ui/src';
-import {
   DepartmentsMainQueryResponse,
   IDepartment
 } from '@erxes/ui/src/team/types';
+import {
+  FilterContainer,
+  InputBar,
+  LeftActionBar,
+  Title
+} from '@erxes/ui-settings/src/styles';
+import { __, router } from '@erxes/ui/src/utils';
+
+import ActionButtons from '@erxes/ui/src/components/ActionButtons';
+import { BarItems } from 'modules/layout/styles';
+import Button from 'modules/common/components/Button';
+import DataWithLoader from 'modules/common/components/DataWithLoader';
+import Form from '../../containers/common/BlockForm';
+import FormControl from 'modules/common/components/form/Control';
+import Icon from '@erxes/ui/src/components/Icon';
+import LeftSidebar from '@erxes/ui/src/layout/components/Sidebar';
+import ModalTrigger from 'modules/common/components/ModalTrigger';
+import Pagination from 'modules/common/components/pagination/Pagination';
 import React from 'react';
-import SettingsSideBar from '../common/SettingsSideBar';
-import Form from '../../containers/department/Form';
-import { queries } from '@erxes/ui/src/team/graphql';
-import gql from 'graphql-tag';
+import SettingsSideBar from '../../containers/common/SettingSideBar';
+import SidebarHeader from '@erxes/ui-settings/src/common/components/SidebarHeader';
+import Table from 'modules/common/components/table';
+import Tip from '@erxes/ui/src/components/Tip';
+import Wrapper from 'modules/layout/components/Wrapper';
 import { generatePaginationParams } from '@erxes/ui/src/utils/router';
-import { DescriptionContentRow } from '../common/DescriptionContentRow';
+import { generateTree } from '../../utils';
+import { gql } from '@apollo/client';
+import { queries } from '@erxes/ui/src/team/graphql';
+
 type Props = {
   listQuery: DepartmentsMainQueryResponse;
   queryParams: any;
@@ -56,12 +64,29 @@ class MainList extends React.Component<Props, State> {
     }
   ];
 
+  remove = (_id?: string) => {
+    if (_id) {
+      this.props.deleteDepartments([_id], () =>
+        this.setState({ selectedItems: [] })
+      );
+    } else {
+      this.props.deleteDepartments(this.state.selectedItems, () =>
+        this.setState({ selectedItems: [] })
+      );
+    }
+  };
+
   renderForm() {
-    const trigger = <Button btnStyle="success">{__('Add Department')}</Button>;
+    const trigger = (
+      <Button btnStyle="success" icon="plus-circle">
+        {__('Add Department')}
+      </Button>
+    );
 
     const content = ({ closeModal }) => (
       <Form
         closeModal={closeModal}
+        queryType="departments"
         additionalRefetchQueries={this.refetchQueries()}
       />
     );
@@ -100,14 +125,19 @@ class MainList extends React.Component<Props, State> {
     };
 
     return (
-      <FormControl
-        type="text"
-        placeholder={__('Type to search')}
-        onChange={search}
-        value={this.state.searchValue}
-        autoFocus={true}
-        onFocus={moveCursorAtTheEnd}
-      />
+      <FilterContainer marginRight={true}>
+        <InputBar type="searchBar">
+          <Icon icon="search-1" size={20} />
+          <FormControl
+            type="text"
+            placeholder={__('Type to search')}
+            onChange={search}
+            value={this.state.searchValue}
+            autoFocus={true}
+            onFocus={moveCursorAtTheEnd}
+          />
+        </InputBar>
+      </FilterContainer>
     );
   }
 
@@ -129,6 +159,14 @@ class MainList extends React.Component<Props, State> {
     };
 
     const trigger = (
+      <Button btnStyle="link">
+        <Tip text={__('Edit')} placement="top">
+          <Icon icon="edit-3" />
+        </Tip>
+      </Button>
+    );
+
+    return (
       <tr key={department._id}>
         <td onClick={onclick}>
           <FormControl
@@ -141,22 +179,31 @@ class MainList extends React.Component<Props, State> {
         <td>{__(department.title)}</td>
         <td>{__(department?.supervisor?.email || '-')}</td>
         <td>{department.userCount}</td>
+        <td>
+          <ActionButtons>
+            <ModalTrigger
+              key={department._id}
+              title="Edit Department"
+              content={({ closeModal }) => (
+                <Form
+                  item={department}
+                  queryType="departments"
+                  additionalRefetchQueries={this.refetchQueries()}
+                  closeModal={closeModal}
+                />
+              )}
+              trigger={trigger}
+            />
+            <Tip text={__('Delete')} placement="top">
+              <Button
+                btnStyle="link"
+                onClick={() => this.remove(department._id)}
+                icon="times-circle"
+              />
+            </Tip>
+          </ActionButtons>
+        </td>
       </tr>
-    );
-
-    return (
-      <ModalTrigger
-        key={department._id}
-        title="Edit Department"
-        content={({ closeModal }) => (
-          <Form
-            department={department}
-            additionalRefetchQueries={this.refetchQueries()}
-            closeModal={closeModal}
-          />
-        )}
-        trigger={trigger}
-      />
     );
   }
 
@@ -174,16 +221,6 @@ class MainList extends React.Component<Props, State> {
       this.setState({ selectedItems: [] });
     };
 
-    const generateList = () => {
-      const list = departments.map(department => {
-        if (!departments.find(dep => dep._id === department.parentId)) {
-          department.parentId = null;
-        }
-        return department;
-      });
-      return list;
-    };
-
     return (
       <Table>
         <thead>
@@ -199,10 +236,14 @@ class MainList extends React.Component<Props, State> {
             <th>{__('Title')}</th>
             <th>{__('Supervisor')}</th>
             <th>{__('Team member count')}</th>
+            <th>{__('Actions')}</th>
           </tr>
         </thead>
         <tbody>
-          {generateTree(generateList(), null, (department, level) => {
+          {generateTree(departments, null, (department, level) => {
+            return this.renderRow(department, level);
+          })}
+          {generateTree(departments, '', (department, level) => {
             return this.renderRow(department, level);
           })}
         </tbody>
@@ -211,42 +252,30 @@ class MainList extends React.Component<Props, State> {
   }
 
   render() {
-    const { listQuery, deleteDepartments } = this.props;
+    const { listQuery } = this.props;
 
-    const { totalCount, totalUsersCount } = listQuery.departmentsMain;
+    const { totalCount } = listQuery.departmentsMain;
 
     const { selectedItems } = this.state;
-
-    const remove = () => {
-      deleteDepartments(selectedItems, () =>
-        this.setState({ selectedItems: [] })
-      );
-    };
 
     const rightActionBar = (
       <BarItems>
         {this.renderSearch()}
-        {!!selectedItems.length && (
-          <Button btnStyle="danger" onClick={remove}>
-            {__(`Remove ${selectedItems.length}`)}
-          </Button>
-        )}
         {this.renderForm()}
       </BarItems>
     );
 
-    const leftActionBar = (
-      <HeaderDescription
-        title="Departments"
-        icon="/images/actions/21.svg"
-        description=""
-        renderExtra={DescriptionContentRow({
-          label: 'departments',
-          totalCount: totalCount,
-          teamMembersCount: totalUsersCount
-        })}
-      />
+    const leftActionBar = selectedItems.length > 0 && (
+      <Button
+        btnStyle="danger"
+        size="small"
+        icon="times-circle"
+        onClick={() => this.remove()}
+      >
+        Remove
+      </Button>
     );
+
     return (
       <Wrapper
         header={
@@ -259,7 +288,18 @@ class MainList extends React.Component<Props, State> {
           />
         }
         actionBar={
-          <Wrapper.ActionBar right={rightActionBar} left={leftActionBar} />
+          <Wrapper.ActionBar
+            right={rightActionBar}
+            left={
+              <LeftActionBar>
+                <Title capitalize={true}>
+                  {__('Departments')}&nbsp;
+                  {`(${totalCount || 0})`}
+                </Title>
+                {leftActionBar}
+              </LeftActionBar>
+            }
+          />
         }
         content={
           <DataWithLoader
@@ -270,8 +310,13 @@ class MainList extends React.Component<Props, State> {
             emptyText="No Branches"
           />
         }
-        leftSidebar={<SettingsSideBar />}
+        leftSidebar={
+          <LeftSidebar header={<SidebarHeader />} hasBorder={true}>
+            <SettingsSideBar />
+          </LeftSidebar>
+        }
         footer={<Pagination count={totalCount || 0} />}
+        hasBorder={true}
       />
     );
   }

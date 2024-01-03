@@ -39,7 +39,7 @@ class Histories extends React.Component<Props & IRouterProps> {
             <th>{__('Name')}</th>
             <th>{__('Records')}</th>
             <th>{__('Updated records')}</th>
-            <th>{__('Error Count')}</th>
+            <th>{__('Errors')}</th>
             <th>{__('User')}</th>
             <th>{__('Date')}</th>
             <th>{__('Action')}</th>
@@ -70,6 +70,9 @@ class Histories extends React.Component<Props & IRouterProps> {
         break;
       case 'deal':
         buttonText = 'sales pipelines';
+        break;
+      case 'purchase':
+        buttonText = 'purchases pipelines';
         break;
       case 'user':
         buttonText = 'team members';
@@ -129,7 +132,13 @@ class Histories extends React.Component<Props & IRouterProps> {
             wideSpacing={true}
           />
         }
-        leftSidebar={<Sidebar history={history} currentType={currentType} />}
+        leftSidebar={
+          <Sidebar
+            history={history}
+            currentType={currentType}
+            mainType="import"
+          />
+        }
         mainHead={headerDescription}
         footer={<Pagination count={totalCount} />}
         content={

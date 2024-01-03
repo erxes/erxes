@@ -1,5 +1,6 @@
 export interface IQpayInvoice {
   invoice_code: string;
+  sender_terminal_code?: string;
   sender_invoice_no: string;
   invoice_receiver_code: string;
   invoice_description: string;
@@ -20,6 +21,11 @@ export interface IMonpayInvoice {
   generateUuid: boolean;
   displayName: string;
   callbackUrl: string;
+}
+
+export interface IPocketInvoice {
+  amount: number;
+  info: string;
 }
 
 export interface IMonpayConfig {

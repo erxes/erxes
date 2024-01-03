@@ -1,9 +1,5 @@
 import { Document, Schema } from 'mongoose';
-import {
-  customFieldSchema,
-  ICustomField,
-  ILink
-} from '@erxes/api-utils/src/types';
+import { customFieldSchema, ICustomField, ILink } from '../types';
 import { IPermissionDocument } from './permissions';
 import { field, schemaWrapper } from './utils';
 import { USER_ROLES } from '../constants';
@@ -75,8 +71,8 @@ export interface IUserDocument extends IUser, Document {
 // Mongoose schemas ===============================
 const emailSignatureSchema = new Schema(
   {
-    brandId: field({ type: String, label: 'Brand' }),
-    signature: field({ type: String, label: 'Signature' })
+    brandId: field({ type: String, label: 'Email signature nrand' }),
+    signature: field({ type: String, label: 'Email signature' })
   },
   { _id: false }
 );

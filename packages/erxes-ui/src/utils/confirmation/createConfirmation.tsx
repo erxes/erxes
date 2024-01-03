@@ -28,9 +28,9 @@ const createConfirmation = (unmountDelay = 1000) => {
       }
     });
 
-    return promise.then(() => {
+    return promise.then(value => {
       dismiss();
-      return;
+      return value;
     });
   };
 };

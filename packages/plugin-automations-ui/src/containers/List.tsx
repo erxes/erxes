@@ -1,13 +1,17 @@
 import * as compose from 'lodash.flowright';
 
 import {
+  IAutomation,
   AddMutationResponse,
   CountQueryResponse,
   IAutomationDoc,
   ListQueryVariables,
   MainQueryResponse,
   RemoveMutationResponse,
-  RemoveMutationVariables
+  ArchiveMutationResponse,
+  RemoveMutationVariables,
+  ArchiveMutationVariables,
+  EditMutationResponse
 } from '../types';
 import { Alert, confirm, withProps } from '@erxes/ui/src/utils';
 import { mutations, queries } from '../graphql';
@@ -18,8 +22,8 @@ import { IRouterProps } from '@erxes/ui/src/types';
 import List from '../components/List';
 import React from 'react';
 import { generatePaginationParams } from '@erxes/ui/src/utils/router';
-import gql from 'graphql-tag';
-import { graphql } from 'react-apollo';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
 import { withRouter } from 'react-router-dom';
 
 type Props = {
@@ -34,7 +38,9 @@ type FinalProps = {
 } & Props &
   IRouterProps &
   RemoveMutationResponse &
-  AddMutationResponse;
+  AddMutationResponse &
+  EditMutationResponse &
+  ArchiveMutationResponse;
 
 type State = {
   loading: boolean;
@@ -69,6 +75,7 @@ class ListContainer extends React.Component<FinalProps, State> {
       automationsTotalCountQuery,
       automationsRemove,
       addAutomationMutation,
+      automationsArchive,
       duplicateMutation,
       history
     } = this.props;
@@ -118,6 +125,24 @@ class ListContainer extends React.Component<FinalProps, State> {
       });
     };
 
+    const archiveAutomations = ({ automationIds, isRestore }, emptyBulk) => {
+      confirm().then(() => {
+        automationsArchive({ variables: { automationIds, isRestore } })
+          .then(() => {
+            emptyBulk();
+            Alert.success(
+              'You successfully archived a automation. The changes will take a few seconds',
+              4500
+            );
+
+            this.refetchWithDelay();
+          })
+          .catch(e => {
+            Alert.error(e.message);
+          });
+      });
+    };
+
     const duplicate = _id => {
       confirm().then(() => {
         duplicateMutation({
@@ -146,6 +171,7 @@ class ListContainer extends React.Component<FinalProps, State> {
       addAutomation,
       duplicate,
       removeAutomations,
+      archiveAutomations,
       refetch: this.refetchWithDelay
     };
 
@@ -162,6 +188,16 @@ class ListContainer extends React.Component<FinalProps, State> {
   }
 }
 
+const generateParamsIds = ids => {
+  if (!ids?.length) {
+    return undefined;
+  }
+  if (typeof ids === 'string') {
+    return [ids];
+  }
+  return ids;
+};
+
 const generateParams = ({ queryParams }) => {
   return {
     ...generatePaginationParams(queryParams),
@@ -171,7 +207,8 @@ const generateParams = ({ queryParams }) => {
     sortField: queryParams.sortField,
     sortDirection: queryParams.sortDirection
       ? parseInt(queryParams.sortDirection, 10)
-      : undefined
+      : undefined,
+    tagIds: generateParamsIds(queryParams.tagIds)
   };
 };
 
@@ -224,6 +261,24 @@ export default withProps<Props>(
       gql(mutations.automationsRemove),
       {
         name: 'automationsRemove',
+        options: ({ queryParams }) => ({
+          refetchQueries: getRefetchQueries(queryParams)
+        })
+      }
+    ),
+    graphql<Props, RemoveMutationResponse, ArchiveMutationVariables>(
+      gql(mutations.archiveAutomations),
+      {
+        name: 'automationsArchive',
+        options: ({ queryParams }) => ({
+          refetchQueries: getRefetchQueries(queryParams)
+        })
+      }
+    ),
+    graphql<Props, EditMutationResponse, IAutomation>(
+      gql(mutations.archiveAutomations),
+      {
+        name: 'editMutation',
         options: ({ queryParams }) => ({
           refetchQueries: getRefetchQueries(queryParams)
         })

@@ -1,22 +1,27 @@
-import * as AWS from 'aws-sdk';
 import utils from '@erxes/api-utils/src';
+import { USER_ROLES } from '@erxes/api-utils/src/constants';
+import * as AWS from 'aws-sdk';
 import * as fileType from 'file-type';
 import * as admin from 'firebase-admin';
 import * as fs from 'fs';
+import * as Handlebars from 'handlebars';
+import * as jimp from 'jimp';
+import * as nodemailer from 'nodemailer';
 import * as path from 'path';
 import * as xlsxPopulate from 'xlsx-populate';
+import * as FormData from 'form-data';
+import fetch from 'node-fetch';
+import { IModels } from '../connectionResolver';
 import { IUserDocument } from '../db/models/definitions/users';
 import { debugBase, debugError } from '../debuggers';
-import memoryStorage from '../inmemoryStorage';
+import {
+  sendCommonMessage,
+  sendContactsMessage,
+  sendLogsMessage
+} from '../messageBroker';
 import { graphqlPubsub } from '../pubsub';
-import * as _ from 'underscore';
-import * as Handlebars from 'handlebars';
-import * as nodemailer from 'nodemailer';
-import { sendLogsMessage } from '../messageBroker';
-import { IModels } from '../connectionResolver';
-import { USER_ROLES } from '@erxes/api-utils/src/constants';
-import { redis } from '../serviceDiscovery';
-import { sendContactsMessage } from '../messageBroker';
+import { getService, getServices, redis } from '../serviceDiscovery';
+import { IActionsMap, IModuleMap } from './permissions/utils';
 
 export interface IEmailParams {
   toEmails?: string[];
@@ -32,20 +37,12 @@ export interface IEmailParams {
 /**
  * Read contents of a file
  */
-export const readFile = (filename: string) => {
-  let folder = 'dist/core/src';
-
-  if (process.env.NODE_ENV !== 'production') {
-    folder = 'src';
-  }
-
-  if (fs.existsSync('./build/api')) {
-    folder = 'build/api';
-  }
-
-  const filePath = `./${folder}/private/emailTemplates/${filename}.html`;
-
-  return fs.readFileSync(filePath, 'utf8');
+export const readFile = async (filename: string) => {
+  const filePath = path.resolve(
+    __dirname,
+    `../private/emailTemplates/${filename}.html`
+  );
+  return fs.promises.readFile(filePath, 'utf8');
 };
 
 /**
@@ -250,24 +247,36 @@ export const createTransporter = async ({ ses }, models?: IModels) => {
 
 export const uploadsFolderPath = path.join(__dirname, '../private/uploads');
 
-export const initFirebase = async (models: IModels): Promise<void> => {
-  const config = await models.Configs.findOne({
-    code: 'GOOGLE_APPLICATION_CREDENTIALS_JSON'
-  });
+export const initFirebase = async (
+  models: IModels,
+  customConfig?: string
+): Promise<void> => {
+  let codeString = 'value';
 
-  if (!config) {
-    return;
+  if (customConfig) {
+    codeString = customConfig;
+  } else {
+    const config = await models.Configs.findOne({
+      code: 'GOOGLE_APPLICATION_CREDENTIALS_JSON'
+    });
+
+    if (!config) {
+      return;
+    }
+    codeString = config.value;
   }
-
-  const codeString = config.value || 'value';
 
   if (codeString[0] === '{' && codeString[codeString.length - 1] === '}') {
     const serviceAccount = JSON.parse(codeString);
 
     if (serviceAccount.private_key) {
-      await admin.initializeApp({
-        credential: admin.credential.cert(serviceAccount)
-      });
+      try {
+        await admin.initializeApp({
+          credential: admin.credential.cert(serviceAccount)
+        });
+      } catch (e) {
+        console.log(`initFireBase error: ${e.message}`);
+      }
     }
   }
 };
@@ -297,7 +306,8 @@ export const checkFile = async (models: IModels, file, source?: string) => {
     'text/csv',
     'image/svg+xml',
     'text/plain',
-    'application/vnd.ms-excel'
+    'application/vnd.ms-excel',
+    'audio/mp3'
   ];
 
   const oldMsOfficeDocs = [
@@ -329,7 +339,8 @@ export const checkFile = async (models: IModels, file, source?: string) => {
     'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
     'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
     'application/pdf',
-    'image/gif'
+    'image/gif',
+    'audio/mp4'
   ];
 
   const UPLOAD_FILE_TYPES = await getConfig(
@@ -338,13 +349,10 @@ export const checkFile = async (models: IModels, file, source?: string) => {
     models
   );
 
-  if (
-    !(
-      (UPLOAD_FILE_TYPES && UPLOAD_FILE_TYPES.split(',')) ||
-      defaultMimeTypes
-    ).includes(mime)
-  ) {
-    return 'Invalid configured file type';
+  if (!(UPLOAD_FILE_TYPES && UPLOAD_FILE_TYPES.split(',')).includes(mime)) {
+    if (!defaultMimeTypes.includes(mime)) {
+      return 'Invalid configured file type';
+    }
   }
 
   return 'ok';
@@ -424,6 +432,224 @@ const createGCS = async (models?: IModels) => {
 };
 
 /*
+ * Create Google Cloud Storage instance
+ */
+const createCFR2 = async (models?: IModels) => {
+  const CLOUDFLARE_ACCOUNT_ID = await getConfig(
+    'CLOUDFLARE_ACCOUNT_ID',
+    '',
+    models
+  );
+  const CLOUDFLARE_ACCESS_KEY_ID = await getConfig(
+    'CLOUDFLARE_ACCESS_KEY_ID',
+    '',
+    models
+  );
+  const CLOUDFLARE_SECRET_ACCESS_KEY = await getConfig(
+    'CLOUDFLARE_SECRET_ACCESS_KEY',
+    '',
+    models
+  );
+  const CLOUDFLARE_ENDPOINT = `https://${CLOUDFLARE_ACCOUNT_ID}.r2.cloudflarestorage.com`;
+
+  if (!CLOUDFLARE_ACCESS_KEY_ID || !CLOUDFLARE_SECRET_ACCESS_KEY) {
+    throw new Error('Cloudflare Credentials are not configured');
+  }
+
+  const options: {
+    endpoint?: string;
+    accessKeyId: string;
+    secretAccessKey: string;
+    signatureVersion: 'v4';
+    region: string;
+  } = {
+    endpoint: CLOUDFLARE_ENDPOINT,
+    accessKeyId: CLOUDFLARE_ACCESS_KEY_ID,
+    secretAccessKey: CLOUDFLARE_SECRET_ACCESS_KEY,
+    signatureVersion: 'v4',
+    region: 'auto'
+  };
+
+  return new AWS.S3(options);
+};
+
+const uploadToCFImages = async (
+  file: any,
+  forcePrivate?: boolean,
+  models?: IModels
+) => {
+  const CLOUDFLARE_ACCOUNT_ID = await getConfig(
+    'CLOUDFLARE_ACCOUNT_ID',
+    '',
+    models
+  );
+
+  const CLOUDFLARE_API_TOKEN = await getConfig(
+    'CLOUDFLARE_API_TOKEN',
+    '',
+    models
+  );
+
+  const CLOUDFLARE_BUCKET_NAME = await getConfig(
+    'CLOUDFLARE_BUCKET_NAME',
+    'erxes',
+    models
+  );
+
+  const IS_PUBLIC = forcePrivate
+    ? false
+    : await getConfig('FILE_SYSTEM_PUBLIC', 'true', models);
+
+  const url = `https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/images/v1`;
+  const headers = {
+    Authorization: `Bearer ${CLOUDFLARE_API_TOKEN}`
+  };
+
+  const fileName = `${Math.random()}${file.name.replace(/ /g, '')}`;
+
+  const formData = new FormData();
+  formData.append('file', fs.createReadStream(file.path));
+  formData.append('id', `${CLOUDFLARE_BUCKET_NAME}/${fileName}`);
+
+  const response = await fetch(url, {
+    method: 'POST',
+    headers,
+    body: formData
+  });
+
+  const data = await response.json();
+
+  if (!data.success) {
+    throw new Error('Error uploading file to Cloudflare Images');
+  }
+
+  if (data.result.variants.length === 0) {
+    throw new Error('Error uploading file to Cloudflare Images');
+  }
+
+  if (!IS_PUBLIC || IS_PUBLIC === 'false') {
+    return CLOUDFLARE_BUCKET_NAME + '/' + fileName;
+  }
+
+  return data.result.variants[0];
+};
+
+// upload file to Cloudflare stream
+const uploadToCFStream = async (file: any, models?: IModels) => {
+  const CLOUDFLARE_ACCOUNT_ID = await getConfig(
+    'CLOUDFLARE_ACCOUNT_ID',
+    '',
+    models
+  );
+
+  const CLOUDFLARE_API_TOKEN = await getConfig(
+    'CLOUDFLARE_API_TOKEN',
+    '',
+    models
+  );
+
+  const url = `https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/stream`;
+  const headers = {
+    Authorization: `Bearer ${CLOUDFLARE_API_TOKEN}`
+  };
+
+  const fileName = `${Math.random()}${file.name.replace(/ /g, '')}`;
+
+  const formData = new FormData();
+  formData.append('file', fs.createReadStream(file.path));
+  formData.append('id', fileName);
+
+  const response = await fetch(url, {
+    method: 'POST',
+    headers,
+    body: formData
+  });
+
+  const data = await response.json();
+
+  if (!data.success) {
+    throw new Error('Error uploading file to Cloudflare Stream');
+  }
+
+  return data.result.playback.hls;
+};
+
+/*
+ * Save file to Cloudflare
+ */
+
+export const uploadFileCloudflare = async (
+  file: { name: string; path: string; type: string },
+  forcePrivate: boolean = false,
+  models?: IModels
+): Promise<string> => {
+  const CLOUDFLARE_BUCKET = await getConfig(
+    'CLOUDFLARE_BUCKET_NAME',
+    '',
+    models
+  );
+
+  const CLOUDFLARE_USE_CDN = await getConfig(
+    'CLOUDFLARE_USE_CDN',
+    'false',
+    models
+  );
+
+  const detectedType = fileType(fs.readFileSync(file.path));
+
+  if (
+    (CLOUDFLARE_USE_CDN === 'true' || CLOUDFLARE_USE_CDN === true) &&
+    detectedType &&
+    isImage(detectedType.mime) &&
+    !['image/heic', 'image/heif'].includes(detectedType.mime)
+  ) {
+    return uploadToCFImages(file, forcePrivate, models);
+  }
+
+  if (
+    (CLOUDFLARE_USE_CDN === 'true' || CLOUDFLARE_USE_CDN === true) &&
+    detectedType &&
+    isVideo(detectedType.mime)
+  ) {
+    return uploadToCFStream(file, models);
+  }
+
+  const IS_PUBLIC = forcePrivate
+    ? false
+    : await getConfig('FILE_SYSTEM_PUBLIC', 'true', models);
+
+  // generate unique name
+  const fileName = `${Math.random()}${file.name.replace(/ /g, '')}`;
+
+  // read file
+  const buffer = await fs.readFileSync(file.path);
+
+  // initialize r2
+  const r2 = await createCFR2(models);
+
+  // upload to r2
+  const response: any = await new Promise((resolve, reject) => {
+    r2.upload(
+      {
+        ContentType: file.type,
+        Bucket: CLOUDFLARE_BUCKET,
+        Key: fileName,
+        Body: buffer,
+        ACL: IS_PUBLIC === 'true' ? 'public-read' : undefined
+      },
+      (err, res) => {
+        if (err) {
+          return reject(err);
+        }
+
+        return resolve(res);
+      }
+    );
+  });
+  return IS_PUBLIC === 'true' ? response.Location : fileName;
+};
+
+/*
  * Save binary data to amazon s3
  */
 export const uploadFileAWS = async (
@@ -441,6 +667,7 @@ export const uploadFileAWS = async (
   const s3 = await createAWS(models);
 
   // generate unique name
+
   const fileName = `${AWS_PREFIX}${Math.random()}${file.name.replace(
     / /g,
     ''
@@ -470,6 +697,34 @@ export const uploadFileAWS = async (
   });
 
   return IS_PUBLIC === 'true' ? response.Location : fileName;
+};
+
+/*
+ * Delete file from Cloudflare
+ */
+export const deleteFileCloudflare = async (
+  fileName: string,
+  models?: IModels
+) => {
+  const CLOUDFLARE_BUCKET = await getConfig(
+    'CLOUDFLARE_BUCKET_NAME',
+    '',
+    models
+  );
+
+  const params = { Bucket: CLOUDFLARE_BUCKET, Key: fileName };
+
+  // initialize r2
+  const r2 = await createCFR2(models);
+
+  return new Promise((resolve, reject) => {
+    r2.deleteObject(params, err => {
+      if (err) {
+        return reject(err);
+      }
+      return resolve('ok');
+    });
+  });
 };
 
 /*
@@ -610,10 +865,120 @@ const deleteFileGCS = async (fileName: string, models?: IModels) => {
 /**
  * Read file from GCS, AWS
  */
-export const readFileRequest = async (
+
+const readFromCFImages = async (
   key: string,
+  width?: number,
   models?: IModels
-): Promise<any> => {
+) => {
+  const CLOUDFLARE_ACCOUNT_HASH = await getConfig(
+    'CLOUDFLARE_ACCOUNT_HASH',
+    '',
+    models
+  );
+
+  const CLOUDFLARE_BUCKET_NAME = await getConfig(
+    'CLOUDFLARE_BUCKET_NAME',
+    '',
+    models
+  );
+
+  let fileName = key;
+
+  if (!key.startsWith(CLOUDFLARE_BUCKET_NAME)) {
+    fileName = `${CLOUDFLARE_BUCKET_NAME}/${key}`;
+  }
+
+  if (!CLOUDFLARE_ACCOUNT_HASH) {
+    throw new Error('Cloudflare Account Hash is not configured');
+  }
+
+  let url = `https://imagedelivery.net/${CLOUDFLARE_ACCOUNT_HASH}/${fileName}/public`;
+
+  if (width) {
+    url = `https://imagedelivery.net/${CLOUDFLARE_ACCOUNT_HASH}/${fileName}/w=${width}`;
+  }
+
+  return new Promise(resolve => {
+    fetch(url)
+      .then(res => {
+        if (!res.ok || res.status !== 200) {
+          return readFromCR2(key, models);
+        }
+        return res.buffer();
+      })
+      .then(buffer => resolve(buffer))
+      .catch(_err => {
+        return readFromCR2(key, models);
+      });
+  });
+};
+
+const readFromCR2 = async (key: string, models?: IModels) => {
+  const CLOUDFLARE_R2_BUCKET = await getConfig(
+    'CLOUDFLARE_BUCKET_NAME',
+    '',
+    models
+  );
+
+  const r2 = await createCFR2(models);
+
+  return new Promise((resolve, reject) => {
+    r2.getObject(
+      {
+        Bucket: CLOUDFLARE_R2_BUCKET,
+        Key: key
+      },
+      (error, response) => {
+        if (error) {
+          if (
+            error.code === 'NoSuchKey' &&
+            error.message.includes('key does not exist')
+          ) {
+            console.log('file does not exist with key: ', key);
+
+            return resolve(null);
+          }
+
+          return reject(error);
+        }
+
+        return resolve(response.Body);
+      }
+    );
+  });
+};
+
+export const readFileRequest = async ({
+  key,
+  subdomain,
+  models,
+  userId,
+  width
+}: {
+  key: string;
+  subdomain: string;
+  models?: IModels;
+  userId: string;
+  width?: number;
+}): Promise<any> => {
+  const services = await getServices();
+
+  for (const serviceName of services) {
+    const service = await getService(serviceName);
+    const meta = service.config?.meta || {};
+
+    if (meta && meta.readFileHook) {
+      await sendCommonMessage({
+        subdomain,
+        action: 'readFileHook',
+        isRPC: true,
+        serviceName,
+        data: { key, userId }
+      });
+    }
+  }
+
   const UPLOAD_SERVICE_TYPE = await getConfig(
     'UPLOAD_SERVICE_TYPE',
     'AWS',
@@ -668,6 +1033,23 @@ export const readFileRequest = async (
     });
   }
 
+  if (UPLOAD_SERVICE_TYPE === 'CLOUDFLARE') {
+    const CLOUDFLARE_USE_CDN = await getConfig(
+      'CLOUDFLARE_USE_CDN',
+      'false',
+      models
+    );
+
+    if (
+      (CLOUDFLARE_USE_CDN === 'true' || CLOUDFLARE_USE_CDN === true) &&
+      isImage(key)
+    ) {
+      return readFromCFImages(key, width, models);
+    }
+
+    return readFromCR2(key, models);
+  }
+
   if (UPLOAD_SERVICE_TYPE === 'local') {
     return new Promise((resolve, reject) => {
       fs.readFile(`${uploadsFolderPath}/${key}`, (error, response) => {
@@ -707,6 +1089,10 @@ export const uploadFile = async (
     nameOrLink = await uploadFileGCS(file, models);
   }
 
+  if (UPLOAD_SERVICE_TYPE === 'CLOUDFLARE') {
+    nameOrLink = await uploadFileCloudflare(file, false, models);
+  }
+
   if (UPLOAD_SERVICE_TYPE === 'local') {
     nameOrLink = await uploadFileLocal(file);
   }
@@ -740,6 +1126,10 @@ export const deleteFile = async (
 
   if (UPLOAD_SERVICE_TYPE === 'GCS') {
     return deleteFileGCS(fileName, models);
+  }
+
+  if (UPLOAD_SERVICE_TYPE === 'CLOUDFLARE') {
+    return deleteFileCloudflare(fileName, models);
   }
 
   if (UPLOAD_SERVICE_TYPE === 'local') {
@@ -808,8 +1198,8 @@ export const getConfig = async (
   return configs[code];
 };
 
-export const resetConfigsCache = () => {
-  memoryStorage().set('configs_erxes_api', '');
+export const resetConfigsCache = async () => {
+  await redis.set('configs_erxes_api', '');
 };
 
 export const getCoreDomain = () => {
@@ -898,12 +1288,14 @@ export const configReplacer = config => {
 export const sendMobileNotification = async (
   models: IModels,
   {
+    customConfig,
     receivers,
     title,
     body,
     deviceTokens,
     data
   }: {
+    customConfig: string;
     receivers: string[];
     title: string;
     body: string;
@@ -912,7 +1304,7 @@ export const sendMobileNotification = async (
   }
 ): Promise<void> => {
   if (!admin.apps.length) {
-    await initFirebase(models);
+    await initFirebase(models, customConfig);
   }
 
   const transporter = admin.messaging();
@@ -931,14 +1323,6 @@ export const sendMobileNotification = async (
     tokens.push(...deviceTokens);
   }
 
-  //   if (customerId) {
-  //     tokens.push(
-  //       ...(await Customers.findOne({ _id: customerId }).distinct(
-  //         'deviceTokens'
-  //       ))
-  //     );
-  //   }
-
   if (tokens.length > 0) {
     // send notification
     for (const token of tokens) {
@@ -950,6 +1334,11 @@ export const sendMobileNotification = async (
         });
       } catch (e) {
         debugError(`Error occurred during firebase send: ${e.message}`);
+
+        await models.Users.updateOne(
+          { deviceTokens: token },
+          { $pull: { deviceTokens: token } }
+        );
       }
     }
   }
@@ -980,13 +1369,39 @@ export const getFileUploadConfigs = async (models: IModels) => {
     models
   );
 
+  const CLOUDFLARE_BUCKET_NAME = await getConfig(
+    'CLOUDFLARE_BUCKET_NAME',
+    'erxes',
+    models
+  );
+
+  const CLOUDFLARE_ACCOUNT_ID = await getConfig(
+    'CLOUDFLARE_ACCOUNT_ID',
+    '',
+    models
+  );
+  const CLOUDFLARE_ACCESS_KEY_ID = await getConfig(
+    'CLOUDFLARE_ACCESS_KEY_ID',
+    '',
+    models
+  );
+  const CLOUDFLARE_SECRET_ACCESS_KEY = await getConfig(
+    'CLOUDFLARE_SECRET_ACCESS_KEY',
+    '',
+    models
+  );
+
   return {
     AWS_FORCE_PATH_STYLE,
     AWS_COMPATIBLE_SERVICE_ENDPOINT,
     AWS_BUCKET,
     AWS_SECRET_ACCESS_KEY,
     AWS_ACCESS_KEY_ID,
-    UPLOAD_SERVICE_TYPE
+    UPLOAD_SERVICE_TYPE,
+    CLOUDFLARE_BUCKET_NAME,
+    CLOUDFLARE_ACCOUNT_ID,
+    CLOUDFLARE_ACCESS_KEY_ID,
+    CLOUDFLARE_SECRET_ACCESS_KEY
   };
 };
 
@@ -1032,6 +1447,49 @@ export const handleUnsubscription = async (
       { $set: { isSubscribed: 'No' } }
     );
   }
+};
+
+export const resizeImage = async (
+  file: any,
+  maxWidth?: number,
+  maxHeight?: number
+) => {
+  try {
+    let image = await jimp.read(`${file.path}`);
+
+    if (!image) {
+      throw new Error('Error reading image');
+    }
+
+    if (maxWidth && image.getWidth() > maxWidth) {
+      image = image.resize(maxWidth, jimp.AUTO);
+    } else if (maxHeight && image.getHeight() > maxHeight) {
+      image = image.resize(jimp.AUTO, maxHeight);
+    }
+
+    await image.writeAsync(file.path);
+
+    return file;
+  } catch (error) {
+    console.error(error);
+    return file;
+  }
+};
+
+export const isImage = (mimetypeOrName: string) => {
+  const extensions = ['jpg', 'jpeg', 'png', 'gif', 'svg'];
+
+  // extract extension from file name
+  const extension = mimetypeOrName.split('.').pop();
+  if (extensions.includes(extension || '')) {
+    return true;
+  }
+
+  return mimetypeOrName.includes('image');
+};
+
+export const isVideo = (mimeType: string) => {
+  return mimeType.includes('video');
 };
 
 export const getEnv = utils.getEnv;

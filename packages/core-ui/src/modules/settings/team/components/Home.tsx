@@ -1,25 +1,29 @@
-import React, { useState } from 'react';
-import Select from 'react-select-plus';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { __ } from 'modules/common/utils';
-import UserList from '../containers/UserList';
-import Sidebar from './Sidebar';
-import { menuContacts } from '@erxes/ui/src/utils/menus';
-import { FlexItem, FlexRow } from '@erxes/ui-settings/src/styles';
-import { FilterContainer, InputBar } from '@erxes/ui-settings/src/styles';
 import { ControlLabel, FormControl } from '@erxes/ui/src/components/form';
-import { router } from '@erxes/ui/src/utils';
-import SelectBrands from '@erxes/ui/src/brands/containers/SelectBrands';
-import UserInvitationForm from '../containers/UserInvitationForm';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import {
+  FilterContainer,
+  InputBar,
+  Title
+} from '@erxes/ui-settings/src/styles';
+import { FlexItem, FlexRow } from '@erxes/ui-settings/src/styles';
+import React, { useState } from 'react';
+
 import Button from '@erxes/ui/src/components/Button';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { IUserGroup } from '@erxes/ui-settings/src/permissions/types';
+import Icon from '@erxes/ui/src/components/Icon';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import Pagination from 'modules/common/components/pagination/Pagination';
+import Select from 'react-select-plus';
+import SelectBrands from '@erxes/ui/src/brands/containers/SelectBrands';
+import Sidebar from './Sidebar';
+import UserInvitationForm from '../containers/UserInvitationForm';
+import UserList from '../containers/UserList';
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
+import { __ } from 'modules/common/utils';
+import { colors } from '@erxes/ui/src/styles';
+import { router } from '@erxes/ui/src/utils';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
-import { colors } from '@erxes/ui/src/styles';
-import Icon from '@erxes/ui/src/components/Icon';
-import Pagination from 'modules/common/components/pagination/Pagination';
 
 const ActiveColor = styledTS<{ active: boolean }>(styled.div)`
   background: ${props =>
@@ -100,7 +104,32 @@ export default function Home(props: Props) {
     );
   };
 
-  const renderFilter = (
+  const title = (
+    <Title capitalize={true}>
+      {__('Team Members')}&nbsp;
+      {`(${totalCount || 0})`}
+    </Title>
+  );
+
+  const renderInvitationForm = formProps => {
+    const { usersGroups, renderButton } = props;
+
+    return (
+      <UserInvitationForm
+        closeModal={formProps.closeModal}
+        usersGroups={usersGroups}
+        renderButton={renderButton}
+      />
+    );
+  };
+
+  const trigger = (
+    <Button btnStyle="success" icon="plus-circle">
+      Invite team members
+    </Button>
+  );
+
+  const righActionBar = (
     <FilterContainer>
       <FlexRow>
         {renderBrandChooser()}
@@ -138,44 +167,23 @@ export default function Home(props: Props) {
             />
           </FlexItem>
         </InputBar>
+        <ModalTrigger
+          content={renderInvitationForm}
+          size="xl"
+          title="Invite team members"
+          autoOpenKey="showMemberInviteModal"
+          trigger={trigger}
+        />
       </FlexRow>
     </FilterContainer>
-  );
-
-  const renderInvitationForm = formProps => {
-    const { usersGroups, renderButton } = props;
-
-    return (
-      <UserInvitationForm
-        closeModal={formProps.closeModal}
-        usersGroups={usersGroups}
-        renderButton={renderButton}
-      />
-    );
-  };
-
-  const trigger = (
-    <Button btnStyle="success" icon="plus">
-      Invite team members
-    </Button>
-  );
-
-  const righActionBar = (
-    <ModalTrigger
-      content={renderInvitationForm}
-      size="xl"
-      title="Invite team members"
-      autoOpenKey="showMemberInviteModal"
-      trigger={trigger}
-    />
   );
 
   const actionBar = (
     <Wrapper.ActionBar
       hasFlex={true}
       right={righActionBar}
-      left={renderFilter}
-      wideSpacing
+      left={title}
+      wideSpacing={true}
     />
   );
 
@@ -183,17 +191,19 @@ export default function Home(props: Props) {
     <Wrapper
       header={
         <Wrapper.Header
+          title={__('Team members')}
           queryParams={queryParams}
-          title={'Team members'}
-          submenu={menuContacts}
+          breadcrumb={[{ title: 'Team members' }]}
         />
       }
-      leftSidebar={<Sidebar loadingMainQuery={loading} />}
+      leftSidebar={
+        <Sidebar loadingMainQuery={loading} queryParams={queryParams} />
+      }
       actionBar={actionBar}
       content={<UserList history={history} queryParams={queryParams} />}
       transparent={true}
       footer={<Pagination count={totalCount} />}
-      hasBorder
+      hasBorder={true}
     />
   );
 }

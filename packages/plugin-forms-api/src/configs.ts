@@ -8,6 +8,7 @@ import { getSubdomain } from '@erxes/api-utils/src/core';
 import forms from './forms';
 import initialSetup from './initialSetup';
 import segments from './segments';
+import dashboards from './dashboards';
 
 export let mainDb;
 export let debug;
@@ -17,6 +18,7 @@ export default {
   name: 'forms',
   permissions,
   meta: {
+    dashboards,
     forms,
     initialSetup,
     // for fixing permissions

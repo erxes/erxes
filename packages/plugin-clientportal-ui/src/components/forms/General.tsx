@@ -1,18 +1,3 @@
-import BoardSelect from '@erxes/ui-cards/src/boards/containers/BoardSelect';
-import { IBoard, IPipeline } from '@erxes/ui-cards/src/boards/types';
-import { ITopic } from '@erxes/ui-knowledgeBase/src/types';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import Icon from '@erxes/ui/src/components/Icon';
-import Toggle from '@erxes/ui/src/components/Toggle';
-import { FlexContent } from '@erxes/ui/src/layout/styles';
-import { ISelectedOption } from '@erxes/ui/src/types';
-import { isEnabled, __ } from '@erxes/ui/src/utils/core';
-import React, { useState } from 'react';
-import { OverlayTrigger } from 'react-bootstrap';
-import Select from 'react-select-plus';
-
 import {
   Block,
   BlockRow,
@@ -21,12 +6,33 @@ import {
   IconWrap,
   ToggleWrap
 } from '../../styles';
+import { IBoard, IPipeline } from '@erxes/ui-cards/src/boards/types';
+import React, { useState } from 'react';
+import { __, isEnabled } from '@erxes/ui/src/utils/core';
+
+import BoardSelect from '@erxes/ui-cards/src/boards/containers/BoardSelect';
 import { ClientPortalConfig } from '../../types';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import { FlexContent } from '@erxes/ui/src/layout/styles';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import { ISelectedOption } from '@erxes/ui/src/types';
+import { ITopic } from '@erxes/ui-knowledgeBase/src/types';
+import Icon from '@erxes/ui/src/components/Icon';
+import { OverlayTrigger } from 'react-bootstrap';
+import Select from 'react-select-plus';
+import Toggle from '@erxes/ui/src/components/Toggle';
+import CategoryForm from '@erxes/ui-products/src/containers/CategoryForm';
+import SelectProductCategory from '@erxes/ui-products/src/containers/SelectProductCategory';
+import Button from '@erxes/ui/src/components/Button';
+import Tip from '@erxes/ui/src/components/Tip';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 
 type Props = {
   topics: ITopic[];
   boards: IBoard[];
   pipelines: IPipeline[];
+  kind: 'client' | 'vendor';
   fetchPipelines: (boardId: string) => void;
   handleFormChange: (name: string, value: string | boolean) => void;
 } & ClientPortalConfig;
@@ -56,23 +62,36 @@ function General({
   knowledgeBaseTopicId,
   taskPublicBoardId,
   taskPublicPipelineId,
+  taskPublicLabel,
   topics,
   boards,
   pipelines,
   ticketLabel,
   taskLabel,
+  dealLabel,
+  purchaseLabel,
   taskStageId,
   taskPipelineId,
   taskBoardId,
   ticketStageId,
   ticketPipelineId,
   ticketBoardId,
+  dealStageId,
+  dealPipelineId,
+  dealBoardId,
+  purchaseStageId,
+  purchasePipelineId,
+  purchaseBoardId,
   fetchPipelines,
   handleFormChange,
   kbToggle,
   publicTaskToggle,
   taskToggle,
-  ticketToggle
+  dealToggle,
+  purchaseToggle,
+  ticketToggle,
+  vendorParentProductCategoryId,
+  kind
 }: Props) {
   const [show, setShow] = useState<boolean>(false);
 
@@ -217,16 +236,25 @@ function General({
 
     return (
       <>
-        <FormGroup>
-          <ControlLabel>Task public board</ControlLabel>
-          <p>{__('Public task board')}</p>
-          {renderSelect(boards, handleSelectBoard, taskPublicBoardId)}
-        </FormGroup>
-        <FormGroup>
-          <ControlLabel>Task public pipeline</ControlLabel>
-          <p>{__('Public task pipeline')}</p>
-          {renderSelect(pipelines, handleSelecPipeline, taskPublicPipelineId)}
-        </FormGroup>
+        {renderControl({
+          label: 'Public tasks',
+          subtitle: 'Shown name on menu',
+          formValueName: 'taskPublicLabel',
+          formValue: taskPublicLabel,
+          placeholder: 'Please enter a label for Public Task'
+        })}
+        <div>
+          <FormGroup>
+            <ControlLabel>Task public board</ControlLabel>
+            <p>{__('Public task board')}</p>
+            {renderSelect(boards, handleSelectBoard, taskPublicBoardId)}
+          </FormGroup>
+          <FormGroup>
+            <ControlLabel>Task public pipeline</ControlLabel>
+            <p>{__('Public task pipeline')}</p>
+            {renderSelect(pipelines, handleSelecPipeline, taskPublicPipelineId)}
+          </FormGroup>
+        </div>
       </>
     );
   };
@@ -234,11 +262,11 @@ function General({
   const renderMain = () => {
     return (
       <Block>
-        <h4>{__('Client portal')}</h4>
+        <h4>{__('Business portal')}</h4>
         <BlockRow>
           {renderControl({
             required: true,
-            label: 'Client Portal Name',
+            label: `${kind} portal name`,
             subtitle: 'Displayed in the header area',
             formValueName: 'name',
             formValue: name,
@@ -278,7 +306,7 @@ function General({
         <ToggleWrap>
           <FormGroup>
             <ControlLabel>Show {title}</ControlLabel>
-            <p>{__('Show in Client Portal')}</p>
+            <p>{__('Show in Business Portal')}</p>
             <Toggle
               checked={toggle}
               onChange={() => onChangeToggle(toggleName, !toggle)}
@@ -296,11 +324,53 @@ function General({
     );
   };
 
+  const renderSelectCategory = () => {
+    const trigger = (
+      <Button btnStyle="primary" icon="plus-circle">
+        Create Category
+      </Button>
+    );
+
+    const renderTrigger = () => {
+      const content = props => <CategoryForm {...props} categories={[]} />;
+      return (
+        <ModalTrigger
+          title="Manage category"
+          trigger={trigger}
+          size="lg"
+          content={content}
+        />
+      );
+    };
+
+    return (
+      <>
+        <ControlLabel>Parent Product Category for Vendors</ControlLabel>
+        <div style={{ display: 'flex' }}>
+          <SelectProductCategory
+            label="Choose product category"
+            name="productCategoryId"
+            initialValue={vendorParentProductCategoryId || ''}
+            onSelect={categoryId =>
+              handleFormChange(
+                'vendorParentProductCategoryId',
+                categoryId as string
+              )
+            }
+            multi={false}
+          />
+          {renderTrigger()}
+        </div>
+      </>
+    );
+  };
+
   const renderFeatures = () => {
     if (
       !isEnabled('knowledgebase') &&
       !isEnabled('cards') &&
-      !isEnabled('inbox')
+      !isEnabled('inbox') &&
+      !isEnabled('products')
     ) {
       return null;
     }
@@ -322,7 +392,7 @@ function General({
                 <ControlLabel required={true}>
                   Knowledge base topic
                 </ControlLabel>
-                <p>{__('Knowledge base topic in Client Portal')}</p>
+                <p>{__('Knowledge base topic in Business Portal')}</p>
                 <Select
                   placeholder="Select a knowledge base topic"
                   value={knowledgeBaseTopicId}
@@ -366,6 +436,50 @@ function General({
 
         {isEnabled('cards') &&
           renderFeatureBlock(
+            'deals',
+            <>
+              {renderControl({
+                label: 'Deals',
+                subtitle: 'Shown name on menu',
+                formValueName: 'dealLabel',
+                formValue: dealLabel,
+                placeholder: 'Please enter a label for Deal'
+              })}
+              {renderBoardSelect({
+                type: 'deal',
+                stageId: dealStageId,
+                pipelineId: dealPipelineId,
+                boardId: dealBoardId
+              })}
+            </>,
+            'dealToggle',
+            dealToggle || false
+          )}
+
+        {isEnabled('cards') &&
+          renderFeatureBlock(
+            'purchases',
+            <>
+              {renderControl({
+                label: 'Purchases',
+                subtitle: 'Shown name on menu',
+                formValueName: 'purchaseLabel',
+                formValue: purchaseLabel,
+                placeholder: 'Please enter a label for Purchase'
+              })}
+              {renderBoardSelect({
+                type: 'purchase',
+                stageId: purchaseStageId,
+                pipelineId: purchasePipelineId,
+                boardId: purchaseBoardId
+              })}
+            </>,
+            'purchaseToggle',
+            purchaseToggle || false
+          )}
+
+        {isEnabled('cards') &&
+          renderFeatureBlock(
             'tasks',
             <>
               {renderControl({
@@ -392,6 +506,8 @@ function General({
             formValueName: 'messengerBrandCode',
             formValue: messengerBrandCode
           })}
+
+        {isEnabled('products') && kind === 'vendor' && renderSelectCategory()}
       </Block>
     );
   };

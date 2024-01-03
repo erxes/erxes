@@ -8,6 +8,96 @@ import styledTS from 'styled-components-ts';
 
 const coreSpace = `${dimensions.coreSpacing}px`;
 
+const SpaceFormsWrapper = styled.div`
+  > div {
+    gap: ${dimensions.coreSpacing + dimensions.unitSpacing}px;
+  }
+`;
+
+const CommentWrapper = styled.div`
+  margin: ${dimensions.coreSpacing}px 0;
+`;
+
+const CreatedUser = styled.div`
+  display: flex;
+  position: relative;
+
+  > div {
+    flex: 1;
+  }
+
+  > img {
+    width: 34px;
+    height: 34px;
+    border-radius: 34px;
+    border: 2px solid #eee;
+    margin-right: ${dimensions.unitSpacing}px;
+  }
+
+  span {
+    font-size: 11px;
+    color: ${colors.colorCoreGray};
+    font-weight: 500;
+    padding-left: ${dimensions.unitSpacing}px;
+  }
+
+  .actions {
+    position: absolute;
+    right: 0;
+    top: 3px;
+    visibility: hidden;
+    text-transform: uppercase;
+
+    > span {
+      cursor: pointer;
+      font-weight: 600;
+      padding-left: 0;
+      transition: all ease 0.1s;
+
+      &:hover {
+        color: ${colors.colorCoreRed};
+
+        &:first-child {
+          color: ${colors.colorCoreBlue};
+        }
+      }
+    }
+  }
+
+  &:hover {
+    .actions {
+      visibility: visible;
+    }
+  }
+`;
+const TicketComment = styled.div`
+  span {
+    font-weight: bold;
+    padding-right: 12px;
+  }
+
+  margin-bottom: ${dimensions.coreSpacing}px;
+`;
+
+const CommentContent = styled.div`
+  background: rgb(239, 241, 243);
+  border-radius: 5px;
+  padding: 8px ${dimensions.unitSpacing}px;
+
+  > h5 {
+    font-size: 12px;
+    color: rgb(58, 89, 153);
+    font-weight: 600;
+    margin: 0;
+  }
+
+  .comment {
+    font-size: 12px;
+    line-height: 16px;
+    margin-top: 5px;
+  }
+`;
+
 const ActionButtons = styled.div`
   display: flex;
   overflow: hidden;
@@ -25,9 +115,15 @@ const ActionButtons = styled.div`
   }
 `;
 
-const SidebarListItem = styledTS<{ isActive: boolean }>(styled.li)`
+const SidebarListItem = styledTS<{
+  isActive: boolean;
+  backgroundColor?: string;
+}>(styled.li)`
   position: relative;
-  background: ${props => props.isActive && rgba(colors.colorPrimary, 0.2)};
+  background: ${props =>
+    (props.isActive && rgba(colors.colorPrimary, 0.2)) ||
+    props.backgroundColor ||
+    colors.colorWhite};
   overflow: hidden;
   display: flex;
   justify-content: space-between;
@@ -107,19 +203,34 @@ const ExpandWrapper = styled.div`
   }
 `;
 
-const Description = styled.div`
+const Description = styledTS<{ noMargin?: boolean; halfWidth?: boolean }>(
+  styled.div
+)`
   color: ${colors.colorCoreGray};
   font-size: 12px;
-  margin-bottom: ${dimensions.coreSpacing}px;
+  max-width: ${props => props.halfWidth && '500px'};
+  margin-bottom: ${props => !props.noMargin && '20px'};
 `;
 
-const FlexRow = styled.div`
+const FlexRow = styledTS<{ alignItems?: string; justifyContent?: string }>(
+  styled.div
+)`
   display: flex;
   flex-wrap: wrap;
   flex-direction: row;
-  align-items: center;
+  align-items: ${props => (props.alignItems ? props.alignItems : 'center')};
+  justify-content: ${props =>
+    props.justifyContent ? props.justifyContent : 'flex-start'};
   flex: 1;
-  margin-right: ${dimensions.coreSpacing}px;
+
+  > div {
+    flex: 1;
+    margin-right: ${dimensions.coreSpacing}px;
+
+    &:last-child {
+      margin: 0;
+    }
+  }
 `;
 
 const SubHeading = styled.h4`
@@ -222,9 +333,10 @@ const SubItem = styled.div`
   }
 `;
 
-const FilterContainer = styled.div`
+const FilterContainer = styledTS<{ marginRight?: boolean }>(styled.div)`
   position: relative;
   z-index: 2;
+  margin-right: ${props => props.marginRight && '10px'};
 `;
 
 const SidebarList = styled.div`
@@ -233,7 +345,6 @@ const SidebarList = styled.div`
 
 const ContentBox = styled.div`
   padding: ${dimensions.coreSpacing}px;
-  max-width: 640px;
   margin: 0 auto;
 `;
 
@@ -296,14 +407,13 @@ const InputBar = styledTS<{ type?: string }>(styled.div)`
   flex: 1;
   max-width: ${props =>
     props.type === 'active' && `${dimensions.headerSpacingWide * 2 + 20}px`};
-  padding: 5px 5px 0 20px;
+  padding: 0 5px 0 ${dimensions.coreSpacing}px;
   border-radius: 8px;
   margin-left: ${props => props.type === 'active' && '10px'};
-  height: 41px;
   padding-left: ${props =>
     props.type === 'searchBar' && `${dimensions.unitSpacing * 2}px`};
 
-  input {
+  input, .Select-control {
     border-bottom: 0;
   }
 `;
@@ -325,6 +435,15 @@ const Title = styledTS<{ capitalize?: boolean }>(styled.div)`
     color: #666;
   }
   `;
+
+const LeftActionBar = styled.div`
+  display: flex;
+  align-items: center;
+
+  > div {
+    margin-right: ${dimensions.unitSpacing}px;
+  }
+`;
 
 const CreatedDate = styled.div`
   float: left;
@@ -357,9 +476,30 @@ const Row = styled.div`
   }
 `;
 
+const FlexBetween = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+`;
+
+const ItemCount = styled.span`
+  color: ${colors.colorLightGray};
+  font-weight: 500;
+`;
+
+const ImageWrapper = styled.div`
+  margin-bottom: ${dimensions.unitSpacing}px;
+
+  img {
+    max-width: 300px;
+    max-height: 300px;
+  }
+`;
+
 export {
   MarkdownWrapper,
   FlexItem,
+  ImageWrapper,
   ActionButtons,
   ExpandWrapper,
   Description,
@@ -378,5 +518,13 @@ export {
   Title,
   CreatedDate,
   LeftContent,
-  Row
+  Row,
+  FlexBetween,
+  ItemCount,
+  SpaceFormsWrapper,
+  CommentWrapper,
+  TicketComment,
+  CommentContent,
+  CreatedUser,
+  LeftActionBar
 };

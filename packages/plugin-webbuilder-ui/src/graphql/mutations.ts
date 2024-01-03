@@ -93,8 +93,8 @@ const entriesRemove = `
 `;
 
 const templatesUse = `
-  mutation templatesUse($_id: String!, $name: String!) {
-    webbuilderTemplatesUse(_id: $_id, name: $name) 
+  mutation templatesUse($_id: String!, $name: String!, $coverImage: AttachmentInput) {
+    webbuilderTemplatesUse(_id: $_id, name: $name, coverImage: $coverImage) 
   }
 `;
 
@@ -120,6 +120,14 @@ const sitesRemove = `
   }
 `;
 
+const sitesDuplicate = `
+  mutation sitesDuplicate($_id: String!) {
+    webbuilderSitesDuplicate(_id: $_id) {
+      _id
+    }
+  }
+`;
+
 export default {
   add,
   edit,
@@ -133,5 +141,6 @@ export default {
   templatesUse,
   sitesAdd,
   sitesEdit,
-  sitesRemove
+  sitesRemove,
+  sitesDuplicate
 };

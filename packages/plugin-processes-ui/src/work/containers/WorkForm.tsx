@@ -6,8 +6,6 @@ import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { mutations } from '../graphql';
 import { withProps } from '@erxes/ui/src/utils';
 import { IWorkDocument } from '../types';
-import { graphql } from 'react-apollo';
-import gql from 'graphql-tag';
 
 type Props = {
   closeModal: () => void;
@@ -36,7 +34,9 @@ class PerformFormContainer extends React.Component<FinalProps> {
           isSubmitted={isSubmitted}
           type="submit"
           uppercase={false}
-          successMessage={`You successfully added a ${name}`}
+          successMessage={`You successfully ${
+            values._id ? 'updated' : 'added'
+          } a ${name}`}
         />
       );
     };

@@ -1,5 +1,5 @@
 import client from '@erxes/ui/src/apolloClient';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
 import { Alert, renderWithProps } from '@erxes/ui/src/utils';
 import { mutations } from '../../../conformity/graphql';
@@ -8,7 +8,7 @@ import {
   IConformityEdit
 } from '../../../conformity/types';
 import React from 'react';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 import AddForm from '../../components/portable/AddForm';
 import { mutations as boardMutations, queries } from '../../graphql';
 import { queries as formQueries } from '@erxes/ui-forms/src/forms/graphql';
@@ -123,6 +123,24 @@ class AddFormContainer extends React.Component<FinalProps> {
       addMutation({ variables: doc })
         .then(({ data }) => {
           const message = `You've successfully created ${options.type}`;
+
+          if (doc.relationData && Object.keys(doc.relationData).length > 0) {
+            const { relationData } = doc;
+
+            for (const key in relationData) {
+              if (relationData.hasOwnProperty(key)) {
+                client.mutate({
+                  mutation: gql(mutations.conformityEdit),
+                  variables: {
+                    mainType: options.type,
+                    mainTypeId: data[options.mutationsName.addMutation]._id,
+                    relType: key,
+                    relTypeIds: relationData[key]
+                  }
+                });
+              }
+            }
+          }
 
           if (relType && relTypeIds) {
             editConformity({
@@ -257,9 +275,9 @@ export default (props: IProps) =>
       }),
       graphql<FinalProps, StagesQueryResponse>(gql(queries.stages), {
         name: 'stagesQuery',
-        options: (props: FinalProps) => ({
+        options: (finalProps: FinalProps) => ({
           variables: {
-            pipelineId: props.pipelineId || ''
+            pipelineId: finalProps.pipelineId || ''
           }
         })
       })

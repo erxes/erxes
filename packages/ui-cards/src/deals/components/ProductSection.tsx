@@ -15,7 +15,7 @@ import { __ } from '@erxes/ui/src/utils';
 
 type Props = {
   productsData: IProductData[];
-  products: IProduct[];
+  products: (IProduct & { quantity?: number })[];
   paymentsData: IPaymentsData;
   onChangeProductsData: (productsData: IProductData[]) => void;
   onChangePaymentsData: (paymentsData: IPaymentsData) => void;
@@ -104,14 +104,14 @@ function ProductSection({
     );
   };
 
-  const renderProduct = (product: IProduct) => {
+  const renderProduct = (product: IProduct & { quantity?: number }) => {
     if (product.customFieldsData) {
       return (
         <Tip text={tipItems(product)} placement="bottom">
           {renderProductItem(
             product.name,
-            product.quantity,
-            product.uom,
+            product.quantity || 0,
+            product.uom || '',
             product._id
           )}
         </Tip>
@@ -120,8 +120,8 @@ function ProductSection({
 
     return renderProductItem(
       product.name,
-      product.quantity,
-      product.uom,
+      product.quantity || 0,
+      product.uom || '',
       product._id
     );
   };
@@ -129,6 +129,7 @@ function ProductSection({
   return (
     <Box
       title={__('Product & Service')}
+      isOpen={products.length > 0}
       extraButtons={renderProductFormModal(
         <button>
           <Icon icon="edit-3" />

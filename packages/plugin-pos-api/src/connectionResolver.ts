@@ -1,29 +1,30 @@
 import * as mongoose from 'mongoose';
-import {
-  loadPosClass,
-  loadProductGroupClass,
-  IPosModel,
-  IProductGroupModel,
-  IPosOrderModel,
-  loadPosOrderClass,
-  IPosSlotModel,
-  loadPosSlotClass
-} from './models/Pos';
-
+import { createGenerateModels } from '@erxes/api-utils/src/core';
+import { IContext as IMainContext } from '@erxes/api-utils/src';
 import {
   IPosDocument,
-  IPosOrderDocument,
   IPosSlotDocument,
   IProductGroupDocument
 } from './models/definitions/pos';
-import { IContext as IMainContext } from '@erxes/api-utils/src';
-import { createGenerateModels } from '@erxes/api-utils/src/core';
+import {
+  IPosModel,
+  IPosSlotModel,
+  IProductGroupModel,
+  loadPosClass,
+  loadPosSlotClass,
+  loadProductGroupClass
+} from './models/Pos';
+import { IPosOrderModel, loadPosOrderClass } from './models/Orders';
+import { ICoverModel, loadCoverClass } from './models/Covers';
+import { ICoverDocument } from './models/definitions/covers';
+import { IPosOrderDocument } from './models/definitions/orders';
 
 export interface IModels {
   Pos: IPosModel;
   ProductGroups: IProductGroupModel;
   PosOrders: IPosOrderModel;
   PosSlots: IPosSlotModel;
+  Covers: ICoverModel;
 }
 export interface IContext extends IMainContext {
   subdomain: string;
@@ -54,6 +55,10 @@ export const loadClasses = (
   models.PosSlots = db.model<IPosSlotDocument, IPosSlotModel>(
     'pos_slots',
     loadPosSlotClass(models, subdomain)
+  );
+  models.Covers = db.model<ICoverDocument, ICoverModel>(
+    'pos_covers',
+    loadCoverClass(models)
   );
 
   return models;

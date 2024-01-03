@@ -11,7 +11,7 @@ import React from 'react';
 import Select from 'react-select-plus';
 import Toggle from '@erxes/ui/src/components/Toggle';
 import { ToggleWrapper } from '../widgetPreview/styles';
-import { __ } from 'coreui/utils';
+import { __ } from '@erxes/ui/src/utils';
 import timezones from '@erxes/ui/src/constants/timezones';
 
 type Props = {
@@ -22,10 +22,12 @@ type Props = {
       | 'availabilityMethod'
       | 'responseRate'
       | 'showTimezone'
-      | 'timezone',
+      | 'timezone'
+      | 'hideWhenOffline',
     value: string
   ) => void;
   isOnline: boolean;
+  hideWhenOffline?: boolean;
   availabilityMethod?: string;
   timezone?: string;
   responseRate?: string;
@@ -140,6 +142,43 @@ class Availability extends React.Component<Props> {
     );
   }
 
+  renderOfflineOption() {
+    const { availabilityMethod, hideWhenOffline } = this.props;
+
+    if (availabilityMethod === 'manual') {
+      return null;
+    }
+
+    const onChange = e =>
+      this.onChangeFunction('hideWhenOffline', e.target.checked);
+
+    return (
+      <React.Fragment>
+        <FormGroup>
+          <ControlLabel>
+            {__('Hide messenger during offline hours')}
+          </ControlLabel>
+          <Description>
+            {__(
+              "Forcibly hide the messenger when you're offline. This will hide the messenger from your website visitors."
+            )}
+          </Description>
+
+          <ToggleWrapper>
+            <Toggle
+              checked={hideWhenOffline}
+              onChange={onChange}
+              icons={{
+                checked: <span>Yes</span>,
+                unchecked: <span>No</span>
+              }}
+            />
+          </ToggleWrapper>
+        </FormGroup>
+      </React.Fragment>
+    );
+  }
+
   render() {
     const onChange = e =>
       this.onChangeFunction(
@@ -179,25 +218,9 @@ class Availability extends React.Component<Props> {
 
           <FormGroup>
             <ControlLabel required={true}>Response rate</ControlLabel>
-            <FormControl
-              value="auto"
-              componentClass="radio"
-              checked={false}
-              inline={true}
-              disabled={true}
-            >
-              {__(
-                'Automatically calculated depending on your First Response Rate in Reports'
-              )}
-            </FormControl>
-            <FormControl
-              value="manual"
-              componentClass="radio"
-              checked={true}
-              inline={true}
-            >
+            <Description>
               {__('Set to display your pre defined response rate')}
-            </FormControl>
+            </Description>
             <Select
               required={true}
               value={this.props.responseRate}
@@ -208,6 +231,7 @@ class Availability extends React.Component<Props> {
           </FormGroup>
 
           {this.renderShowTimezone()}
+          {this.renderOfflineOption()}
         </LeftItem>
       </FlexItem>
     );

@@ -13,6 +13,7 @@ const toCheckSynced = `
       isSynced
       syncedDate
       syncedBillNumber
+      syncedCustomer
     }
   }
 `;

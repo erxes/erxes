@@ -6,7 +6,8 @@ import React from 'react';
 import Row from './WorkRow';
 import Table from '@erxes/ui/src/components/table';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { __, router } from '@erxes/ui/src/utils';
+import { router } from '@erxes/ui/src/utils';
+import { __ } from 'coreui/utils';
 import { BarItems } from '@erxes/ui/src/layout/styles';
 import { Count } from '@erxes/ui/src/styles/main';
 import { IRouterProps } from '@erxes/ui/src/types';
@@ -125,10 +126,10 @@ class List extends React.Component<IProps, State> {
               <th>{__('Status')}</th>
               <th>{__('Flow')}</th>
               <th>{__('Count')}</th>
-              <th>{__('In Branch')}</th>
-              <th>{__('In Department')}</th>
-              <th>{__('Out Branch')}</th>
-              <th>{__('Out Department')}</th>
+              <th>{__('Spend Branch')}</th>
+              <th>{__('Spend Department')}</th>
+              <th>{__('Receipt Branch')}</th>
+              <th>{__('Receipt Department')}</th>
               <th>{__('Need products')}</th>
               <th>{__('Result products')}</th>
               <th>{__('Due Date')}</th>

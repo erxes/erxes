@@ -12,8 +12,10 @@ import { ICityModel, loadCityClass } from './models/Cities';
 import { ICityDocument } from './models/definitions/cities';
 import { IDistrictDocument } from './models/definitions/districts';
 import { IQuarterDocument } from './models/definitions/quarters';
-import { IDistrictModel, loadDistrictClass } from './models/Districts';
 import { IQuarterModel, loadQuarterClass } from './models/Quarter';
+import { IContractDocument } from './models/definitions/contracts';
+import { IContractModel, loadContractClass } from './models/Contracts';
+import { IDistrictModel, loadDistrictClass } from './models/Districts';
 import { IBuildingDocument } from './models/definitions/buildings';
 import { IBuildingToContactDocument } from './models/definitions/buildingToContact';
 
@@ -21,6 +23,7 @@ export interface IModels {
   Cities: ICityModel;
   Districts: IDistrictModel;
   Quarters: IQuarterModel;
+  Contracts: IContractModel;
   Buildings: IBuildingModel;
   BuildingToContacts: IBuildingToContactModel;
 }
@@ -60,6 +63,11 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
     IBuildingToContactDocument,
     IBuildingToContactModel
   >('mobinet_building_to_contact', loadBuildingToContactClass(models));
+
+  models.Contracts = db.model<IContractDocument, IContractModel>(
+    'mobinet_contracts',
+    loadContractClass(models)
+  );
 
   return models;
 };

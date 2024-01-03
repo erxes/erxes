@@ -1,4 +1,5 @@
 import * as dayjs from 'dayjs';
+import { Link } from 'react-router-dom';
 import _ from 'lodash';
 import Button from '@erxes/ui/src/components/Button';
 import FormControl from '@erxes/ui/src/components/form/Control';
@@ -14,34 +15,46 @@ import { Alert } from '@erxes/ui/src/utils';
 import { DetailRow, FinanceAmount, FlexRow } from '../../styles';
 import { IOrderDet } from '../types';
 import { ICustomer } from '@erxes/ui-contacts/src/customers/types';
+import { IPos } from '../../types';
 
 type Props = {
-  onChangePayments: (
+  order: IOrderDet;
+  onChangePayments?: (
     _id: string,
     cashAmount: number,
-    receivableAmount: number,
-    cardAmount: number,
-    mobileAmount: number
+    mobileAmount: number,
+    paidAmounts: any[]
   ) => void;
-  order: IOrderDet;
+  pos?: IPos;
 };
 
 type State = {
   cashAmount: number;
-  receivableAmount: number;
-  cardAmount: number;
   mobileAmount: number;
+  paidAmounts: any[];
 };
 
-class PutResponseDetail extends React.Component<Props, State> {
+class OrderDetail extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
-    const { order } = this.props;
+    const { order, pos } = this.props;
+    const paidAmounts: any[] = [...order.paidAmounts] || [];
+    const paidKeys: string[] = paidAmounts.map(pa => pa.type);
+
+    for (const emptyType of (pos?.paymentTypes || []).filter(
+      pt => !paidKeys.includes(pt.type)
+    )) {
+      paidAmounts.push({
+        _id: Math.random().toString(),
+        amount: 0,
+        type: emptyType.type
+      });
+    }
+
     this.state = {
+      paidAmounts,
       cashAmount: order.cashAmount,
-      receivableAmount: order.receivableAmount,
-      cardAmount: order.cardAmount,
       mobileAmount: order.mobileAmount
     };
   }
@@ -77,6 +90,48 @@ class PutResponseDetail extends React.Component<Props, State> {
     );
   }
 
+  onChangePaidAmount = e => {
+    const { paidAmounts } = this.state;
+    const name = e.target.name;
+    const value = e.target.value;
+    this.setState({
+      paidAmounts: paidAmounts.map(pa =>
+        pa._id === name ? { ...pa, amount: value } : pa
+      )
+    });
+  };
+
+  renderEditPaid() {
+    const { paidAmounts } = this.state;
+    return paidAmounts.map(paidAmount => {
+      const { pos } = this.props;
+      const { paymentTypes } = pos || {};
+
+      return (
+        <li key={paidAmount._id}>
+          <FlexRow key={paidAmount._id}>
+            <FieldStyle>
+              {__(
+                `${(
+                  (paymentTypes || []).find(
+                    pt => pt.type === paidAmount.type
+                  ) || {}
+                ).title || paidAmount.type}`
+              )}
+              :
+            </FieldStyle>
+            <FormControl
+              type="number"
+              name={paidAmount._id}
+              onChange={this.onChangePaidAmount}
+              value={paidAmount.amount || 0}
+            />
+          </FlexRow>
+        </li>
+      );
+    });
+  }
+
   renderDeliveryInfo() {
     const { order } = this.props;
     const { deliveryInfo } = order;
@@ -88,30 +143,30 @@ class PutResponseDetail extends React.Component<Props, State> {
   }
 
   save = () => {
-    const { order } = this.props;
+    const { order, onChangePayments } = this.props;
     const { totalAmount } = order;
-    const {
-      cashAmount,
-      receivableAmount,
-      cardAmount,
-      mobileAmount
-    } = this.state;
+    const { paidAmounts, cashAmount, mobileAmount } = this.state;
 
     if (
-      cashAmount + receivableAmount + cardAmount + mobileAmount !==
+      cashAmount +
+        mobileAmount +
+        (paidAmounts || []).reduce(
+          (sum, i) => Number(sum) + Number(i.amount),
+          0
+        ) !==
       totalAmount
     ) {
       Alert.error('Is not balanced');
       return;
     }
 
-    this.props.onChangePayments(
-      this.props.order._id,
-      cashAmount,
-      receivableAmount,
-      cardAmount,
-      mobileAmount
-    );
+    onChangePayments &&
+      onChangePayments(
+        this.props.order._id,
+        cashAmount,
+        mobileAmount,
+        (paidAmounts || []).filter(pa => Number(pa.amount) !== 0)
+      );
   };
 
   generateLabel = customer => {
@@ -133,12 +188,25 @@ class PutResponseDetail extends React.Component<Props, State> {
     return value;
   };
 
-  render() {
+  renderReturnInfo() {
     const { order } = this.props;
+    if (!order.returnInfo || !order.returnInfo.returnAt) {
+      return <></>;
+    }
+
+    return this.renderRow(
+      'return Date',
+      dayjs(order.returnInfo.returnAt).format('lll')
+    );
+  }
+
+  render() {
+    const { order, pos } = this.props;
+
     return (
       <SidebarList>
         {this.renderRow(
-          'Customer',
+          `${(order.customerType || 'Customer').toLocaleUpperCase()}`,
           order.customer ? this.generateLabel(order.customer) : ''
         )}
         {this.renderRow('Bill Number', order.number)}
@@ -150,10 +218,19 @@ class PutResponseDetail extends React.Component<Props, State> {
         {order.syncErkhetInfo
           ? this.renderRow('Erkhet Info', order.syncErkhetInfo)
           : ''}
+
+        {order.convertDealId
+          ? this.renderRow(
+              'Deal',
+              <Link to={order.dealLink || ''}>
+                {order.deal?.name || 'deal'}
+              </Link>
+            )
+          : ''}
         <>
           {(order.putResponses || []).map(p => {
             return (
-              <DetailRow>
+              <DetailRow key={Math.random()}>
                 {this.renderRow('Bill ID', p.billId)}
                 {this.renderRow('Ebarimt Date', dayjs(p.date).format('lll'))}
               </DetailRow>
@@ -168,6 +245,7 @@ class PutResponseDetail extends React.Component<Props, State> {
               <th>{__('Count')}</th>
               <th>{__('Unit Price')}</th>
               <th>{__('Amount')}</th>
+              <th>{__('Diff')}</th>
             </tr>
           </thead>
           <tbody id="orderItems">
@@ -177,6 +255,7 @@ class PutResponseDetail extends React.Component<Props, State> {
                 <td>{item.count}</td>
                 <td>{item.unitPrice}</td>
                 <td>{item.count * item.unitPrice}</td>
+                <td>{item.discountAmount}</td>
               </tr>
             ))}
           </tbody>
@@ -186,13 +265,14 @@ class PutResponseDetail extends React.Component<Props, State> {
           'Total Amount',
           this.displayValue(order, 'totalAmount')
         )}
-
-        <ul>
-          {this.renderEditRow('Cash Amount', 'cashAmount')}
-          {this.renderEditRow('Card Amount', 'cardAmount')}
-          {this.renderEditRow('Mobile Amount', 'mobileAmount')}
-          {this.renderEditRow('Receivable Amount', 'receivableAmount')}
-        </ul>
+        {this.renderReturnInfo()}
+        {pos && (
+          <ul>
+            {this.renderEditRow('Cash Amount', 'cashAmount')}
+            {this.renderEditRow('Mobile Amount', 'mobileAmount')}
+            {this.renderEditPaid()}
+          </ul>
+        )}
 
         <Button btnStyle="success" size="small" onClick={this.save} icon="edit">
           Save Payments Change
@@ -202,4 +282,4 @@ class PutResponseDetail extends React.Component<Props, State> {
   }
 }
 
-export default PutResponseDetail;
+export default OrderDetail;

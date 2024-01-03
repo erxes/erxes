@@ -88,14 +88,11 @@ const OMIT_FROM_INPUT = [
   'trendScore',
 
   'createdUserType',
-  'createdAt',
-  'createdById',
   'createdByCpId',
 
   'categoryApprovalState',
 
   'updatedUserType',
-  'updatedAt',
   'updatedById',
   'updatedByCpId',
 
@@ -117,6 +114,12 @@ export type PostCreateInput = Omit<IPost, typeof OMIT_FROM_INPUT[number]> & {
 };
 
 export type PostPatchInput = Partial<PostCreateInput>;
+
+export type PostCreateInputCp = Omit<
+  PostCreateInput,
+  'createdById' | 'lastPublishedAt'
+>;
+export type PostPatchInputCp = Partial<PostCreateInputCp>;
 
 export interface IPostModel extends Model<PostDocument> {
   findByIdOrThrow(_id: string): Promise<PostDocument>;
@@ -170,10 +173,13 @@ export interface IPostModel extends Model<PostDocument> {
 
   /* <<< Client portal */
   findByIdOrThrowCp(_id: string, cpUser?: ICpUser): Promise<PostDocument>;
-  createPostCp(c: PostCreateInput, user?: ICpUser): Promise<PostDocument>;
+  createPostCp(
+    c: Omit<PostCreateInput, 'createdAt' | 'lastPublishedAt'>,
+    user?: ICpUser
+  ): Promise<PostDocument>;
   patchPostCp(
     _id: string,
-    c: PostPatchInput,
+    c: Omit<PostPatchInput, 'createdAt' | 'lastPublishedAt'>,
     user?: ICpUser
   ): Promise<PostDocument>;
   deletePostCp(_id: string, user?: ICpUser): Promise<PostDocument>;
@@ -371,7 +377,7 @@ export const generatePostModel = (
         categoryApprovalState,
 
         createdUserType: USER_TYPES[0],
-        createdById: user._id,
+        createdById: input.createdById || user._id,
 
         updatedUserType: USER_TYPES[0],
         updatedById: user._id,
@@ -589,7 +595,7 @@ export const generatePostModel = (
       return post;
     }
     public static async createPostCp(
-      input: PostCreateInput,
+      input: Omit<PostCreateInputCp, 'createdAt' | 'lastPublishedAt'>,
       cpUser?: ICpUser
     ): Promise<PostDocument> {
       if (!cpUser) throw new LoginRequiredError();
@@ -637,7 +643,7 @@ export const generatePostModel = (
     }
     public static async patchPostCp(
       _id: string,
-      input: PostPatchInput,
+      input: Omit<PostPatchInputCp, 'createdAt' | 'lastPublishedAt'>,
       cpUser?: ICpUser
     ): Promise<PostDocument> {
       if (!cpUser) throw new LoginRequiredError();

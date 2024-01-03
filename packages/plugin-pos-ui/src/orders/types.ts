@@ -1,7 +1,5 @@
-import { IOrdersSummary, QueryResponse } from '../types';
+import { QueryResponse } from '../types';
 import { IProduct, IProductCategory } from '@erxes/ui-products/src/types';
-
-import { ICustomer } from '@erxes/ui-contacts/src/customers/types';
 import { IUser } from '@erxes/ui/src/auth/types';
 
 export type IOrder = {
@@ -11,9 +9,9 @@ export type IOrder = {
   paidDate: Date;
   number: string;
   customerId: string;
-  cardAmount: number;
+  customerType: string;
   cashAmount: number;
-  receivableAmount: number;
+  paidAmounts: any;
   mobileAmount: number;
   totalAmount: number;
   finalAmount: number;
@@ -25,24 +23,56 @@ export type IOrder = {
   oldBillId: string;
   type: string;
   userId: string;
+  branchId: string;
+  departmentId: string;
+
+  branch: any;
+  department: any;
 
   items: any;
   posToken: string;
   posName: string;
   user: IUser;
-  customer: ICustomer;
+  customer: {
+    _id: string;
+    code: string;
+    primaryPhone: string;
+    firstName: string;
+    primaryEmail: string;
+    lastName: string;
+  };
+  description: string;
+  isPre: boolean;
   origin?: string;
   syncedErkhet: boolean;
+  convertDealId: string;
+  returnInfo?: any;
 };
+
+export type IOrderRecord = {} & IOrder;
 
 export type IOrderDet = {
   syncErkhetInfo: string;
   putResponses: any[];
   deliveryInfo: any;
+  deal: any;
+  dealLink?: string;
 } & IOrder;
 
 export type OrdersQueryResponse = {
   posOrders: IOrder[];
+  loading: boolean;
+  refetch: () => void;
+};
+
+export type OrderRecordsQueryResponse = {
+  posOrderRecords: IOrderRecord[];
+  loading: boolean;
+  refetch: () => void;
+};
+
+export type OrderRecordsCountQueryResponse = {
+  posOrderRecordsCount: number;
   loading: boolean;
   refetch: () => void;
 };
@@ -60,7 +90,13 @@ export type ListQueryVariables = {
 };
 
 export type OrdersSummaryQueryResponse = {
-  posOrdersSummary: IOrdersSummary;
+  posOrdersSummary: any;
+  loading: boolean;
+  refetch: () => void;
+};
+
+export type OrdersGroupSummaryQueryResponse = {
+  posOrdersGroupSummary: any;
   loading: boolean;
   refetch: () => void;
 };
@@ -80,12 +116,6 @@ export type ProductCategoriesQueryResponse = {
 } & QueryResponse;
 
 // mutation
-export type PosOrderSyncErkhetMutationResponse = {
-  posOrderSyncErkhet: (mutation: {
-    variables: { _id: string };
-  }) => Promise<any>;
-};
-
 export type PosOrderReturnBillMutationResponse = {
   posOrderReturnBill: (mutation: {
     variables: { _id: string };
@@ -97,9 +127,75 @@ export type PosOrderChangePaymentsMutationResponse = {
     variables: {
       _id: string;
       cashAmount: number;
-      receivableAmount: number;
-      cardAmount: number;
       mobileAmount: number;
+      paidAmounts: any[];
     };
   }) => Promise<any>;
+};
+
+export interface ICoverSummary {
+  _id?: string;
+  kind: string;
+  kindOfVal: number;
+  value: number;
+  amount: number;
+}
+
+export interface ICoverDetail {
+  _id?: string;
+  paidType: string;
+  paidSummary: ICoverSummary[];
+  paidDetail: any;
+}
+
+export type ICover = {
+  _id?: string;
+  posToken: string;
+  status: string;
+  beginDate: Date;
+  endDate: Date;
+  description: string;
+  userId: string;
+  details: ICoverDetail[];
+  createdAt: Date;
+  createdBy: string;
+  modifiedAt: Date;
+  modifiedBy: string;
+  note?: string;
+  posName: string;
+
+  user: IUser;
+  createdUser: IUser;
+  modifiedUser: IUser;
+};
+
+export type CoversQueryResponse = {
+  posCovers: ICover[];
+  loading: boolean;
+  refetch: () => void;
+};
+
+export type CoversCountQueryResponse = {
+  posCoversCount: number;
+  loading: boolean;
+  refetch: () => void;
+};
+
+export type CoverDetailQueryResponse = {
+  posCoverDetail: ICover;
+  loading: boolean;
+  refetch: () => void;
+};
+
+export type PosCoverEditNoteMutationResponse = {
+  coversEdit: (mutation: {
+    variables: {
+      _id: string;
+      note: string;
+    };
+  }) => Promise<any>;
+};
+
+export type RemoveCoverMutationResponse = {
+  removeCover: (mutation: { variables: { _id: string } }) => Promise<any>;
 };

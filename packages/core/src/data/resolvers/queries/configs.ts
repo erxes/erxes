@@ -59,7 +59,8 @@ const configQueries = {
 
   configsGetEnv(_root) {
     return {
-      USE_BRAND_RESTRICTIONS: process.env.USE_BRAND_RESTRICTIONS
+      USE_BRAND_RESTRICTIONS: process.env.USE_BRAND_RESTRICTIONS,
+      VERSION: process.env.VERSION
     };
   },
 
@@ -96,7 +97,7 @@ const configQueries = {
     let results: Array<{ module: string; items: any[] }> = [];
 
     for (const serviceName of services) {
-      const service = await getService(serviceName, true);
+      const service = await getService(serviceName);
       const meta = service.config ? service.config.meta : {};
 
       if (meta && meta.isSearchable) {

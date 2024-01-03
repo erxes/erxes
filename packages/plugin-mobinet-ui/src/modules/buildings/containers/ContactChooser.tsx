@@ -1,9 +1,8 @@
 import { queries as companyQueries } from '@erxes/ui-contacts/src/companies/graphql';
 import { queries as customerQueries } from '@erxes/ui-contacts/src/customers/graphql';
 import { Chooser, renderFullName, Spinner } from '@erxes/ui/src';
-import gql from 'graphql-tag';
+import { gql, useQuery } from '@apollo/client';
 import React from 'react';
-import { useQuery, useMutation } from 'react-apollo';
 import { renderCompanyName } from '../../../utils';
 import { mutations } from '../graphql';
 import { IBuilding } from '../types';

@@ -1,6 +1,6 @@
 import * as compose from 'lodash.flowright';
 import FlowForm from '../../components/forms/FlowForm';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import React, { useState } from 'react';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { Alert, router, withProps } from '@erxes/ui/src/utils';
@@ -11,7 +11,7 @@ import {
   IFlow,
   IFlowDocument
 } from '../../../flow/types';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 import { IRouterProps } from '@erxes/ui/src/types';
 import { IUser } from '@erxes/ui/src/auth/types';
 import {

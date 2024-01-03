@@ -3,6 +3,7 @@ import { IConfigDocument } from './../models/definitions/configs';
 import { IModels } from '../connectionResolver';
 import { IPosUserDocument } from './../models/definitions/posUsers';
 import { IUserDocument } from '@erxes/api-utils/src/definitions/users';
+import { IAttachment } from '@erxes/api-utils/src/types';
 
 export interface IContext {
   res: express.Response;
@@ -41,16 +42,24 @@ export interface IOrderItemInput {
   discountAmount?: number;
   bonusCount?: number;
   bonusVoucherId?: string;
-  manufacturedDate?: number; // Unix epoch number
+  manufacturedDate?: string; // Unix epoch number
+  description?: string;
+  attachment?: IAttachment;
 }
 
 export interface IOrderInput {
   items: IOrderItemInput[];
   totalAmount: number;
+  directDiscount?: number;
   type: string;
   customerId?: string;
+  customerType?: string;
   branchId?: string;
   deliveryInfo?: any;
   origin?: string;
   slotCode?: string;
+  dueDate?: Date;
+  description: string;
+  isPre?: boolean;
+  buttonType?: string;
 }

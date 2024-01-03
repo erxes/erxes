@@ -1,12 +1,12 @@
-import gql from "graphql-tag";
-import * as compose from "lodash.flowright";
-import { withProps } from "@erxes/ui/src/utils";
-import Content from "./Content";
-import { GrowthHacksPriorityQueryResponse } from "../../types";
-import { getFilterParams } from "../../utils";
-import React from "react";
-import { graphql } from "react-apollo";
-import { queries } from "../../graphql";
+import { gql } from '@apollo/client';
+import * as compose from 'lodash.flowright';
+import { withProps } from '@erxes/ui/src/utils';
+import Content from './Content';
+import { GrowthHacksPriorityQueryResponse } from '../../types';
+import { getFilterParams } from '../../utils';
+import React from 'react';
+import { graphql } from '@apollo/client/react/hoc';
+import { queries } from '../../graphql';
 
 type Props = {
   queryParams: any;
@@ -26,7 +26,7 @@ class ContentContainer extends React.Component<FinalProps> {
     const extendedProps = {
       ...this.props,
       datas,
-      priorityMatrixRefetch: growthHacksPriorityMatrixQuery.refetch,
+      priorityMatrixRefetch: growthHacksPriorityMatrixQuery.refetch
     };
 
     return <Content {...extendedProps} />;
@@ -36,10 +36,10 @@ class ContentContainer extends React.Component<FinalProps> {
 export default withProps<Props>(
   compose(
     graphql<Props>(gql(queries.growthHacksPriorityMatrix), {
-      name: "growthHacksPriorityMatrixQuery",
+      name: 'growthHacksPriorityMatrixQuery',
       options: ({ queryParams = {} }) => ({
-        variables: getFilterParams(queryParams),
-      }),
+        variables: getFilterParams(queryParams)
+      })
     })
   )(ContentContainer)
 );

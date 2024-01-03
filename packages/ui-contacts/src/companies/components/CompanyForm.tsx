@@ -28,6 +28,7 @@ import SelectCompanies from '../containers/SelectCompanies';
 import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
 import { isValidPhone } from '@erxes/ui-contacts/src/customers/utils';
 import validator from 'validator';
+import { isEnabled, loadDynamicComponent } from '@erxes/ui/src/utils/core';
 
 type Props = {
   currentUser: IUser;
@@ -54,6 +55,7 @@ type State = {
   industry?: string[];
   businessType?: string;
   location?: string;
+  relationData?: any;
 };
 
 class CompanyForm extends React.Component<Props, State> {
@@ -112,6 +114,15 @@ class CompanyForm extends React.Component<Props, State> {
 
   onAvatarUpload = (url: string) => {
     this.setState({ avatar: url });
+  };
+
+  onRelationsChange = (ids: string[], relationType: string) => {
+    const { relationData = {} } = this.state;
+    const key = relationType.split(':')[1];
+
+    relationData[key] = ids;
+
+    this.setState({ relationData });
   };
 
   generateConstantParams(constants) {
@@ -377,6 +388,20 @@ class CompanyForm extends React.Component<Props, State> {
               </FormColumn>
             </FormWrapper>
           </CollapseContent>
+          {isEnabled('forms') && (
+            <CollapseContent title={__('Relations')} compact={true}>
+              <FormWrapper>
+                <FormColumn>
+                  {!this.props.company &&
+                    loadDynamicComponent('relationForm', {
+                      ...this.props,
+                      onChange: this.onRelationsChange,
+                      contentType: 'contacts:company'
+                    })}
+                </FormColumn>
+              </FormWrapper>
+            </CollapseContent>
+          )}
         </ScrollWrapper>
 
         <ModalFooter>

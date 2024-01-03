@@ -1,7 +1,13 @@
 import { sendProductsMessage } from '../messageBroker';
 import { getConfig, toErkhet } from './utils';
 
-export const productCategoryToErkhet = async (subdomain, params, action) => {
+export const productCategoryToErkhet = async (
+  subdomain,
+  models,
+  syncLog,
+  params,
+  action
+) => {
   const productCategory = params.updatedDocument || params.object;
   const oldProductCategory = params.object;
 
@@ -24,10 +30,16 @@ export const productCategoryToErkhet = async (subdomain, params, action) => {
     }
   };
 
-  toErkhet(config, sendData, 'product-change');
+  toErkhet(models, syncLog, config, sendData, 'product-change');
 };
 
-export const productToErkhet = async (subdomain, params, action) => {
+export const productToErkhet = async (
+  subdomain,
+  models,
+  syncLog,
+  params,
+  action
+) => {
   const product = params.updatedDocument || params.object;
   const oldProduct = params.object;
 
@@ -38,23 +50,36 @@ export const productToErkhet = async (subdomain, params, action) => {
     isRPC: true
   });
 
+  let subMeasureUnit;
+  let ratioMeasureUnit;
+
+  if (product.subUoms && product.subUoms.length) {
+    const subUom = product.subUoms[0];
+    subMeasureUnit = subUom.uom;
+    ratioMeasureUnit = subUom.ratio;
+  }
+
   const config = await getConfig(subdomain, 'ERKHET', {});
 
   const sendData = {
     action,
     oldCode: oldProduct.code || product.code || '',
     object: {
-      code: product.code || '',
+      code: product.code || 'ш',
       name: product.name || '',
-      measureUnit: product.sku || 'ш',
+      measureUnit: product.uom,
+      subMeasureUnit,
+      ratioMeasureUnit,
       barcodes: product.barcodes.join(','),
       unitPrice: product.unitPrice || 0,
       costAccount: config.costAccount,
       saleAccount: config.saleAccount,
       categoryCode: productCategory ? productCategory.code : '',
-      defaultCategory: config.productCategoryCode
+      defaultCategory: config.productCategoryCode,
+      taxType: product.taxType,
+      taxCode: product.taxCode
     }
   };
 
-  toErkhet(config, sendData, 'product-change');
+  toErkhet(models, syncLog, config, sendData, 'product-change');
 };

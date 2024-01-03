@@ -1,6 +1,9 @@
 import { checkPermission } from '@erxes/api-utils/src/permissions';
 import { IContext } from '../../../connectionResolver';
-import { SAFE_REMAINDER_ITEM_STATUSES } from '../../../models/definitions/constants';
+import {
+  SAFE_REMAINDER_ITEM_STATUSES,
+  SAFE_REMAINDER_STATUSES
+} from '../../../models/definitions/constants';
 
 const safeRemainderItemMutations = {
   async safeRemainderItemEdit(
@@ -15,7 +18,6 @@ const safeRemainderItemMutations = {
     const { _id, status, remainder } = params;
 
     const doc = {
-      lastTransactionDate: new Date(),
       count: remainder,
       status: status || SAFE_REMAINDER_ITEM_STATUSES.CHECKED
     };

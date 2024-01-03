@@ -1,5 +1,6 @@
 import { BasicInfo, TabContent } from './styles';
 import { TabTitle, Tabs } from '@erxes/ui/src/components/tabs';
+import { isEnabled, loadDynamicComponent } from '@erxes/ui/src/utils/core';
 
 import Box from '@erxes/ui/src/components/Box';
 import CompanySection from '@erxes/ui-contacts/src/companies/components/CompanySection';
@@ -13,7 +14,6 @@ import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
 import WebsiteActivity from '@erxes/ui-contacts/src/customers/components/common/WebsiteActivity';
 import { __ } from 'coreui/utils';
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
-import { isEnabled } from '@erxes/ui/src/utils/core';
 
 const ActionSection = asyncComponent(() =>
   import(
@@ -52,6 +52,11 @@ const PortableTasks = asyncComponent(() =>
 const PortableTickets = asyncComponent(() =>
   import(
     /* webpackChunkName:"Inbox-Sidebar-PortableTickets" */ '@erxes/ui-cards/src/tickets/components/PortableTickets'
+  )
+);
+const PortablePurchases = asyncComponent(() =>
+  import(
+    /* webpackChunkName:"Inbox-Sidebar-PortablePurchases" */ '@erxes/ui-cards/src/purchases/components/PortablePurchases'
   )
 );
 
@@ -217,6 +222,7 @@ class Index extends React.Component<IndexProps, IndexState> {
             loading={loading}
             customer={customer}
             isDetail={false}
+            collapseCallback={toggleSection}
           />
           <Box
             title={__('Conversation details')}
@@ -246,6 +252,12 @@ class Index extends React.Component<IndexProps, IndexState> {
             toggleSection
           })}
           <WebsiteActivity urlVisits={customer.urlVisits || []} />
+
+          {isEnabled('payment') &&
+            loadDynamicComponent('invoiceSection', {
+              contentType: 'inbox:conversations',
+              contentTypeId: conversation._id
+            })}
         </TabContent>
       );
     }
@@ -260,11 +272,23 @@ class Index extends React.Component<IndexProps, IndexState> {
       );
     }
 
+    if (currentSubTab === 'polaris') {
+      return (
+        <>
+          {isEnabled('polarissync') &&
+            loadDynamicComponent('polarisInfo', {
+              id: customer._id
+            })}
+        </>
+      );
+    }
+
     return (
       <>
         <PortableDeals mainType="customer" mainTypeId={customer._id} />
         <PortableTickets mainType="customer" mainTypeId={customer._id} />
         <PortableTasks mainType="customer" mainTypeId={customer._id} />
+        <PortablePurchases mainType="customer" mainTypeId={customer._id} />
       </>
     );
   }
@@ -305,6 +329,17 @@ class Index extends React.Component<IndexProps, IndexState> {
                 onClick={relatedOnClick}
               >
                 {__('Related')}
+              </TabTitle>
+            )}
+
+            {isEnabled('polarissync') && (
+              <TabTitle
+                className={currentSubTab === 'polaris' ? 'active' : ''}
+                onClick={() => {
+                  this.onSubtabClick('polaris');
+                }}
+              >
+                {__('Polaris')}
               </TabTitle>
             )}
           </Tabs>

@@ -31,7 +31,7 @@ const Map = (props: Props) => {
     }
 
     const script: any = document.createElement('script');
-    script.src = 'http://localhost:3000/js/osmb.js';
+    script.src = 'https://erxesmn.s3.amazonaws.com/osmb.js';
     script.async = true;
     script.defer = true;
     script.id = props.id;
@@ -82,7 +82,7 @@ const Map = (props: Props) => {
     });
 
     map.addGeoJSONTiles(
-      'http://{s}.data.osmbuildings.org/0.2/anonymous/tile/{z}/{x}/{y}.json'
+      'https://{s}.data.osmbuildings.org/0.2/anonymous/tile/{z}/{x}/{y}.json'
     );
 
     map.on('doubleclick', e => {

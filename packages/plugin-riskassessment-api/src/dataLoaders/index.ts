@@ -1,17 +1,19 @@
 import * as DataLoader from 'dataloader';
 import { IModels } from '../connectionResolver';
 
-import categories from './category';
-import riskAssessment from './riskAssessment';
-import user from './user';
-import board from './board';
-import pipeline from './pipeline';
-import stage from './stage';
-import field from './field';
+import {
+  generateDataLoaderBoards as board,
+  generateDataLoaderField as field,
+  generateDataLoaderPipelines as pipeline,
+  generateDataLoaderRiskAssessments as riskAssessments,
+  generateDataLoaderRiskIndicator as riskIndicator,
+  generateDataLoaderStages as stage,
+  generateDataLoaderUser as user
+} from './generateDataLoaders';
 
 export interface IDataLoaders {
-  riskAssessment: DataLoader<string, any>;
-  categories: DataLoader<string, any>;
+  riskIndicator: DataLoader<string, any>;
+  riskAssessments: DataLoader<string, any>;
   user: DataLoader<string, any>;
   board: DataLoader<string, any>;
   pipeline: DataLoader<string, any>;
@@ -24,8 +26,8 @@ export function generateAllDataLoaders(
   subdomain: string
 ): IDataLoaders {
   return {
-    riskAssessment: riskAssessment(models),
-    categories: categories(models),
+    riskIndicator: riskIndicator(models),
+    riskAssessments: riskAssessments(models),
     user: user(models, subdomain),
     board: board(models, subdomain),
     pipeline: pipeline(models, subdomain),

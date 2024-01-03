@@ -6,7 +6,7 @@ import FormControl from '@erxes/ui/src/components/form/Control';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import Icon from '@erxes/ui/src/components/Icon';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import { __ } from '@erxes/ui/src/utils';
+import { __ } from 'coreui/utils';
 import React from 'react';
 import { IJob } from '../../../../types';
 import Common from '../Common';
@@ -28,7 +28,6 @@ type State = {
   description: string;
   name: string;
   currentTab: string;
-  categoryId: string;
 };
 
 class JobForm extends React.Component<Props, State> {
@@ -46,9 +45,7 @@ class JobForm extends React.Component<Props, State> {
       description: description || '',
       name:
         (product && `${product.code} - ${product.name}`) || 'Unknown product',
-      currentTab: 'inputs',
-
-      categoryId: ''
+      currentTab: 'inputs'
     };
   }
 
@@ -116,8 +113,6 @@ class JobForm extends React.Component<Props, State> {
           {...props}
           closeModal={onCloseModal}
           onSelect={productOnChange}
-          onChangeCategory={categoryId => this.setState({ categoryId })}
-          categoryId={this.state.categoryId}
           data={{
             name: 'Product',
             products: product ? [product] : []

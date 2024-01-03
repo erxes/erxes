@@ -1,4 +1,4 @@
-import { Ads } from '../../models';
+import { Ads, AdWishlists } from '../../models';
 
 const adMutations = {
   /**
@@ -38,6 +38,63 @@ const adMutations = {
     }
 
     return Ads.removeAd(_id);
+  },
+
+  /**
+   * Add a single ad to wishlist
+   */
+
+  async adWishlistAdd(_root, { _id, ...doc }, { cpUser }) {
+    if (!cpUser) {
+      throw new Error('Login required');
+    }
+    const ads = await AdWishlists.getAdWishlist(cpUser.userId);
+
+    if (ads) {
+      const adIds = ads.adIds;
+      if (adIds.includes(_id)) {
+        throw new Error('Ad already in wishlist');
+      }
+      adIds.push(_id);
+      await AdWishlists.updateOne(
+        { cpUserId: cpUser.userId },
+        { $set: { adIds } }
+      );
+
+      return AdWishlists.getAdWishlist(cpUser.userId);
+    }
+
+    doc.cpUserId = cpUser.userId;
+    doc.adIds = [_id];
+    return AdWishlists.createAdWishlist(doc);
+  },
+
+  /**
+   * Removes a single ad from wishlist
+   */
+
+  async adWishlistRemove(_root, { _id, ...doc }, { cpUser }) {
+    if (!cpUser || !cpUser.userId) {
+      throw new Error('Login required');
+    }
+
+    const ads = await AdWishlists.getAdWishlist(cpUser.userId);
+    const adIds = ads.adIds;
+
+    if (!adIds.includes(_id)) {
+      throw new Error('Ad not in wishlist');
+    }
+
+    const index = adIds.indexOf(_id);
+    if (index > -1) {
+      adIds.splice(index, 1);
+    }
+    await AdWishlists.updateOne(
+      { cpUserId: cpUser.userId },
+      { $set: { adIds } }
+    );
+
+    return AdWishlists.getAdWishlist(cpUser.userId);
   }
 };
 

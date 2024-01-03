@@ -1,4 +1,4 @@
-export const commonTypes = `
+export const commonDateTypes = `
     createdAt:String
     modifiedAt:String
 `;
@@ -13,33 +13,46 @@ export const commonPaginateTypes = `
     sortToDate: String
 `;
 
-export const commonRiskAssessmentTypes = `
+export const commonIndicatorTypes = `
     _id: String
     name: String!
     description: String
-    categoryId: String
-    calculateMethod: String
+    tagIds: [String]
+    operationIds: [String]
+    branchIds:[String]
+    departmentIds:[String]
+    calculateMethod:String
+    isWithDescription:Boolean
 `;
 
 export const commonRiskConformityTypes = `
     _id: String!,
     cardId: String!,
-    riskAssessmentId: String!,
+    riskIndicatorId: String!,
 `;
 
-export const commonAssessmentCategoryTypes = `
-    _id: String
-    name: String
-    formId: String
-    parentId: String
+export const commonRiskIndicatorFormParams = `
+        _id:String,
+        formId:String,
+        calculateMethod:String,
+        percentWeight:Int,
 `;
 
-export const commonFormSubmissionsTypes = `
-    cardId: String,
-    cardType: String,
-    formId: String,
-    userId: String,
-    fieldId: String,
-    riskAssessmentId: String,
-    formSubmissions:JSON
+export const commonRiskIndicatorParams = `
+        _id:String,
+        name: String
+        description: String
+        tagIds: [String]
+        operationIds:[String]
+        branchIds: [String]
+        departmentIds: [String]
+`;
+
+export const commonCalculateLogicParams = `
+        _id: String,
+        name: String,
+        value: Int
+        value2:Int
+        logic: String
+        color: String
 `;

@@ -23,6 +23,10 @@ dotenv.config();
 
 let client;
 
+export const sendRPCMessage = async (channel, message): Promise<any> => {
+  return client.sendRPCMessage(channel, message);
+};
+
 export const initBroker = async cl => {
   client = cl;
 
@@ -202,3 +206,6 @@ export const sendInboxMessage = (args: ISendMessageArgs) => {
     ...args
   });
 };
+
+export const getFileUploadConfigs = async () =>
+  sendRPCMessage('core:getFileUploadConfigs', {});

@@ -37,6 +37,7 @@ const customFieldSchema = new Schema(
   {
     field: { type: String },
     value: { type: Schema.Types.Mixed },
+    extraValue: { type: String, optional: true },
     stringValue: { type: String, optional: true },
     numberValue: { type: Number, optional: true },
     dateValue: { type: Date, optional: true },
@@ -61,6 +62,7 @@ customFieldSchema.index({ locationValue: '2dsphere' });
 export interface ICustomField {
   field: string;
   value: any;
+  extraValue?: string;
   stringValue?: string;
   numberValue?: number;
   dateValue?: Date;

@@ -6,7 +6,7 @@ export type generatedList = {
 };
 
 export const generateModuleParams = (list: IModule[]): generatedList[] => {
-  const sortedList = list.sort((a, b) => {
+  const sortedList = [...list].sort((a, b) => {
     return (a.description || '').localeCompare(b.description || '');
   });
 

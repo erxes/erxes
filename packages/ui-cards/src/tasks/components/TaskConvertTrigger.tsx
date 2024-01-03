@@ -21,7 +21,8 @@ export default (props: Props) => {
   const extendedProps = {
     ...props,
     options,
-    title
+    title,
+    autoOpenKey: 'showTaskConvertModal'
   };
 
   return <ConvertTrigger {...extendedProps} />;

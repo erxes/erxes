@@ -27,7 +27,7 @@ export const reserveRemFields = `
   departmentId
   branchId
   productId
-  uomId
+  uom
   remainder
   createdAt
   createdBy
@@ -51,13 +51,8 @@ export const reserveRemFields = `
     code
     name
     categoryId
-    uomId
+    uom
     subUoms
-  }
-  uom {
-    _id
-    code
-    name
   }
   createdUser {
     ${userFields}

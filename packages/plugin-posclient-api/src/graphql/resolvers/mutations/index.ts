@@ -1,11 +1,11 @@
 import Order from './orders';
-import Payment from './payments';
 import Configs from './configs';
 import PosUser from './posUsers';
+import Cover from './covers';
 
 export default {
   ...Order,
-  ...Payment,
   ...Configs,
-  ...PosUser
+  ...PosUser,
+  ...Cover
 };

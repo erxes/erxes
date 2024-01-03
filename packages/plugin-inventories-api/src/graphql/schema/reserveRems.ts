@@ -4,7 +4,7 @@ export const types = `
     departmentId: String,
     branchId: String,
     productId: String,
-    uomId: String,
+    uom: String,
     remainder: Float
     createdAt: Date,
     createdBy: String,
@@ -14,7 +14,6 @@ export const types = `
     department: Department,
     branch: Branch,
     product: Product,
-    uom: Uom,
     createdUser: User,
     modifiedUser: User
   }

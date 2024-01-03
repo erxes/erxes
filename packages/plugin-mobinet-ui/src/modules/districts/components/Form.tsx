@@ -4,11 +4,13 @@ import FormControl from '@erxes/ui/src/components/form/Control';
 import Form from '@erxes/ui/src/components/form/Form';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
+import Toggle from '@erxes/ui/src/components/Toggle';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import React, { useState } from 'react';
 
 import Map from '../../../common/OSMap';
+import { ToggleWrap } from '../../../styles';
 import SelectCity from '../../cities/containers/SelectCity';
 import { IDistrict } from '../types';
 
@@ -22,6 +24,9 @@ const DistrictForm = (props: Props) => {
   const { district } = props;
 
   const [cityId, setCityId] = useState<string>(district ? district.cityId : '');
+  const [isCapital, setIsCapital] = useState<boolean>(
+    district ? district.isCapital : false
+  );
 
   const [districtObject, setDistrictObject] = useState<IDistrict | undefined>(
     district
@@ -33,6 +38,12 @@ const DistrictForm = (props: Props) => {
       lng: 106.904299
     }
   );
+
+  React.useEffect(() => {
+    if (districtObject) {
+      setDistrictObject(districtObject);
+    }
+  }, [districtObject]);
 
   const generateDoc = () => {
     const finalValues: any = {};
@@ -46,6 +57,7 @@ const DistrictForm = (props: Props) => {
       finalValues.code = districtObject.code;
       finalValues.cityId = cityId;
       finalValues.center = { ...center };
+      finalValues.isCapital = isCapital;
     }
 
     return {
@@ -60,6 +72,10 @@ const DistrictForm = (props: Props) => {
     obj[id] = value;
 
     setDistrictObject(obj);
+  };
+
+  const onChangeToggle = e => {
+    setIsCapital(e.target.checked);
   };
 
   const onChangeCenter = position => {
@@ -124,6 +140,8 @@ const DistrictForm = (props: Props) => {
     const { closeModal, renderButton } = props;
     const { isSubmitted } = formProps;
 
+    console.log('________ ', districtObject?.isCapital);
+
     return (
       <>
         <SelectCity
@@ -147,6 +165,21 @@ const DistrictForm = (props: Props) => {
           'string',
           district && district.name
         )}
+
+        <ToggleWrap>
+          <FormGroup>
+            <ControlLabel>Is Capital</ControlLabel>
+            <Toggle
+              id="isCapital"
+              checked={isCapital}
+              onChange={onChangeToggle}
+              icons={{
+                checked: <span>Yes</span>,
+                unchecked: <span>No</span>
+              }}
+            />
+          </FormGroup>
+        </ToggleWrap>
 
         {renderMap()}
 

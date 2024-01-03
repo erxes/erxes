@@ -1,15 +1,23 @@
 import React from 'react';
 import { useLocation, useParams } from 'react-router-dom';
-import { useQuery, useMutation } from 'react-apollo';
+import { useQuery, useMutation } from '@apollo/client';
 import { router } from '@erxes/ui/src/utils';
 import queryString from 'query-string';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
 // erxes
 import Alert from '@erxes/ui/src/utils/Alert';
 // local
 import { queries, mutations } from '../graphql';
 import ListComponent from '../components/List';
+
+export const generateParams = queryParams => {
+  return {
+    status: queryParams.status,
+    diffType: queryParams.diffType,
+    productCategoryIds: queryParams.productCategoryIds
+  };
+};
 
 function ListContainer() {
   // Hooks
@@ -25,25 +33,23 @@ function ListContainer() {
     notifyOnNetworkStatusChange: true,
     variables: { _id: id }
   });
+
   const safeRemainderItemsQuery = useQuery(gql(queries.safeRemainderItems), {
     fetchPolicy: 'network-only',
     variables: {
       remainderId: id,
-      status: queryParams.status,
-      diffType: queryParams.diffType,
-      productCategoryId: queryParams.productCategoryId,
+      ...generateParams(queryParams),
       ...router.generatePaginationParams(queryParams || {})
     }
   });
+
   const safeRemainderItemsCountQuery = useQuery(
     gql(queries.safeRemainderItemsCount),
     {
       fetchPolicy: 'network-only',
       variables: {
         remainderId: id,
-        status: queryParams.status,
-        diffType: queryParams.diffType,
-        productCategoryId: queryParams.productCategoryId
+        ...generateParams(queryParams)
       }
     }
   );
@@ -91,32 +97,10 @@ function ListContainer() {
       .catch((error: any) => Alert.error(error.message));
   };
 
-  const submitItems = (data: any) => {
-    let products: any = [];
-
-    for (let item of data) {
-      if (item.count - item.preCount !== 0)
-        products.push({
-          productId: item.productId,
-          count: item.count - item.preCount,
-          uomId: item.uomId,
-          isDebit: true
-        });
-    }
-
-    if (products.length === 0) {
-      Alert.error('No recent changes to submit!');
-      return;
-    }
-
+  const submitSafeRemainder = (_id: string) => {
     safeRemainderSubmit({
       variables: {
-        branchId: safeRemainder.branchId,
-        departmentId: safeRemainder.departmentId,
-        contentType: 'Safe Remainder',
-        contentId: 'safe_remainder_id',
-        status: 'checked',
-        products: products
+        _id
       }
     })
       .then(() => {
@@ -151,7 +135,7 @@ function ListContainer() {
     safeRemainder,
     safeRemainderItems,
     totalCount,
-    submitItems,
+    submitSafeRemainder,
     updateItem,
     removeItem
   };

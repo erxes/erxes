@@ -6,20 +6,82 @@ import { IUserDocument } from '@erxes/api-utils/src/types';
 import { sendCoreMessage } from '../../../messageBroker';
 
 const chatQueries = {
-  chats: async (_root, { type, limit, skip }, { models, user }) => {
-    const filter: any = { participantIds: { $in: [user._id] } };
+  chats: async (
+    _root,
+    { type, limit, skip, position, searchValue },
+    { models, user, subdomain }
+  ) => {
+    const filter: any = {
+      $and: [
+        { isPinnedUserIds: { $nin: [user._id] } },
+        { participantIds: { $in: [user._id] } },
+        { archivedUserIds: { $nin: [user._id] } }
+      ]
+    };
+
+    if (searchValue) {
+      try {
+        const userIds = await sendCoreMessage({
+          subdomain,
+          action: 'users.getIdsBySearchParams',
+          data: {
+            searchValue: searchValue
+          },
+          isRPC: true,
+          defaultValue: []
+        });
+
+        filter.$or = [
+          { name: new RegExp(`.*${searchValue}.*`, 'i') },
+          { participantIds: { $in: [...userIds] } }
+        ];
+      } catch (e) {
+        filter.$and.push({ participantIds: { $in: [user._id] } });
+      }
+    } else {
+      filter.$and.push({ participantIds: { $in: [user._id] } });
+    }
 
     if (type) {
       filter.type = type;
     }
 
-    return {
-      list: await models.Chats.find(filter)
-        .sort({ updatedAt: -1 })
-        .skip(skip || 0)
-        .limit(limit || 10),
-      totalCount: await models.Chats.find(filter).countDocuments()
+    if (position) {
+      filter.position = position;
+    }
+
+    const chats = await models.Chats.find({
+      ...filter
+    })
+      .sort({ updatedAt: -1 })
+      .skip(skip || 0)
+      .limit(limit || 10);
+
+    const result = {
+      list: [...chats],
+      totalCount: await models.Chats.countDocuments(filter)
     };
+    return result;
+  },
+
+  chatsPinned: async (_root, _params, { models, user }) => {
+    const filter: any = {
+      $and: [
+        { participantIds: { $in: [user._id] } },
+        { isPinnedUserIds: { $in: [user._id] } }
+      ]
+    };
+
+    const chats = await models.Chats.find({
+      ...filter
+    }).sort({ updatedAt: -1 });
+
+    const result = {
+      list: [...chats],
+      totalCount: await models.Chats.countDocuments(filter)
+    };
+
+    return result;
   },
 
   chatDetail: async (
@@ -27,33 +89,15 @@ const chatQueries = {
     { _id },
     { models, user }: { models: IModels; user: IUserDocument }
   ) => {
-    const chat = models.Chats.findOne({ _id });
+    const chat = await models.Chats.getChat(_id, user._id);
 
-    graphqlPubsub.publish('chatUnreadCountChanged', {
-      userId: user._id
-    });
-
-    return chat;
-  },
-
-  chatMessages: async (
-    _root,
-    { chatId, isPinned, limit, skip },
-    {
-      models,
-      user,
-      subdomain
-    }: { models: IModels; user: IUserDocument; subdomain: string }
-  ) => {
     const lastMessage = await models.ChatMessages.findOne({
-      chatId
+      chatId: _id
     }).sort({
       createdAt: -1
     });
 
     if (lastMessage) {
-      const chat = await models.Chats.getChat(chatId);
-
       const seenInfos = chat.seenInfos || [];
 
       let seenInfo = seenInfos.find(info => info.userId === user._id);
@@ -84,16 +128,72 @@ const chatQueries = {
           { _id: chat._id },
           { $set: { seenInfos } }
         );
+
+        graphqlPubsub.publish('chatUnreadCountChanged', {
+          userId: user._id
+        });
       }
     }
 
-    const chat = await models.Chats.getChat(chatId);
+    return chat;
+  },
 
-    if (!getIsSeen(models, chat, user)) {
-      graphqlPubsub.publish('chatUnreadCountChanged', {
-        userId: user._id
-      });
+  chatMessages: async (
+    _root,
+    { chatId, isPinned, limit, skip },
+    {
+      models,
+      user,
+      subdomain
+    }: { models: IModels; user: IUserDocument; subdomain: string }
+  ) => {
+    const lastMessage = await models.ChatMessages.findOne({
+      chatId
+    }).sort({
+      createdAt: -1
+    });
+
+    if (lastMessage) {
+      const chat = await models.Chats.getChat(chatId, user._id);
+
+      const seenInfos = chat.seenInfos || [];
+
+      let seenInfo = seenInfos.find(info => info.userId === user._id);
+
+      let updated = false;
+
+      if (!seenInfo) {
+        seenInfo = {
+          userId: user._id,
+          lastSeenMessageId: lastMessage._id,
+          seenDate: new Date()
+        };
+
+        seenInfos.push(seenInfo);
+
+        updated = true;
+      } else {
+        if (seenInfo.lastSeenMessageId !== lastMessage._id) {
+          seenInfo.lastSeenMessageId = lastMessage._id;
+          seenInfo.seenDate = new Date();
+
+          updated = true;
+        }
+      }
+
+      if (updated) {
+        graphqlPubsub.publish('chatUnreadCountChanged', {
+          userId: user._id
+        });
+
+        await models.Chats.updateOne(
+          { _id: chat._id },
+          { $set: { seenInfos } }
+        );
+      }
     }
+
+    const chat = await models.Chats.getChat(chatId, user._id);
 
     const seenList: any[] = [];
 
@@ -139,6 +239,27 @@ const chatQueries = {
     };
   },
 
+  chatMessageAttachments: async (
+    _root,
+    { chatId, limit, skip },
+    { models }: { models: IModels; user: IUserDocument; subdomain: string }
+  ) => {
+    const filter = {
+      chatId,
+      attachments: { $exists: true, $type: 'array', $ne: [] }
+    };
+
+    const list = await models.ChatMessages.find(filter)
+      .sort({ attachments: -1, createdAt: -1 })
+      .skip(skip || 0)
+      .limit(limit || 20);
+
+    return {
+      list,
+      totalCount: await models.ChatMessages.find(filter).countDocuments()
+    };
+  },
+
   chatMessageDetail: async (
     _root,
     { _id },
@@ -177,10 +298,15 @@ const chatQueries = {
       graphqlPubsub.publish('chatInserted', {
         userId: user._id
       });
+    } else {
+      const isArchived = chat.archivedUserIds?.includes(user._id);
 
-      // graphqlPubsub.publish("chatUnreadCountChanged", {
-      //   userId: user._id,
-      // });
+      if (isArchived) {
+        await models.Chats.updateOne(
+          { _id: chat._id },
+          { $pull: { archivedUserIds: { $in: [user._id] } } }
+        );
+      }
     }
 
     return chat._id;
@@ -210,6 +336,7 @@ const chatQueries = {
     });
     return userstatus;
   },
+
   activeMe: async (_root, { userId }, { models, user }) => {
     let userstatus = await models.UserStatus.findOne({
       userId: userId

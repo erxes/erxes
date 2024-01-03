@@ -8,10 +8,13 @@ import { FlexContent } from '@erxes/ui/src/layout/styles';
 import { __ } from '@erxes/ui/src/utils';
 import React, { useState } from 'react';
 import Select from 'react-select-plus';
+import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
 
 import { CONFIGURATIONS } from '../../constants';
-import { ToggleWrap } from '../../styles';
+import { BlockRow, ToggleWrap } from '../../styles';
 import { ClientPortalConfig } from '../../types';
+import PasswordConfig from './PasswordConfig';
+import { Formgroup } from '@erxes/ui/src/components/form/styles';
 
 type Props = {
   handleFormChange: (name: string, value: any) => void;
@@ -22,16 +25,31 @@ type ControlItem = {
   label: string;
   subtitle?: string;
   formValueName: string;
-  formValue?: string | object;
+  formValue?: string | number | object;
   placeholder?: string;
   formProps?: any;
 };
 
 function General({
   googleCredentials,
+  googleClientId,
+  googleRedirectUri,
+  googleClientSecret,
+  facebookAppId,
+  erxesAppToken,
   otpConfig,
   mailConfig,
+  socialpayConfig,
   name,
+  manualVerificationConfig,
+  passwordVerificationConfig,
+  tokenPassMethod = 'cookie',
+  tokenExpiration = 1,
+  refreshTokenExpiration = 7,
+  testUserEmail,
+  testUserPhone,
+  testUserPassword,
+  testUserOTP,
   handleFormChange
 }: Props) {
   const [otpEnabled, setOtpEnabled] = useState<boolean>(
@@ -42,8 +60,32 @@ function General({
     mailConfig ? true : false
   );
 
-  const onChangeToggle = (name: string, value: boolean) => {
-    if (name === 'otpEnabled') {
+  const [manualVerificationEnabled, setManualVerificationEnabled] = useState<
+    boolean
+  >(manualVerificationConfig ? true : false);
+
+  const [userIds] = useState<string[]>(
+    manualVerificationConfig ? manualVerificationConfig.userIds : []
+  );
+
+  const [verifyCompany, setVerifyCompany] = useState<boolean>(
+    manualVerificationConfig ? manualVerificationConfig.verifyCompany : false
+  );
+
+  const [verifyCustomer, setVerifyCustomer] = useState<boolean>(
+    manualVerificationConfig ? manualVerificationConfig.verifyCustomer : false
+  );
+
+  const onSelectUsers = values => {
+    handleFormChange('manualVerificationConfig', {
+      userIds: values,
+      verifyCompany,
+      verifyCustomer
+    });
+  };
+
+  const onChangeToggle = (type: string, value: boolean) => {
+    if (type === 'otpEnabled') {
       setOtpEnabled(value);
 
       if (!value) {
@@ -59,13 +101,54 @@ function General({
       }
     }
 
-    if (name === 'mailEnabled') {
+    if (type === 'mailEnabled') {
       setMailEnabled(value);
 
       if (!value) {
         handleFormChange('mailConfig', null);
       }
     }
+
+    if (type === 'manualVerificationEnabled') {
+      setManualVerificationEnabled(value);
+
+      if (!value) {
+        handleFormChange('manualVerificationConfig', null);
+      } else {
+        handleFormChange('manualVerificationConfig', {
+          userIds: [],
+          verifyCustomer: false,
+          verifyCompany: false
+        });
+      }
+    }
+
+    if (type === 'verifyCompany') {
+      setVerifyCompany(value);
+
+      handleFormChange('manualVerificationConfig', {
+        userIds,
+        verifyCompany: value,
+        verifyCustomer
+      });
+    }
+
+    if (type === 'verifyCustomer') {
+      setVerifyCustomer(value);
+
+      handleFormChange('manualVerificationConfig', {
+        userIds,
+        verifyCompany,
+        verifyCustomer: value
+      });
+    }
+  };
+
+  const onChangeConfiguration = option => {
+    handleFormChange('otpConfig', {
+      ...otpConfig,
+      smsTransporterType: option.value
+    });
   };
 
   function renderControl({
@@ -102,7 +185,7 @@ function General({
   }
 
   const renderOtp = () => {
-    let obj = otpConfig || {
+    const obj = otpConfig || {
       content: '',
       codeLength: 4,
       smsTransporterType: 'messagePro',
@@ -134,7 +217,7 @@ function General({
       }
 
       if (['codeLength', 'expireAfter'].includes(key)) {
-        obj[key] = parseInt(value);
+        obj[key] = Number(value);
       }
 
       if (key === 'loginWithOTP') {
@@ -235,8 +318,58 @@ function General({
     );
   };
 
+  const renderSocialPayConfig = () => {
+    const config = socialpayConfig || {
+      certId: '',
+      publicKey: ''
+    };
+
+    const handleChange = e => {
+      const key = e.currentTarget.id;
+      const value = (e.currentTarget as HTMLInputElement).value;
+
+      config[key] = value;
+
+      handleFormChange('socialpayConfig', config);
+    };
+
+    return (
+      <CollapseContent
+        title={__('SocialPay Config')}
+        compact={true}
+        open={false}
+      >
+        <FormGroup>
+          <ControlLabel required={true}>Certificate ID</ControlLabel>
+
+          <FlexContent>
+            <FormControl
+              id="certId"
+              name="certId"
+              value={config.certId}
+              onChange={handleChange}
+            />
+          </FlexContent>
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel required={true}>Public key</ControlLabel>
+
+          <FlexContent>
+            <FormControl
+              id="publicKey"
+              name="publicKey"
+              value={config.publicKey}
+              onChange={handleChange}
+            />
+          </FlexContent>
+        </FormGroup>
+      </CollapseContent>
+    );
+  };
+
   const renderMailConfig = () => {
-    let obj = mailConfig || {
+    const obj = mailConfig || {
       registrationContent: `Hello <br /><br />Your verification link is {{ link }}.<br /><br />Thanks<br />${name}`,
       invitationContent: `Hello <br /><br />Your verification link is {{ link }}.<br />  Your password is: {{ password }} . Please change your password after you login. <br /><br />Thanks <br />${name}`,
       subject: `${name} - invitation`
@@ -354,15 +487,189 @@ function General({
     );
   };
 
-  const onChangeConfiguration = option => {
-    otpConfig && (otpConfig.smsTransporterType = option.value);
-    handleFormChange('otpConfig', otpConfig);
+  const renderManualVerification = () => {
+    return (
+      <CollapseContent
+        title={__('Manual verification')}
+        compact={true}
+        open={false}
+      >
+        <ToggleWrap>
+          <FormGroup>
+            <ControlLabel>Enable</ControlLabel>
+            <Toggle
+              checked={manualVerificationEnabled}
+              onChange={() =>
+                onChangeToggle(
+                  'manualVerificationEnabled',
+                  !manualVerificationEnabled
+                )
+              }
+              icons={{
+                checked: <span>Yes</span>,
+                unchecked: <span>No</span>
+              }}
+            />
+          </FormGroup>
+        </ToggleWrap>
+        {manualVerificationEnabled && (
+          <>
+            <FormGroup>
+              <ControlLabel required={true}>{__('Team members')}</ControlLabel>
+
+              <p>{__('Select team members who can verify')}</p>
+              <SelectTeamMembers
+                label="Select team members"
+                name="userIds"
+                initialValue={userIds}
+                onSelect={onSelectUsers}
+                multi={true}
+              />
+            </FormGroup>
+
+            <ToggleWrap>
+              <FormGroup>
+                <ControlLabel>Verify customer</ControlLabel>
+                <Toggle
+                  checked={verifyCustomer}
+                  onChange={() =>
+                    onChangeToggle('verifyCustomer', !verifyCustomer)
+                  }
+                  icons={{
+                    checked: <span>Yes</span>,
+                    unchecked: <span>No</span>
+                  }}
+                />
+              </FormGroup>
+            </ToggleWrap>
+
+            <ToggleWrap>
+              <FormGroup>
+                <ControlLabel>Verify company</ControlLabel>
+                <Toggle
+                  checked={verifyCompany}
+                  onChange={() =>
+                    onChangeToggle('verifyCompany', !verifyCompany)
+                  }
+                  icons={{
+                    checked: <span>Yes</span>,
+                    unchecked: <span>No</span>
+                  }}
+                />
+              </FormGroup>
+            </ToggleWrap>
+          </>
+        )}
+      </CollapseContent>
+    );
   };
 
   return (
     <>
+      <CollapseContent title="User Authentication" compact={true} open={false}>
+        <BlockRow>
+          <Formgroup>
+            <ControlLabel>Token pass method</ControlLabel>
+            <p>
+              It is recommended to use cookies, if hosting the client portal on
+              a different domain use bearer token
+            </p>
+            <FormControl
+              componentClass="select"
+              placeholder="select"
+              value={tokenPassMethod}
+              onChange={(e: any) =>
+                handleFormChange('tokenPassMethod', e.currentTarget.value)
+              }
+            >
+              <option value="cookie">Cookie</option>
+              <option value="header">Bearer token</option>
+            </FormControl>
+          </Formgroup>
+
+          <Formgroup>
+            <ControlLabel>Token expiration duration</ControlLabel>
+            <p>
+              In order to be a more secure, it is recommended to set a short
+              expiration duration.
+            </p>
+            <FormControl
+              componentClass="input"
+              placeholder="token expiration duration"
+              type="number"
+              min={1}
+              max={5}
+              value={tokenExpiration}
+              onChange={(e: any) =>
+                handleFormChange(
+                  'tokenExpiration',
+                  Number(e.currentTarget.value)
+                )
+              }
+            />
+          </Formgroup>
+
+          <Formgroup>
+            <ControlLabel>Refresh Token expiration duration</ControlLabel>
+            <p>
+              Refresh token expiration duration can be set to a longer duration.
+            </p>
+            <FormControl
+              componentClass="input"
+              placeholder="refresh token expiration duration"
+              type="number"
+              min={7}
+              max={30}
+              value={refreshTokenExpiration}
+              onChange={(e: any) =>
+                handleFormChange(
+                  'refreshTokenExpiration',
+                  Number(e.currentTarget.value)
+                )
+              }
+            />
+          </Formgroup>
+        </BlockRow>
+      </CollapseContent>
+      <CollapseContent
+        title={__('Test user settings')}
+        compact={true}
+        open={false}
+      >
+        <BlockRow>
+          {renderControl({
+            label: 'Test User Email',
+            formValueName: 'testUserEmail',
+            formValue: testUserEmail
+          })}
+          {renderControl({
+            label: 'Test User Phone',
+            formValueName: 'testUserPhone',
+            formValue: testUserPhone
+          })}
+        </BlockRow>
+        <BlockRow>
+          {renderControl({
+            label: 'Test User Password',
+            formValueName: 'testUserPassword',
+            formValue: testUserPassword
+          })}
+          {renderControl({
+            label: 'Test User OTP',
+            formProps: { type: 'number' },
+            formValueName: 'testUserOTP',
+            formValue: testUserOTP
+          })}
+        </BlockRow>
+      </CollapseContent>
       {renderOtp()}
+      {renderSocialPayConfig()}
       {renderMailConfig()}
+      <PasswordConfig
+        config={passwordVerificationConfig}
+        onChange={handleFormChange}
+      />
+      {renderManualVerification()}
 
       <CollapseContent
         title={__('Google Application Credentials')}
@@ -373,6 +680,43 @@ function General({
           label: 'Google Application Credentials',
           formValueName: 'googleCredentials',
           formValue: googleCredentials
+        })}
+        {renderControl({
+          label: 'Google Client Id',
+          formValueName: 'googleClientId',
+          formValue: googleClientId
+        })}
+        {renderControl({
+          label: 'Google Client Secret',
+          formValueName: 'googleClientSecret',
+          formValue: googleClientSecret
+        })}
+        {renderControl({
+          label: 'Google Client Redirect Uri',
+          formValueName: 'googleRedirectUri',
+          formValue: googleRedirectUri
+        })}
+      </CollapseContent>
+      <CollapseContent
+        title={__('Facebook Application Credentials')}
+        compact={true}
+        open={false}
+      >
+        {renderControl({
+          label: 'Facebook App Id',
+          formValueName: 'facebookAppId',
+          formValue: facebookAppId
+        })}
+      </CollapseContent>
+      <CollapseContent
+        title={__('Erxes App Token')}
+        compact={true}
+        open={false}
+      >
+        {renderControl({
+          label: 'Erxes App Token',
+          formValueName: 'erxesAppToken',
+          formValue: erxesAppToken
         })}
       </CollapseContent>
     </>

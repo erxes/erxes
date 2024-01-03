@@ -1,34 +1,21 @@
-import Settings from './containers/Settings';
 import React from 'react';
 import { Route } from 'react-router-dom';
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 import queryString from 'query-string';
+import GeneralSettings from './components/GeneralSettings';
+import StageSettings from './components/StageSettings';
+import StageMoveSettings from './components/StageMoveSettings';
+import StageIncomeSettings from './components/StageIncomeSettings';
+import ReturnStageSettings from './components/ReturnStageSettings';
+import PipelineSettings from './components/PipelineSettings';
 
-const GeneralSettings = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "GeneralSettings" */ './components/GeneralSettings'
-  )
+const Settings = asyncComponent(() =>
+  import(/* webpackChunkName: "Settings" */ './containers/Settings')
 );
 
-const StageSettings = asyncComponent(() =>
-  import(/* webpackChunkName: "StageSettings" */ './components/StageSettings')
-);
-
-const StageMoveSettings = asyncComponent(() =>
+const SyncHistoryList = asyncComponent(() =>
   import(
-    /* webpackChunkName: "StageSettings" */ './components/StageMoveSettings'
-  )
-);
-
-const ReturnStageSettings = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "ReturnStageSettings" */ './components/ReturnStageSettings'
-  )
-);
-
-const PipelineSettings = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "PipelineSettings" */ './components/PipelineSettings'
+    /* webpackChunkName: "CheckSyncedDeals" */ './containers/SyncHistoryList'
   )
 );
 
@@ -70,6 +57,15 @@ const StageMoveSetting = () => {
   );
 };
 
+const StageIncomeSetting = () => {
+  return (
+    <Settings
+      component={StageIncomeSettings}
+      configCode="stageInIncomeConfig"
+    />
+  );
+};
+
 const ReturnStageSetting = () => {
   return (
     <Settings
@@ -81,6 +77,15 @@ const ReturnStageSetting = () => {
 
 const PipelineSetting = () => {
   return <Settings component={PipelineSettings} configCode="remainderConfig" />;
+};
+
+const syncHistoryList = ({ location, history }) => {
+  return (
+    <SyncHistoryList
+      queryParams={queryString.parse(location.search)}
+      history={history}
+    />
+  );
 };
 
 const checkSyncedDealList = ({ location, history }) => {
@@ -143,6 +148,13 @@ const routes = () => {
       />
 
       <Route
+        key="/erxes-plugin-sync-erkhet/settings/income-stage"
+        exact={true}
+        path="/erxes-plugin-sync-erkhet/settings/income-stage"
+        component={StageIncomeSetting}
+      />
+
+      <Route
         key="/erxes-plugin-sync-erkhet/settings/return-stage"
         exact={true}
         path="/erxes-plugin-sync-erkhet/settings/return-stage"
@@ -154,6 +166,13 @@ const routes = () => {
         exact={true}
         path="/erxes-plugin-sync-erkhet/settings/pipeline"
         component={PipelineSetting}
+      />
+
+      <Route
+        key="/sync-erkhet-history"
+        exact={true}
+        path="/sync-erkhet-history"
+        component={syncHistoryList}
       />
 
       <Route

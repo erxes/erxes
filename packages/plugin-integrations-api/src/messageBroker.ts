@@ -66,6 +66,14 @@ export const initBroker = async cl => {
           response = { data: await models.Configs.find({}) };
         }
 
+        if (action === 'getDetails') {
+          const integration = await models.Integrations.findOne({
+            erxesApiId: data.inboxId
+          }).select(['-_id', '-kind', '-erxesApiId']);
+
+          response = { data: integration };
+        }
+
         response.status = 'success';
       } catch (e) {
         response = {
@@ -107,6 +115,34 @@ export const initBroker = async cl => {
     }
   );
 
+  consumeRPCQueue(
+    'integrations:updateIntegration',
+    async ({ subdomain, data: { integrationId, doc } }) => {
+      const models = await generateModels(subdomain);
+      const details = JSON.parse(doc.data);
+
+      const integration = await models.Integrations.findOne({
+        erxesApiId: integrationId
+      });
+
+      if (!integration) {
+        return {
+          status: 'error',
+          errorMessage: 'Integration not found.'
+        };
+      }
+
+      await models.Integrations.updateOne(
+        { erxesApiId: integrationId },
+        { $set: details }
+      );
+
+      return {
+        status: 'success'
+      };
+    }
+  );
+
   // '/integrations/remove',
   consumeRPCQueue(
     'integrations:removeIntegrations',
@@ -116,6 +152,30 @@ export const initBroker = async cl => {
       await removeIntegration(models, integrationId);
 
       return { status: 'success' };
+    }
+  );
+
+  consumeRPCQueue(
+    'integrations:configs.findOne',
+    async ({ subdomain, data: { code } }) => {
+      const models = await generateModels(subdomain);
+
+      return {
+        data: await models.Configs.findOne({ code }),
+        status: 'success'
+      };
+    }
+  );
+
+  consumeRPCQueue(
+    'integrations:configs.find',
+    async ({ subdomain, data: { selector } }) => {
+      const models = await generateModels(subdomain);
+
+      return {
+        data: await models.Configs.find(selector).lean(),
+        status: 'success'
+      };
     }
   );
 

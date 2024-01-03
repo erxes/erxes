@@ -1,5 +1,5 @@
 import { IProduct, IProductCategory, IUom } from '@erxes/ui-products/src/types';
-import { IBranch, IDepartment } from '@erxes/ui-team/src/types';
+import { IBranch, IDepartment } from '@erxes/ui/src/team/types';
 import { IUser } from '@erxes/ui/src/auth/types';
 import { QueryResponse } from '@erxes/ui/src/types';
 
@@ -33,11 +33,10 @@ export type ISafeRemainder = {
 export type ISafeRemainderItem = {
   _id: string;
   modifiedAt: Date;
-  lastTransactionDate: Date;
   status: string;
   remainderId: string;
   productId: string;
-  uomId: string;
+  uom: string;
   preCount: number;
   count: number;
   branchId: string;

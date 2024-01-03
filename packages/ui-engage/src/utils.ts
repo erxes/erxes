@@ -1,5 +1,5 @@
-import { generatePaginationParams } from '@erxes/ui/src/utils/router';
 import { Counts } from '@erxes/ui/src/types';
+import { generatePaginationParams } from '@erxes/ui/src/utils/router';
 
 export const generateListQueryVariables = ({ queryParams }) => ({
   ...generatePaginationParams(queryParams),
@@ -21,7 +21,7 @@ export const crudMutationsOptions = () => {
 };
 
 export const generateEmailTemplateParams = emailTemplates => {
-  return emailTemplates.map(template => ({
+  return (emailTemplates || []).map(template => ({
     value: template._id,
     label: template.name
   }));

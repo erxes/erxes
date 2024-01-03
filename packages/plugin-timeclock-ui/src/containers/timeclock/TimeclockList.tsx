@@ -1,7 +1,7 @@
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
-import { graphql } from 'react-apollo';
-import { Alert, withProps } from '@erxes/ui/src/utils';
+import { graphql } from '@apollo/client/react/hoc';
+import { Alert, withProps, confirm } from '@erxes/ui/src/utils';
 import List from '../../components/timeclock/TimeclockList';
 import {
   TimeClockMainQueryResponse,
@@ -12,14 +12,23 @@ import { queries } from '../../graphql';
 import React, { useState } from 'react';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { mutations } from '../../graphql';
-import Pagination from '@erxes/ui/src/components/pagination/Pagination';
 import dayjs from 'dayjs';
-import { generatePaginationParams } from '@erxes/ui/src/utils/router';
 import { generateParams } from '../../utils';
+import { IUser } from '@erxes/ui/src/auth/types';
+import { IDepartment, IBranch } from '@erxes/ui/src/team/types';
 
 type Props = {
+  currentUser: IUser;
+  departments: IDepartment[];
+  branches: IBranch[];
+
   queryParams: any;
   history: any;
+  isCurrentUserAdmin: boolean;
+
+  timeclockUser?: string;
+
+  timeclockId?: string;
 
   showSideBar: (sideBar: boolean) => void;
   getActionBar: (actionBar: any) => void;
@@ -34,9 +43,8 @@ type FinalProps = {
 const ListContainer = (props: FinalProps) => {
   const {
     timeclocksMainQuery,
-    getPagination,
-    extractAllMySqlDataMutation,
-    showSideBar
+    extractAllMsSqlDataMutation,
+    timeclockRemove
   } = props;
 
   const dateFormat = 'YYYY-MM-DD';
@@ -46,15 +54,32 @@ const ListContainer = (props: FinalProps) => {
     return <Spinner />;
   }
 
-  const extractAllMySqlData = (start: Date, end: Date) => {
+  const removeTimeclock = (timeclockId: string) => {
+    confirm('Are you sure to remove this timeclock?').then(() => {
+      timeclockRemove({ variables: { _id: timeclockId } }).then(() => {
+        Alert.success('Successfully removed timeclock');
+      });
+    });
+  };
+
+  const extractAllMsSqlData = (start: Date, end: Date, params: any) => {
     setLoading(true);
-    extractAllMySqlDataMutation({
+    extractAllMsSqlDataMutation({
       variables: {
         startDate: dayjs(start).format(dateFormat),
-        endDate: dayjs(end).format(dateFormat)
+        endDate: dayjs(end).format(dateFormat),
+        ...params
       }
     })
-      .then(() => {
+      .then(res => {
+        const returnMsg = res.data.extractAllDataFromMsSQL.message;
+
+        if (returnMsg) {
+          Alert.info(returnMsg);
+          setLoading(false);
+          return;
+        }
+
         setLoading(false);
         timeclocksMainQuery.refetch();
         Alert.success('Successfully extracted data');
@@ -73,27 +98,36 @@ const ListContainer = (props: FinalProps) => {
     totalCount,
     timeclocks: list,
     loading: timeclocksMainQuery.loading || loading,
-    extractAllMySqlData
+    removeTimeclock,
+    extractAllMsSqlData
   };
-  showSideBar(true);
-  getPagination(<Pagination count={totalCount} />);
+
   return <List {...updatedProps} />;
 };
 
 export default withProps<Props>(
   compose(
-    graphql<Props, TimeClockQueryResponse>(gql(queries.listTimeclocksMain), {
+    graphql<Props, TimeClockQueryResponse>(gql(queries.timeclocksMain), {
       name: 'timeclocksMainQuery',
-      options: ({ queryParams }) => ({
-        variables: generateParams(queryParams),
+      options: ({ queryParams, isCurrentUserAdmin }) => ({
+        variables: { ...generateParams(queryParams), isCurrentUserAdmin },
         fetchPolicy: 'network-only'
       })
     }),
     graphql<Props, TimeClockMutationResponse>(
-      gql(mutations.extractAllDataFromMySQL),
+      gql(mutations.extractAllDataFromMsSQL),
       {
-        name: 'extractAllMySqlDataMutation'
+        name: 'extractAllMsSqlDataMutation'
       }
-    )
+    ),
+    graphql<Props, TimeClockMutationResponse>(gql(mutations.timeclockRemove), {
+      name: 'timeclockRemove',
+      options: ({ timeclockId }) => ({
+        variables: {
+          _id: timeclockId
+        },
+        refetchQueries: ['timeclocksMain']
+      })
+    })
   )(ListContainer)
 );

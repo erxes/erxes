@@ -1,61 +1,19 @@
 import { Document, Schema } from 'mongoose';
 import { field, schemaHooksWrapper } from './utils';
 
-export interface IPosOrderItem {
-  createdAt?: Date;
-  productId: string;
-  count: number;
-  unitPrice?: number;
-  discountAmount?: number;
-  discountPercent?: number;
-  bonusCount?: number;
-  bonusVoucherId?: string;
-  isPackage?: boolean;
-  isTake?: boolean;
-}
-export interface IPosOrderItemDocument extends IPosOrderItem, Document {
-  _id: string;
-}
-export interface IPosOrder {
-  createdAt: Date;
-  status: string;
-  paidDate?: Date;
-  number: string;
-  customerId?: string;
-  cardAmount?: number;
-  cashAmount?: number;
-  receivableAmount?: number;
-  mobileAmount?: number;
-  totalAmount?: number;
-  finalAmount?: number;
-  shouldPrintEbarimt?: Boolean;
-  printedEbarimt?: Boolean;
-  billType?: string;
-  billId?: string;
-  oldBillId?: string;
-  type: string;
-  userId?: string;
-  items?: IPosOrderItem[];
-  branchId: string;
-  departmentId: string;
-  posToken: string;
-  syncedErkhet?: Boolean;
-  syncErkhetInfo?: string;
-  deliveryInfo?: any;
-  origin?: string;
-  taxInfo?: any;
-}
-export interface IPosOrderDocument extends IPosOrder, Document {
-  _id: string;
-}
 export interface IPos {
   name: string;
   description?: string;
+  orderPassword?: string;
+  pdomain?: string;
   userId: string;
   createdAt: Date;
   productDetails?: string;
   adminIds?: string[];
   cashierIds?: string[];
+  paymentIds?: string[];
+  paymentTypes?: any[];
+  erxesAppToken: string;
   isOnline?: Boolean;
   onServer?: Boolean;
   branchId?: string;
@@ -73,15 +31,21 @@ export interface IPos {
   syncInfos?: any;
   catProdMappings?: any;
   initialCategoryIds?: string;
+  kioskExcludeCategoryIds?: string;
   kioskExcludeProductIds?: string;
   deliveryConfig?: any;
   cardsConfig?: any;
   checkRemainder?: boolean;
   permissionConfig?: any;
+  allowTypes: string[];
+  isCheckRemainder: boolean;
+  checkExcludeCategoryIds: string[];
+  banFractions: boolean;
 }
 export interface IPosDocument extends IPos, Document {
   _id: string;
 }
+
 export interface IProductGroup {
   name: string;
   description: string;
@@ -99,108 +63,26 @@ export interface IPosSlot {
   posId: string;
   name: string;
   code: string;
+  options: {
+    [key: string]: string | number;
+  };
 }
 
 export interface IPosSlotDocument extends IPosSlot, Document {
   _id: string;
 }
 
-const posOrderItemSchema = schemaHooksWrapper(
-  new Schema({
-    _id: field({ pkey: true }),
-    createdAt: field({ type: Date, label: 'Created at' }),
-    productId: field({ type: String, label: 'Product', esType: 'keyword' }),
-    count: field({ type: Number, label: 'Count' }),
-    unitPrice: field({ type: Number, label: 'Unit price' }),
-    discountAmount: field({
-      type: Number,
-      label: 'Discount price amount',
-      optional: true
-    }),
-    discountPercent: field({
-      type: Number,
-      label: 'Discount percent',
-      optional: true
-    }),
-    bonusCount: field({ type: Number, label: 'Bonus count', optional: true }),
-    bonusVoucherId: field({ type: String, label: 'Bonus Voucher' }),
-    orderId: field({ type: String, label: 'Order id' }),
-    isPackage: field({ type: Boolean, default: false, label: 'Is Package' }),
-    isTake: field({
-      type: Boolean,
-      label: 'order eat but some take',
-      default: false
-    })
-  }),
-  'erxes_posOrderItem'
-);
-
-export const posOrderSchema = schemaHooksWrapper(
-  new Schema({
-    _id: field({ pkey: true }),
-    createdAt: field({ type: Date }),
-    status: field({ type: String, label: 'Status of the order', index: true }),
-    paidDate: field({ type: Date, label: 'Paid date' }),
-    number: field({ type: String, label: 'Order number', index: true }),
-    customerId: field({ type: String, label: 'Customer' }),
-    cardAmount: field({ type: Number, label: 'Card amount' }),
-    cashAmount: field({ type: Number, label: 'Cash amount' }),
-    receivableAmount: field({ type: Number, label: 'Receivable amount' }),
-    mobileAmount: field({ type: Number, label: 'Mobile amount' }),
-    totalAmount: field({ type: Number, label: 'Total amount' }),
-    finalAmount: field({ type: Number, label: 'finalAmount' }),
-    shouldPrintEbarimt: field({
-      type: Boolean,
-      label: 'Should print ebarimt for this order'
-    }),
-    printedEbarimt: field({
-      type: Boolean,
-      label: 'Printed ebarimt',
-      default: false
-    }),
-    billType: field({
-      type: String,
-      label: 'Ebarimt receiver entity type'
-    }),
-    billId: field({ type: String, label: 'Bill id' }),
-    registerNumber: field({
-      type: String,
-      label: 'Register number of the entity'
-    }),
-    oldBillId: field({
-      type: String,
-      label: 'Previous bill id if it is changed'
-    }),
-    type: field({ type: String, label: 'Order type' }),
-    userId: field({ type: String, label: 'Created user id' }),
-
-    items: field({ type: [posOrderItemSchema], label: 'items' }),
-    branchId: field({ type: String, label: 'Branch' }),
-    departmentId: field({ type: String, label: 'Department' }),
-    posToken: field({ type: String, optional: true }),
-
-    syncedErkhet: field({ type: Boolean, default: false }),
-    syncErkhetInfo: field({
-      type: String,
-      optional: true,
-      label: 'SyncErkhetInfo'
-    }),
-    deliveryInfo: field({
-      type: Object,
-      optional: true,
-      label: 'Delivery Info, address, map, etc'
-    }),
-    origin: field({ type: String, optional: true, label: 'origin' }),
-    taxInfo: field({ type: Object, optional: true })
-  }),
-  'erxes_posOrders'
-);
-
 export const posSchema = schemaHooksWrapper(
   new Schema({
     _id: field({ pkey: true }),
     name: field({ type: String, label: 'Name' }),
     description: field({ type: String, label: 'Description', optional: true }),
+    orderPassword: field({
+      type: String,
+      label: 'OrderPassword',
+      optional: true
+    }),
+    pdomain: field({ type: String, optional: true, label: 'Domain' }),
     userId: field({ type: String, optional: true, label: 'Created by' }),
     createdAt: field({ type: Date, label: 'Created at' }),
     productDetails: field({ type: [String], label: 'Product fields' }),
@@ -208,6 +90,7 @@ export const posSchema = schemaHooksWrapper(
     cashierIds: field({ type: [String], label: 'Cashier ids' }),
     isOnline: field({ type: Boolean, label: 'Is online pos' }),
     paymentIds: field({ type: [String], label: 'Online Payments' }),
+    paymentTypes: field({ type: [Object], label: 'Other Payments' }),
     onServer: field({
       type: Boolean,
       optional: true,
@@ -244,6 +127,10 @@ export const posSchema = schemaHooksWrapper(
       type: [String],
       label: 'Pos initial categories'
     }),
+    kioskExcludeCategoryIds: field({
+      type: [String],
+      label: 'Kiosk exclude categories'
+    }),
     kioskExcludeProductIds: field({
       type: [String],
       label: 'Kiosk exclude products'
@@ -255,7 +142,15 @@ export const posSchema = schemaHooksWrapper(
       type: Object,
       optional: true,
       label: 'Permission'
-    })
+    }),
+    allowTypes: field({ type: [String], label: 'Allow Types' }),
+    isCheckRemainder: field({ type: Boolean, label: 'is Check Remainder' }),
+    checkExcludeCategoryIds: field({
+      type: [String],
+      label: 'Check Exclude Categories'
+    }),
+    banFractions: field({ type: Boolean, label: 'has Float count' }),
+    status: field({ type: String, label: 'Status', optional: true })
   }),
   'erxes_pos'
 );
@@ -292,7 +187,16 @@ export const posSlotSchema = schemaHooksWrapper(
     _id: field({ pkey: true }),
     name: field({ type: String, label: 'Name' }),
     code: field({ type: String, label: 'Code' }),
-    posId: field({ type: String, label: 'Pos' })
+    posId: field({ type: String, label: 'Pos' }),
+    option: field({ type: Object, label: 'Option' })
+  }),
+  'erxes_pos_slot'
+);
+
+export const posCoverKindValueSchema = schemaHooksWrapper(
+  new Schema({
+    _id: field({ pkey: true }),
+    code: field({ type: String, label: 'Code' })
   }),
   'erxes_pos_slot'
 );

@@ -1,10 +1,10 @@
 import * as compose from 'lodash.flowright';
 import Alert from '@erxes/ui/src/utils/Alert';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import React from 'react';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { Bulk } from '@erxes/ui/src/components';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 import { IRouterProps } from '@erxes/ui/src/types';
 import { mutations } from '../graphql';
 import { withProps } from '@erxes/ui/src/utils/core';
@@ -54,7 +54,7 @@ class InventoryProductsContainer extends React.Component<FinalProps, State> {
     const setSyncStatusTrue = (data: any, products: any, action: string) => {
       data[action].items = data[action].items.map(i => {
         if (products.find(c => c.code === i.code)) {
-          let temp = i;
+          const temp = i;
           temp.syncStatus = true;
           return temp;
         }
@@ -67,8 +67,8 @@ class InventoryProductsContainer extends React.Component<FinalProps, State> {
       this.props
         .toSyncProducts({
           variables: {
-            action: action,
-            products: products
+            action,
+            products
           }
         })
         .then(() => {
@@ -76,7 +76,7 @@ class InventoryProductsContainer extends React.Component<FinalProps, State> {
           Alert.success('Success. Please check again.');
         })
         .finally(() => {
-          let data = this.state.items;
+          const data = this.state.items;
 
           setSyncStatusTrue(data, products, action.toLowerCase());
 
@@ -94,7 +94,7 @@ class InventoryProductsContainer extends React.Component<FinalProps, State> {
           variables: {}
         })
         .then(response => {
-          let data = response.data.toCheckProducts;
+          const data = response.data.toCheckProducts;
 
           setSyncStatus(data, 'create');
           setSyncStatus(data, 'update');
@@ -114,7 +114,7 @@ class InventoryProductsContainer extends React.Component<FinalProps, State> {
     }
     const updatedProps = {
       ...this.props,
-      loading: loading,
+      loading,
       toCheckProducts,
       items,
       toSyncProducts

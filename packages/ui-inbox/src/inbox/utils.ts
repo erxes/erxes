@@ -3,7 +3,7 @@ import * as activityLogsUtils from '@erxes/ui-log/src/activityLogs/utils';
 import { getConfig, setConfig } from '@erxes/ui/src/utils/core';
 
 import { IConversation } from './types';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import { queries } from './graphql';
 import queryString from 'query-string';
 

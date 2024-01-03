@@ -3,7 +3,8 @@ import { afterMutationHandlers } from './afterMutations';
 
 import { serviceDiscovery } from './configs';
 import { generateModels, IModels } from './connectionResolver';
-import { sendNotification } from './utils';
+import { sendNotification, sendSms } from './utils';
+import { createCard } from './models/utils';
 
 let client;
 
@@ -49,6 +50,18 @@ export const initBroker = async cl => {
   );
 
   consumeRPCQueue(
+    'clientportal:clientPortalUsers.create',
+    async ({ subdomain, data }) => {
+      const models = await generateModels(subdomain);
+
+      return {
+        data: await models.ClientPortalUsers.createUser(subdomain, data),
+        status: 'success'
+      };
+    }
+  );
+
+  consumeRPCQueue(
     'clientportal:clientPortals.count',
     async ({ subdomain, data: { selector } }) => {
       const models = await generateModels(subdomain);
@@ -57,6 +70,13 @@ export const initBroker = async cl => {
         data: await models.ClientPortals.find(selector).count(),
         status: 'success'
       };
+    }
+  );
+
+  consumeQueue(
+    'clientportal:sendSMS',
+    async ({ subdomain, data: { to, content } }) => {
+      await sendSms(subdomain, 'messagePro', to, content);
     }
   );
 
@@ -81,6 +101,89 @@ export const initBroker = async cl => {
 
     return afterMutationHandlers(models, subdomain, data);
   });
+
+  consumeRPCQueue(
+    'clientportal:clientPortalUsers.createOrUpdate',
+    async ({ subdomain, data: { rows } }) => {
+      const models = await generateModels(subdomain);
+
+      const operations: any = [];
+
+      for (const row of rows) {
+        const { selector, doc } = row;
+
+        const prevEntry = await models.ClientPortalUsers.findOne(selector, {
+          _id: 1
+        }).lean();
+
+        if (prevEntry) {
+          operations.push({
+            updateOne: { filter: selector, update: { $set: doc } }
+          });
+        } else {
+          const customer = await sendContactsMessage({
+            subdomain,
+            action: 'customers.findOne',
+            data: { primaryEmail: doc.email },
+            isRPC: true
+          });
+
+          if (doc.email && customer) {
+            doc.erxesCustomerId = customer._id;
+            doc.createdAt = new Date();
+            doc.modifiedAt = new Date();
+
+            operations.push({ insertOne: { document: doc } });
+          }
+        }
+      }
+
+      return {
+        data: models.ClientPortalUsers.bulkWrite(operations),
+        status: 'success'
+      };
+    }
+  );
+
+  consumeRPCQueue('clientportal:createCard', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    const { cpUser, doc } = data;
+
+    const card = await createCard(subdomain, models, cpUser, doc);
+
+    return {
+      data: card,
+      status: 'success'
+    };
+  });
+
+  consumeRPCQueue(
+    'clientportal:clientPortalUsers.validatePassword',
+    async ({ subdomain, data }) => {
+      const models = await generateModels(subdomain);
+
+      const { userId, password, secondary } = data;
+
+      const valid = await models.ClientPortalUsers.validatePassword(
+        userId,
+        password,
+        secondary
+      );
+
+      if (!valid) {
+        return {
+          status: 'error',
+          message: 'Invalid password'
+        };
+      }
+
+      return {
+        data: valid,
+        status: 'success'
+      };
+    }
+  );
 };
 
 export const sendCoreMessage = async (args: ISendMessageArgs) => {

@@ -23,7 +23,7 @@ export const types = `
   ${attachmentType}
 
   extend type Customer @key(fields: "_id") {
-    _id: String! @external
+    _id: String @external
   }
 
   extend type User @key(fields: "_id") {
@@ -61,7 +61,8 @@ export const types = `
     createdAt: Date
     isCustomerRead: Boolean
     mid: String
-
+    internal: Boolean
+    
     customer: Customer
     user: User
   }
@@ -70,6 +71,31 @@ export const types = `
     _id: String!
     ${commonPostAndCommentFields}
     content:String
+  }
+
+  type BotPersistentMenuType {
+    _id:Float
+    type:String
+    title: String
+    url: String
+  }
+
+  input BotPersistentMenuInput {
+    _id:Float
+    type:String
+    title: String
+    url: String
+  }
+
+  type FacebookMessengerBot {
+    _id: String
+    name:String
+    accountId: String
+    account:JSON
+    pageId: String
+    page: JSON
+    createdAt: Date
+    persistentMenus:[BotPersistentMenuType]
   }
 `;
 
@@ -91,10 +117,15 @@ export const queries = `
   facebookConversationMessagesCount(conversationId: String!): Int
   facebookGetPost(erxesApiId: String): FacebookPost
   facebookHasTaggedMessages(conversationId: String!): Boolean
+  facebootMessengerBots:[FacebookMessengerBot]
+  facebootMessengerBotsTotalCount:Int
 `;
 
 export const mutations = `
   facebookUpdateConfigs(configsMap: JSON!): JSON
+  facebookMessengerAddBot(name:String,accountId:String,pageId:String,persistentMenus:[BotPersistentMenuInput]):JSON
+  facebookMessengerUpdateBot(_id:String,name:String,accountId:String,pageId:String,persistentMenus:[BotPersistentMenuInput]):JSON
+  facebookMessengerRemoveBot(_id:String):JSON
   facebookRepair(_id: String!): JSON
   facebookChangeCommentStatus(commentId: String): FacebookComment
   facebookReplyToComment(conversationId: String, commentId: String, content: String): FacebookComment

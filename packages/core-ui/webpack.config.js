@@ -1,43 +1,35 @@
-const HtmlWebPackPlugin = require("html-webpack-plugin");
-const path = require("path");
+const webpack = require('webpack');
+const HtmlWebPackPlugin = require('html-webpack-plugin');
+const path = require('path');
 
-const InterpolateHtmlPlugin = require("interpolate-html-plugin");
-const ModuleFederationPlugin = require("webpack/lib/container/ModuleFederationPlugin");
-const { MFLiveReloadPlugin } = require("@module-federation/fmr");
+const InterpolateHtmlPlugin = require('interpolate-html-plugin');
+const ModuleFederationPlugin = require('webpack/lib/container/ModuleFederationPlugin');
+const { MFLiveReloadPlugin } = require('@module-federation/fmr');
 
 // replace accordingly './.env' with the path of your .env file
-const envs = require("dotenv").config({ path: "./.env" });
+const envs = require('dotenv').config({ path: './.env' });
 
 const depNames = [
-  "apollo-cache-inmemory",
-  "apollo-client",
-  "apollo-link",
-  "apollo-link-context",
-  "apollo-link-error",
-  "apollo-link-http",
-  "apollo-link-ws",
-  "apollo-utilities",
-  "color",
-  "dotenv",
-  "graphql",
-  "graphql-tag",
-  "lodash",
-  "lodash.flowright",
-  "query-string",
-  "react-apollo",
-  "react-bootstrap",
-  "react-dom",
-  "react-router-dom",
-  "react-transition-group",
-  "styled-components",
-  "styled-components-ts",
+  '@apollo/client',
+  'color',
+  'dotenv',
+  'graphql',
+  'lodash',
+  'lodash.flowright',
+  'query-string',
+  'react-bootstrap',
+  'react-dom',
+  'react-router-dom',
+  'react-transition-group',
+  'styled-components',
+  'styled-components-ts'
 ];
 
-const deps = require("./package.json").dependencies;
+const deps = require('./package.json').dependencies;
 const shared = {};
 
 for (const name of depNames) {
-  shared[name] = { eager: true };
+  shared[name] = { eager: true, singleton: true, requiredVersion: deps[name] };
 }
 
 module.exports = (env, args) => {
@@ -45,7 +37,6 @@ module.exports = (env, args) => {
     resolve: {
       extensions: ['.tsx', '.ts', '.jsx', '.js', '.json']
     },
-
     output: {
       publicPath: '/',
       chunkFilename: '[id].[contenthash].js'
@@ -54,7 +45,10 @@ module.exports = (env, args) => {
     devServer: {
       port: 3000,
       allowedHosts: 'all',
-      historyApiFallback: true
+      historyApiFallback: true,
+      client: {
+        overlay: false
+      }
     },
 
     module: {
@@ -90,7 +84,8 @@ module.exports = (env, args) => {
             path.resolve(__dirname, '../ui-log/src'),
             path.resolve(__dirname, '../ui-internalnotes/src'),
             path.resolve(__dirname, '../ui-leads/src'),
-            path.resolve(__dirname, '../ui-tags/src')
+            path.resolve(__dirname, '../ui-tags/src'),
+            path.resolve(__dirname, '../ui-emailtemplates/src')
           ],
           use: {
             loader: 'babel-loader',
@@ -118,7 +113,8 @@ module.exports = (env, args) => {
       fallback: {
         path: require.resolve('path-browserify'),
         timers: require.resolve('timers-browserify'),
-        util: require.resolve('util/')
+        util: require.resolve('util/'),
+        process: "process/browser",
       },
       alias: {
         'coreui/apolloClient': path.resolve(__dirname, './src/apolloClient.ts'),
@@ -137,6 +133,12 @@ module.exports = (env, args) => {
       new InterpolateHtmlPlugin({
         ...envs.parsed,
         PUBLIC_URL: ''
+      }),
+      new webpack.ProvidePlugin({
+        // Make a global `process` variable that points to the `process` package,
+        // because the `util` package expects there to be a global variable named `process`.
+        // Thanks to https://stackoverflow.com/a/65018686/14239942
+        process: "process/browser",
       }),
       new HtmlWebPackPlugin({
         template: path.resolve(__dirname, 'public/index.html'),
@@ -178,7 +180,7 @@ module.exports = (env, args) => {
       args.mode === 'development'
         ? new MFLiveReloadPlugin({
             port: 3000, // the port your app runs on
-            container: "coreui", // the name of your app, must be unique
+            container: 'coreui', // the name of your app, must be unique
             standalone: false // false uses chrome extention
           })
         : false

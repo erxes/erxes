@@ -1,4 +1,5 @@
 module.exports = {
+  srcDir: __dirname,
   name: "tumentech",
   port: 3023,
   scope: "tumentech",
@@ -7,7 +8,8 @@ module.exports = {
     "./routes": "./src/routes.tsx",
     "./participantsSection": "./src/Participants.tsx",
     "./locationSection": "./src/DealRoute.tsx",
-    "./carSection": "./src/components/common/CarSection.tsx"
+    "./carSection": "./src/components/common/CarSection.tsx",
+    "./accountSection": "./src/CustomerAccount.tsx",
   },
   routes: {
     url: "http://localhost:3023/remoteEntry.js",
@@ -32,8 +34,13 @@ module.exports = {
   ],
   customerRightSidebarSection: [
     {
-      text: "customerSection",
+      text: "customerAccountSection",
       component: "./carSection",
+      scope: "tumentech"
+    },
+    {
+      text: "customerSection",
+      component: "./accountSection",
       scope: "tumentech"
     }
   ],

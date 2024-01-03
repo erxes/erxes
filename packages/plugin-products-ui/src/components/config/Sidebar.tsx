@@ -25,10 +25,16 @@ class Sidebar extends React.Component {
     return (
       <LeftSidebar header={<SidebarHeader />} hasBorder>
         <List id="SettingsSidebar">
+          {this.renderListItem('/settings/uoms-manage', 'Uoms manage')}
+        </List>
+        <List id="SettingsSidebar">
           {this.renderListItem('/settings/products-config', 'General config')}
         </List>
         <List id="SettingsSidebar">
-          {this.renderListItem('/settings/uoms-manage', 'Uoms manage')}
+          {this.renderListItem(
+            '/settings/similarity-group',
+            'Similarity Group'
+          )}
         </List>
       </LeftSidebar>
     );

@@ -1,6 +1,7 @@
 import { __ } from '@erxes/ui/src';
 
 export const ASSET_CATEGORY_STATUSES = [
+  { label: 'Choose Status', value: '' },
   { label: 'Active', value: 'active' },
   { label: 'Disabled', value: 'disabled' },
   { label: 'Archived', value: 'archived' }
@@ -41,4 +42,17 @@ export const breadcrumb = [
 export const menuMovements = [
   { title: 'Movements', link: '/asset-movements' },
   { title: 'Assets', link: '/asset-movement-items' }
+];
+
+export const checkKnowledge = [
+  {
+    title: 'Assigned',
+    label: 'Assigned Knowledgebase',
+    icon: 'file-bookmark-alt'
+  },
+  {
+    title: 'Designated',
+    label: 'Designated Knowledgebase',
+    icon: 'file-times'
+  }
 ];

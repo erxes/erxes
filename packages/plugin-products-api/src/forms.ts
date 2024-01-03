@@ -4,7 +4,8 @@ import { EXTEND_FIELDS, PRODUCT_INFO } from './constants';
 
 export default {
   types: [{ description: 'Products & services', type: 'product' }],
-  fields: async ({ subdomain }) => {
+  fields: async ({ subdomain, data }) => {
+    const { usageType } = data;
     const models = await generateModels(subdomain);
 
     const schema = models.Products.schema as any;
@@ -37,6 +38,19 @@ export default {
       }
     }
 
+    if (usageType === 'export') {
+      fields = [
+        ...fields,
+        { _id: Math.random(), name: 'subUoms.code', label: 'Sub Uom Code' },
+        { _id: Math.random(), name: 'subUoms.name', label: 'Sub Uom Name' },
+        {
+          _id: Math.random(),
+          name: 'subUoms.subratio',
+          label: 'Sub Uoam Ratio'
+        }
+      ];
+    }
+
     return fields;
   },
 
@@ -48,5 +62,49 @@ export default {
       contentType: `products:product`,
       canHide: false,
       isDefinedByErxes: true
-    }))
+    })),
+
+  groupsFilter: async ({ subdomain, data: { config } }) => {
+    const { categoryId, isChosen } = config;
+    if (!categoryId) {
+      return { contentType: 'products:product' };
+    }
+
+    const models = await generateModels(subdomain);
+    const category = await models.ProductCategories.findOne({
+      _id: categoryId
+    }).lean();
+
+    const categories = await models.ProductCategories.find({
+      order: { $regex: new RegExp(category.order) }
+    }).lean();
+
+    // TODO: get recurcive parent
+
+    return {
+      $and: [
+        { contentType: 'products:product' },
+        {
+          $or: [
+            {
+              $and: [
+                { 'config.categories': { $exists: true } },
+                {
+                  'config.categories': {
+                    $in: categories.map(c => c._id)
+                  }
+                }
+              ]
+            },
+            { 'config.categories': { $exists: false } },
+            {
+              'config.categories': {
+                $size: 0
+              }
+            }
+          ]
+        }
+      ]
+    };
+  }
 };

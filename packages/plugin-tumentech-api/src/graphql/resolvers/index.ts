@@ -7,7 +7,10 @@ import Mutation from './mutations';
 import Query from './queries';
 import { Route } from './routes';
 import { Trip } from './trips';
+import { CustomerAccount } from './accounts';
+import { DriverGroup } from './driverGroup';
 import { CarCategory, Cars as Car, Participant, Topup } from './tumentech';
+import { TumentechDeal } from './tumentechDeal';
 
 const resolvers: any = async () => ({
   ...customScalars,
@@ -21,6 +24,9 @@ const resolvers: any = async () => ({
   DealRoute,
   DealPlace,
   Topup,
+  CustomerAccount,
+  DriverGroup,
+  TumentechDeal,
 
   Mutation,
   Query

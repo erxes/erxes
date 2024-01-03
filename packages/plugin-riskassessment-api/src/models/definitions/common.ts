@@ -5,30 +5,26 @@ export interface PaginateField {
   sortFromDate?: string;
   sortToDate?: string;
 }
-type IRiskAssessmentCalculateLogicsField = {
+type IRiskIndicatorCalculateLogicsField = {
   key: string;
   name: string;
   value: number;
   value2: number;
   logic: string;
 };
-export interface IRiskAssessmentField {
+export interface IRiskIndicatorsField {
+  _id?: string;
   name?: string;
   description?: string;
   createdAt?: string;
-  categoryId?: string;
+  modifiedAt?: string;
+  tagIds?: string[];
   status?: string;
   calculateMethod?: string;
-  calculateLogics?: IRiskAssessmentCalculateLogicsField[];
-}
-
-export interface IRiskAssessmentCategoryField extends PaginateField {
-  _id?: string;
-  name: string;
-  formId: string;
-  parentId: string;
-  code: string;
-  type: string;
+  calculateLogics?: IRiskIndicatorCalculateLogicsField[];
+  branchIds?: string[];
+  departmentIds?: string[];
+  operationIds?: string[];
 }
 
 export interface IRiskConformityField {
@@ -37,22 +33,28 @@ export interface IRiskConformityField {
   boardId: string;
   pipelineId: string;
   cardType: string;
-  riskAssessmentId: string;
+  indicatorIds: string[];
+  groupId: string;
 }
 
 export interface IRiskConformityParams {
   cardId: string;
   cardType: string;
-  riskAssessmentId?: string;
+  indicatorId?: string;
+  groupId?: string;
 }
 
 export interface IRiskFormSubmissionParams {
+  riskAssessmentId?: string;
+  branchId?: string;
+  departmentId?: string;
+  operationId?: string;
   cardId: string;
   cardType: string;
   userId: string;
-  formId: string;
+  indicatorId: string;
   formSubmissions: {
-    [key: string]: string;
+    [key: string]: { value: number; description: string };
   };
 }
 

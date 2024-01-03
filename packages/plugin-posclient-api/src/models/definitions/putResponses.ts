@@ -19,8 +19,9 @@ export interface IPutResponse {
   taxType?: string;
   qrData?: string;
   lottery?: string;
-  sendInfo?: object;
-  stocks?: object;
+  sendInfo?: any;
+  status?: string;
+  stocks?: object[];
   amount?: string;
   vat?: string;
   cityTax?: string;
@@ -107,7 +108,10 @@ export const putResponseSchema = schemaHooksWrapper(
     registerNo: field({ type: String, label: 'Company register number' }),
     customerNo: field({ type: String }),
     customerName: field({ type: String }),
+    status: field({ type: String, optional: true }),
     synced: field({ type: Boolean, default: false, label: 'synced on erxes' })
   }),
   'erxes_putResponse'
 );
+
+putResponseSchema.index({ contentType: 1, contentId: 1, status: 1 });

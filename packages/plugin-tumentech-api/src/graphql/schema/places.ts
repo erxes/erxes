@@ -14,6 +14,7 @@ export const types = `
 
   type DealPlace {
     dealId: String,
+    path: String,
     startPlaceId: String,
     endPlaceId: String
 
@@ -40,5 +41,5 @@ export const mutations = `
     placesEdit(_id: String!, ${params}): Place
     placesRemove(_id: String!): JSON
 
-    setDealPlace(dealId: String!, startPlaceId: String, endPlaceId: String): DealPlace
+    setDealPlace(dealId: String!, startPlaceId: String, endPlaceId: String, path: String): DealPlace
 `;

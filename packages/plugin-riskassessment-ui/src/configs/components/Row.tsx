@@ -1,9 +1,3 @@
-import { IRouterProps } from '@erxes/ui/src/types';
-import React from 'react';
-import { withProps } from '@erxes/ui/src/utils/core';
-import * as compose from 'lodash.flowright';
-import gql from 'graphql-tag';
-import { graphql } from 'react-apollo';
 import {
   Button,
   FormControl,
@@ -12,8 +6,10 @@ import {
   Tip,
   __
 } from '@erxes/ui/src';
-import Form from '../containers/Form';
+import { IRouterProps } from '@erxes/ui/src/types';
 import moment from 'moment';
+import React from 'react';
+import Form from '../containers/Form';
 type Props = {
   queryParams: any;
   history: any;

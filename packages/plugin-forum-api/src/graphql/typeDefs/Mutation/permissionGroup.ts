@@ -5,6 +5,7 @@ const permissionGroupMutations = `
 
     forumPermissionGroupAddUsers(_id: ID!, cpUserIds: [ID!]!): Boolean
     forumPermissionGroupRemoveUser(_id: ID!, cpUserId: ID!): Boolean
+    forumPermissionGroupSetUsers(_id: ID!, cpUserIds: [ID!]): Boolean
 
     forumPermissionGroupAddCategoryPermit(_id: ID!, categoryIds: [ID!]!, permission: ForumPermission!): Boolean
     forumPermissionGroupRemoveCategoryPermit(_id: ID!, categoryIds: [ID!]!, permission: ForumPermission!): Boolean

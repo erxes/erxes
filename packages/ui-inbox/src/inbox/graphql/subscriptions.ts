@@ -17,8 +17,8 @@ const conversationMessageInserted = `
 `;
 
 const conversationClientMessageInserted = `
-  subscription conversationClientMessageInserted($userId: String!) {
-    conversationClientMessageInserted(userId: $userId) {
+  subscription conversationClientMessageInserted($subdomain: String!, $userId: String!) {
+    conversationClientMessageInserted(subdomain: $subdomain, userId: $userId) {
       _id
       content
     }

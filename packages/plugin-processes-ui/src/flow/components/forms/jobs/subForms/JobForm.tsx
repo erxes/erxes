@@ -4,7 +4,7 @@ import FormControl from '@erxes/ui/src/components/form/Control';
 import JobReferChooser from '../../../../../job/containers/refer/Chooser';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import React from 'react';
-import { __ } from '@erxes/ui/src/utils';
+import { __ } from 'coreui/utils';
 import { ControlLabel } from '@erxes/ui/src/components/form';
 import { IJob } from '../../../../types';
 import { IJobRefer } from '../../../../../job/types';

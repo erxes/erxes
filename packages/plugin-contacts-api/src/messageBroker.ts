@@ -8,28 +8,71 @@ import { serviceDiscovery } from './configs';
 import { generateModels } from './connectionResolver';
 import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
 import { getNumberOfVisits } from './events';
-import { AWS_EMAIL_STATUSES, EMAIL_VALIDATION_STATUSES } from './constants';
+import {
+  AWS_EMAIL_STATUSES,
+  EMAIL_VALIDATION_STATUSES,
+  MODULE_NAMES
+} from './constants';
 import { updateContactsField } from './utils';
 import { sendToWebhook as sendWebhook } from '@erxes/api-utils/src';
+import { putCreateLog } from './logUtils';
 
 export let client;
+
+const createOrUpdate = async ({
+  collection,
+  data: { rows, doNotReplaceExistingValues }
+}) => {
+  const operations: any = [];
+
+  for (const row of rows) {
+    const { selector, doc, customFieldsData } = row;
+
+    const prevEntry = await collection.findOne(selector).lean();
+
+    if (prevEntry) {
+      let cfData = prevEntry.customFieldsData || [];
+
+      // remove existing rows
+      for (const cf of customFieldsData || []) {
+        cfData = cfData.filter(({ field }) => field !== cf.field);
+      }
+
+      // add new rows
+      for (const cf of customFieldsData || []) {
+        cfData.push(cf);
+      }
+
+      let newDoc = doc;
+
+      if (doNotReplaceExistingValues) {
+        for (const fieldName of Object.keys(doc)) {
+          if (prevEntry[fieldName]) {
+            delete newDoc[fieldName];
+          }
+        }
+      }
+
+      newDoc.customFieldsData = cfData;
+
+      operations.push({
+        updateOne: { filter: selector, update: { $set: newDoc } }
+      });
+    } else {
+      doc.customFieldsData = customFieldsData;
+      doc.createdAt = new Date();
+      doc.modifiedAt = new Date();
+      operations.push({ insertOne: { document: doc } });
+    }
+  }
+
+  return collection.bulkWrite(operations);
+};
 
 export const initBroker = cl => {
   client = cl;
 
   const { consumeRPCQueue, consumeQueue } = client;
-
-  consumeRPCQueue(
-    'contacts:customers.getCustomerName',
-    async ({ subdomain, data: { customer } }) => {
-      const models = await generateModels(subdomain);
-
-      return {
-        data: await models.Customers.getCustomerName(customer),
-        status: 'success'
-      };
-    }
-  );
 
   consumeRPCQueue('contacts:customers.findOne', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
@@ -93,12 +136,17 @@ export const initBroker = cl => {
 
   consumeRPCQueue(
     'contacts:customers.findActiveCustomers',
-    async ({ subdomain, data: { selector, fields } }) => {
+    async ({ subdomain, data: { selector, fields, skip, limit } }) => {
       const models = await generateModels(subdomain);
 
       return {
         status: 'success',
-        data: await models.Customers.findActiveCustomers(selector, fields)
+        data: await models.Customers.findActiveCustomers(
+          selector,
+          fields,
+          skip,
+          limit
+        )
       };
     }
   );
@@ -117,12 +165,17 @@ export const initBroker = cl => {
 
   consumeRPCQueue(
     'contacts:companies.findActiveCompanies',
-    async ({ subdomain, data: { selector, fields } }) => {
+    async ({ subdomain, data: { selector, fields, skip, limit } }) => {
       const models = await generateModels(subdomain);
 
       return {
         status: 'success',
-        data: await models.Companies.findActiveCompanies(selector, fields)
+        data: await models.Companies.findActiveCompanies(
+          selector,
+          fields,
+          skip,
+          limit
+        )
       };
     }
   );
@@ -288,9 +341,22 @@ export const initBroker = cl => {
     async ({ subdomain, data }) => {
       const models = await generateModels(subdomain);
 
+      const customer = await models.Customers.createMessengerCustomer(data);
+
+      await putCreateLog(
+        models,
+        subdomain,
+        {
+          type: MODULE_NAMES.CUSTOMER,
+          newData: customer,
+          object: customer
+        },
+        null
+      );
+
       return {
         status: 'success',
-        data: await models.Customers.createMessengerCustomer(data)
+        data: customer
       };
     }
   );
@@ -402,6 +468,30 @@ export const initBroker = cl => {
       return {
         status: 'success',
         data: await updateContactsField(models, subdomain, data)
+      };
+    }
+  );
+
+  consumeRPCQueue(
+    'contacts:customers.createOrUpdate',
+    async ({ subdomain, data }) => {
+      const models = await generateModels(subdomain);
+
+      return {
+        status: 'success',
+        data: await createOrUpdate({ collection: models.Customers, data })
+      };
+    }
+  );
+
+  consumeRPCQueue(
+    'contacts:companies.createOrUpdate',
+    async ({ subdomain, data }) => {
+      const models = await generateModels(subdomain);
+
+      return {
+        status: 'success',
+        data: await createOrUpdate({ collection: models.Companies, data })
       };
     }
   );

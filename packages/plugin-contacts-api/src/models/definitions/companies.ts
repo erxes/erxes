@@ -8,6 +8,7 @@ import {
 import { COMPANY_SELECT_OPTIONS } from './constants';
 
 import { field, schemaWrapper } from '@erxes/api-utils/src/definitions/utils';
+import { IAddress } from './customers';
 
 export interface ICompany {
   scopeBrandIds?: string[];
@@ -21,6 +22,8 @@ export interface ICompany {
 
   primaryEmail?: string;
   emails?: string[];
+  primaryAddress?: IAddress;
+  addresses?: IAddress[];
 
   ownerId?: string;
 
@@ -127,6 +130,13 @@ export const companySchema = schemaWrapper(
       label: 'Primary phone'
     }),
     phones: field({ type: [String], optional: true, label: 'Phones' }),
+
+    primaryAddress: field({
+      type: Object,
+      label: 'Primary Address',
+      optional: true
+    }),
+    addresses: field({ type: [Object], optional: true, label: 'Addresses' }),
 
     ownerId: field({ type: String, optional: true }),
 

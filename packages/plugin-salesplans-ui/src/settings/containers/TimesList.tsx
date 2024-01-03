@@ -1,11 +1,11 @@
 import * as compose from 'lodash.flowright';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import React from 'react';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import TimeProportions from '../components/TimesList';
 import { Alert, router, withProps } from '@erxes/ui/src/utils';
 import { Bulk } from '@erxes/ui/src/components';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 import { mutations, queries } from '../graphql';
 import {
   TimeProportionsQueryResponse,

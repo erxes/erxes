@@ -3,6 +3,7 @@ import { colors, dimensions } from '@erxes/ui/src/styles';
 import { highlight } from '@erxes/ui/src/utils/animations';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
+import { InputBar } from '@erxes/ui-settings/src/styles';
 
 interface ContainerBoxType {
   row?: boolean;
@@ -19,6 +20,7 @@ interface ContainerBoxType {
   marginY?: number;
   rightBorder?: boolean;
   flexWrap?: boolean;
+  placeContentEnd?: boolean;
 }
 
 export const ContainerBox = styledTS<ContainerBoxType>(styled.div)`
@@ -28,17 +30,19 @@ export const ContainerBox = styledTS<ContainerBoxType>(styled.div)`
   column ? 'column' : ''};
     gap: ${({ gap }) => (gap ? `${gap}px` : '')};
     place-items: ${({ align }) => (align ? `${align}` : '')};
+    place-content:${({ placeContentEnd }) => (placeContentEnd ? 'end' : '')};
     padding: ${({ horizontal, vertical }) =>
       horizontal && vertical
         ? '10px'
         : `${vertical ? '10px' : '0px'} ${horizontal ? '10px' : '0px'}`};
     justify-content: ${({ spaceBetween }) =>
       spaceBetween ? 'space-between' : ''};
+    justify-content:${({ spaceAround }) => (spaceAround ? 'space-around' : '')};
     justify-content: ${({ justifyEnd }) => (justifyEnd ? 'end' : '')};
     justify-content: ${({ justifyCenter }) =>
       justifyCenter ? 'center  ' : ''};
     margin:${({ marginX, marginY }) =>
-      `${marginX ? `${marginX}px` : '0px'} margin${
+      `${marginX ? `${marginX}px` : '0px'} ${
         marginY ? `${marginY}px` : '0px'
       }`};
     border-right:${({ rightBorder }) =>
@@ -84,6 +88,7 @@ export const AssetContent = styled.div`
 
 export const TriggerTabs = styled.div`
     padding: 2px;
+    margin-bottom : 20px
 
     > span {
       flex: 1;
@@ -106,6 +111,7 @@ export const TriggerTabs = styled.div`
 
 export const TabContainer = styled.div`
   border: 1px solid ${colors.borderPrimary};
+  margin-bottom: 20px;
   border-radius: 5px;
 `;
 
@@ -182,6 +188,20 @@ export const MovementTableWrapper = styled.div`
   }
 `;
 
+export const FormWrapper = styled.div`
+  display: flex;
+
+  div {
+    flex: 1;
+  }
+
+  button {
+    flex-shrink: 0;
+    margin-left: 10px;
+    align-self: baseline;
+  }
+`;
+
 export const RemoveRow = styled.div`
   color: ${colors.colorCoreRed};
 
@@ -248,26 +268,69 @@ export const KbTopics = styled.div`
   margin-bottom: 10px;
   padding: 5px 10px;
   cursor: pointer;
-  border: 1px solid #dfdfdf;
+  box-shadow: 0 0 5px 0 rgba(221, 221, 221, 0.7);
+  border-radius: 5px;
+`;
+
+export const KbCategoriesContainer = styled.div`
+  padding-left: 20px;
+  margin-left: 20px;
+  border-left: 1px solid ${colors.bgGray};
 `;
 
 export const KbCategories = styled.div`
-  width: 100%;
-  margin-top: 10px;
   margin-bottom: 10px;
   padding: 5px 10px;
   cursor: pointer;
-  border: 1px solid #dfdfdf;
+  box-shadow: 0 0 5px 0 rgba(221, 221, 221, 0.7);
+  border-radius: 5px;
+  &:before {
+    content: '';
+    width: 1.2rem;
+    position: absolute;
+    z-index: 1;
+    padding-top: 10px;
+    left: 6%;
+    border-bottom: 1px solid #d1d1d1e0;
+  }
+`;
+
+export const KbArticlesContainer = styled.div`
+  padding-left: 19px;
+  margin-left: 19px;
+  border-left: 1px solid ${colors.bgGray};
 `;
 
 export const KbArticles = styled.div`
   padding: 5px 10px;
   margin-bottom: 10px;
   cursor: pointer;
-  border: 1px solid #dfdfdf;
-
-  input {
-    margin-right: 10px;
-    cursor: pointer;
+  box-shadow: 0 0 5px 0 rgba(221, 221, 221, 0.7);
+  border-radius: 5px;
+  &:before {
+    content: '';
+    width: 1.2rem;
+    position: absolute;
+    z-index: 1;
+    padding-top: 10px;
+    left: 10%;
+    border-bottom: 1px solid #d1d1d1e0;
   }
+`;
+
+export const KbTreeViewItem = styled.div`
+  padding: 5px 10px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  box-shadow: 0 0 5px 0 rgba(221, 221, 221, 0.7);
+  border-radius: 5px;
+  &.active {
+    animation: ${highlight} 0.9s ease;
+    box-shadow: 0 0 5px 0 #63d2d6;
+  }
+`;
+
+export const SelectAssignType = styled(InputBar)`
+  max-width: 150px;
+  margin-top: 30px;
 `;

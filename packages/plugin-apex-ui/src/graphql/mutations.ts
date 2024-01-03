@@ -30,7 +30,37 @@ const reportsRemove = `
 	}
 `;
 
+const scommonParamsDef = `
+  $_id: String,
+  $title: String!,
+  $content: String,
+  $companyId: String!,
+`;
+
+const scommonParams = `
+  _id: $_id,
+  title: $title,
+  content: $content,
+  companyId: $companyId,
+`;
+
+const storiesSave = `
+	mutation apexStorySave(${scommonParamsDef}) {
+		apexStorySave(${scommonParams}) {
+			_id
+		}
+	}
+`;
+
+const storiesRemove = `
+	mutation apexStoryRemove($_id: String!) {
+		apexStoryRemove(_id: $_id)
+	}
+`;
+
 export default {
   reportsSave,
-  reportsRemove
+  reportsRemove,
+  storiesSave,
+  storiesRemove
 };

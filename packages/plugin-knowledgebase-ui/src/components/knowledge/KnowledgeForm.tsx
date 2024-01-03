@@ -28,10 +28,12 @@ import SelectBrand from '@erxes/ui-inbox/src/settings/integrations/containers/Se
 import TwitterPicker from 'react-color/lib/Twitter';
 import Uploader from '@erxes/ui/src/components/Uploader';
 import colors from '@erxes/ui/src/styles/colors';
+import { isEnabled } from '@erxes/ui/src/utils/core';
 
 type Props = {
   topic: ITopic;
   brands: IBrand[];
+  segments: any[];
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   remove?: (knowledgeBaseId: string) => void;
   closeModal: () => void;
@@ -45,6 +47,7 @@ type State = {
   color: string;
   backgroundImage: string;
   languageCode?: string;
+  notificationSegmentId?: string;
 };
 
 class KnowledgeForm extends React.Component<Props, State> {
@@ -106,7 +109,8 @@ class KnowledgeForm extends React.Component<Props, State> {
       tag,
       color,
       backgroundImage,
-      languageCode: topic && topic.languageCode
+      languageCode: topic && topic.languageCode,
+      notificationSegmentId: topic && topic.notificationSegmentId
     };
   }
 
@@ -194,6 +198,10 @@ class KnowledgeForm extends React.Component<Props, State> {
     }
   };
 
+  onChangeNotificationSegment = ({ value }) => {
+    this.setState({ notificationSegmentId: value });
+  };
+
   generateDoc = (values: {
     _id?: string;
     title: string;
@@ -201,7 +209,12 @@ class KnowledgeForm extends React.Component<Props, State> {
     brandId: string;
   }) => {
     const { topic } = this.props;
-    const { color, backgroundImage, languageCode } = this.state;
+    const {
+      color,
+      backgroundImage,
+      languageCode,
+      notificationSegmentId
+    } = this.state;
     const finalValues = values;
 
     if (topic) {
@@ -216,13 +229,19 @@ class KnowledgeForm extends React.Component<Props, State> {
         languageCode,
         title: finalValues.title,
         color,
-        backgroundImage
+        backgroundImage,
+        notificationSegmentId
       }
     };
   };
 
   renderFormContent(topic = {} as ITopic, formProps: IFormProps) {
-    const { color, backgroundImage, languageCode } = this.state;
+    const {
+      color,
+      backgroundImage,
+      languageCode,
+      notificationSegmentId
+    } = this.state;
     const { brand } = topic;
     const brandId = brand != null ? brand._id : '';
 
@@ -322,6 +341,20 @@ class KnowledgeForm extends React.Component<Props, State> {
             onChange={this.onBackgroundImageChange}
           />
         </FormGroup>
+
+        {isEnabled('segments') && (
+          <FormGroup>
+            <ControlLabel>Notification segment</ControlLabel>
+            <Select
+              options={this.props.segments.map(segment => ({
+                label: `${segment.name}`,
+                value: segment._id
+              }))}
+              value={notificationSegmentId}
+              onChange={this.onChangeNotificationSegment}
+            />
+          </FormGroup>
+        )}
 
         {this.renderInstallCode()}
       </React.Fragment>

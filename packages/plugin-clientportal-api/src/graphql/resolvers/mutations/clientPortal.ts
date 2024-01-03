@@ -1,8 +1,11 @@
-import { checkPermission } from '@erxes/api-utils/src';
-
-import { IContext } from '../../../connectionResolver';
 import { sendCardsMessage, sendContactsMessage } from '../../../messageBroker';
+
 import { IClientPortal } from '../../../models/definitions/clientPortal';
+import { IContext } from '../../../connectionResolver';
+import { checkPermission } from '@erxes/api-utils/src';
+import { putActivityLog } from '../../../logUtils';
+import { getUserName } from '../../../utils';
+import { createCard } from '../../../models/utils';
 
 export interface IVerificationParams {
   userId: string;
@@ -11,8 +14,52 @@ export interface IVerificationParams {
 }
 
 const clientPortalMutations = {
-  clientPortalConfigUpdate(_root, args: IClientPortal, { models }: IContext) {
-    return models.ClientPortals.createOrUpdateConfig(args);
+  async clientPortalConfigUpdate(
+    _root,
+    { config }: { config: IClientPortal },
+    { models, subdomain }: IContext
+  ) {
+    try {
+      const cpUser = await models.ClientPortalUsers.findOne({
+        $or: [
+          { email: { $regex: new RegExp(`^${config?.testUserEmail}$`, 'i') } },
+          { phone: { $regex: new RegExp(`^${config?.testUserPhone}$`, 'i') } }
+        ],
+        clientPortalId: config._id
+      });
+
+      if (!cpUser) {
+        if (
+          config?.testUserEmail &&
+          config?.testUserPhone &&
+          config?.testUserPassword &&
+          config._id
+        ) {
+          const args = {
+            firstName: 'test clientportal user',
+            email: config.testUserEmail,
+            phone: config.testUserPhone,
+            password: config.testUserPassword,
+            clientPortalId: config._id,
+            isPhoneVerified: true,
+            isEmailVerified: true,
+            notificationSettings: {
+              receiveByEmail: false,
+              receiveBySms: false,
+              configs: []
+            }
+          };
+
+          await models.ClientPortalUsers.createTestUser(subdomain, {
+            ...args
+          });
+        }
+      }
+    } catch (e) {
+      console.log(e.message);
+    }
+
+    return models.ClientPortals.createOrUpdateConfig(config);
   },
 
   clientPortalRemove(_root, { _id }: { _id: string }, { models }: IContext) {
@@ -21,51 +68,14 @@ const clientPortalMutations = {
 
   async clientPortalCreateCard(
     _root,
-    { type, subject, priority, description, stageId },
+    args,
     { subdomain, cpUser, models }: IContext
   ) {
     if (!cpUser) {
       throw new Error('You are not logged in');
     }
 
-    const customer = await sendContactsMessage({
-      subdomain,
-      action: 'customers.findOne',
-      data: {
-        _id: cpUser.erxesCustomerId
-      },
-      isRPC: true
-    });
-
-    if (!customer) {
-      throw new Error('Customer not registered');
-    }
-
-    const card = await sendCardsMessage({
-      subdomain,
-      action: `${type}s.create`,
-      data: {
-        userId: cpUser._id,
-        name: subject,
-        description,
-        priority,
-        stageId,
-        status: 'active',
-        customerId: customer._id,
-        createdAt: new Date()
-      },
-      isRPC: true
-    });
-
-    await models.ClientPortalUserCards.createOrUpdateCard(
-      {
-        type,
-        cardId: card._id
-      },
-      cpUser._id
-    );
-
-    return card;
+    return createCard(subdomain, models, cpUser, args);
   }
 };
 
@@ -78,7 +88,7 @@ checkPermission(
 checkPermission(
   clientPortalMutations,
   'clientPortalRemove',
-  'manageClientPortal'
+  'removeClientPortal'
 );
 
 export default clientPortalMutations;

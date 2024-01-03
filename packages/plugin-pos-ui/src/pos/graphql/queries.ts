@@ -2,12 +2,15 @@ export const posCommonFields = `
   _id
   name
   description
+  orderPassword
+  pdomain
   createdAt
   token
   erxesAppToken
   adminIds
   cashierIds
   paymentIds
+  paymentTypes
   user {
     _id
     details {
@@ -33,14 +36,24 @@ export const posCommonFields = `
   catProdMappings {
     _id
     categoryId
+    code
+    name
     productId
   }
 
   initialCategoryIds
+  kioskExcludeCategoryIds
   kioskExcludeProductIds
   deliveryConfig
   checkRemainder
   permissionConfig
+  allowTypes
+  isCheckRemainder
+  checkExcludeCategoryIds
+  banFractions
+
+  branchTitle
+  departmentTitle
 `;
 
 const commonParamDefs = `
@@ -90,6 +103,7 @@ const posSlots = `
       posId
       code
       name
+      option
     }
   }
 `;

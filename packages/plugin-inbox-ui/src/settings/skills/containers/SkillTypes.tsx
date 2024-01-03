@@ -9,8 +9,8 @@ import SkillTypes from '../components/SkillTypes';
 import { SkillTypesQueryResponse } from '@erxes/ui-inbox/src/settings/skills/types';
 import { commonListComposer } from '@erxes/ui/src/utils';
 import { generatePaginationParams } from '@erxes/ui/src/utils/router';
-import gql from 'graphql-tag';
-import { graphql } from 'react-apollo';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
 import mutations from '../graphql/mutations';
 import queries from '../graphql/queries';
 

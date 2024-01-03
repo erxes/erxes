@@ -1,14 +1,22 @@
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 import { Alert, withProps } from '@erxes/ui/src/utils';
 import TimeForm from '../../components/timeclock/TimeForm';
 import { TimeClockMutationResponse } from '../../types';
 import { mutations } from '../../graphql';
 import React from 'react';
 import { ITimeclock } from '../../types';
+import { IUser } from '@erxes/ui/src/auth/types';
+import { IBranch, IDepartment } from '@erxes/ui/src/team/types';
 
 type Props = {
+  currentUser: IUser;
+  isCurrentUserAdmin: boolean;
+
+  departments: IDepartment[];
+  branches: IBranch[];
+
   timeclocks: ITimeclock[];
   searchValue: string;
   queryParams: any;
@@ -55,7 +63,7 @@ const ListContainer = (props: FinalProps) => {
     stopTimeMutation({
       variables: {
         _id: timeId,
-        userId: `${userId}`,
+        userId,
         longitude: long,
         latitude: lat,
         deviceType: 'XOS'
@@ -78,28 +86,28 @@ const ListContainer = (props: FinalProps) => {
 
 export default withProps<Props>(
   compose(
-    graphql<Props, TimeClockMutationResponse>(gql(mutations.clockStart), {
+    graphql<Props, TimeClockMutationResponse>(gql(mutations.timeclockStart), {
       name: 'startTimeMutation',
       options: ({ userId, longitude, latitude }) => ({
         variables: {
-          userId: `${userId}`,
-          longitude: `${longitude}`,
-          latitude: `${latitude}`
+          userId,
+          longitude,
+          latitude
         },
-        refetchQueries: ['listTimeclocksQuery']
+        refetchQueries: ['timeclocksMain', 'bichilTimeclockReportByUsers']
       })
     }),
 
-    graphql<Props, TimeClockMutationResponse>(gql(mutations.clockStop), {
+    graphql<Props, TimeClockMutationResponse>(gql(mutations.timeclockStop), {
       name: 'stopTimeMutation',
       options: ({ userId, timeId, longitude, latitude }) => ({
         variables: {
-          userId: `${userId}`,
+          userId,
           _id: timeId,
-          longitude: `${longitude}`,
-          latitude: `${latitude}`
+          longitude,
+          latitude
         },
-        refetchQueries: ['listTimeclocksQuery']
+        refetchQueries: ['timeclocksMain', 'bichilTimeclockReportByUsers']
       })
     })
   )(ListContainer)

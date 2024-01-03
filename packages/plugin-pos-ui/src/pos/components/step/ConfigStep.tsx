@@ -1,9 +1,7 @@
 import CatProdItem from '../../components/productGroup/CatProdItem';
 import GroupForm from '../../components/productGroup/GroupForm';
 import React from 'react';
-import Select from 'react-select-plus';
 import { CatProd, IPos, IProductGroup } from '../../../types';
-import { IProductCategory } from '@erxes/ui-products/src/types';
 import { LeftItem } from '@erxes/ui/src/components/step/styles';
 import {
   FormGroup,
@@ -12,7 +10,8 @@ import {
   Icon,
   Tip,
   ModalTrigger,
-  __
+  __,
+  FormControl
 } from '@erxes/ui/src';
 import SelectProducts from '@erxes/ui-products/src/containers/SelectProducts';
 import {
@@ -23,13 +22,13 @@ import {
   Block,
   BlockRow
 } from '../../../styles';
+import SelectProductCategory from '@erxes/ui-products/src/containers/SelectProductCategory';
 
 type Props = {
   onChange: (name: 'pos' | 'description' | 'groups', value: any) => void;
   pos: IPos;
   groups: IProductGroup[];
   catProdMappings: CatProd[];
-  productCategories: IProductCategory[];
 };
 
 type State = {
@@ -37,7 +36,11 @@ type State = {
   currentMode: 'create' | 'update' | undefined;
   mappings: CatProd[];
   initialCategoryIds: string[];
+  kioskExcludeCategoryIds: string[];
   kioskExcludeProductIds: string[];
+  isCheckRemainder: boolean;
+  checkExcludeCategoryIds: string[];
+  banFractions: boolean;
 };
 
 export default class ConfigStep extends React.Component<Props, State> {
@@ -51,34 +54,32 @@ export default class ConfigStep extends React.Component<Props, State> {
       currentMode: undefined,
       mappings: pos && pos.catProdMappings ? pos.catProdMappings : [],
       initialCategoryIds: (pos && pos.initialCategoryIds) || [],
-      kioskExcludeProductIds: (pos && pos.kioskExcludeProductIds) || []
+      kioskExcludeCategoryIds: (pos && pos.kioskExcludeCategoryIds) || [],
+      kioskExcludeProductIds: (pos && pos.kioskExcludeProductIds) || [],
+      isCheckRemainder: (pos && pos.isCheckRemainder) || false,
+      checkExcludeCategoryIds: (pos && pos.checkExcludeCategoryIds) || [],
+      banFractions: (pos && pos.banFractions) || false
     };
   }
 
   onSubmitGroup = (group: IProductGroup) => {
     const { groups } = this.state;
+    const newGroups = [...groups];
 
     const index = groups.findIndex(e => e._id === group._id);
 
     if (index !== -1) {
-      groups[index] = group;
+      newGroups[index] = group;
     } else {
-      groups.push(group);
+      newGroups.push(group);
     }
 
-    this.props.onChange('groups', groups);
+    this.props.onChange('groups', newGroups);
   };
 
   renderGroupFormTrigger(trigger: React.ReactNode, group?: IProductGroup) {
-    const { productCategories } = this.props;
-
     const content = props => (
-      <GroupForm
-        {...props}
-        group={group}
-        onSubmit={this.onSubmitGroup}
-        categories={productCategories}
-      />
+      <GroupForm {...props} group={group} onSubmit={this.onSubmitGroup} />
     );
 
     const title = group ? 'Edit group' : 'Add group';
@@ -134,20 +135,24 @@ export default class ConfigStep extends React.Component<Props, State> {
     );
   }
 
-  renderMapping(mapping: CatProd) {
-    const { productCategories, pos, onChange } = this.props;
+  renderMapping(mapping: CatProd, index: number) {
+    const { pos, onChange } = this.props;
 
     const cleanFields = (cat: CatProd) => ({
       _id: cat._id,
       categoryId: cat.categoryId,
-      productId: cat.productId
+      productId: cat.productId,
+      code: cat.code || '',
+      name: cat.name || ''
     });
 
     // for omitting react __typename field
     const mappings = this.state.mappings.map(m => ({
       _id: m._id,
       categoryId: m.categoryId,
-      productId: m.productId
+      productId: m.productId,
+      code: m.code || '',
+      name: m.name || ''
     }));
 
     const editMapping = (item: CatProd) => {
@@ -162,9 +167,7 @@ export default class ConfigStep extends React.Component<Props, State> {
 
       this.setState({ mappings });
 
-      pos.catProdMappings = mappings;
-
-      onChange('pos', pos);
+      onChange('pos', { ...pos, catProdMappings: mappings });
     };
 
     const removeMapping = (_id: string) => {
@@ -172,9 +175,7 @@ export default class ConfigStep extends React.Component<Props, State> {
 
       this.setState({ mappings: excluded });
 
-      pos.catProdMappings = excluded;
-
-      onChange('pos', pos);
+      onChange('pos', { ...pos, catProdMappings: excluded });
     };
 
     return (
@@ -182,35 +183,29 @@ export default class ConfigStep extends React.Component<Props, State> {
         editMapping={editMapping}
         removeMapping={removeMapping}
         item={mapping}
-        productCategories={productCategories}
+        index={index}
         key={mapping._id}
       />
     );
   }
 
-  onChangeInitialCategory = values => {
+  onChangeValue = (name, value) => {
     const { pos, onChange } = this.props;
-    const initialCategoryIds = values.map(v => v.value);
-    this.setState({ initialCategoryIds });
+    this.setState({ [name]: value } as any);
 
-    pos.initialCategoryIds = initialCategoryIds;
-    onChange('pos', pos);
-  };
-
-  onChangekioskExcludeProduct = ids => {
-    const { pos, onChange } = this.props;
-    this.setState({ kioskExcludeProductIds: ids });
-
-    pos.kioskExcludeProductIds = ids;
-    onChange('pos', pos);
+    onChange('pos', { ...pos, [name]: value });
   };
 
   render() {
-    const { groups, productCategories } = this.props;
+    const { groups } = this.props;
     const {
       mappings = [],
       initialCategoryIds,
-      kioskExcludeProductIds
+      kioskExcludeCategoryIds,
+      kioskExcludeProductIds,
+      isCheckRemainder,
+      checkExcludeCategoryIds,
+      banFractions
     } = this.state;
 
     const groupTrigger = (
@@ -249,13 +244,17 @@ export default class ConfigStep extends React.Component<Props, State> {
               <Description></Description>
               <FormGroup>
                 <ControlLabel>Product Category</ControlLabel>
-                <Select
-                  options={productCategories.map(e => ({
-                    value: e._id,
-                    label: e.name
-                  }))}
-                  value={initialCategoryIds}
-                  onChange={this.onChangeInitialCategory}
+                <SelectProductCategory
+                  label="Choose product category"
+                  name="productCategoryId"
+                  initialValue={initialCategoryIds}
+                  customOption={{
+                    value: '',
+                    label: '...Clear product category filter'
+                  }}
+                  onSelect={categoryIds =>
+                    this.onChangeValue('initialCategoryIds', categoryIds)
+                  }
                   multi={true}
                 />
               </FormGroup>
@@ -264,12 +263,26 @@ export default class ConfigStep extends React.Component<Props, State> {
             <Block>
               <h4>{__('kiosk exclude products')}</h4>
               <FormGroup>
+                <ControlLabel>Categories</ControlLabel>
+                <SelectProductCategory
+                  label={'kiosk'}
+                  name="kioskExcludeCategoryIds"
+                  initialValue={kioskExcludeCategoryIds}
+                  onSelect={categoryIds =>
+                    this.onChangeValue('kioskExcludeCategoryIds', categoryIds)
+                  }
+                  multi={true}
+                />
+              </FormGroup>
+              <FormGroup>
                 <ControlLabel>Products</ControlLabel>
                 <SelectProducts
                   label={'kiosk'}
                   name="kioskExcludeProductIds"
                   initialValue={kioskExcludeProductIds}
-                  onSelect={this.onChangekioskExcludeProduct}
+                  onSelect={productIds =>
+                    this.onChangeValue('kioskExcludeProductIds', productIds)
+                  }
                   multi={true}
                 />
               </FormGroup>
@@ -283,11 +296,53 @@ export default class ConfigStep extends React.Component<Props, State> {
                 product will be added to the price.
               </Description>
               <FormGroup>
-                {mappings.map(item => this.renderMapping(item))}
+                {mappings.map((item, index) => this.renderMapping(item, index))}
               </FormGroup>
               <Button btnStyle="primary" icon="plus-circle" onClick={onClick}>
                 Add mapping
               </Button>
+            </Block>
+
+            <Block>
+              <h4>{__('Remainder configs')}</h4>
+              <Description></Description>
+              <FormGroup>
+                <FormControl
+                  checked={isCheckRemainder}
+                  componentClass="checkbox"
+                  onChange={e => {
+                    this.onChangeValue(
+                      'isCheckRemainder',
+                      (e.target as any).checked
+                    );
+                  }}
+                />
+              </FormGroup>
+              <FormGroup>
+                <ControlLabel>Exclude Categories</ControlLabel>
+                <SelectProductCategory
+                  label={'kiosk'}
+                  name="checkExcludeCategoryIds"
+                  initialValue={checkExcludeCategoryIds}
+                  onSelect={categoryIds =>
+                    this.onChangeValue('checkExcludeCategoryIds', categoryIds)
+                  }
+                  multi={true}
+                />
+              </FormGroup>
+              <FormGroup>
+                <ControlLabel>Ban Fractions</ControlLabel>
+                <FormControl
+                  checked={banFractions}
+                  componentClass="checkbox"
+                  onChange={e => {
+                    this.onChangeValue(
+                      'banFractions',
+                      (e.target as any).checked
+                    );
+                  }}
+                />
+              </FormGroup>
             </Block>
           </LeftItem>
         </FlexColumn>

@@ -14,7 +14,8 @@ const itemsType = `
     assetId
     assetName
     assetDetail {
-      ${assetFields}
+      _id
+      name
     }
     branchId
     companyId

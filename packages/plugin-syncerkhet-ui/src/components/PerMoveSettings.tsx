@@ -1,6 +1,6 @@
 import BoardSelectContainer from '@erxes/ui-cards/src/boards/containers/BoardSelect';
 import client from '@erxes/ui/src/apolloClient';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import React from 'react';
 import Select from 'react-select-plus';
 import { __ } from '@erxes/ui/src/utils';
@@ -9,7 +9,8 @@ import {
   CollapseContent,
   ControlLabel,
   FormControl,
-  FormGroup
+  FormGroup,
+  Icon
 } from '@erxes/ui/src/components';
 import { FieldsCombinedByType } from '@erxes/ui-forms/src/settings/properties/types';
 import { FormColumn, FormWrapper } from '@erxes/ui/src/styles/main';
@@ -87,14 +88,6 @@ class PerSettings extends React.Component<Props, State> {
     this.props.delete(this.props.currentConfigKey);
   };
 
-  onChangeCombo = option => {
-    this.onChangeConfig('defaultPay', option.value);
-  };
-
-  onChangeCheckbox = (code: string, e) => {
-    this.onChangeConfig(code, e.target.checked);
-  };
-
   onChangeConfig = (code: string, value) => {
     const { config } = this.state;
     config[code] = value;
@@ -126,22 +119,6 @@ class PerSettings extends React.Component<Props, State> {
     );
   };
 
-  renderCheckbox = (key: string, title?: string, description?: string) => {
-    const { config } = this.state;
-
-    return (
-      <FormGroup>
-        <ControlLabel>{title || key}</ControlLabel>
-        {description && <p>{__(description)}</p>}
-        <FormControl
-          checked={config[key]}
-          onChange={this.onChangeCheckbox.bind(this, key)}
-          componentClass="checkbox"
-        />
-      </FormGroup>
-    );
-  };
-
   addCals = () => {
     const { config } = this.state;
     const { catAccLocMap = [] } = config;
@@ -149,6 +126,8 @@ class PerSettings extends React.Component<Props, State> {
     catAccLocMap.push({
       _id: Math.random().toString(),
       category: '',
+      branch: '',
+      department: '',
       account: '',
       location: '',
       moveAccount: '',
@@ -164,9 +143,15 @@ class PerSettings extends React.Component<Props, State> {
 
     const cals: React.ReactNode[] = [];
     cals.push(
-      <FormWrapper>
+      <FormWrapper key={Math.random()}>
         <FormColumn>
           <ControlLabel>Product Category</ControlLabel>
+        </FormColumn>
+        <FormColumn>
+          <ControlLabel>Branch</ControlLabel>
+        </FormColumn>
+        <FormColumn>
+          <ControlLabel>Department</ControlLabel>
         </FormColumn>
         <FormColumn>
           <ControlLabel>Main Account</ControlLabel>
@@ -189,12 +174,13 @@ class PerSettings extends React.Component<Props, State> {
     );
 
     const editMapping = (id, e) => {
-      const index = catAccLocMap.findIndex(i => i.id === id);
+      const index = catAccLocMap.findIndex(i => i._id === id);
 
       const name = e.target.name;
       const value = e.target.value;
+
       const item = {
-        ...(catAccLocMap.find(cal => cal.id === id) || {}),
+        ...(catAccLocMap.find(cal => cal._id === id) || {}),
         [name]: value
       };
 
@@ -215,13 +201,31 @@ class PerSettings extends React.Component<Props, State> {
 
     for (const map of catAccLocMap || []) {
       cals.push(
-        <FormWrapper key={map.id}>
+        <FormWrapper key={map._id}>
           <FormColumn>
             <FormControl
               defaultValue={map.category}
               name="category"
-              onChange={editMapping.bind(this, map.id)}
+              onChange={editMapping.bind(this, map._id)}
               required={true}
+              autoFocus={true}
+            />
+          </FormColumn>
+          <FormColumn>
+            <FormControl
+              defaultValue={map.branch}
+              name="branch"
+              onChange={editMapping.bind(this, map._id)}
+              required={false}
+              autoFocus={true}
+            />
+          </FormColumn>
+          <FormColumn>
+            <FormControl
+              defaultValue={map.department}
+              name="department"
+              onChange={editMapping.bind(this, map._id)}
+              required={false}
               autoFocus={true}
             />
           </FormColumn>
@@ -229,7 +233,7 @@ class PerSettings extends React.Component<Props, State> {
             <FormControl
               defaultValue={map.account}
               name="account"
-              onChange={editMapping.bind(this, map.id)}
+              onChange={editMapping.bind(this, map._id)}
               required={true}
               autoFocus={true}
             />
@@ -238,7 +242,7 @@ class PerSettings extends React.Component<Props, State> {
             <FormControl
               defaultValue={map.location}
               name="location"
-              onChange={editMapping.bind(this, map.id)}
+              onChange={editMapping.bind(this, map._id)}
               required={true}
               autoFocus={true}
             />
@@ -247,7 +251,7 @@ class PerSettings extends React.Component<Props, State> {
             <FormControl
               defaultValue={map.moveAccount}
               name="moveAccount"
-              onChange={editMapping.bind(this, map.id)}
+              onChange={editMapping.bind(this, map._id)}
               required={true}
               autoFocus={true}
             />
@@ -256,7 +260,7 @@ class PerSettings extends React.Component<Props, State> {
             <FormControl
               defaultValue={map.moveLocation}
               name="moveLocation"
-              onChange={editMapping.bind(this, map.id)}
+              onChange={editMapping.bind(this, map._id)}
               required={true}
               autoFocus={true}
             />
@@ -279,12 +283,14 @@ class PerSettings extends React.Component<Props, State> {
     return (
       <CollapseContent
         title={__(config.title)}
+        beforeTitle={<Icon icon="settings" />}
+        transparent={true}
         open={this.props.currentConfigKey === 'newMoveConfig' ? true : false}
       >
         <FormGroup>
           <ControlLabel>{'Title'}</ControlLabel>
           <FormControl
-            defaultValue={config['title']}
+            defaultValue={config.title}
             onChange={this.onChangeInput.bind(this, 'title')}
             required={true}
             autoFocus={true}
@@ -327,7 +333,7 @@ class PerSettings extends React.Component<Props, State> {
 
         <ModalFooter>
           <Button
-            btnStyle="simple"
+            btnStyle="danger"
             icon="cancel-1"
             onClick={this.onDelete}
             uppercase={false}
@@ -336,7 +342,7 @@ class PerSettings extends React.Component<Props, State> {
           </Button>
 
           <Button
-            btnStyle="primary"
+            btnStyle="success"
             icon="check-circle"
             onClick={this.onSave}
             uppercase={false}

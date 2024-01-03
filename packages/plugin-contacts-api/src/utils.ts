@@ -29,7 +29,8 @@ import {
 import { companySchema } from './models/definitions/companies';
 import { ICustomField, ILink } from '@erxes/api-utils/src/types';
 import { fetchEs } from '@erxes/api-utils/src/elasticsearch';
-import { customFieldsDataByFieldCode } from './coc/utils';
+import { customFieldsDataByFieldCode } from '@erxes/api-utils/src/fieldUtils';
+import { sendCommonMessage } from './messageBroker';
 
 const EXTEND_FIELDS = {
   CUSTOMER: [
@@ -92,7 +93,8 @@ export const findCustomer = async (
   if (customer) {
     customer.customFieldsDataByFieldCode = await customFieldsDataByFieldCode(
       customer,
-      subdomain
+      subdomain,
+      sendCommonMessage
     );
   }
 
@@ -180,7 +182,8 @@ export const findCompany = async (
   if (company) {
     company.customFieldsDataByFieldCode = await customFieldsDataByFieldCode(
       company,
-      subdomain
+      subdomain,
+      sendCommonMessage
     );
   }
 
@@ -300,6 +303,24 @@ const getIntegrations = async (subdomain: string) => {
   };
 };
 
+const getFormSubmissionFields = async (subdomain, config) => {
+  const fields = await sendFormsMessage({
+    subdomain,
+    action: 'fields.fieldsCombinedByContentType',
+    data: {
+      contentType: 'forms:form_submission',
+      config
+    },
+    isRPC: true,
+    defaultValue: []
+  });
+
+  return fields.map(field => ({
+    ...field,
+    label: `form_submission:${field?.label || ''}`
+  }));
+};
+
 export const generateFields = async ({ subdomain, data }) => {
   const { type, usageType } = data;
 
@@ -401,7 +422,17 @@ export const generateFields = async ({ subdomain, data }) => {
   fields = [...fields, tags];
 
   if (type === 'customer' || type === 'lead') {
+    const { config } = data;
+
     const integrations = await getIntegrations(subdomain);
+
+    if (config) {
+      const formSubmissionFields = await getFormSubmissionFields(
+        subdomain,
+        config
+      );
+      fields = [...fields, ...formSubmissionFields];
+    }
 
     fields = [...fields, integrations];
 
@@ -903,6 +934,7 @@ export const updateContactsField = async (
     });
 
     companyDoc.scopeBrandIds = [integration.brandId || ''];
+    companyDoc.names = [companyDoc.primaryName || ''];
 
     if (!company) {
       company = await models.Companies.createCompany(companyDoc);

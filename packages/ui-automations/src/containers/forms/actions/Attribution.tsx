@@ -8,8 +8,8 @@ import {
 import Form from '../../../components/forms/actions/placeHolder/Attribution';
 import React from 'react';
 import { queries as formQueries } from '@erxes/ui-forms/src/forms/graphql';
-import gql from 'graphql-tag';
-import { graphql } from 'react-apollo';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
 import { withProps } from '@erxes/ui/src/utils';
 
 type Props = {
@@ -19,6 +19,8 @@ type Props = {
   inputName?: string;
   fieldType?: string;
   attrType?: string;
+  attrTypes?: string[];
+  attrConfig?: any;
   onlySet?: boolean;
   customAttributions?: FieldsCombinedByType[];
 };
@@ -57,9 +59,10 @@ export default withProps<Props>(
       gql(formQueries.fieldsCombinedByContentType),
       {
         name: 'fieldsCombinedByTypeQuery',
-        options: ({ triggerType }) => ({
+        options: ({ triggerType, attrConfig }) => ({
           variables: {
-            contentType: triggerType
+            contentType: triggerType,
+            config: attrConfig ? attrConfig : undefined
           }
         })
       }

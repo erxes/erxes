@@ -35,7 +35,14 @@ class Row extends React.Component<Props> {
 
     const onTrClick = () => {};
 
-    const { name, amount, createdAt, stageChangedDate, modifiedAt } = deal;
+    const {
+      name,
+      amount,
+      createdAt,
+      stageChangedDate,
+      modifiedAt,
+      number
+    } = deal;
 
     return (
       <tr onClick={onTrClick}>
@@ -47,6 +54,7 @@ class Row extends React.Component<Props> {
           />
         </td>
         <td>{name}</td>
+        <td>{number}</td>
         <td>
           {Object.keys(amount).map(a => `${amount[a].toLocaleString()} ${a}`)}
         </td>
@@ -67,6 +75,7 @@ class Row extends React.Component<Props> {
             dayjs(syncedInfo.syncedDate || '').format('ll')}
         </td>
         <td>{syncedInfo.syncedBillNumber || ''}</td>
+        <td>{syncedInfo.syncedCustomer || ''}</td>
         <td>
           {isUnsynced && (
             <Tip text="Sync">

@@ -2,6 +2,7 @@ import { Avatars, CategoryListWrapper } from "./styles";
 import { Card, Col, Container, Row } from "react-bootstrap";
 import { Config, Topic } from "../../types";
 
+import Icon from "../../common/Icon";
 import Link from "next/link";
 import React from "react";
 import { getConfigColor } from "../../common/utils";
@@ -65,21 +66,33 @@ class CategoryList extends React.Component<Props> {
     const { topic } = this.props;
     const { parentCategories = [] } = topic;
 
-    const specialCategory = parentCategories[0];
-    const categories = parentCategories.slice(1);
     const categoryUrl = `/knowledge-base/category`;
 
-    const detail = (cat) => {
+    const renderInfo = (cat) => {
+      const getAuthorsCount = cat.authors
+        ? new Set(cat.authors.map((author) => author._id)).size
+        : 0;
       return (
         <Link href={`${categoryUrl}?id=${cat._id}`} passHref={true}>
-          <a className="d-flex flex-column align-items-center w-100 link-color">
-            <div className="icon-wrapper">
-              <i className={`icon-${cat.icon}`} />
+          <a className="d-flex flex-column align-items-start w-100 h-100 link-color">
+            <div className="icon-wrapper d-flex justify-content-center align-items-center">
+              <i className={`icon-${cat.icon ? cat.icon : "notebooks"}`} />
             </div>
-            <div className="tab-content">
-              <h5 className="link-hover-color">{cat.title}</h5>
-              <div className="description">
-                <p>{cat.description}</p>
+            <div className="tab-content h-100 d-flex flex-column justify-content-between">
+              <div>
+                <h5 className="link-hover-color">{cat.title.toLowerCase()}</h5>
+                <p>{cat.description.toLowerCase()}</p>
+              </div>
+              <div className="authors d-flex align-item-center">
+                <span className="d-flex align-item-center">
+                  <Icon icon="book" />
+                  &nbsp; {cat.numOfArticles || 0} articles
+                </span>
+                <span className="d-flex align-item-center">
+                  <Icon icon="users-alt" />
+                  &nbsp;
+                  {getAuthorsCount} authors
+                </span>
               </div>
             </div>
           </a>
@@ -87,52 +100,26 @@ class CategoryList extends React.Component<Props> {
       );
     };
 
-    return (
-      <>
-        {specialCategory && (
-          <Container className="knowledge-base promoted mt-30" fluid="sm">
-            <div className="category-knowledge-list">
-              <h2 className="list-category-title">
-                <Link href={`${categoryUrl}?id=${specialCategory._id}`}>
-                  {specialCategory.title}
-                </Link>
-              </h2>
-              <div className="promoted-wrap">
-                {specialCategory.childrens &&
-                  specialCategory.childrens.map((cat, i) => (
-                    <Card key={`child-${i}`}>
-                      {detail(cat)}
-                      <Link href={`${categoryUrl}?id=${cat._id}`}>
-                        <a className="more link-color">Read more</a>
-                      </Link>
-                    </Card>
-                  ))}
-              </div>
-            </div>
-          </Container>
-        )}
-
-        {categories.map((parentCat, i) => (
-          <Container className="knowledge-base" fluid="sm" key={`key-${i}`}>
-            <div className="category-knowledge-list">
-              <h2 className="list-category-title">
-                <Link href={`${categoryUrl}?id=${parentCat._id}`}>
-                  {parentCat.title}
-                </Link>
-              </h2>
-              <Row>
-                {parentCat.childrens &&
-                  parentCat.childrens.map((cat) => (
-                    <Col md={4} key={cat._id} className="category-col">
-                      <Card className="category-item">{detail(cat)}</Card>
-                    </Col>
-                  ))}
-              </Row>
-            </div>
-          </Container>
-        ))}
-      </>
-    );
+    return parentCategories.map((parentCat, i) => (
+      <Container key={`key-${i}`} className="knowledge-base">
+        <div className="category-knowledge-list">
+          <h2 className="list-category-title">
+            <Link href={`${categoryUrl}?id=${parentCat._id}`}>
+              {parentCat.title.toLowerCase()}
+            </Link>
+          </h2>
+          <p>{parentCat.description}</p>
+          <Row>
+            {parentCat.childrens &&
+              parentCat.childrens.map((cat) => (
+                <Col md={4} key={cat._id} className="category-col">
+                  <Card className="category-item">{renderInfo(cat)}</Card>
+                </Col>
+              ))}
+          </Row>
+        </div>
+      </Container>
+    ));
   };
 
   render() {

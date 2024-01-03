@@ -1,4 +1,4 @@
-import { gql } from 'apollo-server-express';
+import gql from 'graphql-tag';
 
 import {
   mutations as clientPortalMutations,
@@ -16,29 +16,52 @@ import {
   types as notificationTypes
 } from './schema/clientPortalNotifications';
 
+import {
+  queries as commentQueries,
+  types as commentTypes
+} from './schema/comment';
+
+import {
+  queries as fieldConfigQueries,
+  types as fieldConfigTypes,
+  mutations as fieldConfigMutations
+} from './schema/fieldConfigs';
+
 const typeDefs = async serviceDiscovery => {
   const kbAvailable = await serviceDiscovery.isEnabled('knowledgebase');
   const cardAvailable = await serviceDiscovery.isEnabled('cards');
   const isContactsEnabled = await serviceDiscovery.isEnabled('contacts');
+  const formsAvailable = await serviceDiscovery.isEnabled('forms');
+  const productsAvailable = await serviceDiscovery.isEnabled('products');
 
   return gql`
     scalar JSON
     scalar Date
 
-    ${clientPortalTypes(cardAvailable, kbAvailable)}
+    ${clientPortalTypes(
+      cardAvailable,
+      kbAvailable,
+      formsAvailable,
+      productsAvailable
+    )}
     ${clientPortalUserTypes(isContactsEnabled)}
     ${notificationTypes}
+    ${commentTypes}
+    ${fieldConfigTypes}
 
     extend type Query {
-     ${clientPortalQueries(cardAvailable, kbAvailable)}
+     ${clientPortalQueries(cardAvailable, kbAvailable, formsAvailable)}
      ${clientPortalUserQueries()}
      ${notificationQueries}
+     ${commentQueries}
+     ${fieldConfigQueries}
     }
 
     extend type Mutation {
       ${clientPortalMutations(cardAvailable)} 
       ${clientPortalUserMutations()}
       ${notificationMutations}
+      ${fieldConfigMutations}
     }
   `;
 };

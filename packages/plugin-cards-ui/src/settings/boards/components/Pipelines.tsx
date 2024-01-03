@@ -1,12 +1,12 @@
 import {
   EMPTY_CONTENT_DEAL_PIPELINE,
-  EMPTY_CONTENT_TASK_PIPELINE
+  EMPTY_CONTENT_TASK_PIPELINE,
+  EMPTY_CONTENT_PURCHASE_PIPELINE
 } from '@erxes/ui-settings/src/constants';
 import { IBoard, IPipeline } from '@erxes/ui-cards/src/boards/types';
 import { IButtonMutateProps, IRouterProps } from '@erxes/ui/src/types';
 import { Link, withRouter } from 'react-router-dom';
 import { __, router } from 'coreui/utils';
-
 import { BarItems } from '@erxes/ui/src/layout/styles';
 import Button from '@erxes/ui/src/components/Button';
 import EmptyContent from '@erxes/ui/src/components/empty/EmptyContent';
@@ -170,7 +170,7 @@ class Pipelines extends React.Component<Props, State> {
   renderContent() {
     const { pipelines, options, type } = this.props;
 
-    const pipelineName = options ? options.pipelineName : 'pipeline';
+    const pipelineName = options?.pipelineName || 'pipeline';
 
     if (pipelines.length === 0) {
       if (type === 'deal' || type === 'task') {
@@ -186,6 +186,18 @@ class Pipelines extends React.Component<Props, State> {
         );
       }
 
+      if (type === 'purchase') {
+        return (
+          <EmptyContent
+            content={
+              type === 'purchase'
+                ? EMPTY_CONTENT_PURCHASE_PIPELINE
+                : EMPTY_CONTENT_TASK_PIPELINE
+            }
+            maxItemWidth="420px"
+          />
+        );
+      }
       return (
         <EmptyState
           text={`Get started on your ${pipelineName.toLowerCase()}`}
@@ -225,12 +237,18 @@ class Pipelines extends React.Component<Props, State> {
       );
     }
 
+    if (options && options.additionalButtonModal) {
+      const Content = options.additionalButtonModal;
+
+      return <Content />;
+    }
+
     return null;
   };
 
   renderButton() {
     const { options, boardId, history } = this.props;
-    const pipelineName = options ? options.pipelineName : 'pipeline';
+    const pipelineName = options?.pipelineName || 'pipeline';
 
     if (!boardId) {
       return null;
@@ -260,7 +278,7 @@ class Pipelines extends React.Component<Props, State> {
 
   render() {
     const { currentBoard, pipelines, options } = this.props;
-    const pipelineName = options ? options.pipelineName : 'pipeline';
+    const pipelineName = options?.pipelineName || 'pipeline';
 
     const leftActionBar = (
       <Title>

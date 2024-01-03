@@ -14,7 +14,7 @@ export const initBroker = async cl => {
 
     return {
       status: 'success',
-      data: await models.Invoices.findOne(data)
+      data: await models.Invoices.findOne(data).lean()
     };
   });
 };
@@ -30,7 +30,7 @@ export const sendContactsMessage = async (
   });
 };
 
-export const sendPluginsMessage = async (
+export const sendCommonMessage = async (
   serviceName: string,
   args: ISendMessageArgs
 ): Promise<any> => {

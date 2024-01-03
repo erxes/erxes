@@ -2,18 +2,25 @@ import { getService, getServices } from '@erxes/api-utils/src/serviceDiscovery';
 import { fetchSegment } from '../../../messageBroker';
 
 const generalHistoryQueries = {
-  async historyGetTypes() {
+  async historyGetTypes(_root, { type }: { type: string }) {
     const services = await getServices();
 
     const importExportTypes: Array<{ text: string; contentType: string }> = [];
 
     for (const serviceName of services) {
-      const service = await getService(serviceName, true);
+      const service = await getService(serviceName);
 
       const meta = service.config?.meta || {};
 
-      if (meta && meta.exporter) {
-        const types = meta.exporter.importExportTypes || [];
+      if (
+        meta &&
+        ((type === 'export' && meta.exporter) ||
+          (type === 'import' && meta.imports))
+      ) {
+        const types =
+          type === 'export'
+            ? meta.exporter.importExportTypes
+            : meta.imports.importExportTypes || [];
 
         for (const type of types) {
           importExportTypes.push({

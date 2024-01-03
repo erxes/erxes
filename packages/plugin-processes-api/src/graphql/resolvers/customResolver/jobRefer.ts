@@ -10,14 +10,11 @@ export default {
   async needProducts(jobRefer: IJobReferDocument, {}, { subdomain }: IContext) {
     const needProducts = jobRefer.needProducts || [];
 
-    const { productById, uomById } = await getProductAndUoms(
-      subdomain,
-      needProducts
-    );
+    const { productById } = await getProductAndUoms(subdomain, needProducts);
 
     for (let need of needProducts) {
       need.product = productById[need.productId] || {};
-      need.uom = uomById[need.uomId] || {};
+      need.uom = (productById[need.productId] || {}).uom;
     }
 
     return needProducts;
@@ -30,14 +27,11 @@ export default {
   ) {
     const resultProducts = jobRefer.resultProducts || [];
 
-    const { productById, uomById } = await getProductAndUoms(
-      subdomain,
-      resultProducts
-    );
+    const { productById } = await getProductAndUoms(subdomain, resultProducts);
 
     for (const result of resultProducts) {
       result.product = productById[result.productId] || {};
-      result.uom = uomById[result.uomId] || {};
+      result.uom = (productById[result.productId] || {}).uom;
     }
 
     return resultProducts;

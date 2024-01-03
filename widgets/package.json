@@ -65,7 +65,7 @@
     "graphql-ws": "^5.5.5",
     "i18n-react": "^0.6.4",
     "json-loader": "^0.5.7",
-    "node-sass": "^4.14.1",
+    "node-sass": "^9.0.0",
     "react": "^16.11.0",
     "react-apollo": "^2.1.9",
     "react-dom": "^16.11.0",
@@ -80,7 +80,7 @@
     "webpack": "^5.57.1",
     "webpack-cli": "^4.9.0",
     "webpack-merge": "^4.1.3",
-    "xss": "^1.0.3"
+    "xss": "1.0.14"
   },
   "devDependencies": {
     "git-repo-info": "^2.1.0",

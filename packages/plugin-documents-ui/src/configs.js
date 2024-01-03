@@ -1,12 +1,11 @@
 module.exports = {
+  srcDir: __dirname,
   name: "documents",
   scope: "documents",
   port: 3020,
   exposes: {
     "./routes": "./src/routes.tsx",
-    "./cardDetailAction": "./src/containers/CardDetailAction.tsx"
   },
-  cardDetailAction: "./cardDetailAction",
   routes: {
     url: "http://localhost:3020/remoteEntry.js",
     scope: "documents",

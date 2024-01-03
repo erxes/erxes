@@ -23,12 +23,12 @@ const yearPlansAdd = `
 `;
 
 const planEditParamDefs = `
-  $uomId: String,
+  $uom: String,
   $values: JSON
 `;
 
 const planEditParams = `
-  uomId: $uomId,
+  uom: $uom,
   values: $values
 `;
 

@@ -114,8 +114,21 @@ const pipelinesUpdateOrder = `
   }
 `;
 
+const manageExpenses = `
+  mutation manageExpenses($expenseDocs: [ExpenseInput]) {
+    manageExpenses(expenseDocs: $expenseDocs) {
+      _id,
+      name,
+      description,
+      createdAt,
+      createdBy
+    }
+  }
+`;
+
 export default {
   boardAdd,
+  manageExpenses,
   boardEdit,
   boardRemove,
   pipelineAdd,

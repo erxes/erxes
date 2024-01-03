@@ -1,4 +1,4 @@
-import { gql } from 'apollo-server-express';
+import gql from 'graphql-tag';
 
 import {
   mutations as directionMutations,
@@ -21,18 +21,31 @@ import {
   types as tripTypes
 } from './schema/trips';
 import {
+  mutations as tumentechDealMutations,
+  queries as tumentechDealQueries,
+  types as tumentechDealTypes
+} from './schema/tumentechDeal';
+import {
   mutations as tumentechMutations,
   queries as tumentechQueries,
   types as tumentechTypes
 } from './schema/tumentech';
 
+import {
+  mutations as accountMutations,
+  queries as accountQueries,
+  types as accountTypes
+} from './schema/accounts';
+
 const typeDefs = async serviceDiscovery => {
   const isContactsEnabled = await serviceDiscovery.isEnabled('contacts');
   const cardsAvailable = await serviceDiscovery.isEnabled('cards');
+  const xypAvailable = await serviceDiscovery.isEnabled('xyp');
 
   const isEnabled = {
     contacts: isContactsEnabled,
-    cards: cardsAvailable
+    cards: cardsAvailable,
+    xyp: xypAvailable
   };
 
   return gql`
@@ -55,6 +68,8 @@ const typeDefs = async serviceDiscovery => {
     ${routeTypes}
     ${directionTypes}
     ${tripTypes(isEnabled)}
+    ${tumentechDealTypes(isEnabled)}
+    ${accountTypes(isEnabled)}
     
     extend type Query {
       ${placeQueries}
@@ -62,6 +77,8 @@ const typeDefs = async serviceDiscovery => {
       ${directionQueries}
       ${routeQueries}
       ${tripQueries}
+      ${tumentechDealQueries}
+      ${accountQueries}
     }
     
     extend type Mutation {
@@ -70,6 +87,8 @@ const typeDefs = async serviceDiscovery => {
       ${directionMutations}
       ${routeMutations}
       ${tripMutations}
+      ${tumentechDealMutations}
+      ${accountMutations}
     }
   `;
 };

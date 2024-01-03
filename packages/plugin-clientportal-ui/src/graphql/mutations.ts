@@ -2,72 +2,10 @@ import { clientPortalUserFields, commonFields } from './queries';
 
 const createOrUpdateConfig = `
   mutation clientPortalConfigUpdate(
-    $_id: String
-    $name: String
-    $description: String
-    $logo: String
-    $icon: String
-    $headerHtml: String
-    $footerHtml: String
-    $url: String
-    $domain: String
-    $messengerBrandCode: String
-    $knowledgeBaseLabel: String
-    $knowledgeBaseTopicId: String
-    $ticketLabel: String
-    $taskPublicBoardId: String
-    $taskPublicPipelineId: String
-    $taskLabel: String
-    $taskStageId: String
-    $taskPipelineId: String
-    $taskBoardId: String
-    $ticketStageId: String
-    $ticketPipelineId: String
-    $ticketBoardId: String
-    $styles: StylesParams
-    $mobileResponsive: Boolean
-    $googleCredentials: JSON
-
-    $kbToggle: Boolean
-    $publicTaskToggle: Boolean
-    $ticketToggle: Boolean
-    $taskToggle: Boolean
-    $otpConfig: OTPConfigInput
-    $mailConfig: MailConfigInput
+    $config: ClientPortalConfigInput!
   ) {
     clientPortalConfigUpdate(
-      _id: $_id,
-      name: $name,
-      description: $description,
-      url: $url,
-      logo: $logo,
-      icon: $icon,
-      headerHtml: $headerHtml,
-      footerHtml: $footerHtml,
-      domain: $domain,
-      messengerBrandCode: $messengerBrandCode,
-      knowledgeBaseLabel: $knowledgeBaseLabel,
-      knowledgeBaseTopicId: $knowledgeBaseTopicId,
-      taskPublicBoardId: $taskPublicBoardId,
-      taskPublicPipelineId: $taskPublicPipelineId,
-      ticketLabel: $ticketLabel,
-      taskLabel: $taskLabel,
-      taskStageId: $taskStageId,
-      taskPipelineId: $taskPipelineId,
-      taskBoardId: $taskBoardId,
-      ticketStageId: $ticketStageId,
-      ticketPipelineId: $ticketPipelineId,
-      ticketBoardId: $ticketBoardId
-      styles: $styles
-      mobileResponsive: $mobileResponsive
-      googleCredentials: $googleCredentials
-
-      kbToggle: $kbToggle,
-      publicTaskToggle: $publicTaskToggle,
-      ticketToggle: $ticketToggle,
-      taskToggle: $taskToggle,
-      otpConfig: $otpConfig
-      mailConfig: $mailConfig
+      config: $config
     ) {
       ${commonFields}
     }
@@ -89,6 +27,7 @@ const commonUserFields = `
   $links: JSON,
   $customFieldsData: JSON,
   $avatar: String
+  $erxesCompanyId: String
 `;
 
 const commonUserVariables = `
@@ -106,11 +45,12 @@ const commonUserVariables = `
   links: $links,
   customFieldsData: $customFieldsData
   avatar: $avatar
+  erxesCompanyId: $erxesCompanyId
 `;
 
 const clientPortalUsersInvite = `
-  mutation clientPortalUsersInvite(${commonUserFields}) {
-    clientPortalUsersInvite(${commonUserVariables}) {
+  mutation clientPortalUsersInvite(${commonUserFields}, $disableVerificationMail:Boolean, $password: String) {
+    clientPortalUsersInvite(${commonUserVariables}, disableVerificationMail: $disableVerificationMail, password: $password) {
       ${clientPortalUserFields}
     }
   }
@@ -130,6 +70,12 @@ const clientPortalUsersRemove = `
   }
 `;
 
+const clientPortalUserAssignCompany = `
+   mutation clientPortalUserAssignCompany($userId: String!, $erxesCompanyId: String!, $erxesCustomerId: String!){
+    clientPortalUserAssignCompany(userId: $userId, erxesCompanyId: $erxesCompanyId, erxesCustomerId: $erxesCustomerId)
+   }
+`;
+
 const remove = `
   mutation clientPortalRemove(
     $_id: String!
@@ -146,11 +92,60 @@ mutation clientPortalUsersVerify($type: String, $userIds: [String]!) {
 }
 `;
 
+const clientPortalCommentsAdd = `
+  mutation clientPortalCommentsAdd(
+    $typeId: String!
+    $type: String!
+    $content: String!
+    $userType: String!
+  ) {
+    clientPortalCommentsAdd(
+      typeId: $typeId
+      type: $type
+      content: $content
+      userType: $userType
+    ) {
+      _id
+    }
+  }
+`;
+
+const clientPortalCommentsRemove = `
+  mutation clientPortalCommentsRemove(
+    $_id: String!
+  ) {
+    clientPortalCommentsRemove(
+      _id: $_id
+    ) 
+  }
+`;
+
+const changeVerificationStatus = `
+mutation ClientPortalUsersChangeVerificationStatus($status: ClientPortalUserVerificationStatus!, $userId: String!) {
+  clientPortalUsersChangeVerificationStatus(status: $status, userId: $userId)
+}
+`;
+
+const editFields = `
+mutation ClientPortalFieldConfigsEdit($fieldId: String!, $allowedClientPortalIds: [String], $requiredOn: [String]) {
+  clientPortalFieldConfigsEdit(fieldId: $fieldId, allowedClientPortalIds: $allowedClientPortalIds, requiredOn: $requiredOn) {
+    allowedClientPortalIds
+    fieldId
+    requiredOn
+  }
+}
+`;
+
 export default {
   createOrUpdateConfig,
   remove,
   clientPortalUsersInvite,
   clientPortalUsersEdit,
   clientPortalUsersRemove,
-  verifyUsers
+  verifyUsers,
+  clientPortalCommentsAdd,
+  clientPortalCommentsRemove,
+  changeVerificationStatus,
+  editFields,
+  clientPortalUserAssignCompany
 };

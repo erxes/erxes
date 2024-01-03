@@ -33,7 +33,7 @@ var releaseYaml = {
 				},
 				{
 					"name": "Configure AWS credentials",
-					"uses": "aws-actions/configure-aws-credentials@v1",
+					"uses": "aws-actions/configure-aws-credentials@v4",
 					"with": {
 						"aws-access-key-id": "${{ secrets.AWS_ACCESS_KEY_ID }}",
 						"aws-secret-access-key": "${{ secrets.AWS_SECRET_ACCESS_KEY }}",
@@ -56,7 +56,6 @@ var main = async () => {
 		{ name: 'cards', ui: true, api: true },
 		{ name: 'clientportal', ui: true, api: true },
 		{ name: 'contacts', ui: true, api: true },
-		{ name: 'dashboard', ui: true, api: true },
 		{ name: 'emailtemplates', ui: true, api: true },
 		{ name: 'engages', ui: true, api: true },
 		{ name: 'forms', ui: true, api: true },
@@ -71,13 +70,12 @@ var main = async () => {
 		{ name: 'segments', ui: true, api: true },
 		{ name: 'tags', ui: true, api: true },
 		{ name: 'webbuilder', ui: true, api: true },
-  		{ name: 'documents', ui: true, api: true },
+		{ name: 'documents', ui: true, api: true },
 		{ name: 'chats', ui: true, api: true },
 		{ name: 'ebarimt', ui: true, api: true },
 		{ name: 'exm', ui: true, api: true },
 		{ name: 'exmfeed', ui: true, api: true },
 		{ name: 'pos', ui: true, api: true },
-		{ name: 'qpay', ui: true, api: true },
 		{ name: 'reactions', api: true },
 		{ name: 'syncerkhet', ui: true, api: true },
 		{ name: 'salesplans', ui: true, api: true },
@@ -95,9 +93,9 @@ var main = async () => {
 
 	for (const service of services) {
 		let run = "echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin \n"
-				+ `docker image pull erxes/${service}:dev \n`
-				+ `docker tag erxes/${service}:dev erxes/${service}:\${GITHUB_REF#refs/tags/} \n`
-				+ `docker push erxes/${service}:\${GITHUB_REF#refs/tags/} \n`;
+			+ `docker image pull erxes/${service}:dev \n`
+			+ `docker tag erxes/${service}:dev erxes/${service}:\${GITHUB_REF#refs/tags/} \n`
+			+ `docker push erxes/${service}:\${GITHUB_REF#refs/tags/} \n`;
 
 		if (service === 'erxes') {
 			run += `aws s3 cp s3://erxes-dev-plugins/locales.tar s3://erxes-release-plugins/\${GITHUB_REF#refs/tags/}/locales.tar \n`;

@@ -127,3 +127,6 @@ dist
 .pnp.*
 
 src/subscription/plugins/downloads
+
+src/apollo-router/temp
+src/apollo-router/downloads

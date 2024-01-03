@@ -10,6 +10,20 @@ export const handleFacebookMessage = async (models: IModels, msg) => {
   const { action, payload } = msg;
   const doc = JSON.parse(payload || '{}');
 
+  if (doc.internal) {
+    const conversation = await models.Conversations.getConversation({
+      erxesApiId: doc.conversationId
+    });
+
+    return models.ConversationMessages.addMessage(
+      {
+        ...doc,
+        conversationId: conversation._id
+      },
+      doc.userId
+    );
+  }
+
   if (action === 'reply-messenger') {
     const {
       integrationId,

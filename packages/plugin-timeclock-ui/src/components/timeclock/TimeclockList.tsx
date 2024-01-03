@@ -1,34 +1,137 @@
 import Button from '@erxes/ui/src/components/Button';
 import { ITimeclock } from '../../types';
 import Row from './TimeclockRow';
-import { __ } from '@erxes/ui/src/utils';
+import { Alert, __ } from '@erxes/ui/src/utils';
 import React, { useState } from 'react';
 import { Title } from '@erxes/ui-settings/src/styles';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import Table from '@erxes/ui/src/components/table';
 import TimeForm from '../../containers/timeclock/TimeFormList';
-import { CustomRangeContainer, FlexCenter, FlexColumn } from '../../styles';
+import {
+  CustomRangeContainer,
+  FlexCenter,
+  FlexColumnCustom,
+  FlexRow,
+  FlexRowLeft,
+  MarginY,
+  TextAlignCenter,
+  ToggleButton,
+  ToggleDisplay
+} from '../../styles';
 import DateControl from '@erxes/ui/src/components/form/DateControl';
-import { ControlLabel, FormGroup } from '@erxes/ui/src/components/form';
+import { ControlLabel } from '@erxes/ui/src/components/form';
+import Pagination from '@erxes/ui/src/components/pagination/Pagination';
+import { isEnabled, loadDynamicComponent } from '@erxes/ui/src/utils/core';
+import { IUser } from '@erxes/ui/src/auth/types';
+import { IBranch, IDepartment } from '@erxes/ui/src/team/types';
+import Icon from '@erxes/ui/src/components/Icon';
+import Select from 'react-select-plus';
+import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
+import { prepareCurrentUserOption } from '../../utils';
+import * as dayjs from 'dayjs';
 
 type Props = {
+  currentUser: IUser;
+  departments: IDepartment[];
+  branches: IBranch[];
+
   queryParams: any;
   history: any;
   startTime?: Date;
   timeclocks: ITimeclock[];
-  startClockTime?: (userId: string) => void;
   loading: boolean;
+  totalCount: number;
+
+  isCurrentUserAdmin: boolean;
+
+  startClockTime?: (userId: string) => void;
+  extractAllMsSqlData: (startDate: Date, endDate: Date, params: any) => void;
+  removeTimeclock: (_id: string) => void;
+
   getActionBar: (actionBar: any) => void;
-  extractAllMySqlData: (startDate: Date, endDate: Date) => void;
+  showSideBar: (sideBar: boolean) => void;
+  getPagination: (pagination: any) => void;
 };
 
-function List({
-  timeclocks,
-  startClockTime,
-  getActionBar,
-  extractAllMySqlData
-}: Props) {
+function List(props: Props) {
+  const {
+    isCurrentUserAdmin,
+    currentUser,
+    departments,
+    branches,
+    queryParams,
+    timeclocks,
+    totalCount,
+    startClockTime,
+    extractAllMsSqlData,
+    removeTimeclock,
+    getActionBar,
+    showSideBar,
+    getPagination
+  } = props;
+
+  const [extractType, setExtractType] = useState('All team members');
+  const [currUserIds, setUserIds] = useState([]);
+
+  const [selectedBranches, setBranches] = useState<string[]>([]);
+  const [selectedDepartments, setDepartments] = useState<string[]>([]);
+
+  const renderDepartmentOptions = (depts: IDepartment[]) => {
+    return depts.map(dept => ({
+      value: dept._id,
+      label: dept.title,
+      userIds: dept.userIds
+    }));
+  };
+
+  const renderBranchOptions = (branchesList: IBranch[]) => {
+    return branchesList.map(branch => ({
+      value: branch._id,
+      label: branch.title,
+      userIds: branch.userIds
+    }));
+  };
+
+  const onBranchSelect = el => {
+    const selectedBranchIds: string[] = [];
+    selectedBranchIds.push(...el.map(branch => branch.value));
+    setBranches(selectedBranchIds);
+  };
+
+  const onDepartmentSelect = el => {
+    const selectedDeptIds: string[] = [];
+    selectedDeptIds.push(...el.map(dept => dept.value));
+    setDepartments(selectedDeptIds);
+  };
+
+  const onMemberSelect = selectedUsers => {
+    setUserIds(selectedUsers);
+  };
+
+  const returnTotalUserOptions = () => {
+    const totalUserOptions: string[] = [];
+
+    for (const dept of departments) {
+      totalUserOptions.push(...dept.userIds);
+    }
+
+    for (const branch of branches) {
+      totalUserOptions.push(...branch.userIds);
+    }
+
+    totalUserOptions.push(currentUser._id);
+
+    return totalUserOptions;
+  };
+
+  const filterParams = isCurrentUserAdmin
+    ? {}
+    : {
+        ids: returnTotalUserOptions(),
+        excludeIds: false
+      };
+
   const trigger = (
     <Button btnStyle={'success'} icon="plus-circle">
       Start Shift
@@ -42,10 +145,25 @@ function List({
     new Date(localStorage.getItem('endDate') || Date.now())
   );
 
-  const extractTrigger = <Button icon="plus-circle">Extract all data</Button>;
+  const extractTrigger = isCurrentUserAdmin ? (
+    <Button icon="plus-circle">Extract all data</Button>
+  ) : (
+    <></>
+  );
 
-  const modalContent = props => (
+  const [isSideBarOpen, setIsOpen] = useState(
+    localStorage.getItem('isSideBarOpen') === 'true' ? true : false
+  );
+
+  const onToggleSidebar = () => {
+    const toggleIsOpen = !isSideBarOpen;
+    setIsOpen(toggleIsOpen);
+    localStorage.setItem('isSideBarOpen', toggleIsOpen.toString());
+  };
+
+  const modalContent = contenProps => (
     <TimeForm
+      {...contenProps}
       {...props}
       startClockTime={startClockTime}
       timeclocks={timeclocks}
@@ -53,82 +171,178 @@ function List({
   );
 
   const onStartDateChange = dateVal => {
-    setStartDate(dateVal);
-    localStorage.setItem('startDate', startDate.toISOString());
+    if (checkDateRange(dateVal, endDate)) {
+      setStartDate(dateVal);
+      localStorage.setItem('startDate', startDate.toISOString());
+    }
   };
 
   const onEndDateChange = dateVal => {
-    setEndDate(dateVal);
-    localStorage.setItem('endDate', endDate.toISOString());
+    if (checkDateRange(startDate, dateVal)) {
+      setEndDate(dateVal);
+      localStorage.setItem('endDate', endDate.toISOString());
+    }
   };
-  const extractContent = props => (
-    <FlexColumn marginNum={10}>
-      <ControlLabel>Select Date Range</ControlLabel>
-      <CustomRangeContainer>
-        <DateControl
-          required={false}
-          value={startDate}
-          name="startDate"
-          placeholder={'Starting date'}
-          dateFormat={'YYYY-MM-DD'}
-          onChange={onStartDateChange}
-        />
-        <DateControl
-          required={false}
-          value={endDate}
-          name="endDate"
-          placeholder={'Ending date'}
-          dateFormat={'YYYY-MM-DD'}
-          onChange={onEndDateChange}
-        />
-      </CustomRangeContainer>
-      <FlexCenter>
-        <Button onClick={() => extractAllMySqlData(startDate, endDate)}>
-          Extract all data
-        </Button>
-      </FlexCenter>
-    </FlexColumn>
+
+  const checkDateRange = (start: Date, end: Date) => {
+    if ((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24) > 8) {
+      Alert.error('Please choose date range within 8 days');
+      return false;
+    }
+
+    return true;
+  };
+
+  const extractAllData = () => {
+    if (checkDateRange(startDate, endDate)) {
+      extractAllMsSqlData(startDate, endDate, {
+        branchIds: selectedBranches,
+        departmentIds: selectedDepartments,
+        userIds: currUserIds,
+        extractAll: extractType === 'All team members'
+      });
+    }
+  };
+  const extractContent = contentProps => (
+    <FlexColumnCustom marginNum={10}>
+      <div>
+        <ControlLabel>Select Date Range</ControlLabel>
+        <CustomRangeContainer>
+          <DateControl
+            required={false}
+            value={startDate}
+            name="startDate"
+            placeholder={'Starting date'}
+            dateFormat={'YYYY-MM-DD'}
+            onChange={onStartDateChange}
+          />
+          <DateControl
+            required={false}
+            value={endDate}
+            name="endDate"
+            placeholder={'Ending date'}
+            dateFormat={'YYYY-MM-DD'}
+            onChange={onEndDateChange}
+          />
+        </CustomRangeContainer>
+      </div>
+
+      <Select
+        value={extractType}
+        onChange={el => setExtractType(el.value)}
+        placeholder="Select extract type"
+        options={['All team members', 'Choose team members'].map(e => ({
+          value: e,
+          label: e
+        }))}
+      />
+
+      <ToggleDisplay display={extractType === 'Choose team members'}>
+        <div>
+          <ControlLabel>Departments</ControlLabel>
+          <Select
+            value={selectedDepartments}
+            onChange={onDepartmentSelect}
+            placeholder="Select departments"
+            multi={true}
+            options={departments && renderDepartmentOptions(departments)}
+          />
+        </div>
+        <div>
+          <ControlLabel>Branches</ControlLabel>
+          <Select
+            value={selectedBranches}
+            onChange={onBranchSelect}
+            placeholder="Select branches"
+            multi={true}
+            options={branches && renderBranchOptions(branches)}
+          />
+        </div>
+        <div>
+          <ControlLabel>Team members</ControlLabel>
+          <SelectTeamMembers
+            initialValue={currUserIds}
+            customField="employeeId"
+            label="Select team member"
+            name="userIds"
+            customOption={prepareCurrentUserOption(currentUser)}
+            filterParams={filterParams}
+            onSelect={onMemberSelect}
+          />
+        </div>
+      </ToggleDisplay>
+
+      <MarginY margin={10}>
+        <FlexCenter>
+          <Button onClick={extractAllData}>Extract all data</Button>
+        </FlexCenter>
+      </MarginY>
+    </FlexColumnCustom>
+  );
+
+  const bichilTimeclockActionBar = loadDynamicComponent(
+    'bichilTimeclockActionBar',
+    { currentUserId: currentUser._id, isCurrentUserAdmin, queryParams }
+  );
+
+  const actionBarLeft = (
+    <FlexRowLeft>
+      <ToggleButton
+        id="btn-inbox-channel-visible"
+        isActive={isSideBarOpen}
+        onClick={onToggleSidebar}
+      >
+        <Icon icon="subject" />
+      </ToggleButton>
+
+      {!isEnabled('bichil') && (
+        <Title capitalize={true}>{` Total: ${timeclocks.length}`}</Title>
+      )}
+    </FlexRowLeft>
   );
 
   const actionBarRight = (
-    <>
-      <ModalTrigger
-        title={__('Extract all data')}
-        trigger={extractTrigger}
-        content={extractContent}
-      />
-      <ModalTrigger
-        title={__('Start shift')}
-        trigger={trigger}
-        content={modalContent}
-      />
-    </>
-  );
+    <FlexRow>
+      {bichilTimeclockActionBar && bichilTimeclockActionBar}
 
-  const title = (
-    <Title capitalize={true}>
-      {__(new Date().toDateString().slice(0, -4))}
-    </Title>
+      <div>
+        {!isEnabled('bichil') && (
+          <ModalTrigger
+            title={__('Extract all data')}
+            trigger={extractTrigger}
+            content={extractContent}
+          />
+        )}
+        <ModalTrigger
+          title={__('Start shift')}
+          trigger={trigger}
+          content={modalContent}
+        />
+      </div>
+    </FlexRow>
   );
 
   const actionBar = (
     <Wrapper.ActionBar
-      left={title}
+      left={actionBarLeft}
       right={actionBarRight}
       hasFlex={true}
       wideSpacing={true}
     />
   );
 
-  const compareUserName = (a, b) => {
-    if (a.employeeUserName < b.employeeUserName) {
-      return -1;
-    }
-    if (a.employeeUserName > b.employeeUserName) {
-      return 1;
-    }
-    return 0;
-  };
+  getActionBar(actionBar);
+  showSideBar(isSideBarOpen);
+  getPagination(<Pagination count={totalCount} />);
+
+  const bichilTimeclockTable = loadDynamicComponent(
+    'bichilTimeclockTable',
+    props
+  );
+
+  if (bichilTimeclockTable) {
+    return bichilTimeclockTable;
+  }
 
   const content = (
     <Table>
@@ -136,23 +350,33 @@ function List({
         <tr>
           <th>{__('Team member')}</th>
           <th>{__('Shift date')}</th>
-          <th>{__('Shift started')}</th>
-          <th>{__('Shift ended')}</th>
+          <th>{__('Check In')}</th>
+          <th>{__('In Device')}</th>
+          <th>{__('Location')}</th>
+          <th>{__('Check Out')}</th>
           <th>{__('Overnight')}</th>
-          <th>{__('Branch / Device name')}</th>
-          <th>{__('Device type')}</th>
-          <th>{__('Status')}</th>
+          <th>{__('Out Device')}</th>
+          <th>{__('Location')}</th>
+          <th>
+            <TextAlignCenter>{__('Action')}</TextAlignCenter>
+          </th>
         </tr>
       </thead>
       <tbody>
-        {timeclocks.sort(compareUserName).map(timeclock => {
-          return <Row key={timeclock._id} timeclock={timeclock} />;
+        {timeclocks.map(timeclock => {
+          return (
+            <Row
+              isCurrentUserAdmin={isCurrentUserAdmin}
+              key={timeclock._id}
+              timeclock={timeclock}
+              removeTimeclock={removeTimeclock}
+            />
+          );
         })}
       </tbody>
     </Table>
   );
 
-  getActionBar(actionBar);
   return content;
 }
 

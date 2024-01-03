@@ -1,28 +1,26 @@
-import React, { useState } from 'react';
-import Select from 'react-select-plus';
 import { FormControl, FormGroup } from '@erxes/ui/src/components/form';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import Form from '@erxes/ui/src/components/form/Form';
+import React, { useState } from 'react';
+
 import Button from '@erxes/ui/src/components/Button';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import { ModalFooter } from '@erxes/ui/src/styles/main';
-import { __ } from 'modules/common/utils';
-import { IBranch } from '@erxes/ui/src/team/types';
-import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
 import ContactInfoForm from '../common/ContactInfoForm';
-import { generateTree } from '../../utils';
-import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import Form from '@erxes/ui/src/components/form/Form';
+import { IBranch } from '@erxes/ui/src/team/types';
+import { ModalFooter } from '@erxes/ui/src/styles/main';
+import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
+import { __ } from 'modules/common/utils';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
-  branch?: IBranch;
+  item?: IBranch;
   closeModal: () => void;
-  branches: IBranch[];
+  items: IBranch[];
 };
 
 export default function BranchForm(props: Props) {
-  const { closeModal, renderButton, branches } = props;
-  const object = props.branch || ({} as IBranch);
+  const { closeModal, renderButton, items, item } = props;
+  const object = item || ({} as IBranch);
 
   const [userIds, setUserIds] = useState(
     (object.users || []).map(user => user._id)
@@ -30,6 +28,7 @@ export default function BranchForm(props: Props) {
   const [parentId, setParentId] = useState(object.parentId || null);
   const [links, setLinks] = useState(object.links || {});
   const [image, setImage] = useState(object.image || null);
+  const [supervisorId, setSupervisorId] = useState(object.supervisorId);
 
   const coordinateObj = object.coordinate || {};
 
@@ -50,6 +49,7 @@ export default function BranchForm(props: Props) {
       parentId,
       links,
       coordinate,
+      supervisorId,
       image,
       ...finalValues,
       radius: Number(finalValues.radius)
@@ -68,8 +68,20 @@ export default function BranchForm(props: Props) {
     setUserIds(ids);
   };
 
+  const onSelectSupervisor = value => {
+    setSupervisorId(value);
+  };
+
   const renderContent = (formProps: IFormProps) => {
     const { values, isSubmitted } = formProps;
+
+    const generateOptions = () => {
+      return items.map(branch => (
+        <option key={branch._id} value={branch._id}>
+          {branch.title}
+        </option>
+      ));
+    };
 
     return (
       <>
@@ -103,14 +115,29 @@ export default function BranchForm(props: Props) {
           />
         </FormGroup>
         <FormGroup>
-          <ControlLabel>{__('Parent')}</ControlLabel>
-          <SelectBranches
-            label="Choose parent"
-            name="parentId"
-            initialValue={parentId || ''}
-            onSelect={onChangeParent}
+          <ControlLabel>{__('Supervisor')}</ControlLabel>
+
+          <SelectTeamMembers
+            label="Choose supervisor"
+            name="supervisorId"
+            initialValue={supervisorId}
+            onSelect={onSelectSupervisor}
             multi={false}
           />
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel>{__('Parent')}</ControlLabel>
+          <FormControl
+            {...formProps}
+            name="parentId"
+            componentClass="select"
+            defaultValue={parentId || null}
+            onChange={onChangeParent}
+          >
+            <option value="" />
+            {generateOptions()}
+          </FormControl>
         </FormGroup>
         <FormGroup>
           <ControlLabel>{__('Team Members')}</ControlLabel>

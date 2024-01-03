@@ -18,7 +18,7 @@ export interface IYearPlan {
   departmentId?: string;
   branchId?: string;
   productId?: string;
-  uomId?: string;
+  uom?: string;
   values?: IPlanValues;
 }
 
@@ -38,7 +38,7 @@ export const yearPlanSchema = schemaWrapper(
     departmentId: field({ type: String, label: 'Department' }),
     branchId: field({ type: String, label: 'Branch' }),
     productId: field({ type: String, label: 'Product' }),
-    uomId: field({ type: String, label: 'Uom' }),
+    uom: field({ type: String, label: 'Uom' }),
     // jan: field({ type: Number, label: '' }),
     values: field({ type: Object, label: '' }),
     confirmedData: field({

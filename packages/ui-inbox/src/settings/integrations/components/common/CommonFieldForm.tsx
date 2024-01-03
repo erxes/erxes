@@ -9,12 +9,15 @@ import React from 'react';
 import SelectBrand from '../../containers/SelectBrand';
 import SelectChannels from '../../containers/SelectChannels';
 import { __ } from '@erxes/ui/src/utils';
+import { loadDynamicComponent } from '@erxes/ui/src/utils/core';
 
 type CommonTypes = {
   name: string;
   brandId: string;
   channelIds: string[];
   webhookData: any;
+  isSubmitted: boolean;
+  details: any;
 };
 
 type Props = {
@@ -24,9 +27,11 @@ type Props = {
   brandId: string;
   channelIds: string[];
   webhookData: any;
+  details: any;
   onSubmit: (
     id: string,
-    { name, brandId, channelIds, data }: IntegrationMutationVariables
+    { name, brandId, channelIds, details }: IntegrationMutationVariables,
+    callback: () => void
   ) => void;
   closeModal: () => void;
 };
@@ -39,7 +44,9 @@ class CommonFieldForm extends React.PureComponent<Props, CommonTypes> {
       name: props.name || '',
       brandId: props.brandId || '',
       channelIds: props.channelIds || [],
-      webhookData: props.webhookData || {}
+      webhookData: props.webhookData || {},
+      details: props.details || {},
+      isSubmitted: false
     };
   }
 
@@ -54,7 +61,6 @@ class CommonFieldForm extends React.PureComponent<Props, CommonTypes> {
 
     const onChangeWebhookData = e => {
       webhookData[e.target.name] = e.target.value;
-
       this.setState({
         webhookData: { ...webhookData }
       });
@@ -100,7 +106,7 @@ class CommonFieldForm extends React.PureComponent<Props, CommonTypes> {
 
   render() {
     const { integrationId, onSubmit, closeModal } = this.props;
-    const { name, brandId, channelIds, webhookData } = this.state;
+    const { name, brandId, channelIds, webhookData, details } = this.state;
 
     const onBrandChange = e => {
       this.setState({ brandId: e.target.value });
@@ -110,6 +116,12 @@ class CommonFieldForm extends React.PureComponent<Props, CommonTypes> {
       this.setState({ channelIds: values });
     };
 
+    const onDetailsChange = (key: string, value: any) => {
+      details[key] = value;
+
+      this.setState({ details: { ...details } });
+    };
+
     const onNameBlur = e => {
       this.setState({ name: e.target.value });
     };
@@ -117,18 +129,21 @@ class CommonFieldForm extends React.PureComponent<Props, CommonTypes> {
     const saveIntegration = e => {
       e.preventDefault();
 
-      let data;
+      this.setState({ isSubmitted: true });
+
+      let data: any;
 
       switch (this.props.integrationKind) {
         case 'webhook': {
           data = webhookData;
-
           break;
         }
       }
 
-      onSubmit(integrationId, { name, brandId, channelIds, data });
-      closeModal();
+      onSubmit(integrationId, { name, brandId, channelIds, details }, () => {
+        this.setState({ isSubmitted: false });
+        closeModal();
+      });
     };
 
     return (
@@ -145,6 +160,16 @@ class CommonFieldForm extends React.PureComponent<Props, CommonTypes> {
 
         {this.renderScript()}
 
+        {loadDynamicComponent(
+          'integrationDetailsForm',
+          {
+            integrationKind: this.props.integrationKind,
+            details: this.state.details,
+            onChange: onDetailsChange
+          },
+          true
+        )}
+
         <SelectBrand
           isRequired={true}
           defaultValue={brandId}
@@ -153,7 +178,6 @@ class CommonFieldForm extends React.PureComponent<Props, CommonTypes> {
             'Which specific Brand does this integration belong to?'
           )}
         />
-
         <SelectChannels
           defaultValue={channelIds}
           isRequired={true}

@@ -15,8 +15,18 @@ export const types = `
 
 export const queries = `
   tagsGetTypes: [JSON]
-  tags(type: String, searchValue: String, tagIds: [String], parentId: String): [Tag]
+  tags(
+    type: String,
+    searchValue: String,
+    tagIds: [String],
+    parentId: String,
+    ids: [String],
+    excludeIds: Boolean,
+    page: Int,
+    perPage: Int
+  ): [Tag]
   tagDetail(_id: String!): Tag
+  tagsQueryCount(type: String, searchValue: String): Int
 `;
 
 const params = `

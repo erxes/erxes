@@ -33,21 +33,22 @@ export default {
   Date: new GraphQLScalarType({
     name: 'Date',
     description: 'Date custom scalar type',
-    parseValue(value) {
+    parseValue(value: any) {
       return new Date(value); // value from the client
     },
-    serialize: value => {
+    serialize: (value: any) => {
       if (value instanceof Date) {
-        return value;
+        return value.toISOString();
       }
 
       if (value.toISOString) {
         return value.toISOString();
       }
 
-      return new Date(value);
+      return new Date(value).toISOString();
     },
 
+    // @ts-ignore
     parseLiteral(ast) {
       if (ast.kind === Kind.INT) {
         return parseInt(ast.value, 10); // ast value is always in string format

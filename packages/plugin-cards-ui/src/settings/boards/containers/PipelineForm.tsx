@@ -12,8 +12,8 @@ import { IPipeline } from '@erxes/ui-cards/src/boards/types';
 import PipelineForm from '../components/PipelineForm';
 import React from 'react';
 import Spinner from '@erxes/ui/src/components/Spinner';
-import gql from 'graphql-tag';
-import { graphql } from 'react-apollo';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
 import { queries } from '@erxes/ui-cards/src/settings/boards/graphql';
 import { queries as teamQueries } from '@erxes/ui/src/team/graphql';
 import { queries as tagQueries } from '@erxes/ui-tags/src/graphql';
@@ -73,7 +73,7 @@ class PipelineFormContainer extends React.Component<FinalProps> {
       tags
     };
 
-    const Form = options ? options.PipelineForm : PipelineForm;
+    const Form = options?.PipelineForm || PipelineForm;
 
     return <Form {...extendedProps} />;
   }

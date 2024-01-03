@@ -55,5 +55,12 @@ export const ACTIONS = [
     text: 'Add team member',
     icon: 'icon-plus',
     url: '/settings/team#showMemberInviteModal=true'
+  },
+  {
+    name: 'Actions',
+    text: 'New Email',
+    icon: 'icon-plus',
+    url: '#',
+    type: 'email'
   }
 ];

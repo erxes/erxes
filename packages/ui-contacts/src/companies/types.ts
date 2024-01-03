@@ -7,6 +7,7 @@ export interface ICompanyLinks {
   linkedIn?: string;
   twitter?: string;
   facebook?: string;
+  instagram?: string;
   github?: string;
   youtube?: string;
   website?: string;

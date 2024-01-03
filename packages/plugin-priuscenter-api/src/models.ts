@@ -1,8 +1,10 @@
 import * as _ from 'underscore';
 import { model } from 'mongoose';
 import { Schema } from 'mongoose';
+import { field } from '@erxes/api-utils/src/definitions/utils';
 
 export const adSchema = new Schema({
+  _id: field({ pkey: true }),
   createdAt: Date,
   cpUserId: String,
 
@@ -60,7 +62,37 @@ export const loadAdClass = () => {
   return adSchema;
 };
 
+export const adWishlistSchema = new Schema({
+  _id: field({ pkey: true }),
+  adIds: [String],
+  cpUserId: String
+});
+
+export const loadAdWishlistClass = () => {
+  class AdWishlist {
+    public static async getAdWishlist(cpUserId: string) {
+      const adWishlist = await AdWishlists.findOne({ cpUserId });
+
+      return adWishlist;
+    }
+
+    public static async createAdWishlist(doc) {
+      return AdWishlists.create({
+        ...doc
+      });
+    }
+  }
+
+  adWishlistSchema.loadClass(AdWishlist);
+  return adWishlistSchema;
+};
+
 loadAdClass();
+loadAdWishlistClass();
 
 // tslint:disable-next-line
 export const Ads = model<any, any>('priuscenter_ads', adSchema);
+export const AdWishlists = model<any, any>(
+  'priuscenter_adWishlists',
+  adWishlistSchema
+);

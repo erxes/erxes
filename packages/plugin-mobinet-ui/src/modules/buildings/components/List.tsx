@@ -84,7 +84,6 @@ const List = (props: Props) => {
   }, [map, props.buildings, buildings, isFormOpen, currentOsmBuilding]);
 
   const renderRow = () => {
-    const { buildings } = props;
     return buildings.map(building => (
       <Row
         key={building._id}
@@ -97,11 +96,11 @@ const List = (props: Props) => {
 
   queryParams.loadingMainQuery = loading;
 
-  const onChangeCenter = (center: ICoordinates, bounds: ICoordinates[]) => {
+  const onChangeCenter = (newCenter: ICoordinates, bounds: ICoordinates[]) => {
     bounds.push(bounds[0]);
 
     props.getBuildingsWithingBounds(bounds);
-    setCenter(center);
+    setCenter(newCenter);
   };
 
   const onChangeBuilding = e => {
@@ -175,6 +174,7 @@ const List = (props: Props) => {
             <th>{__('quarter')}</th>
             <th>{__('request count')}</th>
             <th>{__('ticket count')}</th>
+            <th>{__('network type')}</th>
             <th>{__('Action')}</th>
           </tr>
         </thead>
@@ -183,9 +183,9 @@ const List = (props: Props) => {
     );
   };
 
-  const formContent = props => (
+  const formContent = formProps => (
     <BuildingForm
-      {...props}
+      {...formProps}
       center={center}
       osmBuilding={currentOsmBuilding}
       building={currentBuilding}
@@ -278,7 +278,7 @@ const List = (props: Props) => {
   );
 
   const actionBar = (
-    <Wrapper.ActionBar left={''} right={actionBarRight} wideSpacing />
+    <Wrapper.ActionBar left={''} right={actionBarRight} wideSpacing={true} />
   );
 
   const content = (

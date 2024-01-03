@@ -4,6 +4,7 @@ import resolvers from './graphql/resolvers';
 import { initBroker } from './messageBroker';
 import { generateModels } from './connectionResolver';
 import { getSubdomain } from '@erxes/api-utils/src/core';
+import automations from './automations';
 
 export let mainDb;
 export let graphqlPubsub;
@@ -21,6 +22,12 @@ export default {
     };
   },
   hasSubscriptions: true,
+  subscriptionPluginPath: require('path').resolve(
+    __dirname,
+    'graphql',
+    'subscriptionPlugin.js'
+  ),
+
   segment: {},
   apolloServerContext: async (context, req) => {
     const subdomain = getSubdomain(req);
@@ -36,5 +43,7 @@ export default {
 
     debug = options.debug;
     graphqlPubsub = options.pubsubClient;
-  }
+  },
+
+  meta: { automations }
 };

@@ -4,6 +4,7 @@ export const queries = {
             imapConversationDetail(conversationId: $conversationId) {
                 _id
                 mailData
+                createdAt
             }
         }
     `,

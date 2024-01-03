@@ -1,10 +1,10 @@
 import { withProps } from '@erxes/ui/src';
 import { ProductCategoriesQueryResponse } from '@erxes/ui-products/src/types';
 import { queries } from '@erxes/ui-products/src/graphql';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
 import React from 'react';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 
 import List from '../components/CategoryList';
 

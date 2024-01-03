@@ -1,18 +1,25 @@
-import React, { useState } from 'react';
+import { queries as formQueries } from '@erxes/ui-forms/src/forms/graphql';
+import { IAttachment } from '@erxes/ui/src/types';
 import Datetime from '@nateradebaugh/react-datetime';
+import React, { useState } from 'react';
+import Select from 'react-select-plus';
 // erxes
-import { __ } from '@erxes/ui/src/utils';
+import { gql } from '@apollo/client';
+import SelectProductCategory from '@erxes/ui-products/src/containers/SelectProductCategory';
+import client from '@erxes/ui/src/apolloClient';
 import Button from '@erxes/ui/src/components/Button';
-import CommonForm from '@erxes/ui/src/components/form/Form';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import FormGroup from '@erxes/ui/src/components/form/Group';
 import FormControl from '@erxes/ui/src/components/form/Control';
-import { ModalFooter } from '@erxes/ui/src/styles/main';
+import CommonForm from '@erxes/ui/src/components/form/Form';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import Uploader from '@erxes/ui/src/components/Uploader';
 import { FlexContent, FlexItem } from '@erxes/ui/src/layout/styles';
+import { ModalFooter } from '@erxes/ui/src/styles/main';
 import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
 import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
-import SelectProductCategory from '@erxes/ui-products/src/containers/SelectProductCategory';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
+import { __ } from '@erxes/ui/src/utils';
+import { isEnabled } from '@erxes/ui/src/utils/core';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -28,6 +35,11 @@ export default function FormComponent(props: Props) {
   const [date, setDate] = useState<Date>(new Date());
   const [description, setDescription] = useState<string>('');
   const [categoryId, setCategoryId] = useState<string>('');
+  const [attachment, setAttachment] = useState<IAttachment | undefined>(
+    undefined
+  );
+  const [fieldsCombined, setFieldsCombined] = useState<any[]>([]);
+  const [filterField, setFilterField] = useState<string>('');
 
   // Methods
   const generateDoc = (values: {}) => {
@@ -39,8 +51,54 @@ export default function FormComponent(props: Props) {
       departmentId,
       date,
       description,
-      categoryId
+      productCategoryId: categoryId,
+      attachment,
+      filterField
     };
+  };
+
+  const changeAttachment = files => {
+    setAttachment(files.length ? files[0] : undefined);
+
+    if (isEnabled('forms')) {
+      client
+        .query({
+          query: gql(formQueries.fieldsCombinedByContentType),
+          variables: {
+            contentType: 'products:product'
+          }
+        })
+        .then(({ data }) => {
+          setFieldsCombined(data?.fieldsCombinedByContentType || []);
+        });
+    } else {
+      setFieldsCombined([
+        { name: 'code', label: 'code' },
+        { name: 'barcode', label: 'barcode' }
+      ]);
+    }
+  };
+
+  const renderFilterField = () => {
+    if (!attachment) {
+      return <></>;
+    }
+
+    return (
+      <FormGroup>
+        <ControlLabel>{__('Choose B filter field')}</ControlLabel>
+        <Select
+          value={filterField || ''}
+          onChange={option =>
+            setFilterField(!option ? '' : option.value.toString())
+          }
+          options={(fieldsCombined || []).map(f => ({
+            value: f.name,
+            label: f.label
+          }))}
+        />
+      </FormGroup>
+    );
   };
 
   const renderContent = (formProps: IFormProps) => {
@@ -54,7 +112,7 @@ export default function FormComponent(props: Props) {
               <ControlLabel>{__('Date')}</ControlLabel>
               <Datetime
                 inputProps={{ placeholder: 'Click to select a date' }}
-                dateFormat="YYYY MM DD"
+                dateFormat="YYYY-MM-DD"
                 timeFormat=""
                 viewMode={'days'}
                 closeOnSelect
@@ -117,6 +175,21 @@ export default function FormComponent(props: Props) {
                 multi={false}
               />
             </FormGroup>
+            <FormGroup>
+              <ControlLabel>Attach file</ControlLabel>
+              <p>
+                {__(
+                  'xls file: A=>info, B=>filter, C=>changeCount || D=>lastCount'
+                )}
+              </p>
+              <Uploader
+                defaultFileList={attachment ? [attachment] : []}
+                onChange={files => changeAttachment(files)}
+                multiple={false}
+                single={true}
+              />
+            </FormGroup>
+            {renderFilterField()}
           </FlexItem>
         </FlexContent>
 

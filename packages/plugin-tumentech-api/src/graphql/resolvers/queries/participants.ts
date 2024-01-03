@@ -2,11 +2,8 @@
 //     checkPermission,
 //     requireLogin
 //   } from '@erxes/api-utils/src/permissions';
-import { paginate } from '@erxes/api-utils/src';
 
 import { IContext } from '../../../connectionResolver';
-
-const fs = require('fs');
 
 const generateFilterQuery = async ({ driverId, dealId, status }) => {
   const query: any = {};
@@ -33,10 +30,44 @@ const participantQueries = {
     return models.Participants.find(qry).lean();
   },
 
-  participantsTotalCount: async (_root, params, { models }: IContext) => {
-    const qry = await generateFilterQuery(params);
+  participantsTotalCount: async (
+    _root,
+    params,
+    { models, cpUser }: IContext
+  ) => {
+    const { dealIds } = params;
 
-    return models.Participants.find(qry).count();
+    if (!dealIds) {
+      return models.Participants.find().count();
+    }
+
+    return dealIds.map(async (dealId: any) => {
+      const qry = await generateFilterQuery({ ...params, dealId });
+
+      let revealedPhoneCount = 0;
+
+      const invitedParticipants = await models.Participants.find({
+        ...qry,
+        'detail.invited': true
+      }).count();
+
+      const history = await models.PurchaseHistories.findOne({
+        dealId,
+        cpUserId: cpUser.userId
+      }).count();
+
+      if (invitedParticipants > 0) {
+        revealedPhoneCount = invitedParticipants;
+      } else {
+        revealedPhoneCount = history;
+      }
+
+      return {
+        dealId,
+        count: models.Participants.find(qry).count(),
+        revealedPhoneCount
+      };
+    });
   },
 
   participantDetail: async (_root, { _id }, { models }: IContext) => {

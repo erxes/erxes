@@ -6,7 +6,7 @@ export const types = () => `
     departmentId: String,
     branchId: String,
     productId: String,
-    uomId: String,
+    uom: String,
     values: JSON
     createdAt: Date,
     createdBy: String,
@@ -16,7 +16,6 @@ export const types = () => `
     department: Department,
     branch: Branch,
     product: Product,
-    uom: Uom,
     createdUser: User,
     modifiedUser: User
   }
@@ -61,5 +60,5 @@ export const planCreateParams = `
 export const mutations = `
   yearPlansAdd(${planCreateParams}): [YearPlan]
   yearPlansRemove(_ids: [String]): JSON
-  yearPlanEdit(_id: String!, uomId: String, values: JSON): YearPlan
+  yearPlanEdit(_id: String!, uom: String, values: JSON): YearPlan
 `;

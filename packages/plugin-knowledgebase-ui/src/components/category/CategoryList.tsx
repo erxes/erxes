@@ -1,14 +1,14 @@
-import React from 'react';
-import { ICategory } from '@erxes/ui-knowledgeBase/src/types';
-import CategoryRow from './CategoryRow';
 import { Categories } from './styles';
+import CategoryRow from './CategoryRow';
+import { ICategory } from '@erxes/ui-knowledgeBase/src/types';
+import React from 'react';
 
 type Props = {
   currentCategoryId: string;
   topicId: string;
   categories: ICategory[];
-  articlesCount: number;
   remove: (categoryId: string) => void;
+  queryParams?: any;
 };
 
 class CategoryList extends React.Component<Props> {
@@ -23,15 +23,15 @@ class CategoryList extends React.Component<Props> {
   };
 
   renderRow(category, isChild, isParent?) {
-    const { remove, currentCategoryId, topicId, articlesCount } = this.props;
+    const { remove, currentCategoryId, topicId, queryParams } = this.props;
 
     return (
       <CategoryRow
         key={category._id}
         isActive={currentCategoryId === category._id}
-        articlesCount={articlesCount}
         topicId={topicId}
         category={category}
+        queryParams={queryParams}
         remove={remove}
         isChild={isChild}
         isParent={isParent}

@@ -1,7 +1,7 @@
-import { PAYMENT_STATUS, PAYMENT_KINDS } from '../../constants';
-import { Schema, Document } from 'mongoose';
+import { Document, Schema } from 'mongoose';
+
 import { field, schemaHooksWrapper } from './utils';
-import { makeInvoiceNo } from '../../utils';
+import { PAYMENTS, PAYMENT_STATUS } from '../../api/constants';
 
 export interface IInvoice {
   selectedPaymentId: string;
@@ -10,13 +10,17 @@ export interface IInvoice {
   email: string;
   description?: string;
   status: string;
-  companyId: string;
+  customerType: string;
   customerId: string;
   contentType: string;
   contentTypeId: string;
   createdAt: Date;
   resolvedAt?: Date;
   paymentKind: string;
+  data?: any;
+  // monpay coupon
+  couponCode?: string;
+  couponAmount?: number;
 
   apiResponse?: any;
   identifier: string;
@@ -50,9 +54,19 @@ export const invoiceSchema = schemaHooksWrapper(
     paymentKind: field({
       type: String,
       label: 'payment kind',
-      enum: PAYMENT_KINDS.ALL
+      enum: PAYMENTS.ALL
     }),
-    companyId: field({ type: String, label: 'company id' }),
+    couponCode: field({ type: String, optional: true, label: 'coupon code' }),
+    couponAmount: field({
+      type: Number,
+      optional: true,
+      label: 'coupon amount'
+    }),
+    customerType: field({
+      type: String,
+      label: 'company id',
+      enum: ['company', 'customer', 'user']
+    }),
     customerId: field({ type: String, label: 'customer id' }),
     contentType: field({ type: String, label: 'content type' }),
     contentTypeId: field({ type: String, label: 'content type id' }),
@@ -70,6 +84,11 @@ export const invoiceSchema = schemaHooksWrapper(
       type: Date,
       optional: true,
       label: 'Resolved Date for invoice'
+    }),
+    data: field({
+      type: Object,
+      optional: true,
+      label: 'data'
     })
   }),
   'erxes_invoices'

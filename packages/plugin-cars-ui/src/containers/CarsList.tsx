@@ -1,8 +1,8 @@
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
 import { Bulk, Alert, withProps, router } from '@erxes/ui/src';
 import React from 'react';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 import { withRouter } from 'react-router-dom';
 import { IRouterProps } from '@erxes/ui/src/types';
 import CarsList from '../components/list/CarsList';
@@ -107,6 +107,9 @@ const generateParams = ({ queryParams }) => ({
     ids: queryParams.ids,
     categoryId: queryParams.categoryId,
     searchValue: queryParams.searchValue,
+    tag: queryParams.tag,
+    segment: queryParams.segment,
+    segmentData: queryParams.segmentData,
     sortField: queryParams.sortField,
     sortDirection: queryParams.sortDirection
       ? parseInt(queryParams.sortDirection, 10)

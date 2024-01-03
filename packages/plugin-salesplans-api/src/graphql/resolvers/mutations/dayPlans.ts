@@ -120,7 +120,7 @@ const dayPlansMutations = {
         departmentId,
         branchId,
         productId: product._id,
-        uomId: product.uomId,
+        uom: product.uom,
         planCount,
         values,
         createdAt: now,

@@ -1,18 +1,28 @@
-import Form from '../containers/Form';
-import React from 'react';
-import Row from './Row';
-import Sidebar from '../../general/components/Sidebar';
+import { Alert, __, confirm, router } from '@erxes/ui/src/utils';
 import {
   Button,
   DataWithLoader,
   FormControl,
+  HeaderDescription,
   ModalTrigger,
+  Pagination,
   Table
 } from '@erxes/ui/src/components';
-import { MainStyleTitle as Title } from '@erxes/ui/src/styles/eindex';
-import { BarItems, Wrapper } from '@erxes/ui/src/layout';
-import { __, confirm, router, Alert } from '@erxes/ui/src/utils';
+import {
+  FilterContainer,
+  FlexItem,
+  FlexRow,
+  InputBar,
+  Title
+} from '@erxes/ui-settings/src/styles';
+
+import Form from '../containers/Form';
 import { ILotteryCampaign } from '../types';
+import Icon from '@erxes/ui/src/components/Icon';
+import React from 'react';
+import Row from './Row';
+import Sidebar from '../../general/components/Sidebar';
+import { Wrapper } from '@erxes/ui/src/layout';
 
 type Props = {
   lotteryCampaigns: ILotteryCampaign[];
@@ -29,6 +39,7 @@ type Props = {
     emptyBulk: () => void
   ) => void;
   searchValue: string;
+  totalCount?: number;
   filterStatus: string;
 };
 
@@ -132,37 +143,57 @@ class LotteryCampaigns extends React.Component<Props, State> {
 
     const trigger = (
       <Button btnStyle="success" icon="plus-circle">
-        Add lottery
+        Add lottery campaign
       </Button>
     );
 
     return (
-      <BarItems>
-        <FormControl
-          type="text"
-          placeholder={__('Type to search')}
-          onChange={this.search}
-          value={this.state.searchValue}
-          autoFocus={true}
-          onFocus={this.moveCursorAtTheEnd}
-        />
-        <ModalTrigger
-          size={'lg'}
-          title="Add lottery campaign"
-          trigger={trigger}
-          autoOpenKey="showProductModal"
-          content={this.modalContent}
-        />
-      </BarItems>
+      <FilterContainer>
+        <FlexRow>
+          <InputBar type="searchBar">
+            <Icon icon="search-1" size={20} />
+            <FlexItem>
+              <FormControl
+                type="text"
+                placeholder={__('Type to search')}
+                onChange={this.search}
+                value={this.state.searchValue}
+                autoFocus={true}
+                onFocus={this.moveCursorAtTheEnd}
+              />
+            </FlexItem>
+          </InputBar>
+          <ModalTrigger
+            size={'lg'}
+            title="Add lottery campaign"
+            trigger={trigger}
+            autoOpenKey="showProductModal"
+            content={this.modalContent}
+          />
+        </FlexRow>
+      </FilterContainer>
     );
   }
 
   render() {
-    const { loading, isAllSelected } = this.props;
+    const { loading, isAllSelected, totalCount, lotteryCampaigns } = this.props;
+
     const breadcrumb = [
       { title: __('Settings'), link: '/settings' },
+      {
+        title: __('Loyalties Config'),
+        link: '/erxes-plugin-loyalty/settings/general'
+      },
       { title: __('Lottery Campaign') }
     ];
+
+    const header = (
+      <HeaderDescription
+        icon="/images/actions/25.svg"
+        title="Loyalty configs"
+        description=""
+      />
+    );
 
     const content = (
       <Table hover={true}>
@@ -197,21 +228,24 @@ class LotteryCampaigns extends React.Component<Props, State> {
         }
         actionBar={
           <Wrapper.ActionBar
-            left={<Title>{__('Lottery Campaign')}</Title>}
+            left={<Title capitalize={true}>{__('Lottery Campaign')}</Title>}
             right={this.actionBarRight()}
           />
         }
+        mainHead={header}
         content={
           <DataWithLoader
             data={content}
             loading={loading}
+            count={lotteryCampaigns.length}
             emptyText="There is no data"
             emptyImage="/images/actions/5.svg"
           />
         }
         leftSidebar={<Sidebar />}
         transparent={true}
-        hasBorder
+        hasBorder={true}
+        footer={<Pagination count={totalCount && totalCount} />}
       />
     );
   }

@@ -9,6 +9,7 @@ import { sendProductsMessage } from '../../../messageBroker';
 interface IParam {
   search: string;
   type: string;
+  status: string;
   startDate: Date;
   endDate: Date;
   inBranchId: string;
@@ -35,6 +36,7 @@ const generateFilter = async (
     outBranchId,
     outDepartmentId,
     type,
+    status,
     jobReferId,
     productCategoryId,
     vendorIds,
@@ -55,6 +57,10 @@ const generateFilter = async (
 
   if (type) {
     selector.type = type;
+  }
+
+  if (status) {
+    selector.status = status;
   }
 
   if (outBranchId) {
@@ -92,7 +98,7 @@ const generateFilter = async (
     hasFilterProductIds = true;
   }
 
-  if (vendorIds) {
+  if (vendorIds && vendorIds.length) {
     const limit = await sendProductsMessage({
       subdomain,
       action: 'count',
@@ -115,7 +121,11 @@ const generateFilter = async (
     hasFilterProductIds = true;
   }
 
-  if (productIds) {
+  if (
+    productIds &&
+    productIds.length &&
+    productIds.filter(p => p !== '').length
+  ) {
     filterProductIds = filterProductIds.concat(productIds);
     hasFilterProductIds = true;
   }
@@ -168,6 +178,68 @@ const performQueries = {
 
   performDetail(_root, { _id }: { _id: string }, { models }: IContext) {
     return models.Performs.getPerform(_id);
+  },
+
+  async series(
+    _root,
+    {
+      search,
+      productId,
+      ids,
+      excludeIds,
+      selfSeries,
+      ...paginationArgs
+    }: {
+      search?: string;
+      selfSeries?: string;
+      productId?: string;
+      ids?: string[];
+      excludeIds?: boolean;
+      page?: number;
+      perPage?: number;
+    },
+    { models }: IContext
+  ) {
+    const filter: any = {
+      $and: [{ series: { $nin: ['', undefined, null, 0, selfSeries] } }]
+    };
+
+    if (ids && ids.length > 0) {
+      filter.$and.push({
+        series: { [excludeIds ? '$nin' : '$in']: ids }
+      });
+      if (!paginationArgs.page && !paginationArgs.perPage) {
+        paginationArgs.page = 1;
+        paginationArgs.perPage = 100;
+      }
+    }
+
+    if (productId) {
+      filter.$and.push({ ['outProducts.productId']: { $in: [productId] } });
+    }
+
+    if (search) {
+      filter.$and.push({ series: { $regex: new RegExp(search) } });
+    }
+
+    const performs = await paginate(
+      models.Performs.find(filter, { series: 1 })
+        .sort({ series: -1 })
+        .lean(),
+      { ...paginationArgs }
+    );
+
+    const series = performs.map(p => p.series);
+
+    let notPerformSeries: string[] = [];
+    if (ids && ids.length && !excludeIds) {
+      notPerformSeries = ids.filter(id => !series.includes(id));
+    }
+
+    return series.concat(notPerformSeries).map(ser => ({
+      _id: ser,
+      series: ser
+    }));
   }
 };
 

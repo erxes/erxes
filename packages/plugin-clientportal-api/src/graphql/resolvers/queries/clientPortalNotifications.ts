@@ -6,22 +6,37 @@ import { IContext } from '../../../connectionResolver';
 const notificationQueries = {
   async clientPortalNotificationCount(
     _root,
-    _args,
+    { all }: { all: boolean },
     { models, cpUser }: IContext
   ) {
     if (!cpUser) {
       throw new Error('You are not logged in');
     }
 
-    return models.ClientPortalNotifications.find({
+    const qry: { receiver: string; isRead?: boolean } = {
       receiver: cpUser._id,
       isRead: false
-    }).countDocuments();
+    };
+
+    if (all) {
+      delete qry.isRead;
+    }
+
+    return models.ClientPortalNotifications.find(qry).countDocuments();
   },
 
   async clientPortalNotifications(
     _root,
-    { page, perPage, requireRead, notifType, search, startDate, endDate },
+    {
+      page,
+      perPage,
+      requireRead,
+      notifType,
+      search,
+      startDate,
+      endDate,
+      eventDataFilter
+    },
     { models, cpUser }: IContext
   ) {
     if (!cpUser) {
@@ -54,6 +69,11 @@ const notificationQueries = {
       query.createdAt = {
         $lte: new Date(endDate)
       };
+    }
+
+    if (eventDataFilter) {
+      const { field, values } = eventDataFilter || {};
+      query[`eventData.${field}`] = { $in: values || [] };
     }
 
     return paginate(

@@ -5,8 +5,8 @@ import CountsByTag from '@erxes/ui/src/components/CountsByTag';
 import React from 'react';
 import { TAG_TYPES } from '@erxes/ui-tags/src/constants';
 import { TagsQueryResponse } from '@erxes/ui-tags/src/types';
-import gql from 'graphql-tag';
-import { graphql } from 'react-apollo';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
 import { queries as tagQueries } from '@erxes/ui-tags/src/graphql';
 import { withProps } from '@erxes/ui/src/utils';
 
@@ -26,7 +26,7 @@ class TagFilterContainer extends React.Component<FinalProps> {
       <CountsByTag
         tags={(tagsQuery ? tagsQuery.tags : null) || []}
         counts={counts || {}}
-        manageUrl="/tags?type=inbox:integration"
+        manageUrl="/settings/tags?type=inbox:integration"
         loading={(tagsQuery ? tagsQuery.loading : null) || false}
       />
     );

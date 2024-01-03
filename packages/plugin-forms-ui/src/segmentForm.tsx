@@ -1,11 +1,11 @@
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import { ControlLabel } from '@erxes/ui/src/components/form';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import Select from 'react-select-plus';
 import React from 'react';
 import { withProps } from '@erxes/ui/src/utils';
 import * as compose from 'lodash.flowright';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { FormsQueryResponse } from '@erxes/ui-forms/src/forms/types';

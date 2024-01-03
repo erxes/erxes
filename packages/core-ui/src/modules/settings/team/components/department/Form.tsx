@@ -1,30 +1,29 @@
-import React, { useState } from 'react';
 import { FormControl, FormGroup } from '@erxes/ui/src/components/form';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import Form from '@erxes/ui/src/components/form/Form';
+import React, { useState } from 'react';
+
 import Button from '@erxes/ui/src/components/Button';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
-import { ModalFooter } from '@erxes/ui/src/styles/main';
-import { __ } from 'modules/common/utils';
+import Form from '@erxes/ui/src/components/form/Form';
 import { IDepartment } from '@erxes/ui/src/team/types';
+import { ModalFooter } from '@erxes/ui/src/styles/main';
 import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
-import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
+import { __ } from 'modules/common/utils';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
-  department?: IDepartment;
+  item?: IDepartment;
   closeModal: () => void;
-  departments: IDepartment[];
+  items: IDepartment[];
 };
 
 export default function DepartmentForm(props: Props) {
-  const { closeModal, renderButton } = props;
-  const object = props.department || ({} as any);
+  const { closeModal, renderButton, items, item } = props;
+  const object = item || ({} as IDepartment);
 
   const [userIds, setUserIds] = useState(
     (object.users || []).map(user => user._id)
   );
-  const [parentId, setParentId] = useState(object.parentId);
   const [supervisorId, setSupervisorId] = useState(object.supervisorId);
 
   const generateDoc = values => {
@@ -36,18 +35,13 @@ export default function DepartmentForm(props: Props) {
 
     return {
       userIds,
-      parentId,
       supervisorId,
-      ...finalValues
+      parentId: finalValues.parentId ? finalValues.parentId : null,
+      code: finalValues.code,
+      description: finalValues.description,
+      title: finalValues.title,
+      _id: finalValues._id
     };
-  };
-
-  const onChangeParent = (value: any) => {
-    if (value) {
-      setParentId(value);
-    } else {
-      setParentId(null);
-    }
   };
 
   const onSelectUsers = values => {
@@ -60,6 +54,14 @@ export default function DepartmentForm(props: Props) {
 
   const renderContent = (formProps: IFormProps) => {
     const { values, isSubmitted } = formProps;
+
+    const generateOptions = () => {
+      return items.map(branch => (
+        <option key={branch._id} value={branch._id}>
+          {branch.title}
+        </option>
+      ));
+    };
 
     return (
       <>
@@ -83,8 +85,13 @@ export default function DepartmentForm(props: Props) {
           />
         </FormGroup>
         <FormGroup>
-          <ControlLabel>{__('Code')}</ControlLabel>
-          <FormControl {...formProps} name="code" defaultValue={object.code} />
+          <ControlLabel required={true}>{__('Code')}</ControlLabel>
+          <FormControl
+            {...formProps}
+            name="code"
+            defaultValue={object.code}
+            required={true}
+          />
         </FormGroup>
         <FormGroup>
           <ControlLabel>{__('Supervisor')}</ControlLabel>
@@ -99,14 +106,15 @@ export default function DepartmentForm(props: Props) {
         </FormGroup>
         <FormGroup>
           <ControlLabel>{__('Parent')}</ControlLabel>
-          <SelectDepartments
-            label="Choose parent"
+          <FormControl
+            {...formProps}
             name="parentId"
-            onSelect={onChangeParent}
-            initialValue={parentId}
-            multi={false}
-          />
-          {/* /> */}
+            componentClass="select"
+            defaultValue={object.parentId || null}
+          >
+            <option value="" />
+            {generateOptions()}
+          </FormControl>
         </FormGroup>
         <FormGroup>
           <ControlLabel>{__('Team Members')}</ControlLabel>

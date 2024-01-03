@@ -1,6 +1,7 @@
 import { DISTRICTS } from './definitions/constants';
 import { IModels } from '../connectionResolver';
 import { sendRequest } from '@erxes/api-utils/src/requests';
+import { IEbarimtConfig } from './definitions/configs';
 
 const formatNumber = (num: number): string => {
   return num && num.toFixed ? num.toFixed(2) : '0.00';
@@ -51,14 +52,18 @@ export class PutData<IListArgs extends IPutDataArgs> {
   public cityTaxPercent: number = 0;
   public config: any;
   public models: IModels;
+  public defaultGScode!: string;
 
   constructor(params: IListArgs) {
     this.params = params;
     this.config = params.config;
     this.models = params.models;
 
-    this.vatPercent = params.config.vatPercent || 0;
-    this.cityTaxPercent = params.config.cityTaxPercent || 0;
+    this.vatPercent =
+      (this.params.hasVat && Number(this.config.vatPercent)) || 0;
+    this.cityTaxPercent =
+      (this.params.hasCitytax && Number(this.config.cityTaxPercent)) || 0;
+    this.defaultGScode = this.config.defaultGSCode || '';
   }
 
   private async generateStock(detail, vat, citytax) {
@@ -74,8 +79,10 @@ export class PutData<IListArgs extends IPutDataArgs> {
 
     return {
       code: detail.inventoryCode,
+      barCode: detail.barcode || this.defaultGScode,
       name: product.name,
-      measureUnit: product.sku || 'ш',
+      shortName: product.shortName,
+      measureUnit: product.uom || 'ш',
       qty: formatNumber(detail.count),
       unitPrice: formatNumber(detail.amount / (detail.count || 1)),
       totalAmount: formatNumber(detail.amount),
@@ -113,7 +120,7 @@ export class PutData<IListArgs extends IPutDataArgs> {
     return { stocks, sumAmount, vatAmount, citytaxAmount };
   }
 
-  private async generateTransactionInfo() {
+  public async generateTransactionInfo() {
     const {
       stocks,
       sumAmount,
@@ -136,6 +143,9 @@ export class PutData<IListArgs extends IPutDataArgs> {
       stocks,
 
       customerNo: this.params.customerCode,
+      billIdSuffix: Math.round(
+        Math.random() * (999999 - 100000) + 100000
+      ).toString(),
 
       // Хэрвээ буцаах гэж байгаа бол түүний ДДТД
       returnBillId: this.params.returnBillId
@@ -154,13 +164,32 @@ export class PutData<IListArgs extends IPutDataArgs> {
 
     this.transactionInfo = await this.generateTransactionInfo();
 
-    const prePutResponse = await this.models.PutResponses.putHistories({
+    const prePutResponse = await this.models.PutResponses.putHistory({
       contentType,
-      contentId
+      contentId,
+      taxType: this.params.taxType || ''
     });
 
     if (prePutResponse) {
+      if (
+        prePutResponse.amount === this.transactionInfo.amount &&
+        prePutResponse.stocks &&
+        prePutResponse.stocks.length === this.transactionInfo.stocks.length &&
+        (prePutResponse.taxType || '1') ===
+          (this.transactionInfo.taxType || '1') &&
+        (prePutResponse.billType || '1') ===
+          (this.transactionInfo.billType || '1')
+      ) {
+        return this.models.PutResponses.findOne({
+          billId: prePutResponse.billId
+        }).lean() as any;
+      }
+
       this.transactionInfo.returnBillId = prePutResponse.billId;
+      await this.models.PutResponses.updateOne(
+        { _id: prePutResponse._id },
+        { $set: { status: 'inactive' } }
+      );
     }
 
     const resObj = await this.models.PutResponses.createPutResponse({
@@ -203,43 +232,80 @@ export class PutData<IListArgs extends IPutDataArgs> {
   }
 }
 
-export const returnBill = async (models, doc, config) => {
+export const returnBill = async (
+  models: IModels,
+  doc: {
+    contentType: string;
+    contentId: string;
+    number: string;
+    config: IEbarimtConfig;
+  }
+) => {
+  const config = doc.config;
   const url = config.ebarimtUrl || '';
   const { contentType, contentId } = doc;
 
-  const prePutResponse = await models.PutResponses.putHistories({
+  const prePutResponses = await models.PutResponses.putHistories({
     contentType,
     contentId
   });
 
-  if (!prePutResponse) {
+  if (!prePutResponses.length) {
     return {
       error: 'Буцаалт гүйцэтгэх шаардлагагүй баримт байна.'
     };
   }
 
-  const rd = prePutResponse.registerNo || '';
-  const data = {
-    returnBillId: prePutResponse.billId || '',
-    date: (prePutResponse.date || '').toString()
-  };
+  const resultObjIds: string[] = [];
+  for (const prePutResponse of prePutResponses) {
+    let rd = prePutResponse.registerNo;
+    if (!rd) {
+      continue;
+    }
 
-  const resObj = await models.PutResponses.createPutResponse({
-    sendInfo: { ...data },
-    contentId,
-    contentType
-  });
+    if (rd.length === 12) {
+      rd = rd.slice(-8);
+    }
 
-  const responseStr = await sendRequest({
-    url: `${url}/returnBill?lib=${rd}`,
-    method: 'POST',
-    body: { data },
-    params: { ...data }
-  });
+    const date = prePutResponse.date;
 
-  const response = JSON.parse(responseStr);
+    if (!prePutResponse.billId || !date) {
+      continue;
+    }
 
-  await models.PutResponses.updatePutResponse(resObj._id, { ...response });
+    const data = {
+      returnBillId: prePutResponse.billId,
+      date: date
+    };
 
-  return models.PutResponses.findOne({ _id: resObj._id }).lean();
+    await models.PutResponses.updateOne(
+      { _id: prePutResponse._id },
+      { $set: { status: 'inactive' } }
+    );
+
+    const resObj = await models.PutResponses.createPutResponse({
+      sendInfo: { ...data },
+      contentId,
+      contentType,
+      number: doc.number,
+      returnBillId: prePutResponse.billId
+    });
+
+    const responseStr = await sendRequest({
+      url: `${url}/returnBill?lib=${rd}`,
+      method: 'POST',
+      body: { data },
+      params: { ...data }
+    });
+
+    const response = JSON.parse(responseStr);
+    await models.PutResponses.updatePutResponse(resObj._id, {
+      ...response
+    });
+    resultObjIds.push(resObj._id);
+  }
+
+  return models.PutResponses.find({ _id: { $in: resultObjIds } })
+    .sort({ createdAt: -1 })
+    .lean();
 };

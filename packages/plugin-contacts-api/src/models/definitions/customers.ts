@@ -29,6 +29,28 @@ export interface IVisitorContact {
 
 export interface IVisitorContactDocument extends IVisitorContact, Document {}
 
+export interface IAddress {
+  id: string; // lng_lat || random
+  location: {
+    type: string;
+    coordinates: number[];
+  };
+  address: {
+    countryCode: string;
+    country: string;
+    postCode: string;
+    city: string;
+    city_district: string;
+    suburb: string;
+    road: string;
+    street: string;
+    building: string;
+    number: string;
+    other: string;
+  };
+  short: string;
+}
+
 export interface ICustomer {
   state?: 'visitor' | 'lead' | 'customer';
 
@@ -43,6 +65,8 @@ export interface ICustomer {
   avatar?: string;
   primaryPhone?: string;
   phones?: string[];
+  primaryAddress?: IAddress;
+  addresses?: IAddress[];
 
   ownerId?: string;
   position?: string;
@@ -187,6 +211,13 @@ export const customerSchema = schemaWrapper(
       optional: true
     }),
     phones: field({ type: [String], optional: true, label: 'Phones' }),
+
+    primaryAddress: field({
+      type: Object,
+      label: 'Primary Address',
+      optional: true
+    }),
+    addresses: field({ type: [Object], optional: true, label: 'Addresses' }),
 
     phoneValidationStatus: field({
       type: String,

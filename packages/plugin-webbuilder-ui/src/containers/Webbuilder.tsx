@@ -4,8 +4,8 @@ import React from 'react';
 import { SitesTotalCountQueryResponse } from '../types';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import Webbuilder from '../components/WebBuilder';
-import gql from 'graphql-tag';
-import { graphql } from 'react-apollo';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
 import { queries } from '../graphql';
 
 type Props = {
@@ -13,7 +13,7 @@ type Props = {
 };
 
 type FinalProps = {
-  sitesTotalCountQuery: any;
+  sitesTotalCountQuery: SitesTotalCountQueryResponse;
 } & Props;
 
 function WebBuilderContainer(props: FinalProps) {

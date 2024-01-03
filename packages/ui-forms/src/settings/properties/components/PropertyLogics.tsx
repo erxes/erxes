@@ -1,10 +1,10 @@
 import Button from '@erxes/ui/src/components/Button';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import FormGroup from '@erxes/ui/src/components/form/Group';
 import Icon from '@erxes/ui/src/components/Icon';
 import Info from '@erxes/ui/src/components/Info';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import FormGroup from '@erxes/ui/src/components/form/Group';
 import { LinkButton } from '@erxes/ui/src/styles/main';
-import { IField, IFieldLogic } from '@erxes/ui/src/types';
+import { IFieldLogic } from '@erxes/ui/src/types';
 import { __ } from '@erxes/ui/src/utils';
 import React, { useEffect, useState } from 'react';
 import { FieldsCombinedByType } from '../types';

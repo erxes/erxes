@@ -25,10 +25,6 @@ export const TeamPortal = styled.div`
   > div {
     > div {
       margin-right: 80px;
-
-      &:last-child {
-        min-width: 450px;
-      }
     }
   }
 `;
@@ -90,15 +86,6 @@ export const Colors = styled.div`
 
     label {
       width: 200px;
-    }
-  }
-`;
-
-export const WelcomeContent = styled.div`
-  > div {
-    margin-top: 20px;
-    input {
-      margin-top: 50px;
     }
   }
 `;

@@ -15,6 +15,11 @@ import {
 import { BOARD_STATUSES } from '../../../models/definitions/constants';
 import { IDeal, IDealDocument } from '../../../models/definitions/deals';
 import {
+  IPurchase,
+  IPurchaseDocument
+} from '../../../models/definitions/purchases';
+
+import {
   IGrowthHack,
   IGrowthHackDocument
 } from '../../../models/definitions/growthHacks';
@@ -57,7 +62,9 @@ export const itemResolver = async (
     case 'deal':
       resolverType = 'Deal';
       break;
-
+    case 'purchase':
+      resolverType = 'Purchase';
+      break;
     case 'task':
       resolverType = 'Task';
       break;
@@ -93,7 +100,7 @@ export const itemResolver = async (
 export const itemsAdd = async (
   models: IModels,
   subdomain: string,
-  doc: (IDeal | IItemCommonFields | ITicket | IGrowthHack) & {
+  doc: (IDeal | IPurchase | IItemCommonFields | ITicket | IGrowthHack) & {
     proccessId: string;
     aboveItemId: string;
   },
@@ -126,7 +133,8 @@ export const itemsAdd = async (
       subdomain,
       action: 'fields.prepareCustomFieldsData',
       data: extendedDoc.customFieldsData,
-      isRPC: true
+      isRPC: true,
+      defaultValue: []
     });
   }
 
@@ -275,6 +283,18 @@ export const itemsEdit = async (
     modifiedBy: user._id
   };
 
+  const stage = await models.Stages.getStage(oldItem.stageId);
+
+  const { canEditMemberIds } = stage;
+
+  if (
+    canEditMemberIds &&
+    canEditMemberIds.length > 0 &&
+    !canEditMemberIds.includes(user._id)
+  ) {
+    throw new Error('Permission denied');
+  }
+
   if (extendedDoc.customFieldsData) {
     // clean custom field values
     extendedDoc.customFieldsData = await sendFormsMessage({
@@ -297,8 +317,6 @@ export const itemsEdit = async (
     type: `${type}Edit`,
     contentType: type
   };
-
-  const stage = await models.Stages.getStage(updatedItem.stageId);
 
   if (doc.status && oldItem.status && oldItem.status !== doc.status) {
     const activityAction = doc.status === 'active' ? 'activated' : 'archived';
@@ -464,7 +482,12 @@ const itemMover = async (
   models: IModels,
   subdomain: string,
   userId: string,
-  item: IDealDocument | ITaskDocument | ITicketDocument | IGrowthHackDocument,
+  item:
+    | IDealDocument
+    | IPurchaseDocument
+    | ITaskDocument
+    | ITicketDocument
+    | IGrowthHackDocument,
   contentType: string,
   destinationStageId: string
 ) => {
@@ -523,6 +546,19 @@ const itemMover = async (
   return { content, action };
 };
 
+export const checkMovePermission = (
+  stage: IStageDocument,
+  user: IUserDocument
+) => {
+  if (
+    stage.canMoveMemberIds &&
+    stage.canMoveMemberIds.length > 0 &&
+    !stage.canMoveMemberIds.includes(user._id)
+  ) {
+    throw new Error('Permission denied');
+  }
+};
+
 export const itemsChange = async (
   models: IModels,
   subdomain: string,
@@ -532,6 +568,7 @@ export const itemsChange = async (
   modelUpdate: any
 ) => {
   const { collection } = getCollection(models, type);
+
   const {
     proccessId,
     itemId,
@@ -541,6 +578,7 @@ export const itemsChange = async (
   } = doc;
 
   const item = await getItem(models, type, { _id: itemId });
+  const stage = await models.Stages.getStage(item.stageId);
 
   const extendedDoc: IItemCommonFields = {
     modifiedAt: new Date(),
@@ -554,6 +592,12 @@ export const itemsChange = async (
   };
 
   if (item.stageId !== destinationStageId) {
+    checkMovePermission(stage, user);
+
+    const destinationStage = await models.Stages.getStage(destinationStageId);
+
+    checkMovePermission(destinationStage, user);
+
     extendedDoc.stageChangedDate = new Date();
   }
 
@@ -607,8 +651,6 @@ export const itemsChange = async (
   );
 
   // order notification
-  const stage = await models.Stages.getStage(item.stageId);
-
   const labels = await models.PipelineLabels.find({
     _id: {
       $in: item.labelIds
@@ -800,7 +842,12 @@ export const itemsArchive = async (
 };
 
 export const publishHelperItemsConformities = async (
-  item: IDealDocument | ITicketDocument | ITaskDocument | IGrowthHackDocument,
+  item:
+    | IDealDocument
+    | IPurchaseDocument
+    | ITicketDocument
+    | ITaskDocument
+    | IGrowthHackDocument,
   stage: IStageDocument
 ) => {
   graphqlPubsub.publish('pipelinesChanged', {

@@ -61,6 +61,15 @@ const permissionGroupMutations: IObjectTypeResolver<any, IContext> = {
       permission
     );
     return true;
+  },
+
+  async forumPermissionGroupSetUsers(
+    _,
+    { _id, cpUserIds },
+    { models: { PermissionGroupUser } }
+  ) {
+    await PermissionGroupUser.setUsers(_id, cpUserIds);
+    return true;
   }
 };
 

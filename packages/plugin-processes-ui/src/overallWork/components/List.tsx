@@ -3,7 +3,7 @@ import Pagination from '@erxes/ui/src/components/pagination/Pagination';
 import Table from '@erxes/ui/src/components/table';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { IRouterProps } from '@erxes/ui/src/types';
-import { __ } from '@erxes/ui/src/utils';
+import { __ } from 'coreui/utils';
 import React from 'react';
 import { withRouter } from 'react-router-dom';
 import { menuNavs } from '../../constants';
@@ -36,10 +36,10 @@ class OverallWorks extends React.Component<IProps, {}> {
               <th>{__('Job')}</th>
               <th>{__('Product')}</th>
               <th>{__('Count')}</th>
-              <th>{__('In Branch')}</th>
-              <th>{__('In Department')}</th>
-              <th>{__('Out Branch')}</th>
-              <th>{__('Out Department')}</th>
+              <th>{__('Spend Branch')}</th>
+              <th>{__('Spend Department')}</th>
+              <th>{__('Receipt Branch')}</th>
+              <th>{__('Receipt Department')}</th>
               <th>{__('Actions')}</th>
             </tr>
           </thead>

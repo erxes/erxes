@@ -1,6 +1,5 @@
-import gql from 'graphql-tag';
+import { gql, useQuery } from '@apollo/client';
 import React from 'react';
-import { useQuery } from 'react-apollo';
 import { DistrictsQueryResponse } from '../../../districts/types';
 
 import DistrictFilter from '../../components/filters/DistrictFilter';

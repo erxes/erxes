@@ -202,6 +202,7 @@ const carCategoryParamsDef = `
   $parentId: String,
   $description: String,
   $collapseContent: [String]
+  $icon: String
 `;
 
 const carCategoryParams = `
@@ -210,6 +211,7 @@ const carCategoryParams = `
   parentId: $parentId,
   description: $description,
   collapseContent: $collapseContent
+  icon: $icon
 `;
 
 const carCategoryAdd = `

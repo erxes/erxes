@@ -10,7 +10,7 @@ import { IOrder } from '../types';
 type Props = {
   order: IOrder;
   history: any;
-  onSyncErkhet: (orderId: string) => void;
+  otherPayTitles: string[];
   onReturnBill: (orderId: string) => void;
 };
 
@@ -20,11 +20,18 @@ class PutResponseRow extends React.Component<Props> {
     return <FinanceAmount>{(value || 0).toLocaleString()}</FinanceAmount>;
   }
 
-  syncErkhet = e => {
-    const { order, onSyncErkhet } = this.props;
-    e.stopPropagation();
-    onSyncErkhet(order._id);
-  };
+  displayPaid(order, key) {
+    const { paidAmounts } = order;
+    const value = (
+      (paidAmounts || []).filter(pa => pa.title === key || pa.type === key) ||
+      []
+    ).reduce((sum, pa) => sum + pa.amount, 0);
+    return (
+      <FinanceAmount key={Math.random()}>
+        {(value || 0).toLocaleString()}
+      </FinanceAmount>
+    );
+  }
 
   returnBill = e => {
     const { order, onReturnBill } = this.props;
@@ -40,11 +47,11 @@ class PutResponseRow extends React.Component<Props> {
   modalContent = _props => {
     const { order } = this.props;
 
-    return <Detail order={order} />;
+    return <Detail orderId={order._id} posToken={order.posToken} />;
   };
 
   render() {
-    const { order } = this.props;
+    const { order, otherPayTitles } = this.props;
 
     const onClick = e => {
       e.stopPropagation();
@@ -57,42 +64,29 @@ class PutResponseRow extends React.Component<Props> {
           {dayjs(order.paidDate || order.createdAt).format('lll')}
         </td>
         <td key={'cashAmount'}>{this.displayValue(order, 'cashAmount')}</td>
-        <td key={'receivableAmount'}>
-          {this.displayValue(order, 'receivableAmount')}
-        </td>
-        <td key={'cardAmount'}>{this.displayValue(order, 'cardAmount')}</td>
         <td key={'mobileAmount'}>{this.displayValue(order, 'mobileAmount')}</td>
+        {otherPayTitles.map(key => (
+          <td key={key}>{this.displayPaid(order, key)}</td>
+        ))}
         <td key={'totalAmount'}>{this.displayValue(order, 'totalAmount')}</td>
-        <td key={'customer'}>
-          {order.customer
-            ? order.customer.primaryEmail ||
-              order.customer.primaryPhone ||
-              order.customer.firstName
-            : ''}
-        </td>
+        <td key={'customer'}>{order.customerType}</td>
         <td key={'pos'}>
           {order.posName || ''}
           {order.origin === 'kiosk' ? '*' : ''}
         </td>
+        <td key={'type'}>{order.type || ''}</td>
         <td key={'user'}>{order.user ? order.user.email : ''}</td>
         <td key={'actions'} onClick={onClick}>
-          <Button
-            btnStyle="success"
-            size="small"
-            icon="external-link-alt"
-            onClick={this.syncErkhet}
-          >
-            {(order.syncedErkhet && 'Resync') || 'Sync'}
-          </Button>
-
-          <Button
-            btnStyle="warning"
-            size="small"
-            icon="external-link-alt"
-            onClick={this.returnBill}
-          >
-            Return
-          </Button>
+          {!order.returnInfo?.returnAt && (
+            <Button
+              btnStyle="warning"
+              size="small"
+              icon="external-link-alt"
+              onClick={this.returnBill}
+            >
+              Return
+            </Button>
+          )}
         </td>
       </tr>
     );

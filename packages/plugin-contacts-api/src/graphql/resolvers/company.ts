@@ -1,7 +1,7 @@
 import { ICompanyDocument } from '../../models/definitions/companies';
 import { IContext } from '../../connectionResolver';
-import { sendCoreMessage } from '../../messageBroker';
-import { customFieldsDataByFieldCode } from '../../coc/utils';
+import { sendCoreMessage, sendCommonMessage } from '../../messageBroker';
+import { customFieldsDataByFieldCode } from '@erxes/api-utils/src/fieldUtils';
 
 export default {
   __resolveReference({ _id }, { models: { Companies } }: IContext) {
@@ -53,6 +53,6 @@ export default {
     _,
     { subdomain }: IContext
   ) {
-    return customFieldsDataByFieldCode(company, subdomain);
+    return customFieldsDataByFieldCode(company, subdomain, sendCommonMessage);
   }
 };

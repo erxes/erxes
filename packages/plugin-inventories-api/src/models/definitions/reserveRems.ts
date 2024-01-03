@@ -13,7 +13,7 @@ export interface IReserveRem {
   departmentId: string;
   branchId: string;
   productId: string;
-  uomId: string;
+  uom: string;
   remainder: number;
 }
 
@@ -32,8 +32,8 @@ export const reserveRemSchema = schemaWrapper(
     departmentId: field({ type: String, label: 'Department' }),
     branchId: field({ type: String, label: 'Branch' }),
     productId: field({ type: String, label: 'product' }),
-    uomId: field({ type: String, label: 'Uom' }),
-    remainder: field({ type: Number, label: '' }),
+    uom: field({ type: String, label: 'Uom' }),
+    remainder: field({ type: Number, label: 'Remainder' }),
     createdAt: field({ type: Date, default: new Date(), label: 'Created at' }),
     createdBy: field({ type: String, label: 'Created by' }),
     modifiedAt: field({

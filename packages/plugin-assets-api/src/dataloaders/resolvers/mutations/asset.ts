@@ -98,19 +98,24 @@ const assetMutations = {
   },
 
   async assetsAssignKbArticles(_root, args, { models }: IContext) {
-    const selector = await generateCommonAssetFilter(models, args);
+    const { ids, articleIds, action } = args;
 
-    const { articleIds, action } = args;
+    if (!ids?.length) {
+      throw new Error('Please provide some IDs to assign articles');
+    }
 
     if (action === 'add') {
-      return await models.Assets.updateMany(selector, {
-        $push: { kbArticleIds: articleIds }
-      });
-    } else {
-      return await models.Assets.updateMany(selector, {
-        $pull: { kbArticleIds: { $in: articleIds } }
-      });
+      return await models.Assets.updateMany(
+        { _id: { $in: ids } },
+        {
+          $addToSet: { kbArticleIds: articleIds }
+        }
+      );
     }
+    return await models.Assets.updateMany(
+      { _id: { $in: ids } },
+      { $pull: { kbArticleIds: { $in: articleIds } } }
+    );
   }
 };
 

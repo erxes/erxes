@@ -1,4 +1,4 @@
-import { gql } from 'apollo-server-express';
+import gql from 'graphql-tag';
 
 import {
   types as carTypes,
@@ -8,9 +8,11 @@ import {
 
 const typeDefs = async serviceDiscovery => {
   const isContactsEnabled = await serviceDiscovery.isEnabled('contacts');
+  const isTagEnabled = await serviceDiscovery.isEnabled('tags');
 
   const isEnabled = {
-    contacts: isContactsEnabled
+    contacts: isContactsEnabled,
+    tags: isTagEnabled
   };
 
   return gql`

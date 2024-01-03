@@ -212,6 +212,7 @@ export const generatePaymentLink = async (
       mutation: gql(generateInvoiceUrl),
       variables: {
         customerId,
+        customerType:"customer",
         amount,
         contentType: 'inbox:conversations',
         contentTypeId: conversationId,

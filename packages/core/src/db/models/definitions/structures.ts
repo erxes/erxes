@@ -123,6 +123,7 @@ export const branchSchema = schemaWrapper(
       label: 'Status',
       default: STRUCTURE_STATUSES.ACTIVE
     }),
+    supervisorId: field({ type: String, optional: true }),
     radius: field({ type: Number, label: 'Coordinate radius /M/' })
   })
 );

@@ -53,6 +53,13 @@ export type PutResponsesQueryResponse = {
   refetch: () => void;
 };
 
+export type PutResponsesByDateQueryResponse = {
+  putResponsesByDate: any[];
+  loading: boolean;
+  error?: Error;
+  refetch: () => void;
+};
+
 export type PutResponsesCountQueryResponse = {
   putResponsesCount: number;
   loading: boolean;

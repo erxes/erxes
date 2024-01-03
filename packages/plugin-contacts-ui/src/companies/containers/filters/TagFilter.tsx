@@ -6,8 +6,8 @@ import React from 'react';
 import { TAG_TYPES } from '@erxes/ui-tags/src/constants';
 import { TagsQueryResponse } from '@erxes/ui-tags/src/types';
 import { queries as companyQueries } from '../../graphql';
-import gql from 'graphql-tag';
-import { graphql } from 'react-apollo';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
 import { queries as tagQueries } from '@erxes/ui-tags/src/graphql';
 import { withProps } from '@erxes/ui/src/utils';
 
@@ -25,7 +25,7 @@ const TagFilterContainer = (props: {
     <CountsByTag
       tags={(tagsQuery ? tagsQuery.tags : null) || []}
       counts={counts.byTag || {}}
-      manageUrl="/tags?type=contacts:company"
+      manageUrl="/settings/tags?type=contacts:company"
       loading={(tagsQuery ? tagsQuery.loading : null) || false}
     />
   );

@@ -39,13 +39,15 @@ const FieldType = styled.span`
   display: flex;
 `;
 
-const CollapseRow = styled.div`
+const CollapseRow = styledTS<{ isChild: boolean }>(styled.div)`
   font-size: ${coreSpace};
   position: relative;
   display: flex;
   overflow: hidden;
   justify-content: space-between;
-  padding: ${dimensions.coreSpacing}px;
+  padding: ${props =>
+    props.isChild ? dimensions.unitSpacing : dimensions.coreSpacing}px;
+  margin: 0px;
   background: ${colors.colorWhite};
 
   span {
@@ -72,8 +74,19 @@ const DropIcon = styledTS<{ isOpen: boolean }>(styled.i)`
 `;
 
 const SidebarContent = styled.div`
-  padding: ${dimensions.coreSpacing}px ${dimensions.coreSpacing}px
-    ${dimensions.unitSpacing}px;
+  padding: ${dimensions.coreSpacing}px;
+`;
+
+const SidebarFooter = styled.div`
+  border-top: 1px solid ${colors.borderPrimary};
+  border-bottom: none;
+  height: ${dimensions.headerSpacing}px;
+  align-items: center;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  margin: 0px ${dimensions.coreSpacing}px ${dimensions.unitSpacing}px
+    ${dimensions.coreSpacing}px;
 `;
 
 const SelectInput = styled.div`
@@ -184,6 +197,10 @@ const ObjectListItemContainer = styled.div`
   padding-bottom: 10px;
 `;
 
+const Divider = styled.hr`
+  border-top: 4px solid ${colors.borderDarker};
+`;
+
 export {
   PropertyList,
   DropIcon,
@@ -198,5 +215,7 @@ export {
   PropertyTableRow,
   RowField,
   FlexRow,
-  ObjectListItemContainer
+  ObjectListItemContainer,
+  Divider,
+  SidebarFooter
 };

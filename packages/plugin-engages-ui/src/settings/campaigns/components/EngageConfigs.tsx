@@ -1,9 +1,9 @@
-import { Title } from '@erxes/ui-settings/src/styles';
-import { __ } from '@erxes/ui/src/utils';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import React from 'react';
 import EngageSettingsContent from '../containers/EngageSettingsContent';
 import Header from '@erxes/ui-settings/src/general/components/Header';
+import React from 'react';
+import { Title } from '@erxes/ui-settings/src/styles';
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
+import { __ } from '@erxes/ui/src/utils';
 
 function EngageConfigs() {
   const breadcrumb = [
@@ -27,7 +27,7 @@ function EngageConfigs() {
       }
       content={<EngageSettingsContent />}
       transparent={true}
-      hasBorder
+      hasBorder={true}
     />
   );
 }

@@ -1,20 +1,21 @@
 import * as compose from 'lodash.flowright';
-import Alert from '@erxes/ui/src/utils/Alert';
-import CheckSyncedDeals from '../components/syncedDeals/CheckSyncedDeals';
-import gql from 'graphql-tag';
-import React from 'react';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import { Bulk } from '@erxes/ui/src/components';
+
 import {
-  CheckSyncedMutationResponse,
   CheckSyncedDealsQueryResponse,
   CheckSyncedDealsTotalCountQueryResponse,
+  CheckSyncedMutationResponse,
   ToSyncDealsMutationResponse
 } from '../types';
-import { graphql } from 'react-apollo';
-import { IRouterProps } from '@erxes/ui/src/types';
 import { mutations, queries } from '../graphql';
 import { router, withProps } from '@erxes/ui/src/utils/core';
+
+import Alert from '@erxes/ui/src/utils/Alert';
+import { Bulk } from '@erxes/ui/src/components';
+import CheckSyncedDeals from '../components/syncedDeals/CheckSyncedDeals';
+import { IRouterProps } from '@erxes/ui/src/types';
+import React from 'react';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
 import { withRouter } from 'react-router-dom';
 
 type Props = {
@@ -70,7 +71,8 @@ class CheckSyncedDealsContainer extends React.Component<FinalProps, State> {
           syncedDeals.forEach(item => {
             syncedDealInfos[item._id] = {
               syncedBillNumber: item.syncedBillNumber || '',
-              syncedDate: item.syncedDate || ''
+              syncedDate: item.syncedDate || '',
+              syncedCustomer: item.syncedCustomer || ''
             };
           });
           this.setState({ unSyncedDealIds, syncedDealInfos });
@@ -99,13 +101,6 @@ class CheckSyncedDealsContainer extends React.Component<FinalProps, State> {
           Alert.error(e.message);
         });
     };
-
-    if (
-      checkSyncItemsQuery.loading ||
-      checkSyncedDealsTotalCountQuery.loading
-    ) {
-      return <Spinner />;
-    }
 
     const deals = checkSyncItemsQuery.deals || [];
     const totalCount = checkSyncedDealsTotalCountQuery.dealsTotalCount || 0;
@@ -139,6 +134,8 @@ const generateParams = ({ queryParams }) => {
     stageChangedStartDate: queryParams.stageChangedStartDate,
     stageChangedEndDate: queryParams.stageChangedEndDate,
     assignedUserIds: queryParams.userId && [queryParams.userId],
+    search: queryParams.search,
+    number: queryParams.number,
     sortField: queryParams.sortField,
     sortDirection: Number(queryParams.sortDirection) || undefined
   };

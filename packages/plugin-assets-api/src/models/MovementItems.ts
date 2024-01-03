@@ -69,7 +69,7 @@ export const loadMovementItemClass = (models: IModels) => {
         );
         itemIds.push(movementItem._id);
       }
-      await models.MovementItems.findOneAndRemove({
+      await models.MovementItems.deleteMany({
         _id: { $nin: itemIds },
         movementId
       });

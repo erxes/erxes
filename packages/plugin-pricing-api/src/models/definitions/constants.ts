@@ -29,7 +29,10 @@ export const APPLY_TYPES = {
   PRODUCT: 'product',
   CATEGORY: 'category',
   BUNDLE: 'bundle',
-  ALL: ['product', 'category', 'bundle']
+  SEGMENT: 'segment',
+  VENDOR: 'vendor',
+  TAG: 'tag',
+  ALL: ['product', 'category', 'bundle', 'segment', 'vendor', 'tag']
 };
 
 export const RULE_TYPES = {

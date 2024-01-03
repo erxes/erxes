@@ -89,6 +89,21 @@ export const sismember = async (_channel: string, _action: string) => {
   return 1;
 };
 
-export const sadd = async (_channel: string, _action: string) => {
+export const sadd = async (_channel: string, _action: any) => {
+  return 1;
+};
+
+export const scard = async (_key: string) => {
+  return 1;
+};
+
+export const smembers = async (_key: string): Promise<string[]> => {
+  return [];
+};
+
+export const publish = async (
+  _channel: string,
+  _message: string
+): Promise<number> => {
   return 1;
 };

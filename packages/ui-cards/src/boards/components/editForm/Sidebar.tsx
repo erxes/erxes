@@ -6,6 +6,10 @@ import { RightContent } from '../../styles/item';
 import { IItem, IOptions } from '../../types';
 import SidebarConformity from './SidebarConformity';
 import { isEnabled } from '@erxes/ui/src/utils/core';
+import { __ } from '@erxes/ui/src/utils';
+import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
+import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
+import { IUser } from '@erxes/ui/src/auth/types';
 
 type Props = {
   item: IItem;
@@ -24,14 +28,24 @@ type Props = {
     callback?: () => void
   ) => void;
   childrenSection: () => any;
+  currentUser: IUser;
 };
 
 class Sidebar extends React.Component<Props> {
   render() {
-    const { item, saveItem, sidebar, childrenSection } = this.props;
+    const {
+      item,
+      saveItem,
+      sidebar,
+      childrenSection,
+      currentUser
+    } = this.props;
 
     const userOnChange = usrs => saveItem({ assignedUserIds: usrs });
+    const onChangeStructure = (values, name) => saveItem({ [name]: values });
     const assignedUserIds = (item.assignedUsers || []).map(user => user._id);
+    const branchIds = currentUser.branchIds;
+    const departmentIds = currentUser.departmentIds;
 
     return (
       <RightContent>
@@ -42,6 +56,28 @@ class Sidebar extends React.Component<Props> {
             name="assignedUserIds"
             initialValue={assignedUserIds}
             onSelect={userOnChange}
+            filterParams={{
+              departmentIds,
+              branchIds
+            }}
+          />
+        </FormGroup>
+        <FormGroup>
+          <ControlLabel>{__('Branches')}</ControlLabel>
+          <SelectBranches
+            name="branchIds"
+            label="Choose branches"
+            initialValue={item?.branchIds}
+            onSelect={onChangeStructure}
+          />
+        </FormGroup>
+        <FormGroup>
+          <ControlLabel>{__('Departments')}</ControlLabel>
+          <SelectDepartments
+            name="departmentIds"
+            label="Choose departments"
+            onSelect={onChangeStructure}
+            initialValue={item?.departmentIds}
           />
         </FormGroup>
         {isEnabled('products') && sidebar && sidebar(saveItem)}

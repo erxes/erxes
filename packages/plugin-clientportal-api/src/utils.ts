@@ -1,12 +1,22 @@
+import * as moment from 'moment';
 import { debugError } from '@erxes/api-utils/src/debuggers';
 import { generateFieldsFromSchema } from '@erxes/api-utils/src/fieldUtils';
 import redis from '@erxes/api-utils/src/redis';
 import { sendRequest } from '@erxes/api-utils/src/requests';
-
-import { IUserDocument } from './../../api-utils/src/types';
+import { getNextMonth, getToday } from '@erxes/api-utils/src';
+import { IUserDocument } from '@erxes/api-utils/src/types';
 import { graphqlPubsub } from './configs';
-import { generateModels, IModels } from './connectionResolver';
-import { sendCoreMessage, sendCommonMessage } from './messageBroker';
+import { generateModels, IContext, IModels } from './connectionResolver';
+import {
+  sendCoreMessage,
+  sendCommonMessage,
+  sendContactsMessage,
+  sendCardsMessage
+} from './messageBroker';
+
+import * as admin from 'firebase-admin';
+import { CLOSE_DATE_TYPES } from './constants';
+import { IUser } from './models/definitions/clientPortalUser';
 
 export const getConfig = async (
   code: string,
@@ -85,7 +95,7 @@ export const sendSms = async (
       );
 
       if (!MESSAGE_PRO_API_KEY || !MESSAGE_PRO_PHONE_NUMBER) {
-        throw new Error('messagin config not set properly');
+        throw new Error('messaging config not set properly');
       }
 
       try {
@@ -123,8 +133,8 @@ export const generateRandomPassword = (len: number = 10) => {
     min: number,
     max: number
   ) => {
-    let n,
-      chars = '';
+    let n;
+    let chars = '';
 
     if (max === undefined) {
       n = min;
@@ -148,11 +158,11 @@ export const generateRandomPassword = (len: number = 10) => {
 
   const shuffle = (string: string) => {
     const array = string.split('');
-    let tmp,
-      current,
-      top = array.length;
+    let tmp;
+    let current;
+    let top = array.length;
 
-    if (top)
+    if (top) {
       while (--top) {
         current = Math.floor(Math.random() * (top + 1));
         tmp = array[current];
@@ -160,7 +170,8 @@ export const generateRandomPassword = (len: number = 10) => {
         array[top] = tmp;
       }
 
-    return array.join('');
+      return array.join('');
+    }
   };
 
   let password = '';
@@ -171,6 +182,40 @@ export const generateRandomPassword = (len: number = 10) => {
   password += pick(password, numbers, 3, 3);
 
   return shuffle(password);
+};
+
+export const initFirebase = async (subdomain: string): Promise<void> => {
+  const config = await sendCoreMessage({
+    subdomain,
+    action: 'configs.findOne',
+    data: {
+      query: {
+        code: 'GOOGLE_APPLICATION_CREDENTIALS_JSON'
+      }
+    },
+    isRPC: true,
+    defaultValue: null
+  });
+
+  if (!config) {
+    return;
+  }
+
+  const codeString = config.value || 'value';
+
+  if (codeString[0] === '{' && codeString[codeString.length - 1] === '}') {
+    const serviceAccount = JSON.parse(codeString);
+
+    if (serviceAccount.private_key) {
+      try {
+        await admin.initializeApp({
+          credential: admin.credential.cert(serviceAccount)
+        });
+      } catch (e) {
+        console.log(`initFireBase error: ${e.message}`);
+      }
+    }
+  }
 };
 
 interface ISendNotification {
@@ -199,7 +244,7 @@ export const sendNotification = async (
     eventData
   } = doc;
 
-  let link = doc.link;
+  const link = doc.link;
 
   // remove duplicated ids
   const receiverIds = [...Array.from(new Set(receivers))];
@@ -269,6 +314,10 @@ export const sendNotification = async (
   });
 
   if (isMobile) {
+    if (!admin.apps.length) {
+      await initFirebase(subdomain);
+    }
+    const transporter = admin.messaging();
     const deviceTokens: string[] = [];
 
     for (const recipient of recipients) {
@@ -277,15 +326,58 @@ export const sendNotification = async (
       }
     }
 
-    sendCoreMessage({
-      subdomain: subdomain,
-      action: 'sendMobileNotification',
-      data: {
-        title,
-        body: content,
-        deviceTokens: [...Array.from(new Set(deviceTokens))]
+    const expiredTokens = [''];
+
+    const chunkSize = 500;
+
+    if (deviceTokens.length > 1) {
+      const tokenChunks = [] as string[][];
+
+      if (deviceTokens.length > chunkSize) {
+        for (let i = 0; i < deviceTokens.length; i += chunkSize) {
+          const chunk = deviceTokens.slice(i, i + chunkSize);
+          tokenChunks.push(chunk);
+        }
+      } else {
+        tokenChunks.push(deviceTokens);
       }
-    });
+
+      for (const tokensChunk of tokenChunks) {
+        try {
+          const multicastMessage = {
+            tokens: tokensChunk,
+            notification: { title, body: content },
+            data: eventData || {}
+          };
+
+          await transporter.sendMulticast(multicastMessage);
+        } catch (e) {
+          debugError(
+            `Error occurred during Firebase multicast send: ${e.message}`
+          );
+          expiredTokens.push(...tokensChunk);
+        }
+      }
+    } else {
+      for (const token of deviceTokens) {
+        try {
+          await transporter.send({
+            token,
+            notification: { title, body: content },
+            data: eventData || {}
+          });
+        } catch (e) {
+          debugError(`Error occurred during firebase send: ${e.message}`);
+          expiredTokens.push(token);
+        }
+      }
+    }
+    if (expiredTokens.length > 0) {
+      await models.ClientPortalUsers.updateMany(
+        {},
+        { $pull: { deviceTokens: { $in: expiredTokens } } }
+      );
+    }
   }
 };
 
@@ -358,4 +450,211 @@ export const sendAfterMutation = async (
       });
     }
   }
+};
+
+export const getCards = async (
+  type: 'ticket' | 'deal' | 'task' | 'purchase',
+  context: IContext,
+  args: any
+) => {
+  const { subdomain, models, cpUser } = context;
+  if (!cpUser) {
+    throw new Error('Login required');
+  }
+
+  const cp = await models.ClientPortals.getConfig(cpUser.clientPortalId);
+
+  const pipelineId = cp[type + 'PipelineId'];
+
+  if (!pipelineId || pipelineId.length === 0) {
+    return [];
+  }
+
+  const customer = await sendContactsMessage({
+    subdomain,
+    action: 'customers.findOne',
+    data: {
+      _id: cpUser.erxesCustomerId
+    },
+    isRPC: true
+  });
+
+  if (!customer) {
+    return [];
+  }
+
+  const conformities = await sendCoreMessage({
+    subdomain,
+    action: 'conformities.getConformities',
+    data: {
+      mainType: 'customer',
+      mainTypeIds: [customer._id],
+      relTypes: [type]
+    },
+    isRPC: true,
+    defaultValue: []
+  });
+
+  if (conformities.length === 0) {
+    return [];
+  }
+
+  const cardIds: string[] = [];
+
+  for (const c of conformities) {
+    if (c.relType === type && c.mainType === 'customer') {
+      cardIds.push(c.relTypeId);
+    }
+
+    if (c.mainType === type && c.relType === 'customer') {
+      cardIds.push(c.mainTypeId);
+    }
+  }
+
+  const stages = await sendCardsMessage({
+    subdomain,
+    action: 'stages.find',
+    data: {
+      pipelineId
+    },
+    isRPC: true,
+    defaultValue: []
+  });
+
+  if (stages.length === 0) {
+    return [];
+  }
+
+  const stageIds = stages.map(stage => stage._id);
+
+  let oneStageId = '';
+  if (args.stageId) {
+    if (stageIds.includes(args.stageId)) {
+      oneStageId = args.stageId;
+    } else {
+      oneStageId = 'noneId';
+    }
+  }
+
+  interface IDate {
+    month: number;
+    year: number;
+  }
+
+  const dateSelector = (date: IDate) => {
+    const { year, month } = date;
+
+    const start = new Date(Date.UTC(year, month, 1, 0, 0, 0));
+    const end = new Date(Date.UTC(year, month + 1, 1, 0, 0, 0));
+
+    return {
+      $gte: start,
+      $lte: end
+    };
+  };
+
+  return sendCardsMessage({
+    subdomain,
+    action: `${type}s.find`,
+    data: {
+      _id: { $in: cardIds },
+      status: { $regex: '^((?!archived).)*$', $options: 'i' },
+      stageId: oneStageId ? oneStageId : { $in: stageIds },
+      ...(args?.priority && { priority: { $in: args?.priority || [] } }),
+      ...(args?.labelIds && { labelIds: { $in: args?.labelIds || [] } }),
+      ...(args?.closeDateType && {
+        closeDate: getCloseDateByType(args.closeDateType)
+      }),
+      ...(args?.userIds && { assignedUserIds: { $in: args?.userIds || [] } }),
+      ...(args?.date && { closeDate: dateSelector(args.date) })
+    },
+    isRPC: true,
+    defaultValue: []
+  });
+};
+
+export const getCloseDateByType = (closeDateType: string) => {
+  if (closeDateType === CLOSE_DATE_TYPES.NEXT_DAY) {
+    const tommorrow = moment().add(1, 'days');
+
+    return {
+      $gte: new Date(tommorrow.startOf('day').toISOString()),
+      $lte: new Date(tommorrow.endOf('day').toISOString())
+    };
+  }
+
+  if (closeDateType === CLOSE_DATE_TYPES.NEXT_WEEK) {
+    const monday = moment()
+      .day(1 + 7)
+      .format('YYYY-MM-DD');
+    const nextSunday = moment()
+      .day(7 + 7)
+      .format('YYYY-MM-DD');
+
+    return {
+      $gte: new Date(monday),
+      $lte: new Date(nextSunday)
+    };
+  }
+
+  if (closeDateType === CLOSE_DATE_TYPES.NEXT_MONTH) {
+    const now = new Date();
+    const { start, end } = getNextMonth(now);
+
+    return {
+      $gte: new Date(start),
+      $lte: new Date(end)
+    };
+  }
+
+  if (closeDateType === CLOSE_DATE_TYPES.NO_CLOSE_DATE) {
+    return { $exists: false };
+  }
+
+  if (closeDateType === CLOSE_DATE_TYPES.OVERDUE) {
+    const now = new Date();
+    const today = getToday(now);
+
+    return { $lt: today };
+  }
+};
+
+export const getUserName = (data: IUser) => {
+  if (!data) {
+    return null;
+  }
+
+  if (data.firstName || data.lastName) {
+    return data.firstName + ' ' + data.lastName;
+  }
+
+  if (data.email || data.username || data.phone) {
+    return data.email || data.username || data.phone;
+  }
+
+  return 'Unknown';
+};
+
+export const getUserCards = async (
+  userId: string,
+  contentType: string,
+  models: IModels,
+  subdomain
+) => {
+  const cardIds = await models.ClientPortalUserCards.find({
+    cpUserId: userId,
+    contentType
+  }).distinct('contentTypeId');
+
+  const cards = await sendCardsMessage({
+    subdomain,
+    action: `${contentType}s.find`,
+    data: {
+      _id: { $in: cardIds }
+    },
+    isRPC: true,
+    defaultValue: []
+  });
+
+  return cards;
 };

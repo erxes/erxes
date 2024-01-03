@@ -20,19 +20,26 @@ type Props = {
 } & IRouterProps;
 
 function WebBuilder(props: Props) {
-  const [searchValue, setSearchValue] = useState('');
+  let timer;
 
   const { loading, sitesCount, queryParams } = props;
 
+  const [searchValue, setSearchValue] = useState(queryParams.searchValue || '');
+
   const search = (e: any) => {
+    if (timer) {
+      clearTimeout(timer);
+    }
+
     const { history } = props;
+
     const value = e.target.value;
 
     setSearchValue(value);
 
-    this.timer = setTimeout(() => {
+    timer = setTimeout(() => {
       router.removeParams(history, 'page');
-      router.setParams(history, { searchValue });
+      router.setParams(history, { searchValue: value });
     }, 500);
   };
 
@@ -44,8 +51,8 @@ function WebBuilder(props: Props) {
         onChange={search}
         value={searchValue}
       />
-      <Link to="/webbuilder/sites/create">
-        <Button btnStyle="success" size="small" icon="plus-circle">
+      <Link to="/xbuilder/sites/create">
+        <Button btnStyle="success" icon="plus-circle">
           New website
         </Button>
       </Link>
@@ -57,8 +64,8 @@ function WebBuilder(props: Props) {
       <Wrapper
         header={
           <Wrapper.Header
-            title={__('Webbuilder Workspace')}
-            breadcrumb={[{ title: __('Webbuilder') }]}
+            title={__('X Builder Workspace')}
+            breadcrumb={[{ title: __('X Builder') }]}
           />
         }
         actionBar={

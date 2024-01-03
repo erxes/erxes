@@ -6,7 +6,8 @@ import Pagination from '@erxes/ui/src/components/pagination/Pagination';
 import Table from '@erxes/ui/src/components/table';
 import { Count, Title } from '@erxes/ui/src/styles/main';
 import { IRouterProps } from '@erxes/ui/src/types';
-import { __, Alert, confirm, router } from '@erxes/ui/src/utils';
+import { Alert, confirm, router } from '@erxes/ui/src/utils';
+import { __ } from 'coreui/utils';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { BarItems } from '@erxes/ui/src/layout/styles';
 import React from 'react';
@@ -194,7 +195,7 @@ class List extends React.Component<IProps, State> {
       );
     }
 
-    const actionBarLeft = <Title>{'All jobs'}</Title>;
+    const actionBarLeft = <Title>{`${__('All jobs')}`}</Title>;
 
     return (
       <Wrapper

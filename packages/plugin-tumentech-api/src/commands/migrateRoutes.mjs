@@ -80,9 +80,6 @@ var command = async () => {
     const searchText = `${placeName} ${secondaryPlaceName}`;
     const name = `${placeName} - ${secondaryPlaceName}`;
 
-    // console.log(searchText);
-    console.log(name);
-
     await Routes.updateOne(
       { _id: route._id },
       { $set: { searchText, name, placeName, secondaryPlaceName } }

@@ -1,6 +1,5 @@
-const yaml = require('yaml');
 var { resolve } = require('path');
-var fs = require('fs-extra');
+var fs = require('fs');
 
 const filePath = pathName => {
   if (pathName) {
@@ -19,7 +18,15 @@ var plugins = [
   { name: 'rentpay', ui: true, api: true },
   { name: 'tumentech', ui: true, api: true },
   { name: 'priuscenter', ui: true, api: true },
-  { name: 'apex', ui: true, api: true }
+  { name: 'apex', ui: true, api: true },
+  { name: 'bichil', ui: true, api: true },
+  { name: 'mobinet', ui: true, api: true },
+  { name: 'dac', ui: true, api: true },
+  { name: 'rcfa', ui: true, api: true },
+  { name: 'syncsaas', ui: true, api: true },
+  { name: 'golomtces', ui: false, api: true },
+  { name: 'aputpm', ui: true, api: true },
+  { name: 'insurance', ui: true, api: true }
 ];
 
 const pluginsMap = {};
@@ -31,6 +38,8 @@ var main = async () => {
   const apiContentBuffer = fs.readFileSync(
     workflowsPath('plugin-sample-api.yaml')
   );
+
+  permissionCheckers = [];
 
   for (const plugin of plugins) {
     pluginsMap[plugin.name] = {};
@@ -100,12 +109,23 @@ var main = async () => {
 
       if (permissions) {
         pluginsMap[plugin.name].api.permissions = permissions;
+
+        for (const val of Object.values(permissions)) {
+          permissionCheckers = permissionCheckers.concat(val.actions);
+        }
       }
 
       if (essyncer) {
         pluginsMap[plugin.name].api.essyncer = essyncer;
       }
     }
+  }
+
+  const actions = permissionCheckers.map(action => action.name);
+  const dups = actions.filter((item, index) => actions.indexOf(item) !== index);
+
+  if (dups.length) {
+    console.log(`warning: duplicated actions names ==> ${dups.join(', ')}`);
   }
 
   fs.writeFileSync(

@@ -109,12 +109,16 @@ const commonSelector = `
   brandIds: [String]
   departmentId: String
   branchId: String
+  branchIds: [String]
+  departmentIds: [String]
   unitId: String
+  segment: String
+  segmentData: String
 `;
 
 export const queries = `
   users(sortField: String, sortDirection: Int, page: Int, perPage: Int, status: String, excludeIds: Boolean, ${commonSelector}): [User]
-  allUsers(isActive: Boolean): [User]
+  allUsers(isActive: Boolean,ids:[String],assignedToMe:String): [User]
   userDetail(_id: String): User
   usersTotalCount(${commonSelector}): Int
   currentUser: User

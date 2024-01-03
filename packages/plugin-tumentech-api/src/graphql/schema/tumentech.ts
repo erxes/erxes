@@ -3,7 +3,7 @@ import {
   attachmentType
 } from '@erxes/api-utils/src/commonTypeDefs';
 
-export const types = ({ contacts, cards }) => `
+export const types = ({ contacts, cards, xyp }) => `
 
   ${attachmentType}
   ${attachmentInput}
@@ -11,6 +11,17 @@ export const types = ({ contacts, cards }) => `
   extend type User @key(fields: "_id") {
     _id: String! @external
   }
+
+  ${
+    xyp
+      ? `
+        extend type XypData @key(fields: "_id") {
+          _id: String! @external
+        }
+        `
+      : ''
+  }
+
 
   ${
     contacts
@@ -47,6 +58,7 @@ type CarCategory {
   collapseContent: [String]
   code: String!
   order: String!
+  icon: String
 
   isRoot: Boolean
   carCount: Int
@@ -66,6 +78,14 @@ type Car {
       ? `
     customers: [Customer]
     companies: [Company]
+    `
+      : ''
+  }
+
+  ${
+    xyp
+      ? `
+    xypdata: XypData
     `
       : ''
   }
@@ -154,6 +174,7 @@ type Car {
   backAttachments: [Attachment]
   floorAttachments: [Attachment]
   transformationAttachments: [Attachment]
+  
 }
 
 type CarsListResponse {
@@ -166,6 +187,7 @@ type CarCategoryProducts {
   carCategoryId: String
   productCategoryIds: [String]
   productCategories: JSON
+
 }
 
 type ProductCarCategories {
@@ -175,6 +197,11 @@ type ProductCarCategories {
   carCategories: JSON
 }
 
+type ParticipantsTotalCount {
+  dealId: String
+  count: Int
+  revealedPhoneCount: Int
+}
 type Participant @key(fields: "_id") @cacheControl(maxAge: 3) {
   _id: String!
   driverId: String!
@@ -194,12 +221,6 @@ type Participant @key(fields: "_id") @cacheControl(maxAge: 3) {
   ${contacts ? `driver: Customer` : ''}
 }
 
-type CustomerAccount @key(fields: "_id") @cacheControl(maxAge: 3) {
-  _id: String!
-  balance: Float
-  customerId: String
-}
-
 type Topup @key(fields: "_id") @cacheControl(maxAge: 3) {
   _id: String!
   customerId: String
@@ -214,6 +235,11 @@ type TopupListResponse {
   totalCount: Int,
 }
 
+type TumenTripTotal{
+  total:Float
+  numberOfWorks:Int
+}
+
 input ParticipantsRemove {
   dealId: String!
   tripId: String!
@@ -224,6 +250,7 @@ const tumentechParams = `
   page: Int
   perPage: Int
   segment: String
+  segmentData: String
   carCategoryId: String
   ids: [String]
   searchValue: String
@@ -256,7 +283,7 @@ export const queries = `
   cars(${tumentechParams}): [Car]
   carCounts(${tumentechParams}, only: String): JSON
   carDetail(_id: String!): Car
-  carCategories(parentId: String, searchValue: String): [CarCategory]
+  carCategories(parentId: String, searchValue: String, onlyParent: Boolean, ids: [String]): [CarCategory]
   carCategoriesTotalCount: Int
   carCategoryDetail(_id: String): CarCategory
   carCategoryMatchProducts(carCategoryId: String): CarCategoryProducts
@@ -270,13 +297,14 @@ export const queries = `
 
   participants(page: Int, perPage: Int, driverId: String, dealId: String, status: String): [Participant]
   participantDetail(_id: String!): Participant
-  participantsTotalCount(driverId: String, dealId: String, status: String): Int
+  participantsTotalCount(driverId: String, dealIds: [String]!, status: String): [ParticipantsTotalCount]
 
-  getAccount: CustomerAccount
-
+  
   topupHistory(page: Int, perPage: Int, customerId: String): TopupListResponse
 
-  getEbarimt(topupId: String!, companyRegNumber: String, companyName: String): JSON
+  tumentechCategoryIcons: [String]
+
+  tumentechTripDistance(driverId:String!):TumenTripTotal
 `;
 
 const tumentechCommonFields = `
@@ -369,6 +397,7 @@ const carCategoryParams = `
   description: String,
   parentId: String,
   collapseContent: [String]
+  icon: String
 `;
 
 const participantParams = `
@@ -400,11 +429,8 @@ export const mutations = `
   participantsRemoveFromDeal(dealId: String!, customerIds: [String]): JSON
   selectWinner(dealId: String!, driverId: String!): Participant
 
-  topupAccount(invoiceId: String): JSON
-
-  manualTopup(customerId: String!, amount: Float!): JSON
-
-  revealPhone(driverId: String, carId: String, dealId: String): String
-
   generateRandomName(modelName: String!, prefix: String!, numberOfDigits: Int): String
+
+  tumentechInvite(phone: String!): String
+  inviteDriversToDeal(dealId: String!, driverIds: [String]!): JSON
 `;

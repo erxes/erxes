@@ -121,6 +121,9 @@ export interface IField {
   keys?: string[];
   productCategoryId?: string;
   optionsValues?: string;
+
+  relationType?: string;
+  subFieldIds?: string[];
 }
 
 export interface IFormProps {
@@ -137,6 +140,7 @@ export type IOption = {
   label: string;
   value: string;
   avatar?: string;
+  extraValue?: string;
 };
 
 export type IButtonMutateProps = {
@@ -147,6 +151,7 @@ export type IButtonMutateProps = {
   confirmationUpdate?: boolean;
   callback?: (data?: any) => void;
   resetSubmit?: () => void;
+  beforeSubmit?: () => void;
   size?: string;
   object?: any;
   text?: string;
@@ -182,6 +187,7 @@ export type IEditorProps = {
   name?: string;
   isSubmitted?: boolean;
   formItems?: any;
+  contentType?: string;
 };
 
 export type QueryResponse = {

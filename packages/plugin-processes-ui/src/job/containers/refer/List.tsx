@@ -1,11 +1,11 @@
 import * as compose from 'lodash.flowright';
 import Bulk from '@erxes/ui/src/components/Bulk';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import List from '../../components/refer/List';
 import React from 'react';
 import { Alert, withProps } from '@erxes/ui/src/utils';
 import { generatePaginationParams } from '@erxes/ui/src/utils/router';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 import {
   JobRefersQueryResponse,
   jobRefersRemoveMutationResponse,

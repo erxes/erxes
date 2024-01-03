@@ -3,6 +3,7 @@ import resolvers from './graphql/resolvers';
 
 import { generateModels } from './connectionResolver';
 import { getSubdomain } from '@erxes/api-utils/src/core';
+import { getServices, getService } from '@erxes/api-utils/src/serviceDiscovery';
 import { initBroker, sendCommonMessage } from './messageBroker';
 import * as permissions from './permissions';
 
@@ -22,7 +23,6 @@ export default {
       resolvers
     };
   },
-  hasSubscriptions: true,
   segment: {},
   apolloServerContext: async (context, req) => {
     const subdomain = getSubdomain(req);
@@ -30,12 +30,15 @@ export default {
     context.subdomain = subdomain;
     context.models = await generateModels(subdomain);
   },
+  meta: {
+    permissions
+  },
 
   getHandlers: [
     {
       path: '/print',
       method: async (req, res, next) => {
-        const { _id, stageId, itemId } = req.query;
+        const { _id, copies, width, itemId } = req.query;
         const subdomain = getSubdomain(req);
         const models = await generateModels(subdomain);
         const document = await models.Documents.findOne({ _id });
@@ -54,27 +57,167 @@ export default {
           return next(new Error('Permission denied'));
         }
 
-        let replacedContent = await sendCommonMessage({
-          subdomain,
-          serviceName: document.contentType,
-          action: 'documents.replaceContent',
-          isRPC: true,
-          data: {
-            stageId,
-            itemId,
-            content: document.content
+        const services = await getServices();
+
+        for (const serviceName of services) {
+          const service = await getService(serviceName);
+          const meta = service.config?.meta || {};
+
+          if (meta && meta.documentPrintHook) {
+            try {
+              await sendCommonMessage({
+                subdomain,
+                action: 'documentPrintHook',
+                isRPC: true,
+                serviceName,
+                data: { document, userId }
+              });
+            } catch (e) {
+              return next(e);
+            }
           }
-        });
+        }
+
+        let replacedContents: any[] = [];
+        let scripts = '';
+        let styles = '';
+        let heads = '';
+
+        if (document.contentType === 'core:user') {
+          const user = await sendCommonMessage({
+            subdomain,
+            serviceName: 'core',
+            isRPC: true,
+            action: 'users.findOne',
+            data: {
+              _id: itemId
+            }
+          });
+
+          let content = document.content;
+
+          const details = user.details || {};
+
+          content = content.replace(/{{ username }}/g, user.username);
+          content = content.replace(/{{ email }}/g, user.email);
+          content = content.replace(
+            /{{ details.firstName }}/g,
+            details.firstName
+          );
+          content = content.replace(
+            /{{ details.lastName }}/g,
+            details.lastName
+          );
+          content = content.replace(
+            /{{ details.middleName }}/g,
+            details.middleName
+          );
+          content = content.replace(
+            /{{ details.position }}/g,
+            details.position
+          );
+          content = content.replace(/{{ details.avatar }}/g, details.avatar);
+          content = content.replace(
+            /{{ details.description }}/g,
+            details.description
+          );
+
+          for (const data of user.customFieldsData || []) {
+            const regex = new RegExp(
+              `{{ customFieldsData.${data.field} }}`,
+              'g'
+            );
+            content = content.replace(regex, data.stringValue);
+          }
+
+          replacedContents.push(content);
+        } else {
+          try {
+            const serviceName = document.contentType.includes(':')
+              ? document.contentType.substring(
+                  0,
+                  document.contentType.indexOf(':')
+                )
+              : document.contentType;
+
+            replacedContents = await sendCommonMessage({
+              subdomain,
+              serviceName,
+              action: 'documents.replaceContent',
+              isRPC: true,
+              data: {
+                ...(req.query || {}),
+                content: document.content
+              },
+              timeout: 50000
+            });
+          } catch (e) {
+            replacedContents = [e.message];
+          }
+        }
+
+        let results: string = '';
 
         const replacers = (document.replacer || '').split('\n');
 
-        for (const replacer of replacers) {
-          const [key, value] = replacer.split(',');
-
-          if (key) {
-            const regex = new RegExp(key, 'g');
-            replacedContent = replacedContent.replace(regex, value);
+        for (let replacedContent of replacedContents) {
+          if (replacedContent.startsWith('::heads::')) {
+            heads += replacedContent.replace('::heads::', '');
+            continue;
           }
+
+          if (replacedContent.startsWith('::scripts::')) {
+            scripts += replacedContent.replace('::scripts::', '');
+            continue;
+          }
+
+          if (replacedContent.startsWith('::styles::')) {
+            styles += replacedContent.replace('::styles::', '');
+            continue;
+          }
+
+          for (const replacer of replacers) {
+            const [key, value] = replacer.split(',');
+
+            if (key) {
+              const regex = new RegExp(key, 'g');
+              replacedContent = replacedContent.replace(regex, value);
+            }
+          }
+
+          if (copies) {
+            results = `
+             ${results}
+              <div style="margin-right: 2mm; margin-bottom: 2mm; width: ${width}mm; float: left;">
+                ${replacedContent}
+              </div>
+            `;
+          } else {
+            results = results + replacedContent;
+          }
+        }
+
+        let multipliedResults: string[] = [
+          `
+          <head>
+            <meta charset="utf-8">
+            ${heads}
+          </head>
+        `
+        ];
+
+        if (copies) {
+          let i = 0;
+          while (i < copies) {
+            i++;
+            multipliedResults.push(`
+              <div style="margin-right: 2mm; margin-bottom: 2mm; float: left;">
+              ${results}
+              </div>
+            `);
+          }
+        } else {
+          multipliedResults = [results];
         }
 
         const style = `
@@ -82,7 +225,7 @@ export default {
             /*receipt*/
             html {
               color: #000;
-              font-size: 13px;
+              font-size: 11px;
               font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
             }
 
@@ -110,10 +253,13 @@ export default {
               padding: 5px;
               text-align: left;
             }
+            ${styles}
           </style>
       `;
-
-        return res.send(replacedContent + style);
+        const script = `
+            ${scripts}
+        `;
+        return res.send(multipliedResults + style + script);
       }
     }
   ],

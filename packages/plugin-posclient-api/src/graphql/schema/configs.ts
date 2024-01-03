@@ -23,38 +23,45 @@ export const types = `
     vatPercent: Int
     cityTaxPercent: Int
     footerText: String
+    hasCopy: Boolean
   }
 
-  type QPayConfig {
-    url: String
-    callbackUrl: String
-    username: String
-    password: String
-    invoiceCode: String
-  }
-
-  type CatProd {
+  type PoscCatProd {
     _id: String
     categoryId: String
+    code: String
+    name: String
     productId: String
+  }
+
+  type PreDate {
+    _id: String
+    dueDate: Date
   }
 
   type PosclientSlot {
     _id: String
+    posToken: String
     code: String
     name: String
+    status: String
+    isPreDates: [PreDate]
+    option: JSON
   }
 
   type PosConfig {
     _id: String
     name: String
     description: String
+    orderPassword: String
+    pdomain: String
     userId: String
     createdAt: Date
     productDetails: [String]
     adminIds: [String]
     cashierIds: [String]
     paymentIds: [String]
+    paymentTypes: [JSON]
     beginNumber: String
     maxSkipNumber: Int
     waitingScreen: JSON
@@ -64,15 +71,19 @@ export const types = `
     erxesAppToken: String
     uiOptions: UIOptions
     ebarimtConfig: EbarimtConfig
-    qpayConfig: QPayConfig
-    catProdMappings: [CatProd]
+    catProdMappings: [PoscCatProd]
     initialCategoryIds: [String]
+    kioskExcludeCategoryIds: [String]
     kioskExcludeProductIds: [String]
     deliveryConfig: JSON
     branchId: String
     departmentId: String
     checkRemainder: Boolean
     permissionConfig: JSON
+    allowTypes: [String]
+    isCheckRemainder: Boolean
+    checkExcludeCategoryIds: [String]
+    banFractions: Boolean
   }
 `;
 

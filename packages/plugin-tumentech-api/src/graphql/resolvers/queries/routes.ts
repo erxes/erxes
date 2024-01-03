@@ -1,7 +1,6 @@
 import { paginate } from '@erxes/api-utils/src';
 
 import { IContext } from '../../../connectionResolver';
-import { transliterate } from '../../../utils';
 
 const routesQuery = {
   routes: async (
@@ -21,9 +20,15 @@ const routesQuery = {
   ) => {
     let filter: any = {};
 
+    // if (searchValue) {
+    //   filter.searchText = {
+    //     $in: [new RegExp(`.*${transliterate(searchValue)}.*`, 'i')]
+    //   };
+    // }
+
     if (searchValue) {
       filter.searchText = {
-        $in: [new RegExp(`.*${transliterate(searchValue)}.*`, 'i')]
+        $in: [new RegExp(`.*${searchValue}.*`, 'i')]
       };
     }
 

@@ -4,7 +4,7 @@ import { IButtonMutateProps, IRouterProps } from '@erxes/ui/src/types';
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import EventForm from '../components/EventForm';
 import React from 'react';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import { queries as integrationQueries } from '@erxes/ui-inbox/src/settings/integrations/graphql';
 import { mutations } from '../graphql';
 import queryString from 'query-string';

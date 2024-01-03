@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - dev
+      - staging
+      - build-test
     paths:
       - 'packages/erxes-ui/**'
       - 'packages/ui-plugin-template/**'
@@ -24,6 +26,8 @@ on:
   pull_request:
     branches:
       - dev
+      - staging
+      - build-test
     paths:
       - 'packages/erxes-ui/**'
       - 'packages/ui-plugin-template/**'
@@ -44,29 +48,25 @@ on:
 
 jobs:
   ui:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-22.04
 
     steps:
-      - name: Use Node.js 14.18.x
-        uses: actions/setup-node@v1
-        with:
-          node-version: 14.18.x
+      - uses: actions/checkout@v3
 
-      - uses: actions/checkout@v2
+      - name: Use Node.js 18.17.x
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18.17.x
 
       - name: Build
         run: |
           yarn install --frozen-lockfile
-          cp -r packages/ui-plugin-template/.erxes packages/plugin-loan-ui/.erxes
-          cp -r packages/plugin-loan-ui/src packages/plugin-loan-ui/.erxes/plugin-src
           cd packages/plugin-loan-ui
-          yarn install
-          yarn install-deps
           yarn build
-          ls
+          cp -r ./src/locales/ ./dist/locales 2>/dev/null || true
 
       - name: Configure AWS credentials
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev' )
+        if: github.event_name == 'push' && ( github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/build-test')
         uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
@@ -74,9 +74,9 @@ jobs:
           aws-region: us-west-2
 
       - name: Deploy
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev' )
+        if: github.event_name == 'push' && ( github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/build-test')
         run: |
-          tar -cf build.tar --directory=packages/plugin-loan-ui/.erxes/dist .
-          cp build.tar packages/plugin-loan-ui/.erxes/dist
-          rm -rf packages/plugin-loan-ui/.erxes/dist/*.js
-          aws s3 sync packages/plugin-loan-ui/.erxes/dist s3://erxes-enterprise-plugins/uis/plugin-loan-ui --delete
+          tar -cf build.tar --directory=packages/plugin-loan-ui/dist .
+          cp build.tar packages/plugin-loan-ui/dist
+          rm -rf packages/plugin-loan-ui/dist/*.js
+          aws s3 sync packages/plugin-loan-ui/dist s3://erxes-enterprise-plugins/uis/plugin-loan-ui --delete

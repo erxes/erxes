@@ -1,8 +1,3 @@
-import Button from '@erxes/ui/src/components/Button';
-import EmptyState from '@erxes/ui/src/components/EmptyState';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import { IAttachment } from '@erxes/ui/src/types';
-import { __ } from '@erxes/ui/src/utils/core';
 import {
   InlineColumn,
   InlineHeader,
@@ -14,10 +9,16 @@ import {
   TemplateContent,
   TemplateTitle
 } from '@erxes/ui-inbox/src/inbox/styles';
+
+import Button from '@erxes/ui/src/components/Button';
+import EmptyState from '@erxes/ui/src/components/EmptyState';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import { IAttachment } from '@erxes/ui/src/types';
 import { IBrand } from '@erxes/ui/src/brands/types';
 import { IResponseTemplate } from '../../../../../settings/responseTemplates/types';
-import React from 'react';
 import { Link } from 'react-router-dom';
+import React from 'react';
+import { __ } from '@erxes/ui/src/utils/core';
 import strip from 'strip';
 
 type Props = {
@@ -39,6 +40,8 @@ type State = {
   brandId?: string;
   searchValue: string;
   options: IResponseTemplate[];
+  cursor: number;
+  maxCursor: number;
 };
 
 class PopoverContent extends React.Component<Props, State> {
@@ -48,9 +51,54 @@ class PopoverContent extends React.Component<Props, State> {
     this.state = {
       searchValue: props.searchValue,
       brandId: props.brandId,
-      options: props.responseTemplates
+      options: props.responseTemplates,
+      cursor: 0,
+      maxCursor: 0
     };
   }
+
+  componentDidMount() {
+    document.addEventListener('keydown', this.handleArrowSelection);
+  }
+
+  componentWillUnmount() {
+    document.removeEventListener('keydown', this.handleArrowSelection);
+  }
+
+  handleArrowSelection = (event: any) => {
+    const { cursor } = this.state;
+
+    switch (event.keyCode) {
+      case 13:
+        const element = document.getElementsByClassName(
+          'response-template-' + cursor
+        )[0] as HTMLElement;
+
+        if (element) {
+          element.click();
+        }
+        break;
+      case 38:
+        // Arrow move up
+        if (cursor > 0) {
+          this.setState({ cursor: cursor - 1 });
+        }
+        if (cursor === 0) {
+          this.setState({ cursor: this.state.maxCursor - 1 });
+        }
+        break;
+      case 40:
+        // Arrow move down
+        if (cursor < this.state.maxCursor - 1) {
+          this.setState({ cursor: cursor + 1 });
+        } else {
+          this.setState({ cursor: 0 });
+        }
+        break;
+      default:
+        break;
+    }
+  };
 
   onSelect = (responseTemplateId: string) => {
     const { responseTemplates, onSelect } = this.props;
@@ -70,22 +118,48 @@ class PopoverContent extends React.Component<Props, State> {
     const { value } = e.currentTarget as HTMLInputElement;
 
     this.setState(({ [type]: value } as unknown) as Pick<State, keyof State>);
-
-    this.props.onSearchChange(type, value);
   };
+
+  filterByValue(array, value) {
+    return array.filter(o =>
+      o.name.toLowerCase().includes(value.toLowerCase())
+    );
+  }
+  filterByBrandId(array, value) {
+    return array.filter(o => o.brandId === value);
+  }
 
   renderItems() {
     const { responseTemplates } = this.props;
+    const { searchValue, brandId } = this.state;
 
-    if (responseTemplates.length === 0) {
+    const filteredByBrandIdTargets =
+      brandId === ''
+        ? responseTemplates
+        : this.filterByBrandId(responseTemplates, brandId);
+    const filteredTargets =
+      searchValue === ''
+        ? filteredByBrandIdTargets
+        : this.filterByValue(filteredByBrandIdTargets, searchValue);
+
+    if (this.state.maxCursor !== filteredByBrandIdTargets.length) {
+      this.setState({ maxCursor: filteredByBrandIdTargets.length });
+    }
+
+    if (filteredTargets.length === 0) {
       return <EmptyState icon="clipboard-1" text="No templates" />;
     }
 
-    return responseTemplates.map(item => {
+    return filteredTargets.map((item, i) => {
       const onClick = () => this.onSelect(item._id);
 
       return (
-        <li key={item._id} onClick={onClick}>
+        <li
+          key={item._id}
+          onClick={onClick}
+          className={`response-template-${i} ${this.state.cursor === i &&
+            'active'} `}
+        >
           <TemplateTitle>{item.name}</TemplateTitle>
           <TemplateContent>{strip(item.content)}</TemplateContent>
         </li>
@@ -110,10 +184,10 @@ class PopoverContent extends React.Component<Props, State> {
   };
 
   fetchTemplates = () => {
-    const { responseTemplates } = this.props;
+    const { responseTemplates = [] } = this.props;
 
     const perPage = 10;
-    const page = Math.round(responseTemplates.length / perPage + 1);
+    const page = Math.round((responseTemplates || []).length / perPage + 1);
 
     this.props.fetchMore({
       perPage,

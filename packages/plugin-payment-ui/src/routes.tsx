@@ -12,7 +12,7 @@ const PaymentStore = asyncComponent(() =>
 
 const InvoiceList = asyncComponent(() =>
   import(
-    /* webpackChunkName: "Navigation - Invoice List" */ './containers/InvoiceList'
+    /* webpackChunkName: "Navigation - Invoice List" */ './containers/invoice/List'
   )
 );
 

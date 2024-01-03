@@ -40,6 +40,11 @@ export const types = `
     clientPortalId: String
     eventData: JSON
   }
+
+  input EventDataFilter {
+    field: String,
+    values: [String]
+  }
 `;
 
 const params = `
@@ -50,17 +55,18 @@ const params = `
   notifType: NotificationType
   search: String
   startDate: String
-  endDate: String
+  endDate: String,
+  eventDataFilter: EventDataFilter
 `;
 
 export const queries = `
   clientPortalNotifications(${params}): [ClientPortalNotification]
-  clientPortalNotificationCount: Int
+  clientPortalNotificationCount(all: Boolean): Int
   clientPortalNotificationDetail(_id: String!): ClientPortalNotification
 `;
 
 export const mutations = `
-  clientPortalNotificationsMarkAsRead (_ids: [String]) : String
+  clientPortalNotificationsMarkAsRead (_ids: [String], markAll: Boolean) : String
   clientPortalNotificationsRemove(_ids: [String]) : JSON
 
   clientPortalUserUpdateNotificationSettings(
@@ -68,4 +74,6 @@ export const mutations = `
     receiveBySms: Boolean,
     configs: [NotificationConfigInput],
   ): ClientPortalUser
+
+    clientPortalSendNotification(receivers: [String], title: String, content: String, isMobile: Boolean, eventData: JSON): JSON
 `;

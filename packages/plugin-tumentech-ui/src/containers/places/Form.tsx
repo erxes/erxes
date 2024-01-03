@@ -1,6 +1,6 @@
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import React from 'react';
 
 import PlaceForm from '../../components/places/Form';

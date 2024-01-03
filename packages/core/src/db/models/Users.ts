@@ -9,7 +9,6 @@ import { Model } from 'mongoose';
 import * as sha256 from 'sha256';
 import { IModels } from '../../connectionResolver';
 import { userActionsMap } from '@erxes/api-utils/src/core';
-import { set } from '../../inmemoryStorage';
 import {
   IDetail,
   IEmailSignature,
@@ -53,6 +52,7 @@ interface IInviteParams {
   email: string;
   password: string;
   groupId: string;
+  brandIds: string[];
 }
 
 interface ILoginParams {
@@ -74,6 +74,7 @@ export interface IUserModel extends Model<IUserDocument> {
     idsToExclude?: string | string[];
     emails?: string[];
     employeeId?: string;
+    username?: string;
   }): never;
   getSecret(): string;
   generateToken(): { token: string; expires: Date };
@@ -110,6 +111,13 @@ export interface IUserModel extends Model<IUserDocument> {
     refreshToken: string
   ): { token: string; refreshToken: string; user: IUserDocument };
   login(params: ILoginParams): { token: string; refreshToken: string };
+  checkLoginAuth({
+    email,
+    password
+  }: {
+    email: string;
+    password?: string;
+  }): Promise<IUserDocument>;
   getTokenFields(user: IUserDocument);
   logout(_user: IUserDocument, token: string): string;
   createSystemUser(doc: IAppDocument): IUserDocument;
@@ -141,10 +149,12 @@ export const loadUserClass = (models: IModels) => {
     public static async checkDuplication({
       email,
       employeeId,
+      username,
       idsToExclude
     }: {
       email?: string;
       employeeId?: string;
+      username?: string;
       idsToExclude?: string;
     }) {
       const query: { [key: string]: any } = {};
@@ -172,6 +182,16 @@ export const loadUserClass = (models: IModels) => {
         // Checking if duplicated
         if (previousEntry) {
           throw new Error('Duplicated Employee Id');
+        }
+      }
+
+      //Checking username
+      if (username) {
+        previousEntry = await models.Users.findOne({ ...query, username });
+
+        // Checking if duplicated
+        if (previousEntry) {
+          throw new Error('Duplicated User Name Id');
         }
       }
     }
@@ -250,7 +270,21 @@ export const loadUserClass = (models: IModels) => {
         });
       }
 
-      await models.Users.updateOne({ _id }, { $set: doc });
+      let operations: any = { $set: doc };
+
+      if (['', undefined, null].includes(doc.employeeId)) {
+        delete operations.$set.employeeId;
+        operations.$unset = { employeeId: 1 };
+      }
+
+      if (doc.username) {
+        await this.checkDuplication({
+          username: doc.username,
+          idsToExclude: _id
+        });
+      }
+
+      await models.Users.updateOne({ _id }, operations);
 
       return models.Users.findOne({ _id });
     }
@@ -268,7 +302,12 @@ export const loadUserClass = (models: IModels) => {
     /**
      * Create new user with invitation token
      */
-    public static async invite({ email, password, groupId }: IInviteParams) {
+    public static async invite({
+      email,
+      password,
+      groupId,
+      brandIds
+    }: IInviteParams) {
       email = (email || '').toLowerCase().trim();
       password = (password || '').trim();
 
@@ -291,7 +330,8 @@ export const loadUserClass = (models: IModels) => {
         password: await this.generatePassword(password),
         registrationToken: token,
         registrationTokenExpires: expires,
-        code: await this.generateUserCode()
+        code: await this.generateUserCode(),
+        brandIds
       });
 
       return token;
@@ -749,7 +789,10 @@ export const loadUserClass = (models: IModels) => {
         user
       );
 
-      set(`user_permissions_${user._id}`, JSON.stringify(actionMap));
+      await redis.set(
+        `user_permissions_${user._id}`,
+        JSON.stringify(actionMap)
+      );
 
       return {
         token,
@@ -766,7 +809,7 @@ export const loadUserClass = (models: IModels) => {
       );
 
       if (validatedToken) {
-        redis.del(`user_token_${user._id}_${currentToken}`);
+        await redis.del(`user_token_${user._id}_${currentToken}`);
 
         return 'loggedout';
       }
@@ -848,7 +891,43 @@ export const loadUserClass = (models: IModels) => {
     public static findUsers(query: any, options?: any) {
       const filter = { ...query, role: { $ne: USER_ROLES.SYSTEM } };
 
+      try {
+        models.Users.find(filter, options).lean();
+      } catch (e) {
+        console.log(e);
+      }
+
       return models.Users.find(filter, options).lean();
+    }
+
+    public static async checkLoginAuth({
+      email,
+      password
+    }: {
+      email: string;
+      password: string;
+    }) {
+      const user = await models.Users.findOne({
+        $or: [
+          { email: { $regex: new RegExp(`^${email}$`, 'i') } },
+          { username: { $regex: new RegExp(`^${email}$`, 'i') } }
+        ],
+        isActive: true
+      });
+
+      if (!user || !user.password) {
+        // user with provided email not found
+        throw new Error('Invalid login');
+      }
+
+      const valid = await this.comparePassword(password, user.password);
+
+      if (!valid) {
+        // bad password
+        throw new Error('Invalid login');
+      }
+
+      return user;
     }
   }
 

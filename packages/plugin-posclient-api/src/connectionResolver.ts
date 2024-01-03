@@ -1,7 +1,15 @@
 import * as mongoose from 'mongoose';
 import { createGenerateModels } from '@erxes/api-utils/src/core';
-import { IConfigDocument } from './models/definitions/configs';
-import { IConfigModel, loadConfigClass } from './models/Configs';
+import {
+  IConfigDocument,
+  IProductsConfigDocument
+} from './models/definitions/configs';
+import {
+  IConfigModel,
+  IProductsConfigModel,
+  loadConfigClass,
+  loadProductsConfigClass
+} from './models/Configs';
 import { IContext as IMainContext } from '@erxes/api-utils/src';
 import { IOrderDocument } from './models/definitions/orders';
 import { IOrderItemDocument } from './models/definitions/orderItems';
@@ -23,8 +31,8 @@ import {
 } from './models/Products';
 import { IPutResponseDocument } from './models/definitions/putResponses';
 import { IPutResponseModel, loadPutResponseClass } from './models/PutResponses';
-import { IQpayInvoiceDocument } from './models/definitions/qpayInvoices';
-import { IQpayInvoiceModel, loadQPayInvoiceClass } from './models/QPayInvoices';
+import { ICoverModel, loadCoverClass } from './models/Covers';
+import { ICoverDocument } from './models/definitions/covers';
 
 export interface IModels {
   Configs: IConfigModel;
@@ -33,9 +41,10 @@ export interface IModels {
   Products: IProductModel;
   ProductCategories: IProductCategoryModel;
   PutResponses: IPutResponseModel;
-  QPayInvoices: IQpayInvoiceModel;
   PosUsers: IPosUserModel;
   PosSlots: IPosSlotModel;
+  Covers: ICoverModel;
+  ProductsConfigs: IProductsConfigModel;
 }
 export interface IContext extends IMainContext {
   subdomain: string;
@@ -81,14 +90,18 @@ export const loadClasses = (
     'posclient_put_responses',
     loadPutResponseClass(models)
   );
-  models.QPayInvoices = db.model<IQpayInvoiceDocument, IQpayInvoiceModel>(
-    'posclient_qpay_invoices',
-    loadQPayInvoiceClass(models)
-  );
   models.PosSlots = db.model<IPosSlotDocument, IPosSlotModel>(
     'posclient_slots',
     loadPosSlotClass(models)
   );
+  models.Covers = db.model<ICoverDocument, ICoverModel>(
+    'posclient_covers',
+    loadCoverClass(models)
+  );
+  models.ProductsConfigs = db.model<
+    IProductsConfigDocument,
+    IProductsConfigModel
+  >('posclient_products_configs', loadProductsConfigClass(models));
 
   return models;
 };

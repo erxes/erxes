@@ -75,7 +75,11 @@ export const notifyDealRelatedUsers = async (
         receivers: [cpUser._id],
         notifType: 'system',
         link,
-        isMobile
+        isMobile,
+        eventData: {
+          type: 'deal',
+          id: deal._id
+        }
       }
     });
   }

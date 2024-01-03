@@ -1,8 +1,8 @@
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
 import { generatePaginationParams } from '@erxes/ui/src/utils/router';
 import * as React from 'react';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 import LogList from '../components/LogList';
 import queries from '../queries';
 import { LogsQueryResponse } from '../types';
@@ -36,11 +36,12 @@ type Props = {
 
 const commonOptions = queryParams => {
   const variables = {
-    start: queryParams.start,
-    end: queryParams.end,
+    start: queryParams.startDate,
+    end: queryParams.endDate,
     userId: queryParams.userId,
     action: queryParams.action,
     type: queryParams.type,
+    searchValue: queryParams.searchValue,
     ...generatePaginationParams(queryParams)
   };
 
@@ -53,11 +54,12 @@ export default compose(
     options: ({ queryParams }) => ({
       notifyOnNetworkStatusChange: true,
       variables: {
-        start: queryParams.start,
-        end: queryParams.end,
+        start: queryParams.startDate,
+        end: queryParams.endDate,
         userId: queryParams.userId,
         action: queryParams.action,
         type: queryParams.type,
+        searchValue: queryParams.searchValue,
         ...generatePaginationParams(queryParams)
       }
     })

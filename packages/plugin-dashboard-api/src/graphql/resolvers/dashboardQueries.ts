@@ -135,7 +135,8 @@ const dashBoardQueries = {
       'Tickets',
       'Cars',
       'Trips',
-      'Routes'
+      'Routes',
+      'Purchases'
     ];
   },
 

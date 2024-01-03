@@ -53,6 +53,7 @@ export const types = `
         description: String
         department: Department
         users: [User]
+        userCount: Int
         userIds: [String]
     }
 
@@ -105,10 +106,12 @@ export const types = `
 `;
 
 const commonParams = `
-    perPage:Int
-    page:Int
+    ids: [String]
+    excludeIds: Boolean
+    perPage: Int
+    page: Int
     searchValue: String,
-    status:String,
+    status: String,
 `;
 
 export const queries = `

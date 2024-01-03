@@ -12,7 +12,7 @@ export const checkLoyalties = async (subdomain: string, doc: IOrderInput) => {
       subdomain,
       action: 'checkLoyalties',
       data: {
-        ownerType: 'customer',
+        ownerType: doc.customerType || 'customer',
         ownerId: doc.customerId,
         products: [
           ...doc.items.map(i => ({

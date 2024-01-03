@@ -26,7 +26,11 @@ export const types = () => {
       description: String
       contentType: String
       visibility: String
-      department : String
+      department: String
+      category: String
+      departmentIds: [String]
+      branchIds: [String]
+      unitId: String
       where: String
       startDate: Date
       endDate: Date
@@ -84,6 +88,7 @@ export const types = () => {
       birthday
       workAnniversary
       publicHoliday
+      welcome
     }
 
     enum RecipientType {
@@ -111,9 +116,15 @@ export const types = () => {
   `;
 };
 
+const commonSelector = `
+  branchIds: [String]
+  departmentIds: [String]
+  unitId: String
+`;
+
 export const queries = `
   exmFeedDetail(_id: String!): ExmFeed
-  exmFeed(contentTypes: [ContentType], isPinned: Boolean, type: SourceType, recipientType: RecipientType, title: String, limit: Int, skip: Int, startDate : String, endDate : String, bravoType : String): ExmFeedResponse
+  exmFeed(contentTypes: [ContentType],category: String, isPinned: Boolean, type: SourceType, recipientType: RecipientType, title: String, limit: Int, skip: Int, startDate : String, endDate : String, bravoType : String, ${commonSelector}): ExmFeedResponse
   exmThanks(limit: Int, skip: Int, type: SourceType): ExmThankResponse
   exmFeedCeremonies(contentType: ContentType, filterType: FilterType): ExmFeedResponse
 `;
@@ -129,7 +140,11 @@ const feedCommonParams = `
   customFieldsData: JSON
   isPinned: Boolean
   createdAt: Date
-  department : String
+  departmentIds: [String]
+  department: String
+  unitId: String
+  branchIds: [String]
+  category: String
 `;
 
 const thankCommonParams = `

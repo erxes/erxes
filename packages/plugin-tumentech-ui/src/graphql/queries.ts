@@ -60,6 +60,7 @@ const carCategoryFields = `
   parentId
   description
   collapseContent
+  icon
 
   isRoot
 `;
@@ -192,6 +193,7 @@ const listParamsDef = `
   $tireLoadType: String
   $createdStartDate: Date
   $createdEndDate: Date
+  $segmentData: String
   ${conformityQueryFields}
 `;
 
@@ -219,6 +221,7 @@ const listParamsValue = `
   tireLoadType: $tireLoadType
   createdStartDate: $createdStartDate
   createdEndDate: $createdEndDate
+  segmentData: $segmentData
   ${conformityQueryFieldDefs}
 `;
 
@@ -514,6 +517,7 @@ const dealPlaces = `
 query getDealPlace($dealId: String!) {
   getDealPlace(dealId: $dealId) {
     dealId
+    path
     endPlace {
       _id
       center
@@ -761,6 +765,41 @@ query TopupHistory($customerId: String, $page: Int, $perPage: Int) {
 }
 `;
 
+const customerAccountQry = `
+query CustomerAccount($customerId: String!) {
+  customerAccount(customerId: $customerId) {
+    customerId
+    balance
+    _id
+  }
+}
+`;
+
+const accountsQuery = `
+query CustomerAccountsList($page: Int, $perPage: Int) {
+  customerAccountsList(page: $page, perPage: $perPage) {
+    list {
+      _id
+      balance
+      customerId
+      customer {
+        firstName
+        phone
+        primaryPhone
+        lastName
+      }
+    }
+    totalCount
+  }
+}
+`;
+
+const categoryIcons = `
+query tumentechCategoryIcons {
+  tumentechCategoryIcons
+}
+`;
+
 export default {
   cars,
   carsMain,
@@ -797,5 +836,9 @@ export default {
 
   dealRouteQuery,
 
-  topupList
+  topupList,
+  customerAccountQry,
+  accountsQuery,
+
+  categoryIcons
 };

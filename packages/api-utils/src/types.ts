@@ -36,6 +36,7 @@ export interface IUser {
   doNotDisturb?: string;
   branchIds?: string[];
   departmentIds?: string[];
+  role?: string;
 }
 
 export interface IUserDocument extends IUser, Document {

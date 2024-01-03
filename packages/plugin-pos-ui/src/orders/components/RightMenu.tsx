@@ -1,5 +1,3 @@
-import * as path from 'path';
-
 import {
   Button,
   ControlLabel,
@@ -15,7 +13,7 @@ import {
   RightMenuContainer,
   TabContent
 } from '../../styles';
-
+import Select from 'react-select-plus';
 import Datetime from '@nateradebaugh/react-datetime';
 import { IQueryParams } from '@erxes/ui/src/types';
 import RTG from 'react-transition-group';
@@ -24,12 +22,21 @@ import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 import dayjs from 'dayjs';
 import { isEnabled, __ } from '@erxes/ui/src/utils/core';
 import SelectPos from './SelectPos';
+import { ALLOW_STATUSES, ALLOW_TYPES } from '../../constants';
 
 const SelectCustomers = asyncComponent(
   () =>
     isEnabled('contacts') &&
     import(
       /* webpackChunkName: "SelectCustomers" */ '@erxes/ui-contacts/src/customers/containers/SelectCustomers'
+    )
+);
+
+const SelectCompanies = asyncComponent(
+  () =>
+    isEnabled('contacts') &&
+    import(
+      /* webpackChunkName: "SelectCustomers" */ '@erxes/ui-contacts/src/companies/containers/SelectCompanies'
     )
 );
 
@@ -194,14 +201,24 @@ export default class RightMenu extends React.Component<Props, State> {
         />
 
         {isEnabled('contacts') && (
-          <SelectCustomers
-            label="Filter by customer"
-            name="customerId"
-            initialValue={filterParams.customerId}
-            onSelect={this.onSelect}
-            customOption={{ value: '', label: '...Clear customer filter' }}
-            multi={false}
-          />
+          <>
+            <SelectCustomers
+              label="Filter by customer"
+              name="customerId"
+              initialValue={filterParams.customerId}
+              onSelect={this.onSelect}
+              customOption={{ value: '', label: '...Clear customer filter' }}
+              multi={false}
+            />
+            <SelectCompanies
+              label="Filter by company"
+              name="customerId"
+              initialValue={filterParams.customerId}
+              onSelect={this.onSelect}
+              customOption={{ value: '', label: '...Clear company filter' }}
+              multi={false}
+            />
+          </>
         )}
 
         <SelectTeamMembers
@@ -220,6 +237,48 @@ export default class RightMenu extends React.Component<Props, State> {
           onSelect={this.onSelect}
           customOption={{ value: '', label: '...Clear user filter' }}
           multi={false}
+        />
+
+        <Select
+          name={'types'}
+          multi={true}
+          placeholder={__('Choose types')}
+          value={filterParams.types}
+          onChange={types => {
+            this.onSelect(
+              (types || []).map(t => t.value),
+              'types'
+            );
+          }}
+          options={ALLOW_TYPES}
+        />
+
+        <Select
+          name={'statuses'}
+          multi={true}
+          placeholder={__('Choose status')}
+          value={filterParams.statuses}
+          onChange={statuses => {
+            this.onSelect(
+              (statuses || []).map(t => t.value),
+              'statuses'
+            );
+          }}
+          options={ALLOW_STATUSES}
+        />
+
+        <Select
+          name={'excludeStatuses'}
+          multi={true}
+          placeholder={__('Exclude status')}
+          value={filterParams.excludeStatuses}
+          onChange={statuses => {
+            this.onSelect(
+              (statuses || []).map(t => t.value),
+              'excludeStatuses'
+            );
+          }}
+          options={ALLOW_STATUSES}
         />
 
         {this.renderRange('created')}

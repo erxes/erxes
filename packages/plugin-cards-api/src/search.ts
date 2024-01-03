@@ -11,7 +11,7 @@ const searchBoardItems = async (
     subdomain,
     index,
     value,
-    fields: ['name', 'description']
+    fields: ['name', 'description', 'number']
   });
 
   const updatedItems: any = [];
@@ -51,6 +51,10 @@ const search = async ({ subdomain, data: { value } }) => {
     {
       module: 'deals',
       items: await searchBoardItems(models, subdomain, 'deals', value)
+    },
+    {
+      module: 'purchases',
+      items: await searchBoardItems(models, subdomain, 'purchases', value)
     },
     {
       module: 'stages',

@@ -7,6 +7,7 @@ export const types = `
     userId: String
     createdAt: Date
     emailConfig: JSON
+    memberIds: [String]
   }
 `;
 

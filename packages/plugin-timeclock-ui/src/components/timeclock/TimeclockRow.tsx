@@ -1,29 +1,31 @@
 import React from 'react';
 import Button from '@erxes/ui/src/components/Button';
-import { ITimeclock } from '../../types';
+import { ITimeclock, ITimelog } from '../../types';
 import { __ } from '@erxes/ui/src/utils';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import TimeForm from '../../containers/timeclock/TimeFormList';
 import dayjs from 'dayjs';
-import { dateFormat } from '../../constants';
+import { dateFormat, timeFormat } from '../../constants';
+import Tip from '@erxes/ui/src/components/Tip';
+import { returnDeviceTypes } from '../../utils';
+import Icon from '@erxes/ui/src/components/Icon';
+import TimelogForm from '../../containers/timeclock/TimelogForm';
+import TimeEditForm from '../../containers/timeclock/TimeEditForm';
+import { TextAlignCenter } from '../../styles';
 
 type Props = {
+  isCurrentUserAdmin: boolean;
+
+  history?: any;
+  timelogsPerUser?: ITimelog[];
   timeclock: ITimeclock;
+  removeTimeclock: (_id: string) => void;
 };
 
 class Row extends React.Component<Props> {
   constructor(props) {
     super(props);
   }
-
-  shiftTrigger = shiftStarted =>
-    shiftStarted ? (
-      <Button id="timeClockButton1" btnStyle={'danger'} icon="plus-circle">
-        End shift
-      </Button>
-    ) : (
-      <>Ended</>
-    );
 
   modalContent = props => (
     <TimeForm
@@ -36,24 +38,46 @@ class Row extends React.Component<Props> {
     />
   );
 
-  shiftBtnTrigger = shiftStarted => (
-    <ModalTrigger
-      title={__('Start shift')}
-      trigger={this.shiftTrigger(shiftStarted)}
-      content={this.modalContent}
-    />
+  renderTimeLogs = () => {
+    const { timelogsPerUser } = this.props;
+  };
+
+  editShiftTimeContent = (contentProps: any, timeclock: ITimeclock) => {
+    const getStartDate = dayjs(timeclock.shiftStart)
+      .add(-1, 'day')
+      .format(dateFormat);
+    const getEndDate = dayjs(timeclock.shiftStart)
+      .add(1, 'day')
+      .format(dateFormat);
+
+    return (
+      <TimelogForm
+        contentProps={contentProps}
+        startDate={getStartDate}
+        endDate={getEndDate}
+        userId={timeclock.user._id}
+        timeclock={timeclock}
+      />
+    );
+  };
+
+  editShiftTimeTrigger = () => (
+    <Button btnStyle="link">
+      <Icon icon="edit-3" />
+    </Button>
   );
 
   render() {
-    const { timeclock } = this.props;
-    const shiftStartTime = new Date(timeclock.shiftStart).toLocaleTimeString();
+    const { timeclock, removeTimeclock } = this.props;
+    const shiftStartTime = dayjs(timeclock.shiftStart).format(timeFormat);
     const shiftDate =
       new Date(timeclock.shiftStart).toDateString().split(' ')[0] +
       '\t' +
       dayjs(timeclock.shiftStart).format(dateFormat);
-    const shiftEndTime = timeclock.shiftActive
-      ? '-'
-      : new Date(timeclock.shiftEnd).toLocaleTimeString();
+
+    const shiftEndTime = timeclock.shiftEnd
+      ? dayjs(timeclock.shiftEnd).format(timeFormat)
+      : '-';
 
     const overNightShift =
       timeclock.shiftEnd &&
@@ -70,13 +94,38 @@ class Row extends React.Component<Props> {
         </td>
         <td>{shiftDate}</td>
         <td>{shiftStartTime}</td>
-        <td>{shiftEndTime}</td>
-        <td>{overNightShift ? 'O' : ''}</td>
         <td>
-          {timeclock.branchName ? timeclock.branchName : timeclock.deviceName}
+          {timeclock.inDeviceType || returnDeviceTypes(timeclock.deviceType)[0]}
         </td>
-        <td>{timeclock.deviceType && timeclock.deviceType}</td>
-        <td>{this.shiftBtnTrigger(timeclock.shiftActive)}</td>
+        <td>{timeclock.inDevice || '-'}</td>
+        <td>{shiftEndTime}</td>
+        <td>{overNightShift ? 'O' : '-'}</td>
+        <td>
+          {timeclock.shiftActive
+            ? '-'
+            : timeclock.outDeviceType ||
+              returnDeviceTypes(timeclock.deviceType)[1]}
+        </td>
+        <td>{timeclock.outDevice || '-'}</td>
+        <td>
+          <TextAlignCenter>
+            <ModalTrigger
+              size="lg"
+              title="Edit Shift"
+              trigger={this.editShiftTimeTrigger()}
+              content={contentProps =>
+                this.editShiftTimeContent(contentProps, timeclock)
+              }
+            />
+            <Tip text={__('Delete')} placement="top">
+              <Button
+                btnStyle="link"
+                onClick={() => removeTimeclock(timeclock._id)}
+                icon="times-circle"
+              />
+            </Tip>
+          </TextAlignCenter>
+        </td>
       </tr>
     );
   }

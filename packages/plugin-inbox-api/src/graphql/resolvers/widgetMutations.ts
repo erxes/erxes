@@ -1,5 +1,4 @@
 import * as strip from 'strip';
-import { Db, MongoClient } from 'mongodb';
 
 import {
   CONVERSATION_OPERATOR_STATUS,
@@ -15,7 +14,7 @@ import {
 
 import { debug } from '../../configs';
 
-import { get, set } from '../../inmemoryStorage';
+import redis from '@erxes/api-utils/src/redis';
 import { graphqlPubsub } from '../../configs';
 
 import {
@@ -25,24 +24,24 @@ import {
 
 import { getEnv, sendRequest } from '@erxes/api-utils/src';
 
-import { solveSubmissions } from '../../widgetUtils';
-import { conversationNotifReceivers } from './conversationMutations';
 import { IBrowserInfo } from '@erxes/api-utils/src/definitions/common';
-import {
-  client as msgBrokerClient,
-  sendContactsMessage,
-  sendProductsMessage,
-  sendFormsMessage,
-  sendCoreMessage,
-  sendIntegrationsMessage,
-  sendLogsMessage,
-  sendToWebhook,
-  sendAutomationsMessage
-} from '../../messageBroker';
-import { trackViewPageEvent } from '../../events';
 import EditorAttributeUtil from '@erxes/api-utils/src/editorAttributeUtils';
 import { getServices } from '@erxes/api-utils/src/serviceDiscovery';
 import { IContext, IModels } from '../../connectionResolver';
+import { VERIFY_EMAIL_TRANSLATIONS } from '../../constants';
+import { trackViewPageEvent } from '../../events';
+import {
+  client as msgBrokerClient,
+  sendAutomationsMessage,
+  sendContactsMessage,
+  sendCoreMessage,
+  sendFormsMessage,
+  sendIntegrationsMessage,
+  sendLogsMessage,
+  sendProductsMessage,
+  sendToWebhook
+} from '../../messageBroker';
+import { solveSubmissions } from '../../widgetUtils';
 
 interface IWidgetEmailParams {
   toEmails: string[];
@@ -54,7 +53,11 @@ interface IWidgetEmailParams {
   attachments?: IAttachment[];
 }
 
-export const pConversationClientMessageInserted = async (models, message) => {
+export const pConversationClientMessageInserted = async (
+  models,
+  subdomain,
+  message
+) => {
   const conversation = await models.Conversations.findOne(
     {
       _id: message.conversationId
@@ -69,7 +72,7 @@ export const pConversationClientMessageInserted = async (models, message) => {
       {
         _id: conversation.integrationId
       },
-      { _id: 1 }
+      { _id: 1, name: 1 }
     );
   }
 
@@ -90,10 +93,27 @@ export const pConversationClientMessageInserted = async (models, message) => {
 
   graphqlPubsub.publish('conversationClientMessageInserted', {
     conversationClientMessageInserted: message,
+    subdomain,
     conversation,
     integration,
     channelMemberIds
   });
+
+  if (message.content) {
+    sendCoreMessage({
+      subdomain,
+      action: 'sendMobileNotification',
+      data: {
+        title: integration ? integration.name : 'New message',
+        body: message.content,
+        receivers: channelMemberIds,
+        data: {
+          type: 'conversation',
+          id: conversation._id
+        }
+      }
+    });
+  }
 };
 
 export const getMessengerData = async (
@@ -113,6 +133,17 @@ export const getMessengerData = async (
 
     if (messages) {
       messagesByLanguage = messages[languageCode];
+    }
+
+    if (
+      messengerData &&
+      messengerData.hideWhenOffline &&
+      messengerData.availabilityMethod === 'auto'
+    ) {
+      const isOnline = await models.Integrations.isOnline(integration);
+      if (!isOnline) {
+        messengerData.showChat = false;
+      }
     }
   }
 
@@ -240,7 +271,7 @@ const createFormConversation = async (
     ...conversationData.message
   });
 
-  await pConversationClientMessageInserted(models, message);
+  await pConversationClientMessageInserted(models, subdomain, message);
 
   graphqlPubsub.publish('conversationMessageInserted', {
     conversationMessageInserted: message
@@ -327,31 +358,6 @@ const createFormConversation = async (
         ]
       }
     });
-  }
-
-  if (formId === 'j2maRsaS2J5uJGxgy') {
-    const MONGO_URL = getEnv({ name: 'MONGO_URL' });
-
-    const client = new MongoClient(MONGO_URL);
-
-    await client.connect();
-    const db = client.db() as Db;
-
-    const Blocks = db.collection('blocks');
-
-    const block = await Blocks.findOne({ erxesCustomerId: cachedCustomer._id });
-
-    if (block) {
-      await Blocks.updateOne(
-        { erxesCustomerId: cachedCustomer._id },
-        { $set: { isVerified: 'loading' } }
-      );
-    } else {
-      await Blocks.insert({
-        erxesCustomerId: cachedCustomer._id,
-        isVerified: 'loading'
-      });
-    }
   }
 
   return {
@@ -631,6 +637,7 @@ const widgetMutations = {
 
       if (!company) {
         companyData.primaryName = companyData.name;
+        companyData.names = [companyData.name];
 
         company = await sendContactsMessage({
           subdomain,
@@ -847,7 +854,7 @@ const widgetMutations = {
       isRPC: true
     });
 
-    await pConversationClientMessageInserted(models, msg);
+    await pConversationClientMessageInserted(models, subdomain, msg);
 
     graphqlPubsub.publish('conversationMessageInserted', {
       conversationMessageInserted: msg
@@ -910,13 +917,11 @@ const widgetMutations = {
       }
     }
 
-    const customerLastStatus = await get(
-      `customer_last_status_${customerId}`,
-      'left'
-    );
+    const customerLastStatus =
+      (await redis.get(`customer_last_status_${customerId}`)) || 'left';
 
     if (customerLastStatus === 'left' && customerId) {
-      set(`customer_last_status_${customerId}`, 'joined');
+      await redis.set(`customer_last_status_${customerId}`, 'joined');
 
       // customer has joined + time
       const conversationMessages = await models.Conversations.changeCustomerStatus(
@@ -938,28 +943,6 @@ const widgetMutations = {
           status: 'connected'
         }
       });
-    }
-
-    if (!HAS_BOTENDPOINT_URL && customerId) {
-      try {
-        await sendCoreMessage({
-          subdomain,
-          action: 'sendMobileNotification',
-          data: {
-            title: 'You have a new message',
-            body: conversationContent,
-            customerId,
-            conversationId: conversation._id,
-            receivers: conversationNotifReceivers(conversation, customerId),
-            data: {
-              type: 'messenger',
-              id: conversation._id
-            }
-          }
-        });
-      } catch (e) {
-        debug.error(`Failed to send mobile notification: ${e.message}`);
-      }
     }
 
     await sendToWebhook({
@@ -1102,7 +1085,7 @@ const widgetMutations = {
   async widgetsSendEmail(
     _root,
     args: IWidgetEmailParams,
-    { subdomain }: IContext
+    { subdomain, models }: IContext
   ) {
     const { toEmails, fromEmail, title, content, customerId, formId } = args;
 
@@ -1162,6 +1145,55 @@ const widgetMutations = {
       });
     }
 
+    const integration = await models.Integrations.findOne({
+      formId
+    });
+
+    if (!integration) {
+      throw new Error('Integration not found');
+    }
+
+    const { verifyEmail = false } = integration.leadData || {};
+
+    if (verifyEmail) {
+      const domain = getEnv({ name: 'DOMAIN', subdomain })
+        ? `${getEnv({ name: 'DOMAIN', subdomain })}/gateway`
+        : 'http://localhost:4000';
+
+      for (const email of toEmails) {
+        const params = Buffer.from(
+          JSON.stringify({
+            email,
+            formId,
+            customerId
+          })
+        ).toString('base64');
+
+        const emailValidationUrl = `${domain}/pl:contacts/verify?p=${params}`;
+
+        const languageCode = integration.languageCode || 'en';
+        const text =
+          VERIFY_EMAIL_TRANSLATIONS[languageCode] ||
+          VERIFY_EMAIL_TRANSLATIONS.en;
+
+        finalContent += `\n<p><a href="${emailValidationUrl}" target="_blank">${text}</a></p>`;
+
+        await sendCoreMessage({
+          subdomain,
+          action: 'sendEmail',
+          data: {
+            toEmails: [email],
+            fromEmail,
+            title,
+            template: { data: { content: finalContent } },
+            attachments: mailAttachment
+          }
+        });
+      }
+
+      return;
+    }
+
     await sendCoreMessage({
       subdomain,
       action: 'sendEmail',
@@ -1209,7 +1241,9 @@ const widgetMutations = {
     let sessionId = conversationId;
 
     if (!conversationId) {
-      sessionId = await get(`bot_initial_message_session_id_${integrationId}`);
+      sessionId = await redis.get(
+        `bot_initial_message_session_id_${integrationId}`
+      );
 
       const conversation = await models.Conversations.createConversation({
         customerId,
@@ -1220,7 +1254,7 @@ const widgetMutations = {
 
       conversationId = conversation._id;
 
-      const initialMessageBotData = await get(
+      const initialMessageBotData = await redis.get(
         `bot_initial_message_${integrationId}`
       );
 
@@ -1298,7 +1332,10 @@ const widgetMutations = {
       .toString(36)
       .substr(2, 9)}`;
 
-    await set(`bot_initial_message_session_id_${integrationId}`, sessionId);
+    await redis.set(
+      `bot_initial_message_session_id_${integrationId}`,
+      sessionId
+    );
 
     const integration =
       (await models.Integrations.findOne({ _id: integrationId })) ||
@@ -1314,7 +1351,7 @@ const widgetMutations = {
       }
     });
 
-    await set(
+    await redis.set(
       `bot_initial_message_${integrationId}`,
       JSON.stringify(botRequest.responses)
     );

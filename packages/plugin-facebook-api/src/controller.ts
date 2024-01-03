@@ -81,6 +81,8 @@ const init = async app => {
 
     const data = req.body;
 
+    console.log('Facebook receive data', data);
+
     if (data.object !== 'page') {
       return;
     }
@@ -170,7 +172,7 @@ const init = async app => {
               );
               return res.end('success');
             } catch (e) {
-              debugError(`Error processing comment: ${e.message}`);
+              debugError(`Error processing post: ${e.message}`);
               return res.end('success');
             }
           } else {

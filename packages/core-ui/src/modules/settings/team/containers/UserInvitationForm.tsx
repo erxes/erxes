@@ -12,8 +12,8 @@ import { IUserGroup } from '@erxes/ui-settings/src/permissions/types';
 import React from 'react';
 import UserInvitationForm from '../components/UserInvitationForm';
 import { queries as channelQueries } from '@erxes/ui-settings/src/channels/graphql';
-import gql from 'graphql-tag';
-import { graphql } from 'react-apollo';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
 import { queries } from '@erxes/ui/src/team/graphql';
 import { withProps } from '@erxes/ui/src/utils';
 
@@ -23,7 +23,7 @@ type WrapperProps = {
 } & ICommonFormProps;
 
 type Props = {
-  channelsQuery: any; //check - ChannelsQueryResponse
+  channelsQuery: any; // check - ChannelsQueryResponse
   unitsQuery: UnitsQueryResponse;
   departmentsQuery: DepartmentsQueryResponse;
   branchesQuery: BranchesQueryResponse;
@@ -50,7 +50,7 @@ const UserInviteFormContainer = (props: Props & ICommonFormProps) => {
 export default withProps<WrapperProps>(
   compose(
     graphql<{}, any>(gql(channelQueries.channels), {
-      //check - ChannelsQueryResponse
+      // check - ChannelsQueryResponse
       name: 'channelsQuery'
     }),
     graphql<{}, UnitsQueryResponse>(gql(queries.units), {

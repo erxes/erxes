@@ -4,11 +4,13 @@ import {
   loadReportClass,
   IReportDocument
 } from './models/Reports';
+import { IStoryModel, loadStoryClass, IStoryDocument } from './models/Stories';
 import { IContext as IMainContext } from '@erxes/api-utils/src';
 import { createGenerateModels } from '@erxes/api-utils/src/core';
 
 export interface IModels {
   Reports: IReportModel;
+  Stories: IStoryModel;
 }
 export interface IContext extends IMainContext {
   subdomain: string;
@@ -26,6 +28,11 @@ export const loadClasses = (
   models.Reports = db.model<IReportDocument, IReportModel>(
     'apex_reports',
     loadReportClass(models)
+  );
+
+  models.Stories = db.model<IStoryDocument, IStoryModel>(
+    'apex_stories',
+    loadStoryClass(models)
   );
 
   return models;

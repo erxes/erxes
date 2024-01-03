@@ -7,7 +7,7 @@ import { FormControl, Icon, TextInfo, __ } from '@erxes/ui/src';
 import client from '@erxes/ui/src/apolloClient';
 import { Flex } from '@erxes/ui/src/styles/main';
 import { renderFullName } from '@erxes/ui/src/utils/core';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { IMovementItem } from '../../common/types';
@@ -51,7 +51,7 @@ class MovementItems extends React.Component<Props> {
 
     const {
       assetId,
-      assetName,
+      assetDetail,
       branch,
       department,
       customer,
@@ -158,7 +158,7 @@ class MovementItems extends React.Component<Props> {
             />
           </td>
           <td>
-            <ContainerBox row>{__(assetName || '-')}</ContainerBox>
+            <ContainerBox row>{__(assetDetail?.name || '-')}</ContainerBox>
           </td>
           <td>{__(branch?.title || '-')}</td>
           <td>{__(department?.title || '-')}</td>

@@ -60,7 +60,11 @@ class DetailInfo extends React.PureComponent<Props> {
       <li>
         <FieldStyle>{__('Primary Email')}:</FieldStyle>
         <SidebarCounter>
-          <PrimaryEmail email={email} status={status} />
+          <PrimaryEmail
+            email={email}
+            status={status}
+            customerId={this.props.customer._id}
+          />
         </SidebarCounter>
       </li>
     );

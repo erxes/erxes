@@ -45,7 +45,7 @@ export default function ActionBarContent(props: Props) {
         productId: '',
         count: 0,
         isDebit: true,
-        uomId: '465'
+        uom: '465'
       }
     ]);
   };

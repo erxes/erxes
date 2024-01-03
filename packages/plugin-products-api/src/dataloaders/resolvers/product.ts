@@ -1,5 +1,7 @@
 import { IContext } from '../../connectionResolver';
+import { sendCommonMessage } from '../../messageBroker';
 import { IProductDocument } from '../../models/definitions/products';
+import { customFieldsDataByFieldCode } from '@erxes/api-utils/src/fieldUtils';
 
 export default {
   __resolveReference({ _id }, { models }: IContext) {
@@ -25,20 +27,11 @@ export default {
     );
   },
 
-  async uom(product: IProductDocument, _, { dataLoaders, models }: IContext) {
-    if (!(await models.ProductsConfigs.getConfig('isRequireUOM', ''))) {
-      return null;
-    }
-
-    let uomId = product.uomId;
-    if (!uomId) {
-      uomId = await models.ProductsConfigs.getConfig('defaultUOM', '');
-    }
-
-    if (!uomId) {
-      return null;
-    }
-
-    return await models.Uoms.findOne({ _id: uomId });
+  customFieldsDataByFieldCode(
+    product: IProductDocument,
+    _,
+    { subdomain }: IContext
+  ) {
+    return customFieldsDataByFieldCode(product, subdomain, sendCommonMessage);
   }
 };

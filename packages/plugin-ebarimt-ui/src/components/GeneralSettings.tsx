@@ -3,7 +3,8 @@ import {
   CollapseContent,
   ControlLabel,
   FormControl,
-  FormGroup
+  FormGroup,
+  Icon
 } from '@erxes/ui/src/components';
 import { __ } from '@erxes/ui/src/utils';
 import { Wrapper } from '@erxes/ui/src/layout';
@@ -77,7 +78,7 @@ class GeneralSettings extends React.Component<Props, State> {
 
     const actionButtons = (
       <Button
-        btnStyle="primary"
+        btnStyle="success"
         onClick={this.save}
         icon="check-circle"
         uppercase={false}
@@ -88,7 +89,11 @@ class GeneralSettings extends React.Component<Props, State> {
 
     const content = (
       <ContentBox id={'GeneralSettingsMenu'}>
-        <CollapseContent title="Ebarimt settings">
+        <CollapseContent
+          title="Ebarimt settings"
+          beforeTitle={<Icon icon="settings" />}
+          transparent={true}
+        >
           {this.renderItem('companyName')}
           {this.renderItem('ebarimtUrl')}
           {this.renderItem('checkCompanyUrl')}
@@ -107,8 +112,6 @@ class GeneralSettings extends React.Component<Props, State> {
         mainHead={<Header />}
         actionBar={
           <Wrapper.ActionBar
-            withMargin
-            wide
             background="colorWhite"
             left={<Title>{__('Ebarimt configs')}</Title>}
             right={actionButtons}
@@ -118,7 +121,6 @@ class GeneralSettings extends React.Component<Props, State> {
         content={content}
         hasBorder={true}
         transparent={true}
-        noPadding
       />
     );
   }

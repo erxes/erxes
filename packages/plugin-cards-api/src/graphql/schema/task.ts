@@ -9,6 +9,7 @@ import {
 
 export const types = ({ contacts, tags }) => `
   type TaskListItem {
+    customPropertiesData:JSON,
     ${commonListTypes}
   }
 
@@ -56,6 +57,21 @@ const listQueryParams = `
     hasStartAndCloseDate: Boolean
     tagIds: [String]
     noSkipArchive: Boolean
+    number: String
+    branchIds: [String]
+    departmentIds: [String]
+    boardIds: [String]
+    stageCodes: [String]
+    dateRangeFilters:JSON
+    customFieldsDataFilters:JSON
+    createdStartDate: Date,
+    createdEndDate: Date
+    stateChangedStartDate: Date
+    stateChangedEndDate: Date
+    startDateStartDate: Date
+    startDateEndDate: Date
+    closeDateStartDate: Date
+    closeDateEndDate: Date
     ${conformityQueryFields}
 `;
 
@@ -73,7 +89,7 @@ const archivedTasksParams = `
 `;
 
 export const queries = `
-  taskDetail(_id: String!): Task
+  taskDetail(_id: String!, clientPortalCard:Boolean): Task
   tasks(${listQueryParams}): [TaskListItem]
   tasksTotalCount(${listQueryParams}): Int
   archivedTasks(

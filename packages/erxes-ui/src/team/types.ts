@@ -52,7 +52,7 @@ export type EditMutationResponse = {
 
 export type UserConverationsQueryResponse = {
   userConversations: {
-    list: any[]; //check - IConversation
+    list: any[]; // check - IConversation
     totalCount: number;
   };
 } & QueryResponse;
@@ -91,7 +91,7 @@ export interface IDepartment extends IStructureCommon {
   order: string;
   userIds: string[];
   userCount: number;
-  users: IUser;
+  users: IUser[];
 }
 
 export interface IUnit extends IStructureCommon {
@@ -99,7 +99,8 @@ export interface IUnit extends IStructureCommon {
   department: IDepartment;
   description: string;
   userIds: string[];
-  users: IUser;
+  userCount: number;
+  users: IUser[];
 }
 
 interface IContactInfo {

@@ -7,16 +7,16 @@ import React from 'react';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import UserForm from '../components/UserForm';
 import { queries as generalQueries } from '@erxes/ui-settings/src/general/graphql';
-import gql from 'graphql-tag';
-import { graphql } from 'react-apollo';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
 import { isEnabled } from '../../utils/core';
 import { queries } from '../graphql';
 import { queries as usersGroupsQueries } from '@erxes/ui-settings/src/permissions/graphql';
 import { withProps } from '@erxes/ui/src/utils';
 
 type Props = {
-  channelsQuery: any; //check - ChannelsQueryResponse
-  groupsQuery: any; //check - UsersGroupsQueryResponse
+  channelsQuery: any; // check - ChannelsQueryResponse
+  groupsQuery: any; // check - UsersGroupsQueryResponse
   getEnvQuery: any;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
 };
@@ -34,8 +34,8 @@ const UserFormContainer = (props: Props & ICommonFormProps) => {
   const channels = channelsQuery ? channelsQuery.channels || [] : [];
   const groups = groupsQuery.usersGroups || [];
 
-  let selectedChannels: any[] = []; //check - IChannel
-  let selectedGroups: any[] = []; //check - IUserGroup
+  let selectedChannels: any[] = []; // check - IChannel
+  let selectedGroups: any[] = []; // check - IUserGroup
 
   if (object._id) {
     selectedChannels = channels.filter(c =>
@@ -51,6 +51,7 @@ const UserFormContainer = (props: Props & ICommonFormProps) => {
     showBrands: config.USE_BRAND_RESTRICTIONS === 'true',
     selectedChannels,
     selectedGroups,
+    selectedBrandIds: object.brandIds,
     channels,
     groups,
     renderButton
@@ -68,13 +69,13 @@ export default withProps<ICommonFormProps>(
       })
     }),
     graphql<{}, any>(gql(queries.channels), {
-      //check - ChannelsQueryResponse
+      // check - ChannelsQueryResponse
       name: 'channelsQuery',
       options: () => ({ fetchPolicy: 'network-only' }),
       skip: !isEnabled('inbox')
     }),
     graphql<{}, any>(gql(usersGroupsQueries.usersGroups), {
-      //check - UsersGroupsQueryResponse
+      // check - UsersGroupsQueryResponse
       name: 'groupsQuery',
       options: () => ({ fetchPolicy: 'network-only' })
     })

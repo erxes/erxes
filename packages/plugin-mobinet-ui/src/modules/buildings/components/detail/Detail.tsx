@@ -1,5 +1,5 @@
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { __ } from '@erxes/ui/src/utils/core';
+import { isEnabled, __ } from '@erxes/ui/src/utils/core';
 import React from 'react';
 import { UserHeader } from '@erxes/ui-contacts/src/customers/styles';
 
@@ -7,16 +7,17 @@ import { IBuilding } from '../../types';
 import LeftSideBar from './LeftSideBar';
 import RightSidebar from './RightSideBar';
 import InfoSection from './sections/InfoSection';
-
-// import { BuildingTitle } from '../../styles';
+import ActivityInputs from '@erxes/ui-log/src/activityLogs/components/ActivityInputs';
+import ActivityLogs from '@erxes/ui-log/src/activityLogs/containers/ActivityLogs';
 
 type Props = {
   building: IBuilding;
-  onSelectContacts: (datas: any, type: string) => void;
+  assets: any[];
+  onUpdate: (data: any) => void;
 };
 
 const BuildingDetail = (props: Props) => {
-  const { building } = props;
+  const { building, assets } = props;
 
   const name = building.name || '-';
 
@@ -29,7 +30,21 @@ const BuildingDetail = (props: Props) => {
   ];
 
   const content = (
-    <></>
+    <>
+      <ActivityInputs
+        contentTypeId={building._id}
+        contentType="mobinet:buildings"
+        showEmail={false}
+      />
+      {isEnabled('logs') && (
+        <ActivityLogs
+          target={name || ''}
+          contentId={building._id}
+          contentType="mobinet:buildings"
+          extraTabs={[]}
+        />
+      )}
+    </>
   );
 
   return (
@@ -48,7 +63,8 @@ const BuildingDetail = (props: Props) => {
       rightSidebar={
         <RightSidebar
           building={building}
-          onSelectContacts={props.onSelectContacts}
+          assets={assets}
+          onUpdate={props.onUpdate}
         />
       }
       content={content}

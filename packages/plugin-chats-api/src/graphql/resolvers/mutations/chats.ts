@@ -1,4 +1,5 @@
-import { CHAT_TYPE, IChatMessage } from '../../../models/definitions/chat';
+import { CHAT_TYPE } from '../../../models/definitions/chat';
+import * as strip from 'strip';
 import { graphqlPubsub } from '../../../configs';
 import { checkPermission } from '@erxes/api-utils/src/permissions';
 import { sendCoreMessage } from '../../../messageBroker';
@@ -49,13 +50,15 @@ const chatMutations = {
       user._id
     );
 
+    const recievers = allParticipantIds.filter(value => user._id !== value);
+
     sendCoreMessage({
       subdomain: 'os',
       action: 'sendMobileNotification',
       data: {
         title: doc.title,
         body: doc.description,
-        receivers: allParticipantIds,
+        recievers,
         data: {
           type: 'chats',
           id: chat._id
@@ -63,33 +66,79 @@ const chatMutations = {
       }
     });
 
-    graphqlPubsub.publish('chatInserted', {
-      userId: user._id
-    });
+    for (const participant of allParticipantIds) {
+      if (participant !== user._id) {
+        graphqlPubsub.publish('chatInserted', {
+          userId: participant
+        });
 
-    graphqlPubsub.publish('chatUnreadCountChanged', {
-      userId: user._id
-    });
+        graphqlPubsub.publish('chatUnreadCountChanged', {
+          userId: participant
+        });
+      }
+    }
 
     return chat;
   },
 
   chatEdit: async (_root, { _id, ...doc }, { models, user }) => {
-    return models.Chats.updateChat(_id, doc);
+    return models.Chats.updateChat(_id, doc, user);
   },
 
   chatRemove: async (_root, { _id }, { models, user }) => {
-    const chat = await models.Chats.findOne({ _id });
+    const chat = await models.Chats.findOne({
+      _id,
+      participantIds: { $in: [user._id] }
+    });
 
     if (!chat) {
       throw new Error('Chat not found');
     }
 
     if (chat.type === CHAT_TYPE.GROUP) {
-      await checkChatAdmin(models.Chats, user._id);
+      if (chat.participantIds.length > 1) {
+        await models.Chats.updateOne(
+          { _id },
+          {
+            $pull: {
+              participantIds: { $in: user?._id },
+              adminIds: { $in: user?._id }
+            }
+          }
+        );
+
+        return 'Success';
+      }
     }
 
-    return models.Chats.removeChat(_id);
+    return 'Success';
+  },
+
+  chatArchive: async (_root, { _id }, { models, user }) => {
+    const chat = await models.Chats.findOne({
+      _id,
+      participantIds: { $in: [user._id] }
+    });
+
+    if (!chat) {
+      throw new Error('Chat not found');
+    }
+
+    const archiverUser = chat && chat.archivedUserIds.includes(user._id);
+
+    if (archiverUser) {
+      await models.Chats.updateOne(
+        { _id },
+        { $pull: { archivedUserIds: { $in: [user._id] } } }
+      );
+    } else {
+      await models.Chats.updateOne(
+        { _id },
+        { $push: { archivedUserIds: [user._id] } }
+      );
+    }
+
+    return 'Success';
   },
 
   chatMarkAsRead: async (_root, { _id }, { models, user }) => {
@@ -102,7 +151,7 @@ const chatMutations = {
     let seen;
 
     if (lastMessage) {
-      const chat = await models.Chats.getChat(_id);
+      const chat = await models.Chats.getChat(_id, user._id);
 
       const seenInfos = chat.seenInfos || [];
 
@@ -131,20 +180,9 @@ const chatMutations = {
         updated = true;
 
         seen = false;
-
-        // if (seenInfo.lastSeenMessageId !== lastMessage._id) {
-        //   seenInfo.lastSeenMessageId = lastMessage._id;
-        //   seenInfo.seenDate = new Date();
-
-        //   updated = true;
-        // }
       }
 
       if (updated) {
-        graphqlPubsub.publish('chatUnreadCountChanged', {
-          userId: user._id
-        });
-
         await models.Chats.updateOne(
           { _id: chat._id },
           { $set: { seenInfos } }
@@ -155,25 +193,112 @@ const chatMutations = {
     return seen;
   },
 
+  chatToggleIsPinned: async (_root, { _id }, { models, user }) => {
+    const chat = await models.Chats.findOne({
+      _id,
+      participantIds: { $in: [user._id] }
+    });
+
+    const isPinnedUser = chat && chat.isPinnedUserIds.includes(user._id);
+
+    if (chat) {
+      graphqlPubsub.publish('chatInserted', {
+        userId: chat.createdUser?._id
+      });
+
+      if (!isPinnedUser) {
+        await models.Chats.updateOne(
+          { _id },
+          {
+            $push: { isPinnedUserIds: [user._id] }
+          }
+        );
+      }
+
+      if (isPinnedUser) {
+        await models.Chats.updateOne(
+          { _id },
+          {
+            $pull: { isPinnedUserIds: { $in: [user._id] } }
+          }
+        );
+      }
+
+      return true;
+    }
+    return false;
+  },
+
+  chatToggleIsWithNotification: async (_root, { _id }, { models, user }) => {
+    const chat = await models.Chats.findOne({
+      _id,
+      participantIds: { $in: [user._id] }
+    });
+    const muteUser = chat && chat.muteUserIds.includes(user._id);
+
+    if (chat) {
+      graphqlPubsub.publish('chatInserted', {
+        userId: chat.createdUser?._id
+      });
+
+      if (!muteUser) {
+        await models.Chats.updateOne(
+          { _id },
+          {
+            $push: { muteUserIds: [user._id] }
+          }
+        );
+      }
+
+      if (muteUser) {
+        await models.Chats.updateOne(
+          { _id },
+          {
+            $pull: { muteUserIds: { $in: [user._id] } }
+          }
+        );
+      }
+
+      return true;
+    }
+    return false;
+  },
+
   chatMessageAdd: async (_root, args, { models, user }) => {
-    if (!args.content) {
+    if (!args.content && args.attachments.length === 0) {
+      throw new Error('Content is required');
+    }
+
+    // <img> tags wrapped inside empty <p> tag should be allowed
+    const contentValid =
+      args.content.indexOf('<img') !== -1 ? true : strip(args.content);
+
+    // if there is no attachments and no content then throw content required error
+    if (args?.attachments.length === 0 && !contentValid) {
       throw new Error('Content is required');
     }
 
     const message = await models.ChatMessages.createChatMessage(args, user._id);
 
     await models.Chats.updateOne(
-      { _id: message.chatId },
-      { $set: { updatedAt: new Date() } }
+      {
+        _id: message.chatId
+      },
+      {
+        $set: {
+          updatedAt: new Date(),
+          archivedUserIds: []
+        }
+      }
     );
 
-    graphqlPubsub.publish('chatMessageInserted', {
-      chatMessageInserted: message
-    });
+    const chat = await models.Chats.getChat(message.chatId, user._id);
 
-    const chat = await models.Chats.getChat(message.chatId);
+    let recievers = chat.participantIds.filter(
+      value => !chat.muteUserIds.includes(value)
+    );
 
-    const recievers = chat.participantIds.filter(i => i !== user._id);
+    recievers = chat.participantIds.filter(value => user._id !== value);
 
     sendCoreMessage({
       subdomain: 'os',
@@ -190,13 +315,19 @@ const chatMutations = {
     });
 
     for (const reciever of recievers) {
-      graphqlPubsub.publish('chatUnreadCountChanged', {
-        userId: reciever
-      });
+      if (reciever !== user._id) {
+        graphqlPubsub.publish('chatUnreadCountChanged', {
+          userId: reciever
+        });
 
-      graphqlPubsub.publish('chatInserted', {
-        userId: reciever
-      });
+        graphqlPubsub.publish('chatInserted', {
+          userId: reciever
+        });
+
+        graphqlPubsub.publish('chatMessageInserted', {
+          chatMessageInserted: message
+        });
+      }
     }
 
     return message;
@@ -211,16 +342,19 @@ const chatMutations = {
   chatMessageToggleIsPinned: async (_root, { _id }, { models }) => {
     const message = await models.ChatMessages.findOne({ _id });
 
-    graphqlPubsub.publish('chatMessageInserted', {
-      chatId: message.chatId
-    });
+    if (message) {
+      graphqlPubsub.publish('chatMessageInserted', {
+        chatId: message.chatId
+      });
 
-    await models.ChatMessages.updateOne(
-      { _id },
-      { $set: { isPinned: !message.isPinned } }
-    );
+      await models.ChatMessages.updateOne(
+        { _id },
+        { $set: { isPinned: !message.isPinned } }
+      );
 
-    return !message.isPinned;
+      return !message.isPinned;
+    }
+    return false;
   },
 
   chatAddOrRemoveMember: async (
@@ -228,14 +362,15 @@ const chatMutations = {
     { _id, userIds, type },
     { models, user }
   ) => {
-    await checkChatAdmin(models.Chats, user._id);
-
-    const chat = await models.Chats.getChat(_id);
+    const chat = await models.Chats.getChat(_id, user._id);
+    // const chat = await models.Chats.getChat(_id);
 
     if ((chat.participantIds || []).length === 1) {
-      await models.Chats.removeChat(_id);
+      if (type === 'remove') {
+        await models.Chats.removeChat(_id);
 
-      return 'Chat removed';
+        return 'Chat removed';
+      }
     }
 
     // while user is removing himself or herself
@@ -295,6 +430,101 @@ const chatMutations = {
     });
 
     return 'ok';
+  },
+
+  chatForward: async (_root, { userIds, ...args }, { user, models }) => {
+    if (userIds && userIds.length > 0) {
+      const participantIds = [...(userIds || [])];
+
+      if (!participantIds.includes(user._id)) {
+        participantIds.push(user._id);
+      }
+
+      let newChat = await models.Chats.findOne({
+        type: 'direct',
+        participantIds: {
+          $all: participantIds,
+          $size: participantIds.length
+        }
+      });
+
+      if (!newChat) {
+        newChat = await models.Chats.createChat(
+          {
+            participantIds,
+            type: 'direct'
+          },
+          user._id
+        );
+
+        graphqlPubsub.publish('chatInserted', {
+          userId: user._id
+        });
+
+        args.chatId = newChat._id;
+      }
+
+      if (newChat) {
+        args.chatId = newChat._id;
+      }
+    }
+
+    const message = await models.ChatMessages.createChatMessage(args, user._id);
+
+    await models.Chats.updateOne(
+      {
+        _id: message.chatId
+      },
+      {
+        $set: {
+          updatedAt: new Date()
+        }
+      }
+    );
+
+    graphqlPubsub.publish('chatMessageInserted', {
+      chatMessageInserted: message
+    });
+
+    graphqlPubsub.publish('chatReceivedNotification', {
+      chatReceivedNotification: message
+    });
+
+    const chat = await models.Chats.getChat(message.chatId, user._id);
+
+    let recievers = chat.participantIds.filter(
+      value => !chat.muteUserIds.includes(value)
+    );
+
+    recievers = recievers.filter(value => user._id !== value);
+
+    sendCoreMessage({
+      subdomain: 'os',
+      action: 'sendMobileNotification',
+      data: {
+        title: `${user?.details?.fullName || user?.fullName} sent you chat`,
+        body: strip_html(args.content),
+        receivers: recievers,
+        data: {
+          type: 'chats',
+          id: chat._id
+        }
+      }
+    });
+
+    for (const reciever of recievers) {
+      if (reciever !== user._id) {
+        graphqlPubsub.publish('chatUnreadCountChanged', {
+          userId: reciever
+        });
+
+        graphqlPubsub.publish('chatInserted', {
+          userId: reciever
+        });
+      }
+    }
+
+    return message;
   }
 };
 

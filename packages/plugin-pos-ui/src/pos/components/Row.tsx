@@ -72,7 +72,8 @@ class Row extends React.Component<Props> {
 
   render() {
     const { pos } = this.props;
-    const isOnline = pos.isOnline ? 'online pos' : 'offline pos';
+    const isOnline = pos.isOnline ? 'online' : 'offline pos';
+    const onServer = pos.onServer ? 'On server' : 'Without main server';
 
     const createdUser = pos.user || {
       _id: '',
@@ -89,6 +90,15 @@ class Row extends React.Component<Props> {
 
         <td>
           <strong>{isOnline}</strong>
+        </td>
+        <td>
+          <strong>{onServer}</strong>
+        </td>
+        <td>
+          <strong>{pos.branchTitle || ''}</strong>
+        </td>
+        <td>
+          <strong>{pos.departmentTitle || ''}</strong>
         </td>
         <td>
           <div key={createdUser._id}>

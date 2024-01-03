@@ -11,8 +11,8 @@ import { mutations, queries } from '../graphql';
 import CompanyForm from './CompanyForm';
 import React from 'react';
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
-import gql from 'graphql-tag';
-import { graphql } from 'react-apollo';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
 import { isEnabled } from '@erxes/ui/src/utils/core';
 import { withProps } from '@erxes/ui/src/utils';
 

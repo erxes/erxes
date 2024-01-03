@@ -22,6 +22,14 @@ export interface ITrip {
   status: string;
   statusInfo: [{ [key: string]: Date }];
   trackingData: ITrackingItem[];
+  path: string;
+}
+
+export interface ITracking {
+  trackingData: ITrackingItem[];
+  dealId: string;
+  carId: string;
+  path?: string;
 }
 
 export interface ITripDocument extends ITrip, Document {
@@ -47,7 +55,18 @@ export const tripSchema = schemaHooksWrapper(
     status: field({ type: String, label: 'Status', default: 'open' }),
     statusInfo: field({ type: [Schema.Types.Mixed], label: 'status info' }),
     trackingData: field({ type: [[Number]], label: 'tracking history' }),
-    customerIds: field({ type: [String], label: 'Customer ids' })
+    customerIds: field({ type: [String], label: 'Customer ids' }),
+    path: field({ type: String, label: 'Path' })
   }),
   'trips'
+);
+
+export const trackingSchema = schemaHooksWrapper(
+  new Schema({
+    trackingData: field({ type: [[Number]], label: 'tracking history' }),
+    dealId: field({ type: String, label: 'Deal id' }),
+    carId: field({ type: String, label: 'Car id' }),
+    path: field({ type: String, label: 'Path' })
+  }),
+  'tumentech_tracking'
 );

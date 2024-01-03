@@ -20,39 +20,56 @@ const mutations = {
     return models.Buildings.deleteMany({ _id: { $in: _ids } });
   },
 
-  buildingsAddCustomers: async (
+  buildingsUpdate: async (
     _root,
-    { _id, customerIds },
+    { _id, customerIds, companyIds, assetIds },
     { models }: IContext
   ) => {
     const building = await models.Buildings.getBuilding({ _id });
 
-    const existingCustomerIds = await models.BuildingToContacts.find({
-      buildingId: building._id,
-      contactType: 'customer'
-    }).distinct('contactId');
+    let contactType;
+    let contactFieldId;
+    let contactIds;
 
-    const newCustomerIds = customerIds.filter(
-      customerId => !existingCustomerIds.includes(customerId)
-    );
+    if (customerIds) {
+      contactType = 'customer';
+      contactFieldId = 'contactId';
+      contactIds = customerIds;
+    }
 
-    const removedCustomerIds = existingCustomerIds.filter(
-      customerId => !customerIds.includes(customerId)
-    );
+    if (companyIds) {
+      contactType = 'company';
+      contactFieldId = 'contactId';
+      contactIds = companyIds;
+    }
 
-    await models.BuildingToContacts.deleteMany({
-      buildingId: building._id,
-      contactId: { $in: removedCustomerIds },
-      contactType: 'customer'
-    });
+    if (contactType) {
+      const existingIds = await models.BuildingToContacts.find({
+        buildingId: building._id,
+        contactType
+      }).distinct(contactFieldId);
 
-    const buildingToContact = newCustomerIds.map(customerId => ({
-      buildingId: building._id,
-      contactId: customerId,
-      contactType: 'customer'
-    }));
+      const newIds = contactIds.filter(id => !existingIds.includes(id));
+      const removedIds = existingIds.filter(id => !contactIds.includes(id));
 
-    await models.BuildingToContacts.insertMany(buildingToContact);
+      await models.BuildingToContacts.deleteMany({
+        buildingId: building._id,
+        contactId: { $in: removedIds },
+        contactType
+      });
+
+      const buildingToContact = newIds.map(id => ({
+        buildingId: building._id,
+        contactId: id,
+        contactType
+      }));
+
+      await models.BuildingToContacts.insertMany(buildingToContact);
+    }
+
+    if (assetIds) {
+      await models.Buildings.update({ _id }, { $set: { assetIds } });
+    }
 
     return models.Buildings.getBuilding({ _id });
   },
@@ -69,43 +86,6 @@ const mutations = {
       contactId: { $in: customerIds },
       contactType: 'customer'
     });
-
-    return models.Buildings.getBuilding({ _id });
-  },
-
-  buildingsAddCompanies: async (
-    _root,
-    { _id, companyIds },
-    { models }: IContext
-  ) => {
-    const building = await models.Buildings.getBuilding({ _id });
-
-    const existingCompanyIds = await models.BuildingToContacts.find({
-      buildingId: building._id,
-      contactType: 'company'
-    }).distinct('contactId');
-
-    const newCompanyIds = companyIds.filter(
-      companyId => !existingCompanyIds.includes(companyId)
-    );
-
-    const removedCompanyIds = existingCompanyIds.filter(
-      companyId => !companyIds.includes(companyId)
-    );
-
-    await models.BuildingToContacts.deleteMany({
-      buildingId: building._id,
-      contactId: { $in: removedCompanyIds },
-      contactType: 'company'
-    });
-
-    const buildingToContact = newCompanyIds.map(companyId => ({
-      buildingId: building._id,
-      contactId: companyId,
-      contactType: 'company'
-    }));
-
-    await models.BuildingToContacts.insertMany(buildingToContact);
 
     return models.Buildings.getBuilding({ _id });
   },
@@ -128,26 +108,54 @@ const mutations = {
 
   buildingsSubmitServiceRequest: async (
     _root,
-    { _id, buildingData, ticketData, quarterId },
+    { _id, buildingData, ticketData, quarterId, phone },
     { models, subdomain, cpUser }: IContext
   ) => {
     const user = await sendCommonMessage({
       serviceName: 'clientportal',
-      subdomain: subdomain,
+      subdomain,
       action: 'clientPortalUsers.findOne',
       data: {
-        _id: cpUser.userId
+        _id: (cpUser && cpUser._id) || ''
       },
       isRPC: true,
       defaultValue: undefined
     });
 
+    let customerId = '';
+    let customer = {} as any;
+    if (user) {
+      customerId = user.erxesCustomerId;
+    }
     if (!user) {
-      throw new Error('login required');
+      customer = await sendCommonMessage({
+        serviceName: 'contacts',
+        subdomain,
+        action: 'customers.findOne',
+        data: {
+          phone
+        },
+        isRPC: true,
+        defaultValue: null
+      });
+
+      if (!customer) {
+        customer = await sendCommonMessage({
+          serviceName: 'contacts',
+          subdomain,
+          action: 'customers.createCustomer',
+          data: {
+            primaryName: phone
+          },
+          isRPC: true,
+          defaultValue: null
+        });
+
+        customerId = customer?._id || '';
+      }
     }
 
     // const user = { erxesCustomerId: 'hTqM74dJPreqy4K5t' };
-
     let building = await models.Buildings.findOne({
       $or: [{ _id }, { osmbId: buildingData.id }]
     });
@@ -176,13 +184,13 @@ const mutations = {
 
     const ticket = await sendCommonMessage({
       serviceName: 'cards',
-      subdomain: subdomain,
+      subdomain,
       action: 'tickets.create',
       data: {
         ...ticketData,
         createdAt: new Date(),
         name: `Сүлжээ тавиулах хүсэлт: ${building.name}`,
-        customerId: user.erxesCustomerId
+        customerId
       },
       isRPC: true,
       defaultValue: undefined
@@ -195,10 +203,9 @@ const mutations = {
     building.installationRequestIds.push(ticket._id);
 
     await building.save();
-
     await models.BuildingToContacts.createDoc({
       buildingId: building._id,
-      contactId: user.erxesCustomerId,
+      contactId: customerId || customer._id,
       contactType: 'customer'
     });
 

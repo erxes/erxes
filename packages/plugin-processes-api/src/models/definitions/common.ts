@@ -7,6 +7,6 @@ export interface ICustomField {
 }
 
 export interface ISubUom {
-  uomId: string;
+  uom: string;
   ratio: number;
 }

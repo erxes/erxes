@@ -1,9 +1,9 @@
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
 import { withProps, ButtonMutate } from '@erxes/ui/src';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import React from 'react';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 import CarForm from '../components/list/CarForm';
 import { mutations, queries } from '../graphql';
 import { CarCategoriesQueryResponse, ICar } from '../types';

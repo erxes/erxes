@@ -209,9 +209,9 @@ class List extends React.Component<Props, State> {
 
     const leftActionBar = (
       <HeaderDescription
-        title="Risk Assessment Configs"
+        title="Configs"
         icon="/images/actions/25.svg"
-        description=""
+        description="You can configure your risk assessment work assign to your team members automatically on tasks tickets"
       />
     );
 

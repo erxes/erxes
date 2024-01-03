@@ -1,12 +1,12 @@
-import client from '@erxes/ui/src/apolloClient';
-import gql from 'graphql-tag';
-import FilterByParams from '@erxes/ui/src/components/FilterByParams';
-import Spinner from '@erxes/ui/src/components/Spinner';
 import { Alert } from '@erxes/ui/src/utils';
-import { queries } from '@erxes/ui-inbox/src/inbox/graphql';
+import FilterByParams from '@erxes/ui/src/components/FilterByParams';
 import { NoHeight } from '@erxes/ui-inbox/src/inbox/styles';
-import { generateParams } from '@erxes/ui-inbox/src/inbox/utils';
 import React from 'react';
+import Spinner from '@erxes/ui/src/components/Spinner';
+import client from '@erxes/ui/src/apolloClient';
+import { generateParams } from '@erxes/ui-inbox/src/inbox/utils';
+import { gql } from '@apollo/client';
+import { queries } from '@erxes/ui-inbox/src/inbox/graphql';
 
 type Props = {
   query?: { queryName: string; dataName: string; variables?: any };
@@ -60,14 +60,15 @@ export default class FilterList extends React.PureComponent<Props, State> {
     // Fetching filter lists channels, brands, tags etc
     if (query) {
       const { queryName, dataName, variables = {} } = query;
+
       client
         .query({
           query: gql(queries[queryName]),
           variables
         })
-        .then(({ data }: any) => {
+        .then(({ data, loading }: any) => {
           if (this.mounted) {
-            this.setState({ fields: data[dataName] });
+            this.setState({ fields: data[dataName], loading });
           }
         })
         .catch(e => {
@@ -80,10 +81,10 @@ export default class FilterList extends React.PureComponent<Props, State> {
       .query({
         query: gql(queries.conversationCounts),
         variables: { ...generateParams({ ...queryParams }), only: counts },
-        fetchPolicy: ignoreCache ? 'network-only' : 'cache-first',
-        context: {
-          fetchOptions: { signal: this.abortController.signal }
-        }
+        fetchPolicy: ignoreCache ? 'network-only' : 'cache-first'
+        // context: {
+        //   fetchOptions: { signal: this.abortController.signal }
+        // }
       })
       .then(({ data, loading }: { data: any; loading: boolean }) => {
         if (this.mounted) {

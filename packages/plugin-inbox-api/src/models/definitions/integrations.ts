@@ -20,6 +20,7 @@ export interface ISubmission extends Document {
 export interface ILink {
   twitter?: string;
   facebook?: string;
+  instagram?: string;
   youtube?: string;
 }
 
@@ -67,6 +68,7 @@ export interface IMessengerData {
   links?: ILink;
   showChat?: boolean;
   showLauncher?: boolean;
+  hideWhenOffline?: boolean;
   requireAuth?: boolean;
   forceLogoutWhenResolve?: boolean;
   showVideoCallRequest?: boolean;
@@ -143,6 +145,7 @@ export interface ILeadData {
   css?: string;
   successImage?: string;
   successImageSize?: string;
+  verifyEmail?: boolean;
 }
 
 export interface IWebhookData {
@@ -236,12 +239,14 @@ const messengerDataSchema = new Schema(
     messages: field({ type: Object, optional: true }),
     links: {
       facebook: String,
+      instagram: String,
       twitter: String,
       youtube: String
     },
     requireAuth: field({ type: Boolean, default: true }),
     showChat: field({ type: Boolean, default: true }),
     showLauncher: field({ type: Boolean, default: true }),
+    hideWhenOffline: field({ type: Boolean, default: false }),
     forceLogoutWhenResolve: field({ type: Boolean, default: false }),
     showVideoCallRequest: field({ type: Boolean, default: false })
   },
@@ -388,6 +393,11 @@ export const leadDataSchema = new Schema(
       type: String,
       optional: true,
       label: 'Success image size'
+    }),
+    verifyEmail: field({
+      type: Boolean,
+      optional: true,
+      label: 'Verify email'
     })
   },
   { _id: false }
@@ -477,6 +487,7 @@ export const integrationSchema = schemaHooksWrapper(
       type: String,
       label: 'Kind'
     }),
+    createdAt: field({ type: 'Date', label: 'Created at' }),
 
     name: field({ type: String, label: 'Name' }),
     brandId: field({ type: String, label: 'Brand' }),

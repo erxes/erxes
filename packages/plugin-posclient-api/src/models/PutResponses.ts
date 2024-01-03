@@ -1,4 +1,5 @@
-import { Model, model } from 'mongoose';
+import { Model } from 'mongoose';
+import { IEbarimtConfig } from './definitions/configs';
 import {
   putResponseSchema,
   IPutResponseDocument,
@@ -8,18 +9,33 @@ import { PutData, IPutDataArgs, returnBill } from './PutData';
 
 export interface IPutResponseModel extends Model<IPutResponseDocument> {
   putData(doc: IPutDataArgs): Promise<IPutResponseDocument>;
+  putHistory({
+    contentType,
+    contentId,
+    taxType
+  }: {
+    contentType: string;
+    contentId: string;
+    taxType?: string;
+  }): Promise<IPutResponseDocument>;
   putHistories({
     contentType,
     contentId
   }: {
     contentType: string;
     contentId: string;
-  }): Promise<IPutResponseDocument>;
+  }): Promise<IPutResponseDocument[]>;
   createPutResponse(doc: IPutResponse): Promise<IPutResponseDocument>;
   updatePutResponse(
     _id: string,
     doc: IPutResponse
   ): Promise<IPutResponseDocument>;
+  returnBill(doc: {
+    contentType: string;
+    contentId: string;
+    number: string;
+    config: IEbarimtConfig;
+  }): Promise<IPutResponseDocument[]>;
 }
 export const loadPutResponseClass = models => {
   class PutResponse {
@@ -28,25 +44,54 @@ export const loadPutResponseClass = models => {
       return putData.run();
     }
 
-    public static async returnBill(models, deal, config) {
-      return returnBill(models, deal, config);
+    public static async returnBill(doc) {
+      return returnBill(models, doc);
     }
 
-    public static async putHistories({ contentType, contentId }) {
-      const putResponse = await models.PutResponses.findOne({
-        contentType,
+    public static async putHistory({
+      contentType,
+      contentId,
+      taxType
+    }: {
+      contentType: string;
+      contentId: string;
+      taxType?: string;
+    }) {
+      let taxTypeFilter: any = {
+        taxType: { $nin: ['2', '3'] }
+      };
+      if (['2', '3'].includes(taxType || '')) {
+        taxTypeFilter = { taxType };
+      }
+
+      return await models.PutResponses.findOne({
         contentId,
-        success: 'true'
-      }).sort({ createdAt: -1 });
+        contentType,
+        status: { $ne: 'inactive' },
+        success: true,
+        billId: { $nin: ['', null, undefined, 0] },
+        ...taxTypeFilter
+      })
+        .sort({ createdAt: -1 })
+        .lean();
+    }
 
-      if (!putResponse) {
-        return;
-      }
-      if (!putResponse.billId) {
-        return;
-      }
-
-      return putResponse;
+    public static async putHistories({
+      contentType,
+      contentId
+    }: {
+      contentType: string;
+      contentId: string;
+    }) {
+      return await models.PutResponses.find({
+        contentId,
+        contentType,
+        status: { $ne: 'inactive' },
+        success: true,
+        billId: { $nin: ['', null, undefined, 0] }
+      })
+        .sort({ createdAt: -1 })
+        .lean();
     }
 
     public static async createPutResponse(doc) {

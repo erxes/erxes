@@ -1,8 +1,18 @@
+import * as dotenv from 'dotenv';
+dotenv.config();
 import * as Imap from 'node-imap';
 import { simpleParser } from 'mailparser';
-import { generateModels } from './connectionResolver';
-import { sendContactsMessage, sendInboxMessage } from './messageBroker';
+import { IModels, generateModels } from './connectionResolver';
+import {
+  sendContactsMessage,
+  sendImapMessage,
+  sendInboxMessage
+} from './messageBroker';
 import { IIntegrationDocument } from './models';
+import { throttle } from 'lodash';
+import { redlock } from './redlock';
+
+const { NODE_ENV } = process.env;
 
 export const toUpper = thing => {
   return thing && thing.toUpperCase ? thing.toUpperCase() : thing;
@@ -11,7 +21,7 @@ export const toUpper = thing => {
 export const findAttachmentParts = (struct, attachments?) => {
   attachments = attachments || [];
 
-  for (var i = 0, len = struct.length, r; i < len; ++i) {
+  for (let i = 0, len = struct.length, _r: any; i < len; ++i) {
     if (Array.isArray(struct[i])) {
       findAttachmentParts(struct[i], attachments);
     } else {
@@ -27,7 +37,7 @@ export const findAttachmentParts = (struct, attachments?) => {
   return attachments;
 };
 
-export const generateImap = (integration: IIntegrationDocument) => {
+export const createImap = (integration: IIntegrationDocument) => {
   return new Imap({
     user: integration.mainUser || integration.user,
     password: integration.password,
@@ -40,10 +50,12 @@ export const generateImap = (integration: IIntegrationDocument) => {
 
 const searchMessages = (imap, criteria) => {
   return new Promise((resolve, reject) => {
-    let messages: any = [];
+    const messages: any = [];
 
-    imap.search(criteria, function(err, results) {
-      if (err) throw err;
+    imap.search(criteria, (err, results) => {
+      if (err) {
+        throw err;
+      }
 
       let f;
 
@@ -53,15 +65,14 @@ const searchMessages = (imap, criteria) => {
         if (e.message.includes('Nothing to fetch')) {
           return resolve([]);
         }
-
         throw e;
       }
 
-      f.on('message', function(msg) {
-        msg.on('body', async function(stream) {
-          var buffer = '';
+      f.on('message', msg => {
+        msg.on('body', async stream => {
+          let buffer = '';
 
-          stream.on('data', function(chunk) {
+          stream.on('data', chunk => {
             buffer += chunk.toString('utf8');
           });
 
@@ -71,19 +82,19 @@ const searchMessages = (imap, criteria) => {
         });
       });
 
-      f.once('error', function(err) {
-        reject(err);
+      f.once('error', (error: any) => {
+        reject(error);
       });
 
-      f.once('end', async function() {
-        const results: any = [];
+      f.once('end', async () => {
+        const data: any = [];
 
         for (const buffer of messages) {
           const parsed = await simpleParser(buffer);
-          results.push(parsed);
+          data.push(parsed);
         }
 
-        resolve(results);
+        resolve(data);
       });
     });
   });
@@ -93,11 +104,12 @@ const saveMessages = async (
   subdomain: string,
   imap,
   integration: IIntegrationDocument,
-  criteria
+  criteria,
+  models: IModels
 ) => {
-  const models = await generateModels(subdomain);
-
   const msgs: any = await searchMessages(imap, criteria);
+
+  console.log(`======== found ${msgs.length} messages`);
 
   for (const msg of msgs) {
     if (
@@ -127,7 +139,7 @@ const saveMessages = async (
         subdomain,
         action: 'customers.findOne',
         data: {
-          primaryEmail: from
+          customerPrimaryEmail: from
         },
         isRPC: true
       });
@@ -159,13 +171,18 @@ const saveMessages = async (
 
     let conversationId;
 
+    const $or: any[] = [
+      { references: { $in: [msg.messageId] } },
+      { messageId: { $in: msg.references || [] } }
+    ];
+
+    if (msg.inReplyTo) {
+      $or.push({ messageId: msg.inReplyTo });
+      $or.push({ references: { $in: [msg.inReplyTo] } });
+    }
+
     const relatedMessage = await models.Messages.findOne({
-      $or: [
-        { messageId: msg.inReplyTo },
-        { messageId: { $in: msg.references || [] } },
-        { references: { $in: [msg.messageId] } },
-        { references: { $in: [msg.inReplyTo] } }
-      ]
+      $or
     });
 
     if (relatedMessage) {
@@ -202,92 +219,254 @@ const saveMessages = async (
       cc: msg.cc && msg.cc.value,
       bcc: msg.bcc && msg.bcc.value,
       from: msg.from && msg.from.value,
-      attachments: msg.attachments
+      attachments: msg.attachments.map(({ filename, contentType, size }) => ({
+        filename,
+        type: contentType,
+        size
+      })),
+      type: 'INBOX'
+    });
+
+    await sendInboxMessage({
+      subdomain,
+      action: 'conversationClientMessageInserted',
+      data: {
+        content: msg.html,
+        conversationId
+      }
     });
   }
 };
 
 export const listenIntegration = async (
   subdomain: string,
-  integration: IIntegrationDocument
+  integration: IIntegrationDocument,
+  models: IModels
 ) => {
-  const models = await generateModels(subdomain);
+  const listen = async (): Promise<any> => {
+    return new Promise<any>(async (resolve, reject) => {
+      let lock;
+      let reconnect = true;
+      let disconnectReason;
 
-  var imap = generateImap(integration);
-
-  imap.once('ready', response => {
-    imap.openBox('INBOX', true, async (err, box) => {
       try {
-        await saveMessages(subdomain, imap, integration, ['UNSEEN']);
+        lock = await redlock.lock(
+          `${subdomain}:imap:integration:${integration._id}`,
+          60000
+        );
       } catch (e) {
-        await models.Logs.createLog({
-          type: 'error',
-          message: e.message,
-          errorStack: e.stack
-        });
-
-        throw e;
+        // 1 other pod or container is already listening on it
+        return reject(e);
       }
-    });
-  });
 
-  imap.on('mail', async response => {
-    console.log('new messages ========', response);
+      await lock.extend(60000);
 
-    const models = await generateModels(subdomain);
+      const updatedIntegration = await models.Integrations.findById(
+        integration._id
+      );
 
-    const updatedIntegration = await models.Integrations.findOne({
-      _id: integration._id
-    });
+      if (!updatedIntegration) {
+        return reject(new Error(`Integration ${integration._id} not found`));
+      }
 
-    if (!updatedIntegration) {
-      console.log(`ending ${integration.user} imap`);
-      return imap.end();
-    }
+      let lastFetchDate = updatedIntegration.lastFetchDate
+        ? new Date(updatedIntegration.lastFetchDate)
+        : new Date(Date.now() - 3 * 24 * 60 * 60 * 1000);
 
-    try {
-      await saveMessages(subdomain, imap, integration, ['UNSEEN']);
-    } catch (e) {
-      await models.Logs.createLog({
-        type: 'error',
-        message: e.message,
-        errorStack: e.stack
+      const imap = createImap(updatedIntegration);
+
+      const syncEmail = async () => {
+        try {
+          const criteria: any = [
+            'UNSEEN',
+            ['SINCE', lastFetchDate.toISOString()]
+          ];
+          const nextLastFetchDate = new Date();
+          await saveMessages(
+            subdomain,
+            imap,
+            updatedIntegration,
+            criteria,
+            models
+          );
+          lastFetchDate = nextLastFetchDate;
+
+          await models.Integrations.updateOne(
+            { _id: updatedIntegration._id },
+            { $set: { lastFetchDate } }
+          );
+        } catch (e) {
+          disconnectReason = e;
+          reconnect = false;
+          console.error('syncEmail error', e);
+          await models.Logs.createLog({
+            type: 'error',
+            message: 'syncEmail error:' + e.message,
+            errorStack: e.stack
+          });
+
+          imap.end();
+        }
+      };
+
+      imap.once('ready', _response => {
+        imap.openBox('INBOX', true, async (e, box) => {
+          if (e) {
+            // if we can't open the inbox, we can't sync emails
+            disconnectReason = e;
+            reconnect = true;
+            console.error('openBox error', e);
+            await models.Logs.createLog({
+              type: 'error',
+              message: 'openBox error:' + e.message,
+              errorStack: e.stack
+            });
+            return imap.end();
+          }
+          return syncEmail();
+        });
       });
 
-      throw e;
-    }
-  });
+      imap.on('mail', throttle(syncEmail, 30000, { leading: true }));
 
-  imap.once('error', async e => {
-    await models.Logs.createLog({
-      type: 'error',
-      message: e.message,
-      errorStack: e.stack
+      imap.once('error', async e => {
+        disconnectReason = e;
+        console.log('imap.once error', e);
+
+        if (e.message.includes('Invalid credentials')) {
+          // We shouldn't try to reconnect, since it's impossible to connect when the credentials are wrong.
+          reconnect = false;
+          await models.Integrations.updateOne(
+            { _id: updatedIntegration._id },
+            {
+              $set: {
+                healthStatus: 'unHealthy',
+                error: `${e.message}`
+              }
+            }
+          );
+        }
+
+        await models.Logs.createLog({
+          type: 'error',
+          message: 'error event: ' + e.message,
+          errorStack: e.stack
+        });
+        imap.end();
+      });
+
+      const closeEndHandler = async () => {
+        try {
+          imap.removeAllListeners();
+        } catch (e) {}
+
+        try {
+          imap.end();
+        } catch (e) {}
+
+        await cleanupLock();
+
+        if (reconnect) {
+          resolve(disconnectReason);
+        } else {
+          reject(disconnectReason);
+        }
+      };
+
+      imap.once('close', closeEndHandler);
+      imap.once('end', closeEndHandler);
+
+      imap.connect();
+
+      let lockRenewInterval = setInterval(async () => {
+        try {
+          await lock.extend(60000);
+        } catch (e) {
+          // 1 other pod or container has already acquired the lock
+          reconnect = false;
+          disconnectReason = e;
+          await cleanupLock();
+          imap.end();
+        }
+      }, 30_000);
+
+      const cleanupLock = async () => {
+        try {
+          clearInterval(lockRenewInterval);
+        } catch (e) {}
+        try {
+          await lock.unlock();
+        } catch (e) {}
+      };
     });
+  };
 
-    console.log('on imap.once =============', e);
-  });
-
-  imap.once('end', function(e) {
-    console.log('Connection ended', e);
-  });
-
-  imap.connect();
-};
-
-const listen = async (subdomain: string) => {
-  const models = await generateModels(subdomain);
-
-  await models.Logs.createLog({
-    type: 'info',
-    message: `Started syncing integrations`
-  });
-
-  const integrations = await models.Integrations.find();
-
-  for (const integration of integrations) {
-    await listenIntegration(subdomain, integration);
+  while (true) {
+    try {
+      const disconnectReason = await listen();
+      console.log(
+        `IMAP ${integration._id} disconnected. Reconnecting... `,
+        disconnectReason
+      );
+      await new Promise(resolve => setTimeout(resolve, 5000));
+      // disconnected due to recoverable error, reconnect
+      continue;
+    } catch (e) {
+      console.log(`IMAP ${integration._id} disconnected. Not reconnecting.`, e);
+      // disconnected due to unrecoverable error
+      break;
+    }
   }
 };
 
-export default listen;
+const startDistributingJobs = async (subdomain: string) => {
+  const models = await generateModels(subdomain);
+
+  const distributeJob = async () => {
+    let lock;
+    try {
+      lock = await redlock.lock(`${subdomain}:imap:work_distributor`, 60000);
+    } catch (e) {
+      // 1 other pod or container is already working on job distribution
+      return;
+    }
+
+    try {
+      await models.Logs.createLog({
+        type: 'info',
+        message: `Distributing imap sync jobs`
+      });
+
+      const integrations = await models.Integrations.find({
+        healthStatus: 'healthy'
+      });
+
+      for (const integration of integrations) {
+        sendImapMessage({
+          subdomain,
+          action: 'listen',
+          data: {
+            _id: integration._id
+          }
+        });
+      }
+    } catch (e) {
+      await lock.unlock();
+    }
+  };
+  // wait for other containers to start up
+  NODE_ENV === 'production' &&
+    (await new Promise(resolve => setTimeout(resolve, 60000)));
+
+  while (true) {
+    try {
+      await distributeJob();
+      // try doing it every 10 minutes
+      await new Promise(resolve => setTimeout(resolve, 10 * 60 * 1000));
+    } catch (e) {
+      console.log('distributeWork error', e);
+    }
+  }
+};
+
+export default startDistributingJobs;

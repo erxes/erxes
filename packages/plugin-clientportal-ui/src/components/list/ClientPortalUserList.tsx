@@ -23,6 +23,7 @@ import withTableWrapper from '@erxes/ui/src/components/table/withTableWrapper';
 interface IProps extends IRouterProps {
   history: any;
   type: string;
+  kind: 'client' | 'vendor';
   queryParams: any;
   clientPortalUsers: IClientPortalUser[];
   clientPortalUserCount: number;
@@ -49,7 +50,6 @@ class ClientportalUserList extends React.Component<IProps, State> {
 
   constructor(props) {
     super(props);
-
     this.state = {
       searchValue: this.props.searchValue
     };
@@ -111,12 +111,14 @@ class ClientportalUserList extends React.Component<IProps, State> {
                 />
               </th>
               <th>#</th>
+              <th>{__('ID Verification')}</th>
               <th>{__('Email')}</th>
               <th>{__('Phone')}</th>
               <th>{__('User Name')}</th>
               <th>{__('Code')}</th>
               <th>{__('First Name')}</th>
               <th>{__('Last Name')}</th>
+              <th>{__('Company name')}</th>
               <th>{__('Type')}</th>
               <th>{__('from')}</th>
               <th>{__('Status')}</th>
@@ -182,7 +184,9 @@ class ClientportalUserList extends React.Component<IProps, State> {
     );
 
     const customerForm = props => {
-      return <ClientPortalUserForm {...props} size="lg" />;
+      return (
+        <ClientPortalUserForm {...props} size="lg" kind={this.props.kind} />
+      );
     };
 
     const actionBarRight = (
@@ -220,17 +224,17 @@ class ClientportalUserList extends React.Component<IProps, State> {
           });
 
       const onClickConfirm = e => {
-        const type = e.currentTarget.id;
+        const userType = e.currentTarget.id;
         confirm(
           `This action forces the ${
             bulk.length > 1 ? "users'" : "user's"
-          }  ${type} to be verified. Do you want to continue?`
+          }  ${userType} to be verified. Do you want to continue?`
         )
           .then(() => {
-            this.verifyUsers(type, bulk);
+            this.verifyUsers(userType, bulk);
           })
-          .catch(e => {
-            Alert.error(e.message);
+          .catch(error => {
+            Alert.error(error.message);
           });
       };
 
@@ -289,6 +293,7 @@ class ClientportalUserList extends React.Component<IProps, State> {
               byCP: { byCP: clientPortalUserCount },
               byType: { byType: 0 }
             }}
+            kind={this.props.kind}
           />
         }
         content={

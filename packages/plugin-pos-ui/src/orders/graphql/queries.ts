@@ -14,7 +14,11 @@ const listParamsDef = `
   $paidDate: String
   $userId: String
   $customerId: String
+  $customerType: String
   $posId: String
+  $types: [String]
+  $statuses: [String]
+  $excludeStatuses: [String]
 `;
 
 const listParamsValue = `
@@ -30,7 +34,11 @@ const listParamsValue = `
   paidDate: $paidDate
   userId: $userId
   customerId: $customerId
+  customerType: $customerType
   posId: $posId
+  types: $types
+  statuses: $statuses
+  excludeStatuses: $excludeStatuses
 `;
 
 export const orderFields = `
@@ -38,12 +46,13 @@ export const orderFields = `
   createdAt
   status
   paidDate
+  dueDate
   number
   customerId
-  cardAmount
+  customerType
   cashAmount
-  receivableAmount
   mobileAmount
+  paidAmounts
   totalAmount
   finalAmount
   shouldPrintEbarimt
@@ -56,30 +65,22 @@ export const orderFields = `
   userId
   items
   posToken
+  branchId
+  departmentId
+  branch
+  department
 
   syncedErkhet
-
+  description
+  isPre
   posName
   origin
   user {
     _id
     email
   }
-  ${
-    isEnabled('contacts')
-      ? `
-        customer {
-          _id
-          firstName
-          lastName
-          middleName
-          primaryEmail
-          primaryPhone
-        }
-      `
-      : ``
-  }
-
+  convertDealId
+  returnInfo
 `;
 
 const posOrders = `
@@ -96,13 +97,35 @@ const posOrdersSummary = `
   }
 `;
 
+const posOrdersGroupSummary = `
+  query posOrdersGroupSummary(${listParamsDef}, $groupField: String) {
+    posOrdersGroupSummary(${listParamsValue}, groupField: $groupField)
+  }
+`;
+
 const posOrderDetail = `
   query posOrderDetail($_id: String) {
     posOrderDetail(_id: $_id) {
       ${orderFields}
+      ${
+        isEnabled('contacts')
+          ? `
+        customer {
+          _id
+          code
+          firstName
+          lastName
+          primaryEmail
+          primaryPhone
+        }
+      `
+          : ``
+      }
       syncErkhetInfo
       putResponses
       deliveryInfo
+      deal
+      dealLink
     }
   }
 `;
@@ -142,10 +165,131 @@ const posProducts = `
 
 const productCategories = productQueries.productCategories;
 
+const coverFields = `
+  _id
+  posToken
+  status
+  beginDate
+  endDate
+  description
+  userId
+  details {
+    _id
+    paidType
+    paidSummary {
+      _id
+      kind
+      kindOfVal
+      value
+      amount
+    }
+    paidDetail
+  }
+  createdAt
+  createdBy
+  modifiedAt
+  modifiedBy
+  note
+  posName
+
+  user {
+    _id
+    email
+  }
+  createdUser {
+    _id
+    email
+  }
+  modifiedUser {
+    _id
+    email
+  }
+`;
+
+const coverParams = `
+  $page: Int
+  $perPage: Int
+  $sortField: String
+  $sortDirection: Int
+  $posId: String
+  $posToken: String
+  $startDate: Date
+  $endDate: Date
+  $userId: String
+`;
+
+const coverParamsVal = `
+  page: $page
+  perPage: $perPage
+  sortField: $sortField
+  sortDirection: $sortDirection
+  posId: $posId
+  posToken: $posToken
+  startDate: $startDate
+  endDate: $endDate
+  userId: $userId
+`;
+
+const covers = `
+  query posCovers(${coverParams}) {
+    posCovers(${coverParamsVal}) {
+      ${coverFields}
+    }
+  }
+`;
+
+const coversCount = `
+  query posCoversCount(${coverParams}) {
+    posCoversCount(${coverParamsVal})
+  }
+`;
+
+const coverDetail = `
+  query posCoverDetail($_id: String!) {
+    posCoverDetail(_id: $_id) {
+      ${coverFields}
+    }
+  }
+`;
+
+const posOrderRecords = `
+  query posOrderRecords(${listParamsDef}) {
+    posOrderRecords(${listParamsValue}) {
+      ${orderFields}
+      ${
+        isEnabled('contacts')
+          ? `
+      customer {
+        _id
+        code
+        primaryPhone
+        firstName
+        primaryEmail
+        lastName
+      }
+      `
+          : ''
+      }      
+    }
+  }
+`;
+
+const posOrderRecordsCount = `
+  query posOrderRecordsCount(${listParamsDef}) {
+    posOrderRecordsCount(${listParamsValue})
+  }
+`;
+
 export default {
   posOrders,
   posOrdersSummary,
+  posOrdersGroupSummary,
   posOrderDetail,
   posProducts,
-  productCategories
+  productCategories,
+  covers,
+  coversCount,
+  coverDetail,
+  posOrderRecords,
+  posOrderRecordsCount
 };

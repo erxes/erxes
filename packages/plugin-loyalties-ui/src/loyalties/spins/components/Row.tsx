@@ -76,6 +76,15 @@ class SpinRow extends React.Component<Props> {
         </FlexItem>
       );
     }
+    if (spin.ownerType === 'cpUser') {
+      return (
+        <FlexItem>
+          <Link to={`/settings/client-portal/users/details/${spin.ownerId}`}>
+            {spin?.owner?.email || ''}
+          </Link>
+        </FlexItem>
+      );
+    }
 
     return '';
   };

@@ -19,12 +19,13 @@ import {
   sendIntegrationsMessage,
   sendNotificationsMessage,
   sendToWebhook,
-  sendCommonMessage
+  sendCommonMessage,
+  sendAutomationsMessage
 } from '../../messageBroker';
 import { putUpdateLog } from '../../logUtils';
 import QueryBuilder, { IListArgs } from '../../conversationQueryBuilder';
 import { CONVERSATION_STATUSES } from '../../models/definitions/constants';
-import { IContext, IModels } from '../../connectionResolver';
+import { generateModels, IContext, IModels } from '../../connectionResolver';
 import { isServiceRunning } from '../../utils';
 import { IIntegrationDocument } from '../../models/definitions/integrations';
 
@@ -81,7 +82,8 @@ const sendConversationToServices = async (
       data: {
         action: `reply-${integration.kind.split('-')[1]}`,
         type: serviceName,
-        payload: JSON.stringify(payload)
+        payload: JSON.stringify(payload),
+        integrationId: integration._id
       }
     });
   } catch (e) {
@@ -126,13 +128,27 @@ export const conversationNotifReceivers = (
  * Using this subscription to track conversation detail's assignee, tag, status
  * changes
  */
-export const publishConversationsChanged = (
+export const publishConversationsChanged = async (
+  subdomain: string,
   _ids: string[],
   type: string
-): string[] => {
+): Promise<string[]> => {
+  const models = await generateModels(subdomain);
+
   for (const _id of _ids) {
     graphqlPubsub.publish('conversationChanged', {
       conversationChanged: { conversationId: _id, type }
+    });
+
+    const conversation = await models.Conversations.findOne({ _id });
+
+    sendAutomationsMessage({
+      subdomain,
+      action: 'trigger',
+      data: {
+        type: `inbox:conversation`,
+        targets: [conversation]
+      }
     });
   }
 
@@ -291,19 +307,6 @@ const conversationMutations = {
       messageContent: doc.content
     });
 
-    // do not send internal message to third service integrations
-    if (doc.internal) {
-      const messageObj = await models.ConversationMessages.addMessage(
-        doc,
-        user._id
-      );
-
-      // publish new message to conversation detail
-      publishMessage(models, messageObj);
-
-      return messageObj;
-    }
-
     const kind = integration.kind;
 
     const customer = await sendContactsMessage({
@@ -319,7 +322,7 @@ const conversationMutations = {
     // customer's email
     const email = customer ? customer.primaryEmail : '';
 
-    if (kind === 'lead' && email) {
+    if (!doc.internal && kind === 'lead' && email) {
       await sendCoreMessage({
         subdomain,
         action: 'sendEmail',
@@ -340,7 +343,8 @@ const conversationMutations = {
       const payload = {
         integrationId: integration._id,
         conversationId: conversation._id,
-        content: doc.content,
+        content: doc.content || '',
+        internal: doc.internal,
         attachments: doc.attachments || [],
         extraInfo: doc.extraInfo,
         userId: user._id
@@ -355,8 +359,29 @@ const conversationMutations = {
 
       // if the service runs separately & returns data, then don't save message inside inbox
       if (response && response.data) {
+        const { conversationId, content } = response.data;
+
+        if (!!conversationId && !!content) {
+          await models.Conversations.updateConversation(conversationId, {
+            content: content || '',
+            updatedAt: new Date()
+          });
+        }
         return { ...response.data };
       }
+    }
+
+    // do not send internal message to third service integrations
+    if (doc.internal) {
+      const messageObj = await models.ConversationMessages.addMessage(
+        doc,
+        user._id
+      );
+
+      // publish new message to conversation detail
+      publishMessage(models, messageObj);
+
+      return messageObj;
     }
 
     const message = await models.ConversationMessages.addMessage(doc, user._id);
@@ -399,7 +424,7 @@ const conversationMutations = {
     );
 
     // notify graphl subscription
-    publishConversationsChanged(conversationIds, 'assigneeChanged');
+    publishConversationsChanged(subdomain, conversationIds, 'assigneeChanged');
 
     await sendNotifications(subdomain, {
       user,
@@ -448,7 +473,7 @@ const conversationMutations = {
     });
 
     // notify graphl subscription
-    publishConversationsChanged(_ids, 'assigneeChanged');
+    publishConversationsChanged(subdomain, _ids, 'assigneeChanged');
 
     for (const conversation of updatedConversations) {
       await putUpdateLog(
@@ -489,7 +514,7 @@ const conversationMutations = {
     serverTiming.startTime('sendNotifications');
 
     // notify graphl subscription
-    publishConversationsChanged(_ids, status);
+    publishConversationsChanged(subdomain, _ids, status);
 
     const updatedConversations = await models.Conversations.find({
       _id: { $in: _ids }
@@ -599,47 +624,6 @@ const conversationMutations = {
     return models.Conversations.markAsReadConversation(_id, user._id);
   },
 
-  async conversationCreateVideoChatRoom(
-    _root,
-    { _id },
-    { user, models, subdomain }: IContext
-  ) {
-    let message;
-
-    try {
-      const doc = {
-        conversationId: _id,
-        internal: false,
-        contentType: MESSAGE_TYPES.VIDEO_CALL
-      };
-
-      message = await models.ConversationMessages.addMessage(doc, user._id);
-
-      const videoCallData = await sendIntegrationsMessage({
-        subdomain,
-        action: 'createDailyRoom',
-        data: {
-          erxesApiConversationId: _id,
-          erxesApiMessageId: message._id
-        },
-        isRPC: true
-      });
-
-      const updatedMessage = { ...message._doc, videoCallData };
-
-      // publish new message to conversation detail
-      publishMessage(models, updatedMessage);
-
-      return videoCallData;
-    } catch (e) {
-      debug.error(e.message);
-
-      await models.ConversationMessages.deleteOne({ _id: message._id });
-
-      throw new Error(e.message);
-    }
-  },
-
   async changeConversationOperator(
     _root,
     { _id, operatorStatus }: { _id: string; operatorStatus: string },
@@ -699,7 +683,6 @@ const conversationMutations = {
 };
 
 requireLogin(conversationMutations, 'conversationMarkAsRead');
-requireLogin(conversationMutations, 'conversationCreateVideoChatRoom');
 requireLogin(conversationMutations, 'conversationConvertToCard');
 
 checkPermission(

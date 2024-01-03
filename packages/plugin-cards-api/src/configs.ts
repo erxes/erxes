@@ -21,6 +21,10 @@ import documents from './documents';
 import tags from './tags';
 import exporter from './exporter';
 import cronjobs from './cronjobs/common';
+import dashboards from './dashboards';
+import reports from './reports';
+
+import { NOTIFICATION_MODULES } from './constants';
 
 export let mainDb;
 export let graphqlPubsub;
@@ -40,9 +44,15 @@ export default {
     };
   },
   hasSubscriptions: true,
+  subscriptionPluginPath: require('path').resolve(
+    __dirname,
+    'graphql',
+    'subscriptionPlugin.js'
+  ),
 
   meta: {
     cronjobs,
+    reports,
     forms,
     logs: { providesActivityLog: true, consumers: logs },
     segments,
@@ -54,7 +64,9 @@ export default {
     webhooks,
     tags,
     permissions,
-    documents
+    documents,
+    dashboards,
+    notificationModules: NOTIFICATION_MODULES
   },
 
   apolloServerContext: async (context, req, res) => {

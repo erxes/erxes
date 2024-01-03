@@ -1,9 +1,9 @@
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
 import { Alert, withProps } from '@erxes/ui/src/utils';
 import { CONVERSATION_STATUSES } from '../constants';
 import React from 'react';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 import Resolver from '../components/Resolver';
 import { mutations } from '@erxes/ui-inbox/src/inbox/graphql';
 import {

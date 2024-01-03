@@ -105,7 +105,7 @@ class Row extends React.Component<Props, State> {
         <td>{branch ? `${branch.code} - ${branch.title}` : ''}</td>
         <td>{department ? `${department.code} - ${department.title}` : ''}</td>
         <td>{product ? `${product.code} - ${product.name}` : ''}</td>
-        <td>{uom ? `${uom.code}` : ''}</td>
+        <td>{uom || ''}</td>
         <td>{(planCount || 0).toLocaleString()}</td>
         {(timeFrames || []).map(tf => (
           <td key={tf._id}>

@@ -29,6 +29,8 @@ type Params = {
   userId?: string;
   responseType?: string;
   extraFormData?: Array<{ key: string; value: string }>;
+  maxHeight?: number;
+  maxWidth?: number;
 };
 
 const getVideoDuration = file =>
@@ -49,13 +51,11 @@ export const deleteHandler = (params: {
 }) => {
   const { REACT_APP_API_URL } = getEnv();
 
-  const {
-    url = `${REACT_APP_API_URL}/delete-file`,
-    fileName,
-    afterUpload
-  } = params;
+  const url = `${REACT_APP_API_URL}/pl:core/delete-file`;
 
-  fetch(`${url}`, {
+  const { fileName, afterUpload } = params;
+
+  fetch(url, {
     method: 'post',
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
@@ -92,7 +92,9 @@ const uploadHandler = async (params: Params) => {
     kind = 'main',
     responseType = 'text',
     userId,
-    extraFormData = []
+    extraFormData = [],
+    maxHeight = '',
+    maxWidth = ''
   } = params;
 
   if (!files) {
@@ -153,7 +155,7 @@ const uploadHandler = async (params: Params) => {
         formData.append(data.key, data.value);
       }
 
-      fetch(`${url}?kind=${kind}`, {
+      fetch(`${url}?kind=${kind}&maxHeight=${maxHeight}&maxWidth=${maxWidth}`, {
         method: 'post',
         body: formData,
         credentials: 'include',

@@ -331,14 +331,17 @@ const usersGroupMutations = {
     let messages: string[] = [];
 
     for (const name of services) {
-      const service = await getService(name, true);
-      const meta = service && service.config && service.config.meta;
+      const service = await getService(name);
+      if (!service) continue;
+      if (!service.config) continue;
 
-      if (meta && meta.permissions) {
-        const result = await fixPermissions(models, meta.permissions);
+      const permissions =
+        service.config.meta?.permissions || service.config.permissions;
+      if (!permissions) continue;
 
-        messages = [...messages, ...result];
-      }
+      const result = await fixPermissions(models, permissions);
+
+      messages = [...messages, ...result];
     }
 
     await resetPermissionsCache(models);

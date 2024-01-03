@@ -1,7 +1,7 @@
 import dayjs from 'dayjs';
 import Button from 'modules/common/components/Button';
 import { DateWrapper } from 'modules/common/styles/main';
-import { readFile, __ } from 'modules/common/utils';
+import { getEnv, readFile, __ } from 'modules/common/utils';
 import React from 'react';
 
 import {
@@ -15,13 +15,33 @@ type Props = {
   history?: any;
 };
 
+const { REACT_APP_API_URL } = getEnv();
+
 class HistoryRow extends React.Component<Props> {
   renderAction = () => {
     const { history } = this.props;
-    const { exportLink } = history;
+    const { exportLink, uploadType } = history;
+
+    const onClick = () => {
+      if (uploadType === 'local') {
+        return window.open(
+          `${REACT_APP_API_URL}/pl:workers/read-file?key=${exportLink}`
+        );
+      }
+
+      return window.open(readFile(exportLink));
+    };
+
+    if (uploadType === 'local') {
+      return (
+        <Button btnStyle="simple" size="small" onClick={onClick}>
+          {__(`Download result`)}
+        </Button>
+      );
+    }
 
     return (
-      <Button btnStyle="simple" size="small" href={readFile(exportLink)}>
+      <Button btnStyle="simple" size="small" onClick={onClick}>
         {__(`Download result`)}
       </Button>
     );
@@ -50,12 +70,32 @@ class HistoryRow extends React.Component<Props> {
       return value;
     };
 
-    const renderStatus = value => {
-      if (value === 'inProcess') {
+    const renderStatus = data => {
+      if (
+        data.status === 'Done' ||
+        data.percentage === 100 ||
+        data.status === 'success'
+      ) {
+        return <TextInfo textStyle="success"> Done </TextInfo>;
+      }
+
+      if (data.value === 'inProcess') {
         return <TextInfo textStyle="warning"> In Process </TextInfo>;
       }
 
-      return <TextInfo textStyle="success"> Done </TextInfo>;
+      if (data.value === 'failed') {
+        return (
+          <Tip placement="bottom" text={data.errorMsg}>
+            <TextInfo textStyle="danger"> Failed </TextInfo>
+          </Tip>
+        );
+      }
+
+      return (
+        <TextInfo textStyle="warning">
+          {`${data.status}  ${data.percentage}%`}
+        </TextInfo>
+      );
     };
 
     return (
@@ -66,7 +106,7 @@ class HistoryRow extends React.Component<Props> {
           </ImportTitle>
         </td>
         <td>
-          <span>{renderStatus(history.status)}</span>
+          <span>{renderStatus(history)}</span>
         </td>
         <td>
           <span>{renderTotal(history.total)}</span>

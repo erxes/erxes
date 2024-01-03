@@ -1,18 +1,12 @@
-import React from 'react';
+import CardList from "../../modules/card/containers/List";
+import Layout from "../../modules/main/containers/Layout";
 
-import AppProvider, { AppConsumer } from '../../modules/appContext';
-import Tasks from '../../modules/task/containers/Tasks';
-
-export default function Category() {
-  // return <Tasks />;
-
+export default function Tasks() {
   return (
-    <AppProvider>
-      <AppConsumer>
-        {({ currentUser }: any) => {
-          return <Tasks currentUser={currentUser} />;
-        }}
-      </AppConsumer>
-    </AppProvider>
+    <Layout>
+      {(props) => {
+        return <CardList {...props} type="task" />;
+      }}
+    </Layout>
   );
 }

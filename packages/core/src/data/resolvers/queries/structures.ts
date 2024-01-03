@@ -1,7 +1,7 @@
 import { paginate } from '@erxes/api-utils/src';
 import { STRUCTURE_STATUSES } from '../../../constants';
 import { checkPermission } from '@erxes/api-utils/src/permissions';
-import { IUser } from '@erxes/api-utils/src/types';
+import { IUserDocument } from '@erxes/api-utils/src/types';
 import { IContext, IModels } from '../../../connectionResolver';
 
 const generateFilters = async ({
@@ -11,30 +11,18 @@ const generateFilters = async ({
   params
 }: {
   models: IModels;
-  user: IUser;
+  user: IUserDocument;
   type: string;
   params: any;
 }) => {
   const filter: any = { status: { $ne: STRUCTURE_STATUSES.DELETED } };
 
-  if (params.searchValue) {
-    const regexOption = {
-      $regex: `.*${params.searchValue.trim()}.*`,
-      $options: 'i'
-    };
-
-    filter.$or = [
-      {
-        title: regexOption
-      },
-      {
-        description: regexOption
-      }
-    ];
+  if (params.ids && params.ids.length) {
+    filter._id = { [params.excludeIds ? '$nin' : '$in']: params.ids };
   }
 
   if (params.status) {
-    params.status = params.status;
+    filter.status = params.status;
   }
 
   if (!params.withoutUserFilter) {
@@ -62,26 +50,79 @@ const generateFilters = async ({
       filter.order = { $in: departmentOrders };
     }
   }
-  if (filter.order && user.isOwner) {
+
+  let fieldName = '';
+
+  if (type === 'department') {
+    fieldName = 'DEPARTMENTS';
+  }
+  if (type === 'branch') {
+    fieldName = 'BRANCHES';
+  }
+
+  const mastersStructure = await models.Configs.findOne({
+    code: `${fieldName}_MASTER_TEAM_MEMBERS_IDS`,
+    value: { $in: [user._id] }
+  });
+
+  if (filter.order && (user.isOwner || mastersStructure)) {
     delete filter.order;
+  }
+  if (params.searchValue) {
+    const regexOption = {
+      $regex: `.*${params.searchValue.trim()}.*`,
+      $options: 'i'
+    };
+
+    let structureFilter: any = {
+      $or: [
+        { title: regexOption },
+        { description: regexOption },
+        { code: regexOption }
+      ]
+    };
+
+    if (filter.order) {
+      structureFilter.order = filter.order;
+    }
+
+    if (type === 'department') {
+      const departmentOrders = (await models.Departments.find(structureFilter))
+        .map(department => department.code)
+        .join('|');
+      filter.order = { $regex: new RegExp(departmentOrders) };
+    }
+
+    if (type === 'branch') {
+      const branchOrders = (await models.Branches.find(structureFilter))
+        .map(department => department.code)
+        .join('|');
+      filter.order = { $regex: new RegExp(branchOrders, 'i') };
+    }
   }
 
   return filter;
 };
 
 const structureQueries = {
-  async departments(
-    _root,
-    params: { searchValue?: string },
-    { models, user }: IContext
-  ) {
+  async departments(_root, params: any, { models, user }: IContext) {
     const filter = await generateFilters({
       models,
       user,
       type: 'department',
       params
     });
-    return models.Departments.find(filter).sort({ order: 1 });
+    const pipeline: any[] = [{ $match: filter }, { $sort: { order: 1 } }];
+
+    if (!!params?.ids?.length) {
+      pipeline.push({
+        $addFields: {
+          __order: { $indexOfArray: [params.ids, '$_id'] }
+        }
+      });
+      pipeline.push({ $sort: { __order: 1 } });
+    }
+    return models.Departments.aggregate(pipeline);
   },
 
   async departmentsMain(
@@ -183,7 +224,7 @@ const structureQueries = {
 
   async branches(
     _root,
-    params: { searchValue?: string },
+    params: any & { searchValue?: string },
     { models, user }: IContext
   ) {
     const filter = await generateFilters({
@@ -192,7 +233,18 @@ const structureQueries = {
       type: 'branch',
       params
     });
-    return models.Branches.find(filter).sort({ order: 1 });
+    const pipeline: any[] = [{ $match: filter }, { $sort: { order: 1 } }];
+
+    if (!!params?.ids?.length) {
+      pipeline.push({
+        $addFields: {
+          __order: { $indexOfArray: [params.ids, '$_id'] }
+        }
+      });
+      pipeline.push({ $sort: { __order: 1 } });
+    }
+
+    return models.Branches.aggregate(pipeline);
   },
 
   async branchesMain(

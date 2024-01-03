@@ -1,12 +1,15 @@
-import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers';
+import typeDefs from './graphql/typeDefs';
 
-import { initBroker } from './messageBroker';
 import { getSubdomain } from '@erxes/api-utils/src/core';
-import { generateModels } from './connectionResolver';
-import { generateAllDataLoaders } from './dataLoaders';
-import * as permissions from './permissions';
 import afterMutations from './afterMutations';
+import { generateModels } from './connectionResolver';
+import cronjobs from './cronjobs';
+import { generateAllDataLoaders } from './dataLoaders';
+import { initBroker } from './messageBroker';
+import * as permissions from './permissions';
+import tags from './tags';
+import forms from './forms';
 
 export let mainDb;
 export let debug;
@@ -45,6 +48,9 @@ export default {
     debug = options.debug;
   },
   meta: {
-    afterMutations
+    afterMutations,
+    tags,
+    cronjobs,
+    forms
   }
 };

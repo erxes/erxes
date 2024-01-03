@@ -4,7 +4,12 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as readline from 'readline';
 import { Writable } from 'stream';
-import { createAWS, getS3FileInfo, uploadsFolderPath } from '../../data/utils';
+import {
+  createAWS,
+  createCFR2,
+  getS3FileInfo,
+  uploadsFolderPath
+} from '../../data/utils';
 
 import CustomWorker from '../workerUtil';
 import { debugWorkers } from '../debugger';
@@ -12,7 +17,8 @@ import { getFileUploadConfigs } from '../../messageBroker';
 import { IModels } from '../../connectionResolvers';
 
 const { ELK_SYNCER } = process.env;
-const WORKER_BULK_LIMIT = 300;
+
+const WORKER_BULK_LIMIT = 50;
 
 const checkFieldNames = async (fields: string[], columnConfig?: object) => {
   const properties: any[] = [];
@@ -53,59 +59,56 @@ const myWorker = new CustomWorker();
 
 const getCsvInfo = (fileName: string, uploadType: string) => {
   return new Promise(async resolve => {
-    if (uploadType === 'local') {
-      const readSteam = fs.createReadStream(`${uploadsFolderPath}/${fileName}`);
+    let readSteam;
 
-      let columns;
-      let total = 0;
+    if (uploadType !== 'local') {
+      const {
+        AWS_BUCKET,
+        CLOUDFLARE_BUCKET_NAME
+      } = await getFileUploadConfigs();
 
-      const rl = readline.createInterface({
-        input: readSteam,
-        terminal: false
-      });
+      const s3 = uploadType === 'AWS' ? await createAWS() : await createCFR2();
 
-      rl.on('line', input => {
-        if (total === 0) {
-          columns = input;
-        }
+      const bucket = uploadType === 'AWS' ? AWS_BUCKET : CLOUDFLARE_BUCKET_NAME;
 
-        total++;
-      });
-      rl.on('close', () => {
-        // exclude column
-        total--;
+      const params = { Bucket: bucket, Key: fileName };
 
-        debugWorkers(`Get CSV Info type: local, totalRow: ${total}`);
+      const file = (await s3.getObject(params).promise()) as any;
 
-        resolve({ rows: total, columns });
-      });
+      await fs.promises.writeFile(
+        `${uploadsFolderPath}/${fileName}`,
+        file.Body
+      );
+
+      readSteam = fs.createReadStream(`${uploadsFolderPath}/${fileName}`);
     } else {
-      const { AWS_BUCKET } = await getFileUploadConfigs();
-      const s3 = await createAWS();
+      readSteam = fs.createReadStream(`${uploadsFolderPath}/${fileName}`);
+    }
 
-      const params = { Bucket: AWS_BUCKET, Key: fileName };
+    let columns;
+    let total = 0;
 
-      const rowCountString = await getS3FileInfo({
-        s3,
-        params,
-        query: 'SELECT COUNT(*) FROM S3Object'
-      });
+    const rl = readline.createInterface({
+      input: readSteam,
 
+      terminal: false
+    });
+
+    rl.on('line', input => {
+      if (total === 0) {
+        columns = input;
+      }
+
+      total++;
+    });
+    rl.on('close', () => {
       // exclude column
-      let total = Number(rowCountString);
-
       total--;
 
-      const columns = await getS3FileInfo({
-        s3,
-        params,
-        query: 'SELECT * FROM S3Object LIMIT 1'
-      });
+      debugWorkers(`Get CSV Info type: local, totalRow: ${total}`);
 
-      debugWorkers(`Get CSV Info type: AWS, totalRow: ${total}`);
-
-      return resolve({ rows: total, columns });
-    }
+      resolve({ rows: total, columns });
+    });
   });
 };
 
@@ -134,19 +137,26 @@ const importBulkStream = ({
     let readSteam;
     let rowIndex = 0;
 
-    if (uploadType === 'AWS') {
-      const { AWS_BUCKET } = await getFileUploadConfigs();
+    if (uploadType !== 'local') {
+      const {
+        AWS_BUCKET,
+        CLOUDFLARE_BUCKET_NAME
+      } = await getFileUploadConfigs();
 
-      const s3 = await createAWS();
+      const s3 = uploadType === 'AWS' ? await createAWS() : await createCFR2();
 
-      const errorCallback = error => {
-        throw new Error(error.code);
-      };
+      const bucket = uploadType === 'AWS' ? AWS_BUCKET : CLOUDFLARE_BUCKET_NAME;
 
-      const params = { Bucket: AWS_BUCKET, Key: fileName };
+      const params = { Bucket: bucket, Key: fileName };
 
-      readSteam = s3.getObject(params).createReadStream();
-      readSteam.on('error', errorCallback);
+      const file = (await s3.getObject(params).promise()) as any;
+
+      await fs.promises.writeFile(
+        `${uploadsFolderPath}/${fileName}`,
+        file.Body
+      );
+
+      readSteam = fs.createReadStream(`${uploadsFolderPath}/${fileName}`);
     } else {
       readSteam = fs.createReadStream(`${uploadsFolderPath}/${fileName}`);
     }
@@ -156,7 +166,6 @@ const importBulkStream = ({
 
       if (rows.length === bulkLimit) {
         rowIndex++;
-        console.log('write', rowIndex, rows.length, bulkLimit);
         return handleBulkOperation(rowIndex, rows, contentType)
           .then(() => {
             rows = [];
@@ -190,7 +199,7 @@ const getWorkerFile = fileName => {
     return `./src/worker/import/${fileName}.worker.import.js`;
   }
 
-  return `./dist/workers/src/worker/import/${fileName}.worker.import.js`;
+  return `./packages/workers/src/worker/import/${fileName}.worker.import.js`;
 };
 
 export const clearEmptyValues = (obj: any) => {
@@ -270,7 +279,9 @@ export const receiveImportRemove = async (
     debugWorkers(`Failed to remove import: ${e.message}`);
     return models.ImportHistory.updateOne(
       { _id: importHistoryId },
-      { error: e.message }
+      {
+        error: `Error occurred during remove${e.message}`
+      }
     );
   }
 };
@@ -302,6 +313,7 @@ export const receiveImportCreate = async (
   const config: any = {};
 
   let total = 0;
+  let fileName = '';
 
   let mainType = contentTypes[0].contentType;
   const serviceType = contentTypes[0].serviceType;
@@ -313,7 +325,7 @@ export const receiveImportCreate = async (
   for (const contentType of contentTypes) {
     const file = files[contentType.contentType];
     const columnConfig = columnsConfig[contentType.contentType];
-    const fileName = file[0].url;
+    fileName = file[0].url;
 
     const { rows, columns }: any = await getCsvInfo(fileName, uploadType);
 
@@ -332,7 +344,9 @@ export const receiveImportCreate = async (
     } catch (e) {
       return models.ImportHistory.updateOne(
         { _id: importHistoryId },
-        { error: e.message }
+        {
+          error: `Error occurred during creating import check your fields ${e.message}`
+        }
       );
     }
 
@@ -371,6 +385,8 @@ export const receiveImportCreate = async (
       updatedImportHistory.total
     ) {
       status = 'Done';
+      await fs.promises.unlink(`${uploadsFolderPath}/${fileName}`);
+
       await updateImportHistory({
         $set: { status, percentage: 100 }
       });
@@ -407,12 +423,12 @@ export const receiveImportCreate = async (
         importHistoryId,
         result,
         useElkSyncer,
-        percentage: Number(((result.length / total) * 100).toFixed(3))
+        percentage: Number(((result.length / total) * 100).toFixed(0))
       });
     } catch (e) {
       return models.ImportHistory.updateOne(
         { _id: importHistoryId },
-        { error: e.message }
+        { error: `Error occurred during creating import ${e.message}` }
       );
     }
   };
@@ -430,7 +446,7 @@ export const receiveImportCreate = async (
   } catch (e) {
     return models.ImportHistory.updateOne(
       { _id: importHistoryId },
-      { error: e.message }
+      { error: `Error occurred during creating import ${e.message}` }
     );
   }
 

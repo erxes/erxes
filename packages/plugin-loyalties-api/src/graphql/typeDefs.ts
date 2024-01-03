@@ -2,7 +2,7 @@ import {
   attachmentInput,
   attachmentType
 } from '@erxes/api-utils/src/commonTypeDefs';
-import { gql } from 'apollo-server-express';
+import gql from 'graphql-tag';
 import {
   mutations as donateCampaignMutations,
   queries as donateCampaignQueries,

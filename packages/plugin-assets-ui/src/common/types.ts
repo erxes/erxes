@@ -89,6 +89,7 @@ export interface IAsset {
   parent: IAsset;
   childAssetCount: number;
   vendor?: ICompany;
+  kbArticleIds: string[];
   knowledgeData?: any;
 }
 
@@ -156,7 +157,7 @@ export type IMovementType = {
 export type IMovementItem = {
   _id?: string;
   assetId: string;
-  assetName?: string;
+  assetDetail?: IAsset;
   branchId?: string;
   departmentId?: string;
   teamMemberId?: string;

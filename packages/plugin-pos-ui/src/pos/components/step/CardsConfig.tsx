@@ -1,76 +1,93 @@
-import PerConfigs from '../cardsGroup/PerConfigs';
-import React from 'react';
-import { __, Alert, Button } from '@erxes/ui/src';
-import { Block, FlexColumn, FlexItem, FlexRow } from '../../../styles';
-import { IConfigsMap } from '../../../types';
-import { IPos } from '../../../types';
+import { queries as formQueries } from '@erxes/ui-forms/src/forms/graphql';
+import { FieldsCombinedByType } from '@erxes/ui-forms/src/settings/properties/types';
+import { Alert, Button, __ } from '@erxes/ui/src';
+import client from '@erxes/ui/src/apolloClient';
 import { LeftItem } from '@erxes/ui/src/components/step/styles';
+import { isEnabled } from '@erxes/ui/src/utils/core';
+import { gql } from '@apollo/client';
+import React from 'react';
+import { Block, FlexColumn, FlexItem, FlexRow } from '../../../styles';
+import { IConfigsMap, IPos } from '../../../types';
+import PerConfigs from '../cardsGroup/PerConfigs';
 
 type Props = {
   onChange: (name: 'cardsConfig', value: any) => void;
   pos?: IPos;
 };
 type State = {
-  configsMap: IConfigsMap;
+  cardsConfig: IConfigsMap;
+  fieldsCombined: FieldsCombinedByType[];
 };
 class CardsConfig extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
     const configsMap =
-      props.pos && props.pos.cardsConfig
-        ? props.pos.cardsConfig
-        : {
-            cardsConfig: null
-          };
+      props.pos && props.pos.cardsConfig ? props.pos.cardsConfig : {};
     this.state = {
-      configsMap: configsMap
+      cardsConfig: configsMap,
+      fieldsCombined: []
     };
+
+    if (isEnabled('forms')) {
+      client
+        .query({
+          query: gql(formQueries.fieldsCombinedByContentType),
+          variables: {
+            contentType: 'cards:deal'
+          }
+        })
+        .then(({ data }) => {
+          this.setState({
+            fieldsCombined: data ? data.fieldsCombinedByContentType : [] || []
+          });
+        });
+    }
   }
+
   add = e => {
     e.preventDefault();
-    const { configsMap } = this.state;
+    const { cardsConfig } = this.state;
 
-    if (!configsMap?.cardsConfig) {
-      configsMap.cardsConfig = {};
-    }
-
-    configsMap.cardsConfig.newCardsConfig = {
-      boardId: '',
-      pipelineId: '',
-      stageId: '',
-      branchId: '',
-      assignedUserIds: []
-    };
-
-    this.setState({ configsMap });
+    this.setState({
+      cardsConfig: {
+        ...cardsConfig,
+        newCardsConfig: {
+          branchId: '',
+          boardId: '',
+          pipelineId: '',
+          stageId: '',
+          assignedUserIds: [],
+          deliveryMapField: ''
+        }
+      }
+    });
   };
+
   delete = (currentConfigKey: string) => {
-    const { configsMap } = this.state;
-    delete configsMap.cardsConfig[currentConfigKey];
-    delete configsMap.cardsConfig['newEbarimtConfig'];
+    const { cardsConfig } = this.state;
+    delete cardsConfig[currentConfigKey];
 
-    this.setState({ configsMap });
+    this.setState({ cardsConfig }, () => {
+      this.props.onChange('cardsConfig', cardsConfig);
+    });
 
-    this.props.onChange('cardsConfig', configsMap);
     Alert.success('You successfully deleted stage in cards settings.');
   };
-  renderContent(configs) {
-    return Object.keys(configs).map(key => {
-      return (
-        <PerConfigs
-          key={Math.floor(Math.random() * 10000000) + 1}
-          configsMap={this.state.configsMap}
-          config={configs[key]}
-          currentConfigKey={key}
-          save={this.props.onChange}
-          delete={this.delete}
-        />
-      );
+
+  edit = (key, currenConfig: any) => {
+    const { cardsConfig } = this.state;
+
+    delete cardsConfig[key];
+    cardsConfig[currenConfig.branchId] = { ...currenConfig };
+
+    this.setState({ cardsConfig }, () => {
+      this.props.onChange('cardsConfig', cardsConfig);
     });
-  }
+  };
+
   renderCollapse() {
-    const { configsMap } = this.state;
-    const mapping = configsMap.cardsConfig || {};
+    const { cardsConfig, fieldsCombined } = this.state;
+
     const actionButtons = (
       <Button
         btnStyle="primary"
@@ -87,7 +104,16 @@ class CardsConfig extends React.Component<Props, State> {
           {actionButtons}
           <br />
           <br />
-          {this.renderContent(mapping)}
+          {Object.keys(cardsConfig).map(key => (
+            <PerConfigs
+              key={key}
+              config={cardsConfig[key]}
+              fieldsCombined={fieldsCombined}
+              configKey={key}
+              save={this.edit}
+              delete={this.delete}
+            />
+          ))}
         </LeftItem>
       </FlexRow>
     );

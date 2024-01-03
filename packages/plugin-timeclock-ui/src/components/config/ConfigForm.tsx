@@ -1,12 +1,15 @@
 import { __ } from '@erxes/ui/src/utils';
 import React, { useState } from 'react';
+import Select from 'react-select-plus';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import {
   CustomRangeContainer,
   FlexRow,
   FlexColumn,
   FlexColumnMargined,
-  FlexCenter
+  FlexCenter,
+  ConfigFormWrapper,
+  ToggleDisplay
 } from '../../styles';
 import DateControl from '@erxes/ui/src/components/form/DateControl';
 import Form from '@erxes/ui/src/components/form/Form';
@@ -14,12 +17,13 @@ import FormControl from '@erxes/ui/src/components/form/Control';
 import {
   IAbsence,
   IAbsenceType,
+  IDeviceConfig,
   IPayDates,
-  ISchedule,
+  IScheduleForm,
   IScheduleConfig
 } from '../../types';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import DatePicker from '../datepicker/DateTimePicker';
+import DateTimePicker from '../datepicker/DateTimePicker';
 import { compareStartAndEndTime } from '../../utils';
 import dayjs from 'dayjs';
 
@@ -28,6 +32,7 @@ type Props = {
   configType: string;
   absenceType?: IAbsenceType;
   scheduleConfig?: IScheduleConfig;
+  deviceConfig?: IDeviceConfig;
   holiday?: IAbsence;
   payDate?: IPayDates;
   loading?: boolean;
@@ -37,18 +42,31 @@ type Props = {
 };
 
 function ConfigForm(props: Props) {
-  const { renderButton, history, scheduleConfig } = props;
+  const { renderButton, scheduleConfig, deviceConfig } = props;
   const { absenceType, holiday, payDate } = props;
-  const [isShiftRequest, setShiftRequest] = useState(
-    (absenceType && absenceType.shiftRequest) || false
+
+  const [requestTime, setRequestTime] = useState(
+    absenceType?.requestTimeType || 'by day'
   );
+
+  const [requestType, setRequestType] = useState(
+    absenceType?.requestType || 'shift request'
+  );
+
+  const [hoursPerDay, setHoursPerDay] = useState(8);
+
+  const [payPeriod, setPayPeriod] = useState('');
+
   const [explanationRequired, setExplRequired] = useState(
     (absenceType && absenceType.explRequired) || false
   );
   const [attachmentRequired, setAttachRequired] = useState(
     (absenceType && absenceType.attachRequired) || false
   );
-  const [payPeriod, setPayPeriod] = useState('');
+
+  const [deviceExtractRequired, setDeviceExtractRequired] = useState(
+    (deviceConfig && deviceConfig.extractRequired) || false
+  );
 
   const defaultStartTime = new Date(
     new Date().toLocaleDateString() + ' 08:30:00'
@@ -69,7 +87,7 @@ function ConfigForm(props: Props) {
       (scheduleConfig ? scheduleConfig.shiftEnd : '17:00:00')
   );
 
-  const configDaysTime: ISchedule = {
+  const configDaysTime: IScheduleForm = {
     configTime: {
       shiftStart: shiftStartTime,
       shiftEnd: shiftEndTime
@@ -97,7 +115,7 @@ function ConfigForm(props: Props) {
     );
   });
 
-  const [configDays, setConfigDays] = useState<ISchedule>({
+  const [configDays, setConfigDays] = useState<IScheduleForm>({
     ...configDaysTime
   });
 
@@ -112,11 +130,17 @@ function ConfigForm(props: Props) {
 
   const { afterSave, closeModal } = props;
 
+  const toggleRequestType = e => {
+    setRequestType(e.value);
+  };
+  const toggleRequestTime = e => {
+    setRequestTime(e.value);
+  };
   const togglePayPeriod = e => {
     setPayPeriod(e.target.value);
   };
-  const toggleShiftRequest = e => {
-    setShiftRequest(e.target.checked);
+  const onAbsenceHoursPerDay = e => {
+    setHoursPerDay(parseInt(e.target.value, 10));
   };
   const toggleExplRequired = e => {
     setExplRequired(e.target.checked);
@@ -124,12 +148,14 @@ function ConfigForm(props: Props) {
   const toggleAttachRequired = e => {
     setAttachRequired(e.target.checked);
   };
+  const toggleDeviceExtractRequired = e => {
+    setDeviceExtractRequired(e.target.checked);
+  };
 
   const onConfigDateChange = (dateNum: string, newDate: Date) => {
     payDates[dateNum] = newDate;
     setpayDates({ ...payDates });
   };
-
   const onHolidayStartDateChange = newStartDate => {
     setHolidayDates({ ...holidayDates, startingDate: newStartDate });
   };
@@ -145,9 +171,13 @@ function ConfigForm(props: Props) {
       endDate?: Date;
       absenceName?: string;
       scheduleName?: string;
+      lunchBreak: number;
       explRequired?: boolean;
       attachRequired?: boolean;
       shiftRequest?: boolean;
+      deviceName?: string;
+      serialNo?: string;
+      extractRequired?: boolean;
     },
     name: string
   ) => {
@@ -156,14 +186,26 @@ function ConfigForm(props: Props) {
         if (absenceType) {
           values._id = absenceType._id;
         }
-
-        return {
+        let generateValues: any = {
           name: values.absenceName,
+
+          requestType: `${requestType}`,
+          requestTimeType: requestTime,
+
           explRequired: explanationRequired,
           attachRequired: attachmentRequired,
-          shiftRequest: isShiftRequest,
+          shiftRequest: requestType === 'shift request',
           _id: values._id
         };
+
+        if (requestTime === 'by day') {
+          generateValues = {
+            ...generateValues,
+            requestHoursPerDay: hoursPerDay || 8
+          };
+        }
+
+        return generateValues;
 
       case 'holiday':
         if (holiday) {
@@ -194,6 +236,7 @@ function ConfigForm(props: Props) {
         const returnVariables: {
           _id?: string;
           scheduleName?: string;
+          lunchBreakInMins?: number;
           configShiftStart?: string;
           configShiftEnd?: string;
           scheduleConfig: any[];
@@ -205,6 +248,8 @@ function ConfigForm(props: Props) {
           returnVariables._id = scheduleConfig._id;
         }
         const timeFormat = 'HH:mm';
+
+        returnVariables.lunchBreakInMins = parseInt(`${values.lunchBreak}`, 10);
 
         Object.keys(configDays).forEach(day_key => {
           if (day_key.toLocaleLowerCase() !== 'configtime') {
@@ -223,7 +268,19 @@ function ConfigForm(props: Props) {
             ).format(timeFormat);
           }
         });
+
         return returnVariables;
+
+      case 'deviceConfig':
+        if (deviceConfig) {
+          values._id = deviceConfig._id;
+        }
+        return {
+          _id: values._id,
+          deviceName: values.deviceName,
+          serialNo: values.serialNo,
+          extractRequired: deviceExtractRequired
+        };
     }
   };
 
@@ -236,62 +293,145 @@ function ConfigForm(props: Props) {
         return <Form renderContent={renderHolidayContent} />;
       case 'Schedule':
         return <Form renderContent={renderScheduleContent} />;
+      case 'Devices':
+        return <Form renderContent={renderDevicesContent} />;
       // Absence
       default:
         return <Form renderContent={renderAbsenceContent} />;
     }
   };
 
-  const renderAbsenceContent = (formProps: IFormProps) => {
+  const renderDevicesContent = (formProps: IFormProps) => {
     const { values, isSubmitted } = formProps;
 
     return (
       <FlexColumn marginNum={20}>
-        <ControlLabel required={true}>Name</ControlLabel>
+        <ControlLabel required={true}>Device Name</ControlLabel>
         <FormControl
           {...formProps}
-          name="absenceName"
-          defaultValue={absenceType && absenceType.name}
+          name="deviceName"
+          defaultValue={deviceConfig && deviceConfig.deviceName}
           required={true}
           autoFocus={true}
         />
+
+        <ControlLabel required={true}>Serial No.</ControlLabel>
+        <FormControl
+          {...formProps}
+          name="serialNo"
+          defaultValue={deviceConfig && deviceConfig.serialNo}
+          required={true}
+        />
+
         <FlexRow>
-          <ControlLabel>Shift Request</ControlLabel>
+          <ControlLabel>Extract from device</ControlLabel>
           <FormControl
-            name="shiftRequest"
+            name="extractRequired"
+            defaultChecked={deviceExtractRequired}
             componentClass="checkbox"
-            defaultChecked={absenceType?.shiftRequest}
-            onChange={toggleShiftRequest}
+            onChange={toggleDeviceExtractRequired}
           />
         </FlexRow>
-        <FlexRow>
-          <ControlLabel>Explanation Required</ControlLabel>
-          <FormControl
-            name="explRequired"
-            componentClass="checkbox"
-            defaultChecked={absenceType?.explRequired}
-            onChange={toggleExplRequired}
-          />
-        </FlexRow>
-        <FlexRow>
-          <ControlLabel>Attachment Required</ControlLabel>
-          <FormControl
-            name="attachRequired"
-            componentClass="checkbox"
-            defaultChecked={absenceType?.attachRequired}
-            onChange={toggleAttachRequired}
-          />
-        </FlexRow>
+
         <FlexCenter style={{ marginTop: '10px' }}>
           {renderButton({
-            name: 'absenceType',
-            values: generateDoc(values, 'absenceType'),
+            name: 'deviceConfig',
+            values: generateDoc(values, 'deviceConfig'),
             isSubmitted,
             callback: closeModal || afterSave,
-            object: absenceType || null
+            object: deviceConfig || null
           })}
         </FlexCenter>
       </FlexColumn>
+    );
+  };
+
+  const renderAbsenceContent = (formProps: IFormProps) => {
+    const { values, isSubmitted } = formProps;
+
+    return (
+      <ConfigFormWrapper>
+        <FlexColumn marginNum={30}>
+          <ControlLabel required={true}>Name</ControlLabel>
+          <FormControl
+            {...formProps}
+            name="absenceName"
+            defaultValue={absenceType && absenceType.name}
+            required={true}
+            autoFocus={true}
+          />
+
+          <ControlLabel required={true}>Request Type</ControlLabel>
+
+          <Select
+            value={requestType}
+            onChange={toggleRequestType}
+            placeholder="Select type"
+            multi={false}
+            options={['shift request', 'paid absence', 'unpaid absence'].map(
+              ipt => ({
+                value: ipt,
+                label: __(ipt)
+              })
+            )}
+          />
+
+          <ControlLabel required={true}>Request Time Period</ControlLabel>
+
+          <Select
+            value={requestTime}
+            onChange={toggleRequestTime}
+            placeholder="Select type"
+            multi={false}
+            options={['by day', 'by hour'].map(ipt => ({
+              value: ipt,
+              label: __(ipt)
+            }))}
+          />
+          <ToggleDisplay display={requestTime === 'by day'}>
+            <FlexRow>
+              <ControlLabel>Hour(s) per day</ControlLabel>
+              <div style={{ width: '20%' }}>
+                <FormControl
+                  type="number"
+                  inline={true}
+                  align="center"
+                  value={hoursPerDay}
+                  onChange={onAbsenceHoursPerDay}
+                />
+              </div>
+            </FlexRow>
+          </ToggleDisplay>
+
+          <FlexRow>
+            <ControlLabel>Explanation Required</ControlLabel>
+            <FormControl
+              name="explRequired"
+              componentClass="checkbox"
+              defaultChecked={explanationRequired}
+              onChange={toggleExplRequired}
+            />
+          </FlexRow>
+          <FlexRow>
+            <ControlLabel>Attachment Required</ControlLabel>
+            <FormControl
+              name="attachRequired"
+              componentClass="checkbox"
+              defaultChecked={attachmentRequired}
+              onChange={toggleAttachRequired}
+            />
+          </FlexRow>
+          <FlexCenter style={{ marginTop: '10px' }}>
+            {renderButton({
+              name: 'absenceType',
+              values: generateDoc(values, 'absenceType'),
+              isSubmitted,
+              callback: closeModal || afterSave,
+              object: absenceType || null
+            })}
+          </FlexCenter>
+        </FlexColumn>
+      </ConfigFormWrapper>
     );
   };
 
@@ -361,96 +501,6 @@ function ConfigForm(props: Props) {
     );
   };
 
-  const onStartTimeChange = (day_key, time_val) => {
-    const newShift = configDays[day_key];
-    const [
-      getCorrectStartTime,
-      getCorrectEndTime,
-      overnight
-    ] = compareStartAndEndTime(configDays, day_key, time_val, null);
-
-    newShift.shiftStart = getCorrectStartTime;
-    newShift.overnightShift = overnight;
-    newShift.shiftEnd = getCorrectEndTime;
-
-    const newconfigDays = { ...configDays, [day_key]: newShift };
-    setConfigDays(newconfigDays);
-  };
-
-  const onEndTimeChange = (day_key, time_val) => {
-    const newShift = configDays[day_key];
-    const [
-      getCorrectStartTime,
-      getCorrectEndTime,
-      overnight
-    ] = compareStartAndEndTime(configDays, day_key, null, time_val);
-
-    newShift.shiftStart = getCorrectStartTime;
-    newShift.overnightShift = overnight;
-    newShift.shiftEnd = getCorrectEndTime;
-
-    const newconfigDays = { ...configDays, [day_key]: newShift };
-    setConfigDays(newconfigDays);
-  };
-
-  const renderConfigTime = () => {
-    return (
-      <>
-        <FlexRow>
-          <ControlLabel>Check in / Check out</ControlLabel>
-          <DatePicker
-            curr_day_key={'configTime'}
-            startDate={configDays.configTime.shiftStart}
-            startTime_value={configDays.configTime.shiftStart}
-            endTime_value={configDays.configTime.shiftEnd}
-            overnightShift={configDays.configTime.overnightShift}
-            changeEndTime={onEndTimeChange}
-            changeStartTime={onStartTimeChange}
-            timeOnly={true}
-          />
-        </FlexRow>
-        <FlexRow>
-          <ControlLabel>Valid Check-In</ControlLabel>
-          <DatePicker
-            curr_day_key={'validCheckIn'}
-            startDate={configDays.validCheckIn.shiftStart}
-            startTime_value={configDays.validCheckIn.shiftStart}
-            endTime_value={configDays.validCheckIn.shiftEnd}
-            overnightShift={configDays.validCheckIn.overnightShift}
-            changeEndTime={onEndTimeChange}
-            changeStartTime={onStartTimeChange}
-            timeOnly={true}
-          />
-        </FlexRow>
-        <FlexRow>
-          <ControlLabel>Valid Check-Out</ControlLabel>
-          <DatePicker
-            curr_day_key={'validCheckout'}
-            startDate={configDays.validCheckout.shiftStart}
-            startTime_value={configDays.validCheckout.shiftStart}
-            endTime_value={configDays.validCheckout.shiftEnd}
-            overnightShift={configDays.validCheckout.overnightShift}
-            changeEndTime={onEndTimeChange}
-            changeStartTime={onStartTimeChange}
-            timeOnly={true}
-          />
-        </FlexRow>
-        <FlexRow>
-          <ControlLabel>Overtime</ControlLabel>
-          <DatePicker
-            curr_day_key={'overtime'}
-            startDate={configDays.overtime.shiftStart}
-            startTime_value={configDays.overtime.shiftStart}
-            endTime_value={configDays.overtime.shiftEnd}
-            changeEndTime={onEndTimeChange}
-            changeStartTime={onStartTimeChange}
-            timeOnly={true}
-          />
-        </FlexRow>
-      </>
-    );
-  };
-
   const renderScheduleContent = (formProps: IFormProps) => {
     const { values, isSubmitted } = formProps;
     return (
@@ -467,7 +517,7 @@ function ConfigForm(props: Props) {
         />
 
         <FlexColumnMargined marginNum={10}>
-          {renderConfigTime()}
+          {renderConfigTime(formProps)}
         </FlexColumnMargined>
 
         <FlexCenter style={{ marginTop: '10px' }}>
@@ -523,6 +573,123 @@ function ConfigForm(props: Props) {
       </FlexColumn>
     );
   };
+
+  const onStartTimeChange = (day_key, time_val) => {
+    const newShift = configDays[day_key];
+    const [
+      getCorrectStartTime,
+      getCorrectEndTime,
+      overnight
+    ] = compareStartAndEndTime(configDays, day_key, time_val, null);
+
+    newShift.shiftStart = getCorrectStartTime;
+    newShift.overnightShift = overnight;
+    newShift.shiftEnd = getCorrectEndTime;
+
+    const newconfigDays = { ...configDays, [day_key]: newShift };
+    setConfigDays(newconfigDays);
+  };
+
+  const onEndTimeChange = (day_key, time_val) => {
+    const newShift = configDays[day_key];
+    const [
+      getCorrectStartTime,
+      getCorrectEndTime,
+      overnight
+    ] = compareStartAndEndTime(configDays, day_key, null, time_val);
+
+    newShift.shiftStart = getCorrectStartTime;
+    newShift.overnightShift = overnight;
+    newShift.shiftEnd = getCorrectEndTime;
+
+    const newconfigDays = { ...configDays, [day_key]: newShift };
+    setConfigDays(newconfigDays);
+  };
+
+  const renderConfigTime = (formProps: IFormProps) => {
+    return (
+      <>
+        <FlexRow>
+          <ControlLabel>Check in / Check out</ControlLabel>
+          <DateTimePicker
+            curr_day_key={'configTime'}
+            startDate={configDays.configTime.shiftStart}
+            startTime_value={configDays.configTime.shiftStart}
+            endTime_value={configDays.configTime.shiftEnd}
+            overnightShift={configDays.configTime.overnightShift}
+            changeEndTime={onEndTimeChange}
+            changeStartTime={onStartTimeChange}
+            timeOnly={true}
+          />
+        </FlexRow>
+
+        <FlexRow>
+          <ControlLabel>Lunch break</ControlLabel>
+
+          <div
+            style={{
+              display: 'flex',
+              width: '67%',
+              alignItems: 'center'
+            }}
+          >
+            <div style={{ width: '10%' }}>
+              <FormControl
+                {...formProps}
+                defaultValue={
+                  scheduleConfig ? scheduleConfig?.lunchBreakInMins : 30
+                }
+                align="center"
+                name="lunchBreak"
+                type="number"
+                required={true}
+              />
+            </div>
+            <div style={{ width: '80%' }}>minutes</div>
+          </div>
+        </FlexRow>
+        <FlexRow>
+          <ControlLabel>Valid Check-In</ControlLabel>
+          <DateTimePicker
+            curr_day_key={'validCheckIn'}
+            startDate={configDays.validCheckIn.shiftStart}
+            startTime_value={configDays.validCheckIn.shiftStart}
+            endTime_value={configDays.validCheckIn.shiftEnd}
+            overnightShift={configDays.validCheckIn.overnightShift}
+            changeEndTime={onEndTimeChange}
+            changeStartTime={onStartTimeChange}
+            timeOnly={true}
+          />
+        </FlexRow>
+        <FlexRow>
+          <ControlLabel>Valid Check-Out</ControlLabel>
+          <DateTimePicker
+            curr_day_key={'validCheckout'}
+            startDate={configDays.validCheckout.shiftStart}
+            startTime_value={configDays.validCheckout.shiftStart}
+            endTime_value={configDays.validCheckout.shiftEnd}
+            overnightShift={configDays.validCheckout.overnightShift}
+            changeEndTime={onEndTimeChange}
+            changeStartTime={onStartTimeChange}
+            timeOnly={true}
+          />
+        </FlexRow>
+        <FlexRow>
+          <ControlLabel>Overtime</ControlLabel>
+          <DateTimePicker
+            curr_day_key={'overtime'}
+            startDate={configDays.overtime.shiftStart}
+            startTime_value={configDays.overtime.shiftStart}
+            endTime_value={configDays.overtime.shiftEnd}
+            changeEndTime={onEndTimeChange}
+            changeStartTime={onStartTimeChange}
+            timeOnly={true}
+          />
+        </FlexRow>
+      </>
+    );
+  };
+
   return renderConfigContent();
 }
 

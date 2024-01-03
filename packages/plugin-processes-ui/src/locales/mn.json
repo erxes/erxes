@@ -1,5 +1,7 @@
 {
   "Job": "Дамжлага",
+  "Jobs": "Дамжлага",
+  "All jobs": "Дамжлагууд",
   "Flow": "Урсгал тохиргоо",
   "Facture": "Үйлдвэрлэх",
   "Endpoint": "Төгсгөлийн",
@@ -8,7 +10,7 @@
   "Outlet": "Зарлагадах",
   "Need products": "Орцын бүтээгдэхүүн",
   "Result products": "Гарцын бүтээгдэхүүн",
-  "LATEST JOB LOCATION": "Дамжлагын сүүлийн байрлал",
+  "Latest job location": "Дамжлагын сүүлийн байрлал",
   "Info of outgoing for NEED products": "Орцыг зарлагадахтай холбоотой мэдээлэл",
   "Info of incoming for RESULT products:": "Гарцыг орлогодохтой холбоотой мэдээлэл",
   "Job Config": "Дамжлагын тохиргоо",
@@ -28,5 +30,6 @@
   "Made Count": "Гүйцэтгэх тоо",
   "DEF UOM": "Ялгах ХН",
   "DEF Count": "Ялгах тоо",
-  "Potential Count": "Боломжит тоо"
+  "Potential Count": "Боломжит тоо",
+  "Choose your flow type": "Дамжлагын урсгалын төрлийг сонго"
 }

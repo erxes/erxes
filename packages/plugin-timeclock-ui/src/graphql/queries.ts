@@ -34,6 +34,10 @@ const listParamsDef = `
   $userIds: [String]
   $branchIds: [String]
   $departmentIds: [String]
+  $reportType: String
+  $scheduleStatus: String
+  $isCurrentUserAdmin: Boolean
+  $searchValue: String
 `;
 
 const listParamsValue = `
@@ -44,10 +48,29 @@ const listParamsValue = `
   userIds: $userIds
   branchIds: $branchIds
   departmentIds: $departmentIds
+  reportType: $reportType
+  scheduleStatus: $scheduleStatus
+  isCurrentUserAdmin: $isCurrentUserAdmin
+  searchValue: $searchValue
 `;
 
-const listTimeclocksMain = `
-  query listTimeclocksQuery(${listParamsDef}) {
+const timelogsMain = `
+  query timelogsMain(${listParamsDef}){
+    timelogsMain(${listParamsValue}){
+      list{
+        _id
+        user {
+          ${userFields}
+        }
+        timelog
+        deviceName
+      }
+      totalCount
+    }
+  }`;
+
+const timeclocksMain = `
+  query timeclocksMain(${listParamsDef}) {
     timeclocksMain(${listParamsValue}) {
       list {
             _id
@@ -62,13 +85,29 @@ const listTimeclocksMain = `
             employeeId
             deviceName
             deviceType
+            inDevice
+            inDeviceType  
+            outDevice
+            outDeviceType
         }
         totalCount
-  }
+    }
 }
 `;
-const listSchedulesMain = `
-  query listSchedulesMain(${listParamsDef}) {
+
+const timeclocksPerUser = `
+  query timeclocksPerUser($userId: String, $startDate: String, $endDate: String){
+    timeclocksPerUser(userId: $userId, startDate: $startDate, endDate: $endDate){
+      _id
+      shiftStart
+      shiftEnd
+      shiftActive
+    }
+  }
+`;
+
+const schedulesMain = `
+  query schedulesMain(${listParamsDef}) {
     schedulesMain(${listParamsValue}) {
       list {
           _id
@@ -78,6 +117,9 @@ const listSchedulesMain = `
             shiftEnd
             solved
             status
+            scheduleConfigId
+            lunchBreakInMins
+            scheduleId
           }
           scheduleConfigId
           solved
@@ -85,13 +127,44 @@ const listSchedulesMain = `
           user {
             ${userFields}
           }
+          scheduleChecked
+          submittedByAdmin
+          totalBreakInMins
         }
         totalCount
   }
 }
 `;
-const listRequestsMain = `
-  query listRequestsMain(${listParamsDef}) {
+
+const checkDuplicateScheduleShifts = `
+  query checkDuplicateScheduleShifts(${listParamsDef}) {
+    checkDuplicateScheduleShifts(${listParamsValue}) {
+      list {
+          _id
+          shifts{
+            _id
+            shiftStart
+            shiftEnd
+            solved
+            status
+            scheduleConfigId
+          }
+          scheduleConfigId
+          solved
+          status
+          user {
+            ${userFields}
+          }
+          scheduleChecked
+          submittedByAdmin
+          totalBreakInMins
+        }
+        totalCount
+  }
+}
+`;
+const requestsMain = `
+  query requestsMain(${listParamsDef}) {
     requestsMain(${listParamsValue}) {
       list {
           _id
@@ -107,14 +180,18 @@ const listRequestsMain = `
           attachment{
             ${attachmentFields}
           }
+          absenceTimeType
+          requestDates
+          totalHoursOfAbsence
+          note
         }
         totalCount
   }
 }
 `;
 
-const listBranches = `
-  query listBranchesQuery($searchValue: String){
+const branches = `
+  query branches($searchValue: String){
     branches(searchValue: $searchValue){
       _id
       title
@@ -122,8 +199,8 @@ const listBranches = `
   }
 `;
 
-const listReports = `
-  query listReportsQuery(${listParamsDef}){
+const timeclockReports = `
+  query timeclockReports(${listParamsDef}){
     timeclockReports(${listParamsValue}){
       list {
               groupTitle
@@ -132,25 +209,59 @@ const listReports = `
                 ${userFields}
               }
               scheduleReport {
-                date
-                scheduleStart
-                scheduleEnd
-                recordedStart
-                recordedEnd
-                minsLate
-                minsWorked
+                timeclockDate
+                timeclockStart
+                timeclockEnd
+                timeclockDuration
+            
+                deviceName
+                deviceType
+                
+                inDevice
+                inDeviceType
+                outDevice
+                outDeviceType
+
+                scheduledStart
+                scheduledEnd
+                scheduledDuration
+                
+                lunchBreakInHrs
+
+                totalMinsLate
+                totalHoursOvertime
+                totalHoursOvernight
               }
+
+              branchTitles
+              departmentTitles
+              
               totalMinsLate
               totalAbsenceMins
               totalMinsWorked
               totalMinsScheduled
 
-              totalMinsWorkedThisMonth
-              totalDaysWorkedThisMonth
+              totalRegularHoursWorked
+              totalHoursWorked
+              totalDaysWorked
 
-              totalMinsScheduledThisMonth
-              totalDaysScheduledThisMonth
+              totalHoursOvertime
+              totalHoursOvernight
+            
+              totalHoursBreakScheduled
+              totalHoursBreakTaken
+            
+              totalDaysScheduled
+              totalHoursScheduled
           
+              absenceInfo {
+                totalHoursShiftRequest
+                totalHoursWorkedAbroad
+                totalHoursPaidAbsence
+                totalHoursUnpaidAbsence
+                totalHoursSick
+              }
+
             }
             groupTotalMinsLate
             groupTotalAbsenceMins
@@ -161,28 +272,7 @@ const listReports = `
     }
   }`;
 
-const listReportByUser = `
-  query timeclockReportByUser($selectedUser: String){
-    timeclockReportByUser(selectedUser:$selectedUser){
-      user {
-        ${userFields}
-      }
-      scheduleReport {
-        date
-        scheduleStart
-        scheduleEnd
-        recordedStart
-        recordedEnd
-        minsLate
-        minsWorked
-      }
-      totalMinsLate
-      totalAbsenceMins
-      totalMinsWorked
-    }
-  }`;
-
-const listAbsenceTypes = `
+const absenceTypes = `
   query absenceTypes{
     absenceTypes{
       _id
@@ -190,11 +280,15 @@ const listAbsenceTypes = `
       explRequired
       attachRequired
       shiftRequest
+
+      requestType
+      requestTimeType
+      requestHoursPerDay
     }
   }
 `;
 
-const listPayDates = `
+const payDates = `
   query payDates{
     payDates{
       _id
@@ -203,7 +297,7 @@ const listPayDates = `
   }
 `;
 
-const listHolidays = `
+const holidays = `
 query holidays {
   holidays {
     _id
@@ -213,11 +307,12 @@ query holidays {
   }
 }`;
 
-const listScheduleConfig = `
+const scheduleConfigs = `
   query scheduleConfigs {
     scheduleConfigs{
       _id
       scheduleName
+      lunchBreakInMins
       shiftStart
       shiftEnd
       configDays{
@@ -231,15 +326,85 @@ const listScheduleConfig = `
   }
 
 `;
+
+const deviceConfigs = `
+query deviceConfigs (${listParamsDef}){
+  deviceConfigs(${listParamsValue}) {
+    list {
+      _id 
+      deviceName
+      serialNo
+      extractRequired
+    }
+    totalCount
+  }
+}`;
+
+const timeLogsPerUser = `
+  query timeLogsPerUser($userId: String, $startDate: String, $endDate: String){
+    timeLogsPerUser(userId: $userId, startDate: $startDate, endDate: $endDate){
+      _id
+      timelog
+      deviceName
+      deviceSerialNo
+    }
+  }
+`;
+
+const timeclockBranches = `
+query timeclockBranches($searchValue: String){
+  timeclockBranches(searchValue: $searchValue){
+    _id
+    title
+    userIds
+  }
+}`;
+
+const timeclockDepartments = `
+query timeclockDepartments($searchValue: String){
+  timeclockDepartments(searchValue: $searchValue){
+    _id
+    title
+    userIds
+  }
+}`;
+
+const scheduleConfigOrder = `
+query scheduleConfigOrder($userId: String){
+  scheduleConfigOrder(userId: $userId){
+    _id
+    userId
+    orderedList {
+      order
+      pinned
+      scheduleConfigId
+      label
+    }
+  }
+}`;
+
 export default {
-  listReports,
-  listReportByUser,
-  listBranches,
-  listTimeclocksMain,
-  listSchedulesMain,
-  listRequestsMain,
-  listAbsenceTypes,
-  listPayDates,
-  listHolidays,
-  listScheduleConfig
+  timeclockReports,
+  branches,
+
+  timeclocksMain,
+  timeclocksPerUser,
+
+  timelogsMain,
+  timeLogsPerUser,
+
+  schedulesMain,
+  requestsMain,
+  checkDuplicateScheduleShifts,
+
+  absenceTypes,
+  payDates,
+  holidays,
+
+  scheduleConfigs,
+  deviceConfigs,
+  scheduleConfigOrder,
+
+  timeclockBranches,
+  timeclockDepartments
 };

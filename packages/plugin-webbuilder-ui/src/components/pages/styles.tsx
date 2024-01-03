@@ -1,8 +1,10 @@
 import { colors, dimensions } from '@erxes/ui/src/styles';
 
+import { FlexItem } from '@erxes/ui/src/components/step/styles';
 import styled from 'styled-components';
+import styledTS from 'styled-components-ts';
 
-export const List = styled.ul`
+export const List = styledTS<{ showDarkMode: boolean }>(styled.ul)`
   margin: 0;
   padding: 0;
   list-style: none;
@@ -11,11 +13,13 @@ export const List = styled.ul`
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 5px 0;
     font-size: 12px;
     text-transform: capitalize;
     line-height: 15px;
     transition: all ease 0.3s;
+    cursor: pointer;
+    border-bottom: 1px solid ${props =>
+      props.showDarkMode ? '#666' : colors.borderPrimary};
 
     > i {
       visibility: hidden;
@@ -25,7 +29,12 @@ export const List = styled.ul`
     > a {
       display: flex;
       color: inherit;
-      cursor: pointer;
+      padding: 8px 0;
+      flex: 1;
+
+      > div {
+        flex: 1;
+      }
 
       &.active {
         color: ${colors.colorSecondary};
@@ -36,14 +45,25 @@ export const List = styled.ul`
       }
     }
 
-    .link,
-    .link > i:before {
+    &.link,
+    &.link > i:before {
       font-weight: 600;
       cursor: pointer;
+      padding: 8px 0;
+    }
+
+    &:last-child {
+      border: 0;
     }
 
     &: hover {
-      color: ${colors.colorSecondary};
+      color: ${colors.textPrimary};
+      background: ${colors.bgActive};
+
+      &.link {
+        background: none;
+        color: ${props => props.showDarkMode && colors.colorShadowGray};
+      }
 
       > i {
         visibility: visible;
@@ -63,4 +83,5 @@ export const PageHeader = styled.div`
 export const PageFormContainer = styled.div`
   width: 500px;
   height: 100%;
+  position: relative;
 `;

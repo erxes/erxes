@@ -1,8 +1,8 @@
 import * as mongoose from 'mongoose';
 import * as strip from 'strip';
-import * as Random from 'meteor-random';
 import { IUserDocument } from './types';
 import { IPermissionDocument } from './definitions/permissions';
+import { randomAlphanumeric } from '@erxes/api-utils/src/random';
 
 export const getEnv = ({
   name,
@@ -222,7 +222,7 @@ export const getUniqueValue = async (
   defaultValue?: string
 ) => {
   const getRandomValue = (type: string) =>
-    type === 'email' ? generateRandomEmail() : Random.id();
+    type === 'email' ? generateRandomEmail() : randomAlphanumeric();
 
   let uniqueValue = defaultValue || getRandomValue(fieldName);
 
@@ -246,6 +246,7 @@ export interface ISendMessageArgs {
   action: string;
   data;
   isRPC?: boolean;
+  isMQ?: boolean;
   timeout?: number;
   defaultValue?;
 }
@@ -266,20 +267,15 @@ export const sendMessage = async (
     data,
     defaultValue,
     isRPC,
+    isMQ,
     timeout
   } = args;
 
-  if (serviceName) {
-    if (!(await serviceDiscovery.isEnabled(serviceName))) {
+  if (serviceName && !(await serviceDiscovery.isEnabled(serviceName))) {
+    if (isRPC && defaultValue === undefined) {
+      throw new Error(`${serviceName} service is not enabled`);
+    } else {
       return defaultValue;
-    }
-
-    if (isRPC && !(await serviceDiscovery.isAvailable(serviceName))) {
-      if (process.env.NODE_ENV === 'development') {
-        throw new Error(`${serviceName} service is not available`);
-      } else {
-        return defaultValue;
-      }
     }
   }
 
@@ -289,7 +285,9 @@ export const sendMessage = async (
     throw new Error(`client not found during ${queueName}`);
   }
 
-  return client[isRPC ? 'sendRPCMessage' : 'sendMessage'](queueName, {
+  return client[
+    isRPC ? (isMQ ? 'sendRPCMessageMq' : 'sendRPCMessage') : 'sendMessage'
+  ](queueName, {
     subdomain,
     data,
     defaultValue,
@@ -381,7 +379,7 @@ export const createGenerateModels = <IModels>(models, loadClasses) => {
 
 export const authCookieOptions = (options: any = {}) => {
   const NODE_ENV = getEnv({ name: 'NODE_ENV' });
-  const twoWeek = 14 * 24 * 3600 * 1000; // 14 days
+  const maxAge = options.expires || 14 * 24 * 60 * 60 * 1000;
 
   const secure = !['test', 'development'].includes(NODE_ENV);
 
@@ -391,11 +389,100 @@ export const authCookieOptions = (options: any = {}) => {
 
   const cookieOptions = {
     httpOnly: true,
-    expires: new Date(Date.now() + twoWeek),
-    maxAge: twoWeek,
+    expires: new Date(Date.now() + maxAge),
+    maxAge,
     secure,
     ...options
   };
 
   return cookieOptions;
+};
+
+export const stripHtml = (string: any) => {
+  if (typeof string === 'undefined' || string === null) {
+    return;
+  } else {
+    const regex = /(&nbsp;|<([^>]+)>)/gi;
+    let result = string.replace(regex, '');
+    result = result.replace(/&#[0-9][0-9][0-9][0-9];/gi, ' ');
+    const cut = result.slice(0, 70);
+    return cut;
+  }
+};
+
+const DATE_OPTIONS = {
+  d: 1000 * 60 * 60 * 24,
+  h: 1000 * 60 * 60,
+  m: 1000 * 60,
+  s: 1000,
+  ms: 1
+};
+
+const CHARACTERS =
+  '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz~!@#$%^&*()-=+{}[]<>.,:;"`|/?';
+
+const BEGIN_DIFF = 1577836800000; // new Date('2020-01-01').getTime();
+
+export const dateToShortStr = (
+  date?: Date | string | number,
+  scale?: 10 | 16 | 62 | 92 | number,
+  kind?: 'd' | 'h' | 'm' | 's' | 'ms'
+) => {
+  date = new Date(date || new Date());
+
+  if (!scale) {
+    scale = 62;
+  }
+  if (!kind) {
+    kind = 'd';
+  }
+
+  const divider = DATE_OPTIONS[kind];
+  const chars = CHARACTERS.substring(0, scale);
+
+  let intgr = Math.round((date.getTime() - BEGIN_DIFF) / divider);
+
+  let short = '';
+
+  while (intgr > 0) {
+    const preInt = intgr;
+    intgr = Math.floor(intgr / scale);
+    const strInd = preInt - intgr * scale;
+    short = `${chars[strInd]}${short}`;
+  }
+
+  return short;
+};
+
+export const shortStrToDate = (
+  shortStr: string,
+  scale?: 10 | 16 | 62 | 92 | number,
+  kind?: 'd' | 'h' | 'm' | 's' | 'ms',
+  resultType?: 'd' | 'n'
+) => {
+  if (!shortStr) return;
+
+  if (!scale) {
+    scale = 62;
+  }
+  if (!kind) {
+    kind = 'd';
+  }
+  const chars = CHARACTERS.substring(0, scale);
+  const multiplier = DATE_OPTIONS[kind];
+
+  let intgr = 0;
+  let scaler = 1;
+
+  for (let i = shortStr.length; i--; i >= 0) {
+    const char = shortStr[i];
+    intgr = intgr + scaler * chars.indexOf(char);
+    scaler = scaler * scale;
+  }
+
+  intgr = intgr * multiplier + BEGIN_DIFF;
+
+  if (resultType === 'd') return new Date(intgr);
+
+  return intgr;
 };

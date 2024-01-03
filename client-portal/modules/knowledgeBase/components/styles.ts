@@ -1,5 +1,7 @@
-import { colors, typography } from "../../styles";
+import { colors, dimensions, typography } from "../../styles";
+import { darken, rgba } from "../../styles/ecolor";
 import styled, { css } from "styled-components";
+
 import styledTS from "styled-components-ts";
 
 const silverGrey = "#6c718b";
@@ -51,6 +53,8 @@ const CategoryIcon = styled.div`
 `;
 
 const CategoryContent = styledTS<{ color?: string }>(styled.div)`
+  flex: 1;
+
   h5 {
     color: ${(props) => props.color || colors.colorSecondary};
     font-weight: ${typography.fontWeightMedium};
@@ -94,13 +98,15 @@ const Avatars = styled.div`
 
   img {
     background: rgb(240, 240, 240);
-    border: 2px solid rgb(255, 255, 255);
+    border: 1px solid ${colors.borderPrimary};
     margin-left: -12px;
     font-size: 10px;
-    width: 34px;
-    height: 34px;
+    width: 24px;
+    height: 24px;
     border-radius: 50%;
     overflow: hidden;
+    flex-shrink: 0;
+    object-fit: cover;
 
     &:first-child {
       margin-left: 0;
@@ -117,6 +123,12 @@ const Avatars = styled.div`
     color: #888;
     margin-left: 10px;
     font-size: 13px;
+    flex: 1;
+    
+    > div {
+      width: 250px;
+      margin-right: ${dimensions.unitSpacing}px;
+    }
 
     .darker {
       display: inline;
@@ -124,7 +136,8 @@ const Avatars = styled.div`
 
     span {
       color: ${silverGrey};
-      width: auto;
+      margin-left: 5px;
+      font-weight: 500;
     }
   }
 `;
@@ -231,6 +244,7 @@ const ArticleWrapper = styled.div`
   transition: 0.4s;
   width: 100%;
   height: 100%;
+  overflow-x: auto;
 
   > h4 {
     color: #036;
@@ -303,7 +317,7 @@ const CategoryListWrapper = styledTS<{
   headingColor?: string;
   linkHoverColor?: string;
 }>(styled.div)`
-  max-width: 900px;
+  max-width: 1000px;
   margin: 0 auto;
 
   ${(props) =>
@@ -330,31 +344,43 @@ const CategoryListWrapper = styledTS<{
     `};
 
   .categories-wrapper {
+    .knowledge-base {
+      margin: 20px 0 50px;
+    }
+
+    .category-knowledge-list {
+      > p {
+        color: ${colors.colorCoreGray};
+        font-size: 15px;
+        margin-bottom: 30px;
+      }
+    }
+    
     .list-category-title {
-      margin: 6rem 0 1.5rem 0;
-      text-align: center;
       font-size: 26px;
       font-weight: 400;
+      margin-bottom: 5px;
+      text-transform: capitalize;
     }
 
     .category-col {
       margin-bottom: 30px;
     }
 
-    .card {
-      border: 1px solid #e2e2e271;
-      animation: fadeInDown 0.8s ease-in-out;
-      margin-bottom: 10px;
-    }
-
     .category-item {
       height: 100%;
 
       .icon-wrapper {
-        margin-bottom: 10px;
+        margin-bottom: ${dimensions.unitSpacing}px;
+        width: 44px;
+        height: 44px;
+        flex-shrink: 0;
+        border-radius: ${dimensions.unitSpacing}px;
+        border: 1px solid ${props => rgba(props.baseColor ? props.baseColor : colors.colorSecondary, 0.08)};
+        background: ${props => rgba(props.baseColor ? props.baseColor : colors.colorSecondary, 0.08)};
 
         i {
-          font-size: 30px;
+          font-size: 18px;
           transition: all ease .3s;
           color: ${(props) =>
             props.baseColor
@@ -362,20 +388,31 @@ const CategoryListWrapper = styledTS<{
               : colors.colorSecondary} !important;
         }
       }
-    }
 
-    .tab-content {
-      text-align: center;
+      .tab-content {
+        h5 {
+          font-size: 16px;
+          color: ${colors.textPrimary};
+          text-transform: capitalize;
+          transition: all ease .3s;
+        }
+  
+        p {
+          font-size: 14px;
+          color: #6c718b;
+          font-weight: 400;
+          margin: 0;
+        }
 
-      h5 {
-        font-size: 16px;
-        color: #000;
-      }
+        .authors {
+          margin-top: ${dimensions.unitSpacing - 2}px;
+          font-size: 13px;
+          color: #6c718b;
 
-      p {
-        font-size: 14px;
-        color: #6c718b;
-        font-weight: 400;
+          > span {
+            margin-right: ${dimensions.coreSpacing + dimensions.unitSpacing}px;
+          }
+        }
       }
     }
 
@@ -390,28 +427,25 @@ const CategoryListWrapper = styledTS<{
 
     .card {
       width: 100%;
-      background: #fff;
-      border: 0;
-      box-shadow: 0 0 15px -10px rgba(0, 0, 0, 0.25);
+      background: ${colors.colorWhite};
+      border: 1px solid rgba(60, 72, 88, 0.08);
+      box-shadow: 0 0 15px -10px rgba(60, 72, 88, 0.15);
       position: relative;
       min-height: 160px;
-      padding: 1rem;
+      padding: 24px;
+      border-radius: 12px;
+      animation: all ease 0.5s;
       margin-bottom: 10px;
-
-      > a {
-        height: 100%;
-      }
-
+      
       &:hover {
-        box-shadow: 0 4px 30px -13px rgba(0, 0, 0, 0.25);
+        box-shadow: 0 4px 30px -13px rgba(60, 72, 88, 0.2);
         transition: 0.4s;
       }
 
       &:hover > * {
-        .icon-wrapper, .icon-wrapper i,
-        .tab-content > h5 {
+        .tab-content h5 {
           color: ${(props) =>
-            props.linkHoverColor ? props.linkHoverColor : "#6569df"} !important;
+            props.linkHoverColor ? props.linkHoverColor : props.baseColor ? darken(props.baseColor, .7) :"#6569df"} !important;
         }
       }
     }
@@ -419,153 +453,11 @@ const CategoryListWrapper = styledTS<{
     a:hover {
       text-decoration: none;
     }
-
-    .promoted {
-      margin-top: -15rem;
-
-      .promoted-wrap {
-        background-color: #fff;
-        display: flex;
-        flex-flow: row wrap;
-        justify-content: center;
-        justify-content: flex-start;
-        border-radius: 3px;
-        box-shadow: 0 1px 5px #6e6c6e4b;
-        border-radius: 5px;
-
-        .card {
-          width: 100%;
-          background: #fff;
-          border: 0;
-          box-shadow: none;
-          position: relative;
-          min-height: 160px;
-          padding: 1.8rem 2.2rem 1.8rem 3.2rem;
-          margin-bottom: 10px;
-
-          .icon-wrapper {
-            position: absolute;
-            left: 25px;
-            top: 25px;
-
-            i {
-              color: #000;
-              transition: all ease .3s;
-            }
-          }
-
-          .tab-content {
-            text-align: left;
-            width: 100%;
-
-            p {
-              margin-bottom: 0;
-            }
-
-            h5 {
-              font-size: 14px;
-              color: #000;
-              font-weight: 600;
-              text-transform: uppercase;
-            }
-
-            .description {
-              display: flex;
-              align-items: center;
-            }
-          }
-
-          .more {
-            color: #6569df;
-            font-weight: 600;
-            position: absolute;
-            bottom: 15px;
-            font-size: 12px;
-            height: auto;
-            text-transform: uppercase;
-          }
-
-          .description {
-            p {
-              font-weight: 400;
-            }
-          }
-        }
-      }
-
-      @media only screen and (min-width: 1080px) {
-        .category-knowledge-list {
-          .list-category-title {
-            color: ${(props) =>
-              props.headingColor ? props.headingColor : colors.colorWhite};
-            
-            a {
-              color: inherit;
-            }
-          }
-        }
-        .promoted-wrap {
-          .card {
-            width: 33.3%;
-            border: none;
-            border-radius: 0;
-
-            &::after {
-              content: "";
-              position: absolute;
-              display: inline-block;
-              width: 160px;
-              height: 160px;
-              top: 0;
-              right: -40px;
-              background-color: transparent;
-              border-top-right-radius: 6px;
-              transform: scaleY(0.707) scaleX(0.4) rotate(45deg);
-              box-shadow: 1px -1px rgba(0, 0, 0, 0.178);
-              z-index: 1;
-            }
-
-            &:last-child:after,
-            &:nth-child(3n):after {
-              content: none;
-            }
-          }
-        }
-      }
-
-      @media only screen and (max-width: 1080px) {
-        .card {
-          &::after {
-            content: "";
-            position: absolute;
-            display: inline-block;
-            width: 27vw;
-            height: 27vw;
-            top: 20%;
-            left: 30%;
-            margin-left: auto;
-            margin-right: auto;
-            background-color: transparent;
-            border-top-right-radius: 6px;
-            transform: rotate(135deg) skew(39deg, 39deg);
-            box-shadow: 1px -1px rgba(0, 0, 0, 0.25);
-            z-index: 1;
-          }
-
-          &:last-child:after {
-            content: none;
-          }
-        }
-      }
-    }
   }
 `;
 
 const SidebarList = styledTS<{ baseColor?: string }>(styled.div)`
-  height: 100%;
   min-height: 60vh;
-  padding-right: 10px;
-  border-right: 1px solid #e1e1e1;
 
   .item {
     cursor: pointer;
@@ -575,48 +467,93 @@ const SidebarList = styledTS<{ baseColor?: string }>(styled.div)`
     justify-content: space-between;
     align-items: center;
     margin-bottom: 8px;
+    color: #7E8299;
 
     > div {
       display: flex;
       align-items: center;
 
+      > span {
+        width: ${dimensions.coreSpacing}px;
+        color: ${colors.colorCoreGray};
+        font-size: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        margin-right: ${dimensions.unitSpacing}px;
+      }
+
       > h6 {
         margin: 0;
         font-size: 14px;
+        transition: all ease .3s;
       }
 
-      > i {
-        margin-right: 10px;
-        font-size: 16px;
+      .icon-wrapper {
+        margin-right: ${dimensions.unitSpacing}px;
+        width: 30px;
+        height: 30px;
+        flex-shrink: 0;
+        border-radius: ${dimensions.unitSpacing}px;
+        border: 1px solid ${props => rgba(props.baseColor ? props.baseColor : colors.colorSecondary, 0.08)};
+        background: ${props => rgba(props.baseColor ? props.baseColor : colors.colorSecondary, 0.08)};
+
+        i {
+          font-size: 13px;
+          transition: all ease .3s;
+          color: ${(props) =>
+            props.baseColor
+              ? props.baseColor
+              : colors.colorSecondary} !important;
+        }
       }
     }
 
     > span {
-      color: #888;
+      color: ${colors.colorCoreGray};
       margin-left: 5px;
+      font-size: 13px;
     }
 
     &.active {
       color: ${(props) => (props.baseColor ? props.baseColor : `#6569df`)};
 
-      h6,
-      i {
-        font-weight: 600;
+      &:hover {
+        h6 {
+          color: ${(props) => (props.baseColor ? props.baseColor : `#6569df`)};
+        }
       }
     }
 
     &:hover {
       h6 {
-        font-weight: 600;
+        color: ${colors.textPrimary};
       }
     }
   }
 `;
 
-const SubCategories = styled.div`
-  padding: 0 0 5px 22px;
-
+const SubCategories = styledTS<{ baseColor?: string }>(styled.div)`
+  margin-bottom: ${dimensions.coreSpacing}px;
+  
   .item {
+    padding: 4px 0 6px ${dimensions.unitSpacing}px;
+    border-radius: ${dimensions.unitSpacing - 2}px;
+    margin: 0;
+
+    &.active {
+      color: ${props => props.baseColor ? props.baseColor : colors.colorSecondary};
+      // background: ${props => rgba(props.baseColor ? props.baseColor : colors.colorSecondary, 0.1)};
+
+      h6, span {
+        color: ${props => props.baseColor ? props.baseColor : colors.textPrimary};
+      }
+    }
+
+    &:hover {
+      background: ${colors.bgActive};
+    }
+    
     > div > i {
       margin-right: 2px !important;
     }

@@ -1,8 +1,7 @@
 import EmptyState from '@erxes/ui/src/components/EmptyState';
 import Spinner from '@erxes/ui/src/components/Spinner';
-import gql from 'graphql-tag';
+import { gql, useQuery, useMutation } from '@apollo/client';
 import React from 'react';
-import { useQuery, useMutation } from 'react-apollo';
 
 import BuildingDetail from '../components/detail/Detail';
 import { queries, mutations } from '../graphql';
@@ -14,25 +13,7 @@ type Props = {
 const BuildingDetailContainer = (props: Props) => {
   const { id } = props;
 
-  const [manageCustomers] = useMutation(
-    gql(mutations.buildingsAddCustomersMutation),
-    {
-      variables: {
-        _id: id,
-        customerIds: []
-      }
-    }
-  );
-
-  const [manageCompanies] = useMutation(
-    gql(mutations.buildingsAddCompaniesMutation),
-    {
-      variables: {
-        _id: id,
-        companyIds: []
-      }
-    }
-  );
+  const [updateBuilding] = useMutation(gql(mutations.buildingsUpdate));
 
   const detailQry = useQuery(gql(queries.detailQuery), {
     variables: {
@@ -41,36 +22,24 @@ const BuildingDetailContainer = (props: Props) => {
     fetchPolicy: 'network-only'
   });
 
-  const onSelectContacts = (datas: any, type: string) => {
-    console.log('onSelect', datas);
-    if (type === 'customer') {
-      manageCustomers({
-        variables: {
-          _id: id,
-          customerIds: datas.map((d: any) => d._id)
-        }
-      }).then(() => {
-        detailQry.refetch();
-      });
-    }
+  const assetsQuery: any = useQuery(gql(queries.assets), {
+    fetchPolicy: 'network-only'
+  });
 
-    if (type === 'company') {
-      manageCompanies({
-        variables: {
-          _id: id,
-          companyIds: datas.map((d: any) => d._id)
-        }
-      }).then(() => {
-        detailQry.refetch();
-      });
-    }
+  const onUpdate = (data: any) => {
+    updateBuilding({
+      variables: {
+        _id: id,
+        ...data
+      }
+    }).then(() => {
+      detailQry.refetch();
+    });
   };
 
   if (detailQry.loading) {
     return <Spinner objective={true} />;
   }
-
-  console.log('detailQry', detailQry.data);
 
   if (!detailQry.data.buildingDetail) {
     return (
@@ -80,8 +49,9 @@ const BuildingDetailContainer = (props: Props) => {
 
   const updatedProps = {
     ...props,
-    onSelectContacts,
-    building: detailQry.data.buildingDetail || ({} as any)
+    onUpdate,
+    building: detailQry.data.buildingDetail || ({} as any),
+    assets: (assetsQuery.data || {}).assets || []
   };
 
   return <BuildingDetail {...updatedProps} />;

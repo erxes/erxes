@@ -19,6 +19,7 @@ const commonPostAndCommentFields = `
   attachments
   timestamp
   permalink_url
+  content
 `;
 
 const facebookGetConfigs = `
@@ -95,6 +96,7 @@ const facebookConversationMessages = `
       userId
       createdAt
       isCustomerRead
+      internal
 
       attachments {
         url

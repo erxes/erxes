@@ -1,4 +1,11 @@
+import {
+  attachmentInput,
+  attachmentType
+} from '@erxes/api-utils/src/commonTypeDefs';
+
 export const types = (isContactsEnabled: boolean) => `
+${attachmentType}
+${attachmentInput}
 
 ${
   isContactsEnabled
@@ -14,10 +21,35 @@ ${
     : ''
 }
 
+type VerificationRequest {
+  status: String
+  attachments: [Attachment]
+  description: String
+  verifiedBy: String
+}
+
+  input ClientPortalUserUpdate {
+    firstName: String
+    lastName: String
+    phone: String
+    email: String
+    username: String
+    companyName: String
+    companyRegistrationNumber: String
+    code: String,
+    links: JSON,
+    customFieldsData: JSON,
+    isEmailVerified: Boolean
+    isPhoneVerified: Boolean
+    isOnline: Boolean
+    avatar: String
+  }
+
   type ClientPortalUser @key(fields: "_id") {
     _id: String!
     createdAt: Date
     modifiedAt: Date
+    fullName: String
     firstName: String
     lastName: String
     phone: String
@@ -48,6 +80,8 @@ ${
 
     avatar: String
 
+    verificationRequest: VerificationRequest
+
     ${
       isContactsEnabled
         ? `
@@ -61,6 +95,17 @@ ${
   type clientPortalUsersListResponse {
     list: [ClientPortalUser],
     totalCount: Float,
+  }
+
+  enum ClientPortalUserVerificationStatus {
+    verified
+    notVerified
+    pending
+  }
+
+  type CPAuthPayload {
+    token: String
+    refreshToken: String
   }
 `;
 
@@ -100,9 +145,11 @@ const userParams = `
   email: String,
   username: String,
   password: String,
+  secondaryPassword: String,
 
   companyName: String
   companyRegistrationNumber: String
+  erxesCompanyId: String
   
   firstName: String,
   lastName: String,
@@ -116,19 +163,33 @@ const userParams = `
 `;
 
 export const mutations = () => `
-  clientPortalUsersInvite(${userParams}): ClientPortalUser
+  clientPortalUsersInvite(${userParams}, disableVerificationMail: Boolean): ClientPortalUser
   clientPortalUsersEdit(_id: String!, ${userParams}): ClientPortalUser
   clientPortalUsersRemove(clientPortalUserIds: [String!]): JSON
   clientPortalRegister(${userParams}): String
-  clientPortalVerifyOTP(userId: String!, phoneOtp: String, emailOtp: String, password: String): String
+  clientPortalVerifyOTP(userId: String!, phoneOtp: String, emailOtp: String, password: String): JSON
   clientPortalUsersVerify(userIds: [String]!, type: String): JSON
-  clientPortalLogin(login: String!, password: String!, clientPortalId: String!, deviceToken: String): String
-  clientPortalLogout: String
+  clientPortalLogin(login: String!, password: String!, clientPortalId: String!, deviceToken: String): JSON
   clientPortalLoginWithPhone(phone: String!, clientPortalId: String!, deviceToken: String): JSON
+  clientPortalLoginWithSocialPay(clientPortalId: String!, token: String!) : JSON
+  clientPortalRefreshToken: String
+  clientPortalGoogleAuthentication(clientPortalId: String, code: String): JSON
+  clientPortalFacebookAuthentication(accessToken: String, clientPortalId: String!): JSON
+  clientPortalLogout: String
+  
+  clientPortalUsersReplacePhone(clientPortalId: String!, phone: String!): String!
+  clientPortalUsersVerifyPhone(code: String!): String!
+
+  clientPortalUserAssignCompany(userId: String!, erxesCompanyId: String!, erxesCustomerId: String!):  JSON
 
   clientPortalConfirmInvitation(token: String, password: String, passwordConfirmation: String, username: String): ClientPortalUser
   clientPortalForgotPassword(clientPortalId: String!, email: String, phone: String): String!
   clientPortalResetPasswordWithCode(phone: String!, code: String!, password: String!): String
   clientPortalResetPassword(token: String!, newPassword: String!): JSON
   clientPortalUserChangePassword(currentPassword: String!, newPassword: String!): ClientPortalUser
+  clientPortalUsersSendVerificationRequest(login: String!, password: String!, clientPortalId: String!,  attachments: [AttachmentInput]!, description: String): String
+  clientPortalUsersChangeVerificationStatus(userId: String!, status: ClientPortalUserVerificationStatus!): String
+  clientPortalUpdateUser(_id: String!, doc: ClientPortalUserUpdate!): JSON
+
+  clientPortalUserSetSecondaryPassword(newPassword: String!, oldPassword:String): String
 `;

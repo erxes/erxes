@@ -1,11 +1,11 @@
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import { IButtonMutateProps, IRouterProps } from '@erxes/ui/src/types';
 import { Alert, confirm, withProps } from '@erxes/ui/src/utils';
 import * as routerUtils from '@erxes/ui/src/utils/router';
 import React from 'react';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 import { withRouter } from 'react-router-dom';
 import { getWarningMessage } from '@erxes/ui-cards/src/boards/utils';
 import Boards from '../components/Boards';

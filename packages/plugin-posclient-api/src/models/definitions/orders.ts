@@ -6,26 +6,35 @@ import {
   schemaHooksWrapper
 } from './utils';
 import { IOrderItemDocument } from './orderItems';
-import { IQpayInvoiceDocument } from './qpayInvoices';
 import { ORDER_STATUSES, ORDER_TYPES } from './constants';
 
-interface ICardPayment {
-  _id: string;
+export interface IPaidAmount {
+  _id?: string;
+  type: string;
   amount: number;
-  cardInfo: any;
+  info?: any;
+}
+
+export interface IMobileAmount {
+  _id?: string;
+  amount: number;
 }
 
 export interface IOrder {
   status?: string;
   createdAt?: Date;
   modifiedAt?: Date;
+  userId?: string;
   paidDate?: Date;
+  dueDate?: Date;
   number?: string;
   customerId?: string;
-  cardAmount?: number;
+  customerType?: string;
   cashAmount?: number;
-  receivableAmount?: number;
   mobileAmount?: number;
+  mobileAmounts?: IMobileAmount[];
+  directDiscount?: number;
+  paidAmounts?: IPaidAmount[];
   totalAmount: number;
   finalAmount?: number;
   shouldPrintEbarimt?: boolean;
@@ -37,42 +46,51 @@ export interface IOrder {
   type?: string;
   branchId?: string;
   departmentId?: string;
+  subBranchId?: string;
   synced?: boolean;
-  cardPaymentInfo?: string;
   origin?: string;
-
-  // split payment info
-  cardPayments?: ICardPayment[];
   posToken?: string;
+  subToken?: string;
   deliveryInfo?: any;
+  description?: string;
+  isPre?: boolean;
 
   //posSlot
   slotCode?: string;
   taxInfo?: any;
+  convertDealId?: string;
+  returnInfo?: any;
 }
 
 const commonAttributes = { positive: true, default: 0 };
 
-// @ts-ignore
-const cardPaymentSchema = schemaHooksWrapper(
-  new Schema({
-    _id: field({ pkey: true }),
-    amount: getNumberFieldDefinition({
-      ...commonAttributes,
-      label: 'Paid amount'
-    }),
-    // @ts-ignore
-    cardInfo: { type: Object, label: 'Card info' }
-  }),
-  'erxes_cardPayment'
-);
-
 export interface IOrderDocument extends Document, IOrder {
   _id: string;
   items: IOrderItemDocument[];
-  userId?: string;
-  qpayInvoices?: IQpayInvoiceDocument[];
 }
+
+const paidAmountSchema = new Schema({
+  _id: field({ pkey: true }),
+  type: field({ type: String }),
+  amount: getNumberFieldDefinition({
+    ...commonAttributes,
+    label: 'Paid amount'
+  }),
+  info: field({ type: Object })
+});
+
+const mobileAmountSchema = new Schema({
+  _id: field({ pkey: true }),
+  amount: field({ type: Number })
+});
+
+const returnInfoSchema = new Schema({
+  cashAmount: field({ type: Number }),
+  paidAmounts: field({ type: [paidAmountSchema] }),
+  returnAt: field({ type: Date }),
+  returnBy: field({ type: String }),
+  description: field({ type: String })
+});
 
 export const orderSchema = schemaHooksWrapper(
   new Schema({
@@ -87,28 +105,36 @@ export const orderSchema = schemaHooksWrapper(
       index: true
     }),
     paidDate: field({ type: Date, label: 'Paid date' }),
+    dueDate: field({ type: Date, label: 'Due date' }),
     number: field({
       type: String,
       label: 'Order number',
       index: true
     }),
     customerId: field({ type: String, optional: true, label: 'Customer' }),
-    cardAmount: getNumberFieldDefinition({
-      ...commonAttributes,
-      label: 'Card amount'
+    customerType: field({
+      type: String,
+      optional: true,
+      label: 'Customer type'
     }),
     cashAmount: getNumberFieldDefinition({
       ...commonAttributes,
       label: 'Cash amount'
     }),
-    receivableAmount: getNumberFieldDefinition({
+    directDiscount: getNumberFieldDefinition({
       ...commonAttributes,
-      label: 'Cash amount'
+      label: 'Direct Discount'
     }),
     mobileAmount: getNumberFieldDefinition({
       ...commonAttributes,
       label: 'Mobile amount'
     }),
+    mobileAmounts: field({
+      type: [mobileAmountSchema],
+      optional: true,
+      label: 'Mobile amounts'
+    }),
+    paidAmounts: field({ type: [paidAmountSchema], label: 'Paid amounts' }),
     totalAmount: getNumberFieldDefinition({
       ...commonAttributes,
       label: 'Total amount before tax'
@@ -147,8 +173,9 @@ export const orderSchema = schemaHooksWrapper(
       enum: ORDER_TYPES.ALL,
       default: ORDER_TYPES.EAT
     }),
-    branchId: field({ type: String, label: 'Branch' }),
+    branchId: field({ type: String, optional: true, label: 'Branch' }),
     departmentId: field({ type: String, optional: true, label: 'Branch' }),
+    subBranchId: field({ type: String, optional: true, label: 'Sub Branch' }),
     userId: field({
       type: String,
       optional: true,
@@ -159,16 +186,13 @@ export const orderSchema = schemaHooksWrapper(
       default: false,
       label: 'synced on erxes'
     }),
-    // rm this filed after a migration
-    cardPaymentInfo: field({
-      type: String,
-      label: 'Bank card transaction info'
-    }),
-    cardPayments: field({
-      type: [cardPaymentSchema],
-      label: 'List of card payment info'
-    }),
     posToken: field({
+      type: String,
+      optional: true,
+      label: 'posToken',
+      index: true
+    }),
+    subToken: field({
       type: String,
       optional: true,
       label: 'If From online posToken',
@@ -197,6 +221,16 @@ export const orderSchema = schemaHooksWrapper(
       optional: true,
       label: 'Delivery Info, address, map, etc'
     }),
+    description: field({
+      type: String,
+      label: 'Description',
+      optional: true
+    }),
+    isPre: field({
+      type: Boolean,
+      label: 'Is Pre-Order',
+      optional: true
+    }),
     origin: field({
       type: String,
       label: 'Origin of the order',
@@ -207,9 +241,20 @@ export const orderSchema = schemaHooksWrapper(
       optional: true,
       label: 'Slot code'
     }),
-    taxInfo: field({ type: Object, optional: true })
+    taxInfo: field({ type: Object, optional: true }),
+    convertDealId: field({
+      type: String,
+      optional: true,
+      label: 'Converted Deal'
+    }),
+    returnInfo: field({
+      type: returnInfoSchema,
+      optional: true,
+      label: 'Return information'
+    })
   }),
   'erxes_orders'
 );
 
 orderSchema.index({ posToken: 1, number: 1 }, { unique: true });
+orderSchema.index({ posToken: 1, userId: 1, date: 1 });

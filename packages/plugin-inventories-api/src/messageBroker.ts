@@ -100,13 +100,33 @@ export const sendProductsMessage = async (
   });
 };
 
-export const sendInventoriesMessage = async (
+export const sendFormsMessage = async (
   args: ISendMessageArgs
 ): Promise<any> => {
   return sendMessage({
     client,
     serviceDiscovery,
-    serviceName: 'inventories',
+    serviceName: 'forms',
+    ...args
+  });
+};
+
+export const sendPosMessage = async (args: ISendMessageArgs): Promise<any> => {
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName: 'pos',
+    ...args
+  });
+};
+
+export const sendProcessesMessage = async (
+  args: ISendMessageArgs
+): Promise<any> => {
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName: 'processes',
     ...args
   });
 };

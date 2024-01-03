@@ -52,11 +52,12 @@ export const afterQueryHandlers = async (subdomain, data) => {
         accounts: remConfig.account,
         locations: remConfig.location,
         inventories: codes.join(',')
-      }
+      },
+      timeout: 8000
     });
 
     const jsonRes = JSON.parse(response);
-    let responseByCode = jsonRes;
+    let responseByCode = {};
 
     if (remConfig.account && remConfig.location) {
       const accounts = remConfig.account.split(',') || [];
@@ -64,7 +65,7 @@ export const afterQueryHandlers = async (subdomain, data) => {
 
       for (const acc of accounts) {
         for (const loc of locations) {
-          const resp = jsonRes[acc][loc] || {};
+          const resp = (jsonRes[acc] || {})[loc] || {};
           for (const invCode of Object.keys(resp)) {
             if (!Object.keys(responseByCode).includes(invCode)) {
               responseByCode[invCode] = '';
@@ -81,7 +82,7 @@ export const afterQueryHandlers = async (subdomain, data) => {
     }
 
     for (const r of results) {
-      r.name = r.name.concat(` (${responseByCode[r.code] || '-0'})`);
+      r.name = (r.name || '').concat(` (${responseByCode[r.code] || '-0'})`);
     }
   } catch (e) {
     console.log(e.message);

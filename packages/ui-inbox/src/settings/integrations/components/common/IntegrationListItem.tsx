@@ -24,8 +24,9 @@ import WithPermission from 'coreui/withPermission';
 import { __ } from '@erxes/ui/src/utils';
 import { cleanIntegrationKind } from '@erxes/ui/src/utils';
 import client from '@erxes/ui/src/apolloClient';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import { queries } from '../../graphql/index';
+import { loadDynamicComponent } from '@erxes/ui/src/utils/core';
 
 type Props = {
   _id?: string;
@@ -36,7 +37,7 @@ type Props = {
   disableAction?: boolean;
   editIntegration: (
     id: string,
-    { name, brandId, channelIds }: IntegrationMutationVariables
+    { name, brandId, channelIds, details }: IntegrationMutationVariables
   ) => void;
   showExternalInfoColumn: () => void;
   showExternalInfo: boolean;
@@ -165,6 +166,7 @@ class IntegrationListItem extends React.Component<Props, State> {
         integrationId={integration._id}
         integrationKind={integration.kind}
         webhookData={integration.webhookData}
+        details={integration.details}
       />
     );
 
@@ -242,7 +244,10 @@ class IntegrationListItem extends React.Component<Props, State> {
   renderRepairAction() {
     const { repair, integration } = this.props;
 
-    if (!integration.kind.includes('facebook')) {
+    if (
+      !integration.kind.includes('facebook') ||
+      !integration.kind.includes('instagram')
+    ) {
       return null;
     }
 
@@ -310,7 +315,8 @@ class IntegrationListItem extends React.Component<Props, State> {
   renderFetchAction(integration: IIntegration) {
     if (
       integration.kind === INTEGRATION_KINDS.MESSENGER ||
-      integration.kind.includes('facebook')
+      integration.kind.includes('facebook') ||
+      integration.kind.includes('instagram')
     ) {
       return null;
     }
@@ -379,6 +385,9 @@ class IntegrationListItem extends React.Component<Props, State> {
         {this.renderExternalData(integration)}
         <td>
           <ActionButtons>
+            {loadDynamicComponent('integrationCustomActions', {
+              ...this.props
+            })}
             {this.renderFetchAction(integration)}
             {this.renderMessengerActions(integration)}
             {this.renderGetAction()}

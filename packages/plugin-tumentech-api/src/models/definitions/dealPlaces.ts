@@ -6,6 +6,7 @@ export interface IDealPlace {
   dealId: string;
   startPlaceId: string;
   endPlaceId: string;
+  path: string;
 }
 
 export interface IDealPlaceDocument extends IDealPlace, Document {
@@ -21,7 +22,8 @@ export const dealPlaceSchema = schemaHooksWrapper(
       label: 'Start Place Id',
       required: true
     }),
-    endPlaceId: field({ type: String, label: 'End Place Id', required: true })
+    endPlaceId: field({ type: String, label: 'End Place Id', required: true }),
+    path: field({ type: String, label: 'Path', required: true })
   }),
   'deal_places'
 );

@@ -197,15 +197,17 @@ class CustomersMerge extends React.Component<Props, State> {
     return (
       <form onSubmit={this.save}>
         <Columns>
-          <Column className="multiple">
+          <Column className="multiple" width="33%">
             {this.renderCustomer(customer1, 'plus-1')}
           </Column>
 
-          <Column className="multiple">
+          <Column className="multiple" width="33%">
             {this.renderCustomer(customer2, 'plus-1')}
           </Column>
 
-          <Column>{this.renderCustomer(selectedValues, 'times')}</Column>
+          <Column width="33%">
+            {this.renderCustomer(selectedValues, 'times')}
+          </Column>
         </Columns>
 
         <ModalFooter>

@@ -5,6 +5,7 @@ import colors from '../styles/colors';
 import { rgba } from '../styles/ecolor';
 import styled from 'styled-components';
 import { readFile } from '../utils/core';
+import VideoPlayer from './VideoPlayer';
 
 const Wrapper = styled.a`
   border-radius: 4px;
@@ -110,6 +111,28 @@ export default function FilePreview({ fileUrl, fileName }: Props) {
     );
   };
 
+  const renderCloudflareStreamVideoFile = () => {
+    const options = {
+      autoplay: false,
+      playbackRates: [0.5, 1, 1.25, 1.5, 2],
+      controls: true,
+      sources: [
+        {
+          src: fileUrl,
+          type: 'application/x-mpegURL'
+        }
+      ]
+    };
+
+    return (
+      <Wrapper>
+        <Content>
+          <VideoPlayer options={options} />
+        </Content>
+      </Wrapper>
+    );
+  };
+
   const renderImagePreview = () => {
     return (
       <Wrapper>
@@ -134,6 +157,9 @@ export default function FilePreview({ fileUrl, fileName }: Props) {
       break;
     case 'mp4':
       filePreview = renderVideo();
+      break;
+    case 'm3u8':
+      filePreview = renderCloudflareStreamVideoFile();
       break;
     case 'jpeg':
     case 'jpg':

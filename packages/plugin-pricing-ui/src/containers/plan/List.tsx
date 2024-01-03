@@ -1,19 +1,18 @@
 import React from 'react';
-import { useLocation } from 'react-router-dom';
-import { useQuery } from 'react-apollo';
-import gql from 'graphql-tag';
-import queryString from 'query-string';
+import { useQuery } from '@apollo/client';
+import { gql } from '@apollo/client';
 // local
 import { queries } from '../../graphql';
 import ListComponent from '../../components/plan/List';
 
-const ListContainer = () => {
-  const location = useLocation();
-  const query = queryString.parse(location.search);
-  const { status = '' } = query;
+type Props = {
+  count: number;
+  params: any;
+};
 
+const ListContainer = (props: Props) => {
   const plans = useQuery(gql(queries.pricingPlans), {
-    variables: { status },
+    variables: { ...props.params },
     fetchPolicy: 'network-only',
     notifyOnNetworkStatusChange: true
   });
@@ -21,6 +20,7 @@ const ListContainer = () => {
   return (
     <ListComponent
       data={plans.data ? plans.data.pricingPlans : []}
+      count={props.count}
       loading={plans.loading}
     />
   );

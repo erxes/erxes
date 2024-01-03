@@ -25,6 +25,11 @@ export interface IPermissionGroupUserModel
     userIds: string[],
     permissionGroupIds: string[]
   ): Promise<void>;
+
+  setUsers(
+    permissionGroupId: string,
+    cpUserIds: string[] | undefined | null
+  ): Promise<boolean>;
 }
 
 export const permissionGroupUserSchema = new Schema<
@@ -91,6 +96,37 @@ export const generatePermissionGroupUserModel = (
         userId: { $in: userIds },
         permissionGroupId: { $in: permissionGroupIds.map(ObjectId) }
       });
+    }
+
+    public static async setUsers(
+      permissionGroupId: string,
+      cpUserIds: string[] | undefined | null
+    ): Promise<boolean> {
+      // await models.PermissionGroupUser.deleteMany({
+      //   userId: { $nin: cpUserIds || [] },
+      //   permissionGroupId,
+      // });
+
+      const ops: any[] = (cpUserIds || []).map(userId => ({
+        updateOne: {
+          filter: { userId, permissionGroupId },
+          update: { $set: { userId, permissionGroupId } },
+          upsert: true
+        }
+      }));
+
+      ops.push({
+        deleteMany: {
+          filter: {
+            userId: { $nin: cpUserIds || [] },
+            permissionGroupId
+          }
+        }
+      });
+
+      await models.PermissionGroupUser.bulkWrite(ops);
+
+      return true;
     }
   }
 

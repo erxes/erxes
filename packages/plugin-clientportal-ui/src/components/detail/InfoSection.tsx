@@ -1,16 +1,16 @@
-import NameCard from '@erxes/ui/src/components/nameCard/NameCard';
 import { Name, NameContainer } from '@erxes/ui-contacts/src/customers/styles';
-import { AvatarWrapper } from '@erxes/ui-log/src/activityLogs/styles';
-import Icon from '@erxes/ui/src/components/Icon';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import { InfoWrapper } from '@erxes/ui/src/styles/main';
-import React from 'react';
 
+import { AvatarWrapper } from '@erxes/ui-log/src/activityLogs/styles';
 import ClientPortalUserForm from '../../containers/ClientPortalUserForm';
 import { IClientPortalUser } from '../../types';
+import Icon from '@erxes/ui/src/components/Icon';
+import { InfoWrapper } from '@erxes/ui/src/styles/main';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import NameCard from '@erxes/ui/src/components/nameCard/NameCard';
+import React from 'react';
 
 type Props = {
-  avatarSize: number;
+  avatarSize?: number;
   clientPortalUser: IClientPortalUser;
   children?: React.ReactNode;
 };

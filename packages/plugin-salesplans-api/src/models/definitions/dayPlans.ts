@@ -13,7 +13,7 @@ export interface IDayPlan {
   departmentId: string;
   branchId: string;
   productId: string;
-  uomId: string;
+  uom: string;
   planCount: number;
   values: IPlanValue[];
   status: string;
@@ -57,7 +57,7 @@ export const dayPlanSchema = schemaWrapper(
     departmentId: field({ type: String, label: 'Department' }),
     branchId: field({ type: String, label: 'Branch' }),
     productId: field({ type: String, label: 'Product' }),
-    uomId: field({ type: String, label: 'Uom' }),
+    uom: field({ type: String, label: 'Uom' }),
     planCount: field({ type: Number, label: 'Plan count' }),
     values: field({ type: [valueSchema], label: '' }),
     status: field({

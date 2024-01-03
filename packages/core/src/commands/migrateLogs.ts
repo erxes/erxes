@@ -32,11 +32,15 @@ const changeType = type => {
     case 'deal':
     case 'dealBoards':
     case 'dealPipelines':
+    case 'purchase':
+    case 'purchaseBoards':
+    case 'purchasePipelines':
     case 'checkListItem':
       prefix = 'cards';
     case 'checklist':
       prefix = 'cards';
     case 'dealStages':
+    case 'purchaseStages':
     case 'growthHack':
     case 'growthHackBoards':
     case 'growthHackPipelines':

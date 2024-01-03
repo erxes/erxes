@@ -1,86 +1,10 @@
+import { commonFields } from './queries';
+
 const pricingPlanAdd = `
   mutation PricingPlanAdd($doc: PricingPlanAddInput) {
     pricingPlanAdd(doc: $doc) {
-      _id
-      name
-      status
-      type
-      value
-      priceAdjustType
-      priceAdjustFactor
-      bonusProduct
-      isPriority
+      ${commonFields}
 
-      applyType
-
-      products
-      productsExcluded
-      productsBundle
-      categories
-      categoriesExcluded
-
-      isStartDateEnabled
-      isEndDateEnabled
-
-      startDate
-      endDate
-      
-      branchIds
-      departmentIds
-      boardId
-      pipelineId
-      stageId
-
-      isQuantityEnabled
-      quantityRules {
-        type
-        value
-        discountType
-        discountValue
-        discountBonusProduct
-        priceAdjustType
-        priceAdjustFactor
-      }
-
-      isPriceEnabled
-      priceRules {
-        type
-        value
-        discountType
-        discountValue
-        discountBonusProduct
-        priceAdjustType
-        priceAdjustFactor
-      }
-
-      isExpiryEnabled
-      expiryRules {
-        type
-        value
-        discountType
-        discountValue
-        discountBonusProduct
-        priceAdjustType
-        priceAdjustFactor
-      }
-
-      isRepeatEnabled
-      repeatRules {
-        type
-        dayStartValue
-        dayEndValue
-        weekValue {
-          label
-          value
-        }
-        monthValue {
-          label
-          value
-        }
-        yearStartValue
-        yearEndValue
-      }
-  
       createdAt
       createdBy
       updatedAt
@@ -93,84 +17,7 @@ const pricingPlanEdit = `
   mutation PricingPlanEdit($doc: PricingPlanEditInput) {
     pricingPlanEdit(doc: $doc) {
       _id
-      name
-      status
-      type
-      value
-      priceAdjustType
-      priceAdjustFactor
-      bonusProduct
-      isPriority
-
-      applyType
-
-      products
-      productsExcluded
-      productsBundle
-      categories
-      categoriesExcluded
-
-      isStartDateEnabled
-      isEndDateEnabled
-
-      startDate
-      endDate
-      
-      branchIds
-      departmentIds
-      boardId
-      pipelineId
-      stageId
-
-      isQuantityEnabled
-      quantityRules {
-        type
-        value
-        discountType
-        discountValue
-        discountBonusProduct
-        priceAdjustType
-        priceAdjustFactor
-      }
-
-      isPriceEnabled
-      priceRules {
-        type
-        value
-        discountType
-        discountValue
-        discountBonusProduct
-        priceAdjustType
-        priceAdjustFactor
-      }
-
-      isExpiryEnabled
-      expiryRules {
-        type
-        value
-        discountType
-        discountValue
-        discountBonusProduct
-        priceAdjustType
-        priceAdjustFactor
-      }
-
-      isRepeatEnabled
-      repeatRules {
-        type
-        dayStartValue
-        dayEndValue
-        weekValue {
-          label
-          value
-        }
-        monthValue {
-          label
-          value
-        }
-        yearStartValue
-        yearEndValue
-      }
+      ${commonFields}
 
       createdAt
       createdBy

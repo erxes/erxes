@@ -1,15 +1,7 @@
-import * as apm from 'elastic-apm-node';
 import * as dotenv from 'dotenv';
 
 // load environment variables
 dotenv.config();
-
-if (process.env.ELASTIC_APM_HOST_NAME) {
-  apm.start({
-    serviceName: `${process.env.ELASTIC_APM_HOST_NAME}-core-api`,
-    serverUrl: 'http://172.104.115.19:8200'
-  });
-}
 
 import * as cookieParser from 'cookie-parser';
 import * as cors from 'cors';
@@ -29,16 +21,17 @@ import {
   handleUnsubscription,
   readFileRequest,
   registerOnboardHistory,
-  routeErrorHandling
+  routeErrorHandling,
+  uploadsFolderPath
 } from './data/utils';
 
 import { debugBase, debugError, debugInit } from './debuggers';
-import { initMemoryStorage } from './inmemoryStorage';
 import { initBroker, sendCommonMessage } from './messageBroker';
 import { uploader } from './middlewares/fileMiddleware';
 import {
   getService,
   getServices,
+  isEnabled,
   join,
   leave,
   redis
@@ -51,7 +44,12 @@ import { generateModels } from './connectionResolver';
 import { authCookieOptions, getSubdomain } from '@erxes/api-utils/src/core';
 import segments from './segments';
 import automations from './automations';
+import imports from './imports';
+import exporter from './exporter';
 import { moduleObjects } from './data/permissions/actions/permission';
+import dashboards from './dashboards';
+import { getEnabledServices } from '@erxes/api-utils/src/serviceDiscovery';
+import { applyInspectorEndpoints } from '@erxes/api-utils/src/inspect';
 
 const {
   JWT_TOKEN_SECRET,
@@ -109,7 +107,7 @@ app.get(
       const services = await getServices();
 
       for (const serviceName of services) {
-        const service = await getService(serviceName, true);
+        const service = await getService(serviceName);
         const meta = service.config?.meta || {};
 
         if (meta && meta.initialSetup && meta.initialSetup.generateAvailable) {
@@ -191,12 +189,19 @@ app.get('/read-file', async (req: any, res, next) => {
   try {
     const key = req.query.key;
     const name = req.query.name;
+    const width = req.query.width;
 
     if (!key) {
       return res.send('Invalid key');
     }
 
-    const response = await readFileRequest(key, models);
+    const response = await readFileRequest({
+      key,
+      subdomain,
+      models,
+      userId: req.headers.userid,
+      width
+    });
 
     res.attachment(name || key);
 
@@ -217,7 +222,7 @@ app.post(
   '/delete-file',
   routeErrorHandling(async (req: any, res) => {
     // require login
-    if (!req.user) {
+    if (!req.headers.userid) {
       return res.end('forbidden');
     }
 
@@ -263,6 +268,38 @@ app.use((error, _req, res, _next) => {
   res.status(500).send(error.message);
 });
 
+app.get('/dashboard', async (req, res) => {
+  const headers = req.rawHeaders;
+
+  const index = headers.indexOf('schemaName') + 1;
+
+  const schemaName = headers[index];
+
+  res.sendFile(path.join(__dirname, `./dashboardSchemas/${schemaName}.js`));
+});
+
+app.get('/get-import-file', async (req, res) => {
+  const headers = req.rawHeaders;
+
+  const index = headers.indexOf('fileName') + 1;
+
+  const fileName = headers[index];
+
+  res.sendFile(`${uploadsFolderPath}/${fileName}`);
+});
+
+app.get('/plugins/enabled/:name', async (req, res) => {
+  const result = await isEnabled(req.params.name);
+  res.json(result);
+});
+
+app.get('/plugins/enabled', async (_req, res) => {
+  const result = (await getEnabledServices()) || [];
+  res.json(result);
+});
+
+applyInspectorEndpoints(app, 'core');
+
 // Wrap the Express server
 const httpServer = createServer(app);
 
@@ -272,15 +309,11 @@ const RABBITMQ_HOST = getEnv({ name: 'RABBITMQ_HOST' });
 const MESSAGE_BROKER_PREFIX = getEnv({ name: 'MESSAGE_BROKER_PREFIX' });
 
 httpServer.listen(PORT, async () => {
-  initApolloServer(app, httpServer).then(apolloServer => {
-    apolloServer.applyMiddleware({ app, path: '/graphql', cors: corsOptions });
-  });
+  await initApolloServer(app, httpServer);
 
-  initBroker({ RABBITMQ_HOST, MESSAGE_BROKER_PREFIX, redis }).catch(e => {
+  initBroker({ RABBITMQ_HOST, MESSAGE_BROKER_PREFIX, redis, app }).catch(e => {
     debugError(`Error ocurred during message broker init ${e.message}`);
   });
-
-  initMemoryStorage();
 
   init()
     .then(() => {
@@ -303,7 +336,10 @@ httpServer.listen(PORT, async () => {
       forms,
       segments,
       automations,
-      permissions: moduleObjects
+      permissions: moduleObjects,
+      imports,
+      exporter,
+      dashboards
     }
   });
 

@@ -1,9 +1,10 @@
-import { Ads } from '../../models';
+import { Ads, AdWishlists } from '../../models';
 import { IContext } from '@erxes/api-utils/src/types';
+import { paginate } from '@erxes/api-utils/src';
 
 const adQueries = {
   ads(_root, args, _context: IContext) {
-    const { skip, limit, title, description, authorName, priceRange } = args;
+    const { perPage, page, title, description, authorName, priceRange } = args;
 
     const selector: any = {};
 
@@ -58,9 +59,11 @@ const adQueries = {
       }
     }
 
-    return Ads.find(selector)
-      .skip(skip || 0)
-      .limit(limit || 20);
+    if (page && perPage) {
+      return paginate(Ads.find(selector).sort({ createdAt: -1 }), args);
+    }
+
+    return Ads.find(selector).sort({ order: 1, createdAt: -1 });
   },
 
   adDetail(_root, { _id }) {
@@ -69,6 +72,15 @@ const adQueries = {
 
   adsTotalCount(_root, _args, _context: IContext) {
     return Ads.find({}).countDocuments();
+  },
+
+  // Wishlist queries
+
+  adWishlist(_root, args, { cpUser }) {
+    if (!cpUser) {
+      throw new Error('Login required');
+    }
+    return AdWishlists.findOne({ cpUserId: cpUser.userId });
   }
 };
 

@@ -4,14 +4,19 @@ import {
 } from '@erxes/api-utils/src/automations';
 import { generateModels, IModels } from './connectionResolver';
 import { itemsAdd } from './graphql/resolvers/mutations/utils';
-import { sendCommonMessage, sendCoreMessage } from './messageBroker';
+import {
+  sendCommonMessage,
+  sendContactsMessage,
+  sendCoreMessage
+} from './messageBroker';
 import { getCollection } from './models/utils';
 
 const getRelatedValue = async (
   models: IModels,
   subdomain: string,
   target,
-  targetKey
+  targetKey,
+  relatedValueProps?: any
 ) => {
   if (
     [
@@ -28,6 +33,11 @@ const getRelatedValue = async (
       data: { _id: target[targetKey] },
       isRPC: true
     });
+
+    if (!!relatedValueProps[targetKey]) {
+      const key = relatedValueProps[targetKey]?.key;
+      return user[key];
+    }
 
     return (
       (user && ((user.detail && user.detail.fullName) || user.email)) || ''
@@ -49,6 +59,14 @@ const getRelatedValue = async (
       },
       isRPC: true
     });
+
+    if (!!relatedValueProps[targetKey]) {
+      const { key, filter } = relatedValueProps[targetKey] || {};
+      return users
+        .filter(user => (filter ? user[filter.key] === filter.value : user))
+        .map(user => user[key])
+        .join(', ');
+    }
 
     return (
       users.map(user => (user.detail && user.detail.fullName) || user.email) ||
@@ -96,7 +114,72 @@ const getRelatedValue = async (
     return (conversations.map(c => c.content) || []).join(', ');
   }
 
+  if (['customers', 'companies'].includes(targetKey)) {
+    const relTypeConst = {
+      companies: 'company',
+      customers: 'customer'
+    };
+
+    const contactIds = await sendCoreMessage({
+      subdomain,
+      action: 'conformities.savedConformity',
+      data: {
+        mainType: target.type,
+        mainTypeId: target._id,
+        relTypes: [relTypeConst[targetKey]]
+      },
+      isRPC: true,
+      defaultValue: []
+    });
+
+    const upperCasedTargetKey =
+      targetKey.charAt(0).toUpperCase() + targetKey.slice(1);
+
+    const activeContacts = await sendContactsMessage({
+      subdomain,
+      action: `${targetKey}.findActive${upperCasedTargetKey}`,
+      data: { selector: { _id: { $in: contactIds } } },
+      isRPC: true,
+      defaultValue: []
+    });
+
+    if (relatedValueProps && !!relatedValueProps[targetKey]) {
+      const { key, filter } = relatedValueProps[targetKey] || {};
+      return activeContacts
+        .filter(contacts =>
+          filter ? contacts[filter.key] === filter.value : contacts
+        )
+        .map(contacts => contacts[key])
+        .join(', ');
+    }
+
+    const result = activeContacts.map(contact => contact?._id).join(', ');
+    return result;
+  }
+
+  if (targetKey.includes('productsData')) {
+    const [_parentFieldName, childFieldName] = targetKey.split('.');
+
+    if (childFieldName === 'amount') {
+      return generateTotalAmount(target.productsData);
+    }
+  }
+
   return false;
+};
+
+const generateTotalAmount = productsData => {
+  let totalAmount = 0;
+
+  (productsData || []).forEach(product => {
+    if (product.tickUsed) {
+      return;
+    }
+
+    totalAmount += product?.amount || 0;
+  });
+
+  return totalAmount;
 };
 
 // module related services
@@ -164,6 +247,9 @@ const getItems = async (
   switch (moduleCollectionType) {
     case 'task':
       model = models.Tasks;
+      break;
+    case 'purchase':
+      model = models.Purchases;
       break;
     case 'ticket':
       model = models.Tickets;
@@ -251,7 +337,24 @@ export default {
       rules,
       execution,
       relatedItems,
-      sendCommonMessage
+      sendCommonMessage,
+      triggerType
+    });
+  },
+  replacePlaceHolders: async ({
+    subdomain,
+    data: { target, config, relatedValueProps }
+  }) => {
+    const models = generateModels(subdomain);
+
+    return await replacePlaceHolders({
+      models,
+      subdomain,
+      getRelatedValue,
+      actionData: config,
+      target,
+      relatedValueProps,
+      complexFields: ['productsData']
     });
   },
   constants: {
@@ -263,6 +366,14 @@ export default {
         label: 'Task',
         description:
           'Start with a blank workflow that enralls and is triggered off task'
+      },
+      {
+        type: 'cards:purchase',
+        img: 'automation3.svg',
+        icon: 'file-plus-alt',
+        label: 'Purchase',
+        description:
+          'Start with a blank workflow that enralls and is triggered off purchase'
       },
       {
         type: 'cards:ticket',
@@ -290,6 +401,13 @@ export default {
         isAvailable: true
       },
       {
+        type: 'cards:purchase.create',
+        icon: 'file-plus-alt',
+        label: 'Create purchase',
+        description: 'Create purchase',
+        isAvailable: true
+      },
+      {
         type: 'cards:deal.create',
         icon: 'piggy-bank',
         label: 'Create deal',
@@ -307,6 +425,20 @@ export default {
   }
 };
 
+const generateIds = value => {
+  const arr = value.split(', ');
+
+  if (Array.isArray(arr)) {
+    return arr;
+  }
+
+  if (!arr.match(/\{\{\s*([^}]+)\s*\}\}/g)) {
+    return [arr];
+  }
+
+  return [];
+};
+
 const actionCreate = async ({
   models,
   subdomain,
@@ -315,6 +447,8 @@ const actionCreate = async ({
   collectionType
 }) => {
   const { config = {} } = action;
+  let { target, triggerType } = execution || {};
+  let relatedValueProps = {};
 
   let newData = action.config.assignedTo
     ? await replacePlaceHolders({
@@ -322,12 +456,21 @@ const actionCreate = async ({
         subdomain,
         getRelatedValue,
         actionData: { assignedTo: action.config.assignedTo },
-        target: execution.target,
+        target: { ...target, type: (triggerType || '').replace('cards:', '') },
         isRelated: false
       })
     : {};
 
   delete action.config.assignedTo;
+
+  if (!!config.customers) {
+    relatedValueProps['customers'] = { key: '_id' };
+    target.customers = config.customers;
+  }
+  if (!!config.companies) {
+    relatedValueProps['companies'] = { key: '_id' };
+    target.companies = config.companies;
+  }
 
   newData = {
     ...newData,
@@ -336,7 +479,8 @@ const actionCreate = async ({
       subdomain,
       getRelatedValue,
       actionData: action.config,
-      target: execution.target
+      target: { ...target, type: (triggerType || '').replace('cards:', '') },
+      relatedValueProps
     }))
   };
 
@@ -369,6 +513,46 @@ const actionCreate = async ({
 
   if (config.hasOwnProperty('stageId')) {
     newData.stageId = config.stageId;
+  }
+
+  if (!!newData?.customers) {
+    newData.customerIds = generateIds(newData.customers);
+  }
+  if (!!newData?.companies) {
+    newData.companyIds = generateIds(newData.companies);
+  }
+
+  if (Object.keys(newData).some(key => key.startsWith('customFieldsData'))) {
+    const customFieldsData: Array<{ field: string; value: string }> = [];
+
+    const fieldKeys = Object.keys(newData).filter(key =>
+      key.startsWith('customFieldsData')
+    );
+
+    for (const fieldKey of fieldKeys) {
+      const [, fieldId] = fieldKey.split('.');
+
+      customFieldsData.push({
+        field: fieldId,
+        value: newData[fieldKey]
+      });
+    }
+    newData.customFieldsData = customFieldsData;
+  }
+
+  if (newData.hasOwnProperty('attachments')) {
+    const [serviceName, itemType] = triggerType.split(':');
+    if (serviceName === 'cards') {
+      const modelsMap = {
+        ticket: models.Tickets,
+        task: models.Tasks,
+        deal: models.Deals,
+        purchase: models.Purchases
+      };
+
+      const item = await modelsMap[itemType].findOne({ _id: target._id });
+      newData.attachments = item.attachments;
+    }
   }
 
   try {

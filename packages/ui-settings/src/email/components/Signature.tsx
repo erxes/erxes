@@ -1,15 +1,16 @@
+import { Alert, __ } from '@erxes/ui/src/utils';
+
 import Button from '@erxes/ui/src/components/Button';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
 import EditorCK from '@erxes/ui/src/components/EditorCK';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import FormGroup from '@erxes/ui/src/components/form/Group';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import Info from '@erxes/ui/src/components/Info';
-import { ModalFooter } from '@erxes/ui/src/styles/main';
-import { __, Alert } from '@erxes/ui/src/utils';
-import { MAIL_TOOLBARS_CONFIG } from '@erxes/ui/src/constants/integrations';
-import React from 'react';
 import { IEmailSignatureWithBrand } from '../types';
+import Info from '@erxes/ui/src/components/Info';
+import { MAIL_TOOLBARS_CONFIG } from '@erxes/ui/src/constants/integrations';
+import { ModalFooter } from '@erxes/ui/src/styles/main';
+import React from 'react';
 
 type Props = {
   signatures: IEmailSignatureWithBrand[];
@@ -34,8 +35,6 @@ class Signature extends React.Component<Props, State> {
       content: '',
       isSaved: false
     };
-
-    this.close = this.close.bind(this);
   }
 
   onChangeContent = e => {
@@ -73,6 +72,7 @@ class Signature extends React.Component<Props, State> {
 
   handleSubmit = e => {
     e.preventDefault();
+
     const { save } = this.props;
 
     if (!this.state.currentId) {
@@ -82,11 +82,11 @@ class Signature extends React.Component<Props, State> {
     save(this.state.signatures, this.close);
   };
 
-  close() {
+  close = () => {
     this.setState({ isSaved: true }, () => {
       this.props.closeModal();
     });
-  }
+  };
 
   renderSignatureEditor() {
     if (!this.state.currentId) {

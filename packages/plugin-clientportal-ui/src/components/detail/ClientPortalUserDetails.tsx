@@ -26,6 +26,8 @@ type Props = {
   clientPortalUser: IClientPortalUser;
   currentUser: IUser;
   history: any;
+
+  queryParams?: any;
 };
 
 class ClientPortalUserDetails extends React.Component<Props> {

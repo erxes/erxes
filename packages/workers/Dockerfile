@@ -1,7 +1,9 @@
-FROM node:14.20-alpine
-WORKDIR /workers
-RUN chown -R node:node /workers \
- && apk add --no-cache tzdata
-COPY --chown=node:node . /workers
+FROM node:18.17.1-bookworm-slim
+WORKDIR /erxes
+RUN chown -R node:node /erxes
+RUN apt-get update -y \
+    && apt-get install -y curl tzdata \
+    && rm -rf /var/lib/apt/lists/*
+COPY --chown=node:node . .
 USER node
-ENTRYPOINT ["node", "--max_old_space_size=8192", "dist/workers/src"]
+ENTRYPOINT ["node", "--max_old_space_size=8192", "packages/workers/src"]

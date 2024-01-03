@@ -67,16 +67,18 @@ const searchParams = `
     ids: [String],
     excludeIds: Boolean,
     withKnowledgebase: Boolean,
+    articleIds:[String],
     pipelineId: String,
     boardId: String,
     ignoreIds:[String]
+    irregular: Boolean
 `;
 
 export const queries = `
   assets(${searchParams}): [Asset]
   assetsTotalCount(${searchParams}): Int
   assetDetail(_id: String): Asset
-  assetCategories(parentId: String, searchValue: String, status: String): [AssetCategory]
+  assetCategories(parentId: String, searchValue: String, status: String, withKbOnly: Boolean): [AssetCategory]
   assetCategoryDetail(_id: String): AssetCategory
   assetCategoriesTotalCount: Int
 `;
@@ -86,7 +88,7 @@ export const mutations = `
   assetsEdit(_id: String!, ${assetParams}): Asset
   assetsRemove(assetIds: [String!]): String
   assetsMerge(assetIds: [String], assetFields: JSON): Asset
-  assetsAssignKbArticles(${searchParams}, action: String, articleIds: [String]): JSON
+  assetsAssignKbArticles(${searchParams},action:String): JSON
   assetCategoryAdd(${assetCategoryParams}): AssetCategory
   assetCategoryEdit(_id: String!, ${assetCategoryParams}): AssetCategory
   assetCategoryRemove(_id: String!): JSON,

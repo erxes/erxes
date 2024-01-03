@@ -8,8 +8,8 @@ import Info from '@erxes/ui/src/components/Info';
 import React from 'react';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { getWarningMessage } from '@erxes/ui-cards/src/boards/utils';
-import gql from 'graphql-tag';
-import { graphql } from 'react-apollo';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
 import { queries as integrationsQueries } from '@erxes/ui-inbox/src/settings/integrations/graphql';
 
 type Props = {

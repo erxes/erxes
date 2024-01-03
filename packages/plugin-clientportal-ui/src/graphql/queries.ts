@@ -2,11 +2,13 @@ import {
   conformityQueryFieldDefs,
   conformityQueryFields
 } from '@erxes/ui-cards/src/conformity/graphql/queries';
+import { isEnabled } from '@erxes/ui/src/utils/core';
 
 export const commonFields = `
   _id
   name
   url
+  kind
   description
   logo
   icon
@@ -18,8 +20,11 @@ export const commonFields = `
   knowledgeBaseLabel
   knowledgeBaseTopicId
   ticketLabel
+  dealLabel
+  purchaseLabel
   taskPublicPipelineId
   taskPublicBoardId
+  taskPublicLabel
   taskLabel
   taskStageId
   taskPipelineId
@@ -27,6 +32,12 @@ export const commonFields = `
   ticketStageId
   ticketPipelineId
   ticketBoardId
+  dealStageId
+  dealPipelineId
+  dealBoardId
+  purchaseStageId
+  purchasePipelineId
+  purchaseBoardId
   styles {
     bodyColor
     headerColor
@@ -46,11 +57,18 @@ export const commonFields = `
   }
   mobileResponsive
   googleCredentials
+  googleClientId
+  googleClientSecret
+  googleRedirectUri
+  facebookAppId
+  erxesAppToken
 
   kbToggle
   publicTaskToggle
   ticketToggle
   taskToggle
+  dealToggle
+  purchaseToggle
   otpConfig {
     smsTransporterType
     content
@@ -64,6 +82,34 @@ export const commonFields = `
     invitationContent
     registrationContent
   }
+
+  manualVerificationConfig {
+    userIds
+    verifyCustomer
+    verifyCompany
+  }
+
+  passwordVerificationConfig {
+    verifyByOTP
+    emailSubject
+    emailContent
+    smsContent
+  }
+
+  socialpayConfig {
+    certId
+    publicKey
+  }
+
+  testUserEmail
+  testUserPhone
+  testUserPassword
+  testUserOTP
+
+  tokenExpiration
+  refreshTokenExpiration
+  tokenPassMethod
+  vendorParentProductCategoryId
 `;
 
 export const basicFields = `
@@ -98,6 +144,17 @@ export const basicFields = `
 export const clientPortalUserFields = `
   ${basicFields}
   createdAt
+
+  verificationRequest {
+    status
+    attachments{
+      name
+      url
+      size
+      type
+    }
+    description
+  }
 
   customFieldsData
 `;
@@ -137,8 +194,8 @@ const getTotalCount = `
 `;
 
 const getConfigs = `
-  query clientPortalGetConfigs($page: Int, $perPage: Int) {
-    clientPortalGetConfigs(page: $page, perPage: $perPage) {
+  query clientPortalGetConfigs($kind: BusinessPortalKind $page: Int, $perPage: Int) {
+    clientPortalGetConfigs(kind: $kind, page: $page, perPage: $perPage) {
       ${commonFields}
     }
   }
@@ -153,8 +210,8 @@ const getConfig = `
 `;
 
 const getConfigLast = `
-  query clientPortalGetLast {
-    clientPortalGetLast {
+  query clientPortalGetLast($kind: BusinessPortalKind) {
+    clientPortalGetLast(kind: $kind) {
       ${commonFields}
     }
   }
@@ -192,6 +249,7 @@ const clientPortalUserDetail = `
   query clientPortalUserDetail($_id: String!) {
     clientPortalUserDetail(_id: $_id) {
       ${clientPortalUserFields}
+      ${isEnabled('forum') ? 'forumSubscriptionEndsAfter' : ''}
       customer {
         firstName
         lastName
@@ -207,6 +265,51 @@ const clientPortalUserDetail = `
   }
 `;
 
+const clientPortalComments = `
+  query clientPortalComments($typeId: String!, $type: String!) {
+    clientPortalComments(typeId: $typeId, type: $type) {
+      _id
+      content
+      createdAt
+      createdUser
+    }
+  }
+`;
+
+const fieldConfig = `
+query ClientPortalFieldConfig($fieldId: String) {
+  clientPortalFieldConfig(fieldId: $fieldId) {
+    allowedClientPortalIds
+    fieldId
+    requiredOn
+  }
+}
+`;
+
+const usersOfCard = `
+query ClientPortalCardUsers($contentType: String!, $contentTypeId: String!, $userKind: BusinessPortalKind) {
+  clientPortalCardUsers(contentType: $contentType, contentTypeId: $contentTypeId, userKind: $userKind) {
+    _id
+    firstName
+    lastName
+    email
+    phone
+    username
+    company {
+      _id
+      primaryName
+      primaryEmail
+      primaryPhone
+    }
+    clientPortal {
+      _id
+      name
+      url
+    }
+  }
+}
+`;
+
 export default {
   getConfig,
   getConfigs,
@@ -215,5 +318,8 @@ export default {
   clientPortalUsers,
   clientPortalUsersMain,
   clientPortalUserDetail,
-  clientPortalUserCounts
+  clientPortalUserCounts,
+  clientPortalComments,
+  fieldConfig,
+  usersOfCard
 };

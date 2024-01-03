@@ -6,7 +6,7 @@ export interface IReserveRem {
   departmentId?: string;
   branchId?: string;
   productId?: string;
-  uomId?: string;
+  uom?: string;
   remainder: number;
   createdAt?: Date;
   createdBy?: string;
@@ -16,7 +16,6 @@ export interface IReserveRem {
   branch?: IBranch;
   department?: IDepartment;
   product?: IProduct;
-  uom?: IUom;
 }
 
 export interface IReserveRemParams {

@@ -1,12 +1,11 @@
+import CardList from "../../modules/card/containers/List";
 import Layout from "../../modules/main/containers/Layout";
-import TicketList from "../../modules/ticket/containers/Ticket";
-import TicketHeader from "./TicketHeader";
 
 function Ticket() {
   return (
-    <Layout headerBottomComponent={<TicketHeader />}>
+    <Layout>
       {(props) => {
-        return <TicketList {...props} />;
+        return <CardList {...props} type="ticket" />;
       }}
     </Layout>
   );

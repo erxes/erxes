@@ -24,6 +24,11 @@ import { getSubdomain } from '@erxes/api-utils/src/core';
 import webhooks from './webhooks';
 import automations from './automations';
 import cronjobs from './cronjobs/conversations';
+import dashboards from './dashboards';
+import webhookMiddleware from './middlewares/webhookMiddleware';
+import { NOTIFICATION_MODULES } from './constants';
+import payment from './payment';
+import reports from './reports';
 
 export let mainDb;
 export let graphqlPubsub;
@@ -43,7 +48,13 @@ export default {
     };
   },
   hasSubscriptions: true,
+  subscriptionPluginPath: require('path').resolve(
+    __dirname,
+    'graphql',
+    'subscriptionPlugin.js'
+  ),
   meta: {
+    reports,
     forms,
     segments,
     tags,
@@ -52,8 +63,10 @@ export default {
     webhooks,
     automations,
     cronjobs,
-    // for fixing permissions
-    permissions
+    permissions,
+    dashboards,
+    notificationModules: NOTIFICATION_MODULES,
+    payment
   },
   apolloServerContext: async (context, req, res) => {
     const subdomain = getSubdomain(req);
@@ -130,6 +143,7 @@ export default {
     );
 
     app.get('/script-manager', cors({ origin: '*' }), widgetsMiddleware);
+    app.post('/webhooks/:id', webhookMiddleware);
 
     initBroker(options.messageBrokerClient);
 

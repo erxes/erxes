@@ -1,5 +1,9 @@
-import { checkPermission, requireLogin } from '@erxes/api-utils/src/permissions';
+import {
+  checkPermission,
+  requireLogin
+} from '@erxes/api-utils/src/permissions';
 import { IContext } from '../../connectionResolver';
+import { paginate } from '@erxes/api-utils/src';
 
 interface IListParams {
   page: number;
@@ -38,7 +42,7 @@ const responseTemplateQueries = {
   ) {
     const filter = generateFilter(commonQuerySelector, args);
 
-    return models.ResponseTemplates.find(filter);
+    return paginate(models.ResponseTemplates.find(filter), args);
   },
 
   /**

@@ -1,10 +1,10 @@
 import { Bulk } from '@erxes/ui/src';
 import { router } from '@erxes/ui/src/utils';
 import { withProps } from '@erxes/ui/src/utils/core';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
 import React from 'react';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 import LotteryDetail from '../../components/award/detail';
 import { queries } from '../../../../configs/voucherCampaign/graphql';
 

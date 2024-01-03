@@ -8,6 +8,7 @@ export interface IDistrict {
   center: any;
   cityId: string;
   city: ICity;
+  isCapital: boolean;
 }
 
 export type DistrictsListQueryResponse = {

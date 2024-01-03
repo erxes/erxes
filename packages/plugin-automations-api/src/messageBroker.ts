@@ -1,10 +1,15 @@
 import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
 import { debugBase } from '@erxes/api-utils/src/debuggers';
 import { setTimeout } from 'timers';
-import { receiveTrigger } from './utils';
-import { serviceDiscovery } from './configs';
 import { playWait } from './actions';
+import {
+  checkWaitingResponseAction,
+  doWaitingResponseAction,
+  setActionWait
+} from './actions/wait';
+import { serviceDiscovery } from './configs';
 import { generateModels } from './connectionResolver';
+import { receiveTrigger } from './utils';
 
 let client;
 
@@ -20,7 +25,12 @@ export const initBroker = async cl => {
     const { type, actionType, targets } = data;
 
     if (actionType && actionType === 'waiting') {
-      await playWait(models, subdomain);
+      await playWait(models, subdomain, data);
+      return;
+    }
+
+    if (await checkWaitingResponseAction(models, type, actionType, targets)) {
+      await doWaitingResponseAction(models, subdomain, data);
       return;
     }
 
@@ -67,6 +77,26 @@ export const sendSegmentsMessage = async (
     client,
     serviceDiscovery,
     serviceName: 'segments',
+    ...args
+  });
+};
+
+export const sendEmailTemplateMessage = async (
+  args: ISendMessageArgs
+): Promise<any> => {
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName: 'emailtemplates',
+    ...args
+  });
+};
+
+export const sendLogsMessage = (args: ISendMessageArgs): Promise<any> => {
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName: 'logs',
     ...args
   });
 };

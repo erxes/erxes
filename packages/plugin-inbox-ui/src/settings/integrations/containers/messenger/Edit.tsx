@@ -25,8 +25,8 @@ import React from 'react';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { TopicsQueryResponse } from '@erxes/ui-knowledgebase/src/types';
 import { UsersQueryResponse } from '@erxes/ui/src/auth/types';
-import gql from 'graphql-tag';
-import { graphql } from 'react-apollo';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
 import { queries as kbQueries } from '@erxes/ui-knowledgebase/src/graphql';
 import { withRouter } from 'react-router-dom';
 

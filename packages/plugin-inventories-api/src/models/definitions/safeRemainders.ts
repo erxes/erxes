@@ -1,31 +1,14 @@
+import { attachmentSchema } from '@erxes/api-utils/src/definitions/common';
+import { IAttachment } from '@erxes/api-utils/src/types';
 import { Document, Schema } from 'mongoose';
 import { field, schemaHooksWrapper } from './utils';
-
-export interface ISafeRemainderSubmitParams {
-  branchId: string;
-  departmentId: string;
-  status: string;
-  contentType: string;
-  contentId: string;
-  products: any[];
-}
-
-export interface ISafeRemaindersParams {
-  beginDate?: Date;
-  endDate?: Date;
-  productId?: string;
-  branchId?: string;
-  departmentId?: string;
-
-  searchValue?: string;
-  page?: number;
-  perPage?: number;
-}
 
 export interface ISafeRemainder {
   branchId: string;
   departmentId: string;
-  productCategoryId: string;
+  productCategoryId?: string;
+  attachment?: IAttachment;
+  filterField?: string;
   date: Date;
   description?: string;
   status: string;
@@ -45,7 +28,13 @@ export const safeRemainderSchema = schemaHooksWrapper(
 
     branchId: field({ type: String, default: '', label: 'Branch' }),
     departmentId: field({ type: String, default: '', label: 'Department' }),
-    productCategoryId: field({ type: String, label: 'Product Category' }),
+    productCategoryId: field({
+      type: String,
+      optional: true,
+      label: 'Product Category'
+    }),
+    attachment: field({ type: attachmentSchema, optional: true }),
+    filterField: field({ type: String, optional: true }),
     date: field({ type: Date, label: 'Date' }),
     description: field({ type: String, label: 'Description' }),
     status: field({ type: String, label: 'Status' }),

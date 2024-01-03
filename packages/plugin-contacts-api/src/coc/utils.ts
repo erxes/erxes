@@ -190,6 +190,7 @@ interface ICommonListArgs {
   conformityIsSaved?: boolean;
   source?: string;
   segmentData?: any;
+  emailValidationStatus?: string;
 }
 
 export class CommonBuilder<IListArgs extends ICommonListArgs> {
@@ -334,6 +335,14 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
     });
   }
 
+  public emailValidateFilter(emailValidationStatus: string): void {
+    this.positiveList.push({
+      term: {
+        emailValidationStatus
+      }
+    });
+  }
+
   public getRelType() {
     return this.contentType === 'customers' ? 'customer' : 'company';
   }
@@ -430,8 +439,15 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
       this.leadStatusFilter(this.params.leadStatus);
     }
 
+    if (this.params.emailValidationStatus) {
+      this.emailValidateFilter(this.params.emailValidationStatus);
+    }
+
     // If there are ids and form params, returning ids filter only filter by ids
     if (this.params.ids && this.params.ids.length > 0) {
+      if (typeof this.params.ids === 'string') {
+        this.params.ids = [this.params.ids];
+      }
       this.idsFilter(this.params.ids.filter(id => id));
     }
 
@@ -557,40 +573,3 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
     };
   }
 }
-
-export const customFieldsDataByFieldCode = async (object, subdomain) => {
-  const customFieldsData =
-    object.customFieldsData && object.customFieldsData.toObject
-      ? object.customFieldsData.toObject()
-      : object.customFieldsData || [];
-
-  const fieldIds = customFieldsData.map(data => data.field);
-
-  const fields = await sendFormsMessage({
-    subdomain,
-    action: 'fields.find',
-    data: {
-      query: {
-        _id: { $in: fieldIds }
-      }
-    },
-    isRPC: true,
-    defaultValue: []
-  });
-
-  const fieldCodesById = {};
-
-  for (const field of fields) {
-    fieldCodesById[field._id] = field.code;
-  }
-
-  const results: any = {};
-
-  for (const data of customFieldsData) {
-    results[fieldCodesById[data.field]] = {
-      ...data
-    };
-  }
-
-  return results;
-};

@@ -11,8 +11,8 @@ import { IActivityLog } from '@erxes/ui-log/src/activityLogs/types';
 import { IRouterProps } from '@erxes/ui/src/types';
 import PerInvoice from '../components/PerInvoice';
 import React from 'react';
-import gql from 'graphql-tag';
-import { graphql } from 'react-apollo';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
 import { mutations } from '../graphql';
 import { withRouter } from 'react-router-dom';
 

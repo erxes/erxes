@@ -1,10 +1,11 @@
 import * as dotenv from 'dotenv';
-import * as Random from 'meteor-random';
+import { nanoid } from 'nanoid';
 
 import { IAttachment } from '@erxes/api-utils/src/types';
 import { ICustomer } from './types';
 import { getEnv } from './utils';
 import { readFileUrl } from '@erxes/api-utils/src/commonUtils';
+import { randomAlphanumeric } from '@erxes/api-utils/src/random';
 
 dotenv.config();
 
@@ -24,7 +25,7 @@ const prepareContentAndSubject = (
   let replacedSubject = subject;
 
   const DOMAIN = getEnv({ name: 'DOMAIN' });
-  const unsubscribeUrl = `${DOMAIN}/pl:core/unsubscribe/?cid=${customer._id}`;
+  const unsubscribeUrl = `${DOMAIN}/gateway/pl:core/unsubscribe/?cid=${customer._id}`;
 
   if (customer.replacers) {
     for (const replacer of customer.replacers) {
@@ -47,7 +48,7 @@ const prepareEmailHeader = (
   const header: any = {
     'X-SES-CONFIGURATION-SET': configSet || 'erxes',
     CustomerId: customerId,
-    MailMessageId: Random.id()
+    MailMessageId: randomAlphanumeric()
   };
 
   if (engageMessageId) {
@@ -72,7 +73,7 @@ export const prepareEmailParams = (
 
   return {
     from: `${sender} <${fromEmail}>`,
-    to: customer.primaryEmail.toLocaleLowerCase().trim(),
+    to: (customer?.primaryEmail || '').toLocaleLowerCase().trim(),
     replyTo,
     subject: replacedSubject,
     attachments: prepareAttachments(attachments),

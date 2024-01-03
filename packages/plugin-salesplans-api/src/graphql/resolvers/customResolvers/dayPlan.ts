@@ -44,18 +44,5 @@ export default {
       data: { _id: plan.productId },
       isRPC: true
     });
-  },
-
-  async uom(plan: IDayPlanDocument, _, { subdomain }: IContext) {
-    if (!plan.uomId) {
-      return;
-    }
-
-    return await sendProductsMessage({
-      subdomain,
-      action: 'uoms.findOne',
-      data: { _id: plan.uomId },
-      isRPC: true
-    });
   }
 };

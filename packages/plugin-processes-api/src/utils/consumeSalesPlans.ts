@@ -221,14 +221,14 @@ export class consumeSalesPlans {
     flow: IFlowDocument,
     date: Date,
     productId: string,
-    uomId: string,
+    uom: string,
     referInfos
   ) {
     return {
       flowId: flow._id,
       flow,
       date,
-      uomId,
+      uom,
       branchId: this.branchId,
       departmentId: this.departmentId,
       productId,
@@ -264,24 +264,18 @@ export class consumeSalesPlans {
     needData: IProductsData,
     resultData: IProductsData
   ) {
-    const allUomIds = [
-      ...(product.subUoms || []).map(su => su.uomId),
-      product.uomId
-    ];
+    const allUoms = [...(product.subUoms || []).map(su => su.uom), product.uom];
 
-    if (
-      !allUomIds.includes(needData.uomId) ||
-      !allUomIds.includes(resultData.uomId)
-    ) {
+    if (!allUoms.includes(needData.uom) || !allUoms.includes(resultData.uom)) {
       return;
     }
 
-    if (needData.uomId === resultData.uomId) {
+    if (needData.uom === resultData.uom) {
       return needData.quantity;
     }
 
-    const needRatio = getRatio(product, needData.uomId);
-    const resultRatio = getRatio(product, resultData.uomId);
+    const needRatio = getRatio(product, needData.uom);
+    const resultRatio = getRatio(product, resultData.uom);
 
     if (!needRatio || !resultRatio) {
       return;
@@ -355,7 +349,7 @@ export class consumeSalesPlans {
           _id: product._id,
           productId: product._id,
           quantity: 1,
-          uomId: product.uomId || ''
+          uom: product.uom || ''
         };
 
         switch (job.type) {
@@ -470,7 +464,7 @@ export class consumeSalesPlans {
     }
 
     for (const dayPlan of this.dayPlans) {
-      const { productId, values, uomId } = dayPlan;
+      const { productId, values, uom } = dayPlan;
 
       const flow = this.flowByProducId[productId];
       if (!flow) {
@@ -487,7 +481,7 @@ export class consumeSalesPlans {
         this.date
       );
       const process = await this.models.Processes.createProcess(
-        await this.getProcessData(flow, this.date, productId, uomId, referInfos)
+        await this.getProcessData(flow, this.date, productId, uom, referInfos)
       );
 
       for (const value of values) {
@@ -518,7 +512,7 @@ export class consumeSalesPlans {
             _id: Math.random().toString(),
             productId,
             quantity: count,
-            uomId: dayPlan.uomId || this.productsById[productId].uomId
+            uom: dayPlan.uom || this.productsById[productId].uom
           }
         ];
 

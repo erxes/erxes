@@ -21,11 +21,17 @@ const loginMiddleware = async (req, res) => {
 
   const DOMAIN = getEnv({ name: 'DOMAIN' });
 
+  const FACEBOOK_LOGIN_REDIRECT_URL = await getConfig(
+    models,
+    'FACEBOOK_LOGIN_REDIRECT_URL',
+    `${DOMAIN}/gateway/pl:facebook/fblogin`
+  );
+
   const conf = {
     client_id: FACEBOOK_APP_ID,
     client_secret: FACEBOOK_APP_SECRET,
     scope: FACEBOOK_PERMISSIONS,
-    redirect_uri: `${DOMAIN}/gateway/pl:facebook/fblogin`
+    redirect_uri: FACEBOOK_LOGIN_REDIRECT_URL
   };
 
   debugRequest(debugFacebook, req);
@@ -36,7 +42,8 @@ const loginMiddleware = async (req, res) => {
     const authUrl = graph.getOauthUrl({
       client_id: conf.client_id,
       redirect_uri: conf.redirect_uri,
-      scope: conf.scope
+      scope: conf.scope,
+      state: DOMAIN
     });
 
     // checks whether a user denied the app facebook login/permissions

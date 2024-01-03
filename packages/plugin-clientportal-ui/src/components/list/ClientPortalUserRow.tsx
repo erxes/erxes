@@ -1,12 +1,11 @@
 import { FormControl } from '@erxes/ui/src/components/form';
+import { IClientPortalUser } from '../../types';
 import Icon from '@erxes/ui/src/components/Icon';
 import Label from '@erxes/ui/src/components/Label';
+import React from 'react';
 import Tip from '@erxes/ui/src/components/Tip';
 import colors from '@erxes/ui/src/styles/colors';
 import { formatValue } from '@erxes/ui/src/utils';
-import React from 'react';
-
-import { IClientPortalUser } from '../../types';
 
 type Props = {
   index: number;
@@ -79,6 +78,27 @@ class Row extends React.Component<Props> {
       type
     } = clientPortalUser;
 
+    const verificationRequest = clientPortalUser.verificationRequest || {
+      status: 'notVerified'
+    };
+
+    let verificationStatus = 'notVerified';
+
+    switch (verificationRequest.status) {
+      case 'verified':
+        verificationStatus = 'verified';
+        break;
+      case 'pending':
+        verificationStatus = 'pending';
+        break;
+      case 'notVerified':
+        verificationStatus = 'not verified';
+        break;
+      default:
+        verificationStatus = 'not Verified';
+        break;
+    }
+
     const status = clientPortalUser.isOnline ? 'online' : 'offline';
 
     return (
@@ -92,6 +112,10 @@ class Row extends React.Component<Props> {
         </td>
         <td>{index.toString()}</td>
         <td>
+          {renderStatus(verificationStatus === 'verified')}
+          {verificationStatus}
+        </td>
+        <td>
           {renderStatus(clientPortalUser.isEmailVerified)}
           {email}
         </td>
@@ -100,11 +124,12 @@ class Row extends React.Component<Props> {
           {phone}
         </td>
         <td>{username}</td>
-        <td>{code}</td>
+        <td>{code || '-'}</td>
         <td>{firstName || companyName}</td>
         <td>{lastName}</td>
+        <td>{companyName || '-'}</td>
         <td>{type}</td>
-        <td>{clientPortal.name}</td>
+        <td>{clientPortal ? clientPortal.name : '-'}</td>
         <td>
           <Label
             key={clientPortalUser._id}

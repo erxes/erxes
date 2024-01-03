@@ -31,7 +31,9 @@ const IntoSection = (props: Props) => {
       break;
   }
 
-  const content = props => <BuildingForm {...props} building={building} />;
+  const content = formProps => (
+    <BuildingForm {...formProps} building={building} />
+  );
 
   return (
     <>

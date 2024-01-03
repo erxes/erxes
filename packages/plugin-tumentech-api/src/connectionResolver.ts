@@ -17,10 +17,12 @@ import { ICustomerAccountDocument } from './models/definitions/customerAccount';
 import { IDealPlaceDocument } from './models/definitions/dealPlaces';
 import { IDealRouteDocument } from './models/definitions/dealRoutes';
 import { IDirectionDocument } from './models/definitions/directions';
+
 import { IParticipantDocument } from './models/definitions/participants';
 import { IPlaceDocument } from './models/definitions/places';
 import { IRouteDocument } from './models/definitions/routes';
 import { ITripDocument } from './models/definitions/trips';
+import { ITumentechDealDocument } from './models/definitions/tumentechDeal';
 import {
   ICarCategoryDocument,
   ICarDocument,
@@ -34,6 +36,11 @@ import { IRouteModel, loadRouteClass } from './models/Routes';
 import { ITopupModel, loadTopupClass } from './models/Topup';
 import { ITripModel, loadTripClass } from './models/Trips';
 import {
+  ITumentechDealModel,
+  loadTrackingClass,
+  loadTumentechDealClass
+} from './models/TumentechDeal';
+import {
   ICarCategoryModel,
   ICarModel,
   IProductCarCategoryModel,
@@ -41,6 +48,11 @@ import {
   loadCarsClass
 } from './models/Tumentech';
 import { IPurchaseHistoryDocument } from './models/definitions/customerPurchaseHistory';
+import {
+  ITransportDataModel,
+  loadTransportDataClass
+} from './models/TransportDatas';
+import { ITransportDataDocument } from './models/definitions/transportDatas';
 
 export interface IModels {
   Cars: ICarModel;
@@ -51,11 +63,14 @@ export interface IModels {
   Directions: IDirectionModel;
   Routes: IRouteModel;
   Trips: ITripModel;
+  TumentechDeals: ITumentechDealModel;
   DealPlaces: IDealPlaceModel;
   DealRoutes: IDealRouteModel;
   CustomerAccounts: ICustomerAccountModel;
   Topups: ITopupModel;
   PurchaseHistories: IPurchaseHistoryModel;
+  TransportDatas: ITransportDataModel;
+  Tracking: any;
 }
 
 export interface IContext extends IMainContext {
@@ -121,6 +136,11 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
     loadTripClass(models)
   );
 
+  models.TumentechDeals = db.model<ITumentechDealDocument, ITumentechDealModel>(
+    'tumentech_deals',
+    loadTumentechDealClass(models)
+  );
+
   models.DealPlaces = db.model<IDealPlaceDocument, IDealPlaceModel>(
     'deal_places',
     loadDealPlaceClass(models)
@@ -145,6 +165,13 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
     IPurchaseHistoryDocument,
     IPurchaseHistoryModel
   >('tumentech_purchase_histories', loadPurchaseHistoryClass(models));
+
+  models.TransportDatas = db.model<ITransportDataDocument, ITransportDataModel>(
+    'tumentech_transport_datas',
+    loadTransportDataClass(models)
+  );
+
+  models.Tracking = db.model('tumentech_tracking', loadTrackingClass(models));
 
   return models;
 };

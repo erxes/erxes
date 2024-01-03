@@ -1,3 +1,4 @@
+import { IAttachment } from '@erxes/api-utils/src/types';
 import { Document, Schema } from 'mongoose';
 
 import { USER_LOGIN_TYPES } from './constants';
@@ -25,6 +26,7 @@ export interface IUser {
   companyRegistrationNumber?: string;
   code?: string;
   password?: string;
+  secondaryPassword?: string;
   type?: string;
   deviceTokens?: string[];
   clientPortalId: string;
@@ -36,12 +38,26 @@ export interface IUser {
   resetPasswordExpires?: Date;
   registrationToken?: string;
   registrationTokenExpires?: Date;
-  isOnline: boolean;
-  lastSeenAt: Date;
-  sessionCount: number;
+  isOnline?: boolean;
+  lastSeenAt?: Date;
+  sessionCount?: number;
   notificationSettings: INotifcationSettings;
   avatar?: string;
   customFieldsData?: any;
+  facebookId?: string;
+  googleId?: string;
+
+  // verification for company
+  verificationRequest?: {
+    status: string;
+    attachments: IAttachment[];
+    description?: string;
+    verifiedBy?: string;
+  };
+}
+
+export interface IInvitiation extends IUser {
+  disableVerificationMail?: boolean;
 }
 
 export interface IUserDocument extends IUser, Document {
@@ -145,6 +161,7 @@ export const clientPortalUserSchema = new Schema({
     optional: true,
     label: 'First name'
   }),
+  secondaryPassword: field({ type: String, optional: true }),
   lastName: field({ type: String, optional: true, label: 'Last name' }),
   companyName: field({
     type: String,
@@ -157,7 +174,6 @@ export const clientPortalUserSchema = new Schema({
     label: 'Company registration number'
   }),
   clientPortalId: field({ type: String, required: true }),
-
   erxesCompanyId: field({ type: String, optional: true }),
   erxesCustomerId: field({ type: String, optional: true }),
   phoneVerificationCode: field({ type: String, optional: true }),
@@ -214,11 +230,24 @@ export const clientPortalUserSchema = new Schema({
   }),
   avatar: field({ type: String, label: 'Avatar' }),
 
+  // manual verification
+  verificationRequest: field({
+    type: {
+      status: { type: String, default: 'notVerified' },
+      attachments: { type: Object, optional: false },
+      description: { type: String, optional: true },
+      verifiedBy: { type: String, optional: true }
+    },
+    optional: true
+  }),
+
   customFieldsData: field({
     type: [customFieldSchema],
     optional: true,
     label: 'Custom fields data'
-  })
+  }),
+  facebookId: field({ type: String }),
+  googleId: field({ type: String })
 });
 
 clientPortalUserSchema.index(

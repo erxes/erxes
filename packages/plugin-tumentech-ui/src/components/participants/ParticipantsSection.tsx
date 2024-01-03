@@ -43,7 +43,7 @@ export default function Component({
     return <Icon icon="check-square" />;
   };
 
-  const renderBody = participants => {
+  const renderBody = () => {
     if (!participants || !participants.length) {
       return <EmptyState icon="user-6" text="No data" />;
     }
@@ -95,7 +95,7 @@ export default function Component({
       isOpen={true}
       name="showCustomers"
     >
-      {renderBody(participants)}
+      {renderBody()}
     </Box>
   );
 }

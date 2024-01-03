@@ -1,4 +1,4 @@
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
 import { queries as calendarQueries } from '../graphql';
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
@@ -6,7 +6,7 @@ import Spinner from '@erxes/ui/src/components/Spinner';
 import { IButtonMutateProps, MutationVariables } from '@erxes/ui/src/types';
 import { __, Alert, confirm, getEnv, withProps } from 'coreui/utils';
 import React from 'react';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 import { getWarningMessage } from '@erxes/ui-cards/src/boards/utils';
 import { INTEGRATIONS } from '../constants';
 import Groups from '../components/Groups';

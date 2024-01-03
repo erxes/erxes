@@ -1,12 +1,15 @@
-import { paginate } from '@erxes/api-utils/src';
+const https = require('http');
+import * as fs from 'fs';
 import { Model } from 'mongoose';
 import * as _ from 'underscore';
+import * as xlsxPopulate from 'xlsx-populate';
 import { IModels } from '../connectionResolver';
-import { sendProductsMessage, sendInventoriesMessage } from '../messageBroker';
-import { SAFE_REMAINDER_STATUSES } from './definitions/constants';
+import { sendProductsMessage } from '../messageBroker';
 import {
-  ISafeRemaindersParams,
-  ISafeRemainderSubmitParams,
+  SAFE_REMAINDER_ITEM_STATUSES,
+  SAFE_REMAINDER_STATUSES
+} from './definitions/constants';
+import {
   ISafeRemainder,
   ISafeRemainderDocument,
   safeRemainderSchema
@@ -14,16 +17,9 @@ import {
 
 export interface ISafeRemainderModel extends Model<ISafeRemainderDocument> {
   getRemainder(_id: string): Promise<ISafeRemainderDocument>;
-  getRemainders(params: ISafeRemaindersParams): Promise<JSON>;
-  submitRemainder(subdomain: string, params: any): Promise<JSON>;
   createRemainder(
     subdomain: string,
     params: ISafeRemainder,
-    userId: string
-  ): Promise<ISafeRemainderDocument>;
-  updateRemainder(
-    _id: string,
-    doc: ISafeRemainderDocument,
     userId: string
   ): Promise<ISafeRemainderDocument>;
   removeRemainder(_id: string): void;
@@ -45,94 +41,6 @@ export const loadSafeRemainderClass = (models: IModels) => {
     }
 
     /**
-     * Get all remainders
-     * @param params many things
-     * @returns Found object
-     */
-    public static async getRemainders(params: ISafeRemaindersParams) {
-      const query: any = {};
-
-      if (params.departmentId) {
-        query.departmentId = params.departmentId;
-      }
-
-      if (params.branchId) {
-        query.branchId = params.branchId;
-      }
-
-      if (params.searchValue) {
-        const regexOption = {
-          $regex: `.*${params.searchValue}.*`,
-          $options: 'i'
-        };
-
-        query.$or = [
-          {
-            name: regexOption
-          },
-          {
-            code: regexOption
-          }
-        ];
-      }
-
-      const dateQuery: any = {};
-      if (params.beginDate) {
-        dateQuery.$gte = new Date(params.beginDate);
-      }
-      if (params.endDate) {
-        dateQuery.$lte = new Date(params.endDate);
-      }
-
-      if (Object.keys(dateQuery).length) {
-        query.date = dateQuery;
-      }
-
-      if (params.productId) {
-        let allRemainders = await models.SafeRemainders.find(query).lean();
-        const remIds = allRemainders.map(r => r._id);
-
-        const items = await models.SafeRemainderItems.find({
-          remainderId: { $in: remIds },
-          productId: params.productId
-        }).lean();
-
-        const lastRemIds = new Set(items.map(i => i.remainderId) || []);
-        query._id = { $in: lastRemIds };
-      }
-
-      return {
-        totalCount: await models.SafeRemainders.find(query).count(),
-        remainders: await paginate(
-          models.SafeRemainders.find(query).sort({ modifiedAt: -1 }),
-          {
-            ...params
-          }
-        )
-      };
-    }
-
-    /**
-     * Submit remainder and create transaction
-     * @param subdomain
-     * @param params Data to create transaction
-     * @returns Created response
-     */
-    public static async submitRemainder(
-      subdomain: string,
-      params: ISafeRemainderSubmitParams
-    ) {
-      const result = await sendInventoriesMessage({
-        subdomain,
-        action: 'transactionAdd',
-        data: params,
-        isRPC: true
-      });
-
-      return result;
-    }
-
-    /**
      * Create safe remainder
      * @param subdomain
      * @param params New data to create
@@ -149,7 +57,9 @@ export const loadSafeRemainderClass = (models: IModels) => {
         departmentId,
         date,
         description,
-        productCategoryId
+        productCategoryId,
+        attachment,
+        filterField
       } = params;
 
       // Create new safe remainder
@@ -159,6 +69,7 @@ export const loadSafeRemainderClass = (models: IModels) => {
         departmentId,
         branchId,
         productCategoryId,
+        attachment,
         status: SAFE_REMAINDER_STATUSES.DRAFT,
         createdAt: new Date(),
         createdBy: userId,
@@ -166,33 +77,148 @@ export const loadSafeRemainderClass = (models: IModels) => {
         modifiedBy: userId
       });
 
+      let productFilter = {};
+      const attachDatas: any = {};
+      let attachFieldId = '';
+
+      if (attachment && attachment.url) {
+        const filePath = `src/private/uploads/${attachment.url}`;
+
+        const url = `http://localhost:3300/read-file?key=${attachment.url}`;
+        const file = fs.createWriteStream(`${filePath}`);
+
+        await new Promise((resolve, reject) => {
+          https.get(url, res => {
+            resolve(res.pipe(file));
+          });
+        });
+
+        await xlsxPopulate.fromFileAsync(`${filePath}`).then(workbook => {
+          let row = 1;
+          let checkVal = 'begin';
+          while (checkVal) {
+            row++;
+            const cella = workbook.sheet(0).cell(`A${row}`);
+            const cellb = workbook.sheet(0).cell(`B${row}`);
+            checkVal = cella.value() || cellb.value();
+
+            if (!checkVal) {
+              continue;
+            }
+
+            const valb =
+              String(
+                workbook
+                  .sheet(0)
+                  .cell(`B${row}`)
+                  .value()
+              ) || '';
+            const valc =
+              workbook
+                .sheet(0)
+                .cell(`C${row}`)
+                .value() || 0;
+            const vald =
+              workbook
+                .sheet(0)
+                .cell(`D${row}`)
+                .value() || 0;
+
+            if (valb) {
+              if (!Object.keys(attachDatas).includes(valb)) {
+                attachDatas[valb] = {
+                  changeCount: 0,
+                  lastCount: 0
+                };
+              }
+
+              attachDatas[valb].changeCount += Number(valc);
+              attachDatas[valb].lastCount = Number(vald);
+            }
+          }
+        });
+
+        if (filterField.includes('customFieldsData')) {
+          attachFieldId = filterField.split('.')[1];
+          productFilter = {
+            query: {
+              $and: [
+                { 'customFieldsData.field': attachFieldId },
+                { 'customFieldsData.value': { $in: Object.keys(attachDatas) } }
+              ]
+            }
+          };
+        } else {
+          productFilter = {
+            query: { [filterField]: { $in: Object.keys(attachDatas) } }
+          };
+        }
+        fs.unlink(filePath, () => {});
+      } else {
+        productFilter = {
+          categoryId: productCategoryId,
+          query: { status: { $ne: 'deleted' } }
+        };
+      }
+
       // Get products related to product category
+      const limit = await sendProductsMessage({
+        subdomain,
+        action: 'count',
+        data: {
+          ...productFilter
+        },
+        isRPC: true
+      });
+
       const products: any = await sendProductsMessage({
         subdomain,
         action: 'find',
         data: {
-          query: { categoryId: productCategoryId },
-          sort: {}
+          ...productFilter,
+          sort: { code: 1 },
+          limit
         },
         isRPC: true
       });
 
       // Create remainder items for every product
-      const defaultUomId = '465';
       const productIds = products.map((item: any) => item._id);
+
       const liveRemainders = await models.Remainders.find({
         departmentId,
         branchId,
         productId: { $in: productIds }
       }).lean();
 
+      const liveRemByProductId = {};
+      for (const rem of liveRemainders) {
+        liveRemByProductId[rem.productId] = rem;
+      }
+
       const bulkOps: any[] = [];
+      let order = 0;
 
       for (const product of products) {
-        const live =
-          liveRemainders.find((remainder: any) => {
-            return remainder.productId === product._id;
-          }) || {};
+        order++;
+        const live = liveRemByProductId[product._id] || {};
+        let count = live.count || 0;
+        if (attachment && attachment.url) {
+          const datasKey = String(
+            attachFieldId
+              ? product.customFieldsData.find(
+                  cfd => cfd.field === attachFieldId
+                )?.value
+              : product[filterField]
+          );
+          const { lastCount, changeCount } = attachDatas[datasKey];
+
+          if (changeCount) {
+            count = count + changeCount;
+          } else {
+            count = lastCount;
+          }
+        }
 
         bulkOps.push({
           remainderId: safeRemainder._id,
@@ -200,13 +226,12 @@ export const loadSafeRemainderClass = (models: IModels) => {
           departmentId: safeRemainder.departmentId,
           productId: product._id,
           preCount: live.count || 0,
-          count: live.count || 0,
-
-          uomId: product.uomId || defaultUomId,
-          lastTransactionDate: new Date(),
-
+          count,
+          status: SAFE_REMAINDER_ITEM_STATUSES.NEW,
+          uom: product.uom,
           modifiedAt: new Date(),
-          modifiedBy: userId
+          modifiedBy: userId,
+          order
         });
       }
 
@@ -216,34 +241,21 @@ export const loadSafeRemainderClass = (models: IModels) => {
     }
 
     /**
-     * Update safe remainder
-     * @param _id Safe remainder ID
-     * @param doc New data to update
-     * @returns Updated object
-     */
-    public static async updateRemainder(
-      _id: string,
-      doc: ISafeRemainder,
-      userId: string
-    ) {
-      await models.SafeRemainders.findByIdAndUpdate(_id, {
-        $set: {
-          ...doc,
-          modifiedAt: new Date(),
-          modifiedBy: userId
-        }
-      });
-
-      return await this.getRemainder(_id);
-    }
-
-    /**
      * Delete safe remainder
      * @param _id Safe remainder ID
      * @returns Delelted response
      */
     public static async removeRemainder(_id: string) {
-      return await models.SafeRemainders.findByIdAndDelete(_id);
+      const safeRemainder = await models.SafeRemainders.getRemainder(_id);
+
+      if (safeRemainder.status === SAFE_REMAINDER_STATUSES.PUBLISHED) {
+        throw new Error('cant remove: cause submited');
+      }
+
+      // Delete safe remainder items by safe remainder id
+      await models.SafeRemainderItems.deleteMany({ remainderId: _id });
+
+      return await models.SafeRemainders.deleteOne({ _id });
     }
   }
 

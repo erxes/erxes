@@ -4,7 +4,14 @@ import { generateModels } from './connectionResolver';
 import { initBroker } from './messageBroker';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import * as permissions from './permissions';
-import cronjobs, { createCeremonies } from './cronjobs';
+import cronjobs, {
+  createCeremonies,
+  sendCeremonyNotification
+} from './cronjobs';
+
+import automations from './automations';
+import segments from './segments';
+import forms from './forms';
 
 export let debug;
 export let graphqlPubsub;
@@ -41,6 +48,7 @@ export default {
       const subdomain = getSubdomain(req);
 
       await createCeremonies(subdomain);
+      await sendCeremonyNotification(subdomain);
 
       return res.send('ok');
     });
@@ -51,5 +59,5 @@ export default {
     graphqlPubsub = options.pubsubClient;
   },
 
-  meta: { cronjobs }
+  meta: { cronjobs, automations, segments, forms }
 };

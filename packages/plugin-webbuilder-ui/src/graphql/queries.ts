@@ -114,12 +114,13 @@ const entryDetail = `
 `;
 
 const templates = `
-  query templates($page: Int, $perPage: Int) {
-    webbuilderTemplates(page: $page, perPage: $perPage) {
+  query templates($page: Int, $perPage: Int, $searchValue: String) {
+    webbuilderTemplates(page: $page, perPage: $perPage, searchValue: $searchValue) {
       _id
       name
       html
       image
+      categories
     } 
   }
 `;
@@ -140,12 +141,14 @@ const templateDetail = `
 `;
 
 const sites = `
-  query sites($page: Int, $perPage: Int, $fromSelect: Boolean) {
-    webbuilderSites(page: $page, perPage: $perPage, fromSelect: $fromSelect) {
+  query sites($page: Int, $perPage: Int, $searchValue: String, $fromSelect: Boolean) {
+    webbuilderSites(page: $page, perPage: $perPage, searchValue: $searchValue, fromSelect: $fromSelect) {
       _id
       name
       domain
-      templateImage
+      coverImage {
+        url
+      }
     }
   }
 `;

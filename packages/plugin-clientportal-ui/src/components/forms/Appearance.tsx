@@ -147,7 +147,7 @@ function Appearance({
           <FlexContent>
             <FormGroup>
               <ControlLabel>Main Logo</ControlLabel>
-              <p>{__('Client portal main logo PNG')}.</p>
+              <p>{__('Business portal main logo PNG')}.</p>
               <AvatarUpload
                 avatar={logo}
                 onAvatarUpload={logoUrl =>

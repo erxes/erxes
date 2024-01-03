@@ -7,7 +7,6 @@ export interface IProductDoc {
   type: string;
   name?: string;
   description?: string;
-  sku?: string;
   createdAt?: Date;
   customFieldsData?: any;
 }
@@ -18,34 +17,37 @@ export interface IUom {
   code: string;
   createdAt: Date;
 }
+
+export interface IVariant {
+  [code: string]: { name?: string; image?: any };
+}
 export interface IProduct {
   _id: string;
   name: string;
+  shortName: string;
   type: string;
   categoryId: string;
   description: string;
   getTags?: ITag[];
-  sku: string;
   barcodes: string[];
+  variants: IVariant;
   barcodeDescription: string;
   code: string;
   unitPrice: number;
   customFieldsData?: any;
   createdAt: Date;
   vendorId?: string;
+  scopeBrandIds: string[];
 
   attachment?: any;
   attachmentMore?: any[];
-  supply: string;
-  productCount: number;
-  minimiumCount: number;
-  quantity: number;
   category: IProductCategory;
   vendor?: ICompany;
 
-  uomId?: string;
-  uom?: any;
+  uom?: string;
   subUoms?: any[];
+  taxType?: string;
+  taxCode?: string;
 }
 
 export interface IProductCategory {
@@ -60,6 +62,11 @@ export interface IProductCategory {
   createdAt: Date;
   productCount: number;
   isRoot: boolean;
+  meta: string;
+  maskType: string;
+  mask: any;
+  isSimilarity: boolean;
+  similarities: any[];
 }
 
 export type MutationVariables = {
@@ -67,7 +74,6 @@ export type MutationVariables = {
   type: string;
   name?: string;
   description?: string;
-  sku?: string;
   barcodes?: string[];
   createdAt?: Date;
 };
@@ -87,7 +93,12 @@ export type ProductRemoveMutationResponse = {
 
 export type ProductsQueryResponse = {
   loading: boolean;
-  refetch: (variables?: { searchValue?: string; perPage?: number }) => void;
+  refetch: (variables?: {
+    searchValue?: string;
+    perPage?: number;
+    categoryId?: string;
+    vendorId?: string;
+  }) => void;
   products: IProduct[];
 };
 
@@ -108,18 +119,9 @@ export type EditMutationResponse = {
 };
 
 // UOM
-
 export type UomsQueryResponse = {
   uoms: IUom[];
 } & QueryResponse;
-
-export type UomsCountQueryResponse = {
-  uomsTotalCount: number;
-} & QueryResponse;
-
-export type UomRemoveMutationResponse = {
-  uomsRemove: (mutation: { variables: { uomIds: string[] } }) => Promise<any>;
-};
 
 // SETTINGS
 

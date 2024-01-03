@@ -1,4 +1,4 @@
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
 import { withProps } from '@erxes/ui/src/utils';
 import PopoverContent from '../../../components/conversationDetail/workarea/responseTemplate/PopoverContent';
@@ -10,7 +10,7 @@ import {
 } from '../../../../settings/responseTemplates/types';
 import { ResponseTemplatesTotalCountQueryResponse } from '@erxes/ui-inbox/src/inbox/types';
 import React from 'react';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 
 import { AppConsumer } from 'coreui/appContext';
 
@@ -27,6 +27,7 @@ type FinalProps = {
   responseTemplatesQuery: ResponseTemplatesQueryResponse;
   responseTemplatesTotalCountQuery: ResponseTemplatesTotalCountQueryResponse;
 } & Props;
+
 const PopoverContentContainer = (props: FinalProps) => {
   const {
     brands,
@@ -88,16 +89,7 @@ const withQuery = () =>
       graphql<Props & { searchValue: string }, ResponseTemplatesQueryResponse>(
         gql(responseTemplateQuery.responseTemplates),
         {
-          name: 'responseTemplatesQuery',
-          options: ({ searchValue, brandId }) => {
-            return {
-              variables: {
-                perPage: 10,
-                searchValue,
-                brandId
-              }
-            };
-          }
+          name: 'responseTemplatesQueryAll'
         }
       ),
       graphql(gql(responseTemplateQuery.responseTemplatesTotalCount), {

@@ -40,28 +40,35 @@ export type ProductCategoriesCountQueryResponse = {
 } & QueryResponse;
 
 // UOM
-
-export type UomsQueryResponse = {
-  uoms: IUom[];
-} & QueryResponse;
-
 export type UomsCountQueryResponse = {
   uomsTotalCount: number;
 } & QueryResponse;
+
+export type MutationUomVariables = {
+  _id?: string;
+  name: string;
+  code: string;
+};
+
+export type UomAddMutationResponse = {
+  uomsAdd: (mutation: { variables: MutationUomVariables }) => Promise<any>;
+};
+
+export type UomEditMutationResponse = {
+  uomsEdit: (mutation: { variables: MutationUomVariables }) => Promise<any>;
+};
+
+export type UomRemoveMutationResponse = {
+  uomsRemove: (mutation: { variables: { uomIds: string[] } }) => Promise<any>;
+};
 
 export type MutationVariables = {
   _id?: string;
   type: string;
   name?: string;
   description?: string;
-  sku?: string;
+  uom?: string;
   createdAt?: Date;
-};
-
-export type MutationUomVariables = {
-  _id?: string;
-  name: string;
-  code: string;
 };
 
 // mutation types
@@ -110,20 +117,6 @@ export type MergeMutationResponse = {
   productsMerge: (params: {
     variables: MergeMutationVariables;
   }) => Promise<any>;
-};
-
-// UOM
-
-export type UomAddMutationResponse = {
-  uomsAdd: (mutation: { variables: MutationUomVariables }) => Promise<any>;
-};
-
-export type UomEditMutationResponse = {
-  uomsEdit: (mutation: { variables: MutationUomVariables }) => Promise<any>;
-};
-
-export type UomRemoveMutationResponse = {
-  uomsRemove: (mutation: { variables: { uomIds: string[] } }) => Promise<any>;
 };
 
 // SETTINGS

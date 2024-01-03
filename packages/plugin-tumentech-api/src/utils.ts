@@ -3,8 +3,11 @@ import { sendRequest } from '@erxes/api-utils/src/requests';
 import * as _ from 'underscore';
 
 import { generateModels } from './connectionResolver';
-import { sendCardsMessage } from './messageBroker';
+import { sendCardsMessage, sendCoreMessage } from './messageBroker';
 import { IPlaceDocument } from './models/definitions/places';
+import { google } from 'googleapis';
+import * as moment from 'moment';
+import { paginate } from '@erxes/api-utils/src/core';
 
 const gatherNames = async params => {
   const {
@@ -274,51 +277,163 @@ export const getPath = async (apiKey: string, places: IPlaceDocument[]) => {
   }
 };
 
-export const transliterate = (value: string) => {
-  let response = '';
+export const getTransportData = async (req, res, subdomain) => {
+  const { unixtimestamp, offset, pagesize } = req.body;
 
-  const A = new Array();
-  A['a'] = 'а';
-  A['b'] = 'б';
-  A['c'] = 'ц';
-  A['d'] = 'д';
-  A['e'] = 'э';
-  A['f'] = 'ф';
-  A['g'] = 'г';
-  A['h'] = 'х';
-  A['i'] = 'и';
-  A['j'] = 'ж';
-  A['k'] = 'к';
-  A['l'] = 'л';
-  A['m'] = 'м';
-  A['n'] = 'н';
-  A['o'] = 'о';
-  A['p'] = 'п';
-  A['q'] = 'ө';
-  A['r'] = 'р';
-  A['s'] = 'с';
-  A['t'] = 'т';
-  A['u'] = 'у';
-  A['v'] = 'в';
-  A['w'] = 'в';
-  A['x'] = 'кс';
-  A['y'] = 'ү';
-  A['z'] = 'з';
+  // const {  } = JSON.parse(json || '{}');
 
-  A['ye'] = 'е';
-  A['yo'] = 'ё';
-  A['yu'] = 'ю';
-  A['ya'] = 'я';
-  A['sh'] = 'ш';
-  A['ch'] = 'ч';
-  A['kh'] = 'х';
-  A['ts'] = 'ц';
-  A['zh'] = 'ж';
-  A['ii'] = 'ий';
-  A['yi'] = 'й';
+  const models = await generateModels(subdomain);
 
-  for (let i = 0; i < value.length; ++i) {
-    response += A[value[i]] === undefined ? value[i] : A[value[i]];
+  // const config = await sendCoreMessage({
+  //   subdomain,
+  //   action: 'configs.findOne',
+  //   data: {
+  //     query: {
+  //       code: 'GOOGLE_APPLICATION_CREDENTIALS_JSON'
+  //     }
+  //   },
+  //   isRPC: true,
+  //   defaultValue: null
+  // });
+
+  // if (!config) {
+  //   return res.json([]);
+  // }
+
+  const lastData = await models.TransportDatas.find({})
+    .sort({ tid: -1 })
+    .limit(1);
+
+  const lastTid = lastData.length > 0 ? lastData[0].tid : 0;
+
+  const lastTransport = await models.TransportDatas.findOne({ tid: lastTid });
+
+  // let range = 'A:O';
+
+  // if (lastTid > 0 && lastTransport) {
+  //   range = lastTransport.range;
+  // }
+
+  // const auth = new google.auth.GoogleAuth({
+  //   credentials: JSON.parse(config.value),
+  //   scopes: ['https://www.googleapis.com/auth/spreadsheets']
+  // });
+
+  // const authClientObject = await auth.getClient();
+  // // const sheets = google.sheets({ version: 'v4', auth: authClientObject });
+  // const sheets = google.sheets({
+  //   version: 'v4',
+  //   auth: authClientObject
+  // })
+
+  // const response = await sheets.spreadsheets.values.get({
+  //   spreadsheetId:
+  //     process.env.TRANSPORT_SPREADSHEET_ID ||
+  //     '18CwXZcOU4THxhvkvdA80mPNmGg7xsWpEfkHJh1M1bg0',
+  //   range
+  // });
+
+  // const sheetData = response.data;
+
+  // const rows = sheetData.values || [];
+
+  // const data: any[] = [];
+
+  // for (const [index, value] of rows.entries()) {
+  //   if (index < 3) {
+  //     continue;
+  //   }
+
+  //   const obj = {
+  //     tid: Number(value[0]),
+  //     from: value[1],
+  //     to: value[2],
+  //     payloadtype: value[3],
+  //     weight: value[4],
+  //     payloadsize: value[5],
+  //     trantype: value[6],
+  //     vehicletype: value[7],
+  //     trunktype: value[8],
+  //     tran_start_dt: moment(new Date(value[9])).format('YYYY-MM-DD'),
+  //     year: Number(value[10]),
+  //     month: Number(value[11]),
+  //     week: Number(value[12]),
+  //     day: Number(value[13]),
+  //     range: `A${index + 1}:O${index + 1}`
+  //   };
+
+  //   data.push(obj);
+  // }
+
+  // await models.TransportDatas.insertMany(data);
+
+  await models.TransportDatas.find({});
+
+  const qry: any = {};
+
+  if (unixtimestamp) {
+    qry.tid = { $gt: Number(unixtimestamp) };
   }
-  return response;
+
+  const list = await paginate(
+    models.TransportDatas.find(qry, '-scopeBrandIds -range').sort({
+      tid: 1
+    }),
+    { page: Number(offset || 1), perPage: Number(pagesize || 20) }
+  );
+
+  if (list.length === 0) {
+    return res.json({
+      response: { status: 'error', message: 'No data found' }
+    });
+  }
+
+  return res.json({
+    response: { status: 'success', result: list }
+  });
+};
+
+export const updateTrackingData = async (req, res, subdomain) => {
+  const models = await generateModels(subdomain);
+
+  const { tripId, trackingData } = req.body;
+
+  console.log('trackingData', trackingData);
+  console.log('tripId', tripId);
+
+  models.Trips.updateTracking(
+    tripId,
+    trackingData.map(item => {
+      return {
+        lat: item.lat,
+        lng: item.lng,
+        trackedDate: new Date(item.trackedDate)
+      };
+    })
+  );
+
+  return res.json({
+    response: { status: 'success' }
+  });
+};
+
+export const isRegisterNumberValid = (value: string) => {
+  if (value.length !== 10) {
+    return false;
+  }
+
+  // Check if the first two characters are Cyrillic letters
+  const firstTwoCharacters = value.slice(0, 2);
+  if (!/^[А-Яа-я]+$/.test(firstTwoCharacters)) {
+    return false;
+  }
+
+  // Check if the remaining characters are numbers
+  const remainingCharacters = value.slice(2);
+  if (!/^\d+$/.test(remainingCharacters)) {
+    return false;
+  }
+
+  // If all checks pass, the input is valid
+  return true;
 };

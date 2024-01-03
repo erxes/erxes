@@ -34,12 +34,14 @@ const Row = (props: Props) => {
     );
   };
 
-  const formContent = props => <ConfigForm {...props} config={config} />;
+  const formContent = formProps => (
+    <ConfigForm {...formProps} config={config} />
+  );
 
   return (
     <tr>
       <td key={Math.random()}>
-        <RowTitle>Lead integration</RowTitle>
+        <RowTitle>Form integration</RowTitle>
       </td>
 
       <td key={Math.random()}>

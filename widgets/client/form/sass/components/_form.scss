@@ -42,10 +42,13 @@
 .date-input {
   .rdtPicker {
     background: #faf9fb;
-    right: 40px;
     z-index: 999;
+    padding: 10px;
     border: 1px solid #eee;
     border-top: 0;
+    transform: none !important;
+    will-change: unset !important;
+    position: unset !important;
 
     table {
       width: 300px;
@@ -95,6 +98,54 @@
   }
 }
 
+button{
+  display: block;
+  margin-left: auto;
+  padding: 0.25rem 1rem;
+  border-radius: 4px;
+  border-color: $primary-color;
+  border-width: 1px;
+  color: $main-color;
+  margin-right: 0;
+  margin-bottom: 0.5rem;
+  transition: all 0.2s ease-in-out;
+  &:hover{
+    background-color: $primary-color;
+    color: $white;
+  }
+  &.removeBtn{
+    margin-bottom: -1rem;
+    padding: 0.25rem 0.5rem;
+    color: red;
+    margin-top: 0.5rem;
+  }
+}
+.form-group .field-groups {
+  border-radius: 4px;
+  padding: 12px;
+  margin-right: 20px;
+  border: 1px solid #d8d8d8;
+  .field-group{
+    border-top: 1px solid #d8d8d8;
+
+    .field-group-row {
+      display: flex;
+      flex-wrap: wrap;
+
+      .subField-item {
+        margin-right: 20px;
+
+        &:last-child {
+          margin: 0;
+        }
+      }
+    }
+
+    &:first-child{
+      border-top: none;
+    }
+  }
+}
 // modal form
 .modal-form {
   width: 100%;

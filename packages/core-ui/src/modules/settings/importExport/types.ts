@@ -24,6 +24,7 @@ export interface IImportHistoryItem {
 export interface IImportHistoryContentType {
   type: 'core' | 'plugin';
   contentType: string;
+  icon: string;
 }
 
 export interface IExportHistory {

@@ -1,15 +1,18 @@
 module.exports = {
+  srcDir: __dirname,
   name: "pos",
   scope: "pos",
   port: 3016,
   exposes: {
     "./routes": "./src/routes.tsx",
+    './invoiceDetailRightSection': './src/orders/containers/InvoiceDetail.tsx',
   },
   routes: {
     url: "http://localhost:3016/remoteEntry.js",
     scope: "pos",
     module: "./routes",
   },
+  invoiceDetailRightSection: './invoiceDetailRightSection',
   menus: [
     {
       text: "Pos Orders",

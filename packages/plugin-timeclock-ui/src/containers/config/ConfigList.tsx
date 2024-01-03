@@ -1,6 +1,6 @@
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 import { withProps } from '@erxes/ui/src/utils/core';
 import React from 'react';
 import ConfigList from '../../components/config/ConfigList';
@@ -10,30 +10,40 @@ import {
   ConfigMutationResponse,
   PayDatesQueryResponse,
   HolidaysQueryResponse,
-  ScheduleConfigQueryResponse
+  ScheduleConfigQueryResponse,
+  DeviceConfigsQueryResponse
 } from '../../types';
 import { mutations, queries } from '../../graphql';
 import { Alert, confirm } from '@erxes/ui/src/utils';
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
+import { generateParams } from '../../utils';
 
 type Props = {
   getActionBar: (actionBar: any) => void;
   showSideBar: (sideBar: boolean) => void;
+  getPagination: (pagination: any) => void;
+
   history: any;
   queryParams: any;
+
   absenceTypeId?: string;
   absenceName?: string;
+
   attachment?: boolean;
   explanation?: boolean;
-  userId?: string;
   reason?: string;
+  userId?: string;
+
   startTime?: Date;
   endTime?: Date;
+
   absenceId?: string;
   absenceStatus?: string;
+
   payDates?: number[];
   scheduleConfigId?: string;
+  deviceConfigId?: string;
 };
 
 type FinalProps = {
@@ -41,6 +51,7 @@ type FinalProps = {
   listPayDatesQuery: PayDatesQueryResponse;
   listHolidaysQuery: HolidaysQueryResponse;
   listScheduleConfigsQuery: ScheduleConfigQueryResponse;
+  listDeviceConfigsQuery: DeviceConfigsQueryResponse;
 } & Props &
   ConfigMutationResponse;
 
@@ -50,11 +61,12 @@ const ListContainer = (props: FinalProps) => {
     removePayDateMutation,
     removeHolidayMutation,
     removeScheduleConfigMutation,
-    showSideBar,
+    removeDeviceConfigMutation,
     listAbsenceTypesQuery,
     listPayDatesQuery,
     listHolidaysQuery,
-    listScheduleConfigsQuery
+    listScheduleConfigsQuery,
+    listDeviceConfigsQuery
   } = props;
 
   const renderButton = ({
@@ -83,6 +95,12 @@ const ListContainer = (props: FinalProps) => {
         : mutations.scheduleConfigAdd;
     }
 
+    if (name === 'deviceConfig') {
+      mutation = object
+        ? mutations.deviceConfigEdit
+        : mutations.deviceConfigAdd;
+    }
+
     return (
       <ButtonMutate
         mutation={mutation}
@@ -90,16 +108,19 @@ const ListContainer = (props: FinalProps) => {
         callback={callback}
         refetchQueries={[
           {
-            query: gql(queries.listAbsenceTypes)
+            query: gql(queries.absenceTypes)
           },
           {
-            query: gql(queries.listHolidays)
+            query: gql(queries.holidays)
           },
           {
-            query: gql(queries.listPayDates)
+            query: gql(queries.payDates)
           },
           {
-            query: gql(queries.listScheduleConfig)
+            query: gql(queries.scheduleConfigs)
+          },
+          {
+            query: gql(queries.deviceConfigs)
           }
         ]}
         isSubmitted={isSubmitted}
@@ -152,8 +173,25 @@ const ListContainer = (props: FinalProps) => {
     });
   };
 
+  const removeDeviceConfig = (_id: string) => {
+    confirm('Are you sure to remove this device config').then(() => {
+      removeDeviceConfigMutation({ variables: { _id: `${_id}` } })
+        .then(() => Alert.success('Successfully removed schedule config'))
+        .catch(err => {
+          Alert.error(err);
+        });
+    });
+  };
+
+  const { list = [], totalCount = 0 } =
+    listDeviceConfigsQuery.deviceConfigs || {};
+
+  const refetchDeviceConfigsQuery = listDeviceConfigsQuery.refetch;
+
   const updatedProps = {
     ...props,
+    deviceConfigs: list,
+    deviceConfigsTotalCount: totalCount,
     scheduleConfigs: listScheduleConfigsQuery.scheduleConfigs,
     holidays: listHolidaysQuery.holidays,
     absenceTypes: listAbsenceTypesQuery.absenceTypes,
@@ -162,35 +200,45 @@ const ListContainer = (props: FinalProps) => {
     removeHoliday,
     removePayDate,
     removeScheduleConfig,
-    renderButton
+    renderButton,
+    removeDeviceConfig,
+    refetchDeviceConfigsQuery
   };
-  showSideBar(false);
+
   return <ConfigList {...updatedProps} />;
 };
 
 export default withProps<Props>(
   compose(
-    graphql<Props, AbsenceTypeQueryResponse>(gql(queries.listAbsenceTypes), {
+    graphql<Props, AbsenceTypeQueryResponse>(gql(queries.absenceTypes), {
       name: 'listAbsenceTypesQuery',
       options: () => ({
         fetchPolicy: 'network-only'
       })
     }),
-    graphql<Props, PayDatesQueryResponse>(gql(queries.listPayDates), {
+    graphql<Props, PayDatesQueryResponse>(gql(queries.payDates), {
       name: 'listPayDatesQuery',
       options: () => ({
         fetchPolicy: 'network-only'
       })
     }),
-    graphql<Props, PayDatesQueryResponse>(gql(queries.listHolidays), {
+    graphql<Props, PayDatesQueryResponse>(gql(queries.holidays), {
       name: 'listHolidaysQuery',
       options: () => ({
         fetchPolicy: 'network-only'
       })
     }),
-    graphql<Props, PayDatesQueryResponse>(gql(queries.listScheduleConfig), {
+    graphql<Props, PayDatesQueryResponse>(gql(queries.scheduleConfigs), {
       name: 'listScheduleConfigsQuery',
       options: () => ({
+        fetchPolicy: 'network-only'
+      })
+    }),
+
+    graphql<Props, PayDatesQueryResponse>(gql(queries.deviceConfigs), {
+      name: 'listDeviceConfigsQuery',
+      options: ({ queryParams }) => ({
+        variables: generateParams(queryParams),
         fetchPolicy: 'network-only'
       })
     }),
@@ -236,6 +284,15 @@ export default withProps<Props>(
           refetchQueries: ['scheduleConfigs']
         })
       }
-    )
+    ),
+    graphql<Props, ConfigMutationResponse>(gql(mutations.deviceConfigRemove), {
+      name: 'removeDeviceConfigMutation',
+      options: ({ deviceConfigId }) => ({
+        variables: {
+          _id: deviceConfigId
+        },
+        refetchQueries: ['deviceConfigs']
+      })
+    })
   )(ListContainer)
 );

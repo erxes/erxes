@@ -140,6 +140,18 @@ export const initBroker = async cl => {
     }
   );
 
+  consumeRPCQueue(
+    'forms:fields.fieldsCombinedByContentType',
+    async ({ subdomain, data }) => {
+      const models = await generateModels(subdomain);
+
+      return {
+        status: 'success',
+        data: await fieldsCombinedByContentType(models, subdomain, data)
+      };
+    }
+  );
+
   consumeQueue(
     'forms:updateGroup',
     async ({ subdomain, data: { groupId, fieldsGroup } }) => {

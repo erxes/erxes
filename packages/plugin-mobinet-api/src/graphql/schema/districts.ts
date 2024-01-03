@@ -5,6 +5,7 @@ export const types = `
     code: String
     cityId: String
     center: JSON
+    isCapital: Boolean
     createdAt: Date
     updatedAt: Date
 
@@ -22,6 +23,7 @@ const mutationParams = `
     code: String!
     cityId: String
     center: JSON
+    isCapital: Boolean
 `;
 
 export const mutations = `

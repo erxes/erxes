@@ -1,17 +1,16 @@
 import client from '@erxes/ui/src/apolloClient';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
 import { queries } from '../graphql';
 import { __, Alert, confirm, withProps } from '@erxes/ui/src/utils';
 import React from 'react';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 import Stage from '../components/stage/Stage';
 import { mutations } from '../graphql';
 import {
   IFilterParams,
   IItem,
   IOptions,
-  IPipeline,
   IStage,
   ItemsQueryResponse,
   RemoveStageMutation,
@@ -243,6 +242,8 @@ const getFilterParams = (
     customerIds: queryParams.customerIds,
     companyIds: queryParams.companyIds,
     assignedUserIds: queryParams.assignedUserIds,
+    branchIds: queryParams.branchIds,
+    departmentIds: queryParams.departmentIds,
     closeDateType: queryParams.closeDateType,
     labelIds: queryParams.labelIds,
     userIds: queryParams.userIds,
@@ -291,15 +292,15 @@ class WithData extends React.Component<StageProps> {
   private withQuery;
   private abortController;
 
-  componentWillUnmount() {
-    this.abortController.abort();
-  }
-
   constructor(props) {
     super(props);
 
     this.withQuery = withQuery({ options: props.options });
     this.abortController = new AbortController();
+  }
+
+  componentWillUnmount() {
+    this.abortController.abort();
   }
 
   render() {

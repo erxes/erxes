@@ -17,6 +17,7 @@ type TotalCount = {
   messenger: number;
   form: number;
   facebook: number;
+  instagram: number;
   callpro: number;
   chatfuel: number;
   gmail: number;
@@ -27,6 +28,7 @@ type TotalCount = {
   line: number;
   telegram: number;
   viber: number;
+  calls: number;
   twilio: number;
   whatsapp: number;
   exchange: number;

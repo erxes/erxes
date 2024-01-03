@@ -1,11 +1,10 @@
 import React from 'react';
-import gql from 'graphql-tag';
-import { useQuery } from 'react-apollo';
+import { gql } from '@apollo/client';
+import { useQuery } from '@apollo/client';
 
 import { queries } from '@erxes/ui/src/team/graphql';
 import StructureBox from '../../components/structure/Box';
 
-import Box from '@erxes/ui/src/components/Box';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import ErrorMsg from '@erxes/ui/src/components/ErrorMsg';
 import { __ } from 'modules/common/utils';
@@ -25,11 +24,9 @@ export default function BoxContainer() {
 
   if (error) {
     return (
-      <Box isOpen={true} title={__('Structure')} name="showStructure">
-        <MenuFooter>
-          <ErrorMsg>{error.message}</ErrorMsg>
-        </MenuFooter>
-      </Box>
+      <MenuFooter>
+        <ErrorMsg>{error.message}</ErrorMsg>
+      </MenuFooter>
     );
   }
 

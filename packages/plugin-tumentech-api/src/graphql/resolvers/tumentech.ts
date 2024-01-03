@@ -1,5 +1,9 @@
 import { IContext } from '../../connectionResolver';
-import { sendContactsMessage, sendCoreMessage } from '../../messageBroker';
+import {
+  sendContactsMessage,
+  sendCoreMessage,
+  sendXypMessage
+} from '../../messageBroker';
 import { IParticipantDocument } from '../../models/definitions/participants';
 import {
   ICarCategoryDocument,
@@ -46,6 +50,18 @@ const Cars = {
     });
 
     return customers;
+  },
+
+  async xypdata(car: ICarDocument, {}, { models, subdomain }: IContext) {
+    const xyp = await sendXypMessage({
+      subdomain,
+      action: 'xyp.find',
+      data: { _id: car._id, contentType: 'tumentech:car' },
+      isRPC: true,
+      defaultValue: {}
+    });
+
+    return xyp;
   },
 
   async companies(car: ICarDocument, {}, { subdomain }: IContext) {
@@ -122,8 +138,22 @@ const Participant = {
   phone: async (
     participant: IParticipantDocument,
     {},
-    { models, cpUser }: IContext
+    { models, subdomain, cpUser }: IContext
   ) => {
+    if (participant.detail.invited) {
+      const driver = await sendContactsMessage({
+        subdomain,
+        action: 'customers.findOne',
+        data: { _id: participant.driverId },
+        isRPC: true,
+        defaultValue: null
+      });
+
+      if (driver) {
+        return driver.primaryPhone;
+      }
+    }
+
     const history = await models.PurchaseHistories.findOne({
       driverId: participant.driverId,
       dealId: participant.dealId,

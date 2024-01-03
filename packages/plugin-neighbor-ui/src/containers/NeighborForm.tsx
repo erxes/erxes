@@ -1,7 +1,6 @@
 import React from 'react';
 import NeighborForm from '../components/NeigborForm';
-import { useQuery, useMutation } from 'react-apollo';
-import gql from 'graphql-tag';
+import { gql, useQuery, useMutation } from '@apollo/client';
 import { Alert } from '@erxes/ui/src/utils';
 import queries from '../graphql/queries';
 import mutations from '../graphql/mutations';

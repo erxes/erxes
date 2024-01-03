@@ -1,7 +1,7 @@
 import { withProps } from '@erxes/ui/src/utils';
 import * as compose from 'lodash.flowright';
 import React from 'react';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 
 import PaymentHome from '../components/PaymentHome';
 import { queries } from '../graphql';

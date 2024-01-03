@@ -1,4 +1,4 @@
-import { gql } from 'apollo-server-express';
+import gql from 'graphql-tag';
 
 const types = `
   type Dac {
@@ -16,12 +16,35 @@ const types = `
     _id: String!
     name: String
   }
+
+  type DacCupon {
+     _id: String!,
+     customerId: String!,
+     cuponCode: String,
+     description: String,
+     startDate: Date,
+     expiryDate: Date,
+     status: String,
+     title: String,
+     discount: String
+   }
+     input DacCuponInput {
+     customerId: String!,
+     cuponCode: String,
+     description: String,
+     startDate: Date,
+     expireDate: Date,
+     title: String,
+     discount: String
+   },
 `;
 
 const queries = `
   dac(typeId: String): [Dac]
   dacTypes: [DacType]
-  dacTotalCount: Int
+  dacTotalCount: Int,
+  dacCuponCheck(customerId: String!, _id: String!): String
+  dacUserActiveCupons: [DacCupon]
 `;
 
 const params = `
@@ -38,6 +61,8 @@ const mutations = `
   dacTypesAdd(name:String):DacType
   dacTypesRemove(_id: String!):JSON
   dacTypesEdit(_id: String!, name:String): DacType
+  dacCuponAdd(doc: DacCuponInput!): String
+  dacCuponUse(status: String, customerId: String, _id: String!): String
 `;
 
 const typeDefs = async _serviceDiscovery => {

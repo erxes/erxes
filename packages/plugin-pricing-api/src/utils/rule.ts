@@ -1,3 +1,4 @@
+import { shortStrToDate } from '@erxes/api-utils/src/core';
 import * as dayjs from 'dayjs';
 import { CalculatedRule } from '../types';
 
@@ -88,11 +89,7 @@ export const checkRepeatRule = (plan: any): boolean => {
 
   // If repeat rule is disabled, rule passes
   if (!plan.isRepeatEnabled) repeatPassed = true;
-  if (
-    plan.isRepeatEnabled &&
-    plan.repeatRules &&
-    plan.repeatRules.length !== 0
-  ) {
+  if (plan.isRepeatEnabled && plan.repeatRules && plan.repeatRules.length) {
     for (const rule of plan.repeatRules) {
       switch (rule.type) {
         case 'everyDay':
@@ -293,12 +290,15 @@ export const calculateExpiryRule = (
 
   // Check expiry rule
   if (!plan.isExpiryEnabled) passed = true;
-  if (plan.isExpiryEnabled && plan.expiryRules && plan.expiryRules.length !== 0)
+
+  if (plan.isExpiryEnabled && plan.expiryRules && plan.expiryRules.length)
     for (const rule of plan.expiryRules) {
       // Check validity
-      const expiredDate = dayjs
-        .unix(parseInt(item.manufacturedDate) * 1000)
-        .add(rule.value, rule.type);
+      if (!item.manufacturedDate) continue;
+
+      const expiredDate = dayjs(
+        Number(shortStrToDate(item.manufacturedDate, 92, 'h', 'n'))
+      ).add(rule.value, rule.type);
       let rulePassed = false;
 
       if (now.isAfter(expiredDate)) rulePassed = true;

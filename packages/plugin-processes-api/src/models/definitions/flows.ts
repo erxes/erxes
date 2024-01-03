@@ -17,7 +17,7 @@ export interface IJob {
     durationType: string;
     duration: number;
     quantity?: number;
-    uomId?: string;
+    uom?: string;
   };
   style: object;
   label: string;

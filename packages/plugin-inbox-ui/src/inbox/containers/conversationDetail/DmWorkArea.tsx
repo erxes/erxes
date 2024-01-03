@@ -1,19 +1,5 @@
-import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import React from 'react';
-import { graphql } from 'react-apollo';
-import strip from 'strip';
 
-import { AppConsumer } from 'coreui/appContext';
-import DmWorkArea from '../../components/conversationDetail/workarea/DmWorkArea';
-import { NOTIFICATION_TYPE } from '../../constants';
-import {
-  mutations,
-  queries,
-  subscriptions
-} from '@erxes/ui-inbox/src/inbox/graphql';
-import { IUser } from '@erxes/ui/src/auth/types';
-import { sendDesktopNotification, withProps } from '@erxes/ui/src/utils';
 import {
   AddMessageMutationResponse,
   AddMessageMutationVariables,
@@ -23,7 +9,22 @@ import {
   MessagesQueryResponse,
   MessagesTotalCountQuery
 } from '@erxes/ui-inbox/src/inbox/types';
+import {
+  mutations,
+  queries,
+  subscriptions
+} from '@erxes/ui-inbox/src/inbox/graphql';
+import { sendDesktopNotification, withProps } from '@erxes/ui/src/utils';
+
+import { AppConsumer } from 'coreui/appContext';
+import DmWorkArea from '../../components/conversationDetail/workarea/DmWorkArea';
+import { IUser } from '@erxes/ui/src/auth/types';
+import { NOTIFICATION_TYPE } from '../../constants';
+import React from 'react';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
 import { isConversationMailKind } from '@erxes/ui-inbox/src/inbox/utils';
+import strip from 'strip';
 
 // messages limit
 let initialLimit = 10;
@@ -33,6 +34,7 @@ type Props = {
   currentId?: string;
   refetchDetail: () => void;
   dmConfig?: DmConfig;
+  content?: any;
 };
 
 type FinalProps = {
@@ -78,6 +80,21 @@ const getQueryResult = (queryResponse: object, countQuery?: boolean) => {
   return queryResponse[key] || [];
 };
 
+const getQueryResultKey = (queryResponse: object, countQuery?: boolean) => {
+  let key = countQuery
+    ? 'conversationMessagesTotalCount'
+    : 'conversationMessages';
+
+  for (const k of Object.keys(queryResponse || {})) {
+    if (k.includes('ConversationMessages')) {
+      key = k;
+      break;
+    }
+  }
+
+  return key;
+};
+
 class WorkArea extends React.Component<FinalProps, State> {
   private prevMessageInsertedSubscription;
   private prevTypingInfoSubscription;
@@ -119,7 +136,7 @@ class WorkArea extends React.Component<FinalProps, State> {
         document: gql(subscriptions.conversationMessageInserted),
         variables: { _id: currentId },
         updateQuery: (prev, { subscriptionData }) => {
-          let message = subscriptionData.data.conversationMessageInserted;
+          const message = subscriptionData.data.conversationMessageInserted;
           const kind = currentConversation.integration.kind;
 
           if (!prev) {
@@ -198,12 +215,11 @@ class WorkArea extends React.Component<FinalProps, State> {
     callback?: (e?) => void;
   }) => {
     const { addMessageMutation, currentId, dmConfig } = this.props;
-
     // immediate ui update =======
     let update;
 
     if (optimisticResponse) {
-      update = (proxy, { data: { conversationMessageAdd } }) => {
+      update = (cache, { data: { conversationMessageAdd } }) => {
         const message = conversationMessageAdd;
 
         let messagesQuery = queries.conversationMessages;
@@ -212,8 +228,6 @@ class WorkArea extends React.Component<FinalProps, State> {
           messagesQuery = getQueryString('messagesQuery', dmConfig);
         }
 
-        // trying to read query by initial variables. Because currenty it is apollo bug.
-        // https://github.com/apollographql/apollo-client/issues/2499
         const selector = {
           query: gql(messagesQuery),
           variables: {
@@ -223,30 +237,22 @@ class WorkArea extends React.Component<FinalProps, State> {
           }
         };
 
-        // Read the data from our cache for this query.
-        let data;
-
         try {
-          data = proxy.readQuery(selector);
+          cache.updateQuery(selector, data => {
+            const key = getQueryResultKey(data || {});
+            const messages = data ? data[key] : [];
 
-          // Do not do anything while reading query somewhere else
+            // check duplications
+            if (messages.find(m => m._id === message._id)) {
+              return {};
+            }
+
+            return { [key]: [...messages, message] };
+          });
         } catch (e) {
-          console.log(e.message);
+          console.error(e);
           return;
         }
-
-        const messages = getQueryResult(data);
-
-        // check duplications
-        if (messages.find(m => m._id === message._id)) {
-          return;
-        }
-
-        // Add our comment from the mutation to the end.
-        messages.push(message);
-
-        // Write our data back to the cache.
-        proxy.writeQuery({ ...selector, data });
       };
     }
 
@@ -414,6 +420,12 @@ export const resetDmWithQueryCache = () => {
 };
 
 const WithConsumer = (props: Props) => {
+  const [isInitial, setIsInitial] = React.useState(true);
+
+  React.useEffect(() => {
+    setIsInitial(false);
+  }, [WithQuery]);
+
   return (
     <AppConsumer>
       {({ currentUser }) => {
@@ -421,7 +433,7 @@ const WithConsumer = (props: Props) => {
           return null;
         }
 
-        if (!WithQuery) {
+        if (isInitial) {
           WithQuery = generateWithQuery(props);
         }
 

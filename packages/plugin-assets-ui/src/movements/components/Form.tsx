@@ -29,7 +29,7 @@ import {
 import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
 import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import _loadash from 'lodash';
 import React from 'react';
 import { IMovementItem, IMovementType } from '../../common/types';
@@ -97,7 +97,6 @@ class Form extends React.Component<Props, State> {
     const items = variables.map(
       ({
         assetId,
-        assetName,
         branchId,
         departmentId,
         customerId,
@@ -105,7 +104,6 @@ class Form extends React.Component<Props, State> {
         teamMemberId
       }) => ({
         assetId,
-        assetName,
         branchId,
         departmentId,
         customerId,
@@ -135,7 +133,10 @@ class Form extends React.Component<Props, State> {
 
           const selectedItems = datas.map(data => ({
             assetId: data._id,
-            assetName: data.name
+            assetDetail: {
+              _id: data._id,
+              name: data.name
+            }
           }));
 
           const newVariables = selectedItems.map(selectedItem => {

@@ -4,11 +4,14 @@ const commonFields = `
   $order: Int,
   $description: String,
   $code: String,
+  $parentId: String,
+  $isMultiple: Boolean,
   $isVisible: Boolean,
   $isVisibleInDetail: Boolean,
   $config: JSON,
   $logicAction: String,
   $logics: [LogicInput],
+  $alwaysOpen: Boolean,
 `;
 
 const commonTypes = `
@@ -17,11 +20,14 @@ const commonTypes = `
   order: $order,
   description: $description,
   code: $code,
+  parentId: $parentId,
+  isMultiple: $isMultiple,
   isVisible: $isVisible,
   isVisibleInDetail: $isVisibleInDetail,
   config: $config
   logicAction: $logicAction,
   logics: $logics,
+  alwaysOpen: $alwaysOpen,
 `;
 
 const updateVisibleFields = `

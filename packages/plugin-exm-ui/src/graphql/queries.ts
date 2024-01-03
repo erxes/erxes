@@ -8,27 +8,33 @@ const exmGet = `
       
       features {
         _id
-        icon
         name
         description
-        contentType
         contentId
         subContentId
-      }
-      
-      welcomeContent {
-        _id
-        title
-        content
-        image
       }
       
       appearance {
         primaryColor
         secondaryColor
+        bodyColor
+        headerColor
+        footerColor
       }
       
       logo
+      url
+      favicon
+      webName
+      webDescription
+      vision
+      structure
+      structure
+      knowledgeBaseLabel
+      knowledgeBaseTopicId
+      ticketLabel
+      ticketPipelineId
+      ticketBoardId
     }
   }
 `;

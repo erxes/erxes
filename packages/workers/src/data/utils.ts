@@ -5,6 +5,8 @@ import * as readline from 'readline';
 import csvParser = require('csv-parser');
 import utils from '@erxes/api-utils/src';
 import { getFileUploadConfigs } from '../messageBroker';
+import { getService } from '@erxes/api-utils/src/serviceDiscovery';
+import * as Downloader from 'nodejs-file-downloader';
 
 export const uploadsFolderPath = path.join(__dirname, '../private/uploads');
 
@@ -76,13 +78,9 @@ export const createAWS = async () => {
     secretAccessKey: string;
     endpoint?: string;
     s3ForcePathStyle?: boolean;
-    httpOptions?: any;
   } = {
     accessKeyId: AWS_ACCESS_KEY_ID,
-    secretAccessKey: AWS_SECRET_ACCESS_KEY,
-    httpOptions: {
-      timeout: 10 * 60 * 1000 // 10 minutes.
-    }
+    secretAccessKey: AWS_SECRET_ACCESS_KEY
   };
 
   if (AWS_FORCE_PATH_STYLE === 'true') {
@@ -97,8 +95,58 @@ export const createAWS = async () => {
   return new AWS.S3(options);
 };
 
+export const createCFR2 = async () => {
+  const {
+    CLOUDFLARE_ACCOUNT_ID,
+    CLOUDFLARE_ACCESS_KEY_ID,
+    CLOUDFLARE_SECRET_ACCESS_KEY
+  } = await getFileUploadConfigs();
+
+  const CLOUDFLARE_ENDPOINT = `https://${CLOUDFLARE_ACCOUNT_ID}.r2.cloudflarestorage.com`;
+
+  if (!CLOUDFLARE_ACCESS_KEY_ID || !CLOUDFLARE_SECRET_ACCESS_KEY) {
+    throw new Error('Cloudflare Credentials are not configured');
+  }
+
+  const options: {
+    endpoint?: string;
+    accessKeyId: string;
+    secretAccessKey: string;
+    signatureVersion: 'v4';
+    region: string;
+  } = {
+    endpoint: CLOUDFLARE_ENDPOINT,
+    accessKeyId: CLOUDFLARE_ACCESS_KEY_ID,
+    secretAccessKey: CLOUDFLARE_SECRET_ACCESS_KEY,
+    signatureVersion: 'v4',
+    region: 'auto'
+  };
+
+  return new AWS.S3(options);
+};
+
 export const getImportCsvInfo = async (fileName: string) => {
   const { UPLOAD_SERVICE_TYPE } = await getFileUploadConfigs();
+
+  const service: any = await getService('core');
+
+  const url = `${service.address}/get-import-file`;
+
+  const downloader = await new (Downloader as any)({
+    url,
+    directory: uploadsFolderPath,
+    cloneFiles: false,
+    fileName,
+    headers: { fileName }
+  });
+  try {
+    await downloader.download();
+  } catch (e) {
+    console.error(
+      `${service.name} csv download from ${url} to ${fileName} failed.`,
+      e.message
+    );
+  }
 
   return new Promise(async (resolve, reject) => {
     if (UPLOAD_SERVICE_TYPE === 'local') {
@@ -127,10 +175,17 @@ export const getImportCsvInfo = async (fileName: string) => {
           reject();
         });
     } else {
-      const { AWS_BUCKET } = await getFileUploadConfigs();
-      const s3 = await createAWS();
+      const {
+        AWS_BUCKET,
+        CLOUDFLARE_BUCKET_NAME
+      } = await getFileUploadConfigs();
+      const s3 =
+        UPLOAD_SERVICE_TYPE === 'AWS' ? await createAWS() : await createCFR2();
 
-      const params = { Bucket: AWS_BUCKET, Key: fileName };
+      const bucket =
+        UPLOAD_SERVICE_TYPE === 'AWS' ? AWS_BUCKET : CLOUDFLARE_BUCKET_NAME;
+
+      const params = { Bucket: bucket, Key: fileName };
 
       const request = s3.getObject(params);
       const readStream = request.createReadStream();
@@ -191,11 +246,18 @@ export const getCsvHeadersInfo = async (fileName: string) => {
         resolve(columns);
       });
     } else {
-      const { AWS_BUCKET } = await getFileUploadConfigs();
-      const s3 = await createAWS();
+      const {
+        AWS_BUCKET,
+        CLOUDFLARE_BUCKET_NAME
+      } = await getFileUploadConfigs();
 
-      const params = { Bucket: AWS_BUCKET, Key: fileName };
+      const s3 =
+        UPLOAD_SERVICE_TYPE === 'AWS' ? await createAWS() : await createCFR2();
 
+      const bucket =
+        UPLOAD_SERVICE_TYPE === 'AWS' ? AWS_BUCKET : CLOUDFLARE_BUCKET_NAME;
+
+      const params = { Bucket: bucket, Key: fileName };
       // exclude column
 
       const columns = await getS3FileInfo({

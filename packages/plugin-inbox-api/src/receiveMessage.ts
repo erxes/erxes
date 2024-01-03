@@ -94,7 +94,7 @@ export const receiveRpcMessage = async (subdomain, data) => {
   }
 
   if (action === 'create-or-update-conversation') {
-    const { conversationId, content, owner } = doc;
+    const { conversationId, content, owner, updatedAt } = doc;
 
     let user;
 
@@ -110,19 +110,27 @@ export const receiveRpcMessage = async (subdomain, data) => {
       });
     }
 
-    const assignedUserId = user ? user._id : null;
+    let assignedUserId = user ? user._id : null;
 
     if (conversationId) {
+      if (!assignedUserId) {
+        const existingConversation = await Conversations.findOne({
+          _id: conversationId
+        });
+
+        assignedUserId = existingConversation?.assignedUserId || null;
+      }
+
       await Conversations.updateConversation(conversationId, {
         content,
         assignedUserId,
+        updatedAt,
         // mark this conversation as unread
         readUserIds: [],
 
         // reopen this conversation if it's closed
         status: CONVERSATION_STATUSES.OPEN
       });
-
       return sendSuccess({ _id: conversationId });
     }
 
@@ -213,7 +221,9 @@ export const receiveIntegrationsNotification = async (subdomain, msg) => {
 
     if (conversationId) {
       await models.Conversations.reopen(conversationId);
-      await pConversationClientMessageInserted(models, { conversationId });
+      await pConversationClientMessageInserted(models, subdomain, {
+        conversationId
+      });
     }
 
     return sendSuccess({ status: 'ok' });

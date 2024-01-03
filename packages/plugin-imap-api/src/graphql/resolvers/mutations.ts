@@ -18,7 +18,9 @@ const notificationMutations = {
       customerId,
       to,
       attachments,
-      replyToMessageId
+      replyToMessageId,
+      shouldOpen,
+      shouldResolve
     } = args;
 
     let customer;
@@ -79,6 +81,25 @@ const notificationMutations = {
       throw new Error('Integration not found');
     }
 
+    if (conversationId) {
+      if (shouldResolve) {
+        await sendInboxMessage({
+          subdomain,
+          action: 'conversations.changeStatus',
+          data: { id: conversationId, status: 'closed' },
+          isRPC: true
+        });
+      }
+      if (shouldOpen) {
+        await sendInboxMessage({
+          subdomain,
+          action: 'conversations.changeStatus',
+          data: { id: conversationId, status: 'new' },
+          isRPC: true
+        });
+      }
+    }
+
     const transporter = nodemailer.createTransport({
       host: integration.smtpHost,
       port: integration.smtpPort,
@@ -117,7 +138,12 @@ const notificationMutations = {
       body: mailData.html,
       to: (mailData.to || []).map(to => ({ name: to, address: to })),
       from: [{ name: mailData.from, address: mailData.from }],
-      attachments: mailData.attachments
+      attachments: attachments.map(({ name, type, size }) => ({
+        filename: name,
+        type,
+        size
+      })),
+      type: 'SENT'
     });
   }
 };

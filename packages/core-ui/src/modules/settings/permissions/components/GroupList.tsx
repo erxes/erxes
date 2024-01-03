@@ -63,10 +63,6 @@ class GroupList extends React.Component<IProps> {
     return currentGroup === id;
   };
 
-  clearGroupFilter = () => {
-    router.setParams(this.props.history, { groupId: null });
-  };
-
   renderEditAction(object: IUserGroupDocument) {
     const trigger = (
       <Button btnStyle="link">
@@ -131,7 +127,7 @@ class GroupList extends React.Component<IProps> {
     const { objects } = this.props;
 
     return (
-      <SidebarList noBackground noTextColor>
+      <SidebarList noBackground={true} noTextColor={true}>
         {this.renderObjects(objects)}
       </SidebarList>
     );
@@ -152,18 +148,7 @@ class GroupList extends React.Component<IProps> {
     return (
       <>
         <Header>{this.renderFormTrigger(trigger)}</Header>
-        <Section.Title>
-          {__('User groups')}
-          <Section.QuickButtons>
-            {router.getParam(this.props.history, 'groupId') && (
-              <a href="#cancel" tabIndex={0} onClick={this.clearGroupFilter}>
-                <Tip text={__('Clear filter')}>
-                  <Icon icon="cancel-1" />
-                </Tip>
-              </a>
-            )}
-          </Section.QuickButtons>
-        </Section.Title>
+        <Section.Title>{__('User groups')}</Section.Title>
       </>
     );
   }
@@ -172,7 +157,7 @@ class GroupList extends React.Component<IProps> {
     const { totalCount, loading } = this.props;
 
     return (
-      <Sidebar wide={true} header={this.renderSidebarHeader()} hasBorder>
+      <Sidebar wide={true} header={this.renderSidebarHeader()} hasBorder={true}>
         <DataWithLoader
           data={this.renderContent()}
           loading={loading}

@@ -2,10 +2,10 @@ import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers';
 
 import { initBroker } from './messageBroker';
-import { initMemoryStorage } from './inmemoryStorage';
-import initApp from '.';
+import initApp from './initApp';
 import { generateModels } from './connectionResolver';
 import { getSubdomain } from '@erxes/api-utils/src/core';
+import dashboards from './dashboards';
 
 export let graphqlPubsub;
 export let serviceDiscovery;
@@ -24,6 +24,9 @@ export default {
     };
   },
   hasSubscriptions: false,
+  meta: {
+    dashboards
+  },
   segment: {},
   apolloServerContext: async (context, req) => {
     const subdomain = getSubdomain(req);
@@ -41,8 +44,6 @@ export default {
     const app = options.app;
 
     initBroker(options.messageBrokerClient);
-
-    initMemoryStorage();
 
     initApp(app);
 

@@ -17,9 +17,10 @@ import { ITask } from '../../../tasks/types';
 import { SectionBodyItem } from '@erxes/ui/src/layout/styles';
 import { ProductName } from '../../../deals/styles';
 import { Flex } from '@erxes/ui/src/styles/main';
+import { IPurchase } from '../../../purchases/types';
 
 type Props = {
-  children: IDeal[] | ITicket[] | ITask[];
+  children: IDeal[] | ITicket[] | ITask[] | IPurchase[];
   parentId: string;
   options: IOptions;
   stageId: string;
@@ -99,14 +100,16 @@ class ChildrenSection extends React.Component<Props, State> {
     );
   }
 
-  renderChildForm(child: IDeal | ITicket | ITask) {
+  renderChildForm(child: IDeal | ITicket | ITask | IPurchase) {
     const { openChildId } = this.state;
 
     const closeModal = () => {
+      localStorage.removeItem('isChildModal');
       this.setState({ openChildId: '' });
     };
 
     const openModal = () => {
+      localStorage.setItem('isChildModal', 'true');
       this.setState({ openChildId: child._id });
     };
 
@@ -141,7 +144,9 @@ class ChildrenSection extends React.Component<Props, State> {
     return (
       <Box title="Children" extraButtons={extraButtons()} isOpen={true}>
         {children?.length ? (
-          (children as Array<IDeal | ITicket | ITask>).map(child => (
+          (children as Array<
+            IDeal | ITicket | ITask | IPurchase
+          >).map(child => (
             <SectionBodyItem key={child._id}>
               {this.renderChildForm(child)}
             </SectionBodyItem>

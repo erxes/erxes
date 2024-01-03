@@ -10,6 +10,7 @@ const variables = `
     $type: String
     $serviceStatus: ServiceStatus
     $suhId: String
+    $networkType: NetworkType
 `;
 
 const fields = `
@@ -24,6 +25,7 @@ const fields = `
     type: $type
     serviceStatus: $serviceStatus
     suhId: $suhId
+    networkType: $networkType
 `;
 
 const addMutation = `
@@ -48,26 +50,17 @@ mutation BuildingsRemove($_ids: [String]) {
 }
 `;
 
-const buildingsAddCustomersMutation = `
-mutation BuildingsAddCustomers($_id: String!, $customerIds: [String]) {
-  buildingsAddCustomers(_id: $_id, customerIds: $customerIds) {
-    _id
+const buildingsUpdate = `
+  mutation buildingsUpdate($_id: String!, $customerIds: [String], $companyIds: [String], $assetIds: [String]) {
+    buildingsUpdate(_id: $_id, customerIds: $customerIds, companyIds: $companyIds, assetIds: $assetIds) {
+      _id
+    }
   }
-}
-`;
-
-const buildingsAddCompaniesMutation = `
-mutation BuildingsAddCompanies($_id: String!, $companyIds: [String]) {
-  buildingsAddCompanies(_id: $_id, companyIds: $companyIds) {
-    _id
-  }
-}
 `;
 
 export default {
   addMutation,
   editMutation,
   removeMutation,
-  buildingsAddCustomersMutation,
-  buildingsAddCompaniesMutation
+  buildingsUpdate
 };

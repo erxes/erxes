@@ -1,4 +1,4 @@
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
 import Task from '../../../components/items/boardItems/Task';
 import { Alert, confirm, withProps } from '@erxes/ui/src/utils';
@@ -9,7 +9,7 @@ import {
   TaskDetailQueryResponse
 } from '@erxes/ui-cards/src/tasks/types';
 import React from 'react';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 
 type Props = {
   taskId: string;

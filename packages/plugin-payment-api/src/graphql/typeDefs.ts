@@ -1,4 +1,4 @@
-import { gql } from 'apollo-server-express';
+import gql from 'graphql-tag';
 
 import {
   queries as invoiceQueries,
@@ -42,7 +42,7 @@ const typeDefs = async serviceDiscovery => {
       inheritMaxAge: Boolean
     ) on FIELD_DEFINITION | OBJECT | INTERFACE | UNION
     
-    ${invoiceTypes(isEnabled)}
+    ${invoiceTypes}
     ${paymentTypes}
     ${configsTypes}
 

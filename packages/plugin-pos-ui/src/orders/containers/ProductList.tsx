@@ -1,14 +1,15 @@
 import * as compose from 'lodash.flowright';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import List from '../components/ProductList';
 import React from 'react';
 import { Bulk, withProps, router, Spinner } from '@erxes/ui/src';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 import { IRouterProps, IQueryParams } from '@erxes/ui/src/types';
 import { PosProductsQueryResponse } from '../types';
 import { queries } from '../graphql';
 import { FILTER_PARAMS } from '../../constants';
 import queryString from 'query-string';
+import { generateParams } from './List';
 
 type Props = {
   queryParams: any;
@@ -126,6 +127,12 @@ class ProductListContainer extends React.Component<FinalProps> {
   }
 }
 
+export const genParams = ({ queryParams }) => ({
+  ...generateParams({ queryParams }),
+  searchValue: queryParams.searchValue,
+  categoryId: queryParams.categoryId
+});
+
 export default withProps<Props>(
   compose(
     graphql<Props, PosProductsQueryResponse, { page: number; perPage: number }>(
@@ -133,20 +140,7 @@ export default withProps<Props>(
       {
         name: 'posProductsQuery',
         options: ({ queryParams }) => ({
-          variables: {
-            ...router.generatePaginationParams(queryParams || {}),
-            categoryId: queryParams.categoryId,
-            searchValue: queryParams.searchValue,
-            search: queryParams.search,
-            paidStartDate: queryParams.paidStartDate,
-            paidEndDate: queryParams.paidEndDate,
-            createdStartDate: queryParams.createdStartDate,
-            createdEndDate: queryParams.createdEndDate,
-            paidDate: queryParams.paidDate,
-            userId: queryParams.userId,
-            customerId: queryParams.customerId,
-            posId: queryParams.posId
-          },
+          variables: genParams({ queryParams }),
           fetchPolicy: 'network-only'
         })
       }

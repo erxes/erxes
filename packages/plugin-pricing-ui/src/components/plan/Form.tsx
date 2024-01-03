@@ -39,12 +39,16 @@ export default function Form(props: Props) {
     bonusProduct: data.bonusProduct || null,
     isPriority: data.isPriority || false,
 
-    applyType: data.applyType || 'category', // "product", "category", "bundle"
+    applyType: data.applyType || 'category', // "product", "category", "bundle", 'segment', 'vendors'
     products: data.products || [],
     productsExcluded: data.productsExcluded || [],
-    productsBundle: data.productsBundle || [],
+    productsBundle: data.productsBundle || [[]],
     categories: data.categories || [],
     categoriesExcluded: data.categoriesExcluded || [],
+    segments: data.segments || [],
+    vendors: data.vendors || [],
+    tags: data.tags || [],
+    tagsExcluded: data.tagsExcluded || [],
 
     isStartDateEnabled: data.isStartDateEnabled || false,
     isEndDateEnabled: data.isEndDateEnabled || false,
@@ -122,6 +126,9 @@ export default function Form(props: Props) {
         if (item.monthValue)
           item.monthValue.map((v: any) => v.__typename && delete v.__typename);
       });
+
+    if (document.applyType === 'bundle')
+      document.productsBundle = document.productsBundle.filter(b => b.length);
 
     submit(document);
   };

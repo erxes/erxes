@@ -10,26 +10,15 @@ import {
   calculatePriceAdjust
 } from './rule';
 import { getAllowedProducts } from './product';
-import { Plan, CalculatedRule, OrderItem } from '../types';
+import { CalculatedRule, OrderItem } from '../types';
+import { IPricingPlanDocument } from '../models/definitions/pricingPlan';
 
-export const checkPricing = async (
-  models: IModels,
-  subdomain: string,
-  prioritizeRule: string,
-  totalAmount: number,
-  departmentId: string,
-  branchId: string,
-  orderItems: OrderItem[]
-) => {
-  const now = dayjs(new Date());
+// Finding valid discounts
+export const getMainConditions: any = (branchId?, departmentId?, date?) => {
+  const now = dayjs(date || new Date());
   const nowISO = now.toISOString();
-  const productIds: string[] = orderItems.map(p => p.productId);
-  const result: object = {};
 
-  let allowedProductIds: string[] = [];
-
-  // Finding valid discounts
-  const conditions: any = {
+  return {
     status: 'active',
     $and: [
       {
@@ -86,6 +75,24 @@ export const checkPricing = async (
       }
     ]
   };
+};
+
+export const checkPricing = async (
+  models: IModels,
+  subdomain: string,
+  prioritizeRule: string,
+  totalAmount: number,
+  departmentId: string,
+  branchId: string,
+  orderItems: OrderItem[]
+) => {
+  const productIds: string[] = orderItems.map(p => p.productId);
+  const result: object = {};
+
+  let allowedProductIds: string[] = [];
+
+  // Finding valid discounts
+  const conditions: any = getMainConditions(branchId, departmentId);
 
   if (prioritizeRule === 'only') {
     conditions.isPriority = true;
@@ -99,9 +106,9 @@ export const checkPricing = async (
   };
 
   // Prepare object to save calculated data
-  for (const productId of productIds) {
-    if (!Object.keys(result).includes(productId)) {
-      result[productId] = {
+  for (const item of orderItems) {
+    if (!Object.keys(result).includes(item.itemId)) {
+      result[item.itemId] = {
         type: '',
         value: 0,
         bonusProducts: []
@@ -109,9 +116,9 @@ export const checkPricing = async (
     }
   }
 
-  const plans: Plan[] = await models.PricingPlans.find(conditions).sort(
-    sortArgs
-  );
+  const plans: IPricingPlanDocument[] = await models.PricingPlans.find(
+    conditions
+  ).sort(sortArgs);
 
   if (plans.length === 0) {
     return;
@@ -120,7 +127,11 @@ export const checkPricing = async (
   // Calculating discount
   for (const plan of plans) {
     // Take all products that can be discounted
-    allowedProductIds = await getAllowedProducts(subdomain, plan, productIds);
+    allowedProductIds = await getAllowedProducts(
+      subdomain,
+      plan,
+      productIds || []
+    );
 
     // Check repeat rule first
     const repeatPassed: boolean = checkRepeatRule(plan);
@@ -184,10 +195,14 @@ export const checkPricing = async (
         // Bonus product will always be prioritized
         if (
           (priceRule.type === 'bonus' &&
-            priceRule.bonusProducts.length !== 0) ||
+            priceRule.bonusProducts &&
+            priceRule.bonusProducts.length) ||
           (quantityRule.type === 'bonus' &&
-            quantityRule.bonusProducts.length !== 0) ||
-          (expiryRule.type === 'bonus' && expiryRule.bonusProducts.length !== 0)
+            quantityRule.bonusProducts &&
+            quantityRule.bonusProducts.length) ||
+          (expiryRule.type === 'bonus' &&
+            expiryRule.bonusProducts &&
+            expiryRule.bonusProducts.length)
         ) {
           type = 'bonus';
           bonusProducts = [
@@ -209,7 +224,7 @@ export const checkPricing = async (
           return prev;
         });
 
-        if (maxValueRule.type.length !== 0) {
+        if (maxValueRule.type && maxValueRule.type.length) {
           type = maxValueRule.type;
           value = maxValueRule.value;
         }
@@ -226,14 +241,17 @@ export const checkPricing = async (
 
         // Finalize values
         if (type !== 'bonus') {
-          result[item.productId].type = type;
+          result[item.itemId].type = type;
 
           // Priority calculation
           if (plan.isPriority) {
-            result[item.productId].value += value;
+            result[item.itemId].value += value;
           } else {
-            if (result[item.productId].value < value) {
-              result[item.productId].value = value;
+            if (
+              (value > 0 && result[item.itemId].value < value) ||
+              (value < 0 && result[item.itemId].value > value)
+            ) {
+              result[item.itemId].value = value;
             }
           }
         }
@@ -241,12 +259,12 @@ export const checkPricing = async (
         if (type === 'bonus') {
           // Priority calculation
           if (plan.isPriority) {
-            result[item.productId].bonusProducts = [
-              ...result[item.productId].bonusProducts,
+            result[item.itemId].bonusProducts = [
+              ...result[item.itemId].bonusProducts,
               ...bonusProducts
             ];
           } else {
-            result[item.productId].bonusProducts = bonusProducts;
+            result[item.itemId].bonusProducts = bonusProducts;
           }
         }
 
@@ -257,9 +275,9 @@ export const checkPricing = async (
     // Calculate bundle
     if (plan.applyType === 'bundle') {
       appliedBundleItems.map((item: any) => {
-        if (result[item.productId].type !== 'bonus') {
-          result[item.productId].value = Math.floor(
-            (result[item.productId].value / item.quantity) * appliedBundleCounts
+        if (result[item.itemId].type !== 'bonus') {
+          result[item.itemId].value = Math.floor(
+            (result[item.itemId].value / item.quantity) * appliedBundleCounts
           );
         }
       });

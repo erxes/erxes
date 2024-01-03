@@ -5,6 +5,7 @@ import {
   commonFilterParams,
   commonFilterParamsDef
 } from '../../common/graphql/movement';
+import { listParams, listParamDefs } from '../../asset/graphql/queries';
 
 const fieldAviableEnabledContacts = `
     branch
@@ -32,8 +33,11 @@ query AssetMovement($_id: String) {
     description
     items {
         _id,
-        assetName,
         assetId,
+        assetDetail {
+          _id,
+          name
+        }
         ${commonItemFields}
         createdAt
         sourceLocations {
@@ -71,7 +75,9 @@ const itemsCurrentLocation = `
 query CurrentAssetMovementItems($assetIds: [String]) {
   currentAssetMovementItems(assetIds: $assetIds) {
     assetId
-    assetName
+    assetDetail{
+      _id,name
+    }
     ${commonItemFields}
     ${isEnabled('contacts') ? fieldAviableEnabledContacts : ``}
     sourceLocations {
@@ -83,9 +89,18 @@ query CurrentAssetMovementItems($assetIds: [String]) {
 }
 `;
 
+const assets = `
+  query assets(${listParamDefs}) {
+    assets(${listParams}) {
+      _id,name
+    }
+  }
+`;
+
 export default {
   movements,
   movementDetail,
   movementsTotalCount,
-  itemsCurrentLocation
+  itemsCurrentLocation,
+  assets
 };

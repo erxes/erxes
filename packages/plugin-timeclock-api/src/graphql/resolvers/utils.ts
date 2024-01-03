@@ -1,468 +1,527 @@
 import { fixDate } from '@erxes/api-utils/src';
+import dayjs = require('dayjs');
 import { generateModels, IModels } from '../../connectionResolver';
 import { sendCoreMessage } from '../../messageBroker';
-import { IUserReport, IUsersReport } from '../../models/definitions/timeclock';
+import {
+  IAbsence,
+  IAbsenceTypeDocument,
+  IScheduleConfigDocument,
+  IScheduleDocument,
+  IShiftDocument,
+  IUserAbsenceInfo,
+  IUsersReport
+} from '../../models/definitions/timeclock';
+import { customFixDate } from '../../utils';
+import { sendMobileNotification } from '../utils';
 
-export const findDepartment = async (subdomain: string, target) => {
-  const department = await sendCoreMessage({
-    subdomain,
-    action: 'departments.findOne',
-    data: { _id: target },
-    isRPC: true
-  });
+// milliseconds to mins
+const MMSTOMINS = 60000;
+// milliseconds to hrs
+const MMSTOHRS = MMSTOMINS * 60;
+// millieseconds to days
+const MMSTODAYS = MMSTOHRS * 24;
 
-  return department;
-};
+const dateFormat = 'YYYY-MM-DD';
 
-export const findBranch = async (subdomain: string, target) => {
-  const branch = await sendCoreMessage({
-    subdomain,
-    action: 'branches.findOne',
-    data: { _id: target },
-    isRPC: true
-  });
+export const paginateArray = (array, perPage = 20, page = 1) =>
+  array.slice((page - 1) * perPage, page * perPage);
 
-  return branch;
-};
-
-export const findBranches = async (subdomain: string, userId: string) => {
+export const findBranches = async (subdomain: string, branchIds: string[]) => {
   const branches = await sendCoreMessage({
     subdomain,
     action: 'branches.find',
-    data: { query: { userIds: userId } },
+    data: { query: { _id: { $in: branchIds } } },
     isRPC: true
   });
 
   return branches;
 };
 
-export const createScheduleShiftsByUserIds = async (
-  userIds: string[],
-  shifts,
-  models: IModels,
-  scheduleConfigId?: string
+export const findDepartments = async (
+  subdomain: string,
+  departmentIds: string[]
 ) => {
-  let schedule;
-  userIds.forEach(async userId => {
-    schedule = await models.Schedules.createSchedule({
-      userId: `${userId}`,
-      solved: true,
-      status: 'Approved',
-      scheduleConfigId: `${scheduleConfigId}`
-    });
-
-    shifts.forEach(shift => {
-      models.Shifts.createShift({
-        scheduleId: schedule._id,
-        shiftStart: shift.shiftStart,
-        shiftEnd: shift.shiftEnd,
-        solved: true,
-        status: 'Approved'
-      });
-    });
+  const branches = await sendCoreMessage({
+    subdomain,
+    action: 'departments.find',
+    data: { _id: { $in: departmentIds } },
+    isRPC: true
   });
 
+  return branches;
+};
+
+export const findUser = async (subdomain: string, userId: string) => {
+  const user = await sendCoreMessage({
+    subdomain,
+    action: 'users.findOne',
+    data: {
+      _id: userId
+    },
+    isRPC: true
+  });
+
+  return user;
+};
+
+export const findBranchUsers = async (
+  subdomain: string,
+  branchIds: string[]
+) => {
+  const branchUsers = await sendCoreMessage({
+    subdomain,
+    action: 'users.find',
+    data: { query: { branchIds: { $in: branchIds }, isActive: true } },
+    isRPC: true
+  });
+  return branchUsers;
+};
+
+export const findDepartmentUsers = async (
+  subdomain: string,
+  departmentIds: string[]
+) => {
+  const deptUsers = await sendCoreMessage({
+    subdomain,
+    action: 'users.find',
+    data: { query: { departmentIds: { $in: departmentIds }, isActive: true } },
+    isRPC: true
+  });
+  return deptUsers;
+};
+
+export const returnUnionOfUserIds = async (
+  branchIds: string[],
+  departmentIds: string[],
+  userIds: string[],
+  subdomain: any
+) => {
+  if (userIds.length) {
+    return userIds;
+  }
+  const concatBranchDept: string[] = [];
+
+  if (branchIds) {
+    const branchUsers = await findBranchUsers(subdomain, branchIds);
+    const branchUserIds = branchUsers.map(branchUser => branchUser._id);
+    concatBranchDept.push(...branchUserIds);
+  }
+  if (departmentIds) {
+    const departmentUsers = await findDepartmentUsers(subdomain, departmentIds);
+    const departmentUserIds = departmentUsers.map(
+      departmentUser => departmentUser._id
+    );
+    concatBranchDept.push(...departmentUserIds);
+  }
+
+  // prevent inserting common users twice
+  const sorted = concatBranchDept.sort();
+  const unionOfUserIds = sorted.filter((value, pos) => {
+    return concatBranchDept.indexOf(value) === pos;
+  });
+
+  return unionOfUserIds;
+};
+export const createScheduleShiftsByUserIds = async (
+  userIds: string[],
+  scheduleShifts,
+  models: IModels,
+  totalBreakInMins?: number
+) => {
+  const shiftsBulkCreateOps: any[] = [];
+
+  let schedule;
+  for (const userId of userIds) {
+    schedule = await models.Schedules.createSchedule({
+      userId,
+      solved: true,
+      status: 'Approved',
+      submittedByAdmin: true,
+      totalBreakInMins
+    });
+
+    for (const shift of scheduleShifts) {
+      shiftsBulkCreateOps.push({
+        insertOne: {
+          document: {
+            scheduleId: schedule._id,
+            shiftStart: shift.shiftStart,
+            shiftEnd: shift.shiftEnd,
+            scheduleConfigId: shift.scheduleConfigId,
+            lunchBreakInMins: shift.lunchBreakInMins,
+            solved: true,
+            status: 'Approved'
+          }
+        }
+      });
+    }
+  }
+
+  // create shifts of each schedule
+  await models.Shifts.bulkWrite(shiftsBulkCreateOps);
+
+  // send mobile notification to schedule created users
+  sendMobileNotification(userIds, 'scheduleCreated', schedule, 'schedule');
   return schedule;
 };
 
-export const returnReportByUserIds = async (
-  models: IModels,
-  selectedUserIds: string[]
-): Promise<[IUserReport[], number, number, number, number]> => {
-  let idx = 0;
-  const reports: IUserReport[] = [];
-
-  let groupTotalAbsence = 0;
-  let groupTotalMinsWorked = 0;
-  let groupTotalMinsScheduled = 0;
-
-  for (const userId of selectedUserIds) {
-    const schedules = models.Schedules.find({
-      userId: `${userId}`
-    });
-    const timeclocks = models.Timeclocks.find({
-      userId: `${userId}`
-    });
-    const absences = models.Absences.find({
-      userId: `${userId}`,
-      status: 'Approved'
-    });
-    const shiftsOfSchedule: any = [];
-
-    for (const { _id } of await schedules) {
-      shiftsOfSchedule.push(
-        ...(await models.Shifts.find({
-          scheduleId: _id,
-          status: 'Approved'
-        }))
-      );
-    }
-
-    // if any of the schemas is not empty
-    if (
-      (await absences).length !== 0 ||
-      (await schedules).length !== 0 ||
-      (await timeclocks).length !== 0
-    ) {
-      reports.push({
-        userId: `${userId}`,
-        scheduleReport: []
-      });
-
-      let totalMinsWorkedPerUser = 0;
-      let totalMinsScheduledPerUser = 0;
-
-      for (const timeclock of await timeclocks) {
-        const previousSchedules = reports[idx].scheduleReport;
-
-        const shiftDuration =
-          timeclock.shiftEnd &&
-          timeclock.shiftStart &&
-          Math.round(
-            (timeclock.shiftEnd.getTime() - timeclock.shiftStart.getTime()) /
-              60000
-          );
-
-        totalMinsWorkedPerUser += shiftDuration || 0;
-        reports[idx] = {
-          ...reports[idx],
-          scheduleReport: previousSchedules?.concat({
-            date: new Date(timeclock.shiftStart).toDateString(),
-            recordedStart: timeclock.shiftStart,
-            recordedEnd: timeclock.shiftEnd,
-            minsWorked: shiftDuration
-          })
-        };
-      }
-
-      for (const scheduleShift of shiftsOfSchedule) {
-        let found = false;
-        const scheduleDateString = new Date(
-          scheduleShift.shiftStart
-        ).toDateString();
-
-        // schedule duration per shift
-        const scheduleDuration =
-          scheduleShift.shiftEnd &&
-          scheduleShift.shiftStart &&
-          Math.round(
-            (scheduleShift.shiftEnd.getTime() -
-              scheduleShift.shiftStart.getTime()) /
-              60000
-          );
-
-        totalMinsScheduledPerUser += scheduleDuration;
-        reports[idx].totalMinsScheduled = totalMinsScheduledPerUser;
-
-        reports[idx].scheduleReport.forEach(
-          (recordedShiftOfReport, recorded_shiftIdx) => {
-            if (recordedShiftOfReport.date === scheduleDateString) {
-              reports[idx].scheduleReport[recorded_shiftIdx] = {
-                ...recordedShiftOfReport,
-                scheduleStart: scheduleShift.shiftStart,
-                scheduleEnd: scheduleShift.shiftEnd
-              };
-              found = true;
-            }
-          }
-        );
-
-        // if corresponding shift is not found from recorded shifts
-        if (!found) {
-          reports[idx].scheduleReport?.push({
-            date: scheduleDateString,
-            scheduleStart: scheduleShift.shiftStart,
-            scheduleEnd: scheduleShift.shiftEnd
-          });
-        }
-      }
-
-      // calculate total absent mins per user
-      let totalAbsencePerUser = 0;
-      for (const absence of await absences) {
-        if (absence.startTime && absence.endTime) {
-          totalAbsencePerUser +=
-            (absence.endTime.getTime() - absence.startTime.getTime()) / 60000;
-        }
-      }
-      reports[idx] = {
-        ...reports[idx],
-        totalAbsenceMins: Math.trunc(totalAbsencePerUser),
-        totalMinsWorked: totalMinsWorkedPerUser
-      };
-
-      groupTotalMinsScheduled += totalMinsScheduledPerUser;
-      groupTotalMinsWorked += totalMinsWorkedPerUser;
-      groupTotalAbsence += Math.trunc(totalAbsencePerUser);
-      idx += 1;
-    }
-  }
-  let groupTotalMinsLate = 0;
-
-  //  calculate how many mins late per user
-  reports.forEach((userReport, groupReportIdx) => {
-    let totalMinsLatePerUser = 0;
-    userReport.scheduleReport.forEach((userSchedule, userReportIdx) => {
-      if (
-        userSchedule.recordedEnd &&
-        userSchedule.recordedStart &&
-        userSchedule.scheduleEnd &&
-        userSchedule.scheduleStart
-      ) {
-        const shiftStartDiff =
-          userSchedule.recordedStart.getTime() -
-          userSchedule.scheduleStart.getTime();
-
-        const shiftEndDiff =
-          userSchedule.scheduleEnd.getTime() -
-          userSchedule.recordedEnd.getTime();
-
-        const sumMinsLate = Math.trunc(
-          ((shiftEndDiff > 0 ? shiftEndDiff : 0) +
-            (shiftStartDiff > 0 ? shiftStartDiff : 0)) /
-            60000
-        );
-
-        totalMinsLatePerUser += sumMinsLate;
-        userReport.scheduleReport[userReportIdx] = {
-          ...userSchedule,
-          minsLate: sumMinsLate
-        };
-      }
-    });
-
-    groupTotalMinsLate += totalMinsLatePerUser;
-    reports[groupReportIdx] = {
-      ...userReport,
-      totalMinsLate: totalMinsLatePerUser
-    };
-  });
-
-  return [
-    reports,
-    groupTotalMinsLate,
-    groupTotalAbsence,
-    groupTotalMinsWorked,
-    groupTotalMinsScheduled
-  ];
-};
-
 export const timeclockReportByUser = async (
+  models: IModels,
   userId: string,
-  subdomain: string,
-  startDate?: string,
-  endDate?: string
+  selectedMonth: string,
+  selectedYear: string,
+  selectedDate?: string
 ) => {
-  const models = await generateModels(subdomain);
-
-  let report: IUserReport = {
+  let report: any = {
     scheduleReport: [],
-    userId: `${userId}`,
-    totalMinsScheduledThisMonth: 0
+    userId,
+    totalHoursScheduledSelectedMonth: 0
   };
-  const shiftsOfSchedule: any = [];
 
   // get 1st of the next Month
   const NOW = new Date();
-  const startOfNextMonth = new Date(NOW.getFullYear(), NOW.getMonth() + 1, 1);
-  // get 1st of this month
-  const startOfThisMonth = new Date(NOW.getFullYear(), NOW.getMonth(), 1);
 
-  const startTime = startDate ? startDate : startOfThisMonth;
-  const endTime = endDate ? endDate : startOfNextMonth;
+  const selectedMonthIndex = new Date(
+    Date.parse(selectedMonth + ' 1, 2000')
+  ).getMonth();
 
-  // get the schedule data of this month
-  const schedules = models.Schedules.find({ userId: `${userId}` });
-  const timeclocks = models.Timeclocks.find({
+  const nextMonthIndex = selectedMonthIndex === 11 ? 0 : selectedMonthIndex + 1;
+
+  // get 1st of month
+  const startOfSelectedMonth = new Date(
+    parseFloat(selectedYear),
+    selectedMonthIndex
+  );
+  // start of the next month
+  const startOfNextMonth = new Date(
+    parseFloat(selectedYear),
+    nextMonthIndex,
+    1
+  );
+
+  // start, end Time filter for queries
+  let startOfSelectedDay;
+
+  if (selectedDate) {
+    startOfSelectedDay = new Date(selectedDate);
+  }
+
+  const selectedDayString = startOfSelectedDay
+    ? startOfSelectedDay.toLocaleDateString()
+    : '';
+
+  const scheduleShiftsSelectedMonth: IShiftDocument[] = [];
+
+  // get the schedule data of selected month
+  const totalSchedulesOfUser = await models.Schedules.find({
+    userId,
+    solved: true,
+    status: 'Approved'
+  });
+
+  const totalScheduleIds = totalSchedulesOfUser.map(schedule => schedule._id);
+
+  //  schedule shifts of selected month
+  scheduleShiftsSelectedMonth.push(
+    ...(await models.Shifts.find({
+      scheduleId: { $in: totalScheduleIds },
+      status: 'Approved',
+      shiftStart: {
+        $gte: startOfSelectedMonth,
+        $lte: startOfNextMonth
+      }
+    }))
+  );
+
+  const scheduleShiftConfigsSelectedMonth = await models.ScheduleConfigs.find({
+    _id: {
+      $in: scheduleShiftsSelectedMonth.map(shift => shift.scheduleConfigId)
+    }
+  });
+
+  const scheduleShiftConfisMap: {
+    [configId: string]: IScheduleConfigDocument;
+  } = {};
+
+  for (const config of scheduleShiftConfigsSelectedMonth) {
+    scheduleShiftConfisMap[config._id] = config;
+  }
+
+  const timeclocksOfSelectedMonth = await models.Timeclocks.find({
     $and: [
-      { userId: `${userId}` },
+      { userId },
       {
         shiftStart: {
-          $gte: fixDate(startTime),
-          $lte: fixDate(endTime)
+          $gte: startOfSelectedMonth,
+          $lte: startOfNextMonth
         }
       },
-      {
-        shiftEnd: {
-          $gte: fixDate(startTime),
-          $lte: fixDate(endTime)
-        }
-      }
-    ]
-  });
-  const absences = models.Absences.find({
-    $and: [
-      {
-        userId: `${userId}`,
-        status: 'Approved'
-      },
-      {
-        startTime: {
-          $gte: fixDate(startTime),
-          $lte: fixDate(endTime)
-        }
-      }
+      { shiftActive: false }
     ]
   });
 
-  for (const { _id } of await schedules) {
-    shiftsOfSchedule.push(
-      ...(await models.Shifts.find({
-        $and: [
-          { scheduleId: _id },
-          { status: 'Approved' },
-          {
-            shiftStart: {
-              $gte: fixDate(startTime),
-              $lte: fixDate(endTime)
-            }
-          }
-        ]
-      }))
-    );
+  const totalRequestsOfUser = await models.Absences.find({
+    userId,
+    solved: true,
+    checkInOutRequest: { $exists: false },
+    status: { $regex: /Approved/, $options: 'gi' }
+  });
+
+  const requestsOfSelectedMonth = totalRequestsOfUser.filter(
+    req =>
+      dayjs(req.startTime) >= dayjs(startOfSelectedMonth) &&
+      dayjs(req.startTime) < dayjs(startOfNextMonth)
+  );
+
+  const absenceTypeIds = requestsOfSelectedMonth.map(req => req.absenceTypeId);
+  let totalHoursAbsenceSelectedMonth = 0;
+
+  const absenceTypes = await models.AbsenceTypes.find({
+    _id: { $in: absenceTypeIds }
+  });
+
+  for (const request of requestsOfSelectedMonth) {
+    if (request.totalHoursOfAbsence) {
+      totalHoursAbsenceSelectedMonth += parseFloat(request.totalHoursOfAbsence);
+      continue;
+    }
+    // absence by hour
+    if (request.absenceTimeType === 'by hour' && request.endTime) {
+      const getTotalHoursOfAbsence =
+        (new Date(request.endTime).getTime() -
+          new Date(request.startTime).getTime()) /
+        MMSTOHRS;
+
+      totalHoursAbsenceSelectedMonth += getTotalHoursOfAbsence;
+      continue;
+    }
+    // absence by day
+    if (request.absenceTimeType === 'by day' && request.requestDates) {
+      const getAbsenceType = absenceTypes.find(
+        absType => absType._id === request.absenceTypeId
+      );
+
+      const getTotalHoursOfAbsence =
+        request.requestDates.length * (getAbsenceType?.requestHoursPerDay || 0);
+
+      totalHoursAbsenceSelectedMonth += getTotalHoursOfAbsence;
+    }
   }
+
+  let scheduledShiftStartSelectedDay;
+  let scheduledShiftEndSelectedDay;
+
+  let recordedShiftStartSelectedDay;
+  let recordedShiftEndSelectedDay;
+
+  let totalHoursWorkedSelectedMonth = 0;
+  let totalHoursWorkedSelectedDay = 0;
+
+  let totalMinsLateSelectedMonth = 0;
+  let totalMinsLateSelectedDay = 0;
+
+  // all below calculated according to selected
+  let totalHoursNotWorked = 0;
+  const notWorkedDays: string[] = [];
+  let totalDaysNotWorked = 0;
+  let totalHoursWorkedOutsideSchedule = 0;
+  let totalDaysWorkedOutsideSchedule = 0;
+
+  let totalHoursBreakTaken = 0;
+  let totalHoursBreakScheduled = 0;
+  let totalHoursBreakSelecteDay = 0;
 
   // if any of the schemas is not empty
   if (
-    (await absences).length !== 0 ||
-    (await schedules).length !== 0 ||
-    (await timeclocks).length !== 0
+    scheduleShiftsSelectedMonth.length !== 0 ||
+    timeclocksOfSelectedMonth.length !== 0
   ) {
-    let totalMinsWorkedThisMonthPerUser = 0;
-    let totalMinsWorkedTodayPerUser = 0;
-    for (const timeclock of await timeclocks) {
+    //  timeclocks
+    for (const timeclock of timeclocksOfSelectedMonth) {
       const previousSchedules = report.scheduleReport;
 
       const shiftDuration =
-        timeclock.shiftEnd &&
-        timeclock.shiftStart &&
-        Math.round(
-          (timeclock.shiftEnd.getTime() - timeclock.shiftStart.getTime()) /
-            60000
-        );
+        timeclock.shiftEnd && timeclock.shiftStart
+          ? (timeclock.shiftEnd.getTime() - timeclock.shiftStart.getTime()) /
+            MMSTOHRS
+          : 0;
 
-      totalMinsWorkedThisMonthPerUser += shiftDuration || 0;
-      if (timeclock.shiftStart.toDateString() === NOW.toDateString()) {
-        totalMinsWorkedTodayPerUser += shiftDuration || 0;
-        report.totalMinsWorkedToday = totalMinsWorkedTodayPerUser;
+      totalHoursWorkedSelectedMonth += shiftDuration;
+
+      if (timeclock.shiftStart.toLocaleDateString() === selectedDayString) {
+        totalHoursWorkedSelectedDay += shiftDuration;
+        report.totalHoursWorkedSelectedDay = totalHoursWorkedSelectedDay;
       }
+
       report = {
         ...report,
         scheduleReport: previousSchedules?.concat({
-          date: new Date(timeclock.shiftStart).toDateString(),
+          date: new Date(timeclock.shiftStart).toLocaleDateString(),
+          checked: false,
           recordedStart: timeclock.shiftStart,
           recordedEnd: timeclock.shiftEnd,
-          minsWorked: shiftDuration
+          shiftDuration
         })
       };
     }
 
-    const totalDaysWorkedThisMonth = new Set(
-      (await timeclocks).map(shift =>
-        new Date(shift.shiftStart).toLocaleDateString()
+    const totalDaysWorkedSelectedMonth = new Set(
+      timeclocksOfSelectedMonth.map(shift => {
+        return new Date(shift.shiftStart).toLocaleDateString();
+      })
+    ).size;
+
+    const totalDaysScheduledSelectedMonth = new Set(
+      scheduleShiftsSelectedMonth.map(scheduleShift =>
+        new Date(scheduleShift.shiftStart || '').toLocaleDateString()
       )
     ).size;
 
-    const totalDaysScheduledThisMonth = new Set(
-      shiftsOfSchedule.map(shiftOfSchedule =>
-        new Date(shiftOfSchedule.shiftStart).toLocaleDateString()
-      )
-    ).size;
+    //  schedules
+    for (const scheduleShift of scheduleShiftsSelectedMonth) {
+      let lunchBreakOfDay = 0;
 
-    report.totalDaysScheduledThisMonth = totalDaysScheduledThisMonth;
-    report.totalDaysWorkedThisMonth = totalDaysWorkedThisMonth;
-
-    for (const scheduleShift of shiftsOfSchedule) {
-      let found = false;
       const scheduleDateString = new Date(
-        scheduleShift.shiftStart
-      ).toDateString();
+        scheduleShift.shiftStart || ''
+      ).toLocaleDateString();
 
       // schedule duration per shift
-      const scheduleDuration =
+      let scheduleDuration =
         scheduleShift.shiftEnd &&
         scheduleShift.shiftStart &&
-        Math.round(
-          (scheduleShift.shiftEnd.getTime() -
-            scheduleShift.shiftStart.getTime()) /
-            60000
+        scheduleShift.shiftEnd >= scheduleShift.shiftStart
+          ? (scheduleShift.shiftEnd.getTime() -
+              scheduleShift.shiftStart.getTime()) /
+            MMSTOHRS
+          : 0;
+
+      // deduct lunch break
+      const findScheduleConfig =
+        scheduleShiftConfisMap[scheduleShift.scheduleConfigId || ''];
+
+      if (findScheduleConfig) {
+        lunchBreakOfDay = findScheduleConfig.lunchBreakInMins / 60;
+      }
+
+      scheduleDuration -= lunchBreakOfDay;
+      totalHoursBreakScheduled += lunchBreakOfDay;
+
+      // if selected day's scheduled time is found
+      if (scheduleDateString === selectedDayString) {
+        report.totalHoursScheduledSelectedDay = scheduleDuration;
+
+        const recordedShiftOfSelectedDay = report.scheduleReport.find(
+          shift =>
+            shift.date === selectedDayString &&
+            shift.recordedStart &&
+            !shift.checked
         );
 
-      report.totalMinsScheduledThisMonth += scheduleDuration;
+        scheduledShiftStartSelectedDay = scheduleShift.shiftStart;
+        scheduledShiftEndSelectedDay = scheduleShift.shiftEnd;
 
-      // if today's scheduled time is found
-      if (scheduleDateString === NOW.toDateString()) {
-        report.totalMinsScheduledToday = scheduleDuration;
+        if (
+          recordedShiftOfSelectedDay &&
+          recordedShiftOfSelectedDay.recordedStart &&
+          scheduleShift.shiftStart
+        ) {
+          // if corresponding timeclock of a selected day found, calculate how many mins late
+          const shiftStartDiff =
+            recordedShiftOfSelectedDay.recordedStart.getTime() -
+            scheduleShift.shiftStart.getTime();
+
+          recordedShiftStartSelectedDay =
+            recordedShiftOfSelectedDay.recordedStart;
+          recordedShiftEndSelectedDay = recordedShiftOfSelectedDay.recordedEnd;
+
+          if (shiftStartDiff > 0) {
+            totalMinsLateSelectedDay += shiftStartDiff / MMSTOMINS;
+          }
+
+          totalHoursBreakSelecteDay = lunchBreakOfDay;
+          report.totalHoursWorkedSelectedDay = report.totalHoursWorkedSelectedDay
+            ? report.totalHoursWorkedSelectedDay - lunchBreakOfDay
+            : 0;
+        }
       }
 
-      report.scheduleReport.forEach(
-        (recordedShiftOfReport, recorded_shiftIdx) => {
-          if (recordedShiftOfReport.date === scheduleDateString) {
-            recordedShiftOfReport.scheduleStart = scheduleShift.shiftStart;
-            recordedShiftOfReport.scheduleEnd = scheduleShift.shiftEnd;
-            found = true;
+      const recordedShiftIdx = report.scheduleReport.findIndex(
+        shift => shift.date === scheduleDateString && !shift.checked
+      );
+
+      // no timeclock found, thus not worked on a scheduled day
+      if (recordedShiftIdx === -1) {
+        notWorkedDays.push(scheduleDateString);
+        totalHoursNotWorked += scheduleDuration;
+      } else {
+        // corresponding timeclock found, calculate how many mins late
+        if (scheduleShift.shiftStart) {
+          const shiftStartDiff =
+            report.scheduleReport[recordedShiftIdx].recordedStart.getTime() -
+            scheduleShift.shiftStart.getTime();
+
+          if (shiftStartDiff > 0) {
+            totalMinsLateSelectedMonth += shiftStartDiff / MMSTOMINS;
           }
         }
-      );
 
-      // if corresponding shift is not found from recorded shifts
-      if (!found) {
-        report.scheduleReport.push({
-          date: scheduleDateString,
-          scheduleStart: scheduleShift.shiftStart,
-          scheduleEnd: scheduleShift.shiftEnd
-        });
+        report.scheduleReport[recordedShiftIdx].checked = true;
+
+        totalHoursBreakTaken += lunchBreakOfDay;
+        totalHoursWorkedSelectedMonth -= lunchBreakOfDay;
       }
+
+      report.totalHoursScheduledSelectedMonth += scheduleDuration;
     }
 
-    // calculate total absent mins of this month per user
-    let totalAbsencePerUser = 0;
-    for (const absence of await absences) {
-      if (absence.startTime && absence.endTime) {
-        totalAbsencePerUser +=
-          (absence.endTime.getTime() - absence.startTime.getTime()) / 60000;
+    // calcute shifts worked outside schedule
+    const shiftsWorkedOutsideSchedule = report.scheduleReport.filter(
+      shift => !shift.checked
+    );
+
+    totalDaysWorkedOutsideSchedule = shiftsWorkedOutsideSchedule.length;
+
+    totalHoursWorkedOutsideSchedule = shiftsWorkedOutsideSchedule.reduce(
+      (partialHoursSum, shift) => partialHoursSum + shift.shiftDuration || 0,
+      0
+    );
+
+    totalDaysNotWorked = new Set(notWorkedDays).size;
+
+    const scheduleReport = [
+      {
+        timeclockDate: selectedDayString,
+        timeclockStart: recordedShiftStartSelectedDay,
+        timeclockEnd: recordedShiftEndSelectedDay,
+
+        scheduledStart: scheduledShiftStartSelectedDay,
+        scheduledEnd: scheduledShiftEndSelectedDay
       }
-    }
+    ];
+
     report = {
       ...report,
-      totalMinsAbsenceThisMonth: Math.trunc(totalAbsencePerUser),
-      totalMinsWorkedThisMonth: totalMinsWorkedThisMonthPerUser
+      totalDaysNotWorked,
+      totalHoursNotWorked,
+      totalDaysWorkedOutsideSchedule,
+      totalHoursWorkedOutsideSchedule,
+      totalHoursWorkedSelectedMonth,
+      totalMinsLateSelectedMonth,
+      totalMinsLateSelectedDay,
+      totalDaysScheduledSelectedMonth,
+      totalDaysWorkedSelectedMonth,
+      totalHoursBreakTaken,
+      totalHoursBreakScheduled,
+      totalHoursBreakSelecteDay,
+      totalHoursAbsenceSelectedMonth,
+
+      requests: requestsOfSelectedMonth,
+      scheduledShifts: scheduleShiftsSelectedMonth,
+      timeclocks: timeclocksOfSelectedMonth,
+
+      scheduleReport
     };
   }
-
-  //  calculate how many mins late per user
-  let totalMinsLatePerUser = 0;
-
-  report.scheduleReport.forEach((userSchedule, user_report_idx) => {
-    if (
-      userSchedule.recordedEnd &&
-      userSchedule.recordedStart &&
-      userSchedule.scheduleEnd &&
-      userSchedule.scheduleStart
-    ) {
-      const shiftStartDiff =
-        userSchedule.recordedStart.getTime() -
-        userSchedule.scheduleStart.getTime();
-
-      const shiftEndDiff =
-        userSchedule.scheduleEnd.getTime() - userSchedule.recordedEnd.getTime();
-
-      const sumMinsLate = Math.trunc(
-        ((shiftEndDiff > 0 ? shiftEndDiff : 0) +
-          (shiftStartDiff > 0 ? shiftStartDiff : 0)) /
-          60000
-      );
-
-      // if report of today is found
-      if (userSchedule.date === NOW.toDateString()) {
-        report.totalMinsLateToday = sumMinsLate;
-      }
-      totalMinsLatePerUser += sumMinsLate;
-      report.scheduleReport[user_report_idx].minsLate = sumMinsLate;
-    }
-  });
-
-  report.totalMinsLateThisMonth = totalMinsLatePerUser;
 
   return report;
 };
@@ -470,24 +529,15 @@ export const timeclockReportByUser = async (
 export const timeclockReportPreliminary = async (
   subdomain: string,
   userIds: string[],
-  startDate?: string,
-  endDate?: string,
+  startDate: Date,
+  endDate: Date,
   teamMembersObj?: any,
-  reportType?: string
+  exportToXlsx?: boolean
 ) => {
   const models = await generateModels(subdomain);
 
   const usersReport: IUsersReport = {};
   const shiftsOfSchedule: any = [];
-
-  const NOW = new Date();
-  // get 1st of this month
-  const startOfThisMonth = new Date(NOW.getFullYear(), NOW.getMonth(), 1);
-  // get 1st of the next Month
-  const startOfNextMonth = new Date(NOW.getFullYear(), NOW.getMonth() + 1, 1);
-
-  const startTime = startDate ? startDate : startOfThisMonth;
-  const endTime = endDate ? endDate : startOfNextMonth;
 
   // get the schedule data of this month
   const schedules = await models.Schedules.find({
@@ -496,45 +546,45 @@ export const timeclockReportPreliminary = async (
     userId: 1
   });
 
+  const scheduleIds = schedules.map(schedule => schedule._id);
+
   const timeclocks = await models.Timeclocks.find({
     $and: [
       { userId: { $in: userIds } },
       {
         shiftStart: {
-          $gte: fixDate(startTime),
-          $lte: fixDate(endTime)
+          $gte: fixDate(startDate),
+          $lte: customFixDate(endDate)
         }
       },
       {
         shiftEnd: {
-          $gte: fixDate(startTime),
-          $lte: fixDate(endTime)
+          $gte: fixDate(startDate),
+          $lte: customFixDate(endDate)
         }
       }
     ]
   }).sort({ userId: 1 });
 
-  for (const { _id } of schedules) {
-    shiftsOfSchedule.push(
-      ...(await models.Shifts.find({
-        $and: [
-          { scheduleId: _id },
-          { status: 'Approved' },
-          {
-            shiftStart: {
-              $gte: fixDate(startTime),
-              $lte: fixDate(endTime)
-            }
+  shiftsOfSchedule.push(
+    ...(await models.Shifts.find({
+      $and: [
+        { scheduleId: { $in: scheduleIds } },
+        { status: 'Approved' },
+        {
+          shiftStart: {
+            $gte: fixDate(startDate),
+            $lte: customFixDate(endDate)
           }
-        ]
-      }))
-    );
-  }
+        }
+      ]
+    }))
+  );
 
   userIds.forEach(async currUserId => {
     // assign team member info from teamMembersObj
 
-    if (reportType === 'xlsx') {
+    if (exportToXlsx) {
       usersReport[currUserId] = { ...teamMembersObj[currUserId] };
     }
 
@@ -556,38 +606,854 @@ export const timeclockReportPreliminary = async (
       );
     });
 
-    let totalDaysWorkedThisMonthPerUser = 0;
-    let totalDaysScheduledThisMonthPerUser = 0;
+    let totalDaysWorkedPerUser = 0;
+    let totalDaysScheduledPerUser = 0;
 
     if (currUserTimeclocks) {
-      totalDaysWorkedThisMonthPerUser = new Set(
-        currUserTimeclocks.map(shift =>
-          new Date(shift.shiftStart).toLocaleDateString()
-        )
+      totalDaysWorkedPerUser = new Set(
+        currUserTimeclocks.map(shift => {
+          if (!shift.shiftActive) {
+            return new Date(shift.shiftStart).toLocaleDateString();
+          }
+        })
       ).size;
     }
     if (currUserScheduleShifts) {
-      totalDaysScheduledThisMonthPerUser += new Set(
+      totalDaysScheduledPerUser += new Set(
         currUserScheduleShifts.map(shiftOfSchedule =>
           new Date(shiftOfSchedule.shiftStart).toLocaleDateString()
         )
       ).size;
     }
 
-    if (reportType === 'xlsx') {
-      usersReport[
-        currUserId
-      ].totalDaysScheduledThisMonth = totalDaysScheduledThisMonthPerUser;
-      usersReport[
-        currUserId
-      ].totalDaysWorkedThisMonth = totalDaysWorkedThisMonthPerUser;
+    if (exportToXlsx) {
+      usersReport[currUserId].totalDaysScheduled = totalDaysScheduledPerUser;
+      usersReport[currUserId].totalDaysWorked = totalDaysWorkedPerUser;
     } else {
       usersReport[currUserId] = {
-        totalDaysScheduledThisMonth: totalDaysScheduledThisMonthPerUser,
-        totalDaysWorkedThisMonth: totalDaysWorkedThisMonthPerUser
+        totalDaysScheduled: totalDaysScheduledPerUser,
+        totalDaysWorked: totalDaysWorkedPerUser
       };
     }
   });
 
   return usersReport;
+};
+
+export const timeclockReportFinal = async (
+  subdomain: string,
+  userIds: string[],
+  startDate?: Date,
+  endDate?: Date,
+  teamMembersObj?: any,
+  exportToXlsx?: boolean
+) => {
+  const models = await generateModels(subdomain);
+  const usersReport: IUsersReport = {};
+  const shiftsOfSchedule: any = [];
+
+  // get the schedule data of time interval
+  const schedules = await models.Schedules.find({
+    userId: { $in: userIds },
+    solved: true,
+    status: { $regex: /Approved/gi }
+  }).sort({
+    userId: 1
+  });
+
+  const scheduleIds = schedules.map(schedule => schedule._id);
+
+  // get all approved absence requests
+  const requests = await models.Absences.find({
+    userId: { $in: userIds },
+    solved: true,
+    status: /approved/gi,
+    $or: [
+      {
+        startTime: {
+          $gte: fixDate(startDate),
+          $lte: customFixDate(endDate)
+        }
+      },
+      {
+        endTime: {
+          $gte: fixDate(startDate),
+          $lte: customFixDate(endDate)
+        }
+      }
+    ]
+  });
+
+  const relatedAbsenceTypes = await models.AbsenceTypes.find({
+    _id: { $in: requests.map(request => request.absenceTypeId) }
+  });
+
+  // get all related absences
+  const relatedAbsences = await returnTotalAbsences(requests, models);
+
+  // find total Timeclocks
+  const timeclocks = await models.Timeclocks.find({
+    $and: [
+      { userId: { $in: userIds } },
+      {
+        shiftStart: {
+          $gte: fixDate(startDate),
+          $lte: customFixDate(endDate)
+        }
+      },
+      {
+        shiftEnd: {
+          $gte: fixDate(startDate),
+          $lte: customFixDate(endDate)
+        }
+      }
+    ]
+  }).sort({ userId: 1 });
+
+  shiftsOfSchedule.push(
+    ...(await models.Shifts.find({
+      $and: [
+        { scheduleId: { $in: scheduleIds } },
+        { status: 'Approved' },
+        {
+          shiftStart: {
+            $gte: fixDate(startDate),
+            $lte: customFixDate(endDate)
+          }
+        }
+      ]
+    }))
+  );
+
+  const shiftsOfScheduleConfigIds = shiftsOfSchedule.map(
+    scheduleShift => scheduleShift.scheduleConfigId
+  );
+  const scheduleShiftsConfigs = await models.ScheduleConfigs.find({
+    _id: { $in: shiftsOfScheduleConfigIds }
+  });
+
+  const scheduleShiftConfigsMap: { [scheduleConfigId: string]: number } = {};
+
+  scheduleShiftsConfigs.map(
+    scheduleConfig =>
+      (scheduleShiftConfigsMap[scheduleConfig._id] =
+        scheduleConfig.lunchBreakInMins)
+  );
+
+  const schedulesObj = createSchedulesObj(
+    userIds,
+    schedules,
+    shiftsOfSchedule,
+    scheduleShiftConfigsMap
+  );
+
+  userIds.forEach(async currUserId => {
+    // assign team member info from teamMembersObj
+
+    if (exportToXlsx) {
+      usersReport[currUserId] = { ...teamMembersObj[currUserId] };
+    }
+
+    const currUserTimeclocks = timeclocks.filter(
+      timeclock => timeclock.userId === currUserId
+    );
+
+    const filterSchedules = shiftsOfSchedule.map(
+      scheduleShift => scheduleShift.scheduleId
+    );
+
+    const currUserSchedules = schedules.filter(
+      schedule =>
+        schedule.userId === currUserId && filterSchedules.includes(schedule._id)
+    );
+
+    const currUserScheduleIds = currUserSchedules.map(schedule => schedule._id);
+
+    // get shifts of schedule
+    const currUserScheduleShifts: any = [];
+    for (const userSchedule of currUserSchedules) {
+      currUserScheduleShifts.push(
+        ...shiftsOfSchedule.filter(
+          scheduleShift => scheduleShift.scheduleId === userSchedule._id
+        )
+      );
+    }
+
+    let totalDaysWorkedPerUser = 0;
+    let totalRegularHoursWorkedPerUser = 0;
+    let totalHoursWorkedPerUser = 0;
+
+    let totalDaysScheduledPerUser = 0;
+    let totalHoursScheduledPerUser = 0;
+
+    let totalHoursOvertimePerUser = 0;
+    let totalMinsLatePerUser = 0;
+    let totalHoursOvernightPerUser = 0;
+
+    let totalBreakOfTimeclocksInHrs = 0;
+
+    // calculate total break time from schedules of an user
+    const totalBreakOfSchedulesInHrs =
+      currUserScheduleShifts.reduce(
+        (partialBreakSum, userScheduleShift) =>
+          partialBreakSum +
+          (userScheduleShift.lunchBreakInMins ||
+            scheduleShiftConfigsMap[userScheduleShift.scheduleConfigId] ||
+            0),
+        0
+      ) / 60;
+
+    if (currUserTimeclocks) {
+      totalDaysWorkedPerUser = new Set(
+        currUserTimeclocks.map(shift =>
+          new Date(shift.shiftStart).toLocaleDateString()
+        )
+      ).size;
+
+      for (const currUserTimeclock of currUserTimeclocks) {
+        const shiftStart = currUserTimeclock.shiftStart;
+        const shiftEnd = currUserTimeclock.shiftEnd;
+        if (shiftStart && shiftEnd) {
+          // get time in hours
+          const totalHoursWorkedPerShift =
+            (shiftEnd.getTime() - shiftStart.getTime()) / MMSTOHRS;
+
+          // make sure shift end is later than shift start
+          if (totalHoursWorkedPerShift > 0) {
+            totalRegularHoursWorkedPerUser += totalHoursWorkedPerShift;
+          }
+          // deduct break time from timeclock
+          if (
+            !currUserTimeclock.deviceType?.match(/shift request/gi) &&
+            currUserId in schedulesObj &&
+            shiftStart.toLocaleDateString() in schedulesObj[currUserId]
+          ) {
+            const getScheduleOfTheDay =
+              schedulesObj[currUserId][shiftStart.toLocaleDateString()];
+
+            const lunchBreakOfShiftInHrs =
+              (getScheduleOfTheDay.lunchBreakInMins || 0) / 60;
+
+            totalBreakOfTimeclocksInHrs += lunchBreakOfShiftInHrs;
+          }
+
+          totalHoursOvernightPerUser += returnOvernightHours(
+            shiftStart,
+            shiftEnd
+          );
+
+          if (
+            currUserId in schedulesObj &&
+            shiftStart.toLocaleDateString() in schedulesObj[currUserId]
+          ) {
+            const getScheduleOfTheDay =
+              schedulesObj[currUserId][shiftStart.toLocaleDateString()];
+
+            const scheduleShiftStart = getScheduleOfTheDay.shiftStart;
+            const scheduleShiftEnd = getScheduleOfTheDay.shiftEnd;
+
+            const getScheduleDuration = Math.abs(
+              scheduleShiftEnd.getTime() - scheduleShiftStart.getTime()
+            );
+
+            const getTimeClockDuration = Math.abs(
+              shiftEnd.getTime() - shiftStart.getTime()
+            );
+
+            // get difference in schedule duration and time clock duration
+            const getShiftDurationDiff =
+              getTimeClockDuration - getScheduleDuration;
+
+            // get difference in shift start and scheduled start
+            const getShiftStartDiff =
+              shiftStart.getTime() - scheduleShiftStart.getTime();
+
+            // if shift start is later than scheduled start --> late
+            if (getShiftStartDiff > 0) {
+              totalMinsLatePerUser += getShiftStartDiff / MMSTOMINS;
+            }
+            // if timeclock > schedule --> overtime
+            if (getShiftDurationDiff > 0) {
+              totalHoursOvertimePerUser += getShiftDurationDiff / MMSTOHRS;
+            }
+          }
+        }
+      }
+
+      // deduct lunch break from worked hours
+      totalRegularHoursWorkedPerUser -= totalBreakOfTimeclocksInHrs;
+      totalHoursWorkedPerUser = totalRegularHoursWorkedPerUser;
+
+      // deduct overtime from worked hours
+      totalRegularHoursWorkedPerUser -= totalHoursOvertimePerUser;
+    }
+
+    if (currUserScheduleShifts) {
+      totalDaysScheduledPerUser += new Set(
+        currUserScheduleShifts.map(shiftOfSchedule =>
+          new Date(shiftOfSchedule.shiftStart).toLocaleDateString()
+        )
+      ).size;
+
+      currUserScheduleShifts.forEach(scheduledDay => {
+        const shiftStart = scheduledDay.shiftStart;
+        const shiftEnd = scheduledDay.shiftEnd;
+        // get time in hours
+        const totalHoursScheduledPerShift =
+          (shiftEnd.getTime() - shiftStart.getTime()) / MMSTOHRS;
+        // make sure shift end is later than shift start
+        if (totalHoursScheduledPerShift > 0) {
+          totalHoursScheduledPerUser += totalHoursScheduledPerShift;
+        }
+      });
+    }
+
+    const userAbsenceInfo: IUserAbsenceInfo = returnUserAbsenceInfo(
+      {
+        requestsShiftRequest: relatedAbsences.requestsShiftRequest.filter(
+          absence => absence.userId === currUserId
+        ),
+        requestsWorkedAbroad: relatedAbsences.requestsWorkedAbroad.filter(
+          absence => absence.userId === currUserId
+        ),
+        requestsPaidAbsence: relatedAbsences.requestsPaidAbsence.filter(
+          absence => absence.userId === currUserId
+        ),
+        requestsUnpaidAbsence: relatedAbsences.requestsUnpaidAbsence.filter(
+          absence => absence.userId === currUserId
+        ),
+        requestsSick: relatedAbsences.requestsSick.filter(
+          absence => absence.userId === currUserId
+        )
+      },
+      relatedAbsenceTypes
+    );
+
+    // deduct lunch breaks from total scheduled hours
+    if (totalHoursScheduledPerUser) {
+      totalHoursScheduledPerUser -= totalBreakOfSchedulesInHrs;
+    }
+
+    if (exportToXlsx) {
+      usersReport[currUserId] = {
+        ...usersReport[currUserId],
+        totalDaysScheduled: totalDaysScheduledPerUser,
+        totalHoursScheduled: totalHoursScheduledPerUser.toFixed(2),
+        totalHoursBreakScheduled: totalBreakOfSchedulesInHrs.toFixed(2),
+        totalDaysWorked: totalDaysWorkedPerUser,
+        totalRegularHoursWorked: totalRegularHoursWorkedPerUser.toFixed(2),
+        totalHoursOvertime: totalHoursOvertimePerUser.toFixed(2),
+        totalHoursOvernight: totalHoursOvernightPerUser.toFixed(2),
+        totalHoursBreakTaken: totalBreakOfTimeclocksInHrs.toFixed(2),
+        totalHoursWorked: totalHoursWorkedPerUser.toFixed(2),
+        totalMinsLate: totalMinsLatePerUser.toFixed(2),
+        ...userAbsenceInfo
+      };
+      return;
+    }
+
+    usersReport[currUserId] = {
+      ...usersReport[currUserId],
+      totalDaysScheduled: totalDaysScheduledPerUser,
+      totalHoursScheduled: totalHoursScheduledPerUser.toFixed(2),
+      totalHoursBreakScheduled: totalBreakOfSchedulesInHrs.toFixed(2),
+      totalHoursBreakTaken: totalBreakOfTimeclocksInHrs.toFixed(2),
+      totalDaysWorked: totalDaysWorkedPerUser,
+      totalRegularHoursWorked: totalRegularHoursWorkedPerUser.toFixed(2),
+      totalHoursOvertime: totalHoursOvertimePerUser.toFixed(2),
+      totalHoursOvernight: totalHoursOvernightPerUser.toFixed(2),
+      totalHoursWorked: totalHoursWorkedPerUser.toFixed(2),
+      totalMinsLate: totalMinsLatePerUser.toFixed(2),
+      absenceInfo: userAbsenceInfo
+    };
+  });
+
+  return usersReport;
+};
+
+export const timeclockReportPivot = async (
+  subdomain: string,
+  userIds: string[],
+  startDate?: Date,
+  endDate?: Date,
+  teamMembersObj?: any,
+  exportToXlsx?: boolean
+) => {
+  const models = await generateModels(subdomain);
+  const usersReport: any = {};
+  const shiftsOfSchedule: any = [];
+
+  // get the schedule data of this month
+  const schedules = await models.Schedules.find({
+    userId: { $in: userIds }
+  }).sort({
+    userId: 1
+  });
+
+  const scheduleIds = schedules.map(schedule => schedule._id);
+
+  const timeclocks = await models.Timeclocks.find({
+    $and: [
+      { userId: { $in: userIds } },
+      {
+        shiftStart: {
+          $gte: fixDate(startDate),
+          $lte: customFixDate(endDate)
+        }
+      },
+      {
+        shiftEnd: {
+          $gte: fixDate(startDate),
+          $lte: customFixDate(endDate)
+        }
+      }
+    ]
+  }).sort({ userId: 1 });
+
+  shiftsOfSchedule.push(
+    ...(await models.Shifts.find({
+      $and: [
+        { scheduleId: { $in: scheduleIds } },
+        { status: 'Approved' },
+        {
+          shiftStart: {
+            $gte: fixDate(startDate),
+            $lte: customFixDate(endDate)
+          }
+        }
+      ]
+    }))
+  );
+
+  const shiftsOfScheduleConfigIds = shiftsOfSchedule.map(
+    scheduleShift => scheduleShift.scheduleConfigId
+  );
+  const scheduleShiftsConfigs = await models.ScheduleConfigs.find({
+    _id: { $in: shiftsOfScheduleConfigIds }
+  });
+
+  const scheduleShiftConfigsMap: { [scheduleConfigId: string]: number } = {};
+
+  scheduleShiftsConfigs.map(
+    scheduleConfig =>
+      (scheduleShiftConfigsMap[scheduleConfig._id] =
+        scheduleConfig.lunchBreakInMins)
+  );
+
+  const schedulesObj = createSchedulesObj(
+    userIds,
+    schedules,
+    shiftsOfSchedule,
+    scheduleShiftConfigsMap
+  );
+
+  userIds.forEach(async currUserId => {
+    // assign team member info from teamMembersObj
+
+    if (exportToXlsx) {
+      usersReport[currUserId] = { ...teamMembersObj[currUserId] };
+    }
+
+    const currUserTimeclocks = timeclocks.filter(
+      timeclock => timeclock.userId === currUserId
+    );
+
+    const currUserSchedules = schedules.filter(
+      schedule => schedule.userId === currUserId
+    );
+
+    // get shifts of schedule
+    const currUserScheduleShifts: any = [];
+    currUserSchedules.forEach(userSchedule => {
+      currUserScheduleShifts.push(
+        ...shiftsOfSchedule.filter(
+          scheduleShift => scheduleShift.scheduleId === userSchedule._id
+        )
+      );
+    });
+
+    const totalShiftsOfUser: any = [];
+
+    if (currUserTimeclocks) {
+      currUserTimeclocks.forEach(currUserTimeclock => {
+        let totalHoursOvertimePerShift = 0;
+        let totalMinsLatePerShift = 0;
+        let totalHoursOvernightPerShift = 0;
+
+        const shiftStart = currUserTimeclock.shiftStart;
+        const shiftEnd = currUserTimeclock.shiftEnd;
+        if (shiftStart && shiftEnd) {
+          totalHoursOvernightPerShift = returnOvernightHours(
+            shiftStart,
+            shiftEnd
+          );
+
+          const scheduledDay = shiftStart.toLocaleDateString();
+          const getTimeClockDuration = Math.abs(
+            shiftEnd.getTime() - shiftStart.getTime()
+          );
+
+          let scheduleShiftStart;
+          let scheduleShiftEnd;
+          let getScheduleDuration: number = 0;
+          let lunchBreakInHrs = 0;
+          if (
+            currUserId in schedulesObj &&
+            scheduledDay in schedulesObj[currUserId]
+          ) {
+            const getScheduleOfTheDay = schedulesObj[currUserId][scheduledDay];
+
+            scheduleShiftStart = getScheduleOfTheDay.shiftStart;
+            scheduleShiftEnd = getScheduleOfTheDay.shiftEnd;
+            lunchBreakInHrs = getScheduleOfTheDay.lunchBreakInMins / 60;
+
+            getScheduleDuration = Math.abs(
+              scheduleShiftEnd.getTime() - scheduleShiftStart.getTime()
+            );
+
+            // get difference in schedule duration and time clock duration
+            const getShiftDurationDiff =
+              getTimeClockDuration - getScheduleDuration;
+
+            // get difference in shift start and scheduled start
+            const getShiftStartDiff =
+              shiftStart.getTime() - scheduleShiftStart.getTime();
+
+            // if shift start is later than scheduled start --> late
+            if (getShiftStartDiff > 0) {
+              totalMinsLatePerShift = getShiftStartDiff / MMSTOMINS;
+            }
+            // if timeclock > schedule --> overtime
+            if (getShiftDurationDiff > 0) {
+              totalHoursOvertimePerShift = getShiftDurationDiff / MMSTOHRS;
+            }
+          }
+
+          let timeclockDurationinHrs = getTimeClockDuration / MMSTOHRS;
+          let scheduledDurationInHrs = getScheduleDuration / MMSTOHRS;
+
+          if (timeclockDurationinHrs) {
+            timeclockDurationinHrs -= lunchBreakInHrs;
+          }
+          if (scheduledDurationInHrs) {
+            scheduledDurationInHrs -= lunchBreakInHrs;
+          }
+
+          totalShiftsOfUser.push({
+            timeclockDate: scheduledDay,
+            timeclockStart: shiftStart,
+            timeclockEnd: shiftEnd,
+            timeclockDuration: timeclockDurationinHrs.toFixed(2),
+
+            deviceType: currUserTimeclock.deviceType,
+            deviceName: currUserTimeclock.deviceName,
+            inDevice: currUserTimeclock.inDevice,
+            inDeviceType: currUserTimeclock.inDeviceType,
+            outDevice: currUserTimeclock.outDevice,
+            outDeviceType: currUserTimeclock.outDeviceType,
+
+            scheduledStart: scheduleShiftStart,
+            scheduledEnd: scheduleShiftEnd,
+
+            lunchBreakInHrs: lunchBreakInHrs.toFixed(2),
+            scheduledDuration: scheduledDurationInHrs.toFixed(2),
+            totalMinsLate: totalMinsLatePerShift.toFixed(2),
+            totalHoursOvertime: totalHoursOvertimePerShift.toFixed(2),
+            totalHoursOvernight: totalHoursOvernightPerShift.toFixed(2)
+          });
+        }
+      });
+    }
+
+    usersReport[currUserId] = {
+      ...usersReport[currUserId],
+      scheduleReport: totalShiftsOfUser.sort(
+        (a, b) =>
+          new Date(a.timeclockStart).getTime() -
+          new Date(b.timeclockStart).getTime()
+      )
+    };
+  });
+
+  return usersReport;
+};
+
+const returnTotalAbsences = async (
+  totalRequests: IAbsence[],
+  models: IModels
+): Promise<{
+  requestsShiftRequest: IAbsence[];
+  requestsWorkedAbroad: IAbsence[];
+  requestsPaidAbsence: IAbsence[];
+  requestsUnpaidAbsence: IAbsence[];
+  requestsSick: IAbsence[];
+}> => {
+  // get all paid absence types' ids except sick absence
+  const paidAbsenceTypes = await models.AbsenceTypes.find({
+    requestType: 'paid absence',
+    name: { $not: /өвдсөн цаг/gi }
+  });
+
+  const paidAbsenceTypeIds = paidAbsenceTypes.map(
+    paidAbsence => paidAbsence._id
+  );
+
+  const shiftRequestAbsenceTypes = await models.AbsenceTypes.find({
+    requestType: 'shift request'
+  });
+
+  const shiftRequestAbsenceTypeIds = shiftRequestAbsenceTypes.map(
+    absenceType => absenceType._id
+  );
+
+  // get all unpaid absence types' ids
+  const unpaidAbsenceTypes = await models.AbsenceTypes.find({
+    requestType: 'unpaid absence'
+  });
+
+  const unpaidAbsenceTypeIds = unpaidAbsenceTypes.map(
+    unpaidAbsence => unpaidAbsence._id
+  );
+
+  // find Absences
+  const requestsShiftRequest = totalRequests.filter(request =>
+    shiftRequestAbsenceTypeIds.includes(request.absenceTypeId || '')
+  );
+
+  const requestsWorkedAbroad = totalRequests.filter(request =>
+    request.reason.toLocaleLowerCase().includes('томилолт')
+  );
+
+  const requestsPaidAbsence = totalRequests.filter(request =>
+    paidAbsenceTypeIds.includes(request.absenceTypeId || '')
+  );
+
+  const requestsUnpaidAbsence = totalRequests.filter(request =>
+    unpaidAbsenceTypeIds.includes(request.absenceTypeId || '')
+  );
+
+  const requestsSick = totalRequests.filter(request =>
+    request.reason.toLowerCase().includes('өвдсөн цаг')
+  );
+
+  return {
+    requestsShiftRequest,
+    requestsWorkedAbroad,
+    requestsPaidAbsence,
+    requestsUnpaidAbsence,
+    requestsSick
+  };
+};
+
+const returnUserAbsenceInfo = (
+  relatedAbsences: any,
+  relatedAbsenceTypes: IAbsenceTypeDocument[]
+): IUserAbsenceInfo => {
+  let totalHoursShiftRequest = 0;
+  let totalHoursWorkedAbroad = 0;
+  let totalHoursPaidAbsence = 0;
+  let totalHoursUnpaidAbsence = 0;
+  let totalHoursSick = 0;
+
+  relatedAbsences.requestsShiftRequest.forEach(request => {
+    if (request.totalHoursOfAbsence) {
+      totalHoursShiftRequest += parseFloat(request.totalHoursOfAbsence);
+      return;
+    }
+
+    const absenceType = relatedAbsenceTypes.find(
+      absType => absType._id === request.absenceTypeId
+    );
+
+    if (absenceType && absenceType.requestTimeType === 'by day') {
+      const getTotalDays = request.requestDates
+        ? request.requestDates.length
+        : Math.ceil(
+            (request.endTime.getTime() - request.startTime.getTime()) /
+              MMSTODAYS
+          );
+
+      totalHoursShiftRequest += getTotalDays * absenceType.requestHoursPerDay;
+      return;
+    }
+
+    totalHoursShiftRequest +=
+      (request.endTime.getTime() - request.startTime.getTime()) / MMSTOHRS;
+  });
+
+  relatedAbsences.requestsWorkedAbroad.forEach(request => {
+    if (request.totalHoursOfAbsence) {
+      totalHoursWorkedAbroad += parseFloat(request.totalHoursOfAbsence);
+      return;
+    }
+
+    const absenceType = relatedAbsenceTypes.find(
+      absType => absType._id === request.absenceTypeId
+    );
+
+    if (absenceType && absenceType.requestTimeType === 'by day') {
+      const getTotalDays = request.requestDates
+        ? request.requestDates.length
+        : Math.ceil(
+            (request.endTime.getTime() - request.startTime.getTime()) /
+              MMSTODAYS
+          );
+
+      totalHoursWorkedAbroad += getTotalDays * absenceType.requestHoursPerDay;
+      return;
+    }
+
+    totalHoursWorkedAbroad +=
+      (request.endTime.getTime() - request.startTime.getTime()) / MMSTOHRS;
+  });
+
+  relatedAbsences.requestsPaidAbsence.forEach(request => {
+    const absenceType = relatedAbsenceTypes.find(
+      absType => absType._id === request.absenceTypeId
+    );
+
+    if (absenceType && absenceType.requestTimeType === 'by day') {
+      const getTotalDays = request.requestDates
+        ? request.requestDates.length
+        : Math.ceil(
+            (request.endTime.getTime() - request.startTime.getTime()) /
+              (1000 * 3600 * 24)
+          );
+      totalHoursPaidAbsence += getTotalDays * absenceType.requestHoursPerDay;
+      return;
+    }
+    totalHoursPaidAbsence +=
+      (request.endTime.getTime() - request.startTime.getTime()) / MMSTOHRS;
+  });
+
+  relatedAbsences.requestsUnpaidAbsence.forEach(request => {
+    if (request.totalHoursOfAbsence) {
+      totalHoursUnpaidAbsence += parseFloat(request.totalHoursOfAbsence);
+      return;
+    }
+
+    const absenceType = relatedAbsenceTypes.find(
+      absType => absType._id === request.absenceTypeId
+    );
+
+    if (absenceType && absenceType.requestTimeType === 'by day') {
+      const getTotalDays = request.requestDates
+        ? request.requestDates.length
+        : Math.ceil(
+            (request.endTime.getTime() - request.startTime.getTime()) /
+              MMSTODAYS
+          );
+
+      totalHoursUnpaidAbsence += getTotalDays * absenceType.requestHoursPerDay;
+      return;
+    }
+
+    totalHoursUnpaidAbsence +=
+      (request.endTime.getTime() - request.startTime.getTime()) / MMSTOHRS;
+  });
+
+  relatedAbsences.requestsSick.forEach(request => {
+    if (request.totalHoursOfAbsence) {
+      totalHoursSick += parseFloat(request.totalHoursOfAbsence);
+      return;
+    }
+
+    const absenceType = relatedAbsenceTypes.find(
+      absType => absType._id === request.absenceTypeId
+    );
+
+    if (absenceType && absenceType.requestTimeType === 'by day') {
+      const getTotalDays = request.requestDates
+        ? request.requestDates.length
+        : Math.ceil(
+            (request.endTime.getTime() - request.startTime.getTime()) /
+              MMSTODAYS
+          );
+
+      totalHoursSick += getTotalDays * absenceType.requestHoursPerDay;
+      return;
+    }
+
+    totalHoursSick +=
+      (request.endTime.getTime() - request.startTime.getTime()) / MMSTOHRS;
+  });
+
+  return {
+    totalHoursShiftRequest,
+    totalHoursWorkedAbroad,
+    totalHoursPaidAbsence,
+    totalHoursUnpaidAbsence,
+    totalHoursSick
+  };
+};
+
+const returnOvernightHours = (shiftStart: Date, shiftEnd: Date) => {
+  // check whether shift is between 22:00 - 06:00, if so return how many hours is overnight
+  const shiftDay = shiftStart.toLocaleDateString();
+  const nextDay = dayjs(shiftDay)
+    .add(1, 'day')
+    .toDate()
+    .toLocaleDateString();
+
+  const overnightStart = dayjs(shiftDay + ' ' + '22:00:00').toDate();
+  const overnightEnd = dayjs(nextDay + ' ' + '06:00:00').toDate();
+
+  let totalOvernightHours = 0;
+
+  // 19:42 08:16
+  // if shift end is less than 22:00 then no overnight time
+  if (shiftEnd > overnightStart) {
+    const getOvernightDuration =
+      (shiftEnd > overnightEnd ? overnightEnd.getTime() : shiftEnd.getTime()) -
+      (shiftStart < overnightStart
+        ? overnightStart.getTime()
+        : shiftStart.getTime());
+
+    totalOvernightHours += getOvernightDuration / MMSTOHRS;
+  }
+
+  return totalOvernightHours;
+};
+
+const createSchedulesObj = (
+  userIds: string[],
+  totalSchedules: IScheduleDocument[],
+  totalScheduleShifts: IShiftDocument[],
+  scheduleShiftsConfigsMap?: { [scheduleConfigId: string]: number }
+) => {
+  const returnObject = {};
+
+  for (const userId of userIds) {
+    const currEmpSchedules = totalSchedules.filter(
+      schedule => schedule.userId === userId
+    );
+
+    if (currEmpSchedules.length) {
+      returnObject[userId] = {};
+    }
+    for (const empSchedule of currEmpSchedules) {
+      const currEmpScheduleShifts = totalScheduleShifts.filter(
+        scheduleShift => scheduleShift.scheduleId === empSchedule._id
+      );
+
+      currEmpScheduleShifts.forEach(currEmpScheduleShift => {
+        const date_key = currEmpScheduleShift.shiftStart?.toLocaleDateString();
+
+        const getScheduleConfigId = currEmpScheduleShift.scheduleConfigId;
+
+        const lunchBreakInMins =
+          scheduleShiftsConfigsMap && getScheduleConfigId
+            ? scheduleShiftsConfigsMap[getScheduleConfigId]
+            : 0;
+
+        returnObject[userId][date_key] = {
+          lunchBreakInMins,
+          shiftStart: currEmpScheduleShift.shiftStart,
+          shiftEnd: currEmpScheduleShift.shiftEnd
+        };
+      });
+    }
+  }
+
+  return returnObject;
 };

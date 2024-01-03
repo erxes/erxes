@@ -25,6 +25,7 @@ const knowledgeBaseTopics = `
       createdDate
       modifiedBy
       modifiedDate
+      notificationSegmentId
 
       parentCategories {
         ${categoryFields}

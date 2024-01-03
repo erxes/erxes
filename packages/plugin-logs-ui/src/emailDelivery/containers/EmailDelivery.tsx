@@ -1,9 +1,9 @@
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import { IRouterProps } from '@erxes/ui/src/types';
 import { router } from '@erxes/ui/src/utils';
 import { generatePaginationParams } from '@erxes/ui/src/utils/router';
 import * as React from 'react';
-import { useQuery } from 'react-apollo';
+import { useQuery } from '@apollo/client';
 import EmailDelivery from '../components/EmailDelivery';
 import queries from '../queries';
 import { isEnabled } from '@erxes/ui/src/utils/core';
@@ -90,12 +90,12 @@ function EmailDeliveryContainer(props: Props) {
   let loading;
 
   if (emailType === EMAIL_TYPES.TRANSACTION) {
-    list = emailDeliveries.list;
-    count = emailDeliveries.totalCount;
+    list = emailDeliveries.list || [];
+    count = emailDeliveries.totalCount || 0;
     loading = emailDeliveriesLoading;
   } else {
-    list = reportsList.list;
-    count = reportsList.totalCount;
+    list = reportsList.list || [];
+    count = reportsList.totalCount || 0;
     loading = reportsListLoading;
   }
 

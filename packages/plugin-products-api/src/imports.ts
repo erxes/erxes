@@ -16,9 +16,34 @@ export default {
 
     const { docs } = data;
 
+    let updated = 0;
+    const objects: any = [];
+
     try {
-      const objects = await models.Products.insertMany(docs);
-      return { objects, updated: 0 };
+      for (const doc of docs) {
+        if (doc.code) {
+          const product = await models.Products.findOne({ code: doc.code });
+
+          if (product) {
+            delete doc.code;
+            await models.Products.updateOne(
+              { _id: product._id },
+              { $set: { ...doc } }
+            );
+            updated++;
+          } else {
+            const insertedProduct = await models.Products.create(doc);
+
+            objects.push(insertedProduct);
+          }
+        } else {
+          const insertedProduct = await models.Products.create(doc);
+
+          objects.push(insertedProduct);
+        }
+      }
+
+      return { objects, updated };
     } catch (e) {
       return { error: e.message };
     }
@@ -27,6 +52,8 @@ export default {
   prepareImportDocs: async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
     const { result, properties } = data;
+
+    const defaultUom = await models.ProductsConfigs.getConfig('defaultUOM', '');
 
     const bulkDoc: any = [];
 
@@ -37,7 +64,6 @@ export default {
       };
 
       let colIndex: number = 0;
-      let barcodes = [];
       let subUomNames = [];
       let ratios = [];
 
@@ -102,29 +128,28 @@ export default {
 
           case 'barcodes':
             {
-              barcodes = value.replace(/\s/g, '').split(',');
-              barcodes = barcodes.filter(br => br);
+              doc.barcodes = value
+                .replace(/\s/g, '')
+                .split(',')
+                .filter(br => br);
             }
             break;
 
-          case 'subUoms.uomId':
+          case 'subUoms.uom':
             {
-              subUomNames = value.split(',');
+              subUomNames = value.replace(/\s/g, '').split(',');
             }
             break;
 
           case 'subUoms.ratio':
             {
-              ratios = value.split(',');
+              ratios = value.replace(/\s/g, '').split(',');
             }
             break;
 
-          case 'uomId':
+          case 'uom':
             {
-              const uom = await models.Uoms.findOne({
-                $or: [{ name: value }, { code: value }]
-              }).lean();
-              doc.uomId = uom ? uom._id : '';
+              doc.uom = value || defaultUom;
             }
             break;
 
@@ -153,19 +178,11 @@ export default {
       let ind = 0;
       const subUoms: any = [];
 
-      for (const uomVal of subUomNames) {
-        const uom = await models.Uoms.findOne({
-          $or: [{ name: uomVal }, { code: uomVal }]
-        }).lean();
-        if (!uom) {
-          ind += 1;
-          continue;
-        }
-
+      for (const uom of subUomNames) {
         subUoms.push({
           id: Math.random(),
-          uomId: uom._id,
-          ratio: Number(ratios[ind])
+          uom: uom,
+          ratio: Number(ratios[ind] || 1)
         });
         ind += 1;
       }

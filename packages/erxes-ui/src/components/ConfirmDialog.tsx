@@ -56,9 +56,10 @@ type Props = {
     enableEscape?: boolean;
     hasDeleteConfirm?: boolean;
     hasUpdateConfirm?: boolean;
+    hasPasswordConfirm?: boolean;
   };
   confirmation?: string;
-  proceed: () => void;
+  proceed: (value?: string) => void;
   dismiss: () => void;
 };
 
@@ -86,14 +87,16 @@ class ConfirmDialog extends React.Component<Props, State> {
   };
 
   invokeProceed() {
+    const { options = {} } = this.props;
+    const { hasPasswordConfirm = false } = options;
     this.setState({ show: false }, () => {
-      this.props.proceed();
+      this.props.proceed(hasPasswordConfirm ? this.state.confirm : '');
     });
   }
 
   proceed = () => {
     const { options = {} } = this.props;
-    const { hasDeleteConfirm, hasUpdateConfirm } = options;
+    const { hasDeleteConfirm, hasUpdateConfirm, hasPasswordConfirm } = options;
 
     if (hasDeleteConfirm) {
       if (this.state.confirm === 'delete') {
@@ -127,6 +130,22 @@ class ConfirmDialog extends React.Component<Props, State> {
       });
     }
 
+    if (hasPasswordConfirm) {
+      if (this.state.confirm !== '') {
+        return this.invokeProceed();
+      }
+
+      return this.setState({
+        errors: {
+          confirm: (
+            <Error>
+              Enter <strong>password</strong> to confirm
+            </Error>
+          )
+        }
+      });
+    }
+
     return this.invokeProceed();
   };
 
@@ -150,22 +169,39 @@ class ConfirmDialog extends React.Component<Props, State> {
 
   renderConfirmDelete() {
     const { errors, confirm } = this.state;
-    const { hasDeleteConfirm = false, hasUpdateConfirm = false } =
-      this.props.options || {};
+    const {
+      hasDeleteConfirm = false,
+      hasUpdateConfirm = false,
+      hasPasswordConfirm = false
+    } = this.props.options || {};
 
-    if (!hasDeleteConfirm && !hasUpdateConfirm) {
+    if (!hasDeleteConfirm && !hasUpdateConfirm && !hasPasswordConfirm) {
       return null;
     }
 
-    const label = hasDeleteConfirm ? (
-      <>
-        Type <strong>delete</strong> in the filed below to confirm.
-      </>
-    ) : (
-      <>
-        Type <strong>update</strong> in the filed below to confirm.
-      </>
-    );
+    let label: any;
+
+    switch (true) {
+      case hasDeleteConfirm:
+        label = (
+          <>
+            Type <strong>delete</strong> in the field below to confirm.
+          </>
+        );
+        break;
+      case hasUpdateConfirm:
+        label = (
+          <>
+            Type <strong>update</strong> in the field below to confirm.
+          </>
+        );
+        break;
+      case hasPasswordConfirm:
+        label = <>Enter your password in the field below to confirm.</>;
+        break;
+      default:
+        break;
+    }
 
     return (
       <>
@@ -174,6 +210,7 @@ class ConfirmDialog extends React.Component<Props, State> {
         </ControlLabel>
         <FormControl
           name="confirm"
+          type={hasPasswordConfirm ? 'password' : 'text'}
           required={true}
           value={confirm}
           errors={errors}
@@ -186,7 +223,7 @@ class ConfirmDialog extends React.Component<Props, State> {
 
   render() {
     const { confirmation = 'Are you sure?', options = {} } = this.props;
-    const { hasDeleteConfirm, hasUpdateConfirm } = options;
+    const { hasDeleteConfirm, hasUpdateConfirm, hasPasswordConfirm } = options;
 
     const {
       okLabel = 'Yes, I am',
@@ -202,7 +239,11 @@ class ConfirmDialog extends React.Component<Props, State> {
         keyboard={enableEscape}
         size="sm"
         centered={true}
-        animation={hasDeleteConfirm || hasUpdateConfirm ? false : true}
+        animation={
+          hasDeleteConfirm || hasUpdateConfirm || hasPasswordConfirm
+            ? false
+            : true
+        }
       >
         <ModalBody>
           <IconWrapper>

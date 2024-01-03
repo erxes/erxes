@@ -1,15 +1,16 @@
 import Spinner from '@erxes/ui/src/components/Spinner';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
 import { router, withProps } from 'modules/common/utils';
 import React from 'react';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 import Sidebar from '../components/SideBar';
 import { queries } from '../graphql';
 
 type Props = {
   currentType: string;
   history: any;
+  mainType: string;
 };
 
 type State = {};
@@ -39,7 +40,12 @@ class SideBarContainer extends React.Component<FinalProps, State> {
 export default withProps<Props>(
   compose(
     graphql<Props>(gql(queries.historyGetTypes), {
-      name: 'historyGetTypes'
+      name: 'historyGetTypes',
+      options: props => ({
+        variables: {
+          type: props.mainType
+        }
+      })
     })
   )(SideBarContainer)
 );

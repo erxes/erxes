@@ -3,7 +3,7 @@ import { ExecFileOptionsWithStringEncoding } from 'child_process';
 
 export default {
   __resolveReference({ _id }, { models }: IContext) {
-    return models.RiksFormSubmissions.findOne({ _id });
+    return models.RiskFormSubmissions.findOne({ _id });
   },
 
   async user(

@@ -15,6 +15,18 @@ const Form = asyncComponent(() =>
   )
 );
 
+const StoryList = asyncComponent(() =>
+  import(
+    /* webpackChunkName: "Settings - StoryList" */ './containers/StoryList'
+  )
+);
+
+const StoryForm = asyncComponent(() =>
+  import(
+    /* webpackChunkName: "Settings - StoryForm" */ './containers/StoryForm'
+  )
+);
+
 const apexreports = ({ location, history }) => {
   return (
     <List queryParams={queryString.parse(location.search)} history={history} />
@@ -28,6 +40,24 @@ const apexreportsCreate = ({ history }) => {
 const apexreportsEdit = ({ history, match }) => {
   const _id = match.params._id;
   return <Form history={history} _id={_id} />;
+};
+
+const apexstories = ({ location, history }) => {
+  return (
+    <StoryList
+      queryParams={queryString.parse(location.search)}
+      history={history}
+    />
+  );
+};
+
+const apexstoriesCreate = ({ history }) => {
+  return <StoryForm history={history} />;
+};
+
+const apexstoriesEdit = ({ history, match }) => {
+  const _id = match.params._id;
+  return <StoryForm history={history} _id={_id} />;
 };
 
 const routes = () => (
@@ -44,6 +74,20 @@ const routes = () => (
       path="/settings/apexreports/edit/:_id"
       exact={true}
       component={apexreportsEdit}
+    />
+
+    <Route path="/settings/apexstories/" exact={true} component={apexstories} />
+
+    <Route
+      path="/settings/apexstories/create"
+      exact={true}
+      component={apexstoriesCreate}
+    />
+
+    <Route
+      path="/settings/apexstories/edit/:_id"
+      exact={true}
+      component={apexstoriesEdit}
     />
   </>
 );

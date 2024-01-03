@@ -7,6 +7,8 @@ export type IConfigsMap = { [key: string]: any };
 export type CatProd = {
   _id: string;
   categoryId: string;
+  code?: string;
+  name?: string;
   productId: string;
 };
 
@@ -24,22 +26,27 @@ export type IProductGroup = {
 
 export type IScreenConfig = {
   isActive: boolean;
+  isPrint?: boolean;
   type: string;
   value: number;
   contentUrl?: string;
+  showType?: string;
 };
 
 export type IPos = {
   _id: string;
   name: string;
   description?: string;
+  orderPassword?: string;
+  pdomain?: string;
   createdAt: Date;
   productDetails?: string[];
   token: string;
   erxesAppToken: string;
   adminIds: [string];
   cashierIds: [string];
-  paymentIds: [string];
+  paymentIds: string[];
+  paymentTypes: any[];
   user: IUser;
   isOnline: boolean;
   onServer: boolean;
@@ -56,11 +63,19 @@ export type IPos = {
   erkhetConfig: any;
   catProdMappings?: CatProd[];
   initialCategoryIds?: string[];
+  kioskExcludeCategoryIds?: string[];
   kioskExcludeProductIds?: string[];
   deliveryConfig?: any;
   cardsConfig?: any;
   checkRemainder?: boolean;
   permissionConfig?: any;
+  allowTypes?: string[];
+  isCheckRemainder: boolean;
+  checkExcludeCategoryIds: string[];
+  banFractions: boolean;
+
+  branchTitle?: string;
+  departmentTitle?: string;
 };
 
 export type ISlot = {
@@ -68,6 +83,9 @@ export type ISlot = {
   code: string;
   name: string;
   posId: string;
+  option: {
+    [key: string]: string | number;
+  };
 };
 
 // query types
@@ -182,13 +200,3 @@ export interface IProductShema {
 export type SchemaLabelsQueryResponse = {
   getDbSchemaLabels: IProductShema[];
 } & QueryResponse;
-
-export interface IOrdersSummary {
-  cardAmount: number;
-  cashAmount: number;
-  receivableAmount: number;
-  mobileAmount: number;
-  totalAmount: number;
-  finalAmount: number;
-  count: number;
-}

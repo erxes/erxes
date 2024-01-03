@@ -113,6 +113,10 @@ const Row = (props: Props) => {
         <RowTitle>{ticketIds.length}</RowTitle>
       </td>
 
+      <td key={Math.random()}>
+        <RowTitle>{building.networkType || '-'}</RowTitle>
+      </td>
+
       <td>
         <ActionButtons>
           {renderEditAction()}

@@ -1,5 +1,5 @@
+import { IOptions, IStage } from '../../boards/types';
 import { PriceContainer, Right, Status } from '../../boards/styles/item';
-import { renderAmount, renderPriority } from '../../boards/utils';
 
 import Assignees from '../../boards/components/Assignees';
 import { Content } from '../../boards/styles/stage';
@@ -7,14 +7,15 @@ import Details from '../../boards/components/Details';
 import DueDateLabel from '../../boards/components/DueDateLabel';
 import EditForm from '../../boards/containers/editForm/EditForm';
 import { IDeal } from '../types';
-import { IOptions } from '../../boards/types';
+import ItemArchivedStatus from '../../boards/components/portable/ItemArchivedStatus';
 import { ItemContainer } from '../../boards/styles/common';
 import ItemFooter from '../../boards/components/portable/ItemFooter';
+import ItemProductProbabilities from './ItemProductProbabilities';
 import Labels from '../../boards/components/label/Labels';
 import React from 'react';
 import { __ } from '@erxes/ui/src/utils';
 import { colors } from '@erxes/ui/src/styles';
-import ItemArchivedStatus from '../../boards/components/portable/ItemArchivedStatus';
+import { renderPriority } from '../../boards/utils';
 
 type Props = {
   stageId?: string;
@@ -82,10 +83,12 @@ class DealItem extends React.PureComponent<Props> {
     const { item } = this.props;
 
     const renderProduct = p => {
-      p.product.quantity = p.quantity;
-      p.product.uom = p.uom;
+      const data: any = { ...p.product };
+      data.quantity = p.quantity;
+      data.uom = p.uom;
+      data.unitPrice = p.unitPrice;
 
-      return p.product;
+      return data;
     };
 
     const products = (item.products || [])
@@ -99,10 +102,29 @@ class DealItem extends React.PureComponent<Props> {
     const {
       customers,
       companies,
+      startDate,
       closeDate,
       isComplete,
+      stage = {} as IStage,
       customProperties
     } = item;
+
+    const renderItemProductProbabilities = () => {
+      if (
+        window.location.pathname.includes('deal/board') ||
+        window.location.pathname.includes('deal/calendar')
+      ) {
+        return (
+          <ItemProductProbabilities
+            totalAmount={item.amount}
+            unusedTotalAmount={item.unUsedAmount || {}}
+            probability={stage.probability}
+          />
+        );
+      }
+
+      return null;
+    };
 
     return (
       <>
@@ -121,14 +143,18 @@ class DealItem extends React.PureComponent<Props> {
         />
 
         <PriceContainer>
-          {renderAmount(item.amount)}
+          {renderItemProductProbabilities()}
 
           <Right>
             <Assignees users={item.assignedUsers} />
           </Right>
         </PriceContainer>
 
-        <DueDateLabel closeDate={closeDate} isComplete={isComplete} />
+        <DueDateLabel
+          startDate={startDate}
+          closeDate={closeDate}
+          isComplete={isComplete}
+        />
 
         <ItemFooter item={item} />
       </>

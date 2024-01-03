@@ -34,6 +34,7 @@ export interface IConversationMessage {
   userId?: string;
   isCustomerRead?: boolean;
   botData?: any;
+  internal?: boolean;
 
   _id: string;
   createdAt: Date;

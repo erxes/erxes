@@ -1,7 +1,7 @@
 import * as mongoose from 'mongoose';
 
-import { IContext as IMainContext } from '@erxes/api-utils/src';
 import { createGenerateModels } from '@erxes/api-utils/src/core';
+import { IContext as IMainContext } from '@erxes/api-utils/src';
 import {
   IAbsenceModel,
   ITimeModel,
@@ -16,26 +16,42 @@ import {
   IAbsenceTypeModel,
   loadPayDateClass,
   IScheduleConfigModel,
-  loadScheduleConfigClass
+  loadScheduleConfigClass,
+  IDeviceConfigModel,
+  loadDeviceConfigClass,
+  ITimeLogModel,
+  loadTimeLogClass,
+  IReportCheckModel,
+  loadReportCheckClass,
+  IScheduleConfigOrderModel,
+  loadScheduleConfigOrderClass
 } from './models/Timeclock';
 import {
   IAbsenceDocument,
   IAbsenceTypeDocument,
+  IDeviceConfigDocument,
   IPayDateDocument,
+  IReportCheckDocument,
   IScheduleConfigDocument,
+  IScheduleConfigOrderDocument,
   IScheduleDocument,
   IShiftDocument,
-  ITimeClockDocument
+  ITimeClockDocument,
+  ITimeLogDocument
 } from './models/definitions/timeclock';
 
 export interface IModels {
   Timeclocks: ITimeModel;
+  TimeLogs: ITimeLogModel;
   Absences: IAbsenceModel;
   AbsenceTypes: IAbsenceTypeModel;
   Schedules: IScheduleModel;
   Shifts: IShiftModel;
   PayDates: IPayDateModel;
   ScheduleConfigs: IScheduleConfigModel;
+  ScheduleConfigOrder: IScheduleConfigOrderModel;
+  DeviceConfigs: IDeviceConfigModel;
+  ReportChecks: IReportCheckModel;
 }
 
 export interface IContext extends IMainContext {
@@ -82,6 +98,26 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
     IScheduleConfigDocument,
     IScheduleConfigModel
   >('timeclock_schedule_config', loadScheduleConfigClass(models));
+
+  models.ScheduleConfigOrder = db.model<
+    IScheduleConfigOrderDocument,
+    IScheduleConfigOrderModel
+  >('timeclock_schedule_config_order', loadScheduleConfigOrderClass(models));
+
+  models.DeviceConfigs = db.model<IDeviceConfigDocument, IDeviceConfigModel>(
+    'timeclock_device_config',
+    loadDeviceConfigClass(models)
+  );
+
+  models.TimeLogs = db.model<ITimeLogDocument, ITimeLogModel>(
+    'timeclock_time_log',
+    loadTimeLogClass(models)
+  );
+
+  models.ReportChecks = db.model<IReportCheckDocument, IReportCheckModel>(
+    'timeclock_report_check',
+    loadReportCheckClass(models)
+  );
 
   return models;
 };

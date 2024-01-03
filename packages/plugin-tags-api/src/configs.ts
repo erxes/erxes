@@ -7,6 +7,7 @@ import { initBroker } from './messageBroker';
 import logs from './logUtils';
 import * as permissions from './permissions';
 import { getSubdomain } from '@erxes/api-utils/src/core';
+import dashboards from './dashboards';
 
 export let debug;
 export let graphqlPubsub;
@@ -48,5 +49,5 @@ export default {
     graphqlPubsub = options.pubsubClient;
   },
 
-  meta: { logs: { consumers: logs }, permissions }
+  meta: { logs: { consumers: logs }, permissions, dashboards }
 };

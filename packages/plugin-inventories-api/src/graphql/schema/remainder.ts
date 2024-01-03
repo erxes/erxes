@@ -5,15 +5,16 @@ export const types = `
     departmentId: String
     productId: String
     count: Float
-    uomId: String
+    soonIn: Float
+    soonOut: Float
+    uom: String
     modifiedAt: Date
   }
 
   type RemainderCount {
     _id: String
     remainder: Float
-    uomId: String
-    uom: JSON
+    uom: String
   }
 
   type RemainderProduct @key(fields: "_id") {
@@ -21,11 +22,12 @@ export const types = `
     name: String
     code: String
     type: String
-    uom: Uom
-    uomId: String
+    uom: String
     category: ProductCategory
     categoryId: String
     remainder: Float
+    soonIn: Float
+    soonOut: Float
     unitPrice: Float
     createdAt: Date
   }
@@ -48,7 +50,7 @@ export const queries = `
     departmentId: String,
     branchId: String,
     productId: String,
-    uomId: String
+    uom: String
   ): RemainderCount
   remainderProducts(
     departmentId: String,
@@ -61,6 +63,16 @@ export const queries = `
     sortField: String,
     sortDirection: Int,
   ): RemainderProducts
+  remaindersLog(
+    categoryId: String,
+    productIds: [String],
+    searchValue: String,
+    departmentId: String,
+    branchId: String,
+    beginDate: Date,
+    endDate: Date,
+    isDetailed: Boolean
+  ): JSON
 `;
 
 export const mutations = `

@@ -31,15 +31,17 @@ export const loadOrderClass = models => {
         { $set: { ...doc, modifiedAt: new Date() } }
       );
 
-      return models.Orders.findOne({ _id });
+      return models.Orders.findOne({ _id }).lean();
     }
 
     public static getPaidAmount(order: IOrderDocument) {
       return (
-        (order.cardAmount || 0) +
         (order.cashAmount || 0) +
-        (order.receivableAmount || 0) +
-        (order.mobileAmount || 0)
+        (order.mobileAmount || 0) +
+        (order.paidAmounts || []).reduce(
+          (sum, i) => Number(sum) + Number(i.amount),
+          0
+        )
       );
     }
   }

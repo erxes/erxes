@@ -1,6 +1,6 @@
 import { DrawerDetail } from '@erxes/ui-automations/src/styles';
 import { IAction } from '@erxes/ui-automations/src/types';
-import { Alert, __ } from 'coreui/utils';
+import { Alert, __ } from '@erxes/ui/src';
 
 import Button from '@erxes/ui/src/components/Button';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
@@ -17,12 +17,13 @@ import Tip from '@erxes/ui/src/components/Tip';
 import client from '@erxes/ui/src/apolloClient';
 import { excludedNames } from '../../../../containers/forms/actions/subForms/SetProperty';
 import { queries as formQueries } from '@erxes/ui-forms/src/forms/graphql';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 
 type Props = {
   closeModal: () => void;
   activeAction: IAction;
   triggerType: string;
+  triggerConfig: any;
   addAction: (action: IAction, actionId?: string, config?: any) => void;
   fields: FieldsCombinedByType[];
   propertyTypesConst: any[];
@@ -33,6 +34,10 @@ type State = {
   type: string;
   fields: FieldsCombinedByType[];
 };
+
+function capitalizeFirstLetter(string) {
+  return string.charAt(0).toUpperCase() + string.slice(1);
+}
 
 class SetProperty extends React.Component<Props, State> {
   constructor(props) {
@@ -86,7 +91,7 @@ class SetProperty extends React.Component<Props, State> {
   };
 
   getFieldType = (chosenField: FieldsCombinedByType) => {
-    if (chosenField.selectOptions) {
+    if (chosenField.selectOptions && chosenField.selectOptions?.length > 0) {
       return 'select';
     }
 
@@ -94,13 +99,21 @@ class SetProperty extends React.Component<Props, State> {
       return 'date';
     }
 
+    if (chosenField.name.includes('customFieldsData')) {
+      return chosenField.validation;
+    }
+
     return chosenField.type;
   };
 
   getIsMulti = (chosenField: FieldsCombinedByType) => {
-    if (chosenField.selectOptions && !chosenField.name.includes('Ids')) {
+    if (
+      !!chosenField?.selectOptions?.length &&
+      !chosenField.name.includes('Ids')
+    ) {
       return false;
     }
+
     return true;
   };
 
@@ -117,7 +130,7 @@ class SetProperty extends React.Component<Props, State> {
   };
 
   renderPerValue() {
-    const { triggerType } = this.props;
+    const { triggerType, triggerConfig } = this.props;
     const { type, config, fields } = this.state;
 
     return config.rules.map(rule => {
@@ -129,8 +142,15 @@ class SetProperty extends React.Component<Props, State> {
         name: 'name',
         label: 'label'
       };
+
+      const operatorType: string = chosenField.name.includes('customFieldsData')
+        ? capitalizeFirstLetter(chosenField.validation || chosenField.type)
+        : chosenField.type;
+
+      console.log({ operatorType });
+
       const operators =
-        PROPERTY_OPERATOR[chosenField.type] || PROPERTY_OPERATOR.Default;
+        PROPERTY_OPERATOR[operatorType] || PROPERTY_OPERATOR.Default;
 
       const onChangeSelect = (field, e) => {
         const value = e.value;
@@ -200,8 +220,10 @@ class SetProperty extends React.Component<Props, State> {
             type={type}
             fieldType={this.getFieldType(chosenField)}
             isMulti={this.getIsMulti(chosenField)}
-            attrType={chosenField.type}
+            attrType={operatorType}
             options={chosenField.selectOptions}
+            triggerConfig={triggerConfig}
+            attrWithSegmentConfig={true}
           />
 
           <FormGroup>

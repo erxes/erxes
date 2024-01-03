@@ -1,9 +1,9 @@
 import { ButtonMutate, withProps } from '@erxes/ui/src';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
 import React from 'react';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 
 import CategoryForm from '../../components/carCategory/CategoryForm';
 import { mutations, queries } from '../../graphql';
@@ -17,13 +17,14 @@ type Props = {
 
 type FinalProps = {
   carCategoriesQuery: CarCategoriesQueryResponse;
+  iconsQuery: any;
 } & Props;
 
 class CategoryFormContainer extends React.Component<FinalProps> {
   render() {
-    const { carCategoriesQuery } = this.props;
+    const { carCategoriesQuery, iconsQuery } = this.props;
 
-    if (carCategoriesQuery.loading) {
+    if (carCategoriesQuery.loading || iconsQuery.loading) {
       return null;
     }
 
@@ -53,11 +54,13 @@ class CategoryFormContainer extends React.Component<FinalProps> {
     };
 
     const carCategories = carCategoriesQuery.carCategories || [];
+    const icons = iconsQuery.tumentechCategoryIcons || [];
 
     const updatedProps = {
       ...this.props,
       renderButton,
-      carCategories
+      carCategories,
+      icons
     };
 
     return <CategoryForm {...updatedProps} />;
@@ -72,6 +75,10 @@ export default withProps<FinalProps>(
   compose(
     graphql<Props, CarCategoriesQueryResponse>(gql(queries.carCategories), {
       name: 'carCategoriesQuery'
+    }),
+
+    graphql(gql(queries.categoryIcons), {
+      name: 'iconsQuery'
     })
   )(CategoryFormContainer)
 );

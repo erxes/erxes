@@ -14,6 +14,8 @@ import {
 import { IModels } from '../connectionResolver';
 import { sendCoreMessage, sendFormsMessage } from '../messageBroker';
 import { sendToWebhook } from '../messageBroker';
+import { putCreateLog } from '../logUtils';
+import { MODULE_NAMES } from '../constants';
 export interface IConversationModel extends Model<IConversationDocument> {
   getConversation(_id: string): IConversationDocument;
   createConversation(doc: IConversation): Promise<IConversationDocument>;
@@ -136,6 +138,19 @@ export const loadClass = (models: IModels, subdomain: string) => {
         }
       });
 
+      await putCreateLog(
+        models,
+        subdomain,
+        {
+          type: MODULE_NAMES.CONVERSATION,
+          newData: result,
+          object: result
+        },
+        {
+          _id: doc.customerId
+        }
+      );
+
       return result;
     }
 
@@ -146,6 +161,8 @@ export const loadClass = (models: IModels, subdomain: string) => {
       if (doc.content) {
         doc.content = cleanHtml(doc.content);
       }
+
+      doc.updatedAt = new Date();
 
       // clean custom field values
       doc.customFieldsData = await sendFormsMessage({
@@ -262,15 +279,17 @@ export const loadClass = (models: IModels, subdomain: string) => {
     ) {
       let closedAt;
       let closedUserId;
+      const updatedAt = new Date();
 
       if (status === CONVERSATION_STATUSES.CLOSED) {
         closedAt = new Date();
+
         closedUserId = userId;
       }
 
       return models.Conversations.updateMany(
         { _id: { $in: conversationIds } },
-        { $set: { status, closedAt, closedUserId } },
+        { $set: { status, closedAt, closedUserId, updatedAt } },
         { multi: true }
       );
     }

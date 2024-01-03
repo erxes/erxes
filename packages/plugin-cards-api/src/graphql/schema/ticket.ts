@@ -9,6 +9,7 @@ import {
 
 export const types = ({ contacts, tags }) => `
   type TicketListItem {
+    customPropertiesData:JSON,
     ${commonListTypes}
   }
 
@@ -34,6 +35,8 @@ const listQueryParams = `
   _ids: [String]
   pipelineId: String
   pipelineIds: [String]
+  page: Int
+  perPage: Int
   parentId:String
   stageId: String
   customerIds: [String]
@@ -58,6 +61,21 @@ const listQueryParams = `
   hasStartAndCloseDate: Boolean
   tagIds: [String]
   noSkipArchive: Boolean
+  number: String
+  branchIds: [String]
+  departmentIds: [String]
+  boardIds: [String]
+  stageCodes: [String]
+  dateRangeFilters:JSON
+  customFieldsDataFilters:JSON
+  createdStartDate: Date,
+  createdEndDate: Date
+  stateChangedStartDate: Date
+  stateChangedEndDate: Date
+  startDateStartDate: Date
+  startDateEndDate: Date
+  closeDateStartDate: Date
+  closeDateEndDate: Date
   ${conformityQueryFields}
 `;
 

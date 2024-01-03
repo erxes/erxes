@@ -7,9 +7,10 @@ import Alert from '@erxes/ui/src/utils/Alert';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import { BarItems } from '@erxes/ui/src/layout/styles';
 import FormControl from '@erxes/ui/src/components/form/Control';
-import { __ } from '@erxes/ui/src/utils/core';
+import { __, isEnabled } from '@erxes/ui/src/utils/core';
 import Button from '@erxes/ui/src/components/Button';
 import { ModalTrigger } from '@erxes/ui/src/components';
+import TemporarySegment from '@erxes/ui-segments/src/components/filter/TemporarySegment';
 
 import {
   IButtonMutateProps,
@@ -71,7 +72,8 @@ export const tumentechMenu = [
   { title: 'Places', link: '/erxes-plugin-tumentech/place/list' },
   { title: 'Directions', link: '/erxes-plugin-tumentech/direction/list' },
   { title: 'Routes', link: '/erxes-plugin-tumentech/route/list' },
-  { title: 'Trips', link: '/erxes-plugin-tumentech/trips/list' }
+  { title: 'Trips', link: '/erxes-plugin-tumentech/trips/list' },
+  { title: 'Accounts', link: '/erxes-plugin-tumentech/accounts/list' }
 ];
 
 class CarsList extends React.Component<IProps, State> {
@@ -282,6 +284,10 @@ class CarsList extends React.Component<IProps, State> {
           autoFocus={true}
           onFocus={this.moveCursorAtTheEnd}
         />
+
+        {isEnabled('segments') && (
+          <TemporarySegment contentType={'tumentech:car'} />
+        )}
 
         <ModalTrigger
           title="Manage Columns"

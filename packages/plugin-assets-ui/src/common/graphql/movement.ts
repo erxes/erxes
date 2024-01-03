@@ -28,6 +28,7 @@ export const movementFilterParams = `
     $parentId:String,
     $assetIds:[String],
     $searchValue:String
+    $onlyCurrent:Boolean
 `;
 
 export const movementFilterParamsDef = `
@@ -40,6 +41,7 @@ export const movementFilterParamsDef = `
     parentId:$parentId
     assetIds:$assetIds
     searchValue:$searchValue
+    onlyCurrent:$onlyCurrent
 `;
 
 export const dateFilterParams = `

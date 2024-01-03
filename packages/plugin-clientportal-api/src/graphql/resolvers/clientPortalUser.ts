@@ -1,4 +1,5 @@
 import { IContext } from '../../connectionResolver';
+import { sendContactsMessage } from '../../messageBroker';
 import { IUser } from '../../models/definitions/clientPortalUser';
 import { customFieldsDataByFieldCode } from '../../utils';
 
@@ -35,6 +36,26 @@ const ClientPortalUser = {
 
   customFieldsDataByFieldCode(company: IUser, _, { subdomain }: IContext) {
     return customFieldsDataByFieldCode(company, subdomain);
+  },
+
+  async companyName(user, _args, { subdomain }: IContext) {
+    if (user.erxesCompanyId) {
+      const company = await sendContactsMessage({
+        subdomain,
+        action: 'companies.findOne',
+        data: {
+          _id: user.erxesCompanyId
+        },
+        isRPC: true,
+        defaultValue: null
+      });
+
+      if (!company) {
+        return user.companyName;
+      }
+
+      return company.primaryName;
+    }
   }
 };
 

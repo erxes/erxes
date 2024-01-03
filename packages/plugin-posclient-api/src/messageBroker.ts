@@ -10,7 +10,8 @@ import {
   receiveProductCategory,
   receiveUser
 } from './graphql/utils/syncUtils';
-import { sendRPCMessage } from '@erxes/api-utils/src/messageBroker';
+import { sendRPCMessageMq } from '@erxes/api-utils/src/messageBroker';
+import { updateMobileAmount } from './utils';
 
 let client;
 
@@ -36,6 +37,40 @@ export const initBroker = async cl => {
   client = cl;
   const { consumeQueue, consumeRPCQueue } = client;
 
+  consumeRPCQueue(
+    `posclient:configs.manage${channelToken}`,
+    async ({ subdomain, data }) => {
+      const models = await generateModels(subdomain);
+
+      return {
+        status: 'success',
+        data: await receivePosConfig(subdomain, models, data)
+      };
+    }
+  );
+
+  consumeRPCQueue(
+    `posclient:configs.remove${channelToken}`,
+    async ({ subdomain, data }) => {
+      const models = await generateModels(subdomain);
+      const { posId, posToken } = data;
+
+      const config = await models.Configs.findOne({ token: posToken }).lean();
+      if (!config) {
+        throw new Error('not found config from posclient');
+      }
+
+      await models.Configs.updateOne(
+        { token: posToken },
+        { $set: { status: 'deleted' } }
+      );
+      return {
+        status: 'success',
+        data: {}
+      };
+    }
+  );
+
   consumeQueue(
     `posclient:crudData${channelToken}`,
     async ({ subdomain, data }) => {
@@ -53,9 +88,6 @@ export const initBroker = async cl => {
           case 'user':
             await receiveUser(models, data);
             break;
-          case 'pos':
-            await receivePosConfig(subdomain, models, data);
-            break;
           case 'productGroups':
             const { productGroups = [] } = data;
             await preImportProducts(models, token, productGroups);
@@ -63,7 +95,7 @@ export const initBroker = async cl => {
             break;
           case 'slots':
             const { slots = [] } = data;
-            await importSlots(models, slots);
+            await importSlots(models, slots, token);
             break;
           default:
             break;
@@ -76,14 +108,14 @@ export const initBroker = async cl => {
     `posclient:updateSynced${channelToken}`,
     async ({ subdomain, data }) => {
       const models = await generateModels(subdomain);
-      const { responseId, orderId } = data;
+      const { responseIds, orderId } = data;
 
       await models.Orders.updateOne(
         { _id: orderId },
         { $set: { synced: true } }
       );
-      await models.PutResponses.updateOne(
-        { _id: responseId },
+      await models.PutResponses.updateMany(
+        { _id: { $in: responseIds } },
         { $set: { synced: true } }
       );
     }
@@ -126,9 +158,37 @@ export const initBroker = async cl => {
           ...(await models.Orders.findOne({ _id: order._id }).lean()),
           _id: order._id,
           status: order.status,
-          customerId: order.customerId
+          customerId: order.customerId,
+          customerType: order.customerType
         }
       });
+    }
+  );
+
+  consumeQueue(
+    `posclient:erxes-posclient-to-pos-api-remove${channelToken}`,
+    async ({ subdomain, data }) => {
+      const models = await generateModels(subdomain);
+      const { order } = data;
+
+      await models.Orders.deleteOne({
+        _id: order._id,
+        posToken: order.posToken,
+        subToken: order.subToken
+      });
+    }
+  );
+
+  consumeQueue(
+    `posclient:paymentCallbackClient${channelToken}`,
+    async ({ subdomain, data }) => {
+      const models = await generateModels(subdomain);
+      const { status } = data;
+      if (status !== 'paid') {
+        return;
+      }
+
+      await updateMobileAmount(models, [data]);
     }
   );
 
@@ -158,13 +218,41 @@ export const initBroker = async cl => {
       };
     }
   );
+
+  consumeRPCQueue(
+    `posclient:covers.remove${channelToken}`,
+    async ({ subdomain, data }) => {
+      const models = await generateModels(subdomain);
+
+      const { cover } = data;
+      await models.Covers.updateOne(
+        { _id: cover._id },
+        { $set: { status: 'reconf' } }
+      );
+      return {
+        status: 'success',
+        data: await models.Covers.findOne({ _id: cover._id })
+      };
+    }
+  );
 };
 
-const sendMessageWrapper = async (
+export const sendCommonMessage = async (
+  args: ISendMessageArgs & { serviceName: string }
+): Promise<any> => {
+  return sendMessage({
+    serviceDiscovery,
+    client,
+    ...args
+  });
+};
+
+export const sendMessageWrapper = async (
   serviceName: string,
   args: ISendMessageArgs
 ): Promise<any> => {
   const { SKIP_REDIS } = process.env;
+
   if (SKIP_REDIS) {
     const { action, isRPC, defaultValue } = args;
 
@@ -175,7 +263,7 @@ const sendMessageWrapper = async (
     // check connected gateway on server and check some plugins isAvailable
     if (isRPC) {
       const longTask = async () =>
-        await sendRPCMessage('gateway:isServiceAvailable', serviceName);
+        await sendRPCMessageMq('core:isServiceEnabled', serviceName);
 
       const timeout = (cb, interval) => () =>
         new Promise(resolve => setTimeout(() => cb(resolve), interval));
@@ -186,6 +274,8 @@ const sendMessageWrapper = async (
       await Promise.race([longTask, onTimeout].map(f => f())).then(
         result => (response = result as boolean)
       );
+
+      args.isMQ = true;
 
       if (!response) {
         return defaultValue;
@@ -229,6 +319,18 @@ export const sendContactsMessage = async (
   return sendMessageWrapper('contacts', args);
 };
 
+export const sendCardsMessage = async (
+  args: ISendMessageArgs
+): Promise<any> => {
+  return sendMessageWrapper('cards', args);
+};
+
+export const sendInboxMessage = async (
+  args: ISendMessageArgs
+): Promise<any> => {
+  return sendMessageWrapper('inbox', args);
+};
+
 export const sendLoyaltiesMessage = async (
   args: ISendMessageArgs
 ): Promise<any> => {
@@ -249,6 +351,12 @@ export const sendSegmentsMessage = async (
   args: ISendMessageArgs
 ): Promise<any> => {
   return sendMessageWrapper('segments', args);
+};
+
+export const sendFormsMessage = async (
+  args: ISendMessageArgs
+): Promise<any> => {
+  return sendMessageWrapper('forms', args);
 };
 
 export const fetchSegment = (

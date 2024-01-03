@@ -14,13 +14,15 @@ export type ITagTypes =
   | 'customer'
   | 'engageMessage'
   | 'company'
-  | 'integration';
+  | 'integration'
+  | 'automations';
 
 // queries
 
 export type TagsQueryResponse = {
   tags: ITag[];
   loading: boolean;
+  fetchMore: any;
   refetch: () => void;
 };
 

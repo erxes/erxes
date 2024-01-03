@@ -89,4 +89,5 @@ export const queries = `
     assetMovementItemsTotalCount(${movementFilters}):Int
     assetMovementItem(assetId:String):MovementItem
     currentAssetMovementItems(assetIds:[String]):[MovementItem]
+    assetsActiveLocations(branchId:Boolean,departmentId:Boolean,customerId:Boolean,companyId:Boolean,teamMemberId:Boolean,withKnowledgebase:Boolean,searchValue:String):JSON
 `;

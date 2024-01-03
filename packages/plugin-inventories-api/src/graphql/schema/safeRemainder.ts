@@ -6,6 +6,8 @@ export const types = `
     department: Department
     departmentId: String
     productCategory: ProductCategory
+    attachment: Attachment
+    filterField: String
     productCategoryId: String
 
     date: Date
@@ -29,7 +31,7 @@ export const types = `
     productId: String
     preCount: Float
     count: Float
-    uomId: String
+    uom: String
     isDebit: Boolean
   }
 `;
@@ -56,15 +58,10 @@ export const mutations = `
     departmentId: String,
     date: Date,
     description: String,
-    productCategoryId: String
+    productCategoryId: String,
+    attachment: AttachmentInput,
+    filterField: String
   ): SafeRemainder
   safeRemainderRemove(_id: String!): JSON
-  safeRemainderSubmit(
-    branchId: String,
-    departmentId: String,
-    status: String,
-    contentType: String,
-    contentId: String,
-    products: [SafeRemainderSubmitProduct]
-  ): JSON
+  safeRemainderSubmit( _id: String! ): JSON
 `;

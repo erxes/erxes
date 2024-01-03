@@ -66,10 +66,6 @@ export const updateLiveRemainders = async ({
       productId
     };
 
-    if (safe && safe.lastTransactionDate) {
-      transactionSelector.date = { $gt: safe.lastTransactionDate };
-    }
-
     const transactionItems = await models.TransactionItems.find(
       transactionSelector
     ).lean();

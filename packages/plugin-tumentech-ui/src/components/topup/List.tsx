@@ -22,12 +22,10 @@ const List = (props: Props) => {
   const { totalCount, queryParams, loading, topups } = props;
 
   const renderRow = () => {
-    const { topups } = props;
     return topups.map(topup => <Row key={topup._id} topup={topup} />);
   };
 
   queryParams.loadingMainQuery = loading;
-  let actionBarLeft: React.ReactNode;
 
   const trigger = (
     <Button btnStyle="success" size="small" icon="plus-circle">
@@ -35,7 +33,7 @@ const List = (props: Props) => {
     </Button>
   );
 
-  const formContent = props => <Form {...props} />;
+  const formContent = formProps => <Form {...formProps} />;
 
   const righActionBar = (
     <ModalTrigger
@@ -47,9 +45,7 @@ const List = (props: Props) => {
     />
   );
 
-  const actionBar = (
-    <Wrapper.ActionBar right={righActionBar} left={actionBarLeft} />
-  );
+  const actionBar = <Wrapper.ActionBar right={righActionBar} />;
 
   const content = (
     <Table whiteSpace="nowrap" hover={true}>

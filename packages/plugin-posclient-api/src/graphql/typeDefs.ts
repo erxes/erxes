@@ -1,4 +1,4 @@
-import { gql } from 'apollo-server-express';
+import gql from 'graphql-tag';
 import {
   mutations as PosUserMutations,
   queries as PosUserQueries,
@@ -20,14 +20,14 @@ import {
   types as ConfigTypes
 } from './schema/configs';
 import {
-  mutations as PaymentMutations,
-  queries as PaymentQueries,
-  types as PaymentTypes
-} from './schema/payment';
-import {
   queries as ProductQueries,
   types as ProductTypes
 } from './schema/product';
+import {
+  queries as CoverQueries,
+  types as CoverTypes,
+  mutations as CoverMutations
+} from './schema/covers';
 import {
   queries as ReportQueries,
   types as ReportTypes
@@ -46,26 +46,26 @@ const typeDefs = async () => {
     ${PosUserTypes}
     ${OrderTypes}
     ${ConfigTypes}
-    ${PaymentTypes}
     ${ReportTypes}
     ${BridgesTypes}
+    ${CoverTypes}
 
    extend type Query {
     ${PosUserQueries}
     ${ProductQueries}
     ${OrderQueries}
     ${ConfigQueries}
-    ${PaymentQueries}
     ${ReportQueries}
     ${BridgesQueries}
+    ${CoverQueries}
    }
 
    extend type Mutation {
     ${PosUserMutations}
     ${OrderMutations}
     ${ConfigMutations}
-    ${PaymentMutations}
     ${BridgesMutations}
+    ${CoverMutations}
    }
   `;
 };

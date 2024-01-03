@@ -16,6 +16,7 @@ type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   closeModal: () => void;
   payment?: IPaymentDocument;
+  metaData?: any;
 };
 
 type State = {
@@ -71,7 +72,7 @@ class SocialPayConfigForm extends React.Component<Props, State> {
   ) => {
     const value =
       key === 'pushNotification'
-        ? `${getEnv().REACT_APP_API_URL}/pl:payment/callback/socialPay`
+        ? `${getEnv().REACT_APP_API_URL}/pl:payment/callback/socialpay`
         : this.state[key];
 
     return (
@@ -111,6 +112,14 @@ class SocialPayConfigForm extends React.Component<Props, State> {
             'Notification URL',
             'Register following URL in Golomt Bank'
           )}
+
+          <a
+            href="https://www.golomtbank.com/corporate/digital-bank/socialpay2"
+            target="_blank"
+            rel="noreferrer"
+          >
+            {__('more about SocialPay')}
+          </a>
         </SettingsContent>
 
         <ModalFooter>
@@ -123,7 +132,7 @@ class SocialPayConfigForm extends React.Component<Props, State> {
             Cancel
           </Button>
           {renderButton({
-            name: 'socialPay',
+            name: 'socialpay',
             values: this.generateDoc(values),
             isSubmitted,
             callback: closeModal

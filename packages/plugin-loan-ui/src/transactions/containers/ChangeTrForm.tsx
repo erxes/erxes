@@ -2,10 +2,10 @@ import { ButtonMutate, withProps } from '@erxes/ui/src';
 import { IUser } from '@erxes/ui/src/auth/types';
 import { UsersQueryResponse } from '@erxes/ui/src/auth/types';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
 import React from 'react';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 
 import ChangeTrForm from '../components/ChangeTrForm';
 import { mutations } from '../graphql';

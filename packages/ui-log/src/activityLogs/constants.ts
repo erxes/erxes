@@ -45,6 +45,10 @@ export const ICON_AND_COLOR_TABLE = {
     icon: 'dollar-alt',
     color: mediumPurple
   },
+  purchase: {
+    icon: 'dollar-alt',
+    color: mediumPurple
+  },
   email: {
     icon: 'envelope-alt',
     color: valenciaRed

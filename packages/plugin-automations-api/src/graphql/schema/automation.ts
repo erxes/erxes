@@ -1,7 +1,17 @@
-export const types = `
+export const types = ({ tags }) => `
   extend type User @key(fields: "_id") {
     _id: String! @external
   }
+
+    ${
+      tags
+        ? `
+      extend type Tag @key(fields: "_id") {
+        _id: String! @external
+      }
+    `
+        : ''
+    }
 
   type Trigger {
     id: String
@@ -12,6 +22,7 @@ export const types = `
     icon: String
     label: String
     description: String
+    position:JSON
 
     count: Int
   }
@@ -25,6 +36,7 @@ export const types = `
     icon: String
     label: String
     description: String
+    position:JSON
 
   }
 
@@ -41,6 +53,8 @@ export const types = `
 
     createdUser: User
     updatedUser: User
+
+    ${tags ? `tags: [Tag]` : ''}
   }
 
   type AutomationNote {
@@ -89,6 +103,7 @@ export const types = `
     icon: String
     label: String
     description: String
+    position:JSON
   }
 
   input ActionInput {
@@ -100,6 +115,7 @@ export const types = `
     icon: String
     label: String
     description: String
+    position:JSON
   }
 `;
 
@@ -112,6 +128,7 @@ const queryParams = `
   sortField: String
   sortDirection: Int
   status: String
+  tagIds:[String]
 `;
 
 const historiesParams = `
@@ -154,6 +171,7 @@ export const mutations = `
   automationsAdd(${commonFields}): Automation
   automationsEdit(_id: String, ${commonFields}): Automation
   automationsRemove(automationIds: [String]): [String]
+  archiveAutomations(automationIds: [String],isRestore:Boolean): [String]
 
   automationsSaveAsTemplate(_id: String!, name: String, duplicate: Boolean): Automation
   automationsCreateFromTemplate(_id: String): Automation

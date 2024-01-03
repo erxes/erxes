@@ -44,18 +44,5 @@ export default {
       data: { _id: reserveRem.productId },
       isRPC: true
     });
-  },
-
-  async uom(
-    reserveRem: IReserveRemDocument,
-    _,
-    { dataLoaders, subdomain }: IContext
-  ) {
-    return await sendProductsMessage({
-      subdomain,
-      action: 'uoms.findOne',
-      data: { _id: reserveRem.uomId },
-      isRPC: true
-    });
   }
 };

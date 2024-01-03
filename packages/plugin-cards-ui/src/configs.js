@@ -1,4 +1,5 @@
 module.exports = {
+  srcDir: __dirname,
   name: 'cards',
   port: 3003,
   scope: 'cards',
@@ -10,7 +11,9 @@ module.exports = {
     './segmentForm': './src/segmentForm.tsx',
     './activityLog': './src/activityLogs/activityLog.tsx',
     './automation': './src/automations/automation.tsx',
-    './contactDetailRightSidebar': './src/RightSidebar.tsx'
+    './contactDetailRightSidebar': './src/RightSidebar.tsx',
+    './selectRelation': './src/common/SelectRelation.tsx',
+    './invoiceDetailRightSection': './src/common/Item.tsx',
   },
   routes: {
     url: 'http://localhost:3003/remoteEntry.js',
@@ -22,6 +25,8 @@ module.exports = {
   activityLog: './activityLog',
   automation: './automation',
   contactDetailRightSidebar: './contactDetailRightSidebar',
+  invoiceDetailRightSection: './invoiceDetailRightSection',
+  selectRelation: './selectRelation',
   menus: [
     {
       text: 'Sales Pipeline',
@@ -29,6 +34,13 @@ module.exports = {
       icon: 'icon-piggy-bank',
       location: 'mainNavigation',
       permission: 'showDeals'
+    },
+    {
+      text: 'Purchases Pipeline',
+      url: '/purchase',
+      icon: 'icon-bag-alt',
+      location: 'mainNavigation',
+      permission: 'showPurchases'
     },
     {
       text: 'Task',
@@ -72,6 +84,29 @@ module.exports = {
         'dealStagesEdit',
         'dealStagesUpdateOrder',
         'dealStagesRemove'
+      ]
+    },
+    {
+      text: 'Purchases Pipelines',
+      to: '/settings/boards/purchase',
+      image: '/images/icons/erxes-25.png',
+      location: 'settings',
+      scope: 'cards',
+      action: 'purchasesAll',
+      permissions: [
+        'purchaseBoardsAdd',
+        'purchaseBoardsEdit',
+        'purchaseBoardsRemove',
+        'purchasePipelinesAdd',
+        'purchasePipelinesEdit',
+        'purchasePipelinesUpdateOrder',
+        'purchasePipelinesRemove',
+        'purchasePipelinesArchive',
+        'purchasePipelinesArchive',
+        'purchaseStagesAdd',
+        'purchaseStagesEdit',
+        'purchaseStagesUpdateOrder',
+        'purchaseStagesRemove'
       ]
     },
     {

@@ -11,7 +11,7 @@ const ads = ({ location, history }) => {
   const queryParams = queryString.parse(location.search);
   const { type } = queryParams;
 
-  return <List typeId={type} history={history} />;
+  return <List typeId={type} history={history} queryParams={queryParams} />;
 };
 
 const routes = () => {

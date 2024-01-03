@@ -6,6 +6,7 @@ import { District } from './districts';
 import { Quarter } from './quarters';
 import { Building } from './buildings';
 import { City } from './cities';
+import { Contract } from './contacts';
 
 const resolvers: any = async _serviceDiscovery => ({
   ...customScalars,
@@ -14,6 +15,7 @@ const resolvers: any = async _serviceDiscovery => ({
   Quarter,
   Building,
   City,
+  MobiContract: Contract,
 
   Mutation: {
     ...mutations

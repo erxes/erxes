@@ -1,31 +1,36 @@
-import { getEnv } from '@erxes/api-utils/src';
+import { checkPermission, getEnv, requireLogin } from '@erxes/api-utils/src';
 import { IContext } from '../../../connectionResolver';
-import { makeInvoiceNo } from '../../../utils';
+import { randomAlphanumeric } from '@erxes/api-utils/src/random';
 
+import { IInvoice } from '../../../models/definitions/invoices';
 type InvoiceParams = {
   amount: number;
   phone: string;
   email: string;
   description: string;
   customerId: string;
-  companyId: string;
+  customerType: string;
   contentType: string;
   contentTypeId: string;
   paymentIds: string[];
   redirectUri: string;
+  warningText: string;
+  data?: any;
 };
 
 const mutations = {
   async generateInvoiceUrl(
     _root,
     params: InvoiceParams,
-    { models, requestInfo, res }: IContext
+    { models, requestInfo, res, subdomain }: IContext
   ) {
-    const MAIN_API_DOMAIN = process.env.DOMAIN
-      ? `${process.env.DOMAIN}/gateway`
+    const domain = getEnv({ name: 'DOMAIN', subdomain })
+      ? `${getEnv({ name: 'DOMAIN', subdomain })}/gateway`
       : 'http://localhost:4000';
 
     const cookies = requestInfo.cookies;
+
+    const { data } = params;
 
     const paymentCookies = Object.keys(cookies).filter(key =>
       key.includes('paymentData')
@@ -39,7 +44,7 @@ const mutations = {
         const paymentData =
           dataInCookie &&
           JSON.parse(
-            Buffer.from(dataInCookie as string, 'base64').toString('ascii')
+            Buffer.from(dataInCookie as string, 'base64').toString('utf8')
           );
 
         if (
@@ -47,14 +52,15 @@ const mutations = {
           paymentData.amount === params.amount &&
           paymentData.customerId === params.customerId
         ) {
-          return `${MAIN_API_DOMAIN}/pl:payment/gateway?params=${dataInCookie}`;
+          return `${domain}/pl:payment/gateway?params=${dataInCookie}`;
         }
       }
     }
 
     const invoice = await models.Invoices.create({
       ...params,
-      identifier: makeInvoiceNo(32)
+      data,
+      identifier: randomAlphanumeric(32)
     });
 
     const base64 = Buffer.from(
@@ -80,8 +86,41 @@ const mutations = {
 
     res.cookie(`paymentData_${params.contentTypeId}`, base64, cookieOptions);
 
-    return `${MAIN_API_DOMAIN}/pl:payment/gateway?params=${base64}`;
+    return `${domain}/pl:payment/gateway?params=${base64}`;
+  },
+
+  async invoiceCreate(
+    _root,
+    params: IInvoice,
+    { models, subdomain }: IContext
+  ) {
+    const DOMAIN = getEnv({ name: 'DOMAIN' })
+      ? `${getEnv({ name: 'DOMAIN' })}/gateway`
+      : 'http://localhost:4000';
+    const domain = DOMAIN.replace('<subdomain>', subdomain);
+
+    const invoice = await models.Invoices.createInvoice({
+      ...params,
+      domain
+    });
+    return invoice;
+  },
+
+  async invoicesCheck(_root, { _id }: { _id: string }, { models }: IContext) {
+    return models.Invoices.checkInvoice(_id);
+  },
+
+  async invoicesRemove(
+    _root,
+    { _ids }: { _ids: string[] },
+    { models }: IContext
+  ) {
+    return models.Invoices.removeInvoices(_ids);
   }
 };
+
+requireLogin(mutations, 'invoiceCreate');
+
+checkPermission(mutations, 'invoiceCreate', 'createInvoice');
 
 export default mutations;

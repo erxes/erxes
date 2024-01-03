@@ -7,9 +7,9 @@ export const CONFIG_TYPES = {
     LABEL: 'Appearance',
     VALUE: 'appearance'
   },
-  CUSTOM: {
-    LABEL: 'System configuration',
-    VALUE: 'custom'
+  AUTH: {
+    LABEL: 'Authentication',
+    VALUE: 'auth'
   }
 };
 

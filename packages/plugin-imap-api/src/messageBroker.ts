@@ -14,7 +14,7 @@ let client;
 export const initBroker = async cl => {
   client = cl;
 
-  const { consumeRPCQueue } = client;
+  const { consumeRPCQueue, consumeQueue } = client;
 
   consumeRPCQueue(
     'imap:createIntegration',
@@ -23,10 +23,12 @@ export const initBroker = async cl => {
 
       const integration = await models.Integrations.create({
         inboxId: integrationId,
-        ...doc
+        healthStatus: 'healthy',
+        error: '',
+        ...JSON.parse(doc.data)
       });
 
-      await listenIntegration(subdomain, integration);
+      listenIntegration(subdomain, integration, models);
 
       await models.Logs.createLog({
         type: 'info',
@@ -40,19 +42,130 @@ export const initBroker = async cl => {
   );
 
   consumeRPCQueue(
-    'imap:removeIntegration',
-    async ({ subdomain, data: { integrationId } }) => {
+    'imap:updateIntegration',
+    async ({ subdomain, data: { integrationId, doc } }) => {
+      const detail = JSON.parse(doc.data);
       const models = await generateModels(subdomain);
 
-      await models.Messages.remove({ inboxIntegrationId: integrationId });
-      await models.Customers.remove({ inboxIntegrationId: integrationId });
-      await models.Integrations.remove({ inboxId: integrationId });
+      const integration = await models.Integrations.findOne({
+        inboxId: integrationId
+      });
+
+      if (!integration) {
+        return {
+          status: 'error',
+          errorMessage: 'Integration not found.'
+        };
+      }
+
+      detail.healthStatus = 'healthy';
+      detail.error = '';
+
+      await models.Integrations.updateOne(
+        { inboxId: integrationId },
+        { $set: detail }
+      );
+
+      const updatedIntegration = await models.Integrations.findOne({
+        inboxId: integrationId
+      });
+
+      if (updatedIntegration) {
+        listenIntegration(subdomain, integration, models);
+      }
 
       return {
         status: 'success'
       };
     }
   );
+
+  consumeRPCQueue(
+    'imap:removeIntegrations',
+    async ({ subdomain, data: { integrationId } }) => {
+      const models = await generateModels(subdomain);
+
+      await models.Messages.remove({
+        inboxIntegrationId: integrationId
+      });
+      await models.Customers.remove({
+        inboxIntegrationId: integrationId
+      });
+      await models.Integrations.remove({
+        inboxId: integrationId
+      });
+
+      return {
+        status: 'success'
+      };
+    }
+  );
+
+  consumeRPCQueue(
+    'imap:api_to_integrations',
+    async (args: ISendMessageArgs): Promise<any> => {
+      const { subdomain, data } = args;
+      const models = await generateModels(subdomain);
+
+      const integrationId = data.integrationId;
+
+      const integration = await models.Integrations.findOne({
+        inboxId: integrationId
+      }).select(['-_id', '-kind', '-erxesApiId', '-inboxId']);
+
+      if (data.action === 'getDetails') {
+        return {
+          status: 'success',
+          data: integration
+        };
+      }
+
+      return {
+        status: 'success'
+      };
+    }
+  );
+
+  // /imap/get-status'
+  consumeRPCQueue(
+    'imap:getStatus',
+    async ({ subdomain, data: { integrationId } }) => {
+      const models = await generateModels(subdomain);
+
+      const integration = await models.Integrations.findOne({
+        inboxId: integrationId
+      });
+
+      let result = {
+        status: 'healthy'
+      } as any;
+
+      if (integration) {
+        result = {
+          status: integration.healthStatus || 'healthy',
+          error: integration.error
+        };
+      }
+
+      return {
+        data: result,
+        status: 'success'
+      };
+    }
+  );
+
+  consumeQueue('imap:listen', async ({ subdomain, data: { _id } }) => {
+    const models = await generateModels(subdomain);
+
+    const integration = await models.Integrations.findById(_id);
+
+    if (!integration) {
+      console.log(`Queue: imap:listen. Integration not found ${_id}`);
+      return;
+    }
+
+    listenIntegration(subdomain, integration, models);
+  });
 };
 
 export default function() {
@@ -73,6 +186,15 @@ export const sendInboxMessage = (args: ISendMessageArgs) => {
     client,
     serviceDiscovery,
     serviceName: 'inbox',
+    ...args
+  });
+};
+
+export const sendImapMessage = (args: ISendMessageArgs) => {
+  return sendCommonMessage({
+    client,
+    serviceDiscovery,
+    serviceName: 'imap',
     ...args
   });
 };

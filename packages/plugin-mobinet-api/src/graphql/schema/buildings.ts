@@ -1,4 +1,4 @@
-export const types = ({ contacts, cards, products }) => `
+export const types = ({ contacts, cards, products, assets }) => `
 
 ${
   contacts
@@ -15,11 +15,13 @@ ${
 }
 
 ${
-  products ? `
+  products
+    ? `
     extend type Product @key(fields: "_id") {
       _id: String! @external
     }
-  ` : ''
+  `
+    : ''
 }
 
 ${
@@ -32,10 +34,25 @@ ${
     : ''
 }
 
+${
+  assets
+    ? `
+        extend type Asset @key(fields: "_id") {
+          _id: String! @external
+        }
+        `
+    : ''
+}
+
 enum ServiceStatus {
   active
   inactive
   inprogress
+}
+
+enum NetworkType {
+  fttb
+  ftth
 }
 
   type ProductPriceConfig {
@@ -87,13 +104,22 @@ enum ServiceStatus {
 
     productPriceConfigs: [ProductPriceConfig]
 
-
-
     customersCount: Int
     companiesCount: Int
 
     installationRequestIds: [String]
     ticketIds: [String]
+    assetIds: [String]
+
+    networkType: NetworkType
+
+    ${
+      assets
+        ? `
+          assets: [Asset]
+          `
+        : ''
+    }
 
     ${
       cards
@@ -127,17 +153,16 @@ const mutationParams = `
     bounds: JSON
     type: String
     serviceStatus: ServiceStatus
+    networkType: NetworkType
     suhId: String
 `;
 
 export const mutations = `
   buildingsAdd(${mutationParams}): Building
   buildingsEdit(_id: String!, ${mutationParams}): Building
-  buildingsRemove(_id: [String]): JSON
-  buildingsAddCustomers(_id: String!, customerIds: [String]): Building
-  buildingsAddCompanies(_id: String!, companyIds: [String]): Building
+  buildingsRemove(_ids: [String]): JSON
+  buildingsUpdate(_id: String!, customerIds: [String], companyIds: [String], assetIds: [String]): Building
   buildingsEditProductPriceConfigs(_id: String!, productPriceConfigs: [ProductPriceConfigInput]): Building
-
 
   buildingsRemoveCustomers(_id: String!, customerIds: [String]): Building
   buildingsRemoveCompanies(_id: String!, companyIds: [String]): Building
@@ -155,6 +180,7 @@ const qryParams = `
     page: Int
     perPage: Int
     customQuery: JSON
+    networkType: NetworkType
 `;
 
 export const queries = `
@@ -162,4 +188,5 @@ export const queries = `
   buildings(${qryParams}): [Building]
   buildingsByBounds(bounds: JSON, serviceStatuses: [ServiceStatus]): [Building]
   buildingDetail(_id: String!): Building
+  buildingGet(osmbId: String): Building
 `;

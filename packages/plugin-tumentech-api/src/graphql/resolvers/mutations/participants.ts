@@ -4,7 +4,8 @@ import {
   sendCardsMessage,
   sendClientPortalMessage,
   sendContactsMessage,
-  sendCoreMessage
+  sendCoreMessage,
+  sendNotification
 } from '../../../messageBroker';
 import { IParticipant } from './../../../models/definitions/participants';
 
@@ -24,6 +25,42 @@ const participantMutations = {
 
     if (!participant) {
       return null;
+    }
+
+    const conformities = await sendCoreMessage({
+      subdomain,
+      action: 'conformities.getConformities',
+      data: {
+        mainType: 'deal',
+        mainTypeIds: [participant.dealId],
+        relTypes: ['customer']
+      },
+      isRPC: true,
+      defaultValue: []
+    });
+
+    const deal = await sendCardsMessage({
+      subdomain,
+      action: 'deals.findOne',
+      data: {
+        _id: participant.dealId
+      },
+      isRPC: true,
+      defaultValue: null
+    });
+
+    const stage = await sendCardsMessage({
+      subdomain,
+      action: 'stages.findOne',
+      data: {
+        _id: deal.stageId
+      },
+      isRPC: true,
+      defaultValue: {}
+    });
+
+    if (stage.code === 'dealsWaitingDriver') {
+      return participant;
     }
 
     graphqlPubsub.publish('participantsChanged', {
@@ -56,28 +93,6 @@ const participantMutations = {
       });
     }
 
-    const conformities = await sendCoreMessage({
-      subdomain,
-      action: 'conformities.getConformities',
-      data: {
-        mainType: 'deal',
-        mainTypeIds: [participant.dealId],
-        relTypes: ['customer']
-      },
-      isRPC: true,
-      defaultValue: []
-    });
-
-    const deal = await sendCardsMessage({
-      subdomain,
-      action: 'deals.findOne',
-      data: {
-        _id: participant.dealId
-      },
-      isRPC: true,
-      defaultValue: null
-    });
-
     if (conformities.length > 0) {
       for (const conformity of conformities) {
         const customer = await sendContactsMessage({
@@ -93,6 +108,10 @@ const participantMutations = {
         if (!customer) {
           continue;
         }
+
+        graphqlPubsub.publish('participantsCountChanged', {
+          participantsCountChanged: customer
+        });
 
         const orderUser = await sendClientPortalMessage({
           subdomain,
@@ -270,17 +289,38 @@ const participantMutations = {
     });
 
     if (winner) {
+      const stage = await sendCardsMessage({
+        subdomain,
+        action: 'stages.findOne',
+        data: {
+          _id: deal.stageId
+        },
+        isRPC: true,
+        defaultValue: {}
+      });
+
+      const data: any = {
+        title: 'Баяр хүргэе',
+        content: `Таны илгээсэн үнийн санал баталгаажиж,  ${deal.name} дугаартай тээврийн ажилд та сонгогдлоо, та ажлаа баталгаажуулна уу`,
+        receivers: [winner._id],
+        notifType: 'system',
+        link: ``,
+        isMobile: true,
+        eventData: {
+          type: 'deal',
+          id: deal._id
+        }
+      };
+
+      if (stage.code === 'dealsWaitingDriver') {
+        data.title = 'Танд ажлын хүсэлт ирлээ';
+        data.content = `Та ${deal.name} дугаарт ажилд уригдлаа.`;
+      }
+
       sendClientPortalMessage({
         subdomain,
         action: 'sendNotification',
-        data: {
-          title: 'Баяр хүргэе',
-          content: `Таны илгээсэн үнийн санал баталгаажиж,  ${deal.name} дугаартай тээврийн ажилд та сонгогдлоо, та ажлаа баталгаажуулна уу`,
-          receivers: [winner._id],
-          notifType: 'system',
-          link: ``,
-          isMobile: true
-        }
+        data
       });
     }
 
@@ -313,6 +353,96 @@ const participantMutations = {
     }
 
     return participant;
+  },
+
+  inviteDriversToDeal: async (
+    _root,
+    { dealId, driverIds }: { dealId: string; driverIds: string[] },
+    { models, subdomain }: IContext
+  ) => {
+    const deal = await sendCardsMessage({
+      subdomain,
+      action: 'deals.findOne',
+      data: {
+        _id: dealId
+      },
+      isRPC: true,
+      defaultValue: null
+    });
+
+    if (!deal) {
+      throw new Error('Deal not found');
+    }
+
+    for (const driverId of driverIds) {
+      const conformities = await sendCoreMessage({
+        subdomain,
+        action: 'conformities.getConformities',
+        data: {
+          mainType: 'customer',
+          mainTypeIds: [driverId],
+          relTypes: ['car']
+        },
+        isRPC: true,
+        defaultValue: []
+      });
+
+      if (conformities.length === 0) {
+        continue;
+      }
+
+      const carIds: string[] = [];
+
+      conformities.forEach(c => {
+        if (c.mainType === 'customer') {
+          carIds.push(c.relTypeId);
+        } else {
+          carIds.push(c.mainTypeId);
+        }
+      });
+
+      await models.Participants.create({
+        dealId,
+        driverId,
+        status: 'participating',
+        carIds,
+        detail: {
+          invited: true
+        }
+      });
+    }
+
+    const cpUsers = await sendClientPortalMessage({
+      subdomain,
+      action: 'clientPortalUsers.find',
+      data: {
+        erxesCustomerId: { $in: driverIds },
+        clientPortalId: process.env.MOBILE_CP_ID || ''
+      },
+      isRPC: true,
+      defaultValue: []
+    });
+
+    const notifData: any = {
+      title: 'Шинэ зар орлоо',
+      content: `${deal.name} дугаартай тээврийн ажилд та уригдлаа, үнийн санал илгээнэ үү.`,
+      receivers: cpUsers.map(cpUser => cpUser._id),
+      notifType: 'system',
+      link: '',
+      isMobile: true,
+      eventData: {
+        type: 'deal',
+        id: deal._id
+      }
+    };
+
+    sendClientPortalMessage({
+      subdomain,
+      action: 'sendNotification',
+      data: notifData
+    });
+
+    return { status: 'ok', message: 'Drivers invited' };
   }
 };
 

@@ -11,7 +11,8 @@ import {
   Sidebar as CommonSideBar,
   Tip,
   Wrapper,
-  __
+  __,
+  FormControl
 } from '@erxes/ui/src';
 import { DateContainer } from '@erxes/ui/src/styles/main';
 import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
@@ -116,6 +117,12 @@ class Sidebar extends React.Component<Props, State> {
       this.setState({ [name]: value });
       router.setParams(this.props.history, { [name]: value });
       router.setParams(this.props.history, { page: 1 });
+    };
+
+    const handleToggle = (value, name) => {
+      value
+        ? router.removeParams(this.props.history, name)
+        : router.setParams(this.props.history, { [name]: !value });
     };
 
     const fields = [
@@ -258,6 +265,19 @@ class Sidebar extends React.Component<Props, State> {
               </EndDateContainer>
             </CustomRangeContainer>
           </FormGroup>
+          <CommonFormGroup>
+            <FormControl
+              name="onlyCurrent"
+              componentClass="checkbox"
+              checked={!!queryParams.onlyCurrent}
+              onChange={() =>
+                handleToggle(queryParams.onlyCurrent, 'onlyCurrent')
+              }
+            />
+            <ControlLabel>
+              {__('only last movement of per assets')}
+            </ControlLabel>
+          </CommonFormGroup>
         </ContainerBox>
       </CommonSideBar>
     );

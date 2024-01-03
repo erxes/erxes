@@ -31,10 +31,13 @@ import { __ } from '@erxes/ui/src/utils/core';
 
 type Props = {
   integration?: ILeadIntegration;
+  integrationId?: string;
   loading?: boolean;
   isActionLoading: boolean;
   isReadyToSaveForm: boolean;
+  isIntegrationSubmitted?: boolean;
   configs: IConfig[];
+  currentMode: 'create' | 'update' | undefined;
   emailTemplates?: any[] /*change type*/;
   afterFormDbSave: (formId: string) => void;
   save: (params: {
@@ -46,6 +49,8 @@ type Props = {
     visibility?: string;
     departmentIds?: string[];
   }) => void;
+  onChildProcessFinished?: (component: string) => void;
+  waitUntilFinish?: (obj: any) => void;
 };
 
 type State = {
@@ -83,6 +88,7 @@ type State = {
   templateId?: string;
   carousel: string;
   attachments?: IAttachment[];
+  verifyEmail?: boolean;
 
   currentMode: 'create' | 'update' | undefined;
   currentField?: IField;
@@ -98,7 +104,7 @@ type State = {
 class Lead extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
-    //ILeadIntegration
+    // ILeadIntegration
     const integration = props.integration || ({} as any);
 
     const { leadData = {} as ILeadData } = integration;
@@ -121,6 +127,7 @@ class Lead extends React.Component<Props, State> {
       redirectUrl: leadData.redirectUrl || '',
       rules: leadData.rules || [],
       isStepActive: false,
+      verifyEmail: leadData.verifyEmail || false,
 
       brand: integration.brandId,
       channelIds: channels.map(item => item._id) || [],
@@ -136,7 +143,7 @@ class Lead extends React.Component<Props, State> {
         title: form.title || 'Form Title',
         description: form.description || 'Form Description',
         buttonText: form.buttonText || 'Send',
-        fields: [],
+        fields: form.fields || [],
         type: form.type || '',
         numberOfPages: form.numberOfPages || 1
       },
@@ -148,7 +155,7 @@ class Lead extends React.Component<Props, State> {
       isSkip: callout.skip && true,
       carousel: callout.skip ? 'form' : 'callout',
 
-      currentMode: undefined,
+      currentMode: this.props.currentMode || 'create',
       currentField: undefined,
       css: leadData.css || '',
 
@@ -158,6 +165,12 @@ class Lead extends React.Component<Props, State> {
       departmentIds: integration.departmentIds || [],
       visibility: integration.visibility || 'public'
     };
+  }
+
+  componentDidUpdate(_prevProps, prevState) {
+    if (prevState.formData !== this.state.formData) {
+      this.setState({ formData: this.state.formData });
+    }
   }
 
   handleSubmit = (e: React.FormEvent) => {
@@ -221,7 +234,8 @@ class Lead extends React.Component<Props, State> {
         saveAsCustomer: this.state.saveAsCustomer,
         css: this.state.css,
         successImage: this.state.successImage,
-        successImageSize: this.state.successImageSize
+        successImageSize: this.state.successImageSize,
+        verifyEmail: this.state.verifyEmail
       }
     };
 
@@ -404,13 +418,17 @@ class Lead extends React.Component<Props, State> {
                   brand={brand}
                   theme={theme}
                   language={language}
-                  formData={formData}
+                  formData={this.state.formData}
                   isRequireOnce={isRequireOnce}
                   saveAsCustomer={saveAsCustomer}
                   channelIds={channelIds}
                   visibility={visibility}
                   departmentIds={departmentIds}
+                  integrationId={this.props.integrationId}
+                  isIntegrationSubmitted={this.props.isIntegrationSubmitted}
                   onChange={this.onChange}
+                  onChildProcessFinished={this.props.onChildProcessFinished}
+                  waitUntilFinish={this.props.waitUntilFinish}
                 />
               </Step>
 
@@ -442,6 +460,8 @@ class Lead extends React.Component<Props, State> {
                   successImage={successImage}
                   successPreviewStyle={successPreviewStyle}
                   successImageSize={successImageSize}
+                  formData={formData}
+                  verifyEmail={this.state.verifyEmail}
                 />
               </Step>
             </Steps>

@@ -11,16 +11,19 @@ import Select from 'react-select-plus';
 
 import { COLLAPSE_CONTENT_SELECTOR } from '../../constants';
 import { ICarCategory } from '../../types';
+import IconSelector from './IconSelector';
 
 type Props = {
   category?: ICarCategory;
   carCategories: ICarCategory[];
+  icons: string[];
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   closeModal: () => void;
 };
 
 type State = {
   collapseContent?: string[];
+  icon?: string;
 };
 
 class CategoryForm extends React.Component<Props, State> {
@@ -30,7 +33,8 @@ class CategoryForm extends React.Component<Props, State> {
     const { category = {} } = props;
 
     this.state = {
-      collapseContent: category.collapseContent || []
+      collapseContent: category.collapseContent || [],
+      icon: category.icon
     };
   }
 
@@ -39,8 +43,18 @@ class CategoryForm extends React.Component<Props, State> {
     this.setState({ collapseContent });
   };
 
+  handleImageClick = image => {
+    this.setState({ icon: image });
+  };
+
   renderContent = (formProps: IFormProps) => {
-    const { renderButton, closeModal, category, carCategories } = this.props;
+    const {
+      renderButton,
+      closeModal,
+      category,
+      carCategories,
+      icons
+    } = this.props;
     const { values, isSubmitted } = formProps;
     const { collapseContent } = this.state;
 
@@ -110,6 +124,19 @@ class CategoryForm extends React.Component<Props, State> {
           />
         </FormGroup>
 
+        <FormGroup>
+          <ControlLabel>Icon</ControlLabel>
+          <br />
+          {this.state.icon && (
+            <div>
+              <img src={this.state.icon} alt={'alt'} />
+            </div>
+          )}
+          <br />
+
+          <IconSelector icons={icons} onImageSelected={this.handleImageClick} />
+        </FormGroup>
+
         <ModalFooter>
           <Button
             btnStyle="simple"
@@ -122,7 +149,7 @@ class CategoryForm extends React.Component<Props, State> {
 
           {renderButton({
             name: 'car category',
-            values: { ...values, collapseContent },
+            values: { ...values, collapseContent, icon: this.state.icon },
             isSubmitted,
             callback: closeModal,
             object: category

@@ -11,6 +11,7 @@ import React from 'react';
 import Tip from '@erxes/ui/src/components/Tip';
 import dayjs from 'dayjs';
 import { renderUserFullName } from '@erxes/ui/src/utils';
+import { getCPUserName } from '../../../activityLogs/utils';
 
 class BoardItemCreate extends React.Component<IActivityLogItemProps> {
   renderContent = () => {
@@ -23,6 +24,11 @@ class BoardItemCreate extends React.Component<IActivityLogItemProps> {
       userName = renderUserFullName(createdByDetail.content);
     }
 
+    if (createdByDetail && createdByDetail.type === 'clientPortalUser') {
+      userName = getCPUserName(createdByDetail.content);
+      console.log(userName);
+    }
+
     const body = (
       <Link
         to={`/${contentType}/board?_id=${activity._id}&itemId=${contentTypeDetail._id}`}
@@ -31,6 +37,10 @@ class BoardItemCreate extends React.Component<IActivityLogItemProps> {
         {contentTypeDetail.name} <Icon icon="arrow-to-right" />
       </Link>
     );
+
+    if (createdByDetail && createdByDetail.type === 'clientPortalUser') {
+      userName = getCPUserName(createdByDetail.content);
+    }
 
     return (
       <span>

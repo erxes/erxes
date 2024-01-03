@@ -40,25 +40,25 @@ export interface IVoucherCampaignDocument
 export const voucherCampaignSchema = new Schema({
   ...commonCampaignSchema,
 
-  buyScore: field({ type: Number }),
+  buyScore: field({ type: Number, label: 'Buy score' }),
 
-  score: field({ type: Number }),
-  scoreAction: field({ type: String }),
+  score: field({ type: Number, label: 'Score' }),
+  scoreAction: field({ type: String, label: 'Score action' }),
 
-  voucherType: field({ type: String }),
+  voucherType: field({ type: String, label: 'Voucher type' }),
 
-  productCategoryIds: field({ type: [String] }),
-  productIds: field({ type: [String] }),
-  discountPercent: field({ type: Number }),
+  productCategoryIds: field({ type: [String], label: 'Product category ids' }),
+  productIds: field({ type: [String], label: 'Product ids' }),
+  discountPercent: field({ type: Number, label: 'Discount percent' }),
 
-  bonusProductId: field({ type: String }),
-  bonusCount: field({ type: Number, optional: true }),
+  bonusProductId: field({ type: String, label: 'Bonus product id' }),
+  bonusCount: field({ type: Number, optional: true, label: 'Bonus count' }),
 
-  coupon: field({ type: String }),
+  coupon: field({ type: String, label: 'Coupon' }),
 
-  spinCampaignId: field({ type: String }),
-  spinCount: field({ type: Number }),
+  spinCampaignId: field({ type: String, label: 'Spin campaign id' }),
+  spinCount: field({ type: Number, label: 'Spin count' }),
 
-  lotteryCampaignId: field({ type: String }),
-  lotteryCount: field({ type: Number })
+  lotteryCampaignId: field({ type: String, label: 'Lottery campaign id' }),
+  lotteryCount: field({ type: Number, label: 'Lottery count' })
 });

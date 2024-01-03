@@ -1,4 +1,12 @@
+import {
+  attachmentInput,
+  attachmentType
+} from '@erxes/api-utils/src/commonTypeDefs';
+
 export const types = `
+  ${attachmentType}
+  ${attachmentInput}
+
   extend type User @key(fields: "_id") {
     _id: String! @external
   }
@@ -52,13 +60,14 @@ export const types = `
     name: String
     html: String
     image: String
+    categories: String
   }
 
   type WebbuilderSite {
     _id: String!
     name: String
     domain: String
-    templateImage: String 
+    coverImage: Attachment
   }
 `;
 
@@ -73,11 +82,11 @@ export const queries = `
   webbuilderEntriesMain(contentTypeId: String! page: Int perPage: Int): WebbuilderEntriesList
   webbuilderEntryDetail(_id: String!): WebbuilderEntry
 
-  webbuilderTemplates(page: Int, perPage: Int): [WebbuilderTemplate]
+  webbuilderTemplates(page: Int, perPage: Int, searchValue: String): [WebbuilderTemplate]
   webbuilderTemplatesTotalCount: Int
   webbuilderTemplateDetail(_id: String!): WebbuilderTemplate
 
-  webbuilderSites(page: Int, perPage: Int, fromSelect: Boolean): [WebbuilderSite]
+  webbuilderSites(page: Int, perPage: Int, searchValue: String, fromSelect: Boolean): [WebbuilderSite]
   webbuilderSitesTotalCount: Int
 `;
 
@@ -110,10 +119,11 @@ export const mutations = `
   webbuilderEntriesRemove(_id: String!): JSON
 
   webbuilderTemplatesAdd(name: String, html: String): WebbuilderTemplate 
-  webbuilderTemplatesUse(_id: String!, name: String!): String
+  webbuilderTemplatesUse(_id: String!, name: String!, coverImage: AttachmentInput): String
   webbuilderTemplatesRemove(_id: String!): JSON
   
   webbuilderSitesAdd(name: String domain: String): WebbuilderSite 
   webbuilderSitesEdit(_id: String! name: String domain: String): WebbuilderSite 
   webbuilderSitesRemove(_id: String!): JSON 
+  webbuilderSitesDuplicate(_id: String!): WebbuilderSite
 `;

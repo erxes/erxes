@@ -8,8 +8,8 @@ import React, { useEffect, useRef, useState } from 'react';
 
 import { CountQueryResponse } from '@erxes/ui-contacts/src/customers/types';
 import LeadFilter from '../../components/list/LeadFilter';
-import gql from 'graphql-tag';
-import { graphql } from 'react-apollo';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
 import { queries as integrationQuery } from '@erxes/ui-inbox/src/settings/integrations/graphql';
 import { queries } from '@erxes/ui-contacts/src/customers/graphql';
 import { withProps } from '@erxes/ui/src/utils';

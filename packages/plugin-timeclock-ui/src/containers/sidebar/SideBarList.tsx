@@ -1,12 +1,17 @@
 import SideBar from '../../components/sidebar/SideBar';
 import React from 'react';
-import { IBranch } from '@erxes/ui/src/team/types';
+import { IBranch, IDepartment } from '@erxes/ui/src/team/types';
+import { IUser } from '@erxes/ui/src/auth/types';
 
 type Props = {
+  isCurrentUserAdmin: boolean;
+
   history: any;
-  currentDate?: string;
+  currentUser: IUser;
+  branches: IBranch[];
+  departments: IDepartment[];
+
   queryParams: any;
-  branchesList: IBranch[];
 };
 
 const TypesListContainer = (props: Props) => {

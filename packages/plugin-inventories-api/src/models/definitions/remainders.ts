@@ -5,7 +5,7 @@ export interface IRemainderParams {
   departmentId?: string;
   branchId?: string;
   productId: string;
-  uomId?: string;
+  uom?: string;
 }
 
 export interface IRemainderProductsParams {
@@ -19,16 +19,17 @@ export interface IRemainderProductsParams {
 }
 
 export interface IRemaindersParams {
-  departmentId?: string;
-  branchId?: string;
+  departmentIds?: string[];
+  branchIds?: string[];
   productCategoryId?: string;
   productIds?: string[];
+  searchValue?: string;
 }
 
 export interface IRemainderCount {
   _id: string;
   count: number;
-  uomId: string;
+  uom: string;
 }
 
 export interface IRemainder {
@@ -36,6 +37,9 @@ export interface IRemainder {
   departmentId: string;
   productId: string;
   count: number;
+  soonIn?: number;
+  soonOut?: number;
+  shortLogs: any[];
 }
 
 export interface IRemainderDocument extends IRemainder, Document {
@@ -52,12 +56,15 @@ export const remainderSchema = schemaHooksWrapper(
     status: field({ type: String, label: 'Status' }),
     productId: field({ type: String, index: true }),
     count: field({ type: Number, label: 'Count' }),
+    soonIn: field({ type: Number, optional: true, label: 'Soon In' }),
+    soonOut: field({ type: Number, optional: true, label: 'Soon Out' }),
 
     modifiedAt: field({
       type: Date,
       default: new Date(),
       label: 'Modified date'
-    })
+    }),
+    shortLogs: field({ type: [Object] })
   }),
   'erxes_remainders'
 );

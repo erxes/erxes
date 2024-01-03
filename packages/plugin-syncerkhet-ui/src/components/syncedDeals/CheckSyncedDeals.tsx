@@ -3,10 +3,18 @@ import CheckSyncedDealsSidebar from './CheckSyncedDealsSidebar';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import React from 'react';
 import Row from './CheckSyncedDealsRow';
-import { __, DataWithLoader, Pagination, Table } from '@erxes/ui/src';
+import {
+  __,
+  BarItems,
+  Wrapper,
+  DataWithLoader,
+  Pagination,
+  Table
+} from '@erxes/ui/src';
 import { Alert, confirm } from '@erxes/ui/src/utils';
-import { BarItems, Wrapper } from '@erxes/ui/src/layout';
-import { Title } from '@erxes/ui/src/styles/main';
+
+import { menuSyncerkhet } from '../../constants';
+import { Title } from '@erxes/ui-settings/src/styles';
 
 type Props = {
   totalCount: number;
@@ -33,23 +41,9 @@ type Props = {
   dateType: string;
 };
 
-type State = {
-  contentLoading: boolean;
-};
-export const menuPos = [
-  { title: 'Check deals', link: '/check-synced-deals' },
-  { title: 'Check orders', link: '/check-pos-orders' },
-  { title: 'Check Category', link: '/inventory-category' },
-  { title: 'Check Products', link: '/inventory-products' }
-];
-
-class CheckSyncedDeals extends React.Component<Props, State> {
+class CheckSyncedDeals extends React.Component<Props> {
   constructor(props: Props) {
     super(props);
-
-    this.state = {
-      contentLoading: this.props.loading
-    };
   }
 
   renderRow = () => {
@@ -110,6 +104,7 @@ class CheckSyncedDeals extends React.Component<Props, State> {
 
     const tablehead = [
       'deal name',
+      'deal number',
       'Amount',
       'created At',
       'modified At',
@@ -117,11 +112,12 @@ class CheckSyncedDeals extends React.Component<Props, State> {
       'Un Synced',
       'Synced Date',
       'Synced bill Number',
+      'Synced Customer',
       'Sync Actions'
     ];
 
     const Content = (
-      <Table>
+      <Table bordered={true}>
         <thead>
           <tr>
             <th style={{ width: 60 }}>
@@ -176,12 +172,7 @@ class CheckSyncedDeals extends React.Component<Props, State> {
     const actionBarRight = (
       <BarItems>
         {bulk.length > 0 && (
-          <Button
-            btnStyle="success"
-            size="small"
-            icon="check-1"
-            onClick={onClickCheck}
-          >
+          <Button btnStyle="success" icon="check-circle" onClick={onClickCheck}>
             Check
           </Button>
         )}
@@ -192,7 +183,7 @@ class CheckSyncedDeals extends React.Component<Props, State> {
             icon="sync"
             onClick={onClickSync}
           >
-            Sync all
+            {`Sync all (${unSyncedDealIds.length})`}
           </Button>
         )}
       </BarItems>
@@ -201,7 +192,7 @@ class CheckSyncedDeals extends React.Component<Props, State> {
     const content = (
       <DataWithLoader
         data={Content}
-        loading={loading || this.state.contentLoading}
+        loading={loading}
         count={totalCount}
         emptyText="Empty list"
         emptyImage="/images/actions/1.svg"
@@ -214,19 +205,22 @@ class CheckSyncedDeals extends React.Component<Props, State> {
           <Wrapper.Header
             title={__(`Check erkhet`)}
             queryParams={queryParams}
-            submenu={menuPos}
+            submenu={menuSyncerkhet}
           />
         }
         leftSidebar={sidebar}
         actionBar={
           <Wrapper.ActionBar
-            left={<Title>Deals</Title>}
+            left={<Title>{__(`Deals (${totalCount})`)}</Title>}
             right={actionBarRight}
             background="colorWhite"
+            wideSpacing={true}
           />
         }
         content={content}
         footer={<Pagination count={totalCount} />}
+        hasBorder={true}
+        transparent={true}
       />
     );
   }

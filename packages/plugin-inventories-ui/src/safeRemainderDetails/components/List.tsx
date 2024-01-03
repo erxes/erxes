@@ -16,7 +16,7 @@ type Props = {
   totalCount: number;
   safeRemainder: any;
   safeRemainderItems: any[];
-  submitItems: (data: any) => void;
+  submitSafeRemainder: (_id: string) => void;
   updateItem: (_id: string, remainder: number, status: string) => void;
   removeItem: (item: any) => void;
 };
@@ -27,7 +27,7 @@ export default function List(props: Props) {
     loading,
     safeRemainder,
     safeRemainderItems,
-    submitItems,
+    submitSafeRemainder,
     updateItem,
     removeItem
   } = props;
@@ -37,13 +37,29 @@ export default function List(props: Props) {
     { title: __('Safe Remainder') }
   ];
 
+  const focusNext = (index: number, length: number, val?: number) => {
+    let next = index + (val || 1);
+    if (next >= length) {
+      next = 0;
+    }
+    if (next < 0) {
+      next = length - 1;
+    }
+
+    document
+      .getElementsByClassName('canFocus')
+      [next].getElementsByTagName('input')[0]
+      .focus();
+  };
+
   const renderRow = (remainderItems: any[]) => {
-    return (remainderItems || []).map(item => (
+    return (remainderItems || []).map((item, ind) => (
       <Row
         key={item._id}
         item={item}
         updateItem={updateItem}
         removeItem={removeItem}
+        onEnter={val => focusNext(ind, remainderItems.length, val)}
       />
     ));
   };
@@ -75,7 +91,7 @@ export default function List(props: Props) {
       btnStyle="success"
       icon="check-circle"
       size="small"
-      onClick={() => submitItems(safeRemainderItems)}
+      onClick={() => submitSafeRemainder(safeRemainder._id)}
     >
       {__('Submit')}
     </Button>

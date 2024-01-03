@@ -1,15 +1,18 @@
 import * as React from 'react';
 
-import { FlexItem, FlexRow } from '@erxes/ui-settings/src/styles';
-import { IButtonMutateProps, IRouterProps } from '@erxes/ui/src/types';
 import {
-  RESPONSE_TEMPLATE_STATUSES,
-  RESPONSE_TEMPLATE_TIPTEXT
-} from '../constants';
+  Actions,
+  IframePreview,
+  Template,
+  TemplateBox,
+  TemplateBoxInfo,
+  TemplateInfo,
+  Templates
+} from '@erxes/ui-emailtemplates/src/styles';
+import { FlexItem, FlexRow, InputBar } from '@erxes/ui-settings/src/styles';
+import { IButtonMutateProps, IRouterProps } from '@erxes/ui/src/types';
 import { __, router } from 'coreui/utils';
 
-import Button from '@erxes/ui/src/components/Button';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { FilterContainer } from '@erxes/ui-settings/src/styles';
 import Form from '@erxes/ui-inbox/src/settings/responseTemplates/components/Form';
 import { FormControl } from '@erxes/ui/src/components/form';
@@ -17,15 +20,12 @@ import HeaderDescription from '@erxes/ui/src/components/HeaderDescription';
 import { ICommonListProps } from '@erxes/ui-settings/src/common/types';
 import Icon from '@erxes/ui/src/components/Icon';
 import List from '@erxes/ui-settings/src/common/components/List';
-import RowActions from '@erxes/ui-settings/src/common/components/RowActions';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import SelectBrands from '@erxes/ui/src/brands/containers/SelectBrands';
-import Table from '@erxes/ui/src/components/table';
-import Tip from '@erxes/ui/src/components/Tip';
 import { withRouter } from 'react-router-dom';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
-  changeStatus: (_id: string, status: string) => void;
   queryParams: any;
   history: any;
 } & ICommonListProps;
@@ -60,55 +60,26 @@ class ResponseTemplateList extends React.Component<FinalProps, States> {
     return <Form {...props} renderButton={this.props.renderButton} />;
   };
 
-  renderDisableAction = object => {
-    const { changeStatus } = this.props;
-    const _id = object._id;
-    const isActive =
-      object.status === null ||
-      object.status === RESPONSE_TEMPLATE_STATUSES.ACTIVE;
-    const icon = isActive ? 'archive-alt' : 'redo';
+  renderEditAction = object => {
+    const { save } = this.props;
 
-    const status = isActive
-      ? RESPONSE_TEMPLATE_STATUSES.ARCHIVED
-      : RESPONSE_TEMPLATE_STATUSES.ACTIVE;
-
-    const text = isActive
-      ? RESPONSE_TEMPLATE_TIPTEXT.ARCHIVED
-      : RESPONSE_TEMPLATE_TIPTEXT.ACTIVE;
-
-    if (!changeStatus) {
-      return null;
-    }
-
-    const onClick = () => changeStatus(_id, status);
+    const content = props => {
+      return this.renderForm({ ...props, object, save });
+    };
 
     return (
-      <Button onClick={onClick} btnStyle="link">
-        <Tip text={__(text)} placement="top">
-          <Icon icon={icon} />
-        </Tip>
-      </Button>
+      <ModalTrigger
+        enforceFocus={false}
+        title="Edit"
+        size="lg"
+        trigger={
+          <div>
+            <Icon icon="edit" /> Edit
+          </div>
+        }
+        content={content}
+      />
     );
-  };
-
-  renderRows = ({ objects }) => {
-    return objects.map((object, index) => {
-      const brand = object.brand || {};
-
-      return (
-        <tr key={index}>
-          <td>{brand.name}</td>
-          <td>{object.name}</td>
-          <RowActions
-            {...this.props}
-            object={object}
-            size="lg"
-            renderForm={this.renderForm}
-            additionalActions={this.renderDisableAction}
-          />
-        </tr>
-      );
-    });
   };
 
   handleKeyDown = (e: React.KeyboardEvent<Element>) => {
@@ -123,54 +94,77 @@ class ResponseTemplateList extends React.Component<FinalProps, States> {
     router.setParams(this.props.history, { [name]: values });
   };
 
-  renderFilter = () => {
+  renderFilters = () => {
     const brandId =
       this.props.queryParams && this.props.queryParams.brandId
         ? this.props.queryParams
         : '';
 
     return (
-      <FilterContainer>
+      <FilterContainer marginRight={true}>
         <FlexRow>
-          <FlexItem>
-            <ControlLabel>Search</ControlLabel>
-            <FormControl
-              placeholder={__('Search')}
-              name="searchValue"
-              onChange={this.onChange}
-              value={this.state.searchValue}
-              onKeyPress={this.handleKeyDown}
-              autoFocus={true}
-            />
-          </FlexItem>
-
-          <FlexItem>
-            <ControlLabel>Brand</ControlLabel>
-            <SelectBrands
-              label="Brand"
-              initialValue={brandId}
-              onSelect={this.onSelect}
-              name="brandId"
-              multi={false}
-            />
-          </FlexItem>
+          <InputBar type="searchBar">
+            <Icon icon="search-1" size={20} />
+            <FlexItem>
+              <FormControl
+                placeholder={__('Type to search')}
+                name="searchValue"
+                onChange={this.onChange}
+                value={this.state.searchValue}
+                onKeyPress={this.handleKeyDown}
+                onKeyDown={this.handleKeyDown}
+                autoFocus={true}
+              />
+            </FlexItem>
+          </InputBar>
+          <InputBar type="selectBar">
+            <FlexItem>
+              <SelectBrands
+                label="Filter by brand"
+                initialValue={brandId}
+                onSelect={this.onSelect}
+                name="brandId"
+                multi={false}
+              />
+            </FlexItem>
+          </InputBar>
         </FlexRow>
       </FilterContainer>
     );
   };
 
-  renderContent = props => {
+  renderContent = () => {
+    const { remove, objects } = this.props;
+
     return (
-      <Table>
-        <thead>
-          <tr>
-            <th>{__('Brand')}</th>
-            <th>{__('Name')}</th>
-            <th>{__('Actions')}</th>
-          </tr>
-        </thead>
-        <tbody>{this.renderRows(props)}</tbody>
-      </Table>
+      <Templates>
+        {objects.map((object, index) => (
+          <Template
+            key={index}
+            isLongName={object.name > 45}
+            position="flex-start"
+          >
+            <TemplateBox hasPadding={true}>
+              <Actions>
+                {this.renderEditAction(object)}
+                <div onClick={() => remove(object._id)}>
+                  <Icon icon="cancel-1" /> Delete
+                </div>
+              </Actions>
+              <IframePreview>
+                <iframe title="response-iframe" srcDoc={object.content} />
+              </IframePreview>
+            </TemplateBox>
+            <TemplateBoxInfo>
+              <h5>{object.name}</h5>
+              <TemplateInfo>
+                <p>Brand</p>
+                <p>{object.brand.name}</p>
+              </TemplateInfo>
+            </TemplateBoxInfo>
+          </Template>
+        ))}
+      </Templates>
     );
   };
 
@@ -183,7 +177,7 @@ class ResponseTemplateList extends React.Component<FinalProps, States> {
           { title: __('Response templates') }
         ]}
         title={__('Response templates')}
-        mainHead={
+        leftActionBar={
           <HeaderDescription
             icon="/images/actions/24.svg"
             title="Response templates"
@@ -194,13 +188,11 @@ class ResponseTemplateList extends React.Component<FinalProps, States> {
             )}`}
           />
         }
-        renderFilter={this.renderFilter}
+        additionalButton={this.renderFilters()}
         renderForm={this.renderForm}
         renderContent={this.renderContent}
         size="lg"
         {...this.props}
-        center={true}
-        hasBorder={false}
       />
     );
   }

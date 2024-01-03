@@ -11,16 +11,18 @@ import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import Table from '@erxes/ui/src/components/table';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
+import Pagination from '@erxes/ui/src/components/pagination/Pagination';
 
 type Props = {
   ads: IAd[];
+  totalCount: number;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   remove: (ad: IAd) => void;
   edit: (ad: IAd) => void;
   loading: boolean;
 };
 
-function List({ ads, remove, renderButton, loading, edit }: Props) {
+function List({ ads, totalCount, remove, renderButton, loading, edit }: Props) {
   const trigger = (
     <Button id={'AddAdButton'} btnStyle="success" icon="plus-circle">
       Add Ad
@@ -43,7 +45,7 @@ function List({ ads, remove, renderButton, loading, edit }: Props) {
   const title = <Title capitalize={true}>{__('Ad')}</Title>;
 
   const actionBar = (
-    <Wrapper.ActionBar left={title} right={actionBarRight} wideSpacing />
+    <Wrapper.ActionBar left={title} right={actionBarRight} wideSpacing={true} />
   );
 
   const content = (
@@ -79,7 +81,6 @@ function List({ ads, remove, renderButton, loading, edit }: Props) {
     { title: __('Settings'), link: '/settings' },
     { title: __('Ads'), link: '/ads' }
   ];
-
   return (
     <Wrapper
       header={<Wrapper.Header title={__('Ads')} breadcrumb={breadcrumb} />}
@@ -88,13 +89,14 @@ function List({ ads, remove, renderButton, loading, edit }: Props) {
         <DataWithLoader
           data={content}
           loading={loading}
-          count={ads.length}
+          count={totalCount}
           emptyText={__('Theres no ad')}
           emptyImage="/images/actions/8.svg"
         />
       }
       transparent={true}
-      hasBorder
+      hasBorder={true}
+      footer={<Pagination count={totalCount} />}
     />
   );
 }

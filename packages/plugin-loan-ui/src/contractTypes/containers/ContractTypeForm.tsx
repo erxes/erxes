@@ -1,5 +1,5 @@
-import gql from 'graphql-tag';
-import { graphql } from 'react-apollo';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
 import { ButtonMutate, withProps } from '@erxes/ui/src';
 import productCategoryQueries from '@erxes/ui-products/src/graphql/queries';
 import { ProductCategoriesQueryResponse } from '@erxes/ui-products/src/types';

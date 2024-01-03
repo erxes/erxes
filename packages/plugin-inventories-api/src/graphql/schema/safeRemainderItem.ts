@@ -10,10 +10,8 @@ export const types = `
     preCount: Float,
     count: Float,
     status: String,
-    uom: Uom,
-    uomId: String,
+    uom: String,
 
-    lastTransactionDate: Date,
     modifiedAt: Date,
     modifiedBy: String
   }
@@ -21,7 +19,7 @@ export const types = `
 
 const safeRemainderItemsFilterParams = `
   remainderId: String!,
-  productCategoryId: String,
+  productCategoryIds: [String],
   status: String,
   searchValue: String,
   diffType: String

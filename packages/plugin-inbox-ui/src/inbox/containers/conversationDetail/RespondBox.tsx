@@ -1,25 +1,28 @@
-import { AppConsumer } from 'coreui/appContext';
-import gql from 'graphql-tag';
-import { fromJS } from 'immutable';
 import * as compose from 'lodash.flowright';
-import debounce from 'lodash/debounce';
-import { IAttachmentPreview } from '@erxes/ui/src/types';
-import RespondBox from '../../components/conversationDetail/workarea/RespondBox';
-import { queries } from '@erxes/ui-inbox/src/inbox/graphql';
-import React from 'react';
-import { graphql } from 'react-apollo';
-import { IUser } from '@erxes/ui/src/auth/types';
-import { readFile, withProps } from '@erxes/ui/src/utils';
-import { ResponseTemplatesQueryResponse } from '../../../settings/responseTemplates/types';
-import { UsersQueryResponse } from '@erxes/ui/src/auth/types';
+
 import {
   AddMessageMutationVariables,
   IConversation
 } from '@erxes/ui-inbox/src/inbox/types';
+import { readFile, withProps } from '@erxes/ui/src/utils';
+
+import { AppConsumer } from 'coreui/appContext';
+import { IAttachmentPreview } from '@erxes/ui/src/types';
+import { IUser } from '@erxes/ui/src/auth/types';
+import React from 'react';
+import RespondBox from '../../components/conversationDetail/workarea/RespondBox';
+import { ResponseTemplatesQueryResponse } from '../../../settings/responseTemplates/types';
+import { UsersQueryResponse } from '@erxes/ui/src/auth/types';
+import debounce from 'lodash/debounce';
+import { fromJS } from 'immutable';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
+import { queries } from '@erxes/ui-inbox/src/inbox/graphql';
 
 type Props = {
   conversation: IConversation;
   showInternal: boolean;
+  disableInternalState: boolean;
   setAttachmentPreview: (attachmentPreview: IAttachmentPreview) => void;
   addMessage: (doc: {
     variables: AddMessageMutationVariables;
@@ -78,14 +81,14 @@ const RespondBoxContainer = (props: FinalProps) => {
       __typename: 'Mutation',
       conversationMessageAdd: {
         __typename: 'ConversationMessage',
-        _id: Math.round(Math.random() * -1000000),
+        _id: (Math.random() + '' + Date.now()).slice(2),
         content,
         contentType,
         attachments,
         internal,
         mentionedUserIds: [],
         conversationId,
-        customerId: Math.random(),
+        customerId: (Math.random() + '' + Date.now()).slice(2),
         userId: currentUser._id,
         createdAt: new Date(),
         messengerAppData: null,
@@ -118,7 +121,7 @@ const RespondBoxContainer = (props: FinalProps) => {
       name: user.username,
       title: user.details && user.details.position,
       avatar:
-        user.details && user.details.avatar && readFile(user.details.avatar)
+        user.details && user.details.avatar && readFile(user.details.avatar, 44)
     });
   }
 

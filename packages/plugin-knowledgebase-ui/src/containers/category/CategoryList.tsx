@@ -1,26 +1,27 @@
-import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
+
 import { Alert, confirm } from '@erxes/ui/src/utils';
-import React from 'react';
-import { graphql } from 'react-apollo';
-import CategoryList from '../../components/category/CategoryList';
-import { mutations, queries } from '@erxes/ui-knowledgebase/src/graphql';
 import {
-  ArticlesTotalCountQueryResponse,
   CategoriesQueryResponse,
   CategoriesTotalCountQueryResponse,
   RemoveCategoriesMutationResponse
 } from '@erxes/ui-knowledgebase/src/types';
+import { mutations, queries } from '@erxes/ui-knowledgebase/src/graphql';
+
+import CategoryList from '../../components/category/CategoryList';
+import React from 'react';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
 
 type Props = {
   currentCategoryId: string;
   topicId: string;
+  queryParams?: any;
 };
 
 type FinalProps = {
   categoriesQuery: CategoriesQueryResponse;
   categoriesCountQuery: CategoriesTotalCountQueryResponse;
-  articlesCountQuery: ArticlesTotalCountQueryResponse;
 } & Props &
   RemoveCategoriesMutationResponse;
 
@@ -29,9 +30,9 @@ const KnowledgeBaseContainer = (props: FinalProps) => {
     currentCategoryId,
     categoriesQuery,
     categoriesCountQuery,
-    articlesCountQuery,
     removeCategoriesMutation,
-    topicId
+    topicId,
+    queryParams
   } = props;
 
   // remove action
@@ -57,10 +58,10 @@ const KnowledgeBaseContainer = (props: FinalProps) => {
     currentCategoryId,
     topicId,
     categoriesQuery,
+    queryParams,
     categories: categoriesQuery.knowledgeBaseCategories || [],
     loading: categoriesQuery.loading,
-    topicsCount: categoriesCountQuery.knowledgeBaseCategoriesTotalCount || 0,
-    articlesCount: articlesCountQuery.knowledgeBaseArticlesTotalCount || 0
+    topicsCount: categoriesCountQuery.knowledgeBaseCategoriesTotalCount || 0
   };
 
   return <CategoryList {...extendedProps} />;
@@ -78,15 +79,6 @@ export default compose(
           }
         };
       }
-    }
-  ),
-  graphql<Props, ArticlesTotalCountQueryResponse, { categoryIds: string[] }>(
-    gql(queries.knowledgeBaseArticlesTotalCount),
-    {
-      name: 'articlesCountQuery',
-      options: ({ currentCategoryId }) => ({
-        variables: { categoryIds: [currentCategoryId] || [] }
-      })
     }
   ),
   graphql<Props, CategoriesTotalCountQueryResponse>(

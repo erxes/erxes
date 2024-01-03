@@ -1,14 +1,16 @@
+import SelectProductCategory from '@erxes/ui-products/src/containers/SelectProductCategory';
 import Box from '@erxes/ui/src/components/Box';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
+import Button from '@erxes/ui/src/components/Button';
 import FormGroup from '@erxes/ui/src/components/form/Group';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
+import { router, __ } from '@erxes/ui/src/utils/core';
+import dayjs from 'dayjs';
 import queryString from 'query-string';
 import React from 'react';
+import { Link, useHistory, useLocation } from 'react-router-dom';
 import Select from 'react-select-plus';
-import SelectProductCategory from '@erxes/ui-products/src/containers/SelectProductCategory';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { __, router } from '@erxes/ui/src/utils/core';
 import { SidebarContent } from '../../styles';
-import { useHistory, useLocation } from 'react-router-dom';
 
 type Props = {
   safeRemainder: any;
@@ -27,8 +29,18 @@ export default function Sidebar(props: Props) {
 
   return (
     <Wrapper.Sidebar>
-      <Box title={__('Main Info')} name="showMainInfo">
+      <Box title={__('Main Info')} name="showMainInfo" isOpen={true}>
         <SidebarContent>
+          <FormGroup>
+            <ControlLabel>{__('Date')}: </ControlLabel>
+            <br />
+            <span>{dayjs(safeRemainder.date).format('lll') || ''}</span>
+          </FormGroup>
+          <FormGroup>
+            <ControlLabel>{__('Description')}: </ControlLabel>
+            <br />
+            <span>{safeRemainder.description || ''}</span>
+          </FormGroup>
           <FormGroup>
             <ControlLabel>{__('Branch')}: </ControlLabel>
             <br />
@@ -51,17 +63,18 @@ export default function Sidebar(props: Props) {
           </FormGroup>
         </SidebarContent>
       </Box>
-
-      <Box title={__('Filters')} name="showFilters">
+      <Box title={__('Filters')} name="showFilters" isOpen={true}>
         <SidebarContent>
           <FormGroup>
-            <ControlLabel>{__('Product')}</ControlLabel>
+            <ControlLabel>{__('Product category')}</ControlLabel>
             <SelectProductCategory
               label="Choose product category"
-              name="selectedProductCategoryId"
-              initialValue={queryParams.productCategoryId}
-              onSelect={(catId: any) => setFilter('productCategoryId', catId)}
-              multi={false}
+              name="selectedProductCategoryIds"
+              initialValue={queryParams.productCategoryIds}
+              onSelect={(catIds: any) =>
+                setFilter('productCategoryIds', catIds)
+              }
+              multi={true}
               customOption={{ value: '', label: 'All products' }}
             />
           </FormGroup>
@@ -97,6 +110,21 @@ export default function Sidebar(props: Props) {
           </FormGroup>
         </SidebarContent>
       </Box>
+      <Link
+        to={`/inventories/safe-remainders/detailsPrint/${props.safeRemainder._id}/${location.search}`}
+      >
+        <Button btnStyle="success" icon="check-circle" size="small">
+          {__('Print')}
+        </Button>
+      </Link>
+      &nbsp;
+      <Link
+        to={`/inventories/safe-remainders/detailsPrintDoc/${props.safeRemainder._id}/${location.search}`}
+      >
+        <Button btnStyle="success" icon="check-circle" size="small">
+          {__('Print Doc')}
+        </Button>
+      </Link>
     </Wrapper.Sidebar>
   );
 }

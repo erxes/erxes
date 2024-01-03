@@ -1,4 +1,4 @@
-import { gql } from 'apollo-server-express';
+import gql from 'graphql-tag';
 
 import {
   types as segmentTypes,
@@ -6,7 +6,7 @@ import {
   mutations as segmentMutations
 } from './schema/segment';
 
-const typeDefs = async (_serviceDiscovery) => {
+const typeDefs = async _serviceDiscovery => {
   return gql`
     scalar JSON
     scalar Date

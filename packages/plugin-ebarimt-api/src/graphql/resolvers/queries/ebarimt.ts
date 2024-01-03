@@ -1,7 +1,12 @@
 import { getFullDate, getTomorrow } from './utils';
 import { paginate, regexSearchText } from '@erxes/api-utils/src';
-import { sendCardsMessage, sendPosMessage } from '../../../messageBroker';
+import {
+  sendCardsMessage,
+  sendLoansMessage,
+  sendPosMessage
+} from '../../../messageBroker';
 import { IContext } from '../../../connectionResolver';
+import { getCompany } from '../../../utils';
 
 const generateFilter = async (subdomain, params, commonQuerySelector) => {
   const filter: any = commonQuerySelector;
@@ -9,7 +14,8 @@ const generateFilter = async (subdomain, params, commonQuerySelector) => {
   if (params.search) {
     filter.$or = [
       { billId: new RegExp(`.*${params.search}.*`, 'i') },
-      { returnBillId: new RegExp(`.*${params.search}.*`, 'i') }
+      { returnBillId: new RegExp(`.*${params.search}.*`, 'i') },
+      { number: new RegExp(`.*${params.search}.*`, 'i') }
     ];
   }
 
@@ -79,6 +85,34 @@ const generateFilter = async (subdomain, params, commonQuerySelector) => {
         filter.contentId = { $in: (deals || []).map(d => d._id) };
       }
     }
+
+    if (params.contentType === 'loans:transaction') {
+      if (params.contractNumber) {
+        const loansContracts = await sendLoansMessage({
+          subdomain,
+          action: 'transactions.findAtContracts',
+          data: { number: { $regex: params.contractNumber, $options: 'mui' } },
+          isRPC: true,
+          defaultValue: []
+        });
+
+        filter.contentId = { $in: (loansContracts || []).map(p => p._id) };
+      }
+
+      if (params.transactionNumber) {
+        const loansTransactions = await sendLoansMessage({
+          subdomain,
+          action: 'transactions.find',
+          data: {
+            number: { $regex: params.transactionNumber, $options: 'mui' }
+          },
+          isRPC: true,
+          defaultValue: []
+        });
+
+        filter.contentId = { $in: (loansTransactions || []).map(p => p._id) };
+      }
+    }
   }
 
   if (params.success) {
@@ -108,6 +142,10 @@ const generateFilter = async (subdomain, params, commonQuerySelector) => {
     filter.createdAt = { $gte: startDate, $lte: endDate };
   }
 
+  if (params.isLast) {
+    filter.status = { $ne: 'inactive' };
+  }
+
   return filter;
 };
 
@@ -119,7 +157,7 @@ export const sortBuilder = params => {
     return { [sortField]: sortDirection };
   }
 
-  return {};
+  return { createdAt: 1 };
 };
 
 const queries = {
@@ -129,29 +167,6 @@ const queries = {
     { commonQuerySelector, models, subdomain }: IContext
   ) => {
     const filter = await generateFilter(subdomain, params, commonQuerySelector);
-
-    if (params.isLast && params.isLast === '1') {
-      const { page = 0, perPage = 0 } = params || { ids: null };
-      const _page = Number(page || '1');
-      const _limit = Number(perPage || '20');
-
-      return models.PutResponses.aggregate([
-        { $match: filter },
-        { $sort: { createdAt: 1 } },
-        { $group: { _id: '$contentId', doc: { $last: '$$ROOT' } } },
-        {
-          $replaceRoot: {
-            newRoot: '$doc'
-          }
-        },
-        {
-          $skip: (_page - 1) * _limit
-        },
-        {
-          $limit: _limit
-        }
-      ]);
-    }
 
     return await paginate(
       models.PutResponses.find(filter).sort(sortBuilder(params)),
@@ -169,16 +184,6 @@ const queries = {
   ) => {
     const filter = await generateFilter(subdomain, params, commonQuerySelector);
 
-    if (params.isLast && params.isLast === '1') {
-      return (
-        await models.PutResponses.aggregate([
-          { $match: filter },
-          { $sort: { createdAt: 1 } },
-          { $group: { _id: '$contentId' } }
-        ])
-      ).length;
-    }
-
     return models.PutResponses.find(filter).countDocuments();
   },
 
@@ -188,28 +193,67 @@ const queries = {
     { commonQuerySelector, models, subdomain }
   ) => {
     const filter = await generateFilter(subdomain, params, commonQuerySelector);
-    let res: any[];
+    const res = await models.PutResponses.aggregate([
+      { $match: filter },
+      { $project: { _id: 1, amount: 1 } },
+      { $group: { _id: '', amount: { $sum: { $toDecimal: '$amount' } } } }
+    ]);
 
-    if (params.isLast && params.isLast === '1') {
-      res = await models.PutResponses.aggregate([
-        { $match: filter },
-        { $sort: { createdAt: 1 } },
-        { $group: { _id: '$contentId', amount: { $last: '$amount' } } },
-        { $project: { _id: 1, amount: 1 } },
-        { $group: { _id: '', amount: { $sum: { $toDecimal: '$amount' } } } }
-      ]);
-    } else {
-      res = await models.PutResponses.aggregate([
-        { $match: filter },
-        { $project: { _id: 1, amount: 1 } },
-        { $group: { _id: '', amount: { $sum: { $toDecimal: '$amount' } } } }
-      ]);
-    }
     if (!res || !res.length) {
       return 0;
     }
 
     return Number((res[0] || {}).amount || 0);
+  },
+
+  putResponsesByDate: async (
+    _root,
+    params,
+    { commonQuerySelector, models, subdomain }: IContext
+  ) => {
+    const { createdStartDate, createdEndDate, paidDate } = params;
+
+    if (!((createdStartDate && createdEndDate) || paidDate === 'today')) {
+      throw new Error('Please, Must choose date filters');
+    }
+
+    const csd = new Date(createdStartDate);
+    const ced = new Date(createdEndDate);
+    if (
+      ((ced ? ced.getTime() : 0) - (csd ? csd.getTime() : 0)) /
+        (1000 * 60 * 60 * 24) >
+      32
+    ) {
+      throw new Error('The date range exceeds one month');
+    }
+
+    const filter = await generateFilter(subdomain, params, commonQuerySelector);
+
+    const responses = await models.PutResponses.find(filter);
+
+    const result = {};
+    for (const res of responses) {
+      if (!res.date) {
+        continue;
+      }
+      const dateStr = res.date.substring(0, 10);
+      if (!Object.keys(result).includes(dateStr)) {
+        result[dateStr] = {
+          counter: 0,
+          cityTax: 0,
+          vat: 0,
+          amount: 0
+        };
+      }
+
+      result[dateStr].counter += 1;
+      result[dateStr].vat += Number(res.vat) || 0;
+      result[dateStr].cityTax += Number(res.cityTax) || 0;
+      result[dateStr].amount += Number(res.amount) || 0;
+    }
+
+    const dates = Object.keys(result).reverse();
+    return dates.map(date => ({ date, values: result[date] }));
   },
 
   getDealLink: async (_root, param, { subdomain }) => {
@@ -219,6 +263,14 @@ const queries = {
       data: { _id: param._id, type: 'deal' },
       isRPC: true
     });
+  },
+
+  ebarimtGetCompany: async (
+    _root,
+    { companyRD }: { companyRD: string },
+    { subdomain }
+  ) => {
+    return getCompany(subdomain, companyRD);
   }
 };
 

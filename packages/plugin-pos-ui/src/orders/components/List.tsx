@@ -10,6 +10,7 @@ import {
 import { IRouterProps, IQueryParams } from '@erxes/ui/src/types';
 import React from 'react';
 import { withRouter } from 'react-router-dom';
+import { menuPos } from '../../constants';
 
 import { TableWrapper } from '../../styles';
 import { IOrder } from '../types';
@@ -32,14 +33,8 @@ interface IProps extends IRouterProps {
   clearFilter: () => void;
   summary: any;
 
-  onSyncErkhet: (orderId: string) => void;
   onReturnBill: (orderId: string) => void;
 }
-
-export const menuPos = [
-  { title: 'Pos Orders', link: '/pos-orders' },
-  { title: 'Pos Items', link: '/pos-order-items' }
-];
 
 class Orders extends React.Component<IProps, {}> {
   private timer?: NodeJS.Timer = undefined;
@@ -66,7 +61,6 @@ class Orders extends React.Component<IProps, {}> {
       isFiltered,
       clearFilter,
       summary,
-      onSyncErkhet,
       onReturnBill
     } = this.props;
 
@@ -85,11 +79,18 @@ class Orders extends React.Component<IProps, {}> {
       </BarItems>
     );
 
+    const staticKeys = ['count', 'totalAmount', 'cashAmount', 'mobileAmount'];
+    const otherPayTitles = (summary ? Object.keys(summary) || [] : [])
+      .filter(a => !['_id'].includes(a))
+      .filter(a => !staticKeys.includes(a))
+      .sort();
+
     const header = (
       <HeaderDescription
         icon="/images/actions/26.svg"
-        title={__('Summary')}
+        title=""
         summary={summary}
+        staticKeys={staticKeys}
         actionBar={actionBarRight}
       />
     );
@@ -113,22 +114,13 @@ class Orders extends React.Component<IProps, {}> {
               </th>
               <th>
                 <SortHandler
-                  sortField={'receivableAmount'}
-                  label={__('Receivable Amount')}
-                />
-              </th>
-              <th>
-                <SortHandler
-                  sortField={'cardAmount'}
-                  label={__('Card Amount')}
-                />
-              </th>
-              <th>
-                <SortHandler
                   sortField={'mobileAmount'}
                   label={__('Mobile Amount')}
                 />
               </th>
+              {otherPayTitles.map(key => (
+                <th key={Math.random()}>{__(key)}</th>
+              ))}
               <th>
                 <SortHandler sortField={'totalAmount'} label={__('Amount')} />
               </th>
@@ -137,6 +129,9 @@ class Orders extends React.Component<IProps, {}> {
               </th>
               <th>
                 <SortHandler sortField={'posName'} label={__('Pos')} />
+              </th>
+              <th>
+                <SortHandler sortField={'type'} label={__('Type')} />
               </th>
               <th>
                 <SortHandler sortField={'user'} label={__('User')} />
@@ -150,7 +145,7 @@ class Orders extends React.Component<IProps, {}> {
                 order={order}
                 key={order._id}
                 history={history}
-                onSyncErkhet={onSyncErkhet}
+                otherPayTitles={otherPayTitles}
                 onReturnBill={onReturnBill}
               />
             ))}

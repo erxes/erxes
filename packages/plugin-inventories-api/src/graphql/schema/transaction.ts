@@ -1,5 +1,5 @@
 export const types = `
-  type Transaction @key(fields: "_id") {
+  type InventoriesTransaction @key(fields: "_id") {
     _id: String
 
     contentId: String
@@ -9,7 +9,7 @@ export const types = `
     createdAt: Date
   }
 
-  type TransactionDetail @key(fields: "_id") {
+  type InventoriesTransactionDetail @key(fields: "_id") {
     _id: String
 
     branch: Branch
@@ -21,47 +21,47 @@ export const types = `
     status: String
     createdAt: Date
 
-    transactionItems: [TransactionItem]
+    transactionItems: [InventoriesTransactionItem]
   }
 
-  type TransactionItem {
+  type InventoriesTransactionItem {
     product: Product
     productId: String
     transactionId: String
     isDebit: Boolean
     count: Float
-    uomId: String
+    uom: String
 
     modifiedAt: Date
   }
 
-  input TransactionProductInput {
+  input InventoriesTransactionProductInput {
     productId: String
     count: Float
-    uomId: String
+    uom: String
     isDebit: Boolean
   }
 `;
 
 export const queries = `
-  transactions(
+  inventoriesTransactions(
     branchId: String,
     departmentId: String,
     contentType: String,
     contentId: String,
     status: String,
     createdAt: Date
-  ): [Transaction]
-  transactionDetail(_id: String): TransactionDetail
+  ): [InventoriesTransaction]
+  inventoriesTransactionDetail(_id: String): InventoriesTransactionDetail
 `;
 
 export const mutations = `
-  transactionAdd(
+  inventoriesTransactionAdd(
     branchId: String,
     departmentId: String,
     contentType: String,
     contentId: String,
     status: String,
-    products: [TransactionProductInput]
+    products: [InventoriesTransactionProductInput]
   ): JSON
 `;

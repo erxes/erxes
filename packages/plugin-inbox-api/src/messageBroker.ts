@@ -83,9 +83,37 @@ export const initBroker = cl => {
   );
 
   consumeRPCQueue(
-    'inbox:integrations.receive',
-    async ({ subdomain, data }) => await receiveRpcMessage(subdomain, data)
+    'inbox:createOnlyMessage',
+    async ({
+      subdomain,
+      data: {
+        conversationId,
+        content,
+        userId,
+        customerId,
+        internal,
+        contentType
+      }
+    }) => {
+      const models = await generateModels(subdomain);
+
+      return {
+        status: 'success',
+        data: await models.ConversationMessages.createMessage({
+          conversationId,
+          internal,
+          userId,
+          customerId,
+          content,
+          contentType
+        })
+      };
+    }
   );
+
+  consumeRPCQueue('inbox:integrations.receive', async ({ subdomain, data }) => {
+    return receiveRpcMessage(subdomain, data);
+  });
 
   consumeQueue(
     'inbox:integrationsNotification',
@@ -135,7 +163,9 @@ export const initBroker = cl => {
 
       return {
         status: 'success',
-        data: await models.Conversations.findOne({ _id: conversationId }).lean()
+        data: await models.Conversations.findOne({
+          _id: conversationId
+        }).lean()
       };
     }
   );
@@ -233,6 +263,27 @@ export const initBroker = cl => {
   );
 
   consumeRPCQueue(
+    'inbox:conversations.changeStatus',
+    async ({ subdomain, data: { id, status } }) => {
+      const models = await generateModels(subdomain);
+
+      if (id && status) {
+        return {
+          status: 'success',
+          data: await models.Conversations.updateOne(
+            { _id: id },
+            { status: status }
+          )
+        };
+      }
+      return {
+        status: 'error',
+        data: []
+      };
+    }
+  );
+
+  consumeRPCQueue(
     'inbox:conversations.count',
     async ({ subdomain, data: { query } }) => {
       const models = await generateModels(subdomain);
@@ -267,6 +318,15 @@ export const initBroker = cl => {
     return {
       status: 'success',
       data: await models.Channels.updateUserChannels(channelIds, userId)
+    };
+  });
+
+  consumeRPCQueue('inbox:channels.find', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    return {
+      status: 'success',
+      data: await models.Channels.find(data)
     };
   });
 
@@ -309,7 +369,21 @@ export const initBroker = cl => {
     async ({ subdomain, data }) => {
       const models = await generateModels(subdomain);
 
-      await pConversationClientMessageInserted(models, data);
+      await pConversationClientMessageInserted(models, subdomain, data);
+    }
+  );
+
+  consumeRPCQueue(
+    'inbox:widgetsGetUnreadMessagesCount',
+    async ({ subdomain, data }) => {
+      const models = await generateModels(subdomain);
+
+      return {
+        status: 'success',
+        data: await models.ConversationMessages.widgetsGetUnreadMessagesCount(
+          data.conversationId
+        )
+      };
     }
   );
 };

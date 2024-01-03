@@ -35,16 +35,6 @@ class Channels extends React.Component<Props, {}> {
       { title: `${currentChannel.name || ''}` }
     ];
 
-    if (!currentChannel._id) {
-      return (
-        <EmptyState
-          image="/images/actions/8.svg"
-          text="No Channels"
-          size="small"
-        />
-      );
-    }
-
     const trigger = (
       <Button btnStyle="simple" icon="web-grid-alt">
         {__('Manage integration')}

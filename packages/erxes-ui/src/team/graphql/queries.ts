@@ -6,23 +6,27 @@ const nameFields = `
   lastName
 `;
 
-const commonStructureParamsDef = `
+export const commonStructureParamsDef = `
+    $ids: [String]
+    $excludeIds: Boolean,
     $perPage: Int,
-    $page: Int 
+    $page: Int
     $searchValue: String,
     $status:String,
 `;
 
-const commonStructureParamsValue = `
+export const commonStructureParamsValue = `
+    ids: $ids
+    excludeIds: $excludeIds,
     perPage: $perPage,
-    page: $page 
-    searchValue:$searchValue
-    status:$status
+    page: $page
+    searchValue: $searchValue
+    status: $status
 `;
 
 const allUsers = `
-  query allUsers($isActive: Boolean) {
-    allUsers(isActive: $isActive) {
+  query allUsers($isActive: Boolean,$ids:[String],$assignedToMe: String) {
+    allUsers(isActive: $isActive,ids:$ids,assignedToMe: $assignedToMe) {
       _id
       email
       username
@@ -30,6 +34,7 @@ const allUsers = `
       details {
         avatar
         fullName
+        position
         ${nameFields}
       }
     }
@@ -57,6 +62,10 @@ const listParamsDef = `
   $departmentId: String
   $unitId: String
   $branchId: String
+  $departmentIds: [String]
+  $branchIds: [String]
+  $segment: String,
+  $segmentData: String
 `;
 
 const listParamsValue = `
@@ -66,7 +75,11 @@ const listParamsValue = `
   brandIds: $brandIds,
   departmentId: $departmentId,
   unitId: $unitId,
-  branchId: $branchId
+  branchId: $branchId,
+  departmentIds: $departmentIds
+  branchIds:$branchIds
+  segment: $segment,
+  segmentData: $segmentData
 `;
 
 const users = `
@@ -161,7 +174,7 @@ const departmentsMain = `
   }
 `;
 
-const unitField = `
+export const unitField = `
   _id
   title
   description
@@ -188,6 +201,7 @@ const unitField = `
   }
   code
   userIds
+  userCount
   users {
     _id
     details {
@@ -222,6 +236,22 @@ export const branchField = `
   address
   parentId
   supervisorId
+    supervisor {
+          _id
+      username
+      email
+      status
+      isActive
+      groupIds
+      brandIds
+      score
+
+      details {
+        ${detailFields}
+      }
+
+      links
+  }
   code
   order
   userIds
@@ -238,17 +268,17 @@ export const branchField = `
 `;
 
 const branches = `
-  query branches(${commonStructureParamsDef},$withoutUserFilter:Boolean) {
-    branches (${commonStructureParamsValue},withoutUserFilter:$withoutUserFilter){
+  query branches(${commonStructureParamsDef}, $withoutUserFilter: Boolean) {
+    branches (${commonStructureParamsValue}, withoutUserFilter: $withoutUserFilter){
       ${branchField}
-        parent {${branchField}}
+      parent {${branchField}}
     }
   }
 `;
 
 const branchesMain = `
-  query branchesMain(${commonStructureParamsDef},$withoutUserFilter:Boolean) {
-    branchesMain (${commonStructureParamsValue},withoutUserFilter:$withoutUserFilter){
+  query branchesMain(${commonStructureParamsDef}, $withoutUserFilter: Boolean) {
+    branchesMain (${commonStructureParamsValue}, withoutUserFilter: $withoutUserFilter){
       list {
         ${branchField}
         parent {${branchField}}
@@ -280,6 +310,7 @@ const userDetail = `
       customFieldsData
       score
       employeeId
+      brandIds
     }
   }
 `;
@@ -440,6 +471,8 @@ const fieldsGroups = `
     fieldsGroups(contentType: $contentType, isDefinedByErxes: $isDefinedByErxes, config: $config) {
       name
       ${genericFields}
+      isMultiple
+      parentId
       config
       logicAction
       logics {

@@ -1,4 +1,4 @@
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import Chip from '../Chip';
 import { __ } from '../../utils/core';
 import { cleanIntegrationKind } from '../../utils';
@@ -11,13 +11,14 @@ import { removeParams, setParams } from '../../utils/router';
 
 interface IProps extends IRouterProps {
   queryParams?: any;
+  filterTitle?: string;
 }
 
 const Filters = styled.div`
   font-size: 0.9em;
 `;
 
-function Filter({ queryParams = {}, history }: IProps) {
+function Filter({ queryParams = {}, filterTitle, history }: IProps) {
   const onClickClose = paramKey => {
     for (const key of paramKey) {
       removeParams(history, key);
@@ -64,13 +65,24 @@ function Filter({ queryParams = {}, history }: IProps) {
     if (queryParams[paramKey]) {
       const id = queryParams[paramKey];
 
-      const graphqlQuery = gql`
-          query ${type}Detail($id: String!) {
-            ${type}Detail(_id: $id) {
-              ${fields}
+      let graphqlQuery = gql`
+        query ${type}Detail($id: String!) {
+          ${type}Detail(_id: $id) {
+            ${fields}
+          }
+        }
+      `;
+
+      if (type === 'forum') {
+        graphqlQuery = gql`
+          query ForumCategoryDetail($id: ID!) {
+            forumCategory(_id: $id) {
+              _id
+              name
             }
           }
         `;
+      }
 
       const ids = id.split(',');
 
@@ -79,7 +91,10 @@ function Filter({ queryParams = {}, history }: IProps) {
           const ChipText = createChipText(graphqlQuery, _id);
 
           return (
-            <Chip onClick={onClickRemove.bind(null, paramKey, ids, _id)}>
+            <Chip
+              onClick={onClickRemove.bind(null, paramKey, ids, _id)}
+              key={_id}
+            >
               <ChipText />
             </Chip>
           );
@@ -109,6 +124,17 @@ function Filter({ queryParams = {}, history }: IProps) {
       );
     }
 
+    if (queryParams.startDate || queryParams.endDate) {
+      const onClick = () =>
+        onClickClose([queryParams.startDate ? 'startDate' : 'endDate']);
+
+      return (
+        <Chip onClick={onClick}>
+          {queryParams.startDate || queryParams.endDate}
+        </Chip>
+      );
+    }
+
     return null;
   };
 
@@ -116,14 +142,21 @@ function Filter({ queryParams = {}, history }: IProps) {
     <Filters>
       {renderFilterWithData('channelId', 'channel')}
       {renderFilterParam('status', false)}
+      {renderFilterParam('state', false)}
+      {renderFilterParam('categoryApprovalState', false)}
+      {location.href.includes('forum') &&
+        renderFilterWithData('categoryId', 'forum')}
+      {location.href.includes('product') &&
+        renderFilterWithData(
+          'categoryId',
+          'productCategory',
+          '_id, code, name'
+        )}
       {renderFilterParam('participating', true)}
       {renderFilterParam('unassigned', true)}
       {renderFilterParam('awaitingResponse', true, 'Awaiting Response')}
       {renderFilterWithData('brandId', 'brand')}
       {renderFilterParam('integrationType', false)}
-      {renderFilterParam('departmentId', true, 'Department')}
-      {renderFilterParam('unitId', true, 'Unit')}
-      {renderFilterParam('branchId', true, 'Branch')}
       {renderFilterWithData('tag', 'tag')}
       {renderFilterWithData('segment', 'segment')}
       {renderFilterParam('segmentData', true, 'Temporary segment')}
@@ -131,6 +164,26 @@ function Filter({ queryParams = {}, history }: IProps) {
       {renderFilterWithData('brand', 'brand')}
       {renderFilterWithDate()}
       {renderFilterWithData('form', 'form', '_id title')}
+      {renderFilterWithData('branchId', 'branch', '_id title')}
+      {renderFilterWithData('departmentId', 'department', '_id title')}
+      {renderFilterWithData('unitId', 'unit', '_id title')}
+      {renderFilterParam('groupId', true, filterTitle)}
+      {renderFilterParam('tagType', true, filterTitle)}
+      {renderFilterParam('contentType', true, filterTitle)}
+      {renderFilterParam('type', false, filterTitle)}
+      {renderFilterParam('action', false, filterTitle)}
+      {renderFilterWithData('userId', 'user', 'details{fullName}, email')}
+      {renderFilterWithData(
+        'assetCategoryId',
+        'assetCategory',
+        '_id, code, name'
+      )}
+      {renderFilterWithData(
+        'knowledgebaseCategoryId',
+        'knowledgeBaseCategory',
+        '_id, title'
+      )}
+      {renderFilterWithData('assetId', 'asset', '_id, code, name')}
     </Filters>
   );
 }

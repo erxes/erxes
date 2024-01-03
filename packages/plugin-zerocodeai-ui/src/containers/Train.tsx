@@ -4,8 +4,8 @@ import { Alert, withProps } from '@erxes/ui/src/utils';
 import { mutations } from '../graphql';
 
 import React from 'react';
-import gql from 'graphql-tag';
-import { graphql } from 'react-apollo';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
 import DumpTrain from '../components/Train';
 
 type Props = {

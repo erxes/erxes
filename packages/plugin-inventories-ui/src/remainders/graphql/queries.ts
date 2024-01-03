@@ -33,12 +33,9 @@ export const remainderProductFields = `
     name
   }
   remainder
-  uomId
-  uom {
-    _id
-    code
-    name
-  }
+  soonIn
+  soonOut
+  uom
 `;
 
 const remainderProducts = `
@@ -61,9 +58,34 @@ const remainderProducts = `
   }
 `;
 
+const remaindersLog = `
+  query remaindersLog(
+    $categoryId: String,
+    $productIds: [String]
+    $searchValue: String,
+    $departmentId: String
+    $branchId: String
+    $beginDate: Date
+    $endDate: Date
+    $isDetailed: Boolean
+  ) {
+    remaindersLog(
+      categoryId: $categoryId,
+      productIds: $productIds,
+      searchValue: $searchValue,
+      departmentId: $departmentId,
+      branchId: $branchId,
+      beginDate: $beginDate,
+      endDate: $endDate,
+      isDetailed: $isDetailed,
+    )
+  }
+`;
+
 const productCategories = productQueries.productCategories;
 
 export default {
   remainderProducts,
-  productCategories
+  productCategories,
+  remaindersLog
 };

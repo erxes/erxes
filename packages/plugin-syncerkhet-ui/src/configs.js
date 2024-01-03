@@ -1,4 +1,5 @@
 module.exports = {
+  srcDir: __dirname,
   name: 'syncerkhet',
   port: 3017,
   exposes: {
@@ -21,7 +22,7 @@ module.exports = {
     },
     {
       text: 'Sync Erkhet',
-      url: '/check-synced-deals',
+      url: '/sync-erkhet-history',
       icon: 'icon-file-check-alt',
       location: "mainNavigation",
       scope: 'syncerkhet',

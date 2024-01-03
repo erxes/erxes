@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - dev
+      - master
+      - staging
+      - build-test
     paths:
       - 'packages/api-utils/**'
       - 'packages/api-plugin-template.erxes/**'
@@ -12,6 +15,9 @@ on:
   pull_request:
     branches:
       - dev
+      - master
+      - staging
+      - build-test
     paths:
       - 'packages/api-utils/**'
       - 'packages/api-plugin-template.erxes/**'
@@ -20,28 +26,28 @@ on:
 
 jobs:
   api:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
-      - name: Use Node.js 14.20.x
-        uses: actions/setup-node@v1
+      - name: Use Node.js 18.17.x
+        uses: actions/setup-node@v3
         with:
-          node-version: 14.20.x
+          node-version: 18.17.x
 
       # https://github.com/actions/cache/blob/main/examples.md#node---yarn
       - name: Get yarn cache directory path
         id: yarn-cache-dir-path
-        run: echo "::set-output name=dir::$(yarn cache dir)"
+        run: echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
 
-      - uses: actions/cache@v2
+      - uses: actions/cache@v3
         id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
         with:
           path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-          key: ${{ runner.os }}-yarn-plugin-loan-api-${{ hashFiles('yarn.lock', 'plugin-loan-api/yarn.lock') }}
+          key: ${{ runner.os }}-yarn-plugin-loan-api
           restore-keys: |
-            ${{ runner.os }}-yarn-plugin-loan-api-
+            ${{ runner.os }}-yarn-plugin-loan-api
             ${{ runner.os }}-yarn-
 
       - name: Build
@@ -50,13 +56,11 @@ jobs:
           cd dist
           yarn install
           yarn build plugin loan
-          cd plugin-loan-api/.erxes
-          cd dist/main/.erxes/src
 
       - name: Build docker image
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev'  )
+        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/build-test' )
         run: |
-          cd dist/plugin-loan-api/.erxes
+          cd dist/erxes
           echo ${{ secrets.DOCKER_PASSWORD }} | docker login https://registry.erxes.io -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
-          docker build -t registry.erxes.io/erxes/plugin-loan-api:enterprise -f Dockerfile .
+          docker buildx build -t registry.erxes.io/erxes/plugin-loan-api:enterprise -f Dockerfile .
           docker push registry.erxes.io/erxes/plugin-loan-api:enterprise

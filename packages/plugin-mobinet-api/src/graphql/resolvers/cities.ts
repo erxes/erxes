@@ -7,7 +7,7 @@ const City = {
       _id: city._id
     }).lean();
 
-    if (!cityDoc || !cityDoc.center) {
+    if (!cityDoc || !cityDoc.center || !cityDoc.center.coordinates) {
       return null;
     }
 

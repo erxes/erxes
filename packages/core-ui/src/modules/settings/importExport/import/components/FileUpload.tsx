@@ -6,7 +6,7 @@ import {
 } from '../../styles';
 import { FlexItem, FlexPad } from 'modules/common/components/step/styles';
 import { __, loadDynamicComponent } from 'modules/common/utils';
-import { renderIcon, renderText } from '../../utils';
+import { renderText } from '../../utils';
 
 import { IAttachment } from 'modules/common/types';
 import { IImportHistoryContentType } from '../../types';
@@ -41,7 +41,7 @@ class FileUpload extends React.Component<Props, {}> {
               contentType.contentType
             )}.`}
             warningText={'Only .csv file is supported.'}
-            icon={renderIcon(contentType)}
+            icon={contentType.icon || 'users-alt'}
             accept=".csv"
             single={true}
             defaultFileList={[]}

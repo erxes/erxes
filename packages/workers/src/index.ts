@@ -12,6 +12,7 @@ import * as mongoose from 'mongoose';
 import { routeErrorHandling } from '@erxes/api-utils/src/requests';
 import { generateErrors } from './data/modules/import/generateErrors';
 import { getSubdomain } from '@erxes/api-utils/src/core';
+import { readFileRequest } from './worker/export/utils';
 
 async function closeMongooose() {
   try {
@@ -76,6 +77,22 @@ app.get(
   })
 );
 
+app.get('/read-file', async (req: any, res: any) => {
+  try {
+    const key = req.query.key;
+
+    const response = await readFileRequest({
+      key
+    });
+
+    res.attachment(key);
+
+    return res.send(response);
+  } catch (e) {
+    return console.error(e);
+  }
+});
+
 app.use(express.urlencoded());
 app.use(express.json());
 app.use(cookieParser());
@@ -105,9 +122,7 @@ httpServer.listen(PORT, async () => {
     mongoUrl = TEST_MONGO_URL;
   }
 
-  initApolloServer(app, httpServer).then(apolloServer => {
-    apolloServer.applyMiddleware({ app, path: '/graphql' });
-  });
+  await initApolloServer(app, httpServer);
 
   // connect to mongo database
   connect(mongoUrl).then(async () => {

@@ -1,4 +1,4 @@
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
 import { IUser } from '@erxes/ui/src/auth/types';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
@@ -10,7 +10,7 @@ import {
   IProduct
 } from '../../../types';
 import React from 'react';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 import ProductDetails from '../../../components/product/detail/ProductDetails';
 import { queries } from '../../../graphql';
 

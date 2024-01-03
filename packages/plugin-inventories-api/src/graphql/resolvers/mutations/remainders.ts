@@ -10,6 +10,7 @@ export interface IUpdateRemaindersParams {
 }
 
 const remainderMutations = {
+  // TODO remove code
   remaindersUpdate: async (
     _root: any,
     params: IUpdateRemaindersParams,

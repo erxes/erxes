@@ -29,7 +29,8 @@ class EbarimtConfig extends React.Component<Props, { config: any }> {
             defaultGSCode: '',
             vatPercent: 0,
             cityTaxPercent: 0,
-            footerText: ''
+            footerText: '',
+            hasCopy: false
           };
 
     this.state = {
@@ -39,10 +40,9 @@ class EbarimtConfig extends React.Component<Props, { config: any }> {
 
   onChangeConfig = (code: string, value) => {
     const { config } = this.state;
-    config[code] = value;
-
-    this.setState({ config }, () => {
-      this.props.onChange('ebarimtConfig', config);
+    const newConfig = { ...config, [code]: value };
+    this.setState({ config: newConfig }, () => {
+      this.props.onChange('ebarimtConfig', newConfig);
     });
   };
 
@@ -67,7 +67,7 @@ class EbarimtConfig extends React.Component<Props, { config: any }> {
         <ControlLabel>{title || key}</ControlLabel>
         {description && <p>{__(description)}</p>}
         <FormControl
-          defaultValue={config[key]}
+          value={config[key]}
           type={type || 'text'}
           onChange={this.onChangeInput.bind(this, key)}
           required={true}
@@ -155,6 +155,7 @@ class EbarimtConfig extends React.Component<Props, { config: any }> {
               <h4>{__('Footer')}</h4>
               <BlockRow>
                 {this.renderInput('footerText', 'Footer text', '')}
+                {this.renderCheckbox('hasCopy', 'Has copy', '')}
               </BlockRow>
             </Block>
             <Block />

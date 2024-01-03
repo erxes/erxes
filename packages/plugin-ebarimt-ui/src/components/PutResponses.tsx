@@ -14,6 +14,7 @@ import { TableWrapper } from '../styles';
 import { IPutResponse } from '../types';
 import PutResponseRow from './PutResponseRow';
 import RightMenu from './RightMenu';
+import { SUB_MENUS } from '../constants';
 
 interface IProps extends IRouterProps {
   putResponses: IPutResponse[];
@@ -93,6 +94,9 @@ class PutResponses extends React.Component<IProps, State> {
                 <SortHandler sortField={'billId'} label={__('BillID')} />
               </th>
               <th>
+                <SortHandler sortField={'number'} label={__('Number')} />
+              </th>
+              <th>
                 <SortHandler sortField={'date'} label={__('Date')} />
               </th>
               <th>
@@ -156,15 +160,13 @@ class PutResponses extends React.Component<IProps, State> {
       />
     );
 
-    const menuPos = [{ title: 'Put Response', link: '/put-responses' }];
-
     return (
       <Wrapper
         header={
           <Wrapper.Header
             title={__(`Put Response`)}
             queryParams={queryParams}
-            submenu={menuPos}
+            submenu={SUB_MENUS}
           />
         }
         actionBar={actionBar}

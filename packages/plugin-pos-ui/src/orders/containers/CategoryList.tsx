@@ -1,8 +1,8 @@
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
 import { withProps } from '@erxes/ui/src';
 import React from 'react';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 import List from '../components/CategoryList';
 import { queries } from '../graphql';
 import { ProductCategoriesQueryResponse } from '../../types';

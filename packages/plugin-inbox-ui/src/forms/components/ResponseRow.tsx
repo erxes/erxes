@@ -31,6 +31,12 @@ class ResponseRow extends React.Component<Props> {
     return (
       <tr>
         {result.map(e => {
+          let value = e.value || '-';
+
+          if (Array.isArray(e.value)) {
+            value = e.value[0].url;
+          }
+
           return (
             <td key={e.formFieldId}>
               <RowTitle>
@@ -39,7 +45,7 @@ class ResponseRow extends React.Component<Props> {
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  {e.value || '-'}
+                  {value}
                 </Link>
               </RowTitle>
             </td>

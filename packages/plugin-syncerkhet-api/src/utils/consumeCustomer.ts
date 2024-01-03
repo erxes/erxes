@@ -67,14 +67,14 @@ export const consumeCustomer = async (subdomain, doc, old_code, action) => {
         await sendContactsMessage({
           subdomain,
           action: 'customers.updateCustomer',
-          data: { _id: customer._id, doc: { ...document } },
+          data: { _id: customer._id, doc: { ...document, state: 'customer' } },
           isRPC: true
         });
       } else {
         await sendContactsMessage({
           subdomain,
           action: 'customers.createCustomer',
-          data: { ...document },
+          data: { ...document, state: 'customer' },
           isRPC: true
         });
       }

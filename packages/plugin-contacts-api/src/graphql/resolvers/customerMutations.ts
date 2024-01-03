@@ -7,7 +7,8 @@ import {
 import {
   sendCoreMessage,
   sendIntegrationsMessage,
-  sendCommonMessage
+  sendCommonMessage,
+  sendInboxMessage
 } from '../../messageBroker';
 import { COC_LIFECYCLE_STATE_TYPES, MODULE_NAMES } from '../../constants';
 import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
@@ -218,7 +219,7 @@ const customerMutations = {
     relatedIntegrationIds = _.uniq(relatedIntegrationIds);
     mergedIds = _.uniq(mergedIds);
 
-    const integrations = await sendIntegrationsMessage({
+    const integrations = await sendInboxMessage({
       subdomain,
       action: 'integrations.find',
       isRPC: true,

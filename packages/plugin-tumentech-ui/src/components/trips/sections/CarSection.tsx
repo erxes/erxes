@@ -35,7 +35,7 @@ const CarSection = (props: Props) => {
     <Sidebar.Section>
       <CollapseContent title={`${__('Vehicles')}`} compact={true} open={false}>
         {cars.map(car => (
-          <Section>
+          <Section key={car._id}>
             <SidebarList className="no-link">
               {renderRow('Model', car.carModel)}
               {renderRow('Category', car.category?.name)}

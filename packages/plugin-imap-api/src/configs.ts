@@ -6,9 +6,14 @@ import resolvers from './graphql/resolvers';
 import { initBroker } from './messageBroker';
 import { generateModels } from './connectionResolver';
 import { getSubdomain } from '@erxes/api-utils/src/core';
-import listen, { findAttachmentParts, generateImap, toUpper } from './utils';
-import { debugError, debugInfo } from '@erxes/api-utils/src/debuggers';
+import startDistributingJobs, {
+  findAttachmentParts,
+  createImap,
+  toUpper
+} from './utils';
+import { debugError } from '@erxes/api-utils/src/debuggers';
 import { routeErrorHandling } from '@erxes/api-utils/src/requests';
+import logs from './logUtils';
 
 export let mainDb;
 export let graphqlPubsub;
@@ -26,10 +31,13 @@ export default {
     };
   },
   meta: {
-    inboxIntegration: {
-      kind: 'imap',
-      label: 'IMap'
-    }
+    inboxIntegrations: [
+      {
+        kind: 'imap',
+        label: 'IMap'
+      }
+    ],
+    logs: { providesActivityLog: true, consumers: logs }
   },
   apolloServerContext: async (context, req) => {
     const subdomain = getSubdomain(req);
@@ -64,16 +72,29 @@ export default {
             throw new Error('Integration not found');
           }
 
-          const imap = generateImap(integration);
+          const sentMessage = await models.Messages.findOne({
+            messageId,
+            inboxIntegrationId: integrationId,
+            type: 'SENT'
+          });
+
+          let folderType = 'INBOX';
+
+          if (sentMessage) {
+            folderType = '[Gmail]/Sent Mail';
+          }
+
+          const imap = createImap(integration);
 
           imap.once('ready', () => {
-            imap.openBox('INBOX', true, async (err, box) => {
+            imap.openBox(folderType, true, async (err, box) => {
               imap.search([['HEADER', 'MESSAGE-ID', messageId]], function(
                 err,
                 results
               ) {
                 if (err) {
                   imap.end();
+                  console.log('read-mail-attachment =============', err);
                   return next(err);
                 }
 
@@ -140,6 +161,6 @@ export default {
       )
     );
 
-    await listen('os');
+    startDistributingJobs('os');
   }
 };

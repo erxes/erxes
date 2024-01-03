@@ -11,7 +11,8 @@ import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
 import SelectProductCategory from '@erxes/ui-products/src/containers/SelectProductCategory';
 import SelectProducts from '@erxes/ui-products/src/containers/SelectProducts';
 import Tip from '@erxes/ui/src/components/Tip';
-import { __, router } from '@erxes/ui/src/utils';
+import { router } from '@erxes/ui/src/utils';
+import { __ } from 'coreui/utils';
 import { DateContainer } from '@erxes/ui/src/styles/main';
 import { MenuFooter, SidebarFilters } from '../../styles';
 import { SidebarList as List } from '@erxes/ui/src/layout';
@@ -137,20 +138,45 @@ class Sidebar extends React.Component<Props, State> {
               multi={false}
             />
           </FormGroup>
-          <FormGroup>
-            <ControlLabel>Job Refer</ControlLabel>
-            <SelectJobRefer
-              label="Choose jobRefer"
-              name="jobReferId"
-              initialValue={filterParams.jobReferId || ''}
-              customOption={{
-                value: '',
-                label: '...Clear jobRefer filter'
-              }}
-              onSelect={jobReferId => this.setFilter('jobReferId', jobReferId)}
-              multi={false}
-            />
-          </FormGroup>
+          {(filterParams.type === 'end' && (
+            <FormGroup>
+              <ControlLabel>Job Refer</ControlLabel>
+              <SelectJobRefer
+                key={'jobReferEnds'}
+                label="Choose jobRefer"
+                name="jobReferId"
+                initialValue={filterParams.jobReferId || ''}
+                customOption={{
+                  value: '',
+                  label: '...Clear jobRefer filter'
+                }}
+                onSelect={jobReferId =>
+                  this.setFilter('jobReferId', jobReferId)
+                }
+                filterParams={{ types: ['end'] }}
+                multi={false}
+              />
+            </FormGroup>
+          )) || (
+            <FormGroup>
+              <ControlLabel>Job Refer</ControlLabel>
+              <SelectJobRefer
+                key={'jobReferJobs'}
+                label="Choose jobRefer"
+                name="jobReferId"
+                initialValue={filterParams.jobReferId || ''}
+                customOption={{
+                  value: '',
+                  label: '...Clear jobRefer filter'
+                }}
+                onSelect={jobReferId =>
+                  this.setFilter('jobReferId', jobReferId)
+                }
+                filterParams={{ types: ['job'] }}
+                multi={false}
+              />
+            </FormGroup>
+          )}
         </>
       );
     }
@@ -248,7 +274,7 @@ class Sidebar extends React.Component<Props, State> {
             </FormGroup>
             {this.renderSpec()}
             <FormGroup>
-              <ControlLabel>In Branch</ControlLabel>
+              <ControlLabel>Spend Branch</ControlLabel>
               <SelectBranches
                 label="Choose branch"
                 name="inBranchId"
@@ -262,7 +288,7 @@ class Sidebar extends React.Component<Props, State> {
               />
             </FormGroup>
             <FormGroup>
-              <ControlLabel>In Department</ControlLabel>
+              <ControlLabel>Spend Department</ControlLabel>
               <SelectDepartments
                 label="Choose department"
                 name="inDepartmentId"
@@ -278,7 +304,7 @@ class Sidebar extends React.Component<Props, State> {
               />
             </FormGroup>
             <FormGroup>
-              <ControlLabel>Out Branch</ControlLabel>
+              <ControlLabel>Receipt Branch</ControlLabel>
               <SelectBranches
                 label="Choose branch"
                 name="outBranchId"
@@ -292,7 +318,7 @@ class Sidebar extends React.Component<Props, State> {
               />
             </FormGroup>
             <FormGroup>
-              <ControlLabel>Out Department</ControlLabel>
+              <ControlLabel>Receipt Department</ControlLabel>
               <SelectDepartments
                 label="Choose department"
                 name="outDepartmentId"

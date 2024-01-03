@@ -1,4 +1,5 @@
 module.exports = {
+  srcDir: __dirname,
   name: "products",
   port: 3022,
   scope: 'products',
@@ -6,6 +7,7 @@ module.exports = {
     "./routes": "./src/routes.tsx",
     './extendFormField': './src/containers/productCategory/SelectProductCategory.tsx',
     './extendFormFieldChoice': './src/components/product/FormFieldChoice.tsx',
+    './propertyGroupForm': './src/propertyGroupForm.tsx',
   },
   routes: {
     url: "http://localhost:3022/remoteEntry.js",
@@ -14,6 +16,7 @@ module.exports = {
   },
   extendFormField: './extendFormField',
   extendFormFieldChoice: './extendFormFieldChoice',
+  propertyGroupForm: './propertyGroupForm',
   menus: [
     {
       text: "Product and services",
@@ -26,7 +29,7 @@ module.exports = {
     },
     {
       text: "Configs of Products",
-      to: "/settings/products-config/",
+      to: "/settings/uoms-manage/",
       image: "/images/icons/erxes-07.svg",
       location: "settings",
       scope: "products",

@@ -245,6 +245,7 @@ export class AppProvider extends React.Component<{}, IState> {
         postMessage({
           message: 'submitResponse',
           status,
+          response
         });
 
         this.setState({
@@ -252,7 +253,7 @@ export class AppProvider extends React.Component<{}, IState> {
           isSubmitting: false,
           currentStatus: {
             status,
-            errors,
+            errors
           },
         });
       },

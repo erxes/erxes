@@ -53,6 +53,9 @@ export interface IItemCommonFields {
   number?: string;
   data?: any;
   tagIds?: string[];
+  branchIds?: string[];
+  departmentIds?: string[];
+  parentId?: string;
 }
 
 export interface IItemCommonFieldsDocument extends IItemCommonFields, Document {
@@ -109,11 +112,14 @@ export interface IStage extends ICommonFields {
   pipelineId: string;
   visibility?: string;
   memberIds?: string[];
+  canMoveMemberIds?: string[];
+  canEditMemberIds?: string[];
   departmentIds?: string[];
   formId?: string;
   status?: string;
   code?: string;
   age?: number;
+  defaultTick?: boolean;
 }
 
 export interface IStageDocument extends IStage, Document {
@@ -178,7 +184,7 @@ export const commonItemFieldsSchema = {
   parentId: field({ type: String, optional: true, label: 'Parent Id' }),
   userId: field({ type: String, optional: true, esType: 'keyword' }),
   createdAt: field({ type: Date, label: 'Created at', esType: 'date' }),
-  order: field({ type: Number }),
+  order: field({ type: Number, index: true }),
   name: field({ type: String, label: 'Name' }),
   startDate: field({ type: Date, label: 'Start date', esType: 'date' }),
   closeDate: field({ type: Date, label: 'Close date', esType: 'date' }),
@@ -199,7 +205,7 @@ export const commonItemFieldsSchema = {
   watchedUserIds: field({ type: [String], esType: 'keyword' }),
   labelIds: field({ type: [String], esType: 'keyword' }),
   attachments: field({ type: [attachmentSchema], label: 'Attachments' }),
-  stageId: field({ type: String, index: true, label: 'Stage' }),
+  stageId: field({ type: String, index: true }),
   initialStageId: field({
     type: String,
     optional: true
@@ -250,6 +256,18 @@ export const commonItemFieldsSchema = {
     label: 'Related items used for gantt chart'
   }),
   tagIds: field({
+    type: [String],
+    optional: true,
+    index: true,
+    label: 'Tags'
+  }),
+  branchIds: field({
+    type: [String],
+    optional: true,
+    index: true,
+    label: 'Tags'
+  }),
+  departmentIds: field({
     type: [String],
     optional: true,
     index: true,
@@ -357,6 +375,13 @@ export const stageSchema = new Schema({
   }),
   age: field({ type: Number, optional: true, label: 'Age' }),
   memberIds: field({ type: [String], label: 'Members' }),
+  canMoveMemberIds: field({ type: [String], label: 'Can move members' }),
+  canEditMemberIds: field({ type: [String], label: 'Can edit members' }),
   departmentIds: field({ type: [String], label: 'Departments' }),
+  defaultTick: field({
+    type: Boolean,
+    label: 'Default tick used',
+    optional: true
+  }),
   ...commonFieldsSchema
 });

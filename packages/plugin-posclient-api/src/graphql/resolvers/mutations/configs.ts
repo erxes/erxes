@@ -1,5 +1,4 @@
 import { authCookieOptions } from '@erxes/api-utils/src/core';
-import { debugError, debugInfo } from '@erxes/api-utils/src/debuggers';
 import {
   extractConfig,
   getServerAddress,
@@ -11,11 +10,12 @@ import {
 } from '../../utils/syncUtils';
 import { IContext } from '../../../connectionResolver';
 import { init as initBrokerMain } from '@erxes/api-utils/src/messageBroker';
-import { initBroker } from '../../../messageBroker';
+import { initBroker, sendPosMessage } from '../../../messageBroker';
 import { IOrderItemDocument } from '../../../models/definitions/orderItems';
-import { ORDER_STATUSES } from '../../../models/definitions/constants';
 import { redis } from '@erxes/api-utils/src/serviceDiscovery';
 import { sendRequest } from '@erxes/api-utils/src/requests';
+import { app } from '../../../configs';
+import { IPutResponseDocument } from '../../../models/definitions/putResponses';
 
 const configMutations = {
   posConfigsFetch: async (
@@ -25,7 +25,7 @@ const configMutations = {
   ) => {
     const address = await getServerAddress(subdomain);
 
-    const config = await models.Configs.createConfig(token);
+    const config = await models.Configs.createConfig(token, 'init');
 
     try {
       const response = await sendRequest({
@@ -39,7 +39,6 @@ const configMutations = {
           adminUsers = [],
           cashiers = [],
           productGroups = [],
-          qpayConfig,
           slots = []
         } = response;
 
@@ -47,13 +46,12 @@ const configMutations = {
 
         await models.Configs.updateConfig(config._id, {
           ...(await extractConfig(subdomain, pos)),
-          qpayConfig,
           token
         });
 
         await importUsers(models, cashiers, token);
         await importUsers(models, adminUsers, token, true);
-        await importSlots(models, slots);
+        await importSlots(models, slots, token);
         await importProducts(subdomain, models, token, productGroups);
       } else {
         await models.Configs.deleteOne({ token });
@@ -66,18 +64,24 @@ const configMutations = {
 
     const { RABBITMQ_HOST, MESSAGE_BROKER_PREFIX } = process.env;
 
-    const messageBrokerClient = await initBrokerMain({
-      RABBITMQ_HOST,
-      MESSAGE_BROKER_PREFIX,
-      redis
-    });
+    const messageBrokerClient = await initBrokerMain(
+      {
+        RABBITMQ_HOST,
+        MESSAGE_BROKER_PREFIX,
+        redis,
+        app
+      },
+      initBroker
+    );
 
     await initBroker(messageBrokerClient)
       .then(() => {
-        debugInfo('Message broker has started.');
+        console.log('Message broker has started.');
       })
       .catch(e => {
-        debugError(`Error occurred when starting message broker: ${e.message}`);
+        console.log(
+          `Error occurred when starting message broker: ${e.message}`
+        );
       });
 
     return config;
@@ -101,23 +105,14 @@ const configMutations = {
 
     switch (type) {
       case 'config':
-        const {
-          pos = {},
-          adminUsers = [],
-          cashiers = [],
-          slots = [],
-          qpayConfig
-        } = response;
-
+        const { pos = {}, adminUsers = [], cashiers = [] } = response;
         await models.Configs.updateConfig(config._id, {
           ...(await extractConfig(subdomain, pos)),
-          qpayConfig,
           token: config.token
         });
 
         await importUsers(models, cashiers, config.token);
         await importUsers(models, adminUsers, config.token, true);
-        await importSlots(models, slots);
 
         break;
       case 'products':
@@ -125,80 +120,85 @@ const configMutations = {
         await preImportProducts(models, token, productGroups);
         await importProducts(subdomain, models, token, productGroups);
         break;
+      case 'slots':
+        const { slots = [] } = response;
+        await importSlots(models, slots, token);
+        break;
+      case 'productsConfigs':
+        await models.ProductsConfigs.createOrUpdateConfig({
+          code: 'similarityGroup',
+          value: response
+        });
+        break;
     }
     return 'success';
   },
 
   async syncOrders(_root, _param, { models, subdomain, config }: IContext) {
+    const unSyncedPutResponses: IPutResponseDocument[] = await models.PutResponses.find(
+      { synced: { $ne: true } }
+    )
+      .sort({ paidDate: 1 })
+      .limit(100)
+      .lean();
+    const putResContentIds = unSyncedPutResponses.map(pr => pr.contentId);
+
     const orderFilter = {
-      synced: false,
-      status: { $in: ORDER_STATUSES.FULL },
-      paidDate: { $exists: true, $ne: null }
+      $and: [
+        { posToken: config.token },
+        {
+          $or: [
+            {
+              synced: { $ne: true },
+              paidDate: { $exists: true, $ne: null }
+            },
+            { _id: { $in: putResContentIds } }
+          ]
+        }
+      ]
     };
+
     let sumCount = await models.Orders.find({ ...orderFilter }).count();
     const orders = await models.Orders.find({ ...orderFilter })
       .sort({ paidDate: 1 })
       .limit(100)
       .lean();
 
-    let kind = 'order';
-    let putResponses = [];
+    const data: any[] = [];
+    const orderIds = orders.map(o => o._id);
+    const orderItems: IOrderItemDocument[] = await models.OrderItems.find({
+      orderId: { $in: orderIds }
+    }).lean();
 
-    if (orders.length) {
-      const orderIds = orders.map(o => o._id);
-      const orderItems: IOrderItemDocument[] = await models.OrderItems.find({
-        orderId: { $in: orderIds }
-      }).lean();
+    const putResponses = await models.PutResponses.find({
+      contentId: { $in: orderIds }
+    }).lean();
 
-      for (const order of orders) {
-        order.items = (orderItems || []).filter(
-          item => item.orderId === order._id
-        );
-      }
+    for (const order of orders) {
+      const perData: any = {
+        posToken: config.token,
+        order
+      };
+      perData.items = (orderItems || []).filter(
+        item => item.orderId === order._id
+      );
+      perData.responses = (putResponses || []).filter(
+        pr => pr.contentId === order._id
+      );
 
-      putResponses = await models.PutResponses.find({
-        contentId: { $in: orderIds },
-        synced: false
-      }).lean();
-    } else {
-      kind = 'putResponse';
-      sumCount = await models.PutResponses.find({ synced: false }).count();
-      putResponses = await models.PutResponses.find({ synced: false })
-        .sort({ paidDate: 1 })
-        .limit(100)
-        .lean();
+      data.push(perData);
     }
 
-    const address = await getServerAddress(subdomain);
-
-    try {
-      const response = await sendRequest({
-        url: `${address}/pos-sync-orders`,
-        method: 'post',
-        headers: { 'POS-TOKEN': config.token || '' },
-        body: { token: config.token, orders, putResponses }
+    if (data.length) {
+      await sendPosMessage({
+        subdomain,
+        action: 'createOrUpdateOrdersMany',
+        data: { posToken: config.token, syncOrders: data }
       });
-
-      const { error, resOrderIds, putResponseIds } = response;
-
-      if (error) {
-        throw new Error(error);
-      }
-
-      await models.Orders.updateMany(
-        { _id: { $in: resOrderIds } },
-        { $set: { synced: true } }
-      );
-      await models.PutResponses.updateMany(
-        { _id: { $in: putResponseIds } },
-        { $set: { synced: true } }
-      );
-    } catch (e) {
-      throw new Error(e.message);
     }
 
     return {
-      kind,
+      kind: 'order',
       sumCount,
       syncedCount: orders.length
     };

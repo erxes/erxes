@@ -20,6 +20,7 @@ import {
   TabContent
 } from '../styles';
 import { IQueryParams } from '@erxes/ui/src/types';
+import { isEnabled } from '@erxes/ui/src/utils/core';
 
 type Props = {
   onSearch: (search: string, key?: string) => void;
@@ -28,6 +29,7 @@ type Props = {
   queryParams: any;
   isFiltered: boolean;
   clearFilter: () => void;
+  showMenu?: boolean;
 };
 
 type StringState = {
@@ -47,7 +49,7 @@ export default class RightMenu extends React.Component<Props, State> {
 
     this.state = {
       currentTab: 'Filter',
-      showMenu: false,
+      showMenu: this.props.showMenu || false,
 
       filterParams: this.props.queryParams
     };
@@ -230,6 +232,34 @@ export default class RightMenu extends React.Component<Props, State> {
       );
     }
 
+    if (contentType === 'loans:transaction') {
+      return (
+        <>
+          <FormGroup>
+            <ControlLabel>{`Contract number`}</ControlLabel>
+            <FormControl
+              name={'contractNumber'}
+              defaultValue={filterParams.contractNumber}
+              placeholder={__('Search value')}
+              onKeyPress={this.onSearch}
+              autoFocus={true}
+              onChange={this.onChangeInput}
+            />
+          </FormGroup>
+          <FormGroup>
+            <ControlLabel>{`Transaction number`}</ControlLabel>
+            <FormControl
+              name={'transactionNumber'}
+              defaultValue={filterParams.transactionNumber}
+              placeholder={__('Search value')}
+              onKeyPress={this.onSearch}
+              autoFocus={true}
+              onChange={this.onChangeInput}
+            />
+          </FormGroup>
+        </>
+      );
+    }
     return '';
   }
 
@@ -259,8 +289,13 @@ export default class RightMenu extends React.Component<Props, State> {
             onChange={this.onChangeInput}
           >
             <option value="">{__('All')}</option>
-            <option value="deal">{__('Deal')}</option>
-            <option value="pos">{__('Pos')}</option>
+            {isEnabled('cards') && <option value="deal">{__('Deal')}</option>}
+            {isEnabled('pos') && <option value="pos">{__('Pos')}</option>}
+            {isEnabled('loans') && (
+              <option value="loans:transaction">
+                {__('Loan Transaction')}
+              </option>
+            )}
           </FormControl>
         </FormGroup>
 
@@ -311,7 +346,7 @@ export default class RightMenu extends React.Component<Props, State> {
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel>{`on Last`}</ControlLabel>
+          <ControlLabel>{`On Last`}</ControlLabel>
           <FormControl
             name={'isLast'}
             componentClass="select"

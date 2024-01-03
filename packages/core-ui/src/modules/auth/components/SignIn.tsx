@@ -26,7 +26,7 @@ class SignIn extends React.Component<Props> {
           <FormControl
             {...formProps}
             name="email"
-            placeholder={demoUrl ? 'demo@erxes.io' : __('Enter your email')}
+            placeholder={demoUrl ? 'guest@erxes.io' : __('Enter your email')}
             required={true}
           />
         </FormGroup>
@@ -52,7 +52,7 @@ class SignIn extends React.Component<Props> {
   renderLogo() {
     const logo = '/images/logo-dark.png';
     const thLogo = getThemeItem('logo');
-    return thLogo ? readFile(thLogo) : logo;
+    return thLogo && typeof thLogo === 'string' ? readFile(thLogo) : logo;
   }
 
   render() {

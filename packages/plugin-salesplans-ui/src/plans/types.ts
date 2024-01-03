@@ -1,8 +1,8 @@
 ///////// year
 
-import { IProduct, IUom } from '@erxes/ui-products/src/types';
+import { IProduct } from '@erxes/ui-products/src/types';
 import { IBranch, IDepartment } from '@erxes/ui/src/team/types';
-import { ITimeframe } from '../../.erxes/plugin-src/settings/types';
+import { ITimeframe } from '../settings/types';
 
 export interface IPlanValues {
   [key: string]: number;
@@ -14,7 +14,7 @@ export interface IYearPlan {
   departmentId?: string;
   branchId?: string;
   productId?: string;
-  uomId?: string;
+  uom?: string;
   values?: IPlanValues;
   confirmedData?: any;
   createdAt?: Date;
@@ -25,7 +25,6 @@ export interface IYearPlan {
   branch?: IBranch;
   department?: IDepartment;
   product?: IProduct;
-  uom?: IUom;
 }
 
 export interface IYearPlanParams {
@@ -82,7 +81,7 @@ export interface IDayPlan {
   departmentId?: string;
   branchId?: string;
   productId?: string;
-  uomId?: string;
+  uom?: string;
   planCount?: number;
   values?: IPlanValue[];
   confirmedData?: any;
@@ -94,7 +93,6 @@ export interface IDayPlan {
   branch?: IBranch;
   department?: IDepartment;
   product?: IProduct;
-  uom?: IUom;
 }
 
 export interface IDayPlanParams {

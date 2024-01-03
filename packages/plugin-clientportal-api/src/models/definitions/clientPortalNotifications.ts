@@ -28,7 +28,8 @@ export const cpNotificationSchema = new Schema({
   receiver: field({ type: String, index: true }),
   createdAt: field({
     type: Date,
-    default: Date.now
+    default: Date.now,
+    expires: 60 * 60 * 24 * 30 // 30 days
   }),
   isRead: field({
     type: Boolean,
@@ -46,3 +47,8 @@ export const cpNotificationSchema = new Schema({
     optional: true
   })
 });
+
+cpNotificationSchema.index(
+  { createdAt: 1, receiver: 1, clientPortalId: 1 },
+  { expireAfterSeconds: 60 * 60 * 24 * 30 }
+);

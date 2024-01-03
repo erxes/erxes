@@ -166,7 +166,7 @@ export const getCollection = (models: IModels, type: string) => {
   let update;
   let remove;
 
-  const { Deals, GrowthHacks, Tasks, Tickets } = models;
+  const { Deals, GrowthHacks, Tasks, Tickets, Purchases } = models;
 
   switch (type) {
     case BOARD_TYPES.DEAL: {
@@ -174,6 +174,13 @@ export const getCollection = (models: IModels, type: string) => {
       create = Deals.createDeal;
       update = Deals.updateDeal;
       remove = Deals.removeDeals;
+      break;
+    }
+    case BOARD_TYPES.PURCHASE: {
+      collection = Purchases;
+      create = Purchases.createPurchase;
+      update = Purchases.updatePurchase;
+      remove = Purchases.removePurchases;
       break;
     }
     case BOARD_TYPES.GROWTH_HACK: {
@@ -399,9 +406,7 @@ export const createBoardItem = async (
       searchText: fillSearchTextItem(doc)
     });
   } catch (e) {
-    if (
-      e.message === `E11000 duplicate key error dup key: { : "${doc.number}" }`
-    ) {
+    if (e.message.includes(`E11000 duplicate key error`)) {
       await createBoardItem(models, subdomain, doc, type);
     } else {
       throw new Error(e.message);
@@ -519,6 +524,7 @@ export const conversationConvertToCard = async (
       );
 
       oldItem.productsData.push({
+        _id: product._id,
         productId: product._id,
         unitPrice: product.unitPrice,
         uom: dealUOM,
@@ -551,7 +557,14 @@ export const conversationConvertToCard = async (
 
     await putActivityLog(subdomain, {
       action: 'createBoardItem',
-      data: { item, contentType: type, contentId: item._id }
+      data: {
+        item,
+        contentType: type,
+        action: 'convert',
+        content: conversation._id,
+        createdBy: item.userId || '',
+        contentId: item._id
+      }
     });
 
     const relTypeIds: string[] = [];
@@ -603,6 +616,7 @@ export const conversationConvertToCard = async (
 
       doc.productsData = [
         {
+          _id: product._id,
           productId: product._id,
           unitPrice: product.unitPrice,
           uom: dealUOM,

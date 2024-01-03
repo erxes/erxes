@@ -36,7 +36,7 @@ export interface IRemainderModel extends Model<IRemainderDocument> {
     subdomain: string,
     branchId: string,
     departmentId: string,
-    data: { productId: string; uomId: string; diffCount: number }[]
+    data: { productId: string; uom: string; diffCount: number }[]
   );
   removeRemainder(_id: string): void;
 }
@@ -66,7 +66,7 @@ export const loadRemainderClass = (models: IModels) => {
       subdomain: string,
       params: IRemainderParams
     ) {
-      const { productId, departmentId, branchId, uomId } = params;
+      const { productId, departmentId, branchId, uom } = params;
       const filter: any = { productId };
 
       if (departmentId) filter.departmentId = departmentId;
@@ -86,16 +86,16 @@ export const loadRemainderClass = (models: IModels) => {
         isRPC: true
       });
 
-      let uom: any = product.uomId;
+      let pUom: any = product.uom;
       const subUom: any =
-        product.subUom.filter((item: any) => item.uomId === uomId) || [];
+        product.subUom.filter((item: any) => item.uom === uom) || [];
 
       if (subUom.length) {
         count = count / subUom.ratio || 1;
-        uom = subUom.uomId;
+        pUom = subUom.uom;
       }
 
-      return { count, uomId: uom };
+      return { count, uom };
     }
 
     public static async getRemainderProducts(
@@ -146,7 +146,7 @@ export const loadRemainderClass = (models: IModels) => {
         action: 'find',
         data: {
           query,
-          sort: {},
+          sort: { code: 1 },
           skip,
           limit
         },
@@ -181,15 +181,24 @@ export const loadRemainderClass = (models: IModels) => {
 
       for (const rem of remainders) {
         if (!Object.keys(remaindersByProductId).includes(rem.productId)) {
-          remaindersByProductId[rem.productId] = 0;
+          remaindersByProductId[rem.productId] = [];
         }
-        remaindersByProductId[rem.productId] =
-          remaindersByProductId[rem.productId] + rem.count;
+        remaindersByProductId[rem.productId].push(rem);
       }
 
       for (const product of products) {
-        const count = remaindersByProductId[product._id] || 0;
-        product.remainder = count;
+        product.remainder = (remaindersByProductId[product._id] || []).reduce(
+          (sum, cur) => sum + (Number(cur.count) || 0),
+          0
+        );
+        product.soonIn = (remaindersByProductId[product._id] || []).reduce(
+          (sum, cur) => sum + (Number(cur.soonIn) || 0),
+          0
+        );
+        product.soonOut = (remaindersByProductId[product._id] || []).reduce(
+          (sum, cur) => sum + (Number(cur.soonOut) || 0),
+          0
+        );
       }
 
       return { totalCount, products };
@@ -205,19 +214,40 @@ export const loadRemainderClass = (models: IModels) => {
       subdomain: string,
       params: IRemaindersParams
     ) {
-      const { departmentId, branchId, productCategoryId, productIds } = params;
+      const {
+        departmentIds,
+        branchIds,
+        productCategoryId,
+        productIds
+      } = params;
       const filter: any = {};
 
-      if (departmentId) filter.departmentId = departmentId;
-      if (branchId) filter.branchId = branchId;
+      if (departmentIds && departmentIds.length) {
+        filter.departmentId = { $in: departmentIds };
+      }
+
+      if (branchIds && branchIds.length) {
+        filter.branchId = { $in: branchIds };
+      }
 
       if (productCategoryId) {
+        const limit: number = await sendProductsMessage({
+          subdomain,
+          action: 'count',
+          data: {
+            query: {},
+            categoryId: productCategoryId
+          },
+          isRPC: true
+        });
+
         const products: any = await sendProductsMessage({
           subdomain,
           action: 'find',
           data: {
             query: {},
-            categoryId: productCategoryId
+            categoryId: productCategoryId,
+            limit
           },
           isRPC: true
         });
@@ -257,7 +287,14 @@ export const loadRemainderClass = (models: IModels) => {
       subdomain: string,
       branchId: string,
       departmentId: string,
-      productsData: { productId: string; uomId: string; diffCount: number }[]
+      productsData: {
+        productId: string;
+        uom: string;
+        diffCount?: number;
+        diffSoonIn?: number;
+        diffSoonOut?: number;
+      }[],
+      isCensus: false
     ) {
       let bulkOps: {
         updateOne: {
@@ -283,15 +320,28 @@ export const loadRemainderClass = (models: IModels) => {
 
       for (const data of productsData) {
         const product = productById[data.productId];
-        const ratio = getRatio(product, data.uomId);
+        const ratio = getRatio(product, data.uom || product.uom);
+        const diffCount = (data.diffCount || 0) / (ratio || 1);
+        const diffSoonIn = (data.diffSoonIn || 0) / (ratio || 1);
+        const diffSoonOut = (data.diffSoonOut || 0) / (ratio || 1);
+
+        if (!(diffCount || diffSoonIn || diffSoonOut)) {
+          continue;
+        }
+
+        const update: any = {
+          $inc: { count: diffCount, soonIn: diffSoonIn, soonOut: diffSoonOut },
+          $set: { productId: data.productId, branchId, departmentId }
+        };
+
+        if (diffCount) {
+          update.$push = { shortLogs: { count: diffCount, date: new Date() } };
+        }
 
         bulkOps.push({
           updateOne: {
             filter: { productId: data.productId, branchId, departmentId },
-            update: {
-              $inc: { count: data.diffCount / (ratio || 1) },
-              $set: { productId: data.productId, branchId, departmentId }
-            },
+            update,
             upsert: true
           }
         });

@@ -7,6 +7,7 @@ const exportHistories = `
         name
         contentType
         date
+        percentage
         status
         user {
           details {
@@ -14,6 +15,8 @@ const exportHistories = `
           }
         }
         exportLink
+        uploadType
+        errorMsg
         }
       count 
     }

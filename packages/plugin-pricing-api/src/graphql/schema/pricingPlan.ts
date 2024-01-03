@@ -71,9 +71,13 @@ export const types = () => `
 
     products: [String],
     productsExcluded: [String],
-    productsBundle: [String],
+    productsBundle: [[String]],
     categories: [String],
     categoriesExcluded: [String],
+    segments: [String],
+    vendors: [String],
+    tags: [String],
+    tagsExcluded: [String],
 
     isStartDateEnabled: Boolean,
     isEndDateEnabled: Boolean,
@@ -86,13 +90,13 @@ export const types = () => `
     boardId: [String],
     pipelineId: [String],
     stageId: [String],
-    
+
     isQuantityEnabled: Boolean,
     quantityRules: [QuantityRule],
-    
+
     isPriceEnabled: Boolean,
     priceRules: [PriceRule],
-    
+
     isExpiryEnabled: Boolean,
     expiryRules: [ExpiryRule],
 
@@ -105,6 +109,8 @@ export const types = () => `
     updatedAt: Date,
     updatedBy: String,
     updatedUser: User
+
+    productIds: [String]
   }
 
   input QuantityRuleInput {
@@ -167,16 +173,20 @@ export const types = () => `
 
     products: [String],
     productsExcluded: [String],
-    productsBundle: [String],
+    productsBundle: [[String]],
     categories: [String],
     categoriesExcluded: [String],
+    segments: [String],
+    vendors: [String],
+    tags: [String],
+    tagsExcluded: [String],
 
     isStartDateEnabled: Boolean,
     isEndDateEnabled: Boolean,
 
     startDate: Date,
     endDate: Date,
-    
+
     branchIds: [String],
     departmentIds: [String],
     boardId: [String],
@@ -211,16 +221,20 @@ export const types = () => `
 
     products: [String],
     productsExcluded: [String],
-    productsBundle: [String],
+    productsBundle: [[String]],
     categories: [String],
     categoriesExcluded: [String],
+    segments: [String],
+    vendors: [String],
+    tags: [String],
+    tagsExcluded: [String],
 
     isStartDateEnabled: Boolean,
     isEndDateEnabled: Boolean,
 
     startDate: Date,
     endDate: Date,
-    
+
     branchIds: [String],
     departmentIds: [String],
     boardId: [String],
@@ -241,8 +255,32 @@ export const types = () => `
   }
 `;
 
+const pricingQueryParams = `
+  status: String
+  prioritizeRule: String
+  branchId: String
+  departmentId: String
+  productId: String
+  date: Date
+
+  findOne: Boolean
+  page: Int
+  perPage: Int
+  sortField: String
+  sortDirection: Int
+
+  isQuantityEnabled: Boolean
+  isPriceEnabled: Boolean
+  isExpiryEnabled: Boolean
+  isRepeatEnabled: Boolean
+
+  totalAmount: String
+  quantity: Float
+`;
+
 export const queries = `
-  pricingPlans(status: String): [PricingPlan]
+  pricingPlans(${pricingQueryParams}): [PricingPlan]
+  pricingPlansCount(${pricingQueryParams}): Int
   pricingPlanDetail(id: String): PricingPlan
 `;
 

@@ -1,4 +1,4 @@
-import { gql } from 'apollo-server-express';
+import gql from 'graphql-tag';
 
 import {
   mutations as buildingMutations,
@@ -21,11 +21,24 @@ import {
   types as quarterTypes
 } from './schema/quarters';
 
+import {
+  queries as contractQueries,
+  mutations as contractMutations,
+  types as contractTypes
+} from './schema/contracts';
+
+import {
+  queries as productQueries,
+  mutations as productMutations,
+  types as productTypes
+} from './schema/mobinetProducts';
+
 const typeDefs = async serviceDiscovery => {
   const isEnabled = {
     contacts: await serviceDiscovery.isEnabled('contacts'),
     cards: await serviceDiscovery.isEnabled('cards'),
-    products: await serviceDiscovery.isEnabled('products')
+    products: await serviceDiscovery.isEnabled('products'),
+    assets: await serviceDiscovery.isEnabled('assets')
   };
 
   return gql`
@@ -47,12 +60,16 @@ const typeDefs = async serviceDiscovery => {
     ${quarterTypes}
     ${cityTypes}
     ${buildingTypes(isEnabled)}
+    ${productTypes}
+    ${contractTypes}
     
     extend type Query {
       ${districtQueries}
       ${cityQueries}
       ${quarterQueries}
       ${buildingQueries}
+      ${contractQueries}
+      ${productQueries}
     }
     
     extend type Mutation {
@@ -60,6 +77,8 @@ const typeDefs = async serviceDiscovery => {
       ${cityMutations}
       ${quarterMutations}
       ${buildingMutations}
+      ${contractMutations}
+      ${productMutations}
     }
   `;
 };

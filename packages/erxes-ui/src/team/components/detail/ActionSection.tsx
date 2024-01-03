@@ -32,7 +32,7 @@ class ActionSection extends React.Component<Props> {
 
     return (
       <>
-        {loadDynamicComponent('actionForms', { user })}
+        {loadDynamicComponent('actionForms', { user }, true)}
         <Button
           href={operatorPhone && `tel:${operatorPhone}`}
           size="small"

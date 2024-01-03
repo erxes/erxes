@@ -36,7 +36,7 @@ const configMutations = {
 
       await models.Configs.createOrUpdateConfig(doc);
 
-      resetConfigsCache();
+      await resetConfigsCache();
 
       const updatedConfig = await models.Configs.getConfig(code);
 
@@ -45,7 +45,7 @@ const configMutations = {
       }
 
       if (
-        ['dealUOM', 'dealCurrency'].includes(code) &&
+        ['dealCurrency'].includes(code) &&
         (prevConfig.value || '').toString() !==
           (updatedConfig.value || '').toString()
       ) {

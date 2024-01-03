@@ -1,8 +1,9 @@
-FROM node:12.19-alpine
-WORKDIR /core-api
-RUN chown -R node:node /core-api \
- && apk add --no-cache tzdata \
- && apk --no-cache add curl
-COPY --chown=node:node . /core-api
+FROM node:18.17.1-bookworm-slim
+WORKDIR /erxes
+RUN chown -R node:node /erxes
+RUN apt-get update -y \
+    && apt-get install -y curl tzdata \
+    && rm -rf /var/lib/apt/lists/*
+COPY --chown=node:node . .
 USER node
-ENTRYPOINT ["node", "--max-http-header-size=16384", "dist/core/src"]
+ENTRYPOINT ["node", "--max-http-header-size=16384", "packages/core/src/index"]

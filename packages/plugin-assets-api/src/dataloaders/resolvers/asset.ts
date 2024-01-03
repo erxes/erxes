@@ -25,7 +25,11 @@ export default {
   },
 
   async childAssetCount(asset: IAssetDocument, {}, { models }: IContext) {
-    let filter: string | object = { $regex: new RegExp(asset.order) };
+    const order = asset.order.slice(-1)
+      ? asset.order.replace(/\\/g, '\\\\')
+      : asset.order;
+
+    let filter: string | object = { $regex: new RegExp(order) };
 
     if (asset.order.match(/\\/)) {
       filter = asset.order;
@@ -52,7 +56,8 @@ export default {
           _id: { $in: asset.kbArticleIds || [] }
         }
       },
-      isRPC: true
+      isRPC: true,
+      defaultValue: []
     });
 
     const map = {};
@@ -79,11 +84,50 @@ export default {
         isRPC: true
       });
 
-      results.push({
+      let topic: any;
+
+      const item: any = {
+        _id: category._id,
         title: category.title,
         description: category.description,
         contents: map[categoryId]
-      });
+      };
+
+      if (category.topicId) {
+        topic = await sendKbMessage({
+          subdomain,
+          action: 'topics.findOne',
+          data: {
+            query: {
+              _id: category.topicId
+            }
+          },
+          isRPC: true,
+          defaultValue: {}
+        });
+      }
+
+      if (category.parentCategoryId) {
+        const parentCategory = await sendKbMessage({
+          subdomain,
+          action: 'categories.findOne',
+          data: {
+            query: {
+              _id: category.parentCategoryId
+            }
+          },
+          isRPC: true,
+          defaultValue: {}
+        });
+
+        topic.categories = [parentCategory];
+      }
+
+      if (topic) {
+        item.topic = topic;
+      }
+
+      results.push(item);
     }
 
     return results;

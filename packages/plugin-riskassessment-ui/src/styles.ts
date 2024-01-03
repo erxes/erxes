@@ -1,10 +1,11 @@
+import BoardSelectContainer from '@erxes/ui-cards/src/boards/containers/BoardSelect';
 import { colors, dimensions, WhiteBoxRoot } from '@erxes/ui/src';
 import { LeftItem } from '@erxes/ui/src/components/step/styles';
 import { rgba } from '@erxes/ui/src/styles/ecolor';
 import { BoxRoot } from '@erxes/ui/src/styles/main';
+import { highlight } from '@erxes/ui/src/utils/animations';
 import styled, { css } from 'styled-components';
 import styledTS from 'styled-components-ts';
-import BoardSelectContainer from '@erxes/ui-cards/src/boards/containers/BoardSelect';
 
 export const GridContainer = styledTS<{
   horizontal?: boolean;
@@ -95,9 +96,18 @@ export const FormContainer = styledTS<{
   gapBetween?: number;
   align?: string;
   justifyCenter?: boolean;
+  flex?: boolean;
+  maxItemsRow?: number;
+  justify?: string;
+  padding?: string;
+  placeContent?: string;
+  flexWrap?: boolean;
+  alignSelf?: string;
+  width?: string;
 }>(styled.div)`
   display: flex;
   flex-wrap: wrap;
+  padding:${({ padding }) => (padding ? padding : '')};
   flex-direction: ${({ row }) => row && 'row'} ${({ column }) =>
   column && 'column'};
   justify-content: ${({ spaceBetween }) =>
@@ -107,6 +117,23 @@ export const FormContainer = styledTS<{
   gap: ${({ gapBetween }) => (gapBetween ? `${gapBetween}px` : '')};
   place-items:${({ align }) => (align ? align : '')};
   justify-content:${({ justifyCenter }) => (justifyCenter ? 'center' : '')}; 
+  justify-content:${({ justify }) => (justify ? justify : '')}; 
+  place-content:${({ placeContent }) => (placeContent ? placeContent : '')};
+  flex-wrap: ${({ flexWrap }) => (flexWrap ? 'wrap' : '')};
+  align-self:${({ alignSelf }) => (alignSelf ? alignSelf : '')};
+  width:${({ width }) => (width ? width : '')};
+  ${({ flex }) =>
+    flex
+      ? `div {
+        flex:  1
+      }`
+      : ''}
+      ${({ maxItemsRow }) =>
+        maxItemsRow
+          ? `div {
+        flex:  1 0 ${100 / maxItemsRow}%
+      }`
+          : ''}
 `;
 
 export const BoxItem = styled.div`
@@ -167,11 +194,14 @@ export const Badge = styledTS<{ color?: string }>(styled.div)`
   max-width: 100px;
 `;
 
-export const ColorBox = styledTS<{ color?: string }>(styled.div)`
+export const ColorBox = styledTS<{ color?: string; pointer?: boolean }>(
+  styled.div
+)`
   height: 10px;
   width: 10px;
   background-color: ${({ color }) => color}
-  border-radius: 15px
+  border-radius: 15px;
+  ${({ pointer }) => (pointer ? 'cursor:pointer' : '')}
 `;
 
 export const ColorButton = styledTS<{ color?: string }>(styled.div)`
@@ -367,4 +397,107 @@ export const SidebarHeader = styled.h5`
   margin-bottom: ${dimensions.coreSpacing}px;
   color: ${colors.colorPrimary};
   padding-left: 10px;
+`;
+
+export const FormContent = styled.div`
+  animation: ${highlight} 0.9s ease;
+  padding: 10px;
+  border-radius: 5px;
+  box-shadow: 0 0 5px 0 rgba(221, 221, 221, 0.7);
+`;
+
+export const RemoveRow = styled.div`
+  color: ${colors.colorCoreRed};
+  text-align: end;
+
+  &:hover {
+    cursor: pointer;
+  }
+`;
+
+export const CardBox = styled.div`
+  text-align: center;
+`;
+
+export const TableRow = styled.tr`
+  th,
+  td {
+    text-align: center;
+  }
+
+  th:last-child {
+    border-right: none;
+    text-align: center;
+  }
+  ,
+  td:last-child {
+    text-align: -webkit-center;
+  }
+`;
+
+export const ScheduleCard = styledTS<{
+  minWidth?: string;
+  maxWidth?: string;
+}>(styled.div)`
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-width: ${({ minWidth }) => (minWidth ? minWidth : '400px')};
+  max-width: ${({ maxWidth }) => (maxWidth ? maxWidth : '400px')};;
+  box-shadow: 0 0 5px 0 rgba(221, 221, 221, 0.7);
+  border-radius: 15px;
+  place-items: center;
+  cursor: pointer;
+  padding: 15px 25px;
+  &.active {
+    animation: ${highlight} 0.9s ease;
+    box-shadow: 0 0 5px 0 #63d2d6;
+  }
+
+  .bottomBarItem {
+    border-top: #aaaaaa3b solid 0.5px;
+  }
+`;
+
+export const CommonFormContainer = styled.div`
+  height: 100%;
+  > form {
+    height: 100%;
+  }
+`;
+
+export const DetailPopoverWrapper = styled.div`
+  .popover {
+    max-width: 550px;
+  }
+`;
+
+export const HeaderContent = styled.div`
+  text-align: center;
+`;
+
+export const FlexRow = styled.div`
+  display: flex;
+  margin-bottom: ${dimensions.unitSpacing}px;
+  padding: 5px 10px 5px 30px;
+  position: relative;
+  align-items: center;
+
+  > label {
+    margin: 0;
+    font-weight: 500;
+    color: ${colors.colorCoreBlack};
+  }
+
+  > *:first-child,
+  input {
+    margin-right: ${dimensions.unitSpacing}px;
+    flex: 3;
+  }
+
+  > *:nth-child(2),
+  > div {
+    flex: 2;
+  }
 `;

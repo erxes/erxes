@@ -1,13 +1,19 @@
 import { IContext } from '../../../connectionResolver';
 
 const assetCategoriesQueries = {
-  assetCategories(
+  async assetCategories(
     _root,
     {
       parentId,
       searchValue,
-      status
-    }: { parentId: string; searchValue: string; status: string },
+      status,
+      withKbOnly
+    }: {
+      parentId: string;
+      searchValue: string;
+      status: string;
+      withKbOnly: boolean;
+    },
     { commonQuerySelector, models }: IContext
   ) {
     const filter: any = commonQuerySelector;
@@ -24,6 +30,18 @@ const assetCategoriesQueries = {
 
     if (searchValue) {
       filter.name = new RegExp(`.*${searchValue}.*`, 'i');
+    }
+
+    if (withKbOnly) {
+      const assetsWithKb = await models.Assets.find(
+        { 'kbArticleIds.0': { $exists: true } },
+        { categoryId: 1 }
+      );
+      const categoryIds = assetsWithKb
+        .filter(asset => asset.categoryId)
+        .map(asset => asset.categoryId);
+
+      filter._id = { $in: categoryIds };
     }
 
     return models.AssetCategories.find(filter)

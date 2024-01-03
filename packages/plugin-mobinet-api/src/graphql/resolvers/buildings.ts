@@ -13,6 +13,10 @@ const Building = {
   },
 
   async location(building, _params, _context) {
+    if (!building.location || !building.location.coordinates) {
+      return null;
+    }
+
     return {
       lat: building.location.coordinates[1],
       lng: building.location.coordinates[0]
@@ -123,6 +127,15 @@ const Building = {
         _id: productPriceConfig.productId,
         __typename: 'Product'
       }
+    }));
+  },
+
+  async assets(building: IBuildingDocument, _args: IContext) {
+    const assetIds = building.assetIds || [];
+
+    return assetIds.map(_id => ({
+      _id,
+      __typename: 'Asset'
     }));
   }
 };

@@ -1,0 +1,15 @@
+{
+  "name": "@erxes/plugin-bichil-api",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "nodemon src/index.ts",
+    "build" : "tsc"
+  },
+  "dependencies": {
+    "@erxes/api-utils" : "*",
+    "dayjs": "^1.11.7",
+    "xlsx-populate": "^1.21.0",
+    "jsonwebtoken": "^8.5.1",
+    "multer": "^1.4.2"
+  }
+}

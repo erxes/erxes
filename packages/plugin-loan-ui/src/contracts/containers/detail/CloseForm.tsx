@@ -1,9 +1,9 @@
 import { __, ButtonMutate, withProps } from '@erxes/ui/src';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
 import React from 'react';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 import CloseForm from '../../components/detail/CloseForm';
 import { mutations, queries } from '../../graphql';
 import {

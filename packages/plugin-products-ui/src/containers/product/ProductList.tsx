@@ -1,10 +1,10 @@
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
 import Bulk from '@erxes/ui/src/components/Bulk';
 import { Alert, withProps } from '@erxes/ui/src/utils';
 import { generatePaginationParams } from '@erxes/ui/src/utils/router';
 import React from 'react';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 import List from '../../components/product/ProductList';
 import { mutations, queries } from '../../graphql';
 import {
@@ -49,10 +49,6 @@ class ProductListContainer extends React.Component<FinalProps> {
       productCategoryDetailQuery,
       history
     } = this.props;
-
-    if (productsQuery.loading) {
-      return false;
-    }
 
     const products = productsQuery.products || [];
 
@@ -105,7 +101,7 @@ class ProductListContainer extends React.Component<FinalProps> {
       queryParams,
       products,
       remove,
-      loading: productsQuery.loading,
+      loading: productsQuery.loading || productsCountQuery.loading,
       searchValue,
       productsCount: productsCountQuery.productsTotalCount || 0,
       currentCategory: productCategoryDetailQuery.productCategoryDetail || {},
@@ -147,11 +143,14 @@ export default withProps<Props>(
         options: ({ queryParams }) => ({
           variables: {
             categoryId: queryParams.categoryId,
+            status: queryParams.productStatus,
             tag: queryParams.tag,
+            brand: queryParams.brand,
             searchValue: queryParams.searchValue,
             type: queryParams.type,
             segment: queryParams.segment,
             segmentData: queryParams.segmentData,
+            ids: queryParams.ids && queryParams.ids.split(','),
             ...generatePaginationParams(queryParams)
           },
           fetchPolicy: 'network-only'
@@ -162,8 +161,14 @@ export default withProps<Props>(
       name: 'productsCountQuery',
       options: ({ queryParams }) => ({
         variables: {
+          categoryId: queryParams.categoryId,
+          status: queryParams.productStatus,
+          tag: queryParams.tag,
+          searchValue: queryParams.searchValue,
+          type: queryParams.type,
           segment: queryParams.segment,
-          segmentData: queryParams.segmentData
+          segmentData: queryParams.segmentData,
+          ids: queryParams.ids && queryParams.ids.split(',')
         },
         fetchPolicy: 'network-only'
       })

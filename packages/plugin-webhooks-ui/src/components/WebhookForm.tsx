@@ -92,9 +92,11 @@ class WebhookForm extends React.Component<Props & ICommonFormProps, State> {
 
   generateActions = () => {
     const actions = getWebhookActions(this.props.webhookActions);
-    return actions.map(action => {
-      return { label: action.label, value: action.label };
-    });
+    return actions
+      .filter(a => a)
+      .map(action => {
+        return { label: action.label, value: action.label };
+      });
   };
 
   renderContent = (formProps: IFormProps) => {

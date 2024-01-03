@@ -2,7 +2,6 @@ import React from 'react';
 import styled, { css } from 'styled-components';
 import styledTS from 'styled-components-ts';
 import { __, dimensions, Button, Tip, Icon, ControlLabel } from '@erxes/ui/src';
-import { IOrdersSummary } from '../../types';
 
 const MainDescription = styledTS<{
   expand: boolean;
@@ -37,7 +36,7 @@ const ActionBar = styledTS<{
 `;
 
 const Description = styled.div`
-  max-width: 1000px;
+  max-width: 90%;
   display: flex;
   align-items: center;
 `;
@@ -51,11 +50,11 @@ const DescImg = styled.img`
 const Amount = styled.ul`
   display: flex;
   padding-left: 0px;
+  overflow-x: auto;
 `;
 
 const HeaderContentSmall = styled.div`
   text-align: right;
-  margin-left: 15px;
   min-width: 150px;
   flex-shrink: 0;
   p {
@@ -86,6 +85,7 @@ type Props = {
   icon: string;
   title: string;
   summary: any;
+  staticKeys: string[];
   actionBar: React.ReactNode;
 };
 
@@ -113,50 +113,43 @@ class HeaderDescription extends React.PureComponent<Props, State> {
     e.stopPropagation();
   };
 
-  renderAmount = (amount = {}, order) => {
-    if (Object.keys(amount).length === 0) {
-      return null;
-    }
-
-    return (
-      <Amount>
-        {order.map(key => {
-          if (!Object.keys(amount).includes(key)) {
-            return '';
-          }
-
-          return (
-            <HeaderContentSmall key={key}>
-              <ControlLabel>{__(key)}</ControlLabel>
-              <p>{amount[key].toLocaleString()}</p>
-            </HeaderContentSmall>
-          );
-        })}
-      </Amount>
-    );
-  };
-
-  renderSummary(summary: IOrdersSummary) {
-    if (!this.state.expand) {
+  renderAmount = (summary, key) => {
+    if (!Object.keys(summary).includes(key)) {
       return '';
     }
 
     return (
-      <>
-        {this.renderAmount(summary, [
-          'cashAmount',
-          'receivableAmount',
-          'cardAmount',
-          'mobileAmount',
-          'totalAmount',
-          'count'
-        ])}
-      </>
+      <HeaderContentSmall key={key}>
+        <ControlLabel>{__(key)}</ControlLabel>
+        <p>{summary[key].toLocaleString()}</p>
+      </HeaderContentSmall>
+    );
+  };
+
+  renderSummary() {
+    const { staticKeys, summary } = this.props;
+
+    if (!this.state.expand) {
+      return '';
+    }
+
+    if (Object.keys(summary).length === 0) {
+      return <></>;
+    }
+
+    return (
+      <Amount>
+        {staticKeys.map(key => this.renderAmount(summary, key))}
+        {Object.keys(summary)
+          .filter(a => !['_id'].includes(a))
+          .filter(a => !staticKeys.includes(a))
+          .map(key => this.renderAmount(summary, key))}
+      </Amount>
     );
   }
 
   render() {
-    const { icon, title, summary, actionBar } = this.props;
+    const { icon, title, actionBar } = this.props;
 
     return (
       <>
@@ -165,7 +158,7 @@ class HeaderDescription extends React.PureComponent<Props, State> {
             {this.state.expand && <DescImg src={icon} />}
 
             <h4>{__(title)}</h4>
-            {this.renderSummary(summary)}
+            {this.renderSummary()}
           </Description>
           <Button btnStyle="link" onClick={this.onClick}>
             <Tip

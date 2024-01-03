@@ -1,9 +1,9 @@
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { IFormProps } from '@erxes/ui/src/types';
-import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import React from 'react';
-import { ChildProps, graphql } from 'react-apollo';
+import { gql } from '@apollo/client';
+import { graphql, ChildProps } from '@apollo/client/react/hoc';
 import SelectDepartments from '../components/SelectDepartments';
 import { queries } from '../graphql';
 import { DepartmentsQueryResponse } from '../types';

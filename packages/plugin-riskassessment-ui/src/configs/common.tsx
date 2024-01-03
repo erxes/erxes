@@ -1,5 +1,5 @@
 import { router } from '@erxes/ui/src';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import { queries } from './graphql';
 
 export const refetchQueries = queryParams => [

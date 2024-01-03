@@ -31,7 +31,7 @@ export const ASSET_INFO = {
   ]
 };
 
-export const EXTEND_FIELDS = [
+export const ASSET_EXTEND_FIELDS = [
   {
     _id: Math.random(),
     name: 'categoryName',
@@ -46,8 +46,71 @@ export const EXTEND_FIELDS = [
   },
   {
     _id: Math.random(),
+    name: 'parentCode',
+    label: 'Parent Code',
+    type: 'string'
+  },
+  {
+    _id: Math.random(),
     name: 'tag',
     label: 'Tag',
+    type: 'string'
+  }
+];
+
+export const ASSETS_MOVEMENT_EXTEND_FIELDS = [
+  {
+    _id: Math.random(),
+    name: 'assetName',
+    label: 'Asset Name',
+    type: 'string'
+  },
+  {
+    _id: Math.random(),
+    name: 'assetCode',
+    label: 'Asset Code',
+    type: 'string'
+  },
+  {
+    _id: Math.random(),
+    name: 'branchName',
+    label: 'Branch Name',
+    type: 'string'
+  },
+  {
+    _id: Math.random(),
+    name: 'branchCode',
+    label: 'Branch Code',
+    type: 'string'
+  },
+  {
+    _id: Math.random(),
+    name: 'departmentName',
+    label: 'Department Name',
+    type: 'string'
+  },
+  {
+    _id: Math.random(),
+    name: 'departmentCode',
+    label: 'Department Code',
+    type: 'string'
+  },
+  {
+    _id: Math.random(),
+    name: 'customerEmail',
+    label: 'Customer Email',
+    type: 'string'
+  },
+  {
+    _id: Math.random(),
+    name: 'companyEmail',
+    label: 'Company Email',
+    type: 'string'
+  },
+  {
+    _id: Math.random(),
+    name: 'teamMemberEmail',
+    label: 'Team Member Email',
     type: 'string'
   }
 ];

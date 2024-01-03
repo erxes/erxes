@@ -25,6 +25,12 @@ export interface IImapForm {
   smtpPort: number;
 }
 
+export interface IEmailTemplate {
+  _id: string;
+  name: string;
+  content: string;
+}
+
 export interface IExchangeForm {
   email: string;
   password: string;
@@ -47,7 +53,7 @@ export interface IAccount {
 
 // query types
 export type IntegrationTypes = 'facebook';
-
+export type IntegrationTypesInstagram = 'instagram';
 export type IntegrationDetailQueryResponse = {
   integrationDetail: IIntegration;
 } & QueryResponse;
@@ -126,7 +132,7 @@ export type CommonFieldsEditResponse = {
       name: string;
       brandId: string;
       channelIds?: string[];
-      data: any;
+      details: any;
     };
   }) => Promise<any>;
 };
@@ -165,6 +171,7 @@ export interface IBookingData {
 export interface ILink {
   twitter?: string;
   facebook?: string;
+  instagram?: string;
   youtube?: string;
 }
 
@@ -213,6 +220,7 @@ export interface IMessengerData {
   forceLogoutWhenResolve?: boolean;
   showVideoCallRequest?: boolean;
   onlineHours?: IOnlineHour[];
+  hideWhenOffline?: boolean;
   links?: ILink;
 }
 
@@ -279,6 +287,7 @@ export interface IIntegration {
   bookingData?: IBookingData;
   visibility?: string;
   departmentIds?: string[];
+  details?: any;
 }
 
 export type QueryVariables = {
@@ -305,7 +314,7 @@ export type IntegrationMutationVariables = {
   channelIds?: string[];
   visibility?: string;
   departmentIds?: string[];
-  data?: any;
+  details?: any;
 };
 
 export type AddIntegrationMutationVariables = {
@@ -353,6 +362,7 @@ export type ByKindTotalCount = {
   messenger: number;
   lead: number;
   facebook: number;
+  instagram: number;
   gmail: number;
   callpro: number;
   chatfuel: number;

@@ -9,8 +9,8 @@ import React from 'react';
 import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { queries as fieldQueries } from '@erxes/ui-forms/src/settings/properties/graphql';
-import gql from 'graphql-tag';
-import { graphql } from 'react-apollo';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
 import { isEnabled } from '@erxes/ui/src/utils/core';
 import { mutations } from '../../../graphql';
 import { withProps } from '@erxes/ui/src/utils';
@@ -62,24 +62,26 @@ const CustomFieldsSection = (props: FinalProps) => {
 };
 
 const options = () => ({
-  refetchQueries: ['companDetail']
+  refetchQueries: ['productDetail']
 });
 
 export default withProps<Props>(
   compose(
-    graphql<Props, FieldsGroupsQueryResponse, { contentType: string }>(
-      gql(fieldQueries.fieldsGroups),
-      {
-        name: 'fieldsGroupsQuery',
-        options: () => ({
-          variables: {
-            contentType: FIELDS_GROUPS_CONTENT_TYPES.PRODUCT,
-            isDefinedByErxes: false
-          }
-        }),
-        skip: !isEnabled('forms')
-      }
-    ),
+    graphql<
+      Props,
+      FieldsGroupsQueryResponse,
+      { product: IProduct; contentType: string }
+    >(gql(fieldQueries.fieldsGroups), {
+      name: 'fieldsGroupsQuery',
+      options: ({ product }: { product: IProduct }) => ({
+        variables: {
+          contentType: FIELDS_GROUPS_CONTENT_TYPES.PRODUCT,
+          isDefinedByErxes: false,
+          config: { categoryId: product.categoryId }
+        }
+      }),
+      skip: !isEnabled('forms')
+    }),
     graphql<Props, EditMutationResponse, IProduct>(gql(mutations.productEdit), {
       name: 'editMutation',
       options

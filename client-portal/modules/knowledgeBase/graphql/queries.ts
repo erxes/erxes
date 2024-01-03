@@ -5,6 +5,7 @@ const categoryFields = `
   icon
   numOfArticles
   authors {
+    _id
     details {
       fullName
       avatar
@@ -81,6 +82,7 @@ export const articleDetailQuery = `
     knowledgeBaseArticleDetail(_id: $_id) {
       _id
       title
+      viewCount
       summary
       content
       status
@@ -106,13 +108,20 @@ export const articleDetailQuery = `
 `;
 
 export const articlesQuery = `
-  query knowledgeBaseArticles($categoryIds: [String], $searchValue: String) {
-    clientPortalKnowledgeBaseArticles(categoryIds: $categoryIds, searchValue: $searchValue) {
+  query knowledgeBaseArticles($categoryIds: [String], $searchValue: String, $topicId: String,) {
+    clientPortalKnowledgeBaseArticles(categoryIds: $categoryIds, searchValue: $searchValue, topicId: $topicId) {
       _id
       title
+      viewCount
       summary
       content
+      status
+      forms {
+        brandId
+        formId
+      }
       reactionChoices
+      reactionCounts
       createdBy
       createdDate
       modifiedBy

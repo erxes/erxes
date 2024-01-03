@@ -4,7 +4,8 @@ import React from 'react';
 import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
 import Tip from '@erxes/ui/src/components/Tip';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { __, router } from '@erxes/ui/src/utils';
+import { router } from '@erxes/ui/src/utils';
+import { __ } from 'coreui/utils';
 import { IFlowCategory } from '../../types';
 import { Link } from 'react-router-dom';
 import { SidebarList } from '@erxes/ui/src/layout/styles';
@@ -292,15 +293,15 @@ class List extends React.Component<IProps> {
                   {'less products'}{' '}
                 </option>
                 <option
-                  key={'wrong In Department'}
-                  value={'wrong In Department'}
+                  key={'wrong Spend Department'}
+                  value={'wrong Spend Department'}
                 >
                   {' '}
-                  {'wrong In Department'}{' '}
+                  {'wrong Spend Department'}{' '}
                 </option>
-                <option key={'wrong In Branch'} value={'wrong In Branch'}>
+                <option key={'wrong Spend Branch'} value={'wrong Spend Branch'}>
                   {' '}
-                  {'wrong In Branch'}{' '}
+                  {'wrong Spend Branch'}{' '}
                 </option>
               </FormControl>
             </FormGroup>

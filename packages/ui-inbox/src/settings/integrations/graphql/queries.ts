@@ -39,7 +39,7 @@ const integrationDetail = `
   query integrationDetail($_id: String!) {
     integrationDetail(_id: $_id) {
       ${commonFields}
-      
+      data
       messengerData
       uiOptions
       websiteMessengerApps {
@@ -95,6 +95,7 @@ const integrations = `
         name
         code
       }
+      createdAt
       webhookData
       leadData
       formId
@@ -121,6 +122,8 @@ const integrations = `
             `
           : ''
       }
+      data
+      details
       healthStatus
     }
   }
@@ -187,8 +190,8 @@ const integrationsGetFbPages = `
 `;
 
 const integrationsVideoCallUsageStatus = `
-  query integrationsVideoCallUsageStatus {
-    integrationsVideoCallUsageStatus
+  query VideoCallUsageStatus {
+    videoCallUsageStatus
   }
 `;
 

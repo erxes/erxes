@@ -1,18 +1,19 @@
 module.exports = {
+  srcDir: __dirname,
   name: 'loyalties',
   port: 3002,
   scope: 'loyalties',
   exposes: {
-    "./routes": "./src/routes.tsx",
-    "./customerSidebar": "./src/containers/CustomerSidebar.tsx",
-    "./companySidebar": "./src/containers/CompanySidebar.tsx",
-    "./userSidebar": "./src/containers/UserSidebar.tsx",
-    './automation': './src/automations/automation.tsx'
+    './routes': './src/routes.tsx',
+    './customerSidebar': './src/containers/CustomerSidebar.tsx',
+    './companySidebar': './src/containers/CompanySidebar.tsx',
+    './userSidebar': './src/containers/UserSidebar.tsx',
+    './automation': './src/automations/automation.tsx',
   },
   routes: {
     url: 'http://localhost:3002/remoteEntry.js',
     scope: 'loyalties',
-    module: './routes'
+    module: './routes',
   },
   automation: './automation',
   menus: [
@@ -21,7 +22,7 @@ module.exports = {
       url: '/vouchers',
       icon: 'icon-piggybank',
       location: 'mainNavigation',
-      permission: 'showLoyalties'
+      permission: 'showLoyalties',
     },
     {
       text: 'Loyalties config',
@@ -30,28 +31,28 @@ module.exports = {
       location: 'settings',
       scope: 'loyalties',
       action: 'loyaltyConfig',
-      permissions: ['manageLoyalties', 'showLoyalties']
-    }
+      permissions: ['manageLoyalties', 'showLoyalties'],
+    },
   ],
   customerRightSidebarSection: [
     {
       text: 'customerSection',
       component: './customerSidebar',
-      scope: 'loyalties'
-    }
+      scope: 'loyalties',
+    },
   ],
   companyRightSidebarSection: [
     {
       text: 'companySection',
       component: './companySidebar',
-      scope: 'loyalties'
-    }
+      scope: 'loyalties',
+    },
   ],
   userRightSidebarSection: [
     {
       text: 'userSection',
       component: './userSidebar',
-      scope: 'loyalties'
-    }
-  ]
+      scope: 'loyalties',
+    },
+  ],
 };

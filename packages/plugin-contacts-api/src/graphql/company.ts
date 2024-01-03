@@ -29,6 +29,8 @@ export const types = tagsEnabled => `
     primaryEmail: String
     phones: [String]
     primaryPhone: String
+    primaryAddress: JSON
+    addresses: [JSON]
 
     businessType: String
     description: String
@@ -92,6 +94,9 @@ const commonFields = `
 
   primaryEmail: String,
   emails: [String],
+
+  primaryAddress: JSON,
+  addresses: [JSON],
 
   size: Int,
   website: String,

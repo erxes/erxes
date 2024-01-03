@@ -1,4 +1,3 @@
-import { sendFormsMessage } from './../../plugin-inbox-api/src/messageBroker';
 import { createCustomer, getCustomer, updateCustomer } from './api/utils';
 import { sendCommonMessage } from './messageBroker';
 

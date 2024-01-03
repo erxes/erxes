@@ -1,3 +1,5 @@
+import { isEnabled } from '@erxes/ui/src/utils/core';
+
 export const commonPaginateDef = `
     $page:Int
     $perPage:Int
@@ -7,6 +9,7 @@ export const commonPaginateDef = `
     $sortFromDate:String
     $sortToDate:String
 `;
+
 export const commonPaginateValue = `
     page:$page
     perPage:$perPage
@@ -17,61 +20,48 @@ export const commonPaginateValue = `
     sortToDate:$sortToDate
 `;
 
-export const riskAssessmentDef = `
-    $categoryId: String,
-    $description: String,
-    $name: String!,
-    $calculateMethod: String,
-`;
-
-export const riskAssessmentValues = `
-    categoryId: $categoryId,
-    description: $description,
-    name: $name,
-    calculateMethod: $calculateMethod
-`;
-
-export const riskAssessmentCategoryParams = `
-_id
-formId
-parentId
-name
-code
-order
-type
-`;
-
-export const riskAssessmentParams = `
+export const riskIndicatorParams = `
     _id,
     name,
     description,
-    status,
-    statusColor,
-    categoryId,
+    operationIds
+    departmentIds,
+    branchIds,
     createdAt,
-    resultScore,
-    category{
+    modifiedAt,
+    isWithDescription
+    ${isEnabled('tags') ? `tags{_id,name,colorCode}` : ''}
+    
+    tagIds
+      forms {
         _id
+        calculateMethod
+        calculateLogics {
+            _id
+            name
+            value
+            value2
+            logic
+            color
+        }
         formId
-        parentId
-        name
-    },
-    calculateMethod,
-    calculateLogics {
-        _id
-        logic
-        name
-        value
-        value2
-        color
+        percentWeight
       }
 `;
 
-export const riskConformityParams = `
-    _id
-    categoryId
-    createdAt
-    description
-    name
-    status
+export const tags = `
+  query tagsQuery($type: String, $tagIds: [String], $parentId: String) {
+    tags(type: $type, tagIds: $tagIds, parentId: $parentId) {
+      _id
+      name
+      type
+      colorCode
+      createdAt
+      objectCount
+      totalObjectCount
+      parentId
+      order
+      relatedIds
+    }
+  }
 `;

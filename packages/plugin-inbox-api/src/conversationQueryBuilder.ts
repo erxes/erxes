@@ -1,8 +1,10 @@
 import * as _ from 'underscore';
-import { CONVERSATION_STATUSES } from './models/definitions/constants';
-import { fixDate } from '@erxes/api-utils/src/core';
+
 import { sendSegmentsMessage, sendTagsMessage } from './messageBroker';
+
+import { CONVERSATION_STATUSES } from './models/definitions/constants';
 import { IModels } from './connectionResolver';
+import { fixDate } from '@erxes/api-utils/src/core';
 
 interface IIn {
   $in: string[];
@@ -37,12 +39,14 @@ export interface IListArgs {
   sortDirection?: number;
   segment?: string;
   searchValue?: string;
+  skip?: number;
 }
 
 interface IUserArgs {
   _id: string;
   code?: string;
   starredConversationIds?: string[];
+  role?: string;
 }
 
 interface IIntersectIntegrationIds {
@@ -164,9 +168,14 @@ export default class Builder {
     // find all posssible integrations
     let availIntegrationIds: string[] = [];
 
-    const channels = await this.models.Channels.find({
-      memberIds: this.user._id
-    });
+    const channelQuery =
+      this.user.role && this.user.role === 'system'
+        ? {}
+        : {
+            memberIds: this.user._id
+          };
+
+    const channels = await this.models.Channels.find(channelQuery);
 
     if (channels.length === 0) {
       return {
@@ -189,8 +198,8 @@ export default class Builder {
 
     // filter by channel
     if (this.params.channelId) {
-      const channelQuery = await this.channelFilter(this.params.channelId);
-      nestedIntegrationIds.push(channelQuery);
+      const _channelQuery = await this.channelFilter(this.params.channelId);
+      nestedIntegrationIds.push(_channelQuery);
     }
 
     // filter by brand

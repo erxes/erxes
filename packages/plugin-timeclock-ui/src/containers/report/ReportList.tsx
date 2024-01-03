@@ -1,22 +1,24 @@
-import { getEnv, withProps } from '@erxes/ui/src/utils/core';
+import { getEnv, isEnabled, withProps } from '@erxes/ui/src/utils/core';
 import queryString from 'query-string';
 import * as compose from 'lodash.flowright';
-import { graphql } from 'react-apollo';
-import gql from 'graphql-tag';
+import { graphql } from '@apollo/client/react/hoc';
+import { gql } from '@apollo/client';
 import React from 'react';
 import ReportList from '../../components/report/ReportList';
 import { queries } from '../../graphql';
 import { BranchesQueryResponse, ReportsQueryResponse } from '../../types';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { generateParams } from '../../utils';
-import Pagination from '@erxes/ui/src/components/pagination/Pagination';
+import { IUser } from '@erxes/ui/src/auth/types';
 
 type Props = {
   history: any;
   queryParams: any;
   searchValue?: string;
+  isCurrentUserAdmin: boolean;
 
   reportType?: string;
+  currentUser: IUser;
 
   getActionBar: (actionBar: any) => void;
   showSideBar: (sideBar: boolean) => void;
@@ -29,21 +31,17 @@ type FinalProps = {
 } & Props;
 
 const ListContainer = (props: FinalProps) => {
-  const {
-    listReportsQuery,
-    queryParams,
-    getActionBar,
-    showSideBar,
-    getPagination
-  } = props;
+  const { listReportsQuery, queryParams, currentUser } = props;
   const { branchId, deptId } = queryParams;
 
-  if (listReportsQuery.loading) {
+  if (listReportsQuery && listReportsQuery.loading) {
     return <Spinner />;
   }
+
   const exportReport = () => {
     const stringified = queryString.stringify({
-      ...queryParams
+      ...queryParams,
+      currentUserId: currentUser._id
     });
 
     const { REACT_APP_API_URL } = getEnv();
@@ -52,31 +50,31 @@ const ListContainer = (props: FinalProps) => {
     );
   };
 
-  const { list = [], totalCount = 0 } = listReportsQuery.timeclockReports;
-
-  getPagination(<Pagination count={totalCount} />);
+  const { list = [], totalCount = 0 } =
+    listReportsQuery?.timeclockReports || {};
 
   const updatedProps = {
     ...props,
-    getActionBar,
     exportReport,
     reports: list,
     totalCount,
     branchId,
     deptId
   };
-  showSideBar(true);
+
   return <ReportList {...updatedProps} />;
 };
 
 export default withProps<Props>(
   compose(
-    graphql<Props, ReportsQueryResponse>(gql(queries.listReports), {
+    graphql<Props, ReportsQueryResponse>(gql(queries.timeclockReports), {
       name: 'listReportsQuery',
-      options: ({ queryParams, reportType }) => ({
+      skip: isEnabled('bichil') || false,
+      options: ({ queryParams, reportType, isCurrentUserAdmin }) => ({
         variables: {
           ...generateParams(queryParams),
-          reportType
+          reportType,
+          isCurrentUserAdmin
         },
         fetchPolicy: 'network-only'
       })

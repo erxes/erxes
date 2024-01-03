@@ -1,6 +1,6 @@
 const list = `
-  query listQuery {
-    ads {
+  query listQuery($page: Int, $perPage: Int) {
+    ads(page: $page, perPage: $perPage) {
       _id
       createdAt
 

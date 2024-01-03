@@ -1,4 +1,4 @@
-import { Alert, __ } from 'coreui/utils';
+import { Alert, __ } from '@erxes/ui/src/utils';
 import { Appearance, Availability, Greeting, Intro, Options } from './steps';
 import {
   Content,
@@ -74,6 +74,7 @@ type State = {
   logoPreviewStyle: any;
   logoPreviewUrl: string;
   facebook: string;
+  instagram: string;
   twitter: string;
   youtube: string;
   messages: IMessages;
@@ -82,6 +83,7 @@ type State = {
   requireAuth?: boolean;
   showChat?: boolean;
   showLauncher?: boolean;
+  hideWhenOffline?: boolean;
   forceLogoutWhenResolve?: boolean;
   showVideoCallRequest?: boolean;
   messengerApps: IMessengerApps;
@@ -99,6 +101,7 @@ class CreateMessenger extends React.Component<Props, State> {
       requireAuth: true,
       showChat: true,
       showLauncher: true,
+      hideWhenOffline: false,
       forceLogoutWhenResolve: false,
       showVideoCallRequest: false,
       botEndpointUrl: '',
@@ -125,6 +128,7 @@ class CreateMessenger extends React.Component<Props, State> {
       requireAuth: configData.requireAuth,
       showChat: configData.showChat,
       showLauncher: configData.showLauncher,
+      hideWhenOffline: configData.hideWhenOffline,
       forceLogoutWhenResolve: configData.forceLogoutWhenResolve,
       supporterIds: configData.supporterIds || [],
       availabilityMethod: configData.availabilityMethod || 'manual',
@@ -141,6 +145,7 @@ class CreateMessenger extends React.Component<Props, State> {
       logoPreviewStyle: {},
       logoPreviewUrl: uiOptions.logo || '/images/erxes.png',
       facebook: links.facebook || '',
+      instagram: links.instagram || '',
       twitter: links.twitter || '',
       youtube: links.youtube || '',
       messages: { ...this.generateMessages(messages) },
@@ -190,11 +195,13 @@ class CreateMessenger extends React.Component<Props, State> {
       channelIds,
       messages,
       facebook,
+      instagram,
       twitter,
       youtube,
       requireAuth,
       showChat,
       showLauncher,
+      hideWhenOffline,
       forceLogoutWhenResolve,
       showVideoCallRequest,
       messengerApps,
@@ -211,6 +218,24 @@ class CreateMessenger extends React.Component<Props, State> {
 
     if (!brandId) {
       return Alert.error('Choose a brand');
+    }
+
+    if (channelIds.length < 1) {
+      return Alert.error('Choose a channel');
+    }
+
+    if (messengerApps.websites && messengerApps.websites.length > 0) {
+      for (const website of messengerApps.websites) {
+        if (website.url === '') {
+          return Alert.error(`Set Website URL`);
+        }
+        if (website.description === '') {
+          return Alert.error(`Set Website Description`);
+        }
+        if (website.buttonText === '') {
+          return Alert.error(`Set Website Button Text`);
+        }
+      }
     }
 
     if (skillData && Object.keys(skillData).length !== 0) {
@@ -233,6 +258,7 @@ class CreateMessenger extends React.Component<Props, State> {
 
     const links = {
       facebook: linkify(facebook),
+      instagram: linkify(instagram),
       twitter: linkify(twitter),
       youtube: linkify(youtube)
     };
@@ -262,6 +288,7 @@ class CreateMessenger extends React.Component<Props, State> {
         requireAuth,
         showChat,
         showLauncher,
+        hideWhenOffline,
         forceLogoutWhenResolve,
         showVideoCallRequest,
         links
@@ -334,6 +361,7 @@ class CreateMessenger extends React.Component<Props, State> {
       notifyCustomer,
       logoPreviewStyle,
       facebook,
+      instagram,
       twitter,
       youtube,
       messages,
@@ -342,6 +370,7 @@ class CreateMessenger extends React.Component<Props, State> {
       requireAuth,
       showChat,
       showLauncher,
+      hideWhenOffline,
       forceLogoutWhenResolve,
       showVideoCallRequest,
       channelIds,
@@ -389,6 +418,7 @@ class CreateMessenger extends React.Component<Props, State> {
                   supporterIds={supporterIds}
                   messages={messages}
                   facebook={facebook}
+                  instagram={instagram}
                   languageCode={languageCode}
                   twitter={twitter}
                   youtube={youtube}
@@ -421,6 +451,7 @@ class CreateMessenger extends React.Component<Props, State> {
                   responseRate={responseRate}
                   showTimezone={showTimezone}
                   onlineHours={onlineHours}
+                  hideWhenOffline={hideWhenOffline}
                 />
               </Step>
 
@@ -509,6 +540,7 @@ class CreateMessenger extends React.Component<Props, State> {
                 showVideoCallRequest={showVideoCallRequest}
                 messengerApps={messengerApps}
                 facebook={facebook}
+                instagram={instagram}
                 twitter={twitter}
                 youtube={youtube}
               />

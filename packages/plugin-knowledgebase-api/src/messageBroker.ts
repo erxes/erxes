@@ -22,6 +22,18 @@ export const initBroker = async cl => {
   );
 
   consumeRPCQueue(
+    'knowledgebase:topics.find',
+    async ({ subdomain, data: { query } }) => {
+      const models = await generateModels(subdomain);
+
+      return {
+        status: 'success',
+        data: await models.KnowledgeBaseTopics.find(query).lean()
+      };
+    }
+  );
+
+  consumeRPCQueue(
     'knowledgebase:topics.count',
     async ({ subdomain, data: { query } }) => {
       const models = await generateModels(subdomain);
@@ -58,6 +70,17 @@ export const initBroker = async cl => {
       };
     }
   );
+  consumeRPCQueue(
+    'knowledgebase:categories.find',
+    async ({ subdomain, data: { query } }) => {
+      const models = await generateModels(subdomain);
+
+      return {
+        status: 'success',
+        data: await models.KnowledgeBaseCategories.find(query).lean()
+      };
+    }
+  );
 };
 
 export const sendCoreMessage = (args: ISendMessageArgs): Promise<any> => {
@@ -65,6 +88,17 @@ export const sendCoreMessage = (args: ISendMessageArgs): Promise<any> => {
     client,
     serviceDiscovery,
     serviceName: 'core',
+    ...args
+  });
+};
+
+export const sendSegmentsMessage = async (
+  args: ISendMessageArgs
+): Promise<any> => {
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName: 'segments',
     ...args
   });
 };

@@ -5,18 +5,22 @@ const attachmentSchema = {
   name: { type: String },
   url: { type: String },
   type: { type: String },
-  size: { type: Number, optional: true }
+  size: { type: Number, optional: true },
+  duration: { type: Number, optional: true }
 };
 export interface IAttachment {
   name: string;
   type: string;
   url: string;
   size?: number;
+  duration?: number;
 }
 export interface IChat {
   participantIds: string[];
+  archivedUserIds?: string[];
   name?: string;
   type: string;
+  featuredImage?: IAttachment;
 }
 
 export interface IChatMessage {
@@ -46,12 +50,19 @@ export interface IChatMessageDocument extends IChatMessage, Document {
 export const chatMessageSchema = schemaHooksWrapper(
   new Schema({
     _id: field({ pkey: true }),
-    attachments: field({ type: [attachmentSchema], label: 'attachments' }),
+    attachments: field({
+      type: [attachmentSchema],
+      label: 'attachments'
+    }),
     mentionedUserIds: field({ type: [String] }),
     chatId: field({ type: String, label: 'Connected chat' }),
     relatedId: field({ type: String, label: 'Related message' }),
-    isPinned: field({ type: Boolean, default: false, label: 'Has pinned' }),
-    content: field({ type: String, label: 'Content' }),
+    isPinned: field({
+      type: Boolean,
+      default: false,
+      label: 'Has pinned'
+    }),
+    content: field({ type: String, label: 'Content', optional: true }),
     createdAt: field({ type: Date, label: 'Created at' }),
     createdBy: field({ type: String, label: 'Created by' })
   }),
@@ -74,10 +85,36 @@ export const chatSchema = schemaHooksWrapper(
     description: field({ type: String }),
     visibility: field({ type: String, enum: VISIBILITIES.ALL }),
     type: field({ type: String, enum: CHAT_TYPE.ALL }),
-    isPinned: field({ type: Boolean, default: false, label: 'Has pinned' }),
+    isPinned: field({
+      type: Boolean,
+      default: false,
+      label: 'Has pinned'
+    }),
+    isPinnedUserIds: field({
+      type: [String],
+      label: 'isPinnedUserIds'
+    }),
+    isWithNotification: field({
+      type: Boolean,
+      default: false,
+      label: 'Has notification'
+    }),
+    muteUserIds: field({
+      type: [String],
+      label: 'Mute UserIds'
+    }),
+    featuredImage: field({
+      type: [attachmentSchema],
+      label: 'Featured image'
+    }),
     participantIds: field({ type: [String], label: 'User ids' }),
+    archivedUserIds: field({ type: [String], label: 'User ids' }),
     adminIds: field({ type: [String], label: 'Admin user ids' }),
-    seenInfos: field({ type: [seenSchema], label: 'Seen info', default: [] }),
+    seenInfos: field({
+      type: [seenSchema],
+      label: 'Seen info',
+      default: []
+    }),
     createdAt: field({ type: Date, label: 'Created at' }),
     updatedAt: field({ type: Date, label: 'Updated at' }),
     createdBy: field({ type: String, label: 'Created by' })

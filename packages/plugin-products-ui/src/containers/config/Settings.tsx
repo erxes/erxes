@@ -1,15 +1,12 @@
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
 import { Alert, withProps } from '@erxes/ui/src/utils';
-import { Spinner } from '@erxes/ui/src/components';
+import Spinner from '@erxes/ui/src/components/Spinner';
 import React from 'react';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 import { mutations, queries } from '../../graphql';
-import {
-  ProductsConfigsQueryResponse,
-  IConfigsMap,
-  UomsQueryResponse
-} from '../../types';
+import { ProductsConfigsQueryResponse, IConfigsMap } from '../../types';
+import { UomsQueryResponse } from '@erxes/ui-products/src/types';
 
 type Props = {
   component: any;

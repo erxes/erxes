@@ -24,8 +24,8 @@ import Spinner from '@erxes/ui/src/components/Spinner';
 import { TopicsQueryResponse } from '@erxes/ui-knowledgebase/src/types';
 import { UsersQueryResponse } from '@erxes/ui/src/auth/types';
 import { queries as brandQueries } from '@erxes/ui/src/brands/graphql';
-import gql from 'graphql-tag';
-import { graphql } from 'react-apollo';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
 import { integrationsListParams } from '@erxes/ui-inbox/src/settings/integrations/containers/utils';
 import { queries as kbQueries } from '@erxes/ui-knowledgebase/src/graphql';
 import { withRouter } from 'react-router-dom';
@@ -79,13 +79,13 @@ const CreateMessenger = (props: FinalProps) => {
       messengerApps
     } = doc;
 
-    setIsLoading(true);
-
     let id = '';
     saveMessengerMutation({
       variables: { name, brandId, languageCode, channelIds }
     })
       .then(({ data }) => {
+        setIsLoading(true);
+
         const integrationId = data.integrationsCreateMessengerIntegration._id;
         id = integrationId;
         return saveConfigsMutation({

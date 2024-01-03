@@ -61,12 +61,15 @@ const stages = `
       probability
       visibility
       memberIds
+      canMoveMemberIds
+      canEditMemberIds
       departmentIds
       pipelineId
       formId
       status
       code
       age
+      defaultTick
     }
   }
 `;
@@ -81,10 +84,23 @@ const boardDetail = `
   }
 `;
 
+const expenses = `
+  query expenses {
+	  expenses {
+      _id
+      name
+      description
+      createdAt
+      createdBy
+    }
+  }
+`;
+
 export default {
   boards,
   pipelines,
   stages,
   boardGetLast,
-  boardDetail
+  boardDetail,
+  expenses
 };

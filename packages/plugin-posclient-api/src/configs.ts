@@ -4,7 +4,7 @@ import resolvers from './graphql/resolvers';
 import { generateModels } from './connectionResolver';
 import { initBroker } from './messageBroker';
 import { getSubdomain } from '@erxes/api-utils/src/core';
-import { callBackQpay, posInitialSetup } from './routes';
+import { posInitialSetup } from './routes';
 import * as cookieParser from 'cookie-parser';
 import posUserMiddleware from './userMiddleware';
 import posConfigMiddleware from './configMiddleware';
@@ -16,6 +16,8 @@ export let debug;
 export let graphqlPubsub;
 export let mainDb;
 export let serviceDiscovery;
+export let app;
+
 dotenv.config();
 
 export default {
@@ -29,16 +31,16 @@ export default {
     };
   },
   hasSubscriptions: true,
+  subscriptionPluginPath: require('path').resolve(
+    __dirname,
+    'graphql',
+    'subscriptionPlugin.js'
+  ),
   freeSubscriptions: loadSubscriptions,
-  postHandlers: [
-    { path: `/pl:posclient/callBackQpay`, method: callBackQpay },
-    { path: `/callBackQpay`, method: callBackQpay }
-  ],
+
   getHandlers: [
     { path: `/initial-setup`, method: posInitialSetup },
-    { path: `/pl:posclient/initial-setup`, method: posInitialSetup },
-    { path: `/pl:posclient/callBackQpay`, method: callBackQpay },
-    { path: `/callBackQpay`, method: callBackQpay }
+    { path: `/pl:posclient/initial-setup`, method: posInitialSetup }
   ],
 
   apolloServerContext: async (context, req, res) => {
@@ -58,12 +60,17 @@ export default {
     context.requestInfo = requestInfo;
     context.res = res;
 
-    context.config =
-      req.posConfig && req.posConfig._id
-        ? req.posConfig
-        : await models.Configs.findOne({})
-            .sort({ createdAt: 1 })
-            .lean();
+    context.config = {};
+
+    if (req.posConfig && req.posConfig._id) {
+      context.config = req.posConfig;
+    } else {
+      if (models) {
+        if ((await models.Configs.find({}).count()) === 1) {
+          context.config = await models.Configs.findOne({}).lean();
+        }
+      }
+    }
 
     if (req.posUser) {
       context.posUser = req.posUser;
@@ -93,12 +100,17 @@ export default {
 
   onServerInit: async options => {
     mainDb = options.db;
+    app = options.app;
 
     initBroker(options.messageBrokerClient);
 
     graphqlPubsub = options.pubsubClient;
 
     debug = options.debug;
+  },
+
+  reconnectRMQ: async messageBrokerClient => {
+    initBroker(messageBrokerClient);
   }
 };
 

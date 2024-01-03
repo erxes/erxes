@@ -27,6 +27,7 @@ import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
 import { checkPermission } from '@erxes/api-utils/src/permissions';
 import { IContext, IModels } from '../../connectionResolver';
 import { isServiceRunning } from '../../utils';
+import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
 
 interface IEditIntegration extends IIntegration {
   _id: string;
@@ -243,6 +244,10 @@ const integrationMutations = {
       }
     }
 
+    if (doc.channelIds && doc.channelIds.length === 0) {
+      throw new Error('Channel must be chosen');
+    }
+
     const integration = await models.Integrations.createExternalIntegration(
       modifiedDoc,
       user._id
@@ -299,20 +304,14 @@ const integrationMutations = {
 
   async integrationsEditCommonFields(
     _root,
-    { _id, name, brandId, channelIds, data },
+    { _id, name, brandId, channelIds, details },
     { user, models, subdomain }: IContext
   ) {
     const integration = await models.Integrations.getIntegration({ _id });
 
-    const doc: any = { name, brandId, data };
+    const doc: any = { name, brandId, details };
 
-    switch (integration.kind) {
-      case 'webhook': {
-        doc.webhookData = data;
-
-        break;
-      }
-    }
+    const { kind } = integration;
 
     await models.Integrations.updateOne({ _id }, { $set: doc });
 
@@ -329,6 +328,23 @@ const integrationMutations = {
         { $push: { integrationIds: integration._id } }
       );
     }
+
+    await sendCommonMessage({
+      serviceName: (await isServiceRunning(kind)) ? kind : 'integrations',
+      subdomain,
+      action: 'updateIntegration',
+      data: {
+        kind,
+        integrationId: integration._id,
+        doc: {
+          accountId: doc.accountId,
+          kind: doc.kind,
+          integrationId: integration._id,
+          data: details ? JSON.stringify(details) : ''
+        }
+      },
+      isRPC: true
+    });
 
     await putUpdateLog(
       models,

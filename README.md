@@ -10,8 +10,6 @@
 <p align="center">
   <a href="https://erxes.io/resource-center">Docs</a>
   |
-  <a href="https://xosdemo.erxes.io/">Demo</a>
-  |
   <a href="https://erxes.io/">Website</a>
   |
   <a href="https://erxes.io/invest">Invest</a>
@@ -19,10 +17,6 @@
 </p>
 
 <p align="center">
-  <a href="https://app.codacy.com/gh/erxes/erxes?utm_source=github.com&utm_medium=referral&utm_content=erxes">
-    <img alt="Codacy Badge" src="https://api.codacy.com/project/badge/Grade/afdc2d36ea294a01a036a4eeae4346b8">
-  </a>
-
    <a href="https://github.com/erxes/erxes/blob/master/LICENSE.md">
       <img alt="License Badge" src="https://img.shields.io/badge/license-AGPLv3-brightgreen">
   </a>
@@ -32,20 +26,26 @@
   <a href="https://www.figma.com/@erxes" target="_blank">
       <img alt="Figma" src="https://img.shields.io/badge/Figma-Design%20System-blueviolet">
   </a>
-   <a href="https://docs.erxes.io/docs/contribute/overview">
+   <a href="https://docs.erxes.io/pagination">
       <img alt="Help Wanted" src="https://img.shields.io/badge/Help%20Wanted-Contribute-blue">
   </a>
    <a href="https://github.com/erxes/erxes/stargazers">
-      <img alt="Stars" src="https://img.shields.io/badge/stars-%202.2k-orange">
+      <img alt="Stars" src="https://img.shields.io/badge/Stars-%202.7k-orange">
   </a>
    <a href="https://discord.com/invite/aaGzy3gQK5">
       <img alt="Discord" src="https://img.shields.io/badge/Discord-%20Community-blueviolet">
   </a>
-   <a href="https://explore.transifex.com/erxes-inc/erxes/">
+   <a href="https://explore.transifex.com/erxes-inc/erxesxos/">
       <img alt="Transfix" src="https://img.shields.io/badge/translations-contribute-brightgreen">
+  </a>
+   <a href="https://ossrank.com/p/416">
+      <img alt="Ossrank" src="https://shields.io/endpoint?url=https://ossrank.com/shield/416">
   </a>
    <a href="https://twitter.com/erxeshq">
       <img alt="Twitter" src="https://img.shields.io/badge/twitter-blue">
+  </a>
+  <a href="https://cloud.cypress.io/projects/bg7eun/runs">
+      <img alt="Cypress" src="https://img.shields.io/endpoint?url=https://cloud.cypress.io/badge/simple/bg7eun/master&style=flat&logo=cypress">
   </a>
 </p>
 
@@ -71,7 +71,7 @@ Achieving growth and unity within your company is possible with erxes, because i
 erxes (pronounced 'erk-sis') means "heavenly bodies" in Mongolian. It is branded as “erxes” with all lowercase letters.
 
 ## What is erxes?
-erxes is a secure, self-hosted, and scalable open-source experience operating system (XOS) that enables SaaS providers and digital marketing agencies/developers to create unique experiences that work for all types of business. You can learn more about **<a href="https://docs.erxes.io/docs/introduction/architecture">erxes architecture in our documentation</a>.**
+erxes is a secure, self-hosted, and scalable open-source experience operating system (XOS) that enables SaaS providers and digital marketing agencies/developers to create unique experiences that work for all types of business. You can learn more about **<a href="https://docs.erxes.io/intro/architecture">erxes architecture in our documentation</a>.**
 
 ## erxes XOS & Plugins
 erxes is composed of 2 main components: **XOS** & **Plugins**
@@ -92,11 +92,11 @@ erxes is composed of 2 main components: **XOS** & **Plugins**
  
 ## Getting Started
 
-Read **<a href="https://docs.erxes.io/docs/intro" >the documentation<a>** to install erxes locally.
+Read **<a href="https://docs.erxes.io/" >the documentation<a>** to install erxes locally.
 
 **🖐 Requirements**
 
-Complete installation requirements can be found in the documentation under **<a href="https://docs.erxes.io/docs/intro" >installation requirements</a>**.
+Complete installation requirements can be found in the documentation under **<a href="https://docs.erxes.io/" >installation requirements</a>**.
 
 Supported operating systems:
 
@@ -142,10 +142,6 @@ For general help using erxes, please refer to the erxes documentation. For addit
 - **<a href="https://github.com/erxes/erxes" > GitHub</a>** Bug reports, contributions
 - **<a href="https://github.com/erxes/erxes/issues" > Feedback section</a>** Roadmap, feature requests & bugs
 - **<a href="https://twitter.com/erxesHQ" > Twitter</a>** Get the news fast
- 
-## Upgrade Guides
-
-Follow our **<a href="https://docs.erxes.io/docs/update/">upgrade guides</a>** on the documentation to keep your erxes code up-to-date. See our dedicated repository for the erxes documentation, or view our **<a href="https://docs.erxes.io/docs/intro">documentation here</a>**.
 
  
 ## License

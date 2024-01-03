@@ -1,7 +1,7 @@
 import React from 'react';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 import { mutations } from '../graphql';
 import { Alert, __, confirm } from '@erxes/ui/src/utils';
 import { NeighborItemRemoveMutationResponse } from '../types';

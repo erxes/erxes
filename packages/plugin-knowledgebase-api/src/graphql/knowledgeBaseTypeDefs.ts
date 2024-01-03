@@ -77,6 +77,7 @@ export const types = `
     firstTopic: KnowledgeBaseTopic
     authors: [User]
     numOfArticles: Float
+    countArticles:Int
   }
 
   type KnowledgeBaseParentCategory {
@@ -122,8 +123,8 @@ export const types = `
     modifiedBy: String
     modifiedDate: Date
     parentCategories: [KnowledgeBaseParentCategory]
+    notificationSegmentId: String
   }
-  
 
   input KnowledgeBaseTopicDoc {
     title: String!
@@ -133,6 +134,7 @@ export const types = `
     color: String
     backgroundImage: String
     languageCode: String
+    notificationSegmentId: String
   }
 
   type KnowledgeBaseLoader {

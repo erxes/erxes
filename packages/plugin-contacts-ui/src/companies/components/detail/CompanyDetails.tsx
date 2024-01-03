@@ -12,6 +12,7 @@ import { UserHeader } from '@erxes/ui-contacts/src/customers/styles';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { __ } from 'coreui/utils';
 import { isEnabled } from '@erxes/ui/src/utils/core';
+import PrintAction from '@erxes/ui-contacts/src/customers/components/common/PrintAction';
 
 type Props = {
   company: ICompany;
@@ -56,6 +57,9 @@ class CompanyDetails extends React.Component<Props> {
         mainHead={
           <UserHeader>
             <InfoSection company={company}>
+              {isEnabled('documents') && (
+                <PrintAction coc={company} contentType="contacts:company" />
+              )}
               <BasicInfo company={company} />
             </InfoSection>
           </UserHeader>

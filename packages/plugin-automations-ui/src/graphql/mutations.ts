@@ -60,6 +60,12 @@ const automationsEdit = `
   }
 `;
 
+const archiveAutomations = `
+  mutation ArchiveAutomations($automationIds: [String],$isRestore: Boolean) {
+    archiveAutomations(automationIds: $automationIds,isRestore: $isRestore)
+  }
+`;
+
 const automationsRemove = `
   mutation automationsRemove($automationIds: [String]) {
     automationsRemove(automationIds: $automationIds)
@@ -93,6 +99,7 @@ const automationsRemoveNote = `
 export default {
   automationsAdd,
   automationsEdit,
+  archiveAutomations,
   automationsSaveAsTemplate,
   automationsCreateFromTemplate,
   automationsRemove,
