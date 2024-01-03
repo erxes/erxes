@@ -9,16 +9,14 @@ import Button from '@erxes/ui/src/components/Button';
 import { FormControl } from '@erxes/ui/src/components/form';
 
 const ExpensesForm = ({
-  costsQueryData,
+  expensesQueryData,
   expensesData,
   onChangeExpensesData
 }) => {
   const onChangeField = (field, value, expenseId: string) => {
     const updatedExpensesData = expensesData;
     if (updatedExpensesData) {
-      const expenseData = updatedExpensesData.find(
-        p => p.expenseId === expenseId
-      );
+      const expenseData = updatedExpensesData.find(p => p._id === expenseId);
       if (expenseData) {
         expenseData[field] = value;
       }
@@ -39,10 +37,10 @@ const ExpensesForm = ({
     }
 
     const newElement = {
+      _id: Math.random().toString(),
       type: typeOptions[0].value,
       name: nameOptions[0].value,
-      price: 0,
-      expenseId: Math.random().toString()
+      value: 0
     };
 
     onChangeExpensesData([...expensesData, newElement]);
@@ -52,7 +50,7 @@ const ExpensesForm = ({
     { value: 'amount', label: 'by amount' }
   ];
 
-  const nameOptions = costsQueryData.map(result => ({
+  const nameOptions = (expensesQueryData || []).map(result => ({
     value: result.name,
     label: result.name
   }));
@@ -63,66 +61,73 @@ const ExpensesForm = ({
   }));
 
   return (
-    <Table whiteSpace="nowrap" hover={true}>
-      <thead>
-        <tr>
-          <th>{__('Type')}</th>
-          <th>{__('Name')}</th>
-          <th>{__('Price')}</th>
-          <th>{__('Action')}</th>
-        </tr>
-      </thead>
-      <tbody>
-        {expensesData.map((element, index) => (
-          <tr key={index}>
-            <td>
-              <Select
-                placeholder={__('Select a type')}
-                value={element.type}
-                options={typeOptions}
-                onChange={(value: any) =>
-                  onChangeField('type', value.value, element.expenseId)
-                }
-                clearable={false}
-              />
-            </td>
-
-            <td>
-              <Select
-                placeholder={__('Select a name')}
-                value={element.name}
-                options={nameOptions}
-                onChange={(value: any) =>
-                  onChangeField('name', value.value, element.expenseId)
-                }
-                clearable={false}
-              />
-            </td>
-            <td>
-              <FormControl
-                type="text"
-                defaultValue={element.price}
-                placeholder="Enter price"
-                onChange={(e: any) =>
-                  onChangeField('price', e.target.value, element.expenseId)
-                }
-              />
-            </td>
-            <td>
-              <Button
-                btnStyle="simple"
-                type="button"
-                icon="times"
-                onClick={() => deleteElement(index)}
-              ></Button>
-            </td>
+    <>
+      <Table whiteSpace="nowrap" hover={true}>
+        <thead>
+          <tr>
+            <th>{__('Type')}</th>
+            <th>{__('Name')}</th>
+            <th>{__('Price')}</th>
+            <th>{__('Action')}</th>
           </tr>
-        ))}
-        <LinkButton onClick={addElement}>
-          <Icon icon="plus-1" /> {__('Add another expense')}
-        </LinkButton>
-      </tbody>
-    </Table>
+        </thead>
+        <tbody>
+          {(expensesData || []).map((element, index) => (
+            <tr key={index}>
+              <td>
+                <Select
+                  placeholder={__('Select a type')}
+                  value={element.type}
+                  options={typeOptions}
+                  onChange={(value: any) =>
+                    onChangeField('type', value.value, element._id)
+                  }
+                  clearable={false}
+                />
+              </td>
+
+              <td>
+                <Select
+                  placeholder={__('Select a name')}
+                  value={element.name}
+                  options={nameOptions}
+                  onChange={(value: any) =>
+                    onChangeField('name', value.value, element._id)
+                  }
+                  clearable={false}
+                />
+              </td>
+              <td>
+                <FormControl
+                  type="number"
+                  defaultValue={element.value}
+                  placeholder="Enter expense"
+                  onChange={(e: any) =>
+                    onChangeField('value', e.target.value, element._id)
+                  }
+                />
+              </td>
+              <td>
+                <Button
+                  btnStyle="simple"
+                  type="button"
+                  icon="times"
+                  onClick={() => deleteElement(index)}
+                ></Button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </Table>
+      <Button
+        btnStyle="simple"
+        type="button"
+        icon="plus-1"
+        onClick={addElement}
+      >
+        {__('Add another expense')}
+      </Button>
+    </>
   );
 };
 export default ExpensesForm;

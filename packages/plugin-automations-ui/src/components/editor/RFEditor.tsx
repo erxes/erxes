@@ -54,7 +54,7 @@ const nodeTypes = {
   scratch: ScratchNode
 };
 
-const fitViewOptions = { padding: 2 };
+const fitViewOptions = { padding: 4 };
 
 function AutomationEditor({
   triggers,
@@ -111,17 +111,19 @@ function AutomationEditor({
     return info;
   };
 
-  const onConnect = useCallback(params => {
-    setEdges(eds => {
-      const updatedEdges = addEdge({ ...params }, eds);
-
+  const onConnect = useCallback(
+    params => {
       const source = nodes.find(node => node.id === params.source);
+      setEdges(eds => {
+        const updatedEdges = addEdge({ ...params }, eds);
 
-      onConnection(generateConnect(params, source));
+        onConnection(generateConnect(params, source));
 
-      return updatedEdges;
-    });
-  }, []);
+        return updatedEdges;
+      });
+    },
+    [nodes]
+  );
 
   const onEdgeUpdate = useCallback((oldEdge, newConnection) => {
     edgeUpdateSuccessful.current = true;

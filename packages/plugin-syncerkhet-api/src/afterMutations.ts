@@ -7,9 +7,13 @@ import {
 import { getConfig, sendCardInfo } from './utils/utils';
 import { customerToErkhet, companyToErkhet } from './utils/customerToErkhet';
 import { generateModels } from './connectionResolver';
+import { getIncomeData } from './utils/incomeData';
+import { userToErkhet } from './utils/userToErkhet';
 
 const allowTypes = {
+  'core:user': ['create', 'update'],
   'cards:deal': ['update'],
+  'cards:purchase': ['update'],
   'products:productCategory': ['create', 'update', 'delete'],
   'products:product': ['create', 'update', 'delete'],
   'contacts:customer': ['create', 'update', 'delete'],
@@ -177,6 +181,70 @@ export const afterMutationHandlers = async (subdomain, params) => {
       return;
     }
 
+    if (type === 'cards:purchase') {
+      if (action === 'update') {
+        const purchase = params.updatedDocument;
+        const oldPurchase = params.object;
+        const destinationStageId = purchase.stageId || '';
+
+        if (
+          !(destinationStageId && destinationStageId !== oldPurchase.stageId)
+        ) {
+          return;
+        }
+
+        const incomeConfigs = await getConfig(
+          subdomain,
+          'stageInIncomeConfig',
+          {}
+        );
+
+        // income
+        if (Object.keys(incomeConfigs).includes(destinationStageId)) {
+          syncLog = await models.SyncLogs.syncLogsAdd(syncLogDoc);
+          const incomeConfig = {
+            ...incomeConfigs[destinationStageId],
+            ...(await getConfig(subdomain, 'ERKHET', {}))
+          };
+
+          const postData = await getIncomeData(
+            subdomain,
+            incomeConfig,
+            purchase
+          );
+
+          const response = await sendRPCMessage(
+            models,
+            syncLog,
+            'rpc_queue:erxes-automation-erkhet',
+            {
+              action: 'get-response-inv-income-info',
+              isJson: true,
+              isEbarimt: false,
+              payload: JSON.stringify(postData),
+              thirdService: true
+            }
+          );
+
+          if (response.message || response.error) {
+            const txt = JSON.stringify({
+              message: response.message,
+              error: response.error
+            });
+            if (incomeConfig.responseField) {
+              await sendCardInfo(subdomain, purchase, incomeConfig, txt);
+            } else {
+              console.log(txt);
+            }
+          }
+
+          return;
+        }
+        return;
+      }
+      return;
+    }
+
     if (type === 'products:product') {
       syncLog = await models.SyncLogs.syncLogsAdd(syncLogDoc);
       if (action === 'create') {
@@ -261,6 +329,25 @@ export const afterMutationHandlers = async (subdomain, params) => {
 
       if (action === 'delete') {
         companyToErkhet(subdomain, models, syncLog, params, 'delete', user);
+        return;
+      }
+    }
+
+    if (type === 'core:user') {
+      if (action === 'create' || action === 'update') {
+        const user = params.updatedDocument || params.object;
+        const oldUser = params.object;
+
+        if (!user.email) {
+          return;
+        }
+
+        if (user.email === oldUser.email) {
+          return;
+        }
+
+        syncLog = await models.SyncLogs.syncLogsAdd(syncLogDoc);
+        userToErkhet(subdomain, models, syncLog, params, 'create');
         return;
       }
     }

@@ -1,3 +1,41 @@
+## [1.5.7](https://github.com/erxes/erxes/compare/1.5.6...1.5.7) (2024-01-03)
+
+
+### Bug Fixes
+
+* **builder:** Replace linux specific shell commands ([dc3cb87](https://github.com/erxes/erxes/commit/dc3cb8711c1b443e651ddbf456c44f7f15bfb166))
+* **calls:** fix multiple login ([#4874](https://github.com/erxes/erxes/issues/4874)) ([308806f](https://github.com/erxes/erxes/commit/308806f091fef2d5da3c2c0a81f56fa1fefe94ab))
+* **form:** Group form row field ([#4869](https://github.com/erxes/erxes/issues/4869)) ([29dc6aa](https://github.com/erxes/erxes/commit/29dc6aa469d59a66114c7395fda07f30343f4b17))
+* **gateway:** apollo router downloader ([1259526](https://github.com/erxes/erxes/commit/1259526b90817ded8a6ee1c538e3ed86503b1c83))
+* **payment:** invoice permission ([#4864](https://github.com/erxes/erxes/issues/4864)) ([9e7a7d1](https://github.com/erxes/erxes/commit/9e7a7d1d670c68e79c5e9e1ab3d246aeaa882904))
+* **polarissync:** add null check ([427a3c4](https://github.com/erxes/erxes/commit/427a3c40bf57e20bfd1dd058b527dd9c9f379ebf))
+
+
+### Features
+
+* add direct discount on pos ([#4865](https://github.com/erxes/erxes/issues/4865)) ([b2a7d0a](https://github.com/erxes/erxes/commit/b2a7d0a0a12e28c65e24ab0e0ee1859f65ceb075))
+* create or update user sync erkhet ([98879f9](https://github.com/erxes/erxes/commit/98879f9d7b40ad344a7348c0cda5a9154acd5fa9))
+* Purchase refactor and purchase sync erkhet ([#4877](https://github.com/erxes/erxes/issues/4877)) ([1d14b28](https://github.com/erxes/erxes/commit/1d14b28286237d675c745418c8280a77c9632a24))
+
+# [1.6.0](https://github.com/erxes/erxes/compare/1.5.6...1.6.0) (2024-01-03)
+
+
+### Bug Fixes
+
+* **builder:** Replace linux specific shell commands ([dc3cb87](https://github.com/erxes/erxes/commit/dc3cb8711c1b443e651ddbf456c44f7f15bfb166))
+* **calls:** fix multiple login ([#4874](https://github.com/erxes/erxes/issues/4874)) ([308806f](https://github.com/erxes/erxes/commit/308806f091fef2d5da3c2c0a81f56fa1fefe94ab))
+* **form:** Group form row field ([#4869](https://github.com/erxes/erxes/issues/4869)) ([29dc6aa](https://github.com/erxes/erxes/commit/29dc6aa469d59a66114c7395fda07f30343f4b17))
+* **gateway:** apollo router downloader ([1259526](https://github.com/erxes/erxes/commit/1259526b90817ded8a6ee1c538e3ed86503b1c83))
+* **payment:** invoice permission ([#4864](https://github.com/erxes/erxes/issues/4864)) ([9e7a7d1](https://github.com/erxes/erxes/commit/9e7a7d1d670c68e79c5e9e1ab3d246aeaa882904))
+* **polarissync:** add null check ([427a3c4](https://github.com/erxes/erxes/commit/427a3c40bf57e20bfd1dd058b527dd9c9f379ebf))
+
+
+### Features
+
+* add direct discount on pos ([#4865](https://github.com/erxes/erxes/issues/4865)) ([b2a7d0a](https://github.com/erxes/erxes/commit/b2a7d0a0a12e28c65e24ab0e0ee1859f65ceb075))
+* create or update user sync erkhet ([98879f9](https://github.com/erxes/erxes/commit/98879f9d7b40ad344a7348c0cda5a9154acd5fa9))
+* Purchase refactor and purchase sync erkhet ([#4877](https://github.com/erxes/erxes/issues/4877)) ([1d14b28](https://github.com/erxes/erxes/commit/1d14b28286237d675c745418c8280a77c9632a24))
+
 ## [1.5.6](https://github.com/erxes/erxes/compare/1.5.5...1.5.6) (2023-12-21)
 
 

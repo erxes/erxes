@@ -159,7 +159,7 @@ export const initBroker = async cl => {
 
     const integration = await models.Integrations.findById(_id);
 
-    if(!integration) {
+    if (!integration) {
       console.log(`Queue: imap:listen. Integration not found ${_id}`);
       return;
     }

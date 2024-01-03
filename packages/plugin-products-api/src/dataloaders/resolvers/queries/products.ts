@@ -49,13 +49,8 @@ const generateFilter = async (
     tag,
     ids,
     excludeIds,
-    pipelineId,
-    boardId,
     segment,
-    segmentData,
-    sortField,
-    sortDirection,
-    ...pagintationArgs
+    segmentData
   } = params;
   const filter: any = commonQuerySelector;
 

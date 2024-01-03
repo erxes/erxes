@@ -211,7 +211,7 @@ export const sendEmailTemplatesMessage = async (
   return sendMessage({
     client,
     serviceDiscovery,
-    serviceName: 'emailTemplates',
+    serviceName: 'emailtemplates',
     ...args
   });
 };

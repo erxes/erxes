@@ -61,20 +61,10 @@ export interface IPaymentsData {
   };
 }
 export interface IExpensesData {
-  forEach(arg0: (data: any) => void): unknown;
   _id: string;
-  expenseId: string;
-  price: string;
   type: string;
   name: string;
-}
-
-export interface IExpenses {
-  _id: string;
-  expenseId: string;
-  price: string;
-  type: string;
-  name: string;
+  value: number;
 }
 
 export type PurchasesTotalAmountsQueryResponse = {
@@ -108,8 +98,8 @@ export type PurchasesTotalCountQueryResponse = {
   fetchMore: any;
 };
 
-export interface CostQueryResponse {
+export interface ExpenseQueryResponse {
   _id: string;
   name: string;
-  code: string;
+  description: string;
 }
