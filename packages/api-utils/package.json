@@ -29,6 +29,10 @@
     "ora": "^3.4.0"
   },
   "dependencies": {
+    "@opentelemetry/api": "^1.7.0",
+    "@opentelemetry/auto-instrumentations-node": "^0.40.2",
+    "@opentelemetry/sdk-node": "^0.46.0",
+    "@opentelemetry/sdk-metrics": "^1.19.0",
     "@apollo/server" : "^4.9.3",
     "@apollo/subgraph": "^2.4.12",
     "agentkeepalive": "^4.3.0",
