@@ -72,8 +72,8 @@ export const afterMutationHandlers = async (
       }
 
       const config = {
-        ...configs[destinationStageId],
-        ...(await getConfig(subdomain, 'EBARIMT', {}))
+        ...(await getConfig(subdomain, 'EBARIMT', {})),
+        ...configs[destinationStageId]
       };
 
       const ebarimtDatas = await getPostData(subdomain, config, deal);
