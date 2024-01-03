@@ -210,30 +210,7 @@ export const scheduleHelper = async (
   return bulkEntries;
 };
 
-export const reGenerateSchedules = async (
-  models: IModels,
-  contract: IContractDocument,
-  perHolidays: IPerHoliday[]
-) => {
-  if (!contract.collateralsData) {
-    return;
-  }
-
-  if (!contract.leaseAmount) {
-    return;
-  }
-
-  let bulkEntries: any[] = [];
-  let balance = contract.leaseAmount;
-  let startDate: Date = contract.startDate;
-  let tenor = contract.tenor;
-
-  if (tenor === 0) {
-    return;
-  }
-
-  startDate.setDate(startDate.getDate() + 1);
-
+const getNextDate = contract => {
   const firstNextDate = getNextMonthDay(
     contract.startDate,
     contract.scheduleDays
@@ -258,35 +235,10 @@ export const reGenerateSchedules = async (
     );
   }
 
-  bulkEntries = await scheduleHelper(
-    contract,
-    bulkEntries,
-    startDate,
-    balance,
-    tenor,
-    contract.salvageAmount ?? 0,
-    contract.salvageTenor ?? 0,
-    nextDate,
-    perHolidays
-  );
+  return nextDate;
+};
 
-  if (bulkEntries.length) {
-    const preEntry: any = bulkEntries[bulkEntries.length - 1];
-    startDate = preEntry.payDate;
-  }
-
-  bulkEntries = await scheduleHelper(
-    contract,
-    bulkEntries,
-    startDate,
-    contract.salvageAmount ?? 0,
-    contract.salvageTenor ?? 0,
-    0,
-    0,
-    nextDate,
-    perHolidays
-  );
-
+const generateInsurance = async (contract, models, bulkEntries) => {
   // insurance schedule
   const insuranceTypeIds = contract.collateralsData.map(
     coll => coll.insuranceTypeId
@@ -331,20 +283,84 @@ export const reGenerateSchedules = async (
     insuranceIndex += 1;
     monthCounter += 1;
   }
+};
+
+const generateDebt = async (contract, bulkEntries) => {
+  // insurance debt
+  const debtTenor = Math.min(contract.debtTenor || 0, bulkEntries.length) || 1;
+
+  const perDebt = Math.round(contract.debt / debtTenor);
+  const firstDebt = contract.debt - perDebt * (debtTenor - 1);
+
+  let monthDebt = perDebt;
+  for (let i = 0; i < debtTenor; i++) {
+    monthDebt = i === 0 ? firstDebt : perDebt;
+    bulkEntries[i].debt = monthDebt;
+    bulkEntries[i].total += monthDebt;
+  }
+};
+
+export const reGenerateSchedules = async (
+  models: IModels,
+  contract: IContractDocument,
+  perHolidays: IPerHoliday[]
+) => {
+  if (!contract.collateralsData) {
+    return;
+  }
+
+  if (!contract.leaseAmount) {
+    return;
+  }
+
+  let bulkEntries: any[] = [];
+  let balance = contract.leaseAmount;
+  let startDate: Date = contract.startDate;
+  let tenor = contract.tenor;
+
+  if (tenor === 0) {
+    return;
+  }
+
+  startDate.setDate(startDate.getDate() + 1);
+
+  // diff from startDate to nextDate valid: max 42 min 10 day, IsValid then undefined or equal nextMonthDay
+  let nextDate = getNextDate(contract);
+
+  bulkEntries = await scheduleHelper(
+    contract,
+    bulkEntries,
+    startDate,
+    balance,
+    tenor,
+    contract.salvageAmount ?? 0,
+    contract.salvageTenor ?? 0,
+    nextDate,
+    perHolidays
+  );
+
+  if (bulkEntries.length) {
+    const preEntry: any = bulkEntries[bulkEntries.length - 1];
+    startDate = preEntry.payDate;
+  }
+
+  bulkEntries = await scheduleHelper(
+    contract,
+    bulkEntries,
+    startDate,
+    contract.salvageAmount ?? 0,
+    contract.salvageTenor ?? 0,
+    0,
+    0,
+    nextDate,
+    perHolidays
+  );
+
+  // insurance schedule
+  await generateInsurance(contract, models, bulkEntries);
 
   if (contract.debt) {
-    const debtTenor =
-      Math.min(contract.debtTenor || 0, bulkEntries.length) || 1;
-
-    const perDebt = Math.round(contract.debt / debtTenor);
-    const firstDebt = contract.debt - perDebt * (debtTenor - 1);
-
-    let monthDebt = perDebt;
-    for (let i = 0; i < debtTenor; i++) {
-      monthDebt = i === 0 ? firstDebt : perDebt;
-      bulkEntries[i].debt = monthDebt;
-      bulkEntries[i].total += monthDebt;
-    }
+    await generateDebt(contract, bulkEntries);
   }
 
   await models.Schedules.deleteMany({ contractId: contract._id });
