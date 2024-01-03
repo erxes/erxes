@@ -5,7 +5,7 @@ import {
 } from '@erxes/api-utils/src/permissions';
 import { fetchSegment, sendSegmentsMessage } from '../../../messageBroker';
 import { IContext, IModels } from '../../../connectionResolver';
-import { paginate } from '../../utils';
+import { getConfig, paginate } from '../../utils';
 import { fetchEs } from '@erxes/api-utils/src/elasticsearch';
 
 export class Builder {
@@ -150,6 +150,7 @@ interface IListArgs {
   brandIds?: string[];
   departmentId?: string;
   branchId?: string;
+  isAssignee?: boolean;
   departmentIds: string[];
   branchIds: string[];
   unitId?: string;
@@ -190,6 +191,7 @@ const queryBuilder = async (
     departmentId,
     unitId,
     branchId,
+    isAssignee,
     departmentIds,
     branchIds,
     segment,
@@ -244,18 +246,31 @@ const queryBuilder = async (
     selector.departmentIds = { $in: [departmentId] };
   }
 
-  if (branchIds && branchIds.length && departmentIds && departmentIds.length) {
-    const oldOr = selector.$or || [];
-    oldOr.push({
-      branchIds: { $in: await getChildIds(models.Branches, branchIds) }
-    });
-    oldOr.push({
-      departmentIds: {
-        $in: await getChildIds(models.Departments, departmentIds)
-      }
-    });
+  if (
+    isAssignee &&
+    branchIds &&
+    branchIds.length &&
+    departmentIds &&
+    departmentIds.length
+  ) {
+    const checker = await getConfig(
+      'CHECK_TEAM_MEMBER_SHOWN',
+      undefined,
+      models
+    );
+    if (checker) {
+      const oldOr = selector.$or || [];
+      oldOr.push({
+        branchIds: { $in: await getChildIds(models.Branches, branchIds) }
+      });
+      oldOr.push({
+        departmentIds: {
+          $in: await getChildIds(models.Departments, departmentIds)
+        }
+      });
 
-    selector.$or = oldOr;
+      selector.$or = oldOr;
+    }
   } else {
     if (branchIds && branchIds.length) {
       selector.branchIds = {
