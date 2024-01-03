@@ -22,7 +22,7 @@ type SupergraphConfig = {
   };
 };
 
-const createSupergraphConfig = (proxyTargets: ErxesProxyTarget[]) => {
+const writeSupergraphConfig = (proxyTargets: ErxesProxyTarget[]) => {
   const superGraphConfigNext = supergraphConfigPath + '.next';
   const config: SupergraphConfig = {
     federation_version: '=2.3.1',
@@ -85,7 +85,7 @@ const supergraphComposeOnce = async () => {
 export default async function supergraphCompose(
   proxyTargets: ErxesProxyTarget[]
 ) {
-  await createSupergraphConfig(proxyTargets);
+  await writeSupergraphConfig(proxyTargets);
   await supergraphComposeOnce();
   if (NODE_ENV === 'development') {
     setInterval(async () => {

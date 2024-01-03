@@ -11,7 +11,7 @@ type Props = {
   column: string;
   fields: any[];
   columnWithChosenField: any;
-  onChangeColumn: (column, value, contentType) => void;
+  onChangeColumn: (column, value, contentType, columns) => void;
   contentType: string;
 };
 
@@ -31,9 +31,9 @@ class Row extends React.Component<Props, {}> {
   };
 
   onChange = ({ value }) => {
-    const { column, contentType } = this.props;
+    const { column, contentType, columns } = this.props;
 
-    this.props.onChangeColumn(column, value, contentType);
+    this.props.onChangeColumn(column, value, contentType, columns);
   };
 
   renderMatch = () => {

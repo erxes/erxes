@@ -32,6 +32,7 @@ type Props = {
   additionalContent?: JSX.Element;
   attrWithSegmentConfig?: boolean;
   required?: boolean;
+  componentClass?: string;
 };
 
 type State = {
@@ -202,8 +203,16 @@ class PlaceHolderInput extends React.Component<Props, State> {
 
   onKeyDown = e => {
     if (e.keyCode === 8) {
+      const { value } = e.currentTarget as HTMLInputElement;
       const { config, inputName } = this.props;
-      config[inputName] = '';
+
+      const pattern = /\{\{[^\}]*\}\}$/;
+
+      if (value.match(pattern)) {
+        config[inputName] = value.replace(pattern, '');
+      } else {
+        config[inputName] = value;
+      }
 
       this.setState({ config });
       this.props.onChange(config);
@@ -240,7 +249,8 @@ class PlaceHolderInput extends React.Component<Props, State> {
       label,
       fieldType = 'string',
       additionalContent,
-      required
+      required,
+      componentClass
     } = this.props;
 
     let converted: string = config[inputName] || '';
@@ -283,6 +293,7 @@ class PlaceHolderInput extends React.Component<Props, State> {
           <FormControl
             name={inputName}
             value={converted}
+            componentClass={componentClass}
             onChange={this.onChange}
             onKeyPress={this.onKeyPress}
             onKeyDown={this.onKeyDown}

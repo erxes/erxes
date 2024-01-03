@@ -5,6 +5,7 @@ import queryString from 'query-string';
 import GeneralSettings from './components/GeneralSettings';
 import StageSettings from './components/StageSettings';
 import StageMoveSettings from './components/StageMoveSettings';
+import StageIncomeSettings from './components/StageIncomeSettings';
 import ReturnStageSettings from './components/ReturnStageSettings';
 import PipelineSettings from './components/PipelineSettings';
 
@@ -53,6 +54,15 @@ const StageSetting = () => {
 const StageMoveSetting = () => {
   return (
     <Settings component={StageMoveSettings} configCode="stageInMoveConfig" />
+  );
+};
+
+const StageIncomeSetting = () => {
+  return (
+    <Settings
+      component={StageIncomeSettings}
+      configCode="stageInIncomeConfig"
+    />
   );
 };
 
@@ -135,6 +145,13 @@ const routes = () => {
         exact={true}
         path="/erxes-plugin-sync-erkhet/settings/move-stage"
         component={StageMoveSetting}
+      />
+
+      <Route
+        key="/erxes-plugin-sync-erkhet/settings/income-stage"
+        exact={true}
+        path="/erxes-plugin-sync-erkhet/settings/income-stage"
+        component={StageIncomeSetting}
       />
 
       <Route
