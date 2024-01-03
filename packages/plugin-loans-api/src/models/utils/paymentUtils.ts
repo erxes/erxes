@@ -7,8 +7,8 @@ import { calcUndue } from '../utils/transactionUtils';
 import { calcInterest, getDiffDay } from '../utils/utils';
 
 export interface IPaymentInfo {
-  interestEve: Number;
-  interestNonce: Number;
+  interestEve: number;
+  interestNonce: number;
   payment: number;
   calcInterest: number;
   storedInterest: number;

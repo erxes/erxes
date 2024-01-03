@@ -8,7 +8,6 @@ import TransactionList from './TransactionList';
 import { ITransaction } from '../../../transactions/types';
 import { ModalTrigger } from '@erxes/ui/src';
 import TransactionForm from '../../../transactions/containers/TransactionForm';
-import { IContract } from '../../types';
 
 type Props = {
   transactions: ITransaction[];

@@ -1,6 +1,5 @@
 import dayjs from 'dayjs';
 import { __ } from 'coreui/utils';
-import _ from 'lodash';
 import React from 'react';
 
 import { ExtraRow, WillAmount } from '../../styles';
@@ -12,11 +11,7 @@ type Props = {
 
 function TransactionRow({ transaction }: Props) {
   const renderCell = name => {
-    return (
-      <>
-        <WillAmount>{(transaction[name] || 0).toLocaleString()}</WillAmount>
-      </>
-    );
+    return <WillAmount>{(transaction[name] || 0).toLocaleString()}</WillAmount>;
   };
 
   return (

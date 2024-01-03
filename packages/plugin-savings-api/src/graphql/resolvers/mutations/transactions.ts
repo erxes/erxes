@@ -107,7 +107,7 @@ const transactionMutations = {
         extraParams: { models }
       };
 
-      if (!!transaction.ebarimt && transaction.isManual)
+      if (transaction.ebarimt && transaction.isManual)
         await sendMessageBroker(
           {
             action: 'putresponses.returnBill',

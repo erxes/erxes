@@ -118,7 +118,7 @@ export const scheduleHelper = async (
 
   let skipInterestCalcDate = addMonths(
     new Date(currentDate),
-    contract.skipInterestCalcMonth || 0
+    contract.skipInterestCalcMonth ?? 0
   );
 
   let paymentDates = await paymentDatesGenerate(

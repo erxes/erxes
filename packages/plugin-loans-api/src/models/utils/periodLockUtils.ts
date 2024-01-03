@@ -11,7 +11,7 @@ export async function createPeriodLock(
   })
     .sort({ date: -1 })
     .lean();
-  if (!!nextLock)
+  if (nextLock)
     throw new Error(`Can't lock period at this time because already locked`);
 
   const doc = {

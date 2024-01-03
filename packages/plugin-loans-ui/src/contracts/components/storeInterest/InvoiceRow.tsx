@@ -1,6 +1,4 @@
 import dayjs from 'dayjs';
-import { __ } from 'coreui/utils';
-import _ from 'lodash';
 import React from 'react';
 
 import { ExtraRow, WillAmount } from '../../styles';
@@ -12,11 +10,7 @@ type Props = {
 
 function ScheduleRow({ schedule }: Props) {
   const renderCell = name => {
-    return (
-      <>
-        <WillAmount>{(schedule[name] || 0).toLocaleString()}</WillAmount>
-      </>
-    );
+    return <WillAmount>{(schedule[name] || 0).toLocaleString()}</WillAmount>;
   };
 
   return (

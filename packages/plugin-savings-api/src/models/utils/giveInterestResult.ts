@@ -18,7 +18,7 @@ export async function giveInterestResult(
     const updatedContract = await models.Contracts.findOne({
       _id: contract._id
     }).lean<IContractDocument>();
-    if (!!updatedContract)
+    if (updatedContract)
       contract.storedInterest = updatedContract?.storedInterest;
   }
 
@@ -45,7 +45,7 @@ export async function giveInterestResult(
       const depositAccount = await models.Contracts.findOne({
         _id: contract.depositAccount
       }).lean<IContractDocument>();
-      if (!!depositAccount) {
+      if (depositAccount) {
         transaction.contractId = depositAccount._id;
         models.Transactions.createTransaction(transaction);
       } else throw new Error(`Deposit account doesn't found`);
