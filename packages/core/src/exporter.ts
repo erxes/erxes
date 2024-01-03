@@ -97,7 +97,7 @@ export const fillValue = async (
 ): Promise<string> => {
   const [splitedColumn, detail] = column.split('.');
 
-  let value = item[splitedColumn];
+  let value = item[column];
 
   if (detail) {
     value = item[splitedColumn][detail];
