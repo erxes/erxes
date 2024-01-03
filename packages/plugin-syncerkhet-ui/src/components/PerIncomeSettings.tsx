@@ -18,6 +18,7 @@ import { IConfigsMap } from '../types';
 import { isEnabled } from '@erxes/ui/src/utils/core';
 import { MainStyleModalFooter as ModalFooter } from '@erxes/ui/src/styles/eindex';
 import { queries as formQueries } from '@erxes/ui-forms/src/forms/graphql';
+import { BlockRow } from '../styles';
 
 type Props = {
   configsMap: IConfigsMap;
@@ -32,6 +33,17 @@ type State = {
   hasOpen: boolean;
   fieldsCombined: FieldsCombinedByType[];
 };
+
+const paymentTypes = [
+  { type: 'prepay' },
+  { type: 'cash' },
+  { type: 'bank' },
+  { type: 'pos' },
+  { type: 'wallet' },
+  { type: 'barter' },
+  { type: 'after' },
+  { type: 'other' }
+];
 
 class PerSettings extends React.Component<Props, State> {
   constructor(props: Props) {
@@ -74,12 +86,17 @@ class PerSettings extends React.Component<Props, State> {
   onSave = e => {
     e.preventDefault();
     const { configsMap, currentConfigKey } = this.props;
+    const { stageInIncomeConfig } = configsMap;
     const { config } = this.state;
     const key = config.stageId;
 
-    delete configsMap.stageInMoveConfig[currentConfigKey];
-    configsMap.stageInMoveConfig[key] = config;
-    this.props.save(configsMap);
+    const newstageInIncomeConfig = { ...stageInIncomeConfig };
+    delete newstageInIncomeConfig[currentConfigKey];
+    newstageInIncomeConfig[key] = config;
+    this.props.save({
+      ...configsMap,
+      stageInIncomeConfig: newstageInIncomeConfig
+    });
   };
 
   onDelete = e => {
@@ -88,14 +105,27 @@ class PerSettings extends React.Component<Props, State> {
     this.props.delete(this.props.currentConfigKey);
   };
 
+  onChangeCheckbox = (code: string, e) => {
+    this.onChangeConfig(code, e.target.checked);
+  };
+
   onChangeConfig = (code: string, value) => {
     const { config } = this.state;
-    config[code] = value;
-    this.setState({ config });
+    this.setState({ config: { ...config, [code]: value } });
   };
 
   onChangeInput = (code: string, e) => {
     this.onChangeConfig(code, e.target.value);
+  };
+
+  onChangePayAccount = (type: string, value: string) => {
+    const { config } = this.state;
+    this.setState({
+      config: {
+        ...config,
+        payAccounts: { ...(config.payAccounts || {}), [type]: value }
+      }
+    });
   };
 
   onresponseCustomFieldChange = option => {
@@ -119,6 +149,22 @@ class PerSettings extends React.Component<Props, State> {
     );
   };
 
+  renderCheckbox = (key: string, title?: string, description?: string) => {
+    const { config } = this.state;
+
+    return (
+      <FormGroup>
+        <ControlLabel>{title || key}</ControlLabel>
+        {description && <p>{__(description)}</p>}
+        <FormControl
+          checked={config[key]}
+          onChange={this.onChangeCheckbox.bind(this, key)}
+          componentClass="checkbox"
+        />
+      </FormGroup>
+    );
+  };
+
   addCals = () => {
     const { config } = this.state;
     const { catAccLocMap = [] } = config;
@@ -129,9 +175,7 @@ class PerSettings extends React.Component<Props, State> {
       branch: '',
       department: '',
       account: '',
-      location: '',
-      moveAccount: '',
-      moveLocation: ''
+      location: ''
     });
 
     this.setState({ config: { ...config, catAccLocMap } });
@@ -154,16 +198,10 @@ class PerSettings extends React.Component<Props, State> {
           <ControlLabel>Department</ControlLabel>
         </FormColumn>
         <FormColumn>
-          <ControlLabel>Main Account</ControlLabel>
+          <ControlLabel>Account</ControlLabel>
         </FormColumn>
         <FormColumn>
-          <ControlLabel>Main Location</ControlLabel>
-        </FormColumn>
-        <FormColumn>
-          <ControlLabel>Move Account</ControlLabel>
-        </FormColumn>
-        <FormColumn>
-          <ControlLabel>Move Location</ControlLabel>
+          <ControlLabel>Location</ControlLabel>
         </FormColumn>
         <FormColumn>
           <Button btnStyle="link" icon="plus-circle" onClick={this.addCals}>
@@ -248,24 +286,6 @@ class PerSettings extends React.Component<Props, State> {
             />
           </FormColumn>
           <FormColumn>
-            <FormControl
-              defaultValue={map.moveAccount}
-              name="moveAccount"
-              onChange={editMapping.bind(this, map._id)}
-              required={true}
-              autoFocus={true}
-            />
-          </FormColumn>
-          <FormColumn>
-            <FormControl
-              defaultValue={map.moveLocation}
-              name="moveLocation"
-              onChange={editMapping.bind(this, map._id)}
-              required={true}
-              autoFocus={true}
-            />
-          </FormColumn>
-          <FormColumn>
             <Button
               btnStyle="link"
               icon="trash"
@@ -285,22 +305,22 @@ class PerSettings extends React.Component<Props, State> {
         title={__(config.title)}
         beforeTitle={<Icon icon="settings" />}
         transparent={true}
-        open={this.props.currentConfigKey === 'newMoveConfig' ? true : false}
+        open={this.props.currentConfigKey === 'newIncomeConfig' ? true : false}
       >
-        <FormGroup>
-          <ControlLabel>{'Title'}</ControlLabel>
-          <FormControl
-            defaultValue={config.title}
-            onChange={this.onChangeInput.bind(this, 'title')}
-            required={true}
-            autoFocus={true}
-          />
-        </FormGroup>
         <FormWrapper>
           <FormColumn>
             <FormGroup>
+              <ControlLabel>{'Title'}</ControlLabel>
+              <FormControl
+                defaultValue={config.title}
+                onChange={this.onChangeInput.bind(this, 'title')}
+                required={true}
+                autoFocus={true}
+              />
+            </FormGroup>
+            <FormGroup>
               <BoardSelectContainer
-                type="deal"
+                type="purchase"
                 autoSelectStage={false}
                 boardId={config.boardId}
                 pipelineId={config.pipelineId}
@@ -310,11 +330,6 @@ class PerSettings extends React.Component<Props, State> {
                 onChangeStage={this.onChangeStage}
               />
             </FormGroup>
-          </FormColumn>
-          <FormColumn>
-            {this.renderInput('userEmail', 'User Email', '')}
-            {this.renderInput('defaultCustomer', 'Default Customer', '')}
-
             <FormGroup>
               <ControlLabel>{__('Choose response field')}</ControlLabel>
               <Select
@@ -328,7 +343,29 @@ class PerSettings extends React.Component<Props, State> {
               />
             </FormGroup>
           </FormColumn>
+          <FormColumn>
+            {this.renderInput('userEmail', 'User Email', '')}
+            {this.renderInput('defaultCustomer', 'Default Customer', '')}
+            {this.renderCheckbox('hasVat', 'hasVat', '')}
+            {this.renderCheckbox('hasCitytax', 'hasCitytax', '')}
+            {this.renderInput('vatRow', 'Vat Row number', '')}
+            {this.renderInput('defaultPayAccount', 'Default Pay Account', '')}
+          </FormColumn>
         </FormWrapper>
+        <BlockRow>
+          {(paymentTypes || []).map(pt => (
+            <FormGroup key={pt.type}>
+              <ControlLabel>{pt.type}</ControlLabel>
+              <FormControl
+                defaultValue={(config.payAccounts || {})[pt.type] || ''}
+                onChange={e =>
+                  this.onChangePayAccount(pt.type, (e.target as any).value)
+                }
+                required={true}
+              />
+            </FormGroup>
+          ))}
+        </BlockRow>
         {this.renderCalsMap()}
 
         <ModalFooter>
