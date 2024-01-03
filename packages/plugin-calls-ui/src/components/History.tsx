@@ -2,33 +2,21 @@ import Icon from '@erxes/ui/src/components/Icon';
 import NameCard from '@erxes/ui/src/components/nameCard/NameCard';
 import { Tabs, TabTitle } from '@erxes/ui/src/components/tabs';
 import { __ } from '@erxes/ui/src/utils';
-import React from 'react';
+import React, { useState } from 'react';
 import { CallHistory, CallDetail, AdditionalDetail } from '../styles';
 import { all } from '../constants';
 import Dropdown from 'react-bootstrap/Dropdown';
 import DropdownToggle from '@erxes/ui/src/components/DropdownToggle';
 import { EmptyState } from '@erxes/ui/src/components';
 
-type Props = {};
+const History: React.FC<{}> = () => {
+  const [currentTab, setCurrentTab] = useState('All');
 
-type State = {
-  currentTab: string;
-};
-
-class History extends React.Component<Props, State> {
-  constructor(props: Props) {
-    super(props);
-
-    this.state = {
-      currentTab: 'All'
-    };
-  }
-
-  onTabClick = (currentTab: string) => {
-    this.setState({ currentTab });
+  const onTabClick = (currentTab: string) => {
+    setCurrentTab(currentTab);
   };
 
-  renderCalls = currentTab => {
+  const renderCalls = (currentTab: string) => {
     if (!all || all.length === 0) {
       return <EmptyState icon="ban" text="There is no history" size="small" />;
     }
@@ -72,32 +60,28 @@ class History extends React.Component<Props, State> {
     });
   };
 
-  render() {
-    const { currentTab } = this.state;
-
-    return (
-      <>
-        <Tabs full={true}>
-          <TabTitle
-            className={currentTab === 'All' ? 'active' : ''}
-            onClick={() => this.onTabClick('All')}
-          >
-            {__('All')}
-          </TabTitle>
-          <TabTitle
-            className={currentTab === 'Missed Call' ? 'active' : ''}
-            onClick={() => this.onTabClick('Missed Call')}
-          >
-            {__('Missed Call')}
-          </TabTitle>
-        </Tabs>
-        <CallHistory>
-          <h4>{__('Recents')}</h4>
-          {this.renderCalls(currentTab)}
-        </CallHistory>
-      </>
-    );
-  }
-}
+  return (
+    <>
+      <Tabs full={true}>
+        <TabTitle
+          className={currentTab === 'All' ? 'active' : ''}
+          onClick={() => onTabClick('All')}
+        >
+          {__('All')}
+        </TabTitle>
+        <TabTitle
+          className={currentTab === 'Missed Call' ? 'active' : ''}
+          onClick={() => onTabClick('Missed Call')}
+        >
+          {__('Missed Call')}
+        </TabTitle>
+      </Tabs>
+      <CallHistory>
+        <h4>{__('Recents')}</h4>
+        {renderCalls(currentTab)}
+      </CallHistory>
+    </>
+  );
+};
 
 export default History;
