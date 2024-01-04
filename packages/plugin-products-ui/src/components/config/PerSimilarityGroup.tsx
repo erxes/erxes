@@ -194,7 +194,7 @@ class PerSettings extends React.Component<Props, State> {
         </FormWrapper>
         <Tip text={'Delete'}>
           <Button
-            btnStyle="danger"
+            btnStyle="simple"
             size="small"
             onClick={onRemove.bind(this, rule.id)}
             icon="times"
@@ -224,7 +224,7 @@ class PerSettings extends React.Component<Props, State> {
         {this.renderRules()}
         <ModalFooter>
           <Button
-            btnStyle="success"
+            btnStyle="primary"
             onClick={this.addRule}
             icon="plus-circle"
             uppercase={false}
