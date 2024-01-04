@@ -25,9 +25,11 @@ export class SupplyApi extends BaseApi {
       const header = await this.getHeaders();
       header['Content-Type'] = 'application/xml';
       // send supply
-      const result = await supplyRequest(header, xml);
+      const supplyResult = await supplyRequest(header, xml);
       // create zms Logs
-      return await createLogs(beforeData, preDatas, result);
+      const results = await toJson(supplyResult);
+      await addActionTobeforeDatas(beforeData);
+      return await saveLogs(beforeData, preDatas, results);
     }
     async function prepareDatas(prepareDatas) {
       for await (const prepareData of prepareDatas) {
@@ -37,60 +39,25 @@ export class SupplyApi extends BaseApi {
     }
     async function setAction(data) {
       const regnum = data.customer.o_c_customer_information.o_c_registerno;
-      let customerAction = 'add';
-      let loanAction = 'add';
-      //find zms
-      const customerZms = await getZms(regnum);
-      if (customerZms.length > 0) {
-        customerAction = 'update';
+      const customerAction = await getCustomerAction(regnum);
+      const type = 'send';
+      if (customerAction === 'update') {
         const loans = data.customer.o_c_onus_information;
         if (!!loans.o_c_loanline) {
-          let loanLine = loans.o_c_loanline;
-          for await (const loan of loanLine) {
-            loanAction = await getAction(
-              regnum,
-              loan.o_c_loanline_advamount,
-              loan.o_c_loanline_starteddate
-            );
-            //set Action
-            await prepareAction(data, customerAction, loanAction);
-          }
-        } else if (!!loans.o_c_loanmrtnos) {
-          let loanmrtnos = loans.o_c_loanmrtnos;
-          for await (const loan of loanmrtnos) {
-            loanAction = await getAction(
-              regnum,
-              loan.o_c_loan_balance,
-              loan.o_c_loan_starteddate
-            );
-            //set Action
-            await prepareAction(data, customerAction, loanAction);
-          }
-        } else if (!!loans.o_c_leasing) {
-          let loanLeasing = loans.o_c_loanmrtnos;
-          for await (const loan of loanLeasing) {
-            loanAction = await getAction(
-              regnum,
-              loan.o_c_leasing_advamount,
-              loan.o_c_leasing_starteddate
-            );
-            //set Action
-            await prepareAction(data, customerAction, loanAction);
-          }
-        } else if (!!loans.o_c_accredit) {
-          let loanCredit = loans.o_c_accredit;
-          for await (const loan of loanCredit) {
-            loanAction = await getAction(
-              regnum,
-              loan.o_c_accredit_advamount,
-              loan.o_c_accredit_starteddate
-            );
-            //set Action
-            await prepareAction(data, customerAction, loanAction);
-          }
+          await findActionLoanLines(data, loans.o_c_loanline, regnum, type);
         }
+        if (!!loans.o_c_loanmrtnos) {
+          await findActionLoanmrtnos(data, loans.o_c_loanmrtnos, regnum, type);
+        }
+        if (!!loans.o_c_leasing) {
+          await findActionleasing(data, loans.o_c_leasing, regnum, type);
+        }
+        if (!!loans.o_c_accredit) {
+          await findActionAccredit(data, loans.o_c_accredit, regnum, type);
+        }
+        await setActionOtherField(data, customerAction, customerAction);
       } else {
-        await prepareAction(data, loanAction, customerAction);
+        await setActionOtherField(data, 'add', 'add');
       }
       return data;
     }
@@ -106,65 +73,12 @@ async function getZms(regum) {
   const query: any = {
     'customer.o_c_customer_information.o_c_registerno': regum
   };
-  return await Zmss.find(query).lean();
+  return await Zmss.findOne(query);
 }
-async function getAction(regum, loanAmount, startDate) {
-  let action = 'add';
-  const zmss = await getZms(regum);
-  if (zmss.length > 0) {
-    for await (const zms of zmss) {
-      if (zms.customer.o_c_onus_information) {
-        action = await getLoanAction(
-          zms.customer.o_c_onus_information,
-          loanAmount,
-          startDate
-        );
-      }
-    }
-  }
-  return action;
-}
-async function getLoanAction(loans, amount, startDate) {
-  let loanAction = 'add';
-  if (!!loans.o_c_loanline) {
-    loans.o_c_loanline.filter(async el => {
-      loanAction =
-        el.o_c_loanline_advamount === amount &&
-        formatDate(el.o_c_loanline_starteddate) === startDate
-          ? 'update'
-          : 'add';
-    });
-  } else if (!!loans.o_c_loanmrtnos) {
-    loans.o_c_loanmrtnos.filter(async el => {
-      loanAction =
-        el.o_c_loan_balance === amount &&
-        formatDate(el.o_c_loan_starteddate) === startDate
-          ? 'update'
-          : 'add';
-    });
-  } else if (!!loans.o_c_leasing) {
-    loans.o_c_leasing.filter(async el => {
-      loanAction =
-        el.o_c_leasing_advamount === amount &&
-        formatDate(el.o_c_leasing_starteddate) === startDate
-          ? 'update'
-          : 'add';
-    });
-  } else if (!!loans.o_c_accredit) {
-    loans.o_c_accredit.filter(async el => {
-      loanAction =
-        el.o_c_accredit_advamount === amount &&
-        formatDate(el.o_c_accredit_starteddate) === startDate
-          ? 'update'
-          : 'add';
-    });
-  }
-  return loanAction;
-}
-async function prepareAction(dataAction, customAction, loanAction) {
+async function setActionOtherField(preData, customAction, loanAction) {
   for await (const field of changeActionFields) {
     if (field.type === 'object') {
-      const result = await getProp(dataAction, field.path, '');
+      const result = await getProp(preData, field.path, '');
       if (Array.isArray(result)) {
         for await (const el of result) {
           field.group === 'loan'
@@ -177,7 +91,7 @@ async function prepareAction(dataAction, customAction, loanAction) {
           : (result.$ = { action: customAction });
       }
     } else if (field.type === 'string') {
-      const str = await getPropStr(dataAction, field.path, '');
+      const str = await getPropStr(preData, field.path, '');
       field.group === 'loan'
         ? (str.object[str.path] = {
             $: { action: loanAction },
@@ -189,7 +103,7 @@ async function prepareAction(dataAction, customAction, loanAction) {
           });
     }
   }
-  return dataAction;
+  return preData;
 }
 async function getProp(object, path, defaultVal) {
   const _path = Array.isArray(path)
@@ -221,118 +135,39 @@ async function supplyRequest(header, xml) {
   return await axios
     .request(config)
     .then(response => {
-      return JSON.stringify(response.data);
+      return response.data;
     })
     .catch(error => {
       console.log(error);
     });
 }
-async function createLogs(beforeDatas, sentDatas, result) {
-  for await (const beforeData of beforeDatas) {
-    const regnum = beforeData.customer.o_c_customer_information.o_c_registerno;
-    const zms = await getZms(regnum);
-    if (zms.length > 0) {
-      beforeData.customer.action = 'update';
-      beforeData.customer.o_c_customer_information.action = 'update';
-      beforeData.customer.o_c_mortgage_information.o_c_mortgage.action =
-        'update';
-      const loans = beforeData.customer.o_c_onus_information;
-      for await (const loan of loans) {
-        await loanCheck(loan, zms);
-      }
-    } else {
-      //const customer = beforeData.filter( data => data.customer.o_c_customer_information.o_c_registerno === regnum)
-      beforeData.customer.action = 'add';
-      beforeData.customer.o_c_customer_information.action = 'add';
-      beforeData.customer.o_c_mortgage_information.o_c_mortgage.action = 'add';
-      const loans = beforeData.customer.o_c_onus_information;
-      loans.action = 'add';
-      await addAction(loans);
-      //await Zmss.insertMany(beforeData);
-    }
+async function addActionTobeforeDatas(beforeDatas) {
+  for await (const data of beforeDatas) {
+    const regnum = data.customer.o_c_customer_information.o_c_registerno;
+    const customerAction = await getCustomerAction(regnum);
+    await setActionLog(data, customerAction);
   }
-  // ZmsLogs.create({
-  //   createdAt: new Date(),
-  //   ipAddress: '123.12.12.12',
-  //   zmsId: zms._id,
-  //   action: 'update',
-  //   object: zms,
-  //   status: sentDatas,
-  //   sentDate: new Date(),
-  //   sentBy: 'miiga',
-  //   response: result
-  // });
-  //if()
-  //insert update
-  //const zmsResult = await Zmss.insertMany(datas);
-  // for await (const zms of zmsResult) {
-  //   ZmsLogs.create({
-  //     createdAt: new Date(),
-  //     ipAddress: '123.12.12.12',
-  //     zmsId: zms._id,
-  //     action: 'update',
-  //     object: zms,
-  //     status: true,
-  //     sentDate: new Date(),
-  //     sentBy: 'miiga',
-  //     response: result
-  //   });
-  // }
-  return result;
+  return beforeDatas;
 }
-async function loanCheck(loans, zms) {
-  for await (const loan of loans) {
-    if (loans.o_c_loanline) {
-      for await (const loan of loans.o_c_loanline) {
-        loan.action = 'add';
-      }
-    }
 
-    if (loans.o_c_loanmrtnos) {
-      for await (const loan of loans.o_c_loanmrtnos) {
-        loan.action = 'add';
-      }
-    }
-
-    if (loans.o_c_leasing) {
-      for await (const loan of loans.o_c_leasing) {
-        loan.action = 'add';
-      }
-    }
-
-    if (loans.o_c_accredit) {
-      for await (const loan of loans.o_c_accredit) {
-        loan.action = 'add';
-      }
-    }
-    return loans;
+async function saveLogs(beforeDatas, sentDatas, results) {
+  for await (const result of results.response.customer) {
+    const data = await beforeDatas.find(
+      beforeDate =>
+        beforeDate.customer.o_c_customer_information.o_c_customercode ===
+        result.customercode
+    );
+    const sentData = await sentDatas.find(
+      sentData =>
+        sentData.customer.o_c_customer_information.o_c_customercode ===
+        result.customercode
+    );
+    const customerAction = await getCustomerAction(
+      data.customer.o_c_customer_information.o_c_registerno
+    );
+    await saveZms(customerAction, data, result, sentData);
   }
-}
-async function addAction(loans) {
-  if (loans.o_c_loanline) {
-    for await (const loan of loans.o_c_loanline) {
-      loan.action = 'add';
-    }
-  }
-
-  if (loans.o_c_loanmrtnos) {
-    for await (const loan of loans.o_c_loanmrtnos) {
-      loan.action = 'add';
-    }
-  }
-
-  if (loans.o_c_leasing) {
-    for await (const loan of loans.o_c_leasing) {
-      loan.action = 'add';
-    }
-  }
-
-  if (loans.o_c_accredit) {
-    for await (const loan of loans.o_c_accredit) {
-      loan.action = 'add';
-    }
-  }
-  return loans;
+  return results;
 }
 function padTwoDigits(num: number) {
   return num.toString().padStart(2, '0');
@@ -353,11 +188,169 @@ function formatDate(date: Date, dateDiveder: string = '-') {
   );
 }
 async function toJson(xml: string) {
-  const json = parseString(xml, { explicitArray: false }, function(
-    error,
-    result
-  ) {});
-  return json;
+  return new Promise(resolveOuter => {
+    return parseString(xml, { explicitArray: false }, (_, result) => {
+      resolveOuter(result);
+    });
+  });
+}
+
+async function saveZms(action, data, result, sentData) {
+  if (action === 'add') {
+    data.customer.response = result.result;
+    await Zmss.insertMany(data);
+    await createLogs(data, sentData, result);
+  } else if (action === 'update') {
+    data.customer.response = result.result;
+    const regnum = data.customer.o_c_customer_information.o_c_registerno;
+    const loans = data.customer.o_c_onus_information;
+    await insertNewLoan(loans, regnum);
+    await createLogs(data, action, result);
+  }
+  return data;
+}
+async function createLogs(data, sentData, result) {
+  const regnum = data.customer.o_c_customer_information.o_c_registerno;
+  const zms = await getZms(regnum);
+  await ZmsLogs.insertMany({
+    createdAt: new Date(),
+    zmsId: zms._id,
+    action: data?.customer.action,
+    sentData: JSON.stringify(sentData),
+    status: result.result,
+    sendData: data,
+    sentDate: new Date(),
+    sentBy: 'miiga', //request
+    response: JSON.stringify(result)
+  });
+}
+async function getCustomerAction(regrum) {
+  const zms = await getZms(regrum);
+  return zms ? 'update' : 'add';
+}
+async function findActionLoanLines(data, loanLines, regrum, type) {
+  const zms = await getZms(regrum);
+  if (!!zms.customer.o_c_onus_information.o_c_loanline) {
+    const zmsLoans = zms.customer.o_c_onus_information.o_c_loanline;
+    for await (const loan of loanLines) {
+      const loanAction = await getActionLoanLine(
+        zmsLoans,
+        loan.o_c_loanline_advamount,
+        loan.o_c_loanline_starteddate
+      );
+      await setActionLoan(loanAction, loan, type);
+    }
+  }
+  return data;
+}
+async function getActionLoanLine(zmsLoans, amount, starteddate) {
+  const loan = zmsLoans.find(
+    loan =>
+      loan.o_c_loanline_advamount === amount &&
+      formatDate(loan.o_c_loanline_starteddate) === starteddate
+  );
+  const loanAction = loan ? 'update' : 'add';
+  return loanAction;
+}
+async function findActionLoanmrtnos(data, loanmrtnos, regrum, type) {
+  const zms = await getZms(regrum);
+  if (!!zms.customer.o_c_onus_information.o_c_loanmrtnos) {
+    const zmsLoans = zms.customer.o_c_onus_information.o_c_loanmrtnos;
+    for await (const loan of loanmrtnos) {
+      const loanAction = await getActionLoanmrtnos(
+        zmsLoans,
+        loan.o_c_loan_advamount,
+        loan.o_c_loan_starteddate
+      );
+      await setActionLoan(loanAction, loan, type);
+    }
+  }
+  return data;
+}
+async function getActionLoanmrtnos(zmsLoans, amount, starteddate) {
+  const loanAction =
+    zmsLoans.filter(
+      loan =>
+        loan.o_c_loan_advamount === amount &&
+        formatDate(loan.o_c_loan_starteddate) == starteddate
+    ).length > 0
+      ? 'update'
+      : 'add';
+  return loanAction;
+}
+async function findActionleasing(data, leasing, regrum, type) {
+  const zms = await getZms(regrum);
+  if (!!zms.customer.o_c_onus_information.o_c_leasing) {
+    const zmsLoans = zms.customer.o_c_onus_information.o_c_leasing;
+    for await (const loan of leasing) {
+      const loanAction = await getActionleasing(
+        zmsLoans,
+        loan.o_c_leasing_advamount,
+        loan.o_c_leasing_starteddate
+      );
+      await setActionLoan(loanAction, loan, type);
+    }
+  }
+  return data;
+}
+async function getActionleasing(zmsLoans, amount, starteddate) {
+  const loanAction =
+    zmsLoans.filter(
+      loan =>
+        loan.o_c_leasing_advamount === amount &&
+        formatDate(loan.o_c_leasing_starteddate) == starteddate
+    ).length > 0
+      ? 'update'
+      : 'add';
+  return loanAction;
+}
+
+async function findActionAccredit(data, accredits, regrum, type) {
+  const zms = await getZms(regrum);
+  if (!!zms.customer.o_c_onus_information.o_c_accredit) {
+    const zmsLoans = zms.customer.o_c_onus_information.o_c_accredit;
+    for await (const loan of accredits) {
+      const loanAction = await getActionlAccredit(
+        zmsLoans,
+        loan.o_c_accredit_advamount,
+        loan.o_c_accredit_starteddate
+      );
+      await setActionLoan(loanAction, loan, type);
+    }
+  }
+  return data;
+}
+async function getActionlAccredit(zmsLoans, amount, starteddate) {
+  const loanAction =
+    zmsLoans.filter(
+      loan =>
+        loan.o_c_accredit_advamount === amount &&
+        formatDate(loan.o_c_accredit_starteddate) == starteddate
+    ).length > 0
+      ? 'update'
+      : 'add';
+  return loanAction;
+}
+async function setActionLoan(loanAction, loan, type) {
+  type === 'send'
+    ? (loan.$ = { action: loanAction })
+    : (loan.action = loanAction);
+  return loan;
+}
+async function setActionLog(data, action) {
+  for await (const field of changeActionFields) {
+    if (field.type === 'object') {
+      const result = await getProp(data, field.path, '');
+      if (Array.isArray(result)) {
+        for await (const el of result) {
+          el.action = action;
+        }
+      } else {
+        result.action = action;
+      }
+    }
+  }
+  return data;
 }
 const changeActionFields: any = [
   {
@@ -390,8 +383,94 @@ const changeActionFields: any = [
     group: 'loan'
   },
   {
+    path: ['customer', 'o_c_onus_information', 'o_c_accredit'],
+    type: 'object',
+    group: 'loan'
+  },
+  {
+    path: ['customer', 'o_c_onus_information', 'o_c_leasing'],
+    type: 'object',
+    group: 'loan'
+  },
+  {
+    path: ['customer', 'o_c_onus_information', 'o_c_loanrelnos'],
+    type: 'object',
+    group: 'loan'
+  },
+  {
     path: ['customer', 'o_c_mortgage_information', 'o_c_mortgage'],
     type: 'object',
     group: 'mortgage'
   }
 ];
+async function insertNewLoan(loans, regnum) {
+  const zms = await getZms(regnum);
+  for (var loan in loans) {
+    if (loan === 'o_c_loanline') {
+      const insertLoans = loans.o_c_loanline.filter(
+        lline => lline.action === 'add'
+      );
+      if (insertLoans.length > 0) {
+        Zmss.updateOne(
+          { 'customer.o_c_customer_information.o_c_registerno': regnum },
+          {
+            $push: {
+              'customer.o_c_onus_information.o_c_loanline': {
+                $each: insertLoans
+              }
+            }
+          }
+        );
+      }
+    } else if (loan === 'o_c_loanmrtnos') {
+      const insertLoans = loans.o_c_loanmrtnos.filter(
+        loanmrtnos => loanmrtnos.action === 'add'
+      );
+      if (insertLoans.length > 0) {
+        Zmss.updateOne(
+          { 'customer.o_c_customer_information.o_c_registerno': regnum },
+          {
+            $push: {
+              'customer.o_c_onus_information.o_c_loanmrtnos': {
+                $each: insertLoans
+              }
+            }
+          }
+        );
+      }
+    }
+    if (loan === 'o_c_leasing') {
+      const insertLoans = loans.o_c_leasing.filter(
+        leasing => leasing.action === 'add'
+      );
+      if (insertLoans.length > 0) {
+        Zmss.updateOne(
+          { 'customer.o_c_customer_information.o_c_registerno': regnum },
+          {
+            $push: {
+              'customer.o_c_onus_information.o_c_leasing': {
+                $each: insertLoans
+              }
+            }
+          }
+        );
+      }
+    }
+    if (loan === 'o_c_accredit') {
+      const insertLoans = loans.o_c_accredit.filter(
+        accredit => accredit.action === 'add'
+      );
+      if (insertLoans.length > 0) {
+      }
+      Zmss.updateOne(
+        { 'customer.o_c_customer_information.o_c_registerno': regnum },
+        {
+          $push: {
+            'customer.o_c_onus_information.o_c_accredit': { $each: insertLoans }
+          }
+        }
+      );
+    }
+  }
+  return zms;
+}

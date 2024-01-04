@@ -4,7 +4,7 @@ import FormGroup from '@erxes/ui/src/components/form/Group';
 import Button from '@erxes/ui/src/components/Button';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
-import { IDictionary, IParent } from '../types';
+import { IDictionary, IParent } from '../../types';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import React from 'react';
 import { ICommonFormProps } from '@erxes/ui-settings/src/common/types';

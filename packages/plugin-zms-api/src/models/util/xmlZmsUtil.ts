@@ -13,15 +13,13 @@ const dictionary = {
 
 const stringRegex = (to: number = 50) =>
   new RegExp(`^[a-zA-Zа-яА-Я0-9ёЁөӨүҮЪъЬь -]{1,${to}}$`);
-const IdRegex = /^[a-zA-Z.0-9._@!#$%^&*()+-=]{1,12}$/;
 const registerRegex = /^[a-zA-Zа-яА-ЯёЁөӨүҮ0-9]{1,16}$/;
 const pureDateRegex = /([12]\d{3}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01]))/;
 const numberRegex = /^\d+$/;
 const booleanRegex = /^[0-1]{1}$/;
-const emailRegex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
 const numberLimRegex = /^\d{1,10}$/;
 const fullDateRegex = /^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1]) (2[0-3]|[01][0-9]):[0-5][0-9]:[0-5][0-9]$/;
-const amountRegex = /^[+-]?\d+(\.\d+)?$/; // /^([0-9]{1,20}).([0-9]{2})/;
+const amountRegex = /^[+-]?\d+(\.\d+)?$/;
 
 function fieldValidator(
   object,

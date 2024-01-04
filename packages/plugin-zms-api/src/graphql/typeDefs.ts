@@ -102,7 +102,7 @@ type CustomerRelatedCustomers {
       o_shareholder_customer_email: String
     }
 
-  type CustomerImpormation {
+  type CustomerImpormationJson {
     action: String,
     c_civil_id: String,
     o_c_regnum: String,
@@ -265,15 +265,29 @@ type CustomerRelatedCustomers {
         o_c_coll_customer: CustomerCollCustomer,
         o_c_coll_org: CustomerCollOrg
       }
+ 
+  type CustomerImpormation {
+    o_c_customercode: String,
+    o_c_customername: String,
+    o_c_registerno: String,
+  }
 
-  type Zms {
+  type Customer {
+    o_c_customer_information: CustomerImpormation,
+  }
+
+  type ZmsJson {
     _id:String,
     patch_number:Float,
     data_provider_regnum:Float,
-    o_c_customer_information: CustomerImpormation,
+    o_c_customer_information: CustomerImpormationJson,
     o_c_loan_information:CustomerLoanInformation,
     o_c_loanline:[CustomerLoanLine],
     o_c_coll_information: [CustomerCollInformation],
+  }
+  type Zms {
+    _id:String,
+    customer: Customer
   }
 `;
 const paramsZmsInquire = `
@@ -298,8 +312,8 @@ const queries = `
   getDictionaries(isParent: Boolean, parentId: String): [ZmsDictionary]
   getZmses(isClosed: Boolean): [Zms]
   getInquire(${paramsZmsInquire}): JSON
-  getSupply(isClosed: Boolean): JSON,
-  getcustomerList( regum: String): JSON
+  getLogs(isClosed: Boolean): JSON,
+  getZmsLogs(zmsId: String): JSON,
 `;
 
 const params = `
@@ -317,13 +331,13 @@ const mutations = `
   createZmsDictionary(${params}): ZmsDictionary
   zmsDictionaryEdit(_id: String!, ${params}): JSON
   zmsDictionaryRemove(_id: String!, ${params}): JSON
+  sendZms(isClosed: Boolean):JSON
 `;
 
 const typeDefs = async _serviceDiscovery => {
   return gql`
     scalar JSON
     scalar Date
-
     ${types}
     extend type Query {
       ${queries}

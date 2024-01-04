@@ -64,6 +64,7 @@ interface o_c_loanline {
   o_c_loanline_isapproved: boolean;
 }
 interface o_c_loanmrtno {
+  action: string;
   o_c_loan_balance: number;
   o_c_loan_loanProvenance: string;
   o_c_loan_starteddate: Date;
@@ -201,6 +202,7 @@ interface leasing_neoinfo {
   o_c_leasing_courtorderno: string;
 }
 interface o_c_accreditmrtno {
+  action: string;
   o_c_accredit_advamount: number;
   o_c_accredit_starteddate: Date;
   o_c_accredit_expdate: Date;
@@ -211,7 +213,7 @@ interface o_c_accreditmrtno {
   o_c_accredit_commissionperc: number;
   o_c_accredit_fee: number;
   o_c_accredit_updatedexpdate: Date;
-  o_c_accredit_extcount: Date;
+  o_c_accredit_extcount: Number;
   o_c_accredit_balance: number;
   o_c_accredit_isapproved: boolean;
 }
@@ -226,6 +228,7 @@ interface o_c_onus_information {
 }
 interface o_c_mortgage_information {
   o_c_mortgage: {
+    action: string;
     o_c_mrtno: string;
     o_c_mrtno_internal: string;
     o_c_mrtcode: string;
@@ -254,7 +257,10 @@ interface o_c_customer {
 
 export interface IXmlZms {
   customer: {
+    action: string;
+    response: string;
     o_c_customer_information: {
+      action: string;
       o_c_customercode: string;
       o_c_bankCode: string;
       o_c_branchcode: string;
@@ -288,7 +294,10 @@ export interface IXmlZms {
 
 export const xmlZmsSchema = new Schema<IXmlZms>({
   customer: {
+    response: String,
+    action: String,
     o_c_customer_information: {
+      action: String,
       o_c_customercode: String,
       o_c_bankCode: String,
       o_c_branchcode: String,
@@ -389,6 +398,7 @@ export const xmlZmsSchema = new Schema<IXmlZms>({
         {
           o_c_loan_balance: Number,
           o_c_loan_loanProvenance: String,
+          o_c_loan_advamount: Number,
           o_c_loan_starteddate: Date,
           o_c_loan_expdate: Date,
           o_c_loan_currencycode: String,
@@ -540,6 +550,7 @@ export const xmlZmsSchema = new Schema<IXmlZms>({
       ],
       o_c_accredit: [
         {
+          action: String,
           o_c_accredit_advamount: Number,
           o_c_accredit_starteddate: Date,
           o_c_accredit_expdate: Date,
@@ -550,12 +561,13 @@ export const xmlZmsSchema = new Schema<IXmlZms>({
           o_c_accredit_commissionperc: Number,
           o_c_accredit_fee: Number,
           o_c_accredit_updatedexpdate: Date,
-          o_c_accredit_extcount: Date,
+          o_c_accredit_extcount: Number,
           o_c_accredit_balance: Number,
           o_c_accredit_isapproved: Boolean
         }
       ],
       o_c_loanrelnos: {
+        action: String,
         c_loan_orgmeasure: String,
         c_loan_measuredate: Date,
         c_loan_measuredescription: String,
@@ -583,6 +595,7 @@ export const xmlZmsSchema = new Schema<IXmlZms>({
     o_c_mortgage_information: [
       {
         o_c_mortgage: {
+          action: String,
           o_c_mrtno: Number,
           o_c_mrtno_internal: Number,
           o_c_mrtcode: Number,
