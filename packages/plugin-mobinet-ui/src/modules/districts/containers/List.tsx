@@ -30,7 +30,7 @@ export default function DistrictContainer(props: Props) {
 
     confirm(message).then(() => {
       removeMutation({
-        variables: { _id: districtId }
+        variables: { _ids: [districtId] }
       })
         .then(() => {
           refetch();

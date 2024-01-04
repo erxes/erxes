@@ -29,7 +29,7 @@ export default function CityContainer(props: Props) {
 
     confirm(message).then(() => {
       removeMutation({
-        variables: { _id: cityId }
+        variables: { _ids: [cityId] }
       })
         .then(() => {
           refetch();
