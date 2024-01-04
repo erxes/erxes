@@ -33,7 +33,6 @@ const ChartFormFieldList = (props: Props) => {
     multi,
     fieldOptions
   } = filterType;
-  const [fieldValue, setFieldValue] = useState(initialValue);
 
   const onChange = (input: any) => {
     switch (fieldType) {
@@ -45,7 +44,6 @@ const ChartFormFieldList = (props: Props) => {
             : input.value;
 
         setFilter(fieldName, value);
-        setFieldValue(value);
 
         return;
       default:
@@ -53,43 +51,11 @@ const ChartFormFieldList = (props: Props) => {
     }
   };
 
-  switch (fieldQuery) {
-    case 'users':
-      return (
-        <div>
-          <ControlLabel>{fieldLabel}</ControlLabel>
-
-          <SelectTeamMembers
-            multi={multi}
-            name="chartAssignedUserIds"
-            label={fieldLabel}
-            onSelect={onChange}
-            initialValue={fieldValue}
-          />
-        </div>
-      );
-
-    case 'departments':
-      return (
-        <div>
-          <ControlLabel>{fieldLabel}</ControlLabel>
-
-          <SelectDepartments
-            multi={multi}
-            name="chartAssignedDepartmentIds"
-            label={fieldLabel}
-            onSelect={onChange}
-            initialValue={fieldValue}
-          />
-        </div>
-      );
-    default:
-      break;
-  }
-
   return (
     <ChartFormField
       fieldType={fieldType}
+      fieldQuery={fieldQuery}
+      multi={multi}
       fieldOptions={fieldOptions}
       fieldLabel={fieldLabel}
       initialValue={initialValue}

@@ -1,10 +1,12 @@
-import { ControlLabel } from '@erxes/ui/src';
+import SelectTags from '@erxes/ui-tags/src/containers/SelectTags';
+import { ControlLabel, SelectTeamMembers } from '@erxes/ui/src';
+import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
 import React, { useState } from 'react';
 import Select from 'react-select-plus';
 
 type Props = {
   fieldType: string;
-  fieldQuery?: string;
+  fieldQuery: string;
   multi?: boolean;
   fieldLabel: string;
   fieldOptions: any[];
@@ -13,13 +15,71 @@ type Props = {
   value?: any;
 };
 const ChartFormField = (props: Props) => {
-  const { fieldType, fieldOptions, fieldLabel, initialValue, onChange } = props;
-  const [selectValue, setSelectValue] = useState(initialValue);
+  const {
+    fieldQuery,
+    fieldType,
+    fieldOptions,
+    fieldLabel,
+    initialValue,
+    multi,
+    onChange
+  } = props;
+  const [fieldValue, setFieldValue] = useState(initialValue);
 
   const onSelect = e => {
-    setSelectValue(e.value);
+    setFieldValue(e.value);
     onChange(e);
   };
+
+  switch (fieldQuery) {
+    case 'users':
+      return (
+        <div>
+          <ControlLabel>{fieldLabel}</ControlLabel>
+
+          <SelectTeamMembers
+            multi={multi}
+            name="chartAssignedUserIds"
+            label={fieldLabel}
+            onSelect={onChange}
+            initialValue={fieldValue}
+          />
+        </div>
+      );
+
+    case 'departments':
+      return (
+        <div>
+          <ControlLabel>{fieldLabel}</ControlLabel>
+
+          <SelectDepartments
+            multi={multi}
+            name="chartAssignedDepartmentIds"
+            label={fieldLabel}
+            onSelect={onChange}
+            initialValue={fieldValue}
+          />
+        </div>
+      );
+
+    case 'tags':
+      return (
+        <div>
+          <ControlLabel>{fieldLabel}</ControlLabel>
+
+          <SelectTags
+            tagsType="reports:reports"
+            multi={multi}
+            name="chartTags"
+            label={fieldLabel}
+            onSelect={onChange}
+            initialValue={fieldValue}
+          />
+        </div>
+      );
+    default:
+      break;
+  }
 
   switch (fieldType) {
     case 'select':
@@ -27,7 +87,7 @@ const ChartFormField = (props: Props) => {
         <div>
           <ControlLabel>{fieldLabel}</ControlLabel>
           <Select
-            value={selectValue}
+            value={fieldValue}
             onChange={onSelect}
             options={fieldOptions}
             placeholder={fieldLabel}

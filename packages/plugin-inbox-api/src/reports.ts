@@ -15,7 +15,7 @@ const reportTemplates = [
     charts: [
       'averageFirstResponseTime',
       'averageCloseTime',
-      'closedConversationsCount'
+      'conversationsCount'
     ],
     img: 'https://sciter.com/wp-content/uploads/2022/08/chart-js.png'
   }
@@ -63,6 +63,13 @@ const INTEGRATION_TYPES = [
   { label: 'Facebook Messenger', value: 'facebook-messenger' },
   { label: 'Facebook Post', value: 'facebook-post' },
   { label: 'All', value: 'all' }
+];
+
+const STATUS_TYPES = [
+  { label: 'All', value: 'all' },
+  { label: 'Closed / Resolved', value: 'closed' },
+  { label: 'Open', value: 'open' },
+  { label: 'Unassigned', value: 'unassigned' }
 ];
 
 const calculateAverage = (arr: number[]) => {
@@ -169,11 +176,7 @@ const chartTemplates = [
 
       const usersWithRespondTime: UserWithFirstRespondTime = {};
 
-      console.log(matchfilter, ' filter');
-
       if (conversations) {
-        console.log(conversations?.length, ' length');
-
         for (const convo of conversations) {
           const {
             conversationMessages,
@@ -290,15 +293,16 @@ const chartTemplates = [
 
       // filter by source
       if (filter.integrationType && filter.integrationType !== 'all') {
-        const [integrationType] = filter;
+        const { integrationType } = filter;
 
-        const integration: any = await models?.Integrations.find({
+        const integrations: any = await models?.Integrations.find({
           kind: integrationType
         });
 
-        matchfilter['conversationMessages.integrationId'] = integration._id;
-      }
+        const integrationIds = integrations.map(i => i._id);
 
+        matchfilter['integrationId'] = { $in: integrationIds };
+      }
       matchfilter['closedUserId'] =
         filter && filter.userIds
           ? {
@@ -387,52 +391,100 @@ const chartTemplates = [
     ]
   },
   {
-    templateType: 'closedConversationsCount',
-    name: 'Closed conversations count by rep',
+    templateType: 'conversationsCount',
+    name: 'Conversations count by rep',
     chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea'],
     getChartResult: async (filter: any, subdomain: string) => {
-      const matchfilter = {
-        status: /closed/gi,
-        closedAt: { $exists: true }
-      };
+      const data: number[] = [];
+      const labels: string[] = [];
+
+      const matchfilter = {};
+      const filterStatus = filter.status;
+
+      const title = `${filterStatus} conversations' count`;
+
+      // filter by status
+      if (filterStatus && filterStatus !== 'all') {
+        if (filterStatus === 'unassigned') {
+          matchfilter['assignedUserId'] = null;
+        } else {
+          //open or closed
+          matchfilter['status'] = filterStatus;
+        }
+      }
 
       // filter by source
       if (filter.integrationType && filter.integrationType !== 'all') {
-        const [integrationType] = filter;
+        const { integrationType } = filter;
 
-        const integration: any = await models?.Integrations.find({
+        const integrations: any = await models?.Integrations.find({
           kind: integrationType
         });
 
-        matchfilter['conversationMessages.integrationId'] = integration._id;
+        const integrationIds = integrations.map(i => i._id);
+
+        matchfilter['integrationId'] = { $in: integrationIds };
       }
 
-      matchfilter['closedUserId'] =
-        filter && filter.userIds
-          ? {
-              $exists: true,
-              $in: filter.userIds
-            }
-          : { $exists: true };
+      let userIdGroup;
 
-      const usersWithClosedConvosCount = await models?.Conversations.aggregate([
+      if (filterStatus === 'open' || filterStatus === 'all') {
+        matchfilter['assignedUserId'] =
+          filter && filter.userIds
+            ? {
+                $exists: true,
+                $in: filter.userIds
+              }
+            : { $exists: true, $ne: null };
+
+        userIdGroup = {
+          $group: {
+            _id: '$assignedUserId',
+            conversationsCount: {
+              $sum: 1
+            }
+          }
+        };
+      }
+      if (filterStatus === 'closed') {
+        matchfilter['closedUserId'] =
+          filter && filter.userIds
+            ? {
+                $exists: true,
+                $in: filter.userIds
+              }
+            : { $exists: true };
+
+        userIdGroup = {
+          $group: {
+            _id: '$closedUserId',
+            conversationsCount: { $sum: 1 }
+          }
+        };
+      }
+
+      if (filterStatus === 'unassigned') {
+        console.log('filter ', matchfilter);
+
+        const totalUnassignedConvosCount =
+          (await models?.Conversations.count(matchfilter)) || 0;
+
+        data.push(totalUnassignedConvosCount);
+        labels.push('Total unassigned conversations');
+
+        return { title, data, labels };
+      }
+
+      const usersWithConvosCount = await models?.Conversations.aggregate([
         {
           $match: matchfilter
         },
-        {
-          $group: {
-            _id: '$closedUserId',
-            closedConversationsCount: { $sum: 1 }
-          }
-        }
+        userIdGroup
       ]);
 
-      const usersWithClosedCount = {};
+      const getUserIds: string[] = usersWithConvosCount?.map(r => r._id) || [];
 
-      const getUserIds: string[] =
-        usersWithClosedConvosCount?.map(r => r._id) || [];
-
-      const getTotalClosedUsers: IUserDocument[] = await sendCoreMessage({
+      const getTotalUsers: IUserDocument[] = await sendCoreMessage({
         subdomain,
         action: 'users.find',
         data: {
@@ -444,7 +496,7 @@ const chartTemplates = [
 
       const usersMap = {};
 
-      for (const user of getTotalClosedUsers) {
+      for (const user of getTotalUsers) {
         usersMap[user._id] = {
           fullName:
             user.details?.fullName ||
@@ -452,17 +504,16 @@ const chartTemplates = [
         };
       }
 
-      const data: number[] = [];
-      const labels: string[] = [];
+      if (usersWithConvosCount) {
+        for (const user of usersWithConvosCount) {
+          if (!usersMap[user._id]) {
+            continue;
+          }
 
-      if (usersWithClosedConvosCount) {
-        for (const user of usersWithClosedConvosCount) {
-          data.push(user.closedConversationsCount);
+          data.push(user.conversationsCount);
           labels.push(usersMap[user._id].fullName);
         }
       }
-
-      const title = `Closed conversations' count`;
 
       const datasets = { title, data, labels };
 
@@ -482,6 +533,19 @@ const chartTemplates = [
         multi: true,
         fieldOptions: INTEGRATION_TYPES,
         fieldLabel: 'Select source'
+      },
+      {
+        fieldName: 'tags',
+        fieldType: 'select',
+        multi: true,
+        fieldLabel: 'Select tags'
+      },
+      {
+        fieldName: 'status',
+        fieldType: 'select',
+        multi: false,
+        fieldOptions: STATUS_TYPES,
+        fieldLabel: 'Select status'
       }
     ]
   }
