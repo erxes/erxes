@@ -463,7 +463,12 @@ const clientPortalUserMutations = {
    */
   clientPortalResetPasswordWithCode(
     _root,
-    args: { phone: string; password: string; code: string },
+    args: {
+      phone: string;
+      password: string;
+      code: string;
+      isSecondary: boolean;
+    },
     { models }: IContext
   ) {
     return models.ClientPortalUsers.changePasswordWithCode(args);
@@ -479,10 +484,15 @@ const clientPortalUserMutations = {
 
   async clientPortalForgotPassword(
     _root,
-    args: { clientPortalId: string; phone: string; email: string },
+    args: {
+      clientPortalId: string;
+      phone: string;
+      email: string;
+      isSecondary: boolean;
+    },
     { models, subdomain }: IContext
   ) {
-    const { clientPortalId, phone, email } = args;
+    const { clientPortalId, phone, email, isSecondary = false } = args;
     const query: any = { clientPortalId };
 
     if (!phone && !email) {
@@ -1077,18 +1087,19 @@ const clientPortalUserMutations = {
 
   clientPortalUserSetSecondaryPassword: async (
     _root,
-    args: { newPassword: string },
+    args: { newPassword: string; oldPassword?: string },
     { models, cpUser }: IContext
   ) => {
     if (!cpUser) {
       throw new Error('login required');
     }
 
-    const { newPassword } = args;
+    const { newPassword, oldPassword } = args;
 
     return models.ClientPortalUsers.setSecondaryPassword(
       cpUser._id,
-      newPassword
+      newPassword,
+      oldPassword
     );
   }
 };
