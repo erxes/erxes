@@ -18,7 +18,7 @@ type FinalProps = {
 } & Props;
 
 const ListContainer = (props: FinalProps) => {
-  const { listQuery, id } = props;
+  const { listQuery } = props;
 
   if (listQuery.loading) {
     return <Spinner />;

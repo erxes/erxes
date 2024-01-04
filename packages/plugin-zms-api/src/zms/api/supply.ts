@@ -8,7 +8,7 @@ import { ZmsLogs, Zmss } from '../../models';
 export class SupplyApi extends BaseApi {
   async checkSupply(sendDatas) {
     //check zms data
-    const validdatorResult = await zmsListValidator(
+    const validdatorResult = zmsListValidator(
       sendDatas.customers,
       validationFields,
       []
@@ -40,25 +40,9 @@ export class SupplyApi extends BaseApi {
     async function setAction(data) {
       const regnum = data.customer.o_c_customer_information.o_c_registerno;
       const customerAction = await getCustomerAction(regnum);
-      const type = 'send';
-      if (customerAction === 'update') {
-        const loans = data.customer.o_c_onus_information;
-        if (!!loans.o_c_loanline) {
-          await findActionLoanLines(data, loans.o_c_loanline, regnum, type);
-        }
-        if (!!loans.o_c_loanmrtnos) {
-          await findActionLoanmrtnos(data, loans.o_c_loanmrtnos, regnum, type);
-        }
-        if (!!loans.o_c_leasing) {
-          await findActionleasing(data, loans.o_c_leasing, regnum, type);
-        }
-        if (!!loans.o_c_accredit) {
-          await findActionAccredit(data, loans.o_c_accredit, regnum, type);
-        }
-        await setActionOtherField(data, customerAction, customerAction);
-      } else {
-        await setActionOtherField(data, 'add', 'add');
-      }
+      customerAction === 'update'
+        ? await findloanAction(data, regnum, customerAction)
+        : await setActionOtherField(data, 'add', 'add');
       return data;
     }
     //Convert string/JSON to XML
@@ -74,6 +58,24 @@ async function getZms(regum) {
     'customer.o_c_customer_information.o_c_registerno': regum
   };
   return await Zmss.findOne(query);
+}
+
+async function findloanAction(data, regnum, customerAction) {
+  const loans = data.customer.o_c_onus_information;
+  const type = 'send';
+  if (!!loans.o_c_loanline) {
+    await findActionLoanLines(data, loans.o_c_loanline, regnum, type);
+  }
+  if (!!loans.o_c_loanmrtnos) {
+    await findActionLoanmrtnos(data, loans.o_c_loanmrtnos, regnum, type);
+  }
+  if (!!loans.o_c_leasing) {
+    await findActionleasing(data, loans.o_c_leasing, regnum, type);
+  }
+  if (!!loans.o_c_accredit) {
+    await findActionAccredit(data, loans.o_c_accredit, regnum, type);
+  }
+  await setActionOtherField(data, customerAction, customerAction);
 }
 async function setActionOtherField(preData, customAction, loanAction) {
   for await (const field of changeActionFields) {
@@ -405,7 +407,7 @@ const changeActionFields: any = [
 ];
 async function insertNewLoan(loans, regnum) {
   const zms = await getZms(regnum);
-  for (var loan in loans) {
+  for (const loan in loans) {
     if (loan === 'o_c_loanline') {
       const insertLoans = loans.o_c_loanline.filter(
         lline => lline.action === 'add'
@@ -461,6 +463,16 @@ async function insertNewLoan(loans, regnum) {
         accredit => accredit.action === 'add'
       );
       if (insertLoans.length > 0) {
+        Zmss.updateOne(
+          { 'customer.o_c_customer_information.o_c_registerno': regnum },
+          {
+            $push: {
+              'customer.o_c_onus_information.o_c_accredit': {
+                $each: insertLoans
+              }
+            }
+          }
+        );
       }
       Zmss.updateOne(
         { 'customer.o_c_customer_information.o_c_registerno': regnum },

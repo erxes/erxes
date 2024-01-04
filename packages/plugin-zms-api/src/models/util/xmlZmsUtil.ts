@@ -6,19 +6,14 @@ type Validation = {
   isRequired?: boolean;
   childrens?: Validation[];
 };
-
-const dictionary = {
-  currency: 'currency'
-};
-
 const stringRegex = (to: number = 50) =>
   new RegExp(`^[a-zA-Zа-яА-Я0-9ёЁөӨүҮЪъЬь -]{1,${to}}$`);
 const registerRegex = /^[a-zA-Zа-яА-ЯёЁөӨүҮ0-9]{1,16}$/;
 const pureDateRegex = /([12]\d{3}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01]))/;
 const numberRegex = /^\d+$/;
-const booleanRegex = /^[0-1]{1}$/;
+const booleanRegex = /^[01]{1}$/;
 const numberLimRegex = /^\d{1,10}$/;
-const fullDateRegex = /^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1]) (2[0-3]|[01][0-9]):[0-5][0-9]:[0-5][0-9]$/;
+const fullDateRegex = /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[1-2]\d|3[0-1]) (2[0-3]|[01]\d):[0-5]\d:[0-5]\d$/;
 const amountRegex = /^[+-]?\d+(\.\d+)?$/;
 
 function fieldValidator(

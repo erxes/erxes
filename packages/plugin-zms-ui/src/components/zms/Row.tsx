@@ -2,7 +2,6 @@ import React from 'react';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 import { ILog } from '../../types';
-import { __ } from '@erxes/ui/src/utils';
 import { FormControl } from '@erxes/ui/src/components/form';
 import { colors, dimensions } from '@erxes/ui/src/styles';
 
@@ -26,8 +25,6 @@ const Margin = styledTS(styled.div)`
 type Props = {
   log: ILog;
   space: number;
-  logs: ILog[];
-  id: string;
 };
 
 type State = {

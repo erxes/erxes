@@ -1,4 +1,4 @@
-import { ILog, IZms } from '../../types';
+import { ILog } from '../../types';
 import Row from './Row';
 import { __ } from '@erxes/ui/src/utils';
 import React from 'react';
@@ -36,7 +36,7 @@ function List({ logs, id, loading }: Props) {
       </thead>
       <tbody id={'ZmssShowing'}>
         {logs.map(log => {
-          return <Row space={0} key={log._id} log={log} id={id} logs={logs} />;
+          return <Row space={0} key={log._id} log={log} />;
         })}
       </tbody>
     </Table>

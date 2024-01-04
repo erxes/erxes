@@ -12,7 +12,7 @@ interface o_shareholderorg {
   o_shareholderorg_isforeign: boolean;
   o_shareholderorg_registerno: string;
   o_shareholder_stateregisterno: string;
-  o_shareholder_sectorcode: String;
+  o_shareholder_sectorcode: string;
   o_shareholdercustomer: [o_shareholdercustomer];
 }
 interface o_shareholdercustomer {
@@ -213,7 +213,7 @@ interface o_c_accreditmrtno {
   o_c_accredit_commissionperc: number;
   o_c_accredit_fee: number;
   o_c_accredit_updatedexpdate: Date;
-  o_c_accredit_extcount: Number;
+  o_c_accredit_extcount: number;
   o_c_accredit_balance: number;
   o_c_accredit_isapproved: boolean;
 }
