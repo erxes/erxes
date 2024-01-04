@@ -14,8 +14,8 @@ type Props = {
   clientPortalUser: IClientPortalUser;
 };
 
-class DetailInfo extends React.Component<Props> {
-  renderRow = (label, value) => {
+const DetailInfo: React.FC<Props> = ({ clientPortalUser }: Props) => {
+  const renderRow = (label, value) => {
     return (
       <li>
         <FieldStyle>{__(`${label}`)}</FieldStyle>
@@ -24,15 +24,13 @@ class DetailInfo extends React.Component<Props> {
     );
   };
 
-  renderFields = type => {
-    const { clientPortalUser } = this.props;
-
+  const renderFields = type => {
     if (type === 'customer') {
       return (
         <>
-          {this.renderRow('First Name', clientPortalUser.firstName)}
-          {this.renderRow('Last Name', clientPortalUser.lastName)}
-          {this.renderRow('UserName', clientPortalUser.username)}
+          {renderRow('First Name', clientPortalUser.firstName)}
+          {renderRow('Last Name', clientPortalUser.lastName)}
+          {renderRow('UserName', clientPortalUser.username)}
         </>
       );
     }
@@ -40,8 +38,8 @@ class DetailInfo extends React.Component<Props> {
     if (type === 'company') {
       return (
         <>
-          {this.renderRow('Company Name', clientPortalUser.companyName)}
-          {this.renderRow(
+          {renderRow('Company Name', clientPortalUser.companyName)}
+          {renderRow(
             'Company Registration Number',
             clientPortalUser.companyRegistrationNumber
           )}
@@ -50,24 +48,20 @@ class DetailInfo extends React.Component<Props> {
     }
   };
 
-  render() {
-    const { clientPortalUser } = this.props;
-
-    return (
-      <SidebarList className="no-link">
-        {this.renderFields(clientPortalUser.type)}
-        {this.renderRow('Code', clientPortalUser.code)}
-        {this.renderRow('Email', clientPortalUser.email)}
-        {this.renderRow('Phone', clientPortalUser.phone)}
-        {this.renderRow('Business Portal', clientPortalUser.clientPortal.name)}
-        {isEnabled('forum') &&
-          this.renderRow(
-            'Subscription ends after',
-            dayjs(clientPortalUser.forumSubscriptionEndsAfter).format('lll')
-          )}
-      </SidebarList>
-    );
-  }
-}
+  return (
+    <SidebarList className="no-link">
+      {renderFields(clientPortalUser.type)}
+      {renderRow('Code', clientPortalUser.code)}
+      {renderRow('Email', clientPortalUser.email)}
+      {renderRow('Phone', clientPortalUser.phone)}
+      {renderRow('Business Portal', clientPortalUser.clientPortal.name)}
+      {isEnabled('forum') &&
+        renderRow(
+          'Subscription ends after',
+          dayjs(clientPortalUser.forumSubscriptionEndsAfter).format('lll')
+        )}
+    </SidebarList>
+  );
+};
 
 export default DetailInfo;

@@ -22,9 +22,12 @@ type Props = {
   isSmall?: boolean;
 };
 
-class BasicInfoSection extends React.Component<Props> {
-  renderActions() {
-    const { clientPortalUser } = this.props;
+const BasicInfoSection: React.FC<Props> = ({
+  clientPortalUser,
+  remove,
+  isSmall
+}: Props) => {
+  const renderActions = () => {
     const { phone, email } = clientPortalUser;
 
     const smsForm = props => <SmsForm {...props} phone={phone} />;
@@ -69,11 +72,9 @@ class BasicInfoSection extends React.Component<Props> {
         </Button>
       </>
     );
-  }
+  };
 
-  renderButton() {
-    const { isSmall } = this.props;
-
+  const renderButton = () => {
     return (
       <Button size="small" btnStyle="default">
         {isSmall ? (
@@ -85,11 +86,9 @@ class BasicInfoSection extends React.Component<Props> {
         )}
       </Button>
     );
-  }
+  };
 
-  renderEditButton() {
-    const { clientPortalUser } = this.props;
-
+  const renderEditButton = () => {
     const customerForm = props => {
       return (
         <ClientPortalUserForm
@@ -110,11 +109,9 @@ class BasicInfoSection extends React.Component<Props> {
         />
       </li>
     );
-  }
+  };
 
-  renderDropdown() {
-    const { remove, clientPortalUser } = this.props;
-
+  const renderDropdown = () => {
     const onClick = () =>
       confirm()
         .then(() => remove())
@@ -136,10 +133,10 @@ class BasicInfoSection extends React.Component<Props> {
     return (
       <Dropdown>
         <Dropdown.Toggle as={DropdownToggle} id="dropdown-action">
-          {this.renderButton()}
+          {renderButton()}
         </Dropdown.Toggle>
         <Dropdown.Menu>
-          {this.renderEditButton()}
+          {renderEditButton()}
           {isEnabled('forum') && (
             <ModalTrigger
               title="Extend Subscription"
@@ -160,25 +157,21 @@ class BasicInfoSection extends React.Component<Props> {
         </Dropdown.Menu>
       </Dropdown>
     );
-  }
+  };
 
-  render() {
-    const { clientPortalUser } = this.props;
-
-    return (
-      <>
-        {loadDynamicComponent(
-          'clientPortalUserDetailAction',
-          { clientPortalUser },
-          true
-        )}
-        <Actions>
-          {this.renderActions()}
-          {this.renderDropdown()}
-        </Actions>
-      </>
-    );
-  }
-}
+  return (
+    <>
+      {loadDynamicComponent(
+        'clientPortalUserDetailAction',
+        { clientPortalUser },
+        true
+      )}
+      <Actions>
+        {renderActions()}
+        {renderDropdown()}
+      </Actions>
+    </>
+  );
+};
 
 export default BasicInfoSection;

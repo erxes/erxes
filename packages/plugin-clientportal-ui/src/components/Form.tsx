@@ -8,16 +8,12 @@ import Button from '@erxes/ui/src/components/Button';
 import { CONFIG_TYPES } from '../constants';
 import Config from './forms/Config';
 import General from '../containers/General';
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 
 type Props = {
   configType: string;
   defaultConfigValues?: ClientPortalConfig;
   handleUpdate: (doc: ClientPortalConfig) => void;
-};
-
-type State = {
-  formValues: ClientPortalConfig;
 };
 
 const isUrl = (value: string): boolean => {
@@ -28,27 +24,23 @@ const isUrl = (value: string): boolean => {
   }
 };
 
-class Form extends React.Component<Props, State> {
-  constructor(props: Props) {
-    super(props);
+const Form: React.FC<Props> = ({
+  configType,
+  defaultConfigValues,
+  handleUpdate
+}: Props) => {
+  const [formValues, setFormValues] = useState<ClientPortalConfig>(
+    defaultConfigValues || ({} as ClientPortalConfig)
+  );
 
-    this.state = {
-      formValues: props.defaultConfigValues || ({} as ClientPortalConfig)
-    };
-  }
-
-  componentWillReceiveProps(nextProps) {
-    if (
-      this.props.defaultConfigValues &&
-      nextProps.defaultConfigValues !== this.props.defaultConfigValues
-    ) {
-      this.setState({ formValues: nextProps.defaultConfigValues });
+  useEffect(() => {
+    if (defaultConfigValues) {
+      setFormValues(defaultConfigValues);
     }
-  }
+  }, [defaultConfigValues]);
 
-  handleSubmit = e => {
+  const handleSubmit = e => {
     e.preventDefault();
-    const { formValues } = this.state;
 
     if (!formValues.name) {
       return Alert.error('Please enter a client portal name');
@@ -108,25 +100,23 @@ class Form extends React.Component<Props, State> {
       return Alert.error('Please select at least one user who can verify');
     }
 
-    this.props.handleUpdate(formValues);
+    handleUpdate(formValues);
   };
 
-  handleFormChange = (name: string, value: string | object | boolean) => {
-    this.setState({
-      formValues: {
-        ...this.state.formValues,
-        [name]: value
-      }
+  const handleFormChange = (name: string, value: string | object | boolean) => {
+    setFormValues({
+      ...formValues,
+      [name]: value
     });
   };
 
-  renderContent = () => {
+  const renderContent = () => {
     const commonProps = {
-      ...this.state.formValues,
-      handleFormChange: this.handleFormChange
+      ...formValues,
+      handleFormChange: handleFormChange
     };
 
-    switch (this.props.configType) {
+    switch (configType) {
       case CONFIG_TYPES.GENERAL.VALUE:
         return <General {...commonProps} />;
       case CONFIG_TYPES.APPEARANCE.VALUE:
@@ -138,7 +128,7 @@ class Form extends React.Component<Props, State> {
     }
   };
 
-  renderSubmit = () => {
+  const renderSubmit = () => {
     return (
       <ButtonWrap>
         <Button btnStyle="success" icon="check-circle" type="submit">
@@ -148,16 +138,14 @@ class Form extends React.Component<Props, State> {
     );
   };
 
-  render() {
-    return (
-      <form onSubmit={this.handleSubmit}>
-        <Content>
-          {this.renderContent()}
-          {this.renderSubmit()}
-        </Content>
-      </form>
-    );
-  }
-}
+  return (
+    <form onSubmit={handleSubmit}>
+      <Content>
+        {renderContent()}
+        {renderSubmit()}
+      </Content>
+    </form>
+  );
+};
 
 export default Form;

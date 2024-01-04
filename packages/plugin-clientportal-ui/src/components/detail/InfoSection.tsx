@@ -15,35 +15,33 @@ type Props = {
   children?: React.ReactNode;
 };
 
-class InfoSection extends React.Component<Props> {
-  render() {
-    const { clientPortalUser, children, avatarSize } = this.props;
+const InfoSection: React.FC<Props> = (props: Props) => {
+  const { clientPortalUser, children, avatarSize } = props;
 
-    const content = props => (
-      <ClientPortalUserForm {...props} clientPortalUser={clientPortalUser} />
-    );
+  const content = props => (
+    <ClientPortalUserForm {...props} clientPortalUser={clientPortalUser} />
+  );
 
-    return (
-      <InfoWrapper>
-        <AvatarWrapper size={avatarSize} isOnline={clientPortalUser.isOnline}>
-          <NameCard.Avatar customer={clientPortalUser} size={avatarSize} />
-        </AvatarWrapper>
-        <NameContainer>
-          <Name fontSize={16}>
-            {clientPortalUser.firstName || clientPortalUser.companyName}
+  return (
+    <InfoWrapper>
+      <AvatarWrapper size={avatarSize} isOnline={clientPortalUser.isOnline}>
+        <NameCard.Avatar customer={clientPortalUser} size={avatarSize} />
+      </AvatarWrapper>
+      <NameContainer>
+        <Name fontSize={16}>
+          {clientPortalUser.firstName || clientPortalUser.companyName}
 
-            <ModalTrigger
-              title="Edit basic info"
-              trigger={<Icon icon="pen-1" />}
-              size="lg"
-              content={content}
-            />
-          </Name>
-        </NameContainer>
-        {children}
-      </InfoWrapper>
-    );
-  }
-}
+          <ModalTrigger
+            title="Edit basic info"
+            trigger={<Icon icon="pen-1" />}
+            size="lg"
+            content={content}
+          />
+        </Name>
+      </NameContainer>
+      {children}
+    </InfoWrapper>
+  );
+};
 
 export default InfoSection;

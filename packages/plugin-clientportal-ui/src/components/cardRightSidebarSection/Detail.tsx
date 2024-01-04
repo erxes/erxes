@@ -13,8 +13,8 @@ type Props = {
   color: string;
 };
 
-class Detail extends React.Component<Props> {
-  renderItem(item, color) {
+const Detail: React.FC<Props> = ({ item, color }: Props) => {
+  const renderItem = (item, color) => {
     return (
       <ItemBox>
         <ItemIndicator color={color} />
@@ -24,17 +24,13 @@ class Detail extends React.Component<Props> {
           getCPUserName(item)}
       </ItemBox>
     );
+  };
+
+  if (!item) {
+    return null;
   }
 
-  render() {
-    const { item, color } = this.props;
-
-    if (!item) {
-      return null;
-    }
-
-    return <>{this.renderItem(item, color)}</>;
-  }
-}
+  return <>{renderItem(item, color)}</>;
+};
 
 export default Detail;

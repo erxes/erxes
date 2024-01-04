@@ -13,7 +13,7 @@ import EmptyState from '@erxes/ui/src/components/EmptyState';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import Icon from '@erxes/ui/src/components/Icon';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import React from 'react';
+import React, { useState } from 'react';
 import { colors } from '@erxes/ui/src/styles';
 import dayjs from 'dayjs';
 import { rgba } from '@erxes/ui/src/styles/ecolor';
@@ -48,40 +48,32 @@ const TriggerButton = styledTS<{ color?: string }>(styled.div)`
   }
 `;
 
-type State = { content: string };
+const Container: React.FC<Props> = ({
+  comments,
+  handleRemoveComment,
+  handleSubmit
+}: Props) => {
+  const [content, setContent] = useState('');
 
-export default class Container extends React.Component<Props, State> {
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      content: ''
-    };
-  }
-
-  handleChange = e => {
-    this.setState({ content: e.target.value });
+  const handleChange = e => {
+    setContent(e.target.value);
   };
 
-  onEditComment = comment => {
-    this.setState({ content: comment.content });
+  const onEditComment = comment => {
+    setContent(comment.content);
   };
 
-  createComment = () => {
-    const { handleSubmit } = this.props;
+  const createComment = () => {
+    setContent('');
 
-    this.setState({ content: '' });
-
-    handleSubmit({ content: this.state.content });
+    handleSubmit({ content });
   };
 
-  deleteComment = (commentId: string) => {
-    const { handleRemoveComment } = this.props;
-
+  const deleteComment = (commentId: string) => {
     handleRemoveComment(commentId);
   };
 
-  renderComments(comments) {
+  const renderComments = comments => {
     if (!comments.length) {
       return (
         <EmptyState
@@ -117,9 +109,7 @@ export default class Container extends React.Component<Props, State> {
                   </span>
                 </div>
                 <div className="actions">
-                  <span onClick={() => this.deleteComment(comment._id)}>
-                    Delete
-                  </span>
+                  <span onClick={() => deleteComment(comment._id)}>Delete</span>
                 </div>
               </CreatedUser>
             </TicketComment>
@@ -127,57 +117,54 @@ export default class Container extends React.Component<Props, State> {
         })}
       </CommentWrapper>
     );
-  }
+  };
 
-  render() {
-    const { comments } = this.props;
-    const { content } = this.state;
-
-    const renderContent = () => {
-      return (
-        <>
-          <TicketLabel>
-            <Icon icon="comment-1" size={14} />
-            &nbsp; Activity
-          </TicketLabel>
-          <TicketContent>
-            <FormControl
-              value={content}
-              componentClass="textarea"
-              onChange={this.handleChange}
-            />
-            {content.length !== 0 && (
-              <div className="buttons">
-                <Button
-                  btnStyle="success"
-                  size="small"
-                  icon="message"
-                  onClick={this.createComment.bind(this, '')}
-                >
-                  Save
-                </Button>
-              </div>
-            )}
-            {this.renderComments(comments)}
-          </TicketContent>
-        </>
-      );
-    };
-
-    const trigger = (
-      <TriggerButton>
-        <Icon icon="comment-1" />
-        {__('Comments')}
-      </TriggerButton>
-    );
-
+  const renderContent = () => {
     return (
-      <ModalTrigger
-        title="Comments"
-        size="lg"
-        trigger={trigger}
-        content={renderContent}
-      />
+      <>
+        <TicketLabel>
+          <Icon icon="comment-1" size={14} />
+          &nbsp; Activity
+        </TicketLabel>
+        <TicketContent>
+          <FormControl
+            value={content}
+            componentClass="textarea"
+            onChange={handleChange}
+          />
+          {content.length !== 0 && (
+            <div className="buttons">
+              <Button
+                btnStyle="success"
+                size="small"
+                icon="message"
+                onClick={createComment.bind(this, '')}
+              >
+                Save
+              </Button>
+            </div>
+          )}
+          {renderComments(comments)}
+        </TicketContent>
+      </>
     );
-  }
-}
+  };
+
+  const trigger = (
+    <TriggerButton>
+      <Icon icon="comment-1" />
+      {__('Comments')}
+    </TriggerButton>
+  );
+
+  return (
+    <ModalTrigger
+      title="Comments"
+      size="lg"
+      trigger={trigger}
+      content={renderContent}
+    />
+  );
+};
+
+export default Container;

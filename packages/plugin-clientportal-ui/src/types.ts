@@ -75,6 +75,8 @@ export interface IClientPortalUser extends IClientPortalUserDoc {
   modifiedAt: Date;
   forumSubscriptionEndsAfter?: string;
   clientPortal: ClientPortalConfig;
+  isSubscribed?: string;
+  hasAuthority?: string;
 }
 
 export type ClientPortalUsersQueryResponse = {

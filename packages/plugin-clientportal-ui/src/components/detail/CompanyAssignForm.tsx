@@ -4,11 +4,11 @@ import { IClientPortalUser } from '../../types';
 import React, { useState } from 'react';
 
 import Button from '@erxes/ui/src/components/Button';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import { FlexCenter, ModalFooter } from '@erxes/ui/src/styles/main';
+import { ModalFooter } from '@erxes/ui/src/styles/main';
 import { Alert } from '@erxes/ui/src/utils';
 import SelectCompanies from '@erxes/ui-contacts/src/companies/containers/SelectCompanies';
 import { __ } from '@erxes/ui/src/utils';
+
 type Props = {
   clientPortalUser: IClientPortalUser;
   assignCompany: (
@@ -16,7 +16,7 @@ type Props = {
     erxesCompanyId: string,
     erxesCustomerId: string
   ) => void;
-  queryParams: any;
+  queryParams?: any;
 };
 
 const CompanyAssignForm = (props: Props) => {
