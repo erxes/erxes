@@ -79,33 +79,45 @@ async function findloanAction(data, regnum, customerAction) {
 }
 async function setActionOtherField(preData, customAction, loanAction) {
   for await (const field of changeActionFields) {
-    if (field.type === 'object') {
-      const result = await getProp(preData, field.path, '');
-      if (Array.isArray(result)) {
-        for await (const el of result) {
-          field.group === 'loan'
-            ? (el.$ = { action: loanAction })
-            : (el.$ = { action: customAction });
-        }
-      } else {
-        field.group === 'loan'
-          ? (result.$ = { action: loanAction })
-          : (result.$ = { action: customAction });
-      }
-    } else if (field.type === 'string') {
-      const str = await getPropStr(preData, field.path, '');
-      field.group === 'loan'
-        ? (str.object[str.path] = {
-            $: { action: loanAction },
-            _: str.defaultVal
-          })
-        : (str.object[str.path] = {
-            $: { action: customAction },
-            _: str.defaultVal
-          });
-    }
+    field.type === 'object'
+      ? await setObjectAction(preData, field, customAction, loanAction)
+      : await setStrtAction(preData, field, customAction, loanAction);
   }
   return preData;
+}
+async function setObjectAction(preData, field, customAction, loanAction) {
+  const result = await getProp(preData, field.path, '');
+  if (Array.isArray(result)) {
+    await setActionWithArray(result, field, customAction, loanAction);
+  } else {
+    await setActionWithStr(result, field, customAction, loanAction);
+  }
+}
+async function setActionWithArray(result, field, customAction, loanAction) {
+  for await (const el of result) {
+    field.group === 'loan'
+      ? (el.$ = { action: loanAction })
+      : (el.$ = { action: customAction });
+  }
+  return result;
+}
+async function setActionWithStr(result, field, customAction, loanAction) {
+  field.group === 'loan'
+    ? (result.$ = { action: loanAction })
+    : (result.$ = { action: customAction });
+  return result;
+}
+async function setStrtAction(preData, field, customAction, loanAction) {
+  const str = await getPropStr(preData, field.path, '');
+  field.group === 'loan'
+    ? (str.object[str.path] = {
+        $: { action: loanAction },
+        _: str.defaultVal
+      })
+    : (str.object[str.path] = {
+        $: { action: customAction },
+        _: str.defaultVal
+      });
 }
 async function getProp(object, path, defaultVal) {
   const _path = Array.isArray(path)
@@ -206,7 +218,7 @@ async function saveZms(action, data, result, sentData) {
     data.customer.response = result.result;
     const regnum = data.customer.o_c_customer_information.o_c_registerno;
     const loans = data.customer.o_c_onus_information;
-    await insertNewLoan(loans, regnum);
+    await preNewLoans(loans, regnum);
     await createLogs(data, action, result);
   }
   return data;
@@ -405,84 +417,86 @@ const changeActionFields: any = [
     group: 'mortgage'
   }
 ];
-async function insertNewLoan(loans, regnum) {
+async function preNewLoans(loans, regnum) {
   const zms = await getZms(regnum);
   for (const loan in loans) {
-    if (loan === 'o_c_loanline') {
-      const insertLoans = loans.o_c_loanline.filter(
-        lline => lline.action === 'add'
-      );
-      if (insertLoans.length > 0) {
-        Zmss.updateOne(
-          { 'customer.o_c_customer_information.o_c_registerno': regnum },
-          {
-            $push: {
-              'customer.o_c_onus_information.o_c_loanline': {
-                $each: insertLoans
-              }
-            }
-          }
-        );
-      }
-    } else if (loan === 'o_c_loanmrtnos') {
-      const insertLoans = loans.o_c_loanmrtnos.filter(
-        loanmrtnos => loanmrtnos.action === 'add'
-      );
-      if (insertLoans.length > 0) {
-        Zmss.updateOne(
-          { 'customer.o_c_customer_information.o_c_registerno': regnum },
-          {
-            $push: {
-              'customer.o_c_onus_information.o_c_loanmrtnos': {
-                $each: insertLoans
-              }
-            }
-          }
-        );
-      }
-    }
-    if (loan === 'o_c_leasing') {
-      const insertLoans = loans.o_c_leasing.filter(
-        leasing => leasing.action === 'add'
-      );
-      if (insertLoans.length > 0) {
-        Zmss.updateOne(
-          { 'customer.o_c_customer_information.o_c_registerno': regnum },
-          {
-            $push: {
-              'customer.o_c_onus_information.o_c_leasing': {
-                $each: insertLoans
-              }
-            }
-          }
-        );
-      }
-    }
-    if (loan === 'o_c_accredit') {
-      const insertLoans = loans.o_c_accredit.filter(
-        accredit => accredit.action === 'add'
-      );
-      if (insertLoans.length > 0) {
-        Zmss.updateOne(
-          { 'customer.o_c_customer_information.o_c_registerno': regnum },
-          {
-            $push: {
-              'customer.o_c_onus_information.o_c_accredit': {
-                $each: insertLoans
-              }
-            }
-          }
-        );
-      }
+    await preLoan(loan, loans, regnum);
+  }
+  return zms;
+}
+
+async function preLoan(loan, loans, regnum) {
+  if (loan === 'o_c_loanline') {
+    const insertLoans = loans.o_c_loanline.filter(
+      lline => lline.action === 'add'
+    );
+    if (insertLoans.length > 0) {
       Zmss.updateOne(
         { 'customer.o_c_customer_information.o_c_registerno': regnum },
         {
           $push: {
-            'customer.o_c_onus_information.o_c_accredit': { $each: insertLoans }
+            'customer.o_c_onus_information.o_c_loanline': {
+              $each: insertLoans
+            }
           }
         }
       );
     }
+  } else if (loan === 'o_c_loanmrtnos') {
+    const insertLoans = loans.o_c_loanmrtnos.filter(
+      loanmrtnos => loanmrtnos.action === 'add'
+    );
+    if (insertLoans.length > 0) {
+      Zmss.updateOne(
+        { 'customer.o_c_customer_information.o_c_registerno': regnum },
+        {
+          $push: {
+            'customer.o_c_onus_information.o_c_loanmrtnos': {
+              $each: insertLoans
+            }
+          }
+        }
+      );
+    }
+  } else if (loan === 'o_c_leasing') {
+    const insertLoans = loans.o_c_leasing.filter(
+      leasing => leasing.action === 'add'
+    );
+    if (insertLoans.length > 0) {
+      Zmss.updateOne(
+        { 'customer.o_c_customer_information.o_c_registerno': regnum },
+        {
+          $push: {
+            'customer.o_c_onus_information.o_c_leasing': {
+              $each: insertLoans
+            }
+          }
+        }
+      );
+    }
+  } else if (loan === 'o_c_accredit') {
+    const insertLoans = loans.o_c_accredit.filter(
+      accredit => accredit.action === 'add'
+    );
+    if (insertLoans.length > 0) {
+      Zmss.updateOne(
+        { 'customer.o_c_customer_information.o_c_registerno': regnum },
+        {
+          $push: {
+            'customer.o_c_onus_information.o_c_accredit': {
+              $each: insertLoans
+            }
+          }
+        }
+      );
+    }
+    Zmss.updateOne(
+      { 'customer.o_c_customer_information.o_c_registerno': regnum },
+      {
+        $push: {
+          'customer.o_c_onus_information.o_c_accredit': { $each: insertLoans }
+        }
+      }
+    );
   }
-  return zms;
 }
