@@ -94,6 +94,7 @@ export const types = () => `
     loanBalanceAmount:Float
     expiredDays:Float
     loanTransactionHistory:JSON
+    storeInterest:JSON
     currency:String
     storedInterest:Float
     lastStoredDate:Date
