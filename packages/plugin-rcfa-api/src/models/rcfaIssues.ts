@@ -150,10 +150,12 @@ export const loadRCFAIssuesClass = (models: IModels, subdomain: string) => {
         isRPC: true
       });
 
-      return await models.Issues.findOneAndUpdate(
+      const updatedIssue = await models.Issues.findOneAndUpdate(
         { _id: issue?._id },
         { $addToSet: { taskIds: rootAction._id } }
       );
+
+      return { ...updatedIssue?.toObject(), newItem: rootAction };
     }
 
     public static async createActionRcfaRoot(params) {
@@ -198,13 +200,15 @@ export const loadRCFAIssuesClass = (models: IModels, subdomain: string) => {
         isRPC: true
       });
 
-      return await models.Issues.findOneAndUpdate(
+      const updatedIssue = await models.Issues.findOneAndUpdate(
         { _id: issue?._id },
         {
           $addToSet: { actionIds: newItem._id },
           $set: { isRootCause: true }
         }
       );
+
+      return { ...updatedIssue?.toObject(), newItem };
     }
   }
 
