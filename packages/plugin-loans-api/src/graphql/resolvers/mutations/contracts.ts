@@ -5,12 +5,13 @@ import {
 } from '../../../models/definitions/contracts';
 import { checkPermission } from '@erxes/api-utils/src';
 import { IContext } from '../../../connectionResolver';
-import {
+import messageBroker, {
   sendCardsMessage,
   sendCoreMessage,
   sendMessageBroker
 } from '../../../messageBroker';
 import { createLog, deleteLog, updateLog } from '../../../logUtils';
+import { putActivityLog } from '@erxes/api-utils/src/logUtils';
 
 const contractMutations = {
   contractsAdd: async (
@@ -53,6 +54,18 @@ const contractMutations = {
     };
 
     await updateLog(subdomain, user, logData);
+    // action:'edit',data: { ...logData, coc: contract,contentType: `loans:${logData.type}` }}
+    await putActivityLog(subdomain, {
+      action: 'putActivityLog',
+      data: {
+        ...logData,
+        createdBy: user._id,
+        coc: contract,
+        contentType: `loans:${logData.type}`,
+        contentId: contract._id
+      },
+      messageBroker: messageBroker()
+    });
 
     return updated;
   },

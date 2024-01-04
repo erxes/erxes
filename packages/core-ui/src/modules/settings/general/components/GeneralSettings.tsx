@@ -322,27 +322,45 @@ class GeneralSettings extends React.Component<Props, State> {
           </FormGroup>
 
           <FormGroup>
-            <ControlLabel>
-              {__('Team members who can access every branches')}
-            </ControlLabel>
-            <SelectTeamMembers
-              name="BRANCHES_MASTER_TEAM_MEMBERS_IDS"
-              initialValue={configsMap.BRANCHES_MASTER_TEAM_MEMBERS_IDS}
-              label="Select team members"
-              onSelect={(values, name) => this.onChangeConfig(name, values)}
+            <ControlLabel>{__('with team member restrictions')}</ControlLabel>
+            <FormControl
+              componentClass="checkbox"
+              checked={configsMap.CHECK_TEAM_MEMBER_SHOWN}
+              onChange={e =>
+                this.onChangeConfig(
+                  'CHECK_TEAM_MEMBER_SHOWN',
+                  (e.target as any).checked
+                )
+              }
             />
           </FormGroup>
-          <FormGroup>
-            <ControlLabel>
-              {__('Team members who can access every departments')}
-            </ControlLabel>
-            <SelectTeamMembers
-              name="DEPARTMENTS_MASTER_TEAM_MEMBERS_IDS"
-              label="Select team members"
-              initialValue={configsMap.DEPARTMENTS_MASTER_TEAM_MEMBERS_IDS}
-              onSelect={(values, name) => this.onChangeConfig(name, values)}
-            />
-          </FormGroup>
+
+          {configsMap.CHECK_TEAM_MEMBER_SHOWN && (
+            <>
+              <FormGroup>
+                <ControlLabel>
+                  {__('Team members who can access every branches')}
+                </ControlLabel>
+                <SelectTeamMembers
+                  name="BRANCHES_MASTER_TEAM_MEMBERS_IDS"
+                  initialValue={configsMap.BRANCHES_MASTER_TEAM_MEMBERS_IDS}
+                  label="Select team members"
+                  onSelect={(values, name) => this.onChangeConfig(name, values)}
+                />
+              </FormGroup>
+              <FormGroup>
+                <ControlLabel>
+                  {__('Team members who can access every departments')}
+                </ControlLabel>
+                <SelectTeamMembers
+                  name="DEPARTMENTS_MASTER_TEAM_MEMBERS_IDS"
+                  label="Select team members"
+                  initialValue={configsMap.DEPARTMENTS_MASTER_TEAM_MEMBERS_IDS}
+                  onSelect={(values, name) => this.onChangeConfig(name, values)}
+                />
+              </FormGroup>
+            </>
+          )}
         </CollapseContent>
 
         <CollapseContent

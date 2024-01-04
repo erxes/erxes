@@ -77,9 +77,10 @@ class PerSettings extends React.Component<Props, State> {
     const { config } = this.state;
     const key = config.stageId;
 
-    delete configsMap.ebarimtConfig[currentConfigKey];
-    configsMap.ebarimtConfig[key] = config;
-    this.props.save(configsMap);
+    const map = { ...configsMap.ebarimtConfig };
+    delete map[currentConfigKey];
+    map[key] = config;
+    this.props.save({ ...configsMap, ebarimtConfig: map });
   };
 
   onDelete = e => {
@@ -98,8 +99,7 @@ class PerSettings extends React.Component<Props, State> {
 
   onChangeConfig = (code: string, value) => {
     const { config } = this.state;
-    config[code] = value;
-    this.setState({ config });
+    this.setState({ config: { ...config, [code]: value } });
   };
 
   onChangeInput = (code: string, e) => {
