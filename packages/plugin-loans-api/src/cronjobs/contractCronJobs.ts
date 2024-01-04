@@ -18,7 +18,7 @@ export async function checkContractScheduleAnd(subdomain: string) {
   const today = getFullDate(now);
   const exactTime = `${now.getHours()}:${now.getMinutes()}:${now.getSeconds()}`;
 
-  if (exactTime === '23:59:59') {
+  if (exactTime === '00:00:00') {
     const loanContracts: IContractDocument[] = await models.Contracts.find({
       status: CONTRACT_STATUS.NORMAL
     }).lean();
