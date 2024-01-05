@@ -153,12 +153,15 @@ export const createConversationMessage = async (
         }
       });
 
-      graphqlPubsub.publish('conversationMessageInserted', {
-        conversationMessageInserted: {
-          ...created.toObject(),
-          conversationId: conversation.erxesApiId
+      graphqlPubsub.publish(
+        `conversationMessageInserted:${conversation.erxesApiId}`,
+        {
+          conversationMessageInserted: {
+            ...created.toObject(),
+            conversationId: conversation.erxesApiId
+          }
         }
-      });
+      );
     } catch (e) {
       debug.error(
         e.message.includes('duplicate')
