@@ -219,13 +219,13 @@ async function saveZms(action, data, result, sentData) {
   if (action === 'add') {
     data.customer.response = result.result;
     await Zmss.insertMany(data);
-    //await createLogs(data, sentData, result);
+    await createLogs(data, sentData, result);
   } else if (action === 'update') {
     data.customer.response = result.result;
     const regnum = data.customer.o_c_customer_information.o_c_registerno;
     const loans = data.customer.o_c_onus_information;
     await preNewLoans(loans, regnum);
-    //await createLogs(data, action, result);
+    await createLogs(data, action, result);
   }
   return data;
 }
