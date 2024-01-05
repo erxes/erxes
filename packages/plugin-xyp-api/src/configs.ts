@@ -5,6 +5,9 @@ import resolvers from './graphql/resolvers';
 
 import { initBroker } from './messageBroker';
 import { generateModels } from './connectionResolver';
+import exporter from './exporter';
+import segments from './segment';
+import forms from './forms';
 
 export let mainDb;
 export let debug;
@@ -42,5 +45,10 @@ export default {
     graphqlPubsub = options.pubsubClient;
 
     debug = options.debug;
+  },
+  meta: {
+    exporter,
+    forms,
+    segments
   }
 };

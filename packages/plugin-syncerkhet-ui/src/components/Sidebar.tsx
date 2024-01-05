@@ -45,6 +45,10 @@ class Sidebar extends React.Component {
             '/erxes-plugin-sync-erkhet/settings/move-stage',
             'Stage in Erkhet movement config'
           )}
+          {this.renderListItem(
+            '/erxes-plugin-sync-erkhet/settings/income-stage',
+            'Stage in Erkhet income config'
+          )}
         </List>
       </LeftSidebar>
     );

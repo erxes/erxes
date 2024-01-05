@@ -61,6 +61,7 @@ const listParamsDef = `
   $brandIds: [String]
   $departmentId: String
   $unitId: String
+  $isAssignee: Boolean
   $branchId: String
   $departmentIds: [String]
   $branchIds: [String]
@@ -76,6 +77,7 @@ const listParamsValue = `
   departmentId: $departmentId,
   unitId: $unitId,
   branchId: $branchId,
+  isAssignee: $isAssignee
   departmentIds: $departmentIds
   branchIds:$branchIds
   segment: $segment,
@@ -201,6 +203,7 @@ export const unitField = `
   }
   code
   userIds
+  userCount
   users {
     _id
     details {

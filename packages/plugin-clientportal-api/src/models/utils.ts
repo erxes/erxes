@@ -88,7 +88,7 @@ export const handleContacts = async (args: IContactsParams) => {
       );
 
       for (const serviceName of await getServices()) {
-        const serviceConfig = await getService(serviceName, true);
+        const serviceConfig = await getService(serviceName);
 
         if (serviceConfig.config?.meta?.hasOwnProperty('cpCustomerHandle')) {
           if (await isEnabled(serviceName)) {
@@ -158,7 +158,7 @@ export const handleContacts = async (args: IContactsParams) => {
       );
 
       for (const serviceName of await getServices()) {
-        const serviceConfig = await getService(serviceName, true);
+        const serviceConfig = await getService(serviceName);
 
         if (serviceConfig.config?.meta?.hasOwnProperty('cpCustomerHandle')) {
           if (await isEnabled(serviceName)) {
@@ -246,7 +246,7 @@ export const createCard = async (subdomain, models, cpUser, doc) => {
     subdomain,
     action: `${type}s.create`,
     data: {
-      userId: cpUser._id,
+      userId: cpUser.userId,
       name: subject,
       description,
       priority,
@@ -269,7 +269,7 @@ export const createCard = async (subdomain, models, cpUser, doc) => {
   await models.ClientPortalUserCards.createOrUpdateCard({
     contentType: type,
     contentTypeId: card._id,
-    cpUserId: cpUser._id
+    cpUserId: cpUser.userId
   });
 
   return card;

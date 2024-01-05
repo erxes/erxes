@@ -14,6 +14,8 @@ import {
 import { IModels } from '../connectionResolver';
 import { sendCoreMessage, sendFormsMessage } from '../messageBroker';
 import { sendToWebhook } from '../messageBroker';
+import { putCreateLog } from '../logUtils';
+import { MODULE_NAMES } from '../constants';
 export interface IConversationModel extends Model<IConversationDocument> {
   getConversation(_id: string): IConversationDocument;
   createConversation(doc: IConversation): Promise<IConversationDocument>;
@@ -135,6 +137,19 @@ export const loadClass = (models: IModels, subdomain: string) => {
           params: result
         }
       });
+
+      await putCreateLog(
+        models,
+        subdomain,
+        {
+          type: MODULE_NAMES.CONVERSATION,
+          newData: result,
+          object: result
+        },
+        {
+          _id: doc.customerId
+        }
+      );
 
       return result;
     }

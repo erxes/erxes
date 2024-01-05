@@ -58,7 +58,7 @@ export const loadUserCardClass = (models: IModels) => {
 
     public static async getUserIds(contentType: string, contentTypeId: string) {
       // aggregate and return array of cpUserId field of ClientPortalUserCards
-      const userIds = await models.ClientPortalUserCards.aggregate([
+      const cards = await models.ClientPortalUserCards.aggregate([
         {
           $match: {
             contentType,
@@ -72,7 +72,7 @@ export const loadUserCardClass = (models: IModels) => {
         }
       ]);
 
-      return userIds.map((user: any) => user.cpUserId);
+      return cards.map((user: any) => user.cpUserId);
     }
   }
 

@@ -173,6 +173,17 @@ function Filter({ queryParams = {}, filterTitle, history }: IProps) {
       {renderFilterParam('type', false, filterTitle)}
       {renderFilterParam('action', false, filterTitle)}
       {renderFilterWithData('userId', 'user', 'details{fullName}, email')}
+      {renderFilterWithData(
+        'assetCategoryId',
+        'assetCategory',
+        '_id, code, name'
+      )}
+      {renderFilterWithData(
+        'knowledgebaseCategoryId',
+        'knowledgeBaseCategory',
+        '_id, title'
+      )}
+      {renderFilterWithData('assetId', 'asset', '_id, code, name')}
     </Filters>
   );
 }

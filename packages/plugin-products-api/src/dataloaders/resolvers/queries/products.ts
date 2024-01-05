@@ -49,13 +49,8 @@ const generateFilter = async (
     tag,
     ids,
     excludeIds,
-    pipelineId,
-    boardId,
     segment,
-    segmentData,
-    sortField,
-    sortDirection,
-    ...pagintationArgs
+    segmentData
   } = params;
   const filter: any = commonQuerySelector;
 
@@ -89,10 +84,6 @@ const generateFilter = async (
 
   if (ids && ids.length > 0) {
     filter._id = { [excludeIds ? '$nin' : '$in']: ids };
-    if (!pagintationArgs.page && !pagintationArgs.perPage) {
-      pagintationArgs.page = 1;
-      pagintationArgs.perPage = 100;
-    }
   }
 
   if (tag) {
@@ -212,7 +203,18 @@ const productQueries = {
       params
     );
 
-    const { sortField, sortDirection, ...pagintationArgs } = params;
+    const { sortField, sortDirection, page, perPage, ids, excludeIds } = params;
+
+    const pagintationArgs = { page, perPage };
+    if (
+      ids &&
+      ids.length &&
+      !excludeIds &&
+      ids.length > (pagintationArgs.perPage || 20)
+    ) {
+      pagintationArgs.page = 1;
+      pagintationArgs.perPage = ids.length;
+    }
 
     let sort: any = { code: 1 };
     if (sortField) {

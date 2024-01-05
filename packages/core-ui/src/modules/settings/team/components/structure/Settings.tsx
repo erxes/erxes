@@ -1,7 +1,10 @@
 import { Wrapper, __ } from '@erxes/ui/src';
-import React from 'react';
+
 import BoxContainer from '../../containers/structure/Box';
+import LeftSidebar from '@erxes/ui/src/layout/components/Sidebar';
+import React from 'react';
 import SettingsSideBar from '../../containers/common/SettingSideBar';
+import SidebarHeader from '@erxes/ui-settings/src/common/components/SidebarHeader';
 
 export default function Structure() {
   return (
@@ -16,7 +19,11 @@ export default function Structure() {
         />
       }
       content={<BoxContainer />}
-      leftSidebar={<SettingsSideBar />}
+      leftSidebar={
+        <LeftSidebar header={<SidebarHeader />} hasBorder={true}>
+          <SettingsSideBar />
+        </LeftSidebar>
+      }
       hasBorder={true}
     />
   );

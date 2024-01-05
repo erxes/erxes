@@ -39,6 +39,11 @@ export interface IContractConfig {
 
   isAutoSendEBarimt: boolean;
   productType: string;
+  normalExpirationDay: number;
+  expiredExpirationDay: number;
+  doubtExpirationDay: number;
+  negativeExpirationDay: number;
+  badExpirationDay: number;
 }
 
 export interface IContractType {
@@ -64,6 +69,7 @@ export interface IContractType {
   savingPlusLoanInterest: number;
   savingUpperPercent: number;
   usePrePayment: boolean;
+  invoiceDay: string;
 }
 
 export interface IContractTypeDocument extends IContractType, Document {
@@ -156,6 +162,10 @@ export const contractTypeSchema = schemaHooksWrapper(
       type: Boolean,
       default: false,
       label: 'use pre payment'
+    }),
+    invoiceDay: field({
+      type: String,
+      label: 'invoiceDay'
     })
   }),
   'erxes_contractTypeSchema'
