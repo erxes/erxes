@@ -1090,9 +1090,12 @@ const widgetMutations = {
     _root,
     args: { conversationId: string; text?: string }
   ) {
-    graphqlPubsub.publish('conversationClientTypingStatusChanged', {
-      conversationClientTypingStatusChanged: args
-    });
+    graphqlPubsub.publish(
+      `conversationClientTypingStatusChanged:${args.conversationId}`,
+      {
+        conversationClientTypingStatusChanged: args
+      }
+    );
 
     return 'ok';
   },
