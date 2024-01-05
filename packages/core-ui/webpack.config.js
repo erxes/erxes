@@ -44,7 +44,6 @@ module.exports = (env, args) => {
     },
 
     optimization: {
-      minimize: true,
       minimizer: [
         new EsbuildPlugin({
           target: "es6", // Syntax to transpile to (see options below for possible values)
