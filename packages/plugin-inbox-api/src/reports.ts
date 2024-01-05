@@ -403,6 +403,41 @@ const chartTemplates = [
 
       const title = `${filterStatus} conversations' count`;
 
+      let filterUserIds: any = [];
+
+      if (filter.departmentIds) {
+        const findDepartmentUsers = await sendCoreMessage({
+          subdomain,
+          action: 'users.find',
+          data: {
+            query: { departmentIds: { $in: filter.departmentIds } }
+          },
+          isRPC: true,
+          defaultValue: []
+        });
+
+        filterUserIds = findDepartmentUsers.map(user => user._id);
+      }
+
+      if (filter.branchIds) {
+        const findBranchUsers = await sendCoreMessage({
+          subdomain,
+          action: 'users.find',
+          data: {
+            query: { branchIds: { $in: filter.branchIds } }
+          },
+          isRPC: true,
+          defaultValue: []
+        });
+
+        filterUserIds.push(...findBranchUsers.map(user => user._id));
+      }
+
+      // if team members selected, go by team members
+      if (filter.userIds) {
+        filterUserIds = filter.userIds;
+      }
+
       // filter by status
       if (filterStatus && filterStatus !== 'all') {
         if (filterStatus === 'unassigned') {
@@ -430,10 +465,10 @@ const chartTemplates = [
 
       if (filterStatus === 'open' || filterStatus === 'all') {
         matchfilter['assignedUserId'] =
-          filter && filter.userIds
+          filter && (filter.userIds || filter.departmentIds || filter.branchIds)
             ? {
                 $exists: true,
-                $in: filter.userIds
+                $in: filterUserIds
               }
             : { $exists: true, $ne: null };
 
@@ -448,10 +483,10 @@ const chartTemplates = [
       }
       if (filterStatus === 'closed') {
         matchfilter['closedUserId'] =
-          filter && filter.userIds
+          filter && (filter.userIds || filter.departmentIds || filter.branchIds)
             ? {
                 $exists: true,
-                $in: filter.userIds
+                $in: filterUserIds
               }
             : { $exists: true };
 
@@ -464,8 +499,6 @@ const chartTemplates = [
       }
 
       if (filterStatus === 'unassigned') {
-        console.log('filter ', matchfilter);
-
         const totalUnassignedConvosCount =
           (await models?.Conversations.count(matchfilter)) || 0;
 
@@ -521,11 +554,32 @@ const chartTemplates = [
     },
     filterTypes: [
       {
+        fieldName: 'status',
+        fieldType: 'select',
+        multi: false,
+        fieldOptions: STATUS_TYPES,
+        fieldLabel: 'Select conversation status'
+      },
+      {
         fieldName: 'userIds',
         fieldType: 'select',
         multi: true,
         fieldQuery: 'users',
         fieldLabel: 'Select users'
+      },
+      {
+        fieldName: 'departmentIds',
+        fieldType: 'select',
+        multi: true,
+        fieldQuery: 'departments',
+        fieldLabel: 'Select departments'
+      },
+      {
+        fieldName: 'branchIds',
+        fieldType: 'select',
+        multi: true,
+        fieldQuery: 'branches',
+        fieldLabel: 'Select branches'
       },
       {
         fieldName: 'integrationType',
@@ -539,13 +593,6 @@ const chartTemplates = [
         fieldType: 'select',
         multi: true,
         fieldLabel: 'Select tags'
-      },
-      {
-        fieldName: 'status',
-        fieldType: 'select',
-        multi: false,
-        fieldOptions: STATUS_TYPES,
-        fieldLabel: 'Select status'
       }
     ]
   }

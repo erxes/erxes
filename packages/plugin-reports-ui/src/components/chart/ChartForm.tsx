@@ -140,8 +140,6 @@ const ChartForm = (props: Props) => {
     setFilters({ ...filters, [fieldName]: value });
   };
 
-  console.log(filterTypes, ' f types');
-
   const renderFilterTypes = filterTypes.length ? (
     <FlexColumn style={{ gap: '20px' }}>
       {filterTypes.map((f: IFilterType) => (

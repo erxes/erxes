@@ -1,6 +1,8 @@
 import SelectTags from '@erxes/ui-tags/src/containers/SelectTags';
 import { ControlLabel, SelectTeamMembers } from '@erxes/ui/src';
 import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
+import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
+
 import React, { useState } from 'react';
 import Select from 'react-select-plus';
 
@@ -12,7 +14,7 @@ type Props = {
   fieldOptions: any[];
   initialValue?: any;
   onChange: (input: any) => void;
-  value?: any;
+  valtotalHoursWorkedue?: any;
 };
 const ChartFormField = (props: Props) => {
   const {
@@ -70,13 +72,29 @@ const ChartFormField = (props: Props) => {
           <SelectTags
             tagsType="reports:reports"
             multi={multi}
-            name="chartTags"
+            name="tags"
+            label={fieldLabel}
+            onSelect={onChange}
+            // initialValue={fieldValue}
+          />
+        </div>
+      );
+
+    case 'branches':
+      return (
+        <div>
+          <ControlLabel>{fieldLabel}</ControlLabel>
+
+          <SelectBranches
+            multi={multi}
+            name="chartAssignedBranchIds"
             label={fieldLabel}
             onSelect={onChange}
             initialValue={fieldValue}
           />
         </div>
       );
+
     default:
       break;
   }

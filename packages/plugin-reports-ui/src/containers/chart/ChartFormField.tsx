@@ -39,7 +39,9 @@ const ChartFormFieldList = (props: Props) => {
       case 'select':
         const value =
           fieldQuery &&
-          (fieldQuery.includes('user') || fieldQuery.includes('department'))
+          (fieldQuery.includes('user') ||
+            fieldQuery.includes('department') ||
+            fieldQuery.includes('branch'))
             ? input
             : input.value;
 
