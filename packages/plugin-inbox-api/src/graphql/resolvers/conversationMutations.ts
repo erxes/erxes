@@ -177,7 +177,7 @@ export const publishMessage = async (
       message.conversationId
     );
 
-    graphqlPubsub.publish('conversationAdminMessageInserted', {
+    graphqlPubsub.publish(`conversationAdminMessageInserted:${customerId}`, {
       conversationAdminMessageInserted: {
         customerId,
         unreadCount

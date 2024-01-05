@@ -109,16 +109,7 @@ module.exports = {
        * Widget is listening for this subscription to show unread notification
        */
       conversationAdminMessageInserted: {
-        subscribe: withFilter(
-          () => graphqlPubsub.asyncIterator("conversationAdminMessageInserted"),
-          // filter by conversationId
-          (payload, variables) => {
-            return (
-              payload.conversationAdminMessageInserted.customerId ===
-              variables.customerId
-            );
-          }
-        ),
+        subscribe: (_, { customerId }) => graphqlPubsub.asyncIterator(`conversationAdminMessageInserted:${customerId}`),
       },
 
       /*

@@ -28,7 +28,7 @@ export const publishMessage = async (
       isRPC: true
     });
 
-    graphqlPubsub.publish('conversationAdminMessageInserted', {
+    graphqlPubsub.publish(`conversationAdminMessageInserted:${customerId}`, {
       conversationAdminMessageInserted: {
         customerId,
         unreadCount
