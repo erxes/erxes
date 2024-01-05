@@ -30,42 +30,10 @@ const zmsMutations = {
               o_c_customer_bankrelations: '05'
             },
             o_c_onus_information: {
-              o_c_loanline: [
-                {
-                  o_c_loanline_type: '03',
-                  o_c_loanline_advamount: 189400.0,
-                  o_c_loanline_starteddate: '2006-11-20 20:19:47',
-                  o_c_loanline_expdate: '2018-08-20 10:19:47',
-                  o_c_loanline_currencycode: 'MNT',
-                  o_c_loanline_sectorcode: 'G47',
-                  o_c_loanline_loanclasscode: '01',
-                  o_c_loanline_loaninterest: 9.9,
-                  o_c_loanline_timestoloan: 1,
-                  o_c_loanline_interestinperc: 1.9,
-                  o_c_loanline_commissionperc: 9.9,
-                  o_c_loanline_fee: 0.0,
-                  o_c_loanline_balance: 1.0
-                },
-                {
-                  o_c_loanline_type: '04',
-                  o_c_loanline_advamount: 185000.0,
-                  o_c_loanline_starteddate: '2008-11-22 20:19:47',
-                  o_c_loanline_expdate: '2018-08-21 10:19:47',
-                  o_c_loanline_currencycode: 'MNT',
-                  o_c_loanline_sectorcode: 'G47',
-                  o_c_loanline_loanclasscode: '01',
-                  o_c_loanline_loaninterest: 9.9,
-                  o_c_loanline_timestoloan: 1,
-                  o_c_loanline_interestinperc: 1.9,
-                  o_c_loanline_commissionperc: 9.9,
-                  o_c_loanline_fee: 0.0,
-                  o_c_loanline_balance: 1.0
-                }
-              ],
               o_c_accredit: [
                 {
-                  o_c_accredit_advamount: 183000.0,
-                  o_c_accredit_starteddate: '2009-11-20 20:19:47',
+                  o_c_accredit_advamount: 1000000.0,
+                  o_c_accredit_starteddate: '2024-11-20 20:19:47',
                   o_c_accredit_expdate: '2018-08-20 10:19:47',
                   o_c_accredit_currencycode: 'MNT',
                   o_c_accredit_type: '02',

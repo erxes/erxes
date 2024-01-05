@@ -63,16 +63,16 @@ async function getZms(regum) {
 async function findloanAction(data, regnum, customerAction) {
   const loans = data.customer.o_c_onus_information;
   const type = 'send';
-  if (!!loans.o_c_loanline) {
+  if (loans.o_c_loanline) {
     await findActionLoanLines(data, loans.o_c_loanline, regnum, type);
   }
-  if (!!loans.o_c_loanmrtnos) {
+  if (loans.o_c_loanmrtnos) {
     await findActionLoanmrtnos(data, loans.o_c_loanmrtnos, regnum, type);
   }
-  if (!!loans.o_c_leasing) {
+  if (loans.o_c_leasing) {
     await findActionleasing(data, loans.o_c_leasing, regnum, type);
   }
-  if (!!loans.o_c_accredit) {
+  if (loans.o_c_accredit) {
     await findActionAccredit(data, loans.o_c_accredit, regnum, type);
   }
   await setActionOtherField(data, customerAction, customerAction);
@@ -96,15 +96,15 @@ async function setObjectAction(preData, field, customAction, loanAction) {
 async function setActionWithArray(result, field, customAction, loanAction) {
   for await (const el of result) {
     field.group === 'loan'
-      ? (el.$ = { action: loanAction })
-      : (el.$ = { action: customAction });
+      ? (el['$'] = { action: loanAction })
+      : (el['$'] = { action: customAction });
   }
   return result;
 }
 async function setActionWithStr(result, field, customAction, loanAction) {
   field.group === 'loan'
-    ? (result.$ = { action: loanAction })
-    : (result.$ = { action: customAction });
+    ? (result['$'] = { action: loanAction })
+    : (result['$'] = { action: customAction });
   return result;
 }
 async function setStrtAction(preData, field, customAction, loanAction) {
@@ -234,17 +234,18 @@ async function createLogs(data, sentData, result) {
     status: result.result,
     sendData: data,
     sentDate: new Date(),
-    sentBy: 'miiga', //request
+    sentBy: '', //request
     response: JSON.stringify(result)
   });
 }
 async function getCustomerAction(regrum) {
   const zms = await getZms(regrum);
+  const action = zms ? 'update' : 'add';
   return zms ? 'update' : 'add';
 }
 async function findActionLoanLines(data, loanLines, regrum, type) {
   const zms = await getZms(regrum);
-  if (!!zms.customer.o_c_onus_information.o_c_loanline) {
+  if (zms.customer.o_c_onus_information.o_c_loanline) {
     const zmsLoans = zms.customer.o_c_onus_information.o_c_loanline;
     for await (const loan of loanLines) {
       const loanAction = await getActionLoanLine(
@@ -268,7 +269,7 @@ async function getActionLoanLine(zmsLoans, amount, starteddate) {
 }
 async function findActionLoanmrtnos(data, loanmrtnos, regrum, type) {
   const zms = await getZms(regrum);
-  if (!!zms.customer.o_c_onus_information.o_c_loanmrtnos) {
+  if (zms.customer.o_c_onus_information.o_c_loanmrtnos) {
     const zmsLoans = zms.customer.o_c_onus_information.o_c_loanmrtnos;
     for await (const loan of loanmrtnos) {
       const loanAction = await getActionLoanmrtnos(
@@ -294,7 +295,7 @@ async function getActionLoanmrtnos(zmsLoans, amount, starteddate) {
 }
 async function findActionleasing(data, leasing, regrum, type) {
   const zms = await getZms(regrum);
-  if (!!zms.customer.o_c_onus_information.o_c_leasing) {
+  if (zms.customer.o_c_onus_information.o_c_leasing) {
     const zmsLoans = zms.customer.o_c_onus_information.o_c_leasing;
     for await (const loan of leasing) {
       const loanAction = await getActionleasing(
@@ -321,7 +322,7 @@ async function getActionleasing(zmsLoans, amount, starteddate) {
 
 async function findActionAccredit(data, accredits, regrum, type) {
   const zms = await getZms(regrum);
-  if (!!zms.customer.o_c_onus_information.o_c_accredit) {
+  if (zms.customer.o_c_onus_information.o_c_accredit) {
     const zmsLoans = zms.customer.o_c_onus_information.o_c_accredit;
     for await (const loan of accredits) {
       const loanAction = await getActionlAccredit(
@@ -347,7 +348,7 @@ async function getActionlAccredit(zmsLoans, amount, starteddate) {
 }
 async function setActionLoan(loanAction, loan, type) {
   type === 'send'
-    ? (loan.$ = { action: loanAction })
+    ? (loan['$'] = { action: loanAction })
     : (loan.action = loanAction);
   return loan;
 }

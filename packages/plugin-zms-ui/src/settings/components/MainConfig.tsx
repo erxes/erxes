@@ -15,7 +15,13 @@ type Props = {
   save: (configsMap: IConfigsMap) => void;
 };
 
-type State = any;
+type State = {
+  title: string;
+  client_id: string;
+  secretKey: string;
+  organizationId: string;
+  branchId: string;
+};
 
 class MainConfig extends React.Component<Props, State> {
   constructor(props: Props) {
@@ -30,11 +36,11 @@ class MainConfig extends React.Component<Props, State> {
     this.props.save(configsMap);
   };
 
-  onChangeConfig = (code: any, value) => {
-    this.setState({ [code]: value });
+  onChangeConfig = (code: keyof State, value) => {
+    this.setState({ [code]: value } as any);
   };
 
-  onChangeInput = (code: string, e) => {
+  onChangeInput = (code: keyof State, e) => {
     this.onChangeConfig(code, e.target.value);
   };
 
