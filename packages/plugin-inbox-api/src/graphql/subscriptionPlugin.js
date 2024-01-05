@@ -1,26 +1,5 @@
 var { withFilter } = require("graphql-subscriptions");
 
-function queryAndMergeMissingConversationMessageData({
-  gatewayDataSource,
-  payload,
-  info,
-}) {
-  const conversationMessage = Object.values(payload)[0];
-
-  return gatewayDataSource.queryAndMergeMissingData({
-    payload,
-    info,
-    queryVariables: { _id: conversationMessage._id },
-    buildQueryUsingSelections: (selections) => `
-          query Subscription_GetMessage($_id: String!) {
-            conversationMessage(_id: $_id) {
-              ${selections}
-            }
-          }
-      `,
-  });
-}
-
 module.exports = {
   name: "inbox",
   typeDefs: `
@@ -46,11 +25,18 @@ module.exports = {
        * Listen for new message insertion
        */
       conversationMessageInserted: {
-        resolve(payload, args, { dataSources: { gatewayDataSource } }, info) {
-          return queryAndMergeMissingConversationMessageData({
-            gatewayDataSource,
+        resolve(payload, _, { dataSources: { gatewayDataSource } }, info) {
+          return gatewayDataSource.queryAndMergeMissingData({
             payload,
             info,
+            queryVariables: payload.conversationMessageInserted._id,
+            buildQueryUsingSelections: (selections) => `
+                  query Subscription_GetMessage($_id: String!) {
+                    conversationMessage(_id: $_id) {
+                      ${selections}
+                    }
+                  }
+              `,
           });
         },
         subscribe: (_, { _id }) =>
@@ -79,11 +65,20 @@ module.exports = {
        * Admin is listening for this subscription to show unread notification
        */
       conversationClientMessageInserted: {
-        resolve(payload, args, { dataSources: { gatewayDataSource } }, info) {
-          return queryAndMergeMissingConversationMessageData({
-            gatewayDataSource,
+        resolve(payload, _, { dataSources: { gatewayDataSource } }, info) {
+          return gatewayDataSource.queryAndMergeMissingData({
             payload,
             info,
+            queryVariables: {
+              _id: payload.conversationClientMessageInserted._id,
+            },
+            buildQueryUsingSelections: (selections) => `
+                query Subscription_GetMessage($_id: String!) {
+                  conversationMessage(_id: $_id) {
+                    ${selections}
+                  }
+                }
+            `,
           });
         },
         subscribe: withFilter(
@@ -109,7 +104,10 @@ module.exports = {
        * Widget is listening for this subscription to show unread notification
        */
       conversationAdminMessageInserted: {
-        subscribe: (_, { customerId }) => graphqlPubsub.asyncIterator(`conversationAdminMessageInserted:${customerId}`),
+        subscribe: (_, { customerId }) =>
+          graphqlPubsub.asyncIterator(
+            `conversationAdminMessageInserted:${customerId}`
+          ),
       },
 
       /*
