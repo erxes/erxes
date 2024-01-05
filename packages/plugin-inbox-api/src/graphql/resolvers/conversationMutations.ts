@@ -136,7 +136,7 @@ export const publishConversationsChanged = async (
   const models = await generateModels(subdomain);
 
   for (const _id of _ids) {
-    graphqlPubsub.publish('conversationChanged', {
+    graphqlPubsub.publish(`conversationChanged:${_id}`, {
       conversationChanged: { conversationId: _id, type }
     });
 
@@ -163,9 +163,12 @@ export const publishMessage = async (
   message: IMessageDocument,
   customerId?: string
 ) => {
-  graphqlPubsub.publish('conversationMessageInserted', {
-    conversationMessageInserted: message
-  });
+  graphqlPubsub.publish(
+    `conversationMessageInserted:${message.conversationId}`,
+    {
+      conversationMessageInserted: message
+    }
+  );
 
   // widget is listening for this subscription to show notification
   // customerId available means trying to notify to client
@@ -639,9 +642,12 @@ const conversationMutations = {
       ]
     });
 
-    graphqlPubsub.publish('conversationMessageInserted', {
-      conversationMessageInserted: message
-    });
+    graphqlPubsub.publish(
+      `conversationMessageInserted:${message.conversationId}`,
+      {
+        conversationMessageInserted: message
+      }
+    );
 
     return models.Conversations.updateOne(
       { _id },

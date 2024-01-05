@@ -273,9 +273,12 @@ const createFormConversation = async (
 
   await pConversationClientMessageInserted(models, subdomain, message);
 
-  graphqlPubsub.publish('conversationMessageInserted', {
-    conversationMessageInserted: message
-  });
+  graphqlPubsub.publish(
+    `conversationMessageInserted:${message.conversationId}`,
+    {
+      conversationMessageInserted: message
+    }
+  );
 
   if (type === 'lead') {
     // increasing form submitted count
@@ -856,7 +859,7 @@ const widgetMutations = {
 
     await pConversationClientMessageInserted(models, subdomain, msg);
 
-    graphqlPubsub.publish('conversationMessageInserted', {
+    graphqlPubsub.publish(`conversationMessageInserted:${msg.conversationId}`, {
       conversationMessageInserted: msg
     });
 
@@ -909,9 +912,12 @@ const widgetMutations = {
           }
         });
 
-        graphqlPubsub.publish('conversationMessageInserted', {
-          conversationMessageInserted: botMessage
-        });
+        graphqlPubsub.publish(
+          `conversationMessageInserted:${botMessage.conversationId}`,
+          {
+            conversationMessageInserted: botMessage
+          }
+        );
       } catch (e) {
         debug.error(`Failed to connect to BOTPRESS: ${e.message}`);
       }
@@ -931,9 +937,12 @@ const widgetMutations = {
       );
 
       for (const mg of conversationMessages) {
-        graphqlPubsub.publish('conversationMessageInserted', {
-          conversationMessageInserted: mg
-        });
+        graphqlPubsub.publish(
+          `conversationMessageInserted:${mg.conversationId}`,
+          {
+            conversationMessageInserted: mg
+          }
+        );
       }
 
       // notify as connected
@@ -1272,7 +1281,7 @@ const widgetMutations = {
       content: message
     });
 
-    graphqlPubsub.publish('conversationMessageInserted', {
+    graphqlPubsub.publish(`conversationMessageInserted:${msg.conversationId}`, {
       conversationMessageInserted: msg
     });
 
@@ -1316,9 +1325,12 @@ const widgetMutations = {
       botData
     });
 
-    graphqlPubsub.publish('conversationMessageInserted', {
-      conversationMessageInserted: botMessage
-    });
+    graphqlPubsub.publish(
+      `conversationMessageInserted:${botMessage.conversationId}`,
+      {
+        conversationMessageInserted: botMessage
+      }
+    );
 
     return botMessage;
   },

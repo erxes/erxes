@@ -34,13 +34,7 @@ module.exports = {
        * Listen for conversation changes like status, assignee, read state
        */
       conversationChanged: {
-        subscribe: withFilter(
-          () => graphqlPubsub.asyncIterator("conversationChanged"),
-          // filter by conversationId
-          (payload, variables) => {
-            return payload.conversationChanged.conversationId === variables._id;
-          }
-        ),
+        subscribe: (_, { _id }) => graphqlPubsub.asyncIterator(`conversationChanged:${_id}`),
       },
 
       /*
@@ -59,16 +53,7 @@ module.exports = {
             info,
           });
         },
-        subscribe: withFilter(
-          () => graphqlPubsub.asyncIterator("conversationMessageInserted"),
-          // filter by conversationId
-          (payload, variables) => {
-            return (
-              payload.conversationMessageInserted.conversationId ===
-              variables._id
-            );
-          }
-        ),
+        subscribe: (_, { _id }) => graphqlPubsub.asyncIterator(`conversationMessageInserted:${_id}`),
       },
 
       /*

@@ -283,9 +283,12 @@ const webhookMiddleware = async (req, res, next) => {
 
       await pConversationClientMessageInserted(models, subdomain, message);
 
-      graphqlPubsub.publish('conversationMessageInserted', {
-        conversationMessageInserted: message
-      });
+      graphqlPubsub.publish(
+        `conversationMessageInserted:${message.conversationId}`,
+        {
+          conversationMessageInserted: message
+        }
+      );
     }
 
     // company
