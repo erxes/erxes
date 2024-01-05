@@ -869,12 +869,15 @@ const widgetMutations = {
       !botShowInitialMessage &&
       conversation.operatorStatus === CONVERSATION_OPERATOR_STATUS.BOT
     ) {
-      graphqlPubsub.publish('conversationBotTypingStatus', {
-        conversationBotTypingStatus: {
-          conversationId: msg.conversationId,
-          typing: true
+      graphqlPubsub.publish(
+        `conversationBotTypingStatus:${msg.conversationId}`,
+        {
+          conversationBotTypingStatus: {
+            conversationId: msg.conversationId,
+            typing: true
+          }
         }
-      });
+      );
 
       try {
         const botRequest = await sendRequest({
@@ -905,12 +908,15 @@ const widgetMutations = {
           botData
         });
 
-        graphqlPubsub.publish('conversationBotTypingStatus', {
-          conversationBotTypingStatus: {
-            conversationId: msg.conversationId,
-            typing: false
+        graphqlPubsub.publish(
+          `conversationBotTypingStatus:${msg.conversationId}`,
+          {
+            conversationBotTypingStatus: {
+              conversationId: msg.conversationId,
+              typing: false
+            }
           }
-        });
+        );
 
         graphqlPubsub.publish(
           `conversationMessageInserted:${botMessage.conversationId}`,

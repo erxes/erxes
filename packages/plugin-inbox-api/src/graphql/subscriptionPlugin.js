@@ -60,15 +60,7 @@ module.exports = {
        * Show typing while waiting Bot response
        */
       conversationBotTypingStatus: {
-        subscribe: withFilter(
-          () => graphqlPubsub.asyncIterator("conversationBotTypingStatus"),
-          async (payload, variables) => {
-            return (
-              payload.conversationBotTypingStatus.conversationId ===
-              variables._id
-            );
-          }
-        ),
+        subscribe: (_, { _id }) => graphqlPubsub.asyncIterator(`conversationBotTypingStatus:${_id}`),
       },
 
       /*
