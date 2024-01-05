@@ -3,11 +3,12 @@ import {
   requireLogin
 } from '@erxes/api-utils/src/permissions';
 
+import { getEnv } from '@erxes/api-utils/src/core';
+import { PAYMENTS } from '../../../api/constants';
+import { PocketAPI } from '../../../api/pocket/api';
+import { QPayQuickQrAPI } from '../../../api/qpayQuickqr/api';
 import { IContext } from '../../../connectionResolver';
 import { IPayment } from '../../../models/definitions/payments';
-import { QPayQuickQrAPI } from '../../../api/qpayQuickqr/api';
-import { PocketAPI } from '../../../api/pocket/api';
-import { getEnv } from '@erxes/api-utils/src/core';
 
 const mutations = {
   async paymentAdd(_root, doc: IPayment, { models, subdomain }: IContext) {
@@ -53,6 +54,18 @@ const mutations = {
   },
 
   async paymentRemove(_root, { _id }: { _id: string }, { models }: IContext) {
+    const payment = await models.Payments.getPayment(_id);
+
+    if (payment.kind === PAYMENTS.qpayQuickqr.kind) {
+      const api = new QPayQuickQrAPI(payment.config);
+
+      try {
+        await api.removeMerchant();
+      } catch (e) {
+        throw new Error(e.message);
+      }
+    }
+
     await models.Payments.removePayment(_id);
 
     return 'success';
@@ -69,6 +82,27 @@ const mutations = {
     }: { _id: string; name: string; status: string; kind: string; config: any },
     { models }: IContext
   ) {
+    if (kind === 'qpayQuickqr') {
+      const api = new QPayQuickQrAPI(config);
+
+      const { isCompany } = config;
+
+      let apiResponse;
+      try {
+        if (isCompany) {
+          apiResponse = await api.updateCompany(config);
+        } else {
+          apiResponse = await api.updateCustomer(config);
+        }
+
+        const { id } = apiResponse;
+
+        config.merchantId = id;
+      } catch (e) {
+        throw new Error(e.message);
+      }
+    }
+
     return await models.Payments.updatePayment(_id, {
       name,
       status,
