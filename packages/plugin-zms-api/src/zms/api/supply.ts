@@ -95,29 +95,35 @@ async function setObjectAction(preData, field, customAction, loanAction) {
 }
 async function setActionWithArray(result, field, customAction, loanAction) {
   for await (const el of result) {
-    field.group === 'loan'
-      ? (el['$'] = { action: loanAction })
-      : (el['$'] = { action: customAction });
+    if (field.group === 'loan') {
+      el.$ = { action: loanAction };
+    } else {
+      el.$ = { action: customAction };
+    }
   }
   return result;
 }
 async function setActionWithStr(result, field, customAction, loanAction) {
-  field.group === 'loan'
-    ? (result['$'] = { action: loanAction })
-    : (result['$'] = { action: customAction });
+  if (field.group === 'loan') {
+    result.$ = { action: loanAction };
+  } else {
+    result.$ = { action: customAction };
+  }
   return result;
 }
 async function setStrtAction(preData, field, customAction, loanAction) {
   const str = await getPropStr(preData, field.path, '');
-  field.group === 'loan'
-    ? (str.object[str.path] = {
-        $: { action: loanAction },
-        _: str.defaultVal
-      })
-    : (str.object[str.path] = {
-        $: { action: customAction },
-        _: str.defaultVal
-      });
+  if (field.group === 'loan') {
+    str.object[str.path] = {
+      $: { action: loanAction },
+      _: str.defaultVal
+    };
+  } else {
+    str.object[str.path] = {
+      $: { action: customAction },
+      _: str.defaultVal
+    };
+  }
 }
 async function getProp(object, path, defaultVal) {
   const _path = Array.isArray(path)
@@ -213,13 +219,13 @@ async function saveZms(action, data, result, sentData) {
   if (action === 'add') {
     data.customer.response = result.result;
     await Zmss.insertMany(data);
-    await createLogs(data, sentData, result);
+    //await createLogs(data, sentData, result);
   } else if (action === 'update') {
     data.customer.response = result.result;
     const regnum = data.customer.o_c_customer_information.o_c_registerno;
     const loans = data.customer.o_c_onus_information;
     await preNewLoans(loans, regnum);
-    await createLogs(data, action, result);
+    //await createLogs(data, action, result);
   }
   return data;
 }
@@ -240,7 +246,6 @@ async function createLogs(data, sentData, result) {
 }
 async function getCustomerAction(regrum) {
   const zms = await getZms(regrum);
-  const action = zms ? 'update' : 'add';
   return zms ? 'update' : 'add';
 }
 async function findActionLoanLines(data, loanLines, regrum, type) {
@@ -309,17 +314,16 @@ async function findActionleasing(data, leasing, regrum, type) {
   return data;
 }
 async function getActionleasing(zmsLoans, amount, starteddate) {
-  const loanAction =
-    zmsLoans.filter(
-      loan =>
-        loan.o_c_leasing_advamount === amount &&
-        formatDate(loan.o_c_leasing_starteddate) == starteddate
-    ).length > 0
-      ? 'update'
-      : 'add';
-  return loanAction;
+  const loanAction = zmsLoans.filter(
+    loan =>
+      loan.o_c_leasing_advamount === amount &&
+      formatDate(loan.o_c_leasing_starteddate) == starteddate
+  );
+  if (loanAction.length > 0) {
+    return 'update';
+  }
+  return 'add';
 }
-
 async function findActionAccredit(data, accredits, regrum, type) {
   const zms = await getZms(regrum);
   if (zms.customer.o_c_onus_information.o_c_accredit) {
@@ -336,20 +340,22 @@ async function findActionAccredit(data, accredits, regrum, type) {
   return data;
 }
 async function getActionlAccredit(zmsLoans, amount, starteddate) {
-  const loanAction =
-    zmsLoans.filter(
-      loan =>
-        loan.o_c_accredit_advamount === amount &&
-        formatDate(loan.o_c_accredit_starteddate) == starteddate
-    ).length > 0
-      ? 'update'
-      : 'add';
-  return loanAction;
+  const loanAction = zmsLoans.filter(
+    loan =>
+      loan.o_c_accredit_advamount === amount &&
+      formatDate(loan.o_c_accredit_starteddate) == starteddate
+  );
+  if (loanAction.length > 0) {
+    return 'Update';
+  }
+  return 'add';
 }
 async function setActionLoan(loanAction, loan, type) {
-  type === 'send'
-    ? (loan['$'] = { action: loanAction })
-    : (loan.action = loanAction);
+  if (type === 'send') {
+    loan.$ = { action: loanAction };
+  } else {
+    loan.action = loanAction;
+  }
   return loan;
 }
 async function setActionLog(data, action) {
