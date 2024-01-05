@@ -1,15 +1,15 @@
 import React from 'react';
-import { TopHeader } from '@erxes/ui/src/styles/main';
+import GeneralRoutes from './generalRoutes';
+import { PluginLayout } from '@erxes/ui/src/styles/main';
+import '@erxes/ui/src/styles/global-styles';
+import 'erxes-icon/css/erxes.min.css';
+import '@erxes/ui/src/styles/style.min.css';
 
 const App = () => {
   return (
-    <TopHeader>
-      <h2>Successfully created new plugin</h2>
-      <h4>
-        If you'd like to see an example where we used most of the tech stack of
-        Erxes, please create new plugin with an example template
-      </h4>
-    </TopHeader>
+    <PluginLayout>
+      <GeneralRoutes />
+    </PluginLayout>
   );
 };
 
