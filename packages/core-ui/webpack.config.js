@@ -5,6 +5,7 @@ const path = require('path');
 const InterpolateHtmlPlugin = require('interpolate-html-plugin');
 const ModuleFederationPlugin = require('webpack/lib/container/ModuleFederationPlugin');
 const { MFLiveReloadPlugin } = require('@module-federation/fmr');
+const { EsbuildPlugin } = require("esbuild-loader");
 
 // replace accordingly './.env' with the path of your .env file
 const envs = require('dotenv').config({ path: './.env' });
@@ -40,6 +41,15 @@ module.exports = (env, args) => {
     output: {
       publicPath: '/',
       chunkFilename: '[id].[contenthash].js'
+    },
+
+    optimization: {
+      minimize: true,
+      minimizer: [
+        new EsbuildPlugin({
+          target: "es6", // Syntax to transpile to (see options below for possible values)
+        }),
+      ],
     },
 
     devServer: {
@@ -88,16 +98,11 @@ module.exports = (env, args) => {
             path.resolve(__dirname, '../ui-emailtemplates/src')
           ],
           use: {
-            loader: 'babel-loader',
+            loader: "esbuild-loader",
             options: {
-              presets: [
-                '@babel/preset-typescript',
-                '@babel/preset-react',
-                '@babel/preset-env'
-              ],
-              plugins: [['@babel/transform-runtime']]
-            }
-          }
+              target: "es6",
+            },
+          },
         },
         {
           test: /\.json$/,
