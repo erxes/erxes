@@ -9,6 +9,7 @@ const InterpolateHtmlPlugin = require("interpolate-html-plugin");
 // const BundleAnalyzerPlugin = require('webpack-bundle-analyzer')
 //   .BundleAnalyzerPlugin;
 const { MFLiveReloadPlugin } = require("@module-federation/fmr");
+const { EsbuildPlugin } = require("esbuild-loader");
 
 const deps = require("./package.json").dependencies;
 const depNames = [
@@ -51,25 +52,8 @@ module.exports = (configs) => (env, args) => {
     optimization: {
       minimize: true,
       minimizer: [
-        new TerserPlugin({
-          extractComments: false,
-          terserOptions: {
-            parse: {
-              ecma: 8,
-            },
-            compress: {
-              ecma: 5,
-              warnings: false,
-              comparisons: false,
-              inline: 2,
-            },
-            mangle: true,
-            output: {
-              ecma: 5,
-              comments: false,
-              ascii_only: true,
-            },
-          },
+        new EsbuildPlugin({
+          target: "es6", // Syntax to transpile to (see options below for possible values)
         }),
       ],
     },
@@ -115,7 +99,7 @@ module.exports = (configs) => (env, args) => {
           loader: "json-loader",
         },
         {
-          test: /\.(ts|tsx|js|jsx)$/,
+          test: /\.[jt]sx?$/,
           exclude: /node_modules/,
           include: [
             path.resolve(__dirname, "./src"),
@@ -140,14 +124,9 @@ module.exports = (configs) => (env, args) => {
             configs.srcDir,
           ],
           use: {
-            loader: "babel-loader",
+            loader: "esbuild-loader",
             options: {
-              presets: [
-                "@babel/preset-typescript",
-                "@babel/preset-react",
-                "@babel/preset-env",
-              ],
-              plugins: [["@babel/transform-runtime"]],
+              target: "es6",
             },
           },
         },
