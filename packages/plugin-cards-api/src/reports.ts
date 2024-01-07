@@ -3,6 +3,13 @@ import { models } from './connectionResolver';
 import { sendCoreMessage, sendTagsMessage } from './messageBroker';
 import * as dayjs from 'dayjs';
 
+const DATERANGE_TYPES = [
+  { label: 'All time', value: 'all' },
+  { label: 'Today', value: 'today' },
+  { label: 'Yesterday', value: 'today' },
+  { label: 'Last Week', value: 'lastweek' },
+  { label: 'This Week', value: 'thisweek' }
+];
 const reportTemplates = [
   {
     serviceType: 'deal',
@@ -49,20 +56,73 @@ const reportTemplates = [
     serviceName: 'cards',
     description: 'Tickets conversation charts',
     charts: [
-      'TicketAverageTimeToCloseOverTime',
-      'TicketClosedTotalsByRep',
-      'TicketTotalsByStatus',
-      'TicketTotalsByLabelPriorityTag',
-      'TicketTotalsOverTime',
-      'TicketAverageTimeToCloseByRep',
-      'TicketAverageTimeToClose',
-      'TicketTotalsBySource'
+      // 'TicketAverageTimeToCloseOverTime',
+      // 'TicketClosedTotalsByRep',
+      // 'TicketTotalsByStatus',
+      // 'TicketTotalsByLabelPriorityTag',
+      // 'TicketTotalsOverTime',
+      // 'TicketAverageTimeToCloseByRep',
+      // 'TicketAverageTimeToClose',
+      // 'TicketTotalsBySource',
+      'TicketStageChangedDate'
     ],
     img: 'https://sciter.com/wp-content/uploads/2022/08/chart-js.png'
   }
 ];
 
 const chartTemplates = [
+  {
+    templateType: 'TicketStageChangedDate',
+    name: 'Ticket Stage Changed Date',
+    chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea'],
+    getChartResult: async (
+      filter: any,
+      subdomain: string,
+      currentUser: IUserDocument,
+      getDefaultPipelineId?: string
+    ) => {
+      try {
+        const ticked = await models?.Tickets.find({
+          stageChangedDate: { $exists: true }
+        }).sort({ stageChangedDate: -1 });
+
+        if (ticked) {
+          const stageDate = await stageChangedDate(ticked);
+          const title = 'Ticket Stage Changed Date';
+          const data = Object.values(stageDate).map(
+            (t: any) => t.stageChangedDate
+          );
+          const labels = Object.values(stageDate).map((t: any) => t.name);
+          const datasets = {
+            title,
+            data,
+            labels
+          };
+
+          return datasets;
+        } else {
+          console.log('no data');
+        }
+
+        // const title = 'Deals count by created month';
+        // const datasets = { title, data: monthlyDealsCount, labels: monthNames };
+
+        // return datasets;
+      } catch (error) {
+        console.error('Error:', error);
+      }
+    },
+
+    filterTypes: [
+      {
+        fieldName: 'dateRange',
+        fieldType: 'select',
+        multi: true,
+        fieldOptions: DATERANGE_TYPES,
+        fieldLabel: 'Select date range'
+      }
+    ]
+  },
   {
     templateType: 'TasksIncompleteTotalsByTags',
     name: 'Tasks incomplete totals by tags',
@@ -2852,5 +2912,46 @@ function sumCountsByUserIdName(inputArray: any[]) {
     });
   });
 
+  return Array.from(resultMap.values());
+}
+
+function stageChangedDate(ticked: any[]) {
+  const resultMap = new Map<
+    string,
+    { count: number; fullName: string; _id: string }
+  >();
+  let previousStage = '';
+  let previousDate = '';
+  let previousUserId = '';
+  let previousFullName = '';
+  let previousId = '';
+  ticked.forEach(userEntries => {
+    userEntries.forEach(entry => {
+      const userId = entry._id;
+      const count = entry.count;
+      const fullName = entry.FullName;
+      const id = entry._id;
+      const date = entry.date;
+      const stage = entry.stage;
+      if (
+        previousStage === stage &&
+        previousDate === date &&
+        previousUserId === userId
+      ) {
+        resultMap.get(userId)!.count += count;
+      } else {
+        resultMap.set(userId, {
+          count,
+          fullName,
+          _id: id
+        });
+      }
+      previousStage = stage;
+      previousDate = date;
+      previousUserId = userId;
+      previousFullName = fullName;
+      previousId = id;
+    });
+  });
   return Array.from(resultMap.values());
 }
