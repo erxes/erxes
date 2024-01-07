@@ -177,9 +177,12 @@ export const receiveRpcMessage = async (subdomain, data) => {
       conversationClientMessageInserted: message
     });
 
-    graphqlPubsub.publish('conversationMessageInserted', {
-      conversationMessageInserted: message
-    });
+    graphqlPubsub.publish(
+      `conversationMessageInserted:${message.conversationId}`,
+      {
+        conversationMessageInserted: message
+      }
+    );
 
     return sendSuccess({ _id: message._id });
   }

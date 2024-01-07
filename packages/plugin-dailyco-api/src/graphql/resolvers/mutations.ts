@@ -9,9 +9,12 @@ export const publishMessage = async (
   message: any,
   customerId?: string
 ) => {
-  graphqlPubsub.publish('conversationMessageInserted', {
-    conversationMessageInserted: message
-  });
+  graphqlPubsub.publish(
+    `conversationMessageInserted:${message.conversationId}`,
+    {
+      conversationMessageInserted: message
+    }
+  );
 
   // widget is listening for this subscription to show notification
   // customerId available means trying to notify to client
@@ -25,7 +28,7 @@ export const publishMessage = async (
       isRPC: true
     });
 
-    graphqlPubsub.publish('conversationAdminMessageInserted', {
+    graphqlPubsub.publish(`conversationAdminMessageInserted:${customerId}`, {
       conversationAdminMessageInserted: {
         customerId,
         unreadCount

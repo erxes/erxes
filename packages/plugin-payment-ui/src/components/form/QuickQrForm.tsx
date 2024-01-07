@@ -51,7 +51,8 @@ const QuickQrForm = (props: Props) => {
   const [state, setState] = React.useState<State>({
     type: config ? (config.isCompany ? 'company' : 'person') : undefined,
     ...config,
-    name
+    name,
+    companyName: config ? config.name : ''
   });
 
   const generateDoc = () => {

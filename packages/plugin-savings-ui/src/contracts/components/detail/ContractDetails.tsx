@@ -81,24 +81,21 @@ class ContractDetails extends React.Component<Props, State> {
           isFirst={false}
         ></ScheduleSection>
 
-        {isEnabled('logs') && (
-          <>
-            <ActivityInputs
-              contentTypeId={contract._id}
-              contentType="contract"
-              showEmail={false}
-            />
-            <ActivityLogs
-              target={contract.number || ''}
-              contentId={contract._id}
-              contentType="contract"
-              extraTabs={[
-                { name: 'plugin_invoices', label: 'Invoices / Transaction' }
-              ]}
-              activityRenderItem={ActivityItem}
-            />
-          </>
-        )}
+        <ActivityInputs
+          contentTypeId={contract._id}
+          contentType="savingContract"
+          showEmail={false}
+        />
+
+        <ActivityLogs
+          target={contract.number || ''}
+          contentId={contract._id}
+          contentType="savingContract"
+          extraTabs={[
+            { name: 'savings:interestStore', label: 'Interest store' }
+          ]}
+          activityRenderItem={ActivityItem}
+        />
       </>
     );
 
