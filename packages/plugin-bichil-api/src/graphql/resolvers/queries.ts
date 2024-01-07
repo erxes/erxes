@@ -225,7 +225,18 @@ const bichilQueries = {
           perPage,
           page
         );
-        const paginatedTeamMemberIds = paginatedTeamMembers.map(e => e._id);
+
+        const filterPaginatedTeamMembers = paginatedTeamMembers.filter(user => {
+          if (user.branchIds) {
+            {
+              return user;
+            }
+          }
+        });
+
+        const paginatedTeamMemberIds = filterPaginatedTeamMembers.map(
+          e => e._id
+        );
 
         for (const teamMember of paginatedTeamMembers) {
           if (teamMember.branchIds) {
@@ -265,6 +276,7 @@ const bichilQueries = {
 
         for (const userId of Object.keys(getReport)) {
           const userBranchIds = usersStructure[userId].branchIds;
+
           const userBranchTitleToIdDict: { [branchTitle: string]: string } = {};
           const userBranchTitles: any[] = userBranchIds.map(branchId => {
             if (structuresDict[branchId]) {

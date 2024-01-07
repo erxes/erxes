@@ -11,6 +11,9 @@ export const types = `
     actionIds:[String],
     description:String,
     isRootCause:Boolean
+
+    labelIds:[String]
+    labels:JSON
   }
 
 `;
