@@ -671,7 +671,7 @@ export const bichilTimeclockReportFinal = async (
 
   const shiftNotClosedFee = 3000;
   const latenessFee = 200;
-  const absentFee = 86000;
+  const absentFee = 96000;
 
   // get the schedule data of this month
   const schedules = await models.Schedules.find({
@@ -1035,8 +1035,16 @@ export const bichilTimeclockReportFinal = async (
       totalHoursScheduledPerUser -= totalBreakOfSchedulesInHrs;
     }
 
+    // discard overtime if worked hours > scheduled hours
+    const getTotalHoursWorkedPerUser =
+      totalHoursScheduledPerUser !== 0 &&
+      totalHoursWorkedPerUser > totalHoursScheduledPerUser
+        ? totalHoursScheduledPerUser
+        : totalHoursWorkedPerUser;
+
     totalHoursScheduled += totalHoursScheduledPerUser;
-    totalHoursWorked += totalHoursWorkedPerUser;
+    totalHoursWorked += getTotalHoursWorkedPerUser;
+
     totalShiftNotClosedDeduction += shiftNotClosedDeduction;
     // totalLateMinsDeduction += totalMinsLateDeduction;
     totalAbsentDeduction += absentDeductionPerUser;
@@ -1046,8 +1054,7 @@ export const bichilTimeclockReportFinal = async (
       ...usersReport[currUserId],
 
       totalHoursScheduled: Math.floor(totalHoursScheduledPerUser * 10) / 10,
-      totalHoursWorked: Math.floor(totalHoursWorkedPerUser * 10) / 10,
-
+      totalHoursWorked: Math.floor(getTotalHoursWorkedPerUser * 10) / 10,
       ...userAbsenceInfo,
 
       leftWork: '-',
