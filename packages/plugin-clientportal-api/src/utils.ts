@@ -217,7 +217,10 @@ export const initFirebase = async (subdomain: string): Promise<void> => {
     }
   }
 };
-
+interface IMobileConfig {
+  channelId?: string;
+  sound?: string;
+}
 interface ISendNotification {
   receivers: string[];
   title: string;
@@ -227,6 +230,7 @@ interface ISendNotification {
   createdUser?: IUserDocument;
   isMobile?: boolean;
   eventData?: any | null;
+  mobileConfig?: IMobileConfig;
 }
 
 export const sendNotification = async (
@@ -241,7 +245,8 @@ export const sendNotification = async (
     content,
     notifType,
     isMobile,
-    eventData
+    eventData,
+    mobileConfig
   } = doc;
 
   const link = doc.link;
@@ -327,7 +332,6 @@ export const sendNotification = async (
     }
 
     const expiredTokens = [''];
-
     const chunkSize = 500;
 
     if (deviceTokens.length > 1) {
@@ -347,7 +351,20 @@ export const sendNotification = async (
           const multicastMessage = {
             tokens: tokensChunk,
             notification: { title, body: content },
-            data: eventData || {}
+            data: eventData || {},
+            android: {
+              notification: {
+                sound: mobileConfig?.sound,
+                channelId: mobileConfig?.channelId
+              }
+            },
+            apns: {
+              payload: {
+                aps: {
+                  sound: mobileConfig?.sound
+                }
+              }
+            }
           };
 
           await transporter.sendMulticast(multicastMessage);
