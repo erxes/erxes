@@ -5,12 +5,14 @@ module.exports = {
   port: 3020,
   exposes: {
     "./routes": "./src/routes.tsx",
+    "./printButton": "./src/containers/PrintButton.tsx",
   },
   routes: {
     url: "http://localhost:3020/remoteEntry.js",
     scope: "documents",
     module: "./routes",
   },
+  cardDetailAction: "./printButton",
   menus: [
     {
       text: "Documents",

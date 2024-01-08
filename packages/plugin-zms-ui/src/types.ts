@@ -9,7 +9,25 @@ export interface IDictionary {
   checked?: boolean;
   parentId?: string;
 }
-
+export interface IZms {
+  _id: string;
+  customer: {
+    o_c_customer_information: {
+      o_c_customercode: string;
+      o_c_customername: string;
+      o_c_registerno: string;
+    };
+  };
+  checked?: boolean;
+}
+export interface ILog {
+  _id: string;
+  createdAt: Date;
+  zmsId: string;
+  action: string;
+  status: string;
+  checked?: boolean;
+}
 export interface IParent {
   _id: string;
   name: string;
@@ -20,6 +38,17 @@ export interface IParent {
 // queries
 export type ZmsQueryResponse = {
   getDictionaries: IDictionary[];
+  refetch: () => void;
+  loading: boolean;
+};
+export type ZmsResponse = {
+  getZmses: IZms[];
+  refetch: () => void;
+  loading: boolean;
+};
+
+export type LogResponse = {
+  getZmsLogs: ILog[];
   refetch: () => void;
   loading: boolean;
 };
@@ -41,19 +70,15 @@ export type MutationVariables = {
 export type AddMutationResponse = {
   addMutation: (params: { variables: MutationVariables }) => Promise<any>;
 };
-
 export type EditMutationResponse = {
   editMutation: (params: { variables: MutationVariables }) => Promise<any>;
 };
-
 export type RemoveMutationResponse = {
   removeMutation: (params: { variables: { _id: string } }) => Promise<any>;
 };
-
 export type EditTypeMutationResponse = {
   typesEdit: (params: { variables: MutationVariables }) => Promise<any>;
 };
-
 export type RemoveTypeMutationResponse = {
   typesRemove: (params: { variables: { _id: string } }) => Promise<any>;
 };

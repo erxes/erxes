@@ -163,8 +163,6 @@ class TransactionsList extends React.Component<IProps> {
       </ContractsTableWrapper>
     );
 
-    const addTrigger = <Button icon="plus-circle">{__('Repayment')}</Button>;
-
     let actionBarLeft: React.ReactNode;
 
     if (bulk.length > 0) {

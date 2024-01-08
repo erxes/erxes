@@ -114,6 +114,8 @@ export default function Row(props: Props) {
           {data.status && data.status}
         </Label>
       </td>
+      <td>{(data.isPriority && 'true') || 'false'}</td>
+      <td>{data.applyType && data.applyType}</td>
       <td>
         <b>
           {data.createdUser?.details?.fullName || data.createdUser?.email || ''}
