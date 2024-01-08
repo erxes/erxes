@@ -1,6 +1,4 @@
-import * as compose from 'lodash.flowright';
-
-import { Alert, confirm, withProps } from '@erxes/ui/src/utils';
+import { Alert, confirm } from '@erxes/ui/src/utils';
 import { PackagesQueryResponse, PackageRemoveMutationResponse } from '../types';
 import { mutations, queries } from '../graphql';
 
@@ -9,21 +7,19 @@ import { IButtonMutateProps } from '@erxes/ui/src/types';
 import React from 'react';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { gql } from '@apollo/client';
-import { graphql } from '@apollo/client/react/hoc';
 import PackageList from '../components/PackageList';
+import { useQuery, useMutation } from '@apollo/client';
 
 type Props = {
   history: any;
   type: string;
 };
 
-type FinalProps = {
-  packagesQuery: PackagesQueryResponse;
-} & Props &
-  PackageRemoveMutationResponse;
-
-const ListContainer = (props: FinalProps) => {
-  const { packagesQuery, packagesRemove } = props;
+const ListContainer = (props: Props) => {
+  const packagesQuery = useQuery<PackagesQueryResponse>(gql(queries.packages));
+  const [packagesRemove] = useMutation<PackageRemoveMutationResponse>(
+    gql(mutations.packagesRemove)
+  );
 
   if (packagesQuery.loading) {
     return <Spinner />;
@@ -69,8 +65,7 @@ const ListContainer = (props: FinalProps) => {
 
   const updatedProps = {
     ...props,
-
-    packages: packagesQuery.packages || [],
+    packages: (packagesQuery.data && packagesQuery.data.packages) || [],
     loading: packagesQuery.loading,
     remove,
     renderButton
@@ -87,16 +82,4 @@ const getRefetchQueries = () => {
   ];
 };
 
-export default withProps<Props>(
-  compose(
-    graphql<Props, PackagesQueryResponse>(gql(queries.packages), {
-      name: 'packagesQuery'
-    }),
-    graphql<Props, PackageRemoveMutationResponse, { _id: string }>(
-      gql(mutations.packagesRemove),
-      {
-        name: 'packagesRemove'
-      }
-    )
-  )(ListContainer)
-);
+export default ListContainer;

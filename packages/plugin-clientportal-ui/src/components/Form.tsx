@@ -113,6 +113,8 @@ const Form: React.FC<Props> = ({
   const renderContent = () => {
     const commonProps = {
       ...formValues,
+      taskPublicPipelineId: formValues.taskPublicPipelineId || '',
+      taskPublicBoardId: formValues.taskPublicBoardId || '',
       handleFormChange: handleFormChange
     };
 

@@ -1,10 +1,8 @@
-import { Alert, withProps } from '@erxes/ui/src';
+import { Alert } from '@erxes/ui/src';
 import { IUser } from '@erxes/ui/src/auth/types';
 import { IRouterProps } from '@erxes/ui/src/types';
 import { gql } from '@apollo/client';
-import * as compose from 'lodash.flowright';
 import React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
 import { withRouter } from 'react-router-dom';
 
 import BasicInfoSection from '../../components/detail/BasicInfoSection';
@@ -13,6 +11,7 @@ import {
   ClientPortalUserRemoveMutationResponse,
   IClientPortalUser
 } from '../../types';
+import { useMutation } from '@apollo/client';
 
 type Props = {
   clientPortalUser: IClientPortalUser;
@@ -23,7 +22,13 @@ type FinalProps = { currentUser: IUser } & Props &
   ClientPortalUserRemoveMutationResponse;
 
 const BasicInfoContainer = (props: FinalProps) => {
-  const { clientPortalUser, clientPortalUsersRemove, history } = props;
+  const { clientPortalUser, history } = props;
+
+  const [clientPortalUsersRemove] = useMutation<
+    ClientPortalUserRemoveMutationResponse
+  >(gql(mutations.clientPortalUsersRemove), {
+    refetchQueries: ['clientPortalUserCounts', 'clientPortalUsers']
+  });
 
   const { _id } = clientPortalUser;
 
@@ -46,18 +51,4 @@ const BasicInfoContainer = (props: FinalProps) => {
   return <BasicInfoSection {...updatedProps} />;
 };
 
-const generateOptions = () => ({
-  refetchQueries: ['clientPortalUserCounts', 'clientPortalUsers']
-});
-
-export default withProps<Props>(
-  compose(
-    graphql<{}, ClientPortalUserRemoveMutationResponse>(
-      gql(mutations.clientPortalUsersRemove),
-      {
-        name: 'clientPortalUsersRemove',
-        options: generateOptions
-      }
-    )
-  )(withRouter<FinalProps>(BasicInfoContainer))
-);
+export default withRouter<FinalProps>(BasicInfoContainer);

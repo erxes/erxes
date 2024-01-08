@@ -25,14 +25,13 @@ import Toggle from '@erxes/ui/src/components/Toggle';
 import CategoryForm from '@erxes/ui-products/src/containers/CategoryForm';
 import SelectProductCategory from '@erxes/ui-products/src/containers/SelectProductCategory';
 import Button from '@erxes/ui/src/components/Button';
-import Tip from '@erxes/ui/src/components/Tip';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 
 type Props = {
   topics: ITopic[];
   boards: IBoard[];
   pipelines: IPipeline[];
-  kind: 'client' | 'vendor';
+  kind?: 'client' | 'vendor';
   fetchPipelines: (boardId: string) => void;
   handleFormChange: (name: string, value: string | boolean) => void;
 } & ClientPortalConfig;

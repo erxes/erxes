@@ -1,6 +1,4 @@
-import * as compose from 'lodash.flowright';
-
-import { Alert, withProps } from '@erxes/ui/src/utils';
+import { Alert } from '@erxes/ui/src/utils';
 import {
   ClientPortalUserAssignCompanyMutationResponse,
   IClientPortalUser
@@ -8,10 +6,9 @@ import {
 import { mutations, queries } from '../../graphql';
 
 import CompanyAssignForm from '../../components/detail/CompanyAssignForm';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
 import React from 'react';
 import { gql } from '@apollo/client';
-import { graphql } from '@apollo/client/react/hoc';
+import { useMutation } from '@apollo/client';
 
 type Props = {
   queryParams?: any;
@@ -22,7 +19,19 @@ type Props = {
 type FinalProps = {} & Props & ClientPortalUserAssignCompanyMutationResponse;
 
 const FormContainer = (props: FinalProps) => {
-  const { clientPortalUserAssignCompany, closeModal } = props;
+  const { closeModal, clientPortalUser } = props;
+
+  const [clientPortalUserAssignCompany] = useMutation(
+    gql(mutations.clientPortalUserAssignCompany),
+    {
+      refetchQueries: [
+        {
+          query: gql(queries.clientPortalUserDetail),
+          variables: { _id: clientPortalUser._id }
+        }
+      ]
+    }
+  );
 
   const assignCompany = (
     userId: string,
@@ -46,18 +55,4 @@ const FormContainer = (props: FinalProps) => {
   return <CompanyAssignForm {...updatedProps} assignCompany={assignCompany} />;
 };
 
-export default withProps<Props>(
-  compose(
-    graphql<Props>(gql(mutations.clientPortalUserAssignCompany), {
-      name: 'clientPortalUserAssignCompany',
-      options: ({ clientPortalUser }) => ({
-        refetchQueries: [
-          {
-            query: gql(queries.clientPortalUserDetail),
-            variables: { _id: clientPortalUser._id }
-          }
-        ]
-      })
-    })
-  )(FormContainer)
-);
+export default FormContainer;
