@@ -7,6 +7,7 @@ import React from 'react';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { __ } from '@erxes/ui/src/utils';
 import { isEnabled } from '@erxes/ui/src/utils/core';
+import { ContentBox } from '@erxes/ui-settings/src/styles';
 
 type Props = {
   product: IProduct;
@@ -26,7 +27,7 @@ class CompanyDetails extends React.Component<Props> {
     ];
 
     const content = (
-      <>
+      <ContentBox>
         <ActivityInputs
           contentTypeId={product._id}
           contentType="products:product"
@@ -40,7 +41,7 @@ class CompanyDetails extends React.Component<Props> {
             extraTabs={[]}
           />
         )}
-      </>
+      </ContentBox>
     );
 
     return (
@@ -49,6 +50,7 @@ class CompanyDetails extends React.Component<Props> {
         leftSidebar={<LeftSidebar {...this.props} />}
         content={content}
         transparent={true}
+        hasBorder={true}
       />
     );
   }
