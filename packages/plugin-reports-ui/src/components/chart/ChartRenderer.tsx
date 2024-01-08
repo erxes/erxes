@@ -18,6 +18,7 @@ interface IChartProps {
   data?: number[];
   labels?: string[];
   template?: string;
+  options?: any;
   chartType: ChartType | string;
   name?: string;
   title?: string;
@@ -34,7 +35,8 @@ const ChartRenderer = (props: IChartProps) => {
     data,
     title,
     loading,
-    chartHeight
+    chartHeight,
+    options
   } = props;
 
   if (loading) {
@@ -75,7 +77,7 @@ const ChartRenderer = (props: IChartProps) => {
     type: chartType,
     data: chartData,
     plugins: [ChartDataLabels],
-    options: { plugins }
+    options: { ...options, plugins }
   };
 
   useEffect(() => {
