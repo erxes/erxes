@@ -85,3 +85,15 @@ export type ToSyncCustomersMutationResponse = {
     variables: { brandId: string; action: string; customers: any[] };
   }) => Promise<any>;
 };
+
+export type SyncHistoriesQueryResponse = {
+  syncHistories: any[];
+  loading: boolean;
+  refetch: () => void;
+};
+
+export type SyncHistoriesCountQueryResponse = {
+  syncHistoriesCount: number;
+  loading: boolean;
+  refetch: () => void;
+};
