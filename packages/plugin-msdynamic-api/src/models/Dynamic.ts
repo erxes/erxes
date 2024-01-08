@@ -5,25 +5,29 @@ import {
 } from './definitions/dynamic';
 import { Model } from 'mongoose';
 import { IModels } from '../connectionResolver';
-import { IUser } from '@erxes/api-utils/src/types';
 
 export interface ISyncLogModel extends Model<ISyncLogDocument> {
-  createMsdynamicConfig(args: ISyncLog): Promise<ISyncLogDocument>;
-  updateMsdynamicConfig(args: ISyncLog, user: IUser): Promise<ISyncLogDocument>;
+  syncLogsAdd(doc: ISyncLog): Promise<ISyncLogDocument>;
+  syncLogsEdit(_id: string, doc: ISyncLog): Promise<ISyncLogDocument>;
+  syncLogsRemove(_ids: string[]): Promise<JSON>;
 }
 
-export const loadSyncLogClass = (model: IModels) => {
-  class Msdynamic {
-    // create
-    public static async createMsdynamicConfig(doc: ISyncLog) {
-      return await model.SyncLogs.create({
-        ...doc,
-        createdAt: new Date()
-      });
+export const loadSyncLogClass = (models: IModels) => {
+  class SyncLog {
+    public static async syncLogsAdd(doc: ISyncLog) {
+      return models.SyncLogs.create({ ...doc });
+    }
+
+    public static async syncLogsEdit(_id: string, doc: ISyncLog) {
+      return await models.SyncLogs.updateOne({ _id }, { $set: { ...doc } });
+    }
+
+    public static async syncLogsRemove(_ids: string[]) {
+      return await models.SyncLogs.deleteMany({ _id: { $in: _ids } });
     }
   }
 
-  syncLogSchema.loadClass(Msdynamic);
+  syncLogSchema.loadClass(SyncLog);
 
   return syncLogSchema;
 };
