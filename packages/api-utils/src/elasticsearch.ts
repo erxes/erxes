@@ -1,5 +1,6 @@
 import * as elasticsearch from 'elasticsearch';
 import { debugError } from './debuggers';
+import { parse } from 'url';
 
 export interface IFetchEsArgs {
   subdomain: string;
@@ -11,6 +12,7 @@ export interface IFetchEsArgs {
   scroll?: string;
   size?: number;
   ignoreError?: boolean;
+  connectionString?: string;
 }
 
 export const doSearch = async ({
@@ -84,11 +86,12 @@ export const fetchEs = async ({
   defaultValue,
   scroll,
   size,
-  ignoreError = false
+  ignoreError = false,
+  connectionString
 }: IFetchEsArgs) => {
   try {
     const params: any = {
-      index: `${getIndexPrefix()}${index}`,
+      index: `${getIndexPrefix(connectionString)}${index}`,
       body
     };
 
@@ -134,7 +137,26 @@ export const getMappings = async (index: string) => {
   return client.indices.getMapping({ index });
 };
 
-export const getIndexPrefix = () => {
+export function getDbNameFromConnectionString(connectionString) {
+  const parsedUrl = parse(connectionString, true);
+
+  if (parsedUrl.pathname) {
+    const dbName = parsedUrl.pathname.substring(1);
+    return dbName;
+  }
+
+  return null;
+}
+
+export const getIndexPrefix = (connectionString?: string) => {
+  if (connectionString) {
+    const dbName = getDbNameFromConnectionString(connectionString);
+
+    if (dbName !== 'erxes') {
+      return `${dbName}__`;
+    }
+  }
+
   return 'erxes__';
 };
 

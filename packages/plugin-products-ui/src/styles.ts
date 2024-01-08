@@ -42,7 +42,6 @@ const ProductContent = styled.div`
 
 const ContentBox = styled.div`
   padding: ${dimensions.coreSpacing}px;
-  max-width: 90%;
   margin: 0 auto;
 `;
 
