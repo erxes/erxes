@@ -17,7 +17,6 @@ import {
 } from '../../../models/definitions/constants';
 import { IPaidAmount } from '../../../models/definitions/orders';
 import { IPosUserDocument } from '../../../models/definitions/posUsers';
-import { PutData } from '../../../models/PutData';
 import { IContext, IOrderInput } from '../../types';
 import {
   checkOrderAmount,
@@ -34,13 +33,14 @@ import {
   validateOrderPayment
 } from '../../utils/orderUtils';
 import { checkSlotStatus } from '../../utils/slots';
+import { prepareSettlePayment } from '../../../utils';
 
 interface IPaymentBase {
   billType: string;
   registerNumber?: string;
 }
 
-interface ISettlePaymentParams extends IPaymentBase {
+export interface ISettlePaymentParams extends IPaymentBase {
   _id: string;
 }
 
@@ -77,7 +77,7 @@ const getTaxInfo = (config: IConfig) => {
   };
 };
 
-const getStatus = (config, buttonType, doc, order?) => {
+export const getStatus = (config, buttonType, doc, order?) => {
   if (doc.isPre) {
     return ORDER_STATUSES.PENDING;
   }
@@ -732,148 +732,11 @@ const orderMutations = {
       );
     }
 
-    checkOrderStatus(order);
-
-    const items = await models.OrderItems.find({
-      orderId: order._id
-    }).lean();
-
-    await validateOrderPayment(order, { billType });
-    const now = new Date();
-
-    const ebarimtConfig: any = config.ebarimtConfig;
-
-    if (
-      !ebarimtConfig ||
-      !Object.keys(ebarimtConfig) ||
-      !ebarimtConfig.districtCode ||
-      !ebarimtConfig.companyRD
-    ) {
-      billType = BILL_TYPES.INNER;
-    }
-
-    try {
-      const ebarimtResponses: any[] = [];
-
-      if (billType !== BILL_TYPES.INNER) {
-        const ebarimtDatas = await prepareEbarimtData(
-          models,
-          order,
-          ebarimtConfig,
-          items,
-          billType,
-          registerNumber,
-          config.paymentTypes
-        );
-
-        ebarimtConfig.districtName = getDistrictName(
-          (ebarimtConfig && ebarimtConfig.districtCode) || ''
-        );
-
-        for (const data of ebarimtDatas) {
-          let response;
-
-          if (data.inner) {
-            const putData = new PutData({
-              ...config,
-              ...data,
-              config,
-              models
-            });
-
-            response = {
-              _id: Math.random(),
-              billId: 'Түр баримт',
-              ...(await putData.generateTransactionInfo()),
-              registerNo: ebarimtConfig.companyRD || '',
-              success: 'true'
-            };
-            ebarimtResponses.push(response);
-
-            await models.OrderItems.updateOne(
-              { _id: { $in: data.itemIds } },
-              { $set: { isInner: true } }
-            );
-
-            continue;
-          }
-
-          response = await models.PutResponses.putData({
-            ...data,
-            config: ebarimtConfig,
-            models
-          });
-          ebarimtResponses.push(response);
-        }
-      }
-
-      if (
-        billType === BILL_TYPES.INNER ||
-        (ebarimtResponses.length &&
-          !ebarimtResponses.filter(er => er.success !== 'true').length)
-      ) {
-        await models.Orders.updateOne(
-          { _id },
-          {
-            $set: {
-              billType,
-              registerNumber,
-              paidDate: now,
-              modifiedAt: now,
-              status: getStatus(
-                config,
-                'settle',
-                { ...order, paidDate: now },
-                { ...order }
-              )
-            }
-          }
-        );
-      }
-
-      order = await models.Orders.getOrder(_id);
-
-      graphqlPubsub.publish('ordersOrdered', {
-        ordersOrdered: {
-          ...order,
-          _id,
-          status: order.status,
-          customerId: order.customerId
-        }
-      });
-
-      if (config.isOnline) {
-        const products = await models.Products.find({
-          _id: { $in: items.map(i => i.productId) }
-        }).lean();
-        for (const item of items) {
-          const product = products.find(p => p._id === item.productId) || {};
-          item.productName = `${product.code} - ${product.name}`;
-        }
-      }
-
-      try {
-        sendPosMessage({
-          subdomain,
-          action: 'createOrUpdateOrders',
-          data: {
-            posToken: config.token,
-            action: 'makePayment',
-            responses: ebarimtResponses,
-            order,
-            items
-          }
-        });
-      } catch (e) {
-        debugError(`Error occurred while sending data to erxes: ${e.message}`);
-      }
-
-      return ebarimtResponses;
-    } catch (e) {
-      debugError(e);
-
-      return e;
-    }
+    return await prepareSettlePayment(subdomain, models, order, config, {
+      _id,
+      billType,
+      registerNumber
+    });
   }, // end ordersSettlePayment()
 
   async ordersConvertToDeal(

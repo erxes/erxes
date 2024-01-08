@@ -1,5 +1,5 @@
 import React from 'react';
-import { IDictionary } from '../types';
+import { IDictionary } from '../../types';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import Form from '@erxes/ui/src/components/form/Form';
 import {
