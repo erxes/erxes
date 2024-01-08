@@ -351,7 +351,7 @@ const extractAndAddIntoSheet = async (
       for (const branchTitle of Object.keys(groupedByBranch)) {
         const bichilReport = groupedByBranch[branchTitle];
 
-        const { parentsTitles, parentsCount } = bichilReport;
+        const { parentsTitles, parentsCount, groupTitle } = bichilReport;
 
         for (const parentTitle of parentsTitles) {
           if (parentBranchesDict[parentTitle]) {
@@ -363,6 +363,19 @@ const extractAndAddIntoSheet = async (
           }
 
           parentBranchesDict[parentTitle] = [bichilReport];
+        }
+
+        // include reports of users only of parent branches
+        if (!parentsTitles.length || parentsCount === 0) {
+          if (parentBranchesDict[groupTitle]) {
+            parentBranchesDict[groupTitle] = [
+              ...parentBranchesDict[groupTitle],
+              bichilReport
+            ];
+            continue;
+          }
+
+          parentBranchesDict[groupTitle] = [bichilReport];
         }
       }
 
@@ -433,8 +446,6 @@ const extractAndAddIntoSheet = async (
             startRowIdxPerBranch = endRowIdxPerBranch + 1;
           }
         }
-
-        console.log('parents dict ', parentBranchesDict);
       }
 
       // no parent branches
