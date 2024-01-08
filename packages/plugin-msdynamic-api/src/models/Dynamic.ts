@@ -1,47 +1,29 @@
 import {
-  IDynamic,
-  IDynamicDocument,
-  msdynamicSchema
+  ISyncLog,
+  ISyncLogDocument,
+  syncLogSchema
 } from './definitions/dynamic';
 import { Model } from 'mongoose';
 import { IModels } from '../connectionResolver';
 import { IUser } from '@erxes/api-utils/src/types';
 
-export interface IDynamicModel extends Model<IDynamicDocument> {
-  createMsdynamicConfig(args: IDynamic): Promise<IDynamicDocument>;
-  updateMsdynamicConfig(args: IDynamic, user: IUser): Promise<IDynamicDocument>;
+export interface ISyncLogModel extends Model<ISyncLogDocument> {
+  createMsdynamicConfig(args: ISyncLog): Promise<ISyncLogDocument>;
+  updateMsdynamicConfig(args: ISyncLog, user: IUser): Promise<ISyncLogDocument>;
 }
 
-export const loadDynamicClass = (model: IModels) => {
+export const loadSyncLogClass = (model: IModels) => {
   class Msdynamic {
     // create
-    public static async createMsdynamicConfig(doc: IDynamic) {
-      return await model.Msdynamics.create({
+    public static async createMsdynamicConfig(doc: ISyncLog) {
+      return await model.SyncLogs.create({
         ...doc,
         createdAt: new Date()
       });
     }
-    // update
-    public static async updateMsdynamicConfig(doc: IDynamic, user: IUser) {
-      if (!user) {
-        throw new Error('You are not logged in');
-      }
-
-      const result = await model.Msdynamics.findOne({
-        _id: doc._id
-      });
-
-      if (result) {
-        await model.Msdynamics.updateOne(
-          { _id: result._id },
-          { $set: { ...doc } }
-        );
-        return result;
-      }
-    }
   }
 
-  msdynamicSchema.loadClass(Msdynamic);
+  syncLogSchema.loadClass(Msdynamic);
 
-  return msdynamicSchema;
+  return syncLogSchema;
 };
