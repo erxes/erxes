@@ -23,17 +23,15 @@ import {
   IButtonMutateProps,
   IFormProps
 } from '@erxes/ui/src/types';
-import {
-  extractAttachment,
-  generateCategoryOptions
-} from '@erxes/ui/src/utils';
-import { __ } from '@erxes/ui/src/utils/core';
+import { extractAttachment } from '@erxes/ui/src/utils';
+import { __, router } from '@erxes/ui/src/utils/core';
 import React from 'react';
 import { TAX_TYPES, TYPES } from '../constants';
 import CategoryForm from '../containers/CategoryForm';
 import { queries } from '../graphql';
 import { BarcodeItem, TableBarcode } from '../styles';
 import { IProduct, IProductCategory, IUom, IVariant } from '../types';
+import Select from 'react-select-plus';
 
 type Props = {
   product?: IProduct;
@@ -41,6 +39,7 @@ type Props = {
   uoms?: IUom[];
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   closeModal: () => void;
+  history: any;
 };
 
 type State = {
@@ -66,6 +65,8 @@ type State = {
 class Form extends React.Component<Props, State> {
   constructor(props) {
     super(props);
+
+    const paramCategoryId = router.getParam(props.history, 'categoryId');
 
     const product = props.product || ({} as IProduct);
     const {
@@ -105,12 +106,20 @@ class Form extends React.Component<Props, State> {
       taxCode,
       scopeBrandIds,
       code: code || '',
-      categoryId
+      categoryId: categoryId || paramCategoryId
     };
   }
 
   componentDidMount(): void {
     this.getMaskStr(this.state.categoryId);
+  }
+
+  componentDidUpdate(): void {
+    if (!this.state.categoryId && this.props.productCategories.length > 0) {
+      this.setState({
+        categoryId: this.props.productCategories[0]._id
+      });
+    }
   }
 
   getMaskStr = categoryId => {
@@ -385,8 +394,8 @@ class Form extends React.Component<Props, State> {
     } as any);
   };
 
-  onChangeCateogry = e => {
-    const value = e.target.value;
+  onChangeCateogry = option => {
+    const value = option.value;
 
     this.setState({
       categoryId: value,
@@ -526,6 +535,13 @@ class Form extends React.Component<Props, State> {
       maskStr
     } = this.state;
 
+    const generateOptions = () => {
+      return productCategories.map(item => ({
+        label: item.name,
+        value: item._id
+      }));
+    };
+
     return (
       <>
         <FormWrapper>
@@ -533,17 +549,13 @@ class Form extends React.Component<Props, State> {
             <FormGroup>
               <ControlLabel required={true}>Category</ControlLabel>
               <Row>
-                <FormControl
+                <Select
                   {...formProps}
-                  name="categoryId"
-                  componentClass="select"
-                  defaultValue={categoryId}
-                  required={true}
+                  placeholder={__('Choose a category')}
+                  value={categoryId}
+                  options={generateOptions()}
                   onChange={this.onChangeCateogry}
-                >
-                  {generateCategoryOptions(productCategories)}
-                </FormControl>
-
+                />
                 {this.renderFormTrigger(trigger)}
               </Row>
             </FormGroup>
@@ -771,7 +783,7 @@ class Form extends React.Component<Props, State> {
               />
             </FormGroup>
             <FormGroup>
-              <ControlLabel>UOM</ControlLabel>
+              <ControlLabel required={true}>UOM</ControlLabel>
               <Row>
                 <AutoCompletionSelect
                   defaultValue={this.state.uom}

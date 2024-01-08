@@ -2,7 +2,8 @@ import * as _ from 'underscore';
 import {
   fetchByQuery,
   fetchEs,
-  fetchEsWithScroll
+  fetchEsWithScroll,
+  getDbNameFromConnectionString
 } from '@erxes/api-utils/src/elasticsearch';
 
 import { getEsIndexByContentType } from '@erxes/api-utils/src/segments';
@@ -62,10 +63,19 @@ export const fetchSegment = async (
 
   const serviceNames = await serviceDiscovery.getServices();
   const serviceConfigs: any = [];
+  let mongoConnectionString = '';
 
   for (const serviceName of serviceNames) {
     const service = await serviceDiscovery.getService(serviceName);
     const segmentMeta = (service.config.meta || {}).segments;
+    if (
+      contentType.includes(`${serviceName}:`) &&
+      getDbNameFromConnectionString(
+        service?.config?.dbConnectionString || ''
+      ) !== 'erxes'
+    ) {
+      mongoConnectionString = service?.config?.dbConnectionString || '';
+    }
 
     if (segmentMeta) {
       serviceConfigs.push(segmentMeta);
@@ -91,6 +101,7 @@ export const fetchSegment = async (
     const itemsResponse = await fetchEs({
       subdomain,
       action: 'search',
+      connectionString: mongoConnectionString,
       index: await getEsIndexByContentType(returnAssociated.mainType),
       body: {
         query: selector,
@@ -137,6 +148,7 @@ export const fetchSegment = async (
     const countResponse = await fetchEs({
       subdomain,
       action: 'count',
+      connectionString: mongoConnectionString,
       index,
       body: {
         query: selector
@@ -176,6 +188,7 @@ export const fetchSegment = async (
   const fetchOptions: any = {
     subdomain,
     action: 'search',
+    connectionString: mongoConnectionString,
     index,
     body: {
       _source: options.returnFields || options.returnFullDoc || false,

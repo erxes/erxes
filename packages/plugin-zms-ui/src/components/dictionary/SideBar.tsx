@@ -3,7 +3,7 @@ import LeftSidebar from '@erxes/ui/src/layout/components/Sidebar';
 import { SidebarList } from '@erxes/ui/src/layout/styles';
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { IParent } from '../types';
+import { IParent } from '../../types';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import TypeForm from './TypeForm';
 import Button from '@erxes/ui/src/components/Button';
@@ -60,7 +60,9 @@ class SideBar extends React.Component<Props, State> {
     };
     return (
       <SidebarListItem isActive={className === 'active'} key={type._id}>
-        <Link to={`/zmss?parentId=${type._id}`}>{__(type.name)}</Link>
+        <Link to={`/plugin-zms/zmss?parentId=${type._id}`}>
+          {__(type.name)}
+        </Link>
         {className && (
           <ActionButtons>
             <ModalTrigger
@@ -106,9 +108,7 @@ class SideBar extends React.Component<Props, State> {
         }
         hasBorder
       >
-        <LeftSidebar.Header uppercase={true}>
-          {__('Parents')}
-        </LeftSidebar.Header>
+        <LeftSidebar.Header uppercase={true}>{__('Parent')}</LeftSidebar.Header>
 
         <SidebarList noTextColor noBackground id="SideBar">
           {parents.map(type => {

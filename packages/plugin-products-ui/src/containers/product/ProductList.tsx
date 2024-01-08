@@ -143,7 +143,7 @@ export default withProps<Props>(
         options: ({ queryParams }) => ({
           variables: {
             categoryId: queryParams.categoryId,
-            status: queryParams.productStatus,
+            status: queryParams.state,
             tag: queryParams.tag,
             brand: queryParams.brand,
             searchValue: queryParams.searchValue,
@@ -162,7 +162,7 @@ export default withProps<Props>(
       options: ({ queryParams }) => ({
         variables: {
           categoryId: queryParams.categoryId,
-          status: queryParams.productStatus,
+          status: queryParams.state,
           tag: queryParams.tag,
           searchValue: queryParams.searchValue,
           type: queryParams.type,
