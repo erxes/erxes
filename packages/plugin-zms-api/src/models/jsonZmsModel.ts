@@ -218,7 +218,6 @@ export interface IZms {
       o_c_loan_fee: number;
       o_c_loan_class: string; //хавсрал Ё
       o_c_loan_type: string;
-      new;
       o_c_loan_line_contractno: string;
       o_c_loan_transactions: o_c_loan_transactions;
     }

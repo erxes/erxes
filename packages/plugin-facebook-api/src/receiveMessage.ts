@@ -158,12 +158,15 @@ const receiveMessage = async (
         }
       });
 
-      graphqlPubsub.publish('conversationMessageInserted', {
-        conversationMessageInserted: {
-          ...created.toObject(),
-          conversationId: conversation.erxesApiId
+      graphqlPubsub.publish(
+        `conversationMessageInserted:${conversation.erxesApiId}`,
+        {
+          conversationMessageInserted: {
+            ...created.toObject(),
+            conversationId: conversation.erxesApiId
+          }
         }
-      });
+      );
 
       conversationMessage = created;
     } catch (e) {

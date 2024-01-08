@@ -18,9 +18,24 @@ export const STORE_INTEREST_INTERVAL = {
   END_OF_CONTRACT: 'endOfContract'
 };
 
+export const INTEREST_GIVE_INTERVAL = {
+  END_OF_MONTH: 'endOfMonth',
+  END_OF_CONTRACT: 'endOfContract'
+};
+
 export const TRANSACTION_TYPE = {
   INCOME: 'income',
   OUTCOME: 'outcome',
   INTERESTRETURN: 'interestReturn',
   INTERESTCHANGE: 'interestChange'
+};
+
+export const CLOSE_OR_EXTEND = {
+  CLOSE_END_OF_CONTRACT: 'closeEndOfContract',
+  AUTO_EXTEND: 'autoExtend'
+};
+
+export const INTEREST_RESULT_TYPE = {
+  CURRENT_ACCOUNT: 'currentAccount',
+  DEPOSIT_ACCOUNT: 'depositAccount'
 };

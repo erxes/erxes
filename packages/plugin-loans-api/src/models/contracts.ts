@@ -10,7 +10,13 @@ import {
   IContract
 } from './definitions/contracts';
 import { getCloseInfo } from './utils/closeUtils';
-import { addMonths, getFullDate, getNumber } from './utils/utils';
+import {
+  addMonths,
+  calcInterest,
+  getDiffDay,
+  getFullDate,
+  getNumber
+} from './utils/utils';
 import { Model } from 'mongoose';
 import { IContractDocument } from './definitions/contracts';
 import { IModels } from '../connectionResolver';
@@ -18,6 +24,7 @@ import { FilterQuery } from 'mongodb';
 import { ITransaction } from './definitions/transactions';
 import { IInsurancesData } from './definitions/contracts';
 import { ICollateralData } from './definitions/contracts';
+import { reGenerateSchedules } from './utils/scheduleUtils';
 
 const getInsurancAmount = (
   insurancesData: IInsurancesData[],
@@ -70,6 +77,7 @@ export const loadContractClass = (models: IModels) => {
     }: IContract & { schedule: any }): Promise<IContractDocument> {
       doc.startDate = getFullDate(doc.startDate || new Date());
       doc.lastStoredDate = getFullDate(doc.startDate || new Date());
+      doc.lastStoredDate.setDate(doc.lastStoredDate.getDate() + 1);
       doc.endDate =
         doc.endDate ?? addMonths(new Date(doc.startDate), doc.tenor);
       if (!doc.useManualNumbering || !doc.number)
@@ -108,21 +116,31 @@ export const loadContractClass = (models: IModels) => {
         doc.leaseType === LEASE_TYPES.LINEAR ||
         doc.leaseType === LEASE_TYPES.SAVING
       ) {
+        const diffDays = getDiffDay(doc.startDate, doc.endDate);
+
+        const interest = calcInterest({
+          balance: doc.leaseAmount,
+          interestRate: doc.interestRate,
+          dayOfMonth: diffDays
+        });
+
         const schedules = [
           {
             contractId: contract._id,
             status: SCHEDULE_STATUS.PENDING,
             payDate: doc.endDate,
             balance: doc.leaseAmount,
-            interestNonce: 0,
+            interestNonce: interest,
             payment: doc.leaseAmount,
             total: doc.leaseAmount
           }
         ];
 
-        console.log('schedules', schedules);
-
         await models.FirstSchedules.insertMany(schedules);
+      }
+
+      if (doc.leaseType === LEASE_TYPES.FINANCE) {
+        await reGenerateSchedules(models, contract, []);
       }
 
       return contract;

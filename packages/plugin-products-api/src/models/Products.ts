@@ -135,7 +135,7 @@ export const loadProductClass = (models: IModels, subdomain: string) => {
         doc.customFieldsData
       );
 
-      return models.Products.create(doc);
+      return models.Products.create({ ...doc, createdAt: new Date() });
     }
 
     /**
@@ -402,7 +402,7 @@ export const loadProductCategoryClass = (models: IModels) => {
       // Generatingg order
       doc.order = await this.generateOrder(parentCategory, doc);
 
-      return models.ProductCategories.create(doc);
+      return models.ProductCategories.create({ ...doc, createdAt: new Date() });
     }
 
     /**

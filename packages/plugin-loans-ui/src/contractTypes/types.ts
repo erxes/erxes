@@ -71,6 +71,7 @@ export interface IContractTypeDoc {
   savingPlusLoanInterest: number;
   savingUpperPercent: number;
   usePrePayment: boolean;
+  invoiceDay: string;
 }
 
 export interface IContractType extends IContractTypeDoc {

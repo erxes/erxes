@@ -2,14 +2,14 @@ import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
 import { graphql } from '@apollo/client/react/hoc';
 import { Alert, confirm, withProps } from '@erxes/ui/src/utils';
-import List from '../components/List';
+import List from '../../components/dictionary/List';
 import {
   EditMutationResponse,
   RemoveMutationResponse,
   ZmsQueryResponse,
   ParentQueryResponse
-} from '../types';
-import { mutations, queries } from '../graphql';
+} from '../../types';
+import { mutations, queries } from '../../graphql';
 import React from 'react';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';

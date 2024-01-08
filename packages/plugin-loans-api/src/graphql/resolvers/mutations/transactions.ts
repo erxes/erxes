@@ -105,8 +105,6 @@ const transactionMutations = {
       isManual: true
     }).lean();
 
-    console.log('transactions', transactions, transactionIds);
-
     await models.Transactions.removeTransactions(transactions.map(a => a._id));
 
     for (const transaction of transactions) {
