@@ -8,6 +8,7 @@ import React from 'react';
 import { Container } from '../styles';
 import { Config, PageTemplate } from '../types';
 import LinkAction from './LinkAction';
+import GenerateButtons from './GenerateButtons';
 
 type Props = {
   _id: string;
@@ -47,25 +48,16 @@ function TemplateContent({
     onChange('image', null);
   };
 
-  const onChangeButtons = list => {
-    const uniqueButtons = list.filter(
-      item => !buttons.some(btn => btn.text === item)
-    );
-
-    const convertedButtons = uniqueButtons.map(button => ({
-      text: button,
-      _id: Math.random().toString()
-    }));
-
-    onChange('buttons', [...buttons, ...convertedButtons]);
+  const onChangeButtons = buttons => {
+    onChange('buttons', buttons);
   };
 
-  const onChangeLink = ({ e, text }) => {
+  const onChangeLink = ({ e, _id }) => {
     const { value } = e.currentTarget as HTMLInputElement;
 
     onChange(
       'buttons',
-      buttons.map(btn => (btn.text === text ? { ...btn, link: value } : btn))
+      buttons.map(btn => (btn._id === _id ? { ...btn, link: value } : btn))
     );
   };
 
@@ -94,16 +86,15 @@ function TemplateContent({
           />
         </FormGroup>
       )}
-      <ModifiableList
-        options={buttons.map(btn => btn.text) || []}
-        addButtonLabel="Add Buttons"
-        showAddButton
-        onChangeOption={onChangeButtons}
-        extraActions={text => (
+      <GenerateButtons
+        buttons={buttons || []}
+        onChange={onChangeButtons}
+        emptyMessage="There are no buttons"
+        extraActions={({ _id }) => (
           <LinkAction
             container={this}
-            onChange={e => onChangeLink({ e, text })}
-            link={buttons.find(btn => btn.text === text)?.link}
+            onChange={e => onChangeLink({ e, _id })}
+            link={buttons.find(btn => btn._id === _id)?.link}
           />
         )}
       />

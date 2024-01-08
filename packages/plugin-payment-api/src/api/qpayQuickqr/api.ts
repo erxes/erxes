@@ -27,8 +27,8 @@ export const meta = {
   paths: {
     auth: 'auth/token',
     refresh: 'auth/refresh',
-    createCompany: 'merchant/company',
-    createPerson: 'merchant/person',
+    company: 'merchant/company',
+    person: 'merchant/person',
     getMerchant: 'merchant',
     merchantList: 'merchant/list',
     checkInvoice: 'payment/check',
@@ -94,9 +94,31 @@ export class QPayQuickQrAPI extends VendorBaseAPI {
   }
 
   async createCompany(args: MerchantCommonParams & { name: string }) {
+    try {
+      return await this.makeRequest({
+        method: 'POST',
+        path: meta.paths.company,
+        data: {
+          ...args,
+          register_number: args.registerNumber,
+          mcc_code: args.mccCode
+        }
+      });
+    } catch (e) {
+      const errorObj = JSON.parse(e.message);
+
+      if (errorObj.message === 'MERCHANT_ALREADY_REGISTERED') {
+        return await this.updateExistingMerchant(args);
+      }
+
+      throw new Error(e.message);
+    }
+  }
+
+  async updateCompany(args: MerchantCommonParams & { name: string }) {
     return await this.makeRequest({
-      method: 'POST',
-      path: meta.paths.createCompany,
+      method: 'PUT',
+      path: `${meta.paths.company}/${this.config.merchantId}`,
       data: {
         ...args,
         register_number: args.registerNumber,
@@ -108,9 +130,39 @@ export class QPayQuickQrAPI extends VendorBaseAPI {
   async createCustomer(
     args: MerchantCommonParams & { firstName: string; lastName: string }
   ) {
+    try {
+      return await this.makeRequest({
+        method: 'POST',
+        path: meta.paths.person,
+        data: {
+          ...args,
+          register_number: args.registerNumber,
+          mcc_code: args.mccCode,
+          first_name: args.firstName,
+          last_name: args.lastName
+        }
+      });
+    } catch (e) {
+      const errorObj = JSON.parse(e.message);
+
+      if (errorObj.message === 'MERCHANT_ALREADY_REGISTERED') {
+        return await this.updateExistingMerchant({
+          ...args,
+          first_name: args.firstName,
+          last_name: args.lastName
+        });
+      }
+
+      throw new Error(e.message);
+    }
+  }
+
+  async updateCustomer(
+    args: MerchantCommonParams & { firstName: string; lastName: string }
+  ) {
     return await this.makeRequest({
-      method: 'POST',
-      path: meta.paths.createPerson,
+      method: 'PUT',
+      path: `${meta.paths.person}/${this.config.merchantId}`,
       data: {
         ...args,
         register_number: args.registerNumber,
@@ -119,6 +171,42 @@ export class QPayQuickQrAPI extends VendorBaseAPI {
         last_name: args.lastName
       }
     });
+  }
+
+  async removeMerchant() {
+    try {
+      return await this.makeRequest({
+        method: 'DELETE',
+        path: `${meta.paths.getMerchant}/${this.config.merchantId}`
+      });
+    } catch (e) {
+      throw new Error(e.message);
+    }
+  }
+
+  async updateExistingMerchant(args: any) {
+    const list = await this.list();
+
+    if (list.rows.length > 0) {
+      const existingMerchant = list.rows.find(
+        (item: any) => item.register_number === args.registerNumber
+      );
+      const path =
+        existingMerchant.type === 'COMPANY'
+          ? meta.paths.company
+          : meta.paths.person;
+      if (existingMerchant) {
+        return this.makeRequest({
+          method: 'PUT',
+          path: `${path}/${existingMerchant.id}`,
+          data: {
+            ...args,
+            register_number: args.registerNumber,
+            mcc_code: args.mccCode
+          }
+        });
+      }
+    }
   }
 
   async createInvoice(invoice: IInvoiceDocument) {
@@ -196,6 +284,13 @@ export class QPayQuickQrAPI extends VendorBaseAPI {
     return await this.makeRequest({
       method: 'GET',
       path: `${meta.paths.getMerchant}/${_id}`
+    });
+  }
+
+  async list() {
+    return await this.makeRequest({
+      method: 'POST',
+      path: meta.paths.merchantList
     });
   }
 }

@@ -21,7 +21,9 @@ const {
   ALLOWED_ORIGINS,
   NODE_ENV,
   APOLLO_ROUTER_PORT,
-  INTROSPECTION
+  INTROSPECTION,
+  OTEL_EXPORTER_OTLP_ENDPOINT,
+  OTEL_EXPORTER_OTLP_PROTOCOL
 } = process.env;
 
 let routerProcess: ChildProcess | undefined = undefined;
@@ -81,7 +83,7 @@ const createRouterConfig = async () => {
     );
   }
 
-  const config = {
+  const config: any = {
     include_subgraph_errors: {
       all: true
     },
@@ -118,6 +120,30 @@ const createRouterConfig = async () => {
     }
   };
 
+  if (OTEL_EXPORTER_OTLP_ENDPOINT) {
+    config.telemetry = {
+      instrumentation: {
+        spans: {
+          default_attribute_requirement_level: 'required',
+          mode: 'spec_compliant'
+        }
+      },
+      exporters: {
+        tracing: {
+          common: {
+            service_name: 'router',
+            service_namespace: 'apollo'
+          },
+          otlp: {
+            enabled: true,
+            endpoint: OTEL_EXPORTER_OTLP_ENDPOINT,
+            protocol: OTEL_EXPORTER_OTLP_PROTOCOL
+          }
+        }
+      }
+    };
+  }
+
   fs.writeFileSync(routerConfigPath, yaml.stringify(config));
 };
 
@@ -139,6 +165,6 @@ export const startRouter = async (proxyTargets: ErxesProxyTarget[]) => {
       `--config`,
       routerConfigPath
     ],
-    { stdio: 'pipe' }
+    { stdio: 'inherit' }
   );
 };

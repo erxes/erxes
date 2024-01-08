@@ -1,7 +1,7 @@
 {
   "name": "erxes",
   "private": true,
-  "version": "1.5.6",
+  "version": "1.5.7",
   "workspaces": [
     "packages/*",
     "scripts"
@@ -46,13 +46,11 @@
   },
   "devDependencies": {
     "@release-it/conventional-changelog": "1.1.0",
-    "@types/node": "18.17.1",  
+    "@types/node": "18.17.1",
     "husky": "^0.13.4",
     "lint-staged": "^3.6.0",
     "prettier": "^1.14.2",
     "typescript": "4.9.5",
-
-
     "//": "UI development dependencies, since sibling devDependencies are not being installed we moved them from packages/erxes-ui/package.json to here",
     "@babel/core": "^7.15.8",
     "@babel/plugin-transform-runtime": "^7.15.8",
@@ -88,6 +86,6 @@
     "process": "0.11.10"
   },
   "dependencies": {
-    "//" : "Only put dependencies that are required by all packages here!!!"
+    "//": "Only put dependencies that are required by all packages here!!!"
   }
 }

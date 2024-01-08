@@ -13,7 +13,7 @@ module.exports.devStop = async () => {
 
 module.exports.devCmd = async (program) => {
   const configs = await fse.readJSON(filePath("configs.json"));
-
+  const be_env = configs.be_env || {};
   const commonOptions = program.bash ? { interpreter: "/bin/bash" } : {};
 
   const enabledServices = [];
@@ -43,6 +43,7 @@ module.exports.devCmd = async (program) => {
     VERSION: configs.image_tag || "latest",
     ALLOWED_ORIGINS: configs.allowed_origins,
     NODE_INSPECTOR: "enabled",
+    ...be_env,
   };
 
   let port = 3300;
@@ -68,6 +69,7 @@ module.exports.devCmd = async (program) => {
         CLIENT_PORTAL_DOMAINS: configs.client_portal_domains || "",
         ...commonEnv,
         ...((configs.core || {}).extra_env || {}),
+        OTEL_SERVICE_NAME: "plugin-core-api"
       },
     },
   ];
@@ -109,6 +111,10 @@ module.exports.devCmd = async (program) => {
       args: "dev",
       ...commonOptions,
       ignore_watch: ["node_modules"],
+      env: {
+        ...be_env,
+        OTEL_SERVICE_NAME: "widgets"
+      }
     });
   }
 
@@ -172,6 +178,7 @@ module.exports.devCmd = async (program) => {
         PORT: plugin.port || port,
         ...commonEnv,
         ...(plugin.extra_env || {}),
+        OTEL_SERVICE_NAME: `plugin-${plugin.name}-api`
       },
     });
   }
@@ -188,6 +195,7 @@ module.exports.devCmd = async (program) => {
         PORT: 3700,
         ...commonEnv,
         ...((configs.workers || {}).envs || {}),
+        OTEL_SERVICE_NAME: "workers"
       },
     });
   }
@@ -206,6 +214,7 @@ module.exports.devCmd = async (program) => {
         PORT: 4300,
         ...commonEnv,
         ...((configs.dashboard || {}).envs || {}),
+        OTEL_SERVICE_NAME: "dashboard"
       },
     });
   }
@@ -222,6 +231,7 @@ module.exports.devCmd = async (program) => {
       CLIENT_PORTAL_DOMAINS: configs.client_portal_domains || "",
       ...commonEnv,
       ...((configs.gateway || {}).extra_env || {}),
+      OTEL_SERVICE_NAME: "gateway"
     },
   });
 

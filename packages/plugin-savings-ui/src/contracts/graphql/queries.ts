@@ -163,6 +163,8 @@ export const schedules = `
       payDate
       payment
       total
+      transactionType
+      balance
     }
   }
 `;

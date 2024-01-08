@@ -9,6 +9,7 @@ import { mutations } from '../graphql';
 import { ITransaction } from '../types';
 import { __ } from 'coreui/utils';
 type Props = {
+  contractId?: string;
   transaction: ITransaction;
   type: string;
   invoice?: IInvoice;
