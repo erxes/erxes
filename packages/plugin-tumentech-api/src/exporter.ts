@@ -20,9 +20,10 @@ const prepareData = async (
   subdomain: string,
   query: any
 ): Promise<any[]> => {
-  const { contentType, segmentData } = query;
+  const { contentType, segmentData, page = 1, perPage = 10000 } = query;
 
   const type = contentType.split(':')[1];
+  const skip = (page - 1) * perPage;
 
   let data: any[] = [];
 
@@ -32,14 +33,16 @@ const prepareData = async (
     const itemIds = await fetchSegment(
       subdomain,
       '',
-      { scroll: true, page: 1, perPage: 10000 },
+      { scroll: true, page, perPage },
       segmentData
     );
-
     contactsFilter._id = { $in: itemIds };
-  }
-
-  data = await models.Cars.find(contactsFilter).lean();
+    data = await models.Cars.find(contactsFilter).lean();
+  } else
+    data = await models.Cars.find(contactsFilter)
+      .skip(skip)
+      .limit(perPage)
+      .lean();
 
   return data;
 };
