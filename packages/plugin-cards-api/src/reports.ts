@@ -3,11 +3,9 @@ import { models } from './connectionResolver';
 import {
   sendCoreMessage,
   sendTagsMessage,
-  sendContactsMessage,
-  sendCommonMessage
+  sendContactsMessage
 } from './messageBroker';
 import * as dayjs from 'dayjs';
-import pipeline from './graphql/resolvers/customResolvers/pipeline';
 
 const DATE_RANGE_TYPES = [
   { label: 'All time', value: 'all' },
@@ -82,208 +80,6 @@ const reportTemplates = [
 
 const chartTemplates = [
   {
-    templateType: 'TicketsCustom',
-    name: 'Tickets Custom ',
-    chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea'],
-    getChartResult: async (
-      filter: any,
-      subdomain: string,
-      currentUser: IUserDocument,
-      getDefaultPipelineId?: string
-    ) => {
-      const dateRange = filter.dateRange;
-      const currentDate = new Date();
-      // Function to get the start of the day
-      const startOfDay = date => {
-        const d = new Date(date);
-        d.setHours(0, 0, 0, 0);
-        return d;
-      };
-
-      let dateCondition;
-
-      switch (dateRange) {
-        case 'today':
-          dateCondition = {
-            $gte: startOfDay(currentDate),
-            $lt: new Date(currentDate.getTime() + 24 * 60 * 60 * 1000)
-          };
-          break;
-        case 'yesterday':
-          const yesterday = new Date(currentDate);
-          yesterday.setDate(currentDate.getDate() - 1);
-          dateCondition = {
-            $gte: startOfDay(yesterday),
-            $lt: startOfDay(currentDate)
-          };
-          break;
-        case 'thisweek':
-          dateCondition = {
-            $gte: startOfDay(currentDate),
-            $lt: new Date(
-              currentDate.getFullYear(),
-              currentDate.getMonth(),
-              currentDate.getDate() + 7
-            )
-          };
-          break;
-        case 'lastweek':
-          const lastWeekStartDate = new Date(
-            currentDate.getFullYear(),
-            currentDate.getMonth(),
-            currentDate.getDate() - 7
-          );
-          const lastWeekEndDate = new Date(
-            currentDate.getFullYear(),
-            currentDate.getMonth(),
-            currentDate.getDate()
-          );
-          dateCondition = {
-            $gte: startOfDay(lastWeekStartDate),
-            $lt: startOfDay(lastWeekEndDate)
-          };
-          break;
-        case 'all':
-          // No date condition for 'All Time'
-          dateCondition = {};
-          break;
-        case undefined:
-          // No date condition for 'All Time'
-          dateCondition = {};
-          break;
-
-        default:
-          // Handle unknown cases or provide a default behavior
-          console.log('Unknown date range:', dateRange);
-          break;
-      }
-      let tickets;
-      const query =
-        Object.keys(dateCondition).length > 0 ? { ...dateCondition } : {};
-
-      tickets = await models?.Tickets.find(query)
-        .sort({ createdAt: -1 })
-        .lean();
-      // const tickets = await models?.Tickets.find({
-      //   stageId: 'etPuCz2GCWRGHqLryjWfa'
-      // }).lean();
-      const customerDataArray = await Promise.all(
-        tickets?.map(async item => {
-          const customer_ids = await sendCoreMessage({
-            subdomain,
-            action: 'conformities.savedConformity',
-            data: {
-              mainType: 'ticket',
-              mainTypeId: item._id,
-              relTypes: ['customer']
-            },
-            isRPC: true,
-            defaultValue: []
-          });
-          return { name: item.name, customer_ids };
-        }) ?? []
-      );
-      const flattenedCustomerIds = customerDataArray
-        .map(item => item.customer_ids)
-        .flat();
-      const customers = await sendContactsMessage({
-        subdomain,
-        action: 'customers.findActiveCustomers',
-        data: {
-          selector: {
-            _id: { $in: flattenedCustomerIds }
-          }
-        },
-        isRPC: true,
-        defaultValue: []
-      });
-
-      const customerName = await Promise.all(
-        (customers || []).map(async result => {
-          return await sendContactsMessage({
-            subdomain,
-            action: 'customers.findOne',
-            data: {
-              _id: result._id
-            },
-            isRPC: true,
-            defaultValue: {}
-          });
-        })
-      );
-
-      interface CustomerData {
-        name: string;
-        count: number;
-      }
-
-      const data: (CustomerData | null)[] = customerName
-        .map(result => {
-          const matchingCustomers = customerDataArray.filter(label =>
-            label.customer_ids.includes(result._id)
-          );
-
-          if (matchingCustomers.length > 0) {
-            const uniqueNamesSet = new Set<string>();
-            const flattenedData = matchingCustomers.map(items => {
-              const name = items.name;
-              if (!uniqueNamesSet.has(name)) {
-                uniqueNamesSet.add(name);
-                return {
-                  name,
-                  count: items.customer_ids.length
-                };
-              }
-              return null;
-            });
-
-            return flattenedData.filter(Boolean) as CustomerData[];
-          }
-
-          return null;
-        })
-        .filter(Boolean)
-        .flat();
-
-      // Remove duplicate objects based on the 'name' property
-      const uniqueData: CustomerData[] = Array.from(
-        new Set(data.map(obj => JSON.stringify(obj)))
-      )
-        .map(str => JSON.parse(str) as CustomerData)
-        .filter((obj): obj is CustomerData => obj !== null);
-
-      const title = 'Tickets Custom';
-      const datas = Object.values(uniqueData).map((t: any) => t.count);
-
-      const labels = Object.values(uniqueData).map((t: any) => t.name);
-
-      const datasets = { title, data: datas, labels };
-      return datasets;
-    },
-
-    filterTypes: [
-      {
-        fieldName: 'dateRange',
-        fieldType: 'select',
-        multi: true,
-        fieldOptions: DATE_RANGE_TYPES,
-        fieldLabel: 'Select date range'
-      },
-      {
-        fieldName: 'customFieldsData',
-        fieldType: 'select',
-        multi: true,
-        fieldLabel: 'Select customers'
-      },
-      {
-        fieldName: 'name',
-        fieldType: 'select',
-        multi: true,
-        fieldLabel: 'Select name'
-      }
-    ]
-  },
-  {
     templateType: 'TicketsStageDateRange',
     name: 'Stage Date',
     chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea'],
@@ -294,71 +90,8 @@ const chartTemplates = [
       getDefaultPipelineId?: string
     ) => {
       const dateRange = filter.dateRange;
-      const currentDate = new Date();
-      // Function to get the start of the day
-      const startOfDay = date => {
-        const d = new Date(date);
-        d.setHours(0, 0, 0, 0);
-        return d;
-      };
-
-      let dateCondition;
-
-      switch (dateRange) {
-        case 'today':
-          dateCondition = {
-            $gte: startOfDay(currentDate),
-            $lt: new Date(currentDate.getTime() + 24 * 60 * 60 * 1000)
-          };
-          break;
-        case 'yesterday':
-          const yesterday = new Date(currentDate);
-          yesterday.setDate(currentDate.getDate() - 1);
-          dateCondition = {
-            $gte: startOfDay(yesterday),
-            $lt: startOfDay(currentDate)
-          };
-          break;
-        case 'thisweek':
-          dateCondition = {
-            $gte: startOfDay(currentDate),
-            $lt: new Date(
-              currentDate.getFullYear(),
-              currentDate.getMonth(),
-              currentDate.getDate() + 7
-            )
-          };
-          break;
-        case 'lastweek':
-          const lastWeekStartDate = new Date(
-            currentDate.getFullYear(),
-            currentDate.getMonth(),
-            currentDate.getDate() - 7
-          );
-          const lastWeekEndDate = new Date(
-            currentDate.getFullYear(),
-            currentDate.getMonth(),
-            currentDate.getDate()
-          );
-          dateCondition = {
-            $gte: startOfDay(lastWeekStartDate),
-            $lt: startOfDay(lastWeekEndDate)
-          };
-          break;
-        case 'all':
-          // No date condition for 'All Time'
-          dateCondition = {};
-          break;
-        case undefined:
-          // No date condition for 'All Time'
-          dateCondition = {};
-          break;
-
-        default:
-          // Handle unknown cases or provide a default behavior
-          console.log('Unknown date range:', dateRange);
-          break;
-      }
+      const currentDate = new Date(); // Replace this with the actual current date if needed
+      const dateCondition = createDateCondition(dateRange, currentDate);
 
       const board = await models?.Boards.find({
         type: 'ticket'
@@ -562,40 +295,48 @@ const chartTemplates = [
       getDefaultPipelineId?: string
     ) => {
       try {
-        const ticked = await models?.Tickets.find({
-          stageChangedDate: { $exists: true }
-        }).sort({ stageChangedDate: -1 });
+        const dateRange = filter.dateRange;
+        const currentDate = new Date(); // Replace this with the actual current date if needed
+        const dateCondition = createDateCondition(dateRange, currentDate);
+        let matchStage;
+        let ticked;
+
+        // Use 'if' instead of 'switch' here
+        if (Object.keys(dateCondition).length > 0) {
+          matchStage = { stageChangedDate: dateCondition };
+        }
+
+        if (matchStage === undefined || matchStage === 'all') {
+          ticked = await models?.Tickets.find({
+            stageChangedDate: { $exists: true }
+          }).sort({ stageChangedDate: -1 });
+        } else {
+          ticked = await models?.Tickets.find({ ...matchStage }).sort({
+            stageChangedDate: -1
+          });
+        }
 
         if (ticked) {
           const stageDate = await stageChangedDate(ticked);
           const title = 'Ticket Stage Changed Date';
-          const data = Object.values(stageDate).map((t: any) => t.date);
-          const labels = Object.values(stageDate).map((t: any) => t.name);
-          // const datasets = {
-          //   title,
-          //   data,
-          //   labels
-          // };
-          // return datasets;
+          const data = stageDate.reduce((result, item) => {
+            const date = item.date.split(',')[0]; // Extracting the date part without time
+            result[date] = (result[date] || 0) + 1;
 
-          const options = {
-            scales: {
-              x: {
-                type: 'time',
-                time: {
-                  unit: 'month'
-                }
-              },
-              y: {
-                beginAtZero: true,
-                type: 'linear'
-              }
-            }
+            return result;
+          }, {});
+
+          const aggregatedData = Object.keys(data).map(date => ({
+            x: date,
+            y: data[date]
+          }));
+
+          const result = {
+            title,
+            data: aggregatedData
           };
 
-          const datasets = [{ title, data, labels, options }];
-          console.log(datasets, 'datasets');
-          return datasets;
+          return result;
         } else {
           console.log('no data');
         }
@@ -708,7 +449,7 @@ const chartTemplates = [
 
     filterTypes: [
       {
-        fieldName: 'tags',
+        fieldName: 'tagIds',
         fieldType: 'select',
         multi: true,
         fieldLabel: 'Select tags'
@@ -1741,6 +1482,7 @@ const chartTemplates = [
         type: 'deal'
       }).lean();
       const boardId = board?.map(item => item._id);
+
       const pipeline = await models?.Pipelines.find({
         boardId: {
           $in: boardId
@@ -1748,20 +1490,15 @@ const chartTemplates = [
         type: 'deal',
         status: 'active'
       }).lean();
+
       const pipelineId = pipeline?.map(item => item._id);
       const stages = await models?.Stages.find({
         $and: [
           { type: 'deal' },
           { pipelineId: { $in: pipelineId } },
-          {
-            $or: [
-              { probability: { $lt: 0 } }, // Less than 0%
-              { probability: { $gte: 100 } } // Greater than or equal to 100%
-            ]
-          }
+          { probability: { $nin: ['lost', 'won'] } }
         ]
       }).lean();
-      console.log(stages, 'stages');
       if (stages) {
         let deals;
         await Promise.all(
@@ -1772,7 +1509,7 @@ const chartTemplates = [
             }).lean();
           })
         );
-        console.log(deals, 'deals');
+
         // Example usage
         async function processData() {
           const dealsCounts = await amountProductData(deals);
@@ -1796,7 +1533,6 @@ const chartTemplates = [
           );
 
           const stageIds = consolidatedData.map((t: any) => t.stageId);
-          console.log(stageIds, 'stageIds');
           const stagesName = await models?.Stages.find({
             $and: [
               { type: 'deal' },
@@ -1813,11 +1549,9 @@ const chartTemplates = [
               map[stage._id] = stage.name;
               return map;
             }, {}) || {};
-          console.log(stageIdToNameMap, 'stageIdToNameMap');
           const labels = consolidatedData.map(
             (t: any) => stageIdToNameMap[t.stageId]
           );
-          console.log(labels, 'labels');
           const title = 'Deals open by current stage';
           const datasets = {
             title,
@@ -1903,45 +1637,70 @@ const chartTemplates = [
       currentUser: IUserDocument,
       getDefaultPipelineId?: string
     ) => {
-      const totalDeal = await models?.Deals.find({}).sort({
-        createdAt: -1
-      });
+      const dateRange = filter.dateRange;
+      const currentDate = new Date(); // Replace this with the actual current date if needed
+      const dateCondition = createDateCondition(dateRange, currentDate);
+
+      let matchDate;
+      let totalDeals;
+
+      if (Object.keys(dateCondition).length > 0) {
+        matchDate = { closedDate: dateCondition };
+      }
+
+      if (
+        matchDate === undefined ||
+        dateRange === 'all' ||
+        dateRange === undefined
+      ) {
+        totalDeals = await models?.Deals.find({}).sort({
+          closedDate: -1
+        });
+      } else {
+        totalDeals = await models?.Deals.find(matchDate).sort({
+          closedDate: -1
+        });
+      }
+
       const monthNames: string[] = [];
-      const monthlyDealCount: number[] = [];
-      if (totalDeal) {
-        const now = new Date();
+      const monthlyDealsCount: number[] = [];
+      if (totalDeals) {
+        const now = new Date(); // Get the current date
         const startOfYear = new Date(now.getFullYear(), 0, 1); // Get the start of the year
         const endOfYear = new Date(now.getFullYear(), 12, 31); // Get the start of the year
         const endRange = dayjs(
-          new Date(totalDeal.at(-1)?.createdAt || endOfYear)
+          new Date(totalDeals.at(-1)?.createdAt || endOfYear)
         );
-        let rangeStart = dayjs(startOfYear).add(1, 'month');
-        let rangeEnd = dayjs(startOfYear).add(2, 'month');
-        while (rangeStart < endRange) {
-          monthNames.push(rangeStart.format('MMMM'));
-          const getDealsCountOfMonth = totalDeal.filter(
+
+        let startRange = dayjs(startOfYear);
+        while (startRange < endRange) {
+          monthNames.push(startRange.format('MMMM'));
+
+          const getStartOfNextMonth = startRange.add(1, 'month').toDate();
+          const getDealsCountOfMonth = totalDeals.filter(
             deal =>
               new Date(deal.createdAt || '').getTime() >=
-                rangeStart.toDate().getTime() &&
+                startRange.toDate().getTime() &&
               new Date(deal.createdAt || '').getTime() <
-                rangeEnd.toDate().getTime()
+                getStartOfNextMonth.getTime()
           );
-          monthlyDealCount.push(getDealsCountOfMonth.length);
-          rangeStart = rangeStart.add(1, 'month');
-          rangeEnd = rangeEnd.add(1, 'month');
+          monthlyDealsCount.push(getDealsCountOfMonth.length);
+          startRange = startRange.add(1, 'month');
         }
       }
-      const label = 'Deals count by created month';
-      const datasets = [{ label, data: monthlyDealCount, labels: monthNames }];
+      const title =
+        'Closed revenue by month with deal total and closed revenue breakdown';
+      const datasets = { title, data: monthlyDealsCount, labels: monthNames };
 
       return datasets;
     },
     filterTypes: [
       {
         fieldName: 'dateRange',
-        fieldType: 'date',
-        fieldQuery: 'createdAt',
-        fieldLabel: 'Date range'
+        fieldType: 'select',
+        multi: true,
+        fieldOptions: DATE_RANGE_TYPES,
+        fieldLabel: 'Select date range'
       }
     ]
   },
@@ -2097,9 +1856,31 @@ const chartTemplates = [
     name: 'Deals by last modified date',
     chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea'],
     getChartResult: async (filter: any, subdomain: string) => {
-      const deals = await models?.Deals.find({});
+      const dateRange = filter.dateRange;
+      const currentDate = new Date(); // Replace this with the actual current date if needed
+      const dateCondition = createDateCondition(dateRange, currentDate);
+      let matchDate;
+      let totalDeals;
 
-      const dealsCount = deals?.map(deal => {
+      if (Object.keys(dateCondition).length > 0) {
+        matchDate = { modifiedAt: dateCondition };
+      }
+
+      if (
+        matchDate === undefined ||
+        dateRange === 'all' ||
+        dateRange === undefined
+      ) {
+        totalDeals = await models?.Deals.find({}).sort({
+          modifiedAt: -1
+        });
+      } else {
+        totalDeals = await models?.Deals.find(matchDate).sort({
+          modifiedAt: -1
+        });
+      }
+
+      const dealsCount = totalDeals?.map(deal => {
         return {
           dealName: deal.name,
           dealStage: deal.stageId,
@@ -2149,9 +1930,10 @@ const chartTemplates = [
     filterTypes: [
       {
         fieldName: 'dateRange',
-        fieldType: 'date',
-        fieldQuery: 'createdAt',
-        fieldLabel: 'Date range'
+        fieldType: 'select',
+        multi: true,
+        fieldOptions: DATE_RANGE_TYPES,
+        fieldLabel: 'Select date range'
       }
     ]
   },
@@ -2417,6 +2199,149 @@ const chartTemplates = [
       return datasets;
     },
     filterTypes: []
+  },
+  {
+    templateType: 'TicketsCustom',
+    name: 'Tickets priority ',
+    chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea'],
+    getChartResult: async (
+      filter: any,
+      subdomain: string,
+      currentUser: IUserDocument,
+      getDefaultPipelineId?: string
+    ) => {
+      const dateRange = filter.dateRange;
+      const currentDate = new Date(); // Replace this with the actual current date if needed
+      const dateCondition = createDateCondition(dateRange, currentDate);
+      let tickets;
+      const query =
+        Object.keys(dateCondition).length > 0 ? { ...dateCondition } : {};
+
+      if (Object.keys(query).length > 0) {
+        tickets = await models?.Tickets.find()
+          .sort({ createdAt: -1 })
+          .lean();
+      } else {
+        tickets = await models?.Tickets.find(query)
+          .sort({ createdAt: -1 })
+          .lean();
+      }
+
+      const customerDataArray = await Promise.all(
+        tickets?.map(async item => {
+          const customer_ids = await sendCoreMessage({
+            subdomain,
+            action: 'conformities.savedConformity',
+            data: {
+              mainType: 'ticket',
+              mainTypeId: item._id,
+              relTypes: ['customer']
+            },
+            isRPC: true,
+            defaultValue: []
+          });
+          return { name: item.name, customer_ids };
+        }) ?? []
+      );
+      const flattenedCustomerIds = customerDataArray
+        .map(item => item.customer_ids)
+        .flat();
+      const customers = await sendContactsMessage({
+        subdomain,
+        action: 'customers.findActiveCustomers',
+        data: {
+          selector: {
+            _id: { $in: flattenedCustomerIds }
+          }
+        },
+        isRPC: true,
+        defaultValue: []
+      });
+
+      const customerName = await Promise.all(
+        (customers || []).map(async result => {
+          return await sendContactsMessage({
+            subdomain,
+            action: 'customers.findOne',
+            data: {
+              _id: result._id
+            },
+            isRPC: true,
+            defaultValue: {}
+          });
+        })
+      );
+
+      interface CustomerData {
+        name: string;
+        count: number;
+      }
+
+      const data: (CustomerData | null)[] = customerName
+        .map(result => {
+          const matchingCustomers = customerDataArray.filter(label =>
+            label.customer_ids.includes(result._id)
+          );
+
+          if (matchingCustomers.length > 0) {
+            const uniqueNamesSet = new Set<string>();
+            const flattenedData = matchingCustomers.map(items => {
+              const name = items.name;
+              if (!uniqueNamesSet.has(name)) {
+                uniqueNamesSet.add(name);
+                return {
+                  name,
+                  count: items.customer_ids.length
+                };
+              }
+              return null;
+            });
+
+            return flattenedData.filter(Boolean) as CustomerData[];
+          }
+
+          return null;
+        })
+        .filter(Boolean)
+        .flat();
+
+      // Remove duplicate objects based on the 'name' property
+      const uniqueData: CustomerData[] = Array.from(
+        new Set(data.map(obj => JSON.stringify(obj)))
+      )
+        .map(str => JSON.parse(str) as CustomerData)
+        .filter((obj): obj is CustomerData => obj !== null);
+
+      const title = 'Tickets Custom';
+      const setData = Object.values(uniqueData).map((t: any) => t.count);
+
+      const setName = Object.values(uniqueData).map((t: any) => t.name);
+
+      const datasets = { title, data: setData, labels: setName };
+      return datasets;
+    },
+
+    filterTypes: [
+      {
+        fieldName: 'dateRange',
+        fieldType: 'select',
+        multi: true,
+        fieldOptions: DATE_RANGE_TYPES,
+        fieldLabel: 'Select date range'
+      },
+      {
+        fieldName: 'customFieldsData',
+        fieldType: 'select',
+        multi: true,
+        fieldLabel: 'Select customers'
+      },
+      {
+        fieldName: 'name',
+        fieldType: 'select',
+        multi: true,
+        fieldLabel: 'Select name'
+      }
+    ]
   },
   {
     templateType: 'TicketClosedTotalsByRep',
@@ -2877,11 +2802,31 @@ const chartTemplates = [
       getDefaultPipelineId?: string
     ) => {
       // demonstration filters
+      const dateRange = filter.dateRange;
+      const currentDate = new Date(); // Replace this with the actual current date if needed
+      const dateCondition = createDateCondition(dateRange, currentDate);
       const getTotalAssignedUserIds: string[] = [];
+      let matchDate;
+      let totalDeals;
 
-      const totalDeals = await models?.Deals.find({
-        assignedUserIds: { $exists: true }
-      });
+      if (Object.keys(dateCondition).length > 0) {
+        matchDate = { createdAt: dateCondition };
+      }
+
+      if (
+        matchDate === undefined ||
+        dateRange === 'all' ||
+        dateRange === undefined
+      ) {
+        totalDeals = await models?.Deals.find({
+          assignedUserIds: { $exists: true }
+        }).lean();
+      } else {
+        totalDeals = await models?.Deals.find({
+          ...matchDate, // Spread the matchDate object
+          assignedUserIds: { $exists: true }
+        }).lean();
+      }
 
       if (totalDeals) {
         for (const deal of totalDeals) {
@@ -2964,8 +2909,9 @@ const chartTemplates = [
       },
       {
         fieldName: 'dateRange',
-        fieldType: 'date',
-        fieldQuery: 'createdAt',
+        fieldType: 'select',
+        multi: true,
+        fieldOptions: DATE_RANGE_TYPES,
         fieldLabel: 'Select date range'
       }
     ]
@@ -3156,7 +3102,7 @@ function amountProductData(deals: any[]): Promise<any[]> {
     const repAmounts: Record<string, any> = {};
 
     deals.forEach(deal => {
-      if (deal.productsData && deal.status === 'active') {
+      if (deal.productsData) {
         const productsData = deal.productsData;
         productsData.forEach(product => {
           if (product.amount) {
@@ -3498,4 +3444,68 @@ function stageChangedDate(ticked: any[]) {
   );
 
   return Array.from(resultMap.values());
+}
+
+function createDateCondition(dateRange, currentDate) {
+  const startOfDay = date => {
+    const d = new Date(date);
+    d.setHours(0, 0, 0, 0);
+    return d;
+  };
+
+  let dateCondition;
+
+  switch (dateRange) {
+    case 'today':
+      dateCondition = {
+        $gte: startOfDay(currentDate),
+        $lt: new Date(currentDate.getTime() + 24 * 60 * 60 * 1000)
+      };
+      break;
+    case 'yesterday':
+      const yesterday = new Date(currentDate);
+      yesterday.setDate(currentDate.getDate() - 1);
+      dateCondition = {
+        $gte: startOfDay(yesterday),
+        $lt: startOfDay(currentDate)
+      };
+      break;
+    case 'thisweek':
+      dateCondition = {
+        $gte: startOfDay(currentDate),
+        $lt: new Date(
+          currentDate.getFullYear(),
+          currentDate.getMonth(),
+          currentDate.getDate() + 7
+        )
+      };
+      break;
+    case 'lastweek':
+      const lastWeekStartDate = new Date(
+        currentDate.getFullYear(),
+        currentDate.getMonth(),
+        currentDate.getDate() - 7
+      );
+      const lastWeekEndDate = new Date(
+        currentDate.getFullYear(),
+        currentDate.getMonth(),
+        currentDate.getDate()
+      );
+      dateCondition = {
+        $gte: startOfDay(lastWeekStartDate),
+        $lt: startOfDay(lastWeekEndDate)
+      };
+      break;
+    case 'all':
+    case undefined:
+      // No date condition for 'All Time'
+      dateCondition = {};
+      break;
+    default:
+      // Handle unknown cases or provide a default behavior
+      console.log('Unknown date range:', dateRange);
+      break;
+  }
+
+  return dateCondition;
 }
