@@ -6,8 +6,10 @@ const msdynamicSendMutations = {
   async toSendDeals(
     _root,
     { brandId, deals }: { brandId: string; deals: any[] },
-    { subdomain }: IContext
+    { subdomain, models }: IContext
   ) {
+    let syncLog;
+
     try {
       const configs = await getConfig(subdomain, 'DYNAMIC', {});
       const config = configs[brandId || 'noBrand'];
@@ -19,10 +21,18 @@ const msdynamicSendMutations = {
       const { salesApi, username, password } = config;
 
       for (const deal of deals) {
-        const document: any = {
-          Document_Type: 'Order',
-          No: 'MO-108459',
+        const syncLogDoc = {
+          type: '',
+          contentType: 'pos:order',
+          contentId: 'pos._id',
+          createdAt: new Date(),
+          consumeData: deal,
+          consumeStr: JSON.stringify(deal)
+        };
 
+        syncLog = await models.SyncLogs.syncLogsAdd(syncLogDoc);
+
+        const document: any = {
           Sell_to_Customer_No: 'BEV-00499',
           Sell_to_Customer_Name: 'Irish pub',
           Deal_Type_Code: '',
@@ -64,43 +74,69 @@ const msdynamicSendMutations = {
               Type: 'Item',
               No: '11-1-1101',
               Description: 'Hennessy VSOP 70cl',
-              Description_2: '700��',
+              Description_2: 'TESTEDBYGG',
               Quantity: 12,
               Unit_Price: 159000,
               Unit_Cost_LCY: 100713.96542,
               Location_Code: 'BEV-01',
               Unit_of_Measure_Code: 'PCS',
               Unit_of_Measure: 'Piece'
-              //       12. Business Unit Code- From Item card
-              // Brand Code- From Item card
             }
           ]
-          // Customer Price Group- From Customer card
-          //  Customer Disc.Group- From Customer card
-          //    NAME mn
-          // Creation date
-          //   Business Unit Code
-          // Bill Type
         };
+
+        await models.SyncLogs.updateOne(
+          { _id: syncLog._id },
+          {
+            $set: {
+              sendData: document,
+              sendStr: JSON.stringify(document)
+            }
+          }
+        );
+
+        // Customer Price Group- From Customer card
+        //  Customer Disc.Group- From Customer card
+        //    NAME mn
+        // Creation date
+        //   Business Unit Code
+        // Bill Type
+        // Document_Type: 'Order',
+        // No: 'MO-108459',
+        //       12. Business Unit Code- From Item card
+        // Brand Code- From Item card
 
         const response = await sendRequest({
           url: salesApi,
           method: 'POST',
           headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-            Accept: 'application/json',
+            'Content-Type': 'application/json',
             Authorization: `Basic ${Buffer.from(
               `${username}:${password}`
             ).toString('base64')}`
           },
           body: document
         });
+
+        await models.SyncLogs.updateOne(
+          { _id: syncLog._id },
+          {
+            $set: {
+              responseData: response,
+              responseStr: JSON.stringify(response)
+            }
+          }
+        );
       }
 
       return {
         status: 'success'
       };
     } catch (e) {
+      await models.SyncLogs.updateOne(
+        { _id: syncLog._id },
+        { $set: { error: e.message } }
+      );
       console.log(e, 'error');
     }
   }
