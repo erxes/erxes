@@ -95,7 +95,8 @@ export default {
     // });
 
     app.get('/export', async (req, res) => {
-      if (!req.cpUser) {
+      const { cpUser } = req;
+      if (!cpUser) {
         return res.status(401).send('Unauthorized');
       }
 
@@ -105,7 +106,7 @@ export default {
 
       const models = await generateModels(subdomain);
 
-      const result = await buildFile(models, subdomain, req.cpUser, query);
+      const result = await buildFile(models, subdomain, cpUser, query);
 
       res.attachment(`${result.name}.xlsx`);
 
