@@ -26,7 +26,7 @@ const CustomerSection = asyncComponent(
 );
 
 type Props = {
-  contract: IContract & IContractGql;
+  contract: IContract | any;
 };
 
 export default class RightSidebar extends React.Component<Props> {

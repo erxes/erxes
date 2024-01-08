@@ -273,9 +273,12 @@ const createFormConversation = async (
 
   await pConversationClientMessageInserted(models, subdomain, message);
 
-  graphqlPubsub.publish('conversationMessageInserted', {
-    conversationMessageInserted: message
-  });
+  graphqlPubsub.publish(
+    `conversationMessageInserted:${message.conversationId}`,
+    {
+      conversationMessageInserted: message
+    }
+  );
 
   if (type === 'lead') {
     // increasing form submitted count
@@ -856,7 +859,7 @@ const widgetMutations = {
 
     await pConversationClientMessageInserted(models, subdomain, msg);
 
-    graphqlPubsub.publish('conversationMessageInserted', {
+    graphqlPubsub.publish(`conversationMessageInserted:${msg.conversationId}`, {
       conversationMessageInserted: msg
     });
 
@@ -866,12 +869,15 @@ const widgetMutations = {
       !botShowInitialMessage &&
       conversation.operatorStatus === CONVERSATION_OPERATOR_STATUS.BOT
     ) {
-      graphqlPubsub.publish('conversationBotTypingStatus', {
-        conversationBotTypingStatus: {
-          conversationId: msg.conversationId,
-          typing: true
+      graphqlPubsub.publish(
+        `conversationBotTypingStatus:${msg.conversationId}`,
+        {
+          conversationBotTypingStatus: {
+            conversationId: msg.conversationId,
+            typing: true
+          }
         }
-      });
+      );
 
       try {
         const botRequest = await sendRequest({
@@ -902,16 +908,22 @@ const widgetMutations = {
           botData
         });
 
-        graphqlPubsub.publish('conversationBotTypingStatus', {
-          conversationBotTypingStatus: {
-            conversationId: msg.conversationId,
-            typing: false
+        graphqlPubsub.publish(
+          `conversationBotTypingStatus:${msg.conversationId}`,
+          {
+            conversationBotTypingStatus: {
+              conversationId: msg.conversationId,
+              typing: false
+            }
           }
-        });
+        );
 
-        graphqlPubsub.publish('conversationMessageInserted', {
-          conversationMessageInserted: botMessage
-        });
+        graphqlPubsub.publish(
+          `conversationMessageInserted:${botMessage.conversationId}`,
+          {
+            conversationMessageInserted: botMessage
+          }
+        );
       } catch (e) {
         debug.error(`Failed to connect to BOTPRESS: ${e.message}`);
       }
@@ -931,9 +943,12 @@ const widgetMutations = {
       );
 
       for (const mg of conversationMessages) {
-        graphqlPubsub.publish('conversationMessageInserted', {
-          conversationMessageInserted: mg
-        });
+        graphqlPubsub.publish(
+          `conversationMessageInserted:${mg.conversationId}`,
+          {
+            conversationMessageInserted: mg
+          }
+        );
       }
 
       // notify as connected
@@ -1075,9 +1090,12 @@ const widgetMutations = {
     _root,
     args: { conversationId: string; text?: string }
   ) {
-    graphqlPubsub.publish('conversationClientTypingStatusChanged', {
-      conversationClientTypingStatusChanged: args
-    });
+    graphqlPubsub.publish(
+      `conversationClientTypingStatusChanged:${args.conversationId}`,
+      {
+        conversationClientTypingStatusChanged: args
+      }
+    );
 
     return 'ok';
   },
@@ -1272,7 +1290,7 @@ const widgetMutations = {
       content: message
     });
 
-    graphqlPubsub.publish('conversationMessageInserted', {
+    graphqlPubsub.publish(`conversationMessageInserted:${msg.conversationId}`, {
       conversationMessageInserted: msg
     });
 
@@ -1316,9 +1334,12 @@ const widgetMutations = {
       botData
     });
 
-    graphqlPubsub.publish('conversationMessageInserted', {
-      conversationMessageInserted: botMessage
-    });
+    graphqlPubsub.publish(
+      `conversationMessageInserted:${botMessage.conversationId}`,
+      {
+        conversationMessageInserted: botMessage
+      }
+    );
 
     return botMessage;
   },

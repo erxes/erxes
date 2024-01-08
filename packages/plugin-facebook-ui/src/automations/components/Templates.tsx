@@ -17,10 +17,10 @@ type Props = {
 
 function Template({ config, onChangeConfig }: Props) {
   const [selectedTemplatePageId, setSelectedTemplatePageId] = useState(
-    generateSelectedPageId(config)
+    generateSelectedPageId(config || {})
   );
 
-  const { messageTemplates = [] } = config;
+  const { messageTemplates = [] } = config || {};
 
   const selectedTemplatePage = messageTemplates.find(
     temp => temp._id === selectedTemplatePageId
