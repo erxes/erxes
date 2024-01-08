@@ -94,14 +94,14 @@ const msdynamicSendMutations = {
         );
 
         // Customer Price Group- From Customer card
-        //  Customer Disc.Group- From Customer card
-        //    NAME mn
+        // Customer Disc.Group- From Customer card
+        // NAME mn
         // Creation date
-        //   Business Unit Code
+        // Business Unit Code
         // Bill Type
         // Document_Type: 'Order',
         // No: 'MO-108459',
-        //       12. Business Unit Code- From Item card
+        // 12. Business Unit Code- From Item card
         // Brand Code- From Item card
         // Sell_to_Contact: 'S.Batmunkh88114487',
 
