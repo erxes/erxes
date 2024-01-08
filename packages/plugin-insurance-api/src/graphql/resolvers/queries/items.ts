@@ -548,6 +548,14 @@ const queries = {
       : 'http://localhost:4000';
 
     return `${domain}/pl:insurance/download?name=${name}`;
+  },
+
+  insuranceItemByDealId: async (
+    _root,
+    { _id }: { _id: string },
+    { models }: IContext
+  ) => {
+    return models.Items.findOne({ dealId: _id });
   }
 };
 

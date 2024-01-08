@@ -148,7 +148,7 @@ const getFields = async ({ subdomain }) => {
 export default {
   types: [
     {
-      label: 'Inruance item',
+      label: 'Insurance item',
       type: 'insurance'
     }
   ],

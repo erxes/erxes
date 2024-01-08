@@ -74,6 +74,7 @@ export const queries = `
       searchField: SearchField
       searchValue: JSON): InsuranceItemListResult
     insuranceItem(_id: ID!): InsuranceItem
+    insuranceItemByDealId(_id: String!): InsuranceItem
 
     vendorInsuranceItems(  
       page: Int
