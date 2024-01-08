@@ -743,8 +743,15 @@ const up = async ({ uis, downloadLocales, fromInstaller }) => {
 
       if (apiConfig) {
         if (apiConfig.essyncer) {
+          const pluginExtraEnv = plugin.extra_env || {};
+          const match = (pluginExtraEnv.MONGO_URL || '').match(
+            /\/([^/?]+)(\?|$)/
+          );
+
+          const db_name = match ? match[1] : null;
+
           essyncerJSON.plugins.push({
-            db_name: configs.mongo.db_name || 'erxes',
+            db_name: db_name || configs.mongo.db_name || 'erxes',
             collections: apiConfig.essyncer
           });
         }
