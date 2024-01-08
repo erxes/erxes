@@ -348,7 +348,7 @@ export const consumeCustomers = async (subdomain, config, doc, action) => {
   }
 };
 
-export const customerToDynamic = async (subdomain, params) => {
+export const customerToDynamic = async (subdomain, syncLog, params, models) => {
   const customer = params;
 
   let name = customer.primaryName || '';
@@ -365,15 +365,44 @@ export const customerToDynamic = async (subdomain, params) => {
 
   name = name ? name : '';
 
-  const sendData = {
+  const sendData: any = {
     Name: name,
-    E_Mail: customer.primaryEmail || '',
+    Name_MN: name,
+
     Phone_No: customer.primaryPhone || '',
-    Search_Name: name
+    E_Mail: customer.primaryEmail || '',
+    Mobile_Phone_No: customer.primaryPhone || ''
   };
 
+  // moment(doc.Ending_Date).format('YYYY-MM-DD');
+  // No: 'BEV-00001',
+  // VAT_Registration_No: '2737329',
+  //   Gen_Bus_Posting_Group: 'DOMESTIC',
+  //   VAT_Bus_Posting_Group: 'DOMESTIC',
+  //   Customer_Posting_Group: 'TRADE',
+  //   Invoice_Disc_Code: 'BEV-00001',
+  //   Customer_Price_Group: 'ON TRADE',
+  //   Customer_Disc_Group: '',
+  //   Allow_Line_Disc: true,
+  //   Prices_Including_VAT: true,
+  //   Partner_Type: 'Company',
+  //   Payment_Terms_Code: 'ENDOFMONTH',
+  //   Payment_Method_Code: 'BANK',
+  //   Location_Code: 'BEV-10',
+  //   Creation_Date: '0001-01-01',
+  //   Address: 'Erdenet hot',
+  //   Country_Region_Code: 'MN',
+  //   City: 'Orkhon',
+  //   Post_Code: '61000',
+  //   Contact: ''
+  // EBarimt baihgui baina
+
   try {
-    const config = await getConfig(subdomain, 'DYNAMIC', {});
+    const configs = await getConfig(subdomain, 'DYNAMIC', {});
+    // const config = configs[brandId || 'noBrand'];
+    const config = configs['ZCvn7uB96xPGpxCEtmrul'];
+
+    let responseData;
 
     if (!config.customerApi || !config.username || !config.password) {
       throw new Error('MS Dynamic config not found.');
@@ -395,7 +424,7 @@ export const customerToDynamic = async (subdomain, params) => {
     });
 
     if (response.value.length === 0) {
-      await sendRequest({
+      responseData = await sendRequest({
         url: customerApi,
         method: 'POST',
         headers: {
@@ -407,7 +436,23 @@ export const customerToDynamic = async (subdomain, params) => {
         body: sendData
       });
     }
+
+    await models.SyncLogs.updateOne(
+      { _id: syncLog._id },
+      {
+        $set: {
+          sendData,
+          sendStr: JSON.stringify(sendData),
+          responseData,
+          responseStr: JSON.stringify(responseData)
+        }
+      }
+    );
   } catch (e) {
+    await models.SyncLogs.updateOne(
+      { _id: syncLog._id },
+      { $set: { error: e.message } }
+    );
     console.log(e, 'error');
   }
 };
