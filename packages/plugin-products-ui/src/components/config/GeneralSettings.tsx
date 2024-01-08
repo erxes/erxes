@@ -5,7 +5,8 @@ import {
   ControlLabel,
   FormControl,
   FormGroup,
-  Icon
+  Icon,
+  Spinner
 } from '@erxes/ui/src/components';
 import { Title } from '@erxes/ui-settings/src/styles';
 import { __ } from '@erxes/ui/src/utils';
@@ -21,6 +22,7 @@ type Props = {
   save: (configsMap: IConfigsMap) => void;
   configsMap: IConfigsMap;
   uoms: IUom[];
+  loading: boolean;
 };
 
 type State = {
@@ -41,8 +43,14 @@ class GeneralSettings extends React.Component<Props, State> {
   }
 
   componentDidUpdate(prevProps: Readonly<Props>): void {
-    if (prevProps.configsMap !== this.props.configsMap) {
-      this.setState({ currentMap: this.props.configsMap.ERKHET || {} });
+    const { configsMap } = this.props;
+
+    if (prevProps.configsMap !== configsMap) {
+      this.setState({
+        currentMap: configsMap || {},
+        is_uom: configsMap.isRequireUOM || false,
+        defaultUOM: configsMap.defaultUOM ? configsMap.defaultUOM : ''
+      });
     }
   }
 
@@ -112,6 +120,26 @@ class GeneralSettings extends React.Component<Props, State> {
     );
   };
 
+  renderContent = () => {
+    if (this.props.loading) {
+      return <Spinner objective={true} />;
+    }
+
+    return (
+      <ContentBox id={'GeneralSettingsMenu'}>
+        <CollapseContent
+          title="General settings"
+          beforeTitle={<Icon icon="settings" />}
+          transparent={true}
+        >
+          {this.renderCheckbox('isRequireUOM', 'is Required UOM', '')}
+          {this.state.is_uom &&
+            this.renderCombobox('defaultUOM', 'default uom')}
+        </CollapseContent>
+      </ContentBox>
+    );
+  };
+
   render() {
     const breadcrumb = [
       { title: __('Settings'), link: '/settings' },
@@ -127,20 +155,6 @@ class GeneralSettings extends React.Component<Props, State> {
       >
         Save
       </Button>
-    );
-
-    const content = (
-      <ContentBox id={'GeneralSettingsMenu'}>
-        <CollapseContent
-          title="General settings"
-          beforeTitle={<Icon icon="settings" />}
-          transparent={true}
-        >
-          {this.renderCheckbox('isRequireUOM', 'is Required UOM', '')}
-          {this.state.is_uom &&
-            this.renderCombobox('defaultUOM', 'default uom')}
-        </CollapseContent>
-      </ContentBox>
     );
 
     return (
@@ -160,7 +174,7 @@ class GeneralSettings extends React.Component<Props, State> {
           />
         }
         leftSidebar={<Sidebar />}
-        content={content}
+        content={this.renderContent()}
         transparent={true}
         hasBorder
       />

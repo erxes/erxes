@@ -24,7 +24,7 @@ import {
   IFormProps
 } from '@erxes/ui/src/types';
 import { extractAttachment } from '@erxes/ui/src/utils';
-import { __ } from '@erxes/ui/src/utils/core';
+import { __, router } from '@erxes/ui/src/utils/core';
 import React from 'react';
 import { TAX_TYPES, TYPES } from '../constants';
 import CategoryForm from '../containers/CategoryForm';
@@ -39,6 +39,7 @@ type Props = {
   uoms?: IUom[];
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   closeModal: () => void;
+  history: any;
 };
 
 type State = {
@@ -64,6 +65,8 @@ type State = {
 class Form extends React.Component<Props, State> {
   constructor(props) {
     super(props);
+
+    const paramCategoryId = router.getParam(props.history, 'categoryId');
 
     const product = props.product || ({} as IProduct);
     const {
@@ -103,12 +106,20 @@ class Form extends React.Component<Props, State> {
       taxCode,
       scopeBrandIds,
       code: code || '',
-      categoryId
+      categoryId: categoryId || paramCategoryId
     };
   }
 
   componentDidMount(): void {
     this.getMaskStr(this.state.categoryId);
+  }
+
+  componentDidUpdate(): void {
+    if (!this.state.categoryId && this.props.productCategories.length > 0) {
+      this.setState({
+        categoryId: this.props.productCategories[0]._id
+      });
+    }
   }
 
   getMaskStr = categoryId => {
@@ -772,7 +783,7 @@ class Form extends React.Component<Props, State> {
               />
             </FormGroup>
             <FormGroup>
-              <ControlLabel>UOM</ControlLabel>
+              <ControlLabel required={true}>UOM</ControlLabel>
               <Row>
                 <AutoCompletionSelect
                   defaultValue={this.state.uom}

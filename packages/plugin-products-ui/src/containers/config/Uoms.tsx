@@ -68,7 +68,7 @@ const ListContainer = (props: FinalProps) => {
     ...props,
     uoms: uomsQuery.uoms || [],
     uomsTotalCount: uomsCountQuery.uomsTotalCount || 0,
-    loading: uomsQuery.loading,
+    loading: uomsQuery.loading || uomsCountQuery.loading,
     renderButton,
     remove
   };

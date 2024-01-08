@@ -29,12 +29,6 @@ class Uoms extends React.Component<Props, {}> {
   renderContent() {
     const { uoms, renderButton, remove } = this.props;
 
-    if (uoms.length === 0) {
-      return (
-        <EmptyState image="/images/actions/8.svg" text="No Uoms" size="small" />
-      );
-    }
-
     return (
       <>
         <Table>

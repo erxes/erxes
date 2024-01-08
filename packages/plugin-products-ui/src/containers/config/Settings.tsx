@@ -50,6 +50,7 @@ class SettingsContainer extends React.Component<FinalProps> {
         configsMap={configsMap}
         save={save}
         uoms={uomsQuery.uoms}
+        loading={productsConfigsQuery.loading || uomsQuery.loading}
       />
     );
   }
