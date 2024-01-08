@@ -28,6 +28,5 @@ export const mutations = `
   toSyncProductCategories(brandId: String, action: String, categories: [JSON]): JSON
   toCheckCustomers(brandId: String): JSON
   toSyncCustomers(brandId: String, action: String, customers: [JSON]): JSON
-  toSendCustomers(brandId: String, customers: [JSON]): JSON
   toSendDeals(brandId: String, deals: [JSON]): JSON
 `;
