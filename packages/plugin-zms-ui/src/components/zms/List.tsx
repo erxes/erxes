@@ -51,7 +51,7 @@ function List({ logs, id, loading }: Props) {
     <Wrapper
       header={
         <Wrapper.Header
-          title={__('Zmss')}
+          title={__('Zms')}
           submenu={[
             { title: 'Zms', link: '/plugin-zms/zms' },
             { title: 'Dictionary', link: '/plugin-zms/dictionary' }

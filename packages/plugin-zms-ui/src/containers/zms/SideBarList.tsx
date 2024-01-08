@@ -32,7 +32,6 @@ const TypesListContainer = (props: FinalProps) => {
     logs: listQuery.getZmsLogs || [],
     loading: getZmsQuery.loading
   };
-  console.log('dsdsd:', listQuery.getZmsLogs);
   return <SideBar {...updatedProps} />;
 };
 
