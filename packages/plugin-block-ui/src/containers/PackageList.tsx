@@ -54,7 +54,7 @@ const ListContainer = (props: FinalProps) => {
   }: IButtonMutateProps) => {
     return (
       <ButtonMutate
-        mutation={object ? mutations.packagesEdit : mutations.packagesAdd}
+        mutation={object._id ? mutations.packagesEdit : mutations.packagesAdd}
         variables={values}
         callback={callback}
         refetchQueries={getRefetchQueries()}

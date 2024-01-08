@@ -11,7 +11,7 @@ import {
   MainStyleScrollWrapper as ScrollWrapper
 } from '@erxes/ui/src';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import React from 'react';
+import React, { useState } from 'react';
 import Select from 'react-select-plus';
 import { LEVEL } from '../constants';
 import { IPackage, IPackageDoc } from '../types';
@@ -22,37 +22,20 @@ type Props = {
   closeModal?: () => void;
 };
 
-type State = {
-  name: string;
-  wpId: string;
+const PackageForm: React.FC<Props> = (props: Props) => {
+  const { data = {} as IPackage, closeModal, renderButton } = props;
 
-  level: string;
-  price: number;
-  duration: number;
-  profit: number;
-};
+  const [state, setState] = useState({
+    name: data.name || '',
+    wpId: data.wpId || '',
 
-class PackageForm extends React.Component<Props, State> {
-  constructor(props) {
-    super(props);
+    level: data.level || '',
+    price: data.price || 0,
+    duration: data.duration || 0,
+    profit: data.profit || 0
+  });
 
-    const { data = {} } = props;
-    const nowYear = new Date().getFullYear();
-
-    this.state = {
-      name: data.name || '',
-      wpId: data.wpId || '',
-
-      level: data.level || '',
-      price: data.fuelType || 0,
-      duration: data.duration || 0,
-      profit: data.profit || 0
-    };
-  }
-
-  generateDoc = (values: { _id: string } & IPackageDoc) => {
-    const { data } = this.props;
-
+  const generateDoc = (values: { _id: string } & IPackageDoc) => {
     const finalValues = values;
 
     if (data) {
@@ -61,7 +44,7 @@ class PackageForm extends React.Component<Props, State> {
 
     return {
       _id: finalValues._id,
-      ...this.state,
+      ...state,
       description: finalValues.description,
       name: finalValues.name,
       wpId: finalValues.wpId,
@@ -71,7 +54,7 @@ class PackageForm extends React.Component<Props, State> {
     };
   };
 
-  renderFormGroup = (label, props) => {
+  const renderFormGroup = (label, props) => {
     return (
       <FormGroup>
         <ControlLabel>{label}</ControlLabel>
@@ -80,29 +63,28 @@ class PackageForm extends React.Component<Props, State> {
     );
   };
 
-  onLevelChange = option => {
-    this.setState({ level: option.value });
+  const onLevelChange = option => {
+    setState(prevState => ({
+      ...prevState,
+      level: option.value
+    }));
   };
 
-  renderContent = (formProps: IFormProps) => {
-    const data = this.props.data || ({} as IPackage);
-    const { closeModal, renderButton } = this.props;
+  const renderContent = (formProps: IFormProps) => {
     const { values, isSubmitted } = formProps;
-
-    console.log(this.props);
 
     return (
       <>
         <ScrollWrapper>
           <FormWrapper>
             <FormColumn>
-              {this.renderFormGroup('Name', {
+              {renderFormGroup('Name', {
                 ...formProps,
                 name: 'name',
                 defaultValue: data.name || ''
               })}
 
-              {this.renderFormGroup('WP Id', {
+              {renderFormGroup('WP Id', {
                 ...formProps,
                 name: 'wpId',
                 defaultValue: data.wpId || ''
@@ -111,8 +93,8 @@ class PackageForm extends React.Component<Props, State> {
               <FormGroup>
                 <ControlLabel>Level</ControlLabel>
                 <Select
-                  value={this.state.level}
-                  onChange={this.onLevelChange}
+                  value={state.level}
+                  onChange={onLevelChange}
                   options={LEVEL}
                   clearable={false}
                 />
@@ -120,21 +102,21 @@ class PackageForm extends React.Component<Props, State> {
             </FormColumn>
 
             <FormColumn>
-              {this.renderFormGroup('Price', {
+              {renderFormGroup('Price', {
                 ...formProps,
                 name: 'price',
                 defaultValue: data.price || 0,
                 type: 'number'
               })}
 
-              {this.renderFormGroup('Duration', {
+              {renderFormGroup('Duration', {
                 ...formProps,
                 name: 'duration',
                 defaultValue: data.duration || 0,
                 type: 'number'
               })}
 
-              {this.renderFormGroup('Profit', {
+              {renderFormGroup('Profit', {
                 ...formProps,
                 name: 'profit',
                 defaultValue: data.profit || 0,
@@ -165,19 +147,17 @@ class PackageForm extends React.Component<Props, State> {
 
           {renderButton({
             passedName: 'package',
-            values: this.generateDoc(values),
+            values: generateDoc(values),
             callback: closeModal,
             isSubmitted,
-            object: this.props.data
+            object: data
           })}
         </ModalFooter>
       </>
     );
   };
 
-  render() {
-    return <Form renderContent={this.renderContent} />;
-  }
-}
+  return <Form renderContent={renderContent} />;
+};
 
 export default PackageForm;
