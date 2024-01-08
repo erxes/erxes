@@ -1,6 +1,6 @@
 import { sendRequest } from '@erxes/api-utils/src';
 import { IContext } from '../../../messageBroker';
-import { consumeCustomers, getConfig } from '../../../utils';
+import { getConfig } from '../../../utils';
 
 const msdynamicSendMutations = {
   async toSendDeals(
@@ -48,7 +48,6 @@ const msdynamicSendMutations = {
           Sell_to_Contact_No: '',
           Sell_to_Phone_No: '11336666, 98071213,99096544',
           Sell_to_E_Mail: 'Account@gkirishpub.mn',
-          Sell_to_Contact: 'S.Batmunkh88114487',
           Document_Date: '2021-07-06',
           Posting_Date: '2021-07-06',
           Order_Date: '2021-07-06',
@@ -57,7 +56,6 @@ const msdynamicSendMutations = {
           Promised_Delivery_Date: '0001-01-01',
           External_Document_No: '',
           Responsibility_Center: 'BEV-DIST',
-          Status: 'Released',
           Mobile_Phone_No: '',
           Prices_Including_VAT: true,
           VAT_Bus_Posting_Group: 'DOMESTIC',
@@ -105,9 +103,10 @@ const msdynamicSendMutations = {
         // No: 'MO-108459',
         //       12. Business Unit Code- From Item card
         // Brand Code- From Item card
+        // Sell_to_Contact: 'S.Batmunkh88114487',
 
         const response = await sendRequest({
-          url: salesApi,
+          url: `${salesApi}?$expand=Sales_Order_APISalesLines`,
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
