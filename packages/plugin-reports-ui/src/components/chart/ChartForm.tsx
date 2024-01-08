@@ -72,9 +72,6 @@ const ChartForm = (props: Props) => {
       t => t.templateType === templateType
     );
 
-    console.log(chart, ' ,ssd');
-    console.log(templateType, ' ,ssd');
-
     if (findChartTemplate) {
       setChartTypes(findChartTemplate.chartTypes);
       setFilterTypes(findChartTemplate.filterTypes);

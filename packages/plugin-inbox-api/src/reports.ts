@@ -85,11 +85,25 @@ const chartTemplates = [
   {
     templateType: 'averageFirstResponseTime',
     name: 'Average first response time by rep in hours',
-    chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea'],
+    chartTypes: [
+      'bar',
+      'line',
+      'pie',
+      'doughnut',
+      'radar',
+      'polarArea',
+      'table'
+    ],
     getChartResult: async (filter: any, subdomain: string) => {
       const matchfilter = {
         'conversationMessages.internal': false,
         'conversationMessages.content': { $ne: '' }
+      };
+
+      const { startDate, endDate } = filter;
+
+      const filterQuery = {
+        createdAt: { $gte: startDate, $lte: endDate }
       };
 
       // filter by source
@@ -599,12 +613,12 @@ const chartTemplates = [
 ];
 
 const getChartResult = async ({ subdomain, data }) => {
-  const { templateType, filter, currentUser } = data;
+  const { templateType, filter } = data;
 
   const template =
     chartTemplates.find(t => t.templateType === templateType) || ({} as any);
 
-  return template.getChartResult(filter, subdomain, currentUser);
+  return template.getChartResult(filter, subdomain);
 };
 
 export default {

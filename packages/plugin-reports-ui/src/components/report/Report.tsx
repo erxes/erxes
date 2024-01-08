@@ -123,7 +123,11 @@ const Report = (props: Props) => {
   const reportItem = (item: IChart) => {
     if (item.layout) {
       return (
-        <div key={item._id || Math.random()} data-grid={defaultLayout(item)}>
+        <div
+          key={item._id || Math.random()}
+          data-grid={defaultLayout(item)}
+          style={{ overflow: 'hidden' }}
+        >
           <ChartTitle>
             <div>{item.name}</div>
             <span
