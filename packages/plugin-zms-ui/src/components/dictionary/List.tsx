@@ -1,5 +1,5 @@
 import Button from '@erxes/ui/src/components/Button';
-import { IDictionary, IParent } from '../types';
+import { IDictionary, IParent } from '../../types';
 import Row from './Row';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { __ } from '@erxes/ui/src/utils';
@@ -53,7 +53,7 @@ function List({
     />
   );
 
-  const title = <Title capitalize={true}>{__('Zms')}</Title>;
+  const title = <Title capitalize={true}>{__('Parent')}</Title>;
 
   const actionBar = (
     <Wrapper.ActionBar left={title} right={actionBarRight} wideSpacing />
@@ -62,7 +62,7 @@ function List({
     <Table>
       <thead>
         <tr>
-          <th>{__('Name')}</th>
+          <th>{__('Startted')}</th>
           <th>{__('Code')}</th>
           <th>{__('Type')}</th>
           <th>{__('Actions')}</th>
@@ -88,17 +88,22 @@ function List({
   );
 
   const SideBarList = asyncComponent(() =>
-    import(/* webpackChunkName: "List - Zmss" */ '../containers/SideBarList')
+    import(
+      /* webpackChunkName: "List - Zmss" */ '../../containers/dictionary/SideBarList'
+    )
   );
-
-  const breadcrumb = [
-    { title: __('Settings'), link: '/settings' },
-    { title: __('Zmss'), link: '/zmss' }
-  ];
 
   return (
     <Wrapper
-      header={<Wrapper.Header title={__('Zmss')} breadcrumb={breadcrumb} />}
+      header={
+        <Wrapper.Header
+          title={__('Zmss')}
+          submenu={[
+            { title: 'Zms', link: '/plugin-zms/zms' },
+            { title: 'Dictionary', link: '/plugin-zms/dictionary' }
+          ]}
+        />
+      }
       actionBar={actionBar}
       content={
         <DataWithLoader
