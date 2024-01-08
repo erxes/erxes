@@ -458,6 +458,7 @@ const ChartTitle = styled.div`
     font-weight:500; 
     display:none;
     cursor:pointer;
+    margin-right: 0.5rem;
   }
   span:first-of-type {
     margin-left: auto;

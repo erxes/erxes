@@ -1,4 +1,3 @@
-import { IContext } from '../../connectionResolver';
 import { sendCommonMessage } from '../../messageBroker';
 
 export const reportChartGetResult = async (

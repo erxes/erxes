@@ -22,6 +22,8 @@ import SelectMembersForm from '../utils/SelectMembersForm';
 import Participators from './Participators';
 import ChartForm from '../../containers/chart/ChartForm';
 import ChartRenderer from '../../containers/chart/ChartRenderer';
+import { getEnv } from '@erxes/ui/src/utils/core';
+import queryString from 'query-string';
 
 const DEFAULT_GRID_DIMENSIONS = {
   w: 3,
@@ -120,7 +122,19 @@ const Report = (props: Props) => {
     });
   };
 
+  const exportTable = (item: IChart) => {
+    const stringified = queryString.stringify({
+      ...item
+    });
+    const { REACT_APP_API_URL } = getEnv();
+    window.open(
+      `${REACT_APP_API_URL}/pl:reports/report-table-export?${stringified}`
+    );
+  };
+
   const reportItem = (item: IChart) => {
+    const { chartType } = item;
+
     if (item.layout) {
       return (
         <div
@@ -130,6 +144,14 @@ const Report = (props: Props) => {
         >
           <ChartTitle>
             <div>{item.name}</div>
+            {chartType && chartType === 'table' && (
+              <span
+                className="db-item-action"
+                onClick={() => exportTable(item)}
+              >
+                export
+              </span>
+            )}
             <span
               className="db-item-action"
               onClick={() => {

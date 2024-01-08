@@ -298,7 +298,7 @@ const chartTemplates = [
   {
     templateType: 'averageCloseTime',
     name: 'Average chat close time by rep in hours',
-    chartTypes: ['bar', 'doughnut', 'radar', 'polarArea'],
+    chartTypes: ['bar', 'doughnut', 'radar', 'polarArea', 'table'],
     getChartResult: async (filter: any, subdomain: string) => {
       const matchfilter = {
         status: /closed/gi,
@@ -407,7 +407,15 @@ const chartTemplates = [
   {
     templateType: 'conversationsCount',
     name: 'Conversations count by rep',
-    chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea'],
+    chartTypes: [
+      'bar',
+      'line',
+      'pie',
+      'doughnut',
+      'radar',
+      'polarArea',
+      'table'
+    ],
     getChartResult: async (filter: any, subdomain: string) => {
       const data: number[] = [];
       const labels: string[] = [];

@@ -1,4 +1,3 @@
-import * as dayjs from 'dayjs';
 import * as xlsxPopulate from 'xlsx-populate';
 import { IModels } from './connectionResolver';
 import { reportChartGetResult } from './graphql/resolvers/utils';
@@ -31,64 +30,6 @@ const addIntoSheet = async (
 
   r = sheet.range(`${startRowIdx}:${endRowIdx}`);
 
-  //   switch (reportType) {
-  //     case 'Урьдчилсан' || 'Preliminary':
-  //       r = sheet.range(`${startRowIdx}:${endRowIdx}`);
-  //       break;
-  //     case 'Сүүлд' || 'Final':
-  //       r = sheet.range(`${startRowIdx}:${endRowIdx}`);
-  //       break;
-  //     case 'Pivot':
-  //       r = sheet.range(`${startRowIdx}:${endRowIdx}`);
-  //       break;
-  //   }
-
-  //   r.style('horizontalAlignment', 'center');
-
-  //   if (merged) {
-  //     r.style({ horizontalAlignment: 'center', verticalAlignment: 'center' });
-  //     r.merged(true);
-  //     r.style('bold', true);
-
-  //     if (reportType === 'Сүүлд' || 'Final') {
-  //       sheet.column('B').width(30);
-  //       sheet.column('C').width(30);
-  //       sheet.column('D').width(15);
-  //       sheet.column('E').width(30);
-  //       sheet.column('F').width(25);
-  //       sheet.column('G').width(15);
-  //       sheet.column('H').width(15);
-  //       sheet.column('K').width(30);
-
-  //       sheet.column('M').width(20);
-  //       sheet.column('N').width(15);
-  //       sheet.column('P').width(20);
-  //       sheet.column('Q').width(20);
-  //       sheet.column('R').width(20);
-  //       sheet.column('S').width(20);
-  //       sheet.column('T').width(20);
-  //       sheet.column('U').width(30);
-  //       sheet.column('W').width(30);
-  //       sheet.column('X').width(30);
-
-  //       sheet.row(1).height(40);
-
-  //       sheet.column('Q').style('numberFormat', '#,##0');
-  //       sheet.column('S').style('numberFormat', '#,##0');
-  //       sheet.column('T').style('numberFormat', '#,##0');
-  //       sheet.column('U').style('numberFormat', '#,##0');
-  //     }
-  //     if (reportType === 'Pivot') {
-  //       sheet.column('E').width(50);
-  //       sheet.column('C').width(15);
-  //       sheet.column('D').width(15);
-  //       sheet.column('F').width(15);
-  //       sheet.column('J').width(15);
-  //       sheet.column('M').width(15);
-  //       sheet.column('A').style({ horizontalAlignment: 'left' });
-  //     }
-  //   }
-
   if (customStyles) {
     for (const cStyle of customStyles) {
       r.style(cStyle.style, cStyle.value);
@@ -99,21 +40,38 @@ const addIntoSheet = async (
 };
 
 const prepareHeader = async (sheet: any, title: string) => {
-  let total_columns = 0;
-
   const header = ['Team member', title];
+
+  sheet.column('A').width(40);
 
   addIntoSheet([header], 'A1', 'B1', sheet);
 };
 
+const isArrayPrimitive = arr => {
+  for (let i = 0; i < arr.length; i++) {
+    if (typeof arr[i] !== 'object' && typeof arr[i] !== 'function') {
+      return true; // If a non-object element is found, return true (primitive type)
+    }
+  }
+  return false; // If no non-object element is found, return false (array of objects)
+};
+
 const extractAndAddIntoSheet = async (
-  subdomain: any,
+  sheet: any,
   data: any,
   labels: string[]
 ) => {
   const extractValuesIntoArr: any[][] = [];
+  const startRowIdx = 2;
+  const endRowIdx = 2 + data.length;
 
-  return extractValuesIntoArr;
+  if (isArrayPrimitive(data)) {
+    for (let i = 0; i < data.length; i++) {
+      extractValuesIntoArr.push([labels[i], data[i]]);
+    }
+  }
+
+  addIntoSheet(extractValuesIntoArr, `A${startRowIdx}`, `B${endRowIdx}`, sheet);
 };
 
 const toCamelCase = (str: string) => {
@@ -122,26 +80,13 @@ const toCamelCase = (str: string) => {
   });
 };
 
-export const buildFile = async (
-  models: IModels,
-  subdomain: string,
-  params: any
-) => {
+export const buildFile = async (subdomain: string, params: any) => {
   const { workbook, sheet } = await createXlsFile();
   const dataset = await reportChartGetResult(params, subdomain);
   const { title, data, labels } = dataset;
 
-  await extractAndAddIntoSheet(
-    subdomain,
-    params,
-    report,
-    getCorrectTeamMemberIds,
-    getCorrectTeamMembers,
-    sheet,
-    reportType,
-    totalColumnsNum,
-    deductionInfo
-  );
+  await prepareHeader(sheet, title);
+  await extractAndAddIntoSheet(sheet, data, labels);
 
   return {
     name: `${toCamelCase(title)}`,

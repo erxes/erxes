@@ -53,7 +53,7 @@ export default {
         const subdomain = getSubdomain(req);
         const models = await generateModels(subdomain);
 
-        const result = await buildFile(models, subdomain, query);
+        const result = await buildFile(subdomain, query);
 
         res.attachment(`${result.name}.xlsx`);
 
