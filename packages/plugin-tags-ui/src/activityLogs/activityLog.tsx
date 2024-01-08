@@ -36,7 +36,7 @@ const ActivityItem: React.FC<Props> = ({ contentType, activity }) => {
   };
 
   const { action } = activity;
-  const type = contentType.split(':')[1];
+  const type = activity.contentType.split(':')[1];
   const tagIds = activity.content ? activity.content.tagIds : [];
 
   switch ((action && action) || type) {

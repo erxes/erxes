@@ -26,3 +26,13 @@ export type TagsQueryResponse = {
   fetchMore: any;
   refetch: () => void;
 };
+
+export type TagMutationResponse = {
+  tagMutation: (params: { variables: TagMutationVariables }) => Promise<any>;
+};
+
+export type TagMutationVariables = {
+  type: string;
+  targetIds: string[];
+  tagIds: string[];
+};

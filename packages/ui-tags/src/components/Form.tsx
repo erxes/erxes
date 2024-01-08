@@ -39,6 +39,12 @@ type FormComponentProps = {
   tags: ITag[];
 };
 
+type IItem = {
+  order?: string;
+  name: string;
+  _id: string;
+};
+
 const FormComponent: React.FC<FormComponentProps> = ({
   tag,
   closeModal,
@@ -77,7 +83,7 @@ const FormComponent: React.FC<FormComponentProps> = ({
     };
   };
 
-  const generateTagOptions = (tags: ITag[], currentTagId?: string) => {
+  const generateTagOptions = (tags: IItem[], currentTagId?: string) => {
     const result: React.ReactNode[] = [];
 
     for (const tag of tags) {

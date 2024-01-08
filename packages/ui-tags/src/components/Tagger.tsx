@@ -7,6 +7,7 @@ import { __ } from '@erxes/ui/src/utils';
 
 type TaggerProps = {
   type: ITagTypes | string;
+  // targets can be conversation, customer, company etc ...
   targets?: any[];
   event?: 'onClick' | 'onExit';
   className?: string;

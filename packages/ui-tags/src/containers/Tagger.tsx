@@ -1,5 +1,10 @@
 import { Alert } from '@erxes/ui/src/utils';
-import { ITag, ITagTypes, TagsQueryResponse } from '../types';
+import {
+  ITag,
+  ITagTypes,
+  TagsQueryResponse,
+  TagMutationResponse
+} from '../types';
 import { mutations, queries } from '../graphql';
 
 import React from 'react';
@@ -25,23 +30,24 @@ const TaggerContainer = (props: Props) => {
   const tagsQuery = useQuery<TagsQueryResponse>(query, {
     variables: {
       type: props.type,
-      parentId: props.parentTagId
-    },
-    fetchPolicy: 'network-only'
+      parentId: props.parentTagId,
+      perPage: props.perPage || 20
+    }
   });
 
   const tagsCountQuery = useQuery(gql(queries.tagsQueryCount), {
     variables: {
       type: props.type,
-      parentId: props.parentTagId,
-      perPage: props.perPage || 20
-    },
-    fetchPolicy: 'network-only'
+      parentId: props.parentTagId
+    }
   });
 
-  const [tagMutation] = useMutation(gql(mutations.tagsTag), {
-    refetchQueries: props.refetchQueries
-  });
+  const [tagMutation] = useMutation<TagMutationResponse>(
+    gql(mutations.tagsTag),
+    {
+      refetchQueries: props.refetchQueries
+    }
+  );
 
   const { type, targets = [], successCallback } = props;
 
