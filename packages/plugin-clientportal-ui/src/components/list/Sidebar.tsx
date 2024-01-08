@@ -3,6 +3,7 @@ import { Counts } from '@erxes/ui/src/types';
 import DateFilters from '@erxes/ui-forms/src/forms/containers/DateFilters';
 import React from 'react';
 import TypeFilter from '../../containers/TypeFilter';
+import SegmentFilter from '../../containers/SegmentFilter';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { isEnabled } from '@erxes/ui/src/utils/core';
 
@@ -18,6 +19,9 @@ type Props = {
 function Sidebar({ counts, loadingMainQuery, kind }: Props) {
   return (
     <Wrapper.Sidebar hasBorder={true}>
+      {isEnabled('segments') && (
+        <SegmentFilter loadingMainQuery={loadingMainQuery} />
+      )}
       {isEnabled('clientportal') && (
         <>
           <ClientPortalIdFilter counts={counts.byCP} kind={kind} />

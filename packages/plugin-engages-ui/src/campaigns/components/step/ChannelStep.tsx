@@ -38,6 +38,7 @@ const Box = styled(BoxRoot)`
 type Props = {
   onChange: (name: 'method', value: string) => void;
   method: string;
+  kind: string;
 };
 
 class ChannelStep extends React.Component<Props> {
@@ -52,7 +53,6 @@ class ChannelStep extends React.Component<Props> {
       </Box>
     );
   }
-
   render() {
     return (
       <FullContent center={true}>
@@ -71,11 +71,12 @@ class ChannelStep extends React.Component<Props> {
           'comment-alt-message',
           `Send bulk SMS online with simple and direct texts`
         )} */}
-        {this.renderBox(
-          METHODS.NOTIFICATION,
-          'message',
-          'Send automated notifications to your customers'
-        )}
+        {this.props.kind === 'manual' &&
+          this.renderBox(
+            METHODS.NOTIFICATION,
+            'message',
+            'Send automated notifications to your customers'
+          )}
       </FullContent>
     );
   }

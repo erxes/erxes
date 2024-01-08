@@ -34,6 +34,7 @@ import ChannelStep from './step/ChannelStep';
 import FullPreviewStep from './step/FullPreviewStep';
 import MessageStep from './step/MessageStep';
 import MessageTypeStep from './step/MessageTypeStep';
+import withCurrentUser from '@erxes/ui/src/auth/containers/withCurrentUser';
 
 type Props = {
   message?: IEngageMessage;
@@ -53,6 +54,7 @@ type Props = {
   breadcrumbs: IBreadCrumbItem[];
   smsConfig: IConfig;
   integrations: IIntegrationWithPhone[];
+  currentUser: IUser;
 };
 
 type State = {
@@ -122,6 +124,7 @@ class AutoAndManualForm extends React.Component<Props, State> {
   };
 
   handleSubmit = (type: string): Promise<any> | void => {
+    const currentUser = this.props.currentUser;
     const doc = {
       segmentIds: this.state.segmentIds,
       customerTagIds: this.state.tagIds,
@@ -213,7 +216,7 @@ class AutoAndManualForm extends React.Component<Props, State> {
         content: notification.content,
         isMobile: notification.isMobile || false
       };
-      doc.fromUserId = this.state.fromUserId || 'uGpu2qDXpCSPftyYg';
+      doc.fromUserId = currentUser?._id;
 
       if (doc.email) {
         delete doc.email;
@@ -400,7 +403,6 @@ class AutoAndManualForm extends React.Component<Props, State> {
 
   render() {
     const { renderTitle, breadcrumbs, segmentType } = this.props;
-
     const { segmentIds, brandIds, title, tagIds } = this.state;
 
     const onChange = e =>
@@ -424,6 +426,7 @@ class AutoAndManualForm extends React.Component<Props, State> {
             <ChannelStep
               onChange={this.changeState}
               method={this.state.method}
+              kind={this.props.kind}
             />
           </Step>
 
@@ -450,4 +453,4 @@ class AutoAndManualForm extends React.Component<Props, State> {
   }
 }
 
-export default AutoAndManualForm;
+export default withCurrentUser(AutoAndManualForm);
