@@ -5,10 +5,11 @@ import {
   DepartmentsMainQueryResponse,
   UnitsMainQueryResponse
 } from '@erxes/ui/src/team/types';
-import { EmptyState } from '@erxes/ui/src';
 
+import EmptyState from '@erxes/ui/src/components/EmptyState';
 import React from 'react';
 import SettingsSideBar from '../../components/common/SettingsSideBar';
+import Spinner from '@erxes/ui/src/components/Spinner';
 import { gql } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
 import { queries } from '@erxes/ui/src/team/graphql';
@@ -23,6 +24,14 @@ type FinalProps = {
 class SettingsSideBarContainer extends React.Component<FinalProps> {
   render() {
     const { branchListQuery, unitListQuery, departmentListQuery } = this.props;
+
+    if (
+      branchListQuery.loading ||
+      unitListQuery.loading ||
+      departmentListQuery.loading
+    ) {
+      return <Spinner />;
+    }
 
     if (
       branchListQuery.error ||
