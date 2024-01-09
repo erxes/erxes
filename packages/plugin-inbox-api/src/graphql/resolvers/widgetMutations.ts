@@ -1257,7 +1257,7 @@ const widgetMutations = {
       customerId = customer._id;
     }
 
-    let sessionId = conversationId;
+    let sessionId: string | null | undefined = conversationId;
 
     if (!conversationId) {
       sessionId = await redis.get(
