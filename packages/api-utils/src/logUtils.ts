@@ -239,9 +239,9 @@ const putLog = async (
         subdomain,
         data: {
           ...params,
-          object: params.object,
-          newData: params.newData,
-          extraDesc: params.extraDesc,
+          object: params.object, // create doc, update onDbData, remove onDbData
+          newData: params.newData, // create doc, update afterUpdateOnDbData, remove?
+          extraDesc: params.extraDesc, //
           user
         }
       });

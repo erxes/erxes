@@ -1,58 +1,31 @@
 import gql from 'graphql-tag';
-
-const types = `
-  type Syncpolaris {
-    _id: String!
-    name: String
-    createdAt:Date
-    expiryDate:Date
-    checked:Boolean
-    typeId: String
-  
-    currentType: SyncpolarisType
-  }
-
-  type SyncpolarisType {
-    _id: String!
-    name: String
-  }
-`;
-
-const queries = `
-  syncpolariss(typeId: String): [Syncpolaris]
-  syncpolarisTypes: [SyncpolarisType]
-  syncpolarissTotalCount: Int
-`;
-
-const params = `
-  name: String,
-  expiryDate: Date,
-  checked: Boolean,
-  typeId:String
-`;
-
-const mutations = `
-  syncpolarissAdd(${params}): Syncpolaris
-  syncpolarissRemove(_id: String!): JSON
-  syncpolarissEdit(_id:String!, ${params}): Syncpolaris
-  syncpolarisTypesAdd(name:String):SyncpolarisType
-  syncpolarisTypesRemove(_id: String!):JSON
-  syncpolarisTypesEdit(_id: String!, name:String): SyncpolarisType
-`;
+import { mutations } from './schema/mutations';
+import { queries } from './schema/queries';
+import { types } from './schema/type';
 
 const typeDefs = async _serviceDiscovery => {
   return gql`
     scalar JSON
     scalar Date
 
-    ${types}
-    
-    extend type Query {
-      ${queries}
+    enum CacheControlScope {
+      PUBLIC
+      PRIVATE
     }
-    
+
+    directive @cacheControl(
+      maxAge: Int
+      scope: CacheControlScope
+      inheritMaxAge: Boolean
+    ) on FIELD_DEFINITION | OBJECT | INTERFACE | UNION
+
+    ${types}
     extend type Mutation {
       ${mutations}
+    }
+
+    extend type Query {
+      ${queries}
     }
   `;
 };
