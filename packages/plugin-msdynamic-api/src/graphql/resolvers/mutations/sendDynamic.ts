@@ -35,11 +35,6 @@ const msdynamicSendMutations = {
         const document: any = {
           Sell_to_Customer_No: 'BEV-00499',
           Sell_to_Customer_Name: 'Irish pub',
-          Deal_Type_Code: '',
-          Sync_Type: ' ',
-          Quote_No: '',
-          Ordering_Price_Type_Code: '',
-          Posting_Description: 'Order MO-108459',
           Sell_to_Address: 'Sukhbaatsar duuger',
           Sell_to_Address_2: '1r khoroo',
           Sell_to_City: 'Ulaanbaatar',
@@ -48,6 +43,7 @@ const msdynamicSendMutations = {
           Sell_to_Contact_No: '',
           Sell_to_Phone_No: '11336666, 98071213,99096544',
           Sell_to_E_Mail: 'Account@gkirishpub.mn',
+          Deal_Type_Code: '',
           Document_Date: '2021-07-06',
           Posting_Date: '2021-07-06',
           Order_Date: '2021-07-06',
@@ -56,6 +52,7 @@ const msdynamicSendMutations = {
           Promised_Delivery_Date: '0001-01-01',
           External_Document_No: '',
           Responsibility_Center: 'BEV-DIST',
+          Sync_Type: ' ',
           Mobile_Phone_No: '',
           Prices_Including_VAT: true,
           VAT_Bus_Posting_Group: 'DOMESTIC',
@@ -75,6 +72,7 @@ const msdynamicSendMutations = {
               Description_2: 'TESTEDBYGG',
               Quantity: 12,
               Unit_Price: 159000,
+              Line_Discount_Amount: 0,
               Unit_Cost_LCY: 100713.96542,
               Location_Code: 'BEV-01',
               Unit_of_Measure_Code: 'PCS',
@@ -92,18 +90,6 @@ const msdynamicSendMutations = {
             }
           }
         );
-
-        // Customer Price Group- From Customer card
-        // Customer Disc.Group- From Customer card
-        // NAME mn
-        // Creation date
-        // Business Unit Code
-        // Bill Type
-        // Document_Type: 'Order',
-        // No: 'MO-108459',
-        // 12. Business Unit Code- From Item card
-        // Brand Code- From Item card
-        // Sell_to_Contact: 'S.Batmunkh88114487',
 
         const response = await sendRequest({
           url: `${salesApi}?$expand=Sales_Order_APISalesLines`,
