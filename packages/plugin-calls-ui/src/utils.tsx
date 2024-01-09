@@ -15,8 +15,12 @@ import {
   InCallFooter,
   CallTab,
   CallTabsContainer,
-  CallTabContent
+  CallTabContent,
+  Keypad
 } from './styles';
+import { numbers, symbols } from './constants';
+import { isEnabled } from '@erxes/ui/src/utils/core';
+import TaggerSection from '@erxes/ui-contacts/src/customers/components/common/TaggerSection';
 
 export const formatPhone = phone => {
   var num;
@@ -29,59 +33,6 @@ export const formatPhone = phone => {
   num = num.toString().replace(/[^+0-9]/g, '');
 
   return num;
-};
-
-export const callPopover = (
-  callerData,
-  shrink,
-  timeSpent,
-  callActionButtons,
-  endCall,
-  onTabClick,
-  inCallTabs,
-  currentTab,
-  afterSave
-) => {
-  return (
-    <Popover id="call-popover" className="call-popover">
-      <InCall>
-        <CallInfo shrink={shrink}>
-          <p>
-            {__('Call duration:')} <b>{getSpentTime(timeSpent)}</b>
-          </p>
-          <div>{renderCallerInfo(callerData, shrink)}</div>
-          <Actions>
-            {callActionButtons.map(action => (
-              <CallAction key={action.text} shrink={shrink}>
-                <Icon icon={action.icon} />
-                {!shrink && __(action.text)}
-              </CallAction>
-            ))}
-            {shrink && (
-              <CallAction shrink={shrink} isDecline={true} onClick={endCall}>
-                <Icon icon="phone-slash" />
-              </CallAction>
-            )}
-          </Actions>
-        </CallInfo>
-        <ContactItem>
-          <CallTabsContainer full={true}>
-            {inCallTabs.map(tab => (
-              <CallTab
-                key={tab}
-                className={currentTab === tab ? 'active' : ''}
-                onClick={() => onTabClick(tab)}
-              >
-                {__(tab)}
-                <ActionNumber>1</ActionNumber>
-              </CallTab>
-            ))}
-          </CallTabsContainer>
-        </ContactItem>
-        {renderFooter(shrink, currentTab, endCall, afterSave)}
-      </InCall>
-    </Popover>
-  );
 };
 
 const formatNumber = (n: number) => {
@@ -129,7 +80,80 @@ const renderCallerInfo = (callData, shrink) => {
   return <PhoneNumber shrink={shrink}>{callData.callerNumber}</PhoneNumber>;
 };
 
-const renderFooter = (shrink, currentTab, endCall, afterSave) => {
+// const renderFooter = (shrink, currentTab, endCall, afterSave) => {
+//   if (!shrink) {
+//     return (
+//       <InCallFooter>
+//         <Button btnStyle="link">{__('Add or call')}</Button>
+//         <CallAction onClick={endCall} isDecline={true}>
+//           <Icon icon="phone-slash" />
+//         </CallAction>
+//         <Button btnStyle="link">{__('Transfer call')}</Button>
+//       </InCallFooter>
+//     );
+//   }
+
+//   return (
+//     <>
+//       <CallTabContent tab="Notes" show={currentTab === 'Notes' ? true : false}>
+//         <FormControl componentClass="textarea" placeholder="Send a note..." />
+//         <Button btnStyle="success">{__('Send')}</Button>
+//       </CallTabContent>
+//       <CallTabContent tab="Tags" show={currentTab === 'Tags' ? true : false}>
+//         <Tagger type="" />
+//       </CallTabContent>
+//       <CallTabContent
+//         tab="Assign"
+//         show={currentTab === 'Assign' ? true : false}
+//       >
+//         <AssignBox targets={[]} event="onClick" afterSave={afterSave} />
+//       </CallTabContent>
+//     </>
+//   );
+// };
+
+export const renderKeyPad = handNumPad => {
+  return (
+    <Keypad>
+      {numbers.map(n => (
+        <div className="number" key={n} onClick={() => handNumPad(n)}>
+          {n}
+        </div>
+      ))}
+      <div className="symbols">
+        {symbols.map(s => (
+          <div
+            key={s.class}
+            className={s.class}
+            onClick={() => handNumPad(s.symbol)}
+          >
+            {s.toShow || s.symbol}
+          </div>
+        ))}
+      </div>
+      <div className="number" onClick={() => handNumPad(0)}>
+        0
+      </div>
+      <div className="symbols" onClick={() => handNumPad('delete')}>
+        <Icon icon="backspace" />
+      </div>
+    </Keypad>
+  );
+};
+
+export const renderFooter = (
+  shrink,
+  endCall,
+  currentTab,
+  onChangeText,
+  sendMessage,
+  customer,
+  taggerRefetchQueries,
+  toggleSection,
+  conversationDetail,
+  handNumPad,
+  isKeyPad
+) => {
   if (!shrink) {
     return (
       <InCallFooter>
@@ -145,18 +169,83 @@ const renderFooter = (shrink, currentTab, endCall, afterSave) => {
   return (
     <>
       <CallTabContent tab="Notes" show={currentTab === 'Notes' ? true : false}>
-        <FormControl componentClass="textarea" placeholder="Send a note..." />
-        <Button btnStyle="success">{__('Send')}</Button>
+        <FormControl
+          componentClass="textarea"
+          placeholder="Send a note..."
+          onChange={onChangeText}
+        />
+        <Button btnStyle="success" onClick={sendMessage}>
+          {__('Send')}
+        </Button>
       </CallTabContent>
       <CallTabContent tab="Tags" show={currentTab === 'Tags' ? true : false}>
-        <Tagger type="" />
+        {isEnabled('tags') && (
+          <TaggerSection
+            data={customer}
+            type="contacts:customer"
+            refetchQueries={taggerRefetchQueries}
+            collapseCallback={toggleSection}
+          />
+        )}
       </CallTabContent>
       <CallTabContent
         tab="Assign"
         show={currentTab === 'Assign' ? true : false}
       >
-        <AssignBox targets={[]} event="onClick" afterSave={afterSave} />
+        <AssignBox
+          targets={[conversationDetail]}
+          event="onClick"
+          afterSave={() => {}}
+        />
       </CallTabContent>
+      <CallTabContent
+        tab="Keypad"
+        show={currentTab === 'Keypad' ? true : false}
+      >
+        {renderKeyPad(handNumPad)}
+      </CallTabContent>
+      {isKeyPad && (
+        <CallAction onClick={endCall} isDecline={true}>
+          <Icon icon="phone-slash" />
+        </CallAction>
+      )}
     </>
+  );
+};
+
+export const callActions = (
+  isMuted,
+  handleAudioToggle,
+  isHolded,
+  handleHold
+) => {
+  return (
+    <Actions>
+      {!isMuted() && (
+        <CallAction key={'Mute'} shrink={false} onClick={handleAudioToggle}>
+          <Icon icon={'phone-times'} />
+          {__('Mute')}
+        </CallAction>
+      )}
+      {isMuted() && (
+        <CallAction key={'UnMute'} shrink={true} onClick={handleAudioToggle}>
+          <Icon icon={'phone-times'} />
+          {__('UnMute')}
+        </CallAction>
+      )}
+
+      {!isHolded().localHold && (
+        <CallAction key={'Hold'} shrink={false} onClick={handleHold}>
+          <Icon icon={'pause-1'} />
+          {__('Hold')}
+        </CallAction>
+      )}
+      {isHolded().localHold && (
+        <CallAction key={'UnHold'} shrink={true} onClick={handleHold}>
+          <Icon icon={'pause-1'} />
+          {__('UnHold')}
+        </CallAction>
+      )}
+    </Actions>
   );
 };

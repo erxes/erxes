@@ -31,7 +31,13 @@ import {
   SIP_STATUS_REGISTERED
 } from '../lib/enums';
 import { callPropType, sipPropType } from '../lib/types';
-import { formatPhone, getSpentTime } from '../utils';
+import {
+  callActions,
+  formatPhone,
+  getSpentTime,
+  renderFooter,
+  renderKeyPad
+} from '../utils';
 import Popover from 'react-bootstrap/Popover';
 import AssignBox from '@erxes/ui-inbox/src/inbox/containers/AssignBox';
 import { isEnabled } from '@erxes/ui/src/utils/core';
@@ -271,35 +277,6 @@ const KeyPad = (props: Props, context) => {
     toggleSectionWithPhone(formatedPhone);
   };
 
-  const renderKeyPad = () => {
-    return (
-      <Keypad>
-        {numbers.map(n => (
-          <div className="number" key={n} onClick={() => handNumPad(n)}>
-            {n}
-          </div>
-        ))}
-        <div className="symbols">
-          {symbols.map(s => (
-            <div
-              key={s.class}
-              className={s.class}
-              onClick={() => handNumPad(s.symbol)}
-            >
-              {s.toShow || s.symbol}
-            </div>
-          ))}
-        </div>
-        <div className="number" onClick={() => handNumPad(0)}>
-          0
-        </div>
-        <div className="symbols" onClick={() => handNumPad('delete')}>
-          <Icon icon="backspace" />
-        </div>
-      </Keypad>
-    );
-  };
-
   const onBack = () => setShowTrigger(false);
   const onTrigger = () => setShowTrigger(true);
 
@@ -390,68 +367,6 @@ const KeyPad = (props: Props, context) => {
     addNote(conversationDetail?._id, noteContent);
   };
 
-  const renderFooter = () => {
-    if (!shrink) {
-      return (
-        <InCallFooter>
-          <Button btnStyle="link">{__('Add or call')}</Button>
-          <CallAction onClick={handleCallStop} isDecline={true}>
-            <Icon icon="phone-slash" />
-          </CallAction>
-          <Button btnStyle="link">{__('Transfer call')}</Button>
-        </InCallFooter>
-      );
-    }
-
-    return (
-      <>
-        <CallTabContent
-          tab="Notes"
-          show={currentTab === 'Notes' ? true : false}
-        >
-          <FormControl
-            componentClass="textarea"
-            placeholder="Send a note..."
-            onChange={onChangeText}
-          />
-          <Button btnStyle="success" onClick={sendMessage}>
-            {__('Send')}
-          </Button>
-        </CallTabContent>
-        <CallTabContent tab="Tags" show={currentTab === 'Tags' ? true : false}>
-          {isEnabled('tags') && (
-            <TaggerSection
-              data={customer}
-              type="contacts:customer"
-              refetchQueries={taggerRefetchQueries}
-              collapseCallback={toggleSection}
-            />
-          )}
-        </CallTabContent>
-        <CallTabContent
-          tab="Assign"
-          show={currentTab === 'Assign' ? true : false}
-        >
-          <AssignBox
-            targets={[conversationDetail]}
-            event="onClick"
-            afterSave={() => {}}
-          />
-        </CallTabContent>
-
-        <CallTabContent
-          tab="Keypad"
-          show={currentTab === 'Keypad' ? true : false}
-        >
-          {renderKeyPad()}
-        </CallTabContent>
-        <CallAction onClick={handleCallStop} isDecline={true}>
-          <Icon icon="phone-slash" />
-        </CallAction>
-      </>
-    );
-  };
-
   return (
     <>
       {Sip.call?.status === CALL_STATUS_ACTIVE && (
@@ -462,41 +377,7 @@ const KeyPad = (props: Props, context) => {
                 {__('Call duration:')} <b>{getSpentTime(timeSpent)}</b>
               </p>
               <div>{renderCallerInfo()}</div>
-              <Actions>
-                {!isMuted() && (
-                  <CallAction
-                    key={'Mute'}
-                    shrink={false}
-                    onClick={handleAudioToggle}
-                  >
-                    <Icon icon={'phone-times'} />
-                    {__('Mute')}
-                  </CallAction>
-                )}
-                {isMuted() && (
-                  <CallAction
-                    key={'UnMute'}
-                    shrink={true}
-                    onClick={handleAudioToggle}
-                  >
-                    <Icon icon={'phone-times'} />
-                    {__('UnMute')}
-                  </CallAction>
-                )}
-
-                {!isHolded().localHold && (
-                  <CallAction key={'Hold'} shrink={false} onClick={handleHold}>
-                    <Icon icon={'pause-1'} />
-                    {__('Hold')}
-                  </CallAction>
-                )}
-                {isHolded().localHold && (
-                  <CallAction key={'UnHold'} shrink={true} onClick={handleHold}>
-                    <Icon icon={'pause-1'} />
-                    {__('UnHold')}
-                  </CallAction>
-                )}
-              </Actions>
+              {callActions(isMuted, handleAudioToggle, isHolded, handleHold)}
             </CallInfo>
             <ContactItem>
               <CallTabsContainer full={true}>
@@ -511,7 +392,19 @@ const KeyPad = (props: Props, context) => {
                 ))}
               </CallTabsContainer>
             </ContactItem>
-            {renderFooter()}
+            {renderFooter(
+              shrink,
+              handleCallStop,
+              currentTab,
+              onChangeText,
+              sendMessage,
+              customer,
+              taggerRefetchQueries,
+              toggleSection,
+              conversationDetail,
+              handNumPad,
+              true
+            )}
           </InCall>
         </Popover>
       )}
@@ -526,7 +419,7 @@ const KeyPad = (props: Props, context) => {
               autoFocus={true}
             />
           </InputBar>
-          {renderKeyPad()}
+          {renderKeyPad(handNumPad)}
           <p>Calling from your own phone number</p>
           <Select
             placeholder={__('Choose phone number')}

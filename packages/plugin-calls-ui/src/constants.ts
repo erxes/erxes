@@ -197,7 +197,7 @@ export const callActionButtons = [
   { icon: 'play-circle', text: 'Record' }
 ];
 
-export const inCallTabs = ['Notes', 'Tags', 'Assign'];
+export const inCallTabs = ['Notes', 'Tags', 'Assign', 'Keypad'];
 
 export const numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 
