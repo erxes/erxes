@@ -366,6 +366,26 @@ const PlaceholderWrapper = styled.div<{ $toolbarPlacement: 'top' | 'bottom' }>`
   }
 `;
 
+const RichTextEditorMenuWrapper = styled.div`
+  display: flex;
+  padding: 0.3rem;
+  gap: 0.125rem;
+  border-radius: 0.25rem;
+  button {
+    border: 0.0625rem solid transparent !important;
+    border-radius: 0.25rem !important;
+  }
+`;
+
+const RichTextEditorMenuPopoverWrapper = styled.div`
+  .arrow {
+    display: none;
+  }
+  .popover {
+    box-shadow: 0 2px 6px 2px rgba(60, 64, 67, 0.15);
+  }
+`;
+
 export {
   EditorControl,
   LinkWrapper,
@@ -382,5 +402,7 @@ export {
   ColorPickerWrapper,
   MenuItem,
   PickerAction,
-  PlaceholderWrapper
+  PlaceholderWrapper,
+  RichTextEditorMenuWrapper,
+  RichTextEditorMenuPopoverWrapper
 };

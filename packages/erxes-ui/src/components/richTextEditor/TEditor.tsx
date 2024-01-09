@@ -14,7 +14,8 @@ import {
   RichTextEditorLinkControl,
   RichTextEditorPlaceholderControl,
   RichTextEditorSourceControl,
-  TableControl
+  TableControl,
+  MoreButtonControl
 } from './RichTextEditorControl';
 
 import { ReactCodeMirrorRef } from '@uiw/react-codemirror';
@@ -181,15 +182,17 @@ export const RichTextEditor = (props: IRichTextEditorProps) => {
           </RichTextEditor.ControlsGroup>
         )}
 
+        <RichTextEditor.ControlsGroup>
+          <RichTextEditor.ColorControl />
+          <RichTextEditor.HighlightControl />
+        </RichTextEditor.ControlsGroup>
+
         {integrationKind !== 'telnyx' && (
           <RichTextEditor.ControlsGroup>
-            <RichTextEditor.SourceControl />
             <RichTextEditor.Bold />
             <RichTextEditor.Italic />
             <RichTextEditor.Underline />
             <RichTextEditor.Strikethrough />
-            <RichTextEditor.ImageControl />
-            <RichTextEditor.TableControl />
           </RichTextEditor.ControlsGroup>
         )}
 
@@ -220,23 +223,20 @@ export const RichTextEditor = (props: IRichTextEditorProps) => {
           </RichTextEditor.ControlsGroup>
         )}
 
-        {integrationKind !== 'telnyx' && (
-          <RichTextEditor.ControlsGroup>
-            <RichTextEditor.Blockquote />
-            <RichTextEditor.HorizontalRule />
-          </RichTextEditor.ControlsGroup>
-        )}
-
-        {integrationKind !== 'telnyx' && (
-          <RichTextEditor.ControlsGroup>
-            <RichTextEditor.Link />
-            <RichTextEditor.Unlink />
-          </RichTextEditor.ControlsGroup>
-        )}
-
         <RichTextEditor.ControlsGroup>
-          <RichTextEditor.ColorControl />
-          <RichTextEditor.HighlightControl />
+          <RichTextEditor.SourceControl />
+          <RichTextEditor.MoreControl toolbarPlacement={toolbarLocation}>
+            {integrationKind !== 'telnyx' && (
+              <>
+                <RichTextEditor.Blockquote />
+                <RichTextEditor.HorizontalRule />
+                <RichTextEditor.Link />
+                <RichTextEditor.Unlink />
+              </>
+            )}
+            <RichTextEditor.ImageControl />
+            <RichTextEditor.TableControl />
+          </RichTextEditor.MoreControl>
         </RichTextEditor.ControlsGroup>
       </RichTextEditor.Toolbar>,
 
@@ -317,3 +317,5 @@ RichTextEditor.HighlightControl = RichTextEditorHighlightControl;
 RichTextEditor.SourceControl = RichTextEditorSourceControl;
 RichTextEditor.Placeholder = RichTextEditorPlaceholderControl;
 RichTextEditor.TableControl = TableControl;
+
+RichTextEditor.MoreControl = MoreButtonControl;
