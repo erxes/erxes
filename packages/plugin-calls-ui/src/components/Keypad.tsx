@@ -71,6 +71,8 @@ const KeyPad = (props: Props, context) => {
   const [shrink, setShrink] = useState(customer ? true : false);
 
   const [number, setNumber] = useState('');
+  const [dialCode, setDialCode] = useState('');
+
   const [showTrigger, setShowTrigger] = useState(false);
   const [searchValue, setSearchValue] = useState('');
   const [callFrom, setCallFrom] = useState(
@@ -174,14 +176,6 @@ const KeyPad = (props: Props, context) => {
     );
 
     localStorage.setItem(
-      'callInfo',
-      JSON.stringify({
-        isRegistered: true,
-        isLogin: true
-      })
-    );
-
-    localStorage.setItem(
       'config:call_integrations',
       JSON.stringify({
         inboxId: integration?.inboxId,
@@ -229,16 +223,47 @@ const KeyPad = (props: Props, context) => {
 
   const handNumPad = e => {
     let num = number;
+    let dialNumber = dialCode;
+
     if (e === 'delete') {
       num = number.slice(0, -1);
-      setNumber(num);
+      dialNumber = dialCode.slice(0, -1);
+      if (Sip.call?.status === CALL_STATUS_ACTIVE) {
+        setDialCode(dialNumber);
+      } else {
+        setNumber(num);
+      }
     } else {
       // notfy by sound
       const audio = new Audio('/sound/clickNumPad.mp3');
       audio.play();
 
       num += e;
-      setNumber(num);
+
+      if (Sip.call?.status === CALL_STATUS_ACTIVE) {
+        dialNumber += e;
+
+        const { sendDtmf } = context;
+        if (dialNumber.includes('*') && sendDtmf) {
+          sendDtmf(dialNumber);
+          setDialCode(dialNumber);
+        }
+      } else {
+        setNumber(num);
+      }
+    }
+  };
+
+  const handleKeyDown = event => {
+    const keyValue = event.key;
+
+    if (/^[0-9]$/.test(keyValue)) {
+      setNumber(prevNumber => prevNumber + keyValue);
+    } else if (
+      (keyValue === 'Delete' || keyValue === 'Backspace') &&
+      number.length > 0
+    ) {
+      setNumber(prevNumber => prevNumber.slice(0, -1));
     }
   };
 
@@ -351,8 +376,11 @@ const KeyPad = (props: Props, context) => {
     if (!formatedPhone) {
       return null;
     }
-
-    return <PhoneNumber>{formatedPhone}</PhoneNumber>;
+    let showNumber = formatedPhone;
+    if (Sip.call?.status === CALL_STATUS_ACTIVE && dialCode) {
+      showNumber = dialCode;
+    }
+    return <PhoneNumber>{showNumber}</PhoneNumber>;
   };
 
   const onChangeText = e =>
@@ -409,6 +437,13 @@ const KeyPad = (props: Props, context) => {
             event="onClick"
             afterSave={() => {}}
           />
+        </CallTabContent>
+
+        <CallTabContent
+          tab="Keypad"
+          show={currentTab === 'Keypad' ? true : false}
+        >
+          {renderKeyPad()}
         </CallTabContent>
         <CallAction onClick={handleCallStop} isDecline={true}>
           <Icon icon="phone-slash" />
@@ -487,7 +522,8 @@ const KeyPad = (props: Props, context) => {
               placeholder={__('Enter Phone Number')}
               name="searchValue"
               value={number}
-              disabled={true}
+              onKeyDown={handleKeyDown}
+              // disabled={true}
               autoFocus={true}
             />
           </InputBar>
@@ -549,6 +585,7 @@ KeyPad.contextTypes = {
   hold: PropTypes.func,
   unhold: PropTypes.func,
   isMuted: PropTypes.func,
-  isHolded: PropTypes.func
+  isHolded: PropTypes.func,
+  sendDtmf: PropTypes.func
 };
 export default KeyPad;

@@ -79,6 +79,8 @@ export default class SipProvider extends React.Component<
     mute: PropTypes.func,
     unmute: PropTypes.func,
 
+    sendDtmf: PropTypes.func,
+
     isHolded: PropTypes.func,
     hold: PropTypes.func,
     unhold: PropTypes.func
@@ -132,7 +134,6 @@ export default class SipProvider extends React.Component<
       callCounterpart: null,
       callId: null
     };
-
     this.ua = null;
     this.outgoingAudio = null;
 
@@ -164,6 +165,8 @@ export default class SipProvider extends React.Component<
       isMuted: this.isMuted,
       mute: this.mute,
       unmute: this.unmute,
+
+      sendDtmf: this.sendDtmf,
 
       isHolded: this.isHolded,
       hold: this.hold,
@@ -284,6 +287,11 @@ export default class SipProvider extends React.Component<
         iceServers: this.props.iceServers
       }
     });
+  };
+
+  public sendDtmf = tones => {
+    this.state.rtcSession.sendDTMF(tones);
+    return 'calledSendDtmf';
   };
 
   public isMuted = () => {
@@ -443,6 +451,22 @@ export default class SipProvider extends React.Component<
           isRegistered: false
         })
       );
+      const callConfig = JSON.parse(
+        localStorage.getItem('config:call_integrations')
+      );
+
+      callConfig &&
+        localStorage.setItem(
+          'config:call_integrations',
+          JSON.stringify({
+            inboxId: callConfig?.inboxId,
+            phone: callConfig?.phone,
+            wsServer: callConfig?.wsServer,
+            token: callConfig?.token,
+            operators: callConfig?.operators,
+            isAvailable: false
+          })
+        );
 
       if (this.ua !== ua) {
         return;
@@ -471,6 +495,22 @@ export default class SipProvider extends React.Component<
         })
       );
 
+      const callConfig = JSON.parse(
+        localStorage.getItem('config:call_integrations')
+      );
+
+      callConfig &&
+        localStorage.setItem(
+          'config:call_integrations',
+          JSON.stringify({
+            inboxId: callConfig.inboxId,
+            phone: callConfig.phone,
+            wsServer: callConfig.wsServer,
+            token: callConfig.token,
+            operators: callConfig.operators,
+            isAvailable: true
+          })
+        );
       if (!this.props.callsActiveSession) {
         this.props.createSession();
       }
@@ -505,6 +545,22 @@ export default class SipProvider extends React.Component<
           isRegistered: false
         })
       );
+      const callConfig = JSON.parse(
+        localStorage.getItem('config:call_integrations')
+      );
+
+      callConfig &&
+        localStorage.setItem(
+          'config:call_integrations',
+          JSON.stringify({
+            inboxId: callConfig?.inboxId,
+            phone: callConfig?.phone,
+            wsServer: callConfig?.wsServer,
+            token: callConfig?.token,
+            operators: callConfig?.operators,
+            isAvailable: false
+          })
+        );
       if (this.ua !== ua) {
         return;
       }
@@ -559,6 +615,7 @@ export default class SipProvider extends React.Component<
         }
         this.setState({ rtcSession });
         rtcSession.on('failed', e => {
+          this.logger.debug('UA "failed" event');
           if (this.ua !== ua) {
             return;
           }
@@ -679,7 +736,6 @@ export default class SipProvider extends React.Component<
         }
       }
     );
-
     const extraHeadersRegister = this.props.extraHeaders.register || [];
     if (extraHeadersRegister.length) {
       ua.registrator().setExtraHeaders(extraHeadersRegister);

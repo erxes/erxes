@@ -22,7 +22,7 @@ const IncomingCallContainer = (props: IProps, context) => {
   const [hasMicrophone, setHasMicrophone] = useState(false);
 
   const { callIntegrationsOfUser } = props;
-  const { call } = context;
+  const { call } = context || {};
 
   const phoneNumber = context?.call?.counterpart?.slice(
     context.call.counterpart.indexOf(':') + 1,

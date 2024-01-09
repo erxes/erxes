@@ -17,25 +17,14 @@ const SipProviderContainer = props => {
   const [config, setConfig] = useState(
     JSON.parse(localStorage.getItem('config:call_integrations'))
   );
-  const [callInfo, setCallInfo] = useState(
-    JSON.parse(localStorage.getItem('callInfo'))
-  );
 
-  const [isLogin, setisLogin] = useState(
-    JSON.parse(localStorage.getItem('callInfo'))?.isLogin
-  );
+  const callInfo = JSON.parse(localStorage.getItem('callInfo'));
+
+  const isRegistered = callInfo?.isRegistered;
 
   const [disconnectCall] = useMutation(gql(mutations.callDisconnect));
 
   useEffect(() => {
-    localStorage.setItem(
-      'callInfo',
-      JSON.stringify({
-        isRegistered: false,
-        isLogin: false
-      })
-    );
-
     const handleBeforeUnload = () => {
       localStorage.removeItem('callInfo');
       disconnectCall();
@@ -56,7 +45,7 @@ const SipProviderContainer = props => {
     error: activeSessionError,
     refetch
   } = useQuery(gql(queries.activeSession), {
-    skip: isLogin
+    skip: isRegistered
   });
 
   const [createActiveSession] = useMutation(gql(mutations.addActiveSession));
@@ -67,18 +56,7 @@ const SipProviderContainer = props => {
   useSubscription(gql(subscriptions.sessionTerminateRequested), {
     variables: { userId: props.currentUser._id },
     onSubscriptionData: () => {
-      if (!callInfo?.isLogin) {
-        localStorage.setItem(
-          'config:call_integrations',
-          JSON.stringify({
-            inboxId: config?.inboxId,
-            phone: config?.phone,
-            wsServer: config?.wsServer,
-            token: config?.token,
-            operators: config?.operators,
-            isAvailable: true
-          })
-        );
+      if (!callInfo?.isRegistered) {
         setConfig({
           inboxId: config?.inboxId,
           phone: config?.phone,
@@ -88,17 +66,7 @@ const SipProviderContainer = props => {
           isAvailable: true
         });
       }
-      localStorage.setItem(
-        'config:call_integrations',
-        JSON.stringify({
-          inboxId: config?.inboxId,
-          phone: config?.phone,
-          wsServer: config?.wsServer,
-          token: config?.token,
-          operators: config?.operators,
-          isAvailable: false
-        })
-      );
+
       setConfig({
         inboxId: config?.inboxId,
         phone: config?.phone,
@@ -122,17 +90,7 @@ const SipProviderContainer = props => {
     removeActiveSession()
       .then(() => {
         refetch();
-        localStorage.setItem(
-          'config:call_integrations',
-          JSON.stringify({
-            inboxId: config?.inboxId,
-            phone: config?.phone,
-            wsServer: config?.wsServer,
-            token: config?.token,
-            operators: config?.operators,
-            isAvailable: true
-          })
-        );
+
         setConfig({
           inboxId: config?.inboxId,
           phone: config?.phone,
@@ -188,23 +146,24 @@ const SipProviderContainer = props => {
       {...args}
       setConfig={handleSetConfig}
       removeActiveSession={removeSession}
-      setCallInfo={setCallInfo}
     />
   );
-  if (
-    activeSession &&
-    activeSession.callsActiveSession &&
-    !callInfo?.isRegistered &&
-    !callInfo?.isUnRegistered
-  ) {
-    return <ModalTrigger title="A" content={terminateContent} isOpen={true} />;
-  }
-
   if (!config || !config.inboxId) {
     return (
       <ModalTrigger title="Call Config Modal" content={content} isOpen={true} />
     );
   }
+
+  if (activeSession && activeSession.callsActiveSession) {
+    return (
+      <ModalTrigger
+        title="Call Config Modal"
+        content={terminateContent}
+        isOpen={true}
+      />
+    );
+  }
+
   if (!config.isAvailable) {
     return (
       <WidgetContainer
