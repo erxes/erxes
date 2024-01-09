@@ -33,6 +33,7 @@ import {
   iceServersPropType,
   sipPropType
 } from '../../lib/types';
+import { setLocalStorage } from '../../utils';
 
 export default class SipProvider extends React.Component<
   {
@@ -354,17 +355,12 @@ export default class SipProvider extends React.Component<
 
     this.ua.call(destination, options);
 
-    // this.outgoingAudio = new Audio('/sound/outgoing.mp3');
-    // this.outgoingAudio.loop = true;
-    // this.outgoingAudio.play();
-
     this.setState({ callStatus: CALL_STATUS_STARTING });
   };
 
   public stopCall = () => {
     this.setState({ callStatus: CALL_STATUS_STOPPING });
     this.ua?.terminateSessions();
-    // this.outgoingAudio?.pause();
   };
 
   public reconfigureDebug() {
@@ -445,28 +441,9 @@ export default class SipProvider extends React.Component<
     ua.on('disconnected', () => {
       this.logger.debug('UA "disconnected" event');
 
-      localStorage.setItem(
-        'callInfo',
-        JSON.stringify({
-          isRegistered: false
-        })
-      );
-      const callConfig = JSON.parse(
-        localStorage.getItem('config:call_integrations')
-      );
-
-      callConfig &&
-        localStorage.setItem(
-          'config:call_integrations',
-          JSON.stringify({
-            inboxId: callConfig?.inboxId,
-            phone: callConfig?.phone,
-            wsServer: callConfig?.wsServer,
-            token: callConfig?.token,
-            operators: callConfig?.operators,
-            isAvailable: false
-          })
-        );
+      {
+        setLocalStorage(false, false);
+      }
 
       if (this.ua !== ua) {
         return;
@@ -488,29 +465,10 @@ export default class SipProvider extends React.Component<
         callStatus: CALL_STATUS_IDLE
       });
 
-      localStorage.setItem(
-        'callInfo',
-        JSON.stringify({
-          isRegistered: true
-        })
-      );
+      {
+        setLocalStorage(true, true);
+      }
 
-      const callConfig = JSON.parse(
-        localStorage.getItem('config:call_integrations')
-      );
-
-      callConfig &&
-        localStorage.setItem(
-          'config:call_integrations',
-          JSON.stringify({
-            inboxId: callConfig.inboxId,
-            phone: callConfig.phone,
-            wsServer: callConfig.wsServer,
-            token: callConfig.token,
-            operators: callConfig.operators,
-            isAvailable: true
-          })
-        );
       if (!this.props.callsActiveSession) {
         this.props.createSession();
       }
@@ -539,28 +497,9 @@ export default class SipProvider extends React.Component<
     ua.on('registrationFailed', data => {
       this.logger.debug('UA "registrationFailed" event');
 
-      localStorage.setItem(
-        'callInfo',
-        JSON.stringify({
-          isRegistered: false
-        })
-      );
-      const callConfig = JSON.parse(
-        localStorage.getItem('config:call_integrations')
-      );
-
-      callConfig &&
-        localStorage.setItem(
-          'config:call_integrations',
-          JSON.stringify({
-            inboxId: callConfig?.inboxId,
-            phone: callConfig?.phone,
-            wsServer: callConfig?.wsServer,
-            token: callConfig?.token,
-            operators: callConfig?.operators,
-            isAvailable: false
-          })
-        );
+      {
+        setLocalStorage(false, false);
+      }
       if (this.ua !== ua) {
         return;
       }
@@ -629,14 +568,11 @@ export default class SipProvider extends React.Component<
           this.ua?.terminateSessions();
 
           rtcSession = null;
-          // this.outgoingAudio?.pause();
         });
         rtcSession.on('peerconnection', e => {
           if (this.ua !== ua) {
             return;
           }
-
-          // this.outgoingAudio?.pause();
         });
 
         rtcSession.on('ended', data => {
@@ -652,7 +588,6 @@ export default class SipProvider extends React.Component<
           });
           this.ua?.terminateSessions();
           rtcSession = null;
-          // this.outgoingAudio?.pause();
         });
 
         rtcSession.on('bye', () => {
@@ -667,7 +602,6 @@ export default class SipProvider extends React.Component<
           });
           this.ua?.terminateSessions();
           rtcSession = null;
-          // this.outgoingAudio?.pause();
         });
 
         rtcSession.on('rejected', function(e) {
@@ -682,18 +616,16 @@ export default class SipProvider extends React.Component<
             callCounterpart: null
           });
           this.ua?.terminateSessions();
-          // this.outgoingAudio?.pause();
         });
 
         rtcSession.on('accepted', () => {
           if (this.ua !== ua) {
             return;
           }
-          // this.outgoingAudio?.pause();
           [
             this.remoteAudio.srcObject
           ] = rtcSession.connection.getRemoteStreams();
-          // const played = this.remoteAudio.play();
+
           const played = this.remoteAudio.play();
 
           if (typeof played !== 'undefined') {

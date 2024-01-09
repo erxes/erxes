@@ -1,20 +1,12 @@
 import React from 'react';
 import AssignBox from '@erxes/ui-inbox/src/inbox/containers/AssignBox';
-import Tagger from '@erxes/ui-tags/src/containers/Tagger';
 import { Button, FormControl, Icon } from '@erxes/ui/src/components';
 import { renderFullName, __ } from '@erxes/ui/src/utils';
-import Popover from 'react-bootstrap/Popover';
 import {
-  InCall,
-  CallInfo,
   PhoneNumber,
   Actions,
   CallAction,
-  ContactItem,
-  ActionNumber,
   InCallFooter,
-  CallTab,
-  CallTabsContainer,
   CallTabContent,
   Keypad
 } from './styles';
@@ -61,56 +53,6 @@ export const getSpentTime = (seconds: number) => {
     </>
   );
 };
-
-const renderCallerInfo = (callData, shrink) => {
-  if (!callData) {
-    return null;
-  }
-
-  if (!shrink) {
-    return (
-      <>
-        {renderFullName(callData?.customer || '')}
-        <PhoneNumber shrink={shrink}>{callData.callerNumber}</PhoneNumber>
-        {/* <p>{caller.place}</p> */}
-      </>
-    );
-  }
-
-  return <PhoneNumber shrink={shrink}>{callData.callerNumber}</PhoneNumber>;
-};
-
-// const renderFooter = (shrink, currentTab, endCall, afterSave) => {
-//   if (!shrink) {
-//     return (
-//       <InCallFooter>
-//         <Button btnStyle="link">{__('Add or call')}</Button>
-//         <CallAction onClick={endCall} isDecline={true}>
-//           <Icon icon="phone-slash" />
-//         </CallAction>
-//         <Button btnStyle="link">{__('Transfer call')}</Button>
-//       </InCallFooter>
-//     );
-//   }
-
-//   return (
-//     <>
-//       <CallTabContent tab="Notes" show={currentTab === 'Notes' ? true : false}>
-//         <FormControl componentClass="textarea" placeholder="Send a note..." />
-//         <Button btnStyle="success">{__('Send')}</Button>
-//       </CallTabContent>
-//       <CallTabContent tab="Tags" show={currentTab === 'Tags' ? true : false}>
-//         <Tagger type="" />
-//       </CallTabContent>
-//       <CallTabContent
-//         tab="Assign"
-//         show={currentTab === 'Assign' ? true : false}
-//       >
-//         <AssignBox targets={[]} event="onClick" afterSave={afterSave} />
-//       </CallTabContent>
-//     </>
-//   );
-// };
 
 export const renderKeyPad = handNumPad => {
   return (
@@ -248,4 +190,30 @@ export const callActions = (
       )}
     </Actions>
   );
+};
+
+export const setLocalStorage = (isRegistered, isAvailable) => {
+  localStorage.setItem(
+    'callInfo',
+    JSON.stringify({
+      isRegistered
+    })
+  );
+
+  const callConfig = JSON.parse(
+    localStorage.getItem('config:call_integrations')
+  );
+
+  callConfig &&
+    localStorage.setItem(
+      'config:call_integrations',
+      JSON.stringify({
+        inboxId: callConfig.inboxId,
+        phone: callConfig.phone,
+        wsServer: callConfig.wsServer,
+        token: callConfig.token,
+        operators: callConfig.operators,
+        isAvailable
+      })
+    );
 };
