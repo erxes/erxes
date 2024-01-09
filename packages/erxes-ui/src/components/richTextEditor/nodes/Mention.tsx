@@ -44,8 +44,7 @@ interface MentionNodeAttrs {
 export type SuggestionListProps = SuggestionProps<MentionNodeAttrs>;
 
 export const MentionList = forwardRef<SuggestionListRef, SuggestionListProps>(
-  (props, ref) => {
-    const { items = [] } = props || {};
+  ({ items = [], command }, ref) => {
     const [selectedIndex, setSelectedIndex] = useState(0);
 
     const selectItem = (index: number) => {
@@ -58,13 +57,13 @@ export const MentionList = forwardRef<SuggestionListRef, SuggestionListProps>(
 
       const item = items?.[index];
 
-      const mentionItem: MentionNodeAttrs = {
+      const mentionItem = {
         id: item.id,
-        label: item.fullName || item.username
+        label: (item.fullName || item.username || '').trim()
       };
 
       if (item) {
-        props.command(mentionItem);
+        command(mentionItem);
       }
     };
 
@@ -123,13 +122,15 @@ export const MentionList = forwardRef<SuggestionListRef, SuggestionListProps>(
                 <img
                   src={item.avatar || '/images/avatar-colored.svg'}
                   alt={username}
-                  title={fullName}
+                  title={(fullName || username).trim()}
                   role="presentation"
                   className="mentionSuggestionsEntryAvatar"
                 />
               </div>
               <div className="mentionSuggestionsEntryContainerRight">
-                <div className="mentionSuggestionsEntryText">{fullName}</div>
+                <div className="mentionSuggestionsEntryText">
+                  {(fullName || username).trim()}
+                </div>
                 <div className="mentionSuggestionsEntryTitle">{title}</div>
               </div>
             </FlexCenter>

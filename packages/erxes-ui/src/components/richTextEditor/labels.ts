@@ -141,6 +141,8 @@ export interface IRichTextEditorLabels {
 
   /** aria-label for color palette colors */
   colorPickerColorLabel(color: string): string;
+
+  moreControlLabel: string;
 }
 
 export const DEFAULT_LABELS: IRichTextEditorLabels = {
@@ -210,5 +212,7 @@ export const DEFAULT_LABELS: IRichTextEditorLabels = {
   toggleHeaderRow: 'Toggle header row',
   toggleHeaderColumn: 'Toggle header column',
   toggleHeaderCell: 'Toggle header cell',
-  deleteTable: 'Delete table'
+  deleteTable: 'Delete table',
+
+  moreControlLabel: 'More'
 };
