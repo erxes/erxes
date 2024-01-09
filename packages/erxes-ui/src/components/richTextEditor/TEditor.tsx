@@ -12,7 +12,10 @@ import {
   RichTextEditorHighlightControl,
   RichTextEditorImageControl,
   RichTextEditorLinkControl,
-  RichTextEditorSourceControl
+  RichTextEditorPlaceholderControl,
+  RichTextEditorSourceControl,
+  TableControl,
+  MoreButtonControl
 } from './RichTextEditorControl';
 
 import { ReactCodeMirrorRef } from '@uiw/react-codemirror';
@@ -23,11 +26,14 @@ import { RichTextEditorToolbar } from './RichTextEditorToolbar/RichTextEditorToo
 import { RichTextEditorWrapper } from './styles';
 import { useEditor } from '@tiptap/react';
 import useExtensions from './hooks/useExtensions';
+import { MentionSuggestionParams } from './utils/getMentionSuggestions';
 
 const POSITION_TOP = 'top';
 const POSITION_BOTTOM = 'bottom';
 type toolbarLocationOption = 'bottom' | 'top';
+
 export interface IRichTextEditorProps extends IRichTextEditorContentProps {
+  placeholder?: string;
   /** Controlled value */
   content: string;
   /** Exposing editor onChange to outer component via props */
@@ -38,6 +44,15 @@ export interface IRichTextEditorProps extends IRichTextEditorContentProps {
   toolbar?: string[];
   name?: string;
   isSubmitted?: boolean;
+  /** Mention suggestion string list */
+  mentionSuggestion?: MentionSuggestionParams;
+  /** Mention suggestion string list */
+  placeholderProp?: any;
+  showMentions?: boolean;
+  /** Character count limit. */
+  limit?: number;
+  contentType?: string;
+  integrationKind?: string;
 }
 let editorContent: string;
 
@@ -46,6 +61,7 @@ export const RichTextEditor = (props: IRichTextEditorProps) => {
   const codeMirrorRef = useRef<ReactCodeMirrorRef>(null);
   const [isSourceEnabled, setIsSourceEnabled] = useState(false);
   const {
+    placeholder,
     content,
     onChange,
     labels,
@@ -55,7 +71,12 @@ export const RichTextEditor = (props: IRichTextEditorProps) => {
     autoGrowMaxHeight,
     autoGrowMinHeight,
     name,
-    isSubmitted
+    isSubmitted,
+    showMentions = false,
+    mentionSuggestion,
+    placeholderProp,
+    integrationKind,
+    limit
   } = props;
 
   const editorContentProps = {
@@ -80,15 +101,20 @@ export const RichTextEditor = (props: IRichTextEditorProps) => {
   };
 
   const extensions = useExtensions({
-    placeholder: 'Custom placeholder...'
+    placeholder: placeholder ?? '',
+    showMentions,
+    mentionSuggestion: showMentions ? mentionSuggestion : undefined
   });
 
-  const editor = useEditor({
-    extensions,
-    content,
-    parseOptions: { preserveWhitespace: 'full' },
-    onUpdate: handleEditorChange
-  });
+  const editor = useEditor(
+    {
+      extensions,
+      content,
+      parseOptions: { preserveWhitespace: 'full' },
+      onUpdate: handleEditorChange
+    },
+    [showMentions]
+  );
 
   useEffect(() => {
     if (!editor) {
@@ -136,50 +162,87 @@ export const RichTextEditor = (props: IRichTextEditorProps) => {
   const editorParts = useMemo(
     () => [
       <RichTextEditor.Toolbar key="rich-text-editor-toolbar-key">
-        <RichTextEditor.ControlsGroup>
-          <RichTextEditor.SourceControl />
-          <RichTextEditor.Bold />
-          <RichTextEditor.Italic />
-          <RichTextEditor.Strikethrough />
-          <RichTextEditor.ImageControl />
-        </RichTextEditor.ControlsGroup>
+        {placeholderProp && (
+          <RichTextEditor.Placeholder
+            placeholderProp={placeholderProp}
+            toolbarPlacement={toolbarLocation}
+          />
+        )}
+        <RichTextEditor.FontSize toolbarPlacement={toolbarLocation} />
+
+        {integrationKind !== 'telnyx' && (
+          <RichTextEditor.ControlsGroup
+            isDropdown={true}
+            controlNames={['heading']}
+            toolbarPlacement={toolbarLocation}
+          >
+            <RichTextEditor.H1 />
+            <RichTextEditor.H2 />
+            <RichTextEditor.H3 />
+          </RichTextEditor.ControlsGroup>
+        )}
 
         <RichTextEditor.ControlsGroup>
           <RichTextEditor.ColorControl />
           <RichTextEditor.HighlightControl />
         </RichTextEditor.ControlsGroup>
 
-        <RichTextEditor.ControlsGroup>
-          <RichTextEditor.H1 />
-          <RichTextEditor.H2 />
-          <RichTextEditor.H3 />
-        </RichTextEditor.ControlsGroup>
+        {integrationKind !== 'telnyx' && (
+          <RichTextEditor.ControlsGroup>
+            <RichTextEditor.Bold />
+            <RichTextEditor.Italic />
+            <RichTextEditor.Underline />
+            <RichTextEditor.Strikethrough />
+          </RichTextEditor.ControlsGroup>
+        )}
 
-        <RichTextEditor.ControlsGroup>
-          <RichTextEditor.BulletList />
-          <RichTextEditor.OrderedList />
-        </RichTextEditor.ControlsGroup>
-
-        <RichTextEditor.ControlsGroup>
-          <RichTextEditor.Link />
-          <RichTextEditor.Unlink />
-        </RichTextEditor.ControlsGroup>
-
-        <RichTextEditor.ControlsGroup>
+        <RichTextEditor.ControlsGroup
+          isDropdown={true}
+          controlNames={[
+            { textAlign: 'left' },
+            { textAlign: 'center' },
+            { textAlign: 'right' },
+            { textAlign: 'justify' }
+          ]}
+          toolbarPlacement={toolbarLocation}
+        >
           <RichTextEditor.AlignLeft />
           <RichTextEditor.AlignRight />
           <RichTextEditor.AlignCenter />
           <RichTextEditor.AlignJustify />
         </RichTextEditor.ControlsGroup>
 
+        {integrationKind !== 'telnyx' && (
+          <RichTextEditor.ControlsGroup
+            isDropdown={true}
+            controlNames={['orderedList', 'bulletList']}
+            toolbarPlacement={toolbarLocation}
+          >
+            <RichTextEditor.BulletList />
+            <RichTextEditor.OrderedList />
+          </RichTextEditor.ControlsGroup>
+        )}
+
         <RichTextEditor.ControlsGroup>
-          <RichTextEditor.FontSize />
+          <RichTextEditor.SourceControl />
+          <RichTextEditor.MoreControl toolbarPlacement={toolbarLocation}>
+            {integrationKind !== 'telnyx' && (
+              <>
+                <RichTextEditor.Blockquote />
+                <RichTextEditor.HorizontalRule />
+                <RichTextEditor.Link />
+                <RichTextEditor.Unlink />
+              </>
+            )}
+            <RichTextEditor.ImageControl />
+            <RichTextEditor.TableControl />
+          </RichTextEditor.MoreControl>
         </RichTextEditor.ControlsGroup>
       </RichTextEditor.Toolbar>,
 
       <RichTextEditorContent
         {...editorContentProps}
-        key="rich-text-editor-content-key"
+        key="erxes-rte-content-key"
       />
     ],
     []
@@ -212,7 +275,7 @@ export const RichTextEditor = (props: IRichTextEditorProps) => {
         codeMirrorRef
       }}
     >
-      <RichTextEditorWrapper innerRef={ref}>
+      <RichTextEditorWrapper innerRef={ref} $position={toolbarLocation}>
         {renderEditor()}
       </RichTextEditorWrapper>
     </RichTextEditorProvider>
@@ -228,14 +291,17 @@ RichTextEditor.ControlsGroup = RichTextEditorControlsGroup;
 // Controls components
 RichTextEditor.Bold = controls.BoldControl;
 RichTextEditor.Italic = controls.ItalicControl;
+RichTextEditor.Underline = controls.UnderlineControl;
 RichTextEditor.Strikethrough = controls.StrikeThroughControl;
 RichTextEditor.H1 = controls.H1Control;
 RichTextEditor.H2 = controls.H2Control;
 RichTextEditor.H3 = controls.H3Control;
 RichTextEditor.BulletList = controls.BulletListControl;
 RichTextEditor.OrderedList = controls.OrderedListControl;
+RichTextEditor.Blockquote = controls.BlockquoteControl;
 RichTextEditor.Link = RichTextEditorLinkControl;
 RichTextEditor.Unlink = controls.UnlinkControl;
+RichTextEditor.HorizontalRule = controls.HorizontalRuleControl;
 RichTextEditor.AlignLeft = controls.AlignLeftControl;
 RichTextEditor.AlignRight = controls.AlignRightControl;
 RichTextEditor.AlignCenter = controls.AlignCenterControl;
@@ -249,3 +315,7 @@ RichTextEditor.ColorControl = RichTextEditorColorControl;
 RichTextEditor.HighlightControl = RichTextEditorHighlightControl;
 
 RichTextEditor.SourceControl = RichTextEditorSourceControl;
+RichTextEditor.Placeholder = RichTextEditorPlaceholderControl;
+RichTextEditor.TableControl = TableControl;
+
+RichTextEditor.MoreControl = MoreButtonControl;
