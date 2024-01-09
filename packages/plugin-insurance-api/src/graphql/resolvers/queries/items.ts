@@ -255,12 +255,14 @@ const queries = {
 
   vendorInsuranceItemsInfo: async (
     _root,
-    _args,
+    args,
     { models, cpUser, subdomain }: IContext
   ) => {
     if (!cpUser) {
       throw new Error('login required');
     }
+
+    const { startDate, endDate } = args;
 
     const { company } = await verifyVendor({
       subdomain,
@@ -292,10 +294,19 @@ const queries = {
         categoryId: cat._id
       }).distinct('_id');
 
-      const items: any = await models.Items.find({
+      const qry: any = {
         productId: { $in: productIds },
         vendorUserId: { $in: userIds }
-      });
+      };
+
+      if (startDate && endDate) {
+        qry['searchDictionary.dealCreatedAt'] = {
+          $gte: new Date(startDate),
+          $lt: new Date(endDate)
+        };
+      }
+
+      const items: any = await models.Items.find(qry);
 
       let totalFee = 0;
 

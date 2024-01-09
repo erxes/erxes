@@ -93,7 +93,7 @@ export const queries = `
       categoryId: ID
       ): JSON
 
-    vendorInsuranceItemsInfo: JSON
+    vendorInsuranceItemsInfo(startDate: Date, endDate: Date): JSON
 `;
 
 export const mutations = `
