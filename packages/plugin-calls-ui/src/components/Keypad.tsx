@@ -523,7 +523,6 @@ const KeyPad = (props: Props, context) => {
               name="searchValue"
               value={number}
               onKeyDown={handleKeyDown}
-              // disabled={true}
               autoFocus={true}
             />
           </InputBar>
