@@ -8,8 +8,9 @@ const allowTypes = {
   'saving:deposit': ['create', 'update'],
   'saving:depositTransaction': ['create'],
   //saving
-  'saving:contract': ['create']
+  'saving:contract': ['create'],
   //loan
+  'loans:contract': ['create']
 };
 
 export const afterMutationHandlers = async (subdomain, params) => {
