@@ -368,33 +368,30 @@ export const customerToDynamic = async (subdomain, syncLog, params, models) => {
   const sendData: any = {
     Name: name,
     Name_MN: name,
-
     Phone_No: customer.primaryPhone || '',
     E_Mail: customer.primaryEmail || '',
-    Mobile_Phone_No: customer.primaryPhone || ''
+    Mobile_Phone_No: customer.primaryPhone || '',
+    Address: customer.primaryAddress || '',
+    Country_Region_Code: 'MN',
+    City: 'Orkhon',
+    Post_Code: '61000',
+    Contact: '',
+    VAT_Registration_No: '2737329',
+    Gen_Bus_Posting_Group: 'DOMESTIC',
+    VAT_Bus_Posting_Group: 'DOMESTIC',
+    Customer_Posting_Group: 'TRADE',
+    Invoice_Disc_Code: 'BEV-00001',
+    Customer_Price_Group: 'ON TRADE',
+    Customer_Disc_Group: '',
+    Allow_Line_Disc: true,
+    Prices_Including_VAT: true,
+    Partner_Type: 'Company',
+    Payment_Terms_Code: 'ENDOFMONTH',
+    Payment_Method_Code: 'BANK',
+    Location_Code: 'BEV-10',
+    Creation_Date: moment(new Date()).format('YYYY-MM-DD')
   };
 
-  // moment(doc.Ending_Date).format('YYYY-MM-DD');
-  // No: 'BEV-00001',
-  // VAT_Registration_No: '2737329',
-  //   Gen_Bus_Posting_Group: 'DOMESTIC',
-  //   VAT_Bus_Posting_Group: 'DOMESTIC',
-  //   Customer_Posting_Group: 'TRADE',
-  //   Invoice_Disc_Code: 'BEV-00001',
-  //   Customer_Price_Group: 'ON TRADE',
-  //   Customer_Disc_Group: '',
-  //   Allow_Line_Disc: true,
-  //   Prices_Including_VAT: true,
-  //   Partner_Type: 'Company',
-  //   Payment_Terms_Code: 'ENDOFMONTH',
-  //   Payment_Method_Code: 'BANK',
-  //   Location_Code: 'BEV-10',
-  //   Creation_Date: '0001-01-01',
-  //   Address: 'Erdenet hot',
-  //   Country_Region_Code: 'MN',
-  //   City: 'Orkhon',
-  //   Post_Code: '61000',
-  //   Contact: ''
   // EBarimt baihgui baina
 
   try {
