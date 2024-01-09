@@ -133,6 +133,11 @@ const pricingPlans = `
       createdBy
       updatedAt
       updatedBy
+      type
+      applyType
+      startDate
+      endDate
+      isPriority
       createdUser {
         details {
           fullName

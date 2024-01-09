@@ -45,7 +45,7 @@ class Boards extends React.Component<Props, {}> {
   renderSidebarHeader() {
     const { renderButton, type, options } = this.props;
 
-    const boardName = options ? options.boardName : 'Board';
+    const boardName = options?.boardName || 'Board';
 
     const addBoard = (
       <Button btnStyle="success" icon="plus-circle" block={true}>

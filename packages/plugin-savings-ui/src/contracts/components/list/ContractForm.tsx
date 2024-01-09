@@ -31,6 +31,7 @@ type Props = {
   ) => JSX.Element;
   contract: IContract;
   closeModal: () => void;
+  change?: boolean;
 };
 
 type State = {
@@ -212,7 +213,7 @@ class ContractForm extends React.Component<Props, State> {
   };
 
   renderContent = (formProps: IFormProps) => {
-    const { closeModal, renderButton } = this.props;
+    const { closeModal, renderButton, change } = this.props;
     const { values, isSubmitted } = formProps;
 
     const onChangeStartDate = value => {
@@ -223,89 +224,97 @@ class ContractForm extends React.Component<Props, State> {
       <>
         <ScrollWrapper>
           <FormWrapper>
-            <FormColumn>
-              <div style={{ paddingBottom: '13px', paddingTop: '20px' }}>
-                {this.renderFormGroup('Is Organization', {
+            {!change && (
+              <FormColumn>
+                <div style={{ paddingBottom: '13px', paddingTop: '20px' }}>
+                  {this.renderFormGroup('Is Organization', {
+                    ...formProps,
+                    className: 'flex-item',
+                    type: 'checkbox',
+                    componentClass: 'checkbox',
+                    name: 'customerType',
+                    checked: this.state.customerType === 'company',
+                    onChange: this.onCheckCustomerType
+                  })}
+                </div>
+                {this.state.customerType === 'customer' && (
+                  <FormGroup>
+                    <ControlLabel required={true}>
+                      {__('Customer')}
+                    </ControlLabel>
+                    <SelectCustomers
+                      label="Choose customer"
+                      name="customerId"
+                      initialValue={this.state.customerId}
+                      onSelect={this.onSelectCustomer}
+                      multi={false}
+                    />
+                  </FormGroup>
+                )}
+
+                {this.state.customerType === 'company' && (
+                  <FormGroup>
+                    <ControlLabel required={true}>{__('Company')}</ControlLabel>
+                    <SelectCompanies
+                      label="Choose company"
+                      name="customerId"
+                      initialValue={this.state.customerId}
+                      onSelect={this.onSelectCustomer}
+                      multi={false}
+                    />
+                  </FormGroup>
+                )}
+                <FormGroup>
+                  <ControlLabel required={true}>
+                    {__('Contract Type')}
+                  </ControlLabel>
+                  <SelectContractType
+                    label={__('Choose type')}
+                    name="contractTypeId"
+                    value={this.state.contractTypeId || ''}
+                    onSelect={this.onSelectContractType}
+                    multi={false}
+                  ></SelectContractType>
+                </FormGroup>
+              </FormColumn>
+            )}
+            {!change && (
+              <FormColumn>
+                <FormGroup>
+                  <ControlLabel required={true}>
+                    {__('Start Date')}
+                  </ControlLabel>
+                  <DateContainer>
+                    <DateControl
+                      {...formProps}
+                      dateFormat="YYYY/MM/DD"
+                      required={false}
+                      name="startDate"
+                      value={this.state.startDate}
+                      onChange={onChangeStartDate}
+                    />
+                  </DateContainer>
+                </FormGroup>
+                {this.renderFormGroup('Duration', {
                   ...formProps,
                   className: 'flex-item',
-                  type: 'checkbox',
-                  componentClass: 'checkbox',
-                  name: 'customerType',
-                  checked: this.state.customerType === 'company',
-                  onChange: this.onCheckCustomerType
+                  type: 'number',
+                  useNumberFormat: true,
+                  name: 'duration',
+                  value: this.state.duration,
+                  onChange: this.onChangeField
                 })}
-              </div>
-              {this.state.customerType === 'customer' && (
-                <FormGroup>
-                  <ControlLabel required={true}>{__('Customer')}</ControlLabel>
-                  <SelectCustomers
-                    label="Choose customer"
-                    name="customerId"
-                    initialValue={this.state.customerId}
-                    onSelect={this.onSelectCustomer}
-                    multi={false}
-                  />
-                </FormGroup>
-              )}
-
-              {this.state.customerType === 'company' && (
-                <FormGroup>
-                  <ControlLabel required={true}>{__('Company')}</ControlLabel>
-                  <SelectCompanies
-                    label="Choose company"
-                    name="customerId"
-                    initialValue={this.state.customerId}
-                    onSelect={this.onSelectCustomer}
-                    multi={false}
-                  />
-                </FormGroup>
-              )}
-              <FormGroup>
-                <ControlLabel required={true}>
-                  {__('Contract Type')}
-                </ControlLabel>
-                <SelectContractType
-                  label={__('Choose type')}
-                  name="contractTypeId"
-                  value={this.state.contractTypeId || ''}
-                  onSelect={this.onSelectContractType}
-                  multi={false}
-                ></SelectContractType>
-              </FormGroup>
-            </FormColumn>
-            <FormColumn>
-              <FormGroup>
-                <ControlLabel required={true}>{__('Start Date')}</ControlLabel>
-                <DateContainer>
-                  <DateControl
-                    {...formProps}
-                    dateFormat="YYYY/MM/DD"
-                    required={false}
-                    name="startDate"
-                    value={this.state.startDate}
-                    onChange={onChangeStartDate}
-                  />
-                </DateContainer>
-              </FormGroup>
-              {this.renderFormGroup('Duration', {
-                ...formProps,
-                className: 'flex-item',
-                type: 'number',
-                useNumberFormat: true,
-                name: 'duration',
-                value: this.state.duration,
-                onChange: this.onChangeField
-              })}
-              {this.renderFormGroup('Saving Amount', {
-                ...formProps,
-                className: 'flex-item',
-                type: 'number',
-                useNumberFormat: true,
-                name: 'savingAmount',
-                value: this.state.savingAmount,
-                onChange: this.onChangeField
-              })}
-            </FormColumn>
+                {this.renderFormGroup('Saving Amount', {
+                  ...formProps,
+                  className: 'flex-item',
+                  type: 'number',
+                  useNumberFormat: true,
+                  name: 'savingAmount',
+                  value: this.state.savingAmount,
+                  onChange: this.onChangeField
+                })}
+              </FormColumn>
+            )}
             <FormColumn>
               {this.renderFormGroup('Interest Rate', {
                 ...formProps,
@@ -380,21 +389,23 @@ class ContractForm extends React.Component<Props, State> {
               )}
             </FormColumn>
           </FormWrapper>
-          <FormWrapper>
-            <FormColumn>
-              <FormGroup>
-                <ControlLabel>{__('Description')}</ControlLabel>
-                <FormControl
-                  {...formProps}
-                  max={140}
-                  name="description"
-                  componentClass="textarea"
-                  value={this.state.description || ''}
-                  onChange={this.onChangeField}
-                />
-              </FormGroup>
-            </FormColumn>
-          </FormWrapper>
+          {!change && (
+            <FormWrapper>
+              <FormColumn>
+                <FormGroup>
+                  <ControlLabel>{__('Description')}</ControlLabel>
+                  <FormControl
+                    {...formProps}
+                    max={140}
+                    name="description"
+                    componentClass="textarea"
+                    value={this.state.description || ''}
+                    onChange={this.onChangeField}
+                  />
+                </FormGroup>
+              </FormColumn>
+            </FormWrapper>
+          )}
         </ScrollWrapper>
 
         <ModalFooter>

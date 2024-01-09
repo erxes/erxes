@@ -27,6 +27,7 @@ export const types = () => `
     savingPlusLoanInterest:Float
     savingUpperPercent:Float
     usePrePayment:Boolean
+    invoiceDay:String
   }
 
   type ContractTypesListResponse {
@@ -74,6 +75,7 @@ const commonFields = `
   savingPlusLoanInterest:Float
   savingUpperPercent:Float
   usePrePayment:Boolean
+  invoiceDay:String
 `;
 
 export const mutations = `

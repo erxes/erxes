@@ -144,7 +144,7 @@ class PerSettings extends React.Component<Props, State> {
             onChangeStage={this.onChangeStage}
           />
         </FormGroup>
-
+        {this.renderInput('companyName', 'companyName', 'optional')}
         {this.renderInput('userEmail', 'userEmail', '')}
 
         <FormGroup>

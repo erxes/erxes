@@ -15,6 +15,7 @@ import React from 'react';
 import Sidebar from './Sidebar';
 import { IUom } from '../../types';
 import Row from './Row';
+import { Title } from '@erxes/ui-settings/src/styles';
 
 type Props = {
   uomsTotalCount: number;
@@ -27,12 +28,6 @@ type Props = {
 class Uoms extends React.Component<Props, {}> {
   renderContent() {
     const { uoms, renderButton, remove } = this.props;
-
-    if (uoms.length === 0) {
-      return (
-        <EmptyState image="/images/actions/8.svg" text="No Uoms" size="small" />
-      );
-    }
 
     return (
       <>
@@ -94,6 +89,8 @@ class Uoms extends React.Component<Props, {}> {
       />
     );
 
+    const leftActionBar = <Title>{`All Uoms (${uomsTotalCount})`}</Title>;
+
     return (
       <Wrapper
         header={<Wrapper.Header title={`Uom`} breadcrumb={breadcrumb} />}
@@ -104,7 +101,13 @@ class Uoms extends React.Component<Props, {}> {
             description={__('Add uoms ...')}
           />
         }
-        actionBar={<Wrapper.ActionBar right={righActionBar} wideSpacing />}
+        actionBar={
+          <Wrapper.ActionBar
+            right={righActionBar}
+            wideSpacing={true}
+            left={leftActionBar}
+          />
+        }
         leftSidebar={<Sidebar />}
         content={
           <DataWithLoader
@@ -116,7 +119,7 @@ class Uoms extends React.Component<Props, {}> {
           />
         }
         footer={uomsTotalCount > 0 && <Pagination count={uomsTotalCount} />}
-        hasBorder
+        hasBorder={true}
       />
     );
   }

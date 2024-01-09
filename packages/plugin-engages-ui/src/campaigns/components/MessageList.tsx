@@ -61,6 +61,7 @@ class List extends React.Component<Props> {
         targets={bulk}
         trigger={tagButton}
         successCallback={emptyBulk}
+        refetchQueries={['engageMessages']}
       />
     );
   }

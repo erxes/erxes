@@ -1,57 +1,57 @@
-var { resolve } = require('path');
-var fs = require('fs-extra');
-var path = require('path');
-const execSync = require('child_process').exec;
-const { prompt, Select } = require('enquirer');
-const filePath = pathName => {
+"use strict";
+var { resolve } = require("path");
+const fs = require("fs");
+const path = require("path");
+const { execSync } = require("child_process");
+const { prompt, Select } = require("enquirer");
+const filePath = (pathName) => {
   if (pathName) {
-    return resolve(__dirname, '..', pathName);
+    return resolve(__dirname, "..", pathName);
   }
 
-  return resolve(__dirname, '..');
+  return resolve(__dirname, "..");
 };
 const promptLocation = new Select({
-  name: 'location',
-  message: 'Where do you want to place the plugin at?',
-  choices: ['settings', 'main navigation']
+  name: "location",
+  message: "Where do you want to place the plugin at?",
+  choices: ["settings", "main navigation"],
 });
 
 const promptChoice = new Select({
-  name: 'choice',
+  name: "choice",
   message:
-    'What type of plugin do you wanna create? (You can create general plugin or integration plugin)',
+    "What type of plugin do you wanna create? (You can create general plugin or integration plugin)",
   choices: [
-    { name: 'general', message: 'General' },
-    { name: 'integration', message: 'Integration' },
-  ]
+    { name: "general", message: "General" },
+    { name: "integration", message: "Integration" },
+  ],
 });
 
 const promptIntegrationChoice = new Select({
-  name: 'choice',
-  message:
-    'Choose the integration plugin`s ui template.',
+  name: "choice",
+  message: "Choose the integration plugin`s ui template.",
   choices: [
-    { name: 'integration', message: 'With form' },
-    { name: 'integrationDetail', message: 'With detail page' },
-  ]
+    { name: "integration", message: "With form" },
+    { name: "integrationDetail", message: "With detail page" },
+  ],
 });
 
 const promptBlank = new Select({
-  name: 'location',
+  name: "location",
   message:
-    'Do you wanna start building from an example template? (no will result in empty template)',
-  choices: ['yes', 'no']
+    "Do you wanna start building from an example template? (no will result in empty template)",
+  choices: ["yes", "no"],
 });
 
-const capitalizeFirstLetter = value =>
+const capitalizeFirstLetter = (value) =>
   value.charAt(0).toUpperCase() + value.slice(1);
 
-const pluralFormation = type => {
-  if (type[type.length - 1] === 'y') {
-    return type.slice(0, -1) + 'ies';
+const pluralFormation = (type) => {
+  if (type[type.length - 1] === "y") {
+    return type.slice(0, -1) + "ies";
   }
 
-  return type + 's';
+  return type + "s";
 };
 
 const replacer = (fullPath, name) => {
@@ -65,80 +65,69 @@ const replacer = (fullPath, name) => {
     .replace(/{Name}/g, capitalizeFirstLetter(name))
     .replace(/{NAME}/g, name.toUpperCase());
 
-  fs.writeFile(fullPath, content);
+  fs.writeFileSync(fullPath, content);
 };
 
-const loopDirFiles = async (dir, name) => {
-  fs.readdir(dir, (err, files) => {
-    if (err) {
-      console.error('Could not list the directory.', err);
-      process.exit(1);
+const loopDirFiles = (dir, name) => {
+  const files = fs.readdirSync(dir);
+  for (const file of files) {
+    var fullPath = path.join(dir, file);
+    const stat = fs.statSync(fullPath);
+    if (stat.isFile()) {
+      replacer(fullPath, name);
+    } else if (stat.isDirectory()) {
+      loopDirFiles(fullPath, name);
     }
-    files.forEach(file => {
-      var fullPath = path.join(dir, file);
-      fs.stat(fullPath, function(error, stat) {
-        if (error) {
-          console.error('Error stating file.', error);
-          return;
-        }
-        if (stat.isFile()) {
-          replacer(fullPath, name);
-        } else if (stat.isDirectory()) {
-          loopDirFiles(fullPath, name);
-        }
-      });
-    });
-  });
+  }
 };
 
-var createUi = async (name, location, type) => {
-  const dir = filePath('./packages/ui-plugin-template');
+var createUi = (name, location, type) => {
+  const dir = filePath("./packages/template.plugin.ui");
   const newDir = filePath(`./packages/plugin-${name}-ui`);
 
   const sourceDirs = {
-    default: filePath(`./packages/ui-plugin-template/source-default`),
-    empty: filePath(`./packages/ui-plugin-template/source-empty`),
-    integration: filePath(`./packages/ui-plugin-template/source-integration`),
-    integrationDetail: filePath(`./packages/ui-plugin-template/source-integration-detail`)
-  }
+    default: filePath(`./packages/template.plugin.ui/source-default`),
+    empty: filePath(`./packages/template.plugin.ui/source-empty`),
+    integration: filePath(`./packages/template.plugin.ui/source-integration`),
+    integrationDetail: filePath(
+      `./packages/template.plugin.ui/source-integration-detail`
+    ),
+  };
 
-  fs.copySync(
-    dir,
-    newDir,
-    {
-      filter: path => {
-        return !/.*source.*/g.test(path);
-      }
+  fs.cpSync(dir, newDir, {
+    filter: (path) => {
+      return !/.*source.*/g.test(path);
     },
-    fs.copySync(sourceDirs[type], `${newDir}/src`),
-    fs.copySync(sourceDirs[type], `${newDir}/.erxes/plugin-src`)
-  );
-  addIntoUIConfigs(name, location, () => loopDirFiles(newDir, name));
+    recursive: true,
+  });
+
+  fs.cpSync(sourceDirs[type], `${newDir}/src`, { recursive: true});
+
+  addIntoUIConfigs(name, location);
+  loopDirFiles(newDir, name);
 };
 
 var createApi = async (name, type) => {
-  const dir = filePath('./packages/api-plugin-templ');
-  const dotErxes = filePath('./packages/api-plugin-template.erxes');
+  const dir = filePath("./packages/template.plugin.api");
 
   const newDir = filePath(`./packages/plugin-${name}-api`);
 
   const sourceDirs = {
-    default: filePath(`./packages/api-plugin-templ/source-default`),
-    empty: filePath(`./packages/api-plugin-templ/source-empty`),
-    integration: filePath(`./packages/api-plugin-templ/source-integration`)
-  }
+    default: filePath(`./packages/template.plugin.api/source-default`),
+    empty: filePath(`./packages/template.plugin.api/source-empty`),
+    integration: filePath(`./packages/template.plugin.api/source-integration`),
+  };
 
-  fs.copySync(
-    dir,
-    newDir,
-    {
-      filter: path => {
-        return !/.*source.*/g.test(path);
-      }
+  fs.cpSync(dir, newDir, {
+    filter: (path) => {
+      return !/(source-.*$|src$)/g.test(path);
     },
-    fs.copySync(dotErxes, `${newDir}/.erxes`),
-    fs.copySync(sourceDirs[type], `${newDir}/src`)
-  );
+    recursive: true,
+  });
+
+  fs.cpSync(sourceDirs[type], `${newDir}/src`, {
+    recursive: true,
+  });
 
   loopDirFiles(newDir, name);
 
@@ -146,129 +135,95 @@ var createApi = async (name, type) => {
   addIntoApiConfigs(name);
 };
 
-const addIntoUIConfigs = (name, location, callback) => {
+const addIntoUIConfigs = (name, location) => {
   const menu =
-    location === 'main navigation'
+    location === "main navigation"
       ? {
-          text: '{Name}s',
-          url: '/{name}s',
-          icon: 'icon-star',
-          location: 'mainNavigation'
+          text: "{Name}s",
+          url: "/{name}s",
+          icon: "icon-star",
+          location: "mainNavigation",
         }
       : {
-          text: '{Name}s',
-          to: '/{name}s',
-          image: '/images/icons/erxes-18.svg',
-          location: 'settings',
-          scope: '{name}'
+          text: "{Name}s",
+          to: "/{name}s",
+          image: "/images/icons/erxes-18.svg",
+          location: "settings",
+          scope: "{name}",
         };
 
   const uiPath = filePath(`./packages/plugin-${name}-ui/src/configs.js`);
-  var ret = false;
-  fs.readFile(uiPath, (err, data) => {
-    if (err) {
-      console.error(`Could not read the file at directory: ${uiPath}`, err);
-      process.exit(1);
-    }
-    var updated = data
-      .toString()
-      .replace(/menus:.*\[.*\]/g, `menus:[${JSON.stringify(menu)}]`);
-    fs.writeFile(uiPath, updated, err2 => {
-      if (err2) console.error(err2);
-      callback();
-    });
-  });
+
+  const data = fs.readFileSync(uiPath);
+
+  const updated = data
+    .toString()
+    .replace(/menus:.*\[.*\]/g, `menus:[${JSON.stringify(menu)}]`);
+  fs.writeFileSync(uiPath, updated);
 };
 
-const addIntoApiConfigs = async name => {
-  const configsPath = resolve(__dirname, '..', 'cli/configs.json');
+const addIntoApiConfigs = (name) => {
+  const configsPath = resolve(__dirname, "..", "cli/configs.json");
 
   var newPlugin = {
     name: name,
-    ui: 'local'
+    ui: "local",
   };
 
-  fs.readFile(configsPath, async (err, data) => {
-    if (err) {
-      if (err.code === 'ENOENT') {
-        console.log("configs.json doesn't exist, creating one...");
+  if (!fs.existsSync(configsPath)) {
+    fs.cpSync(`${configsPath}.sample`, configsPath);
+  }
 
-        // File configs.json will be created
-        fs.copyFileSync(`${configsPath}.sample`, configsPath);
+  const json = JSON.parse(fs.readFileSync(configsPath));
 
-        console.log('configs.json.sample was copied to configs.json');
-      }
+  json.plugins.push(newPlugin);
 
-      data = await fs.readFile(configsPath);
-    }
-
-    var json = JSON.parse(data);
-
-    json.plugins.push(newPlugin);
-
-    fs.writeFile(configsPath, JSON.stringify(json));
-  });
+  fs.writeFileSync(configsPath, JSON.stringify(json, null, 4));
 };
 
-const installUiDeps = name => {
-  return `cd ` + filePath(`packages/plugin-${name}-ui && yarn install-deps`);
+const installUiDeps = (name) => {
+  return `cd ` + filePath(`packages/plugin-${name}-ui && yarn install`);
 };
 
-const installApiDeps = name => {
-  return `cd ` + filePath(`packages/plugin-${name}-api && yarn install-deps`);
+const installApiDeps = (name) => {
+  return `cd ` + filePath(`packages/plugin-${name}-api && yarn install`);
 };
 
-const installDeps = name => {
-  execSync(installUiDeps(name), (err, data) => {
-    if (err) console.error(err);
-    console.log('Installing UI dependencies...');
-    console.log(`successfully created plugin ${name}`);
-  });
-
-  execSync(installApiDeps(name), (err, data) => {
-    if (err) console.error(err);
-    console.log('Installing API dependencies...');
-  });
+const installDeps = (name) => {
+  execSync(installUiDeps(name), { stdio: "inherit" });
+  execSync(installApiDeps(name), { stdio: "inherit" });
 };
 
 const main = async () => {
   const input = await prompt([
     {
-      type: 'input',
-      name: 'name',
-      message: 'Please enter the plugin name:'
-    }
+      type: "input",
+      name: "name",
+      message: "Please enter the plugin name:",
+    },
   ]);
-  promptChoice.run().then(type => {
-    if (type === 'integration') {
-      promptIntegrationChoice.run().then(templateType => {
-        const name = input.name;
 
-        createUi(name, '', templateType);
-        createApi(name, type);
-        installDeps(name);
-      });
-    } else {
-      promptBlank
-        .run()
-        .then(defaultTemplate => {
-          promptLocation
-            .run()
-            .then(location => {
-              const name = input.name;
+  const type = await promptChoice.run();
 
-              const type = defaultTemplate === 'no' ? 'empty' : 'default';
+  if (type === "integration") {
+    const templateType = await promptIntegrationChoice.run();
+    const name = input.name;
 
-              createUi(name, location, type);
-              createApi(name, type);
+    createUi(name, "", templateType);
+    createApi(name, type);
+    installDeps(name);
+  } else {
+    const defaultTemplate = await promptBlank.run();
+    const location = await promptLocation.run();
 
-              installDeps(name);
-            })
-            .catch(err => console.error(err));
-        })
-        .catch(err => console.error(err));
-    }
-  })
+    const name = input.name;
+
+    const type = defaultTemplate === "no" ? "empty" : "default";
+
+    createUi(name, location, type);
+    createApi(name, type);
+    installDeps(name);
+  }
 };
 
 main();

@@ -1,18 +1,21 @@
 import {
   EMPTY_CONTENT_DEAL_PIPELINE,
-  EMPTY_CONTENT_TASK_PIPELINE,
-  EMPTY_CONTENT_PURCHASE_PIPELINE
+  EMPTY_CONTENT_PURCHASE_PIPELINE,
+  EMPTY_CONTENT_TASK_PIPELINE
 } from '@erxes/ui-settings/src/constants';
+import { FlexItem, InputBar, Title } from '@erxes/ui-settings/src/styles';
 import { IBoard, IPipeline } from '@erxes/ui-cards/src/boards/types';
 import { IButtonMutateProps, IRouterProps } from '@erxes/ui/src/types';
 import { Link, withRouter } from 'react-router-dom';
 import { __, router } from 'coreui/utils';
+
 import { BarItems } from '@erxes/ui/src/layout/styles';
 import Button from '@erxes/ui/src/components/Button';
 import EmptyContent from '@erxes/ui/src/components/empty/EmptyContent';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import { IOption } from '../types';
+import Icon from '@erxes/ui/src/components/Icon';
 import { PipelineCount } from '@erxes/ui-cards/src/settings/boards/styles';
 import PipelineForm from '../containers/PipelineForm';
 import PipelineRow from './PipelineRow';
@@ -21,10 +24,6 @@ import SortHandler from '@erxes/ui/src/components/SortHandler';
 import Table from '@erxes/ui/src/components/table';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { collectOrders } from '@erxes/ui-cards/src/boards/utils';
-import CostForm from './CostForm';
-
-import { FlexItem, InputBar, Title } from '@erxes/ui-settings/src/styles';
-import Icon from '@erxes/ui/src/components/Icon';
 
 type Props = {
   type: string;
@@ -174,7 +173,7 @@ class Pipelines extends React.Component<Props, State> {
   renderContent() {
     const { pipelines, options, type, loading } = this.props;
 
-    const pipelineName = options ? options.pipelineName : 'pipeline';
+    const pipelineName = options?.pipelineName || 'pipeline';
 
     if (!loading && pipelines.length === 0) {
       if (type === 'deal' || type === 'task') {
@@ -240,8 +239,11 @@ class Pipelines extends React.Component<Props, State> {
         </Link>
       );
     }
-    if (options && options.modal === 'true') {
-      return <CostForm />;
+
+    if (options && options.additionalButtonModal) {
+      const Content = options.additionalButtonModal;
+
+      return <Content />;
     }
 
     return null;
@@ -249,7 +251,7 @@ class Pipelines extends React.Component<Props, State> {
 
   renderButton() {
     const { options, boardId, history } = this.props;
-    const pipelineName = options ? options.pipelineName : 'pipeline';
+    const pipelineName = options?.pipelineName || 'pipeline';
 
     if (!boardId) {
       return null;
@@ -284,7 +286,7 @@ class Pipelines extends React.Component<Props, State> {
 
   render() {
     const { currentBoard, pipelines, options } = this.props;
-    const pipelineName = options ? options.pipelineName : 'pipeline';
+    const pipelineName = options?.pipelineName || 'pipeline';
 
     const leftActionBar = (
       <Title>

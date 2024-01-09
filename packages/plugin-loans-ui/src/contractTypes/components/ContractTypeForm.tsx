@@ -44,6 +44,7 @@ type State = {
   savingPlusLoanInterest: number;
   savingUpperPercent: number;
   usePrePayment: boolean;
+  invoiceDay: string;
 };
 
 class ContractTypeForm extends React.Component<Props, State> {
@@ -68,7 +69,8 @@ class ContractTypeForm extends React.Component<Props, State> {
         this.props.currentUser.configs?.dealCurrency[0],
       usePrePayment: contractType.usePrePayment || false,
       savingPlusLoanInterest: contractType.savingPlusLoanInterest,
-      savingUpperPercent: contractType.savingUpperPercent
+      savingUpperPercent: contractType.savingUpperPercent,
+      invoiceDay: contractType.invoiceDay
     };
   }
 
@@ -101,7 +103,8 @@ class ContractTypeForm extends React.Component<Props, State> {
       commitmentInterest: Number(finalValues.commitmentInterest),
       savingPlusLoanInterest: Number(finalValues.savingPlusLoanInterest),
       savingUpperPercent: Number(finalValues.savingUpperPercent),
-      usePrePayment: this.state.usePrePayment
+      usePrePayment: this.state.usePrePayment,
+      invoiceDay: this.state.invoiceDay
     };
   };
 
@@ -256,26 +259,26 @@ class ContractTypeForm extends React.Component<Props, State> {
                   ))}
                 </FormControl>
               </FormGroup>
-              {this.state.leaseType !== LEASE_TYPES.SAVING && (
-                <FormGroup>
-                  <ControlLabel>{__('Collateral Type')}:</ControlLabel>
-
-                  <FormControl
-                    {...this.props}
-                    name="collateralType"
-                    componentClass="select"
-                    value={this.state.collateralType}
-                    required={true}
-                    onChange={this.onChangeField}
-                  >
-                    {COLLATERAL_TYPE.ALL.map((typeName, index) => (
-                      <option key={index} value={typeName}>
-                        {typeName}
-                      </option>
-                    ))}
-                  </FormControl>
-                </FormGroup>
-              )}
+              {this.state.leaseType !== LEASE_TYPES.SAVING &&
+                this.state.leaseType !== LEASE_TYPES.CREDIT && (
+                  <FormGroup>
+                    <ControlLabel>{__('Collateral type')}:</ControlLabel>
+                    <FormControl
+                      {...this.props}
+                      name="collateralType"
+                      componentClass="select"
+                      value={this.state.collateralType}
+                      required={true}
+                      onChange={this.onChangeField}
+                    >
+                      {COLLATERAL_TYPE.ALL.map((typeName, index) => (
+                        <option key={index} value={typeName}>
+                          {typeName}
+                        </option>
+                      ))}
+                    </FormControl>
+                  </FormGroup>
+                )}
               {this.state.leaseType === LEASE_TYPES.LINEAR &&
                 this.renderFormGroup('Commitment interest', {
                   ...formProps,
@@ -285,14 +288,21 @@ class ContractTypeForm extends React.Component<Props, State> {
                   useNumberFormat: true,
                   value: contractType.commitmentInterest
                 })}
-              {this.state.leaseType === LEASE_TYPES.LINEAR &&
-                this.renderFormGroup('Bill day', {
+              {this.state.leaseType === LEASE_TYPES.CREDIT &&
+                this.renderFormGroup('Invoice day', {
                   ...formProps,
-                  name: 'billDay',
+                  name: 'invoiceDay',
                   required: true,
                   type: '',
                   useNumberFormat: true,
-                  value: contractType.commitmentInterest
+                  value: this.state.invoiceDay,
+                  componentClass: 'select',
+                  onChange: this.onChangeField,
+                  children: new Array(31).fill(1).map((_, index) => (
+                    <option key={index} value={index + 1}>
+                      {index + 1}
+                    </option>
+                  ))
                 })}
               {currentUser?.configs?.loansConfig?.organizationType ===
                 ORGANIZATION_TYPE.ENTITY && (
@@ -384,16 +394,6 @@ class ContractTypeForm extends React.Component<Props, State> {
                   componentClass: 'checkbox',
                   name: 'useFee',
                   checked: this.state.useFee,
-                  onChange: this.onChangeField
-                })}
-              {this.state.leaseType !== LEASE_TYPES.SAVING &&
-                this.renderFormGroup('Is use pre payment', {
-                  ...formProps,
-                  className: 'flex-item',
-                  type: 'checkbox',
-                  componentClass: 'checkbox',
-                  name: 'usePrePayment',
-                  checked: this.state.usePrePayment,
                   onChange: this.onChangeField
                 })}
             </FormColumn>
