@@ -7,14 +7,17 @@ import {
   Pagination,
   Table
 } from '@erxes/ui/src/components';
+import { BarItems } from '@erxes/ui/src/layout/styles';
 import Button from '@erxes/ui/src/components/Button';
-import { menuDynamic } from '../constants';
+import { menuDynamic } from '../../constants';
 import Row from './InventoryProductsRow';
+import SelectBrands from '@erxes/ui/src/brands/containers/SelectBrands';
 
 type Props = {
   history: any;
   queryParams: any;
   loading: boolean;
+  setBrand: (brandId: string) => void;
   toCheckProducts: () => void;
   toSyncProducts: (action: string, products: any[]) => void;
   items: any;
@@ -24,12 +27,25 @@ const InventoryProducts = ({
   items,
   loading,
   queryParams,
+  setBrand,
   toCheckProducts,
   toSyncProducts
 }: Props) => {
   const checkButton = (
-    <>
+    <BarItems>
       <span>{items && items.matched && `Matched: ${items.matched.count}`}</span>
+      <SelectBrands
+        label={__('Choose brands')}
+        onSelect={brand => setBrand(brand as string)}
+        initialValue={queryParams.brandId}
+        multi={false}
+        name="selectedBrands"
+        customOption={{
+          label: 'No Brand (noBrand)',
+          value: ''
+        }}
+      />
+
       <Button
         btnStyle="warning"
         size="small"
@@ -38,13 +54,18 @@ const InventoryProducts = ({
       >
         Check
       </Button>
-    </>
+    </BarItems>
   );
 
   const header = <Wrapper.ActionBar right={checkButton} />;
 
   const calculatePagination = (data: any) => {
-    if (Object.keys(queryParams).length !== 0) {
+    console.log(
+      Object.keys(queryParams).length,
+      'Object.keys(queryParams).length'
+    );
+
+    if (Object.keys(queryParams).length !== 1) {
       if (queryParams.perPage !== undefined && queryParams.page === undefined) {
         data = data.slice(queryParams.perPage * 0, queryParams.perPage * 1);
       }

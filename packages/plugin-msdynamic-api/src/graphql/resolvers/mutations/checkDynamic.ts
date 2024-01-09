@@ -7,8 +7,13 @@ import {
 import { getConfig } from '../../../utils';
 
 const msdynamicCheckMutations = {
-  async toCheckProducts(_root, _args, { subdomain }: IContext) {
-    const config = await getConfig(subdomain, 'DYNAMIC', {});
+  async toCheckProducts(
+    _root,
+    { brandId }: { brandId: string },
+    { subdomain }: IContext
+  ) {
+    const configs = await getConfig(subdomain, 'DYNAMIC', {});
+    const config = configs[brandId || 'noBrand'];
 
     const updateProducts: any = [];
     const createProducts: any = [];
@@ -21,11 +26,21 @@ const msdynamicCheckMutations = {
 
     const { itemApi, username, password } = config;
 
+    const productQry: any = { status: { $ne: 'deleted' } };
+    if (brandId && brandId !== 'noBrand') {
+      productQry.scopeBrandIds = { $in: [brandId] };
+    } else {
+      productQry.$or = [
+        { scopeBrandIds: { $exists: false } },
+        { scopeBrandIds: { $size: 0 } }
+      ];
+    }
+
     try {
       const productsCount = await sendProductsMessage({
         subdomain,
         action: 'count',
-        data: { query: { status: { $ne: 'deleted' } } },
+        data: { query: productQry },
         isRPC: true
       });
 
@@ -33,7 +48,7 @@ const msdynamicCheckMutations = {
         subdomain,
         action: 'find',
         data: {
-          query: { status: { $ne: 'deleted' } },
+          query: productQry,
           limit: productsCount
         },
         isRPC: true
@@ -105,8 +120,112 @@ const msdynamicCheckMutations = {
     };
   },
 
-  async toCheckProductCategories(_root, _args, { subdomain }: IContext) {
-    const config = await getConfig(subdomain, 'DYNAMIC', {});
+  async toCheckPrices(
+    _root,
+    { brandId }: { brandId: string },
+    { subdomain }: IContext
+  ) {
+    const configs = await getConfig(subdomain, 'DYNAMIC', {});
+    const config = configs[brandId || 'noBrand'];
+
+    const updatePrices: any = [];
+    const createPrices: any = [];
+    const deletePrices: any = [];
+
+    if (!config.priceApi || !config.username || !config.password) {
+      throw new Error('MS Dynamic config not found.');
+    }
+
+    const { priceApi, username, password } = config;
+
+    const productQry: any = { status: { $ne: 'deleted' } };
+    if (brandId && brandId !== 'noBrand') {
+      productQry.scopeBrandIds = { $in: [brandId] };
+    } else {
+      productQry.$or = [
+        { scopeBrandIds: { $exists: false } },
+        { scopeBrandIds: { $size: 0 } }
+      ];
+    }
+
+    try {
+      const productsCount = await sendProductsMessage({
+        subdomain,
+        action: 'count',
+        data: { query: productQry },
+        isRPC: true
+      });
+
+      const products = await sendProductsMessage({
+        subdomain,
+        action: 'find',
+        data: {
+          query: productQry,
+          limit: productsCount
+        },
+        isRPC: true
+      });
+
+      const productCodes = (products || []).map(p => p.code) || [];
+
+      const response = await sendRequest({
+        url: priceApi,
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          Accept: 'application/json',
+          Authorization: `Basic ${Buffer.from(
+            `${username}:${password}`
+          ).toString('base64')}`
+        }
+      });
+
+      const resultCodes =
+        response.value.map(r => r.Item_No.replace(/\s/g, '')) || [];
+
+      const productByCode = {};
+      for (const product of products) {
+        productByCode[product.code] = product;
+
+        if (!resultCodes.includes(product.code)) {
+          deletePrices.push(product);
+        }
+      }
+
+      for (const resProd of response.value) {
+        if (productCodes.includes(resProd.Item_No.replace(/\s/g, ''))) {
+          updatePrices.push(resProd);
+        } else {
+          createPrices.push(resProd);
+        }
+      }
+    } catch (e) {
+      console.log(e, 'error');
+    }
+
+    return {
+      create: {
+        count: createPrices.length,
+        items: createPrices
+      },
+      update: {
+        count: updatePrices.length,
+        items: updatePrices
+      },
+      delete: {
+        count: deletePrices.length,
+        items: deletePrices
+      }
+    };
+  },
+
+  async toCheckProductCategories(
+    _root,
+    { brandId }: { brandId: string },
+    { subdomain }: IContext
+  ) {
+    const configs = await getConfig(subdomain, 'DYNAMIC', {});
+    const config = configs[brandId || 'noBrand'];
 
     const updateCategories: any = [];
     const createCategories: any = [];
@@ -198,8 +317,13 @@ const msdynamicCheckMutations = {
     };
   },
 
-  async toCheckCustomers(_root, _args, { subdomain }: IContext) {
-    const config = await getConfig(subdomain, 'DYNAMIC', {});
+  async toCheckCustomers(
+    _root,
+    { brandId }: { brandId: string },
+    { subdomain }: IContext
+  ) {
+    const configs = await getConfig(subdomain, 'DYNAMIC', {});
+    const config = configs[brandId || 'noBrand'];
 
     const createCustomers: any = [];
     const updateCustomers: any = [];

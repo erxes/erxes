@@ -3,15 +3,15 @@ import * as compose from 'lodash.flowright';
 import { graphql } from '@apollo/client/react/hoc';
 import { withProps } from '@erxes/ui/src/utils';
 import {
-  ToCheckCustomersMutationResponse,
-  ToSyncCustomersMutationResponse
+  ToCheckPricesMutationResponse,
+  ToSyncPricesMutationResponse
 } from '../types';
 import { router } from '@erxes/ui/src';
 import { Bulk } from '@erxes/ui/src/components';
 import Alert from '@erxes/ui/src/utils/Alert';
 import { mutations } from '../graphql';
 import React, { useState } from 'react';
-import Customers from '../components/customers/Customers';
+import InventoryPrices from '../components/price/InventoryPrice';
 import Spinner from '@erxes/ui/src/components/Spinner';
 
 type Props = {
@@ -20,10 +20,10 @@ type Props = {
 };
 
 type FinalProps = {} & Props &
-  ToCheckCustomersMutationResponse &
-  ToSyncCustomersMutationResponse;
+  ToCheckPricesMutationResponse &
+  ToSyncPricesMutationResponse;
 
-const CustomersContainer = (props: FinalProps) => {
+const InventoryPriceContainer = (props: FinalProps) => {
   const [items, setItems] = useState({});
   const [loading, setLoading] = useState(false);
   const brandId = props.queryParams.brandId || 'noBrand';
@@ -37,9 +37,9 @@ const CustomersContainer = (props: FinalProps) => {
     return <Spinner />;
   }
 
-  const setSyncStatusTrue = (data: any, products: any, action: string) => {
+  const setSyncStatusTrue = (data: any, prices: any, action: string) => {
     data[action].items = data[action].items.map(i => {
-      if (products.find(c => c.code === i.code)) {
+      if (prices.find(c => c.code === i.code)) {
         const temp = i;
         temp.syncStatus = true;
         return temp;
@@ -58,20 +58,20 @@ const CustomersContainer = (props: FinalProps) => {
     return data;
   };
 
-  const toCheckCustomers = () => {
+  const toCheckPrices = () => {
     setLoading(true);
     props
-      .toCheckCustomers({
+      .toCheckPrices({
         variables: { brandId }
       })
       .then(response => {
-        const data = response.data.toCheckCustomers;
+        const data = response.data.toCheckPrices;
 
         setSyncStatus(data, 'create');
         setSyncStatus(data, 'update');
         setSyncStatus(data, 'delete');
 
-        setItems(response.data.toCheckCustomers);
+        setItems(response.data.toCheckPrices);
         setLoading(false);
       })
       .catch(e => {
@@ -80,14 +80,14 @@ const CustomersContainer = (props: FinalProps) => {
       });
   };
 
-  const toSyncCustomers = (action: string, customers: any[]) => {
+  const toSyncPrices = (action: string, prices: any[]) => {
     setLoading(true);
     props
-      .toSyncCustomers({
+      .toSyncPrices({
         variables: {
           brandId,
           action,
-          customers
+          prices
         }
       })
       .then(() => {
@@ -97,7 +97,7 @@ const CustomersContainer = (props: FinalProps) => {
       .finally(() => {
         const data = items;
 
-        setSyncStatusTrue(data, customers, action.toLowerCase());
+        setSyncStatusTrue(data, prices, action.toLowerCase());
         setItems(data);
       })
       .catch(e => {
@@ -111,28 +111,28 @@ const CustomersContainer = (props: FinalProps) => {
     loading,
     items,
     setBrand,
-    toCheckCustomers,
-    toSyncCustomers
+    toCheckPrices,
+    toSyncPrices
   };
 
-  const content = () => <Customers {...updatedProps} />;
+  const content = () => <InventoryPrices {...updatedProps} />;
 
   return <Bulk content={content} />;
 };
 
 export default withProps<Props>(
   compose(
-    graphql<Props, ToCheckCustomersMutationResponse, {}>(
-      gql(mutations.toCheckCustomers),
+    graphql<Props, ToCheckPricesMutationResponse, {}>(
+      gql(mutations.toCheckPrices),
       {
-        name: 'toCheckCustomers'
+        name: 'toCheckPrices'
       }
     ),
-    graphql<Props, ToSyncCustomersMutationResponse, {}>(
-      gql(mutations.toSyncCustomers),
+    graphql<Props, ToSyncPricesMutationResponse, {}>(
+      gql(mutations.toSyncPrices),
       {
-        name: 'toSyncCustomers'
+        name: 'toSyncPrices'
       }
     )
-  )(CustomersContainer)
+  )(InventoryPriceContainer)
 );

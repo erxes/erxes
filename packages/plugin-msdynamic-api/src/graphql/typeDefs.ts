@@ -2,12 +2,22 @@ import gql from 'graphql-tag';
 import { mutations, queries } from './schema/msdynamic';
 
 const types = `
-  type Msdynamic {
+  type SyncHistory {
     _id: String!
-    endPoint: String
-    username: String
-    password: String
-    createdAt:Date
+    type: String
+    contentType: String
+    contentId: String
+    createdAt: Date
+    createdBy: String
+    consumeData: JSON
+    consumeStr: String
+    sendData: JSON
+    sendStr: String
+    responseData: JSON
+    responseStr: String
+    error: String
+    content: String
+    createdUser: JSON
   }
 `;
 
