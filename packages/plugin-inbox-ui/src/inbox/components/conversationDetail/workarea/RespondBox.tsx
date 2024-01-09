@@ -37,9 +37,9 @@ import { SmallLoader } from '@erxes/ui/src/components/ButtonMutate';
 import Tip from '@erxes/ui/src/components/Tip';
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 import { deleteHandler } from '@erxes/ui/src/utils/uploadHandler';
-import RichTextEditor from '@erxes/ui/src/containers/RichTextEditor';
 import { useGenerateJSON } from '@erxes/ui/src/components/richTextEditor/hooks/useExtensions';
 import { getParsedMentions } from '@erxes/ui/src/components/richTextEditor/utils/getParsedMentions';
+import { MentionSuggestionParams } from '@erxes/ui/src/components/richTextEditor/utils/getMentionSuggestions';
 
 type Props = {
   conversation: IConversation;
@@ -53,9 +53,9 @@ type Props = {
   disableInternalState: boolean;
   setAttachmentPreview?: (data: IAttachmentPreview) => void;
   responseTemplates: IResponseTemplate[];
-  teamMembers: IUser[];
   refetchMessages: () => void;
   refetchDetail: () => void;
+  mentionSuggestion?: MentionSuggestionParams;
 };
 
 type State = {
@@ -70,6 +70,15 @@ type State = {
   loading: object;
   extraInfo?: any;
 };
+
+const Editor = asyncComponent(
+  () => import(/* webpackChunkName: "Editor-in-Inbox" */ './Editor'),
+  {
+    height: '137px',
+    width: '100%',
+    color: '#fff'
+  }
+);
 
 class RespondBox extends React.Component<Props, State> {
   constructor(props) {
@@ -398,14 +407,22 @@ class RespondBox extends React.Component<Props, State> {
     );
 
     return (
-      <RichTextEditor
+      <Editor
+        currentConversation={conversation._id}
+        defaultContent={this.getUnsendMessage(conversation._id)}
+        integrationKind={conversation.integration.kind}
+        key={this.state.editorKey}
+        onChange={this.onEditorContentChange}
+        onAddMention={this.onAddMention}
+        onAddMessage={this.addMessage}
+        onSearchChange={this.onSearchChange}
         placeholder={placeholder}
         showMentions={isInternal}
+        mentionSuggestion={this.props.mentionSuggestion}
+        responseTemplate={responseTemplate}
+        responseTemplates={responseTemplates}
+        handleFileInput={this.handleFileInput}
         content={this.state.content}
-        onChange={this.onEditorContentChange}
-        autoGrow={true}
-        autoGrowMinHeight={100}
-        autoGrowMaxHeight={'55vh'}
       />
     );
   }
@@ -426,7 +443,7 @@ class RespondBox extends React.Component<Props, State> {
             componentClass="checkbox"
             checked={isInternal}
             onChange={this.toggleForm}
-            disabled={this.props.disableInternalState}
+            // disabled={this.props.disableInternalState}
           >
             {__('Internal note')}
           </FormControl>

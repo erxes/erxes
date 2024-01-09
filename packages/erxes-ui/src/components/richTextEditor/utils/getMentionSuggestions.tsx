@@ -4,18 +4,32 @@ import tippy, { GetReferenceClientRect } from 'tippy.js';
 import { MentionList } from '../nodes/Mention.tsx';
 import { IMentionUser } from '../../../types';
 
-export function getMentionSuggestions(
-  variables: IMentionUser[] = []
-): Omit<SuggestionOptions, 'editor'> {
-  return {
-    items: ({ query }) => {
-      return variables
-        .filter(item =>
-          item?.fullName?.toLowerCase()?.startsWith(query.toLowerCase())
-        )
-        .slice(0, 5);
-    },
+export type MentionSuggestionParams = {
+  fetchMentions: (args: any) => Promise<any>;
+  getVariables: (query: string) => Record<string, any>;
+  extractFunction: (queryResult: any) => IMentionUser[];
+};
 
+export function getMentionSuggestions({
+  getVariables,
+  fetchMentions,
+  extractFunction
+}: MentionSuggestionParams): Omit<SuggestionOptions, 'editor'> {
+  return {
+    items: async ({ query }) => {
+      try {
+        const { data } = await fetchMentions({
+          variables: getVariables(query)
+        });
+
+        // Extract the mentions from the query data or filter or process the fetched data as needed
+        const mentionData = extractFunction(data);
+
+        return mentionData;
+      } catch (error) {
+        return [];
+      }
+    },
     render: () => {
       let component: ReactRenderer<any>;
       let popup: InstanceType<any> | null = null;
@@ -30,7 +44,6 @@ export function getMentionSuggestions(
           if (!props.clientRect) {
             return;
           }
-
           popup = tippy('body', {
             getReferenceClientRect: props.clientRect as GetReferenceClientRect,
             appendTo: () => document.body,
@@ -39,7 +52,18 @@ export function getMentionSuggestions(
             showOnCreate: true,
             interactive: true,
             trigger: 'manual',
-            placement: 'bottom-start'
+            placement: 'top-start',
+            onShow: () => {
+              // If a user deletes the @ symbol quickly after
+              // typing it, the node we want to append the popup
+              // to won't exist so we check to ensure it is there
+              // prior to mounting the popup to the DOM
+              try {
+                props.clientRect?.();
+              } catch {
+                return false;
+              }
+            }
           });
         },
 

@@ -38,8 +38,10 @@ import TableCell from '@tiptap/extension-table-cell';
 import TableHeader from '@tiptap/extension-table-header';
 import TableRow from '@tiptap/extension-table-row';
 import { DivTag, SpanNode, StyleNode } from '../nodes';
-import { IMentionUser } from '../../../types';
-import { getMentionSuggestions } from '../utils/getMentionSuggestions';
+import {
+  MentionSuggestionParams,
+  getMentionSuggestions
+} from '../utils/getMentionSuggestions';
 import { generateJSON } from '@tiptap/html';
 
 export type UseExtensionsOptions = {
@@ -48,7 +50,7 @@ export type UseExtensionsOptions = {
 
   showMentions?: boolean;
 
-  mentionSuggestions?: { list: IMentionUser[]; loading: boolean };
+  mentionSuggestion?: MentionSuggestionParams;
 
   /** Character count limit. */
   limit?: number;
@@ -94,7 +96,7 @@ const CustomSuperscript = Superscript.extend({
 export default function useExtensions({
   placeholder,
   showMentions,
-  mentionSuggestions,
+  mentionSuggestion,
   limit
 }: UseExtensionsOptions = {}): EditorOptions['extensions'] {
   return useMemo(
@@ -150,14 +152,14 @@ export default function useExtensions({
       History,
       FontSize,
       DivTag,
-      ...(showMentions && mentionSuggestions
+      ...(showMentions && mentionSuggestion
         ? [
             MentionExtended.configure({
               renderLabel({ options, node }) {
                 return `${options.suggestion.char}${node.attrs.label ??
                   node.attrs.id}`;
               },
-              suggestion: getMentionSuggestions(mentionSuggestions?.list || [])
+              suggestion: getMentionSuggestions(mentionSuggestion)
             })
           ]
         : []),
@@ -170,7 +172,7 @@ export default function useExtensions({
         placeholder
       })
     ],
-    [mentionSuggestions?.loading, showMentions]
+    [showMentions]
   );
 }
 

@@ -25,7 +25,7 @@ import { isEnabled, readFile } from '@erxes/ui/src/utils/core';
 import Attachment from '@erxes/ui/src/components/Attachment';
 import Button from '@erxes/ui/src/components/Button';
 import { Column } from '@erxes/ui/src/styles/main';
-import RichTextEditor from '@erxes/ui/src/containers/RichTextEditor';
+import { RichTextEditor } from '@erxes/ui/src/components/richTextEditor/TEditor';
 import EmailTemplate from '../../containers/mail/EmailTemplate';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import { IAttachment } from '@erxes/ui/src/types';

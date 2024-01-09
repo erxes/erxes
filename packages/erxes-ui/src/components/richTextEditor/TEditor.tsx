@@ -25,7 +25,7 @@ import { RichTextEditorToolbar } from './RichTextEditorToolbar/RichTextEditorToo
 import { RichTextEditorWrapper } from './styles';
 import { useEditor } from '@tiptap/react';
 import useExtensions from './hooks/useExtensions';
-import { IMentionUser } from '../../types';
+import { MentionSuggestionParams } from './utils/getMentionSuggestions';
 
 const POSITION_TOP = 'top';
 const POSITION_BOTTOM = 'bottom';
@@ -44,12 +44,14 @@ export interface IRichTextEditorProps extends IRichTextEditorContentProps {
   name?: string;
   isSubmitted?: boolean;
   /** Mention suggestion string list */
-  mentionSuggestions?: { list: IMentionUser[]; loading: boolean };
+  mentionSuggestion?: MentionSuggestionParams;
   /** Mention suggestion string list */
   placeholderProp?: any;
   showMentions?: boolean;
   /** Character count limit. */
   limit?: number;
+  contentType?: string;
+  integrationKind?: string;
 }
 let editorContent: string;
 
@@ -70,8 +72,9 @@ export const RichTextEditor = (props: IRichTextEditorProps) => {
     name,
     isSubmitted,
     showMentions = false,
-    mentionSuggestions,
+    mentionSuggestion,
     placeholderProp,
+    integrationKind,
     limit
   } = props;
 
@@ -99,7 +102,7 @@ export const RichTextEditor = (props: IRichTextEditorProps) => {
   const extensions = useExtensions({
     placeholder: placeholder ?? '',
     showMentions,
-    mentionSuggestions: showMentions ? mentionSuggestions : undefined
+    mentionSuggestion: showMentions ? mentionSuggestion : undefined
   });
 
   const editor = useEditor(
@@ -109,7 +112,7 @@ export const RichTextEditor = (props: IRichTextEditorProps) => {
       parseOptions: { preserveWhitespace: 'full' },
       onUpdate: handleEditorChange
     },
-    [showMentions, mentionSuggestions?.loading]
+    [showMentions]
   );
 
   useEffect(() => {
@@ -166,25 +169,29 @@ export const RichTextEditor = (props: IRichTextEditorProps) => {
         )}
         <RichTextEditor.FontSize toolbarPlacement={toolbarLocation} />
 
-        <RichTextEditor.ControlsGroup
-          isDropdown={true}
-          controlNames={['heading']}
-          toolbarPlacement={toolbarLocation}
-        >
-          <RichTextEditor.H1 />
-          <RichTextEditor.H2 />
-          <RichTextEditor.H3 />
-        </RichTextEditor.ControlsGroup>
+        {integrationKind !== 'telnyx' && (
+          <RichTextEditor.ControlsGroup
+            isDropdown={true}
+            controlNames={['heading']}
+            toolbarPlacement={toolbarLocation}
+          >
+            <RichTextEditor.H1 />
+            <RichTextEditor.H2 />
+            <RichTextEditor.H3 />
+          </RichTextEditor.ControlsGroup>
+        )}
 
-        <RichTextEditor.ControlsGroup>
-          <RichTextEditor.SourceControl />
-          <RichTextEditor.Bold />
-          <RichTextEditor.Italic />
-          <RichTextEditor.Underline />
-          <RichTextEditor.Strikethrough />
-          <RichTextEditor.ImageControl />
-          <RichTextEditor.TableControl />
-        </RichTextEditor.ControlsGroup>
+        {integrationKind !== 'telnyx' && (
+          <RichTextEditor.ControlsGroup>
+            <RichTextEditor.SourceControl />
+            <RichTextEditor.Bold />
+            <RichTextEditor.Italic />
+            <RichTextEditor.Underline />
+            <RichTextEditor.Strikethrough />
+            <RichTextEditor.ImageControl />
+            <RichTextEditor.TableControl />
+          </RichTextEditor.ControlsGroup>
+        )}
 
         <RichTextEditor.ControlsGroup
           isDropdown={true}
@@ -202,24 +209,30 @@ export const RichTextEditor = (props: IRichTextEditorProps) => {
           <RichTextEditor.AlignJustify />
         </RichTextEditor.ControlsGroup>
 
-        <RichTextEditor.ControlsGroup
-          isDropdown={true}
-          controlNames={['orderedList', 'bulletList']}
-          toolbarPlacement={toolbarLocation}
-        >
-          <RichTextEditor.BulletList />
-          <RichTextEditor.OrderedList />
-        </RichTextEditor.ControlsGroup>
+        {integrationKind !== 'telnyx' && (
+          <RichTextEditor.ControlsGroup
+            isDropdown={true}
+            controlNames={['orderedList', 'bulletList']}
+            toolbarPlacement={toolbarLocation}
+          >
+            <RichTextEditor.BulletList />
+            <RichTextEditor.OrderedList />
+          </RichTextEditor.ControlsGroup>
+        )}
 
-        <RichTextEditor.ControlsGroup>
-          <RichTextEditor.Blockquote />
-          <RichTextEditor.HorizontalRule />
-        </RichTextEditor.ControlsGroup>
+        {integrationKind !== 'telnyx' && (
+          <RichTextEditor.ControlsGroup>
+            <RichTextEditor.Blockquote />
+            <RichTextEditor.HorizontalRule />
+          </RichTextEditor.ControlsGroup>
+        )}
 
-        <RichTextEditor.ControlsGroup>
-          <RichTextEditor.Link />
-          <RichTextEditor.Unlink />
-        </RichTextEditor.ControlsGroup>
+        {integrationKind !== 'telnyx' && (
+          <RichTextEditor.ControlsGroup>
+            <RichTextEditor.Link />
+            <RichTextEditor.Unlink />
+          </RichTextEditor.ControlsGroup>
+        )}
 
         <RichTextEditor.ControlsGroup>
           <RichTextEditor.ColorControl />

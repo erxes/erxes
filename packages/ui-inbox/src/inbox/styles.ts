@@ -60,6 +60,7 @@ const RespondBoxStyled = styledTS<{
   div[data-promise-mirror-editor]{
     background: ${props =>
       props.isInternal ? colors.bgInternal : colors.colorWhite};
+    transition: background 0.3s ease;
   }
 `;
 
