@@ -211,10 +211,17 @@ const ProductForm = (props: Props) => {
 
               {renderRisks()}
             </FormGroup>
-            {renderInput('price', 'number', product.price, 'Price', true, true)}
+            {renderInput(
+              'price',
+              'number',
+              product.price,
+              'Fee percent',
+              true,
+              true
+            )}
             or
             <FormGroup>
-              <ControlLabel>Specific price for vendors</ControlLabel>
+              <ControlLabel>Specific fee percent for vendors</ControlLabel>
               {companyConfigs.map((companyConfig, index) => (
                 <PriceRow
                   key={index}
