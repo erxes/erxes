@@ -1,12 +1,12 @@
 import Button from '@erxes/ui/src/components/Button';
-import { IConfigsMap } from '../types';
+import { IConfigsMap } from '../../types';
 import { __, confirm } from '@erxes/ui/src/utils';
 import React from 'react';
 import { MainStyleTitle as Title } from '@erxes/ui/src/styles/eindex';
 import { Wrapper } from '@erxes/ui/src/layout';
-import SideBar from './SideBar';
-import { ContentBox } from '../styles';
+import { ContentBox } from '../../styles';
 import PerSettings from './PerSettings';
+import SettingSideBar from './SettingSideBar';
 
 type Props = {
   save: (configsMap: IConfigsMap) => void;
@@ -125,7 +125,7 @@ class GeneralSettings extends React.Component<Props, State> {
             background="colorWhite"
           />
         }
-        leftSidebar={<SideBar />}
+        leftSidebar={<SettingSideBar />}
         content={this.renderContent()}
         transparent={true}
         hasBorder={true}

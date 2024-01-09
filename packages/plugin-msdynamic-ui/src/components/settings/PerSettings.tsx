@@ -10,7 +10,7 @@ import { __ } from '@erxes/ui/src/utils';
 import { MainStyleModalFooter as ModalFooter } from '@erxes/ui/src/styles/eindex';
 import { FormColumn, FormWrapper } from '@erxes/ui/src/styles/main';
 import React from 'react';
-import { IConfigsMap } from '../types';
+import { IConfigsMap } from '../../types';
 import SelectBrand from '@erxes/ui-inbox/src/settings/integrations/containers/SelectBrand';
 
 type Props = {

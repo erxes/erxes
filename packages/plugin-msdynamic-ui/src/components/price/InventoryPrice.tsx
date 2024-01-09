@@ -7,44 +7,60 @@ import {
   Pagination,
   Table
 } from '@erxes/ui/src/components';
+import { BarItems } from '@erxes/ui/src/layout/styles';
 import Button from '@erxes/ui/src/components/Button';
-import { menuDynamic } from '../constants';
-import Row from './CustomersRow';
+import { menuDynamic } from '../../constants';
+import Row from './InventoryPriceRow';
+import SelectBrands from '@erxes/ui/src/brands/containers/SelectBrands';
 
 type Props = {
   history: any;
   queryParams: any;
   loading: boolean;
-  toCheckCustomers: () => void;
-  toSyncCustomers: (action: string, customers: any[]) => void;
+  setBrand: (brandId: string) => void;
+  toCheckPrices: () => void;
+  toSyncPrices: (action: string, prices: any[]) => void;
   items: any;
 };
 
-const Customers = ({
+const InventoryPrice = ({
   items,
   loading,
   queryParams,
-  toCheckCustomers,
-  toSyncCustomers
+  setBrand,
+  toCheckPrices,
+  toSyncPrices
 }: Props) => {
   const checkButton = (
-    <>
+    <BarItems>
       <span>{items && items.matched && `Matched: ${items.matched.count}`}</span>
+      <SelectBrands
+        label={__('Choose brands')}
+        onSelect={brand => setBrand(brand as string)}
+        initialValue={queryParams.brandId}
+        multi={false}
+        name="selectedBrands"
+        customOption={{
+          label: 'No Brand (noBrand)',
+          value: ''
+        }}
+      />
+
       <Button
         btnStyle="warning"
         size="small"
         icon="check-1"
-        onClick={toCheckCustomers}
+        onClick={toCheckPrices}
       >
         Check
       </Button>
-    </>
+    </BarItems>
   );
 
   const header = <Wrapper.ActionBar right={checkButton} />;
 
   const calculatePagination = (data: any) => {
-    if (Object.keys(queryParams).length !== 0) {
+    if (Object.keys(queryParams).length !== 1) {
       if (queryParams.perPage !== undefined && queryParams.page === undefined) {
         data = data.slice(queryParams.perPage * 0, queryParams.perPage * 1);
       }
@@ -79,7 +95,7 @@ const Customers = ({
 
     const onClickSync = () => {
       data = excludeSyncTrue(data);
-      toSyncCustomers(action, data);
+      toSyncPrices(action, data);
     };
 
     const renderRow = (rowData: any, rowSction: string) => {
@@ -87,8 +103,8 @@ const Customers = ({
         rowData = rowData.slice(0, 100);
       }
 
-      return rowData.map((c: any, i: number) => (
-        <Row key={i} customers={c} action={rowSction} />
+      return rowData.map(p => (
+        <Row key={p.code} price={p} action={rowSction} />
       ));
     };
 
@@ -106,14 +122,16 @@ const Customers = ({
     );
 
     const subHeader = <Wrapper.ActionBar right={syncButton} />;
+
     return (
       <>
-        {subHeader}
+        {action === 'UPDATE' && subHeader}
         <Table hover={true}>
           <thead>
             <tr>
               <th>{__('Code')}</th>
-              <th>{__('Name')}</th>
+              <th>{__('Unit price')}</th>
+              <th>{__('Ending Date')}</th>
               {action === 'UPDATE' ? <th>{__('Update Status')}</th> : <></>}
               {action === 'CREATE' ? <th>{__('Create Status')}</th> : <></>}
               {action === 'DELETE' ? <th>{__('Delete Status')}</th> : <></>}
@@ -131,26 +149,8 @@ const Customers = ({
       <br />
       <CollapseContent
         title={__(
-          'Create customers' + (items.create ? ':  ' + items.create.count : '')
-        )}
-      >
-        <>
-          <DataWithLoader
-            data={
-              items.create ? renderTable(items.create?.items, 'CREATE') : []
-            }
-            loading={false}
-            emptyText={'Please check first.'}
-            emptyIcon="leaf"
-            size="large"
-            objective={true}
-          />
-          <Pagination count={items.create?.count || 0} />
-        </>
-      </CollapseContent>
-      <CollapseContent
-        title={__(
-          'Update customers' + (items.update ? ':  ' + items.update.count : '')
+          'Update product price' +
+            (items.update ? ':  ' + items.update.count : '')
         )}
       >
         <>
@@ -167,9 +167,31 @@ const Customers = ({
           <Pagination count={items.update?.count || 0} />
         </>
       </CollapseContent>
+
       <CollapseContent
         title={__(
-          'Delete customers' + (items.delete ? ':  ' + items.delete.count : '')
+          'Not created product' +
+            (items.create ? ':  ' + items.create.count : '')
+        )}
+      >
+        <>
+          <DataWithLoader
+            data={
+              items.create ? renderTable(items.create?.items, 'CREATE') : []
+            }
+            loading={false}
+            emptyText={'Please check first.'}
+            emptyIcon="leaf"
+            size="large"
+            objective={true}
+          />
+          <Pagination count={items.create?.count || 0} />
+        </>
+      </CollapseContent>
+
+      <CollapseContent
+        title={__(
+          'Unmatched product' + (items.delete ? ':  ' + items.delete.count : '')
         )}
       >
         <>
@@ -193,7 +215,7 @@ const Customers = ({
     <Wrapper
       header={
         <Wrapper.Header
-          title={__('Check customers')}
+          title={__('Check product price')}
           queryParams={queryParams}
           submenu={menuDynamic}
         />
@@ -212,4 +234,4 @@ const Customers = ({
   );
 };
 
-export default Customers;
+export default InventoryPrice;
