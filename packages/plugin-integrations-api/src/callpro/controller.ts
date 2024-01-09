@@ -249,8 +249,6 @@ const init = async app => {
         throw new Error(e);
       }
 
-      let channelMemberIds: string[] = [];
-
       const channels = await sendInboxMessage({
         subdomain,
         action: 'channels.find',
@@ -261,21 +259,20 @@ const init = async app => {
       });
 
       for (const channel of channels) {
-        channelMemberIds = [...channelMemberIds, ...(channel.memberIds || [])];
+        for (const userId of channel.memberIds || []) {
+          graphqlPubsub.publish(`conversationClientMessageInserted:${userId}`, {
+            conversationClientMessageInserted: {
+              _id: Math.random().toString(),
+              content: 'new callpro message',
+              createdAt: new Date(),
+              customerId: customer.erxesApiId,
+              conversationId: conversation.erxesApiId
+            },
+            conversation,
+            integration: inboxIntegration
+          });
+        }
       }
-
-      graphqlPubsub.publish('conversationClientMessageInserted', {
-        conversationClientMessageInserted: {
-          _id: Math.random().toString(),
-          content: 'new callpro message',
-          createdAt: new Date(),
-          customerId: customer.erxesApiId,
-          conversationId: conversation.erxesApiId
-        },
-        conversation,
-        integration: inboxIntegration,
-        channelMemberIds
-      });
 
       res.send('success');
     })

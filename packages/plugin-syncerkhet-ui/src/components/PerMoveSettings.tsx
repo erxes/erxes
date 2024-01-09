@@ -88,14 +88,6 @@ class PerSettings extends React.Component<Props, State> {
     this.props.delete(this.props.currentConfigKey);
   };
 
-  onChangeCombo = option => {
-    this.onChangeConfig('defaultPay', option.value);
-  };
-
-  onChangeCheckbox = (code: string, e) => {
-    this.onChangeConfig(code, e.target.checked);
-  };
-
   onChangeConfig = (code: string, value) => {
     const { config } = this.state;
     config[code] = value;
@@ -122,22 +114,6 @@ class PerSettings extends React.Component<Props, State> {
           defaultValue={config[key]}
           onChange={this.onChangeInput.bind(this, key)}
           required={true}
-        />
-      </FormGroup>
-    );
-  };
-
-  renderCheckbox = (key: string, title?: string, description?: string) => {
-    const { config } = this.state;
-
-    return (
-      <FormGroup>
-        <ControlLabel>{title || key}</ControlLabel>
-        {description && <p>{__(description)}</p>}
-        <FormControl
-          checked={config[key]}
-          onChange={this.onChangeCheckbox.bind(this, key)}
-          componentClass="checkbox"
         />
       </FormGroup>
     );

@@ -35,6 +35,34 @@ export const sendCommonMessage = async (
   });
 };
 
+export const getConfig = async (
+  code: string,
+  subdomain: string,
+  defaultValue?: string
+) => {
+  const configs = await sendCoreMessage({
+    subdomain,
+    action: 'getConfigs',
+    data: {},
+    isRPC: true,
+    defaultValue: []
+  });
+
+  if (!configs[code]) {
+    return defaultValue;
+  }
+
+  return configs[code];
+};
+
+export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName: 'core',
+    ...args
+  });
+};
 export default function() {
   return client;
 }

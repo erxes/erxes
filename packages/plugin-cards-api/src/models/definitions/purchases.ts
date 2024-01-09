@@ -1,14 +1,8 @@
 import { Document, Schema } from 'mongoose';
-import {
-  attachmentSchema,
-  commonItemFieldsSchema,
-  IItemCommonFields
-} from './boards';
-
-import { customFieldSchema, ICustomField } from './common';
+import { commonItemFieldsSchema, IItemCommonFields } from './boards';
 
 import { EXPENSE_DIVIDE_TYPES } from './constants';
-import { field, schemaWrapper } from './utils';
+import { field } from './utils';
 
 export interface IProductPurchaseData extends Document {
   productId: string;
@@ -29,13 +23,12 @@ export interface IProductPurchaseData extends Document {
   assignUserId?: string;
   branchId?: string;
   departmentId?: string;
-  costPrice: number;
+  expenseAmount?: number;
 }
 
 export interface IExpensesPurchaseData extends Document {
-  price: number;
   _id: string;
-  expenseId: string;
+  name: string;
   value: number;
   type: string;
 }
@@ -81,7 +74,11 @@ export const purchaseproductDataSchema = new Schema(
     assignUserId: field({ type: String, optional: true, esType: 'keyword' }), // AssignUserId
     branchId: field({ type: String, optional: true, esType: 'keyword' }),
     departmentId: field({ type: String, optional: true, esType: 'keyword' }),
-    costPrice: field({ type: Number, label: 'Amount price' }) // Cost price
+    expenseAmount: field({
+      type: Number,
+      optional: true,
+      label: 'Expense amount'
+    }) // Expense Amount
   },
   { _id: false }
 );
@@ -89,8 +86,7 @@ export const purchaseproductDataSchema = new Schema(
 export const expensDataSchema = new Schema({
   _id: field({ pkey: true }),
   name: field({ type: String, esType: 'keyword', label: 'name' }),
-  expenseId: field({ type: String, esType: 'keyword', label: 'Expense' }),
-  price: field({ type: Number, label: 'price' }),
+  value: field({ type: Number, label: 'Expense value' }),
   type: field({ type: String, enum: EXPENSE_DIVIDE_TYPES.ALL, label: 'Type' })
 });
 

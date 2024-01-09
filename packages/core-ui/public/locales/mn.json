@@ -2477,5 +2477,19 @@
   "Saving Primary Customers":"Үндсэн эзэмшигч",
   "Saving Primary Companies":"Үндсэн эзэмшигч",
   "Saving Collectively Customers":"Хамтран эзэмшигч",
-  "Loan Contracts":"Зээлийн гэрээ"
+  "Loan Contracts":"Зээлийн гэрээ",
+  "Saving upper interest":"Итгэлцлийн нэмэгдүүлэх зээлийн хүү",
+  "Saving upper percent":"Итгэлцлийн зээлжих хувь",
+  "Change contract":"Гэрээ өөрчлөх",
+  "Saving contracts":"Итгэлцлийн гэрээ",
+  "Collateral type":"Барьцаа хөрөнгийн төрөл",
+  "Interest store":"Хүү хуримтлал",
+  "Invoice":"Нэхэмжлэх",
+  "Loan give":"Зээл олголт",
+  "Loan repayment":"Зээл эргэн төлөлт",
+  "Loan amount":"Зээлийн дүн",
+  "Product Type":"Бүтээгдэхүүний төрөл",
+  "Is use margin amount":"Худалдан авалтын дүн ашиглах эсэх",
+  "Is use manual numbering":"Гараар дугаарлах эсэх",
+  "Is use fee":"Шимтгэл ашиглах эсэх"
 }

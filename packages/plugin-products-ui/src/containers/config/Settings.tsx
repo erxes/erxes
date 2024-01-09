@@ -21,10 +21,6 @@ class SettingsContainer extends React.Component<FinalProps> {
   render() {
     const { updateConfigs, productsConfigsQuery, uomsQuery } = this.props;
 
-    if (productsConfigsQuery.loading || uomsQuery.loading) {
-      return <Spinner objective={true} />;
-    }
-
     // create or update action
     const save = (map: IConfigsMap) => {
       updateConfigs({
@@ -54,6 +50,7 @@ class SettingsContainer extends React.Component<FinalProps> {
         configsMap={configsMap}
         save={save}
         uoms={uomsQuery.uoms}
+        loading={productsConfigsQuery.loading || uomsQuery.loading}
       />
     );
   }
