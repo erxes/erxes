@@ -3,7 +3,13 @@ import { generateModels } from './connectionResolver';
 
 const allowTypes = {
   'contacts:customer': ['create', 'update'],
-  'contacts:company': ['create', 'update']
+  'contacts:company': ['create', 'update'],
+  //deposit
+  'saving:deposit': ['create', 'update'],
+  'saving:depositTransaction': ['create'],
+  //saving
+  'saving:contract': ['create']
+  //loan
 };
 
 export const afterMutationHandlers = async (subdomain, params) => {
