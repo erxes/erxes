@@ -81,14 +81,13 @@ const init = async app => {
 
     const data = req.body;
 
-    console.log('Facebook receive data', data);
-
+    // console.log('Facebook receive data', data);
     if (data.object !== 'page') {
       return;
     }
 
     const adapter = await getAdapter(models);
-
+    console.log(data, 'data');
     for (const entry of data.entry) {
       // receive chat
       if (entry.messaging) {
@@ -102,30 +101,30 @@ const init = async app => {
               next();
             }
 
-            const pageId = activity.recipient.id;
+            // const pageId = activity.recipient.id;
 
-            const integration = await models.Integrations.getIntegration({
-              $and: [
-                { facebookPageIds: { $in: pageId } },
-                { kind: INTEGRATION_KINDS.MESSENGER }
-              ]
-            });
+            // const integration = await models.Integrations.getIntegration({
+            //   $and: [
+            //     { facebookPageIds: { $in: pageId } },
+            //     { kind: INTEGRATION_KINDS.MESSENGER }
+            //   ]
+            // });
 
-            await models.Accounts.getAccount({ _id: integration.accountId });
+            // await models.Accounts.getAccount({ _id: integration.accountId });
 
-            const { facebookPageTokensMap = {} } = integration;
+            // const { facebookPageTokensMap = {} } = integration;
 
-            try {
-              accessTokensByPageId[pageId] = getPageAccessTokenFromMap(
-                pageId,
-                facebookPageTokensMap
-              );
-            } catch (e) {
-              debugFacebook(
-                `Error occurred while getting page access token: ${e.message}`
-              );
-              return next();
-            }
+            // try {
+            //   accessTokensByPageId[pageId] = getPageAccessTokenFromMap(
+            //     pageId,
+            //     facebookPageTokensMap
+            //   );
+            // } catch (e) {
+            //   debugFacebook(
+            //     `Error occurred while getting page access token: ${e.message}`
+            //   );
+            //   return next();
+            // }
 
             await receiveMessage(models, subdomain, activity);
 
@@ -150,6 +149,7 @@ const init = async app => {
               `Received comment data ${JSON.stringify(event.value)}`
             );
             try {
+              console.log(JSON.stringify(event.value), 'event.value');
               await receiveComment(models, subdomain, event.value, entry.id);
               debugFacebook(
                 `Successfully saved  ${JSON.stringify(event.value)}`
@@ -166,6 +166,7 @@ const init = async app => {
               debugFacebook(
                 `Received post data ${JSON.stringify(event.value)}`
               );
+              console.log(event.value, 'event.value');
               await receivePost(models, subdomain, event.value, entry.id);
               debugFacebook(
                 `Successfully saved post ${JSON.stringify(event.value)}`

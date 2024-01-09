@@ -140,7 +140,6 @@ export default class FacebookComment extends React.Component<
 
     const size = comment && comment.parentId ? 20 : 32;
     const statusText = isResolved ? 'Open' : 'Resolve';
-
     const content = props => (
       <ReplyingMessage
         changeHasReply={this.changeHasReply}

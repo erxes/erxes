@@ -136,21 +136,20 @@ export const initBroker = async cl => {
     };
   });
 
-  consumeRPCQueue(
-    'facebook:createIntegration',
-    async ({ subdomain, data: { doc, kind } }) => {
-      const models = await generateModels(subdomain);
+  consumeRPCQueue('facebook:createIntegration', async ({ subdomain, data }) => {
+    const { kind, doc } = data;
 
-      if (kind === 'facebook') {
-        return facebookCreateIntegration(models, doc);
-      }
+    const models = await generateModels(subdomain);
 
-      return {
-        status: 'error',
-        data: 'Wrong kind'
-      };
+    if (kind === 'facebook') {
+      return facebookCreateIntegration(models, doc);
     }
-  );
+
+    return {
+      status: 'error',
+      data: 'Wrong kind'
+    };
+  });
 
   // '/integrations/remove',
   consumeRPCQueue(

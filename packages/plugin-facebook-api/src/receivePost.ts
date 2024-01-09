@@ -22,7 +22,7 @@ const receivePost = async (
 
   const userId = params.from.id;
 
-  const customer = await getOrCreateCustomer(
+  await getOrCreateCustomer(
     models,
     subdomain,
     pageId,
@@ -35,8 +35,8 @@ const receivePost = async (
     subdomain,
     params,
     pageId,
-    userId,
-    customer.erxesApiId || ''
+    userId
+    // customer.erxesApiId || ''
   );
 };
 

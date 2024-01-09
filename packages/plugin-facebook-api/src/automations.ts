@@ -271,15 +271,12 @@ const actionCreateMessage = async (
         }
       });
 
-      graphqlPubsub.publish(
-        `conversationMessageInserted:${conversation.erxesApiId}`,
-        {
-          conversationMessageInserted: {
-            ...conversationMessage.toObject(),
-            conversationId: conversation.erxesApiId
-          }
+      graphqlPubsub.publish('conversationMessageInserted', {
+        conversationMessageInserted: {
+          ...conversationMessage.toObject(),
+          conversationId: conversation.erxesApiId
         }
-      );
+      });
 
       const { optionalConnects = [] } = config;
 

@@ -69,7 +69,7 @@ export default class FacebookConversation extends React.Component<
     }
 
     const limit = comments.length + 5;
-
+    console.log('1');
     fetchFacebook({ postId: post.erxesApiId, limit });
   };
 

@@ -49,7 +49,6 @@ class ActivityLogs extends React.Component<Props, { toggleMessage: boolean }> {
       toggleMessage: false
     };
   }
-
   onCollapse = () => {
     this.setState({ toggleMessage: !this.state.toggleMessage });
   };
@@ -114,7 +113,7 @@ class ActivityLogs extends React.Component<Props, { toggleMessage: boolean }> {
         />
       );
     });
-
+    console.log('123');
     return (
       <>
         {rows}
@@ -167,7 +166,7 @@ class ActivityLogs extends React.Component<Props, { toggleMessage: boolean }> {
     if (condition === 'comment') {
       customer = comments.length > 0 ? comments[0].customer : customer;
     }
-
+    console.log('sad1');
     return (
       <FlexBody>
         <b>{renderFullName(customer)}</b> {action}&nbsp;
