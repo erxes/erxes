@@ -17,7 +17,7 @@ type Props = {
 export default function View({ structure, showEdit }: Props) {
   const edit = (
     <StructureEditButton>
-      <Icon icon="edit-3" onClick={showEdit} size={14} />
+      <Icon icon="edit" onClick={showEdit} size={14} />
     </StructureEditButton>
   );
 

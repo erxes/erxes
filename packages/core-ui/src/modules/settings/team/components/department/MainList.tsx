@@ -7,12 +7,12 @@ import {
   InputBar,
   FlexItem,
   Title,
-  LeftActionBar
+  LeftActionBar,
+  FlexRow
 } from '@erxes/ui-settings/src/styles';
 import { __, router } from '@erxes/ui/src/utils';
 
 import ActionButtons from '@erxes/ui/src/components/ActionButtons';
-import { BarItems } from 'modules/layout/styles';
 import Button from 'modules/common/components/Button';
 import DataWithLoader from 'modules/common/components/DataWithLoader';
 import Form from '../../containers/common/BlockForm';
@@ -201,6 +201,13 @@ class MainList extends React.Component<Props, State> {
               )}
               trigger={trigger}
             />
+            <Tip text={__('Delete')} placement="top">
+              <Button
+                btnStyle="link"
+                onClick={() => this.remove(department._id)}
+                icon="times-circle"
+              />
+            </Tip>
           </ActionButtons>
         </td>
       </tr>
@@ -277,7 +284,7 @@ class MainList extends React.Component<Props, State> {
   renderActionBar = () => {
     const { totalCount } = this.props;
 
-    const rightActionBar = <BarItems>{this.renderButtons()}</BarItems>;
+    const rightActionBar = <FlexRow>{this.renderButtons()}</FlexRow>;
 
     const leftActionBar = (
       <LeftActionBar>
