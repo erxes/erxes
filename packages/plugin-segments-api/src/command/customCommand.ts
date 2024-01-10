@@ -195,7 +195,7 @@ const command = async () => {
   console.log({ stageIds });
 
   for (let i = 1; i <= count; i++) {
-    const bulkDocs = [];
+    const bulkDocs: any[] = [];
 
     const customers = await Customers.find({})
       .limit(limit)
