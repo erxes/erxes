@@ -135,23 +135,23 @@ const queries = {
       throw new Error('login required');
     }
 
-    const { user } = await verifyVendor({
+    const { user, company } = await verifyVendor({
       subdomain,
       cpUser
     });
 
-    const vendorUsers = await sendCommonMessage({
+    const users = await sendCommonMessage({
       subdomain,
       action: 'clientPortalUsers.find',
       serviceName: 'clientportal',
       isRPC: true,
       defaultValue: [],
       data: {
-        clientPortalId: user.clientPortalId
+        erxesCompanyId: company._id
       }
     });
 
-    const vendorUserIds = vendorUsers.map((u: any) => u._id);
+    const vendorUserIds = users.map((u: any) => u._id);
 
     const qry: any = query(searchField, searchValue);
 
