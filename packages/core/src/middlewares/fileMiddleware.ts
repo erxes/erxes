@@ -19,29 +19,6 @@ export const uploader = async (req: any, res, next) => {
   const maxHeight = Number(req.query.maxHeight);
   const maxWidth = Number(req.query.maxWidth);
 
-  const INTEGRATIONS_API_DOMAIN = `${domain}/gateway/pl:integrations`;
-
-  if (req.query.kind === 'nylas') {
-    debugExternalApi(`Pipeing request to ${INTEGRATIONS_API_DOMAIN}`);
-
-    return req.pipe(
-      request
-        .post(`${INTEGRATIONS_API_DOMAIN}/nylas/upload`)
-        .on('response', response => {
-          if (response.statusCode !== 200) {
-            return next(new Error(response.statusMessage));
-          }
-
-          return response.pipe(res);
-        })
-        .on('error', e => {
-          debugExternalApi(`Error from pipe ${e.message}`);
-
-          return next(e);
-        })
-    );
-  }
-
   const form = new formidable.IncomingForm();
 
   form.parse(req, async (_error, _fields, response) => {
