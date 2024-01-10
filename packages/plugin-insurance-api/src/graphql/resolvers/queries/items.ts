@@ -135,43 +135,10 @@ const queries = {
       throw new Error('login required');
     }
 
-    const user = await sendCommonMessage({
+    const { user } = await verifyVendor({
       subdomain,
-      action: 'clientPortalUsers.findOne',
-      serviceName: 'clientportal',
-      isRPC: true,
-      defaultValue: undefined,
-      data: {
-        _id: cpUser.userId
-      }
+      cpUser
     });
-
-    if (!user) {
-      throw new Error('User not found');
-    }
-
-    const clientportal = await sendCommonMessage({
-      subdomain,
-      action: 'clientPortals.findOne',
-      serviceName: 'clientportal',
-      isRPC: true,
-      defaultValue: undefined,
-      data: {
-        _id: user.clientPortalId
-      }
-    });
-
-    if (!clientportal) {
-      throw new Error("User's clientportal not found");
-    }
-
-    if (clientportal.kind !== 'vendor') {
-      throw new Error('User is not vendor');
-    }
-
-    if (!user.erxesCompanyId) {
-      throw new Error('User does not assigned to any company');
-    }
 
     const vendorUsers = await sendCommonMessage({
       subdomain,
