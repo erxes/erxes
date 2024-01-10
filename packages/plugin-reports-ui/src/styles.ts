@@ -483,6 +483,23 @@ const ReportContainer = styled(Contents)`
   }
 `;
 
+const FlexRow = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+`;
+
+const DateName = styled.div`
+  text-transform: uppercase;
+  margin: ${dimensions.unitSpacing}px 0;
+  text-align: center;
+`;
+
+const MarginY = styledTS<{ margin: number }>(styled.div)`
+  margin: ${props => props.margin}px 0;
+`;
+
 export {
   DragField,
   CenterBar,
@@ -506,5 +523,8 @@ export {
   DrawerDetail,
   ChartTitle,
   HeightedWrapper,
-  ReportContainer
+  ReportContainer,
+  FlexRow,
+  DateName,
+  MarginY
 };

@@ -2,9 +2,10 @@ import SelectTags from '@erxes/ui-tags/src/containers/SelectTags';
 import { ControlLabel, SelectTeamMembers } from '@erxes/ui/src';
 import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
 import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
-
 import React, { useState } from 'react';
 import Select from 'react-select-plus';
+import DateRange from '../datepicker/DateRange';
+import { MarginY } from '../../styles';
 
 type Props = {
   fieldType: string;
@@ -27,10 +28,24 @@ const ChartFormField = (props: Props) => {
     onChange
   } = props;
   const [fieldValue, setFieldValue] = useState(initialValue);
+  const [dateRangeStart, setDateStart] = useState(new Date());
+  const [dateRangeEnd, setDateEnd] = useState(new Date());
 
   const onSelect = e => {
     setFieldValue(e.value);
     onChange(e);
+  };
+
+  const onDateRangeStartChange = (newStart: Date) => {
+    setDateStart(newStart);
+  };
+
+  const onDateRangeEndChange = (newEnd: Date) => {
+    setDateEnd(newEnd);
+  };
+
+  const onSaveDateRange = () => {
+    console.log('save');
   };
 
   switch (fieldQuery) {
@@ -75,7 +90,7 @@ const ChartFormField = (props: Props) => {
             name="chartTags"
             label={fieldLabel}
             onSelect={onChange}
-            // initialValue={fieldValue}
+            initialValue={fieldValue}
           />
         </div>
       );
@@ -92,6 +107,31 @@ const ChartFormField = (props: Props) => {
             onSelect={onChange}
             initialValue={fieldValue}
           />
+        </div>
+      );
+
+    case 'date':
+      return (
+        <div>
+          <ControlLabel>{fieldLabel}</ControlLabel>
+          <Select
+            value={fieldValue}
+            onChange={onSelect}
+            options={fieldOptions}
+            placeholder={fieldLabel}
+          />
+          {fieldValue === 'customDate' && (
+            <MarginY margin={20}>
+              <DateRange
+                showTime={false}
+                startDate={dateRangeStart}
+                endDate={dateRangeEnd}
+                onChangeEnd={onDateRangeEndChange}
+                onChangeStart={onDateRangeStartChange}
+                onSaveButton={onSaveDateRange}
+              />
+            </MarginY>
+          )}
         </div>
       );
 

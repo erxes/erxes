@@ -29,6 +29,21 @@ const integrationTypes = async () => {
   return integrationTypes;
 };
 
+const integrationBrands = async (subdomain: any) => {
+  const brands = await sendCoreMessage({
+    subdomain,
+    action: 'brands.find',
+    data: {
+      query: {}
+    },
+    isRPC: true,
+    defaultValue: []
+  });
+
+  return brands.map(brand => ({ label: brand.name, value: brand._id }));
+};
+
+// const brands = await integrationBrands();
 // XOS messenger
 // email
 // Call
@@ -49,9 +64,26 @@ const integrationTypes = async () => {
 const DATERANGE_TYPES = [
   { label: 'All time', value: 'all' },
   { label: 'Today', value: 'today' },
-  { label: 'Yesterday', value: 'today' },
-  { label: 'Last Week', value: 'lastweek' },
-  { label: 'This Week', value: 'thisweek' }
+  { label: 'Yesterday', value: 'yesterday' },
+  { label: 'This Week', value: 'thisWeek' },
+  { label: 'Last Week', value: 'lastWeek' },
+  { label: 'Custom Date', value: 'customDate' }
+];
+
+const BRAND_TYPES = [
+  { label: 'culture.erxes.io', value: '7jT85DCftyEvSCB3c' },
+  { label: 'block.mn', value: '7r1ffWS1cHmaFDQ0chvRq' },
+  { label: 'partner.erxes.mn', value: 'AaCpKXSBoLtZsannQ' },
+  { label: 'Invest erxes - TDB 🇲🇳', value: 'FPHygSvFCivSuBXxK' },
+  { label: 'erkhet', value: 'FkQCXdsFTASqpmrou' },
+  { label: 'Invest in erxes 🇬🇧', value: 'NM2k5RAL7fKmJoqeq' },
+  { label: 'erxes Inc 🇬🇧', value: 'Wp5uEmjzScXuDcnpS' },
+  { label: 'erxes Mongolia 🇲🇳', value: 'd2vGwZcfpQr5oQrqN' },
+  { label: 'help.erxes.io 🇬🇧', value: 'jS9iRQL4ERSzgtxQT' },
+  { label: 'The New Media Group', value: 'owMWQueFNjBjfKJXH' },
+  { label: 'culture.erxes.mn 🇲🇳', value: 'pwwsa9xSvhJE4Mwq8' },
+  { label: 'partner.erxes.io', value: 'uAaN2Y8TQibGuXqPg' },
+  { label: 'erxes Open Source 🇬🇧', value: 'uSa9BXx9bG5HTpSNc' }
 ];
 
 const INTEGRATION_TYPES = [
@@ -455,6 +487,26 @@ const chartTemplates = [
         filterUserIds.push(...findBranchUsers.map(user => user._id));
       }
 
+      if (filter.dateRange) {
+        const { dateRange } = filter;
+        const dateFilter = {};
+        const TODAY = new Date();
+
+        switch (dateRange) {
+          case 'today':
+            dateFilter['$gte'] = TODAY;
+            dateFilter['$lte'] = TODAY;
+            break;
+
+          default:
+            break;
+        }
+
+        if (Object.keys(dateFilter).length) {
+          matchfilter['createdAt'] = dateFilter;
+        }
+      }
+
       // if team members selected, go by team members
       if (filter.userIds) {
         filterUserIds = filter.userIds;
@@ -470,13 +522,30 @@ const chartTemplates = [
         }
       }
 
+      const integrationFindQuery = {};
+
+      // filter integrations by brands
+      if (filter.brandIds) {
+        integrationFindQuery['brandId'] = { $in: filter.brandIds };
+
+        const integrations: any = await models?.Integrations.find(
+          integrationFindQuery
+        );
+
+        const integrationIds = integrations.map(i => i._id);
+
+        matchfilter['integrationId'] = { $in: integrationIds };
+      }
+
       // filter by source
       if (filter.integrationType && filter.integrationType !== 'all') {
         const { integrationType } = filter;
 
-        const integrations: any = await models?.Integrations.find({
-          kind: integrationType
-        });
+        integrationFindQuery['kind'] = integrationType;
+
+        const integrations: any = await models?.Integrations.find(
+          integrationFindQuery
+        );
 
         const integrationIds = integrations.map(i => i._id);
 
@@ -604,11 +673,27 @@ const chartTemplates = [
         fieldLabel: 'Select branches'
       },
       {
+        fieldName: 'brandIds',
+        fieldType: 'select',
+        multi: true,
+        fieldQuery: 'brands',
+        fieldOptions: BRAND_TYPES,
+        fieldLabel: 'Select date range'
+      },
+      {
         fieldName: 'integrationType',
         fieldType: 'select',
         multi: true,
         fieldOptions: INTEGRATION_TYPES,
         fieldLabel: 'Select source'
+      },
+      {
+        fieldName: 'dateRange',
+        fieldType: 'select',
+        multi: true,
+        fieldQuery: 'date',
+        fieldOptions: DATERANGE_TYPES,
+        fieldLabel: 'Select date range'
       },
       {
         fieldName: 'tags',
