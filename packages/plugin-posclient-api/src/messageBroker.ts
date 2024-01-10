@@ -188,7 +188,7 @@ export const initBroker = async cl => {
         return;
       }
 
-      await updateMobileAmount(models, [data]);
+      await updateMobileAmount(subdomain, models, [data]);
     }
   );
 

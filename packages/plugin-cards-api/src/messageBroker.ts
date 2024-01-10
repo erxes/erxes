@@ -656,6 +656,18 @@ export const initBroker = async cl => {
     }
   );
 
+  consumeRPCQueue(
+    'cards:pipelineLabels.find',
+    async ({ subdomain, data: { query, fields } }) => {
+      const models = await generateModels(subdomain);
+
+      return {
+        status: 'success',
+        data: await models.PipelineLabels.find(query, fields)
+      };
+    }
+  );
+
   consumeQueue(
     'cards:pipelinesChanged',
     async ({ subdomain, data: { pipelineId, action, data } }) => {

@@ -114,8 +114,8 @@ export const afterMutationHandlers = async (subdomain, params) => {
           ebarimtResponses.push(resp);
         }
 
-        await graphqlPubsub.publish('automationResponded', {
-          automationResponded: {
+        await graphqlPubsub.publish('multierkhetResponded', {
+          multierkhetResponded: {
             userId: user._id,
             responseId: ebarimtResponses.map(er => er._id).join('-'),
             sessionCode: user.sessionCode || '',
@@ -171,29 +171,21 @@ export const afterMutationHandlers = async (subdomain, params) => {
               action: 'get-response-send-order-info',
               isEbarimt: true,
               payload: JSON.stringify(postData),
-              isJson: true,
+              isJson: false,
               thirdService: true
             }
           );
 
-          ebarimtResponses.push({ ...response, _id: Math.random() });
-
-          if (response && (response.message || response.error)) {
-            const txt = JSON.stringify({
-              message: response.message,
-              error: response.error
-            });
-            console.log(txt);
-          }
+          ebarimtResponses.push(response);
         }
 
-        await graphqlPubsub.publish('automationResponded', {
-          automationResponded: {
+        await graphqlPubsub.publish('multierkhetResponded', {
+          multierkhetResponded: {
             userId: user._id,
             responseId: ebarimtResponses.map(er => er._id).join('-'),
             sessionCode: user.sessionCode || '',
             content: ebarimtResponses.map(er => ({
-              ...er.ebarimt,
+              response: er,
               _id: er._id,
               error: er.error,
               success: er.success,

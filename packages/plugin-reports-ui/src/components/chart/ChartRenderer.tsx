@@ -77,7 +77,7 @@ const ChartRenderer = (props: IChartProps) => {
     type: chartType,
     data: chartData,
     plugins: [ChartDataLabels],
-    options: { plugins, ...options }
+    options: { ...options, plugins }
   };
 
   useEffect(() => {

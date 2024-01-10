@@ -232,6 +232,8 @@ export const contractDetailFields = `
   customPayment
   customInterest
   invoices
+  storeInterest
+  loanTransactionHistory
   contractType {
     code
     name

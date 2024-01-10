@@ -72,11 +72,19 @@ export default function Appearance(props: Props) {
   const [appearance, setAppearance] = useState(
     exmAppearance
       ? {
-          primaryColor: exmAppearance.primaryColor,
-          secondaryColor: exmAppearance.secondaryColor,
-          bodyColor: exmAppearance.bodyColor,
-          headerColor: exmAppearance.headerColor,
+          primaryColor: exmAppearance.primaryColor
+            ? exmAppearance.primaryColor
+            : '',
+          secondaryColor: exmAppearance.secondaryColor
+            ? exmAppearance.secondaryColor
+            : '',
+          bodyColor: exmAppearance.bodyColor ? exmAppearance.bodyColor : '',
+          headerColor: exmAppearance.headerColor
+            ? exmAppearance.headerColor
+            : '',
           footerColor: exmAppearance.footerColor
+            ? exmAppearance.footerColor
+            : ''
         }
       : {
           primaryColor: 'red',
