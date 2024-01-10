@@ -35,10 +35,10 @@ function EditFormContainer(props: Props) {
   }: IButtonMutateProps) => {
     return (
       <ButtonMutate
-        mutation={mutations.exmsEdit}
+        mutation={object ? mutations.exmsEdit : mutations.exmsAdd}
         variables={values}
         callback={callback}
-        refetchQueries={'exmGet'}
+        refetchQueries={['exmGet']}
         isSubmitted={isSubmitted}
         type="submit"
         icon="check-circle"
