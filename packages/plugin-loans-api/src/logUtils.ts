@@ -57,15 +57,6 @@ export const gatherDescriptions = async (params: IParams) => {
 export async function createLog(subdomain, user, logData) {
   const descriptions = await gatherDescriptions(logData);
 
-  await putActivityLog(subdomain, {
-    ...logData,
-    ...descriptions,
-    type: `loans:${logData.type}`,
-    activityType: `loans:${logData.type}`,
-    contentType: `loans:contract`,
-    contentId: logData.contractId
-  });
-
   await putCreateLog(
     subdomain,
     messageBroker(),

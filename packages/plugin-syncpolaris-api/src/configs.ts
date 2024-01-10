@@ -13,7 +13,7 @@ export let mainDb;
 export let serviceDiscovery;
 
 export default {
-  name: 'syncerkhet',
+  name: 'syncpolaris',
   permissions,
   graphql: async sd => {
     serviceDiscovery = sd;

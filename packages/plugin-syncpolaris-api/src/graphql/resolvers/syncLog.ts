@@ -1,23 +1,9 @@
 import { IContext } from '../../connectionResolver';
-import { sendCoreMessage } from '../../messageBroker';
 import { ISyncLogDocument } from '../../models/definitions/syncLog';
 
 export default {
   __resolveReference({ _id }, { models }: IContext) {
     return models.SyncLogs.findOne({ _id });
-  },
-
-  async createdUser(syncLog: ISyncLogDocument, _, { subdomain }: IContext) {
-    if (!syncLog.createdBy) {
-      return;
-    }
-
-    return await sendCoreMessage({
-      subdomain,
-      action: 'users.findOne',
-      data: { _id: syncLog.createdBy },
-      isRPC: true
-    });
   },
 
   async content(syncLog: ISyncLogDocument, _, {}: IContext) {

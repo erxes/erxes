@@ -17,8 +17,7 @@ const allowTypes = {
   'products:productCategory': ['create', 'update', 'delete'],
   'products:product': ['create', 'update', 'delete'],
   'contacts:customer': ['create', 'update', 'delete'],
-  'contacts:company': ['create', 'update', 'delete'],
-  'loans:contract': ['create', 'update', 'delete']
+  'contacts:company': ['create', 'update', 'delete']
 };
 
 export const afterMutationHandlers = async (subdomain, params) => {
