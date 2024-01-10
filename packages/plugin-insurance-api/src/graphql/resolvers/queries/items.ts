@@ -60,7 +60,9 @@ const queries = {
       sortField,
       sortDirection,
       searchValue,
-      searchField
+      searchField,
+      startDate,
+      endDate
     }: {
       page: number;
       perPage: number;
@@ -78,6 +80,8 @@ const queries = {
         | 'itemPrice'
         | 'itemFeePercent'
         | 'itemTotalFee';
+      startDate: any;
+      endDate: any;
     },
     { models, subdomain }: IContext
   ) => {
@@ -92,6 +96,13 @@ const queries = {
     const sortQuery = {
       [`searchDictionary.${sortField}`]: sortOrder
     };
+
+    if (startDate && endDate) {
+      qry['searchDictionary.dealCreatedAt'] = {
+        $gte: new Date(startDate),
+        $lt: new Date(endDate)
+      };
+    }
 
     return {
       list: paginate(models.Items.find(qry).sort(sortQuery), {
@@ -110,13 +121,17 @@ const queries = {
       sortField,
       sortDirection,
       searchValue,
-      searchField
+      searchField,
+      startDate,
+      endDate
     }: {
       page: number;
       perPage: number;
       sortField: string;
       sortDirection: 'ASC' | 'DESC';
       searchValue: any;
+      startDate: any;
+      endDate: any;
       searchField:
         | 'dealNumber'
         | 'dealCreatedAt'
@@ -168,6 +183,13 @@ const queries = {
     const sortQuery = {
       [`searchDictionary.${sortField}`]: sortOrder
     };
+
+    if (startDate && endDate) {
+      qry['searchDictionary.dealCreatedAt'] = {
+        $gte: new Date(startDate),
+        $lt: new Date(endDate)
+      };
+    }
 
     return {
       list: paginate(models.Items.find(qry).sort(sortQuery), {

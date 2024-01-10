@@ -72,7 +72,9 @@ export const buildFile = async (models, subdomain, cpUser, args) => {
     sortDirection,
     categoryId,
     page,
-    perPage
+    perPage,
+    startDate,
+    endDate
   } = args;
 
   const { company } = await verifyVendor({
@@ -114,6 +116,13 @@ export const buildFile = async (models, subdomain, cpUser, args) => {
   const sortQuery = {
     [`searchDictionary.${sortField}`]: sortOrder
   };
+
+  if (startDate && endDate) {
+    qry['searchDictionary.dealCreatedAt'] = {
+      $gte: new Date(startDate),
+      $lte: new Date(endDate)
+    };
+  }
 
   const items = await paginate(models.Items.find(qry).sort(sortQuery), {
     page,

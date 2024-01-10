@@ -72,7 +72,12 @@ export const queries = `
       sortField: String
       sortDirection: SortDirection
       searchField: SearchField
-      searchValue: JSON): InsuranceItemListResult
+      searchValue: JSON
+      startDate: Date
+      endDate: Date
+      ): InsuranceItemListResult
+
+
     insuranceItem(_id: ID!): InsuranceItem
     insuranceItemByDealId(_id: String!): InsuranceItem
 
