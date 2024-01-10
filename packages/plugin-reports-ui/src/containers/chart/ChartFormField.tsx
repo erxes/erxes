@@ -34,8 +34,6 @@ const ChartFormFieldList = (props: Props) => {
   const onChange = (input: any) => {
     switch (fieldType) {
       case 'select':
-        console.log(fieldQuery, input, ' input');
-
         const value =
           fieldQuery &&
           (fieldQuery.includes('user') ||
@@ -43,8 +41,6 @@ const ChartFormFieldList = (props: Props) => {
             fieldQuery.includes('branch'))
             ? input
             : input.value;
-
-        console.log(fieldName, ' name');
 
         setFilter(fieldName, value);
 
