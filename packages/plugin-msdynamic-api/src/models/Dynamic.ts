@@ -1,47 +1,33 @@
 import {
-  IDynamic,
-  IDynamicDocument,
-  msdynamicSchema
+  ISyncLog,
+  ISyncLogDocument,
+  syncLogSchema
 } from './definitions/dynamic';
 import { Model } from 'mongoose';
 import { IModels } from '../connectionResolver';
-import { IUser } from '@erxes/api-utils/src/types';
 
-export interface IDynamicModel extends Model<IDynamicDocument> {
-  createMsdynamicConfig(args: IDynamic): Promise<IDynamicDocument>;
-  updateMsdynamicConfig(args: IDynamic, user: IUser): Promise<IDynamicDocument>;
+export interface ISyncLogModel extends Model<ISyncLogDocument> {
+  syncLogsAdd(doc: ISyncLog): Promise<ISyncLogDocument>;
+  syncLogsEdit(_id: string, doc: ISyncLog): Promise<ISyncLogDocument>;
+  syncLogsRemove(_ids: string[]): Promise<JSON>;
 }
 
-export const loadDynamicClass = (model: IModels) => {
-  class Msdynamic {
-    // create
-    public static async createMsdynamicConfig(doc: IDynamic) {
-      return await model.Msdynamics.create({
-        ...doc,
-        createdAt: new Date()
-      });
+export const loadSyncLogClass = (models: IModels) => {
+  class SyncLog {
+    public static async syncLogsAdd(doc: ISyncLog) {
+      return models.SyncLogs.create({ ...doc });
     }
-    // update
-    public static async updateMsdynamicConfig(doc: IDynamic, user: IUser) {
-      if (!user) {
-        throw new Error('You are not logged in');
-      }
 
-      const result = await model.Msdynamics.findOne({
-        _id: doc._id
-      });
+    public static async syncLogsEdit(_id: string, doc: ISyncLog) {
+      return await models.SyncLogs.updateOne({ _id }, { $set: { ...doc } });
+    }
 
-      if (result) {
-        await model.Msdynamics.updateOne(
-          { _id: result._id },
-          { $set: { ...doc } }
-        );
-        return result;
-      }
+    public static async syncLogsRemove(_ids: string[]) {
+      return await models.SyncLogs.deleteMany({ _id: { $in: _ids } });
     }
   }
 
-  msdynamicSchema.loadClass(Msdynamic);
+  syncLogSchema.loadClass(SyncLog);
 
-  return msdynamicSchema;
+  return syncLogSchema;
 };

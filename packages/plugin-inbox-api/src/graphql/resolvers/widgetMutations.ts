@@ -91,13 +91,14 @@ export const pConversationClientMessageInserted = async (
     }
   }
 
-  graphqlPubsub.publish('conversationClientMessageInserted', {
-    conversationClientMessageInserted: message,
-    subdomain,
-    conversation,
-    integration,
-    channelMemberIds
-  });
+  for (const userId of channelMemberIds) {
+    graphqlPubsub.publish(`conversationClientMessageInserted:${userId}`, {
+      conversationClientMessageInserted: message,
+      subdomain,
+      conversation,
+      integration
+    });
+  }
 
   if (message.content) {
     sendCoreMessage({
@@ -1256,7 +1257,7 @@ const widgetMutations = {
       customerId = customer._id;
     }
 
-    let sessionId = conversationId;
+    let sessionId: string | null | undefined = conversationId;
 
     if (!conversationId) {
       sessionId = await redis.get(
