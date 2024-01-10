@@ -54,7 +54,6 @@ export const generateFields = async ({ subdomain }) => {
     options?: string[];
     selectOptions?: Array<{ label: string; value: string }>;
   }> = [];
-
   if (schema) {
     fields = [...fields, ...(await generateFieldsFromSchema(schema, ''))];
 

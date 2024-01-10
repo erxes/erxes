@@ -120,6 +120,7 @@ export const conformityQueryFields = `
 const queryParams = `
   page: Int
   perPage: Int
+  segment: String
   type: String
   ids: [String]
   excludeIds: Boolean

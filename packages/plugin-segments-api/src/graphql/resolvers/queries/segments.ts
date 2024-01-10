@@ -29,7 +29,6 @@ const segmentQueries = {
     const serviceNames = await serviceDiscovery.getServices();
 
     let types: Array<{ name: string; description: string }> = [];
-
     for (const serviceName of serviceNames) {
       const service = await serviceDiscovery.getService(serviceName);
       const meta = service.config.meta || {};

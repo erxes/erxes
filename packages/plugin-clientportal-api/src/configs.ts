@@ -9,6 +9,7 @@ import typeDefs from './graphql/typeDefs';
 import { initBroker } from './messageBroker';
 import cpUserMiddleware from './middlewares/cpUserMiddleware';
 import * as permissions from './permissions';
+import segments from './segments';
 
 export let graphqlPubsub;
 export let mainDb;
@@ -35,7 +36,8 @@ export default {
   meta: {
     forms,
     permissions,
-    afterMutations
+    afterMutations,
+    segments
   },
 
   apolloServerContext: async (context, req, res) => {

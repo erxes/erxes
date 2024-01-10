@@ -236,6 +236,30 @@ export const sendCommonMessage = async (
   });
 };
 
+export const fetchSegment = (
+  subdomain: string,
+  segmentId: string,
+  options?,
+  segmentData?: any
+) =>
+  sendSegmentsMessage({
+    subdomain,
+    action: 'fetchSegment',
+    data: { segmentId, options, segmentData },
+    isRPC: true
+  });
+
+export const sendSegmentsMessage = async (
+  args: ISendMessageArgs
+): Promise<any> => {
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName: 'segments',
+    ...args
+  });
+};
+
 export default function() {
   return client;
 }

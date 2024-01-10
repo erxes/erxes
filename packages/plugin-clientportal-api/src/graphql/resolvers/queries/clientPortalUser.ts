@@ -3,6 +3,7 @@ import { paginate } from '@erxes/api-utils/src';
 import { escapeRegExp } from '@erxes/api-utils/src/core';
 
 import { IContext } from '../../../connectionResolver';
+import { sendSegmentsMessage, fetchSegment } from '../../../messageBroker';
 
 const clientPortalUserQueries = {
   /**
@@ -17,6 +18,7 @@ const clientPortalUserQueries = {
       excludeIds,
       cpId,
       dateFilters,
+      segment,
       ...pagintationArgs
     }: {
       ids: string[];
@@ -27,8 +29,9 @@ const clientPortalUserQueries = {
       perPage: number;
       cpId: string;
       dateFilters: string;
+      segment: string;
     },
-    { commonQuerySelector, models }: IContext
+    { commonQuerySelector, models, subdomain }: IContext
   ) {
     const filter: any = commonQuerySelector;
 
@@ -105,6 +108,16 @@ const clientPortalUserQueries = {
       }
     }
 
+    if (segment) {
+      // const segmentObj = await sendSegmentsMessage({
+      //   subdomain,
+      //   action: 'findOne',
+      //   data: { _id: segment },
+      //   isRPC: true,
+      // });
+      // const itemIds = await fetchSegment(subdomain, segmentObj);
+      // filter._id = { $in: itemIds };
+    }
     return paginate(
       models.ClientPortalUsers.find(filter)
         .sort({ createdAt: -1 })
