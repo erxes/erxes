@@ -1,4 +1,11 @@
 export const types = `
+  type MultierkhetResponse {
+    content: JSON
+    responseId: String
+    userId: String
+    sessionCode: String
+  }
+
   type ManySyncHistory {
     _id: String!
     type: String

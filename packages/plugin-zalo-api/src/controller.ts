@@ -326,12 +326,15 @@ const init = async app => {
             }
           });
 
-          graphqlPubsub.publish('conversationMessageInserted', {
-            conversationMessageInserted: {
-              ...created.toObject(),
-              conversationId: conversation.erxesApiId
+          graphqlPubsub.publish(
+            `conversationMessageInserted:${conversation.erxesApiId}`,
+            {
+              conversationMessageInserted: {
+                ...created.toObject(),
+                conversationId: conversation.erxesApiId
+              }
             }
-          });
+          );
         } catch (e) {
           throw new Error(
             e.message.includes('duplicate')

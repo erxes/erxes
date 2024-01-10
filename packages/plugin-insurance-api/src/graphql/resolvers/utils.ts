@@ -199,19 +199,20 @@ export const buildFile = async (models, subdomain, cpUser, args) => {
   items.forEach((item, index) => {
     const fullName = `${item.searchDictionary.customerLastName || ''} ${item
       .searchDictionary.customerFirstName || ''}`;
-    const mark = item.customFieldsData.find(
-      f => f.field === fieldIdsMap.modelName
-    );
-    const archiveNumber = item.customFieldsData.find(
+
+    const customFieldsData = item.customFieldsData || [];
+
+    const mark = customFieldsData.find(f => f.field === fieldIdsMap.modelName);
+    const archiveNumber = customFieldsData.find(
       f => f.field === fieldIdsMap.archiveNumber
     );
-    const plateNumber = item.customFieldsData.find(
+    const plateNumber = customFieldsData.find(
       f => f.field === fieldIdsMap.plateNumber
     );
-    const colorName = item.customFieldsData.find(
+    const colorName = customFieldsData.find(
       f => f.field === fieldIdsMap.colorName
     );
-    const buildYear = item.customFieldsData.find(
+    const buildYear = customFieldsData.find(
       f => f.field === fieldIdsMap.buildYear
     );
 

@@ -11,6 +11,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { buildFile } from './graphql/resolvers/utils';
 import documents from './documents';
+import payment from './payment';
 
 export let mainDb;
 export let debug;
@@ -30,7 +31,8 @@ export default {
 
   meta: {
     forms,
-    documents
+    documents,
+    payment
   },
 
   apolloServerContext: async (context, req) => {
@@ -95,7 +97,8 @@ export default {
     // });
 
     app.get('/export', async (req, res) => {
-      if (!req.cpUser) {
+      const { cpUser } = req;
+      if (!cpUser) {
         return res.status(401).send('Unauthorized');
       }
 
@@ -105,7 +108,7 @@ export default {
 
       const models = await generateModels(subdomain);
 
-      const result = await buildFile(models, subdomain, req.cpUser, query);
+      const result = await buildFile(models, subdomain, cpUser, query);
 
       res.attachment(`${result.name}.xlsx`);
 
