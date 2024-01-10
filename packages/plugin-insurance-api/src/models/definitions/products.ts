@@ -19,16 +19,20 @@ export type TravelProductConfig = {
 };
 
 export interface IInsuranceProduct {
+  categoryId: string;
   name: string;
   code: string;
   description?: string;
   price: number;
-  companyProductConfigs?: ProductConfig[];
+  currencyCode?: string;
+  duration?: number;
+
   riskConfigs?: RiskConfig[];
-  categoryId: string;
+
   customFieldsData?: any;
 
   travelProductConfigs?: TravelProductConfig[];
+  companyProductConfigs?: ProductConfig[];
 }
 
 export interface IInsuranceProductDocument extends IInsuranceProduct, Document {
@@ -61,5 +65,8 @@ export const productSchema = new Schema({
   riskConfigs: field({ type: [riskSchema], optional: true }),
   categoryId: field({ type: String, optional: true }),
   customFieldsData: field({ type: [customFieldSchema] }),
-  travelProductConfigs: field({ type: [Schema.Types.Mixed], optional: true })
+  travelProductConfigs: field({ type: [Schema.Types.Mixed], optional: true }),
+
+  duration: field({ type: Number, optional: true }),
+  currencyCode: field({ type: String, optional: true, default: 'MNT' })
 });
