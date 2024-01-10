@@ -4,13 +4,11 @@ import {
   ICloseVariable,
   IContract
 } from './definitions/contracts';
-import { getCloseInfo } from './utils/closeUtils';
 import { addMonths, getFullDate, getNumber } from './utils/utils';
 import { Model } from 'mongoose';
 import { IContractDocument } from './definitions/contracts';
 import { IModels } from '../connectionResolver';
 import { FilterQuery } from 'mongodb';
-import { ITransaction } from './definitions/transactions';
 
 export interface IContractModel extends Model<IContractDocument> {
   getContract(

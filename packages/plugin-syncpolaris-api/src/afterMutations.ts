@@ -1,14 +1,17 @@
 import { companyToPolaris, customerToPolaris } from './utils/customerToPolaris';
 import { generateModels } from './connectionResolver';
+import { savingToPolaris } from './utils/savingToPolaris';
+import { depositToPolaris } from './utils/depositToPolaris';
+import { depositTransactionToPolaris } from './utils/depositTransactionToPolaris';
 
 const allowTypes = {
   'contacts:customer': ['create', 'update'],
   'contacts:company': ['create', 'update'],
   //deposit
-  'saving:deposit': ['create', 'update'],
-  'saving:depositTransaction': ['create'],
+  'savings:deposit': ['create', 'update'],
+  'savings:depositTransaction': ['create'],
   //saving
-  'saving:contract': ['create'],
+  'savings:contract': ['create'],
   //loan
   'loans:contract': ['create']
 };
@@ -39,6 +42,45 @@ export const afterMutationHandlers = async (subdomain, params) => {
   let syncLog;
 
   try {
+    switch (type) {
+      case type === 'contacts:customer':
+        {
+          syncLog = await models.SyncLogs.syncLogsAdd(syncLogDoc);
+          if (action === 'create') {
+            customerToPolaris(subdomain, params, 'create');
+            return;
+          }
+
+          if (action === 'update') {
+            customerToPolaris(subdomain, params, 'update');
+            return;
+          }
+        }
+        break;
+      case type === 'contacts:company':
+        {
+          syncLog = await models.SyncLogs.syncLogsAdd(syncLogDoc);
+          if (action === 'create') {
+            companyToPolaris(subdomain, params, 'create');
+            return;
+          }
+
+          if (action === 'update') {
+            companyToPolaris(subdomain, params, 'update');
+            return;
+          }
+        }
+        break;
+      case type === 'savings:deposit':
+        depositToPolaris(subdomain, params);
+        break;
+      case type === 'savings:depositTransaction':
+        depositTransactionToPolaris(subdomain, params, action);
+        break;
+      case type === 'savings:contract':
+        savingToPolaris(subdomain, params);
+        break;
+    }
     if (type === 'contacts:customer') {
       syncLog = await models.SyncLogs.syncLogsAdd(syncLogDoc);
       if (action === 'create') {
