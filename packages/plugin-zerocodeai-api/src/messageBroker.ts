@@ -1,4 +1,3 @@
-import * as request from 'request';
 import * as dotenv from 'dotenv';
 import {
   ISendMessageArgs,
@@ -6,6 +5,8 @@ import {
 } from '@erxes/api-utils/src/core';
 import { serviceDiscovery } from './configs';
 import { generateModels } from './connectionResolver';
+import fetch from 'node-fetch';
+import FormData from 'form-data';
 
 dotenv.config();
 
@@ -26,26 +27,16 @@ export const initBroker = async cl => {
       let positiveCount = 0;
 
       for (const message of messages) {
-        const response: any = await new Promise((resolve, reject) => {
-          request(
-            {
-              method: 'POST',
-              url: 'https://zero-ai.com/inference',
-              formData: {
-                api_key: config.apiKey,
-                token: config.token,
-                values: message.content
-              }
-            },
-            (error, response) => {
-              if (error) {
-                return reject(error);
-              }
+        const body = new FormData();
+        body.append('api_key', config.apiKey);
+        body.append('token', config.token);
+        body.append('values', message.content);
 
-              return resolve(JSON.parse(response.body));
-            }
-          );
+        const req = await fetch('https://zero-ai.com/inference', {
+          method: 'POST',
+          body
         });
+        const response = await req.json();
 
         if (response.p.includes('positive')) {
           positiveCount++;
