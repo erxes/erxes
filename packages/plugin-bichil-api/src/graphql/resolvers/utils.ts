@@ -671,7 +671,7 @@ export const bichilTimeclockReportFinal = async (
 
   const shiftNotClosedFee = 3000;
   const latenessFee = 200;
-  const absentFee = 86000;
+  const absentFee = 96000;
 
   // get the schedule data of this month
   const schedules = await models.Schedules.find({
@@ -1035,8 +1035,16 @@ export const bichilTimeclockReportFinal = async (
       totalHoursScheduledPerUser -= totalBreakOfSchedulesInHrs;
     }
 
+    // discard overtime if worked hours > scheduled hours
+    const getTotalHoursWorkedPerUser =
+      totalHoursScheduledPerUser !== 0 &&
+      totalHoursWorkedPerUser > totalHoursScheduledPerUser
+        ? totalHoursScheduledPerUser
+        : totalHoursWorkedPerUser;
+
     totalHoursScheduled += totalHoursScheduledPerUser;
-    totalHoursWorked += totalHoursWorkedPerUser;
+    totalHoursWorked += getTotalHoursWorkedPerUser;
+
     totalShiftNotClosedDeduction += shiftNotClosedDeduction;
     // totalLateMinsDeduction += totalMinsLateDeduction;
     totalAbsentDeduction += absentDeductionPerUser;
@@ -1045,9 +1053,8 @@ export const bichilTimeclockReportFinal = async (
     usersReport[currUserId] = {
       ...usersReport[currUserId],
 
-      totalHoursScheduled: Math.floor(totalHoursScheduledPerUser * 100) / 100,
-      totalHoursWorked: Math.floor(totalHoursWorkedPerUser * 100) / 100,
-
+      totalHoursScheduled: Math.floor(totalHoursScheduledPerUser * 10) / 10,
+      totalHoursWorked: Math.floor(getTotalHoursWorkedPerUser * 10) / 10,
       ...userAbsenceInfo,
 
       leftWork: '-',
@@ -1073,8 +1080,8 @@ export const bichilTimeclockReportFinal = async (
   return {
     report: usersReport,
     deductionInfo: {
-      totalHoursScheduled: Math.floor(totalHoursScheduled * 100) / 100,
-      totalHoursWorked: Math.floor(totalHoursWorked * 100) / 100,
+      totalHoursScheduled: Math.floor(totalHoursScheduled * 10) / 10,
+      totalHoursWorked: Math.floor(totalHoursWorked * 10) / 10,
       totalShiftNotClosedDeduction,
       // totalLateMinsDeduction,
       totalAbsentDeduction,
@@ -1223,15 +1230,15 @@ export const bichilTimeclockReportPivot = async (
             timeclockDate: scheduledDay,
             timeclockStart: shiftStart,
             timeclockEnd: shiftEnd,
-            timeclockDuration: (getTimeClockDuration / MMSTOHRS).toFixed(2),
+            timeclockDuration: (getTimeClockDuration / MMSTOHRS).toFixed(1),
             deviceType: currUserTimeclock.deviceType,
             deviceName: currUserTimeclock.deviceName,
             scheduledStart: scheduleShiftStart,
             scheduledEnd: scheduleShiftEnd,
-            scheduledDuration: (getScheduleDuration / MMSTOHRS).toFixed(2),
-            totalMinsLate: totalMinsLatePerShift.toFixed(2),
-            totalHoursOvertime: totalHoursOvertimePerShift.toFixed(2),
-            totalHoursOvernight: totalHoursOvernightPerShift.toFixed(2)
+            scheduledDuration: (getScheduleDuration / MMSTOHRS).toFixed(1),
+            totalMinsLate: totalMinsLatePerShift.toFixed(1),
+            totalHoursOvertime: totalHoursOvertimePerShift.toFixed(1),
+            totalHoursOvernight: totalHoursOvernightPerShift.toFixed(1)
           });
         }
       });

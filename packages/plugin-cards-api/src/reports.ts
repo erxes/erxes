@@ -1,9 +1,19 @@
 import { IUserDocument } from '@erxes/api-utils/src/types';
 import { models } from './connectionResolver';
-import { sendCoreMessage, sendTagsMessage } from './messageBroker';
+import {
+  sendCoreMessage,
+  sendTagsMessage,
+  sendContactsMessage
+} from './messageBroker';
 import * as dayjs from 'dayjs';
-import { PRIORITIES } from './constants';
-import task from './graphql/resolvers/customResolvers/task';
+
+const DATE_RANGE_TYPES = [
+  { label: 'All time', value: 'all' },
+  { label: 'Today', value: 'today' },
+  { label: 'Yesterday', value: 'yesterday' },
+  { label: 'Last Week', value: 'lastweek' },
+  { label: 'This Week', value: 'thisweek' }
+];
 
 const reportTemplates = [
   {
@@ -38,7 +48,10 @@ const reportTemplates = [
       'TaskClosedTotalsByTags',
       'TasksIncompleteTotalsByReps',
       'TasksIncompleteTotalsByLabel',
-      'TasksIncompleteTotalsByTags'
+      'TasksIncompleteTotalsByTags',
+      'AllTasksIncompleteByDueDate',
+      'TasksIncompleteAssignedToTheTeamByDueDate',
+      'TasksIncompleteAssignedToMeByDueDate'
     ],
     img: 'https://cdn.mos.cms.futurecdn.net/S5bicwPe8vbP9nt3iwAwwi.jpg'
   },
@@ -54,13 +67,294 @@ const reportTemplates = [
       'TicketTotalsByLabelPriorityTag',
       'TicketTotalsOverTime',
       'TicketAverageTimeToCloseByRep',
-      'TicketAverageTimeToClose'
+      'TicketAverageTimeToClose',
+      'TicketTotalsBySource',
+      'TicketStageChangedDate',
+      'TicketsCardCountAssignedUser',
+      'TicketsStageDateRange',
+      'TicketsCustom'
     ],
     img: 'https://sciter.com/wp-content/uploads/2022/08/chart-js.png'
   }
 ];
 
 const chartTemplates = [
+  {
+    templateType: 'TicketsStageDateRange',
+    name: 'Stage Date',
+    chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea'],
+    getChartResult: async (
+      filter: any,
+      subdomain: string,
+      currentUser: IUserDocument,
+      getDefaultPipelineId?: string
+    ) => {
+      const dateRange = filter.dateRange;
+      const currentDate = new Date(); // Replace this with the actual current date if needed
+      const dateCondition = createDateCondition(dateRange, currentDate);
+
+      const board = await models?.Boards.find({
+        type: 'ticket'
+      }).lean();
+
+      const boardId = board?.map(item => item._id);
+
+      const pipeline = await models?.Pipelines.find({
+        boardId: {
+          $in: boardId
+        },
+        type: 'ticket',
+        status: 'active'
+      }).lean();
+
+      const pipelineId = pipeline?.map(item => item._id);
+
+      const stages = await models?.Stages.find({
+        pipelineId: {
+          $in: pipelineId
+        }
+      });
+
+      const stageId = stages?.map(item => item._id);
+
+      let ticketCounts;
+      let matchStageAndDate;
+      if (Object.keys(dateCondition).length > 0) {
+        matchStageAndDate = {
+          $match: {
+            stageId: {
+              $in: stageId
+            },
+            createdAt: dateCondition
+          }
+        };
+      } else {
+        matchStageAndDate = {
+          $match: {
+            stageId: {
+              $in: stageId
+            }
+          }
+        };
+      }
+
+      const groupStage = {
+        $group: {
+          _id: '$stageId',
+          count: { $sum: 1 }
+        }
+      };
+
+      ticketCounts = await models?.Tickets.aggregate([
+        matchStageAndDate,
+        groupStage
+      ]);
+
+      const countByStageId = ticketCounts?.reduce((acc, result) => {
+        acc[result._id] = result.count;
+        return acc;
+      }, {});
+
+      const filters = (stages || [])
+        .map(item => ({
+          _id: item._id,
+          count: countByStageId?.[item._id] || 0,
+          name: item.name
+        }))
+        .filter(item => item.count > 0);
+      const title = 'Stage Date';
+      const data = Object.values(filters).map((t: any) => t.count);
+
+      const labels = Object.values(filters).map((t: any) => t.name);
+
+      const datasets = { title, data, labels };
+      return datasets;
+    },
+
+    filterTypes: [
+      {
+        fieldName: 'dateRange',
+        fieldType: 'select',
+        multi: true,
+        fieldOptions: DATE_RANGE_TYPES,
+        fieldLabel: 'Select date range'
+      }
+    ]
+  },
+  {
+    templateType: 'TicketsCardCountAssignedUser',
+    name: 'Tickets Count and  AssignedUser',
+    chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea'],
+    getChartResult: async (
+      filter: any,
+      subdomain: string,
+      currentUser: IUserDocument,
+      getDefaultPipelineId?: string
+    ) => {
+      const selectedUserIds = filter.assignedUserIds || [];
+      const board = await models?.Boards.find({
+        type: 'ticket'
+      }).lean();
+      const boardId = board?.map(item => item._id);
+      const pipeline = await models?.Pipelines.find({
+        boardId: {
+          $in: boardId
+        },
+        type: 'ticket',
+        status: 'active'
+      }).lean();
+
+      const pipelineId = pipeline?.map(item => item._id);
+      const stages = await models?.Stages.find({
+        pipelineId: {
+          $in: pipelineId
+        }
+      });
+      const stageId = stages?.map(item => item._id);
+      let ticketCounts;
+
+      const matchStage = {
+        $match: {
+          stageId: {
+            $in: stageId
+          }
+        }
+      };
+
+      const matchAssignedUsers = {
+        $match: {
+          assignedUserIds: {
+            $in: selectedUserIds
+          }
+        }
+      };
+
+      const groupStage = {
+        $group: {
+          _id: '$stageId',
+          count: { $sum: 1 }
+        }
+      };
+
+      const groupAssignedUsers = {
+        $group: {
+          _id: '$stageId',
+          count: { $sum: 1 },
+          assignedUserIds: { $push: '$assignedUserIds' } // assuming you want an array of assignedUserIds
+        }
+      };
+
+      if (selectedUserIds.length === 0) {
+        ticketCounts = await models?.Tickets.aggregate([
+          matchStage,
+          groupStage
+        ]);
+      } else {
+        ticketCounts = await models?.Tickets.aggregate([
+          matchStage,
+          matchAssignedUsers,
+          groupAssignedUsers
+        ]);
+      }
+      const countByStageId = ticketCounts?.reduce((acc, result) => {
+        acc[result._id] = result.count;
+        return acc;
+      }, {});
+      const filters = (stages || [])
+        .map(item => ({
+          _id: item._id,
+          count: countByStageId?.[item._id] || 0,
+          name: item.name
+        }))
+        .filter(item => item.count > 0);
+      const title = 'Tickets Count and  AssignedUser';
+      const data = Object.values(filters).map((t: any) => t.count);
+      const labels = Object.values(filters).map((t: any) => t.name);
+
+      const datasets = { title, data, labels };
+      return datasets;
+    },
+
+    filterTypes: [
+      {
+        fieldName: 'assignedUserIds',
+        fieldType: 'select',
+        fieldQuery: 'users',
+        fieldLabel: 'Select assigned user'
+      }
+    ]
+  },
+  {
+    templateType: 'TicketStageChangedDate',
+    name: 'Ticket Stage Changed Date',
+    chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea'],
+    getChartResult: async (
+      filter: any,
+      subdomain: string,
+      currentUser: IUserDocument,
+      getDefaultPipelineId?: string
+    ) => {
+      try {
+        const dateRange = filter.dateRange;
+        const currentDate = new Date(); // Replace this with the actual current date if needed
+        const dateCondition = createDateCondition(dateRange, currentDate);
+        let matchStage;
+        let ticked;
+
+        // Use 'if' instead of 'switch' here
+        if (Object.keys(dateCondition).length > 0) {
+          matchStage = { stageChangedDate: dateCondition };
+        }
+
+        if (matchStage === undefined || matchStage === 'all') {
+          ticked = await models?.Tickets.find({
+            stageChangedDate: { $exists: true }
+          }).sort({ stageChangedDate: -1 });
+        } else {
+          ticked = await models?.Tickets.find({ ...matchStage }).sort({
+            stageChangedDate: -1
+          });
+        }
+
+        if (ticked) {
+          const stageDate = await stageChangedDate(ticked);
+          const title = 'Ticket Stage Changed Date';
+          const data = stageDate.reduce((result, item) => {
+            const date = item.date.split(',')[0]; // Extracting the date part without time
+            result[date] = (result[date] || 0) + 1;
+
+            return result;
+          }, {});
+
+          const aggregatedData = Object.keys(data).map(date => ({
+            x: date,
+            y: data[date]
+          }));
+
+          const result = {
+            title,
+            data: aggregatedData
+          };
+
+          return result;
+        } else {
+          console.log('no data');
+        }
+      } catch (error) {
+        return { error: error.message };
+      }
+    },
+
+    filterTypes: [
+      {
+        fieldName: 'dateRange',
+        fieldType: 'select',
+        multi: true,
+        fieldOptions: DATE_RANGE_TYPES,
+        fieldLabel: 'Select date range'
+      }
+    ]
+  },
   {
     templateType: 'TasksIncompleteTotalsByTags',
     name: 'Tasks incomplete totals by tags',
@@ -153,7 +447,14 @@ const chartTemplates = [
       return datasets;
     },
 
-    filterTypes: []
+    filterTypes: [
+      {
+        fieldName: 'tagIds',
+        fieldType: 'select',
+        multi: true,
+        fieldLabel: 'Select tags'
+      }
+    ]
   },
 
   {
@@ -244,6 +545,62 @@ const chartTemplates = [
       return datasets;
     },
 
+    filterTypes: [
+      {
+        fieldName: 'labels',
+        fieldType: 'select',
+        multi: true,
+        fieldLabel: 'Select labels'
+      }
+    ]
+  },
+
+  {
+    templateType: 'AllTasksIncompleteByDueDate',
+    name: 'All tasks incomplete by due date',
+    chartTypes: ['bar', 'doughnut', 'radar', 'polarArea'],
+    // Bar Chart Table
+    getChartResult: async (filter: any, subdomain: string) => {
+      const tasks = await models?.Tasks.find({
+        isComplete: false,
+        closeDate: { $exists: true, $ne: [] }
+      })
+        .sort({ closeDate: -1 })
+        .limit(10)
+        .lean();
+
+      try {
+        if (!tasks || tasks.length === 0) {
+          throw new Error('No incomplete tasks found.');
+        }
+
+        const label = 'All tasks incomplete by due date';
+        const data = Object.values(tasks).map((t: any) => t.closeDate);
+        const labels = Object.values(tasks).map((t: any) => t.name);
+        const options = {
+          scales: {
+            x: {
+              type: 'time',
+              time: {
+                unit: 'month'
+              }
+            },
+            y: {
+              beginAtZero: true,
+              type: 'linear'
+            }
+          }
+        };
+
+        const datasets = [{ label, data, labels, options }];
+
+        return datasets;
+      } catch (error) {
+        console.error('Error fetching and processing tasks:', error);
+        throw new Error('Failed to retrieve or process task data.');
+      }
+    },
+
     filterTypes: []
   },
 
@@ -329,14 +686,17 @@ const chartTemplates = [
         const user = assignedUsersMap[ownerId];
         const count = taskCounts[ownerId];
 
-        return {
-          name: user.fullName,
-          count: count || 0 // Set count to 0 if not found in ticketCounts
-        };
+        if (user) {
+          return {
+            name: user.fullName,
+            count: count || 0 // Set count to 0 if not found in ticketCounts
+          };
+        }
       });
+      const filteredSort = sort.filter(entry => entry !== undefined);
 
-      const data = Object.values(sort).map((t: any) => t.count);
-      const labels = Object.values(sort).map((t: any) => t.name);
+      const data = Object.values(filteredSort).map((t: any) => t.count);
+      const labels = Object.values(filteredSort).map((t: any) => t.name);
 
       const datasets = { title, data, labels };
       return datasets;
@@ -441,7 +801,224 @@ const chartTemplates = [
       return datasets;
     },
 
-    filterTypes: []
+    filterTypes: [
+      {
+        fieldName: 'labels',
+        fieldType: 'select',
+        multi: true,
+        fieldLabel: 'Select labels'
+      }
+    ]
+  },
+
+  {
+    templateType: 'TasksIncompleteAssignedToMeByDueDate',
+    name: 'Tasks incomplete assigned to me by due date',
+    chartTypes: ['bar'],
+    // Bar Chart Table
+    getChartResult: async (filter: any, subdomain: string) => {
+      const selectedUserIds = filter.assignedUserIds || [];
+      let tickets;
+
+      try {
+        if (selectedUserIds.length === 0) {
+          // No selected users, so get all tickets
+          tickets = await models?.Tasks.find({
+            isComplete: false
+          }).lean();
+        } else {
+          // Filter tickets based on selectedUserIds
+          tickets = await models?.Tasks.find({
+            assignedUserIds: {
+              $in: selectedUserIds
+            },
+            isComplete: false
+          }).lean();
+        }
+
+        // Check if the returned value is not an array
+        if (!Array.isArray(tickets)) {
+          throw new Error('Invalid data: tickets is not an array.');
+        }
+
+        // Continue processing tickets...
+      } catch (error) {
+        console.error('Error fetching tickets:', error);
+
+        // Handle the error or return an appropriate response.
+        // For example, you might set tickets to an empty array to avoid further issues
+        tickets = [];
+      }
+
+      // Calculate ticket counts
+      const ticketCounts = calculateTicketCounts(tickets, selectedUserIds);
+      // Convert the counts object to an array of objects with ownerId and count
+      const countsArray = Object.entries(ticketCounts).map(
+        // tslint:disable-next-line:no-shadowed-variable
+        ([ownerId, count]) => ({
+          ownerId,
+          count
+        })
+      );
+      // Sort the array based on ticket counts
+      countsArray.sort((a, b) => b.count - a.count);
+
+      // Extract unique ownerIds for user lookup
+      const ownerIds = countsArray.map(item => item.ownerId);
+      // Fetch information about assigned users
+      const getTotalAssignedUsers = await sendCoreMessage({
+        subdomain,
+        action: 'users.find',
+        data: {
+          query: {
+            _id: {
+              $in: ownerIds
+            }
+          }
+        },
+        isRPC: true,
+        defaultValue: []
+      });
+      // Create a map for faster user lookup
+      const assignedUsersMap = getTotalAssignedUsers.reduce((acc, user) => {
+        acc[user._id] = user.details; // Assuming details contains user information
+        return acc;
+      }, {});
+
+      const sort = ownerIds.map(ownerId => {
+        const user = assignedUsersMap[ownerId];
+        const count = ticketCounts[ownerId];
+        if (user) {
+          return {
+            name: user.fullName,
+            count: count || 0 // Set count to 0 if not found in ticketCounts
+          };
+        }
+      });
+
+      // Filter out undefined values from sort
+
+      const filteredSort = sort.filter(entry => entry !== undefined);
+
+      const title = 'Tasks incomplete assigned to me by due date';
+      const data = filteredSort.map((t: any) => t.count);
+      const labels = filteredSort.map((t: any) => t.name);
+
+      const datasets = {
+        title,
+        data,
+        labels
+      };
+
+      return datasets;
+    },
+
+    filterTypes: [
+      {
+        fieldName: 'assignedUserIds',
+        fieldType: 'select',
+        multi: true,
+        fieldQuery: 'users',
+        fieldLabel: 'Select assigned users'
+      }
+    ]
+  },
+
+  {
+    templateType: 'TasksIncompleteAssignedToTheTeamByDueDate',
+    name: 'Tasks incomplete assigned to the team by due date',
+    chartTypes: ['bar'],
+    // Bar Chart Table
+    getChartResult: async (filter: any, subdomain: string) => {
+      const selectedUserIds = filter.assignedUserIds || [];
+
+      let tasksCount;
+      //  tasksCount = await models?.Tasks.find({ isComplete: true }).lean();
+
+      try {
+        if (selectedUserIds.length === 0) {
+          tasksCount = await models?.Tasks.find({
+            isComplete: false,
+            departmentIds: { $exists: true, $ne: [] }
+          }).lean();
+        } else {
+          tasksCount = await models?.Tasks.find({
+            isComplete: false,
+            assignedUserIds: { $in: selectedUserIds },
+            departmentIds: { $exists: true, $ne: [] }
+          }).lean();
+        }
+      } catch (error) {
+        console.error('Error fetching departmentIds:', error);
+      }
+      const taskCounts = departmentCount(tasksCount);
+
+      // Convert the counts object to an array of objects with ownerId and count
+      const countsArray = Object.entries(taskCounts).map(
+        ([ownerId, count]) => ({
+          ownerId,
+          count
+        })
+      );
+      countsArray.sort((a, b) => b.count - a.count);
+
+      // Extract unique ownerIds for user lookup
+      const ownerIds = countsArray.map(item => item.ownerId);
+
+      const departmentInfo = await sendCoreMessage({
+        subdomain,
+        action: `departments.find`,
+        data: {
+          _id: { $in: ownerIds || [] }
+        },
+        isRPC: true,
+        defaultValue: []
+      });
+
+      if (!departmentInfo || departmentInfo.length === 0) {
+        // Handle the case where no labels are found
+        return {
+          title: '',
+          data: [],
+          departmentsIds: [],
+          count: []
+        };
+      }
+      const enrichedTicketData = countsArray.map(item => {
+        const ownerId = item.ownerId;
+
+        const matchingLabel = departmentInfo.find(
+          label => label && label._id === ownerId
+        );
+        // Use the spread operator (...) to include all properties of the item object
+        return {
+          ...item,
+          labels: matchingLabel ? [matchingLabel.title] : []
+        };
+      });
+      const data = enrichedTicketData.map(t => t.count);
+
+      // Flatten the label array and remove any empty arrays
+      const label = enrichedTicketData
+        .map(t => t.labels)
+        .flat()
+        .filter(item => item.length > 0);
+      const title = 'Tasks incomplete assigned to the team by due date';
+
+      const datasets = { title, data, labels: label };
+
+      return datasets;
+    },
+
+    filterTypes: [
+      {
+        fieldName: 'assignedUserIds',
+        fieldType: 'select',
+        multi: true,
+        fieldQuery: 'users',
+        fieldLabel: 'Select assigned users'
+      }
+    ]
   },
 
   {
@@ -453,31 +1030,22 @@ const chartTemplates = [
       const selectedTagIds = filter.tagIds || [];
       let tasksCount;
       //  tasksCount = await models?.Tasks.find({ isComplete: true }).lean();
+
       try {
         if (selectedTagIds.length === 0) {
-          // No selected users, so get all tasks
-          tasksCount = await models?.Tasks.find({ isComplete: true }).lean();
-        } else {
-          // Filter tasks based on selectedLabelIds
           tasksCount = await models?.Tasks.find({
-            tagIds: { $in: selectedTagIds },
             isComplete: true
           }).lean();
+        } else {
+          tasksCount = await models?.Tasks.find({
+            isComplete: true,
+            tagIds: { $in: selectedTagIds }
+          }).lean();
         }
-
-        // Check if the returned value is not an array
-        if (!Array.isArray(tasksCount)) {
-          throw new Error('Invalid data: tasks is not an array.');
-        }
-
-        // Continue processing tasks...
       } catch (error) {
-        console.error('Error fetching tasks:', error);
-
-        // Handle the error or return an appropriate response.
-        // For example, you might set tasks to an empty array to avoid further issues
-        tasksCount = [];
+        console.error('Error fetching tags:', error);
       }
+
       const taskCounts = taskClosedByTagsRep(tasksCount);
 
       // Convert the counts object to an array of objects with ownerId and count
@@ -537,7 +1105,14 @@ const chartTemplates = [
       return datasets;
     },
 
-    filterTypes: []
+    filterTypes: [
+      {
+        fieldName: 'tags',
+        fieldType: 'select',
+        multi: true,
+        fieldLabel: 'Select tags'
+      }
+    ]
   },
   {
     templateType: 'TaskClosedTotalsByReps',
@@ -550,28 +1125,15 @@ const chartTemplates = [
 
       try {
         if (selectedUserIds.length === 0) {
-          // No selected users, so get all tasks
           tasks = await models?.Tasks.find({ isComplete: true }).lean();
         } else {
-          // Filter tasks based on selectedUserIds
           tasks = await models?.Tasks.find({
-            assignedUserIds: { $in: selectedUserIds },
-            isComplete: true
+            isComplete: true,
+            assignedUserIds: { $in: selectedUserIds }
           }).lean();
         }
-
-        // Check if the returned value is not an array
-        if (!Array.isArray(tasks)) {
-          throw new Error('Invalid data: tasks is not an array.');
-        }
-
-        // Continue processing tasks...
       } catch (error) {
-        console.error('Error fetching tasks:', error);
-
-        // Handle the error or return an appropriate response.
-        // For example, you might set tasks to an empty array to avoid further issues
-        tasks = [];
+        console.error('Error fetching deals:', error);
       }
 
       // Calculate task counts
@@ -722,7 +1284,14 @@ const chartTemplates = [
       };
       return datasets;
     },
-    filterTypes: []
+    filterTypes: [
+      {
+        fieldName: 'labels',
+        fieldType: 'select',
+        multi: true,
+        fieldLabel: 'Select labels'
+      }
+    ]
   },
 
   {
@@ -812,7 +1381,14 @@ const chartTemplates = [
       };
       return datasets;
     },
-    filterTypes: []
+    filterTypes: [
+      {
+        fieldName: 'tags',
+        fieldType: 'select',
+        multi: true,
+        fieldLabel: 'Select tags'
+      }
+    ]
   },
 
   {
@@ -823,35 +1399,17 @@ const chartTemplates = [
     getChartResult: async (filter: any, subdomain: string) => {
       const selectedUserIds = filter.assignedUserIds || [];
       let tasks;
-
       try {
         if (selectedUserIds.length === 0) {
-          // No selected users, so get all tickets
-          tasks = await models?.Tasks.find({
-            isComplete: true
-          }).lean();
+          tasks = await models?.Tasks.find({ isComplete: true }).lean();
         } else {
-          // Filter tickets based on selectedUserIds
           tasks = await models?.Tasks.find({
-            assignedUserIds: {
-              $in: selectedUserIds
-            },
-            isComplete: true
+            isComplete: true,
+            assignedUserIds: { $in: selectedUserIds }
           }).lean();
         }
-
-        // Check if the returned value is not an array
-        if (!Array.isArray(tasks)) {
-          throw new Error('Invalid data: tickets is not an array.');
-        }
-
-        // Continue processing tickets...
       } catch (error) {
-        console.error('Error fetching tickets:', error);
-
-        // Handle the error or return an appropriate response.
-        // For example, you might set tickets to an empty array to avoid further issues
-        tasks = [];
+        console.error('Error fetching deals:', error);
       }
 
       const ticketData = await calculateAverageTimeToCloseUser(
@@ -920,15 +1478,25 @@ const chartTemplates = [
     chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea'],
     // Bar Chart Table
     getChartResult: async () => {
+      const board = await models?.Boards.find({
+        type: 'deal'
+      }).lean();
+      const boardId = board?.map(item => item._id);
+
+      const pipeline = await models?.Pipelines.find({
+        boardId: {
+          $in: boardId
+        },
+        type: 'deal',
+        status: 'active'
+      }).lean();
+
+      const pipelineId = pipeline?.map(item => item._id);
       const stages = await models?.Stages.find({
         $and: [
           { type: 'deal' },
-          {
-            $or: [
-              { probability: { $lt: 0 } }, // Less than 0%
-              { probability: { $gte: 100 } } // Greater than or equal to 100%
-            ]
-          }
+          { pipelineId: { $in: pipelineId } },
+          { probability: { $nin: ['lost', 'won'] } }
         ]
       }).lean();
       if (stages) {
@@ -941,10 +1509,10 @@ const chartTemplates = [
             }).lean();
           })
         );
+
         // Example usage
         async function processData() {
           const dealsCounts = await amountProductData(deals);
-
           // Consolidate totalAmounts for the same stageId
           const consolidatedData = dealsCounts.reduce((consolidated, item) => {
             const existingItem = consolidated.find(
@@ -965,7 +1533,6 @@ const chartTemplates = [
           );
 
           const stageIds = consolidatedData.map((t: any) => t.stageId);
-
           const stagesName = await models?.Stages.find({
             $and: [
               { type: 'deal' },
@@ -982,11 +1549,9 @@ const chartTemplates = [
               map[stage._id] = stage.name;
               return map;
             }, {}) || {};
-
           const labels = consolidatedData.map(
             (t: any) => stageIdToNameMap[t.stageId]
           );
-
           const title = 'Deals open by current stage';
           const datasets = {
             title,
@@ -1072,44 +1637,70 @@ const chartTemplates = [
       currentUser: IUserDocument,
       getDefaultPipelineId?: string
     ) => {
-      const totalDeal = await models?.Deals.find({}).sort({
-        createdAt: -1
-      });
+      const dateRange = filter.dateRange;
+      const currentDate = new Date(); // Replace this with the actual current date if needed
+      const dateCondition = createDateCondition(dateRange, currentDate);
+
+      let matchDate;
+      let totalDeals;
+
+      if (Object.keys(dateCondition).length > 0) {
+        matchDate = { closedDate: dateCondition };
+      }
+
+      if (
+        matchDate === undefined ||
+        dateRange === 'all' ||
+        dateRange === undefined
+      ) {
+        totalDeals = await models?.Deals.find({}).sort({
+          closedDate: -1
+        });
+      } else {
+        totalDeals = await models?.Deals.find(matchDate).sort({
+          closedDate: -1
+        });
+      }
+
       const monthNames: string[] = [];
-      const monthlyDealCount: number[] = [];
-      if (totalDeal) {
-        const now = new Date();
+      const monthlyDealsCount: number[] = [];
+      if (totalDeals) {
+        const now = new Date(); // Get the current date
         const startOfYear = new Date(now.getFullYear(), 0, 1); // Get the start of the year
         const endOfYear = new Date(now.getFullYear(), 12, 31); // Get the start of the year
         const endRange = dayjs(
-          new Date(totalDeal.at(-1)?.createdAt || endOfYear)
+          new Date(totalDeals.at(-1)?.createdAt || endOfYear)
         );
-        let rangeStart = dayjs(startOfYear).add(1, 'month');
-        let rangeEnd = dayjs(startOfYear).add(2, 'month');
-        while (rangeStart < endRange) {
-          monthNames.push(rangeStart.format('MMMM'));
-          const getDealsCountOfMonth = totalDeal.filter(
+
+        let startRange = dayjs(startOfYear);
+        while (startRange < endRange) {
+          monthNames.push(startRange.format('MMMM'));
+
+          const getStartOfNextMonth = startRange.add(1, 'month').toDate();
+          const getDealsCountOfMonth = totalDeals.filter(
             deal =>
               new Date(deal.createdAt || '').getTime() >=
-                rangeStart.toDate().getTime() &&
+                startRange.toDate().getTime() &&
               new Date(deal.createdAt || '').getTime() <
-                rangeEnd.toDate().getTime()
+                getStartOfNextMonth.getTime()
           );
-          monthlyDealCount.push(getDealsCountOfMonth.length);
-          rangeStart = rangeStart.add(1, 'month');
-          rangeEnd = rangeEnd.add(1, 'month');
+          monthlyDealsCount.push(getDealsCountOfMonth.length);
+          startRange = startRange.add(1, 'month');
         }
       }
-      const label = 'Deals count by created month';
-      const datasets = [{ label, data: monthlyDealCount, labels: monthNames }];
+      const title =
+        'Closed revenue by month with deal total and closed revenue breakdown';
+      const datasets = { title, data: monthlyDealsCount, labels: monthNames };
+
       return datasets;
     },
     filterTypes: [
       {
         fieldName: 'dateRange',
-        fieldType: 'date',
-        fieldQuery: 'createdAt',
-        fieldLabel: 'Date range'
+        fieldType: 'select',
+        multi: true,
+        fieldOptions: DATE_RANGE_TYPES,
+        fieldLabel: 'Select date range'
       }
     ]
   },
@@ -1121,26 +1712,20 @@ const chartTemplates = [
     getChartResult: async (filter: any, subdomain: string) => {
       const selectedUserIds = filter.assignedUserIds || [];
       let deals;
+
       try {
         if (selectedUserIds.length === 0) {
-          deals = await models?.Deals.find({}).lean();
+          deals = await models?.Deals.find({ isComplete: true }).lean();
         } else {
           deals = await models?.Deals.find({
-            assignedUserIds: {
-              $in: selectedUserIds
-            }
+            isComplete: true,
+            assignedUserIds: { $in: selectedUserIds }
           }).lean();
         }
-        if (!Array.isArray(deals)) {
-          throw new Error('Invalid data: deals is not an array.');
-        }
       } catch (error) {
-        console.error('Error fetching tickets:', error);
-
-        // Handle the error or return an appropriate response.
-        // For example, you might set tickets to an empty array to avoid further issues
-        deals = [];
+        console.error('Error fetching deals:', error);
       }
+
       const dealCounts = calculateAverageDealAmountByRep(
         deals,
         selectedUserIds
@@ -1201,29 +1786,20 @@ const chartTemplates = [
     getChartResult: async (filter: any, subdomain: string) => {
       const selectedUserIds = filter.assignedUserIds || [];
       let deals;
+
       try {
         if (selectedUserIds.length === 0) {
-          deals = await models?.Deals.find({
-            isComplete: true
-          }).lean();
+          deals = await models?.Deals.find({ isComplete: true }).lean();
         } else {
           deals = await models?.Deals.find({
-            $and: [
-              { isComplete: true },
-              { assignedUserIds: { $in: selectedUserIds } }
-            ]
+            isComplete: true,
+            assignedUserIds: { $in: selectedUserIds }
           }).lean();
         }
-        if (!Array.isArray(deals)) {
-          throw new Error('Invalid data: deals is not an array.');
-        }
       } catch (error) {
-        console.error('Error fetching tickets:', error);
-
-        // Handle the error or return an appropriate response.
-        // For example, you might set tickets to an empty array to avoid further issues
-        deals = [];
+        console.error('Error fetching deals:', error);
       }
+
       const dealCounts = calculateAverageDealAmountByRep(
         deals,
         selectedUserIds
@@ -1280,9 +1856,31 @@ const chartTemplates = [
     name: 'Deals by last modified date',
     chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea'],
     getChartResult: async (filter: any, subdomain: string) => {
-      const deals = await models?.Deals.find({});
+      const dateRange = filter.dateRange;
+      const currentDate = new Date(); // Replace this with the actual current date if needed
+      const dateCondition = createDateCondition(dateRange, currentDate);
+      let matchDate;
+      let totalDeals;
 
-      const dealsCount = deals?.map(deal => {
+      if (Object.keys(dateCondition).length > 0) {
+        matchDate = { modifiedAt: dateCondition };
+      }
+
+      if (
+        matchDate === undefined ||
+        dateRange === 'all' ||
+        dateRange === undefined
+      ) {
+        totalDeals = await models?.Deals.find({}).sort({
+          modifiedAt: -1
+        });
+      } else {
+        totalDeals = await models?.Deals.find(matchDate).sort({
+          modifiedAt: -1
+        });
+      }
+
+      const dealsCount = totalDeals?.map(deal => {
         return {
           dealName: deal.name,
           dealStage: deal.stageId,
@@ -1332,9 +1930,10 @@ const chartTemplates = [
     filterTypes: [
       {
         fieldName: 'dateRange',
-        fieldType: 'date',
-        fieldQuery: 'createdAt',
-        fieldLabel: 'Date range'
+        fieldType: 'select',
+        multi: true,
+        fieldOptions: DATE_RANGE_TYPES,
+        fieldLabel: 'Select date range'
       }
     ]
   },
@@ -1350,7 +1949,6 @@ const chartTemplates = [
         $and: [{ type: 'deal' }, { probability: 'Lost' }]
       }).lean();
       let dealCounts;
-      let data;
       if (stages) {
         if (selectedUserIds.length === 0) {
           dealCounts = await Promise.all(
@@ -1374,79 +1972,70 @@ const chartTemplates = [
             })
           );
         }
-
-        data = await Promise.all(
-          dealCounts.map(async result => {
-            const counts = result.filter(element => element.status === 'active')
-              .length;
-            const users = await Promise.all(
-              result
-                .flat() // Flatten the array of arrays
-                .map(async item => {
-                  const assignedUserIds = item.assignedUserIds;
-                  if (assignedUserIds && assignedUserIds.length > 0) {
-                    return await sendCoreMessage({
-                      subdomain,
-                      action: 'users.find',
-                      data: {
-                        query: {
-                          _id: {
-                            $in: assignedUserIds
-                          }
-                        }
-                      },
-                      isRPC: true,
-                      defaultValue: []
-                    });
-                  }
-                })
-            );
-            return { count: counts, user: users }; // Removed the extra array here
-          })
-        );
       } else {
         throw new Error('Stages are undefined.');
       }
+
       // Extract counts
-
-      const resultArray: Array<{
-        count: string;
-        fullName: string;
-        userId: string;
-      }> = [];
-      data.map(item => {
-        const users = item.user;
-
-        if (Array.isArray(users)) {
-          users.forEach(result => {
-            if (Array.isArray(result)) {
-              result.forEach(items => {
-                if (items && items.details) {
-                  const countValue =
-                    item.count !== null && item.count !== undefined
-                      ? item.count.toString()
-                      : null;
-                  resultArray.push({
-                    count: countValue,
-                    fullName: items.details.fullName,
-                    userId: items._id
-                  });
+      const data = await Promise.all(
+        dealCounts.map(async item => {
+          const resultPromises = item.map(async result => {
+            const getTotalRespondedUsers = await sendCoreMessage({
+              subdomain,
+              action: 'users.find',
+              data: {
+                query: {
+                  _id:
+                    selectedUserIds.length > 0
+                      ? { $in: selectedUserIds }
+                      : { $in: result.assignedUserIds }
                 }
-              });
-            }
-          });
-        }
+              },
+              isRPC: true,
+              defaultValue: []
+            });
 
-        return resultArray;
-      });
+            return getTotalRespondedUsers.map(user => {
+              const counts = item.filter(
+                element =>
+                  element.status === 'active' &&
+                  element.assignedUserIds &&
+                  element.assignedUserIds.includes(user._id)
+              ).length;
+              return {
+                FullName: user.details?.fullName || '',
+                _id: user._id,
+                count: counts || 0
+              };
+            });
+          });
+
+          // Wait for all inner promises to resolve
+          const resultData = await Promise.all(resultPromises);
+          // Flatten the array of arrays and remove duplicates based on _id
+          const flattenedData = resultData.flat();
+          const uniqueData = Array.from(
+            new Set(flattenedData.map(user => user._id))
+          ).map(id => flattenedData.find(user => user._id === id));
+
+          return uniqueData;
+        })
+      );
 
       const uniqueUserEntries = Array.from(
-        new Set(resultArray.map(entry => JSON.stringify(entry))),
+        new Set(data.map(entry => JSON.stringify(entry))),
         str => JSON.parse(str)
       );
+
       const summedResultArray = await sumCountsByUserIdName(uniqueUserEntries);
-      const setData = Object.values(summedResultArray).map((t: any) => t.count);
-      const setLabels = Object.values(summedResultArray).map(
+
+      const filteredResult =
+        selectedUserIds.length > 0
+          ? summedResultArray.filter(user => selectedUserIds.includes(user._id))
+          : summedResultArray;
+
+      const setData = Object.values(filteredResult).map((t: any) => t.count);
+      const setLabels = Object.values(filteredResult).map(
         (t: any) => t.fullName
       );
       const title = 'Deals closed lost all time by rep';
@@ -1475,7 +2064,6 @@ const chartTemplates = [
         $and: [{ type: 'deal' }, { probability: 'Won' }]
       }).lean();
       let dealCounts;
-      let data;
       if (stages) {
         if (selectedUserIds.length === 0) {
           dealCounts = await Promise.all(
@@ -1499,90 +2087,70 @@ const chartTemplates = [
             })
           );
         }
-
-        data = await Promise.all(
-          dealCounts.map(async result => {
-            const counts = result.filter(element => element.status === 'active')
-              .length;
-            const users = await Promise.all(
-              result
-                .flat() // Flatten the array of arrays
-                .map(async item => {
-                  const assignedUserIds = item.assignedUserIds;
-
-                  if (assignedUserIds && assignedUserIds.length > 0) {
-                    return await sendCoreMessage({
-                      subdomain,
-                      action: 'users.find',
-                      data: {
-                        query: {
-                          _id: {
-                            $in: assignedUserIds
-                          }
-                        }
-                      },
-                      isRPC: true,
-                      defaultValue: []
-                    });
-                  }
-                })
-            );
-            return { count: counts, user: users }; // Removed the extra array here
-          })
-        );
       } else {
         throw new Error('Stages are undefined.');
       }
+
       // Extract counts
-
-      const resultArray: Array<{
-        count: string;
-        fullName: string;
-        userId: string;
-      }> = [];
-      data.map(item => {
-        const users = item.user;
-
-        if (Array.isArray(users)) {
-          users.forEach(result => {
-            if (Array.isArray(result)) {
-              result.forEach(items => {
-                if (items && items.details) {
-                  const countValue =
-                    item.count !== null && item.count !== undefined
-                      ? item.count.toString()
-                      : null;
-                  resultArray.push({
-                    count: countValue,
-                    fullName: items.details.fullName,
-                    userId: items._id
-                  });
+      const data = await Promise.all(
+        dealCounts.map(async item => {
+          const resultPromises = item.map(async result => {
+            const getTotalRespondedUsers = await sendCoreMessage({
+              subdomain,
+              action: 'users.find',
+              data: {
+                query: {
+                  _id:
+                    selectedUserIds.length > 0
+                      ? { $in: selectedUserIds }
+                      : { $in: result.assignedUserIds }
                 }
-              });
-            }
-          });
-        }
+              },
+              isRPC: true,
+              defaultValue: []
+            });
 
-        return resultArray;
-      });
+            return getTotalRespondedUsers.map(user => {
+              const counts = item.filter(
+                element =>
+                  element.status === 'active' &&
+                  element.assignedUserIds &&
+                  element.assignedUserIds.includes(user._id)
+              ).length;
+              return {
+                FullName: user.details?.fullName || '',
+                _id: user._id,
+                count: counts || 0
+              };
+            });
+          });
+
+          // Wait for all inner promises to resolve
+          const resultData = await Promise.all(resultPromises);
+          // Flatten the array of arrays and remove duplicates based on _id
+          const flattenedData = resultData.flat();
+          const uniqueData = Array.from(
+            new Set(flattenedData.map(user => user._id))
+          ).map(id => flattenedData.find(user => user._id === id));
+
+          return uniqueData;
+        })
+      );
 
       const uniqueUserEntries = Array.from(
-        new Set(resultArray.map(entry => JSON.stringify(entry))),
+        new Set(data.map(entry => JSON.stringify(entry))),
         str => JSON.parse(str)
       );
+
       const summedResultArray = await sumCountsByUserIdName(uniqueUserEntries);
-      let filteredResultArray;
-      if (selectedUserIds.length > 0) {
-        filteredResultArray = summedResultArray.filter(item =>
-          selectedUserIds.includes(item.userId)
-        );
-      } else {
-        filteredResultArray = summedResultArray;
-      }
-      const setData = Object.values(filteredResultArray).map(
-        (t: any) => t.count
-      );
-      const setLabels = Object.values(filteredResultArray).map(
+
+      const filteredResult =
+        selectedUserIds.length > 0
+          ? summedResultArray.filter(user => selectedUserIds.includes(user._id))
+          : summedResultArray;
+
+      const setData = Object.values(filteredResult).map((t: any) => t.count);
+      const setLabels = Object.values(filteredResult).map(
         (t: any) => t.fullName
       );
 
@@ -1631,6 +2199,149 @@ const chartTemplates = [
       return datasets;
     },
     filterTypes: []
+  },
+  {
+    templateType: 'TicketsCustom',
+    name: 'Tickets priority ',
+    chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea'],
+    getChartResult: async (
+      filter: any,
+      subdomain: string,
+      currentUser: IUserDocument,
+      getDefaultPipelineId?: string
+    ) => {
+      const dateRange = filter.dateRange;
+      const currentDate = new Date(); // Replace this with the actual current date if needed
+      const dateCondition = createDateCondition(dateRange, currentDate);
+      let tickets;
+      const query =
+        Object.keys(dateCondition).length > 0 ? { ...dateCondition } : {};
+
+      if (Object.keys(query).length > 0) {
+        tickets = await models?.Tickets.find()
+          .sort({ createdAt: -1 })
+          .lean();
+      } else {
+        tickets = await models?.Tickets.find(query)
+          .sort({ createdAt: -1 })
+          .lean();
+      }
+
+      const customerDataArray = await Promise.all(
+        tickets?.map(async item => {
+          const customer_ids = await sendCoreMessage({
+            subdomain,
+            action: 'conformities.savedConformity',
+            data: {
+              mainType: 'ticket',
+              mainTypeId: item._id,
+              relTypes: ['customer']
+            },
+            isRPC: true,
+            defaultValue: []
+          });
+          return { name: item.name, customer_ids };
+        }) ?? []
+      );
+      const flattenedCustomerIds = customerDataArray
+        .map(item => item.customer_ids)
+        .flat();
+      const customers = await sendContactsMessage({
+        subdomain,
+        action: 'customers.findActiveCustomers',
+        data: {
+          selector: {
+            _id: { $in: flattenedCustomerIds }
+          }
+        },
+        isRPC: true,
+        defaultValue: []
+      });
+
+      const customerName = await Promise.all(
+        (customers || []).map(async result => {
+          return await sendContactsMessage({
+            subdomain,
+            action: 'customers.findOne',
+            data: {
+              _id: result._id
+            },
+            isRPC: true,
+            defaultValue: {}
+          });
+        })
+      );
+
+      interface CustomerData {
+        name: string;
+        count: number;
+      }
+
+      const data: (CustomerData | null)[] = customerName
+        .map(result => {
+          const matchingCustomers = customerDataArray.filter(label =>
+            label.customer_ids.includes(result._id)
+          );
+
+          if (matchingCustomers.length > 0) {
+            const uniqueNamesSet = new Set<string>();
+            const flattenedData = matchingCustomers.map(items => {
+              const name = items.name;
+              if (!uniqueNamesSet.has(name)) {
+                uniqueNamesSet.add(name);
+                return {
+                  name,
+                  count: items.customer_ids.length
+                };
+              }
+              return null;
+            });
+
+            return flattenedData.filter(Boolean) as CustomerData[];
+          }
+
+          return null;
+        })
+        .filter(Boolean)
+        .flat();
+
+      // Remove duplicate objects based on the 'name' property
+      const uniqueData: CustomerData[] = Array.from(
+        new Set(data.map(obj => JSON.stringify(obj)))
+      )
+        .map(str => JSON.parse(str) as CustomerData)
+        .filter((obj): obj is CustomerData => obj !== null);
+
+      const title = 'Tickets Custom';
+      const setData = Object.values(uniqueData).map((t: any) => t.count);
+
+      const setName = Object.values(uniqueData).map((t: any) => t.name);
+
+      const datasets = { title, data: setData, labels: setName };
+      return datasets;
+    },
+
+    filterTypes: [
+      {
+        fieldName: 'dateRange',
+        fieldType: 'select',
+        multi: true,
+        fieldOptions: DATE_RANGE_TYPES,
+        fieldLabel: 'Select date range'
+      },
+      {
+        fieldName: 'customFieldsData',
+        fieldType: 'select',
+        multi: true,
+        fieldLabel: 'Select customers'
+      },
+      {
+        fieldName: 'name',
+        fieldType: 'select',
+        multi: true,
+        fieldLabel: 'Select name'
+      }
+    ]
   },
   {
     templateType: 'TicketClosedTotalsByRep',
@@ -1842,7 +2553,26 @@ const chartTemplates = [
         return { title: '', data: [], labels: [] };
       }
     },
-    filterTypes: []
+    filterTypes: [
+      {
+        fieldName: 'labelIds',
+        fieldType: 'select',
+        multi: true,
+        fieldLabel: 'Select label'
+      },
+      {
+        fieldName: 'priority',
+        fieldType: 'select',
+        multi: true,
+        fieldLabel: 'Select priority'
+      },
+      {
+        fieldName: 'tags',
+        fieldType: 'select',
+        multi: true,
+        fieldLabel: 'Select tags'
+      }
+    ]
   },
   {
     templateType: 'TicketTotalsOverTime',
@@ -1854,6 +2584,7 @@ const chartTemplates = [
       const totalTicked = await models?.Tickets.find({}).sort({
         createdAt: -1
       });
+
       const monthNames: string[] = [];
       const monthlyTickedCount: number[] = [];
 
@@ -2002,6 +2733,32 @@ const chartTemplates = [
     ]
   },
   {
+    templateType: 'TicketTotalsBySource',
+    name: 'Ticket totals by source',
+    chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea'],
+    // Table
+    getChartResult: async () => {
+      const ticket = await models?.Tickets.find({
+        sourceConversationIds: { $exists: true, $ne: [] }
+      }).lean();
+      if (!ticket || ticket.length === 0) {
+        console.error(
+          'No ticket found in the database matching the specified criteria.'
+        );
+        // Handle the case when no items are found
+        return null; // or some default value
+      }
+      const data = [ticket.length];
+      const labels = ['total'];
+      const title = 'Ticket totals by source';
+
+      const datasets = [{ title, data, labels }];
+      return datasets;
+    },
+    filterTypes: []
+  },
+
+  {
     templateType: 'TicketAverageTimeToClose',
     name: 'Ticket average time to close',
     chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea'],
@@ -2045,11 +2802,31 @@ const chartTemplates = [
       getDefaultPipelineId?: string
     ) => {
       // demonstration filters
+      const dateRange = filter.dateRange;
+      const currentDate = new Date(); // Replace this with the actual current date if needed
+      const dateCondition = createDateCondition(dateRange, currentDate);
       const getTotalAssignedUserIds: string[] = [];
+      let matchDate;
+      let totalDeals;
 
-      const totalDeals = await models?.Deals.find({
-        assignedUserIds: { $exists: true }
-      });
+      if (Object.keys(dateCondition).length > 0) {
+        matchDate = { createdAt: dateCondition };
+      }
+
+      if (
+        matchDate === undefined ||
+        dateRange === 'all' ||
+        dateRange === undefined
+      ) {
+        totalDeals = await models?.Deals.find({
+          assignedUserIds: { $exists: true }
+        }).lean();
+      } else {
+        totalDeals = await models?.Deals.find({
+          ...matchDate, // Spread the matchDate object
+          assignedUserIds: { $exists: true }
+        }).lean();
+      }
 
       if (totalDeals) {
         for (const deal of totalDeals) {
@@ -2132,8 +2909,9 @@ const chartTemplates = [
       },
       {
         fieldName: 'dateRange',
-        fieldType: 'date',
-        fieldQuery: 'createdAt',
+        fieldType: 'select',
+        multi: true,
+        fieldOptions: DATE_RANGE_TYPES,
         fieldLabel: 'Select date range'
       }
     ]
@@ -2258,6 +3036,30 @@ function taskClosedByTagsRep(tasks: any) {
   return ticketCounts;
 }
 
+function departmentCount(tasks: any) {
+  // tslint:disable-next-line:no-shadowed-variable
+  const taskCounts: Record<string, number> = {};
+
+  // Check if tasks is an array
+  if (!Array.isArray(tasks)) {
+    console.error('Invalid input: tasks should be an array.');
+    return taskCounts;
+  }
+
+  tasks.forEach(task => {
+    const tagIds = (task.departmentIds as string[]) || [];
+
+    if (tagIds.length === 0) {
+      return;
+    }
+    tagIds.forEach(ownerId => {
+      taskCounts[ownerId] = (taskCounts[ownerId] || 0) + 1;
+    });
+  });
+
+  return taskCounts;
+}
+
 function calculateTicketCounts(tickets: any, selectedUserIds: any) {
   // tslint:disable-next-line:no-shadowed-variable
   const ticketCounts: Record<string, number> = {};
@@ -2300,7 +3102,7 @@ function amountProductData(deals: any[]): Promise<any[]> {
     const repAmounts: Record<string, any> = {};
 
     deals.forEach(deal => {
-      if (deal.productsData && deal.status === 'active') {
+      if (deal.productsData) {
         const productsData = deal.productsData;
         productsData.forEach(product => {
           if (product.amount) {
@@ -2584,13 +3386,6 @@ const calculateAverageTimeToCloseUser = (
     }
   });
 
-  // Create the final result array with sum of timeDifference for each user
-  // const resultArray = Object.entries(userTotals).map(
-  //   ([userId, timeDifferenceSum]) => ({
-  //     timeDifference: timeDifferenceSum.toFixed(3),
-  //     assignedUserIds: [userId]
-  //   })
-  // );
   const resultArray = Object.entries(userTotals).map(
     (
       value: [string, unknown],
@@ -2606,59 +3401,111 @@ const calculateAverageTimeToCloseUser = (
   );
   return resultArray;
 };
-const sumCountsByUserIdName = (inputArray: any[]) => {
-  const resultMap = new Map<string, { count: number; fullName: string }>();
 
-  inputArray.forEach(entry => {
-    const userId = entry.userId;
-    const count = parseInt(entry.count, 10);
-    const fullName = entry.fullName;
+function sumCountsByUserIdName(inputArray: any[]) {
+  const resultMap = new Map<
+    string,
+    { count: number; fullName: string; _id: string }
+  >();
 
-    if (isNaN(count)) {
-      console.error(`Invalid count for ${userId}: ${entry.count}`);
-      return;
-    }
+  inputArray.forEach(userEntries => {
+    userEntries.forEach(entry => {
+      const userId = entry._id;
+      const count = entry.count;
 
-    if (resultMap.has(userId)) {
-      resultMap.get(userId)!.count += count;
-    } else {
-      resultMap.set(userId, { count, fullName });
-    }
+      if (resultMap.has(userId)) {
+        resultMap.get(userId)!.count += count;
+      } else {
+        resultMap.set(userId, {
+          count,
+          fullName: entry.FullName,
+          _id: entry._id
+        });
+      }
+    });
   });
 
-  return Array.from(resultMap.entries()).map(
-    ([userId, { count, fullName }]) => ({
-      userId,
-      fullName,
-      count: count.toString()
-    })
-  );
-};
+  return Array.from(resultMap.values());
+}
 
-function calculateDealsByLastModifiedDate(deals) {
-  const dealsByDate = {};
-
-  deals.forEach(deal => {
-    const modifiedAt = new Date(deal.modifiedAt);
-    const dealName = deal.name;
-
-    if (dealName && !isNaN(modifiedAt.getTime())) {
-      const formattedDate = modifiedAt.toLocaleDateString();
-      dealsByDate[formattedDate] = dealsByDate[formattedDate] || [];
-      dealsByDate[formattedDate].push({ name: dealName });
-    }
-  });
-
-  // Sort keys (dates) in ascending order
-  const sortedDates = Object.keys(dealsByDate).sort(
-    (a, b) => new Date(a).getTime() - new Date(b).getTime()
+function stageChangedDate(ticked: any[]) {
+  const resultMap = new Map<
+    string,
+    { date: string; name: string; _id: string }
+  >(
+    Array.from(ticked, t => [
+      t._id,
+      {
+        _id: t._id,
+        name: t.name,
+        date: new Date(t.stageChangedDate).toLocaleString()
+      }
+    ])
   );
 
-  // Create an array of objects with date and deals properties
-  const result = sortedDates.map(date => ({
-    date,
-    deals: dealsByDate[date]
-  }));
+  return Array.from(resultMap.values());
+}
 
-  return result;
+function createDateCondition(dateRange, currentDate) {
+  const startOfDay = date => {
+    const d = new Date(date);
+    d.setHours(0, 0, 0, 0);
+    return d;
+  };
+
+  let dateCondition;
+
+  switch (dateRange) {
+    case 'today':
+      dateCondition = {
+        $gte: startOfDay(currentDate),
+        $lt: new Date(currentDate.getTime() + 24 * 60 * 60 * 1000)
+      };
+      break;
+    case 'yesterday':
+      const yesterday = new Date(currentDate);
+      yesterday.setDate(currentDate.getDate() - 1);
+      dateCondition = {
+        $gte: startOfDay(yesterday),
+        $lt: startOfDay(currentDate)
+      };
+      break;
+    case 'thisweek':
+      dateCondition = {
+        $gte: startOfDay(currentDate),
+        $lt: new Date(
+          currentDate.getFullYear(),
+          currentDate.getMonth(),
+          currentDate.getDate() + 7
+        )
+      };
+      break;
+    case 'lastweek':
+      const lastWeekStartDate = new Date(
+        currentDate.getFullYear(),
+        currentDate.getMonth(),
+        currentDate.getDate() - 7
+      );
+      const lastWeekEndDate = new Date(
+        currentDate.getFullYear(),
+        currentDate.getMonth(),
+        currentDate.getDate()
+      );
+      dateCondition = {
+        $gte: startOfDay(lastWeekStartDate),
+        $lt: startOfDay(lastWeekEndDate)
+      };
+      break;
+    case 'all':
+    case undefined:
+      // No date condition for 'All Time'
+      dateCondition = {};
+      break;
+    default:
+      // Handle unknown cases or provide a default behavior
+      console.log('Unknown date range:', dateRange);
+      break;
+  }
+
+  return dateCondition;
 }

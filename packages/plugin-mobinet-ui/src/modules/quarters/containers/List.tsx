@@ -30,7 +30,7 @@ export default function QuarterContainer(props: Props) {
 
     confirm(message).then(() => {
       removeMutation({
-        variables: { _id: quarterId }
+        variables: { _ids: [quarterId] }
       })
         .then(() => {
           refetch();

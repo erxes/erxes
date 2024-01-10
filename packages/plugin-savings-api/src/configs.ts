@@ -49,7 +49,7 @@ export default {
   meta: {
     logs: { consumers: logs },
     cronjobs: {
-      handleHourlyJob: storeInterestCron
+      handleMinutelyJob: storeInterestCron
     },
     documents,
     permissions,

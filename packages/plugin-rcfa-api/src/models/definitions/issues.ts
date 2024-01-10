@@ -12,6 +12,7 @@ export interface IRCFAIssues {
   isRootCause?: boolean;
   taskIds: string[];
   actionIds: string[];
+  labelIds?: string[];
   __v?: number;
 }
 
@@ -37,5 +38,6 @@ export const rcfaIssuessSchema = new Schema({
   closedAt: field({ type: Date, default: Date.now }),
   taskIds: field({ type: [String], optional: true }),
   actionIds: field({ type: [String], optional: true }),
-  description: field({ type: String, optional: true })
+  description: field({ type: String, optional: true }),
+  labelIds: field({ type: [String], optional: true })
 });

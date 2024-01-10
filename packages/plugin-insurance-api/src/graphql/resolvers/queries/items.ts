@@ -2,14 +2,14 @@
 
 import { paginate } from '@erxes/api-utils/src';
 import * as xlsxPopulate from 'xlsx-populate';
+import * as moment from 'moment';
+import * as path from 'path';
 
 import { IContext } from '../../../connectionResolver';
 import { sendCommonMessage } from '../../../messageBroker';
 import { verifyVendor } from '../utils';
-import * as path from 'path';
-import * as moment from 'moment';
 
-const query = (searchField, searchValue) => {
+export const query = (searchField, searchValue) => {
   const qry: any = {};
 
   if (!searchField) {
@@ -255,12 +255,14 @@ const queries = {
 
   vendorInsuranceItemsInfo: async (
     _root,
-    _args,
+    args,
     { models, cpUser, subdomain }: IContext
   ) => {
     if (!cpUser) {
       throw new Error('login required');
     }
+
+    const { startDate, endDate } = args;
 
     const { company } = await verifyVendor({
       subdomain,
@@ -292,10 +294,19 @@ const queries = {
         categoryId: cat._id
       }).distinct('_id');
 
-      const items: any = await models.Items.find({
+      const qry: any = {
         productId: { $in: productIds },
         vendorUserId: { $in: userIds }
-      });
+      };
+
+      if (startDate && endDate) {
+        qry['searchDictionary.dealCreatedAt'] = {
+          $gte: new Date(startDate),
+          $lt: new Date(endDate)
+        };
+      }
+
+      const items: any = await models.Items.find(qry);
 
       let totalFee = 0;
 
@@ -537,7 +548,9 @@ const queries = {
     const name = `vendor-insurance-items-${moment().format(
       'YYYY-MM-DD-hh-mm'
     )}.xlsx`;
-    const filePath = path.join(__dirname, `../../../../public/${name}`);
+
+    const publicDir = path.join('./uploads');
+    const filePath = path.join(publicDir, name);
 
     await wb.toFileAsync(filePath);
 
@@ -546,6 +559,14 @@ const queries = {
       : 'http://localhost:4000';
 
     return `${domain}/pl:insurance/download?name=${name}`;
+  },
+
+  insuranceItemByDealId: async (
+    _root,
+    { _id }: { _id: string },
+    { models }: IContext
+  ) => {
+    return models.Items.findOne({ dealId: _id });
   }
 };
 

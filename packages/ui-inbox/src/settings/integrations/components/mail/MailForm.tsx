@@ -832,9 +832,10 @@ class MailForm extends React.Component<Props, State> {
       <MailEditorWrapper>
         {this.renderShowReplies()}
         <RichTextEditor
+          toolbarLocation="bottom"
           content={this.state.content}
           onChange={this.onEditorChange}
-          autoGrow
+          autoGrow={true}
           autoGrowMinHeight={300}
           autoGrowMaxHeight={300}
         />

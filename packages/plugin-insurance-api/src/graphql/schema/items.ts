@@ -74,6 +74,7 @@ export const queries = `
       searchField: SearchField
       searchValue: JSON): InsuranceItemListResult
     insuranceItem(_id: ID!): InsuranceItem
+    insuranceItemByDealId(_id: String!): InsuranceItem
 
     vendorInsuranceItems(  
       page: Int
@@ -92,7 +93,7 @@ export const queries = `
       categoryId: ID
       ): JSON
 
-    vendorInsuranceItemsInfo: JSON
+    vendorInsuranceItemsInfo(startDate: Date, endDate: Date): JSON
 `;
 
 export const mutations = `

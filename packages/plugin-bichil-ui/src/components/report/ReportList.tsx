@@ -21,7 +21,11 @@ function ReportList(props: Props) {
   useEffect(() => {
     if (reportType === 'Сүүлд') {
       for (const bichilReport of bichilReports) {
-        const { groupParentsTitles, groupParentsCount } = bichilReport;
+        const {
+          groupParentsTitles,
+          groupParentsCount,
+          groupTitle
+        } = bichilReport;
 
         if (groupParentsCount > maxParents) {
           setMaxParents(bichilReport.groupParentsCount);
@@ -37,6 +41,19 @@ function ReportList(props: Props) {
           }
 
           parentBranchesDict[parentTitle] = [bichilReport];
+        }
+
+        // add reports of users only of parent branches
+        if (!groupParentsTitles.length || groupParentsCount === 0) {
+          if (parentBranchesDict[groupTitle]) {
+            parentBranchesDict[groupTitle] = [
+              ...parentBranchesDict[groupTitle],
+              bichilReport
+            ];
+            continue;
+          }
+
+          parentBranchesDict[groupTitle] = [bichilReport];
         }
       }
 
@@ -194,10 +211,10 @@ function ReportList(props: Props) {
         <td>{''}</td>
         <td>{''}</td>
         <td>
-          <b>{deductionInfo.totalHoursScheduled?.toFixed(2)}</b>
+          <b>{deductionInfo.totalHoursScheduled?.toFixed(1)}</b>
         </td>
         <td>
-          <b>{deductionInfo.totalHoursWorked?.toFixed(2)}</b>
+          <b>{deductionInfo.totalHoursWorked?.toFixed(1)}</b>
         </td>
         <td>{''}</td>
         <td>{''}</td>
