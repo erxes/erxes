@@ -1,6 +1,7 @@
 import { IUserDocument } from '@erxes/api-utils/src/types';
 import { models } from './connectionResolver';
 import { sendCoreMessage } from './messageBroker';
+import * as dayjs from 'dayjs';
 
 const MMSTOMINS = 60000;
 
@@ -43,7 +44,8 @@ const integrationBrands = async (subdomain: any) => {
   return brands.map(brand => ({ label: brand.name, value: brand._id }));
 };
 
-// const brands = await integrationBrands();
+// integrationTypes
+
 // XOS messenger
 // email
 // Call
@@ -67,6 +69,10 @@ const DATERANGE_TYPES = [
   { label: 'Yesterday', value: 'yesterday' },
   { label: 'This Week', value: 'thisWeek' },
   { label: 'Last Week', value: 'lastWeek' },
+  { label: 'This Month', value: 'thisMonth' },
+  { label: 'Last Month', value: 'lastMonth' },
+  { label: 'This Year', value: 'thisYear' },
+  { label: 'Last Year', value: 'lastYear' },
   { label: 'Custom Date', value: 'customDate' }
 ];
 
@@ -311,6 +317,27 @@ const chartTemplates = [
         fieldLabel: 'Select users'
       },
       {
+        fieldName: 'userIds',
+        fieldType: 'select',
+        multi: true,
+        fieldQuery: 'users',
+        fieldLabel: 'Select users'
+      },
+      {
+        fieldName: 'departmentIds',
+        fieldType: 'select',
+        multi: true,
+        fieldQuery: 'departments',
+        fieldLabel: 'Select departments'
+      },
+      {
+        fieldName: 'branchIds',
+        fieldType: 'select',
+        multi: true,
+        fieldQuery: 'branches',
+        fieldLabel: 'Select branches'
+      },
+      {
         fieldName: 'integrationType',
         fieldType: 'select',
         multi: true,
@@ -321,8 +348,15 @@ const chartTemplates = [
         fieldName: 'dateRange',
         fieldType: 'select',
         multi: true,
+        fieldQuery: 'date',
         fieldOptions: DATERANGE_TYPES,
         fieldLabel: 'Select date range'
+      },
+      {
+        fieldName: 'tags',
+        fieldType: 'select',
+        multi: true,
+        fieldLabel: 'Select tags'
       }
     ]
   },
@@ -428,11 +462,39 @@ const chartTemplates = [
         fieldLabel: 'Select users'
       },
       {
+        fieldName: 'departmentIds',
+        fieldType: 'select',
+        multi: true,
+        fieldQuery: 'departments',
+        fieldLabel: 'Select departments'
+      },
+      {
+        fieldName: 'branchIds',
+        fieldType: 'select',
+        multi: true,
+        fieldQuery: 'branches',
+        fieldLabel: 'Select branches'
+      },
+      {
         fieldName: 'integrationType',
         fieldType: 'select',
         multi: true,
         fieldOptions: INTEGRATION_TYPES,
         fieldLabel: 'Select source'
+      },
+      {
+        fieldName: 'dateRange',
+        fieldType: 'select',
+        multi: true,
+        fieldQuery: 'date',
+        fieldOptions: DATERANGE_TYPES,
+        fieldLabel: 'Select date range'
+      },
+      {
+        fieldName: 'tags',
+        fieldType: 'select',
+        multi: true,
+        fieldLabel: 'Select tags'
       }
     ]
   },
@@ -490,14 +552,85 @@ const chartTemplates = [
       if (filter.dateRange) {
         const { dateRange } = filter;
         const dateFilter = {};
-        const TODAY = new Date();
+        const NOW = new Date();
+        const startOfToday = new Date(NOW.setHours(0, 0, 0, 0));
+        const endOfToday = new Date(NOW.setHours(23, 59, 59, 999));
+        const startOfYesterday = new Date(
+          dayjs(NOW)
+            .add(-1, 'day')
+            .toDate()
+            .setHours(0, 0, 0, 0)
+        );
 
         switch (dateRange) {
           case 'today':
-            dateFilter['$gte'] = TODAY;
-            dateFilter['$lte'] = TODAY;
+            dateFilter['$gte'] = startOfToday;
+            dateFilter['$lte'] = endOfToday;
+            break;
+          case 'yesterday':
+            dateFilter['$gte'] = startOfYesterday;
+            dateFilter['$lte'] = startOfToday;
+          case 'thisWeek':
+            dateFilter['$gte'] = dayjs(NOW)
+              .startOf('week')
+              .toDate();
+            dateFilter['$lte'] = dayjs(NOW)
+              .endOf('week')
+              .toDate();
             break;
 
+          case 'lastWeek':
+            dateFilter['$gte'] = dayjs(NOW)
+              .add(-1, 'week')
+              .startOf('week')
+              .toDate();
+            dateFilter['$lte'] = dayjs(NOW)
+              .add(-1, 'week')
+              .endOf('week')
+              .toDate();
+            break;
+          case 'lastMonth':
+            dateFilter['$gte'] = dayjs(NOW)
+              .add(-1, 'month')
+              .startOf('month')
+              .toDate();
+            dateFilter['$lte'] = dayjs(NOW)
+              .add(-1, 'month')
+              .endOf('month')
+              .toDate();
+            break;
+          case 'thisMonth':
+            dateFilter['$gte'] = dayjs(NOW)
+              .startOf('month')
+              .toDate();
+            dateFilter['$lte'] = dayjs(NOW)
+              .endOf('month')
+              .toDate();
+            break;
+          case 'thisYear':
+            dateFilter['$gte'] = dayjs(NOW)
+              .startOf('year')
+              .toDate();
+            dateFilter['$lte'] = dayjs(NOW)
+              .endOf('year')
+              .toDate();
+            break;
+          case 'lastYear':
+            dateFilter['$gte'] = dayjs(NOW)
+              .add(-1, 'year')
+              .startOf('year')
+              .toDate();
+            dateFilter['$lte'] = dayjs(NOW)
+              .add(-1, 'year')
+              .endOf('year')
+              .toDate();
+            break;
+
+          case 'customDate':
+            dateFilter['$gte'] = filter.startDate;
+            dateFilter['$lte'] = filter.endDate;
+            break;
+          //all
           default:
             break;
         }
@@ -671,14 +804,6 @@ const chartTemplates = [
         multi: true,
         fieldQuery: 'branches',
         fieldLabel: 'Select branches'
-      },
-      {
-        fieldName: 'brandIds',
-        fieldType: 'select',
-        multi: true,
-        fieldQuery: 'brands',
-        fieldOptions: BRAND_TYPES,
-        fieldLabel: 'Select date range'
       },
       {
         fieldName: 'integrationType',

@@ -85,7 +85,7 @@ const ChartFormField = (props: Props) => {
           <ControlLabel>{fieldLabel}</ControlLabel>
 
           <SelectTags
-            tagsType="reports:report"
+            tagsType="reports:reports"
             multi={multi}
             name="chartTags"
             label={fieldLabel}
