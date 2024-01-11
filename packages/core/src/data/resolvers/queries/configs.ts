@@ -78,7 +78,7 @@ const configQueries = {
       return await fetch(`${getCoreDomain()}/check-activate-installation`, {
         method: 'POST',
         body: JSON.stringify(args)
-      });
+      }).then(r => r.json());
     } catch (e) {
       throw new Error(e.message);
     }

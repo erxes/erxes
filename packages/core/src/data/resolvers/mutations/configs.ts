@@ -120,7 +120,7 @@ const configMutations = {
       return await fetch(`${getCoreDomain()}/activate-installation`, {
         method: 'POST',
         body: JSON.stringify(args)
-      });
+      }).then(res => res.json());
     } catch (e) {
       throw new Error(e.message);
     }
