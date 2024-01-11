@@ -287,7 +287,7 @@ export default {
       for (const customFieldData of item.customFieldsData) {
         replacedContent = replacedContent.replace(
           new RegExp(`{{ customFieldsData.${customFieldData.field} }}`, 'g'),
-          customFieldData.stringValue
+          customFieldData.value
         );
       }
     }
@@ -296,7 +296,7 @@ export default {
       for (const customFieldData of product.customFieldsData) {
         replacedContent = replacedContent.replace(
           new RegExp(`{{ customFieldsData.${customFieldData.field} }}`, 'g'),
-          customFieldData.stringValue
+          customFieldData.value
         );
       }
     }
