@@ -40,17 +40,17 @@ var command = async () => {
   const districtRows = districtData.split('\n');
   const quarterRows = quarterData.split('\n');
 
-  const districts = districtRows.map((d) => {
+  const districts = districtRows.map(d => {
     const columns = d.split(',');
     return {
       idOnSheet: columns[0],
       name: columns[1],
       code: columns[2],
-      cityId: columns[3],
+      cityId: columns[3]
     };
   });
 
-  const quarters = quarterRows.map((q) => {
+  const quarters = quarterRows.map(q => {
     const columns = q.split(',');
     return {
       idOnSheet: columns[0],
@@ -58,7 +58,7 @@ var command = async () => {
       code: columns[2],
       order: columns[3],
       cityId: columns[5],
-      districtId: columns[6],
+      districtId: columns[6]
     };
   });
 
@@ -72,24 +72,24 @@ var command = async () => {
         name: columns[1],
         code: columns[2],
         iso: columns[3],
-        stat: columns[4],
+        stat: columns[4]
       };
       const c = await Cities.insertOne(city);
       console.log(c.insertedId);
 
-      const cityDistricts = districts.filter((d) => d.cityId === idOnSheet);
+      const cityDistricts = districts.filter(d => d.cityId === idOnSheet);
       for (let j = 0; j < cityDistricts.length; j++) {
         const district = cityDistricts[j];
         const d = await Districts.insertOne({
           _id: nanoid(),
           name: district.name,
           code: district.code,
-          cityId: c.insertedId,
+          cityId: c.insertedId
         });
         console.log(d.insertedId);
 
         const districtQuarters = quarters.filter(
-          (q) => q.districtId === district.idOnSheet
+          q => q.districtId === district.idOnSheet
         );
         for (let k = 0; k < districtQuarters.length; k++) {
           const quarter = districtQuarters[k];
@@ -99,7 +99,7 @@ var command = async () => {
             code: quarter.code,
             order: quarter.order,
             cityId: c.insertedId,
-            districtId: d.insertedId,
+            districtId: d.insertedId
           });
           console.log(q.insertedId);
         }

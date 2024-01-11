@@ -41,14 +41,14 @@ const command = async () => {
     const headers = {
       'Content-Type': 'application/json',
       Accept: 'application/json',
-      'Accept-language': 'en',
+      'Accept-language': 'en'
     };
 
     try {
       console.log('fetching ', url);
       const cityResponse = await requestify.request(url, {
         method: 'GET',
-        headers,
+        headers
       });
       // console.log('cityResponse ', cityResponse);
 
@@ -68,11 +68,11 @@ const command = async () => {
         .split(',')[0]
         .replace('ö', 'u')
         .replace('ü', 'u');
-      doc.boundingBox = aimag.boundingbox.map((item) => parseFloat(item));
+      doc.boundingBox = aimag.boundingbox.map(item => parseFloat(item));
       doc.geojson = aimag.geojson;
       doc.center = {
         type: 'Point',
-        coordinates: [parseFloat(aimag.lon), parseFloat(aimag.lat)],
+        coordinates: [parseFloat(aimag.lon), parseFloat(aimag.lat)]
       };
 
       await Cities.updateOne({ _id: city._id }, { $set: doc });
@@ -92,7 +92,7 @@ const command = async () => {
 
         const distResponse = await requestify.request(districtQry, {
           method: 'GET',
-          headers,
+          headers
         });
 
         const distResponseJson = await JSON.parse(distResponse.body);
@@ -110,11 +110,11 @@ const command = async () => {
           .split(',')[0]
           .replace('ö', 'u')
           .replace('ü', 'u');
-        distDoc.boundingBox = sum.boundingbox.map((item) => parseFloat(item));
+        distDoc.boundingBox = sum.boundingbox.map(item => parseFloat(item));
         distDoc.geojson = sum.geojson;
         distDoc.center = {
           type: 'Point',
-          coordinates: [parseFloat(sum.lon), parseFloat(sum.lat)],
+          coordinates: [parseFloat(sum.lon), parseFloat(sum.lat)]
         };
 
         await Districts.updateOne({ _id: district._id }, { $set: distDoc });

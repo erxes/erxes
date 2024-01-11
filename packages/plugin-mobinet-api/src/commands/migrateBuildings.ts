@@ -24,7 +24,7 @@ let FormFields;
 let FieldsGroups;
 
 let InternalNotes;
-const getLocation = (input) => {
+const getLocation = input => {
   const regex = /(-?\d+\.\d+)\s*-\s*(-?\d+\.\d+)/;
   if (input) {
     const match = input.match(regex);
@@ -32,21 +32,19 @@ const getLocation = (input) => {
     if (match) {
       const lat = parseFloat(match[1]);
       const lng = parseFloat(match[2]);
-      return {
-        lat: lat || '0',
-        lng: lng || '0'
-      };
+      const res: any = { lat: lat || '0', lng: lng || '0' };
+      return res;
     } else {
       return {
         lat: '0',
         lng: '0'
-      };
+      } as any;
     }
   }
   return {
     lat: '0',
     lng: '0'
-  };
+  } as any;
 };
 
 const command = async () => {
@@ -88,13 +86,13 @@ const command = async () => {
   // create company
   for (let i = 0; i < buildingsRows.length; i++) {
     const columns = buildingsRows[i].split(',');
-    const companyData = {
+    const companyData: any = {
       primaryName: columns[2],
       _id: nanoid()
     };
 
-    let customFieldsData = [];
-    formFields.map((formField) => {
+    let customFieldsData: any[] = [];
+    formFields.map((formField: any) => {
       if (formField) {
         formField.code === 'c_aoa_contact' &&
           customFieldsData.push({
