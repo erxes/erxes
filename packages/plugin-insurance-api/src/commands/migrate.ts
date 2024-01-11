@@ -32,6 +32,11 @@ const command = async () => {
       const deal = await Deals.findOne({ _id: item.dealId });
       const customer = await Customers.findOne({ _id: item.customerId });
 
+      if (!customer) {
+        console.log(`Customer not found for item ${item._id}`);
+        continue;
+      }
+
       if (!item.searchDictionary) {
         const searchDictionary = {
           dealNumber: deal.number,
