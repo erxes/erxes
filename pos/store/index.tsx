@@ -69,4 +69,6 @@ const JotaiProvider = ({ children }: { children: React.ReactNode }) => {
   )
 }
 
+export type SetAtom<Args extends any[], Result> = (...args: Args) => Result
+
 export default JotaiProvider
