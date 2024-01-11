@@ -23,7 +23,7 @@ const command = async () => {
     db = client.db();
 
     Deals = db.collection('deals');
-    Items = db.collection('insrance_items');
+    Items = db.collection('insurance_items');
     Customers = db.collection('customers');
 
     const items = await Items.find({}).toArray();
@@ -35,9 +35,9 @@ const command = async () => {
       if (!item.searchDictionary) {
         const searchDictionary = {
           dealNumber: deal.number,
-          dealCreatedAt: deal.createdAt,
-          dealCloseDate: deal.closeDate,
-          dealStartDate: deal.startDate,
+          dealCreatedAt: new Date(deal.createdAt),
+          dealCloseDate: new Date(deal.closeDate),
+          dealStartDate: new Date(deal.startDate),
           customerRegister: customer.code,
           customerFirstName: customer.firstName,
           customerLastName: customer.lastName,
@@ -51,27 +51,23 @@ const command = async () => {
           { $set: { searchDictionary } }
         );
       } else {
-        const dealCreatedAt = item.searchDictionary.dealCreatedAt;
+        const searchDictionary = {
+          dealNumber: deal.number,
+          dealCreatedAt: new Date(deal.createdAt),
+          dealCloseDate: new Date(deal.closeDate),
+          dealStartDate: new Date(deal.startDate),
+          customerRegister: customer.code,
+          customerFirstName: customer.firstName,
+          customerLastName: customer.lastName,
+          itemPrice: item.price,
+          itemFeePercent: item.feePercent,
+          itemTotalFee: item.totalFee
+        };
 
-        if (!dealCreatedAt.includes('ISODate')) {
-          const searchDictionary = {
-            dealNumber: deal.number,
-            dealCreatedAt: `ISODate(${dealCreatedAt})`,
-            dealCloseDate: `ISODate(${deal.closeDate})`,
-            dealStartDate: `ISODate(${deal.startDate})`,
-            customerRegister: customer.code,
-            customerFirstName: customer.firstName,
-            customerLastName: customer.lastName,
-            itemPrice: item.price,
-            itemFeePercent: item.feePercent,
-            itemTotalFee: item.totalFee
-          };
-
-          await Items.updateOne(
-            { _id: item._id },
-            { $set: { searchDictionary } }
-          );
-        }
+        await Items.updateOne(
+          { _id: item._id },
+          { $set: { searchDictionary } }
+        );
       }
     }
   } catch (e) {
