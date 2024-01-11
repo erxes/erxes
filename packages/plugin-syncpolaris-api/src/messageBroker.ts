@@ -10,7 +10,7 @@ export const initBroker = async cl => {
 
   const { consumeQueue, consumeRPCQueue } = client;
 
-  consumeQueue('syncerkhet:afterMutation', async ({ subdomain, data }) => {
+  consumeQueue('syncpolaris:afterMutation', async ({ subdomain, data }) => {
     await afterMutationHandlers(subdomain, data);
     return;
   });

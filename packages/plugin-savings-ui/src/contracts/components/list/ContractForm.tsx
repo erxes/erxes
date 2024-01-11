@@ -91,7 +91,7 @@ class ContractForm extends React.Component<Props, State> {
       customerId: contract.customerId,
       customerType: contract.customerType || 'customer',
       currency:
-        contract.currency || this.props.currentUser.configs?.dealCurrency[0],
+        contract.currency || this.props.currentUser.configs?.dealCurrency?.[0],
       interestGiveType: contract.interestGiveType,
       closeOrExtendConfig: contract.closeOrExtendConfig,
       depositAccount: contract.depositAccount,
