@@ -62,7 +62,7 @@ const command = async () => {
 
       const aimag = response[0];
 
-      const doc = {};
+      const doc: any = {};
 
       doc.nameEn = aimag.display_name
         .split(',')[0]
@@ -104,7 +104,7 @@ const command = async () => {
 
         const sum = distResponseJson[0];
 
-        const distDoc = {};
+        const distDoc: any = {};
 
         distDoc.nameEn = sum.display_name
           .split(',')[0]
