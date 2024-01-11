@@ -135,7 +135,7 @@ const CartItem = ({
                       : Number(e.target.value),
                   })
                 }
-                value={count}
+                value={count.toString()}
               />
             </FocusChanger>
             <Button

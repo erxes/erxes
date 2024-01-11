@@ -15,6 +15,7 @@ import { BlockRow, ToggleWrap } from '../../styles';
 import { ClientPortalConfig } from '../../types';
 import PasswordConfig from './PasswordConfig';
 import { Formgroup } from '@erxes/ui/src/components/form/styles';
+import { isEnabled } from '@erxes/ui/src/utils/core';
 
 type Props = {
   handleFormChange: (name: string, value: any) => void;
@@ -75,6 +76,15 @@ function General({
   const [verifyCustomer, setVerifyCustomer] = useState<boolean>(
     manualVerificationConfig ? manualVerificationConfig.verifyCustomer : false
   );
+
+  const smsConfigs = CONFIGURATIONS;
+
+  if (isEnabled('mobinet')) {
+    smsConfigs.push({
+      value: 'mobinet',
+      label: 'mobinet'
+    });
+  }
 
   const onSelectUsers = values => {
     handleFormChange('manualVerificationConfig', {
@@ -250,7 +260,7 @@ function General({
               <Select
                 placeholder="Choose a configuration"
                 value={obj.smsTransporterType}
-                options={CONFIGURATIONS}
+                options={smsConfigs}
                 name="SMS Configuration"
                 onChange={onChangeConfiguration}
               />

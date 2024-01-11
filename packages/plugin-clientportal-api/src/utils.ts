@@ -2,7 +2,6 @@ import * as moment from 'moment';
 import { debugError } from '@erxes/api-utils/src/debuggers';
 import { generateFieldsFromSchema } from '@erxes/api-utils/src/fieldUtils';
 import redis from '@erxes/api-utils/src/redis';
-import { sendRequest } from '@erxes/api-utils/src/requests';
 import { getNextMonth, getToday } from '@erxes/api-utils/src';
 import { IUserDocument } from '@erxes/api-utils/src/types';
 import { graphqlPubsub } from './configs';
@@ -13,6 +12,7 @@ import {
   sendContactsMessage,
   sendCardsMessage
 } from './messageBroker';
+import fetch from 'node-fetch';
 
 import * as admin from 'firebase-admin';
 import { CLOSE_DATE_TYPES } from './constants';
@@ -99,16 +99,15 @@ export const sendSms = async (
       }
 
       try {
-        await sendRequest({
-          url: 'https://api.messagepro.mn/send',
-          method: 'GET',
-          params: {
-            key: MESSAGE_PRO_API_KEY,
-            from: MESSAGE_PRO_PHONE_NUMBER,
-            to: phoneNumber,
-            text: content
-          }
-        });
+        await fetch(
+          'https://api.messagepro.mn/send?' +
+            new URLSearchParams({
+              key: MESSAGE_PRO_API_KEY,
+              from: MESSAGE_PRO_PHONE_NUMBER,
+              to: phoneNumber,
+              text: content
+            })
+        );
 
         return 'sent';
       } catch (e) {
