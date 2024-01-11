@@ -77,7 +77,7 @@ export const fetchUserFromSocialpay = async (
           token
         })
       }
-    );
+    ).then(r => r.json());
 
     return response;
   } catch (e) {
