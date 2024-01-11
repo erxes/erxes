@@ -10,7 +10,7 @@ const sendSms = async (phone, message) => {
     return;
   }
 
-  const url = `http://27.123.214.168/smsmt/mt?servicename=132222&username=132222&from=13222&to=${phone}&msg=${message}`;
+  const url = `http://27.123.214.168/smsmt/mt?servicename=132222&username=132222&from=132222&to=${phone}&msg=${message}`;
   const response = await fetch(url, {
     method: 'GET'
   });
