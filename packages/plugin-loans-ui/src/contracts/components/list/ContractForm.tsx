@@ -154,7 +154,7 @@ class ContractForm extends React.Component<Props, State> {
       customInterest: contract.customInterest || 0,
       customPayment: contract.customPayment || 0,
       currency:
-        contract.currency || this.props.currentUser.configs?.dealCurrency[0],
+        contract.currency || this.props.currentUser?.configs?.dealCurrency?.[0],
       downPayment: contract.downPayment || 0,
       useFee: contract.useFee,
       useManualNumbering: contract.useManualNumbering,
