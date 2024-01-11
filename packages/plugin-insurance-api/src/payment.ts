@@ -13,6 +13,8 @@ export default {
       dealId: data.contentTypeId
     });
 
+    console.log('*************** insurance item', item);
+
     if (!item) return;
 
     const deal = await sendCommonMessage({
@@ -25,6 +27,8 @@ export default {
       isRPC: true,
       defaultValue: null
     });
+
+    console.log('*************** insurance deal', deal);
     if (!deal) return;
 
     const paidStage = await sendCommonMessage({
@@ -36,6 +40,7 @@ export default {
       defaultValue: null
     });
 
+    console.log('*************** insurance paidStage', paidStage);
     if (!paidStage) return;
 
     await sendCommonMessage({
@@ -52,6 +57,8 @@ export default {
 
       isRPC: true
     });
+
+    console.log('*************** stage changed to done ***************');
 
     return;
   }
