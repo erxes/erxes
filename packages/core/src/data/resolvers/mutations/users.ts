@@ -110,7 +110,8 @@ const userMutations = {
           purpose,
           firstName,
           lastName
-        })
+        }),
+        headers: { 'Content-Type': 'application/json' }
       });
     }
 

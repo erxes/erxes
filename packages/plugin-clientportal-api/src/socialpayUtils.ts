@@ -1,4 +1,4 @@
-import { sendRequest } from '@erxes/api-utils/src/requests';
+import fetch from 'node-fetch';
 import * as crypto from 'crypto';
 import { IClientPortal } from './models/definitions/clientPortal';
 
@@ -64,19 +64,20 @@ export const fetchUserFromSocialpay = async (
   const hex = getHex(JSON.stringify({ token }));
   const signature = encrypt(hex, pubKey);
   try {
-    const response = await sendRequest({
-      url:
-        'https://sp-api.golomtbank.com/api/utility/miniapp/token/check?language=mn',
-      method: 'POST',
-      headers: {
-        'content-type': 'application/json',
-        'X-Golomt-Cert-Id': certId,
-        'X-Golomt-Signature': signature
-      },
-      body: {
-        token
+    const response = await fetch(
+      'https://sp-api.golomtbank.com/api/utility/miniapp/token/check?language=mn',
+      {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json',
+          'X-Golomt-Cert-Id': certId,
+          'X-Golomt-Signature': signature
+        },
+        body: JSON.stringify({
+          token
+        })
       }
-    });
+    );
 
     return response;
   } catch (e) {
