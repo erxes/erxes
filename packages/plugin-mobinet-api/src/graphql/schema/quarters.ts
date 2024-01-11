@@ -27,7 +27,7 @@ const mutationParams = `
 export const mutations = `
   quartersAdd(${mutationParams}): Quarter
   quartersEdit(_id: String!, ${mutationParams}): Quarter
-  quartersRemove(_id: [String]): JSON
+  quartersRemove(_ids: [String]): JSON
 `;
 
 const qryParams = `
