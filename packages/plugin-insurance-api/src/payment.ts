@@ -3,14 +3,14 @@ import { sendCommonMessage } from './messageBroker';
 
 export default {
   callback: async ({ subdomain, data }) => {
-    if (data.contentType !== 'cards:deal') {
+    if (data.contentType !== 'insurance:item') {
       return;
     }
 
     const models = await generateModels(subdomain);
 
     const item = await models.Items.findOne({
-      dealId: data.contentTypeId
+      _id: data.contentTypeId
     });
 
     console.log('*************** insurance item', item);
@@ -22,7 +22,7 @@ export default {
       subdomain,
       action: 'deals.findOne',
       data: {
-        _id: data.contentTypeId
+        _id: item.dealId
       },
       isRPC: true,
       defaultValue: null
