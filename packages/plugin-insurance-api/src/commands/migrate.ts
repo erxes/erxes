@@ -32,8 +32,10 @@ const command = async () => {
       const deal = await Deals.findOne({ _id: item.dealId });
       const customer = await Customers.findOne({ _id: item.customerId });
 
-      if (!customer) {
+      if (!customer || !deal) {
         console.log(`Customer not found for item ${item._id}`);
+        await Items.deleteOne({ _id: item._id });
+        await Deals.deleteOne({ _id: item.dealId });
         continue;
       }
 
