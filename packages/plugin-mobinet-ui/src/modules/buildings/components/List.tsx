@@ -62,12 +62,33 @@ const List = (props: Props) => {
       setBuildings(props.buildings);
     }
 
-    if (buildings.length > 0 && map) {
-      map.highlight(feature => {
-        const foundBuilding = buildings.find(b => b.osmbId === feature.id);
+    // if (buildings.length > 0 && map) {
+    //   map.highlight(feature => {
+    //     const foundBuilding = buildings.find(b => b.osmbId === feature.id);
 
-        if (foundBuilding) {
-          return foundBuilding.color;
+    //     if (foundBuilding) {
+    //       return foundBuilding.color;
+    //     }
+    //   });
+    // }
+
+    if (buildings.length > 0 && map) {
+      map.highlight((feature: { id: string }) => {
+        console.log('feature  ', feature.id);
+        const foundBuilding = buildings.find(b => b.osmbId === feature.id);
+        console.log('foundBuilding  ', foundBuilding);
+        const current = currentOsmBuilding?.id === feature.id;
+        if (foundBuilding && foundBuilding?.serviceStatus === 'active') {
+          return '#ff0000';
+        }
+        if (foundBuilding && foundBuilding?.serviceStatus === 'inactive') {
+          return '#00bbff';
+        }
+        if (foundBuilding && foundBuilding?.serviceStatus === 'inprogress') {
+          return '#ffcc00';
+        }
+        if (current) {
+          return '#00bbff';
         }
       });
     }
