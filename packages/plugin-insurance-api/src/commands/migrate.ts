@@ -29,10 +29,10 @@ const command = async () => {
     const items = await Items.find({}).toArray();
 
     for (const item of items) {
-      if (!item.searchDictionary) {
-        const deal = await Deals.findOne({ _id: item.dealId });
-        const customer = await Customers.findOne({ _id: item.customerId });
+      const deal = await Deals.findOne({ _id: item.dealId });
+      const customer = await Customers.findOne({ _id: item.customerId });
 
+      if (!item.searchDictionary) {
         const searchDictionary = {
           dealNumber: deal.number,
           dealCreatedAt: deal.createdAt,
@@ -50,6 +50,28 @@ const command = async () => {
           { _id: item._id },
           { $set: { searchDictionary } }
         );
+      } else {
+        const dealCreatedAt = item.searchDictionary.dealCreatedAt;
+
+        if (!dealCreatedAt.includes('ISODate')) {
+          const searchDictionary = {
+            dealNumber: deal.number,
+            dealCreatedAt: `ISODate(${dealCreatedAt})`,
+            dealCloseDate: `ISODate(${deal.closeDate})`,
+            dealStartDate: `ISODate(${deal.startDate})`,
+            customerRegister: customer.code,
+            customerFirstName: customer.firstName,
+            customerLastName: customer.lastName,
+            itemPrice: item.price,
+            itemFeePercent: item.feePercent,
+            itemTotalFee: item.totalFee
+          };
+
+          await Items.updateOne(
+            { _id: item._id },
+            { $set: { searchDictionary } }
+          );
+        }
       }
     }
   } catch (e) {
