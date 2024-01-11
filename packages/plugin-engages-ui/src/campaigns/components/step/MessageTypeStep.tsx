@@ -8,22 +8,27 @@ import React from 'react';
 import BrandStep from '../../containers/BrandStep';
 import SegmentStep from '../../containers/SegmentStep';
 import TagStep from '../../containers/TagStep';
+import { ClientPortalConfig } from '@erxes/plugin-clientportal-ui/src/types';
+import { METHODS } from '@erxes/ui-engage/src/constants';
 
 type Props = {
+  method?: string;
   clearState: () => void;
   onChange: (
-    name: 'brandIds' | 'tagIds' | 'segmentIds',
-    value: string[]
+    name: 'brandIds' | 'tagIds' | 'segmentIds' | 'cpId',
+    value: string[] | string
   ) => void;
   segmentType?: string;
   segmentIds: string[];
   brandIds: string[];
   tagIds: string[];
+  clientPortalGetConfigs?: ClientPortalConfig[];
 };
 
 type State = {
   messageType: string;
   segmentType: string;
+  cpId?: string;
 };
 
 class MessageTypeStep extends React.Component<Props, State> {
@@ -45,9 +50,44 @@ class MessageTypeStep extends React.Component<Props, State> {
   }
 
   onChange = (key, e: React.FormEvent<HTMLElement>) => {
-    this.setState({ [key]: (e.target as HTMLInputElement).value } as any);
+    if (key === 'cpId') {
+      this.props.onChange(key, (e.target as HTMLInputElement).value);
+    } else {
+      this.setState({ [key]: (e.target as HTMLInputElement).value } as any);
+    }
     this.props.clearState();
   };
+
+  renderClientPortalSelector() {
+    const { clientPortalGetConfigs, method } = this.props;
+
+    if (method !== METHODS.NOTIFICATION) {
+      return null;
+    }
+
+    const options = clientPortalGetConfigs?.map(item => ({
+      value: item._id,
+      label: item.name
+    }));
+    if (!clientPortalGetConfigs || clientPortalGetConfigs.length === 0) {
+      return 'No clientportal found';
+    }
+    return (
+      <SelectMessageType>
+        <FormGroup>
+          <ControlLabel>Choose a clientportal:</ControlLabel>
+          <FormControl
+            id="cpId"
+            defaultValue={clientPortalGetConfigs?.[0]?._id}
+            value={this.state.cpId}
+            componentClass="select"
+            options={options}
+            onChange={this.onChange.bind(this, 'cpId')}
+          />
+        </FormGroup>
+      </SelectMessageType>
+    );
+  }
 
   renderSegmentType() {
     const { messageType } = this.state;
@@ -106,6 +146,7 @@ class MessageTypeStep extends React.Component<Props, State> {
     return (
       <FlexItem>
         <FlexItem direction="column" overflow="auto">
+          {this.renderClientPortalSelector()}
           {this.renderSelector()}
           {this.renderSegmentType()}
           {actionSelector}
@@ -141,6 +182,7 @@ class MessageTypeStep extends React.Component<Props, State> {
       ...this.props,
       messageType: this.state.messageType,
       segmentType: this.state.segmentType,
+      cpId: this.state.cpId,
       renderContent: args => this.renderContent(args)
     };
 

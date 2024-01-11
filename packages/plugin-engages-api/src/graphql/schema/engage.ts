@@ -5,6 +5,7 @@ export const types = async serviceDiscovery => {
   const enabledTags = await serviceDiscovery.isEnabled('tags');
   const enabledContacts = await serviceDiscovery.isEnabled('contacts');
   const enabledSegments = await serviceDiscovery.isEnabled('segments');
+  const enabledClientPortal = await serviceDiscovery.isEnabled('clientportal');
 
   return `
     extend type User ${keyFields} {
@@ -51,6 +52,7 @@ export const types = async serviceDiscovery => {
       segmentIds: [String]
       brandIds: [String]
       customerIds: [String]
+      cpId: String
       title: String
       fromUserId: String
       method: String
@@ -70,6 +72,7 @@ export const types = async serviceDiscovery => {
       email: JSON
       messenger: JSON
       shortMessage: EngageMessageSms
+      notification: JSON
       createdBy: String
 
       scheduleDate: EngageScheduleDate
@@ -206,6 +209,12 @@ export const types = async serviceDiscovery => {
       content: String!
       fromIntegrationId: String!
     }
+
+    input EngageMessageNotification {
+      title: String!,
+      content: String!,
+      isMobile: Boolean,
+    }
   `;
 };
 
@@ -244,9 +253,11 @@ const commonParams = `
   customerTagIds: [String],
   brandIds: [String],
   customerIds: [String],
+  cpId: String,
   email: EngageMessageEmail,
   scheduleDate: EngageScheduleDateInput,
   messenger: EngageMessageMessenger,
+  notification: EngageMessageNotification,
   shortMessage: EngageMessageSmsInput
   forceCreateConversation: Boolean
 `;

@@ -7,6 +7,8 @@ import {
   IIntegrationWithPhone
 } from '@erxes/ui-engage/src/types';
 
+import { ClientPortalConfigsQueryResponse } from '@erxes/plugin-clientportal-ui/src/types';
+
 import { AddMutationResponse } from '@erxes/ui-segments/src/types';
 import AutoAndManualForm from '../components/AutoAndManualForm';
 import FormBase from '../components/FormBase';
@@ -18,6 +20,7 @@ import React from 'react';
 import { gql } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
 import { queries as integrationQueries } from '@erxes/ui-inbox/src/settings/integrations/graphql';
+import { queries as clientPortalQueries } from '@erxes/plugin-clientportal-ui/src/graphql';
 import { isEnabled } from '@erxes/ui/src/utils/core';
 import { queries } from '@erxes/ui-engage/src/graphql';
 import withFormMutations from './withFormMutations';
@@ -40,6 +43,7 @@ type FinalProps = {
   isActionLoading: boolean;
   save: (doc: IEngageMessageDoc) => Promise<any>;
   smsConfig: IConfig;
+  clientPortalConfigsQuery: ClientPortalConfigsQueryResponse;
 } & Props &
   AddMutationResponse;
 
@@ -48,7 +52,8 @@ const AutoAndManualFormContainer = (props: FinalProps) => {
     emailTemplatesQuery,
     integrationsConfigsQuery,
     externalIntegrationsQuery,
-    integrationsQuery
+    integrationsQuery,
+    clientPortalConfigsQuery
   } = props;
 
   const configs =
@@ -69,6 +74,9 @@ const AutoAndManualFormContainer = (props: FinalProps) => {
 
   const mappedIntegrations: IIntegrationWithPhone[] = [];
 
+  const clientPortalGetConfigs =
+    clientPortalConfigsQuery.clientPortalGetConfigs || [];
+
   for (const ext of externalIntegrations) {
     const locals = integrations.filter(
       i => i._id === ext.erxesApiId && i.isActive
@@ -88,7 +96,8 @@ const AutoAndManualFormContainer = (props: FinalProps) => {
     ...props,
     templates: emailTemplatesQuery?.emailTemplates || [],
     smsConfig: configs.find(i => i.code === 'TELNYX_API_KEY'),
-    integrations: mappedIntegrations
+    integrations: mappedIntegrations,
+    clientPortalGetConfigs
   };
 
   const content = formProps => (
@@ -143,6 +152,23 @@ const integrationEnabledQueries = [
     }
   )
 ];
+
+const clientPortalEnabledQueries = [
+  graphql<Props, ClientPortalConfigsQueryResponse>(
+    gql(clientPortalQueries.getConfigs),
+    {
+      name: 'clientPortalConfigsQuery',
+      options: () => ({
+        fetchPolicy: 'network-only',
+        variables: 'client'
+      })
+    }
+  )
+];
+
+if (isEnabled('clientportal')) {
+  composers = composers.concat(clientPortalEnabledQueries);
+}
 
 if (isEnabled('integrations')) {
   composers = composers.concat(integrationEnabledQueries);

@@ -38,7 +38,8 @@ export const METHODS = {
   MESSENGER: 'messenger',
   EMAIL: 'email',
   SMS: 'sms',
-  ALL_LIST: ['messenger', 'email', 'sms']
+  NOTIFICATION: 'notification',
+  ALL_LIST: ['messenger', 'email', 'sms', 'notification']
 };
 
 export const SENT_AS_CHOICES = {
