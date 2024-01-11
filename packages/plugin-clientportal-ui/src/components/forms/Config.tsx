@@ -260,7 +260,11 @@ function General({
               <Select
                 placeholder="Choose a configuration"
                 value={obj.smsTransporterType}
-                options={smsConfigs}
+                options={smsConfigs.filter((obj, index) => {
+                  return (
+                    index === smsConfigs.findIndex(o => obj.value === o.value)
+                  );
+                })}
                 name="SMS Configuration"
                 onChange={onChangeConfiguration}
               />
