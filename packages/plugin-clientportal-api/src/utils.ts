@@ -17,6 +17,7 @@ import fetch from 'node-fetch';
 import * as admin from 'firebase-admin';
 import { CLOSE_DATE_TYPES } from './constants';
 import { IUser } from './models/definitions/clientPortalUser';
+import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
 
 export const getConfig = async (
   code: string,
@@ -80,44 +81,56 @@ export const sendSms = async (
   phoneNumber: string,
   content: string
 ) => {
-  switch (type) {
-    case 'messagePro':
-      const MESSAGE_PRO_API_KEY = await getConfig(
-        'MESSAGE_PRO_API_KEY',
-        subdomain,
-        ''
+  if (type === 'messagePro') {
+    const MESSAGE_PRO_API_KEY = await getConfig(
+      'MESSAGE_PRO_API_KEY',
+      subdomain,
+      ''
+    );
+
+    const MESSAGE_PRO_PHONE_NUMBER = await getConfig(
+      'MESSAGE_PRO_PHONE_NUMBER',
+      subdomain,
+      ''
+    );
+
+    if (!MESSAGE_PRO_API_KEY || !MESSAGE_PRO_PHONE_NUMBER) {
+      throw new Error('messaging config not set properly');
+    }
+
+    try {
+      await fetch(
+        'https://api.messagepro.mn/send?' +
+          new URLSearchParams({
+            key: MESSAGE_PRO_API_KEY,
+            from: MESSAGE_PRO_PHONE_NUMBER,
+            to: phoneNumber,
+            text: content
+          })
       );
 
-      const MESSAGE_PRO_PHONE_NUMBER = await getConfig(
-        'MESSAGE_PRO_PHONE_NUMBER',
-        subdomain,
-        ''
-      );
-
-      if (!MESSAGE_PRO_API_KEY || !MESSAGE_PRO_PHONE_NUMBER) {
-        throw new Error('messaging config not set properly');
-      }
-
-      try {
-        await fetch(
-          'https://api.messagepro.mn/send?' +
-            new URLSearchParams({
-              key: MESSAGE_PRO_API_KEY,
-              from: MESSAGE_PRO_PHONE_NUMBER,
-              to: phoneNumber,
-              text: content
-            })
-        );
-
-        return 'sent';
-      } catch (e) {
-        debugError(e.message);
-        throw new Error(e.message);
-      }
-
-    default:
-      break;
+      return 'sent';
+    } catch (e) {
+      debugError(e.message);
+      throw new Error(e.message);
+    }
   }
+
+  const isServiceEnabled = await isEnabled(type);
+
+  if (!isServiceEnabled) {
+    throw new Error('messaging service not enabled');
+  }
+
+  await sendCommonMessage({
+    serviceName: type,
+    subdomain,
+    action: 'sendSms',
+    data: {
+      phoneNumber,
+      content
+    }
+  });
 };
 
 export const generateRandomPassword = (len: number = 10) => {
