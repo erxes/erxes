@@ -21,7 +21,6 @@ import {
 } from '../messageBroker';
 import { graphqlPubsub } from '../pubsub';
 import { getService, getServices, redis } from '../serviceDiscovery';
-import { IActionsMap, IModuleMap } from './permissions/utils';
 
 export interface IEmailParams {
   toEmails?: string[];
@@ -1238,10 +1237,10 @@ export const checkPremiumService = async type => {
       .replace('https://', '')
       .replace('http://', '');
 
-    const response = await sendRequest({
-      url: `${getCoreDomain()}/check-premium-service?domain=${domain}&type=${type}`,
-      method: 'GET'
-    });
+    const response = await fetch(
+      `${getCoreDomain()}/check-premium-service?` +
+        new URLSearchParams({ domain, type })
+    ).then(r => r.text());
 
     return response === 'yes';
   } catch (e) {

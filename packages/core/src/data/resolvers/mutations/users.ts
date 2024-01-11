@@ -17,8 +17,9 @@ import {
 } from '../../../messageBroker';
 import { putCreateLog, putUpdateLog } from '../../logUtils';
 import { resetPermissionsCache } from '../../permissions/utils';
-import utils, { getEnv, sendRequest } from '../../utils';
+import utils, { getEnv } from '../../utils';
 import { IContext, IModels } from '../../../connectionResolver';
+import fetch from 'node-fetch';
 
 interface IUsersEdit extends IUser {
   channelIds?: string[];
@@ -102,15 +103,14 @@ const userMutations = {
     await models.Users.createUser(doc);
 
     if (subscribeEmail && process.env.NODE_ENV === 'production') {
-      await sendRequest({
-        url: 'https://erxes.io/subscribe',
+      await fetch('https://erxes.io/subscribe', {
         method: 'POST',
-        body: {
+        body: JSON.stringify({
           email,
           purpose,
           firstName,
           lastName
-        }
+        })
       });
     }
 
