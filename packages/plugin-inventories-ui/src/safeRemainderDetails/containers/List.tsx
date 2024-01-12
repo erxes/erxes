@@ -4,7 +4,6 @@ import { useQuery, useMutation } from '@apollo/client';
 import { router } from '@erxes/ui/src/utils';
 import queryString from 'query-string';
 import { gql } from '@apollo/client';
-import * as compose from 'lodash.flowright';
 // erxes
 import Alert from '@erxes/ui/src/utils/Alert';
 // local
@@ -143,4 +142,4 @@ function ListContainer() {
   return <ListComponent {...componentProps} />;
 }
 
-export default compose()(ListContainer);
+export default ListContainer;

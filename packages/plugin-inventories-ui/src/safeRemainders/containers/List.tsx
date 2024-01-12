@@ -1,7 +1,6 @@
 import React from 'react';
 import { useHistory, useLocation } from 'react-router-dom';
 import { useQuery, useMutation } from '@apollo/client';
-import * as compose from 'lodash.flowright';
 import { gql } from '@apollo/client';
 import queryString from 'query-string';
 // erxes
@@ -19,7 +18,6 @@ function ListContainer() {
 
   // Queries
   const safeRemaindersQuery = useQuery(gql(queries.safeRemainders), {
-    displayName: 'safeRemaindersQuery',
     variables: {
       ...router.generatePaginationParams(queryParams || {}),
       beginDate: queryParams.beginDate,
@@ -100,4 +98,4 @@ function ListContainer() {
   return <Bulk content={renderContent} refetch={refetch} />;
 }
 
-export default compose()(ListContainer);
+export default ListContainer;

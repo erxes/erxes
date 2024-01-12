@@ -3,7 +3,6 @@ import { useLocation, useParams } from 'react-router-dom';
 import { useQuery } from '@apollo/client';
 import queryString from 'query-string';
 import { gql } from '@apollo/client';
-import * as compose from 'lodash.flowright';
 // local
 import { queries } from '../graphql';
 import Spinner from '@erxes/ui/src/components/Spinner';
@@ -103,4 +102,4 @@ function ListContainer(props: Props) {
   return <Component {...componentProps} />;
 }
 
-export default compose()(ListContainer);
+export default ListContainer;

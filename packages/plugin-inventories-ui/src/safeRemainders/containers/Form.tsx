@@ -1,6 +1,5 @@
 import React from 'react';
 import { useHistory } from 'react-router-dom';
-import * as compose from 'lodash.flowright';
 // erxes
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
@@ -57,4 +56,4 @@ function FormContainer(props: Props) {
   return <FormComponent {...componentProps} />;
 }
 
-export default compose()(FormContainer);
+export default FormContainer;

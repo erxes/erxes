@@ -3,7 +3,6 @@ import { useLocation } from 'react-router-dom';
 import { useQuery } from '@apollo/client';
 import queryString from 'query-string';
 import { gql } from '@apollo/client';
-import * as compose from 'lodash.flowright';
 // erxes
 import { generatePaginationParams } from '@erxes/ui/src/utils/router';
 // local
@@ -29,4 +28,4 @@ const ListContainer = () => {
   );
 };
 
-export default compose()(ListContainer);
+export default ListContainer;

@@ -1,7 +1,6 @@
 import React from 'react';
 import { useMutation } from '@apollo/client';
 import { gql } from '@apollo/client';
-import * as compose from 'lodash.flowright';
 // erxes
 import { Alert } from '@erxes/ui/src/utils';
 // local
@@ -43,4 +42,4 @@ const ActionBarContentContainer = () => {
   return <ActionBarContentComponent submit={submit} />;
 };
 
-export default compose()(ActionBarContentContainer);
+export default ActionBarContentContainer;

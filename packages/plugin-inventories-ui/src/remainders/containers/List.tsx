@@ -3,7 +3,6 @@ import { useHistory, useLocation } from 'react-router-dom';
 import { useQuery, useMutation } from '@apollo/client';
 import queryString from 'query-string';
 import { gql } from '@apollo/client';
-import * as compose from 'lodash.flowright';
 // erxes
 import Bulk from '@erxes/ui/src/components/Bulk';
 import Alert from '@erxes/ui/src/utils/Alert';
@@ -127,4 +126,4 @@ function ListContainer() {
   return <Bulk content={renderContent} refetch={refetch} />;
 }
 
-export default compose()(ListContainer);
+export default ListContainer;
