@@ -1,3 +1,10 @@
+## [1.5.9](https://github.com/erxes/erxes/compare/1.5.8...1.5.9) (2024-01-12)
+
+
+### Bug Fixes
+
+* **contacts:** fix empty trackedData of company ([f43f105](https://github.com/erxes/erxes/commit/f43f1058f64c30fef77085836a8e3667f7ecf238))
+
 ## [1.5.8](https://github.com/erxes/erxes/compare/1.5.7...1.5.8) (2024-01-09)
 
 
