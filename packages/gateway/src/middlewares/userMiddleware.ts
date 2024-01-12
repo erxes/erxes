@@ -33,7 +33,8 @@ export default async function userMiddleware(
       const response = await fetch('https://erxes.io/check-website', {
         method: 'POST',
         headers: {
-          'erxes-core-token': erxesCoreToken
+          'erxes-core-token': erxesCoreToken,
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify({
           url
