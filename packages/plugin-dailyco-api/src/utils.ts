@@ -1,4 +1,4 @@
-import { sendRequest } from '@erxes/api-utils/src/requests';
+import fetch from 'node-fetch';
 import { sendCommonMessage } from './messageBroker';
 import { IRecording } from './models';
 
@@ -25,11 +25,9 @@ export const getDailyData = async subdomain => {
     (config: any) => config.code === 'DAILY_API_KEY'
   ).value;
 
-  const response = await sendRequest({
-    url: 'https://api.daily.co/v1',
-    method: 'get',
+  const response = await fetch('https://api.daily.co/v1', {
     headers: { Authorization: `Bearer ${DAILY_API_KEY}` }
-  });
+  }).then(r => r.json());
 
   if (!response) {
     throw new Error(
@@ -69,12 +67,14 @@ export const sendDailyRequest = async (
   });
 
   try {
-    const res = await sendRequest({
-      url: `https://${domain_name}.daily.co${url}`,
+    const res = await fetch(`https://${domain_name}.daily.co${url}`, {
       method,
-      headers: { Authorization: `Bearer ${api_key.value}` },
-      body
-    });
+      headers: {
+        Authorization: `Bearer ${api_key.value}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(body)
+    }).then(r => r.json());
 
     return {
       ...res,
