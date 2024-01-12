@@ -836,6 +836,37 @@ class MailForm extends React.Component<Props, State> {
           content={this.state.content}
           onChange={this.onEditorChange}
           autoGrow={true}
+          toolbar={[
+            'bold',
+            'italic',
+            'underline',
+            'strikethrough',
+            '|',
+            'color',
+            'highlight',
+            '|',
+            'fontSize',
+            '|',
+            { items: ['h1', 'h2', 'h3'] },
+            '|',
+            {
+              items: ['alignLeft', 'alignRight', 'alignCenter', 'alignJustify']
+            },
+            '|',
+            { items: ['orderedList', 'bulletList'] },
+            '|',
+            {
+              items: [
+                'blockquote',
+                'horizontalRule',
+                'link',
+                'unlink',
+                'image',
+                'table'
+              ],
+              isMoreControl: true
+            }
+          ]}
           autoGrowMinHeight={300}
           autoGrowMaxHeight={300}
         />
