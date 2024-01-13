@@ -1,5 +1,4 @@
-import { sendRequest } from '@erxes/api-utils/src/requests';
-
+import fetch from 'node-fetch';
 import { BaseAPI } from '../../api/base';
 import { IModels } from '../../connectionResolver';
 import { PAYMENTS, PAYMENT_STATUS } from '../constants';
@@ -8,7 +7,7 @@ import redis from '../../redis';
 
 export const storepayCallbackHandler = async (
   models: IModels,
-  data: any
+  data: any,
 ): Promise<IInvoiceDocument> => {
   const { id } = data;
 
@@ -18,9 +17,9 @@ export const storepayCallbackHandler = async (
 
   const invoice = await models.Invoices.getInvoice(
     {
-      'apiResponse.value': id
+      'apiResponse.value': id,
     },
-    true
+    true,
   );
 
   const payment = await models.Payments.getPayment(invoice.selectedPaymentId);
@@ -39,7 +38,7 @@ export const storepayCallbackHandler = async (
 
     await models.Invoices.updateOne(
       { _id: invoice._id },
-      { $set: { status: invoiceStatus, resolvedAt: new Date() } }
+      { $set: { status: invoiceStatus, resolvedAt: new Date() } },
     );
 
     invoice.status = invoiceStatus;
@@ -75,13 +74,13 @@ export class StorePayAPI extends BaseAPI {
       merchantUsername,
       appPassword,
       appUsername,
-      storeId
+      storeId,
     } = config || {
       merchantPassword: '',
       merchantUsername: '',
       appPassword: '',
       appUsername: '',
-      storeId: ''
+      storeId: '',
     };
 
     this.username = merchantUsername;
@@ -97,7 +96,7 @@ export class StorePayAPI extends BaseAPI {
     const { username, password, app_password, app_username, store_id } = this;
     const data = {
       username,
-      password
+      password,
     };
 
     const token = await redis.get(`storepay_token_${store_id}`);
@@ -105,39 +104,42 @@ export class StorePayAPI extends BaseAPI {
     if (token) {
       return {
         Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
       };
     }
 
     try {
       const requestOptions = {
-        url: 'http://service-merchant.storepay.mn:7701/oauth/token',
-        params: {
-          grant_type: 'password',
-          username,
-          password
-        },
         method: 'POST',
         headers: {
           Authorization: `Basic ${Buffer.from(
-            `${app_username}:${app_password}`
-          ).toString('base64')}`
+            `${app_username}:${app_password}`,
+          ).toString('base64')}`,
+          'Content-Type': 'application/json',
         },
-        body: data
+        body: JSON.stringify(data),
       };
 
-      const res = await sendRequest(requestOptions);
+      const res = await fetch(
+        'http://service-merchant.storepay.mn:7701/oauth/token?' +
+          new URLSearchParams({
+            grant_type: 'password',
+            username,
+            password,
+          }),
+        requestOptions,
+      ).then((res) => res.json());
 
       await redis.set(
         `storepay_token_${store_id}`,
         res.access_token,
         'EX',
-        res.expires_in - 60
+        res.expires_in - 60,
       );
 
       return {
         Authorization: `Bearer ${res.access_token}`,
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
       };
     } catch (e) {
       console.error('error ', e);
@@ -159,14 +161,14 @@ export class StorePayAPI extends BaseAPI {
         mobileNumber: invoice.phone,
         description: invoice.description || 'transaction',
         storeId: this.store_id,
-        callbackUrl: `${this.domain}/pl:payment/callback/${PAYMENTS.storepay.kind}`
+        callbackUrl: `${this.domain}/pl:payment/callback/${PAYMENTS.storepay.kind}`,
       };
 
       const possibleAmount = await this.checkLoanAmount(invoice.phone);
 
       if (possibleAmount < invoice.amount) {
         return {
-          error: 'Insufficient amount'
+          error: 'Insufficient amount',
         };
       }
 
@@ -174,8 +176,8 @@ export class StorePayAPI extends BaseAPI {
         method: 'POST',
         path: 'merchant/loan',
         data,
-        headers: await this.getHeaders()
-      });
+        headers: await this.getHeaders(),
+      }).then((res) => res.json());
 
       if (res.status !== 'Success') {
         const error =
@@ -200,8 +202,8 @@ export class StorePayAPI extends BaseAPI {
       const res = await this.request({
         headers: await this.getHeaders(),
         method: 'GET',
-        path: `merchant/loan/check/${invoiceNumber}`
-      });
+        path: `merchant/loan/check/${invoiceNumber}`,
+      }).then((res) => res.json());
 
       if (!res.value) {
         return PAYMENT_STATUS.PENDING;
@@ -222,8 +224,8 @@ export class StorePayAPI extends BaseAPI {
       const res = await this.request({
         headers: await this.getHeaders(),
         method: 'GET',
-        path: `merchant/loan/check/${invoice.apiResponse.value}`
-      });
+        path: `merchant/loan/check/${invoice.apiResponse.value}`,
+      }).then((res) => res.json());
 
       if (!res.value) {
         return PAYMENT_STATUS.PENDING;
@@ -242,9 +244,9 @@ export class StorePayAPI extends BaseAPI {
         method: 'POST',
         path: `user/possibleAmount`,
         data: {
-          mobileNumber
-        }
-      });
+          mobileNumber,
+        },
+      }).then((res) => res.json());
 
       const { msgList = [], status } = res;
       if (status === 'Failed' && msgList.length > 0) {
