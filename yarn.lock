@@ -1575,7 +1575,7 @@
     "@babel/helper-plugin-utils" "^7.16.7"
     "@babel/plugin-syntax-logical-assignment-operators" "^7.10.4"
 
-"@babel/plugin-proposal-nullish-coalescing-operator@^7.10.4", "@babel/plugin-proposal-nullish-coalescing-operator@^7.16.7":
+"@babel/plugin-proposal-nullish-coalescing-operator@^7.16.7":
   version "7.16.7"
   resolved "https://registry.npmjs.org/@babel/plugin-proposal-nullish-coalescing-operator/-/plugin-proposal-nullish-coalescing-operator-7.16.7.tgz"
   integrity sha512-aUOrYU3EVtjf62jQrCj63pYZ7k6vns2h/DQvHPWGmsJRYzWXZ6/AsfgpiRy6XiuIDADhJzP2Q9MwSMKauBQ+UQ==
@@ -1621,7 +1621,7 @@
     "@babel/helper-plugin-utils" "^7.16.7"
     "@babel/plugin-syntax-optional-catch-binding" "^7.8.3"
 
-"@babel/plugin-proposal-optional-chaining@^7.11.0", "@babel/plugin-proposal-optional-chaining@^7.16.7":
+"@babel/plugin-proposal-optional-chaining@^7.16.7":
   version "7.16.7"
   resolved "https://registry.npmjs.org/@babel/plugin-proposal-optional-chaining/-/plugin-proposal-optional-chaining-7.16.7.tgz"
   integrity sha512-eC3xy+ZrUcBtP7x+sq62Q/HYd674pPTb/77XZMb5wbDPGWIdUbSr4Agr052+zaUPSb+gGRnjxXfKFvx5iMJ+DA==
@@ -1713,13 +1713,6 @@
   integrity sha512-9RdCl0i+q0QExayk2nOS7853w08yLucnnPML6EN9S8fgMPVtdLDCdx/cOQ/i44Lb9UeQX9A35yaqBBOMMZxPxQ==
   dependencies:
     "@babel/helper-plugin-utils" "^7.22.5"
-
-"@babel/plugin-syntax-flow@^7.16.7":
-  version "7.16.7"
-  resolved "https://registry.npmjs.org/@babel/plugin-syntax-flow/-/plugin-syntax-flow-7.16.7.tgz"
-  integrity sha512-UDo3YGQO0jH6ytzVwgSLv9i/CzMcUjbKenL67dTrAZPPv6GFAtDhe6jqnvmoKzC/7htNTohhos+onPtDMqJwaQ==
-  dependencies:
-    "@babel/helper-plugin-utils" "^7.16.7"
 
 "@babel/plugin-syntax-import-assertions@^7.20.0":
   version "7.22.5"
@@ -1968,14 +1961,6 @@
     "@babel/helper-plugin-utils" "^7.22.5"
     "@babel/plugin-syntax-flow" "^7.22.5"
 
-"@babel/plugin-transform-flow-strip-types@^7.16.7":
-  version "7.16.7"
-  resolved "https://registry.npmjs.org/@babel/plugin-transform-flow-strip-types/-/plugin-transform-flow-strip-types-7.16.7.tgz"
-  integrity sha512-mzmCq3cNsDpZZu9FADYYyfZJIOrSONmHcop2XEKPdBNMa4PDC4eEvcOvzZaCNcjKu72v0XQlA5y1g58aLRXdYg==
-  dependencies:
-    "@babel/helper-plugin-utils" "^7.16.7"
-    "@babel/plugin-syntax-flow" "^7.16.7"
-
 "@babel/plugin-transform-for-of@^7.0.0":
   version "7.22.15"
   resolved "https://registry.npmjs.org/@babel/plugin-transform-for-of/-/plugin-transform-for-of-7.22.15.tgz"
@@ -2206,7 +2191,7 @@
   dependencies:
     "@babel/helper-plugin-utils" "^7.16.7"
 
-"@babel/plugin-transform-runtime@^7.11.5", "@babel/plugin-transform-runtime@^7.15.8":
+"@babel/plugin-transform-runtime@^7.15.8":
   version "7.17.0"
   resolved "https://registry.npmjs.org/@babel/plugin-transform-runtime/-/plugin-transform-runtime-7.17.0.tgz"
   integrity sha512-fr7zPWnKXNc1xoHfrIU9mN/4XKX4VLZ45Q+oMhfsYIaHvg7mHgmhfOy/ckRWqDK7XF3QDigRpkh5DKq6+clE8A==
@@ -2276,7 +2261,7 @@
   dependencies:
     "@babel/helper-plugin-utils" "^7.16.7"
 
-"@babel/plugin-transform-typescript@^7.11.0", "@babel/plugin-transform-typescript@^7.16.7":
+"@babel/plugin-transform-typescript@^7.16.7":
   version "7.16.8"
   resolved "https://registry.npmjs.org/@babel/plugin-transform-typescript/-/plugin-transform-typescript-7.16.8.tgz"
   integrity sha512-bHdQ9k7YpBDO2d0NVfkj51DpQcvwIzIusJ7mEUaMlbZq3Kt/U47j24inXZHQ5MDiYpCs+oZiwnXyKedE8+q7AQ==
@@ -2300,7 +2285,7 @@
     "@babel/helper-create-regexp-features-plugin" "^7.16.7"
     "@babel/helper-plugin-utils" "^7.16.7"
 
-"@babel/preset-env@^7.11.0", "@babel/preset-env@^7.11.5", "@babel/preset-env@^7.15.8":
+"@babel/preset-env@^7.11.0", "@babel/preset-env@^7.15.8":
   version "7.16.11"
   resolved "https://registry.npmjs.org/@babel/preset-env/-/preset-env-7.16.11.tgz"
   integrity sha512-qcmWG8R7ZW6WBRPZK//y+E3Cli151B20W1Rv7ln27vuPaXU/8TKms6jFdiJtF7UDTxcrb7mZd88tAeK9LjdT8g==
@@ -2380,15 +2365,6 @@
     core-js-compat "^3.20.2"
     semver "^6.3.0"
 
-"@babel/preset-flow@^7.10.4":
-  version "7.16.7"
-  resolved "https://registry.npmjs.org/@babel/preset-flow/-/preset-flow-7.16.7.tgz"
-  integrity sha512-6ceP7IyZdUYQ3wUVqyRSQXztd1YmFHWI4Xv11MIqAlE4WqxBSd/FZ61V9k+TS5Gd4mkHOtQtPp9ymRpxH4y1Ug==
-  dependencies:
-    "@babel/helper-plugin-utils" "^7.16.7"
-    "@babel/helper-validator-option" "^7.16.7"
-    "@babel/plugin-transform-flow-strip-types" "^7.16.7"
-
 "@babel/preset-modules@^0.1.5":
   version "0.1.5"
   resolved "https://registry.npmjs.org/@babel/preset-modules/-/preset-modules-0.1.5.tgz"
@@ -2400,7 +2376,7 @@
     "@babel/types" "^7.4.4"
     esutils "^2.0.2"
 
-"@babel/preset-react@^7.10.4", "@babel/preset-react@^7.14.5":
+"@babel/preset-react@^7.14.5":
   version "7.16.7"
   resolved "https://registry.npmjs.org/@babel/preset-react/-/preset-react-7.16.7.tgz"
   integrity sha512-fWpyI8UM/HE6DfPBzD8LnhQ/OcH8AgTaqcqP2nGOXEUV+VKBR5JRN9hCk9ai+zQQ57vtm9oWeXguBCPNUjytgA==
@@ -8753,22 +8729,6 @@ babel-preset-fbjs@^3.4.0:
     "@babel/plugin-transform-template-literals" "^7.0.0"
     babel-plugin-syntax-trailing-function-commas "^7.0.0-beta.0"
 
-babel-preset-gatsby-package@^0.5.2:
-  version "0.5.3"
-  resolved "https://registry.npmjs.org/babel-preset-gatsby-package/-/babel-preset-gatsby-package-0.5.3.tgz"
-  integrity sha512-2w51zzkZ1MMQZFn0swJ3cyLbLNOsiI4AxQlfR8Ki85go1O5zl21pkL01DuHGkIfTJ2XkZuAwhOWPaUsC1M+jYA==
-  dependencies:
-    "@babel/plugin-proposal-nullish-coalescing-operator" "^7.10.4"
-    "@babel/plugin-proposal-optional-chaining" "^7.11.0"
-    "@babel/plugin-syntax-dynamic-import" "^7.8.3"
-    "@babel/plugin-transform-runtime" "^7.11.5"
-    "@babel/plugin-transform-typescript" "^7.11.0"
-    "@babel/preset-env" "^7.11.5"
-    "@babel/preset-flow" "^7.10.4"
-    "@babel/preset-react" "^7.10.4"
-    babel-plugin-dynamic-import-node "^2.3.3"
-    core-js "^3.6.5"
-
 babel-preset-jest@^22.0.1, babel-preset-jest@^22.4.4:
   version "22.4.4"
   resolved "https://registry.npmjs.org/babel-preset-jest/-/babel-preset-jest-22.4.4.tgz"
@@ -10820,11 +10780,6 @@ core-js@^2.5.0, core-js@^2.6.10:
   version "2.6.12"
   resolved "https://registry.npmjs.org/core-js/-/core-js-2.6.12.tgz"
   integrity sha512-Kb2wC0fvsWfQrgk8HU5lW6U/Lcs8+9aaYcy4ZFc6DDlo4nZ7n70dEgE5rtR0oG6ufKDUnrwfWL1mXR5ljDatrQ==
-
-core-js@^3.6.5:
-  version "3.21.1"
-  resolved "https://registry.npmjs.org/core-js/-/core-js-3.21.1.tgz"
-  integrity sha512-FRq5b/VMrWlrmCzwRrpDYNxyHP9BcAZC+xHJaqTgIE5091ZV1NTmyh0sGOg5XqpnHvR0svdy0sv1gWA1zmhxig==
 
 core-util-is@1.0.2, core-util-is@~1.0.0:
   version "1.0.2"
