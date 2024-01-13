@@ -13392,7 +13392,7 @@ follow-redirects@^1.14.0:
   resolved "https://registry.npmjs.org/follow-redirects/-/follow-redirects-1.14.8.tgz"
   integrity sha512-1x0S9UVJHsQprFcEC/qnNzBLcIxsjAV905f/UkQxbclCsoTWlacCNOpQa/anodLl2uaEKFhfWOvM2Qg77+15zA==
 
-follow-redirects@^1.14.7, follow-redirects@^1.14.8, follow-redirects@^1.15.0, follow-redirects@^1.15.1:
+follow-redirects@^1.14.7, follow-redirects@^1.14.8, follow-redirects@^1.15.0:
   version "1.15.2"
   resolved "https://registry.npmjs.org/follow-redirects/-/follow-redirects-1.15.2.tgz"
   integrity sha512-VQLG33o04KaQ8uYi2tVNbdrWp1QWxNNea+nmIB4EVM28v0hmP17z7aG1+wAkNzVq4KeXTq3221ye5qTJP91JwA==
@@ -19365,16 +19365,6 @@ node-schedule@^1.2.5, node-schedule@^1.3.2:
     long-timeout "0.1.1"
     sorted-array-functions "^1.3.0"
 
-nodejs-file-downloader@^4.10.6:
-  version "4.10.6"
-  resolved "https://registry.npmjs.org/nodejs-file-downloader/-/nodejs-file-downloader-4.10.6.tgz"
-  integrity sha512-n9XK3+h1aSKbnf1dYvEiB6wd4rnzPz40IKBNuqr4zKlzfvc9AT69Vjf/X8+QwyOxsqYLY3/4etDZX97FKh27Jw==
-  dependencies:
-    follow-redirects "^1.15.1"
-    https-proxy-agent "^5.0.0"
-    mime-types "^2.1.27"
-    sanitize-filename "^1.6.3"
-
 nodemailer@6.7.3:
   version "6.7.3"
   resolved "https://registry.npmjs.org/nodemailer/-/nodemailer-6.7.3.tgz"
@@ -23013,13 +23003,6 @@ sane@^4.0.3:
     minimist "^1.1.1"
     walker "~1.0.5"
 
-sanitize-filename@^1.6.3:
-  version "1.6.3"
-  resolved "https://registry.npmjs.org/sanitize-filename/-/sanitize-filename-1.6.3.tgz"
-  integrity sha512-y/52Mcy7aw3gRm7IrcGDFx/bCk4AhRh2eI9luHOQM86nZsqwiRkkq2GekHXBBD+SmPidc8i2PqtYZl+pWJ8Oeg==
-  dependencies:
-    truncate-utf8-bytes "^1.0.0"
-
 sanitize-html@^1.20.1:
   version "1.20.1"
   resolved "https://registry.npmjs.org/sanitize-html/-/sanitize-html-1.20.1.tgz"
@@ -24858,13 +24841,6 @@ trough@^2.0.0:
   resolved "https://registry.npmjs.org/trough/-/trough-2.0.2.tgz"
   integrity sha512-FnHq5sTMxC0sk957wHDzRnemFnNBvt/gSY99HzK8F7UP5WAbvP70yX5bd7CjEQkN+TjdxwI7g7lJ6podqrG2/w==
 
-truncate-utf8-bytes@^1.0.0:
-  version "1.0.2"
-  resolved "https://registry.npmjs.org/truncate-utf8-bytes/-/truncate-utf8-bytes-1.0.2.tgz"
-  integrity sha1-QFkjkJWS1W94pYGENLC3hInKXys=
-  dependencies:
-    utf8-byte-length "^1.0.1"
-
 try-resolve@^1.0.0:
   version "1.0.1"
   resolved "https://registry.npmjs.org/try-resolve/-/try-resolve-1.0.1.tgz"
@@ -25621,11 +25597,6 @@ utf7@^1.0.2:
   integrity sha512-qQrPtYLLLl12NF4DrM9CvfkxkYI97xOb5dsnGZHE3teFr0tWiEZ9UdgMPczv24vl708cYMpe6mGXGHrotIp3Bw==
   dependencies:
     semver "~5.3.0"
-
-utf8-byte-length@^1.0.1:
-  version "1.0.4"
-  resolved "https://registry.npmjs.org/utf8-byte-length/-/utf8-byte-length-1.0.4.tgz"
-  integrity sha1-9F8VDExm7uloGGUFq5P8u4rWv2E=
 
 utif2@^4.0.1:
   version "4.1.0"
