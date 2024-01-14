@@ -52,8 +52,6 @@ const generateSKFilter = async (
     filter._id = { $in: ids };
   }
 
-  console.log(filter);
-
   return filter;
 };
 
