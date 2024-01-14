@@ -94,9 +94,9 @@ const mutations = {
 
     const searchDictionary = {
       dealNumber: deal.number || '',
-      dealCreatedAt: deal.createdAt,
-      dealCloseDate: deal.closeDate,
-      dealStartDate: deal.startDate,
+      dealCreatedAt: new Date(deal.createdAt),
+      dealCloseDate: new Date(deal.closeDate),
+      dealStartDate: new Date(deal.startDate),
 
       customerRegister: customer.code || '',
       customerFirstName: customer.firstName || '',

@@ -17,6 +17,29 @@ export let graphqlPubsub;
 export let mainDb;
 export let serviceDiscovery;
 
+interface IConfig {
+  name: string;
+  permissions: any;
+  graphql: Function;
+
+  apolloServerContext: any;
+
+  onServerInit: any;
+  meta: {
+    logs: any;
+    cronjobs: {
+      handleDailyJob: any;
+      handleMinutelyJob: any;
+    };
+    documents: any;
+    permissions: any;
+    forms: any;
+    imports: any;
+    exporter: any;
+    payment: any;
+  };
+}
+
 export default {
   name: 'loans',
   permissions,
@@ -49,7 +72,7 @@ export default {
   meta: {
     logs: { consumers: logs },
     cronjobs: {
-      handleDailyJob: checkContractScheduleAnd
+      handleMinutelyJob: checkContractScheduleAnd
     },
     documents,
     permissions,

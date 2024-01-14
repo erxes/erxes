@@ -2,18 +2,16 @@ import Common from '@erxes/ui-automations/src/components/forms/actions/Common';
 import PlaceHolderInput from '@erxes/ui-automations/src/components/forms/actions/placeHolder/PlaceHolderInput';
 import { DrawerDetail } from '@erxes/ui-automations/src/styles';
 import { IAction } from '@erxes/ui-automations/src/types';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import ModifiableList from '@erxes/ui/src/components/ModifiableList';
 import { Tabs, TabTitle } from '@erxes/ui/src/components/tabs';
 import colors from '@erxes/ui/src/styles/colors';
 import dimensions from '@erxes/ui/src/styles/dimensions';
-import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
+import confirm from '@erxes/ui/src/utils/confirmation/confirm';
 import { __ } from '@erxes/ui/src/utils/core';
 import React from 'react';
 import styled from 'styled-components';
 import { Container } from '../styles';
 import { Config } from '../types';
+import GenerateButtons from './GenerateButtons';
 import Template from './Templates';
 
 export const TabAction = styled.div`
@@ -95,20 +93,12 @@ class ReplyFbMessage extends React.Component<Props, State> {
 
   renderQuickReplies(config) {
     const { triggerType } = this.props;
-    const quickReplies = config?.quickReplies || [];
 
-    const onChange = options => {
-      const uniqueOptions = options
-        .filter(
-          option =>
-            !quickReplies.find(quickReply => quickReply.label === option)
-        )
-        .map(opt => ({ _id: Math.random(), label: opt }));
-
+    const onChange = buttons => {
       this.setState({
         config: {
           ...config,
-          quickReplies: [...quickReplies, ...uniqueOptions]
+          quickReplies: buttons
         }
       });
     };
@@ -119,14 +109,15 @@ class ReplyFbMessage extends React.Component<Props, State> {
           config={config}
           triggerType={triggerType}
           inputName="text"
+          componentClass="textarea"
           label="Text"
           onChange={config => this.setState({ config })}
         />
-        <ModifiableList
-          options={
-            quickReplies.map(quickReply => quickReply?.label || '') || []
-          }
-          onChangeOption={onChange}
+
+        <GenerateButtons
+          buttons={config?.quickReplies || []}
+          onChange={onChange}
+          emptyMessage="There are no quick replies"
         />
       </Container>
     );
@@ -155,6 +146,7 @@ class ReplyFbMessage extends React.Component<Props, State> {
           <PlaceHolderInput
             config={config}
             triggerType={triggerType}
+            componentClass="textarea"
             inputName="text"
             label="Reply Text"
             onChange={config => this.setState({ config })}
@@ -168,12 +160,37 @@ class ReplyFbMessage extends React.Component<Props, State> {
 
   renderTabs() {
     const { selectedTab } = this.state;
+    const { text, quickReplies, messageTemplates, ...config } =
+      this.state.config || {};
+
+    const checkTabConfigration = () => {
+      if (selectedTab === 'text' && !!text) {
+        return true;
+      }
+
+      if (selectedTab === 'messageTemplate' && !!messageTemplates?.length) {
+        return true;
+      }
+
+      if (
+        selectedTab === 'quickReplies' &&
+        (!!text || !!quickReplies?.length)
+      ) {
+        return true;
+      }
+    };
 
     const onSelectTab = value => {
-      const { text, quickReplies, messageTemplates, ...config } =
-        this.state.config || {};
-
       localStorage.setItem('fb_selected_message_action_tab', value);
+
+      if (checkTabConfigration()) {
+        return confirm(
+          'Are you sure. Switching tabs will clear unsaved changes.'
+        ).then(() => {
+          this.setState({ selectedTab: value, config });
+        });
+      }
+
       this.setState({ selectedTab: value, config });
     };
 
@@ -182,6 +199,7 @@ class ReplyFbMessage extends React.Component<Props, State> {
         <Tabs full>
           {tableConst.map(({ value, label }) => (
             <TabTitle
+              key={value}
               className={selectedTab === value ? 'active' : ''}
               onClick={onSelectTab.bind(this, value)}
             >
@@ -206,23 +224,6 @@ class ReplyFbMessage extends React.Component<Props, State> {
           activeAction={activeAction}
           config={config}
         >
-          <FormGroup>
-            <ControlLabel>{'From'}</ControlLabel>
-            <SelectTeamMembers
-              name="fromUserId"
-              initialValue={config?.fromUserId}
-              label="Select from user"
-              onSelect={value =>
-                this.setState({
-                  config: { ...config, fromUserId: value as string }
-                })
-              }
-              filterParams={{
-                status: 'Verified'
-              }}
-              multi={false}
-            />
-          </FormGroup>
           {this.renderTabs()}
         </Common>
       </DrawerDetail>

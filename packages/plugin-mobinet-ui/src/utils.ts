@@ -32,11 +32,11 @@ export const findCenter = (coordinates: ICoordinates[]) => {
 export const getBuildingColor = (serviceStatus: string) => {
   switch (serviceStatus) {
     case 'active':
-      return '#006400';
-    case 'inprogress':
-      return '#ffff00';
-    default:
       return '#ff0000';
+    case 'inprogress':
+      return '#ffcc00';
+    default:
+      return '#00bbff';
   }
 };
 

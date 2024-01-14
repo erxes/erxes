@@ -914,7 +914,6 @@ a:hover {
 .mentionSuggestionsEntryTitle {
   font-size: 95%;
   color: ${colors.colorCoreGray};
-  margin-top: 2px;
 }
 
 .mentionSuggestionsEntryAvatar {
@@ -1302,11 +1301,11 @@ a:hover {
   
     blockquote {
       padding-left: 1rem;
-      border-left: 2px solid rgba(#0D0D0D, 0.1);
+      border-left: 2px solid #0d0d0d1a;
     }
   
     hr {
-      border-top: 2px solid rgba(#0D0D0D, 0.1);
+      border-top: 2px solid #0d0d0d1a;
       margin: 2rem 0;
     }
 
@@ -1366,6 +1365,15 @@ a:hover {
         margin: 0;
       }
     }
+
+    p.is-editor-empty:first-child::before {
+      color: #adb5bd;
+      content: attr(data-placeholder);
+      float: left;
+      height: 0;
+      pointer-events: none;
+    }
+
     .tableWrapper {
       padding: 1rem 0;
       overflow-x: auto;
@@ -1375,6 +1383,21 @@ a:hover {
       cursor: ew-resize;
       cursor: col-resize;
     }
+
+    [data-type="mention"]{
+      padding-top: 0.25rem;
+      padding-bottom: 0.25rem;
+      padding-left: 0.5rem;
+      padding-right: 0.5rem;
+      border-radius: 0.375rem;
+      border-style: solid;
+      border-width: 1px;
+      border-color: #93c5fd;
+      line-height: 1;
+      background-color: #f1f5f9;
+      display: inline-block;
+    }
+
   }
 
   /* ProseMirror (actual editable section of editor) */

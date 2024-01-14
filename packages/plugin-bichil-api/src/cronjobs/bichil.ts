@@ -20,7 +20,7 @@ const checkTimeclocksAndUpdate = async (subdomain: any) => {
     await client.connect();
     console.log('Connected to mongo server');
 
-    db = client.db('bichil-erxes') as Db;
+    db = client.db('erxes') as Db;
 
     const NOW = new Date();
     const YESTERDAY = dayjs(new Date())

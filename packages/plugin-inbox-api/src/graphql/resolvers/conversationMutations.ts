@@ -136,7 +136,7 @@ export const publishConversationsChanged = async (
   const models = await generateModels(subdomain);
 
   for (const _id of _ids) {
-    graphqlPubsub.publish('conversationChanged', {
+    graphqlPubsub.publish(`conversationChanged:${_id}`, {
       conversationChanged: { conversationId: _id, type }
     });
 
@@ -163,9 +163,12 @@ export const publishMessage = async (
   message: IMessageDocument,
   customerId?: string
 ) => {
-  graphqlPubsub.publish('conversationMessageInserted', {
-    conversationMessageInserted: message
-  });
+  graphqlPubsub.publish(
+    `conversationMessageInserted:${message.conversationId}`,
+    {
+      conversationMessageInserted: message
+    }
+  );
 
   // widget is listening for this subscription to show notification
   // customerId available means trying to notify to client
@@ -174,7 +177,7 @@ export const publishMessage = async (
       message.conversationId
     );
 
-    graphqlPubsub.publish('conversationAdminMessageInserted', {
+    graphqlPubsub.publish(`conversationAdminMessageInserted:${customerId}`, {
       conversationAdminMessageInserted: {
         customerId,
         unreadCount
@@ -543,21 +546,6 @@ const conversationMutations = {
         },
         user
       );
-
-      if (await serviceDiscovery.isEnabled('zerocodeai')) {
-        // const messagesCount = await models.ConversationMessages.count({ conversationId: conversation._id });
-        // const messages = await models.ConversationMessages.find({ conversationId: conversation._id }).sort({ createdAt: -1 }).limit(messagesCount / 10);
-
-        sendCommonMessage({
-          subdomain,
-          serviceName: 'zerocodeai',
-          action: 'analyze',
-          data: {
-            conversation,
-            messages: [{ content: 'muu' }, { content: 'sain' }]
-          }
-        });
-      }
     }
 
     serverTiming.endTime('putLog');
@@ -639,9 +627,12 @@ const conversationMutations = {
       ]
     });
 
-    graphqlPubsub.publish('conversationMessageInserted', {
-      conversationMessageInserted: message
-    });
+    graphqlPubsub.publish(
+      `conversationMessageInserted:${message.conversationId}`,
+      {
+        conversationMessageInserted: message
+      }
+    );
 
     return models.Conversations.updateOne(
       { _id },

@@ -61,6 +61,19 @@ export const afterDealCreate = async (subdomain, params) => {
   }
 
   if ((stage.code && stage.code === 'newOrder') || stage.code === 'dealsNew') {
+    const startPlace = deal?.customFieldsData?.find(
+      (cf: { field: string }) => cf.field === 'S4i87ocnQpgFEvLLa'
+    )?.value;
+
+    const endPlace = deal?.customFieldsData?.find(
+      (cf: { field: string }) => cf.field === 'G7x8nSnQsJiND6rJN'
+    )?.value;
+
+    const notificationContent =
+      startPlace && endPlace
+        ? `${startPlace}-с ${endPlace} чиглэлд захиалга ирлээ`
+        : 'Шинэ захиалга ирлээ!';
+
     const drivers = await sendContactsMessage({
       subdomain,
       action: 'customers.find',
@@ -85,8 +98,8 @@ export const afterDealCreate = async (subdomain, params) => {
     });
 
     const notifData: any = {
-      title: 'Шинэ зар орлоо',
-      content: `Шинэ ажлын зар орсон байна!`,
+      title: 'Шинэ захиалга ирлээ',
+      content: notificationContent,
       receivers: cpUsers.map(cpUser => cpUser._id),
       notifType: 'system',
       link: '',

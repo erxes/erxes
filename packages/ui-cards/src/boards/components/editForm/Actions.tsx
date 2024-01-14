@@ -136,8 +136,17 @@ class Actions extends React.Component<Props> {
           />
         )}
 
-        {/* {loadDynamicComponent('cardDetailAction', { item }, true)} */}
-        {isEnabled('documents') && <PrintActionButton item={item} />}
+        {loadDynamicComponent(
+          'cardDetailAction',
+          {
+            item,
+            contentType: 'cards',
+            subType: item.stage?.type,
+            path: `stageId=${item.stageId}`
+          },
+          true
+        )}
+        {/* {isEnabled('documents') && <PrintActionButton item={item} />} */}
       </ActionContainer>
     );
   }

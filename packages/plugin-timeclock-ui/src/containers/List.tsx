@@ -18,7 +18,6 @@ import erxesQuery from '@erxes/ui/src/team/graphql/queries';
 import { queries } from '../graphql';
 import { removeParams } from '@erxes/ui/src/utils/router';
 
-
 type Props = {
   currentUser: IUser;
   queryParams: any;
