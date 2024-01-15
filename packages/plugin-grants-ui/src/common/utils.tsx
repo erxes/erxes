@@ -7,11 +7,9 @@ import {
 } from '@erxes/ui/src';
 import React from 'react';
 import { queries } from '../section/graphql';
-import { withProps } from '@erxes/ui/src/utils/core';
-import * as compose from 'lodash.flowright';
 import { gql } from '@apollo/client';
-import { graphql } from '@apollo/client/react/hoc';
 import Select from 'react-select-plus';
+import { useQuery } from '@apollo/client';
 
 type Props = {
   label: string;
@@ -20,58 +18,41 @@ type Props = {
   name: string;
 };
 
-class SelectActionsComponent extends React.Component<
-  { grantActionsQuery: any } & Props
-> {
-  constructor(props) {
-    super(props);
-  }
+const SelectActionsComponent: React.FC<Props> = props => {
+  const { label, initialValue, name, onSelect } = props;
 
-  render() {
-    const {
-      label,
-      initialValue,
-      name,
-      onSelect,
-      grantActionsQuery
-    } = this.props;
+  const grantActionsQuery = useQuery(gql(queries.grantActions));
 
-    const { loading, getGrantRequestActions } = grantActionsQuery;
+  const { loading } = grantActionsQuery;
 
-    const list = getGrantRequestActions || [];
+  const list =
+    (grantActionsQuery.data && grantActionsQuery.data.getGrantRequestActions) ||
+    [];
 
-    const handleSelect = option => {
-      const value = option?.value || '';
-      const scope = list.find(item => item.action === value)?.scope || '';
+  const handleSelect = option => {
+    const value = option?.value || '';
+    const scope = list.find(item => item.action === value)?.scope || '';
 
-      onSelect(value, name, scope);
-    };
+    onSelect(value, name, scope);
+  };
 
-    return (
-      <Select
-        placeholder={__(label)}
-        name={name}
-        multi={false}
-        onChange={handleSelect}
-        value={initialValue}
-        isLoading={loading}
-        options={list.map(item => ({
-          value: item.action,
-          label: item.label
-        }))}
-      />
-    );
-  }
-}
+  return (
+    <Select
+      placeholder={__(label)}
+      name={name}
+      multi={false}
+      onChange={handleSelect}
+      value={initialValue}
+      isLoading={loading}
+      options={list.map(item => ({
+        value: item.action,
+        label: item.label
+      }))}
+    />
+  );
+};
 
-export const SelectActions = withProps<Props>(
-  compose(
-    graphql<Props>(gql(queries.grantActions), {
-      name: 'grantActionsQuery'
-      // options:({})
-    })
-  )(SelectActionsComponent)
-);
+export const SelectActions = SelectActionsComponent;
 
 /** RefetchQueries */
 

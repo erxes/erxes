@@ -68,7 +68,9 @@ export function SelectCardType({ type, handleSelect, params }) {
           <Card
             key={option.value}
             className={params['type'] === option.value ? 'active' : ''}
-            onClick={() => handleSelect({ value: option.value })}
+            onClick={() =>
+              handleSelect({ ...params, value: option.value }, 'params')
+            }
           >
             <Icon icon={option.icon} />
             <ControlLabel>{option.label}</ControlLabel>

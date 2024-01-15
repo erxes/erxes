@@ -10,56 +10,51 @@ type Props = {
   closeModal: () => void;
 };
 
-class ConfigForm extends React.Component<Props> {
-  constructor(props) {
-    super(props);
-  }
+const ConfigForm: React.FC<Props> = props => {
+  const { closeModal, config } = props;
 
-  render() {
-    const { closeModal, config } = this.props;
-    const renderButton = ({
-      name,
-      values,
-      isSubmitted,
-      confirmationUpdate,
-      object
-    }: IButtonMutateProps) => {
-      let mutation = mutations.addConfig;
-      let successAction = 'added';
+  const renderButton = ({
+    name,
+    values,
+    isSubmitted,
+    confirmationUpdate,
+    object
+  }: IButtonMutateProps) => {
+    let mutation = mutations.addConfig;
+    let successAction = 'added';
 
-      if (object) {
-        mutation = mutations.editConfig;
-        successAction = 'edited';
-      }
+    if (object) {
+      mutation = mutations.editConfig;
+      successAction = 'edited';
+    }
 
-      return (
-        <ButtonMutate
-          mutation={mutation}
-          variables={values}
-          callback={closeModal}
-          isSubmitted={isSubmitted}
-          refetchQueries={refetchQueries()}
-          type="submit"
-          confirmationUpdate={confirmationUpdate}
-          successMessage={`You successfully ${successAction} a ${name}`}
-        />
-      );
-    };
+    return (
+      <ButtonMutate
+        mutation={mutation}
+        variables={values}
+        callback={closeModal}
+        isSubmitted={isSubmitted}
+        refetchQueries={refetchQueries()}
+        type="submit"
+        confirmationUpdate={confirmationUpdate}
+        successMessage={`You successfully ${successAction} a ${name}`}
+      />
+    );
+  };
 
-    const updatedProps = {
-      ...this.props,
-      config: config
-        ? {
-            ...config,
-            params: JSON.parse(config?.params || '{}'),
-            config: JSON.parse(config?.config || '{}')
-          }
-        : undefined,
-      renderButton
-    };
+  const updatedProps = {
+    ...props,
+    config: config
+      ? {
+          ...config,
+          params: JSON.parse(config?.params || '{}'),
+          config: JSON.parse(config?.config || '{}')
+        }
+      : undefined,
+    renderButton
+  };
 
-    return <ConfigFormComponent {...updatedProps} />;
-  }
-}
+  return <ConfigFormComponent {...updatedProps} />;
+};
 
 export default ConfigForm;

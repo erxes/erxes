@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import {
   Button,
@@ -19,42 +19,34 @@ type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
 };
 
-type State = {
-  name: string;
-  action: string;
-  params: any;
-  scope: string;
-  config: any;
-};
-
-class ConfigForm extends React.Component<Props, State> {
-  constructor(props) {
-    super(props);
-
-    this.state = props?.config || {
+const ConfigForm: React.FC<Props> = props => {
+  const [state, setState] = useState(
+    props?.config || {
       name: '',
       action: '',
       params: {},
       config: {}
-    };
+    }
+  );
 
-    this.renderForm = this.renderForm.bind(this);
-  }
-  handleSelect = (value, name, scope?) => {
+  const handleSelect = (value, name, scope?) => {
+    console.log('state', state);
     const updatedState = {
-      ...this.state,
+      ...state,
       [name]: value
     };
 
     if (scope) {
+      console.log('ss', scope);
       updatedState.scope = scope;
     }
 
-    this.setState({ ...updatedState });
+    setState(prevState => ({ ...prevState, ...updatedState }));
+    console.log('updatedState', updatedState);
   };
 
-  generateDoc() {
-    const { name, action, params, config, scope } = this.state;
+  const generateDoc = () => {
+    const { name, action, params, config, scope } = state;
 
     const updatedProps: any = {
       name,
@@ -64,19 +56,20 @@ class ConfigForm extends React.Component<Props, State> {
       config: JSON.stringify(config)
     };
 
-    if (this.props.config) {
-      updatedProps._id = this.props.config?._id;
+    if (props.config) {
+      updatedProps._id = props.config?._id;
     }
 
     return updatedProps;
-  }
+  };
 
-  renderConfig() {
-    const { action, scope } = this.state;
+  const renderConfig = () => {
+    const { action, scope } = state;
 
     const updatedProps = {
-      ...this.state,
-      handleSelect: this.handleSelect
+      ...state,
+      config: state.config,
+      handleSelect
     };
 
     if (scope === 'cards') {
@@ -88,21 +81,21 @@ class ConfigForm extends React.Component<Props, State> {
       {
         action: action,
         initialProps: updatedProps,
-        handleSelect: params => this.handleSelect(params, 'params')
+        handleSelect: params => handleSelect(params, 'params')
       },
       false,
       scope
     );
-  }
+  };
 
-  renderForm(formProps: IFormProps) {
-    const { closeModal, renderButton, config } = this.props;
-    const { action, params, name } = this.state;
+  const renderForm = (formProps: IFormProps) => {
+    const { closeModal, renderButton, config } = props;
+    const { action, name } = state;
 
     const handleChange = e => {
       const { value } = e.currentTarget as HTMLInputElement;
 
-      this.setState({ name: value });
+      setState(prevState => ({ ...prevState, name: value }));
     };
 
     return (
@@ -123,10 +116,10 @@ class ConfigForm extends React.Component<Props, State> {
             label="Choose a action"
             name="action"
             initialValue={action}
-            onSelect={this.handleSelect}
+            onSelect={handleSelect}
           />
         </FormGroup>
-        {!!action && this.renderConfig()}
+        {!!action && renderConfig()}
         <ModalFooter>
           <Button btnStyle="simple" onClick={closeModal}>
             {__('Close')}
@@ -135,17 +128,14 @@ class ConfigForm extends React.Component<Props, State> {
             name: 'grant',
             text: 'Grant config',
             isSubmitted: formProps.isSubmitted,
-            values: this.generateDoc(),
+            values: generateDoc(),
             object: config
           })}
         </ModalFooter>
       </>
     );
-  }
+  };
 
-  render() {
-    return <CommonForm renderContent={this.renderForm} />;
-  }
-}
-
+  return <CommonForm renderContent={renderForm} />;
+};
 export default ConfigForm;
