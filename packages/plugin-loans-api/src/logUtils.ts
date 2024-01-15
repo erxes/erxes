@@ -69,6 +69,35 @@ export async function createLog(subdomain, user, logData) {
   );
 }
 
+export const prepareCocLogData = coc => {
+  // condition logic was in ActivityLogs model before
+  let action = 'create';
+  let content: string[] = [];
+
+  if (coc.mergedIds && coc.mergedIds.length > 0) {
+    action = 'merge';
+    content = coc.mergedIds;
+  }
+
+  return {
+    createdBy: coc.ownerId || coc.integrationId,
+    action,
+    content,
+    contentId: coc._id
+  };
+};
+
+export async function activityLog(subdomain, logData) {
+  const { data } = logData;
+
+  const updatedParams = {
+    ...logData,
+    subdomain,
+    data: { ...data, contentType: `contacts:${data.contentType}` }
+  };
+  await putActivityLog(subdomain, updatedParams);
+}
+
 export async function updateLog(subdomain, user, logData) {
   const descriptions = gatherDescriptions(logData);
 
