@@ -94,7 +94,7 @@ export class QpayAPI extends BaseAPI {
               `${this.qpayMerchantUser}:${this.qpayMerchantPassword}`
             ).toString('base64')
         }
-      });
+      }).then(r => r.json());
 
       await redis.set(
         `qpay_token_${this.qpayMerchantUser}`,
@@ -130,7 +130,7 @@ export class QpayAPI extends BaseAPI {
         path: PAYMENTS.qpay.actions.invoice,
         headers: await this.getHeaders(),
         data
-      });
+      }).then(r => r.json());
 
       return {
         ...res,
@@ -148,7 +148,7 @@ export class QpayAPI extends BaseAPI {
         method: 'GET',
         path: `${PAYMENTS.qpay.actions.invoice}/${invoice.apiResponse.invoice_id}`,
         headers: await this.getHeaders()
-      });
+      }).then(r => r.json());
 
       if (res.invoice_status === 'CLOSED') {
         return PAYMENT_STATUS.PAID;
@@ -166,7 +166,7 @@ export class QpayAPI extends BaseAPI {
         method: 'GET',
         path: `${PAYMENTS.qpay.actions.invoice}/${invoice.apiResponse.invoice_id}`,
         headers: await this.getHeaders()
-      });
+      }).then(r => r.json());
 
       if (res.invoice_status === 'CLOSED') {
         return PAYMENT_STATUS.PAID;

@@ -2,7 +2,7 @@ import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
 import { serviceDiscovery } from './configs';
 import { generateModels } from './connectionResolver';
 import { IXypConfig } from './graphql/resolvers/queries';
-import { sendRequest } from '@erxes/api-utils/src';
+import fetch from 'node-fetch';
 
 let client;
 
@@ -36,14 +36,13 @@ export const initBroker = async cl => {
 
     const config: IXypConfig = xypConfigs && xypConfigs.value;
 
-    const response = await sendRequest({
-      url: config.url + '/api',
+    const response = await fetch(config.url + '/api', {
       method: 'post',
-      headers: { token: config.token },
-      body: {
+      headers: { token: config.token, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
         params,
         wsOperationName
-      },
+      }),
       timeout: 5000
     });
 

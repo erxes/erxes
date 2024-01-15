@@ -145,7 +145,7 @@ export class PocketAPI extends BaseAPI {
         path: PAYMENTS.pocket.actions.invoice,
         headers: await this.getHeaders(),
         data
-      });
+      }).then(r => r.json());
 
       return {
         ...res,
@@ -164,7 +164,7 @@ export class PocketAPI extends BaseAPI {
         method: 'GET',
         path: `${PAYMENTS.pocket.actions.checkInvoice}/${invoice.apiResponse.invoiceId}`,
         headers: await this.getHeaders()
-      });
+      }).then(r => r.json());
 
       if (res.state === 'paid') {
         return PAYMENT_STATUS.PAID;
@@ -186,7 +186,7 @@ export class PocketAPI extends BaseAPI {
         method: 'GET',
         path: `${PAYMENTS.pocket.actions.checkInvoice}/${invoice.apiResponse.id}`,
         headers: await this.getHeaders()
-      });
+      }).then(r => r.json());
 
       if (res.state === 'paid') {
         return PAYMENT_STATUS.PAID;

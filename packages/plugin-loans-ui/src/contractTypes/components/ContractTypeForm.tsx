@@ -66,7 +66,7 @@ class ContractTypeForm extends React.Component<Props, State> {
       collateralType: contractType.collateralType,
       currency:
         contractType.currency ||
-        this.props.currentUser.configs?.dealCurrency[0],
+        this.props.currentUser.configs?.dealCurrency?.[0],
       usePrePayment: contractType.usePrePayment || false,
       savingPlusLoanInterest: contractType.savingPlusLoanInterest,
       savingUpperPercent: contractType.savingUpperPercent,

@@ -1,4 +1,4 @@
-import { sendRequest } from '@erxes/api-utils/src';
+import fetch from 'node-fetch';
 import { sendCommonMessage } from './messageBroker';
 
 export default {
@@ -52,19 +52,17 @@ export default {
     }, {});
 
     try {
-      await sendRequest({
-        url,
+      await fetch(url + '?' + new URLSearchParams(params), {
         method: method || 'POST',
         headers: {
-          'Content-Type': 'application/json',
-          ...headers
+          ...headers,
+          'Content-Type': 'application/json'
         },
-        params,
-        body: {
+        body: JSON.stringify({
           actionType: 'automations.webhook',
           triggerType,
           data: target
-        }
+        })
       });
       return {
         url,

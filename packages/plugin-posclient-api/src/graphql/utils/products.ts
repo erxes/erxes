@@ -1,5 +1,5 @@
 import { debugError } from '@erxes/api-utils/src/debuggers';
-import { sendRequest } from '@erxes/api-utils/src/requests';
+import fetch from 'node-fetch';
 import { sendInventoriesMessage } from '../../messageBroker';
 import { IConfigDocument } from '../../models/definitions/configs';
 import { IProductDocument } from '../../models/definitions/products';
@@ -34,21 +34,21 @@ export const checkRemainders = async (
         }
 
         if (account && location) {
-          const response = await sendRequest({
-            url: configs.getRemainderApiUrl,
-            method: 'GET',
-            params: {
-              kind: 'remainder',
-              api_key: configs.apiKey,
-              api_secret: configs.apiSecret,
-              check_relate: products.length < 4 ? '1' : '',
-              accounts: account,
-              locations: location,
-              inventories: products.map(p => p.code).join(',')
-            }
-          });
+          const response = await fetch(
+            configs.getRemainderApiUrl +
+              '?' +
+              new URLSearchParams({
+                kind: 'remainder',
+                api_key: configs.apiKey,
+                api_secret: configs.apiSecret,
+                check_relate: products.length < 4 ? '1' : '',
+                accounts: account,
+                locations: location,
+                inventories: products.map(p => p.code).join(',')
+              })
+          );
 
-          const jsonRes = JSON.parse(response);
+          const jsonRes = await response.json();
           let responseByCode = {};
 
           if (account && location) {

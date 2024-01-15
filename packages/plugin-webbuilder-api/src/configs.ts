@@ -1,5 +1,5 @@
 import typeDefs from './graphql/typeDefs';
-import { sendRequest } from '@erxes/api-utils/src';
+import fetch from 'node-fetch';
 import resolvers from './graphql/resolvers';
 
 import { initBroker } from './messageBroker';
@@ -7,6 +7,7 @@ import { getSubdomain } from '@erxes/api-utils/src/core';
 import { generateModels } from './connectionResolver';
 import { pageReplacer } from './utils';
 import permissions = require('./permissions');
+import { readSync } from 'fs';
 
 export let mainDb;
 export let debug;
@@ -205,10 +206,7 @@ export default {
 
       const url = `${HELPERS_DOMAIN}/get-webbuilder-demo-page?templateId=${templateId}`;
 
-      const page = await sendRequest({
-        url,
-        method: 'get'
-      });
+      const page = await fetch(url).then(res => res.json());
 
       return res.send(
         `

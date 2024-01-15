@@ -4,7 +4,7 @@ import { sendContactsMessage, sendInboxMessage } from './messageBroker';
 import * as dotenv from 'dotenv';
 import { generateModels } from './connectionResolver';
 import { getConfig, getMessageOAID, getMessageUserID } from './commonUtils';
-import { sendRequest } from '@erxes/api-utils/src';
+import fetch from 'node-fetch';
 import { debug, graphqlPubsub } from './configs';
 import { getOrCreateCustomer } from './helpers';
 
@@ -153,32 +153,31 @@ const init = async app => {
     const OAAPIUrl = `https://openapi.zalo.me/v2.0/oa/getoa`;
 
     try {
-      const getAccessTokenFromAuthCode = await sendRequest({
-        method: 'POST',
-        url: authCodeUrl,
-        headers: {
-          secret_key: conf.secret_key,
-          'Content-Type': 'application/x-www-form-urlencoded'
-        },
-        params: {
-          code: config.code,
-          app_id: conf.app_id,
-          grant_type: 'authorization_code'
+      const authInfo = await fetch(
+        authCodeUrl +
+          '?' +
+          new URLSearchParams({
+            code: config.code,
+            app_id: conf.app_id,
+            grant_type: 'authorization_code'
+          }),
+        {
+          method: 'POST',
+          headers: {
+            secret_key: conf.secret_key,
+            'Content-Type': 'application/x-www-form-urlencoded'
+          }
         }
-      });
+      ).then(res => res.json());
 
       // const { responses } = getAccessTokenFromAuthCode;
 
-      const authInfo = JSON.parse(getAccessTokenFromAuthCode);
-
-      const OAInfo = await sendRequest({
-        method: 'GET',
-        url: OAAPIUrl,
+      const OAInfo = await fetch(OAAPIUrl, {
         headers: {
           access_token: authInfo?.access_token,
           'Content-Type': 'application/x-www-form-urlencoded'
         }
-      });
+      }).then(res => res.json());
 
       // const { responses: OAInfo } = getOAInfo;
 

@@ -1,6 +1,6 @@
 import { DISTRICTS } from './definitions/constants';
 import { IModels } from '../connectionResolver';
-import { sendRequest } from '@erxes/api-utils/src/requests';
+import fetch from 'node-fetch';
 import { IEbarimtConfig } from './definitions/configs';
 
 const formatNumber = (num: number): string => {
@@ -199,32 +199,30 @@ export class PutData<IListArgs extends IPutDataArgs> {
       number
     });
 
-    const responseStr = await sendRequest({
-      url: `${url}/put?lib=${rd}`,
+    const responseBody = await fetch(`${url}/put?lib=${rd}`, {
       method: 'POST',
-      body: { data: this.transactionInfo },
-      params: { data: this.transactionInfo }
-    });
-
-    const response = JSON.parse(responseStr);
+      body: JSON.stringify({ data: this.transactionInfo }),
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    }).then(res => res.json());
 
     if (
-      response.billType == '1' &&
-      response.lottery == '' &&
-      response.success
+      responseBody.billType == '1' &&
+      responseBody.lottery == '' &&
+      responseBody.success
     ) {
       if (prePutResponse) {
-        response.lottery = prePutResponse.lottery;
+        responseBody.lottery = prePutResponse.lottery;
       } else {
-        response.getInformation = await sendRequest({
-          url: `${url}/getInformation?lib=${rd}`,
-          method: 'GET'
-        });
+        responseBody.getInformation = await fetch(
+          `${url}/getInformation?lib=${rd}`
+        ).then(res => res.text());
       }
     }
 
     await this.models.PutResponses.updatePutResponse(resObj._id, {
-      ...response,
+      ...responseBody,
       customerName: this.params.customerName
     });
 
@@ -291,16 +289,16 @@ export const returnBill = async (
       returnBillId: prePutResponse.billId
     });
 
-    const responseStr = await sendRequest({
-      url: `${url}/returnBill?lib=${rd}`,
+    const responseBody = await fetch(`${url}/returnBill?lib=${rd}`, {
       method: 'POST',
-      body: { data },
-      params: { ...data }
-    });
+      body: JSON.stringify({ data }),
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    }).then(res => res.json());
 
-    const response = JSON.parse(responseStr);
     await models.PutResponses.updatePutResponse(resObj._id, {
-      ...response
+      ...responseBody
     });
     resultObjIds.push(resObj._id);
   }

@@ -1,5 +1,5 @@
 import { IContext } from '../../../connectionResolver';
-import { sendRequest } from '@erxes/api-utils/src/requests';
+import fetch from 'node-fetch';
 import {
   sendCardsMessage,
   sendContactsMessage,
@@ -86,23 +86,23 @@ const erkhetQueries = {
           continue;
         }
 
-        const response = await sendRequest({
-          url: `${process.env.ERKHET_URL ||
-            'https://erkhet.biz'}/get-api/?kind=remainder`,
-          method: 'GET',
-          params: {
-            kind: 'remainder',
-            api_key: mainConfig.apiKey,
-            api_secret: mainConfig.apiSecret,
-            check_relate: codesByBrandId[brandId].length < 4 ? '1' : '',
-            accounts: remainderConfig.account,
-            locations: remainderConfig.location,
-            inventories: codesByBrandId[brandId].join(',')
-          },
-          timeout: 8000
-        });
+        const response = await fetch(
+          `${process.env.ERKHET_URL || 'https://erkhet.biz'}/get-api/?` +
+            new URLSearchParams({
+              kind: 'remainder',
+              api_key: mainConfig.apiKey,
+              api_secret: mainConfig.apiSecret,
+              check_relate: codesByBrandId[brandId].length < 4 ? '1' : '',
+              accounts: remainderConfig.account,
+              locations: remainderConfig.location,
+              inventories: codesByBrandId[brandId].join(',')
+            }),
+          {
+            timeout: 8000
+          }
+        );
 
-        const jsonRes = JSON.parse(response);
+        const jsonRes = await response.json();
 
         if (remainderConfig.account && remainderConfig.location) {
           const accounts = remainderConfig.account.split(',') || [];
@@ -232,15 +232,15 @@ const erkhetQueries = {
         return {};
       }
 
-      const response = await sendRequest({
-        url: `${process.env.ERKHET_URL ||
-          'https://erkhet.biz'}/get-api/?kind=remainder`,
-        method: 'GET',
-        params: sendParams,
-        timeout: 8000
-      });
+      const response = await fetch(
+        `${process.env.ERKHET_URL || 'https://erkhet.biz'}/get-api/?` +
+          new URLSearchParams({ ...sendParams, kind: 'remainder' }),
+        {
+          timeout: 8000
+        }
+      );
 
-      const jsonRes = JSON.parse(response);
+      const jsonRes = await response.json();
       return jsonRes;
     } catch (e) {
       console.log(e.message);

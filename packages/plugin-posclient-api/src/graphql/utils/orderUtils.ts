@@ -3,7 +3,7 @@ import { IModels } from '../../connectionResolver';
 import { IPayment } from '../resolvers/mutations/orders';
 import { IOrderInput, IOrderItemInput } from '../types';
 import { IOrderItemDocument } from '../../models/definitions/orderItems';
-import { sendRequest } from '@erxes/api-utils/src/requests';
+import fetch from 'node-fetch';
 import {
   DISTRICTS,
   BILL_TYPES,
@@ -289,11 +289,11 @@ export const prepareEbarimtData = async (
   let customerName = '';
 
   if (registerNumber) {
-    const response = await sendRequest({
-      url: config.checkCompanyUrl,
-      method: 'GET',
-      params: { regno: registerNumber }
-    });
+    const response = await fetch(
+      config.checkCompanyUrl +
+        '?' +
+        new URLSearchParams({ regno: registerNumber })
+    ).then(res => res.json());
 
     if (response.found) {
       billType = BILL_TYPES.ENTITY;

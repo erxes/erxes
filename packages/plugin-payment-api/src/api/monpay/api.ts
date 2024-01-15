@@ -96,7 +96,7 @@ export class MonpayAPI extends BaseAPI {
         headers: this.headers,
         path: PAYMENTS.monpay.actions.invoiceQr,
         data
-      });
+      }).then(r => r.json());
 
       if (res.code !== 0) {
         return { error: 'Failed to create invoice, please try again' };
@@ -118,7 +118,7 @@ export class MonpayAPI extends BaseAPI {
         headers: this.headers,
         path: PAYMENTS.monpay.actions.invoiceCheck,
         params: { uuid: invoice.apiResponse.uuid }
-      });
+      }).then(r => r.json());
 
       switch (res.code) {
         case 0:
@@ -140,7 +140,7 @@ export class MonpayAPI extends BaseAPI {
         headers: this.headers,
         path: PAYMENTS.monpay.actions.invoiceCheck,
         params: { uuid: invoice.apiResponse.uuid }
-      });
+      }).then(r => r.json());
 
       switch (res.code) {
         case 0:
@@ -165,7 +165,7 @@ export class MonpayAPI extends BaseAPI {
           username: process.env.MONPAY_COUPON_USERNAME || '',
           password: process.env.MONPAY_COUPON_PASSWORD || ''
         }
-      });
+      }).then(r => r.json());
 
       if (loginRes.code !== 0) {
         return { error: 'Failed to login' };
@@ -182,7 +182,7 @@ export class MonpayAPI extends BaseAPI {
           },
           path: PAYMENTS.monpay.actions.couponScan,
           params: { couponCode }
-        });
+        }).then(r => r.json());
 
         if (res.code !== 0) {
           return { error: 'Coupon is not valid' };

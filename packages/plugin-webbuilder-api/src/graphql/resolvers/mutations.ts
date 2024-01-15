@@ -8,7 +8,7 @@ import { IEntry } from '../../models/definitions/entries';
 import { IContext } from '../../connectionResolver';
 import { ITemplate } from '../../models/definitions/templates';
 import { ISite } from '../../models/definitions/sites';
-import { sendRequest } from '@erxes/api-utils/src';
+import fetch from 'node-fetch';
 
 interface IContentTypeEdit extends IContentType {
   _id: string;
@@ -103,10 +103,9 @@ const webbuilderMutations = {
       user._id
     );
 
-    const { pages, contentTypes } = await sendRequest({
-      url: `https://helper.erxes.io/get-webbuilder-template?templateId=${_id}`,
-      method: 'get'
-    });
+    const { pages, contentTypes } = await fetch(
+      `https://helper.erxes.io/get-webbuilder-template?templateId=${_id}`
+    ).then(res => res.json());
 
     for (const page of pages) {
       await models.Pages.createPage(

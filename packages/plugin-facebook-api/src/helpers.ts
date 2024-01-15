@@ -6,7 +6,8 @@ import {
   subscribePage,
   unsubscribePage
 } from './utils';
-import { getEnv, resetConfigsCache, sendRequest } from './commonUtils';
+import { getEnv, resetConfigsCache } from './commonUtils';
+import fetch from 'node-fetch';
 
 export const removeIntegration = async (
   models: IModels,
@@ -84,12 +85,14 @@ export const removeIntegration = async (
   if (ENDPOINT_URL) {
     // send domain to core endpoints
     try {
-      await sendRequest({
-        url: `${ENDPOINT_URL}/remove-endpoint`,
+      await fetch(`${ENDPOINT_URL}/remove-endpoint`, {
         method: 'POST',
-        body: {
+        body: JSON.stringify({
           domain: DOMAIN,
           ...integrationRemoveBy
+        }),
+        headers: {
+          'Content-Type': 'application/json'
         }
       });
     } catch (e) {
@@ -172,14 +175,14 @@ export const repairIntegrations = async (
   if (ENDPOINT_URL) {
     // send domain to core endpoints
     try {
-      await sendRequest({
-        url: `${ENDPOINT_URL}/update-endpoint`,
+      await fetch(`${ENDPOINT_URL}/update-endpoint`, {
         method: 'POST',
-        body: {
+        body: JSON.stringify({
           domain: `${DOMAIN}/gateway/pl:facebook`,
           facebookPageIds: integration.facebookPageIds,
           fbPageIds: integration.facebookPageIds
-        }
+        }),
+        headers: { 'Content-Type': 'application/json' }
       });
     } catch (e) {
       throw e;
@@ -289,14 +292,14 @@ export const facebookCreateIntegration = async (
   if (ENDPOINT_URL) {
     // send domain to core endpoints
     try {
-      await sendRequest({
-        url: `${ENDPOINT_URL}/register-endpoint`,
+      await fetch(`${ENDPOINT_URL}/register-endpoint`, {
         method: 'POST',
-        body: {
+        body: JSON.stringify({
           domain,
           facebookPageIds,
           fbPageIds: facebookPageIds
-        }
+        }),
+        headers: { 'Content-Type': 'application/json' }
       });
     } catch (e) {
       await models.Integrations.deleteOne({ _id: integration._id });

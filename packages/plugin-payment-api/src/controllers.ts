@@ -6,7 +6,7 @@ import { generateModels } from './connectionResolver';
 import redisUtils from './redisUtils';
 import { PAYMENTS } from './api/constants';
 import { StorePayAPI } from './api/storepay/api';
-import { sendRequest } from '@erxes/api-utils/src';
+import fetch from 'node-fetch';
 import { graphqlPubsub } from './configs';
 import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
 import messageBroker from './messageBroker';
@@ -392,18 +392,19 @@ router.post('/gateway/monpay/coupon', async (req, res, next) => {
   const username = process.env.MONPAY_COUPON_USERNAME;
   const password = process.env.MONPAY_COUPON_PASSWORD;
 
-  const loginResponse = await sendRequest({
-    url: `${PAYMENTS.monpay.apiUrl}/rest/branch/login`,
-    method: 'POST',
-    body: {
-      username,
-      password
-    },
-
-    headers: {
-      'Content-Type': 'application/json'
+  const loginResponse = await fetch(
+    `${PAYMENTS.monpay.apiUrl}/rest/branch/login`,
+    {
+      method: 'POST',
+      body: JSON.stringify({
+        username,
+        password
+      }),
+      headers: {
+        'Content-Type': 'application/json'
+      }
     }
-  });
+  ).then(res => res.json());
 
   if (loginResponse.code !== 0) {
     return res.status(400).json({
@@ -414,17 +415,18 @@ router.post('/gateway/monpay/coupon', async (req, res, next) => {
   const token = loginResponse.result.token;
 
   try {
-    const couponResponse = await sendRequest({
-      url: `${PAYMENTS.monpay.apiUrl}/rest/branch/coupon/scan`,
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`
-      },
-      params: {
-        couponCode
+    const couponResponse = await fetch(
+      `${PAYMENTS.monpay.apiUrl}/rest/branch/coupon/scan?` +
+        new URLSearchParams({
+          couponCode
+        }),
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        }
       }
-    });
+    ).then(res => res.json());
 
     if (couponResponse.code !== 0) {
       return res.status(400).json({
@@ -456,7 +458,9 @@ router.post('/gateway/monpay/coupon', async (req, res, next) => {
 
     await models.Invoices.updateOne(
       { _id: invoice._id },
-      { $set: { couponCode, couponAmount: couponResponse.result.couponAmount } }
+      {
+        $set: { couponCode, couponAmount: couponResponse.result.couponAmount }
+      }
     );
 
     return res.json({

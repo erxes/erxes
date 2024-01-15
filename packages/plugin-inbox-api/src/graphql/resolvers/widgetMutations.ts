@@ -22,7 +22,7 @@ import {
   BOT_MESSAGE_TYPES
 } from '../../models/definitions/constants';
 
-import { getEnv, sendRequest } from '@erxes/api-utils/src';
+import { getEnv } from '@erxes/api-utils/src';
 
 import { IBrowserInfo } from '@erxes/api-utils/src/definitions/common';
 import EditorAttributeUtil from '@erxes/api-utils/src/editorAttributeUtils';
@@ -42,6 +42,7 @@ import {
   sendToWebhook
 } from '../../messageBroker';
 import { solveSubmissions } from '../../widgetUtils';
+import fetch from 'node-fetch';
 
 interface IWidgetEmailParams {
   toEmails: string[];
@@ -91,13 +92,14 @@ export const pConversationClientMessageInserted = async (
     }
   }
 
-  graphqlPubsub.publish('conversationClientMessageInserted', {
-    conversationClientMessageInserted: message,
-    subdomain,
-    conversation,
-    integration,
-    channelMemberIds
-  });
+  for (const userId of channelMemberIds) {
+    graphqlPubsub.publish(`conversationClientMessageInserted:${userId}`, {
+      conversationClientMessageInserted: message,
+      subdomain,
+      conversation,
+      integration
+    });
+  }
 
   if (message.content) {
     sendCoreMessage({
@@ -880,14 +882,17 @@ const widgetMutations = {
       );
 
       try {
-        const botRequest = await sendRequest({
-          method: 'POST',
-          url: `${botEndpointUrl}/${conversation._id}`,
-          body: {
-            type: 'text',
-            text: message
+        const botRequest = await fetch(
+          `${botEndpointUrl}/${conversation._id}`,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              type: 'text',
+              text: message
+            }),
+            headers: { 'Content-Type': 'application/json' }
           }
-        });
+        ).then(r => r.json());
 
         const { responses } = botRequest;
 
@@ -1256,7 +1261,7 @@ const widgetMutations = {
       customerId = customer._id;
     }
 
-    let sessionId = conversationId;
+    let sessionId: string | null | undefined = conversationId;
 
     if (!conversationId) {
       sessionId = await redis.get(
@@ -1298,14 +1303,14 @@ const widgetMutations = {
     let botData;
 
     if (type !== BOT_MESSAGE_TYPES.SAY_SOMETHING) {
-      const botRequest = await sendRequest({
+      const botRequest = await fetch(`${botEndpointUrl}/${sessionId}`, {
         method: 'POST',
-        url: `${botEndpointUrl}/${sessionId}`,
-        body: {
+        body: JSON.stringify({
           type: 'text',
           text: payload
-        }
-      });
+        }),
+        headers: { 'Content-Type': 'application/json' }
+      }).then(r => r.json());
 
       const { responses } = botRequest;
 
@@ -1363,14 +1368,14 @@ const widgetMutations = {
       ({} as any);
     const { botEndpointUrl } = integration.messengerData;
 
-    const botRequest = await sendRequest({
+    const botRequest = await fetch(`${botEndpointUrl}/${sessionId}`, {
       method: 'POST',
-      url: `${botEndpointUrl}/${sessionId}`,
-      body: {
+      body: JSON.stringify({
         type: 'text',
         text: 'getStarted'
-      }
-    });
+      }),
+      headers: { 'Content-Type': 'application/json' }
+    }).then(r => r.json());
 
     await redis.set(
       `bot_initial_message_${integrationId}`,

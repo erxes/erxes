@@ -1,10 +1,11 @@
-import { paginate, sendRequest } from '@erxes/api-utils/src';
+import { paginate } from '@erxes/api-utils/src';
 import { escapeRegExp } from '@erxes/api-utils/src/core';
 import {
   moduleRequireLogin,
   checkPermission
 } from '@erxes/api-utils/src/permissions';
 import { IContext } from '../../connectionResolver';
+import fetch from 'node-fetch';
 
 const generateCommonFilter = ({
   searchValue,
@@ -117,10 +118,9 @@ const webbuilderQueries = {
   },
 
   async webbuilderTemplates(_root, { searchValue }: { searchValue: string }) {
-    return sendRequest({
-      url: `https://helper.erxes.io/get-webbuilder-templates?searchValue=${searchValue}`,
-      method: 'get'
-    });
+    return await fetch(
+      `https://helper.erxes.io/get-webbuilder-templates?searchValue=${searchValue}`
+    ).then(res => res.json());
   },
 
   webbuilderTemplatesTotalCount(_root, _args, { models }: IContext) {

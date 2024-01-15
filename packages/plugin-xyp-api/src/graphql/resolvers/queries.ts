@@ -1,4 +1,4 @@
-import { sendRequest } from '@erxes/api-utils/src';
+import fetch from 'node-fetch';
 import { IContext } from '../../connectionResolver';
 import { sendCommonMessage } from '../../messageBroker';
 
@@ -51,28 +51,26 @@ const xypQueries = {
 
     const config: IXypConfig = xypConfigs && xypConfigs.value;
 
-    const response = await sendRequest({
-      url: config.url + '/api',
+    const response = await fetch(config.url + '/api', {
       method: 'post',
-      headers: { token: config.token },
-      body: {
+      headers: { token: config.token, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
         params,
         wsOperationName
-      },
+      }),
       timeout: 10000
-    });
+    }).then(res => res.json());
 
     return response;
   },
 
   async xypServiceList(_root, { url, token }, { models, subdomain }: IContext) {
     if (url && token) {
-      const response = await sendRequest({
-        url: url + '/list',
+      const response = await fetch(url + '/list', {
         method: 'post',
         headers: { token: token },
         timeout: 9000
-      });
+      }).then(res => res.json());
       return response;
     }
 
@@ -95,12 +93,11 @@ const xypQueries = {
 
     const config: IXypConfig = xypConfigs && xypConfigs.value;
 
-    const response = await sendRequest({
-      url: config.url + '/list',
+    const response = await fetch(config.url + '/list', {
       method: 'post',
       headers: { token: config.token },
       timeout: 9000
-    });
+    }).then(res => res.json());
 
     return response;
   },

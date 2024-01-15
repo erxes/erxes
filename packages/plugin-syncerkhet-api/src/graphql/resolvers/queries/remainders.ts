@@ -1,6 +1,6 @@
 import { IContext } from '../../../connectionResolver';
 import { getConfig } from '../../../utils/utils';
-import { sendRequest } from '@erxes/api-utils/src/requests';
+import fetch from 'node-fetch';
 import {
   sendCardsMessage,
   sendContactsMessage,
@@ -56,22 +56,24 @@ const erkhetQueries = {
 
       const codes = (products || []).map(item => item.code);
 
-      const response = await sendRequest({
-        url: configs.getRemainderApiUrl,
-        method: 'GET',
-        params: {
-          kind: 'remainder',
-          api_key: configs.apiKey,
-          api_secret: configs.apiSecret,
-          check_relate: codes.length < 4 ? '1' : '',
-          accounts: remConfig.account,
-          locations: remConfig.location,
-          inventories: codes.join(',')
-        },
-        timeout: 8000
-      });
+      const response = await fetch(
+        configs.getRemainderApiUrl +
+          '?' +
+          new URLSearchParams({
+            kind: 'remainder',
+            api_key: configs.apiKey,
+            api_secret: configs.apiSecret,
+            check_relate: codes.length < 4 ? '1' : '',
+            accounts: remConfig.account,
+            locations: remConfig.location,
+            inventories: codes.join(',')
+          }),
+        {
+          timeout: 8000
+        }
+      );
 
-      const jsonRes = JSON.parse(response);
+      const jsonRes = await response.json();
       let responseByCode = {};
 
       if (remConfig.account && remConfig.location) {
@@ -196,14 +198,14 @@ const erkhetQueries = {
         return {};
       }
 
-      const response = await sendRequest({
-        url: configs.getRemainderApiUrl,
-        method: 'GET',
-        params: sendParams,
-        timeout: 8000
-      });
+      const response = await fetch(
+        configs.getRemainderApiUrl + '?' + new URLSearchParams(sendParams),
+        {
+          timeout: 8000
+        }
+      );
 
-      const jsonRes = JSON.parse(response);
+      const jsonRes = await response.json();
       return jsonRes;
     } catch (e) {
       console.log(e.message);

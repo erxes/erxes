@@ -1,4 +1,4 @@
-import { sendRequest } from '@erxes/api-utils/src/requests';
+import fetch from 'node-fetch';
 
 import redis from '../redis';
 
@@ -22,16 +22,18 @@ export const getAuthHeaders = async (args: {
   const apiUrl = 'https://api.khanbank.com/v1';
 
   try {
-    const response = await sendRequest({
-      url: `${apiUrl}/auth/token?grant_type=client_credentials`,
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        Authorization: `Basic ${Buffer.from(
-          `${consumerKey}:${secretKey}`
-        ).toString('base64')}`
+    const response = await fetch(
+      `${apiUrl}/auth/token?grant_type=client_credentials`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          Authorization: `Basic ${Buffer.from(
+            `${consumerKey}:${secretKey}`
+          ).toString('base64')}`
+        }
       }
-    });
+    ).then(res => res.json());
 
     await redis.set(
       `khanbank_token_${consumerKey}:${secretKey}`,

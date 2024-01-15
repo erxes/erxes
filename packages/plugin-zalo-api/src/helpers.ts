@@ -1,7 +1,7 @@
 import { generateModels, IModels } from './connectionResolver';
 import { getConfig, resetConfigsCache } from './commonUtils';
 import { getEnv, getSubdomain } from '@erxes/api-utils/src/core';
-import { sendRequest } from '@erxes/api-utils/src';
+import fetch from 'node-fetch';
 import { debug } from './configs';
 import { sendInboxMessage } from './messageBroker';
 
@@ -147,14 +147,12 @@ export const zaloSendRequest = async (
   let response: any = {};
 
   try {
-    response = (await sendRequest({
-      url,
+    response = (await fetch(url + '?' + new URLSearchParams(params), {
       method: method || 'POST',
       headers: {
         access_token: access_token
-      },
-      params
-    })) || { error: -1 };
+      }
+    }).then(res => res.json())) || { error: -1 };
 
     if (response.hasOwnProperty('error') && response?.error == -216) {
       const models = await generateModels(subdomain);
@@ -165,22 +163,24 @@ export const zaloSendRequest = async (
       );
 
       const getToken =
-        (await sendRequest({
-          url: 'https://oauth.zaloapp.com/v4/oa/access_token',
-          method: 'POST',
-          headers: {
-            secret_key: ZALO_APP_SECRET_KEY,
-            'Content-Type': 'application/x-www-form-urlencoded'
-          },
-          params: {
-            refresh_token,
-            app_id: ZALO_APP_ID,
-            secret_key: ZALO_APP_SECRET_KEY,
-            grant_type: 'refresh_token'
+        (await fetch(
+          'https://oauth.zaloapp.com/v4/oa/access_token?' +
+            new URLSearchParams({
+              refresh_token,
+              app_id: ZALO_APP_ID,
+              secret_key: ZALO_APP_SECRET_KEY,
+              grant_type: 'refresh_token'
+            }),
+          {
+            method: 'POST',
+            headers: {
+              secret_key: ZALO_APP_SECRET_KEY,
+              'Content-Type': 'application/x-www-form-urlencoded'
+            }
           }
-        })) || {};
+        )) || {};
 
-      const authInfo = JSON.parse(getToken);
+      const authInfo = await getToken.json();
 
       if (authInfo?.hasOwnProperty('error')) {
         return;
@@ -194,14 +194,12 @@ export const zaloSendRequest = async (
       );
 
       response =
-        (await sendRequest({
-          url,
+        (await fetch(url + '?' + new URLSearchParams(params), {
           method: method || 'POST',
           headers: {
             access_token: authInfo?.access_token
-          },
-          params
-        })) || {};
+          }
+        }).then(res => res.json())) || {};
     }
 
     return response;

@@ -1,4 +1,4 @@
-import { sendRequest } from '@erxes/api-utils/src';
+import fetch from 'node-fetch';
 import {
   sendCoreMessage,
   sendNotificationsMessage,
@@ -25,11 +25,9 @@ export const validCompanyCode = async (config, companyCode) => {
   const re = new RegExp('(^[А-ЯЁӨҮ]{2}[0-9]{8}$)|(^\\d{7}$)', 'gui');
 
   if (re.test(companyCode)) {
-    const response = await sendRequest({
-      url: config.checkCompanyUrl,
-      method: 'GET',
-      params: { regno: companyCode }
-    });
+    const response = await fetch(
+      config.checkCompanyUrl + '?' + new URLSearchParams({ regno: companyCode })
+    ).then(r => r.json());
 
     if (response.found) {
       result = response.name;
@@ -241,11 +239,11 @@ export const getPostData = async (subdomain, config, deal) => {
     const re = new RegExp('(^[А-ЯЁӨҮ]{2}[0-9]{8}$)|(^\\d{7}$)', 'gui');
     for (const company of companies) {
       if (re.test(company.code)) {
-        const checkCompanyRes = await sendRequest({
-          url: config.checkCompanyUrl,
-          method: 'GET',
-          params: { regno: company.code }
-        });
+        const checkCompanyRes = await fetch(
+          config.checkCompanyUrl +
+            '?' +
+            new URLSearchParams({ regno: company.code })
+        ).then(r => r.json());
 
         if (checkCompanyRes.found) {
           billType = '3';
@@ -426,11 +424,9 @@ export const getCompany = async (subdomain, companyRD) => {
     return { status: 'notValid' };
   }
 
-  const info = await sendRequest({
-    url: config.checkCompanyUrl,
-    method: 'GET',
-    params: { regno: companyRD }
-  });
+  const info = await fetch(
+    config.checkCompanyUrl + '?' + new URLSearchParams({ regno: companyRD })
+  ).then(r => r.json());
 
   return { status: 'checked', info };
 };

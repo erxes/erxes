@@ -6,7 +6,8 @@ import csvParser = require('csv-parser');
 import utils from '@erxes/api-utils/src';
 import { getFileUploadConfigs } from '../messageBroker';
 import { getService } from '@erxes/api-utils/src/serviceDiscovery';
-import * as Downloader from 'nodejs-file-downloader';
+import fetch from 'node-fetch';
+import { pipeline } from 'node:stream/promises';
 
 export const uploadsFolderPath = path.join(__dirname, '../private/uploads');
 
@@ -132,18 +133,18 @@ export const getImportCsvInfo = async (fileName: string) => {
 
   const url = `${service.address}/get-import-file`;
 
-  const downloader = await new (Downloader as any)({
-    url,
-    directory: uploadsFolderPath,
-    cloneFiles: false,
-    fileName,
-    headers: { fileName }
-  });
   try {
-    await downloader.download();
+    const response = await fetch(url, { headers: { fileName } });
+    if (!response.ok) {
+      throw new Error(response.statusText);
+    }
+    await pipeline(
+      response.body,
+      fs.createWriteStream(`${uploadsFolderPath}/${fileName}`)
+    );
   } catch (e) {
     console.error(
-      `${service.name} csv download from ${url} to ${fileName} failed.`,
+      `${service.name} csv download from ${url} to ${uploadsFolderPath}/${fileName} failed.`,
       e.message
     );
   }

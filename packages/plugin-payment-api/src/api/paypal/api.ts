@@ -66,7 +66,7 @@ export class PaypalAPI extends BaseAPI {
         data: {
           grant_type: 'client_credentials'
         }
-      });
+      }).then(r => r.json());
 
       await redis.set(
         `paypal_token_${clientId}`,

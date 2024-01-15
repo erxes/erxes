@@ -104,7 +104,7 @@ export class SocialPayAPI extends BaseAPI {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         data
-      });
+      }).then(r => r.json());
 
       if (header.code !== 200) {
         return { error: body.error.errorDesc };
@@ -154,7 +154,7 @@ export class SocialPayAPI extends BaseAPI {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         data
-      });
+      }).then(r => r.json());
 
       if (body.response.resp_code !== '00') {
         throw new Error(body.response.resp_desc);
@@ -185,7 +185,7 @@ export class SocialPayAPI extends BaseAPI {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         data
-      });
+      }).then(r => r.json());
 
       if (body.error) {
         return body.error.errorDesc;

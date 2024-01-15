@@ -1,6 +1,7 @@
 import { IModels } from './connectionResolver';
 import { debugCallPro, debugError } from './debuggers';
-import { getEnv, resetConfigsCache, sendRequest } from './utils';
+import { getEnv, resetConfigsCache } from './utils';
+import fetch from 'node-fetch';
 
 export const removeIntegration = async (
   models: IModels,
@@ -38,13 +39,13 @@ export const removeIntegration = async (
   if (ENDPOINT_URL) {
     // send domain to core endpoints
     try {
-      await sendRequest({
-        url: `${ENDPOINT_URL}/remove-endpoint`,
+      await fetch(`${ENDPOINT_URL}/remove-endpoint`, {
         method: 'POST',
-        body: {
+        body: JSON.stringify({
           domain: DOMAIN,
           ...integrationRemoveBy
-        }
+        }),
+        headers: { 'Content-Type': 'application/json' }
       });
     } catch (e) {
       throw new Error(e.message);

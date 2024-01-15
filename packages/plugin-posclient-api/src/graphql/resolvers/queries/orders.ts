@@ -1,6 +1,6 @@
 import { IContext } from '../../types';
 import { escapeRegExp, getPureDate, paginate } from '@erxes/api-utils/src/core';
-import { sendRequest } from '@erxes/api-utils/src/requests';
+import fetch from 'node-fetch';
 import { sendPosMessage } from '../../../messageBroker';
 import { IConfig } from '../../../models/definitions/configs';
 
@@ -203,12 +203,9 @@ const orderQueries = {
       config && config.ebarimtConfig && config.ebarimtConfig.checkCompanyUrl;
 
     if (url) {
-      const response = await sendRequest({
-        url,
-        method: 'GET',
-        params: { regno: registerNumber }
-      });
-
+      const response = await fetch(
+        url + '?' + new URLSearchParams({ regno: registerNumber })
+      ).then(res => res.json());
       return response;
     }
 

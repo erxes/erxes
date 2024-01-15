@@ -3,7 +3,7 @@ import { WEBHOOK_STATUS } from '../../../models/definitions/constants';
 import { IWebhook } from '../../../models/definitions/webhooks';
 import { putCreateLog, putDeleteLog, putUpdateLog } from '../../../logUtils';
 import { IContext } from '../../../connectionResolver';
-import { sendRequest } from '@erxes/api-utils/src';
+import fetch from 'node-fetch';
 
 interface IWebhookEdit extends IWebhook {
   _id: string;
@@ -22,15 +22,15 @@ const webhookMutations = {
   ) {
     const webhook = await models.Webhooks.createWebhook(docModifier(doc));
 
-    sendRequest({
-      url: webhook.url,
+    await fetch(webhook.url, {
       headers: {
-        'Erxes-token': webhook.token || ''
+        'Erxes-token': webhook.token || '',
+        'Content-Type': 'application/json'
       },
       method: 'post',
-      body: {
+      body: JSON.stringify({
         text: 'You have successfully connected erxes webhook'
-      }
+      })
     })
       .then(async () => {
         await models.Webhooks.updateStatus(
@@ -71,15 +71,15 @@ const webhookMutations = {
     const webhook = await models.Webhooks.getWebHook(_id);
     const updated = await models.Webhooks.updateWebhook(_id, doc);
 
-    sendRequest({
-      url: webhook.url,
+    await fetch(webhook.url, {
       headers: {
-        'Erxes-token': webhook.token || ''
+        'Erxes-token': webhook.token || '',
+        'Content-Type': 'application/json'
       },
       method: 'post',
-      body: {
+      body: JSON.stringify({
         text: 'You have successfully connected erxes webhook'
-      }
+      })
     })
       .then(async () => {
         await models.Webhooks.updateStatus(

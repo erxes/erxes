@@ -19,7 +19,7 @@ import {
   shortStrToDate
 } from './core';
 import { putCreateLog, putDeleteLog, putUpdateLog } from './logUtils';
-import { sendRequest, sendToWebhook } from './requests';
+import { sendToWebhook } from './requests';
 import { updateUserScore, getScoringConfig } from './scoring';
 import { generateFieldsFromSchema } from './fieldUtils';
 
@@ -47,7 +47,6 @@ export { getUserDetail }; // (user: IUserDocument)
 export { paginate }; // ( collection, params: { ids ?: string[]; page ?: number; perPage ?: number } )
 export { validSearchText }; // (values: string[])
 export { regexSearchText }; // ( searchValue: string, searchKey = "searchText" )
-export { sendRequest }; // ( { url, method, headers, form, body, params }: IRequestParams, errorMessage ?: string )
 export { sendToWebhook };
 export { fixDate };
 export { getDate };
@@ -90,7 +89,6 @@ export default {
   paginate,
   validSearchText,
   regexSearchText,
-  sendRequest,
   sendToWebhook,
   fixDate,
   getDate,

@@ -12,8 +12,8 @@ import { IContext } from '../../../connectionResolver';
 import { init as initBrokerMain } from '@erxes/api-utils/src/messageBroker';
 import { initBroker, sendPosMessage } from '../../../messageBroker';
 import { IOrderItemDocument } from '../../../models/definitions/orderItems';
-import { redis } from '@erxes/api-utils/src/serviceDiscovery';
-import { sendRequest } from '@erxes/api-utils/src/requests';
+import redis from '@erxes/api-utils/src/redis';
+import fetch from 'node-fetch';
 import { app } from '../../../configs';
 import { IPutResponseDocument } from '../../../models/definitions/putResponses';
 
@@ -28,35 +28,33 @@ const configMutations = {
     const config = await models.Configs.createConfig(token, 'init');
 
     try {
-      const response = await sendRequest({
-        url: `${address}/pos-init`,
-        method: 'get',
+      const response = await fetch(`${address}/pos-init`, {
         headers: { 'POS-TOKEN': token }
       });
-      if (response && !response.error) {
-        const {
-          pos = {},
-          adminUsers = [],
-          cashiers = [],
-          productGroups = [],
-          slots = []
-        } = response;
-
-        validateConfig(pos);
-
-        await models.Configs.updateConfig(config._id, {
-          ...(await extractConfig(subdomain, pos)),
-          token
-        });
-
-        await importUsers(models, cashiers, token);
-        await importUsers(models, adminUsers, token, true);
-        await importSlots(models, slots, token);
-        await importProducts(subdomain, models, token, productGroups);
-      } else {
+      if (!response.ok) {
         await models.Configs.deleteOne({ token });
-        throw new Error(response ? response.error : 'cant connect server');
+        throw new Error(response.statusText);
       }
+
+      const {
+        pos = {},
+        adminUsers = [],
+        cashiers = [],
+        productGroups = [],
+        slots = []
+      } = await response.json();
+
+      validateConfig(pos);
+
+      await models.Configs.updateConfig(config._id, {
+        ...(await extractConfig(subdomain, pos)),
+        token
+      });
+
+      await importUsers(models, cashiers, token);
+      await importUsers(models, adminUsers, token, true);
+      await importSlots(models, slots, token);
+      await importProducts(subdomain, models, token, productGroups);
     } catch (e) {
       await models.Configs.deleteOne({ token });
       throw new Error(e.message);
@@ -91,21 +89,24 @@ const configMutations = {
     const address = await getServerAddress(subdomain);
     const { token } = config;
 
-    const response = await sendRequest({
-      url: `${address}/pos-sync-config`,
-      method: 'get',
-      headers: { 'POS-TOKEN': config.token || '' },
-      body: { token, type },
+    const response = await fetch(`${address}/pos-sync-config`, {
+      headers: {
+        'POS-TOKEN': config.token || '',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ token, type }),
       timeout: 300000
     });
 
-    if (!response) {
-      return;
+    if (!response.ok) {
+      throw new Error(response.statusText);
     }
+
+    const responseData = await response.json();
 
     switch (type) {
       case 'config':
-        const { pos = {}, adminUsers = [], cashiers = [] } = response;
+        const { pos = {}, adminUsers = [], cashiers = [] } = responseData;
         await models.Configs.updateConfig(config._id, {
           ...(await extractConfig(subdomain, pos)),
           token: config.token
@@ -116,18 +117,18 @@ const configMutations = {
 
         break;
       case 'products':
-        const { productGroups = [] } = response;
+        const { productGroups = [] } = responseData;
         await preImportProducts(models, token, productGroups);
         await importProducts(subdomain, models, token, productGroups);
         break;
       case 'slots':
-        const { slots = [] } = response;
+        const { slots = [] } = responseData;
         await importSlots(models, slots, token);
         break;
       case 'productsConfigs':
         await models.ProductsConfigs.createOrUpdateConfig({
           code: 'similarityGroup',
-          value: response
+          value: responseData
         });
         break;
     }

@@ -1,6 +1,6 @@
 import { IContext } from '../../../connectionResolver';
 import { getConfig } from '../../../utils/utils';
-import { sendRequest } from '@erxes/api-utils/src/requests';
+import fetch from 'node-fetch';
 import { sendProductsMessage } from '../../../messageBroker';
 import {
   consumeInventory,
@@ -46,19 +46,21 @@ const inventoryMutations = {
     }
 
     const productCodes = products.map(p => p.code) || [];
-    const response = await sendRequest({
-      url: process.env.ERKHET_URL + '/get-api/',
-      method: 'GET',
-      params: {
-        kind: 'inventory',
-        api_key: config.apiKey,
-        api_secret: config.apiSecret,
-        token: config.apiToken,
-        is_gen_fk: 'true'
-      }
-    });
+    const response = await fetch(
+      process.env.ERKHET_URL +
+        '/get-api/?' +
+        new URLSearchParams({
+          kind: 'inventory',
+          api_key: config.apiKey,
+          api_secret: config.apiSecret,
+          token: config.apiToken,
+          is_gen_fk: 'true'
+        })
+    );
 
-    if (!response && Object.keys(JSON.parse(response)).length === 0) {
+    const responseData = await response.json();
+
+    if (!response.ok && Object.keys(responseData).length === 0) {
       throw new Error('Erkhet data not found.');
     }
 
@@ -67,7 +69,7 @@ const inventoryMutations = {
     const deleteProducts: any = [];
     let matchedCount = 0;
 
-    let result = JSON.parse(response).map(r => r.fields);
+    let result = responseData.map(r => r.fields);
     const resultCodes = result.map(r => r.code) || [];
 
     const productByCode = {};
@@ -145,22 +147,24 @@ const inventoryMutations = {
       throw new Error('No category codes found.');
     }
 
-    const response = await sendRequest({
-      url: process.env.ERKHET_URL + '/get-api/',
-      method: 'GET',
-      params: {
-        kind: 'inv_category',
-        api_key: config.apiKey,
-        api_secret: config.apiSecret,
-        token: config.apiToken,
-        is_gen_fk: 'true'
-      }
-    });
+    const response = await fetch(
+      process.env.ERKHET_URL +
+        '/get-api/?' +
+        new URLSearchParams({
+          kind: 'inv_category',
+          api_key: config.apiKey,
+          api_secret: config.apiSecret,
+          token: config.apiToken,
+          is_gen_fk: 'true'
+        })
+    );
 
-    if (!response || Object.keys(JSON.parse(response)).length === 0) {
+    const responseData = await response.json();
+
+    if (!response || Object.keys(responseData).length === 0) {
       throw new Error('Erkhet data not found.');
     }
-    let result = JSON.parse(response).map(r => r.fields);
+    let result = responseData.map(r => r.fields);
 
     // for update
     const matchedErkhetData = result.filter(r => {

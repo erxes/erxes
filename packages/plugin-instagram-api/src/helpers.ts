@@ -7,7 +7,8 @@ import {
   subscribePage,
   getFacebookPageIdsForInsta
 } from './utils';
-import { getEnv, resetConfigsCache, sendRequest } from './commonUtils';
+import { getEnv, resetConfigsCache } from './commonUtils';
+import fetch from 'node-fetch';
 
 export const removeIntegration = async (
   models: IModels,
@@ -82,13 +83,13 @@ export const removeIntegration = async (
   if (ENDPOINT_URL) {
     // send domain to core endpoints
     try {
-      await sendRequest({
-        url: `${ENDPOINT_URL}/remove-endpoint`,
+      await fetch(`${ENDPOINT_URL}/remove-endpoint`, {
         method: 'POST',
-        body: {
+        body: JSON.stringify({
           domain: DOMAIN,
           ...integrationRemoveBy
-        }
+        }),
+        headers: { 'Content-Type': 'application/json' }
       });
     } catch (e) {
       throw new Error(e.message);
@@ -172,14 +173,14 @@ export const repairIntegrations = async (
   if (ENDPOINT_URL) {
     // send domain to core endpoints
     try {
-      await sendRequest({
-        url: `${ENDPOINT_URL}/update-endpoint`,
+      await fetch(`${ENDPOINT_URL}/update-endpoint`, {
         method: 'POST',
-        body: {
+        body: JSON.stringify({
           domain: `${DOMAIN}/gateway/pl:instagram`,
           instagramPageId: integration.instagramPageId,
           igPageId: integration.instagramPageId
-        }
+        }),
+        headers: { 'Content-Type': 'application/json' }
       });
     } catch (e) {
       throw e;
@@ -257,14 +258,14 @@ export const instagramCreateIntegration = async (
   if (ENDPOINT_URL) {
     // send domain to core endpoints
     try {
-      await sendRequest({
-        url: `${ENDPOINT_URL}/register-endpoint`,
+      await fetch(`${ENDPOINT_URL}/register-endpoint`, {
         method: 'POST',
-        body: {
+        body: JSON.stringify({
           domain,
           instagramPageId,
           igPageId: instagramPageId
-        }
+        }),
+        headers: { 'Content-Type': 'application/json' }
       });
     } catch (e) {
       await models.Integrations.deleteOne({ _id: integration._id });

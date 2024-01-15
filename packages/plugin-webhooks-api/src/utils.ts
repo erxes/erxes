@@ -1,7 +1,8 @@
-import { getEnv, sendRequest } from '@erxes/api-utils/src';
+import { getEnv } from '@erxes/api-utils/src';
 import { IModels } from './connectionResolver';
 import { serviceDiscovery } from './configs';
 import { sendCommonMessage } from './messageBroker';
+import fetch from 'node-fetch';
 
 export const send = async (
   models: IModels,
@@ -34,20 +35,20 @@ export const send = async (
       data
     );
 
-    sendRequest({
-      url: webhook.url,
+    await fetch(webhook.url, {
       headers: {
-        'Erxes-token': webhook.token || ''
+        'Erxes-token': webhook.token || '',
+        'Content-Type': 'application/json'
       },
       method: 'post',
-      body: {
+      body: JSON.stringify({
         data: JSON.stringify(data),
         text: slackContent,
         content,
         url,
         action,
         type
-      }
+      })
     })
       .then(async () => {
         await models.Webhooks.updateStatus(webhook._id, 'available');

@@ -1,5 +1,5 @@
 import { getConfig, toErkhet } from './utils';
-import { sendRequest } from '@erxes/api-utils/src/requests';
+import fetch from 'node-fetch';
 
 export const customerToErkhet = async (
   subdomain,
@@ -54,11 +54,9 @@ export const validCompanyCode = async (config, companyCode) => {
   const re = new RegExp('(^[А-ЯЁӨҮ]{2}[0-9]{8}$)|(^\\d{7}$)', 'gui');
 
   if (re.test(companyCode)) {
-    const response = await sendRequest({
-      url: config.checkCompanyUrl,
-      method: 'GET',
-      params: { regno: companyCode }
-    });
+    const response = await fetch(
+      config.checkCompanyUrl + '?' + new URLSearchParams({ regno: companyCode })
+    ).then(res => res.json());
 
     if (response.found) {
       result = response.name;

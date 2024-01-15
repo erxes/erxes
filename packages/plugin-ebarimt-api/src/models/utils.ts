@@ -1,7 +1,7 @@
 import { DISTRICTS } from './constants';
 import { IModels } from '../connectionResolver';
 import { IPutResponseDocument } from './definitions/ebarimt';
-import { sendRequest } from '@erxes/api-utils/src';
+import fetch from 'node-fetch';
 
 const format_number = (num: number) => {
   try {
@@ -106,14 +106,16 @@ export class PutData<IListArgs extends IPutDataArgs> {
       number
     });
 
-    const responseStr = await sendRequest({
-      url: `${url}/put?lib=${rd}`,
-      method: 'POST',
-      body: { data: this.transactionInfo },
-      params: { data: this.transactionInfo }
-    });
-
-    const response = JSON.parse(responseStr);
+    const response = await fetch(
+      `${url}/put?` + new URLSearchParams({ lib: rd }),
+      {
+        method: 'POST',
+        body: JSON.stringify({ data: this.transactionInfo }),
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      }
+    ).then(r => r.json());
 
     if (
       response.billType === '1' &&
@@ -123,10 +125,9 @@ export class PutData<IListArgs extends IPutDataArgs> {
       if (prePutResponse) {
         response.lottery = prePutResponse.lottery;
       } else {
-        response.getInformation = await sendRequest({
-          url: `${url}/getInformation?lib=${rd}`,
-          method: 'GET'
-        });
+        response.getInformation = await fetch(
+          `${url}/getInformation?lib=${rd}`
+        ).then(r => r.text());
       }
     }
 
@@ -275,14 +276,14 @@ export const returnBill = async (
       returnBillId: prePutResponse.billId
     });
 
-    const responseStr = await sendRequest({
-      url: `${url}/returnBill?lib=${rd}`,
+    const response = await fetch(`${url}/returnBill?lib=${rd}`, {
       method: 'POST',
-      body: { data },
-      params: { ...data }
-    });
+      body: JSON.stringify({ data }),
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    }).then(r => r.json());
 
-    const response = JSON.parse(responseStr);
     await models.PutResponses.updatePutResponse(resObj._id, {
       ...response
     });

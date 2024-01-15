@@ -6,7 +6,6 @@ import { beforeResolverHandlers } from './beforeResolvers';
 import { getCompany, getConfig } from './utils';
 import { getPostDataCommon } from './commonUtils';
 import { PutData } from './models/utils';
-import { sendRequest } from '@erxes/api-utils/src/requests';
 
 let client;
 
@@ -242,7 +241,10 @@ export const initBroker = async cl => {
 
       return {
         status: 'success',
-        data: await models.PutResponses.putHistories({ contentType, contentId })
+        data: await models.PutResponses.putHistories({
+          contentType,
+          contentId
+        })
       };
     }
   );

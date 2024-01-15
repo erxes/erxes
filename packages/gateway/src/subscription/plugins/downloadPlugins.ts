@@ -2,15 +2,11 @@ import * as path from 'path';
 import * as fs from 'fs';
 import { getService, getServices } from '../../redis';
 import fetch from 'node-fetch';
+import { pipeline } from 'node:stream/promises';
 
 async function downloadFile(url, path): Promise<void> {
   const res = await fetch(url);
-  const fileStream = fs.createWriteStream(path);
-  await new Promise((resolve, reject) => {
-    res.body.pipe(fileStream);
-    res.body.on('error', reject);
-    fileStream.on('finish', resolve);
-  });
+  await pipeline(res.body, fs.createWriteStream(path));
 }
 
 export default async function downloadPlugins(): Promise<void> {

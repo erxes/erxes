@@ -94,7 +94,7 @@ export class WechatPayAPI extends BaseAPI {
               `${this.qpayMerchantUser}:${this.qpayMerchantPassword}`
             ).toString('base64')
         }
-      });
+      }).then(r => r.json());
 
       await redis.set(
         `wechatpay_token_${this.qpayMerchantUser}`,
@@ -131,7 +131,7 @@ export class WechatPayAPI extends BaseAPI {
         path: PAYMENTS.wechatpay.actions.invoice,
         headers: await this.getHeaders(),
         data
-      });
+      }).then(r => r.json());
 
       return {
         ...res,
@@ -148,7 +148,7 @@ export class WechatPayAPI extends BaseAPI {
         method: 'GET',
         path: `${PAYMENTS.wechatpay.actions.getPayment}/${invoice.apiResponse.invoice_id}`,
         headers: await this.getHeaders()
-      });
+      }).then(r => r.json());
 
       if (res.invoice_status === 'CLOSED') {
         return PAYMENT_STATUS.PAID;

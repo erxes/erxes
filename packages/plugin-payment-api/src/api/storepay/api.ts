@@ -1,5 +1,4 @@
-import { sendRequest } from '@erxes/api-utils/src/requests';
-
+import fetch from 'node-fetch';
 import { BaseAPI } from '../../api/base';
 import { IModels } from '../../connectionResolver';
 import { PAYMENTS, PAYMENT_STATUS } from '../constants';
@@ -111,22 +110,25 @@ export class StorePayAPI extends BaseAPI {
 
     try {
       const requestOptions = {
-        url: 'http://service-merchant.storepay.mn:7701/oauth/token',
-        params: {
-          grant_type: 'password',
-          username,
-          password
-        },
         method: 'POST',
         headers: {
           Authorization: `Basic ${Buffer.from(
             `${app_username}:${app_password}`
-          ).toString('base64')}`
+          ).toString('base64')}`,
+          'Content-Type': 'application/json'
         },
-        body: data
+        body: JSON.stringify(data)
       };
 
-      const res = await sendRequest(requestOptions);
+      const res = await fetch(
+        'http://service-merchant.storepay.mn:7701/oauth/token?' +
+          new URLSearchParams({
+            grant_type: 'password',
+            username,
+            password
+          }),
+        requestOptions
+      ).then(res => res.json());
 
       await redis.set(
         `storepay_token_${store_id}`,
@@ -175,7 +177,7 @@ export class StorePayAPI extends BaseAPI {
         path: 'merchant/loan',
         data,
         headers: await this.getHeaders()
-      });
+      }).then(res => res.json());
 
       if (res.status !== 'Success') {
         const error =
@@ -201,7 +203,7 @@ export class StorePayAPI extends BaseAPI {
         headers: await this.getHeaders(),
         method: 'GET',
         path: `merchant/loan/check/${invoiceNumber}`
-      });
+      }).then(res => res.json());
 
       if (!res.value) {
         return PAYMENT_STATUS.PENDING;
@@ -223,7 +225,7 @@ export class StorePayAPI extends BaseAPI {
         headers: await this.getHeaders(),
         method: 'GET',
         path: `merchant/loan/check/${invoice.apiResponse.value}`
-      });
+      }).then(res => res.json());
 
       if (!res.value) {
         return PAYMENT_STATUS.PENDING;
@@ -244,7 +246,7 @@ export class StorePayAPI extends BaseAPI {
         data: {
           mobileNumber
         }
-      });
+      }).then(res => res.json());
 
       const { msgList = [], status } = res;
       if (status === 'Failed' && msgList.length > 0) {

@@ -1,7 +1,8 @@
-import { generateFieldsFromSchema, sendRequest } from '@erxes/api-utils/src';
+import { generateFieldsFromSchema } from '@erxes/api-utils/src';
 import { generateModels } from './connectionResolver';
 import { sendCommonMessage } from './messageBroker';
 import { IXypConfig } from './graphql/resolvers/queries';
+import fetch from 'node-fetch';
 
 export const getServiceToFields = async subdomain => {
   const xypConfigs = await sendCommonMessage({
@@ -23,12 +24,11 @@ export const getServiceToFields = async subdomain => {
 
   const config: IXypConfig = xypConfigs && xypConfigs.value;
 
-  const response = await sendRequest({
-    url: config.url + '/list',
+  const response = await fetch(config.url + '/list', {
     method: 'post',
     headers: { token: config.token },
     timeout: 9000
-  });
+  }).then(res => res.json());
   const choosen = await sendCommonMessage({
     subdomain,
     serviceName: 'core',

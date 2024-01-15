@@ -1,4 +1,4 @@
-import { sendRequest } from '@erxes/api-utils/src/requests';
+import fetch from 'node-fetch';
 import {
   sendContactsMessage,
   sendCoreMessage,
@@ -39,11 +39,11 @@ export const getPostData = async (subdomain, config, deal, dateType = '') => {
     const re = new RegExp('(^[А-ЯЁӨҮ]{2}[0-9]{8}$)|(^\\d{7}$)', 'gui');
     for (const company of companies) {
       if (re.test(company.code)) {
-        const checkCompanyRes = await sendRequest({
-          url: config.checkCompanyUrl,
-          method: 'GET',
-          params: { regno: company.code }
-        });
+        const checkCompanyRes = await fetch(
+          config.checkCompanyUrl +
+            '?' +
+            new URLSearchParams({ regno: company.code })
+        ).then(res => res.json());
 
         if (checkCompanyRes.found) {
           billType = 3;
