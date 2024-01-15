@@ -96,4 +96,4 @@ jobs:
           tar -cf build.tar --directory=packages/plugin-bid-ui/dist .
           cp build.tar packages/plugin-bid-ui/dist
           rm -rf packages/plugin-bid-ui/dist/*.js
-          aws s3 sync packages/plugin-bid-ui/dist s3://erxes-${GITHUB_REF#refs/heads/}-plugins/uis/plugin-bid-ui --delete
+          aws s3 sync packages/plugin-bid-ui/dist s3://erxes-enterprise-plugins/uis/plugin-bid-ui --delete

@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - dev
+      - master
       - staging
       - build-test
     paths:
@@ -20,12 +21,14 @@ on:
       - 'packages/ui-segments/**'
       - 'packages/ui-settings/**'
       - 'packages/ui-team/**'
+      - 'packages/ui-tags/**'
       - 'packages/ui-rcfa/**'
       - 'packages/plugin-rcfa-ui/**'
       - '.github/workflows/plugin-rcfa-ui.yaml'
   pull_request:
     branches:
       - dev
+      - master
       - staging
       - build-test
     paths:
@@ -42,6 +45,7 @@ on:
       - 'packages/ui-segments/**'
       - 'packages/ui-settings/**'
       - 'packages/ui-team/**'
+      - 'packages/ui-tags/**'
       - 'packages/ui-rcfa/**'
       - 'packages/plugin-rcfa-ui/**'
       - '.github/workflows/plugin-rcfa-ui.yaml'
@@ -87,7 +91,7 @@ jobs:
           aws-region: us-west-2
 
       - name: Deploy
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/build-test')
+        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/build-test')
         run: |
           tar -cf build.tar --directory=packages/plugin-rcfa-ui/dist .
           cp build.tar packages/plugin-rcfa-ui/dist
