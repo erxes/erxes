@@ -1,6 +1,6 @@
 import { fixDate, getSubdomain } from '@erxes/api-utils/src/core';
 import { can, checkLogin } from '@erxes/api-utils/src/permissions';
-import { redis } from '@erxes/api-utils/src/serviceDiscovery';
+import redis from '@erxes/api-utils/src/redis';
 import { IUserDocument } from '@erxes/api-utils/src/types';
 
 import * as telemetry from 'erxes-telemetry';
@@ -39,13 +39,13 @@ export const paginateArray = (array, perPage = 20, page = 1) =>
 
 export const findBranches = async (
   subdomain: string,
-  branchIds: string[]
+  branchIds: string[],
 ): Promise<any> => {
   const branches = await sendCoreMessage({
     subdomain,
     action: 'branches.find',
     data: { query: { _id: { $in: branchIds } } },
-    isRPC: true
+    isRPC: true,
   });
 
   return branches;
@@ -53,13 +53,13 @@ export const findBranches = async (
 
 export const findDepartments = async (
   subdomain: string,
-  departmentIds: string[]
+  departmentIds: string[],
 ) => {
   const departments = await sendCoreMessage({
     subdomain,
     action: 'departments.find',
     data: { _id: { $in: departmentIds } },
-    isRPC: true
+    isRPC: true,
   });
 
   return departments;
@@ -70,9 +70,9 @@ export const findUser = async (subdomain: string, userId: string) => {
     subdomain,
     action: 'users.findOne',
     data: {
-      _id: userId
+      _id: userId,
     },
-    isRPC: true
+    isRPC: true,
   });
 
   return user;
@@ -80,7 +80,7 @@ export const findUser = async (subdomain: string, userId: string) => {
 export const findSubBranches = async (subdomain: string, branchId: string) => {
   const pipeline = [
     {
-      $match: { parentId: branchId } // Match the starting parent
+      $match: { parentId: branchId }, // Match the starting parent
     },
     {
       $graphLookup: {
@@ -89,16 +89,16 @@ export const findSubBranches = async (subdomain: string, branchId: string) => {
         connectFromField: '_id',
         connectToField: 'parentId',
         as: 'descendants',
-        depthField: 'depth'
-      }
-    }
+        depthField: 'depth',
+      },
+    },
   ];
 
   const subBranches = await sendCoreMessage({
     subdomain,
     action: 'branches.aggregate',
     data: { pipeline },
-    isRPC: true
+    isRPC: true,
   });
 
   return subBranches;
@@ -106,26 +106,26 @@ export const findSubBranches = async (subdomain: string, branchId: string) => {
 
 export const findBranchUsers = async (
   subdomain: string,
-  branchIds: string[]
+  branchIds: string[],
 ) => {
   const branchUsers = await sendCoreMessage({
     subdomain,
     action: 'users.find',
-    data: { query: { branchIds: { $in: branchIds } } },
-    isRPC: true
+    data: { query: { branchIds: { $in: branchIds }, isActive: true } },
+    isRPC: true,
   });
   return branchUsers;
 };
 
 export const findDepartmentUsers = async (
   subdomain: string,
-  departmentIds: string[]
+  departmentIds: string[],
 ) => {
   const deptUsers = await sendCoreMessage({
     subdomain,
     action: 'users.find',
-    data: { query: { departmentIds: { $in: departmentIds } } },
-    isRPC: true
+    data: { query: { departmentIds: { $in: departmentIds }, isActive: true } },
+    isRPC: true,
   });
   return deptUsers;
 };
@@ -135,10 +135,10 @@ export const findAllTeamMembers = async (subdomain: string) => {
     subdomain,
     action: 'users.find',
     data: {
-      query: { isActive: true }
+      query: { isActive: true },
     },
     isRPC: true,
-    defaultValue: []
+    defaultValue: [],
   });
 
   return users;
@@ -147,13 +147,13 @@ export const findAllTeamMembers = async (subdomain: string) => {
 export const findTimeclockTeamMemberIds = async (
   models: any,
   startDate: Date,
-  endDate: Date
+  endDate: Date,
 ) => {
   const timeclockUserIds = await models.Timeclocks.find({
     shiftStart: {
       $gte: fixDate(startDate),
-      $lte: customFixDate(endDate)
-    }
+      $lte: customFixDate(endDate),
+    },
   }).distinct('userId');
 
   const requestsUserIds = await models.Absences.find({
@@ -161,28 +161,28 @@ export const findTimeclockTeamMemberIds = async (
     status: /approved/gi,
     startTime: {
       $gte: fixDate(startDate),
-      $lte: customFixDate(endDate)
-    }
+      $lte: customFixDate(endDate),
+    },
   }).distinct('userId');
 
   const scheduleIds = await models.Shifts.find({
     status: 'Approved',
     shiftStart: {
       $gte: fixDate(startDate),
-      $lte: customFixDate(endDate)
+      $lte: customFixDate(endDate),
     },
     shiftEnd: {
       $gte: fixDate(startDate),
-      $lte: customFixDate(endDate)
-    }
+      $lte: customFixDate(endDate),
+    },
   }).distinct('scheduleId');
 
   const scheduleUserIds = await models.Schedules.find({
-    _id: { $in: scheduleIds }
+    _id: { $in: scheduleIds },
   }).distinct('userId');
 
   const allUserIds = Array.from(
-    new Set([...timeclockUserIds, ...requestsUserIds, ...scheduleUserIds])
+    new Set([...timeclockUserIds, ...requestsUserIds, ...scheduleUserIds]),
   );
 
   return allUserIds;
@@ -193,9 +193,9 @@ export const findTeamMember = (subdomain: string, userId: string[]) => {
     subdomain,
     action: 'users.findOne',
     data: {
-      _id: userId
+      _id: userId,
     },
-    isRPC: true
+    isRPC: true,
   });
 };
 export const findTeamMembers = (subdomain: string, userIds: string[]) => {
@@ -203,10 +203,10 @@ export const findTeamMembers = (subdomain: string, userIds: string[]) => {
     subdomain,
     action: 'users.find',
     data: {
-      query: { _id: { $in: userIds }, isActive: true }
+      query: { _id: { $in: userIds }, isActive: true },
     },
     isRPC: true,
-    defaultValue: []
+    defaultValue: [],
   });
 };
 
@@ -230,7 +230,7 @@ const returnTotalBranchesDict = async (subdomain: any, branchIds: string[]) => {
   for (const branch of totalBranches) {
     dictionary[branch._id] = {
       title: branch.title,
-      parentId: branch.parentId || null
+      parentId: branch.parentId || null,
     };
   }
 
@@ -264,7 +264,7 @@ const returnTotalBranchesDict = async (subdomain: any, branchIds: string[]) => {
     dictionary[branchId] = {
       ...dictionary[branchId],
       parentsCount,
-      parentsTitles
+      parentsTitles,
     };
   }
 
@@ -274,7 +274,7 @@ const returnTotalBranchesDict = async (subdomain: any, branchIds: string[]) => {
 export const returnDepartmentsBranchesDict = async (
   subdomain: any,
   branchIds: string[],
-  departmentIds: string[]
+  departmentIds: string[],
 ): Promise<{
   [_id: string]: {
     title: string;
@@ -292,7 +292,7 @@ export const returnDepartmentsBranchesDict = async (
   for (const department of departments) {
     dictionary[department._id] = {
       title: department.title,
-      parentId: department.parentId
+      parentId: department.parentId,
     };
   }
 
@@ -304,10 +304,10 @@ export const findAllTeamMembersWithEmpId = async (subdomain: string) => {
     subdomain,
     action: 'users.find',
     data: {
-      query: { employeeId: { $exists: true } }
+      query: { employeeId: { $exists: true }, isActive: true },
     },
     isRPC: true,
-    defaultValue: []
+    defaultValue: [],
   });
 
   return users;
@@ -317,14 +317,14 @@ export const generateCommonUserIds = async (
   subdomain: string,
   userIds: string[],
   branchIds?: string[],
-  departmentIds?: string[]
+  departmentIds?: string[],
 ) => {
   const totalUserIds: string[] = [];
   let commonUser: boolean = false;
 
   if (branchIds) {
     const branchUsers = await findBranchUsers(subdomain, branchIds);
-    const branchUserIds = branchUsers.map(branchUser => branchUser._id);
+    const branchUserIds = branchUsers.map((branchUser) => branchUser._id);
 
     if (userIds) {
       commonUser = true;
@@ -342,7 +342,7 @@ export const generateCommonUserIds = async (
     const departmentUsers = await findDepartmentUsers(subdomain, departmentIds);
 
     const departmentUserIds = departmentUsers.map(
-      departmentUser => departmentUser._id
+      (departmentUser) => departmentUser._id,
     );
 
     if (userIds) {
@@ -366,19 +366,19 @@ export const generateCommonUserIds = async (
 
 export const returnSupervisedUsers = async (
   currentUser: IUserDocument,
-  subdomain: string
+  subdomain: string,
 ): Promise<IUserDocument[]> => {
   const supervisedDepartmenIds = (
     await sendCoreMessage({
       subdomain,
       action: `departments.find`,
       data: {
-        supervisorId: currentUser._id
+        supervisorId: currentUser._id,
       },
       isRPC: true,
-      defaultValue: []
+      defaultValue: [],
     })
-  ).map(dept => dept._id);
+  ).map((dept) => dept._id);
 
   const supervisedBranchIds = (
     await sendCoreMessage({
@@ -386,23 +386,23 @@ export const returnSupervisedUsers = async (
       action: `branches.find`,
       data: {
         query: {
-          supervisorId: currentUser._id
-        }
+          supervisorId: currentUser._id,
+        },
       },
       isRPC: true,
-      defaultValue: []
+      defaultValue: [],
     })
-  ).map(branch => branch._id);
+  ).map((branch) => branch._id);
 
   const findTotalSupervisedUsers: IUserDocument[] = [];
 
   findTotalSupervisedUsers.push(
-    ...(await findDepartmentUsers(subdomain, supervisedDepartmenIds))
+    ...(await findDepartmentUsers(subdomain, supervisedDepartmenIds)),
   );
 
   findTotalSupervisedUsers.push(
     ...(await findBranchUsers(subdomain, supervisedBranchIds)),
-    currentUser
+    currentUser,
   );
 
   return findTotalSupervisedUsers;
@@ -410,7 +410,7 @@ export const returnSupervisedUsers = async (
 
 export const createTeamMembersObject = async (
   subdomain: any,
-  userIds: string[]
+  userIds: string[],
 ) => {
   const teamMembersObject = {};
 
@@ -418,10 +418,10 @@ export const createTeamMembersObject = async (
     subdomain,
     action: 'users.find',
     data: {
-      query: { _id: { $in: userIds } }
+      query: { _id: { $in: userIds } },
     },
     isRPC: true,
-    defaultValue: []
+    defaultValue: [],
   });
 
   for (const teamMember of teamMembers) {
@@ -430,7 +430,7 @@ export const createTeamMembersObject = async (
         teamMember.details.firstName
       }`,
       employeeId: teamMember.employeeId || '-',
-      position: teamMember.details.position || '-'
+      position: teamMember.details.position || '-',
     };
   }
 
@@ -440,7 +440,7 @@ export const createTeamMembersObject = async (
 export default async function userMiddleware(
   req: Request & { user?: any },
   _res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) {
   const subdomain = getSubdomain(req);
 
@@ -462,9 +462,9 @@ export default async function userMiddleware(
       subdomain,
       action: 'users.findOne',
       data: {
-        _id: user._id
+        _id: user._id,
       },
-      isRPC: true
+      isRPC: true,
     });
 
     if (!userDoc) {
@@ -510,7 +510,7 @@ export const handleUpload = async (
   subdomain: string,
   user: any,
   file: any,
-  title: string
+  title: string,
 ) => {
   const models = await generateModels(subdomain);
 
@@ -557,10 +557,10 @@ export const handleUpload = async (
         subdomain,
         action: 'users.findOne',
         data: {
-          employeeId: row[0]
+          employeeId: row[0],
         },
         isRPC: true,
-        defaultValue: null
+        defaultValue: null,
       });
 
       if (!employee) {
@@ -569,7 +569,7 @@ export const handleUpload = async (
     }
 
     if (
-      row.filter(cell => cell !== null && cell !== undefined && cell !== '')
+      row.filter((cell) => cell !== null && cell !== undefined && cell !== '')
         .length === 0
     ) {
       continue;
@@ -588,7 +588,7 @@ export const handleUpload = async (
     const salaryDoc: any = {
       title,
       createdBy: user._id,
-      createdAt: new Date()
+      createdAt: new Date(),
     };
 
     for (const [index, value] of row.entries()) {
@@ -616,7 +616,7 @@ export const handleUpload = async (
 
   await models.Salaries.insertMany(allData, {
     ordered: false,
-    rawResult: true
+    rawResult: true,
   });
 
   // remove file
@@ -628,14 +628,14 @@ export const handleUpload = async (
 export const checkPermission = async (
   subdomain: string,
   user: IUserDocument,
-  mutationName: string
+  mutationName: string,
 ) => {
   checkLogin(user);
 
   const permissions = ['addSalaries'];
 
   const actionName = permissions.find(
-    permission => permission === mutationName
+    (permission) => permission === mutationName,
   );
 
   if (!actionName) {
@@ -658,13 +658,11 @@ export const checkPermission = async (
 export const findUnfinishedShiftsAndUpdate = async (subdomain: any) => {
   const models = await generateModels(subdomain);
 
-  const YESTERDAY = dayjs(new Date())
-    .add(-1, 'day')
-    .toDate();
+  const YESTERDAY = dayjs(new Date()).add(-1, 'day').toDate();
 
   const unfinishedShifts = await models.Timeclocks.find({
     shiftActive: true,
-    shiftStart: { $gte: YESTERDAY }
+    shiftStart: { $gte: YESTERDAY },
   });
 
   const requestsObj: any = {};
@@ -675,24 +673,24 @@ export const findUnfinishedShiftsAndUpdate = async (subdomain: any) => {
     {
       $match: {
         startTime: {
-          $gte: YESTERDAY
+          $gte: YESTERDAY,
         },
         solved: true,
-        status: /Approved/gi
-      }
+        status: /Approved/gi,
+      },
     },
     {
       $sort: {
-        startTime: 1
-      }
+        startTime: 1,
+      },
     },
 
     {
       $group: {
         _id: '$userId',
-        docs: { $push: '$$ROOT' }
-      }
-    }
+        docs: { $push: '$$ROOT' },
+      },
+    },
   ]);
 
   for (const a of agg) {
@@ -739,17 +737,15 @@ export const findUnfinishedShiftsAndUpdate = async (subdomain: any) => {
           update: {
             $set: {
               shiftEnd: shiftStart,
-              shiftActive: false
-            }
-          }
-        }
+              shiftActive: false,
+            },
+          },
+        },
       });
       continue;
     }
 
-    const nextDay = dayjs(shiftStart)
-      .add(1, 'day')
-      .format('YYYY-MM-DD');
+    const nextDay = dayjs(shiftStart).add(1, 'day').format('YYYY-MM-DD');
 
     const midnightOfShiftDay = new Date(nextDay + ' 00:00:00');
     bulkWriteOps.push({
@@ -759,10 +755,10 @@ export const findUnfinishedShiftsAndUpdate = async (subdomain: any) => {
           $set: {
             shiftEnd: midnightOfShiftDay,
             shiftActive: false,
-            shiftNotClosed: true
-          }
-        }
-      }
+            shiftNotClosed: true,
+          },
+        },
+      },
     });
   }
 
