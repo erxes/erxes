@@ -1,5 +1,5 @@
-import { sendRequest } from '@erxes/api-utils/src/requests';
-
+import fetch from 'node-fetch';
+import type { RequestInit, HeadersInit } from 'node-fetch';
 export class BaseAPI {
   public apiUrl: string;
 
@@ -14,18 +14,23 @@ export class BaseAPI {
     data?: any;
     headers?: any;
   }) {
-    const { method, path, params, data, headers } = args;
+    const { method, path, params, data, headers = {} } = args;
 
     try {
-      const requestOptions = {
-        url: `${this.apiUrl}/${path}`,
-        params,
+      const requestOptions: RequestInit & Required<{ headers: HeadersInit }> = {
         method,
         headers,
-        body: data
       };
 
-      const res = await sendRequest(requestOptions);
+      if (data) {
+        requestOptions.body = JSON.stringify(data);
+        requestOptions.headers['Content-Type'] = 'application/json';
+      }
+
+      const res = await fetch(
+        `${this.apiUrl}/${path}?` + new URLSearchParams(params),
+        requestOptions,
+      );
 
       return res;
     } catch (e) {

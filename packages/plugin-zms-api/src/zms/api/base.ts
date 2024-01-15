@@ -1,4 +1,5 @@
-import { sendRequest } from '@erxes/api-utils/src/requests';
+import fetch from 'node-fetch';
+import type { RequestInit, HeaderInit } from 'node-fetch';
 import { getAuthHeaders } from '../utils';
 
 export class BaseApi {
@@ -26,14 +27,18 @@ export class BaseApi {
     const headers = await this.getHeaders();
 
     try {
-      const requestOptions = {
-        url: `${this.apiUrl}/${path}`,
-        params,
+      const requestOptions: RequestInit & Required<{ headers: HeaderInit }> = {
         method,
         headers,
-        body: data
       };
-      return await sendRequest(requestOptions);
+      if (data) {
+        requestOptions.body = JSON.stringify(data);
+        requestOptions.headers['Content-Type'] = 'application/json';
+      }
+      return await fetch(
+        `${this.apiUrl}/${path}?` + new URLSearchParams(params),
+        requestOptions,
+      ).then((r) => r.json());
     } catch (e) {
       const errorMessage = JSON.parse(e.message).message || e.message;
       throw new Error(errorMessage);
