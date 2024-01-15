@@ -16,7 +16,7 @@ type Props = {
 
 class LeftSidebar extends React.Component<Props> {
   renderTrackedData() {
-    const { trackedData = [] } = this.props.company;
+    const trackedData = this.props.company.trackedData || [];
 
     if (trackedData.length === 0) {
       return null;
