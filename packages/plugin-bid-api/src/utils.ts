@@ -77,7 +77,13 @@ export const fetchPolarisData = async (subdomain: string, doc: any) => {
   }
 
   if (customer.code) {
-    body.customer_code = customer.code;
+    const regex = /[а-яүөһА-ЯҮӨҺЁё]/;
+
+    if (regex.test(customer.code)) {
+      body.register_number = customer.code;
+    } else {
+      body.customer_code = customer.code;
+    }
   }
 
   try {
@@ -222,7 +228,7 @@ export const fetchPolarisData = async (subdomain: string, doc: any) => {
           lastName: data.lastname,
           primaryEmail: res.data.email,
           birthDate: new Date(res.data.birth_date),
-          code: res.data.customer_code,
+          code: res.data.register_number,
           customFieldsData,
         },
       },
@@ -238,5 +244,132 @@ export const fetchPolarisData = async (subdomain: string, doc: any) => {
   } catch (e) {
     console.error('error ', e);
     throw new Error(e);
+  }
+};
+
+export const addCustomer = async (req, res, subdomain) => {
+  const doc = req.body;
+  const headers = req.headers;
+
+  if (!headers['erxes-app-token']) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+
+  const configs = await sendCommonMessage({
+    subdomain,
+    serviceName: 'core',
+    action: 'configs.findOne',
+    data: {
+      query: {
+        code: 'POLARIS_API_URL',
+      },
+    },
+    isRPC: true,
+    defaultValue: null,
+  });
+
+  if (!configs) {
+    return res.status(200).json({ error: 'Config not found' });
+  }
+
+  const body: any = {
+    customer_code: '',
+    phone_number: '',
+    register_number: '',
+  };
+
+  if (doc.phone_number) {
+    body.phone_number = doc.phone_number;
+  }
+
+  if (doc.register_number) {
+    body.register_number = doc.register_number;
+  }
+
+  if (doc.customer_code) {
+    body.customer_code = doc.customer_code;
+  }
+
+  try {
+    const url = `${configs.value}/user/info`;
+
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(body),
+    });
+
+    if (response.status !== 200) {
+      // throw new Error('Failed to fetch data');
+      return res.status(200).json({ error: 'Failed to fetch data' });
+    }
+
+    const resJson = await response.json();
+
+    if (resJson.errors) {
+      return res.status(200).json({ error: resJson.errors });
+    }
+
+    const data = resJson.data;
+
+    let customer = await sendCommonMessage({
+      serviceName: 'contacts',
+      action: 'customers.findOne',
+      data: {
+        customerCode: data.register_number,
+      },
+      isRPC: true,
+      defaultValue: null,
+      subdomain,
+    });
+
+    if (customer) {
+      customer = await sendCommonMessage({
+        serviceName: 'contacts',
+        action: 'customers.updateCustomer',
+        data: {
+          _id: customer._id,
+          doc: {
+            state: 'customer',
+            firstName: data.firstname,
+            lastName: data.lastname,
+            primaryEmail: data.email,
+            birthDate: new Date(data.birth_date),
+            code: data.register_number,
+          },
+        },
+        isRPC: true,
+        defaultValue: null,
+        subdomain,
+      });
+    } else {
+      customer = await sendCommonMessage({
+        serviceName: 'contacts',
+        action: 'customers.createCustomer',
+        data: {
+          state: 'customer',
+          firstName: data.firstname,
+          lastName: data.lastname,
+          primaryEmail: data.email,
+          birthDate: new Date(data.birth_date),
+          code: data.register_number,
+        },
+        isRPC: true,
+        defaultValue: null,
+        subdomain,
+      });
+    }
+
+    await Polarissyncs.createOrUpdate({
+      customerId: customer._id,
+      data: resJson.data || null,
+    });
+
+    return res.status(200).json({ data: customer });
+  } catch (e) {
+    console.error('error ', e);
+    return res.status(200).json({ error: e.message });
   }
 };

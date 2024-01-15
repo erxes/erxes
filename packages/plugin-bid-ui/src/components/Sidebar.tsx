@@ -34,6 +34,7 @@ export default function Component(props: Props) {
   const keys = [
     'customer_code',
     'register_number',
+    'user_type_name',
     'phone_number',
     'lastname',
     'firstname',

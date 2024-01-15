@@ -2,6 +2,7 @@ import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers';
 import afterMutations from './afterMutations';
 import { initBroker } from './messageBroker';
+import { addCustomer } from './utils';
 
 export let mainDb;
 export let debug;
@@ -18,6 +19,13 @@ export default {
       resolvers: await resolvers(sd),
     };
   },
+
+  postHandlers: [
+    {
+      path: `/customer`,
+      method: addCustomer,
+    },
+  ],
 
   meta: {
     afterMutations,
