@@ -8,13 +8,14 @@ import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 import dayjs from 'dayjs';
 import { isEnabled } from '@erxes/ui/src/utils/core';
 import DealSection from './DealSection';
+import ContractsCustomFields from '../list/ContractsCustomFields';
 
 const CompanySection = asyncComponent(
   () =>
     isEnabled('contacts') &&
     import(
       /* webpackChunkName: "CompanySection" */ '@erxes/ui-contacts/src/companies/components/CompanySection'
-    )
+    ),
 );
 
 const CustomerSection = asyncComponent(
@@ -22,7 +23,7 @@ const CustomerSection = asyncComponent(
     isEnabled('contacts') &&
     import(
       /* webpackChunkName: "CustomerSection" */ '@erxes/ui-contacts/src/customers/components/CustomerSection'
-    )
+    ),
 );
 
 type Props = {
@@ -73,6 +74,13 @@ export default class RightSidebar extends React.Component<Props> {
 
             <DealSection contract={contract} />
           </>
+        )}
+        {isEnabled('forms') && !!contract.loansOfForeclosed?.length && (
+          <ContractsCustomFields
+            contract={contract}
+            collapseCallback={console.log}
+            isDetail
+          />
         )}
 
         <Box title={__('Other')} name="showOthers">

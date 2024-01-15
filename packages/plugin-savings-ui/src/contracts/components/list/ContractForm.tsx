@@ -25,6 +25,7 @@ import { IUser } from '@erxes/ui/src/auth/types';
 import SelectContracts from '../common/SelectContract';
 import { TabTitle, Tabs as MainTabs } from '@erxes/ui/src/components/tabs';
 import ContractsCustomFields from './ContractsCustomFields';
+import { isEnabled } from '@erxes/ui/src/utils/core';
 
 type Props = {
   currentUser: IUser;
@@ -478,10 +479,14 @@ class ContractForm extends React.Component<Props, State> {
             label: 'Гэрээ',
             component: <Form renderContent={this.renderContent} />,
           },
-          {
-            label: 'Бусад',
-            component: <Form renderContent={this.renderCustom} />,
-          },
+          ...(isEnabled('forms')
+            ? [
+                {
+                  label: 'Бусад',
+                  component: <Form renderContent={this.renderCustom} />,
+                },
+              ]
+            : []),
         ]}
       />
     );

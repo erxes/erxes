@@ -38,6 +38,7 @@ import SelectSavingContract, {
   Contracts,
 } from '../collaterals/SelectSavingContract';
 import ContractsCustomFields from './ContractsCustomFields';
+import { isEnabled } from '@erxes/ui/src/utils/core';
 
 type Props = {
   currentUser: IUser;
@@ -1144,10 +1145,15 @@ class ContractForm extends React.Component<Props, State> {
             label: 'Хуваарь',
             component: <Form renderContent={this.renderGraphic} />,
           },
-          {
-            label: 'Бусад',
-            component: <Form renderContent={this.renderCustom} />,
-          },
+
+          ...(isEnabled('forms')
+            ? [
+                {
+                  label: 'Бусад',
+                  component: <Form renderContent={this.renderCustom} />,
+                },
+              ]
+            : []),
         ]}
       />
     );
