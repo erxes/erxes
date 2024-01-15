@@ -78,8 +78,6 @@ const receiveCall = async (models: IModels, subdomain: string, params) => {
     throw new Error(e);
   }
 
-  let channelMemberIds: string[] = [];
-
   const channels = await sendInboxMessage({
     subdomain,
     action: 'channels.find',
@@ -90,21 +88,20 @@ const receiveCall = async (models: IModels, subdomain: string, params) => {
   });
 
   for (const channel of channels) {
-    channelMemberIds = [...channelMemberIds, ...(channel.memberIds || [])];
+    for (const userId of channel.memberIds || []) {
+      graphqlPubsub.publish(`conversationClientMessageInserted:${userId}`, {
+        conversationClientMessageInserted: {
+          _id: Math.random().toString(),
+          content: 'new grandstream message',
+          createdAt: new Date(),
+          customerId: customer.erxesApiId,
+          conversationId: conversation.erxesApiId
+        },
+        conversation,
+        integration: inboxIntegration
+      });
+    }
   }
-
-  graphqlPubsub.publish('conversationClientMessageInserted', {
-    conversationClientMessageInserted: {
-      _id: Math.random().toString(),
-      content: 'new grandstream message',
-      createdAt: new Date(),
-      customerId: customer.erxesApiId,
-      conversationId: conversation.erxesApiId
-    },
-    conversation,
-    integration: inboxIntegration,
-    channelMemberIds
-  });
 
   return customer;
 };

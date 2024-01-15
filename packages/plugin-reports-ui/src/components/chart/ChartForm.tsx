@@ -130,7 +130,7 @@ const ChartForm = (props: Props) => {
   const setFilter = (fieldName: string, value: any) => {
     if (!value || !value.length) {
       delete filters[fieldName];
-      setFilters({ ...chart?.filter, ...filters });
+      setFilters({ ...filters, ...chart?.filter });
       return;
     }
 

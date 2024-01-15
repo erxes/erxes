@@ -1,13 +1,13 @@
 import { generateModels, IModels } from './connectionResolver';
 import { getConfig, resetConfigsCache } from './commonUtils';
 import { getEnv, getSubdomain } from '@erxes/api-utils/src/core';
-import { sendRequest } from '@erxes/api-utils/src';
+import fetch from 'node-fetch';
 import { debug } from './configs';
 import { sendInboxMessage } from './messageBroker';
 
 export const updateConfigs = async (
   models: IModels,
-  configsMap
+  configsMap,
 ): Promise<void> => {
   await models.Configs.updateConfigs(configsMap);
 
@@ -16,7 +16,7 @@ export const updateConfigs = async (
 
 export const zaloCreateIntegration = async (
   models: IModels,
-  { accountId, integrationId, data, kind }
+  { accountId, integrationId, data, kind },
 ) => {
   const account = await models.Accounts.getAccount({ _id: accountId });
   const oa_id = account?.oa_id;
@@ -25,7 +25,7 @@ export const zaloCreateIntegration = async (
     kind,
     accountId,
     erxesApiId: integrationId,
-    oa_id
+    oa_id,
   });
 
   //   const oaTokensMap: { [key: string]: string } = {};
@@ -68,10 +68,10 @@ export const zaloCreateIntegration = async (
 
 export const removeIntegration = async (
   models: IModels,
-  integrationErxesApiId: string
+  integrationErxesApiId: string,
 ): Promise<string> => {
   const integration = await models.Integrations.findOne({
-    erxesApiId: integrationErxesApiId
+    erxesApiId: integrationErxesApiId,
   });
 
   if (!integration) {
@@ -139,7 +139,7 @@ export const zaloSendRequest = async (
   models,
   subdomain,
   accountId,
-  { url, method, params }
+  { url, method, params },
 ) => {
   const account = await models.Accounts.getAccount({ _id: accountId });
   const { access_token, refresh_token } = account;
@@ -147,40 +147,40 @@ export const zaloSendRequest = async (
   let response: any = {};
 
   try {
-    response = (await sendRequest({
-      url,
+    response = (await fetch(url + '?' + new URLSearchParams(params), {
       method: method || 'POST',
       headers: {
-        access_token: access_token
+        access_token: access_token,
       },
-      params
-    })) || { error: -1 };
+    }).then((res) => res.json())) || { error: -1 };
 
     if (response.hasOwnProperty('error') && response?.error == -216) {
       const models = await generateModels(subdomain);
       const ZALO_APP_ID = await getConfig(models, 'ZALO_APP_ID');
       const ZALO_APP_SECRET_KEY = await getConfig(
         models,
-        'ZALO_APP_SECRET_KEY'
+        'ZALO_APP_SECRET_KEY',
       );
 
       const getToken =
-        (await sendRequest({
-          url: 'https://oauth.zaloapp.com/v4/oa/access_token',
-          method: 'POST',
-          headers: {
-            secret_key: ZALO_APP_SECRET_KEY,
-            'Content-Type': 'application/x-www-form-urlencoded'
+        (await fetch(
+          'https://oauth.zaloapp.com/v4/oa/access_token?' +
+            new URLSearchParams({
+              refresh_token,
+              app_id: ZALO_APP_ID,
+              secret_key: ZALO_APP_SECRET_KEY,
+              grant_type: 'refresh_token',
+            }),
+          {
+            method: 'POST',
+            headers: {
+              secret_key: ZALO_APP_SECRET_KEY,
+              'Content-Type': 'application/x-www-form-urlencoded',
+            },
           },
-          params: {
-            refresh_token,
-            app_id: ZALO_APP_ID,
-            secret_key: ZALO_APP_SECRET_KEY,
-            grant_type: 'refresh_token'
-          }
-        })) || {};
+        )) || {};
 
-      const authInfo = JSON.parse(getToken);
+      const authInfo = await getToken.json();
 
       if (authInfo?.hasOwnProperty('error')) {
         return;
@@ -189,19 +189,17 @@ export const zaloSendRequest = async (
       await models.Accounts.updateOne(
         { _id: account._id },
         {
-          $set: authInfo
-        }
+          $set: authInfo,
+        },
       );
 
       response =
-        (await sendRequest({
-          url,
+        (await fetch(url + '?' + new URLSearchParams(params), {
           method: method || 'POST',
           headers: {
-            access_token: authInfo?.access_token
+            access_token: authInfo?.access_token,
           },
-          params
-        })) || {};
+        }).then((res) => res.json())) || {};
     }
 
     return response;
@@ -214,10 +212,10 @@ export const getOrCreateCustomer = async (
   models: IModels,
   subdomain: string,
   oa_id: string,
-  userId: string
+  userId: string,
 ) => {
   const integration = await models.Integrations.getIntegration({
-    $and: [{ oa_id: { $in: oa_id } }, { kind: 'zalo' }]
+    $and: [{ oa_id: { $in: oa_id } }, { kind: 'zalo' }],
   });
 
   let customer = await models.Customers.findOne({ userId });
@@ -235,10 +233,10 @@ export const getOrCreateCustomer = async (
     zaloUser =
       (await zaloSendRequest(models, subdomain, integration.accountId, {
         url: `https://openapi.zalo.me/v2.0/oa/getprofile?data=${JSON.stringify({
-          user_id: userId
+          user_id: userId,
         })}`,
         method: 'GET',
-        params: {}
+        params: {},
       })) || {};
     // {
     //     "data": {
@@ -267,13 +265,13 @@ export const getOrCreateCustomer = async (
       userId,
       firstName: zaloUser.data.display_name,
       integrationId: integration.erxesApiId,
-      profilePic: zaloUser.data.avatar
+      profilePic: zaloUser.data.avatar,
     });
   } catch (e) {
     throw new Error(
       e.message.includes('duplicate')
         ? 'Concurrent request: customer duplication'
-        : e
+        : e,
     );
   }
 
@@ -288,10 +286,10 @@ export const getOrCreateCustomer = async (
           integrationId: integration.erxesApiId,
           firstName: zaloUser.data.display_name,
           avatar: zaloUser.data.avatar,
-          isUser: true
-        })
+          isUser: true,
+        }),
       },
-      isRPC: true
+      isRPC: true,
     });
 
     debug.error(`apiCustomerResponse: ${apiCustomerResponse}`);

@@ -1,6 +1,6 @@
 import {
   moduleRequireLogin,
-  checkPermission
+  checkPermission,
 } from '@erxes/api-utils/src/permissions';
 import { IPage } from '../../models/definitions/pages';
 import { IContentType } from '../../models/definitions/contentTypes';
@@ -8,7 +8,7 @@ import { IEntry } from '../../models/definitions/entries';
 import { IContext } from '../../connectionResolver';
 import { ITemplate } from '../../models/definitions/templates';
 import { ISite } from '../../models/definitions/sites';
-import { sendRequest } from '@erxes/api-utils/src';
+import fetch from 'node-fetch';
 
 interface IContentTypeEdit extends IContentType {
   _id: string;
@@ -26,7 +26,7 @@ const webbuilderMutations = {
   async webbuilderPagesEdit(
     _root,
     args: { _id: string } & IPage,
-    { models, user }: IContext
+    { models, user }: IContext,
   ) {
     const { _id, ...doc } = args;
 
@@ -36,7 +36,7 @@ const webbuilderMutations = {
   async webbuilderPagesRemove(
     _root,
     { _id }: { _id: string },
-    { models }: IContext
+    { models }: IContext,
   ) {
     return models.Pages.deleteOne({ _id });
   },
@@ -44,7 +44,7 @@ const webbuilderMutations = {
   async webbuilderContentTypesAdd(
     _root,
     doc: IContentType,
-    { models, user }: IContext
+    { models, user }: IContext,
   ) {
     return models.ContentTypes.createContentType(doc, user._id);
   },
@@ -52,7 +52,7 @@ const webbuilderMutations = {
   async webbuilderContentTypesEdit(
     _root,
     { _id, ...doc }: IContentTypeEdit,
-    { models, user }: IContext
+    { models, user }: IContext,
   ) {
     return models.ContentTypes.updateContentType(_id, doc, user._id);
   },
@@ -60,7 +60,7 @@ const webbuilderMutations = {
   async webbuilderContentTypesRemove(
     _root,
     { _id }: { _id: string },
-    { models }: IContext
+    { models }: IContext,
   ) {
     return models.ContentTypes.removeContentType(_id);
   },
@@ -72,7 +72,7 @@ const webbuilderMutations = {
   async webbuilderEntriesEdit(
     _root,
     { _id, ...doc }: IEntryEdit,
-    { models, user }: IContext
+    { models, user }: IContext,
   ) {
     return models.Entries.updateEntry(_id, doc, user._id);
   },
@@ -80,7 +80,7 @@ const webbuilderMutations = {
   async webbuilderEntriesRemove(
     _root,
     { _id }: { _id: string },
-    { models }: IContext
+    { models }: IContext,
   ) {
     return models.Entries.removeEntry(_id);
   },
@@ -92,30 +92,29 @@ const webbuilderMutations = {
   async webbuilderTemplatesUse(
     _root,
     { _id, name, coverImage }: { _id: string; name: string; coverImage: any },
-    { models, user }: IContext
+    { models, user }: IContext,
   ) {
     const site = await models.Sites.createSite(
       {
         templateId: _id,
         name,
-        coverImage
+        coverImage,
       },
-      user._id
+      user._id,
     );
 
-    const { pages, contentTypes } = await sendRequest({
-      url: `https://helper.erxes.io/get-webbuilder-template?templateId=${_id}`,
-      method: 'get'
-    });
+    const { pages, contentTypes } = await fetch(
+      `https://helper.erxes.io/get-webbuilder-template?templateId=${_id}`,
+    ).then((res) => res.json());
 
     for (const page of pages) {
       await models.Pages.createPage(
         {
           ...page,
           _id: undefined,
-          siteId: site._id
+          siteId: site._id,
         },
-        user._id
+        user._id,
       );
     }
 
@@ -124,18 +123,18 @@ const webbuilderMutations = {
         {
           ...contentType,
           _id: undefined,
-          siteId: site._id
+          siteId: site._id,
         },
-        user._id
+        user._id,
       );
 
       for (const entry of contentType.entries) {
         models.Entries.createEntry(
           {
             values: entry.values,
-            contentTypeId: ct._id
+            contentTypeId: ct._id,
           },
-          user._id
+          user._id,
         );
       }
     }
@@ -146,7 +145,7 @@ const webbuilderMutations = {
   async webbuilderTemplatesRemove(
     _root,
     { _id }: { _id: string },
-    { models }: IContext
+    { models }: IContext,
   ) {
     return models.Templates.deleteOne({ _id });
   },
@@ -158,7 +157,7 @@ const webbuilderMutations = {
   async webbuilderSitesEdit(
     _root,
     args: { _id: string } & ISite,
-    { models, user }: IContext
+    { models, user }: IContext,
   ) {
     const { _id, ...doc } = args;
 
@@ -168,7 +167,7 @@ const webbuilderMutations = {
   async webbuilderSitesRemove(
     _root,
     { _id }: { _id: string },
-    { models }: IContext
+    { models }: IContext,
   ) {
     return models.Sites.removeSite(_id);
   },
@@ -176,10 +175,10 @@ const webbuilderMutations = {
   async webbuilderSitesDuplicate(
     _root,
     { _id }: { _id: string },
-    { models, user }: IContext
+    { models, user }: IContext,
   ) {
     return models.Sites.duplicateSite(_id, user._id);
-  }
+  },
 };
 
 moduleRequireLogin(webbuilderMutations);
@@ -189,55 +188,55 @@ checkPermission(webbuilderMutations, 'webbuilderPagesEdit', 'manageWebbuilder');
 checkPermission(
   webbuilderMutations,
   'webbuilderPagesRemove',
-  'manageWebbuilder'
+  'manageWebbuilder',
 );
 
 checkPermission(
   webbuilderMutations,
   'webbuilderContentTypesAdd',
-  'manageWebbuilder'
+  'manageWebbuilder',
 );
 checkPermission(
   webbuilderMutations,
   'webbuilderContentTypesEdit',
-  'manageWebbuilder'
+  'manageWebbuilder',
 );
 checkPermission(
   webbuilderMutations,
   'webbuilderContentTypesRemove',
-  'manageWebbuilder'
+  'manageWebbuilder',
 );
 
 checkPermission(
   webbuilderMutations,
   'webbuilderEntriesAdd',
-  'manageWebbuilder'
+  'manageWebbuilder',
 );
 checkPermission(
   webbuilderMutations,
   'webbuilderEntriesEdit',
-  'manageWebbuilder'
+  'manageWebbuilder',
 );
 checkPermission(
   webbuilderMutations,
   'webbuilderEntriesRemove',
-  'manageWebbuilder'
+  'manageWebbuilder',
 );
 
 checkPermission(
   webbuilderMutations,
   'webbuilderTemplatesAdd',
-  'manageWebbuilder'
+  'manageWebbuilder',
 );
 checkPermission(
   webbuilderMutations,
   'webbuilderTemplatesUse',
-  'manageWebbuilder'
+  'manageWebbuilder',
 );
 checkPermission(
   webbuilderMutations,
   'webbuilderTemplatesRemove',
-  'manageWebbuilder'
+  'manageWebbuilder',
 );
 
 checkPermission(webbuilderMutations, 'webbuilderSitesAdd', 'manageWebbuilder');
@@ -245,12 +244,12 @@ checkPermission(webbuilderMutations, 'webbuilderSitesEdit', 'manageWebbuilder');
 checkPermission(
   webbuilderMutations,
   'webbuilderSitesRemove',
-  'manageWebbuilder'
+  'manageWebbuilder',
 );
 checkPermission(
   webbuilderMutations,
   'webbuilderSitesDuplicate',
-  'manageWebbuilder'
+  'manageWebbuilder',
 );
 
 export default webbuilderMutations;

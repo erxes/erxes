@@ -27,6 +27,7 @@ export const RichTextEditorControl = (props: IRichTextEditorControlProps) => {
     active,
     onMouseDown,
     isSourceControl,
+    disabled,
     ...others
   } = props;
 
@@ -34,7 +35,7 @@ export const RichTextEditorControl = (props: IRichTextEditorControlProps) => {
     <EditorControl
       {...others}
       type="button"
-      disabled={isSourceControl ? false : isSourceEnabled}
+      disabled={isSourceControl ? false : disabled || isSourceEnabled}
       data-rich-text-editor-control={true}
       tabIndex={interactive ? 0 : -1}
       data-interactive={interactive || undefined}
@@ -67,7 +68,7 @@ export const RichTextEditorControlBase = <
 }: any) => {
   return (
     <RichTextEditorControl {...others}>
-      <Icon style={{ width: '1rem', height: '1rem' }} />
+      {Icon && <Icon style={{ width: '1rem', height: '1rem' }} />}
     </RichTextEditorControl>
   );
 };
