@@ -10,7 +10,7 @@ import {
   identifyCustomer,
   trackCustomEvent,
   trackViewPageEvent,
-  updateCustomerProperties
+  updateCustomerProperties,
 } from './events';
 import { generateModels } from './connectionResolver';
 import logs from './logUtils';
@@ -29,6 +29,7 @@ import webhookMiddleware from './middlewares/webhookMiddleware';
 import { NOTIFICATION_MODULES } from './constants';
 import payment from './payment';
 import reports from './reports';
+import exporter from './exporter';
 
 export let mainDb;
 export let graphqlPubsub;
@@ -39,19 +40,19 @@ export let debug;
 export default {
   name: 'inbox',
   permissions,
-  graphql: async sd => {
+  graphql: async (sd) => {
     serviceDiscovery = sd;
 
     return {
       typeDefs: await typeDefs(sd),
-      resolvers
+      resolvers,
     };
   },
   hasSubscriptions: true,
   subscriptionPluginPath: require('path').resolve(
     __dirname,
     'graphql',
-    'subscriptionPlugin.js'
+    'subscriptionPlugin.js',
   ),
   meta: {
     reports,
@@ -66,7 +67,8 @@ export default {
     permissions,
     dashboards,
     notificationModules: NOTIFICATION_MODULES,
-    payment
+    payment,
+    exporter,
   },
   apolloServerContext: async (context, req, res) => {
     const subdomain = getSubdomain(req);
@@ -80,13 +82,13 @@ export default {
     context.serverTiming = {
       startTime: res.startTime,
       endTime: res.endTime,
-      setMetric: res.setMetric
+      setMetric: res.setMetric,
     };
 
     return context;
   },
   middlewares: [(serverTiming as any)()],
-  onServerInit: async options => {
+  onServerInit: async (options) => {
     mainDb = options.db;
 
     const app = options.app;
@@ -106,13 +108,13 @@ export default {
                   name,
                   triggerAutomation,
                   customerId,
-                  attributes
+                  attributes,
                 });
 
           return res.json(response);
         },
-        res => res.json({ status: 'success' })
-      )
+        (res) => res.json({ status: 'success' }),
+      ),
     );
 
     app.post(
@@ -125,8 +127,8 @@ export default {
           const response = await identifyCustomer(subdomain, args);
           return res.json(response);
         },
-        res => res.json({})
-      )
+        (res) => res.json({}),
+      ),
     );
 
     app.post(
@@ -138,8 +140,8 @@ export default {
           const response = await updateCustomerProperties(subdomain, req.body);
           return res.json(response);
         },
-        res => res.json({})
-      )
+        (res) => res.json({}),
+      ),
     );
 
     app.get('/script-manager', cors({ origin: '*' }), widgetsMiddleware);
@@ -149,5 +151,5 @@ export default {
 
     debug = options.debug;
     graphqlPubsub = options.pubsubClient;
-  }
+  },
 };
