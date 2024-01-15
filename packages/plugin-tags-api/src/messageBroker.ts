@@ -57,7 +57,7 @@ export const initBroker = async cl => {
       const orderQry: any[] = [];
       for (const tag of tags) {
         orderQry.push({
-          order: { $regex: new RegExp(`^${tag.order}`) }
+          order: { $regex: new RegExp(`^${escapeRegExp(tag.order || '')}`) }
         });
       }
 
