@@ -56,7 +56,7 @@ export const fieldsCombinedByContentType = async (
     selectOptions?: Array<{ label: string; value: string }>;
   }> = [];
 
-  console.log('1');
+  console.log('1', contentType);
 
   fields = await fetchService(
     subdomain,
@@ -70,7 +70,7 @@ export const fieldsCombinedByContentType = async (
     [],
   );
 
-  console.log('2');
+  console.log('2', contentType);
 
   let validation;
 
@@ -89,7 +89,7 @@ export const fieldsCombinedByContentType = async (
 
   const customFields = await getCustomFields(models, type, validation);
 
-  console.log('3');
+  console.log('3', contentType);
 
   const generateSelectOptions = (options) => {
     const selectOptions: Array<{ label: string; value: any }> = [];
@@ -106,7 +106,7 @@ export const fieldsCombinedByContentType = async (
     return selectOptions;
   };
 
-  console.log('4');
+  console.log('4', contentType);
   // extend fields list using custom fields data
   for (const customField of customFields) {
     const group = await getFieldGroup(models, customField.groupId || '');
@@ -128,7 +128,7 @@ export const fieldsCombinedByContentType = async (
     }
   }
 
-  console.log('5');
+  console.log('5', contentType);
 
   fields = [...fields];
 
