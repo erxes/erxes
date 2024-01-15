@@ -11,5 +11,21 @@ module.exports = {
     scope: 'syncpolaris',
     module: './routes'
   },
-  menus:[{"text":"Syncpolariss","url":"/syncpolariss","icon":"icon-star","location":"mainNavigation"}]
+  menus:[
+    {
+      text: 'Sync polaris config',
+      to: '/erxes-plugin-sync-polaris/settings/general',
+      image: '/images/icons/erxes-04.svg',
+      location: "settings",
+      scope: "syncpolaris",
+      action: 'syncPolarisonfig',
+      permission: "syncPolarisConfig",
+    },
+    {
+      "text":"Syncpolariss",
+      "url":"/syncpolariss",
+      "icon":"icon-star",
+      "location":"mainNavigation"
+    }
+  ]
 };

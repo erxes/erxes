@@ -14,7 +14,11 @@ const list = `
     }
   }
 `;
-
+const configs = `
+  query configsGetValue($code: String!) {
+    configsGetValue(code: $code)
+  }
+`;
 const listSyncpolarisTypes = `
   query listSyncpolarisTypeQuery{
     syncpolarisTypes{
@@ -31,6 +35,7 @@ const totalCount = `
 `;
 
 export default {
+  configs,
   list,
   totalCount,
   listSyncpolarisTypes
