@@ -1,8 +1,8 @@
-import { sendRequest } from '@erxes/api-utils/src';
+import fetch from 'node-fetch';
 import { Model } from 'mongoose';
 import {
   dealsAdd as dealsAddMutation,
-  dealDetail as dealDetailQuery
+  dealDetail as dealDetailQuery,
 } from '../common/dealsGraphql';
 import { IModels } from '../connectionResolver';
 import { SyncedDealDocuments, syncedDealSchema } from './definitions//deals';
@@ -12,7 +12,7 @@ export interface ISyncDealModel extends Model<SyncedDealDocuments> {
   addDeal(syncId: any, doc: any): Promise<SyncedDealDocuments>;
   dealDetail(
     sync: ISyncDocument,
-    id: string
+    id: string,
   ): Promise<{ _id: string; name: string; stageId: string; stage: any }>;
 }
 
@@ -32,18 +32,20 @@ export const loadSyncDealClass = (models: IModels, subdomain: string) => {
         variables.stageId = config?.stageId;
       }
 
-      const { data, errors } = await sendRequest({
-        url: `https://${sync.subdomain}.app.erxes.io/gateway/graphql`,
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'erxes-app-token': sync.appToken
+      const { data, errors } = await fetch(
+        `https://${sync.subdomain}.app.erxes.io/gateway/graphql`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'erxes-app-token': sync.appToken,
+          },
+          body: JSON.stringify({
+            query: dealsAddMutation,
+            variables,
+          }),
         },
-        body: {
-          query: dealsAddMutation,
-          variables
-        }
-      });
+      ).then((res) => res.json());
 
       if (errors) {
         throw new Error(errors[0]?.message);
@@ -57,28 +59,30 @@ export const loadSyncDealClass = (models: IModels, subdomain: string) => {
       }
 
       await models.SyncedDeals.insertMany(
-        customerIds.map(customerId => ({
+        customerIds.map((customerId) => ({
           syncedCustomerId: customerId,
           dealId: dealsAdd._id,
-          syncId: sync._id
-        }))
+          syncId: sync._id,
+        })),
       );
       return dealsAdd;
     }
 
     public static async dealDetail(sync: ISyncDocument, id: string) {
-      const { data, errors } = await sendRequest({
-        url: `https://${sync.subdomain}.app.erxes.io/gateway/graphql`,
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'erxes-app-token': sync.appToken
+      const { data, errors } = await fetch(
+        `https://${sync.subdomain}.app.erxes.io/gateway/graphql`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'erxes-app-token': sync.appToken,
+          },
+          body: JSON.stringify({
+            query: dealDetailQuery,
+            variables: { id },
+          }),
         },
-        body: {
-          query: dealDetailQuery,
-          variables: { id }
-        }
-      });
+      ).then((res) => res.json());
 
       if (errors) {
         throw new Error(errors[0]?.message);

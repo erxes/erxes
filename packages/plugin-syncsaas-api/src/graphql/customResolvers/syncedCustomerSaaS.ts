@@ -1,4 +1,4 @@
-import { sendRequest } from '@erxes/api-utils/src';
+import fetch from 'node-fetch';
 import { IContext } from '../../connectionResolver';
 
 export default {
@@ -13,13 +13,11 @@ export default {
       return null;
     }
 
-    const response = await sendRequest({
-      url: `${SAAS_CORE_URL}/check-subdomain`,
-      method: 'GET',
+    const response = await fetch(`${SAAS_CORE_URL}/check-subdomain`, {
       headers: {
-        origin: `${subdomain}..app.erxes.io`
-      }
-    });
+        origin: `${subdomain}..app.erxes.io`,
+      },
+    }).then((res) => res.json());
 
     return response ? response : null;
   },
@@ -27,7 +25,7 @@ export default {
   async syncedCustomerId(
     { _id, syncId, customerId },
     args,
-    { models }: IContext
+    { models }: IContext,
   ) {
     let selector = { syncId: _id, customerId };
 
@@ -44,5 +42,5 @@ export default {
     const syncedCustomer = await models.SyncedCustomers.findOne({ customerId });
 
     return syncedCustomer ? syncedCustomer?.status : null;
-  }
+  },
 };

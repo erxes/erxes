@@ -1,6 +1,5 @@
-// import { sendRequest } from '@erxes/api-utils/src/requests';
 import redis from '../redis';
-import * as requestify from 'requestify';
+import fetch from 'node-fetch';
 export class DacApi {
   private apiUrl: string;
 
@@ -14,23 +13,23 @@ export class DacApi {
     if (token) {
       return {
         Authorization: 'Bearer ' + token,
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
       };
     }
 
     try {
-      const r = await requestify.request(`${this.apiUrl}/mobile/token`, {
+      const r = await fetch(`${this.apiUrl}/mobile/token`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
         },
-        body: {
+        body: JSON.stringify({
           username: process.env.ORCHARD_USERNAME,
-          password: process.env.ORCHARD_PASSWORD
-        }
+          password: process.env.ORCHARD_PASSWORD,
+        }),
       });
 
-      const responseBody = r.getBody();
+      const responseBody = await r.json();
 
       const { access_token, expires_in } = responseBody;
 
@@ -38,12 +37,12 @@ export class DacApi {
         'dac_token',
         access_token,
         'EX',
-        expires_in - 60 * 60 * 24
+        expires_in - 60 * 60 * 24,
       );
 
       return {
         Authorization: 'Bearer ' + access_token,
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
       };
     } catch (e) {
       throw new Error(e.message);
@@ -55,14 +54,19 @@ export class DacApi {
     const { path } = options;
     const url = `${this.apiUrl}/mobile/api/v1/${path}`;
 
+    if (options.body) {
+      options.body = JSON.stringify(options.body);
+      options.headers['Content-Type'] = 'application/json';
+    }
+
     try {
-      const res = await requestify.request(url, {
+      const res = await fetch(url, {
         headers,
         params: options.query,
-        ...options
+        ...options,
       });
 
-      const responseBody = res.getBody();
+      const responseBody = await res.json();
 
       return responseBody;
     } catch (e) {
