@@ -1,26 +1,26 @@
 module.exports = {
   srcDir: __dirname,
-  name: 'polarissync',
-  port: 3017,
-  scope: 'polarissync',
+  name: 'bid',
+  port: 3037,
+  scope: 'bid',
   exposes: {
     './routes': './src/routes.tsx',
     "./customerSidebar": "./src/CustomerSidebar.tsx",
     './extendSystemConfig': './src/components/Configs.tsx'
   },
   routes: {
-    url: 'http://localhost:3017/remoteEntry.js',
-    scope: 'polarissync',
+    url: 'http://localhost:3037/remoteEntry.js',
+    scope: 'bid',
     module: './routes'
   },
   extendSystemConfig: './extendSystemConfig',
-  polarisInfo: './customerSidebar',
+  conversationDetailSidebar: './customerSidebar',
   menus:[],
   customerRightSidebarSection: [
     {
       text: "customerSection",
       component: "./customerSidebar",
-      scope: "polarissync",
+      scope: "bid",
     },
   ],
 

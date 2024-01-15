@@ -4,7 +4,7 @@ export const polarissyncSchema = new Schema({
   customerId: String,
   data: Object,
   createdAt: Date,
-  updatedAt: Date
+  updatedAt: Date,
 });
 
 export const loadPolarissyncClass = () => {
@@ -12,13 +12,13 @@ export const loadPolarissyncClass = () => {
     // create
     public static async createOrUpdate(doc) {
       const existingData = await Polarissyncs.findOne({
-        customerId: doc.customerId
+        customerId: doc.customerId,
       });
 
       if (existingData) {
         await Polarissyncs.updateOne(
           { customerId: doc.customerId },
-          { $set: { data: doc.data, updatedAt: new Date() } }
+          { $set: { data: doc.data, updatedAt: new Date() } },
         );
 
         return Polarissyncs.findOne({ customerId: doc.customerId });
@@ -26,7 +26,7 @@ export const loadPolarissyncClass = () => {
         return Polarissyncs.create({
           ...doc,
           createdAt: new Date(),
-          updatedAt: new Date()
+          updatedAt: new Date(),
         });
       }
     }
@@ -39,5 +39,5 @@ export const loadPolarissyncClass = () => {
 
 export const Polarissyncs = model<any, any>(
   'polaris_datas',
-  loadPolarissyncClass()
+  loadPolarissyncClass(),
 );

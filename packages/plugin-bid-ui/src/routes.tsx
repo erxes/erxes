@@ -3,8 +3,11 @@ import App from './App';
 import React from 'react';
 import { Route } from 'react-router-dom';
 
-const Configs = asyncComponent(() =>
-  import(/* webpackChunkName: "Navigation - Configs" */ './containers/Configs')
+const Configs = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "Navigation - Configs" */ './containers/Configs'
+    ),
 );
 
 const configs = () => {

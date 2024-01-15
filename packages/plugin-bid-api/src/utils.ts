@@ -7,7 +7,7 @@ import { nanoid } from 'nanoid';
 /*
  * Mongoose field options wrapper
  */
-export const field = options => {
+export const field = (options) => {
   const { pkey, type, optional } = options;
 
   if (type === String && !pkey && !optional) {
@@ -23,7 +23,7 @@ export const field = options => {
   return options;
 };
 
-export const schemaWrapper = schema => {
+export const schemaWrapper = (schema) => {
   schema.add({ scopeBrandIds: [String] });
 
   return schema;
@@ -42,7 +42,7 @@ export const fetchPolarisData = async (subdomain: string, doc: any) => {
     data: { _id: customerId },
     isRPC: true,
     defaultValue: null,
-    subdomain
+    subdomain,
   });
 
   if (!customer) {
@@ -55,11 +55,11 @@ export const fetchPolarisData = async (subdomain: string, doc: any) => {
     action: 'configs.findOne',
     data: {
       query: {
-        code: 'POLARIS_API_URL'
-      }
+        code: 'POLARIS_API_URL',
+      },
     },
     isRPC: true,
-    defaultValue: null
+    defaultValue: null,
   });
 
   if (!configs) {
@@ -69,7 +69,7 @@ export const fetchPolarisData = async (subdomain: string, doc: any) => {
   const body: any = {
     customer_code: '',
     phone_number: '',
-    register_number: ''
+    register_number: '',
   };
 
   if (customer.primaryPhone) {
@@ -86,9 +86,9 @@ export const fetchPolarisData = async (subdomain: string, doc: any) => {
     const response = await fetch(url, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
       },
-      body: JSON.stringify(body)
+      body: JSON.stringify(body),
     });
 
     if (response.status !== 200) {
@@ -108,16 +108,16 @@ export const fetchPolarisData = async (subdomain: string, doc: any) => {
       data: {
         query: {
           contentType: 'contacts:customer',
-          code: { $exists: true, $ne: '' }
+          code: { $exists: true, $ne: '' },
         },
         projection: {
           groupId: 1,
           code: 1,
-          _id: 1
-        }
+          _id: 1,
+        },
       },
       isRPC: true,
-      defaultValue: []
+      defaultValue: [],
     });
 
     const groups = await sendCommonMessage({
@@ -127,15 +127,15 @@ export const fetchPolarisData = async (subdomain: string, doc: any) => {
       data: {
         query: {
           contentType: 'contacts:customer',
-          code: { $in: ['loan_info', 'saving_info', 'investment_info'] }
+          code: { $in: ['loan_info', 'saving_info', 'investment_info'] },
         },
         projection: {
           code: 1,
-          _id: 1
-        }
+          _id: 1,
+        },
       },
       isRPC: true,
-      defaultValue: []
+      defaultValue: [],
     });
 
     const customFieldsData: any[] = customer.customFieldsData || [];
@@ -143,7 +143,9 @@ export const fetchPolarisData = async (subdomain: string, doc: any) => {
     const data = res.data;
 
     for (const f of fields) {
-      const existingIndex = customFieldsData.findIndex(c => c.field === f._id);
+      const existingIndex = customFieldsData.findIndex(
+        (c) => c.field === f._id,
+      );
 
       if (data[f.code]) {
         if (existingIndex !== -1) {
@@ -152,14 +154,14 @@ export const fetchPolarisData = async (subdomain: string, doc: any) => {
         } else {
           customFieldsData.push({
             field: f._id,
-            value: data[f.code]
+            value: data[f.code],
           });
         }
       }
     }
 
     const prepareGroupValue = (groupCode: string, prefix?: string) => {
-      const group = groups.find(g => g.code === groupCode);
+      const group = groups.find((g) => g.code === groupCode);
 
       if (group) {
         const value: any = [];
@@ -169,7 +171,7 @@ export const fetchPolarisData = async (subdomain: string, doc: any) => {
         }
 
         for (const obj of data[groupCode]) {
-          const fieldsOfGroup = fields.filter(f => f.groupId === group._id);
+          const fieldsOfGroup = fields.filter((f) => f.groupId === group._id);
           const val = {};
           for (const f of fieldsOfGroup) {
             const code = prefix ? f.code.replace(prefix, '') : f.code;
@@ -182,7 +184,7 @@ export const fetchPolarisData = async (subdomain: string, doc: any) => {
 
         return {
           field: group._id,
-          value
+          value,
         };
       }
     };
@@ -190,14 +192,14 @@ export const fetchPolarisData = async (subdomain: string, doc: any) => {
     const groupCodes = [
       { code: 'loan_info' },
       { code: 'saving_info', prefix: 'saving_' },
-      { code: 'investment_info', prefix: 'invest_' }
+      { code: 'investment_info', prefix: 'invest_' },
     ];
 
     for (const g of groupCodes) {
       const groupValue = prepareGroupValue(g.code, g.prefix);
       if (groupValue) {
         const existingIndex = customFieldsData.findIndex(
-          c => c.field === groupValue.field
+          (c) => c.field === groupValue.field,
         );
 
         if (existingIndex !== -1) {
@@ -221,17 +223,17 @@ export const fetchPolarisData = async (subdomain: string, doc: any) => {
           primaryEmail: res.data.email,
           birthDate: new Date(res.data.birth_date),
           code: res.data.customer_code,
-          customFieldsData
-        }
+          customFieldsData,
+        },
       },
       isRPC: true,
       defaultValue: null,
-      subdomain
+      subdomain,
     });
 
     return Polarissyncs.createOrUpdate({
       customerId,
-      data: res.data || null
+      data: res.data || null,
     });
   } catch (e) {
     console.error('error ', e);

@@ -5,42 +5,42 @@ import { afterMutationHandlers } from './afterMutations';
 
 let client;
 
-export const initBroker = async cl => {
+export const initBroker = async (cl) => {
   client = cl;
 
   const { consumeQueue, consumeRPCQueue } = client;
 
-  consumeQueue('polarissync:send', async ({ data }) => {
+  consumeQueue('bid:send', async ({ data }) => {
     Polarissyncs.send(data);
 
     return {
-      status: 'success'
+      status: 'success',
     };
   });
 
-  consumeQueue('polarissync:afterMutation', async ({ subdomain, data }) => {
+  consumeQueue('bid:afterMutation', async ({ subdomain, data }) => {
     await afterMutationHandlers(subdomain, data);
     return;
   });
 
-  consumeRPCQueue('polarissync:find', async ({ data }) => {
+  consumeRPCQueue('bid:find', async ({ data }) => {
     return {
       status: 'success',
-      data: await Polarissyncs.find({})
+      data: await Polarissyncs.find({}),
     };
   });
 };
 
 export const sendCommonMessage = async (
-  args: ISendMessageArgs & { serviceName: string }
+  args: ISendMessageArgs & { serviceName: string },
 ) => {
   return sendMessage({
     serviceDiscovery,
     client,
-    ...args
+    ...args,
   });
 };
 
-export default function() {
+export default function () {
   return client;
 }

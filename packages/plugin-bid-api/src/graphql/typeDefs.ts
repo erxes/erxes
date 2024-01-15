@@ -11,8 +11,8 @@ const types = `
 `;
 
 const queries = `
-  polarisGetConfigs: JSON
-  polarisGetData(customerId: String!): PolarisData
+  bidGetConfigs: JSON
+  bidGetPolarisData(customerId: String!): PolarisData
 `;
 
 const params = `
@@ -20,10 +20,10 @@ const params = `
 `;
 
 const mutations = `
-polarisUpdateData(${params}): PolarisData
+  bidUpdatePolarisData(${params}): PolarisData
 `;
 
-const typeDefs = async _serviceDiscovery => {
+const typeDefs = async (_serviceDiscovery) => {
   return gql`
     scalar JSON
     scalar Date

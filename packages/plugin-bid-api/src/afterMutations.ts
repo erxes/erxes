@@ -5,7 +5,7 @@ import { fetchPolarisData } from './utils';
 
 export default {
   'contacts:customer': ['create', 'update'],
-  'inbox:conversation': ['create']
+  'inbox:conversation': ['create'],
 };
 
 export const afterMutationHandlers = async (subdomain, params) => {
@@ -33,11 +33,11 @@ export const afterMutationHandlers = async (subdomain, params) => {
         action: 'configs.findOne',
         data: {
           query: {
-            code: 'POLARIS_API_URL'
-          }
+            code: 'POLARIS_API_URL',
+          },
         },
         isRPC: true,
-        defaultValue: null
+        defaultValue: null,
       });
 
       if (!configs) {
@@ -47,7 +47,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
       const url = `${configs.value}/user/update`;
 
       const polarisData = await Polarissyncs.findOne({
-        customerId: params.object._id
+        customerId: params.object._id,
       });
 
       if (!polarisData) {
@@ -59,15 +59,15 @@ export const afterMutationHandlers = async (subdomain, params) => {
         phone_number: polarisData.data.phone_number,
         register_number: polarisData.data.register_number,
         oldData: params.object,
-        updatedData: params.updatedDocument
+        updatedData: params.updatedDocument,
       };
 
       await fetch(url, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
         },
-        body: JSON.stringify(body)
+        body: JSON.stringify(body),
       });
     }
     return;

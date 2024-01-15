@@ -5,7 +5,7 @@ import {
   FieldStyle,
   SectionBodyItem,
   SidebarCounter,
-  SidebarList
+  SidebarList,
 } from '@erxes/ui/src/layout/styles';
 import { __, isValidDate } from '@erxes/ui/src/utils/core';
 import React from 'react';
@@ -40,7 +40,7 @@ export default function Component(props: Props) {
     'birth_date',
     'email',
     'facebook',
-    'emergency_contact_phone_number'
+    'emergency_contact_phone_number',
   ];
 
   const renderBody = () => {
@@ -103,7 +103,7 @@ export default function Component(props: Props) {
                 style={{
                   backgroundColor: '#f0f0f0',
                   borderRadius: '8px',
-                  margin: '5px'
+                  margin: '5px',
                 }}
               >
                 <li>
@@ -160,7 +160,7 @@ export default function Component(props: Props) {
                 style={{
                   backgroundColor: '#f0f0f0',
                   borderRadius: '8px',
-                  margin: '5px'
+                  margin: '5px',
                 }}
               >
                 <li>

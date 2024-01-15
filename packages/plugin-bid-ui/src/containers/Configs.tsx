@@ -1,9 +1,5 @@
 import * as compose from 'lodash.flowright';
 
-import {
-  mutations,
-  queries
-} from '@erxes/ui-inbox/src/settings/integrations/graphql';
 import { Alert, withProps } from '@erxes/ui/src/utils';
 
 import { graphql } from '@apollo/client/react/hoc';
@@ -15,45 +11,45 @@ import Configs from '../components/Configs';
 
 const CONFIGS = gql(`
     query Query {
-        polarisGetConfigs
+      bidGetConfigs
     }
 `);
 
 const UPDATE_CONFIGS = gql(`
     mutation configsUpdate($configsMap: JSON!) {
-  configsUpdate(configsMap: $configsMap)
-}
+      configsUpdate(configsMap: $configsMap)
+  }
 `);
 
 type FinalProps = {
-  polarisConfigsQuery;
+  bidGetConfigsQuery;
   updateConfigs: (configsMap: IConfigsMap) => Promise<void>;
 };
 
 class ConfigContainer extends React.Component<FinalProps> {
   render() {
-    const { updateConfigs, polarisConfigsQuery } = this.props;
+    const { updateConfigs, bidGetConfigsQuery } = this.props;
 
-    if (polarisConfigsQuery.loading) {
+    if (bidGetConfigsQuery.loading) {
       return <Spinner objective={true} />;
     }
 
     // create or update action
     const save = (map: IConfigsMap) => {
       updateConfigs({
-        variables: { configsMap: map }
+        variables: { configsMap: map },
       })
         .then(() => {
-          polarisConfigsQuery.refetch();
+          bidGetConfigsQuery.refetch();
 
           Alert.success('You successfully updated settings');
         })
-        .catch(error => {
+        .catch((error) => {
           Alert.error(error.message);
         });
     };
 
-    const configs = polarisConfigsQuery.polarisGetConfigs || [];
+    const configs = bidGetConfigsQuery.bidGetConfigs || [];
 
     return <Configs {...this.props} configsMap={configs} save={save} />;
   }
@@ -62,10 +58,10 @@ class ConfigContainer extends React.Component<FinalProps> {
 export default withProps<{}>(
   compose(
     graphql<{}>(CONFIGS, {
-      name: 'polarisConfigsQuery'
+      name: 'bidGetConfigsQuery',
     }),
     graphql<{}>(UPDATE_CONFIGS, {
-      name: 'updateConfigs'
-    })
-  )(ConfigContainer)
+      name: 'updateConfigs',
+    }),
+  )(ConfigContainer),
 );

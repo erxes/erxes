@@ -13,13 +13,13 @@ type Props = {
 };
 
 const KEY_LABELS = {
-  POLARIS_API_URL: 'Polaris API URL'
+  POLARIS_API_URL: 'Bid Polaris API URL',
 };
 
 const Config = (props: Props) => {
   const { onChangeConfig, configsMap } = props;
 
-  const onChange = e => {
+  const onChange = (e) => {
     const { name, value } = e.target;
     onChangeConfig(name, value);
   };
@@ -28,7 +28,7 @@ const Config = (props: Props) => {
     key: string,
     description?: string,
     componentClass?: string,
-    type?: string
+    type?: string,
   ) => {
     return (
       <FormGroup>

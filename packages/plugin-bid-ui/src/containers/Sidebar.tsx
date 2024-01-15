@@ -6,7 +6,7 @@ import Alert from '@erxes/ui/src/utils/Alert';
 
 const GET_DATA = gql`
   query PolarisGetData($customerId: String!) {
-    polarisGetData(customerId: $customerId) {
+    bidGetPolarisData(customerId: $customerId) {
       _id
       createdAt
       customerId
@@ -18,7 +18,7 @@ const GET_DATA = gql`
 
 const UPDATE_DATA = gql`
   mutation PolarisUpdateData($customerId: String!) {
-    polarisUpdateData(customerId: $customerId) {
+    bidUpdatePolarisData(customerId: $customerId) {
       _id
       createdAt
       updatedAt
@@ -37,7 +37,7 @@ function AccoutSectionContainer(props: Props) {
 
   const { data, loading, refetch } = useQuery(GET_DATA, {
     variables: { customerId },
-    fetchPolicy: 'network-only'
+    fetchPolicy: 'network-only',
   });
 
   const [updateMutation] = useMutation(UPDATE_DATA);
@@ -46,17 +46,17 @@ function AccoutSectionContainer(props: Props) {
     return <Spinner />;
   }
 
-  let polarisData: any = data.polarisGetData;
+  let polarisData: any = data.bidGetPolarisData;
 
   const updateData = () => {
     updateMutation({ variables: { customerId } })
-      .then(res => {
+      .then((res) => {
         Alert.success('Successfully updated');
-        polarisData = res.data.polarisUpdateData;
+        polarisData = res.data.bidUpdatePolarisData;
 
         refetch();
       })
-      .catch(e => {
+      .catch((e) => {
         Alert.error(e.message);
       });
   };
