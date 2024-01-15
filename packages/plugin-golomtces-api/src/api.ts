@@ -1,4 +1,4 @@
-import { sendRequest } from '@erxes/api-utils/src';
+import fetch from 'node-fetch';
 import { sendCommonMessage, sendInboxMessage } from './messageBroker';
 import { randomAlphanumeric } from '@erxes/api-utils/src/random';
 import { graphqlPubsub } from './configs';
@@ -7,15 +7,14 @@ const authenticate = async () => {
   const path = 'chatapi/auth/signin';
 
   try {
-    const response = await sendRequest({
-      url: `${process.env.GOLOMT_POST_URL}${path}`,
+    const response = await fetch(`${process.env.GOLOMT_POST_URL}${path}`, {
       method: 'POST',
-      body: {
+      body: JSON.stringify({
         username: process.env.GOLOMT_API_USERNAME || '',
         password: process.env.GOLOMT_API_PASSWORD || '',
-        key: process.env.GOLOMT_API_KEY || ''
-      }
-    });
+        key: process.env.GOLOMT_API_KEY || '',
+      }),
+    }).then((res) => res.json());
 
     await sendCommonMessage({
       subdomain: 'os',
@@ -23,10 +22,10 @@ const authenticate = async () => {
       action: 'configs.findOne',
       data: {
         code: 'GOLOMT_ACCESS_TOKEN',
-        value: response
+        value: response,
       },
       isRPC: true,
-      defaultValue: null
+      defaultValue: null,
     });
 
     return response;
@@ -42,11 +41,11 @@ const checkAccessToken = async () => {
     action: 'configs.findOne',
     data: {
       query: {
-        code: 'GOLOMT_ACCESS_TOKEN'
-      }
+        code: 'GOLOMT_ACCESS_TOKEN',
+      },
     },
     isRPC: true,
-    defaultValue: null
+    defaultValue: null,
   });
 
   if (!token) {
@@ -74,7 +73,7 @@ const checkAccessToken = async () => {
   return token.value;
 };
 
-const getCustomerName = customer => {
+const getCustomerName = (customer) => {
   if (!customer) {
     return '';
   }
@@ -105,7 +104,7 @@ const getCustomerName = customer => {
 export const sendMsgToGolomt = async (
   msg: any,
   customer: any,
-  integrationId: string
+  integrationId: string,
 ) => {
   if (process.env.NODE_ENV === 'test') {
     return;
@@ -125,15 +124,15 @@ export const sendMsgToGolomt = async (
       subdomain: 'os',
       action: 'integrations.findOne',
       data: {
-        _id: integrationId
+        _id: integrationId,
       },
       isRPC: true,
-      defaultValue: null
+      defaultValue: null,
     });
 
     if (!integration) {
       console.error(
-        `dont send message to golomt, because: integration not found with id ${integrationId}`
+        `dont send message to golomt, because: integration not found with id ${integrationId}`,
       );
       return;
     }
@@ -143,15 +142,15 @@ export const sendMsgToGolomt = async (
       serviceName: 'core',
       action: 'brands.findOne',
       data: {
-        _id: integration?.brandId
+        _id: integration?.brandId,
       },
       isRPC: true,
-      defaultValue: null
+      defaultValue: null,
     });
 
     if (!brand) {
       console.error(
-        `dont send message to golomt, because: brand not found with id ${integration?.brandId}`
+        `dont send message to golomt, because: brand not found with id ${integration?.brandId}`,
       );
       return;
     }
@@ -165,14 +164,16 @@ export const sendMsgToGolomt = async (
       user_psid: customer._id,
       user_email: customer.primaryEmail || '',
       user_phone: customer.primaryPhone || '',
-      file_url: msg.attachments || []
+      file_url: msg.attachments || [],
     };
 
-    await sendRequest({
-      url: `${process.env.GOLOMT_POST_URL}${writeMsgUrl}`,
+    await fetch(`${process.env.GOLOMT_POST_URL}${writeMsgUrl}`, {
       method: 'POST',
-      headers: { Authorization: `Bearer ${tokenVal.access_token}` },
-      body
+      headers: {
+        Authorization: `Bearer ${tokenVal.access_token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(body),
     });
   } catch (e) {
     console.error(`dont send message to golomt, because: ${e.message}`);
@@ -195,10 +196,10 @@ export const generateExpiredToken = async (args: any) => {
     action: 'users.checkLoginAuth',
     data: {
       email: userName,
-      password
+      password,
     },
     isRPC: true,
-    defaultValue: null
+    defaultValue: null,
   });
 
   if (!user) {
@@ -210,10 +211,10 @@ export const generateExpiredToken = async (args: any) => {
     serviceName: 'core',
     action: 'configs.findOne',
     data: {
-      code: 'GOLOMT_API_TOKENS'
+      code: 'GOLOMT_API_TOKENS',
     },
     isRPC: true,
-    defaultValue: null
+    defaultValue: null,
   });
 
   const tokenByUserId = golomtTokenConfig?.value || {};
@@ -224,7 +225,7 @@ export const generateExpiredToken = async (args: any) => {
   tokenByUserId[user._id] = {
     apiToken,
     expired,
-    userId: user._id
+    userId: user._id,
   };
 
   await sendCommonMessage({
@@ -233,9 +234,9 @@ export const generateExpiredToken = async (args: any) => {
     action: 'configs.createOrUpdateConfig',
     data: {
       code: 'GOLOMT_API_TOKENS',
-      value: tokenByUserId
+      value: tokenByUserId,
     },
-    isRPC: true
+    isRPC: true,
   });
 
   return {
@@ -243,7 +244,7 @@ export const generateExpiredToken = async (args: any) => {
     userName,
     tokenKey,
     apiToken,
-    expired
+    expired,
   };
 };
 
@@ -262,10 +263,10 @@ export const hookMessage = async (args: any) => {
     serviceName: 'core',
     action: 'configs.findOne',
     data: {
-      code: 'GOLOMT_API_TOKENS'
+      code: 'GOLOMT_API_TOKENS',
     },
     isRPC: true,
-    defaultValue: null
+    defaultValue: null,
   });
   const tokenByUserId = configTokens?.value || {};
   const tokenValue: Array<{
@@ -273,7 +274,7 @@ export const hookMessage = async (args: any) => {
     expired: Date;
     userId: string;
   }> = Object.values(tokenByUserId) || [];
-  const token = tokenValue.find(item => item?.apiToken === apiToken);
+  const token = tokenValue.find((item) => item?.apiToken === apiToken);
 
   if (!token) {
     throw new Error('apiToken not found');
@@ -296,10 +297,10 @@ export const hookMessage = async (args: any) => {
       subdomain: 'os',
       action: 'conversations.findOne',
       data: {
-        _id: message.conversationId
+        _id: message.conversationId,
       },
       isRPC: true,
-      defaultValue: null
+      defaultValue: null,
     });
     customerId = conversation.customerId || '';
   }
@@ -312,7 +313,7 @@ export const hookMessage = async (args: any) => {
     action: 'conversationMessages.createOnlyMessage',
     data: message,
     isRPC: true,
-    defaultValue: null
+    defaultValue: null,
   });
 
   // await publishMessage(msgDocument, customerId);
@@ -320,11 +321,11 @@ export const hookMessage = async (args: any) => {
   graphqlPubsub.publish('conversationMessageInserted', {
     conversationMessageInserted: {
       ...message.toObject(),
-      conversationId: message.conversationId
-    }
+      conversationId: message.conversationId,
+    },
   });
 
   return {
-    status: 'success'
+    status: 'success',
   };
 };

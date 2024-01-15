@@ -1,4 +1,4 @@
-import { sendRequest } from '@erxes/api-utils/src/requests';
+import fetch from 'node-fetch';
 import { getConfig } from '../utils';
 
 // ************************* common methods ************************* //
@@ -7,7 +7,7 @@ export const getConfigs = async () => {
   return {
     OrchardApi: await getConfig('ORCHARD_API_URL'),
     OrchardUsername: await getConfig('ORCHARD_USERNAME'),
-    OrchardPassword: await getConfig('ORCHARD_PASSWORD')
+    OrchardPassword: await getConfig('ORCHARD_PASSWORD'),
   };
 };
 
@@ -16,18 +16,19 @@ export const getToken = async () => {
 
   const options = {
     method: 'POST',
-    url: `${DacApi.OrchardApi}/mobile/token`,
     headers: {
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
     },
-    body: {
+    body: JSON.stringify({
       username: DacApi.OrchardUsername,
-      password: DacApi.OrchardPassword
-    }
+      password: DacApi.OrchardPassword,
+    }),
   };
 
   try {
-    const res = await sendRequest(options);
+    const res = await fetch(`${DacApi.OrchardApi}/mobile/token`, options).then(
+      (res) => res.json(),
+    );
 
     const { description, access_token } = res;
 
@@ -44,7 +45,7 @@ export const getToken = async () => {
 const sendRequestToOrchard = async (
   method: string,
   action: string,
-  data?: any
+  data?: any,
 ) => {
   try {
     const token = await getToken();
@@ -52,18 +53,20 @@ const sendRequestToOrchard = async (
 
     const options = {
       method,
-      url: `${DacApi.OrchardApi}/mobile/api/v1/${action}`,
+
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`
+        Authorization: `Bearer ${token}`,
       },
-      body: data
+      body: JSON.stringify(data),
     };
 
-    return sendRequest(options);
+    return fetch(`${DacApi.OrchardApi}/mobile/api/v1/${action}`, options).then(
+      (res) => res.json(),
+    );
   } catch (e) {
     throw new Error(
-      'Error has occured while sending request to orchard: ' + e.message
+      'Error has occured while sending request to orchard: ' + e.message,
     );
   }
 };
@@ -106,7 +109,7 @@ export const updatePinCode = async (cardcode: string, pincode: string) => {
   try {
     return sendRequestToOrchard('PUT', 'customer/pin', {
       cardcode,
-      pincode
+      pincode,
     });
   } catch (e) {
     throw new Error('Failed to update pin code: ' + e.message);

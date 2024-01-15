@@ -1,6 +1,5 @@
 import * as dotenv from 'dotenv';
-import redisClient from './redis';
-import Redis from 'ioredis';
+import redis from './redis';
 dotenv.config();
 
 const {
@@ -10,14 +9,14 @@ const {
   REDIS_HOST,
   REDIS_PORT,
   REDIS_PASSWORD,
-  SKIP_REDIS
+  SKIP_REDIS,
 } = process.env;
 
 const isDev = NODE_ENV === 'development';
 
 if (!ENABLED_SERVICES_JSON) {
   throw new Error(
-    'ENABLED_SERVICES_JSON environment variable is not configured.'
+    'ENABLED_SERVICES_JSON environment variable is not configured.',
   );
 }
 
@@ -25,15 +24,13 @@ const enabledServices = JSON.parse(ENABLED_SERVICES_JSON) || [];
 
 if (!Array.isArray(enabledServices)) {
   throw new Error(
-    "ENABLED_SERVICES_JSON environment variable's value must be JSON array"
+    "ENABLED_SERVICES_JSON environment variable's value must be JSON array",
   );
 }
 
 enabledServices.push('core');
 
-export const redis = redisClient;
-
-const keyForConfig = name => `service:config:${name}`;
+const keyForConfig = (name) => `service:config:${name}`;
 
 export const getServices = async (): Promise<string[]> => {
   return enabledServices;
@@ -43,7 +40,7 @@ type ServiceInfo = { address: string; config: any };
 const serviceInfoCache: { [name in string]: Readonly<ServiceInfo> } = {};
 
 export const getService = async (
-  name: string
+  name: string,
 ): Promise<Readonly<ServiceInfo>> => {
   if (serviceInfoCache[name]) {
     return serviceInfoCache[name];
@@ -51,7 +48,7 @@ export const getService = async (
 
   const result: ServiceInfo = {
     address: (await redis.get(`service:${name}`)) || '',
-    config: { meta: {} }
+    config: { meta: {} },
   };
 
   const configJson = await redis.get(keyForConfig(name));
@@ -69,7 +66,7 @@ export const join = async ({
   dbConnectionString,
   hasSubscriptions = false,
   importExportTypes,
-  meta
+  meta,
 }: {
   name: string;
   port: string;
@@ -85,8 +82,8 @@ export const join = async ({
       dbConnectionString,
       hasSubscriptions,
       importExportTypes,
-      meta
-    })
+      meta,
+    }),
   );
 
   const address =
@@ -102,7 +99,7 @@ export const leave = async (name, _port) => {
   console.log(`$service:${name} left`);
 };
 
-export const isEnabled = name => {
+export const isEnabled = (name) => {
   if (name === 'core') return true;
   return enabledServices.includes(name);
 };
@@ -111,7 +108,7 @@ export const isAvailable = isEnabled;
 
 const pluginAddressCache = {};
 
-export const getPluginAddress = async name => {
+export const getPluginAddress = async (name) => {
   if (!pluginAddressCache[name]) {
     pluginAddressCache[name] = await redis.get(`service:${name}`);
   }

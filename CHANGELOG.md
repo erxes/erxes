@@ -1,3 +1,31 @@
+## [1.5.9](https://github.com/erxes/erxes/compare/1.5.8...1.5.9) (2024-01-12)
+
+
+### Bug Fixes
+
+* **contacts:** fix empty trackedData of company ([f43f105](https://github.com/erxes/erxes/commit/f43f1058f64c30fef77085836a8e3667f7ecf238))
+
+## [1.5.8](https://github.com/erxes/erxes/compare/1.5.7...1.5.8) (2024-01-09)
+
+
+### Bug Fixes
+
+* **businessportal:** fix cp user related cards ([49e4620](https://github.com/erxes/erxes/commit/49e4620a8ec2b8e03be4384d718181aa9a35302b))
+* ebarimt per stage configure company name ([910e556](https://github.com/erxes/erxes/commit/910e556cbfe5cf947f8be0cee243de885a6d78f2))
+* refactor tag order ([4623716](https://github.com/erxes/erxes/commit/46237168449d0a998f87b71e60d1fcfc4652d9d0))
+* refactor tag order ([f25139b](https://github.com/erxes/erxes/commit/f25139b06d1f56444ccd172bf2477c5d99fe31ef))
+
+
+### Performance Improvements
+
+* **editor:** add table, mention & attribute plugins & replace respondBox editor ([#4861](https://github.com/erxes/erxes/issues/4861)) ([e0207f7](https://github.com/erxes/erxes/commit/e0207f79fafef6528c56fd99f132c6d7d916f37d))
+* **products:** some refactor & update some UI in settings ([a27de3a](https://github.com/erxes/erxes/commit/a27de3a6d1dce65a46798bfb9720529d94817a91))
+
+
+### Reverts
+
+* Revert "simplify" ([f34977c](https://github.com/erxes/erxes/commit/f34977c1c051c1efdd7ae00a66dfd713c977a3b0))
+
 ## [1.5.7](https://github.com/erxes/erxes/compare/1.5.6...1.5.7) (2024-01-03)
 
 

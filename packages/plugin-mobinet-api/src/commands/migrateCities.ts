@@ -1,6 +1,6 @@
 import mongoDb from 'mongodb';
 
-import requestify from 'requestify';
+import fetch from 'node-fetch';
 
 const MongoClient = mongoDb.MongoClient;
 
@@ -41,18 +41,17 @@ const command = async () => {
     const headers = {
       'Content-Type': 'application/json',
       Accept: 'application/json',
-      'Accept-language': 'en'
+      'Accept-language': 'en',
     };
 
     try {
       console.log('fetching ', url);
-      const cityResponse = await requestify.request(url, {
-        method: 'GET',
-        headers
+      const cityResponse = await fetch(url, {
+        headers,
       });
       // console.log('cityResponse ', cityResponse);
 
-      const response = await JSON.parse(cityResponse.body);
+      const response = await cityResponse.json();
 
       console.log('response ', response);
 
@@ -68,11 +67,11 @@ const command = async () => {
         .split(',')[0]
         .replace('ö', 'u')
         .replace('ü', 'u');
-      doc.boundingBox = aimag.boundingbox.map(item => parseFloat(item));
+      doc.boundingBox = aimag.boundingbox.map((item) => parseFloat(item));
       doc.geojson = aimag.geojson;
       doc.center = {
         type: 'Point',
-        coordinates: [parseFloat(aimag.lon), parseFloat(aimag.lat)]
+        coordinates: [parseFloat(aimag.lon), parseFloat(aimag.lat)],
       };
 
       await Cities.updateOne({ _id: city._id }, { $set: doc });
@@ -90,12 +89,11 @@ const command = async () => {
 
         const districtQry = `https://nominatim.openstreetmap.org/search?format=json&polygon_geojson=1&limit=1&q=${district.name}%20${name},%20mongolia`;
 
-        const distResponse = await requestify.request(districtQry, {
-          method: 'GET',
-          headers
+        const distResponse = await fetch(districtQry, {
+          headers,
         });
 
-        const distResponseJson = await JSON.parse(distResponse.body);
+        const distResponseJson = await distResponse.json();
         console.log('distResponseJson ', distResponseJson);
 
         if (distResponseJson.length === 0) {
@@ -110,11 +108,11 @@ const command = async () => {
           .split(',')[0]
           .replace('ö', 'u')
           .replace('ü', 'u');
-        distDoc.boundingBox = sum.boundingbox.map(item => parseFloat(item));
+        distDoc.boundingBox = sum.boundingbox.map((item) => parseFloat(item));
         distDoc.geojson = sum.geojson;
         distDoc.center = {
           type: 'Point',
-          coordinates: [parseFloat(sum.lon), parseFloat(sum.lat)]
+          coordinates: [parseFloat(sum.lon), parseFloat(sum.lat)],
         };
 
         await Districts.updateOne({ _id: district._id }, { $set: distDoc });

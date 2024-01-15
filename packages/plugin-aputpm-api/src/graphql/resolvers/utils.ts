@@ -44,7 +44,7 @@ const generateChildrenIds = async ({ subdomain, action, query, type }) => {
   return ids;
 };
 
-const queryBuilderCards = async ({ subdomain, params }) => {
+export const queryBuilderCards = async ({ subdomain, params }) => {
   let filter: any = { status: { $ne: 'archived' } };
 
   const {
