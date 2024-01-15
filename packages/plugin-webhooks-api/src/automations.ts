@@ -9,9 +9,9 @@ export default {
         icon: 'send',
         label: 'Create webhook',
         description: 'Create webhook',
-        isAvailable: true,
-      },
-    ],
+        isAvailable: true
+      }
+    ]
   },
   receiveActions: async ({ subdomain, data }) => {
     const { action, execution } = data;
@@ -32,10 +32,10 @@ export default {
         action: 'automations.replacePlaceHolders',
         data: {
           target: { ...specifiedFields, _id: target?._id, type: contentType },
-          config: specifiedFields,
+          config: specifiedFields
         },
         isRPC: true,
-        defaultValue: {},
+        defaultValue: {}
       });
 
       target = replacedContent;
@@ -56,13 +56,13 @@ export default {
         method: method || 'POST',
         headers: {
           ...headers,
-          'Content-Type': 'application/json',
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify({
           actionType: 'automations.webhook',
           triggerType,
-          data: target,
-        }),
+          data: target
+        })
       });
       return {
         url,
@@ -70,10 +70,10 @@ export default {
         headers,
         params,
         data: target,
-        status: 'success',
+        status: 'success'
       };
     } catch (error) {
       return error.message;
     }
-  },
+  }
 };

@@ -18,7 +18,7 @@ const xypQueries = {
   xypDataDetail(
     _root,
     { _id, contentType, contentTypeId },
-    { models }: IContext,
+    { models }: IContext
   ) {
     return models.XypData.findOne({ contentType, contentTypeId });
   },
@@ -30,7 +30,7 @@ const xypQueries = {
   async xypRequest(
     _root,
     { wsOperationName, params },
-    { models, subdomain }: IContext,
+    { models, subdomain }: IContext
   ) {
     const xypConfigs = await sendCommonMessage({
       subdomain,
@@ -38,11 +38,11 @@ const xypQueries = {
       action: 'configs.findOne',
       data: {
         query: {
-          code: 'XYP_CONFIGS',
-        },
+          code: 'XYP_CONFIGS'
+        }
       },
       isRPC: true,
-      defaultValue: null,
+      defaultValue: null
     });
 
     if (!xypConfigs) {
@@ -56,10 +56,10 @@ const xypQueries = {
       headers: { token: config.token, 'Content-Type': 'application/json' },
       body: JSON.stringify({
         params,
-        wsOperationName,
+        wsOperationName
       }),
-      timeout: 10000,
-    }).then((res) => res.json());
+      timeout: 10000
+    }).then(res => res.json());
 
     return response;
   },
@@ -69,8 +69,8 @@ const xypQueries = {
       const response = await fetch(url + '/list', {
         method: 'post',
         headers: { token: token },
-        timeout: 9000,
-      }).then((res) => res.json());
+        timeout: 9000
+      }).then(res => res.json());
       return response;
     }
 
@@ -80,11 +80,11 @@ const xypQueries = {
       action: 'configs.findOne',
       data: {
         query: {
-          code: 'XYP_CONFIGS',
-        },
+          code: 'XYP_CONFIGS'
+        }
       },
       isRPC: true,
-      defaultValue: null,
+      defaultValue: null
     });
 
     if (!xypConfigs) {
@@ -96,8 +96,8 @@ const xypQueries = {
     const response = await fetch(config.url + '/list', {
       method: 'post',
       headers: { token: config.token },
-      timeout: 9000,
-    }).then((res) => res.json());
+      timeout: 9000
+    }).then(res => res.json());
 
     return response;
   },
@@ -109,11 +109,11 @@ const xypQueries = {
       action: 'configs.findOne',
       data: {
         query: {
-          code: 'XYP_CONFIGS',
-        },
+          code: 'XYP_CONFIGS'
+        }
       },
       isRPC: true,
-      defaultValue: null,
+      defaultValue: null
     });
 
     if (!xypConfigs) {
@@ -121,7 +121,7 @@ const xypQueries = {
     }
 
     return xypConfigs;
-  },
+  }
 };
 
 export default xypQueries;

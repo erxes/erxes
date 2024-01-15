@@ -3,7 +3,7 @@ import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
 import { generateModels } from './connectionResolver';
 
 export default {
-  products: ['products'],
+  products: ['products']
 };
 
 export const afterQueryHandlers = async (subdomain, data) => {
@@ -75,11 +75,11 @@ export const afterQueryHandlers = async (subdomain, data) => {
             check_relate: codesByBrandId[brandId].length < 4 ? '1' : '',
             accounts: remainderConfig.account,
             locations: remainderConfig.location,
-            inventories: codesByBrandId[brandId].join(','),
+            inventories: codesByBrandId[brandId].join(',')
           }),
         {
-          timeout: 8000,
-        },
+          timeout: 8000
+        }
       );
 
       const jsonRes = await response.json();

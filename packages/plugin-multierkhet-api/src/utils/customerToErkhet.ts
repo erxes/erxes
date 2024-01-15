@@ -39,15 +39,15 @@ export const customerToErkhet = async (models, params, action) => {
           name,
           defaultCategory: (config.customerCategoryCode || '').toString(),
           email: customer.primaryEmail || '',
-          phone: customer.primaryPhone || '',
-        },
+          phone: customer.primaryPhone || ''
+        }
       };
 
       toErkhet(models, syncLog, config, sendData, 'customer-change');
     } catch (e) {
       await models.SyncLogs.updateOne(
         { _id: syncLog._id },
-        { $set: { error: e.message } },
+        { $set: { error: e.message } }
       );
     }
   }
@@ -67,10 +67,8 @@ export const validCompanyCode = async (config, companyCode) => {
 
   if (re.test(companyCode)) {
     const response = await fetch(
-      config.checkCompanyUrl +
-        '?' +
-        new URLSearchParams({ regno: companyCode }),
-    ).then((res) => res.json());
+      config.checkCompanyUrl + '?' + new URLSearchParams({ regno: companyCode })
+    ).then(res => res.json());
 
     if (response.found) {
       result = response.name;
@@ -105,15 +103,15 @@ export const companyToErkhet = async (models, params, action) => {
           name: company.primaryName,
           defaultCategory: config.companyCategoryCode,
           email: company.primaryEmail || '',
-          phone: company.primaryPhone || '',
-        },
+          phone: company.primaryPhone || ''
+        }
       };
 
       toErkhet(models, syncLog, config, sendData, 'customer-change');
     } catch (e) {
       await models.SyncLogs.updateOne(
         { _id: syncLog._id },
-        { $set: { error: e.message } },
+        { $set: { error: e.message } }
       );
     }
   }

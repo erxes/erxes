@@ -6,7 +6,7 @@ const msdynamicSendMutations = {
   async toSendDeals(
     _root,
     { brandId, deals }: { brandId: string; deals: any[] },
-    { subdomain, models }: IContext,
+    { subdomain, models }: IContext
   ) {
     let syncLog;
 
@@ -27,7 +27,7 @@ const msdynamicSendMutations = {
           contentId: 'pos._id',
           createdAt: new Date(),
           consumeData: deal,
-          consumeStr: JSON.stringify(deal),
+          consumeStr: JSON.stringify(deal)
         };
 
         syncLog = await models.SyncLogs.syncLogsAdd(syncLogDoc);
@@ -76,9 +76,9 @@ const msdynamicSendMutations = {
               Unit_Cost_LCY: 100713.96542,
               Location_Code: 'BEV-01',
               Unit_of_Measure_Code: 'PCS',
-              Unit_of_Measure: 'Piece',
-            },
-          ],
+              Unit_of_Measure: 'Piece'
+            }
+          ]
         };
 
         await models.SyncLogs.updateOne(
@@ -86,9 +86,9 @@ const msdynamicSendMutations = {
           {
             $set: {
               sendData: document,
-              sendStr: JSON.stringify(document),
-            },
-          },
+              sendStr: JSON.stringify(document)
+            }
+          }
         );
 
         const response = await fetch(
@@ -98,35 +98,35 @@ const msdynamicSendMutations = {
             headers: {
               'Content-Type': 'application/json',
               Authorization: `Basic ${Buffer.from(
-                `${username}:${password}`,
-              ).toString('base64')}`,
+                `${username}:${password}`
+              ).toString('base64')}`
             },
-            body: JSON.stringify(document),
-          },
-        ).then((res) => res.json());
+            body: JSON.stringify(document)
+          }
+        ).then(res => res.json());
 
         await models.SyncLogs.updateOne(
           { _id: syncLog._id },
           {
             $set: {
               responseData: response,
-              responseStr: JSON.stringify(response),
-            },
-          },
+              responseStr: JSON.stringify(response)
+            }
+          }
         );
       }
 
       return {
-        status: 'success',
+        status: 'success'
       };
     } catch (e) {
       await models.SyncLogs.updateOne(
         { _id: syncLog._id },
-        { $set: { error: e.message } },
+        { $set: { error: e.message } }
       );
       console.log(e, 'error');
     }
-  },
+  }
 };
 
 export default msdynamicSendMutations;

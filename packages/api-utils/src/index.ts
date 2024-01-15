@@ -16,7 +16,7 @@ import {
   splitStr,
   escapeRegExp,
   dateToShortStr,
-  shortStrToDate,
+  shortStrToDate
 } from './core';
 import { putCreateLog, putDeleteLog, putUpdateLog } from './logUtils';
 import { sendToWebhook } from './requests';
@@ -32,7 +32,7 @@ import {
   permissionWrapper,
   getUserActionsMap,
   checkPermission,
-  requireLogin,
+  requireLogin
 } from './permissions';
 
 import { IContext } from './types';
@@ -77,7 +77,7 @@ export {
   IColumnLabel,
   ruleSchema,
   field,
-  schemaWrapper,
+  schemaWrapper
 };
 
 export default {
@@ -106,7 +106,7 @@ export default {
   generateFieldsFromSchema,
   afterQueryWrapper,
   dateToShortStr,
-  shortStrToDate,
+  shortStrToDate
 };
 
 // trigger

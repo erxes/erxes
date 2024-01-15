@@ -3,7 +3,7 @@ import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
 import { sendCoreMessage } from './messageBroker';
 
 export default {
-  products: ['products'],
+  products: ['products']
 };
 
 export const afterQueryHandlers = async (subdomain, data) => {
@@ -23,14 +23,14 @@ export const afterQueryHandlers = async (subdomain, data) => {
       subdomain,
       action: 'getConfig',
       data: { code: 'ERKHET', defaultValue: {} },
-      isRPC: true,
+      isRPC: true
     });
 
     const remConfigs = await sendCoreMessage({
       subdomain,
       action: 'getConfig',
       data: { code: 'remainderConfig', defaultValue: {} },
-      isRPC: true,
+      isRPC: true
     });
 
     if (!Object.keys(remConfigs).includes(pipelineId)) {
@@ -39,7 +39,7 @@ export const afterQueryHandlers = async (subdomain, data) => {
 
     const remConfig = remConfigs[pipelineId];
 
-    const codes = (results || []).map((item) => item.code);
+    const codes = (results || []).map(item => item.code);
 
     const response = await fetch(
       configs.getRemainderApiUrl +
@@ -51,11 +51,11 @@ export const afterQueryHandlers = async (subdomain, data) => {
           check_relate: codes.length < 4 ? '1' : '',
           accounts: remConfig.account,
           locations: remConfig.location,
-          inventories: codes.join(','),
+          inventories: codes.join(',')
         }),
       {
-        timeout: 8000,
-      },
+        timeout: 8000
+      }
     );
 
     const jsonRes = await response.json();

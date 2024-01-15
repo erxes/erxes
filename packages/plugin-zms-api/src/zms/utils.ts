@@ -16,7 +16,7 @@ export const getAuthHeaders = async (args: {
       'Content-Type': contentType,
       Authorization: `Bearer ${accessToken}`,
       'X-Username': client_id,
-      'X-Signature': secretKey,
+      'X-Signature': secretKey
     };
   }
 
@@ -27,26 +27,26 @@ export const getAuthHeaders = async (args: {
       method: 'POST',
       headers: {
         'Content-Type': 'application/JSON',
-        Authorization: `Bearer token`,
+        Authorization: `Bearer token`
       },
       body: JSON.stringify({
         client_id: client_id,
-        secretKey: secretKey,
-      }),
-    }).then((res) => res.json());
+        secretKey: secretKey
+      })
+    }).then(res => res.json());
 
     await redis.set(
       `zms_token_${client_id}:${secretKey}`,
       response.access_token,
       'EX',
-      60 * 1000 * 5 - 10,
+      60 * 1000 * 5 - 10
     );
 
     return {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${response.access_token}`,
       'X-Username': client_id,
-      'X-Signature': secretKey,
+      'X-Signature': secretKey
     };
   } catch (e) {
     console.error(e.message);

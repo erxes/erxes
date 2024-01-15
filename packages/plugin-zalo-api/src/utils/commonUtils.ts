@@ -6,7 +6,7 @@ dotenv.config();
 export const generateAttachmentUrl = (urlOrName: string) => {
   const DOMAIN = getEnv({
     name: 'DOMAIN',
-    defaultValue: 'http://localhost:4000',
+    defaultValue: 'http://localhost:4000'
   });
 
   if (urlOrName.startsWith('http')) {
@@ -58,7 +58,7 @@ export interface ZaloMessage {
 export const getMessageOAID = ({
   event_name,
   recipient,
-  sender,
+  sender
 }: ZaloMessage) => {
   return isOASend(event_name) ? sender.id : recipient.id;
 };
@@ -66,7 +66,7 @@ export const getMessageOAID = ({
 export const getMessageUserID = ({
   event_name,
   recipient,
-  sender,
+  sender
 }: ZaloMessage) => {
   return isOASend(event_name) ? recipient.id : sender.id;
 };
@@ -88,7 +88,7 @@ export const convertAttachment = (attachments: any = []) => {
     // }
 
     outputAttachment = {
-      ...attachment?.payload,
+      ...attachment?.payload
     };
 
     if (['voice'].includes(type)) {

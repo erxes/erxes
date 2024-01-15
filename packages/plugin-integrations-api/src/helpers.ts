@@ -5,10 +5,10 @@ import fetch from 'node-fetch';
 
 export const removeIntegration = async (
   models: IModels,
-  integrationErxesApiId: string,
+  integrationErxesApiId: string
 ): Promise<string> => {
   const integration = await models.Integrations.findOne({
-    erxesApiId: integrationErxesApiId,
+    erxesApiId: integrationErxesApiId
   });
 
   if (!integration) {
@@ -43,9 +43,9 @@ export const removeIntegration = async (
         method: 'POST',
         body: JSON.stringify({
           domain: DOMAIN,
-          ...integrationRemoveBy,
+          ...integrationRemoveBy
         }),
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json' }
       });
     } catch (e) {
       throw new Error(e.message);
@@ -59,7 +59,7 @@ export const removeIntegration = async (
 
 export const removeAccount = async (
   models: IModels,
-  _id: string,
+  _id: string
 ): Promise<{ erxesApiIds: string | string[] } | Error> => {
   const account = await models.Accounts.findOne({ _id });
 
@@ -70,7 +70,7 @@ export const removeAccount = async (
   const erxesApiIds: string[] = [];
 
   const integrations = await models.Integrations.find({
-    accountId: account._id,
+    accountId: account._id
   });
 
   if (integrations.length > 0) {
@@ -78,7 +78,7 @@ export const removeAccount = async (
       try {
         const response = await removeIntegration(
           models,
-          integration.erxesApiId,
+          integration.erxesApiId
         );
         erxesApiIds.push(response);
       } catch (e) {
@@ -101,7 +101,7 @@ export const removeCustomers = async (models: IModels, params) => {
 
 export const updateIntegrationConfigs = async (
   models: IModels,
-  configsMap,
+  configsMap
 ): Promise<void> => {
   await models.Configs.updateConfigs(configsMap);
 

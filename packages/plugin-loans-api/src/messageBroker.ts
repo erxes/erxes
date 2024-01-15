@@ -5,7 +5,7 @@ import fetch from 'node-fetch';
 
 let client;
 
-export const initBroker = async (cl) => {
+export const initBroker = async cl => {
   client = cl;
 
   const { consumeRPCQueue } = client;
@@ -15,7 +15,7 @@ export const initBroker = async (cl) => {
 
     return {
       status: 'success',
-      data: await models.Contracts.find(data).lean(),
+      data: await models.Contracts.find(data).lean()
     };
   });
 
@@ -24,7 +24,7 @@ export const initBroker = async (cl) => {
 
     return {
       status: 'success',
-      data: await models.Transactions.find(data).lean(),
+      data: await models.Transactions.find(data).lean()
     };
   });
 
@@ -37,10 +37,10 @@ export const initBroker = async (cl) => {
       return {
         status: 'success',
         data: await models.Transactions.find({
-          contractId: { $in: contracts.map((c) => c._id) },
-        }).lean(),
+          contractId: { $in: contracts.map(c => c._id) }
+        }).lean()
       };
-    },
+    }
   );
   consumeRPCQueue('loans:transaction', async ({ subdomain, data }) => {
     console.log('subdomain, data', subdomain, data);
@@ -59,13 +59,13 @@ export const sendMessageBroker = async (
     | 'forms'
     | 'clientportal'
     | 'syncerkhet'
-    | 'ebarimt',
+    | 'ebarimt'
 ): Promise<any> => {
   return sendMessage({
     client,
     serviceDiscovery,
     serviceName: name,
-    ...args,
+    ...args
   });
 };
 
@@ -74,53 +74,53 @@ export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
     client,
     serviceDiscovery,
     serviceName: 'core',
-    ...args,
+    ...args
   });
 };
 
 export const sendCardsMessage = async (
-  args: ISendMessageArgs,
+  args: ISendMessageArgs
 ): Promise<any> => {
   return sendMessage({
     client,
     serviceDiscovery,
     serviceName: 'cards',
-    ...args,
+    ...args
   });
 };
 
 export const sendReactionsMessage = async (
-  args: ISendMessageArgs,
+  args: ISendMessageArgs
 ): Promise<any> => {
   return sendMessage({
     client,
     serviceDiscovery,
     serviceName: 'reactions',
-    ...args,
+    ...args
   });
 };
 
 export const sendCommonMessage = async (
-  args: ISendMessageArgs & { serviceName: string },
+  args: ISendMessageArgs & { serviceName: string }
 ): Promise<any> => {
   return sendMessage({
     serviceDiscovery,
     client,
-    ...args,
+    ...args
   });
 };
 
 export const getConfig = async (
   code: string,
   subdomain: string,
-  defaultValue?: string,
+  defaultValue?: string
 ) => {
   const configs = await sendCoreMessage({
     subdomain,
     action: 'getConfigs',
     data: {},
     isRPC: true,
-    defaultValue: [],
+    defaultValue: []
   });
 
   if (!configs[code]) {
@@ -134,19 +134,19 @@ export const sendSms = async (
   subdomain: string,
   type: string,
   phoneNumber: string,
-  content: string,
+  content: string
 ) => {
   if (type === 'messagePro') {
     const MESSAGE_PRO_API_KEY = await getConfig(
       'MESSAGE_PRO_API_KEY',
       subdomain,
-      '',
+      ''
     );
 
     const MESSAGE_PRO_PHONE_NUMBER = await getConfig(
       'MESSAGE_PRO_PHONE_NUMBER',
       subdomain,
-      '',
+      ''
     );
 
     if (!MESSAGE_PRO_API_KEY || !MESSAGE_PRO_PHONE_NUMBER) {
@@ -160,8 +160,8 @@ export const sendSms = async (
             key: MESSAGE_PRO_API_KEY,
             from: MESSAGE_PRO_PHONE_NUMBER,
             to: phoneNumber,
-            text: content,
-          }),
+            text: content
+          })
       );
 
       return 'sent';
@@ -171,6 +171,6 @@ export const sendSms = async (
   }
 };
 
-export default function () {
+export default function() {
   return client;
 }

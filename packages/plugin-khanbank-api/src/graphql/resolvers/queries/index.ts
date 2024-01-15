@@ -8,12 +8,12 @@ export default {
 
   khanbankRates: async (_root, _args, _context) => {
     try {
-      return await fetch('https://api.khanbank.com/v1/rates').then((res) =>
-        res.json(),
+      return await fetch('https://api.khanbank.com/v1/rates').then(res =>
+        res.json()
       );
     } catch (e) {
       console.error(e);
       throw new Error(e.message);
     }
-  },
+  }
 };

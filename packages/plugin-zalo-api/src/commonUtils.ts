@@ -70,7 +70,7 @@ export interface ZaloMessage {
 export const getMessageOAID = ({
   event_name,
   recipient,
-  sender,
+  sender
 }: ZaloMessage) => {
   return isOASend(event_name) ? sender.id : recipient.id;
 };
@@ -78,7 +78,7 @@ export const getMessageOAID = ({
 export const getMessageUserID = ({
   event_name,
   recipient,
-  sender,
+  sender
 }: ZaloMessage) => {
   return isOASend(event_name) ? recipient.id : sender.id;
 };

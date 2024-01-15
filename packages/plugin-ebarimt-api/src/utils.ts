@@ -3,7 +3,7 @@ import {
   sendCoreMessage,
   sendNotificationsMessage,
   sendContactsMessage,
-  sendProductsMessage,
+  sendProductsMessage
 } from './messageBroker';
 
 export const sendNotification = (subdomain: string, data) => {
@@ -15,7 +15,7 @@ export const getConfig = async (subdomain, code, defaultValue?) => {
     subdomain,
     action: 'getConfig',
     data: { code, defaultValue },
-    isRPC: true,
+    isRPC: true
   });
 };
 
@@ -26,10 +26,8 @@ export const validCompanyCode = async (config, companyCode) => {
 
   if (re.test(companyCode)) {
     const response = await fetch(
-      config.checkCompanyUrl +
-        '?' +
-        new URLSearchParams({ regno: companyCode }),
-    ).then((r) => r.json());
+      config.checkCompanyUrl + '?' + new URLSearchParams({ regno: companyCode })
+    ).then(r => r.json());
 
     if (response.found) {
       result = response.name;
@@ -67,7 +65,7 @@ export const companyCheckCode = async (params, subdomain) => {
   return params;
 };
 
-export const validConfigMsg = async (config) => {
+export const validConfigMsg = async config => {
   if (!config.url) {
     return 'required url';
   }
@@ -148,7 +146,7 @@ const arrangeTaxType = async (deal, productsById, billType) => {
       productCode: product.code,
       productName: product.name,
       uom: product.uom || 'ш',
-      productId: productData.productId,
+      productId: productData.productId
     };
 
     if (product.taxType === '2') {
@@ -181,11 +179,11 @@ const arrangeTaxType = async (deal, productsById, billType) => {
     amount,
     amountFree,
     amount0,
-    amountInner,
+    amountInner
   };
 };
 
-const getCustomerName = (customer) => {
+const getCustomerName = customer => {
   if (!customer) {
     return '';
   }
@@ -223,7 +221,7 @@ export const getPostData = async (subdomain, config, deal) => {
     action: 'conformities.savedConformity',
     data: { mainType: 'deal', mainTypeId: deal._id, relTypes: ['company'] },
     isRPC: true,
-    defaultValue: [],
+    defaultValue: []
   });
 
   if (companyIds.length > 0) {
@@ -232,10 +230,10 @@ export const getPostData = async (subdomain, config, deal) => {
       action: 'companies.findActiveCompanies',
       data: {
         selector: { _id: { $in: companyIds } },
-        fields: { _id: 1, code: 1, primaryName: 1 },
+        fields: { _id: 1, code: 1, primaryName: 1 }
       },
       isRPC: true,
-      defaultValue: [],
+      defaultValue: []
     });
 
     const re = new RegExp('(^[А-ЯЁӨҮ]{2}[0-9]{8}$)|(^\\d{7}$)', 'gui');
@@ -244,8 +242,8 @@ export const getPostData = async (subdomain, config, deal) => {
         const checkCompanyRes = await fetch(
           config.checkCompanyUrl +
             '?' +
-            new URLSearchParams({ regno: company.code }),
-        ).then((r) => r.json());
+            new URLSearchParams({ regno: company.code })
+        ).then(r => r.json());
 
         if (checkCompanyRes.found) {
           billType = '3';
@@ -263,7 +261,7 @@ export const getPostData = async (subdomain, config, deal) => {
       action: 'conformities.savedConformity',
       data: { mainType: 'deal', mainTypeId: deal._id, relTypes: ['customer'] },
       isRPC: true,
-      defaultValue: [],
+      defaultValue: []
     });
 
     if (customerIds.length > 0) {
@@ -278,14 +276,14 @@ export const getPostData = async (subdomain, config, deal) => {
             firstName: 1,
             lastName: 1,
             primaryEmail: 1,
-            primaryPhone: 1,
-          },
+            primaryPhone: 1
+          }
         },
         isRPC: true,
-        defaultValue: [],
+        defaultValue: []
       });
 
-      let customer = customers.find((c) => c.code && c.code.match(/^\d{8}$/g));
+      let customer = customers.find(c => c.code && c.code.match(/^\d{8}$/g));
 
       if (customer) {
         customerCode = customer.code || '';
@@ -299,13 +297,13 @@ export const getPostData = async (subdomain, config, deal) => {
     }
   }
 
-  const productsIds = deal.productsData.map((item) => item.productId);
+  const productsIds = deal.productsData.map(item => item.productId);
   const products = await sendProductsMessage({
     subdomain,
     action: 'find',
     data: { query: { _id: { $in: productsIds } }, limit: productsIds.length },
     isRPC: true,
-    defaultValue: [],
+    defaultValue: []
   });
 
   const productsById = {};
@@ -321,7 +319,7 @@ export const getPostData = async (subdomain, config, deal) => {
     amount,
     amountFree,
     amount0,
-    amountInner,
+    amountInner
   } = await arrangeTaxType(deal, productsById, billType);
 
   const date = new Date();
@@ -340,7 +338,7 @@ export const getPostData = async (subdomain, config, deal) => {
     description: deal.name,
     ebarimtResponse: {},
     contentType: 'deal',
-    contentId: deal._id,
+    contentId: deal._id
   };
 
   const result: any[] = [];
@@ -361,7 +359,7 @@ export const getPostData = async (subdomain, config, deal) => {
       taxType: '2',
       details: detailsFree,
       cashAmount,
-      nonCashAmount: amountFree - cashAmount,
+      nonCashAmount: amountFree - cashAmount
     });
   }
 
@@ -379,7 +377,7 @@ export const getPostData = async (subdomain, config, deal) => {
       taxType: '3',
       details: details0,
       cashAmount,
-      nonCashAmount: amount0 - cashAmount,
+      nonCashAmount: amount0 - cashAmount
     });
   }
 
@@ -398,7 +396,7 @@ export const getPostData = async (subdomain, config, deal) => {
       hasCitytax: false,
       details: detailsInner,
       cashAmount,
-      nonCashAmount: amountInner - cashAmount,
+      nonCashAmount: amountInner - cashAmount
     });
   }
 
@@ -412,7 +410,7 @@ export const getPostData = async (subdomain, config, deal) => {
       ...commonOderInfo,
       details,
       cashAmount,
-      nonCashAmount: amount - cashAmount,
+      nonCashAmount: amount - cashAmount
     });
   }
   return result;
@@ -427,8 +425,8 @@ export const getCompany = async (subdomain, companyRD) => {
   }
 
   const info = await fetch(
-    config.checkCompanyUrl + '?' + new URLSearchParams({ regno: companyRD }),
-  ).then((r) => r.json());
+    config.checkCompanyUrl + '?' + new URLSearchParams({ regno: companyRD })
+  ).then(r => r.json());
 
   return { status: 'checked', info };
 };

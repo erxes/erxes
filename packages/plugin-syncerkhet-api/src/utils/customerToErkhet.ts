@@ -6,7 +6,7 @@ export const customerToErkhet = async (
   models,
   syncLog,
   params,
-  action,
+  action
 ) => {
   const config = await getConfig(subdomain, 'ERKHET', {});
 
@@ -34,8 +34,8 @@ export const customerToErkhet = async (
       name,
       defaultCategory: (config.customerCategoryCode || '').toString(),
       email: customer.primaryEmail || '',
-      phone: customer.primaryPhone || '',
-    },
+      phone: customer.primaryPhone || ''
+    }
   };
 
   toErkhet(models, syncLog, config, sendData, 'customer-change');
@@ -55,10 +55,8 @@ export const validCompanyCode = async (config, companyCode) => {
 
   if (re.test(companyCode)) {
     const response = await fetch(
-      config.checkCompanyUrl +
-        '?' +
-        new URLSearchParams({ regno: companyCode }),
-    ).then((res) => res.json());
+      config.checkCompanyUrl + '?' + new URLSearchParams({ regno: companyCode })
+    ).then(res => res.json());
 
     if (response.found) {
       result = response.name;
@@ -73,7 +71,7 @@ export const companyToErkhet = async (
   syncLog,
   params,
   action,
-  user,
+  user
 ) => {
   const config = await getConfig(subdomain, 'ERKHET', {});
   const company = params.updatedDocument || params.object;
@@ -88,8 +86,8 @@ export const companyToErkhet = async (
       name: company.primaryName,
       defaultCategory: config.companyCategoryCode,
       email: company.primaryEmail || '',
-      phone: company.primaryPhone || '',
-    },
+      phone: company.primaryPhone || ''
+    }
   };
 
   toErkhet(models, syncLog, config, sendData, 'customer-change');

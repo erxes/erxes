@@ -1,3 +1,8 @@
+const updateConfigs = `
+  mutation configsUpdate($configsMap: JSON!) {
+    configsUpdate(configsMap: $configsMap)
+  }
+`;
 const add = `
   mutation syncpolarissAdd($name: String!, $expiryDate: Date, $typeId:String) {
     syncpolarissAdd(name:$name, expiryDate: $expiryDate, typeId:$typeId) {
@@ -47,6 +52,7 @@ const editType = `
 `;
 
 export default {
+  updateConfigs,
   add,
   remove,
   edit,

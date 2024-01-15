@@ -8,7 +8,7 @@ export const checkRemainders = async (
   subdomain: string,
   config: IConfigDocument,
   checkProducts: IProductDocument[],
-  paramBranchId?: string,
+  paramBranchId?: string
 ) => {
   const products: any = checkProducts;
 
@@ -44,8 +44,8 @@ export const checkRemainders = async (
                 check_relate: products.length < 4 ? '1' : '',
                 accounts: account,
                 locations: location,
-                inventories: products.map((p) => p.code).join(','),
-              }),
+                inventories: products.map(p => p.code).join(',')
+              })
           );
 
           const jsonRes = await response.json();
@@ -69,7 +69,7 @@ export const checkRemainders = async (
                   responseByCode[invCode].rems.push({
                     account: acc,
                     location: loc,
-                    remainder,
+                    remainder
                   });
                 }
               }
@@ -92,10 +92,10 @@ export const checkRemainders = async (
   const branchIds = paramBranchId
     ? [paramBranchId]
     : config.isOnline
-      ? config.allowBranchIds || []
-      : (config.branchId && [config.branchId]) || [];
+    ? config.allowBranchIds || []
+    : (config.branchId && [config.branchId]) || [];
   const departmentIds = config.departmentId ? [config.departmentId] : [];
-  const productIds = products.map((p) => p._id);
+  const productIds = products.map(p => p._id);
 
   if (config.checkRemainder) {
     const inventoryResponse = await sendInventoriesMessage({
@@ -104,10 +104,10 @@ export const checkRemainders = async (
       data: {
         productIds,
         departmentIds,
-        branchIds,
+        branchIds
       },
       isRPC: true,
-      defaultValue: [],
+      defaultValue: []
     });
 
     const remainderByProductId = {};
@@ -123,15 +123,15 @@ export const checkRemainders = async (
       product.remainders = remainderByProductId[product._id];
       product.remainder = (remainderByProductId[product._id] || []).reduce(
         (sum, cur) => sum + (Number(cur.count) || 0),
-        0,
+        0
       );
       product.soonIn = (remainderByProductId[product._id] || []).reduce(
         (sum, cur) => sum + (Number(cur.soonIn) || 0),
-        0,
+        0
       );
       product.soonOut = (remainderByProductId[product._id] || []).reduce(
         (sum, cur) => sum + (Number(cur.soonOut) || 0),
-        0,
+        0
       );
     }
   }

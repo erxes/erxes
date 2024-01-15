@@ -23,7 +23,7 @@ export const sendToWebhook = async (_messageBroker, { subdomain, data }) => {
   if (isWebhooksAvailable) {
     await sendMessage(`webhooks:send`, {
       subdomain,
-      data,
+      data
     });
   }
 };

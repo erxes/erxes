@@ -6,7 +6,7 @@ import fetch from 'node-fetch';
 
 let client;
 
-export const initBroker = async (cl) => {
+export const initBroker = async cl => {
   client = cl;
 
   const { consumeRPCQueue } = client;
@@ -18,17 +18,17 @@ export const initBroker = async (cl) => {
       action: 'configs.findOne',
       data: {
         query: {
-          code: 'XYP_CONFIGS',
-        },
+          code: 'XYP_CONFIGS'
+        }
       },
       isRPC: true,
-      defaultValue: null,
+      defaultValue: null
     });
 
     if (!xypConfigs) {
       return {
         status: 'failed',
-        message: 'XYP CONFIGS not found',
+        message: 'XYP CONFIGS not found'
       };
     }
 
@@ -41,14 +41,14 @@ export const initBroker = async (cl) => {
       headers: { token: config.token, 'Content-Type': 'application/json' },
       body: JSON.stringify({
         params,
-        wsOperationName,
+        wsOperationName
       }),
-      timeout: 5000,
+      timeout: 5000
     });
 
     return {
       status: 'success',
-      data: response,
+      data: response
     };
   });
 
@@ -59,8 +59,8 @@ export const initBroker = async (cl) => {
       status: 'success',
       data: await models.XypData.findOne({
         contentType: data?.contentType,
-        contentTypeId: data?._id,
-      }),
+        contentTypeId: data?._id
+      })
     };
   });
   consumeRPCQueue('xyp:insertOrUpdate', async ({ subdomain, data }) => {
@@ -68,7 +68,7 @@ export const initBroker = async (cl) => {
 
     const existingData = await models.XypData.findOne({
       contentType: data.contentType,
-      contentTypeId: data.contentTypeId,
+      contentTypeId: data.contentTypeId
     });
 
     const newData = data.data;
@@ -76,13 +76,13 @@ export const initBroker = async (cl) => {
     if (!existingData) {
       return {
         status: 'success',
-        data: await models.XypData.createXypData(data),
+        data: await models.XypData.createXypData(data)
       };
     }
 
     for (const obj of newData) {
       const serviceIndex = existingData.data.findIndex(
-        (e) => e.serviceName === obj.serviceName,
+        e => e.serviceName === obj.serviceName
       );
 
       if (serviceIndex === -1) {
@@ -90,9 +90,9 @@ export const initBroker = async (cl) => {
           { _id: existingData._id },
           {
             $push: {
-              data: obj,
-            },
-          },
+              data: obj
+            }
+          }
         );
       } else {
         existingData.data[serviceIndex] = obj;
@@ -100,9 +100,9 @@ export const initBroker = async (cl) => {
           { _id: existingData._id },
           {
             $set: {
-              data: existingData.data,
-            },
-          },
+              data: existingData.data
+            }
+          }
         );
       }
     }
@@ -111,52 +111,52 @@ export const initBroker = async (cl) => {
       status: 'success',
       data: await models.XypData.findOne({
         contentType: data.contentType,
-        contentTypeId: data.contentTypeId,
-      }),
+        contentTypeId: data.contentTypeId
+      })
     };
   });
 };
 
 export const sendContactsMessage = async (
-  args: ISendMessageArgs,
+  args: ISendMessageArgs
 ): Promise<any> => {
   return sendMessage({
     client,
     serviceDiscovery,
     serviceName: 'contacts',
-    ...args,
+    ...args
   });
 };
 
 export const sendAutomationsMessage = async (
-  args: ISendMessageArgs,
+  args: ISendMessageArgs
 ): Promise<any> => {
   return sendMessage({
     client,
     serviceDiscovery,
     serviceName: 'automations',
-    ...args,
+    ...args
   });
 };
 
 export const sendCommonMessage = async (
-  args: ISendMessageArgs & { serviceName: string },
+  args: ISendMessageArgs & { serviceName: string }
 ): Promise<any> => {
   return sendMessage({
     serviceDiscovery,
     client,
-    ...args,
+    ...args
   });
 };
 
 export const sendSegmentsMessage = async (
-  args: ISendMessageArgs,
+  args: ISendMessageArgs
 ): Promise<any> => {
   return sendMessage({
     client,
     serviceDiscovery,
     serviceName: 'segments',
-    ...args,
+    ...args
   });
 };
 
@@ -164,13 +164,13 @@ export const fetchSegment = (
   subdomain: string,
   segmentId: string,
   options?,
-  segmentData?: any,
+  segmentData?: any
 ) =>
   sendSegmentsMessage({
     subdomain,
     action: 'fetchSegment',
     data: { segmentId, options, segmentData },
-    isRPC: true,
+    isRPC: true
   });
 
 export const sendFormsMessage = (args: ISendMessageArgs): Promise<any> => {
@@ -178,7 +178,7 @@ export const sendFormsMessage = (args: ISendMessageArgs): Promise<any> => {
     client,
     serviceDiscovery,
     serviceName: 'forms',
-    ...args,
+    ...args
   });
 };
 
@@ -187,10 +187,10 @@ export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
     client,
     serviceDiscovery,
     serviceName: 'core',
-    ...args,
+    ...args
   });
 };
 
-export default function () {
+export default function() {
   return client;
 }
