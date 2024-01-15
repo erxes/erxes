@@ -7,7 +7,6 @@
   },
   "dependencies": {
     "@erxes/api-utils" : "*",
-    "jsonwebtoken": "^8.5.1",
-    "axios": "^1.2.2"
+    "jsonwebtoken": "^8.5.1"
   }
 }
