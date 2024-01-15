@@ -1,5 +1,5 @@
 import mongoDb from 'mongodb';
-import requestify from 'requestify';
+import fetch from 'node-fetch';
 import { nanoid } from 'nanoid';
 
 const MongoClient = mongoDb.MongoClient;
@@ -41,9 +41,7 @@ const command = async () => {
   XypDatas = db.collection('xyp_datas');
 
   const cars = await Cars.find({
-    plateNumber: { $exists: true },
-    plateNumber: { $ne: null },
-    plateNumber: { $ne: '' },
+    plateNumber: { $exists: true, $nin: [null, ''] },
   }).toArray();
 
   const xypConfigs = await Configs.findOne({ code: 'XYP_CONFIGS' });
@@ -104,19 +102,18 @@ const command = async () => {
     for (const service of services) {
       await new Promise((resolve) => setTimeout(resolve, 10000));
       try {
-        const res = await requestify.request(url, {
+        const res = await fetch(url, {
           method: 'POST',
           headers,
-          body: {
+          body: JSON.stringify({
             wsOperationName: service.value,
             params: {
               plateNumber: car.plateNumber,
             },
-          },
-          dataType: 'json',
+          }),
         });
 
-        const response = await JSON.parse(res.body);
+        const response = await res.json();
 
         console.log(response);
 

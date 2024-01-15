@@ -1,4 +1,3 @@
-import { sendRequest } from '@erxes/api-utils/src';
 import { IContext } from '../../connectionResolver';
 import { IDirectionDocument } from './../../models/definitions/directions';
 
@@ -6,14 +5,14 @@ const Direction = {
   async places(
     direction: IDirectionDocument,
     _params,
-    { models: { Places } }: IContext
+    { models: { Places } }: IContext,
   ) {
     const places = await Places.find({
-      _id: { $in: direction.placeIds || [] }
+      _id: { $in: direction.placeIds || [] },
     }).lean();
 
     return places;
-  }
+  },
 
   // async googleMapPath(
   //   direction: IDirectionDocument,

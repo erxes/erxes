@@ -4,9 +4,9 @@ import { IModels } from '../connectionResolver';
 import {
   dealPlaceSchema,
   IDealPlace,
-  IDealPlaceDocument
+  IDealPlaceDocument,
 } from './definitions/dealPlaces';
-import { sendRequest } from '@erxes/api-utils/src';
+import fetch from 'node-fetch';
 
 export interface IDealPlaceModel extends Model<IDealPlaceDocument> {
   getDealPlace(doc: any): IDealPlaceDocument;
@@ -40,10 +40,9 @@ export const loadDealPlaceClass = (models: IModels) => {
       if (place1 && place2) {
         const coordinates = `${place1.center.lng},${place1.center.lat};${place2.center.lng},${place2.center.lat}`;
 
-        const response = await sendRequest({
-          url: `https://router.project-osrm.org/route/v1/driving/${coordinates}`,
-          method: 'GET'
-        });
+        const response = await fetch(
+          `https://router.project-osrm.org/route/v1/driving/${coordinates}`,
+        ).then((res) => res.json());
 
         const { code, routes } = response;
 
@@ -53,13 +52,13 @@ export const loadDealPlaceClass = (models: IModels) => {
       }
 
       const dealPlace = await models.DealPlaces.findOne({
-        dealId
+        dealId,
       });
 
       if (!dealPlace) {
         return models.DealPlaces.create({
           ...doc,
-          path
+          path,
         });
       }
 
