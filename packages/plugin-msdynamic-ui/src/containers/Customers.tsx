@@ -6,11 +6,12 @@ import {
   ToCheckCustomersMutationResponse,
   ToSyncCustomersMutationResponse
 } from '../types';
+import { router } from '@erxes/ui/src';
 import { Bulk } from '@erxes/ui/src/components';
 import Alert from '@erxes/ui/src/utils/Alert';
 import { mutations } from '../graphql';
 import React, { useState } from 'react';
-import Customers from '../components/Customers';
+import Customers from '../components/customers/Customers';
 import Spinner from '@erxes/ui/src/components/Spinner';
 
 type Props = {
@@ -25,6 +26,12 @@ type FinalProps = {} & Props &
 const CustomersContainer = (props: FinalProps) => {
   const [items, setItems] = useState({});
   const [loading, setLoading] = useState(false);
+  const brandId = props.queryParams.brandId || 'noBrand';
+
+  const setBrand = (brandId: string) => {
+    router.setParams(props.history, { brandId: brandId });
+    return router;
+  };
 
   if (loading) {
     return <Spinner />;
@@ -55,7 +62,7 @@ const CustomersContainer = (props: FinalProps) => {
     setLoading(true);
     props
       .toCheckCustomers({
-        variables: {}
+        variables: { brandId }
       })
       .then(response => {
         const data = response.data.toCheckCustomers;
@@ -78,6 +85,7 @@ const CustomersContainer = (props: FinalProps) => {
     props
       .toSyncCustomers({
         variables: {
+          brandId,
           action,
           customers
         }
@@ -102,6 +110,7 @@ const CustomersContainer = (props: FinalProps) => {
     ...props,
     loading,
     items,
+    setBrand,
     toCheckCustomers,
     toSyncCustomers
   };

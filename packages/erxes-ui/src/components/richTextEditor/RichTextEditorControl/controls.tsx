@@ -5,13 +5,16 @@ import {
   TypeH2,
   TypeH3,
   TypeItalic,
+  TypeUnderline,
   TypeStrikethrough,
   ListOl,
   ListUl,
   TextLeft,
   TextRight,
   TextCenter,
-  Justify
+  Justify,
+  Hr,
+  Quote
 } from 'react-bootstrap-icons';
 
 import { createControl } from './RichTextEditorControl';
@@ -29,6 +32,13 @@ export const ItalicControl = createControl({
   icon: props => <TypeItalic />,
   isActive: { name: 'italic' },
   operation: { name: 'toggleItalic' }
+});
+
+export const UnderlineControl = createControl({
+  label: 'underlineControlLabel',
+  icon: props => <TypeUnderline />,
+  isActive: { name: 'underline' },
+  operation: { name: 'toggleUnderline' }
 });
 
 export const StrikeThroughControl = createControl({
@@ -58,6 +68,13 @@ export const OrderedListControl = createControl({
   operation: { name: 'toggleOrderedList' }
 });
 
+export const BlockquoteControl = createControl({
+  label: 'blockquoteControlLabel',
+  icon: props => <Quote />,
+  isActive: { name: 'blockquote' },
+  operation: { name: 'toggleBlockquote' }
+});
+
 export const H1Control = createControl({
   label: 'h1ControlLabel',
   icon: props => <TypeH1 />,
@@ -77,6 +94,12 @@ export const H3Control = createControl({
   icon: props => <TypeH3 />,
   isActive: { name: 'heading', attributes: { level: 3 } },
   operation: { name: 'toggleHeading', attributes: { level: 3 } }
+});
+
+export const HorizontalRuleControl = createControl({
+  label: 'hrControlLabel',
+  icon: () => <Hr />,
+  operation: { name: 'setHorizontalRule' }
 });
 
 export const AlignLeftControl = createControl({

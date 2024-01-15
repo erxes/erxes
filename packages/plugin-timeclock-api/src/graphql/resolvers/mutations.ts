@@ -125,8 +125,7 @@ const timeclockMutations = {
     { models, subdomain, user }: IContext
   ) {
     const timeclock = await models.Timeclocks.findOne({
-      _id,
-      shiftActive: true
+      _id
     });
     if (!timeclock) {
       throw new Error('time clock not found');

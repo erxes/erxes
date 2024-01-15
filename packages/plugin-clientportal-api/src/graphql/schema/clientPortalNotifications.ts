@@ -40,6 +40,10 @@ export const types = `
     clientPortalId: String
     eventData: JSON
   }
+  input MobileFireBaseConfig {
+    sound: String
+    channelId: String
+  }
 
   input EventDataFilter {
     field: String,
@@ -75,5 +79,5 @@ export const mutations = `
     configs: [NotificationConfigInput],
   ): ClientPortalUser
 
-    clientPortalSendNotification(receivers: [String], title: String, content: String, isMobile: Boolean, eventData: JSON): JSON
+  clientPortalSendNotification(receivers: [String], title: String, content: String, isMobile: Boolean, eventData: JSON, mobileConfig: MobileFireBaseConfig): JSON
 `;

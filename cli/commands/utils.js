@@ -1,14 +1,17 @@
+'use strict';
+
 const chalk = require('chalk');
 const fs = require('fs');
 const cliProgress = require('cli-progress');
-const request = require('request');
 const fse = require('fs-extra');
 const { resolve } = require('path');
 const exec = require('child_process').exec;
 const colors = require('colors');
 const { execSync } = require('child_process');
+const fetch = require('node-fetch');
+const { pipeline } = require('node:stream/promises');
 
-const filePath = pathName => {
+const filePath = (pathName) => {
   if (pathName) {
     return resolve(process.cwd(), pathName);
   }
@@ -16,53 +19,31 @@ const filePath = pathName => {
   return resolve(process.cwd());
 };
 
-function downloadFile(file_url, targetPath) {
-  return new Promise((resolve, reject) => {
-    // create a new progress bar instance and use shades_classic theme
-    const bar = new cliProgress.SingleBar(
-      {},
-      {
-        format:
-          colors.green(' {bar}') +
-          ' {percentage}% | ETA: {eta}s | {value}/{total} | Speed: {speed} kbit',
-        barCompleteChar: '\u2588',
-        barIncompleteChar: '\u2591'
-      }
-    );
+async function downloadFile(file_url, targetPath) {
+  // create a new progress bar instance and use shades_classic theme
+  const bar = new cliProgress.SingleBar(
+    {},
+    {
+      format:
+        colors.green(' {bar}') +
+        ' {percentage}% | ETA: {eta}s | {value}/{total} | Speed: {speed} kbit',
+      barCompleteChar: '\u2588',
+      barIncompleteChar: '\u2591',
+    }
+  );
 
-    bar.start();
+  bar.start();
 
-    // Save variable to know progress
-    var received_bytes = 0;
-    var total_bytes = 0;
-    var req = request({
-      method: 'GET',
-      uri: file_url
-    });
+  // Save variable to know progress
+  var received_bytes = 0;
+  var total_bytes = 0;
+  var req = await fetch(file_url, { method: 'GET' });
 
-    var out = fs.createWriteStream(targetPath);
-    req.pipe(out);
+  await pipeline(req.body, fs.createWriteStream(targetPath));
 
-    req.on('response', function(data) {
-      // Change the total bytes value to get progress later.
-      total_bytes = parseInt(data.headers['content-length']);
-    });
-
-    req.on('data', function(chunk) {
-      // Update the received bytes
-      received_bytes += chunk.length;
-
-      var percentage = (received_bytes * 100) / total_bytes;
-
-      bar.update(percentage);
-    });
-
-    req.on('end', function() {
-      bar.stop();
-
-      resolve('File succesfully downloaded');
-    });
-  });
+  bar.update(100);
+  bar.stop();
+  return 'File succesfully downloaded';
 }
 
 const execCommand = (command, ignoreError) => {
@@ -92,8 +73,8 @@ const log = (msg, color = 'green') => {
   console.log(chalk[color](msg));
 };
 
-const sleep = ms => {
-  return new Promise(resolve => {
+const sleep = (ms) => {
+  return new Promise((resolve) => {
     setTimeout(resolve, ms);
   });
 };
@@ -106,7 +87,7 @@ module.exports.sleep = sleep;
 
 module.exports.filePath = filePath;
 
-module.exports.downloadLatesVersion = async configs => {
+module.exports.downloadLatesVersion = async (configs) => {
   log('Downloading erxes ...');
 
   const { DOMAIN } = configs || {};
@@ -145,7 +126,7 @@ module.exports.downloadLatesVersion = async configs => {
   await fse.copy(filePath('build.tar.gz'), filePath('build-backup.tar.gz'));
 };
 
-module.exports.startServices = async configs => {
+module.exports.startServices = async (configs) => {
   log('Starting services using pm2 ...');
 
   const {
@@ -159,7 +140,7 @@ module.exports.startServices = async configs => {
     RABBITMQ_HOST,
     REDIS_HOST,
     REDIS_PORT,
-    REDIS_PASSWORD
+    REDIS_PASSWORD,
   } = configs || {};
 
   const optionalDbConfigs = {};
@@ -174,7 +155,7 @@ module.exports.startServices = async configs => {
     optionalDbConfigs.REDIS_PASSWORD = REDIS_PASSWORD;
   }
 
-  const generateMongoUrl = dbName => {
+  const generateMongoUrl = (dbName) => {
     if (MONGO_URL.includes('replicaSet')) {
       return MONGO_URL.replace('erxes?', `${dbName}?`);
     }
@@ -221,7 +202,7 @@ module.exports.startServices = async configs => {
     LOGS_API_DOMAIN: configs.LOGS_API_DOMAIN || 'http://localhost:3800',
     ENGAGES_API_DOMAIN: configs.ENGAGES_API_DOMAIN || 'http://localhost:3900',
     VERIFIER_API_DOMAIN: configs.VERIFIER_API_DOMAIN || 'http://localhost:4100',
-    ...(configs.API || {})
+    ...(configs.API || {}),
   };
 
   const apps = [
@@ -234,8 +215,8 @@ module.exports.startServices = async configs => {
         HELPERS_DOMAIN: USE_DASHBOARD ? HELPERS_DOMAIN : null,
         ...commonEnv,
         ...optionalDbConfigs,
-        DEBUG: 'erxes-api:*'
-      }
+        DEBUG: 'erxes-api:*',
+      },
     },
     {
       name: 'cronjobs',
@@ -245,8 +226,8 @@ module.exports.startServices = async configs => {
         ...commonEnv,
         PROCESS_NAME: 'crons',
         ...optionalDbConfigs,
-        DEBUG: 'erxes-crons:*'
-      }
+        DEBUG: 'erxes-crons:*',
+      },
     },
     {
       name: 'workers',
@@ -255,8 +236,8 @@ module.exports.startServices = async configs => {
         PORT_WORKERS: 3700,
         ...commonEnv,
         ...optionalDbConfigs,
-        DEBUG: 'erxes-workers:*'
-      }
+        DEBUG: 'erxes-workers:*',
+      },
     },
     {
       name: 'integrations',
@@ -270,8 +251,8 @@ module.exports.startServices = async configs => {
         MAIN_API_DOMAIN: API_DOMAIN,
         MONGO_URL: generateMongoUrl('erxes_integrations'),
         ...optionalDbConfigs,
-        ...(configs.INTEGRATIONS || {})
-      }
+        ...(configs.INTEGRATIONS || {}),
+      },
     },
     {
       name: 'engages',
@@ -283,8 +264,8 @@ module.exports.startServices = async configs => {
         MAIN_API_DOMAIN: API_DOMAIN,
         MONGO_URL: generateMongoUrl('erxes_engages'),
         ...optionalDbConfigs,
-        ...(configs.ENGAGES || {})
-      }
+        ...(configs.ENGAGES || {}),
+      },
     },
     {
       name: 'logger',
@@ -295,8 +276,8 @@ module.exports.startServices = async configs => {
         DEBUG: 'erxes-logs:*',
         MONGO_URL: generateMongoUrl('erxes_logger'),
         ...optionalDbConfigs,
-        ...(configs.LOGGER || {})
-      }
+        ...(configs.LOGGER || {}),
+      },
     },
     {
       name: 'email-verifier',
@@ -306,9 +287,9 @@ module.exports.startServices = async configs => {
         NODE_ENV: 'production',
         DEBUG: 'erxes-email-verifier:*',
         MONGO_URL: generateMongoUrl('erxes_email_verifier'),
-        ...(configs.EMAIL_VERIFIER || {})
-      }
-    }
+        ...(configs.EMAIL_VERIFIER || {}),
+      },
+    },
   ];
 
   if (USE_DASHBOARD) {
@@ -345,8 +326,8 @@ module.exports.startServices = async configs => {
         SCHEMA_PATH: dasbhoardSchemaPath,
         REDIS_URL: `redis://${REDIS_HOST}:${REDIS_PORT ||
           6379}?password=${REDIS_PASSWORD || ''}`,
-        REDIS_PASSWORD: REDIS_PASSWORD
-      }
+        REDIS_PASSWORD: REDIS_PASSWORD,
+      },
     });
 
     const subscriptionsUrl = `${
@@ -371,8 +352,8 @@ module.exports.startServices = async configs => {
       env: {
         PM2_SERVE_PATH: filePath('build/dashboard-ui'),
         PM2_SERVE_PORT: PORT_DASHBOARD_UI,
-        PM2_SERVE_SPA: 'true'
-      }
+        PM2_SERVE_SPA: 'true',
+      },
     });
   }
 
@@ -386,8 +367,8 @@ module.exports.startServices = async configs => {
       interpreter: '/usr/bin/python3',
       env: {
         MONGO_URL: API_MONGO_URL,
-        ELASTICSEARCH_URL
-      }
+        ELASTICSEARCH_URL,
+      },
     });
   }
 
@@ -426,8 +407,8 @@ module.exports.startServices = async configs => {
       env: {
         PM2_SERVE_PATH: filePath('build/ui'),
         PM2_SERVE_PORT: PORT_UI,
-        PM2_SERVE_SPA: 'true'
-      }
+        PM2_SERVE_SPA: 'true',
+      },
     });
   }
 
@@ -440,8 +421,8 @@ module.exports.startServices = async configs => {
       ROOT_URL: WIDGETS_DOMAIN,
       API_URL: API_DOMAIN,
       API_SUBSCRIPTIONS_URL: subscriptionsUrl,
-      ...(configs.WIDGETS || {})
-    }
+      ...(configs.WIDGETS || {}),
+    },
   });
 
   // create ecosystem
@@ -463,7 +444,7 @@ module.exports.startServices = async configs => {
     PORT_INTEGRATIONS,
     USE_DASHBOARD,
     PORT_DASHBOARD_API,
-    PORT_DASHBOARD_UI
+    PORT_DASHBOARD_UI,
   });
 
   log('Running migrations ...');
@@ -486,7 +467,7 @@ const generateNginxConf = async ({
   PORT_INTEGRATIONS,
   USE_DASHBOARD,
   PORT_DASHBOARD_API,
-  PORT_DASHBOARD_UI
+  PORT_DASHBOARD_UI,
 }) => {
   const commonConfig = `
     proxy_set_header Upgrade $http_upgrade;

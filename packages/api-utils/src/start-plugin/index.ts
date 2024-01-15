@@ -32,9 +32,9 @@ import {
   isAvailable,
   isEnabled,
   join,
-  leave,
-  redis
+  leave
 } from '@erxes/api-utils/src/serviceDiscovery';
+import redis from '../redis';
 import { applyInspectorEndpoints } from '../inspect';
 
 const {

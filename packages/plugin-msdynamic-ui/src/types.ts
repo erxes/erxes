@@ -41,31 +41,59 @@ export type EditMutationResponse = {
 };
 
 export type ToCheckProductsMutationResponse = {
-  toCheckProducts: (mutation: { variables: {} }) => Promise<any>;
+  toCheckProducts: (mutation: {
+    variables: { brandId: string };
+  }) => Promise<any>;
 };
 
 export type ToSyncProductsMutationResponse = {
   toSyncProducts: (mutation: {
-    variables: { action: string; products: any[] };
+    variables: { brandId: string; action: string; products: any[] };
+  }) => Promise<any>;
+};
+
+export type ToCheckPricesMutationResponse = {
+  toCheckPrices: (mutation: { variables: { brandId: string } }) => Promise<any>;
+};
+
+export type ToSyncPricesMutationResponse = {
+  toSyncPrices: (mutation: {
+    variables: { brandId: string; action: string; prices: any[] };
   }) => Promise<any>;
 };
 
 export type ToCheckCategoriesMutationResponse = {
-  toCheckProductCategories: (mutation: { variables: {} }) => Promise<any>;
+  toCheckProductCategories: (mutation: {
+    variables: { brandId: string };
+  }) => Promise<any>;
 };
 
 export type ToSyncCategoriesMutationResponse = {
   toSyncProductCategories: (mutation: {
-    variables: { action: string; categories: any[] };
+    variables: { brandId: string; action: string; categories: any[] };
   }) => Promise<any>;
 };
 
 export type ToCheckCustomersMutationResponse = {
-  toCheckCustomers: (mutation: { variables: {} }) => Promise<any>;
+  toCheckCustomers: (mutation: {
+    variables: { brandId: string };
+  }) => Promise<any>;
 };
 
 export type ToSyncCustomersMutationResponse = {
   toSyncCustomers: (mutation: {
-    variables: { action: string; customers: any[] };
+    variables: { brandId: string; action: string; customers: any[] };
   }) => Promise<any>;
+};
+
+export type SyncHistoriesQueryResponse = {
+  syncHistories: any[];
+  loading: boolean;
+  refetch: () => void;
+};
+
+export type SyncHistoriesCountQueryResponse = {
+  syncHistoriesCount: number;
+  loading: boolean;
+  refetch: () => void;
 };

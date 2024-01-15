@@ -1,74 +1,18 @@
-import { sendRequest } from '@erxes/api-utils/src';
+import fetch from 'node-fetch';
 import { IContext } from '../../../messageBroker';
-import { consumeCustomers, getConfig } from '../../../utils';
+import { getConfig } from '../../../utils';
 
 const msdynamicSendMutations = {
-  async toSendCustomers(
-    _root,
-    { customers }: { customers: any[] },
-    { subdomain }: IContext
-  ) {
-    try {
-      const config = await getConfig(subdomain, 'DYNAMIC', {});
-
-      if (!config.customerApi || !config.username || !config.password) {
-        throw new Error('MS Dynamic config not found.');
-      }
-
-      const { customerApi, username, password } = config;
-
-      for (const customer of customers) {
-        const document: any = {
-          Name: 'TEST GERELSUKHw',
-          Search_Name: 'TEST GERELSUKHw',
-          Phone_No: customer.phone
-        };
-
-        const response = await sendRequest({
-          url: `${customerApi}?$filter=Phone_No eq '${customer.phone}'`,
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-            Accept: 'application/json',
-            Authorization: `Basic ${Buffer.from(
-              `${username}:${password}`
-            ).toString('base64')}`
-          },
-          body: document
-        });
-
-        if (response.value.length === 0) {
-          const postResponse = await sendRequest({
-            url: customerApi,
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Basic ${Buffer.from(
-                `${username}:${password}`
-              ).toString('base64')}`
-            },
-            body: document
-          });
-
-          await consumeCustomers(subdomain, postResponse, 'create');
-        }
-      }
-
-      return {
-        status: 'success'
-      };
-    } catch (e) {
-      console.log(e, 'error');
-    }
-  },
-
   async toSendDeals(
     _root,
-    { deals }: { deals: any[] },
-    { subdomain }: IContext
+    { brandId, deals }: { brandId: string; deals: any[] },
+    { subdomain, models }: IContext,
   ) {
+    let syncLog;
+
     try {
-      const config = await getConfig(subdomain, 'DYNAMIC', {});
+      const configs = await getConfig(subdomain, 'DYNAMIC', {});
+      const config = configs[brandId || 'noBrand'];
 
       if (!config.salesApi || !config.username || !config.password) {
         throw new Error('MS Dynamic config not found.');
@@ -77,143 +21,112 @@ const msdynamicSendMutations = {
       const { salesApi, username, password } = config;
 
       for (const deal of deals) {
+        const syncLogDoc = {
+          type: '',
+          contentType: 'pos:order',
+          contentId: 'pos._id',
+          createdAt: new Date(),
+          consumeData: deal,
+          consumeStr: JSON.stringify(deal),
+        };
+
+        syncLog = await models.SyncLogs.syncLogsAdd(syncLogDoc);
+
         const document: any = {
-          Document_Type: 'Order',
-          No: '002022',
-          Local_ID: '',
-          Sell_to_Customer_No: '',
-          Sell_to_Customer_Name: '',
-          Deal_Type_Code: '',
-          Sync_Type: ' ',
-          Quote_No: '',
-          Ordering_Price_Type_Code: '',
-          Posting_Description: 'Order 002022',
-          Sell_to_Address: '',
-          Sell_to_Address_2: '',
-          Sell_to_City: '',
-          Sell_to_County: '',
-          Sell_to_Post_Code: '',
-          Sell_to_Country_Region_Code: '',
+          Sell_to_Customer_No: 'BEV-00499',
+          Sell_to_Customer_Name: 'Irish pub',
+          Sell_to_Address: 'Sukhbaatsar duuger',
+          Sell_to_Address_2: '1r khoroo',
+          Sell_to_City: 'Ulaanbaatar',
+          Sell_to_Post_Code: '14000',
+          Sell_to_Country_Region_Code: 'MN',
           Sell_to_Contact_No: '',
-          Sell_to_Phone_No: '',
-          Sell_to_E_Mail: '',
-          Sell_to_Contact: '',
-          No_of_Archived_Versions: 0,
-          Document_Date: '2023-04-07',
-          Posting_Date: '2023-04-07',
-          Order_Date: '2023-04-07',
-          Due_Date: '0001-01-01',
+          Sell_to_Phone_No: '11336666, 98071213,99096544',
+          Sell_to_E_Mail: 'Account@gkirishpub.mn',
+          Deal_Type_Code: '',
+          Document_Date: '2021-07-06',
+          Posting_Date: '2021-07-06',
+          Order_Date: '2021-07-06',
+          Due_Date: '2021-07-06',
           Requested_Delivery_Date: '0001-01-01',
           Promised_Delivery_Date: '0001-01-01',
           External_Document_No: '',
-          Your_Reference: '',
-          Salesperson_Code: '',
-          Campaign_No: '',
-          Opportunity_No: '',
-          Responsibility_Center: '',
-          Assigned_User_ID: '',
-          Job_Queue_Status: ' ',
-          Contract_No: '',
-          Status: 'Open',
-          WorkDescription: '',
-          Phone_No: '',
+          Responsibility_Center: 'BEV-DIST',
+          Sync_Type: ' ',
           Mobile_Phone_No: '',
-          Currency_Code: '',
-          Prices_Including_VAT: false,
-          VAT_Bus_Posting_Group: '',
-          Payment_Terms_Code: '',
-          Payment_Method_Code: '',
+          Prices_Including_VAT: true,
+          VAT_Bus_Posting_Group: 'DOMESTIC',
+          Payment_Terms_Code: '28TH',
+          Payment_Method_Code: 'BANK',
           Posting_No: '',
           Shipping_No: '',
-          EU_3_Party_Trade: false,
-          Applies_to_Doc_Type: ' ',
-          Applies_to_Doc_No: '',
-          Applies_to_ID: '',
-          SelectedPayments: 'No payment service is made available.',
-          Shortcut_Dimension_1_Code: '',
-          Shortcut_Dimension_2_Code: '',
-          Payment_Discount_Percent: 0,
-          Pmt_Discount_Date: '0001-01-01',
-          Direct_Debit_Mandate_ID: '',
-          Correction: false,
-          Invoice_Discount_Calculation: 'None',
-          Invoice_Discount_Value: 0,
-          Recalculate_Invoice_Disc: false,
-          BillType: 'Receipt',
-          CustomerNo: '',
-          PreviousMonthTrunsaction: false,
+          BillType: 'Invoice',
           Where_Print_VAT: 'Unposted',
-          CheckedVATInfo: false,
-          ShippingOptions: 'Default (Sell-to Address)',
-          Ship_to_Code: '',
-          Ship_to_Name: '',
-          Ship_to_Address: '',
-          Ship_to_Address_2: '',
-          Ship_to_City: '',
-          Ship_to_County: '',
-          Ship_to_Post_Code: '',
-          Ship_to_Country_Region_Code: '',
-          Ship_to_Contact: '',
-          Shipment_Method_Code: '',
-          Shipping_Agent_Code: '',
-          Shipping_Agent_Service_Code: '',
-          Package_Tracking_No: '',
-          BillToOptions: 'Default (Customer)',
-          Bill_to_Name: '',
-          Bill_to_Address: '',
-          Bill_to_Address_2: '',
-          Bill_to_City: '',
-          Bill_to_County: '',
-          Bill_to_Post_Code: '',
-          Bill_to_Country_Region_Code: '',
-          Bill_to_Contact_No: '',
-          Bill_to_Contact: '',
-          Location_Code: '',
-          Shipment_Date: '2023-04-07',
-          Shipping_Advice: 'Partial',
-          Outbound_Whse_Handling_Time: '',
-          Shipping_Time: '',
-          Late_Order_Shipping: false,
-          Transaction_Specification: '',
-          Transaction_Type: '',
-          Transport_Method: '',
-          Exit_Point: '',
-          Area: '',
-          Prepayment_Percent: 0,
-          Compress_Prepayment: true,
-          Prepmt_Payment_Terms_Code: '',
-          Prepayment_Due_Date: '0001-01-01',
-          Prepmt_Payment_Discount_Percent: 0,
-          Prepmt_Pmt_Discount_Date: '0001-01-01',
-          Vehicle_Serial_No: '',
-          VIN: '',
-          Vehicle_Registration_No: '',
-          Make_Code: '',
-          Model_Code: '',
-          Date_Filter: "''..11/06/23"
+          CheckedVATInfo: true,
+          Sales_Order_APISalesLines: [
+            {
+              Line_No: 10000,
+              Type: 'Item',
+              No: '11-1-1101',
+              Description: 'Hennessy VSOP 70cl',
+              Description_2: 'TESTEDBYGG',
+              Quantity: 12,
+              Unit_Price: 159000,
+              Line_Discount_Amount: 0,
+              Unit_Cost_LCY: 100713.96542,
+              Location_Code: 'BEV-01',
+              Unit_of_Measure_Code: 'PCS',
+              Unit_of_Measure: 'Piece',
+            },
+          ],
         };
 
-        const response = await sendRequest({
-          url: salesApi,
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-            Accept: 'application/json',
-            Authorization: `Basic ${Buffer.from(
-              `${username}:${password}`
-            ).toString('base64')}`
+        await models.SyncLogs.updateOne(
+          { _id: syncLog._id },
+          {
+            $set: {
+              sendData: document,
+              sendStr: JSON.stringify(document),
+            },
           },
-          body: document
-        });
+        );
+
+        const response = await fetch(
+          `${salesApi}?$expand=Sales_Order_APISalesLines`,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Basic ${Buffer.from(
+                `${username}:${password}`,
+              ).toString('base64')}`,
+            },
+            body: JSON.stringify(document),
+          },
+        ).then((res) => res.json());
+
+        await models.SyncLogs.updateOne(
+          { _id: syncLog._id },
+          {
+            $set: {
+              responseData: response,
+              responseStr: JSON.stringify(response),
+            },
+          },
+        );
       }
 
       return {
-        status: 'success'
+        status: 'success',
       };
     } catch (e) {
+      await models.SyncLogs.updateOne(
+        { _id: syncLog._id },
+        { $set: { error: e.message } },
+      );
       console.log(e, 'error');
     }
-  }
+  },
 };
 
 export default msdynamicSendMutations;

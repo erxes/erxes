@@ -1,16 +1,15 @@
+import React, { useEffect, useState } from 'react';
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import Popover from 'react-bootstrap/Popover';
+import ChromePicker from 'react-color/lib/Chrome';
+import CompactPicker from 'react-color/lib/Compact';
 import { ColorPickerWrapper, MenuItem, PickerAction } from './styles';
+import Icon from '../../Icon';
 import {
   IRichTextEditorControlBaseProps,
   RichTextEditorControlBase
 } from './RichTextEditorControl';
-import React, { useEffect, useState } from 'react';
-
-import ChromePicker from 'react-color/lib/Chrome';
-import CompactPicker from 'react-color/lib/Compact';
 import { Flex } from '../../../styles/main';
-import Icon from '../../Icon';
-import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
-import Popover from 'react-bootstrap/Popover';
 import Tip from '../../Tip';
 import { colors } from '../../../styles';
 import { getAttributesForEachSelected } from '../utils/getAttributesForEachSelected';

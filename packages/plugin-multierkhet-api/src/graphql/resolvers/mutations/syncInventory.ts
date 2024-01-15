@@ -1,16 +1,16 @@
 import { IContext } from '../../../connectionResolver';
-import { sendRequest } from '@erxes/api-utils/src/requests';
+import fetch from 'node-fetch';
 import { sendProductsMessage } from '../../../messageBroker';
 import {
   consumeInventory,
-  consumeInventoryCategory
+  consumeInventoryCategory,
 } from '../../../utils/consumeInventory';
 
 const inventoryMutations = {
   async toMultiCheckProducts(
     _root,
     { brandId }: { brandId: string },
-    { subdomain, models }: IContext
+    { subdomain, models }: IContext,
   ) {
     const configs = await models.Configs.getConfig('erkhetConfig', {});
     const config = configs[brandId || 'noBrand'];
@@ -25,7 +25,7 @@ const inventoryMutations = {
     } else {
       productQry.$or = [
         { scopeBrandIds: { $exists: false } },
-        { scopeBrandIds: { $size: 0 } }
+        { scopeBrandIds: { $size: 0 } },
       ];
     }
 
@@ -33,7 +33,7 @@ const inventoryMutations = {
       subdomain,
       action: 'count',
       data: { query: productQry },
-      isRPC: true
+      isRPC: true,
     });
 
     const products = await sendProductsMessage({
@@ -41,9 +41,9 @@ const inventoryMutations = {
       action: 'find',
       data: {
         query: productQry,
-        limit: productsCount
+        limit: productsCount,
       },
-      isRPC: true
+      isRPC: true,
     });
 
     const productCategories = await sendProductsMessage({
@@ -51,7 +51,7 @@ const inventoryMutations = {
       action: 'categories.find',
       data: { query: {} },
       isRPC: true,
-      defaultValue: []
+      defaultValue: [],
     });
 
     const categoryOfId = {};
@@ -59,21 +59,21 @@ const inventoryMutations = {
       categoryOfId[cat._id] = cat;
     }
 
-    const productCodes = products.map(p => p.code) || [];
+    const productCodes = products.map((p) => p.code) || [];
 
-    const response = await sendRequest({
-      url: process.env.ERKHET_URL + '/get-api/',
-      method: 'GET',
-      params: {
-        kind: 'inventory',
-        api_key: config.apiKey,
-        api_secret: config.apiSecret,
-        token: config.apiToken,
-        is_gen_fk: 'true'
-      }
-    });
+    const response = await fetch(
+      process.env.ERKHET_URL +
+        '/get-api/?' +
+        new URLSearchParams({
+          kind: 'inventory',
+          api_key: config.apiKey,
+          api_secret: config.apiSecret,
+          token: config.apiToken,
+          is_gen_fk: 'true',
+        }),
+    ).then((res) => res.json());
 
-    if (!response && Object.keys(JSON.parse(response)).length === 0) {
+    if (!response && Object.keys(response).length === 0) {
       throw new Error('Erkhet data not found.');
     }
 
@@ -82,8 +82,8 @@ const inventoryMutations = {
     const deleteProducts: any = [];
     let matchedCount = 0;
 
-    let result = JSON.parse(response).map(r => r.fields);
-    const resultCodes = result.map(r => r.code) || [];
+    let result = response.map((r) => r.fields);
+    const resultCodes = result.map((r) => r.code) || [];
 
     const productByCode = {};
     for (const product of products) {
@@ -121,26 +121,26 @@ const inventoryMutations = {
     return {
       create: {
         count: createProducts.length,
-        items: createProducts
+        items: createProducts,
       },
       update: {
         count: updateProducts.length,
-        items: updateProducts
+        items: updateProducts,
       },
       delete: {
         count: deleteProducts.length,
-        items: deleteProducts
+        items: deleteProducts,
       },
       matched: {
-        count: matchedCount
-      }
+        count: matchedCount,
+      },
     };
   },
 
   async toMultiCheckCategories(
     _root,
     { brandId }: { brandId: string },
-    { subdomain, models }: IContext
+    { subdomain, models }: IContext,
   ) {
     const configs = await models.Configs.getConfig('erkhetConfig', {});
     const config = configs[brandId || 'noBrand'];
@@ -154,51 +154,54 @@ const inventoryMutations = {
       action: 'categories.find',
       data: {
         query: { status: 'active' },
-        sort: { order: 1 }
+        sort: { order: 1 },
       },
-      isRPC: true
+      isRPC: true,
     });
 
-    const categoryCodes = categories.map(c => c.code);
+    const categoryCodes = categories.map((c) => c.code);
 
     if (!categoryCodes) {
       throw new Error('No category codes found.');
     }
 
-    const response = await sendRequest({
-      url: process.env.ERKHET_URL + '/get-api/',
-      method: 'GET',
-      params: {
-        kind: 'inv_category',
-        api_key: config.apiKey,
-        api_secret: config.apiSecret,
-        token: config.apiToken,
-        is_gen_fk: 'true'
-      }
-    });
+    const response = await fetch(
+      process.env.ERKHET_URL +
+        '/get-api/?' +
+        new URLSearchParams({
+          kind: 'inv_category',
+          api_key: config.apiKey,
+          api_secret: config.apiSecret,
+          token: config.apiToken,
+          is_gen_fk: 'true',
+        }),
+      {},
+    ).then((res) => res.json());
 
-    if (!response || Object.keys(JSON.parse(response)).length === 0) {
+    if (!response || Object.keys(response).length === 0) {
       throw new Error('Erkhet data not found.');
     }
-    let result = JSON.parse(response).map(r => r.fields);
+    let result = response.map((r) => r.fields);
 
     // for update
-    const matchedErkhetData = result.filter(r => {
-      if (categoryCodes.find(p => p === r.code)) {
+    const matchedErkhetData = result.filter((r) => {
+      if (categoryCodes.find((p) => p === r.code)) {
         return r;
       }
     });
     // for create
-    const otherErkhetData = result.filter(r => !matchedErkhetData.includes(r));
+    const otherErkhetData = result.filter(
+      (r) => !matchedErkhetData.includes(r),
+    );
     // for delete
     let otherCategories: any[] = [];
     for (const code of categoryCodes) {
-      if (result.every(r => r.code !== code)) {
+      if (result.every((r) => r.code !== code)) {
         const response = await sendProductsMessage({
           subdomain,
           action: 'categories.findOne',
           data: { code: code },
-          isRPC: true
+          isRPC: true,
         });
         otherCategories.push(response);
       }
@@ -206,16 +209,16 @@ const inventoryMutations = {
     return {
       create: {
         count: otherErkhetData.length,
-        items: otherErkhetData
+        items: otherErkhetData,
       },
       update: {
         count: matchedErkhetData.length,
-        items: matchedErkhetData
+        items: matchedErkhetData,
       },
       delete: {
         count: otherCategories.length,
-        items: otherCategories
-      }
+        items: otherCategories,
+      },
     };
   },
 
@@ -224,9 +227,9 @@ const inventoryMutations = {
     {
       brandId,
       action,
-      categories
+      categories,
     }: { brandId: string; action: string; categories: any[] },
-    { subdomain, models }: IContext
+    { subdomain, models }: IContext,
   ) {
     const configs = await models.Configs.getConfig('erkhetConfig', {});
     const config = configs[brandId || 'noBrand'];
@@ -244,7 +247,7 @@ const inventoryMutations = {
               config,
               category,
               category.code,
-              'create'
+              'create',
             );
           }
           break;
@@ -256,7 +259,7 @@ const inventoryMutations = {
               config,
               category,
               category.code,
-              'update'
+              'update',
             );
           }
           break;
@@ -268,7 +271,7 @@ const inventoryMutations = {
               config,
               category,
               category.code,
-              'delete'
+              'delete',
             );
           }
           break;
@@ -277,7 +280,7 @@ const inventoryMutations = {
           break;
       }
       return {
-        status: 'success'
+        status: 'success',
       };
     } catch (e) {
       throw new Error('Error while syncing categories. ' + e);
@@ -289,9 +292,9 @@ const inventoryMutations = {
     {
       brandId,
       action,
-      products
+      products,
     }: { brandId: string; action: string; products: any[] },
-    { subdomain, models }: IContext
+    { subdomain, models }: IContext,
   ) {
     const configs = await models.Configs.getConfig('erkhetConfig', {});
     const config = configs[brandId || 'noBrand'];
@@ -309,7 +312,7 @@ const inventoryMutations = {
               config,
               product,
               product.code,
-              'create'
+              'create',
             );
           }
           break;
@@ -321,7 +324,7 @@ const inventoryMutations = {
               config,
               product,
               product.code,
-              'update'
+              'update',
             );
           }
           break;
@@ -333,7 +336,7 @@ const inventoryMutations = {
               config,
               product,
               product.code,
-              'delete'
+              'delete',
             );
           }
           break;
@@ -342,12 +345,12 @@ const inventoryMutations = {
           break;
       }
       return {
-        status: 'success'
+        status: 'success',
       };
     } catch (e) {
       throw new Error('Error while syncing products. ' + e);
     }
-  }
+  },
 };
 
 export default inventoryMutations;
