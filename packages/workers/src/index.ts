@@ -7,7 +7,8 @@ import { connect } from './db/connection';
 
 import { initApolloServer } from './apolloClient';
 import { initBroker } from './messageBroker';
-import { join, leave, redis } from './serviceDiscovery';
+import { join, leave } from './serviceDiscovery';
+import redis from '@erxes/api-utils/src/redis';
 import * as mongoose from 'mongoose';
 import { routeErrorHandling } from '@erxes/api-utils/src/requests';
 import { generateErrors } from './data/modules/import/generateErrors';
@@ -74,7 +75,7 @@ app.get(
 
     res.attachment(`${name}.csv`);
     return res.send(response);
-  })
+  }),
 );
 
 app.get('/read-file', async (req: any, res: any) => {
@@ -82,7 +83,7 @@ app.get('/read-file', async (req: any, res: any) => {
     const key = req.query.key;
 
     const response = await readFileRequest({
-      key
+      key,
     });
 
     res.attachment(key);
@@ -112,7 +113,7 @@ const {
   MONGO_URL = 'mongodb://localhost/erxes',
   RABBITMQ_HOST,
   MESSAGE_BROKER_PREFIX,
-  TEST_MONGO_URL = 'mongodb://localhost/erxes-test'
+  TEST_MONGO_URL = 'mongodb://localhost/erxes-test',
 } = process.env;
 
 httpServer.listen(PORT, async () => {
@@ -126,7 +127,7 @@ httpServer.listen(PORT, async () => {
 
   // connect to mongo database
   connect(mongoUrl).then(async () => {
-    initBroker({ RABBITMQ_HOST, MESSAGE_BROKER_PREFIX, redis }).catch(e => {
+    initBroker({ RABBITMQ_HOST, MESSAGE_BROKER_PREFIX, redis }).catch((e) => {
       console.log(`Error ocurred during message broker init ${e.message}`);
     });
   });
@@ -136,14 +137,14 @@ httpServer.listen(PORT, async () => {
     port: PORT,
     dbConnectionString: MONGO_URL,
     hasSubscriptions: false,
-    meta: {}
+    meta: {},
   });
 
   console.log(`GraphQL Server is now running on1 ${PORT}`);
 });
 
 // If the Node process ends, close the http-server and mongoose.connection and leave service discovery.
-(['SIGINT', 'SIGTERM'] as NodeJS.Signals[]).forEach(sig => {
+(['SIGINT', 'SIGTERM'] as NodeJS.Signals[]).forEach((sig) => {
   process.on(sig, async () => {
     await closeHttpServer();
     await closeMongooose();

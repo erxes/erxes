@@ -30,13 +30,11 @@ const commonEnvs = configs => {
   const redis = configs.redis || {};
   const rabbitmq = configs.rabbitmq || {};
 
-  const rabbitmq_host = `amqp://${rabbitmq.user}:${
-    rabbitmq.pass
-  }@${rabbitmq.server_address ||
+  const rabbitmq_host = `amqp://${rabbitmq.user}:${rabbitmq.pass}@${
+    rabbitmq.server_address ||
     db_server_address ||
-    (isSwarm ? 'erxes-dbs_rabbitmq' : 'rabbitmq')}:${
-    db_server_address ? RABBITMQ_PORT : 5672
-  }/${rabbitmq.vhost}`;
+    (isSwarm ? 'erxes-dbs_rabbitmq' : 'rabbitmq')
+  }:${db_server_address ? RABBITMQ_PORT : 5672}/${rabbitmq.vhost}`;
 
   return {
     ...be_env,
@@ -49,8 +47,10 @@ const commonEnvs = configs => {
     REDIS_PORT: db_server_address ? REDIS_PORT : 6379,
     REDIS_PASSWORD: redis.password || '',
     RABBITMQ_HOST: rabbitmq_host,
-    ELASTICSEARCH_URL: `http://${db_server_address ||
-      (isSwarm ? 'erxes-dbs_elasticsearch' : 'elasticsearch')}:9200`,
+    ELASTICSEARCH_URL: `http://${
+      db_server_address ||
+      (isSwarm ? 'erxes-dbs_elasticsearch' : 'elasticsearch')
+    }:9200`,
     ENABLED_SERVICES_JSON: enabledServicesJson,
     VERSION: configs.image_tag || '',
     MESSAGE_BROKER_PREFIX: rabbitmq.prefix || ''
@@ -76,9 +76,9 @@ const mongoEnv = (configs, plugin) => {
     db_name = plugin.db_name;
   }
 
-  const mongo_url = `mongodb://${mongo.username}:${
-    mongo.password
-  }@${db_server_address || (isSwarm ? 'erxes-dbs_mongo' : 'mongo')}:${
+  const mongo_url = `mongodb://${mongo.username}:${mongo.password}@${
+    db_server_address || (isSwarm ? 'erxes-dbs_mongo' : 'mongo')
+  }:${
     db_server_address ? MONGO_PORT : 27017
   }/${db_name}?authSource=admin&replicaSet=rs0`;
 
@@ -111,9 +111,9 @@ const generatePluginBlock = (configs, plugin) => {
 
   if (plugin.db_server_address || configs.db_server_address) {
     extra_hosts.push(
-      `mongo:${plugin.db_server_address ||
-        configs.db_server_address ||
-        '127.0.0.1'}`
+      `mongo:${
+        plugin.db_server_address || configs.db_server_address || '127.0.0.1'
+      }`
     );
   }
 
@@ -514,8 +514,9 @@ const up = async ({ uis, downloadLocales, fromInstaller }) => {
         networks: ['erxes']
       },
       gateway: {
-        image: `erxes/gateway:${(configs.gateway || {}).image_tag ||
-          image_tag}`,
+        image: `erxes/gateway:${
+          (configs.gateway || {}).image_tag || image_tag
+        }`,
         environment: {
           OTEL_SERVICE_NAME: 'gateway',
           SERVICE_NAME: 'gateway',
@@ -588,10 +589,13 @@ const up = async ({ uis, downloadLocales, fromInstaller }) => {
     dockerComposeConfig.services.essyncer = {
       image: `erxes/essyncer:${essyncer_tag}`,
       environment: {
-        ELASTICSEARCH_URL: `http://${configs.db_server_address ||
-          (isSwarm ? 'erxes-dbs_elasticsearch' : 'elasticsearch')}:9200`,
-        MONGO_URL: `${mongoEnv(configs)}${(configs.essyncer || {})
-          .mongoOptions || ''}`
+        ELASTICSEARCH_URL: `http://${
+          configs.db_server_address ||
+          (isSwarm ? 'erxes-dbs_elasticsearch' : 'elasticsearch')
+        }:9200`,
+        MONGO_URL: `${mongoEnv(configs)}${
+          (configs.essyncer || {}).mongoOptions || ''
+        }`
       },
       volumes: ['./essyncerData:/data/essyncerData'],
       extra_hosts,
@@ -630,8 +634,9 @@ const up = async ({ uis, downloadLocales, fromInstaller }) => {
         CUBEJS_URL: dashboard_domain,
         CUBEJS_TOKEN: dashboard.api_token,
         CUBEJS_API_SECRET: dashboard.api_secret,
-        CUBEJS_REDIS_URL: `redis://${db_server_address ||
-          'redis'}:${REDIS_PORT}`,
+        CUBEJS_REDIS_URL: `redis://${
+          db_server_address || 'redis'
+        }:${REDIS_PORT}`,
         CUBEJS_REDIS_PASSWORD: configs.redis.password || '',
         ENABLED_SERVICES_JSON: commonEnvs(configs).ENABLED_SERVICES_JSON,
         ...(dashboard.extra_env || {})
@@ -733,9 +738,8 @@ const up = async ({ uis, downloadLocales, fromInstaller }) => {
   const permissionsJSON = [];
 
   for (const plugin of configs.plugins || []) {
-    dockerComposeConfig.services[
-      `plugin-${plugin.name}-api`
-    ] = generatePluginBlock(configs, plugin);
+    dockerComposeConfig.services[`plugin-${plugin.name}-api`] =
+      generatePluginBlock(configs, plugin);
 
     if (pluginsMap[plugin.name]) {
       const uiConfig = pluginsMap[plugin.name].ui;
