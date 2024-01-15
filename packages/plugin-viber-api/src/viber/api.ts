@@ -1,9 +1,9 @@
-import { getEnv, sendRequest } from '@erxes/api-utils/src';
+import { getEnv } from '@erxes/api-utils/src';
 import { Conversations, IConversation } from '../models';
 import { sendInboxMessage } from '../messageBroker';
-import { IRequestParams } from '@erxes/api-utils/src/requests';
 import { ConversationMessages } from '../models';
-
+import fetch from 'node-fetch';
+import type { RequestInit, HeaderInit } from 'node-fetch';
 interface IAttachment {
   url: string;
   name: string;
@@ -22,7 +22,7 @@ interface IMessage {
 }
 
 export class ViberAPI {
-  private headers: any;
+  private headers: HeaderInit;
   private subdomain: string;
   private integrationId: string;
 
@@ -30,7 +30,7 @@ export class ViberAPI {
     this.subdomain = config.subdomain;
     this.integrationId = config.integrationId;
     this.headers = {
-      'X-Viber-Auth-Token': config.token
+      'X-Viber-Auth-Token': config.token,
     };
   }
 
@@ -44,28 +44,28 @@ export class ViberAPI {
 
     const url: string = `${domain}/pl:viber/webhook/${this.integrationId}`;
 
-    const payload: IRequestParams = {
-      method: 'POST',
-      headers: this.headers,
-      url: 'https://chatapi.viber.com/pa/set_webhook',
-      body: {
-        url,
-        event_types: [
-          'delivered',
-          'seen',
-          'failed',
-          'subscribed',
-          'unsubscribed',
-          'conversation_started',
-          'message'
-        ],
-        send_name: true,
-        send_photo: true
-      }
-    };
-
     try {
-      const response = await sendRequest(payload);
+      const response = await fetch('https://chatapi.viber.com/pa/set_webhook', {
+        method: 'POST',
+        headers: {
+          ...this.headers,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          url,
+          event_types: [
+            'delivered',
+            'seen',
+            'failed',
+            'subscribed',
+            'unsubscribed',
+            'conversation_started',
+            'message',
+          ],
+          send_name: true,
+          send_photo: true,
+        }),
+      }).then((res) => res.json());
       if (response.status === 0) {
         return response;
       } else if (response.status === 2) {
@@ -81,7 +81,7 @@ export class ViberAPI {
   async sendMessage(message: IMessage): Promise<any> {
     const conversation: IConversation | null = await Conversations.findOne(
       { erxesApiId: message.conversationId },
-      { senderId: 1 }
+      { senderId: 1 },
     );
 
     if (!conversation) {
@@ -90,34 +90,37 @@ export class ViberAPI {
 
     const name = await this.getName(message.integrationId);
     const plainText: string = message.content.replace(/<[^>]+>/g, '');
-    const commonReqestParams = {
+    const commonReqestParams: RequestInit = {
       method: 'POST',
-      headers: this.headers,
-      url: 'https://chatapi.viber.com/pa/send_message'
+      headers: {
+        ...this.headers,
+        'Content-Type': 'application/json',
+      },
     };
+    const url = 'https://chatapi.viber.com/pa/send_message';
     const commonBodyParams = {
       receiver: conversation.senderId,
       min_api_version: 1,
       sender: {
         name,
-        avatar: null
+        avatar: null,
       },
-      tracking_data: 'tracking data'
+      tracking_data: 'tracking data',
     };
 
-    const messagePayload: IRequestParams = {
+    const messagePayload: RequestInit = {
       ...commonReqestParams,
-      body: {
+      body: JSON.stringify({
         ...commonBodyParams,
         type: 'text',
-        text: plainText.slice(0, 512)
-      }
+        text: plainText.slice(0, 512),
+      }),
     };
 
     let response: any = {};
 
     if (plainText.length > 0) {
-      response = await sendRequest(messagePayload);
+      response = await fetch(url, messagePayload).then((res) => res.json());
       if (response.status !== 0) {
         if (!conversation) {
           throw new Error('message not sent');
@@ -131,29 +134,33 @@ export class ViberAPI {
       for (const attachment of message.attachments) {
         let attachmentResponse: any = {};
         if (['image/jpeg', 'image/png'].includes(attachment.type)) {
-          const attachmentPayload: IRequestParams = {
+          const attachmentPayload: RequestInit = {
             ...commonReqestParams,
-            body: {
+            body: JSON.stringify({
               ...commonBodyParams,
               type: 'picture',
               text: null,
               media: this.generateAttachmentUrl(attachment.url),
-              thumbnail: this.generateAttachmentUrl(attachment.url)
-            }
+              thumbnail: this.generateAttachmentUrl(attachment.url),
+            }),
           };
-          attachmentResponse = await sendRequest(attachmentPayload);
+          attachmentResponse = await fetch(url, attachmentPayload).then((res) =>
+            res.json(),
+          );
         } else {
-          const attachmentPayload: IRequestParams = {
+          const attachmentPayload: RequestInit = {
             ...commonReqestParams,
-            body: {
+            body: JSON.stringify({
               ...commonBodyParams,
               type: 'document',
               size: attachment.size,
               media: this.generateAttachmentUrl(attachment.url),
-              file_name: attachment.url
-            }
+              file_name: attachment.url,
+            }),
           };
-          attachmentResponse = await sendRequest(attachmentPayload);
+          attachmentResponse = await fetch(url, attachmentPayload).then((res) =>
+            res.json(),
+          );
         }
 
         if (attachmentResponse.status === 0) {
@@ -176,7 +183,7 @@ export class ViberAPI {
       action: 'integrations.findOne',
       data: { _id: integrationId },
       isRPC: true,
-      defaultValue: null
+      defaultValue: null,
     });
 
     if (inboxIntegration) {
@@ -189,7 +196,7 @@ export class ViberAPI {
   async savetoDatabase(
     conversation: IConversation,
     plainText: string,
-    message: any
+    message: any,
   ): Promise<void> {
     await ConversationMessages.create({
       conversationId: conversation._id,
@@ -198,7 +205,7 @@ export class ViberAPI {
       customerId: null,
       content: plainText,
       messageType: 'text',
-      attachments: message.attachments
+      attachments: message.attachments,
     });
   }
 

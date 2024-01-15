@@ -208,14 +208,24 @@ export const uploadMedia = async (url: any, video) => {
         `uploadMedia: unexpected response ${response.statusText}`
       );
 
-    await pipeline(response.body, fs.createWriteStream(mediaFile));
+    /**
+     * If directly piping response body to s3.upload body doesn't work we can
+     * save it to disk first
+     *
+     * import { pipeline } from 'node:stream/promises';
+     * await pipeline(response.body, fs.createWriteStream(mediaFile));
+     *
+     * then pipe it into body using
+     *
+     * Body: fs.createReadStream(mediaFile)
+     */
 
     return new Promise((resolve, reject) => {
       s3.upload(
         {
           Bucket: AWS_BUCKET,
           Key: mediaFile,
-          Body: fs.createReadStream(mediaFile),
+          Body: response.body,
           ACL: FILE_SYSTEM_PUBLIC === 'true' ? 'public-read' : undefined
         },
         (err, res) => {
