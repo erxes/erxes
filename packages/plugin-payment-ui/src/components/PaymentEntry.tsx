@@ -43,7 +43,7 @@ function renderType(type: string) {
 const renderButton = ({
   values,
   isSubmitted,
-  callback
+  callback,
 }: IButtonMutateProps) => {
   return (
     <ButtonMutate
@@ -53,7 +53,7 @@ const renderButton = ({
       refetchQueries={getRefetchQueries()}
       isSubmitted={isSubmitted}
       type="submit"
-      successMessage={__(`You successfully added a`) + `${values.kind}`}
+      successMessage={__(`You successfully added a `) + `${values.kind}`}
     />
   );
 };
@@ -65,7 +65,7 @@ function renderCreate(kind: string) {
 
   const trigger = <button>+ {__('Add')}</button>;
 
-  const meta: any = PAYMENTCONFIGS.find(p => p.kind === kind);
+  const meta: any = PAYMENTCONFIGS.find((p) => p.kind === kind);
 
   const title = meta ? `Add ${meta.name}` : 'Add payment config';
 
@@ -75,7 +75,7 @@ function renderCreate(kind: string) {
 
   const Component = meta.createModal;
 
-  const formContent = props => (
+  const formContent = (props) => (
     <Component {...props} renderButton={renderButton} metaData={meta} />
   );
 

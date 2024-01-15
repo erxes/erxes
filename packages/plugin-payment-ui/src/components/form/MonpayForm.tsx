@@ -6,7 +6,7 @@ import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import { __ } from '@erxes/ui/src/utils';
-import React from 'react';
+import React, { useState } from 'react';
 
 import { IMonpayConfig, IPaymentDocument } from '../../types';
 import { PAYMENT_KINDS } from '../constants';
@@ -25,51 +25,46 @@ type State = {
   accountId: string;
 };
 
-class MonpayConfigForm extends React.Component<Props, State> {
-  constructor(props: Props) {
-    super(props);
+const MonpayConfigForm: React.FC<Props> = (props) => {
+  const { payment, renderButton, closeModal } = props;
+  const { name = '', config } = payment || ({} as IPaymentDocument);
+  const { username = '', accountId = '' } = config || ({} as IMonpayConfig);
 
-    const { payment } = this.props;
-    const { name = '', config } = payment || ({} as IPaymentDocument);
-    const { username = '', accountId = '' } = config || ({} as IMonpayConfig);
+  const [state, setState] = useState<State>({
+    paymentName: name,
+    username,
+    accountId,
+  });
 
-    this.state = {
-      paymentName: name,
-      username,
-      accountId
-    };
-  }
-
-  generateDoc = (values: {
+  const generateDoc = (values: {
     paymentName: string;
     username: string;
     accountId: string;
   }) => {
-    const { payment } = this.props;
     const generatedValues = {
       name: values.paymentName,
       kind: PAYMENT_KINDS.MONPAY,
       status: 'active',
       config: {
         username: values.username,
-        accountId: values.accountId
-      }
+        accountId: values.accountId,
+      },
     };
 
     return payment ? { ...generatedValues, id: payment._id } : generatedValues;
   };
 
-  onChangeConfig = (code: string, e) => {
-    this.setState({ [code]: e.target.value } as any);
+  const onChangeConfig = (code: string, e) => {
+    setState((prevState) => ({ ...prevState, [code]: e.target.value }));
   };
 
-  renderItem = (
+  const renderItem = (
     key: string,
     title: string,
     description?: string,
-    isPassword?: boolean
+    isPassword?: boolean,
   ) => {
-    const value = this.state[key];
+    const value = state[key];
 
     return (
       <FormGroup>
@@ -77,7 +72,7 @@ class MonpayConfigForm extends React.Component<Props, State> {
         {description && <p>{description}</p>}
         <FormControl
           defaultValue={value}
-          onChange={this.onChangeConfig.bind(this, key)}
+          onChange={(e) => onChangeConfig(key, e)}
           value={value}
           type={isPassword ? 'password' : ''}
         />
@@ -85,26 +80,25 @@ class MonpayConfigForm extends React.Component<Props, State> {
     );
   };
 
-  renderContent = (formProps: IFormProps) => {
-    const { renderButton, closeModal } = this.props;
+  const renderContent = (formProps: IFormProps) => {
     const { isSubmitted } = formProps;
-    const { paymentName, accountId, username } = this.state;
+    const { paymentName, accountId, username } = state;
 
     const values = {
       paymentName,
       accountId,
-      username
+      username,
     };
 
     return (
       <>
         <SettingsContent title={__('General settings')}>
-          {this.renderItem('paymentName', 'Name')}
-          {this.renderItem('username', 'Branch username')}
-          {this.renderItem('accountId', 'Account ID', '', true)}
+          {renderItem('paymentName', 'Name')}
+          {renderItem('username', 'Branch username')}
+          {renderItem('accountId', 'Account ID', '', true)}
 
-          {this.props.metaData && this.props.metaData.link && (
-            <a href={this.props.metaData.link} target="_blank" rel="noreferrer">
+          {props.metaData && props.metaData.link && (
+            <a href={props.metaData.link} target="_blank" rel="noreferrer">
               {__('Contact with Monpay')}
             </a>
           )}
@@ -120,19 +114,17 @@ class MonpayConfigForm extends React.Component<Props, State> {
             Cancel
           </Button>
           {renderButton({
-            name: 'monpay',
-            values: this.generateDoc(values),
+            passedName: 'monpay',
+            values: generateDoc(values),
             isSubmitted,
-            callback: closeModal
+            callback: closeModal,
           })}
         </ModalFooter>
       </>
     );
   };
 
-  render() {
-    return <Form renderContent={this.renderContent} />;
-  }
-}
+  return <Form renderContent={renderContent} />;
+};
 
 export default MonpayConfigForm;
