@@ -1,20 +1,19 @@
 import * as strip from 'strip';
 import axios from 'axios';
-import * as request from 'request-promise';
 import { generateModels } from '../../models';
 import { debug } from '../../configs';
 import { userIds } from '../middlewares/userMiddleware';
 import {
   createOrUpdateConversation,
   createOrUpdateCustomer,
-  isFollowedUser
+  isFollowedUser,
 } from '../controllers';
 import { zaloSend } from '../../zalo';
 import { generateAttachmentUrl } from '../../utils';
 
 export const conversationMessagesBroker = ({
   consumeRPCQueue,
-  consumeQueue
+  consumeQueue,
 }) => {
   consumeRPCQueue(
     'zalo:conversationMessages.find',
@@ -23,9 +22,9 @@ export const conversationMessagesBroker = ({
 
       return {
         status: 'success',
-        data: await models.ConversationMessages.find(data).lean()
+        data: await models.ConversationMessages.find(data).lean(),
       };
-    }
+    },
   );
 
   consumeRPCQueue(
@@ -42,7 +41,7 @@ export const conversationMessagesBroker = ({
       if (type !== 'zalo') {
         return {
           status: 'success',
-          errorMessage: 'Wrong kind'
+          errorMessage: 'Wrong kind',
         };
       }
       try {
@@ -51,30 +50,30 @@ export const conversationMessagesBroker = ({
           conversationId,
           content = '',
           attachments = [],
-          extraInfo
+          extraInfo,
         } = doc;
 
         const conversation = await models.Conversations.getConversation({
-          erxesApiId: conversationId
+          erxesApiId: conversationId,
         });
 
         const { recipientId, senderId, zaloConversationId } = conversation;
 
         const conversationMessage = await models.ConversationMessages.findOne({
-          conversationId: conversation?._id
+          conversationId: conversation?._id,
         });
 
         console.log(
           'conversationMessage:',
           conversation?._id,
-          conversationMessage
+          conversationMessage,
         );
 
         let recipient: { [key: string]: any } = {
-          message_id: conversationMessage?.mid
+          message_id: conversationMessage?.mid,
         };
         let message: { [key: string]: any } = {
-          text: strip(content)
+          text: strip(content),
         };
 
         // anonymous user id has a-f character. user has number only
@@ -87,7 +86,7 @@ export const conversationMessagesBroker = ({
         if (isAnonymousUser) {
           recipient = {
             anonymous_id: senderId,
-            conversation_id: zaloConversationId
+            conversation_id: zaloConversationId,
           };
         }
 
@@ -104,15 +103,15 @@ export const conversationMessagesBroker = ({
             attachment: {
               type,
               payload: {
-                template_type
-              }
-            }
+                template_type,
+              },
+            },
           };
 
           let attachmentUrl = generateAttachmentUrl(element.url);
           let file = await axios
             .get(attachmentUrl, { responseType: 'stream' })
-            .then(res => res.data);
+            .then((res) => res.data);
 
           let uploadedFile = await zaloSend(
             'upload/image',
@@ -121,9 +120,9 @@ export const conversationMessagesBroker = ({
               models,
               oa_id: recipientId,
               headers: {
-                'Content-Type': 'multipart/form-data'
-              }
-            }
+                'Content-Type': 'multipart/form-data',
+              },
+            },
           );
 
           console.log('uploadedFile', uploadedFile);
@@ -132,8 +131,8 @@ export const conversationMessagesBroker = ({
             message.attachment.payload.elements = [
               {
                 media_type: 'image',
-                ...uploadedFile?.data
-              }
+                ...uploadedFile?.data,
+              },
             ];
           }
         }
@@ -144,9 +143,9 @@ export const conversationMessagesBroker = ({
           'message',
           {
             recipient,
-            message
+            message,
           },
-          { models, oa_id: recipientId }
+          { models, oa_id: recipientId },
         );
 
         console.log(messageSent);
@@ -157,25 +156,25 @@ export const conversationMessagesBroker = ({
             content: strip(content),
             // inbox conv id comes, so override
             conversationId: conversation._id,
-            mid: messageSent?.data?.message_id
+            mid: messageSent?.data?.message_id,
           },
-          doc.userId
+          doc.userId,
         );
 
         response = {
-          data: localMessage.toObject()
+          data: localMessage.toObject(),
         };
 
         response.status = 'success';
       } catch (e) {
         response = {
           status: 'error',
-          errorMessage: e.message
+          errorMessage: e.message,
         };
       }
 
       return response;
-    }
+    },
   );
 
   consumeQueue('zalo:notification', async ({ subdomain, data }) => {
