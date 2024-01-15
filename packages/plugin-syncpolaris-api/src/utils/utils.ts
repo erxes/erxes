@@ -1,4 +1,4 @@
-import { sendRequest } from '@erxes/api-utils/src';
+import fetch from 'node-fetch';
 import { sendCommonMessage } from '../messageBroker';
 
 interface IParams {
@@ -16,7 +16,7 @@ export const toPolaris = async (args: IParams) => {
     Op: op,
     Cookie: `NESSESSION=${token}`,
     Company: company,
-    Role: role
+    Role: role,
   };
 
   try {
@@ -24,10 +24,10 @@ export const toPolaris = async (args: IParams) => {
       url: `${apiUrl}`,
       method: 'POST',
       headers,
-      body: data
+      body: data,
     };
 
-    return await sendRequest(requestOptions);
+    return await fetch(apiUrl, requestOptions);
   } catch (e) {
     const errorMessage = JSON.parse(e.message).message || e.message;
     throw new Error(errorMessage);
@@ -39,13 +39,13 @@ export const getConfig = async (subdomain, code, defaultValue?) => {
     apiUrl: 'http://202.131.242.158:4139/nesWeb/NesFront',
     company: '15',
     role: '45',
-    token: 'MSk9sGO9h0bsPhTN4H7sa9phiJYylH'
+    token: 'MSk9sGO9h0bsPhTN4H7sa9phiJYylH',
   };
   return await sendCommonMessage({
     subdomain,
     action: 'getConfig',
     serviceName: 'core',
     data: { code, defaultValue },
-    isRPC: true
+    isRPC: true,
   });
 };

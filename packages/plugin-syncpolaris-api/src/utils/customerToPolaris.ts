@@ -1,14 +1,40 @@
+import { sendCommonMessage } from '../messageBroker';
 import { getConfig, toPolaris } from './utils';
 
 export const customerToPolaris = async (
   subdomain,
   params,
-  action: 'create' | 'update'
+  action: 'create' | 'update',
 ) => {
   const config = await getConfig(subdomain, 'POLARIS', {});
 
   const customer = params.updatedDocument || params.object;
   let sendData = {};
+
+  const fields = await sendCommonMessage({
+    subdomain,
+    serviceName: 'forms',
+    action: 'fields.find',
+    data: {
+      query: {
+        contentType: 'contacts:customer',
+        code: { $exists: true, $ne: '' },
+      },
+      projection: {
+        groupId: 1,
+        code: 1,
+        _id: 1,
+      },
+    },
+    isRPC: true,
+    defaultValue: [],
+  });
+
+  const customFieldsData: any[] = customer.customFieldsData || [];
+  for (const f of fields) {
+    const existingData = customFieldsData.find((c) => c.field === f._id);
+    customer[f.code] = existingData?.value;
+  }
 
   sendData = [
     {
@@ -46,8 +72,8 @@ export const customerToPolaris = async (
       phone: customer.phone,
       fax: customer.fax,
       isBl: customer.isBl,
-      isPolitical: customer.isPolitical
-    }
+      isPolitical: customer.isPolitical,
+    },
   ];
 
   let op = '';
@@ -60,14 +86,14 @@ export const customerToPolaris = async (
     op: op,
     role: config.role,
     token: config.token,
-    data: sendData
+    data: sendData,
   });
 };
 
 export const companyToPolaris = async (
   subdomain,
   params,
-  action: 'create' | 'update'
+  action: 'create' | 'update',
 ) => {
   const config = await getConfig(subdomain, 'POLARIS', {});
   const company = params.updatedDocument || params.object;
@@ -93,8 +119,8 @@ export const companyToPolaris = async (
       phone: company.phone,
       email: company.email,
       createdBy: company.createdBy,
-      approvedBy: company.approvedBy
-    }
+      approvedBy: company.approvedBy,
+    },
   ];
 
   let op = '';
@@ -107,6 +133,6 @@ export const companyToPolaris = async (
     op: op,
     role: config.role,
     token: config.token,
-    data: sendData
+    data: sendData,
   });
 };
