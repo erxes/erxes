@@ -15,7 +15,7 @@ import {
 import { debug } from '../../configs';
 
 import redis from '@erxes/api-utils/src/redis';
-import { graphqlPubsub } from '../../configs';
+import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
 
 import {
   AUTO_BOT_MESSAGES,

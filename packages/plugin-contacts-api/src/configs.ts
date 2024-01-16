@@ -26,7 +26,7 @@ import documents from './documents';
 import { EMAIL_VALIDATION_STATUSES, NOTIFICATION_MODULES } from './constants';
 
 export let mainDb;
-export let graphqlPubsub;
+
 export let serviceDiscovery;
 
 export let debug;
@@ -164,6 +164,5 @@ export default {
     initBroker(options.messageBrokerClient);
 
     debug = options.debug;
-    graphqlPubsub = options.pubsubClient;
   },
 };

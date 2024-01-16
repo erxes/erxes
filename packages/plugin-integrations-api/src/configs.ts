@@ -7,7 +7,6 @@ import { generateModels } from './connectionResolver';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import dashboards from './dashboards';
 
-export let graphqlPubsub;
 export let serviceDiscovery;
 
 export let debug;
@@ -15,17 +14,17 @@ export let mainDb;
 
 export default {
   name: 'integrations',
-  graphql: async sd => {
+  graphql: async (sd) => {
     serviceDiscovery = sd;
 
     return {
       typeDefs: await typeDefs(sd),
-      resolvers
+      resolvers,
     };
   },
   hasSubscriptions: false,
   meta: {
-    dashboards
+    dashboards,
   },
   segment: {},
   apolloServerContext: async (context, req) => {
@@ -38,7 +37,7 @@ export default {
 
     return context;
   },
-  onServerInit: async options => {
+  onServerInit: async (options) => {
     mainDb = options.db;
 
     const app = options.app;
@@ -48,6 +47,5 @@ export default {
     initApp(app);
 
     debug = options.debug;
-    graphqlPubsub = options.pubsubClient;
-  }
+  },
 };

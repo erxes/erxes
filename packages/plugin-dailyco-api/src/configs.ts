@@ -4,17 +4,17 @@ import { initBroker } from './messageBroker';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 
 export let mainDb;
-export let graphqlPubsub;
+
 export let serviceDiscovery;
 export let debug;
 
 export default {
   name: 'dailyco',
-  graphql: async sd => {
+  graphql: async (sd) => {
     serviceDiscovery = sd;
     return {
       typeDefs: await typeDefs(sd),
-      resolvers
+      resolvers,
     };
   },
   apolloServerContext: async (context, req): Promise<any> => {
@@ -23,12 +23,11 @@ export default {
     return context;
   },
 
-  onServerInit: async options => {
+  onServerInit: async (options) => {
     mainDb = options.db;
 
     debug = options.debug;
-    graphqlPubsub = options.pubsubClient;
 
     initBroker(options.messageBrokerClient);
-  }
+  },
 };

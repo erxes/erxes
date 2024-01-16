@@ -10,18 +10,18 @@ import { getSubdomain } from '@erxes/api-utils/src/core';
 import dashboards from './dashboards';
 
 export let debug;
-export let graphqlPubsub;
+
 export let mainDb;
 export let serviceDiscovery;
 
 export default {
   name: 'tags',
   permissions,
-  graphql: async sd => {
+  graphql: async (sd) => {
     serviceDiscovery = sd;
     return {
       typeDefs: await typeDefs(sd),
-      resolvers: await resolvers(sd)
+      resolvers: await resolvers(sd),
     };
   },
   apolloServerContext: async (context, req, res) => {
@@ -33,21 +33,20 @@ export default {
     context.serverTiming = {
       startTime: res.startTime,
       endTime: res.endTime,
-      setMetric: res.setMetric
+      setMetric: res.setMetric,
     };
 
     return context;
   },
   middlewares: [(serverTiming as any)()],
 
-  onServerInit: async options => {
+  onServerInit: async (options) => {
     mainDb = options.db;
 
     initBroker(options.messageBrokerClient);
 
     debug = options.debug;
-    graphqlPubsub = options.pubsubClient;
   },
 
-  meta: { logs: { consumers: logs }, permissions, dashboards }
+  meta: { logs: { consumers: logs }, permissions, dashboards },
 };

@@ -8,18 +8,18 @@ import { initBroker } from './messageBroker';
 import cpUserMiddleware from './middlewares/cpUserMiddleware';
 
 export let mainDb;
-export let graphqlPubsub;
+
 export let serviceDiscovery;
 
 export let debug;
 
 export default {
   name: 'discussions',
-  graphql: sd => {
+  graphql: (sd) => {
     serviceDiscovery = sd;
     return {
       typeDefs,
-      resolvers
+      resolvers,
     };
   },
   segment: {},
@@ -33,12 +33,11 @@ export default {
 
   middlewares: [cookieParser(), cpUserMiddleware],
 
-  onServerInit: async options => {
+  onServerInit: async (options) => {
     mainDb = options.db;
 
     initBroker(options.messageBrokerClient);
 
     debug = options.debug;
-    graphqlPubsub = options.pubsubClient;
-  }
+  },
 };

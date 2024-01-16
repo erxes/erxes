@@ -22,7 +22,6 @@ import { init as initBroker } from '@erxes/api-utils/src/messageBroker';
 import { logConsumers } from '@erxes/api-utils/src/logUtils';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import { internalNoteConsumers } from '@erxes/api-utils/src/internalNotes';
-import pubsub from './pubsub';
 import * as path from 'path';
 import * as ws from 'ws';
 
@@ -660,7 +659,6 @@ export async function startPlugin(configs: any): Promise<express.Express> {
   configs.onServerInit({
     db,
     app,
-    pubsubClient: pubsub,
     messageBrokerClient,
     debug: {
       info: debugInfo,

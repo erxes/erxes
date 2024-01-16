@@ -5,8 +5,9 @@ import * as dotenv from 'dotenv';
 import { generateModels } from './connectionResolver';
 import { getConfig, getMessageOAID, getMessageUserID } from './commonUtils';
 import fetch from 'node-fetch';
-import { debug, graphqlPubsub } from './configs';
+import { debug } from './configs';
 import { getOrCreateCustomer } from './helpers';
+import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
 
 dotenv.config();
 

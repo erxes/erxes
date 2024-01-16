@@ -8,17 +8,17 @@ import { getSubdomain } from '@erxes/api-utils/src/core';
 
 export let mainDb;
 export let debug;
-export let graphqlPubsub;
+
 export let serviceDiscovery;
 
 export default {
   name: 'internalnotes',
-  graphql: async sd => {
+  graphql: async (sd) => {
     serviceDiscovery = sd;
 
     return {
       typeDefs: await typeDefs(sd),
-      resolvers: await resolvers(sd)
+      resolvers: await resolvers(sd),
     };
   },
   apolloServerContext: async (context, req) => {
@@ -29,15 +29,14 @@ export default {
 
     return context;
   },
-  onServerInit: async options => {
+  onServerInit: async (options) => {
     mainDb = options.db;
 
     initBroker(options.messageBrokerClient);
 
-    graphqlPubsub = options.pubsubClient;
     debug = options.debug;
   },
   meta: {
-    logs: { providesActivityLog: true, consumers: logs }
-  }
+    logs: { providesActivityLog: true, consumers: logs },
+  },
 };
