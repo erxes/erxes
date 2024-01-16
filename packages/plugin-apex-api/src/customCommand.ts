@@ -5,21 +5,8 @@ import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
 import * as fs from 'fs';
 import { Writable } from 'stream';
 import csvParser = require('csv-parser');
-import {
-  getService,
-  getServices,
-  isAvailable,
-  isEnabled
-} from '@erxes/api-utils/src/serviceDiscovery';
 
 let messageBrokerClient;
-
-const serviceDiscovery = {
-  getServices,
-  getService,
-  isAvailable,
-  isEnabled
-};
 
 const bankField = process.env.bankField;
 const bankAccountNameField = process.env.bankAccountNameField;
@@ -34,7 +21,6 @@ const sendCommonMessage = async (
   args: ISendMessageArgs & { serviceName: string }
 ): Promise<any> => {
   return sendMessage({
-    serviceDiscovery,
     client: messageBrokerClient,
     ...args
   });
