@@ -31,19 +31,14 @@ import payment from './payment';
 import reports from './reports';
 
 export let mainDb;
-
-export let serviceDiscovery;
-
 export let debug;
 
 export default {
   name: 'inbox',
   permissions,
-  graphql: async (sd) => {
-    serviceDiscovery = sd;
-
+  graphql: async () => {
     return {
-      typeDefs: await typeDefs(sd),
+      typeDefs: await typeDefs(),
       resolvers,
     };
   },

@@ -9,13 +9,11 @@ import { getSubdomain } from '@erxes/api-utils/src/core';
 export let debug: any;
 export let graphqlPubsub: any;
 export let mainDb: any;
-export let serviceDiscovery: any;
 
 export default {
   name: 'salesplans',
   permissions,
-  graphql: async (sd) => {
-    serviceDiscovery = sd;
+  graphql: async () => {
     return {
       typeDefs: await typeDefs(),
       resolvers,

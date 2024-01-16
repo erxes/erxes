@@ -21,7 +21,7 @@ const types = `
   }
 `;
 
-const typeDefs = async _serviceDiscovery => {
+const typeDefs = async () => {
   return gql`
     scalar JSON
     scalar Date

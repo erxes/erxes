@@ -7,6 +7,7 @@ import {
   sendNotificationsMessage,
 } from '../../../messageBroker';
 import { IInternalNote } from '../../../models/definitions/internalNotes';
+import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
 
 interface IInternalNotesEdit extends IInternalNote {
   _id: string;
@@ -44,7 +45,7 @@ const sendNotificationOfItems = async (
   graphqlPubsub.publish('activityLogsChanged', {});
 };
 
-const internalNoteMutations = (serviceDiscovery) => ({
+const internalNoteMutations = () => ({
   /**
    * Adds internalNote object and also adds an activity log
    */
@@ -57,7 +58,7 @@ const internalNoteMutations = (serviceDiscovery) => ({
 
     const [serviceName, type] = contentType.split(':');
 
-    const isServiceAvailable = await serviceDiscovery.isAvailable(serviceName);
+    const isServiceAvailable = await isEnabled(serviceName);
 
     if (!isServiceAvailable) {
       return null;

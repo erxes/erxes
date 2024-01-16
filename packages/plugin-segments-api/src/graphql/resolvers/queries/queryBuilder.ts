@@ -13,9 +13,10 @@ import {
   SEGMENT_NUMBER_OPERATORS
 } from '../../../constants';
 import { ICondition, ISegment } from '../../../models/definitions/segments';
-import { serviceDiscovery } from '../../../configs';
+
 import { IModels } from '../../../connectionResolver';
 import { sendCoreMessage, sendMessage } from '../../../messageBroker';
+import { getService, getServices } from '@erxes/api-utils/src/serviceDiscovery';
 
 type IOptions = {
   returnAssociated?: { mainType: string; relType: string };
@@ -61,12 +62,12 @@ export const fetchSegment = async (
 ): Promise<any> => {
   const { contentType } = segment;
 
-  const serviceNames = await serviceDiscovery.getServices();
+  const serviceNames = await getServices();
   const serviceConfigs: any = [];
   let mongoConnectionString = '';
 
   for (const serviceName of serviceNames) {
-    const service = await serviceDiscovery.getService(serviceName);
+    const service = await getService(serviceName);
     const segmentMeta = (service.config.meta || {}).segments;
     if (
       contentType.includes(`${serviceName}:`) &&
@@ -880,7 +881,7 @@ const associationPropertyFilter = async (
     negativeQuery: any;
   }
 ) => {
-  const service = await serviceDiscovery.getService(serviceName);
+  const service = await getService(serviceName);
   const segmentMeta = (service.config.meta || {}).segments;
 
   if (segmentMeta && segmentMeta.associationFilterAvailable) {

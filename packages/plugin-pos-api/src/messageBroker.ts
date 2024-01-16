@@ -3,7 +3,7 @@ import { getBranchesUtil, statusToDone, syncOrderFromClient } from './utils';
 import { generateModels } from './connectionResolver';
 import { IPosDocument } from './models/definitions/pos';
 import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
-import { serviceDiscovery } from './configs';
+
 import { beforeResolverHandlers } from './beforeResolvers';
 
 let client;
@@ -266,7 +266,6 @@ export const sendProductsMessage = async (
 ): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'products',
     ...args
   });
@@ -277,7 +276,6 @@ export const sendCardsMessage = async (
 ): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'cards',
     ...args
   });
@@ -288,7 +286,6 @@ export const sendLoyaltiesMessage = async (
 ): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'loyalties',
     ...args
   });
@@ -299,7 +296,6 @@ export const sendPricingMessage = async (
 ): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'pricing',
     ...args
   });
@@ -310,7 +306,6 @@ export const sendContactsMessage = async (
 ): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'contacts',
     ...args
   });
@@ -321,7 +316,6 @@ export const sendEbarimtMessage = async (
 ): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'ebarimt',
     ...args
   });
@@ -330,7 +324,6 @@ export const sendEbarimtMessage = async (
 export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'core',
     ...args
   });
@@ -341,7 +334,6 @@ export const sendInventoriesMessage = async (
 ): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'inventories',
     ...args
   });
@@ -352,7 +344,6 @@ export const sendSyncerkhetMessage = async (
 ): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'syncerkhet',
     ...args
   });
@@ -390,7 +381,6 @@ export const sendPosclientMessage = async (
 
   return await sendMessage({
     client,
-    serviceDiscovery,
     serviceName,
     ...args,
     action: lastAction
@@ -416,7 +406,6 @@ export const sendPosclientHealthCheck = async ({
   return await sendMessage({
     subdomain,
     client,
-    serviceDiscovery,
     isRPC: true,
     isMQ: true,
     serviceName: '',
@@ -432,7 +421,6 @@ export const sendAutomationsMessage = async (
 ): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'automations',
     ...args
   });
@@ -442,7 +430,6 @@ export const sendCommonMessage = async (
   args: ISendMessageArgs & { serviceName: string }
 ): Promise<any> => {
   return sendMessage({
-    serviceDiscovery,
     client,
     ...args
   });
@@ -452,7 +439,6 @@ export const sendSegmentsMessage = async (
 ): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'segments',
     ...args
   });
@@ -473,7 +459,6 @@ export const fetchSegment = (
 export const sendFormsMessage = (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'forms',
     ...args
   });

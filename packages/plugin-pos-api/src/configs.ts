@@ -19,7 +19,7 @@ import { exportFileRunner } from './exporterByUrl';
 export let debug;
 
 export let mainDb;
-export let serviceDiscovery;
+
 
 export default {
   name: 'pos',
@@ -30,11 +30,10 @@ export default {
     { path: `/file-export`, method: exportFileRunner },
   ],
   postHandlers: [{ path: `/api/unfetch-order-info`, method: unfetchOrderInfo }],
-  graphql: async (sd) => {
-    serviceDiscovery = sd;
+  graphql: async () => {
     return {
-      typeDefs: await typeDefs(sd),
-      resolvers: await resolvers(sd),
+      typeDefs: await typeDefs(),
+      resolvers: await resolvers(),
     };
   },
   apolloServerContext: async (context, req) => {

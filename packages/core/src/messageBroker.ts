@@ -656,7 +656,6 @@ export const sendCommonMessage = async (
   args: IISendMessageArgs
 ): Promise<any> => {
   return sendMessage({
-    serviceDiscovery,
     client,
     ...args
   });
@@ -667,7 +666,6 @@ export const sendSegmentsMessage = async (
 ): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'segments',
     ...args
   });
@@ -678,7 +676,6 @@ export const sendIntegrationsMessage = (
 ): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'integrations',
     ...args
   });
@@ -687,7 +684,6 @@ export const sendIntegrationsMessage = (
 export const sendCardsMessage = (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'cards',
     ...args
   });
@@ -696,7 +692,6 @@ export const sendCardsMessage = (args: ISendMessageArgs): Promise<any> => {
 export const sendLogsMessage = (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'logs',
     ...args
   });
@@ -705,7 +700,6 @@ export const sendLogsMessage = (args: ISendMessageArgs): Promise<any> => {
 export const sendContactsMessage = (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'contacts',
     ...args
   });
@@ -714,7 +708,6 @@ export const sendContactsMessage = (args: ISendMessageArgs): Promise<any> => {
 export const sendInboxMessage = (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'inbox',
     ...args
   });
@@ -723,7 +716,6 @@ export const sendInboxMessage = (args: ISendMessageArgs): Promise<any> => {
 export const sendFormsMessage = (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'forms',
     ...args
   });

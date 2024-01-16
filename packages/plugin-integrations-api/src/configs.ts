@@ -7,18 +7,14 @@ import { generateModels } from './connectionResolver';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import dashboards from './dashboards';
 
-export let serviceDiscovery;
-
 export let debug;
 export let mainDb;
 
 export default {
   name: 'integrations',
-  graphql: async (sd) => {
-    serviceDiscovery = sd;
-
+  graphql: async () => {
     return {
-      typeDefs: await typeDefs(sd),
+      typeDefs: await typeDefs(),
       resolvers,
     };
   },

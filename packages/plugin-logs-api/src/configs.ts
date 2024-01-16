@@ -6,18 +6,15 @@ import { generateModels } from './connectionResolver';
 import * as permissions from './permissions';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 
-export let serviceDiscovery;
 export let mainDb;
 export let debug;
 
 export default {
   name: 'logs',
   permissions,
-  graphql: async (sd) => {
-    serviceDiscovery = sd;
-
+  graphql: async () => {
     return {
-      typeDefs: await typeDefs(sd),
+      typeDefs: await typeDefs(),
       resolvers,
     };
   },

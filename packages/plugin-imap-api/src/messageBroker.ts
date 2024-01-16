@@ -3,7 +3,7 @@ import {
   ISendMessageArgs,
   sendMessage as sendCommonMessage
 } from '@erxes/api-utils/src/core';
-import { serviceDiscovery } from './configs';
+
 import { generateModels } from './connectionResolver';
 import { listenIntegration } from './utils';
 
@@ -175,7 +175,6 @@ export default function() {
 export const sendContactsMessage = (args: ISendMessageArgs) => {
   return sendCommonMessage({
     client,
-    serviceDiscovery,
     serviceName: 'contacts',
     ...args
   });
@@ -184,7 +183,6 @@ export const sendContactsMessage = (args: ISendMessageArgs) => {
 export const sendInboxMessage = (args: ISendMessageArgs) => {
   return sendCommonMessage({
     client,
-    serviceDiscovery,
     serviceName: 'inbox',
     ...args
   });
@@ -193,7 +191,6 @@ export const sendInboxMessage = (args: ISendMessageArgs) => {
 export const sendImapMessage = (args: ISendMessageArgs) => {
   return sendCommonMessage({
     client,
-    serviceDiscovery,
     serviceName: 'imap',
     ...args
   });

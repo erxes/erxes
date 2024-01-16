@@ -10,16 +10,12 @@ import { INTEGRATION_KINDS } from './constants';
 export let mainDb;
 export let debug;
 
-export let serviceDiscovery;
-
 export default {
   name: 'instagram',
-  graphql: async (sd) => {
-    serviceDiscovery = sd;
-
+  graphql: async () => {
     return {
-      typeDefs: await typeDefs(sd),
-      resolvers: await resolvers(sd),
+      typeDefs: await typeDefs(),
+      resolvers: await resolvers(),
     };
   },
   meta: {
