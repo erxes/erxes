@@ -1,6 +1,5 @@
 import * as dotenv from 'dotenv';
 import { init } from '@erxes/api-utils/src/messageBroker';
-import { redis } from '@erxes/api-utils/src/serviceDiscovery';
 import { initBroker } from './messageBroker';
 import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
 import * as fs from 'fs';
@@ -290,7 +289,7 @@ const command = async () => {
   messageBrokerClient = await init({
     RABBITMQ_HOST,
     MESSAGE_BROKER_PREFIX,
-    redis
+    app: null
   });
 
   initBroker(messageBrokerClient);
