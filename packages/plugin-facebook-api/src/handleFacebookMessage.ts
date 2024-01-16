@@ -2,11 +2,16 @@ import * as strip from 'strip';
 
 import { IModels } from './connectionResolver';
 import { generateAttachmentMessages, sendReply } from './utils';
-
+import comment from './graphql/customResolvers/comment';
+import { sendInboxMessage } from './messageBroker';
 /**
  * Handle requests from erxes api
  */
-export const handleFacebookMessage = async (models: IModels, msg) => {
+export const handleFacebookMessage = async (
+  models: IModels,
+  msg,
+  subdomain
+) => {
   const { action, payload } = msg;
   const doc = JSON.parse(payload || '{}');
 
@@ -24,6 +29,97 @@ export const handleFacebookMessage = async (models: IModels, msg) => {
     );
   }
 
+  if (action === 'reply-post') {
+    const {
+      integrationId,
+      conversationId,
+      content = '',
+      attachments = [],
+      extraInfo,
+      userId
+    } = doc;
+
+    const regex = new RegExp('<img[^>]* src="([^"]*)"', 'g');
+
+    const images: string[] = (content.match(regex) || []).map(m =>
+      m.replace(regex, '$1')
+    );
+    images.forEach(img => {
+      attachments.push({ type: 'image', url: img });
+    });
+
+    let strippedContent = strip(content);
+
+    strippedContent = strippedContent.replace(/&amp;/g, '&');
+
+    const commentConversationResult = await models.CommentConversation.findOne({
+      erxesApiId: conversationId
+    });
+
+    if (commentConversationResult) {
+      const { recipientId, comment_id } = commentConversationResult;
+
+      await models.CommentConversationReply.create({
+        userId: userId,
+        createdAt: new Date(Date.now()),
+        content: strippedContent,
+        parent_id: comment_id
+      });
+
+      let attachment: {
+        url?: string;
+        type?: string;
+        payload?: { url: string };
+      } = {};
+
+      if (attachments && attachments.length > 0) {
+        attachment = {
+          type: 'file',
+          payload: {
+            url: attachments[0].url
+          }
+        };
+      }
+
+      let data = {
+        message: content,
+        attachment_url: attachment.url
+      };
+
+      try {
+        const inboxConversation = await sendInboxMessage({
+          isRPC: true,
+          subdomain,
+          action: 'conversations.findOne',
+          data: { query: { _id: conversationId } }
+        });
+        await sendReply(
+          models,
+          `${comment_id}/comments`,
+          data,
+          recipientId,
+          inboxConversation && inboxConversation.integrationId
+        );
+
+        sendInboxMessage({
+          action: 'sendNotifications',
+          isRPC: false,
+          subdomain,
+          data: {
+            userId,
+            conversations: [inboxConversation],
+            type: 'conversationStateChange',
+            mobile: true,
+            messageContent: content
+          }
+        });
+
+        return { status: 'success' };
+      } catch (e) {
+        throw new Error(e.message);
+      }
+    }
+  }
   if (action === 'reply-messenger') {
     const {
       integrationId,
@@ -39,7 +135,6 @@ export const handleFacebookMessage = async (models: IModels, msg) => {
     const images: string[] = (content.match(regex) || []).map(m =>
       m.replace(regex, '$1')
     );
-
     images.forEach(img => {
       attachments.push({ type: 'image', url: img });
     });

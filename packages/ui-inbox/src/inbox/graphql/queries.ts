@@ -296,6 +296,15 @@ const convertToInfo = `
     }
   }
 `;
+const postInfo = `
+  query facebookGetPost( $erxesApiId: String!){
+    facebookGetPost(erxesApiId: $erxesApiId){
+      _id
+      content
+      permalink_url
+    }
+  }
+ `;
 
 const generateCustomerDetailQuery = params => {
   const {
@@ -420,5 +429,6 @@ export default {
   tagsQueryCount,
   channelsByMembers,
   generateCustomerDetailQuery,
-  convertToInfo
+  convertToInfo,
+  postInfo
 };

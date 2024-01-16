@@ -60,6 +60,7 @@ export interface IAttachment {
 }
 
 export interface IAttachmentMessage {
+  content: string;
   attachment: {
     type: string;
     payload: {

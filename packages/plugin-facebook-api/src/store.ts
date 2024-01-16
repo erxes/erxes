@@ -101,7 +101,7 @@ const generateCommentDoc = (
   commentParams: ICommentParams,
   pageId: string,
   userId: string,
-  customerId: string
+  customerId?: string
 ) => {
   const {
     photo,
@@ -175,41 +175,13 @@ export const getOrCreatePostConversation = async (
 
   if (!postConversation) {
     postConversation = await models.PostConversations.create({
+      permalink_url: params.post.permalink_url,
       postId,
       integrationId: integration._id,
       customerId: customer._id,
       content: post.content
     });
   }
-
-  // save on api
-  // try {
-  //   const apiConversationResponse = await sendInboxMessage({
-  //     subdomain,
-  //     action: 'integrations.receive',
-  //     data: {
-  //       action: 'create-or-update-conversation',
-  //       payload: JSON.stringify({
-  //         customerId: customer.erxesApiId,
-  //         integrationId: integration.erxesApiId,
-  //         content: post.content,
-  //         attachments: [],
-  //         conversationId: postConversation.erxesApiId,
-  //         updatedAt: params.created_time
-  //           ? (params.created_time * 1000).toString()
-  //           : new Date().toISOString()
-  //       })
-  //     },
-  //     isRPC: true
-  //   });
-
-  //   postConversation.erxesApiId = apiConversationResponse._id;
-
-  //   await postConversation.save();
-  // } catch (e) {
-  //   await models.PostConversations.deleteOne({ _id: postConversation._id });
-  //   throw new Error(e);
-  // }
 
   return postConversation;
 };
@@ -298,36 +270,51 @@ export const getOrCreateComment = async (
   integration: IIntegrationDocument,
   customer: ICustomerDocument
 ) => {
-  let comment = await models.Comments.findOne({
-    commentId: commentParams.comment_id
+  const commentConversations = await models.CommentConversation.find({
+    comment_id: commentParams.parent_id
   });
-  await models.Accounts.getAccount({ _id: integration.accountId });
-
-  const doc = generateCommentDoc(commentParams, pageId, userId, customer._id);
-
-  if (verb && verb === 'edited') {
-    await models.Comments.updateOne(
-      { commentId: doc.commentId },
-      { $set: { ...doc } }
-    );
-  }
-
-  const conversationId = postConversation._id;
-
-  if (!comment) {
-    comment = await models.Comments.create({ ...doc, conversationId });
-  }
-  const filter = await models.Comments.find({
-    commentId: commentParams.parent_id
-  });
-
+  const commentConversation = commentConversations[0];
+  let comment;
   const _id: string[] = [];
-  if (filter.length > 0) {
-    _id.push(postConversation.erxesApiId);
+  const post = await models.PostConversations.findOne({
+    postId: commentParams.post_id
+  });
+
+  // const generatedAttachments = generateAttachmentMessages(attachments);
+
+  if (commentConversations.length > 0 && post) {
+    if (commentConversation.erxesApiId) {
+      _id.push(commentConversation.erxesApiId);
+    }
+
+    comment = await models.CommentConversationReply.create({
+      customerId: customer.erxesApiId,
+      recipientId: pageId,
+      senderId: userId,
+      createdAt: commentParams.post.updated_time,
+      comment_id: commentParams.comment_id,
+      content: commentParams.message,
+      parent_id: commentParams.parent_id
+    });
   } else {
-    _id.push(comment.erxesApiId);
+    if (postConversation.erxesApiId) {
+      _id.push(postConversation.erxesApiId);
+    }
+    if (post) {
+      comment = await models.CommentConversation.create({
+        recipientId: pageId,
+        senderId: userId,
+        createdAt: commentParams.post.updated_time,
+        postId: commentParams.post_id,
+        comment_id: commentParams.comment_id,
+        content: commentParams.message,
+        customerId: customer.erxesApiId,
+        parentId: commentParams.parent_id
+      });
+    }
   }
-  let resultString = _id[0];
+
+  const resultString = _id[0];
   try {
     const apiConversationResponse = await sendInboxMessage({
       subdomain,
@@ -337,33 +324,37 @@ export const getOrCreateComment = async (
         payload: JSON.stringify({
           customerId: customer.erxesApiId,
           integrationId: integration.erxesApiId,
-          content: comment.content,
+          content: commentParams.message,
           attachments: [],
           conversationId: resultString
         })
       },
       isRPC: true
     });
-    resultString = apiConversationResponse._id;
-    await postConversation.save();
+
+    const erxesApiId = (postConversation.erxesApiId =
+      apiConversationResponse._id);
+    const search = await models.CommentConversation.find({
+      comment_id: commentParams.comment_id
+    });
+
+    if (search.length > 0) {
+      const firstDocument = search[0];
+      await models.CommentConversation.updateOne(
+        { comment_id: firstDocument.comment_id },
+        { $set: { erxesApiId: erxesApiId } }
+      );
+      return erxesApiId;
+    } else {
+      console.log('No matching documents found.');
+    }
+    return erxesApiId;
   } catch (e) {
-    await models.Comments.deleteOne({
-      _id: conversationId
+    await models.CommentConversation.deleteOne({
+      _id: commentConversation
     });
     throw new Error(e);
   }
-  return comment;
-
-  // if (post) {
-  //   sendInboxMessage({
-  //     subdomain,
-  //     action: 'integrationsNotification',
-  //     data: {
-  //       action: 'external-integration-entry-added',
-  //       conversationId: post.erxesApiId
-  //     }
-  //   });
-  // }
 };
 
 export const getOrCreateCustomer = async (

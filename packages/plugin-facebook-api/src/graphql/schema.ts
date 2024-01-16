@@ -62,7 +62,8 @@ export const types = `
     isCustomerRead: Boolean
     mid: String
     internal: Boolean
-    
+    permalink_url:String
+    postContent: String
     customer: Customer
     user: User
   }
@@ -118,12 +119,7 @@ export const queries = `
   facebookGetIntegrations(kind: String): JSON
   facebookGetIntegrationDetail(erxesApiId: String): JSON 
   facebookGetConfigs: JSON
-  facebookGetComments(
-    ${commentQueryParamDefs},
-    commentId: String,
-    senderId: String,
-    ${pageParams}
-  ): [FacebookComment]
+  facebookGetComments(conversationId: String!, getFirst: Boolean, ${pageParams}): [FacebookPostMessage]
   facebookGetCommentCount(${commentQueryParamDefs}): JSON
   facebookGetPages(accountId: String! kind: String!): JSON
   facebookConversationDetail(_id: String!): JSON

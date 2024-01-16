@@ -56,23 +56,19 @@ const receiveComment = async (
     integration,
     customer
   );
-
   try {
-    await sendInboxMessage({
-      subdomain,
-      action: 'conversationClientMessageInserted',
-      data: {
-        integrationId: integration.erxesApiId,
-        conversationId: postConversation.erxesApiId
-      }
-    });
-
-    // graphqlPubsub.publish('conversationMessageInserted', {
-    //   conversationMessageInserted: {
-    //     ...created.toObject(),
-    //     conversationId: conversation.erxesApiId
-    //   }
-    // });
+    if (comment) {
+      await sendInboxMessage({
+        subdomain,
+        action: 'conversationClientMessageInserted',
+        data: {
+          integrationId: integration.erxesApiId,
+          conversationId: comment
+        }
+      });
+    } else {
+      console.log('Warning: The comment is undefined.');
+    }
   } catch (e) {
     throw new Error(
       e.message.includes('duplicate')

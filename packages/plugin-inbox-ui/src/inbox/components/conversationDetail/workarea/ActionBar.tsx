@@ -33,6 +33,14 @@ const ConvertTo = asyncComponent(
   { height: '22px', width: '71px' }
 );
 
+const Post = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName:"Inbox-ConvertTo" */ '../../../containers/conversationDetail/workarea/Post'
+    ),
+  { height: '22px', width: '71px' }
+);
+
 type Props = {
   currentConversation: IConversation;
 };
@@ -94,6 +102,9 @@ export default class ActionBar extends React.Component<Props> {
         {loadDynamicComponent('inboxConversationDetailActionBar', {
           conversation: currentConversation
         })}
+        <ActionBarLeft>
+          <Post conversation={currentConversation} />
+        </ActionBarLeft>
       </ActionBarLeft>
     );
 

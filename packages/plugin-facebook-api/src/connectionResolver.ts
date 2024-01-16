@@ -5,11 +5,19 @@ import { createGenerateModels } from '@erxes/api-utils/src/core';
 
 import { ICommentModel, loadCommentClass } from './models/Comments';
 import { ICommentDocument } from './models/definitions/comments';
-
+import {
+  ICommentConversationModel,
+  loadCommentConversationClass
+} from './models/Comment_conversations';
 import {
   IConversationModel,
   loadConversationClass
 } from './models/Conversations';
+import {
+  ICommentConversationReplyModel,
+  loadCommentConversationReplyClass
+} from './models/Comment_conversations_reply';
+
 import { IConversationDocument } from './models/definitions/conversations';
 
 import { ICustomerModel, loadCustomerClass } from './models/Customers';
@@ -47,9 +55,13 @@ import {
   loadPostConversationClass
 } from './models/PostConversations';
 import { IPostConversationDocument } from './models/definitions/postConversations';
+import { ICommentConversationDocument } from './models/definitions/comment_conversations';
+import { ICommentConversationReplyDocument } from './models/definitions/comment_conversations_reply';
 
 export interface IModels {
   Comments: ICommentModel;
+  CommentConversation: ICommentConversationModel;
+  CommentConversationReply: ICommentConversationReplyModel;
   PostConversations: IPostConversationModel;
   Conversations: IConversationModel;
   Customers: ICustomerModel;
@@ -71,7 +83,17 @@ export let models: IModels | null = null;
 
 export const loadClasses = (db: mongoose.Connection): IModels => {
   models = {} as IModels;
-
+  models.CommentConversation = db.model<
+    ICommentConversationDocument,
+    ICommentConversationModel
+  >('comment_conversations_facebook', loadCommentConversationClass(models));
+  models.CommentConversationReply = db.model<
+    ICommentConversationReplyDocument,
+    ICommentConversationReplyModel
+  >(
+    'comment_conversations_reply_facebook',
+    loadCommentConversationReplyClass(models)
+  );
   models.Accounts = db.model<IAccountDocument, IAccountModel>(
     'facebook_accounts',
     loadAccountClass(models)

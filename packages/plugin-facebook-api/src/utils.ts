@@ -149,14 +149,6 @@ export const getPostDetails = async (
   pageTokens: { [key: string]: string },
   postId: string
 ) => {
-  console.log(
-    '******************** ',
-    pageId,
-    pageTokens,
-    postId,
-    ' ********************'
-  );
-
   let pageAccessToken;
 
   try {
@@ -168,8 +160,6 @@ export const getPostDetails = async (
 
   try {
     const response: any = await graphRequest.get(`/${postId}`, pageAccessToken);
-
-    console.log('^^^^^^^^^^^^^^^^', response);
 
     return response;
   } catch (e) {
@@ -337,9 +327,7 @@ export const sendReply = async (
   const integration = await models.Integrations.getIntegration({
     erxesApiId: integrationId
   });
-
   const { facebookPageTokensMap = {} } = integration;
-
   let pageAccessToken;
 
   try {
@@ -382,7 +370,6 @@ export const sendReply = async (
     if (e.message.includes('does not exist')) {
       throw new Error('Comment has been deleted by the customer');
     }
-
     throw new Error(e.message);
   }
 };
@@ -405,7 +392,8 @@ export const generateAttachmentMessages = (attachments: IAttachment[]) => {
         payload: {
           url
         }
-      }
+      },
+      content: ''
     });
   }
 
