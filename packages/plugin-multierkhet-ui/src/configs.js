@@ -3,7 +3,8 @@ module.exports = {
   name: 'multierkhet',
   port: 3030,
   exposes: {
-    './routes': './src/routes.tsx'
+    './routes': './src/routes.tsx',
+    "./response": "./src/response.tsx"
   },
   routes: {
     url: 'http://localhost:3030/remoteEntry.js',
@@ -28,5 +29,10 @@ module.exports = {
       scope: 'multierkhet',
       permission: 'multiErkhetConfig',
     },
-  ]
+  ],
+  layout: {
+    url: "http://localhost:3030/remoteEntry.js",
+    scope: "multierkhet",
+    module: "./response"
+  }
 };

@@ -10,10 +10,9 @@ import posUserMiddleware from './userMiddleware';
 import posConfigMiddleware from './configMiddleware';
 import * as dotenv from 'dotenv';
 import { loadSubscriptions } from './subscriptions';
-import { PubSub } from 'graphql-subscriptions';
 
 export let debug;
-export let graphqlPubsub;
+
 export let mainDb;
 export let serviceDiscovery;
 export let app;
@@ -22,25 +21,25 @@ dotenv.config();
 
 export default {
   name: 'posclient',
-  graphql: async sd => {
+  graphql: async (sd) => {
     serviceDiscovery = sd;
 
     return {
       typeDefs: await typeDefs(),
-      resolvers: await resolvers(sd)
+      resolvers: await resolvers(sd),
     };
   },
   hasSubscriptions: true,
   subscriptionPluginPath: require('path').resolve(
     __dirname,
     'graphql',
-    'subscriptionPlugin.js'
+    'subscriptionPlugin.js',
   ),
   freeSubscriptions: loadSubscriptions,
 
   getHandlers: [
     { path: `/initial-setup`, method: posInitialSetup },
-    { path: `/pl:posclient/initial-setup`, method: posInitialSetup }
+    { path: `/pl:posclient/initial-setup`, method: posInitialSetup },
   ],
 
   apolloServerContext: async (context, req, res) => {
@@ -49,7 +48,7 @@ export default {
     const requestInfo = {
       secure: req.secure,
       cookies: req.cookies,
-      headers: req.headers
+      headers: req.headers,
     };
 
     const models = await generateModels(subdomain);
@@ -81,8 +80,10 @@ export default {
   corsOptions: {
     credentials: true,
     origin: [
-      ...(process.env.ALLOWED_ORIGINS || '').split(',').map(c => c && RegExp(c))
-    ]
+      ...(process.env.ALLOWED_ORIGINS || '')
+        .split(',')
+        .map((c) => c && RegExp(c)),
+    ],
   },
   middlewares: [
     cookieParser(),
@@ -93,29 +94,21 @@ export default {
       origin: [
         ...(process.env.ALLOWED_ORIGINS || '')
           .split(',')
-          .map(c => c && RegExp(c))
-      ]
-    })
+          .map((c) => c && RegExp(c)),
+      ],
+    }),
   ],
 
-  onServerInit: async options => {
+  onServerInit: async (options) => {
     mainDb = options.db;
     app = options.app;
 
     initBroker(options.messageBrokerClient);
 
-    graphqlPubsub = options.pubsubClient;
-
     debug = options.debug;
   },
 
-  reconnectRMQ: async messageBrokerClient => {
+  reconnectRMQ: async (messageBrokerClient) => {
     initBroker(messageBrokerClient);
-  }
+  },
 };
-
-setTimeout(() => {
-  if (process.env.SKIP_REDIS && !graphqlPubsub) {
-    graphqlPubsub = new PubSub();
-  }
-}, 10000);

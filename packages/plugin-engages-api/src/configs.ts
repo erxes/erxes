@@ -11,7 +11,6 @@ import * as permissions from './permissions';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import webhooks from './webhooks';
 
-export let graphqlPubsub;
 export let serviceDiscovery;
 export let mainDb;
 export let debug;
@@ -19,12 +18,12 @@ export let debug;
 export default {
   name: 'engages',
   permissions,
-  graphql: async sd => {
+  graphql: async (sd) => {
     serviceDiscovery = sd;
 
     return {
       typeDefs: await typeDefs(sd),
-      resolvers
+      resolvers,
     };
   },
   segment: { schemas: [] },
@@ -41,7 +40,7 @@ export default {
 
     return context;
   },
-  onServerInit: async options => {
+  onServerInit: async (options) => {
     mainDb = options.db;
 
     const app = options.app;
@@ -52,6 +51,5 @@ export default {
     initBroker(options.messageBrokerClient);
 
     debug = options.debug;
-    graphqlPubsub = options.pubsubClient;
-  }
+  },
 };

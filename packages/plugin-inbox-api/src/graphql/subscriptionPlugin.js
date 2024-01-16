@@ -87,10 +87,10 @@ module.exports = {
           });
         },
         subscribe: withFilter(
-          () =>
-            graphqlPubsub.asyncIterator("conversationClientMessageInserted"),
+          (_, { userId }) =>
+            graphqlPubsub.asyncIterator(`conversationClientMessageInserted:${userId}`),
           async (payload, variables) => {
-            const { conversation, integration, channelMemberIds } = payload;
+            const { conversation, integration } = payload;
 
             if (!conversation) {
               return false;
@@ -100,7 +100,7 @@ module.exports = {
               return false;
             }
 
-            return channelMemberIds.includes(variables.userId);
+            return true;
           }
         ),
       },

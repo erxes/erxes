@@ -14,11 +14,11 @@ export let serviceDiscovery: any;
 export default {
   name: 'salesplans',
   permissions,
-  graphql: async sd => {
+  graphql: async (sd) => {
     serviceDiscovery = sd;
     return {
       typeDefs: await typeDefs(),
-      resolvers
+      resolvers,
     };
   },
   apolloServerContext: async (context: any, req: any) => {
@@ -33,10 +33,9 @@ export default {
     initBroker(options.messageBrokerClient);
 
     debug = options.debug;
-    graphqlPubsub = options.pubsubClient;
   },
 
   meta: {
-    permissions
-  }
+    permissions,
+  },
 };

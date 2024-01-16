@@ -1,15 +1,15 @@
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import { NodeVM } from 'vm2';
-import { graphqlPubsub } from '../configs';
+import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
 import { generateModels } from '../connectionResolver';
 import { pConversationClientMessageInserted } from '../graphql/resolvers/widgetMutations';
 import {
   sendContactsMessage,
   sendCoreMessage,
-  sendFormsMessage
+  sendFormsMessage,
 } from '../messageBroker';
 
-const checkCompanyFieldsExists = async doc => {
+const checkCompanyFieldsExists = async (doc) => {
   for (const key in doc) {
     if (key.includes('company')) {
       return true;
@@ -24,14 +24,14 @@ const createCustomer = (subdomain, data) => {
     subdomain,
     action: 'customers.createCustomer',
     isRPC: true,
-    data
+    data,
   });
 };
 
 const updateCustomer = ({
   subdomain,
   _id,
-  doc
+  doc,
 }: {
   subdomain: string;
   _id: string;
@@ -43,8 +43,8 @@ const updateCustomer = ({
     isRPC: true,
     data: {
       _id,
-      doc
-    }
+      doc,
+    },
   });
 };
 
@@ -53,7 +53,7 @@ const findCustomer = (subdomain, data) => {
     subdomain,
     action: 'customers.findOne',
     isRPC: true,
-    data
+    data,
   });
 };
 
@@ -62,14 +62,14 @@ const createCompany = (subdomain, data) => {
     subdomain,
     action: 'companies.createCompany',
     isRPC: true,
-    data
+    data,
   });
 };
 
 const updateCompany = ({
   subdomain,
   _id,
-  doc
+  doc,
 }: {
   subdomain: string;
   _id: string;
@@ -81,8 +81,8 @@ const updateCompany = ({
     isRPC: true,
     data: {
       _id,
-      doc
-    }
+      doc,
+    },
   });
 };
 
@@ -91,7 +91,7 @@ const findCompany = (subdomain, data) => {
     subdomain,
     action: 'companies.findOne',
     isRPC: true,
-    data
+    data,
   });
 };
 
@@ -99,7 +99,7 @@ const solveCustomFieldsData = (customFieldsData, prevCustomFieldsData) => {
   prevCustomFieldsData = prevCustomFieldsData || [];
 
   for (const data of customFieldsData) {
-    const prevData = prevCustomFieldsData.find(d => d.field === data.field);
+    const prevData = prevCustomFieldsData.find((d) => d.field === data.field);
 
     if (prevData) {
       if (data.hasMultipleChoice) {
@@ -123,7 +123,7 @@ const webhookMiddleware = async (req, res, next) => {
 
   try {
     const integration = await models.Integrations.findOne({
-      _id: req.params.id
+      _id: req.params.id,
     });
 
     if (!integration) {
@@ -144,7 +144,7 @@ const webhookMiddleware = async (req, res, next) => {
 
     if (webhookData.script) {
       const vm = new NodeVM({
-        sandbox: { params }
+        sandbox: { params },
       });
 
       vm.run(webhookData.script);
@@ -155,17 +155,17 @@ const webhookMiddleware = async (req, res, next) => {
 
     if (params.customFields) {
       customFieldsData = await Promise.all(
-        params.customFields.map(async element => {
+        params.customFields.map(async (element) => {
           const customField = await sendFormsMessage({
             subdomain,
             action: 'fields.findOne',
             data: {
               query: {
                 contentType: 'contacts:customer',
-                text: element.name
-              }
+                text: element.name,
+              },
             },
-            isRPC: true
+            isRPC: true,
           });
 
           if (customField) {
@@ -178,12 +178,12 @@ const webhookMiddleware = async (req, res, next) => {
             const customFieldData = {
               field: customField._id,
               hasMultipleChoice: (customField.options || []).length > 0,
-              value
+              value,
             };
 
             return customFieldData;
           }
-        })
+        }),
       );
     }
 
@@ -194,20 +194,20 @@ const webhookMiddleware = async (req, res, next) => {
         action: 'fields.generateCustomFieldsData',
         data: {
           customData: params.data,
-          contentType: 'contacts:customer'
+          contentType: 'contacts:customer',
         },
-        isRPC: true
+        isRPC: true,
       });
 
       customFieldsData = [
-        ...new Set([...(data.customFieldsData || []), ...customFieldsData])
+        ...new Set([...(data.customFieldsData || []), ...customFieldsData]),
       ];
 
       trackedData = data.trackedData;
     }
 
     // collect non empty values
-    customFieldsData = customFieldsData.filter(cf => cf);
+    customFieldsData = customFieldsData.filter((cf) => cf);
 
     // get or create customer
     let customer = await findCustomer(subdomain, params);
@@ -222,7 +222,7 @@ const webhookMiddleware = async (req, res, next) => {
       middleName: params.customerMiddleName,
       avatar: params.customerAvatar,
       customFieldsData,
-      trackedData
+      trackedData,
     };
 
     if (!customer) {
@@ -237,7 +237,7 @@ const webhookMiddleware = async (req, res, next) => {
 
       doc.customFieldsData = solveCustomFieldsData(
         customFieldsData,
-        customer.customFieldsData
+        customer.customFieldsData,
       );
 
       customer = await updateCustomer({ subdomain, _id: customer._id, doc });
@@ -247,20 +247,20 @@ const webhookMiddleware = async (req, res, next) => {
     if (params.content) {
       let conversation = await models.Conversations.findOne({
         customerId: customer._id,
-        integrationId: integration._id
+        integrationId: integration._id,
       });
 
       if (!conversation) {
         conversation = await models.Conversations.createConversation({
           customerId: customer._id,
           integrationId: integration._id,
-          content: params.content
+          content: params.content,
         });
       } else {
         if (conversation.status === 'closed') {
           await models.Conversations.updateOne(
             { _id: conversation._id },
-            { status: 'open' }
+            { status: 'open' },
           );
         }
       }
@@ -270,24 +270,23 @@ const webhookMiddleware = async (req, res, next) => {
         conversationId: conversation._id,
         customerId: customer._id,
         content: params.content,
-        attachments: params.attachments
+        attachments: params.attachments,
       };
 
       if (params.formContent) {
         messageDoc.formWidgetData = params.formContent;
       }
 
-      const message = await models.ConversationMessages.createMessage(
-        messageDoc
-      );
+      const message =
+        await models.ConversationMessages.createMessage(messageDoc);
 
       await pConversationClientMessageInserted(models, subdomain, message);
 
       graphqlPubsub.publish(
         `conversationMessageInserted:${message.conversationId}`,
         {
-          conversationMessageInserted: message
-        }
+          conversationMessageInserted: message,
+        },
       );
     }
 
@@ -303,7 +302,7 @@ const webhookMiddleware = async (req, res, next) => {
 
       let parentCompanyData: { customFieldsData: any[]; trackedData: any[] } = {
         customFieldsData: [],
-        trackedData: []
+        trackedData: [],
       };
 
       if (params.parentCompany.companyData) {
@@ -312,9 +311,9 @@ const webhookMiddleware = async (req, res, next) => {
           action: 'fields.generateCustomFieldsData',
           data: {
             customData: params.parentCompany.companyData,
-            contentType: 'contacts:company'
+            contentType: 'contacts:company',
           },
-          isRPC: true
+          isRPC: true,
         });
       }
 
@@ -330,7 +329,7 @@ const webhookMiddleware = async (req, res, next) => {
         avatar: parentParams.companyAvatar,
         code: parentParams.companyCode,
         customFieldsData: parentCompanyData.customFieldsData,
-        trackedData: parentCompanyData.trackedData
+        trackedData: parentCompanyData.trackedData,
       };
 
       if (!parentCompany) {
@@ -344,13 +343,13 @@ const webhookMiddleware = async (req, res, next) => {
 
         parentCompanyDoc.customFieldsData = solveCustomFieldsData(
           parentCompanyData.customFieldsData,
-          parentCompanyDoc.customFieldsData
+          parentCompanyDoc.customFieldsData,
         );
 
         parentCompany = await updateCompany({
           subdomain,
           _id: parentCompany._id,
-          doc: parentCompanyDoc
+          doc: parentCompanyDoc,
         });
       }
     }
@@ -358,7 +357,7 @@ const webhookMiddleware = async (req, res, next) => {
     if (hasCompanyFields) {
       let companyData: { customFieldsData: any[]; trackedData: any[] } = {
         customFieldsData: [],
-        trackedData: []
+        trackedData: [],
       };
 
       if (params.companyData) {
@@ -367,9 +366,9 @@ const webhookMiddleware = async (req, res, next) => {
           action: 'fields.generateCustomFieldsData',
           data: {
             customData: params.companyData,
-            contentType: 'contacts:company'
+            contentType: 'contacts:company',
           },
-          isRPC: true
+          isRPC: true,
         });
       }
 
@@ -384,7 +383,7 @@ const webhookMiddleware = async (req, res, next) => {
         code: params.companyCode,
         customFieldsData: companyData && companyData.customFieldsData,
         trackedData: companyData && companyData.trackedData,
-        parentCompanyId: parentCompany ? parentCompany._id : undefined
+        parentCompanyId: parentCompany ? parentCompany._id : undefined,
       };
 
       if (!company) {
@@ -393,7 +392,7 @@ const webhookMiddleware = async (req, res, next) => {
         company = await updateCompany({
           subdomain,
           _id: company._id,
-          doc: companyDoc
+          doc: companyDoc,
         });
       }
 
@@ -409,13 +408,13 @@ const webhookMiddleware = async (req, res, next) => {
 
         companyDoc.customFieldsData = solveCustomFieldsData(
           companyData.customFieldsData,
-          company.customFieldsData
+          company.customFieldsData,
         );
 
         company = await updateCompany({
           subdomain,
           _id: company._id,
-          doc: companyDoc
+          doc: companyDoc,
         });
       }
     }
@@ -429,10 +428,10 @@ const webhookMiddleware = async (req, res, next) => {
           mainType: 'customer',
           mainTypeId: customer._id,
           relType: 'company',
-          relTypeIds: [company._id]
+          relTypeIds: [company._id],
         },
         isRPC: true,
-        defaultValue: []
+        defaultValue: [],
       });
     }
 

@@ -5,7 +5,7 @@ import { field } from './utils';
 export interface IOTPConfig {
   content: string;
   codeLength: number;
-  smsTransporterType: '' | 'messagePro' | 'telnyx';
+  smsTransporterType: string;
   loginWithOTP: boolean;
   expireAfter: number;
 }
@@ -158,7 +158,6 @@ const otpConfigSchema = new Schema(
     expireAfter: field({ type: Number, default: 1, min: 1, max: 10 }),
     smsTransporterType: field({
       type: String,
-      enum: ['', 'messagePro', 'telnyx'],
       optional: true
     })
   },

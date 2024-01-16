@@ -5,7 +5,7 @@ import {
   IPipeline,
   ActivityLogsByActionQueryResponse,
   IOptions,
-  InternalNotesByActionQueryResponse
+  InternalNotesByActionQueryResponse,
 } from '../types';
 import { gql } from '@apollo/client';
 import { withProps } from '@erxes/ui/src/utils';
@@ -27,11 +27,8 @@ type WithStagesProps = {
 } & Props;
 
 const buildListAndCount = (props: WithStagesProps) => {
-  const {
-    queryParams,
-    activityLogsByActionQuery,
-    internalNotesByActionQuery
-  } = props;
+  const { queryParams, activityLogsByActionQuery, internalNotesByActionQuery } =
+    props;
   const { action = '' } = queryParams;
 
   if (
@@ -45,8 +42,8 @@ const buildListAndCount = (props: WithStagesProps) => {
 
   const { activityLogsByAction } = activityLogsByActionQuery;
 
-  let list = activityLogsByAction.activityLogs || [];
-  let totalCount = activityLogsByAction.totalCount || 0;
+  let list = activityLogsByAction?.activityLogs || [];
+  let totalCount = activityLogsByAction?.totalCount || 0;
   const actionList = action.split(',');
 
   if (actionList.includes('addNote')) {
@@ -74,17 +71,17 @@ const ActivityList = (props: WithStagesProps) => {
     refetchQueries: commonOptions(queryParams),
     activityLogsByAction: list,
     count: totalCount,
-    errorMessage: error || ''
+    errorMessage: error || '',
   };
 
   return <ActivityLogs {...updatedProps} />;
 };
 
-const commonOptions = queryParams => {
+const commonOptions = (queryParams) => {
   const variables = {
     action: queryParams.action,
     contentType: `cards:${queryParams.type}`,
-    ...generatePaginationParams(queryParams)
+    ...generatePaginationParams(queryParams),
   };
 
   return [{ query: gql(queries.activityLogsByAction), variables }];
@@ -94,7 +91,7 @@ const commonParams = (queryParams, options) => ({
   contentType: `cards:${options.type}`,
   pipelineId: queryParams.pipelineId,
   page: parseInt(queryParams.page || '1', 10),
-  perPage: parseInt(queryParams.perPage || '10', 10)
+  perPage: parseInt(queryParams.perPage || '10', 10),
 });
 
 export default withProps<Props>(
@@ -106,20 +103,20 @@ export default withProps<Props>(
         options: ({ queryParams, options }) => ({
           variables: {
             ...commonParams(queryParams, options),
-            action: queryParams.action
-          }
+            action: queryParams.action,
+          },
         }),
-        skip: !isEnabled('logs') ? true : false
-      }
+        skip: !isEnabled('logs') ? true : false,
+      },
     ),
     graphql<Props>(gql(queries.internalNotesByAction), {
       name: 'internalNotesByActionQuery',
       options: ({ queryParams, options }) => ({
         variables: {
-          ...commonParams(queryParams, options)
-        }
+          ...commonParams(queryParams, options),
+        },
       }),
-      skip: !isEnabled('internalnotes') ? true : false
-    })
-  )(ActivityList)
+      skip: !isEnabled('internalnotes') ? true : false,
+    }),
+  )(ActivityList),
 );

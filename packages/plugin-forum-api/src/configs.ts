@@ -15,7 +15,7 @@ import tags from './tags';
 import { generateAllDataLoaders } from './graphql/dataloaders';
 
 export let mainDb;
-export let graphqlPubsub;
+
 export let serviceDiscovery;
 
 export let debug;
@@ -23,19 +23,19 @@ export let debug;
 export default {
   name: 'forum',
   permissions,
-  graphql: async sd => {
+  graphql: async (sd) => {
     serviceDiscovery = sd;
 
     return {
       typeDefs: await typeDefs(sd),
-      resolvers: await resolvers(sd)
+      resolvers: await resolvers(sd),
     };
   },
   hasSubscriptions: false,
 
   meta: {
     cronjobs,
-    tags
+    tags,
   },
 
   apolloServerContext: async (context, req, res): Promise<IContext> => {
@@ -47,7 +47,7 @@ export default {
     context.serverTiming = {
       startTime: res.startTime,
       endTime: res.endTime,
-      setMetric: res.setMetric
+      setMetric: res.setMetric,
     };
 
     if (req.cpUser) {
@@ -59,7 +59,7 @@ export default {
     return context;
   },
   middlewares: [(serverTiming as any)(), cookieParser(), cpUserMiddleware],
-  onServerInit: async options => {
+  onServerInit: async (options) => {
     mainDb = options.db;
 
     const app = options.app;
@@ -67,6 +67,5 @@ export default {
     initBroker(options.messageBrokerClient);
 
     debug = options.debug;
-    graphqlPubsub = options.pubsubClient;
-  }
+  },
 };

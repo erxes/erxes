@@ -10,17 +10,17 @@ import { debugInfo } from '@erxes/api-utils/src/debuggers';
 
 export let mainDb;
 export let debug;
-export let graphqlPubsub;
+
 export let serviceDiscovery;
 
 export default {
   name: 'block',
-  graphql: async sd => {
+  graphql: async (sd) => {
     serviceDiscovery = sd;
 
     return {
       typeDefs: await typeDefs(sd),
-      resolvers: await resolvers(sd)
+      resolvers: await resolvers(sd),
     };
   },
 
@@ -34,7 +34,7 @@ export default {
     return context;
   },
 
-  onServerInit: async options => {
+  onServerInit: async (options) => {
     mainDb = options.db;
     const app = options.app;
 
@@ -47,7 +47,7 @@ export default {
         const models = await generateModels(subdomain);
 
         await models.Transactions.create({
-          body: JSON.stringify(req.body)
+          body: JSON.stringify(req.body),
         });
 
         res.json({ success: '200' });
@@ -121,13 +121,11 @@ export default {
 
         //   return res.json({ response: 'success' });
         // }
-      })
+      }),
     );
 
     initBroker(options.messageBrokerClient);
 
-    graphqlPubsub = options.pubsubClient;
-
     debug = options.debug;
-  }
+  },
 };
