@@ -3,6 +3,9 @@ import { generateModels } from './connectionResolver';
 import { savingToPolaris } from './utils/savingToPolaris';
 import { depositToPolaris } from './utils/depositToPolaris';
 import { depositTransactionToPolaris } from './utils/depositTransactionToPolaris';
+import { loansToPolaris } from './utils/loansToPolaris';
+import { loanClassificationToPolaris } from './utils/loanClassificationToPolaris';
+import { loanTransactionsToPolaris } from './utils/loanTransactionsToPolaris';
 
 const allowTypes = {
   'contacts:customer': ['create', 'update'],
@@ -13,7 +16,9 @@ const allowTypes = {
   //saving
   'savings:contract': ['create'],
   //loan
-  'loans:contract': ['create']
+  'loans:contract': ['create', 'update'],
+  'loans:classification': ['create'],
+  'loans:transaction': ['create'],
 };
 
 export const afterMutationHandlers = async (subdomain, params) => {
@@ -28,7 +33,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
     createdAt: new Date(),
     createdBy: user._id,
     consumeData: params,
-    consumeStr: JSON.stringify(params)
+    consumeStr: JSON.stringify(params),
   };
 
   if (!Object.keys(allowTypes).includes(type)) {
@@ -80,36 +85,20 @@ export const afterMutationHandlers = async (subdomain, params) => {
       case type === 'savings:contract':
         savingToPolaris(subdomain, params);
         break;
-    }
-    if (type === 'contacts:customer') {
-      syncLog = await models.SyncLogs.syncLogsAdd(syncLogDoc);
-      if (action === 'create') {
-        customerToPolaris(subdomain, params, 'create');
-        return;
-      }
-
-      if (action === 'update') {
-        customerToPolaris(subdomain, params, 'update');
-        return;
-      }
-    }
-
-    if (type === 'contacts:company') {
-      syncLog = await models.SyncLogs.syncLogsAdd(syncLogDoc);
-      if (action === 'create') {
-        companyToPolaris(subdomain, params, 'create');
-        return;
-      }
-
-      if (action === 'update') {
-        companyToPolaris(subdomain, params, 'update');
-        return;
-      }
+      case type === 'loans:contract':
+        loansToPolaris(subdomain, params, action);
+        break;
+      case type === 'loans:classification':
+        loanClassificationToPolaris(subdomain, params);
+        break;
+      case type === 'loans:transaction':
+        loanTransactionsToPolaris(subdomain, params, action);
+        break;
     }
   } catch (e) {
     await models.SyncLogs.updateOne(
       { _id: syncLog._id },
-      { $set: { error: e.message } }
+      { $set: { error: e.message } },
     );
   }
 };
