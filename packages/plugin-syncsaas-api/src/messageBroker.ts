@@ -1,5 +1,4 @@
 import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
-import { serviceDiscovery } from './configs';
 import { afterMutationHandlers } from './afterMutations';
 let client;
 
@@ -21,7 +20,6 @@ export const initBroker = async cl => {
 export const sendContactsMessage = (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'contacts',
     ...args
   });
@@ -30,7 +28,6 @@ export const sendContactsMessage = (args: ISendMessageArgs): Promise<any> => {
 export const sendFormsMessage = (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'forms',
     ...args
   });
@@ -39,7 +36,6 @@ export const sendFormsMessage = (args: ISendMessageArgs): Promise<any> => {
 export const sendCardsMessage = (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'cards',
     ...args
   });
@@ -48,7 +44,6 @@ export const sendCardsMessage = (args: ISendMessageArgs): Promise<any> => {
 export const sendCoreMessage = (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'core',
     ...args
   });
@@ -57,7 +52,6 @@ export const sendCoreMessage = (args: ISendMessageArgs): Promise<any> => {
 export const sendCPMessage = (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'clientportal',
     ...args
   });
@@ -68,7 +62,6 @@ export const sendNotificationsMessage = async (
 ): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'notifications',
     ...args
   });

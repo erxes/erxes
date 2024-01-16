@@ -1,7 +1,6 @@
 import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
 
 import { afterMutationHandlers } from './afterMutations';
-import { serviceDiscovery } from './configs';
 import { generateModels } from './connectionResolver';
 
 let client;
@@ -26,7 +25,6 @@ export const initBroker = async cl => {
 export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'core',
     ...args
   });
@@ -37,7 +35,6 @@ export const sendProductsMessage = async (
 ): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'products',
     ...args
   });
@@ -48,7 +45,6 @@ export const sendReactionsMessage = async (
 ): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'reactions',
     ...args
   });
@@ -57,7 +53,6 @@ export const sendReactionsMessage = async (
 export const sendXypMessage = async (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'xyp',
     ...args
   });
@@ -68,7 +63,6 @@ export const sendInternalNotesMessage = async (
 ): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'internalnotes',
     ...args
   });
@@ -78,7 +72,6 @@ export const sendCommonMessage = async (
   args: ISendMessageArgs & { serviceName: string }
 ): Promise<any> => {
   return sendMessage({
-    serviceDiscovery,
     client,
     ...args
   });
@@ -89,7 +82,6 @@ export const sendNotificationsMessage = async (
 ): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'notifications',
     ...args
   });
@@ -102,7 +94,6 @@ export const sendNotification = (subdomain: string, data) => {
 export const sendContactsMessage = (args: ISendMessageArgs) => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'contacts',
     ...args
   });
@@ -111,7 +102,6 @@ export const sendContactsMessage = (args: ISendMessageArgs) => {
 export const sendCardsMessage = (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'cards',
     ...args
   });
@@ -122,7 +112,6 @@ export const sendSegmentsMessage = async (
 ): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'segments',
     ...args
   });
@@ -143,7 +132,6 @@ export const fetchSegment = (
 
 export const sendClientPortalMessage = (args: ISendMessageArgs) => {
   return sendMessage({
-    serviceDiscovery,
     client,
     serviceName: 'clientportal',
     ...args
@@ -152,7 +140,6 @@ export const sendClientPortalMessage = (args: ISendMessageArgs) => {
 
 export const sendFormsMessage = (args: ISendMessageArgs) => {
   return sendMessage({
-    serviceDiscovery,
     client,
     serviceName: 'forms',
     ...args

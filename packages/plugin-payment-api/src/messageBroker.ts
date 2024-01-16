@@ -1,5 +1,5 @@
 import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
-import { serviceDiscovery } from './configs';
+
 import { generateModels } from './connectionResolver';
 
 let client;
@@ -24,7 +24,6 @@ export const sendContactsMessage = async (
 ): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'contacts',
     ...args
   });
@@ -36,7 +35,6 @@ export const sendCommonMessage = async (
 ): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName,
     ...args
   });
@@ -47,7 +45,6 @@ export const sendInboxMessage = async (
 ): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'inbox',
     ...args
   });

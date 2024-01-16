@@ -16,15 +16,11 @@ import { routeErrorHandling } from '@erxes/api-utils/src/requests';
 import logs from './logUtils';
 
 export let mainDb;
-
-export let serviceDiscovery;
-
 export let debug;
 
 export default {
   name: 'imap',
-  graphql: (sd) => {
-    serviceDiscovery = sd;
+  graphql: () => {
     return {
       typeDefs,
       resolvers,

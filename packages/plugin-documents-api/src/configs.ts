@@ -8,16 +8,12 @@ import { initBroker, sendCommonMessage } from './messageBroker';
 import * as permissions from './permissions';
 
 export let mainDb;
-
-export let serviceDiscovery;
-
 export let debug;
 
 export default {
   name: 'documents',
   permissions,
-  graphql: (sd) => {
-    serviceDiscovery = sd;
+  graphql: () => {
     return {
       typeDefs,
       resolvers,

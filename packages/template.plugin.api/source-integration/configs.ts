@@ -6,14 +6,13 @@ import init from './controller';
 
 export let mainDb;
 
-export let serviceDiscovery;
+
 
 export let debug;
 
 export default {
   name: '{name}',
-  graphql: sd => {
-    serviceDiscovery = sd;
+  graphql: () => {
     return {
       typeDefs,
       resolvers

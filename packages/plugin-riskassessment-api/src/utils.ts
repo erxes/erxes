@@ -1,4 +1,5 @@
-import { serviceDiscovery } from './configs';
+
+import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
 import { IModels, models } from './connectionResolver';
 import {
   sendCardsMessage,
@@ -8,7 +9,7 @@ import {
 } from './messageBroker';
 
 export const validRiskIndicators = async params => {
-  if (serviceDiscovery.isEnabled('tags') && !params?.tagIds?.length) {
+  if (isEnabled('tags') && !params?.tagIds?.length) {
     throw new Error('Please select some tags');
   }
   if (await models?.RiskIndicators.findOne({ name: params.name })) {

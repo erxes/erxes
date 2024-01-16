@@ -1,5 +1,4 @@
 import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
-import { serviceDiscovery } from './configs';
 
 let client;
 
@@ -12,7 +11,6 @@ export const sendProductsMessage = async (
 ): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'products',
     ...args
   });

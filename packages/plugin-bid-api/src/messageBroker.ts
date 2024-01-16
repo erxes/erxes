@@ -1,5 +1,4 @@
 import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
-import { serviceDiscovery } from './configs';
 import { Polarissyncs } from './models';
 import { afterMutationHandlers } from './afterMutations';
 
@@ -35,7 +34,6 @@ export const sendCommonMessage = async (
   args: ISendMessageArgs & { serviceName: string },
 ) => {
   return sendMessage({
-    serviceDiscovery,
     client,
     ...args,
   });

@@ -3,6 +3,7 @@ import * as strip from 'strip';
 import { IUserDocument } from './types';
 import { IPermissionDocument } from './definitions/permissions';
 import { randomAlphanumeric } from '@erxes/api-utils/src/random';
+import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
 
 export const getEnv = ({
   name,
@@ -254,13 +255,11 @@ export interface ISendMessageArgs {
 export const sendMessage = async (
   args: {
     client: any;
-    serviceDiscovery: any;
     serviceName: string;
   } & ISendMessageArgs
 ): Promise<any> => {
   const {
     client,
-    serviceDiscovery,
     serviceName,
     subdomain,
     action,
@@ -271,7 +270,7 @@ export const sendMessage = async (
     timeout
   } = args;
 
-  if (serviceName && !(await serviceDiscovery.isEnabled(serviceName))) {
+  if (serviceName && !(await isEnabled(serviceName))) {
     if (isRPC && defaultValue === undefined) {
       throw new Error(`${serviceName} service is not enabled`);
     } else {

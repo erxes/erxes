@@ -10,18 +10,16 @@ import { getSubdomain } from '@erxes/api-utils/src/core';
 import dashboards from './dashboards';
 
 export let debug;
-
 export let mainDb;
-export let serviceDiscovery;
+
 
 export default {
   name: 'tags',
   permissions,
-  graphql: async (sd) => {
-    serviceDiscovery = sd;
+  graphql: async () => {
     return {
-      typeDefs: await typeDefs(sd),
-      resolvers: await resolvers(sd),
+      typeDefs: await typeDefs(),
+      resolvers: await resolvers(),
     };
   },
   apolloServerContext: async (context, req, res) => {

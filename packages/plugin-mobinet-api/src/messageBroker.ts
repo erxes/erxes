@@ -1,5 +1,4 @@
 import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
-import { serviceDiscovery } from './configs';
 import { sendSms } from './utils';
 
 let client;
@@ -40,7 +39,6 @@ export const sendCommonMessage = async (
   args: ISendMessageArgs & { serviceName: string }
 ) => {
   return sendMessage({
-    serviceDiscovery,
     client,
     ...args
   });

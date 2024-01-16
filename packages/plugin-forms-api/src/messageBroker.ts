@@ -1,6 +1,6 @@
 import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
 import { fieldsCombinedByContentType } from './utils';
-import { serviceDiscovery } from './configs';
+
 import { generateModels } from './connectionResolver';
 
 let client;
@@ -264,7 +264,6 @@ export const fetchService = async (
 
   return sendMessage({
     subdomain,
-    serviceDiscovery,
     client,
     isRPC: true,
     serviceName,
@@ -282,7 +281,6 @@ export const sendInboxMessage = async (
 ): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'inbox',
     ...args
   });
@@ -293,7 +291,6 @@ export const sendContactsMessage = async (
 ): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'contacts',
     ...args
   });
@@ -303,7 +300,6 @@ export const sendCommonMessage = async (
   args: ISendMessageArgs & { serviceName: string }
 ): Promise<any> => {
   return sendMessage({
-    serviceDiscovery,
     client,
     ...args
   });
@@ -314,7 +310,6 @@ export const sendProductsMessage = async (
 ): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'products',
     ...args
   });
@@ -325,7 +320,6 @@ export const sendAutomationsMessage = async (
 ): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'automations',
     ...args
   });
