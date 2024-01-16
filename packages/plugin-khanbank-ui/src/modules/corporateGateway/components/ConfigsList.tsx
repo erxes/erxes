@@ -1,22 +1,22 @@
+import * as routerUtils from '@erxes/ui/src/utils/router';
+
+import AccountList from '../accounts/containers/List';
 import Box from '@erxes/ui/src/components/Box';
 import Button from '@erxes/ui/src/components/Button';
-import EmptyState from '@erxes/ui/src/components/EmptyState';
-import Icon from '@erxes/ui/src/components/Icon';
-import LoadMore from '@erxes/ui/src/components/LoadMore';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import LeftSidebar from '@erxes/ui/src/layout/components/Sidebar';
-import { SidebarList } from '@erxes/ui/src/layout/styles';
-import { TopHeader } from '@erxes/ui/src/styles/main';
-import { IRouterProps } from '@erxes/ui/src/types';
-import * as routerUtils from '@erxes/ui/src/utils/router';
-import React from 'react';
-import { withRouter } from 'react-router-dom';
-
 import { ConfigList } from '../../../styles';
-import AccountList from '../accounts/containers/List';
+import EmptyState from '@erxes/ui/src/components/EmptyState';
 import Form from '../../configs/containers/Form';
 import { IKhanbankConfigsItem } from '../../configs/types';
+import { IRouterProps } from '@erxes/ui/src/types';
+import Icon from '@erxes/ui/src/components/Icon';
+import LeftSidebar from '@erxes/ui/src/layout/components/Sidebar';
+import LoadMore from '@erxes/ui/src/components/LoadMore';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import React from 'react';
+import { SidebarList } from '@erxes/ui/src/layout/styles';
+import Spinner from '@erxes/ui/src/components/Spinner';
+import { TopHeader } from '@erxes/ui/src/styles/main';
+// import { withRouter } from 'react-router-dom';
 
 type Props = {
   configs: IKhanbankConfigsItem[];
@@ -30,25 +30,25 @@ const ConfigsList = (props: Props) => {
   const { configs, totalCount, queryParams, loading, history, refetch } = props;
 
   const [currentConfig, setCurrentConfig] = React.useState<string | undefined>(
-    queryParams._id
+    queryParams._id,
   );
 
   const [fetchPolicy, setFetchPolicy] = React.useState('cache-first');
 
   React.useEffect(() => {
     const defaultAccount = JSON.parse(
-      localStorage.getItem('khanbankDefaultAccount') || '{}'
+      localStorage.getItem('khanbankDefaultAccount') || '{}',
     );
 
     if (defaultAccount.configId && defaultAccount.accountNumber) {
       routerUtils.setParams(history, {
         _id: defaultAccount.configId,
-        account: defaultAccount.accountNumber
+        account: defaultAccount.accountNumber,
       });
     }
   }, []);
 
-  const onClickRow = config => {
+  const onClickRow = (config) => {
     setCurrentConfig(config._id);
     routerUtils.setParams(history, { _id: config._id });
   };
@@ -98,7 +98,7 @@ const ConfigsList = (props: Props) => {
       </Button>
     );
 
-    const formContent = formProps => <Form {...formProps} />;
+    const formContent = (formProps) => <Form {...formProps} />;
 
     return (
       <TopHeader>
@@ -135,4 +135,4 @@ const ConfigsList = (props: Props) => {
   );
 };
 
-export default withRouter<Props>(ConfigsList);
+export default ConfigsList;

@@ -3,14 +3,15 @@ import { FieldStyle, SidebarList } from '@erxes/ui/src/layout/styles';
 import { IButtonMutateProps, IRouterProps } from '@erxes/ui/src/types';
 import {
   ISkillType,
-  ISkillTypesDocument
+  ISkillTypesDocument,
 } from '@erxes/ui-inbox/src/settings/skills/types';
-import { Link, withRouter } from 'react-router-dom';
 
+// import { withRouter } from 'react-router-dom';
 import Button from '@erxes/ui/src/components/Button';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import { Header } from '@erxes/ui-settings/src/styles';
 import Icon from '@erxes/ui/src/components/Icon';
+import { Link } from 'react-router-dom';
 import LoadMore from '@erxes/ui/src/components/LoadMore';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import React from 'react';
@@ -41,7 +42,7 @@ function SkillTypes({
   loading,
   refetch,
   remove,
-  renderButton
+  renderButton,
 }: Props) {
   const isItemActive = (id: string) => {
     const currentType = queryParams.typeId || '';
@@ -80,7 +81,7 @@ function SkillTypes({
   }
 
   function renderFormTrigger(trigger: React.ReactNode, object?: ISkillType) {
-    const content = props => renderForm({ ...props, object });
+    const content = (props) => renderForm({ ...props, object });
 
     return (
       <ModalTrigger
@@ -114,7 +115,7 @@ function SkillTypes({
   function renderContent() {
     return (
       <SidebarList noTextColor noBackground>
-        {objects.map(object => (
+        {objects.map((object) => (
           <SidebarListItem key={object._id} isActive={isItemActive(object._id)}>
             <Link to={`?typeId=${object._id}`}>
               <FieldStyle>{object.name}</FieldStyle>
@@ -136,7 +137,7 @@ function SkillTypes({
         loading={loading}
         count={totalCount}
         emptyText={`${__('Get started by grouping the skills into types')}.${__(
-          'For example, language skills'
+          'For example, language skills',
         )}`}
         emptyImage="/images/actions/26.svg"
       />
@@ -145,4 +146,4 @@ function SkillTypes({
   );
 }
 
-export default withRouter<Props>(SkillTypes);
+export default SkillTypes;

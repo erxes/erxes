@@ -2,7 +2,7 @@ import * as compose from 'lodash.flowright';
 
 import {
   ChannelDetailQueryResponse,
-  ChannelsGetLastQueryResponse
+  ChannelsGetLastQueryResponse,
 } from '../types';
 import { router as routerUtils, withProps } from '@erxes/ui/src/utils';
 
@@ -16,7 +16,8 @@ import { gql } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
 import { queries } from '../graphql';
 import queryString from 'query-string';
-import { withRouter } from 'react-router-dom';
+
+// import { withRouter } from 'react-router-dom';
 
 type Props = {
   currentChannelId: string;
@@ -34,7 +35,7 @@ class Channels extends React.Component<FinalProps> {
       channelDetailQuery,
       location,
       integrationsCountQuery,
-      currentChannelId
+      currentChannelId,
     } = this.props;
 
     let integrationsCount = 0;
@@ -49,7 +50,7 @@ class Channels extends React.Component<FinalProps> {
       queryParams: queryString.parse(location.search),
       currentChannel: channelDetailQuery.channelDetail || ({} as IChannel),
       loading: channelDetailQuery.loading,
-      integrationsCount
+      integrationsCount,
     };
 
     return <DumbChannels {...extendedProps} />;
@@ -64,20 +65,20 @@ const ChannelsContainer = withProps<Props>(
         name: 'channelDetailQuery',
         options: ({ currentChannelId }: { currentChannelId: string }) => ({
           variables: { _id: currentChannelId },
-          fetchPolicy: 'network-only'
-        })
-      }
+          fetchPolicy: 'network-only',
+        }),
+      },
     ),
     graphql<Props, IntegrationsCountQueryResponse, { channelId: string }>(
       gql(queries.integrationsCount),
       {
         name: 'integrationsCountQuery',
         options: ({ currentChannelId }: { currentChannelId: string }) => ({
-          variables: { channelId: currentChannelId }
-        })
-      }
-    )
-  )(Channels)
+          variables: { channelId: currentChannelId },
+        }),
+      },
+    ),
+  )(Channels),
 );
 
 type withCurrentIdProps = {
@@ -95,7 +96,7 @@ class WithCurrentId extends React.Component<withCurrentIdFinalProps> {
     const {
       lastChannelQuery = {},
       history,
-      queryParams: { _id }
+      queryParams: { _id },
     } = nextProps;
 
     const { channelsGetLast, loading } = lastChannelQuery;
@@ -107,7 +108,7 @@ class WithCurrentId extends React.Component<withCurrentIdFinalProps> {
 
   render() {
     const {
-      queryParams: { _id }
+      queryParams: { _id },
     } = this.props;
 
     if (!_id) {
@@ -116,7 +117,7 @@ class WithCurrentId extends React.Component<withCurrentIdFinalProps> {
 
     const updatedProps = {
       ...this.props,
-      currentChannelId: _id
+      currentChannelId: _id,
     };
 
     return <ChannelsContainer {...updatedProps} />;
@@ -132,11 +133,11 @@ const WithLastChannel = withProps<withCurrentIdProps>(
         skip: ({ queryParams }) => queryParams._id,
         options: ({ queryParams }: withCurrentIdProps) => ({
           variables: { _id: queryParams._id },
-          fetchPolicy: 'network-only'
-        })
-      }
-    )
-  )(WithCurrentId)
+          fetchPolicy: 'network-only',
+        }),
+      },
+    ),
+  )(WithCurrentId),
 );
 
 const WithQueryParams = (props: IRouterProps) => {
@@ -148,4 +149,4 @@ const WithQueryParams = (props: IRouterProps) => {
   return <WithLastChannel {...extendedProps} />;
 };
 
-export default withRouter<IRouterProps>(WithQueryParams);
+export default WithQueryParams;

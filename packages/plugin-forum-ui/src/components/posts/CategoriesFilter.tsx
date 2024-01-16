@@ -7,7 +7,8 @@ import { IRouterProps } from '@erxes/ui/src/types';
 import Icon from '@erxes/ui/src/components/Icon';
 import { Link } from 'react-router-dom';
 import React from 'react';
-import { withRouter } from 'react-router-dom';
+
+// import { withRouter } from 'react-router-dom';
 
 interface IProps extends IRouterProps {
   categories: ICategory[];
@@ -50,4 +51,4 @@ function CategoryFilter({ categories }: IProps) {
   );
 }
 
-export default withRouter<IProps>(CategoryFilter);
+export default CategoryFilter;

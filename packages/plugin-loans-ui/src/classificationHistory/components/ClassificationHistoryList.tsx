@@ -1,27 +1,25 @@
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import Table from '@erxes/ui/src/components/table';
-import Pagination from '@erxes/ui/src/components/pagination/Pagination';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
-import SortHandler from '@erxes/ui/src/components/SortHandler';
+import { can, router } from '@erxes/ui/src/utils/core';
 
-import confirm from '@erxes/ui/src/utils/confirmation/confirm';
-import Button from '@erxes/ui/src/components/Button';
 import Alert from '@erxes/ui/src/utils/Alert';
 import { BarItems } from '@erxes/ui/src/layout/styles';
-
-import { __ } from 'coreui/utils';
-import { IRouterProps } from '@erxes/ui/src/types';
-import React from 'react';
-import { withRouter } from 'react-router-dom';
-import { menuContracts } from '../../constants';
-
+import Button from '@erxes/ui/src/components/Button';
 import { ClassificationHistoryTableWrapper } from '../styles';
+import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
+import FormControl from '@erxes/ui/src/components/form/Control';
 import { IPeriodLock } from '../types';
-import PeriodLockRow from './ClassificationHistoryRow';
-import { can, router } from '@erxes/ui/src/utils/core';
-import withConsumer from '../../withConsumer';
+import { IRouterProps } from '@erxes/ui/src/types';
 import { IUser } from '@erxes/ui/src/auth/types';
+import Pagination from '@erxes/ui/src/components/pagination/Pagination';
+import PeriodLockRow from './ClassificationHistoryRow';
+import React from 'react';
+import SortHandler from '@erxes/ui/src/components/SortHandler';
+import Table from '@erxes/ui/src/components/table';
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
+import { __ } from 'coreui/utils';
+import confirm from '@erxes/ui/src/utils/confirmation/confirm';
+// import { withRouter } from 'react-router-dom';
+import { menuContracts } from '../../constants';
+import withConsumer from '../../withConsumer';
 
 interface IProps extends IRouterProps {
   classificationHistory: IPeriodLock[];
@@ -36,7 +34,7 @@ interface IProps extends IRouterProps {
   emptyBulk: () => void;
   removeClassificationHistory: (
     doc: { classificationIds: string[] },
-    emptyBulk: () => void
+    emptyBulk: () => void,
   ) => void;
   history: any;
   queryParams: any;
@@ -54,7 +52,7 @@ class ClassificationHistoryList extends React.Component<IProps, State> {
     super(props);
 
     this.state = {
-      searchValue: this.props.searchValue
+      searchValue: this.props.searchValue,
     };
   }
 
@@ -63,7 +61,7 @@ class ClassificationHistoryList extends React.Component<IProps, State> {
     toggleAll(classificationHistory, 'classificationHistory');
   };
 
-  search = e => {
+  search = (e) => {
     if (this.timer) {
       clearTimeout(this.timer);
     }
@@ -78,20 +76,20 @@ class ClassificationHistoryList extends React.Component<IProps, State> {
     }, 500);
   };
 
-  removeClassificationHistory = classificationHistory => {
+  removeClassificationHistory = (classificationHistory) => {
     const classificationIds: string[] = [];
 
-    classificationHistory.forEach(periodLock => {
+    classificationHistory.forEach((periodLock) => {
       classificationIds.push(periodLock._id);
     });
 
     this.props.removeClassificationHistory(
       { classificationIds },
-      this.props.emptyBulk
+      this.props.emptyBulk,
     );
   };
 
-  moveCursorAtTheEnd = e => {
+  moveCursorAtTheEnd = (e) => {
     const tmpValue = e.target.value;
     e.target.value = '';
     e.target.value = tmpValue;
@@ -107,7 +105,7 @@ class ClassificationHistoryList extends React.Component<IProps, State> {
       isAllSelected,
       totalCount,
       queryParams,
-      currentUser
+      currentUser,
     } = this.props;
 
     const mainContent = (
@@ -141,7 +139,7 @@ class ClassificationHistoryList extends React.Component<IProps, State> {
             </tr>
           </thead>
           <tbody id="classificationHistory">
-            {classificationHistory.map(periodLock => (
+            {classificationHistory.map((periodLock) => (
               <PeriodLockRow
                 periodLock={periodLock}
                 isChecked={bulk.includes(periodLock)}
@@ -169,7 +167,7 @@ class ClassificationHistoryList extends React.Component<IProps, State> {
           .then(() => {
             this.removeClassificationHistory(bulk);
           })
-          .catch(error => {
+          .catch((error) => {
             Alert.error(error.message);
           });
 
@@ -208,8 +206,8 @@ class ClassificationHistoryList extends React.Component<IProps, State> {
           <Wrapper.Header
             title={__(`Period Locks`) + ` (${totalCount})`}
             queryParams={queryParams}
-            submenu={menuContracts.filter(row =>
-              can(row.permission, currentUser)
+            submenu={menuContracts.filter((row) =>
+              can(row.permission, currentUser),
             )}
           />
         }
@@ -229,6 +227,4 @@ class ClassificationHistoryList extends React.Component<IProps, State> {
   }
 }
 
-export default withRouter<IRouterProps>(
-  withConsumer(ClassificationHistoryList)
-);
+export default withConsumer(ClassificationHistoryList);

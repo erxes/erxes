@@ -1,21 +1,23 @@
-import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
-import Bulk from '@erxes/ui/src/components/Bulk';
-import { IRouterProps } from '@erxes/ui/src/types';
-import queryString from 'query-string';
-import React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
-import { withRouter } from 'react-router-dom';
-import { withProps } from '@erxes/ui/src/utils';
 import * as routerUtils from '@erxes/ui/src/utils/router';
-import MessageList from '../components/MessageList';
-import { queries } from '@erxes/ui-engage/src/graphql';
+
 import {
   EngageMessagesQueryResponse,
   EngageMessagesTotalCountQueryResponse,
-  ListQueryVariables
+  ListQueryVariables,
 } from '@erxes/ui-engage/src/types';
+
+import Bulk from '@erxes/ui/src/components/Bulk';
+import { IRouterProps } from '@erxes/ui/src/types';
+import MessageList from '../components/MessageList';
+import React from 'react';
 import { generateListQueryVariables } from '@erxes/ui-engage/src/utils';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
+import { queries } from '@erxes/ui-engage/src/graphql';
+import queryString from 'query-string';
+// import { withRouter } from 'react-router-dom';
+import { withProps } from '@erxes/ui/src/utils';
 
 type Props = {
   type: string;
@@ -41,7 +43,7 @@ class MessageListContainer extends React.Component<FinalProps, State> {
 
     this.state = {
       bulk: [],
-      isAllSelected: false
+      isAllSelected: false,
     };
   }
 
@@ -50,7 +52,7 @@ class MessageListContainer extends React.Component<FinalProps, State> {
 
     const shouldRefetchList = routerUtils.getParam(
       history,
-      'engageRefetchList'
+      'engageRefetchList',
     );
 
     if (shouldRefetchList) {
@@ -62,7 +64,7 @@ class MessageListContainer extends React.Component<FinalProps, State> {
     const {
       engageMessagesQuery,
       engageMessagesTotalCountQuery,
-      engageStatsQuery
+      engageStatsQuery,
     } = this.props;
 
     engageMessagesQuery.refetch();
@@ -75,7 +77,7 @@ class MessageListContainer extends React.Component<FinalProps, State> {
       queryParams,
       engageMessagesQuery,
       engageMessagesTotalCountQuery,
-      engageStatsQuery
+      engageStatsQuery,
     } = this.props;
 
     const updatedProps = {
@@ -87,10 +89,10 @@ class MessageListContainer extends React.Component<FinalProps, State> {
       queryParams,
       loading: engageMessagesQuery.loading || engageStatsQuery.loading,
       emailPercentages: engageStatsQuery.engageEmailPercentages || {},
-      refetch: this.refetch
+      refetch: this.refetch,
     };
 
-    const content = props => {
+    const content = (props) => {
       return <MessageList {...updatedProps} {...props} />;
     };
 
@@ -104,27 +106,27 @@ const MessageListContainerWithData = withProps<Props>(
       gql(queries.engageMessages),
       {
         name: 'engageMessagesQuery',
-        options: props => ({
-          variables: generateListQueryVariables(props)
-        })
-      }
+        options: (props) => ({
+          variables: generateListQueryVariables(props),
+        }),
+      },
     ),
     graphql<Props, EngageMessagesTotalCountQueryResponse, ListQueryVariables>(
       gql(queries.engageMessagesTotalCount),
       {
         name: 'engageMessagesTotalCountQuery',
-        options: props => ({
-          variables: generateListQueryVariables(props)
-        })
-      }
+        options: (props) => ({
+          variables: generateListQueryVariables(props),
+        }),
+      },
     ),
     graphql<Props, EngageMessagesTotalCountQueryResponse, ListQueryVariables>(
       gql(queries.engageEmailPercentages),
       {
-        name: 'engageStatsQuery'
-      }
-    )
-  )(MessageListContainer)
+        name: 'engageStatsQuery',
+      },
+    ),
+  )(MessageListContainer),
 );
 
 const EngageListContainer = (props: IRouterProps & Props) => {
@@ -135,4 +137,4 @@ const EngageListContainer = (props: IRouterProps & Props) => {
   return <MessageListContainerWithData {...extendedProps} />;
 };
 
-export default withRouter<IRouterProps & Props>(EngageListContainer);
+export default EngageListContainer;

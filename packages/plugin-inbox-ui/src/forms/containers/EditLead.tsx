@@ -4,7 +4,7 @@ import { Alert, withProps } from '@erxes/ui/src/utils';
 import {
   EditIntegrationMutationResponse,
   EditIntegrationMutationVariables,
-  LeadIntegrationDetailQueryResponse
+  LeadIntegrationDetailQueryResponse,
 } from '@erxes/ui-inbox/src/settings/integrations/types';
 import { mutations, queries } from '@erxes/ui-leads/src/graphql';
 
@@ -18,7 +18,8 @@ import { gql } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
 import { isEnabled } from '@erxes/ui/src/utils/core';
 import { queries as settingsQueries } from '@erxes/ui-settings/src/general/graphql';
-import { withRouter } from 'react-router-dom';
+
+// import { withRouter } from 'react-router-dom';
 
 type Props = {
   contentTypeId: string;
@@ -60,7 +61,7 @@ class EditLeadContainer extends React.Component<FinalProps, State> {
       isLoading: false,
       isReadyToSaveForm: false,
       mustWait: { optionsStep: false },
-      isIntegrationSubmitted: false
+      isIntegrationSubmitted: false,
     };
   }
 
@@ -78,7 +79,7 @@ class EditLeadContainer extends React.Component<FinalProps, State> {
     if (canClose) {
       this.props.history.push({
         pathname: '/forms',
-        search: `?popUpRefetchList=true`
+        search: `?popUpRefetchList=true`,
       });
     }
   };
@@ -90,7 +91,7 @@ class EditLeadContainer extends React.Component<FinalProps, State> {
       editIntegrationMutation,
       history,
       emailTemplatesQuery,
-      configsQuery
+      configsQuery,
     } = this.props;
 
     if (integrationDetailQuery.loading) {
@@ -109,7 +110,7 @@ class EditLeadContainer extends React.Component<FinalProps, State> {
           languageCode,
           channelIds,
           visibility,
-          departmentIds
+          departmentIds,
         } = this.state.doc;
 
         editIntegrationMutation({
@@ -122,19 +123,19 @@ class EditLeadContainer extends React.Component<FinalProps, State> {
             languageCode,
             channelIds,
             visibility,
-            departmentIds
-          }
+            departmentIds,
+          },
         })
           .then(() => {
             Alert.success('You successfully updated a form');
 
             this.setState({
-              isIntegrationSubmitted: true
+              isIntegrationSubmitted: true,
             });
             this.redirect();
           })
 
-          .catch(error => {
+          .catch((error) => {
             Alert.error(error.message);
 
             this.setState({ isReadyToSaveForm: false, isLoading: false });
@@ -147,7 +148,7 @@ class EditLeadContainer extends React.Component<FinalProps, State> {
       this.setState({ mustWait });
     };
 
-    const save = doc => {
+    const save = (doc) => {
       this.setState({ isLoading: true, isReadyToSaveForm: true, doc });
     };
 
@@ -158,7 +159,7 @@ class EditLeadContainer extends React.Component<FinalProps, State> {
       save,
       afterFormDbSave,
       waitUntilFinish,
-      onChildProcessFinished: component => {
+      onChildProcessFinished: (component) => {
         if (this.state.mustWait.hasOwnProperty(component)) {
           const mustWait = { ...this.state.mustWait };
           mustWait[component] = false;
@@ -172,7 +173,7 @@ class EditLeadContainer extends React.Component<FinalProps, State> {
       emailTemplates: emailTemplatesQuery
         ? emailTemplatesQuery.emailTemplates || []
         : [],
-      configs: configsQuery.configs || []
+      configs: configsQuery.configs || [],
     };
 
     return <Lead {...updatedProps} currentMode="update" />;
@@ -185,19 +186,19 @@ const withTemplatesQuery = withProps<FinalProps>(
       name: 'emailTemplatesQuery',
       options: ({ emailTemplatesTotalCountQuery }) => ({
         variables: {
-          perPage: emailTemplatesTotalCountQuery.emailTemplatesTotalCount
-        }
+          perPage: emailTemplatesTotalCountQuery.emailTemplatesTotalCount,
+        },
       }),
-      skip: !isEnabled('engages') ? true : false
-    })
-  )(EditLeadContainer)
+      skip: !isEnabled('engages') ? true : false,
+    }),
+  )(EditLeadContainer),
 );
 
 export default withProps<FinalProps>(
   compose(
     graphql(gql(queries.templateTotalCount), {
       name: 'emailTemplatesTotalCountQuery',
-      skip: !isEnabled('engages') ? true : false
+      skip: !isEnabled('engages') ? true : false,
     }),
     graphql<Props, LeadIntegrationDetailQueryResponse, { _id: string }>(
       gql(queries.integrationDetail),
@@ -206,13 +207,13 @@ export default withProps<FinalProps>(
         options: ({ contentTypeId }) => ({
           fetchPolicy: 'cache-and-network',
           variables: {
-            _id: contentTypeId
-          }
-        })
-      }
+            _id: contentTypeId,
+          },
+        }),
+      },
     ),
     graphql<{}, ConfigsQueryResponse>(gql(settingsQueries.configs), {
-      name: 'configsQuery'
+      name: 'configsQuery',
     }),
     graphql<
       Props,
@@ -224,9 +225,9 @@ export default withProps<FinalProps>(
         refetchQueries: [
           'leadIntegrations',
           'leadIntegrationCounts',
-          'formDetail'
-        ]
-      }
-    })
-  )(withRouter<FinalProps>(withTemplatesQuery))
+          'formDetail',
+        ],
+      },
+    }),
+  )(withTemplatesQuery),
 );

@@ -5,7 +5,7 @@ import {
   CheckSyncedOrdersQueryResponse,
   CheckSyncedOrdersTotalCountQueryResponse,
   PosListQueryResponse,
-  ToSyncOrdersMutationResponse
+  ToSyncOrdersMutationResponse,
 } from '../types';
 import { mutations, queries } from '../graphql';
 import { router, withProps } from '@erxes/ui/src/utils/core';
@@ -17,7 +17,8 @@ import { IRouterProps } from '@erxes/ui/src/types';
 import React from 'react';
 import { gql } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
-import { withRouter } from 'react-router-dom';
+
+// import { withRouter } from 'react-router-dom';
 
 type Props = {
   queryParams: any;
@@ -44,7 +45,7 @@ class CheckSyncedOrdersContainer extends React.Component<FinalProps, State> {
 
     this.state = {
       unSyncedOrderIds: [],
-      syncedOrderInfos: {}
+      syncedOrderInfos: {},
     };
   }
 
@@ -53,56 +54,56 @@ class CheckSyncedOrdersContainer extends React.Component<FinalProps, State> {
       toCheckSynced,
       checkSyncItemsQuery,
       checkSyncedOrdersTotalCountQuery,
-      posListQuery
+      posListQuery,
     } = this.props;
 
     // remove action
     const checkSynced = async ({ orderIds }, emptyBulk) => {
       await toCheckSynced({
-        variables: { ids: orderIds }
+        variables: { ids: orderIds },
       })
-        .then(response => {
+        .then((response) => {
           emptyBulk();
           const statuses = response.data.toCheckSynced;
 
           const unSyncedOrderIds = (
-            statuses.filter(s => !s.isSynced) || []
-          ).map(s => s._id);
+            statuses.filter((s) => !s.isSynced) || []
+          ).map((s) => s._id);
           const syncedOrderInfos = {};
-          const syncedOrders = statuses.filter(s => s.isSynced) || [];
+          const syncedOrders = statuses.filter((s) => s.isSynced) || [];
 
-          syncedOrders.forEach(item => {
+          syncedOrders.forEach((item) => {
             syncedOrderInfos[item._id] = {
               syncedBillNumber: item.syncedBillNumber || '',
               syncedDate: item.syncedDate || '',
-              syncedCustomer: item.syncedCustomer || ''
+              syncedCustomer: item.syncedCustomer || '',
             };
           });
 
           this.setState({ unSyncedOrderIds, syncedOrderInfos });
           Alert.success('Check finished');
         })
-        .catch(e => {
+        .catch((e) => {
           Alert.error(e.message);
         });
     };
 
-    const toSyncOrders = orderIds => {
+    const toSyncOrders = (orderIds) => {
       this.props
         .toSyncOrders({
-          variables: { orderIds }
+          variables: { orderIds },
         })
-        .then(response => {
+        .then((response) => {
           const { skipped, error, success } = response.data.toSyncOrders;
           const changed = this.state.unSyncedOrderIds.filter(
-            u => !orderIds.includes(u)
+            (u) => !orderIds.includes(u),
           );
           this.setState({ unSyncedOrderIds: changed });
           Alert.success(
-            `Алгассан: ${skipped.length}, Алдаа гарсан: ${error.length}, Амжилттай: ${success.length}`
+            `Алгассан: ${skipped.length}, Алдаа гарсан: ${error.length}, Амжилттай: ${success.length}`,
           );
         })
-        .catch(e => {
+        .catch((e) => {
           Alert.error(e.message);
         });
     };
@@ -120,10 +121,12 @@ class CheckSyncedOrdersContainer extends React.Component<FinalProps, State> {
       unSyncedOrderIds: this.state.unSyncedOrderIds,
       syncedOrderInfos: this.state.syncedOrderInfos,
       toSyncOrders,
-      posList: posListQuery.posList
+      posList: posListQuery.posList,
     };
 
-    const content = props => <CheckSyncedOrders {...props} {...updatedProps} />;
+    const content = (props) => (
+      <CheckSyncedOrders {...props} {...updatedProps} />
+    );
 
     return <Bulk content={content} />;
   }
@@ -144,7 +147,7 @@ const generateParams = ({ queryParams }) => {
     sortField: queryParams.sortField,
     sortDirection: Number(queryParams.sortDirection) || undefined,
     page: queryParams.page ? parseInt(queryParams.page, 10) : 1,
-    perPage: queryParams.perPage ? parseInt(queryParams.perPage, 10) : 20
+    perPage: queryParams.perPage ? parseInt(queryParams.perPage, 10) : 20,
   };
 };
 
@@ -156,9 +159,9 @@ export default withProps<Props>(
         name: 'checkSyncItemsQuery',
         options: ({ queryParams }) => ({
           variables: generateParams({ queryParams }),
-          fetchPolicy: 'network-only'
-        })
-      }
+          fetchPolicy: 'network-only',
+        }),
+      },
     ),
 
     graphql<{ queryParams: any }, CheckSyncedOrdersTotalCountQueryResponse>(
@@ -167,21 +170,21 @@ export default withProps<Props>(
         name: 'checkSyncedOrdersTotalCountQuery',
         options: ({ queryParams }) => ({
           variables: generateParams({ queryParams }),
-          fetchPolicy: 'network-only'
-        })
-      }
+          fetchPolicy: 'network-only',
+        }),
+      },
     ),
     graphql<Props, CheckSyncedMutationResponse, { orderIds: string[] }>(
       gql(mutations.toCheckSynced),
       {
-        name: 'toCheckSynced'
-      }
+        name: 'toCheckSynced',
+      },
     ),
     graphql<Props, ToSyncOrdersMutationResponse, { orderIds: string[] }>(
       gql(mutations.toSyncOrders),
       {
-        name: 'toSyncOrders'
-      }
+        name: 'toSyncOrders',
+      },
     ),
 
     graphql<{ queryParams: any }, PosListQueryResponse>(
@@ -193,8 +196,8 @@ export default withProps<Props>(
         }
       }`),
       {
-        name: 'posListQuery'
-      }
-    )
-  )(withRouter<IRouterProps>(CheckSyncedOrdersContainer))
+        name: 'posListQuery',
+      },
+    ),
+  )(CheckSyncedOrdersContainer),
 );

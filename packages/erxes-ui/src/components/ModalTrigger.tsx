@@ -1,6 +1,7 @@
 import * as routerUtils from '../utils/router';
 
 import { __, router } from '../utils/core';
+import { useEffect, useState } from 'react';
 
 import { CloseModal } from '../styles/main';
 import { IRouterProps } from '../types';
@@ -9,7 +10,7 @@ import { Modal } from 'react-bootstrap';
 import RTG from 'react-transition-group';
 import React from 'react';
 import queryString from 'query-string';
-import { withRouter } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 
 type Props = {
   title: string;
@@ -24,76 +25,83 @@ type Props = {
   hideHeader?: boolean;
   isOpen?: boolean;
   addisOpenToQueryParam?: boolean;
-  history: any;
   paddingContent?: 'less-padding';
   centered?: boolean;
   onExit?: () => void;
   isAnimate?: boolean;
 } & IRouterProps;
 
-type State = {
-  isOpen?: boolean;
-  autoOpenKey?: string;
-};
+const ModalTrigger: React.FC<Props> = ({
+  title,
+  trigger,
+  autoOpenKey,
+  content,
+  size,
+  dialogClassName,
+  backDrop,
+  enforceFocus,
+  hideHeader,
+  isOpen: propIsOpen,
+  addisOpenToQueryParam,
+  paddingContent,
+  centered,
+  onExit,
+  ignoreTrans,
+  isAnimate = false,
+  history,
+}) => {
+  const [isOpen, setIsOpen] = useState(propIsOpen || false);
+  const [autoOpenKeyState, setAutoOpenKey] = useState('');
 
-class ModalTrigger extends React.Component<Props, State> {
-  static getDerivedStateFromProps(props, state) {
-    if (props.autoOpenKey !== state.autoOpenKey) {
-      if (routerUtils.checkHashKeyInURL(props.history, props.autoOpenKey)) {
-        return {
-          isOpen: true,
-          autoOpenKey: props.autoOpenKey
-        };
+  // const navigate = useNavigate();
+  // const location = useLocation();
+  const { isOpen: urlIsOpen } = useParams<{ isOpen?: string }>();
+
+  useEffect(() => {
+    if (autoOpenKey !== autoOpenKeyState) {
+      if (routerUtils.checkHashKeyInURL(history, autoOpenKey)) {
+        setIsOpen(true);
+        setAutoOpenKey(autoOpenKey || '');
       }
     }
+  }, [autoOpenKey, autoOpenKeyState]);
 
-    return null;
-  }
+  useEffect(() => {
+    const queryParams = queryString.parse(window.location.search);
 
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      isOpen: props.isOpen || false,
-      autoOpenKey: ''
-    };
-  }
-
-  componentDidUpdate(prevProps, prevState) {
-    const { isOpen } = this.state;
-    const queryParams = queryString.parse(location.search);
-
-    if (this.props.addisOpenToQueryParam && prevState.isOpen !== isOpen) {
+    if (
+      addisOpenToQueryParam &&
+      urlIsOpen !== undefined &&
+      urlIsOpen !== null
+    ) {
       if (isOpen && !queryParams.isOpen) {
-        router.setParams(this.props.history, {
-          isModalOpen: isOpen
+        router.setParams(history, {
+          isModalOpen: isOpen,
         });
       }
 
       if (queryParams.isModalOpen) {
-        router.removeParams(this.props.history, 'isModalOpen');
+        router.removeParams(history, 'isModalOpen');
       }
     }
-  }
+  }, [addisOpenToQueryParam, isOpen, urlIsOpen]);
 
-  openModal = () => {
-    this.setState({ isOpen: true });
+  const openModal = () => {
+    setIsOpen(true);
   };
 
-  closeModal = () => {
-    this.setState({ isOpen: false });
+  const closeModal = () => {
+    setIsOpen(false);
   };
 
-  renderHeader = () => {
-    if (this.props.hideHeader) {
+  const renderHeader = () => {
+    if (hideHeader) {
       return (
-        <CloseModal onClick={this.closeModal}>
+        <CloseModal onClick={closeModal}>
           <Icon icon="times" />
         </CloseModal>
       );
     }
-
-    const { title, ignoreTrans, paddingContent } = this.props;
 
     return (
       <Modal.Header closeButton={true} className={paddingContent}>
@@ -102,62 +110,45 @@ class ModalTrigger extends React.Component<Props, State> {
     );
   };
 
-  render() {
-    const {
-      trigger,
-      size,
-      dialogClassName,
-      content,
-      backDrop,
-      enforceFocus,
-      onExit,
-      paddingContent,
-      centered,
-      isAnimate = false
-    } = this.props;
+  const onHideHandler = () => {
+    closeModal();
 
-    const { isOpen } = this.state;
+    if (onExit) {
+      onExit();
+    }
+  };
 
-    // add onclick event to the trigger component
-    const triggerComponent = trigger
-      ? React.cloneElement(trigger as React.ReactElement<any>, {
-          onClick: this.openModal
-        })
-      : null;
+  // add onclick event to the trigger component
+  const triggerComponent = trigger
+    ? React.cloneElement(trigger as React.ReactElement<any>, {
+        onClick: openModal,
+      })
+    : null;
 
-    const onHideHandler = () => {
-      this.closeModal();
+  return (
+    <>
+      {triggerComponent}
 
-      if (onExit) {
-        onExit();
-      }
-    };
+      <Modal
+        dialogClassName={dialogClassName}
+        size={size}
+        show={isOpen}
+        onHide={onHideHandler}
+        backdrop={backDrop}
+        enforceFocus={enforceFocus}
+        onExit={onExit}
+        animation={isAnimate}
+        centered={centered}
+      >
+        {renderHeader()}
+        <Modal.Body className={paddingContent}>
+          <RTG.Transition in={isOpen} timeout={300} unmountOnExit={true}>
+            {content({ closeModal })}
+          </RTG.Transition>
+        </Modal.Body>
+      </Modal>
+    </>
+  );
+};
 
-    return (
-      <>
-        {triggerComponent}
-
-        <Modal
-          dialogClassName={dialogClassName}
-          size={size}
-          show={isOpen}
-          onHide={onHideHandler}
-          backdrop={backDrop}
-          enforceFocus={enforceFocus}
-          onExit={onExit}
-          animation={isAnimate}
-          centered={centered}
-        >
-          {this.renderHeader()}
-          <Modal.Body className={paddingContent}>
-            <RTG.Transition in={isOpen} timeout={300} unmountOnExit={true}>
-              {content({ closeModal: this.closeModal })}
-            </RTG.Transition>
-          </Modal.Body>
-        </Modal>
-      </>
-    );
-  }
-}
-
-export default withRouter(ModalTrigger);
+export default ModalTrigger;

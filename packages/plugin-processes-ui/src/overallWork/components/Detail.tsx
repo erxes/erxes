@@ -1,4 +1,7 @@
-import _ from 'lodash';
+import { FieldStyle, SidebarCounter, Table } from '@erxes/ui/src';
+import { FinanceAmount, FlexRow } from '../../styles';
+
+import { BarItems } from '@erxes/ui/src/layout/styles';
 import Button from '@erxes/ui/src/components/Button';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import DetailLeftSidebar from './DetailLeftSidebar';
@@ -6,22 +9,20 @@ import DetailRightSidebar from './DetailRightSidebar';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
 import Form from '../../performs/containers/Form';
 import FormControl from '@erxes/ui/src/components/form/Control';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import PerformRow from './PerformRow';
-import React from 'react';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { FieldStyle, SidebarCounter, Table } from '@erxes/ui/src';
-import { __ } from 'coreui/utils';
-import { BarItems } from '@erxes/ui/src/layout/styles';
-import { FinanceAmount, FlexRow } from '../../styles';
 import { ICustomer } from '@erxes/ui-contacts/src/customers/types';
 import { IOverallWorkDet } from '../types';
 import { IPerform } from '../../performs/types';
 import { IRouterProps } from '@erxes/ui/src/types';
-import { menuNavs } from '../../constants';
-import { Title } from '@erxes/ui-settings/src/styles';
-import { withRouter } from 'react-router-dom';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+// import { withRouter } from 'react-router-dom';
 import Pagination from '@erxes/ui/src/components/pagination/Pagination';
+import PerformRow from './PerformRow';
+import React from 'react';
+import { Title } from '@erxes/ui-settings/src/styles';
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
+import _ from 'lodash';
+import { __ } from 'coreui/utils';
+import { menuNavs } from '../../constants';
 
 type Props = {
   history: any;
@@ -79,7 +80,7 @@ class OverallWorkDetail extends React.Component<Props, State> {
 
     this.state = {
       minPotentialCount: this.calcMinPotentialCount(),
-      maxMadeCount: this.calcMaxMadeCount()
+      maxMadeCount: this.calcMaxMadeCount(),
     };
   }
 
@@ -101,7 +102,7 @@ class OverallWorkDetail extends React.Component<Props, State> {
 
   renderEditRow(label, key) {
     const value = this.state[key];
-    const onChangeValue = e => {
+    const onChangeValue = (e) => {
       this.setState({ [key]: Number(e.target.value) } as any);
     };
     return (
@@ -114,7 +115,7 @@ class OverallWorkDetail extends React.Component<Props, State> {
     );
   }
 
-  generateLabel = customer => {
+  generateLabel = (customer) => {
     const { firstName, primaryEmail, primaryPhone, lastName } =
       customer || ({} as ICustomer);
 
@@ -140,7 +141,7 @@ class OverallWorkDetail extends React.Component<Props, State> {
       history,
       errorMsg,
       performs,
-      removePerform
+      removePerform,
     } = this.props;
     if (errorMsg) {
       return (
@@ -166,7 +167,7 @@ class OverallWorkDetail extends React.Component<Props, State> {
           </tr>
         </thead>
         <tbody id="overallWorks">
-          {(performs || []).map(perform => (
+          {(performs || []).map((perform) => (
             <PerformRow
               key={Math.random()}
               perform={perform}
@@ -200,7 +201,7 @@ class OverallWorkDetail extends React.Component<Props, State> {
       </Button>
     );
 
-    const modalContent = props => (
+    const modalContent = (props) => (
       <Form
         {...props}
         overallWorkDetail={overallWork}
@@ -247,4 +248,4 @@ class OverallWorkDetail extends React.Component<Props, State> {
   }
 }
 
-export default withRouter<IRouterProps>(OverallWorkDetail);
+export default OverallWorkDetail;

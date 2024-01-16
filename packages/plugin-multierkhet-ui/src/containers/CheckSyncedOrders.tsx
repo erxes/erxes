@@ -1,22 +1,24 @@
 import * as compose from 'lodash.flowright';
-import Alert from '@erxes/ui/src/utils/Alert';
-import CheckSyncedOrders from '../components/syncedOrders/CheckSyncedOrders';
-import { gql } from '@apollo/client';
-import React from 'react';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import { Bulk } from '@erxes/ui/src/components';
+
 import {
   CheckSyncedMutationResponse,
   CheckSyncedOrdersQueryResponse,
   CheckSyncedOrdersTotalCountQueryResponse,
   PosListQueryResponse,
-  ToSyncOrdersMutationResponse
+  ToSyncOrdersMutationResponse,
 } from '../types';
-import { graphql } from '@apollo/client/react/hoc';
-import { IRouterProps } from '@erxes/ui/src/types';
 import { mutations, queries } from '../graphql';
 import { router, withProps } from '@erxes/ui/src/utils/core';
-import { withRouter } from 'react-router-dom';
+
+import Alert from '@erxes/ui/src/utils/Alert';
+import { Bulk } from '@erxes/ui/src/components';
+import CheckSyncedOrders from '../components/syncedOrders/CheckSyncedOrders';
+import { IRouterProps } from '@erxes/ui/src/types';
+import React from 'react';
+import Spinner from '@erxes/ui/src/components/Spinner';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
+// import { withRouter } from 'react-router-dom';
 
 type Props = {
   queryParams: any;
@@ -43,7 +45,7 @@ class CheckSyncedOrdersContainer extends React.Component<FinalProps, State> {
 
     this.state = {
       unSyncedOrderIds: [],
-      syncedOrderInfos: {}
+      syncedOrderInfos: {},
     };
   }
 
@@ -53,21 +55,21 @@ class CheckSyncedOrdersContainer extends React.Component<FinalProps, State> {
       toMultiSyncOrders,
       checkSyncItemsQuery,
       checkSyncedOrdersTotalCountQuery,
-      posListQuery
+      posListQuery,
     } = this.props;
 
     // remove action
     const checkSynced = async ({ orderIds }, emptyBulk) => {
       await toMultiCheckSynced({
-        variables: { ids: orderIds, type: 'pos' }
+        variables: { ids: orderIds, type: 'pos' },
       })
-        .then(response => {
+        .then((response) => {
           emptyBulk();
           const syncedOrderInfos: any[] = [];
           const items: any[] = response.data.toMultiCheckSynced;
 
           const unSyncedOrderIds: string[] = items
-            .filter(item => {
+            .filter((item) => {
               const brands = item.mustBrands || [];
               for (const b of brands) {
                 if (!item[b]) {
@@ -76,33 +78,33 @@ class CheckSyncedOrdersContainer extends React.Component<FinalProps, State> {
               }
               return false;
             })
-            .map(i => i._id);
+            .map((i) => i._id);
 
-          items.forEach(item => {
+          items.forEach((item) => {
             syncedOrderInfos[item._id] = item;
           });
           this.setState({ unSyncedOrderIds, syncedOrderInfos });
         })
-        .catch(e => {
+        .catch((e) => {
           Alert.error(e.message);
         });
     };
 
-    const toSyncOrders = orderIds => {
+    const toSyncOrders = (orderIds) => {
       toMultiSyncOrders({
-        variables: { orderIds }
+        variables: { orderIds },
       })
-        .then(response => {
+        .then((response) => {
           const { skipped, error, success } = response.data.toMultiSyncOrders;
           const changed = this.state.unSyncedOrderIds.filter(
-            u => !orderIds.includes(u)
+            (u) => !orderIds.includes(u),
           );
           this.setState({ unSyncedOrderIds: changed });
           Alert.success(
-            `Алгассан: ${skipped.length}, Алдаа гарсан: ${error.length}, Амжилттай: ${success.length}`
+            `Алгассан: ${skipped.length}, Алдаа гарсан: ${error.length}, Амжилттай: ${success.length}`,
           );
         })
-        .catch(e => {
+        .catch((e) => {
           Alert.error(e.message);
         });
     };
@@ -127,10 +129,12 @@ class CheckSyncedOrdersContainer extends React.Component<FinalProps, State> {
       unSyncedOrderIds: this.state.unSyncedOrderIds,
       syncedOrderInfos: this.state.syncedOrderInfos,
       toSyncOrders,
-      posList: posListQuery.posList
+      posList: posListQuery.posList,
     };
 
-    const content = props => <CheckSyncedOrders {...props} {...updatedProps} />;
+    const content = (props) => (
+      <CheckSyncedOrders {...props} {...updatedProps} />
+    );
 
     return <Bulk content={content} />;
   }
@@ -151,7 +155,7 @@ const generateParams = ({ queryParams }) => {
     sortField: queryParams.sortField,
     sortDirection: Number(queryParams.sortDirection) || undefined,
     page: queryParams.page ? parseInt(queryParams.page, 10) : 1,
-    perPage: queryParams.perPage ? parseInt(queryParams.perPage, 10) : 20
+    perPage: queryParams.perPage ? parseInt(queryParams.perPage, 10) : 20,
   };
 };
 
@@ -163,9 +167,9 @@ export default withProps<Props>(
         name: 'checkSyncItemsQuery',
         options: ({ queryParams }) => ({
           variables: generateParams({ queryParams }),
-          fetchPolicy: 'network-only'
-        })
-      }
+          fetchPolicy: 'network-only',
+        }),
+      },
     ),
 
     graphql<{ queryParams: any }, CheckSyncedOrdersTotalCountQueryResponse>(
@@ -174,21 +178,21 @@ export default withProps<Props>(
         name: 'checkSyncedOrdersTotalCountQuery',
         options: ({ queryParams }) => ({
           variables: generateParams({ queryParams }),
-          fetchPolicy: 'network-only'
-        })
-      }
+          fetchPolicy: 'network-only',
+        }),
+      },
     ),
     graphql<Props, CheckSyncedMutationResponse, { orderIds: string[] }>(
       gql(mutations.toCheckSynced),
       {
-        name: 'toMultiCheckSynced'
-      }
+        name: 'toMultiCheckSynced',
+      },
     ),
     graphql<Props, ToSyncOrdersMutationResponse, { orderIds: string[] }>(
       gql(mutations.toSyncOrders),
       {
-        name: 'toMultiSyncOrders'
-      }
+        name: 'toMultiSyncOrders',
+      },
     ),
 
     graphql<{ queryParams: any }, PosListQueryResponse>(
@@ -200,8 +204,8 @@ export default withProps<Props>(
         }
       }`),
       {
-        name: 'posListQuery'
-      }
-    )
-  )(withRouter<IRouterProps>(CheckSyncedOrdersContainer))
+        name: 'posListQuery',
+      },
+    ),
+  )(CheckSyncedOrdersContainer),
 );

@@ -1,18 +1,20 @@
-import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
+
 import { Alert, withProps } from '@erxes/ui/src';
-import { mutations } from '../../graphql';
-import BasicInfoSection from '../../components/common/BasicInfoSection';
-import React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
-import { withRouter } from 'react-router-dom';
-import { IUser } from '@erxes/ui/src/auth/types';
-import { IRouterProps } from '@erxes/ui/src/types';
 import {
   IContract,
   RemoveMutationResponse,
-  RemoveMutationVariables
+  RemoveMutationVariables,
 } from '../../types';
+
+import BasicInfoSection from '../../components/common/BasicInfoSection';
+import { IRouterProps } from '@erxes/ui/src/types';
+// import { withRouter } from 'react-router-dom';
+import { IUser } from '@erxes/ui/src/auth/types';
+import React from 'react';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
+import { mutations } from '../../graphql';
 
 type Props = {
   contract: IContract;
@@ -33,21 +35,25 @@ const BasicInfoContainer = (props: FinalProps) => {
         Alert.success('You successfully deleted a contract');
         history.push('/erxes-plugin-saving/contract-list');
       })
-      .catch(e => {
+      .catch((e) => {
         Alert.error(e.message);
       });
   };
 
   const updatedProps = {
     ...props,
-    remove
+    remove,
   };
 
   return <BasicInfoSection {...updatedProps} />;
 };
 
 const generateOptions = () => ({
-  refetchQueries: ['contractsMain', 'contractCounts', 'contractCategoriesCount']
+  refetchQueries: [
+    'contractsMain',
+    'contractCounts',
+    'contractCategoriesCount',
+  ],
 });
 
 export default withProps<Props>(
@@ -56,8 +62,8 @@ export default withProps<Props>(
       gql(mutations.contractsRemove),
       {
         name: 'contractsRemove',
-        options: generateOptions
-      }
-    )
-  )(withRouter<FinalProps>(BasicInfoContainer))
+        options: generateOptions,
+      },
+    ),
+  )(BasicInfoContainer),
 );

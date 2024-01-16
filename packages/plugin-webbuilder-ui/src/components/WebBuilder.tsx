@@ -11,7 +11,8 @@ import List from '../containers/sites/List';
 import Pagination from '@erxes/ui/src/components/pagination/Pagination';
 import { Title } from '@erxes/ui-settings/src/styles';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { withRouter } from 'react-router-dom';
+
+// import { withRouter } from 'react-router-dom';
 
 type Props = {
   loading: boolean;
@@ -90,4 +91,4 @@ function WebBuilder(props: Props) {
   );
 }
 
-export default withRouter<Props>(WebBuilder);
+export default WebBuilder;

@@ -1,13 +1,15 @@
-import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
-import { IRouterProps } from '@erxes/ui/src/types';
-import { withProps } from '@erxes/ui/src/utils';
 import * as routerUtils from '@erxes/ui/src/utils/router';
-import React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
-import { withRouter } from 'react-router-dom';
+
+// import { withRouter } from 'react-router-dom';
 import { DetailQueryResponse, IOptions } from '../types';
+
 import { EditForm } from './editForm';
+import { IRouterProps } from '@erxes/ui/src/types';
+import React from 'react';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
+import { withProps } from '@erxes/ui/src/utils';
 
 type WrapperProps = {
   itemId: string;
@@ -64,14 +66,14 @@ const withQuery = (props: WrapperProps) => {
           options: ({ itemId }: { itemId: string }) => {
             return {
               variables: {
-                _id: itemId
+                _id: itemId,
               },
-              fetchPolicy: 'network-only'
+              fetchPolicy: 'network-only',
             };
-          }
-        }
-      )
-    )(withRouter(InvisibleItemInUrl))
+          },
+        },
+      ),
+    )(InvisibleItemInUrl),
   );
 };
 

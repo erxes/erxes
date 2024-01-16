@@ -1,20 +1,22 @@
-import { gql } from '@apollo/client';
-import { graphql } from '@apollo/client/react/hoc';
-import { router } from '@erxes/ui/src';
-import { Bulk } from '@erxes/ui/src/components';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import { IRouterProps } from '@erxes/ui/src/types';
-import Alert from '@erxes/ui/src/utils/Alert';
-import { withProps } from '@erxes/ui/src/utils/core';
 import * as compose from 'lodash.flowright';
-import React from 'react';
-import { withRouter } from 'react-router-dom';
-import InventoryProducts from '../components/inventoryProducts/InventoryProducts';
-import { mutations } from '../graphql';
+
 import {
   ToCheckProductsMutationResponse,
-  ToSyncProductsMutationResponse
+  ToSyncProductsMutationResponse,
 } from '../types';
+
+import Alert from '@erxes/ui/src/utils/Alert';
+import { Bulk } from '@erxes/ui/src/components';
+import { IRouterProps } from '@erxes/ui/src/types';
+// import { withRouter } from 'react-router-dom';
+import InventoryProducts from '../components/inventoryProducts/InventoryProducts';
+import React from 'react';
+import Spinner from '@erxes/ui/src/components/Spinner';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
+import { mutations } from '../graphql';
+import { router } from '@erxes/ui/src';
+import { withProps } from '@erxes/ui/src/utils/core';
 
 type Props = {
   queryParams: any;
@@ -36,7 +38,7 @@ class InventoryProductsContainer extends React.Component<FinalProps, State> {
 
     this.state = {
       items: {},
-      loading: false
+      loading: false,
     };
   }
 
@@ -45,17 +47,17 @@ class InventoryProductsContainer extends React.Component<FinalProps, State> {
     const brandId = this.props.queryParams.brandId || 'noBrand';
 
     const setSyncStatus = (data: any, action: string) => {
-      const createData = data[action].items.map(d => ({
+      const createData = data[action].items.map((d) => ({
         ...d,
-        syncStatus: false
+        syncStatus: false,
       }));
       data[action].items = createData;
       return data;
     };
 
     const setSyncStatusTrue = (data: any, products: any, action: string) => {
-      data[action].items = data[action].items.map(i => {
-        if (products.find(c => c.code === i.code)) {
+      data[action].items = data[action].items.map((i) => {
+        if (products.find((c) => c.code === i.code)) {
           let temp = i;
           temp.syncStatus = true;
           return temp;
@@ -76,8 +78,8 @@ class InventoryProductsContainer extends React.Component<FinalProps, State> {
           variables: {
             brandId: brandId,
             action: action,
-            products: products
-          }
+            products: products,
+          },
         })
         .then(() => {
           this.setState({ loading: false });
@@ -90,7 +92,7 @@ class InventoryProductsContainer extends React.Component<FinalProps, State> {
 
           this.setState({ items: data });
         })
-        .catch(e => {
+        .catch((e) => {
           Alert.error(e.message);
           this.setState({ loading: false });
         });
@@ -100,9 +102,9 @@ class InventoryProductsContainer extends React.Component<FinalProps, State> {
       this.setState({ loading: true });
       this.props
         .toMultiCheckProducts({
-          variables: { brandId }
+          variables: { brandId },
         })
-        .then(response => {
+        .then((response) => {
           let data = response.data.toMultiCheckProducts;
 
           setSyncStatus(data, 'create');
@@ -112,7 +114,7 @@ class InventoryProductsContainer extends React.Component<FinalProps, State> {
           this.setState({ items: response.data.toMultiCheckProducts });
           this.setState({ loading: false });
         })
-        .catch(e => {
+        .catch((e) => {
           Alert.error(e.message);
           this.setState({ loading: false });
         });
@@ -127,10 +129,12 @@ class InventoryProductsContainer extends React.Component<FinalProps, State> {
       toCheckProducts,
       setBrand,
       items,
-      toSyncProducts
+      toSyncProducts,
     };
 
-    const content = props => <InventoryProducts {...props} {...updatedProps} />;
+    const content = (props) => (
+      <InventoryProducts {...props} {...updatedProps} />
+    );
 
     return <Bulk content={content} />;
   }
@@ -141,14 +145,14 @@ export default withProps<Props>(
     graphql<Props, ToCheckProductsMutationResponse, {}>(
       gql(mutations.toCheckProducts),
       {
-        name: 'toMultiCheckProducts'
-      }
+        name: 'toMultiCheckProducts',
+      },
     ),
     graphql<Props, ToSyncProductsMutationResponse, {}>(
       gql(mutations.toSyncProducts),
       {
-        name: 'toMultiSyncProducts'
-      }
-    )
-  )(withRouter<IRouterProps>(InventoryProductsContainer))
+        name: 'toMultiSyncProducts',
+      },
+    ),
+  )(InventoryProductsContainer),
 );

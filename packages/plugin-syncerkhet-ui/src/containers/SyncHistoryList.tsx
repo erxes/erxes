@@ -2,7 +2,7 @@ import * as compose from 'lodash.flowright';
 
 import {
   SyncHistoriesCountQueryResponse,
-  SyncHistoriesQueryResponse
+  SyncHistoriesQueryResponse,
 } from '../types';
 import { router, withProps } from '@erxes/ui/src/utils/core';
 
@@ -12,7 +12,8 @@ import SyncHistoryList from '../components/syncHistories/SyncHistoryList';
 import { gql } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
 import { queries } from '../graphql';
-import { withRouter } from 'react-router-dom';
+
+// import { withRouter } from 'react-router-dom';
 
 type Props = {
   history: any;
@@ -33,11 +34,8 @@ class SyncHistoryListContainer extends React.Component<FinalProps, {}> {
   }
 
   render() {
-    const {
-      queryParams,
-      syncHistoriesQuery,
-      syncHistoriesCountQuery
-    } = this.props;
+    const { queryParams, syncHistoriesQuery, syncHistoriesCountQuery } =
+      this.props;
 
     const syncHistories = syncHistoriesQuery.syncHistories || [];
     const totalCount = syncHistoriesCountQuery.syncHistoriesCount || 0;
@@ -47,7 +45,7 @@ class SyncHistoryListContainer extends React.Component<FinalProps, {}> {
       queryParams,
       syncHistories,
       totalCount,
-      loading: syncHistoriesQuery.loading || syncHistoriesCountQuery.loading
+      loading: syncHistoriesQuery.loading || syncHistoriesCountQuery.loading,
     };
 
     return <SyncHistoryList {...updatedProps} />;
@@ -70,7 +68,7 @@ const generateParams = ({ queryParams }) => {
     searchConsume: queryParams.searchConsume,
     searchSend: queryParams.searchSend,
     searchResponse: queryParams.searchResponse,
-    searchError: queryParams.searchError
+    searchError: queryParams.searchError,
   };
 };
 
@@ -80,8 +78,8 @@ export default withProps<Props>(
       name: 'syncHistoriesQuery',
       options: ({ queryParams }) => ({
         variables: generateParams({ queryParams }),
-        fetchPolicy: 'network-only'
-      })
+        fetchPolicy: 'network-only',
+      }),
     }),
     graphql<Props, SyncHistoriesCountQueryResponse, {}>(
       gql(queries.syncHistoriesCount),
@@ -89,9 +87,9 @@ export default withProps<Props>(
         name: 'syncHistoriesCountQuery',
         options: ({ queryParams }) => ({
           variables: generateParams({ queryParams }),
-          fetchPolicy: 'network-only'
-        })
-      }
-    )
-  )(withRouter<IRouterProps>(SyncHistoryListContainer))
+          fetchPolicy: 'network-only',
+        }),
+      },
+    ),
+  )(SyncHistoryListContainer),
 );

@@ -1,3 +1,4 @@
+import { Alert, __, confirm, router } from '@erxes/ui/src/utils';
 import {
   Button,
   DataWithLoader,
@@ -5,26 +6,25 @@ import {
   ModalTrigger,
   Pagination,
   SortHandler,
-  Table
+  Table,
 } from '@erxes/ui/src/components';
 import {
+  MainStyleCount as Count,
   MainStyleTitle as Title,
-  MainStyleCount as Count
 } from '@erxes/ui/src/styles/eindex';
-import { __, Alert, confirm, router } from '@erxes/ui/src/utils';
-import { BarItems } from '@erxes/ui/src/layout/styles';
-import { Wrapper } from '@erxes/ui/src/layout';
-import { IRouterProps } from '@erxes/ui/src/types';
-import React from 'react';
-import { withRouter } from 'react-router-dom';
 
-import LotteryForm from '../containers/Form';
-import { LoyaltiesTableWrapper } from '../../common/styles';
+import { BarItems } from '@erxes/ui/src/layout/styles';
 import { ILottery } from '../types';
-import LotteryRow from './Row';
-import Sidebar from './Sidebar';
 import { ILotteryCampaign } from '../../../configs/lotteryCampaign/types';
+import { IRouterProps } from '@erxes/ui/src/types';
+import LotteryForm from '../containers/Form';
+import LotteryRow from './Row';
+import { LoyaltiesTableWrapper } from '../../common/styles';
+import React from 'react';
+import Sidebar from './Sidebar';
+import { Wrapper } from '@erxes/ui/src/layout';
 import { menuLoyalties } from '../../common/constants';
+// import { withRouter } from 'react-router-dom';
 
 interface IProps extends IRouterProps {
   lotteries: ILottery[];
@@ -40,7 +40,7 @@ interface IProps extends IRouterProps {
   emptyBulk: () => void;
   removeLotteries: (
     doc: { lotteryIds: string[] },
-    emptyBulk: () => void
+    emptyBulk: () => void,
   ) => void;
   history: any;
   queryParams: any;
@@ -57,7 +57,7 @@ class LotteriesList extends React.Component<IProps, State> {
     super(props);
 
     this.state = {
-      searchValue: this.props.searchValue
+      searchValue: this.props.searchValue,
     };
   }
 
@@ -66,7 +66,7 @@ class LotteriesList extends React.Component<IProps, State> {
     toggleAll(lotteries, 'lotteries');
   };
 
-  search = e => {
+  search = (e) => {
     if (this.timer) {
       clearTimeout(this.timer);
     }
@@ -81,17 +81,17 @@ class LotteriesList extends React.Component<IProps, State> {
     }, 500);
   };
 
-  removeLotteries = lotteries => {
+  removeLotteries = (lotteries) => {
     const lotteryIds: string[] = [];
 
-    lotteries.forEach(lottery => {
+    lotteries.forEach((lottery) => {
       lotteryIds.push(lottery._id);
     });
 
     this.props.removeLotteries({ lotteryIds }, this.props.emptyBulk);
   };
 
-  moveCursorAtTheEnd = e => {
+  moveCursorAtTheEnd = (e) => {
     const tmpValue = e.target.value;
     e.target.value = '';
     e.target.value = tmpValue;
@@ -107,7 +107,7 @@ class LotteriesList extends React.Component<IProps, State> {
       isAllSelected,
       totalCount,
       queryParams,
-      currentCampaign
+      currentCampaign,
     } = this.props;
 
     const mainContent = (
@@ -141,7 +141,7 @@ class LotteriesList extends React.Component<IProps, State> {
             </tr>
           </thead>
           <tbody id="lotteries">
-            {lotteries.map(lottery => (
+            {lotteries.map((lottery) => (
               <LotteryRow
                 lottery={lottery}
                 isChecked={bulk.includes(lottery)}
@@ -163,7 +163,7 @@ class LotteriesList extends React.Component<IProps, State> {
       </Button>
     );
 
-    const lotteryForm = props => {
+    const lotteryForm = (props) => {
       return <LotteryForm {...props} queryParams={queryParams} />;
     };
 
@@ -174,7 +174,7 @@ class LotteriesList extends React.Component<IProps, State> {
             .then(() => {
               this.removeLotteries(bulk);
             })
-            .catch(error => {
+            .catch((error) => {
               Alert.error(error.message);
             });
 
@@ -261,4 +261,4 @@ class LotteriesList extends React.Component<IProps, State> {
   }
 }
 
-export default withRouter<IRouterProps>(LotteriesList);
+export default LotteriesList;

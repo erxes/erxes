@@ -5,9 +5,8 @@ import {
   IMessengerApps,
   ITopicMessengerApp,
   IWebsiteMessengerApp,
-  IntegrationsQueryResponse
+  IntegrationsQueryResponse,
 } from '@erxes/ui-inbox/src/settings/integrations/types';
-import { gql } from '@apollo/client';
 import { graphql, withApollo } from '@apollo/client/react/hoc';
 
 import AddOns from '../../components/messenger/steps/AddOns';
@@ -16,10 +15,12 @@ import { ITopic } from '@erxes/ui-knowledgebase/src/types';
 import React from 'react';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { TopicsQueryResponse } from '@erxes/ui-knowledgebase/src/types';
+import { gql } from '@apollo/client';
 import { queries as kbQueries } from '@erxes/ui-knowledgebase/src/graphql';
 import { queries } from '@erxes/ui-inbox/src/settings/integrations/graphql';
 import { withProps } from '@erxes/ui/src/utils';
-import { withRouter } from 'react-router-dom';
+
+// import { withRouter } from 'react-router-dom';
 
 type Props = {
   selectedBrand?: string;
@@ -41,7 +42,7 @@ class KnowledgeBaseContainer extends React.Component<FinalProps> {
     const {
       knowledgeBaseTopicsQuery,
       leadIntegrationsQuery,
-      leadIntegrationsTotalCountQuery
+      leadIntegrationsTotalCountQuery,
     } = this.props;
 
     if (knowledgeBaseTopicsQuery.loading) {
@@ -51,7 +52,7 @@ class KnowledgeBaseContainer extends React.Component<FinalProps> {
     if (leadIntegrationsTotalCountQuery?.integrationsTotalCount) {
       leadIntegrationsQuery.refetch({
         perPage:
-          leadIntegrationsTotalCountQuery?.integrationsTotalCount?.byKind?.lead
+          leadIntegrationsTotalCountQuery?.integrationsTotalCount?.byKind?.lead,
       });
     }
 
@@ -61,7 +62,7 @@ class KnowledgeBaseContainer extends React.Component<FinalProps> {
     const updatedProps = {
       ...this.props,
       topics: topics as ITopic[],
-      leads
+      leads,
     };
 
     return <AddOns {...updatedProps} />;
@@ -71,20 +72,20 @@ class KnowledgeBaseContainer extends React.Component<FinalProps> {
 export default withProps<FinalProps>(
   compose(
     graphql<Props, TopicsQueryResponse>(gql(kbQueries.knowledgeBaseTopics), {
-      name: 'knowledgeBaseTopicsQuery'
+      name: 'knowledgeBaseTopicsQuery',
     }),
     graphql<{}>(gql(queries.integrationTotalCount), {
-      name: 'leadIntegrationsTotalCountQuery'
+      name: 'leadIntegrationsTotalCountQuery',
     }),
     graphql<Props, IntegrationsQueryResponse>(gql(queries.integrations), {
       name: 'leadIntegrationsQuery',
       options: () => ({
         variables: {
           kind: 'lead',
-          perPage: 20
-        }
-      })
+          perPage: 20,
+        },
+      }),
     }),
-    withApollo
-  )(withRouter<FinalProps>(KnowledgeBaseContainer))
+    withApollo,
+  )(KnowledgeBaseContainer),
 );

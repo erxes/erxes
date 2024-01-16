@@ -3,7 +3,7 @@ import {
   Content,
   CreatedDate,
   CreatedUser,
-  InfoSection
+  InfoSection,
 } from './styles';
 
 import { INotification } from '../types';
@@ -14,7 +14,7 @@ import React from 'react';
 import RoundedBackgroundIcon from '@erxes/ui-cards/src/boards/components/RoundedBackgroundIcon';
 import classNames from 'classnames';
 import dayjs from 'dayjs';
-import { withRouter } from 'react-router-dom';
+// import { withRouter } from 'react-router-dom';
 import xss from 'xss';
 
 interface IProps extends IRouterProps {
@@ -37,7 +37,7 @@ class NotificationRow extends React.Component<IProps> {
     this.props.history.replace({
       pathname: params[0],
       state: { from: 'notification' },
-      search: `?${params[1]}`
+      search: `?${params[1]}`,
     });
   };
 
@@ -140,4 +140,4 @@ class NotificationRow extends React.Component<IProps> {
   }
 }
 
-export default withRouter<IProps>(NotificationRow);
+export default NotificationRow;

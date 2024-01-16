@@ -1,10 +1,11 @@
+import { FieldStyle, SidebarList } from '@erxes/ui/src/layout/styles';
+import { __, router } from '@erxes/ui/src/utils';
+
 import Box from '@erxes/ui/src/components/Box';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import { IRouterProps } from '@erxes/ui/src/types';
-import { __, router } from '@erxes/ui/src/utils';
-import { FieldStyle, SidebarList } from '@erxes/ui/src/layout/styles';
 import React from 'react';
-import { withRouter } from 'react-router-dom';
+// import { withRouter } from 'react-router-dom';
 import { categoryApprovalStates } from '../../constants';
 
 interface IProps extends IRouterProps {
@@ -17,7 +18,7 @@ function CategoryApprovalStateFilter({ history, emptyText }: IProps) {
       {categoryApprovalStates.map((categoryApprovalState, index) => {
         const onClick = () => {
           router.setParams(history, {
-            categoryApprovalState: categoryApprovalState.key
+            categoryApprovalState: categoryApprovalState.key,
           });
           router.removeParams(history, 'page');
         };
@@ -62,4 +63,4 @@ function CategoryApprovalStateFilter({ history, emptyText }: IProps) {
   );
 }
 
-export default withRouter<IProps>(CategoryApprovalStateFilter);
+export default CategoryApprovalStateFilter;

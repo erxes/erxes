@@ -1,12 +1,12 @@
-import React from 'react';
-import { withRouter } from 'react-router-dom';
+import { FieldStyle, SidebarList } from '@erxes/ui/src/layout/styles';
+import { __, router } from '@erxes/ui/src/utils';
 
 import Box from '@erxes/ui/src/components/Box';
-import Icon from '@erxes/ui/src/components/Icon';
 import { IRouterProps } from '@erxes/ui/src/types';
-import { __, router } from '@erxes/ui/src/utils';
-import { FieldStyle, SidebarList } from '@erxes/ui/src/layout/styles';
+import Icon from '@erxes/ui/src/components/Icon';
+import React from 'react';
 import { productTypeChoises } from '../../../utils';
+// import { withRouter } from 'react-router-dom';
 
 interface IProps extends IRouterProps {
   searchable?: boolean;
@@ -47,7 +47,7 @@ class ProductTypeFilter extends React.Component<IProps> {
                   </a>
                 </li>
               );
-            }
+            },
           )}
         </SidebarList>
       </Box>
@@ -55,4 +55,4 @@ class ProductTypeFilter extends React.Component<IProps> {
   }
 }
 
-export default withRouter<IProps>(ProductTypeFilter);
+export default ProductTypeFilter;

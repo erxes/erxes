@@ -1,16 +1,18 @@
 import * as compose from 'lodash.flowright';
-import { gql } from '@apollo/client';
-import React, { useState } from 'react';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import SubFlowForm from '../../../../components/forms/jobs/subForms/SubFlowForm';
+
 import { FlowDetailQueryResponse, IFlow } from '../../../../types';
-import { graphql } from '@apollo/client/react/hoc';
+import React, { useState } from 'react';
+
 import { IJob } from '../../../../types';
 import { IRouterProps } from '@erxes/ui/src/types';
 import { IUser } from '@erxes/ui/src/auth/types';
+import Spinner from '@erxes/ui/src/components/Spinner';
+import SubFlowForm from '../../../../components/forms/jobs/subForms/SubFlowForm';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
 import { queries } from '../../../../graphql';
 import { withProps } from '@erxes/ui/src/utils';
-import { withRouter } from 'react-router-dom';
+// import { withRouter } from 'react-router-dom';
 
 type Props = {
   id: string;
@@ -49,7 +51,7 @@ const SubFlowFormContainer = (props: FinalProps) => {
     ...props,
     currentUser,
     saveLoading,
-    subFlow
+    subFlow,
   };
 
   return <SubFlowForm {...updatedProps} />;
@@ -62,9 +64,9 @@ export default withProps<Props>(
       skip: ({ activeFlowJob }) => !activeFlowJob.config.subFlowId,
       options: ({ activeFlowJob }) => ({
         variables: {
-          _id: activeFlowJob.config.subFlowId
-        }
-      })
-    })
-  )(withRouter<FinalProps>(SubFlowFormContainer))
+          _id: activeFlowJob.config.subFlowId,
+        },
+      }),
+    }),
+  )(SubFlowFormContainer),
 );

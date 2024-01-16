@@ -1,4 +1,5 @@
 import { Layout, MainWrapper } from '../styles';
+import { bustIframe, getEnv } from 'modules/common/utils';
 
 import DetectBrowser from './DetectBrowser';
 import { IRouterProps } from '@erxes/ui/src/types';
@@ -6,11 +7,14 @@ import { IUser } from 'modules/auth/types';
 import Navigation from './navigation';
 import React from 'react';
 import asyncComponent from 'modules/common/components/AsyncComponent';
-import { bustIframe, getEnv } from 'modules/common/utils';
-import { withRouter } from 'react-router-dom';
 
-const MainBar = asyncComponent(() =>
-  import(/* webpackChunkName: "MainBar" */ 'modules/layout/components/MainBar')
+// import { withRouter } from 'react-router-dom';
+
+const MainBar = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "MainBar" */ 'modules/layout/components/MainBar'
+    ),
 );
 
 interface IProps extends IRouterProps {
@@ -30,7 +34,7 @@ class MainLayout extends React.Component<IProps, State> {
     super(props);
 
     this.state = {
-      navCollapse: 2
+      navCollapse: 2,
     };
   }
 
@@ -50,9 +54,9 @@ class MainLayout extends React.Component<IProps, State> {
           (currentUser.createdAt
             ? new Date(currentUser.createdAt)
             : new Date()
-          ).getTime() / 1000
+          ).getTime() / 1000,
         ),
-        account_token: 'NPS-477ee032' // This is your unique account token.
+        account_token: 'NPS-477ee032', // This is your unique account token.
       };
 
       const wootricScript = document.createElement('script');
@@ -70,15 +74,15 @@ class MainLayout extends React.Component<IProps, State> {
     if (!REACT_APP_HIDE_MESSENGER) {
       const userDetail = (currentUser && currentUser.details) || {
         firstName: '',
-        lastName: ''
+        lastName: '',
       };
       (window as any).erxesSettings = {
         messenger: {
           brand_id: '5fkS4v',
           email: (currentUser && currentUser.email) || '',
           firstName: userDetail.firstName,
-          lastName: userDetail.lastName
-        }
+          lastName: userDetail.lastName,
+        },
       };
 
       const script = document.createElement('script');
@@ -145,4 +149,4 @@ class MainLayout extends React.Component<IProps, State> {
   }
 }
 
-export default withRouter<IProps>(MainLayout);
+export default MainLayout;

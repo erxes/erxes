@@ -1,10 +1,15 @@
+import { Counts, IRouterProps } from '@erxes/ui/src/types';
+import {
+  FieldStyle,
+  SidebarCounter,
+  SidebarList,
+} from '@erxes/ui/src/layout/styles';
+import { __, router } from 'coreui/utils';
+
 import Box from '@erxes/ui/src/components/Box';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
-import { IRouterProps, Counts } from '@erxes/ui/src/types';
-import { __, router } from 'coreui/utils';
-import { FieldStyle, SidebarCounter, SidebarList } from '@erxes/ui/src/layout/styles';
 import React from 'react';
-import { withRouter } from 'react-router-dom';
+// import { withRouter } from 'react-router-dom';
 import { statusFilters } from '../../constants';
 
 interface IProps extends IRouterProps {
@@ -61,4 +66,4 @@ function StatusFilter({ history, counts, emptyText }: IProps) {
   );
 }
 
-export default withRouter<IProps>(StatusFilter);
+export default StatusFilter;

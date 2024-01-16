@@ -1,23 +1,24 @@
 import {
-  __,
+  BarItems,
+  Button,
   DataWithLoader,
   Pagination,
   SortHandler,
   Table,
   Wrapper,
-  BarItems,
-  Button
+  __,
 } from '@erxes/ui/src';
-import { IRouterProps, IQueryParams } from '@erxes/ui/src/types';
-import React from 'react';
-import { withRouter } from 'react-router-dom';
-import { menuPos } from '../../constants';
-import { Link } from 'react-router-dom';
-import { TableWrapper } from '../../styles';
-import { IOrder } from '../types';
+import { IQueryParams, IRouterProps } from '@erxes/ui/src/types';
+
 import HeaderDescription from './MainHead';
-import RightMenu from './RightMenu';
+import { IOrder } from '../types';
+import { Link } from 'react-router-dom';
+import React from 'react';
 import Record from './Record';
+import RightMenu from './RightMenu';
+import { TableWrapper } from '../../styles';
+// import { withRouter } from 'react-router-dom';
+import { menuPos } from '../../constants';
 
 interface IProps extends IRouterProps {
   orders: IOrder[];
@@ -43,7 +44,7 @@ class Orders extends React.Component<IProps, {}> {
     super(props);
   }
 
-  moveCursorAtTheEnd = e => {
+  moveCursorAtTheEnd = (e) => {
     const tmpValue = e.target.value;
     e.target.value = '';
     e.target.value = tmpValue;
@@ -74,7 +75,7 @@ class Orders extends React.Component<IProps, {}> {
     { name: 'discountType', title: __('Discount type') },
     { name: 'salePrice', title: __('Sale price') },
     { name: 'amount', title: __('Amount') },
-    { name: 'payType', title: __('Payment type') }
+    { name: 'payType', title: __('Payment type') },
   ];
 
   render() {
@@ -89,7 +90,7 @@ class Orders extends React.Component<IProps, {}> {
       onSelect,
       onSearch,
       isFiltered,
-      clearFilter
+      clearFilter,
     } = this.props;
 
     const rightMenuProps = {
@@ -98,7 +99,7 @@ class Orders extends React.Component<IProps, {}> {
       onSearch,
       isFiltered,
       clearFilter,
-      queryParams
+      queryParams,
     };
 
     const actionBarRight = (
@@ -132,7 +133,7 @@ class Orders extends React.Component<IProps, {}> {
         <Table whiteSpace="nowrap" bordered={true} hover={true}>
           <thead>
             <tr>
-              {this.tableHeaders.map(th => (
+              {this.tableHeaders.map((th) => (
                 <th>
                   <SortHandler
                     key={th.name}
@@ -145,7 +146,7 @@ class Orders extends React.Component<IProps, {}> {
             </tr>
           </thead>
           <tbody id="orders">
-            {(orders || []).map(order => (
+            {(orders || []).map((order) => (
               <Record
                 order={order}
                 key={`${order._id}_${order.items._id}`}
@@ -183,4 +184,4 @@ class Orders extends React.Component<IProps, {}> {
   }
 }
 
-export default withRouter<IRouterProps>(Orders);
+export default Orders;

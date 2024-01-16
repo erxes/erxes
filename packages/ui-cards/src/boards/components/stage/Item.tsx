@@ -1,11 +1,13 @@
+import * as routerUtils from '@erxes/ui/src/utils/router';
+
 import { IItem, IOptions } from '../../types';
-import { ITicket } from '../../../tickets/types';
+
 import { IDeal } from '../../../deals/types';
 import { IRouterProps } from '@erxes/ui/src/types';
-import * as routerUtils from '@erxes/ui/src/utils/router';
-import queryString from 'query-string';
+import { ITicket } from '../../../tickets/types';
 import React from 'react';
-import { withRouter } from 'react-router-dom';
+import queryString from 'query-string';
+// import { withRouter } from 'react-router-dom';
 
 type Props = {
   stageId?: string;
@@ -35,12 +37,12 @@ class Item extends React.PureComponent<Props, { isFormVisible: boolean }> {
     }
 
     this.state = {
-      isFormVisible
+      isFormVisible,
     };
   }
 
   componentDidMount() {
-    this.unlisten = this.props.history.listen(location => {
+    this.unlisten = this.props.history.listen((location) => {
       const queryParams = queryString.parse(location.search);
 
       const { item, groupObj } = this.props;
@@ -92,4 +94,4 @@ class Item extends React.PureComponent<Props, { isFormVisible: boolean }> {
   }
 }
 
-export default withRouter<Props>(Item);
+export default Item;

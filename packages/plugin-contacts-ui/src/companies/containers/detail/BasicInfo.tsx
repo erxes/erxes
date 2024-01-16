@@ -1,21 +1,23 @@
-import client from '@erxes/ui/src/apolloClient';
-import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
+
 import { Alert, withProps } from '@erxes/ui/src/utils';
-import { mutations, queries } from '../../graphql';
-import ActionSection from '@erxes/ui-contacts/src/customers/components/common/ActionSection';
-import React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
-import { withRouter } from 'react-router-dom';
-import { IUser } from '@erxes/ui/src/auth/types';
-import { IRouterProps } from '@erxes/ui/src/types';
 import {
   ICompany,
   MergeMutationResponse,
   MergeMutationVariables,
   RemoveMutationResponse,
-  RemoveMutationVariables
+  RemoveMutationVariables,
 } from '../../types';
+import { mutations, queries } from '../../graphql';
+
+import ActionSection from '@erxes/ui-contacts/src/customers/components/common/ActionSection';
+import { IRouterProps } from '@erxes/ui/src/types';
+// import { withRouter } from 'react-router-dom';
+import { IUser } from '@erxes/ui/src/auth/types';
+import React from 'react';
+import client from '@erxes/ui/src/apolloClient';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
 
 type Props = {
   company: ICompany;
@@ -37,7 +39,7 @@ const BasicInfoContainer = (props: FinalProps) => {
         Alert.success('You successfully deleted a company');
         history.push('/companies');
       })
-      .catch(e => {
+      .catch((e) => {
         Alert.error(e.message);
       });
   };
@@ -46,33 +48,33 @@ const BasicInfoContainer = (props: FinalProps) => {
     companiesMerge({
       variables: {
         companyIds: ids,
-        companyFields: data
-      }
+        companyFields: data,
+      },
     })
-      .then(response => {
+      .then((response) => {
         Alert.success('You successfully merged companies');
         history.push(`/companies/details/${response.data.companiesMerge._id}`);
       })
-      .catch(e => {
+      .catch((e) => {
         Alert.error(e.message);
       });
   };
 
   const searchCompany = (
     searchValue: string,
-    callback: (data?: any) => void
+    callback: (data?: any) => void,
   ) => {
     client
       .query({
         query: gql(queries.companies),
-        variables: { searchValue, page: 1, perPage: 10 }
+        variables: { searchValue, page: 1, perPage: 10 },
       })
       .then((response: any): void => {
         if (typeof callback === 'function') {
           callback(response.data.companies);
         }
       })
-      .catch(error => {
+      .catch((error) => {
         Alert.error(error.message);
       });
   };
@@ -83,14 +85,14 @@ const BasicInfoContainer = (props: FinalProps) => {
     cocType: 'company',
     remove,
     merge,
-    search: searchCompany
+    search: searchCompany,
   };
 
   return <ActionSection {...updatedProps} />;
 };
 
 const generateOptions = () => ({
-  refetchQueries: ['companiesMain', 'companyCounts']
+  refetchQueries: ['companiesMain', 'companyCounts'],
 });
 
 export default withProps<Props>(
@@ -99,15 +101,15 @@ export default withProps<Props>(
       gql(mutations.companiesRemove),
       {
         name: 'companiesRemove',
-        options: generateOptions
-      }
+        options: generateOptions,
+      },
     ),
     graphql<{}, MergeMutationResponse, MergeMutationVariables>(
       gql(mutations.companiesMerge),
       {
         name: 'companiesMerge',
-        options: generateOptions
-      }
-    )
-  )(withRouter<FinalProps>(BasicInfoContainer))
+        options: generateOptions,
+      },
+    ),
+  )(BasicInfoContainer),
 );

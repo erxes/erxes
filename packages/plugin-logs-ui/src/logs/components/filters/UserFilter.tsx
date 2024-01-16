@@ -1,14 +1,15 @@
 import { FieldStyle, SidebarList } from '@erxes/ui/src/layout/styles';
 import { __, router } from 'coreui/utils';
-import Button from '@erxes/ui/src/components/Button';
+
 import Box from '@erxes/ui/src/components/Box';
-import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
-import { IRouterProps } from '@erxes/ui/src/types';
-import React from 'react';
-import { withRouter } from 'react-router-dom';
-import { FormControl } from '@erxes/ui/src/components/form';
+import Button from '@erxes/ui/src/components/Button';
 import { CustomPadding } from '@erxes/ui-contacts/src/customers/styles';
+import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
+// import { withRouter } from 'react-router-dom';
+import { FormControl } from '@erxes/ui/src/components/form';
+import { IRouterProps } from '@erxes/ui/src/types';
 import { IUser } from '@erxes/ui/src/auth/types';
+import React from 'react';
 
 interface IProps extends IRouterProps {
   users: IUser[];
@@ -25,11 +26,11 @@ function Users({
   loading,
   loadMore,
   all,
-  queryParams
+  queryParams,
 }: IProps) {
   const timerRef = React.useRef<number | null>(null);
   const [searchValue, setSearchValue] = React.useState(
-    queryParams.searchUser || ''
+    queryParams.searchUser || '',
   );
 
   const [disableLoadMoreBtn, setDisableLoadMoreBtn] = React.useState(false);
@@ -40,12 +41,12 @@ function Users({
     }
   }, []);
 
-  const onClick = userId => {
+  const onClick = (userId) => {
     router.setParams(history, { userId });
     router.removeParams(history, 'page');
   };
 
-  const search = e => {
+  const search = (e) => {
     if (timerRef.current) {
       clearTimeout(timerRef.current);
     }
@@ -63,7 +64,7 @@ function Users({
     }, 500);
   };
 
-  const moveCursorAtTheEnd = e => {
+  const moveCursorAtTheEnd = (e) => {
     const tmpValue = e.target.value;
 
     e.target.value = '';
@@ -71,7 +72,7 @@ function Users({
   };
 
   const renderUsers = () => {
-    return users.map(user => {
+    return users.map((user) => {
       return (
         <li key={user._id}>
           <a
@@ -134,4 +135,4 @@ function Users({
   );
 }
 
-export default withRouter<IProps>(Users);
+export default Users;

@@ -1,18 +1,20 @@
-import { gql } from '@apollo/client';
-import { graphql } from '@apollo/client/react/hoc';
-import { Alert, Bulk, router, withProps } from '@erxes/ui/src';
-import { IRouterProps } from '@erxes/ui/src/types';
 import * as compose from 'lodash.flowright';
-import React from 'react';
-import { withRouter } from 'react-router-dom';
-import GoalTypesList from '../components/goalTypesList';
-import { mutations, queries } from '../graphql';
+
+import { Alert, Bulk, router, withProps } from '@erxes/ui/src';
 import {
   ListQueryVariables,
   MainQueryResponse,
   RemoveMutationResponse,
-  RemoveMutationVariables
+  RemoveMutationVariables,
 } from '../types';
+import { mutations, queries } from '../graphql';
+
+// import { withRouter } from 'react-router-dom';
+import GoalTypesList from '../components/goalTypesList';
+import { IRouterProps } from '@erxes/ui/src/types';
+import React from 'react';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
 
 type Props = {
   queryParams: any;
@@ -34,7 +36,7 @@ class GoalTypeListContainer extends React.Component<FinalProps, State> {
     super(props);
 
     this.state = {
-      loading: false
+      loading: false,
     };
   }
 
@@ -42,13 +44,13 @@ class GoalTypeListContainer extends React.Component<FinalProps, State> {
     const { goalTypesMainQuery, goalTypesRemove } = this.props;
     const removeGoalTypes = ({ goalTypeIds }, emptyBulk) => {
       goalTypesRemove({
-        variables: { goalTypeIds }
+        variables: { goalTypeIds },
       })
         .then(() => {
           emptyBulk();
           Alert.success('You successfully deleted a goalType');
         })
-        .catch(e => {
+        .catch((e) => {
           Alert.error(e.message);
         });
     };
@@ -60,10 +62,10 @@ class GoalTypeListContainer extends React.Component<FinalProps, State> {
       totalCount,
       goalTypes: list,
       loading: goalTypesMainQuery.loading || this.state.loading,
-      removeGoalTypes
+      removeGoalTypes,
     };
 
-    const goalTypesList = props => {
+    const goalTypesList = (props) => {
       return <GoalTypesList {...updatedProps} {...props} />;
     };
 
@@ -76,7 +78,7 @@ class GoalTypeListContainer extends React.Component<FinalProps, State> {
 }
 
 const generateOptions = () => ({
-  refetchQueries: ['goalTypesMain']
+  refetchQueries: ['goalTypesMain'],
 });
 
 export default withProps<Props>(
@@ -94,20 +96,20 @@ export default withProps<Props>(
               branch: queryParams.branch,
               department: queryParams.department,
               unit: queryParams.unit,
-              contribution: queryParams.contribution
+              contribution: queryParams.contribution,
             },
-            fetchPolicy: 'network-only'
+            fetchPolicy: 'network-only',
           };
-        }
-      }
+        },
+      },
     ),
     // mutations
     graphql<{}, RemoveMutationResponse, RemoveMutationVariables>(
       gql(mutations.goalTypesRemove),
       {
         name: 'goalTypesRemove',
-        options: generateOptions
-      }
-    )
-  )(withRouter<IRouterProps>(GoalTypeListContainer))
+        options: generateOptions,
+      },
+    ),
+  )(GoalTypeListContainer),
 );

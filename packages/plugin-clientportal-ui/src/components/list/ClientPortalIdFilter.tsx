@@ -1,17 +1,17 @@
-import Box from '@erxes/ui/src/components/Box';
-import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
-import Icon from '@erxes/ui/src/components/Icon';
 import {
   FieldStyle,
   SidebarCounter,
-  SidebarList
+  SidebarList,
 } from '@erxes/ui/src/layout/styles';
-import { IRouterProps } from '@erxes/ui/src/types';
 import { __, router } from '@erxes/ui/src/utils';
-import React from 'react';
-import { withRouter } from 'react-router-dom';
 
+import Box from '@erxes/ui/src/components/Box';
 import { ClientPortalConfig } from '../../types';
+import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
+import { IRouterProps } from '@erxes/ui/src/types';
+import Icon from '@erxes/ui/src/components/Icon';
+import React from 'react';
+// import { withRouter } from 'react-router-dom';
 
 interface IProps extends IRouterProps {
   counts: { [key: string]: number };
@@ -27,7 +27,7 @@ function ClientPortalUser({
   loading,
   emptyText,
   clientPortalGetConfigs,
-  kind = 'client'
+  kind = 'client',
 }: IProps) {
   React.useEffect(() => {
     if (
@@ -54,7 +54,7 @@ function ClientPortalUser({
 
   const data = (
     <SidebarList>
-      {clientPortalGetConfigs.map(cp => {
+      {clientPortalGetConfigs.map((cp) => {
         const onClick = () => {
           router.setParams(history, { cpId: cp._id });
           router.removeParams(history, 'page');
@@ -101,4 +101,4 @@ function ClientPortalUser({
   );
 }
 
-export default withRouter<IProps>(ClientPortalUser);
+export default ClientPortalUser;

@@ -1,22 +1,23 @@
 import React, { useState } from 'react';
-import { Title } from '@erxes/ui-settings/src/styles';
-import { FormControl } from '@erxes/ui/src/components';
-import withTableWrapper from '@erxes/ui/src/components/table/withTableWrapper';
-import { withRouter } from 'react-router-dom';
-import { IRouterProps } from '@erxes/ui/src/types';
+import { __, router } from '@erxes/ui/src/utils';
+
+import { BarItems } from '@erxes/ui/src/layout/styles';
 import Button from '@erxes/ui/src/components/Button';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
-import Table from '@erxes/ui/src/components/table';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { BarItems } from '@erxes/ui/src/layout/styles';
+import { FormControl } from '@erxes/ui/src/components';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
-import { __, router } from '@erxes/ui/src/utils';
 import { IReport } from '../types';
+// import { withRouter } from 'react-router-dom';
+import { IRouterProps } from '@erxes/ui/src/types';
 import Row from './Row';
-import { isEnabled } from '@erxes/ui/src/utils/core';
-import TaggerPopover from '@erxes/ui-tags/src/components/TaggerPopover';
-import { TAG_TYPES } from '@erxes/ui-tags/src/constants';
 import SideBar from '../containers/SideBar';
+import { TAG_TYPES } from '@erxes/ui-tags/src/constants';
+import Table from '@erxes/ui/src/components/table';
+import TaggerPopover from '@erxes/ui-tags/src/components/TaggerPopover';
+import { Title } from '@erxes/ui-settings/src/styles';
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
+import { isEnabled } from '@erxes/ui/src/utils/core';
+import withTableWrapper from '@erxes/ui/src/components/table/withTableWrapper';
 type Props = {
   reports: IReport[];
   renderButton?: (props: IButtonMutateProps) => JSX.Element;
@@ -38,7 +39,7 @@ function List(props: FinalProps) {
 
   // let timer: NodeJS.Timer;
 
-  const search = e => {
+  const search = (e) => {
     if (timer) {
       clearTimeout(timer);
       setTimer(undefined);
@@ -51,11 +52,11 @@ function List(props: FinalProps) {
       setTimeout(() => {
         router.removeParams(history, 'page');
         router.setParams(history, { searchValue: value });
-      }, 500)
+      }, 500),
     );
   };
 
-  const moveCursorAtTheEnd = e => {
+  const moveCursorAtTheEnd = (e) => {
     const tmpValue = e.target.value;
     e.target.value = '';
     e.target.value = tmpValue;
@@ -89,13 +90,13 @@ function List(props: FinalProps) {
     if (isChecked) {
       setChosenReportIds([...chosenReportIds, reportId]);
     } else {
-      setChosenReportIds(chosenReportIds.filter(id => id !== reportId));
+      setChosenReportIds(chosenReportIds.filter((id) => id !== reportId));
     }
   };
 
   const updatedProps = {
     ...props,
-    toggleReport
+    toggleReport,
   };
   const content = (
     <Table>
@@ -113,7 +114,7 @@ function List(props: FinalProps) {
         </tr>
       </thead>
       <tbody>
-        {reports.map(report => {
+        {reports.map((report) => {
           return (
             <Row
               key={report._id}
@@ -135,7 +136,7 @@ function List(props: FinalProps) {
 
   const breadcrumb = [
     { title: __('Settings'), link: '/settings' },
-    { title: __('Reports'), link: '/reports' }
+    { title: __('Reports'), link: '/reports' },
   ];
 
   let actionBarLeft: React.ReactNode;
@@ -164,7 +165,7 @@ function List(props: FinalProps) {
           <TaggerPopover
             type={TAG_TYPES.REPORT}
             successCallback={afterTag}
-            targets={reports.filter(r => chosenReportIds.includes(r._id))}
+            targets={reports.filter((r) => chosenReportIds.includes(r._id))}
             trigger={tagButton}
             refetchQueries={['reportsCountByTags']}
           />
@@ -207,4 +208,4 @@ function List(props: FinalProps) {
   );
 }
 
-export default withTableWrapper('Reports', withRouter<IRouterProps>(List));
+export default withTableWrapper('Reports', List);

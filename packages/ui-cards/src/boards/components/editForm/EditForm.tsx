@@ -1,12 +1,13 @@
-import { ArchiveStatus } from '../../styles/item';
-import Icon from '@erxes/ui/src/components/Icon';
-import { CloseModal } from '@erxes/ui/src/styles/main';
-import { __, router as routerUtils } from '@erxes/ui/src/utils';
-import { withRouter } from 'react-router-dom';
-import React from 'react';
-import Modal from 'react-bootstrap/Modal';
 import { IEditFormContent, IItem, IItemParams, IOptions } from '../../types';
+import { __, router as routerUtils } from '@erxes/ui/src/utils';
+
+import { ArchiveStatus } from '../../styles/item';
+import { CloseModal } from '@erxes/ui/src/styles/main';
 import { IRouterProps } from '@erxes/ui/src/types';
+import Icon from '@erxes/ui/src/components/Icon';
+import Modal from 'react-bootstrap/Modal';
+// import { withRouter } from 'react-router-dom';
+import React from 'react';
 
 type Props = {
   options: IOptions;
@@ -37,7 +38,7 @@ class EditForm extends React.Component<Props, State> {
 
     this.state = {
       stageId: item.stageId,
-      updatedItem: item
+      updatedItem: item,
     };
   }
 
@@ -47,10 +48,10 @@ class EditForm extends React.Component<Props, State> {
 
       if (item.stageId !== this.state.stageId) {
         this.setState({
-          prevStageId: item.stageId
+          prevStageId: item.stageId,
         });
 
-        saveItem({ stageId }, updatedItem => {
+        saveItem({ stageId }, (updatedItem) => {
           if (onUpdate) {
             onUpdate(updatedItem, this.state.prevStageId);
           }
@@ -60,7 +61,7 @@ class EditForm extends React.Component<Props, State> {
   };
 
   saveItem = (doc: { [key: string]: any }) => {
-    this.props.saveItem(doc, updatedItem => {
+    this.props.saveItem(doc, (updatedItem) => {
       this.setState({ updatedItem });
     });
   };
@@ -160,7 +161,7 @@ class EditForm extends React.Component<Props, State> {
             saveItem: this.saveItem,
             onChangeStage: this.onChangeStage,
             copy: this.copy,
-            remove: this.remove
+            remove: this.remove,
           })}
         </Modal.Body>
       </Modal>
@@ -168,4 +169,4 @@ class EditForm extends React.Component<Props, State> {
   }
 }
 
-export default withRouter(EditForm);
+export default EditForm;

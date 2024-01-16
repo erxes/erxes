@@ -1,28 +1,30 @@
+import * as routerUtils from '@erxes/ui/src/utils/router';
+
 import {
   AddNew,
-  ListBody,
+  ColumnLastChild,
   Footer,
-  ListContainer,
+  GroupTitle,
   Header,
+  ListBody,
+  ListContainer,
   ListStageFooter,
   StageTitle,
-  GroupTitle,
-  ColumnLastChild
 } from '../../styles/stage';
-import EmptyState from '@erxes/ui/src/components/EmptyState';
-import Icon from '@erxes/ui/src/components/Icon';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import { __ } from '@erxes/ui/src/utils';
-import React from 'react';
-import { AddForm } from '../../containers/portable';
 import { IItem, IOptions } from '../../types';
-import Table from '@erxes/ui/src/components/table';
-import ListItemRow from './ListItemRow';
-import * as routerUtils from '@erxes/ui/src/utils/router';
-import Item from './Item';
-import { withRouter } from 'react-router-dom';
+
+import { AddForm } from '../../containers/portable';
+import EmptyState from '@erxes/ui/src/components/EmptyState';
+// import { withRouter } from 'react-router-dom';
 import { IRouterProps } from '@erxes/ui/src/types';
+import Icon from '@erxes/ui/src/components/Icon';
+import Item from './Item';
+import ListItemRow from './ListItemRow';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import NameCard from '@erxes/ui/src/components/nameCard/NameCard';
+import React from 'react';
+import Table from '@erxes/ui/src/components/table';
+import { __ } from '@erxes/ui/src/utils';
 
 type Props = {
   index: number;
@@ -67,10 +69,10 @@ class ListGroupBy extends React.Component<Props> {
       showSelect: false,
       callback: (item: IItem) => onAddItem(groupObj._id, item),
       stageId: groupObj._id,
-      aboveItemId: ''
+      aboveItemId: '',
     };
 
-    const content = props => <AddForm {...props} {...formProps} />;
+    const content = (props) => <AddForm {...props} {...formProps} />;
 
     return <ModalTrigger title={addText} trigger={trigger} content={content} />;
   }
@@ -80,7 +82,7 @@ class ListGroupBy extends React.Component<Props> {
 
     routerUtils.setParams(history, {
       itemId: `${item._id}${groupObj._id}`,
-      key: ''
+      key: '',
     });
   };
 
@@ -169,4 +171,4 @@ class ListGroupBy extends React.Component<Props> {
   }
 }
 
-export default withRouter<Props>(ListGroupBy);
+export default ListGroupBy;

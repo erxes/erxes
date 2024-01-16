@@ -1,13 +1,14 @@
 import { IButtonMutateProps, IRouterProps } from '@erxes/ui/src/types';
+
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import CallPro from '../../components/callpro/Form';
 import OutgoingWebHookFrom from '../../components/outgoing-webhook/Form';
-import WebHookForm from '../../components/webhook/Form';
 import React from 'react';
+import WebHookForm from '../../components/webhook/Form';
 import { getRefetchQueries } from '@erxes/ui-inbox/src/settings/integrations/containers/utils';
-import { mutations } from '@erxes/ui-inbox/src/settings/integrations/graphql';
-import { withRouter } from 'react-router-dom';
+// import { withRouter } from 'react-router-dom';
 import { loadDynamicComponent } from '@erxes/ui/src/utils/core';
+import { mutations } from '@erxes/ui-inbox/src/settings/integrations/graphql';
 
 type Props = {
   type: string;
@@ -23,7 +24,7 @@ type FinalProps = {} & IRouterProps & Props;
 const INTEGRATION_FORM = {
   callpro: CallPro,
   webhook: WebHookForm,
-  'outgoing-webhook': OutgoingWebHookFrom
+  'outgoing-webhook': OutgoingWebHookFrom,
 };
 
 class IntegrationFormContainer extends React.Component<FinalProps, State> {
@@ -61,7 +62,7 @@ class IntegrationFormContainer extends React.Component<FinalProps, State> {
       callback: closeModal,
       renderButton: this.renderButton,
       channelIds,
-      onChannelChange: this.onChannelChange
+      onChannelChange: this.onChannelChange,
     };
 
     if (['imap', 'viber', 'calls'].includes(type)) {
@@ -69,7 +70,7 @@ class IntegrationFormContainer extends React.Component<FinalProps, State> {
         'inboxIntegrationForm',
         updatedProps,
         false,
-        type
+        type,
       );
     }
 
@@ -79,4 +80,4 @@ class IntegrationFormContainer extends React.Component<FinalProps, State> {
   }
 }
 
-export default withRouter<FinalProps>(IntegrationFormContainer);
+export default IntegrationFormContainer;

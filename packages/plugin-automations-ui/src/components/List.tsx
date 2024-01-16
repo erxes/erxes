@@ -1,22 +1,23 @@
+import { AutomationsCount, IAutomation } from '../types';
+import { __, router } from 'coreui/utils';
+
+import { BarItems } from '@erxes/ui/src/layout/styles';
 import Button from '@erxes/ui/src/components/Button';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import Pagination from '@erxes/ui/src/components/pagination/Pagination';
-import Table from '@erxes/ui/src/components/table';
-import withTableWrapper from '@erxes/ui/src/components/table/withTableWrapper';
-import { __, router } from 'coreui/utils';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { BarItems } from '@erxes/ui/src/layout/styles';
-import React from 'react';
-import { withRouter } from 'react-router-dom';
-import { IRouterProps } from '@erxes/ui/src/types';
-import { IAutomation, AutomationsCount } from '../types';
-import Row from './Row';
 import { EmptyContent } from '../styles';
+import FormControl from '@erxes/ui/src/components/form/Control';
+// import { withRouter } from 'react-router-dom';
+import { IRouterProps } from '@erxes/ui/src/types';
+import Pagination from '@erxes/ui/src/components/pagination/Pagination';
+import React from 'react';
+import Row from './Row';
 import Sidebar from './Sidebar';
-import { isEnabled } from '@erxes/ui/src/utils/core';
-import TaggerPopover from '@erxes/ui-tags/src/components/TaggerPopover';
 import { TAG_TYPES } from '@erxes/ui-tags/src/constants';
+import Table from '@erxes/ui/src/components/table';
+import TaggerPopover from '@erxes/ui-tags/src/components/TaggerPopover';
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
+import { isEnabled } from '@erxes/ui/src/utils/core';
+import withTableWrapper from '@erxes/ui/src/components/table/withTableWrapper';
 
 interface IProps extends IRouterProps {
   automations: IAutomation[];
@@ -31,11 +32,11 @@ interface IProps extends IRouterProps {
   addAutomation: () => void;
   removeAutomations: (
     doc: { automationIds: string[] },
-    emptyBulk: () => void
+    emptyBulk: () => void,
   ) => void;
   archiveAutomations: (
     doc: { automationIds: string[]; isRestore?: boolean },
-    emptyBulk: () => void
+    emptyBulk: () => void,
   ) => void;
   queryParams: any;
   exportAutomations: (bulk: string[]) => void;
@@ -57,7 +58,7 @@ class AutomationsList extends React.Component<IProps, State> {
     super(props);
 
     this.state = {
-      searchValue: this.props.searchValue
+      searchValue: this.props.searchValue,
     };
   }
 
@@ -67,7 +68,7 @@ class AutomationsList extends React.Component<IProps, State> {
     toggleAll(automations, 'automations');
   };
 
-  search = e => {
+  search = (e) => {
     if (this.timer) {
       clearTimeout(this.timer);
     }
@@ -83,30 +84,30 @@ class AutomationsList extends React.Component<IProps, State> {
     }, 500);
   };
 
-  removeAutomations = automations => {
+  removeAutomations = (automations) => {
     const automationIds: string[] = [];
 
-    automations.forEach(automation => {
+    automations.forEach((automation) => {
       automationIds.push(automation._id);
     });
 
     this.props.removeAutomations({ automationIds }, this.props.emptyBulk);
   };
 
-  archiveAutomations = automations => {
+  archiveAutomations = (automations) => {
     const automationIds: string[] = automations.map(
-      automation => automation._id
+      (automation) => automation._id,
     );
 
     const isRestore = this.props?.queryParams?.status === 'archived';
 
     this.props.archiveAutomations(
       { automationIds, isRestore },
-      this.props.emptyBulk
+      this.props.emptyBulk,
     );
   };
 
-  moveCursorAtTheEnd = e => {
+  moveCursorAtTheEnd = (e) => {
     const tmpValue = e.target.value;
     e.target.value = '';
     e.target.value = tmpValue;
@@ -133,7 +134,7 @@ class AutomationsList extends React.Component<IProps, State> {
       isExpand,
       counts,
       addAutomation,
-      emptyBulk
+      emptyBulk,
     } = this.props;
 
     const automations = this.props.automations || [];
@@ -163,7 +164,7 @@ class AutomationsList extends React.Component<IProps, State> {
             </tr>
           </thead>
           <tbody id="automations" className={isExpand ? 'expand' : ''}>
-            {(automations || []).map(automation => (
+            {(automations || []).map((automation) => (
               <Row
                 key={automation._id}
                 automation={automation}
@@ -273,7 +274,7 @@ class AutomationsList extends React.Component<IProps, State> {
                 <p>
                   <b>{__('You don’t have any automations yet')}.</b>
                   {__(
-                    'Automatically execute repetitive tasks and make sure nothing falls through the cracks'
+                    'Automatically execute repetitive tasks and make sure nothing falls through the cracks',
                   )}
                   .
                 </p>
@@ -287,7 +288,4 @@ class AutomationsList extends React.Component<IProps, State> {
   }
 }
 
-export default withTableWrapper(
-  'Automation',
-  withRouter<IRouterProps>(AutomationsList)
-);
+export default withTableWrapper('Automation', AutomationsList);

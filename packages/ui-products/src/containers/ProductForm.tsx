@@ -1,20 +1,22 @@
-import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
-import React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
 
-import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import { IButtonMutateProps, IRouterProps } from '@erxes/ui/src/types';
-import { withProps } from '@erxes/ui/src/utils';
-import From from '../components/ProductForm';
-import { mutations, queries } from '../graphql';
-import { IProduct, IConfigsMap } from '../types';
+import { IConfigsMap, IProduct } from '../types';
 import {
   ProductCategoriesQueryResponse,
   ProductsConfigsQueryResponse,
-  UomsQueryResponse
+  UomsQueryResponse,
 } from '@erxes/ui-products/src/types';
-import { withRouter } from 'react-router-dom';
+import { mutations, queries } from '../graphql';
+
+import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
+import From from '../components/ProductForm';
+import React from 'react';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
+import { withProps } from '@erxes/ui/src/utils';
+
+// import { withRouter } from 'react-router-dom';
 
 type Props = {
   product?: IProduct;
@@ -44,14 +46,14 @@ const ProductFormContainer = (props: FinalProps) => {
     values,
     isSubmitted,
     callback,
-    object
+    object,
   }: IButtonMutateProps) => {
     const { unitPrice, productCount, minimiumCount } = values;
     const attachmentMoreArray: any[] = [];
     const attachment = values.attachment || undefined;
     const attachmentMore = values.attachmentMore || [];
 
-    attachmentMore.map(attach => {
+    attachmentMore.map((attach) => {
       attachmentMoreArray.push({ ...attach, __typename: undefined });
     });
 
@@ -94,7 +96,7 @@ const ProductFormContainer = (props: FinalProps) => {
     renderButton,
     productCategories,
     uoms,
-    configsMap: configsMap || ({} as IConfigsMap)
+    configsMap: configsMap || ({} as IConfigsMap),
   };
 
   return <From {...updatedProps} />;
@@ -105,7 +107,7 @@ const getRefetchQueries = () => {
     'productDetail',
     'products',
     'productsTotalCount',
-    'productCategories'
+    'productCategories',
   ];
 };
 
@@ -114,14 +116,14 @@ export default withProps<Props>(
     graphql<Props, ProductCategoriesQueryResponse>(
       gql(queries.productCategories),
       {
-        name: 'productCategoriesQuery'
-      }
+        name: 'productCategoriesQuery',
+      },
     ),
     graphql<{}, UomsQueryResponse>(gql(queries.uoms), {
-      name: 'uomsQuery'
+      name: 'uomsQuery',
     }),
     graphql<{}, ProductsConfigsQueryResponse>(gql(queries.productsConfigs), {
-      name: 'productsConfigsQuery'
-    })
-  )(withRouter<FinalProps>(ProductFormContainer))
+      name: 'productsConfigsQuery',
+    }),
+  )(ProductFormContainer),
 );

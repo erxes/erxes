@@ -1,8 +1,8 @@
-import { colors } from '../styles';
 import { IRouterProps } from '../types';
-import { router } from '../utils/core';
 import React from 'react';
-import { withRouter } from 'react-router-dom';
+import { colors } from '../styles';
+import { router } from '../utils/core';
+// import { withRouter } from 'react-router-dom';
 import styled from 'styled-components';
 
 const SortWrapper = styled.div`
@@ -112,4 +112,4 @@ class SortHandler extends React.Component<IProps, State> {
   }
 }
 
-export default withRouter<IProps>(SortHandler);
+export default SortHandler;

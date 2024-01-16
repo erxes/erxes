@@ -1,20 +1,22 @@
-import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
-import { Bulk, Alert, withProps, router } from '@erxes/ui/src';
-import React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
-import { withRouter } from 'react-router-dom';
-import { IRouterProps } from '@erxes/ui/src/types';
-import ContractList from '../components/list/ContractsList';
-import { mutations, queries } from '../graphql';
-import queryString from 'query-string';
+
+import { Alert, Bulk, router, withProps } from '@erxes/ui/src';
 import {
   ListQueryVariables,
   MainQueryResponse,
   RemoveMutationResponse,
-  RemoveMutationVariables
+  RemoveMutationVariables,
 } from '../types';
+import { mutations, queries } from '../graphql';
+
+import ContractList from '../components/list/ContractsList';
 import { FILTER_PARAMS_CONTRACT } from '../../constants';
+// import { withRouter } from 'react-router-dom';
+import { IRouterProps } from '@erxes/ui/src/types';
+import React from 'react';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
+import queryString from 'query-string';
 
 type Props = {
   queryParams: any;
@@ -43,7 +45,7 @@ class ContractListContainer extends React.Component<FinalProps, State> {
     super(props);
 
     this.state = {
-      loading: false
+      loading: false,
     };
   }
 
@@ -86,19 +88,19 @@ class ContractListContainer extends React.Component<FinalProps, State> {
     const {
       contractsMainQuery,
       contractsRemove,
-      savingsContractsAlertQuery
+      savingsContractsAlertQuery,
       // contractsMerge,
     } = this.props;
 
     const removeContracts = ({ contractIds }, emptyBulk) => {
       contractsRemove({
-        variables: { contractIds }
+        variables: { contractIds },
       })
         .then(() => {
           emptyBulk();
           Alert.success('You successfully deleted a contract');
         })
-        .catch(e => {
+        .catch((e) => {
           Alert.error(e.message);
         });
     };
@@ -121,10 +123,10 @@ class ContractListContainer extends React.Component<FinalProps, State> {
       onSelect: this.onSelect,
       onSearch: this.onSearch,
       isFiltered: this.isFiltered(),
-      clearFilter: this.clearFilter
+      clearFilter: this.clearFilter,
     };
 
-    const contractsList = props => {
+    const contractsList = (props) => {
       return <ContractList {...updatedProps} {...props} />;
     };
 
@@ -137,7 +139,7 @@ class ContractListContainer extends React.Component<FinalProps, State> {
 }
 
 const generateOptions = () => ({
-  refetchQueries: ['contractsMain']
+  refetchQueries: ['contractsMain'],
 });
 
 export default withProps<Props>(
@@ -175,12 +177,12 @@ export default withProps<Props>(
               sortField: queryParams.sortField,
               sortDirection: queryParams.sortDirection
                 ? parseInt(queryParams.sortDirection, 10)
-                : undefined
+                : undefined,
             },
-            fetchPolicy: 'network-only'
+            fetchPolicy: 'network-only',
           };
-        }
-      }
+        },
+      },
     ),
     graphql<{ queryParams: any }, any, any>(
       gql(queries.savingsContractsAlert),
@@ -189,20 +191,20 @@ export default withProps<Props>(
         options: () => {
           return {
             variables: {
-              date: new Date()
+              date: new Date(),
             },
-            fetchPolicy: 'network-only'
+            fetchPolicy: 'network-only',
           };
-        }
-      }
+        },
+      },
     ),
     // mutations
     graphql<{}, RemoveMutationResponse, RemoveMutationVariables>(
       gql(mutations.contractsRemove),
       {
         name: 'contractsRemove',
-        options: generateOptions
-      }
-    )
-  )(withRouter<IRouterProps>(ContractListContainer))
+        options: generateOptions,
+      },
+    ),
+  )(ContractListContainer),
 );

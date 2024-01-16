@@ -3,7 +3,7 @@ import { gql } from '@apollo/client';
 import { IButtonMutateProps, IRouterProps } from '@erxes/ui/src/types';
 import Form from '../components/Form';
 import * as React from 'react';
-import { withRouter } from 'react-router-dom';
+// import { withRouter } from 'react-router-dom';
 import { mutations, queries } from '@erxes/ui-inbox/src/settings/integrations/graphql';
 
 type Props = {} & IRouterProps;
@@ -56,4 +56,4 @@ const getRefetchQueries = (kind: string) => {
   ];
 };
 
-export default withRouter<Props>({Name}Container);
+export default ({Name}Container);

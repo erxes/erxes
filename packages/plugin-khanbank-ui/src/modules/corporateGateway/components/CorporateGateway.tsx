@@ -1,15 +1,15 @@
+import * as routerUtils from '@erxes/ui/src/utils/router';
+
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
+import Detail from './Detail';
 import EmptyContent from '@erxes/ui/src/components/empty/EmptyContent';
 import HeaderDescription from '@erxes/ui/src/components/HeaderDescription';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { IRouterProps } from '@erxes/ui/src/types';
-import { __ } from '@erxes/ui/src/utils/core';
-import * as routerUtils from '@erxes/ui/src/utils/router';
-import React from 'react';
-import { withRouter } from 'react-router-dom';
-
 import List from '../../configs/containers/List';
-import Detail from './Detail';
+import React from 'react';
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
+import { __ } from '@erxes/ui/src/utils/core';
+// import { withRouter } from 'react-router-dom';
 
 // import Detail from '../containers/Detail';
 type Props = {
@@ -23,8 +23,8 @@ const CorporateGateway = (props: Props) => {
   const breadcrumb = [
     {
       title: __('Khanbank Corporate Gateway'),
-      link: '/khanbank-corporate-gateway'
-    }
+      link: '/khanbank-corporate-gateway',
+    },
   ];
   const count = queryParams._id ? 1 : 0;
 
@@ -41,7 +41,7 @@ const CorporateGateway = (props: Props) => {
           icon="/images/actions/27.svg"
           title="Khanbank Corporate Gateway"
           description={__(
-            `Corporate Gateway enables you access banking services through erxes.`
+            `Corporate Gateway enables you access banking services through erxes.`,
           )}
         />
       }
@@ -59,14 +59,14 @@ const CorporateGateway = (props: Props) => {
                   {
                     title: __('Create Corporate Gateway config'),
                     description: __(
-                      'Register at Khanbank and become a Khanbank customer'
+                      'Register at Khanbank and become a Khanbank customer',
                     ),
                     url: `https://www.khanbank.com/en/corporate/product/429?activetab=2`,
                     urlText: 'Apply for Corporate Gateway',
                     isOutside: true,
-                    target: '_blank'
-                  }
-                ]
+                    target: '_blank',
+                  },
+                ],
               }}
               maxItemWidth="360px"
             />
@@ -79,4 +79,4 @@ const CorporateGateway = (props: Props) => {
   );
 };
 
-export default withRouter<Props>(CorporateGateway);
+export default CorporateGateway;

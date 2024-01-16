@@ -1,7 +1,7 @@
 import {
   CustomRangeContainer,
+  EndDateContainer,
   FilterContainer,
-  EndDateContainer
 } from '../styles';
 import React, { useEffect, useState } from 'react';
 import { __, router } from '@erxes/ui/src/utils/core';
@@ -15,7 +15,8 @@ import { IRouterProps } from '@erxes/ui/src/types';
 import Icon from '@erxes/ui/src/components/Icon';
 import dayjs from 'dayjs';
 import queryString from 'query-string';
-import { withRouter } from 'react-router-dom';
+
+// import { withRouter } from 'react-router-dom';
 
 interface IProps extends IRouterProps {
   counts: { [key: string]: number };
@@ -54,7 +55,7 @@ function DateFilters(props: IProps) {
 
     const value: any = (filterParams[key] && filterParams[key]) || {
       gte: '',
-      lte: ''
+      lte: '',
     };
 
     value[op] = formattedDate;
@@ -72,7 +73,7 @@ function DateFilters(props: IProps) {
 
   const data = (
     <FilterContainer>
-      {fields.map(field => {
+      {fields.map((field) => {
         return (
           <React.Fragment key={field._id}>
             <ControlLabel>{field.label} range:</ControlLabel>
@@ -86,7 +87,7 @@ function DateFilters(props: IProps) {
                 }
                 required={false}
                 name="startDate"
-                onChange={date =>
+                onChange={(date) =>
                   onChangeRangeFilter(`${field.name}`, 'gte', date)
                 }
                 placeholder={'Start date'}
@@ -103,7 +104,7 @@ function DateFilters(props: IProps) {
                   required={false}
                   name="endDate"
                   placeholder={'End date'}
-                  onChange={date =>
+                  onChange={(date) =>
                     onChangeRangeFilter(`${field.name}`, 'lte', date)
                   }
                   dateFormat={'YYYY-MM-DD'}
@@ -145,4 +146,4 @@ function DateFilters(props: IProps) {
   );
 }
 
-export default withRouter<IProps>(DateFilters);
+export default DateFilters;

@@ -1,21 +1,23 @@
 import * as compose from 'lodash.flowright';
-import { gql } from '@apollo/client';
-import PutResponseByDate from '../components/PutResponsesByDate';
-import queryString from 'query-string';
-import React from 'react';
-import { Spinner } from '@erxes/ui/src/components';
+
 import { Alert, router, withProps } from '@erxes/ui/src/utils';
-import { graphql } from '@apollo/client/react/hoc';
-import { IRouterProps, IQueryParams } from '@erxes/ui/src/types';
+import { IQueryParams, IRouterProps } from '@erxes/ui/src/types';
 import {
   ListQueryVariables,
   PutResponsesAmountQueryResponse,
+  PutResponsesByDateQueryResponse,
   PutResponsesCountQueryResponse,
-  PutResponsesByDateQueryResponse
 } from '../types';
-import { queries } from '../graphql';
-import { withRouter } from 'react-router-dom';
+
+// import { withRouter } from 'react-router-dom';
 import { FILTER_PARAMS } from '../constants';
+import PutResponseByDate from '../components/PutResponsesByDate';
+import React from 'react';
+import { Spinner } from '@erxes/ui/src/components';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
+import { queries } from '../graphql';
+import queryString from 'query-string';
 
 type Props = {
   queryParams: any;
@@ -42,7 +44,7 @@ class PutResponsesContainer extends React.Component<FinalProps, State> {
     super(props);
 
     this.state = {
-      loading: false
+      loading: false,
     };
   }
 
@@ -102,7 +104,7 @@ class PutResponsesContainer extends React.Component<FinalProps, State> {
     const {
       putResponsesByDateQuery,
       putResponsesCountQuery,
-      putResponsesAmountQuery
+      putResponsesAmountQuery,
     } = this.props;
 
     if (
@@ -137,7 +139,7 @@ class PutResponsesContainer extends React.Component<FinalProps, State> {
       onSelect: this.onSelect,
       onSearch: this.onSearch,
       isFiltered: this.isFiltered(),
-      clearFilter: this.clearFilter
+      clearFilter: this.clearFilter,
     };
 
     return <PutResponseByDate {...updatedProps} />;
@@ -162,7 +164,7 @@ const generateParams = ({ queryParams }) => ({
   stageId: queryParams.stageId,
   createdStartDate: queryParams.createdStartDate,
   createdEndDate: queryParams.createdEndDate,
-  paidDate: queryParams.paidDate
+  paidDate: queryParams.paidDate,
 });
 
 export default withProps<Props>(
@@ -175,8 +177,8 @@ export default withProps<Props>(
       name: 'putResponsesByDateQuery',
       options: ({ queryParams }) => ({
         variables: generateParams({ queryParams }),
-        fetchPolicy: 'network-only'
-      })
+        fetchPolicy: 'network-only',
+      }),
     }),
 
     graphql<
@@ -187,8 +189,8 @@ export default withProps<Props>(
       name: 'putResponsesCountQuery',
       options: ({ queryParams }) => ({
         variables: generateParams({ queryParams }),
-        fetchPolicy: 'network-only'
-      })
+        fetchPolicy: 'network-only',
+      }),
     }),
     graphql<
       { queryParams: any },
@@ -198,8 +200,8 @@ export default withProps<Props>(
       name: 'putResponsesAmountQuery',
       options: ({ queryParams }) => ({
         variables: generateParams({ queryParams }),
-        fetchPolicy: 'network-only'
-      })
-    })
-  )(withRouter<IRouterProps>(PutResponsesContainer))
+        fetchPolicy: 'network-only',
+      }),
+    }),
+  )(PutResponsesContainer),
 );

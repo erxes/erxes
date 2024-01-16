@@ -4,7 +4,7 @@ import { Alert, confirm, withProps } from '@erxes/ui/src/utils';
 import {
   IButtonMutateProps,
   IRouterProps,
-  MutationVariables
+  MutationVariables,
 } from '@erxes/ui/src/types';
 import { mutations, queries } from '../graphql';
 
@@ -18,7 +18,8 @@ import Sidebar from '../components/Sidebar';
 import { gql } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
 import inboxQueries from '@erxes/ui-inbox/src/inbox/graphql/queries';
-import { withRouter } from 'react-router-dom';
+
+// import { withRouter } from 'react-router-dom';
 
 type Props = {
   queryParams: any;
@@ -41,24 +42,24 @@ const SidebarContainer = (props: FinalProps) => {
     queryParams,
     history,
     currentChannelId,
-    currentUserId
+    currentUserId,
   } = props;
 
   const channels = channelsQuery.channels || [];
   const channelsTotalCount = channelsCountQuery.channelsTotalCount || 0;
 
   // remove action
-  const remove = channelId => {
+  const remove = (channelId) => {
     confirm().then(() => {
       removeMutation({
-        variables: { _id: channelId }
+        variables: { _id: channelId },
       })
         .then(() => {
           Alert.success('You successfully deleted a channel.');
 
           history.push('/settings/channels');
         })
-        .catch(error => {
+        .catch((error) => {
           Alert.error(error.message);
         });
     });
@@ -69,7 +70,7 @@ const SidebarContainer = (props: FinalProps) => {
     values,
     isSubmitted,
     callback,
-    object
+    object,
   }: IButtonMutateProps) => {
     return (
       <ButtonMutate
@@ -79,7 +80,7 @@ const SidebarContainer = (props: FinalProps) => {
         refetchQueries={getRefetchQueries(
           queryParams,
           currentChannelId,
-          currentUserId
+          currentUserId,
         )}
         isSubmitted={isSubmitted}
         type="submit"
@@ -96,7 +97,7 @@ const SidebarContainer = (props: FinalProps) => {
     channelsTotalCount,
     remove,
     renderButton,
-    loading: channelsQuery.loading
+    loading: channelsQuery.loading,
   };
 
   return <Sidebar {...updatedProps} />;
@@ -105,32 +106,32 @@ const SidebarContainer = (props: FinalProps) => {
 const getRefetchQueries = (
   queryParams,
   currentChannelId?: string,
-  currentUserId?: string
+  currentUserId?: string,
 ) => {
   return [
     {
       query: gql(queries.channels),
       variables: {
-        perPage: queryParams.limit ? parseInt(queryParams.limit, 10) : 20
-      }
+        perPage: queryParams.limit ? parseInt(queryParams.limit, 10) : 20,
+      },
     },
     {
       query: gql(queries.channels),
-      variables: {}
+      variables: {},
     },
     {
       query: gql(queries.integrationsCount),
-      variables: {}
+      variables: {},
     },
     {
       query: gql(queries.channelDetail),
-      variables: { _id: currentChannelId || '' }
+      variables: { _id: currentChannelId || '' },
     },
     { query: gql(queries.channelsCount) },
     {
       query: gql(inboxQueries.channelList),
-      variables: { memberIds: [currentUserId] }
-    }
+      variables: { memberIds: [currentUserId] },
+    },
   ];
 };
 
@@ -142,14 +143,14 @@ const WithProps = withProps<Props>(
         name: 'channelsQuery',
         options: ({ queryParams }: { queryParams: any }) => ({
           variables: {
-            perPage: queryParams.limit ? parseInt(queryParams.limit, 10) : 20
+            perPage: queryParams.limit ? parseInt(queryParams.limit, 10) : 20,
           },
-          fetchPolicy: 'network-only'
-        })
-      }
+          fetchPolicy: 'network-only',
+        }),
+      },
     ),
     graphql<Props, ChannelsCountQueryResponse, {}>(gql(queries.channelsCount), {
-      name: 'channelsCountQuery'
+      name: 'channelsCountQuery',
     }),
     graphql<Props, RemovePipelineLabelMutationResponse, MutationVariables>(
       gql(mutations.channelRemove),
@@ -159,12 +160,12 @@ const WithProps = withProps<Props>(
           refetchQueries: getRefetchQueries(
             queryParams,
             currentChannelId,
-            currentUserId
-          )
-        })
-      }
-    )
-  )(withRouter<FinalProps>(SidebarContainer))
+            currentUserId,
+          ),
+        }),
+      },
+    ),
+  )(SidebarContainer),
 );
 
 export default (props: Props) => (

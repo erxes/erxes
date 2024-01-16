@@ -1,21 +1,23 @@
+import * as compose from 'lodash.flowright';
+
+import { Alert, withProps } from '@erxes/ui/src/utils';
+import { mutations, queries } from '../graphql';
+
+import ActionSection from '../components/detail/ActionSection';
+// import { withRouter } from 'react-router-dom';
+import { IRouterProps } from '@erxes/ui/src/types';
+import { IUser } from '@erxes/ui/src/auth/types';
+import React from 'react';
 import client from '@erxes/ui/src/apolloClient';
 import { gql } from '@apollo/client';
-import * as compose from 'lodash.flowright';
-import { Alert, withProps } from '@erxes/ui/src/utils';
-import React from 'react';
 import { graphql } from '@apollo/client/react/hoc';
-import { withRouter } from 'react-router-dom';
-import { IRouterProps } from '@erxes/ui/src/types';
-import ActionSection from '../components/detail/ActionSection';
-import { IUser } from '@erxes/ui/src/auth/types';
-import { mutations, queries } from '../graphql';
 
 type Props = {
   user: IUser;
   isSmall?: boolean;
   renderEditForm: ({
     closeModal,
-    user
+    user,
   }: {
     closeModal: () => void;
     user: IUser;
@@ -31,7 +33,7 @@ const ActionSectionContainer = (props: FinalProps) => {
     const { statusChangedMutation } = props;
 
     statusChangedMutation({
-      variables: { _id: id }
+      variables: { _id: id },
     })
       .then(() => {
         Alert.success('Congrats, Successfully updated.');
@@ -45,12 +47,12 @@ const ActionSectionContainer = (props: FinalProps) => {
     client
       .mutate({
         mutation: gql(mutations.usersResendInvitation),
-        variables: { email }
+        variables: { email },
       })
       .then(() => {
         Alert.success('Successfully resent the invitation');
       })
-      .catch(e => {
+      .catch((e) => {
         Alert.error(e.message);
       });
   };
@@ -60,7 +62,7 @@ const ActionSectionContainer = (props: FinalProps) => {
     isSmall,
     renderEditForm,
     changeStatus,
-    resendInvitation
+    resendInvitation,
   };
 
   return <ActionSection {...updatedProps} />;
@@ -73,10 +75,10 @@ export default withProps<Props>(
       options: ({ queryParams }) => ({
         refetchQueries: [
           {
-            query: gql(queries.users)
-          }
-        ]
-      })
-    })
-  )(withRouter<FinalProps>(ActionSectionContainer))
+            query: gql(queries.users),
+          },
+        ],
+      }),
+    }),
+  )(ActionSectionContainer),
 );

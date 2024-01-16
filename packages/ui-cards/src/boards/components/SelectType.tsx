@@ -1,11 +1,11 @@
+import Button from '@erxes/ui/src/components/Button';
+import Dropdown from 'react-bootstrap/Dropdown';
+import DropdownToggle from '@erxes/ui/src/components/DropdownToggle';
+// import { withRouter } from 'react-router-dom';
+import { IRouterProps } from '@erxes/ui/src/types';
 import Icon from '@erxes/ui/src/components/Icon';
 import React from 'react';
-import Dropdown from 'react-bootstrap/Dropdown';
-import Button from '@erxes/ui/src/components/Button';
-import DropdownToggle from '@erxes/ui/src/components/DropdownToggle';
 import { router as routerUtils } from '@erxes/ui/src/utils';
-import { withRouter } from 'react-router-dom';
-import { IRouterProps } from '@erxes/ui/src/types';
 
 type Props = {
   queryParams: any;
@@ -23,13 +23,13 @@ const SelectType = ({
   text,
   queryParamName,
   title,
-  icon
+  icon,
 }: Props & IRouterProps) => {
   const dropDownMenu = () => {
     if (queryParamName === 'groupBy') {
       return (
         <Dropdown.Menu>
-          {list.map(m => (
+          {list.map((m) => (
             <li key={m.title}>
               <a
                 href="#listType"
@@ -49,7 +49,7 @@ const SelectType = ({
 
     return (
       <Dropdown.Menu>
-        {list.map(m => (
+        {list.map((m) => (
           <li key={m.title}>
             <a
               href="#chartType"
@@ -67,7 +67,9 @@ const SelectType = ({
     );
   };
 
-  const foundTypeName = list.find(t => t.name === queryParams[queryParamName]);
+  const foundTypeName = list.find(
+    (t) => t.name === queryParams[queryParamName],
+  );
 
   return (
     <>
@@ -89,4 +91,4 @@ const SelectType = ({
   );
 };
 
-export default withRouter(SelectType);
+export default SelectType;

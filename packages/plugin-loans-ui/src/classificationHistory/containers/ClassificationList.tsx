@@ -1,21 +1,22 @@
-import Alert from '@erxes/ui/src/utils/Alert';
-import Bulk from '@erxes/ui/src/components/Bulk';
-import { withProps, router } from '@erxes/ui/src/utils';
-import { IRouterProps } from '@erxes/ui/src/types';
-import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
-import React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
-import { withRouter } from 'react-router-dom';
 
-import ClassificationHistoryList from '../components/ClassificationHistoryList';
-import { mutations, queries } from '../graphql';
 import {
   ListQueryVariables,
   MainQueryResponse,
   RemoveMutationResponse,
-  RemoveMutationVariables
+  RemoveMutationVariables,
 } from '../types';
+import { mutations, queries } from '../graphql';
+import { router, withProps } from '@erxes/ui/src/utils';
+
+import Alert from '@erxes/ui/src/utils/Alert';
+import Bulk from '@erxes/ui/src/components/Bulk';
+import ClassificationHistoryList from '../components/ClassificationHistoryList';
+import { IRouterProps } from '@erxes/ui/src/types';
+import React from 'react';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
+// import { withRouter } from 'react-router-dom';
 
 type Props = {
   queryParams: any;
@@ -36,7 +37,7 @@ class ClassificationListContainer extends React.Component<FinalProps, State> {
     super(props);
 
     this.state = {
-      loading: false
+      loading: false,
     };
   }
 
@@ -45,13 +46,13 @@ class ClassificationListContainer extends React.Component<FinalProps, State> {
 
     const removeClassificationHistory = ({ classificationIds }, emptyBulk) => {
       classificationRemove({
-        variables: { classificationIds }
+        variables: { classificationIds },
       })
         .then(() => {
           emptyBulk();
           Alert.success('You successfully deleted a periodLock');
         })
-        .catch(e => {
+        .catch((e) => {
           Alert.error(e.message);
         });
     };
@@ -65,10 +66,10 @@ class ClassificationListContainer extends React.Component<FinalProps, State> {
       searchValue,
       classificationHistory: list,
       loading: classifications.loading || this.state.loading,
-      removeClassificationHistory
+      removeClassificationHistory,
     };
 
-    const classificationHistoryList = props => {
+    const classificationHistoryList = (props) => {
       return <ClassificationHistoryList {...updatedProps} {...props} />;
     };
 
@@ -88,13 +89,13 @@ const generateParams = ({ queryParams }) => ({
     sortField: queryParams.sortField,
     sortDirection: queryParams.sortDirection
       ? parseInt(queryParams.sortDirection, 10)
-      : undefined
+      : undefined,
   },
-  fetchPolicy: 'network-only'
+  fetchPolicy: 'network-only',
 });
 
 const generateOptions = () => ({
-  refetchQueries: ['classifications']
+  refetchQueries: ['classifications'],
 });
 
 export default withProps<Props>(
@@ -103,16 +104,16 @@ export default withProps<Props>(
       gql(queries.classifications),
       {
         name: 'classifications',
-        options: { ...generateParams }
-      }
+        options: { ...generateParams },
+      },
     ),
     // mutations
     graphql<{}, RemoveMutationResponse, RemoveMutationVariables>(
       gql(mutations.classificationRemove),
       {
         name: 'classificationRemove',
-        options: generateOptions
-      }
-    )
-  )(withRouter<IRouterProps>(ClassificationListContainer))
+        options: generateOptions,
+      },
+    ),
+  )(ClassificationListContainer),
 );

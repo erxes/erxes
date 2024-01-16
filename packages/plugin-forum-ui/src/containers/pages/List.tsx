@@ -7,6 +7,8 @@ import { mutations, queries } from '../../graphql';
 import Bulk from '@erxes/ui/src/components/Bulk';
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
+// import { withRouter } from 'react-router-dom';
+import { IPage } from '../../types';
 import { IRouterProps } from '@erxes/ui/src/types';
 import PageList from '../../components/pages/PageList';
 import React from 'react';
@@ -14,8 +16,6 @@ import Spinner from '@erxes/ui/src/components/Spinner';
 import { gql } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
 import { useQuery } from '@apollo/client';
-import { withRouter } from 'react-router-dom';
-import { IPage } from '../../types';
 
 type Props = {
   queryParams: any;
@@ -32,7 +32,7 @@ function PagesList({
   history,
   removeMutation,
   pagesQuery,
-  queryParams
+  queryParams,
 }: FinalProps) {
   const limit = Number(queryParams.perPage || 20);
   const pageIndex = Number(queryParams.page || 1);
@@ -43,8 +43,8 @@ function PagesList({
     variables: {
       sort: { [queryParams.sortField]: queryParams.sortDirection },
       limit,
-      offset
-    }
+      offset,
+    },
   });
 
   const totalCountQuery = useQuery(gql(queries.pages), {
@@ -52,9 +52,9 @@ function PagesList({
     variables: {
       sort: {
         code: 1,
-        listOrder: 1
-      }
-    }
+        listOrder: 1,
+      },
+    },
   });
 
   if (loading || totalCountQuery.loading) {
@@ -72,7 +72,7 @@ function PagesList({
           pagesQuery.refetch();
           afterSuccess ? afterSuccess() : console.log('success');
         })
-        .catch(e => {
+        .catch((e) => {
           Alert.error(e.message);
         });
     };
@@ -82,7 +82,7 @@ function PagesList({
     } else {
       confirm('Are you sure?')
         .then(() => deleteFunction(emptyBulk))
-        .catch(e => {
+        .catch((e) => {
           Alert.error(e.message);
         });
     }
@@ -93,7 +93,7 @@ function PagesList({
     values,
     isSubmitted,
     callback,
-    object
+    object,
   }: IButtonMutateProps) => {
     return (
       <ButtonMutate
@@ -114,12 +114,12 @@ function PagesList({
   let filteredPages;
 
   if (queryParams.search) {
-    filteredPages = pages.filter(p => p.title.includes(queryParams.search));
+    filteredPages = pages.filter((p) => p.title.includes(queryParams.search));
   }
 
   const totalCount = totalCountQuery.data.forumPages.length || 0;
 
-  const content = props => {
+  const content = (props) => {
     return (
       <PageList
         {...props}
@@ -140,17 +140,17 @@ export default withProps<{}>(
     graphql<PagesQueryResponse>(gql(queries.pages), {
       name: 'pagesQuery',
       options: () => ({
-        fetchPolicy: 'network-only'
-      })
+        fetchPolicy: 'network-only',
+      }),
     }),
     graphql<RemoveMutationResponse, { _id: string }>(
       gql(mutations.deletePage),
       {
         name: 'removeMutation',
         options: () => ({
-          refetchQueries: queries.pageRefetch
-        })
-      }
-    )
-  )(withRouter<FinalProps>(PagesList))
+          refetchQueries: queries.pageRefetch,
+        }),
+      },
+    ),
+  )(PagesList),
 );

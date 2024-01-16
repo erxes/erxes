@@ -19,7 +19,8 @@ import Sidebar from 'modules/layout/components/Sidebar';
 import { SidebarItem } from '../styles';
 import Tip from 'modules/common/components/Tip';
 import Wrapper from 'modules/layout/components/Wrapper';
-import { withRouter } from 'react-router-dom';
+
+// import { withRouter } from 'react-router-dom';
 
 const { Section } = Wrapper.Sidebar;
 
@@ -36,7 +37,7 @@ interface IProps extends IRouterProps {
 
 class GroupList extends React.Component<IProps> {
   renderFormTrigger(trigger: React.ReactNode, object?: IUserGroup) {
-    const content = props => this.renderForm({ ...props, object });
+    const content = (props) => this.renderForm({ ...props, object });
 
     return (
       <ModalTrigger
@@ -48,7 +49,7 @@ class GroupList extends React.Component<IProps> {
     );
   }
 
-  renderForm = props => {
+  renderForm = (props) => {
     const { refetch, renderButton } = this.props;
 
     const extendedProps = { ...props, refetch };
@@ -103,7 +104,7 @@ class GroupList extends React.Component<IProps> {
   }
 
   renderObjects(objects: IUserGroupDocument[]) {
-    return objects.map(object => (
+    return objects.map((object) => (
       <SidebarItem key={object._id} isActive={this.isActive(object._id)}>
         <Link to={`?groupId=${object._id}`}>
           <FieldStyle>
@@ -171,4 +172,4 @@ class GroupList extends React.Component<IProps> {
   }
 }
 
-export default withRouter<IProps>(GroupList);
+export default GroupList;

@@ -1,19 +1,20 @@
-import Box from '@erxes/ui/src/components/Box';
-import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
-import { IRouterProps, Counts } from '@erxes/ui/src/types';
-import { __, router } from '@erxes/ui/src/utils';
+import { Counts, IRouterProps } from '@erxes/ui/src/types';
 import {
   FieldStyle,
   SidebarCounter,
-  SidebarList
+  SidebarList,
 } from '@erxes/ui/src/layout/styles';
-import React from 'react';
-import { withRouter } from 'react-router-dom';
+import { __, router } from '@erxes/ui/src/utils';
+
+import Box from '@erxes/ui/src/components/Box';
+import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
+// import { withRouter } from 'react-router-dom';
 import Icon from '@erxes/ui/src/components/Icon';
+import React from 'react';
 
 const TYPES = [
   { value: 'customer', label: 'Customer' },
-  { value: 'company', label: 'Company' }
+  { value: 'company', label: 'Company' },
 ];
 
 interface IProps extends IRouterProps {
@@ -83,4 +84,4 @@ function TypeFilter({ history, counts, emptyText }: IProps) {
   );
 }
 
-export default withRouter<IProps>(TypeFilter);
+export default TypeFilter;

@@ -2,7 +2,7 @@ import * as compose from 'lodash.flowright';
 
 import {
   AddIntegrationMutationResponse,
-  AddIntegrationMutationVariables
+  AddIntegrationMutationVariables,
 } from '@erxes/ui-inbox/src/settings/integrations/types';
 import { Alert, withProps } from '@erxes/ui/src/utils';
 import { mutations, queries } from '@erxes/ui-leads/src/graphql';
@@ -17,7 +17,8 @@ import { gql } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
 import { isEnabled } from '@erxes/ui/src/utils/core';
 import { queries as settingsQueries } from '@erxes/ui-settings/src/general/graphql';
-import { withRouter } from 'react-router-dom';
+
+// import { withRouter } from 'react-router-dom';
 
 type Props = {
   emailTemplatesQuery: any /*change type*/;
@@ -51,7 +52,7 @@ class CreateLeadContainer extends React.Component<Props, State> {
       isLoading: false,
       isReadyToSaveForm: false,
       isIntegrationSubmitted: false,
-      mustWait: { optionsStep: false }
+      mustWait: { optionsStep: false },
     };
   }
 
@@ -69,7 +70,7 @@ class CreateLeadContainer extends React.Component<Props, State> {
     if (canClose) {
       this.props.history.push({
         pathname: '/forms',
-        search: `?popUpRefetchList=true&showInstallCode=${this.state.integrationId}`
+        search: `?popUpRefetchList=true&showInstallCode=${this.state.integrationId}`,
       });
     }
   };
@@ -79,19 +80,14 @@ class CreateLeadContainer extends React.Component<Props, State> {
       addIntegrationMutation,
       history,
       emailTemplatesQuery,
-      configsQuery
+      configsQuery,
     } = this.props;
-    const afterFormDbSave = id => {
+    const afterFormDbSave = (id) => {
       this.setState({ isReadyToSaveForm: false });
 
       if (this.state.doc) {
-        const {
-          leadData,
-          brandId,
-          name,
-          languageCode,
-          channelIds
-        } = this.state.doc;
+        const { leadData, brandId, name, languageCode, channelIds } =
+          this.state.doc;
 
         addIntegrationMutation({
           variables: {
@@ -100,26 +96,26 @@ class CreateLeadContainer extends React.Component<Props, State> {
             brandId,
             name,
             languageCode,
-            channelIds
-          }
+            channelIds,
+          },
         })
           .then(
             ({
               data: {
-                integrationsCreateLeadIntegration: { _id }
-              }
+                integrationsCreateLeadIntegration: { _id },
+              },
             }) => {
               this.setState({
                 integrationId: _id,
-                isIntegrationSubmitted: true
+                isIntegrationSubmitted: true,
               });
               Alert.success('You successfully added a form');
 
               this.redirect();
-            }
+            },
           )
 
-          .catch(error => {
+          .catch((error) => {
             Alert.error(error.message);
 
             this.setState({ isLoading: false });
@@ -132,7 +128,7 @@ class CreateLeadContainer extends React.Component<Props, State> {
       this.setState({ mustWait });
     };
 
-    const save = doc => {
+    const save = (doc) => {
       this.setState({ isLoading: true, isReadyToSaveForm: true, doc });
     };
 
@@ -142,7 +138,7 @@ class CreateLeadContainer extends React.Component<Props, State> {
       save,
       afterFormDbSave,
       waitUntilFinish,
-      onChildProcessFinished: component => {
+      onChildProcessFinished: (component) => {
         if (this.state.mustWait.hasOwnProperty(component)) {
           const mustWait = { ...this.state.mustWait };
           mustWait[component] = false;
@@ -158,7 +154,7 @@ class CreateLeadContainer extends React.Component<Props, State> {
         ? emailTemplatesQuery.emailTemplates || []
         : [],
       configs: configsQuery.configs || [],
-      integrationId: this.state.integrationId
+      integrationId: this.state.integrationId,
     };
 
     return <Lead {...updatedProps} currentMode="create" />;
@@ -171,29 +167,29 @@ const withTemplatesQuery = withProps<Props>(
       name: 'emailTemplatesQuery',
       options: ({ emailTemplatesTotalCountQuery }) => ({
         variables: {
-          perPage: emailTemplatesTotalCountQuery.emailTemplatesTotalCount
-        }
+          perPage: emailTemplatesTotalCountQuery.emailTemplatesTotalCount,
+        },
       }),
-      skip: !isEnabled('engages') ? true : false
-    })
-  )(CreateLeadContainer)
+      skip: !isEnabled('engages') ? true : false,
+    }),
+  )(CreateLeadContainer),
 );
 
 export default withProps<Props>(
   compose(
     graphql(gql(queries.templateTotalCount), {
       name: 'emailTemplatesTotalCountQuery',
-      skip: !isEnabled('engages') ? true : false
+      skip: !isEnabled('engages') ? true : false,
     }),
     graphql<{}, ConfigsQueryResponse>(gql(settingsQueries.configs), {
-      name: 'configsQuery'
+      name: 'configsQuery',
     }),
     graphql<
       {},
       AddIntegrationMutationResponse,
       AddIntegrationMutationVariables
     >(gql(mutations.integrationsCreateLeadIntegration), {
-      name: 'addIntegrationMutation'
-    })
-  )(withRouter<Props>(withTemplatesQuery))
+      name: 'addIntegrationMutation',
+    }),
+  )(withTemplatesQuery),
 );

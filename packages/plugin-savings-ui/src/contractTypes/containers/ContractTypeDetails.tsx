@@ -1,20 +1,22 @@
-import { Alert, EmptyState, Spinner, withProps } from '@erxes/ui/src';
-import { IUser } from '@erxes/ui/src/auth/types';
-import { IRouterProps } from '@erxes/ui/src/types';
-import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
-import React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
-import { withRouter } from 'react-router-dom';
-import ContractTypeDetails from '../components/ContractTypeDetails';
-import { mutations, queries } from '../graphql';
+
+import { Alert, EmptyState, Spinner, withProps } from '@erxes/ui/src';
 import {
   DetailQueryResponse,
   EditMutationResponse,
   IContractType,
   RemoveMutationResponse,
-  RemoveMutationVariables
+  RemoveMutationVariables,
 } from '../types';
+import { mutations, queries } from '../graphql';
+
+// import { withRouter } from 'react-router-dom';
+import ContractTypeDetails from '../components/ContractTypeDetails';
+import { IRouterProps } from '@erxes/ui/src/types';
+import { IUser } from '@erxes/ui/src/auth/types';
+import React from 'react';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
 
 type Props = {
   id: string;
@@ -41,7 +43,7 @@ const ContractTypeDetailsContainer = (props: FinalProps) => {
         }
         Alert.success('You successfully updated contract type');
       })
-      .catch(error => {
+      .catch((error) => {
         Alert.error(error.message);
       });
   };
@@ -54,7 +56,7 @@ const ContractTypeDetailsContainer = (props: FinalProps) => {
         Alert.success('You successfully deleted a contract');
         history.push('/erxes-plugin-saving/contract-types');
       })
-      .catch(e => {
+      .catch((e) => {
         Alert.error(e.message);
       });
   };
@@ -77,17 +79,17 @@ const ContractTypeDetailsContainer = (props: FinalProps) => {
     contractType: contractTypeDetail,
     currentUser,
     saveItem,
-    remove
+    remove,
   };
 
   return <ContractTypeDetails {...(updatedProps as any)} />;
 };
 
 const generateOptions = () => ({
-  refetchQueries: ['savingsContractTypeDetail']
+  refetchQueries: ['savingsContractTypeDetail'],
 });
 const removeOptions = () => ({
-  refetchQueries: ['savingsContractTypesMain']
+  refetchQueries: ['savingsContractTypesMain'],
 });
 
 export default withProps<Props>(
@@ -98,25 +100,25 @@ export default withProps<Props>(
         name: 'contractTypeDetailQuery',
         options: ({ id }) => ({
           variables: {
-            _id: id
+            _id: id,
           },
-          fetchPolicy: 'network-only'
-        })
-      }
+          fetchPolicy: 'network-only',
+        }),
+      },
     ),
     graphql<{}, EditMutationResponse, IContractType>(
       gql(mutations.contractTypesEdit),
       {
         name: 'contractTypesEdit',
-        options: generateOptions
-      }
+        options: generateOptions,
+      },
     ),
     graphql<{}, RemoveMutationResponse, RemoveMutationVariables>(
       gql(mutations.contractTypesRemove),
       {
         name: 'contractTypesRemove',
-        options: removeOptions
-      }
-    )
-  )(withRouter<FinalProps>(ContractTypeDetailsContainer))
+        options: removeOptions,
+      },
+    ),
+  )(ContractTypeDetailsContainer),
 );

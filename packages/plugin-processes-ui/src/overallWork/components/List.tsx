@@ -1,16 +1,16 @@
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
-import Pagination from '@erxes/ui/src/components/pagination/Pagination';
-import Table from '@erxes/ui/src/components/table';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { IRouterProps } from '@erxes/ui/src/types';
-import { __ } from 'coreui/utils';
-import React from 'react';
-import { withRouter } from 'react-router-dom';
-import { menuNavs } from '../../constants';
-import { TableWrapper } from '../../styles';
 import { IOverallWork } from '../types';
+import { IRouterProps } from '@erxes/ui/src/types';
+import Pagination from '@erxes/ui/src/components/pagination/Pagination';
+import React from 'react';
 import Row from './Row';
 import Sidebar from './Sidebar';
+import Table from '@erxes/ui/src/components/table';
+import { TableWrapper } from '../../styles';
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
+import { __ } from 'coreui/utils';
+// import { withRouter } from 'react-router-dom';
+import { menuNavs } from '../../constants';
 
 interface IProps extends IRouterProps {
   overallWorks: IOverallWork[];
@@ -44,7 +44,7 @@ class OverallWorks extends React.Component<IProps, {}> {
             </tr>
           </thead>
           <tbody id="overallWorks">
-            {(overallWorks || []).map(work => (
+            {(overallWorks || []).map((work) => (
               <Row
                 key={Math.random()}
                 work={work}
@@ -78,4 +78,4 @@ class OverallWorks extends React.Component<IProps, {}> {
   }
 }
 
-export default withRouter<IRouterProps>(OverallWorks);
+export default OverallWorks;

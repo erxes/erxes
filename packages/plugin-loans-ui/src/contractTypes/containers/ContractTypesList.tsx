@@ -1,19 +1,20 @@
-import { Alert, Bulk, router, withProps } from '@erxes/ui/src';
-import { IRouterProps } from '@erxes/ui/src/types';
-import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
-import React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
-import { withRouter } from 'react-router-dom';
 
-import ContractTypesList from '../components/ContractTypesList';
-import { mutations, queries } from '../graphql';
+import { Alert, Bulk, router, withProps } from '@erxes/ui/src';
 import {
   ListQueryVariables,
   MainQueryResponse,
   RemoveMutationResponse,
-  RemoveMutationVariables
+  RemoveMutationVariables,
 } from '../types';
+import { mutations, queries } from '../graphql';
+
+import ContractTypesList from '../components/ContractTypesList';
+import { IRouterProps } from '@erxes/ui/src/types';
+import React from 'react';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
+// import { withRouter } from 'react-router-dom';
 
 type Props = {
   queryParams: any;
@@ -35,7 +36,7 @@ class ContractTypeListContainer extends React.Component<FinalProps, State> {
     super(props);
 
     this.state = {
-      loading: false
+      loading: false,
     };
   }
 
@@ -44,13 +45,13 @@ class ContractTypeListContainer extends React.Component<FinalProps, State> {
 
     const removeContractTypes = ({ contractTypeIds }, emptyBulk) => {
       contractTypesRemove({
-        variables: { contractTypeIds }
+        variables: { contractTypeIds },
       })
         .then(() => {
           emptyBulk();
           Alert.success('You successfully deleted a contractType');
         })
-        .catch(e => {
+        .catch((e) => {
           Alert.error(e.message);
         });
     };
@@ -65,10 +66,10 @@ class ContractTypeListContainer extends React.Component<FinalProps, State> {
       searchValue,
       contractTypes: list,
       loading: contractTypesMainQuery.loading || this.state.loading,
-      removeContractTypes
+      removeContractTypes,
     };
 
-    const contractTypesList = props => {
+    const contractTypesList = (props) => {
       return <ContractTypesList {...updatedProps} {...props} />;
     };
 
@@ -88,13 +89,13 @@ const generateParams = ({ queryParams }) => ({
     sortField: queryParams.sortField,
     sortDirection: queryParams.sortDirection
       ? parseInt(queryParams.sortDirection, 10)
-      : undefined
+      : undefined,
   },
-  fetchPolicy: 'network-only'
+  fetchPolicy: 'network-only',
 });
 
 const generateOptions = () => ({
-  refetchQueries: ['contractTypesMain']
+  refetchQueries: ['contractTypesMain'],
 });
 
 export default withProps<Props>(
@@ -103,16 +104,16 @@ export default withProps<Props>(
       gql(queries.contractTypesMain),
       {
         name: 'contractTypesMainQuery',
-        options: { ...generateParams }
-      }
+        options: { ...generateParams },
+      },
     ),
     // mutations
     graphql<{}, RemoveMutationResponse, RemoveMutationVariables>(
       gql(mutations.contractTypesRemove),
       {
         name: 'contractTypesRemove',
-        options: generateOptions
-      }
-    )
-  )(withRouter<IRouterProps>(ContractTypeListContainer))
+        options: generateOptions,
+      },
+    ),
+  )(ContractTypeListContainer),
 );

@@ -1,15 +1,16 @@
+import { Alert, __, router } from 'coreui/utils';
+
 import Button from '@erxes/ui/src/components/Button';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import FormControl from '@erxes/ui/src/components/form/Control';
-import Pagination from '@erxes/ui/src/components/pagination/Pagination';
-import { __, Alert, router } from 'coreui/utils';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { INotification } from '@erxes/ui-notifications/src/types';
-import React from 'react';
-import { withRouter } from 'react-router-dom';
+// import { withRouter } from 'react-router-dom';
 import { IRouterProps } from '@erxes/ui/src/types';
-import NotificationRow from '@erxes/ui-notifications/src/components/NotificationRow';
 import { NotifList } from '@erxes/ui-notifications/src/components/styles';
+import NotificationRow from '@erxes/ui-notifications/src/components/NotificationRow';
+import Pagination from '@erxes/ui/src/components/pagination/Pagination';
+import React from 'react';
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 
 type Props = {
   notifications: INotification[];
@@ -29,14 +30,14 @@ class NotificationList extends React.Component<Props, State> {
     this.state = { filterByUnread: true };
   }
 
-  markAllRead = isPageRead => {
+  markAllRead = (isPageRead) => {
     if (!isPageRead) {
       return this.props.markAsRead();
     }
 
     const unreadNotifications: string[] = [];
 
-    this.props.notifications.forEach(notification => {
+    this.props.notifications.forEach((notification) => {
       if (!notification.isRead) {
         unreadNotifications.push(notification._id);
       }
@@ -134,4 +135,4 @@ class NotificationList extends React.Component<Props, State> {
   }
 }
 
-export default withRouter<Props>(NotificationList);
+export default NotificationList;

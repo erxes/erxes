@@ -1,21 +1,21 @@
 import {
-  __,
+  BarItems,
   DataWithLoader,
   Pagination,
   SortHandler,
   Table,
   Wrapper,
-  BarItems
+  __,
 } from '@erxes/ui/src';
-import { IRouterProps, IQueryParams } from '@erxes/ui/src/types';
-import React from 'react';
-import { withRouter } from 'react-router-dom';
-import CoverSidebar from './CoverSidebar';
-import { menuPos } from '../../constants';
+import { IQueryParams, IRouterProps } from '@erxes/ui/src/types';
 
-import { TableWrapper } from '../../styles';
+// import { withRouter } from 'react-router-dom';
+import CoverSidebar from './CoverSidebar';
 import { ICover } from '../types';
+import React from 'react';
 import Row from './CoverRow';
+import { TableWrapper } from '../../styles';
+import { menuPos } from '../../constants';
 
 interface IProps extends IRouterProps {
   covers: ICover[];
@@ -38,7 +38,7 @@ class Covers extends React.Component<IProps, {}> {
     super(props);
   }
 
-  moveCursorAtTheEnd = e => {
+  moveCursorAtTheEnd = (e) => {
     const tmpValue = e.target.value;
     e.target.value = '';
     e.target.value = tmpValue;
@@ -68,7 +68,7 @@ class Covers extends React.Component<IProps, {}> {
             </tr>
           </thead>
           <tbody id="covers">
-            {(covers || []).map(cover => (
+            {(covers || []).map((cover) => (
               <Row
                 cover={cover}
                 key={cover._id}
@@ -108,4 +108,4 @@ class Covers extends React.Component<IProps, {}> {
   }
 }
 
-export default withRouter<IRouterProps>(Covers);
+export default Covers;

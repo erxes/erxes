@@ -1,21 +1,22 @@
-import { Alert, Bulk, router, withProps } from '@erxes/ui/src';
-import { IRouterProps } from '@erxes/ui/src/types';
-import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
-import queryString from 'query-string';
-import React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
-import { withRouter } from 'react-router-dom';
 
-import { FILTER_PARAMS_TR } from '../../constants';
-import TransactionList from '../components/TransactionList';
-import { mutations, queries } from '../graphql';
+import { Alert, Bulk, router, withProps } from '@erxes/ui/src';
 import {
   ListQueryVariables,
   MainQueryResponse,
   RemoveMutationResponse,
-  RemoveMutationVariables
+  RemoveMutationVariables,
 } from '../types';
+import { mutations, queries } from '../graphql';
+
+import { FILTER_PARAMS_TR } from '../../constants';
+import { IRouterProps } from '@erxes/ui/src/types';
+import React from 'react';
+import TransactionList from '../components/TransactionList';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
+import queryString from 'query-string';
+// import { withRouter } from 'react-router-dom';
 
 type Props = {
   queryParams: any;
@@ -41,7 +42,7 @@ class TransactionListContainer extends React.Component<FinalProps, State> {
     super(props);
 
     this.state = {
-      loading: false
+      loading: false,
     };
   }
 
@@ -85,13 +86,13 @@ class TransactionListContainer extends React.Component<FinalProps, State> {
 
     const removeTransactions = ({ transactionIds }, emptyBulk) => {
       transactionsRemove({
-        variables: { transactionIds }
+        variables: { transactionIds },
       })
         .then(() => {
           emptyBulk();
           Alert.success('You successfully deleted a transaction');
         })
-        .catch(e => {
+        .catch((e) => {
           Alert.error(e.message);
         });
     };
@@ -108,10 +109,10 @@ class TransactionListContainer extends React.Component<FinalProps, State> {
       onSelect: this.onSelect,
       onSearch: this.onSearch,
       isFiltered: this.isFiltered(),
-      clearFilter: this.clearFilter
+      clearFilter: this.clearFilter,
     };
 
-    const transactionsList = props => {
+    const transactionsList = (props) => {
       return <TransactionList {...updatedProps} {...props} />;
     };
 
@@ -138,12 +139,12 @@ const generateParams = ({ queryParams }) => ({
     sortField: queryParams.sortField,
     sortDirection: queryParams.sortDirection
       ? parseInt(queryParams.sortDirection, 10)
-      : undefined
-  }
+      : undefined,
+  },
 });
 
 const generateOptions = () => ({
-  refetchQueries: ['transactionsMain']
+  refetchQueries: ['transactionsMain'],
 });
 
 export default withProps<Props>(
@@ -152,16 +153,16 @@ export default withProps<Props>(
       gql(queries.transactionsMain),
       {
         name: 'transactionsMainQuery',
-        options: generateParams
-      }
+        options: generateParams,
+      },
     ),
     // mutations
     graphql<{}, RemoveMutationResponse, RemoveMutationVariables>(
       gql(mutations.transactionsRemove),
       {
         name: 'transactionsRemove',
-        options: generateOptions
-      }
-    )
-  )(withRouter<IRouterProps>(TransactionListContainer))
+        options: generateOptions,
+      },
+    ),
+  )(TransactionListContainer),
 );

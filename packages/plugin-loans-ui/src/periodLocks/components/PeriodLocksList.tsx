@@ -1,29 +1,27 @@
 import Alert from '@erxes/ui/src/utils/Alert';
 import { BarItems } from '@erxes/ui/src/layout/styles';
 import Button from '@erxes/ui/src/components/Button';
-import confirm from '@erxes/ui/src/utils/confirmation/confirm';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import FormControl from '@erxes/ui/src/components/form/Control';
+import { IPeriodLock } from '../types';
+import { IRouterProps } from '@erxes/ui/src/types';
+import { IUser } from '@erxes/ui/src/auth/types';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import Pagination from '@erxes/ui/src/components/pagination/Pagination';
-import { router } from '@erxes/ui/src/utils/core';
+import PeriodLockForm from '../containers/PeriodLockForm';
+import PeriodLockRow from './PeriodLockRow';
+import { PeriodLocksTableWrapper } from '../styles';
+import React from 'react';
 import SortHandler from '@erxes/ui/src/components/SortHandler';
 import Table from '@erxes/ui/src/components/table';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-
 import { __ } from 'coreui/utils';
-import { IRouterProps } from '@erxes/ui/src/types';
-import React from 'react';
-import { withRouter } from 'react-router-dom';
-import { menuContracts } from '../../constants';
-
-import PeriodLockForm from '../containers/PeriodLockForm';
-import { PeriodLocksTableWrapper } from '../styles';
-import { IPeriodLock } from '../types';
-import PeriodLockRow from './PeriodLockRow';
 import { can } from '@erxes/ui/src/utils/core';
+import confirm from '@erxes/ui/src/utils/confirmation/confirm';
+// import { withRouter } from 'react-router-dom';
+import { menuContracts } from '../../constants';
+import { router } from '@erxes/ui/src/utils/core';
 import withConsumer from '../../withConsumer';
-import { IUser } from '@erxes/ui/src/auth/types';
 
 interface IProps extends IRouterProps {
   periodLocks: IPeriodLock[];
@@ -38,7 +36,7 @@ interface IProps extends IRouterProps {
   emptyBulk: () => void;
   removePeriodLocks: (
     doc: { periodLockIds: string[] },
-    emptyBulk: () => void
+    emptyBulk: () => void,
   ) => void;
   history: any;
   queryParams: any;
@@ -56,7 +54,7 @@ class PeriodLocksList extends React.Component<IProps, State> {
     super(props);
 
     this.state = {
-      searchValue: this.props.searchValue
+      searchValue: this.props.searchValue,
     };
   }
 
@@ -65,7 +63,7 @@ class PeriodLocksList extends React.Component<IProps, State> {
     toggleAll(periodLocks, 'periodLocks');
   };
 
-  search = e => {
+  search = (e) => {
     if (this.timer) {
       clearTimeout(this.timer);
     }
@@ -80,17 +78,17 @@ class PeriodLocksList extends React.Component<IProps, State> {
     }, 500);
   };
 
-  removePeriodLocks = periodLocks => {
+  removePeriodLocks = (periodLocks) => {
     const periodLockIds: string[] = [];
 
-    periodLocks.forEach(periodLock => {
+    periodLocks.forEach((periodLock) => {
       periodLockIds.push(periodLock._id);
     });
 
     this.props.removePeriodLocks({ periodLockIds }, this.props.emptyBulk);
   };
 
-  moveCursorAtTheEnd = e => {
+  moveCursorAtTheEnd = (e) => {
     const tmpValue = e.target.value;
     e.target.value = '';
     e.target.value = tmpValue;
@@ -106,7 +104,7 @@ class PeriodLocksList extends React.Component<IProps, State> {
       isAllSelected,
       totalCount,
       queryParams,
-      currentUser
+      currentUser,
     } = this.props;
 
     const mainContent = (
@@ -128,7 +126,7 @@ class PeriodLocksList extends React.Component<IProps, State> {
             </tr>
           </thead>
           <tbody id="periodLocks">
-            {periodLocks.map(periodLock => (
+            {periodLocks.map((periodLock) => (
               <PeriodLockRow
                 periodLock={periodLock}
                 isChecked={bulk.includes(periodLock)}
@@ -156,7 +154,7 @@ class PeriodLocksList extends React.Component<IProps, State> {
           .then(() => {
             this.removePeriodLocks(bulk);
           })
-          .catch(error => {
+          .catch((error) => {
             Alert.error(error.message);
           });
 
@@ -171,7 +169,7 @@ class PeriodLocksList extends React.Component<IProps, State> {
       );
     }
 
-    const periodLockForm = props => {
+    const periodLockForm = (props) => {
       return <PeriodLockForm {...props} queryParams={queryParams} />;
     };
 
@@ -208,8 +206,8 @@ class PeriodLocksList extends React.Component<IProps, State> {
           <Wrapper.Header
             title={__(`Period Locks`) + ` (${totalCount})`}
             queryParams={queryParams}
-            submenu={menuContracts.filter(row =>
-              can(row.permission, currentUser)
+            submenu={menuContracts.filter((row) =>
+              can(row.permission, currentUser),
             )}
           />
         }
@@ -229,4 +227,4 @@ class PeriodLocksList extends React.Component<IProps, State> {
   }
 }
 
-export default withRouter<IRouterProps>(withConsumer(PeriodLocksList));
+export default withConsumer(PeriodLocksList);

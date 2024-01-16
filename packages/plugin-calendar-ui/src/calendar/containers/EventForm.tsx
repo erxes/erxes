@@ -8,7 +8,8 @@ import { gql } from '@apollo/client';
 import { queries as integrationQueries } from '@erxes/ui-inbox/src/settings/integrations/graphql';
 import { mutations } from '../graphql';
 import queryString from 'query-string';
-import { withRouter } from 'react-router-dom';
+
+// import { withRouter } from 'react-router-dom';
 
 type Props = {
   startTime?: Date;
@@ -32,15 +33,15 @@ class FormContainer extends React.Component<Props> {
             variables: {
               ...queryParams,
               startTime,
-              endTime
-            }
+              endTime,
+            },
           }
         : {};
 
     const renderButton = ({
       values,
       isSubmitted,
-      callback
+      callback,
     }: IButtonMutateProps) => {
       const callBackResponse = () => {
         if (callback) {
@@ -49,7 +50,7 @@ class FormContainer extends React.Component<Props> {
       };
 
       const variables = {
-        ...values
+        ...values,
       };
 
       if (event) {
@@ -71,11 +72,11 @@ class FormContainer extends React.Component<Props> {
 
     const updatedProps = {
       ...this.props,
-      renderButton
+      renderButton,
     };
 
     return <EventForm {...updatedProps} />;
   }
 }
 
-export default withRouter(FormContainer);
+export default FormContainer;

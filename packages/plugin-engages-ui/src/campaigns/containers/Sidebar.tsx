@@ -12,7 +12,8 @@ import { isEnabled } from '@erxes/ui/src/utils/core';
 import { queries } from '@erxes/ui-engage/src/graphql';
 import { queries as tagQueries } from '@erxes/ui-tags/src/graphql';
 import { withProps } from '@erxes/ui/src/utils';
-import { withRouter } from 'react-router-dom';
+
+// import { withRouter } from 'react-router-dom';
 
 type Props = {
   queryParams: any;
@@ -26,19 +27,15 @@ type FinalProps = {
 } & IRouterProps;
 
 const SidebarContainer = (props: FinalProps) => {
-  const {
-    kindCountsQuery,
-    statusCountsQuery,
-    tagsQuery,
-    tagCountsQuery
-  } = props;
+  const { kindCountsQuery, statusCountsQuery, tagsQuery, tagCountsQuery } =
+    props;
 
   const updatedProps = {
     ...props,
     kindCounts: kindCountsQuery.engageMessageCounts || {},
     statusCounts: statusCountsQuery.engageMessageCounts || {},
     tags: (tagsQuery && tagsQuery.tags) || [],
-    tagCounts: (tagCountsQuery && tagCountsQuery.engageMessageCounts) || {}
+    tagCounts: (tagCountsQuery && tagCountsQuery.engageMessageCounts) || {},
   };
 
   return <Sidebar {...updatedProps} />;
@@ -47,7 +44,7 @@ const SidebarContainer = (props: FinalProps) => {
 export default withProps<Props>(
   compose(
     graphql<Props, CountQueryResponse>(gql(queries.kindCounts), {
-      name: 'kindCountsQuery'
+      name: 'kindCountsQuery',
     }),
     graphql<Props, CountQueryResponse, { kind: string }>(
       gql(queries.statusCounts),
@@ -55,17 +52,17 @@ export default withProps<Props>(
         name: 'statusCountsQuery',
         options: ({ queryParams }) => ({
           variables: {
-            kind: queryParams.kind || ''
-          }
-        })
-      }
+            kind: queryParams.kind || '',
+          },
+        }),
+      },
     ),
     graphql<Props, Counts, { type: string }>(gql(tagQueries.tags), {
       name: 'tagsQuery',
       options: () => ({
-        variables: { type: 'engages:engageMessage' }
+        variables: { type: 'engages:engageMessage' },
       }),
-      skip: !isEnabled('tags')
+      skip: !isEnabled('tags'),
     }),
     graphql<Props, CountQueryResponse, { kind: string; status: string }>(
       gql(queries.tagCounts),
@@ -74,11 +71,11 @@ export default withProps<Props>(
         options: ({ queryParams }) => ({
           variables: {
             kind: queryParams.kind || '',
-            status: queryParams.status || ''
-          }
+            status: queryParams.status || '',
+          },
         }),
-        skip: !isEnabled('tags')
-      }
-    )
-  )(withRouter<FinalProps>(SidebarContainer))
+        skip: !isEnabled('tags'),
+      },
+    ),
+  )(SidebarContainer),
 );

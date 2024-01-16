@@ -8,7 +8,8 @@ import { generatePaginationParams } from '@erxes/ui/src/utils/router';
 import { gql } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
 import { queries } from '../../graphql';
-import { withRouter } from 'react-router-dom';
+
+// import { withRouter } from 'react-router-dom';
 
 type Props = {
   _id: string;
@@ -30,7 +31,7 @@ const FormContainer = (props: FinalProps) => {
 
   const updatedProps = {
     ...props,
-    pages: pagesMain.list || []
+    pages: pagesMain.list || [],
   };
 
   return <SiteForm {...updatedProps} />;
@@ -42,8 +43,8 @@ export default compose(
     options: ({ _id, queryParams }) => ({
       variables: {
         ...generatePaginationParams(queryParams),
-        siteId: _id || ''
-      }
-    })
-  })
-)(withRouter(FormContainer));
+        siteId: _id || '',
+      },
+    }),
+  }),
+)(FormContainer);

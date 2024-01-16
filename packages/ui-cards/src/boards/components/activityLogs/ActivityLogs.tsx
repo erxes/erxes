@@ -7,7 +7,7 @@ import Pagination from '@erxes/ui/src/components/pagination/Pagination';
 import React from 'react';
 import Sidebar from './Sidebar';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { withRouter } from 'react-router-dom';
+// import { withRouter } from 'react-router-dom';
 
 type Props = {
   queryParams: any;
@@ -41,7 +41,7 @@ class ActivityLogs extends React.Component<Props> {
         <ActivityLogsByActionRow
           key={activityLog._id}
           activityLog={activityLog}
-        />
+        />,
       );
     }
 
@@ -63,4 +63,4 @@ class ActivityLogs extends React.Component<Props> {
   }
 }
 
-export default withRouter(ActivityLogs);
+export default ActivityLogs;

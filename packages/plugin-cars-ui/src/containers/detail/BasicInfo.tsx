@@ -1,18 +1,20 @@
-import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
+
 import { Alert, withProps } from '@erxes/ui/src';
-import { mutations, queries } from '../../graphql';
-import BasicInfoSection from '../../components/common/BasicInfoSection';
-import React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
-import { withRouter } from 'react-router-dom';
-import { IUser } from '@erxes/ui/src/auth/types';
-import { IRouterProps } from '@erxes/ui/src/types';
 import {
   ICar,
   RemoveMutationResponse,
-  RemoveMutationVariables
+  RemoveMutationVariables,
 } from '../../types';
+import { mutations, queries } from '../../graphql';
+
+import BasicInfoSection from '../../components/common/BasicInfoSection';
+import { IRouterProps } from '@erxes/ui/src/types';
+// import { withRouter } from 'react-router-dom';
+import { IUser } from '@erxes/ui/src/auth/types';
+import React from 'react';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
 
 type Props = {
   car: ICar;
@@ -33,21 +35,21 @@ const BasicInfoContainer = (props: FinalProps) => {
         Alert.success('You successfully deleted a car');
         history.push('/cars');
       })
-      .catch(e => {
+      .catch((e) => {
         Alert.error(e.message);
       });
   };
 
   const updatedProps = {
     ...props,
-    remove
+    remove,
   };
 
   return <BasicInfoSection {...updatedProps} />;
 };
 
 const generateOptions = () => ({
-  refetchQueries: ['carsMain', 'carCounts', 'carCategoriesCount']
+  refetchQueries: ['carsMain', 'carCounts', 'carCategoriesCount'],
 });
 
 export default withProps<Props>(
@@ -56,8 +58,8 @@ export default withProps<Props>(
       gql(mutations.carsRemove),
       {
         name: 'carsRemove',
-        options: generateOptions
-      }
-    )
-  )(withRouter<FinalProps>(BasicInfoContainer))
+        options: generateOptions,
+      },
+    ),
+  )(BasicInfoContainer),
 );

@@ -10,7 +10,7 @@ import {
   IForm,
   IFormData,
   RemoveFieldMutationResponse,
-  RemoveFieldMutationVariables
+  RemoveFieldMutationVariables,
 } from '../types';
 import { IField, IRouterProps } from '@erxes/ui/src/types';
 import { mutations, queries } from '../graphql';
@@ -23,7 +23,8 @@ import React from 'react';
 import { gql } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
 import { queries as settingsQueries } from '@erxes/ui-settings/src/general/graphql';
-import { withRouter } from 'react-router-dom';
+
+// import { withRouter } from 'react-router-dom';
 
 type Props = {
   afterDbSave: (formId: string) => void;
@@ -49,7 +50,7 @@ type FinalProps = {
 
 class EditFormContainer extends React.Component<FinalProps> {
   static defaultProps = {
-    showMessage: true
+    showMessage: true,
   };
 
   componentWillReceiveProps(nextProps: FinalProps) {
@@ -70,7 +71,7 @@ class EditFormContainer extends React.Component<FinalProps> {
       fieldsQuery,
       formDetailQuery,
       configsQuery,
-      showMessage
+      showMessage,
     } = this.props;
 
     if (
@@ -84,7 +85,7 @@ class EditFormContainer extends React.Component<FinalProps> {
     const dbFields = fieldsQuery.fields || [];
     const form = formDetailQuery.formDetail || {};
 
-    const saveForm = doc => {
+    const saveForm = (doc) => {
       const { title, description, buttonText, type, numberOfPages } = doc;
       let { fields } = doc;
 
@@ -95,35 +96,35 @@ class EditFormContainer extends React.Component<FinalProps> {
           description,
           buttonText,
           numberOfPages: Number(numberOfPages),
-          type
-        }
+          type,
+        },
       })
         .then(() => {
-          const dbFieldIds = dbFields.map(field => field._id);
+          const dbFieldIds = dbFields.map((field) => field._id);
           const existingIds: string[] = [];
           const removeFieldsData: Array<{ _id: string }> = [];
 
           // remove unnecessary fields
-          fields = fields.map(f => {
+          fields = fields.map((f) => {
             const { contentType, associatedField, __typename, ...rest } = f;
             const logics = f.logics?.map(({ __typename: t, ...l }) => l);
             const objectListConfigs = f.objectListConfigs?.map(
-              ({ __typename: t, ...config }) => config
+              ({ __typename: t, ...config }) => config,
             );
             return { ...rest, logics, objectListConfigs };
           });
 
           const addingFields = fields
-            .filter(field => field._id.startsWith('tempId'))
+            .filter((field) => field._id.startsWith('tempId'))
             .map(({ _id, ...rest }) => {
               return {
                 tempFieldId: _id,
-                ...rest
+                ...rest,
               };
             });
 
           const editingFields = fields.filter(
-            field => !field._id.startsWith('tempId')
+            (field) => !field._id.startsWith('tempId'),
           );
 
           fieldsBulkAddAndEditMutation({
@@ -131,8 +132,8 @@ class EditFormContainer extends React.Component<FinalProps> {
               contentType: 'form',
               contentTypeId: formId,
               addingFields,
-              editingFields
-            }
+              editingFields,
+            },
           });
 
           // collect fields ================
@@ -162,7 +163,7 @@ class EditFormContainer extends React.Component<FinalProps> {
 
           doMutation({
             datas: removeFieldsData,
-            mutation: removeFieldMutation
+            mutation: removeFieldMutation,
           });
 
           return Promise.all(promises);
@@ -178,17 +179,17 @@ class EditFormContainer extends React.Component<FinalProps> {
           });
         })
 
-        .catch(error => {
+        .catch((error) => {
           Alert.error(error.message);
         });
     };
 
     const updatedProps = {
       ...this.props,
-      fields: dbFields.map(field => ({ ...field })),
+      fields: dbFields.map((field) => ({ ...field })),
       saveForm,
       form: form as IForm,
-      configs: configsQuery.configs || []
+      configs: configsQuery.configs || [],
     };
 
     return <Form {...updatedProps} />;
@@ -207,11 +208,11 @@ export default withProps<Props>(
         return {
           variables: {
             contentType: 'form',
-            contentTypeId: formId
+            contentTypeId: formId,
           },
-          fetchPolicy: 'network-only'
+          fetchPolicy: 'network-only',
         };
-      }
+      },
     }),
     graphql<Props, FormDetailQueryResponse, { _id: string }>(
       gql(queries.formDetail),
@@ -219,32 +220,32 @@ export default withProps<Props>(
         name: 'formDetailQuery',
         options: ({ formId }) => ({
           variables: {
-            _id: formId
-          }
-        })
-      }
+            _id: formId,
+          },
+        }),
+      },
     ),
     graphql<{}, ConfigsQueryResponse>(gql(settingsQueries.configs), {
-      name: 'configsQuery'
+      name: 'configsQuery',
     }),
     graphql<
       Props,
       FieldsBulkAddAndEditMutationResponse,
       BulkEditAndAddMutationVariables
     >(gql(mutations.fieldsBulkAddAndEdit), {
-      name: 'fieldsBulkAddAndEditMutation'
+      name: 'fieldsBulkAddAndEditMutation',
     }),
     graphql<Props, EditFormMutationResponse, EditFormMutationVariables>(
       gql(mutations.editForm),
       {
-        name: 'editFormMutation'
-      }
+        name: 'editFormMutation',
+      },
     ),
     graphql<Props, RemoveFieldMutationResponse, RemoveFieldMutationVariables>(
       gql(mutations.fieldsRemove),
       {
-        name: 'removeFieldMutation'
-      }
-    )
-  )(withRouter<FinalProps>(EditFormContainer))
+        name: 'removeFieldMutation',
+      },
+    ),
+  )(EditFormContainer),
 );

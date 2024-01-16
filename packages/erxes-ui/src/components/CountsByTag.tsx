@@ -7,7 +7,8 @@ import { ITag } from '@erxes/ui-tags/src/types';
 import Icon from './Icon';
 import { Link } from 'react-router-dom';
 import React from 'react';
-import { withRouter } from 'react-router-dom';
+
+// import { withRouter } from 'react-router-dom';
 
 interface IProps extends IRouterProps {
   tags: ITag[];
@@ -54,4 +55,4 @@ function CountsByTag({ history, tags, counts, manageUrl, loading }: IProps) {
   );
 }
 
-export default withRouter<IProps>(CountsByTag);
+export default CountsByTag;

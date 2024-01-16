@@ -8,7 +8,8 @@ import { IntegrationTypes } from '../../types';
 import { __ } from 'coreui/utils';
 import { getRefetchQueries } from '../utils';
 import { mutations } from '../../graphql';
-import { withRouter } from 'react-router-dom';
+
+// import { withRouter } from 'react-router-dom';
 
 type Props = {
   type?: string;
@@ -45,7 +46,7 @@ class FormContainer extends React.Component<FinalProps, State> {
     name,
     values,
     isSubmitted,
-    callback
+    callback,
   }: IButtonMutateProps) => {
     return (
       <ButtonMutate
@@ -70,11 +71,11 @@ class FormContainer extends React.Component<FinalProps, State> {
       accountId,
       onAccountSelect: this.onAccountSelect,
       onRemoveAccount: this.onRemoveAccount,
-      renderButton: this.renderButton
+      renderButton: this.renderButton,
     };
 
     return <Form {...updatedProps} />;
   }
 }
 
-export default withRouter<FinalProps>(FormContainer);
+export default FormContainer;

@@ -1,7 +1,7 @@
 import {
   FieldStyle,
   SidebarCounter,
-  SidebarList
+  SidebarList,
 } from '@erxes/ui/src/layout/styles';
 import { __, router } from 'coreui/utils';
 
@@ -12,7 +12,8 @@ import Icon from '@erxes/ui/src/components/Icon';
 import { LEAD_STATUS_TYPES } from '@erxes/ui-contacts/src/customers/constants';
 import React from 'react';
 import { leadStatusChoices } from '../../utils';
-import { withRouter } from 'react-router-dom';
+
+// import { withRouter } from 'react-router-dom';
 
 interface IProps extends IRouterProps {
   counts: { [key: string]: number };
@@ -51,7 +52,7 @@ class LeadStatusFilter extends React.Component<IProps> {
                 </a>
               </li>
             );
-          }
+          },
         )}
       </SidebarList>
     );
@@ -90,4 +91,4 @@ class LeadStatusFilter extends React.Component<IProps> {
   }
 }
 
-export default withRouter<IProps>(LeadStatusFilter);
+export default LeadStatusFilter;

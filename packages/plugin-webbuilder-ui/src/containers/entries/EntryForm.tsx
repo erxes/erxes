@@ -4,7 +4,7 @@ import {
   EntriesAddMutationResponse,
   EntriesEditMutationResponse,
   EntryDetailQueryResponse,
-  TypeDetailQueryResponse
+  TypeDetailQueryResponse,
 } from '../../types';
 import { mutations, queries } from '../../graphql';
 
@@ -15,7 +15,8 @@ import React from 'react';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { gql } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
-import { withRouter } from 'react-router-dom';
+
+// import { withRouter } from 'react-router-dom';
 
 type Props = {
   _id?: string;
@@ -45,7 +46,7 @@ const FormContainer = (props: FinalProps) => {
 
     const variables: any = {
       contentTypeId,
-      values
+      values,
     };
 
     if (props._id) {
@@ -59,7 +60,7 @@ const FormContainer = (props: FinalProps) => {
 
         closeModal();
       })
-      .catch(error => {
+      .catch((error) => {
         Alert.error(error.message);
       });
   };
@@ -75,45 +76,45 @@ const FormContainer = (props: FinalProps) => {
     save,
     entry,
     closeModal,
-    contentType
+    contentType,
   };
 
   return <EntryForm {...updatedProps} />;
 };
 
 const refetchEntryQueries = (contentTypeId: string) => [
-  { query: gql(queries.entriesMain), variables: { contentTypeId } }
+  { query: gql(queries.entriesMain), variables: { contentTypeId } },
 ];
 
 export default compose(
   graphql<Props, EntriesAddMutationResponse>(gql(mutations.entriesAdd), {
     name: 'entriesAddMutation',
     options: ({ contentTypeId }) => ({
-      refetchQueries: refetchEntryQueries(contentTypeId)
-    })
+      refetchQueries: refetchEntryQueries(contentTypeId),
+    }),
   }),
 
   graphql<Props, EntriesEditMutationResponse>(gql(mutations.entriesEdit), {
     name: 'entriesEditMutation',
     options: ({ contentTypeId }) => ({
-      refetchQueries: refetchEntryQueries(contentTypeId)
-    })
+      refetchQueries: refetchEntryQueries(contentTypeId),
+    }),
   }),
 
   graphql<Props, EntryDetailQueryResponse>(gql(queries.entryDetail), {
     name: 'entryDetailQuery',
     skip: ({ _id }) => !_id,
     options: ({ _id }) => ({
-      variables: { _id }
-    })
+      variables: { _id },
+    }),
   }),
 
   graphql<Props, TypeDetailQueryResponse>(gql(queries.contentTypeDetail), {
     name: 'contentTypeDetailQuery',
     options: ({ contentTypeId }) => ({
       variables: {
-        _id: contentTypeId || ''
-      }
-    })
-  })
-)(withRouter(FormContainer));
+        _id: contentTypeId || '',
+      },
+    }),
+  }),
+)(FormContainer);

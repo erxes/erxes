@@ -1,32 +1,33 @@
 import {
   Alert,
+  BarItems,
   Button,
-  confirm,
   DataWithLoader,
   FormControl,
   ModalTrigger,
   Pagination,
-  router,
   SortHandler,
   Table,
   Wrapper,
-  BarItems
+  confirm,
+  router,
 } from '@erxes/ui/src';
-import { IRouterProps } from '@erxes/ui/src/types';
-import React from 'react';
-import { withRouter } from 'react-router-dom';
-import { menuContracts } from '../../../constants';
 
 import ContractForm from '../../containers/ContractForm';
-import { ContractsTableWrapper } from '../../styles';
-import { IContract } from '../../types';
 // import ContractsMerge from '../detail/ContractsMerge';
 import ContractRow from './ContractRow';
-import RightMenu from './RightMenu';
-import { can } from '@erxes/ui/src/utils/core';
-import withConsumer from '../../../withConsumer';
+import { ContractsTableWrapper } from '../../styles';
+import { IContract } from '../../types';
+import { IRouterProps } from '@erxes/ui/src/types';
 import { IUser } from '@erxes/ui/src/auth/types';
+import React from 'react';
+import RightMenu from './RightMenu';
 import { __ } from 'coreui/utils';
+import { can } from '@erxes/ui/src/utils/core';
+// import { withRouter } from 'react-router-dom';
+import { menuContracts } from '../../../constants';
+import withConsumer from '../../../withConsumer';
+
 // import Sidebar from './Sidebar';
 
 type SavingAlert = { name: string; count: number; filter: any };
@@ -43,7 +44,7 @@ interface IProps extends IRouterProps {
   emptyBulk: () => void;
   removeContracts: (
     doc: { contractIds: string[] },
-    emptyBulk: () => void
+    emptyBulk: () => void,
   ) => void;
   // mergeContracts: () => void;
   history: any;
@@ -67,7 +68,7 @@ class ContractsList extends React.Component<IProps, State> {
     super(props);
 
     this.state = {
-      searchValue: this.props.searchValue
+      searchValue: this.props.searchValue,
     };
   }
 
@@ -76,7 +77,7 @@ class ContractsList extends React.Component<IProps, State> {
     toggleAll(contracts, 'contracts');
   };
 
-  search = e => {
+  search = (e) => {
     if (this.timer) {
       clearTimeout(this.timer);
     }
@@ -91,17 +92,17 @@ class ContractsList extends React.Component<IProps, State> {
     }, 500);
   };
 
-  removeContracts = contracts => {
+  removeContracts = (contracts) => {
     const contractIds: string[] = [];
 
-    contracts.forEach(contract => {
+    contracts.forEach((contract) => {
       contractIds.push(contract._id);
     });
 
     this.props.removeContracts({ contractIds }, this.props.emptyBulk);
   };
 
-  moveCursorAtTheEnd = e => {
+  moveCursorAtTheEnd = (e) => {
     const tmpValue = e.target.value;
     e.target.value = '';
     e.target.value = tmpValue;
@@ -123,7 +124,7 @@ class ContractsList extends React.Component<IProps, State> {
       isFiltered,
       clearFilter,
       currentUser,
-      alerts
+      alerts,
     } = this.props;
 
     const mainContent = (
@@ -174,7 +175,7 @@ class ContractsList extends React.Component<IProps, State> {
             </tr>
           </thead>
           <tbody id="contracts">
-            {contracts.map(contract => (
+            {contracts.map((contract) => (
               <ContractRow
                 contract={contract}
                 isChecked={bulk.includes(contract)}
@@ -202,7 +203,7 @@ class ContractsList extends React.Component<IProps, State> {
           .then(() => {
             this.removeContracts(bulk);
           })
-          .catch(error => {
+          .catch((error) => {
             Alert.error(error.message);
           });
 
@@ -213,7 +214,7 @@ class ContractsList extends React.Component<IProps, State> {
               {__('Delete')}
             </Button>
           )}
-          {alerts.map(mur => (
+          {alerts.map((mur) => (
             <Button onClick={() => onSelect(mur.filter, 'ids')}>
               {mur.name}:{mur.count}
             </Button>
@@ -223,7 +224,7 @@ class ContractsList extends React.Component<IProps, State> {
     } else {
       actionBarLeft = (
         <BarItems>
-          {alerts.map(mur => (
+          {alerts.map((mur) => (
             <Button onClick={() => onSelect(mur.filter, 'ids')}>
               {mur.name}:{mur.count}
             </Button>
@@ -232,7 +233,7 @@ class ContractsList extends React.Component<IProps, State> {
       );
     }
 
-    const contractForm = props => {
+    const contractForm = (props) => {
       return <ContractForm {...props} queryParams={queryParams} />;
     };
 
@@ -241,7 +242,7 @@ class ContractsList extends React.Component<IProps, State> {
       onSearch,
       isFiltered,
       clearFilter,
-      queryParams
+      queryParams,
     };
 
     const actionBarRight = (
@@ -279,8 +280,8 @@ class ContractsList extends React.Component<IProps, State> {
           <Wrapper.Header
             title={__(`Contracts`) + ` (${totalCount})`}
             queryParams={queryParams}
-            submenu={menuContracts.filter(row =>
-              can(row.permission, currentUser)
+            submenu={menuContracts.filter((row) =>
+              can(row.permission, currentUser),
             )}
           />
         }
@@ -300,4 +301,4 @@ class ContractsList extends React.Component<IProps, State> {
   }
 }
 
-export default withRouter<IRouterProps>(withConsumer(ContractsList));
+export default withConsumer(ContractsList);

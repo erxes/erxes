@@ -10,7 +10,8 @@ import { gql } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
 import { queries } from '../graphql';
 import queryString from 'query-string';
-import { withRouter } from 'react-router-dom';
+
+// import { withRouter } from 'react-router-dom';
 
 type Props = {
   queryParams: any;
@@ -57,7 +58,7 @@ class FileManagerContainer extends React.Component<FinalProps> {
       ...this.props,
       currentFolder,
       onSelect: this.onSelect,
-      onSearch: this.onSearch
+      onSearch: this.onSearch,
     };
 
     return <FileManager {...updatedProps} />;
@@ -73,11 +74,11 @@ const WithProps = withProps<Props>(
       },
       options: ({ queryParams }: { queryParams: any }) => ({
         variables: {
-          _id: queryParams && queryParams._id ? queryParams._id : ''
-        }
-      })
-    })
-  )(withRouter<FinalProps>(FileManagerContainer))
+          _id: queryParams && queryParams._id ? queryParams._id : '',
+        },
+      }),
+    }),
+  )(FileManagerContainer),
 );
 
 export default (props: Props) => (

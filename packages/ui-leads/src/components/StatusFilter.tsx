@@ -1,11 +1,16 @@
-import Box from "@erxes/ui/src/components/Box";
-import DataWithLoader from "@erxes/ui/src/components/DataWithLoader";
-import { IRouterProps, Counts } from "@erxes/ui/src/types";
-import { __, router } from "@erxes/ui/src/utils";
-import { FieldStyle, SidebarCounter, SidebarList } from "@erxes/ui/src/layout/styles";
-import React from "react";
-import { withRouter } from "react-router-dom";
-import { statusFilters } from "../constants";
+import { Counts, IRouterProps } from '@erxes/ui/src/types';
+import {
+  FieldStyle,
+  SidebarCounter,
+  SidebarList,
+} from '@erxes/ui/src/layout/styles';
+import { __, router } from '@erxes/ui/src/utils';
+
+import Box from '@erxes/ui/src/components/Box';
+import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
+import React from 'react';
+// import { withRouter } from "react-router-dom";
+import { statusFilters } from '../constants';
 
 interface IProps extends IRouterProps {
   counts: Counts;
@@ -18,7 +23,7 @@ function StatusFilter({ history, counts, emptyText }: IProps) {
       {statusFilters.map((status, index) => {
         const onClick = () => {
           router.setParams(history, { status: status.key });
-          router.removeParams(history, "page");
+          router.removeParams(history, 'page');
         };
 
         return (
@@ -27,9 +32,9 @@ function StatusFilter({ history, counts, emptyText }: IProps) {
               href="#filter"
               tabIndex={0}
               className={
-                router.getParam(history, "status") === status.key
-                  ? "active"
-                  : ""
+                router.getParam(history, 'status') === status.key
+                  ? 'active'
+                  : ''
               }
               onClick={onClick}
             >
@@ -44,7 +49,7 @@ function StatusFilter({ history, counts, emptyText }: IProps) {
 
   return (
     <Box
-      title={__("Filter by status")}
+      title={__('Filter by status')}
       collapsible={statusFilters.length > 5}
       name="showFilterByStatus"
     >
@@ -52,7 +57,7 @@ function StatusFilter({ history, counts, emptyText }: IProps) {
         data={data}
         loading={false}
         count={statusFilters.length}
-        emptyText={emptyText ? emptyText : "Loading"}
+        emptyText={emptyText ? emptyText : 'Loading'}
         emptyIcon="leaf"
         size="small"
         objective={true}
@@ -61,4 +66,4 @@ function StatusFilter({ history, counts, emptyText }: IProps) {
   );
 }
 
-export default withRouter<IProps>(StatusFilter);
+export default StatusFilter;

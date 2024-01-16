@@ -1,13 +1,15 @@
-import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
-import { IRouterProps, Counts } from '@erxes/ui/src/types';
+
+import { Counts, IRouterProps } from '@erxes/ui/src/types';
 import { router, withProps } from '@erxes/ui/src/utils';
-import React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
-import { withRouter } from 'react-router-dom';
+
+// import { withRouter } from 'react-router-dom';
 import Filter from '../components/SidebarFilter';
-import { queries } from '../graphql';
+import React from 'react';
 import { SegmentsQueryResponse } from '../types';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
+import { queries } from '../graphql';
 
 type Props = {
   contentType: string;
@@ -25,7 +27,7 @@ const FilterContainer = (props: FinalProps) => {
 
   const currentSegment = router.getParam(history, 'segment');
 
-  const setSegment = segment => {
+  const setSegment = (segment) => {
     router.setParams(history, { segment });
     router.removeParams(history, 'page');
   };
@@ -41,7 +43,7 @@ const FilterContainer = (props: FinalProps) => {
     removeSegment,
     segments: segmentsQuery.segments || [],
     loading: segmentsQuery.loading,
-    treeView: true
+    treeView: true,
   };
 
   return <Filter {...extendedProps} />;
@@ -52,8 +54,8 @@ export default withProps<Props>(
     graphql(gql(queries.segments), {
       name: 'segmentsQuery',
       options: ({ contentType, config }: Props) => ({
-        variables: { contentTypes: [contentType], config }
-      })
-    })
-  )(withRouter<FinalProps>(FilterContainer))
+        variables: { contentTypes: [contentType], config },
+      }),
+    }),
+  )(FilterContainer),
 );

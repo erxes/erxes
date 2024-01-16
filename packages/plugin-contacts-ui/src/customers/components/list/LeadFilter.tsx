@@ -1,19 +1,19 @@
 import {
   FieldStyle,
   SidebarCounter,
-  SidebarList
+  SidebarList,
 } from '@erxes/ui/src/layout/styles';
+import React, { useState } from 'react';
 import { __, router } from 'coreui/utils';
 
 import Box from '@erxes/ui/src/components/Box';
 import Button from '@erxes/ui/src/components/Button';
+import { CustomPadding } from '@erxes/ui-contacts/src/customers/styles';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
+// import { withRouter } from 'react-router-dom';
+import { FormControl } from '@erxes/ui/src/components/form';
 import { IIntegration } from '@erxes/ui-inbox/src/settings/integrations/types';
 import { IRouterProps } from '@erxes/ui/src/types';
-import React, { useState } from 'react';
-import { withRouter } from 'react-router-dom';
-import { FormControl } from '@erxes/ui/src/components/form';
-import { CustomPadding } from '@erxes/ui-contacts/src/customers/styles';
 
 interface IProps extends IRouterProps {
   counts: { [key: string]: number };
@@ -29,21 +29,21 @@ function Leads({
   integrations = [],
   loading,
   loadMore,
-  all
+  all,
 }: IProps) {
   let timer;
   const [searchValue, setSearchValue] = useState(
-    router.getParam(history, 'searchTarget') || ''
+    router.getParam(history, 'searchTarget') || '',
   );
 
   const [disableLoadMoreBtn, setDisableLoadMoreBtn] = useState(false);
 
-  const onClick = formId => {
+  const onClick = (formId) => {
     router.setParams(history, { form: formId });
     router.removeParams(history, 'page');
   };
 
-  const search = e => {
+  const search = (e) => {
     if (timer) {
       clearTimeout(timer);
     }
@@ -61,7 +61,7 @@ function Leads({
     }, 1000);
   };
 
-  const moveCursorAtTheEnd = e => {
+  const moveCursorAtTheEnd = (e) => {
     const tmpValue = e.target.value;
 
     e.target.value = '';
@@ -69,7 +69,7 @@ function Leads({
   };
 
   const renderIntegrations = () => {
-    return integrations.map(integration => {
+    return integrations.map((integration) => {
       const form = integration.form || ({} as any);
 
       return (
@@ -131,4 +131,4 @@ function Leads({
   );
 }
 
-export default withRouter<IProps>(Leads);
+export default Leads;

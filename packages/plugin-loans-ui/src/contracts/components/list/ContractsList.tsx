@@ -1,33 +1,32 @@
-import Alert from '@erxes/ui/src/utils/Alert';
-import Button from '@erxes/ui/src/components/Button';
-import confirm from '@erxes/ui/src/utils/confirmation/confirm';
-import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import Pagination from '@erxes/ui/src/components/pagination/Pagination';
-import { router } from '@erxes/ui/src/utils';
-
-import SortHandler from '@erxes/ui/src/components/SortHandler';
-import Table from '@erxes/ui/src/components/table';
-import { BarItems } from '@erxes/ui/src/layout/styles';
-
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { IRouterProps } from '@erxes/ui/src/types';
-import React from 'react';
-import { withRouter } from 'react-router-dom';
+// import { withRouter } from 'react-router-dom';
 import { ORGANIZATION_TYPE, menuContracts } from '../../../constants';
 
+import Alert from '@erxes/ui/src/utils/Alert';
+import { BarItems } from '@erxes/ui/src/layout/styles';
+import Button from '@erxes/ui/src/components/Button';
+import ClassificationForm from '../../containers/ClassificationForm';
 import ContractForm from '../../containers/ContractForm';
-import { ContractsTableWrapper } from '../../styles';
-import { IContract } from '../../types';
 // import ContractsMerge from '../detail/ContractsMerge';
 import ContractRow from './ContractRow';
-import RightMenu from './RightMenu';
-import { can } from '@erxes/ui/src/utils/core';
-import withConsumer from '../../../withConsumer';
+import { ContractsTableWrapper } from '../../styles';
+import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import { IContract } from '../../types';
+import { IRouterProps } from '@erxes/ui/src/types';
 import { IUser } from '@erxes/ui/src/auth/types';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import Pagination from '@erxes/ui/src/components/pagination/Pagination';
+import React from 'react';
+import RightMenu from './RightMenu';
+import SortHandler from '@erxes/ui/src/components/SortHandler';
+import Table from '@erxes/ui/src/components/table';
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { __ } from 'coreui/utils';
-import ClassificationForm from '../../containers/ClassificationForm';
+import { can } from '@erxes/ui/src/utils/core';
+import confirm from '@erxes/ui/src/utils/confirmation/confirm';
+import { router } from '@erxes/ui/src/utils';
+import withConsumer from '../../../withConsumer';
+
 // import Sidebar from './Sidebar';
 
 type ContractAlert = { name: string; count: number; filter: any };
@@ -44,7 +43,7 @@ interface IProps extends IRouterProps {
   emptyBulk: () => void;
   removeContracts: (
     doc: { contractIds: string[] },
-    emptyBulk: () => void
+    emptyBulk: () => void,
   ) => void;
   // mergeContracts: () => void;
   history: any;
@@ -68,7 +67,7 @@ class ContractsList extends React.Component<IProps, State> {
     super(props);
 
     this.state = {
-      searchValue: this.props.searchValue
+      searchValue: this.props.searchValue,
     };
   }
 
@@ -77,7 +76,7 @@ class ContractsList extends React.Component<IProps, State> {
     toggleAll(contracts, 'contracts');
   };
 
-  search = e => {
+  search = (e) => {
     if (this.timer) {
       clearTimeout(this.timer);
     }
@@ -92,17 +91,17 @@ class ContractsList extends React.Component<IProps, State> {
     }, 500);
   };
 
-  removeContracts = contracts => {
+  removeContracts = (contracts) => {
     const contractIds: string[] = [];
 
-    contracts.forEach(contract => {
+    contracts.forEach((contract) => {
       contractIds.push(contract._id);
     });
 
     this.props.removeContracts({ contractIds }, this.props.emptyBulk);
   };
 
-  moveCursorAtTheEnd = e => {
+  moveCursorAtTheEnd = (e) => {
     const tmpValue = e.target.value;
     e.target.value = '';
     e.target.value = tmpValue;
@@ -124,7 +123,7 @@ class ContractsList extends React.Component<IProps, State> {
       isFiltered,
       clearFilter,
       currentUser,
-      alerts
+      alerts,
     } = this.props;
 
     const mainContent = (
@@ -205,7 +204,7 @@ class ContractsList extends React.Component<IProps, State> {
             </tr>
           </thead>
           <tbody id="contracts">
-            {contracts.map(contract => (
+            {contracts.map((contract) => (
               <ContractRow
                 contract={contract}
                 isChecked={bulk.includes(contract)}
@@ -233,11 +232,11 @@ class ContractsList extends React.Component<IProps, State> {
           .then(() => {
             this.removeContracts(bulk);
           })
-          .catch(error => {
+          .catch((error) => {
             Alert.error(error.message);
           });
 
-      const classificationForm = props => {
+      const classificationForm = (props) => {
         return <ClassificationForm {...props} contracts={bulk} />;
       };
 
@@ -262,7 +261,7 @@ class ContractsList extends React.Component<IProps, State> {
                 {__('Delete')}
               </Button>
             )}
-          {alerts.map(mur => (
+          {alerts.map((mur) => (
             <Button onClick={() => onSelect(mur.filter, 'ids')}>
               {mur.name}:{mur.count}
             </Button>
@@ -272,7 +271,7 @@ class ContractsList extends React.Component<IProps, State> {
     } else {
       actionBarLeft = (
         <BarItems>
-          {alerts.map(mur => (
+          {alerts.map((mur) => (
             <Button onClick={() => onSelect(mur.filter, 'ids')}>
               {mur.name}:{mur.count}
             </Button>
@@ -281,7 +280,7 @@ class ContractsList extends React.Component<IProps, State> {
       );
     }
 
-    const contractForm = props => {
+    const contractForm = (props) => {
       return <ContractForm {...props} queryParams={queryParams} />;
     };
 
@@ -290,7 +289,7 @@ class ContractsList extends React.Component<IProps, State> {
       onSearch,
       isFiltered,
       clearFilter,
-      queryParams
+      queryParams,
     };
 
     const actionBarRight = (
@@ -327,8 +326,8 @@ class ContractsList extends React.Component<IProps, State> {
           <Wrapper.Header
             title={__(`Contracts`) + ` (${totalCount})`}
             queryParams={queryParams}
-            submenu={menuContracts.filter(row =>
-              can(row.permission, currentUser)
+            submenu={menuContracts.filter((row) =>
+              can(row.permission, currentUser),
             )}
           />
         }
@@ -349,4 +348,4 @@ class ContractsList extends React.Component<IProps, State> {
   }
 }
 
-export default withRouter<IRouterProps>(withConsumer(ContractsList));
+export default withConsumer(ContractsList);

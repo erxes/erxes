@@ -7,7 +7,7 @@ import {
   PagesEditMutationResponse,
   PagesMainQueryResponse,
   PagesRemoveMutationResponse,
-  TypesQueryResponse
+  TypesQueryResponse,
 } from '../../types';
 import { mutations, queries } from '../../graphql';
 
@@ -17,7 +17,8 @@ import SiteForm from '../../components/sites/SiteForm';
 import { generatePaginationParams } from '@erxes/ui/src/utils/router';
 import { gql } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
-import { withRouter } from 'react-router-dom';
+
+// import { withRouter } from 'react-router-dom';
 
 type Props = {
   _id: string;
@@ -50,7 +51,7 @@ const PageDetailContainer = (props: FinalProps) => {
     html: string,
     css: string,
     pageId?: string,
-    afterSave?: any
+    afterSave?: any,
   ) => {
     let method: any = props.pagesAdd;
 
@@ -59,7 +60,7 @@ const PageDetailContainer = (props: FinalProps) => {
       description,
       siteId,
       html,
-      css
+      css,
     };
 
     if (pageId) {
@@ -77,7 +78,7 @@ const PageDetailContainer = (props: FinalProps) => {
 
         pagesMainQuery.refetch();
       })
-      .catch(error => {
+      .catch((error) => {
         Alert.error(error.message);
       });
   };
@@ -95,7 +96,7 @@ const PageDetailContainer = (props: FinalProps) => {
 
           pagesMainQuery.refetch();
         })
-        .catch(e => {
+        .catch((e) => {
           Alert.error(e.message);
         });
     });
@@ -116,7 +117,7 @@ const PageDetailContainer = (props: FinalProps) => {
     pageRemove,
     page,
     contentTypes,
-    pages: pagesMain.list || []
+    pages: pagesMain.list || [],
   };
 
   return <SiteForm {...updatedProps} />;
@@ -128,11 +129,11 @@ export default compose(
   graphql<{}, PagesAddMutationResponse>(gql(mutations.add), {
     name: 'pagesAdd',
     options: () => ({
-      refetchQueries: refetchPageQueries()
-    })
+      refetchQueries: refetchPageQueries(),
+    }),
   }),
   graphql<{}, PagesRemoveMutationResponse>(gql(mutations.remove), {
-    name: 'pagesRemoveMutation'
+    name: 'pagesRemoveMutation',
   }),
   graphql<Props, PagesEditMutationResponse>(gql(mutations.edit), {
     name: 'pagesEdit',
@@ -141,10 +142,10 @@ export default compose(
         ...refetchPageQueries(),
         {
           query: gql(queries.pageDetail),
-          variables: { _id: queryParams.pageId || '' }
-        }
-      ]
-    })
+          variables: { _id: queryParams.pageId || '' },
+        },
+      ],
+    }),
   }),
 
   graphql<Props, PageDetailQueryResponse, { _id?: string }>(
@@ -153,20 +154,20 @@ export default compose(
       name: 'pageDetailQuery',
       skip: ({ queryParams }) => !queryParams.pageId,
       options: ({ queryParams }) => ({
-        variables: { _id: queryParams.pageId || '' }
-      })
-    }
+        variables: { _id: queryParams.pageId || '' },
+      }),
+    },
   ),
   graphql<{}, TypesQueryResponse>(gql(queries.contentTypes), {
-    name: 'typesQuery'
+    name: 'typesQuery',
   }),
   graphql<Props, PagesMainQueryResponse>(gql(queries.pagesMain), {
     name: 'pagesMainQuery',
     options: ({ _id, queryParams }) => ({
       variables: {
         ...generatePaginationParams(queryParams),
-        siteId: _id || ''
-      }
-    })
-  })
-)(withRouter(PageDetailContainer));
+        siteId: _id || '',
+      },
+    }),
+  }),
+)(PageDetailContainer);

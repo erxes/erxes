@@ -1,14 +1,16 @@
-import { IUser } from '@erxes/ui/src/auth/types';
-import { IRouterProps } from '@erxes/ui/src/types';
-import { Alert, withProps } from '@erxes/ui/src/utils';
-import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
-import React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
-import { withRouter } from 'react-router-dom';
+
+import { Alert, withProps } from '@erxes/ui/src/utils';
+// import { withRouter } from 'react-router-dom';
 import { AssetRemoveMutationResponse, IAsset } from '../../../common/types';
-import { mutations } from '../../graphql';
+
 import BasicInfo from '../../components/detail/BasicInfo';
+import { IRouterProps } from '@erxes/ui/src/types';
+import { IUser } from '@erxes/ui/src/auth/types';
+import React from 'react';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
+import { mutations } from '../../graphql';
 
 type Props = {
   asset: IAsset;
@@ -34,7 +36,7 @@ const BasicInfoContainer = (props: FinalProps) => {
         Alert.success('You successfully deleted a asset');
         history.push('/settings/asset-service');
       })
-      .catch(e => {
+      .catch((e) => {
         Alert.error(e.message);
       });
   };
@@ -43,13 +45,13 @@ const BasicInfoContainer = (props: FinalProps) => {
     const { assetsAssignKbArticles } = props;
 
     assetsAssignKbArticles({
-      variables: { ids, ...data }
+      variables: { ids, ...data },
     })
       .then(() => {
         Alert.success('Articles assigned successfully');
         callback();
       })
-      .catch(e => {
+      .catch((e) => {
         Alert.error(e.message);
         callback();
       });
@@ -58,7 +60,7 @@ const BasicInfoContainer = (props: FinalProps) => {
   const updatedProps = {
     ...props,
     remove,
-    assignKbArticles
+    assignKbArticles,
   };
 
   return <BasicInfo {...updatedProps} />;
@@ -69,8 +71,8 @@ const generateOptions = () => ({
     'assets',
     'assetCategories',
     'assetsTotalCount',
-    'assetDetail'
-  ]
+    'assetDetail',
+  ],
 });
 
 export default withProps<Props>(
@@ -79,12 +81,12 @@ export default withProps<Props>(
       gql(mutations.assetsRemove),
       {
         name: 'assetsRemove',
-        options: generateOptions
-      }
+        options: generateOptions,
+      },
     ),
     graphql(gql(mutations.assetsAssignKbArticles), {
       name: 'assetsAssignKbArticles',
-      options: () => generateOptions()
-    })
-  )(withRouter<FinalProps>(BasicInfoContainer))
+      options: () => generateOptions(),
+    }),
+  )(BasicInfoContainer),
 );

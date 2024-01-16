@@ -1,20 +1,20 @@
+import { BarItems, Wrapper } from '@erxes/ui/src/layout';
 import {
   DataWithLoader,
   Pagination,
   SortHandler,
-  Table
+  Table,
 } from '@erxes/ui/src/components';
-import { router, __ } from '@erxes/ui/src/utils';
-import { Wrapper, BarItems } from '@erxes/ui/src/layout';
-import { IRouterProps, IQueryParams } from '@erxes/ui/src/types';
-import React from 'react';
-import { withRouter } from 'react-router-dom';
+import { IQueryParams, IRouterProps } from '@erxes/ui/src/types';
+import { __, router } from '@erxes/ui/src/utils';
 
-import { TableWrapper } from '../styles';
 import { IPutResponse } from '../types';
 import PutResponseRow from './PutResponseRow';
+import React from 'react';
 import RightMenu from './RightMenu';
 import { SUB_MENUS } from '../constants';
+import { TableWrapper } from '../styles';
+// import { withRouter } from 'react-router-dom';
 
 interface IProps extends IRouterProps {
   putResponses: IPutResponse[];
@@ -45,11 +45,11 @@ class PutResponses extends React.Component<IProps, State> {
     super(props);
 
     this.state = {
-      searchValue: this.props.searchValue
+      searchValue: this.props.searchValue,
     };
   }
 
-  search = e => {
+  search = (e) => {
     if (this.timer) {
       clearTimeout(this.timer);
     }
@@ -64,7 +64,7 @@ class PutResponses extends React.Component<IProps, State> {
     }, 500);
   };
 
-  moveCursorAtTheEnd = e => {
+  moveCursorAtTheEnd = (e) => {
     const tmpValue = e.target.value;
     e.target.value = '';
     e.target.value = tmpValue;
@@ -83,7 +83,7 @@ class PutResponses extends React.Component<IProps, State> {
       onFilter,
       onSelect,
       isFiltered,
-      clearFilter
+      clearFilter,
     } = this.props;
     const mainContent = (
       <TableWrapper>
@@ -124,7 +124,7 @@ class PutResponses extends React.Component<IProps, State> {
             </tr>
           </thead>
           <tbody id="putResponses">
-            {(putResponses || []).map(putResponse => (
+            {(putResponses || []).map((putResponse) => (
               <PutResponseRow
                 putResponse={putResponse}
                 key={putResponse._id}
@@ -142,7 +142,7 @@ class PutResponses extends React.Component<IProps, State> {
       onSearch,
       isFiltered,
       clearFilter,
-      queryParams
+      queryParams,
     };
 
     const actionBarRight = (
@@ -185,4 +185,4 @@ class PutResponses extends React.Component<IProps, State> {
   }
 }
 
-export default withRouter<IRouterProps>(PutResponses);
+export default PutResponses;

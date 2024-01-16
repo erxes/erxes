@@ -1,13 +1,14 @@
-import { gql } from '@apollo/client';
+import { removeParams, setParams } from '../../utils/router';
+
 import Chip from '../Chip';
+import { IRouterProps } from '../../types';
+import React from 'react';
 import { __ } from '../../utils/core';
 import { cleanIntegrationKind } from '../../utils';
-import React from 'react';
-import { withRouter } from 'react-router-dom';
-import styled from 'styled-components';
-import { IRouterProps } from '../../types';
 import createChipText from './createChipText';
-import { removeParams, setParams } from '../../utils/router';
+import { gql } from '@apollo/client';
+// import { withRouter } from 'react-router-dom';
+import styled from 'styled-components';
 
 interface IProps extends IRouterProps {
   queryParams?: any;
@@ -19,7 +20,7 @@ const Filters = styled.div`
 `;
 
 function Filter({ queryParams = {}, filterTitle, history }: IProps) {
-  const onClickClose = paramKey => {
+  const onClickClose = (paramKey) => {
     for (const key of paramKey) {
       removeParams(history, key);
     }
@@ -40,7 +41,7 @@ function Filter({ queryParams = {}, filterTitle, history }: IProps) {
   const renderFilterParam = (
     paramKey: string,
     bool: boolean,
-    customText?: string
+    customText?: string,
   ) => {
     if (!queryParams[paramKey]) {
       return null;
@@ -60,7 +61,7 @@ function Filter({ queryParams = {}, filterTitle, history }: IProps) {
   const renderFilterWithData = (
     paramKey: string,
     type: string,
-    fields = '_id name'
+    fields = '_id name',
   ) => {
     if (queryParams[paramKey]) {
       const id = queryParams[paramKey];
@@ -150,7 +151,7 @@ function Filter({ queryParams = {}, filterTitle, history }: IProps) {
         renderFilterWithData(
           'categoryId',
           'productCategory',
-          '_id, code, name'
+          '_id, code, name',
         )}
       {renderFilterParam('participating', true)}
       {renderFilterParam('unassigned', true)}
@@ -176,16 +177,16 @@ function Filter({ queryParams = {}, filterTitle, history }: IProps) {
       {renderFilterWithData(
         'assetCategoryId',
         'assetCategory',
-        '_id, code, name'
+        '_id, code, name',
       )}
       {renderFilterWithData(
         'knowledgebaseCategoryId',
         'knowledgeBaseCategory',
-        '_id, title'
+        '_id, title',
       )}
       {renderFilterWithData('assetId', 'asset', '_id, code, name')}
     </Filters>
   );
 }
 
-export default withRouter<IProps>(Filter);
+export default Filter;

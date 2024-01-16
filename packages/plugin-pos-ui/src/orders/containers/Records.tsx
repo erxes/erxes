@@ -1,18 +1,20 @@
 import * as compose from 'lodash.flowright';
-import { gql } from '@apollo/client';
-import Records from '../components/Records';
-import queryString from 'query-string';
-import React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
-import { IRouterProps } from '@erxes/ui/src/types';
+
+// import { withRouter } from 'react-router-dom';
+import { Bulk, Spinner, getEnv, router, withProps } from '@erxes/ui/src';
 import { ListQueryVariables, OrderRecordsQueryResponse } from '../types';
-import { queries } from '../graphql';
-import { withRouter } from 'react-router-dom';
-import { Bulk, getEnv, withProps, router, Spinner } from '@erxes/ui/src';
+
 import { FILTER_PARAMS } from '../../constants';
 import { IQueryParams } from '@erxes/ui/src/types';
+import { IRouterProps } from '@erxes/ui/src/types';
 import { OrderRecordsCountQueryResponse } from '../../../.erxes/plugin-src/orders/types';
+import React from 'react';
+import Records from '../components/Records';
 import { generateParams } from './List';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
+import { queries } from '../graphql';
+import queryString from 'query-string';
 
 type Props = {
   queryParams: any;
@@ -38,7 +40,7 @@ class OrdersContainer extends React.Component<FinalProps, State> {
     super(props);
 
     this.state = {
-      loading: false
+      loading: false,
     };
   }
 
@@ -104,18 +106,18 @@ class OrdersContainer extends React.Component<FinalProps, State> {
     const list = ordersQuery.posOrderRecords || [];
     const count = ordersCountQuery.posOrderRecordsCount || [];
 
-    const exportOrderRecords = headers => {
+    const exportOrderRecords = (headers) => {
       const { REACT_APP_API_URL } = getEnv();
       const { queryParams } = this.props;
       const params = generateParams({ queryParams });
 
       const stringified = queryString.stringify({
-        ...params
+        ...params,
       });
 
       window.open(
         `${REACT_APP_API_URL}/pl:pos/file-export?${stringified}`,
-        '_blank'
+        '_blank',
       );
     };
 
@@ -130,10 +132,10 @@ class OrdersContainer extends React.Component<FinalProps, State> {
       onSearch: this.onSearch,
       isFiltered: this.isFiltered(),
       clearFilter: this.clearFilter,
-      exportRecord: exportOrderRecords
+      exportRecord: exportOrderRecords,
     };
 
-    const ordersList = props => {
+    const ordersList = (props) => {
       return <Records {...updatedProps} {...props} />;
     };
 
@@ -155,8 +157,8 @@ export default withProps<Props>(
       name: 'ordersQuery',
       options: ({ queryParams }) => ({
         variables: generateParams({ queryParams }),
-        fetchPolicy: 'network-only'
-      })
+        fetchPolicy: 'network-only',
+      }),
     }),
     graphql<
       { queryParams: any },
@@ -166,8 +168,8 @@ export default withProps<Props>(
       name: 'ordersCountQuery',
       options: ({ queryParams }) => ({
         variables: generateParams({ queryParams }),
-        fetchPolicy: 'network-only'
-      })
-    })
-  )(withRouter<IRouterProps>(OrdersContainer))
+        fetchPolicy: 'network-only',
+      }),
+    }),
+  )(OrdersContainer),
 );

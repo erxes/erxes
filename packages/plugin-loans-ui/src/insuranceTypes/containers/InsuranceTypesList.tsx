@@ -1,19 +1,20 @@
-import { Alert, Bulk, router, withProps } from '@erxes/ui/src';
-import { IRouterProps } from '@erxes/ui/src/types';
-import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
-import React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
-import { withRouter } from 'react-router-dom';
 
-import InsuranceTypesList from '../components/InsuranceTypesList';
-import { mutations, queries } from '../graphql';
+import { Alert, Bulk, router, withProps } from '@erxes/ui/src';
 import {
   ListQueryVariables,
   MainQueryResponse,
   RemoveMutationResponse,
-  RemoveMutationVariables
+  RemoveMutationVariables,
 } from '../types';
+import { mutations, queries } from '../graphql';
+
+import { IRouterProps } from '@erxes/ui/src/types';
+import InsuranceTypesList from '../components/InsuranceTypesList';
+import React from 'react';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
+// import { withRouter } from 'react-router-dom';
 
 type Props = {
   queryParams: any;
@@ -35,7 +36,7 @@ class InsuranceTypeListContainer extends React.Component<FinalProps, State> {
     super(props);
 
     this.state = {
-      loading: false
+      loading: false,
     };
   }
 
@@ -44,13 +45,13 @@ class InsuranceTypeListContainer extends React.Component<FinalProps, State> {
 
     const removeInsuranceTypes = ({ insuranceTypeIds }, emptyBulk) => {
       insuranceTypesRemove({
-        variables: { insuranceTypeIds }
+        variables: { insuranceTypeIds },
       })
         .then(() => {
           emptyBulk();
           Alert.success('You successfully deleted a insuranceType');
         })
-        .catch(e => {
+        .catch((e) => {
           Alert.error(e.message);
         });
     };
@@ -65,10 +66,10 @@ class InsuranceTypeListContainer extends React.Component<FinalProps, State> {
       searchValue,
       insuranceTypes: list,
       loading: insuranceTypesMainQuery.loading || this.state.loading,
-      removeInsuranceTypes
+      removeInsuranceTypes,
     };
 
-    const insuranceTypesList = props => {
+    const insuranceTypesList = (props) => {
       return <InsuranceTypesList {...updatedProps} {...props} />;
     };
 
@@ -89,13 +90,13 @@ const generateParams = ({ queryParams }) => ({
     sortField: queryParams.sortField,
     sortDirection: queryParams.sortDirection
       ? parseInt(queryParams.sortDirection, 10)
-      : undefined
+      : undefined,
   },
-  fetchPolicy: 'network-only'
+  fetchPolicy: 'network-only',
 });
 
 const generateOptions = () => ({
-  refetchQueries: ['insuranceTypesMain']
+  refetchQueries: ['insuranceTypesMain'],
 });
 
 export default withProps<Props>(
@@ -104,16 +105,16 @@ export default withProps<Props>(
       gql(queries.insuranceTypesMain),
       {
         name: 'insuranceTypesMainQuery',
-        options: { ...generateParams }
-      }
+        options: { ...generateParams },
+      },
     ),
     // mutations
     graphql<{}, RemoveMutationResponse, RemoveMutationVariables>(
       gql(mutations.insuranceTypesRemove),
       {
         name: 'insuranceTypesRemove',
-        options: generateOptions
-      }
-    )
-  )(withRouter<IRouterProps>(InsuranceTypeListContainer))
+        options: generateOptions,
+      },
+    ),
+  )(InsuranceTypeListContainer),
 );

@@ -1,4 +1,4 @@
-import { __, Alert, confirm, router } from '@erxes/ui/src/utils';
+import { Alert, __, confirm, router } from '@erxes/ui/src/utils';
 import {
   Button,
   DataWithLoader,
@@ -6,23 +6,24 @@ import {
   ModalTrigger,
   Pagination,
   SortHandler,
-  Table
+  Table,
 } from '@erxes/ui/src/components';
-import { Wrapper } from '@erxes/ui/src/layout';
 import {
+  MainStyleCount as Count,
   MainStyleTitle as Title,
-  MainStyleCount as Count
 } from '@erxes/ui/src/styles/eindex';
-import { BarItems } from '@erxes/ui/src/layout/styles';
-import { IRouterProps } from '@erxes/ui/src/types';
-import React from 'react';
-import { withRouter } from 'react-router-dom';
+
+// import { withRouter } from 'react-router-dom';
 import AssignmentForm from '../containers/Form';
-import { LoyaltiesTableWrapper } from '../../common/styles';
-import { IAssignment } from '../types';
 import AssignmentRow from './Row';
-import Sidebar from './Sidebar';
+import { BarItems } from '@erxes/ui/src/layout/styles';
+import { IAssignment } from '../types';
 import { IAssignmentCampaign } from '../../../configs/assignmentCampaign/types';
+import { IRouterProps } from '@erxes/ui/src/types';
+import { LoyaltiesTableWrapper } from '../../common/styles';
+import React from 'react';
+import Sidebar from './Sidebar';
+import { Wrapper } from '@erxes/ui/src/layout';
 import { menuLoyalties } from '../../common/constants';
 
 interface IProps extends IRouterProps {
@@ -38,7 +39,7 @@ interface IProps extends IRouterProps {
   emptyBulk: () => void;
   removeAssignments: (
     doc: { assignmentIds: string[] },
-    emptyBulk: () => void
+    emptyBulk: () => void,
   ) => void;
   history: any;
   queryParams: any;
@@ -55,7 +56,7 @@ class AssignmentsList extends React.Component<IProps, State> {
     super(props);
 
     this.state = {
-      searchValue: this.props.searchValue
+      searchValue: this.props.searchValue,
     };
   }
 
@@ -64,7 +65,7 @@ class AssignmentsList extends React.Component<IProps, State> {
     toggleAll(assignments, 'assignments');
   };
 
-  search = e => {
+  search = (e) => {
     if (this.timer) {
       clearTimeout(this.timer);
     }
@@ -79,17 +80,17 @@ class AssignmentsList extends React.Component<IProps, State> {
     }, 500);
   };
 
-  removeAssignments = assignments => {
+  removeAssignments = (assignments) => {
     const assignmentIds: string[] = [];
 
-    assignments.forEach(assignment => {
+    assignments.forEach((assignment) => {
       assignmentIds.push(assignment._id);
     });
 
     this.props.removeAssignments({ assignmentIds }, this.props.emptyBulk);
   };
 
-  moveCursorAtTheEnd = e => {
+  moveCursorAtTheEnd = (e) => {
     const tmpValue = e.target.value;
     e.target.value = '';
     e.target.value = tmpValue;
@@ -105,7 +106,7 @@ class AssignmentsList extends React.Component<IProps, State> {
       isAllSelected,
       totalCount,
       queryParams,
-      currentCampaign
+      currentCampaign,
     } = this.props;
 
     const mainContent = (
@@ -130,7 +131,7 @@ class AssignmentsList extends React.Component<IProps, State> {
             </tr>
           </thead>
           <tbody id="assignments">
-            {assignments.map(assignment => (
+            {assignments.map((assignment) => (
               <AssignmentRow
                 assignment={assignment}
                 isChecked={bulk.includes(assignment)}
@@ -152,7 +153,7 @@ class AssignmentsList extends React.Component<IProps, State> {
       </Button>
     );
 
-    const assignmentForm = props => {
+    const assignmentForm = (props) => {
       return (
         <AssignmentForm
           {...props}
@@ -169,7 +170,7 @@ class AssignmentsList extends React.Component<IProps, State> {
             .then(() => {
               this.removeAssignments(bulk);
             })
-            .catch(error => {
+            .catch((error) => {
               Alert.error(error.message);
             });
 
@@ -255,4 +256,4 @@ class AssignmentsList extends React.Component<IProps, State> {
   }
 }
 
-export default withRouter<IRouterProps>(AssignmentsList);
+export default AssignmentsList;

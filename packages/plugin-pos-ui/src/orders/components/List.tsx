@@ -1,22 +1,22 @@
 import {
-  __,
+  BarItems,
   DataWithLoader,
   Pagination,
   SortHandler,
   Table,
   Wrapper,
-  BarItems
+  __,
 } from '@erxes/ui/src';
-import { IRouterProps, IQueryParams } from '@erxes/ui/src/types';
-import React from 'react';
-import { withRouter } from 'react-router-dom';
-import { menuPos } from '../../constants';
+import { IQueryParams, IRouterProps } from '@erxes/ui/src/types';
 
-import { TableWrapper } from '../../styles';
-import { IOrder } from '../types';
 import HeaderDescription from './MainHead';
+import { IOrder } from '../types';
+import React from 'react';
 import RightMenu from './RightMenu';
 import Row from './Row';
+import { TableWrapper } from '../../styles';
+// import { withRouter } from 'react-router-dom';
+import { menuPos } from '../../constants';
 
 interface IProps extends IRouterProps {
   orders: IOrder[];
@@ -43,7 +43,7 @@ class Orders extends React.Component<IProps, {}> {
     super(props);
   }
 
-  moveCursorAtTheEnd = e => {
+  moveCursorAtTheEnd = (e) => {
     const tmpValue = e.target.value;
     e.target.value = '';
     e.target.value = tmpValue;
@@ -61,7 +61,7 @@ class Orders extends React.Component<IProps, {}> {
       isFiltered,
       clearFilter,
       summary,
-      onReturnBill
+      onReturnBill,
     } = this.props;
 
     const rightMenuProps = {
@@ -70,7 +70,7 @@ class Orders extends React.Component<IProps, {}> {
       onSearch,
       isFiltered,
       clearFilter,
-      queryParams
+      queryParams,
     };
 
     const actionBarRight = (
@@ -81,8 +81,8 @@ class Orders extends React.Component<IProps, {}> {
 
     const staticKeys = ['count', 'totalAmount', 'cashAmount', 'mobileAmount'];
     const otherPayTitles = (summary ? Object.keys(summary) || [] : [])
-      .filter(a => !['_id'].includes(a))
-      .filter(a => !staticKeys.includes(a))
+      .filter((a) => !['_id'].includes(a))
+      .filter((a) => !staticKeys.includes(a))
       .sort();
 
     const header = (
@@ -118,7 +118,7 @@ class Orders extends React.Component<IProps, {}> {
                   label={__('Mobile Amount')}
                 />
               </th>
-              {otherPayTitles.map(key => (
+              {otherPayTitles.map((key) => (
                 <th key={Math.random()}>{__(key)}</th>
               ))}
               <th>
@@ -140,7 +140,7 @@ class Orders extends React.Component<IProps, {}> {
             </tr>
           </thead>
           <tbody id="orders">
-            {(orders || []).map(order => (
+            {(orders || []).map((order) => (
               <Row
                 order={order}
                 key={order._id}
@@ -179,4 +179,4 @@ class Orders extends React.Component<IProps, {}> {
   }
 }
 
-export default withRouter<IRouterProps>(Orders);
+export default Orders;

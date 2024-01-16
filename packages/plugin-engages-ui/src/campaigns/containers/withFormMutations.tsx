@@ -1,20 +1,22 @@
-import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
-import { IRouterProps } from '@erxes/ui/src/types';
+
 import { Alert, withProps } from '@erxes/ui/src/utils';
-import React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
-import { withRouter } from 'react-router-dom';
-import { mutations, queries } from '@erxes/ui-engage/src/graphql';
 import {
   EngageMessageDetailQueryResponse,
   IEngageMessage,
   WithFormAddMutationResponse,
   WithFormEditMutationResponse,
-  WithFormMutationVariables
+  WithFormMutationVariables,
 } from '@erxes/ui-engage/src/types';
-import { crudMutationsOptions } from '@erxes/ui-engage/src/utils';
+// import { withRouter } from 'react-router-dom';
+import { mutations, queries } from '@erxes/ui-engage/src/graphql';
+
 import { AllUsersQueryResponse } from '@erxes/ui/src/auth/types';
+import { IRouterProps } from '@erxes/ui/src/types';
+import React from 'react';
+import { crudMutationsOptions } from '@erxes/ui-engage/src/utils';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
 
 type Props = {
   messageId: string;
@@ -35,7 +37,7 @@ function withSaveAndEdit<IComponentProps>(Component) {
       super(props);
 
       this.state = {
-        isLoading: false
+        isLoading: false,
       };
     }
 
@@ -47,29 +49,29 @@ function withSaveAndEdit<IComponentProps>(Component) {
         usersQuery,
         engageMessageDetailQuery,
         addMutation,
-        editMutation
+        editMutation,
       } = this.props;
 
       const message =
         engageMessageDetailQuery.engageMessageDetail || ({} as IEngageMessage);
       const users = usersQuery.allUsers || [];
-      const verifiedUsers = users.filter(user => user.username) || [];
+      const verifiedUsers = users.filter((user) => user.username) || [];
 
       const doMutation = (mutation, variables, msg) => {
         this.setState({ isLoading: true });
 
         mutation({
-          variables
+          variables,
         })
           .then(() => {
             Alert.success(msg);
 
             history.push({
               pathname: '/campaigns',
-              search: '?engageRefetchList=true'
+              search: '?engageRefetchList=true',
             });
           })
-          .catch(error => {
+          .catch((error) => {
             Alert.error(error.message);
 
             this.setState({ isLoading: false });
@@ -77,21 +79,21 @@ function withSaveAndEdit<IComponentProps>(Component) {
       };
 
       // save
-      const save = doc => {
+      const save = (doc) => {
         doc.kind = message.kind ? message.kind : kind;
 
         if (messageId) {
           return doMutation(
             editMutation,
             { ...doc, _id: messageId },
-            `You successfully updated a campaign`
+            `You successfully updated a campaign`,
           );
         }
 
         return doMutation(
           addMutation,
           doc,
-          `You successfully added a campaign`
+          `You successfully added a campaign`,
         );
       };
 
@@ -100,7 +102,7 @@ function withSaveAndEdit<IComponentProps>(Component) {
         kind: '',
         content: '',
         sentAs: '',
-        rules: []
+        rules: [],
       };
 
       const email = message.email || {
@@ -109,7 +111,7 @@ function withSaveAndEdit<IComponentProps>(Component) {
         content: '',
         replyTo: '',
         sender: '',
-        templateId: ''
+        templateId: '',
       };
 
       const scheduleDate = message.scheduleDate;
@@ -127,7 +129,7 @@ function withSaveAndEdit<IComponentProps>(Component) {
             kind: messenger.kind,
             content: messenger.content,
             sentAs: messenger.sentAs,
-            rules: messenger.rules
+            rules: messenger.rules,
           },
           email: {
             subject: email.subject,
@@ -135,17 +137,17 @@ function withSaveAndEdit<IComponentProps>(Component) {
             content: email.content,
             templateId: email.templateId,
             replyTo: email.replyTo,
-            sender: email.sender
+            sender: email.sender,
           },
           scheduleDate: scheduleDate
             ? {
                 type: scheduleDate.type,
                 month: scheduleDate.month,
                 day: scheduleDate.day,
-                dateTime: scheduleDate.dateTime
+                dateTime: scheduleDate.dateTime,
               }
-            : null
-        }
+            : null,
+        },
       };
 
       return <Component {...updatedProps} />;
@@ -160,44 +162,44 @@ function withSaveAndEdit<IComponentProps>(Component) {
           name: 'engageMessageDetailQuery',
           options: ({ messageId }: { messageId: string }) => ({
             variables: {
-              _id: messageId
-            }
-          })
-        }
+              _id: messageId,
+            },
+          }),
+        },
       ),
       graphql<Props, AllUsersQueryResponse>(gql(queries.users), {
-        name: 'usersQuery'
+        name: 'usersQuery',
       }),
       graphql<Props, WithFormAddMutationResponse, WithFormMutationVariables>(
         gql(mutations.messagesAdd),
         {
           name: 'addMutation',
           options: {
-            refetchQueries: engageRefetchQueries({})
-          }
-        }
+            refetchQueries: engageRefetchQueries({}),
+          },
+        },
       ),
       graphql<Props, WithFormEditMutationResponse, WithFormMutationVariables>(
         gql(mutations.messagesEdit),
         {
           name: 'editMutation',
           options: {
-            refetchQueries: engageRefetchQueries({ isEdit: true })
-          }
-        }
-      )
-    )(withRouter<FinalProps>(Container))
+            refetchQueries: engageRefetchQueries({ isEdit: true }),
+          },
+        },
+      ),
+    )(Container),
   );
 }
 
 export const engageRefetchQueries = ({
-  isEdit
+  isEdit,
 }: {
   isEdit?: boolean;
 }): string[] => [
   ...crudMutationsOptions().refetchQueries,
   ...(isEdit ? ['activityLogs'] : []),
-  'engageMessageDetail'
+  'engageMessageDetail',
 ];
 
 export default withSaveAndEdit;

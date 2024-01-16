@@ -1,13 +1,14 @@
-import React from 'react';
-import { withRouter } from 'react-router-dom';
-import { getParam, removeParams, setParams } from '../utils/router';
+import { ChildList, PopoverContent, ToggleIcon } from './filterableList/styles';
 import { FieldStyle, SidebarCounter, SidebarList } from '../layout/styles';
-import { IRouterProps } from '../types';
+// import { withRouter } from 'react-router-dom';
+import { getParam, removeParams, setParams } from '../utils/router';
+
 import DataWithLoader from './DataWithLoader';
 import EmptyState from './EmptyState';
 import Filter from './filterableList/Filter';
+import { IRouterProps } from '../types';
 import Icon from './Icon';
-import { PopoverContent, ChildList, ToggleIcon } from './filterableList/styles';
+import React from 'react';
 
 interface IProps extends IRouterProps {
   fields: any[];
@@ -32,11 +33,11 @@ class FilterByParams extends React.Component<IProps, State> {
 
     this.state = {
       key: '',
-      parentFieldIds: {}
+      parentFieldIds: {},
     };
   }
 
-  filterItems = e => {
+  filterItems = (e) => {
     this.setState({ key: e.target.value });
 
     const { update } = this.props;
@@ -107,15 +108,8 @@ class FilterByParams extends React.Component<IProps, State> {
   }
 
   renderItems() {
-    const {
-      history,
-      fields,
-      paramKey,
-      icon,
-      searchable,
-      multiple,
-      treeView
-    } = this.props;
+    const { history, fields, paramKey, icon, searchable, multiple, treeView } =
+      this.props;
     const { key } = this.state;
 
     if (fields.length === 0) {
@@ -162,17 +156,17 @@ class FilterByParams extends React.Component<IProps, State> {
 
     const renderContent = () => {
       if (!treeView) {
-        return fields.map(field => {
+        return fields.map((field) => {
           return renderFieldItem(field);
         });
       }
 
-      const subFields = fields.filter(f => f.parentId);
-      const parents = fields.filter(f => !f.parentId);
+      const subFields = fields.filter((f) => f.parentId);
+      const parents = fields.filter((f) => !f.parentId);
 
       const groupByParent = this.groupByParent(subFields);
 
-      const renderTree = field => {
+      const renderTree = (field) => {
         const childrens = groupByParent[field._id];
 
         if (childrens) {
@@ -190,7 +184,7 @@ class FilterByParams extends React.Component<IProps, State> {
 
                 {renderFieldItem(field, isOpen)}
                 {isOpen &&
-                  childrens.map(childField => {
+                  childrens.map((childField) => {
                     return renderTree(childField);
                   })}
               </ChildList>
@@ -201,7 +195,7 @@ class FilterByParams extends React.Component<IProps, State> {
         return renderFieldItem(field);
       };
 
-      return parents.map(field => {
+      return parents.map((field) => {
         return renderTree(field);
       });
     };
@@ -232,4 +226,4 @@ class FilterByParams extends React.Component<IProps, State> {
   }
 }
 
-export default withRouter<IProps>(FilterByParams);
+export default FilterByParams;

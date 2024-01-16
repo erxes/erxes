@@ -1,17 +1,19 @@
-import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
-import { IUser } from '@erxes/ui/src/auth/types';
+
 import { Alert, withProps } from '@erxes/ui/src/utils';
-import React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
-import { withRouter } from 'react-router-dom';
-import { IRouterProps } from '@erxes/ui/src/types';
-import UserConfirmation from '../components/UserConfirmation';
-import { mutations } from '@erxes/ui/src/team/graphql';
 import {
   ConfirmMutationResponse,
-  ConfirmMutationVariables
+  ConfirmMutationVariables,
 } from '@erxes/ui/src/team/types';
+
+// import { withRouter } from 'react-router-dom';
+import { IRouterProps } from '@erxes/ui/src/types';
+import { IUser } from '@erxes/ui/src/auth/types';
+import React from 'react';
+import UserConfirmation from '../components/UserConfirmation';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
+import { mutations } from '@erxes/ui/src/team/graphql';
 
 type Props = {
   queryParams: any;
@@ -22,18 +24,14 @@ type FinalProps = Props & IRouterProps & ConfirmMutationResponse;
 
 class UserConfirmationContainer extends React.Component<FinalProps> {
   render() {
-    const {
-      usersConfirmInvitation,
-      queryParams,
-      history,
-      currentUser
-    } = this.props;
+    const { usersConfirmInvitation, queryParams, history, currentUser } =
+      this.props;
 
     const confirmUser = ({
       password,
       passwordConfirmation,
       username,
-      fullName
+      fullName,
     }: {
       password: string;
       passwordConfirmation: string;
@@ -46,21 +44,21 @@ class UserConfirmationContainer extends React.Component<FinalProps> {
           password,
           passwordConfirmation,
           username,
-          fullName
-        }
+          fullName,
+        },
       })
         .then(() => {
           Alert.success('You successfully verified');
           history.push('/');
         })
-        .catch(e => {
+        .catch((e) => {
           Alert.error(e.message);
         });
     };
 
     const updatedProps = {
       confirmUser,
-      currentUser
+      currentUser,
     };
 
     return <UserConfirmation {...updatedProps} />;
@@ -74,9 +72,9 @@ export default withProps<Props>(
       {
         name: 'usersConfirmInvitation',
         options: {
-          refetchQueries: ['users']
-        }
-      }
-    )
-  )(withRouter<FinalProps>(UserConfirmationContainer))
+          refetchQueries: ['users'],
+        },
+      },
+    ),
+  )(UserConfirmationContainer),
 );

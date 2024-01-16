@@ -1,11 +1,12 @@
-import DropdownToggle from '../DropdownToggle';
-import Icon from '../Icon';
-import { IRouterProps } from '../../types';
-import { __, router } from '../../utils/core';
-import React from 'react';
-import Dropdown from 'react-bootstrap/Dropdown';
-import { withRouter } from 'react-router-dom';
+// import { withRouter } from 'react-router-dom';
 import { Option, PerPageButton } from './styles';
+import { __, router } from '../../utils/core';
+
+import Dropdown from 'react-bootstrap/Dropdown';
+import DropdownToggle from '../DropdownToggle';
+import { IRouterProps } from '../../types';
+import Icon from '../Icon';
+import React from 'react';
 
 type Props = {
   count?: number;
@@ -15,7 +16,7 @@ type Props = {
 const PerPageChooser = ({ history }: Props) => {
   const currentPerPage = Number(router.getParam(history, 'perPage')) || 20;
 
-  const onClick = perPage => {
+  const onClick = (perPage) => {
     if (perPage !== currentPerPage) {
       router.setParams(history, { perPage });
       router.setParams(history, { page: 1 });
@@ -34,7 +35,7 @@ const PerPageChooser = ({ history }: Props) => {
     }
   };
 
-  const renderOption = n => {
+  const renderOption = (n) => {
     return (
       <Option>
         <a href="#number" onClick={onClick.bind(null, n)}>
@@ -61,4 +62,4 @@ const PerPageChooser = ({ history }: Props) => {
   );
 };
 
-export default withRouter<Props>(PerPageChooser);
+export default PerPageChooser;

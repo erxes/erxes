@@ -4,7 +4,7 @@ import * as routerUtils from '@erxes/ui/src/utils/router';
 import {
   IButtonMutateProps,
   IFormProps,
-  IRouterProps
+  IRouterProps,
 } from '@erxes/ui/src/types';
 import { IExchangeForm, IImapForm, IntegrationTypes } from '../../types';
 
@@ -21,7 +21,8 @@ import { ModalFooter } from '@erxes/ui/src/styles/main';
 import SelectBrand from '../../containers/SelectBrand';
 import SelectChannels from '../../containers/SelectChannels';
 import { __ } from 'coreui/utils';
-import { withRouter } from 'react-router-dom';
+
+// import { withRouter } from 'react-router-dom';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -39,7 +40,7 @@ class Form extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      channelIds: []
+      channelIds: [],
     };
   }
 
@@ -48,7 +49,7 @@ class Form extends React.Component<Props, State> {
   };
 
   generateDoc = (
-    values: { name: string; brandId: string } & IImapForm & IExchangeForm
+    values: { name: string; brandId: string } & IImapForm & IExchangeForm,
   ) => {
     const { kind, history } = this.props;
     const { name, brandId, ...args } = values;
@@ -63,8 +64,8 @@ class Form extends React.Component<Props, State> {
       data: {
         id: 'requestId',
         uid,
-        ...args
-      }
+        ...args,
+      },
     };
   };
 
@@ -109,7 +110,7 @@ class Form extends React.Component<Props, State> {
           isRequired={true}
           formProps={formProps}
           description={__(
-            'Which specific Brand does this integration belong to?'
+            'Which specific Brand does this integration belong to?',
           )}
         />
 
@@ -134,7 +135,7 @@ class Form extends React.Component<Props, State> {
             name: 'integration',
             values: this.generateDoc(values),
             isSubmitted,
-            callback: this.props.closeModal
+            callback: this.props.closeModal,
           })}
         </ModalFooter>
       </>
@@ -146,4 +147,4 @@ class Form extends React.Component<Props, State> {
   }
 }
 
-export default withRouter(Form);
+export default Form;

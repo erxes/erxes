@@ -1,26 +1,28 @@
-import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
-import EmptyContent from '@erxes/ui/src/components/empty/EmptyContent';
-import EmptyState from '@erxes/ui/src/components/EmptyState';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import { IDateColumn, IRouterProps } from '@erxes/ui/src/types';
-import { withProps } from '@erxes/ui/src/utils';
-import React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
-import { withRouter } from 'react-router-dom';
+
+import { ChartBack, RootBack, ScrolledContent } from '../styles/common';
+// import { withRouter } from 'react-router-dom';
 import {
   EMPTY_CONTENT_DEAL,
+  EMPTY_CONTENT_PURCHASE,
   EMPTY_CONTENT_TASK,
-  EMPTY_CONTENT_PURCHASE
 } from '../constants';
-import { queries } from '../graphql';
-import { RootBack, ScrolledContent, ChartBack } from '../styles/common';
+import { IDateColumn, IRouterProps } from '@erxes/ui/src/types';
 import { IOptions, PipelineDetailQueryResponse } from '../types';
+
+import ChartStack from './chart/ChartRenderer';
+import EmptyContent from '@erxes/ui/src/components/empty/EmptyContent';
+import EmptyState from '@erxes/ui/src/components/EmptyState';
 import Pipeline from './Pipeline';
 import PipelineActivity from './PipelineActivity';
-import ViewGroupBy from './ViewGroupBy';
-import ChartStack from './chart/ChartRenderer';
+import React from 'react';
+import Spinner from '@erxes/ui/src/components/Spinner';
 import TimeItems from './time/TimeItems';
+import ViewGroupBy from './ViewGroupBy';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
+import { queries } from '../graphql';
+import { withProps } from '@erxes/ui/src/utils';
 
 type Props = {
   pipelineDetailQuery: PipelineDetailQueryResponse;
@@ -46,8 +48,8 @@ class Board extends React.Component<Props> {
               type === 'deal'
                 ? EMPTY_CONTENT_DEAL
                 : type === 'task'
-                ? EMPTY_CONTENT_TASK
-                : EMPTY_CONTENT_PURCHASE
+                  ? EMPTY_CONTENT_TASK
+                  : EMPTY_CONTENT_PURCHASE
             }
             maxItemWidth="400px"
           />
@@ -159,9 +161,9 @@ export default withProps<WrapperProps>(
         name: 'pipelineDetailQuery',
         skip: ({ queryParams }) => !queryParams.pipelineId,
         options: ({ queryParams }) => ({
-          variables: { _id: queryParams && queryParams.pipelineId }
-        })
-      }
-    )
-  )(withRouter(Board))
+          variables: { _id: queryParams && queryParams.pipelineId },
+        }),
+      },
+    ),
+  )(Board),
 );

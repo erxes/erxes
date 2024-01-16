@@ -1,17 +1,19 @@
-import { gql } from '@apollo/client';
-import { graphql } from '@apollo/client/react/hoc';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import { IRouterProps } from '@erxes/ui/src/types';
-import { router, withProps } from '@erxes/ui/src/utils/core';
-import { withRouter } from 'react-router-dom';
+// import { withRouter } from 'react-router-dom';
 import * as compose from 'lodash.flowright';
-import React from 'react';
-import SyncHistoryList from '../components/SyncHistoryList';
-import { queries } from '../graphql';
+
 import {
   SyncHistoriesCountQueryResponse,
-  SyncHistoriesQueryResponse
+  SyncHistoriesQueryResponse,
 } from '../types';
+import { router, withProps } from '@erxes/ui/src/utils/core';
+
+import { IRouterProps } from '@erxes/ui/src/types';
+import React from 'react';
+import Spinner from '@erxes/ui/src/components/Spinner';
+import SyncHistoryList from '../components/SyncHistoryList';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
+import { queries } from '../graphql';
 
 type Props = {
   history: any;
@@ -32,11 +34,8 @@ class SyncHistoryListContainer extends React.Component<FinalProps, {}> {
   }
 
   render() {
-    const {
-      queryParams,
-      syncHistoriesQuery,
-      syncHistoriesCountQuery
-    } = this.props;
+    const { queryParams, syncHistoriesQuery, syncHistoriesCountQuery } =
+      this.props;
 
     if (syncHistoriesQuery.loading || syncHistoriesCountQuery.loading) {
       return <Spinner />;
@@ -49,7 +48,7 @@ class SyncHistoryListContainer extends React.Component<FinalProps, {}> {
       ...this.props,
       queryParams,
       syncHistories,
-      totalCount
+      totalCount,
     };
 
     return <SyncHistoryList {...updatedProps} />;
@@ -72,7 +71,7 @@ const generateParams = ({ queryParams }) => {
     searchConsume: queryParams.searchConsume,
     searchSend: queryParams.searchSend,
     searchResponse: queryParams.searchResponse,
-    searchError: queryParams.searchError
+    searchError: queryParams.searchError,
   };
 };
 
@@ -82,8 +81,8 @@ export default withProps<Props>(
       name: 'syncHistoriesQuery',
       options: ({ queryParams }) => ({
         variables: generateParams({ queryParams }),
-        fetchPolicy: 'network-only'
-      })
+        fetchPolicy: 'network-only',
+      }),
     }),
     graphql<Props, SyncHistoriesCountQueryResponse, {}>(
       gql(queries.syncHistoriesCount),
@@ -91,9 +90,9 @@ export default withProps<Props>(
         name: 'syncHistoriesCountQuery',
         options: ({ queryParams }) => ({
           variables: generateParams({ queryParams }),
-          fetchPolicy: 'network-only'
-        })
-      }
-    )
-  )(withRouter<IRouterProps>(SyncHistoryListContainer))
+          fetchPolicy: 'network-only',
+        }),
+      },
+    ),
+  )(SyncHistoryListContainer),
 );

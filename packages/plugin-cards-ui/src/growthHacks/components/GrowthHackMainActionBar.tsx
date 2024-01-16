@@ -1,16 +1,18 @@
-import MainActionBar from '@erxes/ui-cards/src/boards/components/MainActionBar';
-import { ButtonGroup } from '@erxes/ui-cards/src/boards/styles/header';
 import { IBoard, IPipeline } from '@erxes/ui-cards/src/boards/types';
-import Icon from '@erxes/ui/src/components/Icon';
-import Tip from '@erxes/ui/src/components/Tip';
 import { IOption, IRouterProps } from '@erxes/ui/src/types';
 import { __, router } from 'coreui/utils';
-import queryString from 'query-string';
-import React from 'react';
-import { Link, withRouter } from 'react-router-dom';
-import Select from 'react-select-plus';
+
+import { ButtonGroup } from '@erxes/ui-cards/src/boards/styles/header';
 import { HACKSTAGES } from '@erxes/ui-cards/src/boards/constants';
+import Icon from '@erxes/ui/src/components/Icon';
+import { Link } from 'react-router-dom';
+import MainActionBar from '@erxes/ui-cards/src/boards/components/MainActionBar';
+import React from 'react';
+// import { withRouter } from 'react-router-dom';
+import Select from 'react-select-plus';
+import Tip from '@erxes/ui/src/components/Tip';
 import options from '../options';
+import queryString from 'query-string';
 
 interface IProps extends IRouterProps {
   onSearch: (search: string) => void;
@@ -38,7 +40,7 @@ const FILTER_PARAMS = [
   'hackStage',
   'priority',
   'userIds',
-  'assignedToMe'
+  'assignedToMe',
 ];
 
 const GrowthHackMainActionBar = (props: IProps) => {
@@ -124,7 +126,7 @@ const GrowthHackMainActionBar = (props: IProps) => {
     );
   };
 
-  const onChangeSort = value => {
+  const onChangeSort = (value) => {
     let field: string = '';
     let direction: string = '';
 
@@ -136,7 +138,7 @@ const GrowthHackMainActionBar = (props: IProps) => {
 
       router.setParams(props.history, {
         sortField: field,
-        sortDirection: direction
+        sortDirection: direction,
       });
     } else {
       router.removeParams(props.history, 'sortField', 'sortDirection');
@@ -145,13 +147,13 @@ const GrowthHackMainActionBar = (props: IProps) => {
 
   const onChangeHackStage = (ops: IOption[]) => {
     props.onSelect(
-      ops.map(option => option.value),
-      'hackStage'
+      ops.map((option) => option.value),
+      'hackStage',
     );
   };
 
   const { hackScoringType } = props.currentPipeline || {
-    hackScoringType: 'ice'
+    hackScoringType: 'ice',
   };
 
   const effort = hackScoringType === 'rice' ? 'effort' : 'ease';
@@ -160,7 +162,7 @@ const GrowthHackMainActionBar = (props: IProps) => {
     { value: 'impact,1', label: 'Low impact' },
     { value: 'impact,-1', label: 'High impact' },
     { value: 'ease,1', label: `Low ${effort}` },
-    { value: 'ease,-1', label: `High ${effort}` }
+    { value: 'ease,-1', label: `High ${effort}` },
   ];
 
   const { sortField, sortDirection } = props.queryParams;
@@ -170,7 +172,7 @@ const GrowthHackMainActionBar = (props: IProps) => {
       <Select
         placeholder="Choose a growth funnel"
         value={props.queryParams.hackStage || []}
-        options={HACKSTAGES.map(hs => ({ value: hs, label: hs }))}
+        options={HACKSTAGES.map((hs) => ({ value: hs, label: hs }))}
         name="hackStage"
         onChange={onChangeHackStage}
         multi={true}
@@ -199,10 +201,10 @@ const GrowthHackMainActionBar = (props: IProps) => {
     isFiltered,
     extraFilter: currentUrl.includes('board') ? growthHackFilter : extraFilter,
     link: `/growthHack/${getCurrentType()}`,
-    rightContent: viewChooser
+    rightContent: viewChooser,
   };
 
   return <MainActionBar {...extendedProps} />;
 };
 
-export default withRouter<IProps>(GrowthHackMainActionBar);
+export default GrowthHackMainActionBar;

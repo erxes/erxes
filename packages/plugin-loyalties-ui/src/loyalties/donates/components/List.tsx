@@ -1,4 +1,4 @@
-import { __, Alert, confirm, router } from '@erxes/ui/src/utils';
+import { Alert, __, confirm, router } from '@erxes/ui/src/utils';
 import {
   Button,
   DataWithLoader,
@@ -6,25 +6,25 @@ import {
   ModalTrigger,
   Pagination,
   SortHandler,
-  Table
+  Table,
 } from '@erxes/ui/src/components';
-import { Wrapper } from '@erxes/ui/src/layout';
 import {
+  MainStyleCount as Count,
   MainStyleTitle as Title,
-  MainStyleCount as Count
 } from '@erxes/ui/src/styles/eindex';
-import { BarItems } from '@erxes/ui/src/layout/styles';
-import { IRouterProps } from '@erxes/ui/src/types';
-import React from 'react';
-import { withRouter } from 'react-router-dom';
 
+import { BarItems } from '@erxes/ui/src/layout/styles';
 import DonateForm from '../containers/Form';
-import { LoyaltiesTableWrapper } from '../../common/styles';
-import { IDonate } from '../types';
 import DonateRow from './Row';
-import Sidebar from './Sidebar';
+import { IDonate } from '../types';
 import { IDonateCampaign } from '../../../configs/donateCampaign/types';
+import { IRouterProps } from '@erxes/ui/src/types';
+import { LoyaltiesTableWrapper } from '../../common/styles';
+import React from 'react';
+import Sidebar from './Sidebar';
+import { Wrapper } from '@erxes/ui/src/layout';
 import { menuLoyalties } from '../../common/constants';
+// import { withRouter } from 'react-router-dom';
 
 interface IProps extends IRouterProps {
   donates: IDonate[];
@@ -54,7 +54,7 @@ class DonatesList extends React.Component<IProps, State> {
     super(props);
 
     this.state = {
-      searchValue: this.props.searchValue
+      searchValue: this.props.searchValue,
     };
   }
 
@@ -63,7 +63,7 @@ class DonatesList extends React.Component<IProps, State> {
     toggleAll(donates, 'donates');
   };
 
-  search = e => {
+  search = (e) => {
     if (this.timer) {
       clearTimeout(this.timer);
     }
@@ -78,17 +78,17 @@ class DonatesList extends React.Component<IProps, State> {
     }, 500);
   };
 
-  removeDonates = donates => {
+  removeDonates = (donates) => {
     const donateIds: string[] = [];
 
-    donates.forEach(donate => {
+    donates.forEach((donate) => {
       donateIds.push(donate._id);
     });
 
     this.props.removeDonates({ donateIds }, this.props.emptyBulk);
   };
 
-  moveCursorAtTheEnd = e => {
+  moveCursorAtTheEnd = (e) => {
     const tmpValue = e.target.value;
     e.target.value = '';
     e.target.value = tmpValue;
@@ -104,7 +104,7 @@ class DonatesList extends React.Component<IProps, State> {
       isAllSelected,
       totalCount,
       queryParams,
-      currentCampaign
+      currentCampaign,
     } = this.props;
 
     const mainContent = (
@@ -138,7 +138,7 @@ class DonatesList extends React.Component<IProps, State> {
             </tr>
           </thead>
           <tbody id="donates">
-            {donates.map(donate => (
+            {donates.map((donate) => (
               <DonateRow
                 donate={donate}
                 isChecked={bulk.includes(donate)}
@@ -160,7 +160,7 @@ class DonatesList extends React.Component<IProps, State> {
       </Button>
     );
 
-    const donateForm = props => {
+    const donateForm = (props) => {
       return <DonateForm {...props} queryParams={queryParams} />;
     };
 
@@ -171,7 +171,7 @@ class DonatesList extends React.Component<IProps, State> {
             .then(() => {
               this.removeDonates(bulk);
             })
-            .catch(error => {
+            .catch((error) => {
               Alert.error(error.message);
             });
 
@@ -257,4 +257,4 @@ class DonatesList extends React.Component<IProps, State> {
   }
 }
 
-export default withRouter<IRouterProps>(DonatesList);
+export default DonatesList;

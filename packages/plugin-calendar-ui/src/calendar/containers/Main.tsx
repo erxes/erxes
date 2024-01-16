@@ -1,23 +1,25 @@
-import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import { IRouterProps } from '@erxes/ui/src/types';
-import { router as routerUtils, withProps } from '@erxes/ui/src/utils';
-import { queries } from '../graphql';
+
 import {
   BoardDetailQueryResponse,
   BoardGetLastQueryResponse,
-  BoardsQueryResponse
+  BoardsQueryResponse,
 } from '../types';
-import queryString from 'query-string';
-import React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
-import { withRouter } from 'react-router-dom';
+// import { withRouter } from 'react-router-dom';
 import {
   STORAGE_CALENDAR_BOARD_KEY,
-  STORAGE_CALENDAR_GROUP_KEY
+  STORAGE_CALENDAR_GROUP_KEY,
 } from '../constants';
+import { router as routerUtils, withProps } from '@erxes/ui/src/utils';
+
+import { IRouterProps } from '@erxes/ui/src/types';
+import React from 'react';
+import Spinner from '@erxes/ui/src/components/Spinner';
 import Wrapper from './Wrapper';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
+import { queries } from '../graphql';
+import queryString from 'query-string';
 
 type Props = {
   queryParams: any;
@@ -48,7 +50,7 @@ class Main extends React.Component<FinalProps> {
       location,
       boardsQuery,
       boardGetLastQuery,
-      boardDetailQuery
+      boardDetailQuery,
     } = this.props;
 
     if (boardsQuery.loading) {
@@ -86,7 +88,7 @@ class Main extends React.Component<FinalProps> {
     if (!boardId && defaultBoardId) {
       routerUtils.setParams(history, {
         id: defaultBoardId,
-        groupId: defaultGroupId
+        groupId: defaultGroupId,
       });
 
       return null;
@@ -104,7 +106,7 @@ class Main extends React.Component<FinalProps> {
 
       routerUtils.setParams(history, {
         id: lastBoard._id,
-        groupId: firstGroup._id
+        groupId: firstGroup._id,
       });
 
       return null;
@@ -123,7 +125,7 @@ class Main extends React.Component<FinalProps> {
     const groups = currentBoard ? currentBoard.groups || [] : [];
 
     const currentGroup = groupId
-      ? groups.find(group => group._id === groupId) || groups[0]
+      ? groups.find((group) => group._id === groupId) || groups[0]
       : groups[0];
 
     const props = {
@@ -131,7 +133,7 @@ class Main extends React.Component<FinalProps> {
       history,
       currentBoard,
       currentGroup,
-      boards: boardsQuery.calendarBoards || []
+      boards: boardsQuery.calendarBoards || [],
     };
 
     return <Wrapper {...props} />;
@@ -143,27 +145,27 @@ const MainActionBarContainer = withProps<Props>(
     graphql<Props, BoardsQueryResponse>(gql(queries.boards), {
       name: 'boardsQuery',
       options: () => ({
-        variables: {}
-      })
+        variables: {},
+      }),
     }),
     graphql<Props, BoardGetLastQueryResponse>(gql(queries.boardGetLast), {
       name: 'boardGetLastQuery',
-      skip: props => getBoardId(props),
+      skip: (props) => getBoardId(props),
       options: () => ({
-        variables: {}
-      })
+        variables: {},
+      }),
     }),
     graphql<Props, BoardDetailQueryResponse, { _id: string }>(
       gql(queries.boardDetail),
       {
         name: 'boardDetailQuery',
-        skip: props => !getBoardId(props),
-        options: props => ({
-          variables: { _id: getBoardId(props) }
-        })
-      }
-    )
-  )(Main)
+        skip: (props) => !getBoardId(props),
+        options: (props) => ({
+          variables: { _id: getBoardId(props) },
+        }),
+      },
+    ),
+  )(Main),
 );
 
-export default withRouter(MainActionBarContainer);
+export default MainActionBarContainer;

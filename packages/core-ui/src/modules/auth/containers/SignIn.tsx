@@ -1,11 +1,11 @@
-import apolloClient from 'apolloClient';
-import { __ } from 'modules/common/utils';
-import React from 'react';
-import { withRouter } from 'react-router-dom';
+// import { withRouter } from 'react-router-dom';
 import ButtonMutate from '../../common/components/ButtonMutate';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { IRouterProps } from '@erxes/ui/src/types';
+import React from 'react';
 import SignIn from '../components/SignIn';
+import { __ } from 'modules/common/utils';
+import apolloClient from 'apolloClient';
 import { mutations } from '../graphql';
 
 const SignInContainer = (props: IRouterProps) => {
@@ -18,7 +18,7 @@ const SignInContainer = (props: IRouterProps) => {
       history.push(
         (!location.pathname.includes('sign-in') &&
           `${location.pathname}${location.search}`) ||
-          '/?signedIn=true'
+          '/?signedIn=true',
       );
 
       window.location.reload();
@@ -42,10 +42,10 @@ const SignInContainer = (props: IRouterProps) => {
 
   const updatedProps = {
     ...props,
-    renderButton
+    renderButton,
   };
 
   return <SignIn {...updatedProps} />;
 };
 
-export default withRouter<IRouterProps>(SignInContainer);
+export default SignInContainer;

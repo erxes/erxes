@@ -12,7 +12,8 @@ import WebHookForm from '../../components/webhook/Form';
 import Whatsapp from '../../components/whatsapp/Whatsapp';
 import { getRefetchQueries } from '../utils';
 import { mutations } from '../../graphql';
-import { withRouter } from 'react-router-dom';
+
+// import { withRouter } from 'react-router-dom';
 
 type Props = {
   type: string;
@@ -33,7 +34,7 @@ const INTEGRATION_FORM = {
   whatsapp: Whatsapp,
   telnyx: TelnyxForm,
   webhook: WebHookForm,
-  'outgoing-webhook': OutgoingWebHookFrom
+  'outgoing-webhook': OutgoingWebHookFrom,
 };
 
 class IntegrationFormContainer extends React.Component<FinalProps, State> {
@@ -51,7 +52,7 @@ class IntegrationFormContainer extends React.Component<FinalProps, State> {
     name,
     values,
     isSubmitted,
-    callback
+    callback,
   }: IButtonMutateProps) => {
     const { type } = this.props;
 
@@ -76,7 +77,7 @@ class IntegrationFormContainer extends React.Component<FinalProps, State> {
       callback: closeModal,
       renderButton: this.renderButton,
       channelIds,
-      onChannelChange: this.onChannelChange
+      onChannelChange: this.onChannelChange,
     };
 
     const Component = INTEGRATION_FORM[type];
@@ -85,4 +86,4 @@ class IntegrationFormContainer extends React.Component<FinalProps, State> {
   }
 }
 
-export default withRouter<FinalProps>(IntegrationFormContainer);
+export default IntegrationFormContainer;

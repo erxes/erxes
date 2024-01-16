@@ -3,12 +3,12 @@ import * as compose from 'lodash.flowright';
 import { Alert, confirm, withProps } from '@erxes/ui/src/utils';
 import {
   ResolveAllMutationResponse,
-  ResolveAllMutationVariables
+  ResolveAllMutationVariables,
 } from '@erxes/ui-inbox/src/inbox/types';
 import {
   getConfig,
   refetchSidebarConversationsOptions,
-  setConfig
+  setConfig,
 } from '@erxes/ui-inbox/src/inbox/utils';
 import { mutations, queries } from '@erxes/ui-inbox/src/inbox/graphql';
 
@@ -21,7 +21,8 @@ import { InboxManagementActionConsumer } from '../InboxCore';
 import React from 'react';
 import { gql } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
-import { withRouter } from 'react-router-dom';
+
+// import { withRouter } from 'react-router-dom';
 
 type Props = {
   queryParams: any;
@@ -42,7 +43,7 @@ class Sidebar extends React.Component<FinalProps> {
   };
 
   // resolve all conversation
-  resolveAll = notifyHandler => () => {
+  resolveAll = (notifyHandler) => () => {
     const message = 'Are you sure you want to resolve all conversations?';
 
     confirm(message).then(() => {
@@ -55,7 +56,7 @@ class Sidebar extends React.Component<FinalProps> {
 
           Alert.success('The conversation has been resolved!');
         })
-        .catch(e => {
+        .catch((e) => {
           Alert.error(e.message);
         });
     });
@@ -69,7 +70,7 @@ class Sidebar extends React.Component<FinalProps> {
         showBrands: false,
         showIntegrations: false,
         showTags: false,
-        showSegments: false
+        showSegments: false,
       });
     }
 
@@ -91,7 +92,7 @@ class Sidebar extends React.Component<FinalProps> {
                   config={getConfig(STORAGE_KEY)}
                   toggleSidebar={this.toggle}
                   resolveAll={this.resolveAll(
-                    notifyConsumersOfManagementAction
+                    notifyConsumersOfManagementAction,
                   )}
                 />
               )}
@@ -105,16 +106,14 @@ class Sidebar extends React.Component<FinalProps> {
   }
 }
 
-export default withRouter<Props>(
-  withProps<Props>(
-    compose(
-      graphql<Props, ResolveAllMutationResponse, ResolveAllMutationVariables>(
-        gql(mutations.resolveAll),
-        {
-          name: 'resolveAllMutation',
-          options: () => refetchSidebarConversationsOptions()
-        }
-      )
-    )(Sidebar)
-  )
+export default withProps<Props>(
+  compose(
+    graphql<Props, ResolveAllMutationResponse, ResolveAllMutationVariables>(
+      gql(mutations.resolveAll),
+      {
+        name: 'resolveAllMutation',
+        options: () => refetchSidebarConversationsOptions(),
+      },
+    ),
+  )(Sidebar),
 );

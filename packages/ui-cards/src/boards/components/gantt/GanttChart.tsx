@@ -1,21 +1,22 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import TimeLine from 'react-gantt-timeline';
 import {
-  GanttContainer,
-  TimelineContainer,
   AssingStyle,
-  TextStyle
+  GanttContainer,
+  TextStyle,
+  TimelineContainer,
 } from '../../styles/view';
-import { withRouter } from 'react-router-dom';
-import { IOptions, IItem } from '../../types';
-import { IRouterProps } from '@erxes/ui/src/types';
-import { colors } from '@erxes/ui/src/styles';
+import { BoardItemArgs, GanttLink } from '../../containers/gantt/GanttChart';
+// import { withRouter } from 'react-router-dom';
+import { IItem, IOptions } from '../../types';
+import React, { useCallback, useEffect, useState } from 'react';
+import { callback, generateName } from '../../components/gantt/utils';
+
+import Assignees from '../../components/Assignees';
 import ContextMenu from '@erxes/ui/src/components/ContextMenu';
 import { EditForm } from '../../containers/editForm';
-import { callback, generateName } from '../../components/gantt/utils';
-import Assignees from '../../components/Assignees';
+import { IRouterProps } from '@erxes/ui/src/types';
+import TimeLine from 'react-gantt-timeline';
+import { colors } from '@erxes/ui/src/styles';
 import { getColors } from '../../utils';
-import { BoardItemArgs, GanttLink } from '../../containers/gantt/GanttChart';
 
 type GanttData = {
   id: string;
@@ -44,27 +45,27 @@ const GanttChart = (props: FinalProps) => {
         style: {
           backgroundColor: `${colors.bgLight}`,
           fontSize: 12,
-          color: `${colors.textPrimary}`
-        }
+          color: `${colors.textPrimary}`,
+        },
       },
       middle: {
         style: {
           backgroundColor: `${colors.bgActive}`,
           fontSize: 10,
-          color: `#486581`
-        }
+          color: `#486581`,
+        },
       },
       bottom: {
         style: {
           background: `${colors.bgLight}`,
           fontSize: 10,
-          color: `${colors.textPrimary}`
+          color: `${colors.textPrimary}`,
         },
         selectedStyle: {
           background: `${colors.colorCoreBlack}`,
-          color: `${colors.colorWhite}`
-        }
-      }
+          color: `${colors.colorWhite}`,
+        },
+      },
     },
     taskList: {
       title: {
@@ -72,55 +73,55 @@ const GanttChart = (props: FinalProps) => {
         style: {
           backgroundColor: `${colors.bgLight}`,
           color: `${colors.textPrimary}`,
-          borderBottom: `1px solid ${colors.borderPrimary}`
-        }
+          borderBottom: `1px solid ${colors.borderPrimary}`,
+        },
       },
       task: {
         style: {
           backgroundColor: `${colors.colorWhite}`,
           color: `${colors.colorCoreBlack}`,
           textAlign: 'left',
-          borderBottom: `1px solid ${colors.borderPrimary}`
-        }
+          borderBottom: `1px solid ${colors.borderPrimary}`,
+        },
       },
       verticalSeparator: {
         style: {
-          backgroundColor: `${colors.bgLight}`
+          backgroundColor: `${colors.bgLight}`,
         },
         grip: {
           style: {
-            backgroundColor: `${colors.colorCoreRed}`
-          }
-        }
-      }
+            backgroundColor: `${colors.colorCoreRed}`,
+          },
+        },
+      },
     },
     dataViewPort: {
       rows: {
         style: {
           cursorPointer: true,
           backgroundColor: `${colors.colorWhite}`,
-          borderBottom: `1px solid ${colors.borderPrimary}`
-        }
+          borderBottom: `1px solid ${colors.borderPrimary}`,
+        },
       },
       task: {
         showLabel: true,
         style: {
           border: `none`,
           whiteSpace: 'nowrap',
-          cursor: 'pointer'
+          cursor: 'pointer',
         },
         selectedStyle: {
           borderRadius: 15,
           fontSize: 11,
           border: `none`,
-          boxShadow: '0px 0px 5px 1px #e6e6e6'
-        }
-      }
+          boxShadow: '0px 0px 5px 1px #e6e6e6',
+        },
+      },
     },
     links: {
       color: `${colors.colorCoreOrange}`,
-      selectedColor: `${colors.colorCoreRed}`
-    }
+      selectedColor: `${colors.colorCoreRed}`,
+    },
   };
 
   const { items, refetch, options, save } = props;
@@ -136,7 +137,7 @@ const GanttChart = (props: FinalProps) => {
       pushItems.push({
         _id: item.id,
         startDate: item.start,
-        closeDate: item.end
+        closeDate: item.end,
       });
     }
 
@@ -152,7 +153,7 @@ const GanttChart = (props: FinalProps) => {
     saveCallback();
   }, [links, data, props.links, props.data, saveCallback]);
 
-  const onSelectItem = item => {
+  const onSelectItem = (item) => {
     setSelectedItem(item);
   };
 
@@ -172,11 +173,11 @@ const GanttChart = (props: FinalProps) => {
     return {
       id: Math.random().toString(),
       start: start.task.id,
-      end: end.task.id
+      end: end.task.id,
     };
   };
 
-  const onCreateLink = item => {
+  const onCreateLink = (item) => {
     const newLink = createLink(item.start, item.end);
 
     setLinks(links.concat(newLink));
@@ -201,7 +202,7 @@ const GanttChart = (props: FinalProps) => {
       return null;
     }
 
-    const dbDataRow = items.find(row => row._id === selectedItem.id);
+    const dbDataRow = items.find((row) => row._id === selectedItem.id);
 
     if (!dbDataRow || !dbDataRow.stage) {
       return null;
@@ -250,7 +251,7 @@ const GanttChart = (props: FinalProps) => {
   );
 };
 
-const WithRouterGanttChart = withRouter(GanttChart);
+const WithRouterGanttChart = GanttChart;
 
 const GenerateData = (props: Props) => {
   const dbData: GanttData[] = [];
@@ -258,7 +259,9 @@ const GenerateData = (props: Props) => {
   const { groups, groupType, items } = props;
 
   groups.forEach((groupObj, index) => {
-    const filtered = items.filter(item => callback(groupType)(item, groupObj));
+    const filtered = items.filter((item) =>
+      callback(groupType)(item, groupObj),
+    );
 
     if (filtered.length > 0) {
       dbData.push({
@@ -269,11 +272,11 @@ const GenerateData = (props: Props) => {
           <TextStyle>
             <span style={{ fontWeight: 600 }}>{generateName(groupObj)}</span>
           </TextStyle>
-        )
+        ),
       });
     }
 
-    filtered.forEach(item => {
+    filtered.forEach((item) => {
       dbData.push({
         id: item._id,
         start: new Date(item.startDate),
@@ -288,7 +291,7 @@ const GenerateData = (props: Props) => {
             </TextStyle>
           </>
         ),
-        color: `${groupObj.colorCode || getColors(index)}`
+        color: `${groupObj.colorCode || getColors(index)}`,
       });
 
       if (item.relations) {
@@ -300,7 +303,7 @@ const GenerateData = (props: Props) => {
   const extendedProps = {
     ...props,
     data: dbData,
-    links: dbLinks
+    links: dbLinks,
   };
 
   return <WithRouterGanttChart {...extendedProps} />;

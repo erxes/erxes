@@ -1,7 +1,6 @@
 import { colors, typography } from './';
 
-import { injectGlobal } from 'styled-components';
-import { robotAnimation } from '../utils/animations';
+import { createGlobalStyle } from 'styled-components';
 
 const style = `
 html {
@@ -259,20 +258,6 @@ a:hover {
 .robot-appear,
 .robot-enter {
   opacity: 0;
-}
-
-.robot-appear-active,
-.robot-enter-active {
-  animation-name: ${robotAnimation};
-  animation-duration: 0.6s;
-  animation-delay: 2s;
-}
-
-.robot-exit,
-.robot-exit-active {
-  animation-name: ${robotAnimation};
-  animation-duration: 0.6s;
-  animation-direction: reverse;
 }
 
 /* dropdown */
@@ -1415,4 +1400,4 @@ const globalStyle = [`${style}`] as any;
 
 globalStyle.raw = [`${style}`];
 
-injectGlobal(globalStyle);
+createGlobalStyle(globalStyle);

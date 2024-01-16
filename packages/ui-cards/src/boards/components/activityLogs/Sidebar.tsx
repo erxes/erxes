@@ -1,13 +1,14 @@
+import { FieldStyle, RowFill } from '../../styles/activityLogs';
 import { __, router } from '@erxes/ui/src/utils';
-import { SidebarList } from '@erxes/ui/src/layout/styles';
-import React from 'react';
-import { withRouter } from 'react-router-dom';
+
+// import { withRouter } from 'react-router-dom';
 import FormControl from '@erxes/ui/src/components/form/Control';
-import { SEARCH_ACTIVITY_CHECKBOX } from '../../constants';
-import { RowFill, FieldStyle } from '../../styles/activityLogs';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { IRouterProps } from '@erxes/ui/src/types';
 import Icon from '@erxes/ui/src/components/Icon';
+import React from 'react';
+import { SEARCH_ACTIVITY_CHECKBOX } from '../../constants';
+import { SidebarList } from '@erxes/ui/src/layout/styles';
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 
 const { Section } = Wrapper.Sidebar;
 
@@ -44,7 +45,7 @@ class Sidebar extends React.Component<Props, State> {
     const { history } = this.props;
 
     const checkboxes: any = document.getElementsByName(
-      'activityLogViewGeneral'
+      'activityLogViewGeneral',
     );
 
     const action: any = [];
@@ -58,21 +59,21 @@ class Sidebar extends React.Component<Props, State> {
     router.setParams(history, { action: action.toString() });
   };
 
-  onChangeAll = e => {
+  onChangeAll = (e) => {
     const { history } = this.props;
 
     router.setParams(history, {
       action: e.target.checked
-        ? SEARCH_ACTIVITY_CHECKBOX.map(a => a.action).toString()
-        : ''
+        ? SEARCH_ACTIVITY_CHECKBOX.map((a) => a.action).toString()
+        : '',
     });
   };
 
   render() {
     const { isChecked } = this.props;
-    const activityValues = SEARCH_ACTIVITY_CHECKBOX.map(p => ({
+    const activityValues = SEARCH_ACTIVITY_CHECKBOX.map((p) => ({
       label: p,
-      title: p
+      title: p,
     }));
 
     const actionQP: string = (this.props.queryParams || {}).action || '';
@@ -85,7 +86,7 @@ class Sidebar extends React.Component<Props, State> {
           style={{
             backgroundColor: 'white',
             marginBottom: '10px',
-            padding: '10px 0'
+            padding: '10px 0',
           }}
         >
           <li key="0">
@@ -125,4 +126,4 @@ class Sidebar extends React.Component<Props, State> {
   }
 }
 
-export default withRouter(Sidebar);
+export default Sidebar;

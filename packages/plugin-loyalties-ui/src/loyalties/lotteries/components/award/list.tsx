@@ -1,10 +1,12 @@
+// import { withRouter } from 'react-router-dom';
+import { Badge, TableContainer } from '../../../../styles';
+
+import { ILottery } from '../../types';
+import { IRouterProps } from '@erxes/ui/src/types';
+import { Link } from 'react-router-dom';
+import React from 'react';
 import { Table } from '@erxes/ui/src/';
 import { colors } from '@erxes/ui/src/styles/';
-import { IRouterProps } from '@erxes/ui/src/types';
-import React from 'react';
-import { Link, withRouter } from 'react-router-dom';
-import { Badge, TableContainer } from '../../../../styles';
-import { ILottery } from '../../types';
 
 interface IProps extends IRouterProps {
   lotteries: ILottery[];
@@ -21,7 +23,7 @@ class AwardList extends React.Component<IProps> {
   render() {
     const { lotteries } = this.props;
 
-    const status = value => {
+    const status = (value) => {
       switch (value) {
         case 'new':
           return <Badge color={colors.linkPrimary}>{value}</Badge>;
@@ -34,7 +36,7 @@ class AwardList extends React.Component<IProps> {
       }
     };
 
-    const route = type => {
+    const route = (type) => {
       switch (type) {
         case 'customer':
           return 'contacts';
@@ -98,4 +100,4 @@ class AwardList extends React.Component<IProps> {
   }
 }
 
-export default withRouter<IRouterProps>(AwardList);
+export default AwardList;

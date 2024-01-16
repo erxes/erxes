@@ -1,20 +1,22 @@
-import { gql } from '@apollo/client';
-import { graphql } from '@apollo/client/react/hoc';
-import { router } from '@erxes/ui/src';
-import { Bulk } from '@erxes/ui/src/components';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import { IRouterProps } from '@erxes/ui/src/types';
-import Alert from '@erxes/ui/src/utils/Alert';
-import { withProps } from '@erxes/ui/src/utils/core';
 import * as compose from 'lodash.flowright';
-import React from 'react';
-import { withRouter } from 'react-router-dom';
-import InventoryCategory from '../components/inventoryCategory/InventoryCategory';
-import { mutations } from '../graphql';
+
 import {
   ToCheckCategoriesMutationResponse,
-  ToSyncCategoriesMutationResponse
+  ToSyncCategoriesMutationResponse,
 } from '../types';
+
+import Alert from '@erxes/ui/src/utils/Alert';
+import { Bulk } from '@erxes/ui/src/components';
+import { IRouterProps } from '@erxes/ui/src/types';
+// import { withRouter } from 'react-router-dom';
+import InventoryCategory from '../components/inventoryCategory/InventoryCategory';
+import React from 'react';
+import Spinner from '@erxes/ui/src/components/Spinner';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
+import { mutations } from '../graphql';
+import { router } from '@erxes/ui/src';
+import { withProps } from '@erxes/ui/src/utils/core';
 
 type Props = {
   queryParams: any;
@@ -36,7 +38,7 @@ class InventoryCategoryContainer extends React.Component<FinalProps, State> {
 
     this.state = {
       items: {},
-      loading: false
+      loading: false,
     };
   }
 
@@ -45,17 +47,17 @@ class InventoryCategoryContainer extends React.Component<FinalProps, State> {
     const brandId = this.props.queryParams.brandId || 'noBrand';
 
     const setSyncStatus = (data: any, action: string) => {
-      const createData = data[action].items.map(d => ({
+      const createData = data[action].items.map((d) => ({
         ...d,
-        syncStatus: false
+        syncStatus: false,
       }));
       data[action].items = createData;
       return data;
     };
 
     const setSyncStatusTrue = (data: any, categories: any, action: string) => {
-      data[action].items = data[action].items.map(i => {
-        if (categories.find(c => c.code === i.code)) {
+      data[action].items = data[action].items.map((i) => {
+        if (categories.find((c) => c.code === i.code)) {
           let temp = i;
           temp.syncStatus = true;
           return temp;
@@ -76,8 +78,8 @@ class InventoryCategoryContainer extends React.Component<FinalProps, State> {
           variables: {
             brandId,
             action: action,
-            categories: categories
-          }
+            categories: categories,
+          },
         })
         .then(() => {
           this.setState({ loading: false });
@@ -90,7 +92,7 @@ class InventoryCategoryContainer extends React.Component<FinalProps, State> {
 
           this.setState({ items: data });
         })
-        .catch(e => {
+        .catch((e) => {
           Alert.error(e.message);
           this.setState({ loading: false });
         });
@@ -100,7 +102,7 @@ class InventoryCategoryContainer extends React.Component<FinalProps, State> {
       this.setState({ loading: true });
       this.props
         .toMultiCheckCategories({ variables: { brandId } })
-        .then(response => {
+        .then((response) => {
           let data = response.data.toMultiCheckCategories;
 
           setSyncStatus(data, 'create');
@@ -110,7 +112,7 @@ class InventoryCategoryContainer extends React.Component<FinalProps, State> {
           this.setState({ items: response.data.toMultiCheckCategories });
           this.setState({ loading: false });
         })
-        .catch(e => {
+        .catch((e) => {
           Alert.error(e.message);
           this.setState({ loading: false });
         });
@@ -126,10 +128,12 @@ class InventoryCategoryContainer extends React.Component<FinalProps, State> {
       toCheckCategories,
       toSyncCategories,
       setBrand,
-      items
+      items,
     };
 
-    const content = props => <InventoryCategory {...props} {...updatedProps} />;
+    const content = (props) => (
+      <InventoryCategory {...props} {...updatedProps} />
+    );
 
     return <Bulk content={content} />;
   }
@@ -140,14 +144,14 @@ export default withProps<Props>(
     graphql<Props, ToCheckCategoriesMutationResponse, {}>(
       gql(mutations.toCheckCategories),
       {
-        name: 'toMultiCheckCategories'
-      }
+        name: 'toMultiCheckCategories',
+      },
     ),
     graphql<Props, ToSyncCategoriesMutationResponse, {}>(
       gql(mutations.toSyncCategories),
       {
-        name: 'toMultiSyncCategories'
-      }
-    )
-  )(withRouter<IRouterProps>(InventoryCategoryContainer))
+        name: 'toMultiSyncCategories',
+      },
+    ),
+  )(InventoryCategoryContainer),
 );

@@ -1,23 +1,25 @@
-import dayjs from 'dayjs';
-import client from '@erxes/ui/src/apolloClient';
-import { gql } from '@apollo/client';
-import EmptyState from '@erxes/ui/src/components/EmptyState';
-import Icon from '@erxes/ui/src/components/Icon';
-import { IRouterProps } from '@erxes/ui/src/types';
 import * as routerUtils from '@erxes/ui/src/utils/router';
-import { mutations } from '@erxes/ui-notifications/src/graphql';
-import React from 'react';
+
 import { Draggable, Droppable } from 'react-beautiful-dnd';
-import { withRouter } from 'react-router-dom';
+// import { withRouter } from 'react-router-dom';
 import {
   DropZone,
   EmptyContainer,
   ItemContainer,
   NotifiedContainer,
-  Wrapper
+  Wrapper,
 } from '../../styles/common';
 import { IItem, IOptions } from '../../types';
+
+import EmptyState from '@erxes/ui/src/components/EmptyState';
+import { IRouterProps } from '@erxes/ui/src/types';
+import Icon from '@erxes/ui/src/components/Icon';
 import Item from './Item';
+import React from 'react';
+import client from '@erxes/ui/src/apolloClient';
+import dayjs from 'dayjs';
+import { gql } from '@apollo/client';
+import { mutations } from '@erxes/ui-notifications/src/graphql';
 
 type Props = {
   listId: string;
@@ -53,7 +55,7 @@ class DraggableContainer extends React.Component<
 
     this.state = {
       isDragDisabled: Boolean(itemIdQueryParam),
-      hasNotified: props.item.hasNotified === false ? false : true
+      hasNotified: props.item.hasNotified === false ? false : true,
     };
   }
 
@@ -68,8 +70,8 @@ class DraggableContainer extends React.Component<
       client.mutate({
         mutation: gql(mutations.markAsRead),
         variables: {
-          contentTypeId: item._id
-        }
+          contentTypeId: item._id,
+        },
       });
     }
   };
@@ -138,9 +140,7 @@ class DraggableContainer extends React.Component<
   }
 }
 
-const DraggableContainerWithRouter = withRouter<DraggableContainerProps>(
-  DraggableContainer
-);
+const DraggableContainerWithRouter = DraggableContainer;
 
 class InnerItemList extends React.PureComponent<{
   stageId: string;
@@ -177,14 +177,8 @@ type InnerListProps = {
 
 class InnerList extends React.PureComponent<InnerListProps> {
   render() {
-    const {
-      stageId,
-      stageAge,
-      items,
-      dropProvided,
-      options,
-      onRemoveItem
-    } = this.props;
+    const { stageId, stageAge, items, dropProvided, options, onRemoveItem } =
+      this.props;
 
     if (items.length === 0) {
       return (
@@ -211,7 +205,7 @@ class InnerList extends React.PureComponent<InnerListProps> {
 
 export default class ItemList extends React.Component<Props> {
   static defaultProps = {
-    listId: 'LIST'
+    listId: 'LIST',
   };
 
   render() {
@@ -223,7 +217,7 @@ export default class ItemList extends React.Component<Props> {
       stageAge,
       items,
       options,
-      onRemoveItem
+      onRemoveItem,
     } = this.props;
 
     return (

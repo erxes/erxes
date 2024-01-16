@@ -1,24 +1,24 @@
+import { can, router } from '@erxes/ui/src/utils/core';
+
 import { BarItems } from '@erxes/ui/src/layout/styles';
+import CollateralRow from './CollateralRow';
+import { CollateralsTableWrapper } from '../styles';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import FormControl from '@erxes/ui/src/components/form/Control';
+import { ICollateral } from '../types';
+import { IRouterProps } from '@erxes/ui/src/types';
+import { IUser } from '@erxes/ui/src/auth/types';
 import Pagination from '@erxes/ui/src/components/pagination/Pagination';
+import React from 'react';
+import SelectProducts from '@erxes/ui-products/src/containers/SelectProducts';
+import Sidebar from './Sidebar';
 import SortHandler from '@erxes/ui/src/components/SortHandler';
 import Table from '@erxes/ui/src/components/table';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-
-import SelectProducts from '@erxes/ui-products/src/containers/SelectProducts';
-import { IRouterProps } from '@erxes/ui/src/types';
-import React from 'react';
-import { withRouter } from 'react-router-dom';
-import { menuContracts } from '../../constants';
-import { CollateralsTableWrapper } from '../styles';
-import { ICollateral } from '../types';
-import CollateralRow from './CollateralRow';
-import Sidebar from './Sidebar';
-import { can, router } from '@erxes/ui/src/utils/core';
-import withConsumer from '../../withConsumer';
-import { IUser } from '@erxes/ui/src/auth/types';
 import { __ } from 'coreui/utils';
+// import { withRouter } from 'react-router-dom';
+import { menuContracts } from '../../constants';
+import withConsumer from '../../withConsumer';
 
 interface IProps extends IRouterProps {
   collaterals: ICollateral[];
@@ -44,11 +44,11 @@ class CollateralsList extends React.Component<IProps, State> {
 
     this.state = {
       searchValue: this.props.searchValue,
-      productIds: this.props.productIds
+      productIds: this.props.productIds,
     };
   }
 
-  onSelectProducts = productIds => {
+  onSelectProducts = (productIds) => {
     const { history } = this.props;
 
     this.setState({ productIds });
@@ -56,7 +56,7 @@ class CollateralsList extends React.Component<IProps, State> {
     router.setParams(history, { productIds });
   };
 
-  search = e => {
+  search = (e) => {
     if (this.timer) {
       clearTimeout(this.timer);
     }
@@ -71,7 +71,7 @@ class CollateralsList extends React.Component<IProps, State> {
     }, 500);
   };
 
-  moveCursorAtTheEnd = e => {
+  moveCursorAtTheEnd = (e) => {
     const tmpValue = e.target.value;
     e.target.value = '';
     e.target.value = tmpValue;
@@ -84,7 +84,7 @@ class CollateralsList extends React.Component<IProps, State> {
       loading,
       totalCount,
       queryParams,
-      currentUser
+      currentUser,
     } = this.props;
 
     const mainContent = (
@@ -125,7 +125,7 @@ class CollateralsList extends React.Component<IProps, State> {
             </tr>
           </thead>
           <tbody id="collaterals">
-            {collaterals.map(collateral => (
+            {collaterals.map((collateral) => (
               <CollateralRow
                 collateral={collateral}
                 key={`${
@@ -167,8 +167,8 @@ class CollateralsList extends React.Component<IProps, State> {
         header={
           <Wrapper.Header
             title={__(`Collaterals`) + ` (${totalCount})`}
-            submenu={menuContracts.filter(row =>
-              can(row.permission, currentUser)
+            submenu={menuContracts.filter((row) =>
+              can(row.permission, currentUser),
             )}
           />
         }
@@ -196,4 +196,4 @@ class CollateralsList extends React.Component<IProps, State> {
   }
 }
 
-export default withRouter<IRouterProps>(withConsumer(CollateralsList));
+export default withConsumer(CollateralsList);

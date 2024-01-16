@@ -1,17 +1,19 @@
 import * as compose from 'lodash.flowright';
-import { gql } from '@apollo/client';
-import Summary from '../components/Summary';
-import queryString from 'query-string';
-import React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
-import { IRouterProps } from '@erxes/ui/src/types';
+
 import { ListQueryVariables, OrdersGroupSummaryQueryResponse } from '../types';
-import { queries } from '../graphql';
-import { withRouter } from 'react-router-dom';
-import { withProps, router, Spinner } from '@erxes/ui/src';
+// import { withRouter } from 'react-router-dom';
+import { Spinner, router, withProps } from '@erxes/ui/src';
+
 import { FILTER_PARAMS } from '../../constants';
 import { IQueryParams } from '@erxes/ui/src/types';
+import { IRouterProps } from '@erxes/ui/src/types';
+import React from 'react';
+import Summary from '../components/Summary';
 import { generateParams } from './List';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
+import { queries } from '../graphql';
+import queryString from 'query-string';
 
 type Props = {
   queryParams: any;
@@ -36,7 +38,7 @@ class OrdersContainer extends React.Component<FinalProps, State> {
     super(props);
 
     this.state = {
-      loading: false
+      loading: false,
     };
   }
 
@@ -109,7 +111,7 @@ class OrdersContainer extends React.Component<FinalProps, State> {
       onSelect: this.onSelect,
       onSearch: this.onSearch,
       isFiltered: this.isFiltered(),
-      clearFilter: this.clearFilter
+      clearFilter: this.clearFilter,
     };
 
     return <Summary {...updatedProps} />;
@@ -118,7 +120,7 @@ class OrdersContainer extends React.Component<FinalProps, State> {
 
 export const genParams = ({ queryParams }) => ({
   ...generateParams({ queryParams }),
-  groupField: queryParams.groupField
+  groupField: queryParams.groupField,
 });
 
 export default withProps<Props>(
@@ -131,8 +133,8 @@ export default withProps<Props>(
       name: 'ordersGroupSummaryQuery',
       options: ({ queryParams }) => ({
         variables: genParams({ queryParams }),
-        fetchPolicy: 'network-only'
-      })
-    })
-  )(withRouter<IRouterProps>(OrdersContainer))
+        fetchPolicy: 'network-only',
+      }),
+    }),
+  )(OrdersContainer),
 );

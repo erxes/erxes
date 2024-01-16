@@ -1,19 +1,20 @@
-import { Alert, Bulk, router, withProps } from '@erxes/ui/src';
-import { IRouterProps } from '@erxes/ui/src/types';
-import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
-import React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
-import { withRouter } from 'react-router-dom';
 
-import PeriodLocksList from '../components/PeriodLocksList';
-import { mutations, queries } from '../graphql';
+import { Alert, Bulk, router, withProps } from '@erxes/ui/src';
 import {
   ListQueryVariables,
   MainQueryResponse,
   RemoveMutationResponse,
-  RemoveMutationVariables
+  RemoveMutationVariables,
 } from '../types';
+import { mutations, queries } from '../graphql';
+
+import { IRouterProps } from '@erxes/ui/src/types';
+import PeriodLocksList from '../components/PeriodLocksList';
+import React from 'react';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
+// import { withRouter } from 'react-router-dom';
 
 type Props = {
   queryParams: any;
@@ -35,7 +36,7 @@ class PeriodLockListContainer extends React.Component<FinalProps, State> {
     super(props);
 
     this.state = {
-      loading: false
+      loading: false,
     };
   }
 
@@ -44,13 +45,13 @@ class PeriodLockListContainer extends React.Component<FinalProps, State> {
 
     const removePeriodLocks = ({ periodLockIds }, emptyBulk) => {
       periodLocksRemove({
-        variables: { periodLockIds }
+        variables: { periodLockIds },
       })
         .then(() => {
           emptyBulk();
           Alert.success('You successfully deleted a periodLock');
         })
-        .catch(e => {
+        .catch((e) => {
           Alert.error(e.message);
         });
     };
@@ -65,10 +66,10 @@ class PeriodLockListContainer extends React.Component<FinalProps, State> {
       searchValue,
       periodLocks: list,
       loading: periodLocksMainQuery.loading || this.state.loading,
-      removePeriodLocks
+      removePeriodLocks,
     };
 
-    const periodLocksList = props => {
+    const periodLocksList = (props) => {
       return <PeriodLocksList {...updatedProps} {...props} />;
     };
 
@@ -88,13 +89,13 @@ const generateParams = ({ queryParams }) => ({
     sortField: queryParams.sortField,
     sortDirection: queryParams.sortDirection
       ? parseInt(queryParams.sortDirection, 10)
-      : undefined
+      : undefined,
   },
-  fetchPolicy: 'network-only'
+  fetchPolicy: 'network-only',
 });
 
 const generateOptions = () => ({
-  refetchQueries: ['savingsPeriodLocksMain']
+  refetchQueries: ['savingsPeriodLocksMain'],
 });
 
 export default withProps<Props>(
@@ -103,16 +104,16 @@ export default withProps<Props>(
       gql(queries.periodLocksMain),
       {
         name: 'periodLocksMainQuery',
-        options: { ...generateParams }
-      }
+        options: { ...generateParams },
+      },
     ),
     // mutations
     graphql<{}, RemoveMutationResponse, RemoveMutationVariables>(
       gql(mutations.periodLocksRemove),
       {
         name: 'periodLocksRemove',
-        options: generateOptions
-      }
-    )
-  )(withRouter<IRouterProps>(PeriodLockListContainer))
+        options: generateOptions,
+      },
+    ),
+  )(PeriodLockListContainer),
 );

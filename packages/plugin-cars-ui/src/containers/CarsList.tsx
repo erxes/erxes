@@ -1,20 +1,22 @@
-import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
-import { Bulk, Alert, withProps, router } from '@erxes/ui/src';
-import React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
-import { withRouter } from 'react-router-dom';
-import { IRouterProps } from '@erxes/ui/src/types';
-import CarsList from '../components/list/CarsList';
-import { mutations, queries } from '../graphql';
+
+import { Alert, Bulk, router, withProps } from '@erxes/ui/src';
 import {
   ListQueryVariables,
   MainQueryResponse,
   MergeMutationResponse,
   MergeMutationVariables,
   RemoveMutationResponse,
-  RemoveMutationVariables
+  RemoveMutationVariables,
 } from '../types';
+import { mutations, queries } from '../graphql';
+
+import CarsList from '../components/list/CarsList';
+// import { withRouter } from 'react-router-dom';
+import { IRouterProps } from '@erxes/ui/src/types';
+import React from 'react';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
 
 type Props = {
   queryParams: any;
@@ -37,7 +39,7 @@ class CarListContainer extends React.Component<FinalProps, State> {
     super(props);
 
     this.state = {
-      loading: false
+      loading: false,
     };
   }
 
@@ -46,13 +48,13 @@ class CarListContainer extends React.Component<FinalProps, State> {
 
     const removeCars = ({ carIds }, emptyBulk) => {
       carsRemove({
-        variables: { carIds }
+        variables: { carIds },
       })
         .then(() => {
           emptyBulk();
           Alert.success('You successfully deleted a car');
         })
-        .catch(e => {
+        .catch((e) => {
           Alert.error(e.message);
         });
     };
@@ -61,17 +63,17 @@ class CarListContainer extends React.Component<FinalProps, State> {
       carsMerge({
         variables: {
           carIds: ids,
-          carFields: data
-        }
+          carFields: data,
+        },
       })
-        .then(response => {
+        .then((response) => {
           Alert.success('You successfully merged cars');
           callback();
           history.push(
-            `/erxes-plugin-car/details/${response.data.carsMerge._id}`
+            `/erxes-plugin-car/details/${response.data.carsMerge._id}`,
           );
         })
-        .catch(e => {
+        .catch((e) => {
           Alert.error(e.message);
         });
     };
@@ -86,10 +88,10 @@ class CarListContainer extends React.Component<FinalProps, State> {
       cars: list,
       loading: carsMainQuery.loading || this.state.loading,
       removeCars,
-      mergeCars
+      mergeCars,
     };
 
-    const carsList = props => {
+    const carsList = (props) => {
       return <CarsList {...updatedProps} {...props} />;
     };
 
@@ -113,9 +115,9 @@ const generateParams = ({ queryParams }) => ({
     sortField: queryParams.sortField,
     sortDirection: queryParams.sortDirection
       ? parseInt(queryParams.sortDirection, 10)
-      : undefined
+      : undefined,
   },
-  fetchPolicy: 'network-only'
+  fetchPolicy: 'network-only',
 });
 
 const generateOptions = () => ({
@@ -123,8 +125,8 @@ const generateOptions = () => ({
     'carsMain',
     'carCounts',
     'carCategories',
-    'carCategoriesTotalCount'
-  ]
+    'carCategoriesTotalCount',
+  ],
 });
 
 export default withProps<Props>(
@@ -133,23 +135,23 @@ export default withProps<Props>(
       gql(queries.carsMain),
       {
         name: 'carsMainQuery',
-        options: generateParams
-      }
+        options: generateParams,
+      },
     ),
     // mutations
     graphql<{}, RemoveMutationResponse, RemoveMutationVariables>(
       gql(mutations.carsRemove),
       {
         name: 'carsRemove',
-        options: generateOptions
-      }
+        options: generateOptions,
+      },
     ),
     graphql<{}, MergeMutationResponse, MergeMutationVariables>(
       gql(mutations.carsMerge),
       {
         name: 'carsMerge',
-        options: generateOptions
-      }
-    )
-  )(withRouter<IRouterProps>(CarListContainer))
+        options: generateOptions,
+      },
+    ),
+  )(CarListContainer),
 );

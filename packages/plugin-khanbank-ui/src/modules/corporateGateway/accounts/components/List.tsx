@@ -1,12 +1,14 @@
-import { Description, SidebarListItem } from '@erxes/ui-settings/src/styles';
-import { FieldStyle } from '@erxes/ui/src/layout/styles';
-import { IRouterProps } from '@erxes/ui/src/types';
 import * as routerUtils from '@erxes/ui/src/utils/router';
-import WithPermission from 'coreui/withPermission';
-import React from 'react';
-import { Link, withRouter } from 'react-router-dom';
 
+import { Description, SidebarListItem } from '@erxes/ui-settings/src/styles';
+
+import { FieldStyle } from '@erxes/ui/src/layout/styles';
+// import { withRouter } from 'react-router-dom';
 import { IKhanbankAccount } from '../types';
+import { IRouterProps } from '@erxes/ui/src/types';
+import { Link } from 'react-router-dom';
+import React from 'react';
+import WithPermission from 'coreui/withPermission';
 
 type Props = {
   queryParams: any;
@@ -17,14 +19,14 @@ type Props = {
 const List = (props: any) => {
   const { queryParams, accounts, history } = props;
 
-  const onClickRow = e => {
+  const onClickRow = (e) => {
     routerUtils.setParams(history, {
       _id: props.configId,
-      account: e.currentTarget.id
+      account: e.currentTarget.id,
     });
   };
 
-  return (accounts || []).map(account => (
+  return (accounts || []).map((account) => (
     <>
       <WithPermission action="khanbankAccounts">
         <SidebarListItem
@@ -45,4 +47,4 @@ const List = (props: any) => {
   ));
 };
 
-export default withRouter<Props>(List);
+export default List;

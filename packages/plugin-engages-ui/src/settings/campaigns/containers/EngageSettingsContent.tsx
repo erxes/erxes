@@ -1,22 +1,23 @@
-import React from 'react';
-import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
-import { graphql } from '@apollo/client/react/hoc';
-import { withRouter } from 'react-router-dom';
 
-import Spinner from '@erxes/ui/src/components/Spinner';
-import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
-import { IButtonMutateProps, IRouterProps } from '@erxes/ui/src/types';
-import { __, Alert, confirm, withProps } from '@erxes/ui/src/utils';
-import {
-  mutations as engageMutations,
-  queries as engageQueries
-} from '@erxes/ui-engage/src/graphql';
+import { Alert, __, confirm, withProps } from '@erxes/ui/src/utils';
 import {
   EngageConfigQueryResponse,
-  EngageVerifiedEmailsQueryResponse
+  EngageVerifiedEmailsQueryResponse,
 } from '@erxes/ui-engage/src/types';
+import { IButtonMutateProps, IRouterProps } from '@erxes/ui/src/types';
+import {
+  mutations as engageMutations,
+  queries as engageQueries,
+} from '@erxes/ui-engage/src/graphql';
+
+import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import EngageSettingsContent from '../components/EngageSettingsContent';
+import React from 'react';
+import Spinner from '@erxes/ui/src/components/Spinner';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
+// import { withRouter } from 'react-router-dom';
 
 type Props = {
   engagesConfigDetailQuery: EngageConfigQueryResponse;
@@ -33,7 +34,7 @@ class SettingsContainer extends React.Component<Props> {
       engagesVerifiedEmailsQuery,
       engagesVerifyEmailMutation,
       engagesRemoveVerifiedEmailMutation,
-      engagesSendTestEmailMutation
+      engagesSendTestEmailMutation,
     } = this.props;
 
     if (engagesConfigDetailQuery.loading) {
@@ -61,36 +62,36 @@ class SettingsContainer extends React.Component<Props> {
     const verifyEmail = (email: string) => {
       engagesVerifyEmailMutation({
         variables: {
-          email
-        }
+          email,
+        },
       })
         .then(() => {
           engagesVerifiedEmailsQuery.refetch();
           Alert.success(
-            'Successfully sent verification email. Please check your inbox'
+            'Successfully sent verification email. Please check your inbox',
           );
         })
 
-        .catch(e => {
+        .catch((e) => {
           Alert.error(e.message);
         });
     };
 
     const removeVerifiedEmail = (email: string) => {
       confirm(
-        __('You are about to remove verified email. Are your sure?')
+        __('You are about to remove verified email. Are your sure?'),
       ).then(() => {
         engagesRemoveVerifiedEmailMutation({
           variables: {
-            email
-          }
+            email,
+          },
         })
           .then(() => {
             engagesVerifiedEmailsQuery.refetch();
             Alert.success('Successfully removed');
           })
 
-          .catch(e => {
+          .catch((e) => {
             Alert.error(e.message);
           });
       });
@@ -102,14 +103,14 @@ class SettingsContainer extends React.Component<Props> {
           from,
           to,
           content,
-          title: 'This is a test'
-        }
+          title: 'This is a test',
+        },
       })
         .then(() => {
           Alert.success('Successfully sent');
         })
 
-        .catch(e => {
+        .catch((e) => {
           Alert.error(e.message);
         });
     };
@@ -140,23 +141,23 @@ export default withProps<{}>(
     graphql<{}, EngageVerifiedEmailsQueryResponse, {}>(
       gql(engageQueries.verifiedEmails),
       {
-        name: 'engagesVerifiedEmailsQuery'
-      }
+        name: 'engagesVerifiedEmailsQuery',
+      },
     ),
     graphql<{}, EngageConfigQueryResponse, {}>(
       gql(engageQueries.engagesConfigDetail),
       {
-        name: 'engagesConfigDetailQuery'
-      }
+        name: 'engagesConfigDetailQuery',
+      },
     ),
     graphql(gql(engageMutations.verifyEmail), {
-      name: 'engagesVerifyEmailMutation'
+      name: 'engagesVerifyEmailMutation',
     }),
     graphql(gql(engageMutations.removeVerifiedEmail), {
-      name: 'engagesRemoveVerifiedEmailMutation'
+      name: 'engagesRemoveVerifiedEmailMutation',
     }),
     graphql(gql(engageMutations.sendTestEmail), {
-      name: 'engagesSendTestEmailMutation'
-    })
-  )(withRouter<Props>(SettingsContainer))
+      name: 'engagesSendTestEmailMutation',
+    }),
+  )(SettingsContainer),
 );

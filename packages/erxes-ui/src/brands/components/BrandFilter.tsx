@@ -1,11 +1,12 @@
+import { FieldStyle, SidebarCounter, SidebarList } from '../../layout/styles';
+import { __, router } from '../../utils';
+
 import Box from '../../components/Box';
 import DataWithLoader from '../../components/DataWithLoader';
-import { IRouterProps } from '../../types';
-import { __, router } from '../../utils';
-import { FieldStyle, SidebarCounter, SidebarList } from '../../layout/styles';
 import { IBrand } from '../../brands/types';
+import { IRouterProps } from '../../types';
 import React from 'react';
-import { withRouter } from 'react-router-dom';
+// import { withRouter } from 'react-router-dom';
 
 interface IProps extends IRouterProps {
   counts: { [key: string]: number };
@@ -17,7 +18,7 @@ interface IProps extends IRouterProps {
 function Brands({ history, counts, brands, loading, emptyText }: IProps) {
   const data = (
     <SidebarList>
-      {brands.map(brand => {
+      {brands.map((brand) => {
         const onClick = () => {
           router.setParams(history, { brand: brand._id });
           router.removeParams(history, 'page');
@@ -62,4 +63,4 @@ function Brands({ history, counts, brands, loading, emptyText }: IProps) {
   );
 }
 
-export default withRouter<IProps>(Brands);
+export default Brands;

@@ -1,8 +1,8 @@
 import Button from './Button';
 import { IRouterProps } from '../types';
-import { router } from '../utils/core';
 import React from 'react';
-import { withRouter } from 'react-router-dom';
+import { router } from '../utils/core';
+// import { withRouter } from 'react-router-dom';
 
 interface IProps extends IRouterProps {
   perPage?: number;
@@ -16,7 +16,7 @@ function LoadMore({
   perPage = 20,
   all,
   paramName = 'limit',
-  loading
+  loading,
 }: IProps) {
   const loaded = parseInt(router.getParam(history, paramName), 10) || perPage;
 
@@ -37,4 +37,4 @@ function LoadMore({
   ) : null;
 }
 
-export default withRouter<IProps>(LoadMore);
+export default LoadMore;

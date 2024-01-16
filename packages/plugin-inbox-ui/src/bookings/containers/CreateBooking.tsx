@@ -2,7 +2,7 @@ import * as compose from 'lodash.flowright';
 
 import {
   AddBookingIntegrationMutationResponse,
-  AddBookingIntegrationMutationVariables
+  AddBookingIntegrationMutationVariables,
 } from '../types';
 
 import { Alert } from '@erxes/ui/src/utils';
@@ -20,7 +20,8 @@ import { isEnabled } from '@erxes/ui/src/utils/core';
 import { mutations } from '../graphql';
 import { queries } from '../graphql';
 import { queries as settingsQueries } from '@erxes/ui-settings/src/general/graphql';
-import { withRouter } from 'react-router-dom';
+
+// import { withRouter } from 'react-router-dom';
 
 type Props = {
   history: any;
@@ -54,7 +55,7 @@ class CreateBookingContainer extends React.Component<FinalProps, State> {
 
     this.state = {
       loading: false,
-      isReadyToSaveForm: false
+      isReadyToSaveForm: false,
     };
   }
 
@@ -64,7 +65,7 @@ class CreateBookingContainer extends React.Component<FinalProps, State> {
       history,
       emailTemplatesQuery,
       fieldsQuery,
-      configsQuery
+      configsQuery,
     } = this.props;
 
     const afterFormDbSave = (id: string) => {
@@ -74,15 +75,15 @@ class CreateBookingContainer extends React.Component<FinalProps, State> {
         addIntegrationMutation({
           variables: {
             ...this.state.doc,
-            formId: id
-          }
+            formId: id,
+          },
         })
           .then(() => {
             Alert.success('You successfully added a booking');
             history.push('/bookings');
           })
 
-          .catch(error => {
+          .catch((error) => {
             Alert.error(error.message);
           })
           .finally(() => {
@@ -91,7 +92,7 @@ class CreateBookingContainer extends React.Component<FinalProps, State> {
       }
     };
 
-    const save = doc => {
+    const save = (doc) => {
       this.setState({ loading: false, isReadyToSaveForm: true, doc });
     };
 
@@ -105,7 +106,7 @@ class CreateBookingContainer extends React.Component<FinalProps, State> {
         ? emailTemplatesQuery.emailTemplates || []
         : [],
       productFields: fieldsQuery.fields || [],
-      configs: configsQuery.configs || []
+      configs: configsQuery.configs || [],
     };
     return <Booking {...updatedProps} />;
   }
@@ -114,23 +115,23 @@ class CreateBookingContainer extends React.Component<FinalProps, State> {
 export default compose(
   graphql(gql(queries.templateTotalCount), {
     name: 'emailTemplatesTotalCountQuery',
-    skip: !isEnabled('engages') ? true : false
+    skip: !isEnabled('engages') ? true : false,
   }),
   graphql<FinalProps>(gql(queries.emailTemplates), {
     name: 'emailTemplatesQuery',
     options: ({ emailTemplatesTotalCountQuery }) => ({
       variables: {
-        perPage: emailTemplatesTotalCountQuery.emailTemplatesTotalCount
-      }
+        perPage: emailTemplatesTotalCountQuery.emailTemplatesTotalCount,
+      },
     }),
-    skip: !isEnabled('engages') ? true : false
+    skip: !isEnabled('engages') ? true : false,
   }),
   graphql<
     {},
     AddBookingIntegrationMutationResponse,
     AddBookingIntegrationMutationVariables
   >(gql(mutations.integrationsCreateBooking), {
-    name: 'addIntegrationMutation'
+    name: 'addIntegrationMutation',
   }),
   graphql<{}, FieldsQueryResponse, { contentType: string }>(
     gql(queries.fields),
@@ -138,12 +139,12 @@ export default compose(
       name: 'fieldsQuery',
       options: () => ({
         variables: {
-          contentType: FIELDS_GROUPS_CONTENT_TYPES.PRODUCT
-        }
-      })
-    }
+          contentType: FIELDS_GROUPS_CONTENT_TYPES.PRODUCT,
+        },
+      }),
+    },
   ),
   graphql<{}, ConfigsQueryResponse>(gql(settingsQueries.configs), {
-    name: 'configsQuery'
-  })
-)(withRouter<FinalProps>(CreateBookingContainer));
+    name: 'configsQuery',
+  }),
+)(CreateBookingContainer);

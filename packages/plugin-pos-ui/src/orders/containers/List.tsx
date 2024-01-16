@@ -1,21 +1,23 @@
 import * as compose from 'lodash.flowright';
-import { gql } from '@apollo/client';
-import List from '../components/List';
-import queryString from 'query-string';
-import React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
-import { IRouterProps } from '@erxes/ui/src/types';
+
+// import { withRouter } from 'react-router-dom';
+import { Alert, Bulk, Spinner, router, withProps } from '@erxes/ui/src';
 import {
   ListQueryVariables,
   OrdersQueryResponse,
   OrdersSummaryQueryResponse,
-  PosOrderReturnBillMutationResponse
+  PosOrderReturnBillMutationResponse,
 } from '../types';
 import { mutations, queries } from '../graphql';
-import { withRouter } from 'react-router-dom';
-import { Bulk, withProps, router, Alert, Spinner } from '@erxes/ui/src';
+
 import { FILTER_PARAMS } from '../../constants';
 import { IQueryParams } from '@erxes/ui/src/types';
+import { IRouterProps } from '@erxes/ui/src/types';
+import List from '../components/List';
+import React from 'react';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
+import queryString from 'query-string';
 
 type Props = {
   queryParams: any;
@@ -42,7 +44,7 @@ class OrdersContainer extends React.Component<FinalProps, State> {
     super(props);
 
     this.state = {
-      loading: false
+      loading: false,
     };
   }
 
@@ -98,11 +100,11 @@ class OrdersContainer extends React.Component<FinalProps, State> {
     router.removeParams(this.props.history, ...Object.keys(params));
   };
 
-  onReturnBill = posId => {
+  onReturnBill = (posId) => {
     const { posOrderReturnBill, ordersQuery } = this.props;
 
     posOrderReturnBill({
-      variables: { _id: posId }
+      variables: { _id: posId },
     })
       .then(() => {
         // refresh queries
@@ -110,7 +112,7 @@ class OrdersContainer extends React.Component<FinalProps, State> {
 
         Alert.success('You successfully synced erkhet.');
       })
-      .catch(e => {
+      .catch((e) => {
         Alert.error(e.message);
       });
   };
@@ -136,10 +138,10 @@ class OrdersContainer extends React.Component<FinalProps, State> {
       onSearch: this.onSearch,
       isFiltered: this.isFiltered(),
       clearFilter: this.clearFilter,
-      onReturnBill: this.onReturnBill
+      onReturnBill: this.onReturnBill,
     };
 
-    const ordersList = props => {
+    const ordersList = (props) => {
       return <List {...updatedProps} {...props} />;
     };
 
@@ -170,7 +172,7 @@ export const generateParams = ({ queryParams }) => ({
   types: queryParams.types && queryParams.types.split(','),
   statuses: queryParams.statuses && queryParams.statuses.split(','),
   excludeStatuses:
-    queryParams.excludeStatuses && queryParams.excludeStatuses.split(',')
+    queryParams.excludeStatuses && queryParams.excludeStatuses.split(','),
 });
 
 export default withProps<Props>(
@@ -181,9 +183,9 @@ export default withProps<Props>(
         name: 'ordersQuery',
         options: ({ queryParams }) => ({
           variables: generateParams({ queryParams }),
-          fetchPolicy: 'network-only'
-        })
-      }
+          fetchPolicy: 'network-only',
+        }),
+      },
     ),
     graphql<
       { queryParams: any },
@@ -193,14 +195,14 @@ export default withProps<Props>(
       name: 'ordersSummaryQuery',
       options: ({ queryParams }) => ({
         variables: generateParams({ queryParams }),
-        fetchPolicy: 'network-only'
-      })
+        fetchPolicy: 'network-only',
+      }),
     }),
     graphql<Props, PosOrderReturnBillMutationResponse, { _id: string }>(
       gql(mutations.posOrderReturnBill),
       {
-        name: 'posOrderReturnBill'
-      }
-    )
-  )(withRouter<IRouterProps>(OrdersContainer))
+        name: 'posOrderReturnBill',
+      },
+    ),
+  )(OrdersContainer),
 );

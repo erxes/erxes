@@ -16,7 +16,8 @@ import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
 import { SidebarItem } from '../../styles';
 import Tip from '@erxes/ui/src/components/Tip';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { withRouter } from 'react-router-dom';
+
+// import { withRouter } from 'react-router-dom';
 
 const { Section } = Wrapper.Sidebar;
 
@@ -37,7 +38,7 @@ class GroupList extends React.Component<IProps> {
   }
 
   renderFormTrigger(trigger: React.ReactNode, object?: IUserGroupDocument) {
-    const content = props => <GroupForm {...props} group={object} />;
+    const content = (props) => <GroupForm {...props} group={object} />;
 
     return (
       <ModalTrigger title="New Group" trigger={trigger} content={content} />
@@ -76,7 +77,7 @@ class GroupList extends React.Component<IProps> {
   }
 
   renderObjects(objects: IUserGroupDocument[]) {
-    return objects.map(object => (
+    return objects.map((object) => (
       <SidebarItem key={object._id} isActive={this.isActive(object._id)}>
         <Link to={`?groupId=${object._id}`}>
           <FieldStyle>{object.name}</FieldStyle>
@@ -137,4 +138,4 @@ class GroupList extends React.Component<IProps> {
   }
 }
 
-export default withRouter<IProps>(GroupList);
+export default GroupList;

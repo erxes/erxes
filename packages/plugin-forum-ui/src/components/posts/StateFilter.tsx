@@ -1,10 +1,11 @@
+import { FieldStyle, SidebarList } from '@erxes/ui/src/layout/styles';
+import { __, router } from '@erxes/ui/src/utils';
+
 import Box from '@erxes/ui/src/components/Box';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import { IRouterProps } from '@erxes/ui/src/types';
-import { __, router } from '@erxes/ui/src/utils';
-import { FieldStyle, SidebarList } from '@erxes/ui/src/layout/styles';
 import React from 'react';
-import { withRouter } from 'react-router-dom';
+// import { withRouter } from 'react-router-dom';
 import { stateFilters } from '../../constants';
 
 interface IProps extends IRouterProps {
@@ -57,4 +58,4 @@ function StateFilter({ history, emptyText }: IProps) {
   );
 }
 
-export default withRouter<IProps>(StateFilter);
+export default StateFilter;

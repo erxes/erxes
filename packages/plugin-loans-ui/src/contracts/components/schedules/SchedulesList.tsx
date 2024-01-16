@@ -1,15 +1,14 @@
-import Spinner from '@erxes/ui/src/components/Spinner';
-import Table from '@erxes/ui/src/components/table';
-import Button from '@erxes/ui/src/components/Button';
+import { ISchedule, IScheduleYear } from '../../types';
 
-import { __ } from 'coreui/utils';
+import Button from '@erxes/ui/src/components/Button';
 import { IRouterProps } from '@erxes/ui/src/types';
 import React from 'react';
-import { withRouter } from 'react-router-dom';
-import { ScheduleYears } from '../../styles';
-
-import { ISchedule, IScheduleYear } from '../../types';
 import ScheduleRow from './ScheduleRow';
+// import { withRouter } from 'react-router-dom';
+import { ScheduleYears } from '../../styles';
+import Spinner from '@erxes/ui/src/components/Spinner';
+import Table from '@erxes/ui/src/components/table';
+import { __ } from 'coreui/utils';
 
 interface IProps extends IRouterProps {
   contractId: string;
@@ -30,7 +29,7 @@ class SchedulesList extends React.Component<IProps> {
 
   renderYear() {
     const { scheduleYears, onClickYear } = this.props;
-    return scheduleYears.map(item => {
+    return scheduleYears.map((item) => {
       return (
         <Button key={item.year} onClick={() => onClickYear(item.year)}>
           {item.year}
@@ -63,7 +62,7 @@ class SchedulesList extends React.Component<IProps> {
             </tr>
           </thead>
           <tbody id="schedules">
-            {schedules.map(schedule => (
+            {schedules.map((schedule) => (
               <ScheduleRow
                 schedule={schedule}
                 key={schedule._id}
@@ -77,4 +76,4 @@ class SchedulesList extends React.Component<IProps> {
   }
 }
 
-export default withRouter<IRouterProps>(SchedulesList);
+export default SchedulesList;

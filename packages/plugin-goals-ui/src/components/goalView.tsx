@@ -1,13 +1,15 @@
-import { BoardHeader } from '@erxes/ui-cards/src/settings/boards/styles';
 import { ControlLabel, FormGroup } from '@erxes/ui/src';
-import { IUser, UsersQueryResponse } from '@erxes/ui/src/auth/types';
-import Table from '@erxes/ui/src/components/table';
 import { FlexContent, FlexItem } from '@erxes/ui/src/layout/styles';
+import { IUser, UsersQueryResponse } from '@erxes/ui/src/auth/types';
+
+import { BoardHeader } from '@erxes/ui-cards/src/settings/boards/styles';
+// import {withRouter } from 'react-router-dom';
+import { IGoalType } from '../types';
+import React from 'react';
+import { RouteComponentProps } from 'react-router-dom';
+import Table from '@erxes/ui/src/components/table';
 import { __ } from 'coreui/utils';
 import dayjs from 'dayjs';
-import React from 'react';
-import { RouteComponentProps, withRouter } from 'react-router-dom';
-import { IGoalType } from '../types';
 
 interface IProps extends RouteComponentProps {
   goalType: IGoalType; // Adjust the type of goalTypes as per your
@@ -133,7 +135,7 @@ class GoalView extends React.Component<IProps> {
                       ' progressed: ' +
                       pipelineName +
                       ', ' +
-                      stageName
+                      stageName,
                   )}
                 </ControlLabel>
               </FormGroup>
@@ -203,4 +205,4 @@ class GoalView extends React.Component<IProps> {
   }
 }
 
-export default withRouter(GoalView);
+export default GoalView;

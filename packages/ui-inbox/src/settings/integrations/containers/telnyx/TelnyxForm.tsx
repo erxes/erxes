@@ -6,7 +6,8 @@ import React from 'react';
 import TelnyxForm from '../../components/telnyx/TelnyxForm';
 import { getRefetchQueries } from '../utils';
 import { mutations } from '../../graphql';
-import { withRouter } from 'react-router-dom';
+
+// import { withRouter } from 'react-router-dom';
 
 type Props = {
   type?: string;
@@ -20,7 +21,7 @@ class TelnyxContainer extends React.Component<FinalProps> {
     name,
     values,
     isSubmitted,
-    callback
+    callback,
   }: IButtonMutateProps) => {
     return (
       <ButtonMutate
@@ -39,11 +40,11 @@ class TelnyxContainer extends React.Component<FinalProps> {
     const { closeModal } = this.props;
     const updatedProps = {
       closeModal,
-      renderButton: this.renderButton
+      renderButton: this.renderButton,
     };
 
     return <TelnyxForm {...updatedProps} />;
   }
 }
 
-export default withRouter<FinalProps>(TelnyxContainer);
+export default TelnyxContainer;

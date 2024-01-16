@@ -1,25 +1,24 @@
-import React, { useState } from 'react';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-
-import { ModalFooter } from '@erxes/ui/src/styles/main';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import { IRouterProps } from '@erxes/ui/src/types';
-import { withRouter } from 'react-router-dom';
-
-import Button from '@erxes/ui/src/components/Button';
-import styled from 'styled-components';
-import { colors, dimensions } from '@erxes/ui/src/styles';
 import * as routerUtils from '@erxes/ui/src/utils/router';
-import RTG from 'react-transition-group';
 
-import client from '@erxes/ui/src/apolloClient';
-import { gql } from '@apollo/client';
+import React, { useState } from 'react';
+import { colors, dimensions } from '@erxes/ui/src/styles';
 import { mutations, queries } from '../../graphql';
 
-import SegmentsForm from '../../containers/form/SegmentsForm';
 import { Alert } from '@erxes/ui/src/utils';
+import Button from '@erxes/ui/src/components/Button';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import { IRouterProps } from '@erxes/ui/src/types';
+import { ModalFooter } from '@erxes/ui/src/styles/main';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import RTG from 'react-transition-group';
+import SegmentsForm from '../../containers/form/SegmentsForm';
+import client from '@erxes/ui/src/apolloClient';
+import { gql } from '@apollo/client';
+import styled from 'styled-components';
+
+// import { withRouter } from 'react-router-dom';
 
 export const RightMenuContainer = styled.div`
   position: fixed;
@@ -33,7 +32,8 @@ export const RightMenuContainer = styled.div`
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 12px 24px -6px rgba(9, 30, 66, 0.25),
+  box-shadow:
+    0 12px 24px -6px rgba(9, 30, 66, 0.25),
     0 0 0 1px rgba(9, 30, 66, 0.08);
 `;
 
@@ -72,11 +72,11 @@ function TemporarySegment({ history, contentType, btnSize, afterSave }: Props) {
         refetchQueries: [
           {
             query: gql(queries.segments),
-            variables: { contentTypes: [contentType] }
-          }
-        ]
+            variables: { contentTypes: [contentType] },
+          },
+        ],
       })
-      .then(response => {
+      .then((response) => {
         Alert.success('Successfully added a segment');
         afterSave?.(response);
         toggleDrawer();
@@ -91,7 +91,7 @@ function TemporarySegment({ history, contentType, btnSize, afterSave }: Props) {
       </Button>
     );
 
-    const modalContent = props => (
+    const modalContent = (props) => (
       <>
         <form>
           <FormGroup>
@@ -99,7 +99,7 @@ function TemporarySegment({ history, contentType, btnSize, afterSave }: Props) {
             <FormControl
               required={true}
               autoFocus={true}
-              onChange={e =>
+              onChange={(e) =>
                 setName((e.currentTarget as HTMLInputElement).value)
               }
             />
@@ -122,7 +122,7 @@ function TemporarySegment({ history, contentType, btnSize, afterSave }: Props) {
               onClick={() => {
                 save({
                   values: { ...doc, name },
-                  closeModal: props.closeModal
+                  closeModal: props.closeModal,
                 });
               }}
               icon="check-circle"
@@ -151,13 +151,13 @@ function TemporarySegment({ history, contentType, btnSize, afterSave }: Props) {
           onClick={() => {
             const data = {
               ...values,
-              conditions: values.conditionSegments[0].conditions
+              conditions: values.conditionSegments[0].conditions,
             };
 
             delete data.conditionSegments;
 
             routerUtils.setParams(history, {
-              segmentData: JSON.stringify(data)
+              segmentData: JSON.stringify(data),
             });
           }}
           icon="filter"
@@ -208,4 +208,4 @@ function TemporarySegment({ history, contentType, btnSize, afterSave }: Props) {
   );
 }
 
-export default withRouter<Props>(TemporarySegment);
+export default TemporarySegment;

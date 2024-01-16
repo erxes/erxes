@@ -1,15 +1,17 @@
+import * as compose from 'lodash.flowright';
+
+import { Alert, __, confirm, withProps } from '@erxes/ui/src/utils';
+import { ReportsListQueryResponse, ReportsMutationResponse } from '../types';
+import { mutations, queries } from '../graphql';
+
+// import { withRouter } from 'react-router-dom';
+import { IRouterProps } from '@erxes/ui/src/types';
+import List from '../components/List';
 import React from 'react';
+import Spinner from '@erxes/ui/src/components/Spinner';
+import { generatePaginationParams } from '@erxes/ui/src/utils/router';
 import { gql } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
-import { withRouter } from 'react-router-dom';
-import { IRouterProps } from '@erxes/ui/src/types';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import { Alert, __, confirm, withProps } from '@erxes/ui/src/utils';
-import * as compose from 'lodash.flowright';
-import List from '../components/List';
-import { mutations, queries } from '../graphql';
-import { ReportsListQueryResponse, ReportsMutationResponse } from '../types';
-import { generatePaginationParams } from '@erxes/ui/src/utils/router';
 
 type Props = {
   history: any;
@@ -25,22 +27,18 @@ type FinalProps = {
   IRouterProps &
   ReportsMutationResponse;
 
-const generateParams = queryParams => {
+const generateParams = (queryParams) => {
   return {
     ...generatePaginationParams(queryParams),
     searchValue: queryParams.searchValue,
     tag: queryParams.tag,
-    departmentId: queryParams.departmentId
+    departmentId: queryParams.departmentId,
   };
 };
 
 const ListContainer = (props: FinalProps) => {
-  const {
-    reportsListQuery,
-    history,
-    typeId,
-    reportsRemoveManyMutation
-  } = props;
+  const { reportsListQuery, history, typeId, reportsRemoveManyMutation } =
+    props;
 
   if (reportsListQuery.loading) {
     return <Spinner />;
@@ -67,7 +65,7 @@ const ListContainer = (props: FinalProps) => {
     totalCount,
     reports: list,
     loading: reportsListQuery.loading,
-    removeReports
+    removeReports,
   };
 
   return <List {...updatedProps} />;
@@ -81,9 +79,9 @@ export default withProps<Props>(
         name: 'reportsListQuery',
         options: ({ queryParams }) => ({
           variables: generateParams(queryParams),
-          fetchPolicy: 'network-only'
-        })
-      }
+          fetchPolicy: 'network-only',
+        }),
+      },
     ),
     graphql<Props, ReportsListQueryResponse, { ids?: string[] }>(
       gql(mutations.reportsRemoveMany),
@@ -92,9 +90,9 @@ export default withProps<Props>(
         options: ({ ids }) => ({
           variables: { ids },
           fetchPolicy: 'network-only',
-          refetchQueries: ['reportsList']
-        })
-      }
-    )
-  )(withRouter<IRouterProps>(ListContainer))
+          refetchQueries: ['reportsList'],
+        }),
+      },
+    ),
+  )(ListContainer),
 );

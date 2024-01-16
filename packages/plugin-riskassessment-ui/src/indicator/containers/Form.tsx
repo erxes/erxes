@@ -1,14 +1,16 @@
-import { gql } from '@apollo/client';
-import { graphql } from '@apollo/client/react/hoc';
+import * as compose from 'lodash.flowright';
+
 import { Alert, ButtonMutate, Spinner } from '@erxes/ui/src';
 import { IButtonMutateProps, IRouterProps } from '@erxes/ui/src/types';
-import { withProps } from '@erxes/ui/src/utils/core';
-import * as compose from 'lodash.flowright';
-import React from 'react';
-import { withRouter } from 'react-router-dom';
-import { refetchQueries } from '../common/utils';
-import FormCompnent from '../components/Form';
 import { mutations, queries } from '../graphql';
+
+import FormCompnent from '../components/Form';
+import React from 'react';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
+// import { withRouter } from 'react-router-dom';
+import { refetchQueries } from '../common/utils';
+import { withProps } from '@erxes/ui/src/utils/core';
 
 type Props = {
   _id?: string;
@@ -27,12 +29,8 @@ class FormContainer extends React.Component<FinalProps> {
   }
 
   render() {
-    const {
-      indicatorDetail,
-      queryParams,
-      history,
-      duplicateMutation
-    } = this.props;
+    const { indicatorDetail, queryParams, history, duplicateMutation } =
+      this.props;
     if (indicatorDetail?.loading) {
       return <Spinner />;
     }
@@ -43,7 +41,7 @@ class FormContainer extends React.Component<FinalProps> {
       isSubmitted,
       confirmationUpdate,
       object,
-      callback
+      callback,
     }: IButtonMutateProps) => {
       let mutation = mutations.riskIndicatorAdd;
       let successAction = 'added';
@@ -61,7 +59,7 @@ class FormContainer extends React.Component<FinalProps> {
           const newIndicator = addRiskIndicator || {};
           newIndicator &&
             history.push(
-              `/settings/risk-indicators/detail/${newIndicator._id}`
+              `/settings/risk-indicators/detail/${newIndicator._id}`,
             );
         }
       };
@@ -80,16 +78,16 @@ class FormContainer extends React.Component<FinalProps> {
       );
     };
 
-    const duplicatIndicator = _id => {
+    const duplicatIndicator = (_id) => {
       duplicateMutation({ variables: { _id } })
         .then(({ data }) => {
           const duplicatedIndicator = data?.duplicateRiskIndicator || {};
           duplicatedIndicator &&
             history.push(
-              `/settings/risk-indicators/detail/${duplicatedIndicator._id}`
+              `/settings/risk-indicators/detail/${duplicatedIndicator._id}`,
             );
         })
-        .catch(e => {
+        .catch((e) => {
           Alert.error(e.message);
         });
     };
@@ -97,7 +95,7 @@ class FormContainer extends React.Component<FinalProps> {
       ...this.props,
       detail: indicatorDetail?.riskIndicatorDetail,
       renderButton,
-      duplicatIndicator
+      duplicatIndicator,
     };
 
     return <FormCompnent {...updatedProps} />;
@@ -111,11 +109,11 @@ export default withProps<Props>(
       skip: ({ _id }) => !_id,
       options: ({ _id }) => ({
         variables: { id: _id },
-        fetchPolicy: 'no-cache'
-      })
+        fetchPolicy: 'no-cache',
+      }),
     }),
     graphql<Props>(gql(mutations.duplicate), {
-      name: 'duplicateMutation'
-    })
-  )(withRouter<IRouterProps>(FormContainer))
+      name: 'duplicateMutation',
+    }),
+  )(FormContainer),
 );

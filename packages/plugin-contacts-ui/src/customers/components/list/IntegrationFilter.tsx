@@ -1,11 +1,16 @@
+import {
+  FieldStyle,
+  SidebarCounter,
+  SidebarList,
+} from '@erxes/ui/src/layout/styles';
+import { __, router } from 'coreui/utils';
+
 import Box from '@erxes/ui/src/components/Box';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
-import { IRouterProps } from '@erxes/ui/src/types';
-import { __, router } from 'coreui/utils';
-import { FieldStyle, SidebarCounter, SidebarList } from '@erxes/ui/src/layout/styles';
 import { INTEGRATION_KINDS } from '@erxes/ui/src/constants/integrations';
+import { IRouterProps } from '@erxes/ui/src/types';
 import React from 'react';
-import { withRouter } from 'react-router-dom';
+// import { withRouter } from 'react-router-dom';
 
 interface IProps extends IRouterProps {
   counts: { [key: string]: number };
@@ -15,16 +20,16 @@ interface IProps extends IRouterProps {
 function IntegrationFilter({
   history,
   counts,
-  integrationsGetUsedTypes
+  integrationsGetUsedTypes,
 }: IProps) {
-  const onClick = kind => {
+  const onClick = (kind) => {
     router.setParams(history, { integrationType: kind });
     router.removeParams(history, 'page');
   };
 
   const data = (
     <SidebarList capitalize={true}>
-      {integrationsGetUsedTypes.map(kind => (
+      {integrationsGetUsedTypes.map((kind) => (
         <li key={kind._id}>
           <a
             href="#filter"
@@ -63,4 +68,4 @@ function IntegrationFilter({
   );
 }
 
-export default withRouter<IProps>(IntegrationFilter);
+export default IntegrationFilter;

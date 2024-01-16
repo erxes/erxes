@@ -1,11 +1,12 @@
-import Icon from '../Icon';
-import { router } from '../../utils/core';
-import React from 'react';
-import { withRouter } from 'react-router-dom';
-import { IRouterProps } from '../../types';
-import { difference, intersection, range, union } from '../../utils/core';
-import PerPageChooser from './PerPageChooser';
 import { PaginationList, PaginationWrapper } from './styles';
+import { difference, intersection, range, union } from '../../utils/core';
+
+// import { withRouter } from 'react-router-dom';
+import { IRouterProps } from '../../types';
+import Icon from '../Icon';
+import PerPageChooser from './PerPageChooser';
+import React from 'react';
+import { router } from '../../utils/core';
 
 // pages calculation
 const generatePages = (pageCount: number, currentPage: number): number[] => {
@@ -78,7 +79,7 @@ class Page extends React.Component<{
     router.setParams(this.props.history, { page });
   }
 
-  onClick = e => {
+  onClick = (e) => {
     e.preventDefault();
 
     this.goto(this.props.page);
@@ -123,7 +124,7 @@ class Pagination extends React.Component<IPaginationProps> {
     router.setParams(this.props.history, { page });
   }
 
-  onPrev = e => {
+  onPrev = (e) => {
     e.preventDefault();
 
     const page = (this.props.currentPage || 1) - 1;
@@ -133,7 +134,7 @@ class Pagination extends React.Component<IPaginationProps> {
     }
   };
 
-  onNext = e => {
+  onNext = (e) => {
     e.preventDefault();
 
     const { totalPagesCount, currentPage } = this.props;
@@ -151,7 +152,7 @@ class Pagination extends React.Component<IPaginationProps> {
       totalPagesCount,
       pages = [],
       currentPage = 1,
-      isPaginated
+      isPaginated,
     } = this.props;
 
     if (!isPaginated) {
@@ -230,10 +231,10 @@ const PaginationContainer = (props: IPaginationContainerProps) => {
     currentPage,
     isPaginated: totalPagesCount > 1,
     totalPagesCount,
-    pages
+    pages,
   };
 
   return <Pagination {...childProps} />;
 };
 
-export default withRouter<IPaginationContainerProps>(PaginationContainer);
+export default PaginationContainer;

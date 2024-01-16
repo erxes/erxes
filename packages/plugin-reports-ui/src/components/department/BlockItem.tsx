@@ -1,12 +1,12 @@
-import React from 'react';
-
-import { withRouter } from 'react-router-dom';
-import Icon from '@erxes/ui/src/components/Icon';
 import * as routerUtils from '@erxes/ui/src/utils/router';
+
 import { IRouterProps } from '@erxes/ui/src/types';
-import queryString from 'query-string';
-import { __ } from '@erxes/ui/src/utils';
+// import { withRouter } from 'react-router-dom';
+import Icon from '@erxes/ui/src/components/Icon';
+import React from 'react';
 import { SideList } from '../../styles';
+import { __ } from '@erxes/ui/src/utils';
+import queryString from 'query-string';
 
 type Props = {
   item: any;
@@ -25,9 +25,9 @@ function BlockItem({
   queryParamName,
   level,
   history,
-  location
+  location,
 }: FinalProps) {
-  const onClick = _id => {
+  const onClick = (_id) => {
     routerUtils.removeParams(history, 'branchId', 'unitId', 'departmentId');
 
     routerUtils.setParams(history, { [queryParamName]: _id });
@@ -49,4 +49,4 @@ function BlockItem({
   );
 }
 
-export default withRouter<FinalProps>(BlockItem);
+export default BlockItem;

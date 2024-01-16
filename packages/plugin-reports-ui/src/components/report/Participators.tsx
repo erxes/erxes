@@ -1,8 +1,9 @@
+import { __, getUserAvatar } from '@erxes/ui/src/utils';
+
 import { IUser } from '@erxes/ui/src/auth/types';
+import React from 'react';
 import Tip from '@erxes/ui/src/components/Tip';
 import { colors } from '@erxes/ui/src/styles';
-import { __, getUserAvatar } from '@erxes/ui/src/utils';
-import React from 'react';
 import styled from 'styled-components';
 
 const spacing = 30;
@@ -24,7 +25,7 @@ const ParticipatorImg = styled.img`
   margin-left: -10px;
 `;
 
-const More = styled(ParticipatorImg.withComponent('span'))`
+const More = styled(styled.span(ParticipatorImg as any))`
   color: ${colors.colorWhite};
   text-align: center;
   vertical-align: middle;
@@ -50,7 +51,7 @@ class Participators extends React.Component<Props, { toggle: boolean }> {
     const { toggle } = this.state;
     const length = participatedUsers.length;
 
-    const Trigger = user => {
+    const Trigger = (user) => {
       const name =
         (user.details && user.details.fullName) || user.username || '';
 
@@ -75,7 +76,7 @@ class Participators extends React.Component<Props, { toggle: boolean }> {
       <ParticipatorWrapper onClick={this.toggleParticipator}>
         {participatedUsers
           .slice(0, limit && toggle ? limit : length)
-          .map(user => Trigger(user))}
+          .map((user) => Trigger(user))}
         {limit && toggle && length - limit > 0 && Tooltip}
       </ParticipatorWrapper>
     );

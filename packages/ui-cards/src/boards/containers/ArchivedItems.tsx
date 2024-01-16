@@ -1,18 +1,20 @@
-import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
-import { IRouterProps } from '@erxes/ui/src/types';
+
 import {
   Alert,
   confirm,
   renderWithProps,
-  router as routerUtils
+  router as routerUtils,
 } from '@erxes/ui/src/utils';
-import React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
-import { withRouter } from 'react-router-dom';
-import ArchivedItems from '../components/ArchivedItems';
-import { mutations, queries } from '../graphql';
 import { IItemParams, IOptions, RemoveMutation, SaveMutation } from '../types';
+import { mutations, queries } from '../graphql';
+
+// import { withRouter } from 'react-router-dom';
+import ArchivedItems from '../components/ArchivedItems';
+import { IRouterProps } from '@erxes/ui/src/types';
+import React from 'react';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
 
 type IProps = {
   options: IOptions;
@@ -54,7 +56,7 @@ class ArchivedItemsContainer extends React.Component<IFinalProps> {
       const { setActiveItemMutation, archivedItemsQuery, history } = this.props;
 
       setActiveItemMutation({
-        variables: { _id: item._id, stageId: item.stageId, status: 'active' }
+        variables: { _id: item._id, stageId: item.stageId, status: 'active' },
       })
         .then(async () => {
           Alert.success('You successfully sent to a board');
@@ -62,18 +64,15 @@ class ArchivedItemsContainer extends React.Component<IFinalProps> {
           await archivedItemsQuery.refetch();
           routerUtils.setParams(history, { key: Math.random() });
         })
-        .catch(error => {
+        .catch((error) => {
           Alert.error(error.message);
         });
     } else {
-      const {
-        setActiveStageMutation,
-        archivedStagesQuery,
-        options
-      } = this.props;
+      const { setActiveStageMutation, archivedStagesQuery, options } =
+        this.props;
 
       setActiveStageMutation({
-        variables: { _id: item._id, type: options.type, status: 'active' }
+        variables: { _id: item._id, type: options.type, status: 'active' },
       })
         .then(async () => {
           Alert.success('You successfully sent to a board');
@@ -82,7 +81,7 @@ class ArchivedItemsContainer extends React.Component<IFinalProps> {
 
           routerUtils.setParams(this.props.history, { key: Math.random() });
         })
-        .catch(error => {
+        .catch((error) => {
           Alert.error(error.message);
         });
     }
@@ -94,32 +93,32 @@ class ArchivedItemsContainer extends React.Component<IFinalProps> {
 
       confirm().then(() =>
         removeMutation({
-          variables: { _id: item._id }
+          variables: { _id: item._id },
         })
           .then(() => {
             Alert.success(`You successfully deleted a ${options.type}`);
 
             archivedItemsQuery.refetch();
           })
-          .catch(error => {
+          .catch((error) => {
             Alert.error(error.message);
-          })
+          }),
       );
     } else {
       const { removeStageMutation, archivedStagesQuery } = this.props;
 
       confirm().then(() =>
         removeStageMutation({
-          variables: { _id: item._id }
+          variables: { _id: item._id },
         })
           .then(() => {
             Alert.success('You successfully deleted a stage');
 
             archivedStagesQuery.refetch();
           })
-          .catch(error => {
+          .catch((error) => {
             Alert.error(error.message);
-          })
+          }),
       );
     }
   };
@@ -134,7 +133,7 @@ class ArchivedItemsContainer extends React.Component<IFinalProps> {
       archivedItemsQuery,
       archivedStagesQuery,
       itemFilters,
-      type
+      type,
     } = this.props;
 
     let query;
@@ -165,13 +164,13 @@ class ArchivedItemsContainer extends React.Component<IFinalProps> {
         pipelineId,
         search,
         perPage: 20,
-        page: items.length
+        page: items.length,
       };
 
       if (type === 'item') {
         variables = {
           ...variables,
-          ...itemFilters
+          ...itemFilters,
         };
       }
 
@@ -183,7 +182,7 @@ class ArchivedItemsContainer extends React.Component<IFinalProps> {
           }
 
           const prevItems = prev[itemName] || [];
-          const prevItemIds = prevItems.map(m => m._id);
+          const prevItemIds = prevItems.map((m) => m._id);
 
           const fetchedItems = [] as any;
 
@@ -195,9 +194,9 @@ class ArchivedItemsContainer extends React.Component<IFinalProps> {
 
           return {
             ...prev,
-            [itemName]: [...prevItems, ...fetchedItems]
+            [itemName]: [...prevItems, ...fetchedItems],
           };
-        }
+        },
       });
     }
   };
@@ -209,7 +208,7 @@ class ArchivedItemsContainer extends React.Component<IFinalProps> {
       archivedItemsCountQuery,
       archivedStagesCountQuery,
       options,
-      type
+      type,
     } = this.props;
 
     let items;
@@ -232,7 +231,7 @@ class ArchivedItemsContainer extends React.Component<IFinalProps> {
       type,
       options,
       hasMore,
-      loadMore: this.loadMore
+      loadMore: this.loadMore,
     };
 
     return <ArchivedItems {...props} />;
@@ -250,32 +249,32 @@ export default (props: IProps) => {
         skip: ({ type }) => type === 'item',
         options: ({ pipelineId, search }) => ({
           variables: { pipelineId, search },
-          fetchPolicy: 'network-only'
-        })
+          fetchPolicy: 'network-only',
+        }),
       }),
       graphql<IProps>(gql(options.queries.archivedItemsQuery), {
         name: 'archivedItemsQuery',
         skip: ({ type }) => type === 'list',
         options: ({ pipelineId, search }) => ({
           variables: { pipelineId, search, perPage: 20, ...itemFilters },
-          fetchPolicy: 'network-only'
-        })
+          fetchPolicy: 'network-only',
+        }),
       }),
       graphql<IProps>(gql(queries.archivedStagesCount), {
         name: 'archivedStagesCountQuery',
         skip: ({ type }) => type === 'item',
         options: ({ pipelineId, search }) => ({
           variables: { pipelineId, search },
-          fetchPolicy: 'network-only'
-        })
+          fetchPolicy: 'network-only',
+        }),
       }),
       graphql<IProps>(gql(options.queries.archivedItemsCountQuery), {
         name: 'archivedItemsCountQuery',
         skip: ({ type }) => type === 'list',
         options: ({ pipelineId, search }) => ({
           variables: { pipelineId, search, ...itemFilters },
-          fetchPolicy: 'network-only'
-        })
+          fetchPolicy: 'network-only',
+        }),
       }),
       graphql<IProps, SaveMutation, IItemParams>(
         gql(options.mutations.editMutation),
@@ -283,23 +282,23 @@ export default (props: IProps) => {
           name: 'setActiveItemMutation',
           skip: ({ type }) => type === 'list',
           options: () => ({
-            refetchQueries: ['archivedItemsQuery']
-          })
-        }
+            refetchQueries: ['archivedItemsQuery'],
+          }),
+        },
       ),
       graphql<IProps, SaveMutation, IItemParams>(gql(mutations.stagesEdit), {
         name: 'setActiveStageMutation',
-        skip: ({ type }) => type === 'item'
+        skip: ({ type }) => type === 'item',
       }),
       graphql<IProps, RemoveMutation, { _id: string }>(
         gql(options.mutations.removeMutation),
         {
-          name: 'removeMutation'
-        }
+          name: 'removeMutation',
+        },
       ),
       graphql<IProps>(gql(mutations.stagesRemove), {
-        name: 'removeStageMutation'
-      })
-    )(withRouter(ArchivedItemsContainer))
+        name: 'removeStageMutation',
+      }),
+    )(ArchivedItemsContainer),
   );
 };

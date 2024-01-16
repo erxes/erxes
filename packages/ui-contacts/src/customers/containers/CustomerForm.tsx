@@ -1,14 +1,13 @@
 import {
   IButtonMutateProps,
   IQueryParams,
-  IRouterProps
+  IRouterProps,
 } from '@erxes/ui/src/types';
 import {
   PropertyConsumer,
-  PropertyProvider
+  PropertyProvider,
 } from '@erxes/ui-contacts/src/customers/propertyContext';
 import { mutations, queries } from '../graphql';
-import { mutations as conformityMutations } from '@erxes/ui-cards/src/conformity/graphql';
 
 import { AppConsumer } from '@erxes/ui/src/appContext';
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
@@ -17,8 +16,9 @@ import { ICustomer } from '@erxes/ui-contacts/src/customers/types';
 import { IFieldsVisibility } from '@erxes/ui-contacts/src/customers/types';
 import { IUser } from '@erxes/ui/src/auth/types';
 import React from 'react';
-import { withRouter } from 'react-router-dom';
+// import { withRouter } from 'react-router-dom';
 import client from '@erxes/ui/src/apolloClient';
+import { mutations as conformityMutations } from '@erxes/ui-cards/src/conformity/graphql';
 import { gql } from '@apollo/client';
 
 type Props = {
@@ -40,7 +40,7 @@ class CustomerFormContainer extends React.Component<FinalProps, State> {
     super(props);
 
     this.state = {
-      redirectType: undefined
+      redirectType: undefined,
     };
   }
 
@@ -57,9 +57,9 @@ class CustomerFormContainer extends React.Component<FinalProps, State> {
       values,
       isSubmitted,
       object,
-      resetSubmit
+      resetSubmit,
     }: IButtonMutateProps) => {
-      const afterSave = data => {
+      const afterSave = (data) => {
         if (
           values.relationData &&
           Object.keys(values.relationData).length > 0
@@ -74,8 +74,8 @@ class CustomerFormContainer extends React.Component<FinalProps, State> {
                   mainType: 'customer',
                   mainTypeId: data.customersAdd._id,
                   relType: key,
-                  relTypeIds: relationData[key]
-                }
+                  relTypeIds: relationData[key],
+                },
               });
             }
           }
@@ -124,7 +124,7 @@ class CustomerFormContainer extends React.Component<FinalProps, State> {
     const updatedProps = {
       ...this.props,
       changeRedirectType: this.changeRedirectType,
-      renderButton
+      renderButton,
     };
 
     return (
@@ -154,4 +154,4 @@ const getRefetchQueries = () => {
   return ['customersMain', 'customers', 'customerCounts'];
 };
 
-export default withRouter<FinalProps>(CustomerFormContainer);
+export default CustomerFormContainer;

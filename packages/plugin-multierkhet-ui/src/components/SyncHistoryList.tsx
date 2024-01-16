@@ -1,18 +1,19 @@
 import {
-  __,
   DataWithLoader,
+  ModalTrigger,
   Pagination,
   SortHandler,
   Table,
   Wrapper,
-  ModalTrigger
+  __,
 } from '@erxes/ui/src';
-import dayjs from 'dayjs';
-import { IRouterProps, IQueryParams } from '@erxes/ui/src/types';
+import { IQueryParams, IRouterProps } from '@erxes/ui/src/types';
+
 import React from 'react';
-import { withRouter } from 'react-router-dom';
-import { menuMultierkhet } from '../constants';
 import SyncHistorySidebar from './syncHistorySidebar';
+import dayjs from 'dayjs';
+// import { withRouter } from 'react-router-dom';
+import { menuMultierkhet } from '../constants';
 
 interface IProps extends IRouterProps {
   syncHistories: any[];
@@ -35,7 +36,7 @@ class SyncHistoryList extends React.Component<IProps, {}> {
     super(props);
   }
 
-  moveCursorAtTheEnd = e => {
+  moveCursorAtTheEnd = (e) => {
     const tmpValue = e.target.value;
     e.target.value = '';
     e.target.value = tmpValue;
@@ -46,13 +47,8 @@ class SyncHistoryList extends React.Component<IProps, {}> {
   };
 
   render() {
-    const {
-      history,
-      syncHistories,
-      totalCount,
-      loading,
-      queryParams
-    } = this.props;
+    const { history, syncHistories, totalCount, loading, queryParams } =
+      this.props;
 
     const mainContent = (
       <Table whiteSpace="nowrap" bordered={true} hover={true}>
@@ -79,7 +75,7 @@ class SyncHistoryList extends React.Component<IProps, {}> {
           </tr>
         </thead>
         <tbody id="orders">
-          {(syncHistories || []).map(item => (
+          {(syncHistories || []).map((item) => (
             <ModalTrigger
               title="Sync erkhet information"
               trigger={
@@ -98,14 +94,14 @@ class SyncHistoryList extends React.Component<IProps, {}> {
                       ${item.error || ''}
                       ${(item.responseData?.error || '').replace(
                         'ЕБаримт руу илгээгдээгүй түр баримт болно.',
-                        ''
+                        '',
                       )}
                       `}
                   </td>
                 </tr>
               }
               size="xl"
-              content={props => this.rowContent(props, item)}
+              content={(props) => this.rowContent(props, item)}
             />
           ))}
         </tbody>
@@ -138,4 +134,4 @@ class SyncHistoryList extends React.Component<IProps, {}> {
   }
 }
 
-export default withRouter<IRouterProps>(SyncHistoryList);
+export default SyncHistoryList;

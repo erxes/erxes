@@ -1,13 +1,15 @@
-import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
-import { withProps, router } from '@erxes/ui/src';
-import React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
-import { withRouter } from 'react-router-dom';
-import { IRouterProps } from '@erxes/ui/src/types';
-import CollateralsList from '../components/CollateralsList';
-import { queries } from '../graphql';
+
 import { ListQueryVariables, MainQueryResponse } from '../types';
+import { router, withProps } from '@erxes/ui/src';
+
+import CollateralsList from '../components/CollateralsList';
+// import { withRouter } from 'react-router-dom';
+import { IRouterProps } from '@erxes/ui/src/types';
+import React from 'react';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
+import { queries } from '../graphql';
 
 type Props = {
   queryParams: any;
@@ -28,7 +30,7 @@ class CollateralListContainer extends React.Component<FinalProps, State> {
     super(props);
 
     this.state = {
-      loading: false
+      loading: false,
     };
   }
 
@@ -46,7 +48,7 @@ class CollateralListContainer extends React.Component<FinalProps, State> {
       searchValue,
       productIds,
       collaterals: list,
-      loading: collateralsMainQuery.loading || this.state.loading
+      loading: collateralsMainQuery.loading || this.state.loading,
     };
 
     return <CollateralsList {...updatedProps} />;
@@ -63,8 +65,8 @@ const generateParams = ({ queryParams }) => ({
     sortField: queryParams.sortField,
     sortDirection: queryParams.sortDirection
       ? parseInt(queryParams.sortDirection, 10)
-      : undefined
-  }
+      : undefined,
+  },
 });
 
 export default withProps<Props>(
@@ -75,8 +77,8 @@ export default withProps<Props>(
         name: 'collateralsMainQuery',
         options: ({ queryParams }) => {
           return generateParams({ queryParams });
-        }
-      }
-    )
-  )(withRouter<IRouterProps>(CollateralListContainer))
+        },
+      },
+    ),
+  )(CollateralListContainer),
 );

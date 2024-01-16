@@ -4,11 +4,11 @@ import {
   Alert,
   confirm,
   router as routerUtils,
-  withProps
+  withProps,
 } from '@erxes/ui/src/utils';
 import {
   FilemanagerFoldersQueryResponse,
-  RemoveFilemanagerFolderMutationResponse
+  RemoveFilemanagerFolderMutationResponse,
 } from '../../types';
 import { IRouterProps, MutationVariables } from '@erxes/ui/src/types';
 import { mutations, queries } from '../../graphql';
@@ -17,7 +17,8 @@ import FolderList from '../../components/folder/FolderList';
 import React from 'react';
 import { gql } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
-import { withRouter } from 'react-router-dom';
+
+// import { withRouter } from 'react-router-dom';
 
 type Props = {
   queryParams: any;
@@ -30,12 +31,8 @@ type FinalProps = {
   RemoveFilemanagerFolderMutationResponse;
 
 const FolderListContainer = (props: FinalProps) => {
-  const {
-    removeMutation,
-    filemanagerFoldersQuery,
-    queryParams,
-    history
-  } = props;
+  const { removeMutation, filemanagerFoldersQuery, queryParams, history } =
+    props;
 
   const folders = filemanagerFoldersQuery.filemanagerFolders || [];
 
@@ -44,15 +41,15 @@ const FolderListContainer = (props: FinalProps) => {
   }
 
   // remove action
-  const remove = folderId => {
+  const remove = (folderId) => {
     confirm().then(() => {
       removeMutation({
-        variables: { _id: folderId }
+        variables: { _id: folderId },
       })
         .then(() => {
           Alert.success('You successfully deleted a folder.');
         })
-        .catch(error => {
+        .catch((error) => {
           Alert.error(error.message);
         });
     });
@@ -62,7 +59,7 @@ const FolderListContainer = (props: FinalProps) => {
     ...props,
     folders,
     loading: false,
-    remove
+    remove,
   };
 
   return <FolderList {...updatedProps} />;
@@ -76,9 +73,9 @@ export default withProps<Props>(
         name: 'filemanagerFoldersQuery',
         options: () => ({
           variables: { isTree: true },
-          fetchPolicy: 'network-only'
-        })
-      }
+          fetchPolicy: 'network-only',
+        }),
+      },
     ),
     graphql<Props, RemoveFilemanagerFolderMutationResponse, MutationVariables>(
       gql(mutations.filemanagerFolderRemove),
@@ -89,12 +86,12 @@ export default withProps<Props>(
             {
               query: gql(queries.filemanagerFoldersTree),
               variables: {
-                isTree: true
-              }
-            }
-          ]
-        })
-      }
-    )
-  )(withRouter<FinalProps>(FolderListContainer))
+                isTree: true,
+              },
+            },
+          ],
+        }),
+      },
+    ),
+  )(FolderListContainer),
 );

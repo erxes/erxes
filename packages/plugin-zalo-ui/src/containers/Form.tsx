@@ -1,13 +1,15 @@
-import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
-import { gql } from '@apollo/client';
-import { IButtonMutateProps, IRouterProps } from '@erxes/ui/src/types';
-import Form from '../components/Form';
 import * as React from 'react';
-import { withRouter } from 'react-router-dom';
+
+import { IButtonMutateProps, IRouterProps } from '@erxes/ui/src/types';
+// import { withRouter } from 'react-router-dom';
 import {
   mutations,
-  queries
+  queries,
 } from '@erxes/ui-inbox/src/settings/integrations/graphql';
+
+import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
+import Form from '../components/Form';
+import { gql } from '@apollo/client';
 
 type Props = {} & IRouterProps;
 
@@ -35,7 +37,7 @@ class ZaloContainer extends React.Component<Props> {
   render() {
     const updatedProps = {
       ...this.props,
-      renderButton: this.renderButton
+      renderButton: this.renderButton,
     };
 
     return <Form {...updatedProps} />;
@@ -47,16 +49,16 @@ const getRefetchQueries = (kind: string) => {
     {
       query: gql(queries.integrations),
       variables: {
-        kind
-      }
+        kind,
+      },
     },
     {
       query: gql(queries.integrationTotalCount),
       variables: {
-        kind
-      }
-    }
+        kind,
+      },
+    },
   ];
 };
 
-export default withRouter<Props>(ZaloContainer);
+export default ZaloContainer;

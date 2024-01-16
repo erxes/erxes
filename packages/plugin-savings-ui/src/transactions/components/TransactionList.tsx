@@ -1,34 +1,34 @@
 import {
   Alert,
+  BarItems,
   Button,
-  confirm,
   DataWithLoader,
+  DropdownToggle,
   FormControl,
+  Icon,
   ModalTrigger,
   Pagination,
   SortHandler,
   Table,
   Wrapper,
-  BarItems,
-  DropdownToggle,
-  Icon
+  confirm,
 } from '@erxes/ui/src';
-import { IRouterProps } from '@erxes/ui/src/types';
-import React from 'react';
-import { withRouter } from 'react-router-dom';
-import { menuContracts } from '../../constants';
 
-import TransactionForm from '../containers/TransactionForm';
 import { ContractsTableWrapper } from '../../contracts/styles';
-import { ITransaction } from '../types';
-import TransactionRow from './TransactionRow';
-import RightMenu from './RightMenu';
-import { can } from '@erxes/ui/src/utils/core';
-import withConsumer from '../../withConsumer';
-import { IUser } from '@erxes/ui/src/auth/types';
-import { __ } from 'coreui/utils';
 import Dropdown from 'react-bootstrap/Dropdown';
+import { IRouterProps } from '@erxes/ui/src/types';
+import { ITransaction } from '../types';
+import { IUser } from '@erxes/ui/src/auth/types';
 import InterestChange from '../../contracts/containers/detail/InterestChange';
+import React from 'react';
+import RightMenu from './RightMenu';
+import TransactionForm from '../containers/TransactionForm';
+import TransactionRow from './TransactionRow';
+import { __ } from 'coreui/utils';
+import { can } from '@erxes/ui/src/utils/core';
+// import { withRouter } from 'react-router-dom';
+import { menuContracts } from '../../constants';
+import withConsumer from '../../withConsumer';
 
 interface IProps extends IRouterProps {
   transactions: ITransaction[];
@@ -42,7 +42,7 @@ interface IProps extends IRouterProps {
   emptyBulk: () => void;
   removeTransactions: (
     doc: { transactionIds: string[] },
-    emptyBulk: () => void
+    emptyBulk: () => void,
   ) => void;
 
   onSearch: (search: string) => void;
@@ -65,10 +65,10 @@ class TransactionsList extends React.Component<IProps> {
     toggleAll(transactions, 'transactions');
   };
 
-  removeTransactions = transactions => {
+  removeTransactions = (transactions) => {
     const transactionIds: string[] = [];
 
-    transactions.forEach(transaction => {
+    transactions.forEach((transaction) => {
       transactionIds.push(transaction._id);
     });
 
@@ -89,7 +89,7 @@ class TransactionsList extends React.Component<IProps> {
       onSearch,
       isFiltered,
       clearFilter,
-      currentUser
+      currentUser,
     } = this.props;
 
     const mainContent = (
@@ -130,7 +130,7 @@ class TransactionsList extends React.Component<IProps> {
             </tr>
           </thead>
           <tbody id="transactions">
-            {transactions.map(transaction => (
+            {transactions.map((transaction) => (
               <TransactionRow
                 transaction={transaction}
                 isChecked={bulk.includes(transaction)}
@@ -152,7 +152,7 @@ class TransactionsList extends React.Component<IProps> {
           .then(() => {
             this.removeTransactions(bulk);
           })
-          .catch(error => {
+          .catch((error) => {
             Alert.error(error.message);
           });
 
@@ -167,23 +167,23 @@ class TransactionsList extends React.Component<IProps> {
       );
     }
 
-    const incomeTransactionForm = props => {
+    const incomeTransactionForm = (props) => {
       return (
         <TransactionForm type="income" {...props} queryParams={queryParams} />
       );
     };
 
-    const outcomeTransactionForm = props => {
+    const outcomeTransactionForm = (props) => {
       return (
         <TransactionForm type="outcome" {...props} queryParams={queryParams} />
       );
     };
 
-    const interestChangeForm = props => (
+    const interestChangeForm = (props) => (
       <InterestChange {...props} type="interestChange" />
     );
 
-    const interestReturnForm = props => (
+    const interestReturnForm = (props) => (
       <InterestChange {...props} type="interestReturn" />
     );
 
@@ -192,7 +192,7 @@ class TransactionsList extends React.Component<IProps> {
       onSearch,
       isFiltered,
       clearFilter,
-      queryParams
+      queryParams,
     };
 
     const actionBarRight = (
@@ -267,8 +267,8 @@ class TransactionsList extends React.Component<IProps> {
           <Wrapper.Header
             title={__(`Transactions`) + ` (${totalCount})`}
             queryParams={queryParams}
-            submenu={menuContracts.filter(row =>
-              can(row.permission, currentUser)
+            submenu={menuContracts.filter((row) =>
+              can(row.permission, currentUser),
             )}
           />
         }
@@ -288,4 +288,4 @@ class TransactionsList extends React.Component<IProps> {
   }
 }
 
-export default withRouter<IRouterProps>(withConsumer(TransactionsList));
+export default withConsumer(TransactionsList);

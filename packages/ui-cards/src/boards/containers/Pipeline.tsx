@@ -1,26 +1,26 @@
 import * as compose from 'lodash.flowright';
 
-import React, { Component } from 'react';
 import { DragDropContext, Droppable } from 'react-beautiful-dnd';
 import {
   IItemMap,
   IOptions,
   IPipeline,
   IStageMap,
-  StagesQueryResponse
+  StagesQueryResponse,
 } from '../types';
 import { PipelineConsumer, PipelineProvider } from './PipelineContext';
+import React, { Component } from 'react';
 
-import { gql } from '@apollo/client';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
-import Spinner from '@erxes/ui/src/components/Spinner';
 import { IRouterProps } from '@erxes/ui/src/types';
-import { withProps } from '@erxes/ui/src/utils';
-import { graphql } from '@apollo/client/react/hoc';
-import { withRouter } from 'react-router-dom';
-import styled from 'styled-components';
-import { queries } from '../graphql';
+import Spinner from '@erxes/ui/src/components/Spinner';
 import Stage from './Stage';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
+import { queries } from '../graphql';
+// import { withRouter } from 'react-router-dom';
+import styled from 'styled-components';
+import { withProps } from '@erxes/ui/src/utils';
 
 const Container = styled.div`
   height: 100%;
@@ -68,7 +68,7 @@ class WithStages extends Component<WithStagesQueryProps> {
       stageMap,
       options,
       queryParams,
-      stagesQuery
+      stagesQuery,
     } = this.props;
 
     const stagesCount = this.countStages(stageMap);
@@ -103,7 +103,7 @@ class WithStages extends Component<WithStagesQueryProps> {
             refetchStage,
             onLoadStage,
             onAddItem,
-            onRemoveItem
+            onRemoveItem,
           }) => (
             <DragDropContext onDragEnd={onDragEnd} onDragStart={onDragStart}>
               <Droppable
@@ -112,7 +112,7 @@ class WithStages extends Component<WithStagesQueryProps> {
                 direction="horizontal"
                 ignoreContainerClipping={true}
               >
-                {provided => (
+                {(provided) => (
                   <Container
                     innerRef={provided.innerRef}
                     {...provided.droppableProps}
@@ -190,7 +190,7 @@ const WithQuery = withProps<WithQueryProps>(
         pipeline,
         queryParams,
         options: { getExtraParams },
-        abortController
+        abortController,
       }) => ({
         variables: {
           pipelineId: pipeline._id,
@@ -206,14 +206,14 @@ const WithQuery = withProps<WithQueryProps>(
           branchIds: queryParams.branchIds,
           departmentIds: queryParams.departmentIds,
           segment: queryParams.segment,
-          segmentData: queryParams.segmentData
+          segmentData: queryParams.segmentData,
         },
         context: {
-          fetchOptions: { signal: abortController && abortController.signal }
-        }
-      })
-    })
-  )(withRouter(WithStagesQuery))
+          fetchOptions: { signal: abortController && abortController.signal },
+        },
+      }),
+    }),
+  )(WithStagesQuery),
 );
 
 class WithData extends React.Component<Props> {
@@ -232,7 +232,7 @@ class WithData extends React.Component<Props> {
   render() {
     const updatedProps = {
       ...this.props,
-      abortController: this.abortController
+      abortController: this.abortController,
     };
 
     return <WithQuery {...updatedProps} />;

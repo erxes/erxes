@@ -11,7 +11,8 @@ import { graphql } from '@apollo/client/react/hoc';
 import mutations from '@erxes/ui-cards/src/settings/boards/graphql/mutations';
 import { queries } from '@erxes/ui-cards/src/boards/graphql';
 import { withProps } from '@erxes/ui/src/utils';
-import { withRouter } from 'react-router-dom';
+
+// import { withRouter } from 'react-router-dom';
 
 type Props = { queryParams: any } & IRouterProps;
 
@@ -27,7 +28,7 @@ class PipelineListContainer extends React.Component<FinalProps> {
 
     if (queryParams.state) {
       pipelines = pipelines.filter(
-        pipeline => pipeline.state === queryParams.state
+        (pipeline) => pipeline.state === queryParams.state,
       );
     }
 
@@ -36,7 +37,7 @@ class PipelineListContainer extends React.Component<FinalProps> {
       values,
       isSubmitted,
       callback,
-      object
+      object,
     }: IButtonMutateProps) => {
       const afterSave = () => {
         if (callback) {
@@ -69,18 +70,16 @@ class PipelineListContainer extends React.Component<FinalProps> {
   }
 }
 
-export default withRouter(
-  withProps<Props>(
-    compose(
-      graphql<Props, PipelinesQueryResponse>(gql(queries.pipelines), {
-        name: 'pipelinesQuery',
-        options: ({ queryParams: { id } }) => ({
-          variables: {
-            boardId: id || '',
-            type: 'growthHack'
-          }
-        })
-      })
-    )(PipelineListContainer)
-  )
+export default withProps<Props>(
+  compose(
+    graphql<Props, PipelinesQueryResponse>(gql(queries.pipelines), {
+      name: 'pipelinesQuery',
+      options: ({ queryParams: { id } }) => ({
+        variables: {
+          boardId: id || '',
+          type: 'growthHack',
+        },
+      }),
+    }),
+  )(PipelineListContainer),
 );

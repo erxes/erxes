@@ -1,13 +1,15 @@
-import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
+
 import { Alert, withProps } from '@erxes/ui/src/utils';
-import React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
-import { withRouter } from 'react-router-dom';
-import { IUser } from '@erxes/ui/src/auth/types';
-import { IRouterProps } from '@erxes/ui/src/types';
-import BasicInfo from '../../../components/product/detail/BasicInfo';
 import { IProduct, ProductRemoveMutationResponse } from '../../../types';
+
+import BasicInfo from '../../../components/product/detail/BasicInfo';
+import { IRouterProps } from '@erxes/ui/src/types';
+// import { withRouter } from 'react-router-dom';
+import { IUser } from '@erxes/ui/src/auth/types';
+import React from 'react';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
 import { mutations } from '../../../graphql';
 
 type Props = {
@@ -32,21 +34,21 @@ const BasicInfoContainer = (props: FinalProps) => {
         Alert.success('You successfully deleted a product');
         history.push('/settings/product-service');
       })
-      .catch(e => {
+      .catch((e) => {
         Alert.error(e.message);
       });
   };
 
   const updatedProps = {
     ...props,
-    remove
+    remove,
   };
 
   return <BasicInfo {...updatedProps} />;
 };
 
 const generateOptions = () => ({
-  refetchQueries: ['products', 'productCategories', 'productsTotalCount']
+  refetchQueries: ['products', 'productCategories', 'productsTotalCount'],
 });
 
 export default withProps<Props>(
@@ -55,8 +57,8 @@ export default withProps<Props>(
       gql(mutations.productsRemove),
       {
         name: 'productsRemove',
-        options: generateOptions
-      }
-    )
-  )(withRouter<FinalProps>(BasicInfoContainer))
+        options: generateOptions,
+      },
+    ),
+  )(BasicInfoContainer),
 );

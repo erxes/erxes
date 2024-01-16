@@ -1,15 +1,17 @@
-import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import { IRouterProps } from '@erxes/ui/src/types';
+
 import { router as routerUtils, withProps } from '@erxes/ui/src/utils';
-import React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
-import { withRouter } from 'react-router-dom';
-import Home from '../components/Home';
-import { queries } from '../graphql';
+
 import { BoardGetLastQueryResponse } from '../types';
+// import { withRouter } from 'react-router-dom';
+import Home from '../components/Home';
 import { IBoard } from '../../calendar/types';
+import { IRouterProps } from '@erxes/ui/src/types';
+import React from 'react';
+import Spinner from '@erxes/ui/src/components/Spinner';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
+import { queries } from '../graphql';
 
 type MainProps = {
   history: any;
@@ -50,7 +52,7 @@ const LastBoard = (props: LastBoardProps) => {
 
   const extendedProps = {
     ...props,
-    boardId: lastBoard._id
+    boardId: lastBoard._id,
   };
 
   return <HomeContainer {...extendedProps} />;
@@ -63,10 +65,10 @@ const LastBoardContainer = withProps<MainProps>(
     graphql<MainProps, BoardGetLastQueryResponse, {}>(
       gql(queries.boardGetLast),
       {
-        name: 'boardGetLastQuery'
-      }
-    )
-  )(LastBoard)
+        name: 'boardGetLastQuery',
+      },
+    ),
+  )(LastBoard),
 );
 
 // Main home component
@@ -83,4 +85,4 @@ const MainContainer = (props: HomerProps) => {
   return <LastBoardContainer {...props} />;
 };
 
-export default withRouter<HomerProps>(MainContainer);
+export default MainContainer;

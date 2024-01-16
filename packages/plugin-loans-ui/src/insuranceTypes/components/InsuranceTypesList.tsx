@@ -2,25 +2,25 @@ import {
   Alert,
   BarItems,
   Button,
-  confirm,
   DataWithLoader,
   FormControl,
   ModalTrigger,
   Pagination,
-  router,
   SortHandler,
   Table,
-  Wrapper
+  Wrapper,
+  confirm,
+  router,
 } from '@erxes/ui/src';
-import { IRouterProps } from '@erxes/ui/src/types';
-import React from 'react';
-import { withRouter } from 'react-router-dom';
 
-import InsuranceTypeForm from '../containers/InsuranceTypeForm';
-import { InsuranceTypesTableWrapper } from '../styles';
 import { IInsuranceType } from '../types';
+import { IRouterProps } from '@erxes/ui/src/types';
+import InsuranceTypeForm from '../containers/InsuranceTypeForm';
 import InsuranceTypeRow from './InsuranceTypeRow';
+import { InsuranceTypesTableWrapper } from '../styles';
+import React from 'react';
 import { __ } from 'coreui/utils';
+// import { withRouter } from 'react-router-dom';
 
 interface IProps extends IRouterProps {
   insuranceTypes: IInsuranceType[];
@@ -35,7 +35,7 @@ interface IProps extends IRouterProps {
   emptyBulk: () => void;
   removeInsuranceTypes: (
     doc: { insuranceTypeIds: string[] },
-    emptyBulk: () => void
+    emptyBulk: () => void,
   ) => void;
   history: any;
   queryParams: any;
@@ -52,7 +52,7 @@ class InsuranceTypesList extends React.Component<IProps, State> {
     super(props);
 
     this.state = {
-      searchValue: this.props.searchValue
+      searchValue: this.props.searchValue,
     };
   }
 
@@ -61,7 +61,7 @@ class InsuranceTypesList extends React.Component<IProps, State> {
     toggleAll(insuranceTypes, 'insuranceTypes');
   };
 
-  search = e => {
+  search = (e) => {
     if (this.timer) {
       clearTimeout(this.timer);
     }
@@ -76,17 +76,17 @@ class InsuranceTypesList extends React.Component<IProps, State> {
     }, 500);
   };
 
-  removeInsuranceTypes = insuranceTypes => {
+  removeInsuranceTypes = (insuranceTypes) => {
     const insuranceTypeIds: string[] = [];
 
-    insuranceTypes.forEach(insuranceType => {
+    insuranceTypes.forEach((insuranceType) => {
       insuranceTypeIds.push(insuranceType._id);
     });
 
     this.props.removeInsuranceTypes({ insuranceTypeIds }, this.props.emptyBulk);
   };
 
-  moveCursorAtTheEnd = e => {
+  moveCursorAtTheEnd = (e) => {
     const tmpValue = e.target.value;
     e.target.value = '';
     e.target.value = tmpValue;
@@ -101,7 +101,7 @@ class InsuranceTypesList extends React.Component<IProps, State> {
       bulk,
       isAllSelected,
       totalCount,
-      queryParams
+      queryParams,
     } = this.props;
 
     const mainContent = (
@@ -136,7 +136,7 @@ class InsuranceTypesList extends React.Component<IProps, State> {
             </tr>
           </thead>
           <tbody id="insuranceTypes">
-            {insuranceTypes.map(insuranceType => (
+            {insuranceTypes.map((insuranceType) => (
               <InsuranceTypeRow
                 insuranceType={insuranceType}
                 isChecked={bulk.includes(insuranceType)}
@@ -164,7 +164,7 @@ class InsuranceTypesList extends React.Component<IProps, State> {
           .then(() => {
             this.removeInsuranceTypes(bulk);
           })
-          .catch(error => {
+          .catch((error) => {
             Alert.error(error.message);
           });
 
@@ -177,7 +177,7 @@ class InsuranceTypesList extends React.Component<IProps, State> {
       );
     }
 
-    const insuranceTypeForm = props => {
+    const insuranceTypeForm = (props) => {
       return <InsuranceTypeForm {...props} queryParams={queryParams} />;
     };
 
@@ -214,7 +214,7 @@ class InsuranceTypesList extends React.Component<IProps, State> {
             queryParams={queryParams}
             breadcrumb={[
               { title: __('Settings'), link: '/settings' },
-              { title: __('Insurance type') }
+              { title: __('Insurance type') },
             ]}
           />
         }
@@ -234,4 +234,4 @@ class InsuranceTypesList extends React.Component<IProps, State> {
   }
 }
 
-export default withRouter<IRouterProps>(InsuranceTypesList);
+export default InsuranceTypesList;

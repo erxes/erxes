@@ -1,35 +1,36 @@
+import { Alert, __, confirm, router } from 'coreui/utils';
+
+import { BarItems } from '@erxes/ui/src/layout/styles';
+import Button from '@erxes/ui/src/components/Button';
 import CompaniesMerge from '@erxes/ui-contacts/src/companies/components/detail/CompaniesMerge';
 import CompanyForm from '@erxes/ui-contacts/src/companies/containers/CompanyForm';
-import ManageColumns from '@erxes/ui-forms/src/settings/properties/containers/ManageColumns';
-import { IConfigColumn } from '@erxes/ui-forms/src/settings/properties/types';
-import TaggerPopover from '@erxes/ui-tags/src/components/TaggerPopover';
-import { TAG_TYPES } from '@erxes/ui-tags/src/constants';
-import Button from '@erxes/ui/src/components/Button';
+import CompanyRow from './CompanyRow';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
+import Dropdown from 'react-bootstrap/Dropdown';
 import DropdownToggle from '@erxes/ui/src/components/DropdownToggle';
 import FormControl from '@erxes/ui/src/components/form/Control';
+import { ICompany } from '../../types';
+import { IConfigColumn } from '@erxes/ui-forms/src/settings/properties/types';
+import { IRouterProps } from '@erxes/ui/src/types';
 import Icon from '@erxes/ui/src/components/Icon';
+import { Link } from 'react-router-dom';
+import ManageColumns from '@erxes/ui-forms/src/settings/properties/containers/ManageColumns';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import Pagination from '@erxes/ui/src/components/pagination/Pagination';
+import React from 'react';
+import Sidebar from './Sidebar';
 import SortHandler from '@erxes/ui/src/components/SortHandler';
+import { TAG_TYPES } from '@erxes/ui-tags/src/constants';
 import Table from '@erxes/ui/src/components/table';
-import withTableWrapper from '@erxes/ui/src/components/table/withTableWrapper';
+import TaggerPopover from '@erxes/ui-tags/src/components/TaggerPopover';
+import TemporarySegment from '@erxes/ui-segments/src/components/filter/TemporarySegment';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { BarItems } from '@erxes/ui/src/layout/styles';
-import { IRouterProps } from '@erxes/ui/src/types';
+import { gql } from '@apollo/client';
 import { isEnabled } from '@erxes/ui/src/utils/core';
 import { menuContacts } from '@erxes/ui/src/utils/menus';
-import { __, Alert, confirm, router } from 'coreui/utils';
-import { gql } from '@apollo/client';
-import React from 'react';
-import Dropdown from 'react-bootstrap/Dropdown';
-import { Link, withRouter } from 'react-router-dom';
-import TemporarySegment from '@erxes/ui-segments/src/components/filter/TemporarySegment';
-
 import { queries } from '../../graphql';
-import { ICompany } from '../../types';
-import CompanyRow from './CompanyRow';
-import Sidebar from './Sidebar';
+import { withRouter } from 'react-router-dom';
+import withTableWrapper from '@erxes/ui/src/components/table/withTableWrapper';
 
 interface IProps extends IRouterProps {
   companies: ICompany[];
@@ -45,7 +46,7 @@ interface IProps extends IRouterProps {
   emptyBulk: () => void;
   removeCompanies: (
     doc: { companyIds: string[] },
-    emptyBulk: () => void
+    emptyBulk: () => void,
   ) => void;
   mergeCompanies: () => void;
   queryParams: any;
@@ -68,7 +69,7 @@ class CompaniesList extends React.Component<IProps, State> {
     super(props);
 
     this.state = {
-      searchValue: this.props.searchValue
+      searchValue: this.props.searchValue,
     };
   }
 
@@ -77,7 +78,7 @@ class CompaniesList extends React.Component<IProps, State> {
     toggleAll(companies, 'companies');
   };
 
-  search = e => {
+  search = (e) => {
     if (this.timer) {
       clearTimeout(this.timer);
     }
@@ -92,17 +93,17 @@ class CompaniesList extends React.Component<IProps, State> {
     }, 500);
   };
 
-  removeCompanies = companies => {
+  removeCompanies = (companies) => {
     const companyIds: string[] = [];
 
-    companies.forEach(company => {
+    companies.forEach((company) => {
       companyIds.push(company._id);
     });
 
     this.props.removeCompanies({ companyIds }, this.props.emptyBulk);
   };
 
-  moveCursorAtTheEnd = e => {
+  moveCursorAtTheEnd = (e) => {
     const tmpValue = e.target.value;
     e.target.value = '';
     e.target.value = tmpValue;
@@ -133,7 +134,7 @@ class CompaniesList extends React.Component<IProps, State> {
       isExpand,
       renderExpandButton,
       perPage,
-      page
+      page,
     } = this.props;
 
     const mainContent = (
@@ -199,7 +200,7 @@ class CompaniesList extends React.Component<IProps, State> {
 
     let actionBarLeft: React.ReactNode;
 
-    const companiesMerge = props => {
+    const companiesMerge = (props) => {
       return <CompaniesMerge {...props} objects={bulk} save={mergeCompanies} />;
     };
 
@@ -215,13 +216,13 @@ class CompaniesList extends React.Component<IProps, State> {
           .then(() => {
             this.removeCompanies(bulk);
           })
-          .catch(error => {
+          .catch((error) => {
             Alert.error(error.message);
           });
 
       const refetchQuery = {
         query: gql(queries.companyCounts),
-        variables: { only: 'byTag' }
+        variables: { only: 'byTag' },
       };
 
       actionBarLeft = (
@@ -258,7 +259,7 @@ class CompaniesList extends React.Component<IProps, State> {
       );
     }
 
-    const manageColumns = props => {
+    const manageColumns = (props) => {
       return (
         <ManageColumns
           {...props}
@@ -269,7 +270,7 @@ class CompaniesList extends React.Component<IProps, State> {
       );
     };
 
-    const companyForm = props => {
+    const companyForm = (props) => {
       return <CompanyForm {...props} queryParams={queryParams} />;
     };
 
@@ -363,7 +364,4 @@ class CompaniesList extends React.Component<IProps, State> {
   }
 }
 
-export default withTableWrapper(
-  'Company',
-  withRouter<IRouterProps>(CompaniesList)
-);
+export default withTableWrapper('Company', CompaniesList);

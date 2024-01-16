@@ -6,7 +6,7 @@ import { IButtonMutateProps, IRouterProps } from '@erxes/ui/src/types';
 import { IOption, RemoveBoardMutationResponse } from '../types';
 import {
   mutations,
-  queries
+  queries,
 } from '@erxes/ui-cards/src/settings/boards/graphql';
 
 import Boards from '../components/Boards';
@@ -18,7 +18,8 @@ import { getDefaultBoardAndPipelines } from '@erxes/ui-cards/src/boards/utils';
 import { getWarningMessage } from '@erxes/ui-cards/src/boards/utils';
 import { gql } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
-import { withRouter } from 'react-router-dom';
+
+// import { withRouter } from 'react-router-dom';
 
 type Props = {
   history?: any;
@@ -48,12 +49,12 @@ class BoardsContainer extends React.Component<FinalProps> {
     };
 
     // remove action
-    const remove = boardId => {
+    const remove = (boardId) => {
       confirm(getWarningMessage('Board'), { hasDeleteConfirm: true }).then(
         () => {
           removeMutation({
             variables: { _id: boardId },
-            refetchQueries: getRefetchQueries()
+            refetchQueries: getRefetchQueries(),
           })
             .then(() => {
               // if deleted board is default board
@@ -65,16 +66,16 @@ class BoardsContainer extends React.Component<FinalProps> {
 
                 localStorage.setItem(
                   STORAGE_BOARD_KEY,
-                  JSON.stringify(defaultBoards)
+                  JSON.stringify(defaultBoards),
                 );
               }
 
               Alert.success('You successfully deleted a board');
             })
-            .catch(error => {
+            .catch((error) => {
               Alert.error(error.message);
             });
-        }
+        },
       );
     };
 
@@ -83,7 +84,7 @@ class BoardsContainer extends React.Component<FinalProps> {
       values,
       isSubmitted,
       callback,
-      object
+      object,
     }: IButtonMutateProps) => {
       return (
         <ButtonMutate
@@ -107,7 +108,7 @@ class BoardsContainer extends React.Component<FinalProps> {
       renderButton,
       remove,
       removeHash,
-      loading: boardsQuery.loading
+      loading: boardsQuery.loading,
     };
 
     return <Boards {...extendedProps} />;
@@ -119,7 +120,7 @@ const getRefetchQueries = () => {
 };
 
 const generateOptions = () => ({
-  refetchQueries: getRefetchQueries()
+  refetchQueries: getRefetchQueries(),
 });
 
 export default withProps<Props>(
@@ -127,15 +128,15 @@ export default withProps<Props>(
     graphql<Props, BoardsQueryResponse, {}>(gql(queries.boards), {
       name: 'boardsQuery',
       options: ({ type }) => ({
-        variables: { type }
-      })
+        variables: { type },
+      }),
     }),
     graphql<Props, RemoveBoardMutationResponse, {}>(
       gql(mutations.boardRemove),
       {
         name: 'removeMutation',
-        options: generateOptions()
-      }
-    )
-  )(withRouter<FinalProps>(BoardsContainer))
+        options: generateOptions(),
+      },
+    ),
+  )(BoardsContainer),
 );

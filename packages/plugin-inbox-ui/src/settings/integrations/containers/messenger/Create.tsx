@@ -9,11 +9,11 @@ import {
   SaveMessengerAppsMutationResponse,
   SaveMessengerConfigsMutationResponse,
   SaveMessengerMutationResponse,
-  SaveMessengerMutationVariables
+  SaveMessengerMutationVariables,
 } from '@erxes/ui-inbox/src/settings/integrations/types';
 import {
   mutations,
-  queries
+  queries,
 } from '@erxes/ui-inbox/src/settings/integrations/graphql';
 
 import { BrandsQueryResponse } from '@erxes/ui/src/brands/types';
@@ -28,7 +28,8 @@ import { gql } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
 import { integrationsListParams } from '@erxes/ui-inbox/src/settings/integrations/containers/utils';
 import { queries as kbQueries } from '@erxes/ui-knowledgebase/src/graphql';
-import { withRouter } from 'react-router-dom';
+
+// import { withRouter } from 'react-router-dom';
 
 type Props = {
   queryParams: any;
@@ -55,7 +56,7 @@ const CreateMessenger = (props: FinalProps) => {
     saveConfigsMutation,
     saveAppearanceMutation,
     messengerAppSaveMutation,
-    knowledgeBaseTopicsQuery
+    knowledgeBaseTopicsQuery,
   } = props;
 
   const [isLoading, setIsLoading] = React.useState(false);
@@ -68,7 +69,7 @@ const CreateMessenger = (props: FinalProps) => {
   const brands = brandsQuery.brands || [];
   const topics = knowledgeBaseTopicsQuery.knowledgeBaseTopics || [];
 
-  const save = doc => {
+  const save = (doc) => {
     const {
       name,
       brandId,
@@ -76,12 +77,12 @@ const CreateMessenger = (props: FinalProps) => {
       messengerData,
       uiOptions,
       channelIds,
-      messengerApps
+      messengerApps,
     } = doc;
 
     let id = '';
     saveMessengerMutation({
-      variables: { name, brandId, languageCode, channelIds }
+      variables: { name, brandId, languageCode, channelIds },
     })
       .then(({ data }) => {
         setIsLoading(true);
@@ -89,36 +90,36 @@ const CreateMessenger = (props: FinalProps) => {
         const integrationId = data.integrationsCreateMessengerIntegration._id;
         id = integrationId;
         return saveConfigsMutation({
-          variables: { _id: integrationId, messengerData }
+          variables: { _id: integrationId, messengerData },
         });
       })
       .then(({ data }) => {
         const integrationId = data.integrationsSaveMessengerConfigs._id;
 
         return saveAppearanceMutation({
-          variables: { _id: integrationId, uiOptions }
+          variables: { _id: integrationId, uiOptions },
         });
       })
       .then(({ data }) => {
         const integrationId = data.integrationsSaveMessengerAppearanceData._id;
 
         return messengerAppSaveMutation({
-          variables: { integrationId, messengerApps }
+          variables: { integrationId, messengerApps },
         });
       })
       .then(() => {
         Alert.success('You successfully added an integration');
         history.push(
-          `/settings/integrations?refetch=true&_id=${id}&kind=messenger`
+          `/settings/integrations?refetch=true&_id=${id}&kind=messenger`,
         );
       })
-      .catch(error => {
+      .catch((error) => {
         if (error.message.includes('Duplicated messenger for single brand')) {
           return Alert.warning(
             __(
-              "You've already created a messenger for the brand you've selected. Please choose a different brand or edit the previously created messenger"
+              "You've already created a messenger for the brand you've selected. Please choose a different brand or edit the previously created messenger",
             ),
-            6000
+            6000,
           );
         }
 
@@ -132,7 +133,7 @@ const CreateMessenger = (props: FinalProps) => {
     brands,
     save,
     topics,
-    isLoading
+    isLoading,
   };
 
   return <Form {...updatedProps} />;
@@ -144,25 +145,25 @@ const commonOptions = ({ integrationId }: { integrationId?: string }) => {
       {
         query: gql(queries.integrationDetail),
         variables: { _id: integrationId || '' },
-        fetchPolicy: 'network-only'
-      }
-    ]
+        fetchPolicy: 'network-only',
+      },
+    ],
   };
 };
 
 export default withProps<Props>(
   compose(
     graphql<Props, UsersQueryResponse>(gql(queries.users), {
-      name: 'usersQuery'
+      name: 'usersQuery',
     }),
     graphql<Props, BrandsQueryResponse>(gql(brandQueries.brands), {
       name: 'brandsQuery',
       options: () => ({
-        fetchPolicy: 'network-only'
-      })
+        fetchPolicy: 'network-only',
+      }),
     }),
     graphql<Props, TopicsQueryResponse>(gql(kbQueries.knowledgeBaseTopics), {
-      name: 'knowledgeBaseTopicsQuery'
+      name: 'knowledgeBaseTopicsQuery',
     }),
     graphql<
       Props,
@@ -175,14 +176,14 @@ export default withProps<Props>(
           refetchQueries: [
             {
               query: gql(queries.integrations),
-              variables: integrationsListParams(queryParams)
+              variables: integrationsListParams(queryParams),
             },
             {
-              query: gql(queries.integrationTotalCount)
-            }
-          ]
+              query: gql(queries.integrationTotalCount),
+            },
+          ],
         };
-      }
+      },
     }),
     graphql<
       Props,
@@ -190,7 +191,7 @@ export default withProps<Props>(
       { _id: string; messengerData: IMessengerData }
     >(gql(mutations.integrationsSaveMessengerConfigs), {
       name: 'saveConfigsMutation',
-      options: commonOptions
+      options: commonOptions,
     }),
     graphql<
       Props,
@@ -198,7 +199,7 @@ export default withProps<Props>(
       { _id: string; messengerApps: IMessengerApps }
     >(gql(mutations.messengerAppSave), {
       name: 'messengerAppSaveMutation',
-      options: commonOptions
+      options: commonOptions,
     }),
     graphql<
       Props,
@@ -206,7 +207,7 @@ export default withProps<Props>(
       { _id: string; uiOptions: IUiOptions }
     >(gql(mutations.integrationsSaveMessengerAppearance), {
       name: 'saveAppearanceMutation',
-      options: commonOptions
-    })
-  )(withRouter<FinalProps>(CreateMessenger))
+      options: commonOptions,
+    }),
+  )(CreateMessenger),
 );

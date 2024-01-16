@@ -1,12 +1,12 @@
 import { Spinner, Table } from '@erxes/ui/src';
-import { __ } from 'coreui/utils';
-import { IRouterProps } from '@erxes/ui/src/types';
-import React from 'react';
-import { withRouter } from 'react-router-dom';
 
-import { ITransaction } from '../../../transactions/types';
-import ScheduleRow from './ScheduleRow';
 import { ContractsTableWrapper } from '../../styles';
+import { IRouterProps } from '@erxes/ui/src/types';
+import { ITransaction } from '../../../transactions/types';
+import React from 'react';
+import ScheduleRow from './ScheduleRow';
+import { __ } from 'coreui/utils';
+// import { withRouter } from 'react-router-dom';
 
 interface IProps extends IRouterProps {
   contractId: string;
@@ -44,7 +44,7 @@ class SchedulesList extends React.Component<IProps> {
             </tr>
           </thead>
           <tbody id="schedules">
-            {transactions.map(transaction => (
+            {transactions.map((transaction) => (
               <ScheduleRow
                 transaction={transaction}
                 key={transaction._id}
@@ -57,4 +57,4 @@ class SchedulesList extends React.Component<IProps> {
   }
 }
 
-export default withRouter<IRouterProps>(SchedulesList);
+export default SchedulesList;

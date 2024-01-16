@@ -1,28 +1,30 @@
 import * as compose from 'lodash.flowright';
-import { gql } from '@apollo/client';
-import List from '../components/CoverList';
-import queryString from 'query-string';
-import React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
-import { IRouterProps } from '@erxes/ui/src/types';
-import {
-  ListQueryVariables,
-  CoversQueryResponse,
-  RemoveCoverMutationResponse,
-  CoversCountQueryResponse
-} from '../types';
-import { mutations, queries } from '../graphql';
-import { withRouter } from 'react-router-dom';
+
+// import { withRouter } from 'react-router-dom';
 import {
   Alert,
-  confirm,
-  withProps,
   Bulk,
+  Spinner,
+  confirm,
   router,
-  Spinner
+  withProps,
 } from '@erxes/ui/src';
+import {
+  CoversCountQueryResponse,
+  CoversQueryResponse,
+  ListQueryVariables,
+  RemoveCoverMutationResponse,
+} from '../types';
+import { mutations, queries } from '../graphql';
+
 import { FILTER_PARAMS } from '../../constants';
 import { IQueryParams } from '@erxes/ui/src/types';
+import { IRouterProps } from '@erxes/ui/src/types';
+import List from '../components/CoverList';
+import React from 'react';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
+import queryString from 'query-string';
 
 type Props = {
   queryParams: any;
@@ -49,7 +51,7 @@ class OrdersContainer extends React.Component<FinalProps, State> {
     super(props);
 
     this.state = {
-      loading: false
+      loading: false,
     };
   }
 
@@ -117,7 +119,7 @@ class OrdersContainer extends React.Component<FinalProps, State> {
 
       confirm(message).then(() => {
         removeCover({
-          variables: { _id }
+          variables: { _id },
         })
           .then(() => {
             // refresh queries
@@ -125,7 +127,7 @@ class OrdersContainer extends React.Component<FinalProps, State> {
 
             Alert.success('You successfully deleted a pos.');
           })
-          .catch(e => {
+          .catch((e) => {
             Alert.error(e.message);
           });
       });
@@ -143,10 +145,10 @@ class OrdersContainer extends React.Component<FinalProps, State> {
       isFiltered: this.isFiltered(),
       clearFilter: this.clearFilter,
       remove,
-      coversCount
+      coversCount,
     };
 
-    const ordersList = props => {
+    const ordersList = (props) => {
       return <List {...updatedProps} {...props} />;
     };
 
@@ -168,7 +170,7 @@ const generateParams = ({ queryParams }) => ({
   endDate: queryParams.endDate,
   userId: queryParams.userId,
   posId: queryParams.posId,
-  posToken: queryParams.posToken
+  posToken: queryParams.posToken,
 });
 
 export default withProps<Props>(
@@ -179,9 +181,9 @@ export default withProps<Props>(
         name: 'coversQuery',
         options: ({ queryParams }) => ({
           variables: generateParams({ queryParams }),
-          fetchPolicy: 'network-only'
-        })
-      }
+          fetchPolicy: 'network-only',
+        }),
+      },
     ),
     graphql<{ queryParams: any }, CoversCountQueryResponse, ListQueryVariables>(
       gql(queries.coversCount),
@@ -189,15 +191,15 @@ export default withProps<Props>(
         name: 'coversCountQuery',
         options: ({ queryParams }) => ({
           variables: generateParams({ queryParams }),
-          fetchPolicy: 'network-only'
-        })
-      }
+          fetchPolicy: 'network-only',
+        }),
+      },
     ),
     graphql<Props, RemoveCoverMutationResponse, { _id: string }>(
       gql(mutations.coversRemove),
       {
-        name: 'removeCover'
-      }
-    )
-  )(withRouter<IRouterProps>(OrdersContainer))
+        name: 'removeCover',
+      },
+    ),
+  )(OrdersContainer),
 );

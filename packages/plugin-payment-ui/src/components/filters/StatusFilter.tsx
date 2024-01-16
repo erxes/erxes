@@ -1,16 +1,16 @@
-import Box from '@erxes/ui/src/components/Box';
-import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
+import { Counts, IRouterProps } from '@erxes/ui/src/types';
 import {
   FieldStyle,
   SidebarCounter,
-  SidebarList
+  SidebarList,
 } from '@erxes/ui/src/layout/styles';
-import { Counts, IRouterProps } from '@erxes/ui/src/types';
 import { __, router } from '@erxes/ui/src/utils';
-import React from 'react';
-import { withRouter } from 'react-router-dom';
 
+import Box from '@erxes/ui/src/components/Box';
+import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import { PAYMENT_STATUS } from '../../components/constants';
+import React from 'react';
+// import { withRouter } from 'react-router-dom';
 
 interface IProps extends IRouterProps {
   counts: Counts;
@@ -64,4 +64,4 @@ function StatusFilter({ history, counts, emptyText }: IProps) {
   );
 }
 
-export default withRouter<IProps>(StatusFilter);
+export default StatusFilter;

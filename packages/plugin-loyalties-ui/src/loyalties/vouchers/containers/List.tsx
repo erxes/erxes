@@ -1,20 +1,22 @@
-import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
+
+import { Alert, router, withProps } from '@erxes/ui/src/utils';
 import { Bulk, Spinner } from '@erxes/ui/src/components';
-import { Alert, withProps, router } from '@erxes/ui/src/utils';
-import React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
-import { withRouter } from 'react-router-dom';
-import { IRouterProps } from '@erxes/ui/src/types';
-import List from '../components/List';
-import { mutations, queries } from '../graphql';
-import { queries as campaignQueries } from '../../../configs/voucherCampaign/graphql';
-import { VoucherCampaignDetailQueryResponse } from '../../../configs/voucherCampaign/types';
 import {
   MainQueryResponse,
   RemoveMutationResponse,
-  RemoveMutationVariables
+  RemoveMutationVariables,
 } from '../types';
+import { mutations, queries } from '../graphql';
+
+// import { withRouter } from 'react-router-dom';
+import { IRouterProps } from '@erxes/ui/src/types';
+import List from '../components/List';
+import React from 'react';
+import { VoucherCampaignDetailQueryResponse } from '../../../configs/voucherCampaign/types';
+import { queries as campaignQueries } from '../../../configs/voucherCampaign/graphql';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
 
 type Props = {
   queryParams: any;
@@ -37,7 +39,7 @@ class VoucherListContainer extends React.Component<FinalProps, State> {
     super(props);
 
     this.state = {
-      loading: false
+      loading: false,
     };
   }
 
@@ -46,7 +48,7 @@ class VoucherListContainer extends React.Component<FinalProps, State> {
       vouchersMainQuery,
       voucherCampaignDetailQuery,
       vouchersRemove,
-      history
+      history,
     } = this.props;
 
     if (
@@ -58,13 +60,13 @@ class VoucherListContainer extends React.Component<FinalProps, State> {
 
     const removeVouchers = ({ voucherIds }, emptyBulk) => {
       vouchersRemove({
-        variables: { _ids: voucherIds }
+        variables: { _ids: voucherIds },
       })
         .then(() => {
           emptyBulk();
           Alert.success('You successfully deleted a voucher');
         })
-        .catch(e => {
+        .catch((e) => {
           Alert.error(e.message);
         });
     };
@@ -81,10 +83,10 @@ class VoucherListContainer extends React.Component<FinalProps, State> {
       searchValue,
       vouchers: list,
       currentCampaign,
-      removeVouchers
+      removeVouchers,
     };
 
-    const vouchersList = props => {
+    const vouchersList = (props) => {
       return <List {...updatedProps} {...props} />;
     };
 
@@ -105,7 +107,7 @@ const generateParams = ({ queryParams }) => ({
   ownerType: queryParams.ownerType,
   searchValue: queryParams.searchValue,
   sortField: queryParams.sortField,
-  sortDirection: Number(queryParams.sortDirection) || undefined
+  sortDirection: Number(queryParams.sortDirection) || undefined,
 });
 
 const generateOptions = () => ({
@@ -113,8 +115,8 @@ const generateOptions = () => ({
     'vouchersMain',
     'voucherCounts',
     'voucherCategories',
-    'voucherCategoriesTotalCount'
-  ]
+    'voucherCategoriesTotalCount',
+  ],
 });
 
 export default withProps<Props>(
@@ -125,9 +127,9 @@ export default withProps<Props>(
         name: 'vouchersMainQuery',
         options: ({ queryParams }) => ({
           variables: generateParams({ queryParams }),
-          fetchPolicy: 'network-only'
-        })
-      }
+          fetchPolicy: 'network-only',
+        }),
+      },
     ),
     graphql<Props, VoucherCampaignDetailQueryResponse>(
       gql(campaignQueries.voucherCampaignDetail),
@@ -135,19 +137,19 @@ export default withProps<Props>(
         name: 'voucherCampaignDetailQuery',
         options: ({ queryParams }) => ({
           variables: {
-            id: queryParams.campaignId
-          }
+            id: queryParams.campaignId,
+          },
         }),
-        skip: ({ queryParams }) => !queryParams.campaignId
-      }
+        skip: ({ queryParams }) => !queryParams.campaignId,
+      },
     ),
     // mutations
     graphql<{}, RemoveMutationResponse, RemoveMutationVariables>(
       gql(mutations.vouchersRemove),
       {
         name: 'vouchersRemove',
-        options: generateOptions
-      }
-    )
-  )(withRouter<IRouterProps>(VoucherListContainer))
+        options: generateOptions,
+      },
+    ),
+  )(VoucherListContainer),
 );

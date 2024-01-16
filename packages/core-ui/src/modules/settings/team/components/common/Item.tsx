@@ -1,15 +1,15 @@
-import React from 'react';
+import * as routerUtils from '@erxes/ui/src/utils/router';
 
-import { withRouter } from 'react-router-dom';
+import { ActionButtons } from '@erxes/ui-settings/src/styles';
+import Button from '@erxes/ui/src/components/Button';
+import { IRouterProps } from '@erxes/ui/src/types';
+// import { withRouter } from 'react-router-dom';
 import Icon from '@erxes/ui/src/components/Icon';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import { ActionButtons } from '@erxes/ui-settings/src/styles';
-import Tip from '@erxes/ui/src/components/Tip';
-import Button from '@erxes/ui/src/components/Button';
-import { __ } from 'modules/common/utils';
+import React from 'react';
 import { SideList } from '../../styles';
-import * as routerUtils from '@erxes/ui/src/utils/router';
-import { IRouterProps } from '@erxes/ui/src/types';
+import Tip from '@erxes/ui/src/components/Tip';
+import { __ } from 'modules/common/utils';
 import queryString from 'query-string';
 
 type Props = {
@@ -35,7 +35,7 @@ function BlockItem({
   renderForm,
   level,
   history,
-  location
+  location,
 }: FinalProps) {
   const trigger = (
     <Button btnStyle="link">
@@ -53,7 +53,7 @@ function BlockItem({
     />
   );
 
-  const onClick = _id => {
+  const onClick = (_id) => {
     routerUtils.removeParams(history, 'page');
 
     routerUtils.setParams(history, { [queryParamName]: _id });
@@ -85,4 +85,4 @@ function BlockItem({
   );
 }
 
-export default withRouter<FinalProps>(BlockItem);
+export default BlockItem;

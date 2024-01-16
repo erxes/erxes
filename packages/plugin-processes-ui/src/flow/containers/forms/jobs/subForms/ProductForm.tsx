@@ -1,19 +1,21 @@
 import * as compose from 'lodash.flowright';
-import { gql } from '@apollo/client';
-import SingleIncome from '../../../../components/forms/jobs/subForms/SingleIncome';
-import SingleMove from '../../../../components/forms/jobs/subForms/SingleMove';
-import SingleOutlet from '../../../../components/forms/jobs/subForms/SingleOutlet';
+
 import React, { useState } from 'react';
-import { graphql } from '@apollo/client/react/hoc';
+
+// import { withRouter } from 'react-router-dom';
+import { DetailQueryResponse } from '@erxes/ui-products/src/types';
+import { FLOWJOB_TYPES } from '../../../../constants';
 import { IJob } from '../../../../types';
 import { IRouterProps } from '@erxes/ui/src/types';
 import { IUser } from '@erxes/ui/src/auth/types';
-import { withProps } from '@erxes/ui/src/utils';
-import { withRouter } from 'react-router-dom';
-import { DetailQueryResponse } from '@erxes/ui-products/src/types';
-import queries from '@erxes/ui-products/src/graphql/queries';
+import SingleIncome from '../../../../components/forms/jobs/subForms/SingleIncome';
+import SingleMove from '../../../../components/forms/jobs/subForms/SingleMove';
+import SingleOutlet from '../../../../components/forms/jobs/subForms/SingleOutlet';
 import Spinner from '@erxes/ui/src/components/Spinner';
-import { FLOWJOB_TYPES } from '../../../../constants';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
+import queries from '@erxes/ui-products/src/graphql/queries';
+import { withProps } from '@erxes/ui/src/utils';
 
 type Props = {
   id: string;
@@ -47,7 +49,7 @@ const EndPointFormContainer = (props: FinalProps) => {
     ...props,
     currentUser,
     saveLoading,
-    product
+    product,
   };
 
   if (type === FLOWJOB_TYPES.MOVE) {
@@ -67,9 +69,9 @@ export default withProps<Props>(
       name: 'productDetailQuery',
       options: ({ activeFlowJob }) => ({
         variables: {
-          _id: activeFlowJob.config.productId
-        }
-      })
-    })
-  )(withRouter<FinalProps>(EndPointFormContainer))
+          _id: activeFlowJob.config.productId,
+        },
+      }),
+    }),
+  )(EndPointFormContainer),
 );

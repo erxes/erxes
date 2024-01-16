@@ -1,20 +1,22 @@
-import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
-import { Alert, withProps, router } from '@erxes/ui/src/utils';
+
+import { Alert, router, withProps } from '@erxes/ui/src/utils';
 import { Bulk, Spinner } from '@erxes/ui/src/components';
-import React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
-import { withRouter } from 'react-router-dom';
-import { IRouterProps } from '@erxes/ui/src/types';
-import List from '../components/List';
-import { mutations, queries } from '../graphql';
-import { queries as campaignQueries } from '../../../configs/assignmentCampaign/graphql';
-import { AssignmentCampaignDetailQueryResponse } from '../../../configs/assignmentCampaign/types';
 import {
   MainQueryResponse,
   RemoveMutationResponse,
-  RemoveMutationVariables
+  RemoveMutationVariables,
 } from '../types';
+import { mutations, queries } from '../graphql';
+
+import { AssignmentCampaignDetailQueryResponse } from '../../../configs/assignmentCampaign/types';
+// import { withRouter } from 'react-router-dom';
+import { IRouterProps } from '@erxes/ui/src/types';
+import List from '../components/List';
+import React from 'react';
+import { queries as campaignQueries } from '../../../configs/assignmentCampaign/graphql';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
 
 type Props = {
   queryParams: any;
@@ -37,7 +39,7 @@ class AssignmentListContainer extends React.Component<FinalProps, State> {
     super(props);
 
     this.state = {
-      loading: false
+      loading: false,
     };
   }
 
@@ -46,7 +48,7 @@ class AssignmentListContainer extends React.Component<FinalProps, State> {
       assignmentsMainQuery,
       assignmentCampaignDetailQuery,
       assignmentsRemove,
-      history
+      history,
     } = this.props;
 
     if (
@@ -58,13 +60,13 @@ class AssignmentListContainer extends React.Component<FinalProps, State> {
 
     const removeAssignments = ({ assignmentIds }, emptyBulk) => {
       assignmentsRemove({
-        variables: { _ids: assignmentIds }
+        variables: { _ids: assignmentIds },
       })
         .then(() => {
           emptyBulk();
           Alert.success('You successfully deleted a assignment');
         })
-        .catch(e => {
+        .catch((e) => {
           Alert.error(e.message);
         });
     };
@@ -82,10 +84,10 @@ class AssignmentListContainer extends React.Component<FinalProps, State> {
       searchValue,
       assignments: list,
       currentCampaign,
-      removeAssignments
+      removeAssignments,
     };
 
-    const assignmentsList = props => {
+    const assignmentsList = (props) => {
       return <List {...updatedProps} {...props} />;
     };
 
@@ -106,7 +108,7 @@ const generateParams = ({ queryParams }) => ({
   ownerType: queryParams.ownerType,
   searchValue: queryParams.searchValue,
   sortField: queryParams.sortField,
-  sortDirection: Number(queryParams.sortDirection) || undefined
+  sortDirection: Number(queryParams.sortDirection) || undefined,
 });
 
 const generateOptions = () => ({
@@ -114,8 +116,8 @@ const generateOptions = () => ({
     'assignmentsMain',
     'assignmentCounts',
     'assignmentCategories',
-    'assignmentCategoriesTotalCount'
-  ]
+    'assignmentCategoriesTotalCount',
+  ],
 });
 
 export default withProps<Props>(
@@ -126,9 +128,9 @@ export default withProps<Props>(
         name: 'assignmentsMainQuery',
         options: ({ queryParams }) => ({
           variables: generateParams({ queryParams }),
-          fetchPolicy: 'network-only'
-        })
-      }
+          fetchPolicy: 'network-only',
+        }),
+      },
     ),
     graphql<Props, AssignmentCampaignDetailQueryResponse>(
       gql(campaignQueries.assignmentCampaignDetail),
@@ -136,19 +138,19 @@ export default withProps<Props>(
         name: 'assignmentCampaignDetailQuery',
         options: ({ queryParams }) => ({
           variables: {
-            _id: queryParams.campaignId
-          }
+            _id: queryParams.campaignId,
+          },
         }),
-        skip: ({ queryParams }) => !queryParams.campaignId
-      }
+        skip: ({ queryParams }) => !queryParams.campaignId,
+      },
     ),
     // mutations
     graphql<{}, RemoveMutationResponse, RemoveMutationVariables>(
       gql(mutations.assignmentsRemove),
       {
         name: 'assignmentsRemove',
-        options: generateOptions
-      }
-    )
-  )(withRouter<IRouterProps>(AssignmentListContainer))
+        options: generateOptions,
+      },
+    ),
+  )(AssignmentListContainer),
 );

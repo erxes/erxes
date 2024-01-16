@@ -1,18 +1,6 @@
-import { DefaultColumnsConfigQueryResponse } from '@erxes/ui-forms/src/settings/properties/types';
-import Bulk from '@erxes/ui/src/components/Bulk';
-import { IRouterProps } from '@erxes/ui/src/types';
-import { Alert, getEnv, withProps } from '@erxes/ui/src/utils';
-import { isEnabled } from '@erxes/ui/src/utils/core';
-import { generatePaginationParams } from '@erxes/ui/src/utils/router';
-import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
-import queryString from 'query-string';
-import React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
-import { withRouter } from 'react-router-dom';
 
-import CompaniesList from '../components/list/CompaniesList';
-import { mutations, queries } from '../graphql';
+import { Alert, getEnv, withProps } from '@erxes/ui/src/utils';
 import {
   ListConfigQueryResponse,
   ListQueryVariables,
@@ -20,8 +8,21 @@ import {
   MergeMutationResponse,
   MergeMutationVariables,
   RemoveMutationResponse,
-  RemoveMutationVariables
+  RemoveMutationVariables,
 } from '../types';
+import { mutations, queries } from '../graphql';
+
+import Bulk from '@erxes/ui/src/components/Bulk';
+import CompaniesList from '../components/list/CompaniesList';
+import { DefaultColumnsConfigQueryResponse } from '@erxes/ui-forms/src/settings/properties/types';
+import { IRouterProps } from '@erxes/ui/src/types';
+import React from 'react';
+import { generatePaginationParams } from '@erxes/ui/src/utils/router';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
+import { isEnabled } from '@erxes/ui/src/utils/core';
+import queryString from 'query-string';
+// import { withRouter } from 'react-router-dom';
 
 type Props = {
   queryParams?: any;
@@ -46,7 +47,7 @@ class CompanyListContainer extends React.Component<FinalProps, State> {
     super(props);
 
     this.state = {
-      loading: false
+      loading: false,
     };
   }
 
@@ -68,7 +69,7 @@ class CompanyListContainer extends React.Component<FinalProps, State> {
       companiesListConfigQuery,
       companiesRemove,
       companiesMerge,
-      history
+      history,
     } = this.props;
     let columnsConfig = (companiesListConfigQuery &&
       companiesListConfigQuery.fieldsDefaultColumnsConfig) || [
@@ -79,34 +80,34 @@ class CompanyListContainer extends React.Component<FinalProps, State> {
       { name: 'plan', label: 'Plan', order: 5 },
       { name: 'lastSeenAt', label: 'Last seen at', order: 6 },
       { name: 'sessionCount', label: 'Session count', order: 7 },
-      { name: 'score', label: 'Score', order: 8 }
+      { name: 'score', label: 'Score', order: 8 },
     ];
 
     // load config from local storage
     const localConfig = localStorage.getItem(
-      'erxes_contacts:company_columns_config'
+      'erxes_contacts:company_columns_config',
     );
 
     if (localConfig) {
-      columnsConfig = JSON.parse(localConfig).filter(conf => {
+      columnsConfig = JSON.parse(localConfig).filter((conf) => {
         return conf && conf.checked;
       });
     }
 
     const removeCompanies = ({ companyIds }, emptyBulk) => {
       companiesRemove({
-        variables: { companyIds }
+        variables: { companyIds },
       })
         .then(() => {
           emptyBulk();
           Alert.success(
             'You successfully deleted a company. The changes will take a few seconds',
-            4500
+            4500,
           );
 
           this.refetchWithDelay();
         })
-        .catch(e => {
+        .catch((e) => {
           Alert.error(e.message);
         });
     };
@@ -115,17 +116,17 @@ class CompanyListContainer extends React.Component<FinalProps, State> {
       companiesMerge({
         variables: {
           companyIds: ids,
-          companyFields: data
-        }
+          companyFields: data,
+        },
       })
-        .then(response => {
+        .then((response) => {
           Alert.success('You successfully merged companies');
           callback();
           history.push(
-            `/companies/details/${response.data.companiesMerge._id}`
+            `/companies/details/${response.data.companiesMerge._id}`,
           );
         })
-        .catch(e => {
+        .catch((e) => {
           Alert.error(e.message);
         });
     };
@@ -135,7 +136,7 @@ class CompanyListContainer extends React.Component<FinalProps, State> {
     const { list = [], totalCount = 0 } =
       companiesMainQuery.companiesMain || {};
 
-    const exportCompanies = bulk => {
+    const exportCompanies = (bulk) => {
       const { REACT_APP_API_URL } = getEnv();
       const { queryParams } = this.props;
       const checkedConfigs: any[] = [];
@@ -146,22 +147,22 @@ class CompanyListContainer extends React.Component<FinalProps, State> {
       }
 
       if (bulk.length > 0) {
-        queryParams.ids = bulk.map(company => company._id);
+        queryParams.ids = bulk.map((company) => company._id);
       }
 
-      columnsConfig.forEach(checked => {
+      columnsConfig.forEach((checked) => {
         checkedConfigs.push(checked.name);
       });
 
       const stringified = queryString.stringify({
         ...queryParams,
         type: 'company',
-        configs: JSON.stringify(checkedConfigs)
+        configs: JSON.stringify(checkedConfigs),
       });
 
       window.open(
         `${REACT_APP_API_URL}/pl:contacts/file-export?${stringified}`,
-        '_blank'
+        '_blank',
       );
     };
 
@@ -175,10 +176,10 @@ class CompanyListContainer extends React.Component<FinalProps, State> {
       exportCompanies,
       removeCompanies,
       mergeCompanies,
-      refetch: this.refetchWithDelay
+      refetch: this.refetchWithDelay,
     };
 
-    const companiesList = props => {
+    const companiesList = (props) => {
       return (
         <CompaniesList
           {...updatedProps}
@@ -210,7 +211,7 @@ const generateParams = ({ queryParams }) => {
     dateFilters: queryParams.dateFilters,
     sortDirection: queryParams.sortDirection
       ? parseInt(queryParams.sortDirection, 10)
-      : undefined
+      : undefined,
   };
 };
 
@@ -218,20 +219,20 @@ const getRefetchQueries = (queryParams?: any) => {
   return [
     {
       query: gql(queries.companiesMain),
-      variables: { ...generateParams({ queryParams }) }
+      variables: { ...generateParams({ queryParams }) },
     },
     {
       query: gql(queries.companyCounts),
-      variables: { only: 'byTag' }
+      variables: { only: 'byTag' },
     },
     {
       query: gql(queries.companyCounts),
-      variables: { only: 'bySegment' }
+      variables: { only: 'bySegment' },
     },
     {
       query: gql(queries.companyCounts),
-      variables: { only: 'byBrand' }
-    }
+      variables: { only: 'byBrand' },
+    },
   ];
 };
 
@@ -242,16 +243,16 @@ export default withProps<Props>(
       {
         name: 'companiesMainQuery',
         options: ({ queryParams }) => ({
-          variables: generateParams({ queryParams })
-        })
-      }
+          variables: generateParams({ queryParams }),
+        }),
+      },
     ),
     graphql<Props, ListConfigQueryResponse, {}>(
       gql(queries.companiesListConfig),
       {
         name: 'companiesListConfigQuery',
-        skip: !isEnabled('forms')
-      }
+        skip: !isEnabled('forms'),
+      },
     ),
     // mutations
     graphql<Props, RemoveMutationResponse, RemoveMutationVariables>(
@@ -259,18 +260,18 @@ export default withProps<Props>(
       {
         name: 'companiesRemove',
         options: ({ queryParams }) => ({
-          refetchQueries: getRefetchQueries(queryParams)
-        })
-      }
+          refetchQueries: getRefetchQueries(queryParams),
+        }),
+      },
     ),
     graphql<Props, MergeMutationResponse, MergeMutationVariables>(
       gql(mutations.companiesMerge),
       {
         name: 'companiesMerge',
         options: ({ queryParams }) => ({
-          refetchQueries: getRefetchQueries(queryParams)
-        })
-      }
-    )
-  )(withRouter<IRouterProps>(CompanyListContainer))
+          refetchQueries: getRefetchQueries(queryParams),
+        }),
+      },
+    ),
+  )(CompanyListContainer),
 );
