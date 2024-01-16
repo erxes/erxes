@@ -152,7 +152,7 @@ export async function startPlugin(configs: any): Promise<express.Express> {
     const services = await getServices();
     debugInfo(`Enabled services .... ${JSON.stringify(services)}`);
 
-    const { typeDefs, resolvers } = await configs.graphql(serviceDiscovery);
+    const { typeDefs, resolvers } = await configs.graphql();
 
     return new ApolloServer({
       schema: buildSubgraphSchema([
