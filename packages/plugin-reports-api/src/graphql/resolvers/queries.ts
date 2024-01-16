@@ -162,14 +162,14 @@ const reportsQueries = {
     return chartTemplates;
   },
 
-  reportChartGetFilterTypes(
+  async reportChartGetFilterTypes(
     _root,
     { serviceName, templateType },
     { models }: IContext
   ) {
-    const service = getService(serviceName);
+    const service = await getService(serviceName);
 
-    const templates = service.configs.meta.reports.templates || {};
+    const templates = service.config?.meta?.reports?.templates || {};
 
     let filterTypes = [];
 

@@ -773,7 +773,6 @@ export const sendContactsMessage = async (
 ): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'contacts',
     ...args,
   });
