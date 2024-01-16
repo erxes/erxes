@@ -295,7 +295,7 @@ const msdynamicCheckMutations = {
         }
       }
     } catch (e) {
-      console.log(e, 'errors');
+      console.log(e, 'error');
     }
 
     return {
