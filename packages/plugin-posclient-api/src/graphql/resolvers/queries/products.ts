@@ -292,6 +292,10 @@ const productQueries = {
       sortParams = { [sortField]: sortDirection };
     }
 
+    if (sortField === 'unitPrice') {
+      sortParams = { [`prices.${config.token}`]: sortDirection };
+    }
+
     if (groupedSimilarity) {
       return await getSimilaritiesProducts(models, filter, {
         groupedSimilarity,
