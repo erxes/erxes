@@ -5,7 +5,7 @@ import { initBroker } from './messageBroker';
 
 export let mainDb;
 export let debug;
-export let graphqlPubsub;
+
 export let serviceDiscovery;
 
 export default {
@@ -28,7 +28,7 @@ export default {
 
     initBroker(options.messageBrokerClient);
 
-    graphqlPubsub = options.pubsubClient;
+    
 
     debug = options.debug;
   }

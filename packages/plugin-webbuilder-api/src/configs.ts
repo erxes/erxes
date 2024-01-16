@@ -11,7 +11,7 @@ import { readSync } from 'fs';
 
 export let mainDb;
 export let debug;
-export let graphqlPubsub;
+
 export let serviceDiscovery;
 
 export default {
@@ -40,8 +40,6 @@ export default {
     mainDb = options.db;
 
     initBroker(options.messageBrokerClient);
-
-    graphqlPubsub = options.pubsubClient;
 
     debug = options.debug;
 

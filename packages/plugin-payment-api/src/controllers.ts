@@ -7,7 +7,7 @@ import redisUtils from './redisUtils';
 import { PAYMENTS } from './api/constants';
 import { StorePayAPI } from './api/storepay/api';
 import fetch from 'node-fetch';
-import { graphqlPubsub } from './configs';
+import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
 import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
 import messageBroker from './messageBroker';
 import { randomAlphanumeric } from '@erxes/api-utils/src/random';

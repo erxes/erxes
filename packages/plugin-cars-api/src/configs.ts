@@ -9,19 +9,19 @@ import segments from './segments';
 import tags from './tags';
 
 export let debug;
-export let graphqlPubsub;
+
 export let mainDb;
 export let serviceDiscovery;
 
 export default {
   name: 'cars',
   permissions,
-  graphql: async sd => {
+  graphql: async (sd) => {
     serviceDiscovery = sd;
 
     return {
       typeDefs: await typeDefs(sd),
-      resolvers: await resolvers(sd)
+      resolvers: await resolvers(sd),
     };
   },
 
@@ -34,13 +34,12 @@ export default {
     return context;
   },
 
-  onServerInit: async options => {
+  onServerInit: async (options) => {
     mainDb = options.db;
 
     initBroker(options.messageBrokerClient);
 
     debug = options.debug;
-    graphqlPubsub = options.pubsubClient;
   },
-  meta: { forms, tags, segments }
+  meta: { forms, tags, segments },
 };

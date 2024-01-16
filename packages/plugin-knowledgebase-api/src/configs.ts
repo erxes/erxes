@@ -9,19 +9,19 @@ import { getSubdomain } from '@erxes/api-utils/src/core';
 import webhooks from './webhooks';
 
 export let mainDb;
-export let graphqlPubsub;
+
 export let serviceDiscovery;
 
 export let debug;
 
 export default {
   name: 'knowledgebase',
-  graphql: sd => {
+  graphql: (sd) => {
     serviceDiscovery = sd;
 
     return {
       typeDefs,
-      resolvers
+      resolvers,
     };
   },
   hasSubscriptions: false,
@@ -37,12 +37,11 @@ export default {
     return context;
   },
 
-  onServerInit: async options => {
+  onServerInit: async (options) => {
     mainDb = options.db;
 
     initBroker(options.messageBrokerClient);
 
     debug = options.debug;
-    graphqlPubsub = options.pubsubClient;
-  }
+  },
 };

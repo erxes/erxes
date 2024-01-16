@@ -8,7 +8,7 @@ import { generateModels } from './connectionResolver';
 
 export let mainDb;
 export let debug;
-export let graphqlPubsub;
+
 export let serviceDiscovery;
 
 export default {
@@ -17,14 +17,14 @@ export default {
   subscriptionPluginPath: require('path').resolve(
     __dirname,
     'graphql',
-    'subscriptionPlugin.js'
+    'subscriptionPlugin.js',
   ),
-  graphql: async sd => {
+  graphql: async (sd) => {
     serviceDiscovery = sd;
 
     return {
       typeDefs: await typeDefs(sd),
-      resolvers: await resolvers(sd)
+      resolvers: await resolvers(sd),
     };
   },
 
@@ -32,9 +32,9 @@ export default {
     inboxIntegrations: [
       {
         kind: 'calls',
-        label: 'Phone call'
-      }
-    ]
+        label: 'Phone call',
+      },
+    ],
   },
 
   postHandlers: [{ path: '/webhook', method: webhookReceiver }],
@@ -49,13 +49,11 @@ export default {
     return context;
   },
 
-  onServerInit: async options => {
+  onServerInit: async (options) => {
     mainDb = options.db;
 
     initBroker(options.messageBrokerClient);
 
-    graphqlPubsub = options.pubsubClient;
-
     debug = options.debug;
-  }
+  },
 };

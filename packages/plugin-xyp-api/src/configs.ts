@@ -11,17 +11,17 @@ import forms from './forms';
 
 export let mainDb;
 export let debug;
-export let graphqlPubsub;
+
 export let serviceDiscovery;
 
 export default {
   name: 'xyp',
-  graphql: async sd => {
+  graphql: async (sd) => {
     serviceDiscovery = sd;
 
     return {
       typeDefs: await typeDefs(sd),
-      resolvers: await resolvers(sd)
+      resolvers: await resolvers(sd),
     };
   },
 
@@ -37,18 +37,16 @@ export default {
     return context;
   },
 
-  onServerInit: async options => {
+  onServerInit: async (options) => {
     mainDb = options.db;
 
     initBroker(options.messageBrokerClient);
-
-    graphqlPubsub = options.pubsubClient;
 
     debug = options.debug;
   },
   meta: {
     exporter,
     forms,
-    segments
-  }
+    segments,
+  },
 };

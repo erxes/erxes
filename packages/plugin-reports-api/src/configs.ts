@@ -11,17 +11,17 @@ import { buildFile } from './reportExport';
 
 export let mainDb;
 export let debug;
-export let graphqlPubsub;
+
 export let serviceDiscovery;
 
 export default {
   name: 'reports',
-  graphql: async sd => {
+  graphql: async (sd) => {
     serviceDiscovery = sd;
 
     return {
       typeDefs: await typeDefs(sd),
-      resolvers: await resolvers(sd)
+      resolvers: await resolvers(sd),
     };
   },
 
@@ -36,12 +36,10 @@ export default {
     return context;
   },
 
-  onServerInit: async options => {
+  onServerInit: async (options) => {
     mainDb = options.db;
     const app = options.app;
     initBroker(options.messageBrokerClient);
-
-    graphqlPubsub = options.pubsubClient;
 
     debug = options.debug;
 
@@ -58,7 +56,7 @@ export default {
         res.attachment(`${result.name}.xlsx`);
 
         return res.send(result.response);
-      })
+      }),
     );
-  }
+  },
 };

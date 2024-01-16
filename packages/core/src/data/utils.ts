@@ -507,9 +507,9 @@ const uploadToCFImages = async (
   let fileName = `${Math.random()}${file.name.replace(/ /g, '')}`;
   const extension = fileName.split('.').pop();
 
-  if (extension && ['JPEG', 'JPG'].includes(extension)) {
+  if (extension && ['JPEG', 'JPG', 'PNG'].includes(extension)) {
     const baseName = fileName.slice(0, -(extension.length + 1));
-    fileName = `${baseName}.jpg`;
+    fileName = `${baseName}.${extension.toLowerCase()}`;
   }
 
   const formData = new FormData();

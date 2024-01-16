@@ -12,7 +12,6 @@ import { IContext } from '../../../connectionResolver';
 import { init as initBrokerMain } from '@erxes/api-utils/src/messageBroker';
 import { initBroker, sendPosMessage } from '../../../messageBroker';
 import { IOrderItemDocument } from '../../../models/definitions/orderItems';
-import redis from '@erxes/api-utils/src/redis';
 import fetch from 'node-fetch';
 import { app } from '../../../configs';
 import { IPutResponseDocument } from '../../../models/definitions/putResponses';
@@ -66,7 +65,6 @@ const configMutations = {
       {
         RABBITMQ_HOST,
         MESSAGE_BROKER_PREFIX,
-        redis,
         app,
       },
       initBroker,

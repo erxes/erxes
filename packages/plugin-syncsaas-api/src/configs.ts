@@ -19,7 +19,7 @@ export default {
 
     return {
       typeDefs: await typeDefs(sd),
-      resolvers: await resolvers(sd)
+      resolvers: await resolvers(sd),
     };
   },
   apolloServerContext: async (context, req) => {

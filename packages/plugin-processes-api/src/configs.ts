@@ -10,18 +10,18 @@ import logs from './logUtils';
 import { initBroker } from './messageBroker';
 
 export let debug;
-export let graphqlPubsub;
+
 export let mainDb;
 export let serviceDiscovery;
 
 export default {
   name: 'processes',
   permissions,
-  graphql: async sd => {
+  graphql: async (sd) => {
     serviceDiscovery = sd;
     return {
       typeDefs: await typeDefs(sd),
-      resolvers: await resolvers()
+      resolvers: await resolvers(),
     };
   },
   apolloServerContext: async (context, req) => {
@@ -32,13 +32,13 @@ export default {
 
     return context;
   },
-  onServerInit: async options => {
+  onServerInit: async (options) => {
     await generateModels('os');
 
     initBroker(options.messageBrokerClient);
 
     debug = options.debug;
-    graphqlPubsub = options.pubsubClient;
+
     // es = options.elasticsearch;
   },
 
@@ -46,6 +46,6 @@ export default {
     logs: { consumers: logs },
     beforeResolvers,
     permissions,
-    documents
-  }
+    documents,
+  },
 };

@@ -22,7 +22,6 @@ import { init as initBroker } from '@erxes/api-utils/src/messageBroker';
 import { logConsumers } from '@erxes/api-utils/src/logUtils';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import { internalNoteConsumers } from '@erxes/api-utils/src/internalNotes';
-import pubsub from './pubsub';
 import * as path from 'path';
 import * as ws from 'ws';
 
@@ -34,7 +33,6 @@ import {
   join,
   leave,
 } from '@erxes/api-utils/src/serviceDiscovery';
-import redis from '../redis';
 import { applyInspectorEndpoints } from '../inspect';
 
 const {
@@ -277,7 +275,6 @@ export async function startPlugin(configs: any): Promise<express.Express> {
     {
       RABBITMQ_HOST,
       MESSAGE_BROKER_PREFIX,
-      redis,
       app,
     },
     configs.reconnectRMQ,
@@ -662,8 +659,6 @@ export async function startPlugin(configs: any): Promise<express.Express> {
   configs.onServerInit({
     db,
     app,
-    redis,
-    pubsubClient: pubsub,
     messageBrokerClient,
     debug: {
       info: debugInfo,
