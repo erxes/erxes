@@ -188,19 +188,6 @@ const facebookQueries = {
       commentCount: commentCount,
       searchCount: 0
     };
-
-    // const commentCountWithoutReplies = await models.CommentConversationReply.countDocuments(
-    //   {
-    //     postId: post.postId,
-    //     isResolved,
-    //     parentId: null
-    //   }
-    // );
-
-    // return {
-    //   commentCount,
-    //   commentCountWithoutReplies
-    // };
   },
 
   async facebookGetPages(_root, args, { models }: IContext) {
@@ -351,10 +338,6 @@ const facebookQueries = {
     // Return null or some appropriate value when comment is not found
     return null;
   },
-
-  // facebookGetPost(_root, { erxesApiId }: IDetailParams, { models }: IContext) {
-  //   return models.Posts.findOne({ erxesApiId });
-  // },
 
   async facebookHasTaggedMessages(
     _root,
