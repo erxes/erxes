@@ -9,17 +9,16 @@ import { initBroker, createRoutes } from './server';
 
 export let mainDb;
 
-export let serviceDiscovery;
+
 
 export let debug;
 
 export default {
   name: 'zalo',
-  graphql: async (sd) => {
-    serviceDiscovery = sd;
+  graphql: async () => {
     return {
-      typeDefs: await typeDefs(sd),
-      resolvers: await resolvers(sd),
+      typeDefs: await typeDefs(),
+      resolvers: await resolvers(),
     };
   },
   meta: {

@@ -3,7 +3,7 @@ import { mutations } from './schema/mutations';
 import { queries } from './schema/queries';
 import { types } from './schema/type';
 
-const typeDefs = async _serviceDiscovery => {
+const typeDefs = async () => {
   return gql`
     scalar JSON
     scalar Date

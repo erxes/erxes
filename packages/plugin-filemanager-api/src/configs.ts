@@ -8,9 +8,6 @@ import * as permissions from './permissions';
 import { checkFilePermission } from './utils';
 
 export let mainDb;
-
-export let serviceDiscovery;
-
 export let debug;
 
 const checkPermission = async ({ subdomain, models, files, userId }) => {
@@ -35,8 +32,7 @@ const checkPermission = async ({ subdomain, models, files, userId }) => {
 export default {
   name: 'filemanager',
   permissions,
-  graphql: (sd) => {
-    serviceDiscovery = sd;
+  graphql: () => {
     return {
       typeDefs,
       resolvers,

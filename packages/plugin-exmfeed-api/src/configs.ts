@@ -14,16 +14,12 @@ import segments from './segments';
 import forms from './forms';
 
 export let debug;
-
 export let mainDb;
-export let serviceDiscovery;
 
 export default {
   name: 'exmfeed',
   permissions,
-  graphql: async (sd) => {
-    serviceDiscovery = sd;
-
+  graphql: async () => {
     return {
       typeDefs: await typeDefs(),
       resolvers: await resolvers(),

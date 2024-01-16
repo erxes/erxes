@@ -11,16 +11,14 @@ import cpUserMiddleware from './middlewares/cpUserMiddleware';
 import * as permissions from './permissions';
 
 export let mainDb;
-export let serviceDiscovery;
 export let debug;
 
 export default {
   name: 'clientportal',
   permissions,
-  graphql: async (sd) => {
-    serviceDiscovery = sd;
+  graphql: async () => {
     return {
-      typeDefs: await typeDefs(sd),
+      typeDefs: await typeDefs(),
       resolvers,
     };
   },

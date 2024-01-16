@@ -148,7 +148,7 @@ export async function startPlugin(configs: any): Promise<express.Express> {
     });
   });
 
-  const generateApolloServer = async (serviceDiscovery) => {
+  const generateApolloServer = async () => {
     const services = await getServices();
     debugInfo(`Enabled services .... ${JSON.stringify(services)}`);
 
@@ -167,14 +167,7 @@ export async function startPlugin(configs: any): Promise<express.Express> {
     });
   };
 
-  const serviceDiscovery = {
-    getServices,
-    getService,
-    isAvailable,
-    isEnabled,
-  };
-
-  const apolloServer = await generateApolloServer(serviceDiscovery);
+  const apolloServer = await generateApolloServer();
   await apolloServer.start();
 
   app.use(

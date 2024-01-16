@@ -9,13 +9,11 @@ import { NOTIFICATION_MODULES } from './constants';
 export let debug;
 
 export let mainDb;
-export let serviceDiscovery;
 
 export default {
   name: 'chats',
   permissions,
-  graphql: async (sd) => {
-    serviceDiscovery = sd;
+  graphql: async () => {
     return {
       typeDefs: await typeDefs(),
       resolvers: await resolvers(),
