@@ -8,7 +8,7 @@ import * as permissions from './permissions';
 import beforeResolvers from './beforeResolvers';
 
 export let debug;
-export let graphqlPubsub;
+
 export let mainDb;
 export let serviceDiscovery;
 
@@ -19,13 +19,13 @@ export default {
   subscriptionPluginPath: require('path').resolve(
     __dirname,
     'graphql',
-    'subscriptionPlugin.js'
+    'subscriptionPlugin.js',
   ),
-  graphql: async sd => {
+  graphql: async (sd) => {
     serviceDiscovery = sd;
     return {
       typeDefs: await typeDefs(sd),
-      resolvers: await resolvers(sd)
+      resolvers: await resolvers(sd),
     };
   },
   apolloServerContext: async (context, req) => {
@@ -36,17 +36,16 @@ export default {
 
     return context;
   },
-  onServerInit: async options => {
+  onServerInit: async (options) => {
     mainDb = options.db;
 
     initBroker(options.messageBrokerClient);
 
     debug = options.debug;
-    graphqlPubsub = options.pubsubClient;
   },
   meta: {
     afterMutations,
     beforeResolvers,
-    permissions
-  }
+    permissions,
+  },
 };

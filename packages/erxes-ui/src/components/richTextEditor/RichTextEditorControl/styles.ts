@@ -7,7 +7,7 @@ const EditorControl = styled.button`
   justify-content: center;
   align-items: center;
   background-color: #fff;
-  border: 0.0625rem solid #ced4da;
+  border: 0.0625rem solid #eee;
   color: ${colors.textPrimary};
   cursor: pointer;
   height: 1.75rem;
@@ -36,7 +36,10 @@ const EditorControl = styled.button`
 
   &:disabled {
     color: ${colors.colorCoreLightGray} !important;
-    background-color: transparent !important;
+    svg {
+      fill: ${colors.colorCoreLightGray} !important;
+    }
+    pointer-events: none;
   }
 
   &[data-rich-text-editor-control] {
@@ -56,7 +59,7 @@ const EditorControl = styled.button`
   }
   &[data-active='true'] {
     color: ${colors.colorSecondary};
-    background-color: ${rgba(colors.colorSecondary, 0.15)};
+    background-color: ${rgba(colors.colorSecondary, 0.05)};
   }
 `;
 const LinkWrapper = styled.div`
@@ -64,7 +67,7 @@ const LinkWrapper = styled.div`
   justify-content: center;
   align-items: center;
   background-color: #fff;
-  border: 0.0625rem solid #ced4da;
+  border: 0.0625rem solid #eee;
   border-radius: 0.25rem;
   color: ${colors.textPrimary};
   cursor: pointer;
@@ -74,7 +77,7 @@ const LinkWrapper = styled.div`
     height: 2.25rem;
     min-height: 2.25rem;
     background-color: #fff;
-    border: 0.0625rem solid #ced4da;
+    border: 0.0625rem solid #eee;
     color: ${colors.textPrimary};
     cursor: pointer;
     outline: none;
@@ -82,7 +85,7 @@ const LinkWrapper = styled.div`
     padding-left: 1rem;
     padding-right: 1rem;
     border-radius: 0.25rem;
-    border: 0.0625rem solid #ced4da;
+    border: 0.0625rem solid #eee;
     border-left: none;
     border-top-left-radius: 0;
     border-bottom-left-radius: 0;
@@ -121,7 +124,7 @@ const FormActionWrapper = styled.div`
   padding: 0.5rem 1rem;
 `;
 const LinkInput = styled.input`
-  border: 0.0625rem solid #ced4da;
+  border: 0.0625rem solid #eee;
   border-radius: 0.25rem;
   border-top-right-radius: 0;
   border-bottom-right-radius: 0;
@@ -143,7 +146,7 @@ const ImageHandlingForm = styled.form`
   gap: 0.5rem;
 `;
 const Input = styled.input`
-  border: 0.0625rem solid #ced4da;
+  border: 0.0625rem solid #eee;
   border-radius: 0.25rem;
   height: 2.25rem;
   min-height: 2.25rem;
@@ -164,12 +167,12 @@ const InputAction = styled.div`
   > button {
     cursor: pointer;
     background-color: #fff;
-    border: 0.0625rem solid #ced4da;
+    border: 0.0625rem solid #eee;
     border-radius: 0.25rem;
     padding-top: 0.2rem;
     &[data-active='true'] {
       color: ${colors.colorSecondary};
-      background-color: ${rgba(colors.colorSecondary, 0.15)};
+      background-color: ${rgba(colors.colorSecondary, 0.05)};
     }
   }
 `;
@@ -178,7 +181,7 @@ const FileInputAction = styled.div`
   > div {
     cursor: pointer;
     background-color: #fff;
-    border: 0.0625rem solid #ced4da;
+    border: 0.0625rem solid #eee;
     border-radius: 0.25rem;
     padding-left: 0.55rem;
     padding-right: 0.5rem;
@@ -194,9 +197,9 @@ const FileInputAction = styled.div`
     display: none;
   }
 `;
-const FontSelectWrapper = styled.div`
+const FontSelectWrapper = styled.div<{ $toolbarPlacement: 'top' | 'bottom' }>`
   .Select {
-    border: 0.0625rem solid #ced4da;
+    border: 0.0625rem solid #eee;
     border-radius: 0.25rem;
     height: 1.75rem;
   }
@@ -207,35 +210,56 @@ const FontSelectWrapper = styled.div`
     z-index: 10;
     position: absolute;
   }
+
+  .Select.is-disabled {
+    .Select-control {
+      background-color: unset !important;
+    }
+    .Select-placeholder {
+      color: #aaa;
+      top: -4px;
+      left: 9px;
+    }
+  }
+
   .Select-control {
     width: 56px;
     border-bottom: none;
   }
+
   .Select-arrow-zone {
     top: -3px;
   }
+
   .Select--single > .Select-control .Select-value {
     padding-left: 0;
     padding-right: 0;
     top: -4px;
     left: 15px;
   }
+
   .Select-input > input {
     color: transparent;
     text-shadow: 0 0 0 #2196f3;
-
     &:focus {
       outline: none;
+      cursor: default;
     }
   }
   .Select-menu-outer {
     z-index: 100;
     width: max-content;
+    .Select-menu {
+      max-height: ${({ $toolbarPlacement }) =>
+        $toolbarPlacement === 'top' ? '135px' : '216px'};
+    }
   }
+
   .Select-option {
     padding: 4px 8px;
   }
   .Select-placeholder {
+    color: unset;
     top: -4px;
     left: 9px;
   }
@@ -301,6 +325,67 @@ const ColorPickerWrapper = styled.div`
   }
 `;
 
+const PlaceholderWrapper = styled.div<{ $toolbarPlacement: 'top' | 'bottom' }>`
+  > div > button {
+    border: 0.0625rem solid #eee;
+    border-radius: 0.25rem;
+    height: 1.75rem;
+    background-color: #fff;
+  }
+  .dropdown-toggle {
+    &:after {
+      margin-left: 1rem;
+    }
+  }
+  button {
+    &:disabled {
+      color: #aaaeb3;
+    }
+  }
+  .dropdown-menu {
+    max-height: ${({ $toolbarPlacement }) =>
+      $toolbarPlacement === 'top' ? '160px' : '216px'};
+    overflow-y: auto;
+    .dropdown-header {
+      display: block;
+      padding: 0.5rem 0.65rem;
+      margin-bottom: 0;
+      font-size: 0.65rem;
+      color: #6c757d;
+      font-weight: bold;
+      white-space: nowrap;
+    }
+  }
+  .dropdown-item {
+    padding: 0.25rem 0.75rem;
+    font-size: 0.75rem;
+    &:hover {
+      cursor: pointer;
+      background-color: #f0f6ff;
+    }
+  }
+`;
+
+const RichTextEditorMenuWrapper = styled.div`
+  display: flex;
+  padding: 0.3rem;
+  gap: 0.125rem;
+  border-radius: 0.25rem;
+  button {
+    border: 0.0625rem solid transparent !important;
+    border-radius: 0.25rem !important;
+  }
+`;
+
+const RichTextEditorMenuPopoverWrapper = styled.div`
+  .arrow {
+    display: none;
+  }
+  .popover {
+    box-shadow: 0 2px 6px 2px rgba(60, 64, 67, 0.15);
+  }
+`;
+
 export {
   EditorControl,
   LinkWrapper,
@@ -316,5 +401,8 @@ export {
   FormActionWrapper,
   ColorPickerWrapper,
   MenuItem,
-  PickerAction
+  PickerAction,
+  PlaceholderWrapper,
+  RichTextEditorMenuWrapper,
+  RichTextEditorMenuPopoverWrapper,
 };

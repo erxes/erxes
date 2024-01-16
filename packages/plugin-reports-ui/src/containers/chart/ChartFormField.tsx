@@ -1,8 +1,5 @@
-import React, { useState } from 'react';
+import React from 'react';
 import ChartFormField from '../../components/chart/ChartFormField';
-import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
-import { ControlLabel } from '@erxes/ui/src/components';
-import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
 
 type IFilter = {
   [key: string]: any;
@@ -25,26 +22,21 @@ type Props = {
 
 const ChartFormFieldList = (props: Props) => {
   const { filterType, setFilter, initialValue } = props;
-  const {
-    fieldName,
-    fieldType,
-    fieldQuery,
-    fieldLabel,
-    multi,
-    fieldOptions
-  } = filterType;
-  const [fieldValue, setFieldValue] = useState(initialValue);
+  const { fieldName, fieldType, fieldQuery, fieldLabel, multi, fieldOptions } =
+    filterType;
 
   const onChange = (input: any) => {
     switch (fieldType) {
       case 'select':
         const value =
-          fieldQuery.includes('user') || fieldQuery.includes('department')
+          fieldQuery &&
+          (fieldQuery.includes('user') ||
+            fieldQuery.includes('department') ||
+            fieldQuery.includes('branch'))
             ? input
             : input.value;
 
         setFilter(fieldName, value);
-        setFieldValue(value);
 
         return;
       default:
@@ -52,45 +44,15 @@ const ChartFormFieldList = (props: Props) => {
     }
   };
 
-  switch (fieldQuery) {
-    case 'users':
-      return (
-        <div>
-          <ControlLabel>{fieldLabel}</ControlLabel>
-
-          <SelectTeamMembers
-            multi={multi}
-            name="chartAssignedUserIds"
-            label={fieldLabel}
-            onSelect={onChange}
-            initialValue={fieldValue}
-          />
-        </div>
-      );
-
-    case 'departments':
-      return (
-        <div>
-          <ControlLabel>{fieldLabel}</ControlLabel>
-
-          <SelectDepartments
-            multi={multi}
-            name="chartAssignedDepartmentIds"
-            label={fieldLabel}
-            onSelect={onChange}
-            initialValue={fieldValue}
-          />
-        </div>
-      );
-    default:
-      break;
-  }
-
   return (
     <ChartFormField
       fieldType={fieldType}
+      fieldQuery={fieldQuery}
+      multi={multi}
       fieldOptions={fieldOptions}
       fieldLabel={fieldLabel}
+      initialValue={initialValue}
+      onChange={onChange}
     />
   );
 };

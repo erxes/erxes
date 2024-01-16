@@ -1,4 +1,4 @@
-import { sendRequest } from '@erxes/api-utils/src';
+import fetch from 'node-fetch';
 import {
   IContext,
   sendContactsMessage,
@@ -56,9 +56,7 @@ const msdynamicCheckMutations = {
 
       const productCodes = (products || []).map((p) => p.code) || [];
 
-      const response = await sendRequest({
-        url: itemApi,
-        method: 'GET',
+      const response = await fetch(itemApi, {
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
           Accept: 'application/json',
@@ -66,7 +64,7 @@ const msdynamicCheckMutations = {
             `${username}:${password}`,
           ).toString('base64')}`,
         },
-      });
+      }).then((res) => res.json());
 
       const resultCodes =
         response.value.map((r) => r.No.replace(/\s/g, '')) || [];
@@ -168,9 +166,7 @@ const msdynamicCheckMutations = {
 
       const productCodes = (products || []).map((p) => p.code) || [];
 
-      const response = await sendRequest({
-        url: priceApi,
-        method: 'GET',
+      const response = await fetch(priceApi, {
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
           Accept: 'application/json',
@@ -178,7 +174,7 @@ const msdynamicCheckMutations = {
             `${username}:${password}`,
           ).toString('base64')}`,
         },
-      });
+      }).then((res) => res.json());
 
       const resultCodes =
         response.value.map((r) => r.Item_No.replace(/\s/g, '')) || [];
@@ -258,9 +254,7 @@ const msdynamicCheckMutations = {
 
       const categoryCodes = (categories || []).map((p) => p.code) || [];
 
-      const response = await sendRequest({
-        url: itemCategoryApi,
-        method: 'GET',
+      const response = await fetch(itemCategoryApi, {
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
           Accept: 'application/json',
@@ -268,7 +262,7 @@ const msdynamicCheckMutations = {
             `${username}:${password}`,
           ).toString('base64')}`,
         },
-      });
+      }).then((res) => res.json());
 
       const resultCodes = response.value.map((r) => r.Code) || [];
 
@@ -356,9 +350,7 @@ const msdynamicCheckMutations = {
       const companyCodes = (companies || []).map((c) => c.code) || [];
       const customerCodes = (customers || []).map((c) => c.code) || [];
 
-      const response = await sendRequest({
-        url: customerApi,
-        method: 'GET',
+      const response = await fetch(customerApi, {
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
           Accept: 'application/json',
@@ -366,7 +358,7 @@ const msdynamicCheckMutations = {
             `${username}:${password}`,
           ).toString('base64')}`,
         },
-      });
+      }).then((res) => res.json());
 
       const resultCodes =
         response.value.map((r) => r.No.replace(/\s/g, '')) || [];

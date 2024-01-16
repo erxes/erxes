@@ -8,25 +8,25 @@ import { generateModels } from './models';
 import { initBroker, createRoutes } from './server';
 
 export let mainDb;
-export let graphqlPubsub;
+
 export let serviceDiscovery;
 
 export let debug;
 
 export default {
   name: 'zalo',
-  graphql: async sd => {
+  graphql: async (sd) => {
     serviceDiscovery = sd;
     return {
       typeDefs: await typeDefs(sd),
-      resolvers: await resolvers(sd)
+      resolvers: await resolvers(sd),
     };
   },
   meta: {
     inboxIntegration: {
       kind: 'zalo',
-      label: 'Zalo'
-    }
+      label: 'Zalo',
+    },
   },
   apolloServerContext: async (context, req) => {
     const subdomain = getSubdomain(req);
@@ -37,16 +37,15 @@ export default {
     return context;
   },
 
-  onServerInit: async options => {
+  onServerInit: async (options) => {
     const app = options.app;
     mainDb = options.db;
 
     debug = options.debug;
-    graphqlPubsub = options.pubsubClient;
 
     console.log('options.messageBrokerClient', options.messageBrokerClient);
 
     initBroker(options.messageBrokerClient);
     createRoutes(app);
-  }
+  },
 };

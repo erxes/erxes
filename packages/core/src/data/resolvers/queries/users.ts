@@ -1,11 +1,11 @@
 import { USER_ROLES } from '@erxes/api-utils/src/constants';
 import {
   checkPermission,
-  requireLogin
+  requireLogin,
 } from '@erxes/api-utils/src/permissions';
 import { fetchSegment, sendSegmentsMessage } from '../../../messageBroker';
 import { IContext, IModels } from '../../../connectionResolver';
-import { getConfig, paginate } from '../../utils';
+import { escapeRegExp, getConfig, paginate } from '../../utils';
 import { fetchEs } from '@erxes/api-utils/src/elasticsearch';
 
 export class Builder {
@@ -22,7 +22,7 @@ export class Builder {
     models: IModels,
     subdomain: string,
     params: { segment?: string; segmentData?: string },
-    context
+    context,
   ) {
     this.contentType = 'users';
     this.context = context;
@@ -55,7 +55,7 @@ export class Builder {
       this.subdomain,
       segment._id,
       { returnSelector: true },
-      segmentData
+      segmentData,
     );
 
     this.positiveList = [...this.positiveList, selector];
@@ -85,7 +85,7 @@ export class Builder {
         isRPC: true,
         action: 'findOne',
         subdomain: this.subdomain,
-        data: { _id: this.params.segment }
+        data: { _id: this.params.segment },
       });
 
       await this.segmentFilter(segment);
@@ -97,9 +97,9 @@ export class Builder {
       query: {
         bool: {
           must: this.positiveList,
-          must_not: this.negativeList
-        }
-      }
+          must_not: this.negativeList,
+        },
+      },
     };
 
     let totalCount = 0;
@@ -109,7 +109,7 @@ export class Builder {
       action: 'count',
       index: this.contentType,
       body: queryOptions,
-      defaultValue: 0
+      defaultValue: 0,
     });
 
     totalCount = totalCountResponse.count;
@@ -118,19 +118,19 @@ export class Builder {
       subdomain: this.subdomain,
       action,
       index: this.contentType,
-      body: queryOptions
+      body: queryOptions,
     });
 
-    const list = response.hits.hits.map(hit => {
+    const list = response.hits.hits.map((hit) => {
       return {
         _id: hit._id,
-        ...hit._source
+        ...hit._source,
       };
     });
 
     return {
       list,
-      totalCount
+      totalCount,
     };
   }
 }
@@ -165,20 +165,20 @@ const getChildIds = async (model, ids) => {
   const orderQry: any[] = [];
   for (const item of items) {
     orderQry.push({
-      order: { $regex: new RegExp(item.order) }
+      order: { $regex: new RegExp(`^${escapeRegExp(item.order)}`) },
     });
   }
 
   const allItems = await model.find({
-    $or: orderQry
+    $or: orderQry,
   });
-  return allItems.map(i => i._id);
+  return allItems.map((i) => i._id);
 };
 
 const queryBuilder = async (
   models: IModels,
   params: IListArgs,
-  subdomain: string
+  subdomain: string,
 ) => {
   const {
     searchValue,
@@ -195,11 +195,11 @@ const queryBuilder = async (
     departmentIds,
     branchIds,
     segment,
-    segmentData
+    segmentData,
   } = params;
 
   const selector: any = {
-    isActive
+    isActive,
   };
 
   if (searchValue) {
@@ -208,7 +208,7 @@ const queryBuilder = async (
       { employeeId: new RegExp(`.*${params.searchValue}.*`, 'i') },
       { username: new RegExp(`.*${params.searchValue}.*`, 'i') },
       { 'details.fullName': new RegExp(`.*${params.searchValue}.*`, 'i') },
-      { 'details.position': new RegExp(`.*${params.searchValue}.*`, 'i') }
+      { 'details.position': new RegExp(`.*${params.searchValue}.*`, 'i') },
     ];
 
     selector.$or = fields;
@@ -256,17 +256,17 @@ const queryBuilder = async (
     const checker = await getConfig(
       'CHECK_TEAM_MEMBER_SHOWN',
       undefined,
-      models
+      models,
     );
     if (checker) {
       const oldOr = selector.$or || [];
       oldOr.push({
-        branchIds: { $in: await getChildIds(models.Branches, branchIds) }
+        branchIds: { $in: await getChildIds(models.Branches, branchIds) },
       });
       oldOr.push({
         departmentIds: {
-          $in: await getChildIds(models.Departments, departmentIds)
-        }
+          $in: await getChildIds(models.Departments, departmentIds),
+        },
       });
 
       selector.$or = oldOr;
@@ -274,13 +274,13 @@ const queryBuilder = async (
   } else {
     if (branchIds && branchIds.length) {
       selector.branchIds = {
-        $in: await getChildIds(models.Branches, branchIds)
+        $in: await getChildIds(models.Branches, branchIds),
       };
     }
 
     if (departmentIds && departmentIds.length) {
       selector.departmentIds = {
-        $in: await getChildIds(models.Departments, departmentIds)
+        $in: await getChildIds(models.Departments, departmentIds),
       };
     }
   }
@@ -302,7 +302,7 @@ const queryBuilder = async (
 
     const { list } = await qb.runQueries();
 
-    selector._id = { $in: list.map(l => l._id) };
+    selector._id = { $in: list.map((l) => l._id) };
   }
 
   return selector;
@@ -315,12 +315,12 @@ const userQueries = {
   async users(
     _root,
     args: IListArgs,
-    { userBrandIdsSelector, models, subdomain }: IContext
+    { userBrandIdsSelector, models, subdomain }: IContext,
   ) {
     const selector = {
       ...userBrandIdsSelector,
       ...(await queryBuilder(models, args, subdomain)),
-      ...NORMAL_USER_SELECTOR
+      ...NORMAL_USER_SELECTOR,
     };
 
     const { sortField, sortDirection } = args;
@@ -341,9 +341,9 @@ const userQueries = {
     {
       isActive,
       ids,
-      assignedToMe
+      assignedToMe,
     }: { isActive: boolean; ids: string[]; assignedToMe: string },
-    { userBrandIdsSelector, user, models }: IContext
+    { userBrandIdsSelector, user, models }: IContext,
   ) {
     const selector: { isActive?: boolean; _id?: any } = userBrandIdsSelector;
 
@@ -358,7 +358,7 @@ const userQueries = {
     }
 
     return models.Users.find({ ...selector, ...NORMAL_USER_SELECTOR }).sort({
-      username: 1
+      username: 1,
     });
   },
 
@@ -375,12 +375,12 @@ const userQueries = {
   async usersTotalCount(
     _root,
     args: IListArgs,
-    { userBrandIdsSelector, models, subdomain }: IContext
+    { userBrandIdsSelector, models, subdomain }: IContext,
   ) {
     const selector = {
       ...userBrandIdsSelector,
       ...(await queryBuilder(models, args, subdomain)),
-      ...NORMAL_USER_SELECTOR
+      ...NORMAL_USER_SELECTOR,
     };
 
     return models.Users.find(selector).countDocuments();
@@ -400,7 +400,7 @@ const userQueries = {
    */
   async userMovements(_root, args, { models }: IContext) {
     return await models.UserMovements.find(args).sort({ createdAt: -1 });
-  }
+  },
 };
 
 requireLogin(userQueries, 'usersTotalCount');

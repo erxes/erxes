@@ -27,6 +27,7 @@ export const RichTextEditorControl = (props: IRichTextEditorControlProps) => {
     active,
     onMouseDown,
     isSourceControl,
+    disabled,
     ...others
   } = props;
 
@@ -34,7 +35,7 @@ export const RichTextEditorControl = (props: IRichTextEditorControlProps) => {
     <EditorControl
       {...others}
       type="button"
-      disabled={isSourceControl ? false : isSourceEnabled}
+      disabled={isSourceControl ? false : disabled || isSourceEnabled}
       data-rich-text-editor-control={true}
       tabIndex={interactive ? 0 : -1}
       data-interactive={interactive || undefined}
@@ -44,7 +45,7 @@ export const RichTextEditorControl = (props: IRichTextEditorControlProps) => {
       aria-pressed={(active && interactive) || undefined}
       aria-hidden={!interactive || undefined}
       innerRef={ref}
-      onMouseDown={event => {
+      onMouseDown={(event) => {
         event.preventDefault();
         onMouseDown?.(event);
       }}
@@ -59,7 +60,7 @@ export interface IRichTextEditorControlBaseProps
 
 export const RichTextEditorControlBase = <
   HTMLButtonElement,
-  RichTextEditorControlBaseProps
+  RichTextEditorControlBaseProps,
 >({
   className,
   icon: Icon,
@@ -67,7 +68,7 @@ export const RichTextEditorControlBase = <
 }: any) => {
   return (
     <RichTextEditorControl {...others}>
-      <Icon style={{ width: '1rem', height: '1rem' }} />
+      {Icon && <Icon style={{ width: '1rem', height: '1rem' }} />}
     </RichTextEditorControl>
   );
 };
@@ -83,10 +84,10 @@ export function createControl({
   label,
   isActive,
   operation,
-  icon
+  icon,
 }: ICreateControlProps) {
   return <HTMLButtonElement, RichTextEditorControlBaseProps>(
-    props: RichTextEditorControlBaseProps
+    props: RichTextEditorControlBaseProps,
   ) => {
     const { editor, labels } = useRichTextEditorContext();
     const _label = labels[label] as string;
@@ -98,8 +99,8 @@ export function createControl({
           isActive?.name
             ? editor?.isActive(isActive.name, isActive.attributes)
             : isActive?.attributes
-            ? editor?.isActive(isActive.attributes)
-            : false
+              ? editor?.isActive(isActive.attributes)
+              : false
         }
         onClick={() =>
           (editor as any)

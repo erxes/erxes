@@ -511,6 +511,21 @@ const userMovements = `
   }
 `;
 
+const userList = `
+  query objects($searchValue: String, $requireUsername: Boolean) {
+    users(searchValue: $searchValue, requireUsername: $requireUsername) {
+      _id
+      username
+      email
+      details {
+        avatar
+        fullName
+        position
+      }
+    }
+  }
+`;
+
 export default {
   userSkills,
   userDetail,
@@ -533,5 +548,6 @@ export default {
   channels: channelQueries.channels,
   skillTypes,
   fieldsGroups,
-  userMovements
+  userMovements,
+  userList,
 };

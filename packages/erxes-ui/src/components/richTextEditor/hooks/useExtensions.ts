@@ -26,19 +26,34 @@ import { Text } from '@tiptap/extension-text';
 import { TextAlign } from '@tiptap/extension-text-align';
 import { Underline } from '@tiptap/extension-underline';
 import { Heading } from '@tiptap/extension-heading';
+import CharacterCount from '@tiptap/extension-character-count';
 import { useMemo } from 'react';
-import { FontSize } from '../extensions';
-import Table from '@tiptap/extension-table';
+import {
+  FontSize,
+  MentionExtended,
+  TableImproved,
+  ImageResize,
+} from '../extensions';
 import TableCell from '@tiptap/extension-table-cell';
 import TableHeader from '@tiptap/extension-table-header';
 import TableRow from '@tiptap/extension-table-row';
 import { DivTag, SpanNode, StyleNode } from '../nodes';
-import { ImageResize } from '../extensions/Image';
-import TextStyle from '@tiptap/extension-text-style';
+import {
+  MentionSuggestionParams,
+  getMentionSuggestions,
+} from '../utils/getMentionSuggestions';
+import { generateJSON } from '@tiptap/html';
 
 export type UseExtensionsOptions = {
   /** Placeholder hint to show in the text input area before a user types a message. */
   placeholder?: string;
+
+  showMentions?: boolean;
+
+  mentionSuggestion?: MentionSuggestionParams;
+
+  /** Character count limit. */
+  limit?: number;
 };
 
 // Don't treat the end cursor as "inclusive" of the Link mark, so that users can
@@ -61,28 +76,37 @@ export type UseExtensionsOptions = {
 // https://github.com/ueberdosis/tiptap/issues/2572, and
 // https://github.com/ueberdosis/tiptap/issues/514
 const CustomLinkExtension = Link.extend({
-  inclusive: false
+  inclusive: false,
 });
 // Make subscript and superscript mutually exclusive
 // https://github.com/ueberdosis/tiptap/pull/1436#issuecomment-1031937768
 
 /// @later config these
 const CustomSubscript = Subscript.extend({
-  excludes: 'superscript'
+  excludes: 'superscript',
 });
 
 const CustomSuperscript = Superscript.extend({
-  excludes: 'subscript'
+  excludes: 'subscript',
 });
 
 /**
  * A hook for providing a default set of useful extensions for the editor.
  */
 export default function useExtensions({
-  placeholder
+  placeholder,
+  showMentions,
+  mentionSuggestion,
+  limit,
 }: UseExtensionsOptions = {}): EditorOptions['extensions'] {
   return useMemo(
     () => [
+      TableImproved.configure({
+        resizable: true,
+      }),
+      TableRow,
+      TableHeader,
+      TableCell,
       Document,
       BulletList,
       CodeBlock,
@@ -100,12 +124,8 @@ export default function useExtensions({
       Underline,
       ImageResize.configure({
         inline: true,
-        allowBase64: true
+        allowBase64: true,
       }),
-      // ImageResize.configure({
-      //   inline: true,
-      //   allowBase64: true,
-      // }),
       Strike,
       CustomLinkExtension.configure({
         // autolink is generally useful for changing text into links if they
@@ -117,32 +137,85 @@ export default function useExtensions({
         // how a lot of other tools behave as well.
         autolink: true,
         linkOnPaste: true,
-        openOnClick: false
+        openOnClick: false,
       }),
       Gapcursor,
       TextAlign.configure({
-        types: ['heading', 'paragraph', 'image']
+        types: ['heading', 'paragraph', 'image'],
       }),
-      TextStyle,
       Color,
       FontFamily,
       Highlight.configure({ multicolor: true }),
       HorizontalRule,
       Dropcursor,
       Heading,
-      Placeholder.configure({
-        placeholder
-      }),
       History,
       FontSize,
       DivTag,
-      Table.configure({ resizable: true }),
-      TableRow,
-      TableHeader,
-      TableCell,
+      ...(showMentions && mentionSuggestion
+        ? [
+            MentionExtended.configure({
+              renderLabel({ options, node }) {
+                return `${options.suggestion.char}${
+                  node.attrs.label ?? node.attrs.id
+                }`;
+              },
+              suggestion: getMentionSuggestions(mentionSuggestion),
+            }),
+          ]
+        : []),
       SpanNode,
-      StyleNode
+      StyleNode,
+      CharacterCount.configure({
+        limit,
+      }),
+      Placeholder.configure({
+        placeholder,
+      }),
     ],
-    [placeholder]
+    [showMentions],
   );
+}
+
+export function useGenerateJSON(html: string) {
+  return generateJSON(html, [
+    TableImproved,
+    TableRow,
+    TableHeader,
+    TableCell,
+    Document,
+    BulletList,
+    CodeBlock,
+    HardBreak,
+    ListItem,
+    OrderedList,
+    Paragraph,
+    CustomSubscript,
+    CustomSuperscript,
+    Text,
+    Bold,
+    Blockquote,
+    Code,
+    Italic,
+    Underline,
+    ImageResize,
+    Strike,
+    CustomLinkExtension,
+    Gapcursor,
+    TextAlign,
+    Color,
+    FontFamily,
+    Highlight,
+    HorizontalRule,
+    Dropcursor,
+    Heading,
+    History,
+    FontSize,
+    DivTag,
+    MentionExtended,
+    SpanNode,
+    StyleNode,
+    CharacterCount,
+    Placeholder,
+  ]);
 }

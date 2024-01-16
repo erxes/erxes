@@ -3,6 +3,7 @@ import { EditorContent } from '@tiptap/react';
 import CodeMirror from '@uiw/react-codemirror';
 import { html } from '@codemirror/lang-html';
 import { useRichTextEditorContext } from '../RichTextEditor.context';
+import { ProseMirrorWrapper } from '../styles';
 export interface IRichTextEditorContentProps {
   /** The height of the editing area that includes the editor content. */
   height?: number | string;
@@ -17,28 +18,39 @@ export interface IRichTextEditorContentProps {
 export const RichTextEditorContent = (props: IRichTextEditorContentProps) => {
   const { editor, isSourceEnabled, codeMirrorRef } = useRichTextEditorContext();
   const {
-    height = 200,
-    autoGrowMinHeight = 200,
+    height = 120,
+    autoGrowMinHeight = 120,
     autoGrowMaxHeight = 0,
-    autoGrow = false
+    autoGrow = false,
   } = props;
 
   const editorStyle = {
     ...(autoGrow && { minHeight: autoGrowMinHeight }),
-    height: autoGrow ? autoGrowMaxHeight : height
+    ...(autoGrow && { maxHeight: autoGrowMaxHeight }),
+    ...(!autoGrow && { height }),
   };
 
+  function convertToPx(value: string | number) {
+    // Check if the value is a number
+    if (typeof value === 'number') {
+      // Convert the number to a string with "px" suffix
+      return `${value}px`;
+    }
+    return value;
+  }
+
   return (
-    <div data-promise-mirror-editor={true}>
+    <ProseMirrorWrapper data-promise-mirror-editor={true}>
       <CodeMirror
         ref={codeMirrorRef}
         style={{ outline: 'none' }}
         hidden={!isSourceEnabled}
-        height="300px"
-        minHeight="300px"
+        height={autoGrow ? undefined : convertToPx(height)}
+        minHeight={convertToPx(autoGrowMinHeight)}
+        maxHeight={convertToPx(autoGrowMaxHeight)}
         autoFocus={true}
         extensions={[
-          html({ matchClosingTags: true, selfClosingTags: true }).extension
+          html({ matchClosingTags: true, selfClosingTags: true }).extension,
         ]}
       />
       <EditorContent
@@ -46,6 +58,6 @@ export const RichTextEditorContent = (props: IRichTextEditorContentProps) => {
         editor={editor}
         style={editorStyle}
       />
-    </div>
+    </ProseMirrorWrapper>
   );
 };

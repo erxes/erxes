@@ -5,7 +5,6 @@ import {
   getCoreDomain,
   getEnv,
   readFile,
-  sendRequest
 } from '../../utils';
 
 import { getService, getServices } from '../../../serviceDiscovery';
@@ -14,6 +13,7 @@ import { DEFAULT_CONSTANT_VALUES } from '@erxes/api-utils/src/constants';
 
 import * as dotenv from 'dotenv';
 import { IContext } from '../../../connectionResolver';
+import fetch from 'node-fetch';
 dotenv.config();
 
 const configQueries = {
@@ -31,22 +31,20 @@ const configQueries = {
       isUsingRabbitMQ: Boolean(process.env.RABBITMQ_HOST),
       isUsingElkSyncer: Boolean(process.env.ELK_SYNCER !== 'false'),
       isLatest: false,
-      releaseInfo: {}
+      releaseInfo: {},
     };
 
     const erxesDomain = getEnv({ name: 'DOMAIN' });
 
-    const erxesVersion = await sendRequest({
-      url: `${erxesDomain}/version.json`,
-      method: 'GET'
-    });
+    const erxesVersion = await fetch(`${erxesDomain}/version.json`).then((r) =>
+      r.json(),
+    );
 
     result.version = erxesVersion.packageVersion || '-';
 
-    const response = await sendRequest({
-      url: `${process.env.CORE_URL || 'https://erxes.io'}/git-release-info`,
-      method: 'GET'
-    });
+    const response = await fetch(
+      `${process.env.CORE_URL || 'https://erxes.io'}/git-release-info`,
+    ).then((r) => r.json());
 
     result.isLatest = result.version === response.tag_name;
 
@@ -60,14 +58,14 @@ const configQueries = {
   configsGetEnv(_root) {
     return {
       USE_BRAND_RESTRICTIONS: process.env.USE_BRAND_RESTRICTIONS,
-      VERSION: process.env.VERSION
+      VERSION: process.env.VERSION,
     };
   },
 
   configsConstants(_root, _args, { models }: IContext) {
     return {
       allValues: models.Configs.constants(),
-      defaultValues: DEFAULT_CONSTANT_VALUES
+      defaultValues: DEFAULT_CONSTANT_VALUES,
     };
   },
 
@@ -77,11 +75,11 @@ const configQueries = {
 
   async configsCheckActivateInstallation(_root, args: { hostname: string }) {
     try {
-      return await sendRequest({
+      return await fetch(`${getCoreDomain()}/check-activate-installation`, {
         method: 'POST',
-        url: `${getCoreDomain()}/check-activate-installation`,
-        body: args
-      });
+        body: JSON.stringify(args),
+        headers: { 'Content-Type': 'application/json' },
+      }).then((r) => r.json());
     } catch (e) {
       throw new Error(e.message);
     }
@@ -107,9 +105,9 @@ const configQueries = {
           action: 'search',
           data: {
             subdomain,
-            value
+            value,
           },
-          isRPC: true
+          isRPC: true,
         });
 
         results = [...results, ...serviceResults];
@@ -122,7 +120,7 @@ const configQueries = {
   async configsGetValue(
     _root,
     { code }: { code: string },
-    { models }: IContext
+    { models }: IContext,
   ) {
     return models.Configs.findOne({ code });
   },
@@ -130,7 +128,7 @@ const configQueries = {
   async configsGetInstallationStatus(
     _root,
     { name }: { name: string },
-    { models }: IContext
+    { models }: IContext,
   ) {
     const names = await getServices();
 
@@ -139,7 +137,7 @@ const configQueries = {
     }
 
     const isExisting = await models.InstallationLogs.findOne({
-      pluginName: name
+      pluginName: name,
     });
 
     if (!isExisting) {
@@ -148,7 +146,7 @@ const configQueries = {
 
     const isDone = await models.InstallationLogs.findOne({
       pluginName: name,
-      message: 'done'
+      message: 'done',
     });
 
     if (isDone) {
@@ -156,11 +154,11 @@ const configQueries = {
     }
 
     const lastLog = await models.InstallationLogs.findOne({
-      pluginName: name
+      pluginName: name,
     }).sort({ date: -1 });
 
     return { status: 'installing', lastLogMessage: lastLog?.message };
-  }
+  },
 };
 
 moduleRequireLogin(configQueries);

@@ -1,10 +1,10 @@
 import {
-  redis,
   isAvailable,
   getService,
   getServices,
-  isEnabled
+  isEnabled,
 } from '@erxes/api-utils/src/serviceDiscovery';
+import redis from '@erxes/api-utils/src/redis';
 
 const setAfterMutations = async () => {
   const services = await getServices();
@@ -38,7 +38,7 @@ const setAfterMutations = async () => {
   await redis.set('afterMutations', JSON.stringify(result));
 };
 
-const setCommonResolvers = async name => {
+const setCommonResolvers = async (name) => {
   const services = await getServices();
   const result = {};
 
@@ -79,7 +79,7 @@ export const serviceDiscovery = {
   getServices,
   getService,
   redis,
-  isEnabled
+  isEnabled,
 };
 
 export {
@@ -89,5 +89,5 @@ export {
   redis,
   setAfterMutations,
   setAfterQueries,
-  setBeforeResolvers
+  setBeforeResolvers,
 };

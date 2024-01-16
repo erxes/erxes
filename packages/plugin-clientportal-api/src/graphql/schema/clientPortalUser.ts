@@ -1,6 +1,6 @@
 import {
   attachmentInput,
-  attachmentType
+  attachmentType,
 } from '@erxes/api-utils/src/commonTypeDefs';
 
 export const types = (isContactsEnabled: boolean) => `
@@ -184,7 +184,7 @@ export const mutations = () => `
 
   clientPortalConfirmInvitation(token: String, password: String, passwordConfirmation: String, username: String): ClientPortalUser
   clientPortalForgotPassword(clientPortalId: String!, email: String, phone: String): String!
-  clientPortalResetPasswordWithCode(phone: String!, code: String!, password: String!): String
+  clientPortalResetPasswordWithCode(phone: String!, code: String!, password: String!,isSecondary:Boolean): String
   clientPortalResetPassword(token: String!, newPassword: String!): JSON
   clientPortalUserChangePassword(currentPassword: String!, newPassword: String!): ClientPortalUser
   clientPortalUsersSendVerificationRequest(login: String!, password: String!, clientPortalId: String!,  attachments: [AttachmentInput]!, description: String): String
