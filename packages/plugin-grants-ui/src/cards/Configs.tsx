@@ -55,7 +55,6 @@ const Config: React.FC<Props> = (props: Props) => {
   ];
 
   const onChangeBoard = (value, name) => {
-    console.log('value, name', value, name);
     handleSelect({ ...config, [name]: value }, 'config');
   };
 
@@ -80,7 +79,7 @@ const Config: React.FC<Props> = (props: Props) => {
       </BarItems>
     </>
   );
-  console.log('config', config, config?.pipelineId);
+
   let boardSelect = !!config['type'] && (
     <BoardSelect
       type={config['type']}

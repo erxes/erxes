@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import {
   Button,
@@ -20,34 +20,32 @@ type Props = {
 };
 
 const ConfigForm: React.FC<Props> = props => {
-  const [state, setState] = useState(
-    props?.config || {
-      name: '',
-      action: '',
-      params: {},
-      config: {}
-    }
-  );
+  const [params, setParams] = useState(props?.config?.params || {});
+  const [action, setAction] = useState(props?.config?.action || '');
+  const [name, setName] = useState(props?.config?.name || '');
+  const [config, setConfig] = useState(props?.config?.config || {});
+  const [scope, setScope] = useState(props?.config?.scope || '');
+
+  useEffect(() => {
+    renderConfig();
+  }, [params, action, config, scope]);
 
   const handleSelect = (value, name, scope?) => {
-    console.log('state', state);
-    const updatedState = {
-      ...state,
-      [name]: value
-    };
-
     if (scope) {
-      console.log('ss', scope);
-      updatedState.scope = scope;
+      setScope(scope);
     }
-
-    setState(prevState => ({ ...prevState, ...updatedState }));
-    console.log('updatedState', updatedState);
+    if (name === 'params') {
+      setParams(value);
+    }
+    if (name === 'config') {
+      setConfig(value);
+    }
+    if (name === 'action') {
+      setAction(value);
+    }
   };
 
   const generateDoc = () => {
-    const { name, action, params, config, scope } = state;
-
     const updatedProps: any = {
       name,
       scope,
@@ -64,11 +62,12 @@ const ConfigForm: React.FC<Props> = props => {
   };
 
   const renderConfig = () => {
-    const { action, scope } = state;
-
     const updatedProps = {
-      ...state,
-      config: state.config,
+      name,
+      scope,
+      action,
+      params,
+      config,
       handleSelect
     };
 
@@ -90,12 +89,16 @@ const ConfigForm: React.FC<Props> = props => {
 
   const renderForm = (formProps: IFormProps) => {
     const { closeModal, renderButton, config } = props;
-    const { action, name } = state;
 
-    const handleChange = e => {
+    const handleChange = (e, name) => {
       const { value } = e.currentTarget as HTMLInputElement;
 
-      setState(prevState => ({ ...prevState, name: value }));
+      if (name === 'name') {
+        setName(value);
+      }
+      if (name === 'config') {
+        setConfig(value);
+      }
     };
 
     return (
@@ -107,7 +110,7 @@ const ConfigForm: React.FC<Props> = props => {
             name="name"
             value={name}
             required
-            onChange={handleChange}
+            onChange={e => handleChange(e, 'name')}
           />
         </FormGroup>
         <FormGroup>

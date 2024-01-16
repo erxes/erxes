@@ -15,18 +15,12 @@ import { SelectCardType, SelectStage } from './common';
 import { ListItem, RemoveRow, Row } from './styles';
 
 const CardActionComponent = ({ action, initialProps, source, onChange }) => {
-  const [params, setParams] = useState(initialProps || {});
-  console.log('initialProps', initialProps);
-  useEffect(() => {
-    if (action === 'createRelatedCard') {
-      const sourceType = source?.type || '';
-      handleChange(sourceType, 'sourceType');
-    }
-  }, [action, source]);
+  const [params, setParams] = useState(initialProps || ({} as any));
 
   const handleChange = (value, name) => {
     const updatedParams = { ...params, [name]: value };
     onChange(updatedParams);
+    setParams(updatedParams);
   };
 
   const renderMoveAction = extraProps => {
@@ -41,7 +35,7 @@ const CardActionComponent = ({ action, initialProps, source, onChange }) => {
     };
 
     return (
-      <div id="(">
+      <div>
         <BoardSelect {...updateProps} />
         <DividerBox>{__('ELSE')}</DividerBox>
         <SelectStage
@@ -81,6 +75,7 @@ const CardActionComponent = ({ action, initialProps, source, onChange }) => {
     const removeConfig = _id => {
       const updatedConfigs = configs.filter(config => config._id !== _id);
       onChange({ ...params, configs: updatedConfigs });
+      setParams({ ...params, configs: updatedConfigs });
     };
 
     const onSelect = (value, name, configId) => {
@@ -89,6 +84,7 @@ const CardActionComponent = ({ action, initialProps, source, onChange }) => {
       );
 
       onChange({ ...params, configs: updatedConfigs });
+      setParams({ ...params, configs: updatedConfigs });
     };
 
     return (configs || []).map(config => (
@@ -132,6 +128,7 @@ const CardActionComponent = ({ action, initialProps, source, onChange }) => {
     const removeLogic = _id => {
       const updatedLogics = params.logics.filter(logic => logic._id !== _id);
       onChange({ ...params, logics: updatedLogics });
+      setParams({ ...params, logics: updatedLogics });
     };
 
     const onChangeLogic = (_id, value, name) => {
@@ -140,6 +137,7 @@ const CardActionComponent = ({ action, initialProps, source, onChange }) => {
       );
 
       onChange({ ...params, logics: updatedLogics });
+      setParams({ ...params, logics: updatedLogics });
     };
 
     const logicOptions = [
@@ -195,7 +193,7 @@ const CardActionComponent = ({ action, initialProps, source, onChange }) => {
       handleChange(value, 'type');
     };
 
-    const onChange = e => {
+    const onNameChange = e => {
       const { value, name } = e.currentTarget as HTMLInputElement;
       handleChange(value, name);
     };
@@ -209,6 +207,7 @@ const CardActionComponent = ({ action, initialProps, source, onChange }) => {
       });
 
       onChange({ ...params, configs: updatedConfigs });
+      setParams({ ...params, configs: updatedConfigs });
     };
 
     const addLogics = () => {
@@ -252,7 +251,7 @@ const CardActionComponent = ({ action, initialProps, source, onChange }) => {
                 <FormControl
                   name="name"
                   value={params?.name}
-                  onChange={onChange}
+                  onChange={onNameChange}
                 />
               </FormGroup>
             </CollapseContent>
