@@ -1,14 +1,13 @@
 import React from 'react';
-import * as compose from 'lodash.flowright';
-import { graphql } from '@apollo/client/react/hoc';
 import { gql } from '@apollo/client';
-import { withProps } from '@erxes/ui/src/utils/core';
 import { queries } from '../graphql';
 import { RequestQueryResponse } from '../../common/type';
 import { Spinner, withCurrentUser } from '@erxes/ui/src';
 
 import SectionComponent from '../components/Section';
 import { IUser } from '@erxes/ui/src/auth/types';
+import { useQuery } from '@apollo/client';
+import { IGrantRequest } from '../../common/type';
 
 type Props = {
   history: any;
@@ -19,41 +18,34 @@ type Props = {
 };
 
 type FinalProps = {
-  requestQuery: RequestQueryResponse;
   currentUser: IUser;
 } & Props;
 
-class Section extends React.Component<FinalProps> {
-  constructor(props) {
-    super(props);
-  }
+const Section: React.FC<FinalProps> = props => {
+  const { currentUser, mainType, mainTypeId } = props;
 
-  render() {
-    const { requestQuery, currentUser, mainType, mainTypeId } = this.props;
-    if (requestQuery?.loading) {
-      return <Spinner />;
+  const requestQuery = useQuery<RequestQueryResponse>(
+    gql(queries.grantRequest),
+    {
+      variables: { contentType: mainType, contentTypeId: mainTypeId },
+      skip: !mainTypeId || !mainType
     }
-
-    const updatedProps = {
-      ...this.props,
-      contentType: mainType,
-      contentTypeId: mainTypeId,
-      request: requestQuery.grantRequest || {},
-      currentUser
-    };
-
-    return <SectionComponent {...updatedProps} />;
+  );
+  if (requestQuery?.loading) {
+    return <Spinner />;
   }
-}
 
-export default withProps<Props>(
-  compose(
-    graphql<Props>(gql(queries.grantRequest), {
-      name: 'requestQuery',
-      skip: ({ mainTypeId, mainType }) => !mainTypeId || !mainType,
-      options: ({ mainType, mainTypeId }) => ({
-        variables: { contentType: mainType, contentTypeId: mainTypeId }
-      })
-    })
-  )(withCurrentUser(Section))
-);
+  const updatedProps = {
+    ...props,
+    contentType: mainType,
+    contentTypeId: mainTypeId,
+    request:
+      (requestQuery.data && requestQuery.data.grantRequest) ||
+      ({} as IGrantRequest),
+    currentUser
+  };
+
+  return <SectionComponent {...updatedProps} />;
+};
+
+export default withCurrentUser(Section);

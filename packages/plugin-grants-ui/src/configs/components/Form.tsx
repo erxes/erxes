@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import {
   Button,
@@ -19,43 +19,33 @@ type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
 };
 
-type State = {
-  name: string;
-  action: string;
-  params: any;
-  scope: string;
-  config: any;
-};
+const ConfigForm: React.FC<Props> = props => {
+  const [params, setParams] = useState(props?.config?.params || {});
+  const [action, setAction] = useState(props?.config?.action || '');
+  const [name, setName] = useState(props?.config?.name || '');
+  const [config, setConfig] = useState(props?.config?.config || {});
+  const [scope, setScope] = useState(props?.config?.scope || '');
 
-class ConfigForm extends React.Component<Props, State> {
-  constructor(props) {
-    super(props);
+  useEffect(() => {
+    renderConfig();
+  }, [params, action, config, scope]);
 
-    this.state = props?.config || {
-      name: '',
-      action: '',
-      params: {},
-      config: {}
-    };
-
-    this.renderForm = this.renderForm.bind(this);
-  }
-  handleSelect = (value, name, scope?) => {
-    const updatedState = {
-      ...this.state,
-      [name]: value
-    };
-
+  const handleSelect = (value, name, scope?) => {
     if (scope) {
-      updatedState.scope = scope;
+      setScope(scope);
     }
-
-    this.setState({ ...updatedState });
+    if (name === 'params') {
+      setParams(value);
+    }
+    if (name === 'config') {
+      setConfig(value);
+    }
+    if (name === 'action') {
+      setAction(value);
+    }
   };
 
-  generateDoc() {
-    const { name, action, params, config, scope } = this.state;
-
+  const generateDoc = () => {
     const updatedProps: any = {
       name,
       scope,
@@ -64,19 +54,21 @@ class ConfigForm extends React.Component<Props, State> {
       config: JSON.stringify(config)
     };
 
-    if (this.props.config) {
-      updatedProps._id = this.props.config?._id;
+    if (props.config) {
+      updatedProps._id = props.config?._id;
     }
 
     return updatedProps;
-  }
+  };
 
-  renderConfig() {
-    const { action, scope } = this.state;
-
+  const renderConfig = () => {
     const updatedProps = {
-      ...this.state,
-      handleSelect: this.handleSelect
+      name,
+      scope,
+      action,
+      params,
+      config,
+      handleSelect
     };
 
     if (scope === 'cards') {
@@ -88,21 +80,25 @@ class ConfigForm extends React.Component<Props, State> {
       {
         action: action,
         initialProps: updatedProps,
-        handleSelect: params => this.handleSelect(params, 'params')
+        handleSelect: params => handleSelect(params, 'params')
       },
       false,
       scope
     );
-  }
+  };
 
-  renderForm(formProps: IFormProps) {
-    const { closeModal, renderButton, config } = this.props;
-    const { action, params, name } = this.state;
+  const renderForm = (formProps: IFormProps) => {
+    const { closeModal, renderButton, config } = props;
 
-    const handleChange = e => {
+    const handleChange = (e, name) => {
       const { value } = e.currentTarget as HTMLInputElement;
 
-      this.setState({ name: value });
+      if (name === 'name') {
+        setName(value);
+      }
+      if (name === 'config') {
+        setConfig(value);
+      }
     };
 
     return (
@@ -114,7 +110,7 @@ class ConfigForm extends React.Component<Props, State> {
             name="name"
             value={name}
             required
-            onChange={handleChange}
+            onChange={e => handleChange(e, 'name')}
           />
         </FormGroup>
         <FormGroup>
@@ -123,10 +119,10 @@ class ConfigForm extends React.Component<Props, State> {
             label="Choose a action"
             name="action"
             initialValue={action}
-            onSelect={this.handleSelect}
+            onSelect={handleSelect}
           />
         </FormGroup>
-        {!!action && this.renderConfig()}
+        {!!action && renderConfig()}
         <ModalFooter>
           <Button btnStyle="simple" onClick={closeModal}>
             {__('Close')}
@@ -135,17 +131,14 @@ class ConfigForm extends React.Component<Props, State> {
             name: 'grant',
             text: 'Grant config',
             isSubmitted: formProps.isSubmitted,
-            values: this.generateDoc(),
+            values: generateDoc(),
             object: config
           })}
         </ModalFooter>
       </>
     );
-  }
+  };
 
-  render() {
-    return <CommonForm renderContent={this.renderForm} />;
-  }
-}
-
+  return <CommonForm renderContent={renderForm} />;
+};
 export default ConfigForm;

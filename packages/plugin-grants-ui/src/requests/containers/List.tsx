@@ -1,41 +1,39 @@
-import { withProps } from '@erxes/ui/src/utils/core';
-import * as compose from 'lodash.flowright';
 import React from 'react';
 import List from '../components/List';
-import { graphql } from '@apollo/client/react/hoc';
 import { gql } from '@apollo/client';
 import { queries, mutations } from '../graphql';
 import { Alert, Spinner, confirm } from '@erxes/ui/src';
 import { generatePaginationParams } from '@erxes/ui/src/utils/router';
+import { useQuery, useMutation } from '@apollo/client';
 
 type Props = {
   queryParams: any;
   history: any;
   type?: string;
 };
-type FinalProps = {
-  listQuery: any;
-  removeRequests: any;
-} & Props;
-class ListContainer extends React.Component<FinalProps> {
-  constructor(props) {
-    super(props);
-    this.state = {};
+
+const ListContainer: React.FC<Props> = props => {
+  const { queryParams, history } = props;
+
+  const listQuery = useQuery(gql(queries.requests), {
+    variables: {
+      ...generateQueryParams(queryParams)
+    }
+  });
+
+  const [removeRequests] = useMutation(gql(mutations.removeRequests), {
+    refetchQueries: refetchQueries(queryParams)
+  });
+
+  if (listQuery.loading) {
+    return <Spinner />;
   }
 
-  render() {
-    const { listQuery, queryParams, history, removeRequests } = this.props;
+  const { grantRequests, grantRequestsTotalCount } = listQuery.data;
 
-    if (listQuery.loading) {
-      return <Spinner />;
-    }
-
-    const { grantRequests, grantRequestsTotalCount } = listQuery;
-
-    const remove = (ids: string[]) => {
-      confirm(
-        'this action will erase every data of Requests.Are you sure?'
-      ).then(() => {
+  const remove = (ids: string[]) => {
+    confirm('this action will erase every data of Requests.Are you sure?').then(
+      () => {
         removeRequests({ variables: { ids } })
           .then(() => {
             Alert.success('Removed successfully');
@@ -43,20 +41,20 @@ class ListContainer extends React.Component<FinalProps> {
           .catch(err => {
             Alert.error(err.message);
           });
-      });
-    };
+      }
+    );
+  };
 
-    const updatedProps = {
-      queryParams,
-      history,
-      list: grantRequests || [],
-      totalCount: grantRequestsTotalCount,
-      handleRemove: remove
-    };
+  const updatedProps = {
+    queryParams,
+    history,
+    list: grantRequests || [],
+    totalCount: grantRequestsTotalCount,
+    handleRemove: remove
+  };
 
-    return <List {...updatedProps} />;
-  }
-}
+  return <List {...updatedProps} />;
+};
 
 const generateQueryParams = queryParams => {
   return {
@@ -84,21 +82,4 @@ const refetchQueries = queryParams => {
   ];
 };
 
-export default withProps<Props>(
-  compose(
-    graphql<Props>(gql(queries.requests), {
-      name: 'listQuery',
-      options: ({ queryParams }) => ({
-        variables: {
-          ...generateQueryParams(queryParams)
-        }
-      })
-    }),
-    graphql<Props>(gql(mutations.removeRequests), {
-      name: 'removeRequests',
-      options: ({ queryParams }) => ({
-        refetchQueries: refetchQueries(queryParams)
-      })
-    })
-  )(ListContainer)
-);
+export default ListContainer;

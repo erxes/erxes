@@ -10,7 +10,7 @@ import {
 import BoardSelectContainer from '@erxes/ui-cards/src/boards/containers/BoardSelect';
 import { IConfigsMap } from '../types';
 import { MainStyleModalFooter as ModalFooter } from '@erxes/ui/src/styles/eindex';
-import React from 'react';
+import React, { useState } from 'react';
 import { __ } from '@erxes/ui/src/utils';
 
 type Props = {
@@ -21,151 +21,121 @@ type Props = {
   delete: (currentConfigKey: string) => void;
 };
 
-type State = {
-  config: any;
-  hasOpen: boolean;
-};
+const PerSettings: React.FC<Props> = (props: Props) => {
+  const [state, setState] = useState({ config: props.config });
 
-class PerSettings extends React.Component<Props, State> {
-  constructor(props: Props) {
-    super(props);
+  const onChangeBoard = (boardId: string) => {
+    setState(prevState => {
+      const updatedConfig = { ...prevState.config, boardId };
 
-    this.state = {
-      config: props.config,
-      hasOpen: false
-    };
-  }
-
-  onChangeBoard = (boardId: string) => {
-    this.setState({ config: { ...this.state.config, boardId } });
+      return {
+        config: updatedConfig
+      };
+    });
   };
 
-  onChangePipeline = (pipelineId: string) => {
-    this.setState({ config: { ...this.state.config, pipelineId } });
+  const onChangePipeline = (pipelineId: string) => {
+    setState(prevState => {
+      const updatedConfig = { ...prevState.config, pipelineId };
+
+      return {
+        config: updatedConfig
+      };
+    });
   };
 
-  onChangeStage = (stageId: string) => {
-    this.setState({ config: { ...this.state.config, stageId } });
+  const onChangeStage = (stageId: string) => {
+    setState(prevState => {
+      const updatedConfig = { ...prevState.config, stageId };
+
+      return {
+        config: updatedConfig
+      };
+    });
   };
 
-  onSave = e => {
+  const onSave = e => {
     e.preventDefault();
-    const { configsMap, currentConfigKey } = this.props;
-    const { config } = this.state;
-    const key = config.stageId;
+    const { configsMap, currentConfigKey } = props;
+    const key = state.config.stageId;
 
     delete configsMap.returnStageInEbarimt[currentConfigKey];
-    configsMap.returnStageInEbarimt[key] = config;
-    this.props.save(configsMap);
+    configsMap.returnStageInEbarimt[key] = state.config;
+    props.save(configsMap);
   };
 
-  onDelete = e => {
+  const onDelete = e => {
     e.preventDefault();
 
-    this.props.delete(this.props.currentConfigKey);
+    props.delete(props.currentConfigKey);
   };
 
-  onChangeCheckbox = (code: string, e) => {
-    this.onChangeConfig(code, e.target.checked);
+  const onChangeConfig = (code: string, value) => {
+    setState(prevState => {
+      const updatedConfig = { ...prevState.config, [code]: value };
+
+      return {
+        config: updatedConfig
+      };
+    });
   };
 
-  onChangeConfig = (code: string, value) => {
-    const { config } = this.state;
-    config[code] = value;
-    this.setState({ config });
+  const onChangeInput = (code: string, e) => {
+    onChangeConfig(code, e.target.value);
   };
 
-  onChangeInput = (code: string, e) => {
-    this.onChangeConfig(code, e.target.value);
-  };
-
-  renderInput = (key: string, title?: string, description?: string) => {
-    const { config } = this.state;
-
-    return (
+  return (
+    <CollapseContent
+      title={__(state.config.title)}
+      transparent={true}
+      beforeTitle={<Icon icon="settings" />}
+      open={props.currentConfigKey === 'newEbarimtConfig' ? true : false}
+    >
       <FormGroup>
-        <ControlLabel>{title || key}</ControlLabel>
-        {description && <p>{__(description)}</p>}
+        <ControlLabel>{'Title'}</ControlLabel>
         <FormControl
-          defaultValue={config[key]}
-          onChange={this.onChangeInput.bind(this, key)}
+          defaultValue={state.config['title']}
+          onChange={onChangeInput.bind(this, 'title')}
           required={true}
+          autoFocus={true}
         />
       </FormGroup>
-    );
-  };
 
-  renderCheckbox = (key: string, title?: string, description?: string) => {
-    const { config } = this.state;
-
-    return (
       <FormGroup>
-        <ControlLabel>{title || key}</ControlLabel>
-        {description && <p>{__(description)}</p>}
-        <FormControl
-          checked={config[key]}
-          onChange={this.onChangeCheckbox.bind(this, key)}
-          componentClass="checkbox"
+        <ControlLabel>Destination Stage</ControlLabel>
+        <BoardSelectContainer
+          type="deal"
+          autoSelectStage={false}
+          boardId={state.config.boardId}
+          pipelineId={state.config.pipelineId}
+          stageId={state.config.stageId}
+          onChangeBoard={onChangeBoard}
+          onChangePipeline={onChangePipeline}
+          onChangeStage={onChangeStage}
         />
       </FormGroup>
-    );
-  };
 
-  render() {
-    const { config } = this.state;
-    return (
-      <CollapseContent
-        title={__(config.title)}
-        transparent={true}
-        beforeTitle={<Icon icon="settings" />}
-        open={this.props.currentConfigKey === 'newEbarimtConfig' ? true : false}
-      >
-        <FormGroup>
-          <ControlLabel>{'Title'}</ControlLabel>
-          <FormControl
-            defaultValue={config['title']}
-            onChange={this.onChangeInput.bind(this, 'title')}
-            required={true}
-            autoFocus={true}
-          />
-        </FormGroup>
+      <ModalFooter>
+        <Button
+          btnStyle="danger"
+          icon="times-circle"
+          onClick={onDelete}
+          uppercase={false}
+        >
+          Delete
+        </Button>
 
-        <FormGroup>
-          <ControlLabel>Destination Stage</ControlLabel>
-          <BoardSelectContainer
-            type="deal"
-            autoSelectStage={false}
-            boardId={config.boardId}
-            pipelineId={config.pipelineId}
-            stageId={config.stageId}
-            onChangeBoard={this.onChangeBoard}
-            onChangePipeline={this.onChangePipeline}
-            onChangeStage={this.onChangeStage}
-          />
-        </FormGroup>
-
-        <ModalFooter>
-          <Button
-            btnStyle="danger"
-            icon="times-circle"
-            onClick={this.onDelete}
-            uppercase={false}
-          >
-            Delete
-          </Button>
-
-          <Button
-            btnStyle="success"
-            icon="check-circle"
-            onClick={this.onSave}
-            uppercase={false}
-            disabled={config.stageId ? false : true}
-          >
-            Save
-          </Button>
-        </ModalFooter>
-      </CollapseContent>
-    );
-  }
-}
+        <Button
+          btnStyle="success"
+          icon="check-circle"
+          onClick={onSave}
+          uppercase={false}
+          disabled={state.config.stageId ? false : true}
+        >
+          Save
+        </Button>
+      </ModalFooter>
+    </CollapseContent>
+  );
+};
 export default PerSettings;

@@ -1,5 +1,5 @@
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Button,
   Form as CommonForm,
@@ -35,38 +35,22 @@ type Props = {
   checkConfig: (props: CheckConfigTypes) => boolean;
 };
 
-type State = {
-  hasConfig: boolean;
-  request: {
-    action: string;
-    userIds: string[];
-    params: any;
-    scope: string;
-  };
-};
+const RequestForm: React.FC<Props> = props => {
+  const [state, setState] = useState({
+    hasConfig: false,
+    request: props.request || {
+      scope: '',
+      action: '',
+      userIds: [],
+      params: {} as any
+    }
+  });
+  const { contentTypeId, contentType, object, loading, checkConfig } = props;
 
-class RequestForm extends React.Component<Props, State> {
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      hasConfig: false,
-      request: props.request || {
-        scope: '',
-        action: '',
-        userIds: [],
-        params: {}
-      }
-    };
-
-    this.renderContent = this.renderContent.bind(this);
-  }
-
-  generateDocs() {
-    const { contentTypeId, contentType } = this.props;
+  const generateDocs = () => {
     const {
       request: { action, userIds, params, scope }
-    } = this.state;
+    } = state;
 
     return {
       contentTypeId,
@@ -76,11 +60,10 @@ class RequestForm extends React.Component<Props, State> {
       scope,
       params: JSON.stringify(params)
     };
-  }
+  };
 
-  renderComponent() {
-    const { contentType, contentTypeId, object } = this.props;
-    const { request } = this.state;
+  const renderComponent = () => {
+    const { request } = state;
 
     if (!request?.action) {
       return null;
@@ -88,7 +71,7 @@ class RequestForm extends React.Component<Props, State> {
     const handleSelect = (value, name) => {
       request[name] = value;
 
-      this.setState({ request });
+      setState(prevState => ({ ...prevState, request }));
     };
 
     const updatedProps = {
@@ -118,11 +101,10 @@ class RequestForm extends React.Component<Props, State> {
       false,
       request?.scope
     );
-  }
+  };
 
-  renderContent(props: IFormProps) {
-    const { request, hasConfig } = this.state;
-    const { loading, object } = this.props;
+  const renderContent = (formProps: IFormProps) => {
+    const { request, hasConfig } = state;
 
     const handleSelect = (value, name, scope?) => {
       if (name === 'action') {
@@ -134,22 +116,21 @@ class RequestForm extends React.Component<Props, State> {
         request.scope = scope;
       }
 
-      this.setState({ request });
+      setState(prevState => ({ ...prevState, request }));
     };
 
     const onChangeAction = async (value, name, scope?) => {
-      const { contentType, contentTypeId, checkConfig } = this.props;
-
       handleSelect(value, name, scope);
 
-      this.setState({
-        hasConfig: await checkConfig({
+      setState(prevState => ({
+        ...prevState,
+        hasConfig: checkConfig({
           contentType,
           contentTypeId,
           action: value,
           scope
         })
-      });
+      }));
     };
 
     return (
@@ -175,38 +156,34 @@ class RequestForm extends React.Component<Props, State> {
             onSelect={onChangeAction}
           />
         </FormGroup>
-        {!hasConfig && this.renderComponent()}
+        {!hasConfig && renderComponent()}
         <ModalFooter>
           <Button btnStyle="simple" disabled={loading}>
             {__('Close')}
           </Button>
-          {!!Object.keys(this.props.request || {}).length && (
+          {!!Object.keys(props.request || {}).length && (
             <Button
               btnStyle="danger"
-              onClick={this.props.cancelRequest}
+              onClick={props.cancelRequest}
               disabled={loading}
             >
               {loading && <SmallLoader />}
               {__('Cancel')}
             </Button>
           )}
-          {this.props?.renderButton({
+          {props?.renderButton({
             name: 'grant',
             text: 'Grant Request',
-            values: this.generateDocs(),
-            isSubmitted: props.isSubmitted,
-            object: !!Object.keys(this.props.request || {}).length
-              ? request
-              : null
+            values: generateDocs(),
+            isSubmitted: formProps.isSubmitted,
+            object: !!Object.keys(props.request || {}).length ? request : null
           })}
         </ModalFooter>
       </>
     );
-  }
+  };
 
-  render() {
-    return <CommonForm renderContent={this.renderContent} />;
-  }
-}
+  return <CommonForm renderContent={renderContent} />;
+};
 
 export default RequestForm;
