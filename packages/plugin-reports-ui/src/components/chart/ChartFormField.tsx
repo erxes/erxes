@@ -15,7 +15,9 @@ type Props = {
   fieldOptions: any[];
   initialValue?: any;
   onChange: (input: any) => void;
-  valtotalHoursWorkedue?: any;
+  setFilter?: (fieldName: string, value: any) => void;
+  startDate?: Date;
+  endDate?: Date;
 };
 const ChartFormField = (props: Props) => {
   const {
@@ -25,27 +27,25 @@ const ChartFormField = (props: Props) => {
     fieldLabel,
     initialValue,
     multi,
-    onChange
+    onChange,
+    setFilter,
+    startDate,
+    endDate,
   } = props;
   const [fieldValue, setFieldValue] = useState(initialValue);
-  const [dateRangeStart, setDateStart] = useState(new Date());
-  const [dateRangeEnd, setDateEnd] = useState(new Date());
 
-  const onSelect = e => {
+  const onSelect = (e) => {
     setFieldValue(e.value);
     onChange(e);
   };
 
-  const onDateRangeStartChange = (newStart: Date) => {
-    setDateStart(newStart);
-  };
+  const onSaveDateRange = (dateRange: any) => {
+    const { startDate, endDate } = dateRange;
 
-  const onDateRangeEndChange = (newEnd: Date) => {
-    setDateEnd(newEnd);
-  };
-
-  const onSaveDateRange = () => {
-    console.log('save');
+    if (setFilter) {
+      setFilter('startDate', startDate);
+      setFilter('endDate', endDate);
+    }
   };
 
   switch (fieldQuery) {
@@ -112,27 +112,27 @@ const ChartFormField = (props: Props) => {
 
     case 'date':
       return (
-        <div>
-          <ControlLabel>{fieldLabel}</ControlLabel>
-          <Select
-            value={fieldValue}
-            onChange={onSelect}
-            options={fieldOptions}
-            placeholder={fieldLabel}
-          />
+        <>
+          <div>
+            <ControlLabel>{fieldLabel}</ControlLabel>
+            <Select
+              value={fieldValue}
+              onChange={onSelect}
+              options={fieldOptions}
+              placeholder={fieldLabel}
+            />
+          </div>
           {fieldValue === 'customDate' && (
-            <MarginY margin={20}>
+            <MarginY margin={15}>
               <DateRange
                 showTime={false}
-                startDate={dateRangeStart}
-                endDate={dateRangeEnd}
-                onChangeEnd={onDateRangeEndChange}
-                onChangeStart={onDateRangeStartChange}
                 onSaveButton={onSaveDateRange}
+                startDate={startDate}
+                endDate={endDate}
               />
             </MarginY>
           )}
-        </div>
+        </>
       );
 
     default:

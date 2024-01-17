@@ -9,13 +9,13 @@ import {
   FormChart,
   FormContainer,
   RightDrawerContainer,
-  ScrolledContent
+  ScrolledContent,
 } from '../../styles';
 
 import {
   ControlLabel,
   FormControl,
-  FormGroup
+  FormGroup,
 } from '@erxes/ui/src/components/form';
 import Select from 'react-select-plus';
 
@@ -25,7 +25,7 @@ import { __, router } from '@erxes/ui/src/utils';
 import ChartRenderer from '../../containers/chart/ChartRenderer';
 import { IChart } from '../../types';
 import ChartFormField, {
-  IFilterType
+  IFilterType,
 } from '../../containers/chart/ChartFormField';
 
 type Props = {
@@ -54,7 +54,7 @@ const ChartForm = (props: Props) => {
     chartsAdd,
     chartsEdit,
 
-    serviceNames
+    serviceNames,
   } = props;
 
   const [name, setName] = useState(chart?.name || '');
@@ -69,7 +69,7 @@ const ChartForm = (props: Props) => {
 
   useEffect(() => {
     const findChartTemplate = chartTemplates.find(
-      t => t.templateType === templateType
+      (t) => t.templateType === templateType,
     );
 
     if (findChartTemplate) {
@@ -83,25 +83,25 @@ const ChartForm = (props: Props) => {
     setName(e.target.value);
   };
 
-  const renderChartTemplates = chartTemplates.map(c => ({
+  const renderChartTemplates = chartTemplates.map((c) => ({
     label: c.name,
-    value: c.templateType
+    value: c.templateType,
   }));
 
-  const renderChartTypes = chartTypes.map(c => ({ label: c, value: c }));
+  const renderChartTypes = chartTypes.map((c) => ({ label: c, value: c }));
 
-  const onServiceNameChange = selVal => {
+  const onServiceNameChange = (selVal) => {
     router.setParams(history, { serviceName: selVal.value });
     setServiceName(selVal.value);
   };
 
-  const onChartTemplateChange = selVal => {
+  const onChartTemplateChange = (selVal) => {
     router.setParams(history, { chartTemplateType: selVal.value });
     setName(selVal.label);
     setChartTemplate(selVal.value);
   };
 
-  const onChartTypeChange = chartSelVal => {
+  const onChartTypeChange = (chartSelVal) => {
     setChartType(chartSelVal.value);
   };
 
@@ -114,28 +114,31 @@ const ChartForm = (props: Props) => {
             name,
             filter: filters,
             serviceName,
-            templateType
+            templateType,
           },
-          toggleForm
+          toggleForm,
         )
       : chartsAdd({
           chartType,
           name,
           serviceName,
           templateType,
-          filter: filters
+          filter: filters,
         });
   };
 
   const setFilter = (fieldName: string, value: any) => {
-    if (!value || !value.length) {
+    if (!value && !value.length) {
       delete filters[fieldName];
       setFilters({ ...filters, ...chart?.filter });
       return;
     }
 
-    setFilters({ ...filters, [fieldName]: value });
+    filters[fieldName] = value;
+    setFilters({ ...filters });
   };
+
+  console.log('filters ', filters);
 
   const renderFilterTypes = filterTypes.length ? (
     <FlexColumn style={{ gap: '20px' }}>
@@ -145,6 +148,8 @@ const ChartForm = (props: Props) => {
           filterType={f}
           key={f.fieldName}
           setFilter={setFilter}
+          startDate={filters['startDate']}
+          endDate={filters['endDate']}
         />
       ))}
     </FlexColumn>
@@ -198,10 +203,10 @@ const ChartForm = (props: Props) => {
                 <ControlLabel required={true}>{__('Service')}</ControlLabel>
 
                 <Select
-                  options={serviceNames.map(st => {
+                  options={serviceNames.map((st) => {
                     return {
                       label: st,
-                      value: st
+                      value: st,
                     };
                   })}
                   value={serviceName}

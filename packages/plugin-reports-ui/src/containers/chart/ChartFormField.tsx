@@ -18,18 +18,15 @@ type Props = {
   filterType: IFilterType;
   setFilter: (fieldName: string, value: any) => void;
   initialValue?: any;
+  // for customDate date option
+  startDate?: Date;
+  endDate?: Date;
 };
 
 const ChartFormFieldList = (props: Props) => {
-  const { filterType, setFilter, initialValue } = props;
-  const {
-    fieldName,
-    fieldType,
-    fieldQuery,
-    fieldLabel,
-    multi,
-    fieldOptions
-  } = filterType;
+  const { filterType, setFilter } = props;
+  const { fieldName, fieldType, fieldQuery, fieldLabel, multi, fieldOptions } =
+    filterType;
 
   const onChange = (input: any) => {
     switch (fieldType) {
@@ -57,8 +54,8 @@ const ChartFormFieldList = (props: Props) => {
       multi={multi}
       fieldOptions={fieldOptions}
       fieldLabel={fieldLabel}
-      initialValue={initialValue}
       onChange={onChange}
+      {...props}
     />
   );
 };
