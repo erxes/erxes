@@ -17,6 +17,7 @@ import {
 } from '../../../gql/types';
 import SelectRisks from '../../risks/containers/SelectRisks';
 import PriceRow from './PriceRow';
+import TravelPriceRow from './TravelPriceRow';
 import SelectCategory from '../../categories/containers/SelectCategory';
 import RiskRow from './RiskRow';
 import CustomFieldSection from './CustomFieldSection';
@@ -29,7 +30,10 @@ type Props = {
 };
 
 const ProductForm = (props: Props) => {
-  const [category, setCategory] = React.useState<any>(null);
+  console.log('props', props);
+  const [category, setCategory] = React.useState<any>(
+    props.product ? props.product.category : undefined,
+  );
   const [product, setProduct] = React.useState<any>(
     props.product || {
       code: '',
@@ -53,6 +57,10 @@ const ProductForm = (props: Props) => {
   const [companyConfigs, setCompanyConfigs] = React.useState<
     CompanyProductConfig[]
   >(product.companyProductConfigs || []);
+
+  const [travelConfigs, setTravelConfigs] = React.useState<any[]>(
+    product.travelProductConfigs || [],
+  );
 
   const generateDoc = () => {
     const finalValues: any = {};
@@ -228,6 +236,71 @@ const ProductForm = (props: Props) => {
       );
     };
 
+    const renderCustomFields = () => {
+      if (!category) {
+        return null;
+      }
+      return (
+        <div style={{ width: '50%', padding: '20px', height: '100%' }}>
+          <CustomFieldSection
+            isDetail={true}
+            _id={props.product ? props.product._id : ''}
+            product={props.product}
+            refetch={props.refetch}
+            categoryCode={category ? category.code : ''}
+          />
+        </div>
+      );
+    };
+
+    const renderTravelConfigs = () => {
+      if (!product.categoryId) {
+        return null;
+      }
+
+      if (category.code !== '2') {
+        return null;
+      }
+
+      return (
+        <>
+          <FormGroup>
+            <ControlLabel>Prices</ControlLabel>
+            {travelConfigs.map((config, index) => (
+              <TravelPriceRow
+                key={index}
+                index={index}
+                config={config}
+                onChange={(rowIndex, productConfig) => {
+                  const newConfigs = [...travelConfigs];
+                  newConfigs[rowIndex] = productConfig;
+                  setTravelConfigs(newConfigs);
+                }}
+                remove={(rowIndex) => {
+                  setTravelConfigs(
+                    travelConfigs.filter((c, i) => i !== rowIndex),
+                  );
+                }}
+              />
+            ))}
+
+            <br />
+
+            <LinkButton
+              onClick={() => {
+                setTravelConfigs([
+                  ...travelConfigs,
+                  { duration: '', prices: [] },
+                ]);
+              }}
+            >
+              <Icon icon="plus-1" /> Add
+            </LinkButton>
+          </FormGroup>
+        </>
+      );
+    };
+
     return (
       <>
         <div style={{ display: 'flex' }}>
@@ -272,17 +345,9 @@ const ProductForm = (props: Props) => {
             </FormGroup>
             {renderRisks()}
             {renderFee()}
+            {renderTravelConfigs()}
           </div>
-          {props.product && (
-            <div style={{ width: '50%', padding: '20px', height: '100%' }}>
-              <CustomFieldSection
-                isDetail={true}
-                _id={props.product._id}
-                product={product}
-                refetch={props.refetch}
-              />
-            </div>
-          )}
+          {renderCustomFields()}
         </div>
         <ModalFooter>
           <Button btnStyle="simple" onClick={closeModal} icon="times-circle">

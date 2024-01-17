@@ -31,6 +31,7 @@ export const PRODUCT_CORE_FIELDS = gql`
     categoryId
     category {
       _id
+      code
       name
       risks {
         _id

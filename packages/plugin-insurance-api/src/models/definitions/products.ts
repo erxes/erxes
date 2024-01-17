@@ -16,6 +16,7 @@ export type RiskConfig = {
 export type TravelProductConfig = {
   duration: number;
   prices: any;
+  numberOfPeople: number;
 };
 
 export interface IInsuranceProduct {
@@ -46,9 +47,9 @@ export const riskSchema = new Schema(
   {
     riskId: field({ type: String, required: true }),
     coverage: field({ type: Number, min: 0, max: 100 }),
-    coverageLimit: field({ type: Number, min: 0, max: 100 })
+    coverageLimit: field({ type: Number, min: 0, max: 100 }),
   },
-  { _id: false }
+  { _id: false },
 );
 
 export const productSchema = new Schema({
@@ -68,5 +69,5 @@ export const productSchema = new Schema({
   travelProductConfigs: field({ type: [Schema.Types.Mixed], optional: true }),
 
   duration: field({ type: Number, optional: true }),
-  currencyCode: field({ type: String, optional: true, default: 'MNT' })
+  currencyCode: field({ type: String, optional: true, default: 'MNT' }),
 });
