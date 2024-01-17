@@ -13,7 +13,7 @@ import {
   CompanyProductConfig,
   InsuranceProduct,
   Risk,
-  RiskConfig
+  RiskConfig,
 } from '../../../gql/types';
 import SelectRisks from '../../risks/containers/SelectRisks';
 import PriceRow from './PriceRow';
@@ -29,14 +29,15 @@ type Props = {
 };
 
 const ProductForm = (props: Props) => {
+  const [category, setCategory] = React.useState<any>(null);
   const [product, setProduct] = React.useState<any>(
     props.product || {
       code: '',
       name: '',
       description: '',
       price: 0,
-      categoryId: ''
-    }
+      categoryId: '',
+    },
   );
 
   React.useEffect(() => {
@@ -46,7 +47,7 @@ const ProductForm = (props: Props) => {
   }, [props.product]);
 
   const [riskConfigs, setRiskConfigs] = React.useState<any[]>(
-    product.riskConfigs || []
+    product.riskConfigs || [],
   );
 
   const [companyConfigs, setCompanyConfigs] = React.useState<
@@ -60,30 +61,30 @@ const ProductForm = (props: Props) => {
       finalValues._id = props.product._id;
     }
 
-    Object.keys(product).forEach(key => {
+    Object.keys(product).forEach((key) => {
       if (product[key] !== undefined) {
         finalValues[key] = product[key];
       }
     });
 
     finalValues.price = parseFloat(finalValues.price);
-    finalValues.companyProductConfigs = companyConfigs.map(companyConfig => {
+    finalValues.companyProductConfigs = companyConfigs.map((companyConfig) => {
       return {
         companyId: companyConfig.companyId,
-        specificPrice: Number(companyConfig.specificPrice || 0)
+        specificPrice: Number(companyConfig.specificPrice || 0),
       };
     });
 
-    finalValues.riskConfigs = riskConfigs.map(riskConfig => {
+    finalValues.riskConfigs = riskConfigs.map((riskConfig) => {
       return {
         riskId: riskConfig.riskId,
         coverage: Number(riskConfig.coverage || 0),
-        coverageLimit: Number(riskConfig.coverageLimit || 0)
+        coverageLimit: Number(riskConfig.coverageLimit || 0),
       };
     });
 
     return {
-      ...finalValues
+      ...finalValues,
     };
   };
 
@@ -110,12 +111,12 @@ const ProductForm = (props: Props) => {
       value: any,
       label: string,
       required?: boolean,
-      useNumberFormat?: boolean
+      useNumberFormat?: boolean,
     ) => {
       const onChangeInput = (e: any) => {
         setProduct({
           ...product,
-          [name]: e.target.value
+          [name]: e.target.value,
         });
       };
 
@@ -139,6 +140,10 @@ const ProductForm = (props: Props) => {
 
     const renderRisks = () => {
       if (!product.categoryId) {
+        return null;
+      }
+
+      if (category.code === '2') {
         return null;
       }
 
@@ -168,6 +173,61 @@ const ProductForm = (props: Props) => {
       );
     };
 
+    const renderFee = () => {
+      if (!product.categoryId) {
+        return null;
+      }
+      if (category.code === '2') {
+        return null;
+      }
+
+      return (
+        <>
+          {renderInput(
+            'price',
+            'number',
+            product.price,
+            'Fee percent',
+            true,
+            true,
+          )}
+          or
+          <FormGroup>
+            <ControlLabel>Specific fee percent for vendors</ControlLabel>
+            {companyConfigs.map((companyConfig, index) => (
+              <PriceRow
+                key={index}
+                index={index}
+                productConfig={companyConfig}
+                onChange={(rowIndex, productConfig) => {
+                  const newCompanyConfigs = [...companyConfigs];
+                  newCompanyConfigs[rowIndex] = productConfig;
+                  setCompanyConfigs(newCompanyConfigs);
+                }}
+                remove={(rowIndex) => {
+                  setCompanyConfigs(
+                    companyConfigs.filter((c, i) => i !== rowIndex),
+                  );
+                }}
+              />
+            ))}
+            <br />
+
+            <LinkButton
+              onClick={() => {
+                setCompanyConfigs([
+                  ...companyConfigs,
+                  { companyId: '', specificPrice: 0 },
+                ]);
+              }}
+            >
+              <Icon icon="plus-1" /> Add
+            </LinkButton>
+          </FormGroup>
+        </>
+      );
+    };
+
     return (
       <>
         <div style={{ display: 'flex' }}>
@@ -175,7 +235,7 @@ const ProductForm = (props: Props) => {
             style={{
               width: props.product ? '50%' : '100%',
               padding: '20px',
-              height: '100%'
+              height: '100%',
             }}
           >
             {renderInput('code', 'text', product.code, 'Code', true)}
@@ -184,74 +244,34 @@ const ProductForm = (props: Props) => {
               'description',
               'text',
               product.description,
-              'Description'
+              'Description',
             )}
             <FormGroup>
               <ControlLabel>{__('Category')}</ControlLabel>
               <SelectCategory
                 value={product.categoryId}
-                onChange={(categoryId, categoryRisks: Risk[]) => {
+                onChange={(category, categoryRisks: Risk[]) => {
+                  console.log('category', category);
                   setProduct({
                     ...product,
-                    categoryId
+                    categoryId: category._id,
                   });
 
-                  const newConfigs: RiskConfig[] = categoryRisks.map(risk => {
+                  const newConfigs: RiskConfig[] = categoryRisks.map((risk) => {
                     return {
                       riskId: risk._id,
                       name: risk.name,
                       coverage: 0,
-                      coverageLimit: 0
+                      coverageLimit: 0,
                     };
                   });
-
+                  setCategory(category);
                   setRiskConfigs(newConfigs);
                 }}
               />
-
-              {renderRisks()}
             </FormGroup>
-            {renderInput(
-              'price',
-              'number',
-              product.price,
-              'Fee percent',
-              true,
-              true
-            )}
-            or
-            <FormGroup>
-              <ControlLabel>Specific fee percent for vendors</ControlLabel>
-              {companyConfigs.map((companyConfig, index) => (
-                <PriceRow
-                  key={index}
-                  index={index}
-                  productConfig={companyConfig}
-                  onChange={(rowIndex, productConfig) => {
-                    const newCompanyConfigs = [...companyConfigs];
-                    newCompanyConfigs[rowIndex] = productConfig;
-                    setCompanyConfigs(newCompanyConfigs);
-                  }}
-                  remove={rowIndex => {
-                    setCompanyConfigs(
-                      companyConfigs.filter((c, i) => i !== rowIndex)
-                    );
-                  }}
-                />
-              ))}
-              <br />
-
-              <LinkButton
-                onClick={() => {
-                  setCompanyConfigs([
-                    ...companyConfigs,
-                    { companyId: '', specificPrice: 0 }
-                  ]);
-                }}
-              >
-                <Icon icon="plus-1" /> Add
-              </LinkButton>
-            </FormGroup>
+            {renderRisks()}
+            {renderFee()}
           </div>
           {props.product && (
             <div style={{ width: '50%', padding: '20px', height: '100%' }}>
@@ -274,7 +294,7 @@ const ProductForm = (props: Props) => {
             values: generateDoc(),
             isSubmitted,
             callback: closeModal,
-            object: product
+            object: product,
           })}
         </ModalFooter>
       </>
