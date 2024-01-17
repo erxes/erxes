@@ -36,6 +36,6 @@ export default {
 
     initBroker(options.messageBrokerClient);
 
-    init(app);
+    init();
   }
 };
