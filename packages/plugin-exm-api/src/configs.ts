@@ -10,21 +10,16 @@ import { generateModels } from './connectionResolver';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import * as permissions from './permissions';
 
-export let graphqlPubsub;
-export let serviceDiscovery;
 export let mainDb;
-
 export let debug;
 
 export default {
   name: 'exm',
   permissions,
-  graphql: async sd => {
-    serviceDiscovery = sd;
-
+  graphql: async () => {
     return {
-      typeDefs: await typeDefs(sd),
-      resolvers
+      typeDefs: await typeDefs(),
+      resolvers,
     };
   },
   segment: { schemas: [] },
@@ -34,14 +29,14 @@ export default {
     const subdomain = getSubdomain(req);
 
     context.dataloaders = {};
-    context.docModifier = doc => doc;
+    context.docModifier = (doc) => doc;
 
     context.models = await generateModels(subdomain);
     context.subdomain = subdomain;
 
     return context;
   },
-  onServerInit: async options => {
+  onServerInit: async (options) => {
     mainDb = options.db;
 
     const app = options.app;
@@ -58,7 +53,7 @@ export default {
     app.use((req: any, _res, next) => {
       req.rawBody = '';
 
-      req.on('data', chunk => {
+      req.on('data', (chunk) => {
         req.rawBody += chunk.toString();
       });
 
@@ -79,6 +74,5 @@ export default {
     initBroker(options.messageBrokerClient);
 
     debug = options.debug;
-    graphqlPubsub = options.pubsubClient;
-  }
+  },
 };

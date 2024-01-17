@@ -4,7 +4,7 @@ import {
   getContentItem,
   prepareEngageCustomers
 } from './utils';
-import { serviceDiscovery } from './configs';
+
 import { generateModels } from './connectionResolver';
 import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
 import { getNumberOfVisits } from './events';
@@ -502,7 +502,6 @@ export const sendSegmentsMessage = async (
 ): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'segments',
     ...args
   });
@@ -511,7 +510,6 @@ export const sendSegmentsMessage = async (
 export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'core',
     ...args
   });
@@ -522,7 +520,6 @@ export const sendFormsMessage = async (
 ): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'forms',
     ...args
   });
@@ -533,7 +530,6 @@ export const sendInboxMessage = async (
 ): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'inbox',
     ...args
   });
@@ -544,7 +540,6 @@ export const sendEngagesMessage = async (
 ): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'engages',
     ...args
   });
@@ -555,7 +550,6 @@ export const sendInternalNotesMessage = async (
 ): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'internalnotes',
     ...args
   });
@@ -564,7 +558,6 @@ export const sendInternalNotesMessage = async (
 export const sendTagsMessage = async (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'tags',
     ...args
   });
@@ -575,7 +568,6 @@ export const sendContactsMessage = async (
 ): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'contacts',
     ...args
   });
@@ -585,7 +577,6 @@ export const sendCommonMessage = async (
   args: ISendMessageArgs & { serviceName: string }
 ): Promise<any> => {
   return sendMessage({
-    serviceDiscovery,
     client,
     ...args
   });
@@ -596,7 +587,6 @@ export const sendIntegrationsMessage = (
 ): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'integrations',
     ...args
   });

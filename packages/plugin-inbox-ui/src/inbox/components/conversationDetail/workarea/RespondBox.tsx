@@ -55,6 +55,7 @@ type Props = {
   responseTemplates: IResponseTemplate[];
   refetchMessages: () => void;
   refetchDetail: () => void;
+  refetchResponseTemplates: (content: string) => void;
   mentionSuggestion?: MentionSuggestionParams;
 };
 
@@ -69,6 +70,7 @@ type State = {
   editorKey: string;
   loading: object;
   extraInfo?: any;
+  timer: NodeJS.Timer;
 };
 
 const Editor = asyncComponent(
@@ -93,7 +95,8 @@ class RespondBox extends React.Component<Props, State> {
       responseTemplate: '',
       content: '',
       mentionedUserIds: [],
-      loading: {}
+      loading: {},
+      timer: undefined
     };
   }
   isContentWritten() {
@@ -140,9 +143,25 @@ class RespondBox extends React.Component<Props, State> {
   // save editor current content to state
   onEditorContentChange = (content: string) => {
     this.setState({ content });
+    const textContent = content.toLowerCase().replace(/<[^>]+>/g, '');
 
     if (this.isContentWritten()) {
       localStorage.setItem(this.props.conversation._id, content);
+    }
+
+    if (textContent) {
+      const { timer } = this.state;
+
+      if (timer) {
+        clearTimeout(timer);
+        this.setState({ timer: undefined });
+      }
+
+      this.setState({
+        timer: setTimeout(() => {
+          this.props.refetchResponseTemplates(textContent);
+        }, 1000)
+      });
     }
 
     if (this.props.conversation.integration.kind === 'telnyx') {

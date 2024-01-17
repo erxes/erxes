@@ -66,7 +66,6 @@ var plugins = [
   { name: 'viber', api: true, ui: true },
   { name: 'meetings', api: true, ui: true },
   { name: 'xyp', api: true, ui: true },
-  { name: 'polarissync', api: true, ui: true },
   { name: 'savings', api: true, ui: true },
   { name: 'goals', api: true, ui: true },
   { name: 'msdynamic', api: true, ui: true },

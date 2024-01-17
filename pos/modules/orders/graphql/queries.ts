@@ -333,6 +333,7 @@ const progressHistory = gql`
       dueDate
       isPre
       description
+      deliveryInfo
     }
   }
 `

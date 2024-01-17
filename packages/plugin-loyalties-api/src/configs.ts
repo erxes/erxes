@@ -9,9 +9,7 @@ import { getSubdomain } from '@erxes/api-utils/src/core';
 import * as permissions from './permissions';
 
 export let debug;
-export let graphqlPubsub;
 export let mainDb;
-export let serviceDiscovery;
 
 export default {
   name: 'loyalties',
@@ -21,13 +19,12 @@ export default {
 
     automations,
     // for fixing permissions
-    permissions
+    permissions,
   },
-  graphql: async sd => {
-    serviceDiscovery = sd;
+  graphql: async () => {
     return {
-      typeDefs: await typeDefs(sd),
-      resolvers: await resolvers(sd)
+      typeDefs: await typeDefs(),
+      resolvers: await resolvers(),
     };
   },
   apolloServerContext: async (context, req) => {
@@ -38,12 +35,11 @@ export default {
 
     return context;
   },
-  onServerInit: async options => {
+  onServerInit: async (options) => {
     mainDb = options.db;
 
     initBroker(options.messageBrokerClient);
 
     debug = options.debug;
-    graphqlPubsub = options.pubsubClient;
-  }
+  },
 };

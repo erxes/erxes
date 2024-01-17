@@ -4,31 +4,32 @@ import { generateFieldsFromSchema } from '@erxes/api-utils/src/fieldUtils';
 import redis from '@erxes/api-utils/src/redis';
 import { getNextMonth, getToday } from '@erxes/api-utils/src';
 import { IUserDocument } from '@erxes/api-utils/src/types';
-import { graphqlPubsub } from './configs';
+import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
 import { generateModels, IContext, IModels } from './connectionResolver';
 import {
   sendCoreMessage,
   sendCommonMessage,
   sendContactsMessage,
-  sendCardsMessage
+  sendCardsMessage,
 } from './messageBroker';
 import fetch from 'node-fetch';
 
 import * as admin from 'firebase-admin';
 import { CLOSE_DATE_TYPES } from './constants';
 import { IUser } from './models/definitions/clientPortalUser';
+import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
 
 export const getConfig = async (
   code: string,
   subdomain: string,
-  defaultValue?: string
+  defaultValue?: string,
 ) => {
   const configs = await sendCoreMessage({
     subdomain,
     action: 'getConfigs',
     data: {},
     isRPC: true,
-    defaultValue: []
+    defaultValue: [],
   });
 
   if (!configs[code]) {
@@ -65,7 +66,7 @@ export const generateFields = async ({ subdomain }) => {
       if (path.schema) {
         fields = [
           ...fields,
-          ...(await generateFieldsFromSchema(path.schema, `${name}.`))
+          ...(await generateFieldsFromSchema(path.schema, `${name}.`)),
         ];
       }
     }
@@ -78,46 +79,58 @@ export const sendSms = async (
   subdomain: string,
   type: string,
   phoneNumber: string,
-  content: string
+  content: string,
 ) => {
-  switch (type) {
-    case 'messagePro':
-      const MESSAGE_PRO_API_KEY = await getConfig(
-        'MESSAGE_PRO_API_KEY',
-        subdomain,
-        ''
+  if (type === 'messagePro') {
+    const MESSAGE_PRO_API_KEY = await getConfig(
+      'MESSAGE_PRO_API_KEY',
+      subdomain,
+      '',
+    );
+
+    const MESSAGE_PRO_PHONE_NUMBER = await getConfig(
+      'MESSAGE_PRO_PHONE_NUMBER',
+      subdomain,
+      '',
+    );
+
+    if (!MESSAGE_PRO_API_KEY || !MESSAGE_PRO_PHONE_NUMBER) {
+      throw new Error('messaging config not set properly');
+    }
+
+    try {
+      await fetch(
+        'https://api.messagepro.mn/send?' +
+          new URLSearchParams({
+            key: MESSAGE_PRO_API_KEY,
+            from: MESSAGE_PRO_PHONE_NUMBER,
+            to: phoneNumber,
+            text: content,
+          }),
       );
 
-      const MESSAGE_PRO_PHONE_NUMBER = await getConfig(
-        'MESSAGE_PRO_PHONE_NUMBER',
-        subdomain,
-        ''
-      );
-
-      if (!MESSAGE_PRO_API_KEY || !MESSAGE_PRO_PHONE_NUMBER) {
-        throw new Error('messaging config not set properly');
-      }
-
-      try {
-        await fetch(
-          'https://api.messagepro.mn/send?' +
-            new URLSearchParams({
-              key: MESSAGE_PRO_API_KEY,
-              from: MESSAGE_PRO_PHONE_NUMBER,
-              to: phoneNumber,
-              text: content
-            })
-        );
-
-        return 'sent';
-      } catch (e) {
-        debugError(e.message);
-        throw new Error(e.message);
-      }
-
-    default:
-      break;
+      return 'sent';
+    } catch (e) {
+      debugError(e.message);
+      throw new Error(e.message);
+    }
   }
+
+  const isServiceEnabled = await isEnabled(type);
+
+  if (!isServiceEnabled) {
+    throw new Error('messaging service not enabled');
+  }
+
+  await sendCommonMessage({
+    serviceName: type,
+    subdomain,
+    action: 'sendSms',
+    data: {
+      phoneNumber,
+      content,
+    },
+  });
 };
 
 export const generateRandomPassword = (len: number = 10) => {
@@ -130,7 +143,7 @@ export const generateRandomPassword = (len: number = 10) => {
     exclusions: string,
     string: string,
     min: number,
-    max: number
+    max: number,
   ) => {
     let n;
     let chars = '';
@@ -144,7 +157,7 @@ export const generateRandomPassword = (len: number = 10) => {
     let i = 0;
     while (i < n) {
       const character = string.charAt(
-        Math.floor(Math.random() * string.length)
+        Math.floor(Math.random() * string.length),
       );
       if (exclusions.indexOf(character) < 0 && chars.indexOf(character) < 0) {
         chars += character;
@@ -189,11 +202,11 @@ export const initFirebase = async (subdomain: string): Promise<void> => {
     action: 'configs.findOne',
     data: {
       query: {
-        code: 'GOOGLE_APPLICATION_CREDENTIALS_JSON'
-      }
+        code: 'GOOGLE_APPLICATION_CREDENTIALS_JSON',
+      },
     },
     isRPC: true,
-    defaultValue: null
+    defaultValue: null,
   });
 
   if (!config) {
@@ -208,7 +221,7 @@ export const initFirebase = async (subdomain: string): Promise<void> => {
     if (serviceAccount.private_key) {
       try {
         await admin.initializeApp({
-          credential: admin.credential.cert(serviceAccount)
+          credential: admin.credential.cert(serviceAccount),
         });
       } catch (e) {
         console.log(`initFireBase error: ${e.message}`);
@@ -235,7 +248,7 @@ interface ISendNotification {
 export const sendNotification = async (
   models: IModels,
   subdomain: string,
-  doc: ISendNotification
+  doc: ISendNotification,
 ) => {
   const {
     createdUser,
@@ -245,7 +258,7 @@ export const sendNotification = async (
     notifType,
     isMobile,
     eventData,
-    mobileConfig
+    mobileConfig,
   } = doc;
 
   const link = doc.link;
@@ -255,7 +268,7 @@ export const sendNotification = async (
 
   // collecting emails
   const recipients = await models.ClientPortalUsers.find({
-    _id: { $in: receiverIds }
+    _id: { $in: receiverIds },
   }).lean();
 
   // collect recipient emails
@@ -270,18 +283,19 @@ export const sendNotification = async (
       toEmails.push(recipient.email);
     }
 
-    const notification = await models.ClientPortalNotifications.createNotification(
-      {
-        title,
-        content,
-        link,
-        receiver: recipient._id,
-        notifType,
-        clientPortalId: recipient.clientPortalId,
-        eventData
-      },
-      createdUser && createdUser._id
-    );
+    const notification =
+      await models.ClientPortalNotifications.createNotification(
+        {
+          title,
+          content,
+          link,
+          receiver: recipient._id,
+          notifType,
+          clientPortalId: recipient.clientPortalId,
+          eventData,
+        },
+        createdUser && createdUser._id,
+      );
 
     graphqlPubsub.publish('clientPortalNotificationInserted', {
       clientPortalNotificationInserted: {
@@ -290,8 +304,8 @@ export const sendNotification = async (
         title: notification.title,
         content: notification.content,
         link: notification.link,
-        eventData
-      }
+        eventData,
+      },
     });
   }
 
@@ -304,17 +318,17 @@ export const sendNotification = async (
       template: {
         name: 'notification',
         data: {
-          notification: { ...doc, link }
-        }
+          notification: { ...doc, link },
+        },
       },
       modifier: (data: any, email: string) => {
-        const user = recipients.find(item => item.email === email);
+        const user = recipients.find((item) => item.email === email);
 
         if (user) {
           data.uid = user._id;
         }
-      }
-    }
+      },
+    },
   });
 
   if (isMobile) {
@@ -354,22 +368,22 @@ export const sendNotification = async (
             android: {
               notification: {
                 sound: mobileConfig?.sound,
-                channelId: mobileConfig?.channelId
-              }
+                channelId: mobileConfig?.channelId,
+              },
             },
             apns: {
               payload: {
                 aps: {
-                  sound: mobileConfig?.sound
-                }
-              }
-            }
+                  sound: mobileConfig?.sound,
+                },
+              },
+            },
           };
 
           await transporter.sendMulticast(multicastMessage);
         } catch (e) {
           debugError(
-            `Error occurred during Firebase multicast send: ${e.message}`
+            `Error occurred during Firebase multicast send: ${e.message}`,
           );
           expiredTokens.push(...tokensChunk);
         }
@@ -380,7 +394,7 @@ export const sendNotification = async (
           await transporter.send({
             token,
             notification: { title, body: content },
-            data: eventData || {}
+            data: eventData || {},
           });
         } catch (e) {
           debugError(`Error occurred during firebase send: ${e.message}`);
@@ -391,7 +405,7 @@ export const sendNotification = async (
     if (expiredTokens.length > 0) {
       await models.ClientPortalUsers.updateMany(
         {},
-        { $pull: { deviceTokens: { $in: expiredTokens } } }
+        { $pull: { deviceTokens: { $in: expiredTokens } } },
       );
     }
   }
@@ -403,7 +417,7 @@ export const customFieldsDataByFieldCode = async (object, subdomain) => {
       ? object.customFieldsData.toObject()
       : object.customFieldsData || [];
 
-  const fieldIds = customFieldsData.map(data => data.field);
+  const fieldIds = customFieldsData.map((data) => data.field);
 
   const fields = await sendCommonMessage({
     serviceName: 'forms',
@@ -411,11 +425,11 @@ export const customFieldsDataByFieldCode = async (object, subdomain) => {
     action: 'fields.find',
     data: {
       query: {
-        _id: { $in: fieldIds }
-      }
+        _id: { $in: fieldIds },
+      },
     },
     isRPC: true,
-    defaultValue: []
+    defaultValue: [],
   });
 
   const fieldCodesById = {};
@@ -428,7 +442,7 @@ export const customFieldsDataByFieldCode = async (object, subdomain) => {
 
   for (const data of customFieldsData) {
     results[fieldCodesById[data.field]] = {
-      ...data
+      ...data,
     };
   }
 
@@ -441,7 +455,7 @@ export const sendAfterMutation = async (
   action: string,
   object: any,
   newData: any,
-  extraDesc: any
+  extraDesc: any,
 ) => {
   const value = await redis.get('afterMutations');
   const afterMutations = JSON.parse(value || '{}');
@@ -461,8 +475,8 @@ export const sendAfterMutation = async (
           action,
           object,
           newData,
-          extraDesc
-        }
+          extraDesc,
+        },
       });
     }
   }
@@ -471,7 +485,7 @@ export const sendAfterMutation = async (
 export const getCards = async (
   type: 'ticket' | 'deal' | 'task' | 'purchase',
   context: IContext,
-  args: any
+  args: any,
 ) => {
   const { subdomain, models, cpUser } = context;
   if (!cpUser) {
@@ -490,9 +504,9 @@ export const getCards = async (
     subdomain,
     action: 'customers.findOne',
     data: {
-      _id: cpUser.erxesCustomerId
+      _id: cpUser.erxesCustomerId,
     },
-    isRPC: true
+    isRPC: true,
   });
 
   if (!customer) {
@@ -505,10 +519,10 @@ export const getCards = async (
     data: {
       mainType: 'customer',
       mainTypeIds: [customer._id],
-      relTypes: [type]
+      relTypes: [type],
     },
     isRPC: true,
-    defaultValue: []
+    defaultValue: [],
   });
 
   if (conformities.length === 0) {
@@ -531,17 +545,17 @@ export const getCards = async (
     subdomain,
     action: 'stages.find',
     data: {
-      pipelineId
+      pipelineId,
     },
     isRPC: true,
-    defaultValue: []
+    defaultValue: [],
   });
 
   if (stages.length === 0) {
     return [];
   }
 
-  const stageIds = stages.map(stage => stage._id);
+  const stageIds = stages.map((stage) => stage._id);
 
   let oneStageId = '';
   if (args.stageId) {
@@ -565,7 +579,7 @@ export const getCards = async (
 
     return {
       $gte: start,
-      $lte: end
+      $lte: end,
     };
   };
 
@@ -579,13 +593,13 @@ export const getCards = async (
       ...(args?.priority && { priority: { $in: args?.priority || [] } }),
       ...(args?.labelIds && { labelIds: { $in: args?.labelIds || [] } }),
       ...(args?.closeDateType && {
-        closeDate: getCloseDateByType(args.closeDateType)
+        closeDate: getCloseDateByType(args.closeDateType),
       }),
       ...(args?.userIds && { assignedUserIds: { $in: args?.userIds || [] } }),
-      ...(args?.date && { closeDate: dateSelector(args.date) })
+      ...(args?.date && { closeDate: dateSelector(args.date) }),
     },
     isRPC: true,
-    defaultValue: []
+    defaultValue: [],
   });
 };
 
@@ -595,7 +609,7 @@ export const getCloseDateByType = (closeDateType: string) => {
 
     return {
       $gte: new Date(tommorrow.startOf('day').toISOString()),
-      $lte: new Date(tommorrow.endOf('day').toISOString())
+      $lte: new Date(tommorrow.endOf('day').toISOString()),
     };
   }
 
@@ -609,7 +623,7 @@ export const getCloseDateByType = (closeDateType: string) => {
 
     return {
       $gte: new Date(monday),
-      $lte: new Date(nextSunday)
+      $lte: new Date(nextSunday),
     };
   }
 
@@ -619,7 +633,7 @@ export const getCloseDateByType = (closeDateType: string) => {
 
     return {
       $gte: new Date(start),
-      $lte: new Date(end)
+      $lte: new Date(end),
     };
   }
 
@@ -655,21 +669,21 @@ export const getUserCards = async (
   userId: string,
   contentType: string,
   models: IModels,
-  subdomain
+  subdomain,
 ) => {
   const cardIds = await models.ClientPortalUserCards.find({
     cpUserId: userId,
-    contentType
+    contentType,
   }).distinct('contentTypeId');
 
   const cards = await sendCardsMessage({
     subdomain,
     action: `${contentType}s.find`,
     data: {
-      _id: { $in: cardIds }
+      _id: { $in: cardIds },
     },
     isRPC: true,
-    defaultValue: []
+    defaultValue: [],
   });
 
   return cards;

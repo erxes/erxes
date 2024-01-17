@@ -12,25 +12,22 @@ import { removeDuplicates } from './removeDuplicateTimeclocks';
 
 export let mainDb;
 export let debug;
-export let graphqlPubsub;
-export let serviceDiscovery;
-export let redis;
+
+
 
 export default {
   name: 'timeclock',
   permissions,
-  graphql: async sd => {
-    serviceDiscovery = sd;
-
+  graphql: async () => {
     return {
-      typeDefs: await typeDefs(sd),
-      resolvers: await resolvers(sd)
+      typeDefs: await typeDefs(),
+      resolvers: await resolvers(),
     };
   },
 
   meta: {
     cronjobs,
-    permissions
+    permissions,
   },
 
   apolloServerContext: async (context, req) => {
@@ -43,7 +40,7 @@ export default {
     return context;
   },
 
-  onServerInit: async options => {
+  onServerInit: async (options) => {
     mainDb = options.db;
     const app = options.app;
     app.get(
@@ -51,7 +48,7 @@ export default {
       routeErrorHandling(async (req: any, res) => {
         const remove = await removeDuplicates();
         return res.send(remove);
-      })
+      }),
     );
 
     app.get(
@@ -66,13 +63,11 @@ export default {
         res.attachment(`${result.name}.xlsx`);
 
         return res.send(result.response);
-      })
+      }),
     );
 
     initBroker(options.messageBrokerClient);
 
-    graphqlPubsub = options.pubsubClient;
-    redis = options.redis;
     debug = options.debug;
-  }
+  },
 };

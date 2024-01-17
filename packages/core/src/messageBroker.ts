@@ -8,6 +8,7 @@ import { graphqlPubsub } from './pubsub';
 import { registerOnboardHistory } from './data/modules/robot';
 
 import {
+  escapeRegExp,
   getConfig,
   getConfigs,
   getFileUploadConfigs,
@@ -356,6 +357,41 @@ export const initBroker = async options => {
   });
 
   consumeRPCQueue(
+    'core:departments.findWithChild',
+    async ({ subdomain, data: { query, fields } }) => {
+      const models = await generateModels(subdomain);
+
+      const departments = await models.Departments.find(query);
+
+      if (!departments.length) {
+        return {
+          data: [],
+          status: 'success'
+        };
+      }
+
+      const orderQry: any[] = [];
+      for (const tag of departments) {
+        orderQry.push({
+          order: { $regex: new RegExp(`^${escapeRegExp(tag.order || '')}`) }
+        });
+      }
+
+      return {
+        data: await models.Departments.find(
+          {
+            $or: orderQry
+          },
+          fields || {}
+        )
+          .sort({ order: 1 })
+          .lean(),
+        status: 'success'
+      };
+    }
+  );
+
+  consumeRPCQueue(
     'core:users.updateOne',
     async ({ subdomain, data: { selector, modifier } }) => {
       const models = await generateModels(subdomain);
@@ -486,6 +522,41 @@ export const initBroker = async options => {
     };
   });
 
+  consumeRPCQueue(
+    'core:branches.findWithChild',
+    async ({ subdomain, data: { query, fields } }) => {
+      const models = await generateModels(subdomain);
+
+      const branches = await models.Branches.find(query);
+
+      if (!branches.length) {
+        return {
+          data: [],
+          status: 'success'
+        };
+      }
+
+      const orderQry: any[] = [];
+      for (const tag of branches) {
+        orderQry.push({
+          order: { $regex: new RegExp(`^${escapeRegExp(tag.order || '')}`) }
+        });
+      }
+
+      return {
+        data: await models.Branches.find(
+          {
+            $or: orderQry
+          },
+          fields || {}
+        )
+          .sort({ order: 1 })
+          .lean(),
+        status: 'success'
+      };
+    }
+  );
+
   consumeRPCQueue('core:units.find', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
@@ -585,7 +656,6 @@ export const sendCommonMessage = async (
   args: IISendMessageArgs
 ): Promise<any> => {
   return sendMessage({
-    serviceDiscovery,
     client,
     ...args
   });
@@ -596,7 +666,6 @@ export const sendSegmentsMessage = async (
 ): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'segments',
     ...args
   });
@@ -607,7 +676,6 @@ export const sendIntegrationsMessage = (
 ): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'integrations',
     ...args
   });
@@ -616,7 +684,6 @@ export const sendIntegrationsMessage = (
 export const sendCardsMessage = (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'cards',
     ...args
   });
@@ -625,7 +692,6 @@ export const sendCardsMessage = (args: ISendMessageArgs): Promise<any> => {
 export const sendLogsMessage = (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'logs',
     ...args
   });
@@ -634,7 +700,6 @@ export const sendLogsMessage = (args: ISendMessageArgs): Promise<any> => {
 export const sendContactsMessage = (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'contacts',
     ...args
   });
@@ -643,7 +708,6 @@ export const sendContactsMessage = (args: ISendMessageArgs): Promise<any> => {
 export const sendInboxMessage = (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'inbox',
     ...args
   });
@@ -652,7 +716,6 @@ export const sendInboxMessage = (args: ISendMessageArgs): Promise<any> => {
 export const sendFormsMessage = (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'forms',
     ...args
   });
