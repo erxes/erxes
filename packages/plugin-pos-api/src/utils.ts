@@ -141,7 +141,6 @@ const otherPlugins = async (
 ) => {
   const value = await redis.get('afterMutations');
   const afterMutations = JSON.parse(value || '{}');
-  console.log(afterMutations);
 
   if (
     afterMutations['pos:order'] &&
