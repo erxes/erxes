@@ -50,9 +50,9 @@ const msdynamicSendMutations = {
           Due_Date: '2021-07-06',
           Requested_Delivery_Date: '0001-01-01',
           Promised_Delivery_Date: '0001-01-01',
-          External_Document_No: '',
+          External_Document_No: 'nemelt medeelel',
           Responsibility_Center: 'BEV-DIST',
-          Sync_Type: ' ',
+          Sync_Type: 'ECOMMERCE',
           Mobile_Phone_No: '',
           Prices_Including_VAT: true,
           VAT_Bus_Posting_Group: 'DOMESTIC',
@@ -63,6 +63,8 @@ const msdynamicSendMutations = {
           BillType: 'Invoice',
           Where_Print_VAT: 'Unposted',
           CheckedVATInfo: true,
+          Location_Code: 'BEV-01',
+          Salesperson_Code: 'harilcagxh',
           Sales_Order_APISalesLines: [
             {
               Line_No: 10000,
@@ -104,6 +106,8 @@ const msdynamicSendMutations = {
             body: JSON.stringify(document),
           },
         ).then((res) => res.json());
+
+        console.log(response, 'response');
 
         await models.SyncLogs.updateOne(
           { _id: syncLog._id },

@@ -3,7 +3,8 @@ import { customerToDynamic } from './utils';
 
 const allowTypes = {
   'contacts:customer': ['create'],
-  'contacts:company': ['create']
+  'contacts:company': ['create'],
+  'pos:order': ['synced'],
 };
 
 export const afterMutationHandlers = async (subdomain, params) => {
@@ -18,7 +19,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
     createdAt: new Date(),
     createdBy: user._id,
     consumeData: params,
-    consumeStr: JSON.stringify(params)
+    consumeStr: JSON.stringify(params),
   };
 
   let syncLog;
@@ -49,10 +50,19 @@ export const afterMutationHandlers = async (subdomain, params) => {
         return;
       }
     }
+
+    if (type === 'pos:order') {
+      syncLog = await models.SyncLogs.syncLogsAdd(syncLogDoc);
+
+      if (action === 'synced') {
+        customerToDynamic(subdomain, syncLog, params.object, models);
+        return;
+      }
+    }
   } catch (e) {
     await models.SyncLogs.updateOne(
       { _id: syncLog._id },
-      { $set: { error: e.message } }
+      { $set: { error: e.message } },
     );
   }
 };
