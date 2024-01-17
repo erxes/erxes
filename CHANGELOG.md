@@ -1,3 +1,5 @@
+## [1.5.10](https://github.com/erxes/erxes/compare/1.5.9...1.5.10) (2024-01-17)
+
 ## [1.5.9](https://github.com/erxes/erxes/compare/1.5.8...1.5.9) (2024-01-12)
 
 
