@@ -269,7 +269,8 @@ export const updateMobileAmount = async (
   if (Math.round(totalAmount) === Math.round(sumMobileAmount)) {
     if (
       (billType === BILL_TYPES.ENTITY && registerNumber) ||
-      billType === BILL_TYPES.CITIZEN
+      billType === BILL_TYPES.CITIZEN ||
+      billType === BILL_TYPES.INNER
     ) {
       const conf = await models.Configs.findOne({ token: posToken });
       await prepareSettlePayment(subdomain, models, order, conf, {
