@@ -1,4 +1,4 @@
-import { paginate } from 'erxes-api-utils';
+import { paginate } from '@erxes/api-utils/src';
 import { getFullDate, getRandomNumber } from '../../../models/utils/utils';
 import { getCalcedAmounts } from '../../../models/utils/transactionUtils';
 import { checkPermission } from '@erxes/api-utils/src';

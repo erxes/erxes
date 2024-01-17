@@ -7,7 +7,6 @@
   },
   "dependencies": {
     "@erxes/api-utils" : "*",
-    "erxes-api-utils": "^0.0.39",
     "googleapis": "^113.0.0"
   }
 }

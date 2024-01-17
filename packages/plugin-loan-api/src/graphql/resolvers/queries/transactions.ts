@@ -1,4 +1,4 @@
-import { paginate } from 'erxes-api-utils';
+import { paginate } from '@erxes/api-utils/src';
 import { checkPermission } from '@erxes/api-utils/src';
 
 const generateFilter = async (models, params, commonQuerySelector) => {

@@ -1,4 +1,4 @@
-import { paginate } from 'erxes-api-utils';
+import { paginate } from '@erxes/api-utils/src';
 import { getCloseInfo } from '../../../models/utils/closeUtils';
 import { getFullDate } from '../../../models/utils/utils';
 import { checkPermission } from '@erxes/api-utils/src';
