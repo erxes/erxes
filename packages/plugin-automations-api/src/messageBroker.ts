@@ -7,7 +7,6 @@ import {
   doWaitingResponseAction,
   setActionWait
 } from './actions/wait';
-import { serviceDiscovery } from './configs';
 import { generateModels } from './connectionResolver';
 import { receiveTrigger } from './utils';
 
@@ -55,7 +54,6 @@ export const sendCommonMessage = async (
   args: ISendMessageArgs & { serviceName: string }
 ): Promise<any> => {
   return sendMessage({
-    serviceDiscovery,
     client,
     ...args
   });
@@ -64,7 +62,6 @@ export const sendCommonMessage = async (
 export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'core',
     ...args
   });
@@ -75,7 +72,6 @@ export const sendSegmentsMessage = async (
 ): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'segments',
     ...args
   });
@@ -86,7 +82,6 @@ export const sendEmailTemplateMessage = async (
 ): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'emailtemplates',
     ...args
   });
@@ -95,7 +90,6 @@ export const sendEmailTemplateMessage = async (
 export const sendLogsMessage = (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'logs',
     ...args
   });

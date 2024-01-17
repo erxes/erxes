@@ -1,9 +1,10 @@
 import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
-import { serviceDiscovery } from './configs';
+
 import { generateModels } from './connectionResolver';
+import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
 
 const checkService = async (serviceName: string, needsList?: boolean) => {
-  const enabled = await serviceDiscovery.isEnabled(serviceName);
+  const enabled = await isEnabled(serviceName);
 
   if (!enabled) {
     return needsList ? [] : null;
@@ -51,7 +52,6 @@ export const sendNotificationsMessage = async (
 ): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'notifications',
     ...args
   });
@@ -62,7 +62,6 @@ export const sendCardsMessage = async (
 ): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'cards',
     ...args
   });
@@ -73,7 +72,6 @@ export const sendContactsMessage = async (
 ): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'contacts',
     ...args
   });
@@ -82,7 +80,6 @@ export const sendContactsMessage = async (
 export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'core',
     ...args
   });
@@ -93,7 +90,6 @@ export const sendProductsMessage = async (
 ): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'products',
     ...args
   });
@@ -104,7 +100,6 @@ export const sendCommonMessage = async (
 ): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     ...args
   });
 };

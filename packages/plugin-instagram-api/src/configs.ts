@@ -9,26 +9,22 @@ import { INTEGRATION_KINDS } from './constants';
 
 export let mainDb;
 export let debug;
-export let graphqlPubsub;
-export let serviceDiscovery;
 
 export default {
   name: 'instagram',
-  graphql: async sd => {
-    serviceDiscovery = sd;
-
+  graphql: async () => {
     return {
-      typeDefs: await typeDefs(sd),
-      resolvers: await resolvers(sd)
+      typeDefs: await typeDefs(),
+      resolvers: await resolvers(),
     };
   },
   meta: {
     inboxIntegrations: [
       {
         kind: INTEGRATION_KINDS.MESSENGER,
-        label: 'Instagram messenger'
-      }
-    ]
+        label: 'Instagram messenger',
+      },
+    ],
   },
   apolloServerContext: async (context, req) => {
     const subdomain = getSubdomain(req);
@@ -40,7 +36,7 @@ export default {
     return context;
   },
 
-  onServerInit: async options => {
+  onServerInit: async (options) => {
     mainDb = options.db;
 
     const app = options.app;
@@ -49,8 +45,6 @@ export default {
 
     initApp(app);
 
-    graphqlPubsub = options.pubsubClient;
-
     debug = options.debug;
-  }
+  },
 };

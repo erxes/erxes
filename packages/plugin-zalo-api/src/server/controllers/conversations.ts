@@ -1,27 +1,28 @@
 import { generateModels, IModels } from '../../models';
 import { sendInboxMessage } from '../brokers';
-import { debug, graphqlPubsub } from '../../configs';
+import { debug } from '../../configs';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import {
   convertAttachment,
   getMessageOAID,
   getMessageUserID,
   isAnonymousUser,
-  isOASend
+  isOASend,
 } from '../../utils';
 import { createOrUpdateCustomer } from './customers';
+import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
 
 export const createOrUpdateConversation = async (
   models: IModels,
   subdomain: any,
-  data: any = {}
+  data: any = {},
 ) => {
   // debug.error(`data before createConversationMessage: ${JSON.stringify(data)}`);
 
   // get conversation
   let conversation = await models.Conversations.findOne({
     senderId: data.userId,
-    recipientId: data.oa_id
+    recipientId: data.oa_id,
   });
 
   // create conversation
@@ -33,7 +34,7 @@ export const createOrUpdateConversation = async (
         senderId: data.userId,
         recipientId: data.oa_id,
         content: data?.message?.text,
-        integrationId: data.integrationId
+        integrationId: data.integrationId,
       };
       if (data?.message?.conversation_id) {
         documentData.zaloConversationId = data?.message?.conversation_id;
@@ -43,7 +44,7 @@ export const createOrUpdateConversation = async (
       throw new Error(
         e.message.includes('duplicate')
           ? 'Concurrent request: conversation duplication'
-          : e
+          : e,
       );
     }
   }
@@ -59,15 +60,15 @@ export const createOrUpdateConversation = async (
           integrationId: data.integrationErxesApiId,
           content: data?.message?.text,
           conversationId: conversation.erxesApiId,
-          attachments: []
+          attachments: [],
           //     .filter((att) => att.type !== "fallback")
           //     .map((att) => ({
           //         type: att.type,
           //         url: att.payload ? att.payload.url : "",
           //     })),
-        })
+        }),
       },
-      isRPC: true
+      isRPC: true,
     });
 
     conversation.erxesApiId = apiConversationResponse._id;
@@ -77,7 +78,7 @@ export const createOrUpdateConversation = async (
     await conversation.save();
   } catch (e) {
     await models.Conversations.deleteOne({
-      _id: conversation._id
+      _id: conversation._id,
     });
     throw new Error(e);
   }
@@ -88,11 +89,11 @@ export const createConversationMessage = async (
   models: IModels,
   subdomain,
   conversation,
-  data
+  data,
 ) => {
   // get conversation message
   const conversationMessage = await models.ConversationMessages.findOne({
-    mid: data.message.msg_id
+    mid: data.message.msg_id,
   });
 
   let userId: any = false;
@@ -101,12 +102,12 @@ export const createConversationMessage = async (
     const conversationMessageHasUser = await models.ConversationMessages.find({
       $and: [
         {
-          userId: { $exists: true, $ne: '' }
+          userId: { $exists: true, $ne: '' },
         },
         {
-          conversationId: conversation._id
-        }
-      ]
+          conversationId: conversation._id,
+        },
+      ],
     }).limit(1);
 
     userId = conversationMessageHasUser?.[0]?.userId;
@@ -116,9 +117,9 @@ export const createConversationMessage = async (
         subdomain,
         action: 'integrations.receive',
         data: {
-          action: 'getUserIds'
+          action: 'getUserIds',
         },
-        isRPC: true
+        isRPC: true,
       });
 
       userId = getUserIds?.userIds?.[0];
@@ -134,7 +135,7 @@ export const createConversationMessage = async (
         content: data?.message?.text,
         customerId: data?.customerId,
         // userId: data?.userId,
-        attachments: data?.message?.attachments
+        attachments: data?.message?.attachments,
       };
 
       if (userId && data?.isOASend) {
@@ -149,8 +150,8 @@ export const createConversationMessage = async (
       graphqlPubsub.publish('conversationClientMessageInserted', {
         conversationClientMessageInserted: {
           ...created.toObject(),
-          conversationId: conversation.erxesApiId
-        }
+          conversationId: conversation.erxesApiId,
+        },
       });
 
       graphqlPubsub.publish(
@@ -158,21 +159,21 @@ export const createConversationMessage = async (
         {
           conversationMessageInserted: {
             ...created.toObject(),
-            conversationId: conversation.erxesApiId
-          }
-        }
+            conversationId: conversation.erxesApiId,
+          },
+        },
       );
     } catch (e) {
       debug.error(
         e.message.includes('duplicate')
           ? 'Concurrent request: conversation message duplication'
-          : e
+          : e,
       );
     }
   }
 };
 
-export const receiveMessage = async req => {
+export const receiveMessage = async (req) => {
   const subdomain = getSubdomain(req);
   const models = await generateModels(subdomain);
 
@@ -184,7 +185,7 @@ export const receiveMessage = async req => {
   const userId = getMessageUserID(data);
 
   const integration = await models.Integrations.getIntegration({
-    $and: [{ oa_id: { $in: oa_id } }, { kind: 'zalo' }]
+    $and: [{ oa_id: { $in: oa_id } }, { kind: 'zalo' }],
   });
 
   if (!integration) {
@@ -197,7 +198,7 @@ export const receiveMessage = async req => {
     oa_id,
     integrationId: integration?.erxesApiId,
     checkFollower: true,
-    isAnonymous: isAnonymousUser(data?.event_name)
+    isAnonymous: isAnonymousUser(data?.event_name),
   });
 
   await createOrUpdateConversation(models, subdomain, {
@@ -210,7 +211,7 @@ export const receiveMessage = async req => {
     message: {
       ...data.message,
       attachments: convertAttachment(data?.message?.attachments),
-      timestamp: new Date(+data.timestamp) || new Date()
-    }
+      timestamp: new Date(+data.timestamp) || new Date(),
+    },
   });
 };

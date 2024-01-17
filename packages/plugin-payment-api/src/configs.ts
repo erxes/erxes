@@ -17,18 +17,16 @@ import { PAYMENTS } from './api/constants';
 
 export let mainDb;
 export let debug;
-export let graphqlPubsub;
-export let serviceDiscovery;
+
+
 
 export default {
   name: 'payment',
   permissions,
-  graphql: async sd => {
-    serviceDiscovery = sd;
-
+  graphql: async () => {
     return {
-      typeDefs: await typeDefs(sd),
-      resolvers: await resolvers(sd)
+      typeDefs: await typeDefs(),
+      resolvers: await resolvers(),
     };
   },
 
@@ -36,20 +34,20 @@ export default {
   subscriptionPluginPath: require('path').resolve(
     __dirname,
     'graphql',
-    'subscriptionPlugin.js'
+    'subscriptionPlugin.js',
   ),
   meta: {
-    permissions
+    permissions,
   },
 
-  getHandlers: PAYMENTS.ALL.map(type => ({
+  getHandlers: PAYMENTS.ALL.map((type) => ({
     path: `/callback/${type}`,
-    method: callbackHandler
+    method: callbackHandler,
   })),
 
-  postHandlers: PAYMENTS.ALL.map(type => ({
+  postHandlers: PAYMENTS.ALL.map((type) => ({
     path: `/callback/${type}`,
-    method: callbackHandler
+    method: callbackHandler,
   })),
 
   apolloServerContext: async (context, req, res) => {
@@ -59,7 +57,7 @@ export default {
     const requestInfo = {
       secure: req.secure,
       cookies: req.cookies,
-      headers: req.headers
+      headers: req.headers,
     };
 
     context.subdomain = subdomain;
@@ -73,12 +71,10 @@ export default {
 
   middlewares: [cookieParser(), bodyParser.json()],
 
-  onServerInit: async options => {
+  onServerInit: async (options) => {
     mainDb = options.db;
 
     initBroker(options.messageBrokerClient);
-
-    graphqlPubsub = options.pubsubClient;
 
     debug = options.debug;
 
@@ -99,7 +95,7 @@ export default {
       directory: __dirname + '/locales',
       defaultLocale: 'en',
       autoReload: false,
-      updateFiles: false
+      updateFiles: false,
     });
 
     app.use(i18n.init);
@@ -116,5 +112,5 @@ export default {
     app.use(bodyParser.urlencoded({ extended: true }));
 
     app.use(controllers);
-  }
+  },
 };
