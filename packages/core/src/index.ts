@@ -50,6 +50,7 @@ import { moduleObjects } from './data/permissions/actions/permission';
 import dashboards from './dashboards';
 import { getEnabledServices } from '@erxes/api-utils/src/serviceDiscovery';
 import { applyInspectorEndpoints } from '@erxes/api-utils/src/inspect';
+import app from '@erxes/api-utils/src/app';
 
 const {
   JWT_TOKEN_SECRET,
@@ -61,10 +62,6 @@ const {
 if (!JWT_TOKEN_SECRET) {
   throw new Error('Please configure JWT_TOKEN_SECRET environment variable.');
 }
-
-export const app = express();
-
-app.disable('x-powered-by');
 
 // don't move it above telnyx controllers
 app.use(express.urlencoded({ limit: '15mb', extended: true }));
@@ -298,22 +295,18 @@ app.get('/plugins/enabled', async (_req, res) => {
   res.json(result);
 });
 
-applyInspectorEndpoints(app, 'core');
+applyInspectorEndpoints('core');
 
 // Wrap the Express server
 const httpServer = createServer(app);
 
 const PORT = getEnv({ name: 'PORT' });
 const MONGO_URL = getEnv({ name: 'MONGO_URL' });
-const RABBITMQ_HOST = getEnv({ name: 'RABBITMQ_HOST' });
-const MESSAGE_BROKER_PREFIX = getEnv({ name: 'MESSAGE_BROKER_PREFIX' });
 
 httpServer.listen(PORT, async () => {
   await initApolloServer(app, httpServer);
 
-  initBroker({ RABBITMQ_HOST, MESSAGE_BROKER_PREFIX, redis, app }).catch(e => {
-    debugError(`Error ocurred during message broker init ${e.message}`);
-  });
+  await initBroker();
 
   init()
     .then(() => {

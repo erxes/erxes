@@ -1,10 +1,10 @@
 import * as dotenv from 'dotenv';
 dotenv.config();
 import { promisify } from 'util';
+import app from './app';
 
 // TODO: replace it with "node:inspector/promises" after migrating to Node version >= 20
 import { HeapProfiler, Profiler, Session } from 'node:inspector';
-import { Express } from 'express';
 const session = new Session() as any;
 session.connect();
 
@@ -85,7 +85,7 @@ export async function heapSnapshot(
   });
 }
 
-export function applyInspectorEndpoints(app: Express, name: string) {
+export function applyInspectorEndpoints(name: string) {
   app.use('/node-inspector', (req, res, next) => {
     if (nodeInspector) {
       return next();

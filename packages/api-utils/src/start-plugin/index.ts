@@ -34,6 +34,7 @@ import {
   leave,
 } from '@erxes/api-utils/src/serviceDiscovery';
 import { applyInspectorEndpoints } from '../inspect';
+import app from '@erxes/api-utils/src/app';
 
 const {
   MONGO_URL,
@@ -42,8 +43,6 @@ const {
   PORT,
   USE_BRAND_RESTRICTIONS,
 } = process.env;
-
-export const app = express();
 
 app.use(bodyParser.json({ limit: '15mb' }));
 app.use(bodyParser.urlencoded({ limit: '15mb', extended: true }));
@@ -181,7 +180,7 @@ export async function startPlugin(configs: any): Promise<express.Express> {
             throw new Error(`Multiple user headers`);
           }
           const userJson = Buffer.from(req.headers.user, 'base64').toString(
-            'utf-8',
+            'utf-8'
           );
           user = JSON.parse(userJson);
         }
@@ -239,11 +238,11 @@ export async function startPlugin(configs: any): Promise<express.Express> {
 
         return context;
       },
-    }),
+    })
   );
 
   await new Promise<void>((resolve) =>
-    httpServer.listen({ port: PORT }, resolve),
+    httpServer.listen({ port: PORT }, resolve)
   );
 
   if (configs.freeSubscriptions) {
@@ -256,7 +255,7 @@ export async function startPlugin(configs: any): Promise<express.Express> {
   }
 
   console.log(
-    `🚀 ${configs.name} graphql api ready at http://localhost:${PORT}/graphql`,
+    `🚀 ${configs.name} graphql api ready at http://localhost:${PORT}/graphql`
   );
 
   const mongoUrl = MONGO_URL || '';
@@ -264,14 +263,7 @@ export async function startPlugin(configs: any): Promise<express.Express> {
   // connect to mongo database
   const db = await connect(mongoUrl);
 
-  const messageBrokerClient = await initBroker(
-    {
-      RABBITMQ_HOST,
-      MESSAGE_BROKER_PREFIX,
-      app,
-    },
-    configs.reconnectRMQ,
-  );
+  const messageBrokerClient = await initBroker(configs.reconnectRMQ);
 
   if (configs.meta) {
     const {
@@ -304,7 +296,7 @@ export async function startPlugin(configs: any): Promise<express.Express> {
 
         consumeRPCQueue(
           `${configs.name}:segments.propertyConditionExtender`,
-          segments.propertyConditionExtender,
+          segments.propertyConditionExtender
         );
       }
 
@@ -313,7 +305,7 @@ export async function startPlugin(configs: any): Promise<express.Express> {
 
         consumeRPCQueue(
           `${configs.name}:segments.associationFilter`,
-          segments.associationFilter,
+          segments.associationFilter
         );
       }
 
@@ -322,7 +314,7 @@ export async function startPlugin(configs: any): Promise<express.Express> {
 
         consumeRPCQueue(
           `${configs.name}:segments.esTypesMap`,
-          segments.esTypesMap,
+          segments.esTypesMap
         );
       }
 
@@ -331,7 +323,7 @@ export async function startPlugin(configs: any): Promise<express.Express> {
 
         consumeRPCQueue(
           `${configs.name}:segments.initialSelector`,
-          segments.initialSelector,
+          segments.initialSelector
         );
       }
     }
@@ -362,7 +354,7 @@ export async function startPlugin(configs: any): Promise<express.Express> {
           async (args) => ({
             status: 'success',
             data: await forms.groupsFilter(args),
-          }),
+          })
         );
       }
 
@@ -444,7 +436,7 @@ export async function startPlugin(configs: any): Promise<express.Express> {
           async (args) => ({
             status: 'success',
             data: await imports.prepareImportDocs(args),
-          }),
+          })
         );
       }
 
@@ -454,7 +446,7 @@ export async function startPlugin(configs: any): Promise<express.Express> {
           async (args) => ({
             status: 'success',
             data: await imports.insertImportItems(args),
-          }),
+          })
         );
       }
     }
@@ -466,7 +458,7 @@ export async function startPlugin(configs: any): Promise<express.Express> {
           async (args) => ({
             status: 'success',
             data: await exporter.prepareExportData(args),
-          }),
+          })
         );
       }
 
@@ -476,7 +468,7 @@ export async function startPlugin(configs: any): Promise<express.Express> {
           async (args) => ({
             status: 'success',
             data: await exporter.getExportDocs(args),
-          }),
+          })
         );
       }
     }
@@ -488,7 +480,7 @@ export async function startPlugin(configs: any): Promise<express.Express> {
           async (args) => ({
             status: 'success',
             data: await automations.receiveActions(args),
-          }),
+          })
         );
       }
       if (automations?.getRecipientsEmails) {
@@ -497,7 +489,7 @@ export async function startPlugin(configs: any): Promise<express.Express> {
           async (args) => ({
             status: 'success',
             data: await automations.getRecipientsEmails(args),
-          }),
+          })
         );
       }
       if (automations?.replacePlaceHolders) {
@@ -506,7 +498,7 @@ export async function startPlugin(configs: any): Promise<express.Express> {
           async (args) => ({
             status: 'success',
             data: await automations.replacePlaceHolders(args),
-          }),
+          })
         );
       }
     }
@@ -518,7 +510,7 @@ export async function startPlugin(configs: any): Promise<express.Express> {
           async (args) => ({
             status: 'success',
             data: await reports.getChartResult(args),
-          }),
+          })
         );
       }
     }
@@ -592,7 +584,7 @@ export async function startPlugin(configs: any): Promise<express.Express> {
         async (args) => ({
           status: 'success',
           data: await documents.editorAttributes(args),
-        }),
+        })
       );
 
       consumeRPCQueue(
@@ -600,7 +592,7 @@ export async function startPlugin(configs: any): Promise<express.Express> {
         async (args) => ({
           status: 'success',
           data: await documents.replaceContent(args),
-        }),
+        })
       );
     }
 
@@ -659,7 +651,7 @@ export async function startPlugin(configs: any): Promise<express.Express> {
     },
   });
 
-  applyInspectorEndpoints(app, configs.name);
+  applyInspectorEndpoints(configs.name);
 
   debugInfo(`${configs.name} server is running on port: ${PORT}`);
 

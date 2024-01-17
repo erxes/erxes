@@ -2,13 +2,14 @@ import * as amqplib from 'amqplib';
 import { v4 as uuid } from 'uuid';
 import { debugError, debugInfo } from './debuggers';
 import { getPluginAddress } from './serviceDiscovery';
-import { Express } from 'express';
+import app from './app';
 import fetch from 'node-fetch';
 import redis from './redis';
 import * as Agent from 'agentkeepalive';
 import * as dotenv from 'dotenv';
 dotenv.config();
 
+const { RABBITMQ_HOST, MESSAGE_BROKER_PREFIX } = process.env;
 const timeoutMs = Number(process.env.RPC_TIMEOUT) || 30000;
 
 const httpAgentOptions = {
@@ -126,9 +127,8 @@ function splitPluginProcedureName(queueName: string) {
   return { pluginName, procedureName };
 }
 
-export const createConsumeRPCQueue =
-  (app?: Express) => (queueName, procedure) => {
-    if (app) {
+export const consumeRPCQueue = (queueName, procedure) => {
+
       const { procedureName } = splitPluginProcedureName(queueName);
 
       if (procedureName.includes(':')) {
@@ -150,7 +150,6 @@ export const createConsumeRPCQueue =
           });
         }
       });
-    }
 
     consumeRPCQueueMq(queueName, procedure);
   };
@@ -403,26 +402,25 @@ export const sendMessage = async (queueName: string, data?: any) => {
 function RabbitListener() {}
 
 RabbitListener.prototype.connect = function (
-  RABBITMQ_HOST,
-  app,
+  host,
   reconnectCallback?,
 ) {
   const me = this;
 
   return new Promise(function (resolve) {
     amqplib
-      .connect(RABBITMQ_HOST, { noDelay: true })
+      .connect(host, { noDelay: true })
       .then(
         function (conn) {
-          console.log(`Connected to rabbitmq server ${RABBITMQ_HOST}`);
+          console.log(`Connected to rabbitmq server ${host}`);
 
           conn.on(
             'error',
-            me.reconnect.bind(me, RABBITMQ_HOST, app, reconnectCallback),
+            me.reconnect.bind(me, host, reconnectCallback),
           );
           conn.on(
             'close',
-            me.reconnect.bind(me, RABBITMQ_HOST, app, reconnectCallback),
+            me.reconnect.bind(me, host, reconnectCallback),
           );
 
           return conn.createChannel().then(function (chan) {
@@ -432,7 +430,7 @@ RabbitListener.prototype.connect = function (
         },
         function connectionFailed(err) {
           console.log('Failed to connect to rabbitmq server', err);
-          me.reconnect(RABBITMQ_HOST, app, reconnectCallback);
+          me.reconnect(RABBITMQ_HOST, reconnectCallback);
         },
       )
       .catch(function (error) {
@@ -442,8 +440,7 @@ RabbitListener.prototype.connect = function (
 };
 
 RabbitListener.prototype.reconnect = function (
-  RABBITMQ_HOST,
-  app,
+  host,
   reconnectCallback?,
 ) {
   const reconnectTimeout = 1000 * 60;
@@ -458,11 +455,11 @@ RabbitListener.prototype.reconnect = function (
 
   setTimeout(function () {
     console.log(`Now attempting reconnect to rabbitmq ...`);
-    me.connect(RABBITMQ_HOST, app, reconnectCallback).then(async () => {
+    me.connect(host, reconnectCallback).then(async () => {
       if (reconnectCallback) {
         reconnectCallback({
           consumeQueue,
-          consumeRPCQueue: await createConsumeRPCQueue(app),
+          consumeRPCQueue,
           sendMessage,
           sendRPCMessage,
           consumeRPCQueueMq,
@@ -474,13 +471,11 @@ RabbitListener.prototype.reconnect = function (
 };
 
 export const init = async (
-  { RABBITMQ_HOST, MESSAGE_BROKER_PREFIX, app },
   reconnectCallback?,
 ) => {
   const listener = new RabbitListener();
   await listener.connect(
     `${RABBITMQ_HOST}?heartbeat=60`,
-    app,
     reconnectCallback,
   );
 
@@ -488,7 +483,7 @@ export const init = async (
 
   return {
     consumeQueue,
-    consumeRPCQueue: await createConsumeRPCQueue(app),
+    consumeRPCQueue,
     sendMessage,
     sendRPCMessage,
     consumeRPCQueueMq,
