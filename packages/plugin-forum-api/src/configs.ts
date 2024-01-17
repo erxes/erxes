@@ -15,20 +15,15 @@ import tags from './tags';
 import { generateAllDataLoaders } from './graphql/dataloaders';
 
 export let mainDb;
-
-export let serviceDiscovery;
-
 export let debug;
 
 export default {
   name: 'forum',
   permissions,
-  graphql: async (sd) => {
-    serviceDiscovery = sd;
-
+  graphql: async () => {
     return {
-      typeDefs: await typeDefs(sd),
-      resolvers: await resolvers(sd),
+      typeDefs: await typeDefs(),
+      resolvers: await resolvers(),
     };
   },
   hasSubscriptions: false,

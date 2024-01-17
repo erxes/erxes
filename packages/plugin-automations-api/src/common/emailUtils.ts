@@ -6,21 +6,20 @@ import {
   sendSegmentsMessage
 } from '../messageBroker';
 import { EMAIL_RECIPIENTS_TYPES } from '../constants';
-import { serviceDiscovery } from '../configs';
 import { getEnv } from '../utils';
 import * as AWS from 'aws-sdk';
 import * as nodemailer from 'nodemailer';
 import { debugError } from '@erxes/api-utils/src/debuggers';
-import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
+import { isEnabled, getServices, getService } from '@erxes/api-utils/src/serviceDiscovery';
 import { putActivityLog } from '../logUtils';
 
 export const getEmailRecipientTypes = async () => {
   let reciepentTypes = [...EMAIL_RECIPIENTS_TYPES];
 
-  const services = await serviceDiscovery.getServices();
+  const services = await getServices();
 
   for (const serviceName of services) {
-    const service = await serviceDiscovery.getService(serviceName);
+    const service = await getService(serviceName);
     const meta = service.config?.meta || {};
 
     if (meta?.automations?.constants?.emailRecipIentTypes) {

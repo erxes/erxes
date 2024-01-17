@@ -1,7 +1,7 @@
 import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
 import { afterMutationHandlers } from './afterMutations';
 import { afterQueryHandlers } from './afterQueries';
-import { serviceDiscovery } from './configs';
+
 import { generateModels } from './connectionResolver';
 import { sendRPCMessage } from './messageBrokerErkhet';
 import { loansTransactionToErkhet } from './utils/loansTransactionToErkhet';
@@ -203,7 +203,6 @@ export const sendProductsMessage = async (
 ): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'products',
     ...args
   });
@@ -214,7 +213,6 @@ export const sendContactsMessage = async (
 ): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'contacts',
     ...args
   });
@@ -225,7 +223,6 @@ export const sendCardsMessage = async (
 ): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'cards',
     ...args
   });
@@ -234,7 +231,6 @@ export const sendCardsMessage = async (
 export const sendPosMessage = async (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'pos',
     ...args
   });
@@ -245,7 +241,6 @@ export const sendEbarimtMessage = async (
 ): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'ebarimt',
     ...args
   });
@@ -254,7 +249,6 @@ export const sendEbarimtMessage = async (
 export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'core',
     ...args
   });
@@ -265,7 +259,6 @@ export const sendNotificationsMessage = async (
 ): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'notifications',
     ...args
   });

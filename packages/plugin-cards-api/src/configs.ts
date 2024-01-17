@@ -25,21 +25,15 @@ import dashboards from './dashboards';
 import reports from './reports';
 
 import { NOTIFICATION_MODULES } from './constants';
-
 export let mainDb;
-
-export let serviceDiscovery;
-
 export let debug;
 
 export default {
   name: 'cards',
   permissions,
-  graphql: async (sd) => {
-    serviceDiscovery = sd;
-
+  graphql: async () => {
     return {
-      typeDefs: await typeDefs(sd),
+      typeDefs: await typeDefs(),
       resolvers,
     };
   },

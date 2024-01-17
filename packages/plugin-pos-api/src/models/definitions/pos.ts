@@ -116,7 +116,11 @@ export const posSchema = schemaHooksWrapper(
     uiOptions: field({ type: Object, label: 'UI Options' }),
     token: field({ type: String, label: 'Pos token' }),
     erxesAppToken: field({ type: String, label: 'Erxes App token' }),
-    ebarimtConfig: field({ type: Object, label: 'Ebarimt Config' }),
+    ebarimtConfig: field({
+      type: Object,
+      optional: true,
+      label: 'Ebarimt Config',
+    }),
     erkhetConfig: field({ type: Object, label: 'Erkhet Config' }),
     syncInfos: field({ type: Object, label: 'sync info' }),
     catProdMappings: field({

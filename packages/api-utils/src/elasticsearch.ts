@@ -171,6 +171,61 @@ export const fetchEsWithScroll = async (scrollId: string) => {
   }
 };
 
+export const fetchByQueryWithScroll = async ({
+  subdomain,
+  index,
+  positiveQuery,
+  negativeQuery,
+  _source = '_id'
+}: {
+  subdomain: string;
+  index: string;
+  _source?: string;
+  positiveQuery: any;
+  negativeQuery: any;
+}) => {
+  const response = await fetchEs({
+    subdomain,
+    action: 'search',
+    index,
+    scroll: '1m',
+    size: 10000,
+    body: {
+      _source,
+      query: {
+        bool: {
+          must: positiveQuery,
+          must_not: negativeQuery
+        }
+      }
+    },
+    defaultValue: { _scroll_id: '', hits: { total: { value: 0 }, hits: [] } }
+  });
+
+  const totalCount = response.hits.total.value;
+  const scrollId = response._scroll_id;
+
+  let ids = response.hits.hits
+    .map(hit => (_source === '_id' ? hit._id : hit._source[_source]))
+    .filter(r => r);
+
+  if (totalCount < 10000) {
+    return ids;
+  }
+
+  while (totalCount > 0) {
+    const scrollResponse = await fetchEsWithScroll(scrollId);
+
+    if (scrollResponse.hits.hits.length === 0) {
+      break;
+    }
+
+    ids = ids.concat(scrollResponse.hits.hits.map(hit => hit._id));
+  }
+
+  return ids;
+};
+
 export const fetchByQuery = async ({
   subdomain,
   index,

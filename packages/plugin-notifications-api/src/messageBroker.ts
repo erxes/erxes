@@ -7,7 +7,7 @@ import {
   sendMessage,
   getEnv,
 } from '@erxes/api-utils/src/core';
-import { serviceDiscovery } from './configs';
+
 
 let client;
 
@@ -190,7 +190,6 @@ export const initBroker = async (cl) => {
 export const sendCoreMessage = (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'core',
     ...args,
   });
@@ -200,7 +199,6 @@ export const sendCommonMessage = async (
   args: ISendMessageArgs & { serviceName: string },
 ) => {
   return sendMessage({
-    serviceDiscovery,
     client,
     ...args,
   });
@@ -211,7 +209,6 @@ export const sendContactsMessage = async (
 ): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'contacts',
     ...args,
   });
@@ -222,7 +219,6 @@ export const sendSegmentsMessage = async (
 ): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'segments',
     ...args,
   });
@@ -233,7 +229,6 @@ export const sendClientPortalMessagge = async (
 ): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'clientportal',
     ...args,
   });

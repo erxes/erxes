@@ -11,19 +11,17 @@ import afterQueries from './afterQueries';
 import { getOrderInfo } from './routes';
 
 export let debug;
-
 export let mainDb;
-export let serviceDiscovery;
+
 
 export default {
   name: 'syncerkhet',
   permissions,
   getHandlers: [{ path: `/getOrderInfo`, method: getOrderInfo }],
-  graphql: async (sd) => {
-    serviceDiscovery = sd;
+  graphql: async () => {
     return {
-      typeDefs: await typeDefs(sd),
-      resolvers: await resolvers(sd),
+      typeDefs: await typeDefs(),
+      resolvers: await resolvers(),
     };
   },
   apolloServerContext: async (context, req) => {

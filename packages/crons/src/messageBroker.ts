@@ -23,7 +23,6 @@ export const sendCommonMessage = async (
   args: IISendMessageArgs
 ): Promise<any> => {
   return sendMessage({
-    serviceDiscovery,
     client,
     ...args
   });

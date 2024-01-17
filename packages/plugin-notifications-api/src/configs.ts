@@ -8,14 +8,13 @@ import automations from './automations';
 
 export let mainDb;
 
-export let serviceDiscovery;
+
 
 export let debug;
 
 export default {
   name: 'notifications',
-  graphql: (sd) => {
-    serviceDiscovery = sd;
+  graphql: () => {
     return {
       typeDefs,
       resolvers,

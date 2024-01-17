@@ -4,7 +4,7 @@ import {
   sendMessage,
 } from '@erxes/api-utils/src/core';
 import { generateModels } from './connectionResolver';
-import { serviceDiscovery } from './configs';
+
 
 let client;
 
@@ -369,7 +369,6 @@ export const sendRPCMessage = async (channel, message): Promise<any> => {
 export const sendFormsMessage = (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'forms',
     ...args,
   });
@@ -378,7 +377,6 @@ export const sendFormsMessage = (args: ISendMessageArgs): Promise<any> => {
 export const sendCardsMessage = (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'cards',
     ...args,
   });
@@ -387,7 +385,6 @@ export const sendCardsMessage = (args: ISendMessageArgs): Promise<any> => {
 export const sendProcessesMessage = (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'processes',
     ...args,
   });
@@ -396,7 +393,6 @@ export const sendProcessesMessage = (args: ISendMessageArgs): Promise<any> => {
 export const sendContactsMessage = (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'contacts',
     ...args,
   });
@@ -405,7 +401,6 @@ export const sendContactsMessage = (args: ISendMessageArgs): Promise<any> => {
 export const sendTagsMessage = (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'tags',
     ...args,
   });
@@ -416,7 +411,6 @@ export const sendSegmentsMessage = async (
 ): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'segments',
     ...args,
   });
@@ -425,7 +419,6 @@ export const sendSegmentsMessage = async (
 export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'core',
     ...args,
   });
@@ -435,7 +428,6 @@ export const sendCommonMessage = async (
   args: ISendMessageArgs & { serviceName: string },
 ): Promise<any> => {
   return sendMessage({
-    serviceDiscovery,
     client,
     ...args,
   });

@@ -9,18 +9,14 @@ import { generateModels } from './connectionResolver';
 export let mainDb;
 export let debug;
 
-export let serviceDiscovery;
-
 export default {
   name: 'khanbank',
   permissions,
 
-  graphql: async (sd) => {
-    serviceDiscovery = sd;
-
+  graphql: async () => {
     return {
       typeDefs: await typeDefs(),
-      resolvers: await resolvers(sd),
+      resolvers: await resolvers(),
     };
   },
 

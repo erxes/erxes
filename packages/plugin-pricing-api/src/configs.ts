@@ -9,16 +9,14 @@ import logs from './logUtils';
 export let mainDb;
 export let debug;
 
-export let serviceDiscovery;
+
 
 export default {
   name: 'pricing',
   permissions,
-  graphql: async (sd) => {
-    serviceDiscovery = sd;
-
+  graphql: async () => {
     return {
-      typeDefs: await typeDefs(sd),
+      typeDefs: await typeDefs(),
       resolvers,
     };
   },

@@ -1,6 +1,6 @@
 import { generateModels } from './connectionResolver';
 import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
-import { serviceDiscovery } from './configs';
+
 import { afterMutationHandlers } from './afterMutations';
 import { beforeResolverHandlers } from './beforeResolvers';
 import { getCompany, getConfig } from './utils';
@@ -278,7 +278,6 @@ export const sendProductsMessage = async (
 ): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'products',
     ...args,
   });
@@ -287,7 +286,6 @@ export const sendProductsMessage = async (
 export const sendPosMessage = async (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'pos',
     ...args,
   });
@@ -298,7 +296,6 @@ export const sendLoansMessage = async (
 ): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'loans',
     ...args,
   });
@@ -309,7 +306,6 @@ export const sendContactsMessage = async (
 ): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'contacts',
     ...args,
   });
@@ -318,7 +314,6 @@ export const sendContactsMessage = async (
 export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'core',
     ...args,
   });
@@ -329,7 +324,6 @@ export const sendCardsMessage = async (
 ): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'cards',
     ...args,
   });
@@ -340,7 +334,6 @@ export const sendNotificationsMessage = async (
 ): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'notifications',
     ...args,
   });
@@ -350,7 +343,6 @@ export const sendCommonMessage = async (
   args: ISendMessageArgs & { serviceName: string },
 ): Promise<any> => {
   return sendMessage({
-    serviceDiscovery,
     client,
     ...args,
   });

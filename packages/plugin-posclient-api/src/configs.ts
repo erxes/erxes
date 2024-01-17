@@ -14,19 +14,17 @@ import { loadSubscriptions } from './subscriptions';
 export let debug;
 
 export let mainDb;
-export let serviceDiscovery;
+
 export let app;
 
 dotenv.config();
 
 export default {
   name: 'posclient',
-  graphql: async (sd) => {
-    serviceDiscovery = sd;
-
+  graphql: async () => {
     return {
       typeDefs: await typeDefs(),
-      resolvers: await resolvers(sd),
+      resolvers: await resolvers(),
     };
   },
   hasSubscriptions: true,

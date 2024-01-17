@@ -6,14 +6,11 @@ import webhookListen from './viber/webhookListen';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 
 export let mainDb;
-
-export let serviceDiscovery;
 export let debug;
 
 export default {
   name: 'viber',
-  graphql: (sd) => {
-    serviceDiscovery = sd;
+  graphql: () => {
     return {
       typeDefs,
       resolvers,

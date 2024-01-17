@@ -4,16 +4,13 @@ import { initBroker } from './messageBroker';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 
 export let mainDb;
-
-export let serviceDiscovery;
 export let debug;
 
 export default {
   name: 'dailyco',
-  graphql: async (sd) => {
-    serviceDiscovery = sd;
+  graphql: async () => {
     return {
-      typeDefs: await typeDefs(sd),
+      typeDefs: await typeDefs(),
       resolvers,
     };
   },

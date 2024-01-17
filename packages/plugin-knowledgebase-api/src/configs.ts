@@ -9,16 +9,11 @@ import { getSubdomain } from '@erxes/api-utils/src/core';
 import webhooks from './webhooks';
 
 export let mainDb;
-
-export let serviceDiscovery;
-
 export let debug;
 
 export default {
   name: 'knowledgebase',
-  graphql: (sd) => {
-    serviceDiscovery = sd;
-
+  graphql: () => {
     return {
       typeDefs,
       resolvers,

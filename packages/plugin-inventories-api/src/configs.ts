@@ -9,20 +9,16 @@ import { exportCensusRunner } from './exporterByUrl';
 import * as permissions from './permissions';
 
 export let debug;
-
 export let mainDb;
-export let serviceDiscovery;
 
 export default {
   name: 'inventories',
   permissions,
   getHandlers: [{ path: `/file-export-census`, method: exportCensusRunner }],
-  graphql: async (sd) => {
-    serviceDiscovery = sd;
-
+  graphql: async () => {
     return {
-      typeDefs: await typeDefs(sd),
-      resolvers: await resolvers(sd),
+      typeDefs: await typeDefs(),
+      resolvers: await resolvers(),
     };
   },
   apolloServerContext: async (context, req) => {
