@@ -29,6 +29,7 @@ import webhookMiddleware from './middlewares/webhookMiddleware';
 import { NOTIFICATION_MODULES } from './constants';
 import payment from './payment';
 import reports from './reports';
+import app from '@erxes/api-utils/src/app';
 
 export let mainDb;
 export let debug;
@@ -83,8 +84,6 @@ export default {
   middlewares: [(serverTiming as any)()],
   onServerInit: async (options) => {
     mainDb = options.db;
-
-    const app = options.app;
 
     // events
     app.post(

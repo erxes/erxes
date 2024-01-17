@@ -643,7 +643,6 @@ export async function startPlugin(configs: any): Promise<express.Express> {
 
   configs.onServerInit({
     db,
-    app,
     messageBrokerClient,
     debug: {
       info: debugInfo,

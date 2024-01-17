@@ -4,6 +4,7 @@ import initCallPro from './callpro/controller';
 import { debugIntegrations, debugRequest } from './debuggers';
 import systemStatus from './systemStatus';
 import userMiddleware from './userMiddleware';
+import app from '@erxes/api-utils/src/app';
 
 const rawBodySaver = (req, _res, buf, encoding) => {
   if (buf && buf.length) {
@@ -15,7 +16,7 @@ const rawBodySaver = (req, _res, buf, encoding) => {
   }
 };
 
-const initApp = async app => {
+const initApp = async () => {
   app.use(
     bodyParser.urlencoded({
       limit: '10mb',
