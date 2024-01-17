@@ -2,7 +2,7 @@ import { Model } from 'mongoose';
 
 import { IModels } from '../connectionResolver';
 import { PARTICIPATION_STATUSES } from '../constants';
-import { graphqlPubsub } from '../configs';
+import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
 
 import {
   IParticipant,

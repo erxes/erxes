@@ -35,7 +35,7 @@ import {
 
 import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
 
-const typeDefs = async (serviceDiscovery) => {
+const typeDefs = async () => {
   const enabled = {
     contacts: await isEnabled('contacts'),
     cards: await isEnabled('cards'),

@@ -18,17 +18,16 @@ import { getTransportData, updateTrackingData } from './utils';
 import payment from './payment';
 
 export let debug;
-export let graphqlPubsub;
+
 export let mainDb;
-export let serviceDiscovery;
+
 
 export default {
   name: 'tumentech',
   permissions,
-  graphql: async sd => {
-    serviceDiscovery = sd;
+  graphql: async () => {
     return {
-      typeDefs: await typeDefs(sd),
+      typeDefs: await typeDefs(),
       resolvers: await resolvers()
     };
   },
@@ -107,7 +106,7 @@ export default {
     initBroker(options.messageBrokerClient);
 
     debug = options.debug;
-    graphqlPubsub = options.pubsubClient;
+    
 
     app.use('/static', express.static(path.join(__dirname, '/public')));
   }

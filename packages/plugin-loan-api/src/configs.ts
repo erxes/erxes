@@ -4,14 +4,14 @@ import { generateModels } from './connectionResolver';
 import { initBroker } from './messageBroker';
 
 export let debug;
-export let graphqlPubsub;
+
 export let mainDb;
-export let serviceDiscovery;
+
 
 export default {
   name: 'loan',
-  graphql: async sd => {
-    serviceDiscovery = sd;
+  graphql: async () => {
+    
 
     return {
       typeDefs: await typeDefs(),
@@ -34,7 +34,7 @@ export default {
     initBroker(options.messageBrokerClient);
 
     debug = options.debug;
-    graphqlPubsub = options.pubsubClient;
+    
   },
   meta: {}
 };

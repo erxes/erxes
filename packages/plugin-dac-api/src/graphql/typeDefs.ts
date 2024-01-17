@@ -65,7 +65,7 @@ const mutations = `
   dacCuponUse(status: String, customerId: String, _id: String!): String
 `;
 
-const typeDefs = async _serviceDiscovery => {
+const typeDefs = async () => {
   return gql`
     scalar JSON
     scalar Date

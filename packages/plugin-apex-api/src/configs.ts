@@ -10,8 +10,6 @@ import * as permissions from './permissions';
 import * as customCommand from './customCommand';
 
 export let mainDb;
-export let graphqlPubsub;
-
 export let debug;
 
 export default {
@@ -46,6 +44,5 @@ export default {
     initBroker(options.messageBrokerClient);
 
     debug = options.debug;
-    graphqlPubsub = options.pubsubClient;
   }
 };

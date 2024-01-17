@@ -5,15 +5,15 @@ import { initBroker } from './messageBroker';
 import { generateExpiredToken } from './api';
 
 export let mainDb;
-export let graphqlPubsub;
-export let serviceDiscovery;
+
+
 
 export let debug;
 
 export default {
   name: 'golomtces',
   graphql: sd => {
-    serviceDiscovery = sd;
+    
     return {
       typeDefs,
       resolvers
@@ -54,7 +54,7 @@ export default {
     mainDb = options.db;
 
     debug = options.debug;
-    graphqlPubsub = options.pubsubClient;
+    
 
     initBroker(options.messageBrokerClient);
   }
