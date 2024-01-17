@@ -3,17 +3,23 @@ import { checkPermission } from '@erxes/api-utils/src/permissions';
 import {
   IProduct,
   IProductCategory,
-  IProductDocument
+  IProductDocument,
+  IItems,
+  IItemsDocument,
 } from '../../../models/definitions/products';
 import {
   putCreateLog,
   putDeleteLog,
   putUpdateLog,
-  MODULE_NAMES
+  MODULE_NAMES,
 } from '../../../logUtils';
 import { IContext } from '../../../connectionResolver';
 
 interface IProductsEdit extends IProduct {
+  _id: string;
+}
+
+interface IItemsEdit extends IItems {
   _id: string;
 }
 
@@ -29,7 +35,7 @@ const productMutations = {
   async productsAdd(
     _root,
     doc: IProduct,
-    { user, docModifier, models, subdomain }: IContext
+    { user, docModifier, models, subdomain }: IContext,
   ) {
     const product = await models.Products.createProduct(docModifier(doc));
 
@@ -41,11 +47,11 @@ const productMutations = {
         newData: {
           ...doc,
           categoryId: product.categoryId,
-          customFieldsData: product.customFieldsData
+          customFieldsData: product.customFieldsData,
         },
-        object: product
+        object: product,
       },
-      user
+      user,
     );
 
     return product;
@@ -59,12 +65,12 @@ const productMutations = {
   async productsEdit(
     _root,
     { _id, ...doc }: IProductsEdit,
-    { user, models, subdomain }: IContext
+    { user, models, subdomain }: IContext,
   ) {
     const product = await models.Products.getProduct({ _id });
     const updated = await models.Products.updateProduct(_id, {
       ...doc,
-      status: 'active'
+      status: 'active',
     });
 
     await putUpdateLog(
@@ -76,11 +82,11 @@ const productMutations = {
         newData: {
           ...doc,
           status: 'active',
-          customFieldsData: updated.customFieldsData
+          customFieldsData: updated.customFieldsData,
         },
-        updatedDocument: updated
+        updatedDocument: updated,
       },
-      user
+      user,
     );
 
     return updated;
@@ -93,10 +99,10 @@ const productMutations = {
   async productsRemove(
     _root,
     { productIds }: { productIds: string[] },
-    { user, models, subdomain }: IContext
+    { user, models, subdomain }: IContext,
   ) {
     const products: IProductDocument[] = await models.Products.find({
-      _id: { $in: productIds }
+      _id: { $in: productIds },
     }).lean();
 
     const response = await models.Products.removeProducts(productIds);
@@ -106,7 +112,7 @@ const productMutations = {
         models,
         subdomain,
         { type: MODULE_NAMES.PRODUCT, object: product },
-        user
+        user,
       );
     }
 
@@ -120,11 +126,10 @@ const productMutations = {
   async productCategoriesAdd(
     _root,
     doc: IProductCategory,
-    { user, docModifier, models, subdomain }: IContext
+    { user, docModifier, models, subdomain }: IContext,
   ) {
-    const productCategory = await models.ProductCategories.createProductCategory(
-      docModifier(doc)
-    );
+    const productCategory =
+      await models.ProductCategories.createProductCategory(docModifier(doc));
 
     await putCreateLog(
       models,
@@ -132,9 +137,9 @@ const productMutations = {
       {
         type: MODULE_NAMES.PRODUCT_CATEGORY,
         newData: { ...doc, order: productCategory.order },
-        object: productCategory
+        object: productCategory,
       },
-      user
+      user,
     );
 
     return productCategory;
@@ -148,14 +153,14 @@ const productMutations = {
   async productCategoriesEdit(
     _root,
     { _id, ...doc }: IProductCategoriesEdit,
-    { user, models, subdomain }: IContext
+    { user, models, subdomain }: IContext,
   ) {
     const productCategory = await models.ProductCategories.getProductCategory({
-      _id
+      _id,
     });
     const updated = await models.ProductCategories.updateProductCategory(
       _id,
-      doc
+      doc,
     );
 
     await putUpdateLog(
@@ -165,9 +170,9 @@ const productMutations = {
         type: MODULE_NAMES.PRODUCT_CATEGORY,
         object: productCategory,
         newData: doc,
-        updatedDocument: updated
+        updatedDocument: updated,
       },
-      user
+      user,
     );
 
     return updated;
@@ -180,10 +185,10 @@ const productMutations = {
   async productCategoriesRemove(
     _root,
     { _id }: { _id: string },
-    { user, models, subdomain }: IContext
+    { user, models, subdomain }: IContext,
   ) {
     const productCategory = await models.ProductCategories.getProductCategory({
-      _id
+      _id,
     });
     const removed = await models.ProductCategories.removeProductCategory(_id);
 
@@ -191,7 +196,7 @@ const productMutations = {
       models,
       subdomain,
       { type: MODULE_NAMES.PRODUCT_CATEGORY, object: productCategory },
-      user
+      user,
     );
 
     return removed;
@@ -204,12 +209,57 @@ const productMutations = {
     _root,
     {
       productIds,
-      productFields
+      productFields,
     }: { productIds: string[]; productFields: IProduct },
-    { models }: IContext
+    { models }: IContext,
   ) {
     return models.Products.mergeProducts(productIds, { ...productFields });
-  }
+  },
+
+  /**
+   * Creates an item
+   * @param {Object} doc Item document
+   */
+  async itemsAdd(
+    _root,
+    doc: IItems,
+    { user, docModifier, models, subdomain }: IContext,
+  ) {
+    const item = await models.Items.createItem(docModifier(doc));
+
+    return item;
+  },
+
+  /**
+   * Edits an item
+   * @param {string} param2._id Item id
+   * @param {Object} param2.doc Item info
+   */
+  async itemsEdit(
+    _root,
+    { _id, ...doc }: IItemsEdit,
+    { models, subdomain }: IContext,
+  ) {
+    const updated = await models.Items.updateItem(_id, {
+      ...doc,
+    });
+
+    return updated;
+  },
+
+  /**
+   * Removes an item
+   * @param {string} param1._id Item id
+   */
+  async itemsRemove(
+    _root,
+    { itemIds }: { itemIds: string[] },
+    { models }: IContext,
+  ) {
+    const response = await models.Items.removeItem(itemIds);
+
+    return response;
+  },
 };
 
 checkPermission(productMutations, 'productsAdd', 'manageProducts');

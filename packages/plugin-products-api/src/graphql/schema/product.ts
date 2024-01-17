@@ -1,6 +1,6 @@
 import {
   attachmentInput,
-  attachmentType
+  attachmentType,
 } from '@erxes/api-utils/src/commonTypeDefs';
 
 export const types = (tagsAvailable, contactsAvailable) => `
@@ -78,6 +78,13 @@ export const types = (tagsAvailable, contactsAvailable) => `
     hasSimilarity: Boolean
   }
 
+  type Item @key(fields: "_id") @cacheControl(maxAge: 3) {
+    _id: String!
+    name: String
+    code: String
+    description: String
+  }
+
   type ProductSimilarityGroup {
     title: String
     fieldId: String
@@ -143,6 +150,12 @@ const productsQueryParams = `
   groupedSimilarity: String,
 `;
 
+const itemParams = `
+  name: String
+  code: String
+  description: String
+`;
+
 export const queries = `
   productCategories(parentId: String, withChild: Boolean, searchValue: String, status: String, meta: String, brand: String): [ProductCategory]
   productCategoriesTotalCount(parentId: String, withChild: Boolean, searchValue: String, status: String, meta: String): Int
@@ -155,6 +168,13 @@ export const queries = `
     sortDirection: Int    
   ): [Product]
   productsTotalCount(${productsQueryParams}): Int
+  items(
+    page: Int,
+    perPage: Int,
+    searchValue: String 
+  ): [Item]
+  itemsTotalCount(${productsQueryParams}): Int
+  itemsDetail(_id: String): Item
   productsGroupCounts(only: String, segment: String, segmentData: String): JSON
   productDetail(_id: String): Product
   productCountByTags: JSON
@@ -169,4 +189,7 @@ export const mutations = `
   productCategoriesAdd(${productCategoryParams}): ProductCategory
   productCategoriesEdit(_id: String!, ${productCategoryParams}): ProductCategory
   productCategoriesRemove(_id: String!): JSON
+  itemsAdd(${itemParams}): Item
+  itemsRemove(itemIds: [String!]): String
+  itemsEdit(_id: String!, ${itemParams}): Item
 `;

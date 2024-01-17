@@ -3,24 +3,28 @@ import { IContext as IMainContext } from '@erxes/api-utils/src';
 import {
   IProductCategoryModel,
   IProductModel,
+  IItemModel,
+  loadItemClass,
   loadProductCategoryClass,
-  loadProductClass
+  loadProductClass,
 } from './models/Products';
 import {
   IProductCategoryDocument,
-  IProductDocument
+  IProductDocument,
+  IItemsDocument,
 } from './models/definitions/products';
 import { IUomModel, loadUomClass } from './models/Uoms';
 import { IUomDocument } from './models/definitions/uoms';
 import { IProductsConfigDocument } from './models/definitions/configs';
 import {
   IProductsConfigModel,
-  loadProductsConfigClass
+  loadProductsConfigClass,
 } from './models/Configs';
 import { createGenerateModels } from '@erxes/api-utils/src/core';
 export interface IModels {
   Products: IProductModel;
   ProductCategories: IProductCategoryModel;
+  Items: IItemModel;
   ProductsConfigs: IProductsConfigModel;
   Uoms: IUomModel;
 }
@@ -33,22 +37,28 @@ export let models: IModels | null = null;
 
 export const loadClasses = (
   db: mongoose.Connection,
-  subdomain: string
+  subdomain: string,
 ): IModels => {
   models = {} as IModels;
 
   models.Products = db.model<IProductDocument, IProductModel>(
     'products',
-    loadProductClass(models, subdomain)
+    loadProductClass(models, subdomain),
   );
   models.Uoms = db.model<IUomDocument, IUomModel>(
     'uoms',
-    loadUomClass(models, subdomain)
+    loadUomClass(models, subdomain),
   );
   models.ProductsConfigs = db.model<
     IProductsConfigDocument,
     IProductsConfigModel
   >('products_configs', loadProductsConfigClass(models));
+
+  models.Items = db.model<IItemsDocument, IItemModel>(
+    'items',
+    loadItemClass(models, subdomain),
+  );
+
   models.ProductCategories = db.model<
     IProductCategoryDocument,
     IProductCategoryModel
@@ -59,5 +69,5 @@ export const loadClasses = (
 
 export const generateModels = createGenerateModels<IModels>(
   models,
-  loadClasses
+  loadClasses,
 );
