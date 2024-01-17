@@ -1,7 +1,7 @@
 {
   "name": "erxes",
   "private": true,
-  "version": "1.5.7",
+  "version": "1.5.9",
   "workspaces": [
     "packages/*",
     "scripts"
@@ -49,7 +49,7 @@
     "@types/node": "18.17.1",
     "husky": "^0.13.4",
     "lint-staged": "^3.6.0",
-    "prettier": "^1.14.2",
+    "prettier": "^3.1.1",
     "typescript": "4.9.5",
     "//": "UI development dependencies, since sibling devDependencies are not being installed we moved them from packages/erxes-ui/package.json to here",
     "@babel/core": "^7.15.8",

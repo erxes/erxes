@@ -2,7 +2,6 @@ import * as moment from 'moment';
 import { debugError } from '@erxes/api-utils/src/debuggers';
 import { generateFieldsFromSchema } from '@erxes/api-utils/src/fieldUtils';
 import redis from '@erxes/api-utils/src/redis';
-import { sendRequest } from '@erxes/api-utils/src/requests';
 import { getNextMonth, getToday } from '@erxes/api-utils/src';
 import { IUserDocument } from '@erxes/api-utils/src/types';
 import { graphqlPubsub } from './configs';
@@ -13,10 +12,12 @@ import {
   sendContactsMessage,
   sendCardsMessage
 } from './messageBroker';
+import fetch from 'node-fetch';
 
 import * as admin from 'firebase-admin';
 import { CLOSE_DATE_TYPES } from './constants';
 import { IUser } from './models/definitions/clientPortalUser';
+import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
 
 export const getConfig = async (
   code: string,
@@ -80,45 +81,56 @@ export const sendSms = async (
   phoneNumber: string,
   content: string
 ) => {
-  switch (type) {
-    case 'messagePro':
-      const MESSAGE_PRO_API_KEY = await getConfig(
-        'MESSAGE_PRO_API_KEY',
-        subdomain,
-        ''
-      );
+  if (type === 'messagePro') {
+    const MESSAGE_PRO_API_KEY = await getConfig(
+      'MESSAGE_PRO_API_KEY',
+      subdomain,
+      ''
+    );
 
-      const MESSAGE_PRO_PHONE_NUMBER = await getConfig(
-        'MESSAGE_PRO_PHONE_NUMBER',
-        subdomain,
-        ''
-      );
+    const MESSAGE_PRO_PHONE_NUMBER = await getConfig(
+      'MESSAGE_PRO_PHONE_NUMBER',
+      subdomain,
+      ''
+    );
 
-      if (!MESSAGE_PRO_API_KEY || !MESSAGE_PRO_PHONE_NUMBER) {
-        throw new Error('messaging config not set properly');
-      }
+    if (!MESSAGE_PRO_API_KEY || !MESSAGE_PRO_PHONE_NUMBER) {
+      throw new Error('messaging config not set properly');
+    }
 
-      try {
-        await sendRequest({
-          url: 'https://api.messagepro.mn/send',
-          method: 'GET',
-          params: {
+    try {
+      await fetch(
+        'https://api.messagepro.mn/send?' +
+          new URLSearchParams({
             key: MESSAGE_PRO_API_KEY,
             from: MESSAGE_PRO_PHONE_NUMBER,
             to: phoneNumber,
             text: content
-          }
-        });
+          })
+      );
 
-        return 'sent';
-      } catch (e) {
-        debugError(e.message);
-        throw new Error(e.message);
-      }
-
-    default:
-      break;
+      return 'sent';
+    } catch (e) {
+      debugError(e.message);
+      throw new Error(e.message);
+    }
   }
+
+  const isServiceEnabled = await isEnabled(type);
+
+  if (!isServiceEnabled) {
+    throw new Error('messaging service not enabled');
+  }
+
+  await sendCommonMessage({
+    serviceName: type,
+    subdomain,
+    action: 'sendSms',
+    data: {
+      phoneNumber,
+      content
+    }
+  });
 };
 
 export const generateRandomPassword = (len: number = 10) => {

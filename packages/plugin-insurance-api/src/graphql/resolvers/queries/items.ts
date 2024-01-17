@@ -60,7 +60,9 @@ const queries = {
       sortField,
       sortDirection,
       searchValue,
-      searchField
+      searchField,
+      startDate,
+      endDate
     }: {
       page: number;
       perPage: number;
@@ -78,6 +80,8 @@ const queries = {
         | 'itemPrice'
         | 'itemFeePercent'
         | 'itemTotalFee';
+      startDate: any;
+      endDate: any;
     },
     { models, subdomain }: IContext
   ) => {
@@ -92,6 +96,13 @@ const queries = {
     const sortQuery = {
       [`searchDictionary.${sortField}`]: sortOrder
     };
+
+    if (startDate && endDate) {
+      qry['searchDictionary.dealCreatedAt'] = {
+        $gte: new Date(startDate),
+        $lt: new Date(endDate)
+      };
+    }
 
     return {
       list: paginate(models.Items.find(qry).sort(sortQuery), {
@@ -110,13 +121,17 @@ const queries = {
       sortField,
       sortDirection,
       searchValue,
-      searchField
+      searchField,
+      startDate,
+      endDate
     }: {
       page: number;
       perPage: number;
       sortField: string;
       sortDirection: 'ASC' | 'DESC';
       searchValue: any;
+      startDate: any;
+      endDate: any;
       searchField:
         | 'dealNumber'
         | 'dealCreatedAt'
@@ -135,56 +150,23 @@ const queries = {
       throw new Error('login required');
     }
 
-    const user = await sendCommonMessage({
+    const { user, company } = await verifyVendor({
       subdomain,
-      action: 'clientPortalUsers.findOne',
-      serviceName: 'clientportal',
-      isRPC: true,
-      defaultValue: undefined,
-      data: {
-        _id: cpUser.userId
-      }
+      cpUser
     });
 
-    if (!user) {
-      throw new Error('User not found');
-    }
-
-    const clientportal = await sendCommonMessage({
-      subdomain,
-      action: 'clientPortals.findOne',
-      serviceName: 'clientportal',
-      isRPC: true,
-      defaultValue: undefined,
-      data: {
-        _id: user.clientPortalId
-      }
-    });
-
-    if (!clientportal) {
-      throw new Error("User's clientportal not found");
-    }
-
-    if (clientportal.kind !== 'vendor') {
-      throw new Error('User is not vendor');
-    }
-
-    if (!user.erxesCompanyId) {
-      throw new Error('User does not assigned to any company');
-    }
-
-    const vendorUsers = await sendCommonMessage({
+    const users = await sendCommonMessage({
       subdomain,
       action: 'clientPortalUsers.find',
       serviceName: 'clientportal',
       isRPC: true,
       defaultValue: [],
       data: {
-        clientPortalId: user.clientPortalId
+        erxesCompanyId: company._id
       }
     });
 
-    const vendorUserIds = vendorUsers.map((u: any) => u._id);
+    const vendorUserIds = users.map((u: any) => u._id);
 
     const qry: any = query(searchField, searchValue);
 
@@ -201,6 +183,13 @@ const queries = {
     const sortQuery = {
       [`searchDictionary.${sortField}`]: sortOrder
     };
+
+    if (startDate && endDate) {
+      qry['searchDictionary.dealCreatedAt'] = {
+        $gte: new Date(startDate),
+        $lt: new Date(endDate)
+      };
+    }
 
     return {
       list: paginate(models.Items.find(qry).sort(sortQuery), {

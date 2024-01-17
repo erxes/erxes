@@ -1,8 +1,11 @@
 import { ChangeEvent, useEffect } from "react"
-import { currentPaymentTypeAtom, paymentAmountTypeAtom } from "@/store"
+import {
+  currentPaymentTypeAtom,
+  displayAmountAtom,
+  paymentAmountTypeAtom,
+} from "@/store"
 import {
   activeOrderIdAtom,
-  orderTotalAmountAtom,
   paidOrderIdAtom,
   paidProductsAtom,
   payByProductAtom,
@@ -34,7 +37,7 @@ const PaymentType = () => {
   const orderIdAtom = useAtomValue(activeOrderIdAtom)
 
   const setPaymentTerm = useSetAtom(currentPaymentTypeAtom)
-  const totalAmount = useAtomValue(orderTotalAmountAtom)
+  const displayAmount = useAtomValue(displayAmountAtom)
   const {
     handleValueChange,
     handlePay,
@@ -45,13 +48,8 @@ const PaymentType = () => {
   } = useHandlePayment()
   const { disableInput } = useCheckNotSplit()
 
-  const onChange = (e: ChangeEvent<HTMLInputElement>) => {
-    if (paymentAmountType === "amount") return handleValueChange(e.target.value)
-    if (paymentAmountType === "percent")
-      return handleValueChange(
-        ((Number(e.target.value) / 100) * totalAmount).toString()
-      )
-  }
+  const onChange = (e: ChangeEvent<HTMLInputElement>) =>
+    handleValueChange(e.target.value)
 
   useEffect(() => {
     if (paymentAmountType === "items" && payByProductTotal > 0) {
@@ -63,11 +61,6 @@ const PaymentType = () => {
       )
     }
   }, [paymentAmountType, payByProductTotal, handleValueChange, notPaidAmount])
-
-  const value =
-    paymentAmountType === "percent"
-      ? (currentAmount / totalAmount) * 100
-      : currentAmount
 
   const mergePaid = () => {
     const mergedArray = payByProduct.reduce(
@@ -113,7 +106,7 @@ const PaymentType = () => {
             <Input
               className="border-none px-2 "
               focus={false}
-              value={value.toLocaleString()}
+              value={displayAmount.toLocaleString()}
               onChange={onChange}
               disabled={disableInput || paymentAmountType === "items"}
             />

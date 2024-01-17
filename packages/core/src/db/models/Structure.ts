@@ -13,6 +13,7 @@ import {
 } from './definitions/structures';
 import { IUserDocument } from './definitions/users';
 import { checkCodeDuplication } from './utils';
+import { escapeRegExp } from '@erxes/api-utils/src/core';
 
 export interface IStructureModel extends Model<IStructureDocument> {
   getStructure(doc: any): IStructureDocument;
@@ -173,7 +174,7 @@ export const loadDepartmentClass = (models: IModels) => {
 
       doc.order = parent ? `${parent.order}${doc.code}/` : `${doc.code}/`;
       const children = await models.Departments.find({
-        order: { $regex: new RegExp(department.order, 'i') }
+        order: { $regex: new RegExp(`^${escapeRegExp(department.order)}`) }
       });
 
       for (const child of children) {
@@ -389,7 +390,7 @@ export const loadBranchClass = (models: IModels) => {
       doc.order = parent ? `${parent.order}${doc.code}/` : `${doc.code}/`;
 
       const children = await models.Branches.find({
-        order: { $regex: new RegExp(branch.order, 'i') }
+        order: { $regex: new RegExp(`^${escapeRegExp(branch.order)}`) }
       });
 
       for (const child of children) {

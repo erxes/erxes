@@ -26,7 +26,8 @@ var plugins = [
   { name: 'syncsaas', ui: true, api: true },
   { name: 'golomtces', ui: false, api: true },
   { name: 'aputpm', ui: true, api: true },
-  { name: 'insurance', ui: true, api: true }
+  { name: 'insurance', ui: true, api: true },
+  { name: 'bid', ui: true, api: true },
 ];
 
 const pluginsMap = {};

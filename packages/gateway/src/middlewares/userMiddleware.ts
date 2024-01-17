@@ -6,9 +6,9 @@ import { redis } from '../redis';
 import { generateModels } from '../connectionResolver';
 import { getSubdomain, userActionsMap } from '@erxes/api-utils/src/core';
 import { USER_ROLES } from '@erxes/api-utils/src/constants';
-import { sendRequest } from '@erxes/api-utils/src/requests';
+import fetch from 'node-fetch';
 
-const generateBase64 = req => {
+const generateBase64 = (req) => {
   if (req.user) {
     const userJson = JSON.stringify(req.user);
     const userJsonBase64 = Buffer.from(userJson, 'utf8').toString('base64');
@@ -19,7 +19,7 @@ const generateBase64 = req => {
 export default async function userMiddleware(
   req: Request & { user?: any },
   _res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) {
   const url = req.headers['erxes-core-website-url'];
   const erxesCoreToken = req.headers['erxes-core-token'];
@@ -30,16 +30,16 @@ export default async function userMiddleware(
 
   if (erxesCoreToken && url) {
     try {
-      const response = await sendRequest({
-        url: 'https://erxes.io/check-website',
+      const response = await fetch('https://erxes.io/check-website', {
         method: 'POST',
         headers: {
-          'erxes-core-token': erxesCoreToken
+          'erxes-core-token': erxesCoreToken,
+          'Content-Type': 'application/json',
         },
-        body: {
-          url
-        }
-      });
+        body: JSON.stringify({
+          url,
+        }),
+      }).then((r) => r.text());
 
       if (response === 'ok') {
         req.user = {
@@ -48,19 +48,19 @@ export default async function userMiddleware(
             {
               action: 'showIntegrations',
               allowed: true,
-              requiredActions: []
+              requiredActions: [],
             },
             {
               action: 'showKnowledgeBase',
               allowed: true,
-              requiredActions: []
+              requiredActions: [],
             },
             {
               action: 'showScripts',
               allowed: true,
-              requiredActions: []
-            }
-          ]
+              requiredActions: [],
+            },
+          ],
         };
       }
     } catch (e) {
@@ -78,7 +78,7 @@ export default async function userMiddleware(
     try {
       const { app }: any = jwt.verify(
         appToken,
-        process.env.JWT_TOKEN_SECRET || ''
+        process.env.JWT_TOKEN_SECRET || '',
       );
 
       if (app && app._id) {
@@ -87,13 +87,13 @@ export default async function userMiddleware(
         if (appInDb) {
           const permissions = await models.Permissions.find({
             groupId: appInDb.userGroupId,
-            allowed: true
+            allowed: true,
           }).lean();
 
           const user = await models.Users.findOne({
             role: USER_ROLES.SYSTEM,
             groupIds: { $in: [app.userGroupId] },
-            appId: app._id
+            appId: app._id,
           }).lean();
 
           if (user) {
@@ -105,16 +105,16 @@ export default async function userMiddleware(
               (cachedPermissions && cachedPermissions === '{}')
             ) {
               const userPermissions = await models.Permissions.find({
-                userId: user._id
+                userId: user._id,
               });
               const groupPermissions = await models.Permissions.find({
-                groupId: { $in: user.groupIds }
+                groupId: { $in: user.groupIds },
               });
 
               const actionMap = await userActionsMap(
                 userPermissions,
                 groupPermissions,
-                user
+                user,
               );
 
               await redis.set(key, JSON.stringify(actionMap));
@@ -125,11 +125,11 @@ export default async function userMiddleware(
               ...user,
               role: USER_ROLES.SYSTEM,
               isOwner: appInDb.allowAllPermission || false,
-              customPermissions: permissions.map(p => ({
+              customPermissions: permissions.map((p) => ({
                 action: p.action,
                 allowed: p.allowed,
-                requiredActions: p.requiredActions
-              }))
+                requiredActions: p.requiredActions,
+              })),
             };
           }
         }

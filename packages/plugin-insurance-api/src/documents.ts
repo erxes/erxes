@@ -22,7 +22,7 @@ const getDeal = async (subdomain, dealId) => {
     action: 'deals.findOne',
     isRPC: true,
     defaultValue: null,
-    data: { _id: dealId }
+    data: { _id: dealId },
   });
 
   return deal;
@@ -36,13 +36,13 @@ const getCustomers = async (subdomain, dealId) => {
     data: {
       mainType: 'deal',
       mainTypeIds: [dealId],
-      relTypes: ['customer']
+      relTypes: ['customer'],
     },
     isRPC: true,
-    defaultValue: []
+    defaultValue: [],
   });
 
-  const customerIds = conformities.map(c => c.relTypeId);
+  const customerIds = conformities.map((c) => c.relTypeId);
 
   const customers = await sendCommonMessage({
     serviceName: 'customers',
@@ -50,7 +50,7 @@ const getCustomers = async (subdomain, dealId) => {
     action: 'customers.find',
     data: { _id: { $in: customerIds } },
     isRPC: true,
-    defaultValue: []
+    defaultValue: [],
   });
 
   return customers;
@@ -64,13 +64,13 @@ const getCompanies = async (subdomain, dealId) => {
     data: {
       mainType: 'deal',
       mainTypeIds: [dealId],
-      relTypes: ['company']
+      relTypes: ['company'],
     },
     isRPC: true,
-    defaultValue: []
+    defaultValue: [],
   });
 
-  const companyIds = conformities.map(c => c.relTypeId);
+  const companyIds = conformities.map((c) => c.relTypeId);
 
   const companies = await sendCommonMessage({
     serviceName: 'companies',
@@ -78,7 +78,7 @@ const getCompanies = async (subdomain, dealId) => {
     action: 'companies.find',
     data: { _id: { $in: companyIds } },
     isRPC: true,
-    defaultValue: []
+    defaultValue: [],
   });
 
   return companies;
@@ -91,9 +91,9 @@ const getFields = async ({ subdomain }) => {
     action: 'fields.fieldsCombinedByContentType',
     isRPC: true,
     data: {
-      contentType: 'insurance:item'
+      contentType: 'insurance:item',
     },
-    defaultValue: []
+    defaultValue: [],
   });
   //   return fields.map((f) => ({ value: f.name, name: f.label }));
 
@@ -103,9 +103,9 @@ const getFields = async ({ subdomain }) => {
     action: 'fields.fieldsCombinedByContentType',
     isRPC: true,
     data: {
-      contentType: 'insurance:product'
+      contentType: 'insurance:product',
     },
-    defaultValue: []
+    defaultValue: [],
   });
 
   const dealFields = await sendCommonMessage({
@@ -114,19 +114,19 @@ const getFields = async ({ subdomain }) => {
     action: 'fields.fieldsCombinedByContentType',
     isRPC: true,
     data: {
-      contentType: 'cards:deal'
+      contentType: 'cards:deal',
     },
-    defaultValue: []
+    defaultValue: [],
   });
 
-  const fields = [...itemFields, ...productFields, ...dealFields].map(f => ({
+  const fields = [...itemFields, ...productFields, ...dealFields].map((f) => ({
     value: f.name,
-    name: f.label
+    name: f.label,
   }));
 
   fields.push({
     value: 'insuranceProductName',
-    name: 'Insurance product Name'
+    name: 'Insurance product Name',
   });
   fields.push({ value: 'insuranceRisks', name: 'Insurance risks' });
   fields.push({ value: 'insuranceCategoryName', name: 'Insurance category' });
@@ -149,8 +149,8 @@ export default {
   types: [
     {
       label: 'Insurance item',
-      type: 'insurance'
-    }
+      type: 'insurance',
+    },
   ],
 
   editorAttributes: async ({ subdomain, data: { contentType } }) => {
@@ -167,15 +167,15 @@ export default {
       item,
       product = undefined,
       category = undefined,
-      risks = []
+      risks = [],
     } = response;
 
     let replacedContent: any = content || {};
 
-    ['price', 'feePercent', 'totalFee'].forEach(field => {
+    ['price', 'feePercent', 'totalFee'].forEach((field) => {
       replacedContent = replacedContent.replace(
         new RegExp(`{{ ${field} }}`, 'g'),
-        item[field] || ''
+        item[field] || '',
       );
     });
 
@@ -183,7 +183,7 @@ export default {
       if (product) {
         replacedContent = replacedContent.replace(
           /{{ insuranceProductName }}/g,
-          product.name || 'product name undefined'
+          product.name || 'product name undefined',
         );
       }
     }
@@ -192,7 +192,7 @@ export default {
       if (category) {
         replacedContent = replacedContent.replace(
           /{{ insuranceCategoryName }}/g,
-          category.name || 'category name undefined'
+          category.name || 'category name undefined',
         );
       }
     }
@@ -201,7 +201,7 @@ export default {
       if (risks) {
         replacedContent = replacedContent.replace(
           /{{ insuranceRisks }}/g,
-          risks.map(r => r.name).join(', ')
+          risks.map((r) => r.name).join(', '),
         );
       }
     }
@@ -217,7 +217,7 @@ export default {
           action: 'customers.getCustomerName',
           data: { customer: item },
           isRPC: true,
-          defaultValue: ''
+          defaultValue: '',
         });
 
         customerRows.push(name);
@@ -225,7 +225,7 @@ export default {
 
       replacedContent = replacedContent.replace(
         /{{ customers }}/g,
-        customerRows.join(',')
+        customerRows.join(','),
       );
     }
 
@@ -241,7 +241,7 @@ export default {
           action: 'companies.getCompanyName',
           data: { company: item },
           isRPC: true,
-          defaultValue: ''
+          defaultValue: '',
         });
 
         companyRows.push(name);
@@ -249,7 +249,7 @@ export default {
 
       replacedContent = replacedContent.replace(
         /{{ companies }}/g,
-        companyRows.join(',')
+        companyRows.join(','),
       );
     }
 
@@ -258,28 +258,28 @@ export default {
     if (replacedContent.includes('{{ dealNumber }}')) {
       replacedContent = replacedContent.replace(
         /{{ dealNumber }}/g,
-        deal.number || ''
+        deal.number || '',
       );
     }
 
     if (replacedContent.includes('{{ dealCreatedAt }}')) {
       replacedContent = replacedContent.replace(
         /{{ dealCreatedAt }}/g,
-        deal.createdAt || ''
+        deal.createdAt || '',
       );
     }
 
     if (replacedContent.includes('{{ dealStartDate }}')) {
       replacedContent = replacedContent.replace(
         /{{ dealStartDate }}/g,
-        deal.startDate || ''
+        deal.startDate || '',
       );
     }
 
     if (replacedContent.includes('{{ dealCloseDate }}')) {
       replacedContent = replacedContent.replace(
         /{{ dealCloseDate }}/g,
-        deal.closeDate || ''
+        deal.closeDate || '',
       );
     }
 
@@ -287,7 +287,7 @@ export default {
       for (const customFieldData of item.customFieldsData) {
         replacedContent = replacedContent.replace(
           new RegExp(`{{ customFieldsData.${customFieldData.field} }}`, 'g'),
-          customFieldData.stringValue
+          customFieldData.value,
         );
       }
     }
@@ -296,7 +296,7 @@ export default {
       for (const customFieldData of product.customFieldsData) {
         replacedContent = replacedContent.replace(
           new RegExp(`{{ customFieldsData.${customFieldData.field} }}`, 'g'),
-          customFieldData.stringValue
+          customFieldData.value,
         );
       }
     }
@@ -305,13 +305,13 @@ export default {
       for (const customFieldData of deal.customFieldsData) {
         replacedContent = replacedContent.replace(
           new RegExp(`{{ customFieldsData.${customFieldData.field} }}`, 'g'),
-          customFieldData.stringValue
+          customFieldData.stringValue,
         );
       }
     }
 
     const fields = (await getFields({ subdomain })).filter(
-      customField => !customField.value.includes('customFieldsData')
+      (customField) => !customField.value.includes('customFieldsData'),
     );
 
     for (const field of fields) {
@@ -326,10 +326,14 @@ export default {
 
       replacedContent = replacedContent.replace(
         new RegExp(` {{ ${field.value} }} `, 'g'),
-        propertyValue || ''
+        propertyValue || '',
       );
     }
 
+    if (replacedContent.includes('{{')) {
+      replacedContent = replacedContent.replace(/{{[^}]+}}/g, '');
+    }
+
     return [replacedContent];
-  }
+  },
 };

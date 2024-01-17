@@ -1,4 +1,4 @@
-import { sendRequest } from 'erxes-api-utils';
+import fetch from 'node-fetch';
 
 export interface IConformity {
   mainType: string;
@@ -11,7 +11,7 @@ export const checkCompanyRd = async (models, contract, config) => {
   const conformities = await models.Conformities.getConformities({
     mainType: 'contract',
     mainTypeIds: [contract._id],
-    relTypes: ['customer', 'company']
+    relTypes: ['customer', 'company'],
   });
   if (!conformities || !conformities.length) {
     throw new Error('Choose the Customer or Company');
@@ -20,7 +20,7 @@ export const checkCompanyRd = async (models, contract, config) => {
   let billType = 1;
   let customerCode = '';
 
-  const companyIds = conformities.map(item => {
+  const companyIds = conformities.map((item) => {
     if (item.mainType === 'company') return item.mainTypeId;
     if (item.relType === 'company') return item.relTypeId;
   });
@@ -31,11 +31,11 @@ export const checkCompanyRd = async (models, contract, config) => {
     const re = new RegExp('(^[А-ЯЁӨҮ]{2}[0-9]{8}$)|(^\\d{7}$)', 'gui');
     for (const company of companies) {
       if (re.test(company.code)) {
-        const checkCompanyRes = await sendRequest({
-          url: config.checkCompanyUrl,
-          method: 'GET',
-          params: { regno: company.code }
-        });
+        const checkCompanyRes = await fetch(
+          config.checkCompanyUrl +
+            '?' +
+            new URLSearchParams({ regno: company.code }),
+        ).then((res) => res.json());
 
         if (checkCompanyRes.found) {
           billType = 3;
@@ -47,14 +47,14 @@ export const checkCompanyRd = async (models, contract, config) => {
   }
 
   if (billType === 1) {
-    const customerIds = conformities.map(item => {
+    const customerIds = conformities.map((item) => {
       if (item.mainType === 'customer') return item.mainTypeId;
       if (item.relType === 'customer') return item.relTypeId;
     });
 
     if (customerIds.length > 0) {
       const customers = await models.Customers.find({
-        _id: { $in: customerIds }
+        _id: { $in: customerIds },
       });
       customerCode = customers.length > 0 ? customers[0].code : '' || '';
     }
@@ -68,7 +68,7 @@ export const getEbarimtData = (config, userEmail, orderInfos) => {
     token: config.apiToken,
     apiKey: config.apiKey,
     apiSecret: config.apiSecret,
-    orderInfos: JSON.stringify(orderInfos)
+    orderInfos: JSON.stringify(orderInfos),
   };
 };
 
@@ -79,7 +79,7 @@ export const getJournalsData = (config, userEmail, postConfig, orderInfos) => {
     token: config.apiToken,
     apiKey: config.apiKey,
     apiSecret: config.apiSecret,
-    orderInfos: JSON.stringify(orderInfos)
+    orderInfos: JSON.stringify(orderInfos),
   };
 };
 
@@ -87,7 +87,7 @@ export const sentErkhet = async (
   messageBroker,
   postData,
   isJournal?,
-  isEbarimt?
+  isEbarimt?,
 ) => {
   return messageBroker().sendRPCMessage('rpc_queue:erxes-automation-erkhet', {
     action: isJournal
@@ -95,6 +95,6 @@ export const sentErkhet = async (
       : 'get-response-send-order-info',
     isEbarimt: isEbarimt || false,
     isJson: true,
-    payload: JSON.stringify(postData)
+    payload: JSON.stringify(postData),
   });
 };

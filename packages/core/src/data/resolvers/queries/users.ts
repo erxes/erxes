@@ -5,7 +5,7 @@ import {
 } from '@erxes/api-utils/src/permissions';
 import { fetchSegment, sendSegmentsMessage } from '../../../messageBroker';
 import { IContext, IModels } from '../../../connectionResolver';
-import { getConfig, paginate } from '../../utils';
+import { escapeRegExp, getConfig, paginate } from '../../utils';
 import { fetchEs } from '@erxes/api-utils/src/elasticsearch';
 
 export class Builder {
@@ -165,7 +165,7 @@ const getChildIds = async (model, ids) => {
   const orderQry: any[] = [];
   for (const item of items) {
     orderQry.push({
-      order: { $regex: new RegExp(item.order) }
+      order: { $regex: new RegExp(`^${escapeRegExp(item.order)}`) }
     });
   }
 
