@@ -6,9 +6,10 @@ import {
   sendClientPortalMessage,
   sendCommonMessage,
   sendContactsMessage,
-  sendCoreMessage
+  sendCoreMessage,
+  sendXypMessage
 } from '../../../messageBroker';
-import { ICarDocument } from '../../../models/definitions/tumentech';
+import { ICar, ICarDocument } from '../../../models/definitions/tumentech';
 import { generateRandomString } from '../../../utils';
 import { ICarCategoryDocument } from './../../../models/definitions/tumentech';
 import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
@@ -157,6 +158,71 @@ const carMutations = {
     { user, models, subdomain }: IContext
   ) => {
     return models.Cars.mergeCars(subdomain, carIds, carFields, user);
+  },
+  /**
+   * Load xyp data to cars
+   */
+  carLoadXyp: async (
+    _root,
+    { _id }: { _id: string },
+    { user, models, subdomain }: IContext
+  ) => {
+    const xypEnabled = await isEnabled('xyp');
+    if (xypEnabled) {
+      const xyp = await sendXypMessage({
+        subdomain,
+        action: 'xyp.find',
+        data: { _id: _id, contentType: 'tumentech:car' },
+        isRPC: true,
+        defaultValue: {}
+      });
+
+      const vehicleinfo = xyp?.data.find(
+        s => s.serviceName === 'WS100401_getVehicleInfo'
+      );
+      const vehicleData = vehicleinfo?.data;
+      if (vehicleData) {
+        const car = (await models.Cars.getCar(_id)).toObject() as ICarDocument;
+        car.vinNumber = vehicleData?.cabinNumber || '';
+        car.carModel = vehicleData?.modelName;
+        car.mark = vehicleData.markName;
+        car.xyp_archiveFirstNumber = vehicleData?.archiveFirstNumber;
+        car.xyp_archiveNumber = vehicleData?.archiveNumber;
+        car.xyp_axleCount = vehicleData?.axleCount;
+        car.vintageYear = vehicleData?.buildYear;
+        // car.xyp_cabinNumber = vehicleData?.cabinNumber;
+        car.xyp_capacity = vehicleData?.capacity;
+        car.xyp_certificateNumber = vehicleData?.certificateNumber;
+        car.xyp_className = vehicleData?.className;
+        car.color = vehicleData?.colorName;
+        car.xyp_countryName = vehicleData?.countryName;
+        car.xyp_fueltype = vehicleData?.fueltype;
+        car.xyp_height = vehicleData?.height;
+        car.xyp_importDate = vehicleData?.importDate;
+        car.xyp_length = vehicleData?.length;
+        car.xyp_manCount = vehicleData?.manCount;
+        // car.xyp_markName = vehicleData?.markName;
+        car.xyp_mass = vehicleData?.mass;
+        // car.xyp_modelName = vehicleData?.modelName;
+        car.xyp_ownerCountry = vehicleData?.ownerCountry;
+        car.xyp_ownerFirstname = vehicleData?.ownerFirstname;
+        car.xyp_ownerHandphone = vehicleData?.ownerHandphone;
+        car.xyp_ownerLastname = vehicleData?.ownerLastname;
+        car.xyp_ownerRegnum = vehicleData?.ownerRegnum;
+        car.xyp_ownerType = vehicleData?.ownerType;
+        // car.xyp_plateNumber = vehicleData?.plateNumber;
+        car.xyp_type = vehicleData?.type;
+        car.xyp_wheelPosition = vehicleData?.wheelPosition;
+        car.xyp_width = vehicleData?.width;
+        const { _id: id2, ...rest } = car;
+
+        const updated = await models.Cars.updateCar(_id, rest);
+
+        return updated;
+      } else {
+        throw new Error('xyp car data isnt fetched');
+      }
+    } else throw new Error('xyp plugin not enabled');
   },
 
   /**

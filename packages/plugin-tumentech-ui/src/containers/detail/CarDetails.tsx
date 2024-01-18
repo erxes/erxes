@@ -8,6 +8,7 @@ import { graphql } from '@apollo/client/react/hoc';
 import CarDetails from '../../components/detail/CarDetails';
 import { queries } from '../../graphql';
 import { DetailQueryResponse } from '../../types';
+import { isEnabled } from '@erxes/ui/src/utils/core';
 
 type Props = {
   id: string;

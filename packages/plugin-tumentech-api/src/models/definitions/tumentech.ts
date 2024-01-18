@@ -15,7 +15,6 @@ export interface ICar {
   carCategoryId: string;
   parentCarCategoryId?: string;
   vintageYear: number;
-  importYear: number;
   diagnosisDate: Date;
   taxDate: Date;
   manufacture: string;
@@ -86,6 +85,32 @@ export interface ICar {
   barrel8: number;
   forceCapacityValue: number;
   forceValue: number;
+
+  xyp_archiveFirstNumber?: string;
+  xyp_archiveNumber?: string;
+  xyp_axleCount?: string;
+  xyp_cabinNumber?: string;
+  xyp_capacity?: string;
+  xyp_certificateNumber?: string;
+  xyp_className?: string;
+  xyp_countryName?: string;
+  xyp_fueltype?: string;
+  xyp_height?: string;
+  xyp_importDate?: string;
+  xyp_length?: string;
+  xyp_manCount?: string;
+  xyp_markName?: string;
+  xyp_mass?: string;
+  xyp_modelName?: string;
+  xyp_ownerCountry?: string;
+  xyp_ownerFirstname?: string;
+  xyp_ownerHandphone?: string;
+  xyp_ownerLastname?: string;
+  xyp_ownerRegnum?: string;
+  xyp_ownerType?: string;
+  xyp_type?: string;
+  xyp_wheelPosition?: string;
+  xyp_width?: string;
 }
 
 export interface ICarDocument extends ICar, Document {
@@ -236,12 +261,6 @@ export const carSchema = schemaHooksWrapper(
     vintageYear: field({
       type: Number,
       label: 'Vintage year',
-      optional: true,
-      default: new Date().getFullYear()
-    }),
-    importYear: field({
-      type: Number,
-      label: 'Imported year',
       optional: true,
       default: new Date().getFullYear()
     }),
@@ -644,6 +663,120 @@ export const carSchema = schemaHooksWrapper(
       type: Number,
       optional: true,
       label: 'Зүтгэх хүч'
+    }),
+
+    xyp_archiveFirstNumber: field({
+      type: String,
+      optional: true,
+      label: 'АРХИВЫН АНХЛАН БҮРТГЭЛИЙН ДУГААР*'
+    }),
+    xyp_archiveNumber: field({
+      type: String,
+      optional: true,
+      label: 'АРХИВЫН БҮРТГЭЛИЙН ДУГААР*'
+    }),
+    xyp_axleCount: field({
+      type: String,
+      optional: true,
+      label: 'АРАЛ*'
+    }),
+
+    xyp_capacity: field({
+      type: String,
+      optional: true,
+      label: 'ЧАДАЛ*'
+    }),
+    xyp_certificateNumber: field({
+      type: String,
+      optional: true,
+      label: 'CERTIFICATENUMBER*'
+    }),
+    xyp_className: field({
+      type: String,
+      optional: true,
+      label: 'КЛАСС*'
+    }),
+    xyp_countryName: field({
+      type: String,
+      optional: true,
+      label: 'УЛСЫН НЭР*'
+    }),
+    xyp_fueltype: field({
+      type: String,
+      optional: true,
+      label: 'ШАТХУУНЫ ТӨРӨЛ*'
+    }),
+    xyp_height: field({
+      type: String,
+      optional: true,
+      label: 'ӨНДӨР*'
+    }),
+    xyp_importDate: field({
+      type: String,
+      optional: true,
+      label: 'ОРЖ ИРСЭН ОГНОО*'
+    }),
+    xyp_length: field({
+      type: String,
+      optional: true,
+      label: 'УРТ*'
+    }),
+    xyp_manCount: field({
+      type: String,
+      optional: true,
+      label: 'MANCOUNT*'
+    }),
+
+    xyp_mass: field({
+      type: String,
+      optional: true,
+      label: 'MASS*'
+    }),
+
+    xyp_ownerCountry: field({
+      type: String,
+      optional: true,
+      label: 'ЭЗЭМШИГЧИЙН УЛС*'
+    }),
+    xyp_ownerFirstname: field({
+      type: String,
+      optional: true,
+      label: 'ЭЗЭМШИГЧИЙН НЭР*'
+    }),
+    xyp_ownerHandphone: field({
+      type: String,
+      optional: true,
+      label: 'ЭЗЭМШИГЧИЙН ГАР УТАС*'
+    }),
+    xyp_ownerLastname: field({
+      type: String,
+      optional: true,
+      label: 'ЭЗЭМШИГЧИЙН ОВОГ*'
+    }),
+    xyp_ownerRegnum: field({
+      type: String,
+      optional: true,
+      label: 'ЭЗЭМШИГЧИЙН РЕГИСТРИЙН ДУГААР*'
+    }),
+    xyp_ownerType: field({
+      type: String,
+      optional: true,
+      label: 'ЭЗЭМШИГЧИЙН ТӨРӨЛ*'
+    }),
+    xyp_type: field({
+      type: String,
+      optional: true,
+      label: 'ТӨРӨЛ*'
+    }),
+    xyp_wheelPosition: field({
+      type: String,
+      optional: true,
+      label: 'ХҮРДНИЙ БАЙРЛАЛ*'
+    }),
+    xyp_width: field({
+      type: String,
+      optional: true,
+      label: 'ӨРГӨН*'
     })
   }),
   'erxes_carSchema'

@@ -13,10 +13,16 @@ type Props = {
 };
 
 class DetailInfo extends React.Component<Props> {
-  renderRow = (label, value) => {
+  renderRow = (label, value, editable = false) => {
     return (
       <li>
-        <FieldStyle>{__(`${label}`)}</FieldStyle>
+        {!editable ? (
+          <FieldStyle>{__(`${label}`)}</FieldStyle>
+        ) : (
+          <FieldStyle>
+            <span style={{ color: '#b90e0a' }}>{__(`${label}`)} </span>
+          </FieldStyle>
+        )}
         <SidebarCounter>{value || '-'}</SidebarCounter>
       </li>
     );
@@ -27,32 +33,34 @@ class DetailInfo extends React.Component<Props> {
 
     return (
       <SidebarList className="no-link">
+        {this.renderRow('ТӨРӨЛ', car.xyp_type, true)}
+
         {this.renderRow(
           'Category',
           car.parentCategory ? car.parentCategory.name : '-'
         )}
         {this.renderRow('Sub category', car.category ? car.category.name : '-')}
         {this.renderRow('Улсын дугаар', car.plateNumber)}
-        {this.renderRow('Арлын дугаар', car.vinNumber)}
-        {this.renderRow(
-          'Ангилал',
-          car.category ? car.category.name : 'Unknown'
-        )}
-        {this.renderRow('Үйлдвэрлэсэн он', car.vintageYear)}
-        {this.renderRow('Импортолсон он', car.importYear)}
+        {this.renderRow('Арлын дугаар', car.vinNumber, true)}
+
+        {this.renderRow('Үйлдвэрлэсэн он', car.vintageYear, true)}
+        {this.renderRow('ОРЖ ИРСЭН ОГНОО', car.xyp_importDate, true)}
+
         {this.renderRow('Оношлогоо огноо', car.diagnosisDate)}
         {this.renderRow('Татвар огноо', car.taxDate)}
         {this.renderRow('Үйлдвэрлэгч', car.manufacture)}
         {this.renderRow('Чиргүүлийн холбоос', car.trailerType)}
         {this.renderRow('Ангилал', car.drivingClassification)}
-        {this.renderRow('Модел', car.carModel)}
-        {this.renderRow('Марк', car.mark)}
+        {this.renderRow('КЛАСС', car.xyp_className, true)}
+
+        {this.renderRow('Модел', car.carModel, true)}
+        {this.renderRow('Марк', car.mark, true)}
         {this.renderRow('Жин', car.weight)}
         {this.renderRow('Дугуйн даацын төрөл', car.tireLoadType)}
         {this.renderRow('Нумны төрөл', car.bowType)}
         {this.renderRow('Тоормосны төрөл', car.brakeType)}
         {this.renderRow('Гэрчилгээний төрөл', car.type)}
-        {this.renderRow('Өнгө', car.color)}
+        {this.renderRow('Өнгө', car.color, true)}
         {this.renderRow('Эзэмшигч', car.ownerBy)}
         {this.renderRow('Засвар үйлчилгээ', car.repairService)}
         {this.renderRow('Интервал', car.interval)}
@@ -61,12 +69,16 @@ class DetailInfo extends React.Component<Props> {
         {this.renderRow('Гүйлтийн утга', car.runningValue)}
 
         {this.renderRow('Steering wheel', car.steeringWheel)}
+        {this.renderRow('ХҮРДНИЙ БАЙРЛАЛ', car.xyp_wheelPosition, true)}
+
         {this.renderRow('Хөдөлгүүр сольсон', car.engineChange)}
         {this.renderRow('Хөдөлгүүрийн багтаамж', car.engineCapacity)}
         {this.renderRow('Хурдны хайрцаг', car.transmission)}
         {this.renderRow('Хаалганы тоо', car.doors)}
         {this.renderRow('Суудлын тоо', car.seats)}
         {this.renderRow('Fuel Type', car.fuelType)}
+        {this.renderRow('ШАТХУУНЫ ТӨРӨЛ', car.xyp_fueltype, true)}
+
         {this.renderRow('Нийт тэнхлэг', car.totalAxis)}
         {this.renderRow('Залуурын тэнхлэг', car.steeringAxis)}
         {this.renderRow('Зүтгэх тэнхлэг', car.forceAxis)}
@@ -100,6 +112,37 @@ class DetailInfo extends React.Component<Props> {
 
         {this.renderRow('Зүтгэх хүч', car.forceCapacityValue)}
         {this.renderRow('Зүтгэх багтаамж', car.forceValue)}
+
+        {this.renderRow(
+          'АРХИВЫН АНХЛАН БҮРТГЭЛИЙН ДУГААР',
+          car.xyp_archiveFirstNumber,
+          true
+        )}
+        {this.renderRow(
+          'АРХИВЫН БҮРТГЭЛИЙН ДУГААР ',
+          car.xyp_archiveNumber,
+          true
+        )}
+        {this.renderRow('АРАЛ', car.xyp_axleCount, true)}
+
+        {this.renderRow('ЧАДАЛ', car.xyp_capacity, true)}
+        {this.renderRow('CERTIFICATENUMBER', car.xyp_certificateNumber, true)}
+        {this.renderRow('УЛСЫН НЭР', car.xyp_countryName, true)}
+        {this.renderRow('MANCOUNT', car.xyp_manCount, true)}
+        {this.renderRow('MASS', car.xyp_mass, true)}
+        {this.renderRow('ЭЗЭМШИГЧИЙН УЛС', car.xyp_ownerCountry, true)}
+        {this.renderRow('ЭЗЭМШИГЧИЙН НЭР', car.xyp_ownerFirstname, true)}
+        {this.renderRow('ЭЗЭМШИГЧИЙН ГАР УТАС', car.xyp_ownerHandphone, true)}
+        {this.renderRow('ЭЗЭМШИГЧИЙН ОВОГ', car.xyp_ownerLastname, true)}
+        {this.renderRow(
+          'ЭЗЭМШИГЧИЙН РЕГИСТРИЙН ДУГААР',
+          car.xyp_ownerRegnum,
+          true
+        )}
+        {this.renderRow('ЭЗЭМШИГЧИЙН ТӨРӨЛ', car.xyp_ownerType, true)}
+        {this.renderRow('ӨРГӨН', car.xyp_width, true)}
+        {this.renderRow('УРТ', car.xyp_length, true)}
+        {this.renderRow('ӨНДӨР', car.xyp_height, true)}
       </SidebarList>
     );
   }

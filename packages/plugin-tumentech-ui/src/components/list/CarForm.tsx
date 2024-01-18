@@ -212,7 +212,6 @@ class CarForm extends React.Component<Props, State> {
       plateNumber: finalValues.plateNumber,
       vinNumber: finalValues.vinNumber,
       vintageYear: Number(finalValues.vintageYear),
-      importYear: Number(finalValues.importYear),
       carCategoryId: finalValues.carCategoryId,
       trailerType: finalValues.trailerType,
       manufacture: finalValues.manufacture,
@@ -516,14 +515,14 @@ class CarForm extends React.Component<Props, State> {
               max: nowYear
             })}
 
-            {this.renderFormGroup('Импортолсон он', {
+            {/* {this.renderFormGroup('Импортолсон он', {
               ...formProps,
               name: 'importYear',
               defaultValue: car.importYear || nowYear,
               type: 'number',
               min: 1950,
               max: nowYear
-            })}
+            })} */}
 
             <FormGroup>
               <ControlLabel>Оношлогоо огноо</ControlLabel>

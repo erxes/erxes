@@ -74,7 +74,6 @@ export interface ITrailer {
   barrel6?: number;
   barrel7?: number;
   barrel8?: number;
-  importYear?: number;
 
   barrelWarranty?: Date;
   diagnosisDate?: Date;
@@ -126,7 +125,6 @@ export interface ICarDoc {
   generalClassification?: string;
 
   vintageYear?: number;
-  importYear?: number;
 
   carModel?: string;
   type?: string;
@@ -182,6 +180,29 @@ export interface ICarDoc {
   porchekHeight?: number;
   volume?: number;
   liftHeight?: number;
+
+  xyp_archiveFirstNumber?: string;
+  xyp_archiveNumber?: string;
+  xyp_axleCount?: string;
+  xyp_capacity?: string;
+  xyp_certificateNumber?: string;
+  xyp_className?: string;
+  xyp_countryName?: string;
+  xyp_fueltype?: string;
+  xyp_height?: string;
+  xyp_importDate?: string;
+  xyp_length?: string;
+  xyp_manCount?: string;
+  xyp_mass?: string;
+  xyp_ownerCountry?: string;
+  xyp_ownerFirstname?: string;
+  xyp_ownerHandphone?: string;
+  xyp_ownerLastname?: string;
+  xyp_ownerRegnum?: string;
+  xyp_ownerType?: string;
+  xyp_type?: string;
+  xyp_wheelPosition?: string;
+  xyp_width?: string;
 }
 
 export interface ICarCategory {
@@ -247,6 +268,10 @@ export type ProductRemoveMutationResponse = {
 
 export type EditMutationResponse = {
   carsEdit: (params: { variables: ICar }) => Promise<any>;
+};
+
+export type CarLoadXypMutationResponse = {
+  carLoadXyp: (params: { variables: { _id: string } }) => Promise<any>;
 };
 
 export type RemoveMutationVariables = {
@@ -362,6 +387,11 @@ type ListConfig = {
 
 export type MainQueryResponse = {
   carsMain: { list: ICar[]; totalCount: number };
+  loading: boolean;
+  refetch: () => void;
+};
+export type XypRequestQueryResponse = {
+  xypRequest: JSON;
   loading: boolean;
   refetch: () => void;
 };

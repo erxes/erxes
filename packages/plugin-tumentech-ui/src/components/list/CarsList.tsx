@@ -30,6 +30,7 @@ import RightMenu from './RightMenu';
 import Sidebar from './Sidebar';
 import { withRouter } from 'react-router-dom';
 import { COLUMN_CHOOSER_EXCLUDED_FIELD_NAMES } from '@erxes/ui-settings/src/constants';
+import ManageDataForm from '../../containers/ManageDataForm';
 
 interface IProps extends IRouterProps {
   cars: ICar[];
@@ -201,6 +202,11 @@ class CarsList extends React.Component<IProps, State> {
         Choose Properties/View
       </Button>
     );
+    const manageData = (
+      <Button btnStyle="primary" size="small" icon="settings" href="#edit">
+        Manage Data
+      </Button>
+    );
 
     const manageColumns = props => {
       return (
@@ -215,7 +221,9 @@ class CarsList extends React.Component<IProps, State> {
         />
       );
     };
-
+    const manageDataContent = props => {
+      return <ManageDataForm {...props} />;
+    };
     const mergeButton = (
       <Button btnStyle="primary" size="small" icon="merge">
         Merge
@@ -304,6 +312,11 @@ class CarsList extends React.Component<IProps, State> {
           backDrop="static"
         />
 
+        <ModalTrigger
+          title="Manage Data"
+          trigger={manageData}
+          content={manageDataContent}
+        />
         <RightMenu {...rightMenuProps} />
       </BarItems>
     );
