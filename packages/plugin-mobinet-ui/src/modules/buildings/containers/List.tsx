@@ -63,7 +63,7 @@ export default function BuildingContainer(props: Props) {
 
     confirm(message).then(() => {
       removeMutation({
-        variables: { _id: buildingId },
+        variables: { _ids: [buildingId] },
       })
         .then(() => {
           refetch();
