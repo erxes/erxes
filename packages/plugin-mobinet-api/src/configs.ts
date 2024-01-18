@@ -9,6 +9,7 @@ import { initBroker } from './messageBroker';
 import cpUserMiddleware from './middlewares/cpUserMiddleware';
 import internalNotes from './internalNotes';
 import aftermutations from './aftermutations';
+import forms from './forms';
 
 export let mainDb;
 export let debug;
@@ -19,6 +20,7 @@ export default {
     documents,
     internalNotes,
     aftermutations,
+    forms,
   },
   graphql: async () => {
     return {
