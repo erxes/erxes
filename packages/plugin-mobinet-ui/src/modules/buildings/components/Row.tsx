@@ -6,10 +6,11 @@ import Tip from '@erxes/ui/src/components/Tip';
 import { __ } from '@erxes/ui/src/utils/core';
 import React from 'react';
 import BuildingForm from '../containers/Form';
-
+import TextInfo from '@erxes/ui/src/components/TextInfo';
 import { IBuilding } from '../types';
 
 type Props = {
+  index: number;
   history: any;
   building: IBuilding;
   remove: (buildingId: string) => void;
@@ -50,12 +51,14 @@ const Row = (props: Props) => {
     );
   };
 
-  const formContent = props => <BuildingForm {...props} building={building} />;
+  const formContent = (props) => (
+    <BuildingForm {...props} building={building} />
+  );
 
   const center = building.location || {
     lat: 0,
     lng: 0,
-    description: 'description'
+    description: 'description',
   };
 
   const cityName =
@@ -78,7 +81,7 @@ const Row = (props: Props) => {
   return (
     <tr>
       <td key={Math.random()}>
-        <RowTitle>{building.code || '-'}</RowTitle>
+        <RowTitle>{props.index}</RowTitle>
       </td>
 
       <td key={Math.random()}>

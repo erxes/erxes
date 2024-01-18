@@ -8,22 +8,22 @@ import typeDefs from './graphql/typeDefs';
 import { initBroker } from './messageBroker';
 import cpUserMiddleware from './middlewares/cpUserMiddleware';
 import internalNotes from './internalNotes';
+import aftermutations from './aftermutations';
 
 export let mainDb;
 export let debug;
-
-
 
 export default {
   name: 'mobinet',
   meta: {
     documents,
-    internalNotes
+    internalNotes,
+    aftermutations,
   },
   graphql: async () => {
     return {
       typeDefs: await typeDefs(),
-      resolvers: await resolvers()
+      resolvers: await resolvers(),
     };
   },
 
@@ -37,13 +37,11 @@ export default {
 
   middlewares: [cookieParser(), cpUserMiddleware],
 
-  onServerInit: async options => {
+  onServerInit: async (options) => {
     mainDb = options.db;
 
     initBroker(options.messageBrokerClient);
 
-    
-
     debug = options.debug;
-  }
+  },
 };
