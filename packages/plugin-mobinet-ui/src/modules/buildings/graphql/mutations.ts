@@ -1,5 +1,4 @@
 const variables = `
-    $code: String!
     $name: String!
     $bounds: JSON
     $location: JSON
@@ -14,7 +13,6 @@ const variables = `
 `;
 
 const fields = `
-    code: $code
     name: $name
     bounds: $bounds
     location: $location
@@ -62,5 +60,5 @@ export default {
   addMutation,
   editMutation,
   removeMutation,
-  buildingsUpdate
+  buildingsUpdate,
 };

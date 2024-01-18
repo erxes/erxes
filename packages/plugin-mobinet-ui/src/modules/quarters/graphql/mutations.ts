@@ -1,12 +1,10 @@
 const variables = `
-    $code: String!
     $name: String!
     $center: JSON
     $districtId: String
 `;
 
 const commonFields = `
-    code: $code
     name: $name
     center: $center
     districtId: $districtId
@@ -37,5 +35,5 @@ mutation QuartersRemove($_ids: [String]) {
 export default {
   addMutation,
   editMutation,
-  removeMutation
+  removeMutation,
 };

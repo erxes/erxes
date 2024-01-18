@@ -20,7 +20,7 @@ export const types = `
 
 const mutationParams = `
     name: String!
-    code: String!
+    
     cityId: String
     center: JSON
     isCapital: Boolean
