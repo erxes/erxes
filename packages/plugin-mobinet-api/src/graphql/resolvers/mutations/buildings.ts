@@ -197,7 +197,7 @@ const mutations = {
             mainType: 'ticket',
             mainTypeId: building.installationRequestIds[0],
             relType: 'customer',
-            relTypeId: user.erxesCustomerId,
+            relTypeId: customerId,
           },
         });
       } catch (error) {
