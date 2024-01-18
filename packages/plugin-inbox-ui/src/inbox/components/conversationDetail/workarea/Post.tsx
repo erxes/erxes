@@ -18,7 +18,6 @@ type Props = {
 
 export default function Post(props: Props) {
   const { PostInfo } = props;
-  console.log(typeof PostInfo, 'PostInfo');
 
   return (
     <Container>
