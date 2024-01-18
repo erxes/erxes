@@ -4,17 +4,22 @@ import { getFileUploadConfigs, sendInboxMessage } from './messageBroker';
 import {
   getFacebookUser,
   getFacebookUserProfilePic,
+  getPostDetails,
   getPostLink,
   uploadMedia
 } from './utils';
 import { IModels } from './connectionResolver';
 import { INTEGRATION_KINDS } from './constants';
+import { ICustomerDocument } from './models/definitions/customers';
+import { IPostDocument } from './models/definitions/posts';
+import { IIntegrationDocument } from './models/Integrations';
 import { putCreateLog } from './logUtils';
 
 interface IDoc {
   postId?: string;
   commentId?: string;
   recipientId: string;
+  customerId?: string;
   senderId: string;
   content: string;
   parentId?: string;
@@ -66,9 +71,9 @@ export const generatePostDoc = async (
   const doc: IDoc = {
     postId: post_id || id,
     content: message || '...',
-    recipientId: pageId,
     senderId: userId,
-    permalink_url: ''
+    permalink_url: '',
+    recipientId: pageId
   };
 
   if (link) {
@@ -95,7 +100,8 @@ export const generatePostDoc = async (
 const generateCommentDoc = (
   commentParams: ICommentParams,
   pageId: string,
-  userId: string
+  userId: string,
+  customerId: string
 ) => {
   const {
     photo,
@@ -115,7 +121,8 @@ const generateCommentDoc = (
     recipientId: pageId,
     senderId: userId,
     content: message || '...',
-    permalink_url: ''
+    permalink_url: '',
+    customerId
   };
 
   if (post_id !== parent_id) {
@@ -145,6 +152,70 @@ const generateCommentDoc = (
   return doc;
 };
 
+export const getOrCreatePostConversation = async (
+  models: IModels,
+  subdomain: string,
+  postId: string,
+  integration: IIntegrationDocument,
+  customer: ICustomerDocument,
+  params: ICommentParams
+) => {
+  const post = await models.Posts.findOne({
+    postId
+  });
+
+  if (!post) {
+    throw new Error('Post not found');
+  }
+
+  let postConversation = await models.PostConversations.findOne({
+    postId,
+    customerId: customer._id
+  });
+
+  if (!postConversation) {
+    postConversation = await models.PostConversations.create({
+      erxesApiId: integration.erxesApiId,
+      postId,
+      integrationId: integration._id,
+      content: post.content,
+      customerId: customer._id
+    });
+  }
+
+  // save on api
+  try {
+    const apiConversationResponse = await sendInboxMessage({
+      subdomain,
+      action: 'integrations.receive',
+      data: {
+        action: 'create-or-update-conversation',
+        payload: JSON.stringify({
+          customerId: customer.erxesApiId,
+          integrationId: integration.erxesApiId,
+          content: post.content,
+          attachments: [],
+          conversationId: postConversation.erxesApiId,
+          updatedAt: params.created_time
+            ? (params.created_time * 1000).toString()
+            : new Date().toISOString()
+        })
+      },
+      isRPC: true
+    });
+
+    postConversation.erxesApiId = apiConversationResponse._id;
+
+    await postConversation.save();
+  } catch (e) {
+    await models.PostConversations.deleteOne({
+      _id: postConversation._id
+    });
+    throw new Error(e);
+  }
+  return postConversation;
+};
+
 export const getOrCreatePost = async (
   models: IModels,
   subdomain: string,
@@ -153,7 +224,20 @@ export const getOrCreatePost = async (
   userId: string,
   customerErxesApiId: string
 ) => {
-  let post = await models.Posts.findOne({ postId: postParams.post_id });
+  const { post_id } = postParams;
+
+  if (!post_id) {
+    throw new Error('post_id is required');
+  }
+
+  let post = await models.Posts.findOne({
+    postId: post_id,
+    senderId: userId
+  });
+
+  if (post) {
+    return post;
+  }
 
   const integration = await models.Integrations.getIntegration({
     $and: [
@@ -163,10 +247,6 @@ export const getOrCreatePost = async (
   });
 
   const { facebookPageTokensMap = {} } = integration;
-
-  if (post) {
-    return post;
-  }
 
   const postUrl = await getPostLink(
     pageId,
@@ -213,25 +293,21 @@ export const getOrCreatePost = async (
 export const getOrCreateComment = async (
   models: IModels,
   subdomain: string,
+  conversationId: string,
   commentParams: ICommentParams,
   pageId: string,
   userId: string,
-  verb: string
+  verb: string,
+  integration: IIntegrationDocument,
+  customer: ICustomerDocument
 ) => {
   let comment = await models.Comments.findOne({
     commentId: commentParams.comment_id
   });
 
-  const integration = await models.Integrations.getIntegration({
-    $and: [
-      { facebookPageIds: { $in: pageId } },
-      { kind: INTEGRATION_KINDS.POST }
-    ]
-  });
-
   await models.Accounts.getAccount({ _id: integration.accountId });
 
-  const doc = generateCommentDoc(commentParams, pageId, userId);
+  const doc = generateCommentDoc(commentParams, pageId, userId, customer._id);
 
   if (verb && verb === 'edited') {
     await models.Comments.updateOne(
@@ -239,30 +315,13 @@ export const getOrCreateComment = async (
       { $set: { ...doc } }
     );
   }
-
   if (!comment) {
-    comment = await models.Comments.create(doc);
+    comment = await models.Comments.create({ ...doc, conversationId });
   }
 
-  const post = await models.Posts.findOne({ postId: comment.postId });
-
-  if (post) {
-    sendInboxMessage({
-      subdomain,
-      action: 'integrationsNotification',
-      data: {
-        action: 'external-integration-entry-added',
-        conversationId: post.erxesApiId
-      }
-    });
-  }
-
-  await putCreateLog(
-    models,
-    subdomain,
-    { type: 'comment', newData: comment, object: doc },
-    userId
-  );
+  return await models.Comments.getComment({
+    commentId: commentParams.comment_id
+  });
 };
 
 export const getOrCreateCustomer = async (

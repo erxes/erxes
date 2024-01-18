@@ -11,6 +11,7 @@ export interface IPost {
   attachments: string[];
   timestamp: Date;
   permalink_url: string;
+  customerId?: string;
 }
 
 export interface IPostDocument extends IPost, Document {}
@@ -23,8 +24,9 @@ export const postSchema = new Schema({
   content: String,
   attachments: [String],
   erxesApiId: String,
+  customerId: { type: String, optional: true },
   permalink_url: String,
   timestamp: Date
 });
 
-postSchema.index({ recipientId: 1, postId: 1 }, { unique: true });
+postSchema.index({ recipientId: 1, postId: 1 });

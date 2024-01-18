@@ -1,8 +1,12 @@
 import { IModels } from './connectionResolver';
-import { getOrCreateComment, getOrCreateCustomer } from './store';
+import {
+  getOrCreateComment,
+  getOrCreateCustomer,
+  getOrCreatePostConversation
+} from './store';
 import { ICommentParams } from './types';
 import { INTEGRATION_KINDS } from './constants';
-
+import { sendInboxMessage } from './messageBroker';
 const receiveComment = async (
   models: IModels,
   subdomain: string,
@@ -12,7 +16,17 @@ const receiveComment = async (
   const userId = params.from.id;
   const postId = params.post_id;
 
-  await getOrCreateCustomer(
+  const integration = await models.Integrations.findOne({
+    $and: [
+      { facebookPageIds: { $in: pageId } },
+      { kind: INTEGRATION_KINDS.POST }
+    ]
+  });
+
+  if (!integration) {
+    throw new Error('Integration not found');
+  }
+  const customer = await getOrCreateCustomer(
     models,
     subdomain,
     pageId,
@@ -20,20 +34,42 @@ const receiveComment = async (
     INTEGRATION_KINDS.POST
   );
 
-  const post = await models.Posts.findOne({ postId });
-
-  if (!post) {
-    throw new Error('Post not found');
-  }
-
-  return getOrCreateComment(
+  const postConversation = await getOrCreatePostConversation(
     models,
     subdomain,
+    postId,
+    integration,
+    customer,
+    params
+  );
+
+  await getOrCreateComment(
+    models,
+    subdomain,
+    postConversation._id,
     params,
     pageId,
     userId,
-    params.verb || ''
+    params.verb || '',
+    integration,
+    customer
   );
+  try {
+    await sendInboxMessage({
+      subdomain,
+      action: 'conversationClientMessageInserted',
+      data: {
+        integrationId: integration.erxesApiId,
+        conversationId: postConversation.erxesApiId
+      }
+    });
+  } catch (e) {
+    throw new Error(
+      e.message.includes('duplicate')
+        ? 'Concurrent request: conversation message duplication'
+        : e
+    );
+  }
 };
 
 export default receiveComment;

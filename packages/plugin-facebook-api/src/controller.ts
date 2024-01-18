@@ -81,8 +81,6 @@ const init = async app => {
 
     const data = req.body;
 
-    console.log('Facebook receive data', data);
-
     if (data.object !== 'page') {
       return;
     }

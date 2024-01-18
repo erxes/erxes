@@ -31,10 +31,10 @@ interface IMessagesParams extends IConversationId, IPageParams {
   getFirst?: boolean;
 }
 
-const buildSelector = async (conversationId: string, models: IModels) => {
+const buildSelector = async (conversationId: string, model: any) => {
   const query = { conversationId: '' };
 
-  const conversation = await models.Conversations.findOne({
+  const conversation = await model.findOne({
     erxesApiId: conversationId
   });
 
@@ -216,7 +216,7 @@ const facebookQueries = {
     const { conversationId, limit, skip, getFirst } = args;
 
     let messages: IConversationMessageDocument[] = [];
-    const query = await buildSelector(conversationId, models);
+    const query = await buildSelector(conversationId, models.Conversations);
 
     if (limit) {
       const sort = getFirst ? { createdAt: 1 } : { createdAt: -1 };
@@ -244,7 +244,7 @@ const facebookQueries = {
     { conversationId }: { conversationId: string },
     { models }: IContext
   ) {
-    const selector = await buildSelector(conversationId, models);
+    const selector = await buildSelector(conversationId, models.Conversations);
 
     return models.ConversationMessages.countDocuments(selector);
   },
@@ -259,7 +259,6 @@ const facebookQueries = {
     { models, subdomain }: IContext
   ) {
     const commonParams = { isRPC: true, subdomain };
-
     const inboxConversation = await sendInboxMessage({
       ...commonParams,
       action: 'conversations.findOne',
@@ -280,7 +279,7 @@ const facebookQueries = {
       return false;
     }
 
-    const query = await buildSelector(conversationId, models);
+    const query = await buildSelector(conversationId, models.Conversations);
 
     const messages = await models.ConversationMessages.find({
       ...query,
@@ -295,6 +294,33 @@ const facebookQueries = {
     }
 
     return true;
+  },
+
+  async facebookPostMessages(
+    _root,
+    args: IMessagesParams,
+    { models }: IContext
+  ) {
+    const { conversationId, limit, skip, getFirst } = args;
+    let messages: any[] = [];
+    const query = await buildSelector(conversationId, models.PostConversations);
+
+    if (limit) {
+      const sort = getFirst ? { createdAt: 1 } : { createdAt: -1 };
+
+      messages = await models.Comments.find(query)
+        .sort(sort)
+        .skip(skip || 0)
+        .limit(limit);
+
+      return getFirst ? messages : messages.reverse();
+    }
+
+    messages = await models.Comments.find(query)
+      .sort({ createdAt: -1 })
+      .limit(50);
+
+    return messages.reverse();
   },
 
   async facebootMessengerBots(_root, _args, { models }: IContext) {

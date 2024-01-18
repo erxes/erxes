@@ -37,6 +37,7 @@ type FinalProps = {
   commentsCountQuery: FacebookCommentsCountQueryResponse;
   internalNotesQuery: MessagesQueryResponse;
   postQuery: FacebookPostQueryResponse;
+  postMessagesQuery: MessagesQueryResponse;
 } & Props;
 
 class FacebookPostContainer extends React.Component<FinalProps> {
@@ -144,14 +145,16 @@ class FacebookPostContainer extends React.Component<FinalProps> {
       conversation,
       internalNotesQuery,
       commentsCountQuery,
-      postQuery
+      postQuery,
+      postMessagesQuery
     } = this.props;
 
     if (
       postQuery.loading ||
       commentsQuery.loading ||
       internalNotesQuery.loading ||
-      commentsCountQuery.loading
+      commentsCountQuery.loading ||
+      postMessagesQuery.loading
     ) {
       return <Spinner />;
     }
@@ -231,6 +234,21 @@ const WithQuery = withProps<Props & { currentUser: IUser }>(
       gql(inboxQueries.conversationMessages),
       {
         name: 'internalNotesQuery',
+        options: ({ currentId }) => {
+          return {
+            variables: {
+              conversationId: currentId
+            },
+            fetchPolicy: 'network-only'
+          };
+        }
+      }
+    ),
+
+    graphql<Props, MessagesQueryResponse, { conversationId: string }>(
+      gql(queries.facebookGetPostMessages),
+      {
+        name: 'postMessagesQuery',
         options: ({ currentId }) => {
           return {
             variables: {
