@@ -4,7 +4,7 @@ import {
   FilterButton,
   MenuFooter,
   RightMenuContainer,
-  TabContent
+  TabContent,
 } from '../styles/rightMenu';
 import { DATERANGES, PRIORITIES } from '../constants';
 import { TabTitle, Tabs } from '@erxes/ui/src/components/tabs';
@@ -20,7 +20,7 @@ import Icon from '@erxes/ui/src/components/Icon';
 import RTG from 'react-transition-group';
 import React from 'react';
 import SegmentFilter from '../containers/SegmentFilter';
-import Select from 'react-select-plus';
+// import Select from 'react-select-plus';
 import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
 import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
 import SelectLabel from './label/SelectLabel';
@@ -60,7 +60,7 @@ export default class RightMenu extends React.Component<Props, State> {
       currentTab: 'Filter',
       dateRangeType: '',
       showMenu: false,
-      dateRange: {} as any
+      dateRange: {} as any,
     };
 
     this.setWrapperRef = this.setWrapperRef.bind(this);
@@ -79,7 +79,7 @@ export default class RightMenu extends React.Component<Props, State> {
     document.removeEventListener('click', this.handleClickOutside, true);
   }
 
-  handleClickOutside = event => {
+  handleClickOutside = (event) => {
     if (
       this.wrapperRef &&
       !this.wrapperRef.contains(event.target) &&
@@ -104,36 +104,36 @@ export default class RightMenu extends React.Component<Props, State> {
     this.setState({ [name]: value } as Pick<StringState, keyof StringState>);
   };
 
-  onTypeChange = type => {
+  onTypeChange = (type) => {
     return this.setState({ dateRangeType: type.value }, () => {
       switch (this.state.dateRangeType) {
         case 'createdAt':
           return this.setState({
             dateRange: {
               startDate: 'createdStartDate',
-              endDate: 'createdEndDate'
-            }
+              endDate: 'createdEndDate',
+            },
           });
         case 'stageChangedDate':
           return this.setState({
             dateRange: {
               startDate: 'stateChangedStartDate',
-              endDate: 'stateChangedEndDate'
-            }
+              endDate: 'stateChangedEndDate',
+            },
           });
         case 'startDate':
           return this.setState({
             dateRange: {
               startDate: 'startDateStartDate',
-              endDate: 'startDateEndDate'
-            }
+              endDate: 'startDateEndDate',
+            },
           });
         case 'closeDate':
           return this.setState({
             dateRange: {
               startDate: 'closeDateStartDate',
-              endDate: 'closeDateEndDate'
-            }
+              endDate: 'closeDateEndDate',
+            },
           });
       }
     });
@@ -237,7 +237,7 @@ export default class RightMenu extends React.Component<Props, State> {
 
     const selected = queryParams[key] === value;
 
-    const onClick = _e => {
+    const onClick = (_e) => {
       onSelect(value, key);
     };
 
@@ -253,20 +253,20 @@ export default class RightMenu extends React.Component<Props, State> {
     const { queryParams, onSelect, extraFilter, options } = this.props;
     const { dateRangeType, dateRange } = this.state;
 
-    const priorityValues = PRIORITIES.map(p => ({
+    const priorityValues = PRIORITIES.map((p) => ({
       label: p,
-      value: p
+      value: p,
     }));
-    const daterangeValues = DATERANGES.map(p => ({
+    const daterangeValues = DATERANGES.map((p) => ({
       label: p.name,
-      value: p.value
+      value: p.value,
     }));
     const priorities = queryParams ? queryParams.priority : [];
 
     const onPrioritySelect = (ops: IOption[]) =>
       onSelect(
-        ops.map(option => option.value),
-        'priority'
+        ops.map((option) => option.value),
+        'priority',
       );
 
     return (
@@ -296,7 +296,7 @@ export default class RightMenu extends React.Component<Props, State> {
           initialValue={queryParams.departmentIds}
           onSelect={onSelect}
         />
-        <Select
+        {/* <Select
           placeholder={__('Filter by priority')}
           value={priorities}
           options={priorityValues}
@@ -304,7 +304,7 @@ export default class RightMenu extends React.Component<Props, State> {
           onChange={onPrioritySelect}
           multi={true}
           loadingPlaceholder={__('Loading...')}
-        />
+        /> */}
 
         <SelectTeamMembers
           label="Filter by team members"
@@ -313,7 +313,7 @@ export default class RightMenu extends React.Component<Props, State> {
           onSelect={onSelect}
           customOption={{
             value: '',
-            label: 'Assigned to no one'
+            label: 'Assigned to no one',
           }}
         />
 
@@ -322,7 +322,7 @@ export default class RightMenu extends React.Component<Props, State> {
           name="labelIds"
           onSelect={onSelect}
           filterParams={{
-            pipelineId: queryParams.pipelineId || ''
+            pipelineId: queryParams.pipelineId || '',
           }}
           multi={true}
           customOption={{ value: '', label: 'No label chosen' }}
@@ -332,20 +332,20 @@ export default class RightMenu extends React.Component<Props, State> {
 
         <ControlLabel>Date range:</ControlLabel>
 
-        <Select
+        {/* <Select
           placeholder={__('Choose date range type')}
           value={this.dateRangeType() || dateRangeType}
           options={daterangeValues}
           name="daterangeType"
           onChange={this.onTypeChange}
-        />
+        /> */}
 
         <CustomRangeContainer>
           <DateControl
             value={this.startDateValue()}
             required={false}
             name={dateRange.startDate}
-            onChange={date =>
+            onChange={(date) =>
               this.onChangeRangeFilter(dateRange.startDate, date)
             }
             placeholder={'Start date'}
@@ -357,7 +357,9 @@ export default class RightMenu extends React.Component<Props, State> {
             required={false}
             name={dateRange.endDate}
             placeholder={'End date'}
-            onChange={date => this.onChangeRangeFilter(dateRange.endDate, date)}
+            onChange={(date) =>
+              this.onChangeRangeFilter(dateRange.endDate, date)
+            }
             dateFormat={'YYYY-MM-DD'}
           />
         </CustomRangeContainer>

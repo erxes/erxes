@@ -1,38 +1,33 @@
+import { Route, Routes, useParams } from 'react-router-dom';
+
 import React from 'react';
-import { Route } from 'react-router-dom';
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 
-const Store = asyncComponent(() =>
-  import(/* webpackChunkName: "Store" */ './containers/Store')
+const Store = asyncComponent(
+  () => import(/* webpackChunkName: "Store" */ './containers/Store'),
 );
 
-const PluginDetails = asyncComponent(() =>
-  import(/* webpackChunkName: "Store" */ './containers/PluginDetails')
+const PluginDetails = asyncComponent(
+  () => import(/* webpackChunkName: "Store" */ './containers/PluginDetails'),
 );
 
-const detail = ({ match }) => {
-  const id = match.params.id;
+const Detail = () => {
+  const id = useParams();
 
   return <PluginDetails id={id} />;
 };
 
 const routes = () => {
   return (
-    <React.Fragment>
+    <Routes>
       <Route
         key="/marketplace/details/:id"
-        exact={true}
         path="/marketplace/details/:id"
-        component={detail}
+        element={<Detail />}
       />
 
-      <Route
-        path="/marketplace"
-        exact={true}
-        key="/marketplace"
-        component={Store}
-      />
-    </React.Fragment>
+      <Route path="/marketplace" key="/marketplace" element={Store} />
+    </Routes>
   );
 };
 

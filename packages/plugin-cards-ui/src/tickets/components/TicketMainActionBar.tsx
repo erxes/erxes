@@ -3,7 +3,7 @@ import { INTEGRATION_KINDS } from '@erxes/ui/src/constants/integrations';
 import { IOption } from '@erxes/ui/src/types';
 import MainActionBar from '@erxes/ui-cards/src/boards/components/MainActionBar';
 import React from 'react';
-import Select from 'react-select-plus';
+// import Select from 'react-select-plus';
 import SelectCompanies from '@erxes/ui-contacts/src/companies/containers/SelectCompanies';
 import SelectCustomers from '@erxes/ui-contacts/src/customers/containers/SelectCustomers';
 import { __ } from 'coreui/utils';
@@ -29,26 +29,26 @@ const TicketMainActionBar = (props: Props) => {
 
   const viewType = getBoardViewType();
 
-  const sourceValues = INTEGRATION_KINDS.ALL.map(kind => ({
+  const sourceValues = INTEGRATION_KINDS.ALL.map((kind) => ({
     label: kind.text,
-    value: kind.value
+    value: kind.value,
   }));
 
   sourceValues.push({
     label: 'Other',
-    value: 'other'
+    value: 'other',
   });
 
   const sources = queryParams ? queryParams.source : [];
   const onSourceSelect = (ops: IOption[]) =>
     onSelect(
-      ops.map(option => option.value),
-      'source'
+      ops.map((option) => option.value),
+      'source',
     );
 
   const extraFilter = (
     <>
-      <Select
+      {/* <Select
         placeholder={__('Choose a source')}
         value={sources}
         options={sourceValues}
@@ -56,7 +56,7 @@ const TicketMainActionBar = (props: Props) => {
         onChange={onSourceSelect}
         multi={true}
         loadingPlaceholder={__('Loading...')}
-      />
+      /> */}
 
       {isEnabled('contacts') && (
         <>
@@ -82,7 +82,7 @@ const TicketMainActionBar = (props: Props) => {
     ...props,
     options,
     extraFilter,
-    link: `/ticket/${viewType}`
+    link: `/ticket/${viewType}`,
   };
 
   return <MainActionBar viewType={viewType} {...extendedProps} />;

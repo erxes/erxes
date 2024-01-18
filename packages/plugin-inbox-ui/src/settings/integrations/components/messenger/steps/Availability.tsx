@@ -8,7 +8,7 @@ import { IOnlineHour } from '@erxes/ui-inbox/src/settings/integrations/types';
 import OnlineHours from './OnlineHours';
 import { RESPOND_RATES } from '../../../constants';
 import React from 'react';
-import Select from 'react-select-plus';
+// import Select from 'react-select-plus';
 import Toggle from '@erxes/ui/src/components/Toggle';
 import { ToggleWrapper } from '../widgetPreview/styles';
 import { __ } from '@erxes/ui/src/utils';
@@ -24,7 +24,7 @@ type Props = {
       | 'showTimezone'
       | 'timezone'
       | 'hideWhenOffline',
-    value: string
+    value: string,
   ) => void;
   isOnline: boolean;
   hideWhenOffline?: boolean;
@@ -52,7 +52,7 @@ class Availability extends React.Component<Props> {
     this.props.onChange(name, value);
   };
 
-  onOnlineHoursChange = onlineHours => {
+  onOnlineHoursChange = (onlineHours) => {
     this.setState({ onlineHours });
     this.props.onChange('onlineHours', onlineHours);
   };
@@ -75,7 +75,7 @@ class Availability extends React.Component<Props> {
       return null;
     }
 
-    const onChange = e => this.onChangeFunction('isOnline', e.target.checked);
+    const onChange = (e) => this.onChangeFunction('isOnline', e.target.checked);
 
     return (
       <FormGroup>
@@ -86,7 +86,7 @@ class Availability extends React.Component<Props> {
             onChange={onChange}
             icons={{
               checked: <span>Yes</span>,
-              unchecked: <span>No</span>
+              unchecked: <span>No</span>,
             }}
           />
         </ToggleWrapper>
@@ -97,10 +97,10 @@ class Availability extends React.Component<Props> {
   renderShowTimezone() {
     const { timezone = '' } = this.props;
 
-    const onChange = e =>
+    const onChange = (e) =>
       this.onChangeFunction('showTimezone', e.target.checked);
 
-    const timezoneOnChange = e => this.onSelectChange(e, 'timezone');
+    const timezoneOnChange = (e) => this.onSelectChange(e, 'timezone');
 
     return (
       <React.Fragment>
@@ -108,14 +108,14 @@ class Availability extends React.Component<Props> {
           <ControlLabel>{__('Default Timezone')}</ControlLabel>
           <Description>
             {__(
-              "This timezone will be calculated if supporters haven't chosen one."
+              "This timezone will be calculated if supporters haven't chosen one.",
             )}
           </Description>
-          <Select
+          {/* <Select
             value={timezone}
             options={timezones}
             onChange={timezoneOnChange}
-          />
+          /> */}
         </FormGroup>
         <FormGroup>
           <ControlLabel required={true}>
@@ -124,7 +124,7 @@ class Availability extends React.Component<Props> {
           <Description>
             {' '}
             {__(
-              'Display chat operator timezone set in their location in team member profiles'
+              'Display chat operator timezone set in their location in team member profiles',
             )}
           </Description>
           <ToggleWrapper>
@@ -133,7 +133,7 @@ class Availability extends React.Component<Props> {
               onChange={onChange}
               icons={{
                 checked: <span>Yes</span>,
-                unchecked: <span>No</span>
+                unchecked: <span>No</span>,
               }}
             />
           </ToggleWrapper>
@@ -149,7 +149,7 @@ class Availability extends React.Component<Props> {
       return null;
     }
 
-    const onChange = e =>
+    const onChange = (e) =>
       this.onChangeFunction('hideWhenOffline', e.target.checked);
 
     return (
@@ -160,7 +160,7 @@ class Availability extends React.Component<Props> {
           </ControlLabel>
           <Description>
             {__(
-              "Forcibly hide the messenger when you're offline. This will hide the messenger from your website visitors."
+              "Forcibly hide the messenger when you're offline. This will hide the messenger from your website visitors.",
             )}
           </Description>
 
@@ -170,7 +170,7 @@ class Availability extends React.Component<Props> {
               onChange={onChange}
               icons={{
                 checked: <span>Yes</span>,
-                unchecked: <span>No</span>
+                unchecked: <span>No</span>,
               }}
             />
           </ToggleWrapper>
@@ -180,13 +180,13 @@ class Availability extends React.Component<Props> {
   }
 
   render() {
-    const onChange = e =>
+    const onChange = (e) =>
       this.onChangeFunction(
         'availabilityMethod',
-        (e.currentTarget as HTMLInputElement).value
+        (e.currentTarget as HTMLInputElement).value,
       );
 
-    const respondTypeOnChange = e => this.onSelectChange(e, 'responseRate');
+    const respondTypeOnChange = (e) => this.onSelectChange(e, 'responseRate');
 
     return (
       <FlexItem>
@@ -221,13 +221,13 @@ class Availability extends React.Component<Props> {
             <Description>
               {__('Set to display your pre defined response rate')}
             </Description>
-            <Select
+            {/* <Select
               required={true}
               value={this.props.responseRate}
               options={RESPOND_RATES}
               onChange={respondTypeOnChange}
               clearable={false}
-            />
+            /> */}
           </FormGroup>
 
           {this.renderShowTimezone()}

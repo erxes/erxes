@@ -2,7 +2,7 @@ import { ControlLabel, FormControl } from '@erxes/ui/src/components/form';
 import {
   FilterContainer,
   InputBar,
-  Title
+  Title,
 } from '@erxes/ui-settings/src/styles';
 import { FlexItem, FlexRow } from '@erxes/ui-settings/src/styles';
 import React, { useState } from 'react';
@@ -13,7 +13,7 @@ import { IUserGroup } from '@erxes/ui-settings/src/permissions/types';
 import Icon from '@erxes/ui/src/components/Icon';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import Pagination from 'modules/common/components/pagination/Pagination';
-import Select from 'react-select-plus';
+// import Select from 'react-select-plus';
 import SelectBrands from '@erxes/ui/src/brands/containers/SelectBrands';
 import Sidebar from './Sidebar';
 import UserInvitationForm from '../containers/UserInvitationForm';
@@ -26,7 +26,7 @@ import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 
 const ActiveColor = styledTS<{ active: boolean }>(styled.div)`
-  background: ${props =>
+  background: ${(props) =>
     props.active === true ? colors.colorCoreGreen : colors.colorCoreYellow};
   border-radius: 50%;
   height: 10px;
@@ -50,12 +50,12 @@ export default function Home(props: Props) {
     history,
     loading,
     configsEnvQuery = {},
-    totalCount
+    totalCount,
   } = props;
   const [searchValue, setSearchValue] = useState('');
   const [active, setActive] = useState(true);
 
-  const search = e => {
+  const search = (e) => {
     if (timer) {
       clearTimeout(timer);
     }
@@ -69,16 +69,16 @@ export default function Home(props: Props) {
     }, 500);
   };
 
-  const moveCursorAtTheEnd = e => {
+  const moveCursorAtTheEnd = (e) => {
     const tmpValue = e.target.value;
     e.target.value = '';
     e.target.value = tmpValue;
   };
 
-  const onStatusChange = (status: { label: string; value: boolean }) => {
-    router.setParams(history, { isActive: status.value });
-    setActive(status.value);
-  };
+  // const onStatusChange = (status: { label: string; value: boolean }) => {
+  //   router.setParams(history, { isActive: status.value });
+  //   setActive(status.value);
+  // };
 
   const renderBrandChooser = () => {
     const env = configsEnvQuery.configsGetEnv || {};
@@ -87,7 +87,7 @@ export default function Home(props: Props) {
       return null;
     }
 
-    const onSelect = brandIds => {
+    const onSelect = (brandIds) => {
       router.setParams(history, { brandIds });
     };
 
@@ -111,7 +111,7 @@ export default function Home(props: Props) {
     </Title>
   );
 
-  const renderInvitationForm = formProps => {
+  const renderInvitationForm = (formProps) => {
     const { usersGroups, renderButton } = props;
 
     return (
@@ -149,7 +149,7 @@ export default function Home(props: Props) {
         <InputBar type="active">
           <ActiveColor active={active} />
           <FlexItem>
-            <Select
+            {/* <Select
               placeholder={__('Choose status')}
               value={queryParams.isActive || true}
               onChange={onStatusChange}
@@ -164,7 +164,7 @@ export default function Home(props: Props) {
                   label: __('Deactivated')
                 }
               ]}
-            />
+            /> */}
           </FlexItem>
         </InputBar>
         <ModalTrigger

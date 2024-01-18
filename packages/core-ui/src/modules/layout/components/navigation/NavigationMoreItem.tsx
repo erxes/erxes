@@ -3,7 +3,7 @@ import {
   NavIcon,
   NavItem,
   NavMenuItem,
-  RoundBox
+  RoundBox,
 } from '../../styles';
 
 import { NavLink } from 'react-router-dom';
@@ -30,7 +30,7 @@ export default function NavigationMoreItem(props: Props) {
     isPinnable,
     isPinned,
     handleOnClick,
-    toggleMenu
+    toggleMenu,
   } = props;
 
   return (
@@ -40,9 +40,9 @@ export default function NavigationMoreItem(props: Props) {
       actions={plugin.permissions ? plugin.permissions : []}
     >
       <MoreItemRecent>
-        <NavItem isMoreItem={true}>
+        <NavItem $isMoreItem={true}>
           <Tip placement="top" text={plugin.text}>
-            <NavMenuItem isMoreItem={true} navCollapse={navCollapse}>
+            <NavMenuItem $isMoreItem={true} $navCollapse={navCollapse}>
               <NavLink
                 to={getLink(plugin.url)}
                 onClick={() => toggleMenu(plugin.text)}

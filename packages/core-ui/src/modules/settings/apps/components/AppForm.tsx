@@ -1,15 +1,15 @@
-import React from 'react';
-import Select from 'react-select-plus';
-import Datetime from '@nateradebaugh/react-datetime';
-import dayjs from 'dayjs';
+import { Alert, __ } from 'modules/common/utils';
+import { IApp, IAppParams } from '../types';
 
 import Button from 'modules/common/components/Button';
-import { ModalFooter } from 'modules/common/styles/main';
+import ControlLabel from 'modules/common/components/form/Label';
+// import Select from 'react-select-plus';
+import Datetime from '@nateradebaugh/react-datetime';
 import FormControl from 'modules/common/components/form/Control';
 import FormGroup from 'modules/common/components/form/Group';
-import ControlLabel from 'modules/common/components/form/Label';
-import { __, Alert } from 'modules/common/utils';
-import { IApp, IAppParams } from '../types';
+import { ModalFooter } from 'modules/common/styles/main';
+import React from 'react';
+import dayjs from 'dayjs';
 
 type Props = {
   userGroups: any[];
@@ -35,10 +35,8 @@ export default class AppForm extends React.Component<Props, State> {
       app = {
         userGroupId: '',
         name: '',
-        expireDate: dayjs()
-          .add(30, 'day')
-          .toDate()
-      }
+        expireDate: dayjs().add(30, 'day').toDate(),
+      },
     } = props;
 
     this.state = {
@@ -46,30 +44,26 @@ export default class AppForm extends React.Component<Props, State> {
       name: app.name,
       expireDate: app.expireDate,
       noExpire: false,
-      allowAllPermission: false
+      allowAllPermission: false,
     };
   }
 
   render() {
     const { app, userGroups = [], closeModal, addApp, editApp } = this.props;
-    const {
-      userGroupId,
-      expireDate,
-      allowAllPermission,
-      noExpire
-    } = this.state;
+    const { userGroupId, expireDate, allowAllPermission, noExpire } =
+      this.state;
 
-    const onGroupChange = option => {
+    const onGroupChange = (option) => {
       const value = option ? option.value : '';
 
       this.setState({ userGroupId: value });
     };
 
-    const onDateChange = val => {
+    const onDateChange = (val) => {
       this.setState({ expireDate: val });
     };
 
-    const options = userGroups.map(g => ({ value: g._id, label: g.name }));
+    const options = userGroups.map((g) => ({ value: g._id, label: g.name }));
 
     const onSubmit = (e: React.FormEvent) => {
       e.preventDefault();
@@ -81,7 +75,7 @@ export default class AppForm extends React.Component<Props, State> {
       }
       if (!userGroupId && !allowAllPermission) {
         return Alert.warning(
-          __('User group or allow all permission must be chosen')
+          __('User group or allow all permission must be chosen'),
         );
       }
 
@@ -90,7 +84,7 @@ export default class AppForm extends React.Component<Props, State> {
         userGroupId,
         expireDate,
         allowAllPermission,
-        noExpire
+        noExpire,
       };
 
       if (app) {
@@ -110,12 +104,12 @@ export default class AppForm extends React.Component<Props, State> {
         </FormGroup>
         <FormGroup>
           <ControlLabel>{__('User group')}</ControlLabel>
-          <Select
+          {/* <Select
             placeholder={__('Choose user group')}
             options={options}
             value={this.state.userGroupId}
             onChange={opt => onGroupChange(opt)}
-          />
+          /> */}
         </FormGroup>
         <FormGroup>
           <ControlLabel>{__('Expire date')}</ControlLabel>
@@ -145,7 +139,7 @@ export default class AppForm extends React.Component<Props, State> {
             componentClass="checkbox"
             onChange={() =>
               this.setState({
-                allowAllPermission: !this.state.allowAllPermission
+                allowAllPermission: !this.state.allowAllPermission,
               })
             }
           />

@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { IUser } from '@erxes/ui/src/auth/types';
-import Select from 'react-select-plus';
+// import Select from 'react-select-plus';
 import { __ } from 'modules/common/utils';
 import { gql } from '@apollo/client';
 import { queries } from '@erxes/ui/src/team/graphql';
@@ -26,42 +26,44 @@ export default function SelectStructureMembers({
   excludeUserIds,
   name,
   isAllUsers,
-  placeholder
+  placeholder,
 }: Props) {
   const queryName = isAllUsers ? 'allUsers' : 'noDepartmentUsers';
   const variables = isAllUsers ? { isActive: true } : { excludeId: objectId };
 
   const { loading, data } = useQuery(gql(queries[queryName]), {
     variables,
-    fetchPolicy: 'network-only'
+    fetchPolicy: 'network-only',
   });
   const [users, setUsers] = useState([] as IUser[]);
 
   useEffect(() => {
     if (!loading) {
       const filteredUsers = data[queryName].filter(
-        u => !excludeUserIds.includes(u._id)
+        (u) => !excludeUserIds.includes(u._id),
       );
 
       setUsers(filteredUsers);
     }
   }, [excludeUserIds, data, loading, queryName]);
 
-  return (
-    <Select
-      name={name}
-      multi={multi}
-      placeholder={placeholder}
-      label={__('Choose team members')}
-      value={value}
-      onChange={onSelect}
-      options={users.map(user => ({
-        value: user._id,
-        label: user.details
-          ? user.details.fullName || user.details.firstName || user.email
-          : user.username || user.email,
-        avatar: user.details ? user.details.avatar : ''
-      }))}
-    />
-  );
+  return null;
+
+  // return (
+  //   <Select
+  //     name={name}
+  //     multi={multi}
+  //     placeholder={placeholder}
+  //     label={__('Choose team members')}
+  //     value={value}
+  //     onChange={onSelect}
+  //     options={users.map(user => ({
+  //       value: user._id,
+  //       label: user.details
+  //         ? user.details.fullName || user.details.firstName || user.email
+  //         : user.username || user.email,
+  //       avatar: user.details ? user.details.avatar : ''
+  //     }))}
+  //   />
+  // );
 }

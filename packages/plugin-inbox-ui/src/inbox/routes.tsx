@@ -1,11 +1,12 @@
-import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
-import { IRouterProps } from '@erxes/ui/src/types';
-import queryString from 'query-string';
-import React from 'react';
 import { Redirect, Route } from 'react-router-dom';
 
-const InboxComponent = asyncComponent(() =>
-  import(/* webpackChunkName: "InboxCore"   */ './containers/InboxCore')
+import { IRouterProps } from '@erxes/ui/src/types';
+import React from 'react';
+import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
+import queryString from 'query-string';
+
+const InboxComponent = asyncComponent(
+  () => import(/* webpackChunkName: "InboxCore"   */ './containers/InboxCore'),
 );
 
 const index = ({ location }) => {
@@ -23,7 +24,7 @@ const inbox = (props: IRouterProps) => {
 
 const routes = () => {
   return (
-    <React.Fragment>
+    <>
       <Route exact={true} path="/inbox" key="inbox" render={index} />
       <Route
         exact={true}
@@ -31,7 +32,7 @@ const routes = () => {
         key="inbox/index"
         render={inbox}
       />
-    </React.Fragment>
+    </>
   );
 };
 

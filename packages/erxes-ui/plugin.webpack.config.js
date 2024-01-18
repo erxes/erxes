@@ -22,7 +22,6 @@ const depNames = [
   "react-bootstrap",
   "react-dom",
   "react-router-dom",
-  "react-select-plus",
   "react-transition-group",
   "styled-components",
   "styled-components-ts",

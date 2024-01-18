@@ -6,7 +6,7 @@ import FormGroup from '@erxes/ui/src/components/form/Group';
 import { LANGUAGES } from '@erxes/ui-settings/src/general/constants';
 import { LeftItem } from '@erxes/ui/src/components/step/styles';
 import React from 'react';
-import Select from 'react-select-plus';
+// import Select from 'react-select-plus';
 import SelectBrand from '@erxes/ui-inbox/src/settings/integrations/containers/SelectBrand';
 import SelectChannels from '@erxes/ui-inbox/src/settings/integrations/containers/SelectChannels';
 
@@ -25,7 +25,7 @@ function SettingsStep({
   title,
   brandId,
   channelIds,
-  languageCode
+  languageCode,
 }: Props) {
   const onChangeSelect = (key: Name, e: any) => {
     let value = e;
@@ -62,13 +62,13 @@ function SettingsStep({
         <FormGroup>
           <SelectChannels
             defaultValue={channelIds}
-            onChange={e => onChange('channelIds', e)}
+            onChange={(e) => onChange('channelIds', e)}
           />
         </FormGroup>
 
         <FormGroup>
           <ControlLabel required={true}>Language</ControlLabel>
-          <Select
+          {/* <Select
             placeholder="Choose language"
             options={LANGUAGES.map(el => ({
               label: el.label,
@@ -76,7 +76,7 @@ function SettingsStep({
             }))}
             value={languageCode}
             onChange={e => onChangeSelect('languageCode', e)}
-          />
+          /> */}
         </FormGroup>
       </LeftItem>
     </FlexItemContainer>

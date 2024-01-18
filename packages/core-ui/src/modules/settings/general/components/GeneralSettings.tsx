@@ -3,27 +3,22 @@ import {
   ContentBox,
   FlexRow,
   ImageWrapper,
-  Title
+  Title,
 } from '@erxes/ui-settings/src/styles';
 import {
-  DATA_RETENTION_DURATION,
   FILE_MIME_TYPES,
-  FILE_SYSTEM_TYPES,
   KEY_LABELS,
-  LANGUAGES,
-  LOG_RETENTION_DURATION,
-  SERVICE_TYPES
 } from '@erxes/ui-settings/src/general/constants';
 import {
   __,
   loadDynamicComponent,
   readFile,
-  uploadHandler
+  uploadHandler,
 } from 'modules/common/utils';
 
 import ActivateInstallation from './ActivateInstallation';
 import Button from 'modules/common/components/Button';
-import CURRENCIES from '@erxes/ui/src/constants/currencies';
+// import CURRENCIES from '@erxes/ui/src/constants/currencies';
 import CollapseContent from 'modules/common/components/CollapseContent';
 import ControlLabel from 'modules/common/components/form/Label';
 import EmailConfigForm from '@erxes/ui-settings/src/general/components/EmailConfigForm';
@@ -36,7 +31,7 @@ import Info from 'modules/common/components/Info';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
 import React from 'react';
-import Select from 'react-select-plus';
+// import Select from 'react-select-plus';
 import { SelectTeamMembers } from '@erxes/ui/src';
 import TwitterPicker from 'react-color/lib/Twitter';
 import Wrapper from 'modules/layout/components/Wrapper';
@@ -62,11 +57,11 @@ class GeneralSettings extends React.Component<Props, State> {
     this.state = {
       configsMap: props.configsMap,
       language: props.currentLanguage,
-      isSaved: false
+      isSaved: false,
     };
   }
 
-  save = e => {
+  save = (e) => {
     e.preventDefault();
 
     const { configsMap, language } = this.state;
@@ -96,7 +91,7 @@ class GeneralSettings extends React.Component<Props, State> {
     let value = values;
 
     if (Array.isArray(values)) {
-      value = values.map(el => el.value);
+      value = values.map((el) => el.value);
     }
 
     this.onChangeConfig(code, value);
@@ -110,7 +105,7 @@ class GeneralSettings extends React.Component<Props, State> {
     this.onChangeConfig(code, e.target.value);
   };
 
-  onLanguageChange = language => {
+  onLanguageChange = (language) => {
     this.setState({ language: language.value });
   };
 
@@ -134,7 +129,7 @@ class GeneralSettings extends React.Component<Props, State> {
     this.onChangeConfig(field, e.hex);
   };
 
-  renderColorPicker = field => {
+  renderColorPicker = (field) => {
     const { configsMap } = this.state;
     const value = configsMap[field];
 
@@ -178,7 +173,7 @@ class GeneralSettings extends React.Component<Props, State> {
 
       afterRead: ({ result }) => {
         return;
-      }
+      },
     });
   };
 
@@ -203,10 +198,10 @@ class GeneralSettings extends React.Component<Props, State> {
   renderConstant(kind: string) {
     const { constants } = this.props;
     const { configsMap } = this.state;
-    const allValues = constants.allValues || {};
+    // const allValues = constants.allValues || {};
     const defaultValues = constants.defaultValues || {};
 
-    const constant = allValues[kind] || [];
+    // const constant = allValues[kind] || [];
 
     let value = configsMap[kind];
 
@@ -218,12 +213,12 @@ class GeneralSettings extends React.Component<Props, State> {
       <FormGroup>
         <ControlLabel>{KEY_LABELS[kind]}</ControlLabel>
 
-        <Select
+        {/* <Select
           options={constant}
           value={value}
           onChange={this.onChangeMultiCombo.bind(this, kind)}
           multi={true}
-        />
+        /> */}
       </FormGroup>
     );
   }
@@ -270,7 +265,7 @@ class GeneralSettings extends React.Component<Props, State> {
 
     const breadcrumb = [
       { title: __('Settings'), link: '/settings' },
-      { title: __('General system config') }
+      { title: __('General system config') },
     ];
 
     const actionButtons = (
@@ -284,12 +279,12 @@ class GeneralSettings extends React.Component<Props, State> {
       </Button>
     );
 
-    const mimeTypeOptions = FILE_MIME_TYPES.map(item => ({
+    const mimeTypeOptions = FILE_MIME_TYPES.map((item) => ({
       value: item.value,
-      label: `${item.label} (${item.extension})`
+      label: `${item.label} (${item.extension})`,
     }));
     const mimeTypeDesc = __(
-      'Comma-separated list of media types. Leave it blank for accepting all media types'
+      'Comma-separated list of media types. Leave it blank for accepting all media types',
     );
 
     const content = (
@@ -301,24 +296,24 @@ class GeneralSettings extends React.Component<Props, State> {
         >
           <FormGroup>
             <ControlLabel>Language</ControlLabel>
-            <Select
+            {/* <Select
               options={LANGUAGES}
               value={language}
               onChange={this.onLanguageChange}
               searchable={false}
               clearable={false}
               placeholder={__('Select')}
-            />
+            /> */}
           </FormGroup>
 
           <FormGroup>
             <ControlLabel>Currency</ControlLabel>
-            <Select
+            {/* <Select
               options={CURRENCIES}
               value={configsMap.dealCurrency}
               onChange={this.onChangeMultiCombo.bind(this, 'dealCurrency')}
               multi={true}
-            />
+            /> */}
           </FormGroup>
 
           <FormGroup>
@@ -326,10 +321,10 @@ class GeneralSettings extends React.Component<Props, State> {
             <FormControl
               componentClass="checkbox"
               checked={configsMap.CHECK_TEAM_MEMBER_SHOWN}
-              onChange={e =>
+              onChange={(e) =>
                 this.onChangeConfig(
                   'CHECK_TEAM_MEMBER_SHOWN',
-                  (e.target as any).checked
+                  (e.target as any).checked,
                 )
               }
             />
@@ -371,11 +366,11 @@ class GeneralSettings extends React.Component<Props, State> {
           <FlexRow alignItems="flex-start" justifyContent="space-between">
             {this.renderUploadImage(
               'THEME_LOGO',
-              'Transparent PNG, around 3:1 aspect ratio. Max width: 600px.'
+              'Transparent PNG, around 3:1 aspect ratio. Max width: 600px.',
             )}
             {this.renderUploadImage(
               'THEME_FAVICON',
-              '16x16px transparent PNG.'
+              '16x16px transparent PNG.',
             )}
             <FormGroup>
               <ControlLabel>{__('Text color')}</ControlLabel>
@@ -412,7 +407,7 @@ class GeneralSettings extends React.Component<Props, State> {
             <FormGroup>
               <ControlLabel>{KEY_LABELS.UPLOAD_FILE_TYPES}</ControlLabel>
               {mimeTypeDesc && <p>{__(mimeTypeDesc)}</p>}
-              <Select
+              {/* <Select
                 value={configsMap.UPLOAD_FILE_TYPES}
                 options={mimeTypeOptions}
                 onChange={this.onChangeMultiCombo.bind(
@@ -422,14 +417,14 @@ class GeneralSettings extends React.Component<Props, State> {
                 multi={true}
                 delimiter=","
                 simpleValue={true}
-              />
+              /> */}
             </FormGroup>
             <FormGroup>
               <ControlLabel>
                 {KEY_LABELS.WIDGETS_UPLOAD_FILE_TYPES}
               </ControlLabel>
               {mimeTypeDesc && <p>{__(mimeTypeDesc)}</p>}
-              <Select
+              {/* <Select
                 value={configsMap.WIDGETS_UPLOAD_FILE_TYPES}
                 options={mimeTypeOptions}
                 onChange={this.onChangeMultiCombo.bind(
@@ -439,13 +434,13 @@ class GeneralSettings extends React.Component<Props, State> {
                 multi={true}
                 delimiter=","
                 simpleValue={true}
-              />
+              /> */}
             </FormGroup>
           </FlexRow>
           <FlexRow alignItems="flex-start" justifyContent="space-between">
             <FormGroup>
               <ControlLabel>{KEY_LABELS.UPLOAD_SERVICE_TYPE}</ControlLabel>
-              <Select
+              {/* <Select
                 options={SERVICE_TYPES}
                 value={configsMap.UPLOAD_SERVICE_TYPE || 'AWS'}
                 clearable={false}
@@ -453,12 +448,12 @@ class GeneralSettings extends React.Component<Props, State> {
                   this,
                   'UPLOAD_SERVICE_TYPE'
                 )}
-              />
+              /> */}
             </FormGroup>
 
             <FormGroup>
               <ControlLabel>{KEY_LABELS.FILE_SYSTEM_PUBLIC}</ControlLabel>
-              <Select
+              {/* <Select
                 options={FILE_SYSTEM_TYPES}
                 value={configsMap.FILE_SYSTEM_PUBLIC || 'true'}
                 clearable={false}
@@ -467,7 +462,7 @@ class GeneralSettings extends React.Component<Props, State> {
                   this,
                   'FILE_SYSTEM_PUBLIC'
                 )}
-              />
+              /> */}
             </FormGroup>
           </FlexRow>
         </CollapseContent>
@@ -484,7 +479,7 @@ class GeneralSettings extends React.Component<Props, State> {
               rel="noopener noreferrer"
             >
               {__(
-                'Learn how to create or find your Google Cloud Storage bucket'
+                'Learn how to create or find your Google Cloud Storage bucket',
               )}
             </a>
           </Info>
@@ -520,7 +515,7 @@ class GeneralSettings extends React.Component<Props, State> {
           </FlexRow>
           {this.renderItem(
             'AWS_COMPATIBLE_SERVICE_ENDPOINT',
-            __('Used when using s3 compatible service')
+            __('Used when using s3 compatible service'),
           )}
           {this.renderItem('AWS_FORCE_PATH_STYLE')}
         </CollapseContent>
@@ -533,7 +528,7 @@ class GeneralSettings extends React.Component<Props, State> {
           <Info>
             <p>
               {__(
-                'In this field, the AWS SES configuration is dedicated to providing transaction emails'
+                'In this field, the AWS SES configuration is dedicated to providing transaction emails',
               ) + '.'}
             </p>
             <a
@@ -575,17 +570,17 @@ class GeneralSettings extends React.Component<Props, State> {
           <FlexRow alignItems="flex-start" justifyContent="space-between">
             {this.renderItem(
               'GOOGLE_CLIENT_SECRET',
-              'Client Secret key are required for authentication and authorization purposes'
+              'Client Secret key are required for authentication and authorization purposes',
             )}
             {this.renderItem(
               'GOOGLE_GMAIL_TOPIC',
-              'The topic value created in Gmail setup'
+              'The topic value created in Gmail setup',
             )}
           </FlexRow>
           <FlexRow alignItems="flex-start" justifyContent="space-between">
             {this.renderItem(
               'GOOGLE_APPLICATION_CREDENTIALS_JSON',
-              'Firebase config for notifications'
+              'Firebase config for notifications',
             )}
             {this.renderItem('GOOGLE_MAP_API_KEY', 'Google Map Api Key')}
           </FlexRow>
@@ -610,7 +605,7 @@ class GeneralSettings extends React.Component<Props, State> {
             emailConfig={{
               email: configsMap.COMPANY_EMAIL_FROM,
               type: configsMap.COMPANY_EMAIL_TEMPLATE_TYPE,
-              template: configsMap.COMPANY_EMAIL_TEMPLATE
+              template: configsMap.COMPANY_EMAIL_TEMPLATE,
             }}
             emailText="Set an email address you wish to send your internal transactional emails from. For example, task notifications, team member mentions, etc."
             setEmailConfig={this.onChangeEmailConfig}
@@ -620,10 +615,10 @@ class GeneralSettings extends React.Component<Props, State> {
             <ControlLabel>DEFAULT EMAIL SERVICE</ControlLabel>
             <p>
               {__(
-                'Choose your email service name. The default email service is SES.'
+                'Choose your email service name. The default email service is SES.',
               )}
             </p>
-            <Select
+            {/* <Select
               options={[
                 { label: 'SES', value: 'SES' },
                 { label: 'Custom', value: 'custom' }
@@ -635,7 +630,7 @@ class GeneralSettings extends React.Component<Props, State> {
                 this,
                 'DEFAULT_EMAIL_SERVICE'
               )}
-            />
+            /> */}
           </FormGroup>
         </CollapseContent>
 
@@ -674,7 +669,7 @@ class GeneralSettings extends React.Component<Props, State> {
               <ControlLabel>
                 {KEY_LABELS.NOTIFICATION_DATA_RETENTION}
               </ControlLabel>
-              <Select
+              {/* <Select
                 options={DATA_RETENTION_DURATION}
                 value={configsMap.NOTIFICATION_DATA_RETENTION || 3}
                 clearable={false}
@@ -683,11 +678,11 @@ class GeneralSettings extends React.Component<Props, State> {
                   this,
                   'NOTIFICATION_DATA_RETENTION'
                 )}
-              />
+              /> */}
             </FormGroup>
             <FormGroup>
               <ControlLabel>{KEY_LABELS.LOG_DATA_RETENTION}</ControlLabel>
-              <Select
+              {/* <Select
                 options={LOG_RETENTION_DURATION}
                 value={configsMap.LOG_DATA_RETENTION || 1}
                 clearable={false}
@@ -696,7 +691,7 @@ class GeneralSettings extends React.Component<Props, State> {
                   this,
                   'LOG_DATA_RETENTION'
                 )}
-              />
+              /> */}
             </FormGroup>
           </FlexRow>
         </CollapseContent>
@@ -733,7 +728,7 @@ class GeneralSettings extends React.Component<Props, State> {
         {loadDynamicComponent(
           'extendSystemConfig',
           { ...this.props, onChangeConfig: this.onChangeConfig },
-          true
+          true,
         )}
       </ContentBox>
     );
@@ -751,7 +746,7 @@ class GeneralSettings extends React.Component<Props, State> {
             title="System configuration"
             description={
               __(
-                'Set up your initial account settings so that things run smoothly in unison'
+                'Set up your initial account settings so that things run smoothly in unison',
               ) + '.'
             }
           />

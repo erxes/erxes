@@ -6,7 +6,7 @@ import { BoardsQueryResponse } from '@erxes/ui-cards/src/boards/types';
 import { ControlLabel } from '@erxes/ui/src/components/form';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import React from 'react';
-import Select from 'react-select-plus';
+// import Select from 'react-select-plus';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { gql } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
@@ -21,19 +21,19 @@ type Props = {
 };
 
 class Form extends React.Component<any, any, any> {
-  generatePipelineOptions = boards => {
+  generatePipelineOptions = (boards) => {
     const config = this.props.config || {};
     const { boardId } = config;
 
-    const board = (boards || []).find(b => b._id === boardId);
+    const board = (boards || []).find((b) => b._id === boardId);
 
     if (!board) {
       return [];
     }
 
-    return (board.pipelines || []).map(p => ({
+    return (board.pipelines || []).map((p) => ({
       value: p._id,
-      label: p.name
+      label: p.name,
     }));
   };
 
@@ -59,13 +59,8 @@ class Form extends React.Component<any, any, any> {
   };
 
   render() {
-    const {
-      boardsQuery,
-      hideDetailForm,
-      propertyType,
-      type,
-      component
-    } = this.props;
+    const { boardsQuery, hideDetailForm, propertyType, type, component } =
+      this.props;
 
     const config = this.props.config || {};
 
@@ -81,23 +76,23 @@ class Form extends React.Component<any, any, any> {
           <FlexItem>
             <FormGroup>
               <ControlLabel>Board</ControlLabel>
-              <Select
+              {/* <Select
                 value={config.boardId}
                 options={boards.map(b => ({
                   value: b._id,
                   label: b.name
                 }))}
                 onChange={this.onChangeBoard.bind(this, 'boardId')}
-              />
+              /> */}
             </FormGroup>
             <FormGroup>
               <ControlLabel>Pipeline</ControlLabel>
 
-              <Select
+              {/* <Select
                 value={config.pipelineId}
                 onChange={this.onChangePipeLine.bind(this, 'pipelineId')}
                 options={this.generatePipelineOptions(boards)}
-              />
+              /> */}
             </FormGroup>
           </FlexItem>
         </FlexContent>
@@ -111,7 +106,7 @@ class Form extends React.Component<any, any, any> {
           'cards:deal',
           'cards:ticket',
           'cards:task',
-          'cards:purchase'
+          'cards:purchase',
         ].includes(propertyType)
       ) {
         return null;
@@ -120,7 +115,7 @@ class Form extends React.Component<any, any, any> {
       if (
         !hideDetailForm &&
         ['cards:deal', 'cards:ticket', 'cards:task', 'cards:purchase'].includes(
-          type
+          type,
         )
       ) {
         return null;
@@ -129,7 +124,7 @@ class Form extends React.Component<any, any, any> {
       return content;
     } else if (
       ['cards:deal', 'cards:ticket', 'cards:task', 'cards:purchase'].includes(
-        type
+        type,
       )
     ) {
       return content;
@@ -140,7 +135,7 @@ class Form extends React.Component<any, any, any> {
 const generateVariable = (type, propertyType) => {
   if (
     ['cards:deal', 'cards:ticket', 'cards:task', 'cards:purchase'].includes(
-      type
+      type,
     )
   ) {
     return { type: type.split(':')[1] };
@@ -154,8 +149,8 @@ export default withProps<Props>(
     graphql<Props, BoardsQueryResponse, {}>(gql(queries.boards), {
       name: 'boardsQuery',
       options: ({ type, propertyType }) => ({
-        variables: generateVariable(type, propertyType)
-      })
-    })
-  )(Form)
+        variables: generateVariable(type, propertyType),
+      }),
+    }),
+  )(Form),
 );

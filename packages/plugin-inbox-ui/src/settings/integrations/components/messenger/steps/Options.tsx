@@ -1,17 +1,17 @@
 import { Alert, __ } from 'coreui/utils';
 import { FlexItem, LeftItem } from '@erxes/ui/src/components/step/styles';
+import { isEnabled, loadDynamicComponent } from '@erxes/ui/src/utils/core';
 
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { Description } from '@erxes/ui-inbox/src/settings/integrations/styles';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import { LANGUAGES } from '@erxes/ui-settings/src/general/constants';
 import React from 'react';
-import Select from 'react-select-plus';
+// import Select from 'react-select-plus';
 import Toggle from '@erxes/ui/src/components/Toggle';
 import client from '@erxes/ui/src/apolloClient';
 import { gql } from '@apollo/client';
 import { queries } from '@erxes/ui-inbox/src/settings/integrations/graphql';
-import { isEnabled, loadDynamicComponent } from '@erxes/ui/src/utils/core';
 
 type Props = {
   onChange: (
@@ -22,7 +22,7 @@ type Props = {
       | 'showChat'
       | 'showLauncher'
       | 'forceLogoutWhenResolve',
-    value: string
+    value: string,
   ) => void;
   brandId?: string;
   languageCode: string;
@@ -60,7 +60,7 @@ class Options extends React.Component<Props, State> {
     label,
     description,
     onChange,
-    checked
+    checked,
   }: {
     label: string;
     description?: string;
@@ -77,7 +77,7 @@ class Options extends React.Component<Props, State> {
             onChange={onChange}
             icons={{
               checked: <span>{__('Yes')}</span>,
-              unchecked: <span>{__('No')}</span>
+              unchecked: <span>{__('No')}</span>,
             }}
           />
         </div>
@@ -90,14 +90,14 @@ class Options extends React.Component<Props, State> {
       return null;
     }
 
-    const showVideoCallRequestChange = e => {
+    const showVideoCallRequestChange = (e) => {
       const checked = e.target.checked;
 
       if (checked) {
         client
           .query({
             query: gql(queries.integrationsVideoCallUsageStatus),
-            fetchPolicy: 'network-only'
+            fetchPolicy: 'network-only',
           })
           .then(({ data: { videoCallUsageStatus } }) => {
             if (videoCallUsageStatus) {
@@ -106,7 +106,7 @@ class Options extends React.Component<Props, State> {
               Alert.error('Please configure a video call settings');
             }
           })
-          .catch(error => {
+          .catch((error) => {
             Alert.error(error.message);
           });
       } else {
@@ -117,26 +117,26 @@ class Options extends React.Component<Props, State> {
     return this.renderToggle({
       label: __('Show video call request'),
       checked: this.props.showVideoCallRequest,
-      onChange: showVideoCallRequestChange
+      onChange: showVideoCallRequestChange,
     });
   }
 
   render() {
-    const languageOnChange = e => this.onSelectChange(e, 'languageCode');
+    const languageOnChange = (e) => this.onSelectChange(e, 'languageCode');
 
-    const notifyCustomerChange = e =>
+    const notifyCustomerChange = (e) =>
       this.onChangeFunction('notifyCustomer', e.target.checked);
 
-    const requireAuthChange = e =>
+    const requireAuthChange = (e) =>
       this.onChangeFunction('requireAuth', e.target.checked);
 
-    const showChatChange = e =>
+    const showChatChange = (e) =>
       this.onChangeFunction('showChat', e.target.checked);
 
-    const showLauncherChange = e =>
+    const showLauncherChange = (e) =>
       this.onChangeFunction('showLauncher', e.target.checked);
 
-    const forceLogoutWhenResolveChange = e =>
+    const forceLogoutWhenResolveChange = (e) =>
       this.onChangeFunction('forceLogoutWhenResolve', e.target.checked);
 
     return (
@@ -144,56 +144,56 @@ class Options extends React.Component<Props, State> {
         <LeftItem>
           <FormGroup>
             <ControlLabel>Default Language</ControlLabel>
-            <Select
+            {/* <Select
               id="languageCode"
               value={this.props.languageCode}
               options={LANGUAGES}
               onChange={languageOnChange}
               clearable={false}
-            />
+            /> */}
           </FormGroup>
 
           {this.renderToggle({
             label: __('Require Authentication'),
             description: __('It will require email and phone in widget'),
             checked: this.props.requireAuth,
-            onChange: requireAuthChange
+            onChange: requireAuthChange,
           })}
 
           {this.renderToggle({
             label: __('Show chat'),
             description: __(
-              'Hide chat section and show only knowledgebase and form'
+              'Hide chat section and show only knowledgebase and form',
             ),
             checked: this.props.showChat,
-            onChange: showChatChange
+            onChange: showChatChange,
           })}
 
           {this.renderToggle({
             label: __('Show launcher'),
             description: __(
-              'The widget section will invisible but you can still get messenger data'
+              'The widget section will invisible but you can still get messenger data',
             ),
             checked: this.props.showLauncher,
-            onChange: showLauncherChange
+            onChange: showLauncherChange,
           })}
 
           {this.renderToggle({
             label: __('Force logout when resolve'),
             description: __(
-              'If an operator resolve the conversation from inbox then client session will end automatically'
+              'If an operator resolve the conversation from inbox then client session will end automatically',
             ),
             checked: this.props.forceLogoutWhenResolve,
-            onChange: forceLogoutWhenResolveChange
+            onChange: forceLogoutWhenResolveChange,
           })}
 
           {this.renderToggle({
             label: __('Notify customer'),
             description: __(
-              'If customer is offline and inserted email, it will send email when operator respond'
+              'If customer is offline and inserted email, it will send email when operator respond',
             ),
             checked: this.props.notifyCustomer,
-            onChange: notifyCustomerChange
+            onChange: notifyCustomerChange,
           })}
 
           {this.renderVideoCallRequest()}

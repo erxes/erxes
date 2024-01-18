@@ -1,4 +1,4 @@
-import { Redirect, Route } from 'react-router-dom';
+import { Navigate, Route, Routes } from 'react-router-dom';
 
 import { Nav } from '../../styles';
 import NavigationItem from './NavigationItem';
@@ -26,7 +26,7 @@ export default class NavigationList extends React.Component<Props, State> {
       showMenu: false,
       clickedMenu: '',
       pinnedPlugins: JSON.parse(localStorage.getItem('pinnedPlugins') || '[]'),
-      countOfPinnedPlugins: window.innerHeight > 900 ? 7 : 5
+      countOfPinnedPlugins: window.innerHeight > 900 ? 7 : 5,
     };
   }
 
@@ -47,12 +47,8 @@ export default class NavigationList extends React.Component<Props, State> {
   render() {
     const { navCollapse } = this.props;
 
-    const {
-      showMenu,
-      clickedMenu,
-      pinnedPlugins,
-      countOfPinnedPlugins
-    } = this.state;
+    const { showMenu, clickedMenu, pinnedPlugins, countOfPinnedPlugins } =
+      this.state;
 
     const plugins =
       pinnedPlugins.length === 0
@@ -61,15 +57,17 @@ export default class NavigationList extends React.Component<Props, State> {
 
     const index = () => {
       if (plugins.length !== 0) {
-        return <Redirect to={`${plugins[0].url}`} />;
+        return <Navigate replace to={`${plugins[0].url}`} />;
       }
 
-      return <Redirect to={`/welcome`} />;
+      return <Navigate replace to={`/welcome`} />;
     };
 
     return (
       <>
-        <Route exact={true} path="/" key="root" render={index} />
+        <Routes>
+          <Route path="/" key="root" element={index()} />
+        </Routes>
         <Nav id="navigation">
           {plugins.map((plugin: any, i: number) => (
             <NavigationItem

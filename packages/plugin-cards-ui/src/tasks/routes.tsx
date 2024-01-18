@@ -1,27 +1,33 @@
-import { getDefaultBoardAndPipelines } from '@erxes/ui-cards/src/boards/utils';
-import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
-import queryString from 'query-string';
+import { Redirect, Route, useLocation } from 'react-router-dom';
+
 import React from 'react';
-import { Redirect, Route } from 'react-router-dom';
+import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
+import { getDefaultBoardAndPipelines } from '@erxes/ui-cards/src/boards/utils';
+import queryString from 'query-string';
 
-const TaskBoard = asyncComponent(() =>
-  import(/* webpackChunkName: "TaskBoard" */ './components/TaskBoard')
+const TaskBoard = asyncComponent(
+  () => import(/* webpackChunkName: "TaskBoard" */ './components/TaskBoard'),
 );
 
-const Calendar = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "Calendar" */ '@erxes/ui-cards/src/boards/components/Calendar'
-  )
+const Calendar = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "Calendar" */ '@erxes/ui-cards/src/boards/components/Calendar'
+    ),
 );
 
-const CalendarColumn = asyncComponent(() =>
-  import(/* webpackChunkName: "CalendarColumn" */ './containers/CalendarColumn')
+const CalendarColumn = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "CalendarColumn" */ './containers/CalendarColumn'
+    ),
 );
 
-const MainActionBar = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "MainActionBar" */ './components/TaskMainActionBar'
-  )
+const MainActionBar = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "MainActionBar" */ './components/TaskMainActionBar'
+    ),
 );
 
 const tasks = () => {
@@ -32,7 +38,7 @@ const tasks = () => {
 
   const [defaultBoardId, defaultPipelineId] = [
     defaultBoards.task,
-    defaultPipelines.task
+    defaultPipelines.task,
   ];
 
   if (defaultBoardId && defaultPipelineId) {
@@ -42,31 +48,36 @@ const tasks = () => {
   return <Redirect to={link} />;
 };
 
-const charts = ({ location }) => {
+const charts = () => {
+  const location = useLocation();
   const queryParams = queryString.parse(location.search);
 
   return <TaskBoard viewType="chart" queryParams={queryParams} />;
 };
 
-const boards = ({ location }) => {
+const boards = () => {
+  const location = useLocation();
   const queryParams = queryString.parse(location.search);
 
   return <TaskBoard viewType="board" queryParams={queryParams} />;
 };
 
-const activity = ({ location }) => {
+const activity = () => {
+  const location = useLocation();
   const queryParams = queryString.parse(location.search);
 
   return <TaskBoard viewType="activity" queryParams={queryParams} />;
 };
 
-const gantt = ({ location }) => {
+const gantt = () => {
+  const location = useLocation();
   const queryParams = queryString.parse(location.search);
 
   return <TaskBoard viewType="gantt" queryParams={queryParams} />;
 };
 
-const calendar = ({ location }) => {
+const calendar = () => {
+  const location = useLocation();
   const queryParams = queryString.parse(location.search);
 
   return (
@@ -80,13 +91,15 @@ const calendar = ({ location }) => {
   );
 };
 
-const list = ({ location }) => {
+const list = () => {
+  const location = useLocation();
   const queryParams = queryString.parse(location.search);
 
   return <TaskBoard viewType="list" queryParams={queryParams} />;
 };
 
-const time = ({ location }) => {
+const time = () => {
+  const location = useLocation();
   const queryParams = queryString.parse(location.search);
 
   return <TaskBoard viewType="time" queryParams={queryParams} />;
@@ -95,46 +108,21 @@ const time = ({ location }) => {
 const routes = () => {
   return (
     <>
-      <Route key="/task" exact={true} path="/task" render={tasks} />
+      <Route key="/task" path="/task" render={tasks} />
 
-      <Route
-        key="task/gantt"
-        exact={true}
-        path="/task/gantt"
-        component={gantt}
-      />
+      <Route key="task/gantt" path="/task/gantt" render={gantt} />
 
-      <Route
-        key="/task/board"
-        exact={true}
-        path="/task/board"
-        component={boards}
-      />
+      <Route key="/task/board" path="/task/board" render={boards} />
 
-      <Route
-        key="task/calendar"
-        exact={true}
-        path="/task/calendar"
-        component={calendar}
-      />
+      <Route key="task/calendar" path="/task/calendar" render={calendar} />
 
-      <Route
-        key="task/chart"
-        exact={true}
-        path="/task/chart"
-        component={charts}
-      />
+      <Route key="task/chart" path="/task/chart" render={charts} />
 
-      <Route
-        key="task/activity"
-        exact={true}
-        path="/task/activity"
-        component={activity}
-      />
+      <Route key="task/activity" path="/task/activity" render={activity} />
 
-      <Route key="task/list" exact={true} path="/task/list" component={list} />
+      <Route key="task/list" path="/task/list" render={list} />
 
-      <Route key="task/time" exact={true} path="/task/time" component={time} />
+      <Route key="task/time" path="/task/time" render={time} />
     </>
   );
 };

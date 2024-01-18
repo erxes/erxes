@@ -2,18 +2,18 @@ import { Alert, __ } from 'coreui/utils';
 import {
   ControlLabel,
   FormControl,
-  FormGroup
+  FormGroup,
 } from '@erxes/ui/src/components/form';
 import {
   ISkillDocument,
-  ISkillTypesDocument
+  ISkillTypesDocument,
 } from '@erxes/ui-inbox/src/settings/skills/types';
 import React, { useState } from 'react';
 
 import Button from '@erxes/ui/src/components/Button';
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
-import Select from 'react-select-plus';
+// import Select from 'react-select-plus';
 import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
 import mutations from '../graphql/mutations';
 
@@ -25,7 +25,7 @@ type Props = {
 };
 
 const getSkillType = (skill, types) => {
-  const option = types.find(type => type._id === skill.typeId);
+  const option = types.find((type) => type._id === skill.typeId);
 
   if (!option) {
     return null;
@@ -38,7 +38,7 @@ function SkillForm({
   closeModal,
   skill = {} as ISkillDocument,
   skillTypes,
-  refetchQueries
+  refetchQueries,
 }: Props) {
   const [isSubmitted, setSubmitted] = useState(false);
   const [name, setName] = useState<string>(skill.name || '');
@@ -74,19 +74,19 @@ function SkillForm({
       name,
       memberIds,
       typeId: typeof type === 'string' ? type : type.value,
-      ...(skill ? { _id: skill._id } : {})
+      ...(skill ? { _id: skill._id } : {}),
     };
 
     return doc;
   };
 
   function renderContent() {
-    const handleInputChange = e => setName(e.target.value);
-    const handleTypeSelect = option => setType(option);
-    const handleTeamMemberSelect = ids => setMemberIds(ids);
+    const handleInputChange = (e) => setName(e.target.value);
+    const handleTypeSelect = (option) => setType(option);
+    const handleTeamMemberSelect = (ids) => setMemberIds(ids);
 
     const generateSkillTypes = () => {
-      return skillTypes.map(item => ({ label: item.name, value: item._id }));
+      return skillTypes.map((item) => ({ label: item.name, value: item._id }));
     };
 
     return (
@@ -102,12 +102,12 @@ function SkillForm({
         </FormGroup>
         <FormGroup>
           <ControlLabel required={true}>Skill type</ControlLabel>
-          <Select
+          {/* <Select
             placeholder={__('Choose a skill type')}
             value={type}
             options={generateSkillTypes()}
             onChange={handleTypeSelect}
-          />
+          /> */}
         </FormGroup>
         <FormGroup>
           <ControlLabel required={true}>Team members</ControlLabel>
@@ -125,8 +125,8 @@ function SkillForm({
   const mutateProps = {
     mutation: skill._id ? mutations.skillEdit : mutations.skillAdd,
     successMessage: __(
-      `You successfully ${skill._id ? 'updated' : 'added'} a skill`
-    )
+      `You successfully ${skill._id ? 'updated' : 'added'} a skill`,
+    ),
   };
 
   return (

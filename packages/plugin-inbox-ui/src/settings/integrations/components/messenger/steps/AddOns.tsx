@@ -1,7 +1,7 @@
 import {
   ControlLabel,
   FormControl,
-  FormGroup
+  FormGroup,
 } from '@erxes/ui/src/components/form';
 import { FlexItem, LeftItem } from '@erxes/ui/src/components/step/styles';
 import {
@@ -10,7 +10,7 @@ import {
   IMessengerApps,
   ITopicMessengerApp,
   IWebsite,
-  IWebsiteMessengerApp
+  IWebsiteMessengerApp,
 } from '@erxes/ui-inbox/src/settings/integrations/types';
 
 import Button from '@erxes/ui/src/components/Button';
@@ -18,10 +18,10 @@ import { ITopic } from '@erxes/ui-knowledgebase/src/types';
 import Icon from '@erxes/ui/src/components/Icon';
 import { Options } from '@erxes/ui-inbox/src/settings/integrations/styles';
 import React from 'react';
-import Select from 'react-select-plus';
+// import Select from 'react-select-plus';
 import Tip from '@erxes/ui/src/components/Tip';
-import styled from 'styled-components';
 import { __ } from '@erxes/ui/src/utils';
+import styled from 'styled-components';
 
 const WebsiteItem = styled.div`
   padding: 12px 16px 0 16px;
@@ -74,16 +74,16 @@ class AddOns extends React.Component<Props, State> {
     const {
       websiteMessengerApps = [],
       leadMessengerApps = [],
-      knowledgeBaseMessengerApps = []
+      knowledgeBaseMessengerApps = [],
     } = props;
 
-    const initialWebsites = websiteMessengerApps.map(item => ({
+    const initialWebsites = websiteMessengerApps.map((item) => ({
       url: item.credentials.url,
       buttonText: item.credentials.buttonText,
-      description: item.credentials.description
+      description: item.credentials.description,
     }));
     const initialLeads = leadMessengerApps.map(
-      item => item.credentials.formCode
+      (item) => item.credentials.formCode,
     );
     const initialKb =
       knowledgeBaseMessengerApps.length > 0 &&
@@ -93,8 +93,8 @@ class AddOns extends React.Component<Props, State> {
       knowledgeBase: initialKb || '',
       popups: initialLeads || [],
       websites: initialWebsites || [
-        { url: '', buttonText: '', description: '' }
-      ]
+        { url: '', buttonText: '', description: '' },
+      ],
     };
   }
 
@@ -102,8 +102,8 @@ class AddOns extends React.Component<Props, State> {
     const { knowledgeBase, popups, websites } = this.state;
     return {
       knowledgebases: [{ topicId: knowledgeBase }],
-      leads: popups.map(el => ({ formCode: el })),
-      websites
+      leads: popups.map((el) => ({ formCode: el })),
+      websites,
     };
   };
 
@@ -111,7 +111,7 @@ class AddOns extends React.Component<Props, State> {
     this.props.handleMessengerApps(this.generateMessengerApps());
   };
 
-  renderOption = option => {
+  renderOption = (option) => {
     return (
       <Options>
         {option.label}
@@ -120,34 +120,34 @@ class AddOns extends React.Component<Props, State> {
     );
   };
 
-  generateObjectsParams = objects => {
-    return objects.map(object => ({
+  generateObjectsParams = (objects) => {
+    return objects.map((object) => ({
       value: object.form ? object.form.code : object._id,
       label: object.name || object.title,
       brand: object.brand,
       disabled:
         object.brand && this.props.selectedBrand
           ? this.props.selectedBrand !== object.brand._id
-          : false
+          : false,
     }));
   };
 
-  onChangeKb = obj => {
+  onChangeKb = (obj) => {
     this.setState({ knowledgeBase: obj ? obj.value : '' }, () =>
-      this.updateMessengerValues()
+      this.updateMessengerValues(),
     );
   };
 
-  onChangePopups = objects => {
-    this.setState({ popups: objects.map(el => el.value) }, () =>
-      this.updateMessengerValues()
+  onChangePopups = (objects) => {
+    this.setState({ popups: objects.map((el) => el.value) }, () =>
+      this.updateMessengerValues(),
     );
   };
 
   onChangeInput = (
     i: number,
     type: 'url' | 'description' | 'buttonText',
-    e: React.FormEvent
+    e: React.FormEvent,
   ) => {
     const { value } = e.target as HTMLInputElement;
 
@@ -161,7 +161,7 @@ class AddOns extends React.Component<Props, State> {
   handleRemoveWebsite = (i: number) => {
     this.setState(
       { websites: this.state.websites.filter((item, index) => index !== i) },
-      () => this.updateMessengerValues()
+      () => this.updateMessengerValues(),
     );
   };
 
@@ -179,8 +179,8 @@ class AddOns extends React.Component<Props, State> {
     this.setState({
       websites: [
         ...this.state.websites,
-        { url: '', buttonText: '', description: '' }
-      ]
+        { url: '', buttonText: '', description: '' },
+      ],
     });
   };
 
@@ -195,29 +195,29 @@ class AddOns extends React.Component<Props, State> {
             <ControlLabel>Knowledge Base</ControlLabel>
             <p>
               {__(
-                'Which specific knowledgebase do you want to display in a separate tab in this messenger'
+                'Which specific knowledgebase do you want to display in a separate tab in this messenger',
               )}
               ?
             </p>
-            <Select
+            {/* <Select
               value={knowledgeBase}
               options={this.generateObjectsParams(topics)}
               onChange={this.onChangeKb}
               optionRenderer={this.renderOption}
-            />
+            /> */}
           </FormGroup>
           <FormGroup>
             <ControlLabel>Forms</ControlLabel>
             <p>
               {__('Which form(s) do you want to display in this messenger')}?
             </p>
-            <Select
+            {/* <Select
               value={popups}
               options={this.generateObjectsParams(leads)}
               onChange={this.onChangePopups}
               optionRenderer={this.renderOption}
               multi={true}
-            />
+            /> */}
           </FormGroup>
           <FormGroup>
             <ControlLabel>Websites</ControlLabel>
@@ -235,7 +235,7 @@ class AddOns extends React.Component<Props, State> {
                     onChange={this.onChangeInput.bind(
                       null,
                       index,
-                      'description'
+                      'description',
                     )}
                     required={true}
                     value={website.description}
@@ -256,7 +256,7 @@ class AddOns extends React.Component<Props, State> {
                     onChange={this.onChangeInput.bind(
                       null,
                       index,
-                      'buttonText'
+                      'buttonText',
                     )}
                     value={website.buttonText}
                     name="buttonText"

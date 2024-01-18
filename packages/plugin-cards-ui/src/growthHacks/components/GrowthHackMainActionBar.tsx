@@ -9,7 +9,7 @@ import { Link } from 'react-router-dom';
 import MainActionBar from '@erxes/ui-cards/src/boards/components/MainActionBar';
 import React from 'react';
 // import { withRouter } from 'react-router-dom';
-import Select from 'react-select-plus';
+// import Select from 'react-select-plus';
 import Tip from '@erxes/ui/src/components/Tip';
 import options from '../options';
 import queryString from 'query-string';
@@ -169,7 +169,7 @@ const GrowthHackMainActionBar = (props: IProps) => {
 
   const growthHackFilter = (
     <>
-      <Select
+      {/* <Select
         placeholder="Choose a growth funnel"
         value={props.queryParams.hackStage || []}
         options={HACKSTAGES.map((hs) => ({ value: hs, label: hs }))}
@@ -177,19 +177,19 @@ const GrowthHackMainActionBar = (props: IProps) => {
         onChange={onChangeHackStage}
         multi={true}
         loadingPlaceholder={__('Loading...')}
-      />
+      /> */}
     </>
   );
 
   const extraFilter = (
     <>
       {growthHackFilter}
-      <Select
+      {/* <Select
         value={`${sortField},${sortDirection}`}
         placeholder="Sort"
         onChange={onChangeSort}
         options={sortOptions}
-      />
+      /> */}
     </>
   );
 

@@ -6,7 +6,7 @@ import { IDepartment } from '@erxes/ui/src/team/types';
 import { IStage } from '@erxes/ui-cards/src/boards/types';
 import { PROBABILITY } from '../constants';
 import React from 'react';
-import Select from 'react-select-plus';
+// import Select from 'react-select-plus';
 import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
 import { StageItemContainer } from '@erxes/ui-cards/src/settings/boards/styles';
 
@@ -34,9 +34,9 @@ class StageItem extends React.Component<Props> {
           label="Members"
           name="memberIds"
           initialValue={memberIds}
-          onSelect={ids => onChange(_id, 'memberIds', ids)}
+          onSelect={(ids) => onChange(_id, 'memberIds', ids)}
         />
-        <Select
+        {/* <Select
           value={departmentIds}
           options={generateTree(
             this.props.departments,
@@ -55,7 +55,7 @@ class StageItem extends React.Component<Props> {
           }
           placeholder={__('Department ...')}
           multi={true}
-        />
+        /> */}
       </>
     );
   }
@@ -163,14 +163,14 @@ class StageItem extends React.Component<Props> {
           label="Can move members"
           name="canMoveMemberIds"
           initialValue={stage.canMoveMemberIds}
-          onSelect={ids => onChange(stage._id, 'canMoveMemberIds', ids)}
+          onSelect={(ids) => onChange(stage._id, 'canMoveMemberIds', ids)}
         />
 
         <SelectTeamMembers
           label="Can edit members"
           name="canEditMemberIds"
           initialValue={stage.canEditMemberIds}
-          onSelect={ids => onChange(stage._id, 'canEditMemberIds', ids)}
+          onSelect={(ids) => onChange(stage._id, 'canEditMemberIds', ids)}
         />
 
         <Button

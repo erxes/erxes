@@ -7,7 +7,7 @@ import ControlLabel from '@erxes/ui/src/components/form/Label';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import { IUser } from '@erxes/ui/src/auth/types';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
-import Select from 'react-select-plus';
+// import Select from 'react-select-plus';
 import mutations from '../../graphql/mutations';
 
 type Props = {
@@ -27,7 +27,7 @@ function UserSkillForm({
   handleSkillTypeSelect,
   refetchSkills,
   closeModal,
-  user
+  user,
 }: Props) {
   const [isSubmitted, setSubmitted] = useState<boolean>(false);
   const [type, setType] = useState(null);
@@ -44,16 +44,16 @@ function UserSkillForm({
   };
 
   function renderContent() {
-    const handleTypeSelect = option => {
+    const handleTypeSelect = (option) => {
       setType(option);
 
       handleSkillTypeSelect(option.value, user._id);
     };
 
     const handleSkillsChange = (
-      options: [{ label: string; value: string }]
+      options: [{ label: string; value: string }],
     ) => {
-      setSkillIds(options.map(option => option.value));
+      setSkillIds(options.map((option) => option.value));
     };
 
     const handleRefetch = () => {
@@ -67,35 +67,35 @@ function UserSkillForm({
 
       return {
         memberId: user._id,
-        skillIds
+        skillIds,
       };
     };
 
-    const generateOptions = options => {
-      return options.map(item => ({ label: item.name, value: item._id }));
+    const generateOptions = (options) => {
+      return options.map((item) => ({ label: item.name, value: item._id }));
     };
 
     return (
       <>
         <FormGroup>
           <ControlLabel>Skill type</ControlLabel>
-          <Select
+          {/* <Select
             placeholder={__('Choose a skill type')}
             value={type}
             options={generateOptions(skillTypes)}
             onChange={handleTypeSelect}
-          />
+          /> */}
         </FormGroup>
         <FormGroup>
           <ControlLabel>Skills</ControlLabel>
-          <Select
+          {/* <Select
             placeholder={__('Choose a skill type first')}
             value={skillIds}
             isLoading={loading}
             options={generateOptions(skills)}
             onChange={handleSkillsChange}
             multi={true}
-          />
+          /> */}
         </FormGroup>
         <ModalFooter>
           <Button

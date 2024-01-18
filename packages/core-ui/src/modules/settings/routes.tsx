@@ -7,11 +7,10 @@ import MarketplaceRoutes from './marketplace/routes';
 import PermissionRoutes from './permissions/routes';
 import ProfileRoutes from './profile/routes';
 import React from 'react';
-import { Route } from 'react-router-dom';
 import TeamRoutes from './team/routes';
 
-const routes = () => (
-  <React.Fragment>
+const SettingsRoute = () => (
+  <>
     <MainRoutes key="MainRoutes" />
     <BrandsRoutes key="BrandsRoutes" />
     <ProfileRoutes key="profile" />
@@ -21,9 +20,7 @@ const routes = () => (
     <PermissionRoutes key="PermissionRoutes" />
     <AppRoutes key="AppRoutes" />
     <MarketplaceRoutes key="Store" />
-  </React.Fragment>
+  </>
 );
 
-const settingsRoute = () => <Route component={routes} />;
-
-export default settingsRoute;
+export default SettingsRoute;

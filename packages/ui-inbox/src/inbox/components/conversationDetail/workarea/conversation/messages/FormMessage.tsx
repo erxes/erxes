@@ -2,14 +2,14 @@ import {
   BodyContent,
   PreviewBody,
   PreviewTitle,
-  PrintButton
+  PrintButton,
 } from '@erxes/ui/src/components/step/preview/styles';
 import {
   CellWrapper,
   FieldWrapper,
   FormMessageInput,
   FormTable,
-  ProductItem
+  ProductItem,
 } from '../styles';
 import ReactToPrint, { PrintContextConsumer } from 'react-to-print';
 
@@ -21,7 +21,7 @@ import FilePreview from '@erxes/ui/src/components/FilePreview';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import { IMessage } from '../../../../../types';
 import React from 'react';
-import Select from 'react-select-plus';
+// import Select from 'react-select-plus';
 import { SidebarList } from '@erxes/ui/src/layout/styles';
 import { Table } from '@erxes/ui/src/components';
 import Tip from '@erxes/ui/src/components/Tip';
@@ -43,8 +43,8 @@ export default class FormMessage extends React.Component<Props, {}> {
         return null;
       }
 
-      return subFields.map(e => {
-        return e.map(e2 => {
+      return subFields.map((e) => {
+        return e.map((e2) => {
           return this.renderField(e2);
         });
       });
@@ -66,7 +66,7 @@ export default class FormMessage extends React.Component<Props, {}> {
       return (
         <div
           dangerouslySetInnerHTML={{
-            __html: data.value
+            __html: data.value,
           }}
         />
       );
@@ -78,7 +78,7 @@ export default class FormMessage extends React.Component<Props, {}> {
         return null;
       }
 
-      return data.value.map(obj => {
+      return data.value.map((obj) => {
         return (
           <>
             {Object.entries(obj).map((e, index) => {
@@ -123,16 +123,18 @@ export default class FormMessage extends React.Component<Props, {}> {
   renderMultiSelect(value: string) {
     const selectValues = value.split(',');
 
-    return (
-      <Select
-        value={value}
-        options={selectValues.map(e => ({ value: e, label: e }))}
-        multi={true}
-      />
-    );
+    return null;
+
+    // return (
+    //   <Select
+    //     value={value}
+    //     options={selectValues.map(e => ({ value: e, label: e }))}
+    //     multi={true}
+    //   />
+    // );
   }
 
-  renderProductData = field => {
+  renderProductData = (field) => {
     if (!field.value.hasOwnProperty('product')) {
       return <FormMessageInput>{this.displayValue(field)}</FormMessageInput>;
     }
@@ -211,13 +213,13 @@ export default class FormMessage extends React.Component<Props, {}> {
     const { formWidgetData, content } = this.props.message;
 
     return (
-      <FormTable ref={el => (this.componentRef = el)}>
+      <FormTable ref={(el) => (this.componentRef = el)}>
         <PreviewTitle style={{ backgroundColor: '#6569DF' }}>
           <div>{content}</div>
         </PreviewTitle>
         <PreviewBody embedded="embedded">
           <BodyContent>
-            {formWidgetData.map(field => this.renderField(field))}
+            {formWidgetData.map((field) => this.renderField(field))}
           </BodyContent>
         </PreviewBody>
         {this.renderPrintBtn()}

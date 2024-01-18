@@ -2,7 +2,7 @@ import {
   ContentColumn,
   ContentRowTitle,
   Divider,
-  WrongLess
+  WrongLess,
 } from '../../styles';
 
 import CURRENCIES from '@erxes/ui/src/constants/currencies';
@@ -12,7 +12,7 @@ import FormControl from '@erxes/ui/src/components/form/Control';
 import { IPaymentsData } from '../../types';
 import { PAYMENT_TYPES } from '../../constants';
 import React from 'react';
-import Select from 'react-select-plus';
+// import Select from 'react-select-plus';
 import { __ } from '@erxes/ui/src/utils';
 import { pluginsOfPaymentForm } from 'coreui/pluginUtils';
 import { selectConfigOptions } from '../../utils';
@@ -37,7 +37,7 @@ class PaymentForm extends React.Component<Props, State> {
     const { payments } = this.props;
 
     this.state = {
-      paymentsData: payments || {}
+      paymentsData: payments || {},
     };
   }
 
@@ -53,7 +53,7 @@ class PaymentForm extends React.Component<Props, State> {
   }
 
   renderTotal(value) {
-    return Object.keys(value).map(key => (
+    return Object.keys(value).map((key) => (
       <div key={key}>
         {this.renderAmount(value[key])} <b>{key}</b>
       </div>
@@ -74,7 +74,7 @@ class PaymentForm extends React.Component<Props, State> {
     onChangePaymentsData(paymentsData);
   };
 
-  selectOption = option => (
+  selectOption = (option) => (
     <div className="simple-option">
       <span>{option.label}</span>
     </div>
@@ -84,7 +84,7 @@ class PaymentForm extends React.Component<Props, State> {
     const { currencies, changePayData } = this.props;
     const { paymentsData } = this.state;
 
-    const onChange = e => {
+    const onChange = (e) => {
       if (
         (!paymentsData[type.name] || !paymentsData[type.name].currency) &&
         currencies.length > 0
@@ -95,7 +95,7 @@ class PaymentForm extends React.Component<Props, State> {
       this.paymentStateChange(
         'amount',
         type.name,
-        parseFloat((e.target as HTMLInputElement).value || '0')
+        parseFloat((e.target as HTMLInputElement).value || '0'),
       );
     };
 
@@ -103,12 +103,12 @@ class PaymentForm extends React.Component<Props, State> {
       this.paymentStateChange(
         'currency',
         type.name,
-        currency ? currency.value : ''
+        currency ? currency.value : '',
       );
     };
 
     const onClick = () => {
-      Object.keys(changePayData).forEach(key => {
+      Object.keys(changePayData).forEach((key) => {
         if (
           changePayData[key] > 0 &&
           (!paymentsData[type.name] || !paymentsData[type.name].amount)
@@ -149,7 +149,7 @@ class PaymentForm extends React.Component<Props, State> {
           />
         </ContentColumn>
         <ContentColumn>
-          <Select
+          {/* <Select
             name={type.name}
             placeholder={__('Choose currency')}
             value={
@@ -158,14 +158,14 @@ class PaymentForm extends React.Component<Props, State> {
             onChange={currencyOnChange}
             optionRenderer={this.selectOption}
             options={selectConfigOptions(currencies, CURRENCIES)}
-          />
+          /> */}
         </ContentColumn>
       </Flex>
     );
   }
 
   renderPayments() {
-    return PAYMENT_TYPES.map(type => this.renderPaymentsByType(type));
+    return PAYMENT_TYPES.map((type) => this.renderPaymentsByType(type));
   }
 
   render() {
@@ -186,7 +186,7 @@ class PaymentForm extends React.Component<Props, State> {
         <Divider />
 
         {this.renderPayments()}
-        {pluginsOfPaymentForm(type => this.renderPaymentsByType(type))}
+        {pluginsOfPaymentForm((type) => this.renderPaymentsByType(type))}
       </>
     );
   }

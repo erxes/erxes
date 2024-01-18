@@ -3,7 +3,7 @@ import {
   ProductButton,
   TypeBox,
   VoucherCard,
-  VoucherContainer
+  VoucherContainer,
 } from '../../styles';
 import { IDiscountValue, IProductData, IPurchase } from '../../types';
 
@@ -14,7 +14,7 @@ import Icon from '@erxes/ui/src/components/Icon';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import ProductChooser from '@erxes/ui-products/src/containers/ProductChooser';
 import React from 'react';
-import Select from 'react-select-plus';
+// import Select from 'react-select-plus';
 import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
 import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
 import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
@@ -64,8 +64,8 @@ class ProductItem extends React.Component<Props, State> {
         type: '',
         voucherCampaignId: '',
         voucherId: '',
-        voucherName: ''
-      }
+        voucherName: '',
+      },
     };
   }
 
@@ -88,21 +88,18 @@ class ProductItem extends React.Component<Props, State> {
   };
 
   toggleVoucherCardChecBox = () => {
-    this.setState(prevState => ({
+    this.setState((prevState) => ({
       ...prevState,
-      isSelectedVoucher: !prevState.isSelectedVoucher
+      isSelectedVoucher: !prevState.isSelectedVoucher,
     }));
   };
 
   onChangeField = (type: string, value, _id: string) => {
-    const {
-      productsData,
-      onChangeProductsData,
-      calculatePerProductAmount
-    } = this.props;
+    const { productsData, onChangeProductsData, calculatePerProductAmount } =
+      this.props;
 
     if (productsData) {
-      const productData = productsData.find(p => p._id === _id);
+      const productData = productsData.find((p) => p._id === _id);
 
       if (productData) {
         if (type === 'product') {
@@ -203,8 +200,8 @@ class ProductItem extends React.Component<Props, State> {
           variables.checkInfo = {
             [product._id]: {
               voucherId: discountValue?.voucherId,
-              count: 1
-            }
+              count: 1,
+            },
           };
           confirmLoyalties(variables);
           if (discountValue?.type === 'bonus') {
@@ -212,13 +209,13 @@ class ProductItem extends React.Component<Props, State> {
             this.onChangeField(
               'maxQuantity',
               discountValue?.potentialBonus || 0,
-              productData._id
+              productData._id,
             );
           } else {
             this.onChangeField(
               'discountPercent',
               discountValue?.discount || 0,
-              productData._id
+              productData._id,
             );
           }
         }
@@ -272,7 +269,7 @@ class ProductItem extends React.Component<Props, State> {
         )
       );
     };
-    const content = props => (
+    const content = (props) => (
       <ProductChooser
         {...props}
         onSelect={productOnChange}
@@ -280,7 +277,7 @@ class ProductItem extends React.Component<Props, State> {
         renderExtra={VoucherDiscountCard}
         data={{
           name: 'Product',
-          products: productData.product ? [productData.product] : []
+          products: productData.product ? [productData.product] : [],
         }}
         limit={1}
       />
@@ -301,21 +298,21 @@ class ProductItem extends React.Component<Props, State> {
     this.onChangeField(
       'uom',
       option ? option.value : '',
-      this.props.productData._id
+      this.props.productData._id,
     );
 
   currencyOnChange = (currency: HTMLOptionElement) =>
     this.onChangeField(
       'currency',
       currency ? currency.value : '',
-      this.props.productData._id
+      this.props.productData._id,
     );
 
-  onChange = e =>
+  onChange = (e) =>
     this.onChangeField(
       (e.target as HTMLInputElement).name,
       (e.target as HTMLInputElement).value,
-      this.props.productData._id
+      this.props.productData._id,
     );
 
   onClick = () => {
@@ -324,13 +321,13 @@ class ProductItem extends React.Component<Props, State> {
     return removeProductItem && removeProductItem(productData._id);
   };
 
-  onTickUse = e => {
+  onTickUse = (e) => {
     const isChecked = (e.currentTarget as HTMLInputElement).checked;
 
     this.onChangeField('tickUsed', isChecked, this.props.productData._id);
   };
 
-  assignUserOnChange = userId => {
+  assignUserOnChange = (userId) => {
     this.onChangeField('assignUserId', userId, this.props.productData._id);
   };
 
@@ -340,7 +337,7 @@ class ProductItem extends React.Component<Props, State> {
 
   changeCurrentProduct = (_id: string) => {
     this.setState({
-      currentProduct: this.state.currentProduct === _id ? '' : _id
+      currentProduct: this.state.currentProduct === _id ? '' : _id,
     });
   };
 
@@ -353,21 +350,21 @@ class ProductItem extends React.Component<Props, State> {
       products: [
         {
           productId: product.productId,
-          quantity
-        }
-      ]
+          quantity,
+        },
+      ],
     };
     client
       .query({
         query: gql(queries.checkDiscount),
         fetchPolicy: 'network-only',
-        variables
+        variables,
       })
-      .then(res => {
+      .then((res) => {
         const { checkDiscount } = res.data;
         if (checkDiscount !== null) {
           const result: IDiscountValue = Object.values(
-            checkDiscount
+            checkDiscount,
           )[0] as IDiscountValue;
           return this.setState({ discountValue: result });
         }
@@ -380,8 +377,8 @@ class ProductItem extends React.Component<Props, State> {
             type: '',
             voucherCampaignId: '',
             voucherId: '',
-            voucherName: ''
-          }
+            voucherName: '',
+          },
         });
       });
   };
@@ -392,12 +389,12 @@ class ProductItem extends React.Component<Props, State> {
       productData,
       currencies,
       duplicateProductItem,
-      removeProductItem
+      removeProductItem,
     } = this.props;
 
     const avStyle = { display: advancedView ? '' : 'none' };
 
-    const selectOption = option => (
+    const selectOption = (option) => (
       <div className="simple-option">
         <span>{option.label}</span>
       </div>
@@ -411,11 +408,11 @@ class ProductItem extends React.Component<Props, State> {
       new Set([
         productData.uom,
         productData.product.uom,
-        ...(productData.product.subUoms || []).map(su => su.uom)
-      ])
+        ...(productData.product.subUoms || []).map((su) => su.uom),
+      ]),
     )
-      .filter(u => u)
-      .map(u => ({ value: u, label: u }));
+      .filter((u) => u)
+      .map((u) => ({ value: u, label: u }));
 
     return (
       <tr key={productData._id}>
@@ -491,24 +488,24 @@ class ProductItem extends React.Component<Props, State> {
         </td>
 
         <td style={avStyle}>
-          <Select
+          {/* <Select
             name="currency"
             placeholder={__('Choose')}
             value={productData.currency}
             onChange={this.currencyOnChange}
             optionRenderer={selectOption}
             options={selectConfigOptions(currencies, CURRENCIES)}
-          />
+          /> */}
         </td>
         <td style={avStyle}>
-          <Select
+          {/* <Select
             name="uom"
             placeholder={__('Choose')}
             value={productData.uom}
             onChange={this.uomOnChange}
             optionRenderer={selectOption}
             options={uoms}
-          />
+          /> */}
         </td>
         <td>
           <FormControl
@@ -532,7 +529,7 @@ class ProductItem extends React.Component<Props, State> {
             multi={false}
             customOption={{
               value: '',
-              label: '-----------'
+              label: '-----------',
             }}
             initialValue={productData.assignUserId}
             onSelect={this.assignUserOnChange}
@@ -545,10 +542,10 @@ class ProductItem extends React.Component<Props, State> {
             multi={false}
             customOption={{
               value: '',
-              label: '-----------'
+              label: '-----------',
             }}
             initialValue={productData.branchId}
-            onSelect={branchId => this.placeOnChange('branchId', branchId)}
+            onSelect={(branchId) => this.placeOnChange('branchId', branchId)}
           />
         </td>
         <td style={avStyle}>
@@ -558,10 +555,10 @@ class ProductItem extends React.Component<Props, State> {
             multi={false}
             customOption={{
               value: '',
-              label: '-----------'
+              label: '-----------',
             }}
             initialValue={productData.departmentId}
-            onSelect={departmentId =>
+            onSelect={(departmentId) =>
               this.placeOnChange('departmentId', departmentId)
             }
           />

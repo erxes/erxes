@@ -1,11 +1,11 @@
 import { Layout, MainWrapper } from '../styles';
+import React, { useEffect, useState } from 'react';
 import { bustIframe, getEnv } from 'modules/common/utils';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 import DetectBrowser from './DetectBrowser';
-import { IRouterProps } from '@erxes/ui/src/types';
 import { IUser } from 'modules/auth/types';
 import Navigation from './navigation';
-import React from 'react';
 import asyncComponent from 'modules/common/components/AsyncComponent';
 
 // import { withRouter } from 'react-router-dom';
@@ -17,7 +17,7 @@ const MainBar = asyncComponent(
     ),
 );
 
-interface IProps extends IRouterProps {
+interface IProps {
   currentUser?: IUser;
   children: React.ReactNode;
   isShownIndicator: boolean;
@@ -25,31 +25,27 @@ interface IProps extends IRouterProps {
   closeLoadingBar: () => void;
 }
 
-type State = {
-  navCollapse: number;
-};
+function MainLayout({
+  currentUser,
+  children,
+  isShownIndicator,
+  enabledServices,
+}: IProps) {
+  const [navCollapse, setNavCollapse] = useState<number>(2);
 
-class MainLayout extends React.Component<IProps, State> {
-  constructor(props) {
-    super(props);
+  const location = useLocation();
+  const navigate = useNavigate();
 
-    this.state = {
-      navCollapse: 2,
-    };
-  }
-
-  componentDidMount() {
-    const { history, currentUser, enabledServices } = this.props;
-
-    if (history.location.pathname !== '/reset-password' && !currentUser) {
-      history.push('/sign-in');
+  useEffect(() => {
+    if (location.pathname !== '/reset-password' && !currentUser) {
+      navigate('/sign-in');
     }
 
     // if (currentUser && process.env.NODE_ENV === 'production') {
     if (currentUser) {
       // Wootric code
       (window as any).wootricSettings = {
-        email: currentUser.email, // Required to uniquely identify a user. Email is recommended but this can be any unique identifier.
+        email: currentUser.email,
         created_at: Math.floor(
           (currentUser.createdAt
             ? new Date(currentUser.createdAt)
@@ -96,57 +92,48 @@ class MainLayout extends React.Component<IProps, State> {
     }
 
     const navNumber = localStorage.getItem('navigationNumber');
-
-    this.setState({ navCollapse: navNumber ? parseInt(navNumber) : 2 });
+    setNavCollapse(navNumber ? parseInt(navNumber) : 2);
 
     // click-jack attack defense
     bustIframe();
-  }
+  }, [location.pathname, currentUser, navigate]);
 
-  onClickHandleIcon = (type: string) => {
+  const onClickHandleIcon = (type: string) => {
     let collapse;
     if (type === 'plus') {
-      collapse = this.state.navCollapse + 1;
+      collapse = navCollapse + 1;
     } else {
-      collapse = this.state.navCollapse - 1;
+      collapse = navCollapse - 1;
     }
 
-    this.setState({ navCollapse: collapse });
+    setNavCollapse(collapse);
 
     localStorage.setItem('navigationNumber', collapse.toString());
   };
 
-  getLastImport = () => {
-    return localStorage.getItem('erxes_import_data') || '';
-  };
-
-  render() {
-    const { children, isShownIndicator, history } = this.props;
-
-    if (history.location.pathname.startsWith('/videoCall')) {
-      return children;
-    }
-
-    return (
-      <>
-        <div id="anti-clickjack" style={{ display: 'none' }} />
-
-        <Layout isSqueezed={isShownIndicator}>
-          <Navigation
-            navCollapse={this.state.navCollapse}
-            onClickHandleIcon={this.onClickHandleIcon}
-          />
-
-          <MainWrapper navCollapse={this.state.navCollapse}>
-            <MainBar />
-
-            {children}
-          </MainWrapper>
-          <DetectBrowser />
-        </Layout>
-      </>
-    );
+  if (location.pathname.startsWith('/videoCall')) {
+    return children;
   }
+
+  return (
+    <>
+      <div id="anti-clickjack" style={{ display: 'none' }} />
+
+      <Layout isSqueezed={isShownIndicator}>
+        <Navigation
+          navCollapse={navCollapse}
+          onClickHandleIcon={onClickHandleIcon}
+        />
+
+        <MainWrapper navCollapse={navCollapse}>
+          <MainBar />
+
+          {children}
+        </MainWrapper>
+        <DetectBrowser />
+      </Layout>
+    </>
+  );
 }
 
 export default MainLayout;

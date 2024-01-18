@@ -12,7 +12,7 @@ type Props = {
   currentUserQuery: CurrentUserQueryResponse;
 };
 
-const withCurrentUser = Component => {
+const withCurrentUser = (Component) => {
   const Container = (props: Props) => {
     const { currentUserQuery } = props;
 
@@ -24,13 +24,13 @@ const withCurrentUser = Component => {
 
     const updatedProps = {
       ...props,
-      currentUser
+      currentUser,
     };
 
     if (currentUser) {
       const constants = currentUser.configsConstants || [];
 
-      constants.forEach(c => storeConstantToStore(c.key, c.values));
+      constants.forEach((c) => storeConstantToStore(c.key, c.values));
     }
 
     return <Component {...updatedProps} />;
@@ -39,9 +39,9 @@ const withCurrentUser = Component => {
   return withProps<{}>(
     compose(
       graphql<{}, CurrentUserQueryResponse>(gql(gq.currentUser), {
-        name: 'currentUserQuery'
-      })
-    )(Container)
+        name: 'currentUserQuery',
+      }),
+    )(Container),
   );
 };
 

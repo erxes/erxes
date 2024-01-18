@@ -1,33 +1,38 @@
-import { getDefaultBoardAndPipelines } from '@erxes/ui-cards/src/boards/utils';
-import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
-import queryString from 'query-string';
-import React from 'react';
 import { Redirect, Route } from 'react-router-dom';
 
-const Calendar = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "Calendar" */ '@erxes/ui-cards/src/boards/components/Calendar'
-  )
+import React from 'react';
+import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
+import { getDefaultBoardAndPipelines } from '@erxes/ui-cards/src/boards/utils';
+import queryString from 'query-string';
+
+const Calendar = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "Calendar" */ '@erxes/ui-cards/src/boards/components/Calendar'
+    ),
 );
 
-const DealColumn = asyncComponent(() =>
-  import(/* webpackChunkName: "DealColumn" */ './containers/CalendarColumn')
+const DealColumn = asyncComponent(
+  () =>
+    import(/* webpackChunkName: "DealColumn" */ './containers/CalendarColumn'),
 );
 
-const DealMainActionBar = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "DealMainActionbar" */ './components/DealMainActionBar'
-  )
+const DealMainActionBar = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "DealMainActionbar" */ './components/DealMainActionBar'
+    ),
 );
 
-const DealBoard = asyncComponent(() =>
-  import(/* webpackChunkName: "DealBoard" */ './components/DealBoard')
+const DealBoard = asyncComponent(
+  () => import(/* webpackChunkName: "DealBoard" */ './components/DealBoard'),
 );
 
-const Conversation = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "Conversion" */ './components/conversion/Conversion'
-  )
+const Conversation = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "Conversion" */ './components/conversion/Conversion'
+    ),
 );
 
 const deals = () => {
@@ -38,7 +43,7 @@ const deals = () => {
 
   const [defaultBoardId, defaultPipelineId] = [
     defaultBoards.deal,
-    defaultPipelines.deal
+    defaultPipelines.deal,
   ];
 
   if (defaultBoardId && defaultPipelineId) {
@@ -106,7 +111,7 @@ const time = ({ location }) => {
 
 const routes = () => {
   return (
-    <React.Fragment>
+    <>
       <Route key="deals" exact={true} path="/deal" render={deals} />
 
       <Route
@@ -154,7 +159,7 @@ const routes = () => {
       />
 
       <Route key="deals/time" exact={true} path="/deal/time" component={time} />
-    </React.Fragment>
+    </>
   );
 };
 

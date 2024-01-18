@@ -1,17 +1,18 @@
 import {
   COMPANY_BUSINESS_TYPES,
   COMPANY_INDUSTRY_TYPES,
-  COUNTRIES
+  COUNTRIES,
 } from '../constants';
 import {
   FormColumn,
   FormWrapper,
   ModalFooter,
-  ScrollWrapper
+  ScrollWrapper,
 } from '@erxes/ui/src/styles/main';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import { ICompany, ICompanyDoc, ICompanyLinks } from '../types';
 import { __, getConstantFromStore } from '@erxes/ui/src/utils';
+import { isEnabled, loadDynamicComponent } from '@erxes/ui/src/utils/core';
 
 import AutoCompletionSelect from '@erxes/ui/src/components/AutoCompletionSelect';
 import AvatarUpload from '@erxes/ui/src/components/AvatarUpload';
@@ -23,12 +24,11 @@ import FormControl from '@erxes/ui/src/components/form/Control';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import { IUser } from '@erxes/ui/src/auth/types';
 import React from 'react';
-import Select from 'react-select-plus';
+// import Select from 'react-select-plus';
 import SelectCompanies from '../containers/SelectCompanies';
 import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
 import { isValidPhone } from '@erxes/ui-contacts/src/customers/utils';
 import validator from 'validator';
-import { isEnabled, loadDynamicComponent } from '@erxes/ui/src/utils/core';
 
 type Props = {
   currentUser: IUser;
@@ -79,12 +79,12 @@ class CompanyForm extends React.Component<Props, State> {
       avatar: company.avatar,
       industry: company.industry || '',
       businessType: company.businessType || '',
-      location: company.location || ''
+      location: company.location || '',
     };
   }
 
   generateDoc = (
-    values: { _id: string; size?: number } & ICompanyDoc & ICompanyLinks
+    values: { _id: string; size?: number } & ICompanyDoc & ICompanyLinks,
   ) => {
     const { company } = this.props;
     const { industry } = this.state;
@@ -97,7 +97,7 @@ class CompanyForm extends React.Component<Props, State> {
 
     const links = {};
 
-    getConstantFromStore('social_links').forEach(link => {
+    getConstantFromStore('social_links').forEach((link) => {
       links[link.value] = finalValues[link.value];
     });
 
@@ -108,7 +108,7 @@ class CompanyForm extends React.Component<Props, State> {
       description: finalValues.description,
       code: finalValues.code,
       links,
-      industry: industry && industry.toString()
+      industry: industry && industry.toString(),
     };
   };
 
@@ -126,15 +126,15 @@ class CompanyForm extends React.Component<Props, State> {
   };
 
   generateConstantParams(constants) {
-    return constants.map(constant => ({
+    return constants.map((constant) => ({
       value: constant,
-      label: constant
+      label: constant,
     }));
   }
 
   handleSelect = <T extends keyof State>(selectedOption: string, name: T) => {
     this.setState({
-      [name]: selectedOption
+      [name]: selectedOption,
     } as Pick<State, keyof State>);
   };
 
@@ -147,22 +147,22 @@ class CompanyForm extends React.Component<Props, State> {
     );
   };
 
-  onIndustryChange = option => {
-    this.setState({ industry: option.map(item => item.value) || [] });
+  onIndustryChange = (option) => {
+    this.setState({ industry: option.map((item) => item.value) || [] });
   };
 
-  onBusinessChange = option => {
+  onBusinessChange = (option) => {
     this.setState({ businessType: option.value });
   };
 
-  onCountryChange = option => {
+  onCountryChange = (option) => {
     this.setState({ location: option.value });
   };
 
   onChange = (
     optionsName: string,
     optionName: string,
-    { options, selectedOption }: { options: string[]; selectedOption: string }
+    { options, selectedOption }: { options: string[]; selectedOption: string },
   ) => {
     this.setState({ [optionsName]: options, [optionName]: selectedOption });
   };
@@ -175,7 +175,7 @@ class CompanyForm extends React.Component<Props, State> {
       ...formProps,
       name: link.value,
       defaultValue: links[link.value] || '',
-      type: 'url'
+      type: 'url',
     });
   }
 
@@ -191,16 +191,16 @@ class CompanyForm extends React.Component<Props, State> {
       phones,
       primaryEmail,
       ownerId,
-      emails
+      emails,
     } = company;
 
     const { parentCompanyId } = this.state;
 
-    const onSelectOwner = value => {
+    const onSelectOwner = (value) => {
       return this.handleSelect(value, 'ownerId');
     };
 
-    const onSelectParentCompany = value => {
+    const onSelectParentCompany = (value) => {
       return this.handleSelect(value, 'parentCompanyId');
     };
 
@@ -225,7 +225,7 @@ class CompanyForm extends React.Component<Props, State> {
                 {this.renderFormGroup('Code', {
                   ...formProps,
                   name: 'code',
-                  defaultValue: company.code || ''
+                  defaultValue: company.code || '',
                 })}
 
                 <FormGroup>
@@ -258,7 +258,7 @@ class CompanyForm extends React.Component<Props, State> {
 
                 <FormGroup>
                   <ControlLabel>Industries</ControlLabel>
-                  <Select
+                  {/* <Select
                     value={this.state.industry}
                     onChange={this.onIndustryChange}
                     options={this.generateConstantParams(
@@ -266,7 +266,7 @@ class CompanyForm extends React.Component<Props, State> {
                     )}
                     multi={true}
                     clearable={false}
-                  />
+                  /> */}
                 </FormGroup>
 
                 <FormGroup>
@@ -281,7 +281,7 @@ class CompanyForm extends React.Component<Props, State> {
                     onChange={this.onChange.bind(
                       this,
                       'emails',
-                      'primaryEmail'
+                      'primaryEmail',
                     )}
                     checkFormat={validator.isEmail}
                   />
@@ -299,13 +299,13 @@ class CompanyForm extends React.Component<Props, State> {
                 </FormGroup>
                 <FormGroup>
                   <ControlLabel>Headquarters Country</ControlLabel>
-                  <Select
+                  {/* <Select
                     value={this.state.location}
                     onChange={this.onCountryChange}
                     options={this.generateConstantParams(COUNTRIES)}
                     placeholder={__('Select country')}
                     clearable={true}
-                  />
+                  /> */}
                 </FormGroup>
               </FormColumn>
               <FormColumn>
@@ -321,7 +321,7 @@ class CompanyForm extends React.Component<Props, State> {
                 </FormGroup>
                 <FormGroup>
                   <ControlLabel>Business Type</ControlLabel>
-                  <Select
+                  {/* <Select
                     value={this.state.businessType}
                     onChange={this.onBusinessChange}
                     options={this.generateConstantParams(
@@ -329,7 +329,7 @@ class CompanyForm extends React.Component<Props, State> {
                     )}
                     placeholder={__('Select')}
                     clearable={false}
-                  />
+                  /> */}
                 </FormGroup>
 
                 <FormGroup>
@@ -344,7 +344,7 @@ class CompanyForm extends React.Component<Props, State> {
                     onChange={this.onChange.bind(
                       this,
                       'phones',
-                      'primaryPhone'
+                      'primaryPhone',
                     )}
                     checkFormat={isValidPhone}
                   />
@@ -354,7 +354,7 @@ class CompanyForm extends React.Component<Props, State> {
                   ...formProps,
                   name: 'size',
                   type: 'number',
-                  defaultValue: company.size || 0
+                  defaultValue: company.size || 0,
                 })}
 
                 {this.renderFormGroup('Subscribed', {
@@ -364,17 +364,17 @@ class CompanyForm extends React.Component<Props, State> {
                       childNode: 'Yes',
                       value: 'Yes',
                       checked: this.state.isSubscribed === 'Yes',
-                      onChange: e =>
-                        this.setState({ isSubscribed: e.target.value })
+                      onChange: (e) =>
+                        this.setState({ isSubscribed: e.target.value }),
                     },
                     {
                       childNode: 'No',
                       value: 'No',
                       checked: this.state.isSubscribed === 'No',
-                      onChange: e =>
-                        this.setState({ isSubscribed: e.target.value })
-                    }
-                  ]
+                      onChange: (e) =>
+                        this.setState({ isSubscribed: e.target.value }),
+                    },
+                  ],
                 })}
               </FormColumn>
             </FormWrapper>
@@ -382,8 +382,8 @@ class CompanyForm extends React.Component<Props, State> {
           <CollapseContent title={__('Links')} compact={true} open={true}>
             <FormWrapper>
               <FormColumn>
-                {getConstantFromStore('social_links').map(link =>
-                  this.renderLink(formProps, link)
+                {getConstantFromStore('social_links').map((link) =>
+                  this.renderLink(formProps, link),
                 )}
               </FormColumn>
             </FormWrapper>
@@ -396,7 +396,7 @@ class CompanyForm extends React.Component<Props, State> {
                     loadDynamicComponent('relationForm', {
                       ...this.props,
                       onChange: this.onRelationsChange,
-                      contentType: 'contacts:company'
+                      contentType: 'contacts:company',
                     })}
                 </FormColumn>
               </FormWrapper>
@@ -413,7 +413,7 @@ class CompanyForm extends React.Component<Props, State> {
             name: 'company',
             values: this.generateDoc(values),
             isSubmitted,
-            object: this.props.company
+            object: this.props.company,
           })}
         </ModalFooter>
       </>

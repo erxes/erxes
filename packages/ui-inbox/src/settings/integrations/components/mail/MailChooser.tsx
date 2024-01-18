@@ -2,7 +2,7 @@ import * as React from 'react';
 
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import { IIntegration } from '../../types';
-import Select from 'react-select-plus';
+// import Select from 'react-select-plus';
 import { __ } from '@erxes/ui/src/utils';
 import styled from 'styled-components';
 
@@ -32,33 +32,33 @@ class MailChooser extends React.Component<Props> {
       verifiedImapEmails = [],
       verifiedEngageEmails = [],
       selectedItem = '',
-      onChange
+      onChange,
     } = this.props;
 
-    const onSelectChange = val => {
+    const onSelectChange = (val) => {
       onChange(val && val.value);
     };
 
     const options = [
       {
         label: 'Shared Emails (IMAP)',
-        options: verifiedImapEmails.map(e => ({ value: e, label: e }))
+        options: verifiedImapEmails.map((e) => ({ value: e, label: e })),
       },
       {
         label: 'Broadcast (Campaign)',
-        options: verifiedEngageEmails.map(e => ({ value: e, label: e }))
-      }
+        options: verifiedEngageEmails.map((e) => ({ value: e, label: e })),
+      },
     ];
 
     return (
       <Wrapper>
         <FormGroup>
-          <Select
+          {/* <Select
             placeholder={__('Choose email to send from')}
             value={selectedItem}
             onChange={onSelectChange}
             options={options}
-          />
+          /> */}
         </FormGroup>
       </Wrapper>
     );

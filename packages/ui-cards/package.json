@@ -18,7 +18,6 @@
     "react-calendar-timeline": "^0.28.0",
     "react-gantt-timeline": "0.4.3",
     "react-router-dom": "^5.1.2",
-    "react-select-plus": "^1.0.0-rc.5",
     "react-transition-group": "^2.5.1",
     "recharts": "^1.8.5",
     "request-idle-callback": "^1.0.2",

@@ -1,33 +1,30 @@
-import { __ } from 'modules/common/utils';
-import {
-  PLACEHOLDER,
-  ROLE_OPTIONS,
-  ROLE_VALUE,
-  TOOLTIP
-} from 'modules/robot/constants';
-import React from 'react';
-import Select from 'react-select-plus';
-import { selectOptions } from '../../utils';
+// import Select from 'react-select-plus';
+// import { selectOptions } from '../../utils';
 import { Container, SubContent } from '../styles';
-import { IRoleValue } from 'modules/robot/types';
-import Tip from 'modules/common/components/Tip';
-import Icon from 'modules/common/components/Icon';
-import styled from 'styled-components';
 
-const SelectUp = styled.div`
-  .Select-menu-outer {
-    position: absolute;
-    top: auto;
-    bottom: calc(100% - 1px);
-  }
-`;
+import { IRoleValue } from 'modules/robot/types';
+import Icon from 'modules/common/components/Icon';
+import React from 'react';
+import { TOOLTIP } from 'modules/robot/constants';
+import Tip from 'modules/common/components/Tip';
+import { __ } from 'modules/common/utils';
+
+// import styled from 'styled-components';
+
+// const SelectUp = styled.div`
+//   .Select-menu-outer {
+//     position: absolute;
+//     top: auto;
+//     bottom: calc(100% - 1px);
+//   }
+// `;
 
 type Props = {
   renderButton: (
     text: string,
     onClick,
     icon: string,
-    disabled: boolean
+    disabled: boolean,
   ) => React.ReactNode;
   changeRoute: (route: string) => void;
   getRoleOptions: (roleValue: IRoleValue) => void;
@@ -50,7 +47,7 @@ class Roles extends React.Component<Props, State> {
     this.state = {
       step: 1,
       selectedRole: this.props.roleValue.value || '',
-      selectedAnswer: this.props.answerOf.value || ''
+      selectedAnswer: this.props.answerOf.value || '',
     };
   }
 
@@ -74,9 +71,10 @@ class Roles extends React.Component<Props, State> {
     const { renderButton, changeRoute } = this.props;
     const { selectedRole, selectedAnswer } = this.state;
 
-    const selectedRoleOnChange = value => this.onChange('selectedRole', value);
-    const selectedAnswerOnChange = value =>
-      this.onChange('selectedAnswer', value);
+    // const selectedRoleOnChange = (value) =>
+    //   this.onChange("selectedRole", value);
+    // const selectedAnswerOnChange = (value) =>
+    //   this.onChange("selectedAnswer", value);
 
     return (
       <Container>
@@ -90,7 +88,7 @@ class Roles extends React.Component<Props, State> {
             <Icon icon="info-circle" color="hsl(259,50%,51.9%)" />
           </Tip>
         </p>
-        <Select
+        {/* <Select
           value={selectedRole}
           onChange={selectedRoleOnChange}
           placeholder={__(PLACEHOLDER)}
@@ -105,12 +103,12 @@ class Roles extends React.Component<Props, State> {
             placeholder={__(PLACEHOLDER)}
             options={selectOptions(ROLE_VALUE)}
           />
-        </SelectUp>
+        </SelectUp> */}
         {renderButton(
           'Next',
           () => changeRoute('setupList'),
           'arrow-circle-right',
-          !selectedRole || !selectedAnswer ? true : false
+          !selectedRole || !selectedAnswer ? true : false,
         )}
       </Container>
     );

@@ -8,7 +8,7 @@ import FormGroup from '@erxes/ui/src/components/form/Group';
 import { IChannel } from '../../channels/types';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import React from 'react';
-import Select from 'react-select-plus';
+// import Select from 'react-select-plus';
 import { __ } from '@erxes/ui/src/utils';
 
 type Props = {
@@ -30,7 +30,7 @@ class SelectChannels extends React.Component<Props, {}> {
       </Button>
     );
 
-    const content = props => (
+    const content = (props) => (
       <ChannelForm {...props} renderButton={renderButton} />
     );
 
@@ -44,19 +44,19 @@ class SelectChannels extends React.Component<Props, {}> {
   };
 
   generateUserOptions(array: IChannel[] = []): IOption[] {
-    return array.map(item => {
+    return array.map((item) => {
       const channel = item || ({} as IChannel);
 
       return {
         value: channel._id,
-        label: channel.name
+        label: channel.name,
       };
     });
   }
 
-  onChangeChannel = values => {
+  onChangeChannel = (values) => {
     if (this.props.onChange) {
-      this.props.onChange(values.map(item => item.value) || []);
+      this.props.onChange(values.map((item) => item.value) || []);
     }
   };
 
@@ -66,8 +66,8 @@ class SelectChannels extends React.Component<Props, {}> {
       defaultValue,
       isRequired,
       description = __(
-        'In which Channel(s) do you want to add this integration?'
-      )
+        'In which Channel(s) do you want to add this integration?',
+      ),
     } = this.props;
 
     return (
@@ -76,13 +76,13 @@ class SelectChannels extends React.Component<Props, {}> {
         <p>{description}</p>
         <Row>
           <LeftContent>
-            <Select
+            {/* <Select
               placeholder={__('Select channel')}
               value={defaultValue}
               onChange={this.onChangeChannel}
               options={this.generateUserOptions(channels)}
               multi={true}
-            />
+            /> */}
           </LeftContent>
           {this.renderAddBrand()}
         </Row>

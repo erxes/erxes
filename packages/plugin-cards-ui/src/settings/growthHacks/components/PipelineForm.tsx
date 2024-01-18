@@ -17,7 +17,7 @@ import Modal from 'react-bootstrap/Modal';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
 import React from 'react';
-import Select from 'react-select-plus';
+// import Select from 'react-select-plus';
 import { SelectMemberStyled } from '@erxes/ui-cards/src/settings/boards/styles';
 import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
 import TwitterPicker from 'react-color/lib/Twitter';
@@ -72,7 +72,7 @@ class PipelineForm extends React.Component<Props, State> {
       endDate: pipeline ? pipeline.endDate : undefined,
       boardId: props.boardId || '',
       numberConfig: (pipeline && pipeline.numberConfig) || '',
-      numberSize: (pipeline && pipeline.numberSize) || ''
+      numberSize: (pipeline && pipeline.numberSize) || '',
     };
   }
 
@@ -80,14 +80,14 @@ class PipelineForm extends React.Component<Props, State> {
     client
       .query({
         query: gql(queries.pipelineTemplates),
-        variables: { type: 'growthHack' }
+        variables: { type: 'growthHack' },
       })
       .then(({ data }: { data: any }) => {
         if (data && data.pipelineTemplates) {
           this.setState({ templates: data.pipelineTemplates });
         }
       })
-      .catch(error => {
+      .catch((error) => {
         console.log(error.message); // tslint:disable-line
       });
   }
@@ -98,12 +98,12 @@ class PipelineForm extends React.Component<Props, State> {
 
   onChangeVisibility = (e: React.FormEvent<HTMLElement>) => {
     this.setState({
-      visibility: (e.currentTarget as HTMLInputElement).value
+      visibility: (e.currentTarget as HTMLInputElement).value,
     });
   };
 
   onChangeValue = <T extends keyof State>(key: T, value: State[T]) => {
-    this.setState(({ [key]: value } as unknown) as Pick<State, keyof State>);
+    this.setState({ [key]: value } as unknown as Pick<State, keyof State>);
   };
 
   onDateInputChange = (type: string, date) => {
@@ -114,11 +114,11 @@ class PipelineForm extends React.Component<Props, State> {
     }
   };
 
-  collectValues = items => {
-    return items.map(item => item.value);
+  collectValues = (items) => {
+    return items.map((item) => item.value);
   };
 
-  onColorChange = e => {
+  onColorChange = (e) => {
     this.setState({ backgroundColor: e.hex });
   };
 
@@ -142,7 +142,7 @@ class PipelineForm extends React.Component<Props, State> {
       metric,
       boardId,
       numberConfig,
-      numberSize
+      numberSize,
     } = this.state;
     const finalValues = values;
 
@@ -162,7 +162,7 @@ class PipelineForm extends React.Component<Props, State> {
       endDate,
       metric,
       numberConfig,
-      numberSize
+      numberSize,
     };
   };
 
@@ -174,7 +174,7 @@ class PipelineForm extends React.Component<Props, State> {
     }
     const self = this;
 
-    const onChange = items => {
+    const onChange = (items) => {
       self.setState({ selectedMemberIds: items });
     };
 
@@ -197,24 +197,24 @@ class PipelineForm extends React.Component<Props, State> {
   renderTemplates() {
     const { templates, templateId } = this.state;
 
-    const templateOptions = templates.map(template => ({
+    const templateOptions = templates.map((template) => ({
       value: template._id,
-      label: template.name
+      label: template.name,
     }));
 
-    const onChange = item => this.onChangeValue('templateId', item.value);
+    const onChange = (item) => this.onChangeValue('templateId', item.value);
 
     return (
       <FormGroup>
         <ControlLabel>Template</ControlLabel>
 
-        <Select
+        {/* <Select
           placeholder={__('Choose template')}
           value={templateId}
           options={templateOptions}
           onChange={onChange}
           clearable={false}
-        />
+        /> */}
       </FormGroup>
     );
   }
@@ -222,23 +222,23 @@ class PipelineForm extends React.Component<Props, State> {
   renderBoards() {
     const { boards } = this.props;
 
-    const boardOptions = boards.map(board => ({
+    const boardOptions = boards.map((board) => ({
       value: board._id,
-      label: board.name
+      label: board.name,
     }));
 
-    const onChange = item => this.onChangeValue('boardId', item.value);
+    const onChange = (item) => this.onChangeValue('boardId', item.value);
 
     return (
       <FormGroup>
         <ControlLabel required={true}>Campaign</ControlLabel>
-        <Select
+        {/* <Select
           placeholder={__('Choose a campaign')}
           value={this.state.boardId}
           options={boardOptions}
           onChange={onChange}
           clearable={false}
-        />
+        /> */}
       </FormGroup>
     );
   }
@@ -276,7 +276,7 @@ class PipelineForm extends React.Component<Props, State> {
     const object = pipeline || ({} as IPipeline);
     const { startDate, endDate, metric, visibility } = this.state;
 
-    const onChangeMetric = item => this.onChangeValue('metric', item.value);
+    const onChangeMetric = (item) => this.onChangeValue('metric', item.value);
 
     const popoverBottom = (
       <Popover id="color-picker">
@@ -319,17 +319,17 @@ class PipelineForm extends React.Component<Props, State> {
               {this.renderBox(
                 'ice',
                 'Set the Impact, Confidence and Ease factors for your tasks. Final score is calculated by the formula:',
-                'Impact * Confidence * Ease'
+                'Impact * Confidence * Ease',
               )}
               {this.renderBox(
                 'rice',
                 'Set the Reach, Impact, Confidence and Effort factors for your tasks. Final score is calculated by the formula:',
-                '(Reach * Impact * Confidence) / Effort'
+                '(Reach * Impact * Confidence) / Effort',
               )}
               {this.renderBox(
                 'pie',
                 'Set the Potential, Importance and Ease factors for your tasks. Final score is calculated by the formula:',
-                '(Potential + Importance + Ease) / 3'
+                '(Potential + Importance + Ease) / 3',
               )}
             </Flex>
           </FormGroup>
@@ -365,13 +365,13 @@ class PipelineForm extends React.Component<Props, State> {
             <ExpandWrapper>
               <FormGroup>
                 <ControlLabel>Metric</ControlLabel>
-                <Select
+                {/* <Select
                   placeholder={__('Choose a metric')}
                   value={metric}
                   options={metricOptions}
                   onChange={onChangeMetric}
                   clearable={false}
-                />
+                /> */}
               </FormGroup>
             </ExpandWrapper>
             <ExpandWrapper>
@@ -403,7 +403,7 @@ class PipelineForm extends React.Component<Props, State> {
                       <ColorPick>
                         <ColorPicker
                           style={{
-                            backgroundColor: this.state.backgroundColor
+                            backgroundColor: this.state.backgroundColor,
                           }}
                         />
                       </ColorPick>
@@ -433,7 +433,7 @@ class PipelineForm extends React.Component<Props, State> {
               values: this.generateDoc(values),
               isSubmitted,
               callback: closeModal,
-              object: pipeline
+              object: pipeline,
             })}
           </Modal.Footer>
         </Modal.Body>

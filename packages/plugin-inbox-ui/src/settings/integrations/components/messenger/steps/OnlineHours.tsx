@@ -7,7 +7,7 @@ import FormGroup from '@erxes/ui/src/components/form/Group';
 import { IOnlineHour } from '@erxes/ui-inbox/src/settings/integrations/types';
 import Icon from '@erxes/ui/src/components/Icon';
 import React from 'react';
-import Select from 'react-select-plus';
+// import Select from 'react-select-plus';
 import styled from 'styled-components';
 
 const FillContent = styled.div`
@@ -36,7 +36,7 @@ class OnlineHours extends React.Component<Props, State> {
 
     // find current editing one
     const onlineHour =
-      onlineHours.find(hour => hour._id === onlineHourId) || [];
+      onlineHours.find((hour) => hour._id === onlineHourId) || [];
 
     // set new value
     onlineHour[name] = value;
@@ -54,7 +54,7 @@ class OnlineHours extends React.Component<Props, State> {
       _id: Math.random().toString(),
       day: days[0].value,
       from: hours[0].value,
-      to: hours[0].value
+      to: hours[0].value,
     });
 
     this.setState({ onlineHours });
@@ -63,10 +63,10 @@ class OnlineHours extends React.Component<Props, State> {
     this.props.onChange(onlineHours);
   };
 
-  removeTime = onlineHourId => {
+  removeTime = (onlineHourId) => {
     let onlineHours = this.state.onlineHours;
 
-    onlineHours = onlineHours.filter(hour => hour._id !== onlineHourId);
+    onlineHours = onlineHours.filter((hour) => hour._id !== onlineHourId);
 
     this.setState({ onlineHours });
 
@@ -79,15 +79,15 @@ class OnlineHours extends React.Component<Props, State> {
       this.removeTime(onlineHour._id);
     };
 
-    const onDayChange = e => {
+    const onDayChange = (e) => {
       this.onTimeItemChange(onlineHour._id, 'day', e.value);
     };
 
-    const onFromChange = e => {
+    const onFromChange = (e) => {
       this.onTimeItemChange(onlineHour._id, 'from', e.value);
     };
 
-    const onToChange = e => {
+    const onToChange = (e) => {
       this.onTimeItemChange(onlineHour._id, 'to', e.value);
     };
 
@@ -95,35 +95,35 @@ class OnlineHours extends React.Component<Props, State> {
     return (
       <FlexRow key={_id}>
         <FillContent>
-          <Select
+          {/* <Select
             className="flex-item"
             value={day}
             options={days}
             onChange={onDayChange}
             clearable={false}
-          />
+          /> */}
         </FillContent>
 
         <span>from</span>
         <FillContent>
-          <Select
+          {/* <Select
             className="flex-item"
             onChange={onFromChange}
             value={from}
             options={hours}
             clearable={false}
-          />
+          /> */}
         </FillContent>
 
         <span>to</span>
         <FillContent>
-          <Select
+          {/* <Select
             className="flex-item"
             onChange={onToChange}
             value={to}
             options={hours}
             clearable={false}
-          />
+          /> */}
         </FillContent>
 
         <Button size="small" btnStyle="danger" onClick={remove}>
@@ -138,8 +138,8 @@ class OnlineHours extends React.Component<Props, State> {
       <FormGroup>
         <ControlLabel>Online hours</ControlLabel>
 
-        {this.state.onlineHours.map(onlineHour =>
-          this.renderOnlineHour(onlineHour)
+        {this.state.onlineHours.map((onlineHour) =>
+          this.renderOnlineHour(onlineHour),
         )}
 
         <br />

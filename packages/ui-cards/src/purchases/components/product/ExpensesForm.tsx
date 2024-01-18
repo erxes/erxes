@@ -1,22 +1,22 @@
-import React from 'react';
-import Icon from '@erxes/ui/src/components/Icon';
-import { LinkButton } from '@erxes/ui/src/styles/main';
-import { __ } from 'coreui/utils';
 import { Alert } from '@erxes/ui/src/utils';
-import Select from 'react-select-plus';
-import Table from '@erxes/ui/src/components/table';
 import Button from '@erxes/ui/src/components/Button';
 import { FormControl } from '@erxes/ui/src/components/form';
+import Icon from '@erxes/ui/src/components/Icon';
+import { LinkButton } from '@erxes/ui/src/styles/main';
+import React from 'react';
+// import Select from 'react-select-plus';
+import Table from '@erxes/ui/src/components/table';
+import { __ } from 'coreui/utils';
 
 const ExpensesForm = ({
   expensesQueryData,
   expensesData,
-  onChangeExpensesData
+  onChangeExpensesData,
 }) => {
   const onChangeField = (field, value, expenseId: string) => {
     const updatedExpensesData = expensesData;
     if (updatedExpensesData) {
-      const expenseData = updatedExpensesData.find(p => p._id === expenseId);
+      const expenseData = updatedExpensesData.find((p) => p._id === expenseId);
       if (expenseData) {
         expenseData[field] = value;
       }
@@ -24,7 +24,7 @@ const ExpensesForm = ({
     }
   };
 
-  const deleteElement = index => {
+  const deleteElement = (index) => {
     const newItems = [...expensesData];
     newItems.splice(index, 1);
     onChangeExpensesData(newItems);
@@ -40,24 +40,24 @@ const ExpensesForm = ({
       _id: Math.random().toString(),
       type: typeOptions[0].value,
       name: nameOptions[0].value,
-      value: 0
+      value: 0,
     };
 
     onChangeExpensesData([...expensesData, newElement]);
   };
   const options = [
     { value: 'quantity', label: 'by quantity' },
-    { value: 'amount', label: 'by amount' }
+    { value: 'amount', label: 'by amount' },
   ];
 
-  const nameOptions = (expensesQueryData || []).map(result => ({
+  const nameOptions = (expensesQueryData || []).map((result) => ({
     value: result.name,
-    label: result.name
+    label: result.name,
   }));
 
-  const typeOptions = options.map(result => ({
+  const typeOptions = options.map((result) => ({
     value: result.value,
-    label: result.value
+    label: result.value,
   }));
 
   return (
@@ -75,7 +75,7 @@ const ExpensesForm = ({
           {(expensesData || []).map((element, index) => (
             <tr key={index}>
               <td>
-                <Select
+                {/* <Select
                   placeholder={__('Select a type')}
                   value={element.type}
                   options={typeOptions}
@@ -83,11 +83,11 @@ const ExpensesForm = ({
                     onChangeField('type', value.value, element._id)
                   }
                   clearable={false}
-                />
+                /> */}
               </td>
 
               <td>
-                <Select
+                {/* <Select
                   placeholder={__('Select a name')}
                   value={element.name}
                   options={nameOptions}
@@ -95,7 +95,7 @@ const ExpensesForm = ({
                     onChangeField('name', value.value, element._id)
                   }
                   clearable={false}
-                />
+                /> */}
               </td>
               <td>
                 <FormControl

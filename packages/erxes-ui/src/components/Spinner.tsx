@@ -14,20 +14,20 @@ type Props = {
 };
 
 const Spin = styledTS<Props>(styled.div)`
-  height: ${props => props.objective && '100px'};
-  position: ${props => props.objective && 'relative'};
+  height: ${(props) => props.$objective && '100px'};
+  position: ${(props) => props.$objective && 'relative'};
 `;
 
 export const MainLoader = styledTS<Props>(styled.div)`
   position: absolute;
-  left: ${props => props.left};
-  right: ${props => props.right};
-  top: ${props => props.top};
-  bottom: ${props => props.bottom};
-  width: ${props => props.size}px;
-  height: ${props => props.size}px;
-  margin-left: -${props => props.size}px;
-  margin-top: -${props => props.size && props.size / 2}px;
+  left: ${(props) => props.left};
+  right: ${(props) => props.right};
+  top: ${(props) => props.top};
+  bottom: ${(props) => props.bottom};
+  width: ${(props) => props.size}px;
+  height: ${(props) => props.size}px;
+  margin-left: -${(props) => props.size}px;
+  margin-top: -${(props) => props.size && props.size / 2}px;
   animation: ${rotate} 0.75s linear infinite;
   border: 2px solid ${colors.borderDarker};
   border-top-color: ${colors.colorSecondary};
@@ -41,10 +41,10 @@ function Spinner({
   top = '50%',
   bottom = 'auto',
   left = '50%',
-  right = 'auto'
+  right = 'auto',
 }: Props) {
   return (
-    <Spin objective={objective}>
+    <Spin $objective={objective}>
       <MainLoader
         size={size}
         top={top}

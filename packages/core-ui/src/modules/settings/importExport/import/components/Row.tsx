@@ -1,10 +1,11 @@
-import React from 'react';
-import Select from 'react-select-plus';
-import dayjs from 'dayjs';
 import { FlexRow, ImportColumnRow } from 'modules/settings/importExport/styles';
+
 import Icon from '@erxes/ui/src/components/Icon';
+import React from 'react';
 import Tip from '@erxes/ui/src/components/Tip';
 import { __ } from 'modules/common/utils';
+// import Select from 'react-select-plus';
+import dayjs from 'dayjs';
 
 type Props = {
   columns: any[];
@@ -21,7 +22,7 @@ class Row extends React.Component<Props, {}> {
 
     const sampleDatas = columns[column];
 
-    return sampleDatas.map(sample => {
+    return sampleDatas.map((sample) => {
       return (
         <span key={Math.random()}>
           <li>{sample}</li>
@@ -37,13 +38,8 @@ class Row extends React.Component<Props, {}> {
   };
 
   renderMatch = () => {
-    const {
-      column,
-      columns,
-      columnWithChosenField,
-      fields,
-      contentType
-    } = this.props;
+    const { column, columns, columnWithChosenField, fields, contentType } =
+      this.props;
 
     if (columnWithChosenField[contentType]) {
       const chosenColumn = columnWithChosenField[contentType][column];
@@ -57,7 +53,7 @@ class Row extends React.Component<Props, {}> {
       const sampleDatas = columns[column];
 
       const chosenField = fields.find(
-        field => field.value === chosenColumn.value
+        (field) => field.value === chosenColumn.value,
       );
 
       for (const sample of sampleDatas) {
@@ -91,41 +87,41 @@ class Row extends React.Component<Props, {}> {
   };
 
   render() {
-    const { fields, columnWithChosenField, column, contentType } = this.props;
+    // const { fields, columnWithChosenField, column, contentType } = this.props;
 
-    const renderValue = () => {
-      const chosenField = columnWithChosenField[contentType];
+    // const renderValue = () => {
+    //   const chosenField = columnWithChosenField[contentType];
 
-      if (!chosenField) {
-        return '';
-      }
+    //   if (!chosenField) {
+    //     return '';
+    //   }
 
-      if (chosenField) {
-        return chosenField[column] ? chosenField[column].value : '';
-      }
+    //   if (chosenField) {
+    //     return chosenField[column] ? chosenField[column].value : '';
+    //   }
 
-      return '';
-    };
+    //   return '';
+    // };
 
-    const renderOptions = () => {
-      const options = [...fields];
+    // const renderOptions = () => {
+    //   const options = [...fields];
 
-      const chosenField = columnWithChosenField[contentType];
+    //   const chosenField = columnWithChosenField[contentType];
 
-      if (!chosenField) {
-        return options;
-      }
+    //   if (!chosenField) {
+    //     return options;
+    //   }
 
-      options.forEach(option => {
-        Object.keys(chosenField).forEach(key => {
-          if (chosenField[key].value === option.value) {
-            option.disabled = true;
-          }
-        });
-      });
+    //   options.forEach(option => {
+    //     Object.keys(chosenField).forEach(key => {
+    //       if (chosenField[key].value === option.value) {
+    //         option.disabled = true;
+    //       }
+    //     });
+    //   });
 
-      return options;
-    };
+    //   return options;
+    // };
 
     return (
       <ImportColumnRow>
@@ -136,13 +132,13 @@ class Row extends React.Component<Props, {}> {
         </td>
         <td>
           <FlexRow>
-            <Select
+            {/* <Select
               placeholder={__('Choose')}
               options={renderOptions()}
               onChange={this.onChange}
               clearable={false}
               value={renderValue()}
-            />
+            /> */}
           </FlexRow>
         </td>
       </ImportColumnRow>

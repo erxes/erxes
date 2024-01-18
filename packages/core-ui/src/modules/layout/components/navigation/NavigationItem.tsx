@@ -38,7 +38,7 @@ export default function NavigationItem(props: Props) {
   };
 
   const navMenuItemNode = (
-    <NavMenuItem isMoreItem={false} navCollapse={navCollapse}>
+    <NavMenuItem $isMoreItem={false} $navCollapse={navCollapse}>
       <NavLink
         to={getLink(plugin.url)}
         onClick={() => toggleMenu && toggleMenu(plugin.text)}
@@ -66,7 +66,7 @@ export default function NavigationItem(props: Props) {
 
   const renderItem = () => {
     return (
-      <NavItem isMoreItem={false}>
+      <NavItem $isMoreItem={false}>
         {renderNavMenuItem()}
 
         <NavigationItemChildren

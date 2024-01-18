@@ -1,8 +1,8 @@
-import React from 'react';
-import { useRichTextEditorContext } from '../RichTextEditor.context';
-import Select from 'react-select-plus';
-import { getAttributesForEachSelected } from '../utils/getAttributesForEachSelected';
 import { FontSelectWrapper } from './styles';
+import React from 'react';
+// import Select from 'react-select-plus';
+import { getAttributesForEachSelected } from '../utils/getAttributesForEachSelected';
+import { useRichTextEditorContext } from '../RichTextEditor.context';
 
 export type SelectProps = {
   value: string;
@@ -26,7 +26,7 @@ const DEFAULT_FONT_SIZE_SELECT_OPTIONS: Array<string | number> = [
   '28',
   '36',
   '42',
-  '72'
+  '72',
 ];
 
 export const RichTextEditorFontControl = ({ toolbarPlacement }) => {
@@ -48,7 +48,7 @@ export const RichTextEditorFontControl = ({ toolbarPlacement }) => {
     : [];
   const isTextStyleAppliedToEntireSelection = !!editor?.isActive('textStyle');
   const currentFontSizes: string[] = allCurrentTextStyleAttrs.map(
-    attrs => attrs.fontSize ?? '' // Treat any null/missing font-size as ""
+    (attrs) => attrs.fontSize ?? '', // Treat any null/missing font-size as ""
   );
   if (!isTextStyleAppliedToEntireSelection) {
     // If there is some selected content that does not have textStyle, we can
@@ -81,23 +81,15 @@ export const RichTextEditorFontControl = ({ toolbarPlacement }) => {
 
   const setSize = (size: string) => {
     if (size === 'default') {
-      editor
-        ?.chain()
-        .unsetFontSize()
-        .focus()
-        .run();
+      editor?.chain().unsetFontSize().focus().run();
       return;
     }
-    editor
-      ?.chain()
-      .setFontSize(size)
-      .focus()
-      .run();
+    editor?.chain().setFontSize(size).focus().run();
   };
 
   return (
     <FontSelectWrapper $toolbarPlacement={toolbarPlacement}>
-      <Select
+      {/* <Select
         autosize={true}
         placeholder="Size"
         multi={false}
@@ -108,7 +100,7 @@ export const RichTextEditorFontControl = ({ toolbarPlacement }) => {
           label: size
         }))}
         disabled={isSourceEnabled}
-      />
+      /> */}
     </FontSelectWrapper>
   );
 };

@@ -5306,11 +5306,6 @@
   dependencies:
     "@types/unist" "^2"
 
-"@types/history@^4.7.11":
-  version "4.7.11"
-  resolved "https://registry.yarnpkg.com/@types/history/-/history-4.7.11.tgz#56588b17ae8f50c53983a524fc3cc47437969d64"
-  integrity sha512-qjDJRrmvBMiTx+jyLxvLfJU7UznFuokDv4f3WRuriHKERccVpFU+8XMQUAbDzoiJCsmexxRExQeMwwCdamSKDA==
-
 "@types/hoist-non-react-statics@^3.3.0":
   version "3.3.5"
   resolved "https://registry.yarnpkg.com/@types/hoist-non-react-statics/-/hoist-non-react-statics-3.3.5.tgz#dab7867ef789d87e2b4b0003c9d65c49cc44a494"
@@ -5681,23 +5676,6 @@
     "@types/react" "*"
     hoist-non-react-statics "^3.3.0"
     redux "^4.0.0"
-
-"@types/react-router-dom@^5.3.3":
-  version "5.3.3"
-  resolved "https://registry.yarnpkg.com/@types/react-router-dom/-/react-router-dom-5.3.3.tgz#e9d6b4a66fcdbd651a5f106c2656a30088cc1e83"
-  integrity sha512-kpqnYK4wcdm5UaWI3fLcELopqLrHgLqNsdpHauzlQktfkHL3npOSwtj1Uz9oKBAzs7lFtVkV8j83voAz2D8fhw==
-  dependencies:
-    "@types/history" "^4.7.11"
-    "@types/react" "*"
-    "@types/react-router" "*"
-
-"@types/react-router@*":
-  version "5.1.20"
-  resolved "https://registry.yarnpkg.com/@types/react-router/-/react-router-5.1.20.tgz#88eccaa122a82405ef3efbcaaa5dcdd9f021387c"
-  integrity sha512-jGjmu/ZqS7FjSH6owMcD5qpq19+1RS9DeVRqfl1FeBMxTDQAGwlMWOcs52NDoXaNKyG3d1cYQFMs9rCrb88o9Q==
-  dependencies:
-    "@types/history" "^4.7.11"
-    "@types/react" "*"
 
 "@types/react-transition-group@^4.4.6":
   version "4.4.10"
@@ -8580,7 +8558,7 @@ classcat@^5.0.3, classcat@^5.0.4:
   resolved "https://registry.yarnpkg.com/classcat/-/classcat-5.0.4.tgz#e12d1dfe6df6427f260f03b80dc63571a5107ba6"
   integrity sha512-sbpkOw6z413p+HDGcBENe498WM9woqWHiJxCq7nvmxe9WmrUmqfAcxpIwAiMtM5Q3AhYkzXcNQHqsWq0mND51g==
 
-classnames@^2.2.4, classnames@^2.2.5, classnames@^2.2.6, classnames@^2.3.2:
+classnames@^2.2.5, classnames@^2.2.6, classnames@^2.3.2:
   version "2.5.1"
   resolved "https://registry.yarnpkg.com/classnames/-/classnames-2.5.1.tgz#ba774c614be0f016da105c858e7159eae8e7687b"
   integrity sha512-saHYOzhIQs6wy2sVxTM6bUDsQO4F50V9RQ22qBpEdCW+I+/Wmke2HOl6lS6dTpdxVhb88/I6+Hs+438c3lfUow==
@@ -9564,14 +9542,6 @@ crc-32@~1.2.0:
   version "1.2.2"
   resolved "https://registry.yarnpkg.com/crc-32/-/crc-32-1.2.2.tgz#3cad35a934b8bf71f25ca524b6da51fb7eace2ff"
   integrity sha512-ROmzCKrTnOwybPcJApAA6WBWij23HVfGVNKqqrZpuyZOHqK2CwHSvpGuyt/UNNvaIjEd8X5IFGp4Mh+Ie1IHJQ==
-
-create-react-class@^15.5.2:
-  version "15.7.0"
-  resolved "https://registry.yarnpkg.com/create-react-class/-/create-react-class-15.7.0.tgz#7499d7ca2e69bb51d13faf59bd04f0c65a1d6c1e"
-  integrity sha512-QZv4sFWG9S5RUvkTYWbflxeZX+JG7Cz0Tn33rQBJ+WFQTqTfUTjMjiv9tnfXazjsO5r0KhPs+AqCjyrQX6h2ng==
-  dependencies:
-    loose-envify "^1.3.1"
-    object-assign "^4.1.1"
 
 create-react-context@^0.3.0:
   version "0.3.0"
@@ -19774,26 +19744,6 @@ react-icons@^2.2.6:
   dependencies:
     react-icon-base "2.1.0"
 
-react-input-autosize@1.1.0:
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/react-input-autosize/-/react-input-autosize-1.1.0.tgz#3fe1ac832387d8abab85f6051ceab1c9e5570853"
-  integrity sha512-RbqS203Q3BlV6q96vzwUBP/cl61Ptl0jXbdET/LsUZAyrtg9iqqffA1xG2JzJvTiwBG/Wt4XWfceWmdm3AyAqg==
-
-react-input-autosize@^1.1.3:
-  version "1.2.0"
-  resolved "https://registry.yarnpkg.com/react-input-autosize/-/react-input-autosize-1.2.0.tgz#87241071159f742123897691da6796ec33b57d05"
-  integrity sha512-xlmWqzUnBb07xPrsR8iWMOJ2wPqhCEy8jwspum09luCB1nDkDar6ychBZSM6DRZyLF2KFAPmvEVe0/UsbQUmmg==
-  dependencies:
-    create-react-class "^15.5.2"
-    prop-types "^15.5.8"
-
-react-input-autosize@^2.1.2:
-  version "2.2.2"
-  resolved "https://registry.yarnpkg.com/react-input-autosize/-/react-input-autosize-2.2.2.tgz#fcaa7020568ec206bc04be36f4eb68e647c4d8c2"
-  integrity sha512-jQJgYCA3S0j+cuOwzuCd1OjmBmnZLdqQdiLKRYrsMMzbjUrVDS5RvJUDwJqA7sKuksDuzFtm6hZGKFu7Mjk5aw==
-  dependencies:
-    prop-types "^15.5.8"
-
 react-is@^16.12.0, react-is@^16.13.1, react-is@^16.3.1, react-is@^16.3.2, react-is@^16.6.0, react-is@^16.7.0:
   version "16.13.1"
   resolved "https://registry.yarnpkg.com/react-is/-/react-is-16.13.1.tgz#789729a4dc36de2999dc156dd6c1d9c18cea56a4"
@@ -19984,33 +19934,6 @@ react-router@6.21.2:
   integrity sha512-jJcgiwDsnaHIeC+IN7atO0XiSRCrOsQAHHbChtJxmgqG2IaYQXSnhqGb5vk2CU/wBQA12Zt+TkbuJjIn65gzbA==
   dependencies:
     "@remix-run/router" "1.14.2"
-
-react-select-plus@1.0.0-rc.5:
-  version "1.0.0-rc.5"
-  resolved "https://registry.yarnpkg.com/react-select-plus/-/react-select-plus-1.0.0-rc.5.tgz#00942063d824c57f9cf1fc98c47df2c6307dcff9"
-  integrity sha512-pJOoQIYlF61lBHmX0MaY6Jqz93fJKEbraPs76UC7wevrfFr8f1KVJgFfOGwWpECCMKjeKRt1YH3DzaqivFqWVQ==
-  dependencies:
-    classnames "^2.2.4"
-    create-react-class "^15.5.2"
-    prop-types "^15.5.8"
-    react-input-autosize "^1.1.3"
-
-react-select-plus@^1.0.0-rc.3.patch12:
-  version "1.0.0-rc.3.patch12"
-  resolved "https://registry.yarnpkg.com/react-select-plus/-/react-select-plus-1.0.0-rc.3.patch12.tgz#38f6b47b083989d5b03cb3393c9a1f033806b020"
-  integrity sha512-BuSEBLcKGlWVL8XkvEef/v3A6wr2Cm/ZSSFa1xiLq+kKxlw8ZTbhw5wOlMKn2J9jx4xqPmTO5NJMYBfCuVM30g==
-  dependencies:
-    classnames "^2.2.4"
-    react-input-autosize "1.1.0"
-
-react-select-plus@^1.0.0-rc.5:
-  version "1.2.0"
-  resolved "https://registry.yarnpkg.com/react-select-plus/-/react-select-plus-1.2.0.tgz#e09f6e12a2f1ca168be2a591bdd9602bd9b48f79"
-  integrity sha512-IIvRMB7Od6YAdLVFef61Tdd6FWsi6Kc0qLlSRuR/GsgYwE7IeyRx88HJ95by4hJ8M7q2LWwIkXKMDSrAUrjwyw==
-  dependencies:
-    classnames "^2.2.4"
-    prop-types "^15.5.8"
-    react-input-autosize "^2.1.2"
 
 react-simple-code-editor@^0.11.0:
   version "0.11.3"

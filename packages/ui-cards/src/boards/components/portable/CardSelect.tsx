@@ -1,5 +1,5 @@
 import React from 'react';
-import Select from 'react-select-plus';
+// import Select from 'react-select-plus';
 import styled from 'styled-components';
 
 const Wrapper = styled.div`
@@ -36,22 +36,22 @@ class CardSelect extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      searchValue: ''
+      searchValue: '',
     };
   }
 
-  handleChange = option => {
+  handleChange = (option) => {
     const { onChange } = this.props;
 
     if (option) {
       onChange({
         cardId: option.value,
-        name: option.label
+        name: option.label,
       });
 
       this.setState({
         searchValue: option.value === 'copiedItem' ? option.label : '',
-        selectedValue: option
+        selectedValue: option,
       });
     }
   };
@@ -60,7 +60,7 @@ class CardSelect extends React.Component<Props, State> {
     this.setState({ searchValue });
   };
 
-  handleKeyDown = event => {
+  handleKeyDown = (event) => {
     // enter key
     if (event.keyCode === 13) {
       this.handleAdd();
@@ -77,7 +77,7 @@ class CardSelect extends React.Component<Props, State> {
     }
 
     onChange({
-      name: this.state.searchValue
+      name: this.state.searchValue,
     });
   };
 
@@ -92,7 +92,7 @@ class CardSelect extends React.Component<Props, State> {
     return (
       <Wrapper>
         <FillContent>
-          <Select
+          {/* <Select
             placeholder={placeholder}
             options={options}
             value={selectedValue}
@@ -103,7 +103,7 @@ class CardSelect extends React.Component<Props, State> {
             onInputChange={this.handleInput}
             onInputKeyDown={this.handleKeyDown}
             clearable={false}
-          />
+          /> */}
         </FillContent>
       </Wrapper>
     );

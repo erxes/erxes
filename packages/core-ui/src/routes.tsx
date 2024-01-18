@@ -1,4 +1,9 @@
-import { Route, BrowserRouter as Router, Switch } from 'react-router-dom';
+import {
+  Routes as BrowserRoutes,
+  Route,
+  BrowserRouter as Router,
+  useLocation,
+} from 'react-router-dom';
 import { pluginLayouts, pluginRouters } from './pluginUtils';
 
 import AuthRoutes from './modules/auth/routes';
@@ -10,32 +15,37 @@ import asyncComponent from 'modules/common/components/AsyncComponent';
 import queryString from 'query-string';
 import withCurrentUser from 'modules/auth/containers/withCurrentUser';
 
-const MainLayout = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "MainLayout" */ 'modules/layout/containers/MainLayout'
-  )
+const MainLayout = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "MainLayout" */ 'modules/layout/containers/MainLayout'
+    ),
 );
 
-const Unsubscribe = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "Unsubscribe" */ 'modules/auth/containers/Unsubscribe'
-  )
+const Unsubscribe = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "Unsubscribe" */ 'modules/auth/containers/Unsubscribe'
+    ),
 );
 
-const UserConfirmation = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "Settings - UserConfirmation" */ '@erxes/ui/src/team/containers/UserConfirmation'
-  )
+const UserConfirmation = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "Settings - UserConfirmation" */ '@erxes/ui/src/team/containers/UserConfirmation'
+    ),
 );
 
-export const unsubscribe = ({ location }) => {
+export const UnsubscribeComponent = () => {
+  const location = useLocation();
   const queryParams = queryString.parse(location.search);
 
   return <Unsubscribe queryParams={queryParams} />;
 };
 
-const renderRoutes = currentUser => {
-  const userConfirmation = ({ location }) => {
+const renderRoutes = (currentUser) => {
+  const UserConfirmationComponent = () => {
+    const location = useLocation();
     const queryParams = queryString.parse(location.search);
 
     return (
@@ -52,46 +62,45 @@ const renderRoutes = currentUser => {
       <>
         <MainLayout currentUser={currentUser}>
           <SettingsRoutes />
-          <WelcomeRoutes />
+          <WelcomeRoutes currentUser={currentUser} />
           {pluginLayouts(currentUser)}
           {pluginRouters()}
-
-          <Route
-            key="/confirmation"
-            exact={true}
-            path="/confirmation"
-            component={userConfirmation}
-          />
+          <BrowserRoutes>
+            <Route
+              key="/confirmation"
+              path="/confirmation"
+              element={<UserConfirmationComponent />}
+            />
+          </BrowserRoutes>
         </MainLayout>
       </>
     );
   }
 
   return (
-    <Switch>
-      <Route
-        key="/confirmation"
-        exact={true}
-        path="/confirmation"
-        component={userConfirmation}
-      />
+    <>
+      <BrowserRoutes>
+        <Route
+          key="/confirmation"
+          path="/confirmation"
+          element={<UserConfirmationComponent />}
+        />
+      </BrowserRoutes>
       <AuthRoutes />
-    </Switch>
+    </>
   );
 };
 
 const Routes = ({ currentUser }: { currentUser: IUser }) => (
   <Router>
-    <>
+    <BrowserRoutes>
       <Route
         key="/unsubscribe"
-        exact={true}
         path="/unsubscribe"
-        component={unsubscribe}
+        element={<UnsubscribeComponent />}
       />
-
-      {renderRoutes(currentUser)}
-    </>
+    </BrowserRoutes>
+    {renderRoutes(currentUser)}
   </Router>
 );
 

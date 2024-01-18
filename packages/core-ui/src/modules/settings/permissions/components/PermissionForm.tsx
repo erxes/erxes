@@ -1,26 +1,21 @@
-import Button from 'modules/common/components/Button';
-import ButtonMutate from 'modules/common/components/ButtonMutate';
-import FormControl from 'modules/common/components/form/Control';
-import FormGroup from 'modules/common/components/form/Group';
-import ControlLabel from 'modules/common/components/form/Label';
-import Info from 'modules/common/components/Info';
-import TextInfo from 'modules/common/components/TextInfo';
-import { ModalFooter } from 'modules/common/styles/main';
-import { __, Alert } from 'modules/common/utils';
-import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
-import React from 'react';
-import Select from 'react-select-plus';
-import { mutations } from '../graphql';
+import { Alert, __ } from 'modules/common/utils';
 import { Divider, StepBody, StepHeader, StepItem } from '../styles';
 import { IActions, IModule } from '../types';
+import { correctValue, generatedList } from './utils';
+
+import Button from 'modules/common/components/Button';
+import ButtonMutate from 'modules/common/components/ButtonMutate';
+import ControlLabel from 'modules/common/components/form/Label';
+import FormControl from 'modules/common/components/form/Control';
+import FormGroup from 'modules/common/components/form/Group';
 import { IUserGroup } from '@erxes/ui-settings/src/permissions/types';
-import {
-  correctValue,
-  filterActions,
-  generatedList,
-  generateListParams,
-  generateModuleParams
-} from './utils';
+import Info from 'modules/common/components/Info';
+import { ModalFooter } from 'modules/common/styles/main';
+import React from 'react';
+import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
+import TextInfo from 'modules/common/components/TextInfo';
+// import Select from 'react-select-plus';
+import { mutations } from '../graphql';
 
 type Props = {
   modules: IModule[];
@@ -46,18 +41,14 @@ class PermissionForm extends React.Component<Props, State> {
     selectedUserIds: [],
     selectedGroups: [],
     valueChanged: false,
-    isSubmitted: false
+    isSubmitted: false,
   };
 
   save = (e: React.FormEvent) => {
     e.preventDefault();
 
-    const {
-      selectedModule,
-      selectedActions,
-      selectedUserIds,
-      selectedGroups
-    } = this.state;
+    const { selectedModule, selectedActions, selectedUserIds, selectedGroups } =
+      this.state;
 
     if (!selectedModule) {
       return Alert.error('Please select the module!');
@@ -80,7 +71,7 @@ class PermissionForm extends React.Component<Props, State> {
       selectedActions,
       selectedUserIds,
       selectedGroups,
-      valueChanged
+      valueChanged,
     } = this.state;
 
     return {
@@ -88,7 +79,7 @@ class PermissionForm extends React.Component<Props, State> {
       actions: this.collectValues(selectedActions),
       userIds: selectedUserIds,
       groupIds: this.collectValues(selectedGroups),
-      allowed: valueChanged
+      allowed: valueChanged,
     };
   };
 
@@ -117,25 +108,25 @@ class PermissionForm extends React.Component<Props, State> {
 
     this.setState({
       selectedModule,
-      selectedActions: []
+      selectedActions: [],
     });
   };
 
   collectValues = (items: generatedList[]) => {
-    return items.map(item => item.value);
+    return items.map((item) => item.value);
   };
 
   renderContent() {
-    const { modules, actions, groups } = this.props;
+    // const { modules, actions, groups } = this.props;
     const {
-      selectedModule,
+      // selectedModule,
       selectedActions,
       selectedUserIds,
       selectedGroups,
-      valueChanged
+      valueChanged,
     } = this.state;
 
-    const usersOnChange = users => this.select('selectedUserIds', users);
+    const usersOnChange = (users) => this.select('selectedUserIds', users);
 
     return (
       <>
@@ -169,24 +160,24 @@ class PermissionForm extends React.Component<Props, State> {
           <StepBody>
             <FormGroup>
               <ControlLabel required={true}>Choose the module</ControlLabel>
-              <Select
+              {/* <Select
                 placeholder={__('Choose module')}
                 options={generateModuleParams(modules)}
                 value={selectedModule}
                 onChange={this.changeModule}
-              />
+              /> */}
             </FormGroup>
             <Divider>{__('Then')}</Divider>
             <FormGroup>
               <ControlLabel required={true}>Choose the actions</ControlLabel>
-              <Select
+              {/* <Select
                 placeholder={__('Choose actions')}
                 options={filterActions(actions, selectedModule)}
                 value={selectedActions}
                 disabled={!this.isModuleSelected()}
                 onChange={this.select.bind(this, 'selectedActions')}
                 multi={true}
-              />
+              /> */}
             </FormGroup>
           </StepBody>
         </StepItem>
@@ -203,13 +194,13 @@ class PermissionForm extends React.Component<Props, State> {
           <StepBody>
             <FormGroup>
               <ControlLabel required={true}>Choose the groups</ControlLabel>
-              <Select
+              {/* <Select
                 placeholder={__('Choose groups')}
                 options={generateListParams(groups)}
                 value={selectedGroups}
                 onChange={this.select.bind(this, 'selectedGroups')}
                 multi={true}
-              />
+              /> */}
             </FormGroup>
             <Divider>{__('Or')}</Divider>
             <FormGroup>

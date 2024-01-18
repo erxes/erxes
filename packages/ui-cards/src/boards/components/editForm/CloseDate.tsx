@@ -1,21 +1,22 @@
-import Datetime from '@nateradebaugh/react-datetime';
-import dayjs from 'dayjs';
-import { REMINDER_MINUTES } from '../../constants';
 import {
   Button,
   CalenderWrapper,
   CheckBoxWrapper,
   CloseDateContent,
   CloseDateWrapper,
-  DateGrid
+  DateGrid,
 } from '../../styles/popup';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
 import React, { useState } from 'react';
+// import Select from 'react-select-plus';
+import { generateButtonClass, selectOptions } from '../../utils';
+
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import Datetime from '@nateradebaugh/react-datetime';
+import FormControl from '@erxes/ui/src/components/form/Control';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
-import Select from 'react-select-plus';
-import { generateButtonClass, selectOptions } from '../../utils';
+import { REMINDER_MINUTES } from '../../constants';
+import dayjs from 'dayjs';
 
 type Props = {
   closeDate: Date;
@@ -23,7 +24,7 @@ type Props = {
   reminderMinute: number;
   onChangeField: (
     name: 'closeDate' | 'reminderMinute' | 'isComplete',
-    value: any
+    value: any,
   ) => void;
 };
 
@@ -41,11 +42,11 @@ class CloseDate extends React.Component<Props, State> {
     this.ref = React.createRef();
 
     this.state = {
-      dueDate: props.closeDate || dayjs()
+      dueDate: props.closeDate || dayjs(),
     };
   }
 
-  setOverlay = overlay => {
+  setOverlay = (overlay) => {
     this.overlay = overlay;
   };
 
@@ -53,7 +54,7 @@ class CloseDate extends React.Component<Props, State> {
     this.props.onChangeField('reminderMinute', parseInt(value, 10));
   };
 
-  dateOnChange = date => {
+  dateOnChange = (date) => {
     this.setState({ dueDate: date });
   };
 
@@ -79,7 +80,7 @@ class CloseDate extends React.Component<Props, State> {
     const day = dayjs(dueDate).format('YYYY-MM-DD');
     const time = dayjs(dueDate).format('HH:mm');
 
-    const onChangeDateTime = e => {
+    const onChangeDateTime = (e) => {
       const type = e.target.type;
       const value = e.target.value;
 
@@ -132,14 +133,14 @@ class CloseDate extends React.Component<Props, State> {
           </CalenderWrapper>
 
           <ControlLabel>Set reminder</ControlLabel>
-
+          {/* 
           <Select
             isRequired={true}
             value={reminderMinute}
             onChange={this.minuteOnChange}
             options={selectOptions(REMINDER_MINUTES)}
             clearable={false}
-          />
+          /> */}
 
           <DateGrid>
             <Button colorName="red" onClick={this.remove}>
@@ -158,7 +159,7 @@ class CloseDate extends React.Component<Props, State> {
     const { isComplete, onChangeField, closeDate } = this.props;
     const time = dayjs(closeDate).format('HH:mm');
 
-    const onChange = e => onChangeField('isComplete', e.target.checked);
+    const onChange = (e) => onChangeField('isComplete', e.target.checked);
 
     const trigger = (
       <Button colorName={generateButtonClass(closeDate, isComplete)}>

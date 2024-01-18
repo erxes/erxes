@@ -1,33 +1,29 @@
+import {
+  FilterItem,
+  FilterWrapper,
+  NotWrappable,
+} from '@erxes/ui-settings/src/permissions/styles';
+import { IActions, IModule, IPermissionDocument } from '../types';
+import { __, router } from 'modules/common/utils';
+import { correctValue, generatedList } from './utils';
+
 import Button from 'modules/common/components/Button';
 import DataWithLoader from 'modules/common/components/DataWithLoader';
 import { FormControl } from 'modules/common/components/form';
+import GroupList from '../containers/GroupList';
+import { IUserGroup } from '@erxes/ui-settings/src/permissions/types';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import Pagination from 'modules/common/components/pagination/Pagination';
-import Table from 'modules/common/components/table';
-import { __, router } from 'modules/common/utils';
-import Wrapper from 'modules/layout/components/Wrapper';
-import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
-import React from 'react';
-import Select from 'react-select-plus';
-import { isObject } from 'util';
-import GroupList from '../containers/GroupList';
-import {
-  NotWrappable,
-  FilterItem,
-  FilterWrapper
-} from '@erxes/ui-settings/src/permissions/styles';
-import { IActions, IModule, IPermissionDocument } from '../types';
-import { IUserGroup } from '@erxes/ui-settings/src/permissions/types';
 import PermissionFixer from './PermissionFixer';
 import PermissionForm from './PermissionForm';
 import PermissionRow from './PermissionRow';
-import {
-  correctValue,
-  filterActions,
-  generatedList,
-  generateModuleParams
-} from './utils';
+import React from 'react';
+import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
+import Table from 'modules/common/components/table';
 import { Title } from '@erxes/ui-settings/src/styles';
+import Wrapper from 'modules/layout/components/Wrapper';
+// import Select from 'react-select-plus';
+import { isObject } from 'util';
 
 type Props = {
   history: any;
@@ -54,21 +50,15 @@ class PermissionList extends React.Component<Props> {
     router.setParams(history, {
       [name]: isObject(item) ? correctValue(item) : item,
       page: null,
-      perPage: null
+      perPage: null,
     });
   };
 
   renderObjects() {
-    const {
-      groups,
-      modules,
-      permissions,
-      actions,
-      refetchQueries,
-      remove
-    } = this.props;
+    const { groups, modules, permissions, actions, refetchQueries, remove } =
+      this.props;
 
-    return permissions.map(object => {
+    return permissions.map((object) => {
       return (
         <PermissionRow
           key={object._id}
@@ -84,15 +74,15 @@ class PermissionList extends React.Component<Props> {
   }
 
   renderFilter() {
-    const { queryParams, modules, actions } = this.props;
+    const { queryParams } = this.props;
 
-    const usersOnChange = users => {
+    const usersOnChange = (users) => {
       this.setFilter('userId', users);
     };
 
-    const allowedOnChange = e => {
+    const allowedOnChange = (e) => {
       this.setFilter('allowed', {
-        value: e.target.checked ? 'allowed' : 'notAllowed'
+        value: e.target.checked ? 'allowed' : 'notAllowed',
       });
     };
 
@@ -100,21 +90,21 @@ class PermissionList extends React.Component<Props> {
       <FilterWrapper>
         <strong>{__('Filters')}:</strong>
         <FilterItem id="permission-choose-module">
-          <Select
+          {/* <Select
             placeholder={__('Choose module')}
             value={queryParams.module}
             options={generateModuleParams(modules)}
             onChange={this.setFilter.bind(this, 'module')}
-          />
+          /> */}
         </FilterItem>
 
         <FilterItem id="permission-choose-action">
-          <Select
+          {/* <Select
             placeholder={__('Choose action')}
             value={queryParams.action}
             options={filterActions(actions, queryParams.module)}
             onChange={this.setFilter.bind(this, 'action')}
-          />
+          /> */}
         </FilterItem>
         <FilterItem id="permission-choose-users">
           <SelectTeamMembers
@@ -157,7 +147,7 @@ class PermissionList extends React.Component<Props> {
     );
   }
 
-  renderForm = props => {
+  renderForm = (props) => {
     const { modules, actions, groups, refetchQueries } = this.props;
 
     const extendedProps = {
@@ -165,16 +155,16 @@ class PermissionList extends React.Component<Props> {
       modules,
       actions,
       groups,
-      refetchQueries
+      refetchQueries,
     };
 
     return <PermissionForm {...extendedProps} />;
   };
 
-  renderPermissionFixer = props => {
+  renderPermissionFixer = (props) => {
     const updatedProps = {
       ...props,
-      fixPermissions: this.props.fixPermissions
+      fixPermissions: this.props.fixPermissions,
     };
 
     return <PermissionFixer {...updatedProps} />;
@@ -248,7 +238,7 @@ class PermissionList extends React.Component<Props> {
 
     const breadcrumb = [
       { title: 'Settings', link: '/settings' },
-      { title: __('Permissions') }
+      { title: __('Permissions') },
     ];
 
     return (

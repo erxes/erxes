@@ -1,7 +1,9 @@
 import { ColorPick, ColorPicker } from '@erxes/ui/src/styles/main';
+import { FlexContent, FlexItem } from '@erxes/ui/src/layout/styles';
 import { IBoard, IPipeline, IStage } from '@erxes/ui-cards/src/boards/types';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import { __, generateTree } from 'coreui/utils';
+
 import BoardNumberConfigs from './numberConfig/BoardNumberConfigs';
 import Button from '@erxes/ui/src/components/Button';
 import { COLORS } from '@erxes/ui/src/constants/colors';
@@ -13,16 +15,15 @@ import FormControl from '@erxes/ui/src/components/form/Control';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import { IDepartment } from '@erxes/ui/src/team/types';
 import { IOption } from '../types';
+import { ITag } from '@erxes/ui-tags/src/types';
 import Modal from 'react-bootstrap/Modal';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
 import React from 'react';
-import Select from 'react-select-plus';
+// import Select from 'react-select-plus';
 import { SelectMemberStyled } from '@erxes/ui-cards/src/settings/boards/styles';
 import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
 import Stages from './Stages';
-import { FlexContent, FlexItem } from '@erxes/ui/src/layout/styles';
-import { ITag } from '@erxes/ui-tags/src/types';
 import TwitterPicker from 'react-color/lib/Twitter';
 import { colors } from '@erxes/ui/src/styles';
 
@@ -64,7 +65,7 @@ class PipelineForm extends React.Component<Props, State> {
     const { pipeline, stages } = this.props;
 
     this.state = {
-      stages: (stages || []).map(stage => ({ ...stage })),
+      stages: (stages || []).map((stage) => ({ ...stage })),
       visibility: pipeline ? pipeline.visibility || 'public' : 'public',
       selectedMemberIds: pipeline ? pipeline.memberIds || [] : [],
       backgroundColor:
@@ -76,37 +77,37 @@ class PipelineForm extends React.Component<Props, State> {
       tagId: pipeline ? pipeline.tagId : '',
       numberConfig: (pipeline && pipeline.numberConfig) || '',
       numberSize: (pipeline && pipeline.numberSize) || '',
-      departmentIds: pipeline ? pipeline.departmentIds || [] : []
+      departmentIds: pipeline ? pipeline.departmentIds || [] : [],
     };
   }
 
-  onChangeStages = stages => {
+  onChangeStages = (stages) => {
     this.setState({ stages });
   };
 
   onChangeVisibility = (e: React.FormEvent<HTMLElement>) => {
     this.setState({
-      visibility: (e.currentTarget as HTMLInputElement).value
+      visibility: (e.currentTarget as HTMLInputElement).value,
     });
   };
 
-  onChangeMembers = items => {
+  onChangeMembers = (items) => {
     this.setState({ selectedMemberIds: items });
   };
 
-  onChangeDepartments = options => {
-    this.setState({ departmentIds: (options || []).map(o => o.value) });
+  onChangeDepartments = (options) => {
+    this.setState({ departmentIds: (options || []).map((o) => o.value) });
   };
 
-  onChangeDominantUsers = items => {
+  onChangeDominantUsers = (items) => {
     this.setState({ excludeCheckUserIds: items });
   };
 
-  collectValues = items => {
-    return items.map(item => item.value);
+  collectValues = (items) => {
+    return items.map((item) => item.value);
   };
 
-  onColorChange = e => {
+  onColorChange = (e) => {
     this.setState({ backgroundColor: e.hex });
   };
 
@@ -131,7 +132,7 @@ class PipelineForm extends React.Component<Props, State> {
       numberConfig,
       numberSize,
       departmentIds,
-      tagId
+      tagId,
     } = this.state;
 
     const finalValues = values;
@@ -145,7 +146,7 @@ class PipelineForm extends React.Component<Props, State> {
       ...extraFields,
       type,
       boardId,
-      stages: stages.filter(el => el.name),
+      stages: stages.filter((el) => el.name),
       memberIds: selectedMemberIds,
       bgColor: backgroundColor,
       isCheckUser,
@@ -154,7 +155,7 @@ class PipelineForm extends React.Component<Props, State> {
       numberConfig,
       numberSize,
       departmentIds,
-      tagId
+      tagId,
     };
   };
 
@@ -203,8 +204,8 @@ class PipelineForm extends React.Component<Props, State> {
                 null,
                 (node, level) => ({
                   value: node._id,
-                  label: `${'---'.repeat(level)} ${node.title}`
-                })
+                  label: `${'---'.repeat(level)} ${node.title}`,
+                }),
               )}
               onChange={this.onChangeDepartments.bind(this)}
               placeholder={__('Choose department ...')}
@@ -216,12 +217,12 @@ class PipelineForm extends React.Component<Props, State> {
     );
   }
 
-  onChangeIsCheckUser = e => {
+  onChangeIsCheckUser = (e) => {
     const isChecked = (e.currentTarget as HTMLInputElement).checked;
     this.setState({ isCheckUser: isChecked });
   };
 
-  onChangeIsCheckDepartment = e => {
+  onChangeIsCheckDepartment = (e) => {
     const isChecked = (e.currentTarget as HTMLInputElement).checked;
     this.setState({ isCheckDepartment: isChecked });
   };
@@ -254,23 +255,23 @@ class PipelineForm extends React.Component<Props, State> {
   renderBoards() {
     const { boards } = this.props;
 
-    const boardOptions = boards.map(board => ({
+    const boardOptions = boards.map((board) => ({
       value: board._id,
-      label: board.name
+      label: board.name,
     }));
 
-    const onChange = item => this.setState({ boardId: item.value });
+    const onChange = (item) => this.setState({ boardId: item.value });
 
     return (
       <FormGroup>
         <ControlLabel required={true}>Board</ControlLabel>
-        <Select
+        {/* <Select
           placeholder={__('Choose a board')}
           value={this.state.boardId}
           options={boardOptions}
           onChange={onChange}
           clearable={false}
-        />
+        /> */}
       </FormGroup>
     );
   }
@@ -278,45 +279,40 @@ class PipelineForm extends React.Component<Props, State> {
   renderTags() {
     const { tags } = this.props;
 
-    const filteredTags = tags && tags.filter(tag => !tag.parentId);
+    const filteredTags = tags && tags.filter((tag) => !tag.parentId);
 
-    const generateOptions = items => {
+    const generateOptions = (items) => {
       if (!items || items.length === 0) {
         return null;
       }
 
-      return items.map(item => {
+      return items.map((item) => {
         return {
           value: item._id,
-          label: item.name
+          label: item.name,
         };
       });
     };
 
-    const onChange = item => this.setState({ tagId: item.value });
+    const onChange = (item) => this.setState({ tagId: item.value });
 
     return (
       <FormGroup>
         <ControlLabel>Tags</ControlLabel>
-        <Select
+        {/* <Select
           placeholder={__('Choose a tag')}
           value={this.state.tagId}
           options={generateOptions(filteredTags)}
           clearable={false}
           onChange={onChange}
-        />
+        /> */}
       </FormGroup>
     );
   }
 
   renderContent = (formProps: IFormProps) => {
-    const {
-      pipeline,
-      renderButton,
-      closeModal,
-      options,
-      renderExtraFields
-    } = this.props;
+    const { pipeline, renderButton, closeModal, options, renderExtraFields } =
+      this.props;
     const { values, isSubmitted } = formProps;
     const object = pipeline || ({} as IPipeline);
     const pipelineName =
@@ -467,7 +463,7 @@ class PipelineForm extends React.Component<Props, State> {
               isSubmitted,
               callback: closeModal,
               object: pipeline,
-              confirmationUpdate: true
+              confirmationUpdate: true,
             })}
           </Modal.Footer>
         </Modal.Body>

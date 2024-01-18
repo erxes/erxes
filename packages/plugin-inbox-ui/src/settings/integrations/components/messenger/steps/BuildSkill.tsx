@@ -1,10 +1,10 @@
 import {
   Description,
-  Row
+  Row,
 } from '@erxes/ui-inbox/src/settings/integrations/styles';
 import {
   ISkillDocument,
-  ISkillTypesDocument
+  ISkillTypesDocument,
 } from '@erxes/ui-inbox/src/settings/skills/types';
 import React, { useState } from 'react';
 
@@ -15,7 +15,7 @@ import FormGroup from '@erxes/ui/src/components/form/Group';
 import { ISkillData } from '@erxes/ui-inbox/src/settings/integrations/types';
 import Icon from '@erxes/ui/src/components/Icon';
 import { Link } from 'react-router-dom';
-import Select from 'react-select-plus';
+// import Select from 'react-select-plus';
 import Tip from '@erxes/ui/src/components/Tip';
 import Toggle from '@erxes/ui/src/components/Toggle';
 import { __ } from 'coreui/utils';
@@ -70,7 +70,7 @@ function BuildSkill({
   skills,
   loading,
   onChange,
-  handleSkillTypeSelect
+  handleSkillTypeSelect,
 }: Props) {
   const hasType = ((skillData || {}).typeId || '').length > 0;
 
@@ -78,17 +78,17 @@ function BuildSkill({
   const [skillType, setSkillType] = useState<string | null>(skillData.typeId);
 
   const generateOptions = (
-    options: Array<ISkillDocument | ISkillTypesDocument>
-  ) => options.map(item => ({ label: item.name, value: item._id }));
+    options: Array<ISkillDocument | ISkillTypesDocument>,
+  ) => options.map((item) => ({ label: item.name, value: item._id }));
 
   const getOptions = () => {
     return {
       typeId: (skillData || {}).typeId || '',
-      options: (skillData || {}).options || []
+      options: (skillData || {}).options || [],
     };
   };
 
-  const handleToggle = e => {
+  const handleToggle = (e) => {
     if (!e.target.checked) {
       onChange('skillData', {});
       setSkillType(null);
@@ -100,7 +100,7 @@ function BuildSkill({
   const handleSkillOptionChange = (
     index: number,
     type: string,
-    value: string
+    value: string,
   ) => {
     const { typeId, options } = getOptions();
 
@@ -127,25 +127,25 @@ function BuildSkill({
     }
 
     return options.map((option, index) => {
-      const handleLabelChange = e =>
+      const handleLabelChange = (e) =>
         handleSkillOptionChange(index, 'label', e.currentTarget.value);
-      const handleResponseChange = e =>
+      const handleResponseChange = (e) =>
         handleSkillOptionChange(index, 'response', e.currentTarget.value);
-      const handleSkillChange = e =>
+      const handleSkillChange = (e) =>
         handleSkillOptionChange(index, 'skillId', e.value);
-      const handleRemove = e => handleRemoveOption(index);
+      const handleRemove = (e) => handleRemoveOption(index);
 
       return (
         <Item key={index}>
           <FormGroup>
             <ControlLabel required={true}>Select a skill</ControlLabel>
-            <Select
+            {/* <Select
               placeholder="Choose a select"
               value={option.skillId}
               isLoading={loading}
               options={generateOptions(skills)}
               onChange={handleSkillChange}
-            />
+            /> */}
           </FormGroup>
 
           <FormGroup>
@@ -188,13 +188,13 @@ function BuildSkill({
       return null;
     }
 
-    const handleSelectChange = option => {
+    const handleSelectChange = (option) => {
       setSkillType(option.value);
       handleSkillTypeSelect(option.value);
 
       onChange('skillData', {
         typeId: option.value,
-        options: skillData.options
+        options: skillData.options,
       });
     };
 
@@ -206,8 +206,8 @@ function BuildSkill({
         {
           label: '',
           response: '',
-          skillId: ''
-        }
+          skillId: '',
+        },
       ];
 
       onChange('skillData', { typeId, options: currentSkillOptions });
@@ -218,12 +218,12 @@ function BuildSkill({
         <FormGroup>
           <ControlLabel>Choose a skill type</ControlLabel>
           <Row>
-            <Select
+            {/* <Select
               placeholder="Please select a skill type"
               value={skillType}
               options={generateOptions(skillTypes)}
               onChange={handleSelectChange}
-            />
+            /> */}
             {renderAddSkill()}
           </Row>
         </FormGroup>
@@ -252,7 +252,7 @@ function BuildSkill({
           onChange={handleToggle}
           icons={{
             checked: <span>{__('Yes')}</span>,
-            unchecked: <span>{__('No')}</span>
+            unchecked: <span>{__('No')}</span>,
           }}
         />
       </FormGroup>

@@ -1,7 +1,7 @@
-import dayjs from 'dayjs';
-import T from 'i18n-react';
 import { IUser } from './auth/types';
 import React from 'react';
+import T from 'i18n-react';
+import dayjs from 'dayjs';
 
 interface IState {
   currentUser?: IUser;
@@ -26,7 +26,7 @@ const AppContext = React.createContext({} as IStore);
 export const AppConsumer = AppContext.Consumer;
 
 export class AppProvider extends React.Component<
-  { currentUser?: IUser; plugins? },
+  { currentUser?: IUser; plugins?; children: any },
   IState
 > {
   constructor(props) {
@@ -42,7 +42,7 @@ export class AppProvider extends React.Component<
       isShownIndicator: false,
       isRemovingImport: false,
 
-      isDoneIndicatorAction: false
+      isDoneIndicatorAction: false,
     };
 
     this.setLocale(currentLanguage);
@@ -71,7 +71,7 @@ export class AppProvider extends React.Component<
     this.setState({
       isDoneIndicatorAction: false,
       isShownIndicator: true,
-      isRemovingImport
+      isRemovingImport,
     });
   };
 
@@ -87,17 +87,17 @@ export class AppProvider extends React.Component<
     if (currentLanguage !== 'mn') {
       import(`dayjs/locale/${currentLanguage}.js`)
         .then(() => dayjs.locale(currentLanguage))
-        .catch(_ => dayjs.locale('en'));
+        .catch((_) => dayjs.locale('en'));
     }
 
     fetch(`/locales/${currentLanguage}.json`)
-      .then(res => res.json())
+      .then((res) => res.json())
       .catch(() => console.log(`${currentLanguage} translation not found`))
-      .then(json => {
+      .then((json) => {
         T.setTexts(json);
         this.setState({ isLoadedLocale: true });
       })
-      .catch(e => {
+      .catch((e) => {
         console.log(e);
         this.setState({ isLoadedLocale: true });
       });
@@ -116,7 +116,7 @@ export class AppProvider extends React.Component<
       currentLanguage,
       isShownIndicator,
       isRemovingImport,
-      isDoneIndicatorAction
+      isDoneIndicatorAction,
     } = this.state;
 
     return (
@@ -131,7 +131,7 @@ export class AppProvider extends React.Component<
           doneIndicatorAction: this.doneIndicatorAction,
           isShownIndicator,
           isRemovingImport,
-          isDoneIndicatorAction
+          isDoneIndicatorAction,
         }}
       >
         {this.props.children}

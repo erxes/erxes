@@ -1,21 +1,22 @@
+import React, { useCallback } from 'react';
+import { isEnabled, loadDynamicComponent } from '@erxes/ui/src/utils/core';
+
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import { Description } from '@erxes/ui-settings/src/styles';
+import { FlexItem } from '@erxes/ui/src/components/step/style';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import { IBrand } from '@erxes/ui/src/brands/types';
+import { IField } from '@erxes/ui/src/types';
 import { IFormData } from '@erxes/ui-forms/src/forms/types';
+import { LANGUAGES } from '@erxes/ui-settings/src/general/constants';
+import { LeftItem } from '@erxes/ui/src/components/step/styles';
 import SelectBrand from '@erxes/ui-inbox/src/settings/integrations/containers/SelectBrand';
 import SelectChannels from '@erxes/ui-inbox/src/settings/integrations/containers/SelectChannels';
 import SelectDepartments from '@erxes/ui-settings/src/departments/containers/SelectDepartments';
-import { LANGUAGES } from '@erxes/ui-settings/src/general/constants';
-import { Description } from '@erxes/ui-settings/src/styles';
-import { IBrand } from '@erxes/ui/src/brands/types';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import { FlexItem } from '@erxes/ui/src/components/step/style';
-import { LeftItem } from '@erxes/ui/src/components/step/styles';
 import Toggle from '@erxes/ui/src/components/Toggle';
-import { IField } from '@erxes/ui/src/types';
-import { isEnabled, loadDynamicComponent } from '@erxes/ui/src/utils/core';
 import { __ } from 'coreui/utils';
-import React, { useCallback } from 'react';
-import Select from 'react-select-plus';
+// import Select from 'react-select-plus';
 
 type Props = {
   onChange: (
@@ -28,7 +29,7 @@ type Props = {
       | 'saveAsCustomer'
       | 'visibility'
       | 'departmentIds',
-    value: any
+    value: any,
   ) => void;
   type: string;
   formData: IFormData;
@@ -66,7 +67,7 @@ const OptionStep = (props: Props) => {
     props.onChange(key, value);
   }, []);
 
-  const onChangeTitle = useCallback(e => {
+  const onChangeTitle = useCallback((e) => {
     onChangeFunction('title', (e.currentTarget as HTMLInputElement).value);
   }, []);
 
@@ -94,7 +95,7 @@ const OptionStep = (props: Props) => {
 
   const { language, brand, isRequireOnce, saveAsCustomer } = props;
 
-  const onChange = e => {
+  const onChange = (e) => {
     onChangeFunction('brand', (e.currentTarget as HTMLInputElement).value);
   };
 
@@ -102,9 +103,9 @@ const OptionStep = (props: Props) => {
     onChangeFunction('channelIds', values);
   };
 
-  const onChangeLanguage = e => onSelectChange(e, 'language');
+  const onChangeLanguage = (e) => onSelectChange(e, 'language');
 
-  const onSwitchHandler = e => {
+  const onSwitchHandler = (e) => {
     onChangeFunction(e.target.id, e.target.checked);
   };
 
@@ -117,8 +118,9 @@ const OptionStep = (props: Props) => {
     const { fields } = props.formData;
     if (fields && fields.length > 0) {
       if (
-        fields.findIndex(f => f.type === 'productCategory' && f.isRequired) !==
-        -1
+        fields.findIndex(
+          (f) => f.type === 'productCategory' && f.isRequired,
+        ) !== -1
       ) {
         setRenderPayments(true);
         if (props.waitUntilFinish) {
@@ -158,13 +160,13 @@ const OptionStep = (props: Props) => {
           contentTypeId: props.integrationId,
           isSubmitted: props.isIntegrationSubmitted,
           description: __(
-            "Choose payment methods you'd like to enable on this form"
+            "Choose payment methods you'd like to enable on this form",
           ),
           afterSave: () => {
             if (props.onChildProcessFinished) {
               props.onChildProcessFinished('optionsStep');
             }
-          }
+          },
         })}
       </>
     );
@@ -219,13 +221,13 @@ const OptionStep = (props: Props) => {
 
         <FormGroup>
           <ControlLabel>Language</ControlLabel>
-          <Select
+          {/* <Select
             id="language"
             value={language}
             options={LANGUAGES}
             onChange={onChangeLanguage}
             clearable={false}
-          />
+          /> */}
         </FormGroup>
 
         <FormGroup>
@@ -241,7 +243,7 @@ const OptionStep = (props: Props) => {
               onChange={onSwitchHandler}
               icons={{
                 checked: <span>Yes</span>,
-                unchecked: <span>No</span>
+                unchecked: <span>No</span>,
               }}
             />
           </div>
@@ -257,7 +259,7 @@ const OptionStep = (props: Props) => {
               onChange={onSwitchHandler}
               icons={{
                 checked: <span>Yes</span>,
-                unchecked: <span>No</span>
+                unchecked: <span>No</span>,
               }}
             />
           </div>

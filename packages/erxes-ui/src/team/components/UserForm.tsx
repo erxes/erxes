@@ -8,7 +8,7 @@ import ControlLabel from '@erxes/ui/src/components/form/Label';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import { ICommonFormProps } from '@erxes/ui-settings/src/common/types';
 import React from 'react';
-import Select from 'react-select-plus';
+// import Select from 'react-select-plus';
 import SelectBrands from '@erxes/ui/src/brands/containers/SelectBrands';
 import UserCommonInfos from '@erxes/ui-settings/src/common/components/UserCommonInfos';
 
@@ -43,30 +43,30 @@ class UserForm extends React.Component<Props, State> {
           : defaultAvatar,
       selectedChannels: this.generateParams(props.selectedChannels),
       selectedGroups: this.generateParams(props.selectedGroups),
-      selectedBrandIds: props.selectedBrandIds
+      selectedBrandIds: props.selectedBrandIds,
     };
   }
 
-  onAvatarUpload = url => {
+  onAvatarUpload = (url) => {
     this.setState({ avatar: url });
   };
 
-  generateParams = options => {
-    return options.map(option => ({
+  generateParams = (options) => {
+    return options.map((option) => ({
       value: option._id,
-      label: option.name
+      label: option.name,
     }));
   };
 
-  collectValues = items => {
-    return items.map(item => (typeof item === 'string' ? item : item.value));
+  collectValues = (items) => {
+    return items.map((item) => (typeof item === 'string' ? item : item.value));
   };
 
   renderGroups() {
     const self = this;
     const { groups } = this.props;
 
-    const onChange = selectedGroups => {
+    const onChange = (selectedGroups) => {
       this.setState({ selectedGroups });
     };
 
@@ -94,7 +94,7 @@ class UserForm extends React.Component<Props, State> {
       return null;
     }
 
-    const onChange = selectedBrandIds => {
+    const onChange = (selectedBrandIds) => {
       this.setState({ selectedBrandIds });
     };
 
@@ -118,7 +118,7 @@ class UserForm extends React.Component<Props, State> {
     const self = this;
     const { channels } = this.props;
 
-    const onChange = selectedChannels => {
+    const onChange = (selectedChannels) => {
       self.setState({ selectedChannels });
     };
 
@@ -127,13 +127,13 @@ class UserForm extends React.Component<Props, State> {
         <ControlLabel>Choose the channels</ControlLabel>
         <br />
 
-        <Select
+        {/* <Select
           placeholder={__('Choose channels')}
           value={self.state.selectedChannels}
           options={self.generateParams(channels)}
           onChange={onChange}
           multi={true}
-        />
+        /> */}
       </FormGroup>
     );
   }
@@ -149,7 +149,7 @@ class UserForm extends React.Component<Props, State> {
 
     const links = {};
 
-    getConstantFromStore('social_links').forEach(link => {
+    getConstantFromStore('social_links').forEach((link) => {
       links[link.value] = finalValues[link.value];
     });
 
@@ -168,13 +168,13 @@ class UserForm extends React.Component<Props, State> {
         operatorPhone: finalValues.operatorPhone,
         firstName: finalValues.firstName,
         lastName: finalValues.lastName,
-        middleName: finalValues.middleName
+        middleName: finalValues.middleName,
       },
       channelIds: this.collectValues(selectedChannels),
       links,
       groupIds: this.collectValues(selectedGroups),
       brandIds: selectedBrandIds,
-      employeeId: finalValues.employeeId
+      employeeId: finalValues.employeeId,
     };
   };
 

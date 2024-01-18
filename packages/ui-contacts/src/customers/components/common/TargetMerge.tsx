@@ -2,7 +2,7 @@ import EmptyState from '@erxes/ui/src/components/EmptyState';
 import { ICustomer } from '@erxes/ui-contacts/src/customers/types';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import React from 'react';
-import Select from 'react-select-plus';
+// import Select from 'react-select-plus';
 import { __ } from '@erxes/ui/src/utils';
 import debounce from 'lodash/debounce';
 
@@ -25,20 +25,20 @@ class TargetMergeModal extends React.Component<Props, State> {
 
     this.state = {
       objects: [],
-      selectedObject: {}
+      selectedObject: {},
     };
   }
 
-  handleSearch = value => {
+  handleSearch = (value) => {
     const { searchObject } = this.props;
 
     debounce(
-      () => searchObject(value, objs => this.setState({ objects: objs })),
-      1000
+      () => searchObject(value, (objs) => this.setState({ objects: objs })),
+      1000,
     )();
   };
 
-  onSelect = option => {
+  onSelect = (option) => {
     this.setState({ selectedObject: JSON.parse(option.value) });
   };
 
@@ -65,19 +65,21 @@ class TargetMergeModal extends React.Component<Props, State> {
     const { objects } = this.state;
     const { generateOptions } = this.props;
 
-    return (
-      <Select
-        placeholder="Search"
-        onInputChange={this.handleSearch}
-        onFocus={this.handleSearch.bind(this, '')}
-        onChange={this.onSelect}
-        options={generateOptions(objects)}
-      />
-    );
+    return null;
+
+    // return (
+    //   <Select
+    //     placeholder="Search"
+    //     onInputChange={this.handleSearch}
+    //     onFocus={this.handleSearch.bind(this, '')}
+    //     onChange={this.onSelect}
+    //     options={generateOptions(objects)}
+    //   />
+    // );
   }
 
   render() {
-    const modalContent = props => {
+    const modalContent = (props) => {
       return (
         <React.Fragment>
           {this.renderSelect()}

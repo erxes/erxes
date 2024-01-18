@@ -1,34 +1,35 @@
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import Button from '@erxes/ui/src/components/Button';
-import DateControl from '@erxes/ui/src/components/form/DateControl';
-import { __ } from '@erxes/ui/src/utils';
-import React, { useEffect, useState } from 'react';
-import ArchivedItems from '../containers/ArchivedItems';
-import { HeaderButton } from '../styles/header';
 import {
   ArchiveWrapper,
-  TopBar,
   CustomRangeContainer,
-  FilterBox
+  FilterBox,
+  TopBar,
 } from '../styles/rightMenu';
+import React, { useEffect, useState } from 'react';
+
+import ArchivedItems from '../containers/ArchivedItems';
+import Button from '@erxes/ui/src/components/Button';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import DateControl from '@erxes/ui/src/components/form/DateControl';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import { HACKSTAGES } from '../constants';
+import { HeaderButton } from '../styles/header';
+import { INTEGRATION_KINDS } from '@erxes/ui/src/constants/integrations';
 import { IOptions } from '../types';
-import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
-import Select from 'react-select-plus';
-import SelectLabel from './label/SelectLabel';
 import { PRIORITIES } from '../constants';
+// import Select from 'react-select-plus';
+import SelectLabel from './label/SelectLabel';
 import SelectProducts from '@erxes/ui-products/src/containers/SelectProducts';
+import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
+import { __ } from '@erxes/ui/src/utils';
 import dayjs from 'dayjs';
 import { debounce } from 'lodash';
-import { INTEGRATION_KINDS } from '@erxes/ui/src/constants/integrations';
-import { HACKSTAGES } from '../constants';
 
 type Props = {
   options: IOptions;
   queryParams: any;
 };
 
-const priorityValues = PRIORITIES.map(p => ({ label: p, value: p }));
+const priorityValues = PRIORITIES.map((p) => ({ label: p, value: p }));
 
 function Archive(props: Props) {
   const [type, changeType] = useState('item');
@@ -99,7 +100,7 @@ function Archive(props: Props) {
         <SelectTeamMembers
           label="Filter by created members"
           name="userIds"
-          onSelect={v => {
+          onSelect={(v) => {
             if (typeof v === 'string') {
               if (!v) {
                 setUserIds([]);
@@ -111,7 +112,7 @@ function Archive(props: Props) {
             }
           }}
         />
-        <Select
+        {/* <Select
           placeholder={__('Filter by priority')}
           value={priorities}
           options={priorityValues}
@@ -119,12 +120,12 @@ function Archive(props: Props) {
           onChange={arr => setPriorities(arr.map(v => v.value))}
           multi={true}
           loadingPlaceholder={__('Loading...')}
-        />
+        /> */}
 
         <SelectTeamMembers
           label="Filter by team members"
           name="assignedUserIds"
-          onSelect={v => {
+          onSelect={(v) => {
             if (typeof v === 'string') {
               if (!v) {
                 setAssignedUserIds([]);
@@ -139,7 +140,7 @@ function Archive(props: Props) {
 
         <SelectLabel
           name="labelIds"
-          onSelect={v => {
+          onSelect={(v) => {
             if (typeof v === 'string') {
               if (!v) {
                 setLabelIds([]);
@@ -158,7 +159,7 @@ function Archive(props: Props) {
           <SelectProducts
             label={__('Filter by products')}
             name="productIds"
-            onSelect={v => {
+            onSelect={(v) => {
               if (typeof v === 'string') {
                 if (!v) {
                   setProductIds([]);
@@ -176,7 +177,7 @@ function Archive(props: Props) {
           <SelectProducts
             label={__('Filter by products')}
             name="productIds"
-            onSelect={v => {
+            onSelect={(v) => {
               if (typeof v === 'string') {
                 if (!v) {
                   setProductIds([]);
@@ -190,7 +191,7 @@ function Archive(props: Props) {
           />
         )}
 
-        {options.type === 'ticket' && (
+        {/* {options.type === 'ticket' && (
           <Select
             placeholder={__('Choose a source')}
             value={sources}
@@ -215,7 +216,7 @@ function Archive(props: Props) {
             multi={true}
             loadingPlaceholder={__('Loading...')}
           />
-        )}
+        )} */}
 
         <ControlLabel>Close Date range:</ControlLabel>
 
@@ -224,7 +225,7 @@ function Archive(props: Props) {
             value={startDate}
             required={false}
             name="startDate"
-            onChange={date => onChangeRangeFilter(setStartDate, date)}
+            onChange={(date) => onChangeRangeFilter(setStartDate, date)}
             placeholder={'Start date'}
             dateFormat={'YYYY-MM-DD'}
           />
@@ -234,7 +235,7 @@ function Archive(props: Props) {
             required={false}
             name="endDate"
             placeholder={'End date'}
-            onChange={date => onChangeRangeFilter(setEndDate, date)}
+            onChange={(date) => onChangeRangeFilter(setEndDate, date)}
             dateFormat={'YYYY-MM-DD'}
           />
         </CustomRangeContainer>
@@ -250,7 +251,7 @@ function Archive(props: Props) {
           autoFocus={true}
           placeholder={`Search ${type}...`}
           value={searchInputValue}
-          onChange={e =>
+          onChange={(e) =>
             setSearchInputValue((e.target as HTMLInputElement).value)
           }
         />
@@ -289,7 +290,7 @@ function Archive(props: Props) {
           startDate,
           endDate,
           sources,
-          hackStages
+          hackStages,
         }}
         type={type}
       />

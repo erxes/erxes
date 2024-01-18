@@ -30,13 +30,13 @@ export default class Navigation extends React.Component<Props> {
       <LeftNavigation>
         <NavLink to="/welcome">
           <NavImage
-            navCollapse={navCollapse}
+            $navCollapse={navCollapse}
             src={generateLogoSource()}
             alt="erxes"
           />
         </NavLink>
 
-        <FlexBox navCollapse={navCollapse}>
+        <FlexBox $navCollapse={navCollapse}>
           <NavigationToggler
             navCollapse={navCollapse}
             onClickHandleIcon={onClickHandleIcon}
@@ -52,7 +52,7 @@ export default class Navigation extends React.Component<Props> {
             plugin={{
               text: 'Marketplace',
               url: '/marketplace',
-              icon: 'icon-store'
+              icon: 'icon-store',
             }}
             navCollapse={navCollapse}
           />
@@ -60,7 +60,7 @@ export default class Navigation extends React.Component<Props> {
             plugin={{
               text: 'Settings',
               url: '/settings',
-              icon: 'icon-settings'
+              icon: 'icon-settings',
             }}
             navCollapse={navCollapse}
           />

@@ -1,23 +1,24 @@
-import React from 'react';
-import { NavLink } from 'react-router-dom';
-import _ from 'lodash';
+import { ACTIONS, GENERAL_SETTINGS } from './constants';
 import {
-  NavItem,
-  NavIcon,
-  GotoFormWrapper,
-  GotoContentWrapper,
-  GotoItem,
   GotoCategory,
+  GotoContentWrapper,
+  GotoFormWrapper,
+  GotoItem,
+  GotoMenuItem,
   GotoModal,
-  GotoMenuItem
+  NavIcon,
+  NavItem,
 } from '../../styles';
+import { getConfig, setConfig } from '@erxes/ui/src/utils/core';
+
+import Icon from 'modules/common/components/Icon';
+import { NavLink } from 'react-router-dom';
+import React from 'react';
 import Tip from 'modules/common/components/Tip';
 import WithPermission from 'modules/common/components/WithPermission';
-import Icon from 'modules/common/components/Icon';
+import _ from 'lodash';
 import { __ } from 'modules/common/utils';
-import { ACTIONS, GENERAL_SETTINGS } from './constants';
 import { pluginNavigations } from './utils';
-import { getConfig, setConfig } from '@erxes/ui/src/utils/core';
 
 type Props = {
   navCollapse: number;
@@ -45,7 +46,7 @@ export default class NavigationGoto extends React.Component<Props, State> {
       plugins: [],
       filteredPlugins: [],
       searchValue: '',
-      cursor: 0
+      cursor: 0,
     };
 
     this.searchFormInput = React.createRef();
@@ -279,15 +280,8 @@ export default class NavigationGoto extends React.Component<Props, State> {
         <>
           <GotoCategory>Search results</GotoCategory>
           {filteredPlugins.map((plugin: any, index: number) => {
-            const {
-              permission,
-              permissions,
-              icon,
-              text,
-              name,
-              to,
-              url
-            } = plugin;
+            const { permission, permissions, icon, text, name, to, url } =
+              plugin;
 
             return (
               <WithPermission
@@ -358,9 +352,9 @@ export default class NavigationGoto extends React.Component<Props, State> {
 
     return (
       <React.Fragment>
-        <NavItem isMoreItem={false}>
+        <NavItem $isMoreItem={false}>
           <Tip placement="right" text={__('Go to... (Ctrl + M)')}>
-            <GotoMenuItem isMoreItem={false} navCollapse={navCollapse}>
+            <GotoMenuItem $isMoreItem={false} $navCollapse={navCollapse}>
               <a onClick={this.handleShow}>{this.renderIcon()}</a>
             </GotoMenuItem>
           </Tip>
