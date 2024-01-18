@@ -1,10 +1,10 @@
 import { IContext } from '../../../connectionResolver';
-import { sendRequest } from '@erxes/api-utils/src/requests';
+import fetch from 'node-fetch';
 import {
   sendCardsMessage,
   sendContactsMessage,
   sendCoreMessage,
-  sendProductsMessage
+  sendProductsMessage,
 } from '../../../messageBroker';
 import { getPureDate } from '@erxes/api-utils/src';
 
@@ -12,7 +12,7 @@ const erkhetQueries = {
   async multiErkhetRemainders(
     _root,
     { productIds, stageId, pipelineId },
-    { subdomain, models }: IContext
+    { subdomain, models }: IContext,
   ) {
     if (!pipelineId && stageId) {
       const pipeline = await sendCardsMessage({
@@ -20,7 +20,7 @@ const erkhetQueries = {
         action: 'pipelines.findOne',
         data: { stageId },
         isRPC: true,
-        defaultValue: {}
+        defaultValue: {},
       });
       pipelineId = pipeline._id;
     }
@@ -49,7 +49,7 @@ const erkhetQueries = {
         action: 'find',
         data: { query: { _id: { $in: productIds } }, limit: productIds.length },
         isRPC: true,
-        defaultValue: []
+        defaultValue: [],
       });
 
       for (const product of products) {
@@ -86,23 +86,23 @@ const erkhetQueries = {
           continue;
         }
 
-        const response = await sendRequest({
-          url: `${process.env.ERKHET_URL ||
-            'https://erkhet.biz'}/get-api/?kind=remainder`,
-          method: 'GET',
-          params: {
-            kind: 'remainder',
-            api_key: mainConfig.apiKey,
-            api_secret: mainConfig.apiSecret,
-            check_relate: codesByBrandId[brandId].length < 4 ? '1' : '',
-            accounts: remainderConfig.account,
-            locations: remainderConfig.location,
-            inventories: codesByBrandId[brandId].join(',')
+        const response = await fetch(
+          `${process.env.ERKHET_URL || 'https://erkhet.biz'}/get-api/?` +
+            new URLSearchParams({
+              kind: 'remainder',
+              api_key: mainConfig.apiKey,
+              api_secret: mainConfig.apiSecret,
+              check_relate: codesByBrandId[brandId].length < 4 ? '1' : '',
+              accounts: remainderConfig.account,
+              locations: remainderConfig.location,
+              inventories: codesByBrandId[brandId].join(','),
+            }),
+          {
+            timeout: 8000,
           },
-          timeout: 8000
-        });
+        );
 
-        const jsonRes = JSON.parse(response);
+        const jsonRes = await response.json();
 
         if (remainderConfig.account && remainderConfig.location) {
           const accounts = remainderConfig.account.split(',') || [];
@@ -130,7 +130,7 @@ const erkhetQueries = {
       for (const r of products) {
         result.push({
           _id: r._id,
-          remainder: Number(responseByCode[r.code])
+          remainder: Number(responseByCode[r.code]),
         });
       }
     } catch (e) {
@@ -149,7 +149,7 @@ const erkhetQueries = {
       startDate,
       endDate,
       isMore,
-      brandId
+      brandId,
     }: {
       contentType: string;
       contentId: string;
@@ -158,7 +158,7 @@ const erkhetQueries = {
       isMore: boolean;
       brandId?: string;
     },
-    { subdomain, models }: IContext
+    { subdomain, models }: IContext,
   ) {
     const result: any = {};
 
@@ -179,18 +179,11 @@ const erkhetQueries = {
         api_secret: configs.apiSecret,
         accounts: configs.debtAccounts,
         startDate:
-          (startDate &&
-            getPureDate(startDate)
-              .toISOString()
-              .slice(0, 10)) ||
+          (startDate && getPureDate(startDate).toISOString().slice(0, 10)) ||
           '',
         endDate:
-          (endDate &&
-            getPureDate(endDate)
-              .toISOString()
-              .slice(0, 10)) ||
-          '',
-        isMore: (isMore && 'True') || ''
+          (endDate && getPureDate(endDate).toISOString().slice(0, 10)) || '',
+        isMore: (isMore && 'True') || '',
       };
 
       switch (contentType) {
@@ -200,7 +193,7 @@ const erkhetQueries = {
             action: 'companies.findOne',
             data: { _id: contentId },
             isRPC: true,
-            defaultValue: {}
+            defaultValue: {},
           });
 
           sendParams.customerCode = company && company.code;
@@ -211,7 +204,7 @@ const erkhetQueries = {
             action: 'users.findOne',
             data: { _id: contentId },
             isRPC: true,
-            defaultValue: {}
+            defaultValue: {},
           });
 
           sendParams.workerEmail = user && user.email;
@@ -222,7 +215,7 @@ const erkhetQueries = {
             action: 'customers.findOne',
             data: { _id: contentId },
             isRPC: true,
-            defaultValue: {}
+            defaultValue: {},
           });
 
           sendParams.customerCode = customer && customer.code;
@@ -232,21 +225,21 @@ const erkhetQueries = {
         return {};
       }
 
-      const response = await sendRequest({
-        url: `${process.env.ERKHET_URL ||
-          'https://erkhet.biz'}/get-api/?kind=remainder`,
-        method: 'GET',
-        params: sendParams,
-        timeout: 8000
-      });
+      const response = await fetch(
+        `${process.env.ERKHET_URL || 'https://erkhet.biz'}/get-api/?` +
+          new URLSearchParams({ ...sendParams, kind: 'remainder' }),
+        {
+          timeout: 8000,
+        },
+      );
 
-      const jsonRes = JSON.parse(response);
+      const jsonRes = await response.json();
       return jsonRes;
     } catch (e) {
       console.log(e.message);
       return result;
     }
-  }
+  },
 };
 
 export default erkhetQueries;

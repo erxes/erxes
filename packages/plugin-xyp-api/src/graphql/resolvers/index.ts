@@ -11,7 +11,7 @@ const XypData = {
   }
 };
 
-const resolvers: any = async _serviceDiscovery => ({
+const resolvers: any = async () => ({
   ...customScalars,
   XypData,
   Mutation: {

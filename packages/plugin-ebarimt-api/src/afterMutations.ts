@@ -1,16 +1,16 @@
-import { graphqlPubsub } from './configs';
+import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
 import { IModels } from './connectionResolver';
 import { PutData } from './models/utils';
 import { getConfig, getPostData } from './utils';
 
 export default {
-  'cards:deal': ['update']
+  'cards:deal': ['update'],
 };
 
 export const afterMutationHandlers = async (
   models: IModels,
   subdomain,
-  params
+  params,
 ) => {
   const { type, action, user } = params;
 
@@ -29,13 +29,13 @@ export const afterMutationHandlers = async (
       const returnConfigs = await getConfig(
         subdomain,
         'returnStageInEbarimt',
-        {}
+        {},
       );
 
       if (Object.keys(returnConfigs).includes(destinationStageId)) {
         const returnConfig = {
           ...returnConfigs[destinationStageId],
-          ...(await getConfig(subdomain, 'EBARIMT', {}))
+          ...(await getConfig(subdomain, 'EBARIMT', {})),
         };
 
         const returnResponses = await models.PutResponses.returnBill(
@@ -43,9 +43,9 @@ export const afterMutationHandlers = async (
             ...deal,
             contentType: 'deal',
             contentId: deal._id,
-            number: deal.number
+            number: deal.number,
           },
-          returnConfig
+          returnConfig,
         );
 
         if (returnResponses.length) {
@@ -53,10 +53,10 @@ export const afterMutationHandlers = async (
             await graphqlPubsub.publish('automationResponded', {
               automationResponded: {
                 userId: user._id,
-                responseId: returnResponses.map(er => er._id).join('-'),
+                responseId: returnResponses.map((er) => er._id).join('-'),
                 sessionCode: user.sessionCode || '',
-                content: returnResponses
-              }
+                content: returnResponses,
+              },
             });
           } catch (e) {
             throw new Error(e.message);
@@ -73,7 +73,7 @@ export const afterMutationHandlers = async (
 
       const config = {
         ...(await getConfig(subdomain, 'EBARIMT', {})),
-        ...configs[destinationStageId]
+        ...configs[destinationStageId],
       };
 
       const ebarimtDatas = await getPostData(subdomain, config, deal);
@@ -88,18 +88,18 @@ export const afterMutationHandlers = async (
             ...config,
             ...ebarimtData,
             config,
-            models
+            models,
           });
           ebarimtResponse = {
             _id: Math.random(),
             billId: 'Түр баримт',
             ...(await putData.generateTransactionInfo()),
-            registerNo: config.companyRD || ''
+            registerNo: config.companyRD || '',
           };
         } else {
           ebarimtResponse = await models.PutResponses.putData(
             ebarimtData,
-            config
+            config,
           );
         }
         if (ebarimtResponse._id) {
@@ -112,10 +112,10 @@ export const afterMutationHandlers = async (
           await graphqlPubsub.publish('automationResponded', {
             automationResponded: {
               userId: user._id,
-              responseId: ebarimtResponses.map(er => er._id).join('-'),
+              responseId: ebarimtResponses.map((er) => er._id).join('-'),
               sessionCode: user.sessionCode || '',
-              content: ebarimtResponses.map(er => ({ ...config, ...er }))
-            }
+              content: ebarimtResponses.map((er) => ({ ...config, ...er })),
+            },
           });
         }
       } catch (e) {

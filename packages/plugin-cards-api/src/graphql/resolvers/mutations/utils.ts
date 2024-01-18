@@ -5,32 +5,32 @@ import {
   getCompanyIds,
   getCustomerIds,
   getItem,
-  getNewOrder
+  getNewOrder,
 } from '../../../models/utils';
 import {
   IItemCommonFields,
   IItemDragCommonFields,
-  IStageDocument
+  IStageDocument,
 } from '../../../models/definitions/boards';
 import { BOARD_STATUSES } from '../../../models/definitions/constants';
 import { IDeal, IDealDocument } from '../../../models/definitions/deals';
 import {
   IPurchase,
-  IPurchaseDocument
+  IPurchaseDocument,
 } from '../../../models/definitions/purchases';
 
 import {
   IGrowthHack,
-  IGrowthHackDocument
+  IGrowthHackDocument,
 } from '../../../models/definitions/growthHacks';
 import { ITaskDocument } from '../../../models/definitions/tasks';
 import { ITicket, ITicketDocument } from '../../../models/definitions/tickets';
-import { graphqlPubsub } from '../../../configs';
+import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
 import {
   putActivityLog,
   putCreateLog,
   putDeleteLog,
-  putUpdateLog
+  putUpdateLog,
 } from '../../../logUtils';
 import { checkUserIds } from '@erxes/api-utils/src';
 import {
@@ -39,14 +39,14 @@ import {
   createConformity,
   IBoardNotificationParams,
   prepareBoardItemDoc,
-  sendNotifications
+  sendNotifications,
 } from '../../utils';
 import { IUserDocument } from '@erxes/api-utils/src/types';
 import { generateModels, IModels } from '../../../connectionResolver';
 import {
   sendCoreMessage,
   sendFormsMessage,
-  sendNotificationsMessage
+  sendNotificationsMessage,
 } from '../../../messageBroker';
 
 export const itemResolver = async (
@@ -54,7 +54,7 @@ export const itemResolver = async (
   subdomain: string,
   user: any,
   type: string,
-  item: IItemCommonFields
+  item: IItemCommonFields,
 ) => {
   let resolverType = '';
 
@@ -87,7 +87,7 @@ export const itemResolver = async (
         item,
         {},
         { models, subdomain, user },
-        { isSubscription: true }
+        { isSubscription: true },
       );
     } catch (unused) {
       continue;
@@ -107,7 +107,7 @@ export const itemsAdd = async (
   type: string,
   createModel: any,
   user?: IUserDocument,
-  docModifier?: any
+  docModifier?: any,
 ) => {
   const { collection } = getCollection(models, type);
 
@@ -123,8 +123,8 @@ export const itemsAdd = async (
     order: await getNewOrder({
       collection,
       stageId: doc.stageId,
-      aboveItemId: doc.aboveItemId
-    })
+      aboveItemId: doc.aboveItemId,
+    }),
   };
 
   if (extendedDoc.customFieldsData) {
@@ -134,7 +134,7 @@ export const itemsAdd = async (
       action: 'fields.prepareCustomFieldsData',
       data: extendedDoc.customFieldsData,
       isRPC: true,
-      defaultValue: []
+      defaultValue: [],
     });
   }
 
@@ -145,7 +145,7 @@ export const itemsAdd = async (
     mainType: type,
     mainTypeId: item._id,
     companyIds: doc.companyIds,
-    customerIds: doc.customerIds
+    customerIds: doc.customerIds,
   });
 
   if (user) {
@@ -157,7 +157,7 @@ export const itemsAdd = async (
       type: `${type}Add`,
       action: `invited you to the ${pipeline.name}`,
       content: `'${item.name}'.`,
-      contentType: type
+      contentType: type,
     });
 
     await putCreateLog(
@@ -166,9 +166,9 @@ export const itemsAdd = async (
       {
         type,
         newData: extendedDoc,
-        object: item
+        object: item,
       },
-      user
+      user,
     );
   }
 
@@ -180,9 +180,9 @@ export const itemsAdd = async (
       data: {
         item,
         aboveItemId: doc.aboveItemId,
-        destinationStageId: stage._id
-      }
-    }
+        destinationStageId: stage._id,
+      },
+    },
   });
 
   return item;
@@ -197,14 +197,14 @@ export const changeItemStatus = async (
     item,
     status,
     proccessId,
-    stage
+    stage,
   }: {
     type: string;
     item: any;
     status: string;
     proccessId: string;
     stage: IStageDocument;
-  }
+  },
 ) => {
   if (status === 'archived') {
     graphqlPubsub.publish('pipelinesChanged', {
@@ -214,9 +214,9 @@ export const changeItemStatus = async (
         action: 'itemRemove',
         data: {
           item,
-          oldStageId: item.stageId
-        }
-      }
+          oldStageId: item.stageId,
+        },
+      },
     });
 
     return;
@@ -228,7 +228,7 @@ export const changeItemStatus = async (
     .find({
       stageId: item.stageId,
       status: { $ne: BOARD_STATUSES.ARCHIVED },
-      order: { $lt: item.order }
+      order: { $lt: item.order },
     })
     .sort({ order: -1 })
     .limit(1);
@@ -238,15 +238,15 @@ export const changeItemStatus = async (
   // maybe, recovered order includes to oldOrders
   await collection.updateOne(
     {
-      _id: item._id
+      _id: item._id,
     },
     {
       order: await getNewOrder({
         collection,
         stageId: item.stageId,
-        aboveItemId
-      })
-    }
+        aboveItemId,
+      }),
+    },
   );
 
   graphqlPubsub.publish('pipelinesChanged', {
@@ -257,12 +257,12 @@ export const changeItemStatus = async (
       data: {
         item: {
           ...item._doc,
-          ...(await itemResolver(models, subdomain, user, type, item))
+          ...(await itemResolver(models, subdomain, user, type, item)),
         },
         aboveItemId,
-        destinationStageId: item.stageId
-      }
-    }
+        destinationStageId: item.stageId,
+      },
+    },
   });
 };
 
@@ -275,12 +275,12 @@ export const itemsEdit = async (
   doc: any,
   proccessId: string,
   user: IUserDocument,
-  modelUpate
+  modelUpate,
 ) => {
   const extendedDoc = {
     ...doc,
     modifiedAt: new Date(),
-    modifiedBy: user._id
+    modifiedBy: user._id,
   };
 
   const stage = await models.Stages.getStage(oldItem.stageId);
@@ -301,7 +301,7 @@ export const itemsEdit = async (
       subdomain,
       action: 'fields.prepareCustomFieldsData',
       data: extendedDoc.customFieldsData,
-      isRPC: true
+      isRPC: true,
     });
   }
 
@@ -315,7 +315,7 @@ export const itemsEdit = async (
     item: updatedItem,
     user,
     type: `${type}Edit`,
-    contentType: type
+    contentType: type,
   };
 
   if (doc.status && oldItem.status && oldItem.status !== doc.status) {
@@ -330,8 +330,8 @@ export const itemsEdit = async (
         userId: user._id,
         createdBy: user._id,
         contentId: updatedItem._id,
-        content: activityAction
-      }
+        content: activityAction,
+      },
     });
 
     // order notification
@@ -340,14 +340,14 @@ export const itemsEdit = async (
       item: updatedItem,
       status: activityAction,
       proccessId,
-      stage
+      stage,
     });
   }
 
   if (doc.assignedUserIds) {
     const { addedUserIds, removedUserIds } = checkUserIds(
       oldItem.assignedUserIds,
-      doc.assignedUserIds
+      doc.assignedUserIds,
     );
 
     const activityContent = { addedUserIds, removedUserIds };
@@ -360,8 +360,8 @@ export const itemsEdit = async (
         contentType: type,
         content: activityContent,
         action: 'assignee',
-        createdBy: user._id
-      }
+        createdBy: user._id,
+      },
     });
 
     notificationDoc.invitedUsers = addedUserIds;
@@ -376,14 +376,15 @@ export const itemsEdit = async (
       action: 'sendMobileNotification',
       data: {
         title: notificationDoc?.item?.name,
-        body: `${user?.details?.fullName ||
-          user?.details?.shortName} has updated`,
+        body: `${
+          user?.details?.fullName || user?.details?.shortName
+        } has updated`,
         receivers: notificationDoc?.item?.assignedUserIds,
         data: {
           type,
-          id: _id
-        }
-      }
+          id: _id,
+        },
+      },
     });
   }
 
@@ -394,9 +395,9 @@ export const itemsEdit = async (
       type,
       object: oldItem,
       newData: extendedDoc,
-      updatedDocument: updatedItem
+      updatedDocument: updatedItem,
     },
-    user
+    user,
   );
 
   const oldStage = await models.Stages.getStage(oldItem.stageId);
@@ -404,8 +405,8 @@ export const itemsEdit = async (
   if (doc.tagIds || doc.startDate || doc.closeDate || doc.name) {
     graphqlPubsub.publish('pipelinesChanged', {
       pipelinesChanged: {
-        _id: stage.pipelineId
-      }
+        _id: stage.pipelineId,
+      },
     });
   }
 
@@ -417,9 +418,9 @@ export const itemsEdit = async (
         action: 'itemRemove',
         data: {
           item: oldItem,
-          oldStageId: oldStage._id
-        }
-      }
+          oldStageId: oldStage._id,
+        },
+      },
     });
     graphqlPubsub.publish('pipelinesChanged', {
       pipelinesChanged: {
@@ -429,12 +430,12 @@ export const itemsEdit = async (
         data: {
           item: {
             ...updatedItem._doc,
-            ...(await itemResolver(models, subdomain, user, type, updatedItem))
+            ...(await itemResolver(models, subdomain, user, type, updatedItem)),
           },
           aboveItemId: '',
-          destinationStageId: stage._id
-        }
-      }
+          destinationStageId: stage._id,
+        },
+      },
     });
   } else {
     graphqlPubsub.publish('pipelinesChanged', {
@@ -445,10 +446,10 @@ export const itemsEdit = async (
         data: {
           item: {
             ...updatedItem._doc,
-            ...(await itemResolver(models, subdomain, user, type, updatedItem))
-          }
-        }
-      }
+            ...(await itemResolver(models, subdomain, user, type, updatedItem)),
+          },
+        },
+      },
     });
   }
 
@@ -463,7 +464,7 @@ export const itemsEdit = async (
     user._id,
     oldItem,
     type,
-    updatedItem.stageId
+    updatedItem.stageId,
   );
 
   await sendNotifications(models, subdomain, {
@@ -472,7 +473,7 @@ export const itemsEdit = async (
     type: `${type}Change`,
     content,
     action,
-    contentType: type
+    contentType: type,
   });
 
   return updatedItem;
@@ -489,7 +490,7 @@ const itemMover = async (
     | ITicketDocument
     | IGrowthHackDocument,
   contentType: string,
-  destinationStageId: string
+  destinationStageId: string,
 ) => {
   const oldStageId = item.stageId;
 
@@ -515,7 +516,7 @@ const itemMover = async (
     const activityLogContent = {
       oldStageId,
       destinationStageId,
-      text: `${oldStage.name} to ${stage.name}`
+      text: `${oldStage.name} to ${stage.name}`,
     };
 
     await putActivityLog(subdomain, {
@@ -529,8 +530,8 @@ const itemMover = async (
         action: 'moved',
         contentId: item._id,
         createdBy: userId,
-        content: activityLogContent
-      }
+        content: activityLogContent,
+      },
     });
 
     sendNotificationsMessage({
@@ -538,8 +539,8 @@ const itemMover = async (
       action: 'batchUpdate',
       data: {
         selector: { contentType, contentTypeId: item._id },
-        modifier: { $set: { link } }
-      }
+        modifier: { $set: { link } },
+      },
     });
   }
 
@@ -548,7 +549,7 @@ const itemMover = async (
 
 export const checkMovePermission = (
   stage: IStageDocument,
-  user: IUserDocument
+  user: IUserDocument,
 ) => {
   if (
     stage.canMoveMemberIds &&
@@ -565,17 +566,12 @@ export const itemsChange = async (
   doc: IItemDragCommonFields,
   type: string,
   user: IUserDocument,
-  modelUpdate: any
+  modelUpdate: any,
 ) => {
   const { collection } = getCollection(models, type);
 
-  const {
-    proccessId,
-    itemId,
-    aboveItemId,
-    destinationStageId,
-    sourceStageId
-  } = doc;
+  const { proccessId, itemId, aboveItemId, destinationStageId, sourceStageId } =
+    doc;
 
   const item = await getItem(models, type, { _id: itemId });
   const stage = await models.Stages.getStage(item.stageId);
@@ -587,8 +583,8 @@ export const itemsChange = async (
     order: await getNewOrder({
       collection,
       stageId: destinationStageId,
-      aboveItemId
-    })
+      aboveItemId,
+    }),
   };
 
   if (item.stageId !== destinationStageId) {
@@ -609,7 +605,7 @@ export const itemsChange = async (
     user._id,
     item,
     type,
-    destinationStageId
+    destinationStageId,
   );
 
   await sendNotifications(models, subdomain, {
@@ -618,7 +614,7 @@ export const itemsChange = async (
     type: `${type}Change`,
     content,
     action,
-    contentType: type
+    contentType: type,
   });
 
   if (item?.assignedUserIds && item?.assignedUserIds?.length > 0) {
@@ -627,14 +623,15 @@ export const itemsChange = async (
       action: 'sendMobileNotification',
       data: {
         title: `${item.name}`,
-        body: `${user?.details?.fullName || user?.details?.shortName} ${action +
-          content}`,
+        body: `${user?.details?.fullName || user?.details?.shortName} ${
+          action + content
+        }`,
         receivers: item?.assignedUserIds,
         data: {
           type,
-          id: item._id
-        }
-      }
+          id: item._id,
+        },
+      },
     });
   }
 
@@ -645,16 +642,16 @@ export const itemsChange = async (
       type,
       object: item,
       newData: extendedDoc,
-      updatedDocument: updatedItem
+      updatedDocument: updatedItem,
     },
-    user
+    user,
   );
 
   // order notification
   const labels = await models.PipelineLabels.find({
     _id: {
-      $in: item.labelIds
-    }
+      $in: item.labelIds,
+    },
   });
 
   graphqlPubsub.publish('pipelinesChanged', {
@@ -666,13 +663,13 @@ export const itemsChange = async (
         item: {
           ...item._doc,
           ...(await itemResolver(models, subdomain, user, type, item)),
-          labels
+          labels,
         },
         aboveItemId,
         destinationStageId,
-        oldStageId: sourceStageId
-      }
-    }
+        oldStageId: sourceStageId,
+      },
+    },
   });
 
   return item;
@@ -683,7 +680,7 @@ export const itemsRemove = async (
   subdomain: string,
   _id: string,
   type: string,
-  user: IUserDocument
+  user: IUserDocument,
 ) => {
   const item = await getItem(models, type, { _id });
 
@@ -693,7 +690,7 @@ export const itemsRemove = async (
     type: `${type}Delete`,
     action: `deleted ${type}:`,
     content: `'${item.name}'`,
-    contentType: type
+    contentType: type,
   });
 
   if (item?.assignedUserIds && item?.assignedUserIds?.length > 0) {
@@ -702,14 +699,15 @@ export const itemsRemove = async (
       action: 'sendMobileNotification',
       data: {
         title: `${item.name}`,
-        body: `${user?.details?.fullName ||
-          user?.details?.shortName} deleted the ${type}`,
+        body: `${
+          user?.details?.fullName || user?.details?.shortName
+        } deleted the ${type}`,
         receivers: item?.assignedUserIds,
         data: {
           type,
-          id: item._id
-        }
-      }
+          id: item._id,
+        },
+      },
     });
   }
 
@@ -730,7 +728,7 @@ export const itemsCopy = async (
   type: string,
   user: IUserDocument,
   extraDocParam: string[],
-  modelCreate: any
+  modelCreate: any,
 ) => {
   const { collection } = getCollection(models, type);
   const item = await collection.findOne({ _id }).lean();
@@ -752,14 +750,14 @@ export const itemsCopy = async (
     mainType: type,
     mainTypeId: clone._id,
     customerIds,
-    companyIds
+    companyIds,
   });
 
   await copyChecklists(models, {
     contentType: type,
     contentTypeId: item._id,
     targetContentId: clone._id,
-    user
+    user,
   });
 
   // order notification
@@ -773,12 +771,12 @@ export const itemsCopy = async (
       data: {
         item: {
           ...clone._doc,
-          ...(await itemResolver(models, subdomain, user, type, clone))
+          ...(await itemResolver(models, subdomain, user, type, clone)),
         },
         aboveItemId: _id,
-        destinationStageId: stage._id
-      }
-    }
+        destinationStageId: stage._id,
+      },
+    },
   });
 
   await publishHelperItemsConformities(clone, stage);
@@ -792,20 +790,20 @@ export const itemsArchive = async (
   stageId: string,
   type: string,
   proccessId: string,
-  user: IUserDocument
+  user: IUserDocument,
 ) => {
   const { collection } = getCollection(models, type);
 
   const items = await collection
     .find({
       stageId,
-      status: { $ne: BOARD_STATUSES.ARCHIVED }
+      status: { $ne: BOARD_STATUSES.ARCHIVED },
     })
     .lean();
 
   await collection.updateMany(
     { stageId },
-    { $set: { status: BOARD_STATUSES.ARCHIVED } }
+    { $set: { status: BOARD_STATUSES.ARCHIVED } },
   );
 
   // order notification
@@ -821,8 +819,8 @@ export const itemsArchive = async (
         userId: user._id,
         createdBy: user._id,
         contentId: item._id,
-        content: 'archived'
-      }
+        content: 'archived',
+      },
     });
 
     graphqlPubsub.publish('pipelinesChanged', {
@@ -832,9 +830,9 @@ export const itemsArchive = async (
         action: 'itemsRemove',
         data: {
           item,
-          destinationStageId: stage._id
-        }
-      }
+          destinationStageId: stage._id,
+        },
+      },
     });
   }
 
@@ -848,7 +846,7 @@ export const publishHelperItemsConformities = async (
     | ITicketDocument
     | ITaskDocument
     | IGrowthHackDocument,
-  stage: IStageDocument
+  stage: IStageDocument,
 ) => {
   graphqlPubsub.publish('pipelinesChanged', {
     pipelinesChanged: {
@@ -857,17 +855,17 @@ export const publishHelperItemsConformities = async (
       action: 'itemOfConformitiesUpdate',
       data: {
         item: {
-          ...item
-        }
-      }
-    }
+          ...item,
+        },
+      },
+    },
   });
 };
 
 export const publishHelper = async (
   subdomain: string,
   type: string,
-  itemId: string
+  itemId: string,
 ) => {
   const models = await generateModels(subdomain);
 

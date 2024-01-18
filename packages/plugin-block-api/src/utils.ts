@@ -1,6 +1,6 @@
 import { sendContactsMessage, sendFormsMessage } from './messageBroker';
 import { sendCoreMessage } from './messageBroker';
-import { sendRequest } from '@erxes/api-utils/src/requests';
+import fetch from 'node-fetch';
 import { debugError } from '@erxes/api-utils/src/debuggers';
 
 export const getBalance = async (
@@ -138,16 +138,15 @@ export const sendSms = async (
   }
 
   try {
-    await sendRequest({
-      url: 'https://api.messagepro.mn/send',
-      method: 'GET',
-      params: {
-        key: MESSAGE_PRO_API_KEY,
-        from: MESSAGE_PRO_PHONE_NUMBER,
-        to: phoneNumber,
-        text: content
-      }
-    });
+    await fetch(
+      'https://api.messagepro.mn/send?' +
+        new URLSearchParams({
+          key: MESSAGE_PRO_API_KEY,
+          from: MESSAGE_PRO_PHONE_NUMBER,
+          to: phoneNumber,
+          text: content
+        })
+    );
 
     return 'sent';
   } catch (e) {

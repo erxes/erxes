@@ -10,6 +10,7 @@ const usePaymentLabel = () => {
     if (type === "cash") return "Бэлнээр"
     if (type === "mobile") return "Цахимаар"
     if (type === "discount") return "Хөнгөлөлт"
+    if (type === "total") return "Нийт дүн"
     if (type === BANK_CARD_TYPES.KHANBANK) return "Хаан банк"
     if (type === BANK_CARD_TYPES.GOLOMT) return "Голомт банк"
     if (type === BANK_CARD_TYPES.TDB) return "ХXБанк"

@@ -8,19 +8,15 @@ import { initBroker, sendCommonMessage } from './messageBroker';
 import * as permissions from './permissions';
 
 export let mainDb;
-export let graphqlPubsub;
-export let serviceDiscovery;
-
 export let debug;
 
 export default {
   name: 'documents',
   permissions,
-  graphql: sd => {
-    serviceDiscovery = sd;
+  graphql: () => {
     return {
       typeDefs,
-      resolvers
+      resolvers,
     };
   },
   segment: {},
@@ -31,7 +27,7 @@ export default {
     context.models = await generateModels(subdomain);
   },
   meta: {
-    permissions
+    permissions,
   },
 
   getHandlers: [
@@ -70,7 +66,7 @@ export default {
                 action: 'documentPrintHook',
                 isRPC: true,
                 serviceName,
-                data: { document, userId }
+                data: { document, userId },
               });
             } catch (e) {
               return next(e);
@@ -90,8 +86,8 @@ export default {
             isRPC: true,
             action: 'users.findOne',
             data: {
-              _id: itemId
-            }
+              _id: itemId,
+            },
           });
 
           let content = document.content;
@@ -102,30 +98,30 @@ export default {
           content = content.replace(/{{ email }}/g, user.email);
           content = content.replace(
             /{{ details.firstName }}/g,
-            details.firstName
+            details.firstName,
           );
           content = content.replace(
             /{{ details.lastName }}/g,
-            details.lastName
+            details.lastName,
           );
           content = content.replace(
             /{{ details.middleName }}/g,
-            details.middleName
+            details.middleName,
           );
           content = content.replace(
             /{{ details.position }}/g,
-            details.position
+            details.position,
           );
           content = content.replace(/{{ details.avatar }}/g, details.avatar);
           content = content.replace(
             /{{ details.description }}/g,
-            details.description
+            details.description,
           );
 
           for (const data of user.customFieldsData || []) {
             const regex = new RegExp(
               `{{ customFieldsData.${data.field} }}`,
-              'g'
+              'g',
             );
             content = content.replace(regex, data.stringValue);
           }
@@ -136,7 +132,7 @@ export default {
             const serviceName = document.contentType.includes(':')
               ? document.contentType.substring(
                   0,
-                  document.contentType.indexOf(':')
+                  document.contentType.indexOf(':'),
                 )
               : document.contentType;
 
@@ -147,9 +143,9 @@ export default {
               isRPC: true,
               data: {
                 ...(req.query || {}),
-                content: document.content
+                content: document.content,
               },
-              timeout: 50000
+              timeout: 50000,
             });
           } catch (e) {
             replacedContents = [e.message];
@@ -203,7 +199,7 @@ export default {
             <meta charset="utf-8">
             ${heads}
           </head>
-        `
+        `,
         ];
 
         if (copies) {
@@ -260,16 +256,15 @@ export default {
             ${scripts}
         `;
         return res.send(multipliedResults + style + script);
-      }
-    }
+      },
+    },
   ],
 
-  onServerInit: async options => {
+  onServerInit: async (options) => {
     mainDb = options.db;
 
     initBroker(options.messageBrokerClient);
 
     debug = options.debug;
-    graphqlPubsub = options.pubsubClient;
-  }
+  },
 };

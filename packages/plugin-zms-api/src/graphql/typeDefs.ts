@@ -334,7 +334,7 @@ const mutations = `
   sendZms(isClosed: Boolean):JSON
 `;
 
-const typeDefs = async _serviceDiscovery => {
+const typeDefs = async () => {
   return gql`
     scalar JSON
     scalar Date

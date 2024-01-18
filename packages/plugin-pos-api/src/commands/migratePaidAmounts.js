@@ -20,7 +20,7 @@ const command = async () => {
 
   console.log('connected...');
 
-  PosOrders = db.collection('pos_orders');
+  const PosOrders = db.collection('pos_orders');
   let bulkUpdateOps = [];
   let counter = 0;
   let bulkCounter = 0;

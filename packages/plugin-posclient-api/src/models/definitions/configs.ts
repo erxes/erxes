@@ -91,24 +91,44 @@ export interface IProductGroupDocument extends Document, IProductGroup {
 
 const ebarimtConfigSchema = new Schema(
   {
-    companyName: field({ type: String, label: 'Company name' }),
-    ebarimtUrl: field({ type: String, label: 'Ebarimt server url' }),
-    checkCompanyUrl: field({ type: String, label: 'Company info url' }),
-    hasVat: field({ type: Boolean }),
-    hasCitytax: field({ type: Boolean }),
-    districtCode: field({ type: String, label: 'Province or district code' }),
-    companyRD: field({ type: String, label: 'Company register number' }),
-    defaultGSCode: field({ type: String, label: 'Default inventory code' }),
+    companyName: field({ type: String, optional: true, label: 'Company name' }),
+    ebarimtUrl: field({
+      type: String,
+      optional: true,
+      label: 'Ebarimt server url',
+    }),
+    checkCompanyUrl: field({
+      type: String,
+      optional: true,
+      label: 'Company info url',
+    }),
+    hasVat: field({ type: Boolean, optional: true }),
+    hasCitytax: field({ type: Boolean, optional: true }),
+    districtCode: field({
+      type: String,
+      optional: true,
+      label: 'Province or district code',
+    }),
+    companyRD: field({
+      type: String,
+      optional: true,
+      label: 'Company register number',
+    }),
+    defaultGSCode: field({
+      type: String,
+      optional: true,
+      label: 'Default inventory code',
+    }),
     vatPercent: field({ type: Number, optional: true, label: 'Vat percent' }),
     cityTaxPercent: {
       type: Number,
       optional: true,
-      label: 'UB city tax percent'
+      label: 'UB city tax percent',
     },
     footerText: field({ type: String, optional: true, label: 'Footer text' }),
-    hasCopy: field({ type: Boolean })
+    hasCopy: field({ type: Boolean, optional: true }),
   },
-  { _id: false }
+  { _id: false },
 );
 
 export const configSchema = new Schema({
@@ -118,7 +138,7 @@ export const configSchema = new Schema({
   orderPassword: field({
     type: String,
     optional: true,
-    label: ' OrderPassword'
+    label: ' OrderPassword',
   }),
   pdomain: field({ type: String, optional: true, label: 'Domain' }),
   userId: field({ type: String, optional: true, label: 'Created by' }),
@@ -136,23 +156,23 @@ export const configSchema = new Schema({
   token: field({ type: String, label: 'Token generated at erxes-api' }),
   erxesAppToken: field({ type: String, label: 'Erxes app token' }),
   uiOptions: field({ type: Object, label: 'Logo & color configs' }),
-  ebarimtConfig: field({ type: ebarimtConfigSchema }),
+  ebarimtConfig: field({ type: ebarimtConfigSchema, optional: true }),
   erkhetConfig: field({ type: Object }),
   catProdMappings: field({
     type: [Object],
-    label: 'Product category mappings'
+    label: 'Product category mappings',
   }),
   initialCategoryIds: field({
     type: [String],
-    label: 'Pos initial categories'
+    label: 'Pos initial categories',
   }),
   kioskExcludeCategoryIds: field({
     type: [String],
-    label: 'kiosk Exclude Categories'
+    label: 'kiosk Exclude Categories',
   }),
   kioskExcludeProductIds: field({
     type: [String],
-    label: 'kiosk Exclude Products'
+    label: 'kiosk Exclude Products',
   }),
   deliveryConfig: field({ type: Object }),
   cardsConfig: field({ type: Object }),
@@ -164,7 +184,7 @@ export const configSchema = new Schema({
   allowBranchIds: field({
     type: [String],
     optional: true,
-    label: 'Allow branches'
+    label: 'Allow branches',
   }),
   checkRemainder: field({ type: Boolean, optional: true }),
   permissionConfig: field({ type: Object, optional: true }),
@@ -172,7 +192,7 @@ export const configSchema = new Schema({
   isCheckRemainder: field({ type: Boolean, optional: true }),
   checkExcludeCategoryIds: field({ type: [String] }),
   banFractions: field({ type: Boolean, optional: true }),
-  status: field({ type: String, optional: true })
+  status: field({ type: String, optional: true }),
 });
 
 // products config
@@ -190,5 +210,5 @@ export interface IProductsConfigDocument extends IProductsConfig, Document {
 export const productsConfigSchema = new Schema({
   _id: field({ pkey: true }),
   code: field({ type: String, unique: true }),
-  value: field({ type: Object })
+  value: field({ type: Object }),
 });

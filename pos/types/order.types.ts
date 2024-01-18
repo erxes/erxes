@@ -122,6 +122,7 @@ export interface IOrder extends IOrderCommon {
   user: IOrderUser
   sloteCode?: string
   isPre?: boolean
+  deliveryInfo?: { description?: string }
 }
 
 export interface IOrderHistory {

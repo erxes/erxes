@@ -4,11 +4,11 @@ import {
   getCoreDomain,
   initFirebase,
   registerOnboardHistory,
-  resetConfigsCache,
-  sendRequest
+  resetConfigsCache
 } from '../../utils';
 import { checkPermission } from '@erxes/api-utils/src/permissions';
 import { putCreateLog, putUpdateLog } from '../../logUtils';
+import fetch from 'node-fetch';
 
 const configMutations = {
   /**
@@ -117,11 +117,11 @@ const configMutations = {
     args: { token: string; hostname: string }
   ) {
     try {
-      return await sendRequest({
+      return await fetch(`${getCoreDomain()}/activate-installation`, {
         method: 'POST',
-        url: `${getCoreDomain()}/activate-installation`,
-        body: args
-      });
+        body: JSON.stringify(args),
+        headers: { 'Content-Type': 'application/json' }
+      }).then(res => res.json());
     } catch (e) {
       throw new Error(e.message);
     }

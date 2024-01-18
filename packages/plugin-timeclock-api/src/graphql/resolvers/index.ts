@@ -10,7 +10,7 @@ import Timelog from './timelog';
 import DuplicateSchedule from './duplicateSchedule';
 import Shift from './shift';
 
-const resolvers: any = async serviceDiscovery => ({
+const resolvers: any = async () => ({
   ...customScalars,
   UserReport,
   Schedule,

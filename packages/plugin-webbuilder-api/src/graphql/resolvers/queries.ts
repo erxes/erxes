@@ -1,14 +1,15 @@
-import { paginate, sendRequest } from '@erxes/api-utils/src';
+import { paginate } from '@erxes/api-utils/src';
 import { escapeRegExp } from '@erxes/api-utils/src/core';
 import {
   moduleRequireLogin,
-  checkPermission
+  checkPermission,
 } from '@erxes/api-utils/src/permissions';
 import { IContext } from '../../connectionResolver';
+import fetch from 'node-fetch';
 
 const generateCommonFilter = ({
   searchValue,
-  siteId
+  siteId,
 }: {
   searchValue?: string;
   siteId?: string;
@@ -33,18 +34,18 @@ const webbuilderQueries = {
       page,
       perPage,
       searchValue,
-      siteId
+      siteId,
     }: { page: number; perPage: number; searchValue: string; siteId: string },
-    { models }: IContext
+    { models }: IContext,
   ) {
     const filter = generateCommonFilter({ searchValue, siteId });
 
     return {
       list: paginate(models.Pages.find(filter), {
         page,
-        perPage
+        perPage,
       }),
-      totalCount: models.Pages.find(filter).count()
+      totalCount: models.Pages.find(filter).count(),
     };
   },
 
@@ -55,7 +56,7 @@ const webbuilderQueries = {
   webbuilderContentTypes(
     _root,
     { siteId }: { siteId: string },
-    { models }: IContext
+    { models }: IContext,
   ) {
     const filter: any = {};
 
@@ -71,9 +72,9 @@ const webbuilderQueries = {
     {
       page,
       perPage,
-      siteId
+      siteId,
     }: { page: number; perPage: number; siteId: string },
-    { models }: IContext
+    { models }: IContext,
   ) {
     const filter = generateCommonFilter({ siteId });
 
@@ -82,17 +83,17 @@ const webbuilderQueries = {
         models.ContentTypes.find(filter).sort({ displayName: 1 }),
         {
           page,
-          perPage
-        }
+          perPage,
+        },
       ),
-      totalCount: models.ContentTypes.find(filter).count()
+      totalCount: models.ContentTypes.find(filter).count(),
     };
   },
 
   webbuilderContentTypeDetail(
     _root,
     { _id }: { _id: string },
-    { models }: IContext
+    { models }: IContext,
   ) {
     return models.ContentTypes.findOne({ _id });
   },
@@ -102,13 +103,13 @@ const webbuilderQueries = {
     {
       contentTypeId,
       page,
-      perPage
+      perPage,
     }: { contentTypeId: string; page: number; perPage: number },
-    { models }: IContext
+    { models }: IContext,
   ) {
     return {
       list: paginate(models.Entries.find({ contentTypeId }), { page, perPage }),
-      totalCount: models.Entries.find({ contentTypeId }).count()
+      totalCount: models.Entries.find({ contentTypeId }).count(),
     };
   },
 
@@ -117,10 +118,9 @@ const webbuilderQueries = {
   },
 
   async webbuilderTemplates(_root, { searchValue }: { searchValue: string }) {
-    return sendRequest({
-      url: `https://helper.erxes.io/get-webbuilder-templates?searchValue=${searchValue}`,
-      method: 'get'
-    });
+    return await fetch(
+      `https://helper.erxes.io/get-webbuilder-templates?searchValue=${searchValue}`,
+    ).then((res) => res.json());
   },
 
   webbuilderTemplatesTotalCount(_root, _args, { models }: IContext) {
@@ -130,7 +130,7 @@ const webbuilderQueries = {
   webbuilderTemplateDetail(
     _root,
     { _id }: { _id: string },
-    { models }: IContext
+    { models }: IContext,
   ) {
     return models.Templates.findOne({ _id });
   },
@@ -141,14 +141,14 @@ const webbuilderQueries = {
       page,
       perPage,
       searchValue,
-      fromSelect
+      fromSelect,
     }: {
       page: number;
       perPage: number;
       searchValue: string;
       fromSelect: boolean;
     },
-    { models }: IContext
+    { models }: IContext,
   ) {
     const filter: any = {};
 
@@ -162,13 +162,13 @@ const webbuilderQueries = {
 
     return paginate(models.Sites.find(filter).sort({ name: 1 }), {
       page,
-      perPage
+      perPage,
     });
   },
 
   webbuilderSitesTotalCount(_root, _args, { models }: IContext) {
     return models.Sites.find().count();
-  }
+  },
 };
 
 moduleRequireLogin(webbuilderQueries);
@@ -180,12 +180,12 @@ checkPermission(webbuilderQueries, 'webbuilderContentTypes', 'showWebbuilder');
 checkPermission(
   webbuilderQueries,
   'webbuilderContentTypesMain',
-  'showWebbuilder'
+  'showWebbuilder',
 );
 checkPermission(
   webbuilderQueries,
   'webbuilderContentTypeDetail',
-  'showWebbuilder'
+  'showWebbuilder',
 );
 
 checkPermission(webbuilderQueries, 'webbuilderEntriesMain', 'showWebbuilder');
@@ -195,19 +195,19 @@ checkPermission(webbuilderQueries, 'webbuilderTemplates', 'showWebbuilder');
 checkPermission(
   webbuilderQueries,
   'webbuilderTemplatesTotalCount',
-  'showWebbuilder'
+  'showWebbuilder',
 );
 checkPermission(
   webbuilderQueries,
   'webbuilderTemplateDetail',
-  'showWebbuilder'
+  'showWebbuilder',
 );
 
 checkPermission(webbuilderQueries, 'webbuilderSites', 'showWebbuilder');
 checkPermission(
   webbuilderQueries,
   'webbuilderSitesTotalCount',
-  'showWebbuilder'
+  'showWebbuilder',
 );
 
 export default webbuilderQueries;

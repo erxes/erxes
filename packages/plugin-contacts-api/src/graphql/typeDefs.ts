@@ -13,10 +13,11 @@ import {
 } from './company';
 
 import { types as contactsTypes, queries as contactQueries } from './contacts';
+import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
 
-const typeDefs = async serviceDiscovery => {
-  const tagsEnabled = await serviceDiscovery.isEnabled('tags');
-  const inboxEnabled = await serviceDiscovery.isEnabled('inbox');
+const typeDefs = async () => {
+  const tagsEnabled = isEnabled('tags');
+  const inboxEnabled = isEnabled('inbox');
 
   return gql`
     scalar JSON

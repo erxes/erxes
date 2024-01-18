@@ -1,10 +1,10 @@
 import {
-  redis,
   isAvailable,
   getService,
   getServices,
   isEnabled
 } from '@erxes/api-utils/src/serviceDiscovery';
+import redis from '@erxes/api-utils/src/redis';
 
 const setAfterMutations = async () => {
   const services = await getServices();

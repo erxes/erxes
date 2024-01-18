@@ -6,26 +6,23 @@ import webhookListen from './viber/webhookListen';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 
 export let mainDb;
-export let graphqlPubsub;
-export let serviceDiscovery;
 export let debug;
 
 export default {
   name: 'viber',
-  graphql: sd => {
-    serviceDiscovery = sd;
+  graphql: () => {
     return {
       typeDefs,
-      resolvers
+      resolvers,
     };
   },
   meta: {
     inboxIntegrations: [
       {
         kind: 'viber',
-        label: 'Viber'
-      }
-    ]
+        label: 'Viber',
+      },
+    ],
   },
 
   postHandlers: [{ path: '/webhook/:integrationId', method: webhookListen }],
@@ -36,15 +33,13 @@ export default {
     return context;
   },
 
-  onServerInit: async options => {
-    const app = options.app;
+  onServerInit: async (options) => {
     mainDb = options.db;
 
     debug = options.debug;
-    graphqlPubsub = options.pubsubClient;
 
     initBroker(options.messageBrokerClient);
 
-    init(app);
-  }
+    init();
+  },
 };

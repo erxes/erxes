@@ -10,21 +10,22 @@ import {
   redis,
   setAfterMutations,
   setBeforeResolvers,
-  setAfterQueries
+  setAfterQueries,
 } from './redis';
 import { initBroker } from './messageBroker';
 import * as cors from 'cors';
 import { retryGetProxyTargets, ErxesProxyTarget } from './proxy/targets';
 import {
   applyProxiesCoreless,
-  applyProxyToCore
+  applyProxyToCore,
 } from './proxy/create-middleware';
 import { startRouter, stopRouter } from './apollo-router';
 import {
   startSubscriptionServer,
-  stopSubscriptionServer
+  stopSubscriptionServer,
 } from './subscription';
 import { applyInspectorEndpoints } from '@erxes/api-utils/src/inspect';
+import app from '@erxes/api-utils/src/app';
 
 const {
   DOMAIN,
@@ -33,17 +34,10 @@ const {
   ALLOWED_ORIGINS,
   PORT,
   RABBITMQ_HOST,
-  MESSAGE_BROKER_PREFIX
+  MESSAGE_BROKER_PREFIX,
 } = process.env;
 
 (async () => {
-  const app = express();
-
-  // for health check
-  app.get('/health', async (_req, res) => {
-    res.end('ok');
-  });
-
   app.use(cookieParser());
 
   app.use(userMiddleware);
@@ -55,8 +49,8 @@ const {
       WIDGETS_DOMAIN ? WIDGETS_DOMAIN : 'http://localhost:3200',
       ...(CLIENT_PORTAL_DOMAINS || '').split(','),
       'https://studio.apollographql.com',
-      ...(ALLOWED_ORIGINS || '').split(',').map(c => c && RegExp(c))
-    ]
+      ...(ALLOWED_ORIGINS || '').split(',').map((c) => c && RegExp(c)),
+    ],
   };
 
   app.use(cors(corsOptions));
@@ -79,22 +73,11 @@ const {
 
   await startSubscriptionServer(httpServer);
 
-  // Why are we parsing the body twice? When we don't use the body
-  app.use(
-    express.json({
-      limit: '15mb'
-    })
-  );
-
-  app.use(express.urlencoded({ limit: '15mb', extended: true }));
-
-  applyInspectorEndpoints(app, 'gateway');
+  applyInspectorEndpoints('gateway');
 
   const port = PORT || 4000;
 
-  await new Promise<void>(resolve => httpServer.listen({ port }, resolve));
-
-  await initBroker({ RABBITMQ_HOST, MESSAGE_BROKER_PREFIX, redis, app });
+  await new Promise<void>((resolve) => httpServer.listen({ port }, resolve));
 
   await setBeforeResolvers();
   await setAfterMutations();
@@ -106,7 +89,7 @@ const {
   console.log(`Erxes gateway ready at http://localhost:${port}/graphql`);
 })();
 
-(['SIGINT', 'SIGTERM'] as NodeJS.Signals[]).forEach(sig => {
+(['SIGINT', 'SIGTERM'] as NodeJS.Signals[]).forEach((sig) => {
   process.on(sig, async () => {
     console.log(`Exiting on signal ${sig}`);
     await stopSubscriptionServer();

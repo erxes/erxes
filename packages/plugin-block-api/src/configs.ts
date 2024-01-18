@@ -6,21 +6,18 @@ import { getSubdomain } from '@erxes/api-utils/src/core';
 import { generateModels, models } from './connectionResolver';
 import { routeErrorHandling } from '@erxes/api-utils/src/requests';
 import { debugInfo } from '@erxes/api-utils/src/debuggers';
+import app from '@erxes/api-utils/src/app';
 // import { getBalance, sendSms, updateBalance } from './utils';
 
 export let mainDb;
 export let debug;
-export let graphqlPubsub;
-export let serviceDiscovery;
 
 export default {
   name: 'block',
-  graphql: async sd => {
-    serviceDiscovery = sd;
-
+  graphql: async () => {
     return {
-      typeDefs: await typeDefs(sd),
-      resolvers: await resolvers(sd)
+      typeDefs: await typeDefs(),
+      resolvers: await resolvers(),
     };
   },
 
@@ -34,9 +31,8 @@ export default {
     return context;
   },
 
-  onServerInit: async options => {
+  onServerInit: async (options) => {
     mainDb = options.db;
-    const app = options.app;
 
     app.post(
       '/tdb/receive',
@@ -47,7 +43,7 @@ export default {
         const models = await generateModels(subdomain);
 
         await models.Transactions.create({
-          body: JSON.stringify(req.body)
+          body: JSON.stringify(req.body),
         });
 
         res.json({ success: '200' });
@@ -121,13 +117,11 @@ export default {
 
         //   return res.json({ response: 'success' });
         // }
-      })
+      }),
     );
 
     initBroker(options.messageBrokerClient);
 
-    graphqlPubsub = options.pubsubClient;
-
     debug = options.debug;
-  }
+  },
 };

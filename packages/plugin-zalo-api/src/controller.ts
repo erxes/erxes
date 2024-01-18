@@ -4,9 +4,10 @@ import { sendContactsMessage, sendInboxMessage } from './messageBroker';
 import * as dotenv from 'dotenv';
 import { generateModels } from './connectionResolver';
 import { getConfig, getMessageOAID, getMessageUserID } from './commonUtils';
-import { sendRequest } from '@erxes/api-utils/src';
-import { debug, graphqlPubsub } from './configs';
+import fetch from 'node-fetch';
+import { debug } from './configs';
 import { getOrCreateCustomer } from './helpers';
+import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
 
 dotenv.config();
 
@@ -119,7 +120,7 @@ const saveMessages = async (linkedin, integration, criteria) => {
 };
 
 // controller for zalo
-const init = async app => {
+const init = async (app) => {
   app.get('/login', async (req, res) => {
     const subdomain = getSubdomain(req);
     const models = await generateModels(subdomain);
@@ -133,7 +134,7 @@ const init = async app => {
     const conf = {
       app_id: ZALO_APP_ID,
       secret_key: ZALO_APP_SECRET_KEY,
-      redirect_uri: `${DOMAIN}/pl:zalo/login`
+      redirect_uri: `${DOMAIN}/pl:zalo/login`,
     };
 
     const authUrl = `https://oauth.zaloapp.com/v4/oa/permission?app_id=${
@@ -146,39 +147,38 @@ const init = async app => {
 
     const config = {
       oa_id: req.query.oa_id,
-      code: req.query.code
+      code: req.query.code,
     };
 
     const authCodeUrl = `https://oauth.zaloapp.com/v4/oa/access_token`;
     const OAAPIUrl = `https://openapi.zalo.me/v2.0/oa/getoa`;
 
     try {
-      const getAccessTokenFromAuthCode = await sendRequest({
-        method: 'POST',
-        url: authCodeUrl,
-        headers: {
-          secret_key: conf.secret_key,
-          'Content-Type': 'application/x-www-form-urlencoded'
+      const authInfo = await fetch(
+        authCodeUrl +
+          '?' +
+          new URLSearchParams({
+            code: config.code,
+            app_id: conf.app_id,
+            grant_type: 'authorization_code',
+          }),
+        {
+          method: 'POST',
+          headers: {
+            secret_key: conf.secret_key,
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
         },
-        params: {
-          code: config.code,
-          app_id: conf.app_id,
-          grant_type: 'authorization_code'
-        }
-      });
+      ).then((res) => res.json());
 
       // const { responses } = getAccessTokenFromAuthCode;
 
-      const authInfo = JSON.parse(getAccessTokenFromAuthCode);
-
-      const OAInfo = await sendRequest({
-        method: 'GET',
-        url: OAAPIUrl,
+      const OAInfo = await fetch(OAAPIUrl, {
         headers: {
           access_token: authInfo?.access_token,
-          'Content-Type': 'application/x-www-form-urlencoded'
-        }
-      });
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+      }).then((res) => res.json());
 
       // const { responses: OAInfo } = getOAInfo;
 
@@ -186,7 +186,7 @@ const init = async app => {
       // const OAInfo = JSON.parse(getOAInfo)
 
       const account = await models.Accounts.findOne({
-        oa_id: config.oa_id
+        oa_id: config.oa_id,
       });
 
       if (account) {
@@ -198,9 +198,9 @@ const init = async app => {
               refresh_token: authInfo?.refresh_token,
               expires_in: authInfo?.expires_in,
               name: OAInfo?.data?.name,
-              avatar: OAInfo?.data?.avatar
-            }
-          }
+              avatar: OAInfo?.data?.avatar,
+            },
+          },
         );
       } else {
         await models.Accounts.create({
@@ -210,7 +210,7 @@ const init = async app => {
           name: OAInfo?.data?.name,
           kind: 'zalo',
           avatar: OAInfo?.data?.avatar,
-          oa_id: config.oa_id
+          oa_id: config.oa_id,
         });
       }
     } catch (e) {
@@ -233,7 +233,7 @@ const init = async app => {
     try {
       // write receive code here
       const integration = await models.Integrations.getIntegration({
-        $and: [{ oa_id: { $in: oa_id } }, { kind: 'zalo' }]
+        $and: [{ oa_id: { $in: oa_id } }, { kind: 'zalo' }],
       });
 
       // const account = await models.Accounts.getAccount({ _id: integration.accountId });
@@ -243,13 +243,13 @@ const init = async app => {
         models,
         subdomain,
         oa_id,
-        userId
+        userId,
       );
 
       // get conversation
       let conversation = await models.Conversations.findOne({
         senderId: userId,
-        recipientId: oa_id
+        recipientId: oa_id,
       });
 
       // create conversation
@@ -261,13 +261,13 @@ const init = async app => {
             senderId: userId,
             recipientId: oa_id,
             content: '',
-            integrationId: integration._id
+            integrationId: integration._id,
           });
         } catch (e) {
           throw new Error(
             e.message.includes('duplicate')
               ? 'Concurrent request: conversation duplication'
-              : e
+              : e,
           );
         }
 
@@ -281,16 +281,16 @@ const init = async app => {
               payload: JSON.stringify({
                 customerId: customer.erxesApiId,
                 integrationId: integration.erxesApiId,
-                content: ''
+                content: '',
                 // attachments: (attachments || [])
                 //     .filter((att) => att.type !== "fallback")
                 //     .map((att) => ({
                 //         type: att.type,
                 //         url: att.payload ? att.payload.url : "",
                 //     })),
-              })
+              }),
             },
-            isRPC: true
+            isRPC: true,
           });
 
           conversation.erxesApiId = apiConversationResponse._id;
@@ -298,14 +298,14 @@ const init = async app => {
           await conversation.save();
         } catch (e) {
           await models.Conversations.deleteOne({
-            _id: conversation._id
+            _id: conversation._id,
           });
           throw new Error(e);
         }
       }
       // get conversation message
       const conversationMessage = await models.ConversationMessages.findOne({
-        mid: data.message.msg_id
+        mid: data.message.msg_id,
       });
       debug.error('conversationMessage');
       if (!conversationMessage) {
@@ -316,14 +316,14 @@ const init = async app => {
             mid: data.message.msg_id,
             createdAt: data.timestamp,
             content: data.message.text,
-            customerId: customer.erxesApiId
+            customerId: customer.erxesApiId,
           });
 
           graphqlPubsub.publish('conversationClientMessageInserted', {
             conversationClientMessageInserted: {
               ...created.toObject(),
-              conversationId: conversation.erxesApiId
-            }
+              conversationId: conversation.erxesApiId,
+            },
           });
 
           graphqlPubsub.publish(
@@ -331,15 +331,15 @@ const init = async app => {
             {
               conversationMessageInserted: {
                 ...created.toObject(),
-                conversationId: conversation.erxesApiId
-              }
-            }
+                conversationId: conversation.erxesApiId,
+              },
+            },
           );
         } catch (e) {
           throw new Error(
             e.message.includes('duplicate')
               ? 'Concurrent request: conversation message duplication'
-              : e
+              : e,
           );
         }
       }

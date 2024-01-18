@@ -1,4 +1,5 @@
-import { sendRequest } from '@erxes/api-utils/src/requests';
+import fetch from 'node-fetch';
+import type { RequestInit, HeadersInit } from 'node-fetch';
 import redis from '../../redis';
 import { meta } from './api';
 
@@ -17,16 +18,16 @@ export class VendorBaseAPI {
 
   async authenticate() {
     try {
-      const authResponse = await sendRequest({
+      const authResponse = await fetch(this.apiUrl + '/' + meta.paths.auth, {
         method: 'POST',
-        url: this.apiUrl + '/' + meta.paths.auth,
-        body: { terminal_id: '95000059' },
+        body: JSON.stringify({ terminal_id: '95000059' }),
         headers: {
           Authorization:
             'Basic ' +
-            Buffer.from(`${this.username}:${this.password}`).toString('base64')
-        }
-      });
+            Buffer.from(`${this.username}:${this.password}`).toString('base64'),
+          'Content-Type': 'application/json',
+        },
+      }).then((res) => res.json());
 
       const { access_token, refresh_token, expires_in } = authResponse;
 
@@ -66,28 +67,28 @@ export class VendorBaseAPI {
     const { refresh_token: token } = JSON.parse(cachedData);
 
     try {
-      const authResponse = await sendRequest({
+      const authResponse = await fetch(this.apiUrl + '/' + meta.paths.refresh, {
         method: 'POST',
-        path: this.apiUrl + '/' + meta.paths.refresh,
-        body: { terminal_id: '95000059' },
+        body: JSON.stringify({ terminal_id: '95000059' }),
         headers: {
-          Authorization: 'Bearer ' + token
-        }
-      });
+          Authorization: 'Bearer ' + token,
+          'Content-Type': 'application/json',
+        },
+      }).then((res) => res.json());
 
       const { access_token, refresh_token, expires_in } = authResponse;
 
       const data = {
         access_token,
         refresh_token,
-        tokenExpiration: expires_in * 1000 + Date.now()
+        tokenExpiration: expires_in * 1000 + Date.now(),
       };
 
       await redis.set(
         'qpay_merchant_data',
         JSON.stringify(data),
         'EX',
-        expires_in
+        expires_in,
       );
 
       this.accessToken = access_token;
@@ -111,19 +112,24 @@ export class VendorBaseAPI {
 
     const headers = {
       ...args.headers,
-      Authorization: 'Bearer ' + token
+      Authorization: 'Bearer ' + token,
     };
 
     try {
-      const requestOptions = {
-        url: `${this.apiUrl}/${path}`,
-        params,
+      const requestOptions: RequestInit & Required<{ headers: HeadersInit }> = {
         method,
         headers,
-        body: data
       };
 
-      const response = await sendRequest(requestOptions);
+      if (data) {
+        requestOptions.body = JSON.stringify(data);
+        requestOptions.headers['Content-Type'] = 'application/json';
+      }
+
+      const response = await fetch(
+        `${this.apiUrl}/${path}?` + new URLSearchParams(params),
+        requestOptions,
+      );
 
       return response;
     } catch (e) {

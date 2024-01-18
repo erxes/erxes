@@ -15,7 +15,8 @@ import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
 import { checkPermission } from '@erxes/api-utils/src/permissions';
 import { validateBulk } from '../../verifierUtils';
 import { IContext } from '../../connectionResolver';
-import { serviceDiscovery } from '../../configs';
+import { getServices } from '@erxes/api-utils/src/serviceDiscovery';
+
 
 interface ICustomersEdit extends ICustomer {
   _id: string;
@@ -201,7 +202,7 @@ const customerMutations = {
       );
     }
 
-    const services = await serviceDiscovery.getServices();
+    const services = await getServices();
     let relatedIntegrationIds: string[] = [];
     let mergedIds: string[] = [];
 

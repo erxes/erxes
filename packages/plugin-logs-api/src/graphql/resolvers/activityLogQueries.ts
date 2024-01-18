@@ -3,8 +3,9 @@ import { moduleRequireLogin } from '@erxes/api-utils/src/permissions';
 import { fetchActivityLogs, fetchLogs } from '../../utils';
 import { fetchService, getContentIds } from '../../messageBroker';
 import { IContext } from '../../connectionResolver';
-import { serviceDiscovery } from '../../configs';
+
 import { IActivityLogDocument } from '../../models/ActivityLogs';
+import { getService, getServices } from '@erxes/api-utils/src/serviceDiscovery';
 
 export interface IListArgs {
   contentType: string;
@@ -37,7 +38,7 @@ const activityLogQueries = {
         serviceName,
         'collectItems',
         { contentId, contentType, activityType },
-        ''
+        '',
       );
 
       const { data } = result;
@@ -45,13 +46,13 @@ const activityLogQueries = {
       return data;
     }
 
-    const services = await serviceDiscovery.getServices();
+    const services = await getServices();
     const activityLogs = await models.ActivityLogs.find({
-      contentId
+      contentId,
     }).lean();
 
     for (const serviceName of services) {
-      const service = await serviceDiscovery.getService(serviceName);
+      const service = await getService(serviceName);
       const meta = service.config.meta || {};
 
       if (meta && meta.logs) {
@@ -63,7 +64,7 @@ const activityLogQueries = {
             serviceName,
             'collectItems',
             { contentId, contentType, activityLogs },
-            ''
+            '',
           );
 
           const { data } = result;
@@ -91,9 +92,9 @@ const activityLogQueries = {
       action,
       pipelineId,
       perPage = 10,
-      page = 1
+      page = 1,
     }: IListArgsByAction,
-    { models }: IContext
+    { models, subdomain }: IContext,
   ) {
     const allActivityLogs: any[] = [];
     let allTotalCount: number = 0;
@@ -101,7 +102,7 @@ const activityLogQueries = {
     if (!action) {
       return {
         activityLogs: [],
-        totalCount: 0
+        totalCount: 0,
       };
     }
 
@@ -109,9 +110,12 @@ const activityLogQueries = {
 
     const perPageForAction = perPage / actionArr.length;
 
-    const contentIds = await getContentIds({ pipelineId, contentType });
+    const contentIds = await getContentIds(subdomain, {
+      pipelineId,
+      contentType,
+    });
 
-    actionArr = actionArr.filter(a => a !== 'delete');
+    actionArr = actionArr.filter((a) => a !== 'delete');
 
     if (actionArr.length > 0) {
       const { activityLogs, totalCount } = await fetchActivityLogs(models, {
@@ -119,7 +123,7 @@ const activityLogQueries = {
         contentId: { $in: contentIds },
         action: { $in: actionArr },
         perPage: perPageForAction * 3,
-        page
+        page,
       });
 
       for (const log of activityLogs) {
@@ -130,7 +134,7 @@ const activityLogQueries = {
           createdBy: log.createdBy,
           contentType: log.contentType,
           contentId: log.contentId,
-          content: log.content
+          content: log.content,
         });
       }
 
@@ -142,7 +146,7 @@ const activityLogQueries = {
         action: 'delete',
         type: contentType,
         perPage: perPageForAction,
-        page
+        page,
       });
 
       for (const log of logs) {
@@ -153,7 +157,7 @@ const activityLogQueries = {
           contentId: log.objectId,
           createdAt: log.createdAt,
           createdBy: log.createdBy,
-          content: log.description
+          content: log.description,
         });
       }
 
@@ -162,9 +166,9 @@ const activityLogQueries = {
 
     return {
       activityLogs: allActivityLogs,
-      totalCount: allTotalCount
+      totalCount: allTotalCount,
     };
-  }
+  },
 };
 
 moduleRequireLogin(activityLogQueries);

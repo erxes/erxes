@@ -16,10 +16,10 @@ import {
   splitStr,
   escapeRegExp,
   dateToShortStr,
-  shortStrToDate
+  shortStrToDate,
 } from './core';
 import { putCreateLog, putDeleteLog, putUpdateLog } from './logUtils';
-import { sendRequest, sendToWebhook } from './requests';
+import { sendToWebhook } from './requests';
 import { updateUserScore, getScoringConfig } from './scoring';
 import { generateFieldsFromSchema } from './fieldUtils';
 
@@ -32,7 +32,7 @@ import {
   permissionWrapper,
   getUserActionsMap,
   checkPermission,
-  requireLogin
+  requireLogin,
 } from './permissions';
 
 import { IContext } from './types';
@@ -47,7 +47,6 @@ export { getUserDetail }; // (user: IUserDocument)
 export { paginate }; // ( collection, params: { ids ?: string[]; page ?: number; perPage ?: number } )
 export { validSearchText }; // (values: string[])
 export { regexSearchText }; // ( searchValue: string, searchKey = "searchText" )
-export { sendRequest }; // ( { url, method, headers, form, body, params }: IRequestParams, errorMessage ?: string )
 export { sendToWebhook };
 export { fixDate };
 export { getDate };
@@ -78,7 +77,7 @@ export {
   IColumnLabel,
   ruleSchema,
   field,
-  schemaWrapper
+  schemaWrapper,
 };
 
 export default {
@@ -90,7 +89,6 @@ export default {
   paginate,
   validSearchText,
   regexSearchText,
-  sendRequest,
   sendToWebhook,
   fixDate,
   getDate,
@@ -108,7 +106,7 @@ export default {
   generateFieldsFromSchema,
   afterQueryWrapper,
   dateToShortStr,
-  shortStrToDate
+  shortStrToDate,
 };
 
 // trigger

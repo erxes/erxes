@@ -1,6 +1,6 @@
 import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
 import { afterMutationHandlers } from './afterMutations';
-import { serviceDiscovery } from './configs';
+
 import { generateModels } from './connectionResolver';
 let client;
 
@@ -44,7 +44,6 @@ export const sendFormsMessage = async (
 ): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'forms',
     ...args
   });
@@ -53,7 +52,6 @@ export const sendFormsMessage = async (
 export const sendCardsMessage = (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'cards',
     ...args
   });
@@ -61,7 +59,6 @@ export const sendCardsMessage = (args: ISendMessageArgs): Promise<any> => {
 export const sendCoreMessage = (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'core',
     ...args
   });
@@ -69,7 +66,6 @@ export const sendCoreMessage = (args: ISendMessageArgs): Promise<any> => {
 export const sendTagsMessage = async (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'tags',
     ...args
   });
@@ -80,7 +76,6 @@ export const sendRiskAssessmentMessage = (
 ): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'riskassessment',
     ...args
   });
@@ -90,7 +85,6 @@ export const sendCommonMessage = async (
   args: ISendMessageArgs & { serviceName: string }
 ): Promise<any> => {
   return sendMessage({
-    serviceDiscovery,
     client,
     ...args
   });

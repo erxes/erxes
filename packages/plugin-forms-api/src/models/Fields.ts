@@ -3,7 +3,7 @@ import { ILocationOption } from '@erxes/api-utils/src/types';
 import { Model } from 'mongoose';
 import validator from 'validator';
 
-import { serviceDiscovery } from '../configs';
+
 import { IModels } from '../connectionResolver';
 import { sendCommonMessage, sendContactsMessage } from '../messageBroker';
 import {
@@ -14,6 +14,7 @@ import {
   IFieldGroup,
   IFieldGroupDocument
 } from './definitions/fields';
+import { getService, getServices } from '@erxes/api-utils/src/serviceDiscovery';
 
 export interface ITypedListItem {
   field: string;
@@ -722,10 +723,10 @@ export const loadGroupClass = (models: IModels) => {
      * Create system fields & groups
      */
     public static async createSystemGroupsFields() {
-      const services = await serviceDiscovery.getServices();
+      const services = await getServices();
 
       for (const serviceName of services) {
-        const service = await serviceDiscovery.getService(serviceName);
+        const service = await getService(serviceName);
         const meta = service.config?.meta || {};
 
         if (meta && meta.forms && meta.forms.systemFieldsAvailable) {

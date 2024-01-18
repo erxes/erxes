@@ -1,6 +1,6 @@
 import { IModels } from '../../../connectionResolver';
 import { getIsSeen } from '../chat';
-import { graphqlPubsub } from '../../../configs';
+import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
 import { checkPermission } from '@erxes/api-utils/src/permissions';
 import { IUserDocument } from '@erxes/api-utils/src/types';
 import { sendCoreMessage } from '../../../messageBroker';
@@ -9,14 +9,14 @@ const chatQueries = {
   chats: async (
     _root,
     { type, limit, skip, position, searchValue },
-    { models, user, subdomain }
+    { models, user, subdomain },
   ) => {
     const filter: any = {
       $and: [
         { isPinnedUserIds: { $nin: [user._id] } },
         { participantIds: { $in: [user._id] } },
-        { archivedUserIds: { $nin: [user._id] } }
-      ]
+        { archivedUserIds: { $nin: [user._id] } },
+      ],
     };
 
     if (searchValue) {
@@ -25,15 +25,15 @@ const chatQueries = {
           subdomain,
           action: 'users.getIdsBySearchParams',
           data: {
-            searchValue: searchValue
+            searchValue: searchValue,
           },
           isRPC: true,
-          defaultValue: []
+          defaultValue: [],
         });
 
         filter.$or = [
           { name: new RegExp(`.*${searchValue}.*`, 'i') },
-          { participantIds: { $in: [...userIds] } }
+          { participantIds: { $in: [...userIds] } },
         ];
       } catch (e) {
         filter.$and.push({ participantIds: { $in: [user._id] } });
@@ -51,7 +51,7 @@ const chatQueries = {
     }
 
     const chats = await models.Chats.find({
-      ...filter
+      ...filter,
     })
       .sort({ updatedAt: -1 })
       .skip(skip || 0)
@@ -59,7 +59,7 @@ const chatQueries = {
 
     const result = {
       list: [...chats],
-      totalCount: await models.Chats.countDocuments(filter)
+      totalCount: await models.Chats.countDocuments(filter),
     };
     return result;
   },
@@ -68,17 +68,17 @@ const chatQueries = {
     const filter: any = {
       $and: [
         { participantIds: { $in: [user._id] } },
-        { isPinnedUserIds: { $in: [user._id] } }
-      ]
+        { isPinnedUserIds: { $in: [user._id] } },
+      ],
     };
 
     const chats = await models.Chats.find({
-      ...filter
+      ...filter,
     }).sort({ updatedAt: -1 });
 
     const result = {
       list: [...chats],
-      totalCount: await models.Chats.countDocuments(filter)
+      totalCount: await models.Chats.countDocuments(filter),
     };
 
     return result;
@@ -87,20 +87,20 @@ const chatQueries = {
   chatDetail: async (
     _root,
     { _id },
-    { models, user }: { models: IModels; user: IUserDocument }
+    { models, user }: { models: IModels; user: IUserDocument },
   ) => {
     const chat = await models.Chats.getChat(_id, user._id);
 
     const lastMessage = await models.ChatMessages.findOne({
-      chatId: _id
+      chatId: _id,
     }).sort({
-      createdAt: -1
+      createdAt: -1,
     });
 
     if (lastMessage) {
       const seenInfos = chat.seenInfos || [];
 
-      let seenInfo = seenInfos.find(info => info.userId === user._id);
+      let seenInfo = seenInfos.find((info) => info.userId === user._id);
 
       let updated = false;
 
@@ -108,7 +108,7 @@ const chatQueries = {
         seenInfo = {
           userId: user._id,
           lastSeenMessageId: lastMessage._id,
-          seenDate: new Date()
+          seenDate: new Date(),
         };
 
         seenInfos.push(seenInfo);
@@ -126,11 +126,11 @@ const chatQueries = {
       if (updated) {
         await models.Chats.updateOne(
           { _id: chat._id },
-          { $set: { seenInfos } }
+          { $set: { seenInfos } },
         );
 
         graphqlPubsub.publish('chatUnreadCountChanged', {
-          userId: user._id
+          userId: user._id,
         });
       }
     }
@@ -144,13 +144,13 @@ const chatQueries = {
     {
       models,
       user,
-      subdomain
-    }: { models: IModels; user: IUserDocument; subdomain: string }
+      subdomain,
+    }: { models: IModels; user: IUserDocument; subdomain: string },
   ) => {
     const lastMessage = await models.ChatMessages.findOne({
-      chatId
+      chatId,
     }).sort({
-      createdAt: -1
+      createdAt: -1,
     });
 
     if (lastMessage) {
@@ -158,7 +158,7 @@ const chatQueries = {
 
       const seenInfos = chat.seenInfos || [];
 
-      let seenInfo = seenInfos.find(info => info.userId === user._id);
+      let seenInfo = seenInfos.find((info) => info.userId === user._id);
 
       let updated = false;
 
@@ -166,7 +166,7 @@ const chatQueries = {
         seenInfo = {
           userId: user._id,
           lastSeenMessageId: lastMessage._id,
-          seenDate: new Date()
+          seenDate: new Date(),
         };
 
         seenInfos.push(seenInfo);
@@ -183,12 +183,12 @@ const chatQueries = {
 
       if (updated) {
         graphqlPubsub.publish('chatUnreadCountChanged', {
-          userId: user._id
+          userId: user._id,
         });
 
         await models.Chats.updateOne(
           { _id: chat._id },
-          { $set: { seenInfos } }
+          { $set: { seenInfos } },
         );
       }
     }
@@ -202,16 +202,16 @@ const chatQueries = {
         subdomain,
         action: 'users.findOne',
         data: {
-          _id: info.userId
+          _id: info.userId,
         },
-        isRPC: true
+        isRPC: true,
       });
 
       if (user) {
         seenList.push({
           user,
           seenDate: info.seenDate,
-          lastSeenMessageId: info.lastSeenMessageId
+          lastSeenMessageId: info.lastSeenMessageId,
         });
       }
     }
@@ -229,24 +229,24 @@ const chatQueries = {
 
     for (const message of list) {
       message.seenList = seenList.filter(
-        s => s.lastSeenMessageId === message._id
+        (s) => s.lastSeenMessageId === message._id,
       );
     }
 
     return {
       list,
-      totalCount: await models.ChatMessages.find(filter).countDocuments()
+      totalCount: await models.ChatMessages.find(filter).countDocuments(),
     };
   },
 
   chatMessageAttachments: async (
     _root,
     { chatId, limit, skip },
-    { models }: { models: IModels; user: IUserDocument; subdomain: string }
+    { models }: { models: IModels; user: IUserDocument; subdomain: string },
   ) => {
     const filter = {
       chatId,
-      attachments: { $exists: true, $type: 'array', $ne: [] }
+      attachments: { $exists: true, $type: 'array', $ne: [] },
     };
 
     const list = await models.ChatMessages.find(filter)
@@ -256,14 +256,14 @@ const chatQueries = {
 
     return {
       list,
-      totalCount: await models.ChatMessages.find(filter).countDocuments()
+      totalCount: await models.ChatMessages.find(filter).countDocuments(),
     };
   },
 
   chatMessageDetail: async (
     _root,
     { _id },
-    { models }: { models: IModels; user: IUserDocument }
+    { models }: { models: IModels; user: IUserDocument },
   ) => {
     const message = await models.ChatMessages.findOne({ _id });
 
@@ -273,7 +273,7 @@ const chatQueries = {
   getChatIdByUserIds: async (
     _root,
     { userIds },
-    { models, user }: { models: IModels; user: IUserDocument }
+    { models, user }: { models: IModels; user: IUserDocument },
   ) => {
     const participantIds = [...(userIds || [])];
 
@@ -283,20 +283,20 @@ const chatQueries = {
 
     let chat = await models.Chats.findOne({
       type: 'direct',
-      participantIds: { $all: participantIds, $size: participantIds.length }
+      participantIds: { $all: participantIds, $size: participantIds.length },
     });
 
     if (!chat) {
       chat = await models.Chats.createChat(
         {
           participantIds,
-          type: 'direct'
+          type: 'direct',
         },
-        user._id
+        user._id,
       );
 
       graphqlPubsub.publish('chatInserted', {
-        userId: user._id
+        userId: user._id,
       });
     } else {
       const isArchived = chat.archivedUserIds?.includes(user._id);
@@ -304,7 +304,7 @@ const chatQueries = {
       if (isArchived) {
         await models.Chats.updateOne(
           { _id: chat._id },
-          { $pull: { archivedUserIds: { $in: [user._id] } } }
+          { $pull: { archivedUserIds: { $in: [user._id] } } },
         );
       }
     }
@@ -314,7 +314,7 @@ const chatQueries = {
 
   getUnreadChatCount: async (_root, {}, { models, user }) => {
     const chats = await models.Chats.find({
-      participantIds: { $in: user._id }
+      participantIds: { $in: user._id },
     });
 
     let unreadCount = 0;
@@ -332,34 +332,34 @@ const chatQueries = {
 
   isChatUserOnline: async (_root, { userIds }, { models, user }) => {
     const userstatus = await models.UserStatus.find({
-      userId: { $in: userIds }
+      userId: { $in: userIds },
     });
     return userstatus;
   },
 
   activeMe: async (_root, { userId }, { models, user }) => {
     let userstatus = await models.UserStatus.findOne({
-      userId: userId
+      userId: userId,
     });
     if (!userstatus) {
       userstatus = await models.UserStatus.createUserStatus({
         onlineDate: new Date(),
-        userId: userId
+        userId: userId,
       });
     } else {
       await models.UserStatus.updateOne(
         { userId: userId },
         {
-          onlineDate: new Date()
-        }
+          onlineDate: new Date(),
+        },
       );
       userstatus = await models.UserStatus.findOne({
-        userId: userId
+        userId: userId,
       });
     }
 
     return userstatus;
-  }
+  },
 };
 checkPermission(chatQueries, 'chats', 'showChats');
 checkPermission(chatQueries, 'showChats', 'showChats');

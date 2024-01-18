@@ -14,9 +14,9 @@ export const qpayCallbackHandler = async (models: IModels, data: any) => {
 
   const invoice = await models.Invoices.getInvoice(
     {
-      identifier
+      identifier,
     },
-    true
+    true,
   );
 
   const payment = await models.Payments.getPayment(invoice.selectedPaymentId);
@@ -38,9 +38,9 @@ export const qpayCallbackHandler = async (models: IModels, data: any) => {
       {
         $set: {
           status,
-          resolvedAt: new Date()
-        }
-      }
+          resolvedAt: new Date(),
+        },
+      },
     );
 
     invoice.status = status;
@@ -79,7 +79,7 @@ export class QpayAPI extends BaseAPI {
     if (token) {
       return {
         Authorization: 'Bearer ' + token,
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
       };
     }
 
@@ -91,21 +91,21 @@ export class QpayAPI extends BaseAPI {
           Authorization:
             'Basic ' +
             Buffer.from(
-              `${this.qpayMerchantUser}:${this.qpayMerchantPassword}`
-            ).toString('base64')
-        }
-      });
+              `${this.qpayMerchantUser}:${this.qpayMerchantPassword}`,
+            ).toString('base64'),
+        },
+      }).then((r) => r.json());
 
       await redis.set(
         `qpay_token_${this.qpayMerchantUser}`,
         access_token,
         'EX',
-        3600
+        3600,
       );
 
       return {
         Authorization: 'Bearer ' + access_token,
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
       };
     } catch (e) {
       throw new Error(e.message);
@@ -122,19 +122,19 @@ export class QpayAPI extends BaseAPI {
         invoice_receiver_code: 'terminal',
         invoice_description: invoice.description || 'test invoice',
         amount: invoice.amount,
-        callback_url: `${this.domain}/pl:payment/callback/${PAYMENTS.qpay.kind}?identifier=${invoice.identifier}`
+        callback_url: `${this.domain}/pl:payment/callback/${PAYMENTS.qpay.kind}?identifier=${invoice.identifier}`,
       };
 
       const res = await this.request({
         method: 'POST',
         path: PAYMENTS.qpay.actions.invoice,
         headers: await this.getHeaders(),
-        data
-      });
+        data,
+      }).then((r) => r.json());
 
       return {
         ...res,
-        qrData: `data:image/jpg;base64,${res.qr_image}`
+        qrData: `data:image/jpg;base64,${res.qr_image}`,
       };
     } catch (e) {
       return { error: e.message };
@@ -147,8 +147,8 @@ export class QpayAPI extends BaseAPI {
       const res = await this.request({
         method: 'GET',
         path: `${PAYMENTS.qpay.actions.invoice}/${invoice.apiResponse.invoice_id}`,
-        headers: await this.getHeaders()
-      });
+        headers: await this.getHeaders(),
+      }).then((r) => r.json());
 
       if (res.invoice_status === 'CLOSED') {
         return PAYMENT_STATUS.PAID;
@@ -165,8 +165,8 @@ export class QpayAPI extends BaseAPI {
       const res = await this.request({
         method: 'GET',
         path: `${PAYMENTS.qpay.actions.invoice}/${invoice.apiResponse.invoice_id}`,
-        headers: await this.getHeaders()
-      });
+        headers: await this.getHeaders(),
+      }).then((r) => r.json());
 
       if (res.invoice_status === 'CLOSED') {
         return PAYMENT_STATUS.PAID;
@@ -183,7 +183,7 @@ export class QpayAPI extends BaseAPI {
       await this.request({
         method: 'DELETE',
         path: `${PAYMENTS.qpay.actions.invoice}/${invoice.apiResponse.invoice_id}`,
-        headers: await this.getHeaders()
+        headers: await this.getHeaders(),
       });
     } catch (e) {
       return { error: e.message };

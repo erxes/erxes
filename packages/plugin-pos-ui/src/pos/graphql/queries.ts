@@ -3,6 +3,7 @@ export const posCommonFields = `
   name
   description
   orderPassword
+  scopeBrandIds
   pdomain
   createdAt
   token
@@ -138,5 +139,5 @@ export default {
   posDetail,
   posEnv,
   getDbSchemaLabels,
-  posSlots
+  posSlots,
 };

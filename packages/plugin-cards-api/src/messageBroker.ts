@@ -1,23 +1,24 @@
 import { sendToWebhook as sendWebhook } from '@erxes/api-utils/src';
 import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
-import { graphqlPubsub, serviceDiscovery } from './configs';
+
 import { generateModels } from './connectionResolver';
 import {
   generateAmounts,
-  generateProducts
+  generateProducts,
 } from './graphql/resolvers/customResolvers/deal';
 import { itemsEdit, publishHelper } from './graphql/resolvers/mutations/utils';
 import {
   createConformity,
   notifiedUserIds,
-  sendNotifications
+  sendNotifications,
 } from './graphql/utils';
 import { conversationConvertToCard, createBoardItem } from './models/utils';
 import { getCardItem } from './utils';
+import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
 
 let client;
 
-export const initBroker = async cl => {
+export const initBroker = async (cl) => {
   client = cl;
 
   const { consumeQueue, consumeRPCQueue } = client;
@@ -33,13 +34,13 @@ export const initBroker = async cl => {
       await createConformity(subdomain, {
         customerIds: [customerId],
         mainType: 'ticket',
-        mainTypeId: ticket._id
+        mainTypeId: ticket._id,
       });
     }
 
     return {
       status: 'success',
-      data: ticket
+      data: ticket,
     };
   });
 
@@ -54,13 +55,13 @@ export const initBroker = async cl => {
       await createConformity(subdomain, {
         customerIds: [customerId],
         mainType: 'task',
-        mainTypeId: task._id
+        mainTypeId: task._id,
       });
     }
 
     return {
       status: 'success',
-      data: task
+      data: task,
     };
   });
 
@@ -74,12 +75,12 @@ export const initBroker = async cl => {
       await createConformity(subdomain, {
         customerIds: [customerId],
         mainType: 'deal',
-        mainTypeId: purchases._id
+        mainTypeId: purchases._id,
       });
     }
     return {
       status: 'success',
-      data: purchases
+      data: purchases,
     };
   });
 
@@ -90,7 +91,7 @@ export const initBroker = async cl => {
       ticket: models.Tickets,
       task: models.Tasks,
       deal: models.Deals,
-      purchase: models.Purchases
+      purchase: models.Purchases,
     };
 
     const { itemId, processId, type, user, ...doc } = data;
@@ -98,7 +99,7 @@ export const initBroker = async cl => {
     if (!itemId || !type || !user || !processId) {
       return {
         status: 'failed',
-        data: 'you must provide some params'
+        data: 'you must provide some params',
       };
     }
     const collection = objModels[type];
@@ -117,8 +118,8 @@ export const initBroker = async cl => {
         doc,
         processId,
         user,
-        collection[`update${typeUpperCase}`]
-      )
+        collection[`update${typeUpperCase}`],
+      ),
     };
   });
 
@@ -129,13 +130,13 @@ export const initBroker = async cl => {
 
     const parent = await getCardItem(models, {
       contentType: type,
-      contentTypeId: itemId
+      contentTypeId: itemId,
     });
 
     if (!parent) {
       return {
         status: 'failde',
-        data: null
+        data: null,
       };
     }
 
@@ -143,12 +144,12 @@ export const initBroker = async cl => {
       models,
       subdomain,
       { parentId: itemId, stageId: parent.stageId, ...doc },
-      type
+      type,
     );
 
     return {
       status: 'success',
-      data: childCard
+      data: childCard,
     };
   });
 
@@ -161,7 +162,7 @@ export const initBroker = async cl => {
       models,
       subdomain,
       { name, stageId },
-      type
+      type,
     );
 
     await sendCoreMessage({
@@ -171,13 +172,13 @@ export const initBroker = async cl => {
         mainType: sourceType,
         mainTypeId: itemId,
         relType: type,
-        relTypeId: relatedCard._id
-      }
+        relTypeId: relatedCard._id,
+      },
     });
 
     return {
       status: 'success',
-      data: relatedCard
+      data: relatedCard,
     };
   });
 
@@ -188,9 +189,9 @@ export const initBroker = async cl => {
 
       return {
         status: 'success',
-        data: await models.Tasks.removeTasks(_ids)
+        data: await models.Tasks.removeTasks(_ids),
       };
-    }
+    },
   );
 
   consumeRPCQueue('cards:deals.create', async ({ subdomain, data }) => {
@@ -203,12 +204,12 @@ export const initBroker = async cl => {
       await createConformity(subdomain, {
         customerIds: [customerId],
         mainType: 'deal',
-        mainTypeId: deals._id
+        mainTypeId: deals._id,
       });
     }
     return {
       status: 'success',
-      data: deals
+      data: deals,
     };
   });
 
@@ -219,9 +220,9 @@ export const initBroker = async cl => {
 
       return {
         status: 'success',
-        data: await models.Deals.removeDeals(_ids)
+        data: await models.Deals.removeDeals(_ids),
       };
-    }
+    },
   );
 
   consumeRPCQueue(
@@ -231,9 +232,9 @@ export const initBroker = async cl => {
 
       return {
         status: 'success',
-        data: await models.Purchases.removePurchases(_ids)
+        data: await models.Purchases.removePurchases(_ids),
       };
-    }
+    },
   );
 
   consumeRPCQueue('cards:tickets.find', async ({ subdomain, data }) => {
@@ -242,7 +243,7 @@ export const initBroker = async cl => {
     if (!data.query) {
       return {
         status: 'success',
-        data: await models.Tickets.find(data).lean()
+        data: await models.Tickets.find(data).lean(),
       };
     }
 
@@ -250,9 +251,7 @@ export const initBroker = async cl => {
 
     return {
       status: 'success',
-      data: await models.Tickets.find(query)
-        .sort(sort)
-        .lean()
+      data: await models.Tickets.find(query).sort(sort).lean(),
     };
   });
 
@@ -261,7 +260,7 @@ export const initBroker = async cl => {
 
     return {
       status: 'success',
-      data: await models.Tickets.findOne(data).lean()
+      data: await models.Tickets.findOne(data).lean(),
     };
   });
 
@@ -272,9 +271,9 @@ export const initBroker = async cl => {
 
       return {
         status: 'success',
-        data: await models.Tickets.removeTickets(_ids)
+        data: await models.Tickets.removeTickets(_ids),
       };
-    }
+    },
   );
 
   consumeRPCQueue('cards:stages.find', async ({ subdomain, data }) => {
@@ -282,9 +281,7 @@ export const initBroker = async cl => {
 
     return {
       status: 'success',
-      data: await models.Stages.find(data)
-        .sort({ order: 1 })
-        .lean()
+      data: await models.Stages.find(data).sort({ order: 1 }).lean(),
     };
   });
 
@@ -293,7 +290,7 @@ export const initBroker = async cl => {
 
     return {
       status: 'success',
-      data: await models.Stages.findOne(data).lean()
+      data: await models.Stages.findOne(data).lean(),
     };
   });
 
@@ -302,7 +299,7 @@ export const initBroker = async cl => {
 
     return {
       status: 'success',
-      data: await models.Tasks.find(data).lean()
+      data: await models.Tasks.find(data).lean(),
     };
   });
 
@@ -311,7 +308,7 @@ export const initBroker = async cl => {
 
     return {
       status: 'success',
-      data: await models.Tasks.findOne(data).lean()
+      data: await models.Tasks.findOne(data).lean(),
     };
   });
 
@@ -320,7 +317,7 @@ export const initBroker = async cl => {
 
     return {
       status: 'success',
-      data: await models.Pipelines.find(data).lean()
+      data: await models.Pipelines.find(data).lean(),
     };
   });
 
@@ -329,7 +326,7 @@ export const initBroker = async cl => {
 
     return {
       status: 'success',
-      data: await models.Boards.find(data).lean()
+      data: await models.Boards.find(data).lean(),
     };
   });
 
@@ -340,9 +337,9 @@ export const initBroker = async cl => {
 
       return {
         status: 'success',
-        data: await models.Boards.find(selector).count()
+        data: await models.Boards.find(selector).count(),
       };
-    }
+    },
   );
 
   consumeRPCQueue(
@@ -352,9 +349,9 @@ export const initBroker = async cl => {
 
       return {
         status: 'success',
-        data: await models.GrowthHacks.count(selector)
+        data: await models.GrowthHacks.count(selector),
       };
-    }
+    },
   );
 
   consumeQueue(
@@ -364,9 +361,9 @@ export const initBroker = async cl => {
 
       return {
         status: 'success',
-        data: await models.Checklists.removeChecklists(type, itemIds)
+        data: await models.Checklists.removeChecklists(type, itemIds),
       };
-    }
+    },
   );
 
   consumeRPCQueue('cards:conversationConvert', async ({ subdomain, data }) => {
@@ -374,7 +371,7 @@ export const initBroker = async cl => {
 
     return {
       status: 'success',
-      data: await conversationConvertToCard(models, subdomain, data)
+      data: await conversationConvertToCard(models, subdomain, data),
     };
   });
 
@@ -384,7 +381,7 @@ export const initBroker = async cl => {
     if (!data.query) {
       return {
         status: 'success',
-        data: await models.Deals.find(data).lean()
+        data: await models.Deals.find(data).lean(),
       };
     }
 
@@ -396,7 +393,7 @@ export const initBroker = async cl => {
         .skip(skip || 0)
         .limit(limit || 20)
         .sort(sort)
-        .lean()
+        .lean(),
     };
   });
 
@@ -406,7 +403,7 @@ export const initBroker = async cl => {
     if (!data.query) {
       return {
         status: 'success',
-        data: await models.Purchases.find(data).lean()
+        data: await models.Purchases.find(data).lean(),
       };
     }
 
@@ -418,7 +415,7 @@ export const initBroker = async cl => {
         .skip(skip || 0)
         .limit(limit || 20)
         .sort(sort)
-        .lean()
+        .lean(),
     };
   });
 
@@ -427,7 +424,7 @@ export const initBroker = async cl => {
 
     return {
       status: 'success',
-      data: await models.Deals.find(data).count()
+      data: await models.Deals.find(data).count(),
     };
   });
 
@@ -436,7 +433,7 @@ export const initBroker = async cl => {
 
     return {
       status: 'success',
-      data: await models.Purchases.find(data).count()
+      data: await models.Purchases.find(data).count(),
     };
   });
 
@@ -445,7 +442,7 @@ export const initBroker = async cl => {
 
     return {
       status: 'success',
-      data: await models.Deals.findOne(data).lean()
+      data: await models.Deals.findOne(data).lean(),
     };
   });
 
@@ -454,15 +451,15 @@ export const initBroker = async cl => {
 
     return {
       status: 'success',
-      data: await models.Purchases.findOne(data).lean()
+      data: await models.Purchases.findOne(data).lean(),
     };
   });
 
-  consumeRPCQueue('cards:deals.generateAmounts', async productsData => {
+  consumeRPCQueue('cards:deals.generateAmounts', async (productsData) => {
     return { data: generateAmounts(productsData), status: 'success' };
   });
 
-  consumeRPCQueue('cards:purchases.generateAmounts', async productsData => {
+  consumeRPCQueue('cards:purchases.generateAmounts', async (productsData) => {
     return { data: generateAmounts(productsData), status: 'success' };
   });
 
@@ -471,9 +468,9 @@ export const initBroker = async cl => {
     async ({ subdomain, data }) => {
       return {
         data: await generateProducts(subdomain, data),
-        status: 'success'
+        status: 'success',
       };
-    }
+    },
   );
 
   consumeRPCQueue(
@@ -481,9 +478,9 @@ export const initBroker = async cl => {
     async ({ subdomain, data }) => {
       return {
         data: await generateProducts(subdomain, data),
-        status: 'success'
+        status: 'success',
       };
-    }
+    },
   );
 
   consumeRPCQueue('cards:findItem', async ({ subdomain, data }) => {
@@ -498,11 +495,11 @@ export const initBroker = async cl => {
       const models = await generateModels(subdomain);
 
       const dealProductIds = await await models.Deals.find({
-        'productsData.productId': { $in: _ids }
+        'productsData.productId': { $in: _ids },
       }).distinct('productsData.productId');
 
       return { data: dealProductIds, status: 'success' };
-    }
+    },
   );
 
   consumeRPCQueue(
@@ -511,11 +508,11 @@ export const initBroker = async cl => {
       const models = await generateModels(subdomain);
 
       const purchaseProductIds = await await models.Purchases.find({
-        'productsData.productId': { $in: _ids }
+        'productsData.productId': { $in: _ids },
       }).distinct('productsData.productId');
 
       return { data: purchaseProductIds, status: 'success' };
-    }
+    },
   );
 
   consumeRPCQueue(
@@ -525,9 +522,9 @@ export const initBroker = async cl => {
 
       return {
         data: await models.Tickets.updateMany(selector, modifier),
-        status: 'success'
+        status: 'success',
       };
-    }
+    },
   );
 
   consumeRPCQueue(
@@ -537,9 +534,9 @@ export const initBroker = async cl => {
 
       return {
         data: await models.Tasks.updateMany(selector, modifier),
-        status: 'success'
+        status: 'success',
       };
-    }
+    },
   );
 
   consumeRPCQueue(
@@ -549,9 +546,9 @@ export const initBroker = async cl => {
 
       return {
         data: await models.Deals.updateMany(selector, modifier),
-        status: 'success'
+        status: 'success',
       };
-    }
+    },
   );
 
   consumeRPCQueue(
@@ -561,9 +558,9 @@ export const initBroker = async cl => {
 
       return {
         data: await models.Purchases.updateMany(selector, modifier),
-        status: 'success'
+        status: 'success',
       };
-    }
+    },
   );
 
   consumeRPCQueue(
@@ -573,9 +570,9 @@ export const initBroker = async cl => {
 
       return {
         data: await models.Deals.updateOne(selector, modifier),
-        status: 'success'
+        status: 'success',
       };
-    }
+    },
   );
 
   consumeRPCQueue(
@@ -585,9 +582,9 @@ export const initBroker = async cl => {
 
       return {
         data: await models.Purchases.updateOne(selector, modifier),
-        status: 'success'
+        status: 'success',
       };
-    }
+    },
   );
 
   consumeRPCQueue('cards:notifiedUserIds', async ({ subdomain, data }) => {
@@ -595,7 +592,7 @@ export const initBroker = async cl => {
 
     return {
       status: 'success',
-      data: await notifiedUserIds(models, data)
+      data: await notifiedUserIds(models, data),
     };
   });
 
@@ -604,7 +601,7 @@ export const initBroker = async cl => {
 
     return {
       status: 'success',
-      data: await sendNotifications(models, subdomain, data)
+      data: await sendNotifications(models, subdomain, data),
     };
   });
 
@@ -615,7 +612,7 @@ export const initBroker = async cl => {
 
       const item = await getCardItem(models, {
         contentTypeId: _id,
-        contentType: type
+        contentType: type,
       });
 
       if (!item) {
@@ -628,9 +625,9 @@ export const initBroker = async cl => {
 
       return {
         status: 'success',
-        data: `/${stage.type}/board?id=${board._id}&pipelineId=${pipeline._id}&itemId=${_id}`
+        data: `/${stage.type}/board?id=${board._id}&pipelineId=${pipeline._id}&itemId=${_id}`,
       };
-    }
+    },
   );
 
   consumeRPCQueue(
@@ -651,9 +648,9 @@ export const initBroker = async cl => {
 
       return {
         status: 'success',
-        data: await models.Pipelines.getPipeline(pipelineId)
+        data: await models.Pipelines.getPipeline(pipelineId),
       };
-    }
+    },
   );
 
   consumeRPCQueue(
@@ -663,9 +660,9 @@ export const initBroker = async cl => {
 
       return {
         status: 'success',
-        data: await models.PipelineLabels.find(query, fields)
+        data: await models.PipelineLabels.find(query, fields),
       };
-    }
+    },
   );
 
   consumeQueue(
@@ -676,21 +673,21 @@ export const initBroker = async cl => {
           _id: pipelineId,
           proccessId: Math.random(),
           action,
-          data
-        }
+          data,
+        },
       });
 
       return {
-        status: 'success'
+        status: 'success',
       };
-    }
+    },
   );
 
   consumeQueue(
     'cards:productsDataChanged',
     async ({
       subdomain,
-      data: { dealId, action, dataId, doc, productsData }
+      data: { dealId, action, dataId, doc, productsData },
     }) => {
       graphqlPubsub.publish('productsDataChanged', {
         pipelinesChanged: {
@@ -700,15 +697,15 @@ export const initBroker = async cl => {
           data: {
             dataId,
             doc,
-            productsData
-          }
-        }
+            productsData,
+          },
+        },
       });
 
       return {
-        status: 'success'
+        status: 'success',
       };
-    }
+    },
   );
 
   consumeQueue(
@@ -734,9 +731,9 @@ export const initBroker = async cl => {
       }
 
       return {
-        status: 'success'
+        status: 'success',
       };
-    }
+    },
   );
 
   consumeRPCQueue(
@@ -752,10 +749,10 @@ export const initBroker = async cl => {
           data: {
             mainType: triggerType.split(':')[1],
             mainTypeId: target._id,
-            relTypes: [module.split(':')[1]]
+            relTypes: [module.split(':')[1]],
           },
           isRPC: true,
-          defaultValue: []
+          defaultValue: [],
         });
 
         if (relTypeIds.length) {
@@ -765,136 +762,124 @@ export const initBroker = async cl => {
 
       return {
         status: 'success',
-        data: filter
+        data: filter,
       };
-    }
+    },
   );
 };
 
 export const sendContactsMessage = async (
-  args: ISendMessageArgs
+  args: ISendMessageArgs,
 ): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'contacts',
-    ...args
+    ...args,
   });
 };
 
 export const sendInternalNotesMessage = async (
-  args: ISendMessageArgs
+  args: ISendMessageArgs,
 ): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'internalNotes',
-    ...args
+    ...args,
   });
 };
 
 export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'core',
-    ...args
+    ...args,
   });
 };
 
 export const sendFormsMessage = async (
-  args: ISendMessageArgs
+  args: ISendMessageArgs,
 ): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'forms',
-    ...args
+    ...args,
   });
 };
 
 export const sendEngagesMessage = async (
-  args: ISendMessageArgs
+  args: ISendMessageArgs,
 ): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'engages',
-    ...args
+    ...args,
   });
 };
 
 export const sendInboxMessage = async (
-  args: ISendMessageArgs
+  args: ISendMessageArgs,
 ): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'inbox',
-    ...args
+    ...args,
   });
 };
 
 export const sendProductsMessage = async (
-  args: ISendMessageArgs
+  args: ISendMessageArgs,
 ): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'products',
-    ...args
+    ...args,
   });
 };
 
 export const sendNotificationsMessage = async (
-  args: ISendMessageArgs
+  args: ISendMessageArgs,
 ): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'notifications',
-    ...args
+    ...args,
   });
 };
 
 export const sendLogsMessage = async (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'logs',
-    ...args
+    ...args,
   });
 };
 
 export const sendSegmentsMessage = async (
-  args: ISendMessageArgs
+  args: ISendMessageArgs,
 ): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'segments',
-    ...args
+    ...args,
   });
 };
 
 export const sendLoyaltiesMessage = async (
-  args: ISendMessageArgs
+  args: ISendMessageArgs,
 ): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'loyalties',
-    ...args
+    ...args,
   });
 };
 
 export const sendCommonMessage = async (
-  args: ISendMessageArgs & { serviceName: string }
+  args: ISendMessageArgs & { serviceName: string },
 ): Promise<any> => {
   return sendMessage({
-    serviceDiscovery,
     client,
-    ...args
+    ...args,
   });
 };
 
@@ -902,13 +887,13 @@ export const fetchSegment = (
   subdomain: string,
   segmentId: string,
   options?,
-  segmentData?: any
+  segmentData?: any,
 ) =>
   sendSegmentsMessage({
     subdomain,
     action: 'fetchSegment',
     data: { segmentId, options, segmentData },
-    isRPC: true
+    isRPC: true,
   });
 
 export const sendToWebhook = ({ subdomain, data }) => {
@@ -918,12 +903,11 @@ export const sendToWebhook = ({ subdomain, data }) => {
 export const sendTagsMessage = async (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'tags',
-    ...args
+    ...args,
   });
 };
 
-export default function() {
+export default function () {
   return client;
 }

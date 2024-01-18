@@ -1,6 +1,5 @@
 import * as dotenv from 'dotenv';
-
-import { sendRequest } from '@erxes/api-utils/src/requests';
+import fetch from 'node-fetch';
 dotenv.config();
 
 import { Collection, Db, MongoClient } from 'mongodb';
@@ -49,12 +48,10 @@ const command = async () => {
     const url = `https://maps.googleapis.com/maps/api/directions/json?key=${apiKey}&origin=${placeA.center.lat},${placeA.center.lng}&destination=${placeB.center.lat},${placeB.center.lng}&mode=driving`;
 
     try {
-      const response = await sendRequest({
-        url,
-        method: 'GET'
-      });
+      const response = await fetch(url);
+      const body = await response.json();
 
-      if (response.status !== 'OK' || response.routes.length === 0) {
+      if (!response.ok || body.routes.length === 0) {
         console.log(
           `${placeA.name} - ${placeB.name} path not found: ${response.status}`
         );
@@ -62,7 +59,7 @@ const command = async () => {
       }
 
       console.log(`Path found for ${placeA.name} - ${placeB.name}`);
-      return response.routes[0].overview_polyline.points;
+      return body.routes[0].overview_polyline.points;
     } catch {
       console.log(`Error while getting path from google api`);
       return null;

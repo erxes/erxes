@@ -6,7 +6,8 @@ import csvParser = require('csv-parser');
 import utils from '@erxes/api-utils/src';
 import { getFileUploadConfigs } from '../messageBroker';
 import { getService } from '@erxes/api-utils/src/serviceDiscovery';
-import * as Downloader from 'nodejs-file-downloader';
+import fetch from 'node-fetch';
+import { pipeline } from 'node:stream/promises';
 
 export const uploadsFolderPath = path.join(__dirname, '../private/uploads');
 
@@ -22,15 +23,15 @@ export const getS3FileInfo = async ({ s3, query, params }): Promise<string> => {
             FileHeaderInfo: 'NONE',
             RecordDelimiter: '\n',
             FieldDelimiter: ',',
-            AllowQuotedRecordDelimiter: true
-          }
+            AllowQuotedRecordDelimiter: true,
+          },
         },
         OutputSerialization: {
           CSV: {
             RecordDelimiter: '\n',
-            FieldDelimiter: ','
-          }
-        }
+            FieldDelimiter: ',',
+          },
+        },
       },
       (error, data) => {
         if (error) {
@@ -47,7 +48,7 @@ export const getS3FileInfo = async ({ s3, query, params }): Promise<string> => {
         let result;
 
         // Read events as they are available
-        eventStream.on('data', event => {
+        eventStream.on('data', (event) => {
           if (event.Records) {
             result = event.Records.Payload.toString();
           }
@@ -55,7 +56,7 @@ export const getS3FileInfo = async ({ s3, query, params }): Promise<string> => {
         eventStream.on('end', () => {
           resolve(result);
         });
-      }
+      },
     );
   });
 };
@@ -66,7 +67,7 @@ export const createAWS = async () => {
     AWS_COMPATIBLE_SERVICE_ENDPOINT,
     AWS_BUCKET,
     AWS_SECRET_ACCESS_KEY,
-    AWS_ACCESS_KEY_ID
+    AWS_ACCESS_KEY_ID,
   } = await getFileUploadConfigs();
 
   if (!AWS_ACCESS_KEY_ID || !AWS_SECRET_ACCESS_KEY || !AWS_BUCKET) {
@@ -80,7 +81,7 @@ export const createAWS = async () => {
     s3ForcePathStyle?: boolean;
   } = {
     accessKeyId: AWS_ACCESS_KEY_ID,
-    secretAccessKey: AWS_SECRET_ACCESS_KEY
+    secretAccessKey: AWS_SECRET_ACCESS_KEY,
   };
 
   if (AWS_FORCE_PATH_STYLE === 'true') {
@@ -99,7 +100,7 @@ export const createCFR2 = async () => {
   const {
     CLOUDFLARE_ACCOUNT_ID,
     CLOUDFLARE_ACCESS_KEY_ID,
-    CLOUDFLARE_SECRET_ACCESS_KEY
+    CLOUDFLARE_SECRET_ACCESS_KEY,
   } = await getFileUploadConfigs();
 
   const CLOUDFLARE_ENDPOINT = `https://${CLOUDFLARE_ACCOUNT_ID}.r2.cloudflarestorage.com`;
@@ -119,7 +120,7 @@ export const createCFR2 = async () => {
     accessKeyId: CLOUDFLARE_ACCESS_KEY_ID,
     secretAccessKey: CLOUDFLARE_SECRET_ACCESS_KEY,
     signatureVersion: 'v4',
-    region: 'auto'
+    region: 'auto',
   };
 
   return new AWS.S3(options);
@@ -132,19 +133,19 @@ export const getImportCsvInfo = async (fileName: string) => {
 
   const url = `${service.address}/get-import-file`;
 
-  const downloader = await new (Downloader as any)({
-    url,
-    directory: uploadsFolderPath,
-    cloneFiles: false,
-    fileName,
-    headers: { fileName }
-  });
   try {
-    await downloader.download();
+    const response = await fetch(url, { headers: { fileName } });
+    if (!response.ok) {
+      throw new Error(response.statusText);
+    }
+    await pipeline(
+      response.body,
+      fs.createWriteStream(`${uploadsFolderPath}/${fileName}`),
+    );
   } catch (e) {
     console.error(
-      `${service.name} csv download from ${url} to ${fileName} failed.`,
-      e.message
+      `${service.name} csv download from ${url} to ${uploadsFolderPath}/${fileName} failed.`,
+      e.message,
     );
   }
 
@@ -154,12 +155,12 @@ export const getImportCsvInfo = async (fileName: string) => {
       let i = 0;
 
       const readStream = fs.createReadStream(
-        `${uploadsFolderPath}/${fileName}`
+        `${uploadsFolderPath}/${fileName}`,
       );
 
       readStream
         .pipe(csvParser())
-        .on('data', data => {
+        .on('data', (data) => {
           i++;
           if (i <= 3) {
             results.push(data);
@@ -175,10 +176,8 @@ export const getImportCsvInfo = async (fileName: string) => {
           reject();
         });
     } else {
-      const {
-        AWS_BUCKET,
-        CLOUDFLARE_BUCKET_NAME
-      } = await getFileUploadConfigs();
+      const { AWS_BUCKET, CLOUDFLARE_BUCKET_NAME } =
+        await getFileUploadConfigs();
       const s3 =
         UPLOAD_SERVICE_TYPE === 'AWS' ? await createAWS() : await createCFR2();
 
@@ -195,7 +194,7 @@ export const getImportCsvInfo = async (fileName: string) => {
 
       readStream
         .pipe(csvParser())
-        .on('data', data => {
+        .on('data', (data) => {
           i++;
           if (i <= 3) {
             results.push(data);
@@ -218,7 +217,7 @@ export const getImportCsvInfo = async (fileName: string) => {
 export const getCsvHeadersInfo = async (fileName: string) => {
   const { UPLOAD_SERVICE_TYPE } = await getFileUploadConfigs();
 
-  return new Promise(async resolve => {
+  return new Promise(async (resolve) => {
     if (UPLOAD_SERVICE_TYPE === 'local') {
       const readSteam = fs.createReadStream(`${uploadsFolderPath}/${fileName}`);
 
@@ -227,10 +226,10 @@ export const getCsvHeadersInfo = async (fileName: string) => {
 
       const rl = readline.createInterface({
         input: readSteam,
-        terminal: false
+        terminal: false,
       });
 
-      rl.on('line', input => {
+      rl.on('line', (input) => {
         if (total === 0) {
           columns = input;
         }
@@ -246,10 +245,8 @@ export const getCsvHeadersInfo = async (fileName: string) => {
         resolve(columns);
       });
     } else {
-      const {
-        AWS_BUCKET,
-        CLOUDFLARE_BUCKET_NAME
-      } = await getFileUploadConfigs();
+      const { AWS_BUCKET, CLOUDFLARE_BUCKET_NAME } =
+        await getFileUploadConfigs();
 
       const s3 =
         UPLOAD_SERVICE_TYPE === 'AWS' ? await createAWS() : await createCFR2();
@@ -263,7 +260,7 @@ export const getCsvHeadersInfo = async (fileName: string) => {
       const columns = await getS3FileInfo({
         s3,
         params,
-        query: 'SELECT * FROM S3Object LIMIT 1'
+        query: 'SELECT * FROM S3Object LIMIT 1',
       });
 
       return resolve(columns);

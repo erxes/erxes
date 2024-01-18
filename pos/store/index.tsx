@@ -1,6 +1,7 @@
 "use client"
 
 import ApolloProvider from "@/modules/ApolloProvider"
+import { totalAmountAtom } from "@/store/cart.store"
 import { atom, Provider } from "jotai"
 import { atomWithStorage } from "jotai/utils"
 
@@ -21,6 +22,12 @@ export const modeAtom = atomWithStorage<modeT>("mode", "main")
 export const currentPaymentTypeAtom = atom<string>("")
 
 export const paymentAmountTypeAtom = atom<IPaymentAmountType>("amount")
+
+export const displayAmountAtom = atom<number>((get) =>
+  get(paymentAmountTypeAtom) === "percent"
+    ? Number(((get(currentAmountAtom) / get(totalAmountAtom)) * 100).toFixed(1))
+    : get(currentAmountAtom)
+)
 
 export const customerSearchAtom = atom<string>("")
 

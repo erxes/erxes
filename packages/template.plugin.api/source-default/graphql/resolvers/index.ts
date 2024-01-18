@@ -10,7 +10,7 @@ const {Name} = {
   }
 };
 
-const resolvers: any = async (_serviceDiscovery) => ({
+const resolvers: any = async () => ({
   ...customScalars,
   {Name},
   Mutation: {

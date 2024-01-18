@@ -1,8 +1,9 @@
-import { sendRequest } from '@erxes/api-utils/src/requests';
+import fetch from 'node-fetch';
+import type { RequestInit, HeadersInit } from 'node-fetch';
 import { sendCommonMessage } from './messageBroker';
 import { IRecording } from './models';
 
-export const getDailyData = async subdomain => {
+export const getDailyData = async (subdomain) => {
   const keys = ['DAILY_API_KEY', 'DAILY_END_POINT'];
 
   const selector = { code: { $in: keys } };
@@ -12,35 +13,33 @@ export const getDailyData = async subdomain => {
     action: 'configs.find',
     subdomain,
     data: { selector },
-    isRPC: true
+    isRPC: true,
   });
 
   if (!configs || configs.length === 0) {
     throw new Error(
-      'Video call configs not found. Please setup video call configs from integrations settings.'
+      'Video call configs not found. Please setup video call configs from integrations settings.',
     );
   }
 
   const DAILY_API_KEY = configs.find(
-    (config: any) => config.code === 'DAILY_API_KEY'
+    (config: any) => config.code === 'DAILY_API_KEY',
   ).value;
 
-  const response = await sendRequest({
-    url: 'https://api.daily.co/v1',
-    method: 'get',
-    headers: { Authorization: `Bearer ${DAILY_API_KEY}` }
-  });
+  const response = await fetch('https://api.daily.co/v1', {
+    headers: { Authorization: `Bearer ${DAILY_API_KEY}` },
+  }).then((r) => r.json());
 
   if (!response) {
     throw new Error(
-      'Error while fetching video call usage status. Please try again later.'
+      'Error while fetching video call usage status. Please try again later.',
     );
   }
 
   if (response.error) {
     if (response.error === 'authentication-error') {
       throw new Error(
-        'Invalid daily api key. Please check your daily api key.'
+        'Invalid daily api key. Please check your daily api key.',
       );
     }
 
@@ -53,8 +52,8 @@ export const getDailyData = async subdomain => {
 export const sendDailyRequest = async (
   url: string,
   method: string,
-  body = {},
-  subdomain: string
+  body: any,
+  subdomain: string,
 ) => {
   const data = await getDailyData(subdomain);
 
@@ -65,20 +64,30 @@ export const sendDailyRequest = async (
     action: 'configs.findOne',
     subdomain,
     data: { code: 'DAILY_API_KEY' },
-    isRPC: true
+    isRPC: true,
   });
 
+  const reqInit: RequestInit & Required<{ headers: HeadersInit }> = {
+    method,
+    headers: {
+      Authorization: `Bearer ${api_key.value}`,
+    },
+  };
+
+  if (body) {
+    reqInit.body = JSON.stringify(body);
+    reqInit.headers['Content-Type'] = 'application/json';
+  }
+
   try {
-    const res = await sendRequest({
-      url: `https://${domain_name}.daily.co${url}`,
-      method,
-      headers: { Authorization: `Bearer ${api_key.value}` },
-      body
-    });
+    const res = await fetch(
+      `https://${domain_name}.daily.co${url}`,
+      reqInit,
+    ).then((r) => r.json());
 
     return {
       ...res,
-      domain_name
+      domain_name,
     };
   } catch (e) {
     return e;
@@ -87,7 +96,7 @@ export const sendDailyRequest = async (
 
 export const isAfter = (
   expiresTimestamp: number,
-  defaultMillisecond?: number
+  defaultMillisecond?: number,
 ) => {
   const millisecond = defaultMillisecond || new Date().getTime();
   const expiresMillisecond = new Date(expiresTimestamp * 1000).getTime();
@@ -101,7 +110,7 @@ export const isAfter = (
 
 export const getRecordings = async (
   subdomain: string,
-  recordings: IRecording[]
+  recordings: IRecording[],
 ) => {
   const newRecordings: IRecording[] = [];
 
@@ -111,7 +120,7 @@ export const getRecordings = async (
         `/api/v1/recordings/${record.id}/access-link`,
         'GET',
         {},
-        subdomain
+        subdomain,
       );
 
       record.expires = accessLinkResponse.expires;

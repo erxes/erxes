@@ -11,8 +11,6 @@ import logs from './logUtils';
 
 export let mainDb;
 export let debug;
-export let graphqlPubsub;
-export let serviceDiscovery;
 
 export default {
   name: 'automations',
@@ -22,14 +20,12 @@ export default {
     permissions,
     cronjobs,
     tags,
-    logs: { providesActivityLog: true, consumers: logs }
+    logs: { providesActivityLog: true, consumers: logs },
   },
-  graphql: async sd => {
-    serviceDiscovery = sd;
-
+  graphql: async () => {
     return {
-      typeDefs: await typeDefs(sd),
-      resolvers: await resolvers(sd)
+      typeDefs: await typeDefs(),
+      resolvers: await resolvers(),
     };
   },
   apolloServerContext: async (context, req) => {
@@ -40,15 +36,13 @@ export default {
 
     return context;
   },
-  onServerInit: async options => {
+  onServerInit: async (options) => {
     mainDb = options.db;
 
     console.log('on server init .....');
 
     initBroker(options.messageBrokerClient);
 
-    graphqlPubsub = options.pubsubClient;
-
     debug = options.debug;
-  }
+  },
 };

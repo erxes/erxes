@@ -12,7 +12,7 @@ import {
   ISendMessageArgs,
   sendMessage as sendCommonMessage
 } from '@erxes/api-utils/src/core';
-import { serviceDiscovery } from './configs';
+
 import { generateModels } from './connectionResolver';
 
 dotenv.config();
@@ -204,7 +204,6 @@ export default function() {
 export const sendInboxMessage = (args: ISendMessageArgs) => {
   return sendCommonMessage({
     client,
-    serviceDiscovery,
     serviceName: 'inbox',
     ...args
   });

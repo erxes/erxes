@@ -237,58 +237,33 @@ export const generateCommonFilters = async (
   }
 
   if (branchIds) {
-    const branchOrders = (
-      await sendCoreMessage({
-        subdomain,
-        action: `branches.find`,
-        data: {
-          query: { _id: { $in: branchIds } }
-        },
-        isRPC: true,
-        defaultValue: []
-      })
-    ).map(item => item.order);
+    const branches = await sendCoreMessage({
+      subdomain,
+      action: `branches.findWithChild`,
+      data: {
+        query: { _id: { $in: branchIds } },
+        fields: { _id: 1 }
+      },
+      isRPC: true,
+      defaultValue: []
+    });
 
-    const ids = (
-      await sendCoreMessage({
-        subdomain,
-        action: `branches.find`,
-        data: {
-          query: { order: { $regex: branchOrders.join('|'), $options: 'i' } }
-        },
-        isRPC: true,
-        defaultValue: []
-      })
-    ).map(item => item._id);
-
-    filter.branchIds = { $in: ids };
+    filter.branchIds = { $in: branches.map(item => item._id) };
   }
+
   if (departmentIds) {
-    const departmentOrders = (
-      await sendCoreMessage({
-        subdomain,
-        action: `departments.find`,
-        data: {
-          _id: { $in: departmentIds }
-        },
-        isRPC: true,
-        defaultValue: []
-      })
-    ).map(item => item.order);
+    const departments = await sendCoreMessage({
+      subdomain,
+      action: `departments.findWithChild`,
+      data: {
+        query: { _id: { $in: departmentIds } },
+        fields: { _id: 1 }
+      },
+      isRPC: true,
+      defaultValue: []
+    });
 
-    const ids = (
-      await sendCoreMessage({
-        subdomain,
-        action: `departments.find`,
-        data: {
-          order: { $regex: departmentOrders.join('|'), $options: 'i' }
-        },
-        isRPC: true,
-        defaultValue: []
-      })
-    ).map(item => item._id);
-
-    filter.departmentIds = { $in: ids };
+    filter.departmentIds = { $in: departments.map(item => item._id) };
   }
 
   if (customerIds && type) {

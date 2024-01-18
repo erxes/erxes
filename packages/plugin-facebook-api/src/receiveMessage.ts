@@ -1,5 +1,5 @@
 import { Activity } from 'botbuilder';
-import { graphqlPubsub } from './configs';
+import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
 
 import { IModels } from './connectionResolver';
 import { INTEGRATION_KINDS } from './constants';
@@ -11,7 +11,7 @@ import { IChannelData } from './types';
 const receiveMessage = async (
   models: IModels,
   subdomain: string,
-  activity: Activity
+  activity: Activity,
 ) => {
   let {
     recipient,
@@ -20,14 +20,14 @@ const receiveMessage = async (
     text,
     attachments = [],
     message,
-    postback
+    postback,
   } = activity.channelData as IChannelData;
 
   if (!text && !message && !!postback) {
     text = postback.title;
 
     message = {
-      mid: postback.mid
+      mid: postback.mid,
     };
 
     if (text !== 'Get Started') {
@@ -43,8 +43,8 @@ const receiveMessage = async (
   const integration = await models.Integrations.getIntegration({
     $and: [
       { facebookPageIds: { $in: [recipient.id] } },
-      { kind: INTEGRATION_KINDS.MESSENGER }
-    ]
+      { kind: INTEGRATION_KINDS.MESSENGER },
+    ],
   });
 
   const userId = sender.id;
@@ -57,13 +57,13 @@ const receiveMessage = async (
     subdomain,
     pageId,
     userId,
-    kind
+    kind,
   );
 
   // get conversation
   let conversation = await models.Conversations.findOne({
     senderId: userId,
-    recipientId: recipient.id
+    recipientId: recipient.id,
   });
 
   const isBot = postback && postback.title === 'Get Started' ? true : false;
@@ -81,13 +81,13 @@ const receiveMessage = async (
         content: text,
         integrationId: integration._id,
         isBot,
-        botId
+        botId,
       });
     } catch (e) {
       throw new Error(
         e.message.includes('duplicate')
           ? 'Concurrent request: conversation duplication'
-          : e
+          : e,
       );
     }
   } else {
@@ -100,10 +100,10 @@ const receiveMessage = async (
   }
 
   const formattedAttachments = (attachments || [])
-    .filter(att => att.type !== 'fallback')
-    .map(att => ({
+    .filter((att) => att.type !== 'fallback')
+    .map((att) => ({
       type: att.type,
-      url: att.payload ? att.payload.url : ''
+      url: att.payload ? att.payload.url : '',
     }));
 
   // save on api
@@ -119,10 +119,10 @@ const receiveMessage = async (
           content: text || '',
           attachments: formattedAttachments,
           conversationId: conversation.erxesApiId,
-          updatedAt: timestamp
-        })
+          updatedAt: timestamp,
+        }),
       },
-      isRPC: true
+      isRPC: true,
     });
 
     conversation.erxesApiId = apiConversationResponse._id;
@@ -134,7 +134,7 @@ const receiveMessage = async (
   }
   // get conversation message
   let conversationMessage = await models.ConversationMessages.findOne({
-    mid: message.mid
+    mid: message.mid,
   });
 
   if (!conversationMessage) {
@@ -146,7 +146,7 @@ const receiveMessage = async (
         content: text,
         customerId: customer.erxesApiId,
         attachments: formattedAttachments,
-        botId
+        botId,
       });
 
       await sendInboxMessage({
@@ -154,8 +154,8 @@ const receiveMessage = async (
         action: 'conversationClientMessageInserted',
         data: {
           ...created.toObject(),
-          conversationId: conversation.erxesApiId
-        }
+          conversationId: conversation.erxesApiId,
+        },
       });
 
       graphqlPubsub.publish(
@@ -163,9 +163,9 @@ const receiveMessage = async (
         {
           conversationMessageInserted: {
             ...created.toObject(),
-            conversationId: conversation.erxesApiId
-          }
-        }
+            conversationId: conversation.erxesApiId,
+          },
+        },
       );
 
       conversationMessage = created;
@@ -173,7 +173,7 @@ const receiveMessage = async (
       throw new Error(
         e.message.includes('duplicate')
           ? 'Concurrent request: conversation message duplication'
-          : e
+          : e,
       );
     }
   }
@@ -187,10 +187,10 @@ const receiveMessage = async (
         newData: message,
         object: {
           ...conversationMessage.toObject(),
-          payload: JSON.parse(message.payload || '{}')
-        }
+          payload: JSON.parse(message.payload || '{}'),
+        },
       },
-      customer._id
+      customer._id,
     );
   } catch (error) {}
 };

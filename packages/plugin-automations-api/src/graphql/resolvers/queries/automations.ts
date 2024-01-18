@@ -6,8 +6,8 @@ import {
 import { IContext } from '../../../connectionResolver';
 import { sendSegmentsMessage } from '../../../messageBroker';
 import { ITrigger } from '../../../models/definitions/automaions';
-import { serviceDiscovery } from '../../../configs';
 import { STATUSES, UI_ACTIONS } from '../../../constants';
+import { getService, getServices } from '@erxes/api-utils/src/serviceDiscovery';
 
 interface IListArgs {
   status: string;
@@ -205,7 +205,7 @@ const automationQueries = {
   },
 
   async automationConstants(_root, {}) {
-    const services = await serviceDiscovery.getServices();
+    const services = await getServices();
 
     const constants: {
       triggersConst: ITrigger[];
@@ -220,7 +220,7 @@ const automationQueries = {
     };
 
     for (const serviceName of services) {
-      const service = await serviceDiscovery.getService(serviceName);
+      const service = await getService(serviceName);
       const meta = service.config?.meta || {};
 
       if (meta && meta.automations && meta.automations.constants) {

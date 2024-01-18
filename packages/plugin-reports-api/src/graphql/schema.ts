@@ -84,6 +84,7 @@ export const types = tagsAvailable => `
     radar
     bubble
     scatter
+    table
   }
 
   type ChartFilter {

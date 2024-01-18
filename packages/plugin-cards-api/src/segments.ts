@@ -1,4 +1,7 @@
-import { fetchByQuery } from '@erxes/api-utils/src/elasticsearch';
+import {
+  fetchByQuery,
+  fetchByQueryWithScroll
+} from '@erxes/api-utils/src/elasticsearch';
 import { generateModels } from './connectionResolver';
 import {
   sendCommonMessage,
@@ -91,7 +94,7 @@ export default {
     let ids: string[] = [];
 
     if (associatedTypes.includes(propertyType)) {
-      const mainTypeIds = await fetchByQuery({
+      const mainTypeIds = await fetchByQueryWithScroll({
         subdomain,
         index: await getEsIndexByContentType(propertyType),
         positiveQuery,
@@ -109,8 +112,14 @@ export default {
         isRPC: true
       });
     } else {
+      const serviceName = getServiceName(propertyType);
+
+      if (serviceName === 'cards') {
+        return { data: [], status: 'error' };
+      }
+
       ids = await sendCommonMessage({
-        serviceName: getServiceName(propertyType),
+        serviceName,
         subdomain,
         action: 'segments.associationFilter',
         data: {

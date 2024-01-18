@@ -7,7 +7,7 @@ import {
   ControlLabel,
   FormControl,
   FormGroup,
-  Tip
+  Tip,
 } from '@erxes/ui/src/components';
 import { FormColumn, FormWrapper } from '@erxes/ui/src/styles/main';
 import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
@@ -23,197 +23,187 @@ type Props = {
   onRemove: (id: string) => void;
 };
 
-type State = {};
+const PerConditions = (props: Props) => {
+  const { condition, onChange } = props;
 
-class PerConditions extends React.Component<Props, State> {
-  constructor(props: Props) {
-    super(props);
-
-    this.state = {};
-  }
-
-  onChangeConfig = (code: string, value) => {
-    const { condition, onChange } = this.props;
+  const onChangeConfig = (code: string, value) => {
     onChange(condition.id, { ...condition, [code]: value });
   };
 
-  onChange = (name, value) => {
-    this.onChangeConfig(name, value);
+  const onChangeHandler = (name, value) => {
+    onChangeConfig(name, value);
   };
 
-  onChangeInput = (code: string, e) => {
-    this.onChangeConfig(code, e.target.value);
+  const onChangeInput = (code: string, e) => {
+    onChangeConfig(code, e.target.value);
   };
 
-  render() {
-    const { condition } = this.props;
-    return (
-      <GroupWrapper>
+  return (
+    <GroupWrapper>
+      <FormWrapper>
+        <FormColumn>
+          <FormGroup>
+            <ControlLabel>{'Product Category'}</ControlLabel>
+            <SelectProductCategory
+              label="Choose product category"
+              name="productCategoryIds"
+              initialValue={condition.productCategoryIds || ''}
+              onSelect={(categoryIds) =>
+                onChangeHandler('productCategoryIds', categoryIds)
+              }
+              multi={true}
+            />
+          </FormGroup>
+          <FormGroup>
+            <ControlLabel>{__('Exclude categories')}</ControlLabel>
+            <SelectProductCategory
+              name="excludeCategoryIds"
+              label="Choose categories to exclude"
+              initialValue={condition.excludeCategoryIds}
+              onSelect={(categoryIds) =>
+                onChangeHandler('excludeCategoryIds', categoryIds)
+              }
+              multi={true}
+            />
+          </FormGroup>
+          <FormGroup>
+            <ControlLabel>{'Product Tags'}</ControlLabel>
+            <SelectTags
+              tagsType="products:product"
+              label="Choose product tag"
+              name="productTagIds"
+              initialValue={condition.productTagIds || ''}
+              onSelect={(tagIds) => onChangeHandler('productTagIds', tagIds)}
+              multi={true}
+            />
+          </FormGroup>
+          <FormGroup>
+            <ControlLabel>{__('Exclude tags')}</ControlLabel>
+            <SelectTags
+              tagsType="products:product"
+              name="excludeTagIds"
+              label="Choose tags to exclude"
+              initialValue={condition.excludeTagIds}
+              onSelect={(tagIds) => onChangeHandler('excludeTagIds', tagIds)}
+              multi={true}
+            />
+          </FormGroup>
+          <FormGroup>
+            <ControlLabel>{__('Exclude products')}</ControlLabel>
+            <SelectProducts
+              name="excludeProductIds"
+              label="Choose products to exclude"
+              initialValue={condition.excludeProductIds}
+              onSelect={(productIds) =>
+                onChangeHandler('excludeProductIds', productIds)
+              }
+              multi={true}
+            />
+          </FormGroup>
+          <FormGroup>
+            <ControlLabel>{__('Segment')}</ControlLabel>
+            <SelectSegments
+              name="segments"
+              label="Choose segments"
+              contentTypes={['products:product']}
+              initialValue={condition.segments}
+              multi={true}
+              onSelect={(segmentIds) => onChangeHandler('segments', segmentIds)}
+            />
+          </FormGroup>
+        </FormColumn>
+
+        <FormColumn>
+          <FormGroup>
+            <ControlLabel>{'Low Count'}</ControlLabel>
+            <FormControl
+              defaultValue={condition.ltCount}
+              onChange={onChangeInput.bind(this, 'ltCount')}
+              required={true}
+              autoFocus={true}
+            />
+          </FormGroup>
+          <FormGroup>
+            <ControlLabel>{'Great Count'}</ControlLabel>
+            <FormControl
+              defaultValue={condition.gtCount}
+              onChange={onChangeInput.bind(this, 'gtCount')}
+              required={true}
+              autoFocus={true}
+            />
+          </FormGroup>
+          <FormGroup>
+            <ControlLabel>{'Low UnitPrice'}</ControlLabel>
+            <FormControl
+              defaultValue={condition.ltUnitPrice}
+              onChange={onChangeInput.bind(this, 'ltUnitPrice')}
+              required={true}
+              autoFocus={true}
+            />
+          </FormGroup>
+          <FormGroup>
+            <ControlLabel>{'Great UnitPrice'}</ControlLabel>
+            <FormControl
+              defaultValue={condition.gtUnitPrice}
+              onChange={onChangeInput.bind(this, 'gtUnitPrice')}
+              required={true}
+              autoFocus={true}
+            />
+          </FormGroup>
+          <FormGroup>
+            <ControlLabel>{'Sub uom type'}</ControlLabel>
+            <FormControl
+              componentClass="select"
+              defaultValue={condition.subUomType}
+              options={[
+                { label: 'Not use', value: '' },
+                { label: 'Low than count', value: 'lt' },
+                { label: 'Greater, equal than count', value: 'gte' },
+              ]}
+              onChange={(e: any) => {
+                onChangeHandler('subUomType', e.target.value);
+              }}
+            />
+          </FormGroup>
+        </FormColumn>
+      </FormWrapper>
+      <LittleGroup>
         <FormWrapper>
           <FormColumn>
-            <FormGroup>
-              <ControlLabel>{'Product Category'}</ControlLabel>
-              <SelectProductCategory
-                label="Choose product category"
-                name="productCategoryIds"
-                initialValue={condition.productCategoryIds || ''}
-                onSelect={categoryIds =>
-                  this.onChange('productCategoryIds', categoryIds)
-                }
-                multi={true}
-              />
-            </FormGroup>
-            <FormGroup>
-              <ControlLabel>{__('Exclude categories')}</ControlLabel>
-              <SelectProductCategory
-                name="excludeCategoryIds"
-                label="Choose categories to exclude"
-                initialValue={condition.excludeCategoryIds}
-                onSelect={categoryIds =>
-                  this.onChange('excludeCategoryIds', categoryIds)
-                }
-                multi={true}
-              />
-            </FormGroup>
-            <FormGroup>
-              <ControlLabel>{'Product Tags'}</ControlLabel>
-              <SelectTags
-                tagsType="products:product"
-                label="Choose product tag"
-                name="productTagIds"
-                initialValue={condition.productTagIds || ''}
-                onSelect={tagIds => this.onChange('productTagIds', tagIds)}
-                multi={true}
-              />
-            </FormGroup>
-            <FormGroup>
-              <ControlLabel>{__('Exclude tags')}</ControlLabel>
-              <SelectTags
-                tagsType="products:product"
-                name="excludeTagIds"
-                label="Choose tags to exclude"
-                initialValue={condition.excludeTagIds}
-                onSelect={tagIds => this.onChange('excludeTagIds', tagIds)}
-                multi={true}
-              />
-            </FormGroup>
-            <FormGroup>
-              <ControlLabel>{__('Exclude products')}</ControlLabel>
-              <SelectProducts
-                name="excludeProductIds"
-                label="Choose products to exclude"
-                initialValue={condition.excludeProductIds}
-                onSelect={productIds =>
-                  this.onChange('excludeProductIds', productIds)
-                }
-                multi={true}
-              />
-            </FormGroup>
-            <FormGroup>
-              <ControlLabel>{__('Segment')}</ControlLabel>
-              <SelectSegments
-                name="segments"
-                label="Choose segments"
-                contentTypes={['products:product']}
-                initialValue={condition.segments}
-                multi={true}
-                onSelect={segmentIds => this.onChange('segments', segmentIds)}
-              />
-            </FormGroup>
+            <ControlLabel>{'Set branch'}</ControlLabel>
+            <SelectBranches
+              label="Choose Branch"
+              name="branchId"
+              initialValue={condition.branchId}
+              onSelect={(branchId) => onChangeHandler('branchId', branchId)}
+              multi={false}
+              customOption={{ value: '', label: 'Clean branch' }}
+            />
           </FormColumn>
-
           <FormColumn>
-            <FormGroup>
-              <ControlLabel>{'Low Count'}</ControlLabel>
-              <FormControl
-                defaultValue={condition.ltCount}
-                onChange={this.onChangeInput.bind(this, 'ltCount')}
-                required={true}
-                autoFocus={true}
-              />
-            </FormGroup>
-            <FormGroup>
-              <ControlLabel>{'Great Count'}</ControlLabel>
-              <FormControl
-                defaultValue={condition.gtCount}
-                onChange={this.onChangeInput.bind(this, 'gtCount')}
-                required={true}
-                autoFocus={true}
-              />
-            </FormGroup>
-            <FormGroup>
-              <ControlLabel>{'Low UnitPrice'}</ControlLabel>
-              <FormControl
-                defaultValue={condition.ltUnitPrice}
-                onChange={this.onChangeInput.bind(this, 'ltUnitPrice')}
-                required={true}
-                autoFocus={true}
-              />
-            </FormGroup>
-            <FormGroup>
-              <ControlLabel>{'Great UnitPrice'}</ControlLabel>
-              <FormControl
-                defaultValue={condition.gtUnitPrice}
-                onChange={this.onChangeInput.bind(this, 'gtUnitPrice')}
-                required={true}
-                autoFocus={true}
-              />
-            </FormGroup>
-            <FormGroup>
-              <ControlLabel>{'Sub uom type'}</ControlLabel>
-              <FormControl
-                componentClass="select"
-                defaultValue={condition.subUomType}
-                options={[
-                  { label: 'Not use', value: '' },
-                  { label: 'Low than count', value: 'lt' },
-                  { label: 'Greater, equal than count', value: 'gte' }
-                ]}
-                onChange={(e: any) => {
-                  this.onChange('subUomType', e.target.value);
-                }}
-              />
-            </FormGroup>
+            <ControlLabel>{'Set department'}</ControlLabel>
+            <SelectDepartments
+              label="Choose department"
+              name="selectedDepartmentIds"
+              initialValue={condition.departmentId}
+              onSelect={(departmentId) =>
+                onChangeHandler('departmentId', departmentId)
+              }
+              multi={false}
+              customOption={{ value: '', label: 'Clean department' }}
+            />
           </FormColumn>
         </FormWrapper>
-        <LittleGroup>
-          <FormWrapper>
-            <FormColumn>
-              <ControlLabel>{'Set branch'}</ControlLabel>
-              <SelectBranches
-                label="Choose Branch"
-                name="branchId"
-                initialValue={condition.branchId}
-                onSelect={branchId => this.onChange('branchId', branchId)}
-                multi={false}
-                customOption={{ value: '', label: 'Clean branch' }}
-              />
-            </FormColumn>
-            <FormColumn>
-              <ControlLabel>{'Set department'}</ControlLabel>
-              <SelectDepartments
-                label="Choose department"
-                name="selectedDepartmentIds"
-                initialValue={condition.departmentId}
-                onSelect={departmentId =>
-                  this.onChange('departmentId', departmentId)
-                }
-                multi={false}
-                customOption={{ value: '', label: 'Clean department' }}
-              />
-            </FormColumn>
-          </FormWrapper>
-        </LittleGroup>
-        <Tip text={'Delete'}>
-          <Button
-            btnStyle="simple"
-            size="small"
-            onClick={this.props.onRemove.bind(this, condition.id)}
-            icon="times"
-          />
-        </Tip>
-      </GroupWrapper>
-    );
-  }
-}
+      </LittleGroup>
+      <Tip text={'Delete'}>
+        <Button
+          btnStyle="simple"
+          size="small"
+          onClick={props.onRemove.bind(this, condition.id)}
+          icon="times"
+        />
+      </Tip>
+    </GroupWrapper>
+  );
+};
 export default PerConditions;

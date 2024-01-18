@@ -38,6 +38,7 @@ export type IPos = {
   name: string;
   description?: string;
   orderPassword?: string;
+  scopeBrandIds?: string[];
   pdomain?: string;
   createdAt: Date;
   productDetails?: string[];

@@ -6,7 +6,7 @@ import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import { __ } from '@erxes/ui/src/utils';
-import React from 'react';
+import React, { useState } from 'react';
 
 import { IPaymentDocument, IPocketConfig } from '../../types';
 import { PAYMENT_KINDS } from '../constants';
@@ -27,33 +27,29 @@ type State = {
   pocketClientSecret: string;
 };
 
-class PocketConfigForm extends React.Component<Props, State> {
-  constructor(props: Props) {
-    super(props);
+const PocketConfigForm: React.FC<Props> = (props) => {
+  const { payment } = props;
+  const { name = '', config } = payment || ({} as IPaymentDocument);
+  const {
+    pocketMerchant = '',
+    pocketClientId = '',
+    pocketClientSecret = '',
+  } = config || ({} as IPocketConfig);
 
-    const { payment } = this.props;
-    const { name = '', config } = payment || ({} as IPaymentDocument);
-    const {
-      pocketMerchant = '',
-      pocketClientId = '',
-      pocketClientSecret = ''
-    } = config || ({} as IPocketConfig);
+  const [state, setState] = useState<State>({
+    paymentName: name,
+    pocketMerchant,
+    pocketClientId,
+    pocketClientSecret,
+  });
 
-    this.state = {
-      paymentName: name,
-      pocketMerchant,
-      pocketClientId,
-      pocketClientSecret
-    };
-  }
-
-  generateDoc = (values: {
+  const generateDoc = (values: {
     paymentName: string;
     pocketMerchant: string;
     pocketClientId: string;
     pocketClientSecret: string;
   }) => {
-    const { payment } = this.props;
+    const { payment } = props;
     const generatedValues = {
       name: values.paymentName,
       kind: PAYMENT_KINDS.POCKET,
@@ -61,24 +57,24 @@ class PocketConfigForm extends React.Component<Props, State> {
       config: {
         pocketMerchant: values.pocketMerchant,
         pocketClientId: values.pocketClientId,
-        pocketClientSecret: values.pocketClientSecret
-      }
+        pocketClientSecret: values.pocketClientSecret,
+      },
     };
 
     return payment ? { ...generatedValues, id: payment._id } : generatedValues;
   };
 
-  onChangeConfig = (code: string, e) => {
-    this.setState({ [code]: e.target.value } as any);
+  const onChangeConfig = (code: string, e) => {
+    setState((prevState) => ({ ...prevState, [code]: e.target.value }));
   };
 
-  renderItem = (
+  const renderItem = (
     key: string,
     title: string,
     description?: string,
-    isPassword?: boolean
+    isPassword?: boolean,
   ) => {
-    const value = this.state[key];
+    const value = state[key];
 
     return (
       <FormGroup>
@@ -86,7 +82,7 @@ class PocketConfigForm extends React.Component<Props, State> {
         {description && <p>{description}</p>}
         <FormControl
           defaultValue={value}
-          onChange={this.onChangeConfig.bind(this, key)}
+          onChange={onChangeConfig.bind(this, key)}
           value={value}
           type={isPassword ? 'password' : ''}
         />
@@ -94,30 +90,26 @@ class PocketConfigForm extends React.Component<Props, State> {
     );
   };
 
-  renderContent = (formProps: IFormProps) => {
-    const { renderButton, closeModal } = this.props;
+  const renderContent = (formProps: IFormProps) => {
+    const { renderButton, closeModal } = props;
     const { isSubmitted } = formProps;
-    const {
-      paymentName,
-      pocketMerchant,
-      pocketClientId,
-      pocketClientSecret
-    } = this.state;
+    const { paymentName, pocketMerchant, pocketClientId, pocketClientSecret } =
+      state;
 
     const values = {
       paymentName,
       pocketMerchant,
       pocketClientId,
-      pocketClientSecret
+      pocketClientSecret,
     };
 
     return (
       <>
         <SettingsContent title={__('General settings')}>
-          {this.renderItem('paymentName', 'Name')}
-          {this.renderItem('pocketMerchant', 'Merchant')}
-          {this.renderItem('pocketClientId', 'Client ID')}
-          {this.renderItem('pocketClientSecret', 'Client secret', '', true)}
+          {renderItem('paymentName', 'Name')}
+          {renderItem('pocketMerchant', 'Merchant')}
+          {renderItem('pocketClientId', 'Client ID')}
+          {renderItem('pocketClientSecret', 'Client secret', '', true)}
 
           <a href="https://pocket.mn/" target="_blank" rel="noreferrer">
             {__('Go to website pocket')}
@@ -134,19 +126,17 @@ class PocketConfigForm extends React.Component<Props, State> {
             Cancel
           </Button>
           {renderButton({
-            name: 'pocket',
-            values: this.generateDoc(values),
+            passedName: 'pocket',
+            values: generateDoc(values),
             isSubmitted,
-            callback: closeModal
+            callback: closeModal,
           })}
         </ModalFooter>
       </>
     );
   };
 
-  render() {
-    return <Form renderContent={this.renderContent} />;
-  }
-}
+  return <Form renderContent={renderContent} />;
+};
 
 export default PocketConfigForm;

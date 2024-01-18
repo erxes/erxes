@@ -14,6 +14,7 @@ import {
   DEFAULT_BACKGROUND_COLORS,
   DEFAULT_BORDER_COLORS
 } from '../../components/chart/utils';
+import TableRenderer from '../../components/chart/TableRenderer';
 
 const getRandomNumbers = (num?: number) => {
   const getRandomNumber: number = Math.floor(
@@ -47,7 +48,12 @@ type FinalProps = {
   reportChartGetResultQuery: ReportChartGetResultQueryResponse;
 } & Props;
 const ChartRendererList = (props: FinalProps) => {
-  const { reportChartGetResultQuery, chartVariables, filter } = props;
+  const {
+    reportChartGetResultQuery,
+    chartVariables,
+    filter,
+    chartType
+  } = props;
 
   if (reportChartGetResultQuery && reportChartGetResultQuery.loading) {
     return <Spinner />;
@@ -78,6 +84,10 @@ const ChartRendererList = (props: FinalProps) => {
   const { data, labels, title, options } =
     reportChartGetResultQuery?.reportChartGetResult || {};
 
+  const dataset = { data, labels, title };
+  if (chartType === 'table') {
+    return <TableRenderer dataset={dataset} />;
+  }
   const datasets =
     !data &&
     !labels &&

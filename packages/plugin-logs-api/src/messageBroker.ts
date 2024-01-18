@@ -1,8 +1,8 @@
 import { debug } from './configs';
 import { IActivityLogDocument } from './models/ActivityLogs';
 import { receivePutLogCommand, sendToApi } from './utils';
-import { serviceDiscovery } from './configs';
-import { getService } from '@erxes/api-utils/src/serviceDiscovery';
+
+import { getService, isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
 import { generateModels } from './connectionResolver';
 import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
 
@@ -25,13 +25,13 @@ const hasMetaLogs = async (serviceName: string) => {
 };
 
 const isServiceEnabled = async (serviceName: string): Promise<boolean> => {
-  const enabled = await serviceDiscovery.isEnabled(serviceName);
+  const enabled = await isEnabled(serviceName);
   const hasMeta = await hasMetaLogs(serviceName);
 
   return enabled && hasMeta;
 };
 
-export const initBroker = async cl => {
+export const initBroker = async (cl) => {
   client = cl;
 
   const { consumeQueue, consumeRPCQueue } = client;
@@ -61,9 +61,9 @@ export const initBroker = async cl => {
       await sendInboxMessage({
         subdomain,
         action: 'visitor.convertResponse',
-        data: visitor
+        data: visitor,
       });
-    }
+    },
   );
 
   consumeQueue(
@@ -73,9 +73,9 @@ export const initBroker = async cl => {
 
       await models.Visitors.updateVisitorLog({
         visitorId,
-        location: browserInfo
+        location: browserInfo,
       });
-    }
+    },
   );
 
   consumeQueue(
@@ -84,10 +84,10 @@ export const initBroker = async cl => {
       const models = await generateModels(subdomain);
 
       await models.Visitors.removeVisitorLog(visitorId);
-    }
+    },
   );
 
-  consumeQueue('putActivityLog', async args => {
+  consumeQueue('putActivityLog', async (args) => {
     debug.info(args);
 
     const { data: obj, subdomain } = args;
@@ -124,7 +124,7 @@ export const initBroker = async cl => {
       if (query && modifier) {
         await models.ActivityLogs.updateMany(query, modifier);
       }
-    }
+    },
   );
 
   consumeQueue(
@@ -138,11 +138,11 @@ export const initBroker = async cl => {
           $lte: new Date(
             now.getFullYear(),
             now.getMonth() - months,
-            now.getDate()
-          )
-        }
+            now.getDate(),
+          ),
+        },
       });
-    }
+    },
   );
 
   consumeRPCQueue(
@@ -152,9 +152,9 @@ export const initBroker = async cl => {
 
       return {
         data: await models.ActivityLogs.find(query, options).lean(),
-        status: 'success'
+        status: 'success',
       };
-    }
+    },
   );
 
   consumeRPCQueue(
@@ -164,9 +164,9 @@ export const initBroker = async cl => {
 
       return {
         data: await models.ActivityLogs.insertMany(rows),
-        status: 'success'
+        status: 'success',
       };
-    }
+    },
   );
 
   consumeRPCQueue(
@@ -176,9 +176,9 @@ export const initBroker = async cl => {
 
       return {
         status: 'success',
-        data: await models.EmailDeliveries.createEmailDelivery(data)
+        data: await models.EmailDeliveries.createEmailDelivery(data),
       };
-    }
+    },
   );
 
   consumeRPCQueue(
@@ -188,14 +188,14 @@ export const initBroker = async cl => {
 
       return {
         status: 'success',
-        data: await models.EmailDeliveries.find(query).lean()
+        data: await models.EmailDeliveries.find(query).lean(),
       };
-    }
+    },
   );
 };
 
 export const getDbSchemaLabels = async (serviceName: string, args) => {
-  const enabled = await serviceDiscovery.isEnabled(serviceName);
+  const enabled = await isEnabled(serviceName);
 
   return enabled
     ? client.sendRPCMessage(`${serviceName}:logs.getSchemaLabels`, args)
@@ -203,7 +203,7 @@ export const getDbSchemaLabels = async (serviceName: string, args) => {
 };
 
 export const getActivityContentItem = async (
-  activityLog: IActivityLogDocument
+  activityLog: IActivityLogDocument,
 ) => {
   const [serviceName] = activityLog.contentType.split(':');
 
@@ -211,13 +211,14 @@ export const getActivityContentItem = async (
 
   return enabled
     ? client.sendRPCMessage(`${serviceName}:logs.getActivityContent`, {
-        activityLog
+        activityLog,
       })
     : null;
 };
 
 export const getContentTypeDetail = async (
-  activityLog: IActivityLogDocument
+  subdomain: string,
+  activityLog: IActivityLogDocument,
 ) => {
   const [serviceName] = activityLog.contentType.split(':');
 
@@ -225,7 +226,8 @@ export const getContentTypeDetail = async (
 
   return enabled
     ? client.sendRPCMessage(`${serviceName}:logs.getContentTypeDetail`, {
-        activityLog
+        subdomain,
+        data: activityLog,
       })
     : null;
 };
@@ -240,40 +242,42 @@ export const collectServiceItems = async (contentType: string, data) => {
     : [];
 };
 
-export const getContentIds = async data => {
+export const getContentIds = async (subdomain, data) => {
   const [serviceName] = data.contentType.split(':');
 
   const enabled = await isServiceEnabled(serviceName);
 
   return enabled
-    ? client.sendRPCMessage(`${serviceName}:logs.getContentIds`, data)
+    ? (
+        await client.sendRPCMessage(`${serviceName}:logs.getContentIds`, {
+          subdomain,
+          data,
+        })
+      )?.data
     : [];
 };
 
 export const sendCoreMessage = (args: ISendMessageArgs) => {
   return sendMessage({
-    serviceDiscovery,
     client,
     serviceName: 'core',
-    ...args
+    ...args,
   });
 };
 
 export const sendInboxMessage = (args: ISendMessageArgs) => {
   return sendMessage({
-    serviceDiscovery,
     client,
     serviceName: 'inbox',
-    ...args
+    ...args,
   });
 };
 
 export const sendClientPortalMessage = (args: ISendMessageArgs) => {
   return sendMessage({
-    serviceDiscovery,
     client,
     serviceName: 'clientportal',
-    ...args
+    ...args,
   });
 };
 
@@ -282,25 +286,24 @@ export const fetchService = async (
   contentType: string,
   action: string,
   data,
-  defaultValue?
+  defaultValue?,
 ) => {
   const [serviceName, type] = contentType.split(':');
 
   return sendMessage({
     subdomain,
-    serviceDiscovery,
     client,
     isRPC: true,
     serviceName,
     action: `logs.${action}`,
     data: {
       ...data,
-      type
+      type,
     },
-    defaultValue
+    defaultValue,
   });
 };
 
-export default function() {
+export default function () {
   return client;
 }

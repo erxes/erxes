@@ -1,3 +1,4 @@
+import app from '@erxes/api-utils/src/app';
 import { sendContactsMessage, sendInboxMessage } from './messageBroker';
 import { Customers, Messages } from './models';
 
@@ -116,7 +117,7 @@ const saveMessages = async (
 
 
 // controller for {name}
-const init = async app => {
+const init = async () => {
   app.get('/login', async (req, res) => {
     res.send("login")
   });

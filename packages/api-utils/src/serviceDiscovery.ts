@@ -1,6 +1,5 @@
 import * as dotenv from 'dotenv';
-import redisClient from './redis';
-import Redis from 'ioredis';
+import redis from './redis';
 dotenv.config();
 
 const {
@@ -30,8 +29,6 @@ if (!Array.isArray(enabledServices)) {
 }
 
 enabledServices.push('core');
-
-export const redis = redisClient;
 
 const keyForConfig = name => `service:config:${name}`;
 

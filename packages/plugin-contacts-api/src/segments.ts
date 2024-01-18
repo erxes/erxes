@@ -1,12 +1,18 @@
-import * as _ from 'underscore';
-import { fetchByQuery } from '@erxes/api-utils/src/elasticsearch';
+import {
+  fetchByQuery,
+  fetchByQueryWithScroll
+} from '@erxes/api-utils/src/elasticsearch';
 import {
   gatherAssociatedTypes,
   getEsIndexByContentType,
   getName,
   getServiceName
 } from '@erxes/api-utils/src/segments';
+import * as _ from 'underscore';
 import { sendCommonMessage, sendCoreMessage } from './messageBroker';
+const successMessage = ids => {
+  return { data: ids, status: 'success' };
+};
 
 const changeType = (type: string) =>
   type === 'contacts:lead' ? 'contacts:customer' : type;
@@ -33,26 +39,33 @@ export default {
 
     let ids: string[] = [];
 
-    if (associatedTypes.includes(propertyType)) {
-      const mainTypeIds = await fetchByQuery({
+    if (
+      associatedTypes.includes(propertyType) ||
+      propertyType === 'contacts:lead'
+    ) {
+      const mainTypeIds = await fetchByQueryWithScroll({
         subdomain,
         index: await getEsIndexByContentType(propertyType),
         positiveQuery,
         negativeQuery
       });
 
+      console.log({ mainTypeIds });
+
       ids = await sendCoreMessage({
         subdomain,
         action: 'conformities.filterConformity',
         data: {
-          mainType: getName(propertyType),
+          mainType: getName(changeType(propertyType)),
           mainTypeIds,
           relType: getName(changeType(mainType))
         },
         isRPC: true
       });
 
-      return { data: ids, status: 'success' };
+      // console.log({ids})
+
+      return successMessage(ids);
     }
 
     if (propertyType === 'forms:form_submission') {
@@ -65,12 +78,11 @@ export default {
       });
     } else {
       const serviceName = getServiceName(propertyType);
-      console.log('segments.ts.associationFilter RPC call to ', serviceName);
+
       if (serviceName === 'contacts') {
-        console.log(
-          '------------------------------------calling itself------------------------------------------------'
-        );
+        return { data: [], status: 'error' };
       }
+
       ids = await sendCommonMessage({
         serviceName,
         subdomain,
@@ -88,7 +100,7 @@ export default {
 
     ids = _.uniq(ids);
 
-    return { data: ids, status: 'success' };
+    return successMessage(ids);
   },
 
   esTypesMap: async () => {

@@ -1,3 +1,4 @@
+import React, { useEffect, useState } from 'react';
 import { Title } from '@erxes/ui-settings/src/styles';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
 import FormControl from '@erxes/ui/src/components/form/Control';
@@ -5,9 +6,7 @@ import Icon from '@erxes/ui/src/components/Icon';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { __ } from '@erxes/ui/src/utils';
 import { isEnabled } from '@erxes/ui/src/utils/core';
-import React from 'react';
 import { getSubMenu } from '../containers/utils';
-
 import { ByKindTotalCount } from '../types';
 import { PAYMENTCONFIGS } from './constants';
 import PaymentRow from './PaymentRow';
@@ -18,48 +17,29 @@ type Props = {
   totalCount: ByKindTotalCount;
 };
 
-type State = {
-  searchValue: string;
-  payments: any;
-};
+const Home: React.FC<Props> = ({ queryParams, totalCount }: Props) => {
+  const [searchValue, setSearchValue] = useState('');
+  const [payments, setPayments] = useState(
+    PAYMENTCONFIGS.filter(
+      (payment) => payment.category.indexOf('Payment method') !== -1,
+    ),
+  );
 
-class Home extends React.Component<Props, State> {
-  constructor(props) {
-    super(props);
-    this.state = {
-      searchValue: '',
-      payments: PAYMENTCONFIGS.filter(
-        payment => payment.category.indexOf('Payment method') !== -1
-      )
-    };
-  }
+  useEffect(() => {
+    setPayments(
+      PAYMENTCONFIGS.filter(
+        (payment) =>
+          payment.name.toLowerCase().indexOf(searchValue) !== -1 &&
+          payment.category.indexOf(queryParams.kind || 'Payment method') !== -1,
+      ),
+    );
+  }, [searchValue, queryParams.kind]);
 
-  componentDidUpdate(prevProps, prevState) {
-    const { searchValue } = this.state;
-    const { queryParams } = this.props;
-
-    if (
-      prevProps.queryParams.kind !== queryParams.kind ||
-      prevState.searchValue !== searchValue
-    ) {
-      this.setState({
-        payments: PAYMENTCONFIGS.filter(
-          payment =>
-            payment.name.toLowerCase().indexOf(searchValue) !== -1 &&
-            payment.category.indexOf(queryParams.kind || 'Payment method') !==
-              -1
-        )
-      });
-    }
-  }
-
-  onSearch = e => {
-    this.setState({ searchValue: e.target.value.toLowerCase() });
+  const onSearch = (e) => {
+    setSearchValue(e.target.value.toLowerCase());
   };
 
-  renderPayments() {
-    const { payments, searchValue } = this.state;
-    const { totalCount, queryParams } = this.props;
+  const renderPayments = () => {
     const datas = [] as any;
     const rows = [...payments];
 
@@ -70,7 +50,7 @@ class Home extends React.Component<Props, State> {
           payments={rows.splice(0, 4)}
           paymentsCount={totalCount}
           queryParams={queryParams}
-        />
+        />,
       );
     }
 
@@ -86,46 +66,40 @@ class Home extends React.Component<Props, State> {
     }
 
     return datas;
-  }
+  };
 
-  renderSearch() {
+  const renderSearch = () => {
     return (
       <SearchInput isInPopover={false}>
         <Icon icon="search-1" />
         <FormControl
           type="text"
           placeholder={__('Type to search for an payments') + '...'}
-          onChange={this.onSearch}
+          onChange={onSearch}
         />
       </SearchInput>
     );
-  }
+  };
 
-  render() {
-    const { queryParams } = this.props;
-
-    return (
-      <Wrapper
-        header={
-          <Wrapper.Header title={__('Payments')} submenu={getSubMenu()} />
-        }
-        actionBar={
-          <Wrapper.ActionBar
-            left={<Title>{queryParams.kind || 'All Payments'}</Title>}
-            right={this.renderSearch()}
-            background="colorWhite"
-          />
-        }
-        content={
-          <Content>
-            <PaymentWrapper>{this.renderPayments()}</PaymentWrapper>
-          </Content>
-        }
-        hasBorder={true}
-        transparent={true}
-      />
-    );
-  }
-}
+  return (
+    <Wrapper
+      header={<Wrapper.Header title={__('Payments')} submenu={getSubMenu()} />}
+      actionBar={
+        <Wrapper.ActionBar
+          left={<Title>{queryParams.kind || 'All Payments'}</Title>}
+          right={renderSearch()}
+          background="colorWhite"
+        />
+      }
+      content={
+        <Content>
+          <PaymentWrapper>{renderPayments()}</PaymentWrapper>
+        </Content>
+      }
+      hasBorder={true}
+      transparent={true}
+    />
+  );
+};
 
 export default Home;

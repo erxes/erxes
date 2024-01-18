@@ -1,5 +1,5 @@
 import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
-import { serviceDiscovery } from './configs';
+
 import Khanbank from './khanbank/khanbank';
 import { generateModels } from './connectionResolver';
 import { TransferParams } from './khanbank/types';
@@ -303,7 +303,6 @@ export const sendCommonMessage = async (
   args: ISendMessageArgs & { serviceName: string }
 ) => {
   return sendMessage({
-    serviceDiscovery,
     client,
     ...args
   });

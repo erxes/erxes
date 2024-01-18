@@ -1,11 +1,12 @@
 import { IUserDocument } from '@erxes/api-utils/src/types';
-import { serviceDiscovery } from '../../configs';
+
 import { IContext } from '../../connectionResolver';
 import {
   sendCommonMessage,
   sendCoreMessage,
   sendTagsMessage
 } from '../../messageBroker';
+import { getService, getServices } from '@erxes/api-utils/src/serviceDiscovery';
 
 interface IListParams {
   searchValue: string;
@@ -93,11 +94,11 @@ const reportsQueries = {
 
   // return service names list that exports reports
   async reportServicesList(_root, _params, { models }: IContext) {
-    const serviceNames = await serviceDiscovery.getServices();
+    const serviceNames = await getServices();
     const totalServicesNamesList: string[] = [];
 
     for (const serviceName of serviceNames) {
-      const service = await serviceDiscovery.getService(serviceName);
+      const service = await getService(serviceName);
       const chartTemplates = service.config?.meta?.reports?.chartTemplates;
 
       if (chartTemplates && chartTemplates.length) {
@@ -123,7 +124,7 @@ const reportsQueries = {
     };
 
     if (serviceName) {
-      const service = await serviceDiscovery.getService(serviceName);
+      const service = await getService(serviceName);
       const reportTemplates = service.config?.meta?.reports?.reportTemplates;
 
       if (reportTemplates) {
@@ -135,10 +136,10 @@ const reportsQueries = {
       return totalTemplatesList;
     }
 
-    const serviceNames = await serviceDiscovery.getServices();
+    const serviceNames = await getServices();
 
     for (const srviceName of serviceNames) {
-      const service = await serviceDiscovery.getService(srviceName);
+      const service = await getService(srviceName);
       const reportTemplates = service.config?.meta?.reports?.reportTemplates;
 
       if (reportTemplates) {
@@ -156,19 +157,19 @@ const reportsQueries = {
     { serviceName }: { serviceName: string },
     {}: IContext
   ) {
-    const service = await serviceDiscovery.getService(serviceName);
+    const service = await getService(serviceName);
     const chartTemplates = service.config?.meta?.reports?.chartTemplates;
     return chartTemplates;
   },
 
-  reportChartGetFilterTypes(
+  async reportChartGetFilterTypes(
     _root,
     { serviceName, templateType },
     { models }: IContext
   ) {
-    const service = serviceDiscovery.getService(serviceName);
+    const service = await getService(serviceName);
 
-    const templates = service.configs.meta.reports.templates || {};
+    const templates = service.config?.meta?.reports?.templates || {};
 
     let filterTypes = [];
 
@@ -183,7 +184,7 @@ const reportsQueries = {
   },
 
   async reportChartGetTemplates(_root, { serviceName }, { models }: IContext) {
-    const service = await serviceDiscovery.getService(serviceName);
+    const service = await getService(serviceName);
 
     const reportConfig = service.config.meta.reports || {};
 

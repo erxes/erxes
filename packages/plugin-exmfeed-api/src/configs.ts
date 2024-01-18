@@ -6,27 +6,24 @@ import { getSubdomain } from '@erxes/api-utils/src/core';
 import * as permissions from './permissions';
 import cronjobs, {
   createCeremonies,
-  sendCeremonyNotification
+  sendCeremonyNotification,
 } from './cronjobs';
 
 import automations from './automations';
 import segments from './segments';
 import forms from './forms';
+import app from '@erxes/api-utils/src/app';
 
 export let debug;
-export let graphqlPubsub;
 export let mainDb;
-export let serviceDiscovery;
 
 export default {
   name: 'exmfeed',
   permissions,
-  graphql: async sd => {
-    serviceDiscovery = sd;
-
+  graphql: async () => {
     return {
       typeDefs: await typeDefs(),
-      resolvers: await resolvers()
+      resolvers: await resolvers(),
     };
   },
 
@@ -39,10 +36,8 @@ export default {
     return context;
   },
 
-  onServerInit: async options => {
+  onServerInit: async (options) => {
     mainDb = options.db;
-
-    const app = options.app;
 
     app.get('/trigger-cron', async (req, res) => {
       const subdomain = getSubdomain(req);
@@ -56,8 +51,7 @@ export default {
     initBroker(options.messageBrokerClient);
 
     debug = options.debug;
-    graphqlPubsub = options.pubsubClient;
   },
 
-  meta: { cronjobs, automations, segments, forms }
+  meta: { cronjobs, automations, segments, forms },
 };

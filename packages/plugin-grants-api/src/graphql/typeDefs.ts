@@ -6,7 +6,7 @@ import {
   types as grantTypes
 } from './schema/grants';
 
-const typeDefs = async serviceDiscovery => {
+const typeDefs = async () => {
   return gql`
     scalar JSON
     scalar Date

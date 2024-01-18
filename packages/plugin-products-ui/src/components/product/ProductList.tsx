@@ -15,7 +15,7 @@ import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import Pagination from '@erxes/ui/src/components/pagination/Pagination';
 import ProductsMerge from './detail/ProductsMerge';
 import ProductsPrintAction from './ProductPrintAction';
-import React from 'react';
+import React, { useState } from 'react';
 import Row from './ProductRow';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { TAG_TYPES } from '@erxes/ui-tags/src/constants';
@@ -50,34 +50,42 @@ type State = {
   checked?: boolean;
 };
 
-class List extends React.Component<IProps, State> {
-  private timer?: NodeJS.Timer;
+const List: React.FC<IProps> = (props) => {
+  let timer;
 
-  constructor(props) {
-    super(props);
+  const {
+    products,
+    history,
+    toggleBulk,
+    bulk,
+    toggleAll,
+    remove,
+    emptyBulk,
+    loading,
+    currentCategory,
+    isAllSelected,
+    mergeProductLoading,
+    mergeProducts,
+    productsCount,
+    queryParams,
+  } = props;
 
-    this.state = {
-      searchValue: this.props.searchValue,
-      checked: false
-    };
-  }
+  const [searchValue, setSearchValue] = useState(props.searchValue);
+  const [checked, setChecked] = useState(false);
 
-  renderRow = () => {
-    const { products, history, toggleBulk, bulk } = this.props;
-
-    return products.map(product => (
+  const renderRow = () => {
+    return products.map((product) => (
       <Row
         history={history}
         key={product._id}
         product={product}
         toggleBulk={toggleBulk}
-        isChecked={(bulk || []).map(b => b._id).includes(product._id)}
+        isChecked={(bulk || []).map((b) => b._id).includes(product._id)}
       />
     ));
   };
 
-  onChange = () => {
-    const { toggleAll, products, bulk, history } = this.props;
+  const onChange = () => {
     toggleAll(products, 'products');
 
     if (bulk.length === products.length) {
@@ -86,64 +94,39 @@ class List extends React.Component<IProps, State> {
     }
   };
 
-  removeProducts = products => {
+  const removeProducts = (products) => {
     const productIds: string[] = [];
 
-    products.forEach(product => {
+    products.forEach((product) => {
       productIds.push(product._id);
     });
 
-    this.props.remove({ productIds }, this.props.emptyBulk);
+    remove({ productIds }, emptyBulk);
   };
 
-  search = e => {
-    if (this.timer) {
-      clearTimeout(this.timer);
+  const search = (e) => {
+    if (timer) {
+      clearTimeout(timer);
     }
 
-    const { history } = this.props;
     const searchValue = e.target.value;
 
-    this.setState({ searchValue });
+    setSearchValue(searchValue);
 
-    this.timer = setTimeout(() => {
+    timer = setTimeout(() => {
       router.removeParams(history, 'page');
       router.setParams(history, { searchValue });
     }, 500);
   };
 
-  moveCursorAtTheEnd(e) {
+  const moveCursorAtTheEnd = (e) => {
     const tmpValue = e.target.value;
 
     e.target.value = '';
     e.target.value = tmpValue;
-  }
-
-  onChangeChecked = e => {
-    const { bulk, history } = this.props;
-    const checked = e.target.checked;
-
-    if (checked && (bulk || []).length) {
-      this.setState({ checked: true });
-      this.setState({ searchValue: '' });
-      router.removeParams(history, 'page', 'searchValue', 'categoryId');
-      router.setParams(history, {
-        ids: (bulk || []).map(b => b._id).join(',')
-      });
-    } else {
-      this.setState({ checked: false });
-      router.removeParams(history, 'page', 'ids');
-    }
   };
 
-  renderContent = () => {
-    const {
-      productsCount,
-      loading,
-      isAllSelected,
-      currentCategory
-    } = this.props;
-
+  const renderContent = () => {
     if (loading) {
       return <Spinner objective={true} />;
     }
@@ -167,7 +150,7 @@ class List extends React.Component<IProps, State> {
                 <FormControl
                   checked={isAllSelected}
                   componentClass="checkbox"
-                  onChange={this.onChange}
+                  onChange={onChange}
                 />
               </th>
               <th>{__('Code')}</th>
@@ -179,176 +162,159 @@ class List extends React.Component<IProps, State> {
               <th>{__('Actions')}</th>
             </tr>
           </thead>
-          <tbody>{this.renderRow()}</tbody>
+          <tbody>{renderRow()}</tbody>
         </Table>
       </>
     );
   };
 
-  render() {
-    const {
-      productsCount,
-      queryParams,
-      history,
-      bulk,
-      emptyBulk,
-      currentCategory,
-      mergeProducts,
-      mergeProductLoading
-    } = this.props;
+  const breadcrumb = [
+    { title: __('Settings'), link: '/settings' },
+    { title: __('Product & Service') },
+  ];
 
-    const breadcrumb = [
-      { title: __('Settings'), link: '/settings' },
-      { title: __('Product & Service') }
-    ];
+  const trigger = (
+    <Button btnStyle="success" icon="plus-circle">
+      Add items
+    </Button>
+  );
 
-    const trigger = (
-      <Button btnStyle="success" icon="plus-circle">
-        Add items
-      </Button>
+  const modalContent = (props) => <Form {...props} />;
+
+  const productsMerge = (props) => {
+    return (
+      <ProductsMerge
+        {...props}
+        objects={bulk}
+        save={mergeProducts}
+        mergeProductLoading={mergeProductLoading}
+      />
     );
+  };
 
-    const modalContent = props => <Form {...props} />;
+  const actionBarRight = () => {
+    if (bulk.length > 0) {
+      const onClick = () =>
+        confirm()
+          .then(() => {
+            removeProducts(bulk);
+          })
+          .catch((error) => {
+            Alert.error(error.message);
+          });
 
-    const productsMerge = props => {
-      return (
-        <ProductsMerge
-          {...props}
-          objects={bulk}
-          save={mergeProducts}
-          mergeProductLoading={mergeProductLoading}
-        />
+      const mergeButton = (
+        <Button btnStyle="success" icon="merge">
+          Merge
+        </Button>
       );
-    };
 
-    const actionBarRight = () => {
-      if (bulk.length > 0) {
-        const onClick = () =>
-          confirm()
-            .then(() => {
-              this.removeProducts(bulk);
-            })
-            .catch(error => {
-              Alert.error(error.message);
-            });
-
-        const mergeButton = (
-          <Button btnStyle="success" icon="merge">
-            Merge
-          </Button>
-        );
-
-        const tagButton = (
-          <Button btnStyle="success" icon="tag-alt">
-            Tag
-          </Button>
-        );
-
-        return (
-          <BarItems>
-            {bulk.length === 2 && (
-              <ModalTrigger
-                title="Merge Product"
-                size="lg"
-                dialogClassName="modal-1000w"
-                trigger={mergeButton}
-                content={productsMerge}
-              />
-            )}
-            <ProductsPrintAction bulk={this.props.bulk} />
-            {isEnabled('tags') && (
-              <TaggerPopover
-                type={TAG_TYPES.PRODUCT}
-                successCallback={emptyBulk}
-                targets={bulk}
-                trigger={tagButton}
-                perPage={1000}
-                refetchQueries={['productCountByTags']}
-              />
-            )}
-
-            <Button btnStyle="danger" icon="cancel-1" onClick={onClick}>
-              Remove
-            </Button>
-          </BarItems>
-        );
-      }
+      const tagButton = (
+        <Button btnStyle="success" icon="tag-alt">
+          Tag
+        </Button>
+      );
 
       return (
         <BarItems>
-          <InputBar type="searchBar">
-            <Icon icon="search-1" size={20} />
-            <FlexItem>
-              <FormControl
-                type="text"
-                placeholder={__('Type to search')}
-                onChange={this.search}
-                value={this.state.searchValue}
-                autoFocus={true}
-                onFocus={this.moveCursorAtTheEnd}
-              />
-            </FlexItem>
-          </InputBar>
-          {isEnabled('segments') && (
-            <TemporarySegment
-              btnSize="medium"
-              contentType={`products:product`}
+          {bulk.length === 2 && (
+            <ModalTrigger
+              title="Merge Product"
+              size="lg"
+              dialogClassName="modal-1000w"
+              trigger={mergeButton}
+              content={productsMerge}
             />
           )}
-          <Link to="/settings/importHistories?type=product">
-            <Button btnStyle="simple" icon="arrow-from-right">
-              {__('Import items')}
-            </Button>
-          </Link>
-          <ModalTrigger
-            title="Add Product/Services"
-            trigger={trigger}
-            autoOpenKey="showProductModal"
-            content={modalContent}
-            size="lg"
-          />
+          <ProductsPrintAction bulk={bulk} />
+          {isEnabled('tags') && (
+            <TaggerPopover
+              type={TAG_TYPES.PRODUCT}
+              successCallback={emptyBulk}
+              targets={bulk}
+              trigger={tagButton}
+              perPage={1000}
+              refetchQueries={['productCountByTags']}
+            />
+          )}
+
+          <Button btnStyle="danger" icon="cancel-1" onClick={onClick}>
+            Remove
+          </Button>
         </BarItems>
       );
-    };
-
-    const actionBarLeft = (
-      <Title>{`${currentCategory.name ||
-        'All products'} (${productsCount})`}</Title>
-    );
+    }
 
     return (
-      <Wrapper
-        header={
-          <Wrapper.Header
-            title={__('Product & Service')}
-            queryParams={queryParams}
-            breadcrumb={breadcrumb}
-          />
-        }
-        mainHead={
-          <HeaderDescription
-            icon="/images/actions/30.svg"
-            title={'Product & Service'}
-            description={`${__(
-              'All information and know-how related to your business products and services are found here'
-            )}.${__(
-              'Create and add in unlimited products and servicess so that you and your team members can edit and share'
-            )}`}
-          />
-        }
-        actionBar={
-          <Wrapper.ActionBar left={actionBarLeft} right={actionBarRight()} />
-        }
-        leftSidebar={
-          <CategoryList queryParams={queryParams} history={history} />
-        }
-        footer={<Pagination count={productsCount} />}
-        content={this.renderContent()}
-        transparent={true}
-        hasBorder={true}
-      />
+      <BarItems>
+        <InputBar type="searchBar">
+          <Icon icon="search-1" size={20} />
+          <FlexItem>
+            <FormControl
+              type="text"
+              placeholder={__('Type to search')}
+              onChange={search}
+              value={searchValue}
+              autoFocus={true}
+              onFocus={moveCursorAtTheEnd}
+            />
+          </FlexItem>
+        </InputBar>
+        {isEnabled('segments') && (
+          <TemporarySegment btnSize="medium" contentType={`products:product`} />
+        )}
+        <Link to="/settings/importHistories?type=product">
+          <Button btnStyle="simple" icon="arrow-from-right">
+            {__('Import items')}
+          </Button>
+        </Link>
+        <ModalTrigger
+          title="Add Product/Services"
+          trigger={trigger}
+          autoOpenKey="showProductModal"
+          content={modalContent}
+          size="lg"
+        />
+      </BarItems>
     );
-  }
-}
+  };
+
+  const actionBarLeft = (
+    <Title>{`${
+      currentCategory.name || 'All products'
+    } (${productsCount})`}</Title>
+  );
+
+  return (
+    <Wrapper
+      header={
+        <Wrapper.Header
+          title={__('Product & Service')}
+          queryParams={queryParams}
+          breadcrumb={breadcrumb}
+        />
+      }
+      mainHead={
+        <HeaderDescription
+          icon="/images/actions/30.svg"
+          title={'Product & Service'}
+          description={`${__(
+            'All information and know-how related to your business products and services are found here',
+          )}.${__(
+            'Create and add in unlimited products and servicess so that you and your team members can edit and share',
+          )}`}
+        />
+      }
+      actionBar={
+        <Wrapper.ActionBar left={actionBarLeft} right={actionBarRight()} />
+      }
+      leftSidebar={<CategoryList queryParams={queryParams} history={history} />}
+      footer={<Pagination count={productsCount} />}
+      content={renderContent()}
+      transparent={true}
+      hasBorder={true}
+    />
+  );
+};
 
 export default List;

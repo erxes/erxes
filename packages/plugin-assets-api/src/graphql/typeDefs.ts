@@ -10,9 +10,10 @@ import {
   queries as movementQueries,
   types as movementTypes
 } from './schema/movements';
+import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
 
-const typeDefs = async serviceDiscovery => {
-  const contactsAvailable = await serviceDiscovery.isEnabled('contacts');
+const typeDefs = async () => {
+  const contactsAvailable = await isEnabled('contacts');
 
   return gql`
     scalar JSON

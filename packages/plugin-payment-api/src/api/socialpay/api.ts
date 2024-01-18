@@ -23,13 +23,13 @@ export const socialpayCallbackHandler = async (models: IModels, data: any) => {
 
   const invoiceObj = await models.Invoices.getInvoice(
     {
-      identifier: invoice
+      identifier: invoice,
     },
-    true
+    true,
   );
 
   const payment = await models.Payments.getPayment(
-    invoiceObj.selectedPaymentId
+    invoiceObj.selectedPaymentId,
   );
 
   try {
@@ -38,7 +38,7 @@ export const socialpayCallbackHandler = async (models: IModels, data: any) => {
       amount,
       checksum,
       invoice,
-      terminal
+      terminal,
     });
 
     if (res !== PAYMENT_STATUS.PAID) {
@@ -47,7 +47,7 @@ export const socialpayCallbackHandler = async (models: IModels, data: any) => {
 
     await models.Invoices.updateOne(
       { _id: invoiceObj._id },
-      { $set: { status, resolvedAt: new Date() } }
+      { $set: { status, resolvedAt: new Date() } },
     );
 
     invoiceObj.status = status;
@@ -82,10 +82,10 @@ export class SocialPayAPI extends BaseAPI {
       amount,
       checksum: hmac256(
         this.inStoreSPKey,
-        this.inStoreSPTerminal + invoice.identifier + amount
+        this.inStoreSPTerminal + invoice.identifier + amount,
       ),
       invoice: invoice.identifier,
-      terminal: this.inStoreSPTerminal
+      terminal: this.inStoreSPTerminal,
     };
 
     // TODO: add phone number back
@@ -103,8 +103,8 @@ export class SocialPayAPI extends BaseAPI {
         path,
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        data
-      });
+        data,
+      }).then((r) => r.json());
 
       if (header.code !== 200) {
         return { error: body.error.errorDesc };
@@ -129,10 +129,10 @@ export class SocialPayAPI extends BaseAPI {
       amount,
       checksum: hmac256(
         this.inStoreSPKey,
-        this.inStoreSPTerminal + invoice.identifier + amount
+        this.inStoreSPTerminal + invoice.identifier + amount,
       ),
       invoice: invoice.identifier,
-      terminal: this.inStoreSPTerminal
+      terminal: this.inStoreSPTerminal,
     };
 
     try {
@@ -140,7 +140,7 @@ export class SocialPayAPI extends BaseAPI {
         path: PAYMENTS.socialpay.actions.invoiceCancel,
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        data
+        data,
       });
     } catch (e) {
       throw new Error(e.message);
@@ -153,8 +153,8 @@ export class SocialPayAPI extends BaseAPI {
         path: PAYMENTS.socialpay.actions.invoiceCheck,
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        data
-      });
+        data,
+      }).then((r) => r.json());
 
       if (body.response.resp_code !== '00') {
         throw new Error(body.response.resp_desc);
@@ -173,10 +173,10 @@ export class SocialPayAPI extends BaseAPI {
       amount,
       checksum: hmac256(
         this.inStoreSPKey,
-        this.inStoreSPTerminal + invoice.identifier + amount
+        this.inStoreSPTerminal + invoice.identifier + amount,
       ),
       invoice: invoice.identifier,
-      terminal: this.inStoreSPTerminal
+      terminal: this.inStoreSPTerminal,
     };
 
     try {
@@ -184,8 +184,8 @@ export class SocialPayAPI extends BaseAPI {
         path: PAYMENTS.socialpay.actions.invoiceCheck,
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        data
-      });
+        data,
+      }).then((r) => r.json());
 
       if (body.error) {
         return body.error.errorDesc;

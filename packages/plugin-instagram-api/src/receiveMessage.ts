@@ -2,21 +2,21 @@ import { IModels } from './connectionResolver';
 import { sendInboxMessage } from './messageBroker';
 import { getOrCreateCustomer } from './store';
 import { IMessageData } from './types';
-import { graphqlPubsub } from './configs';
+import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
 import { INTEGRATION_KINDS } from './constants';
 
 const receiveMessage = async (
   models: IModels,
   subdomain: string,
-  messageData: IMessageData
+  messageData: IMessageData,
 ) => {
   const { recipient, sender, timestamp, message } = messageData;
   // const attachments = messageData.message.attachments;
   const integration = await models.Integrations.getIntegration({
     $and: [
       { instagramPageId: { $in: [recipient.id] } },
-      { kind: INTEGRATION_KINDS.MESSENGER }
-    ]
+      { kind: INTEGRATION_KINDS.MESSENGER },
+    ],
   });
   const { facebookPageTokensMap, facebookPageId } = integration;
 
@@ -30,13 +30,13 @@ const receiveMessage = async (
     pageId,
     userId,
     facebookPageId,
-    facebookPageTokensMap
+    facebookPageTokensMap,
   );
 
   // get conversation
   let conversation = await models.Conversations.findOne({
     senderId: userId,
-    recipientId: recipient.id
+    recipientId: recipient.id,
   });
 
   // create conversation
@@ -48,22 +48,22 @@ const receiveMessage = async (
         senderId: userId,
         recipientId: recipient.id,
         content: text,
-        integrationId: integration._id
+        integrationId: integration._id,
       });
     } catch (e) {
       throw new Error(
         e.message.includes('duplicate')
           ? 'Concurrent request: conversation duplication'
-          : e
+          : e,
       );
     }
   }
 
   const formattedAttachments = (attachments || [])
-    .filter(att => att.type !== 'fallback')
-    .map(att => ({
+    .filter((att) => att.type !== 'fallback')
+    .map((att) => ({
       type: att.type,
-      url: att.payload ? att.payload.url : ''
+      url: att.payload ? att.payload.url : '',
     }));
 
   // save on api
@@ -79,10 +79,10 @@ const receiveMessage = async (
           content: text || '',
           attachments: formattedAttachments,
           conversationId: conversation.erxesApiId,
-          updatedAt: timestamp
-        })
+          updatedAt: timestamp,
+        }),
       },
-      isRPC: true
+      isRPC: true,
     });
     conversation.erxesApiId = apiConversationResponse._id;
 
@@ -93,7 +93,7 @@ const receiveMessage = async (
   }
   // get conversation message
   const conversationMessage = await models.ConversationMessages.findOne({
-    mid: message.mid
+    mid: message.mid,
   });
 
   if (!conversationMessage) {
@@ -109,7 +109,7 @@ const receiveMessage = async (
         conversationId: conversation._id,
         createdAt: timestamp,
         customerId: customer.erxesApiId,
-        attachments: formattedAttachments
+        attachments: formattedAttachments,
       });
 
       // // save message on api
@@ -118,8 +118,8 @@ const receiveMessage = async (
         action: 'conversationClientMessageInserted',
         data: {
           ...created.toObject(),
-          conversationId: conversation.erxesApiId
-        }
+          conversationId: conversation.erxesApiId,
+        },
       });
 
       graphqlPubsub.publish(
@@ -127,15 +127,15 @@ const receiveMessage = async (
         {
           conversationMessageInserted: {
             ...created.toObject(),
-            conversationId: conversation.erxesApiId
-          }
-        }
+            conversationId: conversation.erxesApiId,
+          },
+        },
       );
     } catch (e) {
       throw new Error(
         e.message.includes('duplicate')
           ? 'Concurrent request: conversation message duplication'
-          : e
+          : e,
       );
     }
   }

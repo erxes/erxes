@@ -10,7 +10,6 @@ import Icon from '@erxes/ui/src/components/Icon';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import Tip from '@erxes/ui/src/components/Tip';
 import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { SidebarList } from '@erxes/ui/src/layout/styles';
 import { isEnabled } from '@erxes/ui/src/utils/core';
 import { pluginsOfProductCategoryActions } from 'coreui/pluginUtils';
@@ -20,8 +19,6 @@ import { IProductCategory } from '../../types';
 import CategoryStatusFilter from '../product/filters/CategoryStatusFilter';
 import ProductTypeFilter from '../product/filters/ProdcutTypeFilter';
 import SegmentFilter from '../product/filters/SegmentFilter';
-
-const { Section } = Wrapper.Sidebar;
 
 interface IProps {
   history: any;
@@ -34,13 +31,18 @@ interface IProps {
   brandsLoading: boolean;
 }
 
-class List extends React.Component<IProps> {
-  renderFormTrigger(trigger: React.ReactNode, category?: IProductCategory) {
-    const content = props => (
+const List: React.FC<IProps> = (props) => {
+  const { productCategories, loading, queryParams, history, remove } = props;
+
+  const renderFormTrigger = (
+    trigger: React.ReactNode,
+    category?: IProductCategory,
+  ) => {
+    const content = (props) => (
       <CategoryForm
         {...props}
         category={category}
-        categories={this.props.productCategories}
+        categories={productCategories}
       />
     );
 
@@ -52,16 +54,9 @@ class List extends React.Component<IProps> {
         content={content}
       />
     );
-  }
-
-  isActive = (id: string) => {
-    const { queryParams } = this.props;
-    const currentGroup = queryParams.categoryId || '';
-
-    return currentGroup === id;
   };
 
-  renderEditAction = (category: IProductCategory) => {
+  const renderEditAction = (category: IProductCategory) => {
     const trigger = (
       <Button btnStyle="link">
         <Tip text={__('Edit')} placement="bottom">
@@ -70,12 +65,10 @@ class List extends React.Component<IProps> {
       </Button>
     );
 
-    return this.renderFormTrigger(trigger, category);
+    return renderFormTrigger(trigger, category);
   };
 
-  renderRemoveAction = (category: IProductCategory) => {
-    const { remove } = this.props;
-
+  const renderRemoveAction = (category: IProductCategory) => {
     return (
       <Button btnStyle="link" onClick={remove.bind(null, category._id)}>
         <Tip text={__('Remove')} placement="bottom">
@@ -85,62 +78,56 @@ class List extends React.Component<IProps> {
     );
   };
 
-  onClick = (id: string) => {
-    const { history } = this.props;
-
+  const onClick = (id: string) => {
     router.removeParams(history, 'page');
     router.setParams(history, { categoryId: id });
   };
 
-  renderContent() {
-    const { productCategories, loading, queryParams } = this.props;
-
+  const renderContent = () => {
     return (
       <CollapsibleList
         items={productCategories}
-        editAction={this.renderEditAction}
-        removeAction={this.renderRemoveAction}
+        editAction={renderEditAction}
+        removeAction={renderRemoveAction}
         additionalActions={pluginsOfProductCategoryActions}
         loading={loading}
-        onClick={this.onClick}
+        onClick={onClick}
         queryParams={queryParams}
         treeView={true}
         keyCount="productCount"
       />
     );
-  }
+  };
 
-  renderCategoryHeader() {
+  const renderCategoryHeader = () => {
     const trigger = (
       <Button btnStyle="success" icon="plus-circle" block={true}>
         Add category
       </Button>
     );
 
-    return <Header>{this.renderFormTrigger(trigger)}</Header>;
-  }
+    return <Header>{renderFormTrigger(trigger)}</Header>;
+  };
 
-  render() {
-    return (
-      <Sidebar hasBorder={true}>
-        {this.renderCategoryHeader()}
+  return (
+    <Sidebar hasBorder={true}>
+      {renderCategoryHeader()}
 
-        <SidebarList>{this.renderContent()}</SidebarList>
+      <SidebarList>{renderContent()}</SidebarList>
 
-        {isEnabled('segments') && (
-          <SegmentFilter loadingMainQuery={this.props.loading} />
-        )}
-        <CategoryStatusFilter />
-        <ProductTypeFilter />
-        <BrandFilter
-          counts={{}}
-          brands={this.props.brands}
-          loading={this.props.brandsLoading}
-        />
-        {isEnabled('tags') && <TagFilter />}
-      </Sidebar>
-    );
-  }
-}
+      {isEnabled('segments') && (
+        <SegmentFilter loadingMainQuery={props.loading} />
+      )}
+      <CategoryStatusFilter />
+      <ProductTypeFilter />
+      <BrandFilter
+        counts={{}}
+        brands={props.brands}
+        loading={props.brandsLoading}
+      />
+      {isEnabled('tags') && <TagFilter />}
+    </Sidebar>
+  );
+};
 
 export default List;

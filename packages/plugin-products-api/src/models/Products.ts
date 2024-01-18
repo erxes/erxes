@@ -17,6 +17,7 @@ import {
   checkSameMaskConfig,
   initCustomField
 } from '../maskUtils';
+import { escapeRegExp } from '@erxes/api-utils/src/core';
 
 export interface IProductModel extends Model<IProductDocument> {
   getProduct(selector: any): Promise<IProductDocument>;
@@ -433,7 +434,7 @@ export const loadProductCategoryClass = (models: IModels) => {
 
       const childCategories = await models.ProductCategories.find({
         $and: [
-          { order: { $regex: new RegExp(`^${category.order}`, 'i') } },
+          { order: { $regex: new RegExp(`^${escapeRegExp(category.order)}`) } },
           { _id: { $ne: _id } }
         ]
       });

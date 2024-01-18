@@ -3,12 +3,12 @@ import { getBranchesUtil, statusToDone, syncOrderFromClient } from './utils';
 import { generateModels } from './connectionResolver';
 import { IPosDocument } from './models/definitions/pos';
 import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
-import { serviceDiscovery } from './configs';
+
 import { beforeResolverHandlers } from './beforeResolvers';
 
 let client;
 
-export const initBroker = async cl => {
+export const initBroker = async (cl) => {
   client = cl;
 
   const { consumeQueue, consumeRPCQueue } = client;
@@ -38,11 +38,11 @@ export const initBroker = async cl => {
       items,
       pos,
       posToken,
-      responses
+      responses,
     });
 
     return {
-      status: 'success'
+      status: 'success',
     };
   });
 
@@ -61,17 +61,17 @@ export const initBroker = async cl => {
           items,
           pos,
           posToken,
-          responses
+          responses,
         });
       } catch (e) {
         console.log(
-          `createOrUpdateOrdersMany per warning: ${e.message}, #${order?.number}`
+          `createOrUpdateOrdersMany per warning: ${e.message}, #${order?.number}`,
         );
       }
     }
 
     return {
-      status: 'success'
+      status: 'success',
     };
   });
 
@@ -90,9 +90,9 @@ export const initBroker = async cl => {
 
       return {
         status: 'success',
-        data: filter
+        data: filter,
       };
-    }
+    },
   );
 
   consumeRPCQueue('pos:findSlots', async ({ subdomain, data }) => {
@@ -100,7 +100,7 @@ export const initBroker = async cl => {
 
     return {
       status: 'success',
-      data: await models.PosSlots.find({ posId: data.posId }).lean()
+      data: await models.PosSlots.find({ posId: data.posId }).lean(),
     };
   });
 
@@ -111,9 +111,9 @@ export const initBroker = async cl => {
 
       return {
         status: 'success',
-        data: await models.PosOrders.updateOne(selector, modifier)
+        data: await models.PosOrders.updateOne(selector, modifier),
       };
-    }
+    },
   );
 
   consumeRPCQueue('pos:ecommerceGetBranches', async ({ subdomain, data }) => {
@@ -122,7 +122,7 @@ export const initBroker = async cl => {
     const models = await generateModels(subdomain);
     return {
       status: 'success',
-      data: await getBranchesUtil(subdomain, models, posToken)
+      data: await getBranchesUtil(subdomain, models, posToken),
     };
   });
 
@@ -137,8 +137,8 @@ export const initBroker = async cl => {
       return {
         status: 'success',
         data: {
-          error: 'Deleted delivery information.'
-        }
+          error: 'Deleted delivery information.',
+        },
       };
     }
 
@@ -149,8 +149,8 @@ export const initBroker = async cl => {
           _id: order._id,
           status: 'onKitchen',
           date: order.paidDate,
-          description: order.description
-        }
+          description: order.description,
+        },
       };
     }
 
@@ -159,15 +159,15 @@ export const initBroker = async cl => {
       subdomain,
       action: 'deals.findOne',
       data: { _id: dealId },
-      isRPC: true
+      isRPC: true,
     });
 
     if (!deal) {
       return {
         status: 'success',
         data: {
-          error: 'Deleted delivery information.'
-        }
+          error: 'Deleted delivery information.',
+        },
       };
     }
 
@@ -175,7 +175,7 @@ export const initBroker = async cl => {
       subdomain,
       action: 'stages.findOne',
       data: { _id: deal.stageId },
-      isRPC: true
+      isRPC: true,
     });
 
     return {
@@ -184,8 +184,8 @@ export const initBroker = async cl => {
         _id: order._id,
         status: stage.name,
         date: deal.stageChangedDate || deal.modifiedDate || deal.createdAt,
-        description: order.description
-      }
+        description: order.description,
+      },
     };
   });
 
@@ -193,7 +193,7 @@ export const initBroker = async cl => {
     const models = await generateModels(subdomain);
     return {
       status: 'success',
-      data: await models.PosOrders.find(data).lean()
+      data: await models.PosOrders.find(data).lean(),
     };
   });
 
@@ -201,7 +201,7 @@ export const initBroker = async cl => {
     const models = await generateModels(subdomain);
     return {
       status: 'success',
-      data: await models.PosOrders.findOne(data).lean()
+      data: await models.PosOrders.findOne(data).lean(),
     };
   });
 
@@ -217,7 +217,7 @@ export const initBroker = async cl => {
 
     return {
       status: 'success',
-      data: await models.PosOrders.aggregate(aggregate)
+      data: await models.PosOrders.aggregate(aggregate),
     };
   });
 
@@ -225,7 +225,7 @@ export const initBroker = async cl => {
     const models = await generateModels(subdomain);
     return {
       status: 'success',
-      data: await models.Pos.find(data).lean()
+      data: await models.Pos.find(data).lean(),
     };
   });
 
@@ -233,7 +233,7 @@ export const initBroker = async cl => {
     const models = await generateModels(subdomain);
     return {
       status: 'success',
-      data: await models.Pos.findOne(data).lean()
+      data: await models.Pos.findOne(data).lean(),
     };
   });
 
@@ -243,11 +243,11 @@ export const initBroker = async cl => {
     await models.Covers.updateOne(
       { _id: cover._id },
       { ...cover },
-      { upsert: true }
+      { upsert: true },
     );
     return {
       status: 'success',
-      data: await models.Covers.findOne({ _id: cover._id })
+      data: await models.Covers.findOne({ _id: cover._id }),
     };
   });
 
@@ -255,113 +255,104 @@ export const initBroker = async cl => {
     const models = await generateModels(subdomain);
     return {
       data: await beforeResolverHandlers(models, subdomain, data),
-      status: 'success'
+      status: 'success',
     };
     return;
   });
 };
 
 export const sendProductsMessage = async (
-  args: ISendMessageArgs
+  args: ISendMessageArgs,
 ): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'products',
-    ...args
+    ...args,
   });
 };
 
 export const sendCardsMessage = async (
-  args: ISendMessageArgs
+  args: ISendMessageArgs,
 ): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'cards',
-    ...args
+    ...args,
   });
 };
 
 export const sendLoyaltiesMessage = async (
-  args: ISendMessageArgs
+  args: ISendMessageArgs,
 ): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'loyalties',
-    ...args
+    ...args,
   });
 };
 
 export const sendPricingMessage = async (
-  args: ISendMessageArgs
+  args: ISendMessageArgs,
 ): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'pricing',
-    ...args
+    ...args,
   });
 };
 
 export const sendContactsMessage = async (
-  args: ISendMessageArgs
+  args: ISendMessageArgs,
 ): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'contacts',
-    ...args
+    ...args,
   });
 };
 
 export const sendEbarimtMessage = async (
-  args: ISendMessageArgs
+  args: ISendMessageArgs,
 ): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'ebarimt',
-    ...args
+    ...args,
   });
 };
 
 export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'core',
-    ...args
+    ...args,
   });
 };
 
 export const sendInventoriesMessage = async (
-  args: ISendMessageArgs
+  args: ISendMessageArgs,
 ): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'inventories',
-    ...args
+    ...args,
   });
 };
 
 export const sendSyncerkhetMessage = async (
-  args: ISendMessageArgs
+  args: ISendMessageArgs,
 ): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'syncerkhet',
-    ...args
+    ...args,
   });
 };
 
 export const sendPosclientMessage = async (
   args: ISendMessageArgs & {
     pos: IPosDocument;
-  }
+  },
 ) => {
   const { action, pos } = args;
   let lastAction = action;
@@ -390,16 +381,15 @@ export const sendPosclientMessage = async (
 
   return await sendMessage({
     client,
-    serviceDiscovery,
     serviceName,
     ...args,
-    action: lastAction
+    action: lastAction,
   });
 };
 
 export const sendPosclientHealthCheck = async ({
   subdomain,
-  pos
+  pos,
 }: {
   subdomain: string;
   pos: IPosDocument;
@@ -416,69 +406,65 @@ export const sendPosclientHealthCheck = async ({
   return await sendMessage({
     subdomain,
     client,
-    serviceDiscovery,
     isRPC: true,
     isMQ: true,
     serviceName: '',
     action: `posclient:health_check_${pos.token}`,
     data: { token: pos.token, thirdService: true },
     timeout: 1000,
-    defaultValue: { healthy: 'no' }
+    defaultValue: { healthy: 'no' },
   });
 };
 
 export const sendAutomationsMessage = async (
-  args: ISendMessageArgs
+  args: ISendMessageArgs,
 ): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'automations',
-    ...args
+    ...args,
   });
 };
 
 export const sendCommonMessage = async (
-  args: ISendMessageArgs & { serviceName: string }
+  args: ISendMessageArgs & { serviceName: string },
 ): Promise<any> => {
   return sendMessage({
-    serviceDiscovery,
     client,
-    ...args
+    ...args,
   });
 };
+
 export const sendSegmentsMessage = async (
-  args: ISendMessageArgs
+  args: ISendMessageArgs,
 ): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'segments',
-    ...args
+    ...args,
   });
 };
 export const fetchSegment = (
   subdomain: string,
   segmentId: string,
   options?,
-  segmentData?: any
+  segmentData?: any,
 ) =>
   sendSegmentsMessage({
     subdomain,
     action: 'fetchSegment',
     data: { segmentId, options, segmentData },
-    isRPC: true
+    isRPC: true,
   });
 
 export const sendFormsMessage = (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'forms',
-    ...args
+    ...args,
   });
 };
 
-export default function() {
+export default function () {
   return client;
 }

@@ -22,9 +22,8 @@ import SelectMembersForm from '../utils/SelectMembersForm';
 import Participators from './Participators';
 import ChartForm from '../../containers/chart/ChartForm';
 import ChartRenderer from '../../containers/chart/ChartRenderer';
-import { withRouter } from 'react-router-dom';
-import { IRouterProps } from '@erxes/ui/src/types';
-import withTableWrapper from '@erxes/ui/src/components/table/withTableWrapper';
+import { getEnv } from '@erxes/ui/src/utils/core';
+import queryString from 'query-string';
 
 const DEFAULT_GRID_DIMENSIONS = {
   w: 3,
@@ -123,12 +122,36 @@ const Report = (props: Props) => {
     });
   };
 
+  const exportTable = (item: IChart) => {
+    const stringified = queryString.stringify({
+      ...item
+    });
+    const { REACT_APP_API_URL } = getEnv();
+    window.open(
+      `${REACT_APP_API_URL}/pl:reports/report-table-export?${stringified}`
+    );
+  };
+
   const reportItem = (item: IChart) => {
+    const { chartType } = item;
+
     if (item.layout) {
       return (
-        <div key={item._id || Math.random()} data-grid={defaultLayout(item)}>
+        <div
+          key={item._id || Math.random()}
+          data-grid={defaultLayout(item)}
+          style={{ overflow: 'hidden' }}
+        >
           <ChartTitle>
             <div>{item.name}</div>
+            {chartType && chartType === 'table' && (
+              <span
+                className="db-item-action"
+                onClick={() => exportTable(item)}
+              >
+                export
+              </span>
+            )}
             <span
               className="db-item-action"
               onClick={() => {

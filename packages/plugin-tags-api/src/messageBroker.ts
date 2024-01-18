@@ -4,7 +4,7 @@ import {
   ISendMessageArgs,
   sendMessage
 } from '@erxes/api-utils/src/core';
-import { serviceDiscovery } from './configs';
+
 
 let client;
 
@@ -57,7 +57,7 @@ export const initBroker = async cl => {
       const orderQry: any[] = [];
       for (const tag of tags) {
         orderQry.push({
-          order: { $regex: new RegExp(`^${tag.order}`) }
+          order: { $regex: new RegExp(`^${escapeRegExp(tag.order || '')}`) }
         });
       }
 
@@ -80,7 +80,6 @@ export const sendCommonMessage = async (
   args: ISendMessageArgs & { serviceName: string }
 ): Promise<any> => {
   return sendMessage({
-    serviceDiscovery,
     client,
     ...args
   });

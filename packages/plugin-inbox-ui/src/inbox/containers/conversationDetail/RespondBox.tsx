@@ -135,11 +135,16 @@ const RespondBoxContainer = (props: FinalProps) => {
     });
   };
 
+  const refetchResponseTemplates = content => [
+    responseTemplatesQuery.refetch({ searchValue: content })
+  ];
+
   const updatedProps = {
     ...props,
     onSearchChange,
     sendMessage,
     responseTemplates: responseTemplatesQuery.responseTemplates || [],
+    refetchResponseTemplates,
     mentionSuggestion: { getVariables, fetchMentions, extractFunction }
   };
 
@@ -156,7 +161,7 @@ const withQuery = () =>
           options: () => {
             return {
               variables: {
-                perPage: 200
+                perPage: 20
               }
             };
           }

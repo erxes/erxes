@@ -1,20 +1,20 @@
 export const PRODUCT_TYPES = {
   PRODUCT: 'product',
   SERVICE: 'service',
-  ALL: ['product', 'service']
+  ALL: ['product', 'service'],
 };
 
 export const PRODUCT_STATUSES = {
   ACTIVE: 'active',
   DELETED: 'deleted',
-  ALL: ['active', 'deleted']
+  ALL: ['active', 'deleted'],
 };
 
 export const PRODUCT_CATEGORY_STATUSES = {
   ACTIVE: 'active',
   DISABLED: 'disabled',
   ARCHIVED: 'archived',
-  ALL: ['active', 'disabled', 'archived']
+  ALL: ['active', 'disabled', 'archived'],
 };
 
 export const ORDER_TYPES = {
@@ -27,7 +27,7 @@ export const ORDER_TYPES = {
   REJECT: 'reject',
   ALL: ['take', 'eat', 'delivery', 'save', 'spend', 'loss', 'reject'],
   SALES: ['take', 'eat', 'delivery', 'save'],
-  OUT: ['spend', 'loss', 'reject']
+  OUT: ['spend', 'loss', 'reject'],
 };
 
 // НӨАТ-н баримтын төрөл
@@ -36,13 +36,13 @@ export const BILL_TYPES = {
   ENTITY: '3', // байгууллагад өгөх баримт
   INVOICE: '5', // нэхэмжлэхээр өгөх баримт
   INNER: '9', // дотоод буюу түр
-  ALL: ['1', '3', '5', '9']
+  ALL: ['1', '3', '5', '9', null],
 };
 
 export const ORDER_RETURN_TYPES = {
   HARD: 'hard',
   SALE: 'sale',
-  SOFT: 'soft'
+  SOFT: 'soft',
 };
 
 export const ORDER_STATUSES = {
@@ -55,7 +55,7 @@ export const ORDER_STATUSES = {
   RETURN: 'return',
 
   ALL: ['new', 'doing', 'done', 'complete', 'reDoing', 'pending', 'return'],
-  FULL: ['paid', 'done', 'complete']
+  FULL: ['paid', 'done', 'complete'],
 };
 
 export const ORDER_ITEM_STATUSES = {
@@ -63,7 +63,7 @@ export const ORDER_ITEM_STATUSES = {
   CONFIRM: 'confirm',
   DONE: 'done',
 
-  ALL: ['new', 'done', 'confirm']
+  ALL: ['new', 'done', 'confirm'],
 };
 
 export const DISTRICTS = {
@@ -96,7 +96,7 @@ export const DISTRICTS = {
   '28': 'Багахангай',
   '29': 'Налайх',
   '34': 'Сонгинохайрхан',
-  '35': 'Чингэлтэй'
+  '35': 'Чингэлтэй',
 };
 
 export const DISTRICTS_REVERSE = {
@@ -129,11 +129,11 @@ export const DISTRICTS_REVERSE = {
   Багахангай: '28',
   Налайх: '29',
   Сонгинохайрхан: '34',
-  Чингэлтэй: '35'
+  Чингэлтэй: '35',
 };
 
 export const ORDER_ORIGINS = {
   POS: '',
   KIOSK: 'kiosk',
-  ALL: ['', 'kiosk']
+  ALL: ['', 'kiosk'],
 };

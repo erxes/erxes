@@ -4,7 +4,7 @@ import mutations from './mutations';
 import queries from './queries';
 import Report from './reports';
 
-const resolvers: any = async _serviceDiscovery => ({
+const resolvers: any = async () => ({
   ...customScalars,
   Report,
   Mutation: {

@@ -6,20 +6,16 @@ import { generateModels } from './connectionResolver';
 import * as permissions from './permissions';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 
-export let graphqlPubsub;
-export let serviceDiscovery;
 export let mainDb;
 export let debug;
 
 export default {
   name: 'logs',
   permissions,
-  graphql: async sd => {
-    serviceDiscovery = sd;
-
+  graphql: async () => {
     return {
-      typeDefs: await typeDefs(sd),
-      resolvers
+      typeDefs: await typeDefs(),
+      resolvers,
     };
   },
   hasSubscriptions: false,
@@ -32,13 +28,12 @@ export default {
 
     return context;
   },
-  onServerInit: async options => {
+  onServerInit: async (options) => {
     mainDb = options.db;
 
     initBroker(options.messageBrokerClient);
 
     debug = options.debug;
-    graphqlPubsub = options.pubsubClient;
   },
-  meta: { permissions }
+  meta: { permissions },
 };

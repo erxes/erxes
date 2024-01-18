@@ -45,13 +45,14 @@ import {
   mutations as ptMutations
 } from './schema/pipelineTemplate';
 import { types as CommonTypes } from './schema/common';
+import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
 
-const typeDefs = async serviceDiscovery => {
-  const contactsEnabled = await serviceDiscovery.isEnabled('contacts');
-  const tagsEnabled = await serviceDiscovery.isEnabled('tags');
-  const formsEnabled = await serviceDiscovery.isEnabled('forms');
+const typeDefs = async () => {
+  const contactsEnabled = await isEnabled('contacts');
+  const tagsEnabled = await isEnabled('tags');
+  const formsEnabled = await isEnabled('forms');
 
-  const isEnabled = {
+  const isEnabledTable = {
     contacts: contactsEnabled,
     forms: formsEnabled,
     tags: tagsEnabled
@@ -97,11 +98,11 @@ const typeDefs = async serviceDiscovery => {
         : ''
     }
     
-    ${boardTypes(isEnabled)}
-    ${dealTypes(isEnabled)}
-    ${purchaseTypes(isEnabled)}
-    ${taskTypes(isEnabled)}
-    ${ticketTypes(isEnabled)}
+    ${boardTypes(isEnabledTable)}
+    ${dealTypes(isEnabledTable)}
+    ${purchaseTypes(isEnabledTable)}
+    ${taskTypes(isEnabledTable)}
+    ${ticketTypes(isEnabledTable)}
 
     ${formsEnabled ? growthHackTypes : ''}
 

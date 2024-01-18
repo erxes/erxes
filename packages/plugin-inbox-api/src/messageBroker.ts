@@ -2,7 +2,7 @@ import {
   receiveIntegrationsNotification,
   receiveRpcMessage
 } from './receiveMessage';
-import { serviceDiscovery } from './configs';
+
 import { generateModels, IModels } from './connectionResolver';
 import {
   ISendMessageArgs,
@@ -392,7 +392,6 @@ export const sendCommonMessage = async (
   args: ISendMessageArgs & { serviceName: string }
 ): Promise<any> => {
   return sendMessage({
-    serviceDiscovery,
     client,
     ...args
   });
@@ -403,7 +402,6 @@ export const sendContactsMessage = async (
 ): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'contacts',
     ...args
   });
@@ -412,7 +410,6 @@ export const sendContactsMessage = async (
 export const sendFormsMessage = (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'forms',
     ...args
   });
@@ -421,7 +418,6 @@ export const sendFormsMessage = (args: ISendMessageArgs): Promise<any> => {
 export const sendCoreMessage = (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'core',
     ...args
   });
@@ -430,7 +426,6 @@ export const sendCoreMessage = (args: ISendMessageArgs): Promise<any> => {
 export const sendEngagesMessage = (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'engages',
     ...args
   });
@@ -441,7 +436,6 @@ export const sendCardsMessage = async (
 ): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'cards',
     ...args
   });
@@ -452,7 +446,6 @@ export const sendProductsMessage = async (
 ): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'products',
     ...args
   });
@@ -461,7 +454,6 @@ export const sendProductsMessage = async (
 export const sendTagsMessage = (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'tags',
     ...args
   });
@@ -472,7 +464,6 @@ export const sendIntegrationsMessage = (
 ): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'integrations',
     ...args
   });
@@ -481,7 +472,6 @@ export const sendIntegrationsMessage = (
 export const sendSegmentsMessage = (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'segments',
     ...args
   });
@@ -492,7 +482,6 @@ export const sendNotificationsMessage = (
 ): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'notifications',
     ...args
   });
@@ -503,7 +492,6 @@ export const sendKnowledgeBaseMessage = (
 ): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'knowledgebase',
     ...args
   });
@@ -512,7 +500,6 @@ export const sendKnowledgeBaseMessage = (
 export const sendLogsMessage = async (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'logs',
     ...args
   });
@@ -523,7 +510,6 @@ export const sendAutomationsMessage = async (
 ): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'automations',
     ...args
   });

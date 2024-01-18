@@ -9,7 +9,6 @@
   },
   "dependencies": {
     "@erxes/api-utils" : "*",
-    "nodejs-file-downloader": "^4.10.6",
     "bcryptjs": "^2.4.3",
     "csv-parser": "^3.0.0",
     "file-type": "^10.4.0",

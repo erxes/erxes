@@ -42,9 +42,10 @@ import {
 } from './schema/perform';
 
 import { types as commonTypes } from './schema/common';
+import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
 
-const typeDefs = async serviceDiscovery => {
-  const contactsAvailable = await serviceDiscovery.isEnabled('contacts');
+const typeDefs = async () => {
+  const contactsAvailable = isEnabled('contacts');
 
   return gql`
     scalar JSON

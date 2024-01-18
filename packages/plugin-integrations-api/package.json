@@ -16,8 +16,6 @@
     "gmail-api-parse-message": "^2.1.2",
     "migrate": "^1.6.2",
     "nylas": "^4.7.0",
-    "request": "^2.88.0",
-    "request-promise": "^4.2.4",
     "sanitize-html": "^1.20.1",
     "sinon": "^7.5.0",
     "smooch-core": "^8.8.0",

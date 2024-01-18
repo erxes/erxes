@@ -7,36 +7,41 @@ import { IProduct } from '../../../types';
 import React from 'react';
 import { queries } from '../../../graphql';
 import { isEnabled } from '@erxes/ui/src/utils/core';
+import withCurrentUser from '@erxes/ui/src/auth/containers/withCurrentUser';
+import { IUser } from '@erxes/ui/src/auth/types';
 
 type Props = {
   product: IProduct;
+  currentUser?: IUser;
 };
 
-class LeftSidebar extends React.Component<Props> {
-  render() {
-    const { product } = this.props;
+const LeftSidebar: React.FC<Props> = (props) => {
+  const { product, currentUser = {} as IUser } = props;
 
-    const refetchQueries = [
-      {
-        query: gql(queries.productDetail),
-        variables: { _id: product._id }
-      }
-    ];
+  const refetchQueries = [
+    {
+      query: gql(queries.productDetail),
+      variables: { _id: product._id },
+    },
+  ];
 
-    return (
-      <Sidebar wide={true}>
-        <BasicInfo product={product} refetchQueries={refetchQueries} />
-        <CustomFieldsSection product={product} />
-        {isEnabled('tags') && (
-          <TaggerSection
-            data={product}
-            type="products:product"
-            refetchQueries={refetchQueries}
-          />
-        )}
-      </Sidebar>
-    );
-  }
-}
+  return (
+    <Sidebar wide={true}>
+      <BasicInfo
+        product={product}
+        currentUser={currentUser}
+        refetchQueries={refetchQueries}
+      />
+      <CustomFieldsSection product={product} />
+      {isEnabled('tags') && (
+        <TaggerSection
+          data={product}
+          type="products:product"
+          refetchQueries={refetchQueries}
+        />
+      )}
+    </Sidebar>
+  );
+};
 
-export default LeftSidebar;
+export default withCurrentUser(LeftSidebar);

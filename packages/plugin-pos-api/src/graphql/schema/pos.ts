@@ -1,6 +1,6 @@
 import {
   attachmentType,
-  attachmentInput
+  attachmentInput,
 } from '@erxes/api-utils/src/commonTypeDefs';
 
 const groupCommonFields = `
@@ -16,6 +16,7 @@ const posCommonFields = `
   name: String
   description: String
   orderPassword: String
+  scopeBrandIds: [String]
   pdomain: String
   productDetails: [String]
   adminIds: [String]

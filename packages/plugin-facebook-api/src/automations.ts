@@ -4,7 +4,7 @@ import { debugError } from './debuggers';
 import { IConversation } from './models/definitions/conversations';
 import { sendReply } from './utils';
 import { sendInboxMessage } from './messageBroker';
-import { graphqlPubsub } from './configs';
+import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
 
 export default {
   constants: {
@@ -15,8 +15,8 @@ export default {
         label: 'Send Facebook Message',
         description: 'Send Facebook Message',
         isAvailable: true,
-        isAvailableOptionalConnect: true
-      }
+        isAvailableOptionalConnect: true,
+      },
     ],
     triggers: [
       {
@@ -25,13 +25,13 @@ export default {
         icon: 'file-plus-alt',
         label: 'Facebook Message',
         description:
-          'Start with a blank workflow that enralls and is triggered off facebook messages'
-      }
-    ]
+          'Start with a blank workflow that enralls and is triggered off facebook messages',
+      },
+    ],
   },
   receiveActions: async ({
     subdomain,
-    data: { action, execution, actionType, collectionType }
+    data: { action, execution, actionType, collectionType },
   }) => {
     const models = await generateModels(subdomain);
 
@@ -40,14 +40,14 @@ export default {
     }
 
     return;
-  }
+  },
 };
 
 const generatePayloadString = (conversation, btn, customerId) => {
   return JSON.stringify({
     btnId: btn._id,
     conversationId: conversation._id,
-    customerId
+    customerId,
   });
 };
 
@@ -55,7 +55,7 @@ const generateMessage = async (
   models: IModels,
   config,
   conversation: IConversation,
-  senderId
+  senderId,
 ) => {
   const customer = await models.Customers.findOne({ userId: senderId }).lean();
 
@@ -69,8 +69,8 @@ const generateMessage = async (
         payload: generatePayloadString(
           conversation,
           button,
-          customer?.erxesApiId
-        )
+          customer?.erxesApiId,
+        ),
       };
 
       if (button.link) {
@@ -91,14 +91,14 @@ const generateMessage = async (
         type: 'template',
         payload: {
           template_type: 'generic',
-          elements: config.messageTemplates.map(temp => ({
+          elements: config.messageTemplates.map((temp) => ({
             title: temp.title,
             subtitle: temp.description,
             image_url: readFileUrl(temp?.image?.url),
-            buttons: generateButtons(temp?.buttons)
-          }))
-        }
-      }
+            buttons: generateButtons(temp?.buttons),
+          })),
+        },
+      },
     };
   }
 
@@ -111,9 +111,9 @@ const generateMessage = async (
         payload: {
           template_type: 'button',
           text: messageTemplate?.title,
-          buttons: generateButtons(messageTemplate?.buttons)
-        }
-      }
+          buttons: generateButtons(messageTemplate?.buttons),
+        },
+      },
     };
   }
 
@@ -122,21 +122,21 @@ const generateMessage = async (
 
     return {
       text: config?.text,
-      quick_replies: quickReplies.map(quickReply => ({
+      quick_replies: quickReplies.map((quickReply) => ({
         content_type: 'text',
         title: quickReply.label,
         payload: generatePayloadString(
           conversation,
           quickReply,
-          customer?.erxesApiId
-        )
-      }))
+          customer?.erxesApiId,
+        ),
+      })),
     };
   }
 
   if (config?.text) {
     return {
-      text: config.text
+      text: config.text,
     };
   }
 };
@@ -151,14 +151,14 @@ const generateBotData = ({ messageTemplates, quickReplies, text }) => {
             picture: readFileUrl(image.url),
             title,
             subtitle: description,
-            buttons: buttons.map(btn => ({
+            buttons: buttons.map((btn) => ({
               title: btn.text,
               url: btn.link || null,
-              type: btn.link ? 'openUrl' : null
-            }))
-          })
-        )
-      }
+              type: btn.link ? 'openUrl' : null,
+            })),
+          }),
+        ),
+      },
     ];
   }
 
@@ -168,13 +168,13 @@ const generateBotData = ({ messageTemplates, quickReplies, text }) => {
         type: 'carousel',
         elements: messageTemplates.map(({ title, buttons }) => ({
           title,
-          buttons: buttons.map(btn => ({
+          buttons: buttons.map((btn) => ({
             title: btn.text,
             url: btn.link || null,
-            type: btn.link ? 'openUrl' : null
-          }))
-        }))
-      }
+            type: btn.link ? 'openUrl' : null,
+          })),
+        })),
+      },
     ];
   }
   if (quickReplies) {
@@ -182,18 +182,18 @@ const generateBotData = ({ messageTemplates, quickReplies, text }) => {
       {
         type: 'custom',
         component: 'QuickReplies',
-        quick_replies: quickReplies.map(qReplies => ({
-          title: qReplies.label
-        }))
-      }
+        quick_replies: quickReplies.map((qReplies) => ({
+          title: qReplies.label,
+        })),
+      },
     ];
   }
 
   return [
     {
       type: 'text',
-      text: `<p>${text}</p>`
-    }
+      text: `<p>${text}</p>`,
+    },
   ];
 };
 
@@ -201,13 +201,13 @@ const actionCreateMessage = async (
   models: IModels,
   subdomain,
   action,
-  execution
+  execution,
 ) => {
   const { target } = execution || {};
   const { config } = action || {};
 
   const conversation = await models.Conversations.findOne({
-    _id: target?.conversationId
+    _id: target?.conversationId,
   });
 
   if (!conversation) {
@@ -215,7 +215,7 @@ const actionCreateMessage = async (
   }
 
   const integration = await models.Integrations.findOne({
-    _id: conversation.integrationId
+    _id: conversation.integrationId,
   });
 
   if (!integration) {
@@ -228,7 +228,7 @@ const actionCreateMessage = async (
       models,
       config,
       conversation,
-      senderId
+      senderId,
     );
 
     if (!message) {
@@ -240,10 +240,10 @@ const actionCreateMessage = async (
       'me/messages',
       {
         recipient: { id: senderId },
-        message
+        message,
       },
       recipientId,
-      integration.erxesApiId
+      integration.erxesApiId,
     );
 
     if (resp) {
@@ -257,9 +257,9 @@ const actionCreateMessage = async (
           mid: resp.message_id,
           botId,
           botData: generateBotData(config),
-          fromBot: true
+          fromBot: true,
         },
-        config.fromUserId
+        config.fromUserId,
       );
 
       await sendInboxMessage({
@@ -267,8 +267,8 @@ const actionCreateMessage = async (
         action: 'conversationClientMessageInserted',
         data: {
           ...conversationMessage.toObject(),
-          conversationId: conversation.erxesApiId
-        }
+          conversationId: conversation.erxesApiId,
+        },
       });
 
       graphqlPubsub.publish(
@@ -276,9 +276,9 @@ const actionCreateMessage = async (
         {
           conversationMessageInserted: {
             ...conversationMessage.toObject(),
-            conversationId: conversation.erxesApiId
-          }
-        }
+            conversationId: conversation.erxesApiId,
+          },
+        },
       );
 
       const { optionalConnects = [] } = config;
@@ -291,10 +291,10 @@ const actionCreateMessage = async (
               propertyName: 'payload.btnId',
               general: {
                 conversationId: conversation._id,
-                customerId: conversationMessage.customerId
-              }
-            }
-          }
+                customerId: conversationMessage.customerId,
+              },
+            },
+          },
         };
       }
 

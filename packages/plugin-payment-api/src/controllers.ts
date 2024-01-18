@@ -6,8 +6,8 @@ import { generateModels } from './connectionResolver';
 import redisUtils from './redisUtils';
 import { PAYMENTS } from './api/constants';
 import { StorePayAPI } from './api/storepay/api';
-import { sendRequest } from '@erxes/api-utils/src';
-import { graphqlPubsub } from './configs';
+import fetch from 'node-fetch';
+import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
 import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
 import messageBroker from './messageBroker';
 import { randomAlphanumeric } from '@erxes/api-utils/src/random';
@@ -45,14 +45,14 @@ router.post('/gateway/manualCheck', async (req, res) => {
   if (status === 'paid') {
     const invoiceDoc = await models.Invoices.getInvoice(
       { _id: invoiceId },
-      true
+      true,
     );
 
     graphqlPubsub.publish('invoiceUpdated', {
       invoiceUpdated: {
         _id: invoiceDoc._id,
-        status: 'paid'
-      }
+        status: 'paid',
+      },
     });
 
     const [serviceName] = invoiceDoc.contentType.split(':');
@@ -62,8 +62,8 @@ router.post('/gateway/manualCheck', async (req, res) => {
         subdomain,
         data: {
           ...invoiceDoc,
-          apiResponse: 'success'
-        }
+          apiResponse: 'success',
+        },
       });
     }
 
@@ -85,7 +85,7 @@ router.post('/gateway/storepay', async (req, res) => {
   const models = await generateModels(subdomain);
 
   const invoice = await models.Invoices.findOne({
-    _id: invoiceData._id
+    _id: invoiceData._id,
   }).lean();
   if (!invoice) {
     return res.json({ status: 'error' });
@@ -113,7 +113,7 @@ router.post('/gateway/storepay', async (req, res) => {
 
     await models.Invoices.updateOne(
       { _id: invoice._id },
-      { $set: { apiResponse: apiRes } }
+      { $set: { apiResponse: apiRes } },
     );
     return res.json({ invoice: invoice.apiResponse });
   } catch (e) {
@@ -147,7 +147,7 @@ router.post('/gateway/updateInvoice', async (req, res) => {
       selectedPaymentId,
       paymentKind,
       phone,
-      domain
+      domain,
     };
 
     if (!invoice.selectedPaymentId) {
@@ -163,7 +163,7 @@ router.post('/gateway/updateInvoice', async (req, res) => {
       selectedPaymentId,
       phone,
       domain,
-      identifier: randomAlphanumeric(32)
+      identifier: randomAlphanumeric(32),
     });
   }
 
@@ -172,7 +172,7 @@ router.post('/gateway/updateInvoice', async (req, res) => {
       selectedPaymentId,
       paymentKind,
       phone,
-      domain
+      domain,
     });
   }
 
@@ -191,7 +191,7 @@ router.get('/gateway', async (req, res) => {
   const { params } = req.query;
 
   const data = JSON.parse(
-    Buffer.from(params as string, 'base64').toString('utf8')
+    Buffer.from(params as string, 'base64').toString('utf8'),
   );
 
   const subdomain = getSubdomain(req);
@@ -205,15 +205,15 @@ router.get('/gateway', async (req, res) => {
 
   const paymentsFound = await models.Payments.find(filter)
     .sort({
-      type: 1
+      type: 1,
     })
     .lean();
 
-  const payments = paymentsFound.map(p => ({
+  const payments = paymentsFound.map((p) => ({
     _id: p._id,
     kind: p.kind,
     name: p.name,
-    title: PAYMENTS[p.kind].title
+    title: PAYMENTS[p.kind].title,
   }));
 
   const invoice = await models.Invoices.findOne({ _id: data._id }).lean();
@@ -228,7 +228,7 @@ router.get('/gateway', async (req, res) => {
       payments,
       invoiceData: data,
       invoice,
-      prefix
+      prefix,
     });
   }
 
@@ -242,7 +242,7 @@ router.get('/gateway', async (req, res) => {
     payments,
     invoiceData: data,
     prefix: subdomain === 'localhost' ? '' : `/gateway`,
-    monpayCouponEnabled
+    monpayCouponEnabled,
   });
 });
 
@@ -250,7 +250,7 @@ router.post('/gateway', async (req, res, next) => {
   const { params } = req.query;
 
   const data = JSON.parse(
-    Buffer.from(params as string, 'base64').toString('utf8')
+    Buffer.from(params as string, 'base64').toString('utf8'),
   );
 
   const subdomain = getSubdomain(req);
@@ -266,24 +266,24 @@ router.post('/gateway', async (req, res, next) => {
 
   const paymentsFound = await models.Payments.find(filter)
     .sort({
-      type: 1
+      type: 1,
     })
     .lean();
 
-  const payments = paymentsFound.map(p => ({
+  const payments = paymentsFound.map((p) => ({
     ...p,
-    title: PAYMENTS[p.kind].title
+    title: PAYMENTS[p.kind].title,
   }));
 
   const selectedPaymentId = req.body.selectedPaymentId;
   let selectedPayment: any = null;
 
-  const paymentsModified = payments.map(p => {
+  const paymentsModified = payments.map((p) => {
     if (p._id === selectedPaymentId) {
       selectedPayment = p;
       return {
         ...p,
-        selected: true
+        selected: true,
       };
     }
 
@@ -313,11 +313,11 @@ router.post('/gateway', async (req, res, next) => {
         paymentKind: PAYMENTS.storepay.kind,
         apiResponse: {
           error: 'Enter your Storepay registered phone number',
-          errorType: 'phoneRequired'
-        }
+          errorType: 'phoneRequired',
+        },
       },
       error: 'Enter your Storepay registered phone number',
-      prefix
+      prefix,
     });
 
     return;
@@ -329,7 +329,7 @@ router.post('/gateway', async (req, res, next) => {
       payments: paymentsModified,
       invoiceData: data,
       invoice,
-      prefix
+      prefix,
     });
   }
 
@@ -347,7 +347,7 @@ router.post('/gateway', async (req, res, next) => {
       selectedPaymentId,
       ...data,
       paymentKind: selectedPayment.kind,
-      domain
+      domain,
     });
 
     invoice = await models.Invoices.findOne({ _id: data._id });
@@ -357,7 +357,7 @@ router.post('/gateway', async (req, res, next) => {
     invoice = await models.Invoices.createInvoice({
       ...data,
       selectedPaymentId,
-      domain
+      domain,
     });
   }
 
@@ -369,7 +369,7 @@ router.post('/gateway', async (req, res, next) => {
       payments: paymentsModified,
       invoiceData: data,
       invoice,
-      prefix
+      prefix,
     });
   } catch (e) {
     res.render('index', {
@@ -377,7 +377,7 @@ router.post('/gateway', async (req, res, next) => {
       payments: paymentsModified,
       invoiceData: data,
       error: e.message,
-      prefix
+      prefix,
     });
   }
 });
@@ -392,79 +392,83 @@ router.post('/gateway/monpay/coupon', async (req, res, next) => {
   const username = process.env.MONPAY_COUPON_USERNAME;
   const password = process.env.MONPAY_COUPON_PASSWORD;
 
-  const loginResponse = await sendRequest({
-    url: `${PAYMENTS.monpay.apiUrl}/rest/branch/login`,
-    method: 'POST',
-    body: {
-      username,
-      password
+  const loginResponse = await fetch(
+    `${PAYMENTS.monpay.apiUrl}/rest/branch/login`,
+    {
+      method: 'POST',
+      body: JSON.stringify({
+        username,
+        password,
+      }),
+      headers: {
+        'Content-Type': 'application/json',
+      },
     },
-
-    headers: {
-      'Content-Type': 'application/json'
-    }
-  });
+  ).then((res) => res.json());
 
   if (loginResponse.code !== 0) {
     return res.status(400).json({
-      message: 'Invalid credentials'
+      message: 'Invalid credentials',
     });
   }
 
   const token = loginResponse.result.token;
 
   try {
-    const couponResponse = await sendRequest({
-      url: `${PAYMENTS.monpay.apiUrl}/rest/branch/coupon/scan`,
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`
+    const couponResponse = await fetch(
+      `${PAYMENTS.monpay.apiUrl}/rest/branch/coupon/scan?` +
+        new URLSearchParams({
+          couponCode,
+        }),
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
       },
-      params: {
-        couponCode
-      }
-    });
+    ).then((res) => res.json());
 
     if (couponResponse.code !== 0) {
       return res.status(400).json({
-        message: 'Invalid coupon code'
+        message: 'Invalid coupon code',
       });
     }
 
     if (!couponResponse.result.isUsable) {
       return res.status(400).json({
-        message: 'Coupon is not usable'
+        message: 'Coupon is not usable',
       });
     }
 
     const invoice = await models.Invoices.findOne({
-      _id: invoiceData._id
+      _id: invoiceData._id,
     }).lean();
 
     if (!invoice) {
       return res.status(400).json({
-        message: 'Invoice not found'
+        message: 'Invoice not found',
       });
     }
 
     if (invoice.status === 'paid') {
       return res.status(400).json({
-        message: 'Invoice already paid'
+        message: 'Invoice already paid',
       });
     }
 
     await models.Invoices.updateOne(
       { _id: invoice._id },
-      { $set: { couponCode, couponAmount: couponResponse.result.couponAmount } }
+      {
+        $set: { couponCode, couponAmount: couponResponse.result.couponAmount },
+      },
     );
 
     return res.json({
-      invoice: await models.Invoices.findOne({ _id: invoice._id })
+      invoice: await models.Invoices.findOne({ _id: invoice._id }),
     });
   } catch (e) {
     return res.status(400).json({
-      message: 'Invalid coupon code'
+      message: 'Invalid coupon code',
     });
   }
 });

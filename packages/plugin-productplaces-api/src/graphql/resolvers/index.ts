@@ -1,6 +1,6 @@
 import customScalars from '@erxes/api-utils/src/customScalars';
 
-const resolvers: any = async _serviceDiscovery => ({
+const resolvers: any = async () => ({
   ...customScalars,
 
   Query: {},

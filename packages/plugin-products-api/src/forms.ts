@@ -1,6 +1,7 @@
 import { generateFieldsFromSchema } from '@erxes/api-utils/src';
 import { generateModels } from './connectionResolver';
 import { EXTEND_FIELDS, PRODUCT_INFO } from './constants';
+import { escapeRegExp } from '@erxes/api-utils/src/core';
 
 export default {
   types: [{ description: 'Products & services', type: 'product' }],
@@ -76,7 +77,7 @@ export default {
     }).lean();
 
     const categories = await models.ProductCategories.find({
-      order: { $regex: new RegExp(category.order) }
+      order: { $regex: new RegExp(`^${escapeRegExp(category.order)}`) }
     }).lean();
 
     // TODO: get recurcive parent

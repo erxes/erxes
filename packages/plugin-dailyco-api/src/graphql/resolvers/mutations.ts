@@ -2,18 +2,18 @@ import { IContext } from '@erxes/api-utils/src';
 import { sendInboxMessage } from '../../messageBroker';
 import { ICallRecord, Records } from '../../models';
 import { sendDailyRequest } from '../../utils';
-import { graphqlPubsub } from '../../configs';
+import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
 
 export const publishMessage = async (
   subdomain: string,
   message: any,
-  customerId?: string
+  customerId?: string,
 ) => {
   graphqlPubsub.publish(
     `conversationMessageInserted:${message.conversationId}`,
     {
-      conversationMessageInserted: message
-    }
+      conversationMessageInserted: message,
+    },
   );
 
   // widget is listening for this subscription to show notification
@@ -23,16 +23,16 @@ export const publishMessage = async (
       subdomain,
       action: 'widgetsGetUnreadMessagesCount',
       data: {
-        conversationId: message.conversationId
+        conversationId: message.conversationId,
       },
-      isRPC: true
+      isRPC: true,
     });
 
     graphqlPubsub.publish(`conversationAdminMessageInserted:${customerId}`, {
       conversationAdminMessageInserted: {
         customerId,
-        unreadCount
-      }
+        unreadCount,
+      },
     });
   }
 };
@@ -43,7 +43,7 @@ const mutations = {
 
     await Records.updateOne(
       { roomName },
-      { $push: { recordings: { id: recordingId } } }
+      { $push: { recordings: { id: recordingId } } },
     );
 
     return 'success';
@@ -52,7 +52,7 @@ const mutations = {
   async dailyDeleteVideoChatRoom(_root, args) {
     const callRecord = await Records.findOne({
       roomName: args.name,
-      status: 'ongoing'
+      status: 'ongoing',
     });
 
     if (callRecord) {
@@ -61,12 +61,12 @@ const mutations = {
           '/api/v1/rooms/' + callRecord.roomName,
           'delete',
           {},
-          callRecord.subdomain
+          callRecord.subdomain,
         );
 
         await Records.updateOne(
           { _id: callRecord._id },
-          { $set: { status: 'end' } }
+          { $set: { status: 'end' } },
         );
 
         return true;
@@ -80,7 +80,7 @@ const mutations = {
     const {
       subdomain,
       contentTypeId,
-      contentType = 'inbox:conversations'
+      contentType = 'inbox:conversations',
     } = args;
 
     try {
@@ -88,16 +88,16 @@ const mutations = {
         '/api/v1/rooms',
         'post',
         { privacy: 'private' },
-        subdomain
+        subdomain,
       );
 
       const tokenResponse = await sendDailyRequest(
         '/api/v1/meeting-tokens',
         'post',
         {
-          properties: { room_name: response.name, enable_recording: 'cloud' }
+          properties: { room_name: response.name, enable_recording: 'cloud' },
         },
-        subdomain
+        subdomain,
       );
 
       const domain_name = response.domain_name;
@@ -105,7 +105,7 @@ const mutations = {
       const callData = {
         url: `https://${domain_name}.daily.co/${response.name}?t=${tokenResponse.token}`,
         name: response.name,
-        status: 'ongoing'
+        status: 'ongoing',
       };
 
       if (contentType === 'inbox:conversations') {
@@ -116,9 +116,9 @@ const mutations = {
             conversationId: contentTypeId,
             internal: false,
             contentType: 'videoCall',
-            userId: user._id
+            userId: user._id,
           },
-          isRPC: true
+          isRPC: true,
         });
 
         const doc: ICallRecord = {
@@ -128,14 +128,14 @@ const mutations = {
           privacy: response.privacy,
           token: tokenResponse.token,
           status: 'ongoing',
-          messageId: message._id
+          messageId: message._id,
         };
 
         await Records.createCallRecord(doc);
 
         const updatedMessage = {
           ...message,
-          videoCallData: callData
+          videoCallData: callData,
         };
 
         publishMessage(subdomain, updatedMessage);
@@ -145,7 +145,7 @@ const mutations = {
     } catch (e) {
       throw new Error(e.message);
     }
-  }
+  },
 };
 
 export default mutations;

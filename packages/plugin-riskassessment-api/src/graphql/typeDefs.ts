@@ -25,9 +25,10 @@ import {
   queries as RiskAsessmentQueries,
   types as RiskAsessmentTypes
 } from './schema/riskAssessment';
+import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
 
-const typeDefs = async _serviceDiscovery => {
-  const tagsAvailable = await _serviceDiscovery.isEnabled('tags');
+const typeDefs = async () => {
+  const tagsAvailable = isEnabled('tags');
   return gql`
     scalar JSON
     scalar Date

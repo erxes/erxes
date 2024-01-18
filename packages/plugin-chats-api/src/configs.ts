@@ -7,18 +7,16 @@ import { getSubdomain } from '@erxes/api-utils/src/core';
 import { NOTIFICATION_MODULES } from './constants';
 
 export let debug;
-export let graphqlPubsub;
+
 export let mainDb;
-export let serviceDiscovery;
 
 export default {
   name: 'chats',
   permissions,
-  graphql: async sd => {
-    serviceDiscovery = sd;
+  graphql: async () => {
     return {
       typeDefs: await typeDefs(),
-      resolvers: await resolvers()
+      resolvers: await resolvers(),
     };
   },
 
@@ -26,7 +24,7 @@ export default {
   subscriptionPluginPath: require('path').resolve(
     __dirname,
     'graphql',
-    'subscriptionPlugin.js'
+    'subscriptionPlugin.js',
   ),
 
   apolloServerContext: async (context, req) => {
@@ -38,15 +36,14 @@ export default {
     return context;
   },
 
-  onServerInit: async options => {
+  onServerInit: async (options) => {
     mainDb = options.db;
 
     initBroker(options.messageBrokerClient);
 
     debug = options.debug;
-    graphqlPubsub = options.pubsubClient;
   },
   meta: {
-    notificationModules: NOTIFICATION_MODULES
-  }
+    notificationModules: NOTIFICATION_MODULES,
+  },
 };

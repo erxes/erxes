@@ -8,6 +8,7 @@
   "dependencies": {
     "@erxes/api-utils" : "*",
     "moment-timezone": "^0.5.28",
+    "dayjs": "1.8.15",
     "server-timing": "3.3.1",
     "uuid-by-string": "^3.0.5",
     "vm2": "^3.9.16"

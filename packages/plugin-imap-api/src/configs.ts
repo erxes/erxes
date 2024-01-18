@@ -9,35 +9,32 @@ import { getSubdomain } from '@erxes/api-utils/src/core';
 import startDistributingJobs, {
   findAttachmentParts,
   createImap,
-  toUpper
+  toUpper,
 } from './utils';
 import { debugError } from '@erxes/api-utils/src/debuggers';
 import { routeErrorHandling } from '@erxes/api-utils/src/requests';
 import logs from './logUtils';
+import app from '@erxes/api-utils/src/app';
 
 export let mainDb;
-export let graphqlPubsub;
-export let serviceDiscovery;
-
 export let debug;
 
 export default {
   name: 'imap',
-  graphql: sd => {
-    serviceDiscovery = sd;
+  graphql: () => {
     return {
       typeDefs,
-      resolvers
+      resolvers,
     };
   },
   meta: {
     inboxIntegrations: [
       {
         kind: 'imap',
-        label: 'IMap'
-      }
+        label: 'IMap',
+      },
     ],
-    logs: { providesActivityLog: true, consumers: logs }
+    logs: { providesActivityLog: true, consumers: logs },
   },
   apolloServerContext: async (context, req) => {
     const subdomain = getSubdomain(req);
@@ -46,12 +43,10 @@ export default {
     context.models = await generateModels(subdomain);
   },
 
-  onServerInit: async options => {
+  onServerInit: async (options) => {
     mainDb = options.db;
-    const app = options.app;
 
     debug = options.debug;
-    graphqlPubsub = options.pubsubClient;
 
     initBroker(options.messageBrokerClient);
 
@@ -65,7 +60,7 @@ export default {
           const { messageId, integrationId, filename } = req.query;
 
           const integration = await models.Integrations.findOne({
-            inboxId: integrationId
+            inboxId: integrationId,
           });
 
           if (!integration) {
@@ -75,7 +70,7 @@ export default {
           const sentMessage = await models.Messages.findOne({
             messageId,
             inboxIntegrationId: integrationId,
-            type: 'SENT'
+            type: 'SENT',
           });
 
           let folderType = 'INBOX';
@@ -88,79 +83,81 @@ export default {
 
           imap.once('ready', () => {
             imap.openBox(folderType, true, async (err, box) => {
-              imap.search([['HEADER', 'MESSAGE-ID', messageId]], function(
-                err,
-                results
-              ) {
-                if (err) {
-                  imap.end();
-                  console.log('read-mail-attachment =============', err);
-                  return next(err);
-                }
+              imap.search(
+                [['HEADER', 'MESSAGE-ID', messageId]],
+                function (err, results) {
+                  if (err) {
+                    imap.end();
+                    console.log('read-mail-attachment =============', err);
+                    return next(err);
+                  }
 
-                let f;
+                  let f;
 
-                try {
-                  f = imap.fetch(results, { bodies: '', struct: true });
-                } catch (e) {
-                  imap.end();
-                  debugError('messageId ', messageId);
-                  return next(e);
-                }
+                  try {
+                    f = imap.fetch(results, { bodies: '', struct: true });
+                  } catch (e) {
+                    imap.end();
+                    debugError('messageId ', messageId);
+                    return next(e);
+                  }
 
-                f.on('message', function(msg) {
-                  msg.once('attributes', function(attrs) {
-                    const attachments = findAttachmentParts(attrs.struct);
+                  f.on('message', function (msg) {
+                    msg.once('attributes', function (attrs) {
+                      const attachments = findAttachmentParts(attrs.struct);
 
-                    if (attachments.length === 0) {
-                      imap.end();
-                      return res.status(404).send('Not found');
-                    }
-
-                    for (let i = 0, len = attachments.length; i < len; ++i) {
-                      const attachment = attachments[i];
-
-                      if (attachment.params.name === filename) {
-                        const f = imap.fetch(attrs.uid, {
-                          bodies: [attachment.partID],
-                          struct: true
-                        });
-
-                        f.on('message', msg => {
-                          const filename = attachment.params.name;
-                          const encoding = attachment.encoding;
-
-                          msg.on('body', function(stream) {
-                            const writeStream = fs.createWriteStream(
-                              `${__dirname}/${filename}`
-                            );
-
-                            if (toUpper(encoding) === 'BASE64') {
-                              stream.pipe(new Base64Decode()).pipe(writeStream);
-                            } else {
-                              stream.pipe(writeStream);
-                            }
-                          });
-
-                          msg.once('end', function() {
-                            imap.end();
-                            return res.download(`${__dirname}/${filename}`);
-                          });
-                        });
+                      if (attachments.length === 0) {
+                        imap.end();
+                        return res.status(404).send('Not found');
                       }
-                    }
+
+                      for (let i = 0, len = attachments.length; i < len; ++i) {
+                        const attachment = attachments[i];
+
+                        if (attachment.params.name === filename) {
+                          const f = imap.fetch(attrs.uid, {
+                            bodies: [attachment.partID],
+                            struct: true,
+                          });
+
+                          f.on('message', (msg) => {
+                            const filename = attachment.params.name;
+                            const encoding = attachment.encoding;
+
+                            msg.on('body', function (stream) {
+                              const writeStream = fs.createWriteStream(
+                                `${__dirname}/${filename}`,
+                              );
+
+                              if (toUpper(encoding) === 'BASE64') {
+                                stream
+                                  .pipe(new Base64Decode())
+                                  .pipe(writeStream);
+                              } else {
+                                stream.pipe(writeStream);
+                              }
+                            });
+
+                            msg.once('end', function () {
+                              imap.end();
+                              return res.download(`${__dirname}/${filename}`);
+                            });
+                          });
+                        }
+                      }
+                    });
                   });
-                });
-              });
+                },
+              );
             });
           });
 
           imap.connect();
         },
-        res => res.send('ok')
-      )
+        (res) => res.send('ok'),
+      ),
     );
 
     startDistributingJobs('os');
-  }
+  },
 };

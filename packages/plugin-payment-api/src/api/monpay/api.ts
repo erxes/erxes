@@ -19,9 +19,9 @@ export const monpayCallbackHandler = async (models: IModels, data: any) => {
 
   const invoice = await models.Invoices.getInvoice(
     {
-      'apiResponse.uuid': uuid
+      'apiResponse.uuid': uuid,
     },
-    true
+    true,
   );
 
   if (invoice.amount !== Number(amount)) {
@@ -44,7 +44,7 @@ export const monpayCallbackHandler = async (models: IModels, data: any) => {
 
     await models.Invoices.updateOne(
       { _id: invoice._id },
-      { $set: { status, resolvedAt: new Date() } }
+      { $set: { status, resolvedAt: new Date() } },
     );
 
     invoice.status = status;
@@ -78,7 +78,7 @@ export class MonpayAPI extends BaseAPI {
         'Basic ' +
         Buffer.from(`${this.username}:${this.accountId}`).toString('base64'),
       'Content-Type': 'application/json',
-      Accept: 'application/json'
+      Accept: 'application/json',
     };
   }
 
@@ -87,7 +87,7 @@ export class MonpayAPI extends BaseAPI {
       amount: invoice.amount,
       generateUuid: true,
       displayName: invoice.description || 'monpay transaction',
-      callbackUrl: `${this.domain}/pl:payment/callback/${PAYMENTS.monpay.kind}`
+      callbackUrl: `${this.domain}/pl:payment/callback/${PAYMENTS.monpay.kind}`,
     };
 
     try {
@@ -95,8 +95,8 @@ export class MonpayAPI extends BaseAPI {
         method: 'POST',
         headers: this.headers,
         path: PAYMENTS.monpay.actions.invoiceQr,
-        data
-      });
+        data,
+      }).then((r) => r.json());
 
       if (res.code !== 0) {
         return { error: 'Failed to create invoice, please try again' };
@@ -117,8 +117,8 @@ export class MonpayAPI extends BaseAPI {
         method: 'GET',
         headers: this.headers,
         path: PAYMENTS.monpay.actions.invoiceCheck,
-        params: { uuid: invoice.apiResponse.uuid }
-      });
+        params: { uuid: invoice.apiResponse.uuid },
+      }).then((r) => r.json());
 
       switch (res.code) {
         case 0:
@@ -139,8 +139,8 @@ export class MonpayAPI extends BaseAPI {
         method: 'GET',
         headers: this.headers,
         path: PAYMENTS.monpay.actions.invoiceCheck,
-        params: { uuid: invoice.apiResponse.uuid }
-      });
+        params: { uuid: invoice.apiResponse.uuid },
+      }).then((r) => r.json());
 
       switch (res.code) {
         case 0:
@@ -163,9 +163,9 @@ export class MonpayAPI extends BaseAPI {
         path: PAYMENTS.monpay.actions.branchLogin,
         data: {
           username: process.env.MONPAY_COUPON_USERNAME || '',
-          password: process.env.MONPAY_COUPON_PASSWORD || ''
-        }
-      });
+          password: process.env.MONPAY_COUPON_PASSWORD || '',
+        },
+      }).then((r) => r.json());
 
       if (loginRes.code !== 0) {
         return { error: 'Failed to login' };
@@ -178,11 +178,11 @@ export class MonpayAPI extends BaseAPI {
           method: 'GET',
           headers: {
             ...this.headers,
-            Authorization: `Bearer ${token}`
+            Authorization: `Bearer ${token}`,
           },
           path: PAYMENTS.monpay.actions.couponScan,
-          params: { couponCode }
-        });
+          params: { couponCode },
+        }).then((r) => r.json());
 
         if (res.code !== 0) {
           return { error: 'Coupon is not valid' };

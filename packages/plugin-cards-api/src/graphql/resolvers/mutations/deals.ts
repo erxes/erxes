@@ -10,11 +10,11 @@ import {
   itemsChange,
   itemsCopy,
   itemsEdit,
-  itemsRemove
+  itemsRemove,
 } from './utils';
 import { IContext } from '../../../connectionResolver';
 import { sendProductsMessage } from '../../../messageBroker';
-import { graphqlPubsub } from '../../../configs';
+import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
 
 interface IDealsEdit extends IDeal {
   _id: string;
@@ -27,7 +27,7 @@ const dealMutations = {
   async dealsAdd(
     _root,
     doc: IDeal & { proccessId: string; aboveItemId: string },
-    { user, models, subdomain }: IContext
+    { user, models, subdomain }: IContext,
   ) {
     return itemsAdd(
       models,
@@ -35,7 +35,7 @@ const dealMutations = {
       doc,
       'deal',
       models.Deals.createDeal,
-      user
+      user,
     );
   },
 
@@ -45,41 +45,41 @@ const dealMutations = {
   async dealsEdit(
     _root,
     { _id, proccessId, ...doc }: IDealsEdit & { proccessId: string },
-    { user, models, subdomain }: IContext
+    { user, models, subdomain }: IContext,
   ) {
     const oldDeal = await models.Deals.getDeal(_id);
 
     if (doc.assignedUserIds) {
       const { removedUserIds } = checkUserIds(
         oldDeal.assignedUserIds,
-        doc.assignedUserIds
+        doc.assignedUserIds,
       );
       const oldAssignedUserPdata = (oldDeal.productsData || [])
-        .filter(pdata => pdata.assignUserId)
-        .map(pdata => pdata.assignUserId || '');
-      const cantRemoveUserIds = removedUserIds.filter(userId =>
-        oldAssignedUserPdata.includes(userId)
+        .filter((pdata) => pdata.assignUserId)
+        .map((pdata) => pdata.assignUserId || '');
+      const cantRemoveUserIds = removedUserIds.filter((userId) =>
+        oldAssignedUserPdata.includes(userId),
       );
 
       if (cantRemoveUserIds.length > 0) {
         throw new Error(
-          'Cannot remove the team member, it is assigned in the product / service section'
+          'Cannot remove the team member, it is assigned in the product / service section',
         );
       }
     }
 
     if (doc.productsData) {
       const assignedUsersPdata = doc.productsData
-        .filter(pdata => pdata.assignUserId)
-        .map(pdata => pdata.assignUserId || '');
+        .filter((pdata) => pdata.assignUserId)
+        .map((pdata) => pdata.assignUserId || '');
 
       const oldAssignedUserPdata = (oldDeal.productsData || [])
-        .filter(pdata => pdata.assignUserId)
-        .map(pdata => pdata.assignUserId || '');
+        .filter((pdata) => pdata.assignUserId)
+        .map((pdata) => pdata.assignUserId || '');
 
       const { addedUserIds, removedUserIds } = checkUserIds(
         oldAssignedUserPdata,
-        assignedUsersPdata
+        assignedUsersPdata,
       );
 
       if (addedUserIds.length > 0 || removedUserIds.length > 0) {
@@ -87,7 +87,7 @@ const dealMutations = {
           doc.assignedUserIds || oldDeal.assignedUserIds || [];
         assignedUserIds = [...new Set(assignedUserIds.concat(addedUserIds))];
         assignedUserIds = assignedUserIds.filter(
-          userId => !removedUserIds.includes(userId)
+          (userId) => !removedUserIds.includes(userId),
         );
         doc.assignedUserIds = assignedUserIds;
       }
@@ -102,7 +102,7 @@ const dealMutations = {
       doc,
       proccessId,
       user,
-      models.Deals.updateDeal
+      models.Deals.updateDeal,
     );
   },
 
@@ -112,7 +112,7 @@ const dealMutations = {
   async dealsChange(
     _root,
     doc: IItemDragCommonFields,
-    { user, models, subdomain }: IContext
+    { user, models, subdomain }: IContext,
   ) {
     return itemsChange(
       models,
@@ -120,7 +120,7 @@ const dealMutations = {
       doc,
       'deal',
       user,
-      models.Deals.updateDeal
+      models.Deals.updateDeal,
     );
   },
 
@@ -130,7 +130,7 @@ const dealMutations = {
   async dealsRemove(
     _root,
     { _id }: { _id: string },
-    { user, models, subdomain }: IContext
+    { user, models, subdomain }: IContext,
   ) {
     return itemsRemove(models, subdomain, _id, 'deal', user);
   },
@@ -141,7 +141,7 @@ const dealMutations = {
   async dealsWatch(
     _root,
     { _id, isAdd }: { _id: string; isAdd: boolean },
-    { user, models }: IContext
+    { user, models }: IContext,
   ) {
     return models.Deals.watchDeal(_id, isAdd, user._id);
   },
@@ -149,7 +149,7 @@ const dealMutations = {
   async dealsCopy(
     _root,
     { _id, proccessId }: { _id: string; proccessId: string },
-    { user, models, subdomain }: IContext
+    { user, models, subdomain }: IContext,
   ) {
     return itemsCopy(
       models,
@@ -159,14 +159,14 @@ const dealMutations = {
       'deal',
       user,
       ['productsData', 'paymentsData'],
-      models.Deals.createDeal
+      models.Deals.createDeal,
     );
   },
 
   async dealsArchive(
     _root,
     { stageId, proccessId }: { stageId: string; proccessId: string },
-    { user, models, subdomain }: IContext
+    { user, models, subdomain }: IContext,
   ) {
     return itemsArchive(models, subdomain, stageId, 'deal', proccessId, user);
   },
@@ -176,23 +176,23 @@ const dealMutations = {
     {
       proccessId,
       dealId,
-      docs
+      docs,
     }: {
       proccessId: string;
       dealId: string;
       docs: IProductData[];
     },
-    { models, subdomain, user }: IContext
+    { models, subdomain, user }: IContext,
   ) {
     const deal = await models.Deals.getDeal(dealId);
     const stage = await models.Stages.getStage(deal.stageId);
 
-    const oldDataIds = (deal.productsData || []).map(pd => pd._id);
+    const oldDataIds = (deal.productsData || []).map((pd) => pd._id);
 
     for (const doc of docs) {
       if (doc._id) {
         const checkDup = (deal.productsData || []).find(
-          pd => pd._id === doc._id
+          (pd) => pd._id === doc._id,
         );
         if (checkDup) {
           throw new Error('Deals productData duplicated');
@@ -203,10 +203,10 @@ const dealMutations = {
     // undefenid or null then true
     const tickUsed = stage.defaultTick === false ? false : true;
     const addDocs = (docs || []).map(
-      doc => ({ ...doc, tickUsed } as IProductData)
+      (doc) => ({ ...doc, tickUsed }) as IProductData,
     );
     const productsData: IProductData[] = (deal.productsData || []).concat(
-      addDocs
+      addDocs,
     );
 
     await models.Deals.updateOne({ _id: dealId }, { $set: { productsData } });
@@ -227,16 +227,16 @@ const dealMutations = {
               subdomain,
               user,
               'deal',
-              updatedItem
-            ))
-          }
-        }
-      }
+              updatedItem,
+            )),
+          },
+        },
+      },
     });
 
     const dataIds = (updatedItem.productsData || [])
-      .filter(pd => !oldDataIds.includes(pd._id))
-      .map(pd => pd._id);
+      .filter((pd) => !oldDataIds.includes(pd._id))
+      .map((pd) => pd._id);
 
     graphqlPubsub.publish('productsDataChanged', {
       productsDataChanged: {
@@ -246,14 +246,14 @@ const dealMutations = {
         data: {
           dataIds,
           docs,
-          productsData
-        }
-      }
+          productsData,
+        },
+      },
     });
 
     return {
       dataIds,
-      productsData
+      productsData,
     };
   },
 
@@ -263,26 +263,26 @@ const dealMutations = {
       proccessId,
       dealId,
       dataId,
-      doc
+      doc,
     }: {
       proccessId: string;
       dealId: string;
       dataId: string;
       doc: IProductData;
     },
-    { models, subdomain, user }: IContext
+    { models, subdomain, user }: IContext,
   ) {
     const deal = await models.Deals.getDeal(dealId);
     const oldPData = (deal.productsData || []).find(
-      pdata => pdata.id === dataId
+      (pdata) => pdata.id === dataId,
     );
 
     if (!oldPData) {
       throw new Error('Deals productData not found');
     }
 
-    const productsData = (deal.productsData || []).map(data =>
-      data.id === dataId ? { ...doc } : data
+    const productsData = (deal.productsData || []).map((data) =>
+      data.id === dataId ? { ...doc } : data,
     );
 
     await models.Deals.updateOne({ _id: dealId }, { $set: { productsData } });
@@ -304,11 +304,11 @@ const dealMutations = {
               subdomain,
               user,
               'deal',
-              updatedItem
-            ))
-          }
-        }
-      }
+              updatedItem,
+            )),
+          },
+        },
+      },
     });
 
     graphqlPubsub.publish('productsDataChanged', {
@@ -319,14 +319,14 @@ const dealMutations = {
         data: {
           dataId,
           doc,
-          productsData
-        }
-      }
+          productsData,
+        },
+      },
     });
 
     return {
       dataId,
-      productsData
+      productsData,
     };
   },
 
@@ -335,18 +335,18 @@ const dealMutations = {
     {
       proccessId,
       dealId,
-      dataId
+      dataId,
     }: {
       proccessId: string;
       dealId: string;
       dataId: string;
     },
-    { models, subdomain, user }: IContext
+    { models, subdomain, user }: IContext,
   ) {
     const deal = await models.Deals.getDeal(dealId);
 
     const oldPData = (deal.productsData || []).find(
-      pdata => pdata.id === dataId
+      (pdata) => pdata.id === dataId,
     );
 
     if (!oldPData) {
@@ -354,7 +354,7 @@ const dealMutations = {
     }
 
     const productsData = (deal.productsData || []).filter(
-      data => data.id !== dataId
+      (data) => data.id !== dataId,
     );
 
     await models.Deals.updateOne({ _id: dealId }, { $set: { productsData } });
@@ -376,11 +376,11 @@ const dealMutations = {
               subdomain,
               user,
               'deal',
-              updatedItem
-            ))
-          }
-        }
-      }
+              updatedItem,
+            )),
+          },
+        },
+      },
     });
 
     graphqlPubsub.publish('productsDataChanged', {
@@ -390,16 +390,16 @@ const dealMutations = {
         action: 'delete',
         data: {
           dataId,
-          productsData
-        }
-      }
+          productsData,
+        },
+      },
     });
 
     return {
       dataId,
-      productsData
+      productsData,
     };
-  }
+  },
 };
 
 checkPermission(dealMutations, 'dealsAdd', 'dealsAdd');

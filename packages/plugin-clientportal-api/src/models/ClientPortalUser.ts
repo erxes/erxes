@@ -111,11 +111,13 @@ export interface IUserModel extends Model<IUserDocument> {
   changePasswordWithCode({
     phone,
     code,
-    password
+    password,
+    isSecondary
   }: {
     phone: string;
     code: string;
     password: string;
+    isSecondary: boolean;
   }): string;
   verifyUser(args: IVerificationParams): Promise<IUserDocument>;
   verifyUsers(
@@ -551,11 +553,13 @@ export const loadClientPortalUserClass = (models: IModels) => {
     public static async changePasswordWithCode({
       phone,
       code,
-      password
+      password,
+      isSecondary = false
     }: {
       phone: string;
       code: string;
       password: string;
+      isSecondary: boolean;
     }) {
       const user = await models.ClientPortalUsers.findOne({
         $or: [
@@ -577,18 +581,21 @@ export const loadClientPortalUserClass = (models: IModels) => {
       this.checkPassword(password);
 
       if (phone.includes('@')) {
+        const field = isSecondary ? 'password' : 'secondaryPassword';
         await models.ClientPortalUsers.findByIdAndUpdate(user._id, {
           isEmailVerified: true,
-          password: await this.generatePassword(password)
+          [field]: await this.generatePassword(password)
         });
 
         return 'success';
       }
 
       // set new password
+      const field = isSecondary ? 'password' : 'secondaryPassword';
+
       await models.ClientPortalUsers.findByIdAndUpdate(user._id, {
         isPhoneVerified: true,
-        password: await this.generatePassword(password)
+        [field]: await this.generatePassword(password)
       });
 
       return 'success';

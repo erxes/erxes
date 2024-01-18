@@ -1,6 +1,6 @@
 import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
 import * as dotenv from 'dotenv';
-import { serviceDiscovery } from './configs';
+
 import { Records } from './models';
 import { getDailyData, getRecordings } from './utils';
 
@@ -58,7 +58,6 @@ export default function() {
 export const sendContactsMessage = (args: ISendMessageArgs) => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'contacts',
     ...args
   });
@@ -67,7 +66,6 @@ export const sendContactsMessage = (args: ISendMessageArgs) => {
 export const sendInboxMessage = (args: ISendMessageArgs) => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'inbox',
     ...args
   });
@@ -78,7 +76,6 @@ export const sendCommonMessage = async (
 ): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     ...args
   });
 };

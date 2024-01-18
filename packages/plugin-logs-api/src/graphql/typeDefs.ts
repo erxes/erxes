@@ -12,7 +12,7 @@ import {
   queries as ActivityLogQueries
 } from './activityLogTypeDefs';
 
-const typeDefs = async _serviceDiscovery => {
+const typeDefs = async () => {
   return gql`
     scalar JSON
     scalar Date

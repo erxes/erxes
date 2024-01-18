@@ -1,6 +1,6 @@
 import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
 import { IContext as IMainContext } from '@erxes/api-utils/src';
-import { serviceDiscovery } from './configs';
+
 import { IModels } from './connectionResolver';
 import { afterMutationHandlers } from './afterMutations';
 
@@ -25,7 +25,6 @@ export const initBroker = async cl => {
 export const sendContactsMessage = async (args: ISendMessageArgs) => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'contacts',
     ...args
   });
@@ -36,7 +35,6 @@ export const sendProductsMessage = async (
 ): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'products',
     ...args
   });
@@ -45,7 +43,6 @@ export const sendProductsMessage = async (
 export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'core',
     ...args
   });
@@ -55,7 +52,6 @@ export const sendCommonMessage = async (
   args: ISendMessageArgs & { serviceName: string }
 ) => {
   return sendMessage({
-    serviceDiscovery,
     client,
     ...args
   });

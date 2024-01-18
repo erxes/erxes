@@ -508,8 +508,8 @@ const up = async ({ uis, downloadLocales, fromInstaller }) => {
         },
         extra_hosts,
         volumes: [
-          './permissions.json:/core-api/permissions.json',
-          './core-api-uploads:/core-api/dist/core/src/private/uploads'
+          './permissions.json:/erxes/packages/core/permissions.json',
+          './core-api-uploads:/erxes/packages/core/src/private/uploads'
         ],
         networks: ['erxes']
       },

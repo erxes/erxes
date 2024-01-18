@@ -458,6 +458,7 @@ const ChartTitle = styled.div`
     font-weight:500; 
     display:none;
     cursor:pointer;
+    margin-right: 0.5rem;
   }
   span:first-of-type {
     margin-left: auto;
@@ -480,6 +481,23 @@ const ReportContainer = styled(Contents)`
   > section {
     margin: 0;
   }
+`;
+
+const FlexRow = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+`;
+
+const DateName = styled.div`
+  text-transform: uppercase;
+  margin: ${dimensions.unitSpacing}px 0;
+  text-align: center;
+`;
+
+const MarginY = styledTS<{ margin: number }>(styled.div)`
+  margin: ${props => props.margin}px 0;
 `;
 
 export {
@@ -505,5 +523,8 @@ export {
   DrawerDetail,
   ChartTitle,
   HeightedWrapper,
-  ReportContainer
+  ReportContainer,
+  FlexRow,
+  DateName,
+  MarginY
 };

@@ -1424,6 +1424,126 @@ const generateCommonUserIds = async (
   return totalUserIds;
 };
 
+const findUnfinishedShiftsAndUpdate = async (subdomain: any) => {
+  const models = await generateModels(subdomain);
+
+  const YESTERDAY = dayjs(new Date())
+    .add(-1, 'day')
+    .toDate();
+
+  const unfinishedShifts = await models.Timeclocks.find({
+    shiftActive: true,
+    shiftStart: { $gte: YESTERDAY }
+  });
+
+  const requestsObj: any = {};
+
+  const dateFormat = 'YYYY-MM-DD';
+
+  const agg = await models.Absences.aggregate([
+    {
+      $match: {
+        startTime: {
+          $gte: YESTERDAY
+        },
+        solved: true,
+        status: /Approved/gi
+      }
+    },
+    {
+      $sort: {
+        startTime: 1
+      }
+    },
+
+    {
+      $group: {
+        _id: '$userId',
+        docs: { $push: '$$ROOT' }
+      }
+    }
+  ]);
+
+  for (const a of agg) {
+    const userId = a._id;
+    const requests = a.docs;
+    const requestObj = {};
+
+    for (const req of requests) {
+      const { absenceTimeType } = req;
+
+      // by day
+      if (absenceTimeType === 'by day') {
+        for (const requestDate of req.requestDates) {
+          const date = dayjs(new Date(requestDate)).format(dateFormat);
+
+          requestObj[date] = { request: true };
+        }
+      }
+
+      // by hour
+      const date = dayjs(req.startTime).format(dateFormat);
+      requestObj[date] = { request: true };
+    }
+
+    requestsObj[userId] = requestObj;
+  }
+
+  const bulkWriteOps: any[] = [];
+
+  for (const unfinishedShift of unfinishedShifts) {
+    const { userId } = unfinishedShift;
+    const shiftStart = unfinishedShift.shiftStart;
+    const getTimeclockDay = dayjs(new Date(shiftStart)).format(dateFormat);
+
+    // if user sent request and request is approved for that day, prevent updating timeclock as shiftNotClosed:true
+    if (
+      userId &&
+      userId in requestsObj &&
+      getTimeclockDay in requestsObj[userId]
+    ) {
+      bulkWriteOps.push({
+        updateOne: {
+          filter: { _id: unfinishedShift._id },
+          update: {
+            $set: {
+              shiftEnd: shiftStart,
+              shiftActive: false
+            }
+          }
+        }
+      });
+      continue;
+    }
+
+    const nextDay = dayjs(shiftStart)
+      .add(1, 'day')
+      .format('YYYY-MM-DD');
+
+    const midnightOfShiftDay = new Date(nextDay + ' 00:00:00');
+    bulkWriteOps.push({
+      updateOne: {
+        filter: { _id: unfinishedShift._id },
+        update: {
+          $set: {
+            shiftEnd: midnightOfShiftDay,
+            shiftActive: false,
+            shiftNotClosed: true
+          }
+        }
+      }
+    });
+  }
+
+  let result;
+
+  if (bulkWriteOps.length) {
+    result = await models.Timeclocks.bulkWrite(bulkWriteOps);
+  }
+
+  return result;
+};
+
 export {
   connectAndQueryFromMsSql,
   connectAndQueryTimeLogsFromMsSql,
@@ -1435,5 +1555,6 @@ export {
   returnSupervisedUsers,
   findTeamMembers,
   findTeamMember,
-  returnDepartmentsBranchesDict
+  returnDepartmentsBranchesDict,
+  findUnfinishedShiftsAndUpdate
 };

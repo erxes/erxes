@@ -1,7 +1,7 @@
 import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
 import { afterMutationHandlers } from './afterMutations';
 
-import { serviceDiscovery } from './configs';
+
 import { generateModels, IModels } from './connectionResolver';
 import { sendNotification, sendSms } from './utils';
 import { createCard } from './models/utils';
@@ -188,7 +188,6 @@ export const initBroker = async cl => {
 
 export const sendCoreMessage = async (args: ISendMessageArgs) => {
   return sendMessage({
-    serviceDiscovery,
     client,
     serviceName: 'core',
     ...args
@@ -200,7 +199,6 @@ export const sendContactsMessage = async (
 ): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'contacts',
     ...args
   });
@@ -211,7 +209,6 @@ export const sendCardsMessage = async (
 ): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'cards',
     ...args
   });
@@ -220,7 +217,6 @@ export const sendCardsMessage = async (
 export const sendKbMessage = async (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'knowledgebase',
     ...args
   });
@@ -230,7 +226,6 @@ export const sendCommonMessage = async (
   args: ISendMessageArgs & { serviceName: string }
 ) => {
   return sendMessage({
-    serviceDiscovery,
     client,
     ...args
   });

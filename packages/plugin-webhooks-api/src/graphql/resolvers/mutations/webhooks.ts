@@ -3,7 +3,7 @@ import { WEBHOOK_STATUS } from '../../../models/definitions/constants';
 import { IWebhook } from '../../../models/definitions/webhooks';
 import { putCreateLog, putDeleteLog, putUpdateLog } from '../../../logUtils';
 import { IContext } from '../../../connectionResolver';
-import { sendRequest } from '@erxes/api-utils/src';
+import fetch from 'node-fetch';
 
 interface IWebhookEdit extends IWebhook {
   _id: string;
@@ -18,31 +18,31 @@ const webhookMutations = {
   async webhooksAdd(
     _root,
     doc: IWebhook,
-    { user, docModifier, models, subdomain }: IContext
+    { user, docModifier, models, subdomain }: IContext,
   ) {
     const webhook = await models.Webhooks.createWebhook(docModifier(doc));
 
-    sendRequest({
-      url: webhook.url,
+    await fetch(webhook.url, {
       headers: {
-        'Erxes-token': webhook.token || ''
+        'Erxes-token': webhook.token || '',
+        'Content-Type': 'application/json',
       },
       method: 'post',
-      body: {
-        text: 'You have successfully connected erxes webhook'
-      }
+      body: JSON.stringify({
+        text: 'You have successfully connected erxes webhook',
+      }),
     })
       .then(async () => {
         await models.Webhooks.updateStatus(
           webhook._id,
-          WEBHOOK_STATUS.AVAILABLE
+          WEBHOOK_STATUS.AVAILABLE,
         );
       })
-      .catch(async err => {
+      .catch(async (err) => {
         console.log('error ', err);
         await models.Webhooks.updateStatus(
           webhook._id,
-          WEBHOOK_STATUS.UNAVAILABLE
+          WEBHOOK_STATUS.UNAVAILABLE,
         );
       });
 
@@ -52,9 +52,9 @@ const webhookMutations = {
         type: WEBHOOK,
         newData: webhook,
         object: webhook,
-        description: `${webhook.url} has been created`
+        description: `${webhook.url} has been created`,
       },
-      user
+      user,
     );
 
     return webhook;
@@ -66,32 +66,32 @@ const webhookMutations = {
   async webhooksEdit(
     _root,
     { _id, ...doc }: IWebhookEdit,
-    { user, models, subdomain }: IContext
+    { user, models, subdomain }: IContext,
   ) {
     const webhook = await models.Webhooks.getWebHook(_id);
     const updated = await models.Webhooks.updateWebhook(_id, doc);
 
-    sendRequest({
-      url: webhook.url,
+    await fetch(webhook.url, {
       headers: {
-        'Erxes-token': webhook.token || ''
+        'Erxes-token': webhook.token || '',
+        'Content-Type': 'application/json',
       },
       method: 'post',
-      body: {
-        text: 'You have successfully connected erxes webhook'
-      }
+      body: JSON.stringify({
+        text: 'You have successfully connected erxes webhook',
+      }),
     })
       .then(async () => {
         await models.Webhooks.updateStatus(
           webhook._id,
-          WEBHOOK_STATUS.AVAILABLE
+          WEBHOOK_STATUS.AVAILABLE,
         );
       })
-      .catch(async err => {
+      .catch(async (err) => {
         console.log('error ', err);
         await models.Webhooks.updateStatus(
           webhook._id,
-          WEBHOOK_STATUS.UNAVAILABLE
+          WEBHOOK_STATUS.UNAVAILABLE,
         );
       });
 
@@ -101,9 +101,9 @@ const webhookMutations = {
         type: WEBHOOK,
         object: webhook,
         newData: doc,
-        description: `${webhook.url} has been edited`
+        description: `${webhook.url} has been edited`,
       },
-      user
+      user,
     );
 
     return updated;
@@ -115,7 +115,7 @@ const webhookMutations = {
   async webhooksRemove(
     _root,
     { _id }: { _id: string },
-    { models, subdomain, user }: IContext
+    { models, subdomain, user }: IContext,
   ) {
     const webhook = await models.Webhooks.getWebHook(_id);
     const removed = await models.Webhooks.removeWebhooks(_id);
@@ -125,13 +125,13 @@ const webhookMutations = {
       {
         type: WEBHOOK,
         object: webhook,
-        description: `${webhook.url} has been removed`
+        description: `${webhook.url} has been removed`,
       },
-      user
+      user,
     );
 
     return removed;
-  }
+  },
 };
 
 checkPermission(webhookMutations, 'webhooksAdd', 'manageWebhooks');

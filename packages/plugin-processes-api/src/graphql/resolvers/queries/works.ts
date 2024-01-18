@@ -1,4 +1,5 @@
 import {
+  escapeRegExp,
   getPureDate,
   getToday,
   getTomorrow,
@@ -107,13 +108,16 @@ const generateFilter = async (
     const category = await models.JobCategories.findOne({
       _id: jobCategoryId
     }).lean();
+
     const categories = await models.JobCategories.find(
-      { order: { $regex: new RegExp(`^${category.order}`) } },
+      { order: { $regex: new RegExp(`^${escapeRegExp(category.order)}`) } },
       { _id: 1 }
     ).lean();
+
     const jobRefers = await models.JobRefers.find({
       categoryId: { $in: categories.map(c => c._id) }
     }).lean();
+
     selector.typeId = { $in: jobRefers.map(jr => jr._id) };
   }
 

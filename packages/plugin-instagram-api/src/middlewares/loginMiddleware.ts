@@ -29,7 +29,7 @@ const loginMiddleware = async (req, res) => {
     client_id: FACEBOOK_APP_ID,
     client_secret: FACEBOOK_APP_SECRET,
     scope: `${FACEBOOK_PERMISSIONS},instagram_basic,instagram_manage_messages`,
-    redirect_uri: `${DOMAIN}/pl:instagram/instagram/login`
+    redirect_uri: `${DOMAIN}/gateway/pl:instagram/instagram/login`
   };
 
   debugRequest(debugFacebook, req);

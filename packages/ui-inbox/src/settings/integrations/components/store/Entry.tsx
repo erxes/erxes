@@ -94,9 +94,9 @@ function renderCreate(createUrl, kind, isAvailable) {
       </Link>
     );
   }
-  if (kind === INTEGRATION_KINDS.INSTAGRAM_POST) {
+  if (kind === INTEGRATION_KINDS.INSTAGRAM_MESSENGER) {
     return (
-      <Link to={`${createUrl}?kind=${INTEGRATION_KINDS.INSTAGRAM_POST}`}>
+      <Link to={`${createUrl}?kind=${INTEGRATION_KINDS.INSTAGRAM_MESSENGER}`}>
         + {__('Add')}
       </Link>
     );

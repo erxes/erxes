@@ -13,10 +13,11 @@ import {
   queries as uomQueries,
   mutations as uomMutations
 } from './schema/uom';
+import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
 
-const typeDefs = async serviceDiscovery => {
-  const tagsAvailable = await serviceDiscovery.isEnabled('tags');
-  const contactsAvailable = await serviceDiscovery.isEnabled('contacts');
+const typeDefs = async () => {
+  const tagsAvailable = await isEnabled('tags');
+  const contactsAvailable = await isEnabled('contacts');
 
   return gql`
     scalar JSON

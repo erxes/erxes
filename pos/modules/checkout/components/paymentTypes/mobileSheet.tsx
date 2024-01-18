@@ -10,13 +10,14 @@ import {
   orderNumberAtom,
 } from "@/store/order.store"
 import { useMutation, useQuery } from "@apollo/client"
-import { useAtomValue, useSetAtom } from "jotai"
+import { useAtom, useAtomValue, useSetAtom } from "jotai"
 import { ShieldAlert } from "lucide-react"
 
 import { IPaymentOption } from "@/types/payment.types"
 import { INSTRUCTIONS } from "@/lib/constants"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { AspectRatio } from "@/components/ui/aspect-ratio"
+import { Button } from "@/components/ui/button"
 import Loader from "@/components/ui/loader"
 import { RadioGroup } from "@/components/ui/radio-group"
 import { useToast } from "@/components/ui/use-toast"
@@ -45,9 +46,14 @@ const MobileSheet = () => {
       client: clientMain,
       context,
     })
+
+  const [checkInvoice, { loading: loadingCheck }] = useMutation(
+    mutations.checkInvoice
+  )
+
   const amount = useAtomValue(currentAmountAtom)
   const activeOrderId = useAtomValue(activeOrderIdAtom)
-  const setInvoiceId = useSetAtom(invoiceIdAtom)
+  const [invoiceId, setInvoiceId] = useAtom(invoiceIdAtom)
   const customer = useAtomValue(customerAtom)
   const customerType = useAtomValue(customerTypeAtom)
   const orderNumber = useAtomValue(orderNumberAtom)
@@ -174,6 +180,20 @@ const MobileSheet = () => {
           _id={selected}
           error={errorDescription || apiResponse?.error}
         />
+      )}
+
+      {invoiceId && (
+        <div className="mt-4 text-center">
+          <Button
+            variant="secondary"
+            size="lg"
+            className="font-medium px-8"
+            loading={loadingCheck}
+            onClick={() => checkInvoice({ variables: { id: invoiceId } })}
+          >
+            Төлөлт шалгах
+          </Button>
+        </div>
       )}
     </div>
   )

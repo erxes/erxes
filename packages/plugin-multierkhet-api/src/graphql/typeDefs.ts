@@ -8,7 +8,7 @@ import {
   types as configTypes
 } from './schema/configs';
 
-const typeDefs = async _serviceDiscovery => {
+const typeDefs = async () => {
   return gql`
     scalar JSON
     scalar Date

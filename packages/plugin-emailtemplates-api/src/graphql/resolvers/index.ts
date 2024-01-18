@@ -6,7 +6,7 @@ import { EmailTemplates as EmailTemplateQueries } from './queries';
 
 import EmailTemplate from './emailTemplates';
 
-const resolvers: any = async _serviceDiscovery => ({
+const resolvers: any = async () => ({
   ...customScalars,
   EmailTemplate,
 

@@ -7,8 +7,9 @@ import {
   IFieldGroup
 } from '../../../models/definitions/fields';
 import { IOrderInput } from '@erxes/api-utils/src/commonUtils';
-import { serviceDiscovery } from '../../../configs';
+
 import { sendCommonMessage } from '../../../messageBroker';
+import { getService, getServices } from '@erxes/api-utils/src/serviceDiscovery';
 
 interface IFieldsEdit extends IField {
   _id: string;
@@ -35,14 +36,14 @@ const fieldsGroupsHook = async (
   subdomain: string,
   doc: IFieldGroup
 ): Promise<IFieldGroup> => {
-  const services = await serviceDiscovery.getServices();
+  const services = await getServices();
 
   for (const serviceName of services) {
     if (!(doc.contentType || '').includes(serviceName)) {
       continue;
     }
 
-    const service = await serviceDiscovery.getService(serviceName);
+    const service = await getService(serviceName);
     const meta = service.config?.meta || {};
 
     if (meta && meta.forms && meta.forms.groupsHookAvailable) {

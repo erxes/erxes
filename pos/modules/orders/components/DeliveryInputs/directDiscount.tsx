@@ -19,7 +19,7 @@ const DirectDiscount: React.FC = () => {
   }
 
   const handleDirectDiscountChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const value = parseFloat(Number(e.target.value).toFixed(2))
+    const value = Number(Number(e.target.value).toFixed(2))
     const clampedValue = Math.min(Math.max(value, 0), directDiscountLimit)
     setDirectDiscount(clampedValue)
   }
@@ -34,7 +34,7 @@ const DirectDiscount: React.FC = () => {
         <Input
           type="number"
           id="directDiscount"
-          value={directDiscount}
+          value={directDiscount.toString()}
           onChange={handleDirectDiscountChange}
         />
       </div>

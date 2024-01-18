@@ -1,4 +1,4 @@
-import { sendRequest } from '@erxes/api-utils/src';
+import fetch from 'node-fetch';
 import { sendCommonMessage } from './messageBroker';
 
 export default {
@@ -9,9 +9,9 @@ export default {
         icon: 'send',
         label: 'Create webhook',
         description: 'Create webhook',
-        isAvailable: true
-      }
-    ]
+        isAvailable: true,
+      },
+    ],
   },
   receiveActions: async ({ subdomain, data }) => {
     const { action, execution } = data;
@@ -32,10 +32,10 @@ export default {
         action: 'automations.replacePlaceHolders',
         data: {
           target: { ...specifiedFields, _id: target?._id, type: contentType },
-          config: specifiedFields
+          config: specifiedFields,
         },
         isRPC: true,
-        defaultValue: {}
+        defaultValue: {},
       });
 
       target = replacedContent;
@@ -52,19 +52,17 @@ export default {
     }, {});
 
     try {
-      await sendRequest({
-        url,
+      await fetch(url + '?' + new URLSearchParams(params), {
         method: method || 'POST',
         headers: {
+          ...headers,
           'Content-Type': 'application/json',
-          ...headers
         },
-        params,
-        body: {
+        body: JSON.stringify({
           actionType: 'automations.webhook',
           triggerType,
-          data: target
-        }
+          data: target,
+        }),
       });
       return {
         url,
@@ -72,10 +70,10 @@ export default {
         headers,
         params,
         data: target,
-        status: 'success'
+        status: 'success',
       };
     } catch (error) {
       return error.message;
     }
-  }
+  },
 };
