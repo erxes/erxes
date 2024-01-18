@@ -12,25 +12,24 @@ import * as path from 'path';
 import { buildFile } from './graphql/resolvers/utils';
 import documents from './documents';
 import payment from './payment';
+import app from '@erxes/api-utils/src/app';
 
 export let mainDb;
 export let debug;
-
-
 
 export default {
   name: 'insurance',
   graphql: async () => {
     return {
       typeDefs: await typeDefs(),
-      resolvers: await resolvers()
+      resolvers: await resolvers(),
     };
   },
 
   meta: {
     forms,
     documents,
-    payment
+    payment,
   },
 
   apolloServerContext: async (context, req) => {
@@ -47,23 +46,19 @@ export default {
   },
   middlewares: [cookieParser(), cpUserMiddleware],
 
-  onServerInit: async options => {
+  onServerInit: async (options) => {
     mainDb = options.db;
 
     initBroker(options.messageBrokerClient);
 
-    
-
     debug = options.debug;
-
-    const app = options.app;
 
     const publicDir = path.join('./uploads');
 
-    fs.access(publicDir, fs.constants.F_OK, err => {
+    fs.access(publicDir, fs.constants.F_OK, (err) => {
       if (err) {
         // 'public' directory doesn't exist, create it
-        fs.mkdir(publicDir, mkdirErr => {
+        fs.mkdir(publicDir, (mkdirErr) => {
           if (mkdirErr) {
             console.error('Error creating uploads directory:', mkdirErr);
           } else {
@@ -94,7 +89,7 @@ export default {
     //   });
     // });
 
-    app.get('/export', async (req, res) => {
+    app.get('/export', async (req: any, res) => {
       const { cpUser } = req;
       if (!cpUser) {
         return res.status(401).send('Unauthorized');
@@ -112,5 +107,5 @@ export default {
 
       return res.send(result.response);
     });
-  }
+  },
 };

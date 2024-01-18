@@ -9,11 +9,9 @@ import { initBroker } from './messageBroker';
 import cpUserMiddleware from './middlewares/cpUserMiddleware';
 import * as permissions from './permissions';
 import * as bodyParser from 'body-parser';
-
+import app from '@erxes/api-utils/src/app';
 export let mainDb;
 export let debug;
-
-
 
 export default {
   name: 'dac',
@@ -21,14 +19,14 @@ export default {
   graphql: async () => {
     return {
       typeDefs: await typeDefs(),
-      resolvers: await resolvers()
+      resolvers: await resolvers(),
     };
   },
   hasSubscriptions: false,
 
   meta: {
     afterMutations,
-    permissions
+    permissions,
   },
 
   // getHandlers: [
@@ -59,19 +57,13 @@ export default {
     return context;
   },
   middlewares: [cookieParser(), cpUserMiddleware, bodyParser.json()],
-  onServerInit: async options => {
-    const { app } = options;
+  onServerInit: async (options) => {
     mainDb = options.db;
 
     initBroker(options.messageBrokerClient);
 
-    
-
     debug = options.debug;
 
-    app.use(bodyParser.json());
-    app.use(bodyParser.urlencoded({ extended: true }));
-
     app.use(dacRouter);
-  }
+  },
 };
