@@ -56,6 +56,8 @@ const getProducts = async (models, subdomain, args, kind) => {
 
     const building = await models.Buildings.getBuilding({ _id: buildingId });
 
+    console.log('networkType', building.networkType);
+
     if (building.networkType === 'ftth' && !config.ftthTagId) {
       throw new Error('Config not found');
     }
@@ -65,6 +67,8 @@ const getProducts = async (models, subdomain, args, kind) => {
     }
 
     const district = await models.Districts.getDistrict({ _id: districtId });
+
+    console.log('isCapital', district.isCapital);
     const tagIds: string[] = [];
 
     if (building.networkType === 'ftth') {
@@ -78,6 +82,8 @@ const getProducts = async (models, subdomain, args, kind) => {
     if (district.isCapital && config.capitalTagId) {
       tagIds.push(config.capitalTagId);
     }
+
+    console.log('tagIds', tagIds);
 
     hbbProducts = await sendCommonMessage({
       subdomain,
