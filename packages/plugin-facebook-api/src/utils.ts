@@ -1,8 +1,9 @@
 import * as graph from 'fbgraph';
 import { FacebookAdapter } from 'botbuilder-adapter-facebook-erxes';
 import * as AWS from 'aws-sdk';
-import * as request from 'request';
 import * as fs from 'fs';
+import fetch from 'node-fetch';
+import { pipeline } from 'node:stream/promises';
 
 import { IModels } from './connectionResolver';
 import { debugBase, debugError, debugFacebook } from './debuggers';
@@ -10,6 +11,7 @@ import { IIntegrationDocument } from './models/Integrations';
 import { generateAttachmentUrl, getConfig } from './commonUtils';
 import { IAttachment, IAttachmentMessage } from './types';
 import { getFileUploadConfigs } from './messageBroker';
+import { randomAlphanumeric } from '@erxes/api-utils/src/random';
 
 export const graphRequest = {
   base(method: string, path?: any, accessToken?: any, ...otherParams) {
@@ -214,8 +216,8 @@ export const getFacebookUser = async (
   }
 };
 
-export const uploadMedia = async (response: any, video) => {
-  const mediaFile = `${Math.random()}.${video ? 'mp4' : 'jpg'}`;
+export const uploadMedia = async (url: any, video) => {
+  const mediaFile = `${randomAlphanumeric()}.${video ? 'mp4' : 'jpg'}`;
 
   const { AWS_BUCKET, FILE_SYSTEM_PUBLIC } = await getFileUploadConfigs();
 
@@ -223,29 +225,42 @@ export const uploadMedia = async (response: any, video) => {
   const s3 = await createAWS();
 
   try {
-    return new Promise((resolve, reject) => {
-      request(response)
-        .pipe(fs.createWriteStream(mediaFile))
-        .on('close', () => {
-          // Upload the file to S3
-          s3.upload(
-            {
-              Bucket: AWS_BUCKET,
-              Key: mediaFile,
-              Body: fs.readFileSync(mediaFile),
-              ACL: FILE_SYSTEM_PUBLIC === 'true' ? 'public-read' : undefined
-            },
-            (err, res) => {
-              if (err) {
-                reject(err);
-              }
-              const file =
-                FILE_SYSTEM_PUBLIC === 'true' ? res.Location : res.key;
+    const response = await fetch(url);
 
-              return resolve(file);
-            }
-          );
-        });
+    if (!response.ok)
+      throw new Error(
+        `uploadMedia: unexpected response ${response.statusText}`
+      );
+
+    /**
+     * If directly piping response body to s3.upload body doesn't work we can
+     * save it to disk first
+     *
+     * import { pipeline } from 'node:stream/promises';
+     * await pipeline(response.body, fs.createWriteStream(mediaFile));
+     *
+     * then pipe it into body using
+     *
+     * Body: fs.createReadStream(mediaFile)
+     */
+
+    return new Promise((resolve, reject) => {
+      s3.upload(
+        {
+          Bucket: AWS_BUCKET,
+          Key: mediaFile,
+          Body: response.body,
+          ACL: FILE_SYSTEM_PUBLIC === 'true' ? 'public-read' : undefined
+        },
+        (err, res) => {
+          if (err) {
+            reject(err);
+          }
+          const file = FILE_SYSTEM_PUBLIC === 'true' ? res.Location : res.key;
+
+          return resolve(file);
+        }
+      );
     });
   } catch (e) {
     debugError(

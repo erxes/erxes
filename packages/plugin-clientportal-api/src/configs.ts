@@ -10,32 +10,29 @@ import { initBroker } from './messageBroker';
 import cpUserMiddleware from './middlewares/cpUserMiddleware';
 import * as permissions from './permissions';
 
-export let graphqlPubsub;
 export let mainDb;
-export let serviceDiscovery;
 export let debug;
 
 export default {
   name: 'clientportal',
   permissions,
-  graphql: async sd => {
-    serviceDiscovery = sd;
+  graphql: async () => {
     return {
-      typeDefs: await typeDefs(sd),
-      resolvers
+      typeDefs: await typeDefs(),
+      resolvers,
     };
   },
   hasSubscriptions: true,
   subscriptionPluginPath: require('path').resolve(
     __dirname,
     'graphql',
-    'subscriptionPlugin.js'
+    'subscriptionPlugin.js',
   ),
 
   meta: {
     forms,
     permissions,
-    afterMutations
+    afterMutations,
   },
 
   apolloServerContext: async (context, req, res) => {
@@ -44,7 +41,7 @@ export default {
     const requestInfo = {
       secure: req.secure,
       cookies: req.cookies,
-      headers: req.headers
+      headers: req.headers,
     };
 
     const models = await generateModels(subdomain);
@@ -61,13 +58,11 @@ export default {
     return context;
   },
   middlewares: [cookieParser(), cpUserMiddleware],
-  onServerInit: async options => {
-    const app = options.app;
+  onServerInit: async (options) => {
     mainDb = options.db;
 
     initBroker(options.messageBrokerClient);
 
     debug = options.debug;
-    graphqlPubsub = options.pubsubClient;
-  }
+  },
 };

@@ -5,31 +5,27 @@ import { initBroker } from './messageBroker';
 
 export let mainDb;
 export let debug;
-export let graphqlPubsub;
-export let serviceDiscovery;
+
+
 
 export default {
   name: 'zms',
-  graphql: async sd => {
-    serviceDiscovery = sd;
-
+  graphql: async () => {
     return {
-      typeDefs: await typeDefs(sd),
-      resolvers: await resolvers(sd)
+      typeDefs: await typeDefs(),
+      resolvers: await resolvers(),
     };
   },
 
-  apolloServerContext: async context => {
+  apolloServerContext: async (context) => {
     return context;
   },
 
-  onServerInit: async options => {
+  onServerInit: async (options) => {
     mainDb = options.db;
 
     initBroker(options.messageBrokerClient);
 
-    graphqlPubsub = options.pubsubClient;
-
     debug = options.debug;
-  }
+  },
 };

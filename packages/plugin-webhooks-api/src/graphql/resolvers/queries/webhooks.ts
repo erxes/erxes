@@ -2,8 +2,9 @@ import {
   checkPermission,
   requireLogin
 } from '@erxes/api-utils/src/permissions';
-import { serviceDiscovery } from '../../../configs';
+
 import { IContext } from '../../../connectionResolver';
+import { getService, getServices } from '@erxes/api-utils/src/serviceDiscovery';
 
 const webhookQueries = {
   /**
@@ -29,11 +30,11 @@ const webhookQueries = {
   },
 
   async webhooksGetActions(_root) {
-    const services = await serviceDiscovery.getServices();
+    const services = await getServices();
     const webhookActions: any = [];
 
     for (const serviceName of services) {
-      const service = await serviceDiscovery.getService(serviceName);
+      const service = await getService(serviceName);
       const meta = service.config?.meta || {};
 
       if (meta && meta.webhooks) {

@@ -7,7 +7,7 @@ import {
   fetchSegment,
   isInSegment
 } from './graphql/resolvers/queries/queryBuilder';
-import { serviceDiscovery } from './configs';
+
 
 const sendSuccessMessage = data => ({ data, status: 'success' });
 const sendErrorMessage = (message?) => ({
@@ -128,13 +128,12 @@ export const initBroker = async cl => {
 export const sendMessage = async (
   args: ISendMessageArgs & { serviceName: string }
 ): Promise<any> => {
-  return sendMessageCore({ client, serviceDiscovery, ...args });
+  return sendMessageCore({ client, ...args });
 };
 
 export const sendCoreMessage = (args: ISendMessageArgs): Promise<any> => {
   return sendMessageCore({
     client,
-    serviceDiscovery,
     serviceName: 'core',
     ...args
   });

@@ -3,9 +3,10 @@ import {
   requireLogin
 } from '@erxes/api-utils/src/permissions';
 import { fieldsCombinedByContentType } from '../../../utils';
-import { serviceDiscovery } from '../../../configs';
+
 import { fetchService } from '../../../messageBroker';
 import { IContext } from '../../../connectionResolver';
+import { getService, getServices } from '@erxes/api-utils/src/serviceDiscovery';
 interface IFieldsDefaultColmns {
   [index: number]: { name: string; label: string; order: number } | {};
 }
@@ -22,11 +23,11 @@ export interface IFieldsQuery {
 
 const fieldQueries = {
   async fieldsGetTypes() {
-    const services = await serviceDiscovery.getServices();
+    const services = await getServices();
     const fieldTypes: Array<{ description: string; contentType: string }> = [];
 
     for (const serviceName of services) {
-      const service = await serviceDiscovery.getService(serviceName);
+      const service = await getService(serviceName);
       const meta = service.config?.meta || {};
 
       if (meta && meta.forms) {
@@ -45,7 +46,7 @@ const fieldQueries = {
   },
 
   async getFieldsInputTypes() {
-    const services = await serviceDiscovery.getServices();
+    const services = await getServices();
     const fieldInputTypes: Array<{ value: string; label: string }> = [
       { value: 'input', label: 'Input' },
       { value: 'list', label: 'String List' },
@@ -64,7 +65,7 @@ const fieldQueries = {
     ];
 
     for (const serviceName of services) {
-      const service = await serviceDiscovery.getService(serviceName);
+      const service = await getService(serviceName);
       const meta = service.config?.meta || {};
 
       if (meta && meta.forms) {
@@ -189,7 +190,7 @@ const fieldQueries = {
     { contentType }: { contentType: string }
   ): Promise<IFieldsDefaultColmns> {
     const [serviceName, type] = contentType.split(':');
-    const service = await serviceDiscovery.getService(serviceName);
+    const service = await getService(serviceName);
 
     if (!service) {
       return [];

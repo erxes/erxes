@@ -6,12 +6,11 @@ import {
 
 import client from '.';
 
-import { serviceDiscovery } from '../../configs';
+
 
 export const sendContactsMessage = (args: ISendMessageArgs) => {
   return sendCommonMessage({
     client,
-    serviceDiscovery,
     serviceName: 'contacts',
     ...args
   });
@@ -20,7 +19,6 @@ export const sendContactsMessage = (args: ISendMessageArgs) => {
 export const sendInboxMessage = (args: ISendMessageArgs) => {
   return sendCommonMessage({
     client,
-    serviceDiscovery,
     serviceName: 'inbox',
     timeout: 50000,
     ...args
