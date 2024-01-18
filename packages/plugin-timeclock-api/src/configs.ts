@@ -9,11 +9,9 @@ import { routeErrorHandling } from '@erxes/api-utils/src/requests';
 import { buildFile } from './reportExport';
 import * as permissions from './permissions';
 import { removeDuplicates } from './removeDuplicateTimeclocks';
-
+import app from '@erxes/api-utils/src/app';
 export let mainDb;
 export let debug;
-
-
 
 export default {
   name: 'timeclock',
@@ -42,7 +40,7 @@ export default {
 
   onServerInit: async (options) => {
     mainDb = options.db;
-    const app = options.app;
+
     app.get(
       '/remove-duplicates',
       routeErrorHandling(async (req: any, res) => {

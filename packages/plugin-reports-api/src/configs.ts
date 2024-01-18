@@ -5,14 +5,13 @@ import { initBroker } from './messageBroker';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import { generateModels } from './connectionResolver';
 import { routeErrorHandling } from '@erxes/api-utils/src/requests';
+import app from '@erxes/api-utils/src/app';
 
 import tags from './tags';
 import { buildFile } from './reportExport';
 
 export let mainDb;
 export let debug;
-
-
 
 export default {
   name: 'reports',
@@ -36,7 +35,6 @@ export default {
 
   onServerInit: async (options) => {
     mainDb = options.db;
-    const app = options.app;
     initBroker(options.messageBrokerClient);
 
     debug = options.debug;
