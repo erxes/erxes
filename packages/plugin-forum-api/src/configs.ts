@@ -57,8 +57,6 @@ export default {
   onServerInit: async (options) => {
     mainDb = options.db;
 
-    const app = options.app;
-
     initBroker(options.messageBrokerClient);
 
     debug = options.debug;

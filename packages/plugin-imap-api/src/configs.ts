@@ -14,6 +14,7 @@ import startDistributingJobs, {
 import { debugError } from '@erxes/api-utils/src/debuggers';
 import { routeErrorHandling } from '@erxes/api-utils/src/requests';
 import logs from './logUtils';
+import app from '@erxes/api-utils/src/app';
 
 export let mainDb;
 export let debug;
@@ -44,7 +45,6 @@ export default {
 
   onServerInit: async (options) => {
     mainDb = options.db;
-    const app = options.app;
 
     debug = options.debug;
 

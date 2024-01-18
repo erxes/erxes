@@ -8,7 +8,6 @@ import { generateModels } from './connectionResolver';
 import cronjobs from './cronjobs/bichil';
 import { buildFile as timeclockBuildFile } from './timeclockExport';
 import { buildFile } from './reportExport';
-import * as bodyParser from 'body-parser';
 import * as multer from 'multer';
 import * as cors from 'cors';
 import * as cookieParser from 'cookie-parser';
@@ -16,11 +15,10 @@ import userMiddleware, { checkPermission, handleUpload } from './utils';
 import * as permissions from './permissions';
 import { removeAndUpdateTimeclocks } from './updateTimeclocks';
 import { findAndUpdateTimeclockScheduleShifts } from './updateTimeclockScheduleShifts';
+import app from '@erxes/api-utils/src/app';
 
 export let mainDb;
 export let debug;
-
-
 
 export default {
   name: 'bichil',
@@ -28,15 +26,13 @@ export default {
 
   meta: {
     cronjobs,
-    permissions
+    permissions,
   },
 
   graphql: async () => {
-    
-
     return {
       typeDefs: await typeDefs(),
-      resolvers: await resolvers()
+      resolvers: await resolvers(),
     };
   },
 
@@ -47,7 +43,7 @@ export default {
     const requestInfo = {
       secure: req.secure,
       cookies: req.cookies,
-      headers: req.headers
+      headers: req.headers,
     };
 
     context.subdomain = subdomain;
@@ -61,21 +57,17 @@ export default {
 
   middlewares: [cookieParser(), userMiddleware],
 
-  onServerInit: async options => {
+  onServerInit: async (options) => {
     mainDb = options.db;
-    const app = options.app;
 
     const { DOMAIN } = process.env;
 
     const corsOptions = {
       credentials: true,
-      origin: DOMAIN || 'http://localhost:3000'
+      origin: DOMAIN || 'http://localhost:3000',
     };
 
     app.use(cors(corsOptions));
-
-    app.use(bodyParser.json());
-    app.use(bodyParser.urlencoded({ extended: true }));
 
     app.get(
       '/bichil-report-export',
@@ -90,7 +82,7 @@ export default {
         res.attachment(`${result.name}.xlsx`);
 
         return res.send(result.response);
-      })
+      }),
     );
 
     app.get(
@@ -106,7 +98,7 @@ export default {
         res.attachment(`${result.name}.xlsx`);
 
         return res.send(result.response);
-      })
+      }),
     );
 
     app.get(
@@ -116,7 +108,7 @@ export default {
         const update = await removeAndUpdateTimeclocks(query);
 
         return res.send(update);
-      })
+      }),
     );
 
     app.get(
@@ -126,12 +118,10 @@ export default {
         const update = await findAndUpdateTimeclockScheduleShifts(query);
 
         return res.send(update);
-      })
+      }),
     );
 
     initBroker(options.messageBrokerClient);
-
-    
 
     debug = options.debug;
 
@@ -140,7 +130,7 @@ export default {
     app.post(
       '/upload-salary',
       upload.single('file'),
-      async (req, res, _next) => {
+      async (req: any, res, _next) => {
         if (!req.user) {
           return res.status(401).send('Unauthorized');
         }
@@ -169,7 +159,7 @@ export default {
           // next(e);
           return res.status(200).json({ error: e.message });
         }
-      }
+      },
     );
-  }
+  },
 };

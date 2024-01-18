@@ -59,7 +59,6 @@ export default {
   },
   middlewares: [cookieParser(), cpUserMiddleware],
   onServerInit: async (options) => {
-    const app = options.app;
     mainDb = options.db;
 
     initBroker(options.messageBrokerClient);
