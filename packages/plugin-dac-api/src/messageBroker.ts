@@ -20,7 +20,6 @@ export const initBroker = async cl => {
 
 export const sendContactsMessage = (args: ISendMessageArgs) => {
   return sendMessage({
-    client,
     serviceName: 'contacts',
     ...args
   });
@@ -28,14 +27,12 @@ export const sendContactsMessage = (args: ISendMessageArgs) => {
 
 export const sendCoreMessage = (args: ISendMessageArgs) => {
   return sendMessage({
-    client,
     serviceName: 'core',
     ...args
   });
 };
 export const sendFormsMessage = (args: ISendMessageArgs) => {
   return sendMessage({
-    client,
     serviceName: 'forms',
     ...args
   });
@@ -44,14 +41,12 @@ export const sendCommonMessage = async (
   args: ISendMessageArgs & { serviceName: string }
 ): Promise<any> => {
   return sendMessage({
-    client,
     ...args
   });
 };
 
 export const sendCarsMessage = (args: ISendMessageArgs) => {
   return sendMessage({
-    client,
     serviceName: 'cars',
     ...args
   });
@@ -59,7 +54,6 @@ export const sendCarsMessage = (args: ISendMessageArgs) => {
 
 export const sendClientPortalMessage = (args: ISendMessageArgs) => {
   return sendMessage({
-    client,
     serviceName: 'clientportal',
     ...args
   });

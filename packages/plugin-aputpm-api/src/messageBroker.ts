@@ -10,14 +10,12 @@ export const sendCommonMessage = async (
   args: ISendMessageArgs & { serviceName: string }
 ) => {
   return sendMessage({
-    client,
     ...args
   });
 };
 
 export const sendCardsMessage = (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'cards',
     ...args
   });
@@ -25,7 +23,6 @@ export const sendCardsMessage = (args: ISendMessageArgs): Promise<any> => {
 
 export const sendCoreMessage = (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'core',
     ...args
   });
@@ -33,7 +30,6 @@ export const sendCoreMessage = (args: ISendMessageArgs): Promise<any> => {
 
 export const sendKbMessage = (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'knowledgebase',
     ...args
   });

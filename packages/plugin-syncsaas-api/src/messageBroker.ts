@@ -19,7 +19,6 @@ export const initBroker = async cl => {
 
 export const sendContactsMessage = (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'contacts',
     ...args
   });
@@ -27,7 +26,6 @@ export const sendContactsMessage = (args: ISendMessageArgs): Promise<any> => {
 
 export const sendFormsMessage = (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'forms',
     ...args
   });
@@ -35,7 +33,6 @@ export const sendFormsMessage = (args: ISendMessageArgs): Promise<any> => {
 
 export const sendCardsMessage = (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'cards',
     ...args
   });
@@ -43,7 +40,6 @@ export const sendCardsMessage = (args: ISendMessageArgs): Promise<any> => {
 
 export const sendCoreMessage = (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'core',
     ...args
   });
@@ -51,7 +47,6 @@ export const sendCoreMessage = (args: ISendMessageArgs): Promise<any> => {
 
 export const sendCPMessage = (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'clientportal',
     ...args
   });
@@ -61,7 +56,6 @@ export const sendNotificationsMessage = async (
   args: ISendMessageArgs
 ): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'notifications',
     ...args
   });
