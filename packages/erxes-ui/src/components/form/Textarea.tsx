@@ -23,7 +23,7 @@ class Textarea extends React.Component<Props> {
     textarea.style.height = `${textarea.scrollHeight + 1}px`;
   }
 
-  onChange = e => {
+  onChange = (e) => {
     const { onChange } = this.props;
 
     this.setHeight();
@@ -33,16 +33,17 @@ class Textarea extends React.Component<Props> {
     }
   };
 
-  setArea = area => {
+  setArea = (area) => {
     this.area = area;
   };
 
   render() {
-    const { maxHeight, ...props } = this.props;
+    const { maxHeight, hasError, ...props } = this.props;
 
     return (
       <TextArea
         {...props}
+        $hasError={hasError}
         innerRef={this.setArea}
         maxHeight={maxHeight}
         onChange={this.onChange}

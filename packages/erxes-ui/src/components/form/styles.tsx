@@ -49,9 +49,11 @@ const Formgroup = styledTS<{ horizontal?: boolean }>(styled.div)`
   }
 `;
 
-const Input = styledTS<{ round?: boolean; hasError?: boolean; align?: string }>(
-  styled.input,
-)`
+const Input = styledTS<{
+  round?: boolean;
+  $hasError?: boolean;
+  align?: string;
+}>(styled.input)`
   display: block;
   border: none;
   width: 100%;
@@ -60,7 +62,7 @@ const Input = styledTS<{ round?: boolean; hasError?: boolean; align?: string }>(
   color: ${colors.textPrimary};
   border-bottom: 1px solid;
   border-color:${(props) =>
-    props.hasError ? colors.colorCoreRed : colors.colorShadowGray};
+    props.$hasError ? colors.colorCoreRed : colors.colorShadowGray};
   background: none;
   transition: all 0.3s ease;
 
@@ -101,10 +103,10 @@ const Input = styledTS<{ round?: boolean; hasError?: boolean; align?: string }>(
   }
 `;
 
-const SelectWrapper = styledTS<{ hasError?: boolean }>(styled.div)`
+const SelectWrapper = styledTS<{ $hasError?: boolean }>(styled.div)`
   overflow: hidden;
   border-bottom: 1px solid ${(props) =>
-    props.hasError ? colors.colorCoreRed : colors.colorShadowGray};
+    props.$hasError ? colors.colorCoreRed : colors.colorShadowGray};
   width: 100%;
   height: ${textInputHeight};
   position: relative;

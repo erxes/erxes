@@ -5,14 +5,14 @@ import {
   Progress,
   Radio,
   Select,
-  SelectWrapper
+  SelectWrapper,
 } from './styles';
 
 import { Column } from '@erxes/ui/src/styles/main';
+import NumberInput from './NumberInput';
 import ProgressBar from '../ProgressBar';
 import React from 'react';
 import Textarea from './Textarea';
-import NumberInput from './NumberInput';
 
 type Props = {
   children?: React.ReactNode;
@@ -69,7 +69,7 @@ class FormControl extends React.Component<Props> {
     componentClass: 'input',
     required: false,
     defaultChecked: false,
-    disabled: false
+    disabled: false,
   };
 
   componentDidMount() {
@@ -87,7 +87,7 @@ class FormControl extends React.Component<Props> {
     const errorMessage = props.errors && props.errors[props.name || ''];
 
     // cancel custom browser default form validation error
-    const onChange = e => {
+    const onChange = (e) => {
       if (props.onChange) {
         props.onChange(e);
       }
@@ -101,13 +101,10 @@ class FormControl extends React.Component<Props> {
       onBlur: props.onBlur,
       value: props.value,
       defaultValue: props.defaultValue,
-      [props.defaultChecked
-        ? 'defaultChecked'
-        : 'checked']: props.defaultChecked
-        ? props.defaultChecked
-        : props.checked,
+      [props.defaultChecked ? 'defaultChecked' : 'checked']:
+        props.defaultChecked ? props.defaultChecked : props.checked,
       placeholder: props.placeholder,
-      hasError: errorMessage ? true : false,
+      $hasError: errorMessage ? true : false,
       type: props.type,
       name: props.name,
       round: props.round,
@@ -122,14 +119,14 @@ class FormControl extends React.Component<Props> {
       maxHeight: props.maxHeight,
       maxLength: props.maxLength,
       color: props.color,
-      align: props.align
+      align: props.align,
     };
 
     if (elementType === 'select') {
       if (props.options) {
         return (
           <Column>
-            <SelectWrapper hasError={errorMessage}>
+            <SelectWrapper $hasError={errorMessage}>
               <Select {...attributes}>
                 {props.options.map((option, index) => {
                   return (
@@ -151,7 +148,7 @@ class FormControl extends React.Component<Props> {
 
       return (
         <Column>
-          <SelectWrapper hasError={errorMessage}>
+          <SelectWrapper $hasError={errorMessage}>
             <Select {...attributes}>{childNode}</Select>
           </SelectWrapper>
           {errorMessage}
@@ -166,7 +163,7 @@ class FormControl extends React.Component<Props> {
             Radio,
             { key: index, ...attributes, ...option },
             elementType,
-            option.childNode
+            option.childNode,
           );
         });
       }
