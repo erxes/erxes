@@ -520,7 +520,7 @@ export const generateQueryBySegment = async (
 
         propertiesPositive.push({
           terms: {
-            _id: ids.map(id => id)
+            _id: ids.filter(id => id)
           }
         });
       }
