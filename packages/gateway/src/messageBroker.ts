@@ -9,6 +9,6 @@ export const initBroker = async () => {
   client = await initBrokerCore();
 };
 
-export default function() {
+export default function () {
   return client;
 }

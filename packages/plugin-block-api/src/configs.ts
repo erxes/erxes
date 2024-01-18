@@ -15,7 +15,6 @@ export let debug;
 export default {
   name: 'block',
   graphql: async () => {
-
     return {
       typeDefs: await typeDefs(),
       resolvers: await resolvers(),

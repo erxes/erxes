@@ -19,8 +19,6 @@ import app from '@erxes/api-utils/src/app';
 export let mainDb;
 export let debug;
 
-
-
 export default {
   name: 'payment',
   permissions,

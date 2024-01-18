@@ -9,8 +9,6 @@ import { initBroker, createRoutes } from './server';
 
 export let mainDb;
 
-
-
 export let debug;
 
 export default {

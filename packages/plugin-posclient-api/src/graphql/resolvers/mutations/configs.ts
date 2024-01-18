@@ -58,9 +58,7 @@ const configMutations = {
       throw new Error(e.message);
     }
 
-    const messageBrokerClient = await initBrokerMain(
-      initBroker,
-    );
+    const messageBrokerClient = await initBrokerMain(initBroker);
 
     await initBroker(messageBrokerClient)
       .then(() => {

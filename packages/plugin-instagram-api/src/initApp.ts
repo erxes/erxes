@@ -21,8 +21,8 @@ const initApp = async () => {
     bodyParser.urlencoded({
       limit: '10mb',
       verify: rawBodySaver,
-      extended: true
-    })
+      extended: true,
+    }),
   );
   app.use(bodyParser.json({ limit: '10mb', verify: rawBodySaver }));
 

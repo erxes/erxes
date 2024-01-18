@@ -38,7 +38,7 @@ export default {
     return context;
   },
   onServerInit: async (options) => {
-    mainDb = options.db;  
+    mainDb = options.db;
 
     // Error handling middleware
     app.use((error, _req, res, _next) => {

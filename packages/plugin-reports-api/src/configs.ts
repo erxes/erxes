@@ -13,8 +13,6 @@ import { buildFile } from './reportExport';
 export let mainDb;
 export let debug;
 
-
-
 export default {
   name: 'reports',
   graphql: async () => {

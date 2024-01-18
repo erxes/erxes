@@ -128,31 +128,30 @@ function splitPluginProcedureName(queueName: string) {
 }
 
 export const consumeRPCQueue = (queueName, procedure) => {
+  const { procedureName } = splitPluginProcedureName(queueName);
 
-      const { procedureName } = splitPluginProcedureName(queueName);
+  if (procedureName.includes(':')) {
+    throw new Error(
+      `${procedureName}. RPC procedure name cannot contain : character. Use dot . instead.`,
+    );
+  }
 
-      if (procedureName.includes(':')) {
-        throw new Error(
-          `${procedureName}. RPC procedure name cannot contain : character. Use dot . instead.`,
-        );
-      }
+  const endpoint = `/rpc/${procedureName}`;
 
-      const endpoint = `/rpc/${procedureName}`;
-
-      app.post(endpoint, async (req, res) => {
-        try {
-          const response = await procedure(req.body);
-          res.json(response);
-        } catch (e) {
-          res.json({
-            status: 'error',
-            errorMessage: e.message,
-          });
-        }
+  app.post(endpoint, async (req, res) => {
+    try {
+      const response = await procedure(req.body);
+      res.json(response);
+    } catch (e) {
+      res.json({
+        status: 'error',
+        errorMessage: e.message,
       });
+    }
+  });
 
-    consumeRPCQueueMq(queueName, procedure);
-  };
+  consumeRPCQueueMq(queueName, procedure);
+};
 
 export const sendRPCMessage = async (
   queueName: string,
@@ -401,10 +400,7 @@ export const sendMessage = async (queueName: string, data?: any) => {
 
 function RabbitListener() {}
 
-RabbitListener.prototype.connect = function (
-  host,
-  reconnectCallback?,
-) {
+RabbitListener.prototype.connect = function (host, reconnectCallback?) {
   const me = this;
 
   return new Promise(function (resolve) {
@@ -414,14 +410,8 @@ RabbitListener.prototype.connect = function (
         function (conn) {
           console.log(`Connected to rabbitmq server ${host}`);
 
-          conn.on(
-            'error',
-            me.reconnect.bind(me, host, reconnectCallback),
-          );
-          conn.on(
-            'close',
-            me.reconnect.bind(me, host, reconnectCallback),
-          );
+          conn.on('error', me.reconnect.bind(me, host, reconnectCallback));
+          conn.on('close', me.reconnect.bind(me, host, reconnectCallback));
 
           return conn.createChannel().then(function (chan) {
             channel = chan;
@@ -439,10 +429,7 @@ RabbitListener.prototype.connect = function (
   });
 };
 
-RabbitListener.prototype.reconnect = function (
-  host,
-  reconnectCallback?,
-) {
+RabbitListener.prototype.reconnect = function (host, reconnectCallback?) {
   const reconnectTimeout = 1000 * 60;
 
   const me = this;
@@ -470,14 +457,9 @@ RabbitListener.prototype.reconnect = function (
   }, reconnectTimeout);
 };
 
-export const init = async (
-  reconnectCallback?,
-) => {
+export const init = async (reconnectCallback?: (client: any) => any) => {
   const listener = new RabbitListener();
-  await listener.connect(
-    `${RABBITMQ_HOST}?heartbeat=60`,
-    reconnectCallback,
-  );
+  await listener.connect(`${RABBITMQ_HOST}?heartbeat=60`, reconnectCallback);
 
   queuePrefix = MESSAGE_BROKER_PREFIX || '';
 

@@ -10,21 +10,21 @@ session.connect();
 
 const post = promisify(session.post.bind(session));
 
-const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 const { NODE_INSPECTOR } = process.env;
 
 const nodeInspector = NODE_INSPECTOR === 'enabled';
 
 export async function cpuPreciseCoverage(
-  seconds = 10
+  seconds = 10,
 ): Promise<Profiler.ScriptCoverage[]> {
   // session.connect();
   await post('Profiler.enable');
 
   await post('Profiler.startPreciseCoverage', {
     callCount: true,
-    detailed: true
+    detailed: true,
   });
 
   await sleep(seconds * 1000);
@@ -52,7 +52,7 @@ export async function cpuProfile(seconds = 10): Promise<Profiler.Profile> {
 }
 
 export async function heapProfile(
-  seconds = 10
+  seconds = 10,
 ): Promise<HeapProfiler.SamplingHeapProfile> {
   // session.connect();
   await post('HeapProfiler.enable');
@@ -68,11 +68,11 @@ export async function heapProfile(
 }
 
 export async function heapSnapshot(
-  chunkCb: (chunk: string) => void
+  chunkCb: (chunk: string) => void,
 ): Promise<void> {
-  return new Promise<void>(async resolve => {
+  return new Promise<void>(async (resolve) => {
     // session.connect();
-    const getChunk = m => {
+    const getChunk = (m) => {
       chunkCb(m.params.chunk);
     };
     session.on('HeapProfiler.addHeapSnapshotChunk', getChunk);
@@ -138,7 +138,7 @@ export function applyInspectorEndpoints(name: string) {
     try {
       res.attachment(`${name}-heap-snapshot-${Date.now()}.heapsnapshot`);
       res.type('json');
-      await heapSnapshot(chunk => res.write(chunk));
+      await heapSnapshot((chunk) => res.write(chunk));
       res.end();
     } catch (e) {
       return res.status(500).send(e.message);
