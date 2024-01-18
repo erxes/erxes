@@ -10,6 +10,8 @@ const allowTypes = {
 export const afterMutationHandlers = async (subdomain, params) => {
   const { type, action, user } = params;
 
+  console.log(params, 'params');
+
   const models = await generateModels(subdomain);
 
   const syncLogDoc = {
@@ -54,10 +56,10 @@ export const afterMutationHandlers = async (subdomain, params) => {
     if (type === 'pos:order') {
       syncLog = await models.SyncLogs.syncLogsAdd(syncLogDoc);
 
-      if (action === 'synced') {
-        customerToDynamic(subdomain, syncLog, params.object, models);
-        return;
-      }
+      // if (action === 'synced') {
+      //   customerToDynamic(subdomain, syncLog, params.object, models);
+      //   return;
+      // }
     }
   } catch (e) {
     await models.SyncLogs.updateOne(

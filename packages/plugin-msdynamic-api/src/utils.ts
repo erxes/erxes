@@ -349,6 +349,10 @@ export const consumeCustomers = async (subdomain, config, doc, action) => {
 };
 
 export const customerToDynamic = async (subdomain, syncLog, params, models) => {
+  const configs = await getConfig(subdomain, 'DYNAMIC', {});
+  // const config = configs[brandId || 'noBrand'];
+  const config = configs['7r1ffWS1cHmaFDQ0chvRq'];
+
   const customer = params;
 
   let name = customer.primaryName || '';
@@ -372,33 +376,26 @@ export const customerToDynamic = async (subdomain, syncLog, params, models) => {
     E_Mail: customer.primaryEmail || '',
     Mobile_Phone_No: customer.primaryPhone || '',
     Address: customer.primaryAddress || '',
+    Address_2: '',
     Country_Region_Code: 'MN',
     City: 'Orkhon',
     Post_Code: '61000',
     Contact: '',
     VAT_Registration_No: '2737329',
-    Gen_Bus_Posting_Group: 'DOMESTIC',
-    VAT_Bus_Posting_Group: 'DOMESTIC',
-    Customer_Posting_Group: 'TRADE',
-    Invoice_Disc_Code: 'BEV-00001',
-    Customer_Price_Group: 'ON TRADE',
-    Customer_Disc_Group: '',
-    Allow_Line_Disc: true,
+    Gen_Bus_Posting_Group: config.genBusPostingGroup || 'DOMESTIC',
+    VAT_Bus_Posting_Group: config.vatBusPostingGroup || 'DOMESTIC',
+    Customer_Posting_Group: config.customerPostingGroup || 'TRADE',
+    Customer_Price_Group: config.customerPricingGroup || 'ONLINE',
+    Customer_Disc_Group: config.customerDiscGroup || '',
+    Partner_Type: 'Company' || 'Person',
+    Payment_Terms_Code: config.paymentTermsCode || 'CASH',
+    Payment_Method_Code: config.paymentMethodCode || 'CASH',
+    Location_Code: config.locationCode || 'BEV-01',
     Prices_Including_VAT: true,
-    Partner_Type: 'Company',
-    Payment_Terms_Code: 'ENDOFMONTH',
-    Payment_Method_Code: 'BANK',
-    Location_Code: 'BEV-10',
-    Creation_Date: moment(new Date()).format('YYYY-MM-DD'),
+    Allow_Line_Disc: true,
   };
 
-  // EBarimt baihgui baina
-
   try {
-    const configs = await getConfig(subdomain, 'DYNAMIC', {});
-    // const config = configs[brandId || 'noBrand'];
-    const config = configs['ZCvn7uB96xPGpxCEtmrul'];
-
     let responseData;
 
     if (!config.customerApi || !config.username || !config.password) {
@@ -408,10 +405,7 @@ export const customerToDynamic = async (subdomain, syncLog, params, models) => {
     const { customerApi, username, password } = config;
 
     const response = await fetch(
-      `${customerApi}?` +
-        new URLSearchParams({
-          filter: `Phone_No eq '${customer.primaryPhone}`,
-        }),
+      `${customerApi}?$filter=Phone_No eq '${customer.primaryPhone}'`,
       {
         headers: {
           'Content-Type': 'application/json',
@@ -420,7 +414,6 @@ export const customerToDynamic = async (subdomain, syncLog, params, models) => {
             `${username}:${password}`,
           ).toString('base64')}`,
         },
-        body: JSON.stringify(sendData),
       },
     ).then((r) => r.json());
 
