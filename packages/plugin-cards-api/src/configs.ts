@@ -23,6 +23,7 @@ import exporter from './exporter';
 import cronjobs from './cronjobs/common';
 import dashboards from './dashboards';
 import reports from './reports';
+import app from '@erxes/api-utils/src/app';
 
 import { NOTIFICATION_MODULES } from './constants';
 export let mainDb;
@@ -80,8 +81,6 @@ export default {
   middlewares: [(serverTiming as any)()],
   onServerInit: async (options) => {
     mainDb = options.db;
-
-    const app = options.app;
 
     app.get(
       '/file-export',

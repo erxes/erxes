@@ -9,6 +9,7 @@ import { initBroker } from './messageBroker';
 import { generateModels } from './connectionResolver';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import * as permissions from './permissions';
+import app from '@erxes/api-utils/src/app';
 
 export let mainDb;
 export let debug;
@@ -38,30 +39,6 @@ export default {
   },
   onServerInit: async (options) => {
     mainDb = options.db;
-
-    const app = options.app;
-
-    app.disable('x-powered-by');
-
-    app.use(cookieParser());
-
-    // for health checking
-    app.get('/health', async (_req, res) => {
-      res.end('ok');
-    });
-
-    app.use((req: any, _res, next) => {
-      req.rawBody = '';
-
-      req.on('data', (chunk) => {
-        req.rawBody += chunk.toString();
-      });
-
-      next();
-    });
-
-    app.use(bodyParser.json());
-    app.use(bodyParser.urlencoded({ extended: true }));
 
     // Error handling middleware
     app.use((error, _req, res, _next) => {

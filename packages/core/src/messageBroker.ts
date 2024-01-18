@@ -28,8 +28,8 @@ import exporter from './exporter';
 
 let client;
 
-export const initBroker = async (options) => {
-  client = await initBrokerCore(options);
+export const initBroker = async () => {
+  client = await initBrokerCore();
 
   // do not receive messages in crons worker
   const { consumeQueue, consumeRPCQueue, consumeRPCQueueMq } = client;

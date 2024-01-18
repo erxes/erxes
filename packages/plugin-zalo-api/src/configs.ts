@@ -9,8 +9,6 @@ import { initBroker, createRoutes } from './server';
 
 export let mainDb;
 
-
-
 export let debug;
 
 export default {
@@ -37,7 +35,6 @@ export default {
   },
 
   onServerInit: async (options) => {
-    const app = options.app;
     mainDb = options.db;
 
     debug = options.debug;
@@ -45,6 +42,6 @@ export default {
     console.log('options.messageBrokerClient', options.messageBrokerClient);
 
     initBroker(options.messageBrokerClient);
-    createRoutes(app);
+    createRoutes();
   },
 };

@@ -34,6 +34,7 @@ import {
   leave,
 } from '@erxes/api-utils/src/serviceDiscovery';
 import { applyInspectorEndpoints } from '../inspect';
+import app from '@erxes/api-utils/src/app';
 
 const {
   MONGO_URL,
@@ -42,8 +43,6 @@ const {
   PORT,
   USE_BRAND_RESTRICTIONS,
 } = process.env;
-
-export const app = express();
 
 app.use(bodyParser.json({ limit: '15mb' }));
 app.use(bodyParser.urlencoded({ limit: '15mb', extended: true }));
@@ -73,16 +72,9 @@ export async function startPlugin(configs: any): Promise<express.Express> {
     }
   }
 
-  app.disable('x-powered-by');
-
   app.use(cors(configs.corsOptions || {}));
 
   app.use(cookieParser());
-
-  // for health checking
-  app.get('/health', async (_req, res) => {
-    res.end('ok');
-  });
 
   if (configs.hasSubscriptions) {
     app.get('/subscriptionPlugin.js', async (req, res) => {
@@ -264,14 +256,7 @@ export async function startPlugin(configs: any): Promise<express.Express> {
   // connect to mongo database
   const db = await connect(mongoUrl);
 
-  const messageBrokerClient = await initBroker(
-    {
-      RABBITMQ_HOST,
-      MESSAGE_BROKER_PREFIX,
-      app,
-    },
-    configs.reconnectRMQ,
-  );
+  const messageBrokerClient = await initBroker(configs.reconnectRMQ);
 
   if (configs.meta) {
     const {
@@ -651,7 +636,6 @@ export async function startPlugin(configs: any): Promise<express.Express> {
 
   configs.onServerInit({
     db,
-    app,
     messageBrokerClient,
     debug: {
       info: debugInfo,
@@ -659,7 +643,7 @@ export async function startPlugin(configs: any): Promise<express.Express> {
     },
   });
 
-  applyInspectorEndpoints(app, configs.name);
+  applyInspectorEndpoints(configs.name);
 
   debugInfo(`${configs.name} server is running on port: ${PORT}`);
 
