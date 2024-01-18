@@ -13,6 +13,7 @@ export interface IPostConversation {
   integrationId: string;
   customerId?: string;
   permalink_url: String;
+  attachments: string[];
 }
 
 export interface IPostConversationDocument
@@ -29,7 +30,8 @@ export const postConversationSchema = new Schema({
   integrationId: String,
   content: String,
   customerId: { type: String, optional: true },
-  permalink_url: String
+  permalink_url: String,
+  attachments: [String]
 });
 
 postConversationSchema.index({ senderId: 1, recipientId: 1 }, { unique: true });

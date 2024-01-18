@@ -30,14 +30,7 @@ const receivePost = async (
     INTEGRATION_KINDS.POST
   );
 
-  await getOrCreatePost(
-    models,
-    subdomain,
-    params,
-    pageId,
-    userId
-    // customer.erxesApiId || ''
-  );
+  await getOrCreatePost(models, subdomain, params, pageId, userId);
 };
 
 export default receivePost;

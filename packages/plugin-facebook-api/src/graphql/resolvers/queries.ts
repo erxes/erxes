@@ -79,7 +79,9 @@ const facebookQueries = {
       senderId,
       limit = 10
     } = args;
-    const post = await models.Posts.getPost({ erxesApiId: conversationId });
+    const post = await models.PostConversations.findOne({
+      erxesApiId: conversationId
+    });
 
     const query: {
       postId: string;
@@ -87,7 +89,7 @@ const facebookQueries = {
       parentId?: string;
       senderId?: string;
     } = {
-      postId: post.postId,
+      postId: post ? post.postId || '' : '',
       isResolved: isResolved === true
     };
 
@@ -101,7 +103,7 @@ const facebookQueries = {
       query.parentId = commentId !== 'undefined' ? commentId : '';
     }
 
-    const result = await models.Comments.aggregate([
+    const result = await models.CommentConversation.aggregate([
       {
         $match: query
       },
@@ -393,7 +395,7 @@ const facebookQueries = {
     if (limit) {
       const sort = getFirst ? { createdAt: 1 } : { createdAt: -1 };
 
-      messages = await models.Comments.find(query)
+      messages = await models.CommentConversation.find(query)
         .sort(sort)
         .skip(skip || 0)
         .limit(limit);
@@ -401,7 +403,7 @@ const facebookQueries = {
       return getFirst ? messages : messages.reverse();
     }
 
-    messages = await models.Comments.find(query)
+    messages = await models.CommentConversation.find(query)
       .sort({ createdAt: -1 })
       .limit(50);
 

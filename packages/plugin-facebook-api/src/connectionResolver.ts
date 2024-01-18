@@ -3,8 +3,6 @@ import * as mongoose from 'mongoose';
 import { IContext as IMainContext } from '@erxes/api-utils/src';
 import { createGenerateModels } from '@erxes/api-utils/src/core';
 
-import { ICommentModel, loadCommentClass } from './models/Comments';
-import { ICommentDocument } from './models/definitions/comments';
 import {
   ICommentConversationModel,
   loadCommentConversationClass
@@ -22,9 +20,6 @@ import { IConversationDocument } from './models/definitions/conversations';
 
 import { ICustomerModel, loadCustomerClass } from './models/Customers';
 import { ICustomerDocument } from './models/definitions/customers';
-
-import { IPostModel, loadPostClass } from './models/Posts';
-import { IPostDocument } from './models/definitions/posts';
 
 import { IConversationMessageDocument } from './models/definitions/conversationMessages';
 import { IBotDocument } from './models/definitions/bots';
@@ -59,13 +54,11 @@ import { ICommentConversationDocument } from './models/definitions/comment_conve
 import { ICommentConversationReplyDocument } from './models/definitions/comment_conversations_reply';
 
 export interface IModels {
-  Comments: ICommentModel;
   CommentConversation: ICommentConversationModel;
   CommentConversationReply: ICommentConversationReplyModel;
   PostConversations: IPostConversationModel;
   Conversations: IConversationModel;
   Customers: ICustomerModel;
-  Posts: IPostModel;
   ConversationMessages: IConversationMessageModel;
   Accounts: IAccountModel;
   Configs: IConfigModel;
@@ -108,11 +101,6 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
   );
   models.Logs = db.model<ILogDocument, ILogModel>('logs', loadLogClass(models));
 
-  models.Comments = db.model<ICommentDocument, ICommentModel>(
-    'comments_facebooks',
-    loadCommentClass(models)
-  );
-
   models.Conversations = db.model<IConversationDocument, IConversationModel>(
     'conversations_facebooks',
     loadConversationClass(models)
@@ -121,11 +109,6 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
   models.Customers = db.model<ICustomerDocument, ICustomerModel>(
     'customers_facebooks',
     loadCustomerClass(models)
-  );
-
-  models.Posts = db.model<IPostDocument, IPostModel>(
-    'posts_facebooks',
-    loadPostClass(models)
   );
 
   models.PostConversations = db.model<

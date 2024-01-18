@@ -20,7 +20,7 @@ export const loadPostConversationClass = (models: IModels) => {
       const conversation = await models.PostConversations.findOne(selector);
 
       if (!conversation) {
-        throw new Error('Conversation not found');
+        throw new Error('Post not found');
       }
 
       return conversation;

@@ -39,14 +39,14 @@ export const handleFacebookMessage = async (
       userId
     } = doc;
 
-    const regex = new RegExp('<img[^>]* src="([^"]*)"', 'g');
+    // const regex = new RegExp('<img[^>]* src="([^"]*)"', 'g');
 
-    const images: string[] = (content.match(regex) || []).map(m =>
-      m.replace(regex, '$1')
-    );
-    images.forEach(img => {
-      attachments.push({ type: 'image', url: img });
-    });
+    // const images: string[] = (content.match(regex) || []).map((m) =>
+    //   m.replace(regex, '$1')
+    // );
+    // images.forEach((img) => {
+    //   attachments.push({ type: 'image', url: img });
+    // });
 
     let strippedContent = strip(content);
 
@@ -57,9 +57,11 @@ export const handleFacebookMessage = async (
     });
 
     if (commentConversationResult) {
-      const { recipientId, comment_id } = commentConversationResult;
-
+      const { recipientId, comment_id, senderId } = commentConversationResult;
       await models.CommentConversationReply.create({
+        recipientId: recipientId,
+        senderId: senderId,
+        attachments: attachments,
         userId: userId,
         createdAt: new Date(Date.now()),
         content: strippedContent,
@@ -82,8 +84,8 @@ export const handleFacebookMessage = async (
       }
 
       let data = {
-        message: content,
-        attachment_url: attachment.url
+        message: strippedContent,
+        attachment_url: attachment.payload ? attachment.payload.url : undefined
       };
 
       try {

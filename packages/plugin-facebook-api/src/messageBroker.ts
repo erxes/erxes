@@ -122,7 +122,7 @@ export const initBroker = async cl => {
       const models = await generateModels(subdomain);
 
       return {
-        data: await models.Posts.getPost({ erxesApiId }, true),
+        data: await models.PostConversations.findOne({ erxesApiId }, true),
         status: 'success'
       };
     }

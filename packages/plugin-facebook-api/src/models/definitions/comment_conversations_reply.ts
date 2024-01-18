@@ -9,6 +9,7 @@ export interface ICommentConversationReply {
   parent_id: String;
   recipientId: string;
   senderId: string;
+  isResolved: boolean;
   comment_id: string;
   permalink_url: string;
   content: string;
@@ -35,5 +36,6 @@ export const commentConversationReplySchema = new Schema({
   userId: { type: String, optional: true },
   createdAt: { type: Date, default: Date.now, label: 'Created At' },
   updatedAt: field({ type: Date, index: true, label: 'Updated At' }),
-  attachments: [attachmentSchema]
+  attachments: [attachmentSchema],
+  isResolved: { type: Boolean, default: false }
 });

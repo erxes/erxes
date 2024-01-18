@@ -11,7 +11,6 @@ import {
 import { IModels } from './connectionResolver';
 import { INTEGRATION_KINDS } from './constants';
 import { ICustomerDocument } from './models/definitions/customers';
-import { IPostDocument } from './models/definitions/posts';
 import { IIntegrationDocument } from './models/Integrations';
 import { putCreateLog } from './logUtils';
 
@@ -160,27 +159,11 @@ export const getOrCreatePostConversation = async (
   customer: ICustomerDocument,
   params: ICommentParams
 ) => {
-  const post = await models.Posts.findOne({
+  let postConversation = await models.PostConversations.findOne({
     postId
   });
-
-  if (!post) {
-    throw new Error('Post not found');
-  }
-
-  let postConversation = await models.PostConversations.findOne({
-    postId,
-    customerId: customer._id
-  });
-
   if (!postConversation) {
-    postConversation = await models.PostConversations.create({
-      permalink_url: params.post.permalink_url,
-      postId,
-      integrationId: integration._id,
-      customerId: customer._id,
-      content: post.content
-    });
+    throw new Error('Post not founds');
   }
 
   return postConversation;
@@ -192,7 +175,6 @@ export const getOrCreatePost = async (
   postParams: IPostParams,
   pageId: string,
   userId: string
-  // customerId: string
 ) => {
   const { post_id } = postParams;
 
@@ -200,9 +182,8 @@ export const getOrCreatePost = async (
     throw new Error('post_id is required');
   }
 
-  let post = await models.Posts.findOne({
-    postId: post_id,
-    senderId: userId
+  let post = await models.PostConversations.findOne({
+    postId: postParams.post_id
   });
 
   if (post) {
@@ -231,30 +212,7 @@ export const getOrCreatePost = async (
   }
 
   doc.permalink_url = postUrl;
-
-  post = await models.Posts.create(doc);
-  // create conversation in api
-  // try {
-  //   const apiConversationResponse = await sendInboxMessage({
-  //     subdomain,
-  //     action: 'integrations.receive',
-  //     data: {
-  //       action: 'create-or-update-conversation',
-  //       payload: JSON.stringify({
-  //         customerId: customerErxesApiId,
-  //         integrationId: integration.erxesApiId,
-  //         content: post.content
-  //       })
-  //     },
-  //     isRPC: true
-  //   });
-
-  //   post.erxesApiId = apiConversationResponse._id;
-  //   await post.save();
-  // } catch (e) {
-  //   await models.Posts.deleteOne({ _id: post._id });
-  //   throw new Error(e);
-  // }
+  post = await models.PostConversations.create(doc);
 
   return post;
 };
@@ -279,8 +237,14 @@ export const getOrCreateComment = async (
   const post = await models.PostConversations.findOne({
     postId: commentParams.post_id
   });
-
-  // const generatedAttachments = generateAttachmentMessages(attachments);
+  const attachment = [
+    {
+      name: 'Photo', // You can set a name for the attachment
+      url: commentParams.photo,
+      type: 'image' // You can set the type based on your requirements
+      // You may want to include other properties like size, duration if applicable
+    }
+  ];
 
   if (commentConversations.length > 0 && post) {
     if (commentConversation.erxesApiId) {
@@ -288,6 +252,7 @@ export const getOrCreateComment = async (
     }
 
     comment = await models.CommentConversationReply.create({
+      attachments: attachment,
       customerId: customer.erxesApiId,
       recipientId: pageId,
       senderId: userId,
@@ -300,8 +265,10 @@ export const getOrCreateComment = async (
     if (postConversation.erxesApiId) {
       _id.push(postConversation.erxesApiId);
     }
+
     if (post) {
       comment = await models.CommentConversation.create({
+        attachments: attachment,
         recipientId: pageId,
         senderId: userId,
         createdAt: commentParams.post.updated_time,
@@ -325,7 +292,7 @@ export const getOrCreateComment = async (
           customerId: customer.erxesApiId,
           integrationId: integration.erxesApiId,
           content: commentParams.message,
-          attachments: [],
+          attachments: attachment,
           conversationId: resultString
         })
       },

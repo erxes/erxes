@@ -19,7 +19,9 @@ export interface ICommentConversation {
 
 export interface ICommentConversationDocument
   extends ICommentConversation,
-    Document {}
+    Document {
+  isResolved: any;
+}
 
 export const commentConversationSchema = new Schema({
   _id: field({ pkey: true }),

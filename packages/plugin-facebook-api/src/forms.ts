@@ -19,7 +19,7 @@ const generateFields = async ({ subdomain, data }) => {
 
   const models = await generateModels(subdomain);
 
-  const { ConversationMessages, Comments } = models;
+  const { ConversationMessages, CommentConversation } = models;
 
   let schema: any;
   let fields: Array<{
@@ -39,7 +39,7 @@ const generateFields = async ({ subdomain, data }) => {
       break;
 
     case 'comments':
-      schema = Comments.schema;
+      schema = CommentConversation.schema;
       break;
   }
 

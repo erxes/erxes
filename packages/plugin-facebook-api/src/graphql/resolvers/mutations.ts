@@ -46,18 +46,18 @@ const facebookMutations = {
     { models }: IContext
   ) {
     const { commentId } = params;
-    const comment = await models.Comments.findOne({ commentId });
+    const comment = await models.CommentConversation.findOne({ commentId });
 
     if (!comment) {
       throw new Error('Comment not found');
     }
 
-    await models.Comments.updateOne(
+    await models.CommentConversation.updateOne(
       { commentId },
       { $set: { isResolved: comment.isResolved ? false : true } }
     );
 
-    return models.Comments.findOne({ _id: comment._id });
+    return models.CommentConversation.findOne({ _id: comment._id });
   },
 
   async facebookReplyToComment(
@@ -67,9 +67,9 @@ const facebookMutations = {
   ) {
     const { commentId, content, attachments, conversationId } = params;
 
-    const comment = await models.Comments.findOne({ commentId });
+    const comment = await models.CommentConversation.findOne({ commentId });
 
-    const post = await models.Posts.findOne({
+    const post = await models.PostConversations.findOne({
       $or: [
         { erxesApiId: conversationId },
         { postId: comment ? comment.postId : '' }
@@ -102,9 +102,9 @@ const facebookMutations = {
       attachment_url: attachment.url
     };
 
-    const id = comment ? comment.commentId : post.postId;
+    const id = comment ? comment.comment_id : post.postId;
 
-    if (comment && comment.commentId) {
+    if (comment && comment.comment_id) {
       data = {
         message: ` @[${comment.senderId}] ${content}`,
         attachment_url: attachment.url

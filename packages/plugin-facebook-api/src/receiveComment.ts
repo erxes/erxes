@@ -17,7 +17,6 @@ const receiveComment = async (
 ) => {
   const userId = params.from.id;
   const postId = params.post_id;
-
   const integration = await models.Integrations.findOne({
     $and: [
       { facebookPageIds: { $in: pageId } },
@@ -36,7 +35,6 @@ const receiveComment = async (
     userId,
     INTEGRATION_KINDS.POST
   );
-
   const postConversation = await getOrCreatePostConversation(
     models,
     subdomain,
