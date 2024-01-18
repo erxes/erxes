@@ -14,17 +14,17 @@ import {
   Count,
   FlexBody,
   FlexCenterContent,
-  Header
+  Header,
 } from '@erxes/ui-log/src/activityLogs/styles';
 import {
   Comment,
-  PostContainer
+  PostContainer,
 } from '@erxes/ui-inbox/src/inbox/components/conversationDetail/workarea/facebook/styles';
 import { IConversation } from '@erxes/ui-inbox/src/inbox/types';
 import { __, renderFullName } from '@erxes/ui/src/utils';
 import {
   formatText,
-  getIconAndColor
+  getIconAndColor,
 } from '@erxes/ui-log/src/activityLogs/utils';
 import { IIntegration } from '@erxes/ui-inbox/src/settings/integrations/types';
 import Icon from '@erxes/ui/src/components/Icon';
@@ -46,7 +46,7 @@ class ActivityLogs extends React.Component<Props, { toggleMessage: boolean }> {
     super(props);
 
     this.state = {
-      toggleMessage: false
+      toggleMessage: false,
     };
   }
   onCollapse = () => {
@@ -60,16 +60,17 @@ class ActivityLogs extends React.Component<Props, { toggleMessage: boolean }> {
       return null;
     }
 
-    return comments.map(comment => (
+    return comments.map((comment) => (
       <div key={comment.commentId}>
         <Comment>
           <UserName
-            username={`${comment.customer.firstName} ${comment.customer
-              .lastName || ''}`}
+            username={`${comment.customer.firstName} ${
+              comment.customer.lastName || ''
+            }`}
           />
           <p
             dangerouslySetInnerHTML={{
-              __html: xss(comment.content)
+              __html: xss(comment.content),
             }}
           />
         </Comment>
@@ -98,7 +99,7 @@ class ActivityLogs extends React.Component<Props, { toggleMessage: boolean }> {
     const rows: React.ReactNode[] = [];
     let tempId;
 
-    messages.forEach(message => {
+    messages.forEach((message) => {
       tempId = message.userId ? message.userId : message.customerId;
 
       rows.push(
@@ -110,10 +111,9 @@ class ActivityLogs extends React.Component<Props, { toggleMessage: boolean }> {
           }
           message={message}
           key={message._id}
-        />
+        />,
       );
     });
-    console.log('123');
     return (
       <>
         {rows}
@@ -166,7 +166,6 @@ class ActivityLogs extends React.Component<Props, { toggleMessage: boolean }> {
     if (condition === 'comment') {
       customer = comments.length > 0 ? comments[0].customer : customer;
     }
-    console.log('sad1');
     return (
       <FlexBody>
         <b>{renderFullName(customer)}</b> {action}&nbsp;

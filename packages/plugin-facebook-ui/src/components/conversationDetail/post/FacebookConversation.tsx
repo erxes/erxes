@@ -21,7 +21,7 @@ type Props = {
   fetchFacebook: ({
     commentId,
     postId,
-    limit
+    limit,
   }: {
     commentId?: string;
     postId?: string;
@@ -50,7 +50,7 @@ export default class FacebookConversation extends React.Component<
     super(props);
 
     this.state = {
-      isResolved: false
+      isResolved: false,
     };
   }
 
@@ -69,20 +69,19 @@ export default class FacebookConversation extends React.Component<
     }
 
     const limit = comments.length + 5;
-    console.log('1');
     fetchFacebook({ postId: post.erxesApiId, limit });
   };
 
   renderReplies(comment: IFacebookComment) {
     const { comments, fetchFacebook } = this.props;
 
-    const replies = comments.filter(msg => {
+    const replies = comments.filter((msg) => {
       const parentId = getAttr(msg, 'parentId');
 
       return parentId && parentId === getAttr(comment, 'commentId');
     });
 
-    return replies.map(reply => (
+    return replies.map((reply) => (
       <React.Fragment key={reply.commentId}>
         <FacebookComment
           isReply={true}
@@ -104,7 +103,7 @@ export default class FacebookConversation extends React.Component<
       }
     }
 
-    return parentComments.map(comment => (
+    return parentComments.map((comment) => (
       <React.Fragment key={comment.commentId}>
         <FacebookComment
           comment={comment}
@@ -116,7 +115,7 @@ export default class FacebookConversation extends React.Component<
   }
 
   renderInternals(internalNotes: IMessage[]) {
-    return internalNotes.map(message => {
+    return internalNotes.map((message) => {
       return (
         <SimpleMessage
           message={message}
@@ -138,13 +137,8 @@ export default class FacebookConversation extends React.Component<
   }
 
   render() {
-    const {
-      post,
-      customer,
-      internalNotes,
-      scrollBottom,
-      commentCount
-    } = this.props;
+    const { post, customer, internalNotes, scrollBottom, commentCount } =
+      this.props;
 
     if (!post) {
       return null;

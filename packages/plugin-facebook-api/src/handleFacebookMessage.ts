@@ -10,22 +10,22 @@ import { sendInboxMessage } from './messageBroker';
 export const handleFacebookMessage = async (
   models: IModels,
   msg,
-  subdomain
+  subdomain,
 ) => {
   const { action, payload } = msg;
   const doc = JSON.parse(payload || '{}');
 
   if (doc.internal) {
     const conversation = await models.Conversations.getConversation({
-      erxesApiId: doc.conversationId
+      erxesApiId: doc.conversationId,
     });
 
     return models.ConversationMessages.addMessage(
       {
         ...doc,
-        conversationId: conversation._id
+        conversationId: conversation._id,
       },
-      doc.userId
+      doc.userId,
     );
   }
 
@@ -36,24 +36,15 @@ export const handleFacebookMessage = async (
       content = '',
       attachments = [],
       extraInfo,
-      userId
+      userId,
     } = doc;
-
-    // const regex = new RegExp('<img[^>]* src="([^"]*)"', 'g');
-
-    // const images: string[] = (content.match(regex) || []).map((m) =>
-    //   m.replace(regex, '$1')
-    // );
-    // images.forEach((img) => {
-    //   attachments.push({ type: 'image', url: img });
-    // });
 
     let strippedContent = strip(content);
 
     strippedContent = strippedContent.replace(/&amp;/g, '&');
 
     const commentConversationResult = await models.CommentConversation.findOne({
-      erxesApiId: conversationId
+      erxesApiId: conversationId,
     });
 
     if (commentConversationResult) {
@@ -65,7 +56,7 @@ export const handleFacebookMessage = async (
         userId: userId,
         createdAt: new Date(Date.now()),
         content: strippedContent,
-        parent_id: comment_id
+        parent_id: comment_id,
       });
 
       let attachment: {
@@ -78,14 +69,14 @@ export const handleFacebookMessage = async (
         attachment = {
           type: 'file',
           payload: {
-            url: attachments[0].url
-          }
+            url: attachments[0].url,
+          },
         };
       }
 
       let data = {
         message: strippedContent,
-        attachment_url: attachment.payload ? attachment.payload.url : undefined
+        attachment_url: attachment.payload ? attachment.payload.url : undefined,
       };
 
       try {
@@ -93,14 +84,14 @@ export const handleFacebookMessage = async (
           isRPC: true,
           subdomain,
           action: 'conversations.findOne',
-          data: { query: { _id: conversationId } }
+          data: { query: { _id: conversationId } },
         });
         await sendReply(
           models,
           `${comment_id}/comments`,
           data,
           recipientId,
-          inboxConversation && inboxConversation.integrationId
+          inboxConversation && inboxConversation.integrationId,
         );
 
         sendInboxMessage({
@@ -112,8 +103,8 @@ export const handleFacebookMessage = async (
             conversations: [inboxConversation],
             type: 'conversationStateChange',
             mobile: true,
-            messageContent: content
-          }
+            messageContent: content,
+          },
         });
 
         return { status: 'success' };
@@ -128,16 +119,16 @@ export const handleFacebookMessage = async (
       conversationId,
       content = '',
       attachments = [],
-      extraInfo
+      extraInfo,
     } = doc;
     const tag = extraInfo && extraInfo.tag ? extraInfo.tag : '';
 
     const regex = new RegExp('<img[^>]* src="([^"]*)"', 'g');
 
-    const images: string[] = (content.match(regex) || []).map(m =>
-      m.replace(regex, '$1')
+    const images: string[] = (content.match(regex) || []).map((m) =>
+      m.replace(regex, '$1'),
     );
-    images.forEach(img => {
+    images.forEach((img) => {
       attachments.push({ type: 'image', url: img });
     });
 
@@ -146,7 +137,7 @@ export const handleFacebookMessage = async (
     strippedContent = strippedContent.replace(/&amp;/g, '&');
 
     const conversation = await models.Conversations.getConversation({
-      erxesApiId: conversationId
+      erxesApiId: conversationId,
     });
 
     const { recipientId, senderId } = conversation;
@@ -161,10 +152,10 @@ export const handleFacebookMessage = async (
             {
               recipient: { id: senderId },
               message: { text: strippedContent },
-              tag
+              tag,
             },
             recipientId,
-            integrationId
+            integrationId,
           );
 
           if (resp) {
@@ -173,14 +164,14 @@ export const handleFacebookMessage = async (
                 ...doc,
                 // inbox conv id comes, so override
                 conversationId: conversation._id,
-                mid: resp.message_id
+                mid: resp.message_id,
               },
-              doc.userId
+              doc.userId,
             );
           }
         } catch (e) {
           await models.ConversationMessages.deleteOne({
-            _id: localMessage && localMessage._id
+            _id: localMessage && localMessage._id,
           });
 
           throw new Error(e.message);
@@ -196,7 +187,7 @@ export const handleFacebookMessage = async (
             'me/messages',
             { recipient: { id: senderId }, message, tag },
             recipientId,
-            integrationId
+            integrationId,
           );
         } catch (e) {
           throw new Error(e.message);
@@ -210,7 +201,7 @@ export const handleFacebookMessage = async (
       status: 'success',
       // inbox conversation id is used for mutation response,
       // therefore override local id
-      data: { ...localMessage.toObject(), conversationId }
+      data: { ...localMessage.toObject(), conversationId },
     };
   }
 };
