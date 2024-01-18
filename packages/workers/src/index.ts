@@ -118,7 +118,7 @@ httpServer.listen(PORT, async () => {
 
   // connect to mongo database
   connect(mongoUrl).then(async () => {
-    initBroker({ RABBITMQ_HOST, MESSAGE_BROKER_PREFIX, redis }).catch((e) => {
+    initBroker().catch((e) => {
       console.log(`Error ocurred during message broker init ${e.message}`);
     });
   });

@@ -5,7 +5,7 @@ import {
   redis,
   getServices,
   isAvailable,
-  getService
+  getService,
 } from './serviceDiscovery';
 
 const { RABBITMQ_HOST } = process.env;
@@ -13,7 +13,7 @@ const { RABBITMQ_HOST } = process.env;
 const sendMessage = async (
   subdomain: string,
   action: string,
-  services: string[]
+  services: string[],
 ) => {
   for (const serviceName of services) {
     const service = await getService(serviceName);
@@ -26,14 +26,14 @@ const sendMessage = async (
           subdomain,
           serviceName,
           action,
-          data: { subdomain }
+          data: { subdomain },
         });
       }
     }
   }
 };
 
-initBroker({ RABBITMQ_HOST, redis })
+initBroker()
   .then(async () => {
     console.log('Crons is running ....');
 
@@ -68,6 +68,6 @@ initBroker({ RABBITMQ_HOST, redis })
       await sendMessage(subdomain, 'handleDailyJob', services);
     });
   })
-  .catch(e =>
-    console.log(`Error ocurred during message broker init ${e.message}`)
+  .catch((e) =>
+    console.log(`Error ocurred during message broker init ${e.message}`),
   );

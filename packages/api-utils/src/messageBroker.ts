@@ -457,7 +457,7 @@ RabbitListener.prototype.reconnect = function (host, reconnectCallback?) {
   }, reconnectTimeout);
 };
 
-export const init = async (reconnectCallback?) => {
+export const init = async (reconnectCallback?: (client: any) => any) => {
   const listener = new RabbitListener();
   await listener.connect(`${RABBITMQ_HOST}?heartbeat=60`, reconnectCallback);
 
