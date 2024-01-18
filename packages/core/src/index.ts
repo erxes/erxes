@@ -22,7 +22,7 @@ import {
   readFileRequest,
   registerOnboardHistory,
   routeErrorHandling,
-  uploadsFolderPath
+  uploadsFolderPath,
 } from './data/utils';
 
 import { debugBase, debugError, debugInit } from './debuggers';
@@ -34,7 +34,7 @@ import {
   isEnabled,
   join,
   leave,
-  redis
+  redis,
 } from './serviceDiscovery';
 import logs from './logUtils';
 
@@ -52,12 +52,8 @@ import { getEnabledServices } from '@erxes/api-utils/src/serviceDiscovery';
 import { applyInspectorEndpoints } from '@erxes/api-utils/src/inspect';
 import app from '@erxes/api-utils/src/app';
 
-const {
-  JWT_TOKEN_SECRET,
-  WIDGETS_DOMAIN,
-  DOMAIN,
-  CLIENT_PORTAL_DOMAINS
-} = process.env;
+const { JWT_TOKEN_SECRET, WIDGETS_DOMAIN, DOMAIN, CLIENT_PORTAL_DOMAINS } =
+  process.env;
 
 if (!JWT_TOKEN_SECRET) {
   throw new Error('Please configure JWT_TOKEN_SECRET environment variable.');
@@ -68,8 +64,8 @@ app.use(express.urlencoded({ limit: '15mb', extended: true }));
 
 app.use(
   express.json({
-    limit: '15mb'
-  })
+    limit: '15mb',
+  }),
 );
 
 app.use(cookieParser());
@@ -80,8 +76,10 @@ const corsOptions = {
     DOMAIN ? DOMAIN : 'http://localhost:3000',
     WIDGETS_DOMAIN ? WIDGETS_DOMAIN : 'http://localhost:3200',
     ...(CLIENT_PORTAL_DOMAINS || '').split(','),
-    ...(process.env.ALLOWED_ORIGINS || '').split(',').map(c => c && RegExp(c))
-  ]
+    ...(process.env.ALLOWED_ORIGINS || '')
+      .split(',')
+      .map((c) => c && RegExp(c)),
+  ],
 };
 
 app.use(cors(corsOptions));
@@ -112,7 +110,7 @@ app.get(
             subdomain,
             action: 'initialSetup',
             serviceName,
-            data: {}
+            data: {},
           });
         }
       }
@@ -125,11 +123,11 @@ app.get(
     }
 
     const configs = await models.Configs.find({
-      code: new RegExp(`.*THEME_.*`, 'i')
+      code: new RegExp(`.*THEME_.*`, 'i'),
     }).lean();
 
     return res.json(configs);
-  })
+  }),
 );
 
 // app.post('/webhooks/:id', webhookMiddleware);
@@ -147,15 +145,10 @@ app.get(
     registerOnboardHistory({ models, type: `${name}Download`, user: req.user });
 
     return res.redirect(
-      `https://erxes-docs.s3-us-west-2.amazonaws.com/templates/${name}`
+      `https://erxes-docs.s3-us-west-2.amazonaws.com/templates/${name}`,
     );
-  })
+  }),
 );
-
-// for health check
-app.get('/health', async (_req, res) => {
-  res.end('ok');
-});
 
 app.get(
   '/template-export',
@@ -168,14 +161,14 @@ app.get(
     registerOnboardHistory({
       models,
       type: `importDownloadTemplate`,
-      user: req.user
+      user: req.user,
     });
 
     const { name, response } = await templateExport(req.query);
 
     res.attachment(`${name}.${importType}`);
     return res.send(response);
-  })
+  }),
 );
 
 // read file
@@ -197,7 +190,7 @@ app.get('/read-file', async (req: any, res, next) => {
       subdomain,
       models,
       userId: req.headers.userid,
-      width
+      width,
     });
 
     res.attachment(name || key);
@@ -233,7 +226,7 @@ app.post(
     }
 
     return res.status(500).send(status);
-  })
+  }),
 );
 
 // unsubscribe
@@ -248,11 +241,11 @@ app.get(
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
 
     const template = fs.readFileSync(
-      __dirname + '/private/emailTemplates/unsubscribe.html'
+      __dirname + '/private/emailTemplates/unsubscribe.html',
     );
 
     return res.send(template);
-  })
+  }),
 );
 
 app.post('/upload-file', uploader);
@@ -315,7 +308,7 @@ httpServer.listen(PORT, async () => {
 
       debugBase('Startup successfully started');
     })
-    .catch(e => {
+    .catch((e) => {
       debugError(`Error occured while starting init: ${e.message}`);
     });
 
@@ -332,8 +325,8 @@ httpServer.listen(PORT, async () => {
       permissions: moduleObjects,
       imports,
       exporter,
-      dashboards
-    }
+      dashboards,
+    },
   });
 
   debugInit(`GraphQL Server is now running on ${PORT}`);
@@ -377,7 +370,7 @@ async function closeHttpServer() {
 }
 
 // If the Node process ends, close the http-server and mongoose.connection and leave service discovery.
-(['SIGINT', 'SIGTERM'] as NodeJS.Signals[]).forEach(sig => {
+(['SIGINT', 'SIGTERM'] as NodeJS.Signals[]).forEach((sig) => {
   process.on(sig, async () => {
     await closeHttpServer();
     await closeMongooose();

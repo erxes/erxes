@@ -38,11 +38,6 @@ const {
 } = process.env;
 
 (async () => {
-  // for health check
-  app.get('/health', async (_req, res) => {
-    res.end('ok');
-  });
-
   app.use(cookieParser());
 
   app.use(userMiddleware);

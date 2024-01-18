@@ -72,16 +72,9 @@ export async function startPlugin(configs: any): Promise<express.Express> {
     }
   }
 
-  app.disable('x-powered-by');
-
   app.use(cors(configs.corsOptions || {}));
 
   app.use(cookieParser());
-
-  // for health checking
-  app.get('/health', async (_req, res) => {
-    res.end('ok');
-  });
 
   if (configs.hasSubscriptions) {
     app.get('/subscriptionPlugin.js', async (req, res) => {
@@ -180,7 +173,7 @@ export async function startPlugin(configs: any): Promise<express.Express> {
             throw new Error(`Multiple user headers`);
           }
           const userJson = Buffer.from(req.headers.user, 'base64').toString(
-            'utf-8'
+            'utf-8',
           );
           user = JSON.parse(userJson);
         }
@@ -238,11 +231,11 @@ export async function startPlugin(configs: any): Promise<express.Express> {
 
         return context;
       },
-    })
+    }),
   );
 
   await new Promise<void>((resolve) =>
-    httpServer.listen({ port: PORT }, resolve)
+    httpServer.listen({ port: PORT }, resolve),
   );
 
   if (configs.freeSubscriptions) {
@@ -255,7 +248,7 @@ export async function startPlugin(configs: any): Promise<express.Express> {
   }
 
   console.log(
-    `🚀 ${configs.name} graphql api ready at http://localhost:${PORT}/graphql`
+    `🚀 ${configs.name} graphql api ready at http://localhost:${PORT}/graphql`,
   );
 
   const mongoUrl = MONGO_URL || '';
@@ -296,7 +289,7 @@ export async function startPlugin(configs: any): Promise<express.Express> {
 
         consumeRPCQueue(
           `${configs.name}:segments.propertyConditionExtender`,
-          segments.propertyConditionExtender
+          segments.propertyConditionExtender,
         );
       }
 
@@ -305,7 +298,7 @@ export async function startPlugin(configs: any): Promise<express.Express> {
 
         consumeRPCQueue(
           `${configs.name}:segments.associationFilter`,
-          segments.associationFilter
+          segments.associationFilter,
         );
       }
 
@@ -314,7 +307,7 @@ export async function startPlugin(configs: any): Promise<express.Express> {
 
         consumeRPCQueue(
           `${configs.name}:segments.esTypesMap`,
-          segments.esTypesMap
+          segments.esTypesMap,
         );
       }
 
@@ -323,7 +316,7 @@ export async function startPlugin(configs: any): Promise<express.Express> {
 
         consumeRPCQueue(
           `${configs.name}:segments.initialSelector`,
-          segments.initialSelector
+          segments.initialSelector,
         );
       }
     }
@@ -354,7 +347,7 @@ export async function startPlugin(configs: any): Promise<express.Express> {
           async (args) => ({
             status: 'success',
             data: await forms.groupsFilter(args),
-          })
+          }),
         );
       }
 
@@ -436,7 +429,7 @@ export async function startPlugin(configs: any): Promise<express.Express> {
           async (args) => ({
             status: 'success',
             data: await imports.prepareImportDocs(args),
-          })
+          }),
         );
       }
 
@@ -446,7 +439,7 @@ export async function startPlugin(configs: any): Promise<express.Express> {
           async (args) => ({
             status: 'success',
             data: await imports.insertImportItems(args),
-          })
+          }),
         );
       }
     }
@@ -458,7 +451,7 @@ export async function startPlugin(configs: any): Promise<express.Express> {
           async (args) => ({
             status: 'success',
             data: await exporter.prepareExportData(args),
-          })
+          }),
         );
       }
 
@@ -468,7 +461,7 @@ export async function startPlugin(configs: any): Promise<express.Express> {
           async (args) => ({
             status: 'success',
             data: await exporter.getExportDocs(args),
-          })
+          }),
         );
       }
     }
@@ -480,7 +473,7 @@ export async function startPlugin(configs: any): Promise<express.Express> {
           async (args) => ({
             status: 'success',
             data: await automations.receiveActions(args),
-          })
+          }),
         );
       }
       if (automations?.getRecipientsEmails) {
@@ -489,7 +482,7 @@ export async function startPlugin(configs: any): Promise<express.Express> {
           async (args) => ({
             status: 'success',
             data: await automations.getRecipientsEmails(args),
-          })
+          }),
         );
       }
       if (automations?.replacePlaceHolders) {
@@ -498,7 +491,7 @@ export async function startPlugin(configs: any): Promise<express.Express> {
           async (args) => ({
             status: 'success',
             data: await automations.replacePlaceHolders(args),
-          })
+          }),
         );
       }
     }
@@ -510,7 +503,7 @@ export async function startPlugin(configs: any): Promise<express.Express> {
           async (args) => ({
             status: 'success',
             data: await reports.getChartResult(args),
-          })
+          }),
         );
       }
     }
@@ -584,7 +577,7 @@ export async function startPlugin(configs: any): Promise<express.Express> {
         async (args) => ({
           status: 'success',
           data: await documents.editorAttributes(args),
-        })
+        }),
       );
 
       consumeRPCQueue(
@@ -592,7 +585,7 @@ export async function startPlugin(configs: any): Promise<express.Express> {
         async (args) => ({
           status: 'success',
           data: await documents.replaceContent(args),
-        })
+        }),
       );
     }
 
