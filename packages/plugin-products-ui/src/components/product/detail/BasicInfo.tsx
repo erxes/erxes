@@ -13,7 +13,7 @@ import {
   FieldStyle,
   SidebarCounter,
   SidebarFlexRow,
-  SidebarList
+  SidebarList,
 } from '@erxes/ui/src/layout/styles';
 import ProductForm from '@erxes/ui-products/src/containers/ProductForm';
 import { IProduct } from '../../../types';
@@ -31,10 +31,10 @@ type Props = {
   history: any;
 };
 
-class BasicInfo extends React.Component<Props> {
-  renderVendor = vendor => {
-    const { history } = this.props;
+const BasicInfo: React.FC<Props> = (props) => {
+  const { history, product, remove } = props;
 
+  const renderVendor = (vendor) => {
     if (!vendor) {
       return (
         <li>
@@ -61,7 +61,7 @@ class BasicInfo extends React.Component<Props> {
     );
   };
 
-  renderBarcodes = barcodes => {
+  const renderBarcodes = (barcodes) => {
     return (
       <>
         <li>
@@ -70,7 +70,7 @@ class BasicInfo extends React.Component<Props> {
         {(barcodes || []).map((item: string, iteration: number) => (
           <ProductBarcodeContent key={iteration} isValid={isValidBarcode(item)}>
             <Link
-              to={`/settings/barcode-generator/${this.props.product._id}?barcode=${item}`}
+              to={`/settings/barcode-generator/${product._id}?barcode=${item}`}
             >
               <Icon icon="print" />
               {item}
@@ -81,7 +81,7 @@ class BasicInfo extends React.Component<Props> {
     );
   };
 
-  renderView = (name, variable) => {
+  const renderView = (name, variable) => {
     const defaultName = name.includes('count') ? 0 : '-';
 
     return (
@@ -92,9 +92,8 @@ class BasicInfo extends React.Component<Props> {
     );
   };
 
-  renderEdit() {
-    const { product } = this.props;
-    const content = props => <ProductForm {...props} product={product} />;
+  const renderEdit = () => {
+    const content = (props) => <ProductForm {...props} product={product} />;
     return (
       <ModalTrigger
         title="Edit basic info"
@@ -107,15 +106,13 @@ class BasicInfo extends React.Component<Props> {
         content={content}
       />
     );
-  }
+  };
 
-  renderAction() {
-    const { remove } = this.props;
-
+  const renderAction = () => {
     const onDelete = () =>
       confirm()
         .then(() => remove())
-        .catch(error => {
+        .catch((error) => {
           Alert.error(error.message);
         });
 
@@ -129,7 +126,7 @@ class BasicInfo extends React.Component<Props> {
             </Button>
           </Dropdown.Toggle>
           <Dropdown.Menu>
-            {this.renderEdit()}
+            {renderEdit()}
             <li>
               <a href="#delete" onClick={onDelete}>
                 {__('Delete')}
@@ -139,9 +136,9 @@ class BasicInfo extends React.Component<Props> {
         </Dropdown>
       </Actions>
     );
-  }
+  };
 
-  renderImage = (item: IAttachment) => {
+  const renderImage = (item: IAttachment) => {
     if (!item) {
       return null;
     }
@@ -149,9 +146,7 @@ class BasicInfo extends React.Component<Props> {
     return <Attachment attachment={item} />;
   };
 
-  renderProductContent = () => {
-    const { product } = this.props;
-
+  const renderProductContent = () => {
     if (!product.description) {
       return null;
     }
@@ -159,15 +154,13 @@ class BasicInfo extends React.Component<Props> {
     return (
       <ProductContent
         dangerouslySetInnerHTML={{
-          __html: xss(product.description)
+          __html: xss(product.description),
         }}
       />
     );
   };
 
-  renderInfo() {
-    const { product } = this.props;
-
+  const renderInfo = () => {
     const {
       code,
       name,
@@ -176,34 +169,32 @@ class BasicInfo extends React.Component<Props> {
       unitPrice,
       barcodes,
       attachment,
-      vendor
+      vendor,
     } = product;
 
     return (
       <Sidebar.Section>
         <InfoWrapper>
           <Name>{name}</Name>
-          {this.renderAction()}
+          {renderAction()}
         </InfoWrapper>
 
-        {this.renderImage(attachment)}
+        {renderImage(attachment)}
         <SidebarList className="no-link">
-          {this.renderView('Code', code)}
-          {this.renderView('Type', type)}
-          {this.renderView('Category', category ? category.name : '')}
-          {this.renderView('Unit price', (unitPrice || 0).toLocaleString())}
-          {this.renderBarcodes(barcodes)}
-          {this.renderVendor(vendor)}
+          {renderView('Code', code)}
+          {renderView('Type', type)}
+          {renderView('Category', category ? category.name : '')}
+          {renderView('Unit price', (unitPrice || 0).toLocaleString())}
+          {renderBarcodes(barcodes)}
+          {renderVendor(vendor)}
           <SidebarFlexRow>{__(`Description`)}</SidebarFlexRow>
         </SidebarList>
-        {this.renderProductContent()}
+        {renderProductContent()}
       </Sidebar.Section>
     );
-  }
+  };
 
-  render() {
-    return this.renderInfo();
-  }
-}
+  return renderInfo();
+};
 
 export default BasicInfo;
