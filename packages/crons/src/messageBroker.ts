@@ -22,7 +22,6 @@ export const sendCommonMessage = async (
   args: IISendMessageArgs,
 ): Promise<any> => {
   return sendMessage({
-    client,
     ...args,
   });
 };

@@ -138,7 +138,6 @@ export const sendContactsMessage = async (
   args: ISendMessageArgs
 ): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'contacts',
     ...args
   });
@@ -146,7 +145,6 @@ export const sendContactsMessage = async (
 
 export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'core',
     ...args
   });
@@ -156,7 +154,6 @@ export const sendInboxMessage = async (
   args: ISendMessageArgs
 ): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'inbox',
     ...args
   });
@@ -164,7 +161,6 @@ export const sendInboxMessage = async (
 
 export const sendLogsMessage = async (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'logs',
     ...args
   });
@@ -174,7 +170,6 @@ export const sendSegmentsMessage = async (
   args: ISendMessageArgs
 ): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'segments',
     ...args
   });
@@ -182,7 +177,6 @@ export const sendSegmentsMessage = async (
 
 export const sendTagsMessage = async (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'tags',
     ...args
   });
@@ -192,7 +186,6 @@ export const sendIntegrationsMessage = async (
   args: ISendMessageArgs
 ): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'integrations',
     ...args
   });
@@ -202,7 +195,6 @@ export const sendEmailTemplatesMessage = async (
   args: ISendMessageArgs
 ): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'emailtemplates',
     ...args
   });

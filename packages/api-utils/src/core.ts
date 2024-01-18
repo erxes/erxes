@@ -4,6 +4,7 @@ import { IUserDocument } from './types';
 import { IPermissionDocument } from './definitions/permissions';
 import { randomAlphanumeric } from '@erxes/api-utils/src/random';
 import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
+import * as messageBroker from './messageBroker';
 
 export const getEnv = ({
   name,
@@ -254,12 +255,10 @@ export interface ISendMessageArgs {
 
 export const sendMessage = async (
   args: {
-    client: any;
     serviceName: string;
   } & ISendMessageArgs
 ): Promise<any> => {
   const {
-    client,
     serviceName,
     subdomain,
     action,
@@ -280,11 +279,7 @@ export const sendMessage = async (
 
   const queueName = serviceName + (serviceName ? ':' : '') + action;
 
-  if (!client) {
-    throw new Error(`client not found during ${queueName}`);
-  }
-
-  return client[
+  return messageBroker[
     isRPC ? (isMQ ? 'sendRPCMessageMq' : 'sendRPCMessage') : 'sendMessage'
   ](queueName, {
     subdomain,

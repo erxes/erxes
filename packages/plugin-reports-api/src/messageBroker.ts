@@ -36,7 +36,6 @@ export const initBroker = async cl => {
 
 export const sendCoreMessage = (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'core',
     ...args
   });
@@ -46,14 +45,12 @@ export const sendCommonMessage = async (
   args: ISendMessageArgs & { serviceName: string }
 ) => {
   return sendMessage({
-    client,
     ...args
   });
 };
 
 export const sendTagsMessage = async (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'tags',
     ...args
   });

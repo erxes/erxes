@@ -54,14 +54,12 @@ export const sendCommonMessage = async (
   args: ISendMessageArgs & { serviceName: string }
 ): Promise<any> => {
   return sendMessage({
-    client,
     ...args
   });
 };
 
 export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'core',
     ...args
   });
@@ -71,7 +69,6 @@ export const sendSegmentsMessage = async (
   args: ISendMessageArgs
 ): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'segments',
     ...args
   });
@@ -81,7 +78,6 @@ export const sendEmailTemplateMessage = async (
   args: ISendMessageArgs
 ): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'emailtemplates',
     ...args
   });
@@ -89,7 +85,6 @@ export const sendEmailTemplateMessage = async (
 
 export const sendLogsMessage = (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'logs',
     ...args
   });

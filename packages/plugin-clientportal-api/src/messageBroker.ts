@@ -188,7 +188,6 @@ export const initBroker = async cl => {
 
 export const sendCoreMessage = async (args: ISendMessageArgs) => {
   return sendMessage({
-    client,
     serviceName: 'core',
     ...args
   });
@@ -198,7 +197,6 @@ export const sendContactsMessage = async (
   args: ISendMessageArgs
 ): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'contacts',
     ...args
   });
@@ -208,7 +206,6 @@ export const sendCardsMessage = async (
   args: ISendMessageArgs
 ): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'cards',
     ...args
   });
@@ -216,7 +213,6 @@ export const sendCardsMessage = async (
 
 export const sendKbMessage = async (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'knowledgebase',
     ...args
   });
@@ -226,7 +222,6 @@ export const sendCommonMessage = async (
   args: ISendMessageArgs & { serviceName: string }
 ) => {
   return sendMessage({
-    client,
     ...args
   });
 };
