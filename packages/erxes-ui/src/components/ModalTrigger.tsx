@@ -4,11 +4,10 @@ import { __, router } from '../utils/core';
 import { useEffect, useState } from 'react';
 
 import { CloseModal } from '../styles/main';
-import { IRouterProps } from '../types';
 import Icon from './Icon';
 import { Modal } from 'react-bootstrap';
-import RTG from 'react-transition-group';
 import React from 'react';
+import { Transition } from 'react-transition-group';
 import queryString from 'query-string';
 import { useParams } from 'react-router-dom';
 
@@ -29,7 +28,7 @@ type Props = {
   centered?: boolean;
   onExit?: () => void;
   isAnimate?: boolean;
-} & IRouterProps;
+};
 
 const ModalTrigger: React.FC<Props> = ({
   title,
@@ -48,11 +47,10 @@ const ModalTrigger: React.FC<Props> = ({
   onExit,
   ignoreTrans,
   isAnimate = false,
-  history,
 }) => {
   const [isOpen, setIsOpen] = useState(propIsOpen || false);
   const [autoOpenKeyState, setAutoOpenKey] = useState('');
-
+  const history = {} as any;
   // const navigate = useNavigate();
   // const location = useLocation();
   const { isOpen: urlIsOpen } = useParams<{ isOpen?: string }>();
@@ -142,9 +140,9 @@ const ModalTrigger: React.FC<Props> = ({
       >
         {renderHeader()}
         <Modal.Body className={paddingContent}>
-          <RTG.Transition in={isOpen} timeout={300} unmountOnExit={true}>
+          <Transition in={isOpen} timeout={300} unmountOnExit={true}>
             {content({ closeModal })}
-          </RTG.Transition>
+          </Transition>
         </Modal.Body>
       </Modal>
     </>

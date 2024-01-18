@@ -119,13 +119,13 @@ function MainLayout({
     <>
       <div id="anti-clickjack" style={{ display: 'none' }} />
 
-      <Layout isSqueezed={isShownIndicator}>
+      <Layout $isSqueezed={isShownIndicator}>
         <Navigation
           navCollapse={navCollapse}
           onClickHandleIcon={onClickHandleIcon}
         />
 
-        <MainWrapper navCollapse={navCollapse}>
+        <MainWrapper $navCollapse={navCollapse}>
           <MainBar />
 
           {children}

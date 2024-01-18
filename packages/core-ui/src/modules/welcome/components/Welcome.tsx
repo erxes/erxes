@@ -1,31 +1,32 @@
-import { COMMUNITY, STEPS, SETUP, DOCS, VIDEO } from '../constants';
 import {
+  BoxContent,
   BoxHeader,
   BoxedStep,
   Boxes,
+  Card,
   Header,
   Left,
   LinkedButton,
   Setup,
   SetupContent,
-  BoxContent,
+  VideoFrame,
   VideoLink,
-  Card,
-  VideoFrame
 } from '../styles';
+import { COMMUNITY, DOCS, SETUP, STEPS, VIDEO } from '../constants';
+import React, { useState } from 'react';
+
 import Button from '@erxes/ui/src/components/Button';
 import { DescImg } from '@erxes/ui/src/components/HeaderDescription';
+import Dropdown from 'react-bootstrap/Dropdown';
+import DropdownToggle from 'modules/common/components/DropdownToggle';
 import { IUser } from 'modules/auth/types';
 import Icon from '@erxes/ui/src/components/Icon';
 import ProgressBar from '@erxes/ui/src/components/ProgressBar';
-import React, { useState } from 'react';
 import { WidgetBackgrounds } from '@erxes/ui-settings/src/styles';
 import Wrapper from 'modules/layout/components/Wrapper';
 import _ from 'lodash';
 import { __ } from 'modules/common/utils';
-import { useHistory } from 'react-router-dom';
-import Dropdown from 'react-bootstrap/Dropdown';
-import DropdownToggle from 'modules/common/components/DropdownToggle';
+import { useNavigate } from 'react-router-dom';
 
 type Props = {
   currentUser: IUser;
@@ -34,7 +35,7 @@ type Props = {
 };
 
 function Welcome({ currentUser, branchesLength, departmentLength }: Props) {
-  const history = useHistory();
+  const navigate = useNavigate();
   const { onboardingHistory } = currentUser;
   const completedSteps = onboardingHistory && onboardingHistory.completedSteps;
 
@@ -97,11 +98,11 @@ function Welcome({ currentUser, branchesLength, departmentLength }: Props) {
         </h1>
         <div>
           {__(
-            'Enjoy a single yet complete experience operating system (XOS) to build your own experience.'
+            'Enjoy a single yet complete experience operating system (XOS) to build your own experience.',
           )}
           <br />
           {__(
-            'All-in-one cost-effective platform for customer service, marketing, sales, and employees. '
+            'All-in-one cost-effective platform for customer service, marketing, sales, and employees. ',
           )}
         </div>
       </Header>
@@ -112,7 +113,7 @@ function Welcome({ currentUser, branchesLength, departmentLength }: Props) {
     title: string,
     handleOpen: () => void,
     image?: string,
-    isOpen?: boolean
+    isOpen?: boolean,
   ) => {
     const percentage = Math.floor((active / 5) * 100);
     const icon = isOpen ? 'angle-down' : 'angle-right';
@@ -148,7 +149,7 @@ function Welcome({ currentUser, branchesLength, departmentLength }: Props) {
     title: string,
     description: string,
     url: string,
-    icon: string
+    icon: string,
   ) => {
     return (
       <LinkedButton href={url} target="_blank">
@@ -165,13 +166,13 @@ function Welcome({ currentUser, branchesLength, departmentLength }: Props) {
     return (
       <WidgetBackgrounds>
         <Boxes>
-          {DOCS.slice(0, 2).map(item =>
-            renderDocContent(item.title, item.desc, item.url, item.icon)
+          {DOCS.slice(0, 2).map((item) =>
+            renderDocContent(item.title, item.desc, item.url, item.icon),
           )}
         </Boxes>
         <Boxes>
-          {DOCS.slice(2, 4).map(item =>
-            renderDocContent(item.title, item.desc, item.url, item.icon)
+          {DOCS.slice(2, 4).map((item) =>
+            renderDocContent(item.title, item.desc, item.url, item.icon),
           )}
         </Boxes>
       </WidgetBackgrounds>
@@ -179,7 +180,7 @@ function Welcome({ currentUser, branchesLength, departmentLength }: Props) {
   };
 
   const renderSetup = () => {
-    return SETUP.map(item => {
+    return SETUP.map((item) => {
       const { url, title, icon, btnText, action } = item;
       const [isOpen, setIsOpen] = useState(false);
       const isComplete =
@@ -194,8 +195,8 @@ function Welcome({ currentUser, branchesLength, departmentLength }: Props) {
       const dropdownIcon = isComplete
         ? 'check'
         : isOpen
-        ? 'uparrow'
-        : 'downarrow-2';
+          ? 'uparrow'
+          : 'downarrow-2';
 
       return (
         <Setup key={title}>
@@ -217,7 +218,7 @@ function Welcome({ currentUser, branchesLength, departmentLength }: Props) {
           {isOpen && (
             <SetupContent>
               <div dangerouslySetInnerHTML={{ __html: item.content }} />
-              <Button onClick={() => history.push(url)}>{btnText}</Button>
+              <Button onClick={() => navigate(url)}>{btnText}</Button>
             </SetupContent>
           )}
         </Setup>
@@ -229,10 +230,10 @@ function Welcome({ currentUser, branchesLength, departmentLength }: Props) {
     title: string,
     description: string,
     icon: string,
-    url: string
+    url: string,
   ) => {
     return (
-      <Dropdown alignRight={true}>
+      <Dropdown align="end">
         <Dropdown.Toggle as={DropdownToggle} id="dropdown-user">
           <LinkedButton>
             <Icon icon={icon} size={20} color="#888888" />
@@ -264,7 +265,7 @@ function Welcome({ currentUser, branchesLength, departmentLength }: Props) {
   const renderGuide = () => {
     return (
       <WidgetBackgrounds>
-        {VIDEO.map(item => {
+        {VIDEO.map((item) => {
           return renderVideo(item.title, item.desc, item.icon, item.url);
         })}
       </WidgetBackgrounds>

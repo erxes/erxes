@@ -1,23 +1,24 @@
+import { colors, dimensions } from 'modules/common/styles';
+
 import EmptyState from 'modules/common/components/EmptyState';
 import Icon from 'modules/common/components/Icon';
-import Spinner from 'modules/common/components/Spinner';
-import { colors, dimensions } from 'modules/common/styles';
-import { __ } from 'modules/common/utils';
-import React from 'react';
 import { Link } from 'react-router-dom';
+import React from 'react';
+import Spinner from 'modules/common/components/Spinner';
+import { __ } from 'modules/common/utils';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 
-const MainContainer = styledTS<{ active?: boolean }>(styled.div)`
-  background-color: ${props =>
-    props.active ? colors.colorWhite : colors.bgMain};
-  border: 1px solid ${props =>
-    props.active ? colors.borderDarker : colors.bgMain};
+const MainContainer = styledTS<{ $active?: boolean }>(styled.div)`
+  background-color: ${(props) =>
+    props.$active ? colors.colorWhite : colors.bgMain};
+  border: 1px solid ${(props) =>
+    props.$active ? colors.borderDarker : colors.bgMain};
   border-radius: 35px;
   height: 32px;
   position: relative;
   transition: .3s all;
-  width: ${props => (props.active ? '280px' : '120px')};
+  width: ${(props) => (props.$active ? '280px' : '120px')};
   display: flex;
   padding: 0 ${dimensions.unitSpacing}px;
   align-items: center;
@@ -177,13 +178,13 @@ class Search extends React.Component<
     document.removeEventListener('click', this.handleClickOutside, true);
   }
 
-  handleClickOutside = event => {
+  handleClickOutside = (event) => {
     if (this.wrapperRef && !this.wrapperRef.contains(event.target)) {
       this.setState({ showInput: false });
     }
   };
 
-  renderTitle = module => {
+  renderTitle = (module) => {
     let text = module;
 
     if (module === 'conversationMessages') {
@@ -285,7 +286,7 @@ class Search extends React.Component<
         {this.renderTitle(result.module)}
 
         <List>
-          {result.items.map(item => this.renderItem(result.module, item))}
+          {result.items.map((item) => this.renderItem(result.module, item))}
         </List>
       </div>
     );
@@ -313,7 +314,7 @@ class Search extends React.Component<
 
     let totalItems = 0;
 
-    results.forEach(result => {
+    results.forEach((result) => {
       totalItems += result.items.length;
     });
 
@@ -345,13 +346,13 @@ class Search extends React.Component<
     this.setState({ showInput: true });
   };
 
-  closeInput = e => {
+  closeInput = (e) => {
     e.stopPropagation();
     this.setState({ showInput: false, searchValue: '' });
     this.props.clearSearch();
   };
 
-  handleInput = e => {
+  handleInput = (e) => {
     this.setState({ searchValue: e.target.value });
   };
 
@@ -384,7 +385,7 @@ class Search extends React.Component<
     return (
       <MainContainer
         innerRef={this.setWrapperRef}
-        active={this.state.showInput}
+        $active={this.state.showInput}
         onClick={this.openInput}
       >
         {this.renderInput()}

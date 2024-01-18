@@ -1,30 +1,33 @@
-import { IUser } from 'modules/auth/types';
-import asyncComponent from 'modules/common/components/AsyncComponent';
+import { DropNav, UserHelper } from '../styles';
+
+import BrandChooser from './BrandChooser';
+import Dropdown from 'react-bootstrap/Dropdown';
 import DropdownToggle from 'modules/common/components/DropdownToggle';
+import { IUser } from 'modules/auth/types';
 import Icon from 'modules/common/components/Icon';
+import { Link } from 'react-router-dom';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import NameCard from 'modules/common/components/nameCard/NameCard';
-import { colors } from 'modules/common/styles';
-import { __ } from 'modules/common/utils';
 import React from 'react';
-import Dropdown from 'react-bootstrap/Dropdown';
-import { Link } from 'react-router-dom';
-import styled from 'styled-components';
 import Search from '../containers/Search';
-import { UserHelper, DropNav } from '../styles';
-import BrandChooser from './BrandChooser';
+import { __ } from 'modules/common/utils';
+import asyncComponent from 'modules/common/components/AsyncComponent';
+import { colors } from 'modules/common/styles';
 import { pluginsOfTopNavigations } from 'pluginUtils';
+import styled from 'styled-components';
 
-const Signature = asyncComponent(() =>
-  import(
-    /* webpackChunkName:"Signature" */ '@erxes/ui-settings/src/email/containers/Signature'
-  )
+const Signature = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName:"Signature" */ '@erxes/ui-settings/src/email/containers/Signature'
+    ),
 );
 
-const ChangePassword = asyncComponent(() =>
-  import(
-    /* webpackChunkName:"ChangePassword" */ 'modules/settings/profile/containers/ChangePassword'
-  )
+const ChangePassword = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName:"ChangePassword" */ 'modules/settings/profile/containers/ChangePassword'
+    ),
 );
 
 const UserInfo = styled.div`
@@ -85,7 +88,7 @@ const QuickNavigation = ({
   showBrands,
   selectedBrands,
   onChangeBrands,
-  version
+  version,
 }: {
   logout: () => void;
   currentUser: IUser;
@@ -94,14 +97,14 @@ const QuickNavigation = ({
   onChangeBrands: (value: string) => void;
   version: string;
 }) => {
-  const passContent = props => <ChangePassword {...props} />;
-  const signatureContent = props => <Signature {...props} />;
+  const passContent = (props) => <ChangePassword {...props} />;
+  const signatureContent = (props) => <Signature {...props} />;
 
   const brands = currentUser.brands || [];
 
-  const brandOptions = brands.map(brand => ({
+  const brandOptions = brands.map((brand) => ({
     value: brand._id,
-    label: brand.name || ''
+    label: brand.name || '',
   }));
 
   let brandsCombo;
@@ -127,7 +130,7 @@ const QuickNavigation = ({
       </NavItem>
       {pluginsOfTopNavigations()}
       <NavItem>
-        <Dropdown alignRight={true}>
+        <Dropdown align="end">
           <Dropdown.Toggle as={DropdownToggle} id="dropdown-user">
             <UserHelper>
               <UserInfo>

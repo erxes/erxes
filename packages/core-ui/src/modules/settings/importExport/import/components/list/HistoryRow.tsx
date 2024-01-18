@@ -1,21 +1,21 @@
-import dayjs from 'dayjs';
-import Button from 'modules/common/components/Button';
-import DropdownToggle from 'modules/common/components/DropdownToggle';
-import { DateWrapper } from 'modules/common/styles/main';
-import { getEnv, readFile, __ } from 'modules/common/utils';
-import React from 'react';
-import { Dropdown } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
-import queryString from 'query-string';
-
 import {
+  ImportHistoryActions,
   ImportTitle,
-  ImportHistoryActions
 } from 'modules/settings/importExport/styles';
-import { renderText } from 'modules/settings/importExport/utils';
+import { __, getEnv, readFile } from 'modules/common/utils';
+
+import Button from 'modules/common/components/Button';
+import { DateWrapper } from 'modules/common/styles/main';
+import { Dropdown } from 'react-bootstrap';
+import DropdownToggle from 'modules/common/components/DropdownToggle';
 import Icon from 'modules/common/components/Icon';
+import { Link } from 'react-router-dom';
+import React from 'react';
 import TextInfo from '@erxes/ui/src/components/TextInfo';
 import Tip from 'modules/common/components/Tip';
+import dayjs from 'dayjs';
+import queryString from 'query-string';
+import { renderText } from 'modules/settings/importExport/utils';
 
 type Props = {
   history?: any;
@@ -32,14 +32,14 @@ class HistoryRow extends React.Component<Props> {
 
     if (contentTypes.length > 1) {
       return (
-        <Dropdown className="dropdown-btn" alignRight={true}>
+        <Dropdown className="dropdown-btn" align="end">
           <Dropdown.Toggle as={DropdownToggle} id="dropdown-customize">
             <Button btnStyle="simple" size="small">
               {__('View')} <Icon icon="angle-down" />
             </Button>
           </Dropdown.Toggle>
           <Dropdown.Menu>
-            {contentTypes.map(value => {
+            {contentTypes.map((value) => {
               return (
                 <li key={Math.random()}>
                   <Link to={`/contacts/${value.contentType}`}>
@@ -67,7 +67,7 @@ class HistoryRow extends React.Component<Props> {
     const { attachments, contentTypes } = history;
 
     const renderDownloadFile = () => {
-      return contentTypes.map(value => {
+      return contentTypes.map((value) => {
         if (!attachments) {
           return null;
         }
@@ -89,10 +89,10 @@ class HistoryRow extends React.Component<Props> {
     };
 
     const renderDownloadErrorFile = () => {
-      return contentTypes.map(value => {
+      return contentTypes.map((value) => {
         const stringified = queryString.stringify({
           importHistoryId: history._id,
-          contentType: value.contentType
+          contentType: value.contentType,
         });
 
         const reqUrl = `${REACT_APP_API_URL}/pl:workers/download-import-error?${stringified}`;
@@ -110,7 +110,7 @@ class HistoryRow extends React.Component<Props> {
     const renderDelete = () => {
       const { removeHistory } = this.props;
 
-      return contentTypes.map(value => {
+      return contentTypes.map((value) => {
         const onClick = () => {
           removeHistory(history._id, value.contentType);
         };
@@ -126,7 +126,7 @@ class HistoryRow extends React.Component<Props> {
     };
 
     return (
-      <Dropdown className="dropdown-btn" alignRight={true}>
+      <Dropdown className="dropdown-btn" align="end">
         <Dropdown.Toggle as={DropdownToggle} id="dropdown-customize">
           <Button btnStyle="simple" size="small">
             {__('Actions')} <Icon icon="angle-down" />
@@ -141,13 +141,13 @@ class HistoryRow extends React.Component<Props> {
     );
   };
 
-  renderStatus = history => {
+  renderStatus = (history) => {
     if (history.status === 'Done' || history.percentage === 100) {
-      return history.contentTypes.map(value => {
+      return history.contentTypes.map((value) => {
         const { removed = [] } = history;
 
         const isRemoved = removed.find(
-          removedItem => removedItem === value.contentType
+          (removedItem) => removedItem === value.contentType,
         );
 
         if (isRemoved) {
@@ -181,7 +181,7 @@ class HistoryRow extends React.Component<Props> {
     const { user = {} } = history;
     const { details = {} } = user || {};
 
-    const renderValue = value => {
+    const renderValue = (value) => {
       if (!value || value === 0) {
         return '-';
       }

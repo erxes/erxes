@@ -43,8 +43,8 @@ const UserHelper = styled.div`
   }
 `;
 
-const Layout = styledTS<{ isSqueezed?: boolean }>(styled.main)`
-  height: ${(props) => (props.isSqueezed ? 'calc(100% - 36px)' : '100%')};
+const Layout = styledTS<{ $isSqueezed?: boolean }>(styled.main)`
+  height: ${(props) => (props.$isSqueezed ? 'calc(100% - 36px)' : '100%')};
   display: flex;
   flex: 1;
   max-width: 100%;
@@ -52,7 +52,7 @@ const Layout = styledTS<{ isSqueezed?: boolean }>(styled.main)`
   overflow: hidden;
 
   ${(props) =>
-    props.isSqueezed &&
+    props.$isSqueezed &&
     css`
       ${PageHeader} {
         top: 36px;
@@ -60,15 +60,15 @@ const Layout = styledTS<{ isSqueezed?: boolean }>(styled.main)`
     `};
 `;
 
-const MainWrapper = styledTS<{ navCollapse?: number }>(styled.div)`
+const MainWrapper = styledTS<{ $navCollapse?: number }>(styled.div)`
   flex: 1;
   display: flex;
   flex-direction: column;
   padding-top: ${dimensions.headerSpacing}px;
   padding-left: ${(props) =>
-    props.navCollapse === 2
+    props.$navCollapse === 2
       ? dimensions.headerSpacing * 2 - 1
-      : props.navCollapse === 1
+      : props.$navCollapse === 1
         ? dimensions.headerSpacing - 5
         : dimensions.headerSpacing * 3 + dimensions.unitSpacing}px;
   max-width: 100%;
