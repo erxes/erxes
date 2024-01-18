@@ -537,7 +537,6 @@ export const prepareEngageCustomers = async (
   );
 
   const exists = { $exists: true, $nin: [null, '', undefined] };
-
   // make sure email & phone are valid
   if (engageMessage.method === 'email') {
     customersSelector.primaryEmail = exists;
@@ -631,12 +630,13 @@ export const prepareEngageCustomers = async (
   for (const field of customerFields || []) {
     fieldsOption[field] = 1;
   }
-
+  console.log('Customers', Customers);
   const customersStream = (Customers.find(
     customersSelector,
     fieldsOption
   ) as any).stream();
-
+  console.log('customersStream', customersStream);
+  console.log('customerInfos', customerInfos);
   return new Promise((resolve, reject) => {
     const pipe = customersStream.pipe(customerTransformerStream);
 

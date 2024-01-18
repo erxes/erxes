@@ -1,7 +1,7 @@
 import { sendMessage, ISendMessageArgs } from '@erxes/api-utils/src/core';
 import { sendToWebhook as sendWebhook } from '@erxes/api-utils/src';
 import { serviceDiscovery, debug } from './configs';
-import { generateModels } from './connectionResolver';
+import { generateModels, IModels } from './connectionResolver';
 import { start, sendBulkSms, sendEmail } from './sender';
 import { CAMPAIGN_KINDS } from './constants';
 
@@ -16,7 +16,6 @@ export const initBroker = async cl => {
     const models = await generateModels(subdomain);
 
     const { engageMessage, customerInfos = [] } = data;
-
     if (
       engageMessage.kind === CAMPAIGN_KINDS.MANUAL &&
       customerInfos.length === 0
@@ -67,8 +66,7 @@ export const initBroker = async cl => {
 
   consumeQueue('engages:notification', async ({ subdomain, data }) => {
     debug.info(`Receiving queue data ${JSON.stringify(data)}`);
-
-    const models = await generateModels(subdomain);
+    const models = (await generateModels(subdomain)) as IModels;
 
     try {
       const { action, data: realData } = data;
@@ -212,6 +210,38 @@ export const sendEmailTemplatesMessage = async (
     client,
     serviceDiscovery,
     serviceName: 'emailtemplates',
+    ...args
+  });
+};
+
+export const sendClientPortalMessage = (args: ISendMessageArgs) => {
+  return sendMessage({
+    serviceDiscovery,
+    client,
+    serviceName: 'clientportal',
+    ...args
+  });
+};
+
+export const sendNotificationsMessage = async (
+  args: ISendMessageArgs
+): Promise<any> => {
+  const { subdomain, data } = args;
+  const models = await generateModels(subdomain);
+
+  const receiversLength = data.receivers.length || 0;
+
+  if (receiversLength > 0) {
+    await models.EngageMessages.updateOne(
+      { _id: data.engageId },
+      { $set: { totalCustomersCount: receiversLength } }
+    );
+  }
+
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName: 'clientportal',
     ...args
   });
 };

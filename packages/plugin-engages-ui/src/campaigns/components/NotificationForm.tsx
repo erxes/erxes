@@ -63,7 +63,6 @@ class NotificationForm extends React.Component<Props, State> {
 
   onChangeNotification = (key: string, value: string | boolean) => {
     const shortMessage = { ...this.props.notification } as IEngageNotification;
-    console.log('shortMessage', shortMessage);
     shortMessage[key] = value;
 
     this.props.onChange('notification', shortMessage);

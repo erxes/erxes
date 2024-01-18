@@ -57,6 +57,8 @@ type Props = {
   integrations: IIntegrationWithPhone[];
   currentUser: IUser;
   clientPortalGetConfigs: ClientPortalConfig[];
+  businessPortalKind?: string;
+  handleClientPortalKindChange: (kind: string) => void;
 };
 
 type State = {
@@ -222,7 +224,6 @@ class AutoAndManualForm extends React.Component<Props, State> {
         isMobile: notification.isMobile || false
       };
       doc.fromUserId = currentUser?._id;
-
       if (doc.email) {
         delete doc.email;
       }
@@ -412,7 +413,7 @@ class AutoAndManualForm extends React.Component<Props, State> {
       breadcrumbs,
       segmentType
     } = this.props;
-    const { segmentIds, brandIds, title, tagIds, cpId } = this.state;
+    const { segmentIds, brandIds, title, tagIds } = this.state;
 
     const onChange = e =>
       this.changeState('title', (e.target as HTMLInputElement).value);
@@ -452,6 +453,10 @@ class AutoAndManualForm extends React.Component<Props, State> {
               brandIds={brandIds}
               tagIds={tagIds}
               clientPortalGetConfigs={clientPortalGetConfigs}
+              businessPortalKind={this.props.businessPortalKind}
+              handleClientPortalKindChange={
+                this.props.handleClientPortalKindChange
+              }
             />
           </Step>
 

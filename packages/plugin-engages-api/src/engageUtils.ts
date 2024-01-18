@@ -4,13 +4,16 @@ import {
   IEngageMessage,
   IEngageMessageDocument
 } from './models/definitions/engages';
-import { isUsingElk } from './utils';
+import { isUsingElk, setCampaignCount } from './utils';
 import {
   sendInboxMessage,
   sendCoreMessage,
   sendSegmentsMessage,
-  sendContactsMessage
+  sendContactsMessage,
+  sendClientPortalMessage,
+  sendNotificationsMessage
 } from './messageBroker';
+
 import { IModels } from './connectionResolver';
 import { awsRequests } from './trackers/engageTracker';
 interface IEngageParams {
@@ -249,6 +252,14 @@ export const send = async (
       });
     }
   }
+
+  if (engageMessage.method === CAMPAIGN_METHODS.NOTIFICATION) {
+    return sendNotifications(models, subdomain, {
+      engageMessage,
+      customersSelector,
+      user
+    });
+  }
 };
 
 const sendEmailOrSms = async (
@@ -281,6 +292,62 @@ const sendEmailOrSms = async (
       action,
       user
     }
+  });
+};
+
+const sendNotifications = async (
+  models: IModels,
+  subdomain,
+  { engageMessage, customersSelector, user }: IEngageParams
+) => {
+  const { notification, cpId } = engageMessage;
+  const engageMessageId = engageMessage._id;
+
+  const erxesCustomerIds = await sendContactsMessage({
+    subdomain,
+    action: 'customers.getCustomerIds',
+    data: customersSelector,
+    isRPC: true,
+    defaultValue: []
+  });
+
+  const cpUserIds =
+    ((await sendClientPortalMessage({
+      subdomain,
+      isRPC: true,
+      action: 'clientPortalUsers.getIds',
+      data: {
+        clientPortalId: cpId,
+        erxesCustomerId: { $in: [...erxesCustomerIds] }
+      }
+    })) as string[]) || [];
+
+  if (cpUserIds.length === 0) {
+    throw new Error('No client portal user found');
+  }
+
+  setCampaignCount(models, {
+    _id: engageMessageId,
+    totalCustomersCount: cpUserIds.length,
+    validCustomersCount: cpUserIds.length
+  });
+
+  const doc = {
+    createdUser: user,
+    receivers: cpUserIds,
+    title: notification?.title || '',
+    content: notification?.content || '',
+    notifType: 'engage',
+    isMobile: notification?.isMobile || false,
+    link: '',
+    engageId: engageMessageId
+  };
+
+  sendNotificationsMessage({
+    subdomain,
+    action: 'sendNotification',
+    data: doc,
+    isRPC: false
   });
 };
 
@@ -343,6 +410,23 @@ export const checkCampaignDoc = async (
       throw new Error(`From user email "${user.email}" is not verified in AWS`);
     }
   }
+
+  if (method === CAMPAIGN_METHODS.NOTIFICATION) {
+    if (!doc.notification) {
+      throw new Error('Notification cannot be empty');
+    }
+    if (!doc.cpId) {
+      throw new Error(
+        'Please select "Clientportal" in the notification campaign'
+      );
+    }
+    if (!doc.notification.title) {
+      throw new Error('Notification title cannot be empty');
+    }
+    if (!doc.notification.content) {
+      throw new Error('Notification content cannot be empty');
+    }
+  }
 };
 
 export const findElk = async (subdomain: string, index: string, query) => {
@@ -382,7 +466,6 @@ export const checkCustomerExists = async (
   params: ICheckCustomerParams
 ) => {
   const { id, customerIds, segmentIds, tagIds, brandIds } = params;
-
   if (!isUsingElk()) {
     const customersSelector = {
       _id: id,

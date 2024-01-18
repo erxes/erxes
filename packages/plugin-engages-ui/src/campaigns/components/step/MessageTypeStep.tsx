@@ -2,14 +2,18 @@ import FormControl from '@erxes/ui/src/components/form/Control';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { FlexItem } from '@erxes/ui/src/components/step/styles';
-import { CAMPAIGN_TARGET_TYPES } from '@erxes/ui-engage/src/constants';
+import {
+  CAMPAIGN_TARGET_TYPES,
+  METHODS,
+  BUSINESS_PORTAL_KINDS
+} from '@erxes/ui-engage/src/constants';
 import { SelectMessageType } from '@erxes/ui-engage/src/styles';
+import { ClientPortalConfig } from '@erxes/plugin-clientportal-ui/src/types';
+import { EmptyState, Spinner } from '@erxes/ui/src';
 import React from 'react';
 import BrandStep from '../../containers/BrandStep';
 import SegmentStep from '../../containers/SegmentStep';
 import TagStep from '../../containers/TagStep';
-import { ClientPortalConfig } from '@erxes/plugin-clientportal-ui/src/types';
-import { METHODS } from '@erxes/ui-engage/src/constants';
 
 type Props = {
   method?: string;
@@ -23,6 +27,8 @@ type Props = {
   brandIds: string[];
   tagIds: string[];
   clientPortalGetConfigs?: ClientPortalConfig[];
+  businessPortalKind?: string;
+  handleClientPortalKindChange: (kind: string) => void;
 };
 
 type State = {
@@ -58,31 +64,72 @@ class MessageTypeStep extends React.Component<Props, State> {
     this.props.clearState();
   };
 
-  renderClientPortalSelector() {
-    const { clientPortalGetConfigs, method } = this.props;
+  renderBusinessPortalKind() {
+    const { method } = this.props;
 
     if (method !== METHODS.NOTIFICATION) {
       return null;
     }
 
-    const options = clientPortalGetConfigs?.map(item => ({
-      value: item._id,
-      label: item.name
-    }));
-    if (!clientPortalGetConfigs || clientPortalGetConfigs.length === 0) {
-      return 'No clientportal found';
-    }
     return (
       <SelectMessageType>
         <FormGroup>
-          <ControlLabel>Choose a clientportal:</ControlLabel>
+          <ControlLabel>Select the type of business portal:</ControlLabel>
+          <FormControl
+            id="businessPortalKind"
+            componentClass="select"
+            options={[
+              { value: '', label: 'Select a business portal' },
+              ...BUSINESS_PORTAL_KINDS.ALL.map(item => ({
+                value: item,
+                label: item + ' portal'
+              }))
+            ]}
+            onChange={e => {
+              this.props.handleClientPortalKindChange(
+                (e.target as HTMLInputElement).value
+              );
+            }}
+          />
+        </FormGroup>
+      </SelectMessageType>
+    );
+  }
+
+  renderBusinessPortalSelector() {
+    const { clientPortalGetConfigs, method, businessPortalKind } = this.props;
+
+    if (method !== METHODS.NOTIFICATION) {
+      return null;
+    }
+
+    if (!clientPortalGetConfigs || clientPortalGetConfigs.length === 0) {
+      return (
+        <EmptyState
+          icon="no-entry"
+          text={`No ${businessPortalKind}portal found`}
+          size="small"
+        />
+      );
+    }
+
+    return (
+      <SelectMessageType>
+        <FormGroup>
+          <ControlLabel>Choose a {businessPortalKind}portal:</ControlLabel>
           <FormControl
             id="cpId"
-            defaultValue={clientPortalGetConfigs?.[0]?._id}
             value={this.state.cpId}
             componentClass="select"
-            options={options}
+            options={[
+              { value: '', label: `Select a ${businessPortalKind} portal` },
+              ...clientPortalGetConfigs.map(item => ({
+                value: item._id,
+                label: item.name
+              }))
+            ]}
             onChange={this.onChange.bind(this, 'cpId')}
+            required
           />
         </FormGroup>
       </SelectMessageType>
@@ -91,8 +138,12 @@ class MessageTypeStep extends React.Component<Props, State> {
 
   renderSegmentType() {
     const { messageType } = this.state;
+    const { method, clientPortalGetConfigs } = this.props;
 
-    if (messageType !== CAMPAIGN_TARGET_TYPES.SEGMENT) {
+    if (
+      messageType !== CAMPAIGN_TARGET_TYPES.SEGMENT ||
+      (method === METHODS.NOTIFICATION && clientPortalGetConfigs?.length === 0)
+    ) {
       return null;
     }
 
@@ -121,10 +172,19 @@ class MessageTypeStep extends React.Component<Props, State> {
   }
 
   renderSelector() {
+    const { clientPortalGetConfigs, method } = this.props;
+
     const options = CAMPAIGN_TARGET_TYPES.ALL.map(opt => ({
       value: opt,
       label: opt.split(':')[1]
     }));
+
+    if (
+      method === METHODS.NOTIFICATION &&
+      clientPortalGetConfigs?.length === 0
+    ) {
+      return null;
+    }
 
     return (
       <SelectMessageType>
@@ -143,14 +203,37 @@ class MessageTypeStep extends React.Component<Props, State> {
   }
 
   renderContent = ({ actionSelector, selectedComponent, customerCounts }) => {
+    const { method, clientPortalGetConfigs } = this.props;
+
+    const renderActionSelector = () => {
+      if (
+        method === METHODS.NOTIFICATION &&
+        clientPortalGetConfigs?.length === 0
+      ) {
+        return null;
+      }
+      return actionSelector;
+    };
+
+    const renderSelectedComponent = () => {
+      if (
+        method === METHODS.NOTIFICATION &&
+        clientPortalGetConfigs?.length === 0
+      ) {
+        return null;
+      }
+      return selectedComponent;
+    };
+
     return (
       <FlexItem>
         <FlexItem direction="column" overflow="auto">
-          {this.renderClientPortalSelector()}
+          {this.renderBusinessPortalKind()}
+          {this.renderBusinessPortalSelector()}
           {this.renderSelector()}
           {this.renderSegmentType()}
-          {actionSelector}
-          {selectedComponent}
+          {renderActionSelector()}
+          {renderSelectedComponent()}
         </FlexItem>
         <FlexItem direction="column" v="center" h="center">
           {customerCounts}

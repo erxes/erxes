@@ -234,3 +234,9 @@ export const CAMPAIGN_TARGET_TYPES = {
   BRAND: 'core:brand',
   ALL: ['segments:segment', 'tags:tag', 'core:brand']
 };
+
+export const BUSINESS_PORTAL_KINDS = {
+  CLIENT: 'client',
+  VENDOR: 'vendor',
+  ALL: ['client', 'vendor']
+};

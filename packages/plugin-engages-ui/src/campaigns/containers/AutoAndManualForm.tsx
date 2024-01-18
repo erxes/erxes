@@ -7,6 +7,7 @@ import {
   IIntegrationWithPhone
 } from '@erxes/ui-engage/src/types';
 
+import { useLazyQuery } from '@apollo/client';
 import { ClientPortalConfigsQueryResponse } from '@erxes/plugin-clientportal-ui/src/types';
 
 import { AddMutationResponse } from '@erxes/ui-segments/src/types';
@@ -16,7 +17,7 @@ import { IBrand } from '@erxes/ui/src/brands/types';
 import { IConfig } from '@erxes/ui-settings/src/general/types';
 import { IUser } from '@erxes/ui/src/auth/types';
 import { IntegrationsQueryResponse } from '@erxes/ui-inbox/src/settings/integrations/types';
-import React from 'react';
+import React, { useState, useCallback } from 'react';
 import { gql } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
 import { queries as integrationQueries } from '@erxes/ui-inbox/src/settings/integrations/graphql';
@@ -48,13 +49,31 @@ type FinalProps = {
   AddMutationResponse;
 
 const AutoAndManualFormContainer = (props: FinalProps) => {
+  const [businessPortalKind, setBusinessPortalKind] = useState<
+    string | 'client' | 'vendor'
+  >('client');
+
   const {
     emailTemplatesQuery,
     integrationsConfigsQuery,
     externalIntegrationsQuery,
-    integrationsQuery,
-    clientPortalConfigsQuery
+    integrationsQuery
   } = props;
+
+  const [
+    clientPortalConfigsQuery,
+    { loading, data = {} as ClientPortalConfigsQueryResponse }
+  ] = useLazyQuery<ClientPortalConfigsQueryResponse>(
+    gql(clientPortalQueries.getConfigs)
+  );
+
+  const handleClientPortalKindChange = useCallback(
+    (businessPortalKind: string) => {
+      setBusinessPortalKind(businessPortalKind);
+      clientPortalConfigsQuery({ variables: { kind: businessPortalKind } });
+    },
+    [businessPortalKind]
+  );
 
   const configs =
     integrationsConfigsQuery && integrationsConfigsQuery.integrationsGetConfigs
@@ -73,9 +92,7 @@ const AutoAndManualFormContainer = (props: FinalProps) => {
       : [];
 
   const mappedIntegrations: IIntegrationWithPhone[] = [];
-
-  const clientPortalGetConfigs =
-    clientPortalConfigsQuery.clientPortalGetConfigs || [];
+  const clientPortalGetConfigs = data.clientPortalGetConfigs || [];
 
   for (const ext of externalIntegrations) {
     const locals = integrations.filter(
@@ -97,7 +114,10 @@ const AutoAndManualFormContainer = (props: FinalProps) => {
     templates: emailTemplatesQuery?.emailTemplates || [],
     smsConfig: configs.find(i => i.code === 'TELNYX_API_KEY'),
     integrations: mappedIntegrations,
-    clientPortalGetConfigs
+    clientPortalGetConfigs,
+    businessPortalKind,
+    handleClientPortalKindChange,
+    loading
   };
 
   const content = formProps => (
@@ -153,22 +173,9 @@ const integrationEnabledQueries = [
   )
 ];
 
-const clientPortalEnabledQueries = [
-  graphql<Props, ClientPortalConfigsQueryResponse>(
-    gql(clientPortalQueries.getConfigs),
-    {
-      name: 'clientPortalConfigsQuery',
-      options: () => ({
-        fetchPolicy: 'network-only',
-        variables: 'client'
-      })
-    }
-  )
-];
-
-if (isEnabled('clientportal')) {
-  composers = composers.concat(clientPortalEnabledQueries);
-}
+// if (isEnabled('clientportal')) {
+//   composers = composers.concat(clientPortalEnabledQueries);
+// }
 
 if (isEnabled('integrations')) {
   composers = composers.concat(integrationEnabledQueries);
