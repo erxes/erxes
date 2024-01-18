@@ -6,14 +6,14 @@ import {
   removeAccount,
   removeCustomers,
   removeIntegration,
-  repairIntegrations
+  repairIntegrations,
 } from './helpers';
 import { handleFacebookMessage } from './handleFacebookMessage';
 import { userIds } from './middlewares/userMiddleware';
 
 import {
   ISendMessageArgs,
-  sendMessage as sendCommonMessage
+  sendMessage as sendCommonMessage,
 } from '@erxes/api-utils/src/core';
 
 import { generateModels } from './connectionResolver';
@@ -26,7 +26,7 @@ export const sendRPCMessage = async (channel, message): Promise<any> => {
   return client.sendRPCMessage(channel, message);
 };
 
-export const initBroker = async cl => {
+export const initBroker = async (cl) => {
   client = cl;
 
   const { consumeRPCQueue, consumeQueue } = client;
@@ -40,9 +40,9 @@ export const initBroker = async cl => {
 
       return {
         data: await models.Accounts.find(selector).lean(),
-        status: 'success'
+        status: 'success',
       };
-    }
+    },
   );
 
   // listen for rpc queue =========
@@ -66,7 +66,7 @@ export const initBroker = async cl => {
 
         if (type === 'facebook') {
           response = {
-            data: await handleFacebookMessage(models, data, subdomain)
+            data: await handleFacebookMessage(models, data, subdomain),
           };
         }
 
@@ -78,12 +78,12 @@ export const initBroker = async cl => {
       } catch (e) {
         response = {
           status: 'error',
-          errorMessage: e.message
+          errorMessage: e.message,
         };
       }
 
       return response;
-    }
+    },
   );
 
   // /facebook/get-status'
@@ -93,25 +93,25 @@ export const initBroker = async cl => {
       const models = await generateModels(subdomain);
 
       const integration = await models.Integrations.findOne({
-        erxesApiId: integrationId
+        erxesApiId: integrationId,
       });
 
       let result = {
-        status: 'healthy'
+        status: 'healthy',
       } as any;
 
       if (integration) {
         result = {
           status: integration.healthStatus || 'healthy',
-          error: integration.error
+          error: integration.error,
         };
       }
 
       return {
         data: result,
-        status: 'success'
+        status: 'success',
       };
-    }
+    },
   );
 
   // /facebook/get-post
@@ -122,9 +122,9 @@ export const initBroker = async cl => {
 
       return {
         data: await models.PostConversations.findOne({ erxesApiId }, true),
-        status: 'success'
+        status: 'success',
       };
-    }
+    },
   );
 
   // app.get('/facebook/get-customer-posts'
@@ -133,7 +133,7 @@ export const initBroker = async cl => {
 
     return {
       data: await facebookGetCustomerPosts(models, data),
-      status: 'success'
+      status: 'success',
     };
   });
 
@@ -148,7 +148,7 @@ export const initBroker = async cl => {
 
     return {
       status: 'error',
-      data: 'Wrong kind'
+      data: 'Wrong kind',
     };
   });
 
@@ -161,7 +161,7 @@ export const initBroker = async cl => {
       await removeIntegration(models, integrationId);
 
       return { status: 'success' };
-    }
+    },
   );
 
   consumeQueue('facebook:notification', async ({ subdomain, data }) => {
@@ -188,13 +188,13 @@ export const initBroker = async cl => {
 
       return {
         status: 'success',
-        data: await models.ConversationMessages.find(data).lean()
+        data: await models.ConversationMessages.find(data).lean(),
       };
-    }
+    },
   );
 };
 
-export default function() {
+export default function () {
   return client;
 }
 
@@ -203,7 +203,6 @@ export const sendInboxMessage = (args: ISendMessageArgs) => {
     client,
     serviceName: 'inbox',
     ...args,
-    serviceDiscovery: undefined
   });
 };
 
