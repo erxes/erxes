@@ -10,7 +10,6 @@ import client from '.';
 
 export const sendContactsMessage = (args: ISendMessageArgs) => {
   return sendCommonMessage({
-    client,
     serviceName: 'contacts',
     ...args
   });
@@ -18,7 +17,6 @@ export const sendContactsMessage = (args: ISendMessageArgs) => {
 
 export const sendInboxMessage = (args: ISendMessageArgs) => {
   return sendCommonMessage({
-    client,
     serviceName: 'inbox',
     timeout: 50000,
     ...args

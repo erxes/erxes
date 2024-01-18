@@ -29,7 +29,6 @@ export const sendCommonMessage = async (
   args: ISendMessageArgs & { serviceName: string }
 ) => {
   return sendMessage({
-    client,
     ...args
   });
 };
@@ -56,7 +55,6 @@ export const getConfig = async (
 
 export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'core',
     ...args
   });

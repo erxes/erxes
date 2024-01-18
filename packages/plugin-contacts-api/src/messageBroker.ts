@@ -501,7 +501,6 @@ export const sendSegmentsMessage = async (
   args: ISendMessageArgs
 ): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'segments',
     ...args
   });
@@ -509,7 +508,6 @@ export const sendSegmentsMessage = async (
 
 export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'core',
     ...args
   });
@@ -519,7 +517,6 @@ export const sendFormsMessage = async (
   args: ISendMessageArgs
 ): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'forms',
     ...args
   });
@@ -529,7 +526,6 @@ export const sendInboxMessage = async (
   args: ISendMessageArgs
 ): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'inbox',
     ...args
   });
@@ -539,7 +535,6 @@ export const sendEngagesMessage = async (
   args: ISendMessageArgs
 ): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'engages',
     ...args
   });
@@ -549,7 +544,6 @@ export const sendInternalNotesMessage = async (
   args: ISendMessageArgs
 ): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'internalnotes',
     ...args
   });
@@ -557,7 +551,6 @@ export const sendInternalNotesMessage = async (
 
 export const sendTagsMessage = async (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'tags',
     ...args
   });
@@ -567,7 +560,6 @@ export const sendContactsMessage = async (
   args: ISendMessageArgs
 ): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'contacts',
     ...args
   });
@@ -577,7 +569,6 @@ export const sendCommonMessage = async (
   args: ISendMessageArgs & { serviceName: string }
 ): Promise<any> => {
   return sendMessage({
-    client,
     ...args
   });
 };
@@ -586,7 +577,6 @@ export const sendIntegrationsMessage = (
   args: ISendMessageArgs
 ): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'integrations',
     ...args
   });

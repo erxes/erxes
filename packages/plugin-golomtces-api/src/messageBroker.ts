@@ -14,16 +14,14 @@ export default function() {
 }
 
 export const sendContactsMessage = (args: ISendMessageArgs) => {
-  return sendMessage({
-    client,
+  return sendCommonMessage({
     serviceName: 'contacts',
     ...args
   });
 };
 
 export const sendInboxMessage = (args: ISendMessageArgs) => {
-  return sendMessage({
-    client,
+  return sendCommonMessage({
     serviceName: 'inbox',
     ...args
   });
@@ -33,7 +31,6 @@ export const sendCommonMessage = async (
   args: ISendMessageArgs & { serviceName: string }
 ) => {
   return sendMessage({
-    client,
     ...args
   });
 };

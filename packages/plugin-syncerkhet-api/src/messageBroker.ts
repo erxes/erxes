@@ -202,7 +202,6 @@ export const sendProductsMessage = async (
   args: ISendMessageArgs
 ): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'products',
     ...args
   });
@@ -212,7 +211,6 @@ export const sendContactsMessage = async (
   args: ISendMessageArgs
 ): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'contacts',
     ...args
   });
@@ -222,7 +220,6 @@ export const sendCardsMessage = async (
   args: ISendMessageArgs
 ): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'cards',
     ...args
   });
@@ -230,7 +227,6 @@ export const sendCardsMessage = async (
 
 export const sendPosMessage = async (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'pos',
     ...args
   });
@@ -240,7 +236,6 @@ export const sendEbarimtMessage = async (
   args: ISendMessageArgs
 ): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'ebarimt',
     ...args
   });
@@ -248,7 +243,6 @@ export const sendEbarimtMessage = async (
 
 export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'core',
     ...args
   });
@@ -258,7 +252,6 @@ export const sendNotificationsMessage = async (
   args: ISendMessageArgs
 ): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'notifications',
     ...args
   });

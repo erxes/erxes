@@ -264,7 +264,6 @@ export const fetchService = async (
 
   return sendMessage({
     subdomain,
-    client,
     isRPC: true,
     serviceName,
     action: `fields.${action}`,
@@ -280,7 +279,6 @@ export const sendInboxMessage = async (
   args: ISendMessageArgs
 ): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'inbox',
     ...args
   });
@@ -290,7 +288,6 @@ export const sendContactsMessage = async (
   args: ISendMessageArgs
 ): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'contacts',
     ...args
   });
@@ -300,7 +297,6 @@ export const sendCommonMessage = async (
   args: ISendMessageArgs & { serviceName: string }
 ): Promise<any> => {
   return sendMessage({
-    client,
     ...args
   });
 };
@@ -309,7 +305,6 @@ export const sendProductsMessage = async (
   args: ISendMessageArgs
 ): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'products',
     ...args
   });
@@ -319,7 +314,6 @@ export const sendAutomationsMessage = async (
   args: ISendMessageArgs
 ): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'automations',
     ...args
   });

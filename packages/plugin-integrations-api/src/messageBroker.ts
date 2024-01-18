@@ -203,7 +203,6 @@ export default function() {
 
 export const sendInboxMessage = (args: ISendMessageArgs) => {
   return sendCommonMessage({
-    client,
     serviceName: 'inbox',
     ...args
   });

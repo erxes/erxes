@@ -174,7 +174,6 @@ export default function() {
 
 export const sendContactsMessage = (args: ISendMessageArgs) => {
   return sendCommonMessage({
-    client,
     serviceName: 'contacts',
     ...args
   });
@@ -182,7 +181,6 @@ export const sendContactsMessage = (args: ISendMessageArgs) => {
 
 export const sendInboxMessage = (args: ISendMessageArgs) => {
   return sendCommonMessage({
-    client,
     serviceName: 'inbox',
     ...args
   });
@@ -190,7 +188,6 @@ export const sendInboxMessage = (args: ISendMessageArgs) => {
 
 export const sendImapMessage = (args: ISendMessageArgs) => {
   return sendCommonMessage({
-    client,
     serviceName: 'imap',
     ...args
   });

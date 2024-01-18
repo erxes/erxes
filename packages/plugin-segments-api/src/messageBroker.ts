@@ -128,12 +128,11 @@ export const initBroker = async cl => {
 export const sendMessage = async (
   args: ISendMessageArgs & { serviceName: string }
 ): Promise<any> => {
-  return sendMessageCore({ client, ...args });
+  return sendMessageCore({ ...args });
 };
 
 export const sendCoreMessage = (args: ISendMessageArgs): Promise<any> => {
   return sendMessageCore({
-    client,
     serviceName: 'core',
     ...args
   });

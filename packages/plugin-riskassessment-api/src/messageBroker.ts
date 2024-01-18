@@ -43,7 +43,6 @@ export const sendFormsMessage = async (
   args: ISendMessageArgs
 ): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'forms',
     ...args
   });
@@ -51,21 +50,18 @@ export const sendFormsMessage = async (
 
 export const sendCardsMessage = (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'cards',
     ...args
   });
 };
 export const sendCoreMessage = (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'core',
     ...args
   });
 };
 export const sendTagsMessage = async (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'tags',
     ...args
   });
@@ -75,7 +71,6 @@ export const sendRiskAssessmentMessage = (
   args: ISendMessageArgs
 ): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'riskassessment',
     ...args
   });
@@ -85,7 +80,6 @@ export const sendCommonMessage = async (
   args: ISendMessageArgs & { serviceName: string }
 ): Promise<any> => {
   return sendMessage({
-    client,
     ...args
   });
 };

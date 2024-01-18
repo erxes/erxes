@@ -57,7 +57,6 @@ export default function() {
 
 export const sendContactsMessage = (args: ISendMessageArgs) => {
   return sendMessage({
-    client,
     serviceName: 'contacts',
     ...args
   });
@@ -65,7 +64,6 @@ export const sendContactsMessage = (args: ISendMessageArgs) => {
 
 export const sendInboxMessage = (args: ISendMessageArgs) => {
   return sendMessage({
-    client,
     serviceName: 'inbox',
     ...args
   });
@@ -75,7 +73,6 @@ export const sendCommonMessage = async (
   args: ISendMessageArgs & { serviceName: string }
 ): Promise<any> => {
   return sendMessage({
-    client,
     ...args
   });
 };

@@ -118,7 +118,6 @@ export const sendProductsMessage = async (
   args: ISendMessageArgs
 ): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'products',
     ...args
   });
@@ -126,7 +125,6 @@ export const sendProductsMessage = async (
 
 export const sendTagsMessage = async (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'tags',
     ...args
   });
@@ -136,7 +134,6 @@ export const sendSegmentsMessage = async (
   args: ISendMessageArgs
 ): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'segments',
     ...args
   });

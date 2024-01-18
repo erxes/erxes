@@ -58,7 +58,6 @@ export const sendMessageBroker = async (
     | 'loans'
 ): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: name,
     ...args
   });
@@ -66,7 +65,6 @@ export const sendMessageBroker = async (
 
 export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'core',
     ...args
   });
@@ -76,7 +74,6 @@ export const sendCardsMessage = async (
   args: ISendMessageArgs
 ): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'cards',
     ...args
   });
@@ -86,7 +83,6 @@ export const sendReactionsMessage = async (
   args: ISendMessageArgs
 ): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'reactions',
     ...args
   });
@@ -96,7 +92,6 @@ export const sendCommonMessage = async (
   args: ISendMessageArgs & { serviceName: string }
 ): Promise<any> => {
   return sendMessage({
-    client,
     ...args
   });
 };
