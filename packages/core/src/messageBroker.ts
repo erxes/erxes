@@ -13,7 +13,7 @@ import {
   getConfigs,
   getFileUploadConfigs,
   sendEmail,
-  sendMobileNotification
+  sendMobileNotification,
 } from './data/utils';
 
 import * as serviceDiscovery from './serviceDiscovery';
@@ -28,8 +28,8 @@ import exporter from './exporter';
 
 let client;
 
-export const initBroker = async options => {
-  client = await initBrokerCore(options);
+export const initBroker = async () => {
+  client = await initBrokerCore();
 
   // do not receive messages in crons worker
   const { consumeQueue, consumeRPCQueue, consumeRPCQueueMq } = client;
@@ -46,16 +46,16 @@ export const initBroker = async options => {
 
       await models.InstallationLogs.createLog({
         pluginName: name,
-        message
+        message,
       });
 
       if (message === 'done') {
         await models.InstallationLogs.remove({
           pluginName: name,
-          message: { $ne: 'done' }
+          message: { $ne: 'done' },
         });
       }
-    }
+    },
   );
 
   consumeQueue('core:runCrons', async () => {
@@ -67,7 +67,7 @@ export const initBroker = async options => {
 
     return {
       status: 'success',
-      data: await models.Permissions.find(data).lean()
+      data: await models.Permissions.find(data).lean(),
     };
   });
 
@@ -90,9 +90,9 @@ export const initBroker = async options => {
 
       return {
         status: 'success',
-        data: await models.Conformities.addConformity(data)
+        data: await models.Conformities.addConformity(data),
       };
-    }
+    },
   );
 
   consumeRPCQueue(
@@ -102,9 +102,9 @@ export const initBroker = async options => {
 
       return {
         status: 'success',
-        data: await models.Conformities.savedConformity(data)
+        data: await models.Conformities.savedConformity(data),
       };
-    }
+    },
   );
 
   consumeQueue('core:conformities.create', async ({ subdomain, data }) => {
@@ -112,7 +112,7 @@ export const initBroker = async options => {
 
     return {
       status: 'success',
-      data: await models.Conformities.create(data)
+      data: await models.Conformities.create(data),
     };
   });
 
@@ -121,7 +121,7 @@ export const initBroker = async options => {
 
     return {
       status: 'success',
-      data: await models.Conformities.removeConformities(data)
+      data: await models.Conformities.removeConformities(data),
     };
   });
 
@@ -132,9 +132,9 @@ export const initBroker = async options => {
 
       return {
         status: 'success',
-        data: await models.Conformities.removeConformity(data)
+        data: await models.Conformities.removeConformity(data),
       };
-    }
+    },
   );
 
   consumeRPCQueue(
@@ -144,9 +144,9 @@ export const initBroker = async options => {
 
       return {
         status: 'success',
-        data: await models.Conformities.getConformities(data)
+        data: await models.Conformities.getConformities(data),
       };
-    }
+    },
   );
 
   consumeQueue(
@@ -156,9 +156,9 @@ export const initBroker = async options => {
 
       return {
         status: 'success',
-        data: await models.Conformities.addConformities(data)
+        data: await models.Conformities.addConformities(data),
       };
-    }
+    },
   );
 
   consumeRPCQueue(
@@ -168,9 +168,9 @@ export const initBroker = async options => {
 
       return {
         status: 'success',
-        data: await models.Conformities.relatedConformity(data)
+        data: await models.Conformities.relatedConformity(data),
       };
-    }
+    },
   );
 
   consumeRPCQueue(
@@ -180,9 +180,9 @@ export const initBroker = async options => {
 
       return {
         status: 'success',
-        data: await models.Conformities.filterConformity(data)
+        data: await models.Conformities.filterConformity(data),
       };
-    }
+    },
   );
 
   consumeRPCQueue(
@@ -192,9 +192,9 @@ export const initBroker = async options => {
 
       return {
         status: 'success',
-        data: await models.Conformities.changeConformity(data)
+        data: await models.Conformities.changeConformity(data),
       };
-    }
+    },
   );
 
   consumeRPCQueue(
@@ -204,9 +204,9 @@ export const initBroker = async options => {
 
       return {
         status: 'success',
-        data: await models.Conformities.find(data).lean()
+        data: await models.Conformities.find(data).lean(),
       };
-    }
+    },
   );
 
   consumeRPCQueue(
@@ -216,13 +216,13 @@ export const initBroker = async options => {
 
       return {
         status: 'success',
-        data: await models.Conformities.editConformity(data)
+        data: await models.Conformities.editConformity(data),
       };
-    }
+    },
   );
 
   // graphql subscriptions call =========
-  consumeQueue('callPublish', params => {
+  consumeQueue('callPublish', (params) => {
     graphqlPubsub.publish(params.name, params.data);
   });
 
@@ -233,7 +233,7 @@ export const initBroker = async options => {
       const models = await generateModels(subdomain);
 
       await registerOnboardHistory(models, type, user);
-    }
+    },
   );
 
   consumeRPCQueue('core:getConfigs', async ({ subdomain }) => {
@@ -241,7 +241,7 @@ export const initBroker = async options => {
 
     return {
       status: 'success',
-      data: await getConfigs(models)
+      data: await getConfigs(models),
     };
   });
 
@@ -250,7 +250,7 @@ export const initBroker = async options => {
 
     return {
       status: 'success',
-      data: await models.Configs.find(data).distinct('value')
+      data: await models.Configs.find(data).distinct('value'),
     };
   });
 
@@ -260,7 +260,7 @@ export const initBroker = async options => {
       const models = await generateModels(subdomain);
 
       return await models.Configs.createOrUpdateConfig(data);
-    }
+    },
   );
 
   consumeRPCQueue(
@@ -270,9 +270,9 @@ export const initBroker = async options => {
 
       return {
         status: 'success',
-        data: await models.Configs.findOne(query).lean()
+        data: await models.Configs.findOne(query).lean(),
       };
-    }
+    },
   );
 
   consumeRPCQueue(
@@ -282,9 +282,9 @@ export const initBroker = async options => {
 
       return {
         status: 'success',
-        data: await getConfig(code, defaultValue, models)
+        data: await getConfig(code, defaultValue, models),
       };
-    }
+    },
   );
 
   consumeRPCQueue('core:users.findOne', async ({ subdomain, data }) => {
@@ -292,7 +292,7 @@ export const initBroker = async options => {
 
     return {
       status: 'success',
-      data: await models.Users.findOne(data).lean()
+      data: await models.Users.findOne(data).lean(),
     };
   });
 
@@ -301,7 +301,7 @@ export const initBroker = async options => {
 
     return {
       status: 'success',
-      data: await models.Users.findUsers(data, { _id: 1 })
+      data: await models.Users.findUsers(data, { _id: 1 }),
     };
   });
 
@@ -319,14 +319,14 @@ export const initBroker = async options => {
         { employeeId: new RegExp(`.*${searchValue}.*`, 'i') },
         { username: new RegExp(`.*${searchValue}.*`, 'i') },
         { 'details.fullName': new RegExp(`.*${searchValue}.*`, 'i') },
-        { 'details.position': new RegExp(`.*${searchValue}.*`, 'i') }
+        { 'details.position': new RegExp(`.*${searchValue}.*`, 'i') },
       ];
 
       return {
         status: 'success',
-        data: await models.Users.find(query).distinct('_id')
+        data: await models.Users.find(query).distinct('_id'),
       };
-    }
+    },
   );
 
   consumeRPCQueue('core:users.checkLoginAuth', async ({ subdomain, data }) => {
@@ -334,7 +334,7 @@ export const initBroker = async options => {
 
     return {
       status: 'success',
-      data: await models.Users.checkLoginAuth(data)
+      data: await models.Users.checkLoginAuth(data),
     };
   });
 
@@ -343,7 +343,7 @@ export const initBroker = async options => {
 
     return {
       status: 'success',
-      data: await models.Departments.find(data).lean()
+      data: await models.Departments.find(data).lean(),
     };
   });
 
@@ -352,7 +352,7 @@ export const initBroker = async options => {
 
     return {
       status: 'success',
-      data: await models.Departments.findOne(data).lean()
+      data: await models.Departments.findOne(data).lean(),
     };
   });
 
@@ -366,29 +366,29 @@ export const initBroker = async options => {
       if (!departments.length) {
         return {
           data: [],
-          status: 'success'
+          status: 'success',
         };
       }
 
       const orderQry: any[] = [];
       for (const tag of departments) {
         orderQry.push({
-          order: { $regex: new RegExp(`^${escapeRegExp(tag.order || '')}`) }
+          order: { $regex: new RegExp(`^${escapeRegExp(tag.order || '')}`) },
         });
       }
 
       return {
         data: await models.Departments.find(
           {
-            $or: orderQry
+            $or: orderQry,
           },
-          fields || {}
+          fields || {},
         )
           .sort({ order: 1 })
           .lean(),
-        status: 'success'
+        status: 'success',
       };
-    }
+    },
   );
 
   consumeRPCQueue(
@@ -398,9 +398,9 @@ export const initBroker = async options => {
 
       return {
         status: 'success',
-        data: await models.Users.updateOne(selector, modifier)
+        data: await models.Users.updateOne(selector, modifier),
       };
-    }
+    },
   );
 
   consumeRPCQueue(
@@ -410,9 +410,9 @@ export const initBroker = async options => {
 
       return {
         status: 'success',
-        data: await models.Users.updateMany(selector, modifier)
+        data: await models.Users.updateMany(selector, modifier),
       };
-    }
+    },
   );
 
   consumeRPCQueue(
@@ -422,9 +422,9 @@ export const initBroker = async options => {
 
       return {
         status: 'success',
-        data: await models.Users.countDocuments(query)
+        data: await models.Users.countDocuments(query),
       };
-    }
+    },
   );
 
   consumeRPCQueue('core:users.create', async ({ subdomain, data }) => {
@@ -432,7 +432,7 @@ export const initBroker = async options => {
 
     return {
       status: 'success',
-      data: await models.Users.createUser(data)
+      data: await models.Users.createUser(data),
     };
   });
 
@@ -446,14 +446,14 @@ export const initBroker = async options => {
       data: await models.Users.find(
         {
           ...query,
-          role: { $ne: USER_ROLES.SYSTEM }
+          role: { $ne: USER_ROLES.SYSTEM },
         },
-        fields
+        fields,
       )
         .sort(sort)
         .skip(skip || 0)
         .limit(limit || 0)
-        .lean()
+        .lean(),
     };
   });
 
@@ -464,7 +464,7 @@ export const initBroker = async options => {
 
     return {
       status: 'success',
-      data: await models.Users.comparePassword(password, userPassword)
+      data: await models.Users.comparePassword(password, userPassword),
     };
   });
 
@@ -475,9 +475,9 @@ export const initBroker = async options => {
 
       return {
         status: 'success',
-        data: await models.Brands.getBrand(query)
+        data: await models.Brands.getBrand(query),
       };
-    }
+    },
   );
 
   consumeRPCQueue('core:brands.find', async ({ subdomain, data }) => {
@@ -487,7 +487,7 @@ export const initBroker = async options => {
 
     return {
       status: 'success',
-      data: await models.Brands.find(query).lean()
+      data: await models.Brands.find(query).lean(),
     };
   });
 
@@ -498,7 +498,7 @@ export const initBroker = async options => {
 
     return {
       status: 'success',
-      data: await models.Branches.aggregate(pipeline).exec()
+      data: await models.Branches.aggregate(pipeline).exec(),
     };
   });
 
@@ -509,7 +509,7 @@ export const initBroker = async options => {
 
     return {
       status: 'success',
-      data: await models.Branches.find(query, fields).lean()
+      data: await models.Branches.find(query, fields).lean(),
     };
   });
 
@@ -518,7 +518,7 @@ export const initBroker = async options => {
 
     return {
       status: 'success',
-      data: await models.Branches.findOne(data).lean()
+      data: await models.Branches.findOne(data).lean(),
     };
   });
 
@@ -532,29 +532,29 @@ export const initBroker = async options => {
       if (!branches.length) {
         return {
           data: [],
-          status: 'success'
+          status: 'success',
         };
       }
 
       const orderQry: any[] = [];
       for (const tag of branches) {
         orderQry.push({
-          order: { $regex: new RegExp(`^${escapeRegExp(tag.order || '')}`) }
+          order: { $regex: new RegExp(`^${escapeRegExp(tag.order || '')}`) },
         });
       }
 
       return {
         data: await models.Branches.find(
           {
-            $or: orderQry
+            $or: orderQry,
           },
-          fields || {}
+          fields || {},
         )
           .sort({ order: 1 })
           .lean(),
-        status: 'success'
+        status: 'success',
       };
-    }
+    },
   );
 
   consumeRPCQueue('core:units.find', async ({ subdomain, data }) => {
@@ -562,7 +562,7 @@ export const initBroker = async options => {
 
     return {
       status: 'success',
-      data: await models.Units.find(data).lean()
+      data: await models.Units.find(data).lean(),
     };
   });
 
@@ -571,7 +571,7 @@ export const initBroker = async options => {
 
     return {
       status: 'success',
-      data: await models.Units.findOne(data).lean()
+      data: await models.Units.findOne(data).lean(),
     };
   });
 
@@ -580,7 +580,7 @@ export const initBroker = async options => {
 
     return {
       status: 'success',
-      data: await getFileUploadConfigs(models)
+      data: await getFileUploadConfigs(models),
     };
   });
 
@@ -589,55 +589,55 @@ export const initBroker = async options => {
     consumeRPCQueue,
     getActivityContent: logUtils.getActivityContent,
     collectItems: logUtils.collectItems,
-    getSchemalabels: logUtils.getSchemaLabels
+    getSchemalabels: logUtils.getSchemaLabels,
   });
 
   internalNoteConsumers({
     name: 'core',
     consumeRPCQueue,
-    generateInternalNoteNotif: internalNotes.generateInternalNoteNotif
+    generateInternalNoteNotif: internalNotes.generateInternalNoteNotif,
   });
 
   formConsumers({
     name: 'core',
     consumeRPCQueue,
-    systemFields: forms.systemFields
+    systemFields: forms.systemFields,
   });
 
   consumeRPCQueue('core:fields.getList', async ({ subdomain, data }) => {
     return {
       status: 'success',
-      data: await forms.fields({ subdomain, data })
+      data: await forms.fields({ subdomain, data }),
     };
   });
 
-  consumeRPCQueue('core:imports.insertImportItems', async args => {
+  consumeRPCQueue('core:imports.insertImportItems', async (args) => {
     return {
       status: 'success',
-      data: await imports.insertImportItems(args)
+      data: await imports.insertImportItems(args),
     };
   });
 
-  consumeRPCQueue('core:imports.prepareImportDocs', async args => {
+  consumeRPCQueue('core:imports.prepareImportDocs', async (args) => {
     return {
       status: 'success',
-      data: await imports.prepareImportDocs(args)
+      data: await imports.prepareImportDocs(args),
     };
   });
 
-  consumeRPCQueue('core:exporter.prepareExportData', async args => ({
+  consumeRPCQueue('core:exporter.prepareExportData', async (args) => ({
     status: 'success',
-    data: await exporter.prepareExportData(args)
+    data: await exporter.prepareExportData(args),
   }));
 
-  consumeRPCQueue('core:exporter.getExportDocs', async args => ({
+  consumeRPCQueue('core:exporter.getExportDocs', async (args) => ({
     status: 'success',
-    data: await exporter.getExportDocs(args)
+    data: await exporter.getExportDocs(args),
   }));
 
-  consumeRPCQueueMq('core:isServiceEnabled', async args => ({
+  consumeRPCQueueMq('core:isServiceEnabled', async (args) => ({
     status: 'success',
-    data: await serviceDiscovery.isEnabled(args)
+    data: await serviceDiscovery.isEnabled(args),
   }));
 
   return client;
@@ -653,31 +653,31 @@ interface IISendMessageArgs {
 }
 
 export const sendCommonMessage = async (
-  args: IISendMessageArgs
+  args: IISendMessageArgs,
 ): Promise<any> => {
   return sendMessage({
     client,
-    ...args
+    ...args,
   });
 };
 
 export const sendSegmentsMessage = async (
-  args: ISendMessageArgs
+  args: ISendMessageArgs,
 ): Promise<any> => {
   return sendMessage({
     client,
     serviceName: 'segments',
-    ...args
+    ...args,
   });
 };
 
 export const sendIntegrationsMessage = (
-  args: ISendMessageArgs
+  args: ISendMessageArgs,
 ): Promise<any> => {
   return sendMessage({
     client,
     serviceName: 'integrations',
-    ...args
+    ...args,
   });
 };
 
@@ -685,7 +685,7 @@ export const sendCardsMessage = (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
     client,
     serviceName: 'cards',
-    ...args
+    ...args,
   });
 };
 
@@ -693,7 +693,7 @@ export const sendLogsMessage = (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
     client,
     serviceName: 'logs',
-    ...args
+    ...args,
   });
 };
 
@@ -701,7 +701,7 @@ export const sendContactsMessage = (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
     client,
     serviceName: 'contacts',
-    ...args
+    ...args,
   });
 };
 
@@ -709,7 +709,7 @@ export const sendInboxMessage = (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
     client,
     serviceName: 'inbox',
-    ...args
+    ...args,
   });
 };
 
@@ -717,7 +717,7 @@ export const sendFormsMessage = (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
     client,
     serviceName: 'forms',
-    ...args
+    ...args,
   });
 };
 
@@ -725,15 +725,15 @@ export const fetchSegment = (
   subdomain: string,
   segmentId: string,
   options?,
-  segmentData?: any
+  segmentData?: any,
 ) =>
   sendSegmentsMessage({
     subdomain,
     action: 'fetchSegment',
     data: { segmentId, options, segmentData },
-    isRPC: true
+    isRPC: true,
   });
 
-export default function() {
+export default function () {
   return client;
 }

@@ -4,6 +4,7 @@ import { debugFacebook, debugRequest } from './debuggers';
 import initFacebook from './controller';
 import systemStatus from './systemStatus';
 import userMiddleware from './middlewares/userMiddleware';
+import app from '@erxes/api-utils/src/app';
 
 const rawBodySaver = (req, _res, buf, encoding) => {
   if (buf && buf.length) {
@@ -15,13 +16,13 @@ const rawBodySaver = (req, _res, buf, encoding) => {
   }
 };
 
-const initApp = async app => {
+const initApp = async () => {
   app.use(
     bodyParser.urlencoded({
       limit: '10mb',
       verify: rawBodySaver,
-      extended: true
-    })
+      extended: true,
+    }),
   );
   app.use(bodyParser.json({ limit: '10mb', verify: rawBodySaver }));
 

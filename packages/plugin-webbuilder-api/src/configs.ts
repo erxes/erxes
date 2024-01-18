@@ -6,12 +6,11 @@ import { initBroker } from './messageBroker';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import { generateModels } from './connectionResolver';
 import { pageReplacer } from './utils';
-import permissions = require('./permissions');
+const permissions = require('./permissions');
+import app from '@erxes/api-utils/src/app';
 
 export let mainDb;
 export let debug;
-
-
 
 export default {
   name: 'webbuilder',
@@ -39,8 +38,6 @@ export default {
     initBroker(options.messageBrokerClient);
 
     debug = options.debug;
-
-    const { app } = options;
 
     app.get('/:sitename', async (req, res) => {
       const { sitename } = req.params;
@@ -164,7 +161,7 @@ export default {
       const subdomain = getSubdomain(req);
       const models = await generateModels(subdomain);
 
-      const { sitename, name } = req.params;
+      const { sitename } = req.params;
 
       const site = await models.Sites.findOne({ name: sitename }).lean();
 
