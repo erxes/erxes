@@ -253,11 +253,13 @@ class Index extends React.Component<IndexProps, IndexState> {
           })}
           <WebsiteActivity urlVisits={customer.urlVisits || []} />
 
-          {isEnabled('payment') &&
-            loadDynamicComponent('invoiceSection', {
-              contentType: 'inbox:conversations',
-              contentTypeId: conversation._id
-            })}
+          {loadDynamicComponent('conversationDetailSidebar', {
+            conversation,
+            customer,
+            customerId: customer._id,
+            contentType: 'inbox:conversations',
+            contentTypeId: conversation._id
+          })}
         </TabContent>
       );
     }
@@ -269,17 +271,6 @@ class Index extends React.Component<IndexProps, IndexState> {
           customer={customer}
           currentSubTab={currentSubTab}
         />
-      );
-    }
-
-    if (currentSubTab === 'polaris') {
-      return (
-        <>
-          {isEnabled('polarissync') &&
-            loadDynamicComponent('polarisInfo', {
-              id: customer._id
-            })}
-        </>
       );
     }
 
@@ -329,17 +320,6 @@ class Index extends React.Component<IndexProps, IndexState> {
                 onClick={relatedOnClick}
               >
                 {__('Related')}
-              </TabTitle>
-            )}
-
-            {isEnabled('polarissync') && (
-              <TabTitle
-                className={currentSubTab === 'polaris' ? 'active' : ''}
-                onClick={() => {
-                  this.onSubtabClick('polaris');
-                }}
-              >
-                {__('Polaris')}
               </TabTitle>
             )}
           </Tabs>

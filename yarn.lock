@@ -2,6 +2,15 @@
 # yarn lockfile v1
 
 
+"@acuminous/bitsyntax@^0.1.2":
+  version "0.1.2"
+  resolved "https://registry.yarnpkg.com/@acuminous/bitsyntax/-/bitsyntax-0.1.2.tgz#e0b31b9ee7ad1e4dd840c34864327c33d9f1f653"
+  integrity sha512-29lUK80d1muEQqiUsSo+3A0yP6CdspgC95EnKBMi22Xlwt79i/En4Vr67+cXhU+cZjbti3TgGGC5wy1stIywVQ==
+  dependencies:
+    buffer-more-ints "~1.0.0"
+    debug "^4.3.4"
+    safe-buffer "~5.1.2"
+
 "@ampproject/remapping@^2.0.0":
   version "2.1.0"
   resolved "https://registry.npmjs.org/@ampproject/remapping/-/remapping-2.1.0.tgz"
@@ -6081,6 +6090,13 @@
   dependencies:
     "@types/node" "*"
 
+"@types/amqplib@0.10.4":
+  version "0.10.4"
+  resolved "https://registry.yarnpkg.com/@types/amqplib/-/amqplib-0.10.4.tgz#0bf1ceefe280c02502b209fa9f06394b0c4cd688"
+  integrity sha512-Y5Sqquh/LqDxSgxYaAAFNM0M7GyONtSDCcFMJk+DQwYEjibPyW6y+Yu9H9omdkKc3epyXULmFN3GTaeBHhn2Hg==
+  dependencies:
+    "@types/node" "*"
+
 "@types/aws-lambda@8.10.122":
   version "8.10.122"
   resolved "https://registry.yarnpkg.com/@types/aws-lambda/-/aws-lambda-8.10.122.tgz#206c8d71b09325d26a458dba27db842afdc54df1"
@@ -6943,13 +6959,6 @@
   dependencies:
     "@types/react" "^16"
 
-"@types/react-dom@^17.0.2":
-  version "17.0.22"
-  resolved "https://registry.yarnpkg.com/@types/react-dom/-/react-dom-17.0.22.tgz#34317e08be27b33fa9e7cdb56125b22538261bad"
-  integrity sha512-wHt4gkdSMb4jPp1vc30MLJxoWGsZs88URfmt3FRXoOEYrrqK3I8IuZLE/uFBb4UT6MRfI0wXFu4DS7LS0kUC7Q==
-  dependencies:
-    "@types/react" "^17"
-
 "@types/react-router-dom@^5.1.3":
   version "5.1.3"
   resolved "https://registry.npmjs.org/@types/react-router-dom/-/react-router-dom-5.1.3.tgz"
@@ -7009,24 +7018,6 @@
   dependencies:
     "@types/prop-types" "*"
     csstype "^2.2.0"
-
-"@types/react@^17":
-  version "17.0.65"
-  resolved "https://registry.npmjs.org/@types/react/-/react-17.0.65.tgz"
-  integrity sha512-oxur785xZYHvnI7TRS61dXbkIhDPnGfsXKv0cNXR/0ml4SipRIFpSMzA7HMEfOywFwJ5AOnPrXYTEiTRUQeGlQ==
-  dependencies:
-    "@types/prop-types" "*"
-    "@types/scheduler" "*"
-    csstype "^3.0.2"
-
-"@types/react@^17.0.2":
-  version "17.0.69"
-  resolved "https://registry.yarnpkg.com/@types/react/-/react-17.0.69.tgz#245a0cf2f5b0fb1d645691d3083e3c7d4409b98f"
-  integrity sha512-klEeru//GhiQvXUBayz0Q4l3rKHWsBR/EUOhOeow6hK2jV7MlO44+8yEk6+OtPeOlRfnpUnrLXzGK+iGph5aeg==
-  dependencies:
-    "@types/prop-types" "*"
-    "@types/scheduler" "*"
-    csstype "^3.0.2"
 
 "@types/request@^2.47.1":
   version "2.48.8"
@@ -7803,12 +7794,12 @@ amdefine@>=0.0.4:
   resolved "https://registry.npmjs.org/amdefine/-/amdefine-1.0.1.tgz"
   integrity sha1-SlKCrBZHKek2Gbz9OtFR+BfOkfU=
 
-amqplib@^0.10.2:
-  version "0.10.2"
-  resolved "https://registry.npmjs.org/amqplib/-/amqplib-0.10.2.tgz"
-  integrity sha512-l8U1thHT5QRNJF6Fv6ZveMeHV/bl+3UROQBn/cLOwRfeV3F0syZxkjnumJCG4NMvqfy9wT7mCgwpPSq2fApRpA==
+amqplib@0.10.3:
+  version "0.10.3"
+  resolved "https://registry.yarnpkg.com/amqplib/-/amqplib-0.10.3.tgz#e186a2f74521eb55ec54db6d25ae82c29c1f911a"
+  integrity sha512-UHmuSa7n8vVW/a5HGh2nFPqAEr8+cD4dEZ6u9GjP91nHfr1a54RyAKyra7Sb5NH7NBKOUlyQSMXIp0qAixKexw==
   dependencies:
-    bitsyntax "~0.1.0"
+    "@acuminous/bitsyntax" "^0.1.2"
     buffer-more-ints "~1.0.0"
     readable-stream "1.x >=1.1.9"
     url-parse "~1.5.10"
@@ -8997,15 +8988,6 @@ bindings@^1.5.0:
   dependencies:
     file-uri-to-path "1.0.0"
 
-bitsyntax@~0.1.0:
-  version "0.1.0"
-  resolved "https://registry.npmjs.org/bitsyntax/-/bitsyntax-0.1.0.tgz"
-  integrity sha512-ikAdCnrloKmFOugAfxWws89/fPc+nw0OOG1IzIE72uSOg/A3cYptKCjSUhDTuj7fhsJtzkzlv7l3b8PzRHLN0Q==
-  dependencies:
-    buffer-more-ints "~1.0.0"
-    debug "~2.6.9"
-    safe-buffer "~5.1.2"
-
 bl@^4.1.0:
   version "4.1.0"
   resolved "https://registry.npmjs.org/bl/-/bl-4.1.0.tgz"
@@ -9039,7 +9021,7 @@ bluebird@^2.9.33:
   resolved "https://registry.npmjs.org/bluebird/-/bluebird-2.11.0.tgz"
   integrity sha1-U0uQM8AiyVecVro7Plpcqvu2UOE=
 
-bluebird@^3.5.0, bluebird@^3.7.2:
+bluebird@^3.7.2:
   version "3.7.2"
   resolved "https://registry.npmjs.org/bluebird/-/bluebird-3.7.2.tgz"
   integrity sha512-XpNj6GDQzdfW+r2Wnn7xiSAd7TM3jzkxGXBGTtWKuSXv1xUV+azxAm8jdWZN06QTQk+2N2XB9jRDkvbmQmcRtg==
@@ -11367,7 +11349,7 @@ debounce@^1.2.0:
   resolved "https://registry.npmjs.org/debounce/-/debounce-1.2.1.tgz"
   integrity sha512-XRRe6Glud4rd/ZGQfiV1ruXSfbvfJedlV9Y6zOlP+2K04vBYiJEte6stfFkCP03aMnY5tsipamumUjL14fofug==
 
-debug@2, debug@2.6.9, debug@^2.1.1, debug@^2.2.0, debug@^2.3.3, debug@^2.6.8, debug@^2.6.9, debug@~2.6.9:
+debug@2, debug@2.6.9, debug@^2.1.1, debug@^2.2.0, debug@^2.3.3, debug@^2.6.8, debug@^2.6.9:
   version "2.6.9"
   resolved "https://registry.npmjs.org/debug/-/debug-2.6.9.tgz"
   integrity sha512-bC7ElrdJaJnPbAP+1EotYvqZsb3ecl5wi6Bfi6BJTUcNowp6cvspg0jXznRTKDjm/E7AdgFBVeAPVMNcKGsHMA==
@@ -16697,6 +16679,11 @@ jpeg-js@^0.4.4:
   version "0.4.4"
   resolved "https://registry.npmjs.org/jpeg-js/-/jpeg-js-0.4.4.tgz"
   integrity sha512-WZzeDOEtTOBK4Mdsar0IqEU5sMr3vSV2RqkAIzUEV2BHnUfKGyswWFPFwK5EeDo93K3FohSHbLAjj0s1Wzd+dg==
+
+jquery@^3.1.0:
+  version "3.7.1"
+  resolved "https://registry.yarnpkg.com/jquery/-/jquery-3.7.1.tgz#083ef98927c9a6a74d05a6af02806566d16274de"
+  integrity sha512-m4avr8yL8kmFN8psrbFFFmB/If14iN5o9nw/NgnnM+kybDJpRsAynV2BsfpTYrTRysYUdADVD7CkUUizgkpLfg==
 
 js-base64@^3.7.2:
   version "3.7.5"
@@ -22477,16 +22464,6 @@ request-promise-native@^1.0.5, request-promise-native@^1.0.7:
   resolved "https://registry.npmjs.org/request-promise-native/-/request-promise-native-1.0.9.tgz"
   integrity sha512-wcW+sIUiWnKgNY0dqCpOZkUbF/I+YPi+f09JZIDa39Ec+q82CpSYniDp+ISgTTbKmnpJWASeJBPZmoxH84wt3g==
   dependencies:
-    request-promise-core "1.1.4"
-    stealthy-require "^1.1.1"
-    tough-cookie "^2.3.3"
-
-request-promise@^4.2.4, request-promise@^4.2.6:
-  version "4.2.6"
-  resolved "https://registry.npmjs.org/request-promise/-/request-promise-4.2.6.tgz"
-  integrity sha512-HCHI3DJJUakkOr8fNoCc73E5nU5bqITjOYFMDrKHYOXWXrgD/SBaC7LjwuPymUprRyuF06UK7hd/lMHkmUXglQ==
-  dependencies:
-    bluebird "^3.5.0"
     request-promise-core "1.1.4"
     stealthy-require "^1.1.1"
     tough-cookie "^2.3.3"

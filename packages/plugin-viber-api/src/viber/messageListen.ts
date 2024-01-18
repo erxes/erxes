@@ -3,10 +3,10 @@ import {
   Conversations,
   ConversationMessages,
   IConversation,
-  Integrations
+  Integrations,
 } from '../models';
 import { sendInboxMessage } from '../messageBroker';
-import { graphqlPubsub } from '../configs';
+import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
 
 interface IWebhookMessage {
   event: string;
@@ -34,20 +34,20 @@ interface ICustomer {
 const messageListen = async (
   message: IWebhookMessage,
   integrationId: string,
-  subdomain: string
+  subdomain: string,
 ): Promise<void> => {
   const createData: ICustomer = {
     inboxIntegrationId: integrationId,
     contactsId: null,
     viberId: message.sender.id,
     name: message.sender.name,
-    country: message.sender.country
+    country: message.sender.country,
   };
   const customer = await Customers.getOrCreate(createData, subdomain);
 
   let conversation: IConversation | null = await Conversations.findOne({
     senderId: message.sender.id,
-    integrationId
+    integrationId,
   });
 
   if (!conversation) {
@@ -56,13 +56,13 @@ const messageListen = async (
         timestamp: message.timestamp,
         senderId: message.sender.id,
         recipientId: null,
-        integrationId
+        integrationId,
       });
     } catch (e) {
       throw new Error(
         e.message.includes('duplicate')
           ? 'Concurrent request: conversation duplication'
-          : e
+          : e,
       );
     }
   }
@@ -78,11 +78,11 @@ const messageListen = async (
           integrationId,
           content: message.message.text || '',
           conversationId: conversation.erxesApiId,
-          createdAt: message.timestamp
-        })
+          createdAt: message.timestamp,
+        }),
       },
       isRPC: true,
-      defaultValue: null
+      defaultValue: null,
     });
   } catch (e) {
     console.error(e);
@@ -95,7 +95,7 @@ const messageListen = async (
       userId: null,
       customerId: customer.contactsId,
       content: message.message.text,
-      messageType: message.message.type
+      messageType: message.message.type,
     };
 
     if (['sticker', 'picture'].includes(message.message.type)) {
@@ -109,8 +109,8 @@ const messageListen = async (
       action: 'conversationClientMessageInserted',
       data: {
         ...conversationMessage.toObject(),
-        conversationId: conversation.erxesApiId
-      }
+        conversationId: conversation.erxesApiId,
+      },
     });
 
     graphqlPubsub.publish(
@@ -118,9 +118,9 @@ const messageListen = async (
       {
         conversationMessageInserted: {
           ...conversationMessage.toObject(),
-          conversationId: conversation.erxesApiId
-        }
-      }
+          conversationId: conversation.erxesApiId,
+        },
+      },
     );
   } catch (e) {
     throw new Error(e);

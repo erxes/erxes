@@ -9,8 +9,7 @@ import {
   Tags as TagQueries,
 } from './queries';
 
-const resolvers: any = async (serviceDiscovery) => (
-  
+const resolvers: any = async () => (  
   {
   ...customScalars,
   Tag,

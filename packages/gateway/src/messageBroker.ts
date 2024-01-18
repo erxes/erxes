@@ -5,10 +5,10 @@ dotenv.config();
 
 let client;
 
-export const initBroker = async options => {
-  client = await initBrokerCore(options);
+export const initBroker = async () => {
+  client = await initBrokerCore();
 };
 
-export default function() {
+export default function () {
   return client;
 }
