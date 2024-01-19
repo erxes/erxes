@@ -1,8 +1,8 @@
 import { debug } from './configs';
 import { IActivityLogDocument } from './models/ActivityLogs';
 import { receivePutLogCommand, sendToApi } from './utils';
-import { serviceDiscovery } from './configs';
-import { getService } from '@erxes/api-utils/src/serviceDiscovery';
+
+import { getService, isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
 import { generateModels } from './connectionResolver';
 import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
 
@@ -25,7 +25,7 @@ const hasMetaLogs = async (serviceName: string) => {
 };
 
 const isServiceEnabled = async (serviceName: string): Promise<boolean> => {
-  const enabled = await serviceDiscovery.isEnabled(serviceName);
+  const enabled = await isEnabled(serviceName);
   const hasMeta = await hasMetaLogs(serviceName);
 
   return enabled && hasMeta;
@@ -195,7 +195,7 @@ export const initBroker = async (cl) => {
 };
 
 export const getDbSchemaLabels = async (serviceName: string, args) => {
-  const enabled = await serviceDiscovery.isEnabled(serviceName);
+  const enabled = await isEnabled(serviceName);
 
   return enabled
     ? client.sendRPCMessage(`${serviceName}:logs.getSchemaLabels`, args)
@@ -259,8 +259,6 @@ export const getContentIds = async (subdomain, data) => {
 
 export const sendCoreMessage = (args: ISendMessageArgs) => {
   return sendMessage({
-    serviceDiscovery,
-    client,
     serviceName: 'core',
     ...args,
   });
@@ -268,8 +266,6 @@ export const sendCoreMessage = (args: ISendMessageArgs) => {
 
 export const sendInboxMessage = (args: ISendMessageArgs) => {
   return sendMessage({
-    serviceDiscovery,
-    client,
     serviceName: 'inbox',
     ...args,
   });
@@ -277,8 +273,6 @@ export const sendInboxMessage = (args: ISendMessageArgs) => {
 
 export const sendClientPortalMessage = (args: ISendMessageArgs) => {
   return sendMessage({
-    serviceDiscovery,
-    client,
     serviceName: 'clientportal',
     ...args,
   });
@@ -295,8 +289,6 @@ export const fetchService = async (
 
   return sendMessage({
     subdomain,
-    serviceDiscovery,
-    client,
     isRPC: true,
     serviceName,
     action: `logs.${action}`,

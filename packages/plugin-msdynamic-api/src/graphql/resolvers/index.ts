@@ -5,7 +5,7 @@ import Query from './queries';
 
 import SyncHistory from './syncLog';
 
-const resolvers: any = async _serviceDiscovery => ({
+const resolvers: any = async () => ({
   ...customScalars,
   SyncHistory,
   Mutation: {

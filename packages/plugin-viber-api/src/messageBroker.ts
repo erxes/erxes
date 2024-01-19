@@ -1,15 +1,15 @@
 import * as dotenv from 'dotenv';
 import {
   ISendMessageArgs,
-  sendMessage as sendCommonMessage
+  sendMessage as sendCommonMessage,
 } from '@erxes/api-utils/src/core';
-import { serviceDiscovery } from './configs';
+
 import {
   Customers,
   Integrations,
   Conversations,
   ConversationMessages,
-  IConversation
+  IConversation,
 } from './models';
 import { ViberAPI } from './viber/api';
 
@@ -17,7 +17,7 @@ dotenv.config();
 
 let client;
 
-export const initBroker = async cl => {
+export const initBroker = async (cl) => {
   client = cl;
 
   const { consumeRPCQueue } = client;
@@ -31,13 +31,13 @@ export const initBroker = async cl => {
 
       const viberIntegration = await Integrations.create({
         inboxId: integrationId,
-        ...docData
+        ...docData,
       });
 
       const viberApi: ViberAPI = new ViberAPI({
         token: docData.token,
         integrationId,
-        subdomain
+        subdomain,
       });
 
       // registering webhook
@@ -47,14 +47,14 @@ export const initBroker = async cl => {
         await Integrations.deleteOne({ _id: viberIntegration._id });
         return {
           status: 'failed',
-          errorMessage: e
+          errorMessage: e,
         };
       }
 
       return {
-        status: 'success'
+        status: 'success',
       };
-    }
+    },
   );
 
   consumeRPCQueue(
@@ -63,20 +63,20 @@ export const initBroker = async cl => {
       const details = JSON.parse(doc.data);
 
       const integration = await Integrations.findOne({
-        inboxId: integrationId
+        inboxId: integrationId,
       });
 
       if (!integration) {
         return {
           status: 'error',
-          errorMessage: 'Integration not found.'
+          errorMessage: 'Integration not found.',
         };
       }
 
       const viberApi: ViberAPI = new ViberAPI({
         token: details.token,
         integrationId,
-        subdomain
+        subdomain,
       });
 
       try {
@@ -84,19 +84,19 @@ export const initBroker = async cl => {
       } catch (e) {
         return {
           status: 'error',
-          errorMessage: e
+          errorMessage: e,
         };
       }
 
       await Integrations.updateOne(
         { erxesApiId: integrationId },
-        { $set: details }
+        { $set: details },
       );
 
       return {
-        status: 'success'
+        status: 'success',
       };
-    }
+    },
   );
 
   consumeRPCQueue(
@@ -108,9 +108,9 @@ export const initBroker = async cl => {
 
       return {
         status: 'success',
-        data: { token: viberIntegration?.token }
+        data: { token: viberIntegration?.token },
       };
-    }
+    },
   );
 
   consumeRPCQueue(
@@ -126,7 +126,7 @@ export const initBroker = async cl => {
 
       const conversationIdsKeys: IConversation[] = await Conversations.find(
         { integrationId },
-        '_id'
+        '_id',
       );
 
       conversationIdsKeys.map((key: IConversation): void => {
@@ -135,16 +135,16 @@ export const initBroker = async cl => {
 
       if (conversationIds.length > 0) {
         await ConversationMessages.deleteMany({
-          conversationId: { $in: conversationIds }
+          conversationId: { $in: conversationIds },
         });
       }
 
       await Conversations.deleteMany({ integrationId });
 
       return {
-        status: 'success'
+        status: 'success',
       };
-    }
+    },
   );
 
   consumeRPCQueue(
@@ -155,13 +155,13 @@ export const initBroker = async cl => {
 
       const integration = await Integrations.findOne(
         { inboxId: integrationId },
-        { inboxId: 1, token: 1 }
+        { inboxId: 1, token: 1 },
       );
 
       if (!integration) {
         return {
           status: 'error',
-          errorMessage: 'Integration not found.'
+          errorMessage: 'Integration not found.',
         };
       }
 
@@ -169,8 +169,8 @@ export const initBroker = async cl => {
         return {
           status: 'success',
           data: {
-            token: integration.token
-          }
+            token: integration.token,
+          },
         };
       }
 
@@ -180,42 +180,38 @@ export const initBroker = async cl => {
           const viberApi: ViberAPI = new ViberAPI({
             token: integration.token,
             integrationId,
-            subdomain
+            subdomain,
           });
           await viberApi.sendMessage(payload);
         } catch (e) {
           return {
             status: 'error',
-            errorMessage: e.message
+            errorMessage: e.message,
           };
         }
       }
 
       return {
-        status: 'success'
+        status: 'success',
       };
-    }
+    },
   );
 };
 
-export default function() {
+export default function () {
   return client;
 }
 
 export const sendContactsMessage = (args: ISendMessageArgs) => {
   return sendCommonMessage({
-    client,
-    serviceDiscovery,
     serviceName: 'contacts',
-    ...args
+    ...args,
   });
 };
 
 export const sendInboxMessage = (args: ISendMessageArgs) => {
   return sendCommonMessage({
-    client,
-    serviceDiscovery,
     serviceName: 'inbox',
-    ...args
+    ...args,
   });
 };

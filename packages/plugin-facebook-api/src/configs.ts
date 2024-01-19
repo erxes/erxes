@@ -12,17 +12,13 @@ import segments from './segments';
 
 export let mainDb;
 export let debug;
-export let graphqlPubsub;
-export let serviceDiscovery;
 
 export default {
   name: 'facebook',
-  graphql: async sd => {
-    serviceDiscovery = sd;
-
+  graphql: async () => {
     return {
-      typeDefs: await typeDefs(sd),
-      resolvers: await resolvers(sd)
+      typeDefs: await typeDefs(),
+      resolvers: await resolvers(),
     };
   },
   meta: {
@@ -32,13 +28,13 @@ export default {
     inboxIntegrations: [
       {
         kind: INTEGRATION_KINDS.MESSENGER,
-        label: 'Facebook messenger'
+        label: 'Facebook messenger',
       },
       {
         kind: INTEGRATION_KINDS.POST,
-        label: 'Facebook post'
-      }
-    ]
+        label: 'Facebook post',
+      },
+    ],
   },
   apolloServerContext: async (context, req) => {
     const subdomain = getSubdomain(req);
@@ -50,17 +46,13 @@ export default {
     return context;
   },
 
-  onServerInit: async options => {
+  onServerInit: async (options) => {
     mainDb = options.db;
 
-    const app = options.app;
+    await initBroker(options.messageBrokerClient);
 
-    initBroker(options.messageBrokerClient);
-
-    initApp(app);
-
-    graphqlPubsub = options.pubsubClient;
+    await initApp();
 
     debug = options.debug;
-  }
+  },
 };

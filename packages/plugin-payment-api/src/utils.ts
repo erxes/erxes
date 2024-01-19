@@ -5,7 +5,7 @@ import { paypalCallbackHandler } from './api/paypal/api';
 import { qpayCallbackHandler } from './api/qpay/api';
 import { socialpayCallbackHandler } from './api/socialpay/api';
 import { storepayCallbackHandler } from './api/storepay/api';
-import { graphqlPubsub } from './configs';
+import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
 import { generateModels } from './connectionResolver';
 import { PAYMENTS, PAYMENT_STATUS } from './api/constants';
 import redisUtils from './redisUtils';
@@ -20,12 +20,7 @@ export const callbackHandler = async (req, res) => {
   const subdomain = getSubdomain(req);
   const models = await generateModels(subdomain);
 
-  const kind =
-    query.kind ||
-    route.path
-      .split('/')
-      .slice(-1)
-      .pop();
+  const kind = query.kind || route.path.split('/').slice(-1).pop();
 
   if (!kind) {
     return res.status(400).send('kind is required');
@@ -68,8 +63,8 @@ export const callbackHandler = async (req, res) => {
       graphqlPubsub.publish('invoiceUpdated', {
         invoiceUpdated: {
           _id: invoiceDoc._id,
-          status: 'paid'
-        }
+          status: 'paid',
+        },
       });
 
       redisUtils.updateInvoiceStatus(invoiceDoc._id, 'paid');
@@ -81,8 +76,8 @@ export const callbackHandler = async (req, res) => {
           subdomain,
           data: {
             ...invoiceDoc,
-            apiResponse: 'success'
-          }
+            apiResponse: 'success',
+          },
         });
       }
     }

@@ -1,10 +1,9 @@
 import { generateModels } from './connectionResolver';
 import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
-import { serviceDiscovery } from './configs';
 
 let client;
 
-export const initBroker = async cl => {
+export const initBroker = async (cl) => {
   client = cl;
 
   const { consumeRPCQueue } = client;
@@ -14,7 +13,7 @@ export const initBroker = async cl => {
 
     return {
       data: await models.Goals.find(data).lean(),
-      status: 'success'
+      status: 'success',
     };
   });
 
@@ -23,7 +22,7 @@ export const initBroker = async cl => {
 
     return {
       data: await models.Goals.findOne(data).lean(),
-      status: 'success'
+      status: 'success',
     };
   });
 
@@ -32,49 +31,41 @@ export const initBroker = async cl => {
 
     return {
       status: 'success',
-      data: await models.Goals.createGoal(data)
+      data: await models.Goals.createGoal(data),
     };
   });
 };
 
 export const sendCardsMessage = (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
-    client,
-    serviceDiscovery,
     serviceName: 'cards',
-    ...args
+    ...args,
   });
 };
 
 export const sendSegmentsMessage = async (
-  args: ISendMessageArgs
+  args: ISendMessageArgs,
 ): Promise<any> => {
   return sendMessage({
-    client,
-    serviceDiscovery,
     serviceName: 'segments',
-    ...args
+    ...args,
   });
 };
 
 export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
-    client,
-    serviceDiscovery,
     serviceName: 'core',
-    ...args
+    ...args,
   });
 };
 export const sendCommonMessage = async (
-  args: ISendMessageArgs & { serviceName: string }
+  args: ISendMessageArgs & { serviceName: string },
 ): Promise<any> => {
   return sendMessage({
-    serviceDiscovery,
-    client,
-    ...args
+    ...args,
   });
 };
 
-export default function() {
+export default function () {
   return client;
 }

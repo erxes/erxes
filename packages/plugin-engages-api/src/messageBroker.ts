@@ -1,13 +1,13 @@
 import { sendMessage, ISendMessageArgs } from '@erxes/api-utils/src/core';
 import { sendToWebhook as sendWebhook } from '@erxes/api-utils/src';
-import { serviceDiscovery, debug } from './configs';
+import { debug } from './configs';
 import { generateModels } from './connectionResolver';
 import { start, sendBulkSms, sendEmail } from './sender';
 import { CAMPAIGN_KINDS } from './constants';
 
 export let client;
 
-export const initBroker = async cl => {
+export const initBroker = async (cl) => {
   client = cl;
 
   const { consumeQueue, consumeRPCQueue } = client;
@@ -24,7 +24,7 @@ export const initBroker = async cl => {
       await models.Logs.createLog(
         engageMessage._id,
         'failure',
-        'No customers found'
+        'No customers found',
       );
       throw new Error('No customers found');
     }
@@ -43,7 +43,7 @@ export const initBroker = async cl => {
       await models.Logs.createLog(
         engageMessage._id,
         'regular',
-        `Matched ${customerInfos.length} customers`
+        `Matched ${customerInfos.length} customers`,
       );
     }
 
@@ -53,14 +53,14 @@ export const initBroker = async cl => {
     ) {
       await models.EngageMessages.updateOne(
         { _id: engageMessage._id },
-        { $set: { 'scheduleDate.type': 'sent' } }
+        { $set: { 'scheduleDate.type': 'sent' } },
       );
     }
 
     if (customerInfos.length > 0) {
       await models.EngageMessages.updateOne(
         { _id: engageMessage._id },
-        { $set: { totalCustomersCount: customerInfos.length } }
+        { $set: { totalCustomersCount: customerInfos.length } },
       );
     }
   });
@@ -95,7 +95,7 @@ export const initBroker = async cl => {
       const models = await generateModels(subdomain);
 
       await models.EngageMessages.removeCustomersEngages(customerIds);
-    }
+    },
   );
 
   consumeQueue(
@@ -104,7 +104,7 @@ export const initBroker = async cl => {
       const models = await generateModels(subdomain);
 
       await models.EngageMessages.changeCustomer(customerId, customerIds);
-    }
+    },
   );
 
   consumeRPCQueue(
@@ -114,9 +114,9 @@ export const initBroker = async cl => {
 
       return {
         status: 'success',
-        data: await models.EngageMessages.createVisitorOrCustomerMessages(data)
+        data: await models.EngageMessages.createVisitorOrCustomerMessages(data),
       };
-    }
+    },
   );
 
   consumeQueue('engages:sendEmail', async ({ data, subdomain }) => {
@@ -130,89 +130,73 @@ export const removeEngageConversations = async (_id): Promise<any> => {
   return client.consumeQueue('removeEngageConversations', _id);
 };
 
-export default function() {
+export default function () {
   return client;
 }
 
 export const sendContactsMessage = async (
-  args: ISendMessageArgs
+  args: ISendMessageArgs,
 ): Promise<any> => {
   return sendMessage({
-    client,
-    serviceDiscovery,
     serviceName: 'contacts',
-    ...args
+    ...args,
   });
 };
 
 export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
-    client,
-    serviceDiscovery,
     serviceName: 'core',
-    ...args
+    ...args,
   });
 };
 
 export const sendInboxMessage = async (
-  args: ISendMessageArgs
+  args: ISendMessageArgs,
 ): Promise<any> => {
   return sendMessage({
-    client,
-    serviceDiscovery,
     serviceName: 'inbox',
-    ...args
+    ...args,
   });
 };
 
 export const sendLogsMessage = async (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
-    client,
-    serviceDiscovery,
     serviceName: 'logs',
-    ...args
+    ...args,
   });
 };
 
 export const sendSegmentsMessage = async (
-  args: ISendMessageArgs
+  args: ISendMessageArgs,
 ): Promise<any> => {
   return sendMessage({
-    client,
-    serviceDiscovery,
     serviceName: 'segments',
-    ...args
+    ...args,
   });
 };
 
 export const sendTagsMessage = async (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
-    client,
-    serviceDiscovery,
     serviceName: 'tags',
-    ...args
+    ...args,
   });
 };
 
 export const sendIntegrationsMessage = async (
-  args: ISendMessageArgs
+  args: ISendMessageArgs,
 ): Promise<any> => {
   return sendMessage({
-    client,
-    serviceDiscovery,
     serviceName: 'integrations',
-    ...args
+    ...args,
   });
 };
 
 export const sendEmailTemplatesMessage = async (
-  args: ISendMessageArgs
+  args: ISendMessageArgs,
 ): Promise<any> => {
   return sendMessage({
-    client,
-    serviceDiscovery,
     serviceName: 'emailtemplates',
-    ...args
+    ...args,
   });
 };
 
