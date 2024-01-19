@@ -1,6 +1,6 @@
 import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
 import { generateModels } from './connectionResolver';
-import { serviceDiscovery } from './configs';
+
 import { checkPricing, getMainConditions } from './utils';
 import { getAllowedProducts } from './utils/product';
 import { calculatePriceAdjust } from './utils/rule';
@@ -119,7 +119,6 @@ export const sendProductsMessage = async (
 ): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'products',
     ...args
   });
@@ -128,7 +127,6 @@ export const sendProductsMessage = async (
 export const sendTagsMessage = async (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'tags',
     ...args
   });
@@ -139,7 +137,6 @@ export const sendSegmentsMessage = async (
 ): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'segments',
     ...args
   });

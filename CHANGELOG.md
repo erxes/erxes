@@ -1,3 +1,69 @@
+## [1.5.9](https://github.com/erxes/erxes/compare/1.5.8...1.5.9) (2024-01-12)
+
+
+### Bug Fixes
+
+* **contacts:** fix empty trackedData of company ([f43f105](https://github.com/erxes/erxes/commit/f43f1058f64c30fef77085836a8e3667f7ecf238))
+
+## [1.5.8](https://github.com/erxes/erxes/compare/1.5.7...1.5.8) (2024-01-09)
+
+
+### Bug Fixes
+
+* **businessportal:** fix cp user related cards ([49e4620](https://github.com/erxes/erxes/commit/49e4620a8ec2b8e03be4384d718181aa9a35302b))
+* ebarimt per stage configure company name ([910e556](https://github.com/erxes/erxes/commit/910e556cbfe5cf947f8be0cee243de885a6d78f2))
+* refactor tag order ([4623716](https://github.com/erxes/erxes/commit/46237168449d0a998f87b71e60d1fcfc4652d9d0))
+* refactor tag order ([f25139b](https://github.com/erxes/erxes/commit/f25139b06d1f56444ccd172bf2477c5d99fe31ef))
+
+
+### Performance Improvements
+
+* **editor:** add table, mention & attribute plugins & replace respondBox editor ([#4861](https://github.com/erxes/erxes/issues/4861)) ([e0207f7](https://github.com/erxes/erxes/commit/e0207f79fafef6528c56fd99f132c6d7d916f37d))
+* **products:** some refactor & update some UI in settings ([a27de3a](https://github.com/erxes/erxes/commit/a27de3a6d1dce65a46798bfb9720529d94817a91))
+
+
+### Reverts
+
+* Revert "simplify" ([f34977c](https://github.com/erxes/erxes/commit/f34977c1c051c1efdd7ae00a66dfd713c977a3b0))
+
+## [1.5.7](https://github.com/erxes/erxes/compare/1.5.6...1.5.7) (2024-01-03)
+
+
+### Bug Fixes
+
+* **builder:** Replace linux specific shell commands ([dc3cb87](https://github.com/erxes/erxes/commit/dc3cb8711c1b443e651ddbf456c44f7f15bfb166))
+* **calls:** fix multiple login ([#4874](https://github.com/erxes/erxes/issues/4874)) ([308806f](https://github.com/erxes/erxes/commit/308806f091fef2d5da3c2c0a81f56fa1fefe94ab))
+* **form:** Group form row field ([#4869](https://github.com/erxes/erxes/issues/4869)) ([29dc6aa](https://github.com/erxes/erxes/commit/29dc6aa469d59a66114c7395fda07f30343f4b17))
+* **gateway:** apollo router downloader ([1259526](https://github.com/erxes/erxes/commit/1259526b90817ded8a6ee1c538e3ed86503b1c83))
+* **payment:** invoice permission ([#4864](https://github.com/erxes/erxes/issues/4864)) ([9e7a7d1](https://github.com/erxes/erxes/commit/9e7a7d1d670c68e79c5e9e1ab3d246aeaa882904))
+* **polarissync:** add null check ([427a3c4](https://github.com/erxes/erxes/commit/427a3c40bf57e20bfd1dd058b527dd9c9f379ebf))
+
+
+### Features
+
+* add direct discount on pos ([#4865](https://github.com/erxes/erxes/issues/4865)) ([b2a7d0a](https://github.com/erxes/erxes/commit/b2a7d0a0a12e28c65e24ab0e0ee1859f65ceb075))
+* create or update user sync erkhet ([98879f9](https://github.com/erxes/erxes/commit/98879f9d7b40ad344a7348c0cda5a9154acd5fa9))
+* Purchase refactor and purchase sync erkhet ([#4877](https://github.com/erxes/erxes/issues/4877)) ([1d14b28](https://github.com/erxes/erxes/commit/1d14b28286237d675c745418c8280a77c9632a24))
+
+# [1.6.0](https://github.com/erxes/erxes/compare/1.5.6...1.6.0) (2024-01-03)
+
+
+### Bug Fixes
+
+* **builder:** Replace linux specific shell commands ([dc3cb87](https://github.com/erxes/erxes/commit/dc3cb8711c1b443e651ddbf456c44f7f15bfb166))
+* **calls:** fix multiple login ([#4874](https://github.com/erxes/erxes/issues/4874)) ([308806f](https://github.com/erxes/erxes/commit/308806f091fef2d5da3c2c0a81f56fa1fefe94ab))
+* **form:** Group form row field ([#4869](https://github.com/erxes/erxes/issues/4869)) ([29dc6aa](https://github.com/erxes/erxes/commit/29dc6aa469d59a66114c7395fda07f30343f4b17))
+* **gateway:** apollo router downloader ([1259526](https://github.com/erxes/erxes/commit/1259526b90817ded8a6ee1c538e3ed86503b1c83))
+* **payment:** invoice permission ([#4864](https://github.com/erxes/erxes/issues/4864)) ([9e7a7d1](https://github.com/erxes/erxes/commit/9e7a7d1d670c68e79c5e9e1ab3d246aeaa882904))
+* **polarissync:** add null check ([427a3c4](https://github.com/erxes/erxes/commit/427a3c40bf57e20bfd1dd058b527dd9c9f379ebf))
+
+
+### Features
+
+* add direct discount on pos ([#4865](https://github.com/erxes/erxes/issues/4865)) ([b2a7d0a](https://github.com/erxes/erxes/commit/b2a7d0a0a12e28c65e24ab0e0ee1859f65ceb075))
+* create or update user sync erkhet ([98879f9](https://github.com/erxes/erxes/commit/98879f9d7b40ad344a7348c0cda5a9154acd5fa9))
+* Purchase refactor and purchase sync erkhet ([#4877](https://github.com/erxes/erxes/issues/4877)) ([1d14b28](https://github.com/erxes/erxes/commit/1d14b28286237d675c745418c8280a77c9632a24))
+
 ## [1.5.6](https://github.com/erxes/erxes/compare/1.5.5...1.5.6) (2023-12-21)
 
 

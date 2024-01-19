@@ -1,5 +1,5 @@
 import { generateModels } from './connectionResolver';
-import { graphqlPubsub, serviceDiscovery } from './configs';
+
 import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
 import {
   importProducts,
@@ -8,14 +8,15 @@ import {
   receivePosConfig,
   receiveProduct,
   receiveProductCategory,
-  receiveUser
+  receiveUser,
 } from './graphql/utils/syncUtils';
 import { sendRPCMessageMq } from '@erxes/api-utils/src/messageBroker';
 import { updateMobileAmount } from './utils';
+import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
 
 let client;
 
-export const initBroker = async cl => {
+export const initBroker = async (cl) => {
   const { SKIP_REDIS } = process.env;
 
   let channelToken = '';
@@ -44,9 +45,9 @@ export const initBroker = async cl => {
 
       return {
         status: 'success',
-        data: await receivePosConfig(subdomain, models, data)
+        data: await receivePosConfig(subdomain, models, data),
       };
-    }
+    },
   );
 
   consumeRPCQueue(
@@ -62,13 +63,13 @@ export const initBroker = async cl => {
 
       await models.Configs.updateOne(
         { token: posToken },
-        { $set: { status: 'deleted' } }
+        { $set: { status: 'deleted' } },
       );
       return {
         status: 'success',
-        data: {}
+        data: {},
       };
-    }
+    },
   );
 
   consumeQueue(
@@ -101,7 +102,7 @@ export const initBroker = async cl => {
             break;
         }
       }
-    }
+    },
   );
 
   consumeQueue(
@@ -112,13 +113,13 @@ export const initBroker = async cl => {
 
       await models.Orders.updateOne(
         { _id: orderId },
-        { $set: { synced: true } }
+        { $set: { synced: true } },
       );
       await models.PutResponses.updateMany(
         { _id: { $in: responseIds } },
-        { $set: { synced: true } }
+        { $set: { synced: true } },
       );
-    }
+    },
   );
 
   consumeQueue(
@@ -130,7 +131,7 @@ export const initBroker = async cl => {
       await models.Orders.updateOne(
         { _id: order._id },
         { $set: { ...order } },
-        { upsert: true }
+        { upsert: true },
       );
 
       const bulkOps: any[] = [];
@@ -142,11 +143,11 @@ export const initBroker = async cl => {
             update: {
               $set: {
                 ...item,
-                orderId: order._id
-              }
+                orderId: order._id,
+              },
             },
-            upsert: true
-          }
+            upsert: true,
+          },
         });
       }
       if (bulkOps.length) {
@@ -159,10 +160,10 @@ export const initBroker = async cl => {
           _id: order._id,
           status: order.status,
           customerId: order.customerId,
-          customerType: order.customerType
-        }
+          customerType: order.customerType,
+        },
       });
-    }
+    },
   );
 
   consumeQueue(
@@ -174,9 +175,9 @@ export const initBroker = async cl => {
       await models.Orders.deleteOne({
         _id: order._id,
         posToken: order.posToken,
-        subToken: order.subToken
+        subToken: order.subToken,
       });
-    }
+    },
   );
 
   consumeQueue(
@@ -188,8 +189,8 @@ export const initBroker = async cl => {
         return;
       }
 
-      await updateMobileAmount(models, [data]);
-    }
+      await updateMobileAmount(subdomain, models, [data]);
+    },
   );
 
   consumeRPCQueue(
@@ -198,7 +199,7 @@ export const initBroker = async cl => {
       if (channelToken) {
         return {
           status: 'success',
-          data: { healthy: 'ok' }
+          data: { healthy: 'ok' },
         };
       }
 
@@ -208,15 +209,15 @@ export const initBroker = async cl => {
       if (!conf) {
         return {
           status: 'success',
-          data: { healthy: 'no' }
+          data: { healthy: 'no' },
         };
       }
 
       return {
         status: 'success',
-        data: { healthy: 'ok' }
+        data: { healthy: 'ok' },
       };
-    }
+    },
   );
 
   consumeRPCQueue(
@@ -227,29 +228,28 @@ export const initBroker = async cl => {
       const { cover } = data;
       await models.Covers.updateOne(
         { _id: cover._id },
-        { $set: { status: 'reconf' } }
+        { $set: { status: 'reconf' } },
       );
       return {
         status: 'success',
-        data: await models.Covers.findOne({ _id: cover._id })
+        data: await models.Covers.findOne({ _id: cover._id }),
       };
-    }
+    },
   );
 };
 
 export const sendCommonMessage = async (
-  args: ISendMessageArgs & { serviceName: string }
+  args: ISendMessageArgs & { serviceName: string },
 ): Promise<any> => {
   return sendMessage({
-    serviceDiscovery,
     client,
-    ...args
+    ...args,
   });
 };
 
 export const sendMessageWrapper = async (
   serviceName: string,
-  args: ISendMessageArgs
+  args: ISendMessageArgs,
 ): Promise<any> => {
   const { SKIP_REDIS } = process.env;
 
@@ -266,13 +266,13 @@ export const sendMessageWrapper = async (
         await sendRPCMessageMq('core:isServiceEnabled', serviceName);
 
       const timeout = (cb, interval) => () =>
-        new Promise(resolve => setTimeout(() => cb(resolve), interval));
+        new Promise((resolve) => setTimeout(() => cb(resolve), interval));
 
-      const onTimeout = timeout(resolve => resolve(false), 1000);
+      const onTimeout = timeout((resolve) => resolve(false), 1000);
 
       let response = false;
-      await Promise.race([longTask, onTimeout].map(f => f())).then(
-        result => (response = result as boolean)
+      await Promise.race([longTask, onTimeout].map((f) => f())).then(
+        (result) => (response = result as boolean),
       );
 
       args.isMQ = true;
@@ -284,18 +284,16 @@ export const sendMessageWrapper = async (
 
     return sendMessage({
       client,
-      serviceDiscovery,
       serviceName: '',
       ...args,
-      action: `${serviceName}:${action}`
+      action: `${serviceName}:${action}`,
     });
   }
 
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName,
-    ...args
+    ...args,
   });
 };
 
@@ -308,37 +306,37 @@ export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
 };
 
 export const sendInventoriesMessage = async (
-  args: ISendMessageArgs
+  args: ISendMessageArgs,
 ): Promise<any> => {
   return sendMessageWrapper('inventories', args);
 };
 
 export const sendContactsMessage = async (
-  args: ISendMessageArgs
+  args: ISendMessageArgs,
 ): Promise<any> => {
   return sendMessageWrapper('contacts', args);
 };
 
 export const sendCardsMessage = async (
-  args: ISendMessageArgs
+  args: ISendMessageArgs,
 ): Promise<any> => {
   return sendMessageWrapper('cards', args);
 };
 
 export const sendInboxMessage = async (
-  args: ISendMessageArgs
+  args: ISendMessageArgs,
 ): Promise<any> => {
   return sendMessageWrapper('inbox', args);
 };
 
 export const sendLoyaltiesMessage = async (
-  args: ISendMessageArgs
+  args: ISendMessageArgs,
 ): Promise<any> => {
   return sendMessageWrapper('loyalties', args);
 };
 
 export const sendPricingMessage = async (
-  args: ISendMessageArgs
+  args: ISendMessageArgs,
 ): Promise<any> => {
   return sendMessageWrapper('pricing', args);
 };
@@ -348,13 +346,13 @@ export const sendTagsMessage = (args: ISendMessageArgs): Promise<any> => {
 };
 
 export const sendSegmentsMessage = async (
-  args: ISendMessageArgs
+  args: ISendMessageArgs,
 ): Promise<any> => {
   return sendMessageWrapper('segments', args);
 };
 
 export const sendFormsMessage = async (
-  args: ISendMessageArgs
+  args: ISendMessageArgs,
 ): Promise<any> => {
   return sendMessageWrapper('forms', args);
 };
@@ -363,15 +361,15 @@ export const fetchSegment = (
   subdomain: string,
   segmentId: string,
   options?,
-  segmentData?: any
+  segmentData?: any,
 ) =>
   sendSegmentsMessage({
     subdomain,
     action: 'fetchSegment',
     data: { segmentId, options, segmentData },
-    isRPC: true
+    isRPC: true,
   });
 
-export default function() {
+export default function () {
   return client;
 }

@@ -508,8 +508,8 @@ const up = async ({ uis, downloadLocales, fromInstaller }) => {
         },
         extra_hosts,
         volumes: [
-          './permissions.json:/core-api/permissions.json',
-          './core-api-uploads:/core-api/dist/core/src/private/uploads'
+          './permissions.json:/erxes/packages/core/permissions.json',
+          './core-api-uploads:/erxes/packages/core/src/private/uploads'
         ],
         networks: ['erxes']
       },
@@ -753,8 +753,15 @@ const up = async ({ uis, downloadLocales, fromInstaller }) => {
 
       if (apiConfig) {
         if (apiConfig.essyncer) {
+          const pluginExtraEnv = plugin.extra_env || {};
+          const match = (pluginExtraEnv.MONGO_URL || '').match(
+            /\/([^/?]+)(\?|$)/
+          );
+
+          const db_name = match ? match[1] : null;
+
           essyncerJSON.plugins.push({
-            db_name: configs.mongo.db_name || 'erxes',
+            db_name: db_name || configs.mongo.db_name || 'erxes',
             collections: apiConfig.essyncer
           });
         }

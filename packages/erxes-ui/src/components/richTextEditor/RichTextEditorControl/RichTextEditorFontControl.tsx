@@ -4,7 +4,7 @@ import Select from 'react-select-plus';
 import { getAttributesForEachSelected } from '../utils/getAttributesForEachSelected';
 import { FontSelectWrapper } from './styles';
 
-type SelectProps = {
+export type SelectProps = {
   value: string;
   label: string | number;
 };
@@ -29,7 +29,7 @@ const DEFAULT_FONT_SIZE_SELECT_OPTIONS: Array<string | number> = [
   '72'
 ];
 
-export const RichTextEditorFontControl = () => {
+export const RichTextEditorFontControl = ({ toolbarPlacement }) => {
   const { editor, isSourceEnabled } = useRichTextEditorContext();
   // Determine if all of the selected content shares the same set font size.
   // Scenarios:
@@ -96,9 +96,9 @@ export const RichTextEditorFontControl = () => {
   };
 
   return (
-    <FontSelectWrapper>
+    <FontSelectWrapper $toolbarPlacement={toolbarPlacement}>
       <Select
-        optionClassName="needsclick"
+        autosize={true}
         placeholder="Size"
         multi={false}
         value={currentFontSize}

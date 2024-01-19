@@ -32,7 +32,7 @@ const mutations = `
   xypConvertToCustomeFields( _id: String!):String
 `;
 
-const typeDefs = async _serviceDiscovery => {
+const typeDefs = async () => {
   return gql`
     scalar JSON
     scalar Date

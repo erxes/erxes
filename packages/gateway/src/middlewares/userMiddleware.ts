@@ -6,7 +6,7 @@ import { redis } from '../redis';
 import { generateModels } from '../connectionResolver';
 import { getSubdomain, userActionsMap } from '@erxes/api-utils/src/core';
 import { USER_ROLES } from '@erxes/api-utils/src/constants';
-import { sendRequest } from '@erxes/api-utils/src/requests';
+import fetch from 'node-fetch';
 
 const generateBase64 = req => {
   if (req.user) {
@@ -30,16 +30,16 @@ export default async function userMiddleware(
 
   if (erxesCoreToken && url) {
     try {
-      const response = await sendRequest({
-        url: 'https://erxes.io/check-website',
+      const response = await fetch('https://erxes.io/check-website', {
         method: 'POST',
         headers: {
-          'erxes-core-token': erxesCoreToken
+          'erxes-core-token': erxesCoreToken,
+          'Content-Type': 'application/json'
         },
-        body: {
+        body: JSON.stringify({
           url
-        }
-      });
+        })
+      }).then(r => r.text());
 
       if (response === 'ok') {
         req.user = {

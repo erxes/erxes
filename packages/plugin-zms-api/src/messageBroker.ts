@@ -1,5 +1,5 @@
 import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
-import { serviceDiscovery } from './configs';
+
 import { Zmss } from './models';
 
 let client;
@@ -29,12 +29,38 @@ export const sendCommonMessage = async (
   args: ISendMessageArgs & { serviceName: string }
 ) => {
   return sendMessage({
-    serviceDiscovery,
     client,
     ...args
   });
 };
 
+export const getConfig = async (
+  code: string,
+  subdomain: string,
+  defaultValue?: string
+) => {
+  const configs = await sendCoreMessage({
+    subdomain,
+    action: 'getConfigs',
+    data: {},
+    isRPC: true,
+    defaultValue: []
+  });
+
+  if (!configs[code]) {
+    return defaultValue;
+  }
+
+  return configs[code];
+};
+
+export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
+  return sendMessage({
+    client,
+    serviceName: 'core',
+    ...args
+  });
+};
 export default function() {
   return client;
 }

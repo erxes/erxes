@@ -3,9 +3,10 @@ import {
   IValidationResponse,
   IVisitorContact
 } from './models/definitions/customers';
-import { debug, redis } from './configs';
-import { getEnv, sendRequest } from '@erxes/api-utils/src';
+import { debug } from './configs';
+import { getEnv } from '@erxes/api-utils/src';
 import { IModels } from './connectionResolver';
+import fetch from 'node-fetch';
 
 export const validateSingle = async (
   subdomain: string,
@@ -33,14 +34,12 @@ export const validateSingle = async (
     ? (body = { phone, hostname: callback_url })
     : (body = { email, hostname: callback_url });
 
-  const requestOptions = {
-    url: `${EMAIL_VERIFIER_ENDPOINT}/verify-single`,
-    method: 'POST',
-    body
-  };
-
   try {
-    await sendRequest(requestOptions);
+    await fetch(`${EMAIL_VERIFIER_ENDPOINT}/verify-single`, {
+      method: 'POST',
+      body: JSON.stringify(body),
+      headers: { 'Content-Type': 'application/json' }
+    });
   } catch (e) {
     debug.error(
       `An error occurred while sending request to the email verifier. Error: ${e.message}`
@@ -115,19 +114,11 @@ export const validateBulk = async (
 
       pipe.on('finish', async () => {
         try {
-          const requestOptions = {
-            url: `${EMAIL_VERIFIER_ENDPOINT}/verify-bulk`,
+          await fetch(`${EMAIL_VERIFIER_ENDPOINT}/verify-bulk`, {
             method: 'POST',
-            body: { emails, hostname: callback_url }
-          };
-
-          sendRequest(requestOptions)
-            .then(res => {
-              debug.info(`Response: ${res}`);
-            })
-            .catch(error => {
-              throw error;
-            });
+            body: JSON.stringify({ emails, hostname: callback_url }),
+            headers: { 'Content-Type': 'application/json' }
+          });
         } catch (e) {
           return reject(e);
         }
@@ -165,18 +156,11 @@ export const validateBulk = async (
 
     pipe.on('finish', async () => {
       try {
-        const requestOptions = {
-          url: `${EMAIL_VERIFIER_ENDPOINT}/verify-bulk`,
+        await fetch(`${EMAIL_VERIFIER_ENDPOINT}/verify-bulk`, {
           method: 'POST',
-          body: { phones, hostname: callback_url }
-        };
-        sendRequest(requestOptions)
-          .then(res => {
-            debug.info(`Response: ${res}`);
-          })
-          .catch(error => {
-            throw error;
-          });
+          body: JSON.stringify({ phones, hostname: callback_url }),
+          headers: { 'Content-Type': 'application/json' }
+        });
       } catch (e) {
         return reject(e);
       }

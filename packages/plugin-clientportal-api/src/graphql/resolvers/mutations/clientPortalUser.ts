@@ -1,4 +1,3 @@
-import { sendRequest } from '@erxes/api-utils/src';
 import { authCookieOptions, getEnv } from '@erxes/api-utils/src/core';
 import { checkPermission } from '@erxes/api-utils/src/permissions';
 import { IAttachment } from '@erxes/api-utils/src/types';
@@ -17,6 +16,7 @@ import { sendSms } from '../../../utils';
 import { sendCommonMessage } from './../../../messageBroker';
 import * as jwt from 'jsonwebtoken';
 import { fetchUserFromSocialpay } from '../../../socialpayUtils';
+import fetch from 'node-fetch';
 
 export interface IVerificationParams {
   userId: string;
@@ -172,17 +172,17 @@ const clientPortalUserMutations = {
     const { clientPortalId, accessToken } = args;
 
     try {
-      const response = await sendRequest({
-        url: 'https://graph.facebook.com/v12.0/me',
-        method: 'GET',
-        params: {
-          access_token: accessToken,
-          fields:
-            'id,name,email,gender,education,work,picture,last_name,first_name'
-        }
-      });
+      const response = await fetch(
+        'https://graph.facebook.com/v12.0/me?' +
+          new URLSearchParams({
+            access_token: accessToken,
+            fields:
+              'id,name,email,gender,education,work,picture,last_name,first_name'
+          })
+      ).then(r => r.json());
+
       const { id, name, email, picture, first_name, last_name } =
-        response || [];
+        response || {};
       let qry: any = {};
       let user: any = {};
 
@@ -274,17 +274,19 @@ const clientPortalUserMutations = {
       authCode: string;
     }): Promise<IGoogleOauthToken> => {
       try {
-        const authResponse = await sendRequest({
-          url: 'https://oauth2.googleapis.com/token',
-          method: 'POST',
-          params: {
-            code: authCode,
-            client_id: clientPortals.googleClientId || '',
-            grant_type: 'authorization_code',
-            client_secret: clientPortals.googleClientSecret || '',
-            redirect_uri: clientPortals.googleRedirectUri || ''
+        const authResponse = await fetch(
+          'https://oauth2.googleapis.com/token?' +
+            new URLSearchParams({
+              code: authCode,
+              client_id: clientPortals.googleClientId || '',
+              grant_type: 'authorization_code',
+              client_secret: clientPortals.googleClientSecret || '',
+              redirect_uri: clientPortals.googleRedirectUri || ''
+            }),
+          {
+            method: 'POST'
           }
-        });
+        ).then(r => r.json());
         return authResponse;
       } catch (err) {
         throw new Error(err);
@@ -299,17 +301,18 @@ const clientPortalUserMutations = {
       access_token: string;
     }): Promise<IGoogleUserResult> {
       try {
-        const userResponse = await sendRequest({
-          url: 'https://www.googleapis.com/oauth2/v1/userinfo',
-          method: 'GET',
-          params: {
-            alt: 'json',
-            access_token
-          },
-          headers: {
-            Authorization: `Bearer ${id_token}`
+        const userResponse = await fetch(
+          'https://www.googleapis.com/oauth2/v1/userinfo?' +
+            new URLSearchParams({
+              alt: 'json',
+              access_token
+            }),
+          {
+            headers: {
+              Authorization: `Bearer ${id_token}`
+            }
           }
-        });
+        ).then(r => r.json());
         return userResponse;
       } catch (err) {
         throw Error(err);

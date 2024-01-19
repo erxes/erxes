@@ -4,8 +4,7 @@ import {
   checkPremiumService,
   getCoreDomain,
   getEnv,
-  readFile,
-  sendRequest
+  readFile
 } from '../../utils';
 
 import { getService, getServices } from '../../../serviceDiscovery';
@@ -14,6 +13,7 @@ import { DEFAULT_CONSTANT_VALUES } from '@erxes/api-utils/src/constants';
 
 import * as dotenv from 'dotenv';
 import { IContext } from '../../../connectionResolver';
+import fetch from 'node-fetch';
 dotenv.config();
 
 const configQueries = {
@@ -36,17 +36,15 @@ const configQueries = {
 
     const erxesDomain = getEnv({ name: 'DOMAIN' });
 
-    const erxesVersion = await sendRequest({
-      url: `${erxesDomain}/version.json`,
-      method: 'GET'
-    });
+    const erxesVersion = await fetch(`${erxesDomain}/version.json`).then(r =>
+      r.json()
+    );
 
     result.version = erxesVersion.packageVersion || '-';
 
-    const response = await sendRequest({
-      url: `${process.env.CORE_URL || 'https://erxes.io'}/git-release-info`,
-      method: 'GET'
-    });
+    const response = await fetch(
+      `${process.env.CORE_URL || 'https://erxes.io'}/git-release-info`
+    ).then(r => r.json());
 
     result.isLatest = result.version === response.tag_name;
 
@@ -77,11 +75,11 @@ const configQueries = {
 
   async configsCheckActivateInstallation(_root, args: { hostname: string }) {
     try {
-      return await sendRequest({
+      return await fetch(`${getCoreDomain()}/check-activate-installation`, {
         method: 'POST',
-        url: `${getCoreDomain()}/check-activate-installation`,
-        body: args
-      });
+        body: JSON.stringify(args),
+        headers: { 'Content-Type': 'application/json' }
+      }).then(r => r.json());
     } catch (e) {
       throw new Error(e.message);
     }

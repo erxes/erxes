@@ -34,6 +34,7 @@ const ActiveOrder = ({
   items,
   _id,
   description,
+  deliveryInfo
 }: IOrder) => {
   const numberArr = (number || "").split("_")
   const colNum = useAtomValue(columnNumberAtom)
@@ -87,7 +88,7 @@ const ActiveOrder = ({
         </CollapsibleContent>
 
         <CardFooter className="justify-between gap-2">
-          <Description description={description} />
+          <Description description={description || deliveryInfo?.description} />
           <ChangeOrderStatus _id={_id} items={items} status={status} />
         </CardFooter>
       </Card>

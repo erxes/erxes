@@ -11,5 +11,27 @@ module.exports = {
     scope: 'zms',
     module: './routes'
   },
-  menus:[{"text":"Zmss","url":"/zmss","icon":"icon-star","location":"mainNavigation"}]
+  menus:[
+    {
+      "text":"Zms",
+      "url":"/plugin-zms/zms",
+      "icon":"icon-star",
+      "location":"mainNavigation"
+    },
+    {
+      "text":"Dictionary",
+      "url":"/plugin-zms/dictionary",
+      "icon":"icon-star",
+      "dictionary": 'mainConfig',
+      "scope": 'zms',
+      "location":"mainNavigation"
+    },
+    {
+      text: 'Main config',
+      image: '/images/icons/erxes-16.svg',
+      to: '/plugin-zms/settings',
+      action: 'mainConfig',
+      scope: 'zms',
+      location: 'settings',
+  },]
 };

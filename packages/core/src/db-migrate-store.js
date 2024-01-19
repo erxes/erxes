@@ -5,6 +5,9 @@ dotenv.config();
 
 class dbStore {
   constructor() {
+    if(!process.env.MONGO_URL) {
+      throw new Error(`MONGO_URL environment variable is "${process.env.MONGO_URL}"`)
+    }
 
     this.url = process.env.MONGO_URL
     this.db = null

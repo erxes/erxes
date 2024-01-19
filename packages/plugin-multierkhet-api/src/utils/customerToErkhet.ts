@@ -1,5 +1,5 @@
 import { getSyncLogDoc, toErkhet } from './utils';
-import { sendRequest } from '@erxes/api-utils/src/requests';
+import fetch from 'node-fetch';
 
 export const customerToErkhet = async (models, params, action) => {
   const syncLogDoc = getSyncLogDoc(params);
@@ -39,15 +39,15 @@ export const customerToErkhet = async (models, params, action) => {
           name,
           defaultCategory: (config.customerCategoryCode || '').toString(),
           email: customer.primaryEmail || '',
-          phone: customer.primaryPhone || ''
-        }
+          phone: customer.primaryPhone || '',
+        },
       };
 
       toErkhet(models, syncLog, config, sendData, 'customer-change');
     } catch (e) {
       await models.SyncLogs.updateOne(
         { _id: syncLog._id },
-        { $set: { error: e.message } }
+        { $set: { error: e.message } },
       );
     }
   }
@@ -66,11 +66,11 @@ export const validCompanyCode = async (config, companyCode) => {
   const re = new RegExp('(^[А-ЯЁӨҮ]{2}[0-9]{8}$)|(^\\d{7}$)', 'gui');
 
   if (re.test(companyCode)) {
-    const response = await sendRequest({
-      url: config.checkCompanyUrl,
-      method: 'GET',
-      params: { regno: companyCode }
-    });
+    const response = await fetch(
+      config.checkCompanyUrl +
+        '?' +
+        new URLSearchParams({ regno: companyCode }),
+    ).then((res) => res.json());
 
     if (response.found) {
       result = response.name;
@@ -105,15 +105,15 @@ export const companyToErkhet = async (models, params, action) => {
           name: company.primaryName,
           defaultCategory: config.companyCategoryCode,
           email: company.primaryEmail || '',
-          phone: company.primaryPhone || ''
-        }
+          phone: company.primaryPhone || '',
+        },
       };
 
       toErkhet(models, syncLog, config, sendData, 'customer-change');
     } catch (e) {
       await models.SyncLogs.updateOne(
         { _id: syncLog._id },
-        { $set: { error: e.message } }
+        { $set: { error: e.message } },
       );
     }
   }

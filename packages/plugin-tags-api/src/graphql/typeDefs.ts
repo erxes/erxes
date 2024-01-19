@@ -6,7 +6,7 @@ import {
   mutations as tagMutations
 } from './schema/tag';
 
-const typeDefs = async _serviceDiscovery => {
+const typeDefs = async () => {
   return gql`
     scalar JSON
     scalar Date

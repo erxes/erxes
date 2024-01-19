@@ -2,17 +2,17 @@
   "$schema": "https://json.schemastore.org/tsconfig.json",
   "compilerOptions": {
     "allowJs": true,
-    "checkJs": false,
+    "checkJs": true,
     "declaration": false,
-    "target": "ES2019",
-    "moduleResolution": "node",
-    "module": "commonjs",
-    // "lib": ["es2019", "es6", "es7", "esnext.asynciterable"],
+    "target": "ES2022",
+    "moduleResolution": "Node",
+    "module": "CommonJS",
+    "lib": ["ES2022"],
     "noImplicitAny": false,
     "skipLibCheck": true,
     "strict": true,
     "useUnknownInCatchVariables": false,
     "preserveSymlinks": true,
-    "allowSyntheticDefaultImports": true
+    "allowSyntheticDefaultImports": true,
   }
 }
