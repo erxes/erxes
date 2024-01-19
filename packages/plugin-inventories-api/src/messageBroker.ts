@@ -1,10 +1,9 @@
 import { generateModels } from './connectionResolver';
 import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
 
-
 let client;
 
-export const initBroker = async cl => {
+export const initBroker = async (cl) => {
   client = cl;
 
   const { consumeRPCQueue, consumeQueue } = client;
@@ -14,7 +13,7 @@ export const initBroker = async cl => {
 
     return {
       data: await models.Remainders.getRemainders(subdomain, data),
-      status: 'success'
+      status: 'success',
     };
   });
 
@@ -23,7 +22,7 @@ export const initBroker = async cl => {
 
     return {
       data: await models.Remainders.getRemainderCount(subdomain, data),
-      status: 'success'
+      status: 'success',
     };
   });
 
@@ -38,10 +37,10 @@ export const initBroker = async cl => {
           subdomain,
           branchId,
           departmentId,
-          productsData
-        )
+          productsData,
+        ),
       };
-    }
+    },
   );
 
   consumeRPCQueue(
@@ -54,10 +53,10 @@ export const initBroker = async cl => {
         data: await models.ReserveRems.find({
           branchId,
           departmentId,
-          productId: { $in: productIds }
-        }).lean()
+          productId: { $in: productIds },
+        }).lean(),
       };
-    }
+    },
   );
 
   consumeRPCQueue('inventories:transactionAdd', async ({ subdomain, data }) => {
@@ -65,66 +64,60 @@ export const initBroker = async cl => {
 
     return {
       data: await models.Transactions.createTransaction(data),
-      status: 'success'
+      status: 'success',
     };
   });
 };
 
 export const sendCommonMessage = async (
-  args: ISendMessageArgs & { serviceName: string }
+  args: ISendMessageArgs & { serviceName: string },
 ): Promise<any> => {
   return sendMessage({
-    client,
-    ...args
+    ...args,
   });
 };
 
 export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'core',
-    ...args
+    ...args,
   });
 };
 
 export const sendProductsMessage = async (
-  args: ISendMessageArgs
+  args: ISendMessageArgs,
 ): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'products',
-    ...args
+    ...args,
   });
 };
 
 export const sendFormsMessage = async (
-  args: ISendMessageArgs
+  args: ISendMessageArgs,
 ): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'forms',
-    ...args
+    ...args,
   });
 };
 
 export const sendPosMessage = async (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'pos',
-    ...args
+    ...args,
   });
 };
 
 export const sendProcessesMessage = async (
-  args: ISendMessageArgs
+  args: ISendMessageArgs,
 ): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'processes',
-    ...args
+    ...args,
   });
 };
 
-export default function() {
+export default function () {
   return client;
 }

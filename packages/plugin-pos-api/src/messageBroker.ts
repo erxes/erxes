@@ -265,7 +265,6 @@ export const sendProductsMessage = async (
   args: ISendMessageArgs,
 ): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'products',
     ...args,
   });
@@ -275,7 +274,6 @@ export const sendCardsMessage = async (
   args: ISendMessageArgs,
 ): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'cards',
     ...args,
   });
@@ -285,7 +283,6 @@ export const sendLoyaltiesMessage = async (
   args: ISendMessageArgs,
 ): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'loyalties',
     ...args,
   });
@@ -295,7 +292,6 @@ export const sendPricingMessage = async (
   args: ISendMessageArgs,
 ): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'pricing',
     ...args,
   });
@@ -305,7 +301,6 @@ export const sendContactsMessage = async (
   args: ISendMessageArgs,
 ): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'contacts',
     ...args,
   });
@@ -315,7 +310,6 @@ export const sendEbarimtMessage = async (
   args: ISendMessageArgs,
 ): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'ebarimt',
     ...args,
   });
@@ -323,7 +317,6 @@ export const sendEbarimtMessage = async (
 
 export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'core',
     ...args,
   });
@@ -333,7 +326,6 @@ export const sendInventoriesMessage = async (
   args: ISendMessageArgs,
 ): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'inventories',
     ...args,
   });
@@ -343,7 +335,6 @@ export const sendSyncerkhetMessage = async (
   args: ISendMessageArgs,
 ): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'syncerkhet',
     ...args,
   });
@@ -380,7 +371,6 @@ export const sendPosclientMessage = async (
   args.data.token = pos.token;
 
   return await sendMessage({
-    client,
     serviceName,
     ...args,
     action: lastAction,
@@ -405,7 +395,6 @@ export const sendPosclientHealthCheck = async ({
 
   return await sendMessage({
     subdomain,
-    client,
     isRPC: true,
     isMQ: true,
     serviceName: '',
@@ -420,7 +409,6 @@ export const sendAutomationsMessage = async (
   args: ISendMessageArgs,
 ): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'automations',
     ...args,
   });
@@ -430,7 +418,6 @@ export const sendCommonMessage = async (
   args: ISendMessageArgs & { serviceName: string },
 ): Promise<any> => {
   return sendMessage({
-    client,
     ...args,
   });
 };
@@ -439,7 +426,6 @@ export const sendSegmentsMessage = async (
   args: ISendMessageArgs,
 ): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'segments',
     ...args,
   });
@@ -459,7 +445,6 @@ export const fetchSegment = (
 
 export const sendFormsMessage = (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'forms',
     ...args,
   });

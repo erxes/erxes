@@ -8,7 +8,6 @@ import {
   getEnv,
 } from '@erxes/api-utils/src/core';
 
-
 let client;
 
 interface ISendNotification {
@@ -189,7 +188,6 @@ export const initBroker = async (cl) => {
 
 export const sendCoreMessage = (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'core',
     ...args,
   });
@@ -199,7 +197,6 @@ export const sendCommonMessage = async (
   args: ISendMessageArgs & { serviceName: string },
 ) => {
   return sendMessage({
-    client,
     ...args,
   });
 };
@@ -208,7 +205,6 @@ export const sendContactsMessage = async (
   args: ISendMessageArgs,
 ): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'contacts',
     ...args,
   });
@@ -218,7 +214,6 @@ export const sendSegmentsMessage = async (
   args: ISendMessageArgs,
 ): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'segments',
     ...args,
   });
@@ -228,7 +223,6 @@ export const sendClientPortalMessagge = async (
   args: ISendMessageArgs,
 ): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'clientportal',
     ...args,
   });

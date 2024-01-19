@@ -242,7 +242,6 @@ export const sendCommonMessage = async (
   args: ISendMessageArgs & { serviceName: string },
 ): Promise<any> => {
   return sendMessage({
-    client,
     ...args,
   });
 };
@@ -283,7 +282,6 @@ export const sendMessageWrapper = async (
     }
 
     return sendMessage({
-      client,
       serviceName: '',
       ...args,
       action: `${serviceName}:${action}`,
@@ -291,7 +289,6 @@ export const sendMessageWrapper = async (
   }
 
   return sendMessage({
-    client,
     serviceName,
     ...args,
   });

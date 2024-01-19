@@ -240,7 +240,7 @@ module.exports.devCmd = async (program) => {
     filePath("ecosystem.config.js"),
     `
       module.exports = {
-        apps: ${JSON.stringify(apps)}
+        apps: ${JSON.stringify(apps,null,2)}
       }
     `
   );

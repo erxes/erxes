@@ -259,7 +259,6 @@ export const getContentIds = async (subdomain, data) => {
 
 export const sendCoreMessage = (args: ISendMessageArgs) => {
   return sendMessage({
-    client,
     serviceName: 'core',
     ...args,
   });
@@ -267,7 +266,6 @@ export const sendCoreMessage = (args: ISendMessageArgs) => {
 
 export const sendInboxMessage = (args: ISendMessageArgs) => {
   return sendMessage({
-    client,
     serviceName: 'inbox',
     ...args,
   });
@@ -275,7 +273,6 @@ export const sendInboxMessage = (args: ISendMessageArgs) => {
 
 export const sendClientPortalMessage = (args: ISendMessageArgs) => {
   return sendMessage({
-    client,
     serviceName: 'clientportal',
     ...args,
   });
@@ -292,7 +289,6 @@ export const fetchService = async (
 
   return sendMessage({
     subdomain,
-    client,
     isRPC: true,
     serviceName,
     action: `logs.${action}`,
