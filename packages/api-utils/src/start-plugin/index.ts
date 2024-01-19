@@ -415,7 +415,6 @@ export async function startPlugin(configs: any): Promise<express.Express> {
     if (internalNotes) {
       internalNoteConsumers({
         name: configs.name,
-        consumeRPCQueue,
         generateInternalNoteNotif: internalNotes.generateInternalNoteNotif,
       });
     }

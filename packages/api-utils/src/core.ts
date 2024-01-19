@@ -244,16 +244,13 @@ export const escapeRegExp = (str: string) => {
 };
 
 export interface ISendMessageArgs extends messageBroker.ErxesMessage {
+  serviceName: string;
   action: string;
   isRPC?: boolean;
   isMQ?: boolean;
 }
 
-export const sendMessage = async (
-  args: {
-    serviceName: string;
-  } & ISendMessageArgs,
-): Promise<any> => {
+export const sendMessage = async (args: ISendMessageArgs): Promise<any> => {
   const {
     serviceName,
     subdomain,
