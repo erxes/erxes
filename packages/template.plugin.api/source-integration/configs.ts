@@ -5,15 +5,14 @@ import { initBroker } from './messageBroker';
 import init from './controller';
 
 export let mainDb;
-export let graphqlPubsub;
-export let serviceDiscovery;
+
+
 
 export let debug;
 
 export default {
   name: '{name}',
-  graphql: sd => {
-    serviceDiscovery = sd;
+  graphql: () => {
     return {
       typeDefs,
       resolvers
@@ -30,14 +29,13 @@ export default {
   },
 
   onServerInit: async options => {
-    const app = options.app;
     mainDb = options.db;
 
     debug = options.debug;
-    graphqlPubsub = options.pubsubClient;
+    
 
     initBroker(options.messageBrokerClient);
 
-    init(app);
+    init();
   }
 };

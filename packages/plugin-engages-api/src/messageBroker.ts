@@ -1,7 +1,9 @@
 import { sendMessage, ISendMessageArgs } from '@erxes/api-utils/src/core';
 import { sendToWebhook as sendWebhook } from '@erxes/api-utils/src';
-import { serviceDiscovery, debug } from './configs';
-import { generateModels, IModels } from './connectionResolver';
+
+import { debug } from './configs';
+import { generateModels,IModels } from './connectionResolver';
+
 import { start, sendBulkSms, sendEmail } from './sender';
 import { CAMPAIGN_KINDS } from './constants';
 
@@ -137,7 +139,6 @@ export const sendContactsMessage = async (
 ): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'contacts',
     ...args
   });
@@ -146,7 +147,6 @@ export const sendContactsMessage = async (
 export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'core',
     ...args
   });
@@ -157,7 +157,6 @@ export const sendInboxMessage = async (
 ): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'inbox',
     ...args
   });
@@ -166,7 +165,6 @@ export const sendInboxMessage = async (
 export const sendLogsMessage = async (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'logs',
     ...args
   });
@@ -177,7 +175,6 @@ export const sendSegmentsMessage = async (
 ): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'segments',
     ...args
   });
@@ -186,7 +183,6 @@ export const sendSegmentsMessage = async (
 export const sendTagsMessage = async (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'tags',
     ...args
   });
@@ -197,7 +193,6 @@ export const sendIntegrationsMessage = async (
 ): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'integrations',
     ...args
   });
@@ -208,7 +203,6 @@ export const sendEmailTemplatesMessage = async (
 ): Promise<any> => {
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'emailtemplates',
     ...args
   });
@@ -216,7 +210,6 @@ export const sendEmailTemplatesMessage = async (
 
 export const sendClientPortalMessage = (args: ISendMessageArgs) => {
   return sendMessage({
-    serviceDiscovery,
     client,
     serviceName: 'clientportal',
     ...args
@@ -240,7 +233,6 @@ export const sendNotificationsMessage = async (
 
   return sendMessage({
     client,
-    serviceDiscovery,
     serviceName: 'clientportal',
     ...args
   });

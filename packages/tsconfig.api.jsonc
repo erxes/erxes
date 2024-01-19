@@ -2,7 +2,7 @@
   "$schema": "https://json.schemastore.org/tsconfig.json",
   "compilerOptions": {
     "allowJs": true,
-    "checkJs": false,
+    "checkJs": true,
     "declaration": false,
     "target": "ES2022",
     "moduleResolution": "Node",
@@ -13,6 +13,6 @@
     "strict": true,
     "useUnknownInCatchVariables": false,
     "preserveSymlinks": true,
-    "allowSyntheticDefaultImports": true
+    "allowSyntheticDefaultImports": true,
   }
 }

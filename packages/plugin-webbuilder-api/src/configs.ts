@@ -1,28 +1,25 @@
 import typeDefs from './graphql/typeDefs';
-import { sendRequest } from '@erxes/api-utils/src';
+import fetch from 'node-fetch';
 import resolvers from './graphql/resolvers';
 
 import { initBroker } from './messageBroker';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import { generateModels } from './connectionResolver';
 import { pageReplacer } from './utils';
-import permissions = require('./permissions');
+const permissions = require('./permissions');
+import app from '@erxes/api-utils/src/app';
 
 export let mainDb;
 export let debug;
-export let graphqlPubsub;
-export let serviceDiscovery;
 
 export default {
   name: 'webbuilder',
   permissions,
   meta: { permissions },
-  graphql: async sd => {
-    serviceDiscovery = sd;
-
+  graphql: async () => {
     return {
-      typeDefs: await typeDefs(sd),
-      resolvers: await resolvers(sd)
+      typeDefs: await typeDefs(),
+      resolvers: await resolvers(),
     };
   },
   apolloServerContext: async (context, req) => {
@@ -35,16 +32,12 @@ export default {
 
     return context;
   },
-  onServerInit: async options => {
+  onServerInit: async (options) => {
     mainDb = options.db;
 
     initBroker(options.messageBrokerClient);
 
-    graphqlPubsub = options.pubsubClient;
-
     debug = options.debug;
-
-    const { app } = options;
 
     app.get('/:sitename', async (req, res) => {
       const { sitename } = req.params;
@@ -60,7 +53,7 @@ export default {
 
       const page = await models.Pages.findOne({
         siteId: site._id,
-        name: 'home'
+        name: 'home',
       });
 
       if (!page) {
@@ -75,7 +68,7 @@ export default {
           <style>
             ${page.css}
           </style>
-        `
+        `,
       );
     });
 
@@ -93,7 +86,7 @@ export default {
 
       const ct = await models.ContentTypes.findOne({
         siteId: site._id,
-        code: contenttype
+        code: contenttype,
       });
 
       if (!ct) {
@@ -102,7 +95,7 @@ export default {
 
       const page = await models.Pages.findOne({
         siteId: site._id,
-        name: `${contenttype}_detail`
+        name: `${contenttype}_detail`,
       });
 
       if (!page) {
@@ -130,7 +123,7 @@ export default {
           <style>
             ${page.css}
           </style>
-        `
+        `,
       );
     });
 
@@ -160,7 +153,7 @@ export default {
           <style>
             ${page.css}
           </style>
-        `
+        `,
       );
     });
 
@@ -168,7 +161,7 @@ export default {
       const subdomain = getSubdomain(req);
       const models = await generateModels(subdomain);
 
-      const { sitename, name } = req.params;
+      const { sitename } = req.params;
 
       const site = await models.Sites.findOne({ name: sitename }).lean();
 
@@ -179,7 +172,7 @@ export default {
       const pages = await models.Pages.find({ siteId: site._id }).lean();
 
       const responses = await models.ContentTypes.find({
-        siteId: site._id
+        siteId: site._id,
       }).lean();
       const contentTypes: any[] = [];
 
@@ -187,14 +180,14 @@ export default {
         contentTypes.push({
           ...contentType,
           entries: await models.Entries.find({
-            contentTypeId: contentType._id
-          }).lean()
+            contentTypeId: contentType._id,
+          }).lean(),
         });
       }
 
       return res.json({
         pages,
-        contentTypes
+        contentTypes,
       });
     });
 
@@ -205,10 +198,7 @@ export default {
 
       const url = `${HELPERS_DOMAIN}/get-webbuilder-demo-page?templateId=${templateId}`;
 
-      const page = await sendRequest({
-        url,
-        method: 'get'
-      });
+      const page = await fetch(url).then((res) => res.json());
 
       return res.send(
         `
@@ -216,8 +206,8 @@ export default {
           <style>
             ${page.css}
           </style>
-        `
+        `,
       );
     });
-  }
+  },
 };

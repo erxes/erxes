@@ -13,9 +13,10 @@ import {
   SEGMENT_NUMBER_OPERATORS
 } from '../../../constants';
 import { ICondition, ISegment } from '../../../models/definitions/segments';
-import { serviceDiscovery } from '../../../configs';
+
 import { IModels } from '../../../connectionResolver';
 import { sendCoreMessage, sendMessage } from '../../../messageBroker';
+import { getService, getServices } from '@erxes/api-utils/src/serviceDiscovery';
 
 type IOptions = {
   returnAssociated?: { mainType: string; relType: string };
@@ -61,12 +62,12 @@ export const fetchSegment = async (
 ): Promise<any> => {
   const { contentType } = segment;
 
-  const serviceNames = await serviceDiscovery.getServices();
+  const serviceNames = await getServices();
   const serviceConfigs: any = [];
   let mongoConnectionString = '';
 
   for (const serviceName of serviceNames) {
-    const service = await serviceDiscovery.getService(serviceName);
+    const service = await getService(serviceName);
     const segmentMeta = (service.config.meta || {}).segments;
     if (
       contentType.includes(`${serviceName}:`) &&
@@ -246,6 +247,31 @@ export const fetchSegment = async (
   return response.hits.hits.map(hit => hit._id);
 };
 
+const generateDefaultSelector = ({ defaultMustSelector, isInitialCall }) => {
+  if (isInitialCall && defaultMustSelector) {
+    return defaultMustSelector.map(s => ({ ...s }));
+  }
+
+  return [];
+};
+
+const generatePositiveNegativeSelector = ({ cj, selector = {} as any }) => {
+  let selectorPositiveList: any[] = [];
+  let selectorNegativeList: any[] = [];
+
+  if (cj === 'and') {
+    selectorPositiveList = selector.must;
+    selectorNegativeList = selector.must_not;
+  } else {
+    const selectorMustBool = selector.must[0].bool;
+
+    selectorPositiveList = selectorMustBool.should;
+    selectorNegativeList = selectorMustBool.must_not;
+  }
+
+  return { selectorPositiveList, selectorNegativeList };
+};
+
 export const generateQueryBySegment = async (
   models: IModels,
   subdomain: string,
@@ -257,22 +283,19 @@ export const generateQueryBySegment = async (
     isInitialCall?: boolean;
   }
 ) => {
-  const {
-    segment,
-    selector,
-    serviceConfigs,
-    options = {},
-    isInitialCall
-  } = args;
+  const { segment, serviceConfigs, options = {}, isInitialCall } = args;
+
+  let { selector } = args;
 
   const { contentType } = segment;
   const [serviceName, collectionType] = contentType.split(':');
   const { defaultMustSelector } = options;
 
-  const defaultSelector =
-    isInitialCall && defaultMustSelector
-      ? defaultMustSelector.map(s => ({ ...s }))
-      : [];
+  // generated default selector of service
+  const defaultSelector = generateDefaultSelector({
+    defaultMustSelector,
+    isInitialCall
+  });
 
   const cj = segment.conditionsConjunction || 'and';
 
@@ -291,14 +314,16 @@ export const generateQueryBySegment = async (
     ];
   }
 
-  const selectorPositiveList =
-    cj === 'and' ? selector.must : selector.must[0].bool.should;
+  // generate positive and negative selector list based on conjunction of segment
 
-  const selectorNegativeList =
-    cj === 'and' ? selector.must_not : selector.must[0].bool.must_not;
+  const {
+    selectorPositiveList,
+    selectorNegativeList
+  } = generatePositiveNegativeSelector({ cj, selector });
 
   const parentSegment = await models.Segments.findOne({ _id: segment.subOf });
 
+  //extend query of parent segment query
   if (parentSegment && (!segment._id || segment._id !== parentSegment._id)) {
     selector.must.push({ bool: {} });
 
@@ -375,13 +400,12 @@ export const generateQueryBySegment = async (
 
   for (const condition of conditions) {
     if (condition.type === 'property') {
-      if (condition.propertyType !== 'forms:form_submission') {
-        propertyConditions.push(condition);
-      } else {
-        const formFieldCondition = { ...condition };
-
-        formFieldCondition.propertyName = 'formFieldId';
-        formFieldCondition.propertyValue = condition.propertyName;
+      if (condition.propertyType === 'forms:form_submission') {
+        const formFieldCondition = {
+          ...condition,
+          propertyName: 'formFieldId',
+          propertyValue: condition.propertyName
+        };
 
         if (
           condition.propertyOperator &&
@@ -393,7 +417,10 @@ export const generateQueryBySegment = async (
         }
 
         propertyConditions.push(formFieldCondition);
+        continue;
       }
+
+      propertyConditions.push(condition);
     }
 
     if (condition.type === 'event') {
@@ -445,6 +472,7 @@ export const generateQueryBySegment = async (
           propertyContentType
         ] = condition.propertyType.split(':');
 
+        //pass positive query to service for get extend positive query if service has property condition extender
         if (contentTypes && propertyConditionExtenderAvailable) {
           for (const ct of contentTypes) {
             if (ct.type !== propertyContentType) {
@@ -471,6 +499,7 @@ export const generateQueryBySegment = async (
         }
       }
 
+      // push positive negative query if property type is equal
       if (contentType === condition.propertyType) {
         if (positiveQuery) {
           propertiesPositive.push(positiveQuery);
@@ -480,6 +509,7 @@ export const generateQueryBySegment = async (
           propertiesNegative.push(negativeQuery);
         }
       } else {
+        // send message to get ids of contents generated by service
         const ids = await associationPropertyFilter(subdomain, {
           serviceName,
           mainType: contentType,
@@ -490,7 +520,7 @@ export const generateQueryBySegment = async (
 
         propertiesPositive.push({
           terms: {
-            _id: ids.map(id => id)
+            _id: ids.filter(id => id)
           }
         });
       }
@@ -851,11 +881,11 @@ const associationPropertyFilter = async (
     negativeQuery: any;
   }
 ) => {
-  const service = await serviceDiscovery.getService(serviceName);
+  const service = await getService(serviceName);
   const segmentMeta = (service.config.meta || {}).segments;
 
   if (segmentMeta && segmentMeta.associationFilterAvailable) {
-    const response = await sendMessage({
+    return await sendMessage({
       subdomain,
       serviceName,
       isRPC: true,
@@ -865,10 +895,9 @@ const associationPropertyFilter = async (
         propertyType,
         positiveQuery,
         negativeQuery
-      }
+      },
+      defaultValue: []
     });
-
-    return response;
   }
 
   return [];

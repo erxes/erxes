@@ -5,17 +5,15 @@ import { initBroker } from './messageBroker';
 
 export let mainDb;
 export let debug;
-export let graphqlPubsub;
-export let serviceDiscovery;
+
+
 
 export default {
   name: '{name}',
-  graphql: async sd => {
-    serviceDiscovery = sd;
-
+  graphql: async () => {
     return {
-      typeDefs: await typeDefs(sd),
-      resolvers: await resolvers(sd)
+      typeDefs: await typeDefs(),
+      resolvers: await resolvers()
     };
   },
 
@@ -28,7 +26,7 @@ export default {
 
     initBroker(options.messageBrokerClient);
 
-    graphqlPubsub = options.pubsubClient;
+    
 
     debug = options.debug;
   }

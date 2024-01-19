@@ -6,6 +6,7 @@
     "build" : "tsc"
   },
   "dependencies": {
-    "@erxes/api-utils" : "*"
+    "@erxes/api-utils" : "*",
+    "xlsx-populate": "^1.20.1"
   }
 }
