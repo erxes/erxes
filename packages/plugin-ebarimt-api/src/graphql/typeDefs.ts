@@ -5,7 +5,7 @@ import {
   queries as ebarimtQueries
 } from './schema/ebarimt';
 
-const typeDefs = async serviceDiscovery => {
+const typeDefs = async () => {
   return gql`
     scalar JSON
     scalar Date

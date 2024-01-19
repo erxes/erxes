@@ -36,20 +36,30 @@ const types = `
     customer: Customer
     conversation: CallConversation
   }
+  type CallActiveSession {
+    _id: String
+    userId: String
+  }
 `;
+
+export const subscriptions = `sessionTerminateRequested(userId: String): JSON`;
 
 const queries = `
   callsIntegrationDetail(integrationId: String!): CallsIntegrationDetailResponse
   callIntegrationsOfUser: [CallsIntegrationDetailResponse]
   callsCustomerDetail(callerNumber: String): Customer
+  callsActiveSession: CallActiveSession
 `;
 
 const mutations = `
   callsIntegrationUpdate(configs: CallIntegrationConfigs): JSON
   callAddCustomer(inboxIntegrationId: String, primaryPhone: String, direction: String, callID: String): CallConversationDetail
+  callUpdateActiveSession: JSON
+  callTerminateSession: JSON
+  callDisconnect: String
 `;
 
-const typeDefs = async _serviceDiscovery => {
+const typeDefs = async () => {
   return gql`
     scalar JSON
     scalar Date

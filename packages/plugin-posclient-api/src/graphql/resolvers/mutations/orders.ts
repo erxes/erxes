@@ -1,23 +1,22 @@
 import { getPureDate } from '@erxes/api-utils/src';
 import { debugError } from '@erxes/api-utils/src/debuggers';
-import { graphqlPubsub } from '../../../configs';
+import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
 import { IModels } from '../../../connectionResolver';
 import {
   sendCardsMessage,
   sendCoreMessage,
   sendInboxMessage,
-  sendPosMessage
+  sendPosMessage,
 } from '../../../messageBroker';
 import { IConfig, IConfigDocument } from '../../../models/definitions/configs';
 import {
   BILL_TYPES,
   ORDER_ITEM_STATUSES,
   ORDER_STATUSES,
-  ORDER_TYPES
+  ORDER_TYPES,
 } from '../../../models/definitions/constants';
 import { IPaidAmount } from '../../../models/definitions/orders';
 import { IPosUserDocument } from '../../../models/definitions/posUsers';
-import { PutData } from '../../../models/PutData';
 import { IContext, IOrderInput } from '../../types';
 import {
   checkOrderAmount,
@@ -31,16 +30,17 @@ import {
   reverseItemStatus,
   updateOrderItems,
   validateOrder,
-  validateOrderPayment
+  validateOrderPayment,
 } from '../../utils/orderUtils';
 import { checkSlotStatus } from '../../utils/slots';
+import { prepareSettlePayment } from '../../../utils';
 
 interface IPaymentBase {
   billType: string;
   registerNumber?: string;
 }
 
-interface ISettlePaymentParams extends IPaymentBase {
+export interface ISettlePaymentParams extends IPaymentBase {
   _id: string;
 }
 
@@ -73,11 +73,11 @@ const getTaxInfo = (config: IConfig) => {
   return {
     hasVat: (config.ebarimtConfig && config.ebarimtConfig.hasVat) || false,
     hasCitytax:
-      (config.ebarimtConfig && config.ebarimtConfig?.hasCitytax) || false
+      (config.ebarimtConfig && config.ebarimtConfig?.hasCitytax) || false,
   };
 };
 
-const getStatus = (config, buttonType, doc, order?) => {
+export const getStatus = (config, buttonType, doc, order?) => {
   if (doc.isPre) {
     return ORDER_STATUSES.PENDING;
   }
@@ -104,7 +104,7 @@ const getStatus = (config, buttonType, doc, order?) => {
       doc.items.length
     ) {
       const newItems =
-        doc.items.filter(i => i.status === ORDER_ITEM_STATUSES.NEW) || [];
+        doc.items.filter((i) => i.status === ORDER_ITEM_STATUSES.NEW) || [];
       if (newItems.length) {
         return ORDER_STATUSES.REDOING;
       }
@@ -130,7 +130,7 @@ const orderAdd = async (models: IModels, lastDoc, config) => {
 
     const order = await models.Orders.createOrder({
       ...lastDoc,
-      number
+      number,
     });
 
     return order;
@@ -149,13 +149,13 @@ const ordersAdd = async (
     posUser,
     config,
     models,
-    subdomain
+    subdomain,
   }: {
     posUser: IPosUserDocument;
     config: IConfigDocument;
     models: IModels;
     subdomain: string;
-  }
+  },
 ) => {
   const { totalAmount, type, customerId, customerType, branchId, isPre } = doc;
   if (!posUser && !doc.customerId && customerType !== 'visitor') {
@@ -178,7 +178,7 @@ const ordersAdd = async (
     customerId,
     customerType,
     userId: posUser ? posUser._id : '',
-    isPre
+    isPre,
   };
 
   try {
@@ -187,7 +187,7 @@ const ordersAdd = async (
       doc,
       config,
       models,
-      posUser
+      posUser,
     );
 
     const status = getStatus(config, doc.buttonType, doc);
@@ -201,7 +201,7 @@ const ordersAdd = async (
       posToken: config.token,
       departmentId: config.departmentId,
       taxInfo: getTaxInfo(config),
-      status
+      status,
     };
 
     const order = await orderAdd(models, lastDoc, config);
@@ -221,7 +221,7 @@ const ordersAdd = async (
         status: ORDER_ITEM_STATUSES.NEW,
         manufacturedDate: item.manufacturedDate,
         description: item.description,
-        attachment: item.attachment
+        attachment: item.attachment,
       });
     }
 
@@ -231,14 +231,14 @@ const ordersAdd = async (
         _id: order._id,
         status: order.status,
         customerId: order.customerId,
-        customerType: order.customerType
-      }
+        customerType: order.customerType,
+      },
     });
 
     if (order.slotCode) {
       const currentSlots = await models.PosSlots.find({
         posToken: config.token,
-        code: order.slotCode
+        code: order.slotCode,
       }).lean();
 
       if (currentSlots.length) {
@@ -246,8 +246,8 @@ const ordersAdd = async (
           slotsStatusUpdated: await checkSlotStatus(
             models,
             config,
-            currentSlots
-          )
+            currentSlots,
+          ),
         });
       }
     }
@@ -255,7 +255,7 @@ const ordersAdd = async (
     return order;
   } catch (e) {
     debugError(
-      `Error occurred when creating order: ${JSON.stringify(orderDoc)}`
+      `Error occurred when creating order: ${JSON.stringify(orderDoc)}`,
     );
 
     return e;
@@ -268,13 +268,13 @@ const ordersEdit = async (
     posUser,
     config,
     models,
-    subdomain
+    subdomain,
   }: {
     posUser: IPosUserDocument;
     config: IConfigDocument;
     models: IModels;
     subdomain: string;
-  }
+  },
 ) => {
   const order = await models.Orders.getOrder(doc._id);
 
@@ -296,7 +296,7 @@ const ordersEdit = async (
     doc,
     config,
     models,
-    posUser
+    posUser,
   );
 
   preparedDoc.items = await reverseItemStatus(models, preparedDoc.items);
@@ -324,7 +324,7 @@ const ordersEdit = async (
     taxInfo: getTaxInfo(config),
     dueDate: doc.dueDate,
     description: doc.description,
-    status
+    status,
   });
 
   await graphqlPubsub.publish('ordersOrdered', {
@@ -333,8 +333,8 @@ const ordersEdit = async (
       _id: updatedOrder._id,
       status: updatedOrder.status,
       customerId: updatedOrder.customerId,
-      customerType: order.customerType
-    }
+      customerType: order.customerType,
+    },
   });
 
   if (
@@ -343,12 +343,12 @@ const ordersEdit = async (
   ) {
     const currentSlots = await models.PosSlots.find({
       posToken: config.token,
-      code: { $in: [order.slotCode, updatedOrder.slotCode] }
+      code: { $in: [order.slotCode, updatedOrder.slotCode] },
     }).lean();
 
     if (currentSlots.length) {
       await graphqlPubsub.publish('slotsStatusUpdated', {
-        slotsStatusUpdated: await checkSlotStatus(models, config, currentSlots)
+        slotsStatusUpdated: await checkSlotStatus(models, config, currentSlots),
       });
     }
   }
@@ -360,7 +360,7 @@ const orderMutations = {
   async ordersAdd(
     _root,
     doc: IOrderInput,
-    { posUser, config, models, subdomain }: IContext
+    { posUser, config, models, subdomain }: IContext,
   ) {
     return ordersAdd(doc, { posUser, config, models, subdomain });
   },
@@ -368,7 +368,7 @@ const orderMutations = {
   async ordersEdit(
     _root,
     doc: IOrderEditParams,
-    { posUser, config, models, subdomain }: IContext
+    { posUser, config, models, subdomain }: IContext,
   ) {
     return ordersEdit(doc, { posUser, config, models, subdomain });
   },
@@ -376,27 +376,27 @@ const orderMutations = {
   async orderChangeStatus(
     _root,
     { _id, status }: { _id: string; status: string },
-    { models, subdomain, config }: IContext
+    { models, subdomain, config }: IContext,
   ) {
     const oldOrder = await models.Orders.getOrder(_id);
 
     const order = await models.Orders.updateOrder(_id, {
       ...oldOrder,
       status,
-      modifiedAt: new Date()
+      modifiedAt: new Date(),
     });
 
     if (status === ORDER_STATUSES.REDOING) {
       await models.OrderItems.updateMany(
         { orderId: order._id },
-        { $set: { status: ORDER_ITEM_STATUSES.CONFIRM } }
+        { $set: { status: ORDER_ITEM_STATUSES.CONFIRM } },
       );
     }
 
     if (status === ORDER_STATUSES.DONE) {
       await models.OrderItems.updateMany(
         { orderId: order._id },
-        { $set: { status: ORDER_ITEM_STATUSES.DONE } }
+        { $set: { status: ORDER_ITEM_STATUSES.DONE } },
       );
     }
 
@@ -406,8 +406,8 @@ const orderMutations = {
         _id,
         status: order.status,
         customerId: order.customerId,
-        customerType: order.customerType
-      }
+        customerType: order.customerType,
+      },
     });
 
     if (
@@ -420,7 +420,7 @@ const orderMutations = {
         sendPosMessage({
           subdomain,
           action: 'createOrUpdateOrders',
-          data: { action: 'statusToDone', order, posToken: config.token }
+          data: { action: 'statusToDone', order, posToken: config.token },
         });
       } catch (e) {}
     }
@@ -430,7 +430,7 @@ const orderMutations = {
   async ordersChange(
     _root,
     params: IOrderChangeParams,
-    { models, config, subdomain }: IContext
+    { models, config, subdomain }: IContext,
   ) {
     // after paid then edit order some field
     // if online, update branch
@@ -484,9 +484,9 @@ const orderMutations = {
             action: 'makePayment',
             order,
             items: await models.OrderItems.find({
-              orderId: params._id
-            }).lean()
-          }
+              orderId: params._id,
+            }).lean(),
+          },
         });
       } catch (e) {
         debugError(`Error occurred while sending data to erxes: ${e.message}`);
@@ -497,7 +497,7 @@ const orderMutations = {
   async orderItemChangeStatus(
     _root,
     { _id, status }: { _id: string; status: string },
-    { models, config }: IContext
+    { models, config }: IContext,
   ) {
     const oldOrderItem = await models.OrderItems.getOrderItem(_id);
 
@@ -507,8 +507,8 @@ const orderMutations = {
       orderItemsOrdered: {
         _id,
         posToken: config.token,
-        status: status
-      }
+        status: status,
+      },
     });
 
     return await models.OrderItems.getOrderItem(_id);
@@ -519,14 +519,14 @@ const orderMutations = {
   async ordersMakePayment(
     _root,
     { _id, doc }: IPaymentParams,
-    { config, models, subdomain }: IContext
+    { config, models, subdomain }: IContext,
   ) {
     let order = await models.Orders.getOrder(_id);
 
     checkOrderStatus(order);
 
     const items = await models.OrderItems.find({
-      orderId: order._id
+      orderId: order._id,
     }).lean();
 
     await validateOrderPayment(order, doc);
@@ -543,11 +543,11 @@ const orderMutations = {
         ebarimtConfig,
         items,
         doc.billType,
-        doc.registerNumber || order.registerNumber
+        doc.registerNumber || order.registerNumber,
       );
 
       ebarimtConfig.districtName = getDistrictName(
-        (config.ebarimtConfig && config.ebarimtConfig.districtCode) || ''
+        (config.ebarimtConfig && config.ebarimtConfig.districtCode) || '',
       );
 
       for (const data of ebarimtDatas) {
@@ -556,14 +556,14 @@ const orderMutations = {
         response = await models.PutResponses.putData({
           ...data,
           config: ebarimtConfig,
-          models
+          models,
         });
         ebarimtResponses.push(response);
       }
 
       if (
         ebarimtResponses.length &&
-        !ebarimtResponses.filter(er => er.success !== 'true').length
+        !ebarimtResponses.filter((er) => er.success !== 'true').length
       ) {
         await models.Orders.updateOne(
           { _id },
@@ -576,10 +576,10 @@ const orderMutations = {
                 config,
                 'settle',
                 { ...order, paidDate: now },
-                { ...order }
-              )
-            }
-          }
+                { ...order },
+              ),
+            },
+          },
         );
       }
 
@@ -590,8 +590,8 @@ const orderMutations = {
           ...order,
           _id,
           status: order.status,
-          customerId: order.customerId
-        }
+          customerId: order.customerId,
+        },
       });
 
       try {
@@ -603,8 +603,8 @@ const orderMutations = {
             action: 'makePayment',
             responses: ebarimtResponses,
             order,
-            items
-          }
+            items,
+          },
         });
       } catch (e) {
         debugError(`Error occurred while sending data to erxes: ${e.message}`);
@@ -623,13 +623,13 @@ const orderMutations = {
     {
       _id,
       cashAmount,
-      paidAmounts
+      paidAmounts,
     }: {
       _id: string;
       cashAmount?: number;
       paidAmounts?: IPaidAmount[];
     },
-    { models, config, subdomain }: IContext
+    { models, config, subdomain }: IContext,
   ) {
     const order = await models.Orders.getOrder(_id);
 
@@ -645,8 +645,8 @@ const orderMutations = {
         cashAmount: cashAmount
           ? (order.cashAmount || 0) + Number(cashAmount.toFixed(2))
           : order.cashAmount || 0,
-        paidAmounts: (order.paidAmounts || []).concat(paidAmounts || [])
-      }
+        paidAmounts: (order.paidAmounts || []).concat(paidAmounts || []),
+      },
     };
 
     await models.Orders.updateOne({ _id: order._id }, modifier);
@@ -657,10 +657,10 @@ const orderMutations = {
       const items = await models.OrderItems.find({ orderId: newOrder._id });
       if (config.isOnline) {
         const products = await models.Products.find({
-          _id: { $in: items.map(i => i.productId) }
+          _id: { $in: items.map((i) => i.productId) },
         }).lean();
         for (const item of items) {
-          const product = products.find(p => p._id === item.productId) || {};
+          const product = products.find((p) => p._id === item.productId) || {};
           item.productName = `${product.code} - ${product.name}`;
         }
       }
@@ -673,8 +673,8 @@ const orderMutations = {
             posToken: config.token,
             action: 'makePayment',
             order,
-            items
-          }
+            items,
+          },
         });
       } catch (e) {
         debugError(`Error occurred while sending data to erxes: ${e.message}`);
@@ -692,7 +692,7 @@ const orderMutations = {
     if (
       order.mobileAmount ||
       (order.paidAmounts || []).filter(
-        pa => pa.info && Object.keys(pa.info).length
+        (pa) => pa.info && Object.keys(pa.info).length,
       ).length > 0
     ) {
       throw new Error('Card payment exists for this order');
@@ -722,164 +722,27 @@ const orderMutations = {
   async ordersSettlePayment(
     _root,
     { _id, billType, registerNumber }: ISettlePaymentParams,
-    { config, models, subdomain }: IContext
+    { config, models, subdomain }: IContext,
   ) {
     let order = await models.Orders.getOrder(_id);
 
     if (!ORDER_TYPES.SALES.includes(order.type || '')) {
       throw new Error(
-        'Зөвхөн борлуулах төрөлтэй захиалгын төлбөрийг төлөх боломжтой'
+        'Зөвхөн борлуулах төрөлтэй захиалгын төлбөрийг төлөх боломжтой',
       );
     }
 
-    checkOrderStatus(order);
-
-    const items = await models.OrderItems.find({
-      orderId: order._id
-    }).lean();
-
-    await validateOrderPayment(order, { billType });
-    const now = new Date();
-
-    const ebarimtConfig: any = config.ebarimtConfig;
-
-    if (
-      !ebarimtConfig ||
-      !Object.keys(ebarimtConfig) ||
-      !ebarimtConfig.districtCode ||
-      !ebarimtConfig.companyRD
-    ) {
-      billType = BILL_TYPES.INNER;
-    }
-
-    try {
-      const ebarimtResponses: any[] = [];
-
-      if (billType !== BILL_TYPES.INNER) {
-        const ebarimtDatas = await prepareEbarimtData(
-          models,
-          order,
-          ebarimtConfig,
-          items,
-          billType,
-          registerNumber,
-          config.paymentTypes
-        );
-
-        ebarimtConfig.districtName = getDistrictName(
-          (ebarimtConfig && ebarimtConfig.districtCode) || ''
-        );
-
-        for (const data of ebarimtDatas) {
-          let response;
-
-          if (data.inner) {
-            const putData = new PutData({
-              ...config,
-              ...data,
-              config,
-              models
-            });
-
-            response = {
-              _id: Math.random(),
-              billId: 'Түр баримт',
-              ...(await putData.generateTransactionInfo()),
-              registerNo: ebarimtConfig.companyRD || '',
-              success: 'true'
-            };
-            ebarimtResponses.push(response);
-
-            await models.OrderItems.updateOne(
-              { _id: { $in: data.itemIds } },
-              { $set: { isInner: true } }
-            );
-
-            continue;
-          }
-
-          response = await models.PutResponses.putData({
-            ...data,
-            config: ebarimtConfig,
-            models
-          });
-          ebarimtResponses.push(response);
-        }
-      }
-
-      if (
-        billType === BILL_TYPES.INNER ||
-        (ebarimtResponses.length &&
-          !ebarimtResponses.filter(er => er.success !== 'true').length)
-      ) {
-        await models.Orders.updateOne(
-          { _id },
-          {
-            $set: {
-              billType,
-              registerNumber,
-              paidDate: now,
-              modifiedAt: now,
-              status: getStatus(
-                config,
-                'settle',
-                { ...order, paidDate: now },
-                { ...order }
-              )
-            }
-          }
-        );
-      }
-
-      order = await models.Orders.getOrder(_id);
-
-      graphqlPubsub.publish('ordersOrdered', {
-        ordersOrdered: {
-          ...order,
-          _id,
-          status: order.status,
-          customerId: order.customerId
-        }
-      });
-
-      if (config.isOnline) {
-        const products = await models.Products.find({
-          _id: { $in: items.map(i => i.productId) }
-        }).lean();
-        for (const item of items) {
-          const product = products.find(p => p._id === item.productId) || {};
-          item.productName = `${product.code} - ${product.name}`;
-        }
-      }
-
-      try {
-        sendPosMessage({
-          subdomain,
-          action: 'createOrUpdateOrders',
-          data: {
-            posToken: config.token,
-            action: 'makePayment',
-            responses: ebarimtResponses,
-            order,
-            items
-          }
-        });
-      } catch (e) {
-        debugError(`Error occurred while sending data to erxes: ${e.message}`);
-      }
-
-      return ebarimtResponses;
-    } catch (e) {
-      debugError(e);
-
-      return e;
-    }
+    return await prepareSettlePayment(subdomain, models, order, config, {
+      _id,
+      billType,
+      registerNumber,
+    });
   }, // end ordersSettlePayment()
 
   async ordersConvertToDeal(
     _root,
     params,
-    { models, subdomain, posUser, config }: IContext
+    { models, subdomain, posUser, config }: IContext,
   ) {
     const order = await models.Orders.getOrder(params._id);
     if (!order.branchId) {
@@ -900,14 +763,14 @@ const orderMutations = {
         subdomain,
         action: 'deals.findOne',
         data: { _id: order.convertDealId },
-        isRPC: true
+        isRPC: true,
       });
       if (deal) {
         const dealLink = await sendCardsMessage({
           subdomain,
           action: 'getLink',
           data: { _id: order.convertDealId, type: 'deal' },
-          isRPC: true
+          isRPC: true,
         });
 
         throw new Error(`Already converted: ${dealLink}`);
@@ -923,15 +786,15 @@ const orderMutations = {
       stageId: cardConfig.stageId,
       assignedUserIds: [posUser._id],
       watchedUserIds: [posUser._id],
-      productsData: items.map(i => ({
+      productsData: items.map((i) => ({
         productId: i.productId,
         uom: 'PC',
         currency: 'MNT',
         quantity: i.count,
         unitPrice: i.unitPrice,
         amount: i.count * (i.unitPrice || 0),
-        tickUsed: true
-      }))
+        tickUsed: true,
+      })),
     };
 
     if (order.deliveryInfo && cardConfig.deliveryMapField) {
@@ -944,17 +807,18 @@ const orderMutations = {
             type: 'Point',
             coordinates: [
               marker.longitude || marker.lng,
-              marker.latitude || marker.lat
-            ]
+              marker.latitude || marker.lat,
+            ],
           },
           value: {
             lat: marker.latitude || marker.lat,
             lng: marker.longitude || marker.lng,
-            description: 'location'
+            description: 'location',
           },
-          stringValue: `${marker.longitude || marker.lng},${marker.latitude ||
-            marker.lat}`
-        }
+          stringValue: `${marker.longitude || marker.lng},${
+            marker.latitude || marker.lat
+          }`,
+        },
       ];
     }
 
@@ -963,7 +827,7 @@ const orderMutations = {
       action: 'deals.create',
       data: dealData,
       isRPC: true,
-      defaultValue: {}
+      defaultValue: {},
     });
 
     if (order.customerId) {
@@ -979,16 +843,16 @@ const orderMutations = {
             mainType: 'deal',
             mainTypeId: deal._id,
             relType: order.customerType || 'customer',
-            relTypeId: order.customerId
+            relTypeId: order.customerId,
           },
-          isRPC: true
+          isRPC: true,
         });
       }
     }
 
     await models.Orders.updateOne(
       { _id: order._id },
-      { $set: { convertDealId: deal._id } }
+      { $set: { convertDealId: deal._id } },
     );
     return models.Orders.getOrder(order._id);
   },
@@ -996,7 +860,7 @@ const orderMutations = {
   async afterFormSubmit(
     _root,
     { _id, conversationId }: { _id: string; conversationId: string },
-    { models, subdomain, config }: IContext
+    { models, subdomain, config }: IContext,
   ) {
     const order = await models.Orders.getOrder(_id);
 
@@ -1017,25 +881,25 @@ const orderMutations = {
         content: `
           Pos order:
             paid link: <a href="/pos-orders?posId=${config.posId}&search=${
-          order.number
-        }">${order.number}</a> <br />
+              order.number
+            }">${order.number}</a> <br />
             posclient link: <a href="${config.pdomain || '/'}?orderId=${
-          order._id
-        }">${order.number}</a> <br />
-        `
+              order._id
+            }">${order.number}</a> <br />
+        `,
       },
-      isRPC: true
+      isRPC: true,
     });
   },
 
   async ordersFinish(
     _root,
     doc: IOrderInput & { _id?: string },
-    { config, models, subdomain, posUser }: IContext
+    { config, models, subdomain, posUser }: IContext,
   ) {
     if (!ORDER_TYPES.OUT.includes(doc.type || '')) {
       throw new Error(
-        'Зөвхөн зарлагадах төрөлтэй захиалгыг л шууд хаах боломжтой'
+        'Зөвхөн зарлагадах төрөлтэй захиалгыг л шууд хаах боломжтой',
       );
     }
 
@@ -1050,14 +914,14 @@ const orderMutations = {
         posUser,
         config,
         models,
-        subdomain
+        subdomain,
       });
     } else {
       const addedOrder = await ordersAdd(doc, {
         posUser,
         config,
         models,
-        subdomain
+        subdomain,
       });
       _id = addedOrder._id;
     }
@@ -1067,7 +931,7 @@ const orderMutations = {
     checkOrderStatus(order);
 
     const items = await models.OrderItems.find({
-      orderId: order._id
+      orderId: order._id,
     }).lean();
 
     await validateOrderPayment(order, { billType: BILL_TYPES.INNER });
@@ -1085,10 +949,10 @@ const orderMutations = {
               config,
               'finish',
               { ...order, paidDate: now },
-              { ...order }
-            )
-          }
-        }
+              { ...order },
+            ),
+          },
+        },
       );
 
       order = await models.Orders.getOrder(_id);
@@ -1098,8 +962,8 @@ const orderMutations = {
           ...order,
           _id,
           status: order.status,
-          customerId: order.customerId
-        }
+          customerId: order.customerId,
+        },
       });
 
       try {
@@ -1110,8 +974,8 @@ const orderMutations = {
             posToken: config.token,
             action: 'makePayment',
             order,
-            items
-          }
+            items,
+          },
         });
       } catch (e) {
         debugError(`Error occurred while sending data to erxes: ${e.message}`);
@@ -1130,13 +994,13 @@ const orderMutations = {
     {
       _id,
       cashAmount,
-      paidAmounts
+      paidAmounts,
     }: {
       _id: string;
       cashAmount?: number;
       paidAmounts?: IPaidAmount[];
     },
-    { subdomain, models, posUser, config }: IContext
+    { subdomain, models, posUser, config }: IContext,
   ) {
     if (!config.adminIds.includes(posUser._id)) {
       throw new Error('Order return admin required');
@@ -1164,7 +1028,7 @@ const orderMutations = {
         (order.mobileAmount || 0) +
         (order.paidAmounts || []).reduce(
           (sum, i) => Number(sum) + Number(i.amount),
-          0
+          0,
         );
 
       if (savedPaidAmount !== amount) {
@@ -1187,15 +1051,15 @@ const orderMutations = {
           cashAmount,
           paidAmounts,
           returnAt: new Date(),
-          returnBy: posUser._id
+          returnBy: posUser._id,
         },
         cashAmount: cashAmount
           ? (order.cashAmount || 0) - Number(cashAmount.toFixed(2))
           : order.cashAmount || 0,
         paidAmounts: (order.paidAmounts || []).concat(
-          (paidAmounts || []).map(a => ({ ...a, amount: -1 * a.amount }))
-        )
-      }
+          (paidAmounts || []).map((a) => ({ ...a, amount: -1 * a.amount })),
+        ),
+      },
     };
 
     const ebarimtConfig = config.ebarimtConfig;
@@ -1208,7 +1072,7 @@ const orderMutations = {
       contentId: _id,
       contentType: 'pos',
       number: order.number || '',
-      config: ebarimtConfig
+      config: ebarimtConfig,
     })) as any;
 
     if (returnResponses.error) {
@@ -1225,8 +1089,8 @@ const orderMutations = {
         _id: order._id,
         status: order.status,
         customerId: order.customerId,
-        customerType: order.customerType
-      }
+        customerType: order.customerType,
+      },
     });
 
     try {
@@ -1238,15 +1102,15 @@ const orderMutations = {
           action: 'makePayment',
           responses: returnResponses,
           order,
-          items: await models.OrderItems.find({ orderId: _id }).lean()
-        }
+          items: await models.OrderItems.find({ orderId: _id }).lean(),
+        },
       });
     } catch (e) {
       debugError(`Error occurred while sending data to erxes: ${e.message}`);
     }
 
     return models.Orders.findOne({ _id: order._id });
-  }
+  },
 };
 
 export default orderMutations;

@@ -1,10 +1,10 @@
 import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
-import { serviceDiscovery } from './configs';
+
 import { Zmss } from './models';
 
 let client;
 
-export const initBroker = async cl => {
+export const initBroker = async (cl) => {
   client = cl;
 
   const { consumeQueue, consumeRPCQueue } = client;
@@ -13,28 +13,52 @@ export const initBroker = async cl => {
     Zmss.send(data);
 
     return {
-      status: 'success'
+      status: 'success',
     };
   });
 
   consumeRPCQueue('zms:find', async ({ data }) => {
     return {
       status: 'success',
-      data: await Zmss.find({})
+      data: await Zmss.find({}),
     };
   });
 };
 
 export const sendCommonMessage = async (
-  args: ISendMessageArgs & { serviceName: string }
+  args: ISendMessageArgs & { serviceName: string },
 ) => {
   return sendMessage({
-    serviceDiscovery,
-    client,
-    ...args
+    ...args,
   });
 };
 
-export default function() {
+export const getConfig = async (
+  code: string,
+  subdomain: string,
+  defaultValue?: string,
+) => {
+  const configs = await sendCoreMessage({
+    subdomain,
+    action: 'getConfigs',
+    data: {},
+    isRPC: true,
+    defaultValue: [],
+  });
+
+  if (!configs[code]) {
+    return defaultValue;
+  }
+
+  return configs[code];
+};
+
+export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
+  return sendMessage({
+    serviceName: 'core',
+    ...args,
+  });
+};
+export default function () {
   return client;
 }

@@ -1,11 +1,11 @@
 import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
-import { serviceDiscovery } from './configs';
+
 import { generateToken } from './utils';
 import { generateModels } from './connectionResolver';
 
 let client;
 
-export const initBroker = async cl => {
+export const initBroker = async (cl) => {
   client = cl;
 
   const { consumeQueue, consumeRPCQueue } = client;
@@ -20,16 +20,18 @@ export const initBroker = async cl => {
 
       const token = await generateToken(integrationId);
 
-      await (await models).Integrations.create({
+      await (
+        await models
+      ).Integrations.create({
         inboxId: integrationId,
         token,
-        ...docData
+        ...docData,
       });
 
       return {
-        status: 'success'
+        status: 'success',
       };
-    }
+    },
   );
 
   consumeRPCQueue(
@@ -41,25 +43,25 @@ export const initBroker = async cl => {
       const models = await generateModels(subdomain);
 
       const integration = await models.Integrations.findOne({
-        inboxId: integrationId
+        inboxId: integrationId,
       });
 
       if (!integration) {
         return {
           status: 'failed',
-          data: 'integration not found.'
+          data: 'integration not found.',
         };
       }
 
       if (action === 'getDetails') {
         return {
           status: 'success',
-          data: integration
+          data: integration,
         };
       }
 
       return {
-        status: 'success'
+        status: 'success',
       };
     },
 
@@ -70,36 +72,36 @@ export const initBroker = async cl => {
         const models = await generateModels(subdomain);
 
         const integration = await models.Integrations.findOne({
-          inboxId: integrationId
+          inboxId: integrationId,
         });
 
         if (!integration) {
           return {
             status: 'error',
-            errorMessage: 'Integration not found.'
+            errorMessage: 'Integration not found.',
           };
         }
 
         await models.Integrations.updateOne(
           { inboxId: integrationId },
-          { $set: details }
+          { $set: details },
         );
 
         const updatedIntegration = await models.Integrations.findOne({
-          inboxId: integrationId
+          inboxId: integrationId,
         });
 
         if (updatedIntegration) {
           return {
-            status: 'success'
+            status: 'success',
           };
         } else
-          err => {
+          (err) => {
             return {
-              err
+              err,
             };
           };
-      }
+      },
     ),
 
     consumeRPCQueue(
@@ -110,9 +112,9 @@ export const initBroker = async cl => {
         await models.Integrations.deleteOne({ inboxId: integrationId });
 
         return {
-          status: 'success'
+          status: 'success',
         };
-      }
+      },
     ),
 
     consumeRPCQueue(
@@ -125,35 +127,33 @@ export const initBroker = async cl => {
 
         const callIntegration = await models.Integrations.findOne(
           { inboxId },
-          'token'
+          'token',
         );
 
         return {
           status: 'success',
-          data: { token: callIntegration?.token }
+          data: { token: callIntegration?.token },
         };
-      }
-    )
+      },
+    ),
   );
 };
 
 export const sendCommonMessage = async (
-  args: ISendMessageArgs & { serviceName: string }
+  args: ISendMessageArgs & { serviceName: string },
 ) => {
   return sendMessage({
-    serviceDiscovery,
-    client,
-    ...args
+    ...args,
   });
 };
 
 export const sendInboxMessage = (args: ISendMessageArgs) => {
   return sendCommonMessage({
     serviceName: 'inbox',
-    ...args
+    ...args,
   });
 };
 
-export default function() {
+export default function () {
   return client;
 }

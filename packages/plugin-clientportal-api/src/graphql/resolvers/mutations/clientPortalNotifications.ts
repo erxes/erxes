@@ -1,5 +1,5 @@
 import { INotifcationSettings } from './../../../models/definitions/clientPortalUser';
-import { graphqlPubsub } from '../../../configs';
+import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
 import { IContext } from '../../../connectionResolver';
 import { sendNotification } from '../../../utils';
 
@@ -7,7 +7,7 @@ const notificationMutations = {
   async clientPortalNotificationsMarkAsRead(
     _root,
     { _ids, markAll }: { _ids: string[]; markAll: boolean },
-    { models, cpUser }: IContext
+    { models, cpUser }: IContext,
   ) {
     let cpNotifIds = _ids;
 
@@ -15,7 +15,7 @@ const notificationMutations = {
     if (markAll) {
       cpNotifIds = (
         await models.ClientPortalNotifications.find({ isRead: false })
-      ).map(notif => notif._id);
+      ).map((notif) => notif._id);
     }
 
     if (!cpUser) {
@@ -23,7 +23,7 @@ const notificationMutations = {
     }
 
     graphqlPubsub.publish('clientPortalNotificationRead', {
-      clientPortalNotificationRead: { userId: cpUser._id }
+      clientPortalNotificationRead: { userId: cpUser._id },
     });
 
     await models.ClientPortalNotifications.markAsRead(cpNotifIds, cpUser._id);
@@ -34,7 +34,7 @@ const notificationMutations = {
   async clientPortalNotificationsRemove(
     _root,
     { _ids }: { _ids: string[] },
-    { models, cpUser }: IContext
+    { models, cpUser }: IContext,
   ) {
     if (!cpUser) {
       throw new Error('You are not logged in');
@@ -43,7 +43,7 @@ const notificationMutations = {
     for (const _id of _ids) {
       await models.ClientPortalNotifications.removeNotification(
         _id,
-        cpUser._id
+        cpUser._id,
       );
     }
 
@@ -53,7 +53,7 @@ const notificationMutations = {
   async clientPortalUserUpdateNotificationSettings(
     _root,
     doc: INotifcationSettings,
-    { models, cpUser }: IContext
+    { models, cpUser }: IContext,
   ) {
     if (!cpUser) {
       throw new Error('You are not logged in');
@@ -67,7 +67,7 @@ const notificationMutations = {
   async clientPortalSendNotification(
     _root,
     { _id, ...doc }: any,
-    { models, subdomain }: IContext
+    { models, subdomain }: IContext,
   ) {
     try {
       await sendNotification(models, subdomain, doc);
@@ -75,7 +75,7 @@ const notificationMutations = {
     } catch (e) {
       throw new Error(e.message);
     }
-  }
+  },
 };
 
 export default notificationMutations;

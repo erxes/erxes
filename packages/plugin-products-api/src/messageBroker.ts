@@ -1,10 +1,13 @@
-import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
+import {
+  ISendMessageArgs,
+  escapeRegExp,
+  sendMessage,
+} from '@erxes/api-utils/src/core';
 import { generateModels } from './connectionResolver';
-import { serviceDiscovery } from './configs';
 
 let client;
 
-export const initBroker = async cl => {
+export const initBroker = async (cl) => {
   client = cl;
 
   const { consumeRPCQueue, consumeQueue } = client;
@@ -13,7 +16,7 @@ export const initBroker = async cl => {
     const models = await generateModels(subdomain);
     return {
       data: await models.Uoms.findOne(data).lean(),
-      status: 'success'
+      status: 'success',
     };
   });
 
@@ -29,16 +32,16 @@ export const initBroker = async cl => {
 
       return {
         data: await models.Uoms.findOne({ _id: product.uom }).lean(),
-        status: 'success'
+        status: 'success',
       };
-    }
+    },
   );
 
   consumeRPCQueue('products:uoms.find', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
     return {
       data: await models.Uoms.find(data).lean(),
-      status: 'success'
+      status: 'success',
     };
   });
 
@@ -47,7 +50,7 @@ export const initBroker = async cl => {
 
     return {
       data: await models.Products.findOne(data).lean(),
-      status: 'success'
+      status: 'success',
     };
   });
 
@@ -60,14 +63,12 @@ export const initBroker = async cl => {
         data: regData
           ? await models.ProductCategories.find({
               ...query,
-              order: { $regex: new RegExp(regData) }
+              order: { $regex: new RegExp(regData) },
             }).sort(sort)
-          : await models.ProductCategories.find(query)
-              .sort(sort)
-              .lean(),
-        status: 'success'
+          : await models.ProductCategories.find(query).sort(sort).lean(),
+        status: 'success',
       };
-    }
+    },
   );
 
   consumeRPCQueue(
@@ -78,38 +79,38 @@ export const initBroker = async cl => {
       if (!categoryIds.length) {
         return {
           data: [],
-          status: 'success'
+          status: 'success',
         };
       }
 
       const categories = await models.ProductCategories.find({
-        _id: { $in: categoryIds }
+        _id: { $in: categoryIds },
       }).lean();
 
       if (!categories.length) {
         return {
           data: [],
-          status: 'success'
+          status: 'success',
         };
       }
 
       const orderQry: any[] = [];
       for (const category of categories) {
         orderQry.push({
-          order: { $regex: new RegExp(`^${category.order}`) }
+          order: { $regex: new RegExp(`^${escapeRegExp(category.order)}`) },
         });
       }
 
       return {
         data: await models.ProductCategories.find({
           status: { $nin: ['disabled', 'archived'] },
-          $or: orderQry
+          $or: orderQry,
         })
           .sort({ order: 1 })
           .lean(),
-        status: 'success'
+        status: 'success',
       };
-    }
+    },
   );
 
   consumeRPCQueue(
@@ -118,9 +119,9 @@ export const initBroker = async cl => {
       const models = await generateModels(subdomain);
       return {
         data: await models.ProductCategories.findOne(data).lean(),
-        status: 'success'
+        status: 'success',
       };
-    }
+    },
   );
 
   consumeRPCQueue(
@@ -130,9 +131,9 @@ export const initBroker = async cl => {
 
       return {
         data: await models.ProductCategories.updateProductCategory(_id, doc),
-        status: 'success'
+        status: 'success',
       };
-    }
+    },
   );
 
   consumeRPCQueue(
@@ -142,9 +143,9 @@ export const initBroker = async cl => {
 
       return {
         data: await models.ProductCategories.createProductCategory(doc),
-        status: 'success'
+        status: 'success',
       };
-    }
+    },
   );
 
   consumeRPCQueue(
@@ -154,16 +155,16 @@ export const initBroker = async cl => {
 
       return {
         data: await models.ProductCategories.removeProductCategory(_id),
-        status: 'success'
+        status: 'success',
       };
-    }
+    },
   );
 
   consumeRPCQueue(
     'products:find',
     async ({
       subdomain,
-      data: { query, sort, skip, limit, categoryId, categoryIds, fields }
+      data: { query, sort, skip, limit, categoryId, categoryIds, fields },
     }) => {
       const models = await generateModels(subdomain);
 
@@ -173,36 +174,36 @@ export const initBroker = async cl => {
 
       if (categoryIds?.length > 0) {
         const categories = await models.ProductCategories.find({
-          _id: { $in: categoryIds }
+          _id: { $in: categoryIds },
         }).lean();
 
         const orderQry: any[] = [];
 
         for (const category of categories) {
           orderQry.push({
-            order: { $regex: new RegExp(`^${category.order}`) }
+            order: { $regex: new RegExp(`^${escapeRegExp(category.order)}`) },
           });
         }
 
         const categoriesWithChildren = await models.ProductCategories.find({
           status: { $nin: ['disabled', 'archived'] },
-          $or: orderQry
+          $or: orderQry,
         }).lean();
 
         query.categoryId = {
-          $in: categoriesWithChildren.map(category => category._id)
+          $in: categoriesWithChildren.map((category) => category._id),
         };
       }
 
       if (categoryId) {
         const category = await models.ProductCategories.findOne({
-          _id: categoryId
+          _id: categoryId,
         }).lean();
         const categories = await models.ProductCategories.find({
-          order: { $regex: new RegExp(`^${category.order}`) }
+          order: { $regex: new RegExp(`^${escapeRegExp(category.order)}`) },
         }).lean();
 
-        query.categoryId = { $in: categories.map(c => c._id) };
+        query.categoryId = { $in: categories.map((c) => c._id) };
       }
 
       return {
@@ -211,9 +212,9 @@ export const initBroker = async cl => {
           .skip(skip || 0)
           .limit(limit || 0)
           .lean(),
-        status: 'success'
+        status: 'success',
       };
-    }
+    },
   );
 
   consumeRPCQueue(
@@ -224,20 +225,20 @@ export const initBroker = async cl => {
       const filter = { ...(query || {}) };
       if (categoryId) {
         const category = await models.ProductCategories.findOne({
-          _id: categoryId
+          _id: categoryId,
         }).lean();
         const categories = await models.ProductCategories.find({
-          order: { $regex: new RegExp(`^${category.order}`) }
+          order: { $regex: new RegExp(`^${escapeRegExp(category.order)}`) },
         }).lean();
 
-        filter.categoryId = { $in: categories.map(c => c._id) };
+        filter.categoryId = { $in: categories.map((c) => c._id) };
       }
 
       return {
         data: await models.Products.find(filter).count(),
-        status: 'success'
+        status: 'success',
       };
-    }
+    },
   );
 
   consumeRPCQueue(
@@ -247,9 +248,9 @@ export const initBroker = async cl => {
 
       return {
         data: await models.ProductCategories.find(query).countDocuments(),
-        status: 'success'
+        status: 'success',
       };
-    }
+    },
   );
 
   consumeRPCQueue(
@@ -259,9 +260,9 @@ export const initBroker = async cl => {
 
       return {
         data: await models.Products.createProduct(doc),
-        status: 'success'
+        status: 'success',
       };
-    }
+    },
   );
 
   consumeRPCQueue(
@@ -271,9 +272,9 @@ export const initBroker = async cl => {
 
       return {
         data: await models.Products.updateProduct(_id, doc),
-        status: 'success'
+        status: 'success',
       };
-    }
+    },
   );
 
   consumeRPCQueue(
@@ -283,9 +284,9 @@ export const initBroker = async cl => {
 
       return {
         data: await models.Products.removeProducts(_ids),
-        status: 'success'
+        status: 'success',
       };
-    }
+    },
   );
 
   consumeQueue(
@@ -295,9 +296,9 @@ export const initBroker = async cl => {
 
       return {
         data: await models.Products.updateMany(selector, modifier),
-        status: 'success'
+        status: 'success',
       };
-    }
+    },
   );
 
   consumeRPCQueue('products:tag', async ({ subdomain, data }) => {
@@ -307,7 +308,7 @@ export const initBroker = async cl => {
 
     if (data.action === 'count') {
       response = await models.Products.countDocuments({
-        tagIds: { $in: data._ids }
+        tagIds: { $in: data._ids },
       });
     }
 
@@ -315,17 +316,17 @@ export const initBroker = async cl => {
       await models.Products.updateMany(
         { _id: { $in: data.targetIds } },
         { $set: { tagIds: data.tagIds } },
-        { multi: true }
+        { multi: true },
       );
 
       response = await models.Products.find({
-        _id: { $in: data.targetIds }
+        _id: { $in: data.targetIds },
       }).lean();
     }
 
     return {
       status: 'success',
-      data: response
+      data: response,
     };
   });
 
@@ -341,9 +342,9 @@ export const initBroker = async cl => {
 
       return {
         status: 'success',
-        data: notifDoc
+        data: notifDoc,
       };
-    }
+    },
   );
 
   consumeRPCQueue(
@@ -354,9 +355,9 @@ export const initBroker = async cl => {
 
       return {
         status: 'success',
-        data: await models.ProductsConfigs.getConfig(code, defaultValue)
+        data: await models.ProductsConfigs.getConfig(code, defaultValue),
       };
-    }
+    },
   );
 };
 
@@ -366,76 +367,60 @@ export const sendRPCMessage = async (channel, message): Promise<any> => {
 
 export const sendFormsMessage = (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
-    client,
-    serviceDiscovery,
     serviceName: 'forms',
-    ...args
+    ...args,
   });
 };
 
 export const sendCardsMessage = (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
-    client,
-    serviceDiscovery,
     serviceName: 'cards',
-    ...args
+    ...args,
   });
 };
 
 export const sendProcessesMessage = (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
-    client,
-    serviceDiscovery,
     serviceName: 'processes',
-    ...args
+    ...args,
   });
 };
 
 export const sendContactsMessage = (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
-    client,
-    serviceDiscovery,
     serviceName: 'contacts',
-    ...args
+    ...args,
   });
 };
 
 export const sendTagsMessage = (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
-    client,
-    serviceDiscovery,
     serviceName: 'tags',
-    ...args
+    ...args,
   });
 };
 
 export const sendSegmentsMessage = async (
-  args: ISendMessageArgs
+  args: ISendMessageArgs,
 ): Promise<any> => {
   return sendMessage({
-    client,
-    serviceDiscovery,
     serviceName: 'segments',
-    ...args
+    ...args,
   });
 };
 
 export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
-    client,
-    serviceDiscovery,
     serviceName: 'core',
-    ...args
+    ...args,
   });
 };
 
 export const sendCommonMessage = async (
-  args: ISendMessageArgs & { serviceName: string }
+  args: ISendMessageArgs & { serviceName: string },
 ): Promise<any> => {
   return sendMessage({
-    serviceDiscovery,
-    client,
-    ...args
+    ...args,
   });
 };
 
@@ -443,15 +428,15 @@ export const fetchSegment = (
   subdomain: string,
   segmentId: string,
   options?,
-  segmentData?: any
+  segmentData?: any,
 ) =>
   sendSegmentsMessage({
     subdomain,
     action: 'fetchSegment',
     data: { segmentId, options, segmentData },
-    isRPC: true
+    isRPC: true,
   });
 
-export default function() {
+export default function () {
   return client;
 }

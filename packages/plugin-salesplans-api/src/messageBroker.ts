@@ -1,10 +1,9 @@
 import { generateModels } from './connectionResolver';
 import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
-import { serviceDiscovery } from './configs';
 
 let client: any;
 
-export const initBroker = async cl => {
+export const initBroker = async (cl) => {
   client = cl;
 
   const { consumeQueue, consumeRPCQueue } = cl;
@@ -15,9 +14,9 @@ export const initBroker = async cl => {
 
       await models.DayPlans.updateMany(
         { _id: { $in: _ids } },
-        { $set: { status } }
+        { $set: { status } },
       );
-    }
+    },
   );
 
   consumeRPCQueue(
@@ -28,65 +27,55 @@ export const initBroker = async cl => {
       return {
         status: 'success',
         data: await models.Timeframes.find({
-          status: { $ne: 'deleted' }
-        }).lean()
+          status: { $ne: 'deleted' },
+        }).lean(),
       };
-    }
+    },
   );
 };
 
 export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
-    client,
-    serviceDiscovery,
     serviceName: 'core',
-    ...args
+    ...args,
   });
 };
 
 export const sendInternalNotesMessage = async (
-  args: ISendMessageArgs
+  args: ISendMessageArgs,
 ): Promise<any> => {
   return sendMessage({
-    client,
-    serviceDiscovery,
     serviceName: 'internalnotes',
-    ...args
+    ...args,
   });
 };
 
 export const sendProductsMessage = async (
-  args: ISendMessageArgs
+  args: ISendMessageArgs,
 ): Promise<any> => {
   return sendMessage({
-    client,
-    serviceDiscovery,
     serviceName: 'products',
-    ...args
+    ...args,
   });
 };
 
 export const sendProcessesMessage = async (
-  args: ISendMessageArgs
+  args: ISendMessageArgs,
 ): Promise<any> => {
   return sendMessage({
-    client,
-    serviceDiscovery,
     serviceName: 'processes',
-    ...args
+    ...args,
   });
 };
 
 export const sendCommonMessage = async (
-  args: ISendMessageArgs & { serviceName: string }
+  args: ISendMessageArgs & { serviceName: string },
 ): Promise<any> => {
   return sendMessage({
-    serviceDiscovery,
-    client,
-    ...args
+    ...args,
   });
 };
 
-export default function() {
+export default function () {
   return client;
 }

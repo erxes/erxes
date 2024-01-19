@@ -33,6 +33,7 @@ const POSITION_TOP = 'top';
 const POSITION_BOTTOM = 'bottom';
 type toolbarLocationOption = 'bottom' | 'top';
 type ToolbarItem = string | DropdownControlType;
+
 export interface IRichTextEditorProps extends IRichTextEditorContentProps {
   placeholder?: string;
   /** Controlled value */

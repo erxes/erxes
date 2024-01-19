@@ -156,7 +156,7 @@ const withQuery = () =>
           options: () => {
             return {
               variables: {
-                perPage: 200
+                perPage: 20
               }
             };
           }
