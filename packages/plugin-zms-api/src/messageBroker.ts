@@ -4,7 +4,7 @@ import { Zmss } from './models';
 
 let client;
 
-export const initBroker = async cl => {
+export const initBroker = async (cl) => {
   client = cl;
 
   const { consumeQueue, consumeRPCQueue } = client;
@@ -13,38 +13,37 @@ export const initBroker = async cl => {
     Zmss.send(data);
 
     return {
-      status: 'success'
+      status: 'success',
     };
   });
 
   consumeRPCQueue('zms:find', async ({ data }) => {
     return {
       status: 'success',
-      data: await Zmss.find({})
+      data: await Zmss.find({}),
     };
   });
 };
 
 export const sendCommonMessage = async (
-  args: ISendMessageArgs & { serviceName: string }
+  args: ISendMessageArgs & { serviceName: string },
 ) => {
   return sendMessage({
-    client,
-    ...args
+    ...args,
   });
 };
 
 export const getConfig = async (
   code: string,
   subdomain: string,
-  defaultValue?: string
+  defaultValue?: string,
 ) => {
   const configs = await sendCoreMessage({
     subdomain,
     action: 'getConfigs',
     data: {},
     isRPC: true,
-    defaultValue: []
+    defaultValue: [],
   });
 
   if (!configs[code]) {
@@ -56,11 +55,10 @@ export const getConfig = async (
 
 export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'core',
-    ...args
+    ...args,
   });
 };
-export default function() {
+export default function () {
   return client;
 }
