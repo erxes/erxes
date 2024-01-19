@@ -2,7 +2,7 @@ import { IContext } from '../../../connectionResolver';
 import { sendCommonMessage } from '../../../messageBroker';
 import {
   IBuilding,
-  IBuildingEdit
+  IBuildingEdit,
 } from '../../../models/definitions/buildings';
 import { findCenter } from '../utils';
 
@@ -23,7 +23,7 @@ const mutations = {
   buildingsUpdate: async (
     _root,
     { _id, customerIds, companyIds, assetIds },
-    { models }: IContext
+    { models }: IContext,
   ) => {
     const building = await models.Buildings.getBuilding({ _id });
 
@@ -46,22 +46,22 @@ const mutations = {
     if (contactType) {
       const existingIds = await models.BuildingToContacts.find({
         buildingId: building._id,
-        contactType
+        contactType,
       }).distinct(contactFieldId);
 
-      const newIds = contactIds.filter(id => !existingIds.includes(id));
-      const removedIds = existingIds.filter(id => !contactIds.includes(id));
+      const newIds = contactIds.filter((id) => !existingIds.includes(id));
+      const removedIds = existingIds.filter((id) => !contactIds.includes(id));
 
       await models.BuildingToContacts.deleteMany({
         buildingId: building._id,
         contactId: { $in: removedIds },
-        contactType
+        contactType,
       });
 
-      const buildingToContact = newIds.map(id => ({
+      const buildingToContact = newIds.map((id) => ({
         buildingId: building._id,
         contactId: id,
-        contactType
+        contactType,
       }));
 
       await models.BuildingToContacts.insertMany(buildingToContact);
@@ -77,14 +77,14 @@ const mutations = {
   buildingsRemoveCustomers: async (
     _root,
     { _id, customerIds },
-    { models }: IContext
+    { models }: IContext,
   ) => {
     const building = await models.Buildings.getBuilding({ _id });
 
     await models.BuildingToContacts.deleteMany({
       buildingId: building._id,
       contactId: { $in: customerIds },
-      contactType: 'customer'
+      contactType: 'customer',
     });
 
     return models.Buildings.getBuilding({ _id });
@@ -93,14 +93,14 @@ const mutations = {
   buildingsRemoveCompanies: async (
     _root,
     { _id, companyIds },
-    { models }: IContext
+    { models }: IContext,
   ) => {
     const building = await models.Buildings.getBuilding({ _id });
 
     await models.BuildingToContacts.deleteMany({
       buildingId: building._id,
       contactId: { $in: companyIds },
-      contactType: 'company'
+      contactType: 'company',
     });
 
     return models.Buildings.getBuilding({ _id });
@@ -109,17 +109,17 @@ const mutations = {
   buildingsSubmitServiceRequest: async (
     _root,
     { _id, buildingData, ticketData, quarterId, phone },
-    { models, subdomain, cpUser }: IContext
+    { models, subdomain, cpUser }: IContext,
   ) => {
     const user = await sendCommonMessage({
       serviceName: 'clientportal',
       subdomain,
       action: 'clientPortalUsers.findOne',
       data: {
-        _id: (cpUser && cpUser._id) || ''
+        _id: (cpUser && cpUser._id) || '',
       },
       isRPC: true,
-      defaultValue: undefined
+      defaultValue: undefined,
     });
 
     let customerId = '';
@@ -133,10 +133,10 @@ const mutations = {
         subdomain,
         action: 'customers.findOne',
         data: {
-          phone
+          phone,
         },
         isRPC: true,
-        defaultValue: null
+        defaultValue: null,
       });
 
       if (!customer) {
@@ -145,10 +145,10 @@ const mutations = {
           subdomain,
           action: 'customers.createCustomer',
           data: {
-            primaryName: phone
+            primaryName: phone,
           },
           isRPC: true,
-          defaultValue: null
+          defaultValue: null,
         });
 
         customerId = customer?._id || '';
@@ -157,7 +157,7 @@ const mutations = {
 
     // const user = { erxesCustomerId: 'hTqM74dJPreqy4K5t' };
     let building = await models.Buildings.findOne({
-      $or: [{ _id }, { osmbId: buildingData.id }]
+      $or: [{ _id }, { osmbId: buildingData.id }],
     });
 
     if (!building) {
@@ -165,7 +165,7 @@ const mutations = {
 
       const bounds = [
         { lat: min[1], lng: min[0] },
-        { lat: max[1], lng: max[0] }
+        { lat: max[1], lng: max[0] },
       ];
 
       const location = findCenter(bounds);
@@ -174,43 +174,74 @@ const mutations = {
         osmbId: buildingData.id,
         location: {
           type: 'Point',
-          coordinates: [location.lng, location.lat]
+          coordinates: [location.lng, location.lat],
         },
         serviceStatus: 'inactive',
         name: buildingData.properties.name,
-        quarterId
+        quarterId,
       });
     }
 
-    const ticket = await sendCommonMessage({
-      serviceName: 'cards',
-      subdomain,
-      action: 'tickets.create',
-      data: {
-        ...ticketData,
-        createdAt: new Date(),
-        name: `Сүлжээ тавиулах хүсэлт: ${building.name}`,
-        customerId
-      },
-      isRPC: true,
-      defaultValue: undefined
-    });
-
-    if (!ticket) {
-      throw new Error('Ticket creation failed');
+    if (building.serviceStatus === 'active') {
+      throw new Error('Building service status is active');
     }
 
-    building.installationRequestIds.push(ticket._id);
+    if (building.installationRequestIds.length > 0) {
+      try {
+        // add conformity customer to ticket
+        await sendCommonMessage({
+          serviceName: 'core',
+          subdomain,
+          action: 'conformities.addConformity',
+          data: {
+            mainType: 'ticket',
+            mainTypeId: building.installationRequestIds[0],
+            relType: 'customer',
+            relTypeId: customerId,
+          },
+        });
+      } catch (error) {
+        throw new Error(error);
+      }
+    } else {
+      const quarter = await models.Quarters.getQuarter({ _id: quarterId });
+      const district = await models.Districts.getDistrict({
+        _id: quarter.districtId,
+      });
+      const city = await models.Cities.getCity({ _id: district.cityId });
 
-    await building.save();
+      const ticketName = `Сүлжээ тавиулах хүсэлт: ${city.name}, ${district.name}, ${quarter.name}, ${building.name}`;
+
+      const ticket = await sendCommonMessage({
+        serviceName: 'cards',
+        subdomain,
+        action: 'tickets.create',
+        data: {
+          ...ticketData,
+          createdAt: new Date(),
+          name: ticketName,
+          customerId,
+        },
+        isRPC: true,
+        defaultValue: undefined,
+      });
+
+      if (!ticket) {
+        throw new Error('Ticket creation failed');
+      }
+
+      building.installationRequestIds.push(ticket._id);
+
+      await building.save();
+    }
     await models.BuildingToContacts.createDoc({
       buildingId: building._id,
       contactId: customerId || customer._id,
-      contactType: 'customer'
+      contactType: 'customer',
     });
 
     return building;
-  }
+  },
 };
 
 export default mutations;
