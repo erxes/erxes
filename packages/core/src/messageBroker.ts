@@ -1,5 +1,9 @@
 import { init as initBrokerCore } from '@erxes/api-utils/src/messageBroker';
-import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
+import { sendMessage } from '@erxes/api-utils/src/core';
+import type {
+  ISendMessageArgs,
+  ISendMessageArgsNoService,
+} from '@erxes/api-utils/src/core';
 
 import { logConsumers } from '@erxes/api-utils/src/logUtils';
 import { internalNoteConsumers } from '@erxes/api-utils/src/internalNotes';
@@ -593,7 +597,6 @@ export const initBroker = async (): Promise<void> => {
 
   internalNoteConsumers({
     name: 'core',
-    consumeRPCQueue,
     generateInternalNoteNotif: internalNotes.generateInternalNoteNotif,
   });
 
@@ -639,17 +642,8 @@ export const initBroker = async (): Promise<void> => {
   }));
 };
 
-interface IISendMessageArgs {
-  subdomain: string;
-  action: string;
-  data;
-  isRPC?: boolean;
-  defaultValue?;
-  serviceName: string;
-}
-
 export const sendCommonMessage = async (
-  args: IISendMessageArgs,
+  args: ISendMessageArgs,
 ): Promise<any> => {
   return sendMessage({
     ...args,
@@ -657,7 +651,7 @@ export const sendCommonMessage = async (
 };
 
 export const sendSegmentsMessage = async (
-  args: ISendMessageArgs,
+  args: ISendMessageArgsNoService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'segments',
@@ -666,7 +660,7 @@ export const sendSegmentsMessage = async (
 };
 
 export const sendIntegrationsMessage = (
-  args: ISendMessageArgs,
+  args: ISendMessageArgsNoService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'integrations',
@@ -674,35 +668,45 @@ export const sendIntegrationsMessage = (
   });
 };
 
-export const sendCardsMessage = (args: ISendMessageArgs): Promise<any> => {
+export const sendCardsMessage = (
+  args: ISendMessageArgsNoService,
+): Promise<any> => {
   return sendMessage({
     serviceName: 'cards',
     ...args,
   });
 };
 
-export const sendLogsMessage = (args: ISendMessageArgs): Promise<any> => {
+export const sendLogsMessage = (
+  args: ISendMessageArgsNoService,
+): Promise<any> => {
   return sendMessage({
     serviceName: 'logs',
     ...args,
   });
 };
 
-export const sendContactsMessage = (args: ISendMessageArgs): Promise<any> => {
+export const sendContactsMessage = (
+  args: ISendMessageArgsNoService,
+): Promise<any> => {
   return sendMessage({
     serviceName: 'contacts',
     ...args,
   });
 };
 
-export const sendInboxMessage = (args: ISendMessageArgs): Promise<any> => {
+export const sendInboxMessage = (
+  args: ISendMessageArgsNoService,
+): Promise<any> => {
   return sendMessage({
     serviceName: 'inbox',
     ...args,
   });
 };
 
-export const sendFormsMessage = (args: ISendMessageArgs): Promise<any> => {
+export const sendFormsMessage = (
+  args: ISendMessageArgsNoService,
+): Promise<any> => {
   return sendMessage({
     serviceName: 'forms',
     ...args,
