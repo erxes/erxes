@@ -5,7 +5,6 @@ import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
 import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
 import { __ } from '@erxes/ui/src/utils';
 import React from 'react';
-import { LittleGroup } from '../styles';
 
 type Props = {
   condition: any;
@@ -13,68 +12,54 @@ type Props = {
   onRemove: (id: string) => void;
 };
 
-type State = {};
+const PerPrintConditions = (props: Props) => {
+  const { condition, onChange, onRemove } = props;
 
-class PerPrintConditions extends React.Component<Props, State> {
-  constructor(props: Props) {
-    super(props);
-
-    this.state = {};
-  }
-
-  onChangeConfig = (code: string, value) => {
-    const { condition, onChange } = this.props;
+  const onChangeConfig = (code: string, value) => {
     onChange(condition.id, { ...condition, [code]: value });
   };
 
-  onChange = (name, value) => {
-    this.onChangeConfig(name, value);
+  const onChangeHandler = (name, value) => {
+    onChangeConfig(name, value);
   };
 
-  onChangeInput = (code: string, e) => {
-    this.onChangeConfig(code, e.target.value);
-  };
-
-  render() {
-    const { condition } = this.props;
-    return (
-      <GroupWrapper>
-        <FormWrapper>
-          <FormColumn>
-            <ControlLabel>{'Branch'}</ControlLabel>
-            <SelectBranches
-              label="Choose Branch"
-              name="branchId"
-              initialValue={condition.branchId}
-              onSelect={branchId => this.onChange('branchId', branchId)}
-              multi={false}
-              customOption={{ value: '', label: 'Clean branch' }}
-            />
-          </FormColumn>
-          <FormColumn>
-            <ControlLabel>{'Department'}</ControlLabel>
-            <SelectDepartments
-              label="Choose department"
-              name="selectedDepartmentIds"
-              initialValue={condition.departmentId}
-              onSelect={departmentId =>
-                this.onChange('departmentId', departmentId)
-              }
-              multi={false}
-              customOption={{ value: '', label: 'Clean department' }}
-            />
-          </FormColumn>
-        </FormWrapper>
-        <Tip text={'Delete'}>
-          <Button
-            btnStyle="simple"
-            size="small"
-            onClick={this.props.onRemove.bind(this, condition.id)}
-            icon="times"
+  return (
+    <GroupWrapper>
+      <FormWrapper>
+        <FormColumn>
+          <ControlLabel>{'Branch'}</ControlLabel>
+          <SelectBranches
+            label="Choose Branch"
+            name="branchId"
+            initialValue={condition.branchId}
+            onSelect={(branchId) => onChangeHandler('branchId', branchId)}
+            multi={false}
+            customOption={{ value: '', label: 'Clean branch' }}
           />
-        </Tip>
-      </GroupWrapper>
-    );
-  }
-}
+        </FormColumn>
+        <FormColumn>
+          <ControlLabel>{'Department'}</ControlLabel>
+          <SelectDepartments
+            label="Choose department"
+            name="selectedDepartmentIds"
+            initialValue={condition.departmentId}
+            onSelect={(departmentId) =>
+              onChangeHandler('departmentId', departmentId)
+            }
+            multi={false}
+            customOption={{ value: '', label: 'Clean department' }}
+          />
+        </FormColumn>
+      </FormWrapper>
+      <Tip text={'Delete'}>
+        <Button
+          btnStyle="simple"
+          size="small"
+          onClick={onRemove.bind(this, condition.id)}
+          icon="times"
+        />
+      </Tip>
+    </GroupWrapper>
+  );
+};
 export default PerPrintConditions;
