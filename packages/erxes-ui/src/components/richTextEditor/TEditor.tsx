@@ -41,6 +41,7 @@ export interface IRichTextEditorProps extends IRichTextEditorContentProps {
   onChange?: (editorHtml: string) => void;
   labels?: IRichTextEditorLabels;
   toolbarLocation?: toolbarLocationOption;
+  autoFocus?: boolean;
   /** Toolbar controls config */
   toolbar?: ToolbarItem[];
   name?: string;
@@ -78,7 +79,8 @@ export const RichTextEditor = (props: IRichTextEditorProps) => {
     placeholderProp,
     integrationKind,
     limit,
-    toolbar
+    toolbar,
+    autoFocus
   } = props;
 
   const editorContentProps = {
@@ -113,7 +115,8 @@ export const RichTextEditor = (props: IRichTextEditorProps) => {
       extensions,
       content,
       parseOptions: { preserveWhitespace: 'full' },
-      onUpdate: handleEditorChange
+      onUpdate: handleEditorChange,
+      autofocus: autoFocus
     },
     [showMentions]
   );

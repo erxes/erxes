@@ -45,7 +45,8 @@ export const RichTextEditorControlsGroup = (
         >
           {React.Children.map(childrenArray, (child, index) => {
             return (
-              <Dropdown.Item as="button" key={index}>
+              /** as="span" here is a just workaround. Since it doesnt work well with form submission when as button. */
+              <Dropdown.Item as="span" key={index}>
                 {child}
               </Dropdown.Item>
             );

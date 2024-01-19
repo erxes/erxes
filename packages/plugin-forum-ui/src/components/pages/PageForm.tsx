@@ -5,7 +5,7 @@ import { __ } from '@erxes/ui/src/utils';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { FlexContent, FlexItem } from '@erxes/ui/src/layout/styles';
 import Button from '@erxes/ui/src/components/Button';
-import EditorCK from '@erxes/ui/src/components/EditorCK';
+import { RichTextEditor } from '@erxes/ui/src/components/richTextEditor/TEditor';
 import Form from '@erxes/ui/src/components/form/Form';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import FormGroup from '@erxes/ui/src/components/form/Group';
@@ -29,8 +29,8 @@ class PageForm extends React.Component<Props, State> {
     const page = props.page || ({} as IPage);
 
     this.state = {
-      content: page.content,
-      title: page.title
+      content: page.content ?? '',
+      title: page.title ?? ''
     };
   }
 
@@ -60,8 +60,8 @@ class PageForm extends React.Component<Props, State> {
     };
   };
 
-  onChange = e => {
-    this.setState({ content: e.editor.getData() });
+  onChange = (content: string) => {
+    this.setState({ content });
   };
 
   renderContent = (formProps: IFormProps) => {
@@ -134,7 +134,7 @@ class PageForm extends React.Component<Props, State> {
 
         <FormGroup>
           <ControlLabel required={true}>{__('Content')}</ControlLabel>
-          <EditorCK
+          <RichTextEditor
             content={content}
             onChange={this.onChange}
             isSubmitted={isSubmitted}

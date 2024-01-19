@@ -2,10 +2,10 @@ import { Alert, __ } from '@erxes/ui/src/utils';
 
 import Button from '@erxes/ui/src/components/Button';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
-import EditorCK from '@erxes/ui/src/components/EditorCK';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import FormGroup from '@erxes/ui/src/components/form/Group';
+import { RichTextEditor } from '@erxes/ui/src/components/richTextEditor/TEditor';
 import { IEmailSignatureWithBrand } from '../types';
 import Info from '@erxes/ui/src/components/Info';
 import { MAIL_TOOLBARS_CONFIG } from '@erxes/ui/src/constants/integrations';
@@ -37,8 +37,7 @@ class Signature extends React.Component<Props, State> {
     };
   }
 
-  onChangeContent = e => {
-    const content = e.editor.getData();
+  onChangeContent = (content: string) => {
     this.setState({ content });
 
     const current = this.getCurrent(this.state.currentId);
@@ -104,7 +103,7 @@ class Signature extends React.Component<Props, State> {
           )}
         </p>
 
-        <EditorCK
+        <RichTextEditor
           content={this.state.content}
           toolbar={MAIL_TOOLBARS_CONFIG}
           autoFocus={true}
