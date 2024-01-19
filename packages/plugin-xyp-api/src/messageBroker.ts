@@ -121,7 +121,6 @@ export const sendContactsMessage = async (
   args: ISendMessageArgs,
 ): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'contacts',
     ...args,
   });
@@ -131,7 +130,6 @@ export const sendAutomationsMessage = async (
   args: ISendMessageArgs,
 ): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'automations',
     ...args,
   });
@@ -141,7 +139,6 @@ export const sendCommonMessage = async (
   args: ISendMessageArgs & { serviceName: string },
 ): Promise<any> => {
   return sendMessage({
-    client,
     ...args,
   });
 };
@@ -150,7 +147,6 @@ export const sendSegmentsMessage = async (
   args: ISendMessageArgs,
 ): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'segments',
     ...args,
   });
@@ -171,7 +167,6 @@ export const fetchSegment = (
 
 export const sendFormsMessage = (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'forms',
     ...args,
   });
@@ -179,7 +174,6 @@ export const sendFormsMessage = (args: ISendMessageArgs): Promise<any> => {
 
 export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'core',
     ...args,
   });

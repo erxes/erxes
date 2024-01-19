@@ -2,7 +2,7 @@ import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
 import { afterMutationHandlers } from './afterMutations';
 let client;
 
-export const initBroker = async cl => {
+export const initBroker = async (cl) => {
   client = cl;
 
   const { consumeQueue } = client;
@@ -19,54 +19,48 @@ export const initBroker = async cl => {
 
 export const sendContactsMessage = (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'contacts',
-    ...args
+    ...args,
   });
 };
 
 export const sendFormsMessage = (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'forms',
-    ...args
+    ...args,
   });
 };
 
 export const sendCardsMessage = (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'cards',
-    ...args
+    ...args,
   });
 };
 
 export const sendCoreMessage = (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'core',
-    ...args
+    ...args,
   });
 };
 
 export const sendCPMessage = (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'clientportal',
-    ...args
+    ...args,
   });
 };
 
 export const sendNotificationsMessage = async (
-  args: ISendMessageArgs
+  args: ISendMessageArgs,
 ): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'notifications',
-    ...args
+    ...args,
   });
 };
 
-export default function() {
+export default function () {
   return client;
 }

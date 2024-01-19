@@ -11,7 +11,7 @@ export interface IContext extends IMainContext {
   models: IModels;
 }
 
-export const initBroker = async cl => {
+export const initBroker = async (cl) => {
   client = cl;
 
   const { consumeQueue } = client;
@@ -24,39 +24,35 @@ export const initBroker = async cl => {
 
 export const sendContactsMessage = async (args: ISendMessageArgs) => {
   return sendMessage({
-    client,
     serviceName: 'contacts',
-    ...args
+    ...args,
   });
 };
 
 export const sendProductsMessage = async (
-  args: ISendMessageArgs
+  args: ISendMessageArgs,
 ): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'products',
-    ...args
+    ...args,
   });
 };
 
 export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'core',
-    ...args
+    ...args,
   });
 };
 
 export const sendCommonMessage = async (
-  args: ISendMessageArgs & { serviceName: string }
+  args: ISendMessageArgs & { serviceName: string },
 ) => {
   return sendMessage({
-    client,
-    ...args
+    ...args,
   });
 };
 
-export default function() {
+export default function () {
   return client;
 }

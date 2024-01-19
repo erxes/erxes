@@ -3,7 +3,7 @@ import { Bichils } from './models';
 
 let client;
 
-export const initBroker = async cl => {
+export const initBroker = async (cl) => {
   client = cl;
 
   const { consumeQueue, consumeRPCQueue } = client;
@@ -12,35 +12,33 @@ export const initBroker = async cl => {
     Bichils.send(data);
 
     return {
-      status: 'success'
+      status: 'success',
     };
   });
 
   consumeRPCQueue('bichil:find', async ({ data }) => {
     return {
       status: 'success',
-      data: await Bichils.find({})
+      data: await Bichils.find({}),
     };
   });
 };
 
 export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'core',
-    ...args
+    ...args,
   });
 };
 
 export const sendCommonMessage = async (
-  args: ISendMessageArgs & { serviceName: string }
+  args: ISendMessageArgs & { serviceName: string },
 ) => {
   return sendMessage({
-    client,
-    ...args
+    ...args,
   });
 };
 
-export default function() {
+export default function () {
   return client;
 }

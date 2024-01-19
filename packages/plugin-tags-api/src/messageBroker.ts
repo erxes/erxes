@@ -2,13 +2,12 @@ import { generateModels } from './connectionResolver';
 import {
   escapeRegExp,
   ISendMessageArgs,
-  sendMessage
+  sendMessage,
 } from '@erxes/api-utils/src/core';
-
 
 let client;
 
-export const initBroker = async cl => {
+export const initBroker = async (cl) => {
   client = cl;
 
   const { consumeRPCQueue } = client;
@@ -18,7 +17,7 @@ export const initBroker = async cl => {
 
     return {
       data: await models.Tags.find(data).lean(),
-      status: 'success'
+      status: 'success',
     };
   });
 
@@ -27,7 +26,7 @@ export const initBroker = async cl => {
 
     return {
       data: await models.Tags.findOne(data).lean(),
-      status: 'success'
+      status: 'success',
     };
   });
 
@@ -36,7 +35,7 @@ export const initBroker = async cl => {
 
     return {
       status: 'success',
-      data: await models.Tags.createTag(data)
+      data: await models.Tags.createTag(data),
     };
   });
 
@@ -50,41 +49,40 @@ export const initBroker = async cl => {
       if (!tags.length) {
         return {
           data: [],
-          status: 'success'
+          status: 'success',
         };
       }
 
       const orderQry: any[] = [];
       for (const tag of tags) {
         orderQry.push({
-          order: { $regex: new RegExp(`^${escapeRegExp(tag.order || '')}`) }
+          order: { $regex: new RegExp(`^${escapeRegExp(tag.order || '')}`) },
         });
       }
 
       return {
         data: await models.Tags.find(
           {
-            $or: orderQry
+            $or: orderQry,
           },
-          fields || {}
+          fields || {},
         )
           .sort({ order: 1 })
           .lean(),
-        status: 'success'
+        status: 'success',
       };
-    }
+    },
   );
 };
 
 export const sendCommonMessage = async (
-  args: ISendMessageArgs & { serviceName: string }
+  args: ISendMessageArgs & { serviceName: string },
 ): Promise<any> => {
   return sendMessage({
-    client,
-    ...args
+    ...args,
   });
 };
 
-export default function() {
+export default function () {
   return client;
 }

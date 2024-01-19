@@ -3,7 +3,7 @@ import { Ads } from './models';
 
 let client;
 
-export const initBroker = async cl => {
+export const initBroker = async (cl) => {
   client = cl;
 
   const { consumeQueue, consumeRPCQueue } = client;
@@ -12,27 +12,26 @@ export const initBroker = async cl => {
     Ads.send(data);
 
     return {
-      status: 'success'
+      status: 'success',
     };
   });
 
   consumeRPCQueue('ad:find', async ({ data }) => {
     return {
       status: 'success',
-      data: await Ads.find({})
+      data: await Ads.find({}),
     };
   });
 };
 
 export const sendCommonMessage = async (
-  args: ISendMessageArgs & { serviceName: string }
+  args: ISendMessageArgs & { serviceName: string },
 ) => {
   return sendMessage({
-    client,
-    ...args
+    ...args,
   });
 };
 
-export default function() {
+export default function () {
   return client;
 }

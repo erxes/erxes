@@ -4,7 +4,7 @@ import { generateModels } from './connectionResolver';
 
 let client;
 
-export const initBroker = async cl => {
+export const initBroker = async (cl) => {
   client = cl;
 
   const { consumeRPCQueue } = client;
@@ -14,7 +14,7 @@ export const initBroker = async cl => {
 
     return {
       status: 'success',
-      data: await models.Contracts.find(data).lean()
+      data: await models.Contracts.find(data).lean(),
     };
   });
 
@@ -23,7 +23,7 @@ export const initBroker = async cl => {
 
     return {
       status: 'success',
-      data: await models.Transactions.find(data).lean()
+      data: await models.Transactions.find(data).lean(),
     };
   });
 
@@ -36,10 +36,10 @@ export const initBroker = async cl => {
       return {
         status: 'success',
         data: await models.Transactions.find({
-          contractId: { $in: contracts.map(c => c._id) }
-        }).lean()
+          contractId: { $in: contracts.map((c) => c._id) },
+        }).lean(),
       };
-    }
+    },
   );
 };
 
@@ -55,52 +55,47 @@ export const sendMessageBroker = async (
     | 'clientportal'
     | 'syncerkhet'
     | 'ebarimt'
-    | 'loans'
+    | 'loans',
 ): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: name,
-    ...args
+    ...args,
   });
 };
 
 export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'core',
-    ...args
+    ...args,
   });
 };
 
 export const sendCardsMessage = async (
-  args: ISendMessageArgs
+  args: ISendMessageArgs,
 ): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'cards',
-    ...args
+    ...args,
   });
 };
 
 export const sendReactionsMessage = async (
-  args: ISendMessageArgs
+  args: ISendMessageArgs,
 ): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'reactions',
-    ...args
+    ...args,
   });
 };
 
 export const sendCommonMessage = async (
-  args: ISendMessageArgs & { serviceName: string }
+  args: ISendMessageArgs & { serviceName: string },
 ): Promise<any> => {
   return sendMessage({
-    client,
-    ...args
+    ...args,
   });
 };
 
-export default function() {
+export default function () {
   return client;
 }
