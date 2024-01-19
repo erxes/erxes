@@ -20,7 +20,7 @@ import {
   sendMobileNotification,
 } from './data/utils';
 
-import * as serviceDiscovery from './serviceDiscovery';
+import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
 
 import logUtils from './logUtils';
 import internalNotes from './internalNotes';
@@ -638,7 +638,7 @@ export const initBroker = async (): Promise<void> => {
 
   consumeRPCQueueMq('core:isServiceEnabled', async (args) => ({
     status: 'success',
-    data: await serviceDiscovery.isEnabled(args),
+    data: await isEnabled(args),
   }));
 };
 

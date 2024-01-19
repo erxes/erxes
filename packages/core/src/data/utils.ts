@@ -20,7 +20,8 @@ import {
   sendLogsMessage,
 } from '../messageBroker';
 import { graphqlPubsub } from '../pubsub';
-import { getService, getServices, redis } from '../serviceDiscovery';
+import { getService, getServices } from '@erxes/api-utils/src/serviceDiscovery';
+import redis from '@erxes/api-utils/src/redis';
 
 export interface IEmailParams {
   toEmails?: string[];

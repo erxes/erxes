@@ -1,14 +1,10 @@
 import * as schedule from 'node-schedule';
-
 import { initBroker, sendCommonMessage } from './messageBroker';
 import {
-  redis,
   getServices,
-  isAvailable,
   getService,
-} from './serviceDiscovery';
-
-const { RABBITMQ_HOST } = process.env;
+  isEnabled,
+} from '@erxes/api-utils/src/serviceDiscovery';
 
 const sendMessage = async (
   subdomain: string,
@@ -18,7 +14,7 @@ const sendMessage = async (
   for (const serviceName of services) {
     const service = await getService(serviceName);
 
-    if ((await isAvailable(serviceName)) && service) {
+    if ((await isEnabled(serviceName)) && service) {
       const meta = service.config ? service.config.meta : {};
 
       if (meta && meta.cronjobs && meta.cronjobs[`${action}Available`]) {
