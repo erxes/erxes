@@ -60,34 +60,6 @@ const productsCount = `
   }
 `;
 
-const itemsCount = `
-  query itemsTotalCount(
-    $type: String,
-    $status: String,
-    $tag: String,
-    $searchValue: String,
-    $ids: [String],
-    $excludeIds: Boolean,
-    $pipelineId: String,
-    $boardId: String,
-    $segment: String,
-    $segmentData: String
-  ) {
-    itemsTotalCount(
-      type: $type,
-      status: $status,
-      tag: $tag,
-      searchValue: $searchValue,
-      ids: $ids,
-      excludeIds: $excludeIds,
-      pipelineId: $pipelineId,
-      boardId: $boardId,
-      segment: $segment,
-      segmentData: $segmentData
-    )
-  }
-`;
-
 const itemFields = `
   _id
   name
@@ -108,6 +80,18 @@ const items = `
     ) {
       ${itemFields}
     }
+  }
+`;
+
+const itemsCount = `
+  query itemsTotalCount(
+    $searchValue: String,
+    $ids: [String]
+  ) {
+    itemsTotalCount(
+      searchValue: $searchValue,
+      ids: $ids
+    )
   }
 `;
 
