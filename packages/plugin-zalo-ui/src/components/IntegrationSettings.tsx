@@ -5,13 +5,12 @@ import { FormControl } from '@erxes/ui/src/components/form';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import { IConfigsMap } from '@erxes/ui-settings/src/general/types';
 import Icon from '@erxes/ui/src/components/Icon';
-import Info from '@erxes/ui/src/components/Info';
-import React from 'react';
+import React, { useState } from 'react';
 import { __ } from '@erxes/ui/src/utils/core';
 
 const KEY_LABELS = {
   ZALO_APP_ID: 'ZALO APP ID',
-  ZALO_APP_SECRET_KEY: 'ZALO App APP SECRET KEY'
+  ZALO_APP_SECRET_KEY: 'ZALO App APP SECRET KEY',
 };
 
 type Props = {
@@ -20,37 +19,26 @@ type Props = {
   configsMap: IConfigsMap;
 };
 
-type State = {
-  configsMap: IConfigsMap;
-};
+const Settings = (props: Props) => {
+  const [configsMap, setConfigsMap] = useState<IConfigsMap>(props.configsMap);
 
-class Settings extends React.Component<Props, State> {
-  constructor(props: Props) {
-    super(props);
-
-    this.state = { configsMap: props.configsMap };
-  }
-  onChangeConfig = (code: string, value) => {
-    const { configsMap } = this.state;
-
+  const onChangeConfig = (code: string, value) => {
     configsMap[code] = value;
 
-    this.setState({ configsMap });
+    setConfigsMap(configsMap);
   };
 
-  onChangeInput = (code: string, e) => {
-    this.onChangeConfig(code, e.target.value);
+  const onChangeInput = (code: string, e) => {
+    onChangeConfig(code, e.target.value);
   };
 
-  renderItem = (
+  const renderItem = (
     key: string,
     type?: string,
     description?: string,
     defaultValue?: string,
-    label?: string
+    label?: string,
   ) => {
-    const { configsMap } = this.state;
-
     return (
       <FormGroup>
         <ControlLabel>{label || KEY_LABELS[key]}</ControlLabel>
@@ -58,29 +46,27 @@ class Settings extends React.Component<Props, State> {
         <FormControl
           type={type || 'text'}
           defaultValue={configsMap[key] || defaultValue}
-          onChange={this.onChangeInput.bind(this, key)}
+          onChange={onChangeInput.bind(this, key)}
         />
       </FormGroup>
     );
   };
 
-  render() {
-    const onClick = () => {
-      this.props.updateConfigs(this.state.configsMap);
-    };
+  const onClick = () => {
+    props.updateConfigs(configsMap);
+  };
 
-    return (
-      <CollapseContent
-        title="Zalo"
-        beforeTitle={<Icon icon="comment-alt-1" />}
-        transparent={true}
-      >
-        {this.renderItem('ZALO_APP_ID')}
-        {this.renderItem('ZALO_APP_SECRET_KEY')}
-        <Button onClick={onClick}>{__('Save')}</Button>
-      </CollapseContent>
-    );
-  }
-}
+  return (
+    <CollapseContent
+      title="Zalo"
+      beforeTitle={<Icon icon="comment-alt-1" />}
+      transparent={true}
+    >
+      {renderItem('ZALO_APP_ID')}
+      {renderItem('ZALO_APP_SECRET_KEY')}
+      <Button onClick={onClick}>{__('Save')}</Button>
+    </CollapseContent>
+  );
+};
 
 export default Settings;

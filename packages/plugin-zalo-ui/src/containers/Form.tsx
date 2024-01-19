@@ -6,14 +6,14 @@ import * as React from 'react';
 import { withRouter } from 'react-router-dom';
 import {
   mutations,
-  queries
+  queries,
 } from '@erxes/ui-inbox/src/settings/integrations/graphql';
 
 type Props = {} & IRouterProps;
 
-class ZaloContainer extends React.Component<Props> {
-  renderButton = ({ values, isSubmitted }: IButtonMutateProps) => {
-    const { history } = this.props;
+const ZaloContainer = (props: Props) => {
+  const renderButton = ({ values, isSubmitted }: IButtonMutateProps) => {
+    const { history } = props;
 
     const callback = () => {
       history.push('/settings/integrations');
@@ -32,30 +32,28 @@ class ZaloContainer extends React.Component<Props> {
     );
   };
 
-  render() {
-    const updatedProps = {
-      ...this.props,
-      renderButton: this.renderButton
-    };
+  const updatedProps = {
+    ...props,
+    renderButton: renderButton,
+  };
 
-    return <Form {...updatedProps} />;
-  }
-}
+  return <Form {...updatedProps} />;
+};
 
 const getRefetchQueries = (kind: string) => {
   return [
     {
       query: gql(queries.integrations),
       variables: {
-        kind
-      }
+        kind,
+      },
     },
     {
       query: gql(queries.integrationTotalCount),
       variables: {
-        kind
-      }
-    }
+        kind,
+      },
+    },
   ];
 };
 
