@@ -25,14 +25,14 @@ import { generateModels } from './connectionResolver';
 import { USER_ROLES } from '@erxes/api-utils/src/constants';
 import imports from './imports';
 import exporter from './exporter';
+import {
+  consumeQueue,
+  consumeRPCQueue,
+  consumeRPCQueueMq,
+} from '@erxes/api-utils/src/messageBroker';
 
-let client;
-
-export const initBroker = async () => {
-  client = await initBrokerCore();
-
-  // do not receive messages in crons worker
-  const { consumeQueue, consumeRPCQueue, consumeRPCQueueMq } = client;
+export const initBroker = async (): Promise<void> => {
+  await initBrokerCore();
 
   consumeQueue(
     'core:manage-installation-notification',
@@ -586,7 +586,6 @@ export const initBroker = async () => {
 
   logConsumers({
     name: 'core',
-    consumeRPCQueue,
     getActivityContent: logUtils.getActivityContent,
     collectItems: logUtils.collectItems,
     getSchemalabels: logUtils.getSchemaLabels,
@@ -600,7 +599,6 @@ export const initBroker = async () => {
 
   formConsumers({
     name: 'core',
-    consumeRPCQueue,
     systemFields: forms.systemFields,
   });
 
@@ -639,8 +637,6 @@ export const initBroker = async () => {
     status: 'success',
     data: await serviceDiscovery.isEnabled(args),
   }));
-
-  return client;
 };
 
 interface IISendMessageArgs {
@@ -725,7 +721,3 @@ export const fetchSegment = (
     data: { segmentId, options, segmentData },
     isRPC: true,
   });
-
-export default function () {
-  return client;
-}
