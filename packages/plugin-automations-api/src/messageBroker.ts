@@ -1,22 +1,21 @@
-import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
+import { sendMessage } from '@erxes/api-utils/src/core';
+import type {
+  ISendMessageArgsNoService,
+  ISendMessageArgs,
+} from '@erxes/api-utils/src/core';
 import { debugBase } from '@erxes/api-utils/src/debuggers';
 import { setTimeout } from 'timers';
 import { playWait } from './actions';
 import {
   checkWaitingResponseAction,
   doWaitingResponseAction,
-  setActionWait
+  setActionWait,
 } from './actions/wait';
 import { generateModels } from './connectionResolver';
 import { receiveTrigger } from './utils';
+import { consumeQueue } from '@erxes/api-utils/src/messageBroker';
 
-let client;
-
-export const initBroker = async cl => {
-  client = cl;
-
-  const { consumeQueue } = cl;
-
+export const initBroker = async () => {
   consumeQueue('automations:trigger', async ({ subdomain, data }) => {
     debugBase(`Receiving queue data: ${JSON.stringify(data)}`);
 
@@ -45,51 +44,51 @@ export const initBroker = async cl => {
 
     return {
       status: 'success',
-      data: await models.Automations.countDocuments(query)
+      data: await models.Automations.countDocuments(query),
     };
   });
 };
 
 export const sendCommonMessage = async (
-  args: ISendMessageArgs & { serviceName: string }
+  args: ISendMessageArgs & { serviceName: string },
 ): Promise<any> => {
   return sendMessage({
-    ...args
+    ...args,
   });
 };
 
-export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
+export const sendCoreMessage = async (
+  args: ISendMessageArgsNoService,
+): Promise<any> => {
   return sendMessage({
     serviceName: 'core',
-    ...args
+    ...args,
   });
 };
 
 export const sendSegmentsMessage = async (
-  args: ISendMessageArgs
+  args: ISendMessageArgsNoService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'segments',
-    ...args
+    ...args,
   });
 };
 
 export const sendEmailTemplateMessage = async (
-  args: ISendMessageArgs
+  args: ISendMessageArgsNoService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'emailtemplates',
-    ...args
+    ...args,
   });
 };
 
-export const sendLogsMessage = (args: ISendMessageArgs): Promise<any> => {
+export const sendLogsMessage = (
+  args: ISendMessageArgsNoService,
+): Promise<any> => {
   return sendMessage({
     serviceName: 'logs',
-    ...args
+    ...args,
   });
 };
-
-export default function() {
-  return client;
-}

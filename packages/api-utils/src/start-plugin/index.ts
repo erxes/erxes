@@ -28,7 +28,6 @@ import * as ws from 'ws';
 import {
   getService,
   getServices,
-  isAvailable,
   isEnabled,
   join,
   leave,
