@@ -1,15 +1,12 @@
 import React from 'react';
 import { gql } from '@apollo/client';
-import { graphql } from '@apollo/client/react/hoc';
-import { withRouter } from 'react-router-dom';
-import { IRouterProps } from '@erxes/ui/src/types';
 import Spinner from '@erxes/ui/src/components/Spinner';
-import { Alert, __, confirm, withProps } from '@erxes/ui/src/utils';
-import * as compose from 'lodash.flowright';
+import { Alert, __, confirm } from '@erxes/ui/src/utils';
 import List from '../components/List';
 import { mutations, queries } from '../graphql';
 import { ReportsListQueryResponse, ReportsMutationResponse } from '../types';
 import { generatePaginationParams } from '@erxes/ui/src/utils/router';
+import { useQuery, useMutation } from '@apollo/client';
 
 type Props = {
   history: any;
@@ -19,34 +16,41 @@ type Props = {
   ids?: string[];
 };
 
-type FinalProps = {
-  reportsListQuery: ReportsListQueryResponse;
-} & Props &
-  IRouterProps &
-  ReportsMutationResponse;
-
-const generateParams = queryParams => {
+const generateParams = (queryParams) => {
   return {
     ...generatePaginationParams(queryParams),
     searchValue: queryParams.searchValue,
     tag: queryParams.tag,
-    departmentId: queryParams.departmentId
+    departmentId: queryParams.departmentId,
   };
 };
 
-const ListContainer = (props: FinalProps) => {
-  const {
-    reportsListQuery,
-    history,
-    typeId,
-    reportsRemoveManyMutation
-  } = props;
+const ListContainer = (props: Props) => {
+  const { queryParams, ids } = props;
+
+  const reportsListQuery = useQuery<ReportsListQueryResponse>(
+    gql(queries.reportsList),
+    {
+      variables: generateParams(queryParams),
+      fetchPolicy: 'network-only',
+    },
+  );
+
+  const [reportsRemoveManyMutation] = useMutation<ReportsMutationResponse>(
+    gql(mutations.reportsRemoveMany),
+    {
+      variables: { ids },
+      fetchPolicy: 'network-only',
+      refetchQueries: ['reportsList'],
+    },
+  );
 
   if (reportsListQuery.loading) {
     return <Spinner />;
   }
 
-  const { list = [], totalCount = 0 } = reportsListQuery.reportsList || {};
+  const { list = [], totalCount = 0 } =
+    (reportsListQuery.data && reportsListQuery.data.reportsList) || {};
 
   const removeReports = (ids: string[], callback?: any) => {
     confirm(__('Are you sure to delete selected reports?')).then(() => {
@@ -67,34 +71,10 @@ const ListContainer = (props: FinalProps) => {
     totalCount,
     reports: list,
     loading: reportsListQuery.loading,
-    removeReports
+    removeReports,
   };
 
   return <List {...updatedProps} />;
 };
 
-export default withProps<Props>(
-  compose(
-    graphql<Props, ReportsListQueryResponse, { searchValue: string }>(
-      gql(queries.reportsList),
-      {
-        name: 'reportsListQuery',
-        options: ({ queryParams }) => ({
-          variables: generateParams(queryParams),
-          fetchPolicy: 'network-only'
-        })
-      }
-    ),
-    graphql<Props, ReportsListQueryResponse, { ids?: string[] }>(
-      gql(mutations.reportsRemoveMany),
-      {
-        name: 'reportsRemoveManyMutation',
-        options: ({ ids }) => ({
-          variables: { ids },
-          fetchPolicy: 'network-only',
-          refetchQueries: ['reportsList']
-        })
-      }
-    )
-  )(withRouter<IRouterProps>(ListContainer))
-);
+export default ListContainer;
