@@ -27,13 +27,16 @@ const prepareData = async (
     itemIds = await fetchSegment(subdomain, '', { page, perPage }, segmentData);
 
     filter._id = { $in: itemIds };
-    data = await models.XypData.find(filter).lean();
-  } else {
+  }
+
+  if (!(segmentData && Object.keys(segmentData))) {
     data = await models.XypData.find(filter)
       .skip(skip)
       .limit(perPage)
       .lean();
   }
+
+  data = await models.XypData.find(filter).lean();
 
   return data;
 };
