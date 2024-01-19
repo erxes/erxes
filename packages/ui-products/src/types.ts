@@ -69,6 +69,12 @@ export interface IProductCategory {
   similarities: any[];
 }
 
+export interface IItem {
+  _id: string;
+  name: string;
+  description?: string;
+}
+
 export type MutationVariables = {
   _id?: string;
   type: string;

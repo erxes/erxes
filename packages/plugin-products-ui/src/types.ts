@@ -1,8 +1,9 @@
 import {
+  IItem,
   IProduct as IProductC,
   IProductCategory as IProductCategoryC,
   IProductDoc as IProductDocC,
-  IUom as IUomC
+  IUom as IUomC,
 } from '@erxes/ui-products/src/types';
 import { QueryResponse } from '@erxes/ui/src/types';
 
@@ -29,6 +30,14 @@ export type ProductsQueryResponse = {
 
 export type ProductsCountQueryResponse = {
   productsTotalCount: number;
+} & QueryResponse;
+
+export type ItemsQueryResponse = {
+  items: IItem[];
+} & QueryResponse;
+
+export type ItemsCountQueryResponse = {
+  itemsTotalCount: number;
 } & QueryResponse;
 
 export type ProductsGroupCountsQueryResponse = {

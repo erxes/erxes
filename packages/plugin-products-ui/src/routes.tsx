@@ -7,22 +7,32 @@ import Uom from './containers/config/Uoms';
 import GeneralSettings from './components/config/GeneralSettings';
 import SimilarityGroup from './components/config/SimilarityGroup';
 
-const ProductList = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "Settings List - ProductService" */ './containers/product/ProductList'
-  )
+const ProductList = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "Settings List - ProductService" */ './containers/product/ProductList'
+    ),
 );
 
-const ProductDetails = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "Settings List - ProductService" */ './containers/product/detail/ProductDetails'
-  )
+const ItemList = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "Settings List - ProductService" */ './containers/item/ItemList'
+    ),
 );
 
-const BarcodeGenerator = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "Settings List - ProductService" */ './containers/barcodeGenerator/BarcodeGenerator'
-  )
+const ProductDetails = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "Settings List - ProductService" */ './containers/product/detail/ProductDetails'
+    ),
+);
+
+const BarcodeGenerator = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "Settings List - ProductService" */ './containers/barcodeGenerator/BarcodeGenerator'
+    ),
 );
 
 const details = ({ match }) => {
@@ -34,6 +44,15 @@ const details = ({ match }) => {
 const productService = ({ location, history }) => {
   return (
     <ProductList
+      queryParams={queryString.parse(location.search)}
+      history={history}
+    />
+  );
+};
+
+const itemService = ({ location, history }) => {
+  return (
+    <ItemList
       queryParams={queryString.parse(location.search)}
       history={history}
     />
@@ -77,6 +96,13 @@ const routes = () => (
       exact={true}
       key="/settings/product-service/"
       component={productService}
+    />
+
+    <Route
+      path="/settings/items/"
+      exact={true}
+      key="/settings/items/"
+      component={itemService}
     />
 
     <Route

@@ -60,6 +60,57 @@ const productsCount = `
   }
 `;
 
+const itemsCount = `
+  query itemsTotalCount(
+    $type: String,
+    $status: String,
+    $tag: String,
+    $searchValue: String,
+    $ids: [String],
+    $excludeIds: Boolean,
+    $pipelineId: String,
+    $boardId: String,
+    $segment: String,
+    $segmentData: String
+  ) {
+    itemsTotalCount(
+      type: $type,
+      status: $status,
+      tag: $tag,
+      searchValue: $searchValue,
+      ids: $ids,
+      excludeIds: $excludeIds,
+      pipelineId: $pipelineId,
+      boardId: $boardId,
+      segment: $segment,
+      segmentData: $segmentData
+    )
+  }
+`;
+
+const itemFields = `
+  _id
+  name
+  code
+  description
+`;
+
+const items = `
+  query items(
+    $searchValue: String,
+    $perPage: Int,
+    $page: Int
+  ) {
+    items(
+      searchValue: $searchValue,
+      perPage: $perPage,
+      page: $page
+    ) {
+      ${itemFields}
+    }
+  }
+`;
+
 const productDetail = productQueries.productDetail;
 
 const productCategoryDetail = `
@@ -97,6 +148,8 @@ const documents = `
 
 export default {
   products,
+  items,
+  itemsCount,
   productDetail,
   productsCount,
   productsGroupCounts,
@@ -107,5 +160,5 @@ export default {
   uoms,
   uomsTotalCount,
   productsConfigs,
-  documents
+  documents,
 };
