@@ -1,4 +1,8 @@
-import { MessageArgs, MessageArgsOmitService, sendMessage } from '@erxes/api-utils/src/core';
+import {
+  MessageArgs,
+  MessageArgsOmitService,
+  sendMessage,
+} from '@erxes/api-utils/src/core';
 import { afterMutationHandlers } from './aftermutations';
 import { consumeQueue } from '@erxes/api-utils/src/messageBroker';
 
@@ -16,40 +20,38 @@ export const initBroker = async () => {
 export const sendContactsMessage = (args: MessageArgsOmitService) => {
   return sendMessage({
     serviceName: 'contacts',
-    ...args
+    ...args,
   });
 };
 
 export const sendCoreMessage = (args: MessageArgsOmitService) => {
   return sendMessage({
     serviceName: 'core',
-    ...args
+    ...args,
   });
 };
 export const sendFormsMessage = (args: MessageArgsOmitService) => {
   return sendMessage({
     serviceName: 'forms',
-    ...args
+    ...args,
   });
 };
-export const sendCommonMessage = async (
-  args: MessageArgs
-): Promise<any> => {
+export const sendCommonMessage = async (args: MessageArgs): Promise<any> => {
   return sendMessage({
-    ...args
+    ...args,
   });
 };
 
 export const sendCarsMessage = (args: MessageArgsOmitService) => {
   return sendMessage({
     serviceName: 'cars',
-    ...args
+    ...args,
   });
 };
 
 export const sendClientPortalMessage = (args: MessageArgsOmitService) => {
   return sendMessage({
     serviceName: 'clientportal',
-    ...args
+    ...args,
   });
 };

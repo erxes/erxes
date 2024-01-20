@@ -3,34 +3,34 @@ import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
 
 let client;
 
-export const initBroker = async cl => {
+export const initBroker = async (cl) => {
   client = cl;
 };
 
 export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
     serviceName: 'core',
-    ...args
+    ...args,
   });
 };
 
 export const sendInternalNotesMessage = async (
-  args: ISendMessageArgs
+  args: ISendMessageArgs,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'internalnotes',
-    ...args
+    ...args,
   });
 };
 
 export const sendCommonMessage = async (
-  args: ISendMessageArgs & { serviceName: string }
+  args: ISendMessageArgs & { serviceName: string },
 ): Promise<any> => {
   return sendMessage({
-    ...args
+    ...args,
   });
 };
 
-export default function() {
+export default function () {
   return client;
 }

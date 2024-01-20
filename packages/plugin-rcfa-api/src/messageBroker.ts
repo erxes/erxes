@@ -1,4 +1,8 @@
-import { MessageArgs, MessageArgsOmitService, sendMessage } from '@erxes/api-utils/src/core';
+import {
+  MessageArgs,
+  MessageArgsOmitService,
+  sendMessage,
+} from '@erxes/api-utils/src/core';
 import { generateModels } from './connectionResolver';
 import { consumeRPCQueue } from '@erxes/api-utils/src/messageBroker';
 
@@ -8,44 +12,50 @@ export const initBroker = async () => {
 
     return {
       status: 'success',
-      data: await models.RCFA.find(data).lean()
+      data: await models.RCFA.find(data).lean(),
     };
   });
 };
 
-export const sendContactsMessage = (args: MessageArgsOmitService): Promise<any> => {
+export const sendContactsMessage = (
+  args: MessageArgsOmitService,
+): Promise<any> => {
   return sendMessage({
     serviceName: 'contacts',
-    ...args
+    ...args,
   });
 };
 
-export const sendFormsMessage = (args: MessageArgsOmitService): Promise<any> => {
+export const sendFormsMessage = (
+  args: MessageArgsOmitService,
+): Promise<any> => {
   return sendMessage({
     serviceName: 'forms',
-    ...args
+    ...args,
   });
 };
 
-export const sendCardsMessage = (args: MessageArgsOmitService): Promise<any> => {
+export const sendCardsMessage = (
+  args: MessageArgsOmitService,
+): Promise<any> => {
   return sendMessage({
     serviceName: 'cards',
-    ...args
+    ...args,
   });
 };
 
 export const sendCoreMessage = (args: MessageArgsOmitService): Promise<any> => {
   return sendMessage({
     serviceName: 'core',
-    ...args
+    ...args,
   });
 };
 
 export const sendRiskAssessmentsMessage = (
-  args: MessageArgsOmitService
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'riskassessment',
-    ...args
+    ...args,
   });
 };
