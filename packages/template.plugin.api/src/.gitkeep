@@ -1,1 +1,0 @@
-Just to avoid src dir not found error message inside the ../tsconfig.json, keep this src dir
