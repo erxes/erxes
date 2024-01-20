@@ -1,15 +1,16 @@
-import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
-
+import { sendMessage } from '@erxes/api-utils/src/core';
+import type {
+  ISendMessageArgs,
+  ISendMessageArgsNoService,
+} from '@erxes/api-utils/src/core';
 import { generateToken } from './utils';
 import { generateModels } from './connectionResolver';
+import {
+  consumeQueue,
+  consumeRPCQueue,
+} from '@erxes/api-utils/src/messageBroker';
 
-let client;
-
-export const initBroker = async cl => {
-  client = cl;
-
-  const { consumeQueue, consumeRPCQueue } = client;
-
+export const initBroker = async () => {
   consumeRPCQueue(
     'calls:createIntegration',
     async (args: ISendMessageArgs): Promise<any> => {
@@ -20,16 +21,18 @@ export const initBroker = async cl => {
 
       const token = await generateToken(integrationId);
 
-      await (await models).Integrations.create({
+      await (
+        await models
+      ).Integrations.create({
         inboxId: integrationId,
         token,
-        ...docData
+        ...docData,
       });
 
       return {
-        status: 'success'
+        status: 'success',
       };
-    }
+    },
   );
 
   consumeRPCQueue(
@@ -41,117 +44,111 @@ export const initBroker = async cl => {
       const models = await generateModels(subdomain);
 
       const integration = await models.Integrations.findOne({
-        inboxId: integrationId
+        inboxId: integrationId,
       });
 
       if (!integration) {
         return {
           status: 'failed',
-          data: 'integration not found.'
+          data: 'integration not found.',
         };
       }
 
       if (action === 'getDetails') {
         return {
           status: 'success',
-          data: integration
+          data: integration,
         };
       }
 
       return {
-        status: 'success'
+        status: 'success',
       };
     },
+  );
 
-    consumeRPCQueue(
-      'calls:updateIntegration',
-      async ({ subdomain, data: { integrationId, doc } }) => {
-        const details = JSON.parse(doc.data);
-        const models = await generateModels(subdomain);
+  consumeRPCQueue(
+    'calls:updateIntegration',
+    async ({ subdomain, data: { integrationId, doc } }) => {
+      const details = JSON.parse(doc.data);
+      const models = await generateModels(subdomain);
 
-        const integration = await models.Integrations.findOne({
-          inboxId: integrationId
-        });
+      const integration = await models.Integrations.findOne({
+        inboxId: integrationId,
+      });
 
-        if (!integration) {
-          return {
-            status: 'error',
-            errorMessage: 'Integration not found.'
-          };
-        }
-
-        await models.Integrations.updateOne(
-          { inboxId: integrationId },
-          { $set: details }
-        );
-
-        const updatedIntegration = await models.Integrations.findOne({
-          inboxId: integrationId
-        });
-
-        if (updatedIntegration) {
-          return {
-            status: 'success'
-          };
-        } else
-          err => {
-            return {
-              err
-            };
-          };
-      }
-    ),
-
-    consumeRPCQueue(
-      'calls:removeIntegrations',
-      async ({ subdomain, data: { integrationId } }) => {
-        const models = await generateModels(subdomain);
-
-        await models.Integrations.deleteOne({ inboxId: integrationId });
-
+      if (!integration) {
         return {
-          status: 'success'
+          status: 'error',
+          errorMessage: 'Integration not found.',
         };
       }
-    ),
 
-    consumeRPCQueue(
-      'viber:integrationDetail',
-      async (args: ISendMessageArgs): Promise<any> => {
-        const { subdomain, data } = args;
-        const { inboxId } = data;
+      await models.Integrations.updateOne(
+        { inboxId: integrationId },
+        { $set: details },
+      );
 
-        const models = await generateModels(subdomain);
+      const updatedIntegration = await models.Integrations.findOne({
+        inboxId: integrationId,
+      });
 
-        const callIntegration = await models.Integrations.findOne(
-          { inboxId },
-          'token'
-        );
-
+      if (updatedIntegration) {
         return {
           status: 'success',
-          data: { token: callIntegration?.token }
         };
-      }
-    )
+      } else
+        (err) => {
+          return {
+            err,
+          };
+        };
+    },
+  );
+
+  consumeRPCQueue(
+    'calls:removeIntegrations',
+    async ({ subdomain, data: { integrationId } }) => {
+      const models = await generateModels(subdomain);
+
+      await models.Integrations.deleteOne({ inboxId: integrationId });
+
+      return {
+        status: 'success',
+      };
+    },
+  );
+
+  consumeRPCQueue(
+    'viber:integrationDetail',
+    async (args: ISendMessageArgs): Promise<any> => {
+      const { subdomain, data } = args;
+      const { inboxId } = data;
+
+      const models = await generateModels(subdomain);
+
+      const callIntegration = await models.Integrations.findOne(
+        { inboxId },
+        'token',
+      );
+
+      return {
+        status: 'success',
+        data: { token: callIntegration?.token },
+      };
+    },
   );
 };
 
-export const sendCommonMessage = async (
-  args: ISendMessageArgs & { serviceName: string }
-) => {
+export const sendCommonMessage = async (args: ISendMessageArgs) => {
   return sendMessage({
-    ...args
+    ...args,
   });
 };
 
-export const sendInboxMessage = (args: ISendMessageArgs) => {
+export const sendInboxMessage = (args: ISendMessageArgsNoService) => {
   return sendCommonMessage({
     serviceName: 'inbox',
-    ...args
+    ...args,
   });
 };
-
-export default function() {
-  return client;
-}
