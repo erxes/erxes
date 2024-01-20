@@ -1,20 +1,19 @@
-import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
+import {
+  MessageArgs,
+  MessageArgsOmitService,
+  sendMessage,
+} from '@erxes/api-utils/src/core';
 
 import { generateModels } from './connectionResolver';
+import { consumeRPCQueue } from '@erxes/api-utils/src/messageBroker';
 
-let client;
-
-export const initBroker = async cl => {
-  client = cl;
-
-  const { consumeRPCQueue } = client;
-
+export const initBroker = async () => {
   consumeRPCQueue('reactions:comments.count', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     return {
       status: 'success',
-      data: await models.Comments.find(data).countDocuments()
+      data: await models.Comments.find(data).countDocuments(),
     };
   });
 
@@ -25,9 +24,9 @@ export const initBroker = async cl => {
 
       return {
         status: 'success',
-        data: await models.Emojis.find(data).countDocuments()
+        data: await models.Emojis.find(data).countDocuments(),
       };
-    }
+    },
   );
 
   consumeRPCQueue(
@@ -37,9 +36,9 @@ export const initBroker = async cl => {
 
       return {
         status: 'success',
-        data: await models.Emojis.find(data).countDocuments()
+        data: await models.Emojis.find(data).countDocuments(),
       };
-    }
+    },
   );
 
   consumeRPCQueue(
@@ -49,9 +48,9 @@ export const initBroker = async cl => {
 
       return {
         status: 'success',
-        data: await models.Emojis.exists(data)
+        data: await models.Emojis.exists(data),
       };
-    }
+    },
   );
 
   consumeRPCQueue('reactions:emojies.isLiked', async ({ subdomain, data }) => {
@@ -59,26 +58,22 @@ export const initBroker = async cl => {
 
     return {
       status: 'success',
-      data: await models.Emojis.exists(data)
+      data: await models.Emojis.exists(data),
     };
   });
 };
 
-export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
-  return sendMessage({
-    serviceName: 'core',
-    ...args
-  });
-};
-
-export const sendCommonMessage = async (
-  args: ISendMessageArgs & { serviceName: string }
+export const sendCoreMessage = async (
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
-    ...args
+    serviceName: 'core',
+    ...args,
   });
 };
 
-export default function() {
-  return client;
-}
+export const sendCommonMessage = async (args: MessageArgs): Promise<any> => {
+  return sendMessage({
+    ...args,
+  });
+};

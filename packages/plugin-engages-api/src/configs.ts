@@ -44,7 +44,7 @@ export default {
     // Insert routes below
     app.use('/telnyx', telnyx);
 
-    initBroker(options.messageBrokerClient);
+    initBroker();
 
     debug = options.debug;
   },

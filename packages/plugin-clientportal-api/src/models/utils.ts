@@ -1,13 +1,11 @@
 import {
   getService,
   getServices,
-  isEnabled
+  isEnabled,
 } from '@erxes/api-utils/src/serviceDiscovery';
 import { IModels } from '../connectionResolver';
-import messageBroker, {
-  sendCardsMessage,
-  sendContactsMessage
-} from '../messageBroker';
+import { sendCardsMessage, sendContactsMessage } from '../messageBroker';
+import { sendMessage } from '@erxes/api-utils/src/messageBroker';
 
 export interface IContactsParams {
   subdomain: string;
@@ -42,9 +40,9 @@ export const handleContacts = async (args: IContactsParams) => {
       action: 'customers.findOne',
       data: {
         customerPrimaryEmail: trimmedMail,
-        customerPrimaryPhone: document.phone
+        customerPrimaryPhone: document.phone,
       },
-      isRPC: true
+      isRPC: true,
     });
 
     if (customer) {
@@ -62,7 +60,7 @@ export const handleContacts = async (args: IContactsParams) => {
       clientPortalId,
       // hash password
       password:
-        password && (await models.ClientPortalUsers.generatePassword(password))
+        password && (await models.ClientPortalUsers.generatePassword(password)),
     });
 
     if (!customer) {
@@ -74,9 +72,9 @@ export const handleContacts = async (args: IContactsParams) => {
           lastName: document.lastName,
           primaryEmail: trimmedMail,
           primaryPhone: document.phone,
-          state: 'lead'
+          state: 'lead',
         },
-        isRPC: true
+        isRPC: true,
       });
     }
 
@@ -84,7 +82,7 @@ export const handleContacts = async (args: IContactsParams) => {
       user.erxesCustomerId = customer._id;
       await models.ClientPortalUsers.updateOne(
         { _id: user._id },
-        { $set: { erxesCustomerId: customer._id } }
+        { $set: { erxesCustomerId: customer._id } },
       );
 
       for (const serviceName of await getServices()) {
@@ -92,9 +90,9 @@ export const handleContacts = async (args: IContactsParams) => {
 
         if (serviceConfig.config?.meta?.hasOwnProperty('cpCustomerHandle')) {
           if (await isEnabled(serviceName)) {
-            messageBroker().sendMessage(`${serviceName}:cpCustomerHandle`, {
+            sendMessage(`${serviceName}:cpCustomerHandle`, {
               subdomain,
-              data: { customer }
+              data: { customer },
             });
           }
         }
@@ -109,9 +107,9 @@ export const handleContacts = async (args: IContactsParams) => {
       data: {
         companyPrimaryEmail: trimmedMail,
         companyPrimaryPhone: document.phone,
-        companyCode: document.companyRegistrationNumber
+        companyCode: document.companyRegistrationNumber,
       },
-      isRPC: true
+      isRPC: true,
     });
 
     if (company) {
@@ -133,7 +131,7 @@ export const handleContacts = async (args: IContactsParams) => {
       clientPortalId,
       // hash password
       password:
-        password && (await models.ClientPortalUsers.generatePassword(password))
+        password && (await models.ClientPortalUsers.generatePassword(password)),
     });
 
     if (!company) {
@@ -144,9 +142,9 @@ export const handleContacts = async (args: IContactsParams) => {
           primaryName: document.companyName,
           primaryEmail: trimmedMail,
           primaryPhone: document.phone,
-          code: document.companyRegistrationNumber
+          code: document.companyRegistrationNumber,
         },
-        isRPC: true
+        isRPC: true,
       });
     }
 
@@ -154,7 +152,7 @@ export const handleContacts = async (args: IContactsParams) => {
       user.erxesCompanyId = company._id;
       await models.ClientPortalUsers.updateOne(
         { _id: user._id },
-        { $set: { erxesCompanyId: company._id } }
+        { $set: { erxesCompanyId: company._id } },
       );
 
       for (const serviceName of await getServices()) {
@@ -162,9 +160,9 @@ export const handleContacts = async (args: IContactsParams) => {
 
         if (serviceConfig.config?.meta?.hasOwnProperty('cpCustomerHandle')) {
           if (await isEnabled(serviceName)) {
-            messageBroker().sendMessage(`${serviceName}:cpCustomerHandle`, {
+            sendMessage(`${serviceName}:cpCustomerHandle`, {
               subdomain,
-              data: { company }
+              data: { company },
             });
           }
         }
@@ -175,7 +173,7 @@ export const handleContacts = async (args: IContactsParams) => {
   return user;
 };
 
-export const putActivityLog = async user => {
+export const putActivityLog = async (subdomain, user) => {
   let contentType = 'contacts:customer';
   let contentId = user.erxesCustomerId;
 
@@ -184,16 +182,17 @@ export const putActivityLog = async user => {
     contentId = user.erxesCompanyId;
   }
 
-  await messageBroker().sendMessage('putActivityLog', {
+  await sendMessage('putActivityLog', {
+    subdomain,
     data: {
       action: 'putActivityLog',
       data: {
         contentType,
         contentId,
         createdBy: user.clientPortalId,
-        action: 'create'
-      }
-    }
+        action: 'create',
+      },
+    },
   });
 };
 
@@ -214,9 +213,9 @@ export const createCard = async (subdomain, models, cpUser, doc) => {
     subdomain,
     action: 'customers.findOne',
     data: {
-      _id: cpUser.erxesCustomerId
+      _id: cpUser.erxesCustomerId,
     },
-    isRPC: true
+    isRPC: true,
   });
 
   if (!customer) {
@@ -234,7 +233,7 @@ export const createCard = async (subdomain, models, cpUser, doc) => {
     customFieldsData,
     attachments,
     labelIds,
-    productsData
+    productsData,
   } = doc;
   let priority = doc.priority;
 
@@ -261,15 +260,15 @@ export const createCard = async (subdomain, models, cpUser, doc) => {
       customFieldsData,
       attachments,
       labelIds,
-      productsData
+      productsData,
     },
-    isRPC: true
+    isRPC: true,
   });
 
   await models.ClientPortalUserCards.createOrUpdateCard({
     contentType: type,
     contentTypeId: card._id,
-    cpUserId: cpUser.userId
+    cpUserId: cpUser.userId,
   });
 
   return card;

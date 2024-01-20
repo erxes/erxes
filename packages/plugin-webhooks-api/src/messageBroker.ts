@@ -1,33 +1,21 @@
 import { generateModels } from './connectionResolver';
-import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
+import { MessageArgs, sendMessage } from '@erxes/api-utils/src/core';
 import { send } from './utils';
+import { consumeQueue } from '@erxes/api-utils/src/messageBroker';
 
-
-let client;
-
-export const initBroker = async cl => {
-  client = cl;
-
-  const { consumeQueue } = client;
-
+export const initBroker = async () => {
   consumeQueue('webhooks:send', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     return {
       status: 'success',
-      data: await send(models, subdomain, data)
+      data: await send(models, subdomain, data),
     };
   });
 };
 
-export const sendCommonMessage = async (
-  args: ISendMessageArgs & { serviceName: string }
-) => {
+export const sendCommonMessage = async (args: MessageArgs) => {
   return sendMessage({
-    ...args
+    ...args,
   });
 };
-
-export default function() {
-  return client;
-}

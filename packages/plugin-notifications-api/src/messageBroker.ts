@@ -3,13 +3,15 @@ import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
 import { IModels } from './connectionResolver';
 import { generateModels } from './connectionResolver';
 import {
-  ISendMessageArgs,
+  MessageArgs,
+  MessageArgsOmitService,
   sendMessage,
   getEnv,
 } from '@erxes/api-utils/src/core';
-
-
-let client;
+import {
+  consumeQueue,
+  consumeRPCQueue,
+} from '@erxes/api-utils/src/messageBroker';
 
 interface ISendNotification {
   createdUser;
@@ -146,11 +148,7 @@ const sendNotification = async (
   });
 };
 
-export const initBroker = async (cl) => {
-  client = cl;
-
-  const { consumeRPCQueue, consumeQueue } = cl;
-
+export const initBroker = async () => {
   consumeQueue('notifications:send', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
     await sendNotification(models, subdomain, data);
@@ -187,7 +185,7 @@ export const initBroker = async (cl) => {
   );
 };
 
-export const sendCoreMessage = (args: ISendMessageArgs): Promise<any> => {
+export const sendCoreMessage = (args: MessageArgsOmitService): Promise<any> => {
   return sendMessage({
     serviceName: 'core',
     ...args,
@@ -195,7 +193,7 @@ export const sendCoreMessage = (args: ISendMessageArgs): Promise<any> => {
 };
 
 export const sendCommonMessage = async (
-  args: ISendMessageArgs & { serviceName: string },
+  args: MessageArgs & { serviceName: string },
 ) => {
   return sendMessage({
     ...args,
@@ -203,7 +201,7 @@ export const sendCommonMessage = async (
 };
 
 export const sendContactsMessage = async (
-  args: ISendMessageArgs,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'contacts',
@@ -212,7 +210,7 @@ export const sendContactsMessage = async (
 };
 
 export const sendSegmentsMessage = async (
-  args: ISendMessageArgs,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'segments',
@@ -221,7 +219,7 @@ export const sendSegmentsMessage = async (
 };
 
 export const sendClientPortalMessagge = async (
-  args: ISendMessageArgs,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'clientportal',

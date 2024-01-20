@@ -8,8 +8,6 @@ import automations from './automations';
 
 export let mainDb;
 
-
-
 export let debug;
 
 export default {
@@ -38,7 +36,7 @@ export default {
   onServerInit: async (options) => {
     mainDb = options.db;
 
-    initBroker(options.messageBrokerClient);
+    initBroker();
 
     debug = options.debug;
   },

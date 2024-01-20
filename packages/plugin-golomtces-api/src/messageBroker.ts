@@ -9,18 +9,14 @@ export const initBroker = async cl => {
   client = cl;
 };
 
-export default function() {
-  return client;
-}
-
-export const sendContactsMessage = (args: ISendMessageArgs) => {
+export const sendContactsMessage = (args: MessageArgsOmitService) => {
   return sendCommonMessage({
     serviceName: 'contacts',
-    ...args
+    ...args,
   });
 };
 
-export const sendInboxMessage = (args: ISendMessageArgs) => {
+export const sendInboxMessage = (args: MessageArgsOmitService) => {
   return sendCommonMessage({
     serviceName: 'inbox',
     ...args

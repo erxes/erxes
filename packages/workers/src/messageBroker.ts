@@ -1,7 +1,5 @@
 import { init as initBrokerCore } from '@erxes/api-utils/src/messageBroker';
 
-let client;
-
 export const initBroker = async () => {
   client = await initBrokerCore();
 
@@ -61,7 +59,3 @@ export const removePurchases = (subdomain, _ids) =>
   });
 export const getFileUploadConfigs = async () =>
   sendRPCMessage('core:getFileUploadConfigs', {});
-
-export default function () {
-  return client;
-}

@@ -38,7 +38,7 @@ export default {
 
     debug = options.debug;
 
-    initBroker(options.messageBrokerClient);
+    initBroker();
 
     init();
   },

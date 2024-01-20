@@ -1,15 +1,10 @@
-import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
-
+import { sendMessage } from '@erxes/api-utils/src/core';
+import { MessageArgs, MessageArgsOmitService } from '@erxes/api-utils/src/core';
 import { generateModels } from './connectionResolver';
 import fetch from 'node-fetch';
+import { consumeRPCQueue } from '@erxes/api-utils/src/messageBroker';
 
-let client;
-
-export const initBroker = async (cl) => {
-  client = cl;
-
-  const { consumeRPCQueue } = client;
-
+export const initBroker = async () => {
   consumeRPCQueue('loans:contracts.find', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
@@ -49,7 +44,7 @@ export const initBroker = async (cl) => {
 };
 
 export const sendMessageBroker = async (
-  args: ISendMessageArgs,
+  args: MessageArgsOmitService,
   name:
     | 'core'
     | 'cards'
@@ -67,7 +62,9 @@ export const sendMessageBroker = async (
   });
 };
 
-export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
+export const sendCoreMessage = async (
+  args: MessageArgsOmitService,
+): Promise<any> => {
   return sendMessage({
     serviceName: 'core',
     ...args,
@@ -75,7 +72,7 @@ export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
 };
 
 export const sendCardsMessage = async (
-  args: ISendMessageArgs,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'cards',
@@ -84,7 +81,7 @@ export const sendCardsMessage = async (
 };
 
 export const sendReactionsMessage = async (
-  args: ISendMessageArgs,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'reactions',
@@ -93,7 +90,7 @@ export const sendReactionsMessage = async (
 };
 
 export const sendCommonMessage = async (
-  args: ISendMessageArgs & { serviceName: string },
+  args: MessageArgs & { serviceName: string },
 ): Promise<any> => {
   return sendMessage({
     ...args,
@@ -160,7 +157,3 @@ export const sendSms = async (
     }
   }
 };
-
-export default function () {
-  return client;
-}

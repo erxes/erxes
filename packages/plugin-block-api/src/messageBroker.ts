@@ -1,112 +1,113 @@
-import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
-import { sendToWebhook as sendWebhook } from '@erxes/api-utils/src';
+import { sendMessage } from '@erxes/api-utils/src/core';
+import type {
+  MessageArgs,
+  MessageArgsOmitService,
+} from '@erxes/api-utils/src/core';
 
-let client;
-
-export const initBroker = async cl => {
-  client = cl;
-};
+export const initBroker = async () => {};
 
 export const sendContactsMessage = async (
-  args: ISendMessageArgs
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'contacts',
-    ...args
+    ...args,
   });
 };
 
 export const sendInternalNotesMessage = async (
-  args: ISendMessageArgs
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'internalNotes',
-    ...args
+    ...args,
   });
 };
 
-export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
+export const sendCoreMessage = async (
+  args: MessageArgsOmitService,
+): Promise<any> => {
   return sendMessage({
     serviceName: 'core',
-    ...args
+    ...args,
   });
 };
 
 export const sendFormsMessage = async (
-  args: ISendMessageArgs
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'forms',
-    ...args
+    ...args,
   });
 };
 
 export const sendEngagesMessage = async (
-  args: ISendMessageArgs
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'engages',
-    ...args
+    ...args,
   });
 };
 
 export const sendInboxMessage = async (
-  args: ISendMessageArgs
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'inbox',
-    ...args
+    ...args,
   });
 };
 
 export const sendProductsMessage = async (
-  args: ISendMessageArgs
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'products',
-    ...args
+    ...args,
   });
 };
 
 export const sendNotificationsMessage = async (
-  args: ISendMessageArgs
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'notifications',
-    ...args
+    ...args,
   });
 };
 
-export const sendLogsMessage = async (args: ISendMessageArgs): Promise<any> => {
+export const sendLogsMessage = async (
+  args: MessageArgsOmitService,
+): Promise<any> => {
   return sendMessage({
     serviceName: 'logs',
-    ...args
+    ...args,
   });
 };
 
 export const sendSegmentsMessage = async (
-  args: ISendMessageArgs
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'segments',
-    ...args
+    ...args,
   });
 };
 
 export const sendLoyaltiesMessage = async (
-  args: ISendMessageArgs
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'loyalties',
-    ...args
+    ...args,
   });
 };
 
-export const sendCommonMessage = async (
-  args: ISendMessageArgs & { serviceName: string }
-): Promise<any> => {
+export const sendCommonMessage = async (args: MessageArgs): Promise<any> => {
   return sendMessage({
-    ...args
+    ...args,
   });
 };
 
@@ -115,13 +116,5 @@ export const fetchSegment = (subdomain: string, segmentId: string, options?) =>
     subdomain,
     action: 'fetchSegment',
     data: { segmentId, options },
-    isRPC: true
+    isRPC: true,
   });
-
-export const sendToWebhook = ({ subdomain, data }) => {
-  return sendWebhook(client, { subdomain, data });
-};
-
-export default function() {
-  return client;
-}

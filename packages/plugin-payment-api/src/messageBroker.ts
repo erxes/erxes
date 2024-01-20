@@ -1,52 +1,47 @@
-import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
+import {
+  MessageArgs,
+  MessageArgsOmitService,
+  sendMessage,
+} from '@erxes/api-utils/src/core';
 
 import { generateModels } from './connectionResolver';
+import { consumeRPCQueue } from '@erxes/api-utils/src/messageBroker';
 
-let client;
-
-export const initBroker = async cl => {
-  client = cl;
-
-  const { consumeQueue, consumeRPCQueue } = client;
-
+export const initBroker = async () => {
   consumeRPCQueue('payment:invoices.findOne', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     return {
       status: 'success',
-      data: await models.Invoices.findOne(data).lean()
+      data: await models.Invoices.findOne(data).lean(),
     };
   });
 };
 
 export const sendContactsMessage = async (
-  args: ISendMessageArgs
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'contacts',
-    ...args
+    ...args,
   });
 };
 
 export const sendCommonMessage = async (
   serviceName: string,
-  args: ISendMessageArgs
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
     serviceName,
-    ...args
+    ...args,
   });
 };
 
 export const sendInboxMessage = async (
-  args: ISendMessageArgs
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'inbox',
-    ...args
+    ...args,
   });
 };
-
-export default function() {
-  return client;
-}

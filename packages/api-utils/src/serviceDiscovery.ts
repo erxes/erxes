@@ -104,8 +104,6 @@ export const isEnabled = (name) => {
   return enabledServices.includes(name);
 };
 
-export const isAvailable = isEnabled;
-
 const pluginAddressCache = {};
 
 export const getPluginAddress = async (name) => {

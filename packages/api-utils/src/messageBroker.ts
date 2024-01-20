@@ -33,6 +33,14 @@ function getHttpAgent(protocol: string, args: any): Agent | Agent.HttpsAgent {
   }
 }
 
+export interface InterMessage {
+  subdomain: string;
+  data?: any;
+  timeout?: number;
+  defaultValue?: any;
+  thirdService?: boolean;
+}
+
 const showInfoDebug = () => {
   if ((process.env.DEBUG || '').includes('error')) {
     return false;
@@ -49,7 +57,7 @@ const checkQueueName = async (queueName, isSend = false) => {
 
   if (!serviceName) {
     throw new Error(
-      `Invalid queue name. ${queueName}. Queue name must include :`
+      `Invalid queue name. ${queueName}. Queue name must include :`,
     );
   }
 
@@ -57,7 +65,7 @@ const checkQueueName = async (queueName, isSend = false) => {
     if (isSend) {
       const isMember = await redis.sismember(
         `service:queuenames:${serviceName}`,
-        action
+        action,
       );
 
       if (isMember === 0) {
@@ -71,11 +79,11 @@ const checkQueueName = async (queueName, isSend = false) => {
 
 export const doesQueueExist = async (
   serviceName: string,
-  action: string
+  action: string,
 ): Promise<boolean> => {
   const isMember = await redis.sismember(
     `service:queuenames:${serviceName}`,
-    action
+    action,
   );
 
   return isMember !== 0;
@@ -105,7 +113,7 @@ export const consumeQueue = async (queueName, callback) => {
             await callback(JSON.parse(msg.content.toString()), msg);
           } catch (e) {
             debugError(
-              `Error occurred during callback ${queueName} ${e.message}`
+              `Error occurred during callback ${queueName} ${e.message}`,
             );
           }
           if (!channel) {
@@ -114,11 +122,11 @@ export const consumeQueue = async (queueName, callback) => {
           channel.ack(msg);
         }
       },
-      { noAck: false }
+      { noAck: false },
     );
   } catch (e) {
     debugError(
-      `Error occurred during consumeq queue ${queueName} ${e.message}`
+      `Error occurred during consumeq queue ${queueName} ${e.message}`,
     );
   }
 };
@@ -137,7 +145,7 @@ export const consumeRPCQueue = (queueName, procedure) => {
 
   if (procedureName.includes(':')) {
     throw new Error(
-      `${procedureName}. RPC procedure name cannot contain : character. Use dot . instead.`
+      `${procedureName}. RPC procedure name cannot contain : character. Use dot . instead.`,
     );
   }
 
@@ -160,14 +168,14 @@ export const consumeRPCQueue = (queueName, procedure) => {
 
 export const sendRPCMessage = async (
   queueName: string,
-  args: any
+  message: InterMessage,
 ): Promise<any> => {
   const { pluginName, procedureName } = splitPluginProcedureName(queueName);
   const address = await getPluginAddress(pluginName);
 
   if (!address) {
     throw new Error(
-      `Plugin ${pluginName} has no address value in service discovery`
+      `Plugin ${pluginName} has no address value in service discovery`,
     );
   }
 
@@ -178,21 +186,21 @@ export const sendRPCMessage = async (
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(args),
-        agent: (parsedURL) => getHttpAgent(parsedURL.protocol, args),
+        body: JSON.stringify(message),
+        agent: (parsedURL) => getHttpAgent(parsedURL.protocol, message),
         compress: false,
       });
 
       if (!(200 <= response.status && response.status < 300)) {
         let argsJson = '"cannot stringify"';
         try {
-          argsJson = JSON.stringify(args);
+          argsJson = JSON.stringify(message);
         } catch (e) {}
 
         throw new Error(
           `RPC HTTP error. Status code: ${response.status}. Remote plugin: ${pluginName}. Procedure: ${procedureName}.
             Arguments: ${argsJson}
-          `
+          `,
         );
       }
 
@@ -205,18 +213,18 @@ export const sendRPCMessage = async (
       }
     } catch (e) {
       if (e.code === 'ERR_SOCKET_TIMEOUT') {
-        if (args?.defaultValue) {
-          return args.defaultValue;
+        if (message?.defaultValue) {
+          return message.defaultValue;
         } else {
           let argsJson = '"cannot stringify"';
           try {
-            argsJson = JSON.stringify(args);
+            argsJson = JSON.stringify(message);
           } catch (e) {}
 
           throw new Error(
             `RPC HTTP timeout after ${timeoutMs}ms. Remote: ${pluginName}. Procedure: ${procedureName}.
               Arguments: ${argsJson}
-            `
+            `,
           );
         }
       }
@@ -236,7 +244,7 @@ export const sendRPCMessage = async (
       if (
         e.code &&
         ['ECONNREFUSED', 'ECONNRESET', 'ERR_STREAM_PREMATURE_CLOSE'].includes(
-          e.code
+          e.code,
         )
       ) {
         const lastTry = tryIdx >= maxTries;
@@ -251,7 +259,7 @@ export const sendRPCMessage = async (
 
 export const sendRPCMessageMq = async (
   queueName: string,
-  message: any
+  message: InterMessage,
 ): Promise<any> => {
   if (!channel) {
     throw new Error(`RabbitMQ channel is ${channel}`);
@@ -265,7 +273,7 @@ export const sendRPCMessageMq = async (
 
   if (showInfoDebug()) {
     debugInfo(
-      `Sending rpc message ${JSON.stringify(message)} to queue ${queueName}`
+      `Sending rpc message ${JSON.stringify(message)} to queue ${queueName}`,
     );
   }
 
@@ -276,7 +284,8 @@ export const sendRPCMessageMq = async (
     const correlationId = uuid();
 
     return channel.assertQueue('', { exclusive: true }).then((q) => {
-      const timeoutMs = message.timeout || process.env.RPC_TIMEOUT || 10000;
+      const timeoutMs =
+        message.timeout || Number(process.env.RPC_TIMEOUT) || 10000;
       var interval = setTimeout(() => {
         if (!channel) {
           throw new Error(`RabbitMQ channel is ${channel}`);
@@ -314,15 +323,15 @@ export const sendRPCMessageMq = async (
               if (showInfoDebug()) {
                 debugInfo(
                   `RPC success response for queue ${queueName} ${JSON.stringify(
-                    res
-                  )}`
+                    res,
+                  )}`,
                 );
               }
 
               resolve(res.data);
             } else {
               debugInfo(
-                `RPC error response for queue ${queueName} ${res.errorMessage})}`
+                `RPC error response for queue ${queueName} ${res.errorMessage})}`,
               );
 
               reject(new Error(res.errorMessage));
@@ -331,7 +340,7 @@ export const sendRPCMessageMq = async (
             channel.deleteQueue(q.queue);
           }
         },
-        { noAck: true }
+        { noAck: true },
       );
 
       channel.sendToQueue(queueName, Buffer.from(JSON.stringify(message)), {
@@ -370,7 +379,7 @@ export const consumeRPCQueueMq = async (queueName, callback) => {
       if (msg !== null) {
         if (showInfoDebug()) {
           debugInfo(
-            `Received rpc ${queueName} queue message ${msg.content.toString()}`
+            `Received rpc ${queueName} queue message ${msg.content.toString()}`,
           );
         }
 
@@ -380,7 +389,7 @@ export const consumeRPCQueueMq = async (queueName, callback) => {
           response = await callback(JSON.parse(msg.content.toString()));
         } catch (e) {
           debugError(
-            `Error occurred during callback ${queueName} ${e.message}`
+            `Error occurred during callback ${queueName} ${e.message}`,
           );
 
           response = {
@@ -394,7 +403,7 @@ export const consumeRPCQueueMq = async (queueName, callback) => {
           Buffer.from(JSON.stringify(response)),
           {
             correlationId: msg.properties.correlationId,
-          }
+          },
         );
 
         channel.ack(msg);
@@ -402,37 +411,40 @@ export const consumeRPCQueueMq = async (queueName, callback) => {
     });
   } catch (e) {
     debugError(
-      `Error occurred during consume rpc queue ${queueName} ${e.message}`
+      `Error occurred during consume rpc queue ${queueName} ${e.message}`,
     );
   }
 };
 
-export const sendMessage = async (queueName: string, data?: any) => {
+export const sendMessage = async (
+  queueName: string,
+  message?: InterMessage,
+) => {
   if (!channel) {
     throw new Error(`RabbitMQ channel is ${channel}`);
   }
 
   queueName = queueName.concat(queuePrefix);
 
-  if (data && !data.thirdService) {
+  if (message && !message.thirdService) {
     await checkQueueName(queueName, true);
   }
 
   try {
-    const message = JSON.stringify(data || {});
+    const messageJson = JSON.stringify(message || {});
 
     if (showInfoDebug()) {
-      debugInfo(`Sending message ${message} to ${queueName}`);
+      debugInfo(`Sending message ${messageJson} to ${queueName}`);
     }
 
     await channel.assertQueue(queueName);
-    await channel.sendToQueue(queueName, Buffer.from(message));
+    await channel.sendToQueue(queueName, Buffer.from(messageJson));
   } catch (e) {
     debugError(`Error occurred during send queue ${queueName} ${e.message}`);
   }
 };
 
-type ReconnectCallback = (client: any) => any;
+type ReconnectCallback = () => any;
 
 const connect = async (reconnectCallback?: ReconnectCallback) => {
   const con = await amqplib.connect(`${RABBITMQ_HOST}?heartbeat=60`, {
@@ -464,33 +476,19 @@ const reconnect = async (reconnectCallback?: ReconnectCallback) => {
         `RabbitMQ: Error occured while connecting to ${RABBITMQ_HOST}. Trying again in ${
           reconnectInterval / 1000
         }s`,
-        e
+        e,
       );
       await new Promise<void>((resolve) =>
-        setTimeout(resolve, reconnectInterval)
+        setTimeout(resolve, reconnectInterval),
       );
       reconnectInterval = reconnectInterval * 2;
     }
   }
-  reconnectCallback &&
-    (await reconnectCallback({
-      consumeQueue,
-      consumeRPCQueue,
-      sendMessage,
-      sendRPCMessage,
-      consumeRPCQueueMq,
-      sendRPCMessageMq,
-    }));
+  reconnectCallback && (await reconnectCallback());
 };
 
-export const init = async (reconnectCallback?: ReconnectCallback) => {
+export const init = async (
+  reconnectCallback?: ReconnectCallback,
+): Promise<void> => {
   await connect(reconnectCallback);
-  return {
-    consumeQueue,
-    consumeRPCQueue,
-    sendMessage,
-    sendRPCMessage,
-    consumeRPCQueueMq,
-    sendRPCMessageMq,
-  };
 };
