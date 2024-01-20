@@ -1,4 +1,5 @@
-import { MessageArgs, sendMessage } from '@erxes/api-utils/src/core';
+import { sendMessage } from '@erxes/api-utils/src/core';
+import { MessageArgs, MessageArgsOmitService } from '@erxes/api-utils/src/core';
 
 import { IContext as IMainContext } from '@erxes/api-utils/src';
 import { IModels } from './connectionResolver';
@@ -18,14 +19,18 @@ export const sendCommonMessage = async (
   });
 };
 
-export const sendCoreMessage = async (args: MessageArgs): Promise<any> => {
+export const sendCoreMessage = async (
+  args: MessageArgsOmitService,
+): Promise<any> => {
   return sendMessage({
     serviceName: 'core',
     ...args,
   });
 };
 
-export const sendCardsMessage = async (args: MessageArgs): Promise<any> => {
+export const sendCardsMessage = async (
+  args: MessageArgsOmitService,
+): Promise<any> => {
   return sendMessage({
     serviceName: 'cards',
     ...args,

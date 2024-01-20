@@ -205,20 +205,6 @@ export const getDbSchemaLabels = async (serviceName: string, args) => {
     : [];
 };
 
-// export const getActivityContentItem = async (
-//   activityLog: IActivityLogDocument,
-// ) => {
-//   const [serviceName] = activityLog.contentType.split(':');
-
-//   const enabled = await isServiceEnabled(serviceName);
-
-//   return enabled
-//     ? sendRPCMessage(`${serviceName}:logs.getActivityContent`, {
-//         activityLog,
-//       })
-//     : null;
-// };
-
 export const getContentTypeDetail = async (
   subdomain: string,
   activityLog: IActivityLogDocument,
