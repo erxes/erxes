@@ -139,7 +139,7 @@ export default {
     app.get('/script-manager', cors({ origin: '*' }), widgetsMiddleware);
     app.post('/webhooks/:id', webhookMiddleware);
 
-    initBroker(options.messageBrokerClient);
+    initBroker();
 
     debug = options.debug;
   },
