@@ -1,18 +1,19 @@
-import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
+import {
+  ISendMessageArgs,
+  ISendMessageArgsNoService,
+  sendMessage,
+} from '@erxes/api-utils/src/core';
 import { afterMutationHandlers } from './afterMutations';
-
 
 import { generateModels, IModels } from './connectionResolver';
 import { sendNotification, sendSms } from './utils';
 import { createCard } from './models/utils';
+import {
+  consumeRPCQueue,
+  consumeQueue,
+} from '@erxes/api-utils/src/messageBroker';
 
-let client;
-
-export const initBroker = async cl => {
-  client = cl;
-
-  const { consumeRPCQueue, consumeQueue } = client;
-
+export const initBroker = async () => {
   consumeRPCQueue(
     'clientportal:clientPortals.findOne',
     async ({ subdomain, data }) => {
@@ -20,9 +21,9 @@ export const initBroker = async cl => {
 
       return {
         data: await models.ClientPortals.findOne(data),
-        status: 'success'
+        status: 'success',
       };
-    }
+    },
   );
 
   consumeRPCQueue(
@@ -32,9 +33,9 @@ export const initBroker = async cl => {
 
       return {
         data: await models.ClientPortalUsers.findOne(data),
-        status: 'success'
+        status: 'success',
       };
-    }
+    },
   );
 
   consumeRPCQueue(
@@ -44,9 +45,9 @@ export const initBroker = async cl => {
 
       return {
         data: await models.ClientPortalUsers.find(data).lean(),
-        status: 'success'
+        status: 'success',
       };
-    }
+    },
   );
 
   consumeRPCQueue(
@@ -56,9 +57,9 @@ export const initBroker = async cl => {
 
       return {
         data: await models.ClientPortalUsers.createUser(subdomain, data),
-        status: 'success'
+        status: 'success',
       };
-    }
+    },
   );
 
   consumeRPCQueue(
@@ -68,16 +69,16 @@ export const initBroker = async cl => {
 
       return {
         data: await models.ClientPortals.find(selector).count(),
-        status: 'success'
+        status: 'success',
       };
-    }
+    },
   );
 
   consumeQueue(
     'clientportal:sendSMS',
     async ({ subdomain, data: { to, content } }) => {
       await sendSms(subdomain, 'messagePro', to, content);
-    }
+    },
   );
 
   /**
@@ -113,19 +114,19 @@ export const initBroker = async cl => {
         const { selector, doc } = row;
 
         const prevEntry = await models.ClientPortalUsers.findOne(selector, {
-          _id: 1
+          _id: 1,
         }).lean();
 
         if (prevEntry) {
           operations.push({
-            updateOne: { filter: selector, update: { $set: doc } }
+            updateOne: { filter: selector, update: { $set: doc } },
           });
         } else {
           const customer = await sendContactsMessage({
             subdomain,
             action: 'customers.findOne',
             data: { primaryEmail: doc.email },
-            isRPC: true
+            isRPC: true,
           });
 
           if (doc.email && customer) {
@@ -140,9 +141,9 @@ export const initBroker = async cl => {
 
       return {
         data: models.ClientPortalUsers.bulkWrite(operations),
-        status: 'success'
+        status: 'success',
       };
-    }
+    },
   );
 
   consumeRPCQueue('clientportal:createCard', async ({ subdomain, data }) => {
@@ -154,7 +155,7 @@ export const initBroker = async cl => {
 
     return {
       data: card,
-      status: 'success'
+      status: 'success',
     };
   });
 
@@ -168,64 +169,62 @@ export const initBroker = async cl => {
       const valid = await models.ClientPortalUsers.validatePassword(
         userId,
         password,
-        secondary
+        secondary,
       );
 
       if (!valid) {
         return {
           status: 'error',
-          message: 'Invalid password'
+          message: 'Invalid password',
         };
       }
 
       return {
         data: valid,
-        status: 'success'
+        status: 'success',
       };
-    }
+    },
   );
 };
 
-export const sendCoreMessage = async (args: ISendMessageArgs) => {
+export const sendCoreMessage = async (args: ISendMessageArgsNoService) => {
   return sendMessage({
     serviceName: 'core',
-    ...args
+    ...args,
   });
 };
 
 export const sendContactsMessage = async (
-  args: ISendMessageArgs
+  args: ISendMessageArgsNoService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'contacts',
-    ...args
+    ...args,
   });
 };
 
 export const sendCardsMessage = async (
-  args: ISendMessageArgs
+  args: ISendMessageArgsNoService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'cards',
-    ...args
+    ...args,
   });
 };
 
-export const sendKbMessage = async (args: ISendMessageArgs): Promise<any> => {
+export const sendKbMessage = async (
+  args: ISendMessageArgsNoService,
+): Promise<any> => {
   return sendMessage({
     serviceName: 'knowledgebase',
-    ...args
+    ...args,
   });
 };
 
 export const sendCommonMessage = async (
-  args: ISendMessageArgs & { serviceName: string }
+  args: ISendMessageArgs & { serviceName: string },
 ) => {
   return sendMessage({
-    ...args
+    ...args,
   });
 };
-
-export default function() {
-  return client;
-}
