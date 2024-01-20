@@ -256,7 +256,7 @@ export async function startPlugin(configs: any): Promise<express.Express> {
   // connect to mongo database
   const db = await connect(mongoUrl);
 
-  const messageBrokerClient = await initBroker(configs.reconnectRMQ);
+  await initBroker(configs.reconnectRMQ);
 
   if (configs.meta) {
     const {
@@ -632,7 +632,6 @@ export async function startPlugin(configs: any): Promise<express.Express> {
 
   configs.onServerInit({
     db,
-    messageBrokerClient,
     debug: {
       info: debugInfo,
       error: debugError,

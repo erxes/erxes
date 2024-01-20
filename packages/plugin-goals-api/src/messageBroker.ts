@@ -1,5 +1,10 @@
+import { consumeRPCQueue } from '@erxes/api-utils/src/messageBroker';
 import { generateModels } from './connectionResolver';
-import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
+import { sendMessage } from '@erxes/api-utils/src/core';
+import type {
+  ISendMessageArgs,
+  ISendMessageArgsNoService,
+} from '@erxes/api-utils/src/core';
 
 export const initBroker = async () => {
   consumeRPCQueue('goals:find', async ({ subdomain, data }) => {
@@ -30,7 +35,9 @@ export const initBroker = async () => {
   });
 };
 
-export const sendCardsMessage = (args: ISendMessageArgs): Promise<any> => {
+export const sendCardsMessage = (
+  args: ISendMessageArgsNoService,
+): Promise<any> => {
   return sendMessage({
     serviceName: 'cards',
     ...args,
@@ -38,7 +45,7 @@ export const sendCardsMessage = (args: ISendMessageArgs): Promise<any> => {
 };
 
 export const sendSegmentsMessage = async (
-  args: ISendMessageArgs,
+  args: ISendMessageArgsNoService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'segments',
@@ -46,14 +53,16 @@ export const sendSegmentsMessage = async (
   });
 };
 
-export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
+export const sendCoreMessage = async (
+  args: ISendMessageArgsNoService,
+): Promise<any> => {
   return sendMessage({
     serviceName: 'core',
     ...args,
   });
 };
 export const sendCommonMessage = async (
-  args: ISendMessageArgs & { serviceName: string },
+  args: ISendMessageArgs,
 ): Promise<any> => {
   return sendMessage({
     ...args,

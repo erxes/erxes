@@ -495,14 +495,8 @@ const reconnect = async (reconnectCallback?: ReconnectCallback) => {
     }));
 };
 
-export const init = async (reconnectCallback?: ReconnectCallback) => {
+export const init = async (
+  reconnectCallback?: ReconnectCallback,
+): Promise<void> => {
   await connect(reconnectCallback);
-  return {
-    consumeQueue,
-    consumeRPCQueue,
-    sendMessage,
-    sendRPCMessage,
-    consumeRPCQueueMq,
-    sendRPCMessageMq,
-  };
 };

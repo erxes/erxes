@@ -1,7 +1,15 @@
-import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
+import { sendMessage } from '@erxes/api-utils/src/core';
+import type {
+  ISendMessageArgs,
+  ISendMessageArgsNoService,
+} from '@erxes/api-utils/src/core';
 import { fieldsCombinedByContentType } from './utils';
 
 import { generateModels } from './connectionResolver';
+import {
+  consumeQueue,
+  consumeRPCQueue,
+} from '@erxes/api-utils/src/messageBroker';
 
 export const initBroker = async () => {
   consumeRPCQueue(
@@ -268,7 +276,7 @@ export const fetchService = async (
 };
 
 export const sendInboxMessage = async (
-  args: ISendMessageArgs,
+  args: ISendMessageArgsNoService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'inbox',
@@ -277,7 +285,7 @@ export const sendInboxMessage = async (
 };
 
 export const sendContactsMessage = async (
-  args: ISendMessageArgs,
+  args: ISendMessageArgsNoService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'contacts',
@@ -286,7 +294,7 @@ export const sendContactsMessage = async (
 };
 
 export const sendCommonMessage = async (
-  args: ISendMessageArgs & { serviceName: string },
+  args: ISendMessageArgs,
 ): Promise<any> => {
   return sendMessage({
     ...args,
@@ -294,7 +302,7 @@ export const sendCommonMessage = async (
 };
 
 export const sendProductsMessage = async (
-  args: ISendMessageArgs,
+  args: ISendMessageArgsNoService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'products',
@@ -303,7 +311,7 @@ export const sendProductsMessage = async (
 };
 
 export const sendAutomationsMessage = async (
-  args: ISendMessageArgs,
+  args: ISendMessageArgsNoService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'automations',
