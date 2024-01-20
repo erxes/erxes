@@ -1,31 +1,23 @@
 import * as dotenv from 'dotenv';
-import {
-  ISendMessageArgs,
-  sendMessage as sendCommonMessage
-} from '@erxes/api-utils/src/core';
+import { sendMessage } from '@erxes/api-utils/src/core';
+import type { ISendMessageArgsNoService } from '@erxes/api-utils/src/core';
+import { consumeRPCQueue } from '@erxes/api-utils/src/messageBroker';
 
 import { Customers, Integrations, Messages } from './models';
 
 dotenv.config();
 
-let client;
-
-export const initBroker = async cl => {
-  client = cl;
-
-  const { consumeRPCQueue } = client;
-
+export const initBroker = async () => {
   consumeRPCQueue(
     '{name}:createIntegration',
     async ({ data: { doc, integrationId } }) => {
-
       await Integrations.create({
         inboxId: integrationId,
-        ...(doc || {})
+        ...(doc || {}),
       });
 
       return {
-        status: 'success'
+        status: 'success',
       };
     }
   );
@@ -33,34 +25,27 @@ export const initBroker = async cl => {
   consumeRPCQueue(
     '{name}:removeIntegration',
     async ({ data: { integrationId } }) => {
-
       await Messages.remove({ inboxIntegrationId: integrationId });
       await Customers.remove({ inboxIntegrationId: integrationId });
       await Integrations.remove({ inboxId: integrationId });
 
       return {
-        status: 'success'
+        status: 'success',
       };
     }
   );
 };
 
-export default function() {
-  return client;
-}
-
-export const sendContactsMessage = (args: ISendMessageArgs) => {
-  return sendCommonMessage({
-    client,
+export const sendContactsMessage = (args: ISendMessageArgsNoService) => {
+  return sendMessage({
     serviceName: 'contacts',
-    ...args
+    ...args,
   });
 };
 
-export const sendInboxMessage = (args: ISendMessageArgs) => {
-  return sendCommonMessage({
-    client,
+export const sendInboxMessage = (args: ISendMessageArgsNoService) => {
+  return sendMessage({
     serviceName: 'inbox',
-    ...args
+    ...args,
   });
 };
