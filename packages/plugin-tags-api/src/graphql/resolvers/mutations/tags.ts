@@ -14,7 +14,8 @@ import {
 } from '../../../logUtils';
 
 import { sendCommonMessage } from '../../../messageBroker';
-import { serviceDiscovery } from '../../../configs';
+import { getService, getServices } from '@erxes/api-utils/src/serviceDiscovery';
+
 
 interface ITagsEdit extends ITag {
   _id: string;
@@ -99,14 +100,14 @@ const tagMutations = {
     }: { type: string; targetIds: string[]; tagIds: string[] },
     { models, subdomain, user }: IContext
   ) {
-    const services = await serviceDiscovery.getServices();
+    const services = await getServices();
 
     for (const serviceName of services) {
       if (serviceName !== (type || '').split(':')[0]) {
         continue;
       }
 
-      const service = await serviceDiscovery.getService(serviceName);
+      const service = await getService(serviceName);
       const meta = service.config?.meta || {};
 
       if (meta && meta.tags && meta.tags.publishChangeAvailable) {

@@ -1,4 +1,5 @@
-import { serviceDiscovery } from '../../configs';
+
+import { getService } from '@erxes/api-utils/src/serviceDiscovery';
 import { IContext } from '../../connectionResolver';
 import {
   IChart,
@@ -18,7 +19,10 @@ const reportsMutations = {
     });
 
     if (doc.reportTemplateType) {
-      const service = await serviceDiscovery.getService(doc.serviceName);
+      if(!doc.serviceName) {
+        throw new Error(`doc.serviceName is ${doc.serviceName}`);
+      }
+      const service = await getService(doc.serviceName);
 
       const reportTemplate = service.config?.meta?.reports?.reportTemplates?.find(
         t => t.serviceType === doc.reportTemplateType

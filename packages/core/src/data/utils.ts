@@ -504,7 +504,13 @@ const uploadToCFImages = async (
     Authorization: `Bearer ${CLOUDFLARE_API_TOKEN}`,
   };
 
-  const fileName = `${Math.random()}${file.name.replace(/ /g, '')}`;
+  let fileName = `${Math.random()}${file.name.replace(/ /g, '')}`;
+  const extension = fileName.split('.').pop();
+
+  if (extension && ['JPEG', 'JPG', 'PNG'].includes(extension)) {
+    const baseName = fileName.slice(0, -(extension.length + 1));
+    fileName = `${baseName}.${extension.toLowerCase()}`;
+  }
 
   const formData = new FormData();
   formData.append('file', fs.createReadStream(file.path));

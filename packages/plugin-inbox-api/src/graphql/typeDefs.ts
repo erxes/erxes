@@ -47,16 +47,17 @@ import {
   queries as ScriptQueries,
   mutations as ScriptMutations
 } from './scriptTypeDefs';
+import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
 
-const typeDefs = async serviceDiscovery => {
-  const isProductsEnabled = await serviceDiscovery.isEnabled('products');
-  const isTagsEnabled = await serviceDiscovery.isEnabled('tags');
-  const isFormsEnabled = await serviceDiscovery.isEnabled('forms');
-  const isKbEnabled = await serviceDiscovery.isEnabled('knowledgebase');
-  const isContactsEnabled = await serviceDiscovery.isEnabled('contacts');
-  const isDailycoEnabled = await serviceDiscovery.isEnabled('dailyco');
+const typeDefs = async () => {
+  const isProductsEnabled = await isEnabled('products');
+  const isTagsEnabled = await isEnabled('tags');
+  const isFormsEnabled = await isEnabled('forms');
+  const isKbEnabled = await isEnabled('knowledgebase');
+  const isContactsEnabled = await isEnabled('contacts');
+  const isDailycoEnabled = await isEnabled('dailyco');
 
-  const isEnabled = {
+  const isEnabledTable = {
     products: isProductsEnabled,
     tags: isTagsEnabled,
     forms: isFormsEnabled,
@@ -69,23 +70,23 @@ const typeDefs = async serviceDiscovery => {
     scalar JSON
     scalar Date
 
-    ${ConversationTypes(isEnabled)}
+    ${ConversationTypes(isEnabledTable)}
     ${MessengerAppTypes}
     ${ChannelTypes}
-    ${integrationTypes(isEnabled)}
+    ${integrationTypes(isEnabledTable)}
     ${ResponseTemplateTypes}
-    ${widgetTypes(isEnabled)}
+    ${widgetTypes(isEnabledTable)}
     ${SkillTypes}
-    ${ScriptTypes(isEnabled)}
+    ${ScriptTypes(isEnabledTable)}
     
     
     extend type Query {
-      ${ConversationQueries(isEnabled)}
+      ${ConversationQueries(isEnabledTable)}
       ${MessengerAppQueries}
       ${ChannelQueries}
       ${IntegrationQueries}
       ${ResponseTemplateQueries}
-      ${widgetQueries(isEnabled)}
+      ${widgetQueries(isEnabledTable)}
       ${SkillQueries}
       ${ScriptQueries}
     }
@@ -96,7 +97,7 @@ const typeDefs = async serviceDiscovery => {
       ${ChannelMutations}
       ${IntegrationMutations}
       ${ResponseTemplateMutations}
-      ${widgetMutations(isEnabled)}
+      ${widgetMutations(isEnabledTable)}
       ${SkillMutations}
       ${ScriptMutations}
     }

@@ -1,11 +1,11 @@
 import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
 import { fieldsCombinedByContentType } from './utils';
-import { serviceDiscovery } from './configs';
+
 import { generateModels } from './connectionResolver';
 
 let client;
 
-export const initBroker = async cl => {
+export const initBroker = async (cl) => {
   client = cl;
 
   const { consumeRPCQueue, consumeQueue } = client;
@@ -17,9 +17,9 @@ export const initBroker = async cl => {
 
       return {
         status: 'success',
-        data: await models.Forms.validate(formId, submissions)
+        data: await models.Forms.validate(formId, submissions),
       };
-    }
+    },
   );
 
   consumeRPCQueue('forms:find', async ({ subdomain, data: { query } }) => {
@@ -27,7 +27,7 @@ export const initBroker = async cl => {
 
     return {
       status: 'success',
-      data: await models.Forms.find(query).lean()
+      data: await models.Forms.find(query).lean(),
     };
   });
 
@@ -36,7 +36,7 @@ export const initBroker = async cl => {
 
     return {
       status: 'success',
-      data: await models.Forms.findOne(data).lean()
+      data: await models.Forms.findOne(data).lean(),
     };
   });
 
@@ -47,9 +47,9 @@ export const initBroker = async cl => {
 
       return {
         status: 'success',
-        data: await models.Forms.duplicate(formId)
+        data: await models.Forms.duplicate(formId),
       };
-    }
+    },
   );
 
   consumeRPCQueue(
@@ -59,9 +59,9 @@ export const initBroker = async cl => {
 
       return {
         status: 'success',
-        data: await models.Forms.createForm(formDoc, userId)
+        data: await models.Forms.createForm(formDoc, userId),
       };
-    }
+    },
   );
 
   consumeRPCQueue(
@@ -71,9 +71,9 @@ export const initBroker = async cl => {
 
       return {
         status: 'success',
-        data: await models.Forms.removeForm(formId)
+        data: await models.Forms.removeForm(formId),
       };
-    }
+    },
   );
 
   consumeQueue(
@@ -82,7 +82,7 @@ export const initBroker = async cl => {
       const models = await generateModels(subdomain);
 
       return models.Fields.insertMany(fields);
-    }
+    },
   );
 
   consumeRPCQueue(
@@ -91,9 +91,9 @@ export const initBroker = async cl => {
       const models = await generateModels(subdomain);
       return {
         status: 'success',
-        data: await models.Fields.prepareCustomFieldsData(data)
+        data: await models.Fields.prepareCustomFieldsData(data),
       };
-    }
+    },
   );
 
   consumeRPCQueue(
@@ -105,10 +105,10 @@ export const initBroker = async cl => {
         status: 'success',
         data: await models.Fields.generateCustomFieldsData(
           customData,
-          contentType
-        )
+          contentType,
+        ),
       };
-    }
+    },
   );
 
   consumeRPCQueue(
@@ -118,9 +118,9 @@ export const initBroker = async cl => {
 
       return {
         status: 'success',
-        data: await models.Fields.generateTypedListFromMap(data)
+        data: await models.Fields.generateTypedListFromMap(data),
       };
-    }
+    },
   );
 
   consumeRPCQueue(
@@ -134,10 +134,10 @@ export const initBroker = async cl => {
           data.field,
           data.value,
           data.type,
-          data.validation
-        )
+          data.validation,
+        ),
       };
-    }
+    },
   );
 
   consumeRPCQueue(
@@ -147,9 +147,9 @@ export const initBroker = async cl => {
 
       return {
         status: 'success',
-        data: await fieldsCombinedByContentType(models, subdomain, data)
+        data: await fieldsCombinedByContentType(models, subdomain, data),
       };
-    }
+    },
   );
 
   consumeQueue(
@@ -159,9 +159,9 @@ export const initBroker = async cl => {
 
       return {
         status: 'success',
-        data: await models.FieldsGroups.updateGroup(groupId, fieldsGroup)
+        data: await models.FieldsGroups.updateGroup(groupId, fieldsGroup),
       };
-    }
+    },
   );
 
   consumeRPCQueue(
@@ -171,11 +171,9 @@ export const initBroker = async cl => {
 
       return {
         status: 'success',
-        data: await models.Fields.find(query, projection)
-          .sort(sort)
-          .lean()
+        data: await models.Fields.find(query, projection).sort(sort).lean(),
       };
-    }
+    },
   );
 
   consumeRPCQueue(
@@ -185,9 +183,9 @@ export const initBroker = async cl => {
 
       return {
         status: 'success',
-        data: await models.Fields.findOne(query).lean()
+        data: await models.Fields.findOne(query).lean(),
       };
-    }
+    },
   );
 
   consumeRPCQueue(
@@ -197,9 +195,9 @@ export const initBroker = async cl => {
 
       return {
         status: 'success',
-        data: await models.FieldsGroups.find(query).lean()
+        data: await models.FieldsGroups.find(query).lean(),
       };
-    }
+    },
   );
 
   consumeRPCQueue(
@@ -209,9 +207,9 @@ export const initBroker = async cl => {
 
       return {
         status: 'success',
-        data: await models.FieldsGroups.findOne(query).lean()
+        data: await models.FieldsGroups.findOne(query).lean(),
       };
-    }
+    },
   );
 
   consumeRPCQueue(
@@ -221,9 +219,9 @@ export const initBroker = async cl => {
 
       return {
         status: 'success',
-        data: await fieldsCombinedByContentType(models, subdomain, data)
+        data: await fieldsCombinedByContentType(models, subdomain, data),
       };
-    }
+    },
   );
 
   consumeRPCQueue(
@@ -233,9 +231,9 @@ export const initBroker = async cl => {
 
       return {
         status: 'success',
-        data: await models.FormSubmissions.find(query).lean()
+        data: await models.FormSubmissions.find(query).lean(),
       };
-    }
+    },
   );
 
   consumeQueue(
@@ -246,10 +244,10 @@ export const initBroker = async cl => {
       return {
         status: 'success',
         data: await models.FormSubmissions.insertMany(submissions, {
-          ordered: false
-        })
+          ordered: false,
+        }),
       };
-    }
+    },
   );
 };
 
@@ -258,79 +256,67 @@ export const fetchService = async (
   contentType: string,
   action: string,
   data,
-  defaultValue?
+  defaultValue?,
 ) => {
   const [serviceName, type] = contentType.split(':');
 
   return sendMessage({
     subdomain,
-    serviceDiscovery,
-    client,
     isRPC: true,
     serviceName,
     action: `fields.${action}`,
     data: {
       ...data,
-      type
+      type,
     },
-    defaultValue
+    defaultValue,
   });
 };
 
 export const sendInboxMessage = async (
-  args: ISendMessageArgs
+  args: ISendMessageArgs,
 ): Promise<any> => {
   return sendMessage({
-    client,
-    serviceDiscovery,
     serviceName: 'inbox',
-    ...args
+    ...args,
   });
 };
 
 export const sendContactsMessage = async (
-  args: ISendMessageArgs
+  args: ISendMessageArgs,
 ): Promise<any> => {
   return sendMessage({
-    client,
-    serviceDiscovery,
     serviceName: 'contacts',
-    ...args
+    ...args,
   });
 };
 
 export const sendCommonMessage = async (
-  args: ISendMessageArgs & { serviceName: string }
+  args: ISendMessageArgs & { serviceName: string },
 ): Promise<any> => {
   return sendMessage({
-    serviceDiscovery,
-    client,
-    ...args
+    ...args,
   });
 };
 
 export const sendProductsMessage = async (
-  args: ISendMessageArgs
+  args: ISendMessageArgs,
 ): Promise<any> => {
   return sendMessage({
-    client,
-    serviceDiscovery,
     serviceName: 'products',
-    ...args
+    ...args,
   });
 };
 
 export const sendAutomationsMessage = async (
-  args: ISendMessageArgs
+  args: ISendMessageArgs,
 ): Promise<any> => {
   return sendMessage({
-    client,
-    serviceDiscovery,
     serviceName: 'automations',
-    ...args
+    ...args,
   });
 };
 
-export default function() {
+export default function () {
   return client;
 }

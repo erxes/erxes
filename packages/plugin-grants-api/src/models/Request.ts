@@ -1,7 +1,7 @@
 import { IUserDocument } from '@erxes/api-utils/src/types';
 import { Model } from 'mongoose';
 import { validateRequest } from '../common/utils';
-import { serviceDiscovery } from '../configs';
+
 import { IModels } from '../connectionResolver';
 import {
   sendCommonMessage,
@@ -10,6 +10,7 @@ import {
 } from '../messageBroker';
 import { checkConfig, doAction, doLogicAfterAction } from '../utils';
 import { IGrantRequestDocument, grantSchema } from './definitions/grant';
+import { getService, getServices } from '@erxes/api-utils/src/serviceDiscovery';
 
 export interface IRequestsModel extends Model<IGrantRequestDocument> {
   getGrantRequest(args: any): Promise<IGrantRequestDocument>;
@@ -356,7 +357,7 @@ export const loadRequestsClass = (models: IModels, subdomain: string) => {
     }
 
     public static async getGrantActions() {
-      const services = await serviceDiscovery.getServices();
+      const services = await getServices();
       const grantActions: {
         label: string;
         action: string;
@@ -378,7 +379,7 @@ export const loadRequestsClass = (models: IModels, subdomain: string) => {
       ];
 
       for (const serviceName of services) {
-        const service = await serviceDiscovery.getService(serviceName);
+        const service = await getService(serviceName);
         const meta = service.config.meta || {};
         if (meta && meta.grants) {
           const actions = meta.grants?.actions || [];

@@ -23,31 +23,26 @@ import exporter from './exporter';
 import cronjobs from './cronjobs/common';
 import dashboards from './dashboards';
 import reports from './reports';
+import app from '@erxes/api-utils/src/app';
 
 import { NOTIFICATION_MODULES } from './constants';
-
 export let mainDb;
-export let graphqlPubsub;
-export let serviceDiscovery;
-
 export let debug;
 
 export default {
   name: 'cards',
   permissions,
-  graphql: async sd => {
-    serviceDiscovery = sd;
-
+  graphql: async () => {
     return {
-      typeDefs: await typeDefs(sd),
-      resolvers
+      typeDefs: await typeDefs(),
+      resolvers,
     };
   },
   hasSubscriptions: true,
   subscriptionPluginPath: require('path').resolve(
     __dirname,
     'graphql',
-    'subscriptionPlugin.js'
+    'subscriptionPlugin.js',
   ),
 
   meta: {
@@ -66,7 +61,7 @@ export default {
     permissions,
     documents,
     dashboards,
-    notificationModules: NOTIFICATION_MODULES
+    notificationModules: NOTIFICATION_MODULES,
   },
 
   apolloServerContext: async (context, req, res) => {
@@ -78,16 +73,14 @@ export default {
     context.serverTiming = {
       startTime: res.startTime,
       endTime: res.endTime,
-      setMetric: res.setMetric
+      setMetric: res.setMetric,
     };
 
     return context;
   },
   middlewares: [(serverTiming as any)()],
-  onServerInit: async options => {
+  onServerInit: async (options) => {
     mainDb = options.db;
-
-    const app = options.app;
 
     app.get(
       '/file-export',
@@ -102,7 +95,7 @@ export default {
         res.attachment(`${result.name}.xlsx`);
 
         return res.send(result.response);
-      })
+      }),
     );
 
     initBroker(options.messageBrokerClient);
@@ -110,6 +103,5 @@ export default {
     console.log('Debug ....');
 
     debug = options.debug;
-    graphqlPubsub = options.pubsubClient;
-  }
+  },
 };

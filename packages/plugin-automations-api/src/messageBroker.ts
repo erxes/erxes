@@ -5,15 +5,14 @@ import { playWait } from './actions';
 import {
   checkWaitingResponseAction,
   doWaitingResponseAction,
-  setActionWait
+  setActionWait,
 } from './actions/wait';
-import { serviceDiscovery } from './configs';
 import { generateModels } from './connectionResolver';
 import { receiveTrigger } from './utils';
 
 let client;
 
-export const initBroker = async cl => {
+export const initBroker = async (cl) => {
   client = cl;
 
   const { consumeQueue } = cl;
@@ -46,61 +45,51 @@ export const initBroker = async cl => {
 
     return {
       status: 'success',
-      data: await models.Automations.countDocuments(query)
+      data: await models.Automations.countDocuments(query),
     };
   });
 };
 
 export const sendCommonMessage = async (
-  args: ISendMessageArgs & { serviceName: string }
+  args: ISendMessageArgs & { serviceName: string },
 ): Promise<any> => {
   return sendMessage({
-    serviceDiscovery,
-    client,
-    ...args
+    ...args,
   });
 };
 
 export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
-    client,
-    serviceDiscovery,
     serviceName: 'core',
-    ...args
+    ...args,
   });
 };
 
 export const sendSegmentsMessage = async (
-  args: ISendMessageArgs
+  args: ISendMessageArgs,
 ): Promise<any> => {
   return sendMessage({
-    client,
-    serviceDiscovery,
     serviceName: 'segments',
-    ...args
+    ...args,
   });
 };
 
 export const sendEmailTemplateMessage = async (
-  args: ISendMessageArgs
+  args: ISendMessageArgs,
 ): Promise<any> => {
   return sendMessage({
-    client,
-    serviceDiscovery,
     serviceName: 'emailtemplates',
-    ...args
+    ...args,
   });
 };
 
 export const sendLogsMessage = (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
-    client,
-    serviceDiscovery,
     serviceName: 'logs',
-    ...args
+    ...args,
   });
 };
 
-export default function() {
+export default function () {
   return client;
 }
