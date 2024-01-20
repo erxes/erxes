@@ -20,7 +20,7 @@ export default {
     return context;
   },
   onServerInit: async options => {
-    initBroker(options.messageBrokerClient);
+    initBroker();
 
     mainDb = options.db;
     debug = options.debug;

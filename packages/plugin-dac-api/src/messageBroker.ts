@@ -1,13 +1,8 @@
-import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
+import { MessageArgs, MessageArgsOmitService, sendMessage } from '@erxes/api-utils/src/core';
 import { afterMutationHandlers } from './aftermutations';
+import { consumeQueue } from '@erxes/api-utils/src/messageBroker';
 
-let client;
-
-export const initBroker = async cl => {
-  client = cl;
-
-  const { consumeQueue } = client;
-
+export const initBroker = async () => {
   consumeQueue('dac:afterMutation', async ({ data }) => {
     try {
       await afterMutationHandlers(data);
@@ -18,47 +13,43 @@ export const initBroker = async cl => {
   });
 };
 
-export const sendContactsMessage = (args: ISendMessageArgs) => {
+export const sendContactsMessage = (args: MessageArgsOmitService) => {
   return sendMessage({
     serviceName: 'contacts',
     ...args
   });
 };
 
-export const sendCoreMessage = (args: ISendMessageArgs) => {
+export const sendCoreMessage = (args: MessageArgsOmitService) => {
   return sendMessage({
     serviceName: 'core',
     ...args
   });
 };
-export const sendFormsMessage = (args: ISendMessageArgs) => {
+export const sendFormsMessage = (args: MessageArgsOmitService) => {
   return sendMessage({
     serviceName: 'forms',
     ...args
   });
 };
 export const sendCommonMessage = async (
-  args: ISendMessageArgs & { serviceName: string }
+  args: MessageArgs
 ): Promise<any> => {
   return sendMessage({
     ...args
   });
 };
 
-export const sendCarsMessage = (args: ISendMessageArgs) => {
+export const sendCarsMessage = (args: MessageArgsOmitService) => {
   return sendMessage({
     serviceName: 'cars',
     ...args
   });
 };
 
-export const sendClientPortalMessage = (args: ISendMessageArgs) => {
+export const sendClientPortalMessage = (args: MessageArgsOmitService) => {
   return sendMessage({
     serviceName: 'clientportal',
     ...args
   });
 };
-
-export default function() {
-  return client;
-}

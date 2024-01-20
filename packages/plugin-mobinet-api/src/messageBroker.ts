@@ -1,14 +1,16 @@
-import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
+import {
+  MessageArgs,
+  MessageArgsOmitService,
+  sendMessage,
+} from '@erxes/api-utils/src/core';
 import { sendSms } from './utils';
 import { afterMutationHandlers } from './aftermutations';
+import {
+  consumeQueue,
+  consumeRPCQueue,
+} from '@erxes/api-utils/src/messageBroker';
 
-let client;
-
-export const initBroker = async (cl) => {
-  client = cl;
-
-  const { consumeRPCQueue, consumeQueue } = client;
-
+export const initBroker = async () => {
   // consumeQueue('mobinet:send', async ({ data }) => {
   //   Mobinets.send(data);
 
@@ -41,14 +43,8 @@ export const initBroker = async (cl) => {
   });
 };
 
-export const sendCommonMessage = async (
-  args: ISendMessageArgs & { serviceName: string },
-) => {
+export const sendCommonMessage = async (args: MessageArgs) => {
   return sendMessage({
     ...args,
   });
 };
-
-export default function () {
-  return client;
-}

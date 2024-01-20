@@ -121,7 +121,7 @@ export default {
       }),
     );
 
-    initBroker(options.messageBrokerClient);
+    initBroker();
 
     debug = options.debug;
 

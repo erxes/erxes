@@ -1,13 +1,13 @@
 import * as dotenv from 'dotenv';
-import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
+import {
+  MessageArgs,
+  MessageArgsOmitService,
+  sendMessage,
+} from '@erxes/api-utils/src/core';
 
 dotenv.config();
 
-let client;
-
-export const initBroker = async cl => {
-  client = cl;
-};
+export const initBroker = async () => {};
 
 export const sendContactsMessage = (args: MessageArgsOmitService) => {
   return sendCommonMessage({
@@ -19,14 +19,12 @@ export const sendContactsMessage = (args: MessageArgsOmitService) => {
 export const sendInboxMessage = (args: MessageArgsOmitService) => {
   return sendCommonMessage({
     serviceName: 'inbox',
-    ...args
+    ...args,
   });
 };
 
-export const sendCommonMessage = async (
-  args: ISendMessageArgs & { serviceName: string }
-) => {
+export const sendCommonMessage = async (args: MessageArgs) => {
   return sendMessage({
-    ...args
+    ...args,
   });
 };

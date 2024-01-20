@@ -1,12 +1,9 @@
-import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
+import { MessageArgs, MessageArgsOmitService, sendMessage } from '@erxes/api-utils/src/core';
 import { Bichils } from './models';
+import { consumeQueue, consumeRPCQueue } from '@erxes/api-utils/src/messageBroker';
 
-let client;
 
-export const initBroker = async cl => {
-  client = cl;
-
-  const { consumeQueue, consumeRPCQueue } = client;
+export const initBroker = async () => {
 
   consumeQueue('bichil:send', async ({ data }) => {
     Bichils.send(data);
@@ -24,7 +21,7 @@ export const initBroker = async cl => {
   });
 };
 
-export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
+export const sendCoreMessage = async (args: MessageArgsOmitService): Promise<any> => {
   return sendMessage({
     serviceName: 'core',
     ...args
@@ -32,13 +29,9 @@ export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
 };
 
 export const sendCommonMessage = async (
-  args: ISendMessageArgs & { serviceName: string }
+  args: MessageArgs
 ) => {
   return sendMessage({
     ...args
   });
 };
-
-export default function() {
-  return client;
-}

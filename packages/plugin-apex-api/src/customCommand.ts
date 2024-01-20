@@ -1,7 +1,7 @@
 import * as dotenv from 'dotenv';
 import { init } from '@erxes/api-utils/src/messageBroker';
 import { initBroker } from './messageBroker';
-import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
+import { MessageArgs, sendMessage } from '@erxes/api-utils/src/core';
 import * as fs from 'fs';
 import { Writable } from 'stream';
 import csvParser = require('csv-parser');
@@ -18,7 +18,7 @@ const professionField = process.env.professionField;
 const clientPortalId = process.env.clientPortalId;
 
 const sendCommonMessage = async (
-  args: ISendMessageArgs & { serviceName: string },
+  args: MessageArgs & { serviceName: string },
 ): Promise<any> => {
   return sendMessage({
     ...args,
@@ -269,9 +269,9 @@ dotenv.config();
 const command = async () => {
   const [_a1, _a2, filePath] = process.argv;
 
-  messageBrokerClient = await init();
+  await init();
 
-  initBroker(messageBrokerClient);
+  initBroker();
 
   await importBulkStream({ filePath, bulkLimit: 100 });
 
