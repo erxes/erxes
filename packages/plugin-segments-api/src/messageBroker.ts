@@ -1,5 +1,6 @@
 import {
   MessageArgs,
+  MessageArgsOmitService,
   sendMessage as sendMessageCore,
 } from '@erxes/api-utils/src/core';
 import { generateModels } from './connectionResolver';
@@ -7,6 +8,10 @@ import {
   fetchSegment,
   isInSegment,
 } from './graphql/resolvers/queries/queryBuilder';
+import {
+  consumeQueue,
+  consumeRPCQueue,
+} from '@erxes/api-utils/src/messageBroker';
 
 const sendSuccessMessage = (data) => ({ data, status: 'success' });
 const sendErrorMessage = (message?) => ({
@@ -119,13 +124,11 @@ export const initBroker = async () => {
   );
 };
 
-export const sendMessage = async (
-  args: MessageArgs & { serviceName: string },
-): Promise<any> => {
+export const sendMessage = async (args: MessageArgs): Promise<any> => {
   return sendMessageCore({ ...args });
 };
 
-export const sendCoreMessage = (args: MessageArgs): Promise<any> => {
+export const sendCoreMessage = (args: MessageArgsOmitService): Promise<any> => {
   return sendMessageCore({
     serviceName: 'core',
     ...args,

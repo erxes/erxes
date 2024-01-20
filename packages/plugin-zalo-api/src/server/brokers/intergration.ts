@@ -1,7 +1,8 @@
+import { consumeRPCQueue } from '@erxes/api-utils/src/messageBroker';
 import { generateModels } from '../../models';
 import { removeIntegration, zaloCreateIntegration } from '../controllers';
 
-export const integrationBroker = ({ consumeRPCQueue }) => {
+export const integrationBroker = () => {
   consumeRPCQueue(
     'zalo:createIntegration',
     async ({ subdomain, data: { doc, kind } }) => {
@@ -13,9 +14,9 @@ export const integrationBroker = ({ consumeRPCQueue }) => {
 
       return {
         status: 'error',
-        data: 'Wrong kind'
+        data: 'Wrong kind',
       };
-    }
+    },
   );
 
   consumeRPCQueue(
@@ -24,9 +25,9 @@ export const integrationBroker = ({ consumeRPCQueue }) => {
       const models = await generateModels(subdomain);
       await removeIntegration(models, integrationId);
       return {
-        status: 'success'
+        status: 'success',
       };
-    }
+    },
   );
   consumeRPCQueue(
     'zalo:getStatus',
@@ -34,24 +35,24 @@ export const integrationBroker = ({ consumeRPCQueue }) => {
       const models = await generateModels(subdomain);
 
       const integration = await models.Integrations.findOne({
-        erxesApiId: integrationId
+        erxesApiId: integrationId,
       });
 
       let result = {
-        status: 'healthy'
+        status: 'healthy',
       } as any;
 
       if (integration) {
         result = {
           status: 'healthy',
-          error: integration?.error
+          error: integration?.error,
         };
       }
 
       return {
         data: result,
-        status: 'success'
+        status: 'success',
       };
-    }
+    },
   );
 };

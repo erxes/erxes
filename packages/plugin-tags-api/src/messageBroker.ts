@@ -1,3 +1,4 @@
+import { consumeRPCQueue } from '@erxes/api-utils/src/messageBroker';
 import { generateModels } from './connectionResolver';
 import {
   escapeRegExp,
@@ -69,9 +70,7 @@ export const initBroker = async () => {
   );
 };
 
-export const sendCommonMessage = async (
-  args: MessageArgs & { serviceName: string },
-): Promise<any> => {
+export const sendCommonMessage = async (args: MessageArgs): Promise<any> => {
   return sendMessage({
     ...args,
   });

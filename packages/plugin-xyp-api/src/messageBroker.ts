@@ -1,8 +1,13 @@
-import { MessageArgs, sendMessage } from '@erxes/api-utils/src/core';
+import {
+  MessageArgs,
+  MessageArgsOmitService,
+  sendMessage,
+} from '@erxes/api-utils/src/core';
 
 import { generateModels } from './connectionResolver';
 import { IXypConfig } from './graphql/resolvers/queries';
 import fetch from 'node-fetch';
+import { consumeRPCQueue } from '@erxes/api-utils/src/messageBroker';
 
 export const initBroker = async () => {
   consumeRPCQueue('xyp:fetch', async ({ subdomain, data }) => {
@@ -111,7 +116,9 @@ export const initBroker = async () => {
   });
 };
 
-export const sendContactsMessage = async (args: MessageArgs): Promise<any> => {
+export const sendContactsMessage = async (
+  args: MessageArgsOmitService,
+): Promise<any> => {
   return sendMessage({
     serviceName: 'contacts',
     ...args,
@@ -119,7 +126,7 @@ export const sendContactsMessage = async (args: MessageArgs): Promise<any> => {
 };
 
 export const sendAutomationsMessage = async (
-  args: MessageArgs,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'automations',
@@ -127,15 +134,15 @@ export const sendAutomationsMessage = async (
   });
 };
 
-export const sendCommonMessage = async (
-  args: MessageArgs & { serviceName: string },
-): Promise<any> => {
+export const sendCommonMessage = async (args: MessageArgs): Promise<any> => {
   return sendMessage({
     ...args,
   });
 };
 
-export const sendSegmentsMessage = async (args: MessageArgs): Promise<any> => {
+export const sendSegmentsMessage = async (
+  args: MessageArgsOmitService,
+): Promise<any> => {
   return sendMessage({
     serviceName: 'segments',
     ...args,
@@ -155,14 +162,18 @@ export const fetchSegment = (
     isRPC: true,
   });
 
-export const sendFormsMessage = (args: MessageArgs): Promise<any> => {
+export const sendFormsMessage = (
+  args: MessageArgsOmitService,
+): Promise<any> => {
   return sendMessage({
     serviceName: 'forms',
     ...args,
   });
 };
 
-export const sendCoreMessage = async (args: MessageArgs): Promise<any> => {
+export const sendCoreMessage = async (
+  args: MessageArgsOmitService,
+): Promise<any> => {
   return sendMessage({
     serviceName: 'core',
     ...args,

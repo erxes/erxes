@@ -1,28 +1,25 @@
 import {
   MessageArgs,
+  MessageArgsOmitService,
   sendMessage as sendCommonMessage,
 } from '@erxes/api-utils/src/core';
 
 import { integrationBroker } from './intergration';
 import { conversationMessagesBroker } from './conversationMessages';
 
-let client;
-
 export const initBroker = async () => {
-  client = cl;
-
-  integrationBroker(cl);
-  conversationMessagesBroker(cl);
+  integrationBroker();
+  conversationMessagesBroker();
 };
 
-export const sendContactsMessage = (args: MessageArgs) => {
+export const sendContactsMessage = (args: MessageArgsOmitService) => {
   return sendCommonMessage({
     serviceName: 'contacts',
     ...args,
   });
 };
 
-export const sendInboxMessage = (args: MessageArgs) => {
+export const sendInboxMessage = (args: MessageArgsOmitService) => {
   return sendCommonMessage({
     serviceName: 'inbox',
     // timeout: 50000,
