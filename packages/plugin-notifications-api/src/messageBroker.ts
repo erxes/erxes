@@ -2,7 +2,16 @@ import { getUserDetail } from '@erxes/api-utils/src';
 import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
 import { IModels } from './connectionResolver';
 import { generateModels } from './connectionResolver';
-import { MessageArgs, sendMessage, getEnv } from '@erxes/api-utils/src/core';
+import {
+  MessageArgs,
+  MessageArgsOmitService,
+  sendMessage,
+  getEnv,
+} from '@erxes/api-utils/src/core';
+import {
+  consumeQueue,
+  consumeRPCQueue,
+} from '@erxes/api-utils/src/messageBroker';
 
 interface ISendNotification {
   createdUser;
@@ -140,8 +149,6 @@ const sendNotification = async (
 };
 
 export const initBroker = async () => {
-  const { consumeRPCQueue, consumeQueue } = cl;
-
   consumeQueue('notifications:send', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
     await sendNotification(models, subdomain, data);
@@ -178,7 +185,7 @@ export const initBroker = async () => {
   );
 };
 
-export const sendCoreMessage = (args: MessageArgs): Promise<any> => {
+export const sendCoreMessage = (args: MessageArgsOmitService): Promise<any> => {
   return sendMessage({
     serviceName: 'core',
     ...args,
@@ -193,14 +200,18 @@ export const sendCommonMessage = async (
   });
 };
 
-export const sendContactsMessage = async (args: MessageArgs): Promise<any> => {
+export const sendContactsMessage = async (
+  args: MessageArgsOmitService,
+): Promise<any> => {
   return sendMessage({
     serviceName: 'contacts',
     ...args,
   });
 };
 
-export const sendSegmentsMessage = async (args: MessageArgs): Promise<any> => {
+export const sendSegmentsMessage = async (
+  args: MessageArgsOmitService,
+): Promise<any> => {
   return sendMessage({
     serviceName: 'segments',
     ...args,
@@ -208,7 +219,7 @@ export const sendSegmentsMessage = async (args: MessageArgs): Promise<any> => {
 };
 
 export const sendClientPortalMessagge = async (
-  args: MessageArgs,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'clientportal',

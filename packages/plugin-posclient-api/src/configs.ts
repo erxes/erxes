@@ -103,7 +103,5 @@ export default {
     debug = options.debug;
   },
 
-  reconnectRMQ: async (messageBrokerClient) => {
-    initBroker(messageBrokerClient);
-  },
+  reconnectRMQ: initBroker,
 };

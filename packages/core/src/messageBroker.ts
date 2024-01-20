@@ -636,9 +636,9 @@ export const initBroker = async (): Promise<void> => {
     data: await exporter.getExportDocs(args),
   }));
 
-  consumeRPCQueueMq('core:isServiceEnabled', async (args) => ({
+  consumeRPCQueueMq('core:isServiceEnabled', async ({ data }) => ({
     status: 'success',
-    data: await isEnabled(args),
+    data: await isEnabled(data),
   }));
 };
 

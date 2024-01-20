@@ -1,6 +1,11 @@
-import { MessageArgs, sendMessage } from '@erxes/api-utils/src/core';
+import {
+  MessageArgs,
+  MessageArgsOmitService,
+  sendMessage,
+} from '@erxes/api-utils/src/core';
 
 import { generateModels } from './connectionResolver';
+import { consumeRPCQueue } from '@erxes/api-utils/src/messageBroker';
 
 export const initBroker = async () => {
   consumeRPCQueue('payment:invoices.findOne', async ({ subdomain, data }) => {
@@ -13,7 +18,9 @@ export const initBroker = async () => {
   });
 };
 
-export const sendContactsMessage = async (args: MessageArgs): Promise<any> => {
+export const sendContactsMessage = async (
+  args: MessageArgsOmitService,
+): Promise<any> => {
   return sendMessage({
     serviceName: 'contacts',
     ...args,
@@ -22,7 +29,7 @@ export const sendContactsMessage = async (args: MessageArgs): Promise<any> => {
 
 export const sendCommonMessage = async (
   serviceName: string,
-  args: MessageArgs,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
     serviceName,
@@ -30,7 +37,9 @@ export const sendCommonMessage = async (
   });
 };
 
-export const sendInboxMessage = async (args: MessageArgs): Promise<any> => {
+export const sendInboxMessage = async (
+  args: MessageArgsOmitService,
+): Promise<any> => {
   return sendMessage({
     serviceName: 'inbox',
     ...args,

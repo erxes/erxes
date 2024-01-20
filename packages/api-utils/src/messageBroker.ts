@@ -444,7 +444,7 @@ export const sendMessage = async (
   }
 };
 
-type ReconnectCallback = (client: any) => any;
+type ReconnectCallback = () => any;
 
 const connect = async (reconnectCallback?: ReconnectCallback) => {
   const con = await amqplib.connect(`${RABBITMQ_HOST}?heartbeat=60`, {
@@ -484,15 +484,7 @@ const reconnect = async (reconnectCallback?: ReconnectCallback) => {
       reconnectInterval = reconnectInterval * 2;
     }
   }
-  reconnectCallback &&
-    (await reconnectCallback({
-      consumeQueue,
-      consumeRPCQueue,
-      sendMessage,
-      sendRPCMessage,
-      consumeRPCQueueMq,
-      sendRPCMessageMq,
-    }));
+  reconnectCallback && (await reconnectCallback());
 };
 
 export const init = async (
