@@ -1,11 +1,16 @@
 import * as dotenv from 'dotenv';
+import { sendMessage as sendCommonMessage } from '@erxes/api-utils/src/core';
 import {
   ISendMessageArgs,
-  sendMessage as sendCommonMessage,
+  ISendMessageArgsNoService,
 } from '@erxes/api-utils/src/core';
 
 import { generateModels } from './connectionResolver';
 import { listenIntegration } from './utils';
+import {
+  consumeQueue,
+  consumeRPCQueue,
+} from '@erxes/api-utils/src/messageBroker';
 
 dotenv.config();
 
@@ -162,21 +167,21 @@ export const initBroker = async () => {
   });
 };
 
-export const sendContactsMessage = (args: ISendMessageArgs) => {
+export const sendContactsMessage = (args: ISendMessageArgsNoService) => {
   return sendCommonMessage({
     serviceName: 'contacts',
     ...args,
   });
 };
 
-export const sendInboxMessage = (args: ISendMessageArgs) => {
+export const sendInboxMessage = (args: ISendMessageArgsNoService) => {
   return sendCommonMessage({
     serviceName: 'inbox',
     ...args,
   });
 };
 
-export const sendImapMessage = (args: ISendMessageArgs) => {
+export const sendImapMessage = (args: ISendMessageArgsNoService) => {
   return sendCommonMessage({
     serviceName: 'imap',
     ...args,

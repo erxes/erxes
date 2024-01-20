@@ -7,18 +7,18 @@ import {
   IIntegration,
   IIntegrationDocument,
   IMessengerData,
-  IUiOptions
+  IUiOptions,
 } from '../../models/definitions/integrations';
 
 import { IExternalIntegrationParams } from '../../models/Integrations';
 
 import { debug } from '../../configs';
-import messageBroker, {
+import {
   sendContactsMessage,
   sendIntegrationsMessage,
   sendCoreMessage,
   sendFormsMessage,
-  sendCommonMessage
+  sendCommonMessage,
 } from '../../messageBroker';
 
 import { MODULE_NAMES } from '../../constants';
@@ -50,12 +50,12 @@ const createIntegration = async (
   doc: IIntegration,
   integration: IIntegrationDocument,
   user: any,
-  type: string
+  type: string,
 ) => {
   if (doc.channelIds) {
     await models.Channels.updateMany(
       { _id: { $in: doc.channelIds } },
-      { $push: { integrationIds: integration._id } }
+      { $push: { integrationIds: integration._id } },
     );
   }
 
@@ -65,9 +65,9 @@ const createIntegration = async (
     {
       type: MODULE_NAMES.INTEGRATION,
       newData: { ...doc, createdUserId: user._id, isActive: true },
-      object: integration
+      object: integration,
     },
-    user
+    user,
   );
 
   telemetry.trackCli('integration_created', { type });
@@ -77,8 +77,8 @@ const createIntegration = async (
     action: 'registerOnboardHistory',
     data: {
       type: `${type}IntegrationCreated`,
-      user
-    }
+      user,
+    },
   });
 
   return integration;
@@ -90,17 +90,17 @@ const editIntegration = async (
   integration: IIntegrationDocument,
   user,
   updated: IIntegrationDocument,
-  models: IModels
+  models: IModels,
 ) => {
   await models.Channels.updateMany(
     { integrationIds: integration._id },
-    { $pull: { integrationIds: integration._id } }
+    { $pull: { integrationIds: integration._id } },
   );
 
   if (fields.channelIds) {
     await models.Channels.updateMany(
       { _id: { $in: fields.channelIds } },
-      { $push: { integrationIds: integration._id } }
+      { $push: { integrationIds: integration._id } },
     );
   }
 
@@ -111,9 +111,9 @@ const editIntegration = async (
       type: MODULE_NAMES.INTEGRATION,
       object: integration,
       newData: fields,
-      updatedDocument: updated
+      updatedDocument: updated,
     },
-    user
+    user,
   );
 
   return updated;
@@ -126,11 +126,11 @@ const integrationMutations = {
   async integrationsCreateMessengerIntegration(
     _root,
     doc: IIntegration,
-    { user, models, subdomain }: IContext
+    { user, models, subdomain }: IContext,
   ) {
     const integration = await models.Integrations.createMessengerIntegration(
       doc,
-      user._id
+      user._id,
     );
 
     return createIntegration(
@@ -139,7 +139,7 @@ const integrationMutations = {
       doc,
       integration,
       user,
-      'messenger'
+      'messenger',
     );
   },
 
@@ -149,12 +149,12 @@ const integrationMutations = {
   async integrationsEditMessengerIntegration(
     _root,
     { _id, ...fields }: IEditIntegration,
-    { user, models, subdomain }: IContext
+    { user, models, subdomain }: IContext,
   ) {
     const integration = await models.Integrations.getIntegration({ _id });
     const updated = await models.Integrations.updateMessengerIntegration(
       _id,
-      fields
+      fields,
     );
 
     return editIntegration(
@@ -163,7 +163,7 @@ const integrationMutations = {
       integration,
       user,
       updated,
-      models
+      models,
     );
   },
 
@@ -173,7 +173,7 @@ const integrationMutations = {
   async integrationsSaveMessengerAppearanceData(
     _root,
     { _id, uiOptions }: { _id: string; uiOptions: IUiOptions },
-    { models }: IContext
+    { models }: IContext,
   ) {
     return models.Integrations.saveMessengerAppearanceData(_id, uiOptions);
   },
@@ -184,7 +184,7 @@ const integrationMutations = {
   async integrationsSaveMessengerConfigs(
     _root,
     { _id, messengerData }: { _id: string; messengerData: IMessengerData },
-    { models }: IContext
+    { models }: IContext,
   ) {
     return models.Integrations.saveMessengerConfigs(_id, messengerData);
   },
@@ -195,11 +195,11 @@ const integrationMutations = {
   async integrationsCreateLeadIntegration(
     _root,
     doc: IIntegration,
-    { user, models, subdomain }: IContext
+    { user, models, subdomain }: IContext,
   ) {
     const integration = await models.Integrations.createLeadIntegration(
       doc,
-      user._id
+      user._id,
     );
 
     return createIntegration(models, subdomain, doc, integration, user, 'lead');
@@ -211,7 +211,7 @@ const integrationMutations = {
   async integrationsEditLeadIntegration(
     _root,
     { _id, ...doc }: IEditIntegration,
-    { user, models, subdomain }: IContext
+    { user, models, subdomain }: IContext,
   ) {
     const integration = await models.Integrations.getIntegration({ _id });
 
@@ -226,7 +226,7 @@ const integrationMutations = {
   async integrationsCreateExternalIntegration(
     _root,
     { data, ...doc }: IExternalIntegrationParams & { data: object },
-    { user, models, subdomain }: IContext
+    { user, models, subdomain }: IContext,
   ) {
     const modifiedDoc: any = { ...doc };
 
@@ -239,7 +239,7 @@ const integrationMutations = {
       ) {
         modifiedDoc.webhookData.token = await getUniqueValue(
           models.Integrations,
-          'token'
+          'token',
         );
       }
     }
@@ -250,13 +250,13 @@ const integrationMutations = {
 
     const integration = await models.Integrations.createExternalIntegration(
       modifiedDoc,
-      user._id
+      user._id,
     );
 
     if (doc.channelIds) {
       await models.Channels.updateMany(
         { _id: { $in: doc.channelIds } },
-        { $push: { integrationIds: integration._id } }
+        { $push: { integrationIds: integration._id } },
       );
     }
 
@@ -275,10 +275,10 @@ const integrationMutations = {
               accountId: doc.accountId,
               kind: doc.kind,
               integrationId: integration._id,
-              data: data ? JSON.stringify(data) : ''
-            }
+              data: data ? JSON.stringify(data) : '',
+            },
           },
-          isRPC: true
+          isRPC: true,
         });
       }
 
@@ -290,9 +290,9 @@ const integrationMutations = {
         {
           type: MODULE_NAMES.INTEGRATION,
           newData: { ...doc, createdUserId: user._id, isActive: true },
-          object: integration
+          object: integration,
         },
-        user
+        user,
       );
     } catch (e) {
       await models.Integrations.deleteOne({ _id: integration._id });
@@ -305,7 +305,7 @@ const integrationMutations = {
   async integrationsEditCommonFields(
     _root,
     { _id, name, brandId, channelIds, details },
-    { user, models, subdomain }: IContext
+    { user, models, subdomain }: IContext,
   ) {
     const integration = await models.Integrations.getIntegration({ _id });
 
@@ -319,13 +319,13 @@ const integrationMutations = {
 
     await models.Channels.updateMany(
       { integrationIds: integration._id },
-      { $pull: { integrationIds: integration._id } }
+      { $pull: { integrationIds: integration._id } },
     );
 
     if (channelIds) {
       await models.Channels.updateMany(
         { _id: { $in: channelIds } },
-        { $push: { integrationIds: integration._id } }
+        { $push: { integrationIds: integration._id } },
       );
     }
 
@@ -340,10 +340,10 @@ const integrationMutations = {
           accountId: doc.accountId,
           kind: doc.kind,
           integrationId: integration._id,
-          data: details ? JSON.stringify(details) : ''
-        }
+          data: details ? JSON.stringify(details) : '',
+        },
       },
-      isRPC: true
+      isRPC: true,
     });
 
     await putUpdateLog(
@@ -353,9 +353,9 @@ const integrationMutations = {
         type: MODULE_NAMES.INTEGRATION,
         object: { name: integration.name, brandId: integration.brandId },
         newData: { name, brandId },
-        updatedDocument: updated
+        updatedDocument: updated,
       },
-      user
+      user,
     );
 
     return updated;
@@ -367,7 +367,7 @@ const integrationMutations = {
   async integrationsRemove(
     _root,
     { _id }: { _id: string },
-    { user, models, subdomain }: IContext
+    { user, models, subdomain }: IContext,
   ) {
     const integration = await models.Integrations.getIntegration({ _id });
 
@@ -377,7 +377,7 @@ const integrationMutations = {
         subdomain,
         data: { integrationId: _id },
         isRPC: true,
-        action: 'removeIntegrations'
+        action: 'removeIntegrations',
       };
 
       if (await isServiceRunning(kind)) {
@@ -396,7 +396,7 @@ const integrationMutations = {
       models,
       subdomain,
       { type: MODULE_NAMES.INTEGRATION, object: integration },
-      user
+      user,
     );
 
     return models.Integrations.removeIntegration(_id);
@@ -408,7 +408,7 @@ const integrationMutations = {
   async integrationsRemoveAccount(
     _root,
     { _id, kind }: { _id: string; kind?: string },
-    { models, subdomain }: IContext
+    { models, subdomain }: IContext,
   ) {
     try {
       const { erxesApiIds } = await sendCommonMessage({
@@ -418,9 +418,9 @@ const integrationMutations = {
         action: 'api_to_integrations',
         data: {
           action: 'remove-account',
-          _id
+          _id,
         },
-        isRPC: true
+        isRPC: true,
       });
 
       for (const id of erxesApiIds) {
@@ -437,7 +437,7 @@ const integrationMutations = {
   async integrationsRepair(
     _root,
     { _id, kind }: { _id: string; kind: string },
-    { subdomain }: IContext
+    { subdomain }: IContext,
   ) {
     try {
       const response = await sendCommonMessage({
@@ -449,9 +449,9 @@ const integrationMutations = {
         action: 'api_to_integrations',
         data: {
           action: 'repair-integrations',
-          _id
+          _id,
         },
-        isRPC: true
+        isRPC: true,
       });
 
       return response;
@@ -464,13 +464,13 @@ const integrationMutations = {
   async integrationsArchive(
     _root,
     { _id, status }: IArchiveParams,
-    { user, models, subdomain }: IContext
+    { user, models, subdomain }: IContext,
   ) {
     const integration = await models.Integrations.getIntegration({ _id });
 
     await models.Integrations.updateOne(
       { _id },
-      { $set: { isActive: !status } }
+      { $set: { isActive: !status } },
     );
 
     const updated = await models.Integrations.findOne({ _id });
@@ -485,9 +485,9 @@ const integrationMutations = {
         description: `"${integration.name}" has been ${
           status === true ? 'archived' : 'unarchived'
         }.`,
-        updatedDocument: updated
+        updatedDocument: updated,
       },
-      user
+      user,
     );
 
     return updated;
@@ -496,15 +496,15 @@ const integrationMutations = {
   async integrationsSendSms(
     _root,
     args: ISmsParams,
-    { user, subdomain }: IContext
+    { user, subdomain }: IContext,
   ) {
     const customer = await sendContactsMessage({
       subdomain,
       action: 'customers.findOne',
       data: {
-        primaryPhone: args.to
+        primaryPhone: args.to,
       },
-      isRPC: true
+      isRPC: true,
     });
 
     if (!customer) {
@@ -519,20 +519,19 @@ const integrationMutations = {
         subdomain,
         action: 'sendSms',
         data: args,
-        isRPC: true
+        isRPC: true,
       });
 
       if (response && response.status === 'ok') {
         await putActivityLog(subdomain, {
-          messageBroker: messageBroker(),
           action: 'add',
           data: {
             action: 'send',
             contentType: 'sms',
             createdBy: user._id,
             contentId: customer._id,
-            content: { to: args.to, text: args.content }
-          }
+            content: { to: args.to, text: args.content },
+          },
         });
       }
 
@@ -545,7 +544,7 @@ const integrationMutations = {
   async integrationsCopyLeadIntegration(
     _root,
     { _id }: { _id },
-    { docModifier, user, models, subdomain }: IContext
+    { docModifier, user, models, subdomain }: IContext,
   ) {
     const sourceIntegration = await models.Integrations.getIntegration({ _id });
 
@@ -557,19 +556,19 @@ const integrationMutations = {
       subdomain,
       action: 'findOne',
       data: { _id: sourceIntegration.formId },
-      isRPC: true
+      isRPC: true,
     });
 
     const sourceFields = await sendFormsMessage({
       subdomain,
       action: 'fields.find',
       data: { query: { contentTypeId: sourceForm._id } },
-      isRPC: true
+      isRPC: true,
     });
 
     const formDoc = docModifier({
       ...sourceForm,
-      title: `${sourceForm.title}-copied`
+      title: `${sourceForm.title}-copied`,
     });
 
     delete formDoc._id;
@@ -579,7 +578,7 @@ const integrationMutations = {
       subdomain,
       action: 'createForm',
       data: { formDoc, userId: user._id },
-      isRPC: true
+      isRPC: true,
     });
 
     const leadData = sourceIntegration.leadData;
@@ -591,18 +590,18 @@ const integrationMutations = {
       leadData: leadData && {
         ...leadData.toObject(),
         viewCount: 0,
-        contactsGathered: 0
-      }
+        contactsGathered: 0,
+      },
     });
 
     delete doc._id;
 
     const copiedIntegration = await models.Integrations.createLeadIntegration(
       doc,
-      user._id
+      user._id,
     );
 
-    const fields = sourceFields.map(e => ({
+    const fields = sourceFields.map((e) => ({
       options: e.options,
       isVisible: e.isVisible,
       contentType: e.contentType,
@@ -614,13 +613,13 @@ const integrationMutations = {
       isRequired: e.isRequired,
       isDefinedByErxes: false,
       associatedFieldId: e.associatedFieldId,
-      pageNumber: e.pageNumber
+      pageNumber: e.pageNumber,
     }));
 
     sendFormsMessage({
       subdomain,
       action: 'fields.insertMany',
-      data: { fields }
+      data: { fields },
     });
 
     await putCreateLog(
@@ -629,9 +628,9 @@ const integrationMutations = {
       {
         type: MODULE_NAMES.INTEGRATION,
         newData: { ...doc, createdUserId: user._id, isActive: true },
-        object: copiedIntegration
+        object: copiedIntegration,
       },
-      user
+      user,
     );
 
     telemetry.trackCli('integration_created', { type: 'lead' });
@@ -641,8 +640,8 @@ const integrationMutations = {
       action: 'registerOnboardHistory',
       data: {
         type: 'leadIntegrationCreate',
-        user
-      }
+        user,
+      },
     });
 
     return copiedIntegration;
@@ -653,11 +652,11 @@ const integrationMutations = {
   async integrationsCreateBookingIntegration(
     _root,
     doc: IIntegration,
-    { user, models, subdomain }: IContext
+    { user, models, subdomain }: IContext,
   ) {
     const integration = await models.Integrations.createBookingIntegration(
       doc,
-      user._id
+      user._id,
     );
 
     return createIntegration(
@@ -666,7 +665,7 @@ const integrationMutations = {
       doc,
       integration,
       user,
-      'booking'
+      'booking',
     );
   },
 
@@ -676,73 +675,73 @@ const integrationMutations = {
   async integrationsEditBookingIntegration(
     _root,
     { _id, ...doc }: IEditIntegration,
-    { user, models, subdomain }: IContext
+    { user, models, subdomain }: IContext,
   ) {
     const integration = await models.Integrations.getIntegration({ _id });
 
     const updated = await models.Integrations.updateBookingIntegration(
       _id,
-      doc
+      doc,
     );
 
     return editIntegration(subdomain, doc, integration, user, updated, models);
-  }
+  },
 };
 
 checkPermission(
   integrationMutations,
   'integrationsCreateMessengerIntegration',
-  'integrationsCreateMessengerIntegration'
+  'integrationsCreateMessengerIntegration',
 );
 checkPermission(
   integrationMutations,
   'integrationsSaveMessengerAppearanceData',
-  'integrationsSaveMessengerAppearanceData'
+  'integrationsSaveMessengerAppearanceData',
 );
 checkPermission(
   integrationMutations,
   'integrationsSaveMessengerConfigs',
-  'integrationsSaveMessengerConfigs'
+  'integrationsSaveMessengerConfigs',
 );
 checkPermission(
   integrationMutations,
   'integrationsCreateLeadIntegration',
-  'integrationsCreateLeadIntegration'
+  'integrationsCreateLeadIntegration',
 );
 checkPermission(
   integrationMutations,
   'integrationsEditLeadIntegration',
-  'integrationsEditLeadIntegration'
+  'integrationsEditLeadIntegration',
 );
 checkPermission(
   integrationMutations,
   'integrationsRemove',
-  'integrationsRemove'
+  'integrationsRemove',
 );
 checkPermission(
   integrationMutations,
   'integrationsArchive',
-  'integrationsArchive'
+  'integrationsArchive',
 );
 checkPermission(
   integrationMutations,
   'integrationsEditCommonFields',
-  'integrationsEdit'
+  'integrationsEdit',
 );
 checkPermission(
   integrationMutations,
   'integrationsCopyLeadIntegration',
-  'integrationsCreateLeadIntegration'
+  'integrationsCreateLeadIntegration',
 );
 checkPermission(
   integrationMutations,
   'integrationsCreateBookingIntegration',
-  'integrationsCreateBookingIntegration'
+  'integrationsCreateBookingIntegration',
 );
 checkPermission(
   integrationMutations,
   'integrationsEditBookingIntegration',
-  'integrationsEditBookingIntegration'
+  'integrationsEditBookingIntegration',
 );
 
 export default integrationMutations;

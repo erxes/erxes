@@ -10,17 +10,23 @@ import {
 import { handleInstagramMessage } from './handleInstagramMessage';
 import { userIds } from './middlewares/userMiddleware';
 
-import {
+import { sendMessage as sendCommonMessage } from '@erxes/api-utils/src/core';
+import type {
   ISendMessageArgs,
-  sendMessage as sendCommonMessage,
+  ISendMessageArgsNoService,
 } from '@erxes/api-utils/src/core';
 
 import { generateModels } from './connectionResolver';
+import {
+  consumeQueue,
+  consumeRPCQueue,
+  sendRPCMessage as RPC,
+} from '@erxes/api-utils/src/messageBroker';
 
 dotenv.config();
 
 export const sendRPCMessage = async (message): Promise<any> => {
-  return client.sendRPCMessage('rpc_queue:integrations_to_api', message);
+  return RPC('rpc_queue:integrations_to_api', message);
 };
 
 export const initBroker = async () => {
@@ -159,7 +165,7 @@ export const initBroker = async () => {
   );
 };
 
-export const sendInboxMessage = (args: ISendMessageArgs) => {
+export const sendInboxMessage = (args: ISendMessageArgsNoService) => {
   return sendCommonMessage({
     serviceName: 'inbox',
     ...args,

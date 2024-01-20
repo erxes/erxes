@@ -4,16 +4,19 @@ import {
 } from './receiveMessage';
 
 import { generateModels, IModels } from './connectionResolver';
+import { paginate, sendMessage } from '@erxes/api-utils/src/core';
 import {
   ISendMessageArgs,
-  paginate,
-  sendMessage,
+  ISendMessageArgsNoService,
 } from '@erxes/api-utils/src/core';
 import { receiveVisitorDetail } from './widgetUtils';
-import { sendToWebhook as sendWebhook } from '@erxes/api-utils/src';
 import { getIntegrationsKinds } from './utils';
 import { sendNotifications } from './graphql/resolvers/conversationMutations';
 import { pConversationClientMessageInserted } from './graphql/resolvers/widgetMutations';
+import {
+  consumeQueue,
+  consumeRPCQueue,
+} from '@erxes/api-utils/src/messageBroker';
 
 const createConversationAndMessage = async (
   models: IModels,
@@ -46,7 +49,7 @@ const createConversationAndMessage = async (
   });
 };
 
-export const initBroker = (cl) => {
+export const initBroker = () => {
   consumeRPCQueue(
     'inbox:createConversationAndMessage',
     async ({ subdomain, data }) => {
@@ -391,7 +394,7 @@ export const sendCommonMessage = async (
 };
 
 export const sendContactsMessage = async (
-  args: ISendMessageArgs,
+  args: ISendMessageArgsNoService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'contacts',
@@ -399,21 +402,27 @@ export const sendContactsMessage = async (
   });
 };
 
-export const sendFormsMessage = (args: ISendMessageArgs): Promise<any> => {
+export const sendFormsMessage = (
+  args: ISendMessageArgsNoService,
+): Promise<any> => {
   return sendMessage({
     serviceName: 'forms',
     ...args,
   });
 };
 
-export const sendCoreMessage = (args: ISendMessageArgs): Promise<any> => {
+export const sendCoreMessage = (
+  args: ISendMessageArgsNoService,
+): Promise<any> => {
   return sendMessage({
     serviceName: 'core',
     ...args,
   });
 };
 
-export const sendEngagesMessage = (args: ISendMessageArgs): Promise<any> => {
+export const sendEngagesMessage = (
+  args: ISendMessageArgsNoService,
+): Promise<any> => {
   return sendMessage({
     serviceName: 'engages',
     ...args,
@@ -421,7 +430,7 @@ export const sendEngagesMessage = (args: ISendMessageArgs): Promise<any> => {
 };
 
 export const sendCardsMessage = async (
-  args: ISendMessageArgs,
+  args: ISendMessageArgsNoService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'cards',
@@ -430,7 +439,7 @@ export const sendCardsMessage = async (
 };
 
 export const sendProductsMessage = async (
-  args: ISendMessageArgs,
+  args: ISendMessageArgsNoService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'products',
@@ -438,7 +447,9 @@ export const sendProductsMessage = async (
   });
 };
 
-export const sendTagsMessage = (args: ISendMessageArgs): Promise<any> => {
+export const sendTagsMessage = (
+  args: ISendMessageArgsNoService,
+): Promise<any> => {
   return sendMessage({
     serviceName: 'tags',
     ...args,
@@ -446,7 +457,7 @@ export const sendTagsMessage = (args: ISendMessageArgs): Promise<any> => {
 };
 
 export const sendIntegrationsMessage = (
-  args: ISendMessageArgs,
+  args: ISendMessageArgsNoService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'integrations',
@@ -454,7 +465,9 @@ export const sendIntegrationsMessage = (
   });
 };
 
-export const sendSegmentsMessage = (args: ISendMessageArgs): Promise<any> => {
+export const sendSegmentsMessage = (
+  args: ISendMessageArgsNoService,
+): Promise<any> => {
   return sendMessage({
     serviceName: 'segments',
     ...args,
@@ -462,7 +475,7 @@ export const sendSegmentsMessage = (args: ISendMessageArgs): Promise<any> => {
 };
 
 export const sendNotificationsMessage = (
-  args: ISendMessageArgs,
+  args: ISendMessageArgsNoService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'notifications',
@@ -471,7 +484,7 @@ export const sendNotificationsMessage = (
 };
 
 export const sendKnowledgeBaseMessage = (
-  args: ISendMessageArgs,
+  args: ISendMessageArgsNoService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'knowledgebase',
@@ -479,7 +492,9 @@ export const sendKnowledgeBaseMessage = (
   });
 };
 
-export const sendLogsMessage = async (args: ISendMessageArgs): Promise<any> => {
+export const sendLogsMessage = async (
+  args: ISendMessageArgsNoService,
+): Promise<any> => {
   return sendMessage({
     serviceName: 'logs',
     ...args,
@@ -487,14 +502,10 @@ export const sendLogsMessage = async (args: ISendMessageArgs): Promise<any> => {
 };
 
 export const sendAutomationsMessage = async (
-  args: ISendMessageArgs,
+  args: ISendMessageArgsNoService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'automations',
     ...args,
   });
-};
-
-export const sendToWebhook = ({ subdomain, data }) => {
-  return sendWebhook(client, { subdomain, data });
 };

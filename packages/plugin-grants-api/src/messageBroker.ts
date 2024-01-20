@@ -1,8 +1,14 @@
-import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
-
+import { sendMessage } from '@erxes/api-utils/src/core';
+import {
+  ISendMessageArgs,
+  ISendMessageArgsNoService,
+} from '@erxes/api-utils/src/core';
 import { generateModels } from './connectionResolver';
 import { afterMutationHandlers } from './afterMutations';
-import { consumeQueue } from '@erxes/api-utils/src/messageBroker';
+import {
+  consumeQueue,
+  consumeRPCQueue,
+} from '@erxes/api-utils/src/messageBroker';
 
 export const initBroker = async () => {
   consumeRPCQueue('grants:requests.find', async ({ subdomain, data }) => {
@@ -32,35 +38,45 @@ export const initBroker = async () => {
   });
 };
 
-export const sendContactsMessage = (args: ISendMessageArgs): Promise<any> => {
+export const sendContactsMessage = (
+  args: ISendMessageArgsNoService,
+): Promise<any> => {
   return sendMessage({
     serviceName: 'contacts',
     ...args,
   });
 };
 
-export const sendFormsMessage = (args: ISendMessageArgs): Promise<any> => {
+export const sendFormsMessage = (
+  args: ISendMessageArgsNoService,
+): Promise<any> => {
   return sendMessage({
     serviceName: 'forms',
     ...args,
   });
 };
 
-export const sendCardsMessage = (args: ISendMessageArgs): Promise<any> => {
+export const sendCardsMessage = (
+  args: ISendMessageArgsNoService,
+): Promise<any> => {
   return sendMessage({
     serviceName: 'cards',
     ...args,
   });
 };
 
-export const sendCoreMessage = (args: ISendMessageArgs): Promise<any> => {
+export const sendCoreMessage = (
+  args: ISendMessageArgsNoService,
+): Promise<any> => {
   return sendMessage({
     serviceName: 'core',
     ...args,
   });
 };
 
-export const sendKbMessage = (args: ISendMessageArgs): Promise<any> => {
+export const sendKbMessage = (
+  args: ISendMessageArgsNoService,
+): Promise<any> => {
   return sendMessage({
     serviceName: 'knowledgebase',
     ...args,
@@ -68,7 +84,7 @@ export const sendKbMessage = (args: ISendMessageArgs): Promise<any> => {
 };
 
 export const sendCommonMessage = async (
-  args: ISendMessageArgs & { serviceName: string },
+  args: ISendMessageArgs,
 ): Promise<any> => {
   return sendMessage({
     ...args,
@@ -76,7 +92,7 @@ export const sendCommonMessage = async (
 };
 
 export const sendNotificationsMessage = async (
-  args: ISendMessageArgs,
+  args: ISendMessageArgsNoService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'notifications',
