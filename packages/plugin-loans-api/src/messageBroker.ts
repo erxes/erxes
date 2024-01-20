@@ -1,9 +1,10 @@
-import { MessageArgs, sendMessage } from '@erxes/api-utils/src/core';
-
+import { sendMessage } from '@erxes/api-utils/src/core';
+import { MessageArgs, MessageArgsOmitService } from '@erxes/api-utils/src/core';
 import { generateModels } from './connectionResolver';
 import fetch from 'node-fetch';
+import { consumeRPCQueue } from '@erxes/api-utils/src/messageBroker';
 
-export const initBroker = async (cl) => {
+export const initBroker = async () => {
   consumeRPCQueue('loans:contracts.find', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
@@ -43,7 +44,7 @@ export const initBroker = async (cl) => {
 };
 
 export const sendMessageBroker = async (
-  args: MessageArgs,
+  args: MessageArgsOmitService,
   name:
     | 'core'
     | 'cards'
@@ -61,21 +62,27 @@ export const sendMessageBroker = async (
   });
 };
 
-export const sendCoreMessage = async (args: MessageArgs): Promise<any> => {
+export const sendCoreMessage = async (
+  args: MessageArgsOmitService,
+): Promise<any> => {
   return sendMessage({
     serviceName: 'core',
     ...args,
   });
 };
 
-export const sendCardsMessage = async (args: MessageArgs): Promise<any> => {
+export const sendCardsMessage = async (
+  args: MessageArgsOmitService,
+): Promise<any> => {
   return sendMessage({
     serviceName: 'cards',
     ...args,
   });
 };
 
-export const sendReactionsMessage = async (args: MessageArgs): Promise<any> => {
+export const sendReactionsMessage = async (
+  args: MessageArgsOmitService,
+): Promise<any> => {
   return sendMessage({
     serviceName: 'reactions',
     ...args,
@@ -150,7 +157,3 @@ export const sendSms = async (
     }
   }
 };
-
-export default function () {
-  return client;
-}

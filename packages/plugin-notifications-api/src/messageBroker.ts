@@ -139,7 +139,7 @@ const sendNotification = async (
   });
 };
 
-export const initBroker = async (cl) => {
+export const initBroker = async () => {
   const { consumeRPCQueue, consumeQueue } = cl;
 
   consumeQueue('notifications:send', async ({ subdomain, data }) => {

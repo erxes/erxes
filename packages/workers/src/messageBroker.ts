@@ -59,7 +59,3 @@ export const removePurchases = (subdomain, _ids) =>
   });
 export const getFileUploadConfigs = async () =>
   sendRPCMessage('core:getFileUploadConfigs', {});
-
-export default function () {
-  return client;
-}

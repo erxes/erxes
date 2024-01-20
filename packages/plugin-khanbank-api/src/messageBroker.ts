@@ -3,6 +3,7 @@ import { MessageArgs, sendMessage } from '@erxes/api-utils/src/core';
 import Khanbank from './khanbank/khanbank';
 import { generateModels } from './connectionResolver';
 import { TransferParams } from './khanbank/types';
+import { consumeRPCQueue } from '@erxes/api-utils/src/messageBroker';
 
 export const initBroker = async () => {
   /**

@@ -14,7 +14,7 @@ import { sendRPCMessageMq } from '@erxes/api-utils/src/messageBroker';
 import { updateMobileAmount } from './utils';
 import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
 
-export const initBroker = async (cl) => {
+export const initBroker = async () => {
   const { SKIP_REDIS } = process.env;
 
   let channelToken = '';
@@ -347,7 +347,3 @@ export const fetchSegment = (
     data: { segmentId, options, segmentData },
     isRPC: true,
   });
-
-export default function () {
-  return client;
-}

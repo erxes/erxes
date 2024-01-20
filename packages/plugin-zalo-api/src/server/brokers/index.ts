@@ -8,16 +8,12 @@ import { conversationMessagesBroker } from './conversationMessages';
 
 let client;
 
-export const initBroker = async (cl) => {
+export const initBroker = async () => {
   client = cl;
 
   integrationBroker(cl);
   conversationMessagesBroker(cl);
 };
-
-export default function () {
-  return client;
-}
 
 export const sendContactsMessage = (args: MessageArgs) => {
   return sendCommonMessage({

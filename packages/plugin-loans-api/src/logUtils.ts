@@ -7,7 +7,6 @@ import { periodLockSchema } from './models/definitions/periodLocks';
 import { contractTypeSchema } from './models/definitions/contractTypes';
 
 import { putCreateLog, putDeleteLog, putUpdateLog } from '@erxes/api-utils/src';
-import messageBroker from './messageBroker';
 import * as _ from 'underscore';
 
 const gatherContractFieldNames = async (_models, _doc, prevList = null) => {
@@ -63,18 +62,17 @@ export async function createLog(subdomain, user, logData) {
     type: `loans:${logData.type}`,
     activityType: `loans:${logData.type}`,
     contentType: `loans:contract`,
-    contentId: logData.contractId
+    contentId: logData.contractId,
   });
 
   await putCreateLog(
     subdomain,
-    messageBroker(),
     {
       ...logData,
       ...descriptions,
-      type: `loans:${logData.type}`
+      type: `loans:${logData.type}`,
     },
-    user
+    user,
   );
 }
 
@@ -83,13 +81,12 @@ export async function updateLog(subdomain, user, logData) {
 
   await putUpdateLog(
     subdomain,
-    messageBroker(),
     {
       ...logData,
       ...descriptions,
-      type: `loans:${logData.type}`
+      type: `loans:${logData.type}`,
     },
-    user
+    user,
   );
 }
 
@@ -97,9 +94,8 @@ export async function deleteLog(subdomain, user, logData) {
   const descriptions = gatherDescriptions(logData);
   await putDeleteLog(
     subdomain,
-    messageBroker(),
     { ...logData, ...descriptions, type: `loans:${logData.type}` },
-    user
+    user,
   );
 }
 
@@ -111,7 +107,7 @@ export default {
       { name: 'transaction', schemas: [transactionSchema] },
       { name: 'classification', schemas: [classificationSchema] },
       { name: 'periodLock', schemas: [periodLockSchema] },
-      { name: 'contractType', schemas: [contractTypeSchema] }
-    ])
-  })
+      { name: 'contractType', schemas: [contractTypeSchema] },
+    ]),
+  }),
 };

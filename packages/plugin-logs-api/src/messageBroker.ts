@@ -1,11 +1,19 @@
 import { debug } from './configs';
 import { IActivityLogDocument } from './models/ActivityLogs';
-import { receivePutLogCommand, sendToApi } from './utils';
+import { receivePutLogCommand } from './utils';
 
 import { getService, isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
 import { generateModels } from './connectionResolver';
-import { MessageArgs, sendMessage } from '@erxes/api-utils/src/core';
-import { consumeQueue } from '@erxes/api-utils/src/messageBroker';
+import { sendMessage } from '@erxes/api-utils/src/core';
+import type {
+  MessageArgs,
+  MessageArgsOmitService,
+} from '@erxes/api-utils/src/core';
+import {
+  consumeQueue,
+  consumeRPCQueue,
+  sendRPCMessage,
+} from '@erxes/api-utils/src/messageBroker';
 
 const hasMetaLogs = async (serviceName: string) => {
   const service = await getService(serviceName);
@@ -30,7 +38,7 @@ const isServiceEnabled = async (serviceName: string): Promise<boolean> => {
   return enabled && hasMeta;
 };
 
-export const initBroker = async (cl) => {
+export const initBroker = async () => {
   consumeQueue('putLog', async ({ data, subdomain }) => {
     const models = await generateModels(subdomain);
 
@@ -193,23 +201,23 @@ export const getDbSchemaLabels = async (serviceName: string, args) => {
   const enabled = await isEnabled(serviceName);
 
   return enabled
-    ? client.sendRPCMessage(`${serviceName}:logs.getSchemaLabels`, args)
+    ? sendRPCMessage(`${serviceName}:logs.getSchemaLabels`, args)
     : [];
 };
 
-export const getActivityContentItem = async (
-  activityLog: IActivityLogDocument,
-) => {
-  const [serviceName] = activityLog.contentType.split(':');
+// export const getActivityContentItem = async (
+//   activityLog: IActivityLogDocument,
+// ) => {
+//   const [serviceName] = activityLog.contentType.split(':');
 
-  const enabled = await isServiceEnabled(serviceName);
+//   const enabled = await isServiceEnabled(serviceName);
 
-  return enabled
-    ? client.sendRPCMessage(`${serviceName}:logs.getActivityContent`, {
-        activityLog,
-      })
-    : null;
-};
+//   return enabled
+//     ? sendRPCMessage(`${serviceName}:logs.getActivityContent`, {
+//         activityLog,
+//       })
+//     : null;
+// };
 
 export const getContentTypeDetail = async (
   subdomain: string,
@@ -220,7 +228,7 @@ export const getContentTypeDetail = async (
   const enabled = await isServiceEnabled(serviceName);
 
   return enabled
-    ? client.sendRPCMessage(`${serviceName}:logs.getContentTypeDetail`, {
+    ? sendRPCMessage(`${serviceName}:logs.getContentTypeDetail`, {
         subdomain,
         data: activityLog,
       })
@@ -233,7 +241,7 @@ export const collectServiceItems = async (contentType: string, data) => {
   const enabled = await isServiceEnabled(serviceName);
 
   return enabled
-    ? client.sendRPCMessage(`${serviceName}:logs.collectItems`, data)
+    ? sendRPCMessage(`${serviceName}:logs.collectItems`, data)
     : [];
 };
 
@@ -244,7 +252,7 @@ export const getContentIds = async (subdomain, data) => {
 
   return enabled
     ? (
-        await client.sendRPCMessage(`${serviceName}:logs.getContentIds`, {
+        await sendRPCMessage(`${serviceName}:logs.getContentIds`, {
           subdomain,
           data,
         })
@@ -252,21 +260,21 @@ export const getContentIds = async (subdomain, data) => {
     : [];
 };
 
-export const sendCoreMessage = (args: MessageArgs) => {
+export const sendCoreMessage = (args: MessageArgsOmitService) => {
   return sendMessage({
     serviceName: 'core',
     ...args,
   });
 };
 
-export const sendInboxMessage = (args: MessageArgs) => {
+export const sendInboxMessage = (args: MessageArgsOmitService) => {
   return sendMessage({
     serviceName: 'inbox',
     ...args,
   });
 };
 
-export const sendClientPortalMessage = (args: MessageArgs) => {
+export const sendClientPortalMessage = (args: MessageArgsOmitService) => {
   return sendMessage({
     serviceName: 'clientportal',
     ...args,
@@ -294,7 +302,3 @@ export const fetchService = async (
     defaultValue,
   });
 };
-
-export default function () {
-  return client;
-}

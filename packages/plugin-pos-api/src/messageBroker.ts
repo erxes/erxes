@@ -6,7 +6,7 @@ import { MessageArgs, sendMessage } from '@erxes/api-utils/src/core';
 
 import { beforeResolverHandlers } from './beforeResolvers';
 
-export const initBroker = async (cl) => {
+export const initBroker = async () => {
   consumeQueue('pos:afterMutation', async ({ subdomain, data }) => {
     await afterMutationHandlers(subdomain, data);
     return;
@@ -429,7 +429,3 @@ export const sendFormsMessage = (args: MessageArgs): Promise<any> => {
     ...args,
   });
 };
-
-export default function () {
-  return client;
-}

@@ -1,6 +1,11 @@
-import { MessageArgs, sendMessage } from '@erxes/api-utils/src/core';
+import { sendMessage } from '@erxes/api-utils/src/core';
+import type {
+  MessageArgs,
+  MessageArgsOmitService,
+} from '@erxes/api-utils/src/core';
 
 import { generateModels } from './connectionResolver';
+import { consumeRPCQueue } from '@erxes/api-utils/src/messageBroker';
 
 export const initBroker = async () => {
   consumeRPCQueue(
@@ -75,14 +80,16 @@ export const initBroker = async () => {
   );
 };
 
-export const sendCoreMessage = (args: MessageArgs): Promise<any> => {
+export const sendCoreMessage = (args: MessageArgsOmitService): Promise<any> => {
   return sendMessage({
     serviceName: 'core',
     ...args,
   });
 };
 
-export const sendSegmentsMessage = async (args: MessageArgs): Promise<any> => {
+export const sendSegmentsMessage = async (
+  args: MessageArgsOmitService,
+): Promise<any> => {
   return sendMessage({
     serviceName: 'segments',
     ...args,

@@ -4,7 +4,7 @@ import { generateModels } from './connectionResolver';
 import { IXypConfig } from './graphql/resolvers/queries';
 import fetch from 'node-fetch';
 
-export const initBroker = async (cl) => {
+export const initBroker = async () => {
   consumeRPCQueue('xyp:fetch', async ({ subdomain, data }) => {
     const xypConfigs = await sendCommonMessage({
       subdomain,
@@ -168,7 +168,3 @@ export const sendCoreMessage = async (args: MessageArgs): Promise<any> => {
     ...args,
   });
 };
-
-export default function () {
-  return client;
-}
