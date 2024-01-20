@@ -1,14 +1,21 @@
 import { generateModels } from './connectionResolver';
-import { MessageArgs, sendMessage } from '@erxes/api-utils/src/core';
+import {
+  MessageArgs,
+  MessageArgsOmitService,
+  sendMessage,
+} from '@erxes/api-utils/src/core';
 
 import { beforeResolverHandlers } from './beforeResolvers';
 import {
   consumeSalesPlans,
   removeFromSalesPlans,
 } from './utils/consumeSalesPlans';
+import {
+  consumeQueue,
+  consumeRPCQueue,
+} from '@erxes/api-utils/src/messageBroker';
 
 export const initBroker = async () => {
-  const { consumeQueue, consumeRPCQueue } = cl;
   consumeQueue(
     'processes:createWorks',
     async ({ subdomain, data: { dayPlans, date, branchId, departmentId } }) => {
@@ -112,14 +119,18 @@ export const sendCommonMessage = async (
   });
 };
 
-export const sendProductsMessage = async (args: MessageArgs): Promise<any> => {
+export const sendProductsMessage = async (
+  args: MessageArgsOmitService,
+): Promise<any> => {
   return sendMessage({
     serviceName: 'products',
     ...args,
   });
 };
 
-export const sendContactsMessage = async (args: MessageArgs): Promise<any> => {
+export const sendContactsMessage = async (
+  args: MessageArgsOmitService,
+): Promise<any> => {
   return sendMessage({
     serviceName: 'contacts',
     ...args,
@@ -127,7 +138,7 @@ export const sendContactsMessage = async (args: MessageArgs): Promise<any> => {
 };
 
 export const sendInventoriesMessage = async (
-  args: MessageArgs,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'inventories',
@@ -136,7 +147,7 @@ export const sendInventoriesMessage = async (
 };
 
 export const sendSalesplansMessage = async (
-  args: MessageArgs,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'salesplans',
@@ -144,7 +155,9 @@ export const sendSalesplansMessage = async (
   });
 };
 
-export const sendCoreMessage = async (args: MessageArgs): Promise<any> => {
+export const sendCoreMessage = async (
+  args: MessageArgsOmitService,
+): Promise<any> => {
   return sendMessage({
     serviceName: 'core',
     ...args,

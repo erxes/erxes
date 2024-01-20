@@ -1,7 +1,15 @@
-import { MessageArgs, sendMessage } from '@erxes/api-utils/src/core';
+import {
+  MessageArgs,
+  MessageArgsOmitService,
+  sendMessage,
+} from '@erxes/api-utils/src/core';
 import { afterMutationHandlers } from './afterMutations';
 
 import { generateModels } from './connectionResolver';
+import {
+  consumeQueue,
+  consumeRPCQueue,
+} from '@erxes/api-utils/src/messageBroker';
 
 export const initBroker = async () => {
   consumeQueue('riskassessment:afterMutation', async ({ subdomain, data }) => {
@@ -34,42 +42,48 @@ export const initBroker = async () => {
   );
 };
 
-export const sendFormsMessage = async (args: MessageArgs): Promise<any> => {
+export const sendFormsMessage = async (
+  args: MessageArgsOmitService,
+): Promise<any> => {
   return sendMessage({
     serviceName: 'forms',
     ...args,
   });
 };
 
-export const sendCardsMessage = (args: MessageArgs): Promise<any> => {
+export const sendCardsMessage = (
+  args: MessageArgsOmitService,
+): Promise<any> => {
   return sendMessage({
     serviceName: 'cards',
     ...args,
   });
 };
-export const sendCoreMessage = (args: MessageArgs): Promise<any> => {
+export const sendCoreMessage = (args: MessageArgsOmitService): Promise<any> => {
   return sendMessage({
     serviceName: 'core',
     ...args,
   });
 };
-export const sendTagsMessage = async (args: MessageArgs): Promise<any> => {
+export const sendTagsMessage = async (
+  args: MessageArgsOmitService,
+): Promise<any> => {
   return sendMessage({
     serviceName: 'tags',
     ...args,
   });
 };
 
-export const sendRiskAssessmentMessage = (args: MessageArgs): Promise<any> => {
+export const sendRiskAssessmentMessage = (
+  args: MessageArgsOmitService,
+): Promise<any> => {
   return sendMessage({
     serviceName: 'riskassessment',
     ...args,
   });
 };
 
-export const sendCommonMessage = async (
-  args: MessageArgs & { serviceName: string },
-): Promise<any> => {
+export const sendCommonMessage = async (args: MessageArgs): Promise<any> => {
   return sendMessage({
     ...args,
   });

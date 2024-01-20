@@ -1,9 +1,14 @@
-import { MessageArgs, sendMessage } from '@erxes/api-utils/src/core';
+import {
+  MessageArgs,
+  MessageArgsOmitService,
+  sendMessage,
+} from '@erxes/api-utils/src/core';
 import { generateModels } from './connectionResolver';
 
 import { checkPricing, getMainConditions } from './utils';
 import { getAllowedProducts } from './utils/product';
 import { calculatePriceAdjust } from './utils/rule';
+import { consumeRPCQueue } from '@erxes/api-utils/src/messageBroker';
 
 export const initBroker = async () => {
   consumeRPCQueue('pricing:checkPricing', async ({ subdomain, data }) => {
@@ -103,21 +108,27 @@ export const initBroker = async () => {
   });
 };
 
-export const sendProductsMessage = async (args: MessageArgs): Promise<any> => {
+export const sendProductsMessage = async (
+  args: MessageArgsOmitService,
+): Promise<any> => {
   return sendMessage({
     serviceName: 'products',
     ...args,
   });
 };
 
-export const sendTagsMessage = async (args: MessageArgs): Promise<any> => {
+export const sendTagsMessage = async (
+  args: MessageArgsOmitService,
+): Promise<any> => {
   return sendMessage({
     serviceName: 'tags',
     ...args,
   });
 };
 
-export const sendSegmentsMessage = async (args: MessageArgs): Promise<any> => {
+export const sendSegmentsMessage = async (
+  args: MessageArgsOmitService,
+): Promise<any> => {
   return sendMessage({
     serviceName: 'segments',
     ...args,
