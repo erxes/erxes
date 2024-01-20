@@ -1,5 +1,5 @@
 import {
-  ISendMessageArgs,
+  MessageArgs,
   sendMessage as sendMessageCore,
 } from '@erxes/api-utils/src/core';
 import { generateModels } from './connectionResolver';
@@ -120,12 +120,12 @@ export const initBroker = async () => {
 };
 
 export const sendMessage = async (
-  args: ISendMessageArgs & { serviceName: string },
+  args: MessageArgs & { serviceName: string },
 ): Promise<any> => {
   return sendMessageCore({ ...args });
 };
 
-export const sendCoreMessage = (args: ISendMessageArgs): Promise<any> => {
+export const sendCoreMessage = (args: MessageArgs): Promise<any> => {
   return sendMessageCore({
     serviceName: 'core',
     ...args,

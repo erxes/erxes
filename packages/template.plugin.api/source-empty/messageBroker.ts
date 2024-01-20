@@ -1,6 +1,6 @@
 
 import { sendMessage } from "@erxes/api-utils/src/core";
-import type { ISendMessageArgs } from "@erxes/api-utils/src/core";
+import type { MessageArgs } from "@erxes/api-utils/src/core";
 import { consumeQueue, consumeRPCQueue } from "@erxes/api-utils/src/messageBroker";
 import { {Name}s } from "./models";
 
@@ -24,7 +24,7 @@ export const initBroker = async () => {
 
 
 export const sendCommonMessage = async (
-  args: ISendMessageArgs
+  args: MessageArgs
 ) => {
   return sendMessage({
     ...args

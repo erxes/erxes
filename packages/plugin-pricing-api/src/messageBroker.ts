@@ -1,4 +1,4 @@
-import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
+import { MessageArgs, sendMessage } from '@erxes/api-utils/src/core';
 import { generateModels } from './connectionResolver';
 
 import { checkPricing, getMainConditions } from './utils';
@@ -103,25 +103,21 @@ export const initBroker = async () => {
   });
 };
 
-export const sendProductsMessage = async (
-  args: ISendMessageArgs,
-): Promise<any> => {
+export const sendProductsMessage = async (args: MessageArgs): Promise<any> => {
   return sendMessage({
     serviceName: 'products',
     ...args,
   });
 };
 
-export const sendTagsMessage = async (args: ISendMessageArgs): Promise<any> => {
+export const sendTagsMessage = async (args: MessageArgs): Promise<any> => {
   return sendMessage({
     serviceName: 'tags',
     ...args,
   });
 };
 
-export const sendSegmentsMessage = async (
-  args: ISendMessageArgs,
-): Promise<any> => {
+export const sendSegmentsMessage = async (args: MessageArgs): Promise<any> => {
   return sendMessage({
     serviceName: 'segments',
     ...args,

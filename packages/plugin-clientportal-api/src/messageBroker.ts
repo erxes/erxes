@@ -1,6 +1,6 @@
 import {
-  ISendMessageArgs,
-  ISendMessageArgsNoService,
+  MessageArgs,
+  MessageArgsOmitService,
   sendMessage,
 } from '@erxes/api-utils/src/core';
 import { afterMutationHandlers } from './afterMutations';
@@ -187,7 +187,7 @@ export const initBroker = async () => {
   );
 };
 
-export const sendCoreMessage = async (args: ISendMessageArgsNoService) => {
+export const sendCoreMessage = async (args: MessageArgsOmitService) => {
   return sendMessage({
     serviceName: 'core',
     ...args,
@@ -195,7 +195,7 @@ export const sendCoreMessage = async (args: ISendMessageArgsNoService) => {
 };
 
 export const sendContactsMessage = async (
-  args: ISendMessageArgsNoService,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'contacts',
@@ -204,7 +204,7 @@ export const sendContactsMessage = async (
 };
 
 export const sendCardsMessage = async (
-  args: ISendMessageArgsNoService,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'cards',
@@ -213,7 +213,7 @@ export const sendCardsMessage = async (
 };
 
 export const sendKbMessage = async (
-  args: ISendMessageArgsNoService,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'knowledgebase',
@@ -222,7 +222,7 @@ export const sendKbMessage = async (
 };
 
 export const sendCommonMessage = async (
-  args: ISendMessageArgs & { serviceName: string },
+  args: MessageArgs & { serviceName: string },
 ) => {
   return sendMessage({
     ...args,

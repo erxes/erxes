@@ -1,4 +1,4 @@
-import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
+import { MessageArgs, sendMessage } from '@erxes/api-utils/src/core';
 import { afterMutationHandlers } from './afterMutations';
 import { afterQueryHandlers } from './afterQueries';
 
@@ -192,50 +192,42 @@ export const initBroker = async () => {
   });
 };
 
-export const sendProductsMessage = async (
-  args: ISendMessageArgs,
-): Promise<any> => {
+export const sendProductsMessage = async (args: MessageArgs): Promise<any> => {
   return sendMessage({
     serviceName: 'products',
     ...args,
   });
 };
 
-export const sendContactsMessage = async (
-  args: ISendMessageArgs,
-): Promise<any> => {
+export const sendContactsMessage = async (args: MessageArgs): Promise<any> => {
   return sendMessage({
     serviceName: 'contacts',
     ...args,
   });
 };
 
-export const sendCardsMessage = async (
-  args: ISendMessageArgs,
-): Promise<any> => {
+export const sendCardsMessage = async (args: MessageArgs): Promise<any> => {
   return sendMessage({
     serviceName: 'cards',
     ...args,
   });
 };
 
-export const sendPosMessage = async (args: ISendMessageArgs): Promise<any> => {
+export const sendPosMessage = async (args: MessageArgs): Promise<any> => {
   return sendMessage({
     serviceName: 'pos',
     ...args,
   });
 };
 
-export const sendEbarimtMessage = async (
-  args: ISendMessageArgs,
-): Promise<any> => {
+export const sendEbarimtMessage = async (args: MessageArgs): Promise<any> => {
   return sendMessage({
     serviceName: 'ebarimt',
     ...args,
   });
 };
 
-export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
+export const sendCoreMessage = async (args: MessageArgs): Promise<any> => {
   return sendMessage({
     serviceName: 'core',
     ...args,
@@ -243,7 +235,7 @@ export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
 };
 
 export const sendNotificationsMessage = async (
-  args: ISendMessageArgs,
+  args: MessageArgs,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'notifications',

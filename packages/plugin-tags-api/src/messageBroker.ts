@@ -1,7 +1,7 @@
 import { generateModels } from './connectionResolver';
 import {
   escapeRegExp,
-  ISendMessageArgs,
+  MessageArgs,
   sendMessage,
 } from '@erxes/api-utils/src/core';
 
@@ -70,7 +70,7 @@ export const initBroker = async () => {
 };
 
 export const sendCommonMessage = async (
-  args: ISendMessageArgs & { serviceName: string },
+  args: MessageArgs & { serviceName: string },
 ): Promise<any> => {
   return sendMessage({
     ...args,

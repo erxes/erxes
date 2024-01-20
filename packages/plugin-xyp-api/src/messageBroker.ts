@@ -1,4 +1,4 @@
-import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
+import { MessageArgs, sendMessage } from '@erxes/api-utils/src/core';
 
 import { generateModels } from './connectionResolver';
 import { IXypConfig } from './graphql/resolvers/queries';
@@ -111,9 +111,7 @@ export const initBroker = async (cl) => {
   });
 };
 
-export const sendContactsMessage = async (
-  args: ISendMessageArgs,
-): Promise<any> => {
+export const sendContactsMessage = async (args: MessageArgs): Promise<any> => {
   return sendMessage({
     serviceName: 'contacts',
     ...args,
@@ -121,7 +119,7 @@ export const sendContactsMessage = async (
 };
 
 export const sendAutomationsMessage = async (
-  args: ISendMessageArgs,
+  args: MessageArgs,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'automations',
@@ -130,16 +128,14 @@ export const sendAutomationsMessage = async (
 };
 
 export const sendCommonMessage = async (
-  args: ISendMessageArgs & { serviceName: string },
+  args: MessageArgs & { serviceName: string },
 ): Promise<any> => {
   return sendMessage({
     ...args,
   });
 };
 
-export const sendSegmentsMessage = async (
-  args: ISendMessageArgs,
-): Promise<any> => {
+export const sendSegmentsMessage = async (args: MessageArgs): Promise<any> => {
   return sendMessage({
     serviceName: 'segments',
     ...args,
@@ -159,14 +155,14 @@ export const fetchSegment = (
     isRPC: true,
   });
 
-export const sendFormsMessage = (args: ISendMessageArgs): Promise<any> => {
+export const sendFormsMessage = (args: MessageArgs): Promise<any> => {
   return sendMessage({
     serviceName: 'forms',
     ...args,
   });
 };
 
-export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
+export const sendCoreMessage = async (args: MessageArgs): Promise<any> => {
   return sendMessage({
     serviceName: 'core',
     ...args,

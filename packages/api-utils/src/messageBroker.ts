@@ -33,7 +33,7 @@ function getHttpAgent(protocol: string, args: any): Agent | Agent.HttpsAgent {
   }
 }
 
-export interface ErxesMessage {
+export interface InterMessage {
   subdomain: string;
   data?: any;
   timeout?: number;
@@ -168,7 +168,7 @@ export const consumeRPCQueue = (queueName, procedure) => {
 
 export const sendRPCMessage = async (
   queueName: string,
-  message: ErxesMessage,
+  message: InterMessage,
 ): Promise<any> => {
   const { pluginName, procedureName } = splitPluginProcedureName(queueName);
   const address = await getPluginAddress(pluginName);
@@ -259,7 +259,7 @@ export const sendRPCMessage = async (
 
 export const sendRPCMessageMq = async (
   queueName: string,
-  message: ErxesMessage,
+  message: InterMessage,
 ): Promise<any> => {
   if (!channel) {
     throw new Error(`RabbitMQ channel is ${channel}`);
@@ -418,7 +418,7 @@ export const consumeRPCQueueMq = async (queueName, callback) => {
 
 export const sendMessage = async (
   queueName: string,
-  message?: ErxesMessage,
+  message?: InterMessage,
 ) => {
   if (!channel) {
     throw new Error(`RabbitMQ channel is ${channel}`);

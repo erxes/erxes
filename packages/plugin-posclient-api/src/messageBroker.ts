@@ -1,6 +1,6 @@
 import { generateModels } from './connectionResolver';
 
-import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
+import { MessageArgs, sendMessage } from '@erxes/api-utils/src/core';
 import {
   importProducts,
   importSlots,
@@ -234,7 +234,7 @@ export const initBroker = async (cl) => {
 };
 
 export const sendCommonMessage = async (
-  args: ISendMessageArgs & { serviceName: string },
+  args: MessageArgs & { serviceName: string },
 ): Promise<any> => {
   return sendMessage({
     ...args,
@@ -243,7 +243,7 @@ export const sendCommonMessage = async (
 
 export const sendMessageWrapper = async (
   serviceName: string,
-  args: ISendMessageArgs,
+  args: MessageArgs,
 ): Promise<any> => {
   const { SKIP_REDIS } = process.env;
 
@@ -289,63 +289,49 @@ export const sendMessageWrapper = async (
   });
 };
 
-export const sendPosMessage = async (args: ISendMessageArgs): Promise<any> => {
+export const sendPosMessage = async (args: MessageArgs): Promise<any> => {
   return sendMessageWrapper('pos', args);
 };
 
-export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
+export const sendCoreMessage = async (args: MessageArgs): Promise<any> => {
   return sendMessageWrapper('core', args);
 };
 
 export const sendInventoriesMessage = async (
-  args: ISendMessageArgs,
+  args: MessageArgs,
 ): Promise<any> => {
   return sendMessageWrapper('inventories', args);
 };
 
-export const sendContactsMessage = async (
-  args: ISendMessageArgs,
-): Promise<any> => {
+export const sendContactsMessage = async (args: MessageArgs): Promise<any> => {
   return sendMessageWrapper('contacts', args);
 };
 
-export const sendCardsMessage = async (
-  args: ISendMessageArgs,
-): Promise<any> => {
+export const sendCardsMessage = async (args: MessageArgs): Promise<any> => {
   return sendMessageWrapper('cards', args);
 };
 
-export const sendInboxMessage = async (
-  args: ISendMessageArgs,
-): Promise<any> => {
+export const sendInboxMessage = async (args: MessageArgs): Promise<any> => {
   return sendMessageWrapper('inbox', args);
 };
 
-export const sendLoyaltiesMessage = async (
-  args: ISendMessageArgs,
-): Promise<any> => {
+export const sendLoyaltiesMessage = async (args: MessageArgs): Promise<any> => {
   return sendMessageWrapper('loyalties', args);
 };
 
-export const sendPricingMessage = async (
-  args: ISendMessageArgs,
-): Promise<any> => {
+export const sendPricingMessage = async (args: MessageArgs): Promise<any> => {
   return sendMessageWrapper('pricing', args);
 };
 
-export const sendTagsMessage = (args: ISendMessageArgs): Promise<any> => {
+export const sendTagsMessage = (args: MessageArgs): Promise<any> => {
   return sendMessageWrapper('tags', args);
 };
 
-export const sendSegmentsMessage = async (
-  args: ISendMessageArgs,
-): Promise<any> => {
+export const sendSegmentsMessage = async (args: MessageArgs): Promise<any> => {
   return sendMessageWrapper('segments', args);
 };
 
-export const sendFormsMessage = async (
-  args: ISendMessageArgs,
-): Promise<any> => {
+export const sendFormsMessage = async (args: MessageArgs): Promise<any> => {
   return sendMessageWrapper('forms', args);
 };
 

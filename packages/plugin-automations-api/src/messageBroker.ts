@@ -1,7 +1,7 @@
 import { sendMessage } from '@erxes/api-utils/src/core';
 import type {
-  ISendMessageArgsNoService,
-  ISendMessageArgs,
+  MessageArgsOmitService,
+  MessageArgs,
 } from '@erxes/api-utils/src/core';
 import { debugBase } from '@erxes/api-utils/src/debuggers';
 import { setTimeout } from 'timers';
@@ -50,7 +50,7 @@ export const initBroker = async () => {
 };
 
 export const sendCommonMessage = async (
-  args: ISendMessageArgs & { serviceName: string },
+  args: MessageArgs & { serviceName: string },
 ): Promise<any> => {
   return sendMessage({
     ...args,
@@ -58,7 +58,7 @@ export const sendCommonMessage = async (
 };
 
 export const sendCoreMessage = async (
-  args: ISendMessageArgsNoService,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'core',
@@ -67,7 +67,7 @@ export const sendCoreMessage = async (
 };
 
 export const sendSegmentsMessage = async (
-  args: ISendMessageArgsNoService,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'segments',
@@ -76,7 +76,7 @@ export const sendSegmentsMessage = async (
 };
 
 export const sendEmailTemplateMessage = async (
-  args: ISendMessageArgsNoService,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'emailtemplates',
@@ -84,9 +84,7 @@ export const sendEmailTemplateMessage = async (
   });
 };
 
-export const sendLogsMessage = (
-  args: ISendMessageArgsNoService,
-): Promise<any> => {
+export const sendLogsMessage = (args: MessageArgsOmitService): Promise<any> => {
   return sendMessage({
     serviceName: 'logs',
     ...args,

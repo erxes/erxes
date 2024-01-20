@@ -1,14 +1,14 @@
 import { generateModels } from './connectionResolver';
 import { sendMessage } from '@erxes/api-utils/src/core';
 import type {
-  ISendMessageArgsNoService,
-  ISendMessageArgs,
+  MessageArgsOmitService,
+  MessageArgs,
 } from '@erxes/api-utils/src/core';
 
 export const initBroker = async () => {};
 
 export const sendInboxMessage = async (
-  args: ISendMessageArgsNoService,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'inbox',
@@ -17,7 +17,7 @@ export const sendInboxMessage = async (
 };
 
 export const sendTagsMessage = async (
-  args: ISendMessageArgsNoService,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'tags',
@@ -26,7 +26,7 @@ export const sendTagsMessage = async (
 };
 
 export const sendCoreMessage = async (
-  args: ISendMessageArgsNoService,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'core',
@@ -35,7 +35,7 @@ export const sendCoreMessage = async (
 };
 
 export const sendInternalNotesMessage = async (
-  args: ISendMessageArgsNoService,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'internalnotes',
@@ -43,16 +43,14 @@ export const sendInternalNotesMessage = async (
   });
 };
 
-export const sendCommonMessage = async (
-  args: ISendMessageArgs,
-): Promise<any> => {
+export const sendCommonMessage = async (args: MessageArgs): Promise<any> => {
   return sendMessage({
     ...args,
   });
 };
 
 export const sendSegmentsMessage = async (
-  args: ISendMessageArgsNoService,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'segments',

@@ -1,8 +1,5 @@
 import { sendMessage } from '@erxes/api-utils/src/core';
-import {
-  ISendMessageArgs,
-  ISendMessageArgsNoService,
-} from '@erxes/api-utils/src/core';
+import { MessageArgs, MessageArgsOmitService } from '@erxes/api-utils/src/core';
 import { generateModels } from './connectionResolver';
 import { afterMutationHandlers } from './afterMutations';
 import {
@@ -39,7 +36,7 @@ export const initBroker = async () => {
 };
 
 export const sendContactsMessage = (
-  args: ISendMessageArgsNoService,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'contacts',
@@ -48,7 +45,7 @@ export const sendContactsMessage = (
 };
 
 export const sendFormsMessage = (
-  args: ISendMessageArgsNoService,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'forms',
@@ -57,7 +54,7 @@ export const sendFormsMessage = (
 };
 
 export const sendCardsMessage = (
-  args: ISendMessageArgsNoService,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'cards',
@@ -65,34 +62,28 @@ export const sendCardsMessage = (
   });
 };
 
-export const sendCoreMessage = (
-  args: ISendMessageArgsNoService,
-): Promise<any> => {
+export const sendCoreMessage = (args: MessageArgsOmitService): Promise<any> => {
   return sendMessage({
     serviceName: 'core',
     ...args,
   });
 };
 
-export const sendKbMessage = (
-  args: ISendMessageArgsNoService,
-): Promise<any> => {
+export const sendKbMessage = (args: MessageArgsOmitService): Promise<any> => {
   return sendMessage({
     serviceName: 'knowledgebase',
     ...args,
   });
 };
 
-export const sendCommonMessage = async (
-  args: ISendMessageArgs,
-): Promise<any> => {
+export const sendCommonMessage = async (args: MessageArgs): Promise<any> => {
   return sendMessage({
     ...args,
   });
 };
 
 export const sendNotificationsMessage = async (
-  args: ISendMessageArgsNoService,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'notifications',

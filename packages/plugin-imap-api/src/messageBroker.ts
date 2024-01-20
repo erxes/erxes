@@ -1,9 +1,6 @@
 import * as dotenv from 'dotenv';
 import { sendMessage as sendCommonMessage } from '@erxes/api-utils/src/core';
-import {
-  ISendMessageArgs,
-  ISendMessageArgsNoService,
-} from '@erxes/api-utils/src/core';
+import { MessageArgs, MessageArgsOmitService } from '@erxes/api-utils/src/core';
 
 import { generateModels } from './connectionResolver';
 import { listenIntegration } from './utils';
@@ -102,7 +99,7 @@ export const initBroker = async () => {
 
   consumeRPCQueue(
     'imap:api_to_integrations',
-    async (args: ISendMessageArgs): Promise<any> => {
+    async (args: MessageArgs): Promise<any> => {
       const { subdomain, data } = args;
       const models = await generateModels(subdomain);
 
@@ -167,21 +164,21 @@ export const initBroker = async () => {
   });
 };
 
-export const sendContactsMessage = (args: ISendMessageArgsNoService) => {
+export const sendContactsMessage = (args: MessageArgsOmitService) => {
   return sendCommonMessage({
     serviceName: 'contacts',
     ...args,
   });
 };
 
-export const sendInboxMessage = (args: ISendMessageArgsNoService) => {
+export const sendInboxMessage = (args: MessageArgsOmitService) => {
   return sendCommonMessage({
     serviceName: 'inbox',
     ...args,
   });
 };
 
-export const sendImapMessage = (args: ISendMessageArgsNoService) => {
+export const sendImapMessage = (args: MessageArgsOmitService) => {
   return sendCommonMessage({
     serviceName: 'imap',
     ...args,

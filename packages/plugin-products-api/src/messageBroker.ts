@@ -1,5 +1,5 @@
 import {
-  ISendMessageArgs,
+  MessageArgs,
   escapeRegExp,
   sendMessage,
 } from '@erxes/api-utils/src/core';
@@ -359,51 +359,49 @@ export const sendRPCMessage = async (channel, message): Promise<any> => {
   return client.sendRPCMessage(channel, message);
 };
 
-export const sendFormsMessage = (args: ISendMessageArgs): Promise<any> => {
+export const sendFormsMessage = (args: MessageArgs): Promise<any> => {
   return sendMessage({
     serviceName: 'forms',
     ...args,
   });
 };
 
-export const sendCardsMessage = (args: ISendMessageArgs): Promise<any> => {
+export const sendCardsMessage = (args: MessageArgs): Promise<any> => {
   return sendMessage({
     serviceName: 'cards',
     ...args,
   });
 };
 
-export const sendProcessesMessage = (args: ISendMessageArgs): Promise<any> => {
+export const sendProcessesMessage = (args: MessageArgs): Promise<any> => {
   return sendMessage({
     serviceName: 'processes',
     ...args,
   });
 };
 
-export const sendContactsMessage = (args: ISendMessageArgs): Promise<any> => {
+export const sendContactsMessage = (args: MessageArgs): Promise<any> => {
   return sendMessage({
     serviceName: 'contacts',
     ...args,
   });
 };
 
-export const sendTagsMessage = (args: ISendMessageArgs): Promise<any> => {
+export const sendTagsMessage = (args: MessageArgs): Promise<any> => {
   return sendMessage({
     serviceName: 'tags',
     ...args,
   });
 };
 
-export const sendSegmentsMessage = async (
-  args: ISendMessageArgs,
-): Promise<any> => {
+export const sendSegmentsMessage = async (args: MessageArgs): Promise<any> => {
   return sendMessage({
     serviceName: 'segments',
     ...args,
   });
 };
 
-export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
+export const sendCoreMessage = async (args: MessageArgs): Promise<any> => {
   return sendMessage({
     serviceName: 'core',
     ...args,
@@ -411,7 +409,7 @@ export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
 };
 
 export const sendCommonMessage = async (
-  args: ISendMessageArgs & { serviceName: string },
+  args: MessageArgs & { serviceName: string },
 ): Promise<any> => {
   return sendMessage({
     ...args,

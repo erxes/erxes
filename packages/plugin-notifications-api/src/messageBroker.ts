@@ -2,11 +2,7 @@ import { getUserDetail } from '@erxes/api-utils/src';
 import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
 import { IModels } from './connectionResolver';
 import { generateModels } from './connectionResolver';
-import {
-  ISendMessageArgs,
-  sendMessage,
-  getEnv,
-} from '@erxes/api-utils/src/core';
+import { MessageArgs, sendMessage, getEnv } from '@erxes/api-utils/src/core';
 
 interface ISendNotification {
   createdUser;
@@ -182,7 +178,7 @@ export const initBroker = async (cl) => {
   );
 };
 
-export const sendCoreMessage = (args: ISendMessageArgs): Promise<any> => {
+export const sendCoreMessage = (args: MessageArgs): Promise<any> => {
   return sendMessage({
     serviceName: 'core',
     ...args,
@@ -190,25 +186,21 @@ export const sendCoreMessage = (args: ISendMessageArgs): Promise<any> => {
 };
 
 export const sendCommonMessage = async (
-  args: ISendMessageArgs & { serviceName: string },
+  args: MessageArgs & { serviceName: string },
 ) => {
   return sendMessage({
     ...args,
   });
 };
 
-export const sendContactsMessage = async (
-  args: ISendMessageArgs,
-): Promise<any> => {
+export const sendContactsMessage = async (args: MessageArgs): Promise<any> => {
   return sendMessage({
     serviceName: 'contacts',
     ...args,
   });
 };
 
-export const sendSegmentsMessage = async (
-  args: ISendMessageArgs,
-): Promise<any> => {
+export const sendSegmentsMessage = async (args: MessageArgs): Promise<any> => {
   return sendMessage({
     serviceName: 'segments',
     ...args,
@@ -216,7 +208,7 @@ export const sendSegmentsMessage = async (
 };
 
 export const sendClientPortalMessagge = async (
-  args: ISendMessageArgs,
+  args: MessageArgs,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'clientportal',

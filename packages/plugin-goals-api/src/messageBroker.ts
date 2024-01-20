@@ -2,8 +2,8 @@ import { consumeRPCQueue } from '@erxes/api-utils/src/messageBroker';
 import { generateModels } from './connectionResolver';
 import { sendMessage } from '@erxes/api-utils/src/core';
 import type {
-  ISendMessageArgs,
-  ISendMessageArgsNoService,
+  MessageArgs,
+  MessageArgsOmitService,
 } from '@erxes/api-utils/src/core';
 
 export const initBroker = async () => {
@@ -36,7 +36,7 @@ export const initBroker = async () => {
 };
 
 export const sendCardsMessage = (
-  args: ISendMessageArgsNoService,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'cards',
@@ -45,7 +45,7 @@ export const sendCardsMessage = (
 };
 
 export const sendSegmentsMessage = async (
-  args: ISendMessageArgsNoService,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'segments',
@@ -54,16 +54,14 @@ export const sendSegmentsMessage = async (
 };
 
 export const sendCoreMessage = async (
-  args: ISendMessageArgsNoService,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'core',
     ...args,
   });
 };
-export const sendCommonMessage = async (
-  args: ISendMessageArgs,
-): Promise<any> => {
+export const sendCommonMessage = async (args: MessageArgs): Promise<any> => {
   return sendMessage({
     ...args,
   });

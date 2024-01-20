@@ -1,6 +1,6 @@
 import * as dotenv from 'dotenv';
 import {
-  ISendMessageArgs,
+  MessageArgs,
   sendMessage as sendCommonMessage,
 } from '@erxes/api-utils/src/core';
 
@@ -70,14 +70,14 @@ export const initBroker = async () => {
   );
 };
 
-export const sendContactsMessage = (args: ISendMessageArgs) => {
+export const sendContactsMessage = (args: MessageArgs) => {
   return sendCommonMessage({
     serviceName: 'contacts',
     ...args,
   });
 };
 
-export const sendInboxMessage = (args: ISendMessageArgs) => {
+export const sendInboxMessage = (args: MessageArgs) => {
   return sendCommonMessage({
     serviceName: 'inbox',
     timeout: 50000,

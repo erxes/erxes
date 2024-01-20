@@ -1,7 +1,7 @@
 import { sendMessage } from '@erxes/api-utils/src/core';
 import type {
-  ISendMessageArgs,
-  ISendMessageArgsNoService,
+  MessageArgs,
+  MessageArgsOmitService,
 } from '@erxes/api-utils/src/core';
 import { fieldsCombinedByContentType } from './utils';
 
@@ -276,7 +276,7 @@ export const fetchService = async (
 };
 
 export const sendInboxMessage = async (
-  args: ISendMessageArgsNoService,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'inbox',
@@ -285,7 +285,7 @@ export const sendInboxMessage = async (
 };
 
 export const sendContactsMessage = async (
-  args: ISendMessageArgsNoService,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'contacts',
@@ -293,16 +293,14 @@ export const sendContactsMessage = async (
   });
 };
 
-export const sendCommonMessage = async (
-  args: ISendMessageArgs,
-): Promise<any> => {
+export const sendCommonMessage = async (args: MessageArgs): Promise<any> => {
   return sendMessage({
     ...args,
   });
 };
 
 export const sendProductsMessage = async (
-  args: ISendMessageArgsNoService,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'products',
@@ -311,7 +309,7 @@ export const sendProductsMessage = async (
 };
 
 export const sendAutomationsMessage = async (
-  args: ISendMessageArgsNoService,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'automations',

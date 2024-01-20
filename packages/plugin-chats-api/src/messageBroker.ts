@@ -1,13 +1,13 @@
 import {
-  ISendMessageArgs,
-  ISendMessageArgsNoService,
+  MessageArgs,
+  MessageArgsOmitService,
   sendMessage,
 } from '@erxes/api-utils/src/core';
 
 export const initBroker = async () => {};
 
 export const sendCoreMessage = async (
-  args: ISendMessageArgsNoService,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'core',
@@ -16,7 +16,7 @@ export const sendCoreMessage = async (
 };
 
 export const sendInternalNotesMessage = async (
-  args: ISendMessageArgsNoService,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'internalnotes',
@@ -24,9 +24,7 @@ export const sendInternalNotesMessage = async (
   });
 };
 
-export const sendCommonMessage = async (
-  args: ISendMessageArgs,
-): Promise<any> => {
+export const sendCommonMessage = async (args: MessageArgs): Promise<any> => {
   return sendMessage({
     ...args,
   });

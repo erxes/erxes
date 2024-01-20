@@ -1,4 +1,4 @@
-import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
+import { MessageArgs, sendMessage } from '@erxes/api-utils/src/core';
 
 export const initBroker = async () => {
   // consumeQueue('reports:send', async ({ data }) => {
@@ -17,7 +17,7 @@ export const initBroker = async () => {
 // };
 
 // export const sendCommonMessage = async (
-//   args: ISendMessageArgs & { serviceName: string }
+//   args: MessageArgs & { serviceName: string }
 // ) => {
 //   return sendMessage({
 //     serviceDiscovery,
@@ -26,7 +26,7 @@ export const initBroker = async () => {
 //   });
 // };
 
-export const sendCoreMessage = (args: ISendMessageArgs): Promise<any> => {
+export const sendCoreMessage = (args: MessageArgs): Promise<any> => {
   return sendMessage({
     serviceName: 'core',
     ...args,
@@ -34,14 +34,14 @@ export const sendCoreMessage = (args: ISendMessageArgs): Promise<any> => {
 };
 
 export const sendCommonMessage = async (
-  args: ISendMessageArgs & { serviceName: string },
+  args: MessageArgs & { serviceName: string },
 ) => {
   return sendMessage({
     ...args,
   });
 };
 
-export const sendTagsMessage = async (args: ISendMessageArgs): Promise<any> => {
+export const sendTagsMessage = async (args: MessageArgs): Promise<any> => {
   return sendMessage({
     serviceName: 'tags',
     ...args,

@@ -1,7 +1,7 @@
 import { sendMessage } from '@erxes/api-utils/src/core';
 import type {
-  ISendMessageArgs,
-  ISendMessageArgsNoService,
+  MessageArgs,
+  MessageArgsOmitService,
 } from '@erxes/api-utils/src/core';
 import * as dotenv from 'dotenv';
 import { consumeRPCQueue } from '@erxes/api-utils/src/messageBroker';
@@ -46,14 +46,14 @@ export const initBroker = async () => {
   });
 };
 
-export const sendContactsMessage = (args: ISendMessageArgsNoService) => {
+export const sendContactsMessage = (args: MessageArgsOmitService) => {
   return sendMessage({
     serviceName: 'contacts',
     ...args,
   });
 };
 
-export const sendInboxMessage = (args: ISendMessageArgsNoService) => {
+export const sendInboxMessage = (args: MessageArgsOmitService) => {
   return sendMessage({
     serviceName: 'inbox',
     ...args,
@@ -61,7 +61,7 @@ export const sendInboxMessage = (args: ISendMessageArgsNoService) => {
 };
 
 export const sendCommonMessage = async (
-  args: ISendMessageArgs & { serviceName: string },
+  args: MessageArgs & { serviceName: string },
 ): Promise<any> => {
   return sendMessage({
     ...args,

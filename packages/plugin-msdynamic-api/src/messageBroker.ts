@@ -1,4 +1,4 @@
-import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
+import { MessageArgs, sendMessage } from '@erxes/api-utils/src/core';
 import { IContext as IMainContext } from '@erxes/api-utils/src';
 
 import { IModels } from './connectionResolver';
@@ -16,23 +16,21 @@ export const initBroker = async () => {
   });
 };
 
-export const sendContactsMessage = async (args: ISendMessageArgs) => {
+export const sendContactsMessage = async (args: MessageArgs) => {
   return sendMessage({
     serviceName: 'contacts',
     ...args,
   });
 };
 
-export const sendProductsMessage = async (
-  args: ISendMessageArgs,
-): Promise<any> => {
+export const sendProductsMessage = async (args: MessageArgs): Promise<any> => {
   return sendMessage({
     serviceName: 'products',
     ...args,
   });
 };
 
-export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
+export const sendCoreMessage = async (args: MessageArgs): Promise<any> => {
   return sendMessage({
     serviceName: 'core',
     ...args,
@@ -40,7 +38,7 @@ export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
 };
 
 export const sendCommonMessage = async (
-  args: ISendMessageArgs & { serviceName: string },
+  args: MessageArgs & { serviceName: string },
 ) => {
   return sendMessage({
     ...args,

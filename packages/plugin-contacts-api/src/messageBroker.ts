@@ -7,8 +7,8 @@ import {
 
 import { generateModels } from './connectionResolver';
 import {
-  ISendMessageArgs,
-  ISendMessageArgsNoService,
+  MessageArgs,
+  MessageArgsOmitService,
   sendMessage,
 } from '@erxes/api-utils/src/core';
 import { getNumberOfVisits } from './events';
@@ -499,7 +499,7 @@ export const initBroker = () => {
 };
 
 export const sendSegmentsMessage = async (
-  args: ISendMessageArgsNoService,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'segments',
@@ -508,7 +508,7 @@ export const sendSegmentsMessage = async (
 };
 
 export const sendCoreMessage = async (
-  args: ISendMessageArgsNoService,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'core',
@@ -517,7 +517,7 @@ export const sendCoreMessage = async (
 };
 
 export const sendFormsMessage = async (
-  args: ISendMessageArgsNoService,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'forms',
@@ -526,7 +526,7 @@ export const sendFormsMessage = async (
 };
 
 export const sendInboxMessage = async (
-  args: ISendMessageArgsNoService,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'inbox',
@@ -535,7 +535,7 @@ export const sendInboxMessage = async (
 };
 
 export const sendEngagesMessage = async (
-  args: ISendMessageArgsNoService,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'engages',
@@ -544,7 +544,7 @@ export const sendEngagesMessage = async (
 };
 
 export const sendInternalNotesMessage = async (
-  args: ISendMessageArgsNoService,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'internalnotes',
@@ -553,7 +553,7 @@ export const sendInternalNotesMessage = async (
 };
 
 export const sendTagsMessage = async (
-  args: ISendMessageArgsNoService,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'tags',
@@ -562,7 +562,7 @@ export const sendTagsMessage = async (
 };
 
 export const sendContactsMessage = async (
-  args: ISendMessageArgsNoService,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'contacts',
@@ -570,16 +570,14 @@ export const sendContactsMessage = async (
   });
 };
 
-export const sendCommonMessage = async (
-  args: ISendMessageArgs,
-): Promise<any> => {
+export const sendCommonMessage = async (args: MessageArgs): Promise<any> => {
   return sendMessage({
     ...args,
   });
 };
 
 export const sendIntegrationsMessage = (
-  args: ISendMessageArgsNoService,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'integrations',

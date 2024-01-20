@@ -12,8 +12,8 @@ import { userIds } from './middlewares/userMiddleware';
 
 import { sendMessage as sendCommonMessage } from '@erxes/api-utils/src/core';
 import type {
-  ISendMessageArgs,
-  ISendMessageArgsNoService,
+  MessageArgs,
+  MessageArgsOmitService,
 } from '@erxes/api-utils/src/core';
 
 import { generateModels } from './connectionResolver';
@@ -165,7 +165,7 @@ export const initBroker = async () => {
   );
 };
 
-export const sendInboxMessage = (args: ISendMessageArgsNoService) => {
+export const sendInboxMessage = (args: MessageArgsOmitService) => {
   return sendCommonMessage({
     serviceName: 'inbox',
     ...args,

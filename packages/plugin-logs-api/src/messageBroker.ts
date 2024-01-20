@@ -4,7 +4,7 @@ import { receivePutLogCommand, sendToApi } from './utils';
 
 import { getService, isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
 import { generateModels } from './connectionResolver';
-import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
+import { MessageArgs, sendMessage } from '@erxes/api-utils/src/core';
 import { consumeQueue } from '@erxes/api-utils/src/messageBroker';
 
 const hasMetaLogs = async (serviceName: string) => {
@@ -252,21 +252,21 @@ export const getContentIds = async (subdomain, data) => {
     : [];
 };
 
-export const sendCoreMessage = (args: ISendMessageArgs) => {
+export const sendCoreMessage = (args: MessageArgs) => {
   return sendMessage({
     serviceName: 'core',
     ...args,
   });
 };
 
-export const sendInboxMessage = (args: ISendMessageArgs) => {
+export const sendInboxMessage = (args: MessageArgs) => {
   return sendMessage({
     serviceName: 'inbox',
     ...args,
   });
 };
 
-export const sendClientPortalMessage = (args: ISendMessageArgs) => {
+export const sendClientPortalMessage = (args: MessageArgs) => {
   return sendMessage({
     serviceName: 'clientportal',
     ...args,

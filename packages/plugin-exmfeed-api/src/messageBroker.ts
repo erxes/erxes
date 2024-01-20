@@ -1,6 +1,6 @@
 import {
-  ISendMessageArgs,
-  ISendMessageArgsNoService,
+  MessageArgs,
+  MessageArgsOmitService,
   sendMessage,
 } from '@erxes/api-utils/src/core';
 
@@ -19,7 +19,7 @@ export const initBroker = async () => {
 };
 
 export const sendCoreMessage = async (
-  args: ISendMessageArgsNoService,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'core',
@@ -28,7 +28,7 @@ export const sendCoreMessage = async (
 };
 
 export const sendReactionsMessage = async (
-  args: ISendMessageArgsNoService,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'reactions',
@@ -36,16 +36,14 @@ export const sendReactionsMessage = async (
   });
 };
 
-export const sendCommonMessage = async (
-  args: ISendMessageArgs,
-): Promise<any> => {
+export const sendCommonMessage = async (args: MessageArgs): Promise<any> => {
   return sendMessage({
     ...args,
   });
 };
 
 export const sendNotificationsMessage = async (
-  args: ISendMessageArgsNoService,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'notifications',
@@ -58,7 +56,7 @@ export const sendNotification = (subdomain: string, data) => {
 };
 
 export const sendEXMFeedMessage = async (
-  args: ISendMessageArgsNoService,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'exmfeed',

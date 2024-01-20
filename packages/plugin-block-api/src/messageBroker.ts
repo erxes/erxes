@@ -1,13 +1,13 @@
 import { sendMessage } from '@erxes/api-utils/src/core';
 import type {
-  ISendMessageArgs,
-  ISendMessageArgsNoService,
+  MessageArgs,
+  MessageArgsOmitService,
 } from '@erxes/api-utils/src/core';
 
 export const initBroker = async () => {};
 
 export const sendContactsMessage = async (
-  args: ISendMessageArgsNoService,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'contacts',
@@ -16,7 +16,7 @@ export const sendContactsMessage = async (
 };
 
 export const sendInternalNotesMessage = async (
-  args: ISendMessageArgsNoService,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'internalNotes',
@@ -25,7 +25,7 @@ export const sendInternalNotesMessage = async (
 };
 
 export const sendCoreMessage = async (
-  args: ISendMessageArgsNoService,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'core',
@@ -34,7 +34,7 @@ export const sendCoreMessage = async (
 };
 
 export const sendFormsMessage = async (
-  args: ISendMessageArgsNoService,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'forms',
@@ -43,7 +43,7 @@ export const sendFormsMessage = async (
 };
 
 export const sendEngagesMessage = async (
-  args: ISendMessageArgsNoService,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'engages',
@@ -52,7 +52,7 @@ export const sendEngagesMessage = async (
 };
 
 export const sendInboxMessage = async (
-  args: ISendMessageArgsNoService,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'inbox',
@@ -61,7 +61,7 @@ export const sendInboxMessage = async (
 };
 
 export const sendProductsMessage = async (
-  args: ISendMessageArgsNoService,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'products',
@@ -70,7 +70,7 @@ export const sendProductsMessage = async (
 };
 
 export const sendNotificationsMessage = async (
-  args: ISendMessageArgsNoService,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'notifications',
@@ -79,7 +79,7 @@ export const sendNotificationsMessage = async (
 };
 
 export const sendLogsMessage = async (
-  args: ISendMessageArgsNoService,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'logs',
@@ -88,7 +88,7 @@ export const sendLogsMessage = async (
 };
 
 export const sendSegmentsMessage = async (
-  args: ISendMessageArgsNoService,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'segments',
@@ -97,7 +97,7 @@ export const sendSegmentsMessage = async (
 };
 
 export const sendLoyaltiesMessage = async (
-  args: ISendMessageArgsNoService,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'loyalties',
@@ -105,9 +105,7 @@ export const sendLoyaltiesMessage = async (
   });
 };
 
-export const sendCommonMessage = async (
-  args: ISendMessageArgs,
-): Promise<any> => {
+export const sendCommonMessage = async (args: MessageArgs): Promise<any> => {
   return sendMessage({
     ...args,
   });

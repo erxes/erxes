@@ -1,5 +1,5 @@
 import { sendMessage } from '@erxes/api-utils/src/core';
-import type { ISendMessageArgsNoService } from '@erxes/api-utils/src/core';
+import type { MessageArgsOmitService } from '@erxes/api-utils/src/core';
 import { generateModels } from './connectionResolver';
 import { consumeRPCQueue } from '@erxes/api-utils/src/messageBroker';
 
@@ -15,7 +15,7 @@ export const initBroker = async () => {
 };
 
 export const sendContactsMessage = (
-  args: ISendMessageArgsNoService,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'contacts',
@@ -24,7 +24,7 @@ export const sendContactsMessage = (
 };
 
 export const sendFormsMessage = (
-  args: ISendMessageArgsNoService,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'forms',
@@ -33,7 +33,7 @@ export const sendFormsMessage = (
 };
 
 export const sendCardsMessage = (
-  args: ISendMessageArgsNoService,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'cards',
@@ -41,18 +41,14 @@ export const sendCardsMessage = (
   });
 };
 
-export const sendCoreMessage = (
-  args: ISendMessageArgsNoService,
-): Promise<any> => {
+export const sendCoreMessage = (args: MessageArgsOmitService): Promise<any> => {
   return sendMessage({
     serviceName: 'core',
     ...args,
   });
 };
 
-export const sendKbMessage = (
-  args: ISendMessageArgsNoService,
-): Promise<any> => {
+export const sendKbMessage = (args: MessageArgsOmitService): Promise<any> => {
   return sendMessage({
     serviceName: 'knowledgebase',
     ...args,

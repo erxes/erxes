@@ -1,7 +1,7 @@
 import { sendMessage } from '@erxes/api-utils/src/core';
 import type {
-  ISendMessageArgs,
-  ISendMessageArgsNoService,
+  MessageArgs,
+  MessageArgsOmitService,
 } from '@erxes/api-utils/src/core';
 import { generateToken } from './utils';
 import { generateModels } from './connectionResolver';
@@ -13,7 +13,7 @@ import {
 export const initBroker = async () => {
   consumeRPCQueue(
     'calls:createIntegration',
-    async (args: ISendMessageArgs): Promise<any> => {
+    async (args: MessageArgs): Promise<any> => {
       const { subdomain, data } = args;
       const { integrationId, doc } = data;
       const models = generateModels(subdomain);
@@ -37,7 +37,7 @@ export const initBroker = async () => {
 
   consumeRPCQueue(
     'calls:api_to_integrations',
-    async (args: ISendMessageArgs): Promise<any> => {
+    async (args: MessageArgs): Promise<any> => {
       const { subdomain, data } = args;
       const { integrationId, action } = data;
 
@@ -121,7 +121,7 @@ export const initBroker = async () => {
 
   consumeRPCQueue(
     'viber:integrationDetail',
-    async (args: ISendMessageArgs): Promise<any> => {
+    async (args: MessageArgs): Promise<any> => {
       const { subdomain, data } = args;
       const { inboxId } = data;
 
@@ -140,13 +140,13 @@ export const initBroker = async () => {
   );
 };
 
-export const sendCommonMessage = async (args: ISendMessageArgs) => {
+export const sendCommonMessage = async (args: MessageArgs) => {
   return sendMessage({
     ...args,
   });
 };
 
-export const sendInboxMessage = (args: ISendMessageArgsNoService) => {
+export const sendInboxMessage = (args: MessageArgsOmitService) => {
   return sendCommonMessage({
     serviceName: 'inbox',
     ...args,

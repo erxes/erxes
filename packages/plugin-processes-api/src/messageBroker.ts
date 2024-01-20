@@ -1,5 +1,5 @@
 import { generateModels } from './connectionResolver';
-import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
+import { MessageArgs, sendMessage } from '@erxes/api-utils/src/core';
 
 import { beforeResolverHandlers } from './beforeResolvers';
 import {
@@ -105,25 +105,21 @@ export const initBroker = async () => {
 };
 
 export const sendCommonMessage = async (
-  args: ISendMessageArgs & { serviceName: string },
+  args: MessageArgs & { serviceName: string },
 ): Promise<any> => {
   return sendMessage({
     ...args,
   });
 };
 
-export const sendProductsMessage = async (
-  args: ISendMessageArgs,
-): Promise<any> => {
+export const sendProductsMessage = async (args: MessageArgs): Promise<any> => {
   return sendMessage({
     serviceName: 'products',
     ...args,
   });
 };
 
-export const sendContactsMessage = async (
-  args: ISendMessageArgs,
-): Promise<any> => {
+export const sendContactsMessage = async (args: MessageArgs): Promise<any> => {
   return sendMessage({
     serviceName: 'contacts',
     ...args,
@@ -131,7 +127,7 @@ export const sendContactsMessage = async (
 };
 
 export const sendInventoriesMessage = async (
-  args: ISendMessageArgs,
+  args: MessageArgs,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'inventories',
@@ -140,7 +136,7 @@ export const sendInventoriesMessage = async (
 };
 
 export const sendSalesplansMessage = async (
-  args: ISendMessageArgs,
+  args: MessageArgs,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'salesplans',
@@ -148,7 +144,7 @@ export const sendSalesplansMessage = async (
   });
 };
 
-export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
+export const sendCoreMessage = async (args: MessageArgs): Promise<any> => {
   return sendMessage({
     serviceName: 'core',
     ...args,

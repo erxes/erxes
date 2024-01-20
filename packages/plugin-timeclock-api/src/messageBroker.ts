@@ -1,17 +1,15 @@
-import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
+import { MessageArgs, sendMessage } from '@erxes/api-utils/src/core';
 
 export const initBroker = async () => {};
 
-export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
+export const sendCoreMessage = async (args: MessageArgs): Promise<any> => {
   return sendMessage({
     serviceName: 'core',
     ...args,
   });
 };
 
-export const sendFormsMessage = async (
-  args: ISendMessageArgs,
-): Promise<any> => {
+export const sendFormsMessage = async (args: MessageArgs): Promise<any> => {
   return sendMessage({
     serviceName: 'forms',
     ...args,
@@ -19,7 +17,7 @@ export const sendFormsMessage = async (
 };
 
 export const sendNotificationsMessage = async (
-  args: ISendMessageArgs,
+  args: MessageArgs,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'notifications',

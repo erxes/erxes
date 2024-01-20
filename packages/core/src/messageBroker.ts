@@ -1,8 +1,8 @@
 import { init as initBrokerCore } from '@erxes/api-utils/src/messageBroker';
 import { sendMessage } from '@erxes/api-utils/src/core';
 import type {
-  ISendMessageArgs,
-  ISendMessageArgsNoService,
+  MessageArgs,
+  MessageArgsOmitService,
 } from '@erxes/api-utils/src/core';
 
 import { logConsumers } from '@erxes/api-utils/src/logUtils';
@@ -642,16 +642,14 @@ export const initBroker = async (): Promise<void> => {
   }));
 };
 
-export const sendCommonMessage = async (
-  args: ISendMessageArgs,
-): Promise<any> => {
+export const sendCommonMessage = async (args: MessageArgs): Promise<any> => {
   return sendMessage({
     ...args,
   });
 };
 
 export const sendSegmentsMessage = async (
-  args: ISendMessageArgsNoService,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'segments',
@@ -660,7 +658,7 @@ export const sendSegmentsMessage = async (
 };
 
 export const sendIntegrationsMessage = (
-  args: ISendMessageArgsNoService,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'integrations',
@@ -669,7 +667,7 @@ export const sendIntegrationsMessage = (
 };
 
 export const sendCardsMessage = (
-  args: ISendMessageArgsNoService,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'cards',
@@ -677,9 +675,7 @@ export const sendCardsMessage = (
   });
 };
 
-export const sendLogsMessage = (
-  args: ISendMessageArgsNoService,
-): Promise<any> => {
+export const sendLogsMessage = (args: MessageArgsOmitService): Promise<any> => {
   return sendMessage({
     serviceName: 'logs',
     ...args,
@@ -687,7 +683,7 @@ export const sendLogsMessage = (
 };
 
 export const sendContactsMessage = (
-  args: ISendMessageArgsNoService,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'contacts',
@@ -696,7 +692,7 @@ export const sendContactsMessage = (
 };
 
 export const sendInboxMessage = (
-  args: ISendMessageArgsNoService,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'inbox',
@@ -705,7 +701,7 @@ export const sendInboxMessage = (
 };
 
 export const sendFormsMessage = (
-  args: ISendMessageArgsNoService,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'forms',

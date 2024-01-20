@@ -5,10 +5,7 @@ import {
 
 import { generateModels, IModels } from './connectionResolver';
 import { paginate, sendMessage } from '@erxes/api-utils/src/core';
-import {
-  ISendMessageArgs,
-  ISendMessageArgsNoService,
-} from '@erxes/api-utils/src/core';
+import { MessageArgs, MessageArgsOmitService } from '@erxes/api-utils/src/core';
 import { receiveVisitorDetail } from './widgetUtils';
 import { getIntegrationsKinds } from './utils';
 import { sendNotifications } from './graphql/resolvers/conversationMutations';
@@ -386,7 +383,7 @@ export const initBroker = () => {
 };
 
 export const sendCommonMessage = async (
-  args: ISendMessageArgs & { serviceName: string },
+  args: MessageArgs & { serviceName: string },
 ): Promise<any> => {
   return sendMessage({
     ...args,
@@ -394,7 +391,7 @@ export const sendCommonMessage = async (
 };
 
 export const sendContactsMessage = async (
-  args: ISendMessageArgsNoService,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'contacts',
@@ -403,7 +400,7 @@ export const sendContactsMessage = async (
 };
 
 export const sendFormsMessage = (
-  args: ISendMessageArgsNoService,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'forms',
@@ -411,9 +408,7 @@ export const sendFormsMessage = (
   });
 };
 
-export const sendCoreMessage = (
-  args: ISendMessageArgsNoService,
-): Promise<any> => {
+export const sendCoreMessage = (args: MessageArgsOmitService): Promise<any> => {
   return sendMessage({
     serviceName: 'core',
     ...args,
@@ -421,7 +416,7 @@ export const sendCoreMessage = (
 };
 
 export const sendEngagesMessage = (
-  args: ISendMessageArgsNoService,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'engages',
@@ -430,7 +425,7 @@ export const sendEngagesMessage = (
 };
 
 export const sendCardsMessage = async (
-  args: ISendMessageArgsNoService,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'cards',
@@ -439,7 +434,7 @@ export const sendCardsMessage = async (
 };
 
 export const sendProductsMessage = async (
-  args: ISendMessageArgsNoService,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'products',
@@ -447,9 +442,7 @@ export const sendProductsMessage = async (
   });
 };
 
-export const sendTagsMessage = (
-  args: ISendMessageArgsNoService,
-): Promise<any> => {
+export const sendTagsMessage = (args: MessageArgsOmitService): Promise<any> => {
   return sendMessage({
     serviceName: 'tags',
     ...args,
@@ -457,7 +450,7 @@ export const sendTagsMessage = (
 };
 
 export const sendIntegrationsMessage = (
-  args: ISendMessageArgsNoService,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'integrations',
@@ -466,7 +459,7 @@ export const sendIntegrationsMessage = (
 };
 
 export const sendSegmentsMessage = (
-  args: ISendMessageArgsNoService,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'segments',
@@ -475,7 +468,7 @@ export const sendSegmentsMessage = (
 };
 
 export const sendNotificationsMessage = (
-  args: ISendMessageArgsNoService,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'notifications',
@@ -484,7 +477,7 @@ export const sendNotificationsMessage = (
 };
 
 export const sendKnowledgeBaseMessage = (
-  args: ISendMessageArgsNoService,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'knowledgebase',
@@ -493,7 +486,7 @@ export const sendKnowledgeBaseMessage = (
 };
 
 export const sendLogsMessage = async (
-  args: ISendMessageArgsNoService,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'logs',
@@ -502,7 +495,7 @@ export const sendLogsMessage = async (
 };
 
 export const sendAutomationsMessage = async (
-  args: ISendMessageArgsNoService,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'automations',

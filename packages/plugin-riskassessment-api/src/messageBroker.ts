@@ -1,4 +1,4 @@
-import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
+import { MessageArgs, sendMessage } from '@erxes/api-utils/src/core';
 import { afterMutationHandlers } from './afterMutations';
 
 import { generateModels } from './connectionResolver';
@@ -34,37 +34,33 @@ export const initBroker = async () => {
   );
 };
 
-export const sendFormsMessage = async (
-  args: ISendMessageArgs,
-): Promise<any> => {
+export const sendFormsMessage = async (args: MessageArgs): Promise<any> => {
   return sendMessage({
     serviceName: 'forms',
     ...args,
   });
 };
 
-export const sendCardsMessage = (args: ISendMessageArgs): Promise<any> => {
+export const sendCardsMessage = (args: MessageArgs): Promise<any> => {
   return sendMessage({
     serviceName: 'cards',
     ...args,
   });
 };
-export const sendCoreMessage = (args: ISendMessageArgs): Promise<any> => {
+export const sendCoreMessage = (args: MessageArgs): Promise<any> => {
   return sendMessage({
     serviceName: 'core',
     ...args,
   });
 };
-export const sendTagsMessage = async (args: ISendMessageArgs): Promise<any> => {
+export const sendTagsMessage = async (args: MessageArgs): Promise<any> => {
   return sendMessage({
     serviceName: 'tags',
     ...args,
   });
 };
 
-export const sendRiskAssessmentMessage = (
-  args: ISendMessageArgs,
-): Promise<any> => {
+export const sendRiskAssessmentMessage = (args: MessageArgs): Promise<any> => {
   return sendMessage({
     serviceName: 'riskassessment',
     ...args,
@@ -72,7 +68,7 @@ export const sendRiskAssessmentMessage = (
 };
 
 export const sendCommonMessage = async (
-  args: ISendMessageArgs & { serviceName: string },
+  args: MessageArgs & { serviceName: string },
 ): Promise<any> => {
   return sendMessage({
     ...args,

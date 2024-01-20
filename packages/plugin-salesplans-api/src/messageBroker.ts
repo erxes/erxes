@@ -1,5 +1,5 @@
 import { generateModels } from './connectionResolver';
-import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
+import { MessageArgs, sendMessage } from '@erxes/api-utils/src/core';
 
 let client: any;
 
@@ -32,7 +32,7 @@ export const initBroker = async () => {
   );
 };
 
-export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
+export const sendCoreMessage = async (args: MessageArgs): Promise<any> => {
   return sendMessage({
     serviceName: 'core',
     ...args,
@@ -40,7 +40,7 @@ export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
 };
 
 export const sendInternalNotesMessage = async (
-  args: ISendMessageArgs,
+  args: MessageArgs,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'internalnotes',
@@ -48,18 +48,14 @@ export const sendInternalNotesMessage = async (
   });
 };
 
-export const sendProductsMessage = async (
-  args: ISendMessageArgs,
-): Promise<any> => {
+export const sendProductsMessage = async (args: MessageArgs): Promise<any> => {
   return sendMessage({
     serviceName: 'products',
     ...args,
   });
 };
 
-export const sendProcessesMessage = async (
-  args: ISendMessageArgs,
-): Promise<any> => {
+export const sendProcessesMessage = async (args: MessageArgs): Promise<any> => {
   return sendMessage({
     serviceName: 'processes',
     ...args,
@@ -67,7 +63,7 @@ export const sendProcessesMessage = async (
 };
 
 export const sendCommonMessage = async (
-  args: ISendMessageArgs & { serviceName: string },
+  args: MessageArgs & { serviceName: string },
 ): Promise<any> => {
   return sendMessage({
     ...args,

@@ -2,7 +2,7 @@ import { afterMutationHandlers } from './afterMutations';
 import { getBranchesUtil, statusToDone, syncOrderFromClient } from './utils';
 import { generateModels } from './connectionResolver';
 import { IPosDocument } from './models/definitions/pos';
-import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
+import { MessageArgs, sendMessage } from '@erxes/api-utils/src/core';
 
 import { beforeResolverHandlers } from './beforeResolvers';
 
@@ -255,61 +255,49 @@ export const initBroker = async (cl) => {
   });
 };
 
-export const sendProductsMessage = async (
-  args: ISendMessageArgs,
-): Promise<any> => {
+export const sendProductsMessage = async (args: MessageArgs): Promise<any> => {
   return sendMessage({
     serviceName: 'products',
     ...args,
   });
 };
 
-export const sendCardsMessage = async (
-  args: ISendMessageArgs,
-): Promise<any> => {
+export const sendCardsMessage = async (args: MessageArgs): Promise<any> => {
   return sendMessage({
     serviceName: 'cards',
     ...args,
   });
 };
 
-export const sendLoyaltiesMessage = async (
-  args: ISendMessageArgs,
-): Promise<any> => {
+export const sendLoyaltiesMessage = async (args: MessageArgs): Promise<any> => {
   return sendMessage({
     serviceName: 'loyalties',
     ...args,
   });
 };
 
-export const sendPricingMessage = async (
-  args: ISendMessageArgs,
-): Promise<any> => {
+export const sendPricingMessage = async (args: MessageArgs): Promise<any> => {
   return sendMessage({
     serviceName: 'pricing',
     ...args,
   });
 };
 
-export const sendContactsMessage = async (
-  args: ISendMessageArgs,
-): Promise<any> => {
+export const sendContactsMessage = async (args: MessageArgs): Promise<any> => {
   return sendMessage({
     serviceName: 'contacts',
     ...args,
   });
 };
 
-export const sendEbarimtMessage = async (
-  args: ISendMessageArgs,
-): Promise<any> => {
+export const sendEbarimtMessage = async (args: MessageArgs): Promise<any> => {
   return sendMessage({
     serviceName: 'ebarimt',
     ...args,
   });
 };
 
-export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
+export const sendCoreMessage = async (args: MessageArgs): Promise<any> => {
   return sendMessage({
     serviceName: 'core',
     ...args,
@@ -317,7 +305,7 @@ export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
 };
 
 export const sendInventoriesMessage = async (
-  args: ISendMessageArgs,
+  args: MessageArgs,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'inventories',
@@ -326,7 +314,7 @@ export const sendInventoriesMessage = async (
 };
 
 export const sendSyncerkhetMessage = async (
-  args: ISendMessageArgs,
+  args: MessageArgs,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'syncerkhet',
@@ -335,7 +323,7 @@ export const sendSyncerkhetMessage = async (
 };
 
 export const sendPosclientMessage = async (
-  args: ISendMessageArgs & {
+  args: MessageArgs & {
     pos: IPosDocument;
   },
 ) => {
@@ -400,7 +388,7 @@ export const sendPosclientHealthCheck = async ({
 };
 
 export const sendAutomationsMessage = async (
-  args: ISendMessageArgs,
+  args: MessageArgs,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'automations',
@@ -409,16 +397,14 @@ export const sendAutomationsMessage = async (
 };
 
 export const sendCommonMessage = async (
-  args: ISendMessageArgs & { serviceName: string },
+  args: MessageArgs & { serviceName: string },
 ): Promise<any> => {
   return sendMessage({
     ...args,
   });
 };
 
-export const sendSegmentsMessage = async (
-  args: ISendMessageArgs,
-): Promise<any> => {
+export const sendSegmentsMessage = async (args: MessageArgs): Promise<any> => {
   return sendMessage({
     serviceName: 'segments',
     ...args,
@@ -437,7 +423,7 @@ export const fetchSegment = (
     isRPC: true,
   });
 
-export const sendFormsMessage = (args: ISendMessageArgs): Promise<any> => {
+export const sendFormsMessage = (args: MessageArgs): Promise<any> => {
   return sendMessage({
     serviceName: 'forms',
     ...args,

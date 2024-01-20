@@ -12,10 +12,7 @@ import { handleFacebookMessage } from './handleFacebookMessage';
 import { userIds } from './middlewares/userMiddleware';
 
 import { sendMessage as sendCommonMessage } from '@erxes/api-utils/src/core';
-import {
-  ISendMessageArgs,
-  ISendMessageArgsNoService,
-} from '@erxes/api-utils/src/core';
+import { MessageArgs, MessageArgsOmitService } from '@erxes/api-utils/src/core';
 
 import { generateModels } from './connectionResolver';
 import {
@@ -189,7 +186,7 @@ export const initBroker = async () => {
   );
 };
 
-export const sendInboxMessage = (args: ISendMessageArgsNoService) => {
+export const sendInboxMessage = (args: MessageArgsOmitService) => {
   return sendCommonMessage({
     serviceName: 'inbox',
     ...args,

@@ -1,6 +1,6 @@
 import * as dotenv from 'dotenv';
 import {
-  ISendMessageArgs,
+  MessageArgs,
   sendMessage as sendCommonMessage,
 } from '@erxes/api-utils/src/core';
 
@@ -18,7 +18,7 @@ dotenv.config();
 export const initBroker = async () => {
   consumeRPCQueue(
     'viber:createIntegration',
-    async (args: ISendMessageArgs): Promise<any> => {
+    async (args: MessageArgs): Promise<any> => {
       const { subdomain, data } = args;
       const { integrationId, doc } = data;
       const docData = JSON.parse(doc.data);
@@ -95,7 +95,7 @@ export const initBroker = async () => {
 
   consumeRPCQueue(
     'viber:integrationDetail',
-    async (args: ISendMessageArgs): Promise<any> => {
+    async (args: MessageArgs): Promise<any> => {
       const inboxId: string = args.data.inboxId;
 
       const viberIntegration = await Integrations.findOne({ inboxId }, 'token');
@@ -109,7 +109,7 @@ export const initBroker = async () => {
 
   consumeRPCQueue(
     'viber:removeIntegrations',
-    async (args: ISendMessageArgs): Promise<any> => {
+    async (args: MessageArgs): Promise<any> => {
       const { data } = args;
       const { integrationId } = data;
 
@@ -143,7 +143,7 @@ export const initBroker = async () => {
 
   consumeRPCQueue(
     'viber:api_to_integrations',
-    async (args: ISendMessageArgs): Promise<any> => {
+    async (args: MessageArgs): Promise<any> => {
       const { subdomain, data } = args;
       const integrationId = data.integrationId;
 
@@ -192,14 +192,14 @@ export const initBroker = async () => {
   );
 };
 
-export const sendContactsMessage = (args: ISendMessageArgs) => {
+export const sendContactsMessage = (args: MessageArgs) => {
   return sendCommonMessage({
     serviceName: 'contacts',
     ...args,
   });
 };
 
-export const sendInboxMessage = (args: ISendMessageArgs) => {
+export const sendInboxMessage = (args: MessageArgs) => {
   return sendCommonMessage({
     serviceName: 'inbox',
     ...args,

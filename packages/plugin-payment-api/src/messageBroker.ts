@@ -1,4 +1,4 @@
-import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
+import { MessageArgs, sendMessage } from '@erxes/api-utils/src/core';
 
 import { generateModels } from './connectionResolver';
 
@@ -13,9 +13,7 @@ export const initBroker = async () => {
   });
 };
 
-export const sendContactsMessage = async (
-  args: ISendMessageArgs,
-): Promise<any> => {
+export const sendContactsMessage = async (args: MessageArgs): Promise<any> => {
   return sendMessage({
     serviceName: 'contacts',
     ...args,
@@ -24,7 +22,7 @@ export const sendContactsMessage = async (
 
 export const sendCommonMessage = async (
   serviceName: string,
-  args: ISendMessageArgs,
+  args: MessageArgs,
 ): Promise<any> => {
   return sendMessage({
     serviceName,
@@ -32,9 +30,7 @@ export const sendCommonMessage = async (
   });
 };
 
-export const sendInboxMessage = async (
-  args: ISendMessageArgs,
-): Promise<any> => {
+export const sendInboxMessage = async (args: MessageArgs): Promise<any> => {
   return sendMessage({
     serviceName: 'inbox',
     ...args,
