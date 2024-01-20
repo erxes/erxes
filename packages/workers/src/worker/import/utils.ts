@@ -8,7 +8,7 @@ import {
   createAWS,
   createCFR2,
   getS3FileInfo,
-  uploadsFolderPath
+  uploadsFolderPath,
 } from '../../data/utils';
 
 import CustomWorker from '../workerUtil';
@@ -57,17 +57,22 @@ dotenv.config();
 
 const myWorker = new CustomWorker();
 
-const getCsvInfo = (fileName: string, uploadType: string) => {
-  return new Promise(async resolve => {
+const getCsvInfo = (
+  subdomain: string,
+  fileName: string,
+  uploadType: string,
+) => {
+  return new Promise(async (resolve) => {
     let readSteam;
 
     if (uploadType !== 'local') {
-      const {
-        AWS_BUCKET,
-        CLOUDFLARE_BUCKET_NAME
-      } = await getFileUploadConfigs();
+      const { AWS_BUCKET, CLOUDFLARE_BUCKET_NAME } =
+        await getFileUploadConfigs(subdomain);
 
-      const s3 = uploadType === 'AWS' ? await createAWS() : await createCFR2();
+      const s3 =
+        uploadType === 'AWS'
+          ? await createAWS(subdomain)
+          : await createCFR2(subdomain);
 
       const bucket = uploadType === 'AWS' ? AWS_BUCKET : CLOUDFLARE_BUCKET_NAME;
 
@@ -77,7 +82,7 @@ const getCsvInfo = (fileName: string, uploadType: string) => {
 
       await fs.promises.writeFile(
         `${uploadsFolderPath}/${fileName}`,
-        file.Body
+        file.Body,
       );
 
       readSteam = fs.createReadStream(`${uploadsFolderPath}/${fileName}`);
@@ -91,10 +96,10 @@ const getCsvInfo = (fileName: string, uploadType: string) => {
     const rl = readline.createInterface({
       input: readSteam,
 
-      terminal: false
+      terminal: false,
     });
 
-    rl.on('line', input => {
+    rl.on('line', (input) => {
       if (total === 0) {
         columns = input;
       }
@@ -113,12 +118,14 @@ const getCsvInfo = (fileName: string, uploadType: string) => {
 };
 
 const importBulkStream = ({
+  subdomain,
   contentType,
   fileName,
   bulkLimit,
   uploadType,
-  handleBulkOperation
+  handleBulkOperation,
 }: {
+  subdomain: string;
   contentType: string;
   fileName: string;
   bulkLimit: number;
@@ -126,7 +133,7 @@ const importBulkStream = ({
   handleBulkOperation: (
     rowIndex: number,
     rows: any,
-    contentType: string
+    contentType: string,
   ) => Promise<void>;
   associateContentType?: string;
   associateField?: string;
@@ -138,12 +145,13 @@ const importBulkStream = ({
     let rowIndex = 0;
 
     if (uploadType !== 'local') {
-      const {
-        AWS_BUCKET,
-        CLOUDFLARE_BUCKET_NAME
-      } = await getFileUploadConfigs();
+      const { AWS_BUCKET, CLOUDFLARE_BUCKET_NAME } =
+        await getFileUploadConfigs(subdomain);
 
-      const s3 = uploadType === 'AWS' ? await createAWS() : await createCFR2();
+      const s3 =
+        uploadType === 'AWS'
+          ? await createAWS(subdomain)
+          : await createCFR2(subdomain);
 
       const bucket = uploadType === 'AWS' ? AWS_BUCKET : CLOUDFLARE_BUCKET_NAME;
 
@@ -153,7 +161,7 @@ const importBulkStream = ({
 
       await fs.promises.writeFile(
         `${uploadsFolderPath}/${fileName}`,
-        file.Body
+        file.Body,
       );
 
       readSteam = fs.createReadStream(`${uploadsFolderPath}/${fileName}`);
@@ -171,7 +179,7 @@ const importBulkStream = ({
             rows = [];
             next();
           })
-          .catch(e => {
+          .catch((e) => {
             debugWorkers(`Error during bulk insert from csv: ${e.message}`);
             reject(e);
           });
@@ -190,11 +198,11 @@ const importBulkStream = ({
           resolve('success');
         });
       })
-      .on('error', e => reject(e));
+      .on('error', (e) => reject(e));
   });
 };
 
-const getWorkerFile = fileName => {
+const getWorkerFile = (fileName) => {
   if (process.env.NODE_ENV !== 'production') {
     return `./src/worker/import/${fileName}.worker.import.js`;
   }
@@ -203,7 +211,7 @@ const getWorkerFile = fileName => {
 };
 
 export const clearEmptyValues = (obj: any) => {
-  Object.keys(obj).forEach(key => {
+  Object.keys(obj).forEach((key) => {
     if (obj[key] === '' || obj[key] === 'unknown') {
       delete obj[key];
     }
@@ -219,11 +227,11 @@ export const clearEmptyValues = (obj: any) => {
 export const updateDuplicatedValue = async (
   model: any,
   field: string,
-  doc: any
+  doc: any,
 ) => {
   return model.updateOne(
     { [field]: doc[field] },
-    { $set: { ...doc, modifiedAt: new Date() } }
+    { $set: { ...doc, modifiedAt: new Date() } },
   );
 };
 
@@ -231,7 +239,7 @@ export const updateDuplicatedValue = async (
 export const receiveImportRemove = async (
   content: any,
   models: IModels,
-  subdomain: string
+  subdomain: string,
 ) => {
   const { contentType, importHistoryId } = content;
   try {
@@ -243,9 +251,8 @@ export const receiveImportRemove = async (
 
     myWorker.setHandleEnd(handleOnEndWorker);
 
-    const importHistory = await models.ImportHistory.getImportHistory(
-      importHistoryId
-    );
+    const importHistory =
+      await models.ImportHistory.getImportHistory(importHistoryId);
 
     const ids = importHistory.ids || [];
 
@@ -270,7 +277,7 @@ export const receiveImportRemove = async (
       await myWorker.createWorker(subdomain, workerPath, {
         contentType,
         importHistoryId,
-        result
+        result,
       });
     }
 
@@ -280,8 +287,8 @@ export const receiveImportRemove = async (
     return models.ImportHistory.updateOne(
       { _id: importHistoryId },
       {
-        error: `Error occurred during remove${e.message}`
-      }
+        error: `Error occurred during remove${e.message}`,
+      },
     );
   }
 };
@@ -295,7 +302,7 @@ export const receiveImportCancel = () => {
 export const receiveImportCreate = async (
   content: any,
   models: IModels,
-  subdomain: string
+  subdomain: string,
 ) => {
   const {
     contentTypes,
@@ -305,7 +312,7 @@ export const receiveImportCreate = async (
     uploadType,
     columnsConfig,
     importHistoryId,
-    associatedContentType
+    associatedContentType,
   } = content;
 
   const useElkSyncer = ELK_SYNCER === 'false' ? false : true;
@@ -327,7 +334,11 @@ export const receiveImportCreate = async (
     const columnConfig = columnsConfig[contentType.contentType];
     fileName = file[0].url;
 
-    const { rows, columns }: any = await getCsvInfo(fileName, uploadType);
+    const { rows, columns }: any = await getCsvInfo(
+      subdomain,
+      fileName,
+      uploadType,
+    );
 
     if (rows === 0) {
       throw new Error('Please import at least one row of data');
@@ -345,8 +356,8 @@ export const receiveImportCreate = async (
       return models.ImportHistory.updateOne(
         { _id: importHistoryId },
         {
-          error: `Error occurred during creating import check your fields ${e.message}`
-        }
+          error: `Error occurred during creating import check your fields ${e.message}`,
+        },
       );
     }
 
@@ -361,17 +372,17 @@ export const receiveImportCreate = async (
       contentTypes,
       userId: user._id,
       date: Date.now(),
-      total
-    }
+      total,
+    },
   );
 
-  const updateImportHistory = async doc => {
+  const updateImportHistory = async (doc) => {
     return models.ImportHistory.updateOne({ _id: importHistoryId }, doc);
   };
 
   const handleOnEndBulkOperation = async () => {
     const updatedImportHistory = await models.ImportHistory.findOne({
-      _id: importHistoryId
+      _id: importHistoryId,
     });
 
     let status = 'inProgress';
@@ -388,7 +399,7 @@ export const receiveImportCreate = async (
       await fs.promises.unlink(`${uploadsFolderPath}/${fileName}`);
 
       await updateImportHistory({
-        $set: { status, percentage: 100 }
+        $set: { status, percentage: 100 },
       });
     }
 
@@ -398,7 +409,7 @@ export const receiveImportCreate = async (
   const handleBulkOperation = async (
     rowIndex: number,
     rows: any,
-    contentType: string
+    contentType: string,
   ) => {
     if (rows.length === 0) {
       return debugWorkers('Please import at least one row of data');
@@ -423,12 +434,12 @@ export const receiveImportCreate = async (
         importHistoryId,
         result,
         useElkSyncer,
-        percentage: Number(((result.length / total) * 100).toFixed(0))
+        percentage: Number(((result.length / total) * 100).toFixed(0)),
       });
     } catch (e) {
       return models.ImportHistory.updateOne(
         { _id: importHistoryId },
-        { error: `Error occurred during creating import ${e.message}` }
+        { error: `Error occurred during creating import ${e.message}` },
       );
     }
   };
@@ -437,16 +448,17 @@ export const receiveImportCreate = async (
 
   try {
     importBulkStream({
+      subdomain,
       contentType: mainType,
       fileName: config[mainType].fileName,
       uploadType,
       bulkLimit: WORKER_BULK_LIMIT,
-      handleBulkOperation
+      handleBulkOperation,
     });
   } catch (e) {
     return models.ImportHistory.updateOne(
       { _id: importHistoryId },
-      { error: `Error occurred during creating import ${e.message}` }
+      { error: `Error occurred during creating import ${e.message}` },
     );
   }
 
