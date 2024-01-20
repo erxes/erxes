@@ -3,13 +3,7 @@ import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
 
 import { checkVouchersSale, confirmVoucherSale } from './utils';
 
-let client;
-
-export const initBroker = async cl => {
-  client = cl;
-
-  const { consumeRPCQueue, consumeQueue } = client;
-
+export const initBroker = async () => {
   consumeRPCQueue(
     'loyalties:voucherCampaigns.find',
     async ({ subdomain, data }) => {
@@ -17,9 +11,9 @@ export const initBroker = async cl => {
 
       return {
         data: await models.VoucherCampaigns.find(data).lean(),
-        status: 'success'
+        status: 'success',
       };
-    }
+    },
   );
 
   consumeRPCQueue('loyalties:checkLoyalties', async ({ subdomain, data }) => {
@@ -31,9 +25,9 @@ export const initBroker = async cl => {
         subdomain,
         ownerType,
         ownerId,
-        products
+        products,
       ),
-      status: 'success'
+      status: 'success',
     };
   });
 
@@ -42,7 +36,7 @@ export const initBroker = async cl => {
     const { checkInfo } = data;
     return {
       data: await confirmVoucherSale(models, checkInfo),
-      status: 'success'
+      status: 'success',
     };
   });
 
@@ -58,65 +52,65 @@ export const initBroker = async cl => {
         ownerType: data.collectionType,
         changeScore: data.setDoc[Object.keys(data.setDoc)[0]],
         createdAt: new Date(),
-        description: 'Via automation'
+        description: 'Via automation',
       });
 
       return {
         data: response,
-        status: 'success'
+        status: 'success',
       };
-    }
+    },
   );
 };
 
 export const sendProductsMessage = async (
-  args: ISendMessageArgs
+  args: ISendMessageArgs,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'products',
-    ...args
+    ...args,
   });
 };
 
 export const sendContactsMessage = async (
-  args: ISendMessageArgs
+  args: ISendMessageArgs,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'contacts',
-    ...args
+    ...args,
   });
 };
 
 export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
     serviceName: 'core',
-    ...args
+    ...args,
   });
 };
 
 export const sendNotificationsMessage = async (
-  args: ISendMessageArgs
+  args: ISendMessageArgs,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'notifications',
-    ...args
+    ...args,
   });
 };
 
 export const sendClientPortalMessage = async (
-  args: ISendMessageArgs
+  args: ISendMessageArgs,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'clientportal',
-    ...args
+    ...args,
   });
 };
 
 export const sendCommonMessage = async (
-  args: ISendMessageArgs & { serviceName: string }
+  args: ISendMessageArgs & { serviceName: string },
 ): Promise<any> => {
   return sendMessage({
-    ...args
+    ...args,
   });
 };
 
@@ -129,14 +123,10 @@ export const sendNotification = (subdomain: string, data) => {
 };
 
 export const sendSegmentsMessage = async (
-  args: ISendMessageArgs
+  args: ISendMessageArgs,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'segments',
-    ...args
+    ...args,
   });
 };
-
-export default function() {
-  return client;
-}

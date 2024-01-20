@@ -4,19 +4,13 @@ import { generateModels } from './connectionResolver';
 import { afterMutationHandlers } from './afterMutations';
 import { consumeQueue } from '@erxes/api-utils/src/messageBroker';
 
-let client;
-
-export const initBroker = async cl => {
-  client = cl;
-
-  const { consumeRPCQueue } = client;
-
+export const initBroker = async () => {
   consumeRPCQueue('grants:requests.find', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     return {
       status: 'success',
-      data: await models.Requests.find(data).lean()
+      data: await models.Requests.find(data).lean(),
     };
   });
 
@@ -25,7 +19,7 @@ export const initBroker = async cl => {
 
     return {
       status: 'success',
-      data: await models.Requests.findOne(data).lean()
+      data: await models.Requests.findOne(data).lean(),
     };
   });
 
@@ -41,55 +35,51 @@ export const initBroker = async cl => {
 export const sendContactsMessage = (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
     serviceName: 'contacts',
-    ...args
+    ...args,
   });
 };
 
 export const sendFormsMessage = (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
     serviceName: 'forms',
-    ...args
+    ...args,
   });
 };
 
 export const sendCardsMessage = (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
     serviceName: 'cards',
-    ...args
+    ...args,
   });
 };
 
 export const sendCoreMessage = (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
     serviceName: 'core',
-    ...args
+    ...args,
   });
 };
 
 export const sendKbMessage = (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
     serviceName: 'knowledgebase',
-    ...args
+    ...args,
   });
 };
 
 export const sendCommonMessage = async (
-  args: ISendMessageArgs & { serviceName: string }
+  args: ISendMessageArgs & { serviceName: string },
 ): Promise<any> => {
   return sendMessage({
-    ...args
+    ...args,
   });
 };
 
 export const sendNotificationsMessage = async (
-  args: ISendMessageArgs
+  args: ISendMessageArgs,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'notifications',
-    ...args
+    ...args,
   });
 };
-
-export default function() {
-  return client;
-}

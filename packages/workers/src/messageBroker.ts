@@ -1,7 +1,5 @@
 import { init as initBrokerCore } from '@erxes/api-utils/src/messageBroker';
 
-let client;
-
 export const initBroker = async () => {
   client = await initBrokerCore();
 

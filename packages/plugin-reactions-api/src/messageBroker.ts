@@ -2,19 +2,13 @@ import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
 
 import { generateModels } from './connectionResolver';
 
-let client;
-
-export const initBroker = async cl => {
-  client = cl;
-
-  const { consumeRPCQueue } = client;
-
+export const initBroker = async () => {
   consumeRPCQueue('reactions:comments.count', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     return {
       status: 'success',
-      data: await models.Comments.find(data).countDocuments()
+      data: await models.Comments.find(data).countDocuments(),
     };
   });
 
@@ -25,9 +19,9 @@ export const initBroker = async cl => {
 
       return {
         status: 'success',
-        data: await models.Emojis.find(data).countDocuments()
+        data: await models.Emojis.find(data).countDocuments(),
       };
-    }
+    },
   );
 
   consumeRPCQueue(
@@ -37,9 +31,9 @@ export const initBroker = async cl => {
 
       return {
         status: 'success',
-        data: await models.Emojis.find(data).countDocuments()
+        data: await models.Emojis.find(data).countDocuments(),
       };
-    }
+    },
   );
 
   consumeRPCQueue(
@@ -49,9 +43,9 @@ export const initBroker = async cl => {
 
       return {
         status: 'success',
-        data: await models.Emojis.exists(data)
+        data: await models.Emojis.exists(data),
       };
-    }
+    },
   );
 
   consumeRPCQueue('reactions:emojies.isLiked', async ({ subdomain, data }) => {
@@ -59,7 +53,7 @@ export const initBroker = async cl => {
 
     return {
       status: 'success',
-      data: await models.Emojis.exists(data)
+      data: await models.Emojis.exists(data),
     };
   });
 };
@@ -67,18 +61,14 @@ export const initBroker = async cl => {
 export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
     serviceName: 'core',
-    ...args
+    ...args,
   });
 };
 
 export const sendCommonMessage = async (
-  args: ISendMessageArgs & { serviceName: string }
+  args: ISendMessageArgs & { serviceName: string },
 ): Promise<any> => {
   return sendMessage({
-    ...args
+    ...args,
   });
 };
-
-export default function() {
-  return client;
-}

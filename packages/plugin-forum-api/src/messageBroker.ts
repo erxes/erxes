@@ -1,18 +1,10 @@
-
 // import { generateModels } from './connectionResolver';
 import { generateModels } from './db/models';
 import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
 import { sendToWebhook as sendWebhook } from '@erxes/api-utils/src';
 import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
 
-export let client;
-
-export const initBroker = async (cl) => {
-  client = cl;
-
-  const { consumeQueue, consumeRPCQueue } = client;
-
-};
+export const initBroker = async (cl) => {};
 
 export const sendContactsMessage = async (
   args: ISendMessageArgs,

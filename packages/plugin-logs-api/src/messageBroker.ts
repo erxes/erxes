@@ -5,8 +5,7 @@ import { receivePutLogCommand, sendToApi } from './utils';
 import { getService, isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
 import { generateModels } from './connectionResolver';
 import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
-
-let client;
+import { consumeQueue } from '@erxes/api-utils/src/messageBroker';
 
 const hasMetaLogs = async (serviceName: string) => {
   const service = await getService(serviceName);
@@ -32,10 +31,6 @@ const isServiceEnabled = async (serviceName: string): Promise<boolean> => {
 };
 
 export const initBroker = async (cl) => {
-  client = cl;
-
-  const { consumeQueue, consumeRPCQueue } = client;
-
   consumeQueue('putLog', async ({ data, subdomain }) => {
     const models = await generateModels(subdomain);
 

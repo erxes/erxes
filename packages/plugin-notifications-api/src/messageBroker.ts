@@ -8,9 +8,6 @@ import {
   getEnv,
 } from '@erxes/api-utils/src/core';
 
-
-let client;
-
 interface ISendNotification {
   createdUser;
   receivers: string[];
@@ -147,8 +144,6 @@ const sendNotification = async (
 };
 
 export const initBroker = async (cl) => {
-  client = cl;
-
   const { consumeRPCQueue, consumeQueue } = cl;
 
   consumeQueue('notifications:send', async ({ subdomain, data }) => {

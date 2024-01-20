@@ -1,16 +1,8 @@
 import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
 
-
-let client;
-
-export const initBroker = async cl => {
-  client = cl;
-
-  const { consumeQueue, consumeRPCQueue } = client;
-
+export const initBroker = async () => {
   // consumeQueue('reports:send', async ({ data }) => {
   //   Reportss.send(data);
-
   //   return {
   //     status: 'success'
   //   };
@@ -37,25 +29,21 @@ export const initBroker = async cl => {
 export const sendCoreMessage = (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
     serviceName: 'core',
-    ...args
+    ...args,
   });
 };
 
 export const sendCommonMessage = async (
-  args: ISendMessageArgs & { serviceName: string }
+  args: ISendMessageArgs & { serviceName: string },
 ) => {
   return sendMessage({
-    ...args
+    ...args,
   });
 };
 
 export const sendTagsMessage = async (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
     serviceName: 'tags',
-    ...args
+    ...args,
   });
 };
-
-export default function() {
-  return client;
-}

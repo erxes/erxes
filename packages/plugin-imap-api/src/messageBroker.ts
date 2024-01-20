@@ -1,7 +1,7 @@
 import * as dotenv from 'dotenv';
 import {
   ISendMessageArgs,
-  sendMessage as sendCommonMessage
+  sendMessage as sendCommonMessage,
 } from '@erxes/api-utils/src/core';
 
 import { generateModels } from './connectionResolver';
@@ -9,13 +9,7 @@ import { listenIntegration } from './utils';
 
 dotenv.config();
 
-let client;
-
-export const initBroker = async cl => {
-  client = cl;
-
-  const { consumeRPCQueue, consumeQueue } = client;
-
+export const initBroker = async () => {
   consumeRPCQueue(
     'imap:createIntegration',
     async ({ subdomain, data: { doc, integrationId } }) => {
@@ -25,20 +19,20 @@ export const initBroker = async cl => {
         inboxId: integrationId,
         healthStatus: 'healthy',
         error: '',
-        ...JSON.parse(doc.data)
+        ...JSON.parse(doc.data),
       });
 
       listenIntegration(subdomain, integration, models);
 
       await models.Logs.createLog({
         type: 'info',
-        message: `Started syncing ${integration.user}`
+        message: `Started syncing ${integration.user}`,
       });
 
       return {
-        status: 'success'
+        status: 'success',
       };
-    }
+    },
   );
 
   consumeRPCQueue(
@@ -48,13 +42,13 @@ export const initBroker = async cl => {
       const models = await generateModels(subdomain);
 
       const integration = await models.Integrations.findOne({
-        inboxId: integrationId
+        inboxId: integrationId,
       });
 
       if (!integration) {
         return {
           status: 'error',
-          errorMessage: 'Integration not found.'
+          errorMessage: 'Integration not found.',
         };
       }
 
@@ -63,11 +57,11 @@ export const initBroker = async cl => {
 
       await models.Integrations.updateOne(
         { inboxId: integrationId },
-        { $set: detail }
+        { $set: detail },
       );
 
       const updatedIntegration = await models.Integrations.findOne({
-        inboxId: integrationId
+        inboxId: integrationId,
       });
 
       if (updatedIntegration) {
@@ -75,9 +69,9 @@ export const initBroker = async cl => {
       }
 
       return {
-        status: 'success'
+        status: 'success',
       };
-    }
+    },
   );
 
   consumeRPCQueue(
@@ -86,19 +80,19 @@ export const initBroker = async cl => {
       const models = await generateModels(subdomain);
 
       await models.Messages.remove({
-        inboxIntegrationId: integrationId
+        inboxIntegrationId: integrationId,
       });
       await models.Customers.remove({
-        inboxIntegrationId: integrationId
+        inboxIntegrationId: integrationId,
       });
       await models.Integrations.remove({
-        inboxId: integrationId
+        inboxId: integrationId,
       });
 
       return {
-        status: 'success'
+        status: 'success',
       };
-    }
+    },
   );
 
   consumeRPCQueue(
@@ -110,20 +104,20 @@ export const initBroker = async cl => {
       const integrationId = data.integrationId;
 
       const integration = await models.Integrations.findOne({
-        inboxId: integrationId
+        inboxId: integrationId,
       }).select(['-_id', '-kind', '-erxesApiId', '-inboxId']);
 
       if (data.action === 'getDetails') {
         return {
           status: 'success',
-          data: integration
+          data: integration,
         };
       }
 
       return {
-        status: 'success'
+        status: 'success',
       };
-    }
+    },
   );
 
   // /imap/get-status'
@@ -133,25 +127,25 @@ export const initBroker = async cl => {
       const models = await generateModels(subdomain);
 
       const integration = await models.Integrations.findOne({
-        inboxId: integrationId
+        inboxId: integrationId,
       });
 
       let result = {
-        status: 'healthy'
+        status: 'healthy',
       } as any;
 
       if (integration) {
         result = {
           status: integration.healthStatus || 'healthy',
-          error: integration.error
+          error: integration.error,
         };
       }
 
       return {
         data: result,
-        status: 'success'
+        status: 'success',
       };
-    }
+    },
   );
 
   consumeQueue('imap:listen', async ({ subdomain, data: { _id } }) => {
@@ -168,27 +162,23 @@ export const initBroker = async cl => {
   });
 };
 
-export default function() {
-  return client;
-}
-
 export const sendContactsMessage = (args: ISendMessageArgs) => {
   return sendCommonMessage({
     serviceName: 'contacts',
-    ...args
+    ...args,
   });
 };
 
 export const sendInboxMessage = (args: ISendMessageArgs) => {
   return sendCommonMessage({
     serviceName: 'inbox',
-    ...args
+    ...args,
   });
 };
 
 export const sendImapMessage = (args: ISendMessageArgs) => {
   return sendCommonMessage({
     serviceName: 'imap',
-    ...args
+    ...args,
   });
 };

@@ -14,8 +14,6 @@ import { sendRPCMessageMq } from '@erxes/api-utils/src/messageBroker';
 import { updateMobileAmount } from './utils';
 import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
 
-let client;
-
 export const initBroker = async (cl) => {
   const { SKIP_REDIS } = process.env;
 
@@ -34,9 +32,6 @@ export const initBroker = async (cl) => {
 
     channelToken = `_${config.token}`;
   }
-
-  client = cl;
-  const { consumeQueue, consumeRPCQueue } = client;
 
   consumeRPCQueue(
     `posclient:configs.manage${channelToken}`,

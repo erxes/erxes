@@ -13,29 +13,25 @@ const checkService = async (serviceName: string, needsList?: boolean) => {
   return;
 };
 
-let client;
-
-export const initBroker = async cl => {
-  client = cl;
-
+export const initBroker = async () => {
   const { consumeQueue } = cl;
 
   consumeQueue(
     'internalnotes:batchUpdate',
     async ({
       subdomain,
-      data: { contentType, oldContentTypeIds, newContentTypeId }
+      data: { contentType, oldContentTypeIds, newContentTypeId },
     }) => {
       const models = await generateModels(subdomain);
       // Updating every internal notes of company
       await models.InternalNotes.updateMany(
         {
           contentType,
-          contentTypeId: { $in: oldContentTypeIds || [] }
+          contentTypeId: { $in: oldContentTypeIds || [] },
         },
-        { contentTypeId: newContentTypeId }
+        { contentTypeId: newContentTypeId },
       );
-    }
+    },
   );
 
   consumeQueue(
@@ -43,58 +39,58 @@ export const initBroker = async cl => {
     async ({ subdomain, data: { contentType, contentTypeIds } }) => {
       const models = await generateModels(subdomain);
       models.InternalNotes.removeInternalNotes(contentType, contentTypeIds);
-    }
+    },
   );
 };
 
 export const sendNotificationsMessage = async (
-  args: ISendMessageArgs
+  args: ISendMessageArgs,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'notifications',
-    ...args
+    ...args,
   });
 };
 
 export const sendCardsMessage = async (
-  args: ISendMessageArgs
+  args: ISendMessageArgs,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'cards',
-    ...args
+    ...args,
   });
 };
 
 export const sendContactsMessage = async (
-  args: ISendMessageArgs
+  args: ISendMessageArgs,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'contacts',
-    ...args
+    ...args,
   });
 };
 
 export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
     serviceName: 'core',
-    ...args
+    ...args,
   });
 };
 
 export const sendProductsMessage = async (
-  args: ISendMessageArgs
+  args: ISendMessageArgs,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'products',
-    ...args
+    ...args,
   });
 };
 
 export const sendCommonMessage = async (
-  args: ISendMessageArgs & { serviceName: string }
+  args: ISendMessageArgs & { serviceName: string },
 ): Promise<any> => {
   return sendMessage({
-    ...args
+    ...args,
   });
 };
 
@@ -108,10 +104,6 @@ export const getContentIds = async (subdomain: string, data) => {
     serviceName,
     action: 'logs:getContentIds',
     data,
-    isRPC: true
+    isRPC: true,
   });
 };
-
-export default function() {
-  return client;
-}

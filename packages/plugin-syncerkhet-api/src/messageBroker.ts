@@ -7,13 +7,7 @@ import { sendRPCMessage } from './messageBrokerErkhet';
 import { loansTransactionToErkhet } from './utils/loansTransactionToErkhet';
 import { getPostData, orderDeleteToErkhet } from './utils/orders';
 
-let client;
-
-export const initBroker = async cl => {
-  client = cl;
-
-  const { consumeQueue, consumeRPCQueue } = client;
-
+export const initBroker = async () => {
   consumeQueue('syncerkhet:afterMutation', async ({ subdomain, data }) => {
     await afterMutationHandlers(subdomain, data);
     return;
@@ -22,7 +16,7 @@ export const initBroker = async cl => {
   consumeRPCQueue('syncerkhet:afterQuery', async ({ subdomain, data }) => {
     return {
       status: 'success',
-      data: await afterQueryHandlers(subdomain, data)
+      data: await afterQueryHandlers(subdomain, data),
     };
   });
 
@@ -32,20 +26,20 @@ export const initBroker = async cl => {
     const syncLogDoc = {
       contentType: 'pos:order',
       createdAt: new Date(),
-      createdBy: order.userId
+      createdBy: order.userId,
     };
     const syncLog = await models.SyncLogs.syncLogsAdd({
       ...syncLogDoc,
       contentId: order._id,
       consumeData: order,
-      consumeStr: JSON.stringify(order)
+      consumeStr: JSON.stringify(order),
     });
     try {
       const postData = await getPostData(subdomain, pos, order);
       if (!postData) {
         return {
           status: 'success',
-          data: {}
+          data: {},
         };
       }
 
@@ -60,18 +54,18 @@ export const initBroker = async cl => {
             isEbarimt: false,
             payload: JSON.stringify(postData),
             thirdService: true,
-            isJson: true
-          }
-        )
+            isJson: true,
+          },
+        ),
       };
     } catch (e) {
       await models.SyncLogs.updateOne(
         { _id: syncLog._id },
-        { $set: { error: e.message } }
+        { $set: { error: e.message } },
       );
       return {
         status: 'success',
-        data: { error: e.message }
+        data: { error: e.message },
       };
     }
   });
@@ -82,25 +76,25 @@ export const initBroker = async cl => {
 
     const syncLogDoc = {
       contentType: 'loans:transaction',
-      createdAt: new Date()
+      createdAt: new Date(),
     };
     const syncLog = await models.SyncLogs.syncLogsAdd({
       ...syncLogDoc,
       contentId: orderId,
       consumeData: data,
-      consumeStr: JSON.stringify(data)
+      consumeStr: JSON.stringify(data),
     });
 
     try {
       const postData = await loansTransactionToErkhet(
         subdomain,
         generals,
-        orderId
+        orderId,
       );
       if (!postData) {
         return {
           status: 'success',
-          data: {}
+          data: {},
         };
       }
 
@@ -115,18 +109,18 @@ export const initBroker = async cl => {
             isEbarimt: false,
             payload: JSON.stringify(postData),
             thirdService: true,
-            isJson: true
-          }
-        )
+            isJson: true,
+          },
+        ),
       };
     } catch (e) {
       await models.SyncLogs.updateOne(
         { _id: syncLog._id },
-        { $set: { error: e.message } }
+        { $set: { error: e.message } },
       );
       return {
         status: 'success',
-        data: { error: e.message }
+        data: { error: e.message },
       };
     }
   });
@@ -138,25 +132,25 @@ export const initBroker = async cl => {
       const models = await generateModels(subdomain);
       const syncLogDoc = {
         contentType: 'loans:transaction',
-        createdAt: new Date()
+        createdAt: new Date(),
       };
       const syncLog = await models.SyncLogs.syncLogsAdd({
         ...syncLogDoc,
         contentId: orderId,
         consumeData: data,
-        consumeStr: JSON.stringify(data)
+        consumeStr: JSON.stringify(data),
       });
 
       try {
         const postData = await loansTransactionToErkhet(
           subdomain,
           generals,
-          orderId
+          orderId,
         );
         if (!postData) {
           return {
             status: 'success',
-            data: {}
+            data: {},
           };
         }
 
@@ -171,21 +165,21 @@ export const initBroker = async cl => {
               isEbarimt: false,
               payload: JSON.stringify(postData),
               thirdService: true,
-              isJson: true
-            }
-          )
+              isJson: true,
+            },
+          ),
         };
       } catch (e) {
         await models.SyncLogs.updateOne(
           { _id: syncLog._id },
-          { $set: { error: e.message } }
+          { $set: { error: e.message } },
         );
         return {
           status: 'success',
-          data: { error: e.message }
+          data: { error: e.message },
         };
       }
-    }
+    },
   );
 
   consumeRPCQueue('syncerkhet:returnOrder', async ({ subdomain, data }) => {
@@ -193,70 +187,66 @@ export const initBroker = async cl => {
 
     return {
       status: 'success',
-      data: await orderDeleteToErkhet(subdomain, pos, order)
+      data: await orderDeleteToErkhet(subdomain, pos, order),
     };
   });
 };
 
 export const sendProductsMessage = async (
-  args: ISendMessageArgs
+  args: ISendMessageArgs,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'products',
-    ...args
+    ...args,
   });
 };
 
 export const sendContactsMessage = async (
-  args: ISendMessageArgs
+  args: ISendMessageArgs,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'contacts',
-    ...args
+    ...args,
   });
 };
 
 export const sendCardsMessage = async (
-  args: ISendMessageArgs
+  args: ISendMessageArgs,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'cards',
-    ...args
+    ...args,
   });
 };
 
 export const sendPosMessage = async (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
     serviceName: 'pos',
-    ...args
+    ...args,
   });
 };
 
 export const sendEbarimtMessage = async (
-  args: ISendMessageArgs
+  args: ISendMessageArgs,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'ebarimt',
-    ...args
+    ...args,
   });
 };
 
 export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
     serviceName: 'core',
-    ...args
+    ...args,
   });
 };
 
 export const sendNotificationsMessage = async (
-  args: ISendMessageArgs
+  args: ISendMessageArgs,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'notifications',
-    ...args
+    ...args,
   });
 };
-
-export default function() {
-  return client;
-}

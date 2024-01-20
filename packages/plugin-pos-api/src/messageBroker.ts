@@ -6,13 +6,7 @@ import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
 
 import { beforeResolverHandlers } from './beforeResolvers';
 
-let client;
-
 export const initBroker = async (cl) => {
-  client = cl;
-
-  const { consumeQueue, consumeRPCQueue } = client;
-
   consumeQueue('pos:afterMutation', async ({ subdomain, data }) => {
     await afterMutationHandlers(subdomain, data);
     return;
