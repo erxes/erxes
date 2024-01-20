@@ -11,18 +11,20 @@ import {
 import { handleFacebookMessage } from './handleFacebookMessage';
 import { userIds } from './middlewares/userMiddleware';
 
+import { sendMessage as sendCommonMessage } from '@erxes/api-utils/src/core';
 import {
   ISendMessageArgs,
-  sendMessage as sendCommonMessage,
+  ISendMessageArgsNoService,
 } from '@erxes/api-utils/src/core';
 
 import { generateModels } from './connectionResolver';
+import {
+  consumeQueue,
+  consumeRPCQueue,
+  sendRPCMessage,
+} from '@erxes/api-utils/src/messageBroker';
 
 dotenv.config();
-
-export const sendRPCMessage = async (channel, message): Promise<any> => {
-  return client.sendRPCMessage(channel, message);
-};
 
 export const initBroker = async () => {
   consumeRPCQueue(
@@ -187,12 +189,12 @@ export const initBroker = async () => {
   );
 };
 
-export const sendInboxMessage = (args: ISendMessageArgs) => {
+export const sendInboxMessage = (args: ISendMessageArgsNoService) => {
   return sendCommonMessage({
     serviceName: 'inbox',
     ...args,
   });
 };
 
-export const getFileUploadConfigs = async () =>
-  sendRPCMessage('core:getFileUploadConfigs', {});
+export const getFileUploadConfigs = async (subdomain) =>
+  sendRPCMessage('core:getFileUploadConfigs', { subdomain });
