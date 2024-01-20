@@ -8,6 +8,7 @@ import {
   FlexColumn,
   FormChart,
   FormContainer,
+  MarginY,
   RightDrawerContainer,
   ScrolledContent,
 } from '../../styles';
@@ -27,7 +28,19 @@ import { IChart } from '../../types';
 import ChartFormField, {
   IFilterType,
 } from '../../containers/chart/ChartFormField';
+import { dimensions } from '@erxes/ui';
 
+const DIMENSION_OPTIONS = [
+  { label: 'Team members', value: 'teamMember' },
+  { label: 'Departments', value: 'branch' },
+  { label: 'Branches', value: 'department' },
+  { label: 'Source/Channel', value: 'source' },
+  { label: 'Brands', value: 'brand' },
+  { label: 'Tags', value: 'tag' },
+  { label: 'Labels', value: 'label' },
+  { label: 'Frequency (day, week, month)', value: 'frequency' },
+  { label: 'Status', value: 'status' },
+];
 type Props = {
   toggleForm: () => void;
 
@@ -66,6 +79,7 @@ const ChartForm = (props: Props) => {
   const [chartType, setChartType] = useState<string>(chart?.chartType || 'bar');
   const [filterTypes, setFilterTypes] = useState<IFilterType[]>([]);
   const [filters, setFilters] = useState<any>(chart?.filter || {});
+  const [dimension, setDimension] = useState<any>(chart?.dimension || {});
 
   useEffect(() => {
     const findChartTemplate = chartTemplates.find(
@@ -138,8 +152,6 @@ const ChartForm = (props: Props) => {
     setFilters({ ...filters });
   };
 
-  console.log('filters ', filters);
-
   const renderFilterTypes = filterTypes.length ? (
     <FlexColumn style={{ gap: '20px' }}>
       {filterTypes.map((f: IFilterType) => (
@@ -157,6 +169,14 @@ const ChartForm = (props: Props) => {
     <></>
   );
 
+  const renderDimensionSelection = (
+    <Select
+      options={DIMENSION_OPTIONS}
+      value={dimension?.x}
+      onChange={(val) => setDimension({ x: val })}
+    />
+  );
+
   return (
     <FormContainer>
       <FormChart>
@@ -171,6 +191,7 @@ const ChartForm = (props: Props) => {
               chartType={chartType}
               chartVariables={{ serviceName, templateType }}
               filter={filters}
+              dimension={dimension}
               history={history}
               queryParams={queryParams}
             />
@@ -240,6 +261,10 @@ const ChartForm = (props: Props) => {
                       onChange={onChartTypeChange}
                       placeholder={__(`Choose type`)}
                     />
+                  </FormGroup>
+                  <FormGroup>
+                    <ControlLabel>Dimension</ControlLabel>
+                    {renderDimensionSelection}
                   </FormGroup>
                   <FormGroup>{renderFilterTypes}</FormGroup>
                 </>

@@ -172,8 +172,8 @@ query reportsCountByTags {
 `;
 
 const reportChartGetResult = `
-query reportChartGetResult($serviceName: String!, $templateType: String!, $filter: JSON){
-  reportChartGetResult(serviceName: $serviceName, templateType: $templateType, filter: $filter )
+query reportChartGetResult($serviceName: String!, $templateType: String!, $filter: JSON, $dimension: JSON){
+  reportChartGetResult(serviceName: $serviceName, templateType: $templateType, filter: $filter , dimension: $dimension)
 }
 `;
 
@@ -191,5 +191,5 @@ export default {
   reportsCountByTags,
 
   reportChartGetResult,
-  reportServicesList
+  reportServicesList,
 };

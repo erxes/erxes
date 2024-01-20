@@ -132,7 +132,7 @@ const chartTemplates = [
       'polarArea',
       'table',
     ],
-    getChartResult: async (filter: any, subdomain: string) => {
+    getChartResult: async (filter: any, dimension: any, subdomain: string) => {
       const matchfilter = {
         'conversationMessages.internal': false,
         'conversationMessages.content': { $ne: '' },
@@ -365,7 +365,7 @@ const chartTemplates = [
     templateType: 'averageCloseTime',
     name: 'Average chat close time by rep in hours',
     chartTypes: ['bar', 'doughnut', 'radar', 'polarArea', 'table'],
-    getChartResult: async (filter: any, subdomain: string) => {
+    getChartResult: async (filter: any, dimension: any, subdomain: string) => {
       const matchfilter = {
         status: /closed/gi,
         closedAt: { $exists: true },
@@ -510,7 +510,7 @@ const chartTemplates = [
       'polarArea',
       'table',
     ],
-    getChartResult: async (filter: any, subdomain: string) => {
+    getChartResult: async (filter: any, dimension: any, subdomain: string) => {
       const data: number[] = [];
       const labels: string[] = [];
 
@@ -815,12 +815,12 @@ const chartTemplates = [
 ];
 
 const getChartResult = async ({ subdomain, data }) => {
-  const { templateType, filter } = data;
+  const { templateType, filter, dimension } = data;
 
   const template =
     chartTemplates.find((t) => t.templateType === templateType) || ({} as any);
 
-  return template.getChartResult(filter, subdomain);
+  return template.getChartResult(filter, dimension, subdomain);
 };
 
 export default {
