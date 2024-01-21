@@ -119,7 +119,7 @@ export const initBroker = async () => {
 
       return {
         status: 'error',
-        data: 'Wrong kind',
+        errorMessage: 'Wrong kind',
       };
     },
   );

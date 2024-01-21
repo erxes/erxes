@@ -272,7 +272,8 @@ export const initBroker = () => {
       }
       return {
         status: 'error',
-        data: [],
+        errorMessage:
+          'id and status are required. id is ${id} and status is ${status}',
       };
     },
   );

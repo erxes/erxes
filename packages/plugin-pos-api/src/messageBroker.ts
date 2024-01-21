@@ -259,7 +259,6 @@ export const initBroker = async () => {
       data: await beforeResolverHandlers(models, subdomain, data),
       status: 'success',
     };
-    return;
   });
 };
 

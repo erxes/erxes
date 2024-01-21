@@ -7,6 +7,7 @@ import fetch from 'node-fetch';
 import redis from './redis';
 import * as Agent from 'agentkeepalive';
 import * as dotenv from 'dotenv';
+import { Response } from 'express';
 dotenv.config();
 
 const { RABBITMQ_HOST, MESSAGE_BROKER_PREFIX } = process.env;
@@ -39,6 +40,7 @@ export interface InterMessage {
   timeout?: number;
   defaultValue?: any;
   thirdService?: boolean;
+  [others: string]: any;
 }
 
 const showInfoDebug = () => {
@@ -89,7 +91,9 @@ export const doesQueueExist = async (
   return isMember !== 0;
 };
 
-export const consumeQueue = async (queueName, callback) => {
+type ConsumeHandler = (message: InterMessage, msg: amqplib.Message) => any;
+
+export const consumeQueue = async (queueName, handler: ConsumeHandler) => {
   if (!channel) {
     throw new Error(`RabbitMQ channel is ${channel}`);
   }
@@ -110,7 +114,7 @@ export const consumeQueue = async (queueName, callback) => {
       async (msg) => {
         if (msg !== null) {
           try {
-            await callback(JSON.parse(msg.content.toString()), msg);
+            await handler(JSON.parse(msg.content.toString()), msg);
           } catch (e) {
             debugError(
               `Error occurred during callback ${queueName} ${e.message}`,
@@ -140,7 +144,21 @@ function splitPluginProcedureName(queueName: string) {
   return { pluginName, procedureName };
 }
 
-export const consumeRPCQueue = (queueName, procedure) => {
+export interface RPSuccess {
+  status: 'success';
+  data?: any;
+}
+export interface RPError {
+  status: 'error';
+  errorMessage: string;
+}
+export type RPResult = RPSuccess | RPError;
+export type RP = (params: InterMessage) => RPResult | Promise<RPResult>;
+
+export const consumeRPCQueue = async (
+  queueName,
+  procedure: RP,
+): Promise<void> => {
   const { procedureName } = splitPluginProcedureName(queueName);
 
   if (procedureName.includes(':')) {
@@ -151,7 +169,7 @@ export const consumeRPCQueue = (queueName, procedure) => {
 
   const endpoint = `/rpc/${procedureName}`;
 
-  app.post(endpoint, async (req, res) => {
+  app.post(endpoint, async (req, res: Response<RPResult>) => {
     try {
       const response = await procedure(req.body);
       res.json(response);
@@ -163,7 +181,7 @@ export const consumeRPCQueue = (queueName, procedure) => {
     }
   });
 
-  consumeRPCQueueMq(queueName, procedure);
+  await consumeRPCQueueMq(queueName, procedure);
 };
 
 export const sendRPCMessage = async (
@@ -204,7 +222,7 @@ export const sendRPCMessage = async (
         );
       }
 
-      const result = await response.json();
+      const result: RPResult = await response.json();
 
       if (result.status === 'success') {
         return result.data;
@@ -277,7 +295,7 @@ export const sendRPCMessageMq = async (
     );
   }
 
-  const response = await new Promise((resolve, reject) => {
+  const response = await new Promise<any>((resolve, reject) => {
     if (!channel) {
       throw new Error(`RabbitMQ channel is ${channel}`);
     }
@@ -317,7 +335,7 @@ export const sendRPCMessageMq = async (
           }
 
           if (msg.properties.correlationId === correlationId) {
-            const res = JSON.parse(msg.content.toString());
+            const res: RPResult = JSON.parse(msg.content.toString());
 
             if (res.status === 'success') {
               if (showInfoDebug()) {
@@ -354,7 +372,10 @@ export const sendRPCMessageMq = async (
   return response;
 };
 
-export const consumeRPCQueueMq = async (queueName, callback) => {
+export const consumeRPCQueueMq = async (
+  queueName,
+  callback: RP,
+): Promise<void> => {
   if (!channel) {
     throw new Error(`RabbitMQ channel is ${channel}`);
   }
@@ -383,7 +404,7 @@ export const consumeRPCQueueMq = async (queueName, callback) => {
           );
         }
 
-        let response;
+        let response: RPResult;
 
         try {
           response = await callback(JSON.parse(msg.content.toString()));
@@ -419,7 +440,7 @@ export const consumeRPCQueueMq = async (queueName, callback) => {
 export const sendMessage = async (
   queueName: string,
   message?: InterMessage,
-) => {
+): Promise<void> => {
   if (!channel) {
     throw new Error(`RabbitMQ channel is ${channel}`);
   }

@@ -99,8 +99,8 @@ export const initBroker = async () => {
 
     if (!itemId || !type || !user || !processId) {
       return {
-        status: 'failed',
-        data: 'you must provide some params',
+        status: 'error',
+        errorMessage: 'you must provide some params',
       };
     }
     const collection = objModels[type];
@@ -136,8 +136,8 @@ export const initBroker = async () => {
 
     if (!parent) {
       return {
-        status: 'failde',
-        data: null,
+        status: 'error',
+        errorMessage: 'Parent not found',
       };
     }
 
@@ -617,7 +617,10 @@ export const initBroker = async () => {
       });
 
       if (!item) {
-        return '';
+        return {
+          status: 'error',
+          errorMessage: 'Item not found',
+        };
       }
 
       const stage = await models.Stages.getStage(item.stageId);
@@ -644,7 +647,10 @@ export const initBroker = async () => {
       }
 
       if (!pipelineId) {
-        return {};
+        return {
+          status: 'error',
+          errorMessage: 'Pipeline not found',
+        };
       }
 
       return {

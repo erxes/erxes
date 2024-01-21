@@ -3,7 +3,10 @@ import { MessageArgs, sendMessage } from '@erxes/api-utils/src/core';
 import Khanbank from './khanbank/khanbank';
 import { generateModels } from './connectionResolver';
 import { TransferParams } from './khanbank/types';
-import { consumeRPCQueue } from '@erxes/api-utils/src/messageBroker';
+import {
+  InterMessage,
+  consumeRPCQueue,
+} from '@erxes/api-utils/src/messageBroker';
 
 export const initBroker = async () => {
   /**
@@ -19,7 +22,7 @@ export const initBroker = async () => {
     if (!configId) {
       return {
         status: 'error',
-        message: 'Config id is required',
+        errorMessage: 'Config id is required',
       };
     }
 
@@ -30,7 +33,7 @@ export const initBroker = async () => {
     if (!config) {
       return {
         status: 'error',
-        message: 'Config not found',
+        errorMessage: 'Config not found',
       };
     }
 
@@ -45,7 +48,7 @@ export const initBroker = async () => {
     } catch (e) {
       return {
         status: 'error',
-        message: e.message,
+        errorMessage: e.message,
       };
     }
   });
@@ -64,7 +67,7 @@ export const initBroker = async () => {
     if (!accountNumber || !configId) {
       return {
         status: 'error',
-        message: 'Account number and config id is required',
+        errorMessage: 'Account number and config id is required',
       };
     }
 
@@ -75,7 +78,7 @@ export const initBroker = async () => {
     if (!config) {
       return {
         status: 'error',
-        message: 'Config not found',
+        errorMessage: 'Config not found',
       };
     }
 
@@ -90,7 +93,7 @@ export const initBroker = async () => {
     } catch (e) {
       return {
         status: 'error',
-        message: e.message,
+        errorMessage: e.message,
       };
     }
   });
@@ -110,7 +113,7 @@ export const initBroker = async () => {
     if (!configId || !accountNumber || !bankCode) {
       return {
         status: 'error',
-        message: 'Account number, bank code and config id is required',
+        errorMessage: 'Account number, bank code and config id is required',
       };
     }
 
@@ -121,7 +124,7 @@ export const initBroker = async () => {
     if (!config) {
       return {
         status: 'error',
-        message: 'Config not found',
+        errorMessage: 'Config not found',
       };
     }
 
@@ -136,7 +139,7 @@ export const initBroker = async () => {
     } catch (e) {
       return {
         status: 'error',
-        message: e.message,
+        errorMessage: e.message,
       };
     }
   });
@@ -158,7 +161,7 @@ export const initBroker = async () => {
     if (!configId || !accountNumber) {
       return {
         status: 'error',
-        message: 'Config id and account number is required',
+        errorMessage: 'Config id and account number is required',
       };
     }
 
@@ -169,7 +172,7 @@ export const initBroker = async () => {
     if (!config) {
       return {
         status: 'error',
-        message: 'Config not found',
+        errorMessage: 'Config not found',
       };
     }
 
@@ -184,7 +187,7 @@ export const initBroker = async () => {
     } catch (e) {
       return {
         status: 'error',
-        message: e.message,
+        errorMessage: e.message,
       };
     }
   });
@@ -202,7 +205,7 @@ export const initBroker = async () => {
     if (!configId || !transferParams) {
       return {
         status: 'error',
-        message: 'Config id and transfer params is required',
+        errorMessage: 'Config id and transfer params is required',
       };
     }
 
@@ -213,7 +216,7 @@ export const initBroker = async () => {
     if (!config) {
       return {
         status: 'error',
-        message: 'Config not found',
+        errorMessage: 'Config not found',
       };
     }
 
@@ -228,7 +231,7 @@ export const initBroker = async () => {
     } catch (e) {
       return {
         status: 'error',
-        message: e.message,
+        errorMessage: e.message,
       };
     }
   });
@@ -256,7 +259,7 @@ export const initBroker = async () => {
     ) {
       return {
         status: 'error',
-        message:
+        errorMessage:
           'Config id and transfer params and toCurrency and toAccountName and toBank is required',
       };
     }
@@ -268,7 +271,7 @@ export const initBroker = async () => {
     if (!config) {
       return {
         status: 'error',
-        message: 'Config not found',
+        errorMessage: 'Config not found',
       };
     }
 
@@ -288,7 +291,7 @@ export const initBroker = async () => {
     } catch (e) {
       return {
         status: 'error',
-        message: e.message,
+        errorMessage: e.message,
       };
     }
   });

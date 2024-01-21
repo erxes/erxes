@@ -175,7 +175,7 @@ export const initBroker = async () => {
       if (!valid) {
         return {
           status: 'error',
-          message: 'Invalid password',
+          errorMessage: 'Invalid password',
         };
       }
 

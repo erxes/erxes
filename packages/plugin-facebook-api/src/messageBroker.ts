@@ -16,6 +16,7 @@ import { MessageArgs, MessageArgsOmitService } from '@erxes/api-utils/src/core';
 
 import { generateModels } from './connectionResolver';
 import {
+  InterMessage,
   consumeQueue,
   consumeRPCQueue,
   sendRPCMessage,
@@ -134,12 +135,12 @@ export const initBroker = async () => {
       const models = await generateModels(subdomain);
 
       if (kind === 'facebook') {
-        return facebookCreateIntegration(models, doc);
+        return await facebookCreateIntegration(models, doc);
       }
 
       return {
         status: 'error',
-        data: 'Wrong kind',
+        errorMessage: 'Wrong kind',
       };
     },
   );

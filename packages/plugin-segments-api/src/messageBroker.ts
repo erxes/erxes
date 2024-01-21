@@ -100,7 +100,10 @@ export const initBroker = async () => {
       const segments = await models.Segments.find({ _id: { $in: segmentIds } });
 
       if (!segments?.length) {
-        return sendErrorMessage('Not Found');
+        return {
+          status: 'error',
+          errorMessage: 'Segments not found',
+        };
       }
 
       let subSegmentIds: string[] = [];
@@ -113,13 +116,14 @@ export const initBroker = async () => {
         }
       }
 
-      return sendSuccessMessage(
-        await models.Segments.find({
+      return {
+        status: 'success',
+        data: await models.Segments.find({
           _id: {
             $in: subSegmentIds,
           },
         }),
-      );
+      };
     },
   );
 };

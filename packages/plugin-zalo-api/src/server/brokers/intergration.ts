@@ -14,7 +14,7 @@ export const integrationBroker = () => {
 
       return {
         status: 'error',
-        data: 'Wrong kind',
+        errorMessage: 'Wrong kind',
       };
     },
   );

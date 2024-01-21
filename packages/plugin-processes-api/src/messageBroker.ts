@@ -64,7 +64,6 @@ export const initBroker = async () => {
       data: await beforeResolverHandlers(models, data),
       status: 'success',
     };
-    return;
   });
 
   consumeRPCQueue(

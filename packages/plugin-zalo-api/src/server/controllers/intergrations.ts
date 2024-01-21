@@ -1,3 +1,4 @@
+import { RPResult } from '@erxes/api-utils/src/messageBroker';
 import { debug } from '../../configs';
 import { IModels } from '../../models';
 import { convertAttachment } from '../../utils';
@@ -9,8 +10,8 @@ const querystring = require('querystring');
 export const zaloCreateIntegration = async (
   models: IModels,
   subdomain: any,
-  { accountId, integrationId, data, kind }
-) => {
+  { accountId, integrationId, data, kind },
+): Promise<RPResult> => {
   const account = await models.Accounts.getAccount({ _id: accountId });
   const oa_id = account?.oa_id;
   let integration;
@@ -19,7 +20,7 @@ export const zaloCreateIntegration = async (
       kind,
       accountId,
       erxesApiId: integrationId,
-      oa_id
+      oa_id,
     });
   } catch (e) {
     // debug.error(
@@ -29,7 +30,7 @@ export const zaloCreateIntegration = async (
 
   const recentMessages = await zaloGet(
     `listrecentchat?data={"offset":0,"count":10}`,
-    { models, oa_id }
+    { models, oa_id },
   );
   // 1. This request does not return conversation_id per message
 
@@ -51,7 +52,7 @@ export const zaloCreateIntegration = async (
         message,
         url,
         thumb,
-        location
+        location,
       } = recentMessage;
 
       const userId = src ? from_id : to_id;
@@ -63,7 +64,7 @@ export const zaloCreateIntegration = async (
       if (!src) {
         let findUserMessages = await zaloGet(
           `conversation?data={"user_id": ${userId},"offset":0,"count":10}`,
-          { models, oa_id }
+          { models, oa_id },
         );
 
         findUserMessages =
@@ -81,7 +82,7 @@ export const zaloCreateIntegration = async (
         firstName,
         integrationId,
         profilePic: avatar,
-        checkFollower: true
+        checkFollower: true,
       });
 
       // Check if user is follower first.
@@ -94,7 +95,7 @@ export const zaloCreateIntegration = async (
       console.log('integration createOrUpdateCustomer:', customer);
 
       let attachment: { [key: string]: any } = {
-        type // text, image, sticker, GIF, location, voice, link, links,
+        type, // text, image, sticker, GIF, location, voice, link, links,
       };
 
       if (thumb || url) attachment.payload = {};
@@ -116,8 +117,8 @@ export const zaloCreateIntegration = async (
           timestamp: time,
           text: message,
           msg_id,
-          attachments: convertAttachment([attachment])
-        }
+          attachments: convertAttachment([attachment]),
+        },
       });
     });
   }
@@ -162,10 +163,10 @@ export const zaloCreateIntegration = async (
 
 export const removeIntegration = async (
   models: IModels,
-  integrationErxesApiId: string
+  integrationErxesApiId: string,
 ): Promise<string> => {
   const integration = await models.Integrations.findOne({
-    erxesApiId: integrationErxesApiId
+    erxesApiId: integrationErxesApiId,
   });
 
   if (!integration) {
@@ -208,17 +209,16 @@ export const removeIntegration = async (
     // }
     //   }
 
-    const conversationIds = await models.Conversations.find(selector).distinct(
-      '_id'
-    );
+    const conversationIds =
+      await models.Conversations.find(selector).distinct('_id');
 
     await models.Customers.deleteMany({
-      integrationId: integrationErxesApiId
+      integrationId: integrationErxesApiId,
     });
 
     await models.Conversations.deleteMany(selector);
     await models.ConversationMessages.deleteMany({
-      conversationId: { $in: conversationIds }
+      conversationId: { $in: conversationIds },
     });
 
     await models.Integrations.deleteOne({ _id });
