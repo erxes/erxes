@@ -1,20 +1,21 @@
+import { RPSuccess } from '@erxes/api-utils/src/messageBroker';
 import { generateModels, IModels } from '../connectionResolver';
 import { debugCallPro, debugError, debugRequest } from '../debuggers';
 import { routeErrorHandling } from '../helpers';
 import { sendInboxMessage } from '../messageBroker';
 import { getSubdomain } from '@erxes/api-utils/src/core';
-import { graphqlPubsub } from '../configs';
+import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
 
 export const callproCreateIntegration = async (
   models: IModels,
-  { integrationId, data }
-) => {
+  { integrationId, data },
+): Promise<RPSuccess> => {
   const { phoneNumber, recordUrl } = JSON.parse(data || '{}');
 
   // Check existing Integration
   const integration = await models.Integrations.findOne({
     kind: 'callpro',
-    phoneNumber
+    phoneNumber,
   }).lean();
 
   if (integration) {
@@ -28,7 +29,7 @@ export const callproCreateIntegration = async (
     kind: 'callpro',
     erxesApiId: integrationId,
     phoneNumber,
-    recordUrl
+    recordUrl,
   });
 
   return { status: 'success' };
@@ -36,10 +37,10 @@ export const callproCreateIntegration = async (
 
 export const callproGetAudio = async (
   models: IModels,
-  { erxesApiId, integrationId }
+  { erxesApiId, integrationId },
 ) => {
   const integration = await models.Integrations.findOne({
-    erxesApiId: integrationId
+    erxesApiId: integrationId,
   });
 
   if (!integration) {
@@ -50,7 +51,7 @@ export const callproGetAudio = async (
   }
 
   const conversation = await models.CallProConversations.findOne({
-    erxesApiId
+    erxesApiId,
   });
 
   if (!conversation) {
@@ -72,7 +73,7 @@ export const callproGetAudio = async (
   return { audioSrc };
 };
 
-const init = async app => {
+const init = async (app) => {
   app.post(
     '/callpro-receive',
     routeErrorHandling(async (req, res) => {
@@ -87,7 +88,7 @@ const init = async app => {
         await models.Logs.createLog({
           type: 'call-pro',
           value: req.body,
-          specialValue: numberFrom || ''
+          specialValue: numberFrom || '',
         });
       } catch (e) {
         const message = `Failed creating call pro log. Error: ${e.message}`;
@@ -97,7 +98,7 @@ const init = async app => {
       }
 
       const integration = await models.Integrations.findOne({
-        phoneNumber: numberTo
+        phoneNumber: numberTo,
       }).lean();
 
       const inboxIntegration = await sendInboxMessage({
@@ -105,7 +106,7 @@ const init = async app => {
         action: 'integrations.findOne',
         data: { _id: integration.erxesApiId },
         isRPC: true,
-        defaultValue: null
+        defaultValue: null,
       });
 
       if (!integration) {
@@ -117,14 +118,14 @@ const init = async app => {
 
       // get customer
       let customer = await models.CallProCustomers.findOne({
-        phoneNumber: numberFrom
+        phoneNumber: numberFrom,
       });
 
       if (!customer) {
         try {
           customer = await models.CallProCustomers.create({
             phoneNumber: numberFrom,
-            integrationId: integration._id
+            integrationId: integration._id,
           });
         } catch (e) {
           const message = e.message.includes('duplicate')
@@ -146,10 +147,10 @@ const init = async app => {
                 integrationId: integration.erxesApiId,
                 primaryPhone: numberFrom,
                 isUser: true,
-                phones: [numberFrom]
-              })
+                phones: [numberFrom],
+              }),
             },
-            isRPC: true
+            isRPC: true,
           });
 
           customer.erxesApiId = apiCustomerResponse._id;
@@ -159,7 +160,7 @@ const init = async app => {
 
           debugError(
             'Callpro: error occured during create or update customer on api: ',
-            e.message
+            e.message,
           );
           throw new Error(e);
         }
@@ -167,7 +168,7 @@ const init = async app => {
 
       // get conversation
       let conversation = await models.CallProConversations.findOne({
-        callId: callID
+        callId: callID,
       });
 
       // create conversation
@@ -179,7 +180,7 @@ const init = async app => {
             callId: callID,
             senderPhoneNumber: numberTo,
             recipientPhoneNumber: numberFrom,
-            integrationId: integration._id
+            integrationId: integration._id,
           });
         } catch (e) {
           const message = e.message.includes('duplicate')
@@ -195,7 +196,7 @@ const init = async app => {
       if (conversation.state !== disp) {
         await models.CallProConversations.updateOne(
           { callId: callID },
-          { $set: { state: disp } }
+          { $set: { state: disp } },
         );
 
         try {
@@ -207,10 +208,10 @@ const init = async app => {
               payload: JSON.stringify({
                 content: disp,
                 conversationId: conversation.erxesApiId,
-                owner
-              })
+                owner,
+              }),
             },
-            isRPC: true
+            isRPC: true,
           });
         } catch (e) {
           debugError(e.message);
@@ -231,10 +232,10 @@ const init = async app => {
               customerId: customer.erxesApiId,
               content: disp,
               integrationId: integration.erxesApiId,
-              owner
-            })
+              owner,
+            }),
           },
-          isRPC: true
+          isRPC: true,
         });
 
         conversation.erxesApiId = apiConversationResponse._id;
@@ -244,7 +245,7 @@ const init = async app => {
 
         debugError(
           'Callpro: error occured during create or update conversation on api: ',
-          e.message
+          e.message,
         );
         throw new Error(e);
       }
@@ -253,9 +254,9 @@ const init = async app => {
         subdomain,
         action: 'channels.find',
         data: {
-          integrationIds: { $in: [inboxIntegration._id] }
+          integrationIds: { $in: [inboxIntegration._id] },
         },
-        isRPC: true
+        isRPC: true,
       });
 
       for (const channel of channels) {
@@ -266,16 +267,16 @@ const init = async app => {
               content: 'new callpro message',
               createdAt: new Date(),
               customerId: customer.erxesApiId,
-              conversationId: conversation.erxesApiId
+              conversationId: conversation.erxesApiId,
             },
             conversation,
-            integration: inboxIntegration
+            integration: inboxIntegration,
           });
         }
       }
 
       res.send('success');
-    })
+    }),
   );
 };
 

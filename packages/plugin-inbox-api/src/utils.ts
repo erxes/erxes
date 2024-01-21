@@ -1,11 +1,11 @@
-import { serviceDiscovery } from './configs';
+import { getService, getServices } from '@erxes/api-utils/src/serviceDiscovery';
 
 export const getIntegrationMeta = async () => {
-  const serviceNames = await serviceDiscovery.getServices();
+  const serviceNames = await getServices();
   let metas: any = [];
 
   for (const serviceName of serviceNames) {
-    const service = await serviceDiscovery.getService(serviceName);
+    const service = await getService(serviceName);
     const inboxIntegrations =
       (service.config.meta || {}).inboxIntegrations || [];
 
@@ -25,7 +25,7 @@ export const getIntegrationsKinds = async () => {
     lead: 'Popups & forms',
     webhook: 'Webhook',
     booking: 'Booking',
-    callpro: 'Callpro'
+    callpro: 'Callpro',
   };
 
   for (const meta of metas) {
@@ -36,12 +36,12 @@ export const getIntegrationsKinds = async () => {
 };
 
 export const isServiceRunning = async (
-  integrationKind: string
+  integrationKind: string,
 ): Promise<boolean> => {
-  const serviceNames = await serviceDiscovery.getServices();
+  const serviceNames = await getServices();
 
   // some kinds are separated by -
   return (
-    integrationKind && serviceNames.includes(integrationKind.split('-')[0])
+    !!integrationKind && serviceNames.includes(integrationKind.split('-')[0])
   );
 };

@@ -1,6 +1,6 @@
 import { putActivityLog } from '@erxes/api-utils/src/logUtils';
 import { IContext } from '../../../connectionResolver';
-import messageBroker, { sendContactsMessage } from '../../../messageBroker';
+import { sendContactsMessage } from '../../../messageBroker';
 import { numberWithCommas, sendSms } from '../../../utils';
 
 const blockMutations = {
@@ -10,7 +10,7 @@ const blockMutations = {
   async invest(
     _root,
     doc: { erxesCustomerId: string; packageId: string; amount: number },
-    { subdomain, models }: IContext
+    { subdomain, models }: IContext,
   ) {
     const { packageId, erxesCustomerId, amount } = doc;
 
@@ -32,24 +32,23 @@ const blockMutations = {
     await models.Blocks.updateOne({ erxesCustomerId }, { balance: newBalance });
 
     await putActivityLog(subdomain, {
-      messageBroker: messageBroker(),
       action: 'add',
       data: {
         action: 'invest',
         contentType: 'block:invest',
         createdBy: 'service',
         contentId: erxesCustomerId,
-        content: { packageId, amount }
-      }
+        content: { packageId, amount },
+      },
     });
 
     const customer = await sendContactsMessage({
       subdomain,
       action: 'customers.findOne',
       data: {
-        _id: erxesCustomerId
+        _id: erxesCustomerId,
       },
-      isRPC: true
+      isRPC: true,
     });
 
     const numberAmount = numberWithCommas(amount);
@@ -66,7 +65,7 @@ const blockMutations = {
   async addBalance(
     _root,
     doc: { erxesCustomerId: string; amount: number },
-    { subdomain, models }: IContext
+    { subdomain, models }: IContext,
   ) {
     const { erxesCustomerId, amount } = doc;
     const block = await models.Blocks.findOne({ erxesCustomerId });
@@ -74,9 +73,9 @@ const blockMutations = {
       subdomain,
       action: 'customers.findOne',
       data: {
-        _id: erxesCustomerId
+        _id: erxesCustomerId,
       },
-      isRPC: true
+      isRPC: true,
     });
 
     if (block) {
@@ -86,7 +85,7 @@ const blockMutations = {
 
       await models.Blocks.updateOne(
         { erxesCustomerId },
-        { balance: updatedBalance }
+        { balance: updatedBalance },
       );
     } else {
       await models.Blocks.create({ erxesCustomerId, balance: amount });
@@ -104,7 +103,7 @@ const blockMutations = {
   async updateVerify(
     _root,
     doc: { erxesCustomerId: string; isVerified: string },
-    { subdomain, models }: IContext
+    { subdomain, models }: IContext,
   ) {
     const { erxesCustomerId, isVerified } = doc;
     const block = await models.Blocks.findOne({ erxesCustomerId });
@@ -120,9 +119,9 @@ const blockMutations = {
         subdomain,
         action: 'customers.findOne',
         data: {
-          _id: erxesCustomerId
+          _id: erxesCustomerId,
         },
-        isRPC: true
+        isRPC: true,
       });
 
       const body = `UB GROUP: Tanii medeelel amjilttai batalgaajlaa. Ta dansaa tseneglen hurungu oruulaltaa hiine uu 72228888`;
@@ -131,7 +130,7 @@ const blockMutations = {
     }
 
     return block;
-  }
+  },
 };
 
 export default blockMutations;

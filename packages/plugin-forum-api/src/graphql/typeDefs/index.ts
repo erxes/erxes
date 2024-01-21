@@ -11,7 +11,7 @@ import {
   READ_CP_USER_LEVELS,
   TIME_DURATION_UNITS,
   USER_TYPES,
-  WRITE_CP_USER_LEVELS
+  WRITE_CP_USER_LEVELS,
 } from '../../consts';
 import ForumPermissionGroupCategoryPermit from './ForumPermissionGroupCategoryPermit';
 import ForumPermissionGroup from './ForumPermissionGroup';
@@ -23,6 +23,7 @@ import ForumSavedPost from './ForumSavedPost';
 import ForumPollOption from './ForumPollOption';
 import ForumUserStatistics from './ForumUserStatistics';
 import QuizTypes from './QuizTypes';
+import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
 
 const Invoice = `
   extend type Invoice @key(fields: "_id") {
@@ -37,9 +38,9 @@ const Tag = `
   }
 `;
 
-export default async function genTypeDefs(serviceDiscovery) {
-  const isPaymentEnabled = await serviceDiscovery.isEnabled('payment');
-  const isTagsEnabled = await serviceDiscovery.isEnabled('tags');
+export default async function genTypeDefs() {
+  const isPaymentEnabled = await isEnabled('payment');
+  const isTagsEnabled = await isEnabled('tags');
 
   return gql`
     scalar JSON

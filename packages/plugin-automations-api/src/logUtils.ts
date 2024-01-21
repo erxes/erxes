@@ -3,73 +3,68 @@ import { ILogDataParams } from '@erxes/api-utils/src/logUtils';
 import {
   putCreateLog as commonPutCreateLog,
   putUpdateLog as commonPutUpdateLog,
-  putDeleteLog as commonPutDeleteLog
+  putDeleteLog as commonPutDeleteLog,
 } from '@erxes/api-utils/src/logUtils';
 
 import { putActivityLog as commonPutActivityLog } from '@erxes/api-utils/src/logUtils';
 
-import messageBroker from './messageBroker';
 import { generateModels } from './connectionResolver';
 
 export const putDeleteLog = async (
   subdomain: string,
   logDoc: ILogDataParams,
-  user
+  user,
 ) => {
   await commonPutDeleteLog(
     subdomain,
-    messageBroker(),
     { ...logDoc, type: `automations:${logDoc.type}` },
-    user
+    user,
   );
 };
 
 export const putUpdateLog = async (
   subdomain: string,
   logDoc: ILogDataParams,
-  user
+  user,
 ) => {
   await commonPutUpdateLog(
     subdomain,
-    messageBroker(),
     { ...logDoc, type: `automations:${logDoc.type}` },
-    user
+    user,
   );
 };
 
 export const putCreateLog = async (
   subdomain: string,
   logDoc: ILogDataParams,
-  user
+  user,
 ) => {
   await commonPutCreateLog(
     subdomain,
-    messageBroker(),
     { ...logDoc, type: `automations:${logDoc.type}` },
-    user
+    user,
   );
 };
 
 export const putActivityLog = async (
   subdomain,
-  params: { action: string; data: any }
+  params: { action: string; data: any },
 ) => {
   const { data, action } = params;
 
   const updatedParams = {
     ...params,
-    data: { ...data, contentType: `${data.contentType}` }
+    data: { ...data, contentType: `${data.contentType}` },
   };
 
   return commonPutActivityLog(subdomain, {
-    messageBroker: messageBroker(),
-    ...updatedParams
+    ...updatedParams,
   });
 };
 
-const sendSuccess = data => ({
+const sendSuccess = (data) => ({
   data,
-  status: 'success'
+  status: 'success',
 });
 
 const getResultDoc = (action, result, target) => {
@@ -89,19 +84,19 @@ export default {
     const models = await generateModels(subdomain);
 
     const items = (activityLogs || []).filter(
-      item => item.createdBy === 'automation'
+      (item) => item.createdBy === 'automation',
     );
 
     if (!items.length) {
       return sendSuccess([]);
     }
 
-    const itemsActions = [...new Set(items.map(item => item.action))];
+    const itemsActions = [...new Set(items.map((item) => item.action))];
 
     const excutions = await models.Executions.find({
       targetId: contentId,
       status: 'complete',
-      'actions.actionType': { $in: itemsActions }
+      'actions.actionType': { $in: itemsActions },
     })
       .sort({ createdAt: -1 })
       .lean();
@@ -114,7 +109,7 @@ export default {
         automationId,
         triggerConfig,
         actions,
-        target
+        target,
       } of excutions) {
         for (const action of actions || []) {
           if (action?.actionType === itemAction) {
@@ -126,9 +121,9 @@ export default {
                 triggerConfig,
                 triggerType,
                 actionConfig: action.actionConfig,
-                result: getResultDoc(itemAction, action.result, target)
+                result: getResultDoc(itemAction, action.result, target),
               },
-              createdAt: action.createdAt
+              createdAt: action.createdAt,
             };
 
             excutionLogs.push(excutionLog);
@@ -139,7 +134,7 @@ export default {
 
     return {
       data: excutionLogs,
-      status: 'success'
+      status: 'success',
     };
-  }
+  },
 };

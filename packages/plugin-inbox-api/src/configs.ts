@@ -30,21 +30,17 @@ import { NOTIFICATION_MODULES } from './constants';
 import payment from './payment';
 import reports from './reports';
 import exporter from './exporter';
+import app from '@erxes/api-utils/src/app';
 
 export let mainDb;
-export let graphqlPubsub;
-export let serviceDiscovery;
-
 export let debug;
 
 export default {
   name: 'inbox',
   permissions,
-  graphql: async (sd) => {
-    serviceDiscovery = sd;
-
+  graphql: async () => {
     return {
-      typeDefs: await typeDefs(sd),
+      typeDefs: await typeDefs(),
       resolvers,
     };
   },
@@ -90,8 +86,6 @@ export default {
   middlewares: [(serverTiming as any)()],
   onServerInit: async (options) => {
     mainDb = options.db;
-
-    const app = options.app;
 
     // events
     app.post(
@@ -147,9 +141,8 @@ export default {
     app.get('/script-manager', cors({ origin: '*' }), widgetsMiddleware);
     app.post('/webhooks/:id', webhookMiddleware);
 
-    initBroker(options.messageBrokerClient);
+    initBroker();
 
     debug = options.debug;
-    graphqlPubsub = options.pubsubClient;
   },
 };

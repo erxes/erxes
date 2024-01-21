@@ -2,21 +2,21 @@ import gql from 'graphql-tag';
 import {
   types as productreviewTypes,
   queries as productreviewQueries,
-  mutations as productreviewMutations
+  mutations as productreviewMutations,
 } from './schema/productreview';
 import {
   types as wishlistTypes,
   queries as wishlistQueries,
-  mutations as wishlistMutations
+  mutations as wishlistMutations,
 } from './schema/wishlist';
 
 import {
   types as lastViewedItemTypes,
   queries as lastViewedItemQueries,
-  mutations as lastViewedItemMutations
+  mutations as lastViewedItemMutations,
 } from './schema/lastViewedItem';
 
-const typeDefs = async _serviceDiscovery => {
+const typeDefs = async () => {
   return gql`
     scalar JSON
     scalar Date

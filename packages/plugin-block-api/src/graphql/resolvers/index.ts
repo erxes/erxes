@@ -4,11 +4,11 @@ import Mutation from './mutaions';
 import Query from './queries';
 import Investment from './investment';
 
-const resolvers: any = async serviceDiscovery => ({
+const resolvers: any = async () => ({
   ...customScalars,
   Investment,
   Mutation,
-  Query
+  Query,
 });
 
 export default resolvers;

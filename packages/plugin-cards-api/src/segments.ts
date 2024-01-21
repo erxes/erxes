@@ -1,45 +1,48 @@
-import { fetchByQuery } from '@erxes/api-utils/src/elasticsearch';
+import {
+  fetchByQuery,
+  fetchByQueryWithScroll,
+} from '@erxes/api-utils/src/elasticsearch';
 import { generateModels } from './connectionResolver';
 import {
   sendCommonMessage,
   sendCoreMessage,
-  sendProductsMessage
+  sendProductsMessage,
 } from './messageBroker';
 import { generateConditionStageIds } from './utils';
 import {
   gatherAssociatedTypes,
   getEsIndexByContentType,
   getName,
-  getServiceName
+  getServiceName,
 } from '@erxes/api-utils/src/segments';
 
 export default {
   dependentServices: [
     { name: 'contacts', twoWay: true, associated: true },
-    { name: 'inbox', twoWay: true }
+    { name: 'inbox', twoWay: true },
   ],
 
   contentTypes: [
     {
       type: 'deal',
       description: 'Deal',
-      esIndex: 'deals'
+      esIndex: 'deals',
     },
     {
       type: 'purchase',
       description: 'Purchase',
-      esIndex: 'purchases'
+      esIndex: 'purchases',
     },
     {
       type: 'ticket',
       description: 'Ticket',
-      esIndex: 'tickets'
+      esIndex: 'tickets',
     },
     {
       type: 'task',
       description: 'Task',
-      esIndex: 'tasks'
-    }
+      esIndex: 'tasks',
+    },
   ],
 
   propertyConditionExtender: async ({ subdomain, data: { condition } }) => {
@@ -50,28 +53,28 @@ export default {
 
     const stageIds = await generateConditionStageIds(models, {
       boardId: condition.boardId,
-      pipelineId: condition.pipelineId
+      pipelineId: condition.pipelineId,
     });
 
     if (stageIds.length > 0) {
       positive = {
         terms: {
-          stageId: stageIds
-        }
+          stageId: stageIds,
+        },
       };
     }
 
     const productIds = await generateProductsCategoryProductIds(
       subdomain,
-      condition
+      condition,
     );
     if (productIds.length > 0) {
       positive = {
         bool: {
-          should: productIds.map(productId => ({
-            match: { 'productsData.productId': productId }
-          }))
-        }
+          should: productIds.map((productId) => ({
+            match: { 'productsData.productId': productId },
+          })),
+        },
       };
 
       if (condition.propertyName == 'productsData.categoryId') {
@@ -84,18 +87,18 @@ export default {
 
   associationFilter: async ({
     subdomain,
-    data: { mainType, propertyType, positiveQuery, negativeQuery }
+    data: { mainType, propertyType, positiveQuery, negativeQuery },
   }) => {
     const associatedTypes: string[] = await gatherAssociatedTypes(mainType);
 
     let ids: string[] = [];
 
     if (associatedTypes.includes(propertyType)) {
-      const mainTypeIds = await fetchByQuery({
+      const mainTypeIds = await fetchByQueryWithScroll({
         subdomain,
         index: await getEsIndexByContentType(propertyType),
         positiveQuery,
-        negativeQuery
+        negativeQuery,
       });
 
       ids = await sendCoreMessage({
@@ -104,23 +107,29 @@ export default {
         data: {
           mainType: getName(propertyType),
           mainTypeIds,
-          relType: getName(mainType)
+          relType: getName(mainType),
         },
-        isRPC: true
+        isRPC: true,
       });
     } else {
+      const serviceName = getServiceName(propertyType);
+
+      if (serviceName === 'cards') {
+        return { data: [], status: 'error' };
+      }
+
       ids = await sendCommonMessage({
-        serviceName: getServiceName(propertyType),
+        serviceName,
         subdomain,
         action: 'segments.associationFilter',
         data: {
           mainType,
           propertyType,
           positiveQuery,
-          negativeQuery
+          negativeQuery,
         },
         defaultValue: [],
-        isRPC: true
+        isRPC: true,
       });
     }
 
@@ -141,7 +150,7 @@ export default {
     const stageIds = await generateConditionStageIds(models, {
       boardId: config.boardId,
       pipelineId: config.pipelineId,
-      options
+      options,
     });
 
     if (stageIds.length > 0) {
@@ -149,7 +158,7 @@ export default {
     }
 
     return { data: { positive }, status: 'success' };
-  }
+  },
 };
 
 const generateProductsCategoryProductIds = async (subdomain, condition) => {
@@ -164,13 +173,13 @@ const generateProductsCategoryProductIds = async (subdomain, condition) => {
       action: 'find',
       data: {
         categoryIds: [...new Set(productCategoryIds)],
-        fields: { _id: 1 }
+        fields: { _id: 1 },
       },
       isRPC: true,
-      defaultValue: []
+      defaultValue: [],
     });
 
-    const productIds = products.map(product => product._id);
+    const productIds = products.map((product) => product._id);
 
     return productIds;
   }

@@ -5,10 +5,10 @@ import { types } from './schema/type';
 import {
   mutations as configMutations,
   queries as configQueries,
-  types as configTypes
+  types as configTypes,
 } from './schema/configs';
 
-const typeDefs = async _serviceDiscovery => {
+const typeDefs = async () => {
   return gql`
     scalar JSON
     scalar Date

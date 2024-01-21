@@ -3,10 +3,10 @@ import gql from 'graphql-tag';
 import {
   types as tagTypes,
   queries as tagQueries,
-  mutations as tagMutations
+  mutations as tagMutations,
 } from './schema/tag';
 
-const typeDefs = async _serviceDiscovery => {
+const typeDefs = async () => {
   return gql`
     scalar JSON
     scalar Date

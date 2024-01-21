@@ -9,6 +9,7 @@ import {
 } from './utils';
 import { getEnv, resetConfigsCache } from './commonUtils';
 import fetch from 'node-fetch';
+import { RPSuccess } from '@erxes/api-utils/src/messageBroker';
 
 export const removeIntegration = async (
   models: IModels,
@@ -223,7 +224,7 @@ export const updateConfigs = async (
 export const instagramCreateIntegration = async (
   models: IModels,
   { accountId, integrationId, data, kind },
-) => {
+): Promise<RPSuccess> => {
   const instagramPageId = JSON.parse(data).pageId;
 
   const account = await models.Accounts.getAccount({ _id: accountId });

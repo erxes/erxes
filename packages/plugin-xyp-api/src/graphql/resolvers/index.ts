@@ -8,18 +8,18 @@ const XypData = {
   async __resolveReference({ _id }, { models }: IContext) {
     const customer = await models.XypData.findOne({ _id });
     return customer;
-  }
+  },
 };
 
-const resolvers: any = async _serviceDiscovery => ({
+const resolvers: any = async () => ({
   ...customScalars,
   XypData,
   Mutation: {
-    ...mutations
+    ...mutations,
   },
   Query: {
-    ...queries
-  }
+    ...queries,
+  },
 });
 
 export default resolvers;

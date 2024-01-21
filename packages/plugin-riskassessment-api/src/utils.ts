@@ -1,19 +1,19 @@
-import { serviceDiscovery } from './configs';
+import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
 import { IModels, models } from './connectionResolver';
 import {
   sendCardsMessage,
   sendCoreMessage,
   sendFormsMessage,
-  sendTagsMessage
+  sendTagsMessage,
 } from './messageBroker';
 
-export const validRiskIndicators = async params => {
-  if (serviceDiscovery.isEnabled('tags') && !params?.tagIds?.length) {
+export const validRiskIndicators = async (params) => {
+  if (isEnabled('tags') && !params?.tagIds?.length) {
     throw new Error('Please select some tags');
   }
   if (await models?.RiskIndicators.findOne({ name: params.name })) {
     throw new Error(
-      'This risk assessment is already in use. Please type another name'
+      'This risk assessment is already in use. Please type another name',
     );
   }
 
@@ -50,7 +50,7 @@ export const validRiskIndicators = async params => {
   }
 };
 
-export const validateCalculateMethods = async params => {
+export const validateCalculateMethods = async (params) => {
   if (!params.calculateMethod) {
     throw new Error('You must specify calculate method');
   }
@@ -74,17 +74,14 @@ export const validateCalculateMethods = async params => {
 };
 
 export const calculateRiskAssessment = async (models, cardId, cardType) => {
-  const {
-    riskAssessmentId,
-    resultScore,
-    status
-  } = await models.RiskConformity.findOne({
-    cardId,
-    cardType
-  }).lean();
+  const { riskAssessmentId, resultScore, status } =
+    await models.RiskConformity.findOne({
+      cardId,
+      cardType,
+    }).lean();
 
   const { calculateLogics } = await models.RiskAssessment.findOne({
-    _id: riskAssessmentId
+    _id: riskAssessmentId,
   }).lean();
 
   for (const { name, value, value2, logic, color } of calculateLogics) {
@@ -97,10 +94,10 @@ export const calculateRiskAssessment = async (models, cardId, cardType) => {
             $set: {
               status: name,
               statusColor: color,
-              closedAt: Date.now()
-            }
+              closedAt: Date.now(),
+            },
           },
-          { new: true }
+          { new: true },
         );
       }
     }
@@ -113,10 +110,10 @@ export const calculateRiskAssessment = async (models, cardId, cardType) => {
             $set: {
               status: name,
               statusColor: color,
-              closedAt: Date.now()
-            }
+              closedAt: Date.now(),
+            },
           },
-          { new: true }
+          { new: true },
         );
       }
     }
@@ -128,10 +125,10 @@ export const calculateRiskAssessment = async (models, cardId, cardType) => {
           $set: {
             status: 'No Result',
             statusColor: '#888',
-            closedAt: Date.now()
-          }
+            closedAt: Date.now(),
+          },
         },
-        { new: true }
+        { new: true },
       );
     }
   }
@@ -142,17 +139,17 @@ export const checkAllUsersSubmitted = async (
   model,
   cardId: string,
   cardType: string,
-  formIds: string[]
+  formIds: string[],
 ) => {
   let result = false;
 
   const assignedUsers = await getAsssignedUsers(subdomain, cardId, cardType);
 
-  const assignedUserIds = assignedUsers.map(usr => usr._id);
+  const assignedUserIds = assignedUsers.map((usr) => usr._id);
   const submissions = await model.RiskFormSubmissions.find({
     cardId,
     formId: { $in: formIds },
-    userId: { $in: assignedUserIds }
+    userId: { $in: assignedUserIds },
   }).lean();
 
   const groupedSubmissions = {};
@@ -170,13 +167,13 @@ export const checkAllUsersSubmitted = async (
 export const getAsssignedUsers = async (
   subdomain,
   cardId: string,
-  cardType: string
+  cardType: string,
 ) => {
   let assignedUsers: any[] = [];
 
   if (!cardId && !cardType) {
     throw new Error(
-      'Something went wrong trying to get assigned users of card'
+      'Something went wrong trying to get assigned users of card',
     );
   }
 
@@ -184,10 +181,10 @@ export const getAsssignedUsers = async (
     subdomain,
     action: `${cardType}s.findOne`,
     data: {
-      _id: cardId
+      _id: cardId,
     },
     isRPC: true,
-    defaultValue: {}
+    defaultValue: {},
   });
 
   if (card) {
@@ -197,31 +194,31 @@ export const getAsssignedUsers = async (
       subdomain,
       action: 'users.find',
       data: {
-        query: { _id: { $in: assignedUserIds } }
+        query: { _id: { $in: assignedUserIds } },
       },
       isRPC: true,
-      defaultValue: []
+      defaultValue: [],
     });
   }
 
   return assignedUsers;
 };
 
-const getOptionsValues = optionsValues => {
+const getOptionsValues = (optionsValues) => {
   return optionsValues
     .split('\n')
-    .map(item => {
+    .map((item) => {
       if (item.match(/=/g)) {
         const label = item?.substring(0, item.indexOf('=')).trim();
         const value = Number(
-          item.substring(item?.indexOf('=') + 1, item.length)
+          item.substring(item?.indexOf('=') + 1, item.length),
         );
         if (!Number.isNaN(value)) {
           return { label, value };
         }
       }
     }, [])
-    .filter(item => item);
+    .filter((item) => item);
 };
 
 export const calculateFormResponses = async ({
@@ -229,7 +226,7 @@ export const calculateFormResponses = async ({
   fields,
   calculateMethod,
   generalcalculateMethod,
-  filter
+  filter,
 }: {
   responses: { [key: string]: { value: number; description: string } };
   fields: any[];
@@ -246,18 +243,18 @@ export const calculateFormResponses = async ({
   }
 
   for (const [key, response] of Object.entries(responses)) {
-    const field = fields.find(field => field._id === key);
+    const field = fields.find((field) => field._id === key);
 
     if (field?.optionsValues) {
       const optValues = getOptionsValues(field?.optionsValues);
 
       if (generalcalculateMethod === 'ByPercent') {
-        const scores = optValues.map(option => option.value);
+        const scores = optValues.map((option) => option.value);
         scoreAviable += Math.max(...scores);
       }
 
       const fieldValue = optValues.find(
-        option => option.label.trim() === String(response.value).trim()
+        (option) => option.label.trim() === String(response.value).trim(),
       );
       switch (calculateMethod) {
         case 'Multiply':
@@ -273,7 +270,7 @@ export const calculateFormResponses = async ({
         ...filter,
         ...response,
         formId: field?.contentTypeId,
-        fieldId: key
+        fieldId: key,
       });
     } else {
       if (typeof response.value === 'number') {
@@ -283,7 +280,7 @@ export const calculateFormResponses = async ({
         ...filter,
         ...response,
         formId: field?.contentTypeId,
-        fieldId: key
+        fieldId: key,
       });
     }
   }
@@ -298,7 +295,7 @@ export const calculateFormResponses = async ({
 export const getFieldsGroupByForm = async ({
   subdomain,
   formId,
-  formIds
+  formIds,
 }: {
   subdomain: string;
   formId?: string;
@@ -311,19 +308,19 @@ export const getFieldsGroupByForm = async ({
     data: {
       query: {
         contentType: 'form',
-        contentTypeId: formIds ? { $in: formIds } : formId
-      }
+        contentTypeId: formIds ? { $in: formIds } : formId,
+      },
     },
     isRPC: true,
-    defaultValue: []
+    defaultValue: [],
   });
 
   for (const field of fields) {
-    if (submissionForms.find(form => form.formId === field.contentTypeId)) {
-      submissionForms = submissionForms.map(form =>
+    if (submissionForms.find((form) => form.formId === field.contentTypeId)) {
+      submissionForms = submissionForms.map((form) =>
         form.formId === field.contentTypeId
           ? { ...form, fields: [...form.fields, field] }
-          : form
+          : form,
       );
     } else {
       const { title } = await sendFormsMessage({
@@ -331,13 +328,13 @@ export const getFieldsGroupByForm = async ({
         action: 'findOne',
         data: { _id: field.contentTypeId },
         isRPC: true,
-        defaultValue: {}
+        defaultValue: {},
       });
 
       submissionForms.push({
         formId: field.contentTypeId,
         formTitle: title || '',
-        fields: [field]
+        fields: [field],
       });
     }
   }
@@ -351,17 +348,17 @@ export const riskAssessmentIndicator = async ({
   cardId,
   cardType,
   riskAssessmentId,
-  riskIndicatorId
+  riskIndicatorId,
 }) => {
   const assignedUserIds = (
     await getAsssignedUsers(subdomain, cardId, cardType)
-  ).map(user => user._id);
+  ).map((user) => user._id);
 
   const submissions = await models.RiskFormSubmissions.find({
     cardId,
     riskAssessmentId,
     riskIndicatorId,
-    userId: { $in: assignedUserIds }
+    userId: { $in: assignedUserIds },
   });
 
   let submittedUsers: any = {};
@@ -374,14 +371,14 @@ export const riskAssessmentIndicator = async ({
 };
 
 export const checkEveryUserSubmitted = {
-  riskAssessmentIndicator: riskAssessmentIndicator
+  riskAssessmentIndicator: riskAssessmentIndicator,
 };
 
 export const calculateResult = async ({
   collection,
   calculateLogics,
   resultScore,
-  filter
+  filter,
 }) => {
   if (!calculateLogics?.length) {
     return await collection.findOneAndUpdate(
@@ -391,10 +388,10 @@ export const calculateResult = async ({
           status: 'No Result',
           statusColor: '#888',
           resultScore: roundResult(resultScore),
-          closedAt: Date.now()
-        }
+          closedAt: Date.now(),
+        },
       },
-      { new: true }
+      { new: true },
     );
   }
 
@@ -409,10 +406,10 @@ export const calculateResult = async ({
               status: name,
               statusColor: color,
               resultScore: roundResult(resultScore),
-              closedAt: Date.now()
-            }
+              closedAt: Date.now(),
+            },
           },
-          { new: true }
+          { new: true },
         );
       }
     }
@@ -426,10 +423,10 @@ export const calculateResult = async ({
               status: name,
               statusColor: color,
               resultScore: roundResult(resultScore),
-              closedAt: Date.now()
-            }
+              closedAt: Date.now(),
+            },
           },
-          { new: true }
+          { new: true },
         );
       }
     }
@@ -444,10 +441,10 @@ export const calculateResult = async ({
             status: 'No Result',
             statusColor: '#888',
             resultScore: roundResult(resultScore),
-            closedAt: Date.now()
-          }
+            closedAt: Date.now(),
+          },
         },
-        { new: true }
+        { new: true },
       );
     }
   }
@@ -460,7 +457,7 @@ export const getIndicatorSubmissions = async ({
   cardType,
   assessmentId,
   indicatorId,
-  params
+  params,
 }: {
   models: IModels;
   subdomain;
@@ -482,15 +479,15 @@ export const getIndicatorSubmissions = async ({
 
   const submissions = await models.RiskFormSubmissions.aggregate([
     {
-      $match: match
+      $match: match,
     },
     {
       $group: {
         _id: '$userId',
         fields: { $push: '$$ROOT' },
-        count: { $sum: 1 }
-      }
-    }
+        count: { $sum: 1 },
+      },
+    },
   ]);
 
   for (const submission of submissions) {
@@ -499,10 +496,10 @@ export const getIndicatorSubmissions = async ({
         subdomain,
         action: 'fields.findOne',
         data: {
-          query: { _id: field.fieldId }
+          query: { _id: field.fieldId },
         },
         isRPC: true,
-        defaultValue: {}
+        defaultValue: {},
       });
 
       field.optionsValues = fieldDetail?.optionsValues || '';
@@ -539,16 +536,16 @@ export const getFilterTagIds = async (subdomain, ids) => {
         action: 'withChilds',
         data: { query: { _id }, fields: { _id: 1 } },
         isRPC: true,
-        defaultValue: []
+        defaultValue: [],
       })
-    ).map(child => child._id);
+    ).map((child) => child._id);
     tagIds = [...tagIds, ...childrenIds];
   }
 
   return tagIds;
 };
 
-export const generateFormFields = fields => {
+export const generateFormFields = (fields) => {
   const groupedFields = fields.reduce((acc, doc) => {
     if (!acc[doc.contentTypeId]) {
       acc[doc.contentTypeId] = [];

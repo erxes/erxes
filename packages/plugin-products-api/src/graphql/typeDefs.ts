@@ -5,18 +5,19 @@ import { types, queries, mutations } from './schema/product';
 import {
   types as productConfigTypes,
   queries as productConfigQueries,
-  mutations as productConfigMutations
+  mutations as productConfigMutations,
 } from './schema/config';
 
 import {
   types as uomTypes,
   queries as uomQueries,
-  mutations as uomMutations
+  mutations as uomMutations,
 } from './schema/uom';
+import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
 
-const typeDefs = async serviceDiscovery => {
-  const tagsAvailable = await serviceDiscovery.isEnabled('tags');
-  const contactsAvailable = await serviceDiscovery.isEnabled('contacts');
+const typeDefs = async () => {
+  const tagsAvailable = await isEnabled('tags');
+  const contactsAvailable = await isEnabled('contacts');
 
   return gql`
     scalar JSON

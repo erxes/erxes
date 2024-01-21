@@ -3,15 +3,15 @@ import mutations from './mutations';
 import queries from './queries';
 import ZaloConversationMessage from './conversationMessages';
 
-const resolvers: any = async _serviceDiscovery => ({
+const resolvers: any = async () => ({
   ...customScalars,
   ZaloConversationMessage,
   Mutation: {
-    ...mutations
+    ...mutations,
   },
   Query: {
-    ...queries
-  }
+    ...queries,
+  },
 });
 
 export default resolvers;

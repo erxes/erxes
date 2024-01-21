@@ -7,7 +7,7 @@ import {
   ControlLabel,
   FormControl,
   FormGroup,
-  Toggle
+  Toggle,
 } from '@erxes/ui/src';
 import { IPos, ISlot } from '../../../types';
 import { LeftItem } from '@erxes/ui/src/components/step/styles';
@@ -15,6 +15,7 @@ import { Block, BlockRow, FlexColumn, FlexItem } from '../../../styles';
 import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
 import { ALLOW_TYPES } from '../../../constants';
 import PosSlotPlan from '../productGroup/posSlotPlan';
+import SelectBrands from '@erxes/ui/src/brands/containers/SelectBrands';
 
 type Props = {
   onChange: (name: 'pos' | 'slots' | 'allowTypes', value: any) => void;
@@ -35,7 +36,7 @@ class GeneralStep extends React.Component<Props, State> {
 
     this.state = {
       slots: props.posSlots || [],
-      allowTypes: props.allowTypes
+      allowTypes: props.allowTypes,
     };
   }
 
@@ -43,32 +44,32 @@ class GeneralStep extends React.Component<Props, State> {
     this.props.onChange(name, value);
   };
 
-  onChangeSwitchMain = e => {
+  onChangeSwitchMain = (e) => {
     const { pos } = this.props;
 
     this.onChangeFunction('pos', { ...pos, [e.target.id]: e.target.checked });
   };
 
-  onChangeInput = e => {
+  onChangeInput = (e) => {
     const { pos } = this.props;
     this.onChangeFunction('pos', {
       ...pos,
-      [e.target.id]: (e.currentTarget as HTMLInputElement).value
+      [e.target.id]: (e.currentTarget as HTMLInputElement).value,
     });
   };
 
   renderCauseOnline() {
     const { pos } = this.props;
 
-    const onChangeBranches = branchId => {
+    const onChangeBranches = (branchId) => {
       this.onChangeFunction('pos', { ...pos, branchId });
     };
 
     if (pos.isOnline) {
-      const onChangeMultiBranches = branchIds => {
+      const onChangeMultiBranches = (branchIds) => {
         this.onChangeFunction('pos', {
           ...pos,
-          allowBranchIds: branchIds
+          allowBranchIds: branchIds,
         });
       };
 
@@ -175,11 +176,11 @@ class GeneralStep extends React.Component<Props, State> {
           key={i}
           index={i}
           options={(i !== 0 ? [{ value: '', label: 'Null' }] : []).concat(
-            ALLOW_TYPES.filter(at => !chosenTypes.includes(at.value))
+            ALLOW_TYPES.filter((at) => !chosenTypes.includes(at.value)),
           )}
           value={currentCh}
           onChange={onChange.bind(this, i)}
-        />
+        />,
       );
       chosenTypes.push(currentCh);
     }
@@ -197,7 +198,7 @@ class GeneralStep extends React.Component<Props, State> {
       description = pos.description;
     }
 
-    const onChangeDepartments = departmentId => {
+    const onChangeDepartments = (departmentId) => {
       this.onChangeFunction('pos', { ...pos, departmentId });
     };
 
@@ -246,6 +247,25 @@ class GeneralStep extends React.Component<Props, State> {
                     onChange={this.onChangeInput}
                   />
                 </FormGroup>
+                <FormGroup>
+                  <ControlLabel>Brand</ControlLabel>
+                  <SelectBrands
+                    label={__('Choose brands')}
+                    onSelect={(brand) =>
+                      this.onChangeFunction('pos', {
+                        ...pos,
+                        scopeBrandIds: [brand],
+                      })
+                    }
+                    initialValue={pos.scopeBrandIds}
+                    multi={false}
+                    name="selectedBrands"
+                    customOption={{
+                      label: 'No Brand (noBrand)',
+                      value: '',
+                    }}
+                  />
+                </FormGroup>
               </BlockRow>
             </Block>
 
@@ -254,7 +274,7 @@ class GeneralStep extends React.Component<Props, State> {
                 <FormGroup>
                   <PosSlotPlan
                     slots={this.state.slots}
-                    onSave={slots => {
+                    onSave={(slots) => {
                       this.setState({ slots });
                       this.props.onChange('slots', slots);
                     }}
@@ -281,7 +301,7 @@ class GeneralStep extends React.Component<Props, State> {
                     onChange={this.onChangeSwitchMain}
                     icons={{
                       checked: <span>Yes</span>,
-                      unchecked: <span>No</span>
+                      unchecked: <span>No</span>,
                     }}
                   />
                 </FormGroup>
@@ -294,7 +314,7 @@ class GeneralStep extends React.Component<Props, State> {
                       onChange={this.onChangeSwitchMain}
                       icons={{
                         checked: <span>Yes</span>,
-                        unchecked: <span>No</span>
+                        unchecked: <span>No</span>,
                       }}
                     />
                   </FormGroup>

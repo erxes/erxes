@@ -5,12 +5,12 @@ import {
   LogDesc,
   IDescriptions,
   gatherNames,
-  getSchemaLabels
+  getSchemaLabels,
 } from '@erxes/api-utils/src/logUtils';
-import messageBroker, {
+import {
   sendCoreMessage,
   sendFormsMessage,
-  sendTagsMessage
+  sendTagsMessage,
 } from './messageBroker';
 import { LOG_MAPPINGS, MODULE_NAMES } from './constants';
 import { IModels } from './connectionResolver';
@@ -21,22 +21,22 @@ import { IIntegrationDocument } from './models/definitions/integrations';
 const LOG_ACTIONS = {
   CREATE: 'create',
   UPDATE: 'update',
-  DELETE: 'delete'
+  DELETE: 'delete',
 };
 
 const findFromCore = async (
   subdomain: string,
   ids: string[],
-  collectionName: string
+  collectionName: string,
 ) => {
   return sendCoreMessage({
     subdomain,
     action: `${collectionName}.find`,
     data: {
-      query: { _id: { $in: ids } }
+      query: { _id: { $in: ids } },
     },
     isRPC: true,
-    defaultValue: []
+    defaultValue: [],
   });
 };
 
@@ -45,10 +45,10 @@ const findTags = async (subdomain: string, ids: string[]) => {
     subdomain,
     action: 'find',
     data: {
-      _id: { $in: ids }
+      _id: { $in: ids },
     },
     isRPC: true,
-    defaultValue: []
+    defaultValue: [],
   });
 };
 
@@ -57,17 +57,17 @@ const findForms = async (subdomain: string, ids: string[]) => {
     subdomain,
     action: 'find',
     data: {
-      query: { _id: { $in: ids } }
+      query: { _id: { $in: ids } },
     },
     isRPC: true,
-    defaultValue: []
+    defaultValue: [],
   });
 };
 
 export const gatherIntegrationFieldNames = async (
   subdomain: string,
   doc: IIntegrationDocument,
-  prevList?: LogDesc[]
+  prevList?: LogDesc[],
 ) => {
   let options: LogDesc[] = [];
 
@@ -80,7 +80,7 @@ export const gatherIntegrationFieldNames = async (
       nameFields: ['email', 'username'],
       foreignKey: 'createdUserId',
       prevList: options,
-      items: await findFromCore(subdomain, [doc.createdUserId], 'users')
+      items: await findFromCore(subdomain, [doc.createdUserId], 'users'),
     });
   }
 
@@ -89,7 +89,7 @@ export const gatherIntegrationFieldNames = async (
       foreignKey: 'brandId',
       prevList: options,
       nameFields: ['name'],
-      items: await findFromCore(subdomain, [doc.brandId], 'brands')
+      items: await findFromCore(subdomain, [doc.brandId], 'brands'),
     });
   }
 
@@ -98,7 +98,7 @@ export const gatherIntegrationFieldNames = async (
       foreignKey: 'tagIds',
       prevList: options,
       nameFields: ['name'],
-      items: await findTags(subdomain, doc.tagIds)
+      items: await findTags(subdomain, doc.tagIds),
     });
   }
 
@@ -107,7 +107,7 @@ export const gatherIntegrationFieldNames = async (
       foreignKey: 'formId',
       prevList: options,
       nameFields: ['title'],
-      items: await findForms(subdomain, [doc.formId])
+      items: await findForms(subdomain, [doc.formId]),
     });
   }
 
@@ -118,7 +118,7 @@ export const gatherChannelFieldNames = async (
   models: IModels,
   subdomain: string,
   doc: IChannelDocument,
-  prevList?: LogDesc[]
+  prevList?: LogDesc[],
 ): Promise<LogDesc[]> => {
   let options: LogDesc[] = [];
 
@@ -131,7 +131,7 @@ export const gatherChannelFieldNames = async (
       nameFields: ['userId'],
       foreignKey: 'userId',
       prevList: options,
-      items: await findFromCore(subdomain, [doc.userId], 'users')
+      items: await findFromCore(subdomain, [doc.userId], 'users'),
     });
   }
 
@@ -140,7 +140,7 @@ export const gatherChannelFieldNames = async (
       nameFields: ['memberIds'],
       foreignKey: 'memberIds',
       prevList: options,
-      items: await findFromCore(subdomain, doc.memberIds, 'users')
+      items: await findFromCore(subdomain, doc.memberIds, 'users'),
     });
   }
 
@@ -150,8 +150,8 @@ export const gatherChannelFieldNames = async (
       prevList: options,
       nameFields: ['name'],
       items: await models.Integrations.findIntegrations({
-        _id: { $in: doc.integrationIds }
-      })
+        _id: { $in: doc.integrationIds },
+      }),
     });
   }
 
@@ -161,7 +161,7 @@ export const gatherChannelFieldNames = async (
 const gatherDescriptions = async (
   models: IModels,
   subdomain: string,
-  params: any
+  params: any,
 ): Promise<IDescriptions> => {
   const { action, type, object, updatedDocument } = params;
 
@@ -177,7 +177,7 @@ const gatherDescriptions = async (
           models,
           subdomain,
           updatedDocument,
-          extraDesc
+          extraDesc,
         );
       }
 
@@ -189,7 +189,7 @@ const gatherDescriptions = async (
         extraDesc = await gatherIntegrationFieldNames(
           subdomain,
           updatedDocument,
-          extraDesc
+          extraDesc,
         );
       }
 
@@ -213,7 +213,7 @@ const gatherDescriptions = async (
         extraDesc = await gatherNames({
           nameFields: ['name'],
           foreignKey: 'brandId',
-          items: await findFromCore(subdomain, brandIds, 'brands')
+          items: await findFromCore(subdomain, brandIds, 'brands'),
         });
       }
 
@@ -229,22 +229,21 @@ export const putDeleteLog = async (
   models: IModels,
   subdomain: string,
   logDoc,
-  user
+  user,
 ) => {
   const { description, extraDesc } = await gatherDescriptions(
     models,
     subdomain,
     {
       ...logDoc,
-      action: LOG_ACTIONS.DELETE
-    }
+      action: LOG_ACTIONS.DELETE,
+    },
   );
 
   await commonPutDeleteLog(
     subdomain,
-    messageBroker(),
     { ...logDoc, description, extraDesc, type: `inbox:${logDoc.type}` },
-    user
+    user,
   );
 };
 
@@ -252,22 +251,21 @@ export const putUpdateLog = async (
   models: IModels,
   subdomain: string,
   logDoc,
-  user
+  user,
 ) => {
   const { description, extraDesc } = await gatherDescriptions(
     models,
     subdomain,
     {
       ...logDoc,
-      action: LOG_ACTIONS.UPDATE
-    }
+      action: LOG_ACTIONS.UPDATE,
+    },
   );
 
   await commonPutUpdateLog(
     subdomain,
-    messageBroker(),
     { ...logDoc, description, extraDesc, type: `inbox:${logDoc.type}` },
-    user
+    user,
   );
 };
 
@@ -275,32 +273,31 @@ export const putCreateLog = async (
   models: IModels,
   subdomain: string,
   logDoc,
-  user
+  user,
 ) => {
   const { description, extraDesc } = await gatherDescriptions(
     models,
     subdomain,
     {
       ...logDoc,
-      action: LOG_ACTIONS.CREATE
-    }
+      action: LOG_ACTIONS.CREATE,
+    },
   );
 
   await commonPutCreateLog(
     subdomain,
-    messageBroker(),
     { ...logDoc, description, extraDesc, type: `inbox:${logDoc.type}` },
-    user
+    user,
   );
 };
 
 export default {
   collectItems: async ({ subdomain, data }) => ({
     data: await collectConversations(subdomain, data),
-    status: 'success'
+    status: 'success',
   }),
   getSchemaLabels: ({ data: { type } }) => ({
     status: 'success',
-    data: getSchemaLabels(type, LOG_MAPPINGS)
-  })
+    data: getSchemaLabels(type, LOG_MAPPINGS),
+  }),
 };
