@@ -26,4 +26,5 @@ export const KEY_LABELS = {
   responsibilityCenter: 'Responsibility center',
   billType: 'Bill Type',
   dealType: 'Deal type',
+  syncType: 'Sync type',
 };

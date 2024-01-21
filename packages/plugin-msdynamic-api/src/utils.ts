@@ -449,3 +449,177 @@ export const customerToDynamic = async (subdomain, syncLog, params, models) => {
     console.log(e, 'error');
   }
 };
+
+export const dealToDynamic = async (
+  subdomain,
+  syncLog,
+  params,
+  user,
+  models,
+) => {
+  const configs = await getConfig(subdomain, 'DYNAMIC', {});
+  // const config = configs[brandId || 'noBrand'];
+  const config = configs['7r1ffWS1cHmaFDQ0chvRq'];
+
+  console.log(config, 'config');
+
+  const order = params;
+
+  console.log(order, 'order');
+
+  console.log(order.items, 'ajajajja');
+
+  try {
+    let responseData;
+    let customer;
+
+    if (
+      !config.customerApi ||
+      !config.salesApi ||
+      !config.salesLineApi ||
+      !config.username ||
+      !config.password
+    ) {
+      throw new Error('MS Dynamic config not found.');
+    }
+
+    const { customerApi, salesApi, salesLineApi, username, password } = config;
+
+    if (order && order.customerId) {
+      customer = await sendContactsMessage({
+        subdomain,
+        action: 'customers.findOne',
+        data: { _id: order.customerId },
+        isRPC: true,
+        defaultValue: {},
+      });
+
+      if (order.customerType === 'company') {
+        customer = await sendContactsMessage({
+          subdomain,
+          action: 'companies.findOne',
+          data: { _id: order.customerId },
+          isRPC: true,
+          defaultValue: {},
+        });
+      }
+    }
+
+    if (customer) {
+      const responseCustomer = await fetch(
+        `${customerApi}?$filter=Phone_No eq '${customer.primaryPhone}'`,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Accept: 'application/json',
+            Authorization: `Basic ${Buffer.from(
+              `${username}:${password}`,
+            ).toString('base64')}`,
+          },
+        },
+      ).then((r) => r.json());
+
+      if (responseCustomer.value.length === 0) {
+        responseData = await fetch(customerApi, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Basic ${Buffer.from(
+              `${username}:${password}`,
+            ).toString('base64')}`,
+          },
+          body: JSON.stringify('sendData'),
+        }).then((r) => r.json());
+      }
+    }
+
+    const sendData: any = {
+      Sell_to_Customer_No: customer ? customer.code : '',
+      Sell_to_Phone_No: customer ? customer.primaryPhone : '',
+      Sell_to_E_Mail: customer ? customer.primaryEmail : '',
+      External_Document_No: 'nemelt medeelel',
+      Responsibility_Center: config.responsibilityCenter || 'BEV-DIST',
+      Sync_Type: config.syncType || 'ECOMMERCE',
+      Mobile_Phone_No: customer ? customer.primaryPhone : '',
+      VAT_Bus_Posting_Group: config.vatBusPostingGroup || 'DOMESTIC',
+      Payment_Terms_Code: config.paymentTermsCode || '28TH',
+      Payment_Method_Code: config.paymentMethodCode || 'CASH',
+      Customer_Price_Group: config.customerPricingGroup || 'ONLINE',
+      Prices_Including_VAT: true,
+      BillType: config.billType || 'Receipt',
+      Location_Code: config.locationCode || 'BEV-01',
+      CustomerNo: '',
+    };
+
+    await models.SyncLogs.updateOne(
+      { _id: syncLog._id },
+      {
+        $set: {
+          sendData,
+          sendStr: JSON.stringify(sendData),
+        },
+      },
+    );
+
+    const responseSale = await fetch(`${salesApi}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Basic ${Buffer.from(`${username}:${password}`).toString(
+          'base64',
+        )}`,
+      },
+      body: JSON.stringify(sendData),
+    }).then((res) => res.json());
+
+    console.log(responseSale, 'responseSale');
+
+    if (order && order.items.length > 0) {
+      for (const item of order.items) {
+        const product = await sendProductsMessage({
+          subdomain,
+          action: 'findOne',
+          data: { _id: item.productId },
+          isRPC: true,
+        });
+
+        const sendSalesLine: any = {
+          Document_No: responseData.No,
+          Line_No: '',
+          Type: 'Item',
+          No: product ? product.code : '',
+          Quantity: item.count || 0,
+          Unit_Price: item.unitPrice || 0,
+          Location_Code: config.locationCode || 'BEV-01',
+        };
+
+        await fetch(`${salesLineApi}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Basic ${Buffer.from(
+              `${username}:${password}`,
+            ).toString('base64')}`,
+          },
+          body: JSON.stringify(sendSalesLine),
+        }).then((res) => res.json());
+      }
+    }
+
+    await models.SyncLogs.updateOne(
+      { _id: syncLog._id },
+      {
+        $set: {
+          responseData: responseSale,
+          responseStr: JSON.stringify(responseSale),
+        },
+      },
+    );
+  } catch (e) {
+    await models.SyncLogs.updateOne(
+      { _id: syncLog._id },
+      { $set: { error: e.message } },
+    );
+    console.log(e, 'error');
+  }
+};

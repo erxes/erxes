@@ -63,6 +63,7 @@ class GeneralSettings extends React.Component<Props, State> {
       responsibilityCenter: '',
       billType: '',
       dealType: '',
+      syncType: '',
     };
 
     this.setState({ configsMap });

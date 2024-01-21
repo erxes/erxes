@@ -70,6 +70,7 @@ class PerSettings extends React.Component<Props, State> {
         responsibilityCenter: '',
         billType: '',
         dealType: '',
+        syncType: '',
       },
     });
   };
@@ -159,6 +160,7 @@ class PerSettings extends React.Component<Props, State> {
               {this.renderInput('customerPostingGroup')}
               {this.renderInput('customerPricingGroup')}
               {this.renderInput('customerDiscGroup')}
+              {this.renderInput('syncType')}
             </FormColumn>
             <FormColumn>
               {this.renderInput('locationCode')}
