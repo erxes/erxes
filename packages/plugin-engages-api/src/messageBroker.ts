@@ -129,6 +129,7 @@ export const initBroker = async () => {
 };
 
 export const removeEngageConversations = async (_id): Promise<any> => {
+  // TODO: Why is it calling consumeQueue?
   return client.consumeQueue('removeEngageConversations', _id);
 };
 

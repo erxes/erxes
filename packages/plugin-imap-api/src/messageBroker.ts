@@ -5,6 +5,7 @@ import { MessageArgs, MessageArgsOmitService } from '@erxes/api-utils/src/core';
 import { generateModels } from './connectionResolver';
 import { listenIntegration } from './utils';
 import {
+  InterMessage,
   consumeQueue,
   consumeRPCQueue,
 } from '@erxes/api-utils/src/messageBroker';
@@ -99,7 +100,7 @@ export const initBroker = async () => {
 
   consumeRPCQueue(
     'imap:api_to_integrations',
-    async (args: MessageArgs): Promise<any> => {
+    async (args: InterMessage): Promise<any> => {
       const { subdomain, data } = args;
       const models = await generateModels(subdomain);
 

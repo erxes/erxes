@@ -263,7 +263,10 @@ export const initBroker = async (): Promise<void> => {
     async ({ subdomain, data }) => {
       const models = await generateModels(subdomain);
 
-      return await models.Configs.createOrUpdateConfig(data);
+      return {
+        status: 'success',
+        data: await models.Configs.createOrUpdateConfig(data),
+      };
     },
   );
 

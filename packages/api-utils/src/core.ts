@@ -244,14 +244,15 @@ export const escapeRegExp = (str: string) => {
   return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 };
 
-export interface MessageArgs extends InterMessage {
+export interface MessageArgs extends MessageArgsOmitService {
   serviceName: string;
+}
+
+export interface MessageArgsOmitService extends InterMessage {
   action: string;
   isRPC?: boolean;
   isMQ?: boolean;
 }
-
-export type MessageArgsOmitService = Omit<MessageArgs, 'serviceName'>;
 
 export const sendMessage = async (args: MessageArgs): Promise<any> => {
   const {

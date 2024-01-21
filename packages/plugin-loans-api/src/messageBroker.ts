@@ -39,7 +39,9 @@ export const initBroker = async () => {
   );
   consumeRPCQueue('loans:transaction', async ({ subdomain, data }) => {
     console.log('subdomain, data', subdomain, data);
-    return [];
+    return {
+      status: 'success',
+    };
   });
 };
 

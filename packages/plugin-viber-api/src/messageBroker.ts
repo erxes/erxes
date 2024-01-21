@@ -13,14 +13,18 @@ import {
   IConversation,
 } from './models';
 import { ViberAPI } from './viber/api';
-import { consumeRPCQueue } from '@erxes/api-utils/src/messageBroker';
+import {
+  InterMessage,
+  RPResult,
+  consumeRPCQueue,
+} from '@erxes/api-utils/src/messageBroker';
 
 dotenv.config();
 
 export const initBroker = async () => {
   consumeRPCQueue(
     'viber:createIntegration',
-    async (args: MessageArgs): Promise<any> => {
+    async (args: InterMessage): Promise<RPResult> => {
       const { subdomain, data } = args;
       const { integrationId, doc } = data;
       const docData = JSON.parse(doc.data);
@@ -42,7 +46,7 @@ export const initBroker = async () => {
       } catch (e) {
         await Integrations.deleteOne({ _id: viberIntegration._id });
         return {
-          status: 'failed',
+          status: 'error',
           errorMessage: e,
         };
       }
@@ -97,7 +101,7 @@ export const initBroker = async () => {
 
   consumeRPCQueue(
     'viber:integrationDetail',
-    async (args: MessageArgs): Promise<any> => {
+    async (args: InterMessage): Promise<RPResult> => {
       const inboxId: string = args.data.inboxId;
 
       const viberIntegration = await Integrations.findOne({ inboxId }, 'token');
@@ -111,7 +115,7 @@ export const initBroker = async () => {
 
   consumeRPCQueue(
     'viber:removeIntegrations',
-    async (args: MessageArgs): Promise<any> => {
+    async (args: InterMessage): Promise<RPResult> => {
       const { data } = args;
       const { integrationId } = data;
 
@@ -145,7 +149,7 @@ export const initBroker = async () => {
 
   consumeRPCQueue(
     'viber:api_to_integrations',
-    async (args: MessageArgs): Promise<any> => {
+    async (args: InterMessage): Promise<RPResult> => {
       const { subdomain, data } = args;
       const integrationId = data.integrationId;
 

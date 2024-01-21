@@ -7,49 +7,56 @@ import {
 import { generateModels } from './connectionResolver';
 import { IXypConfig } from './graphql/resolvers/queries';
 import fetch from 'node-fetch';
-import { consumeRPCQueue } from '@erxes/api-utils/src/messageBroker';
+import {
+  InterMessage,
+  RPResult,
+  consumeRPCQueue,
+} from '@erxes/api-utils/src/messageBroker';
 
 export const initBroker = async () => {
-  consumeRPCQueue('xyp:fetch', async ({ subdomain, data }) => {
-    const xypConfigs = await sendCommonMessage({
-      subdomain,
-      serviceName: 'core',
-      action: 'configs.findOne',
-      data: {
-        query: {
-          code: 'XYP_CONFIGS',
+  consumeRPCQueue(
+    'xyp:fetch',
+    async ({ subdomain, data }: InterMessage): Promise<RPResult> => {
+      const xypConfigs = await sendCommonMessage({
+        subdomain,
+        serviceName: 'core',
+        action: 'configs.findOne',
+        data: {
+          query: {
+            code: 'XYP_CONFIGS',
+          },
         },
-      },
-      isRPC: true,
-      defaultValue: null,
-    });
+        isRPC: true,
+        defaultValue: null,
+      });
 
-    if (!xypConfigs) {
+      if (!xypConfigs) {
+        return {
+          status: 'error',
+          errorMessage: 'XYP CONFIGS not found',
+        };
+      }
+
+      const { params, wsOperationName } = data;
+
+      const config: IXypConfig = xypConfigs && xypConfigs.value;
+
+      const response = await fetch(config.url + '/api', {
+        method: 'post',
+        headers: { token: config.token, 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          params,
+          wsOperationName,
+        }),
+        timeout: 5000,
+      });
+
       return {
-        status: 'failed',
-        message: 'XYP CONFIGS not found',
+        status: 'success',
+        data: response,
       };
-    }
-
-    const { params, wsOperationName } = data;
-
-    const config: IXypConfig = xypConfigs && xypConfigs.value;
-
-    const response = await fetch(config.url + '/api', {
-      method: 'post',
-      headers: { token: config.token, 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        params,
-        wsOperationName,
-      }),
-      timeout: 5000,
-    });
-
-    return {
-      status: 'success',
-      data: response,
-    };
-  });
+    },
+  );
 
   consumeRPCQueue('xyp.find', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);

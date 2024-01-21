@@ -267,7 +267,7 @@ export const facebookGetCustomerPosts = async (
 export const facebookCreateIntegration = async (
   models: IModels,
   { accountId, integrationId, data, kind },
-) => {
+): Promise<{ status: 'success' }> => {
   const facebookPageIds = JSON.parse(data).pageIds;
 
   const account = await models.Accounts.getAccount({ _id: accountId });

@@ -29,7 +29,6 @@ export const initBroker = async () => {
       data: await beforeResolverHandlers(subdomain, data),
       status: 'success',
     };
-    return;
   });
 
   consumeRPCQueue(

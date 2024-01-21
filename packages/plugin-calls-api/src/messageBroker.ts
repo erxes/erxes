@@ -9,11 +9,12 @@ import {
   consumeQueue,
   consumeRPCQueue,
 } from '@erxes/api-utils/src/messageBroker';
+import type { InterMessage } from '@erxes/api-utils/src/messageBroker';
 
 export const initBroker = async () => {
   consumeRPCQueue(
     'calls:createIntegration',
-    async (args: MessageArgs): Promise<any> => {
+    async (args: InterMessage): Promise<any> => {
       const { subdomain, data } = args;
       const { integrationId, doc } = data;
       const models = generateModels(subdomain);
@@ -37,7 +38,7 @@ export const initBroker = async () => {
 
   consumeRPCQueue(
     'calls:api_to_integrations',
-    async (args: MessageArgs): Promise<any> => {
+    async (args: InterMessage): Promise<any> => {
       const { subdomain, data } = args;
       const { integrationId, action } = data;
 
@@ -97,12 +98,12 @@ export const initBroker = async () => {
         return {
           status: 'success',
         };
-      } else
-        (err) => {
-          return {
-            err,
-          };
+      } else {
+        return {
+          status: 'error',
+          errorMessage: 'Integration not found.',
         };
+      }
     },
   );
 
@@ -121,7 +122,7 @@ export const initBroker = async () => {
 
   consumeRPCQueue(
     'viber:integrationDetail',
-    async (args: MessageArgs): Promise<any> => {
+    async (args: InterMessage): Promise<any> => {
       const { subdomain, data } = args;
       const { inboxId } = data;
 

@@ -12,14 +12,14 @@ import {
   removeIntegration,
   // repairIntegrations
 } from './helpers';
-import { consumeRPCQueue } from '@erxes/api-utils/src/messageBroker';
+import { RPResult, consumeRPCQueue } from '@erxes/api-utils/src/messageBroker';
 
 dotenv.config();
 
 export const initBroker = async () => {
   consumeRPCQueue(
     'zalo:createIntegration',
-    async ({ subdomain, data: { doc, kind } }) => {
+    async ({ subdomain, data: { doc, kind } }): Promise<RPResult> => {
       const models = await generateModels(subdomain);
 
       if (kind === 'zalo') {
@@ -28,7 +28,7 @@ export const initBroker = async () => {
 
       return {
         status: 'error',
-        data: 'Wrong kind',
+        errorMessage: 'Wrong kind',
       };
     },
     // async ({ data: { doc, integrationId } }) => {
