@@ -37,7 +37,7 @@ export const initBroker = async () => {
       console.log('*************** mobinet:sendSms error', e);
       return {
         status: 'error',
-        message: e.message,
+        errorMessage: e.message,
       };
     }
   });
