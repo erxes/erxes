@@ -14,6 +14,15 @@ type Props = {
 };
 
 class TypeForm extends React.Component<Props> {
+  componentDidMount() {
+    const { contentType, typeOptions, onChangeContentType } = this.props;
+    const type = typeOptions.find((t) => t.contentType === contentType);
+
+    if (type) {
+      onChangeContentType(type);
+    }
+  }
+
   renderSelected = (selectedType) => {
     const { contentTypes } = this.props;
 
