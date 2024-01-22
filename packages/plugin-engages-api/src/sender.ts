@@ -155,6 +155,7 @@ export const start = async (
     try {
       await sendMessage('putActivityLog', {
         subdomain,
+        // FIXME: the consumer doesn't seem to be using this
         action: ACTIVITY_LOG_ACTIONS.SEND_EMAIL_CAMPAIGN,
         data: {
           action: 'send',
@@ -263,6 +264,7 @@ export const sendBulkSms = async (
     try {
       await sendMessage('putActivityLog', {
         subdomain,
+        // FIXME: the consumer doesn't seem to be using this
         action: ACTIVITY_LOG_ACTIONS.SEND_SMS_CAMPAIGN,
         data: {
           action: 'send',
