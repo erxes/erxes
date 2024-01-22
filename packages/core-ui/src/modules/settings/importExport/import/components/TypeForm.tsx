@@ -32,7 +32,7 @@ class TypeForm extends React.Component<Props> {
       return contentType === selectedType.contentType ? true : false;
     }
 
-    return this.props.contentType === selectedType.contentType ? true : false;
+    return false;
   };
 
   renderBox(name, icon, selectedType) {
