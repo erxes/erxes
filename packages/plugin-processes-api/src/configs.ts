@@ -12,7 +12,6 @@ import { initBroker } from './messageBroker';
 export let debug;
 export let mainDb;
 
-
 export default {
   name: 'processes',
   permissions,
@@ -33,7 +32,7 @@ export default {
   onServerInit: async (options) => {
     await generateModels('os');
 
-    initBroker(options.messageBrokerClient);
+    initBroker();
 
     debug = options.debug;
 

@@ -2,17 +2,19 @@ import { afterMutationHandlers } from './afterMutations';
 import { getBranchesUtil, statusToDone, syncOrderFromClient } from './utils';
 import { generateModels } from './connectionResolver';
 import { IPosDocument } from './models/definitions/pos';
-import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
+import {
+  MessageArgs,
+  MessageArgsOmitService,
+  sendMessage,
+} from '@erxes/api-utils/src/core';
 
 import { beforeResolverHandlers } from './beforeResolvers';
+import {
+  consumeQueue,
+  consumeRPCQueue,
+} from '@erxes/api-utils/src/messageBroker';
 
-let client;
-
-export const initBroker = async (cl) => {
-  client = cl;
-
-  const { consumeQueue, consumeRPCQueue } = client;
-
+export const initBroker = async () => {
   consumeQueue('pos:afterMutation', async ({ subdomain, data }) => {
     await afterMutationHandlers(subdomain, data);
     return;
@@ -257,102 +259,92 @@ export const initBroker = async (cl) => {
       data: await beforeResolverHandlers(models, subdomain, data),
       status: 'success',
     };
-    return;
   });
 };
 
 export const sendProductsMessage = async (
-  args: ISendMessageArgs,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'products',
     ...args,
   });
 };
 
 export const sendCardsMessage = async (
-  args: ISendMessageArgs,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'cards',
     ...args,
   });
 };
 
 export const sendLoyaltiesMessage = async (
-  args: ISendMessageArgs,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'loyalties',
     ...args,
   });
 };
 
 export const sendPricingMessage = async (
-  args: ISendMessageArgs,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'pricing',
     ...args,
   });
 };
 
 export const sendContactsMessage = async (
-  args: ISendMessageArgs,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'contacts',
     ...args,
   });
 };
 
 export const sendEbarimtMessage = async (
-  args: ISendMessageArgs,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'ebarimt',
     ...args,
   });
 };
 
-export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
+export const sendCoreMessage = async (
+  args: MessageArgsOmitService,
+): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'core',
     ...args,
   });
 };
 
 export const sendInventoriesMessage = async (
-  args: ISendMessageArgs,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'inventories',
     ...args,
   });
 };
 
 export const sendSyncerkhetMessage = async (
-  args: ISendMessageArgs,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'syncerkhet',
     ...args,
   });
 };
 
 export const sendPosclientMessage = async (
-  args: ISendMessageArgs & {
-    pos: IPosDocument;
-  },
+  args: MessageArgsOmitService & { pos: IPosDocument },
 ) => {
   const { action, pos } = args;
   let lastAction = action;
@@ -380,7 +372,6 @@ export const sendPosclientMessage = async (
   args.data.token = pos.token;
 
   return await sendMessage({
-    client,
     serviceName,
     ...args,
     action: lastAction,
@@ -405,7 +396,6 @@ export const sendPosclientHealthCheck = async ({
 
   return await sendMessage({
     subdomain,
-    client,
     isRPC: true,
     isMQ: true,
     serviceName: '',
@@ -417,29 +407,26 @@ export const sendPosclientHealthCheck = async ({
 };
 
 export const sendAutomationsMessage = async (
-  args: ISendMessageArgs,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'automations',
     ...args,
   });
 };
 
 export const sendCommonMessage = async (
-  args: ISendMessageArgs & { serviceName: string },
+  args: MessageArgs & { serviceName: string },
 ): Promise<any> => {
   return sendMessage({
-    client,
     ...args,
   });
 };
 
 export const sendSegmentsMessage = async (
-  args: ISendMessageArgs,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'segments',
     ...args,
   });
@@ -457,14 +444,11 @@ export const fetchSegment = (
     isRPC: true,
   });
 
-export const sendFormsMessage = (args: ISendMessageArgs): Promise<any> => {
+export const sendFormsMessage = (
+  args: MessageArgsOmitService,
+): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'forms',
     ...args,
   });
 };
-
-export default function () {
-  return client;
-}

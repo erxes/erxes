@@ -15,8 +15,16 @@ import {
   ISendMessageArgs,
   sendMessage as sendCommonMessage,
 } from '@erxes/api-utils/src/core';
+import { sendMessage as sendCommonMessage } from '@erxes/api-utils/src/core';
+import { MessageArgs, MessageArgsOmitService } from '@erxes/api-utils/src/core';
 
 import { generateModels } from './connectionResolver';
+import {
+  InterMessage,
+  consumeQueue,
+  consumeRPCQueue,
+  sendRPCMessage,
+} from '@erxes/api-utils/src/messageBroker';
 
 dotenv.config();
 
@@ -31,6 +39,7 @@ export const initBroker = async (cl) => {
 
   const { consumeRPCQueue, consumeQueue } = client;
 
+export const initBroker = async () => {
   consumeRPCQueue(
     'facebook:updateIntegration',
     async ({ subdomain, data: { integrationId, doc } }) => {
@@ -168,12 +177,14 @@ export const initBroker = async (cl) => {
       const models = await generateModels(subdomain);
 
       if (kind === 'facebook') {
-        return facebookCreateIntegration(models, doc);
+        return await facebookCreateIntegration(models, doc);
       }
 
       return {
         status: 'error',
         data: 'Wrong kind',
+
+        errorMessage: 'Wrong kind',
       };
     },
   );
@@ -220,17 +231,19 @@ export const initBroker = async (cl) => {
   );
 };
 
+
 export default function () {
   return client;
 }
 
 export const sendInboxMessage = (args: ISendMessageArgs) => {
+
+export const sendInboxMessage = (args: MessageArgsOmitService) => {
   return sendCommonMessage({
-    client,
     serviceName: 'inbox',
     ...args,
   });
 };
 
-export const getFileUploadConfigs = async () =>
-  sendRPCMessage('core:getFileUploadConfigs', {});
+export const getFileUploadConfigs = async (subdomain) =>
+  sendRPCMessage('core:getFileUploadConfigs', { subdomain });

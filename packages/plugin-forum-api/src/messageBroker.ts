@@ -1,140 +1,105 @@
-
 // import { generateModels } from './connectionResolver';
 import { generateModels } from './db/models';
-import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
-import { sendToWebhook as sendWebhook } from '@erxes/api-utils/src';
-import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
+import { sendMessage } from '@erxes/api-utils/src/core';
+import type {
+  MessageArgs,
+  MessageArgsOmitService,
+} from '@erxes/api-utils/src/core';
 
-export let client;
-
-export const initBroker = async (cl) => {
-  client = cl;
-
-  const { consumeQueue, consumeRPCQueue } = client;
-
-  // consumeRPCQueue('cards:tickets.create', async ({ subdomain, data }) => {
-  //   const models = await generateModels(subdomain);
-
-  //   return {
-  //     status: 'success',
-  //     data: await models.Tickets.create(data)
-  //   };
-  // });
-
-  // consumeQueue(
-  //   'cards:checklists.removeChecklists',
-  //   async ({ subdomain, data: { type, itemIds } }) => {
-  //     const models = await generateModels(subdomain);
-
-  //     return {
-  //       status: 'success',
-  //       data: await models.Checklists.removeChecklists(type, itemIds)
-  //     };
-  //   }
-  // );
-};
+export const initBroker = async () => {};
 
 export const sendContactsMessage = async (
-  args: ISendMessageArgs,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'contacts',
     ...args,
   });
 };
 
 export const sendInternalNotesMessage = async (
-  args: ISendMessageArgs,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'internalNotes',
     ...args,
   });
 };
 
-export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
+export const sendCoreMessage = async (
+  args: MessageArgsOmitService,
+): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'core',
     ...args,
   });
 };
 
 export const sendFormsMessage = async (
-  args: ISendMessageArgs,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'forms',
     ...args,
   });
 };
 
 export const sendEngagesMessage = async (
-  args: ISendMessageArgs,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'engages',
     ...args,
   });
 };
 
 export const sendInboxMessage = async (
-  args: ISendMessageArgs,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'inbox',
     ...args,
   });
 };
 
 export const sendProductsMessage = async (
-  args: ISendMessageArgs,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'products',
     ...args,
   });
 };
 
 export const sendNotificationsMessage = async (
-  args: ISendMessageArgs,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'notifications',
     ...args,
   });
 };
 
-export const sendLogsMessage = async (args: ISendMessageArgs): Promise<any> => {
+export const sendLogsMessage = async (
+  args: MessageArgsOmitService,
+): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'logs',
     ...args,
   });
 };
 
 export const sendSegmentsMessage = async (
-  args: ISendMessageArgs,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'segments',
     ...args,
   });
 };
 
-export const sendCommonMessage = async (
-  args: ISendMessageArgs & { serviceName: string },
-): Promise<any> => {
+export const sendCommonMessage = async (args: MessageArgs): Promise<any> => {
   return sendMessage({
-    client,
     ...args,
   });
 };
@@ -147,14 +112,9 @@ export const fetchSegment = (subdomain: string, segmentId: string, options?) =>
     isRPC: true,
   });
 
-export const sendClientPortalMessage = (args: ISendMessageArgs) => {
+export const sendClientPortalMessage = (args: MessageArgsOmitService) => {
   return sendMessage({
-    client,
     serviceName: 'clientportal',
     ...args,
   });
-};
-
-export const sendToWebhook = ({ subdomain, data }) => {
-  return sendWebhook(client, { subdomain, data });
 };

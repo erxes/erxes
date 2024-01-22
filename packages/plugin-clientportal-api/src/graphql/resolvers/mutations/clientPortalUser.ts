@@ -9,7 +9,7 @@ import { sendContactsMessage, sendCoreMessage } from '../../../messageBroker';
 import { ILoginParams } from '../../../models/ClientPortalUser';
 import {
   IInvitiation,
-  IUser
+  IUser,
 } from '../../../models/definitions/clientPortalUser';
 import redis from '../../../redis';
 import { sendSms } from '../../../utils';
@@ -55,20 +55,20 @@ const clientPortalUserMutations = {
       token,
       password,
       passwordConfirmation,
-      username
+      username,
     }: {
       token: string;
       password?: string;
       passwordConfirmation?: string;
       username?: string;
     },
-    { models, subdomain }: IContext
+    { models, subdomain }: IContext,
   ) {
     const user = await models.ClientPortalUsers.confirmInvitation(subdomain, {
       token,
       password,
       passwordConfirmation,
-      username
+      username,
     });
 
     return user;
@@ -77,12 +77,12 @@ const clientPortalUserMutations = {
   async clientPortalUsersEdit(
     _root,
     { _id, ...doc }: IClientPortalUserEdit,
-    { models, subdomain }: IContext
+    { models, subdomain }: IContext,
   ) {
     const updated = await models.ClientPortalUsers.updateUser(
       subdomain,
       _id,
-      doc
+      doc,
     );
 
     return updated;
@@ -95,11 +95,11 @@ const clientPortalUserMutations = {
   async clientPortalUsersRemove(
     _root,
     { clientPortalUserIds }: { clientPortalUserIds: string[] },
-    { models, subdomain }: IContext
+    { models, subdomain }: IContext,
   ) {
     const response = await models.ClientPortalUsers.removeUser(
       subdomain,
-      clientPortalUserIds
+      clientPortalUserIds,
     );
 
     return response;
@@ -109,7 +109,7 @@ const clientPortalUserMutations = {
     const { models, subdomain } = context;
 
     const user = await models.ClientPortalUsers.createUser(subdomain, {
-      ...args
+      ...args,
     });
 
     return user._id;
@@ -118,18 +118,18 @@ const clientPortalUserMutations = {
   clientPortalVerifyOTP: async (
     _root,
     args: IVerificationParams,
-    context: IContext
+    context: IContext,
   ) => {
-    const { models, res } = context;
+    const { models, res, subdomain } = context;
 
-    const user = await models.ClientPortalUsers.verifyUser(args);
+    const user = await models.ClientPortalUsers.verifyUser(subdomain, args);
 
     if (!user) {
       throw new Error('User not found');
     }
 
     const clientPortal = await models.ClientPortals.getConfig(
-      user.clientPortalId
+      user.clientPortalId,
     );
 
     const optConfig = clientPortal.otpConfig;
@@ -144,7 +144,7 @@ const clientPortalUserMutations = {
   clientPortalUsersVerify: async (
     _root,
     { userIds, type }: { userIds: string[]; type: string },
-    context: IContext
+    context: IContext,
   ) => {
     const { models, subdomain } = context;
 
@@ -157,7 +157,7 @@ const clientPortalUserMutations = {
   clientPortalLogin: async (
     _root,
     args: ILoginParams,
-    { models, res }: IContext
+    { models, res }: IContext,
   ) => {
     const { user, clientPortal } = await models.ClientPortalUsers.login(args);
 
@@ -167,7 +167,7 @@ const clientPortalUserMutations = {
   clientPortalFacebookAuthentication: async (
     _root,
     args: any,
-    { subdomain, models, res }: IContext
+    { subdomain, models, res }: IContext,
   ) => {
     const { clientPortalId, accessToken } = args;
 
@@ -177,9 +177,9 @@ const clientPortalUserMutations = {
           new URLSearchParams({
             access_token: accessToken,
             fields:
-              'id,name,email,gender,education,work,picture,last_name,first_name'
-          })
-      ).then(r => r.json());
+              'id,name,email,gender,education,work,picture,last_name,first_name',
+          }),
+      ).then((r) => r.json());
 
       const { id, name, email, picture, first_name, last_name } =
         response || {};
@@ -198,9 +198,9 @@ const clientPortalUserMutations = {
         subdomain,
         action: 'customers.findOne',
         data: {
-          customerPrimaryEmail: email
+          customerPrimaryEmail: email,
         },
-        isRPC: true
+        isRPC: true,
       });
       if (customer) {
         qry = { erxesCustomerId: customer._id, clientPortalId };
@@ -217,7 +217,7 @@ const clientPortalUserMutations = {
           firstName: first_name,
           lastName: last_name,
           clientPortalId,
-          isEmailVerified: email ? true : false
+          isEmailVerified: email ? true : false,
         });
       }
 
@@ -231,9 +231,9 @@ const clientPortalUserMutations = {
             primaryEmail: trimmedMail,
             state: 'lead',
             avatar: picture?.data?.url,
-            emailValidationStatus: email && 'valid'
+            emailValidationStatus: email && 'valid',
           },
-          isRPC: true
+          isRPC: true,
         });
       }
 
@@ -241,12 +241,12 @@ const clientPortalUserMutations = {
         user.erxesCustomerId = customer._id;
         await models.ClientPortalUsers.updateOne(
           { _id: user._id },
-          { $set: { erxesCustomerId: customer._id } }
+          { $set: { erxesCustomerId: customer._id } },
         );
       }
 
       const clientPortal = await models.ClientPortals.getConfig(
-        user.clientPortalId
+        user.clientPortalId,
       );
 
       return tokenHandler(user, clientPortal, res);
@@ -258,7 +258,7 @@ const clientPortalUserMutations = {
   clientPortalGoogleAuthentication: async (
     _root,
     args: any,
-    { subdomain, models, requestInfo, res }: IContext
+    { subdomain, models, requestInfo, res }: IContext,
   ) => {
     const { clientPortalId, code } = args;
 
@@ -269,7 +269,7 @@ const clientPortalUserMutations = {
     }
 
     const getGoogleOauthToken = async ({
-      authCode
+      authCode,
     }: {
       authCode: string;
     }): Promise<IGoogleOauthToken> => {
@@ -281,12 +281,12 @@ const clientPortalUserMutations = {
               client_id: clientPortals.googleClientId || '',
               grant_type: 'authorization_code',
               client_secret: clientPortals.googleClientSecret || '',
-              redirect_uri: clientPortals.googleRedirectUri || ''
+              redirect_uri: clientPortals.googleRedirectUri || '',
             }),
           {
-            method: 'POST'
-          }
-        ).then(r => r.json());
+            method: 'POST',
+          },
+        ).then((r) => r.json());
         return authResponse;
       } catch (err) {
         throw new Error(err);
@@ -295,7 +295,7 @@ const clientPortalUserMutations = {
 
     async function getGoogleUser({
       id_token,
-      access_token
+      access_token,
     }: {
       id_token: string;
       access_token: string;
@@ -305,14 +305,14 @@ const clientPortalUserMutations = {
           'https://www.googleapis.com/oauth2/v1/userinfo?' +
             new URLSearchParams({
               alt: 'json',
-              access_token
+              access_token,
             }),
           {
             headers: {
-              Authorization: `Bearer ${id_token}`
-            }
-          }
-        ).then(r => r.json());
+              Authorization: `Bearer ${id_token}`,
+            },
+          },
+        ).then((r) => r.json());
         return userResponse;
       } catch (err) {
         throw Error(err);
@@ -323,17 +323,11 @@ const clientPortalUserMutations = {
     const response = await getGoogleOauthToken({ authCode: code });
 
     // Use the token to get the User
-    const {
-      name,
-      email,
-      picture,
-      id,
-      family_name,
-      given_name
-    } = await getGoogleUser({
-      id_token: response.id_token,
-      access_token: response.access_token
-    });
+    const { name, email, picture, id, family_name, given_name } =
+      await getGoogleUser({
+        id_token: response.id_token,
+        access_token: response.access_token,
+      });
     let qry: any = {};
     let user: any = {};
 
@@ -349,9 +343,9 @@ const clientPortalUserMutations = {
       subdomain,
       action: 'customers.findOne',
       data: {
-        customerPrimaryEmail: email
+        customerPrimaryEmail: email,
       },
-      isRPC: true
+      isRPC: true,
     });
     if (customer) {
       qry = { erxesCustomerId: customer._id, clientPortalId };
@@ -371,7 +365,7 @@ const clientPortalUserMutations = {
         lastName: family_name,
         firstName: given_name,
         isEmailVerified: true,
-        clientPortalId
+        clientPortalId,
       });
     } else {
       user.avatar = picture;
@@ -384,9 +378,9 @@ const clientPortalUserMutations = {
             avatar: picture,
             lastName: family_name,
             firstName: given_name,
-            isEmailVerified: true
-          }
-        }
+            isEmailVerified: true,
+          },
+        },
       );
     }
 
@@ -400,9 +394,9 @@ const clientPortalUserMutations = {
           primaryEmail: trimmedMail,
           state: 'lead',
           avatar: picture,
-          emailValidationStatus: 'valid'
+          emailValidationStatus: 'valid',
         },
-        isRPC: true
+        isRPC: true,
       });
     }
 
@@ -410,12 +404,12 @@ const clientPortalUserMutations = {
       user.erxesCustomerId = customer._id;
       await models.ClientPortalUsers.updateOne(
         { _id: user._id },
-        { $set: { erxesCustomerId: customer._id } }
+        { $set: { erxesCustomerId: customer._id } },
       );
     }
 
     const clientPortal = await models.ClientPortals.getConfig(
-      user.clientPortalId
+      user.clientPortalId,
     );
 
     return tokenHandler(user, clientPortal, res);
@@ -428,7 +422,7 @@ const clientPortalUserMutations = {
     const NODE_ENV = getEnv({ name: 'NODE_ENV' });
 
     const options: any = {
-      httpOnly: true
+      httpOnly: true,
     };
 
     if (!['test', 'development'].includes(NODE_ENV)) {
@@ -439,7 +433,7 @@ const clientPortalUserMutations = {
     if (cpUser) {
       await models.ClientPortalUsers.updateOne(
         { _id: cpUser._id || '' },
-        { $set: { lastSeenAt: new Date(), isOnline: false } }
+        { $set: { lastSeenAt: new Date(), isOnline: false } },
       );
     }
 
@@ -453,11 +447,11 @@ const clientPortalUserMutations = {
   clientPortalUserChangePassword(
     _root,
     args: { currentPassword: string; newPassword: string },
-    { cpUser, models }: IContext
+    { cpUser, models }: IContext,
   ) {
     return models.ClientPortalUsers.changePassword({
       _id: (cpUser && cpUser._id) || '',
-      ...args
+      ...args,
     });
   },
 
@@ -472,7 +466,7 @@ const clientPortalUserMutations = {
       code: string;
       isSecondary: boolean;
     },
-    { models }: IContext
+    { models }: IContext,
   ) {
     return models.ClientPortalUsers.changePasswordWithCode(args);
   },
@@ -480,7 +474,7 @@ const clientPortalUserMutations = {
   clientPortalResetPassword(
     _root,
     args: { token: string; newPassword: string },
-    { models }: IContext
+    { models }: IContext,
   ) {
     return models.ClientPortalUsers.clientPortalResetPassword(args);
   },
@@ -493,7 +487,7 @@ const clientPortalUserMutations = {
       email: string;
       isSecondary: boolean;
     },
-    { models, subdomain }: IContext
+    { models, subdomain }: IContext,
   ) {
     const { clientPortalId, phone, email, isSecondary = false } = args;
     const query: any = { clientPortalId };
@@ -515,29 +509,30 @@ const clientPortalUserMutations = {
     const { token, phoneCode } = await models.ClientPortalUsers.forgotPassword(
       clientPortal,
       phone,
-      email
+      email,
     );
 
-    const passwordVerificationConfig = clientPortal.passwordVerificationConfig || {
-      verifyByOTP: false,
-      smsContent: `Reset password link: ${clientPortal.url}/reset-password?token=${token}`,
-      emailSubject: 'Reset password',
-      emailContent: `Reset password link: ${clientPortal.url}/reset-password?token=${token}`
-    };
+    const passwordVerificationConfig =
+      clientPortal.passwordVerificationConfig || {
+        verifyByOTP: false,
+        smsContent: `Reset password link: ${clientPortal.url}/reset-password?token=${token}`,
+        emailSubject: 'Reset password',
+        emailContent: `Reset password link: ${clientPortal.url}/reset-password?token=${token}`,
+      };
 
     const verifyByLink = !passwordVerificationConfig.verifyByOTP;
 
     const config = clientPortal.otpConfig || {
       content: '',
       smsTransporterType: 'messagepro',
-      codeLength: 4
+      codeLength: 4,
     };
 
     if (phone) {
       const smsContent = verifyByLink
         ? passwordVerificationConfig.smsContent.replace(
             /{{ link }}/,
-            `${clientPortal.url}/reset-password?token=${token}`
+            `${clientPortal.url}/reset-password?token=${token}`,
           )
         : passwordVerificationConfig.smsContent.replace(/{.*}/, phoneCode);
 
@@ -549,7 +544,7 @@ const clientPortalUserMutations = {
     const emailContent = verifyByLink
       ? passwordVerificationConfig.emailContent.replace(
           /{{ link }}/,
-          `${clientPortal.url}/reset-password?token=${token}`
+          `${clientPortal.url}/reset-password?token=${token}`,
         )
       : passwordVerificationConfig.emailContent.replace(/{.*}/, phoneCode);
 
@@ -562,10 +557,10 @@ const clientPortalUserMutations = {
         template: {
           name: 'base',
           data: {
-            content: emailContent
-          }
-        }
-      }
+            content: emailContent,
+          },
+        },
+      },
     });
 
     return 'sent';
@@ -574,12 +569,12 @@ const clientPortalUserMutations = {
   clientPortalUsersInvite: async (
     _root,
     args: IInvitiation,
-    context: IContext
+    context: IContext,
   ) => {
     const { models, subdomain } = context;
 
     const user = await models.ClientPortalUsers.invite(subdomain, {
-      ...args
+      ...args,
     });
 
     return user;
@@ -588,7 +583,7 @@ const clientPortalUserMutations = {
   clientPortalLoginWithPhone: async (
     _root,
     args: { phone: string; clientPortalId: string; deviceToken },
-    { models, subdomain, res }: IContext
+    { models, subdomain, res }: IContext,
   ) => {
     const { phone, clientPortalId, deviceToken } = args;
 
@@ -599,7 +594,7 @@ const clientPortalUserMutations = {
       smsTransporterType: '',
       codeLength: 4,
       loginWithOTP: false,
-      expireAfter: 5
+      expireAfter: 5,
     };
 
     if (!config.loginWithOTP) {
@@ -612,14 +607,14 @@ const clientPortalUserMutations = {
       subdomain,
       clientPortal,
       doc,
-      deviceToken
+      deviceToken,
     );
 
     try {
       if (clientPortal?.testUserPhone && clientPortal._id) {
         const cpUser = await models.ClientPortalUsers.findOne({
           firstName: 'test clientportal user',
-          clientPortalId: clientPortal._id
+          clientPortalId: clientPortal._id,
         });
 
         if (cpUser) {
@@ -631,7 +626,7 @@ const clientPortalUserMutations = {
             config.codeLength !== clientPortal?.testUserOTP?.toString().length
           ) {
             throw new Error(
-              'Client portal otp config and test user otp does not same length!'
+              'Client portal otp config and test user otp does not same length!',
             );
           }
 
@@ -639,15 +634,14 @@ const clientPortalUserMutations = {
             clientPortal?.testUserOTP &&
             config.codeLength === clientPortal?.testUserOTP?.toString().length
           ) {
-            const testPhoneCode = await models.ClientPortalUsers.imposeVerificationCode(
-              {
+            const testPhoneCode =
+              await models.ClientPortalUsers.imposeVerificationCode({
                 clientPortalId: clientPortal._id,
                 codeLength: config.codeLength,
                 phone: clientPortal?.testUserPhone,
                 expireAfter: config.expireAfter,
-                testUserOTP: clientPortal?.testUserOTP
-              }
-            );
+                testUserOTP: clientPortal?.testUserOTP,
+              });
 
             const body =
               config.content.replace(/{.*}/, testPhoneCode) ||
@@ -657,7 +651,7 @@ const clientPortalUserMutations = {
               subdomain,
               'messagePro',
               clientPortal?.testUserPhone,
-              body
+              body,
             );
           }
 
@@ -672,7 +666,7 @@ const clientPortalUserMutations = {
       clientPortalId: clientPortal._id,
       codeLength: config.codeLength,
       phone: user.phone,
-      expireAfter: config.expireAfter
+      expireAfter: config.expireAfter,
     });
 
     if (phoneCode) {
@@ -689,21 +683,15 @@ const clientPortalUserMutations = {
   clientPortalLoginWithSocialPay: async (
     _root,
     args: { token: string; clientPortalId: string },
-    { models, subdomain, res }: IContext
+    { models, subdomain, res }: IContext,
   ) => {
     const { token, clientPortalId } = args;
 
     const clientPortal = await models.ClientPortals.getConfig(clientPortalId);
 
     const data = await fetchUserFromSocialpay(token, clientPortal);
-    const {
-      individualId,
-      mobileNumber,
-      email,
-      firstName,
-      lastName,
-      imgUrl
-    } = data;
+    const { individualId, mobileNumber, email, firstName, lastName, imgUrl } =
+      data;
 
     const doc = {
       firstName,
@@ -711,13 +699,13 @@ const clientPortalUserMutations = {
       phone: mobileNumber,
       email,
       code: individualId,
-      avatar: imgUrl
+      avatar: imgUrl,
     };
 
     const user = await models.ClientPortalUsers.loginWithoutPassword(
       subdomain,
       clientPortal,
-      doc
+      doc,
     );
 
     return tokenHandler(user, clientPortal, res);
@@ -732,7 +720,7 @@ const clientPortalUserMutations = {
       attachments: IAttachment[];
       description: string;
     },
-    { models, subdomain }: IContext
+    { models, subdomain }: IContext,
   ) => {
     const { login, password, clientPortalId, attachments, description } = args;
 
@@ -740,9 +728,9 @@ const clientPortalUserMutations = {
       $or: [
         { email: { $regex: new RegExp(`^${login}$`, 'i') } },
         { username: { $regex: new RegExp(`^${login}$`, 'i') } },
-        { phone: { $regex: new RegExp(`^${login}$`, 'i') } }
+        { phone: { $regex: new RegExp(`^${login}$`, 'i') } },
       ],
-      clientPortalId
+      clientPortalId,
     });
 
     if (!cpuser) {
@@ -751,7 +739,7 @@ const clientPortalUserMutations = {
 
     const valid = await models.ClientPortalUsers.comparePassword(
       password,
-      cpuser.password || ''
+      cpuser.password || '',
     );
 
     if (!valid) {
@@ -769,12 +757,12 @@ const clientPortalUserMutations = {
     const verificationRequest = {
       attachments,
       description,
-      status: 'pending'
+      status: 'pending',
     };
 
     await models.ClientPortalUsers.updateOne(
       { _id: cpuser._id },
-      { $set: { verificationRequest } }
+      { $set: { verificationRequest } },
     );
 
     const createdBy = await sendCoreMessage({
@@ -782,11 +770,11 @@ const clientPortalUserMutations = {
       action: 'users.findOne',
       data: { role: 'system' },
       isRPC: true,
-      defaultValue: {}
+      defaultValue: {},
     });
 
     const { manualVerificationConfig } = await models.ClientPortals.getConfig(
-      cpuser.clientPortalId
+      cpuser.clientPortalId,
     );
 
     await sendCommonMessage({
@@ -803,8 +791,8 @@ const clientPortalUserMutations = {
         link: `/settings/client-portal/users/details/${cpuser._id}`,
         createdUser: createdBy,
         receivers:
-          (manualVerificationConfig && manualVerificationConfig.userIds) || []
-      }
+          (manualVerificationConfig && manualVerificationConfig.userIds) || [],
+      },
     });
 
     return 'Verification request sent';
@@ -813,7 +801,7 @@ const clientPortalUserMutations = {
   clientPortalUsersChangeVerificationStatus: async (
     _root,
     args: { userId: string; status: string },
-    { models, user }: IContext
+    { models, user }: IContext,
   ) => {
     if (!user) {
       throw new Error('login required');
@@ -824,7 +812,7 @@ const clientPortalUserMutations = {
     const cpUser = await models.ClientPortalUsers.getUser({ _id: userId });
 
     const { manualVerificationConfig } = await models.ClientPortals.getConfig(
-      cpUser.clientPortalId
+      cpUser.clientPortalId,
     );
 
     if (
@@ -838,14 +826,14 @@ const clientPortalUserMutations = {
       attachments: [],
       description: '',
       status: 'notVerified',
-      verifiedBy: user._id
+      verifiedBy: user._id,
     };
 
     verificationRequest.status = status;
 
     await models.ClientPortalUsers.updateOne(
       { _id: userId },
-      { $set: { verificationRequest } }
+      { $set: { verificationRequest } },
     );
 
     return 'Verification status changed';
@@ -854,7 +842,7 @@ const clientPortalUserMutations = {
   clientPortalUsersReplacePhone: async (
     _root,
     args: { clientPortalId: string; phone: string },
-    { models, subdomain, cpUser }: IContext
+    { models, subdomain, cpUser }: IContext,
   ) => {
     if (!cpUser) {
       throw new Error('login required');
@@ -864,18 +852,18 @@ const clientPortalUserMutations = {
 
     const user = await models.ClientPortalUsers.findOne({
       clientPortalId,
-      phone
+      phone,
     });
 
     if (user && user._id === cpUser._id) {
       throw new Error(
-        'Please enter a different phone number than the current one'
+        'Please enter a different phone number than the current one',
       );
     }
 
     if (user) {
       throw new Error(
-        'The phone number is already registered with another user'
+        'The phone number is already registered with another user',
       );
     }
 
@@ -887,7 +875,7 @@ const clientPortalUserMutations = {
       smsTransporterType: 'messagePro',
       codeLength: 4,
       loginWithOTP: false,
-      expireAfter: 5
+      expireAfter: 5,
     };
 
     const code = randomize('0', config.codeLength);
@@ -896,14 +884,14 @@ const clientPortalUserMutations = {
       `cpUser:${cpUser._id}`,
       JSON.stringify({ code, phone }),
       'EX',
-      60 * config.expireAfter
+      60 * config.expireAfter,
     );
 
     await sendSms(
       subdomain,
       config.smsTransporterType,
       phone,
-      config.content.replace(/{.*}/, code)
+      config.content.replace(/{.*}/, code),
     );
 
     return 'Confirmation code sent to your phone';
@@ -912,7 +900,7 @@ const clientPortalUserMutations = {
   clientPortalUsersVerifyPhone: async (
     _root,
     args: { code: string },
-    { models, cpUser }: IContext
+    { models, cpUser }: IContext,
   ) => {
     if (!cpUser) {
       throw new Error('login required');
@@ -934,7 +922,7 @@ const clientPortalUserMutations = {
 
     await models.ClientPortalUsers.updateOne(
       { _id: cpUser._id },
-      { $set: { phoneVerified: true, phone } }
+      { $set: { phoneVerified: true, phone } },
     );
 
     return 'Phone verified';
@@ -942,7 +930,7 @@ const clientPortalUserMutations = {
   clientPortalUserAssignCompany: async (
     _root,
     args: { userId: string; erxesCompanyId: string; erxesCustomerId: string },
-    { models, subdomain, cpUser, user }: IContext
+    { models, subdomain, cpUser, user }: IContext,
   ) => {
     if (!cpUser && !user) {
       throw new Error('login required');
@@ -954,7 +942,7 @@ const clientPortalUserMutations = {
       subdomain,
       action: 'companies.findOne',
       data: { _id: erxesCompanyId },
-      isRPC: true
+      isRPC: true,
     });
 
     let setOps: any = { erxesCompanyId };
@@ -972,8 +960,8 @@ const clientPortalUserMutations = {
           mainType: 'customer',
           mainTypeId: erxesCustomerId,
           relType: 'company',
-          relTypeId: erxesCompanyId
-        }
+          relTypeId: erxesCompanyId,
+        },
       });
     } catch (error) {
       throw new Error(error);
@@ -981,26 +969,26 @@ const clientPortalUserMutations = {
 
     if (cpUser) {
       const cp = await models.ClientPortals.findOne({
-        _id: cpUser.clientPortalId
+        _id: cpUser.clientPortalId,
       }).lean();
 
       if (cp || cp.kind === 'vendor') {
         await models.Companies.createOrUpdateCompany({
           erxesCompanyId,
-          clientPortalId: cp._id
+          clientPortalId: cp._id,
         });
       }
     }
 
     return models.ClientPortalUsers.updateOne(
       { _id: userId },
-      { $set: setOps }
+      { $set: setOps },
     );
   },
   clientPortalUpdateUser: async (
     _root,
     args: { _id: string; doc },
-    { models }: IContext
+    { models }: IContext,
   ) => {
     const { _id, doc } = args;
 
@@ -1008,7 +996,7 @@ const clientPortalUserMutations = {
       const user = await models.ClientPortalUsers.findOne({
         _id: { $ne: _id },
         phone: doc.phone,
-        clientPortalId: doc.clientPortalId
+        clientPortalId: doc.clientPortalId,
       });
 
       if (user) {
@@ -1024,7 +1012,7 @@ const clientPortalUserMutations = {
   clientPortalRefreshToken: async (
     _root,
     _args,
-    { models, requestInfo, res }: IContext
+    { models, requestInfo, res }: IContext,
   ) => {
     const authHeader = requestInfo.headers.authorization;
 
@@ -1050,11 +1038,11 @@ const clientPortalUserMutations = {
         }
 
         const clientPortal = await models.ClientPortals.getConfig(
-          user.clientPortalId
+          user.clientPortalId,
         );
 
         const { tokenExpiration = 1 } = clientPortal || {
-          tokenExpiration: 1
+          tokenExpiration: 1,
         };
 
         const cookieOptions: any = {};
@@ -1075,14 +1063,14 @@ const clientPortalUserMutations = {
           { userId: user._id, type: user.type } as any,
           process.env.JWT_TOKEN_SECRET || '',
           {
-            expiresIn: `${tokenExpiration}d`
-          }
+            expiresIn: `${tokenExpiration}d`,
+          },
         );
 
         res.cookie('client-auth-token', token, options);
 
         return token;
-      }
+      },
     );
 
     return newToken;
@@ -1091,7 +1079,7 @@ const clientPortalUserMutations = {
   clientPortalUserSetSecondaryPassword: async (
     _root,
     args: { newPassword: string; oldPassword?: string },
-    { models, cpUser }: IContext
+    { models, cpUser }: IContext,
   ) => {
     if (!cpUser) {
       throw new Error('login required');
@@ -1102,15 +1090,15 @@ const clientPortalUserMutations = {
     return models.ClientPortalUsers.setSecondaryPassword(
       cpUser._id,
       newPassword,
-      oldPassword
+      oldPassword,
     );
-  }
+  },
 };
 
 checkPermission(
   clientPortalUserMutations,
   'clientPortalUpdateUser',
-  'updateUser'
+  'updateUser',
 );
 
 export default clientPortalUserMutations;

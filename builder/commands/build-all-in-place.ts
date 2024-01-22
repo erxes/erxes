@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import build from '../src/build';
+import { execSync } from 'child_process';
 
 async function main() {
 
@@ -13,7 +14,7 @@ async function main() {
     for (const folderName of folderNames) {
         try {
             console.log(`----------------- Building ${folderName} --------------------------`);
-            await build(folderName);
+            execSync(`cd ${packagesPath}/${folderName} && yarn build`, { stdio: 'inherit' });
         } catch (e) {
         }
 

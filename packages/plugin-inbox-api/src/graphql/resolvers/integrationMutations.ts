@@ -13,7 +13,7 @@ import {
 import { IExternalIntegrationParams } from '../../models/Integrations';
 
 import { debug } from '../../configs';
-import messageBroker, {
+import {
   sendContactsMessage,
   sendIntegrationsMessage,
   sendCoreMessage,
@@ -527,7 +527,6 @@ const integrationMutations = {
 
       if (response && response.status === 'ok') {
         await putActivityLog(subdomain, {
-          messageBroker: messageBroker(),
           action: 'add',
           data: {
             action: 'send',
