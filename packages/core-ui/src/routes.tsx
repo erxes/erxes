@@ -91,17 +91,19 @@ const renderRoutes = (currentUser) => {
   );
 };
 
-const Routes = ({ currentUser }: { currentUser: IUser }) => (
-  <Router>
-    <BrowserRoutes>
-      <Route
-        key="/unsubscribe"
-        path="/unsubscribe"
-        element={<UnsubscribeComponent />}
-      />
-    </BrowserRoutes>
-    {renderRoutes(currentUser)}
-  </Router>
-);
+const Routes = ({ currentUser }: { currentUser: IUser }) => {
+  return (
+    <Router>
+      <BrowserRoutes>
+        <Route
+          key="/unsubscribe"
+          path="/unsubscribe"
+          element={<UnsubscribeComponent />}
+        />
+      </BrowserRoutes>
+      {renderRoutes(currentUser)}
+    </Router>
+  );
+};
 
 export default withCurrentUser(Routes);

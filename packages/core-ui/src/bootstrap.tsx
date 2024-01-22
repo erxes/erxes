@@ -7,6 +7,7 @@ import '@erxes/ui/src/styles/global-styles.ts';
 import { getEnv, readFile } from 'modules/common/utils';
 
 import { ApolloProvider } from '@apollo/client';
+import BB from './aa';
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import dayjs from 'dayjs';
@@ -54,7 +55,7 @@ fetch(`${envs.REACT_APP_API_URL}/initial-setup?envs=${JSON.stringify(envs)}`, {
       // TODO: Grafana Faro
     }
 
-    let body = <Routes />;
+    let body = <BB />;
 
     if (res === 'no owner') {
       body = (

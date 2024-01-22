@@ -12,7 +12,7 @@ type Props = {
   currentUserQuery: CurrentUserQueryResponse;
 };
 
-const withCurrentUser = (Component) => {
+const withCurrentUser = (WrappedComponent) => {
   const Container = (props: Props) => {
     const { currentUserQuery } = props;
 
@@ -33,7 +33,7 @@ const withCurrentUser = (Component) => {
       constants.forEach((c) => storeConstantToStore(c.key, c.values));
     }
 
-    return <Component {...updatedProps} />;
+    return <WrappedComponent {...updatedProps} />;
   };
 
   return withProps<{}>(
