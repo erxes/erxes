@@ -128,9 +128,9 @@ export const initBroker = async () => {
   });
 };
 
-export const removeEngageConversations = async (_id): Promise<any> => {
-  // TODO: Why is it calling consumeQueue?
-  return client.consumeQueue('removeEngageConversations', _id);
+export const removeEngageConversations = async (_id: string): Promise<any> => {
+  // FIXME: This doesn't look like it should be calling consumeQueue
+  return consumeQueue('removeEngageConversations', _id);
 };
 
 export const sendContactsMessage = async (
