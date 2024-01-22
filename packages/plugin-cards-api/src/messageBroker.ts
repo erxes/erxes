@@ -697,7 +697,7 @@ export const initBroker = async () => {
       data: { dealId, action, dataId, doc, productsData },
     }) => {
       graphqlPubsub.publish('productsDataChanged', {
-        pipelinesChanged: {
+        productsDataChanged: {
           _id: dealId,
           proccessId: Math.random(),
           action,
