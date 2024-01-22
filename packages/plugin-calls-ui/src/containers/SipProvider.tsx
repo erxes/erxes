@@ -12,76 +12,77 @@ import { Alert } from '@erxes/ui/src/utils';
 import CallIntegrationForm from '../components/Form';
 import withCurrentUser from '@erxes/ui/src/auth/containers/withCurrentUser';
 import TerminateSessionForm from '../components/TerminateCallForm';
+import { setLocalStorage } from '../utils';
+import { callPropType } from '../lib/types';
 
-const SipProviderContainer = props => {
+const SipProviderContainer = (props, context) => {
   const [config, setConfig] = useState(
-    JSON.parse(localStorage.getItem('config:call_integrations'))
+    JSON.parse(localStorage.getItem('config:call_integrations')),
   );
 
   const callInfo = JSON.parse(localStorage.getItem('callInfo'));
+  const sessionCode = sessionStorage.getItem('sessioncode');
 
-  const isRegistered = callInfo?.isRegistered;
-
-  const [disconnectCall] = useMutation(gql(mutations.callDisconnect));
-
-  useEffect(() => {
-    const handleBeforeUnload = () => {
-      localStorage.removeItem('callInfo');
-      disconnectCall();
-    };
-
-    window.addEventListener('beforeunload', handleBeforeUnload);
-    return () => {
-      window.removeEventListener('beforeunload', handleBeforeUnload);
-    };
-  }, []);
+  const isConnectCallRequested = JSON.parse(
+    localStorage.getItem('isConnectCallRequested'),
+  );
 
   const { data, loading, error } = useQuery(
-    gql(queries.callIntegrationsOfUser)
+    gql(queries.callIntegrationsOfUser),
   );
   const {
     data: activeSession,
     loading: activeSessionLoading,
     error: activeSessionError,
-    refetch
+    refetch,
   } = useQuery(gql(queries.activeSession), {
-    skip: isRegistered
+    // skip: isRegistered,
   });
 
   const [createActiveSession] = useMutation(gql(mutations.addActiveSession));
   const [removeActiveSession] = useMutation(
-    gql(mutations.callTerminateSession)
+    gql(mutations.callTerminateSession),
   );
 
   useSubscription(gql(subscriptions.sessionTerminateRequested), {
     variables: { userId: props.currentUser._id },
     onSubscriptionData: () => {
-      if (!callInfo?.isRegistered) {
+      if (
+        !callInfo?.isRegistered ||
+        isConnectCallRequested ||
+        isConnectCallRequested === 'true'
+      ) {
         setConfig({
           inboxId: config?.inboxId,
           phone: config?.phone,
           wsServer: config?.wsServer,
           token: config?.token,
           operators: config?.operators,
-          isAvailable: true
+          isAvailable: true,
         });
+        setLocalStorage(true, true, 'onSubscriptionData');
+        localStorage.removeItem('isConnectCallRequested');
+      } else {
+        setConfig({
+          inboxId: config?.inboxId,
+          phone: config?.phone,
+          wsServer: config?.wsServer,
+          token: config?.token,
+          operators: config?.operators,
+          isAvailable: false,
+        });
+        setLocalStorage(false, false, 'onSubscriptionData');
+        localStorage.removeItem('isConnectCallRequested');
       }
-
-      setConfig({
-        inboxId: config?.inboxId,
-        phone: config?.phone,
-        wsServer: config?.wsServer,
-        token: config?.token,
-        operators: config?.operators,
-        isAvailable: false
-      });
-    }
+    },
   });
 
   const createSession = () => {
     createActiveSession()
-      .then(({ data: result }: any) => {})
-      .catch(e => {
+      .then(() => {
+        refetch();
+      })
+      .catch((e) => {
         Alert.error(e.message);
       });
   };
@@ -91,27 +92,23 @@ const SipProviderContainer = props => {
       .then(() => {
         refetch();
 
-        setConfig({
-          inboxId: config?.inboxId,
-          phone: config?.phone,
-          wsServer: config?.wsServer,
-          token: config?.token,
-          operators: config?.operators,
-          isAvailable: true
-        });
+        if (config) {
+          setConfig({
+            inboxId: config.inboxId,
+            phone: config.phone,
+            wsServer: config.wsServer,
+            token: config.token,
+            operators: config.operators,
+            isAvailable: true,
+          });
+          setLocalStorage(true, true, 'removeSession');
+        }
       })
-      .catch(e => {
+      .catch((e) => {
         Alert.error(e.message);
       });
   };
 
-  const CallDisconnect = () => {
-    disconnectCall()
-      .then()
-      .catch(e => {
-        Alert.error(e.message);
-      });
-  };
   if (loading || activeSessionLoading) {
     return null;
   }
@@ -127,13 +124,13 @@ const SipProviderContainer = props => {
     return null;
   }
 
-  const handleSetConfig = item => {
+  const handleSetConfig = (item) => {
     if (item) {
       setConfig(item);
     }
   };
 
-  const content = args => (
+  const content = (args) => (
     <CallIntegrationForm
       {...args}
       data={callIntegrationsOfUser}
@@ -141,7 +138,7 @@ const SipProviderContainer = props => {
     />
   );
 
-  const terminateContent = args => (
+  const terminateContent = (args) => (
     <TerminateSessionForm
       {...args}
       setConfig={handleSetConfig}
@@ -155,16 +152,24 @@ const SipProviderContainer = props => {
   }
 
   if (activeSession && activeSession.callsActiveSession) {
-    return (
-      <ModalTrigger
-        title="Call Config Modal"
-        content={terminateContent}
-        isOpen={true}
-      />
-    );
+    if (
+      (activeSession.callsActiveSession?.lastLoginDeviceId !== sessionCode ||
+        isConnectCallRequested ||
+        isConnectCallRequested === 'true') &&
+      !callInfo.isUnRegistered
+    ) {
+      return (
+        <ModalTrigger
+          title="Call Config Modal"
+          content={terminateContent}
+          isOpen={true}
+        />
+      );
+    }
   }
 
   if (!config.isAvailable) {
+    console.log('is avaible false ...', context);
     return (
       <WidgetContainer
         {...props}
@@ -188,17 +193,17 @@ const SipProviderContainer = props => {
     user: gsUsername,
     password: gsPassword,
     // autoRegister: true,
-    port: parseInt(port?.toString() || '8089', 10)
+    port: parseInt(port?.toString() || '8089', 10),
   };
+  console.log('ehhk');
 
   return (
     <SipProvider
       {...sipConfig}
       createSession={createSession}
       callsActiveSession={activeSession?.callsActiveSession}
-      disconnectCall={CallDisconnect}
     >
-      {state =>
+      {(state) =>
         state?.callDirection === CALL_DIRECTION_INCOMING ? (
           <IncomingCallContainer
             {...props}
@@ -214,6 +219,10 @@ const SipProviderContainer = props => {
       }
     </SipProvider>
   );
+};
+
+SipProviderContainer.contextTypes = {
+  call: callPropType,
 };
 
 export default withCurrentUser(SipProviderContainer);

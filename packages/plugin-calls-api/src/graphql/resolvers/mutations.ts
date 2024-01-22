@@ -1,8 +1,13 @@
 import { generateToken } from '../../utils';
-import { IContext } from '../../connectionResolver';
+import { IContext, IModels } from '../../connectionResolver';
 
 import receiveCall from '../../receiveCall';
 import { graphqlPubsub } from '../../configs';
+import { IUserDocument } from '@erxes/api-utils/src/types';
+
+export interface ISession {
+  sessionCode: string;
+}
 
 const callsMutations = {
   async callsIntegrationUpdate(_root, { configs }, { models }: IContext) {
@@ -11,7 +16,7 @@ const callsMutations = {
 
     const integration = await models.Integrations.findOneAndUpdate(
       { inboxId },
-      { $set: { ...data, token } }
+      { $set: { ...data, token } },
     );
     return integration;
   },
@@ -21,22 +26,29 @@ const callsMutations = {
     let conversation;
     if (args.callID) {
       conversation = await models.Conversations.findOne({
-        callId: args.callID
+        callId: args.callID,
       });
     }
 
     return {
       customer: customer.erxesApiId && {
         __typename: 'Customer',
-        _id: customer.erxesApiId
+        _id: customer.erxesApiId,
       },
-      conversation
+      conversation,
     };
   },
 
-  async callUpdateActiveSession(_root, {}, { models, user }: IContext) {
+  async callUpdateActiveSession(
+    _root,
+    {},
+    {
+      models,
+      user,
+    }: { models: IModels; user: IUserDocument & ISession; subdomain: string },
+  ) {
     const activeSession = await models.ActiveSessions.findOne({
-      userId: user._id
+      userId: user._id,
     });
 
     if (activeSession) {
@@ -44,36 +56,37 @@ const callsMutations = {
     }
 
     await models.ActiveSessions.create({
-      userId: user._id
+      userId: user._id,
+      lastLoginDeviceId: user.sessionCode,
     });
 
     return await models.ActiveSessions.findOne({
-      userId: user._id
+      userId: user._id,
     });
   },
 
   async callTerminateSession(_root, {}, { models, user }: IContext) {
     await models.ActiveSessions.deleteOne({
-      userId: user._id
+      userId: user._id,
     });
 
     graphqlPubsub.publish('sessionTerminateRequested', {
-      userId: user._id
+      userId: user._id,
     });
     return user._id;
   },
 
   async callDisconnect(_root, {}, { models, user }: IContext) {
     await models.ActiveSessions.deleteOne({
-      userId: user._id
+      userId: user._id,
     });
 
     graphqlPubsub.publish('sessionTerminateRequested', {
-      userId: user._id
+      userId: user._id,
     });
 
     return 'disconnected';
-  }
+  },
 };
 
 export default callsMutations;

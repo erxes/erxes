@@ -1,20 +1,19 @@
 import React from 'react';
 import AssignBox from '@erxes/ui-inbox/src/inbox/containers/AssignBox';
 import { Button, FormControl, Icon } from '@erxes/ui/src/components';
-import { renderFullName, __ } from '@erxes/ui/src/utils';
+import { __ } from '@erxes/ui/src/utils';
 import {
-  PhoneNumber,
   Actions,
   CallAction,
   InCallFooter,
   CallTabContent,
-  Keypad
+  Keypad,
 } from './styles';
 import { numbers, symbols } from './constants';
 import { isEnabled } from '@erxes/ui/src/utils/core';
 import TaggerSection from '@erxes/ui-contacts/src/customers/components/common/TaggerSection';
 
-export const formatPhone = phone => {
+export const formatPhone = (phone) => {
   var num;
   if (phone.indexOf('@')) {
     num = phone.split('@')[0];
@@ -30,7 +29,7 @@ export const formatPhone = phone => {
 const formatNumber = (n: number) => {
   return n.toLocaleString('en-US', {
     minimumIntegerDigits: 2,
-    useGrouping: false
+    useGrouping: false,
   });
 };
 
@@ -54,16 +53,16 @@ export const getSpentTime = (seconds: number) => {
   );
 };
 
-export const renderKeyPad = handNumPad => {
+export const renderKeyPad = (handNumPad) => {
   return (
     <Keypad>
-      {numbers.map(n => (
+      {numbers.map((n) => (
         <div className="number" key={n} onClick={() => handNumPad(n)}>
           {n}
         </div>
       ))}
       <div className="symbols">
-        {symbols.map(s => (
+        {symbols.map((s) => (
           <div
             key={s.class}
             className={s.class}
@@ -94,7 +93,7 @@ export const renderFooter = (
   toggleSection,
   conversationDetail,
   handNumPad,
-  isKeyPad
+  isKeyPad,
 ) => {
   if (!shrink) {
     return (
@@ -159,7 +158,7 @@ export const callActions = (
   isMuted,
   handleAudioToggle,
   isHolded,
-  handleHold
+  handleHold,
 ) => {
   return (
     <Actions>
@@ -192,16 +191,16 @@ export const callActions = (
   );
 };
 
-export const setLocalStorage = (isRegistered, isAvailable) => {
+export const setLocalStorage = (isRegistered, isAvailable, name) => {
   localStorage.setItem(
     'callInfo',
     JSON.stringify({
-      isRegistered
-    })
+      isRegistered,
+    }),
   );
 
   const callConfig = JSON.parse(
-    localStorage.getItem('config:call_integrations')
+    localStorage.getItem('config:call_integrations'),
   );
 
   callConfig &&
@@ -213,7 +212,7 @@ export const setLocalStorage = (isRegistered, isAvailable) => {
         wsServer: callConfig.wsServer,
         token: callConfig.token,
         operators: callConfig.operators,
-        isAvailable
-      })
+        isAvailable,
+      }),
     );
 };

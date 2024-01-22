@@ -39,6 +39,7 @@ const types = `
   type CallActiveSession {
     _id: String
     userId: String
+    lastLoginDeviceId: String
   }
 `;
 
@@ -59,7 +60,7 @@ const mutations = `
   callDisconnect: String
 `;
 
-const typeDefs = async _serviceDiscovery => {
+const typeDefs = async (_serviceDiscovery) => {
   return gql`
     scalar JSON
     scalar Date

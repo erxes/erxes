@@ -10,5 +10,5 @@ subscription sessionTerminateRequested ($userId: String) {
 
 export default {
   phoneCallReceived,
-  sessionTerminateRequested
+  sessionTerminateRequested,
 };
