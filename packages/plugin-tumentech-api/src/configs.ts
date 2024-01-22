@@ -80,6 +80,7 @@ export default {
   meta: {
     segments,
     forms,
+    permissions,
     afterMutations,
     exporter,
     dashboards,
