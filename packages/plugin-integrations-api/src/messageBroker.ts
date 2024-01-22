@@ -8,22 +8,21 @@ import {
   callproCreateIntegration,
   callproGetAudio,
 } from './callpro/controller';
-import {
-  ISendMessageArgs,
-  sendMessage as sendCommonMessage,
+import { sendMessage as sendCommonMessage } from '@erxes/api-utils/src/core';
+import type {
+  MessageArgs,
+  MessageArgsOmitService,
 } from '@erxes/api-utils/src/core';
 
 import { generateModels } from './connectionResolver';
+import {
+  consumeQueue,
+  consumeRPCQueue,
+} from '@erxes/api-utils/src/messageBroker';
 
 dotenv.config();
 
-let client;
-
-export const initBroker = async (cl) => {
-  client = cl;
-
-  const { consumeRPCQueue, consumeQueue } = client;
-
+export const initBroker = async () => {
   consumeRPCQueue(
     'integrations:getAccounts',
     async ({ subdomain, data: { kind } }) => {
@@ -197,11 +196,7 @@ export const initBroker = async (cl) => {
   });
 };
 
-export default function () {
-  return client;
-}
-
-export const sendInboxMessage = (args: ISendMessageArgs) => {
+export const sendInboxMessage = (args: MessageArgsOmitService) => {
   return sendCommonMessage({
     serviceName: 'inbox',
     ...args,

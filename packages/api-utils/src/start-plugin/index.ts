@@ -28,13 +28,13 @@ import * as ws from 'ws';
 import {
   getService,
   getServices,
-  isAvailable,
   isEnabled,
   join,
   leave,
 } from '@erxes/api-utils/src/serviceDiscovery';
 import { applyInspectorEndpoints } from '../inspect';
 import app from '@erxes/api-utils/src/app';
+import { consumeQueue, consumeRPCQueue } from '../messageBroker';
 
 const {
   MONGO_URL,
@@ -256,7 +256,7 @@ export async function startPlugin(configs: any): Promise<express.Express> {
   // connect to mongo database
   const db = await connect(mongoUrl);
 
-  const messageBrokerClient = await initBroker(configs.reconnectRMQ);
+  await initBroker(configs.reconnectRMQ);
 
   if (configs.meta) {
     const {
@@ -278,8 +278,6 @@ export async function startPlugin(configs: any): Promise<express.Express> {
       reports,
       cpCustomerHandle,
     } = configs.meta;
-
-    const { consumeRPCQueue, consumeQueue } = messageBrokerClient;
 
     const logs = configs.meta.logs && configs.meta.logs.consumers;
 
@@ -324,7 +322,6 @@ export async function startPlugin(configs: any): Promise<express.Express> {
     if (logs) {
       logConsumers({
         name: configs.name,
-        consumeRPCQueue,
         getActivityContent: logs.getActivityContent,
         getContentTypeDetail: logs.getContentTypeDetail,
         collectItems: logs.collectItems,
@@ -417,7 +414,6 @@ export async function startPlugin(configs: any): Promise<express.Express> {
     if (internalNotes) {
       internalNoteConsumers({
         name: configs.name,
-        consumeRPCQueue,
         generateInternalNoteNotif: internalNotes.generateInternalNoteNotif,
       });
     }
@@ -636,7 +632,6 @@ export async function startPlugin(configs: any): Promise<express.Express> {
 
   configs.onServerInit({
     db,
-    messageBrokerClient,
     debug: {
       info: debugInfo,
       error: debugError,

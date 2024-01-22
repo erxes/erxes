@@ -9,15 +9,13 @@ import { getSubdomain } from '@erxes/api-utils/src/core';
 export let debug;
 export let mainDb;
 
-
-
 export default {
   name: 'segments',
   permissions,
   graphql: async () => {
     return {
       typeDefs: await typeDefs(),
-      resolvers: await resolvers()
+      resolvers: await resolvers(),
     };
   },
   apolloServerContext: async (context, req) => {
@@ -29,11 +27,11 @@ export default {
     return context;
   },
 
-  onServerInit: async options => {
-    initBroker(options.messageBrokerClient);
+  onServerInit: async (options) => {
+    initBroker();
 
     mainDb = options.db;
     debug = options.debug;
   },
-  meta: { permissions }
+  meta: { permissions },
 };

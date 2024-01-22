@@ -1,12 +1,12 @@
-import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
+import {
+  MessageArgs,
+  MessageArgsOmitService,
+  sendMessage,
+} from '@erxes/api-utils/src/core';
 import { afterMutationHandlers } from './afterMutations';
-let client;
+import { consumeQueue } from '@erxes/api-utils/src/messageBroker';
 
-export const initBroker = async (cl) => {
-  client = cl;
-
-  const { consumeQueue } = client;
-
+export const initBroker = async () => {
   consumeQueue('syncsaas:afterMutation', async ({ subdomain, data }) => {
     try {
       await afterMutationHandlers(subdomain, data);
@@ -17,35 +17,41 @@ export const initBroker = async (cl) => {
   });
 };
 
-export const sendContactsMessage = (args: ISendMessageArgs): Promise<any> => {
+export const sendContactsMessage = (
+  args: MessageArgsOmitService,
+): Promise<any> => {
   return sendMessage({
     serviceName: 'contacts',
     ...args,
   });
 };
 
-export const sendFormsMessage = (args: ISendMessageArgs): Promise<any> => {
+export const sendFormsMessage = (
+  args: MessageArgsOmitService,
+): Promise<any> => {
   return sendMessage({
     serviceName: 'forms',
     ...args,
   });
 };
 
-export const sendCardsMessage = (args: ISendMessageArgs): Promise<any> => {
+export const sendCardsMessage = (
+  args: MessageArgsOmitService,
+): Promise<any> => {
   return sendMessage({
     serviceName: 'cards',
     ...args,
   });
 };
 
-export const sendCoreMessage = (args: ISendMessageArgs): Promise<any> => {
+export const sendCoreMessage = (args: MessageArgsOmitService): Promise<any> => {
   return sendMessage({
     serviceName: 'core',
     ...args,
   });
 };
 
-export const sendCPMessage = (args: ISendMessageArgs): Promise<any> => {
+export const sendCPMessage = (args: MessageArgsOmitService): Promise<any> => {
   return sendMessage({
     serviceName: 'clientportal',
     ...args,
@@ -53,14 +59,10 @@ export const sendCPMessage = (args: ISendMessageArgs): Promise<any> => {
 };
 
 export const sendNotificationsMessage = async (
-  args: ISendMessageArgs,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'notifications',
     ...args,
   });
 };
-
-export default function () {
-  return client;
-}

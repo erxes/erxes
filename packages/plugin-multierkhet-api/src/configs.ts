@@ -14,7 +14,6 @@ export let debug;
 
 export let mainDb;
 
-
 export default {
   name: 'multierkhet',
   permissions,
@@ -44,7 +43,7 @@ export default {
     mainDb = options.db;
 
     await initBrokerErkhet();
-    await initBroker(options.messageBrokerClient);
+    await initBroker();
 
     debug = options.debug;
   },

@@ -11,7 +11,6 @@ export let debug;
 
 export let mainDb;
 
-
 export default {
   name: 'productplaces',
   permissions,
@@ -39,7 +38,7 @@ export default {
   onServerInit: async (options) => {
     mainDb = options.db;
 
-    await initBroker(options.messageBrokerClient);
+    await initBroker();
 
     debug = options.debug;
   },

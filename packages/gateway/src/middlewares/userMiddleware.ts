@@ -2,7 +2,7 @@
 import * as telemetry from 'erxes-telemetry';
 import * as jwt from 'jsonwebtoken';
 import { NextFunction, Request, Response } from 'express';
-import { redis } from '../redis';
+import redis from '@erxes/api-utils/src/redis';
 import { generateModels } from '../connectionResolver';
 import { getSubdomain, userActionsMap } from '@erxes/api-utils/src/core';
 import { USER_ROLES } from '@erxes/api-utils/src/constants';

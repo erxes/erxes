@@ -20,7 +20,6 @@ export let debug;
 
 export let mainDb;
 
-
 export default {
   name: 'pos',
   permissions,
@@ -48,7 +47,7 @@ export default {
   onServerInit: async (options) => {
     mainDb = options.db;
 
-    initBroker(options.messageBrokerClient);
+    initBroker();
 
     debug = options.debug;
   },
