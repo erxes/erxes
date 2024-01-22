@@ -1,6 +1,7 @@
 import {
   sendContactsMessage,
   sendCoreMessage,
+  sendFormsMessage,
   sendProductsMessage,
 } from './messageBroker';
 import * as moment from 'moment';
@@ -356,6 +357,10 @@ export const customerToDynamic = async (subdomain, syncLog, params, models) => {
   const customer = params;
 
   let name = customer.primaryName || '';
+  let foundfield;
+  let sendVAT;
+  let sendCity;
+  let sendPostCode;
 
   name =
     name && customer.firstName
@@ -369,6 +374,33 @@ export const customerToDynamic = async (subdomain, syncLog, params, models) => {
 
   name = name ? name : '';
 
+  if (customer && customer.customFieldsData.length > 0) {
+    for (const field of customer.customFieldsData) {
+      foundfield = await sendFormsMessage({
+        subdomain,
+        action: 'fields.findOne',
+        data: {
+          query: {
+            _id: field.field,
+          },
+        },
+        isRPC: true,
+      });
+
+      if (foundfield.text === 'VAT') {
+        sendVAT = field.value;
+      }
+
+      if (foundfield.text === 'city') {
+        sendCity = field.value;
+      }
+
+      if (foundfield.text === 'post code') {
+        sendPostCode = field.value;
+      }
+    }
+  }
+
   const sendData: any = {
     Name: name,
     Name_MN: name,
@@ -378,16 +410,15 @@ export const customerToDynamic = async (subdomain, syncLog, params, models) => {
     Address: customer.primaryAddress || '',
     Address_2: '',
     Country_Region_Code: 'MN',
-    City: 'Orkhon',
-    Post_Code: '61000',
-    Contact: '',
-    VAT_Registration_No: '2737329',
+    City: sendCity || 'Ulaanbaatar',
+    Post_Code: sendPostCode || '',
+    VAT_Registration_No: sendVAT || '',
     Gen_Bus_Posting_Group: config.genBusPostingGroup || 'DOMESTIC',
     VAT_Bus_Posting_Group: config.vatBusPostingGroup || 'DOMESTIC',
     Customer_Posting_Group: config.customerPostingGroup || 'TRADE',
     Customer_Price_Group: config.customerPricingGroup || 'ONLINE',
     Customer_Disc_Group: config.customerDiscGroup || '',
-    Partner_Type: 'Company' || 'Person',
+    Partner_Type: sendVAT.length === 7 ? 'Company' : 'Person',
     Payment_Terms_Code: config.paymentTermsCode || 'CASH',
     Payment_Method_Code: config.paymentMethodCode || 'CASH',
     Location_Code: config.locationCode || 'BEV-01',
@@ -595,8 +626,6 @@ export const dealToDynamic = async (
           },
           body: JSON.stringify(sendSalesLine),
         }).then((res) => res.json());
-
-        console.log(responseSaleLine, 'responseSale');
       }
     }
 
