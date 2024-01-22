@@ -10,26 +10,26 @@ import {
 import { handleInstagramMessage } from './handleInstagramMessage';
 import { userIds } from './middlewares/userMiddleware';
 
-import {
-  ISendMessageArgs,
-  sendMessage as sendCommonMessage,
+import { sendMessage as sendCommonMessage } from '@erxes/api-utils/src/core';
+import type {
+  MessageArgs,
+  MessageArgsOmitService,
 } from '@erxes/api-utils/src/core';
 
 import { generateModels } from './connectionResolver';
+import {
+  consumeQueue,
+  consumeRPCQueue,
+  sendRPCMessage as RPC,
+} from '@erxes/api-utils/src/messageBroker';
 
 dotenv.config();
 
-let client;
-
 export const sendRPCMessage = async (message): Promise<any> => {
-  return client.sendRPCMessage('rpc_queue:integrations_to_api', message);
+  return RPC('rpc_queue:integrations_to_api', message);
 };
 
-export const initBroker = async (cl) => {
-  client = cl;
-
-  const { consumeRPCQueue, consumeQueue } = client;
-
+export const initBroker = async () => {
   consumeRPCQueue(
     'instagram:getAccounts',
     async ({ subdomain, data: { kind } }) => {
@@ -119,7 +119,7 @@ export const initBroker = async (cl) => {
 
       return {
         status: 'error',
-        data: 'Wrong kind',
+        errorMessage: 'Wrong kind',
       };
     },
   );
@@ -165,11 +165,7 @@ export const initBroker = async (cl) => {
   );
 };
 
-export default function () {
-  return client;
-}
-
-export const sendInboxMessage = (args: ISendMessageArgs) => {
+export const sendInboxMessage = (args: MessageArgsOmitService) => {
   return sendCommonMessage({
     serviceName: 'inbox',
     ...args,

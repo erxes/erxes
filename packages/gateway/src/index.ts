@@ -1,18 +1,15 @@
 import * as dotenv from 'dotenv';
 dotenv.config();
 
-import * as express from 'express';
 import * as http from 'http';
 import * as cookieParser from 'cookie-parser';
 import userMiddleware from './middlewares/userMiddleware';
 import pubsub from './subscription/pubsub';
 import {
-  redis,
   setAfterMutations,
   setBeforeResolvers,
   setAfterQueries,
 } from './redis';
-import { initBroker } from './messageBroker';
 import * as cors from 'cors';
 import { retryGetProxyTargets, ErxesProxyTarget } from './proxy/targets';
 import {
@@ -27,15 +24,8 @@ import {
 import { applyInspectorEndpoints } from '@erxes/api-utils/src/inspect';
 import app from '@erxes/api-utils/src/app';
 
-const {
-  DOMAIN,
-  WIDGETS_DOMAIN,
-  CLIENT_PORTAL_DOMAINS,
-  ALLOWED_ORIGINS,
-  PORT,
-  RABBITMQ_HOST,
-  MESSAGE_BROKER_PREFIX,
-} = process.env;
+const { DOMAIN, WIDGETS_DOMAIN, CLIENT_PORTAL_DOMAINS, ALLOWED_ORIGINS, PORT } =
+  process.env;
 
 (async () => {
   app.use(cookieParser());

@@ -1,6 +1,7 @@
 import * as dotenv from 'dotenv';
 import {
-  ISendMessageArgs,
+  MessageArgs,
+  MessageArgsOmitService,
   sendMessage as sendCommonMessage,
 } from '@erxes/api-utils/src/core';
 
@@ -11,19 +12,14 @@ import {
   removeIntegration,
   // repairIntegrations
 } from './helpers';
+import { RPResult, consumeRPCQueue } from '@erxes/api-utils/src/messageBroker';
 
 dotenv.config();
 
-let client;
-
-export const initBroker = async (cl) => {
-  client = cl;
-
-  const { consumeRPCQueue } = client;
-
+export const initBroker = async () => {
   consumeRPCQueue(
     'zalo:createIntegration',
-    async ({ subdomain, data: { doc, kind } }) => {
+    async ({ subdomain, data: { doc, kind } }): Promise<RPResult> => {
       const models = await generateModels(subdomain);
 
       if (kind === 'zalo') {
@@ -32,7 +28,7 @@ export const initBroker = async (cl) => {
 
       return {
         status: 'error',
-        data: 'Wrong kind',
+        errorMessage: 'Wrong kind',
       };
     },
     // async ({ data: { doc, integrationId } }) => {
@@ -76,18 +72,14 @@ export const initBroker = async (cl) => {
   );
 };
 
-export default function () {
-  return client;
-}
-
-export const sendContactsMessage = (args: ISendMessageArgs) => {
+export const sendContactsMessage = (args: MessageArgsOmitService) => {
   return sendCommonMessage({
     serviceName: 'contacts',
     ...args,
   });
 };
 
-export const sendInboxMessage = (args: ISendMessageArgs) => {
+export const sendInboxMessage = (args: MessageArgsOmitService) => {
   return sendCommonMessage({
     serviceName: 'inbox',
     timeout: 50000,

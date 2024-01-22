@@ -18,7 +18,6 @@ import {
   sendCoreMessage,
   sendIntegrationsMessage,
   sendNotificationsMessage,
-  sendToWebhook,
   sendCommonMessage,
   sendAutomationsMessage,
 } from '../../messageBroker';
@@ -29,6 +28,7 @@ import { generateModels, IContext, IModels } from '../../connectionResolver';
 import { isServiceRunning } from '../../utils';
 import { IIntegrationDocument } from '../../models/definitions/integrations';
 import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
+import { sendToWebhook } from '@erxes/api-utils/src';
 
 export interface IConversationMessageAdd {
   conversationId: string;

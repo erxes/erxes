@@ -14,5 +14,6 @@
     "useUnknownInCatchVariables": false,
     "preserveSymlinks": true,
     "allowSyntheticDefaultImports": true,
+    "incremental": true
   }
 }

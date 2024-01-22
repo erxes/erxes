@@ -12,7 +12,6 @@ import dashboards from './dashboards';
 export let debug;
 export let mainDb;
 
-
 export default {
   name: 'tags',
   permissions,
@@ -41,7 +40,7 @@ export default {
   onServerInit: async (options) => {
     mainDb = options.db;
 
-    initBroker(options.messageBrokerClient);
+    initBroker();
 
     debug = options.debug;
   },
