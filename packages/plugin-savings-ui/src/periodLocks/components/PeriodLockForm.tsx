@@ -30,10 +30,10 @@ type Props = {
 };
 
 const PeriodLockForm = (props: Props) => {
-  const { periodLock = {} as IPeriodLock, closeModal, renderButton } = props;
-  const [date, setDate] = useState(periodLock.date || new Date());
+  const { periodLock, closeModal, renderButton } = props;
+  const [date, setDate] = useState(periodLock?.date || new Date());
   const [excludeContracts, setExcludeContracts] = useState(
-    periodLock.excludeContracts || [],
+    periodLock?.excludeContracts || [],
   );
 
   const generateDoc = (values: { _id: string } & IPeriodLockDoc) => {
