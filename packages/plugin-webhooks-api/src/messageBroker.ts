@@ -1,11 +1,10 @@
 import { generateModels } from './connectionResolver';
 import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
 import { send } from './utils';
-import { serviceDiscovery } from './configs';
 
 let client;
 
-export const initBroker = async cl => {
+export const initBroker = async (cl) => {
   client = cl;
 
   const { consumeQueue } = client;
@@ -15,21 +14,19 @@ export const initBroker = async cl => {
 
     return {
       status: 'success',
-      data: await send(models, subdomain, data)
+      data: await send(models, subdomain, data),
     };
   });
 };
 
 export const sendCommonMessage = async (
-  args: ISendMessageArgs & { serviceName: string }
+  args: ISendMessageArgs & { serviceName: string },
 ) => {
   return sendMessage({
-    serviceDiscovery,
-    client,
-    ...args
+    ...args,
   });
 };
 
-export default function() {
+export default function () {
   return client;
 }

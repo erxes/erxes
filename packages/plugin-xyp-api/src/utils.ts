@@ -84,6 +84,16 @@ export const convertToPropertyData = async (subdomain: string, doc: any) => {
     const data = xyp.data;
 
     const serviceNames = data.map(x => x.serviceName);
+    const citizen = data.find(
+      x => x.serviceName === 'WS100101_getCitizenIDCardInfo'
+    );
+    let customerMainFields = {};
+    if (citizen) {
+      customerMainFields = {
+        lastName: citizen.data.lastname,
+        firstName: citizen.data.firstname
+      };
+    }
 
     const groups = await sendCommonMessage({
       subdomain,
@@ -117,31 +127,30 @@ export const convertToPropertyData = async (subdomain: string, doc: any) => {
           // replace existing value
           customFieldsData[existingIndex].value = dataRow[f.code];
         } else {
-          customFieldsData.push({
-            field: f._id,
-            value: dataRow[f.code]
-          });
+          if (dataRow[f.code])
+            customFieldsData.push({
+              field: f._id,
+              value: dataRow[f.code]
+            });
         }
       }
     }
 
-    const updatedCustomer = await sendCommonMessage({
+    await sendCommonMessage({
       serviceName: 'contacts',
       action: 'customers.updateCustomer',
       data: {
         _id: customerId,
         doc: {
-          customFieldsData
+          customFieldsData,
+          ...customerMainFields
         }
       },
       isRPC: true,
-      defaultValue: null,
       subdomain
     });
 
-    if (updatedCustomer._id) {
-      return 'ok';
-    } else return 'error';
+    return 'ok';
   } catch (e) {
     console.error('error ', e);
     throw new Error(e);

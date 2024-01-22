@@ -1,13 +1,28 @@
-import { debug, graphqlPubsub } from './configs';
+import { debug } from './configs';
 import * as _ from 'underscore';
 import { IModels } from './connectionResolver';
 import {
   fetchSegment,
+  sendPosMessage,
   sendSegmentsMessage,
-  sendTagsMessage
+  sendTagsMessage,
 } from './messageBroker';
 import { productSchema } from './models/definitions/products';
 import { fetchEs } from '@erxes/api-utils/src/elasticsearch';
+import { BILL_TYPES } from './models/definitions/constants';
+import {
+  checkOrderStatus,
+  getDistrictName,
+  prepareEbarimtData,
+  validateOrderPayment,
+} from './graphql/utils/orderUtils';
+import { PutData } from './models/PutData';
+import {
+  ISettlePaymentParams,
+  getStatus,
+} from './graphql/resolvers/mutations/orders';
+import { debugError } from '@erxes/api-utils/src/debuggers';
+import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
 
 type TSortBuilder = { primaryName: number } | { [index: string]: number };
 
@@ -20,7 +35,7 @@ export const getEsTypes = () => {
 
   const typesMap: { [key: string]: any } = {};
 
-  schema.eachPath(name => {
+  schema.eachPath((name) => {
     const path = schema.paths[name];
     typesMap[name] = path.options.esType;
   });
@@ -31,7 +46,7 @@ export const getEsTypes = () => {
 export const countBySegment = async (
   subdomain: string,
   contentType: string,
-  qb
+  qb,
 ): Promise<ICountBy> => {
   const counts: ICountBy = {};
 
@@ -42,7 +57,7 @@ export const countBySegment = async (
     action: 'find',
     data: { contentType, name: { $exists: true } },
     isRPC: true,
-    defaultValue: []
+    defaultValue: [],
   });
 
   for (const s of segments) {
@@ -62,7 +77,7 @@ export const countBySegment = async (
 export const countByTag = async (
   subdomain: string,
   type: string,
-  qb
+  qb,
 ): Promise<ICountBy> => {
   const counts: ICountBy = {};
 
@@ -71,7 +86,7 @@ export const countByTag = async (
     action: 'find',
     data: { type },
     isRPC: true,
-    defaultValue: []
+    defaultValue: [],
   });
 
   for (const tag of tags) {
@@ -131,7 +146,7 @@ export class Builder {
       this.subdomain,
       segment._id,
       { returnSelector: true },
-      segmentData
+      segmentData,
     );
 
     this.positiveList = [...this.positiveList, selector];
@@ -161,7 +176,7 @@ export class Builder {
         isRPC: true,
         action: 'findOne',
         subdomain: this.subdomain,
-        data: { _id: this.params.segment }
+        data: { _id: this.params.segment },
       });
 
       await this.segmentFilter(segment);
@@ -173,9 +188,9 @@ export class Builder {
       query: {
         bool: {
           must: this.positiveList,
-          must_not: this.negativeList
-        }
-      }
+          must_not: this.negativeList,
+        },
+      },
     };
 
     let totalCount = 0;
@@ -185,7 +200,7 @@ export class Builder {
       action: 'count',
       index: this.contentType,
       body: queryOptions,
-      defaultValue: 0
+      defaultValue: 0,
     });
 
     totalCount = totalCountResponse.count;
@@ -194,24 +209,28 @@ export class Builder {
       subdomain: this.subdomain,
       action,
       index: this.contentType,
-      body: queryOptions
+      body: queryOptions,
     });
 
-    const list = response.hits.hits.map(hit => {
+    const list = response.hits.hits.map((hit) => {
       return {
         _id: hit._id,
-        ...hit._source
+        ...hit._source,
       };
     });
 
     return {
       list,
-      totalCount
+      totalCount,
     };
   }
 }
 
-export const updateMobileAmount = async (models, paymentParams: any[]) => {
+export const updateMobileAmount = async (
+  subdomain: string,
+  models: IModels,
+  paymentParams: any[],
+) => {
   const firstData = (paymentParams || [])[0] || {};
   const { contentTypeId } = firstData;
   const { posToken } = firstData.data;
@@ -229,19 +248,69 @@ export const updateMobileAmount = async (models, paymentParams: any[]) => {
     }
 
     await models.Orders.updateOne(orderSelector, {
-      $addToSet: { mobileAmounts: { _id, amount } }
+      $addToSet: { mobileAmounts: { _id, amount } },
     });
   }
 
-  const order = await models.Orders.findOne(orderSelector).lean();
+  let order = await models.Orders.findOne(orderSelector).lean();
   const sumMobileAmount = (order.mobileAmounts || []).reduce(
     (sum, i) => sum + i.amount,
-    0
+    0,
   );
 
   await models.Orders.updateOne(orderSelector, {
-    $set: { mobileAmount: sumMobileAmount }
+    $set: { mobileAmount: sumMobileAmount },
   });
+
+  order = await models.Orders.findOne(orderSelector).lean();
+
+  const { billType, totalAmount, registerNumber, _id } = order;
+
+  if (Math.round(totalAmount) === Math.round(sumMobileAmount)) {
+    if (
+      (billType === BILL_TYPES.ENTITY && registerNumber) ||
+      billType === BILL_TYPES.CITIZEN ||
+      billType === BILL_TYPES.INNER
+    ) {
+      const conf = await models.Configs.findOne({ token: posToken });
+      await prepareSettlePayment(subdomain, models, order, conf, {
+        _id,
+        billType,
+        registerNumber,
+      });
+
+      return sumMobileAmount;
+    }
+  }
+
+  if (order.isPre) {
+    const items = await models.OrderItems.find({ orderId: order._id });
+    const config = await models.Configs.findOne({ token: posToken });
+    if (config?.isOnline) {
+      const products = await models.Products.find({
+        _id: { $in: items.map((i) => i.productId) },
+      }).lean();
+      for (const item of items) {
+        const product = products.find((p) => p._id === item.productId) || {};
+        item.productName = `${product.code} - ${product.name}`;
+      }
+    }
+
+    try {
+      sendPosMessage({
+        subdomain,
+        action: 'createOrUpdateOrders',
+        data: {
+          posToken,
+          action: 'makePayment',
+          order,
+          items,
+        },
+      });
+    } catch (e) {
+      debugError(`Error occurred while sending data to erxes: ${e.message}`);
+    }
+  }
 
   graphqlPubsub.publish('ordersOrdered', {
     ordersOrdered: {
@@ -249,9 +318,160 @@ export const updateMobileAmount = async (models, paymentParams: any[]) => {
       mobileAmount: sumMobileAmount,
       _id: order._id,
       status: order.status,
-      customerId: order.customerId
-    }
+      customerId: order.customerId,
+    },
   });
 
   return sumMobileAmount;
+};
+
+export const prepareSettlePayment = async (
+  subdomain,
+  models,
+  order,
+  config,
+  { _id, billType, registerNumber }: ISettlePaymentParams,
+) => {
+  checkOrderStatus(order);
+
+  const items = await models.OrderItems.find({
+    orderId: order._id,
+  }).lean();
+
+  await validateOrderPayment(order, { billType });
+  const now = new Date();
+
+  const ebarimtConfig: any = config.ebarimtConfig;
+
+  if (
+    !ebarimtConfig ||
+    !Object.keys(ebarimtConfig) ||
+    !ebarimtConfig.districtCode ||
+    !ebarimtConfig.companyRD
+  ) {
+    billType = BILL_TYPES.INNER;
+  }
+
+  try {
+    const ebarimtResponses: any[] = [];
+
+    if (billType !== BILL_TYPES.INNER) {
+      const ebarimtDatas = await prepareEbarimtData(
+        models,
+        order,
+        ebarimtConfig,
+        items,
+        billType,
+        registerNumber,
+        config.paymentTypes,
+      );
+
+      ebarimtConfig.districtName = getDistrictName(
+        (ebarimtConfig && ebarimtConfig.districtCode) || '',
+      );
+
+      for (const data of ebarimtDatas) {
+        let response;
+
+        if (data.inner) {
+          const putData = new PutData({
+            ...config,
+            ...data,
+            config,
+            models,
+          });
+
+          response = {
+            _id: Math.random(),
+            billId: 'Түр баримт',
+            ...(await putData.generateTransactionInfo()),
+            registerNo: ebarimtConfig.companyRD || '',
+            success: 'true',
+          };
+          ebarimtResponses.push(response);
+
+          await models.OrderItems.updateOne(
+            { _id: { $in: data.itemIds } },
+            { $set: { isInner: true } },
+          );
+
+          continue;
+        }
+
+        response = await models.PutResponses.putData({
+          ...data,
+          config: ebarimtConfig,
+          models,
+        });
+        ebarimtResponses.push(response);
+      }
+    }
+
+    if (
+      billType === BILL_TYPES.INNER ||
+      (ebarimtResponses.length &&
+        !ebarimtResponses.filter((er) => er.success !== 'true').length)
+    ) {
+      await models.Orders.updateOne(
+        { _id },
+        {
+          $set: {
+            billType,
+            registerNumber,
+            paidDate: now,
+            modifiedAt: now,
+            status: getStatus(
+              config,
+              'settle',
+              { ...order, paidDate: now },
+              { ...order },
+            ),
+          },
+        },
+      );
+    }
+
+    order = await models.Orders.getOrder(_id);
+
+    graphqlPubsub.publish('ordersOrdered', {
+      ordersOrdered: {
+        ...order,
+        _id,
+        status: order.status,
+        customerId: order.customerId,
+      },
+    });
+
+    if (config.isOnline) {
+      const products = await models.Products.find({
+        _id: { $in: items.map((i) => i.productId) },
+      }).lean();
+      for (const item of items) {
+        const product = products.find((p) => p._id === item.productId) || {};
+        item.productName = `${product.code} - ${product.name}`;
+      }
+    }
+
+    try {
+      sendPosMessage({
+        subdomain,
+        action: 'createOrUpdateOrders',
+        data: {
+          posToken: config.token,
+          action: 'makePayment',
+          responses: ebarimtResponses,
+          order,
+          items,
+        },
+      });
+    } catch (e) {
+      debugError(`Error occurred while sending data to erxes: ${e.message}`);
+    }
+
+    return ebarimtResponses;
+  } catch (e) {
+    debugError(e);
+
+    return e;
+  }
 };

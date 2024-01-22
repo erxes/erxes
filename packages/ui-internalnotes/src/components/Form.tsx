@@ -1,7 +1,8 @@
 import Button from '@erxes/ui/src/components/Button';
 import { SmallLoader } from '@erxes/ui/src/components/ButtonMutate';
-import { getMentionedUserIds } from '@erxes/ui/src/components/EditorCK';
-import EditorCK from '@erxes/ui/src/containers/EditorCK';
+import { useGenerateJSON } from '@erxes/ui/src/components/richTextEditor/hooks/useExtensions';
+import { getParsedMentions } from '@erxes/ui/src/components/richTextEditor/utils/getParsedMentions';
+import RichTextEditor from '@erxes/ui/src/containers/RichTextEditor';
 import React from 'react';
 import styled from 'styled-components';
 
@@ -67,7 +68,7 @@ class Form extends React.PureComponent<Prop, State> {
     const { content } = this.state;
     const { callback } = this.props;
 
-    const mentionedUserIds = getMentionedUserIds(content);
+    const mentionedUserIds = getParsedMentions(useGenerateJSON(content));
 
     this.props.save({ content, mentionedUserIds }, () => {
       callback ? callback() : this.clearContent();
@@ -116,10 +117,8 @@ class Form extends React.PureComponent<Prop, State> {
     );
   }
 
-  onEditorChange = e => {
-    this.setState({
-      content: e.editor.getData()
-    });
+  onEditorChange = (content: string) => {
+    this.setState({ content });
   };
 
   render() {
@@ -127,28 +126,21 @@ class Form extends React.PureComponent<Prop, State> {
 
     return (
       <EditorWrapper>
-        <EditorCK
-          onCtrlEnter={this.onSend}
+        <RichTextEditor
           showMentions={true}
           content={this.state.content}
           onChange={this.onEditorChange}
           height={150}
           name={`${contentType}_note_${contentTypeId}`}
           toolbar={[
-            {
-              name: 'basicstyles',
-              items: [
-                'Bold',
-                'Italic',
-                'NumberedList',
-                'BulletedList',
-                'Link',
-                'Unlink',
-                '-',
-                'Image',
-                'EmojiPanel'
-              ]
-            }
+            'bold',
+            'italic',
+            'orderedList',
+            'bulletList',
+            'link',
+            'unlink',
+            '|',
+            'image'
           ]}
         />
 

@@ -67,7 +67,7 @@ export const RichTextEditorControlBase = <
   ...others
 }: any) => {
   return (
-    <RichTextEditorControl {...others}>
+    <RichTextEditorControl type="button" {...others}>
       {Icon && <Icon style={{ width: '1rem', height: '1rem' }} />}
     </RichTextEditorControl>
   );

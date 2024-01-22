@@ -2,7 +2,8 @@ import { checkPermission } from '@erxes/api-utils/src/permissions';
 import { paginate } from '@erxes/api-utils/src';
 import { IContext } from '../../connectionResolver';
 import { sendCommonMessage } from '../../messageBroker';
-import { serviceDiscovery } from '../../configs';
+import { getService, getServices } from '@erxes/api-utils/src/serviceDiscovery';
+
 
 interface IListParams {
   limit: number;
@@ -57,7 +58,7 @@ const documentQueries = {
   },
 
   async documentsGetContentTypes(_root, args, { models }: IContext) {
-    const services = await serviceDiscovery.getServices();
+    const services = await getServices();
     const fieldTypes: Array<{
       label: string;
       contentType: string;
@@ -70,7 +71,7 @@ const documentQueries = {
     ];
 
     for (const serviceName of services) {
-      const service = await serviceDiscovery.getService(serviceName);
+      const service = await getService(serviceName);
       const meta = service.config.meta || {};
       if (meta && meta.documents) {
         const types = meta.documents.types || [];

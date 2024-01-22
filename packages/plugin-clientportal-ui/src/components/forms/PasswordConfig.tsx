@@ -3,7 +3,7 @@ import FormControl from '@erxes/ui/src/components/form/Control';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import Toggle from '@erxes/ui/src/components/Toggle';
-import EditorCK from '@erxes/ui/src/containers/EditorCK';
+import { RichTextEditor } from '@erxes/ui/src/components/richTextEditor/TEditor';
 import { FlexContent } from '@erxes/ui/src/layout/styles';
 import { __ } from '@erxes/ui/src/utils/core';
 
@@ -69,8 +69,8 @@ const PasswordConfig = (props: Props) => {
     props.onChange('passwordVerificationConfig', config);
   };
 
-  const onEditorChange = e => {
-    const value = e.editor.getData();
+  const onEditorChange = (content: string) => {
+    const value = content;
 
     setConfig({ ...config, emailContent: value });
 
@@ -167,12 +167,12 @@ const PasswordConfig = (props: Props) => {
         <ControlLabel required={true}>Mail Content</ControlLabel>
         <p>{__('Forgot password mail body')}</p>
         <FlexContent>
-          <EditorCK
+          <RichTextEditor
             content={config.emailContent || ''}
             onChange={onEditorChange}
             height={300}
             name={'emailContent'}
-            insertItems={{
+            placeholderProp={{
               items: [editorAttrs],
               title: 'Attributes',
               label: 'Attributes'

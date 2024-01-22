@@ -8,8 +8,11 @@ export default async function cpUserMiddleware(
   next: NextFunction
 ) {
   const subdomain = getSubdomain(req);
+  const authHeader = req.headers.authorization;
 
-  const token = req.cookies['client-auth-token'];
+  const token = req.cookies['client-auth-token']
+    ? req.cookies['client-auth-token']
+    : authHeader && authHeader.split(' ')[1];
 
   if (!token) {
     return next();

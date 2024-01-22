@@ -7,6 +7,7 @@ import {
   IJobCategoryDocument,
   jobCategorySchema
 } from './definitions/jobCategories';
+import { escapeRegExp } from '@erxes/api-utils/src/core';
 
 export interface IJobCategoryModel extends Model<IJobCategoryDocument> {
   getJobCategory(_id: string): Promise<IJobCategoryDocument>;
@@ -93,7 +94,9 @@ export const loadJobCategoryClass = (models: IModels) => {
 
       const childCategories = await models.JobCategories.find({
         $and: [
-          { order: { $regex: new RegExp(jobCategory.order, 'i') } },
+          {
+            order: { $regex: new RegExp(`^${escapeRegExp(jobCategory.order)}`) }
+          },
           { _id: { $ne: _id } }
         ]
       });

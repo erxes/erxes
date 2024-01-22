@@ -276,8 +276,8 @@ const lastConversation = `
 `;
 
 const responseTemplateList = `
-  query responseTemplates($perPage: Int) {
-    responseTemplates(perPage: $perPage) {
+  query responseTemplates($perPage: Int, $searchValue: String) {
+    responseTemplates(perPage: $perPage, searchValue: $searchValue) {
       _id
       name
       brandId

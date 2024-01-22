@@ -17,9 +17,9 @@ export const pocketCallbackHandler = async (models: IModels, data: any) => {
   const invoice = await models.Invoices.getInvoice(
     {
       'apiResponse.invoiceId': invoiceId,
-      selectedPaymentId: paymentId
+      selectedPaymentId: paymentId,
     },
-    true
+    true,
   );
 
   const apiResponse: any = invoice.apiResponse;
@@ -48,9 +48,9 @@ export const pocketCallbackHandler = async (models: IModels, data: any) => {
         $set: {
           status,
           apiResponse,
-          resolvedAt: new Date()
-        }
-      }
+          resolvedAt: new Date(),
+        },
+      },
     );
 
     invoice.status = status;
@@ -92,14 +92,14 @@ export class PocketAPI extends BaseAPI {
     if (token) {
       return {
         Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
       };
     }
 
     const requestBody = new URLSearchParams({
       client_id: this.pocketClientId,
       client_secret: this.pocketClientSecret,
-      grant_type: 'client_credentials'
+      grant_type: 'client_credentials',
     }).toString();
 
     try {
@@ -109,9 +109,9 @@ export class PocketAPI extends BaseAPI {
       const response = await fetch(authUrl, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/x-www-form-urlencoded'
+          'Content-Type': 'application/x-www-form-urlencoded',
         },
-        body: requestBody
+        body: requestBody,
       });
 
       const res = await response.json();
@@ -120,12 +120,12 @@ export class PocketAPI extends BaseAPI {
         `pocket_token_${pocketMerchant}`,
         res.access_token,
         'EX',
-        res.expires_in - 60
+        res.expires_in - 60,
       );
 
       return {
         Authorization: `Bearer ${res.access_token}`,
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
       };
     } catch (e) {
       console.error('error ', e);
@@ -137,20 +137,20 @@ export class PocketAPI extends BaseAPI {
     try {
       const data: IPocketInvoice = {
         amount: invoice.amount,
-        info: invoice.description || invoice.contentTypeId
+        info: invoice.description || invoice.contentTypeId,
       };
 
       const res = await this.request({
         method: 'POST',
         path: PAYMENTS.pocket.actions.invoice,
         headers: await this.getHeaders(),
-        data
-      });
+        data,
+      }).then((r) => r.json());
 
       return {
         ...res,
         invoiceId: res.id,
-        qrData: await QRCode.toDataURL(res.qr)
+        qrData: await QRCode.toDataURL(res.qr),
       };
     } catch (e) {
       return { error: e.message };
@@ -163,8 +163,8 @@ export class PocketAPI extends BaseAPI {
       const res = await this.request({
         method: 'GET',
         path: `${PAYMENTS.pocket.actions.checkInvoice}/${invoice.apiResponse.invoiceId}`,
-        headers: await this.getHeaders()
-      });
+        headers: await this.getHeaders(),
+      }).then((r) => r.json());
 
       if (res.state === 'paid') {
         return PAYMENT_STATUS.PAID;
@@ -185,8 +185,8 @@ export class PocketAPI extends BaseAPI {
       const res = await this.request({
         method: 'GET',
         path: `${PAYMENTS.pocket.actions.checkInvoice}/${invoice.apiResponse.id}`,
-        headers: await this.getHeaders()
-      });
+        headers: await this.getHeaders(),
+      }).then((r) => r.json());
 
       if (res.state === 'paid') {
         return PAYMENT_STATUS.PAID;
@@ -224,8 +224,8 @@ export class PocketAPI extends BaseAPI {
         path: PAYMENTS.pocket.actions.webhook,
         headers: await this.getHeaders(),
         data: {
-          fallBackUrl: `${this.domain}/pl:payment/callback/${PAYMENTS.pocket.kind}?paymentId=${paymentId}`
-        }
+          fallBackUrl: `${this.domain}/pl:payment/callback/${PAYMENTS.pocket.kind}?paymentId=${paymentId}`,
+        },
       });
     } catch (e) {
       return { error: e.message };

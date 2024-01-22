@@ -157,7 +157,7 @@ type ListConfig = {
 };
 
 export type MainQueryResponse = {
-  contractsMain: { list: IContract[]; totalCount: number };
+  savingsContractsMain: { list: IContract[]; totalCount: number };
   loading: boolean;
   refetch: () => void;
 };

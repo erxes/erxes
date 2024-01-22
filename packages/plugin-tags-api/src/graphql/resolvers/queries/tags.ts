@@ -2,9 +2,10 @@ import {
   checkPermission,
   requireLogin
 } from '@erxes/api-utils/src/permissions';
-import { serviceDiscovery } from '../../../configs';
+
 import { IContext } from '../../../connectionResolver';
 import { paginate } from '@erxes/api-utils/src';
+import { getService, getServices } from '@erxes/api-utils/src/serviceDiscovery';
 
 const tagQueries = {
   /**
@@ -12,11 +13,11 @@ const tagQueries = {
    */
 
   async tagsGetTypes() {
-    const services = await serviceDiscovery.getServices();
+    const services = await getServices();
     const fieldTypes: Array<{ description: string; contentType: string }> = [];
 
     for (const serviceName of services) {
-      const service = await serviceDiscovery.getService(serviceName);
+      const service = await getService(serviceName);
       const meta = service.config.meta || {};
       if (meta && meta.tags) {
         const types = meta.tags.types || [];
@@ -132,8 +133,7 @@ const tagQueries = {
 
     const tags = await paginate(
       models.Tags.find(selector).sort({
-        order: 1,
-        name: 1
+        order: 1
       }),
       pagintationArgs
     );

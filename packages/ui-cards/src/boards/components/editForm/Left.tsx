@@ -16,9 +16,9 @@ import Actions from './Actions';
 import ActivityInputs from '@erxes/ui-log/src/activityLogs/components/ActivityInputs';
 import ActivityLogs from '@erxes/ui-log/src/activityLogs/containers/ActivityLogs';
 import Button from '@erxes/ui/src/components/Button';
+import { RichTextEditor } from '@erxes/ui/src/components/richTextEditor/TEditor';
 import Checklists from '../../../checklists/containers/Checklists';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
-import EditorCK from '@erxes/ui/src/components/EditorCK';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import { IAttachment } from '@erxes/ui/src/types';
 import Icon from '@erxes/ui/src/components/Icon';
@@ -59,8 +59,8 @@ const Description = (props: DescProps) => {
     setSubmit(false);
   };
 
-  const onChangeDescription = e => {
-    setDescription(e.editor.getData());
+  const onChangeDescription = (content: string) => {
+    setDescription(content);
   };
 
   const renderFooter = () => {
@@ -109,8 +109,7 @@ const Description = (props: DescProps) => {
           />
         ) : (
           <EditorWrapper>
-            <EditorCK
-              onCtrlEnter={onSend}
+            <RichTextEditor
               content={description}
               onChange={onChangeDescription}
               height={120}
@@ -118,20 +117,14 @@ const Description = (props: DescProps) => {
               autoFocus={true}
               name={`${contentType}_description_${item._id}`}
               toolbar={[
-                {
-                  name: 'basicstyles',
-                  items: [
-                    'Bold',
-                    'Italic',
-                    'NumberedList',
-                    'BulletedList',
-                    'Link',
-                    'Unlink',
-                    '-',
-                    'Image',
-                    'EmojiPanel'
-                  ]
-                }
+                'bold',
+                'italic',
+                'orderedList',
+                'bulletList',
+                'link',
+                'unlink',
+                '|',
+                'image'
               ]}
             />
 

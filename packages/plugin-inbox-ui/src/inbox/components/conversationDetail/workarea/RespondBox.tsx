@@ -69,6 +69,7 @@ type State = {
   editorKey: string;
   loading: object;
   extraInfo?: any;
+  timer: NodeJS.Timer;
 };
 
 const Editor = asyncComponent(
@@ -93,7 +94,8 @@ class RespondBox extends React.Component<Props, State> {
       responseTemplate: '',
       content: '',
       mentionedUserIds: [],
-      loading: {}
+      loading: {},
+      timer: undefined
     };
   }
   isContentWritten() {
@@ -140,9 +142,25 @@ class RespondBox extends React.Component<Props, State> {
   // save editor current content to state
   onEditorContentChange = (content: string) => {
     this.setState({ content });
+    const textContent = content.toLowerCase().replace(/<[^>]+>/g, '');
 
     if (this.isContentWritten()) {
       localStorage.setItem(this.props.conversation._id, content);
+    }
+
+    if (textContent) {
+      const { timer } = this.state;
+
+      if (timer) {
+        clearTimeout(timer);
+        this.setState({ timer: undefined });
+      }
+
+      this.setState({
+        timer: setTimeout(() => {
+          this.props.refetchResponseTemplates(textContent);
+        }, 1000)
+      });
     }
 
     if (this.props.conversation.integration.kind === 'telnyx') {
@@ -152,15 +170,6 @@ class RespondBox extends React.Component<Props, State> {
         Alert.warning(__('You have reached maximum number of characters'));
       }
     }
-  };
-
-  // save mentioned user to state
-  onAddMention = (mentionedUserIds: string[]) => {
-    this.setState({ mentionedUserIds });
-  };
-
-  onSearchChange = (value: string) => {
-    this.props.onSearchChange(value);
   };
 
   checkIsActive(conversation: IConversation) {
@@ -187,9 +196,6 @@ class RespondBox extends React.Component<Props, State> {
     e.preventDefault();
 
     this.addMessage();
-
-    // redrawing editor after send button, so editor content will be reseted
-    this.setState({ editorKey: `${this.state.editorKey}Key` });
   };
 
   onSelectTemplate = (responseTemplate?: IResponseTemplate) => {
@@ -291,13 +297,7 @@ class RespondBox extends React.Component<Props, State> {
 
   addMessage = () => {
     const { conversation, sendMessage } = this.props;
-    const {
-      isInternal,
-      attachments,
-      content,
-      // mentionedUserIds,
-      extraInfo
-    } = this.state;
+    const { isInternal, attachments, content, extraInfo } = this.state;
     const message = {
       conversationId: conversation._id,
       content: this.cleanText(content) || ' ',
@@ -411,17 +411,12 @@ class RespondBox extends React.Component<Props, State> {
         currentConversation={conversation._id}
         defaultContent={this.getUnsendMessage(conversation._id)}
         integrationKind={conversation.integration.kind}
-        key={this.state.editorKey}
         onChange={this.onEditorContentChange}
-        onAddMention={this.onAddMention}
-        onAddMessage={this.addMessage}
-        onSearchChange={this.onSearchChange}
         placeholder={placeholder}
         showMentions={isInternal}
         mentionSuggestion={this.props.mentionSuggestion}
         responseTemplate={responseTemplate}
         responseTemplates={responseTemplates}
-        handleFileInput={this.handleFileInput}
         content={this.state.content}
       />
     );

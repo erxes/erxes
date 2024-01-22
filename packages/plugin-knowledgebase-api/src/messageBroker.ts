@@ -1,10 +1,10 @@
 import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
-import { serviceDiscovery } from './configs';
+
 import { generateModels } from './connectionResolver';
 
 let client;
 
-export const initBroker = async cl => {
+export const initBroker = async (cl) => {
   client = cl;
 
   const { consumeRPCQueue } = client;
@@ -16,9 +16,9 @@ export const initBroker = async cl => {
 
       return {
         status: 'success',
-        data: await models.KnowledgeBaseTopics.findOne(query).lean()
+        data: await models.KnowledgeBaseTopics.findOne(query).lean(),
       };
-    }
+    },
   );
 
   consumeRPCQueue(
@@ -28,9 +28,9 @@ export const initBroker = async cl => {
 
       return {
         status: 'success',
-        data: await models.KnowledgeBaseTopics.find(query).lean()
+        data: await models.KnowledgeBaseTopics.find(query).lean(),
       };
-    }
+    },
   );
 
   consumeRPCQueue(
@@ -40,9 +40,9 @@ export const initBroker = async cl => {
 
       return {
         status: 'success',
-        data: await models.KnowledgeBaseTopics.find(query).count()
+        data: await models.KnowledgeBaseTopics.find(query).count(),
       };
-    }
+    },
   );
 
   consumeRPCQueue(
@@ -52,11 +52,9 @@ export const initBroker = async cl => {
 
       return {
         status: 'success',
-        data: await models.KnowledgeBaseArticles.find(query)
-          .sort(sort)
-          .lean()
+        data: await models.KnowledgeBaseArticles.find(query).sort(sort).lean(),
       };
-    }
+    },
   );
 
   consumeRPCQueue(
@@ -66,9 +64,9 @@ export const initBroker = async cl => {
 
       return {
         status: 'success',
-        data: await models.KnowledgeBaseCategories.findOne(query).lean()
+        data: await models.KnowledgeBaseCategories.findOne(query).lean(),
       };
-    }
+    },
   );
   consumeRPCQueue(
     'knowledgebase:categories.find',
@@ -77,32 +75,28 @@ export const initBroker = async cl => {
 
       return {
         status: 'success',
-        data: await models.KnowledgeBaseCategories.find(query).lean()
+        data: await models.KnowledgeBaseCategories.find(query).lean(),
       };
-    }
+    },
   );
 };
 
 export const sendCoreMessage = (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
-    client,
-    serviceDiscovery,
     serviceName: 'core',
-    ...args
+    ...args,
   });
 };
 
 export const sendSegmentsMessage = async (
-  args: ISendMessageArgs
+  args: ISendMessageArgs,
 ): Promise<any> => {
   return sendMessage({
-    client,
-    serviceDiscovery,
     serviceName: 'segments',
-    ...args
+    ...args,
   });
 };
 
-export default function() {
+export default function () {
   return client;
 }
