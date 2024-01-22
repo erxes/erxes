@@ -9,18 +9,18 @@ import {
   MainStyleFormWrapper as FormWrapper,
   Info,
   MainStyleModalFooter as ModalFooter,
-  MainStyleScrollWrapper as ScrollWrapper
+  MainStyleScrollWrapper as ScrollWrapper,
 } from '@erxes/ui/src';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import { ITransaction, ITransactionDoc } from '../types';
 
 import { Amount } from '../../contracts/styles';
 import { DateContainer } from '@erxes/ui/src/styles/main';
-import React from 'react';
+import React, { useState } from 'react';
 import { __ } from 'coreui/utils';
 import dayjs from 'dayjs';
 import SelectContracts, {
-  Contracts
+  Contracts,
 } from '../../contracts/components/common/SelectContract';
 
 type Props = {
@@ -30,53 +30,34 @@ type Props = {
   type: string;
 };
 
-type State = {
-  contractId: string;
-  companyId: string;
-  customerId: string;
-  invoiceId: string;
-  payDate: Date;
-  description: string;
-  total: number;
-  paymentInfo: any;
-  storedInterest: number;
-  transactionType: string;
-  closeInterestRate: number;
-  interestRate: number;
-  savingAmount: number;
-  closeInterest: number;
-};
+const TransactionForm = (props: Props) => {
+  const { transaction = {} as ITransaction, type } = props;
+  const [contractId, setcontractId] = useState(transaction.contractId || '');
+  const [payDate, setpayDate] = useState(transaction.payDate || new Date());
+  const [invoiceId, setinvoiceId] = useState(transaction.invoiceId || '');
+  const [description, setdescription] = useState(transaction.description || '');
+  const [total, settotal] = useState(transaction.total || 0);
+  const [companyId, setcompanyId] = useState(transaction.companyId || '');
+  const [customerId, setcustomerId] = useState(transaction.customerId || '');
+  const [paymentInfo, setpaymentInfo] = useState(null as any);
+  const [storedInterest, setstoredInterest] = useState(
+    transaction.storedInterest || 0,
+  );
+  const [transactionType, settransactionType] = useState(type);
+  const [closeInterestRate, setcloseInterestRate] = useState(
+    transaction.closeInterestRate || 0,
+  );
+  const [closeInterest, setcloseInterest] = useState(
+    transaction.closeInterest || 0,
+  );
+  const [interestRate, setinterestRate] = useState(
+    transaction.interestRate || 0,
+  );
+  const [savingAmount, setsavingAmount] = useState(
+    transaction.savingAmount || 0,
+  );
 
-class TransactionForm extends React.Component<Props, State> {
-  constructor(props) {
-    super(props);
-
-    const { transaction = {}, invoice, type } = props;
-
-    this.state = {
-      contractId:
-        transaction.contractId || (invoice && invoice.contractId) || '',
-      payDate:
-        transaction.payDate || (invoice && invoice.payDate) || new Date(),
-      invoiceId: transaction.invoiceId || (invoice && invoice._id) || '',
-      description: transaction.description || '',
-      total: transaction.total || (invoice && invoice.total) || 0,
-      companyId: transaction.companyId || (invoice && invoice.companyId) || '',
-      customerId:
-        transaction.customerId || (invoice && invoice.customerId) || '',
-      paymentInfo: null,
-      storedInterest: transaction.storedInterest || 0,
-      transactionType: type,
-      closeInterestRate: transaction.closeInterestRate || 0,
-      closeInterest: transaction.closeInterest || 0,
-      interestRate: transaction.interestRate || 0,
-      savingAmount: transaction.savingAmount || 0
-    };
-  }
-
-  generateDoc = (values: { _id: string } & ITransactionDoc) => {
-    const { transaction } = this.props;
-
+  const generateDoc = (values: { _id: string } & ITransactionDoc) => {
     const finalValues = values;
 
     if (transaction && transaction._id) {
@@ -85,51 +66,35 @@ class TransactionForm extends React.Component<Props, State> {
 
     return {
       _id: finalValues._id,
-      ...this.state,
+      contractId,
+      invoiceId,
+      description,
+      companyId,
+      customerId,
+      paymentInfo,
+      storedInterest,
+      transactionType,
+      closeInterestRate,
+      closeInterest,
+      interestRate,
+      savingAmount,
       isManual: true,
       payDate: finalValues.payDate,
-      total: Number(this.state.total)
+      total: Number(total),
     };
   };
 
-  onFieldClick = e => {
+  const onFieldClick = (e) => {
     e.target.select();
   };
 
-  renderFormGroup = (label, props) => {
-    return (
-      <FormGroup>
-        <ControlLabel>{label}</ControlLabel>
-        <FormControl {...props} />
-      </FormGroup>
-    );
-  };
-
-  renderRow = (label, fieldName) => {
-    const { transaction } = this.props;
-    const invoiceVal = 0;
-    const trVal = this.state[fieldName] || transaction[fieldName] || 0;
-
-    return (
-      <FormWrapper>
-        <FormColumn>
-          <ControlLabel>{`${label}`}</ControlLabel>
-        </FormColumn>
-        <FormColumn>
-          <Amount>{Number(invoiceVal).toLocaleString()}</Amount>
-        </FormColumn>
-        <FormColumn>
-          <Amount>{Number(trVal).toLocaleString()}</Amount>
-        </FormColumn>
-        <FormColumn>
-          <Amount>{Number(trVal - invoiceVal).toLocaleString()}</Amount>
-        </FormColumn>
-      </FormWrapper>
-    );
-  };
-
-  renderRowTr = (label, fieldName) => {
-    let trVal = this.state[fieldName];
+  const renderRowTr = (label, fieldName) => {
+    let trVal =
+      fieldName === 'savingAmount'
+        ? savingAmount
+        : fieldName === 'storedInterest'
+          ? storedInterest
+          : closeInterest;
 
     return (
       <FormWrapper>
@@ -143,36 +108,36 @@ class TransactionForm extends React.Component<Props, State> {
     );
   };
 
-  renderContent = (formProps: IFormProps) => {
-    const { closeModal, renderButton } = this.props;
+  const renderContent = (formProps: IFormProps) => {
+    const { closeModal, renderButton } = props;
     const { values, isSubmitted } = formProps;
 
     const onSelect = (value, name) => {
-      this.setState({ [name]: value } as any);
+      setcontractId(value);
     };
 
-    const onChangePayDate = value => {
-      this.setState({ payDate: value });
+    const onChangePayDate = (value) => {
+      setpayDate(value);
     };
 
-    const onChangeField = e => {
-      if (
-        (e.target as HTMLInputElement).name === 'total' &&
-        this.state.paymentInfo
-      ) {
+    const onChangeField = (e) => {
+      if ((e.target as HTMLInputElement).name === 'total' && paymentInfo) {
         const value = Number((e.target as HTMLInputElement).value);
 
-        if (value > this.state.paymentInfo.closeAmount) {
-          (e.target as HTMLInputElement).value = this.state.paymentInfo.closeAmount;
+        if (value > paymentInfo.closeAmount) {
+          (e.target as HTMLInputElement).value = paymentInfo.closeAmount;
         }
       }
       const value =
         e.target.type === 'checkbox'
           ? (e.target as HTMLInputElement).checked
           : (e.target as HTMLInputElement).value;
-      this.setState({
-        [(e.target as HTMLInputElement).name]: value
-      } as any);
+      if ((e.target as HTMLInputElement).name === 'total') {
+        settotal(value as any);
+      }
+      if ((e.target as HTMLInputElement).name === 'description') {
+        setdescription(value as any);
+      }
     };
 
     return (
@@ -188,7 +153,7 @@ class TransactionForm extends React.Component<Props, State> {
                     required={false}
                     name="payDate"
                     dateFormat="YYYY/MM/DD"
-                    value={this.state.payDate}
+                    value={payDate}
                     onChange={onChangePayDate}
                   />
                 </DateContainer>
@@ -199,26 +164,26 @@ class TransactionForm extends React.Component<Props, State> {
                 <SelectContracts
                   label={__('Choose an contract')}
                   name="contractId"
-                  initialValue={this.state.contractId}
+                  initialValue={contractId}
                   onSelect={(v, n) => {
                     onSelect(v, n);
                     if (typeof v === 'string') {
-                      this.setState({
-                        customerId: Contracts[v].customerId,
-                        storedInterest: Contracts[v].storedInterest,
-                        closeInterestRate: Contracts[v].closeInterestRate,
-                        interestRate: Contracts[v].interestRate,
-                        savingAmount: Contracts[v].savingAmount,
-                        closeInterest: Number(
+                      setcustomerId(Contracts[v].customerId);
+                      setstoredInterest(Contracts[v].storedInterest);
+                      setcloseInterestRate(Contracts[v].closeInterestRate);
+                      setinterestRate(Contracts[v].interestRate);
+                      setsavingAmount(Contracts[v].savingAmount);
+                      setcloseInterest(
+                        Number(
                           (
                             ((Contracts[v].savingAmount *
                               Contracts[v].closeInterestRate) /
                               100 /
                               365) *
                             dayjs().diff(dayjs(Contracts[v].startDate), 'day')
-                          ).toFixed(2)
-                        )
-                      });
+                          ).toFixed(2),
+                        ),
+                      );
                     }
                   }}
                   multi={false}
@@ -232,10 +197,10 @@ class TransactionForm extends React.Component<Props, State> {
                   useNumberFormat
                   fixed={2}
                   name="total"
-                  max={this.state?.paymentInfo?.closeAmount}
-                  value={this.state.total}
+                  max={paymentInfo?.closeAmount}
+                  value={total}
                   onChange={onChangeField}
-                  onClick={this.onFieldClick}
+                  onClick={onFieldClick}
                 />
               </FormGroup>
               <FormGroup>
@@ -245,23 +210,23 @@ class TransactionForm extends React.Component<Props, State> {
                     {...formProps}
                     required={false}
                     name="description"
-                    value={this.state.description}
+                    value={description}
                     onChange={onChangeField}
                   />
                 </DateContainer>
               </FormGroup>
-              {this.state.transactionType === 'outcome' && (
+              {transactionType === 'outcome' && (
                 <Info type="danger" title="Анхаар">
                   Зарлага хийх үед хүүгийн буцаалт хийгдэж гэрээ цуцлагдахыг
                   анхаарна уу
                 </Info>
               )}
-              {this.state.transactionType === 'outcome' &&
-                this.renderRowTr('Saving Amount', 'savingAmount')}
-              {this.state.transactionType === 'outcome' &&
-                this.renderRowTr('Saving stored interest', 'storedInterest')}
-              {this.state.transactionType === 'outcome' &&
-                this.renderRowTr('Close interest Rate', 'closeInterest')}
+              {transactionType === 'outcome' &&
+                renderRowTr('Saving Amount', 'savingAmount')}
+              {transactionType === 'outcome' &&
+                renderRowTr('Saving stored interest', 'storedInterest')}
+              {transactionType === 'outcome' &&
+                renderRowTr('Close interest Rate', 'closeInterest')}
             </FormColumn>
           </FormWrapper>
         </ScrollWrapper>
@@ -273,18 +238,16 @@ class TransactionForm extends React.Component<Props, State> {
 
           {renderButton({
             name: 'transaction',
-            values: this.generateDoc(values),
+            values: generateDoc(values),
             isSubmitted,
-            object: this.props.transaction
+            object: props.transaction,
           })}
         </ModalFooter>
       </>
     );
   };
 
-  render() {
-    return <Form renderContent={this.renderContent} />;
-  }
-}
+  return <Form renderContent={renderContent} />;
+};
 
 export default TransactionForm;

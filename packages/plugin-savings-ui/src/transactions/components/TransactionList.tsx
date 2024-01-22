@@ -11,7 +11,7 @@ import {
   Wrapper,
   BarItems,
   DropdownToggle,
-  Icon
+  Icon,
 } from '@erxes/ui/src';
 import { IRouterProps } from '@erxes/ui/src/types';
 import React from 'react';
@@ -42,7 +42,7 @@ interface IProps extends IRouterProps {
   emptyBulk: () => void;
   removeTransactions: (
     doc: { transactionIds: string[] },
-    emptyBulk: () => void
+    emptyBulk: () => void,
   ) => void;
 
   onSearch: (search: string) => void;
@@ -53,239 +53,228 @@ interface IProps extends IRouterProps {
   currentUser: IUser;
 }
 
-class TransactionsList extends React.Component<IProps> {
-  private timer?: NodeJS.Timer = undefined;
+const TransactionsList = (props: IProps) => {
+  let timer = undefined;
+  const {
+    transactions,
+    history,
+    loading,
+    toggleBulk,
+    bulk,
+    isAllSelected,
+    totalCount,
+    queryParams,
+    onSelect,
+    onSearch,
+    isFiltered,
+    clearFilter,
+    currentUser,
+    toggleAll,
+    emptyBulk,
+    removeTransactions,
+  } = props;
 
-  constructor(props) {
-    super(props);
-  }
-
-  onChange = () => {
-    const { toggleAll, transactions } = this.props;
+  const onChange = () => {
     toggleAll(transactions, 'transactions');
   };
 
-  removeTransactions = transactions => {
+  const removeTransactionsHandler = (transactions) => {
     const transactionIds: string[] = [];
 
-    transactions.forEach(transaction => {
+    transactions.forEach((transaction) => {
       transactionIds.push(transaction._id);
     });
 
-    this.props.removeTransactions({ transactionIds }, this.props.emptyBulk);
+    removeTransactions({ transactionIds }, emptyBulk);
   };
 
-  render() {
-    const {
-      transactions,
-      history,
-      loading,
-      toggleBulk,
-      bulk,
-      isAllSelected,
-      totalCount,
-      queryParams,
-      onSelect,
-      onSearch,
-      isFiltered,
-      clearFilter,
-      currentUser
-    } = this.props;
-
-    const mainContent = (
-      <ContractsTableWrapper>
-        <Table whiteSpace="nowrap" bordered={true} hover={true} striped>
-          <thead>
-            <tr>
-              <th>
-                <FormControl
-                  checked={isAllSelected}
-                  componentClass="checkbox"
-                  onChange={this.onChange}
-                />
-              </th>
-              <th>
-                <SortHandler
-                  sortField={'contract.number'}
-                  label={__('Contract Number')}
-                />
-              </th>
-              <th>
-                <SortHandler
-                  sortField={'contract.description'}
-                  label={__('Description')}
-                />
-              </th>
-              <th>
-                <SortHandler sortField={'payDate'} label={__('Date')} />
-              </th>
-              <th>
-                <SortHandler sortField={'total'} label={__('Total')} />
-              </th>
-              <th>
-                <SortHandler sortField={'type'} label={__('Type')} />
-              </th>
-
-              <th></th>
-            </tr>
-          </thead>
-          <tbody id="transactions">
-            {transactions.map(transaction => (
-              <TransactionRow
-                transaction={transaction}
-                isChecked={bulk.includes(transaction)}
-                key={transaction._id}
-                history={history}
-                toggleBulk={toggleBulk}
+  const mainContent = (
+    <ContractsTableWrapper>
+      <Table whiteSpace="nowrap" bordered={true} hover={true} striped>
+        <thead>
+          <tr>
+            <th>
+              <FormControl
+                checked={isAllSelected}
+                componentClass="checkbox"
+                onChange={onChange}
               />
-            ))}
-          </tbody>
-        </Table>
-      </ContractsTableWrapper>
-    );
+            </th>
+            <th>
+              <SortHandler
+                sortField={'contract.number'}
+                label={__('Contract Number')}
+              />
+            </th>
+            <th>
+              <SortHandler
+                sortField={'contract.description'}
+                label={__('Description')}
+              />
+            </th>
+            <th>
+              <SortHandler sortField={'payDate'} label={__('Date')} />
+            </th>
+            <th>
+              <SortHandler sortField={'total'} label={__('Total')} />
+            </th>
+            <th>
+              <SortHandler sortField={'type'} label={__('Type')} />
+            </th>
 
-    let actionBarLeft: React.ReactNode;
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="transactions">
+          {transactions.map((transaction) => (
+            <TransactionRow
+              transaction={transaction}
+              isChecked={bulk.includes(transaction)}
+              key={transaction._id}
+              history={history}
+              toggleBulk={toggleBulk}
+            />
+          ))}
+        </tbody>
+      </Table>
+    </ContractsTableWrapper>
+  );
 
-    if (bulk.length > 0) {
-      const onClick = () =>
-        confirm()
-          .then(() => {
-            this.removeTransactions(bulk);
-          })
-          .catch(error => {
-            Alert.error(error.message);
-          });
+  let actionBarLeft: React.ReactNode;
 
-      actionBarLeft = (
-        <BarItems>
-          {can('transactionsRemove', currentUser) && (
-            <Button btnStyle="danger" icon="cancel-1" onClick={onClick}>
-              {__('Delete')}
-            </Button>
-          )}
-        </BarItems>
-      );
-    }
+  if (bulk.length > 0) {
+    const onClick = () =>
+      confirm()
+        .then(() => {
+          removeTransactionsHandler(bulk);
+        })
+        .catch((error) => {
+          Alert.error(error.message);
+        });
 
-    const incomeTransactionForm = props => {
-      return (
-        <TransactionForm type="income" {...props} queryParams={queryParams} />
-      );
-    };
-
-    const outcomeTransactionForm = props => {
-      return (
-        <TransactionForm type="outcome" {...props} queryParams={queryParams} />
-      );
-    };
-
-    const interestChangeForm = props => (
-      <InterestChange {...props} type="interestChange" />
-    );
-
-    const interestReturnForm = props => (
-      <InterestChange {...props} type="interestReturn" />
-    );
-
-    const rightMenuProps = {
-      onSelect,
-      onSearch,
-      isFiltered,
-      clearFilter,
-      queryParams
-    };
-
-    const actionBarRight = (
+    actionBarLeft = (
       <BarItems>
-        {can('manageTransactions', currentUser) && (
-          <Dropdown>
-            <Dropdown.Toggle as={DropdownToggle} id="dropdown-info">
-              <Button btnStyle="success" size="medium">
-                {__('New transaction')}
-                <Icon icon="angle-down" />
-              </Button>
-            </Dropdown.Toggle>
-
-            <Dropdown.Menu>
-              <li>
-                <ModalTrigger
-                  title={`${__('Income Transaction')}`}
-                  trigger={
-                    <a href="#Income Transaction">{__('Income Transaction')}</a>
-                  }
-                  size="lg"
-                  content={incomeTransactionForm}
-                />
-              </li>
-              <li>
-                <ModalTrigger
-                  title={`${__('Outcome Transaction')}`}
-                  trigger={
-                    <a href="#Outcome Transaction">
-                      {__('Outcome Transaction')}
-                    </a>
-                  }
-                  size="lg"
-                  content={outcomeTransactionForm}
-                />
-              </li>
-              <li>
-                <ModalTrigger
-                  title={`${__('Interest Change')}`}
-                  trigger={
-                    <a href="#Interest Change">{__('Interest Change')}</a>
-                  }
-                  size="lg"
-                  content={interestChangeForm}
-                />
-              </li>
-              <li>
-                <ModalTrigger
-                  title={`${__('Interest Return')}`}
-                  trigger={
-                    <a href="#Interest Return">{__('Interest Return')}</a>
-                  }
-                  size="lg"
-                  content={interestReturnForm}
-                />
-              </li>
-            </Dropdown.Menu>
-          </Dropdown>
+        {can('transactionsRemove', currentUser) && (
+          <Button btnStyle="danger" icon="cancel-1" onClick={onClick}>
+            {__('Delete')}
+          </Button>
         )}
-        <RightMenu {...rightMenuProps} />
       </BarItems>
     );
-
-    const actionBar = (
-      <Wrapper.ActionBar right={actionBarRight} left={actionBarLeft} />
-    );
-
-    return (
-      <Wrapper
-        hasBorder
-        header={
-          <Wrapper.Header
-            title={__(`Transactions`) + ` (${totalCount})`}
-            queryParams={queryParams}
-            submenu={menuContracts.filter(row =>
-              can(row.permission, currentUser)
-            )}
-          />
-        }
-        actionBar={actionBar}
-        footer={<Pagination count={totalCount} />}
-        content={
-          <DataWithLoader
-            data={mainContent}
-            loading={loading}
-            count={transactions.length}
-            emptyText="Add in your first transaction!"
-            emptyImage="/images/actions/1.svg"
-          />
-        }
-      />
-    );
   }
-}
+
+  const incomeTransactionForm = (props) => {
+    return (
+      <TransactionForm type="income" {...props} queryParams={queryParams} />
+    );
+  };
+
+  const outcomeTransactionForm = (props) => {
+    return (
+      <TransactionForm type="outcome" {...props} queryParams={queryParams} />
+    );
+  };
+
+  const interestChangeForm = (props) => (
+    <InterestChange {...props} type="interestChange" />
+  );
+
+  const interestReturnForm = (props) => (
+    <InterestChange {...props} type="interestReturn" />
+  );
+
+  const rightMenuProps = {
+    onSelect,
+    onSearch,
+    isFiltered,
+    clearFilter,
+    queryParams,
+  };
+
+  const actionBarRight = (
+    <BarItems>
+      {can('manageTransactions', currentUser) && (
+        <Dropdown>
+          <Dropdown.Toggle as={DropdownToggle} id="dropdown-info">
+            <Button btnStyle="success" size="medium">
+              {__('New transaction')}
+              <Icon icon="angle-down" />
+            </Button>
+          </Dropdown.Toggle>
+
+          <Dropdown.Menu>
+            <li>
+              <ModalTrigger
+                title={`${__('Income Transaction')}`}
+                trigger={
+                  <a href="#Income Transaction">{__('Income Transaction')}</a>
+                }
+                size="lg"
+                content={incomeTransactionForm}
+              />
+            </li>
+            <li>
+              <ModalTrigger
+                title={`${__('Outcome Transaction')}`}
+                trigger={
+                  <a href="#Outcome Transaction">{__('Outcome Transaction')}</a>
+                }
+                size="lg"
+                content={outcomeTransactionForm}
+              />
+            </li>
+            <li>
+              <ModalTrigger
+                title={`${__('Interest Change')}`}
+                trigger={<a href="#Interest Change">{__('Interest Change')}</a>}
+                size="lg"
+                content={interestChangeForm}
+              />
+            </li>
+            <li>
+              <ModalTrigger
+                title={`${__('Interest Return')}`}
+                trigger={<a href="#Interest Return">{__('Interest Return')}</a>}
+                size="lg"
+                content={interestReturnForm}
+              />
+            </li>
+          </Dropdown.Menu>
+        </Dropdown>
+      )}
+      <RightMenu {...rightMenuProps} />
+    </BarItems>
+  );
+
+  const actionBar = (
+    <Wrapper.ActionBar right={actionBarRight} left={actionBarLeft} />
+  );
+
+  return (
+    <Wrapper
+      hasBorder
+      header={
+        <Wrapper.Header
+          title={__(`Transactions`) + ` (${totalCount})`}
+          queryParams={queryParams}
+          submenu={menuContracts.filter((row) =>
+            can(row.permission, currentUser),
+          )}
+        />
+      }
+      actionBar={actionBar}
+      footer={<Pagination count={totalCount} />}
+      content={
+        <DataWithLoader
+          data={mainContent}
+          loading={loading}
+          count={transactions.length}
+          emptyText="Add in your first transaction!"
+          emptyImage="/images/actions/1.svg"
+        />
+      }
+    />
+  );
+};
 
 export default withRouter<IRouterProps>(withConsumer(TransactionsList));

@@ -5,11 +5,11 @@ import {
   FilterButton,
   MenuFooter,
   RightMenuContainer,
-  TabContent
+  TabContent,
 } from '../../styles';
 
 import RTG from 'react-transition-group';
-import React from 'react';
+import React, { useState, useRef } from 'react';
 import { __ } from 'coreui/utils';
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 import { isEnabled } from '@erxes/ui/src/utils/core';
@@ -19,7 +19,7 @@ const SelectCompanies = asyncComponent(
     isEnabled('contacts') &&
     import(
       /* webpackChunkName: "SelectCompanies" */ '@erxes/ui-contacts/src/companies/containers/SelectCompanies'
-    )
+    ),
 );
 
 const SelectCustomers = asyncComponent(
@@ -27,7 +27,7 @@ const SelectCustomers = asyncComponent(
     isEnabled('contacts') &&
     import(
       /* webpackChunkName: "SelectCustomers" */ '@erxes/ui-contacts/src/customers/containers/SelectCustomers'
-    )
+    ),
 );
 
 type Props = {
@@ -38,53 +38,31 @@ type Props = {
   clearFilter: () => void;
 };
 
-type StringState = {
-  currentTab: string;
-};
+export default function RightMenu(props: Props) {
+  const [showMenu, setShowMenu] = useState(false);
+  const wrapperRef = useRef(null);
 
-type State = {
-  showMenu: boolean;
-} & StringState;
-
-export default class RightMenu extends React.Component<Props, State> {
-  private wrapperRef;
-
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      currentTab: 'Filter',
-      showMenu: false
-    };
-
-    this.setWrapperRef = this.setWrapperRef.bind(this);
-  }
-
-  setWrapperRef(node) {
-    this.wrapperRef = node;
-  }
-
-  toggleMenu = () => {
-    this.setState({ showMenu: !this.state.showMenu });
+  const setWrapperRef = (node) => {
+    wrapperRef.current = node;
   };
 
-  onSearch = (e: React.KeyboardEvent<Element>) => {
+  const toggleMenu = () => {
+    setShowMenu(!showMenu);
+  };
+
+  const onSearch = (e) => {
     if (e.key === 'Enter') {
-      const target = e.currentTarget as HTMLInputElement;
-      this.props.onSearch(target.value || '');
+      const target = e.currentTarget;
+      props.onSearch(target.value || '');
     }
   };
 
-  onChange = (name: string, value: string) => {
-    this.setState({ [name]: value } as Pick<StringState, keyof StringState>);
-  };
-
-  renderLink(label: string, key: string, value: string) {
-    const { onSelect, queryParams } = this.props;
+  const renderLink = (label: string, key: string, value: string) => {
+    const { onSelect, queryParams } = props;
 
     const selected = queryParams[key] === value;
 
-    const onClick = _e => {
+    const onClick = (_e) => {
       onSelect(value, key);
     };
 
@@ -94,30 +72,30 @@ export default class RightMenu extends React.Component<Props, State> {
         {selected && <Icon icon="check-1" size={14} />}
       </FilterButton>
     );
-  }
-
-  onChangeRangeFilter = (kind, e) => {
-    this.props.onSelect(e.currentTarget.value, kind);
   };
 
-  renderDates() {
+  const onChangeRangeFilter = (kind, e) => {
+    props.onSelect(e.currentTarget.value, kind);
+  };
+
+  const renderDates = () => {
     return (
       <>
-        {this.renderLink('Only Today', 'payDate', 'today')}
-        {this.renderLink('Has no contract', 'contractHasnt', 'true')}
+        {renderLink('Only Today', 'payDate', 'today')}
+        {renderLink('Has no contract', 'contractHasnt', 'true')}
       </>
     );
-  }
+  };
 
-  renderFilter() {
-    const { queryParams, onSelect } = this.props;
+  const renderFilter = () => {
+    const { queryParams, onSelect } = props;
 
     return (
       <FilterBox>
         <FormControl
           defaultValue={queryParams.search}
           placeholder={__('Contract Number' + ' ...')}
-          onKeyPress={this.onSearch}
+          onKeyPress={onSearch}
           autoFocus={true}
         />
 
@@ -150,7 +128,7 @@ export default class RightMenu extends React.Component<Props, State> {
               type="date"
               required={false}
               name="startDate"
-              onChange={this.onChangeRangeFilter.bind(this, 'startDate')}
+              onChange={onChangeRangeFilter.bind(this, 'startDate')}
               placeholder={'Start date'}
             />
           </div>
@@ -162,22 +140,22 @@ export default class RightMenu extends React.Component<Props, State> {
               required={false}
               name="endDate"
               placeholder={'End date'}
-              onChange={this.onChangeRangeFilter.bind(this, 'endDate')}
+              onChange={onChangeRangeFilter.bind(this, 'endDate')}
             />
           </div>
         </CustomRangeContainer>
 
-        {this.renderDates()}
+        {renderDates()}
       </FilterBox>
     );
-  }
+  };
 
-  renderTabContent() {
-    const { isFiltered, clearFilter } = this.props;
+  const renderTabContent = () => {
+    const { isFiltered, clearFilter } = props;
 
     return (
       <>
-        <TabContent>{this.renderFilter()}</TabContent>
+        <TabContent>{renderFilter()}</TabContent>
         {isFiltered && (
           <MenuFooter>
             <Button
@@ -193,42 +171,39 @@ export default class RightMenu extends React.Component<Props, State> {
         )}
       </>
     );
-  }
+  };
 
-  render() {
-    const { showMenu } = this.state;
-    const { isFiltered } = this.props;
+  const { isFiltered } = props;
 
-    return (
-      <div ref={this.setWrapperRef}>
-        {isFiltered && (
-          <Button
-            btnStyle="warning"
-            icon="times-circle"
-            uppercase={false}
-            onClick={this.props.clearFilter}
-          >
-            {__('Clear Filter')}
-          </Button>
-        )}
+  return (
+    <div ref={setWrapperRef}>
+      {isFiltered && (
         <Button
-          btnStyle="simple"
+          btnStyle="warning"
+          icon="times-circle"
           uppercase={false}
-          icon="bars"
-          onClick={this.toggleMenu}
+          onClick={props.clearFilter}
         >
-          {showMenu ? __('Hide Menu') : __('Show Menu')}
+          {__('Clear Filter')}
         </Button>
+      )}
+      <Button
+        btnStyle="simple"
+        uppercase={false}
+        icon="bars"
+        onClick={toggleMenu}
+      >
+        {showMenu ? __('Hide Menu') : __('Show Menu')}
+      </Button>
 
-        <RTG.CSSTransition
-          in={this.state.showMenu}
-          timeout={300}
-          classNames="slide-in-right"
-          unmountOnExit={true}
-        >
-          <RightMenuContainer>{this.renderTabContent()}</RightMenuContainer>
-        </RTG.CSSTransition>
-      </div>
-    );
-  }
+      <RTG.CSSTransition
+        in={showMenu}
+        timeout={300}
+        classNames="slide-in-right"
+        unmountOnExit={true}
+      >
+        <RightMenuContainer>{renderTabContent()}</RightMenuContainer>
+      </RTG.CSSTransition>
+    </div>
+  );
 }

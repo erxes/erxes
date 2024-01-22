@@ -8,14 +8,14 @@ import {
   MainStyleFormColumn as FormColumn,
   MainStyleFormWrapper as FormWrapper,
   MainStyleModalFooter as ModalFooter,
-  MainStyleScrollWrapper as ScrollWrapper
+  MainStyleScrollWrapper as ScrollWrapper,
 } from '@erxes/ui/src';
 import { __ } from 'coreui/utils';
 import { DateContainer } from '@erxes/ui/src/styles/main';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import React from 'react';
+import React, { useState } from 'react';
 import SelectContractType, {
-  ContractTypeById
+  ContractTypeById,
 } from '../../../contractTypes/containers/SelectContractType';
 import { IContract, IContractDoc } from '../../types';
 import SelectCustomers from '@erxes/ui-contacts/src/customers/containers/SelectCustomers';
@@ -27,41 +27,11 @@ import SelectContracts from '../common/SelectContract';
 type Props = {
   currentUser: IUser;
   renderButton: (
-    props: IButtonMutateProps & { disabled: boolean }
+    props: IButtonMutateProps & { disabled: boolean },
   ) => JSX.Element;
   contract: IContract;
   closeModal: () => void;
   change?: boolean;
-};
-
-type State = {
-  contractTypeId: string;
-  number: string;
-  status: string;
-  branchId: string;
-  description: string;
-  savingAmount: number;
-  startDate: Date;
-  duration: number;
-  interestRate: number;
-  closeInterestRate: number;
-  storeInterestInterval: string;
-  customerId: string;
-  customerType: string;
-
-  currency: string;
-  config?: {
-    maxAmount: number;
-    minAmount: number;
-    maxDuration: number;
-    minDuration: number;
-    maxInterest: number;
-    minInterest: number;
-  };
-  interestGiveType: string;
-  interestCalcType: string;
-  closeOrExtendConfig: string;
-  depositAccount?: string;
 };
 
 function isGreaterNumber(value: any, compareValue: any) {
@@ -70,38 +40,41 @@ function isGreaterNumber(value: any, compareValue: any) {
   return value > compareValue;
 }
 
-class ContractForm extends React.Component<Props, State> {
-  constructor(props) {
-    super(props);
+const ContractForm = (props: Props) => {
+  const { contract = {} as IContract } = props;
 
-    const { contract = {} } = props;
+  const [number, setNumber] = useState(contract.number);
+  const [status, setStatus] = useState(contract.status);
+  const [branchId, setBranchId] = useState(contract.branchId);
+  const [description, setDescription] = useState(contract.description);
+  const [savingAmount, setSavingAmount] = useState(contract.savingAmount);
+  const [startDate, setStartDate] = useState(contract.startDate);
+  const [duration, setDuration] = useState(contract.duration);
+  const [interestRate, setInterestRate] = useState(contract.interestRate);
+  const [closeInterestRate, setCloseInterestRate] = useState(
+    contract.closeInterestRate,
+  );
+  const [contractTypeId, setContractTypeId] = useState(contract.contractTypeId);
+  const [storeInterestInterval, setStoreInterestInterval] = useState(
+    contract.storeInterestInterval,
+  );
+  const [customerId, setCustomerId] = useState(contract.customerId);
+  const [customerType, setCustomerType] = useState(contract.customerType);
+  const [currency, setCurrency] = useState(
+    contract.currency || props.currentUser.configs?.dealCurrency[0],
+  );
+  const [interestGiveType, setInterestGiveType] = useState(
+    contract.interestGiveType,
+  );
+  const [closeOrExtendConfig, setCloseOrExtendConfig] = useState(
+    contract.closeOrExtendConfig,
+  );
+  const [depositAccount, setDepositAccount] = useState(contract.depositAccount);
+  const [interestCalcType, setInterestCalcType] = useState(
+    contract.interestCalcType,
+  );
 
-    this.state = {
-      number: contract.number,
-      status: contract.status,
-      branchId: contract.branchId,
-      description: contract.description,
-      savingAmount: contract.savingAmount,
-      startDate: contract.startDate,
-      duration: contract.duration,
-      interestRate: contract.interestRate,
-      closeInterestRate: contract.closeInterestRate,
-      contractTypeId: contract.contractTypeId,
-      storeInterestInterval: contract.storeInterestInterval,
-      customerId: contract.customerId,
-      customerType: contract.customerType || 'customer',
-      currency:
-        contract.currency || this.props.currentUser.configs?.dealCurrency[0],
-      interestGiveType: contract.interestGiveType,
-      closeOrExtendConfig: contract.closeOrExtendConfig,
-      depositAccount: contract.depositAccount,
-      interestCalcType: contract.interestCalcType
-    };
-  }
-
-  generateDoc = (values: { _id: string } & IContractDoc) => {
-    const { contract } = this.props;
-
+  const generateDoc = (values: { _id: string } & IContractDoc) => {
     const finalValues = values;
 
     if (contract) {
@@ -110,28 +83,32 @@ class ContractForm extends React.Component<Props, State> {
 
     const result = {
       _id: finalValues._id,
-      ...this.state,
-      contractTypeId: this.state.contractTypeId,
-      branchId: this.state.branchId,
-      status: this.state.status,
-      description: this.state.description,
+      currency,
+      contractTypeId,
+      interestGiveType,
+      closeOrExtendConfig,
+      depositAccount,
+      number,
+      branchId,
+      status,
+      description,
       createdBy: finalValues.createdBy,
       createdAt: finalValues.createdAt,
-      savingAmount: Number(this.state.savingAmount),
-      startDate: this.state.startDate,
-      duration: Number(this.state.duration),
-      interestRate: Number(this.state.interestRate),
-      closeInterestRate: Number(this.state.closeInterestRate),
-      storeInterestInterval: this.state.storeInterestInterval,
-      interestCalcType: this.state.interestCalcType,
-      customerId: this.state.customerId,
-      customerType: this.state.customerType
+      savingAmount: Number(savingAmount),
+      startDate,
+      duration: Number(duration),
+      interestRate: Number(interestRate),
+      closeInterestRate: Number(closeInterestRate),
+      storeInterestInterval,
+      interestCalcType,
+      customerId,
+      customerType,
     };
 
     return result;
   };
 
-  renderFormGroup = (label, props) => {
+  const renderFormGroup = (label, props) => {
     return (
       <FormGroup>
         <ControlLabel required={!label.includes('Amount')}>
@@ -142,13 +119,25 @@ class ContractForm extends React.Component<Props, State> {
     );
   };
 
-  onChangeField = e => {
+  const onChangeField = (e) => {
     const name = (e.target as HTMLInputElement).name;
     const value = (e.target as HTMLInputElement).value;
-    this.setState({ [name]: value } as any);
+    const setHandler =
+      name === 'duration'
+        ? setDuration
+        : name === 'savingAmount'
+          ? setSavingAmount
+          : name === 'interestRate'
+            ? setInterestRate
+            : name === 'closeOrExtendConfig'
+              ? setCloseOrExtendConfig
+              : name === 'interestGiveType'
+                ? setInterestGiveType
+                : setDescription;
+    setHandler(value as any);
   };
 
-  onSelectContractType = value => {
+  const onSelectContractType = (value) => {
     const contractTypeObj: IContractType = ContractTypeById[value];
 
     var changingStateValue: any = { contractTypeId: value };
@@ -156,7 +145,7 @@ class ContractForm extends React.Component<Props, State> {
     //get default value from contract type
     changingStateValue['interestRate'] = Number(contractTypeObj?.interestRate);
     changingStateValue['closeInterestRate'] = Number(
-      contractTypeObj?.closeInterestRate
+      contractTypeObj?.closeInterestRate,
     );
     changingStateValue['storeInterestInterval'] =
       contractTypeObj?.storeInterestInterval;
@@ -165,59 +154,42 @@ class ContractForm extends React.Component<Props, State> {
     changingStateValue['isAllowOutcome'] = contractTypeObj?.isAllowOutcome;
     changingStateValue['isDeposit'] = contractTypeObj?.isDeposit;
 
-    if (!this.state.duration && contractTypeObj?.config?.minDuration) {
+    if (!duration && contractTypeObj?.config?.minDuration) {
       changingStateValue['duration'] = contractTypeObj?.config?.minDuration;
     }
 
-    this.setState({ ...changingStateValue });
+    setInterestRate(changingStateValue['interestRate']);
+    setCloseInterestRate(changingStateValue['closeInterestRate']);
+    setContractTypeId(changingStateValue['contractTypeId']);
+    setStoreInterestInterval(changingStateValue['storeInterestInterval']);
+    setInterestCalcType(changingStateValue['interestCalcType']);
+    setDuration(changingStateValue['duration']);
   };
 
-  onSelectCustomer = value => {
-    this.setState({
-      customerId: value
-    });
+  const onSelectCustomer = (value) => {
+    setCustomerId(value);
   };
 
-  onSelect = (value, key: string) => {
-    this.setState({
-      [key]: value
-    } as any);
+  const onCheckCustomerType = (e) => {
+    setCustomerType(e.target.checked ? 'company' : 'customer');
   };
 
-  onCheckCustomerType = e => {
-    this.setState({
-      customerType: e.target.checked ? 'company' : 'customer'
-    });
-  };
-
-  onFieldClick = e => {
-    e.target.select();
-  };
-
-  checkValidation = (): any => {
+  const checkValidation = (): any => {
     const errors: any = {};
 
     function errorWrapper(text: string) {
       return <label style={{ color: 'red' }}>{text}</label>;
     }
 
-    if (
-      this.state.config &&
-      isGreaterNumber(this.state.interestRate, this.state.config.maxInterest)
-    )
-      errors.interestMonth = errorWrapper(
-        `${__('Interest must less than')} ${this.state.config.maxInterest}`
-      );
-
     return errors;
   };
 
-  renderContent = (formProps: IFormProps) => {
-    const { closeModal, renderButton, change } = this.props;
+  const renderContent = (formProps: IFormProps) => {
+    const { closeModal, renderButton, change } = props;
     const { values, isSubmitted } = formProps;
 
-    const onChangeStartDate = value => {
-      this.setState({ startDate: value });
+    const onChangeStartDate = (value) => {
+      setStartDate(value);
     };
 
     return (
@@ -227,17 +199,17 @@ class ContractForm extends React.Component<Props, State> {
             {!change && (
               <FormColumn>
                 <div style={{ paddingBottom: '13px', paddingTop: '20px' }}>
-                  {this.renderFormGroup('Is Organization', {
+                  {renderFormGroup('Is Organization', {
                     ...formProps,
                     className: 'flex-item',
                     type: 'checkbox',
                     componentClass: 'checkbox',
                     name: 'customerType',
-                    checked: this.state.customerType === 'company',
-                    onChange: this.onCheckCustomerType
+                    checked: customerType === 'company',
+                    onChange: onCheckCustomerType,
                   })}
                 </div>
-                {this.state.customerType === 'customer' && (
+                {customerType === 'customer' && (
                   <FormGroup>
                     <ControlLabel required={true}>
                       {__('Customer')}
@@ -245,21 +217,21 @@ class ContractForm extends React.Component<Props, State> {
                     <SelectCustomers
                       label="Choose customer"
                       name="customerId"
-                      initialValue={this.state.customerId}
-                      onSelect={this.onSelectCustomer}
+                      initialValue={customerId}
+                      onSelect={onSelectCustomer}
                       multi={false}
                     />
                   </FormGroup>
                 )}
 
-                {this.state.customerType === 'company' && (
+                {customerType === 'company' && (
                   <FormGroup>
                     <ControlLabel required={true}>{__('Company')}</ControlLabel>
                     <SelectCompanies
                       label="Choose company"
                       name="customerId"
-                      initialValue={this.state.customerId}
-                      onSelect={this.onSelectCustomer}
+                      initialValue={customerId}
+                      onSelect={onSelectCustomer}
                       multi={false}
                     />
                   </FormGroup>
@@ -271,8 +243,8 @@ class ContractForm extends React.Component<Props, State> {
                   <SelectContractType
                     label={__('Choose type')}
                     name="contractTypeId"
-                    value={this.state.contractTypeId || ''}
-                    onSelect={this.onSelectContractType}
+                    value={contractTypeId || ''}
+                    onSelect={onSelectContractType}
                     multi={false}
                   ></SelectContractType>
                 </FormGroup>
@@ -290,40 +262,40 @@ class ContractForm extends React.Component<Props, State> {
                       dateFormat="YYYY/MM/DD"
                       required={false}
                       name="startDate"
-                      value={this.state.startDate}
+                      value={startDate}
                       onChange={onChangeStartDate}
                     />
                   </DateContainer>
                 </FormGroup>
-                {this.renderFormGroup('Duration', {
+                {renderFormGroup('Duration', {
                   ...formProps,
                   className: 'flex-item',
                   type: 'number',
                   useNumberFormat: true,
                   name: 'duration',
-                  value: this.state.duration,
-                  onChange: this.onChangeField
+                  value: duration,
+                  onChange: onChangeField,
                 })}
-                {this.renderFormGroup('Saving Amount', {
+                {renderFormGroup('Saving Amount', {
                   ...formProps,
                   className: 'flex-item',
                   type: 'number',
                   useNumberFormat: true,
                   name: 'savingAmount',
-                  value: this.state.savingAmount,
-                  onChange: this.onChangeField
+                  value: savingAmount,
+                  onChange: onChangeField,
                 })}
               </FormColumn>
             )}
             <FormColumn>
-              {this.renderFormGroup('Interest Rate', {
+              {renderFormGroup('Interest Rate', {
                 ...formProps,
                 className: 'flex-item',
                 type: 'number',
                 useNumberFormat: true,
                 name: 'interestRate',
-                value: this.state.interestRate,
-                onChange: this.onChangeField
+                value: interestRate,
+                onChange: onChangeField,
               })}
 
               <FormGroup>
@@ -331,19 +303,19 @@ class ContractForm extends React.Component<Props, State> {
                   {__('Close or extend of time')}
                 </ControlLabel>
                 <FormControl
-                  {...this.props}
+                  {...props}
                   name="closeOrExtendConfig"
                   componentClass="select"
-                  value={this.state.closeOrExtendConfig}
+                  value={closeOrExtendConfig}
                   required={true}
-                  onChange={this.onChangeField}
+                  onChange={onChangeField}
                 >
                   {['closeEndOfContract', 'autoExtend'].map(
                     (typeName, index) => (
                       <option key={index} value={typeName}>
                         {__(typeName)}
                       </option>
-                    )
+                    ),
                   )}
                 </FormControl>
               </FormGroup>
@@ -352,35 +324,33 @@ class ContractForm extends React.Component<Props, State> {
                   {__('Interest give type')}
                 </ControlLabel>
                 <FormControl
-                  {...this.props}
+                  {...props}
                   name="interestGiveType"
                   componentClass="select"
-                  value={this.state.interestGiveType}
+                  value={interestGiveType}
                   required={true}
-                  onChange={this.onChangeField}
+                  onChange={onChangeField}
                 >
                   {['currentAccount', 'depositAccount'].map(
                     (typeName, index) => (
                       <option key={index} value={typeName}>
                         {__(typeName)}
                       </option>
-                    )
+                    ),
                   )}
                 </FormControl>
               </FormGroup>
-              {this.state.interestGiveType === 'depositAccount' && (
+              {interestGiveType === 'depositAccount' && (
                 <FormGroup>
                   <ControlLabel>{__('Deposit account')}</ControlLabel>
                   <SelectContracts
                     label={__('Choose an contract')}
                     name="depositAccount"
-                    initialValue={this.state.depositAccount}
+                    initialValue={depositAccount}
                     filterParams={{ isDeposit: true }}
-                    onSelect={v => {
+                    onSelect={(v) => {
                       if (typeof v === 'string') {
-                        this.setState({
-                          depositAccount: v
-                        });
+                        setDepositAccount(v);
                       }
                     }}
                     multi={false}
@@ -399,8 +369,8 @@ class ContractForm extends React.Component<Props, State> {
                     max={140}
                     name="description"
                     componentClass="textarea"
-                    value={this.state.description || ''}
-                    onChange={this.onChangeField}
+                    value={description || ''}
+                    onChange={onChangeField}
                   />
                 </FormGroup>
               </FormColumn>
@@ -415,19 +385,17 @@ class ContractForm extends React.Component<Props, State> {
 
           {renderButton({
             name: 'contract',
-            values: this.generateDoc(values),
-            disabled: !!Object.keys(this.checkValidation()).length,
+            values: generateDoc(values),
+            disabled: !!Object.keys(checkValidation()).length,
             isSubmitted,
-            object: this.props.contract
+            object: props.contract,
           })}
         </ModalFooter>
       </>
     );
   };
 
-  render() {
-    return <Form renderContent={this.renderContent} />;
-  }
-}
+  return <Form renderContent={renderContent} />;
+};
 
 export default ContractForm;

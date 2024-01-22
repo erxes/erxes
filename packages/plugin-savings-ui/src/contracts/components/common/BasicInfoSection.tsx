@@ -6,10 +6,10 @@ import {
   Icon,
   MainStyleInfoWrapper as InfoWrapper,
   ModalTrigger,
-  Sidebar
+  Sidebar,
 } from '@erxes/ui/src';
 import { __ } from 'coreui/utils';
-import React from 'react';
+import React, { useState } from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
 
 import ContractForm from '../../containers/ContractForm';
@@ -32,66 +32,55 @@ type Props = {
   remove: () => void;
 };
 
-type State = {
-  documents: any[];
-  loading: boolean;
-};
+const BasicInfoSection = (props: Props) => {
+  const [documents, setDocuments] = useState([] as any);
+  const [loading, setLoading] = useState(false);
+  const { remove, contract, currentUser } = props;
 
-class BasicInfoSection extends React.Component<Props, State> {
-  constructor(props) {
-    super(props);
-    this.state = {
-      documents: [],
-      loading: false
-    };
-  }
-
-  renderAction() {
-    const { remove, contract, currentUser } = this.props;
-
+  const renderAction = () => {
     const onDelete = () =>
       confirm()
         .then(() => remove())
-        .catch(error => {
+        .catch((error) => {
           Alert.error(error.message);
         });
 
     const onOpen = () => {
       if (!isEnabled('documents')) return;
-      this.setState({ loading: true });
+      setLoading(true);
       client
         .mutate({
           mutation: gql(queries.documents),
-          variables: { contentType: 'savings' }
+          variables: { contentType: 'savings' },
         })
         .then(({ data }) => {
-          this.setState({ documents: data.documents });
-          this.setState({ loading: false });
+          setDocuments(data.documents);
+          setLoading(false);
         })
         .catch(() => {
-          this.setState({ loading: false });
+          setLoading(false);
         });
     };
 
-    const onPrint = mur => {
+    const onPrint = (mur) => {
       window.open(
         `${getEnv().REACT_APP_API_URL}/pl:documents/print?_id=${
           mur._id
-        }&contractId=${contract?._id}`
+        }&contractId=${contract?._id}`,
       );
     };
 
-    const closeForm = props => <CloseForm {...props} contract={contract} />;
+    const closeForm = (props) => <CloseForm {...props} contract={contract} />;
 
-    const expandForm = props => <ExpandForm {...props} contract={contract} />;
+    const expandForm = (props) => <ExpandForm {...props} contract={contract} />;
 
-    const contractForm = props => (
+    const contractForm = (props) => (
       <ContractForm change {...props} contract={contract} />
     );
 
     return (
       <Action>
-        <Dropdown onToggle={isShown => isShown && onOpen()}>
+        <Dropdown onToggle={(isShown) => isShown && onOpen()}>
           <Dropdown.Toggle as={DropdownToggle} id="dropdown-info">
             <Button btnStyle="simple" size="medium">
               {__('Action')}
@@ -100,7 +89,7 @@ class BasicInfoSection extends React.Component<Props, State> {
           </Dropdown.Toggle>
 
           <Dropdown.Menu>
-            {this.state.documents?.map(mur => {
+            {documents?.map((mur) => {
               return (
                 <li key={mur._id}>
                   <a href="#print" onClick={() => onPrint(mur)}>
@@ -147,38 +136,35 @@ class BasicInfoSection extends React.Component<Props, State> {
         </Dropdown>
       </Action>
     );
-  }
+  };
 
-  render() {
-    const { Section } = Sidebar;
-    const { contract, currentUser } = this.props;
+  const { Section } = Sidebar;
 
-    const contractForm = props => (
-      <ContractForm {...props} contract={contract} />
-    );
+  const contractForm = (props) => (
+    <ContractForm {...props} contract={contract} />
+  );
 
-    return (
-      <Sidebar.Section>
-        <InfoWrapper>
-          <Name>{contract.number}</Name>
-          {can('contractsEdit', currentUser) && (
-            <ModalTrigger
-              title={__('Edit basic info')}
-              trigger={<Icon icon="edit" />}
-              size="xl"
-              content={contractForm}
-            />
-          )}
-        </InfoWrapper>
+  return (
+    <Sidebar.Section>
+      <InfoWrapper>
+        <Name>{contract.number}</Name>
+        {can('contractsEdit', currentUser) && (
+          <ModalTrigger
+            title={__('Edit basic info')}
+            trigger={<Icon icon="edit" />}
+            size="xl"
+            content={contractForm}
+          />
+        )}
+      </InfoWrapper>
 
-        {this.renderAction()}
+      {renderAction()}
 
-        <Section>
-          <DetailInfo contract={contract} />
-        </Section>
-      </Sidebar.Section>
-    );
-  }
-}
+      <Section>
+        <DetailInfo contract={contract} />
+      </Section>
+    </Sidebar.Section>
+  );
+};
 
 export default withConsumer(BasicInfoSection);
