@@ -1,9 +1,4 @@
-import Tags from '@erxes/ui/src/components/Tags';
-import TextInfo from '@erxes/ui/src/components/TextInfo';
 import React from 'react';
-import { IProduct } from '../../types';
-
-import ProductForm from '@erxes/ui-products/src/containers/ProductForm';
 
 import {
   Button,
@@ -14,27 +9,56 @@ import {
   __,
   ActionButtons,
 } from '@erxes/ui/src';
-import { IItem } from '@erxes/ui-products/src/types';
+import { IItem } from '../.././types';
 
 type Props = {
   item: IItem;
   history: any;
+  isChecked: boolean;
 };
 
 class Row extends React.Component<Props> {
   render() {
-    const { item } = this.props;
+    const { item, history, isChecked } = this.props;
+
+    const trigger = (
+      <Button btnStyle="link">
+        <Tip text={__('Edit')} placement="bottom">
+          <Icon icon="edit-3" />
+        </Tip>
+      </Button>
+    );
+
+    const onClick = (e) => {
+      e.stopPropagation();
+    };
+
+    const onTrClick = () => {
+      history.push(`/settings/items/details/${item._id}`);
+    };
+
+    const content = (props) => <>hi</>;
 
     const { code, name, description } = item;
 
     return (
-      <tr>
-        <td>
-          <FormControl componentClass="checkbox" />
+      <tr onClick={onTrClick}>
+        <td onClick={onClick}>
+          <FormControl checked={isChecked} componentClass="checkbox" />
         </td>
         <td>{code}</td>
         <td>{name}</td>
         <td>{description}</td>
+        <td onClick={onClick}>
+          <ActionButtons>
+            <ModalTrigger
+              title="Edit basic info"
+              trigger={trigger}
+              size="xl"
+              content={content}
+            />
+          </ActionButtons>
+        </td>
       </tr>
     );
   }

@@ -1,5 +1,4 @@
 import {
-  IItem,
   IProduct as IProductC,
   IProductCategory as IProductCategoryC,
   IProductDoc as IProductDocC,
@@ -7,9 +6,18 @@ import {
 } from '@erxes/ui-products/src/types';
 import { QueryResponse } from '@erxes/ui/src/types';
 
+export interface IItemC {
+  _id: string;
+  name: string;
+  code: string;
+  description?: string;
+}
+
 export type IProductDoc = IProductDocC & {};
 
 export type IProduct = IProductC & {};
+
+export type IItem = IItemC & {};
 
 export type IProductCategory = IProductCategoryC & {};
 
@@ -24,20 +32,35 @@ type ProductCounts = {
 };
 // query types
 
+export type ItemRemoveMutationResponse = {
+  itemsRemove: (mutation: { variables: { Ids: string[] } }) => Promise<any>;
+};
+
+export type ItemsQueryResponse = {
+  loading: boolean;
+  refetch: (variables?: { searchValue?: string; perPage?: number }) => void;
+  items: IItem[];
+};
+
+export type ItemsQueryResponses = {
+  items: IItem[];
+} & QueryResponse;
+
+export type ItemDetailQueryResponse = {
+  itemsDetail: IItem;
+  loading: boolean;
+};
+
+export type ItemsCountQueryResponse = {
+  itemsTotalCount: number;
+} & QueryResponse;
+
 export type ProductsQueryResponse = {
   products: IProduct[];
 } & QueryResponse;
 
 export type ProductsCountQueryResponse = {
   productsTotalCount: number;
-} & QueryResponse;
-
-export type ItemsQueryResponse = {
-  items: IItem[];
-} & QueryResponse;
-
-export type ItemsCountQueryResponse = {
-  itemsTotalCount: number;
 } & QueryResponse;
 
 export type ProductsGroupCountsQueryResponse = {

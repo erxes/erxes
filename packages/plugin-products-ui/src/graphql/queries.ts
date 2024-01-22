@@ -85,13 +85,19 @@ const items = `
 
 const itemsCount = `
   query itemsTotalCount(
-    $searchValue: String,
-    $ids: [String]
+    $searchValue: String
   ) {
     itemsTotalCount(
-      searchValue: $searchValue,
-      ids: $ids
+      searchValue: $searchValue
     )
+  }
+`;
+
+const itemsDetail = `
+  query itemsDetail($_id: String) {
+    itemsDetail(_id: $_id) {
+      ${itemFields}
+    }
   }
 `;
 
@@ -134,6 +140,7 @@ export default {
   products,
   items,
   itemsCount,
+  itemsDetail,
   productDetail,
   productsCount,
   productsGroupCounts,

@@ -21,6 +21,13 @@ const ItemList = asyncComponent(
     ),
 );
 
+const ItemDetails = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "Settings List - ProductService" */ './containers/item/ItemDetails'
+    ),
+);
+
 const ProductDetails = asyncComponent(
   () =>
     import(
@@ -39,6 +46,12 @@ const details = ({ match }) => {
   const id = match.params.id;
 
   return <ProductDetails id={id} />;
+};
+
+const itemDetails = ({ match }) => {
+  const id = match.params.id;
+
+  return <ItemDetails id={id} />;
 };
 
 const productService = ({ location, history }) => {
@@ -89,6 +102,13 @@ const routes = () => (
       exact={true}
       key="/settings/product-service/details/:id"
       component={details}
+    />
+
+    <Route
+      path="/settings/items/details/:id"
+      exact={true}
+      key="/settings/items/details/:id"
+      component={itemDetails}
     />
 
     <Route

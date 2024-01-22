@@ -9,6 +9,40 @@ const productsRemove = productMutations.productsRemove;
 const productCategoryAdd = productMutations.productCategoryAdd;
 const productCategoryEdit = productMutations.productCategoryEdit;
 
+const itemParamsDef = `
+  $name: String,
+  $code: String,
+  $description: String
+`;
+
+const itemParams = `
+  name: $name,
+  code: $code,
+  description: $description
+`;
+
+const itemAdd = `
+  mutation itemsAdd(${itemParamsDef}) {
+    itemsAdd(${itemParams}) {
+      _id
+    }
+  }
+`;
+
+const itemEdit = `
+  mutation itemsEdit($_id: String!, ${itemParamsDef}) {
+    itemsEdit(_id: $_id, ${itemParams}) {
+      _id
+    }
+  }
+`;
+
+const itemsRemove = `
+  mutation itemsRemove($Ids: [String!]) {
+    itemsRemove(Ids: $Ids)
+  }
+`;
+
 const productCategoryRemove = `
   mutation productCategoriesRemove($_id: String!) {
     productCategoriesRemove(_id: $_id)
@@ -61,6 +95,9 @@ export default {
   productAdd,
   productEdit,
   productsRemove,
+  itemAdd,
+  itemEdit,
+  itemsRemove,
   productCategoryAdd,
   productCategoryEdit,
   productCategoryRemove,
@@ -70,5 +107,5 @@ export default {
   uomsEdit,
   uomsRemove,
 
-  productsConfigsUpdate
+  productsConfigsUpdate,
 };
