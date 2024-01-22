@@ -12,6 +12,6 @@
     "fbgraph": "^1.4.4",
     "aws-sdk": "^2.151.0",
     "request-promise": "^4.2.4",
-    "sanitize-html": "^1.20.1"
+    "sanitize-html": "^2.0.0"
   }
 }
