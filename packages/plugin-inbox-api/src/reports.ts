@@ -518,8 +518,12 @@ const chartTemplates = [
       const filterStatus = filter.status;
 
       const title = `${filterStatus} conversations' count`;
+      const dimensionX = dimension.x;
 
       let filterUserIds: any = [];
+
+      if (dimensionX === 'status') {
+      }
 
       if (filter.departmentIds) {
         const findDepartmentUsers = await sendCoreMessage({
@@ -736,7 +740,6 @@ const chartTemplates = [
       });
 
       const usersMap = {};
-
       for (const user of getTotalUsers) {
         usersMap[user._id] = {
           fullName:
