@@ -227,7 +227,11 @@ const accountMutations = {
           receivers: [receiver._id],
           notifType: 'system',
           link: '',
-          isMobile: true
+          isMobile: true,
+          mobileConfig: {
+            channelId: 'horn',
+            sound: 'horn.wav'
+          }
         }
       });
     }

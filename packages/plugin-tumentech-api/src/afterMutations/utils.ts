@@ -79,6 +79,10 @@ export const notifyDealRelatedUsers = async (
         eventData: {
           type: 'deal',
           id: deal._id
+        },
+        mobileConfig: {
+          channelId: 'horn',
+          sound: 'horn.wav'
         }
       }
     });

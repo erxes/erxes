@@ -88,7 +88,11 @@ const participantMutations = {
           receivers: [cpUser._id],
           notifType: 'system',
           link: '',
-          isMobile: true
+          isMobile: true,
+          mobileConfig: {
+            channelId: 'horn',
+            sound: 'horn.wav'
+          }
         }
       });
     }
@@ -137,7 +141,11 @@ const participantMutations = {
             receivers: [orderUser._id],
             notifType: 'system',
             link: `/shipping/info?deal=${participant.dealId}`,
-            isMobile: false
+            isMobile: false,
+            mobileConfig: {
+              channelId: 'horn',
+              sound: 'horn.wav'
+            }
           }
         });
       }
@@ -203,7 +211,11 @@ const participantMutations = {
         receivers: [cpUser._id],
         notifType: 'system',
         link: '',
-        isMobile: true
+        isMobile: true,
+        mobileConfig: {
+          channelId: 'horn',
+          sound: 'horn.wav'
+        }
       }
     });
 
@@ -309,6 +321,10 @@ const participantMutations = {
         eventData: {
           type: 'deal',
           id: deal._id
+        },
+        mobileConfig: {
+          channelId: 'horn',
+          sound: 'horn.wav'
         }
       };
 
@@ -346,7 +362,11 @@ const participantMutations = {
             receivers: cpUsers.map(u => u._id),
             notifType: 'system',
             link: ``,
-            isMobile: true
+            isMobile: true,
+            mobileConfig: {
+              channelId: 'horn',
+              sound: 'horn.wav'
+            }
           }
         });
       }
@@ -433,6 +453,10 @@ const participantMutations = {
       eventData: {
         type: 'deal',
         id: deal._id
+      },
+      mobileConfig: {
+        channelId: 'horn',
+        sound: 'horn.wav'
       }
     };
 
