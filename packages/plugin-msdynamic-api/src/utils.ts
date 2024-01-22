@@ -401,9 +401,19 @@ export const customerToDynamic = async (subdomain, syncLog, params, models) => {
     }
   }
 
+  const getCompanyName = await fetch(
+    `https://info.ebarimt.mn/rest/merchant/info?regno=${sendVAT}`,
+    {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    },
+  ).then((r) => r.json());
+
   const sendData: any = {
     Name: name,
-    Name_MN: name,
+    Name_MN: getCompanyName && getCompanyName.name ? getCompanyName.name : '',
     Phone_No: customer.primaryPhone || '',
     E_Mail: customer.primaryEmail || '',
     Mobile_Phone_No: customer.primaryPhone || '',
@@ -418,7 +428,7 @@ export const customerToDynamic = async (subdomain, syncLog, params, models) => {
     Customer_Posting_Group: config.customerPostingGroup || 'TRADE',
     Customer_Price_Group: config.customerPricingGroup || 'ONLINE',
     Customer_Disc_Group: config.customerDiscGroup || '',
-    Partner_Type: sendVAT.length === 7 ? 'Company' : 'Person',
+    Partner_Type: sendVAT?.length === 7 ? 'Company' : 'Person',
     Payment_Terms_Code: config.paymentTermsCode || 'CASH',
     Payment_Method_Code: config.paymentMethodCode || 'CASH',
     Location_Code: config.locationCode || 'BEV-01',
