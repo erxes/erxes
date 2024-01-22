@@ -520,53 +520,53 @@ export const dealToDynamic = async (
 
     const { customerApi, salesApi, salesLineApi, username, password } = config;
 
-    // if (order && order.customerId) {
-    //   customer = await sendContactsMessage({
-    //     subdomain,
-    //     action: 'customers.findOne',
-    //     data: { _id: order.customerId },
-    //     isRPC: true,
-    //     defaultValue: {}
-    //   });
+    if (order && order.customerId) {
+      customer = await sendContactsMessage({
+        subdomain,
+        action: 'customers.findOne',
+        data: { _id: order.customerId },
+        isRPC: true,
+        defaultValue: {},
+      });
 
-    //   if (order.customerType === 'company') {
-    //     customer = await sendContactsMessage({
-    //       subdomain,
-    //       action: 'companies.findOne',
-    //       data: { _id: order.customerId },
-    //       isRPC: true,
-    //       defaultValue: {}
-    //     });
-    //   }
-    // }
+      if (order.customerType === 'company') {
+        customer = await sendContactsMessage({
+          subdomain,
+          action: 'companies.findOne',
+          data: { _id: order.customerId },
+          isRPC: true,
+          defaultValue: {},
+        });
+      }
+    }
 
-    // if (customer) {
-    // const responseCustomer = await fetch(
-    //   `${customerApi}?$filter=Phone_No eq '${customer.primaryPhone}'`,
-    //   {
-    //     headers: {
-    //       'Content-Type': 'application/json',
-    //       Accept: 'application/json',
-    //       Authorization: `Basic ${Buffer.from(
-    //         `${username}:${password}`
-    //       ).toString('base64')}`
-    //     }
-    //   }
-    // ).then((r) => r.json());
+    if (customer) {
+      const responseCustomer = await fetch(
+        `${customerApi}?$filter=Phone_No eq '${customer.primaryPhone}'`,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Accept: 'application/json',
+            Authorization: `Basic ${Buffer.from(
+              `${username}:${password}`,
+            ).toString('base64')}`,
+          },
+        },
+      ).then((r) => r.json());
 
-    // if (responseCustomer.value.length === 0) {
-    //   responseData = await fetch(customerApi, {
-    //     method: 'POST',
-    //     headers: {
-    //       'Content-Type': 'application/json',
-    //       Authorization: `Basic ${Buffer.from(
-    //         `${username}:${password}`
-    //       ).toString('base64')}`
-    //     },
-    //     body: JSON.stringify('sendData')
-    //   }).then((r) => r.json());
-    // }
-    // }
+      if (responseCustomer.value.length === 0) {
+        responseData = await fetch(customerApi, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Basic ${Buffer.from(
+              `${username}:${password}`,
+            ).toString('base64')}`,
+          },
+          body: JSON.stringify('sendData'),
+        }).then((r) => r.json());
+      }
+    }
 
     const sendData: any = {
       Sell_to_Customer_No: customer ? customer.code : 'BEV-00499',
@@ -583,7 +583,9 @@ export const dealToDynamic = async (
       Prices_Including_VAT: true,
       BillType: config.billType || 'Receipt',
       Location_Code: config.locationCode || 'BEV-01',
-      CustomerNo: '',
+      CustomerNo: customer
+        ? customer?.customFieldsDataByFieldCode?.VAT?.value
+        : '',
     };
 
     await models.SyncLogs.updateOne(
@@ -636,6 +638,8 @@ export const dealToDynamic = async (
           },
           body: JSON.stringify(sendSalesLine),
         }).then((res) => res.json());
+
+        console.log(responseSaleLine, 'responseSaleLine');
       }
     }
 
