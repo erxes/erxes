@@ -1,43 +1,40 @@
+import { IModels } from '../connectionResolver';
 import { sendCommonMessage } from '../messageBroker';
-import { getConfig, toPolaris } from './utils';
+import {
+  customFieldToObject,
+  getConfig,
+  setCustomerCode,
+  toPolaris,
+} from './utils';
 
 export const customerToPolaris = async (
   subdomain,
   params,
   action: 'create' | 'update',
+  models: IModels,
 ) => {
   const config = await getConfig(subdomain, 'POLARIS', {});
 
   const customer = params.updatedDocument || params.object;
+  const customerLog = await models.SyncLogs.findOne({
+    contentId: customer._id,
+    error: { $exists: false },
+  });
   let sendData = {};
 
-  const fields = await sendCommonMessage({
+  const data = await customFieldToObject(
     subdomain,
-    serviceName: 'forms',
-    action: 'fields.find',
-    data: {
-      query: {
-        contentType: 'contacts:customer',
-        code: { $exists: true, $ne: '' },
-      },
-      projection: {
-        groupId: 1,
-        code: 1,
-        _id: 1,
-      },
-    },
-    isRPC: true,
-    defaultValue: [],
-  });
-
-  const customFieldsData: any[] = customer.customFieldsData || [];
-  for (const f of fields) {
-    const existingData = customFieldsData.find((c) => c.field === f._id);
-    customer[f.code] = existingData?.value;
-  }
+    'contacts:customer',
+    customer,
+  );
 
   sendData = [
     {
+      //main fields
+      lastName: customer.lastName,
+      firstName: customer.firstName,
+
+      familyName: customer.familyName,
       custSegCode: customer.custSegCode,
       isVatPayer: customer.isVatPayer,
       sexCode: customer.sexCode,
@@ -47,13 +44,7 @@ export const customerToPolaris = async (
       isCompanyCustomer: customer.isCompanyCustomer,
       industryId: customer.industryId,
       birthPlaceId: customer.birthPlaceId,
-      dynamicData: customer.dynamicData,
-      familyName: customer.familyName,
-      familyName2: customer.familyName2,
-      lastName: customer.lastName,
-      lastName2: customer.lastName2,
-      firstName: customer.firstName,
-      firstName2: customer.firstName2,
+
       shortName: customer.shortName,
       shortName2: customer.shortName2,
       registerMaskCode: customer.registerMaskCode,
@@ -77,10 +68,10 @@ export const customerToPolaris = async (
   ];
 
   let op = '';
-  if (action === 'create') op = '13610313';
+  if (action === 'create' || !customerLog) op = '13610313';
   else if (action === 'update') op = '13610315';
 
-  toPolaris({
+  const customerCode = await toPolaris({
     apiUrl: config.apiUrl,
     company: config.company,
     op: op,
@@ -88,6 +79,12 @@ export const customerToPolaris = async (
     token: config.token,
     data: sendData,
   });
+
+  console.log('customerCode', customerCode);
+
+  if (typeof customerCode === 'string') {
+    await setCustomerCode(subdomain, customer._id, customerCode);
+  }
 };
 
 export const companyToPolaris = async (

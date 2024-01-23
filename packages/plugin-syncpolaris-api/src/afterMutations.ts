@@ -52,12 +52,12 @@ export const afterMutationHandlers = async (subdomain, params) => {
         {
           syncLog = await models.SyncLogs.syncLogsAdd(syncLogDoc);
           if (action === 'create') {
-            customerToPolaris(subdomain, params, 'create');
+            customerToPolaris(subdomain, params, 'create', models);
             return;
           }
 
           if (action === 'update') {
-            customerToPolaris(subdomain, params, 'update');
+            customerToPolaris(subdomain, params, 'update', models);
             return;
           }
         }

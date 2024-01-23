@@ -40,12 +40,12 @@ export const toPolaris = async (args: IParams) => {
 };
 
 export const getConfig = async (subdomain, code, defaultValue?) => {
-  return {
-    apiUrl: 'http://202.131.242.158:4139/nesWeb/NesFront',
-    company: '15',
-    role: '45',
-    token: 'MSk9sGO9h0bsPhTN4H7sa9phiJYylH',
-  };
+  // return {
+  //   apiUrl: 'http://202.131.242.158:4139/nesWeb/NesFront',
+  //   company: '15',
+  //   role: '45',
+  //   token: 'MSk9sGO9h0bsPhTN4H7sa9phiJYylH',
+  // };
   return await sendCommonMessage({
     subdomain,
     action: 'getConfig',
@@ -61,6 +61,21 @@ export const getCustomer = async (subdomain, _id) => {
     action: 'customers.findOne',
     serviceName: 'contacts',
     data: { _id },
+    isRPC: true,
+  });
+};
+
+export const setCustomerCode = async (subdomain, _id, code) => {
+  return await sendCommonMessage({
+    subdomain,
+    action: 'customers.updateOne',
+    serviceName: 'contacts',
+    data: {
+      data: {
+        selector: { _id },
+        modifier: { $set: { code } },
+      },
+    },
     isRPC: true,
   });
 };
