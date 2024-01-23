@@ -132,7 +132,7 @@ const mutations = {
 
     let customerId = '';
     let customer = {} as any;
-    let suhId = undefined;
+
     if (user) {
       customerId = user.erxesCustomerId;
     }
@@ -160,6 +160,7 @@ const mutations = {
         action: 'customers.createCustomer',
         data: {
           phones: [phone],
+          firstName: phone,
           state: 'lead',
           trackedData,
         },
