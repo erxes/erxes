@@ -45,6 +45,17 @@ export const initBroker = async (cl) => {
   });
 
   consumeRPCQueue(
+    'savings:contractType.findOne',
+    async ({ subdomain, data }) => {
+      const models = await generateModels(subdomain);
+      return {
+        status: 'success',
+        data: await models.ContractTypes.findOne(data).lean(),
+      };
+    },
+  );
+
+  consumeRPCQueue(
     'savings:transactions.findAtContracts',
     async ({ subdomain, data }) => {
       const models = await generateModels(subdomain);

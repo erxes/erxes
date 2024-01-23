@@ -26,6 +26,6 @@ module.exports = {
       "url":"/syncpolariss",
       "icon":"icon-star",
       "location":"mainNavigation"
-    }
+    },
   ]
 };

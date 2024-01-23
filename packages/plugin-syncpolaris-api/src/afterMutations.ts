@@ -23,9 +23,7 @@ const allowTypes = {
 
 export const afterMutationHandlers = async (subdomain, params) => {
   const { type, action, user } = params;
-
   const models = await generateModels(subdomain);
-
   const syncLogDoc = {
     type: '',
     contentType: type,
@@ -76,22 +74,23 @@ export const afterMutationHandlers = async (subdomain, params) => {
           }
         }
         break;
-      case type === 'savings:deposit':
+
+      case 'savings:deposit':
         depositToPolaris(subdomain, params);
         break;
-      case type === 'savings:depositTransaction':
+      case 'savings:depositTransaction':
         depositTransactionToPolaris(subdomain, params, action);
         break;
-      case type === 'savings:contract':
+      case 'savings:contract':
         savingToPolaris(subdomain, params);
         break;
-      case type === 'loans:contract':
+      case 'loans:contract':
         loansToPolaris(subdomain, params, action);
         break;
-      case type === 'loans:classification':
+      case 'loans:classification':
         loanClassificationToPolaris(subdomain, params);
         break;
-      case type === 'loans:transaction':
+      case 'loans:transaction':
         loanTransactionsToPolaris(subdomain, params, action);
         break;
     }
