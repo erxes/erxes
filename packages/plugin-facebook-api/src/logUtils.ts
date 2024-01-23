@@ -13,11 +13,11 @@ export const putCreateLog = async (
   models: IModels,
   subdomain: string,
   logDoc,
-  customerId
+  customerId,
 ) => {
   const { description, extraDesc } = gatherDescriptions(models, subdomain, {
     ...logDoc,
-    action: 'create'
+    action: 'create',
   });
 
   const customer = await models.Customers.findOne({ _id: customerId }).lean();
@@ -26,6 +26,6 @@ export const putCreateLog = async (
     subdomain,
     messageBroker(),
     { ...logDoc, description, extraDesc, type: `facebook:${logDoc.type}` },
-    customer
+    customer,
   );
 };

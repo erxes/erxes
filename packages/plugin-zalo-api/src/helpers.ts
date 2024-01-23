@@ -4,6 +4,7 @@ import { getEnv, getSubdomain } from '@erxes/api-utils/src/core';
 import fetch from 'node-fetch';
 import { debug } from './configs';
 import { sendInboxMessage } from './messageBroker';
+import { RPResult } from '@erxes/api-utils/src/messageBroker';
 
 export const updateConfigs = async (
   models: IModels,
@@ -17,7 +18,7 @@ export const updateConfigs = async (
 export const zaloCreateIntegration = async (
   models: IModels,
   { accountId, integrationId, data, kind },
-) => {
+): Promise<RPResult> => {
   const account = await models.Accounts.getAccount({ _id: accountId });
   const oa_id = account?.oa_id;
 

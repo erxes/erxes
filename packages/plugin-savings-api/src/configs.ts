@@ -15,7 +15,6 @@ import { getSubdomain } from '@erxes/api-utils/src/core';
 export let debug;
 export let mainDb;
 
-
 export default {
   name: 'savings',
   permissions,
@@ -38,7 +37,7 @@ export default {
   onServerInit: async (options) => {
     mainDb = options.db;
 
-    initBroker(options.messageBrokerClient);
+    initBroker();
 
     debug = options.debug;
   },

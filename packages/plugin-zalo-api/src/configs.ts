@@ -41,7 +41,7 @@ export default {
 
     console.log('options.messageBrokerClient', options.messageBrokerClient);
 
-    initBroker(options.messageBrokerClient);
+    initBroker();
     createRoutes();
   },
 };

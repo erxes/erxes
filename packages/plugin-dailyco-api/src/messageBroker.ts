@@ -1,81 +1,69 @@
-import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
+import { sendMessage } from '@erxes/api-utils/src/core';
+import type {
+  MessageArgs,
+  MessageArgsOmitService,
+} from '@erxes/api-utils/src/core';
 import * as dotenv from 'dotenv';
-
+import { consumeRPCQueue } from '@erxes/api-utils/src/messageBroker';
 import { Records } from './models';
 import { getDailyData, getRecordings } from './utils';
 
 dotenv.config();
 
-let client;
+export const initBroker = async () => {
+  consumeRPCQueue('dailyco:getDailyRoom', async (args): Promise<any> => {
+    const { subdomain, data } = args;
+    const { contentType, contentTypeId, messageId } = data;
 
-export const initBroker = async cl => {
-  client = cl;
+    const callRecord = await Records.findOne({
+      contentTypeId,
+      contentType,
+      messageId,
+    });
 
-  const { consumeRPCQueue } = client;
-
-  consumeRPCQueue(
-    'dailyco:getDailyRoom',
-    async (args): Promise<any> => {
-      const { subdomain, data } = args;
-      const { contentType, contentTypeId, messageId } = data;
-
-      const callRecord = await Records.findOne({
-        contentTypeId,
-        contentType,
-        messageId
-      });
-
-      if (!callRecord) {
-        return null;
-      }
-
-      const { roomName, token, status } = callRecord;
-
-      const { domain_name } = await getDailyData(subdomain);
-
-      const recordingLinks = await getRecordings(
-        subdomain,
-        callRecord.recordings
-      );
-
-      return {
-        status: 'success',
-        data: {
-          url: `https://${domain_name}.daily.co/${roomName}?t=${token}`,
-          name: roomName,
-          status,
-          recordingLinks: recordingLinks.map(recording => recording.url) || []
-        }
-      };
+    if (!callRecord) {
+      return null;
     }
-  );
-};
 
-export default function() {
-  return client;
-}
+    const { roomName, token, status } = callRecord;
 
-export const sendContactsMessage = (args: ISendMessageArgs) => {
-  return sendMessage({
-    client,
-    serviceName: 'contacts',
-    ...args
+    const { domain_name } = await getDailyData(subdomain);
+
+    const recordingLinks = await getRecordings(
+      subdomain,
+      callRecord.recordings,
+    );
+
+    return {
+      status: 'success',
+      data: {
+        url: `https://${domain_name}.daily.co/${roomName}?t=${token}`,
+        name: roomName,
+        status,
+        recordingLinks: recordingLinks.map((recording) => recording.url) || [],
+      },
+    };
   });
 };
 
-export const sendInboxMessage = (args: ISendMessageArgs) => {
+export const sendContactsMessage = (args: MessageArgsOmitService) => {
   return sendMessage({
-    client,
+    serviceName: 'contacts',
+    ...args,
+  });
+};
+
+export const sendInboxMessage = (args: MessageArgsOmitService) => {
+  return sendMessage({
     serviceName: 'inbox',
-    ...args
+    ...args,
   });
 };
 
 export const sendCommonMessage = async (
-  args: ISendMessageArgs & { serviceName: string }
+  args: MessageArgs & { serviceName: string },
 ): Promise<any> => {
   return sendMessage({
-    client,
-    ...args
+    ...args,
   });
 };
