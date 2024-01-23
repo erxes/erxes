@@ -7,7 +7,7 @@ import {
   readFile,
 } from '../../utils';
 
-import { getService, getServices } from '../../../serviceDiscovery';
+import { getService, getServices } from '@erxes/api-utils/src/serviceDiscovery';
 import { sendCommonMessage } from '../../../messageBroker';
 import { DEFAULT_CONSTANT_VALUES } from '@erxes/api-utils/src/constants';
 

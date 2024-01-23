@@ -122,7 +122,7 @@ export interface IUserModel extends Model<IUserDocument> {
     password: string;
     isSecondary: boolean;
   }): string;
-  verifyUser(args: IVerificationParams): Promise<IUserDocument>;
+  verifyUser(subdomain, args: IVerificationParams): Promise<IUserDocument>;
   verifyUsers(
     subdomain: string,
     userids: string[],
@@ -728,7 +728,7 @@ export const loadClientPortalUserClass = (models: IModels) => {
       return code;
     }
 
-    public static async verifyUser(args: IVerificationParams) {
+    public static async verifyUser(subdomain, args: IVerificationParams) {
       const { phoneOtp, emailOtp, userId, password } = args;
       const user = await models.ClientPortalUsers.findById(userId);
 
@@ -767,7 +767,7 @@ export const loadClientPortalUserClass = (models: IModels) => {
 
       await user.save();
 
-      await putActivityLog(user);
+      await putActivityLog(subdomain, user);
 
       return user;
     }
@@ -1040,7 +1040,7 @@ export const loadClientPortalUserClass = (models: IModels) => {
       );
 
       for (const user of users) {
-        await putActivityLog(user);
+        await putActivityLog(subdomain, user);
 
         await sendAfterMutation(
           subdomain,

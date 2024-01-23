@@ -3,11 +3,10 @@ import {
   putCreateLog as commonPutCreateLog,
   putDeleteLog as commonPutDeleteLog,
   putUpdateLog as commonPutUpdateLog,
-  gatherUsernames
+  gatherUsernames,
 } from '@erxes/api-utils/src/logUtils';
 
 import { IUserDocument } from '../db/models/definitions/users';
-import messageBroker from '../messageBroker';
 import { MODULE_NAMES } from './constants';
 
 import { registerOnboardHistory } from './utils';
@@ -52,7 +51,7 @@ interface IDescriptionParams {
 const gatherUserFieldNames = async (
   models: IModels,
   doc: IUserDocument,
-  prevList?: LogDesc[]
+  prevList?: LogDesc[],
 ): Promise<LogDesc[]> => {
   let options: LogDesc[] = [];
 
@@ -64,7 +63,7 @@ const gatherUserFieldNames = async (
   options = await gatherUsernames({
     foreignKey: 'groupIds',
     prevList: options,
-    items: await models.UsersGroups.find({ _id: { $in: doc.groupIds } }).lean()
+    items: await models.UsersGroups.find({ _id: { $in: doc.groupIds } }).lean(),
   });
 
   return options;
@@ -72,7 +71,7 @@ const gatherUserFieldNames = async (
 
 const gatherDescriptions = async (
   models: IModels,
-  params: IDescriptionParams
+  params: IDescriptionParams,
 ): Promise<IDescriptions> => {
   const { obj, action, type, updatedDocument } = params;
 
@@ -90,7 +89,7 @@ const gatherDescriptions = async (
           if (user) {
             extraDesc.push({
               userId: obj.userId,
-              name: user.username || user.email
+              name: user.username || user.email,
             });
           }
         }
@@ -114,7 +113,7 @@ const gatherDescriptions = async (
 
         extraDesc.push({
           userId: obj.userId,
-          name: permUser.username || permUser.email
+          name: permUser.username || permUser.email,
         });
       }
 
@@ -128,7 +127,7 @@ const gatherDescriptions = async (
         extraDesc = await gatherUserFieldNames(
           models,
           updatedDocument,
-          extraDesc
+          extraDesc,
         );
       }
 
@@ -149,26 +148,25 @@ export const putCreateLog = async (
   models: IModels,
   subdomain: string,
   params: ILogDataParams,
-  user: IUserDocument
+  user: IUserDocument,
 ) => {
   await registerOnboardHistory({ models, type: `${params.type}Create`, user });
 
   const { extraDesc, description } = await gatherDescriptions(models, {
     ...params,
     obj: params.object,
-    action: 'create'
+    action: 'create',
   });
 
   return commonPutCreateLog(
     subdomain,
-    messageBroker(),
     {
       ...params,
       extraDesc,
       description: description || params.description || '',
-      type: `core:${params.type}`
+      type: `core:${params.type}`,
     },
-    user
+    user,
   );
 };
 
@@ -181,24 +179,23 @@ export const putUpdateLog = async (
   models: IModels,
   subdomain: string,
   params: ILogDataParams,
-  user: IUserDocument
+  user: IUserDocument,
 ) => {
   const { extraDesc, description } = await gatherDescriptions(models, {
     ...params,
     obj: params.object,
-    action: 'update'
+    action: 'update',
   });
 
   return commonPutUpdateLog(
     subdomain,
-    messageBroker(),
     {
       ...params,
       type: `core:${params.type}`,
       extraDesc,
-      description: description || params.description || ''
+      description: description || params.description || '',
     },
-    user
+    user,
   );
 };
 
@@ -211,18 +208,17 @@ export const putDeleteLog = async (
   models: IModels,
   subdomain: string,
   params: ILogDataParams,
-  user: IUserDocument
+  user: IUserDocument,
 ) => {
   const { extraDesc, description } = await gatherDescriptions(models, {
     ...params,
     obj: params.object,
-    action: 'delete'
+    action: 'delete',
   });
 
   return commonPutDeleteLog(
     subdomain,
-    messageBroker(),
     { ...params, type: `core:${params.type}`, description, extraDesc },
-    user
+    user,
   );
 };

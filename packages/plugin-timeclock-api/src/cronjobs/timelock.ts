@@ -262,14 +262,4 @@ const updateTimeclocks = async (subdomain: any) => {
   console.log('Created log at ' + NOW);
 };
 
-export default {
-  handleDailyJob: async ({ subdomain }) => {
-    await connectAndImportFromMysql(subdomain);
-  },
-  handleMinutelyJob: async ({ subdomain }) => {
-    console.log('minutely job is working');
-
-    await checkTimeclocksAndUpdate(subdomain);
-    await updateTimeclocks(subdomain);
-  },
-};
+export default {};

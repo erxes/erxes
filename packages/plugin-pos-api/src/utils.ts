@@ -1,6 +1,6 @@
 import redis from '@erxes/api-utils/src/redis';
 import { IModels } from './connectionResolver';
-import messageBroker, {
+import {
   sendAutomationsMessage,
   sendCardsMessage,
   sendContactsMessage,
@@ -704,13 +704,7 @@ export const syncOrderFromClient = async ({
   }
 
   await confirmLoyalties(subdomain, newOrder);
-  await otherPlugins(
-    subdomain,
-    messageBroker(),
-    newOrder,
-    oldOrder,
-    newOrder.userId,
-  );
+  await otherPlugins(subdomain, newOrder, oldOrder, newOrder.userId);
 
   await createDealPerOrder({ subdomain, pos, newOrder });
 

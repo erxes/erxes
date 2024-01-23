@@ -10,9 +10,9 @@ import { generateModels } from './connectionResolver';
 import { PAYMENTS, PAYMENT_STATUS } from './api/constants';
 import redisUtils from './redisUtils';
 import { quickQrCallbackHandler } from './api/qpayQuickqr/api';
-import messageBroker from './messageBroker';
 import { pocketCallbackHandler } from './api/pocket/api';
 import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
+import { sendMessage } from '@erxes/api-utils/src/messageBroker';
 
 export const callbackHandler = async (req, res) => {
   const { route, body, query } = req;
@@ -72,7 +72,7 @@ export const callbackHandler = async (req, res) => {
       const [serviceName] = invoiceDoc.contentType.split(':');
 
       if (await isEnabled(serviceName)) {
-        messageBroker().sendMessage(`${serviceName}:paymentCallback`, {
+        sendMessage(`${serviceName}:paymentCallback`, {
           subdomain,
           data: {
             ...invoiceDoc,

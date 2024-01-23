@@ -1,11 +1,12 @@
 import * as AWS from 'aws-sdk';
 
 import { debugBase } from '../debuggers';
-import messageBroker, { sendContactsMessage } from '../messageBroker';
+import { sendContactsMessage } from '../messageBroker';
 import { ISESConfig } from '../models/Configs';
 import { SES_DELIVERY_STATUSES } from '../constants';
 import { generateModels, IModels } from '../connectionResolver';
 import { getSubdomain } from '@erxes/api-utils/src/core';
+import { sendMessage } from '@erxes/api-utils/src/messageBroker';
 
 export const getApi = async (models: IModels, type: string): Promise<any> => {
   const config: ISESConfig = await models.Configs.getSESConfigs();
@@ -45,26 +46,31 @@ const handleMessage = async (models: IModels, subdomain: string, message) => {
   const { headers } = mail;
 
   const engageMessageId = headers.find(
-    header => header.name === 'Engagemessageid'
+    (header) => header.name === 'Engagemessageid',
   );
 
-  const mailId = headers.find(header => header.name === 'Mailmessageid');
+  const mailId = headers.find((header) => header.name === 'Mailmessageid');
 
-  const customerId = headers.find(header => header.name === 'Customerid');
+  const customerId = headers.find((header) => header.name === 'Customerid');
 
   const emailDeliveryId = headers.find(
-    header => header.name === 'Emaildeliveryid'
+    (header) => header.name === 'Emaildeliveryid',
   );
 
-  const to = headers.find(header => header.name === 'To');
+  const to = headers.find((header) => header.name === 'To');
 
   const type = eventType.toLowerCase();
 
   // change message destination after EmailDeliveries are migrated
+  // TODO: Message without consumer
   if (emailDeliveryId) {
-    return messageBroker().sendMessage('engagesNotification', {
-      action: 'transactionEmail',
-      data: { emailDeliveryId: emailDeliveryId.value, status: type }
+    return sendMessage('engagesNotification', {
+      subdomain,
+      data: {
+        emailDeliveryId: emailDeliveryId.value,
+        status: type,
+        action: 'transactionEmail',
+      },
     });
   }
 
@@ -72,12 +78,12 @@ const handleMessage = async (models: IModels, subdomain: string, message) => {
     engageMessageId: engageMessageId && engageMessageId.value,
     mailId: mailId && mailId.value,
     customerId: customerId && customerId.value,
-    email: to && to.value
+    email: to && to.value,
   };
 
   const exists = await models.DeliveryReports.findOne({
     ...mailHeaders,
-    status: type
+    status: type,
   });
 
   // to prevent duplicate event counting
@@ -97,7 +103,7 @@ const handleMessage = async (models: IModels, subdomain: string, message) => {
       subdomain,
       action: 'customers.setUnsubscribed',
       isRPC: false,
-      data: { _id: mailHeaders.customerId, status: type }
+      data: { _id: mailHeaders.customerId, status: type },
     });
   }
 
@@ -110,7 +116,7 @@ export const engageTracker = async (req, res) => {
 
   req.setEncoding('utf8');
 
-  req.on('data', chunk => {
+  req.on('data', (chunk) => {
     chunks.push(chunk);
   });
 
@@ -125,8 +131,8 @@ export const engageTracker = async (req, res) => {
     const { Type = '', Message = {}, Token = '', TopicArn = '' } = message;
 
     if (Type === 'SubscriptionConfirmation') {
-      await getApi(models, 'sns').then(api =>
-        api.confirmSubscription({ Token, TopicArn }).promise()
+      await getApi(models, 'sns').then((api) =>
+        api.confirmSubscription({ Token, TopicArn }).promise(),
       );
 
       return res.end('success');
@@ -186,5 +192,5 @@ export const awsRequests = {
         return resolve(data);
       });
     });
-  }
+  },
 };

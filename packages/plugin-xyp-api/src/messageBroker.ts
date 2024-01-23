@@ -1,56 +1,62 @@
-import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
+import {
+  MessageArgs,
+  MessageArgsOmitService,
+  sendMessage,
+} from '@erxes/api-utils/src/core';
 
 import { generateModels } from './connectionResolver';
 import { IXypConfig } from './graphql/resolvers/queries';
 import fetch from 'node-fetch';
+import {
+  InterMessage,
+  RPResult,
+  consumeRPCQueue,
+} from '@erxes/api-utils/src/messageBroker';
 
-let client;
-
-export const initBroker = async (cl) => {
-  client = cl;
-
-  const { consumeRPCQueue } = client;
-
-  consumeRPCQueue('xyp:fetch', async ({ subdomain, data }) => {
-    const xypConfigs = await sendCommonMessage({
-      subdomain,
-      serviceName: 'core',
-      action: 'configs.findOne',
-      data: {
-        query: {
-          code: 'XYP_CONFIGS',
+export const initBroker = async () => {
+  consumeRPCQueue(
+    'xyp:fetch',
+    async ({ subdomain, data }: InterMessage): Promise<RPResult> => {
+      const xypConfigs = await sendCommonMessage({
+        subdomain,
+        serviceName: 'core',
+        action: 'configs.findOne',
+        data: {
+          query: {
+            code: 'XYP_CONFIGS',
+          },
         },
-      },
-      isRPC: true,
-      defaultValue: null,
-    });
+        isRPC: true,
+        defaultValue: null,
+      });
 
-    if (!xypConfigs) {
+      if (!xypConfigs) {
+        return {
+          status: 'error',
+          errorMessage: 'XYP CONFIGS not found',
+        };
+      }
+
+      const { params, wsOperationName } = data;
+
+      const config: IXypConfig = xypConfigs && xypConfigs.value;
+
+      const response = await fetch(config.url + '/api', {
+        method: 'post',
+        headers: { token: config.token, 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          params,
+          wsOperationName,
+        }),
+        timeout: 5000,
+      });
+
       return {
-        status: 'failed',
-        message: 'XYP CONFIGS not found',
+        status: 'success',
+        data: response,
       };
-    }
-
-    const { params, wsOperationName } = data;
-
-    const config: IXypConfig = xypConfigs && xypConfigs.value;
-
-    const response = await fetch(config.url + '/api', {
-      method: 'post',
-      headers: { token: config.token, 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        params,
-        wsOperationName,
-      }),
-      timeout: 5000,
-    });
-
-    return {
-      status: 'success',
-      data: response,
-    };
-  });
+    },
+  );
 
   consumeRPCQueue('xyp.find', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
@@ -118,39 +124,33 @@ export const initBroker = async (cl) => {
 };
 
 export const sendContactsMessage = async (
-  args: ISendMessageArgs,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'contacts',
     ...args,
   });
 };
 
 export const sendAutomationsMessage = async (
-  args: ISendMessageArgs,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'automations',
     ...args,
   });
 };
 
-export const sendCommonMessage = async (
-  args: ISendMessageArgs & { serviceName: string },
-): Promise<any> => {
+export const sendCommonMessage = async (args: MessageArgs): Promise<any> => {
   return sendMessage({
-    client,
     ...args,
   });
 };
 
 export const sendSegmentsMessage = async (
-  args: ISendMessageArgs,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'segments',
     ...args,
   });
@@ -169,22 +169,20 @@ export const fetchSegment = (
     isRPC: true,
   });
 
-export const sendFormsMessage = (args: ISendMessageArgs): Promise<any> => {
+export const sendFormsMessage = (
+  args: MessageArgsOmitService,
+): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'forms',
     ...args,
   });
 };
 
-export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
+export const sendCoreMessage = async (
+  args: MessageArgsOmitService,
+): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'core',
     ...args,
   });
 };
-
-export default function () {
-  return client;
-}

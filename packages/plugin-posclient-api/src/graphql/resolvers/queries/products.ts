@@ -289,7 +289,11 @@ const productQueries = {
     let sortParams: any = { code: 1 };
 
     if (sortField) {
-      sortParams = { [sortField]: sortDirection };
+      if (sortField === 'unitPrice') {
+        sortParams = { [`fdsa.${config.token}`]: sortDirection || 1 };
+      } else {
+        sortParams = { [sortField]: sortDirection || 1 };
+      }
     }
 
     if (groupedSimilarity) {

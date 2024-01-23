@@ -1,9 +1,4 @@
-import {
-  isAvailable,
-  getService,
-  getServices,
-  isEnabled,
-} from '@erxes/api-utils/src/serviceDiscovery';
+import { getService, getServices } from '@erxes/api-utils/src/serviceDiscovery';
 import redis from '@erxes/api-utils/src/redis';
 
 const setAfterMutations = async () => {
@@ -74,20 +69,4 @@ const setBeforeResolvers = async () => {
   setCommonResolvers('beforeResolvers');
 };
 
-export const serviceDiscovery = {
-  isAvailable,
-  getServices,
-  getService,
-  redis,
-  isEnabled,
-};
-
-export {
-  isAvailable,
-  getServices,
-  getService,
-  redis,
-  setAfterMutations,
-  setAfterQueries,
-  setBeforeResolvers,
-};
+export { setAfterMutations, setAfterQueries, setBeforeResolvers };

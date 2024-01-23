@@ -5,7 +5,7 @@ import {
   getFacebookUser,
   getFacebookUserProfilePic,
   getPostLink,
-  uploadMedia
+  uploadMedia,
 } from './utils';
 import { IModels } from './connectionResolver';
 import { INTEGRATION_KINDS } from './constants';
@@ -26,7 +26,8 @@ interface IDoc {
 export const generatePostDoc = async (
   postParams: IPostParams,
   pageId: string,
-  userId: string
+  userId: string,
+  subdomain: string,
 ) => {
   const {
     post_id,
@@ -36,11 +37,11 @@ export const generatePostDoc = async (
     created_time,
     message,
     photo_id,
-    video_id
+    video_id,
   } = postParams;
   let generatedMediaUrls: any[] = [];
 
-  const { UPLOAD_SERVICE_TYPE } = await getFileUploadConfigs();
+  const { UPLOAD_SERVICE_TYPE } = await getFileUploadConfigs(subdomain);
 
   const mediaUrls = postParams.photos || [];
   const mediaLink = postParams.link || '';
@@ -48,17 +49,25 @@ export const generatePostDoc = async (
   if (UPLOAD_SERVICE_TYPE === 'AWS') {
     if (mediaLink) {
       if (video_id) {
-        generatedMediaUrls = (await uploadMedia(mediaLink, true)) as any;
+        generatedMediaUrls = (await uploadMedia(
+          subdomain,
+          mediaLink,
+          true,
+        )) as any;
       }
 
       if (photo_id) {
-        generatedMediaUrls = (await uploadMedia(mediaLink, false)) as any;
+        generatedMediaUrls = (await uploadMedia(
+          subdomain,
+          mediaLink,
+          false,
+        )) as any;
       }
     }
 
     if (mediaUrls.length > 0) {
       generatedMediaUrls = await Promise.all(
-        mediaUrls.map(url => uploadMedia(url, false))
+        mediaUrls.map((url) => uploadMedia(subdomain, url, false)),
       );
     }
   }
@@ -68,7 +77,7 @@ export const generatePostDoc = async (
     content: message || '...',
     recipientId: pageId,
     senderId: userId,
-    permalink_url: ''
+    permalink_url: '',
   };
 
   if (link) {
@@ -95,7 +104,7 @@ export const generatePostDoc = async (
 const generateCommentDoc = (
   commentParams: ICommentParams,
   pageId: string,
-  userId: string
+  userId: string,
 ) => {
   const {
     photo,
@@ -106,7 +115,7 @@ const generateCommentDoc = (
     created_time,
     message,
     restoredCommentCreatedAt,
-    post
+    post,
   } = commentParams;
 
   const doc: IDoc = {
@@ -115,7 +124,7 @@ const generateCommentDoc = (
     recipientId: pageId,
     senderId: userId,
     content: message || '...',
-    permalink_url: ''
+    permalink_url: '',
   };
 
   if (post_id !== parent_id) {
@@ -151,15 +160,15 @@ export const getOrCreatePost = async (
   postParams: IPostParams,
   pageId: string,
   userId: string,
-  customerErxesApiId: string
+  customerErxesApiId: string,
 ) => {
   let post = await models.Posts.findOne({ postId: postParams.post_id });
 
   const integration = await models.Integrations.getIntegration({
     $and: [
       { facebookPageIds: { $in: pageId } },
-      { kind: INTEGRATION_KINDS.POST }
-    ]
+      { kind: INTEGRATION_KINDS.POST },
+    ],
   });
 
   const { facebookPageTokensMap = {} } = integration;
@@ -171,10 +180,10 @@ export const getOrCreatePost = async (
   const postUrl = await getPostLink(
     pageId,
     facebookPageTokensMap,
-    postParams.post_id || ''
+    postParams.post_id || '',
   );
 
-  const doc = await generatePostDoc(postParams, pageId, userId);
+  const doc = await generatePostDoc(postParams, pageId, userId, subdomain);
 
   if (!doc.attachments && doc.content === '...') {
     throw new Error();
@@ -194,10 +203,10 @@ export const getOrCreatePost = async (
         payload: JSON.stringify({
           customerId: customerErxesApiId,
           integrationId: integration.erxesApiId,
-          content: post.content
-        })
+          content: post.content,
+        }),
       },
-      isRPC: true
+      isRPC: true,
     });
 
     post.erxesApiId = apiConversationResponse._id;
@@ -216,17 +225,17 @@ export const getOrCreateComment = async (
   commentParams: ICommentParams,
   pageId: string,
   userId: string,
-  verb: string
+  verb: string,
 ) => {
   let comment = await models.Comments.findOne({
-    commentId: commentParams.comment_id
+    commentId: commentParams.comment_id,
   });
 
   const integration = await models.Integrations.getIntegration({
     $and: [
       { facebookPageIds: { $in: pageId } },
-      { kind: INTEGRATION_KINDS.POST }
-    ]
+      { kind: INTEGRATION_KINDS.POST },
+    ],
   });
 
   await models.Accounts.getAccount({ _id: integration.accountId });
@@ -236,7 +245,7 @@ export const getOrCreateComment = async (
   if (verb && verb === 'edited') {
     await models.Comments.updateOne(
       { commentId: doc.commentId },
-      { $set: { ...doc } }
+      { $set: { ...doc } },
     );
   }
 
@@ -252,8 +261,8 @@ export const getOrCreateComment = async (
       action: 'integrationsNotification',
       data: {
         action: 'external-integration-entry-added',
-        conversationId: post.erxesApiId
-      }
+        conversationId: post.erxesApiId,
+      },
     });
   }
 
@@ -261,7 +270,7 @@ export const getOrCreateComment = async (
     models,
     subdomain,
     { type: 'comment', newData: comment, object: doc },
-    userId
+    userId,
   );
 };
 
@@ -270,10 +279,10 @@ export const getOrCreateCustomer = async (
   subdomain: string,
   pageId: string,
   userId: string,
-  kind: string
+  kind: string,
 ) => {
   const integration = await models.Integrations.getIntegration({
-    $and: [{ facebookPageIds: { $in: pageId } }, { kind }]
+    $and: [{ facebookPageIds: { $in: pageId } }, { kind }],
   });
 
   const { facebookPageTokensMap = {} } = integration;
@@ -298,7 +307,8 @@ export const getOrCreateCustomer = async (
   const fbUserProfilePic = await getFacebookUserProfilePic(
     pageId,
     facebookPageTokensMap,
-    userId
+    userId,
+    subdomain,
   );
 
   // save on integrations db
@@ -308,13 +318,13 @@ export const getOrCreateCustomer = async (
       firstName: fbUser.first_name || fbUser.name,
       lastName: fbUser.last_name,
       integrationId: integration.erxesApiId,
-      profilePic: fbUserProfilePic
+      profilePic: fbUserProfilePic,
     });
   } catch (e) {
     throw new Error(
       e.message.includes('duplicate')
         ? 'Concurrent request: customer duplication'
-        : e
+        : e,
     );
   }
 
@@ -330,10 +340,10 @@ export const getOrCreateCustomer = async (
           firstName: fbUser.first_name || fbUser.name,
           lastName: fbUser.last_name,
           avatar: fbUserProfilePic,
-          isUser: true
-        })
+          isUser: true,
+        }),
       },
-      isRPC: true
+      isRPC: true,
     });
 
     customer.erxesApiId = apiCustomerResponse._id;

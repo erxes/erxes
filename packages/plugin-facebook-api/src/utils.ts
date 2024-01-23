@@ -192,13 +192,14 @@ export const getFacebookUser = async (
   }
 };
 
-export const uploadMedia = async (url: any, video) => {
+export const uploadMedia = async (subdomain: string, url: any, video) => {
   const mediaFile = `${randomAlphanumeric()}.${video ? 'mp4' : 'jpg'}`;
 
-  const { AWS_BUCKET, FILE_SYSTEM_PUBLIC } = await getFileUploadConfigs();
+  const { AWS_BUCKET, FILE_SYSTEM_PUBLIC } =
+    await getFileUploadConfigs(subdomain);
 
   // initialize s3
-  const s3 = await createAWS();
+  const s3 = await createAWS(subdomain);
 
   try {
     const response = await fetch(url);
@@ -251,6 +252,7 @@ export const getFacebookUserProfilePic = async (
   pageId: string,
   pageTokens: { [key: string]: string },
   fbId: string,
+  subdomain: string,
 ) => {
   let pageAccessToken;
 
@@ -267,10 +269,14 @@ export const getFacebookUserProfilePic = async (
       pageAccessToken,
     );
 
-    const { UPLOAD_SERVICE_TYPE } = await getFileUploadConfigs();
+    const { UPLOAD_SERVICE_TYPE } = await getFileUploadConfigs(subdomain);
 
     if (UPLOAD_SERVICE_TYPE === 'AWS') {
-      const awsResponse = await uploadMedia(response.location, false);
+      const awsResponse = await uploadMedia(
+        subdomain,
+        response.location,
+        false,
+      );
 
       return awsResponse;
     }
@@ -425,14 +431,14 @@ export const getAdapter = async (models: IModels): Promise<any> => {
   });
 };
 
-export const createAWS = async () => {
+export const createAWS = async (subdomain: string) => {
   const {
     AWS_FORCE_PATH_STYLE,
     AWS_COMPATIBLE_SERVICE_ENDPOINT,
     AWS_BUCKET,
     AWS_SECRET_ACCESS_KEY,
     AWS_ACCESS_KEY_ID,
-  } = await getFileUploadConfigs();
+  } = await getFileUploadConfigs(subdomain);
 
   if (!AWS_ACCESS_KEY_ID || !AWS_SECRET_ACCESS_KEY || !AWS_BUCKET) {
     throw new Error('AWS credentials are not configured');

@@ -6,7 +6,7 @@ import { afterQueryWrapper, paginate } from '@erxes/api-utils/src';
 import { PRODUCT_STATUSES } from '../../../models/definitions/products';
 import { escapeRegExp } from '@erxes/api-utils/src/core';
 import { IContext, IModels } from '../../../connectionResolver';
-import messageBroker, { sendTagsMessage } from '../../../messageBroker';
+import { sendTagsMessage } from '../../../messageBroker';
 import {
   getSimilaritiesProducts,
   getSimilaritiesProductsCount,
@@ -233,7 +233,6 @@ const productQueries = {
         models.Products.find(filter).sort(sort).lean(),
         pagintationArgs,
       ),
-      messageBroker(),
       user,
     );
   },

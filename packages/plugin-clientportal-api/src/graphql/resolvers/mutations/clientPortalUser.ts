@@ -120,9 +120,9 @@ const clientPortalUserMutations = {
     args: IVerificationParams,
     context: IContext,
   ) => {
-    const { models, res } = context;
+    const { models, res, subdomain } = context;
 
-    const user = await models.ClientPortalUsers.verifyUser(args);
+    const user = await models.ClientPortalUsers.verifyUser(subdomain, args);
 
     if (!user) {
       throw new Error('User not found');

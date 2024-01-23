@@ -9,8 +9,6 @@ import logs from './logUtils';
 export let mainDb;
 export let debug;
 
-
-
 export default {
   name: 'pricing',
   permissions,
@@ -34,7 +32,7 @@ export default {
   onServerInit: async (options) => {
     mainDb = options.db;
 
-    initBroker(options.messageBrokerClient);
+    initBroker();
 
     debug = options.debug;
   },
