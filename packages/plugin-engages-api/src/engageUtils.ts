@@ -2,15 +2,19 @@ import { fetchEs } from '@erxes/api-utils/src/elasticsearch';
 import { CAMPAIGN_KINDS, CAMPAIGN_METHODS, CONTENT_TYPES } from './constants';
 import {
   IEngageMessage,
-  IEngageMessageDocument
+  IEngageMessageDocument,
 } from './models/definitions/engages';
-import { isUsingElk } from './utils';
+import { isUsingElk, setCampaignCount } from './utils';
 import {
   sendInboxMessage,
   sendCoreMessage,
   sendSegmentsMessage,
-  sendContactsMessage
+  sendContactsMessage,
+  sendClientPortalMessage,
 } from './messageBroker';
+
+import { sendMessage, MessageArgsOmitService } from '@erxes/api-utils/src/core';
+
 import { IModels } from './connectionResolver';
 import { awsRequests } from './trackers/engageTracker';
 interface IEngageParams {
@@ -42,8 +46,8 @@ export const generateCustomerSelector = async (
     customerIds,
     segmentIds = [],
     tagIds = [],
-    brandIds = []
-  }: ICustomerSelector
+    brandIds = [],
+  }: ICustomerSelector,
 ): Promise<any> => {
   // find matched customers
   let customerQuery: any = {};
@@ -62,17 +66,17 @@ export const generateCustomerSelector = async (
     const integrations = await sendInboxMessage({
       ...commonParams,
       action: 'integrations.find',
-      data: { query: { brandId: { $in: brandIds } } }
+      data: { query: { brandId: { $in: brandIds } } },
     });
 
-    customerQuery = { integrationId: { $in: integrations.map(i => i._id) } };
+    customerQuery = { integrationId: { $in: integrations.map((i) => i._id) } };
   }
 
   if (segmentIds.length > 0) {
     const segments = await sendSegmentsMessage({
       ...commonParams,
       action: 'find',
-      data: { _id: { $in: segmentIds } }
+      data: { _id: { $in: segmentIds } },
     });
 
     let customerIdsBySegments: string[] = [];
@@ -83,7 +87,7 @@ export const generateCustomerSelector = async (
       if (!segment.contentType.includes('contacts')) {
         options.returnAssociated = {
           mainType: segment.contentType,
-          relType: 'contacts:customer'
+          relType: 'contacts:customer',
         };
       }
 
@@ -92,8 +96,8 @@ export const generateCustomerSelector = async (
         action: 'fetchSegment',
         data: {
           segmentId: segment._id,
-          options
-        }
+          options,
+        },
       });
 
       if (
@@ -103,7 +107,7 @@ export const generateCustomerSelector = async (
           'cards:deal',
           'cards:task',
           'cards:ticket',
-          'cards:purchase'
+          'cards:purchase',
         ].includes(segment.contentType)
       ) {
         const returnFields = [
@@ -112,7 +116,7 @@ export const generateCustomerSelector = async (
           'closeDate',
           'createdAt',
           'modifiedAt',
-          'customFieldsData'
+          'customFieldsData',
         ];
 
         if (
@@ -131,7 +135,7 @@ export const generateCustomerSelector = async (
 
   return {
     ...customerQuery,
-    $or: [{ isSubscribed: 'Yes' }, { isSubscribed: { $exists: false } }]
+    $or: [{ isSubscribed: 'Yes' }, { isSubscribed: { $exists: false } }],
   };
 };
 
@@ -139,7 +143,7 @@ export const send = async (
   models: IModels,
   subdomain: string,
   engageMessage: IEngageMessageDocument,
-  forceCreateConversation?: boolean
+  forceCreateConversation?: boolean,
 ) => {
   const {
     customerIds,
@@ -151,7 +155,7 @@ export const send = async (
     _id,
     kind,
     runCount,
-    title
+    title,
   } = engageMessage;
 
   // Check for pre scheduled engages
@@ -163,7 +167,7 @@ export const send = async (
       await models.Logs.createLog(
         _id,
         'regular',
-        `Campaign will run at "${dateTime.toLocaleString()}"`
+        `Campaign will run at "${dateTime.toLocaleString()}"`,
       );
 
       return;
@@ -184,7 +188,7 @@ export const send = async (
     await models.Logs.createLog(
       _id,
       'regular',
-      `Manual campaign "${title}" has already run before`
+      `Manual campaign "${title}" has already run before`,
     );
 
     return;
@@ -195,7 +199,7 @@ export const send = async (
     customerIds,
     segmentIds,
     tagIds: customerTagIds,
-    brandIds
+    brandIds,
   });
 
   if (engageMessage.method === CAMPAIGN_METHODS.EMAIL) {
@@ -203,7 +207,7 @@ export const send = async (
       models,
       subdomain,
       { engageMessage, customersSelector, user },
-      'sendEngage'
+      'sendEngage',
     );
   }
 
@@ -212,7 +216,7 @@ export const send = async (
       models,
       subdomain,
       { engageMessage, customersSelector, user },
-      'sendEngageSms'
+      'sendEngageSms',
     );
   }
 
@@ -227,7 +231,7 @@ export const send = async (
       action: 'integrations.findOne',
       data: { brandId },
       isRPC: true,
-      defaultValue: null
+      defaultValue: null,
     });
     if (!integration || !brandId) {
       throw new Error('Integration not found or brandId is not provided');
@@ -242,12 +246,20 @@ export const send = async (
           action: 'customers.findOne',
           data: { _id: customerId },
           isRPC: true,
-          defaultValue: null
+          defaultValue: null,
         }),
         visitorId: undefined,
-        browserInfo: {}
+        browserInfo: {},
       });
     }
+  }
+
+  if (engageMessage.method === CAMPAIGN_METHODS.NOTIFICATION) {
+    return sendNotifications(models, subdomain, {
+      engageMessage,
+      customersSelector,
+      user,
+    });
   }
 };
 
@@ -255,7 +267,7 @@ const sendEmailOrSms = async (
   models: IModels,
   subdomain,
   { engageMessage, customersSelector, user }: IEngageParams,
-  action: 'sendEngage' | 'sendEngageSms'
+  action: 'sendEngage' | 'sendEngageSms',
 ) => {
   const engageMessageId = engageMessage._id;
 
@@ -266,7 +278,7 @@ const sendEmailOrSms = async (
     await models.Logs.createLog(
       engageMessageId,
       'regular',
-      `Run at ${new Date()}`
+      `Run at ${new Date()}`,
     );
   }
 
@@ -279,8 +291,73 @@ const sendEmailOrSms = async (
       engageMessage,
       customersSelector,
       action,
-      user
-    }
+      user,
+    },
+  });
+};
+
+const sendNotifications = async (
+  models: IModels,
+  subdomain,
+  { engageMessage, customersSelector, user }: IEngageParams,
+) => {
+  const { notification, cpId } = engageMessage;
+  const engageMessageId = engageMessage._id;
+
+  const erxesCustomerIds = await sendContactsMessage({
+    subdomain,
+    action: 'customers.getCustomerIds',
+    data: customersSelector,
+    isRPC: true,
+    defaultValue: [],
+  });
+
+  const cpUserIds =
+    ((await sendClientPortalMessage({
+      subdomain,
+      isRPC: true,
+      action: 'clientPortalUsers.getIds',
+      data: {
+        clientPortalId: cpId,
+        erxesCustomerId: { $in: [...erxesCustomerIds] },
+      },
+    })) as string[]) || [];
+
+  if (cpUserIds.length === 0) {
+    throw new Error('No client portal user found');
+  }
+
+  setCampaignCount(models, {
+    _id: engageMessageId,
+    totalCustomersCount: cpUserIds.length,
+    validCustomersCount: cpUserIds.length,
+  });
+
+  const doc = {
+    createdUser: user,
+    receivers: cpUserIds,
+    title: notification?.title || '',
+    content: notification?.content || '',
+    notifType: 'engage',
+    isMobile: notification?.isMobile || false,
+    link: '',
+    engageId: engageMessageId,
+  };
+
+  const receiversLength = doc.receivers.length || 0;
+
+  if (receiversLength > 0) {
+    await models.EngageMessages.updateOne(
+      { _id: doc.engageId },
+      { $set: { totalCustomersCount: receiversLength } },
+    );
+  }
+
+  sendClientPortalMessage({
+    subdomain,
+    action: 'sendNotification',
+    data: doc,
+    isRPC: false,
   });
 };
 
@@ -288,7 +365,7 @@ const sendEmailOrSms = async (
 export const checkCampaignDoc = async (
   models: IModels,
   subdomain: string,
-  doc: IEngageMessage
+  doc: IEngageMessage,
 ) => {
   const {
     brandIds = [],
@@ -298,7 +375,7 @@ export const checkCampaignDoc = async (
     segmentIds = [],
     customerTagIds = [],
     customerIds = [],
-    fromUserId
+    fromUserId,
   } = doc;
 
   const noDate =
@@ -343,6 +420,23 @@ export const checkCampaignDoc = async (
       throw new Error(`From user email "${user.email}" is not verified in AWS`);
     }
   }
+
+  if (method === CAMPAIGN_METHODS.NOTIFICATION) {
+    if (!doc.notification) {
+      throw new Error('Notification cannot be empty');
+    }
+    if (!doc.cpId) {
+      throw new Error(
+        'Please select "Clientportal" in the notification campaign',
+      );
+    }
+    if (!doc.notification.title) {
+      throw new Error('Notification title cannot be empty');
+    }
+    if (!doc.notification.content) {
+      throw new Error('Notification content cannot be empty');
+    }
+  }
 };
 
 export const findElk = async (subdomain: string, index: string, query) => {
@@ -351,15 +445,15 @@ export const findElk = async (subdomain: string, index: string, query) => {
     action: 'search',
     index,
     body: {
-      query
+      query,
     },
-    defaultValue: { hits: { hits: [] } }
+    defaultValue: { hits: { hits: [] } },
   });
 
-  return response.hits.hits.map(hit => {
+  return response.hits.hits.map((hit) => {
     return {
       _id: hit._id,
-      ...hit._source
+      ...hit._source,
     };
   });
 };
@@ -370,7 +464,7 @@ export const findUser = async (subdomain, userId?: string) => {
     isRPC: true,
     subdomain,
     data: { _id: userId },
-    action: 'users.findOne'
+    action: 'users.findOne',
   });
 
   return user;
@@ -379,10 +473,9 @@ export const findUser = async (subdomain, userId?: string) => {
 // check customer exists from elastic or mongo
 export const checkCustomerExists = async (
   subdomain: string,
-  params: ICheckCustomerParams
+  params: ICheckCustomerParams,
 ) => {
   const { id, customerIds, segmentIds, tagIds, brandIds } = params;
-
   if (!isUsingElk()) {
     const customersSelector = {
       _id: id,
@@ -391,15 +484,15 @@ export const checkCustomerExists = async (
         customerIds,
         segmentIds,
         tagIds,
-        brandIds
-      }))
+        brandIds,
+      })),
     };
 
     const customer = await sendContactsMessage({
       subdomain,
       action: 'customers.findOne',
       data: customersSelector,
-      isRPC: true
+      isRPC: true,
     });
 
     return customer;
@@ -410,13 +503,13 @@ export const checkCustomerExists = async (
   }
 
   const must: any[] = [
-    { terms: { state: [CONTENT_TYPES.CUSTOMER, CONTENT_TYPES.LEAD] } }
+    { terms: { state: [CONTENT_TYPES.CUSTOMER, CONTENT_TYPES.LEAD] } },
   ];
 
   must.push({
     term: {
-      _id: id
-    }
+      _id: id,
+    },
   });
 
   if (customerIds && customerIds.length > 0) {
@@ -430,22 +523,22 @@ export const checkCustomerExists = async (
   if (brandIds && brandIds.length > 0) {
     const integraiontIds = await findElk(subdomain, 'integrations', {
       bool: {
-        must: [{ terms: { 'brandId.keyword': brandIds } }]
-      }
+        must: [{ terms: { 'brandId.keyword': brandIds } }],
+      },
     });
 
     must.push({
       terms: {
-        integrationId: integraiontIds.map(e => e._id)
-      }
+        integrationId: integraiontIds.map((e) => e._id),
+      },
     });
   }
 
   if (segmentIds && segmentIds.length > 0) {
     const segments = await findElk(subdomain, 'segments', {
       bool: {
-        must: [{ terms: { _id: segmentIds } }]
-      }
+        must: [{ terms: { _id: segmentIds } }],
+      },
     });
 
     let customerIdsBySegments: string[] = [];
@@ -455,7 +548,7 @@ export const checkCustomerExists = async (
         isRPC: true,
         subdomain,
         action: 'fetchSegment',
-        data: { segmentId: segment._id }
+        data: { segmentId: segment._id },
       });
 
       customerIdsBySegments = [...customerIdsBySegments, ...cIds];
@@ -463,8 +556,8 @@ export const checkCustomerExists = async (
 
     must.push({
       terms: {
-        _id: customerIdsBySegments
-      }
+        _id: customerIdsBySegments,
+      },
     });
   }
 
@@ -476,23 +569,23 @@ export const checkCustomerExists = async (
           bool: {
             must_not: {
               exists: {
-                field: 'isSubscribed'
-              }
-            }
-          }
-        }
-      ]
-    }
+                field: 'isSubscribed',
+              },
+            },
+          },
+        },
+      ],
+    },
   });
 
   const customers = await findElk(subdomain, 'customers', {
     bool: {
       filter: {
         bool: {
-          must
-        }
-      }
-    }
+          must,
+        },
+      },
+    },
   });
 
   return customers.length > 0;
