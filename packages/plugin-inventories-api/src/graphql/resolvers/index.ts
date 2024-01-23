@@ -15,7 +15,7 @@ const resolvers: any = async () => ({
   ReserveRem,
   Transaction,
   Mutation,
-  Query
+  Query,
 });
 
 export default resolvers;

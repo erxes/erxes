@@ -5,7 +5,7 @@ import { responseTemplateSchema } from './models/definitions/responseTemplates';
 import {
   calloutSchema,
   integrationSchema,
-  leadDataSchema
+  leadDataSchema,
 } from './models/definitions/integrations';
 
 export const MODULE_NAMES = {
@@ -14,22 +14,22 @@ export const MODULE_NAMES = {
   RESPONSE_TEMPLATE: 'responseTemplate',
   CONVERSATION: 'conversation',
   INTEGRATION: 'integration',
-  SCRIPT: 'script'
+  SCRIPT: 'script',
 };
 
 export const LOG_MAPPINGS = [
   {
     name: MODULE_NAMES.CHANNEL,
-    schemas: [channelSchema]
+    schemas: [channelSchema],
   },
   {
     name: MODULE_NAMES.RESPONSE_TEMPLATE,
-    schemas: [responseTemplateSchema]
+    schemas: [responseTemplateSchema],
   },
   {
     name: MODULE_NAMES.INTEGRATION,
-    schemas: [calloutSchema, integrationSchema, leadDataSchema, ruleSchema]
-  }
+    schemas: [calloutSchema, integrationSchema, leadDataSchema, ruleSchema],
+  },
 ];
 
 export const CONVERSATION_INFO = {
@@ -43,8 +43,8 @@ export const CONVERSATION_INFO = {
     { field: 'channels', label: 'Channels' },
     { field: 'brand', label: 'Brand' },
     { field: 'integration', label: 'Integration' },
-    { field: 'count', label: 'Conversations' }
-  ]
+    { field: 'count', label: 'Conversations' },
+  ],
 };
 
 export const NOTIFICATION_MODULES = [
@@ -55,17 +55,17 @@ export const NOTIFICATION_MODULES = [
     types: [
       {
         name: 'conversationStateChange',
-        text: 'State change'
+        text: 'State change',
       },
       {
         name: 'conversationAssigneeChange',
-        text: 'Assignee change'
+        text: 'Assignee change',
       },
       {
         name: 'conversationAddMessage',
-        text: 'Add message'
-      }
-    ]
+        text: 'Add message',
+      },
+    ],
   },
   {
     name: 'channels',
@@ -74,10 +74,10 @@ export const NOTIFICATION_MODULES = [
     types: [
       {
         name: 'channelMembersChange',
-        text: 'Members change'
-      }
-    ]
-  }
+        text: 'Members change',
+      },
+    ],
+  },
 ];
 
 export const VERIFY_EMAIL_TRANSLATIONS = {
@@ -97,5 +97,13 @@ export const VERIFY_EMAIL_TRANSLATIONS = {
   ro: 'Faceți clic aici pentru a vă verifica adresa de email',
   pl: 'Kliknij tutaj, aby zweryfikować swój adres e-mail',
   hu: 'Kattintson ide az e-mail címének ellenőrzéséhez',
-  sv: 'Klicka här för att verifiera din e-postadress'
+  sv: 'Klicka här för att verifiera din e-postadress',
 };
+
+export const IMPORT_EXPORT_TYPES = [
+  {
+    text: 'Conversations',
+    contentType: 'conversation',
+    icon: 'chat',
+  },
+];

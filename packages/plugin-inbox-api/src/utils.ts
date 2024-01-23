@@ -1,5 +1,4 @@
-import { getService, getServices } from "@erxes/api-utils/src/serviceDiscovery";
-
+import { getService, getServices } from '@erxes/api-utils/src/serviceDiscovery';
 
 export const getIntegrationMeta = async () => {
   const serviceNames = await getServices();
@@ -26,7 +25,7 @@ export const getIntegrationsKinds = async () => {
     lead: 'Popups & forms',
     webhook: 'Webhook',
     booking: 'Booking',
-    callpro: 'Callpro'
+    callpro: 'Callpro',
   };
 
   for (const meta of metas) {
@@ -37,7 +36,7 @@ export const getIntegrationsKinds = async () => {
 };
 
 export const isServiceRunning = async (
-  integrationKind: string
+  integrationKind: string,
 ): Promise<boolean> => {
   const serviceNames = await getServices();
 

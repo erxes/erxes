@@ -8,11 +8,11 @@ const resolvers: any = async () => ({
   ...customScalars,
   Report,
   Mutation: {
-    ...mutations
+    ...mutations,
   },
   Query: {
-    ...queries
-  }
+    ...queries,
+  },
 });
 
 export default resolvers;

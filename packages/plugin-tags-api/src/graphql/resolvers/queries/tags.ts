@@ -1,6 +1,6 @@
 import {
   checkPermission,
-  requireLogin
+  requireLogin,
 } from '@erxes/api-utils/src/permissions';
 
 import { IContext } from '../../../connectionResolver';
@@ -25,7 +25,7 @@ const tagQueries = {
         for (const type of types) {
           fieldTypes.push({
             description: type.description,
-            contentType: `${serviceName}:${type.type}`
+            contentType: `${serviceName}:${type.type}`,
           });
         }
       }
@@ -38,12 +38,12 @@ const tagQueries = {
     _root,
     {
       type,
-      searchValue
+      searchValue,
     }: {
       type: string;
       searchValue?: string;
     },
-    { models, commonQuerySelector }: IContext
+    { models, commonQuerySelector }: IContext,
   ) {
     const selector: any = { ...commonQuerySelector };
 
@@ -70,7 +70,7 @@ const tagQueries = {
       ids,
       excludeIds,
       page,
-      perPage
+      perPage,
     }: {
       type: string;
       searchValue?: string;
@@ -81,7 +81,7 @@ const tagQueries = {
       page: any;
       perPage: any;
     },
-    { models, commonQuerySelector, serverTiming }: IContext
+    { models, commonQuerySelector, serverTiming }: IContext,
   ) {
     serverTiming.startTime('query');
 
@@ -115,7 +115,7 @@ const tagQueries = {
 
       const getChildTags = async (parentTagIds: string[]) => {
         const childTag = await models.Tags.find({
-          parentId: { $in: parentTagIds }
+          parentId: { $in: parentTagIds },
         }).distinct('_id');
 
         if (childTag.length > 0) {
@@ -133,9 +133,9 @@ const tagQueries = {
 
     const tags = await paginate(
       models.Tags.find(selector).sort({
-        order: 1
+        order: 1,
       }),
-      pagintationArgs
+      pagintationArgs,
     );
 
     serverTiming.endTime('query');
@@ -148,7 +148,7 @@ const tagQueries = {
    */
   tagDetail(_root, { _id }: { _id: string }, { models }: IContext) {
     return models.Tags.findOne({ _id });
-  }
+  },
 };
 
 requireLogin(tagQueries, 'tagDetail');

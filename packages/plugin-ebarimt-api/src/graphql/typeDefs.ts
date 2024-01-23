@@ -2,7 +2,7 @@ import gql from 'graphql-tag';
 
 import {
   types as ebarimtTypes,
-  queries as ebarimtQueries
+  queries as ebarimtQueries,
 } from './schema/ebarimt';
 
 const typeDefs = async () => {

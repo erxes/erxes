@@ -11,11 +11,11 @@ const resolvers: any = async () => ({
   EmailTemplate,
 
   Mutation: {
-    ...EmailTemplateMutations
+    ...EmailTemplateMutations,
   },
   Query: {
-    ...EmailTemplateQueries
-  }
+    ...EmailTemplateQueries,
+  },
 });
 
 export default resolvers;

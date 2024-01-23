@@ -3,7 +3,7 @@ import gql from 'graphql-tag';
 import {
   types as tagTypes,
   queries as tagQueries,
-  mutations as tagMutations
+  mutations as tagMutations,
 } from './schema/tag';
 
 const typeDefs = async () => {

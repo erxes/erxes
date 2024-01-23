@@ -6,17 +6,16 @@ import {
   fieldsMutations,
   fieldsGroupsTypes,
   fieldsGroupsQueries,
-  fieldsGroupsMutations
+  fieldsGroupsMutations,
 } from './schema/field';
 
 import { types, queries, mutations } from './schema/form';
 import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
 
 const typeDefs = async () => {
-  
   const isEnabledTable = {
     contacts: isEnabled('contacts'),
-    products: isEnabled('products')
+    products: isEnabled('products'),
   };
 
   return gql`

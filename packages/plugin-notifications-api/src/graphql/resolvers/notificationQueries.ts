@@ -3,7 +3,6 @@ import { paginate } from '@erxes/api-utils/src';
 import { IContext } from '../../connectionResolver';
 import { getService, getServices } from '@erxes/api-utils/src/serviceDiscovery';
 
-
 const notificationQueries = {
   /**
    * Notifications list
@@ -30,7 +29,7 @@ const notificationQueries = {
       startDate: string;
       endDate: string;
     },
-    { models, user }: IContext
+    { models, user }: IContext,
   ) {
     const sort = { date: -1 };
 
@@ -55,14 +54,12 @@ const notificationQueries = {
     if (startDate && endDate) {
       selector.date = {
         $gte: startDate,
-        $lt: endDate
+        $lt: endDate,
       };
     }
 
     if (limit) {
-      return models.Notifications.find(selector)
-        .sort(sort)
-        .limit(limit);
+      return models.Notifications.find(selector).sort(sort).limit(limit);
     }
 
     return paginate(models.Notifications.find(selector), params).sort(sort);
@@ -76,9 +73,9 @@ const notificationQueries = {
     {
       requireRead,
       notifType,
-      contentTypes
+      contentTypes,
     }: { requireRead: boolean; notifType: string; contentTypes: string },
-    { user, models }: IContext
+    { user, models }: IContext,
   ) {
     const selector: any = { receiver: user._id };
 
@@ -129,7 +126,7 @@ const notificationQueries = {
    */
   notificationsGetConfigurations(_root, _args, { user, models }: IContext) {
     return models.NotificationConfigurations.find({ user: user._id });
-  }
+  },
 };
 
 moduleRequireLogin(notificationQueries);

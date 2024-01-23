@@ -29,6 +29,7 @@ import webhookMiddleware from './middlewares/webhookMiddleware';
 import { NOTIFICATION_MODULES } from './constants';
 import payment from './payment';
 import reports from './reports';
+import exporter from './exporter';
 import app from '@erxes/api-utils/src/app';
 
 export let mainDb;
@@ -63,6 +64,7 @@ export default {
     dashboards,
     notificationModules: NOTIFICATION_MODULES,
     payment,
+    exporter,
   },
   apolloServerContext: async (context, req, res) => {
     const subdomain = getSubdomain(req);

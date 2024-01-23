@@ -11,9 +11,9 @@ const resolvers: any = async () => ({
   Mutation: {
     ...SendDynamic,
     ...SyncDynamic,
-    ...CheckDynamic
+    ...CheckDynamic,
   },
-  Query
+  Query,
 });
 
 export default resolvers;

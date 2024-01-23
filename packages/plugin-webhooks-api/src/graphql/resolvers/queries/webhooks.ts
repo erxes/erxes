@@ -1,6 +1,6 @@
 import {
   checkPermission,
-  requireLogin
+  requireLogin,
 } from '@erxes/api-utils/src/permissions';
 
 import { IContext } from '../../../connectionResolver';
@@ -24,7 +24,7 @@ const webhookQueries = {
   async webhooksTotalCount(
     _root,
     _args,
-    { commonQuerySelector, models }: IContext
+    { commonQuerySelector, models }: IContext,
   ) {
     return models.Webhooks.find({ ...commonQuerySelector }).countDocuments();
   },
@@ -44,14 +44,14 @@ const webhookQueries = {
           webhookActions.push({
             label: action.label,
             action: action.action,
-            type: action.type
+            type: action.type,
           });
         }
       }
     }
 
     return webhookActions;
-  }
+  },
 };
 
 requireLogin(webhookQueries, 'webhookDetail');

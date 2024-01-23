@@ -24,6 +24,7 @@ type State = {
   importName: string;
   disclaimer: boolean;
   type: string;
+  contentType: string;
   contentTypes: IImportHistoryContentType[];
 
   associatedField: string;
@@ -43,11 +44,12 @@ class Form extends React.Component<Props, State> {
       importName: '',
       disclaimer: false,
       type: 'single',
+      contentType: props.contentType || '',
       contentTypes: [],
       associatedField: '',
       associatedContentType: '',
       columnNumber: 0,
-      columnWithSelected: 0
+      columnWithSelected: 0,
     };
   }
 
@@ -80,27 +82,27 @@ class Form extends React.Component<Props, State> {
     this.setState({ columnNumber: Object.keys(columns).length });
   };
 
-  onChangeImportName = value => {
+  onChangeImportName = (value) => {
     this.setState({ importName: value });
   };
 
-  onChangecolumnNumber = value => {
+  onChangecolumnNumber = (value) => {
     this.setState({ columnNumber: value });
   };
 
-  onChangeDisclaimer = value => {
+  onChangeDisclaimer = (value) => {
     this.setState({ disclaimer: value });
   };
 
-  onChangeType = value => {
+  onChangeType = (value) => {
     this.setState({ type: value, contentTypes: [] });
   };
 
-  onChangeAssociateHeader = value => {
+  onChangeAssociateHeader = (value) => {
     this.setState({ associatedField: value });
   };
 
-  onChangeAssociateContentType = value => {
+  onChangeAssociateContentType = (value) => {
     this.setState({ associatedContentType: value });
   };
 
@@ -139,7 +141,7 @@ class Form extends React.Component<Props, State> {
       associatedField,
       associatedContentType,
       columnNumber,
-      columnWithSelected
+      columnWithSelected,
     } = this.state;
 
     const files = [] as any;
@@ -158,7 +160,7 @@ class Form extends React.Component<Props, State> {
       files: attachments,
       columnsConfig: columnWithChosenField,
       associatedField,
-      associatedContentType
+      associatedContentType,
     };
 
     if (columnWithSelected === columnNumber) {
@@ -226,7 +228,7 @@ class Form extends React.Component<Props, State> {
               columnWithChosenField={columnWithChosenField}
               onChangeColumn={this.onChangeColumn}
             />
-          </Step>
+          </Step>,
         );
       }
     }
@@ -235,14 +237,15 @@ class Form extends React.Component<Props, State> {
   };
 
   render() {
-    const { importName, disclaimer, type, contentTypes } = this.state;
+    const { importName, disclaimer, type, contentType, contentTypes } =
+      this.state;
 
     const title = __('Import');
 
     const breadcrumb = [
       { title: __('Settings'), link: '/settings' },
       { title: __('Import & Export'), link: '/settings/importHistories' },
-      { title }
+      { title },
     ];
 
     const content = (
@@ -252,6 +255,7 @@ class Form extends React.Component<Props, State> {
             <Step title="Type" link="importHistories">
               <TypeForm
                 type={type}
+                contentType={contentType}
                 onChangeContentType={this.onChangeContentType}
                 contentTypes={contentTypes}
               />

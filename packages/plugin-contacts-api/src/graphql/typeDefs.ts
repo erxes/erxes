@@ -3,13 +3,13 @@ import gql from 'graphql-tag';
 import {
   types as customerTypes,
   queries as CustomerQueries,
-  mutations as CustomerMutations
+  mutations as CustomerMutations,
 } from './customer';
 
 import {
   types as companyTypes,
   queries as CompanyQueries,
-  mutations as CompanyMutations
+  mutations as CompanyMutations,
 } from './company';
 
 import { types as contactsTypes, queries as contactQueries } from './contacts';
