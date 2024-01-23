@@ -21,7 +21,7 @@ const itemParams = `
   description: $description
 `;
 
-const itemAdd = `
+const itemsAdd = `
   mutation itemsAdd(${itemParamsDef}) {
     itemsAdd(${itemParams}) {
       _id
@@ -38,8 +38,8 @@ const itemEdit = `
 `;
 
 const itemsRemove = `
-  mutation itemsRemove($Ids: [String!]) {
-    itemsRemove(Ids: $Ids)
+  mutation itemsRemove($itemIds: [String!]) {
+    itemsRemove(itemIds: $itemIds)
   }
 `;
 
@@ -95,7 +95,7 @@ export default {
   productAdd,
   productEdit,
   productsRemove,
-  itemAdd,
+  itemsAdd,
   itemEdit,
   itemsRemove,
   productCategoryAdd,

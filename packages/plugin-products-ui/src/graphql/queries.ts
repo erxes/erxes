@@ -83,7 +83,7 @@ const items = `
   }
 `;
 
-const itemsCount = `
+const itemsTotalCount = `
   query itemsTotalCount(
     $searchValue: String
   ) {
@@ -139,7 +139,7 @@ const documents = `
 export default {
   products,
   items,
-  itemsCount,
+  itemsTotalCount,
   itemsDetail,
   productDetail,
   productsCount,

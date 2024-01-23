@@ -1,4 +1,4 @@
-import { __, router } from '@erxes/ui/src/utils';
+import { Alert, __, confirm, router } from '@erxes/ui/src/utils';
 import HeaderDescription from '@erxes/ui/src/components/HeaderDescription';
 import { Title } from '@erxes/ui/src/styles/main';
 import Pagination from '@erxes/ui/src/components/pagination/Pagination';
@@ -10,21 +10,20 @@ import FormControl from '@erxes/ui/src/components/form/Control';
 import Row from './Row';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import Button from '@erxes/ui/src/components/Button';
-import Alert from '@erxes/ui/src/utils/Alert/Alert';
 import { BarItems } from '@erxes/ui/src/layout/styles';
 import { InputBar } from '@erxes/ui-settings/src/styles';
-import { Link } from 'react-router-dom';
 import Icon from '@erxes/ui/src/components/Icon';
 import { FlexItem } from '@erxes/ui/src/components/step/style';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import TemporarySegment from '@erxes/ui-segments/src/components/filter/TemporarySegment';
 import { isEnabled } from '@erxes/ui/src/utils/core';
+import Form from '../../containers/item/ItemForm';
 
 type Props = {
   history: any;
   queryParams: any;
   items: IItem[];
-  itemsCount: number;
+  itemsTotalCount: number;
   isAllSelected: boolean;
   bulk: any[];
   emptyBulk: () => void;
@@ -41,7 +40,7 @@ type State = {
 };
 
 class List extends React.Component<Props> {
-  search: ((e: FormEvent<HTMLElement>) => void) | undefined;
+  private timer?: NodeJS.Timer;
 
   constructor(props) {
     super(props);
@@ -52,25 +51,18 @@ class List extends React.Component<Props> {
     };
   }
 
-  moveCursorAtTheEnd(e) {
-    const tmpValue = e.target.value;
-
-    e.target.value = '';
-    e.target.value = tmpValue;
-  }
-
   renderRow = () => {
-    const { items, history, bulk } = this.props;
+    const { items, history, toggleBulk, bulk } = this.props;
 
     return items.map((item) => (
       <Row
         history={history}
         item={item}
+        toggleBulk={toggleBulk}
         isChecked={(bulk || []).map((b) => b._id).includes(item._id)}
       />
     ));
   };
-
   onChange = () => {
     const { toggleAll, items, bulk, history } = this.props;
     toggleAll(items, 'items');
@@ -91,12 +83,52 @@ class List extends React.Component<Props> {
     this.props.remove({ Ids }, this.props.emptyBulk);
   };
 
+  search = (e) => {
+    if (this.timer) {
+      clearTimeout(this.timer);
+    }
+
+    const { history } = this.props;
+    const searchValue = e.target.value;
+
+    this.setState({ searchValue });
+
+    this.timer = setTimeout(() => {
+      router.removeParams(history, 'page');
+      router.setParams(history, { searchValue });
+    }, 500);
+  };
+
+  moveCursorAtTheEnd(e) {
+    const tmpValue = e.target.value;
+
+    e.target.value = '';
+    e.target.value = tmpValue;
+  }
+  onChangeChecked = (e) => {
+    const { bulk, history } = this.props;
+    const checked = e.target.checked;
+
+    if (checked && (bulk || []).length) {
+      this.setState({ checked: true });
+      this.setState({ searchValue: '' });
+      router.removeParams(history, 'page', 'searchValue');
+      router.setParams(history, {
+        ids: (bulk || []).map((b) => b._id).join(','),
+      });
+    } else {
+      this.setState({ checked: false });
+      router.removeParams(history, 'page', 'ids');
+    }
+  };
+
   renderContent = () => {
     const { loading, isAllSelected } = this.props;
 
     if (loading) {
       return <Spinner objective={true} />;
     }
+
     return (
       <>
         <Table hover={true}>
@@ -122,7 +154,8 @@ class List extends React.Component<Props> {
   };
 
   render() {
-    const { itemsCount, bulk } = this.props;
+    const { itemsTotalCount, queryParams, history, bulk, emptyBulk } =
+      this.props;
 
     const breadcrumb = [
       { title: __('Settings'), link: '/settings' },
@@ -135,9 +168,28 @@ class List extends React.Component<Props> {
       </Button>
     );
 
-    const modalContent = (props) => <>hi</>;
+    const modalContent = (props) => <Form {...props} />;
 
     const actionBarRight = () => {
+      if (bulk.length > 0) {
+        const onClick = () =>
+          confirm()
+            .then(() => {
+              this.removeItems(bulk);
+            })
+            .catch((error) => {
+              Alert.error(error.message);
+            });
+
+        return (
+          <BarItems>
+            <Button btnStyle="danger" icon="cancel-1" onClick={onClick}>
+              Remove
+            </Button>
+          </BarItems>
+        );
+      }
+
       return (
         <BarItems>
           <InputBar type="searchBar">
@@ -155,11 +207,6 @@ class List extends React.Component<Props> {
           {isEnabled('segments') && (
             <TemporarySegment btnSize="medium" contentType={`items:item`} />
           )}
-          <Link to="/settings/importHistories?type=item">
-            <Button btnStyle="simple" icon="arrow-from-right">
-              {__('Import items')}
-            </Button>
-          </Link>
           <ModalTrigger
             title="Add Items"
             trigger={trigger}
@@ -171,7 +218,9 @@ class List extends React.Component<Props> {
       );
     };
 
-    const actionBarLeft = <Title>{`${'All items'} (${itemsCount})`}</Title>;
+    const actionBarLeft = (
+      <Title>{`${'All items'} (${itemsTotalCount})`}</Title>
+    );
 
     return (
       <Wrapper
@@ -190,7 +239,7 @@ class List extends React.Component<Props> {
         actionBar={
           <Wrapper.ActionBar left={actionBarLeft} right={actionBarRight()} />
         }
-        footer={<Pagination count={itemsCount} />}
+        footer={<Pagination count={itemsTotalCount} />}
         content={this.renderContent()}
         transparent={true}
         hasBorder={true}

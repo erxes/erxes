@@ -27,7 +27,7 @@ const BasicInfoContainer = (props: FinalProps) => {
   const { _id } = item;
 
   const remove = () => {
-    itemsRemove({ variables: { Ids: [_id] } })
+    itemsRemove({ variables: { itemIds: [_id] } })
       .then(() => {
         Alert.success('You successfully deleted an item');
         history.push('/settings/items');
@@ -51,7 +51,7 @@ const generateOptions = () => ({
 
 export default withProps<Props>(
   compose(
-    graphql<{}, ItemRemoveMutationResponse, { Ids: string[] }>(
+    graphql<{}, ItemRemoveMutationResponse, { itemIds: string[] }>(
       gql(mutations.itemsRemove),
       {
         name: 'itemsRemove',

@@ -33,7 +33,7 @@ type ProductCounts = {
 // query types
 
 export type ItemRemoveMutationResponse = {
-  itemsRemove: (mutation: { variables: { Ids: string[] } }) => Promise<any>;
+  itemsRemove: (mutation: { variables: { itemIds: string[] } }) => Promise<any>;
 };
 
 export type ItemsQueryResponse = {

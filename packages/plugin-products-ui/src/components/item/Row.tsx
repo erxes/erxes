@@ -1,4 +1,5 @@
 import React from 'react';
+import Form from '../../containers/item/ItemForm';
 
 import {
   Button,
@@ -15,11 +16,12 @@ type Props = {
   item: IItem;
   history: any;
   isChecked: boolean;
+  toggleBulk: (item: IItem, isChecked?: boolean) => void;
 };
 
 class Row extends React.Component<Props> {
   render() {
-    const { item, history, isChecked } = this.props;
+    const { item, history, toggleBulk, isChecked } = this.props;
 
     const trigger = (
       <Button btnStyle="link">
@@ -29,6 +31,12 @@ class Row extends React.Component<Props> {
       </Button>
     );
 
+    const onChange = (e) => {
+      if (toggleBulk) {
+        toggleBulk(item, e.target.checked);
+      }
+    };
+
     const onClick = (e) => {
       e.stopPropagation();
     };
@@ -37,14 +45,18 @@ class Row extends React.Component<Props> {
       history.push(`/settings/items/details/${item._id}`);
     };
 
-    const content = (props) => <>hi</>;
+    const content = (props) => <Form {...props} item={item} />;
 
     const { code, name, description } = item;
 
     return (
       <tr onClick={onTrClick}>
         <td onClick={onClick}>
-          <FormControl checked={isChecked} componentClass="checkbox" />
+          <FormControl
+            checked={isChecked}
+            componentClass="checkbox"
+            onChange={onChange}
+          />
         </td>
         <td>{code}</td>
         <td>{name}</td>

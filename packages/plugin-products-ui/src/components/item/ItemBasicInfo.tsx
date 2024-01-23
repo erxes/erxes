@@ -9,16 +9,15 @@ import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
 import {
   FieldStyle,
   SidebarCounter,
-  SidebarFlexRow,
   SidebarList,
 } from '@erxes/ui/src/layout/styles';
 import { IItem } from './../../types';
 import React from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
-import { Link } from 'react-router-dom';
 import xss from 'xss';
 import { Tip } from '@erxes/ui/src';
 import { ProductContent } from '../../styles';
+import Form from '../../containers/item/ItemForm';
 
 type Props = {
   item: IItem;
@@ -27,35 +26,6 @@ type Props = {
 };
 
 class BasicInfo extends React.Component<Props> {
-  renderVendor = (vendor) => {
-    const { history } = this.props;
-
-    if (!vendor) {
-      return (
-        <li>
-          <FieldStyle>{__(`Vendor`)}</FieldStyle>
-          <SidebarCounter>-</SidebarCounter>
-        </li>
-      );
-    }
-
-    return (
-      <li>
-        <FieldStyle>{__(`Vendor`)}</FieldStyle>
-        <SidebarCounter>{vendor.primaryName || ''}</SidebarCounter>
-        <Button
-          onClick={() => history.push(`/companies/details/${vendor._id}`)}
-          btnStyle="link"
-          style={{ padding: '0', paddingLeft: '8px' }}
-        >
-          <Tip text="See Vendor Detail" placement="bottom">
-            <Icon icon="rightarrow" />
-          </Tip>
-        </Button>
-      </li>
-    );
-  };
-
   renderView = (name, variable) => {
     const defaultName = name.includes('count') ? 0 : '-';
 
@@ -68,9 +38,8 @@ class BasicInfo extends React.Component<Props> {
   };
 
   renderEdit() {
-    function content(props) {
-      return <>form</>;
-    }
+    const { item } = this.props;
+    const content = (props) => <Form {...props} item={item} />;
     return (
       <ModalTrigger
         title="Edit basic info"
@@ -149,7 +118,6 @@ class BasicInfo extends React.Component<Props> {
           {this.renderView('Code', code)}
           {this.renderView('Name', name)}
           {this.renderView('Description', description)}
-          <SidebarFlexRow>{__(`Description`)}</SidebarFlexRow>
         </SidebarList>
       </Sidebar.Section>
     );

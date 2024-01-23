@@ -2,7 +2,6 @@ import { gql } from '@apollo/client';
 import TaggerSection from '@erxes/ui-contacts/src/customers/components/common/TaggerSection';
 import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
 import BasicInfo from './../../containers/item/ItemBasicInfo';
-import CustomFieldsSection from './../../containers/product/detail/CustomFieldsSection';
 import { IItem } from './../../types';
 import React from 'react';
 import { queries } from './../../graphql';
@@ -26,13 +25,6 @@ class LeftSidebar extends React.Component<Props> {
     return (
       <Sidebar wide={true}>
         <BasicInfo item={item} refetchQueries={refetchQueries} />
-        {isEnabled('tags') && (
-          <TaggerSection
-            data={item}
-            type="items:item"
-            refetchQueries={refetchQueries}
-          />
-        )}
       </Sidebar>
     );
   }
