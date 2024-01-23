@@ -59,7 +59,9 @@ const ContractForm = (props: Props) => {
     contract.storeInterestInterval,
   );
   const [customerId, setCustomerId] = useState(contract.customerId);
-  const [customerType, setCustomerType] = useState(contract.customerType);
+  const [customerType, setCustomerType] = useState(
+    contract.customerType ?? 'customer',
+  );
   const [currency, setCurrency] = useState(
     contract.currency || props.currentUser.configs?.dealCurrency[0],
   );
