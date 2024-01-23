@@ -38,7 +38,32 @@ export const initBroker = async () => {
       };
     },
   );
+  consumeRPCQueue(
+    'facebook:updateIntegration',
+    async ({ subdomain, data: { integrationId, doc } }) => {
+      const models = await generateModels(subdomain);
+      const details = JSON.parse(doc.data);
 
+      const integration = await models.Integrations.findOne({
+        erxesApiId: integrationId,
+      });
+
+      if (!integration) {
+        return {
+          status: 'error',
+          errorMessage: 'Integration not found.',
+        };
+      }
+      await models.Integrations.updateOne(
+        { erxesApiId: integrationId },
+        { $set: details },
+      );
+
+      return {
+        status: 'success',
+      };
+    },
+  );
   // listen for rpc queue =========
   consumeRPCQueue(
     'facebook:api_to_integrations',
