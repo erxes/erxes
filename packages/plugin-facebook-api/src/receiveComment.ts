@@ -9,7 +9,6 @@ import { ICommentParams } from './types';
 import { INTEGRATION_KINDS } from './constants';
 import { sendInboxMessage } from './messageBroker';
 import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
-import { putCreateLog } from './logUtils';
 
 const receiveComment = async (
   models: IModels,
@@ -69,30 +68,6 @@ const receiveComment = async (
           conversationId: comment,
         },
       });
-      graphqlPubsub.publish(`conversationMessageInserted:${comment}`, {
-        conversationMessageInserted: {
-          // ...created.toObject(),
-          conversationId: comment,
-        },
-      });
-
-      // conversationMessage = created;
-
-      // try {
-      //   await putCreateLog(
-      //     models,
-      //     subdomain,
-      //     {
-      //       type: 'messages',
-      //       newData: postConversation,
-      //       object: {
-      //         ...conversationMessage.toObject(),
-      //         payload: JSON.parse(message.payload || '{}')
-      //       }
-      //     },
-      //     customer._id
-      //   );
-      // } catch (error) {}
     } else {
       console.log('Warning: The comment is undefined.');
     }
