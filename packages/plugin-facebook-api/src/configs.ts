@@ -49,7 +49,7 @@ export default {
   onServerInit: async (options) => {
     mainDb = options.db;
 
-    await initBroker(options.messageBrokerClient);
+    await initBroker();
 
     await initApp();
 

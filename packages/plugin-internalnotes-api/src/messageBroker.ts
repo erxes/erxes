@@ -1,7 +1,12 @@
-import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
+import { sendMessage } from '@erxes/api-utils/src/core';
+import type {
+  MessageArgs,
+  MessageArgsOmitService,
+} from '@erxes/api-utils/src/core';
 
 import { generateModels } from './connectionResolver';
 import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
+import { consumeQueue } from '@erxes/api-utils/src/messageBroker';
 
 const checkService = async (serviceName: string, needsList?: boolean) => {
   const enabled = await isEnabled(serviceName);
@@ -13,29 +18,23 @@ const checkService = async (serviceName: string, needsList?: boolean) => {
   return;
 };
 
-let client;
-
-export const initBroker = async cl => {
-  client = cl;
-
-  const { consumeQueue } = cl;
-
+export const initBroker = async () => {
   consumeQueue(
     'internalnotes:batchUpdate',
     async ({
       subdomain,
-      data: { contentType, oldContentTypeIds, newContentTypeId }
+      data: { contentType, oldContentTypeIds, newContentTypeId },
     }) => {
       const models = await generateModels(subdomain);
       // Updating every internal notes of company
       await models.InternalNotes.updateMany(
         {
           contentType,
-          contentTypeId: { $in: oldContentTypeIds || [] }
+          contentTypeId: { $in: oldContentTypeIds || [] },
         },
-        { contentTypeId: newContentTypeId }
+        { contentTypeId: newContentTypeId },
       );
-    }
+    },
   );
 
   consumeQueue(
@@ -43,64 +42,58 @@ export const initBroker = async cl => {
     async ({ subdomain, data: { contentType, contentTypeIds } }) => {
       const models = await generateModels(subdomain);
       models.InternalNotes.removeInternalNotes(contentType, contentTypeIds);
-    }
+    },
   );
 };
 
 export const sendNotificationsMessage = async (
-  args: ISendMessageArgs
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'notifications',
-    ...args
+    ...args,
   });
 };
 
 export const sendCardsMessage = async (
-  args: ISendMessageArgs
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'cards',
-    ...args
+    ...args,
   });
 };
 
 export const sendContactsMessage = async (
-  args: ISendMessageArgs
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'contacts',
-    ...args
+    ...args,
   });
 };
 
-export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
+export const sendCoreMessage = async (
+  args: MessageArgsOmitService,
+): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'core',
-    ...args
+    ...args,
   });
 };
 
 export const sendProductsMessage = async (
-  args: ISendMessageArgs
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'products',
-    ...args
+    ...args,
   });
 };
 
-export const sendCommonMessage = async (
-  args: ISendMessageArgs & { serviceName: string }
-): Promise<any> => {
+export const sendCommonMessage = async (args: MessageArgs): Promise<any> => {
   return sendMessage({
-    client,
-    ...args
+    ...args,
   });
 };
 
@@ -114,10 +107,6 @@ export const getContentIds = async (subdomain: string, data) => {
     serviceName,
     action: 'logs:getContentIds',
     data,
-    isRPC: true
+    isRPC: true,
   });
 };
-
-export default function() {
-  return client;
-}

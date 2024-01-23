@@ -1,19 +1,17 @@
-import { sendMessage, ISendMessageArgs } from '@erxes/api-utils/src/core';
+import { sendMessage, MessageArgsOmitService } from '@erxes/api-utils/src/core';
 import { sendToWebhook as sendWebhook } from '@erxes/api-utils/src';
 
 import { debug } from './configs';
-import { generateModels,IModels } from './connectionResolver';
+import { generateModels, IModels } from './connectionResolver';
 
 import { start, sendBulkSms, sendEmail } from './sender';
 import { CAMPAIGN_KINDS } from './constants';
+import {
+  consumeQueue,
+  consumeRPCQueue,
+} from '@erxes/api-utils/src/messageBroker';
 
-export let client;
-
-export const initBroker = async cl => {
-  client = cl;
-
-  const { consumeQueue, consumeRPCQueue } = client;
-
+export const initBroker = async () => {
   consumeQueue('engages:pre-notification', async ({ data, subdomain }) => {
     const models = await generateModels(subdomain);
 
@@ -25,7 +23,7 @@ export const initBroker = async cl => {
       await models.Logs.createLog(
         engageMessage._id,
         'failure',
-        'No customers found'
+        'No customers found',
       );
       throw new Error('No customers found');
     }
@@ -44,7 +42,7 @@ export const initBroker = async cl => {
       await models.Logs.createLog(
         engageMessage._id,
         'regular',
-        `Matched ${customerInfos.length} customers`
+        `Matched ${customerInfos.length} customers`,
       );
     }
 
@@ -54,14 +52,14 @@ export const initBroker = async cl => {
     ) {
       await models.EngageMessages.updateOne(
         { _id: engageMessage._id },
-        { $set: { 'scheduleDate.type': 'sent' } }
+        { $set: { 'scheduleDate.type': 'sent' } },
       );
     }
 
     if (customerInfos.length > 0) {
       await models.EngageMessages.updateOne(
         { _id: engageMessage._id },
-        { $set: { totalCustomersCount: customerInfos.length } }
+        { $set: { totalCustomersCount: customerInfos.length } },
       );
     }
   });
@@ -95,7 +93,7 @@ export const initBroker = async cl => {
       const models = await generateModels(subdomain);
 
       await models.EngageMessages.removeCustomersEngages(customerIds);
-    }
+    },
   );
 
   consumeQueue(
@@ -104,7 +102,7 @@ export const initBroker = async cl => {
       const models = await generateModels(subdomain);
 
       await models.EngageMessages.changeCustomer(customerId, customerIds);
-    }
+    },
   );
 
   consumeRPCQueue(
@@ -114,9 +112,9 @@ export const initBroker = async cl => {
 
       return {
         status: 'success',
-        data: await models.EngageMessages.createVisitorOrCustomerMessages(data)
+        data: await models.EngageMessages.createVisitorOrCustomerMessages(data),
       };
-    }
+    },
   );
 
   consumeQueue('engages:sendEmail', async ({ data, subdomain }) => {
@@ -126,118 +124,90 @@ export const initBroker = async cl => {
   });
 };
 
-export const removeEngageConversations = async (_id): Promise<any> => {
-  return client.consumeQueue('removeEngageConversations', _id);
+export const removeEngageConversations = async (_id: string): Promise<any> => {
+  // FIXME: This doesn't look like it should be calling consumeQueue
+  // return consumeQueue('removeEngageConversations', _id);
 };
 
-export default function() {
-  return client;
-}
-
 export const sendContactsMessage = async (
-  args: ISendMessageArgs
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'contacts',
-    ...args
+    ...args,
   });
 };
 
-export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
+export const sendCoreMessage = async (
+  args: MessageArgsOmitService,
+): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'core',
-    ...args
+    ...args,
   });
 };
 
 export const sendInboxMessage = async (
-  args: ISendMessageArgs
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'inbox',
-    ...args
+    ...args,
   });
 };
 
-export const sendLogsMessage = async (args: ISendMessageArgs): Promise<any> => {
+export const sendLogsMessage = async (
+  args: MessageArgsOmitService,
+): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'logs',
-    ...args
+    ...args,
   });
 };
 
 export const sendSegmentsMessage = async (
-  args: ISendMessageArgs
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'segments',
-    ...args
+    ...args,
   });
 };
 
-export const sendTagsMessage = async (args: ISendMessageArgs): Promise<any> => {
+export const sendTagsMessage = async (
+  args: MessageArgsOmitService,
+): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'tags',
-    ...args
+    ...args,
   });
 };
 
 export const sendIntegrationsMessage = async (
-  args: ISendMessageArgs
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'integrations',
-    ...args
+    ...args,
   });
 };
 
 export const sendEmailTemplatesMessage = async (
-  args: ISendMessageArgs
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'emailtemplates',
-    ...args
+    ...args,
   });
 };
 
-export const sendClientPortalMessage = (args: ISendMessageArgs) => {
+export const sendClientPortalMessage = (args: MessageArgsOmitService) => {
   return sendMessage({
-    client,
     serviceName: 'clientportal',
-    ...args
-  });
-};
-
-export const sendNotificationsMessage = async (
-  args: ISendMessageArgs
-): Promise<any> => {
-  const { subdomain, data } = args;
-  const models = await generateModels(subdomain);
-
-  const receiversLength = data.receivers.length || 0;
-
-  if (receiversLength > 0) {
-    await models.EngageMessages.updateOne(
-      { _id: data.engageId },
-      { $set: { totalCustomersCount: receiversLength } }
-    );
-  }
-
-  return sendMessage({
-    client,
-    serviceName: 'clientportal',
-    ...args
+    ...args,
   });
 };
 
 export const sendToWebhook = ({ subdomain, data }) => {
-  return sendWebhook(client, { subdomain, data });
+  return sendWebhook({ subdomain, data });
 };

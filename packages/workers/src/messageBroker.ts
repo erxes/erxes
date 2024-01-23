@@ -1,15 +1,10 @@
-import { init as initBrokerCore } from '@erxes/api-utils/src/messageBroker';
-
-let client;
+import {
+  init as initBrokerCore,
+  sendRPCMessage,
+} from '@erxes/api-utils/src/messageBroker';
 
 export const initBroker = async () => {
-  client = await initBrokerCore();
-
-  return client;
-};
-
-export const sendRPCMessage = async (channel, message): Promise<any> => {
-  return client.sendRPCMessage(channel, message);
+  await initBrokerCore();
 };
 
 export const fetchSegment = (subdomain, segmentId, options?) =>
@@ -59,9 +54,5 @@ export const removePurchases = (subdomain, _ids) =>
     subdomain,
     data: { _ids },
   });
-export const getFileUploadConfigs = async () =>
-  sendRPCMessage('core:getFileUploadConfigs', {});
-
-export default function () {
-  return client;
-}
+export const getFileUploadConfigs = async (subdomain) =>
+  sendRPCMessage('core:getFileUploadConfigs', { subdomain });

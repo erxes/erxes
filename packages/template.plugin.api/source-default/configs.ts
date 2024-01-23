@@ -6,8 +6,6 @@ import { initBroker } from './messageBroker';
 export let mainDb;
 export let debug;
 
-
-
 export default {
   name: '{name}',
   graphql: async () => {
@@ -24,9 +22,7 @@ export default {
   onServerInit: async options => {
     mainDb = options.db;
 
-    initBroker(options.messageBrokerClient);
-
-    
+    initBroker();
 
     debug = options.debug;
   }

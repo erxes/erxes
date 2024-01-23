@@ -1,22 +1,19 @@
-import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
-
+import { sendMessage } from '@erxes/api-utils/src/core';
+import { MessageArgs, MessageArgsOmitService } from '@erxes/api-utils/src/core';
 import { generateModels } from './connectionResolver';
 import { afterMutationHandlers } from './afterMutations';
-import { consumeQueue } from '@erxes/api-utils/src/messageBroker';
+import {
+  consumeQueue,
+  consumeRPCQueue,
+} from '@erxes/api-utils/src/messageBroker';
 
-let client;
-
-export const initBroker = async cl => {
-  client = cl;
-
-  const { consumeRPCQueue } = client;
-
+export const initBroker = async () => {
   consumeRPCQueue('grants:requests.find', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     return {
       status: 'success',
-      data: await models.Requests.find(data).lean()
+      data: await models.Requests.find(data).lean(),
     };
   });
 
@@ -25,7 +22,7 @@ export const initBroker = async cl => {
 
     return {
       status: 'success',
-      data: await models.Requests.findOne(data).lean()
+      data: await models.Requests.findOne(data).lean(),
     };
   });
 
@@ -38,65 +35,58 @@ export const initBroker = async cl => {
   });
 };
 
-export const sendContactsMessage = (args: ISendMessageArgs): Promise<any> => {
-  return sendMessage({
-    client,
-    serviceName: 'contacts',
-    ...args
-  });
-};
-
-export const sendFormsMessage = (args: ISendMessageArgs): Promise<any> => {
-  return sendMessage({
-    client,
-    serviceName: 'forms',
-    ...args
-  });
-};
-
-export const sendCardsMessage = (args: ISendMessageArgs): Promise<any> => {
-  return sendMessage({
-    client,
-    serviceName: 'cards',
-    ...args
-  });
-};
-
-export const sendCoreMessage = (args: ISendMessageArgs): Promise<any> => {
-  return sendMessage({
-    client,
-    serviceName: 'core',
-    ...args
-  });
-};
-
-export const sendKbMessage = (args: ISendMessageArgs): Promise<any> => {
-  return sendMessage({
-    client,
-    serviceName: 'knowledgebase',
-    ...args
-  });
-};
-
-export const sendCommonMessage = async (
-  args: ISendMessageArgs & { serviceName: string }
+export const sendContactsMessage = (
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
-    client,
-    ...args
+    serviceName: 'contacts',
+    ...args,
+  });
+};
+
+export const sendFormsMessage = (
+  args: MessageArgsOmitService,
+): Promise<any> => {
+  return sendMessage({
+    serviceName: 'forms',
+    ...args,
+  });
+};
+
+export const sendCardsMessage = (
+  args: MessageArgsOmitService,
+): Promise<any> => {
+  return sendMessage({
+    serviceName: 'cards',
+    ...args,
+  });
+};
+
+export const sendCoreMessage = (args: MessageArgsOmitService): Promise<any> => {
+  return sendMessage({
+    serviceName: 'core',
+    ...args,
+  });
+};
+
+export const sendKbMessage = (args: MessageArgsOmitService): Promise<any> => {
+  return sendMessage({
+    serviceName: 'knowledgebase',
+    ...args,
+  });
+};
+
+export const sendCommonMessage = async (args: MessageArgs): Promise<any> => {
+  return sendMessage({
+    ...args,
   });
 };
 
 export const sendNotificationsMessage = async (
-  args: ISendMessageArgs
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'notifications',
-    ...args
+    ...args,
   });
 };
-
-export default function() {
-  return client;
-}

@@ -1,16 +1,12 @@
-import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
+import {
+  MessageArgs,
+  MessageArgsOmitService,
+  sendMessage,
+} from '@erxes/api-utils/src/core';
 
-
-let client;
-
-export const initBroker = async cl => {
-  client = cl;
-
-  const { consumeQueue, consumeRPCQueue } = client;
-
+export const initBroker = async () => {
   // consumeQueue('reports:send', async ({ data }) => {
   //   Reportss.send(data);
-
   //   return {
   //     status: 'success'
   //   };
@@ -25,7 +21,7 @@ export const initBroker = async cl => {
 // };
 
 // export const sendCommonMessage = async (
-//   args: ISendMessageArgs & { serviceName: string }
+//   args: MessageArgs & { serviceName: string }
 // ) => {
 //   return sendMessage({
 //     serviceDiscovery,
@@ -34,31 +30,24 @@ export const initBroker = async cl => {
 //   });
 // };
 
-export const sendCoreMessage = (args: ISendMessageArgs): Promise<any> => {
+export const sendCoreMessage = (args: MessageArgsOmitService): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'core',
-    ...args
+    ...args,
   });
 };
 
-export const sendCommonMessage = async (
-  args: ISendMessageArgs & { serviceName: string }
-) => {
+export const sendCommonMessage = async (args: MessageArgs) => {
   return sendMessage({
-    client,
-    ...args
+    ...args,
   });
 };
 
-export const sendTagsMessage = async (args: ISendMessageArgs): Promise<any> => {
+export const sendTagsMessage = async (
+  args: MessageArgsOmitService,
+): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'tags',
-    ...args
+    ...args,
   });
 };
-
-export default function() {
-  return client;
-}

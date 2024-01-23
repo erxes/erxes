@@ -14,8 +14,6 @@ import forms from './forms';
 export let mainDb;
 export let debug;
 
-
-
 export default {
   name: 'riskassessment',
   permissions,
@@ -39,7 +37,7 @@ export default {
   onServerInit: async (options) => {
     mainDb = options.db;
 
-    initBroker(options.messageBrokerClient);
+    initBroker();
 
     debug = options.debug;
   },

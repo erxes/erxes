@@ -7,6 +7,7 @@ import fetch from 'node-fetch';
 import redis from './redis';
 import * as Agent from 'agentkeepalive';
 import * as dotenv from 'dotenv';
+import { Response } from 'express';
 dotenv.config();
 
 const { RABBITMQ_HOST, MESSAGE_BROKER_PREFIX } = process.env;
@@ -33,6 +34,14 @@ function getHttpAgent(protocol: string, args: any): Agent | Agent.HttpsAgent {
   }
 }
 
+export interface InterMessage {
+  subdomain: string;
+  data?: any;
+  timeout?: number;
+  defaultValue?: any;
+  thirdService?: boolean;
+}
+
 const showInfoDebug = () => {
   if ((process.env.DEBUG || '').includes('error')) {
     return false;
@@ -41,8 +50,8 @@ const showInfoDebug = () => {
   return true;
 };
 
-let channel;
-let queuePrefix;
+let channel: amqplib.Channel | undefined;
+const queuePrefix = MESSAGE_BROKER_PREFIX || '';
 
 const checkQueueName = async (queueName, isSend = false) => {
   const [serviceName, action] = queueName.split(':');
@@ -81,7 +90,12 @@ export const doesQueueExist = async (
   return isMember !== 0;
 };
 
-export const consumeQueue = async (queueName, callback) => {
+type ConsumeHandler = (message: InterMessage, msg: amqplib.Message) => any;
+
+export const consumeQueue = async (queueName, handler: ConsumeHandler) => {
+  if (!channel) {
+    throw new Error(`RabbitMQ channel is ${channel}`);
+  }
   queueName = queueName.concat(queuePrefix);
 
   debugInfo(`consumeQueue ${queueName}`);
@@ -99,13 +113,15 @@ export const consumeQueue = async (queueName, callback) => {
       async (msg) => {
         if (msg !== null) {
           try {
-            await callback(JSON.parse(msg.content.toString()), msg);
+            await handler(JSON.parse(msg.content.toString()), msg);
           } catch (e) {
             debugError(
               `Error occurred during callback ${queueName} ${e.message}`,
             );
           }
-
+          if (!channel) {
+            throw new Error(`RabbitMQ channel is ${channel}`);
+          }
           channel.ack(msg);
         }
       },
@@ -127,7 +143,21 @@ function splitPluginProcedureName(queueName: string) {
   return { pluginName, procedureName };
 }
 
-export const consumeRPCQueue = (queueName, procedure) => {
+export interface RPSuccess {
+  status: 'success';
+  data?: any;
+}
+export interface RPError {
+  status: 'error';
+  errorMessage: string;
+}
+export type RPResult = RPSuccess | RPError;
+export type RP = (params: InterMessage) => RPResult | Promise<RPResult>;
+
+export const consumeRPCQueue = async (
+  queueName,
+  procedure: RP,
+): Promise<void> => {
   const { procedureName } = splitPluginProcedureName(queueName);
 
   if (procedureName.includes(':')) {
@@ -138,7 +168,7 @@ export const consumeRPCQueue = (queueName, procedure) => {
 
   const endpoint = `/rpc/${procedureName}`;
 
-  app.post(endpoint, async (req, res) => {
+  app.post(endpoint, async (req, res: Response<RPResult>) => {
     try {
       const response = await procedure(req.body);
       res.json(response);
@@ -150,12 +180,12 @@ export const consumeRPCQueue = (queueName, procedure) => {
     }
   });
 
-  consumeRPCQueueMq(queueName, procedure);
+  await consumeRPCQueueMq(queueName, procedure);
 };
 
 export const sendRPCMessage = async (
   queueName: string,
-  args: any,
+  message: InterMessage,
 ): Promise<any> => {
   const { pluginName, procedureName } = splitPluginProcedureName(queueName);
   const address = await getPluginAddress(pluginName);
@@ -173,15 +203,15 @@ export const sendRPCMessage = async (
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(args),
-        agent: (parsedURL) => getHttpAgent(parsedURL.protocol, args),
+        body: JSON.stringify(message),
+        agent: (parsedURL) => getHttpAgent(parsedURL.protocol, message),
         compress: false,
       });
 
       if (!(200 <= response.status && response.status < 300)) {
         let argsJson = '"cannot stringify"';
         try {
-          argsJson = JSON.stringify(args);
+          argsJson = JSON.stringify(message);
         } catch (e) {}
 
         throw new Error(
@@ -191,7 +221,7 @@ export const sendRPCMessage = async (
         );
       }
 
-      const result = await response.json();
+      const result: RPResult = await response.json();
 
       if (result.status === 'success') {
         return result.data;
@@ -200,12 +230,12 @@ export const sendRPCMessage = async (
       }
     } catch (e) {
       if (e.code === 'ERR_SOCKET_TIMEOUT') {
-        if (args?.defaultValue) {
-          return args.defaultValue;
+        if (message?.defaultValue) {
+          return message.defaultValue;
         } else {
           let argsJson = '"cannot stringify"';
           try {
-            argsJson = JSON.stringify(args);
+            argsJson = JSON.stringify(message);
           } catch (e) {}
 
           throw new Error(
@@ -246,8 +276,12 @@ export const sendRPCMessage = async (
 
 export const sendRPCMessageMq = async (
   queueName: string,
-  message: any,
+  message: InterMessage,
 ): Promise<any> => {
+  if (!channel) {
+    throw new Error(`RabbitMQ channel is ${channel}`);
+  }
+
   queueName = queueName.concat(queuePrefix);
 
   if (message && !message.thirdService) {
@@ -260,12 +294,19 @@ export const sendRPCMessageMq = async (
     );
   }
 
-  const response = await new Promise((resolve, reject) => {
+  const response = await new Promise<any>((resolve, reject) => {
+    if (!channel) {
+      throw new Error(`RabbitMQ channel is ${channel}`);
+    }
     const correlationId = uuid();
 
     return channel.assertQueue('', { exclusive: true }).then((q) => {
-      const timeoutMs = message.timeout || process.env.RPC_TIMEOUT || 10000;
-      var interval = setInterval(() => {
+      const timeoutMs =
+        message.timeout || Number(process.env.RPC_TIMEOUT) || 10000;
+      var interval = setTimeout(() => {
+        if (!channel) {
+          throw new Error(`RabbitMQ channel is ${channel}`);
+        }
         channel.deleteQueue(q.queue);
 
         clearInterval(interval);
@@ -275,9 +316,16 @@ export const sendRPCMessageMq = async (
         return resolve(message.defaultValue);
       }, timeoutMs);
 
+      if (!channel) {
+        throw new Error(`RabbitMQ channel is ${channel}`);
+      }
+
       channel.consume(
         q.queue,
         (msg) => {
+          if (!channel) {
+            throw new Error(`RabbitMQ channel is ${channel}`);
+          }
           clearInterval(interval);
 
           if (!msg) {
@@ -286,7 +334,7 @@ export const sendRPCMessageMq = async (
           }
 
           if (msg.properties.correlationId === correlationId) {
-            const res = JSON.parse(msg.content.toString());
+            const res: RPResult = JSON.parse(msg.content.toString());
 
             if (res.status === 'success') {
               if (showInfoDebug()) {
@@ -323,7 +371,14 @@ export const sendRPCMessageMq = async (
   return response;
 };
 
-export const consumeRPCQueueMq = async (queueName, callback) => {
+export const consumeRPCQueueMq = async (
+  queueName,
+  callback: RP,
+): Promise<void> => {
+  if (!channel) {
+    throw new Error(`RabbitMQ channel is ${channel}`);
+  }
+
   queueName = queueName.concat(queuePrefix);
 
   debugInfo(`consumeRPCQueue ${queueName}`);
@@ -337,6 +392,10 @@ export const consumeRPCQueueMq = async (queueName, callback) => {
     // await channel.prefetch(10);
 
     channel.consume(queueName, async (msg) => {
+      if (!channel) {
+        throw new Error(`RabbitMQ channel is ${channel}`);
+      }
+
       if (msg !== null) {
         if (showInfoDebug()) {
           debugInfo(
@@ -344,7 +403,7 @@ export const consumeRPCQueueMq = async (queueName, callback) => {
           );
         }
 
-        let response;
+        let response: RPResult;
 
         try {
           response = await callback(JSON.parse(msg.content.toString()));
@@ -377,98 +436,79 @@ export const consumeRPCQueueMq = async (queueName, callback) => {
   }
 };
 
-export const sendMessage = async (queueName: string, data?: any) => {
+export const sendMessage = async (
+  queueName: string,
+  message: InterMessage,
+): Promise<void> => {
+  if (!channel) {
+    throw new Error(`RabbitMQ channel is ${channel}`);
+  }
+
   queueName = queueName.concat(queuePrefix);
 
-  if (data && !data.thirdService) {
+  if (message && !message.thirdService) {
     await checkQueueName(queueName, true);
   }
 
   try {
-    const message = JSON.stringify(data || {});
+    const messageJson = JSON.stringify(message || {});
 
     if (showInfoDebug()) {
-      debugInfo(`Sending message ${message} to ${queueName}`);
+      debugInfo(`Sending message ${messageJson} to ${queueName}`);
     }
 
     await channel.assertQueue(queueName);
-    await channel.sendToQueue(queueName, Buffer.from(message));
+    await channel.sendToQueue(queueName, Buffer.from(messageJson));
   } catch (e) {
     debugError(`Error occurred during send queue ${queueName} ${e.message}`);
   }
 };
 
-function RabbitListener() {}
+type ReconnectCallback = () => any;
 
-RabbitListener.prototype.connect = function (host, reconnectCallback?) {
-  const me = this;
-
-  return new Promise(function (resolve) {
-    amqplib
-      .connect(host, { noDelay: true })
-      .then(
-        function (conn) {
-          console.log(`Connected to rabbitmq server ${host}`);
-
-          conn.on('error', me.reconnect.bind(me, host, reconnectCallback));
-          conn.on('close', me.reconnect.bind(me, host, reconnectCallback));
-
-          return conn.createChannel().then(function (chan) {
-            channel = chan;
-            resolve(channel);
-          });
-        },
-        function connectionFailed(err) {
-          console.log('Failed to connect to rabbitmq server', err);
-          me.reconnect(RABBITMQ_HOST, reconnectCallback);
-        },
-      )
-      .catch(function (error) {
-        console.log('RabbitMQ: ', error);
-      });
+const connect = async (reconnectCallback?: ReconnectCallback) => {
+  const con = await amqplib.connect(`${RABBITMQ_HOST}?heartbeat=60`, {
+    noDelay: true,
   });
+  con.once('close', () => {
+    con.removeAllListeners();
+    console.log('RabbitMQ connection is closing.');
+    reconnect(reconnectCallback);
+  });
+  con.once('error', (e) => {
+    console.error('RabbitMQ connection error:', e);
+    con.close();
+  });
+
+  channel = await con.createChannel();
+  console.log(`RabbitMQ connected to ${RABBITMQ_HOST}`);
 };
 
-RabbitListener.prototype.reconnect = function (host, reconnectCallback?) {
-  const reconnectTimeout = 1000 * 60;
-
-  const me = this;
-
+const reconnect = async (reconnectCallback?: ReconnectCallback) => {
   channel = undefined;
-
-  console.log(
-    `Scheduling reconnect to rabbitmq in ${reconnectTimeout / 1000}s`,
-  );
-
-  setTimeout(function () {
-    console.log(`Now attempting reconnect to rabbitmq ...`);
-    me.connect(host, reconnectCallback).then(async () => {
-      if (reconnectCallback) {
-        reconnectCallback({
-          consumeQueue,
-          consumeRPCQueue,
-          sendMessage,
-          sendRPCMessage,
-          consumeRPCQueueMq,
-          sendRPCMessageMq,
-        });
-      }
-    });
-  }, reconnectTimeout);
+  let reconnectInterval = 5000;
+  while (true) {
+    try {
+      await connect(reconnectCallback);
+      break;
+    } catch (e) {
+      console.error(
+        `RabbitMQ: Error occured while connecting to ${RABBITMQ_HOST}. Trying again in ${
+          reconnectInterval / 1000
+        }s`,
+        e,
+      );
+      await new Promise<void>((resolve) =>
+        setTimeout(resolve, reconnectInterval),
+      );
+      reconnectInterval = reconnectInterval * 2;
+    }
+  }
+  reconnectCallback && (await reconnectCallback());
 };
 
-export const init = async (reconnectCallback?: (client: any) => any) => {
-  const listener = new RabbitListener();
-  await listener.connect(`${RABBITMQ_HOST}?heartbeat=60`, reconnectCallback);
-
-  queuePrefix = MESSAGE_BROKER_PREFIX || '';
-
-  return {
-    consumeQueue,
-    consumeRPCQueue,
-    sendMessage,
-    sendRPCMessage,
-    consumeRPCQueueMq,
-    sendRPCMessageMq,
-  };
+export const init = async (
+  reconnectCallback?: ReconnectCallback,
+): Promise<void> => {
+  await connect(reconnectCallback);
 };

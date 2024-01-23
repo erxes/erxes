@@ -1,15 +1,11 @@
 
-import { ISendMessageArgs, sendMessage } from "@erxes/api-utils/src/core";
-
+import { sendMessage } from "@erxes/api-utils/src/core";
+import type { MessageArgs } from "@erxes/api-utils/src/core";
+import { consumeQueue, consumeRPCQueue } from "@erxes/api-utils/src/messageBroker";
 import { {Name}s } from "./models";
 
-let client;
 
-export const initBroker = async cl => {
-  client = cl;
-
-  const { consumeQueue, consumeRPCQueue } = client;
-
+export const initBroker = async () => {
   consumeQueue('{name}:send', async ({ data }) => {
     {Name}s.send(data);
 
@@ -25,17 +21,3 @@ export const initBroker = async cl => {
     };
   });
 };
-
-
-export const sendCommonMessage = async (
-  args: ISendMessageArgs & { serviceName: string }
-) => {
-  return sendMessage({
-    client,
-    ...args
-  });
-};
-
-export default function() {
-  return client;
-}

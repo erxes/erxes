@@ -2,7 +2,6 @@ import { afterQueryWrapper, paginate } from '@erxes/api-utils/src';
 import { escapeRegExp } from '@erxes/api-utils/src/core';
 import { ASSET_STATUSES } from '../../../common/constant/asset';
 import { IContext, IModels } from '../../../connectionResolver';
-import messageBroker from '../../../messageBroker';
 
 export const generateCommonAssetFilter = async (
   models: IModels,
@@ -33,7 +32,7 @@ export const generateCommonAssetFilter = async (
     ignoreIds: string[];
     irregular: boolean;
     articleIds: string[];
-  }
+  },
 ) => {
   const filter: any = {};
 
@@ -44,20 +43,20 @@ export const generateCommonAssetFilter = async (
   if (categoryId) {
     const category = await models.AssetCategories.getAssetCategory({
       _id: categoryId,
-      status: { $in: [null, 'active'] }
+      status: { $in: [null, 'active'] },
     });
 
     const asset_category_ids = await models.AssetCategories.find(
       { order: { $regex: new RegExp(category.order) } },
-      { _id: 1 }
+      { _id: 1 },
     );
     filter.categoryId = { $in: asset_category_ids };
   } else {
     const notActiveCategories = await models.AssetCategories.find({
-      status: { $nin: [null, 'active'] }
+      status: { $nin: [null, 'active'] },
     });
 
-    filter.categoryId = { $nin: notActiveCategories.map(e => e._id) };
+    filter.categoryId = { $nin: notActiveCategories.map((e) => e._id) };
   }
 
   if (parentId) {
@@ -77,14 +76,14 @@ export const generateCommonAssetFilter = async (
     const fields = [
       {
         name: {
-          $in: [new RegExp(`.*${escapeRegExp(searchValue)}.*`, 'i')]
-        }
+          $in: [new RegExp(`.*${escapeRegExp(searchValue)}.*`, 'i')],
+        },
       },
       {
         code: {
-          $in: [new RegExp(`.*${escapeRegExp(searchValue)}.*`, 'i')]
-        }
-      }
+          $in: [new RegExp(`.*${escapeRegExp(searchValue)}.*`, 'i')],
+        },
+      },
     ];
 
     filter.$or = fields;
@@ -100,9 +99,9 @@ export const generateCommonAssetFilter = async (
   if (irregular) {
     const irregularAssets = await models.Assets.find({
       categoryId: { $in: ['', null, undefined] },
-      parentId: { $in: ['', null, undefined] }
+      parentId: { $in: ['', null, undefined] },
     });
-    filter._id = { $in: irregularAssets.map(asset => asset._id) };
+    filter._id = { $in: irregularAssets.map((asset) => asset._id) };
   }
 
   return filter;
@@ -137,7 +136,7 @@ const assetQueries = {
       ignoreIds: string[];
       articleIds: string[];
     },
-    { commonQuerySelector, models, subdomain, user }: IContext
+    { commonQuerySelector, models, subdomain, user }: IContext,
   ) {
     let filter: any = commonQuerySelector;
 
@@ -151,7 +150,7 @@ const assetQueries = {
       boardId,
       ignoreIds,
       articleIds,
-      ...pagintationArgs
+      ...pagintationArgs,
     });
 
     filter.status = { $ne: ASSET_STATUSES.DELETED };
@@ -166,26 +165,21 @@ const assetQueries = {
         excludeIds,
         pipelineId,
         boardId,
-        ...pagintationArgs
+        ...pagintationArgs,
       },
 
       await paginate(
-        models.Assets.find(filter)
-          .sort({ order: 1 })
-          .lean(),
-        pagintationArgs
+        models.Assets.find(filter).sort({ order: 1 }).lean(),
+        pagintationArgs,
       ),
-
-      messageBroker(),
-
-      user
+      user,
     );
   },
 
   async assetsTotalCount(
     _root,
     params,
-    { commonQuerySelector, models }: IContext
+    { commonQuerySelector, models }: IContext,
   ) {
     let filter: any = commonQuerySelector;
 
@@ -197,7 +191,7 @@ const assetQueries = {
 
   assetDetail(_root, { _id }: { _id: string }, { models }: IContext) {
     return models.Assets.findOne({ _id }).lean();
-  }
+  },
 };
 
 export default assetQueries;
