@@ -3,7 +3,7 @@ import {
   getOrCreateComment,
   getOrCreateCustomer,
   getOrCreatePost,
-  getOrCreatePostConversation
+  getOrCreatePostConversation,
 } from './store';
 import { ICommentParams } from './types';
 import { INTEGRATION_KINDS } from './constants';
@@ -13,17 +13,20 @@ const receiveComment = async (
   models: IModels,
   subdomain: string,
   params: ICommentParams,
-  pageId: string
+  pageId: string,
 ) => {
   const userId = params.from.id;
   const postId = params.post_id;
   const integration = await models.Integrations.findOne({
     $and: [
       { facebookPageIds: { $in: pageId } },
-      { kind: INTEGRATION_KINDS.POST }
-    ]
+      { kind: INTEGRATION_KINDS.POST },
+    ],
   });
 
+  if (userId === pageId) {
+    return;
+  }
   if (!integration) {
     throw new Error('Integration not found');
   }
@@ -33,7 +36,7 @@ const receiveComment = async (
     subdomain,
     pageId,
     userId,
-    INTEGRATION_KINDS.POST
+    INTEGRATION_KINDS.POST,
   );
   const postConversation = await getOrCreatePostConversation(
     models,
@@ -41,7 +44,7 @@ const receiveComment = async (
     postId,
     integration,
     customer,
-    params
+    params,
   );
   const comment = await getOrCreateComment(
     models,
@@ -52,7 +55,7 @@ const receiveComment = async (
     userId,
     params.verb || '',
     integration,
-    customer
+    customer,
   );
   try {
     if (comment) {
@@ -61,8 +64,8 @@ const receiveComment = async (
         action: 'conversationClientMessageInserted',
         data: {
           integrationId: integration.erxesApiId,
-          conversationId: comment
-        }
+          conversationId: comment,
+        },
       });
     } else {
       console.log('Warning: The comment is undefined.');
@@ -71,7 +74,7 @@ const receiveComment = async (
     throw new Error(
       e.message.includes('duplicate')
         ? 'Concurrent request: conversation message duplication'
-        : e
+        : e,
     );
   }
 };

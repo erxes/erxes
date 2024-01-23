@@ -86,6 +86,7 @@ export const handleFacebookMessage = async (
           action: 'conversations.findOne',
           data: { query: { _id: conversationId } },
         });
+
         await sendReply(
           models,
           `${comment_id}/comments`,
