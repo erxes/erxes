@@ -23,9 +23,7 @@ const allowTypes = {
 
 export const afterMutationHandlers = async (subdomain, params) => {
   const { type, action, user } = params;
-
   const models = await generateModels(subdomain);
-
   const syncLogDoc = {
     type: '',
     contentType: type,
@@ -48,50 +46,51 @@ export const afterMutationHandlers = async (subdomain, params) => {
 
   try {
     switch (type) {
-      case type === 'contacts:customer':
-        {
-          syncLog = await models.SyncLogs.syncLogsAdd(syncLogDoc);
-          if (action === 'create') {
-            customerToPolaris(subdomain, params, 'create');
-            return;
-          }
+      // case type === 'contacts:customer':
+      //   {
+      //     syncLog = await models.SyncLogs.syncLogsAdd(syncLogDoc);
+      //     if (action === 'create') {
+      //       customerToPolaris(subdomain, params, 'create');
+      //       return;
+      //     }
 
-          if (action === 'update') {
-            customerToPolaris(subdomain, params, 'update');
-            return;
-          }
-        }
-        break;
-      case type === 'contacts:company':
-        {
-          syncLog = await models.SyncLogs.syncLogsAdd(syncLogDoc);
-          if (action === 'create') {
-            companyToPolaris(subdomain, params, 'create');
-            return;
-          }
+      //     if (action === 'update') {
+      //       customerToPolaris(subdomain, params, 'update');
+      //       return;
+      //     }
+      //   }
+      //   break;
+      // case type === 'contacts:company':
+      //   {
+      //     syncLog = await models.SyncLogs.syncLogsAdd(syncLogDoc);
+      //     if (action === 'create') {
+      //       companyToPolaris(subdomain, params, 'create');
+      //       return;
+      //     }
 
-          if (action === 'update') {
-            companyToPolaris(subdomain, params, 'update');
-            return;
-          }
-        }
-        break;
-      case type === 'savings:deposit':
+      //     if (action === 'update') {
+      //       companyToPolaris(subdomain, params, 'update');
+      //       return;
+      //     }
+      //   }
+      //   break;
+
+      case 'savings:deposit':
         depositToPolaris(subdomain, params);
         break;
-      case type === 'savings:depositTransaction':
+      case 'savings:depositTransaction':
         depositTransactionToPolaris(subdomain, params, action);
         break;
-      case type === 'savings:contract':
+      case 'savings:contract':
         savingToPolaris(subdomain, params);
         break;
-      case type === 'loans:contract':
+      case 'loans:contract':
         loansToPolaris(subdomain, params, action);
         break;
-      case type === 'loans:classification':
+      case 'loans:classification':
         loanClassificationToPolaris(subdomain, params);
         break;
-      case type === 'loans:transaction':
+      case 'loans:transaction':
         loanTransactionsToPolaris(subdomain, params, action);
         break;
     }

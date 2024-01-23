@@ -1,37 +1,57 @@
-import { getConfig, toPolaris } from './utils';
+import {
+  getConfig,
+  getCustomer,
+  getLoanProduct,
+  getSavingProduct,
+  toPolaris,
+} from './utils';
 
 export const savingToPolaris = async (subdomain, params) => {
   const config = await getConfig(subdomain, 'POLARIS', {});
 
-  const savingParams = params.object;
+  const savingContract = params.object;
+  const loanProduct = await getSavingProduct(
+    subdomain,
+    savingContract.contractTypeId,
+  );
+  const customer = await getCustomer(subdomain, savingContract.customerId);
+
+  //console.log('savingContract:',savingContract)
+
   let sendData = {};
   sendData = [
     {
-      prodCode: savingParams.prodCode, //
+      prodCode: savingContract.contractTypeId,
       slevel: 1,
-      capMethod: savingParams.interestCalcType,
-      capAcntCode: savingParams.depositAccount,
-      capAcntSysNo: savingParams.storeInterestInterval,
-      startDate: savingParams.startDate,
-      maturityOption: savingParams.closeOrExtendConfig,
-      rcvAcntCode: savingParams.interestGiveType,
-      brchCode: savingParams.branchId,
-      curCode: savingParams.currency,
-      name: savingParams.name, //
-      name2: savingParams.name2, //
-      termLen: savingParams.duration,
-      maturityDate: savingParams.endDate,
-      custCode: savingParams.customerId,
-      segCode: savingParams.number,
+      capMethod: savingContract.interestCalcType,
+      capAcntCode:
+        savingContract.depositAccount === 'depositAccount'
+          ? savingContract.depositAccount
+          : '',
+      capAcntSysNo: '', // savingContract.storeInterestInterval,
+      startDate: savingContract.startDate,
+      maturityOption: savingContract.closeOrExtendConfig,
+      rcvAcntCode:
+        savingContract.depositAccount === 'depositAccount'
+          ? savingContract.depositAccount
+          : '',
+      brchCode: savingContract.branchId,
+      curCode: savingContract.currency,
+      name: savingContract.contractType.name,
+      name2: savingContract.contractType.__typename,
+      termLen: savingContract.duration,
+      maturityDate: savingContract.endDate,
+      custCode: customer.code,
+      segCode: savingContract.number,
       jointOrSingle: 's',
       statusCustom: 0,
-      statusDate: savingParams.startDate,
-      casaAcntCode: savingParams.casaAcntCode, //
-      closedBy: savingParams.closedBy, //
-      closedDate: savingParams.closedDate, //
-      lastCtDate: savingParams.lastCtDate, //
-      lastDtDate: savingParams.lastDtDate //
-    }
+      statusDate: savingContract.startDate,
+      casaAcntCode: savingContract.casaAcntCode,
+      closedBy: savingContract.closedBy,
+      closedDate: savingContract.closedDate,
+      lastCtDate: savingContract.lastCtDate,
+      lastDtDate: savingContract.lastDtDate,
+    },
   ];
 
   toPolaris({
@@ -40,7 +60,7 @@ export const savingToPolaris = async (subdomain, params) => {
     op: '13610120',
     role: config.role,
     token: config.token,
-    data: sendData
+    data: sendData,
   });
 };
 
@@ -59,8 +79,8 @@ export const getSavingAcntTransaction = async (subdomain, params) => {
       seeCorr: savingTransactionParams.seeCorr,
       seeReverse: savingTransactionParams.seeReverse,
       startPagingPosition: savingTransactionParams.startPagingPosition,
-      PageRowCount: savingTransactionParams.PageRowCount
-    }
+      PageRowCount: savingTransactionParams.PageRowCount,
+    },
   ];
   toPolaris({
     apiUrl: config.apiUrl,
@@ -68,6 +88,6 @@ export const getSavingAcntTransaction = async (subdomain, params) => {
     op: '13610101',
     role: config.role,
     token: config.token,
-    data: sendData
+    data: sendData,
   });
 };

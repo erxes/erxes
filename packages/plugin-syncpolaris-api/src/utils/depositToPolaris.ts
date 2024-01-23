@@ -1,44 +1,95 @@
-import { getConfig, toPolaris } from './utils';
+import {
+  customFieldToObject,
+  getConfig,
+  getCustomer,
+  getSavingProduct,
+  toPolaris,
+} from './utils';
 
 export const depositToPolaris = async (subdomain, params) => {
   const config = await getConfig(subdomain, 'POLARIS', {});
-
   const deposit = params.updatedDocument || params.object;
   let sendData = {};
+  const objectCus = await customFieldToObject(
+    subdomain,
+    'savings:contract',
+    deposit,
+  );
+  const savingProduct = await getSavingProduct(
+    subdomain,
+    deposit.contractTypeId,
+  );
+  type valueType =
+    | 'No'
+    | 'Yes'
+    | ''
+    | 'Тийм'
+    | 'Үгүй'
+    | 'JOINT'
+    | 'SINGLE'
+    | 'өөр лүүгээ олгоно'
+    | 'өөр CASA данс руу олгоно'
+    | 'хугацаат хадгаламж руу олгоно';
 
+  function setValue(value: valueType) {
+    switch (value) {
+      case 'No':
+        return 'N';
+      case 'Yes':
+        return 'Y';
+      case 'Тийм':
+        return 1;
+      case 'Үгүй':
+        return 0;
+      case 'JOINT':
+        return 'J';
+      case 'SINGLE':
+        return 'S';
+      case 'өөр лүүгээ олгоно':
+        return 0;
+      case 'өөр CASA данс руу олгоно':
+        return 1;
+      case 'хугацаат хадгаламж руу олгоно':
+        return 2;
+      default:
+        return '';
+    }
+  }
   sendData = [
     {
-      acntType: deposit.acntType,
-      prodCode: deposit.prodCode,
-      brchCode: deposit.brchCode,
-      curCode: deposit.curCode,
-      custCode: deposit.custCode,
-      name: deposit.name,
-      name2: deposit.name2,
-      slevel: deposit.slevel,
-      statusCustom: deposit.statusCustom,
-      jointOrSingle: deposit.jointOrSingle,
-      dormancyDate: deposit.dormancyDate,
-      statusDate: deposit.status,
-      flagNoCredit: deposit.flagNoCredit,
-      flagNoDebit: deposit.flagNoDebit,
-      salaryAcnt: deposit.salaryAcnt,
-      corporateAcnt: deposit.corporateAcnt,
-      capAcntCode: deposit.capAcntCode,
-      capMethod: deposit.capMethod,
-      segCode: deposit.segCode,
-      paymtDefault: deposit.paymtDefault,
-      odType: deposit.odType
-    }
+      acntCode: deposit.number,
+      acntType: objectCus.acntType,
+      prodCode: savingProduct.code,
+      brchCode: 'deposit.brchCode',
+      curCode: savingProduct.currency,
+      custCode: '',
+      name: deposit.number,
+      name2: deposit.number,
+      slevel: objectCus.slevel,
+      statusCustom: '',
+      jointOrSingle: setValue(objectCus.jointOrSingle),
+      dormancyDate: objectCus.dormancyDate,
+      statusDate: objectCus.statusDate,
+      flagNoCredit: setValue(objectCus.flagNoCredit),
+      flagNoDebit: setValue(objectCus.flagNoCredit),
+      salaryAcnt: setValue(objectCus.salaryAcnt),
+      corporateAcnt: setValue(objectCus.corporateAcnt),
+      capAcntCode: objectCus.capAcntCode,
+      capMethod: setValue(objectCus.capMethod),
+      segCode: objectCus.segCode,
+      paymtDefault: setValue(objectCus.paymtDefault),
+      odType: objectCus.odType,
+    },
   ];
-
+  console.log('objectCus:', objectCus);
+  console.log('sendData:', sendData);
   toPolaris({
     apiUrl: config.apiUrl,
     company: config.company,
     op: '13610020',
     role: config.role,
     token: config.token,
-    data: sendData
+    data: sendData,
   });
 };
 
@@ -57,8 +108,8 @@ export const getCustomerAcntTransaction = async (subdomain, params) => {
       seeCorr: acntTransactionParams.seeCorr,
       seeReverse: acntTransactionParams.seeReverse,
       startPosition: acntTransactionParams.startPosition,
-      count: acntTransactionParams.count
-    }
+      count: acntTransactionParams.count,
+    },
   ];
   toPolaris({
     apiUrl: config.apiUrl,
@@ -66,7 +117,7 @@ export const getCustomerAcntTransaction = async (subdomain, params) => {
     op: '13610003',
     role: config.role,
     token: config.token,
-    data: sendData
+    data: sendData,
   });
 };
 
@@ -77,8 +128,8 @@ export const getCustomerAcntBalance = async (subdomain, params) => {
 
   sendData = [
     {
-      acntCode: acntBalanceParam.acntCode
-    }
+      acntCode: acntBalanceParam.acntCode,
+    },
   ];
   toPolaris({
     apiUrl: config.apiUrl,
@@ -86,6 +137,6 @@ export const getCustomerAcntBalance = async (subdomain, params) => {
     op: '13610003',
     role: config.role,
     token: config.token,
-    data: sendData
+    data: sendData,
   });
 };

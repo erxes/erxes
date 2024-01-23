@@ -13,7 +13,7 @@ interface IParams {
 type CustomFieldType =
   | 'contacts:customer'
   | 'loans:contract'
-  | 'savings.contract';
+  | 'savings:contract';
 
 export const toPolaris = async (args: IParams) => {
   const { op, company, data, apiUrl, token, role } = args;
@@ -165,7 +165,6 @@ export const customFieldToObject = async (
     isRPC: true,
     defaultValue: [],
   });
-
   const customFieldsData: any[] = object.customFieldsData || [];
   for (const f of fields) {
     const existingData = customFieldsData.find((c) => c.field === f._id);
@@ -205,4 +204,14 @@ export const objectToCustomField = async (
     object[f.code] = existingData?.value;
   }
   return object;
+};
+
+export const getSavingProduct = async (subdomain, _id) => {
+  return await sendCommonMessage({
+    subdomain,
+    action: 'contractType.findOne',
+    serviceName: 'savings',
+    data: { _id },
+    isRPC: true,
+  });
 };
