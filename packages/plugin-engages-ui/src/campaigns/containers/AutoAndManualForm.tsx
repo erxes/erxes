@@ -4,8 +4,11 @@ import {
   EmailTemplatesQueryResponse,
   IEngageMessageDoc,
   IEngageScheduleDate,
-  IIntegrationWithPhone
+  IIntegrationWithPhone,
 } from '@erxes/ui-engage/src/types';
+
+import { useLazyQuery } from '@apollo/client';
+import { ClientPortalConfigsQueryResponse } from '@erxes/plugin-clientportal-ui/src/types';
 
 import { AddMutationResponse } from '@erxes/ui-segments/src/types';
 import AutoAndManualForm from '../components/AutoAndManualForm';
@@ -14,10 +17,11 @@ import { IBrand } from '@erxes/ui/src/brands/types';
 import { IConfig } from '@erxes/ui-settings/src/general/types';
 import { IUser } from '@erxes/ui/src/auth/types';
 import { IntegrationsQueryResponse } from '@erxes/ui-inbox/src/settings/integrations/types';
-import React from 'react';
+import React, { useState, useCallback } from 'react';
 import { gql } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
 import { queries as integrationQueries } from '@erxes/ui-inbox/src/settings/integrations/graphql';
+import { queries as clientPortalQueries } from '@erxes/plugin-clientportal-ui/src/graphql';
 import { isEnabled } from '@erxes/ui/src/utils/core';
 import { queries } from '@erxes/ui-engage/src/graphql';
 import withFormMutations from './withFormMutations';
@@ -40,16 +44,36 @@ type FinalProps = {
   isActionLoading: boolean;
   save: (doc: IEngageMessageDoc) => Promise<any>;
   smsConfig: IConfig;
+  clientPortalConfigsQuery: ClientPortalConfigsQueryResponse;
 } & Props &
   AddMutationResponse;
 
 const AutoAndManualFormContainer = (props: FinalProps) => {
+  const [businessPortalKind, setBusinessPortalKind] = useState<
+    string | 'client' | 'vendor'
+  >('client');
+
   const {
     emailTemplatesQuery,
     integrationsConfigsQuery,
     externalIntegrationsQuery,
-    integrationsQuery
+    integrationsQuery,
   } = props;
+
+  const [
+    clientPortalConfigsQuery,
+    { loading, data = {} as ClientPortalConfigsQueryResponse },
+  ] = useLazyQuery<ClientPortalConfigsQueryResponse>(
+    gql(clientPortalQueries.getConfigs),
+  );
+
+  const handleClientPortalKindChange = useCallback(
+    (businessPortalKind: string) => {
+      setBusinessPortalKind(businessPortalKind);
+      clientPortalConfigsQuery({ variables: { kind: businessPortalKind } });
+    },
+    [businessPortalKind],
+  );
 
   const configs =
     integrationsConfigsQuery && integrationsConfigsQuery.integrationsGetConfigs
@@ -68,10 +92,11 @@ const AutoAndManualFormContainer = (props: FinalProps) => {
       : [];
 
   const mappedIntegrations: IIntegrationWithPhone[] = [];
+  const clientPortalGetConfigs = data.clientPortalGetConfigs || [];
 
   for (const ext of externalIntegrations) {
     const locals = integrations.filter(
-      i => i._id === ext.erxesApiId && i.isActive
+      (i) => i._id === ext.erxesApiId && i.isActive,
     );
 
     for (const local of locals) {
@@ -79,7 +104,7 @@ const AutoAndManualFormContainer = (props: FinalProps) => {
         _id: local._id,
         name: local.name,
         phoneNumber: ext.telnyxPhoneNumber,
-        isActive: local.isActive
+        isActive: local.isActive,
       });
     }
   }
@@ -87,11 +112,15 @@ const AutoAndManualFormContainer = (props: FinalProps) => {
   const updatedProps = {
     ...props,
     templates: emailTemplatesQuery?.emailTemplates || [],
-    smsConfig: configs.find(i => i.code === 'TELNYX_API_KEY'),
-    integrations: mappedIntegrations
+    smsConfig: configs.find((i) => i.code === 'TELNYX_API_KEY'),
+    integrations: mappedIntegrations,
+    clientPortalGetConfigs,
+    businessPortalKind,
+    handleClientPortalKindChange,
+    loading,
   };
 
-  const content = formProps => (
+  const content = (formProps) => (
     <AutoAndManualForm {...updatedProps} {...formProps} />
   );
 
@@ -105,30 +134,30 @@ const withTemplatesQuery = withFormMutations<Props>(
         name: 'emailTemplatesQuery',
         options: ({ totalCountQuery }) => ({
           variables: {
-            perPage: totalCountQuery.emailTemplatesTotalCount
-          }
-        })
-      })
-    )(AutoAndManualFormContainer)
-  )
+            perPage: totalCountQuery.emailTemplatesTotalCount,
+          },
+        }),
+      }),
+    )(AutoAndManualFormContainer),
+  ),
 );
 
 let composers: any[] = [
   graphql(gql(queries.totalCount), {
-    name: 'totalCountQuery'
-  })
+    name: 'totalCountQuery',
+  }),
 ];
 
 const integrationEnabledQueries = [
   graphql(gql(integrationQueries.integrationsGetConfigs), {
-    name: 'integrationsConfigsQuery'
+    name: 'integrationsConfigsQuery',
   }),
   graphql(gql(integrationQueries.integrationsGetIntegrations), {
     name: 'externalIntegrationsQuery',
     options: () => ({
       variables: { kind: 'telnyx' },
-      fetchPolicy: 'network-only'
-    })
+      fetchPolicy: 'network-only',
+    }),
   }),
   graphql<Props, IntegrationsQueryResponse>(
     gql(integrationQueries.integrations),
@@ -137,12 +166,16 @@ const integrationEnabledQueries = [
       options: () => {
         return {
           variables: { kind: 'telnyx' },
-          fetchPolicy: 'network-only'
+          fetchPolicy: 'network-only',
         };
-      }
-    }
-  )
+      },
+    },
+  ),
 ];
+
+// if (isEnabled('clientportal')) {
+//   composers = composers.concat(clientPortalEnabledQueries);
+// }
 
 if (isEnabled('integrations')) {
   composers = composers.concat(integrationEnabledQueries);

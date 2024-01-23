@@ -328,7 +328,6 @@ export const setCampaignCount = async (models: IModels, data: ICampaign) => {
   const { _id, validCustomersCount = 0 } = data;
 
   const campaign = await models.EngageMessages.findOne({ _id });
-
   if (campaign) {
     const { validCustomersCount: currentValid = 0, totalCustomersCount = 0 } =
       campaign;
