@@ -167,7 +167,7 @@ class Row extends React.Component<Props> {
 
   renderStatus() {
     const { message } = this.props;
-    const { kind, scheduleDate, isLive, runCount, isDraft } = message;
+    const { kind, scheduleDate, isLive, runCount, isDraft, method } = message;
     let labelStyle = 'primary';
     let labelText = 'Sending';
 
@@ -217,7 +217,6 @@ class Row extends React.Component<Props> {
   renderType(msg) {
     let icon: string = 'multiply';
     let label: string = 'Other type';
-
     switch (msg.method) {
       case METHODS.EMAIL:
         icon = 'envelope';
@@ -232,6 +231,11 @@ class Row extends React.Component<Props> {
       case METHODS.MESSENGER:
         icon = 'comment-1';
         label = __('Messenger');
+
+        break;
+      case METHODS.NOTIFICATION:
+        icon = 'message';
+        label = __('Notification');
 
         break;
       default:
@@ -253,7 +257,6 @@ class Row extends React.Component<Props> {
   render() {
     const { isChecked, message, remove } = this.props;
     const { brand = { name: '' }, scheduleDate, totalCustomersCount } = message;
-
     return (
       <tr key={message._id}>
         <td>
