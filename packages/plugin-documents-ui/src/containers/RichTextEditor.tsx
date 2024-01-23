@@ -9,7 +9,7 @@ import { withProps } from '@erxes/ui/src/utils';
 import { RichTextEditor } from '@erxes/ui/src/components/richTextEditor/TEditor';
 
 type Props = {
-  contentType: String;
+  contentType: string;
 } & IEditorProps;
 
 type FinalProps = {

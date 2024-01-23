@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Key } from 'react';
 import { RichTextEditor } from '../TEditor';
 
 type ToolbarLocationType = 'top' | 'bottom';
@@ -65,13 +65,13 @@ export function getToolbarControl({
     more: RichTextEditor.MoreControl
   };
 
-  const getControlItem = (item: ToolbarItem) => {
-    if (typeof item === 'string') {
-      if (item === 'fontSize')
-        return React.createElement(TOOLBAR_CONTROLS[item], {
-          toolbarPlacement: toolbarLocation
-        });
-      return React.createElement(TOOLBAR_CONTROLS[item]);
+  const getControlItem = (item: ToolbarItem, index: Key) => {
+    if (typeof item === 'string' && TOOLBAR_CONTROLS[item]) {
+      const controlProps = {
+        key: item + index,
+        ...(item === 'fontSize' ? { toolbarPlacement: toolbarLocation } : {})
+      };
+      return React.createElement(TOOLBAR_CONTROLS[item], controlProps);
     }
   };
 
@@ -103,11 +103,13 @@ export function getToolbarControl({
 
   if (typeof control === 'string') {
     if (!isValidToolbarControl(control)) return null;
-    return getControlItem(control);
+    return getControlItem(control, control);
   } else {
     if (!isValidToolbarParam(control)) return null;
 
-    const controlItems = control.items.map((item: any) => getControlItem(item));
+    const controlItems = control.items.map((item: any, index: number) =>
+      getControlItem(item, index)
+    );
 
     if (!control.isMoreControl)
       return (
@@ -130,12 +132,12 @@ export const getToolbar = ({ toolbar, toolbarLocation }: ToolbarParamType) => {
   const controlGroups: any = [];
   let currentGroup: any = [];
 
-  toolbar.forEach((item: string | DropdownControlType) => {
+  toolbar.forEach((item: string | DropdownControlType, index: number) => {
     if (item === '|') {
       // Separator encountered, push the current group to the controlGroups array
       if (currentGroup.length > 0) {
         controlGroups.push(
-          <RichTextEditor.ControlsGroup key={controlGroups.length}>
+          <RichTextEditor.ControlsGroup key={`${item}-${index}`}>
             {currentGroup}
           </RichTextEditor.ControlsGroup>
         );
@@ -143,14 +145,18 @@ export const getToolbar = ({ toolbar, toolbarLocation }: ToolbarParamType) => {
       }
     } else {
       // Control encountered, add it to the current group
-      currentGroup.push(getToolbarControl({ control: item, toolbarLocation }));
+      <React.Fragment key={`${item}-${index}`}>
+        {currentGroup.push(
+          getToolbarControl({ control: item, toolbarLocation })
+        )}
+      </React.Fragment>;
     }
   });
 
   // Push the last group if it's not empty
   if (currentGroup.length > 0) {
     controlGroups.push(
-      <RichTextEditor.ControlsGroup key={controlGroups.length}>
+      <RichTextEditor.ControlsGroup key={`last-group-${controlGroups.length}`}>
         {currentGroup}
       </RichTextEditor.ControlsGroup>
     );
