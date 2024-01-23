@@ -155,7 +155,6 @@ export const start = async (
     try {
       await sendMessage('putActivityLog', {
         subdomain,
-        action: ACTIVITY_LOG_ACTIONS.SEND_EMAIL_CAMPAIGN,
         data: {
           action: 'send',
           contentType: 'campaign',
@@ -263,7 +262,6 @@ export const sendBulkSms = async (
     try {
       await sendMessage('putActivityLog', {
         subdomain,
-        action: ACTIVITY_LOG_ACTIONS.SEND_SMS_CAMPAIGN,
         data: {
           action: 'send',
           contentType: 'campaign',

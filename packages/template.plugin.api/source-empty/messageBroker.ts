@@ -21,12 +21,3 @@ export const initBroker = async () => {
     };
   });
 };
-
-
-export const sendCommonMessage = async (
-  args: MessageArgs
-) => {
-  return sendMessage({
-    ...args
-  });
-};

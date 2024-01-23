@@ -40,7 +40,6 @@ export interface InterMessage {
   timeout?: number;
   defaultValue?: any;
   thirdService?: boolean;
-  [others: string]: any;
 }
 
 const showInfoDebug = () => {
@@ -439,7 +438,7 @@ export const consumeRPCQueueMq = async (
 
 export const sendMessage = async (
   queueName: string,
-  message?: InterMessage,
+  message: InterMessage,
 ): Promise<void> => {
   if (!channel) {
     throw new Error(`RabbitMQ channel is ${channel}`);
