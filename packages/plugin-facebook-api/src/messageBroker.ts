@@ -59,7 +59,9 @@ export const initBroker = async () => {
         }
 
         if (type === 'facebook') {
-          response = { data: await handleFacebookMessage(models, data) };
+          response = {
+            data: await handleFacebookMessage(models, data, subdomain),
+          };
         }
 
         if (action === 'getConfigs') {
@@ -113,7 +115,7 @@ export const initBroker = async () => {
       const models = await generateModels(subdomain);
 
       return {
-        data: await models.Posts.getPost({ erxesApiId }, true),
+        data: await models.PostConversations.findOne({ erxesApiId }, true),
         status: 'success',
       };
     },
