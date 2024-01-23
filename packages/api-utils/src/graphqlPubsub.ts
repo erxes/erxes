@@ -9,7 +9,7 @@ const { REDIS_HOST, REDIS_PORT, REDIS_PASSWORD, SKIP_REDIS } = process.env;
 const pubsub = SKIP_REDIS
   ? new PubSub()
   : new RedisPubSub({
-      connectionListener: error => {
+      connectionListener: (error) => {
         if (error) {
           console.log(error);
         }
@@ -17,13 +17,13 @@ const pubsub = SKIP_REDIS
       publisher: new Redis({
         host: REDIS_HOST,
         port: parseInt(REDIS_PORT || '6379', 10),
-        password: REDIS_PASSWORD
+        password: REDIS_PASSWORD,
       }),
       subscriber: new Redis({
         host: REDIS_HOST,
         port: parseInt(REDIS_PORT || '6379', 10),
-        password: REDIS_PASSWORD
-      })
+        password: REDIS_PASSWORD,
+      }),
     });
 
 export default pubsub;

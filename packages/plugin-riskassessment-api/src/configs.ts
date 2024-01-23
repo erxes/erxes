@@ -13,18 +13,14 @@ import forms from './forms';
 
 export let mainDb;
 export let debug;
-export let graphqlPubsub;
-export let serviceDiscovery;
 
 export default {
   name: 'riskassessment',
   permissions,
-  graphql: async sd => {
-    serviceDiscovery = sd;
-
+  graphql: async () => {
     return {
-      typeDefs: await typeDefs(sd),
-      resolvers: await resolvers(sd)
+      typeDefs: await typeDefs(),
+      resolvers: await resolvers(),
     };
   },
   apolloServerContext: async (context, req) => {
@@ -38,12 +34,10 @@ export default {
 
     return context;
   },
-  onServerInit: async options => {
+  onServerInit: async (options) => {
     mainDb = options.db;
 
-    initBroker(options.messageBrokerClient);
-
-    graphqlPubsub = options.pubsubClient;
+    initBroker();
 
     debug = options.debug;
   },
@@ -51,6 +45,6 @@ export default {
     afterMutations,
     tags,
     cronjobs,
-    forms
-  }
+    forms,
+  },
 };

@@ -6,22 +6,20 @@ import {
   importSlots,
   importUsers,
   preImportProducts,
-  validateConfig
+  validateConfig,
 } from '../../utils/syncUtils';
 import { IContext } from '../../../connectionResolver';
 import { init as initBrokerMain } from '@erxes/api-utils/src/messageBroker';
 import { initBroker, sendPosMessage } from '../../../messageBroker';
 import { IOrderItemDocument } from '../../../models/definitions/orderItems';
-import redis from '@erxes/api-utils/src/redis';
 import fetch from 'node-fetch';
-import { app } from '../../../configs';
 import { IPutResponseDocument } from '../../../models/definitions/putResponses';
 
 const configMutations = {
   posConfigsFetch: async (
     _root,
     { token },
-    { models, subdomain }: IContext
+    { models, subdomain }: IContext,
   ) => {
     const address = await getServerAddress(subdomain);
 
@@ -29,7 +27,7 @@ const configMutations = {
 
     try {
       const response = await fetch(`${address}/pos-init`, {
-        headers: { 'POS-TOKEN': token }
+        headers: { 'POS-TOKEN': token },
       });
       if (!response.ok) {
         await models.Configs.deleteOne({ token });
@@ -41,14 +39,14 @@ const configMutations = {
         adminUsers = [],
         cashiers = [],
         productGroups = [],
-        slots = []
+        slots = [],
       } = await response.json();
 
       validateConfig(pos);
 
       await models.Configs.updateConfig(config._id, {
         ...(await extractConfig(subdomain, pos)),
-        token
+        token,
       });
 
       await importUsers(models, cashiers, token);
@@ -60,25 +58,15 @@ const configMutations = {
       throw new Error(e.message);
     }
 
-    const { RABBITMQ_HOST, MESSAGE_BROKER_PREFIX } = process.env;
+    await initBrokerMain(initBroker);
 
-    const messageBrokerClient = await initBrokerMain(
-      {
-        RABBITMQ_HOST,
-        MESSAGE_BROKER_PREFIX,
-        redis,
-        app
-      },
-      initBroker
-    );
-
-    await initBroker(messageBrokerClient)
+    await initBroker()
       .then(() => {
         console.log('Message broker has started.');
       })
-      .catch(e => {
+      .catch((e) => {
         console.log(
-          `Error occurred when starting message broker: ${e.message}`
+          `Error occurred when starting message broker: ${e.message}`,
         );
       });
 
@@ -92,10 +80,10 @@ const configMutations = {
     const response = await fetch(`${address}/pos-sync-config`, {
       headers: {
         'POS-TOKEN': config.token || '',
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
       },
       body: JSON.stringify({ token, type }),
-      timeout: 300000
+      timeout: 300000,
     });
 
     if (!response.ok) {
@@ -109,7 +97,7 @@ const configMutations = {
         const { pos = {}, adminUsers = [], cashiers = [] } = responseData;
         await models.Configs.updateConfig(config._id, {
           ...(await extractConfig(subdomain, pos)),
-          token: config.token
+          token: config.token,
         });
 
         await importUsers(models, cashiers, config.token);
@@ -128,7 +116,7 @@ const configMutations = {
       case 'productsConfigs':
         await models.ProductsConfigs.createOrUpdateConfig({
           code: 'similarityGroup',
-          value: responseData
+          value: responseData,
         });
         break;
     }
@@ -136,13 +124,12 @@ const configMutations = {
   },
 
   async syncOrders(_root, _param, { models, subdomain, config }: IContext) {
-    const unSyncedPutResponses: IPutResponseDocument[] = await models.PutResponses.find(
-      { synced: { $ne: true } }
-    )
-      .sort({ paidDate: 1 })
-      .limit(100)
-      .lean();
-    const putResContentIds = unSyncedPutResponses.map(pr => pr.contentId);
+    const unSyncedPutResponses: IPutResponseDocument[] =
+      await models.PutResponses.find({ synced: { $ne: true } })
+        .sort({ paidDate: 1 })
+        .limit(100)
+        .lean();
+    const putResContentIds = unSyncedPutResponses.map((pr) => pr.contentId);
 
     const orderFilter = {
       $and: [
@@ -151,12 +138,12 @@ const configMutations = {
           $or: [
             {
               synced: { $ne: true },
-              paidDate: { $exists: true, $ne: null }
+              paidDate: { $exists: true, $ne: null },
             },
-            { _id: { $in: putResContentIds } }
-          ]
-        }
-      ]
+            { _id: { $in: putResContentIds } },
+          ],
+        },
+      ],
     };
 
     let sumCount = await models.Orders.find({ ...orderFilter }).count();
@@ -166,25 +153,25 @@ const configMutations = {
       .lean();
 
     const data: any[] = [];
-    const orderIds = orders.map(o => o._id);
+    const orderIds = orders.map((o) => o._id);
     const orderItems: IOrderItemDocument[] = await models.OrderItems.find({
-      orderId: { $in: orderIds }
+      orderId: { $in: orderIds },
     }).lean();
 
     const putResponses = await models.PutResponses.find({
-      contentId: { $in: orderIds }
+      contentId: { $in: orderIds },
     }).lean();
 
     for (const order of orders) {
       const perData: any = {
         posToken: config.token,
-        order
+        order,
       };
       perData.items = (orderItems || []).filter(
-        item => item.orderId === order._id
+        (item) => item.orderId === order._id,
       );
       perData.responses = (putResponses || []).filter(
-        pr => pr.contentId === order._id
+        (pr) => pr.contentId === order._id,
       );
 
       data.push(perData);
@@ -194,14 +181,14 @@ const configMutations = {
       await sendPosMessage({
         subdomain,
         action: 'createOrUpdateOrdersMany',
-        data: { posToken: config.token, syncOrders: data }
+        data: { posToken: config.token, syncOrders: data },
       });
     }
 
     return {
       kind: 'order',
       sumCount,
-      syncedCount: orders.length
+      syncedCount: orders.length,
     };
   },
 
@@ -216,14 +203,14 @@ const configMutations = {
     // await models.Orders.deleteMany({ ...orderFilter });
 
     return {
-      deletedCount: 0
+      deletedCount: 0,
     };
   },
 
   posChooseConfig: async (
     _root,
     { token }: { token: string },
-    { res, models }: IContext
+    { res, models }: IContext,
   ) => {
     const config = await models.Configs.findOne({ token });
 
@@ -234,11 +221,11 @@ const configMutations = {
     res.cookie(
       'pos-config-token',
       token,
-      authCookieOptions({ sameSite: 'none' })
+      authCookieOptions({ sameSite: 'none' }),
     );
 
     return 'chosen';
-  }
+  },
 };
 
 export default configMutations;

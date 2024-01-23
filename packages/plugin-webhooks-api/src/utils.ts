@@ -1,16 +1,17 @@
 import { getEnv } from '@erxes/api-utils/src';
 import { IModels } from './connectionResolver';
-import { serviceDiscovery } from './configs';
+
 import { sendCommonMessage } from './messageBroker';
 import fetch from 'node-fetch';
+import { getService, isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
 
 export const send = async (
   models: IModels,
   subdomain: string,
-  { action, type, params }: { action: string; type: string; params: any }
+  { action, type, params }: { action: string; type: string; params: any },
 ) => {
   const webhooks = await models.Webhooks.find({
-    actions: { $elemMatch: { action, type } }
+    actions: { $elemMatch: { action, type } },
   });
 
   if (!webhooks) {
@@ -32,13 +33,13 @@ export const send = async (
       subdomain,
       type,
       action,
-      data
+      data,
     );
 
     await fetch(webhook.url, {
       headers: {
         'Erxes-token': webhook.token || '',
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
       },
       method: 'post',
       body: JSON.stringify({
@@ -47,8 +48,8 @@ export const send = async (
         content,
         url,
         action,
-        type
-      })
+        type,
+      }),
     })
       .then(async () => {
         await models.Webhooks.updateStatus(webhook._id, 'available');
@@ -78,10 +79,8 @@ const prepareWebhookContent = async (subdomain: string, type, action, data) => {
       break;
   }
 
-  const isEnabled = await serviceDiscovery.isEnabled(serviceName);
-
-  if (isEnabled) {
-    const service = await serviceDiscovery.getService(serviceName);
+  if (isEnabled(serviceName)) {
+    const service = await getService(serviceName);
 
     const meta = service.config?.meta || {};
 
@@ -94,9 +93,9 @@ const prepareWebhookContent = async (subdomain: string, type, action, data) => {
           data,
           actionText,
           contentType,
-          action
+          action,
         },
-        isRPC: true
+        isRPC: true,
       });
 
       url = response.url;

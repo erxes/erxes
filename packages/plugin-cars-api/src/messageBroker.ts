@@ -1,71 +1,60 @@
 import { generateModels } from './connectionResolver';
-import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
-import { serviceDiscovery } from './configs';
+import { sendMessage } from '@erxes/api-utils/src/core';
+import type {
+  MessageArgsOmitService,
+  MessageArgs,
+} from '@erxes/api-utils/src/core';
 
-let client;
-
-export const initBroker = async cl => {
-  client = cl;
-};
+export const initBroker = async () => {};
 
 export const sendInboxMessage = async (
-  args: ISendMessageArgs
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
-    client,
-    serviceDiscovery,
     serviceName: 'inbox',
-    ...args
+    ...args,
   });
 };
 
-export const sendTagsMessage = async (args: ISendMessageArgs): Promise<any> => {
+export const sendTagsMessage = async (
+  args: MessageArgsOmitService,
+): Promise<any> => {
   return sendMessage({
-    client,
-    serviceDiscovery,
     serviceName: 'tags',
-    ...args
+    ...args,
   });
 };
 
-export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
+export const sendCoreMessage = async (
+  args: MessageArgsOmitService,
+): Promise<any> => {
   return sendMessage({
-    client,
-    serviceDiscovery,
     serviceName: 'core',
-    ...args
+    ...args,
   });
 };
 
 export const sendInternalNotesMessage = async (
-  args: ISendMessageArgs
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
-    client,
-    serviceDiscovery,
     serviceName: 'internalnotes',
-    ...args
+    ...args,
   });
 };
 
-export const sendCommonMessage = async (
-  args: ISendMessageArgs & { serviceName: string }
-): Promise<any> => {
+export const sendCommonMessage = async (args: MessageArgs): Promise<any> => {
   return sendMessage({
-    serviceDiscovery,
-    client,
-    ...args
+    ...args,
   });
 };
 
 export const sendSegmentsMessage = async (
-  args: ISendMessageArgs
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
-    client,
-    serviceDiscovery,
     serviceName: 'segments',
-    ...args
+    ...args,
   });
 };
 
@@ -73,15 +62,11 @@ export const fetchSegment = (
   subdomain: string,
   segmentId: string,
   options?,
-  segmentData?: any
+  segmentData?: any,
 ) =>
   sendSegmentsMessage({
     subdomain,
     action: 'fetchSegment',
     data: { segmentId, options, segmentData },
-    isRPC: true
+    isRPC: true,
   });
-
-export default function() {
-  return client;
-}

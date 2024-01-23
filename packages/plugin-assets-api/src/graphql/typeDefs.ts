@@ -3,16 +3,17 @@ import gql from 'graphql-tag';
 import {
   mutations as assetMutations,
   queries as assetQueries,
-  types as assetTypes
+  types as assetTypes,
 } from './schema/assets';
 import {
   mutations as movementMutations,
   queries as movementQueries,
-  types as movementTypes
+  types as movementTypes,
 } from './schema/movements';
+import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
 
-const typeDefs = async serviceDiscovery => {
-  const contactsAvailable = await serviceDiscovery.isEnabled('contacts');
+const typeDefs = async () => {
+  const contactsAvailable = await isEnabled('contacts');
 
   return gql`
     scalar JSON

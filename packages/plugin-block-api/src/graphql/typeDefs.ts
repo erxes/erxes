@@ -3,22 +3,22 @@ import gql from 'graphql-tag';
 import {
   types as packegeTypes,
   queries as packageQueries,
-  mutations as packageMutations
+  mutations as packageMutations,
 } from './schema/packages';
 
 import {
   queries as blockQueries,
   types as blockTypes,
-  mutations as blockMutations
+  mutations as blockMutations,
 } from './schema/block';
 
 import {
   queries as transactionQueries,
   types as transactionTypes,
-  mutations as transactionMutations
+  mutations as transactionMutations,
 } from './schema/transaction';
 
-const typeDefs = async _serviceDiscovery => {
+const typeDefs = async () => {
   return gql`
     scalar JSON
     scalar Date

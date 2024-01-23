@@ -3,7 +3,7 @@ import * as compose from 'lodash.flowright';
 
 import {
   AddMessageMutationVariables,
-  IConversation
+  IConversation,
 } from '@erxes/ui-inbox/src/inbox/types';
 import { readFile, withProps } from '@erxes/ui/src/utils';
 
@@ -53,7 +53,7 @@ const RespondBoxContainer = (props: FinalProps) => {
     addMessage,
     responseTemplatesQuery,
     currentUser,
-    search
+    search,
   } = props;
 
   const [fetchMentions] = useLazyQuery(gql(queries.userList));
@@ -73,7 +73,7 @@ const RespondBoxContainer = (props: FinalProps) => {
         avatar:
           user.details &&
           user.details.avatar &&
-          readFile(user.details.avatar, 44)
+          readFile(user.details.avatar, 44),
       });
     }
     return mentionUsers;
@@ -87,15 +87,10 @@ const RespondBoxContainer = (props: FinalProps) => {
 
   const sendMessage = (
     variables: AddMessageMutationVariables,
-    callback: (error: Error) => void
+    callback: (error: Error) => void,
   ) => {
-    const {
-      conversationId,
-      content,
-      attachments,
-      internal,
-      contentType
-    } = variables;
+    const { conversationId, content, attachments, internal, contentType } =
+      variables;
 
     let optimisticResponse;
 
@@ -123,24 +118,29 @@ const RespondBoxContainer = (props: FinalProps) => {
         user: null,
         customer: null,
         videoCallData: null,
-        mid: Math.random().toString()
-      }
+        mid: Math.random().toString(),
+      },
     };
 
     addMessage({
       variables,
       optimisticResponse,
       kind: conversation.integration.kind,
-      callback
+      callback,
     });
   };
+
+  const refetchResponseTemplates = (content) => [
+    responseTemplatesQuery.refetch({ searchValue: content }),
+  ];
 
   const updatedProps = {
     ...props,
     onSearchChange,
     sendMessage,
     responseTemplates: responseTemplatesQuery.responseTemplates || [],
-    mentionSuggestion: { getVariables, fetchMentions, extractFunction }
+    refetchResponseTemplates,
+    mentionSuggestion: { getVariables, fetchMentions, extractFunction },
   };
 
   return <RespondBox {...updatedProps} />;
@@ -156,13 +156,13 @@ const withQuery = () =>
           options: () => {
             return {
               variables: {
-                perPage: 200
-              }
+                perPage: 20,
+              },
             };
-          }
-        }
-      )
-    )(RespondBoxContainer)
+          },
+        },
+      ),
+    )(RespondBoxContainer),
   );
 
 class Wrapper extends React.Component<

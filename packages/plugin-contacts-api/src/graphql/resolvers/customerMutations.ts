@@ -2,20 +2,20 @@ import * as _ from 'underscore';
 
 import {
   ICustomer,
-  ICustomerDocument
+  ICustomerDocument,
 } from '../../models/definitions/customers';
 import {
   sendCoreMessage,
   sendIntegrationsMessage,
   sendCommonMessage,
-  sendInboxMessage
+  sendInboxMessage,
 } from '../../messageBroker';
 import { COC_LIFECYCLE_STATE_TYPES, MODULE_NAMES } from '../../constants';
 import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
 import { checkPermission } from '@erxes/api-utils/src/permissions';
 import { validateBulk } from '../../verifierUtils';
 import { IContext } from '../../connectionResolver';
-import { serviceDiscovery } from '../../configs';
+import { getServices } from '@erxes/api-utils/src/serviceDiscovery';
 
 interface ICustomersEdit extends ICustomer {
   _id: string;
@@ -33,7 +33,7 @@ const customerMutations = {
   async customersAdd(
     _root,
     doc: ICustomer,
-    { user, docModifier, models, subdomain }: IContext
+    { user, docModifier, models, subdomain }: IContext,
   ) {
     const modifiedDoc = docModifier(doc);
 
@@ -45,9 +45,9 @@ const customerMutations = {
       {
         type: MODULE_NAMES.CUSTOMER,
         newData: modifiedDoc,
-        object: customer
+        object: customer,
       },
-      user
+      user,
     );
 
     sendCoreMessage({
@@ -55,8 +55,8 @@ const customerMutations = {
       action: 'registerOnboardHistory',
       data: {
         type: `${customer.state}Create`,
-        user
-      }
+        user,
+      },
     });
 
     return customer;
@@ -68,7 +68,7 @@ const customerMutations = {
   async customersEdit(
     _root,
     { _id, ...doc }: ICustomersEdit,
-    { user, models, subdomain }: IContext
+    { user, models, subdomain }: IContext,
   ) {
     const customer = await models.Customers.getCustomer(_id);
     const updated = await models.Customers.updateCustomer(_id, doc);
@@ -80,9 +80,9 @@ const customerMutations = {
         type: MODULE_NAMES.CUSTOMER,
         object: customer,
         newData: doc,
-        updatedDocument: updated
+        updatedDocument: updated,
       },
-      user
+      user,
     );
 
     return updated;
@@ -95,24 +95,24 @@ const customerMutations = {
     _root,
     {
       selector,
-      doc
+      doc,
     }: {
       selector: { primaryEmail?: string; primaryPhone?: string; code?: string };
       doc: ICustomersEdit;
     },
-    { models }: IContext
+    { models }: IContext,
   ) {
     let customer;
 
     if (selector.primaryEmail) {
       customer = await models.Customers.findOne({
-        primaryEmail: selector.primaryEmail
+        primaryEmail: selector.primaryEmail,
       }).lean();
     }
 
     if (!customer && selector.primaryPhone) {
       customer = await models.Customers.findOne({
-        primarPhone: selector.primaryPhone
+        primarPhone: selector.primaryPhone,
       }).lean();
     }
 
@@ -129,7 +129,7 @@ const customerMutations = {
 
       for (const data of doc.customFieldsData) {
         const prevEntry = prevCustomFieldsData.find(
-          d => d.field === data.field
+          (d) => d.field === data.field,
         );
 
         if (prevEntry) {
@@ -151,7 +151,7 @@ const customerMutations = {
   async customersChangeState(
     _root,
     args: { _id: string; value: string },
-    { models: { Customers } }: IContext
+    { models: { Customers } }: IContext,
   ) {
     return Customers.changeState(args._id, args.value);
   },
@@ -163,9 +163,9 @@ const customerMutations = {
     _root,
     {
       customerIds,
-      customerFields
+      customerFields,
     }: { customerIds: string[]; customerFields: ICustomer },
-    { user, models: { Customers } }: IContext
+    { user, models: { Customers } }: IContext,
   ) {
     return Customers.mergeCustomers(customerIds, customerFields, user);
   },
@@ -176,10 +176,10 @@ const customerMutations = {
   async customersRemove(
     _root,
     { customerIds }: { customerIds: string[] },
-    { user, models, subdomain }: IContext
+    { user, models, subdomain }: IContext,
   ) {
     const customers: ICustomerDocument[] = await models.Customers.find({
-      _id: { $in: customerIds }
+      _id: { $in: customerIds },
     }).lean();
 
     await models.Customers.removeCustomers(customerIds);
@@ -187,7 +187,7 @@ const customerMutations = {
     const commonParams = (ids: string[]) => ({
       subdomain,
       action: 'notification',
-      data: { type: 'removeCustomers', customerIds: ids }
+      data: { type: 'removeCustomers', customerIds: ids },
     });
 
     await sendIntegrationsMessage({ ...commonParams(customerIds) });
@@ -197,18 +197,18 @@ const customerMutations = {
         models,
         subdomain,
         { type: MODULE_NAMES.CUSTOMER, object: customer },
-        user
+        user,
       );
     }
 
-    const services = await serviceDiscovery.getServices();
+    const services = await getServices();
     let relatedIntegrationIds: string[] = [];
     let mergedIds: string[] = [];
 
-    customers.forEach(c => {
+    customers.forEach((c) => {
       if (c.relatedIntegrationIds && c.relatedIntegrationIds.length > 0) {
         relatedIntegrationIds = relatedIntegrationIds.concat(
-          c.relatedIntegrationIds
+          c.relatedIntegrationIds,
         );
       }
       if (c.mergedIds && c.mergedIds.length > 0) {
@@ -224,7 +224,7 @@ const customerMutations = {
       action: 'integrations.find',
       isRPC: true,
       data: { query: { _id: { $in: relatedIntegrationIds } } },
-      defaultValue: []
+      defaultValue: [],
     });
 
     // find related integration of the customer & delete where it's linked
@@ -233,7 +233,7 @@ const customerMutations = {
 
       await sendCommonMessage({
         serviceName: services.includes(kind) ? kind : 'integrations',
-        ...commonParams([...customerIds, ...mergedIds])
+        ...commonParams([...customerIds, ...mergedIds]),
       });
     }
 
@@ -243,7 +243,7 @@ const customerMutations = {
   async customersVerify(
     _root,
     { verificationType }: { verificationType: string },
-    { models, subdomain }: IContext
+    { models, subdomain }: IContext,
   ) {
     await validateBulk(models, subdomain, verificationType);
   },
@@ -251,19 +251,19 @@ const customerMutations = {
   async customersChangeVerificationStatus(
     _root,
     args: { customerIds: [string]; type: string; status: string },
-    { models: { Customers } }: IContext
+    { models: { Customers } }: IContext,
   ) {
     return Customers.updateVerificationStatus(
       args.customerIds,
       args.type,
-      args.status
+      args.status,
     );
   },
 
   customersChangeStateBulk(
     _root,
     { _ids, value }: IStateParams,
-    { models }: IContext
+    { models }: IContext,
   ) {
     if (!_ids || _ids.length < 1) {
       throw new Error('Customer ids can not be empty');
@@ -274,9 +274,9 @@ const customerMutations = {
 
     return models.Customers.updateMany(
       { _id: { $in: _ids } },
-      { $set: { state: value } }
+      { $set: { state: value } },
     );
-  }
+  },
 };
 
 checkPermission(customerMutations, 'customersAdd', 'customersAdd');
@@ -287,7 +287,7 @@ checkPermission(customerMutations, 'customersRemove', 'customersRemove');
 checkPermission(
   customerMutations,
   'customersChangeState',
-  'customersChangeState'
+  'customersChangeState',
 );
 
 export default customerMutations;

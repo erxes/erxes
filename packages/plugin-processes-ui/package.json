@@ -6,6 +6,7 @@
     "build": "webpack --mode production"
   },
   "dependencies": {
-    "@erxes/ui" : "*"
+    "@erxes/ui": "*",
+    "jquery": "^3.1.0"
   }
 }

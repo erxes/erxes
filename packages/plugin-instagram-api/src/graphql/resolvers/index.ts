@@ -4,15 +4,15 @@ import mutations from './mutations';
 import queries from './queries';
 import InstagramConversationMessage from './conversationMessage';
 
-const resolvers: any = async _serviceDiscovery => ({
+const resolvers: any = async () => ({
   ...customScalars,
   InstagramConversationMessage,
   Mutation: {
-    ...mutations
+    ...mutations,
   },
   Query: {
-    ...queries
-  }
+    ...queries,
+  },
 });
 
 export default resolvers;

@@ -2,59 +2,60 @@ import gql from 'graphql-tag';
 import {
   types as checkListTypes,
   queries as checkListQueries,
-  mutations as checkListMutations
+  mutations as checkListMutations,
 } from './schema/checklist';
 import {
   types as boardTypes,
   queries as boardQueries,
-  mutations as boardMutations
+  mutations as boardMutations,
 } from './schema/board';
 import {
   types as dealTypes,
   queries as dealQueries,
-  mutations as dealMutations
+  mutations as dealMutations,
 } from './schema/deal';
 import {
   types as purchaseTypes,
   queries as purchaseQueries,
-  mutations as purchaseMutations
+  mutations as purchaseMutations,
 } from './schema/purchase';
 import {
   types as taskTypes,
   queries as taskQueries,
-  mutations as taskMutations
+  mutations as taskMutations,
 } from './schema/task';
 import {
   types as ticketTypes,
   queries as ticketQueries,
-  mutations as ticketMutations
+  mutations as ticketMutations,
 } from './schema/ticket';
 import {
   types as growthHackTypes,
   queries as growthHackQueries,
-  mutations as growthHackMutations
+  mutations as growthHackMutations,
 } from './schema/growthHack';
 import {
   types as plTypes,
   queries as plQueries,
-  mutations as plMutations
+  mutations as plMutations,
 } from './schema/pipelineLabel';
 import {
   types as ptTypes,
   queries as ptQueries,
-  mutations as ptMutations
+  mutations as ptMutations,
 } from './schema/pipelineTemplate';
 import { types as CommonTypes } from './schema/common';
+import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
 
-const typeDefs = async serviceDiscovery => {
-  const contactsEnabled = await serviceDiscovery.isEnabled('contacts');
-  const tagsEnabled = await serviceDiscovery.isEnabled('tags');
-  const formsEnabled = await serviceDiscovery.isEnabled('forms');
+const typeDefs = async () => {
+  const contactsEnabled = await isEnabled('contacts');
+  const tagsEnabled = await isEnabled('tags');
+  const formsEnabled = await isEnabled('forms');
 
-  const isEnabled = {
+  const isEnabledTable = {
     contacts: contactsEnabled,
     forms: formsEnabled,
-    tags: tagsEnabled
+    tags: tagsEnabled,
   };
 
   return gql`
@@ -97,11 +98,11 @@ const typeDefs = async serviceDiscovery => {
         : ''
     }
     
-    ${boardTypes(isEnabled)}
-    ${dealTypes(isEnabled)}
-    ${purchaseTypes(isEnabled)}
-    ${taskTypes(isEnabled)}
-    ${ticketTypes(isEnabled)}
+    ${boardTypes(isEnabledTable)}
+    ${dealTypes(isEnabledTable)}
+    ${purchaseTypes(isEnabledTable)}
+    ${taskTypes(isEnabledTable)}
+    ${ticketTypes(isEnabledTable)}
 
     ${formsEnabled ? growthHackTypes : ''}
 

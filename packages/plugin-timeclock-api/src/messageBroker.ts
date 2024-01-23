@@ -1,43 +1,34 @@
-import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
-import { serviceDiscovery } from './configs';
+import {
+  MessageArgs,
+  MessageArgsOmitService,
+  sendMessage,
+} from '@erxes/api-utils/src/core';
 
-let client;
+export const initBroker = async () => {};
 
-export const initBroker = async cl => {
-  client = cl;
-};
-
-export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
+export const sendCoreMessage = async (
+  args: MessageArgsOmitService,
+): Promise<any> => {
   return sendMessage({
-    client,
-    serviceDiscovery,
     serviceName: 'core',
-    ...args
+    ...args,
   });
 };
 
 export const sendFormsMessage = async (
-  args: ISendMessageArgs
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
-    client,
-    serviceDiscovery,
     serviceName: 'forms',
-    ...args
+    ...args,
   });
 };
 
 export const sendNotificationsMessage = async (
-  args: ISendMessageArgs
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
-    client,
-    serviceDiscovery,
     serviceName: 'notifications',
-    ...args
+    ...args,
   });
 };
-
-export default function() {
-  return client;
-}

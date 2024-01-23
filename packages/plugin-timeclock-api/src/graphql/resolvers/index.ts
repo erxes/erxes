@@ -10,7 +10,7 @@ import Timelog from './timelog';
 import DuplicateSchedule from './duplicateSchedule';
 import Shift from './shift';
 
-const resolvers: any = async serviceDiscovery => ({
+const resolvers: any = async () => ({
   ...customScalars,
   UserReport,
   Schedule,
@@ -21,11 +21,11 @@ const resolvers: any = async serviceDiscovery => ({
   ScheduleConfig,
   Timelog,
   Mutation: {
-    ...mutations
+    ...mutations,
   },
   Query: {
-    ...queries
-  }
+    ...queries,
+  },
 });
 
 export default resolvers;

@@ -1,17 +1,11 @@
 import customScalars from '@erxes/api-utils/src/customScalars';
 import Tag from './tags';
 
-import {
-  Tags as TagMutations,
-} from './mutations';
+import { Tags as TagMutations } from './mutations';
 
-import {
-  Tags as TagQueries,
-} from './queries';
+import { Tags as TagQueries } from './queries';
 
-const resolvers: any = async (serviceDiscovery) => (
-  
-  {
+const resolvers: any = async () => ({
   ...customScalars,
   Tag,
   Mutation: {
@@ -19,7 +13,7 @@ const resolvers: any = async (serviceDiscovery) => (
   },
   Query: {
     ...TagQueries,
-  }
+  },
 });
 
 export default resolvers;

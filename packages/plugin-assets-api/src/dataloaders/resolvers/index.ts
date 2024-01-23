@@ -8,16 +8,16 @@ import ItemSourceLocation from './itemSourceLocation';
 import {
   Asset as assetMutations,
   AssetCategories as assetCategoriesMutations,
-  Movement as movementMutations
+  Movement as movementMutations,
 } from './mutations';
 import {
   Asset as assetQueries,
   AssetCategories as assetCategoriesQueries,
   Movement as movementQueries,
-  MovementItem as movementItemQueries
+  MovementItem as movementItemQueries,
 } from './queries';
 
-const resolvers: any = async serviceDiscovery => ({
+const resolvers: any = async () => ({
   ...customScalars,
   Asset,
   AssetCategory,
@@ -27,14 +27,14 @@ const resolvers: any = async serviceDiscovery => ({
   Mutation: {
     ...assetCategoriesMutations,
     ...assetMutations,
-    ...movementMutations
+    ...movementMutations,
   },
   Query: {
     ...assetCategoriesQueries,
     ...assetQueries,
     ...movementQueries,
-    ...movementItemQueries
-  }
+    ...movementItemQueries,
+  },
 });
 
 export default resolvers;

@@ -3,36 +3,37 @@ import gql from 'graphql-tag';
 import {
   mutations as clientPortalMutations,
   queries as clientPortalQueries,
-  types as clientPortalTypes
+  types as clientPortalTypes,
 } from './schema/clientPortal';
 import {
   mutations as clientPortalUserMutations,
   queries as clientPortalUserQueries,
-  types as clientPortalUserTypes
+  types as clientPortalUserTypes,
 } from './schema/clientPortalUser';
 import {
   queries as notificationQueries,
   mutations as notificationMutations,
-  types as notificationTypes
+  types as notificationTypes,
 } from './schema/clientPortalNotifications';
 
 import {
   queries as commentQueries,
-  types as commentTypes
+  types as commentTypes,
 } from './schema/comment';
 
 import {
   queries as fieldConfigQueries,
   types as fieldConfigTypes,
-  mutations as fieldConfigMutations
+  mutations as fieldConfigMutations,
 } from './schema/fieldConfigs';
+import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
 
-const typeDefs = async serviceDiscovery => {
-  const kbAvailable = await serviceDiscovery.isEnabled('knowledgebase');
-  const cardAvailable = await serviceDiscovery.isEnabled('cards');
-  const isContactsEnabled = await serviceDiscovery.isEnabled('contacts');
-  const formsAvailable = await serviceDiscovery.isEnabled('forms');
-  const productsAvailable = await serviceDiscovery.isEnabled('products');
+const typeDefs = async () => {
+  const kbAvailable = isEnabled('knowledgebase');
+  const cardAvailable = isEnabled('cards');
+  const isContactsEnabled = isEnabled('contacts');
+  const formsAvailable = isEnabled('forms');
+  const productsAvailable = isEnabled('products');
 
   return gql`
     scalar JSON
@@ -42,7 +43,7 @@ const typeDefs = async serviceDiscovery => {
       cardAvailable,
       kbAvailable,
       formsAvailable,
-      productsAvailable
+      productsAvailable,
     )}
     ${clientPortalUserTypes(isContactsEnabled)}
     ${notificationTypes}

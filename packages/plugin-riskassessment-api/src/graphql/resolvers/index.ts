@@ -5,13 +5,13 @@ import Query from './queries';
 
 import DataLoaders from '../../dataLoaders/resolvers';
 
-const resolvers: any = async serviceDiscovery => ({
+const resolvers: any = async () => ({
   ...customScalars,
 
   ...DataLoaders,
 
   Mutation,
-  Query
+  Query,
 });
 
 export default resolvers;

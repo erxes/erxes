@@ -17,13 +17,13 @@ export const routeErrorHandling = (fn, callback?: any) => {
   };
 };
 
-export const sendToWebhook = async (_messageBroker, { subdomain, data }) => {
+export const sendToWebhook = async ({ subdomain, data }) => {
   const isWebhooksAvailable = await isEnabled('webhooks');
 
   if (isWebhooksAvailable) {
     await sendMessage(`webhooks:send`, {
       subdomain,
-      data
+      data,
     });
   }
 };

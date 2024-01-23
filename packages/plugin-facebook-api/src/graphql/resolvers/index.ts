@@ -4,17 +4,17 @@ import mutations from './mutations';
 import queries from './queries';
 import CustomResolvers from '../customResolvers';
 
-const resolvers: any = async _serviceDiscovery => ({
+const resolvers: any = async () => ({
   ...customScalars,
 
   ...CustomResolvers,
 
   Mutation: {
-    ...mutations
+    ...mutations,
   },
   Query: {
-    ...queries
-  }
+    ...queries,
+  },
 });
 
 export default resolvers;

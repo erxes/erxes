@@ -1,15 +1,20 @@
 import { fetchEs } from '@erxes/api-utils/src/elasticsearch';
 import {
   gatherDependentServicesType,
-  ISegmentContentType
+  ISegmentContentType,
 } from '@erxes/api-utils/src/segments';
 import {
   checkPermission,
-  requireLogin
+  requireLogin,
 } from '@erxes/api-utils/src/permissions';
-import { serviceDiscovery } from '../../../configs';
+
 import { IContext } from '../../../connectionResolver';
 import { fetchSegment } from './queryBuilder';
+import {
+  getService,
+  getServices,
+  isEnabled,
+} from '@erxes/api-utils/src/serviceDiscovery';
 
 interface IPreviewParams {
   contentType: string;
@@ -26,12 +31,12 @@ interface IAssociatedType {
 
 const segmentQueries = {
   async segmentsGetTypes() {
-    const serviceNames = await serviceDiscovery.getServices();
+    const serviceNames = await getServices();
 
     let types: Array<{ name: string; description: string }> = [];
 
     for (const serviceName of serviceNames) {
-      const service = await serviceDiscovery.getService(serviceName);
+      const service = await getService(serviceName);
       const meta = service.config.meta || {};
 
       if (meta.segments) {
@@ -43,9 +48,9 @@ const segmentQueries = {
 
             return {
               contentType: `${serviceName}:${ct.type}`,
-              description: ct.description
+              description: ct.description,
             };
-          }
+          },
         );
 
         types = [...types, ...serviceTypes];
@@ -58,7 +63,7 @@ const segmentQueries = {
   async segmentsGetAssociationTypes(_root, { contentType }) {
     const [serviceName] = contentType.split(':');
 
-    const service = await serviceDiscovery.getService(serviceName);
+    const service = await getService(serviceName);
     const meta = service.config.meta || {};
 
     if (!meta.segments) {
@@ -71,19 +76,19 @@ const segmentQueries = {
     const associatedTypes: IAssociatedType[] = serviceCts.map(
       (ct: ISegmentContentType) => ({
         type: `${serviceName}:${ct.type}`,
-        description: ct.description
-      })
+        description: ct.description,
+      }),
     );
 
     // gather dependent services contentTypes
     const dependentServices = meta.segments.dependentServices || [];
 
     for (const dService of dependentServices) {
-      if (!(await serviceDiscovery.isEnabled(dService.name))) {
+      if (!(await isEnabled(dService.name))) {
         continue;
       }
 
-      const depService = await serviceDiscovery.getService(dService.name);
+      const depService = await getService(dService.name);
       const depServiceMeta = depService.config.meta || {};
 
       if (depServiceMeta.segments) {
@@ -92,7 +97,7 @@ const segmentQueries = {
         contentTypes.forEach((ct: ISegmentContentType) => {
           associatedTypes.push({
             type: `${dService.name}:${ct.type}`,
-            description: ct.description
+            description: ct.description,
           });
         });
       }
@@ -104,14 +109,14 @@ const segmentQueries = {
       (ct: ISegmentContentType, sName: string) => {
         associatedTypes.push({
           type: `${sName}:${ct.type}`,
-          description: ct.description
+          description: ct.description,
         });
-      }
+      },
     );
 
-    return associatedTypes.map(atype => ({
+    return associatedTypes.map((atype) => ({
       value: atype.type,
-      description: atype.description
+      description: atype.description,
     }));
   },
 
@@ -123,14 +128,14 @@ const segmentQueries = {
     {
       contentTypes,
       config,
-      ids
+      ids,
     }: { contentTypes: string[]; config?: any; ids: string[] },
-    { models, commonQuerySelector }: IContext
+    { models, commonQuerySelector }: IContext,
   ) {
     const selector: any = {
       ...commonQuerySelector,
       contentType: { $in: contentTypes },
-      name: { $exists: true }
+      name: { $exists: true },
     };
 
     if (ids) {
@@ -152,7 +157,7 @@ const segmentQueries = {
   async segmentsGetHeads(
     _root,
     { contentType },
-    { models, commonQuerySelector }: IContext
+    { models, commonQuerySelector }: IContext,
   ) {
     let selector: any = {};
 
@@ -163,7 +168,7 @@ const segmentQueries = {
       ...commonQuerySelector,
       ...selector,
       name: { $exists: true },
-      $or: [{ subOf: { $exists: false } }, { subOf: '' }]
+      $or: [{ subOf: { $exists: false } }, { subOf: '' }],
     });
   },
 
@@ -180,28 +185,28 @@ const segmentQueries = {
   async segmentsEvents(
     _root,
     { contentType }: { contentType: string },
-    { subdomain }: IContext
+    { subdomain }: IContext,
   ) {
     const aggs = {
       names: {
         terms: {
-          field: 'name'
+          field: 'name',
         },
         aggs: {
           hits: {
             top_hits: {
               _source: ['attributes'],
-              size: 1
-            }
-          }
-        }
-      }
+              size: 1,
+            },
+          },
+        },
+      },
     };
 
     const query = {
       exists: {
-        field: contentType === 'company' ? 'companyId' : 'customerId'
-      }
+        field: contentType === 'company' ? 'companyId' : 'customerId',
+      },
     };
 
     const aggreEvents = await fetchEs({
@@ -210,18 +215,18 @@ const segmentQueries = {
       index: 'events',
       body: {
         aggs,
-        query
-      }
+        query,
+      },
     });
 
     const buckets = aggreEvents.aggregations.names.buckets || [];
 
-    const events = buckets.map(bucket => {
+    const events = buckets.map((bucket) => {
       const [hit] = bucket.hits.hits.hits;
 
       return {
         name: bucket.key,
-        attributeNames: hit._source.attributes.map(attr => attr.field)
+        attributeNames: hit._source.attributes.map((attr) => attr.field),
       };
     });
 
@@ -238,9 +243,9 @@ const segmentQueries = {
       conditions,
       subOf,
       config,
-      conditionsConjunction
+      conditionsConjunction,
     }: IPreviewParams,
-    { models, subdomain }: IContext
+    { models, subdomain }: IContext,
   ) {
     return fetchSegment(
       models,
@@ -252,11 +257,11 @@ const segmentQueries = {
         config,
         contentType,
         conditions,
-        conditionsConjunction
+        conditionsConjunction,
       },
-      { returnCount: true }
+      { returnCount: true },
     );
-  }
+  },
 };
 
 requireLogin(segmentQueries, 'segmentsGetHeads');
