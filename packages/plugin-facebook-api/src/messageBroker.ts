@@ -11,10 +11,7 @@ import {
 import { handleFacebookMessage } from './handleFacebookMessage';
 import { userIds } from './middlewares/userMiddleware';
 
-import {
-  ISendMessageArgs,
-  sendMessage as sendCommonMessage,
-} from '@erxes/api-utils/src/core';
+import { sendMessage as sendCommonMessage } from '@erxes/api-utils/src/core';
 
 import { generateModels } from './connectionResolver';
 
@@ -198,7 +195,7 @@ export default function () {
   return client;
 }
 
-export const sendInboxMessage = (args: ISendMessageArgs) => {
+export const sendInboxMessage = (args: any) => {
   return sendCommonMessage({
     client,
     serviceName: 'inbox',

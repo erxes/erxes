@@ -22,10 +22,10 @@ export const putCreateLog = async (
 
   const customer = await models.Customers.findOne({ _id: customerId }).lean();
 
-  await commonPutCreateLog(
-    subdomain,
-    messageBroker(),
-    { ...logDoc, description, extraDesc, type: `facebook:${logDoc.type}` },
-    customer,
-  );
+  await commonPutCreateLog(subdomain, messageBroker(), {
+    ...logDoc,
+    description,
+    extraDesc,
+    type: `facebook:${logDoc.type}`,
+  });
 };
