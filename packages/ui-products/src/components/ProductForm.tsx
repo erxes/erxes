@@ -16,24 +16,22 @@ import Uploader from '@erxes/ui/src/components/Uploader';
 import {
   FormColumn,
   FormWrapper,
-  ModalFooter
+  ModalFooter,
 } from '@erxes/ui/src/styles/main';
 import {
   IAttachment,
   IButtonMutateProps,
-  IFormProps
+  IFormProps,
 } from '@erxes/ui/src/types';
-import {
-  extractAttachment,
-  generateCategoryOptions
-} from '@erxes/ui/src/utils';
-import { __ } from '@erxes/ui/src/utils/core';
+import { extractAttachment } from '@erxes/ui/src/utils';
+import { __, router } from '@erxes/ui/src/utils/core';
 import React from 'react';
 import { TAX_TYPES, TYPES } from '../constants';
 import CategoryForm from '../containers/CategoryForm';
 import { queries } from '../graphql';
 import { BarcodeItem, TableBarcode } from '../styles';
 import { IProduct, IProductCategory, IUom, IVariant } from '../types';
+import Select from 'react-select-plus';
 
 type Props = {
   product?: IProduct;
@@ -41,6 +39,7 @@ type Props = {
   uoms?: IUom[];
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   closeModal: () => void;
+  history: any;
 };
 
 type State = {
@@ -67,6 +66,8 @@ class Form extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
+    const paramCategoryId = router.getParam(props.history, 'categoryId');
+
     const product = props.product || ({} as IProduct);
     const {
       attachment,
@@ -82,7 +83,7 @@ class Form extends React.Component<Props, State> {
       taxCode,
       scopeBrandIds,
       code,
-      categoryId
+      categoryId,
     } = product;
 
     const fixVariants = {};
@@ -105,7 +106,7 @@ class Form extends React.Component<Props, State> {
       taxCode,
       scopeBrandIds,
       code: code || '',
-      categoryId
+      categoryId: categoryId || paramCategoryId,
     };
   }
 
@@ -113,11 +114,19 @@ class Form extends React.Component<Props, State> {
     this.getMaskStr(this.state.categoryId);
   }
 
-  getMaskStr = categoryId => {
+  componentDidUpdate(): void {
+    if (!this.state.categoryId && this.props.productCategories.length > 0) {
+      this.setState({
+        categoryId: this.props.productCategories[0]._id,
+      });
+    }
+  }
+
+  getMaskStr = (categoryId) => {
     const { code } = this.state;
     const { productCategories } = this.props;
 
-    const category = productCategories.find(pc => pc._id === categoryId);
+    const category = productCategories.find((pc) => pc._id === categoryId);
     let maskStr = '';
 
     if (category && category.maskType && category.mask) {
@@ -174,7 +183,7 @@ class Form extends React.Component<Props, State> {
       subUoms,
       scopeBrandIds,
       code,
-      categoryId
+      categoryId,
     } = this.state;
 
     if (product) {
@@ -196,12 +205,17 @@ class Form extends React.Component<Props, State> {
       vendorId,
       description,
       uom,
-      subUoms
+      subUoms: subUoms
+        .filter((su) => su.uom)
+        .map((su) => ({
+          ...su,
+          ratio: Math.abs(Number(su.ratio)) || 1,
+        })),
     };
   };
 
   renderFormTrigger(trigger: React.ReactNode) {
-    const content = props => (
+    const content = (props) => (
       <CategoryForm {...props} categories={this.props.productCategories} />
     );
 
@@ -214,12 +228,12 @@ class Form extends React.Component<Props, State> {
     const { uoms } = this.props;
     const { subUoms } = this.state;
 
-    return subUoms.map(subUom => {
+    return subUoms.map((subUom) => {
       const updateUoms = (key, value) => {
         const { subUoms } = this.state;
         subUom[key] = value;
         this.setState({
-          subUoms: subUoms.map(su => (su._id === subUom._id ? subUom : su))
+          subUoms: subUoms.map((su) => (su._id === subUom._id ? subUom : su)),
         });
       };
 
@@ -227,7 +241,7 @@ class Form extends React.Component<Props, State> {
         updateUoms('uom', selectedOption);
       };
 
-      const onChangeRatio = e => {
+      const onChangeRatio = (e) => {
         const name = e.currentTarget.name;
         let value = e.currentTarget.value;
         if (name === 'inverse') {
@@ -243,7 +257,7 @@ class Form extends React.Component<Props, State> {
               <ControlLabel>Sub UOM</ControlLabel>
               <AutoCompletionSelect
                 defaultValue={subUom.uom}
-                defaultOptions={(uoms || []).map(e => e.code)}
+                defaultOptions={(uoms || []).map((e) => e.code)}
                 autoCompletionType="uoms"
                 placeholder="Enter an uom"
                 queryName="uoms"
@@ -258,6 +272,7 @@ class Form extends React.Component<Props, State> {
               <Row>
                 <FormControl
                   name="ratio"
+                  min={0}
                   value={subUom.ratio}
                   onChange={onChangeRatio}
                   type="number"
@@ -331,22 +346,22 @@ class Form extends React.Component<Props, State> {
   onClickAddSub = () => {
     const subUoms = this.state.subUoms;
 
-    subUoms.push({ uom: '', ratio: 0, _id: Math.random().toString() });
+    subUoms.push({ uom: '', ratio: 1, _id: Math.random().toString() });
     this.setState({ subUoms });
   };
 
-  onClickMinusSub = id => {
+  onClickMinusSub = (id) => {
     const subUoms = this.state.subUoms;
-    const filteredUoms = subUoms.filter(sub => sub._id !== id);
+    const filteredUoms = subUoms.filter((sub) => sub._id !== id);
 
     this.setState({ subUoms: filteredUoms });
   };
 
-  onChangeDescription = e => {
+  onChangeDescription = (e) => {
     this.setState({ description: e.editor.getData() });
   };
 
-  onChangeBarcodeDescription = e => {
+  onChangeBarcodeDescription = (e) => {
     this.setState({ barcodeDescription: e.editor.getData() });
   };
 
@@ -358,14 +373,14 @@ class Form extends React.Component<Props, State> {
     this.setState({ attachmentMore: files ? files : undefined });
   };
 
-  onChangeBarcodeInput = e => {
+  onChangeBarcodeInput = (e) => {
     this.setState({ barcodeInput: e.target.value });
 
     if (e.target.value.length - this.state.barcodeInput.length > 1)
       this.updateBarcodes(e.target.value);
   };
 
-  onKeyDownBarcodeInput = e => {
+  onKeyDownBarcodeInput = (e) => {
     if (e.key === 'Enter') {
       e.preventDefault();
 
@@ -375,22 +390,22 @@ class Form extends React.Component<Props, State> {
 
   onClickBarcode = (value: string) => {
     this.setState({
-      barcodes: this.state.barcodes.filter(b => b !== value)
+      barcodes: this.state.barcodes.filter((b) => b !== value),
     });
   };
 
-  onTaxChange = e => {
+  onTaxChange = (e) => {
     this.setState({
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     } as any);
   };
 
-  onChangeCateogry = e => {
-    const value = e.target.value;
+  onChangeCateogry = (option) => {
+    const value = option.value;
 
     this.setState({
       categoryId: value,
-      category: this.getMaskStr(value)
+      category: this.getMaskStr(value),
     });
   };
 
@@ -411,9 +426,9 @@ class Form extends React.Component<Props, State> {
           ...variants,
           [item]: {
             ...variants[item],
-            image: (attachmentMore || []).find(a => a.url === value)
-          }
-        }
+            image: (attachmentMore || []).find((a) => a.url === value),
+          },
+        },
       });
     };
 
@@ -442,15 +457,15 @@ class Form extends React.Component<Props, State> {
                 <FormControl
                   name="name"
                   value={(variants[item] || {}).name || ''}
-                  onChange={e =>
+                  onChange={(e) =>
                     this.setState({
                       variants: {
                         ...variants,
                         [item]: {
                           ...variants[item],
-                          name: (e.target as any).value
-                        }
-                      }
+                          name: (e.target as any).value,
+                        },
+                      },
                     })
                   }
                 />
@@ -465,7 +480,7 @@ class Form extends React.Component<Props, State> {
                   <option key={Math.random()} value="">
                     {' '}
                   </option>
-                  {(attachmentMore || []).map(img => (
+                  {(attachmentMore || []).map((img) => (
                     <option key={img.url} value={img.url}>
                       {img.name}
                     </option>
@@ -492,13 +507,8 @@ class Form extends React.Component<Props, State> {
   };
 
   renderContent = (formProps: IFormProps) => {
-    const {
-      renderButton,
-      closeModal,
-      product,
-      productCategories,
-      uoms
-    } = this.props;
+    const { renderButton, closeModal, product, productCategories, uoms } =
+      this.props;
     const { values, isSubmitted } = formProps;
     const object = product || ({} as IProduct);
 
@@ -523,8 +533,15 @@ class Form extends React.Component<Props, State> {
       scopeBrandIds,
       code,
       categoryId,
-      maskStr
+      maskStr,
     } = this.state;
+
+    const generateOptions = () => {
+      return productCategories.map((item) => ({
+        label: item.name,
+        value: item._id,
+      }));
+    };
 
     return (
       <>
@@ -533,17 +550,13 @@ class Form extends React.Component<Props, State> {
             <FormGroup>
               <ControlLabel required={true}>Category</ControlLabel>
               <Row>
-                <FormControl
+                <Select
                   {...formProps}
-                  name="categoryId"
-                  componentClass="select"
-                  defaultValue={categoryId}
-                  required={true}
+                  placeholder={__('Choose a category')}
+                  value={categoryId}
+                  options={generateOptions()}
                   onChange={this.onChangeCateogry}
-                >
-                  {generateCategoryOptions(productCategories)}
-                </FormControl>
-
+                />
                 {this.renderFormTrigger(trigger)}
               </Row>
             </FormGroup>
@@ -563,7 +576,7 @@ class Form extends React.Component<Props, State> {
                 required={true}
                 onChange={(e: any) => {
                   this.setState({
-                    code: e.target.value.replace(/\*/g, '')
+                    code: e.target.value.replace(/\*/g, ''),
                   });
                 }}
               />
@@ -627,9 +640,9 @@ class Form extends React.Component<Props, State> {
                       'Unlink',
                       '-',
                       'Image',
-                      'EmojiPanel'
-                    ]
-                  }
+                      'EmojiPanel',
+                    ],
+                  },
                 ]}
               />
             </FormGroup>
@@ -671,10 +684,10 @@ class Form extends React.Component<Props, State> {
                 defaultValue={taxType}
                 options={[
                   { value: '', label: 'default' },
-                  ...Object.keys(TAX_TYPES).map(type => ({
+                  ...Object.keys(TAX_TYPES).map((type) => ({
                     value: type,
-                    label: TAX_TYPES[type].label
-                  }))
+                    label: TAX_TYPES[type].label,
+                  })),
                 ]}
               />
             </FormGroup>
@@ -696,7 +709,9 @@ class Form extends React.Component<Props, State> {
               <ControlLabel>Brand</ControlLabel>
               <SelectBrands
                 label={__('Choose brands')}
-                onSelect={brandIds => this.onChangeBrand(brandIds as string[])}
+                onSelect={(brandIds) =>
+                  this.onChangeBrand(brandIds as string[])
+                }
                 initialValue={scopeBrandIds}
                 multi={true}
                 name="selectedBrands"
@@ -764,18 +779,18 @@ class Form extends React.Component<Props, State> {
                       'Unlink',
                       '-',
                       'Image',
-                      'EmojiPanel'
-                    ]
-                  }
+                      'EmojiPanel',
+                    ],
+                  },
                 ]}
               />
             </FormGroup>
             <FormGroup>
-              <ControlLabel>UOM</ControlLabel>
+              <ControlLabel required={true}>UOM</ControlLabel>
               <Row>
                 <AutoCompletionSelect
                   defaultValue={this.state.uom}
-                  defaultOptions={(uoms || []).map(e => e.code)}
+                  defaultOptions={(uoms || []).map((e) => e.code)}
                   autoCompletionType="uoms"
                   placeholder="Enter an uom"
                   queryName="uoms"
@@ -813,7 +828,7 @@ class Form extends React.Component<Props, State> {
             values: this.generateDoc(values),
             isSubmitted,
             callback: closeModal,
-            object: product
+            object: product,
           })}
         </ModalFooter>
       </>

@@ -11,6 +11,7 @@ const SelectKbCategory = ({
   name,
   queryParams,
   initialValue,
+  value,
   multi,
   customOption,
   onSelect
@@ -26,6 +27,7 @@ const SelectKbCategory = ({
   customOption?: IOption;
   initialValue?: string | string[];
   name: string;
+  value?: string;
 }) => {
   const { data, loading } = useQuery(gql(queries.knowledgeBaseTopics));
 
@@ -37,7 +39,7 @@ const SelectKbCategory = ({
 
   const topicIds = knowledgeBaseTopics.map(topic => topic._id);
 
-  const defaultValue = queryParams ? queryParams[name] : initialValue;
+  const defaultValue = queryParams ? queryParams[name] : value || initialValue;
 
   const generateOptions = (array: any[] = []): IOption[] => {
     return array

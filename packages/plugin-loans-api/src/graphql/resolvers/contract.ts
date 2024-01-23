@@ -317,25 +317,28 @@ const Contracts = {
       contractId: contract._id
     })
       .sort({ createdAt: -1 })
+      .limit(10)
       .lean();
 
     return transactions;
   },
 
   async storeInterest(contract: IContractDocument, {}, { models }: IContext) {
-    const transactions = await models.Transactions.find({
+    const storedInterests = await models.StoredInterest.find({
       contractId: contract._id
     })
       .sort({ createdAt: -1 })
+      .limit(10)
       .lean();
 
-    return transactions;
+    return storedInterests;
   },
   async invoices(contract: IContractDocument, {}, { models }: IContext) {
     const invoices = await models.Invoices.find({
       contractId: contract._id
     })
       .sort({ createdAt: -1 })
+      .limit(10)
       .lean();
 
     return invoices;

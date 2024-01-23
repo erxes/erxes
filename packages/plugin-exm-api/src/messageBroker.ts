@@ -1,149 +1,119 @@
-import { sendMessage, ISendMessageArgs } from '@erxes/api-utils/src/core';
-
-import { serviceDiscovery } from './configs';
-
-export let client;
-
-export const initBroker = async cl => {
-  client = cl;
-};
+import { sendMessage } from '@erxes/api-utils/src/core';
+import type {
+  MessageArgs,
+  MessageArgsOmitService,
+} from '@erxes/api-utils/src/core';
+import { consumeQueue } from '@erxes/api-utils/src/messageBroker';
+import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
+import { sendRPCMessage as sendRPCMessageCore } from '@erxes/api-utils/src/messageBroker';
+export const initBroker = async () => {};
 
 export const sendRPCMessage = async (message): Promise<any> => {
-  return client.sendRPCMessage('rpc_queue:api_to_integrations', message);
+  return sendRPCMessageCore('rpc_queue:api_to_integrations', message);
 };
 
 export const updateConversationMessage = async (data: any) => {
-  if (!(await serviceDiscovery.isEnabled('inbox'))) {
+  if (!(await isEnabled('inbox'))) {
     return null;
   }
 
-  if (!(await serviceDiscovery.isAvailable('inbox'))) {
-    throw new Error(`Inbox service is not available`);
-  }
-
-  return client.sendRPCMessage(
-    'inbox:rpc_queue.updateConversationMessage',
-    data
-  );
+  return sendRPCMessageCore('inbox:rpc_queue.updateConversationMessage', data);
 };
 
 export const removeEngageConversations = async (_id): Promise<any> => {
-  return client.consumeQueue('removeEngageConversations', _id);
+  return consumeQueue('removeEngageConversations', _id);
 };
 
-export const getCampaignCustomerInfo = async data => {
-  return client.sendRPCMessage(
-    'contacts:rpc_queue.prepareEngageCustomers',
-    data
-  );
+export const getCampaignCustomerInfo = async (data) => {
+  return sendRPCMessageCore('contacts:rpc_queue.prepareEngageCustomers', data);
 };
-
-export default function() {
-  return client;
-}
 
 export const sendContactsMessage = async (
-  args: ISendMessageArgs
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
-    client,
-    serviceDiscovery,
     serviceName: 'contacts',
-    ...args
+    ...args,
   });
 };
 
 export const sendInternalNotesMessage = async (
-  args: ISendMessageArgs
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
-    client,
-    serviceDiscovery,
     serviceName: 'internalNotes',
-    ...args
+    ...args,
   });
 };
 
-export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
+export const sendCoreMessage = async (
+  args: MessageArgsOmitService,
+): Promise<any> => {
   return sendMessage({
-    client,
-    serviceDiscovery,
     serviceName: 'core',
-    ...args
+    ...args,
   });
 };
 
 export const sendFormsMessage = async (
-  args: ISendMessageArgs
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
-    client,
-    serviceDiscovery,
     serviceName: 'forms',
-    ...args
+    ...args,
   });
 };
 
 export const sendEngagesMessage = async (
-  args: ISendMessageArgs
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
-    client,
-    serviceDiscovery,
     serviceName: 'engages',
-    ...args
+    ...args,
   });
 };
 
 export const sendInboxMessage = async (
-  args: ISendMessageArgs
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
-    client,
-    serviceDiscovery,
     serviceName: 'inbox',
-    ...args
+    ...args,
   });
 };
 
 export const sendProductsMessage = async (
-  args: ISendMessageArgs
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
-    client,
-    serviceDiscovery,
     serviceName: 'products',
-    ...args
+    ...args,
   });
 };
 
 export const sendNotificationsMessage = async (
-  args: ISendMessageArgs
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
-    client,
-    serviceDiscovery,
     serviceName: 'notifications',
-    ...args
+    ...args,
   });
 };
 
-export const sendLogsMessage = async (args: ISendMessageArgs): Promise<any> => {
+export const sendLogsMessage = async (
+  args: MessageArgsOmitService,
+): Promise<any> => {
   return sendMessage({
-    client,
-    serviceDiscovery,
     serviceName: 'logs',
-    ...args
+    ...args,
   });
 };
 
 export const sendSegmentsMessage = async (
-  args: ISendMessageArgs
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
-    client,
-    serviceDiscovery,
     serviceName: 'segments',
-    ...args
+    ...args,
   });
 };

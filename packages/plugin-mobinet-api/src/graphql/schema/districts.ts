@@ -20,7 +20,7 @@ export const types = `
 
 const mutationParams = `
     name: String!
-    code: String!
+    
     cityId: String
     center: JSON
     isCapital: Boolean
@@ -29,7 +29,7 @@ const mutationParams = `
 export const mutations = `
   districtsAdd(${mutationParams}): District
   districtsEdit(_id: String!, ${mutationParams}): District
-  districtsRemove(_id: [String]): JSON
+  districtsRemove(_ids: [String]): JSON
 `;
 
 const qryParams = `

@@ -1,5 +1,5 @@
 import { checkPermission, getEnv } from '@erxes/api-utils/src';
-import { paginate } from 'erxes-api-utils';
+import { paginate } from '@erxes/api-utils/src';
 import * as fs from 'fs';
 import * as path from 'path';
 

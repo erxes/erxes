@@ -1,20 +1,21 @@
 import { generateModels } from './connectionResolver';
-import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
-import { serviceDiscovery } from './configs';
+import { sendMessage } from '@erxes/api-utils/src/core';
+import type {
+  MessageArgs,
+  MessageArgsOmitService,
+} from '@erxes/api-utils/src/core';
+
 import { afterMutationHandlers } from './afterMutations';
 import { beforeResolverHandlers } from './beforeResolvers';
 import { getCompany, getConfig } from './utils';
 import { getPostDataCommon } from './commonUtils';
 import { PutData } from './models/utils';
-import { sendRequest } from '@erxes/api-utils/src/requests';
+import {
+  consumeQueue,
+  consumeRPCQueue,
+} from '@erxes/api-utils/src/messageBroker';
 
-let client;
-
-export const initBroker = async cl => {
-  client = cl;
-
-  const { consumeQueue, consumeRPCQueue } = client;
-
+export const initBroker = async () => {
   consumeQueue('ebarimt:afterMutation', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
@@ -26,9 +27,8 @@ export const initBroker = async cl => {
   consumeRPCQueue('ebarimt:beforeResolver', async ({ subdomain, data }) => {
     return {
       data: await beforeResolverHandlers(subdomain, data),
-      status: 'success'
+      status: 'success',
     };
-    return;
   });
 
   consumeRPCQueue(
@@ -40,16 +40,16 @@ export const initBroker = async cl => {
         status: 'success',
         data: await models.PutResponses.find(query)
           .sort(sort || {})
-          .lean()
+          .lean(),
       };
-    }
+    },
   );
 
   consumeRPCQueue(
     'ebarimt:putresponses.putData',
     async ({
       subdomain,
-      data: { contentType, contentId, productsById, orderInfo, config }
+      data: { contentType, contentId, productsById, orderInfo, config },
     }) => {
       const models = await generateModels(subdomain);
       // orderInfo = {
@@ -91,19 +91,19 @@ export const initBroker = async cl => {
             ...orderInfo,
             productsById,
             contentType,
-            contentId
+            contentId,
           },
-          { ...(await getConfig(subdomain, 'EBARIMT', {})), ...config }
-        )
+          { ...(await getConfig(subdomain, 'EBARIMT', {})), ...config },
+        ),
       };
-    }
+    },
   );
 
   consumeRPCQueue(
     'ebarimt:putresponses.putDatas',
     async ({
       subdomain,
-      data: { contentType, contentId, orderInfo, config }
+      data: { contentType, contentId, orderInfo, config },
     }) => {
       const models = await generateModels(subdomain);
       // orderInfo = {
@@ -138,7 +138,7 @@ export const initBroker = async cl => {
       // }
       const mainConfig = {
         ...config,
-        ...(await getConfig(subdomain, 'EBARIMT', {}))
+        ...(await getConfig(subdomain, 'EBARIMT', {})),
       };
 
       const ebarimtDatas = await getPostDataCommon(
@@ -146,7 +146,7 @@ export const initBroker = async cl => {
         mainConfig,
         contentType,
         contentId,
-        orderInfo
+        orderInfo,
       );
       const ebarimtResponses: any[] = [];
 
@@ -158,18 +158,18 @@ export const initBroker = async cl => {
             ...mainConfig,
             ...ebarimtData,
             config,
-            models
+            models,
           });
           ebarimtResponse = {
             _id: Math.random(),
             billId: 'Түр баримт',
             ...(await putData.generateTransactionInfo()),
-            registerNo: mainConfig.companyRD || ''
+            registerNo: mainConfig.companyRD || '',
           };
         } else {
           ebarimtResponse = await models.PutResponses.putData(
             ebarimtData,
-            mainConfig
+            mainConfig,
           );
         }
         if (ebarimtResponse._id) {
@@ -179,9 +179,9 @@ export const initBroker = async cl => {
 
       return {
         status: 'success',
-        data: ebarimtResponses
+        data: ebarimtResponses,
       };
-    }
+    },
   );
 
   consumeRPCQueue(
@@ -190,17 +190,17 @@ export const initBroker = async cl => {
       const models = await generateModels(subdomain);
       const mainConfig = {
         ...(await getConfig(subdomain, 'EBARIMT', {})),
-        ...config
+        ...config,
       };
 
       return {
         status: 'success',
         data: await models.PutResponses.returnBill(
           { contentType, contentId, number },
-          mainConfig
-        )
+          mainConfig,
+        ),
       };
-    }
+    },
   );
 
   consumeRPCQueue(
@@ -213,10 +213,10 @@ export const initBroker = async cl => {
         data: await models.PutResponses.updateOne(
           { _id },
           { $set: { ...doc } },
-          { upsert: true }
-        )
+          { upsert: true },
+        ),
       };
-    }
+    },
   );
 
   consumeRPCQueue(
@@ -229,10 +229,10 @@ export const initBroker = async cl => {
         data: await models.PutResponses.putHistory({
           contentType,
           contentId,
-          taxType
-        })
+          taxType,
+        }),
       };
-    }
+    },
   );
 
   consumeRPCQueue(
@@ -242,9 +242,12 @@ export const initBroker = async cl => {
 
       return {
         status: 'success',
-        data: await models.PutResponses.putHistories({ contentType, contentId })
+        data: await models.PutResponses.putHistories({
+          contentType,
+          contentId,
+        }),
       };
-    }
+    },
   );
 
   consumeQueue(
@@ -255,9 +258,9 @@ export const initBroker = async cl => {
       await models.PutResponses.bulkWrite(bulkOps);
 
       return {
-        status: 'success'
+        status: 'success',
       };
-    }
+    },
   );
 
   consumeRPCQueue(
@@ -265,95 +268,77 @@ export const initBroker = async cl => {
     async ({ subdomain, data: { companyRD } }) => {
       return {
         status: 'success',
-        data: await getCompany(subdomain, companyRD)
+        data: await getCompany(subdomain, companyRD),
       };
-    }
+    },
   );
 };
 
 export const sendProductsMessage = async (
-  args: ISendMessageArgs
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
-    client,
-    serviceDiscovery,
     serviceName: 'products',
-    ...args
+    ...args,
   });
 };
 
-export const sendPosMessage = async (args: ISendMessageArgs): Promise<any> => {
+export const sendPosMessage = async (
+  args: MessageArgsOmitService,
+): Promise<any> => {
   return sendMessage({
-    client,
-    serviceDiscovery,
     serviceName: 'pos',
-    ...args
+    ...args,
   });
 };
 
 export const sendLoansMessage = async (
-  args: ISendMessageArgs
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
-    client,
-    serviceDiscovery,
     serviceName: 'loans',
-    ...args
+    ...args,
   });
 };
 
 export const sendContactsMessage = async (
-  args: ISendMessageArgs
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
-    client,
-    serviceDiscovery,
     serviceName: 'contacts',
-    ...args
+    ...args,
   });
 };
 
-export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
+export const sendCoreMessage = async (
+  args: MessageArgsOmitService,
+): Promise<any> => {
   return sendMessage({
-    client,
-    serviceDiscovery,
     serviceName: 'core',
-    ...args
+    ...args,
   });
 };
 
 export const sendCardsMessage = async (
-  args: ISendMessageArgs
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
-    client,
-    serviceDiscovery,
     serviceName: 'cards',
-    ...args
+    ...args,
   });
 };
 
 export const sendNotificationsMessage = async (
-  args: ISendMessageArgs
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
-    client,
-    serviceDiscovery,
     serviceName: 'notifications',
-    ...args
+    ...args,
   });
 };
 
-export const sendCommonMessage = async (
-  args: ISendMessageArgs & { serviceName: string }
-): Promise<any> => {
+export const sendCommonMessage = async (args: MessageArgs): Promise<any> => {
   return sendMessage({
-    serviceDiscovery,
-    client,
-    ...args
+    ...args,
   });
 };
-
-export default function() {
-  return client;
-}

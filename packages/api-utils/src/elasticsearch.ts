@@ -1,5 +1,6 @@
 import * as elasticsearch from 'elasticsearch';
 import { debugError } from './debuggers';
+import { parse } from 'url';
 
 export interface IFetchEsArgs {
   subdomain: string;
@@ -11,6 +12,7 @@ export interface IFetchEsArgs {
   scroll?: string;
   size?: number;
   ignoreError?: boolean;
+  connectionString?: string;
 }
 
 export const doSearch = async ({
@@ -84,11 +86,12 @@ export const fetchEs = async ({
   defaultValue,
   scroll,
   size,
-  ignoreError = false
+  ignoreError = false,
+  connectionString
 }: IFetchEsArgs) => {
   try {
     const params: any = {
-      index: `${getIndexPrefix()}${index}`,
+      index: `${getIndexPrefix(connectionString)}${index}`,
       body
     };
 
@@ -134,7 +137,26 @@ export const getMappings = async (index: string) => {
   return client.indices.getMapping({ index });
 };
 
-export const getIndexPrefix = () => {
+export function getDbNameFromConnectionString(connectionString) {
+  const parsedUrl = parse(connectionString, true);
+
+  if (parsedUrl.pathname) {
+    const dbName = parsedUrl.pathname.substring(1);
+    return dbName;
+  }
+
+  return null;
+}
+
+export const getIndexPrefix = (connectionString?: string) => {
+  if (connectionString) {
+    const dbName = getDbNameFromConnectionString(connectionString);
+
+    if (dbName !== 'erxes') {
+      return `${dbName}__`;
+    }
+  }
+
   return 'erxes__';
 };
 
@@ -147,6 +169,61 @@ export const fetchEsWithScroll = async (scrollId: string) => {
   } catch (e) {
     throw new Error(e);
   }
+};
+
+export const fetchByQueryWithScroll = async ({
+  subdomain,
+  index,
+  positiveQuery,
+  negativeQuery,
+  _source = '_id'
+}: {
+  subdomain: string;
+  index: string;
+  _source?: string;
+  positiveQuery: any;
+  negativeQuery: any;
+}) => {
+  const response = await fetchEs({
+    subdomain,
+    action: 'search',
+    index,
+    scroll: '1m',
+    size: 10000,
+    body: {
+      _source,
+      query: {
+        bool: {
+          must: positiveQuery,
+          must_not: negativeQuery
+        }
+      }
+    },
+    defaultValue: { _scroll_id: '', hits: { total: { value: 0 }, hits: [] } }
+  });
+
+  const totalCount = response.hits.total.value;
+  const scrollId = response._scroll_id;
+
+  let ids = response.hits.hits
+    .map(hit => (_source === '_id' ? hit._id : hit._source[_source]))
+    .filter(r => r);
+
+  if (totalCount < 10000) {
+    return ids;
+  }
+
+  while (totalCount > 0) {
+    const scrollResponse = await fetchEsWithScroll(scrollId);
+
+    if (scrollResponse.hits.hits.length === 0) {
+      break;
+    }
+
+    ids = ids.concat(scrollResponse.hits.hits.map(hit => hit._id));
+  }
+
+  return ids;
 };
 
 export const fetchByQuery = async ({

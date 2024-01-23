@@ -13,19 +13,38 @@ import { checkContractScheduleAnd } from './cronjobs/contractCronJobs';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 
 export let debug;
-export let graphqlPubsub;
 export let mainDb;
-export let serviceDiscovery;
+
+interface IConfig {
+  name: string;
+  permissions: any;
+  graphql: Function;
+
+  apolloServerContext: any;
+
+  onServerInit: any;
+  meta: {
+    logs: any;
+    cronjobs: {
+      handleDailyJob: any;
+      handleMinutelyJob: any;
+    };
+    documents: any;
+    permissions: any;
+    forms: any;
+    imports: any;
+    exporter: any;
+    payment: any;
+  };
+}
 
 export default {
   name: 'loans',
   permissions,
-  graphql: async sd => {
-    serviceDiscovery = sd;
-
+  graphql: async () => {
     return {
       typeDefs: await typeDefs(),
-      resolvers: await resolvers()
+      resolvers: await resolvers(),
     };
   },
 
@@ -38,24 +57,23 @@ export default {
     return context;
   },
 
-  onServerInit: async options => {
+  onServerInit: async (options) => {
     mainDb = options.db;
 
-    initBroker(options.messageBrokerClient);
+    initBroker();
 
     debug = options.debug;
-    graphqlPubsub = options.pubsubClient;
   },
   meta: {
     logs: { consumers: logs },
     cronjobs: {
-      handleDailyJob: checkContractScheduleAnd
+      handleMinutelyJob: checkContractScheduleAnd,
     },
     documents,
     permissions,
     forms,
     imports,
     exporter,
-    payment
-  }
+    payment,
+  },
 };

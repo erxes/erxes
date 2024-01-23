@@ -34,10 +34,10 @@ const BuildingForm = (props: Props) => {
 
   const [osmBuilding, setOsmBuilding] = useState(props.osmBuilding);
   const [quarterId, setQuarterId] = useState<string>(
-    (building && building.quarterId) || ''
+    (building && building.quarterId) || '',
   );
   const [districtId, setDistrictId] = useState<string>(
-    (building && building.quarter.districtId) || ''
+    (building && building.quarter.districtId) || '',
   );
   const [cityId, setCityId] = useState<string | undefined>(
     (props.city && props.city._id) ||
@@ -45,34 +45,34 @@ const BuildingForm = (props: Props) => {
         building.quarter &&
         building.quarter.district &&
         building.quarter.district.cityId) ||
-      ''
+      '',
   );
 
   const [map, setMap] = useState<any>(null);
 
-  const generateCoordinates = data => {
+  const generateCoordinates = (data) => {
     const { min, max } = data;
 
     return [
       {
         lat: min[1],
-        lng: min[0]
+        lng: min[0],
       },
       {
         lat: max[1],
-        lng: max[0]
-      }
+        lng: max[0],
+      },
     ];
   };
 
   const [center, setCenter] = useState<ICoordinates>(
     (props.osmBuilding &&
       findCenter(generateCoordinates(props.osmBuilding.properties.bounds))) ||
-      (building && building.location)
+      (building && building.location),
   );
 
   const [buildingObject, setBuildingObject] = useState<IBuilding | undefined>(
-    building
+    building,
   );
 
   useEffect(() => {
@@ -100,7 +100,7 @@ const BuildingForm = (props: Props) => {
     if (buildingObject && map) {
       console.log('highlight', buildingObject);
 
-      map.highlight(feature => {
+      map.highlight((feature) => {
         if (feature.id === buildingObject.osmbId) {
           console.log('highlight', buildingObject.serviceStatus);
           return getBuildingColor(buildingObject.serviceStatus);
@@ -114,7 +114,7 @@ const BuildingForm = (props: Props) => {
     districtId,
     osmBuilding,
     buildingObject,
-    map
+    map,
   ]);
 
   const generateDoc = () => {
@@ -126,7 +126,7 @@ const BuildingForm = (props: Props) => {
 
     if (buildingObject) {
       finalValues.name = buildingObject.name;
-      finalValues.code = buildingObject.code;
+      // finalValues.code = buildingObject.code;
       finalValues.quarterId = quarterId;
       finalValues.osmbId = osmBuilding && osmBuilding.id;
       finalValues.location =
@@ -139,11 +139,11 @@ const BuildingForm = (props: Props) => {
     }
 
     return {
-      ...finalValues
+      ...finalValues,
     };
   };
 
-  const onChangeInput = e => {
+  const onChangeInput = (e) => {
     const { id, value } = e.target;
     const obj: any = buildingObject || {};
 
@@ -180,7 +180,7 @@ const BuildingForm = (props: Props) => {
     }
   };
 
-  const onChangeBuilding = e => {
+  const onChangeBuilding = (e) => {
     if (e.properties) {
       const obj: any = buildingObject || {};
 
@@ -232,7 +232,7 @@ const BuildingForm = (props: Props) => {
       center,
       style: { height: '300px', width: '100%' },
       selectedValues,
-      onload
+      onload,
     };
 
     return <OSMBuildings {...mapProps} />;
@@ -258,25 +258,25 @@ const BuildingForm = (props: Props) => {
           <SelectQuarter
             districtId={districtId}
             defaultValue={quarterId}
-            onChange={e => {
+            onChange={(e) => {
               setQuarterId(e);
             }}
           />
         )}
 
-        {renderInput(
+        {/* {renderInput(
           formProps,
           'Code',
           'code',
           'string',
           buildingObject && buildingObject.code
-        )}
+        )} */}
         {renderInput(
           formProps,
           'Name',
           'name',
           'string',
-          buildingObject && buildingObject.name
+          buildingObject && buildingObject.name,
         )}
 
         <FormGroup>
@@ -285,7 +285,7 @@ const BuildingForm = (props: Props) => {
             label="СӨХ"
             name="suhId"
             initialValue={building && building.suhId}
-            onSelect={e => {
+            onSelect={(e) => {
               const obj: any = buildingObject || {};
               obj.suhId = e;
 
@@ -342,7 +342,7 @@ const BuildingForm = (props: Props) => {
             values: generateDoc(),
             isSubmitted,
             callback: closeModal,
-            object: building
+            object: building,
           })}
         </ModalFooter>
       </>

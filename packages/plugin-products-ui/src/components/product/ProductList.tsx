@@ -24,6 +24,8 @@ import TaggerPopover from '@erxes/ui-tags/src/components/TaggerPopover';
 import TemporarySegment from '@erxes/ui-segments/src/components/filter/TemporarySegment';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { isEnabled } from '@erxes/ui/src/utils/core';
+import { FlexItem, InputBar } from '@erxes/ui-settings/src/styles';
+import { Icon } from '@erxes/ui/src';
 
 interface IProps extends IRouterProps {
   history: any;
@@ -94,14 +96,6 @@ class List extends React.Component<IProps, State> {
     this.props.remove({ productIds }, this.props.emptyBulk);
   };
 
-  renderCount = productCount => {
-    return (
-      <Count>
-        {productCount} product{productCount > 1 && 's'}
-      </Count>
-    );
-  };
-
   search = e => {
     if (this.timer) {
       clearTimeout(this.timer);
@@ -115,7 +109,7 @@ class List extends React.Component<IProps, State> {
     this.timer = setTimeout(() => {
       router.removeParams(history, 'page');
       router.setParams(history, { searchValue });
-    }, 1500);
+    }, 500);
   };
 
   moveCursorAtTheEnd(e) {
@@ -166,7 +160,6 @@ class List extends React.Component<IProps, State> {
 
     return (
       <>
-        {this.renderCount(currentCategory.productCount || productsCount)}
         <Table hover={true}>
           <thead>
             <tr>
@@ -217,34 +210,6 @@ class List extends React.Component<IProps, State> {
 
     const modalContent = props => <Form {...props} />;
 
-    let actionBarRight = (
-      <BarItems>
-        <FormControl
-          type="text"
-          placeholder={__('Type to search')}
-          onChange={this.search}
-          value={this.state.searchValue}
-          autoFocus={true}
-          onFocus={this.moveCursorAtTheEnd}
-        />
-        {isEnabled('segments') && (
-          <TemporarySegment contentType={`products:product`} />
-        )}
-        <Link to="/settings/importHistories?type=product">
-          <Button btnStyle="simple" icon="arrow-from-right">
-            {__('Import items')}
-          </Button>
-        </Link>
-        <ModalTrigger
-          title="Add Product/Services"
-          trigger={trigger}
-          autoOpenKey="showProductModal"
-          content={modalContent}
-          size="lg"
-        />
-      </BarItems>
-    );
-
     const productsMerge = props => {
       return (
         <ProductsMerge
@@ -256,80 +221,99 @@ class List extends React.Component<IProps, State> {
       );
     };
 
-    if (bulk.length > 0) {
-      const tagButton = (
-        <Button btnStyle="simple" size="small" icon="tag-alt">
-          Tag
-        </Button>
-      );
+    const actionBarRight = () => {
+      if (bulk.length > 0) {
+        const onClick = () =>
+          confirm()
+            .then(() => {
+              this.removeProducts(bulk);
+            })
+            .catch(error => {
+              Alert.error(error.message);
+            });
 
-      const onClick = () =>
-        confirm()
-          .then(() => {
-            this.removeProducts(bulk);
-          })
-          .catch(error => {
-            Alert.error(error.message);
-          });
-
-      const mergeButton = (
-        <Button btnStyle="primary" size="small" icon="merge">
-          Merge
-        </Button>
-      );
-
-      actionBarRight = (
-        <BarItems>
-          <FormControl
-            type="text"
-            placeholder={__('Type to search')}
-            onChange={this.search}
-            value={this.state.searchValue}
-            autoFocus={true}
-            onFocus={this.moveCursorAtTheEnd}
-          />
-          <FormControl
-            componentClass="checkbox"
-            onChange={this.onChangeChecked}
-            checked={this.state.checked}
-          />
-          {(isEnabled('documents') && (
-            <ProductsPrintAction bulk={this.props.bulk} />
-          )) || <></>}
-
-          {bulk.length === 2 && (
-            <ModalTrigger
-              title="Merge Product"
-              size="lg"
-              dialogClassName="modal-1000w"
-              trigger={mergeButton}
-              content={productsMerge}
-            />
-          )}
-          {isEnabled('tags') && (
-            <TaggerPopover
-              type={TAG_TYPES.PRODUCT}
-              successCallback={emptyBulk}
-              targets={bulk}
-              trigger={tagButton}
-              perPage={1000}
-              refetchQueries={['productCountByTags']}
-            />
-          )}
-          <Button
-            btnStyle="danger"
-            size="small"
-            icon="cancel-1"
-            onClick={onClick}
-          >
-            Remove
+        const mergeButton = (
+          <Button btnStyle="success" icon="merge">
+            Merge
           </Button>
+        );
+
+        const tagButton = (
+          <Button btnStyle="success" icon="tag-alt">
+            Tag
+          </Button>
+        );
+
+        return (
+          <BarItems>
+            {bulk.length === 2 && (
+              <ModalTrigger
+                title="Merge Product"
+                size="lg"
+                dialogClassName="modal-1000w"
+                trigger={mergeButton}
+                content={productsMerge}
+              />
+            )}
+            <ProductsPrintAction bulk={this.props.bulk} />
+            {isEnabled('tags') && (
+              <TaggerPopover
+                type={TAG_TYPES.PRODUCT}
+                successCallback={emptyBulk}
+                targets={bulk}
+                trigger={tagButton}
+                perPage={1000}
+                refetchQueries={['productCountByTags']}
+              />
+            )}
+
+            <Button btnStyle="danger" icon="cancel-1" onClick={onClick}>
+              Remove
+            </Button>
+          </BarItems>
+        );
+      }
+
+      return (
+        <BarItems>
+          <InputBar type="searchBar">
+            <Icon icon="search-1" size={20} />
+            <FlexItem>
+              <FormControl
+                type="text"
+                placeholder={__('Type to search')}
+                onChange={this.search}
+                value={this.state.searchValue}
+                autoFocus={true}
+                onFocus={this.moveCursorAtTheEnd}
+              />
+            </FlexItem>
+          </InputBar>
+          {isEnabled('segments') && (
+            <TemporarySegment
+              btnSize="medium"
+              contentType={`products:product`}
+            />
+          )}
+          <Link to="/settings/importHistories?type=product">
+            <Button btnStyle="simple" icon="arrow-from-right">
+              {__('Import items')}
+            </Button>
+          </Link>
+          <ModalTrigger
+            title="Add Product/Services"
+            trigger={trigger}
+            autoOpenKey="showProductModal"
+            content={modalContent}
+            size="lg"
+          />
         </BarItems>
       );
-    }
+    };
 
     const actionBarLeft = (
-      <Title>{currentCategory.name || 'All products'}</Title>
+      <Title>{`${currentCategory.name ||
+        'All products'} (${productsCount})`}</Title>
     );
 
     return (
@@ -353,7 +337,7 @@ class List extends React.Component<IProps, State> {
           />
         }
         actionBar={
-          <Wrapper.ActionBar left={actionBarLeft} right={actionBarRight} />
+          <Wrapper.ActionBar left={actionBarLeft} right={actionBarRight()} />
         }
         leftSidebar={
           <CategoryList queryParams={queryParams} history={history} />

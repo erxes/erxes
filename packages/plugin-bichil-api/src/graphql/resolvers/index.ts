@@ -6,7 +6,7 @@ import BichilUserReport from './bichilreport';
 import BichilSalaryReport from './bichilSalaryReport';
 import Schedule from './schedule';
 
-const resolvers: any = async _serviceDiscovery => ({
+const resolvers: any = async () => ({
   ...customScalars,
   BichilUserReport,
   BichilSalaryReport,

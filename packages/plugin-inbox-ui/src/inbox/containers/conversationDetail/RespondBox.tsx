@@ -1,3 +1,4 @@
+import React from 'react';
 import * as compose from 'lodash.flowright';
 
 import {
@@ -9,13 +10,12 @@ import { readFile, withProps } from '@erxes/ui/src/utils';
 import { AppConsumer } from 'coreui/appContext';
 import { IAttachmentPreview } from '@erxes/ui/src/types';
 import { IUser } from '@erxes/ui/src/auth/types';
-import React from 'react';
+
 import RespondBox from '../../components/conversationDetail/workarea/RespondBox';
 import { ResponseTemplatesQueryResponse } from '../../../settings/responseTemplates/types';
 import { UsersQueryResponse } from '@erxes/ui/src/auth/types';
 import debounce from 'lodash/debounce';
-import { fromJS } from 'immutable';
-import { gql } from '@apollo/client';
+import { gql, useLazyQuery } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
 import { queries } from '@erxes/ui-inbox/src/inbox/graphql';
 
@@ -36,13 +36,13 @@ type Props = {
 
 type FinalProps = {
   responseTemplatesQuery: ResponseTemplatesQueryResponse;
-  usersQuery: UsersQueryResponse;
   search: (value: string) => void;
 } & Props & { currentUser: IUser };
 
 interface ITeamMembers {
-  _id: string;
-  name: string;
+  id: string;
+  username: string;
+  fullName?: string;
   title?: string;
   avatar?: string;
 }
@@ -50,12 +50,34 @@ interface ITeamMembers {
 const RespondBoxContainer = (props: FinalProps) => {
   const {
     conversation,
-    usersQuery,
     addMessage,
     responseTemplatesQuery,
     currentUser,
     search
   } = props;
+
+  const [fetchMentions] = useLazyQuery(gql(queries.userList));
+
+  const getVariables = (query: string) => {
+    return { searchValue: query };
+  };
+
+  const extractFunction = (queryResult: UsersQueryResponse) => {
+    const mentionUsers: ITeamMembers[] = [];
+    for (const user of queryResult.users || []) {
+      mentionUsers.push({
+        id: user._id,
+        username: user.username?.trim(),
+        fullName: user.details && user.details.fullName?.trim(),
+        title: user.details && user.details.position,
+        avatar:
+          user.details &&
+          user.details.avatar &&
+          readFile(user.details.avatar, 44)
+      });
+    }
+    return mentionUsers;
+  };
 
   const onSearchChange = (searchValue: string) => {
     if (searchValue) {
@@ -113,43 +135,25 @@ const RespondBoxContainer = (props: FinalProps) => {
     });
   };
 
-  const teamMembers: ITeamMembers[] = [];
-
-  for (const user of usersQuery.users || []) {
-    teamMembers.push({
-      _id: user._id,
-      name: user.username,
-      title: user.details && user.details.position,
-      avatar:
-        user.details && user.details.avatar && readFile(user.details.avatar, 44)
-    });
-  }
+  const refetchResponseTemplates = content => [
+    responseTemplatesQuery.refetch({ searchValue: content })
+  ];
 
   const updatedProps = {
     ...props,
     onSearchChange,
     sendMessage,
     responseTemplates: responseTemplatesQuery.responseTemplates || [],
-    teamMembers: fromJS(teamMembers.filter(member => member.name))
+    refetchResponseTemplates,
+    mentionSuggestion: { getVariables, fetchMentions, extractFunction }
   };
 
   return <RespondBox {...updatedProps} />;
 };
 
 const withQuery = () =>
-  withProps<Props & { currentUser: IUser } & { searchValue: string }>(
+  withProps<Props & { currentUser: IUser }>(
     compose(
-      graphql<Props & { searchValue: string }, UsersQueryResponse>(
-        gql(queries.userList),
-        {
-          name: 'usersQuery',
-          options: ({ searchValue }) => ({
-            variables: {
-              searchValue
-            }
-          })
-        }
-      ),
       graphql<Props, ResponseTemplatesQueryResponse>(
         gql(queries.responseTemplateList),
         {
@@ -157,7 +161,7 @@ const withQuery = () =>
           options: () => {
             return {
               variables: {
-                perPage: 200
+                perPage: 20
               }
             };
           }

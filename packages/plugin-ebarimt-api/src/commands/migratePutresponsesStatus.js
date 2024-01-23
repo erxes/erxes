@@ -20,7 +20,7 @@ const command = async () => {
 
   console.log('connected...');
 
-  PutResponses = db.collection('put_responses');
+  const PutResponses = db.collection('put_responses');
 
   try {
     const hasReturnBillIdResponses = await PutResponses.find({

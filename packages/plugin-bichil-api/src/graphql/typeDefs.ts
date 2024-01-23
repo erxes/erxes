@@ -222,7 +222,7 @@ const mutations = `
   bichilRemoveSalaryReport(_id: String!): JSON
 `;
 
-const typeDefs = async _serviceDiscovery => {
+const typeDefs = async () => {
   return gql`
     scalar JSON
     scalar Date

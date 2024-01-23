@@ -33,11 +33,11 @@ const getProducts = async (models, subdomain, args, kind) => {
     action: 'configs.findOne',
     data: {
       query: {
-        code: 'MOBINET_CONFIGS'
-      }
+        code: 'MOBINET_CONFIGS',
+      },
     },
     isRPC: true,
-    defaultValue: null
+    defaultValue: null,
   });
 
   if (!mobinetConfigs) {
@@ -56,6 +56,8 @@ const getProducts = async (models, subdomain, args, kind) => {
 
     const building = await models.Buildings.getBuilding({ _id: buildingId });
 
+    console.log('networkType', building.networkType);
+
     if (building.networkType === 'ftth' && !config.ftthTagId) {
       throw new Error('Config not found');
     }
@@ -66,6 +68,23 @@ const getProducts = async (models, subdomain, args, kind) => {
 
     const district = await models.Districts.getDistrict({ _id: districtId });
 
+    console.log('isCapital', district.isCapital);
+    const tagIds: string[] = [];
+
+    if (building.networkType === 'ftth') {
+      tagIds.push(config.ftthTagId);
+    }
+
+    if (building.networkType === 'fttb') {
+      tagIds.push(config.fttbTagId);
+    }
+
+    if (district.isCapital && config.capitalTagId) {
+      tagIds.push(config.capitalTagId);
+    }
+
+    console.log('tagIds', tagIds);
+
     hbbProducts = await sendCommonMessage({
       subdomain,
       serviceName: 'products',
@@ -73,19 +92,14 @@ const getProducts = async (models, subdomain, args, kind) => {
       data: {
         query: {
           tagIds: {
-            $all: [
-              building.networkType === 'ftth'
-                ? config.ftthTagId
-                : config.fttbTagId,
-              district.isCapital && config.capitalTagId
-            ]
+            $all: tagIds,
           },
-          type: kind
+          type: kind,
         },
-        categoryId: config.hbbCatId
+        categoryId: config.hbbCatId,
       },
       isRPC: true,
-      defaultValue: []
+      defaultValue: [],
     });
   }
 
@@ -96,12 +110,12 @@ const getProducts = async (models, subdomain, args, kind) => {
       action: 'find',
       data: {
         query: {
-          type: kind
+          type: kind,
         },
-        categoryId: config.vooCatId
+        categoryId: config.vooCatId,
       },
       isRPC: true,
-      defaultValue: []
+      defaultValue: [],
     });
   }
 
@@ -114,12 +128,12 @@ const queries = {
       models,
       subdomain,
       args,
-      'service'
+      'service',
     );
 
     return {
       hbbServices: hbbProducts,
-      vooServices: vooProducts
+      vooServices: vooProducts,
     };
   },
 
@@ -128,14 +142,14 @@ const queries = {
       models,
       subdomain,
       args,
-      'product'
+      'product',
     );
 
     return {
       hbbProducts,
-      vooProducts
+      vooProducts,
     };
-  }
+  },
 };
 
 export default queries;

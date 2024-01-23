@@ -1,5 +1,5 @@
 import { IUser } from '@erxes/api-utils/src/types';
-import { validSearchText } from 'erxes-api-utils';
+import { validSearchText } from '@erxes/api-utils/src/core';
 import { Model } from 'mongoose';
 
 import { IModels } from '../connectionResolver';

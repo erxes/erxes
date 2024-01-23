@@ -6,11 +6,12 @@ import {
   ToCheckProductsMutationResponse,
   ToSyncProductsMutationResponse
 } from '../types';
+import { router } from '@erxes/ui/src';
 import { Bulk } from '@erxes/ui/src/components';
 import Alert from '@erxes/ui/src/utils/Alert';
 import { mutations } from '../graphql';
 import React, { useState } from 'react';
-import InventoryProducts from '../components/InventoryProducts';
+import InventoryProducts from '../components/product/InventoryProducts';
 import Spinner from '@erxes/ui/src/components/Spinner';
 
 type Props = {
@@ -25,6 +26,12 @@ type FinalProps = {} & Props &
 const InventoryProductsContainer = (props: FinalProps) => {
   const [items, setItems] = useState({});
   const [loading, setLoading] = useState(false);
+  const brandId = props.queryParams.brandId || 'noBrand';
+
+  const setBrand = (brandId: string) => {
+    router.setParams(props.history, { brandId: brandId });
+    return router;
+  };
 
   if (loading) {
     return <Spinner />;
@@ -55,7 +62,7 @@ const InventoryProductsContainer = (props: FinalProps) => {
     setLoading(true);
     props
       .toCheckProducts({
-        variables: {}
+        variables: { brandId }
       })
       .then(response => {
         const data = response.data.toCheckProducts;
@@ -78,6 +85,7 @@ const InventoryProductsContainer = (props: FinalProps) => {
     props
       .toSyncProducts({
         variables: {
+          brandId,
           action,
           products
         }
@@ -102,6 +110,7 @@ const InventoryProductsContainer = (props: FinalProps) => {
     ...props,
     loading,
     items,
+    setBrand,
     toCheckProducts,
     toSyncProducts
   };

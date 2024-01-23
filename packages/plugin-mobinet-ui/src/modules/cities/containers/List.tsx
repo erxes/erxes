@@ -16,10 +16,10 @@ export default function CityContainer(props: Props) {
     gql(queries.listQuery),
     {
       variables: {
-        ...router.generatePaginationParams(props.queryParams || {})
+        ...router.generatePaginationParams(props.queryParams || {}),
       },
-      fetchPolicy: 'network-only'
-    }
+      fetchPolicy: 'network-only',
+    },
   );
 
   const [removeMutation] = useMutation(gql(mutations.citiesRemoveMutation));
@@ -29,14 +29,14 @@ export default function CityContainer(props: Props) {
 
     confirm(message).then(() => {
       removeMutation({
-        variables: { _ids: [cityId] }
+        variables: { _ids: [cityId] },
       })
         .then(() => {
           refetch();
 
           Alert.success('You successfully deleted a city.');
         })
-        .catch(e => {
+        .catch((e) => {
           Alert.error(e.message);
         });
     });
@@ -51,8 +51,10 @@ export default function CityContainer(props: Props) {
     loading,
     cities,
     totalCount,
+    page: props.queryParams.page || 1,
+    perPage: props.queryParams.perPage || 20,
     refetch,
-    remove
+    remove,
   };
 
   return <List {...extendedProps} />;

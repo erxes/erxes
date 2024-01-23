@@ -10,7 +10,7 @@ const Dac = {
   }
 };
 
-const resolvers: any = async _serviceDiscovery => ({
+const resolvers: any = async () => ({
   ...customScalars,
   Dac,
   Mutation: {

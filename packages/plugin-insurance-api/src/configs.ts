@@ -11,26 +11,25 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { buildFile } from './graphql/resolvers/utils';
 import documents from './documents';
+import payment from './payment';
+import app from '@erxes/api-utils/src/app';
 
 export let mainDb;
 export let debug;
-export let graphqlPubsub;
-export let serviceDiscovery;
 
 export default {
   name: 'insurance',
-  graphql: async sd => {
-    serviceDiscovery = sd;
-
+  graphql: async () => {
     return {
-      typeDefs: await typeDefs(sd),
-      resolvers: await resolvers(sd)
+      typeDefs: await typeDefs(),
+      resolvers: await resolvers(),
     };
   },
 
   meta: {
     forms,
-    documents
+    documents,
+    payment,
   },
 
   apolloServerContext: async (context, req) => {
@@ -47,23 +46,19 @@ export default {
   },
   middlewares: [cookieParser(), cpUserMiddleware],
 
-  onServerInit: async options => {
+  onServerInit: async (options) => {
     mainDb = options.db;
 
-    initBroker(options.messageBrokerClient);
-
-    graphqlPubsub = options.pubsubClient;
+    initBroker();
 
     debug = options.debug;
 
-    const app = options.app;
-
     const publicDir = path.join('./uploads');
 
-    fs.access(publicDir, fs.constants.F_OK, err => {
+    fs.access(publicDir, fs.constants.F_OK, (err) => {
       if (err) {
         // 'public' directory doesn't exist, create it
-        fs.mkdir(publicDir, mkdirErr => {
+        fs.mkdir(publicDir, (mkdirErr) => {
           if (mkdirErr) {
             console.error('Error creating uploads directory:', mkdirErr);
           } else {
@@ -94,8 +89,9 @@ export default {
     //   });
     // });
 
-    app.get('/export', async (req, res) => {
-      if (!req.cpUser) {
+    app.get('/export', async (req: any, res) => {
+      const { cpUser } = req;
+      if (!cpUser) {
         return res.status(401).send('Unauthorized');
       }
 
@@ -105,11 +101,11 @@ export default {
 
       const models = await generateModels(subdomain);
 
-      const result = await buildFile(models, subdomain, req.cpUser, query);
+      const result = await buildFile(models, subdomain, cpUser, query);
 
       res.attachment(`${result.name}.xlsx`);
 
       return res.send(result.response);
     });
-  }
+  },
 };

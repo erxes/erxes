@@ -144,7 +144,7 @@ enum NetworkType {
 
 const mutationParams = `
     name: String!
-    code: String!
+    
     description: String
     quarterId: String
     osmbId: String

@@ -1,11 +1,11 @@
-import { sendRequest } from '@erxes/api-utils/src/requests';
+import fetch from 'node-fetch';
 import {
   sendContactsMessage,
   sendCoreMessage,
-  sendProductsMessage
+  sendProductsMessage,
 } from '../messageBroker';
 
-export const validConfigMsg = async config => {
+export const validConfigMsg = async (config) => {
   if (!config.url) {
     return 'required url';
   }
@@ -21,7 +21,7 @@ export const getPostData = async (subdomain, config, deal, dateType = '') => {
     action: 'conformities.savedConformity',
     data: { mainType: 'deal', mainTypeId: deal._id, relTypes: ['company'] },
     isRPC: true,
-    defaultValue: []
+    defaultValue: [],
   });
 
   if (companyIds.length > 0) {
@@ -30,20 +30,20 @@ export const getPostData = async (subdomain, config, deal, dateType = '') => {
       action: 'companies.findActiveCompanies',
       data: {
         selector: { _id: { $in: companyIds } },
-        fields: { _id: 1, code: 1 }
+        fields: { _id: 1, code: 1 },
       },
       isRPC: true,
-      defaultValue: []
+      defaultValue: [],
     });
 
     const re = new RegExp('(^[А-ЯЁӨҮ]{2}[0-9]{8}$)|(^\\d{7}$)', 'gui');
     for (const company of companies) {
       if (re.test(company.code)) {
-        const checkCompanyRes = await sendRequest({
-          url: config.checkCompanyUrl,
-          method: 'GET',
-          params: { regno: company.code }
-        });
+        const checkCompanyRes = await fetch(
+          config.checkCompanyUrl +
+            '?' +
+            new URLSearchParams({ regno: company.code }),
+        ).then((res) => res.json());
 
         if (checkCompanyRes.found) {
           billType = 3;
@@ -60,7 +60,7 @@ export const getPostData = async (subdomain, config, deal, dateType = '') => {
       action: 'conformities.savedConformity',
       data: { mainType: 'deal', mainTypeId: deal._id, relTypes: ['customer'] },
       isRPC: true,
-      defaultValue: []
+      defaultValue: [],
     });
 
     if (customerIds.length > 0) {
@@ -69,13 +69,13 @@ export const getPostData = async (subdomain, config, deal, dateType = '') => {
         action: 'customers.findActiveCustomers',
         data: {
           selector: { _id: { $in: customerIds } },
-          fields: { _id: 1, code: 1 }
+          fields: { _id: 1, code: 1 },
         },
         isRPC: true,
-        defaultValue: []
+        defaultValue: [],
       });
 
-      customerCode = (customers.find(c => c.code) || {}).code || '';
+      customerCode = (customers.find((c) => c.code) || {}).code || '';
     }
   }
 
@@ -94,7 +94,7 @@ export const getPostData = async (subdomain, config, deal, dateType = '') => {
     action: 'users.find',
     data: { query: { _id: { $in: assignUserIds } } },
     isRPC: true,
-    defaultValue: []
+    defaultValue: [],
   });
 
   const userEmailById = {};
@@ -102,17 +102,17 @@ export const getPostData = async (subdomain, config, deal, dateType = '') => {
     userEmailById[user._id] = user.email;
   }
 
-  const productsIds = deal.productsData.map(item => item.productId);
+  const productsIds = deal.productsData.map((item) => item.productId);
 
   const products = await sendProductsMessage({
     subdomain,
     action: 'find',
     data: {
       query: { _id: { $in: productsIds } },
-      limit: deal.productsData.length
+      limit: deal.productsData.length,
     },
     isRPC: true,
-    defaultValue: []
+    defaultValue: [],
   });
 
   const productCodeById = {};
@@ -122,8 +122,8 @@ export const getPostData = async (subdomain, config, deal, dateType = '') => {
 
   const details: any = [];
 
-  const branchIds = deal.productsData.map(pd => pd.branchId) || [];
-  const departmentIds = deal.productsData.map(pd => pd.departmentId) || [];
+  const branchIds = deal.productsData.map((pd) => pd.branchId) || [];
+  const departmentIds = deal.productsData.map((pd) => pd.departmentId) || [];
 
   const branchesById = {};
   const departmentsById = {};
@@ -134,7 +134,7 @@ export const getPostData = async (subdomain, config, deal, dateType = '') => {
       action: 'branches.find',
       data: { query: { _id: { $in: branchIds } } },
       isRPC: true,
-      defaultValue: []
+      defaultValue: [],
     });
 
     for (const branch of branches) {
@@ -148,7 +148,7 @@ export const getPostData = async (subdomain, config, deal, dateType = '') => {
       action: 'departments.find',
       data: { _id: { $in: departmentIds } },
       isRPC: true,
-      defaultValue: []
+      defaultValue: [],
     });
 
     for (const department of departments) {
@@ -182,7 +182,7 @@ export const getPostData = async (subdomain, config, deal, dateType = '') => {
       inventoryCode: productCodeById[productData.productId],
       otherCode,
       workerEmail:
-        productData.assignUserId && userEmailById[productData.assignUserId]
+        productData.assignUserId && userEmailById[productData.assignUserId],
     });
   }
 
@@ -196,7 +196,7 @@ export const getPostData = async (subdomain, config, deal, dateType = '') => {
     wallet: 'debtAmount',
     barter: 'debtBarterAmount',
     after: 'debtAmount',
-    other: 'debtAmount'
+    other: 'debtAmount',
   };
 
   let sumSaleAmount = details.reduce((predet, detail) => {
@@ -273,8 +273,8 @@ export const getPostData = async (subdomain, config, deal, dateType = '') => {
           userEmailById[deal.assignedUserIds[0]]) ||
         undefined,
       details,
-      ...payments
-    }
+      ...payments,
+    },
   ];
 
   return {
@@ -282,7 +282,7 @@ export const getPostData = async (subdomain, config, deal, dateType = '') => {
     token: config.apiToken,
     apiKey: config.apiKey,
     apiSecret: config.apiSecret,
-    orderInfos: JSON.stringify(orderInfos)
+    orderInfos: JSON.stringify(orderInfos),
   };
 };
 
@@ -294,7 +294,7 @@ export const getMoveData = async (subdomain, config, deal, dateType = '') => {
     action: 'conformities.savedConformity',
     data: { mainType: 'deal', mainTypeId: deal._id, relTypes: ['company'] },
     isRPC: true,
-    defaultValue: []
+    defaultValue: [],
   });
 
   if (companyIds.length > 0) {
@@ -303,10 +303,10 @@ export const getMoveData = async (subdomain, config, deal, dateType = '') => {
       action: 'companies.findActiveCompanies',
       data: {
         selector: { _id: { $in: companyIds } },
-        fields: { _id: 1, code: 1 }
+        fields: { _id: 1, code: 1 },
       },
       isRPC: true,
-      defaultValue: []
+      defaultValue: [],
     });
 
     for (const company of companies) {
@@ -323,7 +323,7 @@ export const getMoveData = async (subdomain, config, deal, dateType = '') => {
       action: 'conformities.savedConformity',
       data: { mainType: 'deal', mainTypeId: deal._id, relTypes: ['customer'] },
       isRPC: true,
-      defaultValue: []
+      defaultValue: [],
     });
 
     if (customerIds.length > 0) {
@@ -332,12 +332,12 @@ export const getMoveData = async (subdomain, config, deal, dateType = '') => {
         action: 'customers.findActiveCustomers',
         data: {
           selector: { _id: { $in: customerIds } },
-          fields: { _id: 1, code: 1 }
+          fields: { _id: 1, code: 1 },
         },
         isRPC: true,
-        defaultValue: []
+        defaultValue: [],
       });
-      customerCode = (customers.find(c => c.code) || {}).code || '';
+      customerCode = (customers.find((c) => c.code) || {}).code || '';
     }
   }
 
@@ -345,17 +345,17 @@ export const getMoveData = async (subdomain, config, deal, dateType = '') => {
     customerCode = config.defaultCustomer;
   }
 
-  const productsIds = deal.productsData.map(item => item.productId);
+  const productsIds = deal.productsData.map((item) => item.productId);
 
   const products = await sendProductsMessage({
     subdomain,
     action: 'find',
     data: {
       query: { _id: { $in: productsIds } },
-      limit: deal.productsData.length
+      limit: deal.productsData.length,
     },
     isRPC: true,
-    defaultValue: []
+    defaultValue: [],
   });
 
   const productCodeById = {};
@@ -365,8 +365,8 @@ export const getMoveData = async (subdomain, config, deal, dateType = '') => {
 
   const details: any = [];
 
-  const branchIds = deal.productsData.map(pd => pd.branchId) || [];
-  const departmentIds = deal.productsData.map(pd => pd.departmentId) || [];
+  const branchIds = deal.productsData.map((pd) => pd.branchId) || [];
+  const departmentIds = deal.productsData.map((pd) => pd.departmentId) || [];
 
   const branchesById = {};
   const departmentsById = {};
@@ -377,7 +377,7 @@ export const getMoveData = async (subdomain, config, deal, dateType = '') => {
       action: 'branches.find',
       data: { query: { _id: { $in: branchIds } } },
       isRPC: true,
-      defaultValue: []
+      defaultValue: [],
     });
 
     for (const branch of branches) {
@@ -391,7 +391,7 @@ export const getMoveData = async (subdomain, config, deal, dateType = '') => {
       action: 'departments.find',
       data: { _id: { $in: departmentIds } },
       isRPC: true,
-      defaultValue: []
+      defaultValue: [],
     });
 
     for (const department of departments) {
@@ -422,7 +422,7 @@ export const getMoveData = async (subdomain, config, deal, dateType = '') => {
       amount: productData.amount,
       discount: productData.discount,
       inventoryCode: productCodeById[productData.productId],
-      otherCode
+      otherCode,
     });
   }
 
@@ -464,16 +464,16 @@ export const getMoveData = async (subdomain, config, deal, dateType = '') => {
       number: deal.number || '',
       customerCode,
       description: deal.name,
-      details
-    }
+      details,
+    },
   ];
 
   const sendConfig = {
     defaultCustomer: config.defaultCustomer,
-    catAccLocMap: (config.catAccLocMap || []).map(item => ({
+    catAccLocMap: (config.catAccLocMap || []).map((item) => ({
       ...item,
-      otherCode: `${item.branch || ''}_${item.department || ''}`
-    }))
+      otherCode: `${item.branch || ''}_${item.department || ''}`,
+    })),
   };
 
   const postData = {
@@ -482,7 +482,7 @@ export const getMoveData = async (subdomain, config, deal, dateType = '') => {
     apiKey: config.apiKey,
     apiSecret: config.apiSecret,
     config: JSON.stringify(sendConfig),
-    orderInfos: JSON.stringify(orderInfos)
+    orderInfos: JSON.stringify(orderInfos),
   };
 
   return postData;

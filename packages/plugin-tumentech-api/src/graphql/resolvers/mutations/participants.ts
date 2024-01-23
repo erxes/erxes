@@ -1,4 +1,4 @@
-import { graphqlPubsub } from '../../../configs';
+import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
 import { IContext } from '../../../connectionResolver';
 import {
   sendCardsMessage,

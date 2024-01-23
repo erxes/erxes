@@ -1,26 +1,12 @@
 import * as dotenv from 'dotenv';
 import { init } from '@erxes/api-utils/src/messageBroker';
-import { redis } from '@erxes/api-utils/src/serviceDiscovery';
 import { initBroker } from './messageBroker';
-import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
+import { MessageArgs, sendMessage } from '@erxes/api-utils/src/core';
 import * as fs from 'fs';
 import { Writable } from 'stream';
 import csvParser = require('csv-parser');
-import {
-  getService,
-  getServices,
-  isAvailable,
-  isEnabled
-} from '@erxes/api-utils/src/serviceDiscovery';
 
 let messageBrokerClient;
-
-const serviceDiscovery = {
-  getServices,
-  getService,
-  isAvailable,
-  isEnabled
-};
 
 const bankField = process.env.bankField;
 const bankAccountNameField = process.env.bankAccountNameField;
@@ -32,18 +18,16 @@ const professionField = process.env.professionField;
 const clientPortalId = process.env.clientPortalId;
 
 const sendCommonMessage = async (
-  args: ISendMessageArgs & { serviceName: string }
+  args: MessageArgs & { serviceName: string },
 ): Promise<any> => {
   return sendMessage({
-    serviceDiscovery,
-    client: messageBrokerClient,
-    ...args
+    ...args,
   });
 };
 
 const importBulkStream = ({
   filePath,
-  bulkLimit
+  bulkLimit,
 }: {
   filePath: string;
   bulkLimit: number;
@@ -66,7 +50,7 @@ const importBulkStream = ({
             rows = [];
             next();
           })
-          .catch(e => {
+          .catch((e) => {
             console.log(`Error during bulk insert from csv: ${e.message}`);
             reject(e);
           });
@@ -85,7 +69,7 @@ const importBulkStream = ({
           resolve('success');
         });
       })
-      .on('error', e => reject(e));
+      .on('error', (e) => reject(e));
   });
 };
 
@@ -111,7 +95,7 @@ const importUsers = async (rows: any[]) => {
       account_number,
       broker_code,
       mit_prefix,
-      suffix // TTOL-B/2411199-LI/0
+      suffix, // TTOL-B/2411199-LI/0
     ] = row;
 
     if (!email || !register_number || !suffix) {
@@ -152,31 +136,31 @@ const importUsers = async (rows: any[]) => {
         lastName: last_name,
         status: 'Active',
         emailValidationStatus: 'valid',
-        phoneValidationStatus: 'valid'
+        phoneValidationStatus: 'valid',
       },
       customFieldsData: [
         {
           field: registerNumberField,
           value: register_number,
-          stringValue: register_number
+          stringValue: register_number,
         },
         {
           field: addressField,
           value: address,
-          stringValue: address
+          stringValue: address,
         },
         {
           field: professionField,
           value: 'employee',
-          stringValue: 'employee'
+          stringValue: 'employee',
         },
         {
           field: customerTypeField,
           value: customerType,
           stringValue: customerType,
-          numberValue: customerType
-        }
-      ]
+          numberValue: customerType,
+        },
+      ],
     });
 
     clientPortalUserOperations.push({
@@ -186,8 +170,8 @@ const importUsers = async (rows: any[]) => {
         phone: mobile_number,
         firstName: first_name,
         lastName: last_name,
-        clientPortalId
-      }
+        clientPortalId,
+      },
     });
   }
 
@@ -196,7 +180,7 @@ const importUsers = async (rows: any[]) => {
     serviceName: 'contacts',
     action: 'customers.createOrUpdate',
     isRPC: true,
-    data: { rows: customerOperations, doNotReplaceExistingValues: true }
+    data: { rows: customerOperations, doNotReplaceExistingValues: true },
   });
 
   await sendCommonMessage({
@@ -204,7 +188,7 @@ const importUsers = async (rows: any[]) => {
     serviceName: 'clientportal',
     action: 'clientPortalUsers.createOrUpdate',
     isRPC: true,
-    data: { rows: clientPortalUserOperations }
+    data: { rows: clientPortalUserOperations },
   });
 };
 
@@ -219,7 +203,7 @@ const importBankInfo = async (rows: any[]) => {
       bank_code,
       account_name,
       account_number,
-      account_type
+      account_type,
     ] = row;
 
     if (!register_number) {
@@ -233,19 +217,19 @@ const importBankInfo = async (rows: any[]) => {
         {
           field: bankField,
           value: bank_name,
-          stringValue: bank_name
+          stringValue: bank_name,
         },
         {
           field: bankAccountNameField,
           value: account_name,
-          stringValue: account_name
+          stringValue: account_name,
         },
         {
           field: bankAccountNoField,
           value: account_number,
-          stringValue: account_number
-        }
-      ]
+          stringValue: account_number,
+        },
+      ],
     });
   }
 
@@ -254,14 +238,14 @@ const importBankInfo = async (rows: any[]) => {
     serviceName: 'contacts',
     action: 'customers.createOrUpdate',
     isRPC: true,
-    data: { rows: customerOperations, doNotReplaceExistingValues: true }
+    data: { rows: customerOperations, doNotReplaceExistingValues: true },
   });
 };
 
 const handleBulkOperation = async (
   filePath: string,
   rowIndex: number,
-  rows: any
+  rows: any,
 ) => {
   let parsedRows: any = [];
 
@@ -285,15 +269,9 @@ dotenv.config();
 const command = async () => {
   const [_a1, _a2, filePath] = process.argv;
 
-  const { RABBITMQ_HOST, MESSAGE_BROKER_PREFIX } = process.env;
+  await init();
 
-  messageBrokerClient = await init({
-    RABBITMQ_HOST,
-    MESSAGE_BROKER_PREFIX,
-    redis
-  });
-
-  initBroker(messageBrokerClient);
+  initBroker();
 
   await importBulkStream({ filePath, bulkLimit: 100 });
 

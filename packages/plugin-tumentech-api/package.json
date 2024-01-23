@@ -7,7 +7,10 @@
   },
   "dependencies": {
     "@erxes/api-utils" : "*",
-    "erxes-api-utils": "^0.0.39",
-    "googleapis": "^113.0.0"
+    "googleapis": "^113.0.0",
+    "jsonwebtoken": "^8.5.1"
+  },
+  "devDependencies": {
+    "@types/jsonwebtoken": "^8.5.6"
   }
 }

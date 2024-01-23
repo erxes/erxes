@@ -8,7 +8,7 @@ import { Building } from './buildings';
 import { City } from './cities';
 import { Contract } from './contacts';
 
-const resolvers: any = async _serviceDiscovery => ({
+const resolvers: any = async () => ({
   ...customScalars,
 
   District,
