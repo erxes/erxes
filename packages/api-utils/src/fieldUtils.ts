@@ -1,6 +1,8 @@
+import { sendMessage } from './core';
+
 export const generateFieldsFromSchema = async (
   queSchema: any,
-  namePrefix: string
+  namePrefix: string,
 ) => {
   const fields: any = [];
 
@@ -21,7 +23,7 @@ export const generateFieldsFromSchema = async (
         name: `${namePrefix}${name}`,
         label,
         type: path.instance,
-        selectOptions
+        selectOptions,
       });
     }
   }
@@ -29,17 +31,13 @@ export const generateFieldsFromSchema = async (
   return fields;
 };
 
-export const customFieldsDataByFieldCode = async (
-  object,
-  subdomain,
-  sendMessage
-) => {
+export const customFieldsDataByFieldCode = async (object, subdomain) => {
   const customFieldsData =
     object.customFieldsData && object.customFieldsData.toObject
       ? object.customFieldsData.toObject()
       : object.customFieldsData || [];
 
-  const fieldIds = customFieldsData.map(data => data.field);
+  const fieldIds = customFieldsData.map((data) => data.field);
 
   const fields = await sendMessage({
     serviceName: 'forms',
@@ -47,11 +45,11 @@ export const customFieldsDataByFieldCode = async (
     action: 'fields.find',
     data: {
       query: {
-        _id: { $in: fieldIds }
-      }
+        _id: { $in: fieldIds },
+      },
     },
     isRPC: true,
-    defaultValue: []
+    defaultValue: [],
   });
 
   const fieldCodesById = {};
@@ -59,7 +57,7 @@ export const customFieldsDataByFieldCode = async (
   for (const field of fields) {
     fieldCodesById[field._id] = {
       code: field.code,
-      text: field.text
+      text: field.text,
     };
   }
 
@@ -69,7 +67,7 @@ export const customFieldsDataByFieldCode = async (
     if (fieldCodesById[data.field]) {
       results[fieldCodesById[data.field].code] = {
         ...data,
-        text: fieldCodesById[data.field].text
+        text: fieldCodesById[data.field].text,
       };
     }
   }

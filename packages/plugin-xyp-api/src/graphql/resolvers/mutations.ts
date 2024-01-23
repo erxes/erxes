@@ -20,13 +20,16 @@ const xypMutations = {
   async xypDataRemove(_root, { _id }, { models, user }: IContext) {
     return models.XypData.removeXypData(_id);
   },
+  async xypDataCreateOrUpdate(_root, { ...doc }, { models, user }: IContext) {
+    return models.XypData.createOrUpdateXypData(doc);
+  },
   async xypConvertToCustomeFields(
     _root,
     { _id },
-    { models, user, subdomain }: IContext
+    { models, user, subdomain }: IContext,
   ) {
     return await convertToPropertyData(subdomain, { customerId: _id });
-  }
+  },
 };
 
 export default xypMutations;

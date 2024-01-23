@@ -1,5 +1,6 @@
 import {
-  ISendMessageArgs,
+  MessageArgs,
+  MessageArgsOmitService,
   sendMessage as sendMessageCore,
 } from '@erxes/api-utils/src/core';
 import { generateModels } from './connectionResolver';
@@ -7,19 +8,18 @@ import {
   fetchSegment,
   isInSegment,
 } from './graphql/resolvers/queries/queryBuilder';
+import {
+  consumeQueue,
+  consumeRPCQueue,
+} from '@erxes/api-utils/src/messageBroker';
 
 const sendSuccessMessage = (data) => ({ data, status: 'success' });
 const sendErrorMessage = (message?) => ({
   status: 'error',
   message,
 });
-let client;
 
-export const initBroker = async (cl) => {
-  client = cl;
-
-  const { consumeRPCQueue, consumeQueue } = client;
-
+export const initBroker = async () => {
   consumeRPCQueue('segments:findOne', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
@@ -100,7 +100,10 @@ export const initBroker = async (cl) => {
       const segments = await models.Segments.find({ _id: { $in: segmentIds } });
 
       if (!segments?.length) {
-        return sendErrorMessage('Not Found');
+        return {
+          status: 'error',
+          errorMessage: 'Segments not found',
+        };
       }
 
       let subSegmentIds: string[] = [];
@@ -113,30 +116,25 @@ export const initBroker = async (cl) => {
         }
       }
 
-      return sendSuccessMessage(
-        await models.Segments.find({
+      return {
+        status: 'success',
+        data: await models.Segments.find({
           _id: {
             $in: subSegmentIds,
           },
         }),
-      );
+      };
     },
   );
 };
 
-export const sendMessage = async (
-  args: ISendMessageArgs & { serviceName: string },
-): Promise<any> => {
+export const sendMessage = async (args: MessageArgs): Promise<any> => {
   return sendMessageCore({ ...args });
 };
 
-export const sendCoreMessage = (args: ISendMessageArgs): Promise<any> => {
+export const sendCoreMessage = (args: MessageArgsOmitService): Promise<any> => {
   return sendMessageCore({
     serviceName: 'core',
     ...args,
   });
 };
-
-export default function () {
-  return client;
-}

@@ -20,14 +20,13 @@ import dashboards from './dashboards';
 export let debug;
 export let mainDb;
 
-
 export default {
   name: 'products',
   permissions,
   graphql: async () => {
     return {
       typeDefs: await typeDefs(),
-      resolvers
+      resolvers,
     };
   },
   apolloServerContext: async (context, req) => {
@@ -55,12 +54,12 @@ export default {
     segments,
     documents,
     dashboards,
-    search
+    search,
   },
 
-  onServerInit: async options => {
-    initBroker(options.messageBrokerClient);
+  onServerInit: async (options) => {
+    initBroker();
 
     debug = options.debug;
-  }
+  },
 };

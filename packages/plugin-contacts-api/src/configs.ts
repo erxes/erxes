@@ -156,7 +156,7 @@ export default {
       return res.send('Successfully verified, you can close this tab now');
     });
 
-    initBroker(options.messageBrokerClient);
+    initBroker();
 
     debug = options.debug;
   },
