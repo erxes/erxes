@@ -609,7 +609,7 @@ export const dealToDynamic = async (
       body: JSON.stringify(sendData),
     }).then((res) => res.json());
 
-    if (order && order.items.length > 0) {
+    if (order && order.items.length > 0 && responseSale) {
       for (const item of order.items) {
         const product = await sendProductsMessage({
           subdomain,
@@ -620,7 +620,6 @@ export const dealToDynamic = async (
 
         const sendSalesLine: any = {
           Document_No: responseSale.No,
-          Line_No: '',
           Type: 'Item',
           No: product ? product.code : '',
           Quantity: item.count || 0,
@@ -638,8 +637,6 @@ export const dealToDynamic = async (
           },
           body: JSON.stringify(sendSalesLine),
         }).then((res) => res.json());
-
-        console.log(responseSaleLine, 'responseSaleLine');
       }
     }
 
