@@ -311,8 +311,14 @@ const integrationMutations = {
 
     const doc: any = { name, brandId, details };
 
-    const { kind } = integration;
+    let { kind } = integration;
 
+    if (kind === 'facebook-messenger' || kind === 'facebook-post') {
+      kind = 'facebook';
+    }
+    if (kind === 'instagram-messenger') {
+      kind = 'instagram';
+    }
     await models.Integrations.updateOne({ _id }, { $set: doc });
 
     const updated = await models.Integrations.getIntegration({ _id });
@@ -338,7 +344,7 @@ const integrationMutations = {
         integrationId: integration._id,
         doc: {
           accountId: doc.accountId,
-          kind: doc.kind,
+          kind: kind,
           integrationId: integration._id,
           data: details ? JSON.stringify(details) : '',
         },
