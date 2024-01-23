@@ -7,6 +7,9 @@ import {
   IIntegrationWithPhone
 } from '@erxes/ui-engage/src/types';
 
+import { useLazyQuery } from '@apollo/client';
+import { ClientPortalConfigsQueryResponse } from '@erxes/plugin-clientportal-ui/src/types';
+
 import { AddMutationResponse } from '@erxes/ui-segments/src/types';
 import AutoAndManualForm from '../components/AutoAndManualForm';
 import FormBase from '../components/FormBase';
@@ -14,10 +17,11 @@ import { IBrand } from '@erxes/ui/src/brands/types';
 import { IConfig } from '@erxes/ui-settings/src/general/types';
 import { IUser } from '@erxes/ui/src/auth/types';
 import { IntegrationsQueryResponse } from '@erxes/ui-inbox/src/settings/integrations/types';
-import React from 'react';
+import React, { useState, useCallback } from 'react';
 import { gql } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
 import { queries as integrationQueries } from '@erxes/ui-inbox/src/settings/integrations/graphql';
+import { queries as clientPortalQueries } from '@erxes/plugin-clientportal-ui/src/graphql';
 import { isEnabled } from '@erxes/ui/src/utils/core';
 import { queries } from '@erxes/ui-engage/src/graphql';
 import withFormMutations from './withFormMutations';
@@ -40,16 +44,36 @@ type FinalProps = {
   isActionLoading: boolean;
   save: (doc: IEngageMessageDoc) => Promise<any>;
   smsConfig: IConfig;
+  clientPortalConfigsQuery: ClientPortalConfigsQueryResponse;
 } & Props &
   AddMutationResponse;
 
 const AutoAndManualFormContainer = (props: FinalProps) => {
+  const [businessPortalKind, setBusinessPortalKind] = useState<
+    string | 'client' | 'vendor'
+  >('client');
+
   const {
     emailTemplatesQuery,
     integrationsConfigsQuery,
     externalIntegrationsQuery,
     integrationsQuery
   } = props;
+
+  const [
+    clientPortalConfigsQuery,
+    { loading, data = {} as ClientPortalConfigsQueryResponse }
+  ] = useLazyQuery<ClientPortalConfigsQueryResponse>(
+    gql(clientPortalQueries.getConfigs)
+  );
+
+  const handleClientPortalKindChange = useCallback(
+    (businessPortalKind: string) => {
+      setBusinessPortalKind(businessPortalKind);
+      clientPortalConfigsQuery({ variables: { kind: businessPortalKind } });
+    },
+    [businessPortalKind]
+  );
 
   const configs =
     integrationsConfigsQuery && integrationsConfigsQuery.integrationsGetConfigs
@@ -68,6 +92,7 @@ const AutoAndManualFormContainer = (props: FinalProps) => {
       : [];
 
   const mappedIntegrations: IIntegrationWithPhone[] = [];
+  const clientPortalGetConfigs = data.clientPortalGetConfigs || [];
 
   for (const ext of externalIntegrations) {
     const locals = integrations.filter(
@@ -88,7 +113,11 @@ const AutoAndManualFormContainer = (props: FinalProps) => {
     ...props,
     templates: emailTemplatesQuery?.emailTemplates || [],
     smsConfig: configs.find(i => i.code === 'TELNYX_API_KEY'),
-    integrations: mappedIntegrations
+    integrations: mappedIntegrations,
+    clientPortalGetConfigs,
+    businessPortalKind,
+    handleClientPortalKindChange,
+    loading
   };
 
   const content = formProps => (
@@ -143,6 +172,10 @@ const integrationEnabledQueries = [
     }
   )
 ];
+
+// if (isEnabled('clientportal')) {
+//   composers = composers.concat(clientPortalEnabledQueries);
+// }
 
 if (isEnabled('integrations')) {
   composers = composers.concat(integrationEnabledQueries);
