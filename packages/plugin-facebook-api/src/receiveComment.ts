@@ -47,7 +47,7 @@ const receiveComment = async (
     customer,
     params,
   );
-  const comment = await getOrCreateComment(
+  await getOrCreateComment(
     models,
     subdomain,
     postConversation,
@@ -58,26 +58,26 @@ const receiveComment = async (
     integration,
     customer,
   );
-  try {
-    if (comment) {
-      await sendInboxMessage({
-        subdomain,
-        action: 'conversationClientMessageInserted',
-        data: {
-          integrationId: integration.erxesApiId,
-          conversationId: comment,
-        },
-      });
-    } else {
-      console.log('Warning: The comment is undefined.');
-    }
-  } catch (e) {
-    throw new Error(
-      e.message.includes('duplicate')
-        ? 'Concurrent request: conversation message duplication'
-        : e,
-    );
-  }
+  // try {
+  //   if (comment) {
+  //     await sendInboxMessage({
+  //       subdomain,
+  //       action: 'conversationClientMessageInserted',
+  //       data: {
+  //         integrationId: integration.erxesApiId,
+  //         conversationId: comment,
+  //       },
+  //     });
+  //   } else {
+  //     console.log('Warning: The comment is undefined.');
+  //   }
+  // } catch (e) {
+  //   throw new Error(
+  //     e.message.includes('duplicate')
+  //       ? 'Concurrent request: conversation message duplication'
+  //       : e,
+  //   );
+  // }
 };
 
 export default receiveComment;

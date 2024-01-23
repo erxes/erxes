@@ -12,6 +12,7 @@ import { INTEGRATION_KINDS } from './constants';
 import { ICustomerDocument } from './models/definitions/customers';
 import { IIntegrationDocument } from './models/Integrations';
 import { putCreateLog } from './logUtils';
+import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
 
 interface IDoc {
   postId?: string;
@@ -315,21 +316,61 @@ export const getOrCreateComment = async (
 
     const erxesApiId = (postConversation.erxesApiId =
       apiConversationResponse._id);
-    const search = await models.CommentConversation.find({
+    let comment_conversations = await models.CommentConversation.findOne({
       comment_id: commentParams.comment_id,
     });
+    let comment_conversations_reply =
+      await models.CommentConversationReply.findOne({
+        comment_id: commentParams.comment_id,
+      });
 
-    if (search.length > 0) {
-      const firstDocument = search[0];
-      await models.CommentConversation.updateOne(
-        { comment_id: firstDocument.comment_id },
-        { $set: { erxesApiId: erxesApiId } },
-      );
-      return erxesApiId;
+    if (comment_conversations || comment_conversations_reply) {
+      if (comment_conversations) {
+        await models.CommentConversation.updateOne(
+          { comment_id: comment_conversations.comment_id },
+          { $set: { erxesApiId: erxesApiId } },
+        );
+      }
+      if (comment_conversations_reply) {
+        await models.CommentConversationReply.updateOne(
+          { comment_id: comment_conversations_reply.comment_id },
+          { $set: { erxesApiId: erxesApiId } },
+        );
+      }
+      try {
+        if (erxesApiId) {
+          const inboxIntegration = await sendInboxMessage({
+            subdomain,
+            action: 'conversationClientMessageInserted',
+            data: {
+              integrationId: integration.erxesApiId,
+              conversationId: erxesApiId,
+            },
+          });
+          graphqlPubsub.publish(`conversationMessageInserted:${erxesApiId}`, {
+            conversationMessageInserted: {
+              _id: comment._id,
+              content: comment.content,
+              createdAt: new Date(),
+              customerId: customer.erxesApiId,
+              conversationId: erxesApiId,
+            },
+            comment,
+            integration: inboxIntegration,
+          });
+        } else {
+          console.log('Warning: The comment is undefined.');
+        }
+      } catch (e) {
+        throw new Error(
+          e.message.includes('duplicate')
+            ? 'Concurrent request: conversation message duplication'
+            : e,
+        );
+      }
     } else {
       console.log('No matching documents found.');
     }
-    return erxesApiId;
   } catch (e) {
     await models.CommentConversation.deleteOne({
       _id: commentConversation,
