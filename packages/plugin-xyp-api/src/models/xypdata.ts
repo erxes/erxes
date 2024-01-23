@@ -2,7 +2,7 @@ import { Model } from 'mongoose';
 import {
   xypDataSchema,
   IXypconfigDocument,
-  IXypData
+  IXypData,
 } from './definitions/xypdata';
 
 export interface IXypDataModel extends Model<IXypconfigDocument> {
@@ -13,7 +13,7 @@ export interface IXypDataModel extends Model<IXypconfigDocument> {
   createOrUpdateXypData(doc: any): IXypconfigDocument;
 }
 
-export const loadxypConfigClass = models => {
+export const loadxypConfigClass = (models) => {
   class XypData {
     /*
      * Create new comment
@@ -32,7 +32,7 @@ export const loadxypConfigClass = models => {
       const config = await models.XypData.create({
         // createdBy: user._id,
         createdAt: new Date(),
-        ...doc
+        ...doc,
       });
       return config;
     }
@@ -46,9 +46,9 @@ export const loadxypConfigClass = models => {
           $set: {
             updatedBy: user._id,
             updatedAt: new Date(),
-            ...doc
-          }
-        }
+            ...doc,
+          },
+        },
       );
       return models.XypData.findOne({ _id });
     }
@@ -59,20 +59,20 @@ export const loadxypConfigClass = models => {
       const { contentType, contentTypeId, data } = doc;
       const xypdataObj = await models.XypData.findOne({
         contentType,
-        contentTypeId
+        contentTypeId,
       });
       if (xypdataObj) {
         const unique = xypdataObj?.data.filter(
-          d => d.wsOperationName !== data.wsOperationName
+          (d) => d.wsOperationName !== data.wsOperationName,
         );
         await models.XypData.updateOne(
           { _id: xypdataObj._id },
           {
             $set: {
               updatedAt: new Date(),
-              data: [...unique, data]
-            }
-          }
+              data: [...unique, data],
+            },
+          },
         );
       } else {
         const ret = await models.XypData.create({
@@ -80,12 +80,12 @@ export const loadxypConfigClass = models => {
           createdAt: new Date(),
           contentType,
           contentTypeId,
-          data: [data]
+          data: [data],
         });
       }
       const xypdata = await models.XypData.findOne({
         contentType,
-        contentTypeId
+        contentTypeId,
       });
 
       return xypdata;

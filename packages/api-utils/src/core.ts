@@ -5,6 +5,7 @@ import { IPermissionDocument } from './definitions/permissions';
 import { randomAlphanumeric } from '@erxes/api-utils/src/random';
 import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
 import * as messageBroker from './messageBroker';
+import type { InterMessage } from './messageBroker';
 
 export const getEnv = ({
   name,
@@ -243,21 +244,17 @@ export const escapeRegExp = (str: string) => {
   return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 };
 
-export interface ISendMessageArgs {
-  subdomain: string;
-  action: string;
-  data;
-  isRPC?: boolean;
-  isMQ?: boolean;
-  timeout?: number;
-  defaultValue?;
+export interface MessageArgs extends MessageArgsOmitService {
+  serviceName: string;
 }
 
-export const sendMessage = async (
-  args: {
-    serviceName: string;
-  } & ISendMessageArgs,
-): Promise<any> => {
+export interface MessageArgsOmitService extends InterMessage {
+  action: string;
+  isRPC?: boolean;
+  isMQ?: boolean;
+}
+
+export const sendMessage = async (args: MessageArgs): Promise<any> => {
   const {
     serviceName,
     subdomain,

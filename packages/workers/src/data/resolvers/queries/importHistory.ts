@@ -8,7 +8,7 @@ const importHistoryQueries = {
   async importHistories(
     _root,
     { type, ...args }: { page: number; perPage: number; type: string },
-    { models }: IContext
+    { models }: IContext,
   ) {
     const filter: { [key: string]: any } = {};
 
@@ -17,7 +17,7 @@ const importHistoryQueries = {
     }
 
     const list = await paginate(models.ImportHistory.find(filter), args).sort({
-      date: -1
+      date: -1,
     });
 
     const count = models.ImportHistory.find(filter).countDocuments();
@@ -28,7 +28,7 @@ const importHistoryQueries = {
   async importHistoryDetail(
     _root,
     { _id }: { _id: string },
-    { models }: IContext
+    { models }: IContext,
   ) {
     const importHistory = await models.ImportHistory.getImportHistory(_id);
 
@@ -39,14 +39,15 @@ const importHistoryQueries = {
 
   async importHistoryGetColumns(
     _root,
-    { attachmentName }: { attachmentName: string }
+    { attachmentName }: { attachmentName: string },
+    { subdomain }: IContext,
   ) {
-    const values = (await getImportCsvInfo(attachmentName)) as any;
+    const values = (await getImportCsvInfo(subdomain, attachmentName)) as any;
 
     const object = {} as any;
 
-    values.map(value => {
-      Object.keys(value).forEach(key => {
+    values.map((value) => {
+      Object.keys(value).forEach((key) => {
         if (!object[key]) {
           object[key] = [value[key]];
         } else {
@@ -60,22 +61,23 @@ const importHistoryQueries = {
 
   async importHistoryGetDuplicatedHeaders(
     _root,
-    { attachmentNames }: { attachmentNames: string[] }
+    { attachmentNames }: { attachmentNames: string[] },
+    { subdomain }: IContext,
   ) {
     const headers = [] as any;
 
     for (const attachmentName of attachmentNames) {
-      const results: any = await getCsvHeadersInfo(attachmentName);
+      const results: any = await getCsvHeadersInfo(subdomain, attachmentName);
 
       headers.push(...results.split(','));
     }
 
     const duplicates = headers.filter(
-      (item, index) => index !== headers.indexOf(item)
+      (item, index) => index !== headers.indexOf(item),
     );
 
     return duplicates;
-  }
+  },
 };
 
 export default importHistoryQueries;

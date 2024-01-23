@@ -1,14 +1,13 @@
-import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
+import {
+  MessageArgs,
+  MessageArgsOmitService,
+  sendMessage,
+} from '@erxes/api-utils/src/core';
 
 import { generateModels } from './connectionResolver';
+import { consumeRPCQueue } from '@erxes/api-utils/src/messageBroker';
 
-let client;
-
-export const initBroker = async (cl) => {
-  client = cl;
-
-  const { consumeQueue, consumeRPCQueue } = client;
-
+export const initBroker = async () => {
   consumeRPCQueue('payment:invoices.findOne', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
@@ -20,7 +19,7 @@ export const initBroker = async (cl) => {
 };
 
 export const sendContactsMessage = async (
-  args: ISendMessageArgs,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'contacts',
@@ -30,7 +29,7 @@ export const sendContactsMessage = async (
 
 export const sendCommonMessage = async (
   serviceName: string,
-  args: ISendMessageArgs,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
     serviceName,
@@ -39,14 +38,10 @@ export const sendCommonMessage = async (
 };
 
 export const sendInboxMessage = async (
-  args: ISendMessageArgs,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'inbox',
     ...args,
   });
 };
-
-export default function () {
-  return client;
-}

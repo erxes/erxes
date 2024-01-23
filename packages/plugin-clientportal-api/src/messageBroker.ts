@@ -1,17 +1,19 @@
-import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
+import {
+  MessageArgs,
+  MessageArgsOmitService,
+  sendMessage,
+} from '@erxes/api-utils/src/core';
 import { afterMutationHandlers } from './afterMutations';
 
 import { generateModels, IModels } from './connectionResolver';
 import { sendNotification, sendSms } from './utils';
 import { createCard } from './models/utils';
+import {
+  consumeRPCQueue,
+  consumeQueue,
+} from '@erxes/api-utils/src/messageBroker';
 
-let client;
-
-export const initBroker = async (cl) => {
-  client = cl;
-
-  const { consumeRPCQueue, consumeQueue } = client;
-
+export const initBroker = async () => {
   consumeRPCQueue(
     'clientportal:clientPortals.findOne',
     async ({ subdomain, data }) => {
@@ -173,7 +175,7 @@ export const initBroker = async (cl) => {
       if (!valid) {
         return {
           status: 'error',
-          message: 'Invalid password',
+          errorMessage: 'Invalid password',
         };
       }
 
@@ -185,7 +187,7 @@ export const initBroker = async (cl) => {
   );
 };
 
-export const sendCoreMessage = async (args: ISendMessageArgs) => {
+export const sendCoreMessage = async (args: MessageArgsOmitService) => {
   return sendMessage({
     serviceName: 'core',
     ...args,
@@ -193,7 +195,7 @@ export const sendCoreMessage = async (args: ISendMessageArgs) => {
 };
 
 export const sendContactsMessage = async (
-  args: ISendMessageArgs,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'contacts',
@@ -202,7 +204,7 @@ export const sendContactsMessage = async (
 };
 
 export const sendCardsMessage = async (
-  args: ISendMessageArgs,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'cards',
@@ -210,7 +212,9 @@ export const sendCardsMessage = async (
   });
 };
 
-export const sendKbMessage = async (args: ISendMessageArgs): Promise<any> => {
+export const sendKbMessage = async (
+  args: MessageArgsOmitService,
+): Promise<any> => {
   return sendMessage({
     serviceName: 'knowledgebase',
     ...args,
@@ -218,13 +222,9 @@ export const sendKbMessage = async (args: ISendMessageArgs): Promise<any> => {
 };
 
 export const sendCommonMessage = async (
-  args: ISendMessageArgs & { serviceName: string },
+  args: MessageArgs & { serviceName: string },
 ) => {
   return sendMessage({
     ...args,
   });
 };
-
-export default function () {
-  return client;
-}

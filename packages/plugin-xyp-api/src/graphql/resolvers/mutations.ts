@@ -26,10 +26,10 @@ const xypMutations = {
   async xypConvertToCustomeFields(
     _root,
     { _id },
-    { models, user, subdomain }: IContext
+    { models, user, subdomain }: IContext,
   ) {
     return await convertToPropertyData(subdomain, { customerId: _id });
-  }
+  },
 };
 
 export default xypMutations;

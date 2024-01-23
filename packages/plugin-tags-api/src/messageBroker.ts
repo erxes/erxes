@@ -1,17 +1,12 @@
+import { consumeRPCQueue } from '@erxes/api-utils/src/messageBroker';
 import { generateModels } from './connectionResolver';
 import {
   escapeRegExp,
-  ISendMessageArgs,
+  MessageArgs,
   sendMessage,
 } from '@erxes/api-utils/src/core';
 
-let client;
-
-export const initBroker = async (cl) => {
-  client = cl;
-
-  const { consumeRPCQueue } = client;
-
+export const initBroker = async () => {
   consumeRPCQueue('tags:find', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
@@ -75,14 +70,8 @@ export const initBroker = async (cl) => {
   );
 };
 
-export const sendCommonMessage = async (
-  args: ISendMessageArgs & { serviceName: string },
-): Promise<any> => {
+export const sendCommonMessage = async (args: MessageArgs): Promise<any> => {
   return sendMessage({
     ...args,
   });
 };
-
-export default function () {
-  return client;
-}

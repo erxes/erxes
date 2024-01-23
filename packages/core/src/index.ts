@@ -34,8 +34,7 @@ import {
   isEnabled,
   join,
   leave,
-  redis,
-} from './serviceDiscovery';
+} from '@erxes/api-utils/src/serviceDiscovery';
 import logs from './logUtils';
 
 import init from './startup';

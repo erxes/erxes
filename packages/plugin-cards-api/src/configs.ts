@@ -98,7 +98,7 @@ export default {
       }),
     );
 
-    initBroker(options.messageBrokerClient);
+    initBroker();
 
     console.log('Debug ....');
 
