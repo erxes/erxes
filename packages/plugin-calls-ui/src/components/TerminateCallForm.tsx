@@ -3,18 +3,14 @@ import { ModalFooter } from '@erxes/ui/src/styles/main';
 import { IFormProps } from '@erxes/ui/src/types';
 import { __ } from '@erxes/ui/src/utils';
 import React from 'react';
-import { callPropType, sipPropType } from '../lib/types';
-import * as PropTypes from 'prop-types';
-
 interface IProps {
   closeModal?: () => void;
   setConfig?: any;
   removeActiveSession?: () => {};
-  setCallInfo?: ({ isUnRegistered: boolean }) => void;
 }
 
 const TerminateSessionForm = (props: IProps) => {
-  const { closeModal, setConfig, removeActiveSession, setCallInfo } = props;
+  const { closeModal, setConfig, removeActiveSession } = props;
 
   const onOk = () => {
     // tslint:disable-next-line:no-unused-expression
@@ -26,13 +22,6 @@ const TerminateSessionForm = (props: IProps) => {
       })
     );
 
-    localStorage.setItem(
-      'callInfo',
-      JSON.stringify({
-        isRegistered: true,
-        isLogin: true
-      })
-    );
     // tslint:disable-next-line:no-unused-expression
 
     removeActiveSession();
@@ -47,8 +36,13 @@ const TerminateSessionForm = (props: IProps) => {
       })
     );
 
-    setCallInfo({ isUnRegistered: true });
-
+    localStorage.setItem(
+      'config:call_integrations',
+      JSON.stringify({
+        ...JSON.parse(localStorage.getItem('config:call_integrations')),
+        isAvailable: false
+      })
+    );
     closeModal();
   };
 
