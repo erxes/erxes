@@ -108,7 +108,15 @@ const mutations = {
 
   buildingsSubmitServiceRequest: async (
     _root,
-    { _id, buildingData, ticketData, quarterId, phone },
+    {
+      _id,
+      buildingData,
+      ticketData,
+      quarterId,
+      phone,
+      suhPhone,
+      customerAddress,
+    },
     { models, subdomain, cpUser }: IContext,
   ) => {
     const user = await sendCommonMessage({
@@ -124,40 +132,53 @@ const mutations = {
 
     let customerId = '';
     let customer = {} as any;
+    let suhId = undefined;
     if (user) {
       customerId = user.erxesCustomerId;
     }
+
+    const trackedData: any[] = [];
+
+    if (suhPhone) {
+      trackedData.push({
+        field: 'сөх-ийн дугаар',
+        value: suhPhone,
+      });
+    }
+
+    if (customerAddress) {
+      trackedData.push({
+        field: 'орц, тоот',
+        value: customerAddress,
+      });
+    }
+
     if (!user) {
       customer = await sendCommonMessage({
         serviceName: 'contacts',
         subdomain,
-        action: 'customers.findOne',
+        action: 'customers.createCustomer',
         data: {
-          phone,
+          phones: [phone],
+          state: 'lead',
+          trackedData,
         },
         isRPC: true,
         defaultValue: null,
       });
 
-      if (!customer) {
-        customer = await sendCommonMessage({
-          serviceName: 'contacts',
-          subdomain,
-          action: 'customers.createCustomer',
-          data: {
-            primaryName: phone,
-          },
-          isRPC: true,
-          defaultValue: null,
-        });
-
-        customerId = customer?._id || '';
-      }
+      customerId = customer?._id || '';
     }
 
     // const user = { erxesCustomerId: 'hTqM74dJPreqy4K5t' };
     let building = await models.Buildings.findOne({
-      $or: [{ _id }, { osmbId: buildingData.id }],
+      $or: [
+        { _id },
+        { osmbId: Number(_id) },
+        { osmbId: _id },
+        { osmbId: buildingData.id },
+        { osmbId: Number(buildingData.id) },
+      ],
     });
 
     if (!building) {
@@ -210,7 +231,7 @@ const mutations = {
       });
       const city = await models.Cities.getCity({ _id: district.cityId });
 
-      const ticketName = `Сүлжээ тавиулах хүсэлт: ${city.name}, ${district.name}, ${quarter.name}, ${building.name}`;
+      const ticketName = `${city.name}, ${district.name}, ${quarter.name}, ${building.name}`;
 
       const ticket = await sendCommonMessage({
         serviceName: 'cards',
