@@ -4,7 +4,7 @@ import {
   ControlLabel,
   FormControl,
   FormGroup,
-  Tip
+  Tip,
 } from '@erxes/ui/src/components';
 import client from '@erxes/ui/src/apolloClient';
 import { gql } from '@apollo/client';
@@ -12,7 +12,7 @@ import BoardSelectContainer from '@erxes/ui-cards/src/boards/containers/BoardSel
 import { __ } from '@erxes/ui/src/utils';
 import { MainStyleModalFooter as ModalFooter } from '@erxes/ui/src/styles/eindex';
 import Select from 'react-select-plus';
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { IConfigsMap } from '../types';
 import { FieldsCombinedByType } from '@erxes/ui-forms/src/settings/properties/types';
 import { isEnabled } from '@erxes/ui/src/utils/core';
@@ -29,111 +29,79 @@ type Props = {
   delete: (currentConfigKey: string) => void;
 };
 
-type State = {
-  config: any;
-  hasOpen: boolean;
-  brandRules: any;
-  fieldsCombined: FieldsCombinedByType[];
-};
+const PerSettings = (props: Props) => {
+  const [config, setConfig] = useState(props.config);
+  const [brandRules, setBrandRules] = useState(props.config.brandRules || {});
+  const [fieldsCombined, setFieldsCombined] = useState(
+    [] as FieldsCombinedByType[],
+  );
+  const { configsMap, currentConfigKey } = props;
 
-class PerSettings extends React.Component<Props, State> {
-  constructor(props: Props) {
-    super(props);
-
-    this.state = {
-      config: props.config,
-      hasOpen: false,
-      brandRules: props.config.brandRules || {},
-      fieldsCombined: []
-    };
-
+  useEffect(() => {
     if (isEnabled('forms')) {
       client
         .query({
           query: gql(formQueries.fieldsCombinedByContentType),
           variables: {
-            contentType: 'cards:deal'
-          }
+            contentType: 'cards:deal',
+          },
         })
         .then(({ data }) => {
-          this.setState({
-            fieldsCombined: data ? data.fieldsCombinedByContentType : [] || []
-          });
+          setFieldsCombined(data ? data.fieldsCombinedByContentType : [] || []);
         });
     }
-  }
+  }, [fieldsCombined]);
 
-  onChangeBoard = (boardId: string) => {
-    this.setState({ config: { ...this.state.config, boardId } });
+  const onChangeBoard = (boardId: string) => {
+    setConfig({ ...config, boardId });
   };
 
-  onChangePipeline = (pipelineId: string) => {
-    this.setState({ config: { ...this.state.config, pipelineId } });
+  const onChangePipeline = (pipelineId: string) => {
+    setConfig({ ...config, pipelineId });
   };
 
-  onChangeStage = (stageId: string) => {
-    this.setState({ config: { ...this.state.config, stageId } });
+  const onChangeStage = (stageId: string) => {
+    setConfig({ ...config, stageId });
   };
 
-  onSave = e => {
+  const onSave = (e) => {
     e.preventDefault();
-    const { configsMap, currentConfigKey } = this.props;
-    const { config, brandRules } = this.state;
     const key = config.stageId;
 
     delete configsMap.stageInSaleConfig[currentConfigKey];
     configsMap.stageInSaleConfig[key] = { ...config, brandRules };
-    this.props.save(configsMap);
+    props.save(configsMap);
   };
 
-  onDelete = e => {
+  const onDelete = (e) => {
     e.preventDefault();
 
-    this.props.delete(this.props.currentConfigKey);
+    props.delete(props.currentConfigKey);
   };
 
-  onChangeCombo = option => {
-    this.onChangeConfig('defaultPay', option.value);
+  const onChangeCheckbox = (code: string, e) => {
+    onChangeConfig(code, e.target.checked);
   };
 
-  onChangeCheckbox = (code: string, e) => {
-    this.onChangeConfig(code, e.target.checked);
-  };
-
-  onChangeConfig = (code: string, value) => {
-    const { config } = this.state;
+  const onChangeConfig = (code: string, value) => {
     config[code] = value;
-    this.setState({ config });
+    setConfig(config);
   };
 
-  onChangeInput = (code: string, e) => {
-    this.onChangeConfig(code, e.target.value);
+  const onChangeInput = (code: string, e) => {
+    onChangeConfig(code, e.target.value);
   };
 
-  onresponseCustomFieldChange = option => {
+  const onresponseCustomFieldChange = (option) => {
     const value = !option ? '' : option.value.toString();
-    this.onChangeConfig('responseField', value);
+    onChangeConfig('responseField', value);
   };
 
-  renderInput = (key: string, title?: string, description?: string) => {
-    const { config } = this.state;
-
-    return (
-      <FormGroup>
-        <ControlLabel>{title || key}</ControlLabel>
-        {description && <p>{__(description)}</p>}
-        <FormControl
-          defaultValue={config[key]}
-          onChange={this.onChangeInput.bind(this, key)}
-          required={true}
-        />
-      </FormGroup>
-    );
-  };
-
-  renderCheckbox = (key: string, title?: string, description?: string) => {
-    const { config } = this.state;
-
+  const renderCheckbox = (
+    key: string,
+    title?: string,
+    description?: string,
+  ) => {
     return (
       <FormGroup>
         <ControlLabel>{title || key}</ControlLabel>
@@ -141,54 +109,42 @@ class PerSettings extends React.Component<Props, State> {
         <FormControl
           componentClass="checkbox"
           checked={config[key]}
-          onChange={this.onChangeCheckbox.bind(this, key)}
+          onChange={onChangeCheckbox.bind(this, key)}
         />
       </FormGroup>
     );
   };
 
-  addConfig = () => {
-    const { brandRules } = this.state;
-    this.setState({
-      brandRules: {
-        ...brandRules,
-        newBrand: {
-          brandId: '',
-          userEmail: '',
-          hasPayment: true,
-          hasVat: false,
-          hasCitytax: false,
-          defaultPay: 'debtAmount'
-        }
-      }
+  const addConfig = () => {
+    setBrandRules({
+      ...brandRules,
+      newBrand: {
+        brandId: '',
+        userEmail: '',
+        hasPayment: true,
+        hasVat: false,
+        hasCitytax: false,
+        defaultPay: 'debtAmount',
+      },
     });
   };
 
-  removeConfig = brandId => {
-    const { brandRules } = this.state;
+  const removeConfig = (brandId) => {
     const newConfig = { ...brandRules };
     delete newConfig[brandId];
-    this.setState({
-      brandRules: newConfig
-    });
+    setBrandRules(newConfig);
   };
 
-  updateConfig = (brandId, key, value) => {
-    const { brandRules } = this.state;
-
+  const updateConfig = (brandId, key, value) => {
     if (key === 'brandId') {
       delete brandRules.newBrand;
     }
     brandRules[brandId] = { ...brandRules[brandId], [key]: value };
-    this.setState({
-      brandRules: brandRules
-    });
+    setBrandRules(brandRules);
   };
 
-  renderPerConfig() {
-    const { brandRules } = this.state;
-
-    return Object.keys(brandRules).map(key => {
+  const renderPerConfig = () => {
+    return Object.keys(brandRules).map((key) => {
       return (
         <GroupWrapper key={key}>
           <FormGroup>
@@ -199,9 +155,9 @@ class PerSettings extends React.Component<Props, State> {
               name="brandId"
               customOption={{
                 label: 'No Brand (noBrand)',
-                value: 'noBrand'
+                value: 'noBrand',
               }}
-              onSelect={brand => this.updateConfig(brand, 'brandId', brand)}
+              onSelect={(brand) => updateConfig(brand, 'brandId', brand)}
               multi={false}
             />
           </FormGroup>
@@ -211,8 +167,8 @@ class PerSettings extends React.Component<Props, State> {
                 <ControlLabel>User Email</ControlLabel>
                 <FormControl
                   value={brandRules[key].userEmail}
-                  onChange={e =>
-                    this.updateConfig(key, 'userEmail', (e.target as any).value)
+                  onChange={(e) =>
+                    updateConfig(key, 'userEmail', (e.target as any).value)
                   }
                   required={true}
                 />
@@ -222,8 +178,8 @@ class PerSettings extends React.Component<Props, State> {
                 <FormControl
                   componentClass="checkbox"
                   checked={brandRules[key].hasVat}
-                  onChange={e =>
-                    this.updateConfig(key, 'hasVat', (e.target as any).checked)
+                  onChange={(e) =>
+                    updateConfig(key, 'hasVat', (e.target as any).checked)
                   }
                 />
               </FormGroup>
@@ -233,15 +189,15 @@ class PerSettings extends React.Component<Props, State> {
                 <ControlLabel>default Pay</ControlLabel>
                 <Select
                   value={brandRules[key].defaultPay}
-                  onChange={option =>
-                    this.updateConfig(key, 'defaultPay', option.value)
+                  onChange={(option) =>
+                    updateConfig(key, 'defaultPay', option.value)
                   }
                   clearable={false}
                   required={true}
                   options={[
                     { value: 'debtAmount', label: 'debtAmount' },
                     { value: 'cashAmount', label: 'cashAmount' },
-                    { value: 'cardAmount', label: 'cardAmount' }
+                    { value: 'cardAmount', label: 'cardAmount' },
                   ]}
                 />
               </FormGroup>
@@ -250,12 +206,8 @@ class PerSettings extends React.Component<Props, State> {
                 <FormControl
                   componentClass="checkbox"
                   checked={brandRules[key].hasCitytax}
-                  onChange={e =>
-                    this.updateConfig(
-                      key,
-                      'hasCitytax',
-                      (e.target as any).checked
-                    )
+                  onChange={(e) =>
+                    updateConfig(key, 'hasCitytax', (e.target as any).checked)
                   }
                 />
               </FormGroup>
@@ -265,93 +217,88 @@ class PerSettings extends React.Component<Props, State> {
             <Button
               btnStyle="simple"
               size="small"
-              onClick={this.removeConfig.bind(this, key)}
+              onClick={removeConfig.bind(this, key)}
               icon="times"
             />
           </Tip>
         </GroupWrapper>
       );
     });
-  }
+  };
 
-  render() {
-    const { config } = this.state;
-    return (
-      <CollapseContent
-        title={__(config.title)}
-        open={
-          this.props.currentConfigKey === 'newStageInSaleConfig' ? true : false
-        }
-      >
-        <FormWrapper>
-          <FormColumn>
-            <FormGroup>
-              <ControlLabel>{'Title'}</ControlLabel>
-              <FormControl
-                defaultValue={config['title']}
-                onChange={this.onChangeInput.bind(this, 'title')}
-                required={true}
-                autoFocus={true}
-              />
-            </FormGroup>
-            <FormGroup>
-              <BoardSelectContainer
-                type="deal"
-                autoSelectStage={false}
-                boardId={config.boardId}
-                pipelineId={config.pipelineId}
-                stageId={config.stageId}
-                onChangeBoard={this.onChangeBoard}
-                onChangePipeline={this.onChangePipeline}
-                onChangeStage={this.onChangeStage}
-              />
-            </FormGroup>
-            {this.renderCheckbox('hasPayment', 'has Payment')}
-            <FormGroup>
-              <ControlLabel>{__('Choose response field')}</ControlLabel>
-              <Select
-                name="responseField"
-                value={config.responseField}
-                onChange={this.onresponseCustomFieldChange}
-                options={(this.state.fieldsCombined || []).map(f => ({
-                  value: f.name,
-                  label: f.label
-                }))}
-              />
-            </FormGroup>
-          </FormColumn>
-          <FormColumn>{this.renderPerConfig()}</FormColumn>
-        </FormWrapper>
-        <ModalFooter>
-          <Button
-            btnStyle="primary"
-            onClick={this.addConfig}
-            icon="plus"
-            uppercase={false}
-          >
-            Add config
-          </Button>
-          <Button
-            btnStyle="simple"
-            icon="cancel-1"
-            onClick={this.onDelete}
-            uppercase={false}
-          >
-            Delete
-          </Button>
+  return (
+    <CollapseContent
+      title={__(config.title)}
+      open={props.currentConfigKey === 'newStageInSaleConfig' ? true : false}
+    >
+      <FormWrapper>
+        <FormColumn>
+          <FormGroup>
+            <ControlLabel>{'Title'}</ControlLabel>
+            <FormControl
+              defaultValue={config['title']}
+              onChange={onChangeInput.bind(this, 'title')}
+              required={true}
+              autoFocus={true}
+            />
+          </FormGroup>
+          <FormGroup>
+            <BoardSelectContainer
+              type="deal"
+              autoSelectStage={false}
+              boardId={config.boardId}
+              pipelineId={config.pipelineId}
+              stageId={config.stageId}
+              onChangeBoard={onChangeBoard}
+              onChangePipeline={onChangePipeline}
+              onChangeStage={onChangeStage}
+            />
+          </FormGroup>
+          {renderCheckbox('hasPayment', 'has Payment')}
+          <FormGroup>
+            <ControlLabel>{__('Choose response field')}</ControlLabel>
+            <Select
+              name="responseField"
+              value={config.responseField}
+              onChange={onresponseCustomFieldChange}
+              options={(fieldsCombined || []).map((f) => ({
+                value: f.name,
+                label: f.label,
+              }))}
+            />
+          </FormGroup>
+        </FormColumn>
+        <FormColumn>{renderPerConfig()}</FormColumn>
+      </FormWrapper>
+      <ModalFooter>
+        <Button
+          btnStyle="primary"
+          onClick={addConfig}
+          icon="plus"
+          uppercase={false}
+        >
+          Add config
+        </Button>
+        <Button
+          btnStyle="simple"
+          icon="cancel-1"
+          onClick={onDelete}
+          uppercase={false}
+        >
+          Delete
+        </Button>
 
-          <Button
-            btnStyle="primary"
-            icon="check-circle"
-            onClick={this.onSave}
-            uppercase={false}
-            disabled={config.stageId ? false : true}
-          >
-            Save
-          </Button>
-        </ModalFooter>
-      </CollapseContent>
-    );
-  }
-}
+        <Button
+          btnStyle="primary"
+          icon="check-circle"
+          onClick={onSave}
+          uppercase={false}
+          disabled={config.stageId ? false : true}
+        >
+          Save
+        </Button>
+      </ModalFooter>
+    </CollapseContent>
+  );
+};
 export default PerSettings;

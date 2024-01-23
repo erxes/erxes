@@ -2,7 +2,7 @@ import { MainStyleTitle as Title } from '@erxes/ui/src/styles/eindex';
 import { __ } from '@erxes/ui/src/utils';
 import { Button } from '@erxes/ui/src/components';
 import { Wrapper } from '@erxes/ui/src/layout';
-import React from 'react';
+import React, { useState } from 'react';
 
 import { ContentBox } from '../styles';
 import { IConfigsMap } from '../types';
@@ -15,113 +15,99 @@ type Props = {
   configsMap: IConfigsMap;
 };
 
-type State = {
-  configsMap: IConfigsMap;
-};
+const GeneralSettings = (props: Props) => {
+  const [configsMap, setConfigsMap] = useState<IConfigsMap>(props.configsMap);
 
-class GeneralSettings extends React.Component<Props, State> {
-  constructor(props: Props) {
-    super(props);
-
-    this.state = {
-      configsMap: props.configsMap
-    };
-  }
-
-  add = e => {
+  const add = (e) => {
     e.preventDefault();
-    const { configsMap } = this.state;
 
     if (!configsMap.remainderConfig) {
       configsMap.remainderConfig = {};
     }
 
     // must save prev item saved then new item
-    configsMap.remainderConfig.newPipelineConfig = {
+    const newPipelineConfig = {
       title: 'New Pipeline Remainder Config',
       boardId: '',
       pipelineId: '',
       account: '',
-      location: ''
+      location: '',
     };
 
-    this.setState({ configsMap });
+    setConfigsMap((prevConfigsMap) => ({
+      ...prevConfigsMap,
+      remainderConfig: {
+        ...prevConfigsMap.remainderConfig,
+        newPipelineConfig,
+      },
+    }));
   };
 
-  delete = (currentConfigKey: string) => {
-    const { configsMap } = this.state;
+  const deleteHandler = (currentConfigKey: string) => {
     delete configsMap.remainderConfig[currentConfigKey];
     delete configsMap.remainderConfig['newPipelineConfig'];
 
-    this.setState({ configsMap });
+    setConfigsMap(configsMap);
 
-    this.props.save(configsMap);
+    props.save(configsMap);
   };
 
-  renderConfigs(configs) {
-    return Object.keys(configs).map(key => {
+  const renderConfigs = (configs) => {
+    return Object.keys(configs).map((key) => {
       return (
         <PerRemSettings
-          configsMap={this.state.configsMap}
+          configsMap={configsMap}
           config={configs[key]}
           currentConfigKey={key}
-          save={this.props.save}
-          delete={this.delete}
+          save={props.save}
+          delete={deleteHandler}
         />
       );
     });
-  }
+  };
 
-  renderContent() {
-    const { configsMap } = this.state;
+  const renderContent = () => {
     const configs = configsMap.remainderConfig || {};
 
     return (
       <ContentBox id={'GeneralSettingsMenu'}>
-        {this.renderConfigs(configs)}
+        {renderConfigs(configs)}
       </ContentBox>
     );
-  }
+  };
 
-  render() {
-    const breadcrumb = [
-      { title: __('Settings'), link: '/settings' },
-      { title: __('Remainder config') }
-    ];
+  const breadcrumb = [
+    { title: __('Settings'), link: '/settings' },
+    { title: __('Remainder config') },
+  ];
 
-    const actionButtons = (
-      <Button
-        btnStyle="primary"
-        onClick={this.add}
-        icon="plus"
-        uppercase={false}
-      >
-        New config
-      </Button>
-    );
+  const actionButtons = (
+    <Button btnStyle="primary" onClick={add} icon="plus" uppercase={false}>
+      New config
+    </Button>
+  );
 
-    return (
-      <Wrapper
-        header={
-          <Wrapper.Header
-            title={__('Remainder config')}
-            breadcrumb={breadcrumb}
-          />
-        }
-        mainHead={<Header />}
-        actionBar={
-          <Wrapper.ActionBar
-            left={<Title>{__('Remainder configs')}</Title>}
-            right={actionButtons}
-          />
-        }
-        leftSidebar={<Sidebar />}
-        content={this.renderContent()}
-        hasBorder={true}
-        transparent={true}
-      />
-    );
-  }
-}
+  return (
+    <Wrapper
+      header={
+        <Wrapper.Header
+          title={__('Remainder config')}
+          breadcrumb={breadcrumb}
+        />
+      }
+      mainHead={<Header />}
+      actionBar={
+        <Wrapper.ActionBar
+          left={<Title>{__('Remainder configs')}</Title>}
+          right={actionButtons}
+        />
+      }
+      leftSidebar={<Sidebar />}
+      content={renderContent()}
+      hasBorder={true}
+      transparent={true}
+    />
+  );
+};
 
 export default GeneralSettings;

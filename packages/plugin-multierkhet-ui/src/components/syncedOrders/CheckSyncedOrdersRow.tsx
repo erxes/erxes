@@ -16,128 +16,121 @@ type Props = {
   syncedInfo: any;
 };
 
-class Row extends React.Component<Props> {
-  constructor(props: Props) {
-    super(props);
-  }
+const Row = (props: Props) => {
+  const { order, toggleBulk, isChecked, isUnsynced, syncedInfo } = props;
 
-  modalContent = _props => {
-    const { order } = this.props;
-
+  const modalContent = (_props) => {
     return <Detail order={order} />;
   };
 
-  render() {
-    const { order, toggleBulk, isChecked, isUnsynced, syncedInfo } = this.props;
-    const mustBrands = [...(syncedInfo.mustBrands || [])];
-    const brandLen = mustBrands.length || 1;
+  const mustBrands = [...(syncedInfo.mustBrands || [])];
+  const brandLen = mustBrands.length || 1;
 
-    const onChange = e => {
-      if (toggleBulk) {
-        toggleBulk(order, e.target.checked);
-      }
-    };
+  const onChange = (e) => {
+    if (toggleBulk) {
+      toggleBulk(order, e.target.checked);
+    }
+  };
 
-    const onClick = e => {
-      e.stopPropagation();
-    };
+  const onClick = (e) => {
+    e.stopPropagation();
+  };
 
-    const onClickSync = e => {
-      e.stopPropagation();
-      this.props.toSync([order._id]);
-    };
+  const onClickSync = (e) => {
+    e.stopPropagation();
+    props.toSync([order._id]);
+  };
 
-    const onTrClick = () => {};
+  const onTrClick = () => {};
 
-    const { number, createdAt, totalAmount, paidDate } = order;
-    const firstBrand = mustBrands[0] || '';
-    const firstInfo = syncedInfo[firstBrand] || {};
-    const otherBrands = mustBrands.splice(1, brandLen) || [];
+  const { number, createdAt, totalAmount, paidDate } = order;
+  const firstBrand = mustBrands[0] || '';
+  const firstInfo = syncedInfo[firstBrand] || {};
+  const otherBrands = mustBrands.splice(1, brandLen) || [];
 
-    const renderOtherTr = () => {
-      if (!otherBrands.length) {
-        return <></>;
-      }
+  const renderOtherTr = () => {
+    if (!otherBrands.length) {
+      return <></>;
+    }
 
-      return otherBrands.map(ob => {
-        const otherInfo = syncedInfo[ob] || {};
+    return otherBrands.map((ob) => {
+      const otherInfo = syncedInfo[ob] || {};
 
-        return (
-          <tr key={`${otherInfo._id}_${ob}`}>
-            <td>{otherInfo.brandName || ''}</td>
-            <td>
-              {otherInfo.syncedDate &&
-                dayjs(otherInfo.syncedDate || '').format('ll')}
-            </td>
-            <td>{otherInfo.syncedBillNumber || ''}</td>
-            <td>{otherInfo.syncedCustomer || ''}</td>
-          </tr>
-        );
-      });
-    };
+      return (
+        <tr key={`${otherInfo._id}_${ob}`}>
+          <td>{otherInfo.brandName || ''}</td>
+          <td>
+            {otherInfo.syncedDate &&
+              dayjs(otherInfo.syncedDate || '').format('ll')}
+          </td>
+          <td>{otherInfo.syncedBillNumber || ''}</td>
+          <td>{otherInfo.syncedCustomer || ''}</td>
+        </tr>
+      );
+    });
+  };
 
-    const trigger = (
-      <>
-        <tr onClick={onTrClick}>
-          <td onClick={onClick} rowSpan={brandLen}>
+  const trigger = (
+    <>
+      <tr onClick={onTrClick}>
+        <td onClick={onClick} rowSpan={brandLen}>
+          <FormControl
+            checked={isChecked}
+            componentClass="checkbox"
+            onChange={onChange}
+          />
+        </td>
+        <td rowSpan={brandLen}>{number}</td>
+        <td rowSpan={brandLen}>{totalAmount.toLocaleString()}</td>
+        <td rowSpan={brandLen}>{dayjs(createdAt).format('lll')}</td>
+        <td rowSpan={brandLen}>{dayjs(paidDate).format('lll')}</td>
+        <td onClick={onClick} rowSpan={brandLen}>
+          {isUnsynced && (
             <FormControl
-              checked={isChecked}
+              checked={isUnsynced}
               componentClass="checkbox"
               onChange={onChange}
             />
-          </td>
-          <td rowSpan={brandLen}>{number}</td>
-          <td rowSpan={brandLen}>{totalAmount.toLocaleString()}</td>
-          <td rowSpan={brandLen}>{dayjs(createdAt).format('lll')}</td>
-          <td rowSpan={brandLen}>{dayjs(paidDate).format('lll')}</td>
-          <td onClick={onClick} rowSpan={brandLen}>
-            {isUnsynced && (
-              <FormControl
-                checked={isUnsynced}
-                componentClass="checkbox"
-                onChange={onChange}
+          )}
+        </td>
+
+        <td>{firstInfo.brandName || ''}</td>
+        <td>
+          {firstInfo?.syncedDate &&
+            dayjs(firstInfo?.syncedDate || '').format('ll')}
+        </td>
+        <td>{firstInfo?.syncedBillNumber || ''}</td>
+        <td>{firstInfo?.syncedCustomer || ''}</td>
+        <td rowSpan={brandLen}>
+          {isUnsynced && (
+            <Tip text="Sync">
+              <Button btnStyle="link" onClick={onClickSync} icon="sync" />
+            </Tip>
+          )}
+          {isUnsynced === false && firstInfo.syncedDate && (
+            <Tip text="ReSync">
+              <Button
+                btnStyle="link"
+                onClick={onClickSync}
+                icon="sync-exclamation"
               />
-            )}
-          </td>
+            </Tip>
+          )}
+        </td>
+      </tr>
+      {renderOtherTr()}
+    </>
+  );
 
-          <td>{firstInfo.brandName || ''}</td>
-          <td>
-            {firstInfo?.syncedDate &&
-              dayjs(firstInfo?.syncedDate || '').format('ll')}
-          </td>
-          <td>{firstInfo?.syncedBillNumber || ''}</td>
-          <td>{firstInfo?.syncedCustomer || ''}</td>
-          <td rowSpan={brandLen}>
-            {isUnsynced && (
-              <Tip text="Sync">
-                <Button btnStyle="link" onClick={onClickSync} icon="sync" />
-              </Tip>
-            )}
-            {isUnsynced === false && firstInfo.syncedDate && (
-              <Tip text="ReSync">
-                <Button
-                  btnStyle="link"
-                  onClick={onClickSync}
-                  icon="sync-exclamation"
-                />
-              </Tip>
-            )}
-          </td>
-        </tr>
-        {renderOtherTr()}
-      </>
-    );
-
-    return (
-      <ModalTrigger
-        title={`Order detail`}
-        trigger={trigger}
-        autoOpenKey="showProductModal"
-        content={this.modalContent}
-        size={'lg'}
-      />
-    );
-  }
-}
+  return (
+    <ModalTrigger
+      title={`Order detail`}
+      trigger={trigger}
+      autoOpenKey="showProductModal"
+      content={modalContent}
+      size={'lg'}
+    />
+  );
+};
 
 export default Row;

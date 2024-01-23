@@ -3,11 +3,11 @@ import {
   CollapseContent,
   ControlLabel,
   FormControl,
-  FormGroup
+  FormGroup,
 } from '@erxes/ui/src/components';
 import SelectBrands from '@erxes/ui/src/brands/containers/SelectBrands';
 import { __ } from '@erxes/ui/src/utils';
-import React from 'react';
+import React, { useState } from 'react';
 import { KEY_LABELS } from '../constants';
 import { ContentBox } from '../styles';
 import { IConfigsMap } from '../types';
@@ -15,7 +15,7 @@ import { isEnabled, loadDynamicComponent } from '@erxes/ui/src/utils/core';
 import {
   FormColumn,
   FormWrapper,
-  ModalFooter
+  ModalFooter,
 } from '@erxes/ui/src/styles/main';
 
 type Props = {
@@ -26,200 +26,170 @@ type Props = {
   delete: (currentConfigKey: string) => void;
 };
 
-type State = {
-  config: any;
-  hasOpen: boolean;
-};
+const PerSettings = (props: Props) => {
+  const [config, setConfig] = useState(props.config);
+  const { configsMap, currentConfigKey, save } = props;
 
-class PerSettings extends React.Component<Props, State> {
-  constructor(props: Props) {
-    super(props);
-
-    this.state = {
-      config: props.config,
-      hasOpen: false
-    };
-  }
-
-  onSave = e => {
+  const onSave = (e) => {
     e.preventDefault();
-    const { configsMap, currentConfigKey } = this.props;
 
-    const { config } = this.state;
     const key = config.brandId;
 
     delete configsMap.erkhetConfig[currentConfigKey];
     configsMap.erkhetConfig[key] = config;
-    this.props.save(configsMap);
+    save(configsMap);
   };
 
-  onDelete = e => {
+  const onDelete = (e) => {
     e.preventDefault();
 
-    this.props.delete(this.props.currentConfigKey);
+    props.delete(currentConfigKey);
   };
 
-  onChangeConfig = (code: string, value) => {
-    const { config } = this.state;
-
+  const onChangeConfig = (code: string, value) => {
     config[code] = value;
 
-    this.setState({ config });
+    setConfig(config);
   };
 
-  onChangeInput = (code: string, e) => {
-    this.onChangeConfig(code, e.target.value);
+  const onChangeInput = (code: string, e) => {
+    onChangeConfig(code, e.target.value);
   };
 
-  onChangeBrand = (brandId: string) => {
-    this.setState({ config: { ...this.state.config, brandId } });
+  const onChangeBrand = (brandId: string) => {
+    setConfig({ ...config, brandId });
   };
 
-  onChangePayments = ids => {
-    this.setState({ config: { ...this.state.config, paymentIds: ids } });
+  const onChangePayments = (ids) => {
+    setConfig({ ...config, paymentIds: ids });
   };
 
-  renderItem = (key: string, description?: string) => {
-    const { config } = this.state;
-
+  const renderItem = (key: string, description?: string) => {
     return (
       <FormGroup>
         <ControlLabel>{KEY_LABELS[key]}</ControlLabel>
         {description && <p>{__(description)}</p>}
         <FormControl
           defaultValue={config[key]}
-          onChange={this.onChangeInput.bind(this, key)}
+          onChange={onChangeInput.bind(this, key)}
         />
       </FormGroup>
     );
   };
 
-  render() {
-    const { config } = this.state;
-
-    return (
-      <CollapseContent
-        title={__(config.title)}
-        open={this.props.currentConfigKey === 'newBrand' ? true : false}
-      >
-        <ContentBox id={'GeneralSettingsMenu'}>
-          <CollapseContent title="General settings">
-            {this.renderItem('title')}
-            <FormWrapper>
-              <FormColumn>
-                <FormGroup>
-                  <ControlLabel>Brand</ControlLabel>
-                  <SelectBrands
-                    label={__('Choose brands')}
-                    onSelect={brand => this.onChangeBrand(brand as string)}
-                    initialValue={config.brandId}
-                    multi={false}
-                    name="selectedBrands"
-                    customOption={{
-                      label: 'No Brand (noBrand)',
-                      value: 'noBrand'
-                    }}
-                  />
-                </FormGroup>
-                {this.renderItem('apiToken')}
-              </FormColumn>
-              <FormColumn>
-                {this.renderItem('apiKey')}
-                {this.renderItem('apiSecret')}
-              </FormColumn>
-            </FormWrapper>
-          </CollapseContent>
-          <CollapseContent title="Product to erkhet">
-            <FormWrapper>
-              <FormColumn>
-                {this.renderItem(
-                  'costAccount',
-                  'Cost Account fullCode on erkhet'
-                )}
-                {this.renderItem(
-                  'saleAccount',
-                  'Sale Account fullCode on erkhet'
-                )}
-              </FormColumn>
-              <FormColumn>
-                {this.renderItem(
-                  'productCategoryCode',
-                  'Default Category Code on erkhet inventory'
-                )}
-                {this.renderItem(
-                  'consumeDescription',
-                  'Set description when incoming erkhet inventory'
-                )}
-              </FormColumn>
-            </FormWrapper>
-          </CollapseContent>
-          <CollapseContent title="Customer to erkhet">
-            <FormWrapper>
-              <FormColumn>
-                {this.renderItem('checkCompanyUrl')}
-                {this.renderItem(
-                  'customerDefaultName',
-                  'Customer default name on erkhet'
-                )}
-                {this.renderItem('debtAccounts', 'Split "," account fullcode')}
-              </FormColumn>
-              <FormColumn>
-                {this.renderItem(
-                  'customerCategoryCode',
-                  'Customer default category code on erkhet'
-                )}
-                {this.renderItem(
-                  'companyCategoryCode',
-                  'Company default category code on erkhet'
-                )}
-              </FormColumn>
-            </FormWrapper>
-          </CollapseContent>
-          {isEnabled('loans') && (
-            <CollapseContent title="Loan transaction to erkhet">
-              {this.renderItem('userEmail', 'user email')}
-              {this.renderItem(
-                'defaultCustomer',
-                'Customer default code on erkhet'
+  return (
+    <CollapseContent
+      title={__(config.title)}
+      open={props.currentConfigKey === 'newBrand' ? true : false}
+    >
+      <ContentBox id={'GeneralSettingsMenu'}>
+        <CollapseContent title="General settings">
+          {renderItem('title')}
+          <FormWrapper>
+            <FormColumn>
+              <FormGroup>
+                <ControlLabel>Brand</ControlLabel>
+                <SelectBrands
+                  label={__('Choose brands')}
+                  onSelect={(brand) => onChangeBrand(brand as string)}
+                  initialValue={config.brandId}
+                  multi={false}
+                  name="selectedBrands"
+                  customOption={{
+                    label: 'No Brand (noBrand)',
+                    value: 'noBrand',
+                  }}
+                />
+              </FormGroup>
+              {renderItem('apiToken')}
+            </FormColumn>
+            <FormColumn>
+              {renderItem('apiKey')}
+              {renderItem('apiSecret')}
+            </FormColumn>
+          </FormWrapper>
+        </CollapseContent>
+        <CollapseContent title="Product to erkhet">
+          <FormWrapper>
+            <FormColumn>
+              {renderItem('costAccount', 'Cost Account fullCode on erkhet')}
+              {renderItem('saleAccount', 'Sale Account fullCode on erkhet')}
+            </FormColumn>
+            <FormColumn>
+              {renderItem(
+                'productCategoryCode',
+                'Default Category Code on erkhet inventory',
               )}
-            </CollapseContent>
-          )}
-          {isEnabled('payment') && (
-            <CollapseContent title="Allow online payments">
-              <FormWrapper>
-                <FormColumn>
-                  {loadDynamicComponent('selectPayments', {
-                    defaultValue: config.paymentIds || [],
-                    onChange: (ids: string[]) => this.onChangePayments(ids)
-                  })}
-                </FormColumn>
-              </FormWrapper>
-            </CollapseContent>
-          )}
-        </ContentBox>
-        <ModalFooter>
-          <Button
-            btnStyle="simple"
-            icon="cancel-1"
-            onClick={this.onDelete}
-            uppercase={false}
-          >
-            Delete
-          </Button>
+              {renderItem(
+                'consumeDescription',
+                'Set description when incoming erkhet inventory',
+              )}
+            </FormColumn>
+          </FormWrapper>
+        </CollapseContent>
+        <CollapseContent title="Customer to erkhet">
+          <FormWrapper>
+            <FormColumn>
+              {renderItem('checkCompanyUrl')}
+              {renderItem(
+                'customerDefaultName',
+                'Customer default name on erkhet',
+              )}
+              {renderItem('debtAccounts', 'Split "," account fullcode')}
+            </FormColumn>
+            <FormColumn>
+              {renderItem(
+                'customerCategoryCode',
+                'Customer default category code on erkhet',
+              )}
+              {renderItem(
+                'companyCategoryCode',
+                'Company default category code on erkhet',
+              )}
+            </FormColumn>
+          </FormWrapper>
+        </CollapseContent>
+        {isEnabled('loans') && (
+          <CollapseContent title="Loan transaction to erkhet">
+            {renderItem('userEmail', 'user email')}
+            {renderItem('defaultCustomer', 'Customer default code on erkhet')}
+          </CollapseContent>
+        )}
+        {isEnabled('payment') && (
+          <CollapseContent title="Allow online payments">
+            <FormWrapper>
+              <FormColumn>
+                {loadDynamicComponent('selectPayments', {
+                  defaultValue: config.paymentIds || [],
+                  onChange: (ids: string[]) => onChangePayments(ids),
+                })}
+              </FormColumn>
+            </FormWrapper>
+          </CollapseContent>
+        )}
+      </ContentBox>
+      <ModalFooter>
+        <Button
+          btnStyle="simple"
+          icon="cancel-1"
+          onClick={onDelete}
+          uppercase={false}
+        >
+          Delete
+        </Button>
 
-          <Button
-            btnStyle="primary"
-            icon="check-circle"
-            onClick={this.onSave}
-            uppercase={false}
-            disabled={config.brandId ? false : true}
-          >
-            Save
-          </Button>
-        </ModalFooter>
-      </CollapseContent>
-    );
-  }
-}
+        <Button
+          btnStyle="primary"
+          icon="check-circle"
+          onClick={onSave}
+          uppercase={false}
+          disabled={config.brandId ? false : true}
+        >
+          Save
+        </Button>
+      </ModalFooter>
+    </CollapseContent>
+  );
+};
 
 export default PerSettings;

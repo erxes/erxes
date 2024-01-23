@@ -8,24 +8,25 @@ import Spinner from '@erxes/ui/src/components/Spinner';
 import Settings from '../components/IntegrationSettings';
 import { mutations, queries } from '../graphql';
 import { IConfigsMap } from '@erxes/ui-settings/src/general/types';
+import { useQuery, useMutation } from '@apollo/client';
 
 type Props = {
   history: any;
 };
 
-type FinalProps = {
-  getConfigsQuery: any;
-  updateConfigsMutation: (configsMap: IConfigsMap) => Promise<void>;
-} & Props;
+const ConfigsContainer = (props: Props) => {
+  const getConfigsQuery = useQuery(gql(queries.zaloGetConfigs), {
+    fetchPolicy: 'network-only',
+    variables: { kind: 'zalo' },
+  });
 
-const ConfigsContainer = (props: FinalProps) => {
-  const { getConfigsQuery, updateConfigsMutation } = props;
+  const [updateConfigsMutation] = useMutation(gql(mutations.zaloUpdateConfigs));
 
   if (getConfigsQuery.loading) {
     return <Spinner />;
   }
 
-  const configs = getConfigsQuery.zaloGetConfigs;
+  const configs = getConfigsQuery?.data?.zaloGetConfigs;
   const configsMap = {};
 
   console.log('configs', configs, getConfigsQuery);
@@ -40,30 +41,16 @@ const ConfigsContainer = (props: FinalProps) => {
         Alert.success('Successfully updated configs');
         getConfigsQuery.refetch();
       })
-      .catch(e => Alert.error(e.message));
+      .catch((e) => Alert.error(e.message));
   };
 
   const updatedProps = {
     loading: getConfigsQuery.loading,
     updateConfigs,
-    configsMap
+    configsMap,
   };
 
   return <Settings {...updatedProps} />;
 };
 
-export default withProps<Props>(
-  compose(
-    graphql(gql(queries.zaloGetConfigs), {
-      name: 'getConfigsQuery',
-      options: () => ({
-        fetchPolicy: 'network-only',
-        variables: { kind: 'zalo' }
-      })
-    }),
-
-    graphql(gql(mutations.zaloUpdateConfigs), {
-      name: 'updateConfigsMutation'
-    })
-  )(ConfigsContainer)
-);
+export default ConfigsContainer;

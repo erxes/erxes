@@ -1,15 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { gql } from '@apollo/client';
-import * as compose from 'lodash.flowright';
 import strip from 'strip';
-import { graphql } from '@apollo/client/react/hoc';
-import MailConversation from '@erxes/ui-inbox/src/inbox/components/conversationDetail/workarea/mail/MailConversation';
-import SimpleMessage from '@erxes/ui-inbox/src/inbox/components/conversationDetail/workarea/conversation/messages/SimpleMessage';
 import { queries } from '../graphql';
 import Spinner from '@erxes/ui/src/components/Spinner';
-import { withProps, sendDesktopNotification } from '@erxes/ui/src/utils';
+import { sendDesktopNotification } from '@erxes/ui/src/utils';
 
-import { IUser } from '@erxes/ui/src/auth/types';
 import { subscriptions } from '@erxes/ui-inbox/src/inbox/graphql';
 
 import Message from './message/Message';

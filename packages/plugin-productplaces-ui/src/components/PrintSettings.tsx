@@ -47,7 +47,7 @@ const GeneralSettings = (props: Props) => {
     delete configsMap.dealsProductsDataPrint[currentConfigKey];
     delete configsMap.dealsProductsDataPrint['newPrintConfig'];
 
-    setConfigsMap({ configsMap });
+    setConfigsMap(configsMap);
 
     props.save(configsMap);
   };

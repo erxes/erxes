@@ -4,7 +4,7 @@ import dayjs from 'dayjs';
 import Button from '@erxes/ui/src/components/Button';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import FormGroup from '@erxes/ui/src/components/form/Group';
-import React from 'react';
+import React, { useState } from 'react';
 import { Sidebar, Wrapper } from '@erxes/ui/src/layout';
 import { __, router } from '@erxes/ui/src/utils';
 import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
@@ -17,66 +17,26 @@ interface IProps {
   queryParams: any;
 }
 
-interface State {
-  boardId: string;
-  pipelineId: string;
-  stageId: string;
-  configStageId: string;
-  stageChangedStartDate: Date;
-  stageChangedEndDate: Date;
-  userId: string;
-  dateType: string;
-  search: string;
-  number: string;
-}
+const CheckerSidebar = (props: IProps) => {
+  const { queryParams, history } = props;
 
-class CheckerSidebar extends React.Component<IProps, State> {
-  constructor(props) {
-    super(props);
+  const [userId, setUserId] = useState(queryParams.userId);
+  const [boardId, setBoardId] = useState(queryParams.boardId);
+  const [pipelineId, setPipelineId] = useState(queryParams.pipelineId);
+  const [stageId, setStageId] = useState(queryParams.stageId);
+  const [configStageId, setConfigStageId] = useState(queryParams.configStageId);
+  const [stageChangedStartDate, setStageChangedStartDate] = useState<Date>(
+    queryParams.stageChangedStartDate,
+  );
+  const [stageChangedEndDate, setStageChangedEndDate] = useState<Date>(
+    queryParams.stageChangedEndDate,
+  );
+  const [dateType, setDateType] = useState(queryParams.dateType);
+  const [search, setSearch] = useState(queryParams.search);
+  const [number, setNumber] = useState(queryParams.number);
 
-    const { queryParams } = this.props;
-    this.state = {
-      userId: queryParams.userId,
-      boardId: queryParams.boardId,
-      pipelineId: queryParams.pipelineId,
-      stageId: queryParams.stageId,
-      configStageId: queryParams.configStageId,
-      stageChangedStartDate: queryParams.stageChangedStartDate,
-      stageChangedEndDate: queryParams.stageChangedEndDate,
-      dateType: queryParams.dateType,
-      search: queryParams.search,
-      number: queryParams.number
-    };
-  }
-
-  clearCategoryFilter = () => {
-    router.setParams(this.props.history, {
-      ownerId: null,
-      ownerType: null,
-      status: null,
-      voucherCampaignId: null
-    });
-  };
-
-  setFilter = (name, value) => {
-    router.setParams(this.props.history, { [name]: value });
-  };
-
-  onFilter = () => {
-    const {
-      boardId,
-      pipelineId,
-      stageId,
-      configStageId,
-      userId,
-      stageChangedStartDate,
-      stageChangedEndDate,
-      dateType,
-      search,
-      number
-    } = this.state;
-
-    router.setParams(this.props.history, {
+  const onFilter = () => {
+    router.setParams(history, {
       page: 1,
       boardId,
       pipelineId,
@@ -87,16 +47,21 @@ class CheckerSidebar extends React.Component<IProps, State> {
       stageChangedEndDate,
       dateType,
       search,
-      number
+      number,
     });
   };
 
-  onChangeRangeFilter = (kind, date) => {
+  const onChangeRangeFilter = (kind, date) => {
     const cDate = dayjs(date).format('YYYY-MM-DD HH:mm');
-    this.setState({ [kind]: cDate } as any);
+    if (kind === 'stageChangedStartDate') {
+      setStageChangedStartDate(cDate as any);
+    }
+    if (kind === 'stageChangedEndDate') {
+      setStageChangedEndDate(cDate as any);
+    }
   };
 
-  renderRange(dateType: string) {
+  const renderRange = (dateType: string) => {
     const lblStart = `${dateType}StartDate`;
     const lblEnd = `${dateType}EndDate`;
 
@@ -109,11 +74,11 @@ class CheckerSidebar extends React.Component<IProps, State> {
             inputProps={{ placeholder: __('Click to select a date') }}
             dateFormat="YYYY-MM-DD"
             timeFormat="HH:mm"
-            value={this.state[lblStart] || null}
+            value={stageChangedStartDate || null}
             closeOnSelect={true}
             utc={true}
             input={true}
-            onChange={this.onChangeRangeFilter.bind(this, lblStart)}
+            onChange={onChangeRangeFilter.bind(this, lblStart)}
             viewMode={'days'}
             className={'filterDate'}
           />
@@ -124,160 +89,146 @@ class CheckerSidebar extends React.Component<IProps, State> {
             inputProps={{ placeholder: __('Click to select a date') }}
             dateFormat="YYYY-MM-DD"
             timeFormat="HH:mm"
-            value={this.state[lblEnd]}
+            value={stageChangedEndDate}
             closeOnSelect={true}
             utc={true}
             input={true}
-            onChange={this.onChangeRangeFilter.bind(this, lblEnd)}
+            onChange={onChangeRangeFilter.bind(this, lblEnd)}
             viewMode={'days'}
             className={'filterDate'}
           />
         </FormGroup>
       </>
     );
-  }
+  };
 
-  render() {
-    const {
-      boardId,
-      pipelineId,
-      stageId,
-      userId,
-      configStageId,
-      dateType,
-      search,
-      number
-    } = this.state;
+  const onChangeBoard = (boardId: string) => {
+    setBoardId(boardId);
+  };
 
-    const onChangeBoard = (boardId: string) => {
-      this.setState({ boardId });
-    };
+  const onChangePipeline = (pipelineId: string) => {
+    setPipelineId(pipelineId);
+  };
 
-    const onChangePipeline = (pipelineId: string) => {
-      this.setState({ pipelineId });
-    };
+  const onChangeStage = (stageId: string) => {
+    setStageId(stageId);
+  };
 
-    const onChangeStage = (stageId: string) => {
-      this.setState({ stageId });
-    };
+  const onChangeConfigStage = (stageId: string) => {
+    setConfigStageId(stageId);
+  };
 
-    const onChangeConfigStage = (stageId: string) => {
-      this.setState({ configStageId: stageId });
-    };
+  const onUserChange = (userId) => {
+    setUserId(userId);
+  };
 
-    const onUserChange = userId => {
-      this.setState({ userId });
-    };
+  const onChangeType = (e: React.FormEvent<HTMLElement>) => {
+    setDateType((e.currentTarget as HTMLInputElement).value);
+  };
 
-    const onChangeType = (e: React.FormEvent<HTMLElement>) => {
-      this.setState({
-        dateType: (e.currentTarget as HTMLInputElement).value
-      });
-    };
+  const onChangeInput = (e: React.FormEvent<HTMLElement>) => {
+    const value = (e.currentTarget as HTMLInputElement).value;
+    const name = (e.currentTarget as HTMLInputElement).name;
+    if (name === 'number') {
+      setNumber(value);
+    }
+    if (name === 'search') {
+      setSearch(value);
+    }
+  };
 
-    const onChangeInput = (e: React.FormEvent<HTMLElement>) => {
-      const value = (e.currentTarget as HTMLInputElement).value;
-      const name = (e.currentTarget as HTMLInputElement).name;
-      this.setState({ [name]: value } as any);
-    };
+  return (
+    <Wrapper.Sidebar>
+      <Sidebar>
+        <Section collapsible={false}>
+          <Section.Title>{__('Filters')}</Section.Title>
 
-    return (
-      <Wrapper.Sidebar>
-        <Sidebar>
-          <Section collapsible={false}>
-            <Section.Title>{__('Filters')}</Section.Title>
+          <FormGroup>
+            <ControlLabel>Choose Filter Stage</ControlLabel>
+            <BoardSelectContainer
+              type="deal"
+              autoSelectStage={false}
+              boardId={boardId || ''}
+              pipelineId={pipelineId || ''}
+              stageId={stageId || ''}
+              onChangeBoard={onChangeBoard}
+              onChangePipeline={onChangePipeline}
+              onChangeStage={onChangeStage}
+            />
+          </FormGroup>
+          <FormGroup>
+            <ControlLabel>Assigned</ControlLabel>
+            <SelectTeamMembers
+              label="Choose users"
+              name="userId"
+              customOption={{ label: 'Choose user', value: '' }}
+              initialValue={userId || ''}
+              onSelect={onUserChange}
+              multi={false}
+            />
+          </FormGroup>
+          <FormGroup>
+            <ControlLabel>Deal search</ControlLabel>
+            <FormControl
+              type="text"
+              name="search"
+              onChange={onChangeInput}
+              defaultValue={search}
+              autoFocus={true}
+            />
+          </FormGroup>
+          <FormGroup>
+            <ControlLabel>Number</ControlLabel>
+            <FormControl
+              type="text"
+              name="number"
+              onChange={onChangeInput}
+              defaultValue={number}
+              autoFocus={true}
+            />
+          </FormGroup>
 
-            <FormGroup>
-              <ControlLabel>Choose Filter Stage</ControlLabel>
-              <BoardSelectContainer
-                type="deal"
-                autoSelectStage={false}
-                boardId={boardId || ''}
-                pipelineId={pipelineId || ''}
-                stageId={stageId || ''}
-                onChangeBoard={onChangeBoard}
-                onChangePipeline={onChangePipeline}
-                onChangeStage={onChangeStage}
-              />
-            </FormGroup>
-            <FormGroup>
-              <ControlLabel>Assigned</ControlLabel>
-              <SelectTeamMembers
-                label="Choose users"
-                name="userId"
-                customOption={{ label: 'Choose user', value: '' }}
-                initialValue={userId || ''}
-                onSelect={onUserChange}
-                multi={false}
-              />
-            </FormGroup>
-            <FormGroup>
-              <ControlLabel>Deal search</ControlLabel>
-              <FormControl
-                type="text"
-                name="search"
-                onChange={onChangeInput}
-                defaultValue={search}
-                autoFocus={true}
-              />
-            </FormGroup>
-            <FormGroup>
-              <ControlLabel>Number</ControlLabel>
-              <FormControl
-                type="text"
-                name="number"
-                onChange={onChangeInput}
-                defaultValue={number}
-                autoFocus={true}
-              />
-            </FormGroup>
+          {renderRange('stageChanged')}
+          <FormGroup>
+            <ControlLabel>Choose Get Config Stage</ControlLabel>
+            <BoardSelectContainer
+              type="deal"
+              autoSelectStage={false}
+              boardId={boardId || ''}
+              pipelineId={pipelineId || ''}
+              stageId={configStageId || stageId || ''}
+              onChangeBoard={onChangeBoard}
+              onChangePipeline={onChangePipeline}
+              onChangeStage={onChangeConfigStage}
+            />
+          </FormGroup>
+          <FormGroup>
+            <ControlLabel>Date type</ControlLabel>
+            <FormControl
+              componentClass="select"
+              value={dateType}
+              name="dateType"
+              onChange={onChangeType}
+            >
+              <option value={''}>Now</option>
+              <option value={'lastMove'}>Last move at</option>
+              <option value={'created'}>Created At</option>
+              <option value={'closeOrCreated'}>Close date or created at</option>
+              <option value={'closeOrMove'}>Close date or last move at</option>
+              <option value={'firstOrMove'}>
+                First synced or last move at
+              </option>
+              <option value={'firstOrCreated'}>
+                First synced or created at
+              </option>
+            </FormControl>
+          </FormGroup>
+        </Section>
 
-            {this.renderRange('stageChanged')}
-            <FormGroup>
-              <ControlLabel>Choose Get Config Stage</ControlLabel>
-              <BoardSelectContainer
-                type="deal"
-                autoSelectStage={false}
-                boardId={boardId || ''}
-                pipelineId={pipelineId || ''}
-                stageId={configStageId || stageId || ''}
-                onChangeBoard={onChangeBoard}
-                onChangePipeline={onChangePipeline}
-                onChangeStage={onChangeConfigStage}
-              />
-            </FormGroup>
-            <FormGroup>
-              <ControlLabel>Date type</ControlLabel>
-              <FormControl
-                componentClass="select"
-                value={dateType}
-                name="dateType"
-                onChange={onChangeType}
-              >
-                <option value={''}>Now</option>
-                <option value={'lastMove'}>Last move at</option>
-                <option value={'created'}>Created At</option>
-                <option value={'closeOrCreated'}>
-                  Close date or created at
-                </option>
-                <option value={'closeOrMove'}>
-                  Close date or last move at
-                </option>
-                <option value={'firstOrMove'}>
-                  First synced or last move at
-                </option>
-                <option value={'firstOrCreated'}>
-                  First synced or created at
-                </option>
-              </FormControl>
-            </FormGroup>
-          </Section>
-
-          <Button onClick={this.onFilter}>Filter</Button>
-        </Sidebar>
-      </Wrapper.Sidebar>
-    );
-  }
-}
+        <Button onClick={onFilter}>Filter</Button>
+      </Sidebar>
+    </Wrapper.Sidebar>
+  );
+};
 
 export default CheckerSidebar;
