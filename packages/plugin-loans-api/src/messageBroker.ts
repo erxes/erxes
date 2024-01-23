@@ -3,6 +3,7 @@ import { MessageArgs, MessageArgsOmitService } from '@erxes/api-utils/src/core';
 import { generateModels } from './connectionResolver';
 import fetch from 'node-fetch';
 import { consumeRPCQueue } from '@erxes/api-utils/src/messageBroker';
+import { getCloseInfo } from './models/utils/closeUtils';
 
 export const initBroker = async () => {
   consumeRPCQueue('loans:contracts.find', async ({ subdomain, data }) => {

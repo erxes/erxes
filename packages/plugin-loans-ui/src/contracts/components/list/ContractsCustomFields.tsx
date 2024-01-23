@@ -94,7 +94,7 @@ export default withProps<Props>(
       {
         name: 'contractsEdit',
         options: () => ({
-          refetchQueries: ['customerDetail'],
+          refetchQueries: ['contractDetail'],
         }),
       },
     ),

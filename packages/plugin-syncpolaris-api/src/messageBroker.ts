@@ -1,15 +1,12 @@
-import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
-import { serviceDiscovery } from './configs';
+import { MessageArgs, sendMessage } from '@erxes/api-utils/src/core';
 import { Syncpolariss } from './models';
 import { afterMutationHandlers } from './afterMutations';
+import {
+  consumeRPCQueue,
+  consumeQueue,
+} from '@erxes/api-utils/src/messageBroker';
 
-let client;
-
-export const initBroker = async cl => {
-  client = cl;
-
-  const { consumeQueue, consumeRPCQueue } = client;
-
+export const initBroker = async () => {
   consumeQueue('syncpolaris:afterMutation', async ({ subdomain, data }) => {
     await afterMutationHandlers(subdomain, data);
     return;
@@ -19,28 +16,22 @@ export const initBroker = async cl => {
     Syncpolariss.send(data);
 
     return {
-      status: 'success'
+      status: 'success',
     };
   });
 
   consumeRPCQueue('syncpolaris:find', async ({ data }) => {
     return {
       status: 'success',
-      data: await Syncpolariss.find({})
+      data: await Syncpolariss.find({}),
     };
   });
 };
 
 export const sendCommonMessage = async (
-  args: ISendMessageArgs & { serviceName: string }
+  args: MessageArgs & { serviceName: string },
 ) => {
   return sendMessage({
-    serviceDiscovery,
-    client,
-    ...args
+    ...args,
   });
 };
-
-export default function() {
-  return client;
-}

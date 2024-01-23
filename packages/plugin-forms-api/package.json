@@ -6,6 +6,7 @@
     "build" : "tsc"
   },
   "dependencies": {
-    "@erxes/api-utils" : "*"
+    "@erxes/api-utils" : "*",
+    "validator":"^13.11.0"
   }
 }
