@@ -54,6 +54,7 @@ const Input = styledTS<{ round?: boolean; hasError?: boolean; align?: string }>(
   display: block;
   border: none;
   width: 100%;
+  min-width: 100px;
   height: ${textInputHeight};
   padding: ${dimensions.unitSpacing}px 0;
   color: ${colors.textPrimary};
