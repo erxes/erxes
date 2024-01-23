@@ -90,7 +90,7 @@ const queries = {
     { _id }: { _id: string },
     { models }: IContext
   ) => {
-    return models.Quarters.getQuarter(_id);
+    return models.Quarters.getQuarter({ _id });
   }
 };
 

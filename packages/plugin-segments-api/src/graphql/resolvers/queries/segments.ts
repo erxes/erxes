@@ -7,9 +7,10 @@ import {
   checkPermission,
   requireLogin
 } from '@erxes/api-utils/src/permissions';
-import { serviceDiscovery } from '../../../configs';
+
 import { IContext } from '../../../connectionResolver';
 import { fetchSegment } from './queryBuilder';
+import { getService, getServices, isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
 
 interface IPreviewParams {
   contentType: string;
@@ -26,12 +27,12 @@ interface IAssociatedType {
 
 const segmentQueries = {
   async segmentsGetTypes() {
-    const serviceNames = await serviceDiscovery.getServices();
+    const serviceNames = await getServices();
 
     let types: Array<{ name: string; description: string }> = [];
 
     for (const serviceName of serviceNames) {
-      const service = await serviceDiscovery.getService(serviceName);
+      const service = await getService(serviceName);
       const meta = service.config.meta || {};
 
       if (meta.segments) {
@@ -58,7 +59,7 @@ const segmentQueries = {
   async segmentsGetAssociationTypes(_root, { contentType }) {
     const [serviceName] = contentType.split(':');
 
-    const service = await serviceDiscovery.getService(serviceName);
+    const service = await getService(serviceName);
     const meta = service.config.meta || {};
 
     if (!meta.segments) {
@@ -79,11 +80,11 @@ const segmentQueries = {
     const dependentServices = meta.segments.dependentServices || [];
 
     for (const dService of dependentServices) {
-      if (!(await serviceDiscovery.isEnabled(dService.name))) {
+      if (!(await isEnabled(dService.name))) {
         continue;
       }
 
-      const depService = await serviceDiscovery.getService(dService.name);
+      const depService = await getService(dService.name);
       const depServiceMeta = depService.config.meta || {};
 
       if (depServiceMeta.segments) {

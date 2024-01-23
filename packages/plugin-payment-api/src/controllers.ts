@@ -7,10 +7,10 @@ import redisUtils from './redisUtils';
 import { PAYMENTS } from './api/constants';
 import { StorePayAPI } from './api/storepay/api';
 import fetch from 'node-fetch';
-import { graphqlPubsub } from './configs';
+import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
 import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
-import messageBroker from './messageBroker';
 import { randomAlphanumeric } from '@erxes/api-utils/src/random';
+import { sendMessage } from '@erxes/api-utils/src/messageBroker';
 
 const router = Router();
 
@@ -58,7 +58,7 @@ router.post('/gateway/manualCheck', async (req, res) => {
     const [serviceName] = invoiceDoc.contentType.split(':');
 
     if (await isEnabled(serviceName)) {
-      messageBroker().sendMessage(`${serviceName}:paymentCallback`, {
+      sendMessage(`${serviceName}:paymentCallback`, {
         subdomain,
         data: {
           ...invoiceDoc,

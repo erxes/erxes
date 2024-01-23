@@ -12,31 +12,31 @@ import {
   gatherNames,
   gatherUsernames,
   IDescriptions,
-  getSchemaLabels
+  getSchemaLabels,
 } from '@erxes/api-utils/src/logUtils';
 import { ITaskDocument } from './models/definitions/tasks';
 import { ITicketDocument } from './models/definitions/tickets';
 import { LOG_MAPPINGS, MODULE_NAMES } from './constants';
 import { ACTIVITY_CONTENT_TYPES } from './models/definitions/constants';
-import messageBroker, {
+import {
   sendCoreMessage,
   sendFormsMessage,
   sendLogsMessage,
   sendProductsMessage,
-  sendToWebhook
 } from './messageBroker';
 import { IModels, generateModels } from './connectionResolver';
 import {
   collectItems,
   getCardContentIds,
   getContentItem,
-  getContentTypeDetail
+  getContentTypeDetail,
 } from './utils';
+import { sendToWebhook } from '@erxes/api-utils/src';
 
 export const LOG_ACTIONS = {
   CREATE: 'create',
   UPDATE: 'update',
-  DELETE: 'delete'
+  DELETE: 'delete',
 };
 
 type BoardItemDocument =
@@ -52,10 +52,10 @@ const findUsers = async (subdomain: string, ids: string[]) => {
     action: 'users.find',
     data: {
       query: {
-        _id: { $in: ids }
-      }
+        _id: { $in: ids },
+      },
     },
-    isRPC: true
+    isRPC: true,
   });
 };
 
@@ -63,7 +63,7 @@ const gatherPipelineFieldNames = async (
   models: IModels,
   subdomain: string,
   doc: IPipelineDocument,
-  prevList?: LogDesc[]
+  prevList?: LogDesc[],
 ): Promise<LogDesc[]> => {
   let options: LogDesc[] = [];
 
@@ -77,14 +77,14 @@ const gatherPipelineFieldNames = async (
     foreignKey: 'boardId',
     nameFields: ['name'],
     prevList: options,
-    items: await Boards.find({ _id: doc.boardId }).lean()
+    items: await Boards.find({ _id: doc.boardId }).lean(),
   });
 
   if (doc.userId) {
     options = await gatherUsernames({
       foreignKey: 'userId',
       prevList: options,
-      items: await findUsers(subdomain, [doc.userId])
+      items: await findUsers(subdomain, [doc.userId]),
     });
   }
 
@@ -92,7 +92,7 @@ const gatherPipelineFieldNames = async (
     options = await gatherUsernames({
       foreignKey: 'excludeCheckUserIds',
       prevList: options,
-      items: await findUsers(subdomain, doc.excludeCheckUserIds)
+      items: await findUsers(subdomain, doc.excludeCheckUserIds),
     });
   }
 
@@ -100,7 +100,7 @@ const gatherPipelineFieldNames = async (
     options = await gatherUsernames({
       foreignKey: 'memberIds',
       prevList: options,
-      items: await findUsers(subdomain, doc.memberIds)
+      items: await findUsers(subdomain, doc.memberIds),
     });
   }
 
@@ -108,7 +108,7 @@ const gatherPipelineFieldNames = async (
     options = await gatherUsernames({
       foreignKey: 'watchedUserIds',
       prevList: options,
-      items: await findUsers(subdomain, doc.watchedUserIds)
+      items: await findUsers(subdomain, doc.watchedUserIds),
     });
   }
 
@@ -119,7 +119,7 @@ const gatherBoardItemFieldNames = async (
   models: IModels,
   subdomain: string,
   doc: BoardItemDocument,
-  prevList?: LogDesc[]
+  prevList?: LogDesc[],
 ): Promise<LogDesc[]> => {
   let options: LogDesc[] = [];
 
@@ -133,7 +133,7 @@ const gatherBoardItemFieldNames = async (
     options = await gatherUsernames({
       foreignKey: 'userId',
       prevList: options,
-      items: await findUsers(subdomain, [doc.userId])
+      items: await findUsers(subdomain, [doc.userId]),
     });
   }
 
@@ -141,7 +141,7 @@ const gatherBoardItemFieldNames = async (
     options = await gatherUsernames({
       foreignKey: 'assignedUserIds',
       prevList: options,
-      items: await findUsers(subdomain, doc.assignedUserIds)
+      items: await findUsers(subdomain, doc.assignedUserIds),
     });
   }
 
@@ -149,7 +149,7 @@ const gatherBoardItemFieldNames = async (
     options = await gatherUsernames({
       foreignKey: 'watchedUserIds',
       prevList: options,
-      items: await findUsers(subdomain, doc.watchedUserIds)
+      items: await findUsers(subdomain, doc.watchedUserIds),
     });
   }
 
@@ -158,7 +158,7 @@ const gatherBoardItemFieldNames = async (
       foreignKey: 'labelIds',
       prevList: options,
       nameFields: ['name'],
-      items: await PipelineLabels.find({ _id: { $in: doc.labelIds } }).lean()
+      items: await PipelineLabels.find({ _id: { $in: doc.labelIds } }).lean(),
     });
   }
 
@@ -166,7 +166,7 @@ const gatherBoardItemFieldNames = async (
     foreignKey: 'stageId',
     prevList: options,
     nameFields: ['name'],
-    items: await Stages.find({ _id: doc.stageId })
+    items: await Stages.find({ _id: doc.stageId }),
   });
 
   if (doc.initialStageId) {
@@ -174,7 +174,7 @@ const gatherBoardItemFieldNames = async (
       foreignKey: 'initialStageId',
       prevList: options,
       nameFields: ['name'],
-      items: await Stages.find({ _id: doc.initialStageId })
+      items: await Stages.find({ _id: doc.initialStageId }),
     });
   }
 
@@ -182,7 +182,7 @@ const gatherBoardItemFieldNames = async (
     options = await gatherUsernames({
       foreignKey: 'modifiedBy',
       prevList: options,
-      items: await findUsers(subdomain, [doc.modifiedBy])
+      items: await findUsers(subdomain, [doc.modifiedBy]),
     });
   }
 
@@ -193,7 +193,7 @@ const gatherDealFieldNames = async (
   models: IModels,
   subdomain: string,
   doc: IDealDocument,
-  prevList?: LogDesc[]
+  prevList?: LogDesc[],
 ): Promise<LogDesc[]> => {
   let options: LogDesc[] = [];
 
@@ -213,12 +213,12 @@ const gatherDealFieldNames = async (
         action: 'find',
         data: {
           query: {
-            _id: { $in: doc.productsData.map(p => p.productId) }
-          }
+            _id: { $in: doc.productsData.map((p) => p.productId) },
+          },
         },
         isRPC: true,
-        defaultValue: []
-      })
+        defaultValue: [],
+      }),
     });
   }
 
@@ -229,7 +229,7 @@ const gatherPurchaseFieldNames = async (
   models: IModels,
   subdomain: string,
   doc: IPurchaseDocument,
-  prevList?: LogDesc[]
+  prevList?: LogDesc[],
 ): Promise<LogDesc[]> => {
   let options: LogDesc[] = [];
 
@@ -249,12 +249,12 @@ const gatherPurchaseFieldNames = async (
         action: 'find',
         data: {
           query: {
-            _id: { $in: doc.productsData.map(p => p.productId) }
-          }
+            _id: { $in: doc.productsData.map((p) => p.productId) },
+          },
         },
         isRPC: true,
-        defaultValue: []
-      })
+        defaultValue: [],
+      }),
     });
   }
 
@@ -265,7 +265,7 @@ const gatherGHFieldNames = async (
   models: IModels,
   subdomain: string,
   doc: IGrowthHackDocument,
-  prevList?: LogDesc[]
+  prevList?: LogDesc[],
 ): Promise<LogDesc[]> => {
   let options: LogDesc[] = [];
 
@@ -279,7 +279,7 @@ const gatherGHFieldNames = async (
     options = await gatherUsernames({
       foreignKey: 'votedUserIds',
       prevList: options,
-      items: await findUsers(subdomain, doc.votedUserIds)
+      items: await findUsers(subdomain, doc.votedUserIds),
     });
   }
 
@@ -289,7 +289,7 @@ const gatherGHFieldNames = async (
 const gatherPipelineTemplateFieldNames = async (
   subdomain: string,
   doc: IPipelineTemplateDocument,
-  prevList?: LogDesc[]
+  prevList?: LogDesc[],
 ): Promise<LogDesc[]> => {
   let options: LogDesc[] = [];
 
@@ -300,7 +300,7 @@ const gatherPipelineTemplateFieldNames = async (
   options = await gatherUsernames({
     foreignKey: 'createdBy',
     prevList: options,
-    items: await findUsers(subdomain, [doc.createdBy || ''])
+    items: await findUsers(subdomain, [doc.createdBy || '']),
   });
 
   if (doc.stages && doc.stages.length > 0) {
@@ -311,10 +311,10 @@ const gatherPipelineTemplateFieldNames = async (
       items: await sendFormsMessage({
         subdomain,
         action: 'find',
-        data: { _id: { $in: doc.stages.map(s => s.formId) } },
+        data: { _id: { $in: doc.stages.map((s) => s.formId) } },
         isRPC: true,
-        defaultValue: []
-      })
+        defaultValue: [],
+      }),
     });
   }
 
@@ -325,7 +325,7 @@ const gatherStageFieldNames = async (
   models: IModels,
   subdomain: string,
   doc: IStageDocument,
-  prevList?: LogDesc[]
+  prevList?: LogDesc[],
 ): Promise<LogDesc[]> => {
   let options: LogDesc[] = [];
 
@@ -337,7 +337,7 @@ const gatherStageFieldNames = async (
     options = await gatherUsernames({
       foreignKey: 'userId',
       prevList: options,
-      items: await findUsers(subdomain, [doc.userId])
+      items: await findUsers(subdomain, [doc.userId]),
     });
   }
   if (doc.pipelineId) {
@@ -345,7 +345,7 @@ const gatherStageFieldNames = async (
       foreignKey: 'pipelineId',
       prevList: options,
       nameFields: ['name'],
-      items: await models.Pipelines.find({ _id: doc.pipelineId })
+      items: await models.Pipelines.find({ _id: doc.pipelineId }),
     });
   }
   if (doc.formId) {
@@ -357,8 +357,8 @@ const gatherStageFieldNames = async (
         subdomain,
         action: 'find',
         data: { _id: { $in: [doc.formId] } },
-        isRPC: true
-      })
+        isRPC: true,
+      }),
     });
   }
 
@@ -372,7 +372,7 @@ interface IContentTypeParams {
 
 const findItemName = async (
   models: IModels,
-  { contentType, contentTypeId }: IContentTypeParams
+  { contentType, contentTypeId }: IContentTypeParams,
 ): Promise<string> => {
   const { Deals, Tickets, Tasks, GrowthHacks, Purchases } = models;
 
@@ -409,7 +409,7 @@ const findItemName = async (
 const gatherDescriptions = async (
   models: IModels,
   subdomain: string,
-  params: any
+  params: any,
 ): Promise<IDescriptions> => {
   const { action, type, object, updatedDocument } = params;
 
@@ -425,7 +425,7 @@ const gatherDescriptions = async (
       if (object.userId) {
         extraDesc = await gatherUsernames({
           foreignKey: 'userId',
-          items: await findUsers(subdomain, [object.userId])
+          items: await findUsers(subdomain, [object.userId]),
         });
       }
 
@@ -444,7 +444,7 @@ const gatherDescriptions = async (
           models,
           subdomain,
           updatedDocument,
-          extraDesc
+          extraDesc,
         );
       }
 
@@ -460,7 +460,7 @@ const gatherDescriptions = async (
           models,
           subdomain,
           updatedDocument,
-          extraDesc
+          extraDesc,
         );
       }
 
@@ -474,7 +474,7 @@ const gatherDescriptions = async (
           models,
           subdomain,
           updatedDocument,
-          extraDesc
+          extraDesc,
         );
       }
       break;
@@ -488,7 +488,7 @@ const gatherDescriptions = async (
           models,
           subdomain,
           updatedDocument,
-          extraDesc
+          extraDesc,
         );
       }
 
@@ -497,12 +497,12 @@ const gatherDescriptions = async (
       description = `"${object.name}" has been ${action}d`;
 
       const pipeline = await models.Pipelines.findOne({
-        _id: object.pipelineId
+        _id: object.pipelineId,
       });
 
       extraDesc = await gatherUsernames({
         foreignKey: 'createdBy',
-        items: await findUsers(subdomain, [object.createdBy])
+        items: await findUsers(subdomain, [object.createdBy]),
       });
 
       if (pipeline) {
@@ -519,7 +519,7 @@ const gatherDescriptions = async (
         extraDesc = await gatherPipelineTemplateFieldNames(
           subdomain,
           updatedDocument,
-          extraDesc
+          extraDesc,
         );
       }
 
@@ -534,7 +534,7 @@ const gatherDescriptions = async (
           models,
           subdomain,
           updatedDocument,
-          extraDesc
+          extraDesc,
         );
       }
 
@@ -549,7 +549,7 @@ const gatherDescriptions = async (
           models,
           subdomain,
           updatedDocument,
-          extraDesc
+          extraDesc,
         );
       }
 
@@ -565,7 +565,7 @@ const gatherDescriptions = async (
         models,
         subdomain,
         object,
-        extraDesc
+        extraDesc,
       );
 
       if (updatedDocument) {
@@ -573,7 +573,7 @@ const gatherDescriptions = async (
           models,
           subdomain,
           updatedDocument,
-          extraDesc
+          extraDesc,
         );
       }
 
@@ -582,12 +582,12 @@ const gatherDescriptions = async (
     case MODULE_NAMES.CHECKLIST:
       const itemName = await findItemName(models, {
         contentType: object.contentType,
-        contentTypeId: object.contentTypeId
+        contentTypeId: object.contentTypeId,
       });
 
       extraDesc = await gatherUsernames({
         foreignKey: 'createdUserId',
-        items: await findUsers(subdomain, [object.createdUserId])
+        items: await findUsers(subdomain, [object.createdUserId]),
       });
 
       extraDesc.push({ contentTypeId: object.contentTypeId, name: itemName });
@@ -611,12 +611,12 @@ const gatherDescriptions = async (
       break;
     case MODULE_NAMES.CHECKLIST_ITEM:
       const checklist = await models.Checklists.getChecklist(
-        object.checklistId
+        object.checklistId,
       );
 
       extraDesc = await gatherUsernames({
         foreignKey: 'createdUserid',
-        items: await findUsers(subdomain, [object.createdUserId])
+        items: await findUsers(subdomain, [object.createdUserId]),
       });
 
       extraDesc.push({ checklistId: checklist._id, name: checklist.title });
@@ -644,22 +644,21 @@ export const putDeleteLog = async (
   models: IModels,
   subdomain: string,
   logDoc,
-  user
+  user,
 ) => {
   const { description, extraDesc } = await gatherDescriptions(
     models,
     subdomain,
     {
       ...logDoc,
-      action: LOG_ACTIONS.DELETE
-    }
+      action: LOG_ACTIONS.DELETE,
+    },
   );
 
   await commonPutDeleteLog(
     subdomain,
-    messageBroker(),
     { ...logDoc, description, extraDesc, type: `cards:${logDoc.type}` },
-    user
+    user,
   );
 };
 
@@ -667,22 +666,21 @@ export const putUpdateLog = async (
   models: IModels,
   subdomain: string,
   logDoc,
-  user
+  user,
 ) => {
   const { description, extraDesc } = await gatherDescriptions(
     models,
     subdomain,
     {
       ...logDoc,
-      action: LOG_ACTIONS.UPDATE
-    }
+      action: LOG_ACTIONS.UPDATE,
+    },
   );
 
   await commonPutUpdateLog(
     subdomain,
-    messageBroker(),
     { ...logDoc, description, extraDesc, type: `cards:${logDoc.type}` },
-    user
+    user,
   );
 };
 
@@ -690,34 +688,33 @@ export const putCreateLog = async (
   models: IModels,
   subdomain: string,
   logDoc,
-  user
+  user,
 ) => {
   const { description, extraDesc } = await gatherDescriptions(
     models,
     subdomain,
     {
       ...logDoc,
-      action: LOG_ACTIONS.CREATE
-    }
+      action: LOG_ACTIONS.CREATE,
+    },
   );
 
   await commonPutCreateLog(
     subdomain,
-    messageBroker(),
     { ...logDoc, description, extraDesc, type: `cards:${logDoc.type}` },
-    user
+    user,
   );
 };
 
 export const putActivityLog = async (
   subdomain,
-  params: { action: string; data: any }
+  params: { action: string; data: any },
 ) => {
   const { data, action } = params;
 
   const updatedParams = {
     ...params,
-    data: { ...data, contentType: `cards:${data.contentType}` }
+    data: { ...data, contentType: `cards:${data.contentType}` },
   };
 
   if (action === 'createBoardItemMovementLog') {
@@ -726,14 +723,13 @@ export const putActivityLog = async (
       data: {
         action,
         type: `cards:${data.contentType}`,
-        params
-      }
+        params,
+      },
     });
   }
 
   return commonPutActivityLog(subdomain, {
-    messageBroker: messageBroker(),
-    ...updatedParams
+    ...updatedParams,
   });
 };
 
@@ -746,8 +742,8 @@ export const putChecklistActivityLog = async (subdomain: string, params) => {
       ...params,
       contentId: item.contentTypeId || item.checklistId,
       content: { _id: item._id, name: item.title || item.content },
-      createdBy: item.createdUserId || ''
-    }
+      createdBy: item.createdUserId || '',
+    },
   };
 
   if (action === 'delete') {
@@ -756,17 +752,17 @@ export const putChecklistActivityLog = async (subdomain: string, params) => {
       action: 'activityLogs.updateMany',
       data: {
         query: { 'content._id': item._id },
-        modifier: { $set: { 'content.name': item.title || item.content } }
-      }
+        modifier: { $set: { 'content.name': item.title || item.content } },
+      },
     });
   }
 
   return putActivityLog(subdomain, updatedParams);
 };
 
-const sendSuccess = data => ({
+const sendSuccess = (data) => ({
   data,
-  status: 'success'
+  status: 'success',
 });
 
 export default {
@@ -792,5 +788,5 @@ export default {
 
   getSchemaLabels: ({ data: { type } }) => {
     return sendSuccess(getSchemaLabels(type, LOG_MAPPINGS));
-  }
+  },
 };

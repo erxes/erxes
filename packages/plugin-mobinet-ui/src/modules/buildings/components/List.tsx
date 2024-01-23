@@ -30,29 +30,40 @@ type Props = {
   queryParams: any;
   loading: boolean;
   viewType: string;
+  page: number;
+  perPage: number;
   getBuildingsWithingBounds: (bounds: ICoordinates[]) => void;
   remove: (buildingId: string) => void;
   refetch?: () => void;
 } & IRouterProps;
 
 const List = (props: Props) => {
-  const { totalCount, queryParams, loading, history, viewType, remove } = props;
+  const {
+    totalCount,
+    queryParams,
+    loading,
+    history,
+    viewType,
+    remove,
+    page,
+    perPage,
+  } = props;
 
   const [center, setCenter] = useState<ICoordinates>({
     lat: 47.918812,
-    lng: 106.9154893
+    lng: 106.9154893,
   });
 
   const [map, setMap] = useState<any>(null);
   const [buildings, setBuildings] = useState<IBuilding[]>(
-    props.buildings || []
+    props.buildings || [],
   );
 
   const [currentOsmBuilding, setCurrentOsmBuilding] = useState<
     IOSMBuilding | undefined
   >(undefined);
   const [currentBuilding, setCurrentBuilding] = useState<IBuilding | undefined>(
-    undefined
+    undefined,
   );
   const [isFormOpen, setIsFormOpen] = useState<boolean>(false);
 
@@ -75,7 +86,7 @@ const List = (props: Props) => {
     if (buildings.length > 0 && map) {
       map.highlight((feature: { id: string }) => {
         console.log('feature  ', feature.id);
-        const foundBuilding = buildings.find(b => b.osmbId === feature.id);
+        const foundBuilding = buildings.find((b) => b.osmbId === feature.id);
         console.log('foundBuilding  ', foundBuilding);
         const current = currentOsmBuilding?.id === feature.id;
         if (foundBuilding && foundBuilding?.serviceStatus === 'active') {
@@ -95,7 +106,7 @@ const List = (props: Props) => {
 
     if (currentOsmBuilding) {
       const foundBuilding = buildings.find(
-        b => b.osmbId === currentOsmBuilding.id
+        (b) => b.osmbId === currentOsmBuilding.id,
       );
 
       if (foundBuilding) {
@@ -105,8 +116,9 @@ const List = (props: Props) => {
   }, [map, props.buildings, buildings, isFormOpen, currentOsmBuilding]);
 
   const renderRow = () => {
-    return buildings.map(building => (
+    return buildings.map((building, i) => (
       <Row
+        index={(page - 1) * perPage + i + 1}
         key={building._id}
         building={building}
         remove={remove}
@@ -124,7 +136,7 @@ const List = (props: Props) => {
     setCenter(newCenter);
   };
 
-  const onChangeBuilding = e => {
+  const onChangeBuilding = (e) => {
     const buildingId = e.id;
 
     if (!buildingId) {
@@ -154,7 +166,7 @@ const List = (props: Props) => {
       onChange: onChangeBuilding,
       onChangeCenter,
       onload,
-      center
+      center,
     };
 
     return <OSMBuildings {...mapProps} />;
@@ -186,7 +198,7 @@ const List = (props: Props) => {
       <Table whiteSpace="nowrap" hover={true}>
         <thead>
           <tr>
-            <th>{__('code')}</th>
+            <th>{'#'}</th>
             <th>{__('name')}</th>
             <th>{__('Latitude')}</th>
             <th>{__('Longitude')}</th>
@@ -204,7 +216,7 @@ const List = (props: Props) => {
     );
   };
 
-  const formContent = formProps => (
+  const formContent = (formProps) => (
     <BuildingForm
       {...formProps}
       center={center}
@@ -245,7 +257,7 @@ const List = (props: Props) => {
   };
 
   const renderViewChooser = () => {
-    const onFilterClick = e => {
+    const onFilterClick = (e) => {
       const type = e.target.id;
 
       router.setParams(history, { viewType: type });
@@ -254,19 +266,19 @@ const List = (props: Props) => {
     const viewTypes = [
       { title: 'List', value: 'list' },
       { title: '2D map', value: '2d' },
-      { title: '3D map', value: '3d' }
+      { title: '3D map', value: '3d' },
     ];
 
     return (
       <Dropdown>
         <Dropdown.Toggle as={DropdownToggle} id="dropdown-buildingAction">
           <Button btnStyle="primary" icon="list-ui-alt">
-            {viewTypes.find(type => type.value === viewType)?.title}
+            {viewTypes.find((type) => type.value === viewType)?.title}
             <Icon icon="angle-down" />
           </Button>
         </Dropdown.Toggle>
         <Dropdown.Menu>
-          {viewTypes.map(type => (
+          {viewTypes.map((type) => (
             <li key={type.value}>
               <LinkButton id={type.value} onClick={onFilterClick}>
                 {__(type.title)}
@@ -334,7 +346,7 @@ const List = (props: Props) => {
                 style={{
                   display: 'flex',
                   justifyContent: 'center',
-                  alignItems: 'center'
+                  alignItems: 'center',
                 }}
               >
                 no data

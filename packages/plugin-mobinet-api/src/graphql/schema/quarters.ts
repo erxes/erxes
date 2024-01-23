@@ -19,7 +19,7 @@ export const types = `
 
 const mutationParams = `
     name: String!
-    code: String!
+    
     districtId: String
     center: JSON
 `;

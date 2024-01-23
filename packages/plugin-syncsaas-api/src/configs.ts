@@ -9,17 +9,13 @@ import { postHandler } from './postHandler';
 
 export let mainDb;
 export let debug;
-export let graphqlPubsub;
-export let serviceDiscovery;
 
 export default {
   name: 'syncsaas',
-  graphql: async sd => {
-    serviceDiscovery = sd;
-
+  graphql: async () => {
     return {
-      typeDefs: await typeDefs(sd),
-      resolvers: await resolvers(sd)
+      typeDefs: await typeDefs(),
+      resolvers: await resolvers(),
     };
   },
   apolloServerContext: async (context, req) => {
@@ -40,9 +36,7 @@ export default {
   onServerInit: async options => {
     mainDb = options.db;
 
-    initBroker(options.messageBrokerClient);
-
-    graphqlPubsub = options.pubsubClient;
+    initBroker();
 
     debug = options.debug;
   }

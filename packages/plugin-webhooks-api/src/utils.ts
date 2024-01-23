@@ -1,8 +1,9 @@
 import { getEnv } from '@erxes/api-utils/src';
 import { IModels } from './connectionResolver';
-import { serviceDiscovery } from './configs';
+
 import { sendCommonMessage } from './messageBroker';
 import fetch from 'node-fetch';
+import { getService, isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
 
 export const send = async (
   models: IModels,
@@ -78,10 +79,8 @@ const prepareWebhookContent = async (subdomain: string, type, action, data) => {
       break;
   }
 
-  const isEnabled = await serviceDiscovery.isEnabled(serviceName);
-
-  if (isEnabled) {
-    const service = await serviceDiscovery.getService(serviceName);
+  if (isEnabled(serviceName)) {
+    const service = await getService(serviceName);
 
     const meta = service.config?.meta || {};
 

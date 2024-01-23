@@ -22,20 +22,19 @@ import { init as initBroker } from '@erxes/api-utils/src/messageBroker';
 import { logConsumers } from '@erxes/api-utils/src/logUtils';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import { internalNoteConsumers } from '@erxes/api-utils/src/internalNotes';
-import pubsub from './pubsub';
 import * as path from 'path';
 import * as ws from 'ws';
 
 import {
   getService,
   getServices,
-  isAvailable,
   isEnabled,
   join,
   leave,
 } from '@erxes/api-utils/src/serviceDiscovery';
-import redis from '../redis';
 import { applyInspectorEndpoints } from '../inspect';
+import app from '@erxes/api-utils/src/app';
+import { consumeQueue, consumeRPCQueue } from '../messageBroker';
 
 const {
   MONGO_URL,
@@ -44,8 +43,6 @@ const {
   PORT,
   USE_BRAND_RESTRICTIONS,
 } = process.env;
-
-export const app = express();
 
 app.use(bodyParser.json({ limit: '15mb' }));
 app.use(bodyParser.urlencoded({ limit: '15mb', extended: true }));
@@ -75,16 +72,9 @@ export async function startPlugin(configs: any): Promise<express.Express> {
     }
   }
 
-  app.disable('x-powered-by');
-
   app.use(cors(configs.corsOptions || {}));
 
   app.use(cookieParser());
-
-  // for health checking
-  app.get('/health', async (_req, res) => {
-    res.end('ok');
-  });
 
   if (configs.hasSubscriptions) {
     app.get('/subscriptionPlugin.js', async (req, res) => {
@@ -150,11 +140,11 @@ export async function startPlugin(configs: any): Promise<express.Express> {
     });
   });
 
-  const generateApolloServer = async (serviceDiscovery) => {
+  const generateApolloServer = async () => {
     const services = await getServices();
     debugInfo(`Enabled services .... ${JSON.stringify(services)}`);
 
-    const { typeDefs, resolvers } = await configs.graphql(serviceDiscovery);
+    const { typeDefs, resolvers } = await configs.graphql();
 
     return new ApolloServer({
       schema: buildSubgraphSchema([
@@ -169,14 +159,7 @@ export async function startPlugin(configs: any): Promise<express.Express> {
     });
   };
 
-  const serviceDiscovery = {
-    getServices,
-    getService,
-    isAvailable,
-    isEnabled,
-  };
-
-  const apolloServer = await generateApolloServer(serviceDiscovery);
+  const apolloServer = await generateApolloServer();
   await apolloServer.start();
 
   app.use(
@@ -273,15 +256,7 @@ export async function startPlugin(configs: any): Promise<express.Express> {
   // connect to mongo database
   const db = await connect(mongoUrl);
 
-  const messageBrokerClient = await initBroker(
-    {
-      RABBITMQ_HOST,
-      MESSAGE_BROKER_PREFIX,
-      redis,
-      app,
-    },
-    configs.reconnectRMQ,
-  );
+  await initBroker(configs.reconnectRMQ);
 
   if (configs.meta) {
     const {
@@ -303,8 +278,6 @@ export async function startPlugin(configs: any): Promise<express.Express> {
       reports,
       cpCustomerHandle,
     } = configs.meta;
-
-    const { consumeRPCQueue, consumeQueue } = messageBrokerClient;
 
     const logs = configs.meta.logs && configs.meta.logs.consumers;
 
@@ -349,7 +322,6 @@ export async function startPlugin(configs: any): Promise<express.Express> {
     if (logs) {
       logConsumers({
         name: configs.name,
-        consumeRPCQueue,
         getActivityContent: logs.getActivityContent,
         getContentTypeDetail: logs.getContentTypeDetail,
         collectItems: logs.collectItems,
@@ -442,7 +414,6 @@ export async function startPlugin(configs: any): Promise<express.Express> {
     if (internalNotes) {
       internalNoteConsumers({
         name: configs.name,
-        consumeRPCQueue,
         generateInternalNoteNotif: internalNotes.generateInternalNoteNotif,
       });
     }
@@ -661,17 +632,13 @@ export async function startPlugin(configs: any): Promise<express.Express> {
 
   configs.onServerInit({
     db,
-    app,
-    redis,
-    pubsubClient: pubsub,
-    messageBrokerClient,
     debug: {
       info: debugInfo,
       error: debugError,
     },
   });
 
-  applyInspectorEndpoints(app, configs.name);
+  applyInspectorEndpoints(configs.name);
 
   debugInfo(`${configs.name} server is running on port: ${PORT}`);
 

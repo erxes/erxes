@@ -6,7 +6,7 @@ import {
   types as SafetyTipTypes
 } from './schema/safetyTips';
 
-const typeDefs = async _serviceDiscovery => {
+const typeDefs = async () => {
   return gql`
     scalar JSON
     scalar Date

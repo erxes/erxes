@@ -6,14 +6,14 @@ import { initBroker } from './messageBroker';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 
 export let debug;
-export let graphqlPubsub;
+
 export let mainDb;
-export let serviceDiscovery;
+
 
 export default {
   name: 'neighbor',
-  graphql: async sd => {
-    serviceDiscovery = sd;
+  graphql: async () => {
+    
     return {
       typeDefs: await typeDefs(),
       resolvers: await resolvers()
@@ -30,10 +30,10 @@ export default {
   onServerInit: async options => {
     mainDb = options.db;
 
-    initBroker(options.messageBrokerClient);
+    initBroker();
 
     debug = options.debug;
-    graphqlPubsub = options.pubsubClient;
+    
   },
 
   meta: {}

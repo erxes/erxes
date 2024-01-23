@@ -26,8 +26,8 @@ const CityForm = (props: Props) => {
   const [center, setCenter] = useState(
     (city && city.center) || {
       lat: 47.919481,
-      lng: 106.904299
-    }
+      lng: 106.904299,
+    },
   );
 
   useEffect(() => {}, [center]);
@@ -41,18 +41,18 @@ const CityForm = (props: Props) => {
 
     if (cityObject) {
       finalValues.name = cityObject.name;
-      finalValues.code = cityObject.code;
+      // finalValues.code = cityObject.code;
       finalValues.center = { ...center };
       finalValues.iso = cityObject.iso;
       finalValues.stat = cityObject.stat;
     }
 
     return {
-      ...finalValues
+      ...finalValues,
     };
   };
 
-  const onChangeInput = e => {
+  const onChangeInput = (e) => {
     const { id, value } = e.target;
 
     const obj: any = cityObject || {};
@@ -62,11 +62,11 @@ const CityForm = (props: Props) => {
     setCityObject(obj);
   };
 
-  const onChangeCenter = position => {
+  const onChangeCenter = (position) => {
     setCenter(position);
   };
 
-  const onChangeLocationOption = option => {
+  const onChangeLocationOption = (option) => {
     setCenter(option);
   };
 
@@ -126,7 +126,7 @@ const CityForm = (props: Props) => {
 
     return (
       <>
-        {renderInput(formProps, 'Code', 'code', 'string', city && city.code)}
+        {/* {renderInput(formProps, 'Code', 'code', 'string', city && city.code)} */}
         {renderInput(formProps, 'Name', 'name', 'string', city && city.name)}
 
         {renderInput(formProps, 'Iso', 'iso', 'string', city && city.iso)}
@@ -144,7 +144,7 @@ const CityForm = (props: Props) => {
             values: generateDoc(),
             isSubmitted,
             callback: closeModal,
-            object: city
+            object: city,
           })}
         </ModalFooter>
       </>

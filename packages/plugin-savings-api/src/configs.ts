@@ -13,19 +13,15 @@ import { storeInterestCron } from './cronjobs/contractCronJobs';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 
 export let debug;
-export let graphqlPubsub;
 export let mainDb;
-export let serviceDiscovery;
 
 export default {
   name: 'savings',
   permissions,
-  graphql: async sd => {
-    serviceDiscovery = sd;
-
+  graphql: async () => {
     return {
       typeDefs: await typeDefs(),
-      resolvers: await resolvers()
+      resolvers: await resolvers(),
     };
   },
 
@@ -38,24 +34,23 @@ export default {
     return context;
   },
 
-  onServerInit: async options => {
+  onServerInit: async (options) => {
     mainDb = options.db;
 
-    initBroker(options.messageBrokerClient);
+    initBroker();
 
     debug = options.debug;
-    graphqlPubsub = options.pubsubClient;
   },
   meta: {
     logs: { consumers: logs },
     cronjobs: {
-      handleMinutelyJob: storeInterestCron
+      handleMinutelyJob: storeInterestCron,
     },
     documents,
     permissions,
     forms,
     imports,
     exporter,
-    payment
-  }
+    payment,
+  },
 };

@@ -22,15 +22,15 @@ const QuarterForm = (props: Props) => {
   const { quarter } = props;
 
   const [cityId, setCityId] = useState<string>(
-    (quarter && quarter.district && quarter.district.city._id) || ''
+    (quarter && quarter.district && quarter.district.city._id) || '',
   );
 
   const [districtId, setDistrictId] = useState<string>(
-    (quarter && quarter.districtId) || ''
+    (quarter && quarter.districtId) || '',
   );
 
   const [quarterObject, setQuarterObject] = useState<IQuarter | undefined>(
-    quarter
+    quarter,
   );
 
   React.useEffect(() => {}, [setCityId, cityId, districtId]);
@@ -44,17 +44,17 @@ const QuarterForm = (props: Props) => {
 
     if (quarterObject) {
       finalValues.name = quarterObject.name;
-      finalValues.code = quarterObject.code;
+      // finalValues.code = quarterObject.code;
       finalValues.center = quarterObject.center;
       finalValues.districtId = districtId;
     }
 
     return {
-      ...finalValues
+      ...finalValues,
     };
   };
 
-  const onChangeInput = e => {
+  const onChangeInput = (e) => {
     const { id, value } = e.target;
     const obj: any = quarterObject || {};
 
@@ -88,7 +88,7 @@ const QuarterForm = (props: Props) => {
       <>
         <SelectCity
           defaultValue={cityId}
-          onChange={e => {
+          onChange={(e) => {
             setCityId(e);
             setDistrictId('');
           }}
@@ -98,25 +98,25 @@ const QuarterForm = (props: Props) => {
           <SelectDistrict
             defaultValue={districtId}
             cityId={cityId}
-            onChange={e => {
+            onChange={(e) => {
               setDistrictId(e);
             }}
           />
         )}
 
-        {renderInput(
+        {/* {renderInput(
           formProps,
           'Code',
           'code',
           'string',
           quarter && quarter.code
-        )}
+        )} */}
         {renderInput(
           formProps,
           'Name',
           'name',
           'string',
-          quarter && quarter.name
+          quarter && quarter.name,
         )}
 
         <ModalFooter>
@@ -129,7 +129,7 @@ const QuarterForm = (props: Props) => {
             values: generateDoc(),
             isSubmitted,
             callback: closeModal,
-            object: quarter
+            object: quarter,
           })}
         </ModalFooter>
       </>

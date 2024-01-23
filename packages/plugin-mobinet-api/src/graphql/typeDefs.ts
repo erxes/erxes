@@ -3,42 +3,44 @@ import gql from 'graphql-tag';
 import {
   mutations as buildingMutations,
   queries as buildingQueries,
-  types as buildingTypes
+  types as buildingTypes,
 } from './schema/buildings';
 import {
   mutations as cityMutations,
   queries as cityQueries,
-  types as cityTypes
+  types as cityTypes,
 } from './schema/cities';
 import {
   mutations as districtMutations,
   queries as districtQueries,
-  types as districtTypes
+  types as districtTypes,
 } from './schema/districts';
 import {
   mutations as quarterMutations,
   queries as quarterQueries,
-  types as quarterTypes
+  types as quarterTypes,
 } from './schema/quarters';
 
 import {
   queries as contractQueries,
   mutations as contractMutations,
-  types as contractTypes
+  types as contractTypes,
 } from './schema/contracts';
 
 import {
   queries as productQueries,
   mutations as productMutations,
-  types as productTypes
+  types as productTypes,
 } from './schema/mobinetProducts';
 
-const typeDefs = async serviceDiscovery => {
-  const isEnabled = {
-    contacts: await serviceDiscovery.isEnabled('contacts'),
-    cards: await serviceDiscovery.isEnabled('cards'),
-    products: await serviceDiscovery.isEnabled('products'),
-    assets: await serviceDiscovery.isEnabled('assets')
+import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
+
+const typeDefs = async () => {
+  const enabled = {
+    contacts: await isEnabled('contacts'),
+    cards: await isEnabled('cards'),
+    products: await isEnabled('products'),
+    assets: await isEnabled('assets'),
   };
 
   return gql`
@@ -59,7 +61,7 @@ const typeDefs = async serviceDiscovery => {
     ${districtTypes}
     ${quarterTypes}
     ${cityTypes}
-    ${buildingTypes(isEnabled)}
+    ${buildingTypes(enabled)}
     ${productTypes}
     ${contractTypes}
     

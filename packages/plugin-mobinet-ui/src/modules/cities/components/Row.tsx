@@ -6,10 +6,11 @@ import Tip from '@erxes/ui/src/components/Tip';
 import { __ } from '@erxes/ui/src/utils/core';
 import React from 'react';
 import CityForm from '../containers/Form';
-
+import TextInfo from '@erxes/ui/src/components/TextInfo';
 import { ICity } from '../types';
 
 type Props = {
+  index: number;
   city: ICity;
   remove: (cityId: string) => void;
 };
@@ -34,14 +35,14 @@ const Row = (props: Props) => {
     );
   };
 
-  const formContent = props => <CityForm {...props} city={city} />;
+  const formContent = (props) => <CityForm {...props} city={city} />;
 
   const center = city.center || { lat: 0, lng: 0 };
 
   return (
     <tr>
       <td key={Math.random()}>
-        <RowTitle>{city.code || '-'}</RowTitle>
+        <RowTitle>{props.index}</RowTitle>
       </td>
 
       <td key={Math.random()}>

@@ -1,5 +1,4 @@
 const fields = `
-  $code: String!
   $name: String!
   $center: JSON
   $iso: String
@@ -7,7 +6,6 @@ const fields = `
 `;
 
 const variables = `
-  code: $code
   name: $name
   center: $center
   iso: $iso
@@ -49,5 +47,5 @@ const citiesRemoveMutation = `
 export default {
   citiesAddMutation,
   citiesEditMutation,
-  citiesRemoveMutation
+  citiesRemoveMutation,
 };

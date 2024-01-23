@@ -1,7 +1,6 @@
 const variables = `
     $cityId: String
     $name: String!
-    $code: String!
     $center: JSON
     $isCapital: Boolean
 `;
@@ -9,7 +8,6 @@ const variables = `
 const fields = `
     cityId : $cityId
     name : $name
-    code : $code
     center : $center
     isCapital : $isCapital
 `;
@@ -39,5 +37,5 @@ const removeMutation = `
 export default {
   addMutation,
   editMutation,
-  removeMutation
+  removeMutation,
 };

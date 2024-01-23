@@ -1,7 +1,7 @@
 import fetch from 'node-fetch';
 import { sendCommonMessage, sendInboxMessage } from './messageBroker';
 import { randomAlphanumeric } from '@erxes/api-utils/src/random';
-import { graphqlPubsub } from './configs';
+import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
 
 const authenticate = async () => {
   const path = 'chatapi/auth/signin';

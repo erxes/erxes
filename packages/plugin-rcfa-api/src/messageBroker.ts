@@ -1,71 +1,61 @@
-import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
-import { serviceDiscovery } from './configs';
+import {
+  MessageArgs,
+  MessageArgsOmitService,
+  sendMessage,
+} from '@erxes/api-utils/src/core';
 import { generateModels } from './connectionResolver';
+import { consumeRPCQueue } from '@erxes/api-utils/src/messageBroker';
 
-let client;
-
-export const initBroker = async cl => {
-  client = cl;
-
-  const { consumeRPCQueue } = client;
-
+export const initBroker = async () => {
   consumeRPCQueue('rcfa:rcfa.find', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     return {
       status: 'success',
-      data: await models.RCFA.find(data).lean()
+      data: await models.RCFA.find(data).lean(),
     };
   });
 };
 
-export const sendContactsMessage = (args: ISendMessageArgs): Promise<any> => {
+export const sendContactsMessage = (
+  args: MessageArgsOmitService,
+): Promise<any> => {
   return sendMessage({
-    client,
-    serviceDiscovery,
     serviceName: 'contacts',
-    ...args
+    ...args,
   });
 };
 
-export const sendFormsMessage = (args: ISendMessageArgs): Promise<any> => {
+export const sendFormsMessage = (
+  args: MessageArgsOmitService,
+): Promise<any> => {
   return sendMessage({
-    client,
-    serviceDiscovery,
     serviceName: 'forms',
-    ...args
+    ...args,
   });
 };
 
-export const sendCardsMessage = (args: ISendMessageArgs): Promise<any> => {
+export const sendCardsMessage = (
+  args: MessageArgsOmitService,
+): Promise<any> => {
   return sendMessage({
-    client,
-    serviceDiscovery,
     serviceName: 'cards',
-    ...args
+    ...args,
   });
 };
 
-export const sendCoreMessage = (args: ISendMessageArgs): Promise<any> => {
+export const sendCoreMessage = (args: MessageArgsOmitService): Promise<any> => {
   return sendMessage({
-    client,
-    serviceDiscovery,
     serviceName: 'core',
-    ...args
+    ...args,
   });
 };
 
 export const sendRiskAssessmentsMessage = (
-  args: ISendMessageArgs
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
-    client,
-    serviceDiscovery,
     serviceName: 'riskassessment',
-    ...args
+    ...args,
   });
 };
-
-export default function() {
-  return client;
-}

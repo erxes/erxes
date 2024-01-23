@@ -6,10 +6,11 @@ import Tip from '@erxes/ui/src/components/Tip';
 import { __ } from '@erxes/ui/src/utils/core';
 import React from 'react';
 import QuarterForm from '../containers/Form';
-
+import TextInfo from '@erxes/ui/src/components/TextInfo';
 import { IQuarter } from '../types';
 
 type Props = {
+  index: number;
   quarter: IQuarter;
   remove: (quarterId: string) => void;
 };
@@ -34,14 +35,14 @@ const Row = (props: Props) => {
     );
   };
 
-  const formContent = props => <QuarterForm {...props} quarter={quarter} />;
+  const formContent = (props) => <QuarterForm {...props} quarter={quarter} />;
 
   const center = quarter.center || {
     lat: 0,
     lng: 0,
-    description: 'description'
+    description: 'description',
   };
-  // <th>{__('code')}</th>
+  // <th>{'#'}</th>
   // <th>{__('name')}</th>
   // <th>{__('Latitude')}</th>
   // <th>{__('Longitude')}</th>
@@ -51,7 +52,7 @@ const Row = (props: Props) => {
   return (
     <tr>
       <td key={Math.random()}>
-        <RowTitle>{quarter.code || '-'}</RowTitle>
+        <RowTitle>{props.index}</RowTitle>
       </td>
 
       <td key={Math.random()}>

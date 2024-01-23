@@ -11,7 +11,7 @@ import {
   types as rcfaQuestionTypes
 } from './schema/issues';
 
-const typeDefs = async (_serviceDiscovery: any) => {
+const typeDefs = async () => {
   return gql`
     scalar JSON
     scalar Date
