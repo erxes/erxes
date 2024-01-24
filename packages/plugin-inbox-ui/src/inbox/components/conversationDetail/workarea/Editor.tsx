@@ -10,7 +10,6 @@ type EditorProps = {
   integrationKind: string;
   onChange: (content: string) => void;
   showMentions: boolean;
-  responseTemplate: string;
   responseTemplates: IResponseTemplate[];
   placeholder?: string;
   content: string;
@@ -35,11 +34,6 @@ export default class Editor extends React.Component<EditorProps, State> {
   }
 
   componentWillReceiveProps(nextProps) {
-    if (nextProps.responseTemplate !== this.props.responseTemplate) {
-      const templateIncludedContent = nextProps.responseTemplate;
-      this.props.onChange(templateIncludedContent);
-    }
-
     // check switch conversation and fill default content
     if (nextProps.currentConversation !== this.props.currentConversation) {
       const defaultContent = nextProps.defaultContent;

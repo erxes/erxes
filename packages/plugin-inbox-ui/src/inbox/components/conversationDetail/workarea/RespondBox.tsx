@@ -110,7 +110,7 @@ class RespondBox extends React.Component<Props, State> {
   }
 
   componentDidUpdate(prevState) {
-    const { sending, content, responseTemplate } = this.state;
+    const { sending, content } = this.state;
 
     if (sending && content !== prevState.content) {
       this.setState({ sending: false });
@@ -198,6 +198,8 @@ class RespondBox extends React.Component<Props, State> {
     if (!responseTemplate) {
       return null;
     }
+
+    this.onEditorContentChange(responseTemplate.content);
 
     return this.setState({
       responseTemplate: responseTemplate.content,
@@ -389,7 +391,7 @@ class RespondBox extends React.Component<Props, State> {
   }
 
   renderEditor() {
-    const { isInternal, responseTemplate } = this.state;
+    const { isInternal } = this.state;
     const { responseTemplates, conversation } = this.props;
 
     let type = 'message';
@@ -411,7 +413,6 @@ class RespondBox extends React.Component<Props, State> {
         placeholder={placeholder}
         showMentions={isInternal}
         mentionSuggestion={this.props.mentionSuggestion}
-        responseTemplate={responseTemplate}
         responseTemplates={responseTemplates}
         content={this.state.content}
       />
