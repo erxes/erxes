@@ -1,4 +1,4 @@
-export const types = tagsAvailable => `
+export const types = (tagsAvailable) => `
   
   extend type User @key(fields: "_id") {
     _id: String! @external

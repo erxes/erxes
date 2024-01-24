@@ -25,13 +25,13 @@ const ChartFormField = (props: Props) => {
     fieldLabel,
     initialValue,
     multi,
-    onChange
+    onChange,
   } = props;
   const [fieldValue, setFieldValue] = useState(initialValue);
   const [dateRangeStart, setDateStart] = useState(new Date());
   const [dateRangeEnd, setDateEnd] = useState(new Date());
 
-  const onSelect = e => {
+  const onSelect = (e) => {
     setFieldValue(e.value);
     onChange(e);
   };

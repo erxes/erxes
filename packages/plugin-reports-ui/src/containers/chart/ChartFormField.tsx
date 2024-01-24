@@ -22,14 +22,8 @@ type Props = {
 
 const ChartFormFieldList = (props: Props) => {
   const { filterType, setFilter, initialValue } = props;
-  const {
-    fieldName,
-    fieldType,
-    fieldQuery,
-    fieldLabel,
-    multi,
-    fieldOptions
-  } = filterType;
+  const { fieldName, fieldType, fieldQuery, fieldLabel, multi, fieldOptions } =
+    filterType;
 
   const onChange = (input: any) => {
     switch (fieldType) {

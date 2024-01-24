@@ -16,15 +16,15 @@ const reportTemplates = [
     charts: [
       'averageFirstResponseTime',
       'averageCloseTime',
-      'conversationsCount'
+      'conversationsCount',
     ],
-    img: 'https://sciter.com/wp-content/uploads/2022/08/chart-js.png'
-  }
+    img: 'https://sciter.com/wp-content/uploads/2022/08/chart-js.png',
+  },
 ];
 
 const integrationTypes = async () => {
   const integrationTypes = Array.from(
-    new Set((await models?.Integrations.find())?.map(i => i.kind))
+    new Set((await models?.Integrations.find())?.map((i) => i.kind)),
   );
 
   return integrationTypes;
@@ -35,13 +35,13 @@ const integrationBrands = async (subdomain: any) => {
     subdomain,
     action: 'brands.find',
     data: {
-      query: {}
+      query: {},
     },
     isRPC: true,
-    defaultValue: []
+    defaultValue: [],
   });
 
-  return brands.map(brand => ({ label: brand.name, value: brand._id }));
+  return brands.map((brand) => ({ label: brand.name, value: brand._id }));
 };
 
 // integrationTypes
@@ -73,7 +73,7 @@ const DATERANGE_TYPES = [
   { label: 'Last Month', value: 'lastMonth' },
   { label: 'This Year', value: 'thisYear' },
   { label: 'Last Year', value: 'lastYear' },
-  { label: 'Custom Date', value: 'customDate' }
+  { label: 'Custom Date', value: 'customDate' },
 ];
 
 const BRAND_TYPES = [
@@ -89,7 +89,7 @@ const BRAND_TYPES = [
   { label: 'The New Media Group', value: 'owMWQueFNjBjfKJXH' },
   { label: 'culture.erxes.mn 🇲🇳', value: 'pwwsa9xSvhJE4Mwq8' },
   { label: 'partner.erxes.io', value: 'uAaN2Y8TQibGuXqPg' },
-  { label: 'erxes Open Source 🇬🇧', value: 'uSa9BXx9bG5HTpSNc' }
+  { label: 'erxes Open Source 🇬🇧', value: 'uSa9BXx9bG5HTpSNc' },
 ];
 
 const INTEGRATION_TYPES = [
@@ -100,14 +100,14 @@ const INTEGRATION_TYPES = [
   { label: 'SMS', value: 'sms' },
   { label: 'Facebook Messenger', value: 'facebook-messenger' },
   { label: 'Facebook Post', value: 'facebook-post' },
-  { label: 'All', value: 'all' }
+  { label: 'All', value: 'all' },
 ];
 
 const STATUS_TYPES = [
   { label: 'All', value: 'all' },
   { label: 'Closed / Resolved', value: 'closed' },
   { label: 'Open', value: 'open' },
-  { label: 'Unassigned', value: 'unassigned' }
+  { label: 'Unassigned', value: 'unassigned' },
 ];
 
 const calculateAverage = (arr: number[]) => {
@@ -130,18 +130,18 @@ const chartTemplates = [
       'doughnut',
       'radar',
       'polarArea',
-      'table'
+      'table',
     ],
     getChartResult: async (filter: any, subdomain: string) => {
       const matchfilter = {
         'conversationMessages.internal': false,
-        'conversationMessages.content': { $ne: '' }
+        'conversationMessages.content': { $ne: '' },
       };
 
       const { startDate, endDate } = filter;
 
       const filterQuery = {
-        createdAt: { $gte: startDate, $lte: endDate }
+        createdAt: { $gte: startDate, $lte: endDate },
       };
 
       // filter by source
@@ -149,10 +149,10 @@ const chartTemplates = [
         const { integrationType } = filter;
 
         const integrations: any = await models?.Integrations.find({
-          kind: integrationType
+          kind: integrationType,
         });
 
-        const integrationIds = integrations.map(i => i._id);
+        const integrationIds = integrations.map((i) => i._id);
 
         matchfilter['integrationId'] = { $in: integrationIds };
       }
@@ -161,7 +161,7 @@ const chartTemplates = [
         filter && filter.userIds
           ? {
               $exists: true,
-              $in: filter.userIds
+              $in: filter.userIds,
             }
           : { $exists: true };
 
@@ -173,12 +173,12 @@ const chartTemplates = [
             pipeline: [
               {
                 $match: {
-                  $expr: { $eq: ['$conversationId', '$$id'] }
-                }
-              }
+                  $expr: { $eq: ['$conversationId', '$$id'] },
+                },
+              },
             ],
-            as: 'conversationMessages'
-          }
+            as: 'conversationMessages',
+          },
         },
         {
           $project: {
@@ -189,24 +189,24 @@ const chartTemplates = [
             closedAt: 1,
             closedUserId: 1,
             firstRespondedDate: 1,
-            firstRespondedUserId: 1
-          }
+            firstRespondedUserId: 1,
+          },
         },
         {
           $match: {
-            conversationMessages: { $not: { $size: 0 } } // Filter out documents with empty 'conversationMessages' array
-          }
+            conversationMessages: { $not: { $size: 0 } }, // Filter out documents with empty 'conversationMessages' array
+          },
         },
         {
-          $unwind: '$conversationMessages'
+          $unwind: '$conversationMessages',
         },
         {
           $sort: {
-            'conversationMessages.createdAt': 1
-          }
+            'conversationMessages.createdAt': 1,
+          },
         },
         {
-          $match: matchfilter
+          $match: matchfilter,
         },
         {
           $group: {
@@ -217,9 +217,9 @@ const chartTemplates = [
             closedAt: { $first: '$closedAt' },
             closedUserId: { $first: '$closedUserId' },
             firstRespondedDate: { $first: '$firstRespondedDate' },
-            firstResponedUserId: { $first: '$firstResponedUserId' }
-          }
-        }
+            firstResponedUserId: { $first: '$firstResponedUserId' },
+          },
+        },
       ]);
 
       type UserWithFirstRespondTime = {
@@ -234,7 +234,7 @@ const chartTemplates = [
             conversationMessages,
             firstRespondedDate,
             firstResponedUserId,
-            customerMessagedAt
+            customerMessagedAt,
           } = convo;
 
           if (firstRespondedDate && firstResponedUserId) {
@@ -246,7 +246,7 @@ const chartTemplates = [
             if (firstResponedUserId in usersWithRespondTime) {
               usersWithRespondTime[firstResponedUserId] = [
                 ...usersWithRespondTime[firstResponedUserId],
-                respondTime
+                respondTime,
               ];
             } else {
               usersWithRespondTime[firstResponedUserId] = [respondTime];
@@ -267,7 +267,7 @@ const chartTemplates = [
             if (userId in usersWithRespondTime) {
               usersWithRespondTime[userId] = [
                 ...usersWithRespondTime[userId],
-                respondTime
+                respondTime,
               ];
             } else {
               usersWithRespondTime[userId] = [respondTime];
@@ -280,10 +280,10 @@ const chartTemplates = [
         subdomain,
         action: 'users.find',
         data: {
-          query: { _id: { $in: Object.keys(usersWithRespondTime) } }
+          query: { _id: { $in: Object.keys(usersWithRespondTime) } },
         },
         isRPC: true,
-        defaultValue: []
+        defaultValue: [],
       });
 
       const usersMap = {};
@@ -293,7 +293,7 @@ const chartTemplates = [
           fullName:
             user.details?.fullName ||
             `${user.details?.firstName || ''} ${user.details?.lastName || ''}`,
-          avgRespondtime: calculateAverage(usersWithRespondTime[user._id])
+          avgRespondtime: calculateAverage(usersWithRespondTime[user._id]),
         };
       }
 
@@ -314,35 +314,35 @@ const chartTemplates = [
         fieldType: 'select',
         multi: true,
         fieldQuery: 'users',
-        fieldLabel: 'Select users'
+        fieldLabel: 'Select users',
       },
       {
         fieldName: 'userIds',
         fieldType: 'select',
         multi: true,
         fieldQuery: 'users',
-        fieldLabel: 'Select users'
+        fieldLabel: 'Select users',
       },
       {
         fieldName: 'departmentIds',
         fieldType: 'select',
         multi: true,
         fieldQuery: 'departments',
-        fieldLabel: 'Select departments'
+        fieldLabel: 'Select departments',
       },
       {
         fieldName: 'branchIds',
         fieldType: 'select',
         multi: true,
         fieldQuery: 'branches',
-        fieldLabel: 'Select branches'
+        fieldLabel: 'Select branches',
       },
       {
         fieldName: 'integrationType',
         fieldType: 'select',
         multi: true,
         fieldOptions: INTEGRATION_TYPES,
-        fieldLabel: 'Select source'
+        fieldLabel: 'Select source',
       },
       {
         fieldName: 'dateRange',
@@ -350,15 +350,15 @@ const chartTemplates = [
         multi: true,
         fieldQuery: 'date',
         fieldOptions: DATERANGE_TYPES,
-        fieldLabel: 'Select date range'
+        fieldLabel: 'Select date range',
       },
       {
         fieldName: 'tags',
         fieldType: 'select',
         multi: true,
-        fieldLabel: 'Select tags'
-      }
-    ]
+        fieldLabel: 'Select tags',
+      },
+    ],
   },
 
   {
@@ -368,7 +368,7 @@ const chartTemplates = [
     getChartResult: async (filter: any, subdomain: string) => {
       const matchfilter = {
         status: /closed/gi,
-        closedAt: { $exists: true }
+        closedAt: { $exists: true },
       };
 
       // filter by source
@@ -376,10 +376,10 @@ const chartTemplates = [
         const { integrationType } = filter;
 
         const integrations: any = await models?.Integrations.find({
-          kind: integrationType
+          kind: integrationType,
         });
 
-        const integrationIds = integrations.map(i => i._id);
+        const integrationIds = integrations.map((i) => i._id);
 
         matchfilter['integrationId'] = { $in: integrationIds };
       }
@@ -387,27 +387,27 @@ const chartTemplates = [
         filter && filter.userIds
           ? {
               $exists: true,
-              $in: filter.userIds
+              $in: filter.userIds,
             }
           : { $exists: true };
 
       const usersWithClosedTime = await models?.Conversations.aggregate([
         {
-          $match: matchfilter
+          $match: matchfilter,
         },
 
         {
           $project: {
             closeTimeDifference: { $subtract: ['$closedAt', '$createdAt'] },
-            closedUserId: '$closedUserId'
-          }
+            closedUserId: '$closedUserId',
+          },
         },
         {
           $group: {
             _id: '$closedUserId',
-            avgCloseTimeDifference: { $avg: '$closeTimeDifference' }
-          }
-        }
+            avgCloseTimeDifference: { $avg: '$closeTimeDifference' },
+          },
+        },
       ]);
 
       const usersWithClosedTimeMap = {};
@@ -426,10 +426,10 @@ const chartTemplates = [
         subdomain,
         action: 'users.find',
         data: {
-          query: { _id: { $in: getUserIds } }
+          query: { _id: { $in: getUserIds } },
         },
         isRPC: true,
-        defaultValue: []
+        defaultValue: [],
       });
 
       const usersMap = {};
@@ -439,7 +439,7 @@ const chartTemplates = [
           fullName:
             user.details?.fullName ||
             `${user.details?.firstName || ''} ${user.details?.lastName || ''}`,
-          avgCloseTime: usersWithClosedTimeMap[user._id]
+          avgCloseTime: usersWithClosedTimeMap[user._id],
         };
       }
 
@@ -459,28 +459,28 @@ const chartTemplates = [
         fieldType: 'select',
         multi: true,
         fieldQuery: 'users',
-        fieldLabel: 'Select users'
+        fieldLabel: 'Select users',
       },
       {
         fieldName: 'departmentIds',
         fieldType: 'select',
         multi: true,
         fieldQuery: 'departments',
-        fieldLabel: 'Select departments'
+        fieldLabel: 'Select departments',
       },
       {
         fieldName: 'branchIds',
         fieldType: 'select',
         multi: true,
         fieldQuery: 'branches',
-        fieldLabel: 'Select branches'
+        fieldLabel: 'Select branches',
       },
       {
         fieldName: 'integrationType',
         fieldType: 'select',
         multi: true,
         fieldOptions: INTEGRATION_TYPES,
-        fieldLabel: 'Select source'
+        fieldLabel: 'Select source',
       },
       {
         fieldName: 'dateRange',
@@ -488,15 +488,15 @@ const chartTemplates = [
         multi: true,
         fieldQuery: 'date',
         fieldOptions: DATERANGE_TYPES,
-        fieldLabel: 'Select date range'
+        fieldLabel: 'Select date range',
       },
       {
         fieldName: 'tags',
         fieldType: 'select',
         multi: true,
-        fieldLabel: 'Select tags'
-      }
-    ]
+        fieldLabel: 'Select tags',
+      },
+    ],
   },
   {
     templateType: 'conversationsCount',
@@ -508,7 +508,7 @@ const chartTemplates = [
       'doughnut',
       'radar',
       'polarArea',
-      'table'
+      'table',
     ],
     getChartResult: async (filter: any, subdomain: string) => {
       const data: number[] = [];
@@ -526,13 +526,13 @@ const chartTemplates = [
           subdomain,
           action: 'users.find',
           data: {
-            query: { departmentIds: { $in: filter.departmentIds } }
+            query: { departmentIds: { $in: filter.departmentIds } },
           },
           isRPC: true,
-          defaultValue: []
+          defaultValue: [],
         });
 
-        filterUserIds = findDepartmentUsers.map(user => user._id);
+        filterUserIds = findDepartmentUsers.map((user) => user._id);
       }
 
       if (filter.branchIds) {
@@ -540,13 +540,13 @@ const chartTemplates = [
           subdomain,
           action: 'users.find',
           data: {
-            query: { branchIds: { $in: filter.branchIds } }
+            query: { branchIds: { $in: filter.branchIds } },
           },
           isRPC: true,
-          defaultValue: []
+          defaultValue: [],
         });
 
-        filterUserIds.push(...findBranchUsers.map(user => user._id));
+        filterUserIds.push(...findBranchUsers.map((user) => user._id));
       }
 
       if (filter.dateRange) {
@@ -556,10 +556,7 @@ const chartTemplates = [
         const startOfToday = new Date(NOW.setHours(0, 0, 0, 0));
         const endOfToday = new Date(NOW.setHours(23, 59, 59, 999));
         const startOfYesterday = new Date(
-          dayjs(NOW)
-            .add(-1, 'day')
-            .toDate()
-            .setHours(0, 0, 0, 0)
+          dayjs(NOW).add(-1, 'day').toDate().setHours(0, 0, 0, 0),
         );
 
         switch (dateRange) {
@@ -571,12 +568,8 @@ const chartTemplates = [
             dateFilter['$gte'] = startOfYesterday;
             dateFilter['$lte'] = startOfToday;
           case 'thisWeek':
-            dateFilter['$gte'] = dayjs(NOW)
-              .startOf('week')
-              .toDate();
-            dateFilter['$lte'] = dayjs(NOW)
-              .endOf('week')
-              .toDate();
+            dateFilter['$gte'] = dayjs(NOW).startOf('week').toDate();
+            dateFilter['$lte'] = dayjs(NOW).endOf('week').toDate();
             break;
 
           case 'lastWeek':
@@ -600,20 +593,12 @@ const chartTemplates = [
               .toDate();
             break;
           case 'thisMonth':
-            dateFilter['$gte'] = dayjs(NOW)
-              .startOf('month')
-              .toDate();
-            dateFilter['$lte'] = dayjs(NOW)
-              .endOf('month')
-              .toDate();
+            dateFilter['$gte'] = dayjs(NOW).startOf('month').toDate();
+            dateFilter['$lte'] = dayjs(NOW).endOf('month').toDate();
             break;
           case 'thisYear':
-            dateFilter['$gte'] = dayjs(NOW)
-              .startOf('year')
-              .toDate();
-            dateFilter['$lte'] = dayjs(NOW)
-              .endOf('year')
-              .toDate();
+            dateFilter['$gte'] = dayjs(NOW).startOf('year').toDate();
+            dateFilter['$lte'] = dayjs(NOW).endOf('year').toDate();
             break;
           case 'lastYear':
             dateFilter['$gte'] = dayjs(NOW)
@@ -661,11 +646,10 @@ const chartTemplates = [
       if (filter.brandIds) {
         integrationFindQuery['brandId'] = { $in: filter.brandIds };
 
-        const integrations: any = await models?.Integrations.find(
-          integrationFindQuery
-        );
+        const integrations: any =
+          await models?.Integrations.find(integrationFindQuery);
 
-        const integrationIds = integrations.map(i => i._id);
+        const integrationIds = integrations.map((i) => i._id);
 
         matchfilter['integrationId'] = { $in: integrationIds };
       }
@@ -676,11 +660,10 @@ const chartTemplates = [
 
         integrationFindQuery['kind'] = integrationType;
 
-        const integrations: any = await models?.Integrations.find(
-          integrationFindQuery
-        );
+        const integrations: any =
+          await models?.Integrations.find(integrationFindQuery);
 
-        const integrationIds = integrations.map(i => i._id);
+        const integrationIds = integrations.map((i) => i._id);
 
         matchfilter['integrationId'] = { $in: integrationIds };
       }
@@ -692,7 +675,7 @@ const chartTemplates = [
           filter && (filter.userIds || filter.departmentIds || filter.branchIds)
             ? {
                 $exists: true,
-                $in: filterUserIds
+                $in: filterUserIds,
               }
             : { $exists: true, $ne: null };
 
@@ -700,9 +683,9 @@ const chartTemplates = [
           $group: {
             _id: '$assignedUserId',
             conversationsCount: {
-              $sum: 1
-            }
-          }
+              $sum: 1,
+            },
+          },
         };
       }
       if (filterStatus === 'closed') {
@@ -710,15 +693,15 @@ const chartTemplates = [
           filter && (filter.userIds || filter.departmentIds || filter.branchIds)
             ? {
                 $exists: true,
-                $in: filterUserIds
+                $in: filterUserIds,
               }
             : { $exists: true };
 
         userIdGroup = {
           $group: {
             _id: '$closedUserId',
-            conversationsCount: { $sum: 1 }
-          }
+            conversationsCount: { $sum: 1 },
+          },
         };
       }
 
@@ -734,21 +717,22 @@ const chartTemplates = [
 
       const usersWithConvosCount = await models?.Conversations.aggregate([
         {
-          $match: matchfilter
+          $match: matchfilter,
         },
-        userIdGroup
+        userIdGroup,
       ]);
 
-      const getUserIds: string[] = usersWithConvosCount?.map(r => r._id) || [];
+      const getUserIds: string[] =
+        usersWithConvosCount?.map((r) => r._id) || [];
 
       const getTotalUsers: IUserDocument[] = await sendCoreMessage({
         subdomain,
         action: 'users.find',
         data: {
-          query: { _id: { $in: getUserIds } }
+          query: { _id: { $in: getUserIds } },
         },
         isRPC: true,
-        defaultValue: []
+        defaultValue: [],
       });
 
       const usersMap = {};
@@ -757,7 +741,7 @@ const chartTemplates = [
         usersMap[user._id] = {
           fullName:
             user.details?.fullName ||
-            `${user.details?.firstName || ''} ${user.details?.lastName || ''}`
+            `${user.details?.firstName || ''} ${user.details?.lastName || ''}`,
         };
       }
 
@@ -782,35 +766,35 @@ const chartTemplates = [
         fieldType: 'select',
         multi: false,
         fieldOptions: STATUS_TYPES,
-        fieldLabel: 'Select conversation status'
+        fieldLabel: 'Select conversation status',
       },
       {
         fieldName: 'userIds',
         fieldType: 'select',
         multi: true,
         fieldQuery: 'users',
-        fieldLabel: 'Select users'
+        fieldLabel: 'Select users',
       },
       {
         fieldName: 'departmentIds',
         fieldType: 'select',
         multi: true,
         fieldQuery: 'departments',
-        fieldLabel: 'Select departments'
+        fieldLabel: 'Select departments',
       },
       {
         fieldName: 'branchIds',
         fieldType: 'select',
         multi: true,
         fieldQuery: 'branches',
-        fieldLabel: 'Select branches'
+        fieldLabel: 'Select branches',
       },
       {
         fieldName: 'integrationType',
         fieldType: 'select',
         multi: true,
         fieldOptions: INTEGRATION_TYPES,
-        fieldLabel: 'Select source'
+        fieldLabel: 'Select source',
       },
       {
         fieldName: 'dateRange',
@@ -818,23 +802,23 @@ const chartTemplates = [
         multi: true,
         fieldQuery: 'date',
         fieldOptions: DATERANGE_TYPES,
-        fieldLabel: 'Select date range'
+        fieldLabel: 'Select date range',
       },
       {
         fieldName: 'tags',
         fieldType: 'select',
         multi: true,
-        fieldLabel: 'Select tags'
-      }
-    ]
-  }
+        fieldLabel: 'Select tags',
+      },
+    ],
+  },
 ];
 
 const getChartResult = async ({ subdomain, data }) => {
   const { templateType, filter } = data;
 
   const template =
-    chartTemplates.find(t => t.templateType === templateType) || ({} as any);
+    chartTemplates.find((t) => t.templateType === templateType) || ({} as any);
 
   return template.getChartResult(filter, subdomain);
 };
@@ -842,5 +826,5 @@ const getChartResult = async ({ subdomain, data }) => {
 export default {
   chartTemplates,
   reportTemplates,
-  getChartResult
+  getChartResult,
 };
