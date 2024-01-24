@@ -385,5 +385,5 @@ export default {
   engagesConfigDetail,
   emailTemplates,
   totalCount,
-  engageLogs
+  engageLogs,
 };
