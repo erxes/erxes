@@ -96,12 +96,9 @@ export const loansToPolaris = async (
   // else if (action === 'update') op = '13610315';
 
   const result = await toPolaris({
-    apiUrl: config.apiUrl,
-    company: config.company,
     op: op,
-    role: config.role,
-    token: config.token,
     data: sendData,
+    subdomain,
   });
 
   if (action === 'create' && typeof result === 'string') {
@@ -113,21 +110,18 @@ export const loansToPolaris = async (
   }
 };
 
-const openLoanContract = async (config, sendData) => {
+const openLoanContract = async (subdomain, sendData) => {
   const result = await toPolaris({
-    apiUrl: config.apiUrl,
-    company: config.company,
     op: '13610263',
-    role: config.role,
-    token: config.token,
     data: sendData,
+    subdomain,
   });
 
   return result;
 };
 //["acntCode","startDate","calcAmt","payType","payFreq","payMonth","payDay1","payDay2","holidayOption","shiftPartialPay","shiftType","termFreeTimes","intTypeCode","endDate","AdvDate","description","escapeMonths","listNrs","isFixedPayment", "payAmt" ]
 
-const createLoanSchedule = async (config: any, contract: any) => {
+const createLoanSchedule = async (subdomain: string, contract: any) => {
   const sendData = [
     contract.number,
     contract.startDate,
@@ -150,19 +144,16 @@ const createLoanSchedule = async (config: any, contract: any) => {
   ];
 
   const result = await toPolaris({
-    apiUrl: config.apiUrl,
-    company: config.company,
     op: '13610263',
-    role: config.role,
-    token: config.token,
     data: sendData,
+    subdomain,
   });
 
   return result;
 };
 
 const closeContract = async (
-  config: any,
+  subdomain: string,
   closeData: any,
   loanContract: any,
   closeInfo: any,
@@ -188,12 +179,9 @@ const closeContract = async (
   ];
 
   const result = await toPolaris({
-    apiUrl: config.apiUrl,
-    company: config.company,
     op: '13610267',
-    role: config.role,
-    token: config.token,
     data: sendData,
+    subdomain,
   });
 
   return result;

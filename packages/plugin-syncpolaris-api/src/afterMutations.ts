@@ -44,24 +44,16 @@ export const afterMutationHandlers = async (subdomain, params) => {
     return;
   }
 
-  let syncLog;
+  let syncLog = await models.SyncLogs.syncLogsAdd(syncLogDoc);
 
   try {
     switch (type) {
-      case type === 'contacts:customer':
-        {
-          syncLog = await models.SyncLogs.syncLogsAdd(syncLogDoc);
-          console.log('subdomain, params, action,', subdomain, params, action);
-          customerToPolaris(subdomain, params, action, models);
-        }
+      case 'contacts:customer':
+        customerToPolaris(subdomain, params, action, models);
         break;
-      case type === 'contacts:company':
-        {
-          syncLog = await models.SyncLogs.syncLogsAdd(syncLogDoc);
-          companyToPolaris(subdomain, params, action);
-        }
+      case 'contacts:company':
+        companyToPolaris(subdomain, params, action);
         break;
-
       case 'savings:deposit':
         depositToPolaris(subdomain, params);
         break;
@@ -82,6 +74,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
         break;
     }
   } catch (e) {
+    console.log('e', e);
     await models.SyncLogs.updateOne(
       { _id: syncLog._id },
       { $set: { error: e.message } },

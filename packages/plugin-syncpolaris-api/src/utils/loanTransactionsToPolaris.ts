@@ -6,8 +6,8 @@ import {
 } from './utils';
 
 export const loanTransactionsToPolaris = async (
-  subdomain,
-  params,
+  subdomain: string,
+  params: any,
   action: 'create' | 'update',
 ) => {
   const config = await getConfig(subdomain, 'POLARIS', {});
@@ -69,17 +69,14 @@ export const loanTransactionsToPolaris = async (
   else if (action === 'update') op = '13610315';
 
   await toPolaris({
-    apiUrl: config.apiUrl,
-    company: config.company,
     op: op,
-    role: config.role,
-    token: config.token,
     data: sendData,
+    subdomain,
   });
 };
 
 const loanGive = async (
-  config: any,
+  subdomain: string,
   contract: any,
   transaction: any,
   customer: any,
@@ -115,11 +112,8 @@ const loanGive = async (
   ];
 
   await toPolaris({
-    apiUrl: config.apiUrl,
-    company: config.company,
     op: '13610262',
-    role: config.role,
-    token: config.token,
     data: sendData,
+    subdomain,
   });
 };

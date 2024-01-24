@@ -1,12 +1,6 @@
-import {
-  getConfig,
-  getCustomer,
-  getLoanProduct,
-  getSavingProduct,
-  toPolaris,
-} from './utils';
+import { getConfig, getCustomer, getSavingProduct, toPolaris } from './utils';
 
-export const savingToPolaris = async (subdomain, params) => {
+export const savingToPolaris = async (subdomain: string, params) => {
   const config = await getConfig(subdomain, 'POLARIS', {});
 
   const savingContract = params.object;
@@ -55,12 +49,9 @@ export const savingToPolaris = async (subdomain, params) => {
   ];
 
   toPolaris({
-    apiUrl: config.apiUrl,
-    company: config.company,
     op: '13610120',
-    role: config.role,
-    token: config.token,
     data: sendData,
+    subdomain,
   });
 };
 
@@ -83,11 +74,8 @@ export const getSavingAcntTransaction = async (subdomain, params) => {
     },
   ];
   toPolaris({
-    apiUrl: config.apiUrl,
-    company: config.company,
     op: '13610101',
-    role: config.role,
-    token: config.token,
     data: sendData,
+    subdomain,
   });
 };

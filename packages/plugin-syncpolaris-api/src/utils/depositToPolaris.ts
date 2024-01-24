@@ -84,12 +84,9 @@ export const depositToPolaris = async (subdomain, params) => {
   console.log('objectCus:', objectCus);
   console.log('sendData:', sendData);
   toPolaris({
-    apiUrl: config.apiUrl,
-    company: config.company,
     op: '13610020',
-    role: config.role,
-    token: config.token,
     data: sendData,
+    subdomain,
   });
 };
 
@@ -112,12 +109,9 @@ export const getCustomerAcntTransaction = async (subdomain, params) => {
     },
   ];
   toPolaris({
-    apiUrl: config.apiUrl,
-    company: config.company,
     op: '13610003',
-    role: config.role,
-    token: config.token,
     data: sendData,
+    subdomain,
   });
 };
 
@@ -132,11 +126,8 @@ export const getCustomerAcntBalance = async (subdomain, params) => {
     },
   ];
   toPolaris({
-    apiUrl: config.apiUrl,
-    company: config.company,
     op: '13610003',
-    role: config.role,
-    token: config.token,
     data: sendData,
+    subdomain,
   });
 };

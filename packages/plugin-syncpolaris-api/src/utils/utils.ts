@@ -2,11 +2,8 @@ import fetch from 'node-fetch';
 import { sendCommonMessage } from '../messageBroker';
 
 interface IParams {
-  apiUrl: string;
   op: string;
-  token: string;
-  company: string;
-  role: string;
+  subdomain: string;
   data?: any;
 }
 
@@ -16,28 +13,28 @@ type CustomFieldType =
   | 'savings:contract';
 
 export const toPolaris = async (args: IParams) => {
-  const { op, company, data, apiUrl, token, role } = args;
+  const { op, data, subdomain } = args;
+
+  const config = await getConfig(subdomain, 'POLARIS', {});
+
   const headers = {
     Op: op,
-    Cookie: `NESSESSION=${token}`,
-    Company: company,
-    Role: role,
+    Cookie: `NESSESSION=${config.token}`,
+    Company: config.companyCode,
+    Role: config.role,
     'Content-Type': 'application/json',
   };
 
-  console.log('headers', headers);
-
   try {
     const requestOptions = {
-      url: `${apiUrl}`,
+      url: `${config.apiUrl}`,
       method: 'POST',
       headers,
       body: JSON.stringify(data),
     };
 
-    return await fetch(apiUrl, requestOptions).then((a) => a.text());
+    return await fetch(config.apiUrl, requestOptions).then((a) => a.text());
   } catch (e) {
-    console.log('e', e);
     const errorMessage = JSON.parse(e.message).message || e.message;
     throw new Error(errorMessage);
   }

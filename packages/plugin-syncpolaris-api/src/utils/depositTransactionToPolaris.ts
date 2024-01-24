@@ -58,11 +58,8 @@ export const depositTransactionToPolaris = async (
   ];
 
   toPolaris({
-    apiUrl: config.apiUrl,
-    company: config.company,
     op: op,
-    role: config.role,
-    token: config.token,
     data: sendData,
+    subdomain,
   });
 };

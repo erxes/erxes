@@ -39,11 +39,8 @@ export const loanClassificationToPolaris = async (subdomain, params) => {
   ];
 
   await toPolaris({
-    apiUrl: config.apiUrl,
-    company: config.company,
     op: '13610283',
-    role: config.role,
-    token: config.token,
     data: sendData,
+    subdomain,
   });
 };

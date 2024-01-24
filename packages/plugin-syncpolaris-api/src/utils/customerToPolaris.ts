@@ -13,9 +13,8 @@ export const customerToPolaris = async (
   action: 'create' | 'update',
   models: IModels,
 ) => {
-  const config = await getConfig(subdomain, 'POLARIS', {});
-
   const customer = params.updatedDocument || params.object;
+
   const customerLog = await models.SyncLogs.findOne({
     contentId: customer._id,
     error: { $exists: false },
@@ -32,39 +31,39 @@ export const customerToPolaris = async (
   sendData = [
     {
       //main fields
-      lastName: data.lastName,
-      firstName: data.firstName,
+      lastName: data.lastName ?? null,
+      firstName: data.firstName ?? null,
 
-      familyName: data.familyName,
-      custSegCode: data.custSegCode,
-      isVatPayer: data.isVatPayer,
-      sexCode: data.sexCode,
-      taxExemption: data.taxExemption,
-      status: data.status,
-      noCompany: data.noCompany,
-      isCompanyCustomer: data.isCompanyCustomer,
-      industryId: data.industryId,
-      birthPlaceId: data.birthPlaceId,
+      familyName: data.familyName ?? null,
+      custSegCode: data.custSegCode ?? null,
+      isVatPayer: data.isVatPayer ?? null,
+      sexCode: data.sexCode ?? null,
+      taxExemption: data.taxExemption ?? null,
+      status: data.status ?? null,
+      noCompany: data.noCompany ?? null,
+      isCompanyCustomer: data.isCompanyCustomer ?? null,
+      industryId: data.industryId ?? null,
+      birthPlaceId: data.birthPlaceId ?? null,
 
-      shortName: data.shortName,
-      shortName2: data.shortName2,
-      registerMaskCode: '3',
-      registerCode: data.registerCode,
-      birthDate: data.birthDate,
-      mobile: data.mobile,
-      countryCode: data.countryCode,
-      email: data.email,
-      industryName: data.industryName,
-      catId: data.catId,
-      ethnicGroupId: data.ethnicGroupId,
-      langCode: data.langCode,
-      maritalStatus: data.maritalStatus,
-      birthPlaceName: data.birthPlaceName,
-      birthPlaceDetail: data.birthPlaceDetail,
-      phone: data.phone,
-      fax: data.fax,
-      isBl: data.isBl,
-      isPolitical: data.isPolitical,
+      shortName: data.shortName ?? null,
+      shortName2: data.shortName2 ?? null,
+      registerMaskCode: '3' ?? null,
+      registerCode: data.registerCode ?? null,
+      birthDate: data.birthDate ?? null,
+      mobile: data.mobile ?? null,
+      countryCode: data.countryCode ?? null,
+      email: data.email ?? null,
+      industryName: data.industryName ?? null,
+      catId: data.catId ?? null,
+      ethnicGroupId: data.ethnicGroupId ?? null,
+      langCode: data.langCode ?? null,
+      maritalStatus: data.maritalStatus ?? null,
+      birthPlaceName: data.birthPlaceName ?? null,
+      birthPlaceDetail: data.birthPlaceDetail ?? null,
+      phone: data.phone ?? null,
+      fax: data.fax ?? null,
+      isBl: data.isBl ?? null,
+      isPolitical: data.isPolitical ?? null,
     },
   ];
 
@@ -72,12 +71,11 @@ export const customerToPolaris = async (
   // if (action === 'create' || !customerLog) op = '13610313';
   // else if (action === 'update') op = '13610315';
 
+  console.log('sendData', sendData);
+
   const customerCode = await toPolaris({
-    apiUrl: config.apiUrl,
-    company: config.companyCode,
+    subdomain,
     op: op,
-    role: config.role,
-    token: config.token,
     data: sendData,
   });
 
@@ -126,11 +124,8 @@ export const companyToPolaris = async (
   else if (action === 'update') op = '13610316';
 
   toPolaris({
-    apiUrl: config.apiUrl,
-    company: config.company,
+    subdomain,
     op: op,
-    role: config.role,
-    token: config.token,
     data: sendData,
   });
 };
