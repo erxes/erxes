@@ -28,12 +28,11 @@ import { IChart } from '../../types';
 import ChartFormField, {
   IFilterType,
 } from '../../containers/chart/ChartFormField';
-import { dimensions } from '@erxes/ui';
 
 const DIMENSION_OPTIONS = [
   { label: 'Team members', value: 'teamMember' },
-  { label: 'Departments', value: 'branch' },
-  { label: 'Branches', value: 'department' },
+  { label: 'Departments', value: 'department' },
+  { label: 'Branches', value: 'branch' },
   { label: 'Source/Channel', value: 'source' },
   { label: 'Brands', value: 'brand' },
   { label: 'Tags', value: 'tag' },
@@ -144,7 +143,7 @@ const ChartForm = (props: Props) => {
   const setFilter = (fieldName: string, value: any) => {
     if (!value && !value.length) {
       delete filters[fieldName];
-      setFilters({ ...filters, ...chart?.filter });
+      setFilters({ ...filters });
       return;
     }
 
@@ -173,7 +172,7 @@ const ChartForm = (props: Props) => {
     <Select
       options={DIMENSION_OPTIONS}
       value={dimension?.x}
-      onChange={(val) => setDimension({ x: val })}
+      onChange={(sel) => setDimension({ x: sel.value })}
     />
   );
 

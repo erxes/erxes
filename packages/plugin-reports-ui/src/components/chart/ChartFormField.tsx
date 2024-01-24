@@ -6,6 +6,7 @@ import React, { useState } from 'react';
 import Select from 'react-select-plus';
 import DateRange from '../datepicker/DateRange';
 import { MarginY } from '../../styles';
+import SelectBrands from '@erxes/ui/src/brands/containers/SelectBrands';
 
 type Props = {
   fieldType: string;
@@ -45,6 +46,12 @@ const ChartFormField = (props: Props) => {
     if (setFilter) {
       setFilter('startDate', startDate);
       setFilter('endDate', endDate);
+    }
+  };
+
+  const OnSaveBrands = (brandIds: string[] | string) => {
+    if (setFilter) {
+      setFilter('brandIds', brandIds);
     }
   };
 
@@ -110,6 +117,18 @@ const ChartFormField = (props: Props) => {
         </div>
       );
 
+    case 'brands':
+      return (
+        <div>
+          <ControlLabel> {fieldLabel}</ControlLabel>
+          <SelectBrands
+            label={'Choose brands'}
+            onSelect={OnSaveBrands}
+            multi={true}
+            name="selectedBrands"
+          />
+        </div>
+      );
     case 'date':
       return (
         <>

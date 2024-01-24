@@ -517,15 +517,19 @@ const chartTemplates = [
       const matchfilter = {};
       const filterStatus = filter.status;
 
-      const title = `${filterStatus} conversations' count`;
+      let title = `${filterStatus} conversations' count`;
+
+      const { departmentIds, branchIds, userIds, brandIds, dateRange } = filter;
+
       const dimensionX = dimension.x;
 
+      let departmentUsers;
       let filterUserIds: any = [];
 
       if (dimensionX === 'status') {
       }
 
-      if (filter.departmentIds) {
+      if (departmentIds && departmentIds.length) {
         const findDepartmentUsers = await sendCoreMessage({
           subdomain,
           action: 'users.find',
@@ -536,10 +540,11 @@ const chartTemplates = [
           defaultValue: [],
         });
 
+        departmentUsers = findDepartmentUsers;
         filterUserIds = findDepartmentUsers.map((user) => user._id);
       }
 
-      if (filter.branchIds) {
+      if (branchIds && branchIds.length) {
         const findBranchUsers = await sendCoreMessage({
           subdomain,
           action: 'users.find',
@@ -553,8 +558,7 @@ const chartTemplates = [
         filterUserIds.push(...findBranchUsers.map((user) => user._id));
       }
 
-      if (filter.dateRange) {
-        const { dateRange } = filter;
+      if (dateRange) {
         const dateFilter = {};
         const NOW = new Date();
         const startOfToday = new Date(NOW.setHours(0, 0, 0, 0));
@@ -630,12 +634,12 @@ const chartTemplates = [
       }
 
       // if team members selected, go by team members
-      if (filter.userIds) {
-        filterUserIds = filter.userIds;
+      if (userIds && userIds.length) {
+        filterUserIds = userIds;
       }
 
       // filter by status
-      if (filterStatus && filterStatus !== 'all') {
+      if (filterStatus && filterStatus !== 'all' && dimensionX !== 'status') {
         if (filterStatus === 'unassigned') {
           matchfilter['assignedUserId'] = null;
         } else {
@@ -647,7 +651,7 @@ const chartTemplates = [
       const integrationFindQuery = {};
 
       // filter integrations by brands
-      if (filter.brandIds) {
+      if (brandIds && brandIds.length) {
         integrationFindQuery['brandId'] = { $in: filter.brandIds };
 
         const integrations: any =
@@ -673,10 +677,14 @@ const chartTemplates = [
       }
 
       let userIdGroup;
+      let groupByQuery;
 
       if (filterStatus === 'open' || filterStatus === 'all') {
         matchfilter['assignedUserId'] =
-          filter && (filter.userIds || filter.departmentIds || filter.branchIds)
+          filter &&
+          ((userIds && userIds.length) ||
+            (departmentIds && departmentIds.length) ||
+            (branchIds && branchIds.length))
             ? {
                 $exists: true,
                 $in: filterUserIds,
@@ -719,6 +727,35 @@ const chartTemplates = [
         return { title, data, labels };
       }
 
+      // add dimensions
+      if (dimensionX === 'status') {
+        groupByQuery = {
+          $group: {
+            _id: '$status',
+            conversationsCount: { $sum: 1 },
+          },
+        };
+
+        const convosCountByStatus = await models?.Conversations.aggregate([
+          {
+            $match: matchfilter,
+          },
+          groupByQuery,
+        ]);
+
+        if (convosCountByStatus) {
+          for (const convo of convosCountByStatus) {
+            data.push(convo.conversationsCount);
+            labels.push(convo._id);
+          }
+        }
+
+        title = 'Conversations count by status';
+        const datasets = { title, data, labels };
+
+        return datasets;
+      }
+
       const usersWithConvosCount = await models?.Conversations.aggregate([
         {
           $match: matchfilter,
@@ -745,7 +782,70 @@ const chartTemplates = [
           fullName:
             user.details?.fullName ||
             `${user.details?.firstName || ''} ${user.details?.lastName || ''}`,
+          departmentIds: user.departmentIds,
         };
+      }
+
+      if (dimensionX === 'department') {
+        console.log('sexyyy');
+
+        const departmentsDict = {};
+
+        const departmentsQuery =
+          departmentIds && departmentIds.length
+            ? { query: { _id: { $in: departmentIds } } }
+            : {};
+
+        const departments = await sendCoreMessage({
+          subdomain,
+          action: 'departments.find',
+          data: departmentsQuery,
+          isRPC: true,
+          defaultValue: [],
+        });
+
+        for (const department of departments) {
+          departmentsDict[department._id] = {
+            title: department.title,
+            conversationsCount: 0,
+          };
+        }
+
+        if (usersWithConvosCount) {
+          for (const user of usersWithConvosCount) {
+            if (!usersMap[user._id] || !usersMap[user._id].departmentIds) {
+              continue;
+            }
+
+            for (const departmentId of usersMap[user._id].departmentIds) {
+              if (!departmentsDict[departmentId]) {
+                continue;
+              }
+
+              const getOldConvosCount =
+                departmentsDict[departmentId].conversationsCount;
+
+              const incrementCount =
+                getOldConvosCount + user.conversationsCount;
+
+              departmentsDict[departmentId] = {
+                conversationsCount: incrementCount,
+                title: departmentsDict[departmentId].title,
+              };
+            }
+          }
+
+          title = 'Conversations count by departments';
+
+          for (const deptId of Object.keys(departmentsDict)) {
+            labels.push(departmentsDict[deptId].title);
+            data.push(departmentsDict[deptId].conversationsCount);
+          }
+        }
+
+        console.log(departmentsDict);
+
+        return { title, labels, data };
       }
 
       if (usersWithConvosCount) {
@@ -771,6 +871,7 @@ const chartTemplates = [
         fieldOptions: STATUS_TYPES,
         fieldLabel: 'Select conversation status',
       },
+
       {
         fieldName: 'userIds',
         fieldType: 'select',
@@ -795,9 +896,18 @@ const chartTemplates = [
       {
         fieldName: 'integrationType',
         fieldType: 'select',
+        fieldQuery: 'integrations',
         multi: true,
-        fieldOptions: INTEGRATION_TYPES,
+        fieldValueVariable: '_id',
+        fieldLabelVariable: 'name',
         fieldLabel: 'Select source',
+      },
+      {
+        fieldName: 'brand',
+        fieldType: 'select',
+        fieldQuery: 'brands',
+        multi: true,
+        fieldLabel: 'Select brands',
       },
       {
         fieldName: 'dateRange',

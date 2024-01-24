@@ -88,12 +88,6 @@ const reportsList = `
   }
 `;
 
-const totalCount = `
-  query reportssTotalCount{
-    reportssTotalCount
-  }
-`;
-
 const reportTemplatesList = `
   query reportTemplatesList($searchValue: String, $serviceName: String) {
     reportTemplatesList(searchValue: $searchValue, serviceName: $serviceName) {
@@ -181,10 +175,29 @@ const reportServicesList = `
 query reportServicesList{
   reportServicesList
 }`;
+
+const brands = `
+  query allBrands{
+    allBrands{
+      _id
+      name
+    }
+  }
+`;
+
+const integrations = `
+  query integrations($kind: String, $brandId: String) {
+    integrations(kind: $kind, brandId: $brandId) {
+      _id
+      name
+    }
+  }
+`;
+
 export default {
   reportsList,
-  totalCount,
-
+  brands,
+  integrations,
   reportTemplatesList,
   reportChartTemplatesList,
   reportDetail,
