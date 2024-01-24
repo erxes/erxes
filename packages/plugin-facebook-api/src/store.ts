@@ -350,7 +350,7 @@ export const getOrCreateComment = async (
           graphqlPubsub.publish(`conversationMessageInserted:${erxesApiId}`, {
             conversationMessageInserted: {
               _id: comment._id,
-              content: comment.content,
+              content: commentParams.message,
               createdAt: new Date(),
               customerId: customer.erxesApiId,
               conversationId: erxesApiId,

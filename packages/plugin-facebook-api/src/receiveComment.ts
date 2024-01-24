@@ -2,13 +2,10 @@ import { IModels } from './connectionResolver';
 import {
   getOrCreateComment,
   getOrCreateCustomer,
-  getOrCreatePost,
   getOrCreatePostConversation,
 } from './store';
 import { ICommentParams } from './types';
 import { INTEGRATION_KINDS } from './constants';
-import { sendInboxMessage } from './messageBroker';
-import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
 
 const receiveComment = async (
   models: IModels,
@@ -58,26 +55,6 @@ const receiveComment = async (
     integration,
     customer,
   );
-  // try {
-  //   if (comment) {
-  //     await sendInboxMessage({
-  //       subdomain,
-  //       action: 'conversationClientMessageInserted',
-  //       data: {
-  //         integrationId: integration.erxesApiId,
-  //         conversationId: comment,
-  //       },
-  //     });
-  //   } else {
-  //     console.log('Warning: The comment is undefined.');
-  //   }
-  // } catch (e) {
-  //   throw new Error(
-  //     e.message.includes('duplicate')
-  //       ? 'Concurrent request: conversation message duplication'
-  //       : e,
-  //   );
-  // }
 };
 
 export default receiveComment;
