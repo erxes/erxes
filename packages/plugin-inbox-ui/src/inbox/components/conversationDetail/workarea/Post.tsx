@@ -4,7 +4,6 @@ import Icon from '@erxes/ui/src/components/Icon';
 import React from 'react';
 import { __ } from '@erxes/ui/src/utils/core';
 import styled from 'styled-components';
-import FormControl from '@erxes/ui/src/components/form/Control';
 
 const Container = styled.div`
   display: inline-block;
@@ -24,6 +23,7 @@ export default function Post(props: Props) {
       <Button size="small" btnStyle="simple">
         {__('Post Name : ' + PostInfo.content)} <Icon icon="angle" />
       </Button>
+
       <a href={PostInfo.permalink_url} target="_blank" rel="noreferrer">
         {__('go to post')}
       </a>

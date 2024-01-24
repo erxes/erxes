@@ -71,8 +71,7 @@ module.exports = {
                   position
                 }
               }
-              permalink_url
-              postContent
+
               customer {
                 _id
                 avatar

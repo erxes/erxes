@@ -28,7 +28,7 @@ export const commentConversationSchema = new Schema({
   mid: { type: String, label: 'comment message id' },
   postId: { type: String },
   comment_id: { type: String },
-  recipientId: { type: String, index: true },
+  recipientId: { type: String },
   senderId: { type: String },
   content: String,
   erxesApiId: String,

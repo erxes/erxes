@@ -29,7 +29,7 @@ export const commentConversationReplySchema = new Schema({
   mid: { type: String, label: 'comment message id' },
   comment_id: { type: String },
   parent_id: { type: String },
-  recipientId: { type: String, index: true },
+  recipientId: { type: String },
   senderId: { type: String },
   content: String,
   customerId: { type: String, optional: true },

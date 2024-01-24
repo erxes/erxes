@@ -101,9 +101,8 @@ export default class ActionBar extends React.Component<Props> {
         {loadDynamicComponent('inboxConversationDetailActionBar', {
           conversation: currentConversation,
         })}
-        <ActionBarLeft>
-          <Post conversation={currentConversation} />
-        </ActionBarLeft>
+
+        <Post conversation={currentConversation} />
       </ActionBarLeft>
     );
 
