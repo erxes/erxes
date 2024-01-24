@@ -22,7 +22,7 @@ const Participators = asyncComponent(
     import(
       /* webpackChunkName:"Inbox-Participators" */ '@erxes/ui-inbox/src/inbox/components/conversationDetail/workarea/Participators'
     ),
-  { height: '30px', width: '30px', round: true }
+  { height: '30px', width: '30px', round: true },
 );
 
 const ConvertTo = asyncComponent(
@@ -30,9 +30,16 @@ const ConvertTo = asyncComponent(
     import(
       /* webpackChunkName:"Inbox-ConvertTo" */ '../../../containers/conversationDetail/workarea/ConvertTo'
     ),
-  { height: '22px', width: '71px' }
+  { height: '22px', width: '71px' },
 );
 
+const Post = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName:"Inbox-ConvertTo" */ '../../../containers/conversationDetail/workarea/Post'
+    ),
+  { height: '22px', width: '71px' },
+);
 type Props = {
   currentConversation: IConversation;
 };
@@ -92,8 +99,10 @@ export default class ActionBar extends React.Component<Props> {
         )}
 
         {loadDynamicComponent('inboxConversationDetailActionBar', {
-          conversation: currentConversation
+          conversation: currentConversation,
         })}
+
+        <Post conversation={currentConversation} />
       </ActionBarLeft>
     );
 
