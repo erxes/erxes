@@ -18,8 +18,8 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
   models = {} as IModels;
 
   models.SyncLogs = db.model<ISyncLogDocument, ISyncLogModel>(
-    'syncerkhet_synclogs',
-    loadSyncLogClass(models)
+    'syncpolaris_synclogs',
+    loadSyncLogClass(models),
   );
 
   return models;
@@ -27,5 +27,5 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
 
 export const generateModels = createGenerateModels<IModels>(
   models,
-  loadClasses
+  loadClasses,
 );

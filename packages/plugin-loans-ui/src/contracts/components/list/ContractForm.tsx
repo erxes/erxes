@@ -1145,15 +1145,6 @@ class ContractForm extends React.Component<Props, State> {
             label: 'Хуваарь',
             component: <Form renderContent={this.renderGraphic} />,
           },
-
-          ...(isEnabled('forms')
-            ? [
-                {
-                  label: 'Бусад',
-                  component: <Form renderContent={this.renderCustom} />,
-                },
-              ]
-            : []),
         ]}
       />
     );

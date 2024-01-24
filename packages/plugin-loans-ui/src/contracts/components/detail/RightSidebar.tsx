@@ -75,7 +75,7 @@ export default class RightSidebar extends React.Component<Props> {
             <DealSection contract={contract} />
           </>
         )}
-        {isEnabled('forms') && !!contract.loansOfForeclosed?.length && (
+        {isEnabled('forms') && (
           <ContractsCustomFields
             contract={contract}
             collapseCallback={console.log}

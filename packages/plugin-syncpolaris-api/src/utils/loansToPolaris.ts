@@ -19,6 +19,8 @@ export const loansToPolaris = async (
 
   const loan = params.updatedDocument || params.object;
 
+  console.log('loan', loan);
+
   if (loan.status === 'closed') {
     const closeInfo = await getCloseInfo(
       subdomain,
@@ -47,7 +49,7 @@ export const loansToPolaris = async (
 
   const leasingExpert = await getUser(subdomain, loan.leasingExpertId);
 
-  const branch = await getBranch(subdomain, loan.leasingExpertId);
+  const branch = await getBranch(subdomain, loan.branchId);
 
   let sendData = [
     {
@@ -56,8 +58,8 @@ export const loansToPolaris = async (
       name2: loan.custCode,
       prodCode: loanProduct.code,
       prodType: 'LOAN',
-      purpose: loan.purpose,
-      subPurpose: loan.subPurpose,
+      purpose: loan.purpose ?? 'PURP00000022',
+      subPurpose: loan.subPurpose ?? 'SUBPURP00070',
       isNotAutoClass: 0,
       comRevolving: 0,
       dailyBasisCode: 'ACTUAL/365',
@@ -65,18 +67,19 @@ export const loansToPolaris = async (
       approvAmount: loan.leaseAmount,
       impairmentPer: 0,
       approvDate: loan.startDate,
-      acntManager: leasingExpert.code,
+      acntManager: leasingExpert.employeeId,
       brchCode: branch.code,
+      startDate: loan.startDate,
+      endDate: loan.endDate,
+      termLen: loan.tenor,
+
       IsGetBrchFromOutside: '0',
-      segCode: 'loan.segCode',
+      segCode: '1',
       status: 'N',
       slevel: '1',
       classNoTrm: '1',
       classNoQlt: '1',
       classNo: '1',
-      startDate: loan.startDate,
-      endDate: loan.endDate,
-      termLen: loan.tenor,
       termBasis: 'M',
       isBrowseAcntOtherCom: 0,
       repayPriority: 0,
@@ -88,9 +91,9 @@ export const loansToPolaris = async (
     },
   ];
 
-  let op = '';
-  if (action === 'create') op = '13610313';
-  else if (action === 'update') op = '13610315';
+  let op = '13610313';
+  // if (action === 'create') op = '13610313';
+  // else if (action === 'update') op = '13610315';
 
   const result = await toPolaris({
     apiUrl: config.apiUrl,
@@ -101,11 +104,11 @@ export const loansToPolaris = async (
     data: sendData,
   });
 
-  if (action === 'create' && typeof result.body === 'string') {
-    await updateLoanNumber(subdomain, loan._id, result.body);
+  if (action === 'create' && typeof result === 'string') {
+    await updateLoanNumber(subdomain, loan._id, result);
 
-    await openLoanContract(config, [result.body, 'данс нээв', null]);
-    loan.number = result.body;
+    await openLoanContract(config, [result, 'данс нээв', null]);
+    loan.number = result;
     await createLoanSchedule(config, loan);
   }
 };

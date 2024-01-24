@@ -22,18 +22,22 @@ export const toPolaris = async (args: IParams) => {
     Cookie: `NESSESSION=${token}`,
     Company: company,
     Role: role,
+    'Content-Type': 'application/json',
   };
+
+  console.log('headers', headers);
 
   try {
     const requestOptions = {
       url: `${apiUrl}`,
       method: 'POST',
       headers,
-      body: data,
+      body: JSON.stringify(data),
     };
 
-    return await fetch(apiUrl, requestOptions);
+    return await fetch(apiUrl, requestOptions).then((a) => a.text());
   } catch (e) {
+    console.log('e', e);
     const errorMessage = JSON.parse(e.message).message || e.message;
     throw new Error(errorMessage);
   }

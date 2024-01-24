@@ -20,6 +20,7 @@ export const customerToPolaris = async (
     contentId: customer._id,
     error: { $exists: false },
   });
+
   let sendData = {};
 
   const data = await customFieldToObject(
@@ -31,49 +32,49 @@ export const customerToPolaris = async (
   sendData = [
     {
       //main fields
-      lastName: customer.lastName,
-      firstName: customer.firstName,
+      lastName: data.lastName,
+      firstName: data.firstName,
 
-      familyName: customer.familyName,
-      custSegCode: customer.custSegCode,
-      isVatPayer: customer.isVatPayer,
-      sexCode: customer.sexCode,
-      taxExemption: customer.taxExemption,
-      status: customer.status,
-      noCompany: customer.noCompany,
-      isCompanyCustomer: customer.isCompanyCustomer,
-      industryId: customer.industryId,
-      birthPlaceId: customer.birthPlaceId,
+      familyName: data.familyName,
+      custSegCode: data.custSegCode,
+      isVatPayer: data.isVatPayer,
+      sexCode: data.sexCode,
+      taxExemption: data.taxExemption,
+      status: data.status,
+      noCompany: data.noCompany,
+      isCompanyCustomer: data.isCompanyCustomer,
+      industryId: data.industryId,
+      birthPlaceId: data.birthPlaceId,
 
-      shortName: customer.shortName,
-      shortName2: customer.shortName2,
-      registerMaskCode: customer.registerMaskCode,
-      registerCode: customer.registerCode,
-      birthDate: customer.birthDate,
-      mobile: customer.mobile,
-      countryCode: customer.countryCode,
-      email: customer.email,
-      industryName: customer.industryName,
-      catId: customer.catId,
-      ethnicGroupId: customer.ethnicGroupId,
-      langCode: customer.langCode,
-      maritalStatus: customer.maritalStatus,
-      birthPlaceName: customer.birthPlaceName,
-      birthPlaceDetail: customer.birthPlaceDetail,
-      phone: customer.phone,
-      fax: customer.fax,
-      isBl: customer.isBl,
-      isPolitical: customer.isPolitical,
+      shortName: data.shortName,
+      shortName2: data.shortName2,
+      registerMaskCode: '3',
+      registerCode: data.registerCode,
+      birthDate: data.birthDate,
+      mobile: data.mobile,
+      countryCode: data.countryCode,
+      email: data.email,
+      industryName: data.industryName,
+      catId: data.catId,
+      ethnicGroupId: data.ethnicGroupId,
+      langCode: data.langCode,
+      maritalStatus: data.maritalStatus,
+      birthPlaceName: data.birthPlaceName,
+      birthPlaceDetail: data.birthPlaceDetail,
+      phone: data.phone,
+      fax: data.fax,
+      isBl: data.isBl,
+      isPolitical: data.isPolitical,
     },
   ];
 
-  let op = '';
-  if (action === 'create' || !customerLog) op = '13610313';
-  else if (action === 'update') op = '13610315';
+  let op = '13610313';
+  // if (action === 'create' || !customerLog) op = '13610313';
+  // else if (action === 'update') op = '13610315';
 
   const customerCode = await toPolaris({
     apiUrl: config.apiUrl,
-    company: config.company,
+    company: config.companyCode,
     op: op,
     role: config.role,
     token: config.token,

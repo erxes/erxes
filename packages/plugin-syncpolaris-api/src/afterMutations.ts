@@ -6,6 +6,7 @@ import { depositTransactionToPolaris } from './utils/depositTransactionToPolaris
 import { loansToPolaris } from './utils/loansToPolaris';
 import { loanClassificationToPolaris } from './utils/loanClassificationToPolaris';
 import { loanTransactionsToPolaris } from './utils/loanTransactionsToPolaris';
+import { loanScheduleToErxes } from './utils/loansToErxes';
 
 const allowTypes = {
   'contacts:customer': ['create', 'update'],
@@ -23,6 +24,7 @@ const allowTypes = {
 
 export const afterMutationHandlers = async (subdomain, params) => {
   const { type, action, user } = params;
+
   const models = await generateModels(subdomain);
   const syncLogDoc = {
     type: '',
@@ -49,29 +51,14 @@ export const afterMutationHandlers = async (subdomain, params) => {
       case type === 'contacts:customer':
         {
           syncLog = await models.SyncLogs.syncLogsAdd(syncLogDoc);
-          if (action === 'create') {
-            customerToPolaris(subdomain, params, 'create', models);
-            return;
-          }
-
-          if (action === 'update') {
-            customerToPolaris(subdomain, params, 'update', models);
-            return;
-          }
+          console.log('subdomain, params, action,', subdomain, params, action);
+          customerToPolaris(subdomain, params, action, models);
         }
         break;
       case type === 'contacts:company':
         {
           syncLog = await models.SyncLogs.syncLogsAdd(syncLogDoc);
-          if (action === 'create') {
-            companyToPolaris(subdomain, params, 'create');
-            return;
-          }
-
-          if (action === 'update') {
-            companyToPolaris(subdomain, params, 'update');
-            return;
-          }
+          companyToPolaris(subdomain, params, action);
         }
         break;
 
