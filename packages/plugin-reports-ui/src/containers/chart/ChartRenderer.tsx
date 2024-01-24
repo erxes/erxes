@@ -41,6 +41,7 @@ type Props = {
 
   chartVariables: IChartGetResultVariables;
   filter?: any;
+  dimension?: any;
   chartHeight?: number;
 };
 
@@ -107,11 +108,12 @@ export default withProps<Props>(
   compose(
     graphql<any>(gql(queries.reportChartGetResult), {
       name: 'reportChartGetResultQuery',
-      options: ({ chartVariables, filter }) => ({
+      options: ({ chartVariables, filter, dimension }) => ({
         variables: {
           serviceName: chartVariables.serviceName,
           templateType: chartVariables.templateType,
           filter: { ...filter },
+          dimension: { ...dimension },
         },
         fetchPolicy: 'network-only',
       }),
