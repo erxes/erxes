@@ -11,7 +11,7 @@ import { mutations, queries } from '../../graphql';
 import {
   ProductCategoriesCountQueryResponse,
   ProductCategoryRemoveMutationResponse,
-  ProductsQueryResponse
+  ProductsQueryResponse,
 } from '../../types';
 
 type Props = { history: any; queryParams: any };
@@ -23,19 +23,20 @@ type FinalProps = {
   brandsQuery: BrandsQueryResponse;
 } & Props &
   ProductCategoryRemoveMutationResponse;
+
 class ProductListContainer extends React.Component<FinalProps> {
   render() {
     const {
       productCategoriesQuery,
       productCategoriesCountQuery,
       productsQuery,
-      productCategoryRemove
+      productCategoryRemove,
     } = this.props;
 
-    const remove = productId => {
+    const remove = (productId) => {
       confirm().then(() => {
         productCategoryRemove({
-          variables: { _id: productId }
+          variables: { _id: productId },
         })
           .then(() => {
             productCategoriesQuery.refetch();
@@ -43,10 +44,10 @@ class ProductListContainer extends React.Component<FinalProps> {
             productsQuery.refetch();
 
             Alert.success(
-              `You successfully deleted a product & service category`
+              `You successfully deleted a product & service category`,
             );
           })
-          .catch(error => {
+          .catch((error) => {
             Alert.error(error.message);
           });
       });
@@ -66,7 +67,7 @@ class ProductListContainer extends React.Component<FinalProps> {
       productCategoriesCount:
         productCategoriesCountQuery.productCategoriesTotalCount || 0,
       brands,
-      brandsLoading
+      brandsLoading,
     };
 
     return <List {...updatedProps} />;
@@ -78,7 +79,7 @@ const getRefetchQueries = () => {
 };
 
 const options = () => ({
-  refetchQueries: getRefetchQueries()
+  refetchQueries: getRefetchQueries(),
 });
 
 export default withProps<Props>(
@@ -91,31 +92,31 @@ export default withProps<Props>(
           variables: {
             status: queryParams.status,
             brand: queryParams.brand,
-            parentId: queryParams.parentId
+            parentId: queryParams.parentId,
           },
           refetchQueries: getRefetchQueries(),
-          fetchPolicy: 'network-only'
-        })
-      }
+          fetchPolicy: 'network-only',
+        }),
+      },
     ),
     graphql<Props, ProductCategoriesCountQueryResponse>(
       gql(queries.productCategoriesCount),
       {
-        name: 'productCategoriesCountQuery'
-      }
+        name: 'productCategoriesCountQuery',
+      },
     ),
     graphql<Props, ProductCategoryRemoveMutationResponse, { _id: string }>(
       gql(mutations.productCategoryRemove),
       {
         name: 'productCategoryRemove',
-        options
-      }
+        options,
+      },
     ),
     graphql<Props, ProductsQueryResponse>(gql(queries.products), {
-      name: 'productsQuery'
+      name: 'productsQuery',
     }),
     graphql<Props, BrandsQueryResponse, {}>(gql(brandQueries.brands), {
-      name: 'brandsQuery'
-    })
-  )(ProductListContainer)
+      name: 'brandsQuery',
+    }),
+  )(ProductListContainer),
 );

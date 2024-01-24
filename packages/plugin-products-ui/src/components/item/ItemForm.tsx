@@ -1,3 +1,4 @@
+import React, { useState } from 'react';
 import Button from '@erxes/ui/src/components/Button';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import CommonForm from '@erxes/ui/src/components/form/Form';
@@ -9,8 +10,6 @@ import {
   ModalFooter,
 } from '@erxes/ui/src/styles/main';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import React from 'react';
-
 import { IItem } from '../.././types';
 
 type Props = {
@@ -20,43 +19,20 @@ type Props = {
   history: any;
 };
 
-type State = {
-  code: string;
-};
+const Form = ({ item, renderButton, closeModal, history }: Props) => {
+  const [code, setCode] = useState(item?.code || '');
 
-class Form extends React.Component<Props, State> {
-  constructor(props) {
-    super(props);
-
-    const item = props.item || ({} as IItem);
-    const { code } = item;
-
-    this.state = {
-      code: code || '',
-    };
-  }
-
-  generateDoc = (values: { _id?: string; code: string }) => {
-    const { item } = this.props;
-    const finalValues = values;
-    const { code } = this.state;
-
+  const generateDoc = (values: { _id?: string; code: string }) => {
+    const finalValues = { ...values, code };
     if (item) {
       finalValues._id = item._id;
     }
-
-    return {
-      ...finalValues,
-      code,
-    };
+    return finalValues;
   };
 
-  renderContent = (formProps: IFormProps) => {
-    const { renderButton, closeModal, item } = this.props;
+  const renderContent = (formProps: IFormProps) => {
     const { values, isSubmitted } = formProps;
     const object = item || ({} as IItem);
-
-    const { code } = this.state;
 
     return (
       <>
@@ -87,9 +63,7 @@ class Form extends React.Component<Props, State> {
                 value={code}
                 required={true}
                 onChange={(e: any) => {
-                  this.setState({
-                    code: e.target.value.replace(/\*/g, ''),
-                  });
+                  setCode(e.target.value.replace(/\*/g, ''));
                 }}
               />
             </FormGroup>
@@ -118,7 +92,7 @@ class Form extends React.Component<Props, State> {
 
           {renderButton({
             name: 'item',
-            values: this.generateDoc(values),
+            values: generateDoc(values),
             isSubmitted,
             callback: closeModal,
             object: item,
@@ -128,9 +102,7 @@ class Form extends React.Component<Props, State> {
     );
   };
 
-  render() {
-    return <CommonForm renderContent={this.renderContent} />;
-  }
-}
+  return <CommonForm renderContent={renderContent} />;
+};
 
 export default Form;

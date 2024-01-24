@@ -14,9 +14,6 @@ import {
 import { IItem } from './../../types';
 import React from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
-import xss from 'xss';
-import { Tip } from '@erxes/ui/src';
-import { ProductContent } from '../../styles';
 import Form from '../../containers/item/ItemForm';
 
 type Props = {
@@ -25,8 +22,8 @@ type Props = {
   history: any;
 };
 
-class BasicInfo extends React.Component<Props> {
-  renderView = (name, variable) => {
+function BasicInfo(props: Props) {
+  const renderView = (name, variable) => {
     const defaultName = name.includes('count') ? 0 : '-';
 
     return (
@@ -37,8 +34,8 @@ class BasicInfo extends React.Component<Props> {
     );
   };
 
-  renderEdit() {
-    const { item } = this.props;
+  const renderEdit = () => {
+    const { item } = props;
     const content = (props) => <Form {...props} item={item} />;
     return (
       <ModalTrigger
@@ -52,10 +49,10 @@ class BasicInfo extends React.Component<Props> {
         content={content}
       />
     );
-  }
+  };
 
-  renderAction() {
-    const { remove } = this.props;
+  const renderAction = () => {
+    const { remove } = props;
 
     const onDelete = () =>
       confirm()
@@ -74,7 +71,7 @@ class BasicInfo extends React.Component<Props> {
             </Button>
           </Dropdown.Toggle>
           <Dropdown.Menu>
-            {this.renderEdit()}
+            {renderEdit()}
             <li>
               <a href="#delete" onClick={onDelete}>
                 {__('Delete')}
@@ -84,26 +81,10 @@ class BasicInfo extends React.Component<Props> {
         </Dropdown>
       </Actions>
     );
-  }
-
-  renderItemContent = () => {
-    const { item } = this.props;
-
-    if (!item.description) {
-      return null;
-    }
-
-    return (
-      <ProductContent
-        dangerouslySetInnerHTML={{
-          __html: xss(item.description),
-        }}
-      />
-    );
   };
 
-  renderInfo() {
-    const { item } = this.props;
+  const renderInfo = () => {
+    const { item } = props;
 
     const { code, name, description } = item;
 
@@ -111,21 +92,19 @@ class BasicInfo extends React.Component<Props> {
       <Sidebar.Section>
         <InfoWrapper>
           <Name>{name}</Name>
-          {this.renderAction()}
+          {renderAction()}
         </InfoWrapper>
 
         <SidebarList className="no-link">
-          {this.renderView('Code', code)}
-          {this.renderView('Name', name)}
-          {this.renderView('Description', description)}
+          {renderView('Name', name)}
+          {renderView('Code', code)}
+          {renderView('Description', description)}
         </SidebarList>
       </Sidebar.Section>
     );
-  }
+  };
 
-  render() {
-    return this.renderInfo();
-  }
+  return renderInfo();
 }
 
 export default BasicInfo;

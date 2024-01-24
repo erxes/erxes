@@ -27,7 +27,7 @@ type Props = {
   isAllSelected: boolean;
   bulk: any[];
   emptyBulk: () => void;
-  remove: (doc: { Ids: string[] }, emptyBulk: () => void) => void;
+  remove: (doc: { itemIds: string[] }, emptyBulk: () => void) => void;
   toggleBulk: () => void;
   toggleAll: (targets: IItem[], containerId: string) => void;
   loading: boolean;
@@ -74,13 +74,13 @@ class List extends React.Component<Props> {
   };
 
   removeItems = (items) => {
-    const Ids: string[] = [];
+    const itemIds: string[] = [];
 
     items.forEach((item) => {
-      Ids.push(item._id);
+      itemIds.push(item._id);
     });
 
-    this.props.remove({ Ids }, this.props.emptyBulk);
+    this.props.remove({ itemIds }, this.props.emptyBulk);
   };
 
   search = (e) => {

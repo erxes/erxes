@@ -28,63 +28,59 @@ type FinalProps = {
 } & Props &
   ItemRemoveMutationResponse;
 
-class ItemListContainer extends React.Component<FinalProps> {
-  constructor(props) {
-    super(props);
-  }
+function ItemListContainer(props: FinalProps) {
+  const {
+    itemsQuery,
+    queryParams,
+    itemsCountQuery,
+    itemsRemove,
+    itemsDetailQuery,
+  } = props;
 
-  render() {
-    const {
-      itemsQuery,
-      queryParams,
-      itemsCountQuery,
-      itemsRemove,
-      itemsDetailQuery,
-    } = this.props;
+  const items = itemsQuery.items || [];
 
-    const items = itemsQuery.items || [];
+  // remove action
+  const remove = ({ itemIds }, emptyBulk) => {
+    console.log(itemIds);
 
-    // remove action
-    const remove = ({ itemIds }, emptyBulk) => {
-      itemsRemove({
-        variables: { itemIds },
+    itemsRemove({
+      variables: { itemIds },
+    })
+      .then((removeStatus) => {
+        emptyBulk();
+
+        const status = removeStatus.data.itemsRemove;
+
+        status === 'deleted'
+          ? Alert.success('You successfully deleted an item')
+          : Alert.warning('Item status deleted');
       })
-        .then((removeStatus) => {
-          emptyBulk();
+      .catch((e) => {
+        Alert.error(e.message);
+      });
+  };
 
-          const status = removeStatus.data.itemsRemove;
+  const searchValue = props.queryParams.searchValue || '';
 
-          status === 'deleted'
-            ? Alert.success('You successfully deleted an item')
-            : Alert.warning('Item status deleted');
-        })
-        .catch((e) => {
-          Alert.error(e.message);
-        });
-    };
+  const updatedProps = {
+    ...props,
+    queryParams,
+    items,
+    remove,
+    searchValue,
+    loading: itemsQuery.loading || itemsCountQuery.loading,
+    itemsTotalCount: itemsCountQuery.itemsTotalCount || 0,
+  };
 
-    const searchValue = this.props.queryParams.searchValue || '';
+  const itemList = (props) => {
+    return <List {...updatedProps} {...props} />;
+  };
 
-    const updatedProps = {
-      ...this.props,
-      queryParams,
-      items,
-      remove,
-      searchValue,
-      loading: itemsQuery.loading || itemsCountQuery.loading,
-      itemsTotalCount: itemsCountQuery.itemsTotalCount || 0,
-    };
+  const refetch = () => {
+    props.itemsQuery.refetch();
+  };
 
-    const itemList = (props) => {
-      return <List {...updatedProps} {...props} />;
-    };
-
-    const refetch = () => {
-      this.props.itemsQuery.refetch();
-    };
-
-    return <Bulk content={itemList} refetch={refetch} />;
-  }
+  return <Bulk content={itemList} refetch={refetch} />;
 }
 
 const getRefetchQueries = () => {

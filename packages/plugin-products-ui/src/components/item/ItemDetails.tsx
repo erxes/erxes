@@ -13,46 +13,44 @@ type Props = {
   item: IItem;
 };
 
-class Details extends React.Component<Props> {
-  render() {
-    const { item } = this.props;
+function Details(props: Props) {
+  const { item } = props;
 
-    const title = item.name || 'Unknown';
+  const title = item.name || 'Unknown';
 
-    const breadcrumb = [
-      { title: __('Settings'), link: '/settings' },
-      { title: __('Items'), link: '/settings/items' },
-      { title },
-    ];
+  const breadcrumb = [
+    { title: __('Settings'), link: '/settings' },
+    { title: __('Items'), link: '/settings/items' },
+    { title },
+  ];
 
-    const content = (
-      <ContentBox>
-        <ActivityInputs
-          contentTypeId={item._id}
-          contentType="items:item"
-          showEmail={false}
-        />
-        {isEnabled('logs') && (
-          <ActivityLogs
-            target={item.name || ''}
-            contentId={item._id}
-            contentType="items:item"
-            extraTabs={[]}
-          />
-        )}
-      </ContentBox>
-    );
-
-    return (
-      <Wrapper
-        header={<Wrapper.Header title={title} breadcrumb={breadcrumb} />}
-        leftSidebar={<LeftSidebar {...this.props} />}
-        content={content}
-        transparent={true}
-        hasBorder={true}
+  const content = (
+    <ContentBox>
+      <ActivityInputs
+        contentTypeId={item._id}
+        contentType="items:item"
+        showEmail={false}
       />
-    );
-  }
+      {isEnabled('logs') && (
+        <ActivityLogs
+          target={item.name || ''}
+          contentId={item._id}
+          contentType="items:item"
+          extraTabs={[]}
+        />
+      )}
+    </ContentBox>
+  );
+
+  return (
+    <Wrapper
+      header={<Wrapper.Header title={title} breadcrumb={breadcrumb} />}
+      leftSidebar={<LeftSidebar {...props} />}
+      content={content}
+      transparent={true}
+      hasBorder={true}
+    />
+  );
 }
 
 export default Details;
