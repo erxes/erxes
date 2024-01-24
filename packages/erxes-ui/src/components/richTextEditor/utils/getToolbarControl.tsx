@@ -35,7 +35,7 @@ const isValidToolbarParam = (param: any): param is DropdownControlType => {
 
 export function getToolbarControl({
   control,
-  toolbarLocation
+  toolbarLocation,
 }: ToolbarControlParams) {
   const TOOLBAR_CONTROLS = {
     bold: RichTextEditor.Bold,
@@ -62,42 +62,42 @@ export function getToolbarControl({
     source: RichTextEditor.SourceControl,
     placeholder: RichTextEditor.Placeholder,
     table: RichTextEditor.TableControl,
-    more: RichTextEditor.MoreControl
+    more: RichTextEditor.MoreControl,
   };
+
+  const isValidToolbarControl = (control: string) =>
+    TOOLBAR_CONTROLS.hasOwnProperty(control);
 
   const getControlItem = (item: ToolbarItem, index: Key) => {
     if (typeof item === 'string' && TOOLBAR_CONTROLS[item]) {
       const controlProps = {
-        key: item + index,
-        ...(item === 'fontSize' ? { toolbarPlacement: toolbarLocation } : {})
+        key: `${item}-${index}`,
+        ...(item === 'fontSize' ? { toolbarPlacement: toolbarLocation } : {}),
       };
       return React.createElement(TOOLBAR_CONTROLS[item], controlProps);
     }
   };
 
   const getControlNames = (items: string[]) => {
-    if (items.some(item => ['h1', 'h2', 'h3'].includes(item)))
+    if (items.some((item) => ['h1', 'h2', 'h3'].includes(item)))
       return ['heading'];
 
     if (
-      items.some(item =>
+      items.some((item) =>
         ['alignLeft', 'alignRight', 'alignCenter', 'alignJustify'].includes(
-          item
-        )
+          item,
+        ),
       )
     )
       return [
         { textAlign: 'left' },
         { textAlign: 'center' },
         { textAlign: 'right' },
-        { textAlign: 'justify' }
+        { textAlign: 'justify' },
       ];
 
     return items;
   };
-
-  const isValidToolbarControl = (control: string) =>
-    TOOLBAR_CONTROLS.hasOwnProperty(control);
 
   if (!control) return null;
 
@@ -108,7 +108,7 @@ export function getToolbarControl({
     if (!isValidToolbarParam(control)) return null;
 
     const controlItems = control.items.map((item: any, index: number) =>
-      getControlItem(item, index)
+      getControlItem(item, item + index),
     );
 
     if (!control.isMoreControl)
@@ -117,12 +117,16 @@ export function getToolbarControl({
           isDropdown={true}
           controlNames={getControlNames(control.items)}
           toolbarPlacement={toolbarLocation}
+          key={getControlNames(control.items).toString()}
         >
           {controlItems}
         </RichTextEditor.ControlsGroup>
       );
     return (
-      <RichTextEditor.MoreControl toolbarPlacement={toolbarLocation}>
+      <RichTextEditor.MoreControl
+        toolbarPlacement={toolbarLocation}
+        key={getControlNames(control.items).toString()}
+      >
         {controlItems}
       </RichTextEditor.MoreControl>
     );
@@ -137,19 +141,15 @@ export const getToolbar = ({ toolbar, toolbarLocation }: ToolbarParamType) => {
       // Separator encountered, push the current group to the controlGroups array
       if (currentGroup.length > 0) {
         controlGroups.push(
-          <RichTextEditor.ControlsGroup key={`${item}-${index}`}>
+          <RichTextEditor.ControlsGroup key={`$${item}-${index}`}>
             {currentGroup}
-          </RichTextEditor.ControlsGroup>
+          </RichTextEditor.ControlsGroup>,
         );
         currentGroup = [];
       }
     } else {
       // Control encountered, add it to the current group
-      <React.Fragment key={`${item}-${index}`}>
-        {currentGroup.push(
-          getToolbarControl({ control: item, toolbarLocation })
-        )}
-      </React.Fragment>;
+      currentGroup.push(getToolbarControl({ control: item, toolbarLocation }));
     }
   });
 
@@ -158,7 +158,7 @@ export const getToolbar = ({ toolbar, toolbarLocation }: ToolbarParamType) => {
     controlGroups.push(
       <RichTextEditor.ControlsGroup key={`last-group-${controlGroups.length}`}>
         {currentGroup}
-      </RichTextEditor.ControlsGroup>
+      </RichTextEditor.ControlsGroup>,
     );
   }
   return controlGroups;

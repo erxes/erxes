@@ -17,7 +17,7 @@ export interface IRichTextEditorControlsGroupProps
 }
 
 export const RichTextEditorControlsGroup = (
-  props: IRichTextEditorControlsGroupProps
+  props: IRichTextEditorControlsGroupProps,
 ) => {
   const { isDropdown, controlNames, toolbarPlacement, children } = props;
   const { editor, isSourceEnabled } = useRichTextEditorContext();
@@ -50,7 +50,7 @@ export const RichTextEditorControlsGroup = (
             {React.Children.map(childrenArray, (child, index) => {
               return (
                 /** as="span" here is a just workaround. Since it doesnt work well with form submission when as button. */
-                <Dropdown.Item as="span" key={index}>
+                <Dropdown.Item as="span" key={`${child.toString()}-${index}`}>
                   {child}
                 </Dropdown.Item>
               );
