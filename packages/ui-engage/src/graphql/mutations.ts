@@ -187,5 +187,5 @@ export default {
   verifyEmail,
   sendTestEmail,
   engageMessageCopy,
-  sendMail
+  sendMail,
 };

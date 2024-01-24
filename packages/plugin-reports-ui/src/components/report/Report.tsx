@@ -179,6 +179,7 @@ const Report = (props: Props) => {
               templateType: item.templateType,
             }}
             filter={item.filter}
+            dimension={item.dimension}
           />
         </div>
       );

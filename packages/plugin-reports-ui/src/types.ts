@@ -41,7 +41,7 @@ export interface IReportItem {
 
 enum ReportVisibility {
   public = 'public',
-  private = 'private'
+  private = 'private',
 }
 
 export interface IReportTemplate {
@@ -63,6 +63,7 @@ export interface IChart {
   serviceName?: string;
   templateType?: string;
   filter?: any;
+  dimension?: any;
 
   data?: number[];
   layout?: any;

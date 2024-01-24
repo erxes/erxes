@@ -7,7 +7,7 @@ import {
   MESSENGER_KINDS,
   CAMPAIGN_METHODS,
   CAMPAIGN_KINDS,
-  SENT_AS_CHOICES
+  SENT_AS_CHOICES,
 } from '../../constants';
 
 interface IEmail {
@@ -110,10 +110,10 @@ export const scheduleDateSchema = new Schema(
       type: Date,
       optional: true,
       label: 'DateTime',
-      min: [Date.now, `Date time value must be greather than today`]
-    })
+      min: [Date.now, `Date time value must be greather than today`],
+    }),
   },
-  { _id: false }
+  { _id: false },
 );
 
 export const emailSchema = new Schema(
@@ -123,9 +123,9 @@ export const emailSchema = new Schema(
     sender: field({ type: String, optional: true, label: 'Sender' }),
     replyTo: field({ type: String, optional: true, label: 'Reply to' }),
     content: field({ type: String, label: 'Content' }),
-    templateId: field({ type: String, optional: true, label: 'Template' })
+    templateId: field({ type: String, optional: true, label: 'Template' }),
   },
-  { _id: false }
+  { _id: false },
 );
 
 export const messengerSchema = new Schema(
@@ -134,35 +134,35 @@ export const messengerSchema = new Schema(
     kind: field({
       type: String,
       enum: MESSENGER_KINDS.ALL,
-      label: 'Kind'
+      label: 'Kind',
     }),
     sentAs: field({
       type: String,
       enum: SENT_AS_CHOICES.ALL,
-      label: 'Sent as'
+      label: 'Sent as',
     }),
     content: field({ type: String, label: 'Content' }),
-    rules: field({ type: [ruleSchema], label: 'Rules' })
+    rules: field({ type: [ruleSchema], label: 'Rules' }),
   },
-  { _id: false }
+  { _id: false },
 );
 
 export const smsSchema = new Schema(
   {
     from: field({ type: String, label: 'From text', optional: true }),
     content: field({ type: String, label: 'SMS content' }),
-    fromIntegrationId: field({ type: String, label: 'Configured integration' })
+    fromIntegrationId: field({ type: String, label: 'Configured integration' }),
   },
-  { _id: false }
+  { _id: false },
 );
 
 export const notificationSchema = new Schema(
   {
     title: field({ type: String, label: 'Title' }),
     content: field({ type: String, label: 'Notification content' }),
-    isMobile: field({ type: Boolean, label: 'Is mobile' })
+    isMobile: field({ type: Boolean, label: 'Is mobile' }),
   },
-  { _id: false }
+  { _id: false },
 );
 
 export const engageMessageSchema = schemaWrapper(
@@ -173,12 +173,12 @@ export const engageMessageSchema = schemaWrapper(
     segmentIds: field({
       type: [String],
       optional: true,
-      label: 'Segments'
+      label: 'Segments',
     }),
     brandIds: field({
       type: [String],
       optional: true,
-      label: 'Brands'
+      label: 'Brands',
     }),
     customerIds: field({ type: [String], label: 'Customers' }),
     cpId: field({ type: String, label: 'Client Portal Id' }),
@@ -187,7 +187,7 @@ export const engageMessageSchema = schemaWrapper(
     method: field({
       type: String,
       enum: CAMPAIGN_METHODS.ALL,
-      label: 'Method'
+      label: 'Method',
     }),
     isDraft: field({ type: Boolean, label: 'Is draft' }),
     isLive: field({ type: Boolean, label: 'Is live' }),
@@ -196,22 +196,22 @@ export const engageMessageSchema = schemaWrapper(
       type: Date,
       default: Date.now,
       label: 'Created at',
-      index: true
+      index: true,
     }),
     tagIds: field({
       type: [String],
       optional: true,
       label: 'Tags',
-      index: true
+      index: true,
     }),
     customerTagIds: field({
       type: [String],
       optional: true,
-      label: 'Chosen customer tag ids'
+      label: 'Chosen customer tag ids',
     }),
     messengerReceivedCustomerIds: field({
       type: [String],
-      label: 'Received customers'
+      label: 'Received customers',
     }),
 
     email: field({ type: emailSchema, label: 'Email' }),
@@ -229,7 +229,7 @@ export const engageMessageSchema = schemaWrapper(
       type: Number,
       label: 'Run count',
       optional: true,
-      default: 0
-    })
-  })
+      default: 0,
+    }),
+  }),
 );
