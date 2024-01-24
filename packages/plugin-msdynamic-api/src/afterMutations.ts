@@ -55,7 +55,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
       syncLog = await models.SyncLogs.syncLogsAdd(syncLogDoc);
 
       if (action === 'synced') {
-        dealToDynamic(subdomain, syncLog, params.object, params.user, models);
+        dealToDynamic(subdomain, syncLog, params.object, models);
         return;
       }
     }

@@ -491,13 +491,7 @@ export const customerToDynamic = async (subdomain, syncLog, params, models) => {
   }
 };
 
-export const dealToDynamic = async (
-  subdomain,
-  syncLog,
-  params,
-  user,
-  models,
-) => {
+export const dealToDynamic = async (subdomain, syncLog, params, models) => {
   const configs = await getConfig(subdomain, 'DYNAMIC', {});
   // const config = configs[brandId || 'noBrand'];
   const config = configs['7r1ffWS1cHmaFDQ0chvRq'];
