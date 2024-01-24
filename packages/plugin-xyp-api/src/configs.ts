@@ -12,8 +12,6 @@ import forms from './forms';
 export let mainDb;
 export let debug;
 
-
-
 export default {
   name: 'xyp',
   graphql: async () => {
@@ -38,7 +36,7 @@ export default {
   onServerInit: async (options) => {
     mainDb = options.db;
 
-    initBroker(options.messageBrokerClient);
+    initBroker();
 
     debug = options.debug;
   },

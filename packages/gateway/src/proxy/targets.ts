@@ -1,4 +1,4 @@
-import { getService, getServices } from '../redis';
+import { getService, getServices } from '@erxes/api-utils/src/serviceDiscovery';
 import retry from '../util/retry';
 import fetch from 'node-fetch';
 import * as dotenv from 'dotenv';
@@ -23,7 +23,7 @@ async function getProxyTarget(name: string): Promise<ErxesProxyTarget> {
   return {
     name,
     address: service.address,
-    config: service.config
+    config: service.config,
   };
 }
 
@@ -35,13 +35,13 @@ async function retryGetProxyTarget(name: string): Promise<ErxesProxyTarget> {
     maxTries: maxPluginRetry,
     retryExhaustedLog: `Plugin ${name} still hasn't joined the service discovery after checking for ${maxPluginRetry} time(s) with ${intervalSeconds} second(s) interval. Retry exhausted.`,
     retryLog: `Waiting for plugin ${name} to join service discovery`,
-    successLog: `Plugin ${name} joined service discovery.`
+    successLog: `Plugin ${name} joined service discovery.`,
   });
 }
 
 async function ensureGraphqlEndpointIsUp({
   address,
-  name
+  name,
 }: ErxesProxyTarget): Promise<void> {
   if (!address) return;
 
@@ -50,7 +50,7 @@ async function ensureGraphqlEndpointIsUp({
   const res = await fetch(endponit, {
     method: 'POST',
     headers: {
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
     },
     body: JSON.stringify({
       query: `
@@ -59,15 +59,15 @@ async function ensureGraphqlEndpointIsUp({
               sdl
             }
           }
-          `
-    })
+          `,
+    }),
   });
   if (res.status === 200) {
     return;
   }
 
   throw new Error(
-    `Plugin ${name}'s graphql endpoint ${endponit} is not ready yet`
+    `Plugin ${name}'s graphql endpoint ${endponit} is not ready yet`,
   );
 }
 
@@ -81,7 +81,7 @@ async function retryEnsureGraphqlEndpointIsUp(target: ErxesProxyTarget) {
     maxTries: maxPluginRetry,
     retryExhaustedLog: `Plugin ${name}'s graphql endpoint ${endpoint} is still not ready after checking for ${maxPluginRetry} times with ${intervalSeconds} second(s) interval. Retry exhausted.`,
     retryLog: `Waiting for service ${name}'s graphql endpoint ${endpoint} to be up.`,
-    successLog: `Plugin ${name}'s graphql endpoint ${endpoint} is up.`
+    successLog: `Plugin ${name}'s graphql endpoint ${endpoint} is up.`,
   });
 }
 
@@ -90,7 +90,7 @@ export async function retryGetProxyTargets(): Promise<ErxesProxyTarget[]> {
     const serviceNames = await getServices();
 
     const proxyTargets: ErxesProxyTarget[] = await Promise.all(
-      serviceNames.map(retryGetProxyTarget)
+      serviceNames.map(retryGetProxyTarget),
     );
 
     await Promise.all(proxyTargets.map(retryEnsureGraphqlEndpointIsUp));

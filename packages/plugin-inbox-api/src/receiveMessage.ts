@@ -8,13 +8,18 @@ import {
 import { generateModels } from './connectionResolver';
 import { IConversationDocument } from './models/definitions/conversations';
 import { pConversationClientMessageInserted } from './graphql/resolvers/widgetMutations';
+import {
+  RPError,
+  RPResult,
+  RPSuccess,
+} from '@erxes/api-utils/src/messageBroker';
 
-const sendError = (message) => ({
+const sendError = (message): RPError => ({
   status: 'error',
   errorMessage: message,
 });
 
-const sendSuccess = (data) => ({
+const sendSuccess = (data): RPSuccess => ({
   status: 'success',
   data,
 });
@@ -22,7 +27,7 @@ const sendSuccess = (data) => ({
 /*
  * Handle requests from integrations api
  */
-export const receiveRpcMessage = async (subdomain, data) => {
+export const receiveRpcMessage = async (subdomain, data): Promise<RPResult> => {
   const { action, metaInfo, payload } = data;
 
   const { Integrations, ConversationMessages, Conversations } =
@@ -206,6 +211,7 @@ export const receiveRpcMessage = async (subdomain, data) => {
 
     return sendSuccess({ userIds: users.map((user) => user._id) });
   }
+  throw new Error(`Unknown action: ${action}`);
 };
 
 /*

@@ -42,7 +42,7 @@ export const uploader = async (req: any, res, next) => {
           `${domain}/gateway`,
           fileResult,
           response.upload ? true : false,
-          models
+          models,
         );
 
         return res.send(result);

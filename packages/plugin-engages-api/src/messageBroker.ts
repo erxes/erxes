@@ -1,22 +1,21 @@
-import { sendMessage, ISendMessageArgs } from '@erxes/api-utils/src/core';
+import { sendMessage, MessageArgsOmitService } from '@erxes/api-utils/src/core';
 import { sendToWebhook as sendWebhook } from '@erxes/api-utils/src';
+
 import { debug } from './configs';
-import { generateModels } from './connectionResolver';
+import { generateModels, IModels } from './connectionResolver';
+
 import { start, sendBulkSms, sendEmail } from './sender';
 import { CAMPAIGN_KINDS } from './constants';
+import {
+  consumeQueue,
+  consumeRPCQueue,
+} from '@erxes/api-utils/src/messageBroker';
 
-export let client;
-
-export const initBroker = async (cl) => {
-  client = cl;
-
-  const { consumeQueue, consumeRPCQueue } = client;
-
+export const initBroker = async () => {
   consumeQueue('engages:pre-notification', async ({ data, subdomain }) => {
     const models = await generateModels(subdomain);
 
     const { engageMessage, customerInfos = [] } = data;
-
     if (
       engageMessage.kind === CAMPAIGN_KINDS.MANUAL &&
       customerInfos.length === 0
@@ -67,8 +66,7 @@ export const initBroker = async (cl) => {
 
   consumeQueue('engages:notification', async ({ subdomain, data }) => {
     debug.info(`Receiving queue data ${JSON.stringify(data)}`);
-
-    const models = await generateModels(subdomain);
+    const models = (await generateModels(subdomain)) as IModels;
 
     try {
       const { action, data: realData } = data;
@@ -126,16 +124,13 @@ export const initBroker = async (cl) => {
   });
 };
 
-export const removeEngageConversations = async (_id): Promise<any> => {
-  return client.consumeQueue('removeEngageConversations', _id);
+export const removeEngageConversations = async (_id: string): Promise<any> => {
+  // FIXME: This doesn't look like it should be calling consumeQueue
+  // return consumeQueue('removeEngageConversations', _id);
 };
 
-export default function () {
-  return client;
-}
-
 export const sendContactsMessage = async (
-  args: ISendMessageArgs,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'contacts',
@@ -143,7 +138,9 @@ export const sendContactsMessage = async (
   });
 };
 
-export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
+export const sendCoreMessage = async (
+  args: MessageArgsOmitService,
+): Promise<any> => {
   return sendMessage({
     serviceName: 'core',
     ...args,
@@ -151,7 +148,7 @@ export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
 };
 
 export const sendInboxMessage = async (
-  args: ISendMessageArgs,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'inbox',
@@ -159,7 +156,9 @@ export const sendInboxMessage = async (
   });
 };
 
-export const sendLogsMessage = async (args: ISendMessageArgs): Promise<any> => {
+export const sendLogsMessage = async (
+  args: MessageArgsOmitService,
+): Promise<any> => {
   return sendMessage({
     serviceName: 'logs',
     ...args,
@@ -167,7 +166,7 @@ export const sendLogsMessage = async (args: ISendMessageArgs): Promise<any> => {
 };
 
 export const sendSegmentsMessage = async (
-  args: ISendMessageArgs,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'segments',
@@ -175,7 +174,9 @@ export const sendSegmentsMessage = async (
   });
 };
 
-export const sendTagsMessage = async (args: ISendMessageArgs): Promise<any> => {
+export const sendTagsMessage = async (
+  args: MessageArgsOmitService,
+): Promise<any> => {
   return sendMessage({
     serviceName: 'tags',
     ...args,
@@ -183,7 +184,7 @@ export const sendTagsMessage = async (args: ISendMessageArgs): Promise<any> => {
 };
 
 export const sendIntegrationsMessage = async (
-  args: ISendMessageArgs,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'integrations',
@@ -192,7 +193,7 @@ export const sendIntegrationsMessage = async (
 };
 
 export const sendEmailTemplatesMessage = async (
-  args: ISendMessageArgs,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'emailtemplates',
@@ -200,6 +201,13 @@ export const sendEmailTemplatesMessage = async (
   });
 };
 
+export const sendClientPortalMessage = (args: MessageArgsOmitService) => {
+  return sendMessage({
+    serviceName: 'clientportal',
+    ...args,
+  });
+};
+
 export const sendToWebhook = ({ subdomain, data }) => {
-  return sendWebhook(client, { subdomain, data });
+  return sendWebhook({ subdomain, data });
 };

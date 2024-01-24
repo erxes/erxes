@@ -4,7 +4,7 @@ import { IPermissionDocument } from '../../db/models/definitions/permissions';
 import { getKey } from '@erxes/api-utils/src';
 import redis from '@erxes/api-utils/src/redis';
 import { moduleObjects } from './actions/permission';
-import { getService, getServices } from '../../serviceDiscovery';
+import { getService, getServices } from '@erxes/api-utils/src/serviceDiscovery';
 
 export interface IModuleMap {
   name: string;
@@ -125,7 +125,7 @@ export const getPermissionActionsMap = async (): Promise<IActionsMap> => {
 
           actionsMap[action.name] = {
             module: module.name,
-            description: action.description
+            description: action.description,
           };
 
           if (action.use) {
@@ -141,7 +141,7 @@ export const getPermissionActionsMap = async (): Promise<IActionsMap> => {
 
 export const fixPermissions = async (
   models: IModels,
-  externalObjects?
+  externalObjects?,
 ): Promise<string[]> => {
   const permissionObjects = { ...moduleObjects, ...(externalObjects || {}) };
   const modules = Object.getOwnPropertyNames(permissionObjects);
@@ -152,11 +152,11 @@ export const fixPermissions = async (
 
     if (moduleItem && moduleItem.actions) {
       const allAction: IActionsMap | undefined = moduleItem.actions.find(
-        a => a.description === 'All'
+        (a) => a.description === 'All',
       );
       const otherActions = moduleItem.actions
-        .filter(a => a.description !== 'All')
-        .map(a => a.name);
+        .filter((a) => a.description !== 'All')
+        .map((a) => a.name);
 
       if (
         allAction &&
@@ -170,21 +170,20 @@ export const fixPermissions = async (
             ? allAction.use
             : otherActions;
 
-        const permissions: IPermissionDocument[] = await models.Permissions.find(
-          {
+        const permissions: IPermissionDocument[] =
+          await models.Permissions.find({
             module: mod,
             action: allAction.name,
             $or: [
               { requiredActions: { $eq: null } },
-              { requiredActions: { $not: { $size: mostActions.length } } }
-            ]
-          }
-        ).lean();
+              { requiredActions: { $not: { $size: mostActions.length } } },
+            ],
+          }).lean();
 
         for (const perm of permissions) {
           await models.Permissions.updateOne(
             { _id: perm._id },
-            { $set: { requiredActions: mostActions } }
+            { $set: { requiredActions: mostActions } },
           );
 
           let message = '';
@@ -198,14 +197,14 @@ export const fixPermissions = async (
           }
           if (perm.groupId) {
             const group = await models.UsersGroups.findOne({
-              _id: perm.groupId
+              _id: perm.groupId,
             });
 
             message = group ? `user group "${group.name}"` : perm.groupId;
           }
 
           result.push(
-            `Permission "${allAction.name}" of module "${mod}" has been fixed for ${message}`
+            `Permission "${allAction.name}" of module "${mod}" has been fixed for ${message}`,
           );
         }
       } // end allAction checking

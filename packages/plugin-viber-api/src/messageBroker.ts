@@ -1,6 +1,7 @@
 import * as dotenv from 'dotenv';
 import {
-  ISendMessageArgs,
+  MessageArgs,
+  MessageArgsOmitService,
   sendMessage as sendCommonMessage,
 } from '@erxes/api-utils/src/core';
 
@@ -12,19 +13,18 @@ import {
   IConversation,
 } from './models';
 import { ViberAPI } from './viber/api';
+import {
+  InterMessage,
+  RPResult,
+  consumeRPCQueue,
+} from '@erxes/api-utils/src/messageBroker';
 
 dotenv.config();
 
-let client;
-
-export const initBroker = async (cl) => {
-  client = cl;
-
-  const { consumeRPCQueue } = client;
-
+export const initBroker = async () => {
   consumeRPCQueue(
     'viber:createIntegration',
-    async (args: ISendMessageArgs): Promise<any> => {
+    async (args: InterMessage): Promise<RPResult> => {
       const { subdomain, data } = args;
       const { integrationId, doc } = data;
       const docData = JSON.parse(doc.data);
@@ -46,7 +46,7 @@ export const initBroker = async (cl) => {
       } catch (e) {
         await Integrations.deleteOne({ _id: viberIntegration._id });
         return {
-          status: 'failed',
+          status: 'error',
           errorMessage: e,
         };
       }
@@ -101,7 +101,7 @@ export const initBroker = async (cl) => {
 
   consumeRPCQueue(
     'viber:integrationDetail',
-    async (args: ISendMessageArgs): Promise<any> => {
+    async (args: InterMessage): Promise<RPResult> => {
       const inboxId: string = args.data.inboxId;
 
       const viberIntegration = await Integrations.findOne({ inboxId }, 'token');
@@ -115,7 +115,7 @@ export const initBroker = async (cl) => {
 
   consumeRPCQueue(
     'viber:removeIntegrations',
-    async (args: ISendMessageArgs): Promise<any> => {
+    async (args: InterMessage): Promise<RPResult> => {
       const { data } = args;
       const { integrationId } = data;
 
@@ -149,7 +149,7 @@ export const initBroker = async (cl) => {
 
   consumeRPCQueue(
     'viber:api_to_integrations',
-    async (args: ISendMessageArgs): Promise<any> => {
+    async (args: InterMessage): Promise<RPResult> => {
       const { subdomain, data } = args;
       const integrationId = data.integrationId;
 
@@ -198,18 +198,14 @@ export const initBroker = async (cl) => {
   );
 };
 
-export default function () {
-  return client;
-}
-
-export const sendContactsMessage = (args: ISendMessageArgs) => {
+export const sendContactsMessage = (args: MessageArgsOmitService) => {
   return sendCommonMessage({
     serviceName: 'contacts',
     ...args,
   });
 };
 
-export const sendInboxMessage = (args: ISendMessageArgs) => {
+export const sendInboxMessage = (args: MessageArgsOmitService) => {
   return sendCommonMessage({
     serviceName: 'inbox',
     ...args,

@@ -48,7 +48,7 @@ export default {
       return res.send('ok');
     });
 
-    initBroker(options.messageBrokerClient);
+    initBroker();
 
     debug = options.debug;
   },

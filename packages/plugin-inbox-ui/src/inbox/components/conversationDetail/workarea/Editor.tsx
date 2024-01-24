@@ -36,7 +36,7 @@ export default class Editor extends React.Component<EditorProps, State> {
       content: this.props.defaultContent || '',
       collectedMentions: [],
       templatesState: null,
-      hideTemplates: this.props.showMentions
+      hideTemplates: this.props.showMentions,
     };
   }
 
@@ -57,7 +57,7 @@ export default class Editor extends React.Component<EditorProps, State> {
 
   componentDidUpdate(
     prevProps: Readonly<EditorProps>,
-    prevState: Readonly<State>
+    prevState: Readonly<State>,
   ): void {
     if (
       this.props.defaultContent !== prevProps.defaultContent &&
@@ -66,7 +66,7 @@ export default class Editor extends React.Component<EditorProps, State> {
     ) {
       this.props.onChange(this.props.defaultContent || '');
       this.setState({
-        content: this.props.defaultContent || ''
+        content: this.props.defaultContent || '',
       });
     }
     if (prevProps.showMentions !== this.props.showMentions) {
@@ -84,7 +84,7 @@ export default class Editor extends React.Component<EditorProps, State> {
     });
   };
 
-  onTemplatesStateChange = templatesState => {
+  onTemplatesStateChange = (templatesState) => {
     this.setState({ templatesState });
   };
 
@@ -104,16 +104,16 @@ export default class Editor extends React.Component<EditorProps, State> {
 
     // search from response templates
     const foundTemplates = responseTemplates.filter(
-      template =>
+      (template) =>
         template.name.toLowerCase().includes(textContent) ||
-        template.content.toLowerCase().includes(textContent)
+        template.content.toLowerCase().includes(textContent),
     );
 
     if (foundTemplates.length > 0) {
       return {
         templates: foundTemplates.slice(0, 5),
         searchText: textContent,
-        selectedIndex: 0
+        selectedIndex: 0,
       };
     }
 
@@ -166,7 +166,7 @@ export default class Editor extends React.Component<EditorProps, State> {
           integrationKind={this.props.integrationKind}
           showMentions={this.props.showMentions}
           {...(this.props.showMentions && {
-            mentionSuggestion: this.props.mentionSuggestion
+            mentionSuggestion: this.props.mentionSuggestion,
           })}
           content={this.state.content}
           onChange={this.onChange}

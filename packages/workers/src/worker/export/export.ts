@@ -4,8 +4,9 @@ import * as moment from 'moment';
 import * as fs from 'fs';
 import { connect } from '../utils';
 import { createAWS, createCFR2, uploadsFolderPath } from '../../data/utils';
-import messageBroker, { getFileUploadConfigs } from '../../messageBroker';
+import { getFileUploadConfigs } from '../../messageBroker';
 import { generateModels, IModels } from '../../connectionResolvers';
+import { sendRPCMessage } from '@erxes/api-utils/src/messageBroker';
 
 export const createXlsFile = async () => {
   // Generating blank workbook
@@ -26,7 +27,7 @@ const { parentPort, workerData } = require('worker_threads');
 
 const { subdomain } = workerData;
 
-export const getConfigs = async models => {
+export const getConfigs = async (models) => {
   const configsMap = {};
   const configs = await models.Configs.find({}).lean();
 
@@ -40,7 +41,7 @@ export const getConfigs = async models => {
 export const getConfig = async (
   code: string,
   defaultValue?: string,
-  models?: IModels
+  models?: IModels,
 ) => {
   const configs = await getConfigs(models);
 
@@ -57,7 +58,7 @@ export const getConfig = async (
 export const uploadFileLocal = async (
   workbook: any,
   rowIndex: any,
-  type: string
+  type: string,
 ): Promise<{ file: string; rowIndex: number; error: string }> => {
   const fileName = `${type} - ${moment().format('YYYY-MM-DD HH:mm')}`;
 
@@ -72,7 +73,7 @@ export const uploadFileLocal = async (
 
     await fs.promises.writeFile(
       `${uploadsFolderPath}/${fileName}.xlsx`,
-      excelData
+      excelData,
     );
   } catch (e) {
     error = e.message;
@@ -87,20 +88,22 @@ export const uploadFileLocal = async (
  * Save binary data to amazon s3
  */
 export const uploadFileAWS = async (
+  subdomain: string,
   workbook: any,
   rowIndex: any,
-  type: string
+  type: string,
 ): Promise<{ file: string; rowIndex: number; error: string }> => {
-  const { AWS_BUCKET, FILE_SYSTEM_PUBLIC } = await getFileUploadConfigs();
+  const { AWS_BUCKET, FILE_SYSTEM_PUBLIC } =
+    await getFileUploadConfigs(subdomain);
 
   // initialize s3
-  const s3 = await createAWS();
+  const s3 = await createAWS(subdomain);
 
   const excelData = await generateXlsx(workbook);
 
   const fileName = `${type} - ${moment().format('YYYY-MM-DD HH:mm')}.xlsx`;
 
-  const response: any = await new Promise(resolve => {
+  const response: any = await new Promise((resolve) => {
     s3.upload(
       {
         ContentType:
@@ -108,14 +111,14 @@ export const uploadFileAWS = async (
         Bucket: AWS_BUCKET,
         Key: fileName,
         Body: excelData,
-        ACL: FILE_SYSTEM_PUBLIC === 'true' ? 'public-read' : undefined
+        ACL: FILE_SYSTEM_PUBLIC === 'true' ? 'public-read' : undefined,
       },
       (err, res) => {
         if (err) {
           return resolve({ error: err.message });
         }
         return resolve(res);
-      }
+      },
     );
   });
 
@@ -126,23 +129,22 @@ export const uploadFileAWS = async (
 };
 
 export const uploadFileCloudflare = async (
+  subdomain: string,
   workbook: any,
   rowIndex: any,
-  type: string
+  type: string,
 ): Promise<{ file: string; rowIndex: number; error: string }> => {
-  const {
-    CLOUDFLARE_BUCKET_NAME,
-    FILE_SYSTEM_PUBLIC
-  } = await getFileUploadConfigs();
+  const { CLOUDFLARE_BUCKET_NAME, FILE_SYSTEM_PUBLIC } =
+    await getFileUploadConfigs(subdomain);
 
   // initialize s3
-  const s3 = await createCFR2();
+  const s3 = await createCFR2(subdomain);
 
   const excelData = await generateXlsx(workbook);
 
   const fileName = `${type} - ${moment().format('YYYY-MM-DD HH:mm')}.xlsx`;
 
-  const response: any = await new Promise(resolve => {
+  const response: any = await new Promise((resolve) => {
     s3.upload(
       {
         ContentType:
@@ -150,14 +152,14 @@ export const uploadFileCloudflare = async (
         Bucket: CLOUDFLARE_BUCKET_NAME,
         Key: fileName,
         Body: excelData,
-        ACL: FILE_SYSTEM_PUBLIC === 'true' ? 'public-read' : undefined
+        ACL: FILE_SYSTEM_PUBLIC === 'true' ? 'public-read' : undefined,
       },
       (err, res) => {
         if (err) {
           return resolve({ error: err.message });
         }
         return resolve(res);
-      }
+      },
     );
   });
 
@@ -175,7 +177,7 @@ connect()
       contentType,
       exportHistoryId,
       columnsConfig,
-      segmentData
+      segmentData,
     }: {
       contentType: string;
       exportHistoryId: string;
@@ -187,17 +189,17 @@ connect()
 
     const [serviceName, type] = contentType.split(':');
 
-    const { totalCount, excelHeader } = await messageBroker().sendRPCMessage(
+    const { totalCount, excelHeader } = await sendRPCMessage(
       `${serviceName}:exporter.prepareExportData`,
       {
         subdomain,
         data: {
           contentType,
           columnsConfig,
-          segmentData
+          segmentData,
         },
-        timeout: 5 * 60 * 1000 // 5 minutes
-      }
+        timeout: 5 * 60 * 1000, // 5 minutes
+      },
     );
 
     const perPage = 10;
@@ -207,7 +209,7 @@ connect()
     let percentage = 0;
 
     for (let page = 1; page <= totalIterations; page++) {
-      const response = await messageBroker().sendRPCMessage(
+      const response = await sendRPCMessage(
         `${serviceName}:exporter.getExportDocs`,
         {
           subdomain,
@@ -216,25 +218,25 @@ connect()
             columnsConfig,
             segmentData,
             page,
-            perPage
+            perPage,
           },
-          timeout: 5 * 60 * 1000 // 5 minutes
-        }
+          timeout: 5 * 60 * 1000, // 5 minutes
+        },
       );
 
       percentage = Number(
-        ((((page - 1) * perPage) / totalCount) * 100).toFixed(2)
+        ((((page - 1) * perPage) / totalCount) * 100).toFixed(2),
       );
 
       await models.ExportHistory.updateOne(
         { _id: exportHistoryId },
-        { $set: { percentage } }
+        { $set: { percentage } },
       );
 
       docs = docs.concat(response ? response.docs || [] : []);
     }
 
-    const { UPLOAD_SERVICE_TYPE } = await getFileUploadConfigs();
+    const { UPLOAD_SERVICE_TYPE } = await getFileUploadConfigs(subdomain);
 
     let result = {} as any;
 
@@ -260,11 +262,11 @@ connect()
     }
 
     if (UPLOAD_SERVICE_TYPE === 'AWS') {
-      result = await uploadFileAWS(workbook, rowIndex, type);
+      result = await uploadFileAWS(subdomain, workbook, rowIndex, type);
     }
 
     if (UPLOAD_SERVICE_TYPE === 'CLOUDFLARE') {
-      result = await uploadFileCloudflare(workbook, rowIndex, type);
+      result = await uploadFileCloudflare(subdomain, workbook, rowIndex, type);
     }
 
     if (UPLOAD_SERVICE_TYPE === 'local') {
@@ -277,7 +279,7 @@ connect()
       status: 'success',
       uploadType: UPLOAD_SERVICE_TYPE,
       errorMsg: '',
-      percentage: 100
+      percentage: 100,
     };
 
     if (result.error) {
@@ -287,13 +289,13 @@ connect()
         status: 'failed',
         uploadType: UPLOAD_SERVICE_TYPE,
         errorMsg: `Error occurred during uploading ${UPLOAD_SERVICE_TYPE} "${result.error}"`,
-        percentage: 100
+        percentage: 100,
       };
     }
 
     await models.ExportHistory.updateOne(
       { _id: exportHistoryId },
-      finalResponse
+      finalResponse,
     );
 
     mongoose.connection.close();
@@ -302,9 +304,9 @@ connect()
 
     parentPort.postMessage({
       action: 'remove',
-      message: 'Successfully finished the job'
+      message: 'Successfully finished the job',
     });
   })
-  .catch(e => {
+  .catch((e) => {
     throw e;
   });
