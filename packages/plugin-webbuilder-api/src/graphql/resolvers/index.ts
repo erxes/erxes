@@ -5,17 +5,17 @@ import queries from './queries';
 import WebbuilderContentType from './contentType';
 import WebbuilderPage from './page';
 
-const resolvers: any = async serviceDiscovery => ({
+const resolvers: any = async () => ({
   ...customScalars,
   WebbuilderContentType,
   WebbuilderPage,
 
   Mutation: {
-    ...mutations
+    ...mutations,
   },
   Query: {
-    ...queries
-  }
+    ...queries,
+  },
 });
 
 export default resolvers;

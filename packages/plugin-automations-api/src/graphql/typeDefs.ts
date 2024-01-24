@@ -1,19 +1,17 @@
 import gql from 'graphql-tag';
-
+import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
 import { types, queries, mutations } from './schema/automation';
 
-const typeDefs = async _serviceDiscovery => {
-  const isTagsEnabled = await _serviceDiscovery.isEnabled('tags');
-
-  const isEnabled = {
-    tags: isTagsEnabled
+const typeDefs = async () => {
+  const isEnabledTable = {
+    tags: isEnabled('tags'),
   };
 
   return gql`
     scalar JSON
     scalar Date
 
-    ${types(isEnabled)}
+    ${types(isEnabledTable)}
 
     extend type Query {
       ${queries}

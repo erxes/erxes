@@ -3,7 +3,7 @@ import {
   destroyBoardItemRelations,
   fillSearchTextItem,
   createBoardItem,
-  watchItem
+  watchItem,
 } from './utils';
 import { ACTIVITY_CONTENT_TYPES } from './definitions/constants';
 import { dealSchema, IDeal, IDealDocument } from './definitions/deals';
@@ -35,12 +35,16 @@ export const loadDealClass = (models: IModels, subdomain: string) => {
     public static async createDeal(doc: IDeal) {
       if (doc.sourceConversationIds) {
         const convertedDeal = await models.Deals.findOne({
-          sourceConversationIds: { $in: doc.sourceConversationIds }
+          sourceConversationIds: { $in: doc.sourceConversationIds },
         });
 
         if (convertedDeal) {
           throw new Error('Already converted a deal');
         }
+      }
+
+      if (doc.productsData) {
+        doc.productsData = doc.productsData.filter((pd) => pd);
       }
 
       return createBoardItem(models, subdomain, doc, 'deal');
@@ -50,7 +54,14 @@ export const loadDealClass = (models: IModels, subdomain: string) => {
      * Update Deal
      */
     public static async updateDeal(_id: string, doc: IDeal) {
-      const searchText = fillSearchTextItem(doc, await models.Deals.getDeal(_id));
+      const searchText = fillSearchTextItem(
+        doc,
+        await models.Deals.getDeal(_id),
+      );
+
+      if (doc.productsData) {
+        doc.productsData = doc.productsData.filter((pd) => pd);
+      }
 
       await models.Deals.updateOne({ _id }, { $set: doc, searchText });
 
@@ -67,7 +78,12 @@ export const loadDealClass = (models: IModels, subdomain: string) => {
     public static async removeDeals(_ids: string[]) {
       // completely remove all related things
       for (const _id of _ids) {
-        await destroyBoardItemRelations(models, subdomain, _id, ACTIVITY_CONTENT_TYPES.DEAL);
+        await destroyBoardItemRelations(
+          models,
+          subdomain,
+          _id,
+          ACTIVITY_CONTENT_TYPES.DEAL,
+        );
       }
 
       return models.Deals.deleteMany({ _id: { $in: _ids } });

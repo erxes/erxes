@@ -7,20 +7,20 @@ import erkhetRemainders from './queries/remainders';
 import syncHistories from './queries/syncHistories';
 import ManySyncHistory from './syncLog';
 
-const resolvers: any = async _serviceDiscovery => ({
+const resolvers: any = async () => ({
   ...customScalars,
   ManySyncHistory,
   Query: {
     ...configQueries,
     ...erkhetRemainders,
-    ...syncHistories
+    ...syncHistories,
   },
 
   Mutation: {
     ...configMutations,
     ...checkSyncedMutations,
-    ...inventoryMutations
-  }
+    ...inventoryMutations,
+  },
 });
 
 export default resolvers;

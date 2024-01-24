@@ -3,8 +3,9 @@ import { moduleRequireLogin } from '@erxes/api-utils/src/permissions';
 import { fetchActivityLogs, fetchLogs } from '../../utils';
 import { fetchService, getContentIds } from '../../messageBroker';
 import { IContext } from '../../connectionResolver';
-import { serviceDiscovery } from '../../configs';
+
 import { IActivityLogDocument } from '../../models/ActivityLogs';
+import { getService, getServices } from '@erxes/api-utils/src/serviceDiscovery';
 
 export interface IListArgs {
   contentType: string;
@@ -45,13 +46,13 @@ const activityLogQueries = {
       return data;
     }
 
-    const services = await serviceDiscovery.getServices();
+    const services = await getServices();
     const activityLogs = await models.ActivityLogs.find({
       contentId,
     }).lean();
 
     for (const serviceName of services) {
-      const service = await serviceDiscovery.getService(serviceName);
+      const service = await getService(serviceName);
       const meta = service.config.meta || {};
 
       if (meta && meta.logs) {

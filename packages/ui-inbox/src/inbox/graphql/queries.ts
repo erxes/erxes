@@ -276,8 +276,8 @@ const lastConversation = `
 `;
 
 const responseTemplateList = `
-  query responseTemplates($perPage: Int) {
-    responseTemplates(perPage: $perPage) {
+  query responseTemplates($perPage: Int, $searchValue: String) {
+    responseTemplates(perPage: $perPage, searchValue: $searchValue) {
       _id
       name
       brandId
@@ -297,14 +297,14 @@ const convertToInfo = `
   }
 `;
 
-const generateCustomerDetailQuery = params => {
+const generateCustomerDetailQuery = (params) => {
   const {
     showDeviceProperties = false,
     showTrackedData = false,
     showCustomFields = false,
     showCompanies = false,
     showTags = false,
-    showSegments = false
+    showSegments = false,
   } = params || {};
 
   let fields = `
@@ -420,5 +420,5 @@ export default {
   tagsQueryCount,
   channelsByMembers,
   generateCustomerDetailQuery,
-  convertToInfo
+  convertToInfo,
 };

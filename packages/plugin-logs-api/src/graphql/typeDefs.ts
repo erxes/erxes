@@ -4,15 +4,15 @@ import { types as LogTypes, queries as LogQueries } from './logTypeDefs';
 
 import {
   types as EmailDeliveryTypes,
-  queries as EmailDeliveryQueries
+  queries as EmailDeliveryQueries,
 } from './emailDeliveryTypeDefs';
 
 import {
   types as ActivityLogTypes,
-  queries as ActivityLogQueries
+  queries as ActivityLogQueries,
 } from './activityLogTypeDefs';
 
-const typeDefs = async _serviceDiscovery => {
+const typeDefs = async () => {
   return gql`
     scalar JSON
     scalar Date

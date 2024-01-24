@@ -1,15 +1,16 @@
 import { dateToShortStr } from '@erxes/api-utils/src/core';
 import * as moment from 'moment';
-import { serviceDiscovery } from './configs';
+
 import { generateModels } from './connectionResolver';
 import {
   sendCommonMessage,
   sendContactsMessage,
-  sendFormsMessage
+  sendFormsMessage,
 } from './messageBroker';
 import { IProductDocument } from './models/definitions/products';
+import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
 
-const toMoney = value => {
+const toMoney = (value) => {
   if (!value) {
     return '-';
   }
@@ -22,22 +23,26 @@ const getCustomFields = async ({ subdomain }) => {
     action: 'fields.fieldsCombinedByContentType',
     isRPC: true,
     data: {
-      contentType: `products:product`
+      contentType: `products:product`,
     },
-    defaultValue: []
+    defaultValue: [],
   });
 
   return fields
-    .filter(field => !['categoryId', 'code'].includes(field.name))
-    .map(field => ({ value: field.name, name: field.label, type: field.type }));
+    .filter((field) => !['categoryId', 'code'].includes(field.name))
+    .map((field) => ({
+      value: field.name,
+      name: field.label,
+      type: field.type,
+    }));
 };
 
 export default {
   types: [
     {
       type: 'products',
-      label: 'Products'
-    }
+      label: 'Products',
+    },
   ],
 
   editorAttributes: async ({ subdomain }) => {
@@ -53,19 +58,19 @@ export default {
       { value: 'date', name: 'Date' },
       { value: 'barcodeDescription', name: 'Barcode description' },
 
-      ...(await getCustomFields({ subdomain }))
+      ...(await getCustomFields({ subdomain })),
     ];
   },
 
   replaceContent: async ({
     subdomain,
-    data: { branchId, departmentId, productIds, date, isDate, content }
+    data: { branchId, departmentId, productIds, date, isDate, content },
   }) => {
     const models = await generateModels(subdomain);
 
     const results: string[] = [];
     const copies = JSON.parse(productIds || '[]');
-    const productsIds = copies.map(c => c.id);
+    const productsIds = copies.map((c) => c.id);
 
     const products: IProductDocument[] =
       (await models.Products.find({ _id: { $in: productsIds } }).lean()) || [];
@@ -75,12 +80,12 @@ export default {
       productById[product._id] = product;
     }
 
-    const pricingAvailable = await serviceDiscovery.isEnabled('pricing');
+    const pricingAvailable = await isEnabled('pricing');
     let quantityRules = {};
 
     if (content.includes('{{ barcode }}')) {
       results.push(
-        '::heads::<script src="https://nmgplugins.s3.us-west-2.amazonaws.com/JsBarcode.all.min.js"></script><script src="https://nmgplugins.s3.us-west-2.amazonaws.com/ebarimt/jquery.js"></script>'
+        '::heads::<script src="https://nmgplugins.s3.us-west-2.amazonaws.com/JsBarcode.all.min.js"></script><script src="https://nmgplugins.s3.us-west-2.amazonaws.com/ebarimt/jquery.js"></script>',
       );
     }
 
@@ -94,15 +99,15 @@ export default {
           totalAmount: 0,
           departmentId,
           branchId,
-          products: products.map(pr => ({
+          products: products.map((pr) => ({
             itemId: pr._id,
             productId: pr._id,
             quantity: 1,
-            price: pr.unitPrice
-          }))
+            price: pr.unitPrice,
+          })),
         },
         isRPC: true,
-        defaultValue: {}
+        defaultValue: {},
       });
 
       for (const product of products) {
@@ -127,8 +132,8 @@ export default {
           prioritizeRule: 'exclude',
           branchId,
           departmentId,
-          products
-        }
+          products,
+        },
       });
     }
 
@@ -144,16 +149,16 @@ export default {
 
       replacedContent = replacedContent.replace(
         '{{ price }}',
-        toMoney(product.unitPrice)
+        toMoney(product.unitPrice),
       );
 
       replacedContent = replacedContent.replace(
         '{{ bulkQuantity }}',
-        value || '-'
+        value || '-',
       );
       replacedContent = replacedContent.replace(
         '{{ bulkPrice }}',
-        toMoney(price)
+        toMoney(price),
       );
 
       if (
@@ -180,12 +185,12 @@ export default {
                   displayValue: false
                 });
               </script>
-            `
+            `,
           );
 
           replacedContent = replacedContent.replace(
             '{{ barcodeText }}',
-            `<span class="barcodeText">${barcode}${shortStr}</span>`
+            `<span class="barcodeText">${barcode}${shortStr}</span>`,
           );
         } else {
           replacedContent = replacedContent.replace('{{ barcode }}', '');
@@ -195,12 +200,12 @@ export default {
 
       replacedContent = replacedContent.replace(
         '{{ date }}',
-        moment(value).format('YYYY-MM-DD HH:mm')
+        moment(value).format('YYYY-MM-DD HH:mm'),
       );
 
       replacedContent = replacedContent.replace(
         '{{ barcodeDescription }}',
-        product.barcodeDescription || ''
+        product.barcodeDescription || '',
       );
 
       if (replacedContent.includes(`{{ vendorId }}`)) {
@@ -208,16 +213,16 @@ export default {
           subdomain,
           action: 'companies.findOne',
           data: {
-            _id: product.vendorId
+            _id: product.vendorId,
           },
           isRPC: true,
-          defaultValue: {}
+          defaultValue: {},
         });
 
         if (vendor?.primaryName) {
           replacedContent = replacedContent.replace(
             /{{ vendorId }}/g,
-            vendor.primaryName
+            vendor.primaryName,
           );
         }
       }
@@ -225,7 +230,7 @@ export default {
       for (const customFieldData of product.customFieldsData || []) {
         replacedContent = replacedContent.replace(
           new RegExp(`{{ customFieldsData.${customFieldData.field} }}`, 'g'),
-          customFieldData.value
+          customFieldData.value,
         );
       }
 
@@ -235,5 +240,5 @@ export default {
     }
 
     return results;
-  }
+  },
 };

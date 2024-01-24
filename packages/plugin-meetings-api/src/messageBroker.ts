@@ -1,49 +1,38 @@
-import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
-import { serviceDiscovery } from './configs';
+import { sendMessage } from '@erxes/api-utils/src/core';
+import { MessageArgs, MessageArgsOmitService } from '@erxes/api-utils/src/core';
+
 import { IContext as IMainContext } from '@erxes/api-utils/src';
 import { IModels } from './connectionResolver';
-
-let client;
 
 export interface IContext extends IMainContext {
   subdomain: string;
   models: IModels;
 }
 
-export const initBroker = async cl => {
-  client = cl;
-};
+export const initBroker = async () => {};
 
 export const sendCommonMessage = async (
-  args: ISendMessageArgs & { serviceName: string }
+  args: MessageArgs & { serviceName: string },
 ) => {
   return sendMessage({
-    serviceDiscovery,
-    client,
-    ...args
+    ...args,
   });
 };
 
-export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
+export const sendCoreMessage = async (
+  args: MessageArgsOmitService,
+): Promise<any> => {
   return sendMessage({
-    client,
-    serviceDiscovery,
     serviceName: 'core',
-    ...args
+    ...args,
   });
 };
 
 export const sendCardsMessage = async (
-  args: ISendMessageArgs
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
-    client,
-    serviceDiscovery,
     serviceName: 'cards',
-    ...args
+    ...args,
   });
 };
-
-export default function() {
-  return client;
-}

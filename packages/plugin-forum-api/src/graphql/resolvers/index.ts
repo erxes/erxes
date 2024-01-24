@@ -17,9 +17,9 @@ import ForumQuiz from './ForumQuiz';
 import ForumQuizQuestion from './ForumQuizQuestion';
 import ForumQuizChoice from './ForumQuizChoice';
 
-export default async function generateResolvers(
-  serviceDiscovery
-): Promise<IResolvers<any, IContext>> {
+export default async function generateResolvers(): Promise<
+  IResolvers<any, IContext>
+> {
   const resolvers: IResolvers<any, IContext> = {
     ...customScalars,
     Query,
@@ -36,7 +36,7 @@ export default async function generateResolvers(
     ForumUserStatistics,
     ForumQuiz,
     ForumQuizQuestion,
-    ForumQuizChoice
+    ForumQuizChoice,
   };
 
   return resolvers;

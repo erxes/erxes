@@ -3,30 +3,30 @@ import extendTypes from './schema/extendTypes';
 import {
   mutations as RemainderMutations,
   queries as RemainderQueries,
-  types as RemainderTypes
+  types as RemainderTypes,
 } from './schema/remainder';
 import {
   mutations as SafeRemainderMutations,
   queries as SafeRemainderQueries,
-  types as SafeRemainderTypes
+  types as SafeRemainderTypes,
 } from './schema/safeRemainder';
 import {
   mutations as ReserveRemMutations,
   queries as ReserveRemQueries,
-  types as ReserveRemTypes
+  types as ReserveRemTypes,
 } from './schema/reserveRems';
 import {
   mutations as SafeRemainderItemMutations,
   queries as SafeRemainderItemQueries,
-  types as SafeRemainderItemTypes
+  types as SafeRemainderItemTypes,
 } from './schema/safeRemainderItem';
 import {
   mutations as TransactionMutations,
   queries as TransactionQueries,
-  types as TransactionTypes
+  types as TransactionTypes,
 } from './schema/transaction';
 
-const typeDefs = async _serviceDiscovery => {
+const typeDefs = async () => {
   return gql`
     scalar JSON
     scalar Date

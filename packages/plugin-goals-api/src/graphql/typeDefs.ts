@@ -3,10 +3,10 @@ import gql from 'graphql-tag';
 import {
   types as goalTypes,
   queries as goalQueries,
-  mutations as goalMutations
+  mutations as goalMutations,
 } from './schema/goal';
 
-const typeDefs = async _serviceDiscovery => {
+const typeDefs = async () => {
   return gql`
     scalar JSON
     scalar Date

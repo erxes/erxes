@@ -2,7 +2,7 @@ import gql from 'graphql-tag';
 
 import { types, queries, mutations } from './schema';
 
-const typeDefs = async _serviceDiscovery => {
+const typeDefs = async () => {
   return gql`
     scalar JSON
     scalar Date

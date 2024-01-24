@@ -1,13 +1,13 @@
 import * as _ from 'underscore';
 import redis from './redis';
+import { sendRPCMessage } from '@erxes/api-utils/src/messageBroker';
 
 export const afterQueryWrapper = async (
   subdomain,
   queryName,
   args,
   results,
-  messageBroker,
-  user
+  user,
 ) => {
   const value = await redis.get('afterQueries');
 
@@ -19,18 +19,15 @@ export const afterQueryWrapper = async (
 
   for (const service of afterQueries[queryName]) {
     try {
-      const perResults = await messageBroker.sendRPCMessage(
-        `${service}:afterQuery`,
-        {
-          subdomain,
-          data: {
-            queryName,
-            args,
-            results,
-            user
-          }
-        }
-      );
+      const perResults = await sendRPCMessage(`${service}:afterQuery`, {
+        subdomain,
+        data: {
+          queryName,
+          args,
+          results,
+          user,
+        },
+      });
       if (perResults) {
         results = perResults;
       }

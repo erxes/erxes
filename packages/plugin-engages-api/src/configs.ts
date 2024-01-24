@@ -10,21 +10,18 @@ import cronjobs from './cronjobs/engages';
 import * as permissions from './permissions';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import webhooks from './webhooks';
+import app from '@erxes/api-utils/src/app';
 
-export let graphqlPubsub;
-export let serviceDiscovery;
 export let mainDb;
 export let debug;
 
 export default {
   name: 'engages',
   permissions,
-  graphql: async sd => {
-    serviceDiscovery = sd;
-
+  graphql: async () => {
     return {
-      typeDefs: await typeDefs(sd),
-      resolvers
+      typeDefs: await typeDefs(),
+      resolvers,
     };
   },
   segment: { schemas: [] },
@@ -41,17 +38,14 @@ export default {
 
     return context;
   },
-  onServerInit: async options => {
+  onServerInit: async (options) => {
     mainDb = options.db;
-
-    const app = options.app;
 
     // Insert routes below
     app.use('/telnyx', telnyx);
 
-    initBroker(options.messageBrokerClient);
+    initBroker();
 
     debug = options.debug;
-    graphqlPubsub = options.pubsubClient;
-  }
+  },
 };

@@ -7,25 +7,22 @@ import { getSubdomain } from '@erxes/api-utils/src/core';
 import automations from './automations';
 
 export let mainDb;
-export let graphqlPubsub;
-export let serviceDiscovery;
 
 export let debug;
 
 export default {
   name: 'notifications',
-  graphql: sd => {
-    serviceDiscovery = sd;
+  graphql: () => {
     return {
       typeDefs,
-      resolvers
+      resolvers,
     };
   },
   hasSubscriptions: true,
   subscriptionPluginPath: require('path').resolve(
     __dirname,
     'graphql',
-    'subscriptionPlugin.js'
+    'subscriptionPlugin.js',
   ),
 
   segment: {},
@@ -36,14 +33,13 @@ export default {
     context.models = await generateModels(subdomain);
   },
 
-  onServerInit: async options => {
+  onServerInit: async (options) => {
     mainDb = options.db;
 
-    initBroker(options.messageBrokerClient);
+    initBroker();
 
     debug = options.debug;
-    graphqlPubsub = options.pubsubClient;
   },
 
-  meta: { automations }
+  meta: { automations },
 };

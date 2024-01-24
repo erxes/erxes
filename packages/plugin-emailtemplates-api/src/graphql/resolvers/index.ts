@@ -6,16 +6,16 @@ import { EmailTemplates as EmailTemplateQueries } from './queries';
 
 import EmailTemplate from './emailTemplates';
 
-const resolvers: any = async _serviceDiscovery => ({
+const resolvers: any = async () => ({
   ...customScalars,
   EmailTemplate,
 
   Mutation: {
-    ...EmailTemplateMutations
+    ...EmailTemplateMutations,
   },
   Query: {
-    ...EmailTemplateQueries
-  }
+    ...EmailTemplateQueries,
+  },
 });
 
 export default resolvers;
