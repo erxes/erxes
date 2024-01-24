@@ -517,10 +517,8 @@ const chartTemplates = [
 
       let departmentUsers;
       let filterUserIds: any = [];
-      let integrationsDict;
-
-      if (dimensionX === 'status') {
-      }
+      const integrationsDict = {};
+      let totalIntegrations;
 
       if (departmentIds && departmentIds.length) {
         const findDepartmentUsers = await sendCoreMessage({
@@ -664,6 +662,8 @@ const chartTemplates = [
         const integrations: any =
           await models?.Integrations.find(integrationFindQuery);
 
+        totalIntegrations = integrations;
+
         const integrationIds: string[] = [];
 
         for (const integration of integrations) {
@@ -753,9 +753,6 @@ const chartTemplates = [
 
         return datasets;
       }
-
-      console.log(matchfilter, ' match');
-      console.log(userIdGroup, ' group');
 
       const usersWithConvosCount = await models?.Conversations.aggregate([
         {
@@ -909,12 +906,6 @@ const chartTemplates = [
       if (dimensionX === 'source') {
         const sourcesDict = {};
 
-        if (filter.integrationTypes) {
-          const { integrationTypes } = filter;
-
-          // integrationFindQuery['kind'] = integrationTypes;
-        }
-
         groupByQuery = {
           $group: {
             _id: '$integrationId',
@@ -924,10 +915,18 @@ const chartTemplates = [
 
         const convosCountBySource = await models?.Conversations.aggregate([
           {
-            $match: matchfilter,
+            $match: { ...matchfilter, integrationId: { $exists: true } },
           },
           groupByQuery,
         ]);
+
+        const integrations = await models?.Integrations.find({});
+
+        if (integrations) {
+          for (const i of integrations) {
+            integrationsDict[i._id] = i.kind;
+          }
+        }
 
         if (convosCountBySource) {
           for (const convo of convosCountBySource) {
@@ -944,8 +943,8 @@ const chartTemplates = [
 
             //increment
             const getOldCount = sourcesDict[integrationKind];
-            sourcesDict[integrationKind] =
-              getOldCount + convo.conversationsCount;
+            const increment = getOldCount + convo.conversationsCount;
+            sourcesDict[integrationKind] = increment;
           }
 
           for (const source of Object.keys(sourcesDict)) {

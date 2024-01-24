@@ -53,6 +53,8 @@ export interface IChart {
   defaultFilter: IChartFilter;
   serviceName?: string;
 
+  dimension: JSON;
+
   vizState: string;
   layout: string;
 }
