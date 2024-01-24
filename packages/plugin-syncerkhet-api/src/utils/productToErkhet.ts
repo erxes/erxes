@@ -1,4 +1,4 @@
-import { sendProductsMessage } from '../messageBroker';
+import { sendFormsMessage, sendProductsMessage } from '../messageBroker';
 import { getConfig, toErkhet } from './utils';
 
 export const productCategoryToErkhet = async (
@@ -6,7 +6,7 @@ export const productCategoryToErkhet = async (
   models,
   syncLog,
   params,
-  action
+  action,
 ) => {
   const productCategory = params.updatedDocument || params.object;
   const oldProductCategory = params.object;
@@ -15,7 +15,7 @@ export const productCategoryToErkhet = async (
     subdomain,
     action: 'categories.findOne',
     data: { _id: productCategory.parentId },
-    isRPC: true
+    isRPC: true,
   });
 
   const config = await getConfig(subdomain, 'ERKHET', {});
@@ -26,8 +26,8 @@ export const productCategoryToErkhet = async (
     object: {
       code: productCategory.code || '',
       name: productCategory.name || '',
-      parentCode: parentProductCategory ? parentProductCategory.code : ''
-    }
+      parentCode: parentProductCategory ? parentProductCategory.code : '',
+    },
   };
 
   toErkhet(models, syncLog, config, sendData, 'product-change');
@@ -38,7 +38,7 @@ export const productToErkhet = async (
   models,
   syncLog,
   params,
-  action
+  action,
 ) => {
   const product = params.updatedDocument || params.object;
   const oldProduct = params.object;
@@ -47,8 +47,28 @@ export const productToErkhet = async (
     subdomain,
     action: 'categories.findOne',
     data: { _id: product.categoryId },
-    isRPC: true
+    isRPC: true,
   });
+
+  let weight = 1;
+
+  const weightField = await sendFormsMessage({
+    subdomain,
+    action: 'fields.findOne',
+    data: { query: { code: 'weight' } },
+    isRPC: true,
+    defaultValue: null,
+  });
+
+  if (weightField && weightField._id) {
+    const weightData = (product.customFieldsData || []).find(
+      (cfd) => cfd.field === weightField._id,
+    );
+
+    if (weightData && weightData.value) {
+      weight = Number(weightData.value) || 1;
+    }
+  }
 
   let subMeasureUnit;
   let ratioMeasureUnit;
@@ -76,9 +96,10 @@ export const productToErkhet = async (
       saleAccount: config.saleAccount,
       categoryCode: productCategory ? productCategory.code : '',
       defaultCategory: config.productCategoryCode,
+      weight,
       taxType: product.taxType,
-      taxCode: product.taxCode
-    }
+      taxCode: product.taxCode,
+    },
   };
 
   toErkhet(models, syncLog, config, sendData, 'product-change');

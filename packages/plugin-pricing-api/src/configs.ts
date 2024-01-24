@@ -8,18 +8,14 @@ import { generateModels } from './connectionResolver';
 import logs from './logUtils';
 export let mainDb;
 export let debug;
-export let graphqlPubsub;
-export let serviceDiscovery;
 
 export default {
   name: 'pricing',
   permissions,
-  graphql: async sd => {
-    serviceDiscovery = sd;
-
+  graphql: async () => {
     return {
-      typeDefs: await typeDefs(sd),
-      resolvers
+      typeDefs: await typeDefs(),
+      resolvers,
     };
   },
 
@@ -33,17 +29,15 @@ export default {
     return context;
   },
 
-  onServerInit: async options => {
+  onServerInit: async (options) => {
     mainDb = options.db;
 
-    initBroker(options.messageBrokerClient);
-
-    graphqlPubsub = options.pubsubClient;
+    initBroker();
 
     debug = options.debug;
   },
   meta: {
     permissions,
-    logs: { consumers: logs }
-  }
+    logs: { consumers: logs },
+  },
 };

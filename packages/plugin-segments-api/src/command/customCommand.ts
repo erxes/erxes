@@ -14,7 +14,7 @@ if (args.length > 0) {
 
 if (!totalAmountFieldId || !totalCountFieldId) {
   throw new Error(
-    'please provide a segment ID or a total amount field ID or a total count field ID'
+    'please provide a segment ID or a total amount field ID or a total count field ID',
   );
 }
 
@@ -41,7 +41,7 @@ let Stages;
 const generateAmounts = (productsData, useTick = true) => {
   let totalAmount = 0;
 
-  (productsData || []).forEach(product => {
+  (productsData || []).forEach((product) => {
     // Tick paid or used is false then exclude
     if (useTick && !product.tickUsed) {
       return;
@@ -62,20 +62,20 @@ const generateOperation = async ({
   totalAmountFieldId,
   totalAmount,
   totalCountFieldId,
-  totalCount
+  totalCount,
 }) => {
   const commonSelector = {
     filter: {
-      _id: customer._id
-    }
+      _id: customer._id,
+    },
   };
 
   const isExistTotalAmountField = !!(customer?.customFieldsData || []).find(
-    ({ field }) => field === totalAmountFieldId
+    ({ field }) => field === totalAmountFieldId,
   );
 
   const isExistTotalCountField = !!(customer?.customFieldsData || []).find(
-    ({ field }) => field === totalCountFieldId
+    ({ field }) => field === totalCountFieldId,
   );
 
   if (isExistTotalAmountField || isExistTotalCountField) {
@@ -86,14 +86,14 @@ const generateOperation = async ({
           update: {
             $set: {
               [`customFieldsData.$[elem1].value`]: totalAmount,
-              [`customFieldsData.$[elem2].value`]: totalCount
-            }
+              [`customFieldsData.$[elem2].value`]: totalCount,
+            },
           },
           arrayFilters: {
             'elem1.field': totalAmountFieldId,
-            'elem2.value': totalCountFieldId
-          }
-        }
+            'elem2.value': totalCountFieldId,
+          },
+        },
       };
     }
 
@@ -103,18 +103,18 @@ const generateOperation = async ({
           ...commonSelector,
           update: {
             $set: {
-              [`customFieldsData.$[elem1].value`]: totalAmount
+              [`customFieldsData.$[elem1].value`]: totalAmount,
             },
             $push: {
               field: totalCountFieldId,
               value: totalCount,
-              stringValue: totalCount
-            }
+              stringValue: totalCount,
+            },
           },
           arrayFilters: {
-            'elem1.field': totalAmountFieldId
-          }
-        }
+            'elem1.field': totalAmountFieldId,
+          },
+        },
       };
     }
     if (!isExistTotalAmountField && isExistTotalCountField) {
@@ -123,18 +123,18 @@ const generateOperation = async ({
           ...commonSelector,
           update: {
             $set: {
-              [`customFieldsData.$[elem1].value`]: totalCount
+              [`customFieldsData.$[elem1].value`]: totalCount,
             },
             $push: {
               field: totalAmountFieldId,
               value: totalAmount,
-              stringValue: totalAmount
-            }
+              stringValue: totalAmount,
+            },
           },
           arrayFilters: {
-            'elem1.field': totalCountFieldId
-          }
-        }
+            'elem1.field': totalCountFieldId,
+          },
+        },
       };
     }
   }
@@ -149,18 +149,18 @@ const generateOperation = async ({
               {
                 field: totalAmountFieldId,
                 value: totalAmount,
-                stringValue: totalAmount
+                stringValue: totalAmount,
               },
               {
                 field: totalCountFieldId,
                 value: totalCount,
-                stringValue: totalCount
-              }
-            ]
-          }
-        }
-      }
-    }
+                stringValue: totalCount,
+              },
+            ],
+          },
+        },
+      },
+    },
   };
 };
 
@@ -190,7 +190,7 @@ const command = async () => {
 
   const stageIds = (
     await Stages.find({ _id: { $in: ['PZXJAbzgvFwaAaR87'] } }).toArray()
-  ).map(stage => stage._id);
+  ).map((stage) => stage._id);
 
   console.log({ stageIds });
 
@@ -202,12 +202,12 @@ const command = async () => {
       .skip(limit * i)
       .toArray();
 
-    const conformityCustomerIds = customers.map(customer => customer._id);
+    const conformityCustomerIds = customers.map((customer) => customer._id);
 
     const conformities = await Conformities.find({
       mainType: 'deal',
       relType: 'customer',
-      relTypeId: { $in: conformityCustomerIds }
+      relTypeId: { $in: conformityCustomerIds },
     }).toArray();
 
     for (const customer of customers) {
@@ -215,12 +215,12 @@ const command = async () => {
       let totalDeals = 0;
 
       const relatedDealIds = conformities
-        .filter(conformity => conformity.relTypeId === customer._id)
-        .map(conformity => conformity.mainTypeId);
+        .filter((conformity) => conformity.relTypeId === customer._id)
+        .map((conformity) => conformity.mainTypeId);
 
       const relatedDeals = await Deals.find({
         _id: { $in: relatedDealIds },
-        stageId: { $in: stageIds }
+        stageId: { $in: stageIds },
       }).toArray();
 
       console.log(`${relatedDeals.length} on customerId:${customer._id}`);
@@ -237,7 +237,7 @@ const command = async () => {
         totalAmount,
         totalAmountFieldId,
         totalCount: totalDeals,
-        totalCountFieldId
+        totalCountFieldId,
       });
 
       bulkDocs.push(doc);

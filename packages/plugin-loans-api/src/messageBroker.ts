@@ -1,21 +1,16 @@
-import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
-import { serviceDiscovery } from './configs';
+import { sendMessage } from '@erxes/api-utils/src/core';
+import { MessageArgs, MessageArgsOmitService } from '@erxes/api-utils/src/core';
 import { generateModels } from './connectionResolver';
-import { sendRequest } from '@erxes/api-utils/src';
+import fetch from 'node-fetch';
+import { consumeRPCQueue } from '@erxes/api-utils/src/messageBroker';
 
-let client;
-
-export const initBroker = async cl => {
-  client = cl;
-
-  const { consumeRPCQueue } = client;
-
+export const initBroker = async () => {
   consumeRPCQueue('loans:contracts.find', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     return {
       status: 'success',
-      data: await models.Contracts.find(data).lean()
+      data: await models.Contracts.find(data).lean(),
     };
   });
 
@@ -24,7 +19,7 @@ export const initBroker = async cl => {
 
     return {
       status: 'success',
-      data: await models.Transactions.find(data).lean()
+      data: await models.Transactions.find(data).lean(),
     };
   });
 
@@ -37,19 +32,21 @@ export const initBroker = async cl => {
       return {
         status: 'success',
         data: await models.Transactions.find({
-          contractId: { $in: contracts.map(c => c._id) }
-        }).lean()
+          contractId: { $in: contracts.map((c) => c._id) },
+        }).lean(),
       };
-    }
+    },
   );
   consumeRPCQueue('loans:transaction', async ({ subdomain, data }) => {
     console.log('subdomain, data', subdomain, data);
-    return [];
+    return {
+      status: 'success',
+    };
   });
 };
 
 export const sendMessageBroker = async (
-  args: ISendMessageArgs,
+  args: MessageArgsOmitService,
   name:
     | 'core'
     | 'cards'
@@ -59,68 +56,60 @@ export const sendMessageBroker = async (
     | 'forms'
     | 'clientportal'
     | 'syncerkhet'
-    | 'ebarimt'
+    | 'ebarimt',
 ): Promise<any> => {
   return sendMessage({
-    client,
-    serviceDiscovery,
     serviceName: name,
-    ...args
+    ...args,
   });
 };
 
-export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
+export const sendCoreMessage = async (
+  args: MessageArgsOmitService,
+): Promise<any> => {
   return sendMessage({
-    client,
-    serviceDiscovery,
     serviceName: 'core',
-    ...args
+    ...args,
   });
 };
 
 export const sendCardsMessage = async (
-  args: ISendMessageArgs
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
-    client,
-    serviceDiscovery,
     serviceName: 'cards',
-    ...args
+    ...args,
   });
 };
 
 export const sendReactionsMessage = async (
-  args: ISendMessageArgs
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
-    client,
-    serviceDiscovery,
     serviceName: 'reactions',
-    ...args
+    ...args,
   });
 };
 
 export const sendCommonMessage = async (
-  args: ISendMessageArgs & { serviceName: string }
+  args: MessageArgs & { serviceName: string },
 ): Promise<any> => {
   return sendMessage({
-    serviceDiscovery,
-    client,
-    ...args
+    ...args,
   });
 };
 
 export const getConfig = async (
   code: string,
   subdomain: string,
-  defaultValue?: string
+  defaultValue?: string,
 ) => {
   const configs = await sendCoreMessage({
     subdomain,
     action: 'getConfigs',
     data: {},
     isRPC: true,
-    defaultValue: []
+    defaultValue: [],
   });
 
   if (!configs[code]) {
@@ -134,19 +123,19 @@ export const sendSms = async (
   subdomain: string,
   type: string,
   phoneNumber: string,
-  content: string
+  content: string,
 ) => {
   if (type === 'messagePro') {
     const MESSAGE_PRO_API_KEY = await getConfig(
       'MESSAGE_PRO_API_KEY',
       subdomain,
-      ''
+      '',
     );
 
     const MESSAGE_PRO_PHONE_NUMBER = await getConfig(
       'MESSAGE_PRO_PHONE_NUMBER',
       subdomain,
-      ''
+      '',
     );
 
     if (!MESSAGE_PRO_API_KEY || !MESSAGE_PRO_PHONE_NUMBER) {
@@ -154,16 +143,15 @@ export const sendSms = async (
     }
 
     try {
-      await sendRequest({
-        url: 'https://api.messagepro.mn/send',
-        method: 'GET',
-        params: {
-          key: MESSAGE_PRO_API_KEY,
-          from: MESSAGE_PRO_PHONE_NUMBER,
-          to: phoneNumber,
-          text: content
-        }
-      });
+      await fetch(
+        'https://api.messagepro.mn/send?' +
+          new URLSearchParams({
+            key: MESSAGE_PRO_API_KEY,
+            from: MESSAGE_PRO_PHONE_NUMBER,
+            to: phoneNumber,
+            text: content,
+          }),
+      );
 
       return 'sent';
     } catch (e) {
@@ -171,7 +159,3 @@ export const sendSms = async (
     }
   }
 };
-
-export default function() {
-  return client;
-}

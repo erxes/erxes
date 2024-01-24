@@ -109,6 +109,7 @@ const generate = async () => {
     mongo: {
       username: "erxes",
       password: generatePass(),
+      replication: true,
     },
     rabbitmq: {
       cookie: "",

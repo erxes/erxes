@@ -7,9 +7,9 @@ export default {
   customFieldsDataByFieldCode(
     product: IProductDocument,
     _,
-    { subdomain }: IContext
+    { subdomain }: IContext,
   ) {
-    return customFieldsDataByFieldCode(product, subdomain, sendCommonMessage);
+    return customFieldsDataByFieldCode(product, subdomain);
   },
 
   unitPrice(product: IProductDocument, _args, { config }: IContext) {
@@ -22,5 +22,5 @@ export default {
 
   category(product: IProductDocument, _, { models }: IContext) {
     return models.ProductCategories.findOne({ _id: product.categoryId });
-  }
+  },
 };

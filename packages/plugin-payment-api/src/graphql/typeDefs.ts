@@ -18,14 +18,7 @@ import {
   types as configsTypes
 } from './schema/paymentConfigs';
 
-const typeDefs = async serviceDiscovery => {
-  const isContactsEnabled = await serviceDiscovery.isEnabled('contacts');
-  const cardsAvailable = await serviceDiscovery.isEnabled('cards');
-
-  const isEnabled = {
-    contacts: isContactsEnabled,
-    cards: cardsAvailable
-  };
+const typeDefs = async () => {
 
   return gql`
     scalar JSON

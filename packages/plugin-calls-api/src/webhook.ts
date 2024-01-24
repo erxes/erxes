@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { getSubdomain } from '@erxes/api-utils/src/core';
-import { graphqlPubsub } from './configs';
+import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
 import { sendCommonMessage } from './messageBroker';
 import * as jwt from 'jsonwebtoken';
 import { generateModels } from './connectionResolver';
@@ -25,9 +25,11 @@ const webhookReceiver = async (req: Request, res: Response): Promise<void> => {
     if (req.body.event === 'incomingCall') {
       const { callerNumber, calledNumber } = req.body;
 
-      const integration = await (await models).Integrations.findOne({
+      const integration = await (
+        await models
+      ).Integrations.findOne({
         inboxId: integrationId,
-        phone: calledNumber
+        phone: calledNumber,
       });
 
       if (!integration) {
@@ -41,9 +43,9 @@ const webhookReceiver = async (req: Request, res: Response): Promise<void> => {
         serviceName: 'contacts',
         action: 'customers.findOne',
         data: {
-          primaryPhone: callerNumber
+          primaryPhone: callerNumber,
         },
-        defaultValue: null
+        defaultValue: null,
       });
 
       if (!customer) {
@@ -53,8 +55,8 @@ const webhookReceiver = async (req: Request, res: Response): Promise<void> => {
           serviceName: 'contacts',
           action: 'customers.createCustomer',
           data: {
-            primaryPhone: callerNumber
-          }
+            primaryPhone: callerNumber,
+          },
         });
       }
 
@@ -62,11 +64,11 @@ const webhookReceiver = async (req: Request, res: Response): Promise<void> => {
         customer,
         calledNumber,
         callerNumber,
-        integration
+        integration,
       };
 
       await graphqlPubsub.publish('phoneCallReceived', {
-        phoneCallReceived: payload
+        phoneCallReceived: payload,
       });
     }
 

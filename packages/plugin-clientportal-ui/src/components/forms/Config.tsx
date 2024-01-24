@@ -51,30 +51,29 @@ function General({
   testUserPhone,
   testUserPassword,
   testUserOTP,
-  handleFormChange
+  handleFormChange,
 }: Props) {
   const [otpEnabled, setOtpEnabled] = useState<boolean>(
-    otpConfig ? true : false
+    otpConfig ? true : false,
   );
 
   const [mailEnabled, setMailEnabled] = useState<boolean>(
-    mailConfig ? true : false
+    mailConfig ? true : false,
   );
 
-  const [manualVerificationEnabled, setManualVerificationEnabled] = useState<
-    boolean
-  >(manualVerificationConfig ? true : false);
+  const [manualVerificationEnabled, setManualVerificationEnabled] =
+    useState<boolean>(manualVerificationConfig ? true : false);
 
   const [userIds] = useState<string[]>(
-    manualVerificationConfig ? manualVerificationConfig.userIds : []
+    manualVerificationConfig ? manualVerificationConfig.userIds : [],
   );
 
   const [verifyCompany, setVerifyCompany] = useState<boolean>(
-    manualVerificationConfig ? manualVerificationConfig.verifyCompany : false
+    manualVerificationConfig ? manualVerificationConfig.verifyCompany : false,
   );
 
   const [verifyCustomer, setVerifyCustomer] = useState<boolean>(
-    manualVerificationConfig ? manualVerificationConfig.verifyCustomer : false
+    manualVerificationConfig ? manualVerificationConfig.verifyCustomer : false,
   );
 
   const smsConfigs = CONFIGURATIONS;
@@ -82,15 +81,15 @@ function General({
   if (isEnabled('mobinet')) {
     smsConfigs.push({
       value: 'mobinet',
-      label: 'mobinet'
+      label: 'mobinet',
     });
   }
 
-  const onSelectUsers = values => {
+  const onSelectUsers = (values) => {
     handleFormChange('manualVerificationConfig', {
       userIds: values,
       verifyCompany,
-      verifyCustomer
+      verifyCustomer,
     });
   };
 
@@ -106,7 +105,7 @@ function General({
           codeLength: 4,
           content: 'Your verification code is {{ code }}',
           expireAfter: 1,
-          loginWithOTP: false
+          loginWithOTP: false,
         });
       }
     }
@@ -128,7 +127,7 @@ function General({
         handleFormChange('manualVerificationConfig', {
           userIds: [],
           verifyCustomer: false,
-          verifyCompany: false
+          verifyCompany: false,
         });
       }
     }
@@ -139,7 +138,7 @@ function General({
       handleFormChange('manualVerificationConfig', {
         userIds,
         verifyCompany: value,
-        verifyCustomer
+        verifyCustomer,
       });
     }
 
@@ -149,15 +148,15 @@ function General({
       handleFormChange('manualVerificationConfig', {
         userIds,
         verifyCompany,
-        verifyCustomer: value
+        verifyCustomer: value,
       });
     }
   };
 
-  const onChangeConfiguration = option => {
+  const onChangeConfiguration = (option) => {
     handleFormChange('otpConfig', {
       ...otpConfig,
-      smsTransporterType: option.value
+      smsTransporterType: option.value,
     });
   };
 
@@ -168,12 +167,12 @@ function General({
     formValueName,
     formValue,
     placeholder,
-    formProps
+    formProps,
   }: ControlItem) {
     const handleChange = (e: React.FormEvent) => {
       handleFormChange(
         formValueName,
-        (e.currentTarget as HTMLInputElement).value
+        (e.currentTarget as HTMLInputElement).value,
       );
     };
 
@@ -200,9 +199,9 @@ function General({
       codeLength: 4,
       smsTransporterType: 'messagePro',
       loginWithOTP: false,
-      expireAfter: 1
+      expireAfter: 1,
     };
-    const handleChange = e => {
+    const handleChange = (e) => {
       const key = e.currentTarget.id;
       const value = (e.currentTarget as HTMLInputElement).value;
 
@@ -247,7 +246,7 @@ function General({
               onChange={() => onChangeToggle('otpEnabled', !otpEnabled)}
               icons={{
                 checked: <span>Yes</span>,
-                unchecked: <span>No</span>
+                unchecked: <span>No</span>,
               }}
             />
           </FormGroup>
@@ -262,7 +261,7 @@ function General({
                 value={obj.smsTransporterType}
                 options={smsConfigs.filter((obj, index) => {
                   return (
-                    index === smsConfigs.findIndex(o => obj.value === o.value)
+                    index === smsConfigs.findIndex((o) => obj.value === o.value)
                   );
                 })}
                 name="SMS Configuration"
@@ -335,10 +334,10 @@ function General({
   const renderSocialPayConfig = () => {
     const config = socialpayConfig || {
       certId: '',
-      publicKey: ''
+      publicKey: '',
     };
 
-    const handleChange = e => {
+    const handleChange = (e) => {
       const key = e.currentTarget.id;
       const value = (e.currentTarget as HTMLInputElement).value;
 
@@ -386,7 +385,7 @@ function General({
     const obj = mailConfig || {
       registrationContent: `Hello <br /><br />Your verification link is {{ link }}.<br /><br />Thanks<br />${name}`,
       invitationContent: `Hello <br /><br />Your verification link is {{ link }}.<br />  Your password is: {{ password }} . Please change your password after you login. <br /><br />Thanks <br />${name}`,
-      subject: `${name} - invitation`
+      subject: `${name} - invitation`,
     };
 
     const onChangeSubject = (e: React.FormEvent) => {
@@ -394,7 +393,7 @@ function General({
       handleFormChange('mailConfig', obj);
     };
 
-    const onEditorChange = e => {
+    const onEditorChange = (e) => {
       const value = e.editor.getData();
       const editorNumber: number =
         e.editor.name && e.editor.name.replace(/[^\d.]/g, '');
@@ -422,7 +421,7 @@ function General({
               onChange={() => onChangeToggle('mailEnabled', !mailEnabled)}
               icons={{
                 checked: <span>Yes</span>,
-                unchecked: <span>No</span>
+                unchecked: <span>No</span>,
               }}
             />
           </FormGroup>
@@ -457,11 +456,11 @@ function General({
                     items: [
                       {
                         value: 'link',
-                        name: 'Link'
-                      }
+                        name: 'Link',
+                      },
                     ],
                     title: 'Attributes',
-                    label: 'Attributes'
+                    label: 'Attributes',
                   }}
                 />
               </FlexContent>
@@ -482,15 +481,15 @@ function General({
                     items: [
                       {
                         value: 'link',
-                        name: 'Link'
+                        name: 'Link',
                       },
                       {
                         value: 'password',
-                        name: 'Password'
-                      }
+                        name: 'Password',
+                      },
                     ],
                     title: 'Attributes',
-                    label: 'Attributes'
+                    label: 'Attributes',
                   }}
                 />
               </FlexContent>
@@ -516,12 +515,12 @@ function General({
               onChange={() =>
                 onChangeToggle(
                   'manualVerificationEnabled',
-                  !manualVerificationEnabled
+                  !manualVerificationEnabled,
                 )
               }
               icons={{
                 checked: <span>Yes</span>,
-                unchecked: <span>No</span>
+                unchecked: <span>No</span>,
               }}
             />
           </FormGroup>
@@ -551,7 +550,7 @@ function General({
                   }
                   icons={{
                     checked: <span>Yes</span>,
-                    unchecked: <span>No</span>
+                    unchecked: <span>No</span>,
                   }}
                 />
               </FormGroup>
@@ -567,7 +566,7 @@ function General({
                   }
                   icons={{
                     checked: <span>Yes</span>,
-                    unchecked: <span>No</span>
+                    unchecked: <span>No</span>,
                   }}
                 />
               </FormGroup>
@@ -617,7 +616,7 @@ function General({
               onChange={(e: any) =>
                 handleFormChange(
                   'tokenExpiration',
-                  Number(e.currentTarget.value)
+                  Number(e.currentTarget.value),
                 )
               }
             />
@@ -638,7 +637,7 @@ function General({
               onChange={(e: any) =>
                 handleFormChange(
                   'refreshTokenExpiration',
-                  Number(e.currentTarget.value)
+                  Number(e.currentTarget.value),
                 )
               }
             />
@@ -654,25 +653,25 @@ function General({
           {renderControl({
             label: 'Test User Email',
             formValueName: 'testUserEmail',
-            formValue: testUserEmail
+            formValue: testUserEmail,
           })}
           {renderControl({
             label: 'Test User Phone',
             formValueName: 'testUserPhone',
-            formValue: testUserPhone
+            formValue: testUserPhone,
           })}
         </BlockRow>
         <BlockRow>
           {renderControl({
             label: 'Test User Password',
             formValueName: 'testUserPassword',
-            formValue: testUserPassword
+            formValue: testUserPassword,
           })}
           {renderControl({
             label: 'Test User OTP',
             formProps: { type: 'number' },
             formValueName: 'testUserOTP',
-            formValue: testUserOTP
+            formValue: testUserOTP,
           })}
         </BlockRow>
       </CollapseContent>
@@ -693,22 +692,22 @@ function General({
         {renderControl({
           label: 'Google Application Credentials',
           formValueName: 'googleCredentials',
-          formValue: googleCredentials
+          formValue: googleCredentials,
         })}
         {renderControl({
           label: 'Google Client Id',
           formValueName: 'googleClientId',
-          formValue: googleClientId
+          formValue: googleClientId,
         })}
         {renderControl({
           label: 'Google Client Secret',
           formValueName: 'googleClientSecret',
-          formValue: googleClientSecret
+          formValue: googleClientSecret,
         })}
         {renderControl({
           label: 'Google Client Redirect Uri',
           formValueName: 'googleRedirectUri',
-          formValue: googleRedirectUri
+          formValue: googleRedirectUri,
         })}
       </CollapseContent>
       <CollapseContent
@@ -719,7 +718,7 @@ function General({
         {renderControl({
           label: 'Facebook App Id',
           formValueName: 'facebookAppId',
-          formValue: facebookAppId
+          formValue: facebookAppId,
         })}
       </CollapseContent>
       <CollapseContent
@@ -730,7 +729,7 @@ function General({
         {renderControl({
           label: 'Erxes App Token',
           formValueName: 'erxesAppToken',
-          formValue: erxesAppToken
+          formValue: erxesAppToken,
         })}
       </CollapseContent>
     </>

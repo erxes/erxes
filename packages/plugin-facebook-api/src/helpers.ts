@@ -48,8 +48,8 @@ export const removeIntegration = async (
         );
       }
 
-      await models.Posts.deleteMany({ recipientId: pageId });
-      await models.Comments.deleteMany({ recipientId: pageId });
+      await models.PostConversations.deleteMany({ recipientId: pageId });
+      await models.CommentConversation.deleteMany({ recipientId: pageId });
 
       try {
         await unsubscribePage(pageId, pageTokenResponse);
@@ -233,11 +233,11 @@ export const facebookGetCustomerPosts = async (
     return [];
   }
 
-  const result = await models.Comments.aggregate([
+  const result = await models.CommentConversation.aggregate([
     { $match: { senderId: customer.userId } },
     {
       $lookup: {
-        from: 'posts_facebooks',
+        from: 'posts_conversations_facebooks',
         localField: 'postId',
         foreignField: 'postId',
         as: 'post',
@@ -267,7 +267,7 @@ export const facebookGetCustomerPosts = async (
 export const facebookCreateIntegration = async (
   models: IModels,
   { accountId, integrationId, data, kind },
-) => {
+): Promise<{ status: 'success' }> => {
   const facebookPageIds = JSON.parse(data).pageIds;
 
   const account = await models.Accounts.getAccount({ _id: accountId });

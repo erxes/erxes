@@ -5,12 +5,13 @@ import {
   queries as carQueries,
   mutations as carMutations
 } from './schema/car';
+import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
 
-const typeDefs = async serviceDiscovery => {
-  const isContactsEnabled = await serviceDiscovery.isEnabled('contacts');
-  const isTagEnabled = await serviceDiscovery.isEnabled('tags');
+const typeDefs = async () => {
+  const isContactsEnabled = await isEnabled('contacts');
+  const isTagEnabled = await isEnabled('tags');
 
-  const isEnabled = {
+  const isEnabledTable = {
     contacts: isContactsEnabled,
     tags: isTagEnabled
   };
@@ -19,7 +20,7 @@ const typeDefs = async serviceDiscovery => {
     scalar JSON
     scalar Date
     
-    ${carTypes(isEnabled)}
+    ${carTypes(isEnabledTable)}
     
     extend type Query {
 

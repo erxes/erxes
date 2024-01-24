@@ -1,1 +1,1 @@
-export default async (app: any): Promise<void> => {};
+export default async (): Promise<void> => {};

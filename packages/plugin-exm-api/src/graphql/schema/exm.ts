@@ -1,7 +1,7 @@
 const externalId = '_id: String! @external';
 const keyFields = '@key(fields: "_id")';
 
-export const types = _serviceDiscovery => {
+export const types = () => {
   return `
     extend type User ${keyFields} {
       ${externalId}
