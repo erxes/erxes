@@ -42,7 +42,7 @@ const ChartFormField = (props: Props) => {
   };
 
   const onSelect = (e) => {
-    if (multi && isArrayObjects(e)) {
+    if (multi && Array.isArray(e)) {
       const arr = e.map((sel) => sel.value);
       onChange(arr);
       setFieldValue(arr);

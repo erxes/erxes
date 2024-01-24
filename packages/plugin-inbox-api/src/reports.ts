@@ -22,28 +22,6 @@ const reportTemplates = [
   },
 ];
 
-const integrationTypess = async () => {
-  const integrationTypess = Array.from(
-    new Set((await models?.Integrations.find())?.map((i) => i.kind)),
-  );
-
-  return integrationTypess;
-};
-
-const integrationBrands = async (subdomain: any) => {
-  const brands = await sendCoreMessage({
-    subdomain,
-    action: 'brands.find',
-    data: {
-      query: {},
-    },
-    isRPC: true,
-    defaultValue: [],
-  });
-
-  return brands.map((brand) => ({ label: brand.name, value: brand._id }));
-};
-
 // integrationTypess
 
 // XOS messenger
@@ -54,14 +32,6 @@ const integrationBrands = async (subdomain: any) => {
 // FB messenger
 // SMS
 // All
-
-// All time
-// Today
-// Yesterday
-// Last week/month/year
-// This week/month/year
-// Rolling date range
-// Custom date range
 
 const DATERANGE_TYPES = [
   { label: 'All time', value: 'all' },
@@ -127,6 +97,47 @@ const chartTemplates = [
       const filterQuery = {
         createdAt: { $gte: startDate, $lte: endDate },
       };
+      const { departmentIds, branchIds } = filter;
+
+      const dimensionX = dimension.x;
+
+      let departmentUsers;
+      let filterUserIds: any = [];
+      const integrationsDict = {};
+      let totalIntegrations;
+
+      if (departmentIds && departmentIds.length) {
+        const findDepartmentUsers = await sendCoreMessage({
+          subdomain,
+          action: 'users.find',
+          data: {
+            query: { departmentIds: { $in: filter.departmentIds } },
+          },
+          isRPC: true,
+          defaultValue: [],
+        });
+
+        departmentUsers = findDepartmentUsers;
+        filterUserIds = findDepartmentUsers.map((user) => user._id);
+      }
+
+      if (branchIds && branchIds.length) {
+        const findBranchUsers = await sendCoreMessage({
+          subdomain,
+          action: 'users.find',
+          data: {
+            query: { branchIds: { $in: filter.branchIds } },
+          },
+          isRPC: true,
+          defaultValue: [],
+        });
+
+        filterUserIds.push(...findBranchUsers.map((user) => user._id));
+      }
+
+      if (filter.userIds) {
+        filterUserIds = filter.userIds;
+      }
 
       // filter by source
       if (filter.integrationTypes && !filter.integrationTypes.includes('all')) {
@@ -141,13 +152,88 @@ const chartTemplates = [
         matchfilter['integrationId'] = { $in: integrationIds };
       }
 
-      matchfilter['conversationMessages.userId'] =
-        filter && filter.userIds
-          ? {
-              $exists: true,
-              $in: filter.userIds,
-            }
-          : { $exists: true };
+      // filter by date
+      if (filter.dateRange) {
+        const dateFilter = {};
+        const NOW = new Date();
+        const startOfToday = new Date(NOW.setHours(0, 0, 0, 0));
+        const endOfToday = new Date(NOW.setHours(23, 59, 59, 999));
+        const startOfYesterday = new Date(
+          dayjs(NOW).add(-1, 'day').toDate().setHours(0, 0, 0, 0),
+        );
+
+        switch (filter.dateRange) {
+          case 'today':
+            dateFilter['$gte'] = startOfToday;
+            dateFilter['$lte'] = endOfToday;
+            break;
+          case 'yesterday':
+            dateFilter['$gte'] = startOfYesterday;
+            dateFilter['$lte'] = startOfToday;
+          case 'thisWeek':
+            dateFilter['$gte'] = dayjs(NOW).startOf('week').toDate();
+            dateFilter['$lte'] = dayjs(NOW).endOf('week').toDate();
+            break;
+
+          case 'lastWeek':
+            dateFilter['$gte'] = dayjs(NOW)
+              .add(-1, 'week')
+              .startOf('week')
+              .toDate();
+            dateFilter['$lte'] = dayjs(NOW)
+              .add(-1, 'week')
+              .endOf('week')
+              .toDate();
+            break;
+          case 'lastMonth':
+            dateFilter['$gte'] = dayjs(NOW)
+              .add(-1, 'month')
+              .startOf('month')
+              .toDate();
+            dateFilter['$lte'] = dayjs(NOW)
+              .add(-1, 'month')
+              .endOf('month')
+              .toDate();
+            break;
+          case 'thisMonth':
+            dateFilter['$gte'] = dayjs(NOW).startOf('month').toDate();
+            dateFilter['$lte'] = dayjs(NOW).endOf('month').toDate();
+            break;
+          case 'thisYear':
+            dateFilter['$gte'] = dayjs(NOW).startOf('year').toDate();
+            dateFilter['$lte'] = dayjs(NOW).endOf('year').toDate();
+            break;
+          case 'lastYear':
+            dateFilter['$gte'] = dayjs(NOW)
+              .add(-1, 'year')
+              .startOf('year')
+              .toDate();
+            dateFilter['$lte'] = dayjs(NOW)
+              .add(-1, 'year')
+              .endOf('year')
+              .toDate();
+            break;
+
+          case 'customDate':
+            dateFilter['$gte'] = filter.startDate;
+            dateFilter['$lte'] = filter.endDate;
+            break;
+          //all
+          default:
+            break;
+        }
+
+        if (Object.keys(dateFilter).length) {
+          matchfilter['createdAt'] = dateFilter;
+        }
+      }
+
+      matchfilter['conversationMessages.userId'] = filterUserIds.length
+        ? {
+            $exists: true,
+            $in: filterUserIds,
+          }
+        : { $exists: true };
 
       const conversations = await models?.Conversations.aggregate([
         {
@@ -355,6 +441,48 @@ const chartTemplates = [
         closedAt: { $exists: true },
       };
 
+      const { departmentIds, branchIds } = filter;
+
+      const dimensionX = dimension.x;
+
+      let departmentUsers;
+      let filterUserIds: any = [];
+      const integrationsDict = {};
+      let totalIntegrations;
+
+      if (departmentIds && departmentIds.length) {
+        const findDepartmentUsers = await sendCoreMessage({
+          subdomain,
+          action: 'users.find',
+          data: {
+            query: { departmentIds: { $in: filter.departmentIds } },
+          },
+          isRPC: true,
+          defaultValue: [],
+        });
+
+        departmentUsers = findDepartmentUsers;
+        filterUserIds = findDepartmentUsers.map((user) => user._id);
+      }
+
+      if (branchIds && branchIds.length) {
+        const findBranchUsers = await sendCoreMessage({
+          subdomain,
+          action: 'users.find',
+          data: {
+            query: { branchIds: { $in: filter.branchIds } },
+          },
+          isRPC: true,
+          defaultValue: [],
+        });
+
+        filterUserIds.push(...findBranchUsers.map((user) => user._id));
+      }
+
+      if (filter.userIds) {
+        filterUserIds = filter.userIds;
+      }
+
       // filter by source
       if (filter.integrationTypes && !filter.integrationTypes.includes('all')) {
         const { integrationTypes } = filter;
@@ -367,13 +495,89 @@ const chartTemplates = [
 
         matchfilter['integrationId'] = { $in: integrationIds };
       }
-      matchfilter['closedUserId'] =
-        filter && filter.userIds
-          ? {
-              $exists: true,
-              $in: filter.userIds,
-            }
-          : { $exists: true };
+
+      // filter by date
+      if (filter.dateRange) {
+        const dateFilter = {};
+        const NOW = new Date();
+        const startOfToday = new Date(NOW.setHours(0, 0, 0, 0));
+        const endOfToday = new Date(NOW.setHours(23, 59, 59, 999));
+        const startOfYesterday = new Date(
+          dayjs(NOW).add(-1, 'day').toDate().setHours(0, 0, 0, 0),
+        );
+
+        switch (filter.dateRange) {
+          case 'today':
+            dateFilter['$gte'] = startOfToday;
+            dateFilter['$lte'] = endOfToday;
+            break;
+          case 'yesterday':
+            dateFilter['$gte'] = startOfYesterday;
+            dateFilter['$lte'] = startOfToday;
+          case 'thisWeek':
+            dateFilter['$gte'] = dayjs(NOW).startOf('week').toDate();
+            dateFilter['$lte'] = dayjs(NOW).endOf('week').toDate();
+            break;
+
+          case 'lastWeek':
+            dateFilter['$gte'] = dayjs(NOW)
+              .add(-1, 'week')
+              .startOf('week')
+              .toDate();
+            dateFilter['$lte'] = dayjs(NOW)
+              .add(-1, 'week')
+              .endOf('week')
+              .toDate();
+            break;
+          case 'lastMonth':
+            dateFilter['$gte'] = dayjs(NOW)
+              .add(-1, 'month')
+              .startOf('month')
+              .toDate();
+            dateFilter['$lte'] = dayjs(NOW)
+              .add(-1, 'month')
+              .endOf('month')
+              .toDate();
+            break;
+          case 'thisMonth':
+            dateFilter['$gte'] = dayjs(NOW).startOf('month').toDate();
+            dateFilter['$lte'] = dayjs(NOW).endOf('month').toDate();
+            break;
+          case 'thisYear':
+            dateFilter['$gte'] = dayjs(NOW).startOf('year').toDate();
+            dateFilter['$lte'] = dayjs(NOW).endOf('year').toDate();
+            break;
+          case 'lastYear':
+            dateFilter['$gte'] = dayjs(NOW)
+              .add(-1, 'year')
+              .startOf('year')
+              .toDate();
+            dateFilter['$lte'] = dayjs(NOW)
+              .add(-1, 'year')
+              .endOf('year')
+              .toDate();
+            break;
+
+          case 'customDate':
+            dateFilter['$gte'] = filter.startDate;
+            dateFilter['$lte'] = filter.endDate;
+            break;
+          //all
+          default:
+            break;
+        }
+
+        if (Object.keys(dateFilter).length) {
+          matchfilter['createdAt'] = dateFilter;
+        }
+      }
+
+      matchfilter['closedUserId'] = filterUserIds.length
+        ? {
+            $exists: true,
+            $in: filterUserIds,
+          }
+        : { $exists: true };
 
       const usersWithClosedTime = await models?.Conversations.aggregate([
         {
