@@ -129,7 +129,7 @@ export class VendorBaseAPI {
       const response = await fetch(
         `${this.apiUrl}/${path}?` + new URLSearchParams(params),
         requestOptions,
-      );
+      ).then((r) => r.json());
 
       return response;
     } catch (e) {
