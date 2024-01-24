@@ -22,12 +22,12 @@ const reportTemplates = [
   },
 ];
 
-const integrationTypes = async () => {
-  const integrationTypes = Array.from(
+const integrationTypess = async () => {
+  const integrationTypess = Array.from(
     new Set((await models?.Integrations.find())?.map((i) => i.kind)),
   );
 
-  return integrationTypes;
+  return integrationTypess;
 };
 
 const integrationBrands = async (subdomain: any) => {
@@ -44,7 +44,7 @@ const integrationBrands = async (subdomain: any) => {
   return brands.map((brand) => ({ label: brand.name, value: brand._id }));
 };
 
-// integrationTypes
+// integrationTypess
 
 // XOS messenger
 // email
@@ -74,22 +74,6 @@ const DATERANGE_TYPES = [
   { label: 'This Year', value: 'thisYear' },
   { label: 'Last Year', value: 'lastYear' },
   { label: 'Custom Date', value: 'customDate' },
-];
-
-const BRAND_TYPES = [
-  { label: 'culture.erxes.io', value: '7jT85DCftyEvSCB3c' },
-  { label: 'block.mn', value: '7r1ffWS1cHmaFDQ0chvRq' },
-  { label: 'partner.erxes.mn', value: 'AaCpKXSBoLtZsannQ' },
-  { label: 'Invest erxes - TDB 🇲🇳', value: 'FPHygSvFCivSuBXxK' },
-  { label: 'erkhet', value: 'FkQCXdsFTASqpmrou' },
-  { label: 'Invest in erxes 🇬🇧', value: 'NM2k5RAL7fKmJoqeq' },
-  { label: 'erxes Inc 🇬🇧', value: 'Wp5uEmjzScXuDcnpS' },
-  { label: 'erxes Mongolia 🇲🇳', value: 'd2vGwZcfpQr5oQrqN' },
-  { label: 'help.erxes.io 🇬🇧', value: 'jS9iRQL4ERSzgtxQT' },
-  { label: 'The New Media Group', value: 'owMWQueFNjBjfKJXH' },
-  { label: 'culture.erxes.mn 🇲🇳', value: 'pwwsa9xSvhJE4Mwq8' },
-  { label: 'partner.erxes.io', value: 'uAaN2Y8TQibGuXqPg' },
-  { label: 'erxes Open Source 🇬🇧', value: 'uSa9BXx9bG5HTpSNc' },
 ];
 
 const INTEGRATION_TYPES = [
@@ -145,11 +129,11 @@ const chartTemplates = [
       };
 
       // filter by source
-      if (filter.integrationType && filter.integrationType !== 'all') {
-        const { integrationType } = filter;
+      if (filter.integrationTypes && !filter.integrationTypes.includes('all')) {
+        const { integrationTypes } = filter;
 
         const integrations: any = await models?.Integrations.find({
-          kind: integrationType,
+          kind: { $in: integrationTypes },
         });
 
         const integrationIds = integrations.map((i) => i._id);
@@ -338,7 +322,7 @@ const chartTemplates = [
         fieldLabel: 'Select branches',
       },
       {
-        fieldName: 'integrationType',
+        fieldName: 'integrationTypes',
         fieldType: 'select',
         multi: true,
         fieldOptions: INTEGRATION_TYPES,
@@ -372,11 +356,11 @@ const chartTemplates = [
       };
 
       // filter by source
-      if (filter.integrationType && filter.integrationType !== 'all') {
-        const { integrationType } = filter;
+      if (filter.integrationTypes && !filter.integrationTypes.includes('all')) {
+        const { integrationTypes } = filter;
 
         const integrations: any = await models?.Integrations.find({
-          kind: integrationType,
+          kind: { $in: integrationTypes },
         });
 
         const integrationIds = integrations.map((i) => i._id);
@@ -476,7 +460,7 @@ const chartTemplates = [
         fieldLabel: 'Select branches',
       },
       {
-        fieldName: 'integrationType',
+        fieldName: 'integrationTypes',
         fieldType: 'select',
         multi: true,
         fieldOptions: INTEGRATION_TYPES,
@@ -519,12 +503,21 @@ const chartTemplates = [
 
       let title = `${filterStatus} conversations' count`;
 
-      const { departmentIds, branchIds, userIds, brandIds, dateRange } = filter;
+      const {
+        departmentIds,
+        branchIds,
+        userIds,
+        brandIds,
+        dateRange,
+        integrationTypes,
+        tagIds,
+      } = filter;
 
       const dimensionX = dimension.x;
 
       let departmentUsers;
       let filterUserIds: any = [];
+      let integrationsDict;
 
       if (dimensionX === 'status') {
       }
@@ -663,15 +656,20 @@ const chartTemplates = [
       }
 
       // filter by source
-      if (filter.integrationType && filter.integrationType !== 'all') {
-        const { integrationType } = filter;
+      if (filter.integrationTypes && !filter.integrationTypes.includes('all')) {
+        const { integrationTypes } = filter;
 
-        integrationFindQuery['kind'] = integrationType;
+        integrationFindQuery['kind'] = { $in: integrationTypes };
 
         const integrations: any =
           await models?.Integrations.find(integrationFindQuery);
 
-        const integrationIds = integrations.map((i) => i._id);
+        const integrationIds: string[] = [];
+
+        for (const integration of integrations) {
+          integrationsDict[integration._id] = integration.kind;
+          integrationIds.push(integration._id);
+        }
 
         matchfilter['integrationId'] = { $in: integrationIds };
       }
@@ -756,6 +754,9 @@ const chartTemplates = [
         return datasets;
       }
 
+      console.log(matchfilter, ' match');
+      console.log(userIdGroup, ' group');
+
       const usersWithConvosCount = await models?.Conversations.aggregate([
         {
           $match: matchfilter,
@@ -783,12 +784,12 @@ const chartTemplates = [
             user.details?.fullName ||
             `${user.details?.firstName || ''} ${user.details?.lastName || ''}`,
           departmentIds: user.departmentIds,
+          branchIds: user.branchIds,
         };
       }
 
+      // department
       if (dimensionX === 'department') {
-        console.log('sexyyy');
-
         const departmentsDict = {};
 
         const departmentsQuery =
@@ -843,11 +844,121 @@ const chartTemplates = [
           }
         }
 
-        console.log(departmentsDict);
+        return { title, labels, data };
+      }
+
+      // branch
+      if (dimensionX === 'branch') {
+        const branchesDict = {};
+
+        const branchesQuery =
+          branchIds && branchIds.length
+            ? { query: { _id: { $in: branchIds } } }
+            : {};
+
+        const branches = await sendCoreMessage({
+          subdomain,
+          action: 'branches.find',
+          data: branchesQuery,
+          isRPC: true,
+          defaultValue: [],
+        });
+
+        for (const branch of branches) {
+          branchesDict[branch._id] = {
+            title: branch.title,
+            conversationsCount: 0,
+          };
+        }
+
+        if (usersWithConvosCount) {
+          for (const user of usersWithConvosCount) {
+            if (!usersMap[user._id] || !usersMap[user._id].branchIds) {
+              continue;
+            }
+
+            for (const branchId of usersMap[user._id].branchIds) {
+              if (!branchesDict[branchId]) {
+                continue;
+              }
+
+              const getOldConvosCount =
+                branchesDict[branchId].conversationsCount;
+
+              const incrementCount =
+                getOldConvosCount + user.conversationsCount;
+
+              branchesDict[branchId] = {
+                conversationsCount: incrementCount,
+                title: branchesDict[branchId].title,
+              };
+            }
+          }
+
+          title = 'Conversations count by departments';
+
+          for (const branchId of Object.keys(branchesDict)) {
+            labels.push(branchesDict[branchId].title);
+            data.push(branchesDict[branchId].conversationsCount);
+          }
+        }
 
         return { title, labels, data };
       }
 
+      if (dimensionX === 'source') {
+        const sourcesDict = {};
+
+        if (filter.integrationTypes) {
+          const { integrationTypes } = filter;
+
+          // integrationFindQuery['kind'] = integrationTypes;
+        }
+
+        groupByQuery = {
+          $group: {
+            _id: '$integrationId',
+            conversationsCount: { $sum: 1 },
+          },
+        };
+
+        const convosCountBySource = await models?.Conversations.aggregate([
+          {
+            $match: matchfilter,
+          },
+          groupByQuery,
+        ]);
+
+        if (convosCountBySource) {
+          for (const convo of convosCountBySource) {
+            const integrationId = convo._id;
+            if (!integrationsDict[integrationId]) {
+              continue;
+            }
+            const integrationKind = integrationsDict[integrationId];
+
+            if (!sourcesDict[integrationKind]) {
+              sourcesDict[integrationKind] = convo.conversationsCount;
+              continue;
+            }
+
+            //increment
+            const getOldCount = sourcesDict[integrationKind];
+            sourcesDict[integrationKind] =
+              getOldCount + convo.conversationsCount;
+          }
+
+          for (const source of Object.keys(sourcesDict)) {
+            labels.push(source);
+            data.push(sourcesDict[source]);
+          }
+        }
+
+        const title = 'Conversations count by source';
+        return { title, labels, data };
+      }
+
+      // team members
       if (usersWithConvosCount) {
         for (const user of usersWithConvosCount) {
           if (!usersMap[user._id]) {
@@ -894,16 +1005,16 @@ const chartTemplates = [
         fieldLabel: 'Select branches',
       },
       {
-        fieldName: 'integrationType',
+        fieldName: 'integrationTypes',
         fieldType: 'select',
-        fieldQuery: 'integrations',
         multi: true,
-        fieldValueVariable: '_id',
-        fieldLabelVariable: 'name',
+        fieldQuery: 'integrations',
+        fieldOptions: INTEGRATION_TYPES,
         fieldLabel: 'Select source',
       },
       {
         fieldName: 'brand',
+
         fieldType: 'select',
         fieldQuery: 'brands',
         multi: true,

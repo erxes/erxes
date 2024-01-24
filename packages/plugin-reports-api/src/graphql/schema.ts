@@ -156,6 +156,7 @@ const report_chart_common_params = `
   vizState: String
   layout: String
   filter: JSON
+  dimension: JSON
   serviceName: String
   templateType: String
 `;

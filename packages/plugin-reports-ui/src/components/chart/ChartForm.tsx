@@ -8,7 +8,6 @@ import {
   FlexColumn,
   FormChart,
   FormContainer,
-  MarginY,
   RightDrawerContainer,
   ScrolledContent,
 } from '../../styles';
@@ -141,7 +140,13 @@ const ChartForm = (props: Props) => {
   };
 
   const setFilter = (fieldName: string, value: any) => {
-    if (!value && !value.length) {
+    if (!value) {
+      delete filters[fieldName];
+      setFilters({ ...filters });
+      return;
+    }
+
+    if (!value.length) {
       delete filters[fieldName];
       setFilters({ ...filters });
       return;

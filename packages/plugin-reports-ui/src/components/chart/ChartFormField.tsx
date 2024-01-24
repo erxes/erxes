@@ -35,7 +35,20 @@ const ChartFormField = (props: Props) => {
   } = props;
   const [fieldValue, setFieldValue] = useState(initialValue);
 
+  const isArrayObjects = (arr) => {
+    return arr.every(
+      (element) => typeof element === 'object' && element !== null,
+    );
+  };
+
   const onSelect = (e) => {
+    if (multi && isArrayObjects(e)) {
+      const arr = e.map((sel) => sel.value);
+      onChange(arr);
+      setFieldValue(arr);
+      return;
+    }
+
     setFieldValue(e.value);
     onChange(e);
   };
@@ -165,6 +178,7 @@ const ChartFormField = (props: Props) => {
           <ControlLabel>{fieldLabel}</ControlLabel>
           <Select
             value={fieldValue}
+            multi={multi}
             onChange={onSelect}
             options={fieldOptions}
             placeholder={fieldLabel}

@@ -66,6 +66,7 @@ const reportsList = `
           order
           chartType
           filter
+          dimension
           defaultFilter {
             fieldName
             filterValue
@@ -136,6 +137,7 @@ const reportDetail = `
           layout
           vizState
           filter
+          dimension
           defaultFilter {
             fieldName
             filterValue
