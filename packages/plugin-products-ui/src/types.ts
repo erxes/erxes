@@ -11,6 +11,7 @@ export interface IItemC {
   name: string;
   code: string;
   description?: string;
+  attachment?: any;
 }
 
 export type IProductDoc = IProductDocC & {};

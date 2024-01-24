@@ -15,6 +15,8 @@ import { IItem } from './../../types';
 import React from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
 import Form from '../../containers/item/ItemForm';
+import { IAttachment } from '@erxes/ui/src/types';
+import Attachment from '@erxes/ui/src/components/Attachment';
 
 type Props = {
   item: IItem;
@@ -83,10 +85,16 @@ function BasicInfo(props: Props) {
     );
   };
 
+  const renderImage = (image: IAttachment) => {
+    if (!image) {
+      return null;
+    }
+    return <Attachment attachment={image} />;
+  };
+
   const renderInfo = () => {
     const { item } = props;
-
-    const { code, name, description } = item;
+    const { name, code, description, attachment } = item;
 
     return (
       <Sidebar.Section>
@@ -95,6 +103,7 @@ function BasicInfo(props: Props) {
           {renderAction()}
         </InfoWrapper>
 
+        {renderImage(attachment)}
         <SidebarList className="no-link">
           {renderView('Name', name)}
           {renderView('Code', code)}

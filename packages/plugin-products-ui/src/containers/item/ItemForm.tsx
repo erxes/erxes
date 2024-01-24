@@ -36,7 +36,13 @@ const ItemFormContainer = (props: FinalProps) => {
   }: IButtonMutateProps) => {
     const { itemsTotalCount } = values;
 
+    const attachment = values.attachment || undefined;
+
     values.itemsTotalCount = Number(itemsTotalCount);
+
+    values.attachment = attachment
+      ? { ...attachment, __typename: undefined }
+      : null;
 
     return (
       <ButtonMutate

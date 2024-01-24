@@ -83,6 +83,7 @@ export const types = (tagsAvailable, contactsAvailable) => `
     name: String
     code: String
     description: String
+    attachment: Attachment
   }
 
   type ProductSimilarityGroup {
@@ -151,9 +152,10 @@ const productsQueryParams = `
 `;
 
 const itemParams = `
-  name: String
-  code: String
-  description: String
+  name: String,
+  code: String,
+  description: String,
+  attachment: AttachmentInput,
 `;
 
 export const queries = `

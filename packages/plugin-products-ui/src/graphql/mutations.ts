@@ -12,13 +12,15 @@ const productCategoryEdit = productMutations.productCategoryEdit;
 const itemParamsDef = `
   $name: String,
   $code: String,
-  $description: String
+  $description: String,
+  $attachment: AttachmentInput
 `;
 
 const itemParams = `
   name: $name,
   code: $code,
-  description: $description
+  description: $description,
+  attachment: $attachment
 `;
 
 const itemsAdd = `

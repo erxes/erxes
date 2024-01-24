@@ -4,6 +4,7 @@ import BasicInfo from './../../containers/item/ItemBasicInfo';
 import { IItem } from './../../types';
 import React from 'react';
 import { queries } from './../../graphql';
+import CustomFieldsSection from '../../containers/product/detail/CustomFieldsSection';
 
 type Props = {
   item: IItem;

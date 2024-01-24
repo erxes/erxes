@@ -112,6 +112,7 @@ export interface IItems {
   name: string;
   code: string;
   description?: string;
+  attachment?: IAttachment;
 }
 
 export interface IItemsDocument extends IItems, Document {
@@ -246,5 +247,6 @@ export const itemSchema = schemaWrapper(
     name: field({ type: String, label: 'Name' }),
     code: field({ type: String, unique: true, label: 'Code' }),
     description: field({ type: String, optional: true, label: 'Description' }),
+    attachment: field({ type: attachmentSchema }),
   }),
 );

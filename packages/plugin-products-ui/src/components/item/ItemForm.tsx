@@ -9,8 +9,14 @@ import {
   FormWrapper,
   ModalFooter,
 } from '@erxes/ui/src/styles/main';
-import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
+import {
+  IAttachment,
+  IButtonMutateProps,
+  IFormProps,
+} from '@erxes/ui/src/types';
 import { IItem } from '../.././types';
+import Uploader from '@erxes/ui/src/components/Uploader';
+import { extractAttachment } from '@erxes/ui/src/utils/core';
 
 type Props = {
   item?: IItem;
@@ -21,18 +27,27 @@ type Props = {
 
 const Form = ({ item, renderButton, closeModal, history }: Props) => {
   const [code, setCode] = useState(item?.code || '');
+  const [attachment, setAttachment] = useState(item?.attachment || undefined);
 
   const generateDoc = (values: { _id?: string; code: string }) => {
-    const finalValues = { ...values, code };
+    const finalValues = { ...values };
     if (item) {
       finalValues._id = item._id;
     }
-    return finalValues;
+
+    return { ...finalValues, attachment };
+  };
+
+  const onChangeAttachment = (files: IAttachment[]) => {
+    setAttachment(files ? files[0] : undefined);
   };
 
   const renderContent = (formProps: IFormProps) => {
     const { values, isSubmitted } = formProps;
     const object = item || ({} as IItem);
+
+    const attachments =
+      (object.attachment && extractAttachment([object.attachment])) || [];
 
     return (
       <>
@@ -75,6 +90,16 @@ const Form = ({ item, renderButton, closeModal, history }: Props) => {
                 name="description"
                 componentClass="textarea"
                 defaultValue={object.description}
+              />
+            </FormGroup>
+
+            <FormGroup>
+              <ControlLabel>Image</ControlLabel>
+              <Uploader
+                defaultFileList={attachments}
+                onChange={onChangeAttachment}
+                multiple={false}
+                single={true}
               />
             </FormGroup>
           </FormColumn>

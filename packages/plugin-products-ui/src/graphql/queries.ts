@@ -65,6 +65,12 @@ const itemFields = `
   name
   code
   description
+  attachment {
+    url
+    name
+    size
+    type
+  }
 `;
 
 const items = `

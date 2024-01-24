@@ -220,11 +220,7 @@ const productMutations = {
    * Creates an item
    * @param {Object} doc Item document
    */
-  async itemsAdd(
-    _root,
-    doc: IItems,
-    { user, docModifier, models, subdomain }: IContext,
-  ) {
+  async itemsAdd(_root, doc: IItems, { docModifier, models }: IContext) {
     const item = await models.Items.createItem(docModifier(doc));
 
     return item;
