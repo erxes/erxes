@@ -351,8 +351,17 @@ export const consumeCustomers = async (subdomain, config, doc, action) => {
 
 export const customerToDynamic = async (subdomain, syncLog, params, models) => {
   const configs = await getConfig(subdomain, 'DYNAMIC', {});
-  // const config = configs[brandId || 'noBrand'];
-  const config = configs['7r1ffWS1cHmaFDQ0chvRq'];
+
+  const brand = await sendCoreMessage({
+    subdomain,
+    action: 'brands.findOne',
+    data: {
+      query: { name: 'Beverage' },
+    },
+    isRPC: true,
+  });
+
+  const config = configs[brand._id || 'noBrand'];
 
   const customer = params;
 
