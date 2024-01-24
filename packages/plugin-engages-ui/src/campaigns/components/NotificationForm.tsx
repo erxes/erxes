@@ -9,7 +9,7 @@ import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 import {
   IEngageScheduleDate,
-  IEngageNotification
+  IEngageNotification,
 } from '@erxes/ui-engage/src/types';
 import Scheduler from './Scheduler';
 // import NotificationPreview from './NotificationPreview';
@@ -21,7 +21,7 @@ const FlexInfo = styled.div`
 `;
 
 const Char = styledTS<{ count: number }>(styled.div)`
-  color: ${props =>
+  color: ${(props) =>
     props.count > 10
       ? props.count < 30 && colors.colorCoreOrange
       : colors.colorCoreRed};
@@ -31,7 +31,7 @@ const Char = styledTS<{ count: number }>(styled.div)`
 type Props = {
   onChange: (
     name: 'shortMessage' | 'scheduleDate' | 'notification',
-    value?: IEngageNotification | IEngageScheduleDate | IEngageNotification
+    value?: IEngageNotification | IEngageScheduleDate | IEngageNotification,
   ) => void;
   messageKind: string;
   scheduleDate: IEngageScheduleDate;
@@ -57,7 +57,7 @@ class NotificationForm extends React.Component<Props, State> {
       titleCount: this.calcCharacterCount(15, this.getContent('title')),
       message: this.getContent('content'),
       title: this.getContent('title'),
-      isMobile: this.getContent('isMobile') || false
+      isMobile: this.getContent('isMobile') || false,
     };
   }
 
@@ -105,36 +105,36 @@ class NotificationForm extends React.Component<Props, State> {
     const { notification } = this.props;
     const { message, title, isMobile, titleCount, characterCount } = this.state;
 
-    const onChangeTitle = e =>
+    const onChangeTitle = (e) =>
       this.onChangeNotification('title', (e.target as HTMLInputElement).value);
 
-    const onChangeContent = e =>
+    const onChangeContent = (e) =>
       this.onChangeNotification(
         'content',
-        (e.target as HTMLInputElement).value
+        (e.target as HTMLInputElement).value,
       );
 
-    const onChangeIsMobile = e => {
+    const onChangeIsMobile = (e) => {
       this.onChangeNotification(
         'isMobile',
-        (e.target as HTMLInputElement).checked
+        (e.target as HTMLInputElement).checked,
       );
     };
 
-    const onChangeTitleContent = e => {
+    const onChangeTitleContent = (e) => {
       const title = (e.target as HTMLInputElement).value;
 
       this.setState({
         title: title,
-        titleCount: this.calcCharacterCount(15, title)
+        titleCount: this.calcCharacterCount(15, title),
       });
     };
 
-    const onChangeNotificationContent = e => {
+    const onChangeNotificationContent = (e) => {
       const content = (e.target as HTMLInputElement).value;
       this.setState({
         message: content,
-        characterCount: this.calcCharacterCount(160, content)
+        characterCount: this.calcCharacterCount(160, content),
       });
     };
 
@@ -176,7 +176,7 @@ class NotificationForm extends React.Component<Props, State> {
             <input
               onBlur={onChangeIsMobile}
               defaultChecked={notification?.isMobile || false}
-              onChange={e => onChangeIsMobile(e)}
+              onChange={(e) => onChangeIsMobile(e)}
               type="checkbox"
             />
           </FormGroup>

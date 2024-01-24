@@ -48,12 +48,12 @@ export const Variable = Node.create<VariableOptions>({
             .insertContentAt(range, [
               {
                 type: this.name,
-                attrs: props
+                attrs: props,
               },
               {
                 type: 'text',
-                text: ' '
-              }
+                text: ' ',
+              },
             ])
             .run();
 
@@ -65,8 +65,8 @@ export const Variable = Node.create<VariableOptions>({
           const allow = !!$from.parent.type.contentMatch.matchType(type);
 
           return allow;
-        }
-      }
+        },
+      },
     };
   },
 
@@ -74,53 +74,53 @@ export const Variable = Node.create<VariableOptions>({
     return {
       id: {
         default: null,
-        parseHTML: element => element.getAttribute('data-id'),
-        renderHTML: attributes => {
+        parseHTML: (element) => element.getAttribute('data-id'),
+        renderHTML: (attributes) => {
           if (!attributes.id) {
             return {};
           }
 
           return {
-            'data-id': attributes.id
+            'data-id': attributes.id,
           };
-        }
+        },
       },
 
       label: {
         default: null,
-        parseHTML: element => element.getAttribute('data-label'),
-        renderHTML: attributes => {
+        parseHTML: (element) => element.getAttribute('data-label'),
+        renderHTML: (attributes) => {
           if (!attributes.label) {
             return {};
           }
 
           return {
-            'data-label': attributes.label
+            'data-label': attributes.label,
           };
-        }
+        },
       },
 
       fallback: {
         default: null,
-        parseHTML: element => element.getAttribute('data-fallback'),
-        renderHTML: attributes => {
+        parseHTML: (element) => element.getAttribute('data-fallback'),
+        renderHTML: (attributes) => {
           if (!attributes.fallback) {
             return {};
           }
 
           return {
-            'data-fallback': attributes.fallback
+            'data-fallback': attributes.fallback,
           };
-        }
-      }
+        },
+      },
     };
   },
 
   parseHTML() {
     return [
       {
-        tag: `span[data-type="${this.name}"]`
-      }
+        tag: `span[data-type="${this.name}"]`,
+      },
     ];
   },
 
@@ -130,19 +130,19 @@ export const Variable = Node.create<VariableOptions>({
       mergeAttributes(
         { 'data-type': this.name },
         this.options.HTMLAttributes,
-        HTMLAttributes
+        HTMLAttributes,
       ),
       this.options.renderLabel({
         options: this.options,
-        node
-      })
+        node,
+      }),
     ];
   },
 
   renderText({ node }) {
     return this.options.renderLabel({
       options: this.options,
-      node
+      node,
     });
   },
 
@@ -164,7 +164,7 @@ export const Variable = Node.create<VariableOptions>({
               tr.insertText(
                 this.options.suggestion.char || '',
                 pos,
-                pos + node.nodeSize
+                pos + node.nodeSize,
               );
 
               return false;
@@ -172,7 +172,7 @@ export const Variable = Node.create<VariableOptions>({
           });
 
           return isMention;
-        })
+        }),
     };
   },
 
@@ -180,12 +180,12 @@ export const Variable = Node.create<VariableOptions>({
     return [
       Suggestion({
         editor: this.editor,
-        ...this.options.suggestion
-      })
+        ...this.options.suggestion,
+      }),
     ];
   },
 
   addNodeView() {
     return ReactNodeViewRenderer(VariableComponent);
-  }
+  },
 });

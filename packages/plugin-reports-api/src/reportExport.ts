@@ -24,7 +24,7 @@ const addIntoSheet = async (
   startRowIdx: string,
   endRowIdx: string,
   sheet: any,
-  customStyles?: any
+  customStyles?: any,
 ) => {
   let r;
 
@@ -47,7 +47,7 @@ const prepareHeader = async (sheet: any, title: string) => {
   addIntoSheet([header], 'A1', 'B1', sheet);
 };
 
-const isArrayPrimitive = arr => {
+const isArrayPrimitive = (arr) => {
   for (let i = 0; i < arr.length; i++) {
     if (typeof arr[i] !== 'object' && typeof arr[i] !== 'function') {
       return true; // If a non-object element is found, return true (primitive type)
@@ -59,7 +59,7 @@ const isArrayPrimitive = arr => {
 const extractAndAddIntoSheet = async (
   sheet: any,
   data: any,
-  labels: string[]
+  labels: string[],
 ) => {
   const extractValuesIntoArr: any[][] = [];
   const startRowIdx = 2;
@@ -75,7 +75,7 @@ const extractAndAddIntoSheet = async (
 };
 
 const toCamelCase = (str: string) => {
-  return str.replace(/[-_](.)/g, function(match, group) {
+  return str.replace(/[-_](.)/g, function (match, group) {
     return group.toUpperCase();
   });
 };
@@ -90,6 +90,6 @@ export const buildFile = async (subdomain: string, params: any) => {
 
   return {
     name: `${toCamelCase(title)}`,
-    response: await generateXlsx(workbook)
+    response: await generateXlsx(workbook),
   };
 };

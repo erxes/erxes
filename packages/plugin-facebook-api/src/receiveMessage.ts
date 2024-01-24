@@ -148,7 +148,6 @@ const receiveMessage = async (
         attachments: formattedAttachments,
         botId,
       });
-
       await sendInboxMessage({
         subdomain,
         action: 'conversationClientMessageInserted',

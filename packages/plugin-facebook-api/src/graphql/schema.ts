@@ -62,10 +62,25 @@ export const types = `
     isCustomerRead: Boolean
     mid: String
     internal: Boolean
-    
+    permalink_url:String
+    postContent: String
     customer: Customer
     user: User
   }
+
+  type FacebookPostMessage {
+    _id: String!
+    ${commonCommentAndMessageFields}
+    attachments: [Attachment]
+    customerId: String
+    userId: String
+    createdAt: Date
+    commentId: String
+
+    customer: Customer
+    user: User
+  }
+
 
   type FacebookPost @key(fields: "_id") {
     _id: String!
@@ -104,12 +119,7 @@ export const queries = `
   facebookGetIntegrations(kind: String): JSON
   facebookGetIntegrationDetail(erxesApiId: String): JSON 
   facebookGetConfigs: JSON
-  facebookGetComments(
-    ${commentQueryParamDefs},
-    commentId: String,
-    senderId: String,
-    ${pageParams}
-  ): [FacebookComment]
+  facebookGetComments(conversationId: String!, getFirst: Boolean, ${pageParams}): [FacebookPostMessage]
   facebookGetCommentCount(${commentQueryParamDefs}): JSON
   facebookGetPages(accountId: String! kind: String!): JSON
   facebookConversationDetail(_id: String!): JSON
@@ -117,6 +127,9 @@ export const queries = `
   facebookConversationMessagesCount(conversationId: String!): Int
   facebookGetPost(erxesApiId: String): FacebookPost
   facebookHasTaggedMessages(conversationId: String!): Boolean
+
+  facebookPostMessages(conversationId: String! getFirst: Boolean, ${pageParams}): [FacebookPostMessage]
+  facebookPostMessagesCount(conversationId: String!): Int
   facebootMessengerBots:[FacebookMessengerBot]
   facebootMessengerBotsTotalCount:Int
 `;
