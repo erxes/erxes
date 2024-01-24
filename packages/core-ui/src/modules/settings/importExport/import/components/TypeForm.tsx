@@ -7,13 +7,23 @@ import { IImportHistoryContentType } from '../../types';
 
 type Props = {
   onChangeContentType: (value: IImportHistoryContentType) => void;
+  contentType: string;
   contentTypes: IImportHistoryContentType[];
   type: string;
   typeOptions: any[];
 };
 
 class TypeForm extends React.Component<Props> {
-  renderSelected = selectedType => {
+  componentDidMount() {
+    const { contentType, typeOptions, onChangeContentType } = this.props;
+    const type = typeOptions.find((t) => t.contentType === contentType);
+
+    if (type) {
+      onChangeContentType(type);
+    }
+  }
+
+  renderSelected = (selectedType) => {
     const { contentTypes } = this.props;
 
     if (contentTypes.length > 0) {
@@ -51,7 +61,7 @@ class TypeForm extends React.Component<Props> {
   renderOptions = () => {
     const { typeOptions } = this.props;
 
-    return typeOptions.map(option => {
+    return typeOptions.map((option) => {
       return this.renderBox(option.text, option.icon, option);
     });
   };
