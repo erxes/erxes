@@ -1,4 +1,4 @@
-const posOrderFields = contactsEnabled => `
+const posOrderFields = (contactsEnabled) => `
   _id: String,
   createdAt: Date,
   status: String,
@@ -133,6 +133,7 @@ export const queries = `
   posOrdersTotalCount(${queryParams}): JSON
   posOrderRecords(${queryParams}): [PosOrderRecord]
   posOrderRecordsCount(${queryParams}): Int
+  posOrdersInformation(customerId: String!): JSON
 `;
 
 export const mutations = `
