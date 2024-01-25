@@ -166,7 +166,7 @@ export const mutations = `
 
   buildingsRemoveCustomers(_id: String!, customerIds: [String]): Building
   buildingsRemoveCompanies(_id: String!, companyIds: [String]): Building
-  buildingsSubmitServiceRequest(_id: String, buildingData: OSMBuilding, quarterId: String!, ticketData: JSON): Building
+  buildingsSubmitServiceRequest(_id: String, buildingData: OSMBuilding, quarterId: String!, ticketData: JSON, phone: String, suhPhone: String, customerAddress: String): Building
 `;
 
 const qryParams = `

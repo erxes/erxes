@@ -38,7 +38,8 @@ export const METHODS = {
   MESSENGER: 'messenger',
   EMAIL: 'email',
   SMS: 'sms',
-  ALL_LIST: ['messenger', 'email', 'sms']
+  NOTIFICATION: 'notification',
+  ALL_LIST: ['messenger', 'email', 'sms', 'notification']
 };
 
 export const SENT_AS_CHOICES = {
@@ -232,4 +233,10 @@ export const CAMPAIGN_TARGET_TYPES = {
   TAG: 'tags:tag',
   BRAND: 'core:brand',
   ALL: ['segments:segment', 'tags:tag', 'core:brand']
+};
+
+export const BUSINESS_PORTAL_KINDS = {
+  CLIENT: 'client',
+  VENDOR: 'vendor',
+  ALL: ['client', 'vendor']
 };

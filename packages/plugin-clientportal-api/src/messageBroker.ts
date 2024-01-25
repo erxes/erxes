@@ -51,6 +51,18 @@ export const initBroker = async () => {
   );
 
   consumeRPCQueue(
+    'clientportal:clientPortalUsers.getIds',
+    async ({ subdomain, data }) => {
+      const models = await generateModels(subdomain);
+
+      return {
+        status: 'success',
+        data: await models.ClientPortalUsers.find(data).distinct('_id'),
+      };
+    },
+  );
+
+  consumeRPCQueue(
     'clientportal:clientPortalUsers.create',
     async ({ subdomain, data }) => {
       const models = await generateModels(subdomain);

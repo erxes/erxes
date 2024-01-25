@@ -20,10 +20,6 @@ export const updateConversationMessage = async (data: any) => {
   return sendRPCMessageCore('inbox:rpc_queue.updateConversationMessage', data);
 };
 
-export const removeEngageConversations = async (_id): Promise<any> => {
-  return consumeQueue('removeEngageConversations', _id);
-};
-
 export const getCampaignCustomerInfo = async (data) => {
   return sendRPCMessageCore('contacts:rpc_queue.prepareEngageCustomers', data);
 };

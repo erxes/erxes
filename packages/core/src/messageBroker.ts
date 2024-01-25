@@ -1,4 +1,7 @@
-import { init as initBrokerCore } from '@erxes/api-utils/src/messageBroker';
+import {
+  InterMessage,
+  init as initBrokerCore,
+} from '@erxes/api-utils/src/messageBroker';
 import { sendMessage } from '@erxes/api-utils/src/core';
 import type {
   MessageArgs,
@@ -40,7 +43,12 @@ export const initBroker = async (): Promise<void> => {
 
   consumeQueue(
     'core:manage-installation-notification',
-    async ({ subdomain, type, name, message }) => {
+    async ({
+      subdomain,
+      type,
+      name,
+      message,
+    }: InterMessage & { [others: string]: any }) => {
       const models = await generateModels(subdomain);
 
       if (type === 'uninstall' && message === 'done') {
@@ -224,11 +232,6 @@ export const initBroker = async (): Promise<void> => {
       };
     },
   );
-
-  // graphql subscriptions call =========
-  consumeQueue('callPublish', (params) => {
-    graphqlPubsub.publish(params.name, params.data);
-  });
 
   // listen for rpc queue =========
   consumeQueue(
