@@ -1,30 +1,22 @@
-import * as path from 'path';
-
 import {
   Button,
   ButtonMutate,
   ControlLabel,
-  DateControl,
   Form,
   MainStyleFormColumn as FormColumn,
   FormControl,
   FormGroup,
   MainStyleFormWrapper as FormWrapper,
   MainStyleModalFooter as ModalFooter,
-  MainStyleScrollWrapper as ScrollWrapper
+  MainStyleScrollWrapper as ScrollWrapper,
 } from '@erxes/ui/src';
-import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
+import { IFormProps } from '@erxes/ui/src/types';
 import { ITransaction, ITransactionDoc } from '../types';
 
 import { Amount } from '../../contracts/styles';
-import { DateContainer } from '@erxes/ui/src/styles/main';
 import { IInvoice } from '../../invoices/types';
-import React from 'react';
+import React, { useState } from 'react';
 import { __ } from 'coreui/utils';
-import SelectContracts, {
-  Contracts
-} from '../../contracts/components/common/SelectContract';
-import dayjs from 'dayjs';
 import client from '@erxes/ui/src/apolloClient';
 import { gql } from '@apollo/client';
 import { mutations, queries } from '../graphql';
@@ -52,31 +44,40 @@ type State = {
   organizationName?: string;
 };
 
-class EBarimtForm extends React.Component<Props, State> {
-  constructor(props) {
-    super(props);
+const EBarimtForm = (props: Props) => {
+  const { transaction = {} as ITransaction } = props;
 
-    const { transaction = {}, invoice } = props;
+  const [contractId, setContractId] = useState(
+    transaction.contractId || (props.invoice && props.invoice.contractId) || '',
+  );
+  const [payDate, setPayDate] = useState(
+    transaction.payDate ||
+      (props.invoice && props.invoice.payDate) ||
+      new Date(),
+  );
+  const [invoiceId, setInvoiceId] = useState(
+    transaction.invoiceId || (props.invoice && props.invoice._id) || '',
+  );
+  const [description, setDescription] = useState(transaction.description || '');
+  const [total, setTotal] = useState(
+    transaction.total || (props.invoice && props.invoice.total) || 0,
+  );
+  const [companyId, setCompanyId] = useState(
+    transaction.companyId || (props.invoice && props.invoice.companyId) || '',
+  );
+  const [customerId, setCustomerId] = useState(
+    transaction.customerId || (props.invoice && props.invoice.customerId) || '',
+  );
+  const [invoice, setInvoice] = useState(
+    props.invoice || transaction.invoice || null,
+  );
+  const [paymentInfo, setPaymentInfo] = useState(null as any);
+  const [isGetEBarimt, setIsGetEBarimt] = useState(false);
+  const [isOrganization, setIsOrganization] = useState(false);
+  const [organizationRegister, setOrganizationRegister] = useState('');
+  const [organizationName, setOrganizationName] = useState('');
 
-    this.state = {
-      contractId:
-        transaction.contractId || (invoice && invoice.contractId) || '',
-      payDate:
-        transaction.payDate || (invoice && invoice.payDate) || new Date(),
-      invoiceId: transaction.invoiceId || (invoice && invoice._id) || '',
-      description: transaction.description || '',
-      total: transaction.total || (invoice && invoice.total) || 0,
-      companyId: transaction.companyId || (invoice && invoice.companyId) || '',
-      customerId:
-        transaction.customerId || (invoice && invoice.customerId) || '',
-      invoice: invoice || transaction.invoice || null,
-      paymentInfo: null
-    };
-  }
-
-  generateDoc = (values: { _id: string } & ITransactionDoc) => {
-    const { transaction } = this.props;
-
+  const generateDoc = (values: { _id: string } & ITransactionDoc) => {
     const finalValues = values;
 
     if (transaction && transaction._id) {
@@ -85,18 +86,28 @@ class EBarimtForm extends React.Component<Props, State> {
 
     return {
       id: finalValues._id,
-      ...this.state,
+      companyId,
+      contractId,
+      invoiceId,
+      description,
+      invoice,
+      paymentInfo,
+      customerId,
+      isGetEBarimt,
+      organizationRegister,
+      organizationName,
+      isOrganization,
       isManual: true,
       payDate: finalValues.payDate,
-      total: Number(this.state.total)
+      total: Number(total),
     };
   };
 
-  onFieldClick = e => {
+  const onFieldClick = (e) => {
     e.target.select();
   };
 
-  renderFormGroup = (label, props) => {
+  const renderFormGroup = (label, props) => {
     return (
       <FormGroup>
         <ControlLabel>{label}</ControlLabel>
@@ -105,11 +116,10 @@ class EBarimtForm extends React.Component<Props, State> {
     );
   };
 
-  renderRow = (label, fieldName) => {
-    const { transaction } = this.props;
-    const { invoice } = this.state;
+  const renderRow = (label, fieldName) => {
     const invoiceVal = (invoice && invoice[fieldName]) || 0;
-    const trVal = this.state[fieldName] || transaction[fieldName] || 0;
+    const trVal =
+      (fieldName === 'total' && total) || transaction[fieldName] || 0;
 
     return (
       <FormWrapper>
@@ -129,13 +139,11 @@ class EBarimtForm extends React.Component<Props, State> {
     );
   };
 
-  renderRowTr = (label, fieldName, isFromState?: any) => {
-    const { transaction } = this.props;
-    const { paymentInfo } = this.state;
+  const renderRowTr = (label, fieldName, isFromState?: any) => {
     let trVal = '';
 
     if (isFromState) {
-      trVal = this.state[fieldName];
+      trVal = total.toString();
     } else trVal = paymentInfo?.[fieldName] || transaction[fieldName] || 0;
 
     return (
@@ -150,8 +158,7 @@ class EBarimtForm extends React.Component<Props, State> {
     );
   };
 
-  renderInfo = () => {
-    const { invoice } = this.state;
+  const renderInfo = () => {
     if (!invoice) {
       return (
         <>
@@ -163,13 +170,13 @@ class EBarimtForm extends React.Component<Props, State> {
               <ControlLabel>Transaction</ControlLabel>
             </FormColumn>
           </FormWrapper>
-          {this.renderRowTr('Total must pay', 'total')}
-          {this.renderRowTr('Payment', 'payment')}
-          {this.renderRowTr('Interest Eve', 'interestEve')}
-          {this.renderRowTr('Interest Nonce', 'interestNonce')}
-          {this.renderRowTr('Loss', 'undue')}
-          {this.renderRowTr('Insurance', 'insurance')}
-          {this.renderRowTr('Debt', 'debt')}
+          {renderRowTr('Total must pay', 'total')}
+          {renderRowTr('Payment', 'payment')}
+          {renderRowTr('Interest Eve', 'interestEve')}
+          {renderRowTr('Interest Nonce', 'interestNonce')}
+          {renderRowTr('Loss', 'undue')}
+          {renderRowTr('Insurance', 'insurance')}
+          {renderRowTr('Debt', 'debt')}
         </>
       );
     }
@@ -190,21 +197,21 @@ class EBarimtForm extends React.Component<Props, State> {
             <ControlLabel>Change</ControlLabel>
           </FormColumn>
         </FormWrapper>
-        {this.renderRow('total', 'total')}
-        {this.renderRow('payment', 'payment')}
-        {this.renderRow('interest eve', 'interestEve')}
-        {this.renderRow('interest nonce', 'interestNonce')}
-        {this.renderRow('undue', 'undue')}
-        {this.renderRow('insurance', 'insurance')}
-        {this.renderRow('debt', 'debt')}
+        {renderRow('total', 'total')}
+        {renderRow('payment', 'payment')}
+        {renderRow('interest eve', 'interestEve')}
+        {renderRow('interest nonce', 'interestNonce')}
+        {renderRow('undue', 'undue')}
+        {renderRow('insurance', 'insurance')}
+        {renderRow('debt', 'debt')}
       </>
     );
   };
 
-  renderButton = ({ name, values, isSubmitted, object }: any) => {
-    const { closeModal } = this.props;
+  const renderButton = ({ name, values, isSubmitted, object }: any) => {
+    const { closeModal } = props;
 
-    const afterSave = data => {
+    const afterSave = (data) => {
       closeModal();
     };
 
@@ -225,41 +232,39 @@ class EBarimtForm extends React.Component<Props, State> {
     );
   };
 
-  renderContent = (formProps: IFormProps) => {
-    const { closeModal } = this.props;
+  const renderContent = (formProps: IFormProps) => {
+    const { closeModal } = props;
     const { values, isSubmitted } = formProps;
 
-    const getCompanyName = register => {
+    const getCompanyName = (register) => {
       if (register && register.length === 7)
         client
           .query({
             query: gql(queries.getCompanyName),
-            variables: { companyRd: register }
+            variables: { companyRd: register },
           })
           .then(({ data }) => {
             data?.ebarimtGetCompany?.info;
-            this.setState({
-              organizationName: data?.ebarimtGetCompany?.info?.name
-            });
+            setOrganizationName(data?.ebarimtGetCompany?.info?.name);
           });
     };
 
-    const onChangeField = e => {
+    const onChangeField = (e) => {
       if ((e.target as HTMLInputElement).name === 'total') {
         const value = Number((e.target as HTMLInputElement).value);
 
-        if (value > this.state.paymentInfo.closeAmount) {
-          (e.target as HTMLInputElement).value = this.state.paymentInfo.closeAmount;
+        if (value > paymentInfo.closeAmount) {
+          (e.target as HTMLInputElement).value = paymentInfo.closeAmount;
         }
       }
       if (
         (e.target as HTMLInputElement).name === 'organizationRegister' &&
-        this.state.isOrganization &&
-        this.state.isGetEBarimt
+        isOrganization &&
+        isGetEBarimt
       ) {
         if ((e.target as HTMLInputElement).value.length > 7) return;
         if ((e.target as HTMLInputElement).value.length < 7) {
-          this.setState({ organizationName: '' });
+          setOrganizationName('');
         }
         getCompanyName((e.target as HTMLInputElement).value);
       }
@@ -267,9 +272,16 @@ class EBarimtForm extends React.Component<Props, State> {
         e.target.type === 'checkbox'
           ? (e.target as HTMLInputElement).checked
           : (e.target as HTMLInputElement).value;
-      this.setState({
-        [(e.target as HTMLInputElement).name]: value
-      } as any);
+      const name = (e.target as HTMLInputElement).name;
+      if (name === 'isGetEBarimt') {
+        setIsGetEBarimt(value as any);
+      }
+      if (name === 'isOrganization') {
+        setIsOrganization(value as any);
+      }
+      if (name === 'organizationRegister') {
+        setOrganizationRegister(value as any);
+      }
     };
 
     return (
@@ -277,8 +289,8 @@ class EBarimtForm extends React.Component<Props, State> {
         <ScrollWrapper>
           <FormWrapper>
             <FormColumn>
-              {this.renderRowTr('Total', 'total', true)}
-              {!this.props.isGotEBarimt && (
+              {renderRowTr('Total', 'total', true)}
+              {!props.isGotEBarimt && (
                 <FormGroup>
                   <ControlLabel>{__('Is get E-Barimt')}</ControlLabel>
                   <FormControl
@@ -288,13 +300,13 @@ class EBarimtForm extends React.Component<Props, State> {
                     useNumberFormat
                     fixed={0}
                     name="isGetEBarimt"
-                    value={this.state.isGetEBarimt}
+                    value={isGetEBarimt}
                     onChange={onChangeField}
-                    onClick={this.onFieldClick}
+                    onClick={onFieldClick}
                   />
                 </FormGroup>
               )}
-              {this.state.isGetEBarimt && (
+              {isGetEBarimt && (
                 <FormGroup>
                   <ControlLabel>{__('Is organization')}</ControlLabel>
                   <FormControl
@@ -304,13 +316,13 @@ class EBarimtForm extends React.Component<Props, State> {
                     useNumberFormat
                     fixed={0}
                     name="isOrganization"
-                    value={this.state.isOrganization}
+                    value={isOrganization}
                     onChange={onChangeField}
-                    onClick={this.onFieldClick}
+                    onClick={onFieldClick}
                   />
                 </FormGroup>
               )}
-              {this.state.isGetEBarimt && this.state.isOrganization && (
+              {isGetEBarimt && isOrganization && (
                 <FormWrapper>
                   <FormColumn>
                     <FormGroup>
@@ -320,9 +332,9 @@ class EBarimtForm extends React.Component<Props, State> {
                         type={'number'}
                         fixed={2}
                         name="organizationRegister"
-                        value={this.state.organizationRegister}
+                        value={organizationRegister}
                         onChange={onChangeField}
-                        onClick={this.onFieldClick}
+                        onClick={onFieldClick}
                       />
                     </FormGroup>
                   </FormColumn>
@@ -333,7 +345,7 @@ class EBarimtForm extends React.Component<Props, State> {
                         {...formProps}
                         disabled
                         maxLength={7}
-                        value={this.state.organizationName}
+                        value={organizationName}
                       />
                     </FormGroup>
                   </FormColumn>
@@ -342,7 +354,7 @@ class EBarimtForm extends React.Component<Props, State> {
             </FormColumn>
           </FormWrapper>
 
-          {this.renderInfo()}
+          {renderInfo()}
         </ScrollWrapper>
 
         <ModalFooter>
@@ -350,21 +362,19 @@ class EBarimtForm extends React.Component<Props, State> {
             {__('Close')}
           </Button>
 
-          {!this.props.isGotEBarimt &&
-            this.renderButton({
+          {!props.isGotEBarimt &&
+            renderButton({
               name: 'transaction',
-              values: this.generateDoc(values),
+              values: generateDoc(values),
               isSubmitted,
-              object: this.props.transaction
+              object: transaction,
             })}
         </ModalFooter>
       </>
     );
   };
 
-  render() {
-    return <Form renderContent={this.renderContent} />;
-  }
-}
+  return <Form renderContent={renderContent} />;
+};
 
 export default EBarimtForm;

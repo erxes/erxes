@@ -22,8 +22,8 @@ type Props = {
   remove?: () => void;
 };
 
-class DetailInfo extends React.Component<Props> {
-  renderRow = (label, value) => {
+const DetailInfo = (props: Props) => {
+  const renderRow = (label, value) => {
     return (
       <li>
         <FieldStyle>{__(`${label}`)}</FieldStyle>
@@ -32,13 +32,13 @@ class DetailInfo extends React.Component<Props> {
     );
   };
 
-  renderAction() {
-    const { remove } = this.props;
+  const renderAction = () => {
+    const { remove } = props;
 
     const onDelete = () =>
       confirm()
-        .then(() => remove())
-        .catch(error => {
+        .then(() => remove && remove())
+        .catch((error) => {
           Alert.error(error.message);
         });
 
@@ -61,85 +61,80 @@ class DetailInfo extends React.Component<Props> {
         </Dropdown>
       </Action>
     );
-  }
+  };
 
-  render() {
-    const { contractType } = this.props;
-    const { Section } = Sidebar;
+  const { contractType } = props;
+  const { Section } = Sidebar;
 
-    const content = props => (
-      <ContractTypeForm {...props} contractType={contractType} />
-    );
+  const content = (props) => (
+    <ContractTypeForm {...props} contractType={contractType} />
+  );
 
-    return (
-      <Sidebar wide={true}>
-        <Sidebar.Section>
-          <InfoWrapper>
-            <Name>{contractType.name}</Name>
-            <ModalTrigger
-              title={__('Edit basic info')}
-              trigger={<Icon icon="edit" />}
-              size="lg"
-              content={content}
+  return (
+    <Sidebar wide={true}>
+      <Sidebar.Section>
+        <InfoWrapper>
+          <Name>{contractType.name}</Name>
+          <ModalTrigger
+            title={__('Edit basic info')}
+            trigger={<Icon icon="edit" />}
+            size="lg"
+            content={content}
+          />
+        </InfoWrapper>
+
+        {renderAction()}
+
+        <Section>
+          <SidebarList className="no-link">
+            {renderRow('Code', contractType.code)}
+            {renderRow('Name', contractType.name || '')}
+            {renderRow('Start Number', contractType.number || '')}
+            {renderRow(
+              'After vacancy count',
+              (contractType.vacancy || 0).toLocaleString(),
+            )}
+            {renderRow(
+              'Loss percent',
+              (contractType.unduePercent || 0).toLocaleString(),
+            )}
+            {renderRow('Loss calc type', contractType.undueCalcType)}
+            {renderRow('Is use debt', __(contractType.useDebt ? 'Yes' : 'No'))}
+            {renderRow(
+              'Is use margin',
+              __(contractType.useMargin ? 'Yes' : 'No'),
+            )}
+            {renderRow(
+              'Is use skip interest',
+              __(contractType.useSkipInterest ? 'Yes' : 'No'),
+            )}
+
+            {renderRow('Leasing Type', contractType.leaseType)}
+            <li>
+              <FieldStyle>{__(`Allow categories`)}</FieldStyle>
+            </li>
+            <ul>
+              {contractType.productCategories.map((cat) => {
+                return (
+                  <li key={cat._id}>
+                    {cat.code} - {cat.name}
+                  </li>
+                );
+              })}
+            </ul>
+            <li>
+              <FieldStyle>{__(`Description`)}</FieldStyle>
+            </li>
+            <Description
+              dangerouslySetInnerHTML={{
+                __html: contractType.description,
+              }}
             />
-          </InfoWrapper>
-
-          {this.renderAction()}
-
-          <Section>
-            <SidebarList className="no-link">
-              {this.renderRow('Code', contractType.code)}
-              {this.renderRow('Name', contractType.name || '')}
-              {this.renderRow('Start Number', contractType.number || '')}
-              {this.renderRow(
-                'After vacancy count',
-                (contractType.vacancy || 0).toLocaleString()
-              )}
-              {this.renderRow(
-                'Loss percent',
-                (contractType.unduePercent || 0).toLocaleString()
-              )}
-              {this.renderRow('Loss calc type', contractType.undueCalcType)}
-              {this.renderRow(
-                'Is use debt',
-                __(contractType.useDebt ? 'Yes' : 'No')
-              )}
-              {this.renderRow(
-                'Is use margin',
-                __(contractType.useMargin ? 'Yes' : 'No')
-              )}
-              {this.renderRow(
-                'Is use skip interest',
-                __(contractType.useSkipInterest ? 'Yes' : 'No')
-              )}
-
-              {this.renderRow('Leasing Type', contractType.leaseType)}
-              <li>
-                <FieldStyle>{__(`Allow categories`)}</FieldStyle>
-              </li>
-              <ul>
-                {contractType.productCategories.map(cat => {
-                  return (
-                    <li key={cat._id}>
-                      {cat.code} - {cat.name}
-                    </li>
-                  );
-                })}
-              </ul>
-              <li>
-                <FieldStyle>{__(`Description`)}</FieldStyle>
-              </li>
-              <Description
-                dangerouslySetInnerHTML={{
-                  __html: contractType.description
-                }}
-              />
-            </SidebarList>
-          </Section>
-        </Sidebar.Section>
-      </Sidebar>
-    );
-  }
-}
+          </SidebarList>
+        </Section>
+      </Sidebar.Section>
+    </Sidebar>
+  );
+};
 
 export default DetailInfo;

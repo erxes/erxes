@@ -1,10 +1,8 @@
-import { Alert, EmptyState, Spinner, withProps } from '@erxes/ui/src';
+import { Alert, EmptyState, Spinner } from '@erxes/ui/src';
 import { IUser } from '@erxes/ui/src/auth/types';
 import { IRouterProps } from '@erxes/ui/src/types';
 import { gql } from '@apollo/client';
-import * as compose from 'lodash.flowright';
 import React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
 import { withRouter } from 'react-router-dom';
 import PeriodLockDetails from '../components/PeriodLockDetails';
 import { mutations, queries } from '../graphql';
@@ -13,48 +11,65 @@ import {
   EditMutationResponse,
   IPeriodLock,
   RemoveMutationResponse,
-  RemoveMutationVariables
 } from '../types';
+import { useMutation, useQuery } from '@apollo/client';
 
 type Props = {
   id: string;
 };
 
 type FinalProps = {
-  periodLockDetailQuery: DetailQueryResponse;
   currentUser: IUser;
 } & Props &
-  IRouterProps &
-  EditMutationResponse &
-  RemoveMutationResponse;
+  IRouterProps;
 
 const PeriodLockDetailsContainer = (props: FinalProps) => {
-  const { periodLockDetailQuery, currentUser } = props;
+  const { currentUser, id, history } = props;
+
+  const periodLockDetailQuery = useQuery<DetailQueryResponse>(
+    gql(queries.periodLockDetail),
+    {
+      variables: {
+        _id: id,
+      },
+      fetchPolicy: 'network-only',
+    },
+  );
+
+  const [periodLocksEdit] = useMutation<EditMutationResponse>(
+    gql(mutations.periodLocksEdit),
+    {
+      refetchQueries: ['periodLockDetail'],
+    },
+  );
+
+  const [periodLocksRemove] = useMutation<RemoveMutationResponse>(
+    gql(mutations.periodLocksRemove),
+    {
+      refetchQueries: ['periodLocksMain'],
+    },
+  );
 
   const saveItem = (doc: IPeriodLock, callback: (item) => void) => {
-    const { periodLocksEdit } = props;
-
     periodLocksEdit({ variables: { ...doc } })
       .then(({ data }) => {
         if (callback) {
-          callback(data.periodLocksEdit);
+          callback((data || {}).periodLocksEdit);
         }
         Alert.success('You successfully updated contract type');
       })
-      .catch(error => {
+      .catch((error) => {
         Alert.error(error.message);
       });
   };
 
   const remove = () => {
-    const { id, periodLocksRemove, history } = props;
-
     periodLocksRemove({ variables: { periodLockIds: [id] } })
       .then(() => {
         Alert.success('You successfully deleted a contract');
         history.push('/erxes-plugin-loan/contract-types');
       })
-      .catch(e => {
+      .catch((e) => {
         Alert.error(e.message);
       });
   };
@@ -63,13 +78,13 @@ const PeriodLockDetailsContainer = (props: FinalProps) => {
     return <Spinner objective={true} />;
   }
 
-  if (!periodLockDetailQuery.periodLockDetail) {
+  if (!periodLockDetailQuery?.data?.periodLockDetail) {
     return (
       <EmptyState text="Period Lock not found" image="/images/actions/24.svg" />
     );
   }
 
-  const periodLockDetail = periodLockDetailQuery.periodLockDetail;
+  const periodLockDetail = periodLockDetailQuery?.data?.periodLockDetail;
 
   const updatedProps = {
     ...props,
@@ -77,48 +92,10 @@ const PeriodLockDetailsContainer = (props: FinalProps) => {
     periodLock: periodLockDetail,
     currentUser,
     saveItem,
-    remove
+    remove,
   };
 
   return <PeriodLockDetails {...(updatedProps as any)} />;
 };
 
-const generateOptions = () => ({
-  refetchQueries: ['periodLockDetail']
-});
-const removeOptions = () => ({
-  refetchQueries: ['periodLocksMain']
-});
-
-export default withProps<Props>(
-  compose(
-    graphql<any, DetailQueryResponse, { _id: string }>(
-      gql(queries.periodLockDetail),
-      {
-        name: 'periodLockDetailQuery',
-        options: ({ id }) => {
-          return {
-            variables: {
-              _id: id
-            },
-            fetchPolicy: 'network-only'
-          };
-        }
-      }
-    ),
-    graphql<{}, EditMutationResponse, IPeriodLock>(
-      gql(mutations.periodLocksEdit),
-      {
-        name: 'periodLocksEdit',
-        options: generateOptions
-      }
-    ),
-    graphql<{}, RemoveMutationResponse, RemoveMutationVariables>(
-      gql(mutations.periodLocksRemove),
-      {
-        name: 'periodLocksRemove',
-        options: removeOptions
-      }
-    )
-  )(withRouter<FinalProps>(PeriodLockDetailsContainer))
-);
+export default withRouter<FinalProps>(PeriodLockDetailsContainer);

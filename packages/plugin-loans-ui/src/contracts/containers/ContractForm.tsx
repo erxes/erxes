@@ -1,5 +1,3 @@
-import * as compose from 'lodash.flowright';
-import { withProps } from '@erxes/ui/src/utils/core';
 import withCurrentUser from '@erxes/ui/src/auth/containers/withCurrentUser';
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
@@ -7,7 +5,6 @@ import React from 'react';
 import ContractForm from '../components/list/ContractForm';
 import { mutations } from '../graphql';
 import { IContract } from '../types';
-import { UsersQueryResponse } from '@erxes/ui/src/auth/types';
 import { IUser } from '@erxes/ui/src/auth/types';
 import { __ } from 'coreui/utils';
 
@@ -18,54 +15,49 @@ type Props = {
 };
 
 type FinalProps = {
-  usersQuery: UsersQueryResponse;
   currentUser: IUser;
-  change?: boolean;
 } & Props;
 
-class ContractFromContainer extends React.Component<FinalProps> {
-  render() {
-    const renderButton = ({
-      name,
-      values,
-      isSubmitted,
-      object,
-      disabled
-    }: IButtonMutateProps & { disabled: boolean }) => {
-      const { closeModal, getAssociatedContract, currentUser } = this.props;
+const ContractFromContainer = (props: FinalProps) => {
+  const { closeModal, getAssociatedContract, currentUser } = props;
+  const renderButton = ({
+    name,
+    values,
+    isSubmitted,
+    object,
+    disabled,
+  }: IButtonMutateProps & { disabled: boolean }) => {
+    const afterSave = (data) => {
+      closeModal();
 
-      const afterSave = data => {
-        closeModal();
-
-        if (getAssociatedContract) {
-          getAssociatedContract(data.contractsAdd);
-        }
-      };
-
-      return (
-        <ButtonMutate
-          mutation={object ? mutations.contractsEdit : mutations.contractsAdd}
-          variables={values}
-          callback={afterSave}
-          refetchQueries={getRefetchQueries()}
-          isSubmitted={isSubmitted}
-          disabled={disabled}
-          successMessage={`You successfully ${
-            object ? 'updated' : 'added'
-          } a ${name}`}
-        >
-          {__('Save')}
-        </ButtonMutate>
-      );
+      if (getAssociatedContract) {
+        getAssociatedContract(data.contractsAdd);
+      }
     };
 
-    const updatedProps = {
-      ...this.props,
-      renderButton
-    };
-    return <ContractForm {...updatedProps} />;
-  }
-}
+    return (
+      <ButtonMutate
+        mutation={object ? mutations.contractsEdit : mutations.contractsAdd}
+        variables={values}
+        callback={afterSave}
+        refetchQueries={getRefetchQueries()}
+        isSubmitted={isSubmitted}
+        disabled={disabled}
+        successMessage={`You successfully ${
+          object ? 'updated' : 'added'
+        } a ${name}`}
+      >
+        {__('Save')}
+      </ButtonMutate>
+    );
+  };
+
+  const updatedProps = {
+    ...props,
+    renderButton,
+  };
+  return <ContractForm {...updatedProps} />;
+};
 
 const getRefetchQueries = () => {
   return [
@@ -74,10 +66,8 @@ const getRefetchQueries = () => {
     'contracts',
     'contractCounts',
     'activityLogs',
-    'schedules'
+    'schedules',
   ];
 };
 
-export default withCurrentUser(
-  withProps<Props>(compose()(ContractFromContainer))
-);
+export default withCurrentUser(ContractFromContainer);

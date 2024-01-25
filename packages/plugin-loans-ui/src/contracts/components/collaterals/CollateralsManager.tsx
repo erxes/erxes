@@ -5,7 +5,7 @@ import Table from '@erxes/ui/src/components/table';
 import { MainStyleModalFooter as ModalFooter } from '@erxes/ui/src/styles/eindex';
 
 import { IProduct } from '@erxes/ui-products/src/types';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { Add, CollateralTableWrapper, FormContainer } from '../../styles';
 import { ICollateralData } from '../../types';
@@ -22,68 +22,58 @@ type Props = {
   currentCollateral: string;
 };
 
-type State = {
-  collateralsData: ICollateralData[];
-  currentTab: string;
-  tempId: string;
-};
+const CollateralForm = (props: Props) => {
+  const [collateralsData, setCollateralsData] = useState(
+    props.collateralsData || ([] as ICollateralData[]),
+  );
+  const [tempId, setTempId] = useState('');
+  const {
+    onChangeCollateralsData,
+    currentCollateral,
+    saveCollateralsData,
+    closeModal,
+  } = props;
 
-class CollateralForm extends React.Component<Props, State> {
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      collateralsData: this.props.collateralsData || [],
-      currentTab: 'collaterals',
-      tempId: ''
-    };
-  }
-
-  componentDidMount() {
-    if (this.props.collateralsData.length === 0) {
-      this.addCollateralItem();
+  useEffect(() => {
+    if (collateralsData.length === 0) {
+      addCollateralItem();
     }
-  }
+  }, [collateralsData]);
 
-  addCollateralItem = () => {
-    const { onChangeCollateralsData } = this.props;
-    const { collateralsData } = this.state;
+  useEffect(() => {
+    collateralsData.push({
+      _id: tempId,
 
-    this.setState({ tempId: Math.random().toString() }, () => {
-      collateralsData.push({
-        _id: this.state.tempId,
+      collateralId: '',
+      percent: 0,
+      cost: 0,
+      marginAmount: 0,
+      leaseAmount: 0,
 
-        collateralId: '',
-        percent: 0,
-        cost: 0,
-        marginAmount: 0,
-        leaseAmount: 0,
-
-        insuranceTypeId: '',
-        insuranceAmount: 0
-      });
-
-      onChangeCollateralsData(collateralsData);
+      insuranceTypeId: '',
+      insuranceAmount: 0,
     });
+
+    onChangeCollateralsData(collateralsData);
+  }, [tempId]);
+
+  useEffect(() => {
+    onChangeCollateralsData(collateralsData);
+  }, [collateralsData]);
+
+  const addCollateralItem = () => {
+    setTempId(Math.random().toString());
   };
 
-  removeCollateralItem = collateralId => {
-    const { onChangeCollateralsData } = this.props;
-    const { collateralsData } = this.state;
-
+  const removeCollateralItem = (collateralId) => {
     const removedCollateralsData = collateralsData.filter(
-      p => p._id !== collateralId
+      (p) => p._id !== collateralId,
     );
 
-    this.setState({ collateralsData: removedCollateralsData }, () => {
-      onChangeCollateralsData(removedCollateralsData);
-    });
+    setCollateralsData(removedCollateralsData);
   };
 
-  renderContent() {
-    const { onChangeCollateralsData, currentCollateral } = this.props;
-    const { collateralsData } = this.state;
-
+  const renderContent = () => {
     if (collateralsData.length === 0) {
       return (
         <EmptyState size="full" text="No collateral or services" icon="box" />
@@ -106,11 +96,11 @@ class CollateralForm extends React.Component<Props, State> {
             </tr>
           </thead>
           <tbody id="collaterals">
-            {collateralsData.map(collateralData => (
+            {collateralsData.map((collateralData) => (
               <CollateralItem
                 key={collateralData._id}
                 collateralData={collateralData}
-                removeCollateralItem={this.removeCollateralItem}
+                removeCollateralItem={removeCollateralItem}
                 collateralsData={collateralsData}
                 onChangeCollateralsData={onChangeCollateralsData}
                 currentCollateral={currentCollateral}
@@ -120,12 +110,9 @@ class CollateralForm extends React.Component<Props, State> {
         </Table>
       </CollateralTableWrapper>
     );
-  }
+  };
 
-  onClick = () => {
-    const { saveCollateralsData, closeModal } = this.props;
-    const { collateralsData } = this.state;
-
+  const onClick = () => {
     if (collateralsData.length !== 0) {
       for (const data of collateralsData) {
         if (!data.collateral) {
@@ -138,15 +125,15 @@ class CollateralForm extends React.Component<Props, State> {
     closeModal();
   };
 
-  renderTabContent() {
+  const renderTabContent = () => {
     return (
       <FormContainer>
-        {this.renderContent()}
+        {renderContent()}
         <Add>
           <Button
             uppercase={false}
             btnStyle="primary"
-            onClick={this.addCollateralItem}
+            onClick={addCollateralItem}
             icon="plus-circle"
           >
             {__('Add Collateral')}
@@ -154,47 +141,41 @@ class CollateralForm extends React.Component<Props, State> {
         </Add>
       </FormContainer>
     );
-  }
-
-  onTabClick = (currentTab: string) => {
-    this.setState({ currentTab });
   };
 
-  render() {
-    return (
-      <>
-        {this.renderTabContent()}
+  return (
+    <>
+      {renderTabContent()}
 
-        <ModalFooter>
-          <Button
-            uppercase={false}
-            btnStyle="link"
-            onClick={this.props.fillFromDeal}
-            icon="coffee"
-          >
-            {__('From deals products')}
-          </Button>
-          <Button
-            btnStyle="simple"
-            onClick={this.props.closeModal}
-            icon="times-circle"
-            uppercase={false}
-          >
-            {__('Cancel')}
-          </Button>
+      <ModalFooter>
+        <Button
+          uppercase={false}
+          btnStyle="link"
+          onClick={props.fillFromDeal}
+          icon="coffee"
+        >
+          {__('From deals products')}
+        </Button>
+        <Button
+          btnStyle="simple"
+          onClick={closeModal}
+          icon="times-circle"
+          uppercase={false}
+        >
+          {__('Cancel')}
+        </Button>
 
-          <Button
-            btnStyle="success"
-            onClick={this.onClick}
-            icon="check-circle"
-            uppercase={false}
-          >
-            {__('Save')}
-          </Button>
-        </ModalFooter>
-      </>
-    );
-  }
-}
+        <Button
+          btnStyle="success"
+          onClick={onClick}
+          icon="check-circle"
+          uppercase={false}
+        >
+          {__('Save')}
+        </Button>
+      </ModalFooter>
+    </>
+  );
+};
 
 export default CollateralForm;

@@ -3,14 +3,13 @@ import {
   ControlLabel,
   DateControl,
   Form,
-  FormControl,
   FormGroup,
   MainStyleFormWrapper as FormWrapper,
-  MainStyleModalFooter as ModalFooter
+  MainStyleModalFooter as ModalFooter,
 } from '@erxes/ui/src';
 import { DateContainer } from '@erxes/ui/src/styles/main';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import React from 'react';
+import React, { useState } from 'react';
 import { __ } from 'coreui/utils';
 import { IPeriodLock, IPeriodLockDoc } from '../types';
 
@@ -30,26 +29,14 @@ type Props = {
   closeModal: () => void;
 };
 
-type State = {
-  date: Date;
-  excludeContracts: string[];
-};
+const PeriodLockForm = (props: Props) => {
+  const { periodLock = {} as IPeriodLock } = props;
+  const [date, setDate] = useState(periodLock.date || new Date());
+  const [excludeContracts, setExcludeContracts] = useState(
+    periodLock.excludeContracts || [],
+  );
 
-class PeriodLockForm extends React.Component<Props, State> {
-  constructor(props) {
-    super(props);
-
-    const { periodLock = {} } = props;
-
-    this.state = {
-      date: periodLock.date || new Date(),
-      excludeContracts: periodLock.excludeContracts || []
-    };
-  }
-
-  generateDoc = (values: { _id: string } & IPeriodLockDoc) => {
-    const { periodLock } = this.props;
-
+  const generateDoc = (values: { _id: string } & IPeriodLockDoc) => {
     const finalValues = values;
 
     if (periodLock) {
@@ -58,30 +45,21 @@ class PeriodLockForm extends React.Component<Props, State> {
 
     return {
       _id: finalValues._id,
-      ...this.state,
-      date: this.state.date
+      excludeContracts,
+      date: date,
     };
   };
 
-  renderFormGroup = (label, props) => {
-    return (
-      <FormGroup>
-        <ControlLabel>{label}</ControlLabel>
-        <FormControl {...props} />
-      </FormGroup>
-    );
-  };
-
-  renderContent = (formProps: IFormProps) => {
-    const { closeModal, renderButton } = this.props;
+  const renderContent = (formProps: IFormProps) => {
+    const { closeModal, renderButton } = props;
     const { values, isSubmitted } = formProps;
 
-    const onChangeStartDate = value => {
-      this.setState({ date: value });
+    const onChangeStartDate = (value) => {
+      setDate(value);
     };
 
-    const onChangeExcludeContracts = value => {
-      this.setState({ excludeContracts: value });
+    const onChangeExcludeContracts = (value) => {
+      setExcludeContracts(value);
     };
 
     return (
@@ -95,7 +73,7 @@ class PeriodLockForm extends React.Component<Props, State> {
                 required={false}
                 dateFormat="YYYY/MM/DD"
                 name="date"
-                value={this.state.date}
+                value={date}
                 onChange={onChangeStartDate}
               />
             </DateContainer>
@@ -108,7 +86,7 @@ class PeriodLockForm extends React.Component<Props, State> {
               onSelect={onChangeExcludeContracts}
               label={__('Contracts')}
               name="excludeContracts"
-              initialValue={this.props.periodLock?.excludeContracts}
+              initialValue={periodLock?.excludeContracts}
               multi={true}
             />
           </ContractContainer>
@@ -120,18 +98,16 @@ class PeriodLockForm extends React.Component<Props, State> {
 
           {renderButton({
             name: 'periodLock',
-            values: this.generateDoc(values),
+            values: generateDoc(values),
             isSubmitted,
-            object: this.props.periodLock
+            object: props.periodLock,
           })}
         </ModalFooter>
       </>
     );
   };
 
-  render() {
-    return <Form renderContent={this.renderContent} />;
-  }
-}
+  return <Form renderContent={renderContent} />;
+};
 
 export default PeriodLockForm;

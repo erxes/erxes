@@ -1,17 +1,17 @@
 import { gql } from '@apollo/client';
-import { graphql } from '@apollo/client/react/hoc';
-import { ButtonMutate, withCurrentUser, withProps } from '@erxes/ui/src';
+import { ButtonMutate, withCurrentUser } from '@erxes/ui/src';
 import productCategoryQueries from '@erxes/ui-products/src/graphql/queries';
 import { ProductCategoriesQueryResponse } from '@erxes/ui-products/src/types';
-import { IUser, UsersQueryResponse } from '@erxes/ui/src/auth/types';
+import { IUser } from '@erxes/ui/src/auth/types';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
-import * as compose from 'lodash.flowright';
 import React from 'react';
 
 import ContractTypeForm from '../components/ContractTypeForm';
 import { mutations } from '../graphql';
 import { IContractType } from '../types';
 import { __ } from 'coreui/utils';
+import { useQuery } from '@apollo/client';
+
 type Props = {
   contractType: IContractType;
   getAssociatedContractType?: (contractTypeId: string) => void;
@@ -19,77 +19,65 @@ type Props = {
 };
 
 type FinalProps = {
-  usersQuery: UsersQueryResponse;
-  productCategoriesQuery: ProductCategoriesQueryResponse;
   currentUser: IUser;
 } & Props;
 
-class ContractTypeFromContainer extends React.Component<FinalProps> {
-  render() {
-    const renderButton = ({
-      name,
-      values,
-      isSubmitted,
-      object
-    }: IButtonMutateProps) => {
-      const { closeModal, getAssociatedContractType } = this.props;
+const ContractTypeFromContainer = (props: FinalProps) => {
+  const productCategoriesQuery = useQuery<ProductCategoriesQueryResponse>(
+    gql(productCategoryQueries.productCategories),
+  );
 
-      const afterSave = data => {
-        closeModal();
+  const { closeModal, getAssociatedContractType } = props;
+  const renderButton = ({
+    name,
+    values,
+    isSubmitted,
+    object,
+  }: IButtonMutateProps) => {
+    const afterSave = (data) => {
+      closeModal();
 
-        if (getAssociatedContractType) {
-          getAssociatedContractType(data.contractTypesAdd);
+      if (getAssociatedContractType) {
+        getAssociatedContractType(data.contractTypesAdd);
+      }
+    };
+
+    return (
+      <ButtonMutate
+        mutation={
+          object ? mutations.contractTypesEdit : mutations.contractTypesAdd
         }
-      };
+        variables={values}
+        callback={afterSave}
+        refetchQueries={getRefetchQueries()}
+        isSubmitted={isSubmitted}
+        type="submit"
+        successMessage={`You successfully ${
+          object ? 'updated' : 'added'
+        } a ${name}`}
+      >
+        {__('Save')}
+      </ButtonMutate>
+    );
+  };
 
-      return (
-        <ButtonMutate
-          mutation={
-            object ? mutations.contractTypesEdit : mutations.contractTypesAdd
-          }
-          variables={values}
-          callback={afterSave}
-          refetchQueries={getRefetchQueries()}
-          isSubmitted={isSubmitted}
-          type="submit"
-          successMessage={`You successfully ${
-            object ? 'updated' : 'added'
-          } a ${name}`}
-        >
-          {__('Save')}
-        </ButtonMutate>
-      );
-    };
-
-    const { productCategoriesQuery } = this.props;
-    if (productCategoriesQuery.loading) {
-      return null;
-    }
-
-    const productCategories = productCategoriesQuery.productCategories || [];
-
-    const updatedProps = {
-      ...this.props,
-      renderButton,
-      productCategories
-    };
-    return <ContractTypeForm {...updatedProps} />;
+  if (productCategoriesQuery.loading) {
+    return null;
   }
-}
+
+  const productCategories =
+    productCategoriesQuery?.data?.productCategories || [];
+
+  const updatedProps = {
+    ...props,
+    renderButton,
+    productCategories,
+  };
+  return <ContractTypeForm {...updatedProps} />;
+};
 
 const getRefetchQueries = () => {
   return ['contractTypesMain', 'contractTypeDetail', 'contractTypes'];
 };
 
-export default withCurrentUser(
-  withProps<Props>(
-    compose(
-      graphql<Props, ProductCategoriesQueryResponse>(
-        gql(productCategoryQueries.productCategories),
-        {
-          name: 'productCategoriesQuery'
-        }
-      )
-    )(ContractTypeFromContainer)
-  )
-);
+export default withCurrentUser(ContractTypeFromContainer);

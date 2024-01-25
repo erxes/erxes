@@ -22,21 +22,26 @@ interface IProps {
   loading: boolean;
 }
 
-class List extends React.Component<IProps> {
-  clearCategoryFilter = () => {
-    router.setParams(this.props.history, { categoryId: null });
+const List = (props: IProps) => {
+  const {
+    queryParams,
+    history,
+    collateralCategories,
+    collateralCategoriesCount,
+    loading,
+  } = props;
+
+  const clearCategoryFilter = () => {
+    router.setParams(history, { categoryId: null });
   };
 
-  isActive = (id: string) => {
-    const { queryParams } = this.props;
+  const isActive = (id: string) => {
     const currentGroup = queryParams.categoryId || '';
 
     return currentGroup === id;
   };
 
-  renderContent() {
-    const { collateralCategories } = this.props;
-
+  const renderContent = () => {
     const result: React.ReactNode[] = [];
 
     for (const category of collateralCategories) {
@@ -59,29 +64,26 @@ class List extends React.Component<IProps> {
       );
 
       result.push(
-        <SidebarListItem
-          key={category._id}
-          isActive={this.isActive(category._id)}
-        >
+        <SidebarListItem key={category._id} isActive={isActive(category._id)}>
           <Link to={`?categoryId=${category._id}`}>
             {space}
             {name}
           </Link>
-        </SidebarListItem>
+        </SidebarListItem>,
       );
     }
 
     return result;
-  }
+  };
 
-  renderCategoryHeader() {
+  const renderCategoryHeader = () => {
     return (
       <>
         <Section.Title>
           {__('Categories')}
           <Section.QuickButtons>
-            {router.getParam(this.props.history, 'categoryId') && (
-              <a href="#cancel" tabIndex={0} onClick={this.clearCategoryFilter}>
+            {router.getParam(history, 'categoryId') && (
+              <a href="#cancel" tabIndex={0} onClick={clearCategoryFilter}>
                 <Tip text={__('Clear filter')} placement="bottom">
                   <Icon icon="cancel-1" />
                 </Tip>
@@ -91,35 +93,28 @@ class List extends React.Component<IProps> {
         </Section.Title>
       </>
     );
-  }
+  };
 
-  renderCategoryList() {
-    const { collateralCategoriesCount, loading } = this.props;
-
+  const renderCategoryList = () => {
     return (
       <DataWithLoader
-        data={this.renderContent()}
+        data={renderContent()}
         loading={loading}
         count={collateralCategoriesCount}
         emptyText="There is no collateral category"
         emptyIcon="folder-2"
       />
     );
-  }
+  };
 
-  render() {
-    return (
-      <Sidebar>
-        <Section
-          maxHeight={188}
-          collapsible={this.props.collateralCategoriesCount > 9}
-        >
-          {this.renderCategoryHeader()}
-          {this.renderCategoryList()}
-        </Section>
-      </Sidebar>
-    );
-  }
-}
+  return (
+    <Sidebar>
+      <Section maxHeight={188} collapsible={collateralCategoriesCount > 9}>
+        {renderCategoryHeader()}
+        {renderCategoryList()}
+      </Section>
+    </Sidebar>
+  );
+};
 
 export default List;

@@ -2,18 +2,17 @@ import {
   MainStyleFormColumn as FormColumn,
   MainStyleFormWrapper as FormWrapper,
   MainStyleModalFooter as ModalFooter,
-  MainStyleScrollWrapper as ScrollWrapper
+  MainStyleScrollWrapper as ScrollWrapper,
 } from '@erxes/ui/src/styles/eindex';
 import Button from '@erxes/ui/src/components/Button';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import Form from '@erxes/ui/src/components/form/Form';
-import FormControl from '@erxes/ui/src/components/form/Control';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import DateControl from '@erxes/ui/src/components/form/DateControl';
 
 import { __ } from 'coreui/utils';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import React from 'react';
+import React, { useState } from 'react';
 import moment from 'moment';
 import { IContract } from '../../types';
 
@@ -25,15 +24,10 @@ type Props = {
   currentUser: IUser;
   contractTypes: IContractType[];
   renderButton: (
-    props: IButtonMutateProps & { disabled: boolean }
+    props: IButtonMutateProps & { disabled: boolean },
   ) => JSX.Element;
   contracts: IContract[];
   closeModal: () => void;
-};
-
-type State = {
-  invDate: Date;
-  classificationChangeList: any[];
 };
 
 function addClassification(classification, list, currentItem) {
@@ -43,20 +37,20 @@ function addClassification(classification, list, currentItem) {
       {
         contractId: currentItem._id,
         amount: currentItem.amount,
-        ...currentItem
-      }
-    ]
+        ...currentItem,
+      },
+    ],
   });
 }
 
 function generateList(contractTypes, contracts) {
   let dataClassifications: any = [];
 
-  contractTypes?.map(type => {
+  contractTypes?.map((type) => {
     const currentContracts = contracts?.filter(
-      a => a.contractTypeId === type._id
+      (a) => a.contractTypeId === type._id,
     );
-    currentContracts.map(contract => {
+    currentContracts.map((contract) => {
       addClassification(contract.classification, dataClassifications, contract);
     });
   });
@@ -64,42 +58,22 @@ function generateList(contractTypes, contracts) {
   return dataClassifications;
 }
 
-class StoreInterestForm extends React.Component<Props, State> {
-  constructor(props) {
-    super(props);
+const StoreInterestForm = (props: Props) => {
+  const [classificationChangeList, setClassificationChangeList] = useState(
+    props.contracts,
+  );
 
-    this.state = {
-      invDate: new Date(),
-      classificationChangeList: this.props.contracts
-    };
-  }
-
-  generateDoc = () => {
+  const generateDoc = () => {
     return [];
   };
 
-  renderFormGroup = (label, props) => {
-    return (
-      <FormGroup>
-        <ControlLabel>{__(label)}</ControlLabel>
-        <FormControl {...props} />
-      </FormGroup>
-    );
-  };
-
-  onChangeField = e => {
-    const name = (e.target as HTMLInputElement).name;
-    const value = (e.target as HTMLInputElement).value;
-    this.setState({ [name]: value } as any);
-  };
-
-  checkValidation = (): any => {
+  const checkValidation = (): any => {
     const errors: any = {};
 
     return errors;
   };
 
-  renderClassificationList = () => {
+  const renderClassificationList = () => {
     return (
       <table style={{ width: '100%' }}>
         <thead>
@@ -113,10 +87,10 @@ class StoreInterestForm extends React.Component<Props, State> {
         <tbody
           style={{
             boxShadow: '1px 0px 5px rgba(0,0,0,0.1)',
-            columnSpan: 'all'
+            columnSpan: 'all',
           }}
         >
-          {this.state.classificationChangeList.map(mur => {
+          {classificationChangeList.map((mur) => {
             return (
               <tr>
                 <td style={{ fontSize: 'bold' }}>{mur.number}</td>
@@ -133,8 +107,8 @@ class StoreInterestForm extends React.Component<Props, State> {
     );
   };
 
-  renderContent = (formProps: IFormProps) => {
-    const { closeModal, renderButton } = this.props;
+  const renderContent = (formProps: IFormProps) => {
+    const { closeModal, renderButton } = props;
     const { values, isSubmitted } = formProps;
 
     return (
@@ -156,7 +130,7 @@ class StoreInterestForm extends React.Component<Props, State> {
             </FormGroup>
           </FormColumn>
         </FormWrapper>
-        <ScrollWrapper>{this.renderClassificationList()}</ScrollWrapper>
+        <ScrollWrapper>{renderClassificationList()}</ScrollWrapper>
 
         <ModalFooter>
           <Button btnStyle="simple" onClick={closeModal} icon="cancel-1">
@@ -165,19 +139,17 @@ class StoreInterestForm extends React.Component<Props, State> {
 
           {renderButton({
             name: 'contract',
-            values: this.generateDoc(),
-            disabled: !!Object.keys(this.checkValidation())?.length,
+            values: generateDoc(),
+            disabled: !!Object.keys(checkValidation())?.length,
             isSubmitted,
-            object: this.props.contracts
+            object: props.contracts,
           })}
         </ModalFooter>
       </>
     );
   };
 
-  render() {
-    return <Form renderContent={this.renderContent} />;
-  }
-}
+  return <Form renderContent={renderContent} />;
+};
 
 export default StoreInterestForm;

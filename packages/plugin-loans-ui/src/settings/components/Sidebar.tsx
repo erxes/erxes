@@ -2,14 +2,14 @@ import {
   Button,
   MainStyleTopHeader as TopHeader,
   Sidebar as LeftSidebar,
-  SidebarList as List
+  SidebarList as List,
 } from '@erxes/ui/src';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { __ } from 'coreui/utils';
 
-class Sidebar extends React.Component {
-  renderListItem(url: string, text: string) {
+const Sidebar = () => {
+  const renderListItem = (url: string, text: string) => {
     return (
       <li>
         <Link
@@ -20,9 +20,9 @@ class Sidebar extends React.Component {
         </Link>
       </li>
     );
-  }
+  };
 
-  renderSidebarHeader() {
+  const renderSidebarHeader = () => {
     return (
       <TopHeader>
         <Link to="/settings/">
@@ -37,28 +37,26 @@ class Sidebar extends React.Component {
         </Link>
       </TopHeader>
     );
-  }
+  };
 
-  render() {
-    return (
-      <LeftSidebar full={true} header={this.renderSidebarHeader()}>
-        <List id="SettingsSidebar">
-          {this.renderListItem(
-            '/erxes-plugin-loan/main-settings',
-            __('Loan settings')
-          )}
-          {this.renderListItem(
-            '/erxes-plugin-loan/undue-settings',
-            __('Loan not calc undue settings')
-          )}
-          {this.renderListItem(
-            '/erxes-plugin-loan/holiday-settings',
-            __('Holiday configs')
-          )}
-        </List>
-      </LeftSidebar>
-    );
-  }
-}
+  return (
+    <LeftSidebar full={true} header={renderSidebarHeader()}>
+      <List id="SettingsSidebar">
+        {renderListItem(
+          '/erxes-plugin-loan/main-settings',
+          __('Loan settings'),
+        )}
+        {renderListItem(
+          '/erxes-plugin-loan/undue-settings',
+          __('Loan not calc undue settings'),
+        )}
+        {renderListItem(
+          '/erxes-plugin-loan/holiday-settings',
+          __('Holiday configs'),
+        )}
+      </List>
+    </LeftSidebar>
+  );
+};
 
 export default Sidebar;

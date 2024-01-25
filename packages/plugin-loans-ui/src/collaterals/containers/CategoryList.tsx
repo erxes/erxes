@@ -1,47 +1,33 @@
-import { withProps } from '@erxes/ui/src/utils';
 import { ProductCategoriesQueryResponse } from '@erxes/ui-products/src/types';
 import { queries } from '@erxes/ui-products/src/graphql';
 import { gql } from '@apollo/client';
-import * as compose from 'lodash.flowright';
 import React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
+import { useQuery } from '@apollo/client';
 
 import List from '../components/CategoryList';
 
 type Props = { history: any; queryParams: any };
 
-type FinalProps = {
-  productCategoriesQuery: ProductCategoriesQueryResponse;
-} & Props;
+const CollateralListContainer = (props: Props) => {
+  const productCategoriesQuery = useQuery<ProductCategoriesQueryResponse>(
+    gql(queries.productCategories),
+    {
+      fetchPolicy: 'network-only',
+    },
+  );
 
-class CollateralListContainer extends React.Component<FinalProps> {
-  render() {
-    const { productCategoriesQuery } = this.props;
+  const collateralCategories =
+    productCategoriesQuery?.data?.productCategories || [];
 
-    const collateralCategories = productCategoriesQuery.productCategories || [];
+  const updatedProps = {
+    ...props,
+    refetch: productCategoriesQuery.refetch,
+    collateralCategories,
+    collateralCategoriesCount: collateralCategories.length,
+    loading: productCategoriesQuery.loading,
+  };
 
-    const updatedProps = {
-      ...this.props,
-      refetch: productCategoriesQuery.refetch,
-      collateralCategories,
-      collateralCategoriesCount: collateralCategories.length,
-      loading: productCategoriesQuery.loading
-    };
+  return <List {...updatedProps} />;
+};
 
-    return <List {...updatedProps} />;
-  }
-}
-
-export default withProps<Props>(
-  compose(
-    graphql<Props, ProductCategoriesQueryResponse, { parentId: string }>(
-      gql(queries.productCategories),
-      {
-        name: 'productCategoriesQuery',
-        options: {
-          fetchPolicy: 'network-only'
-        }
-      }
-    )
-  )(CollateralListContainer)
-);
+export default CollateralListContainer;

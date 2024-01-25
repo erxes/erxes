@@ -7,13 +7,12 @@ import {
   FormControl,
   ModalTrigger,
   Pagination,
-  router,
   SortHandler,
   Table,
-  Wrapper
+  Wrapper,
 } from '@erxes/ui/src';
 import { IRouterProps } from '@erxes/ui/src/types';
-import React from 'react';
+import React, { useState, useRef } from 'react';
 import { withRouter } from 'react-router-dom';
 
 import InsuranceTypeForm from '../containers/InsuranceTypeForm';
@@ -35,203 +34,190 @@ interface IProps extends IRouterProps {
   emptyBulk: () => void;
   removeInsuranceTypes: (
     doc: { insuranceTypeIds: string[] },
-    emptyBulk: () => void
+    emptyBulk: () => void,
   ) => void;
   history: any;
   queryParams: any;
 }
 
-type State = {
-  searchValue?: string;
-};
+const InsuranceTypesList = (props: IProps) => {
+  const timerRef = useRef<number | null>(null);
+  const {
+    insuranceTypes,
+    history,
+    loading,
+    toggleBulk,
+    bulk,
+    isAllSelected,
+    totalCount,
+    queryParams,
+    toggleAll,
+  } = props;
 
-class InsuranceTypesList extends React.Component<IProps, State> {
-  private timer?: NodeJS.Timer = undefined;
+  const [searchValue, setSearchValue] = useState(props.searchValue);
 
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      searchValue: this.props.searchValue
-    };
-  }
-
-  onChange = () => {
-    const { toggleAll, insuranceTypes } = this.props;
+  const onChange = () => {
     toggleAll(insuranceTypes, 'insuranceTypes');
   };
 
-  search = e => {
-    if (this.timer) {
-      clearTimeout(this.timer);
+  const search = (e) => {
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
     }
 
-    const { history } = this.props;
-    const searchValue = e.target.value;
+    const { history } = props;
+    const value = e.target.value;
 
-    this.setState({ searchValue });
-    this.timer = setTimeout(() => {
-      router.removeParams(history, 'page');
-      router.setParams(history, { searchValue });
+    setSearchValue(value);
+
+    timerRef.current = setTimeout(() => {
+      history.push(`/settings/contract-types?searchValue=${value}`);
     }, 500);
   };
 
-  removeInsuranceTypes = insuranceTypes => {
+  const removeInsuranceTypes = (insuranceTypes) => {
     const insuranceTypeIds: string[] = [];
 
-    insuranceTypes.forEach(insuranceType => {
+    insuranceTypes.forEach((insuranceType) => {
       insuranceTypeIds.push(insuranceType._id);
     });
 
-    this.props.removeInsuranceTypes({ insuranceTypeIds }, this.props.emptyBulk);
+    props.removeInsuranceTypes({ insuranceTypeIds }, props.emptyBulk);
   };
 
-  moveCursorAtTheEnd = e => {
+  const moveCursorAtTheEnd = (e) => {
     const tmpValue = e.target.value;
     e.target.value = '';
     e.target.value = tmpValue;
   };
 
-  render() {
-    const {
-      insuranceTypes,
-      history,
-      loading,
-      toggleBulk,
-      bulk,
-      isAllSelected,
-      totalCount,
-      queryParams
-    } = this.props;
-
-    const mainContent = (
-      <InsuranceTypesTableWrapper>
-        <Table whiteSpace="nowrap" bordered={true} hover={true} striped>
-          <thead>
-            <tr>
-              <th>
-                <FormControl
-                  checked={isAllSelected}
-                  componentClass="checkbox"
-                  onChange={this.onChange}
-                />
-              </th>
-              <th>
-                <SortHandler sortField={'code'} label={__('Code')} />
-              </th>
-              <th>
-                <SortHandler sortField={'name'} label={__('Name')} />
-              </th>
-              <th>{__('Company Code')}</th>
-              <th>{__('Company Name')}</th>
-              <th>{__('Percent')}</th>
-              <th>{__('Year Percents')}</th>
-              <th>
-                <SortHandler
-                  sortField={'description'}
-                  label={__('Description')}
-                />
-              </th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody id="insuranceTypes">
-            {insuranceTypes.map(insuranceType => (
-              <InsuranceTypeRow
-                insuranceType={insuranceType}
-                isChecked={bulk.includes(insuranceType)}
-                key={insuranceType._id}
-                history={history}
-                toggleBulk={toggleBulk}
+  const mainContent = (
+    <InsuranceTypesTableWrapper>
+      <Table whiteSpace="nowrap" bordered={true} hover={true} striped>
+        <thead>
+          <tr>
+            <th>
+              <FormControl
+                checked={isAllSelected}
+                componentClass="checkbox"
+                onChange={onChange}
               />
-            ))}
-          </tbody>
-        </Table>
-      </InsuranceTypesTableWrapper>
-    );
+            </th>
+            <th>
+              <SortHandler sortField={'code'} label={__('Code')} />
+            </th>
+            <th>
+              <SortHandler sortField={'name'} label={__('Name')} />
+            </th>
+            <th>{__('Company Code')}</th>
+            <th>{__('Company Name')}</th>
+            <th>{__('Percent')}</th>
+            <th>{__('Year Percents')}</th>
+            <th>
+              <SortHandler
+                sortField={'description'}
+                label={__('Description')}
+              />
+            </th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="insuranceTypes">
+          {insuranceTypes.map((insuranceType) => (
+            <InsuranceTypeRow
+              insuranceType={insuranceType}
+              isChecked={bulk.includes(insuranceType)}
+              key={insuranceType._id}
+              history={history}
+              toggleBulk={toggleBulk}
+            />
+          ))}
+        </tbody>
+      </Table>
+    </InsuranceTypesTableWrapper>
+  );
 
-    const addTrigger = (
-      <Button btnStyle="success" icon="plus-circle">
-        {__('Add insuranceType')}
-      </Button>
-    );
+  const addTrigger = (
+    <Button btnStyle="success" icon="plus-circle">
+      {__('Add insuranceType')}
+    </Button>
+  );
 
-    let actionBarLeft: React.ReactNode;
+  let actionBarLeft: React.ReactNode;
 
-    if (bulk.length > 0) {
-      const onClick = () =>
-        confirm()
-          .then(() => {
-            this.removeInsuranceTypes(bulk);
-          })
-          .catch(error => {
-            Alert.error(error.message);
-          });
+  if (bulk.length > 0) {
+    const onClick = () =>
+      confirm()
+        .then(() => {
+          removeInsuranceTypes(bulk);
+        })
+        .catch((error) => {
+          Alert.error(error.message);
+        });
 
-      actionBarLeft = (
-        <BarItems>
-          <Button btnStyle="danger" icon="cancel-1" onClick={onClick}>
-            {__('Delete')}
-          </Button>
-        </BarItems>
-      );
-    }
-
-    const insuranceTypeForm = props => {
-      return <InsuranceTypeForm {...props} queryParams={queryParams} />;
-    };
-
-    const actionBarRight = (
+    actionBarLeft = (
       <BarItems>
-        <FormControl
-          type="text"
-          placeholder={__('Type to search')}
-          onChange={this.search}
-          value={this.state.searchValue}
-          autoFocus={true}
-          onFocus={this.moveCursorAtTheEnd}
-        />
-
-        <ModalTrigger
-          title={__('New insuranceType')}
-          trigger={addTrigger}
-          autoOpenKey="showInsuranceTypeModal"
-          content={insuranceTypeForm}
-          backDrop="static"
-        />
+        <Button btnStyle="danger" icon="cancel-1" onClick={onClick}>
+          {__('Delete')}
+        </Button>
       </BarItems>
     );
-
-    const actionBar = (
-      <Wrapper.ActionBar right={actionBarRight} left={actionBarLeft} />
-    );
-
-    return (
-      <Wrapper
-        header={
-          <Wrapper.Header
-            title={__(`InsuranceTypes`) + ` (${totalCount})`}
-            queryParams={queryParams}
-            breadcrumb={[
-              { title: __('Settings'), link: '/settings' },
-              { title: __('Insurance type') }
-            ]}
-          />
-        }
-        actionBar={actionBar}
-        footer={<Pagination count={totalCount} />}
-        content={
-          <DataWithLoader
-            data={mainContent}
-            loading={loading}
-            count={insuranceTypes.length}
-            emptyText="Add in your first insuranceType!"
-            emptyImage="/images/actions/1.svg"
-          />
-        }
-      />
-    );
   }
-}
+
+  const insuranceTypeForm = (props) => {
+    return <InsuranceTypeForm {...props} queryParams={queryParams} />;
+  };
+
+  const actionBarRight = (
+    <BarItems>
+      <FormControl
+        type="text"
+        placeholder={__('Type to search')}
+        onChange={search}
+        value={searchValue}
+        autoFocus={true}
+        onFocus={moveCursorAtTheEnd}
+      />
+
+      <ModalTrigger
+        title={__('New insuranceType')}
+        trigger={addTrigger}
+        autoOpenKey="showInsuranceTypeModal"
+        content={insuranceTypeForm}
+        backDrop="static"
+      />
+    </BarItems>
+  );
+
+  const actionBar = (
+    <Wrapper.ActionBar right={actionBarRight} left={actionBarLeft} />
+  );
+
+  return (
+    <Wrapper
+      header={
+        <Wrapper.Header
+          title={__(`InsuranceTypes`) + ` (${totalCount})`}
+          queryParams={queryParams}
+          breadcrumb={[
+            { title: __('Settings'), link: '/settings' },
+            { title: __('Insurance type') },
+          ]}
+        />
+      }
+      actionBar={actionBar}
+      footer={<Pagination count={totalCount} />}
+      content={
+        <DataWithLoader
+          data={mainContent}
+          loading={loading}
+          count={insuranceTypes.length}
+          emptyText="Add in your first insuranceType!"
+          emptyImage="/images/actions/1.svg"
+        />
+      }
+    />
+  );
+};
 
 export default withRouter<IRouterProps>(InsuranceTypesList);

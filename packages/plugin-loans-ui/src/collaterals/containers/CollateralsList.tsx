@@ -1,82 +1,52 @@
 import { gql } from '@apollo/client';
-import * as compose from 'lodash.flowright';
-import { withProps, router } from '@erxes/ui/src';
-import React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
-import { withRouter } from 'react-router-dom';
-import { IRouterProps } from '@erxes/ui/src/types';
+import { router } from '@erxes/ui/src';
+import React, { useState } from 'react';
 import CollateralsList from '../components/CollateralsList';
 import { queries } from '../graphql';
-import { ListQueryVariables, MainQueryResponse } from '../types';
+import { MainQueryResponse } from '../types';
+import { useQuery } from '@apollo/client';
 
 type Props = {
   queryParams: any;
   history: any;
 };
 
-type FinalProps = {
-  collateralsMainQuery: MainQueryResponse;
-} & Props &
-  IRouterProps;
+const CollateralListContainer = (props: Props) => {
+  const [loading, setLoading] = useState(false);
+  const { queryParams } = props;
 
-type State = {
-  loading: boolean;
+  const collateralsMainQuery = useQuery<MainQueryResponse>(
+    gql(queries.collateralsMain),
+    {
+      variables: {
+        ...router.generatePaginationParams(queryParams || {}),
+        ids: queryParams.ids,
+        categoryId: queryParams.categoryId,
+        productIds: queryParams.productIds,
+        searchValue: queryParams.searchValue,
+        sortField: queryParams.sortField,
+        sortDirection: queryParams.sortDirection
+          ? parseInt(queryParams.sortDirection, 10)
+          : undefined,
+      },
+    },
+  );
+
+  const searchValue = queryParams.searchValue || '';
+  const productIds = queryParams.productIds || '';
+  const { list = [], totalCount = 0 } =
+    collateralsMainQuery?.data?.collateralsMain || {};
+
+  const updatedProps = {
+    ...props,
+    totalCount,
+    searchValue,
+    productIds,
+    collaterals: list,
+    loading: collateralsMainQuery.loading || loading,
+  };
+
+  return <CollateralsList {...updatedProps} />;
 };
 
-class CollateralListContainer extends React.Component<FinalProps, State> {
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      loading: false
-    };
-  }
-
-  render() {
-    const { collateralsMainQuery } = this.props;
-
-    const searchValue = this.props.queryParams.searchValue || '';
-    const productIds = this.props.queryParams.productIds || '';
-    const { list = [], totalCount = 0 } =
-      collateralsMainQuery.collateralsMain || {};
-
-    const updatedProps = {
-      ...this.props,
-      totalCount,
-      searchValue,
-      productIds,
-      collaterals: list,
-      loading: collateralsMainQuery.loading || this.state.loading
-    };
-
-    return <CollateralsList {...updatedProps} />;
-  }
-}
-
-const generateParams = ({ queryParams }) => ({
-  variables: {
-    ...router.generatePaginationParams(queryParams || {}),
-    ids: queryParams.ids,
-    categoryId: queryParams.categoryId,
-    productIds: queryParams.productIds,
-    searchValue: queryParams.searchValue,
-    sortField: queryParams.sortField,
-    sortDirection: queryParams.sortDirection
-      ? parseInt(queryParams.sortDirection, 10)
-      : undefined
-  }
-});
-
-export default withProps<Props>(
-  compose(
-    graphql<{ queryParams: any }, MainQueryResponse, ListQueryVariables>(
-      gql(queries.collateralsMain),
-      {
-        name: 'collateralsMainQuery',
-        options: ({ queryParams }) => {
-          return generateParams({ queryParams });
-        }
-      }
-    )
-  )(withRouter<IRouterProps>(CollateralListContainer))
-);
+export default CollateralListContainer;
