@@ -1,16 +1,7 @@
-import {
-  Button,
-  ButtonMutate,
-  formatValue,
-  FormControl,
-  Icon,
-  ModalTrigger,
-  Tip
-} from '@erxes/ui/src';
+import { formatValue, FormControl, Icon, ModalTrigger } from '@erxes/ui/src';
 import _ from 'lodash';
 import React from 'react';
 import { TrNumberCols, TrRows } from '../../contracts/styles';
-import ChangeTrForm from '../containers/ChangeTrForm';
 import TransactionForm from '../containers/TransactionForm';
 import { ITransaction } from '../types';
 import { __ } from 'coreui/utils';
@@ -36,41 +27,16 @@ function TransactionRow({
   transaction,
   history,
   isChecked,
-  toggleBulk
+  toggleBulk,
 }: Props) {
-  const onChange = e => {
+  const onChange = (e) => {
     if (toggleBulk) {
       toggleBulk(transaction, e.target.checked);
     }
   };
 
-  const onClick = e => {
+  const onClick = (e) => {
     e.stopPropagation();
-  };
-
-  const renderChangeBtn = () => {
-    if (!transaction.calcedInfo || !transaction.contractId) {
-      return null;
-    }
-
-    const trAmountForm = props => (
-      <ChangeTrForm {...props} transaction={transaction} />
-    );
-    return (
-      <>
-        <ModalTrigger
-          title="Edit amounts info"
-          trigger={
-            <Tip text="Calculator" placement="left">
-              <Icon icon="calcualtor" />
-            </Tip>
-          }
-          size="lg"
-          content={trAmountForm}
-        />
-        &nbsp; &nbsp;
-      </>
-    );
   };
 
   const renderEBarimtBtn = (isGotEBarimt: boolean) => {
@@ -78,7 +44,7 @@ function TransactionRow({
       return null;
     }
 
-    const ebarimtForm = props => (
+    const ebarimtForm = (props) => (
       <EBarimtForm
         {...props}
         transaction={transaction}
@@ -90,44 +56,13 @@ function TransactionRow({
         <ModalTrigger
           title="EBarimt info"
           trigger={
-            isGotEBarimt ? (
-              <Tip text="See Info" placement="left">
-                <Icon icon="print" />
-              </Tip>
-            ) : (
-              <Tip text="Get Ebarimt" placement="left">
-                <Icon icon="invoice" />
-              </Tip>
-            )
+            isGotEBarimt ? <Icon icon="print" /> : <Icon icon="invoice" />
           }
           size="lg"
           content={ebarimtForm}
         />
         &nbsp; &nbsp;
       </>
-    );
-  };
-
-  const renderEditBrn = () => {
-    if (transaction.futureDebt) {
-      return null;
-    }
-
-    const trBaseForm = props => (
-      <TransactionForm {...props} transaction={transaction} />
-    );
-
-    return (
-      <ModalTrigger
-        title={__('Edit basic info')}
-        trigger={
-          <Tip text="Edit" placement="left">
-            <Icon icon="edit" />
-          </Tip>
-        }
-        size="lg"
-        content={trBaseForm}
-      />
     );
   };
 
@@ -165,12 +100,7 @@ function TransactionRow({
       <TrNumberCols key={'total'}>
         {displayNumber(transaction, 'total')}
       </TrNumberCols>
-      <td key={'manage'}>
-        {renderChangeBtn()}
-
-        {renderEBarimtBtn(!!transaction.ebarimt)}
-        {renderEditBrn()}
-      </td>
+      <td key={'manage'}>{renderEBarimtBtn(!!transaction.ebarimt)}</td>
     </TrRows>
   );
 }
