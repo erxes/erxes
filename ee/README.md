@@ -8,8 +8,6 @@
 </p>
 
 <p align="center">
-  <a href="https://www.erxes.org/overview/deployment-overview">Docs</a>
-  |
   <a href="https://xosdemo.erxes.io/">Demo</a>
   |
   <a href="https://erxes.io/">Website</a>
