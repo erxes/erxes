@@ -13,13 +13,13 @@ export type MentionSuggestionParams = {
 export function getMentionSuggestions({
   getVariables,
   fetchMentions,
-  extractFunction
+  extractFunction,
 }: MentionSuggestionParams): Omit<SuggestionOptions, 'editor'> {
   return {
     items: async ({ query }) => {
       try {
         const { data } = await fetchMentions({
-          variables: getVariables(query)
+          variables: getVariables(query),
         });
 
         // Extract the mentions from the query data or filter or process the fetched data as needed
@@ -35,10 +35,10 @@ export function getMentionSuggestions({
       let popup: InstanceType<any> | null = null;
 
       return {
-        onStart: props => {
+        onStart: (props) => {
           component = new ReactRenderer(MentionList, {
             props,
-            editor: props.editor
+            editor: props.editor,
           });
 
           if (!props.clientRect) {
@@ -63,7 +63,7 @@ export function getMentionSuggestions({
               } catch {
                 return false;
               }
-            }
+            },
           });
         },
 
@@ -75,7 +75,7 @@ export function getMentionSuggestions({
           }
 
           popup?.[0]?.setProps({
-            getReferenceClientRect: props.clientRect as GetReferenceClientRect
+            getReferenceClientRect: props.clientRect as GetReferenceClientRect,
           });
         },
 
@@ -96,8 +96,8 @@ export function getMentionSuggestions({
 
           popup?.[0].destroy();
           component.destroy();
-        }
+        },
       };
-    }
+    },
   };
 }

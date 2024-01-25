@@ -404,5 +404,5 @@ export {
   PickerAction,
   PlaceholderWrapper,
   RichTextEditorMenuWrapper,
-  RichTextEditorMenuPopoverWrapper
+  RichTextEditorMenuPopoverWrapper,
 };

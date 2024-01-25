@@ -3,19 +3,19 @@ import { field } from './utils';
 
 enum IVisibilityType {
   PUBLIC = 'public',
-  PRIVATE = 'private'
+  PRIVATE = 'private',
 }
 
 enum IChartFilterType {
   DATE = 'date',
   STRING = 'string',
-  NUMBER = 'number'
+  NUMBER = 'number',
 }
 
 enum IChartType {
   PIE = 'pie',
   BAR = 'bar',
-  LINE = 'line'
+  LINE = 'line',
 }
 
 export interface IReport {
@@ -53,6 +53,8 @@ export interface IChart {
   defaultFilter: IChartFilter;
   serviceName?: string;
 
+  dimension: JSON;
+
   vizState: string;
   layout: string;
 }
@@ -79,33 +81,33 @@ export const reportSchema = new Schema({
   name: field({ type: String, label: 'Report name', index: true }),
   visibility: field({
     type: IVisibilityType,
-    label: 'Report visibility'
+    label: 'Report visibility',
   }),
   assignedUserIds: field({ type: [String], label: 'Assigned member ids' }),
   assignedDepartmentIds: field({
     type: [String],
-    label: 'Assigned department ids'
+    label: 'Assigned department ids',
   }),
   tagIds: field({ type: [String], label: 'Assigned tag ids' }),
   createdAt: field({
     default: Date.now(),
     type: Date,
     label: 'Created at',
-    index: true
+    index: true,
   }),
   createdBy: field({
     type: String,
     label: 'Created by user id',
-    index: true
+    index: true,
   }),
   updatedAt: field({
     type: Date,
-    label: 'Last updated at'
+    label: 'Last updated at',
   }),
   updatedBy: field({
     type: String,
-    label: 'Last updated by user id'
-  })
+    label: 'Last updated by user id',
+  }),
 });
 
 export const chartSchema = new Schema({
@@ -114,7 +116,7 @@ export const chartSchema = new Schema({
   reportId: field({
     type: String,
     label: 'Id of a corresponding report',
-    index: true
+    index: true,
   }),
   contentType: field({ type: String, label: 'Content type' }),
   serviceName: field({ type: String, label: 'Service name' }),
@@ -123,10 +125,11 @@ export const chartSchema = new Schema({
   templateType: field({
     type: String,
     label: 'Template name coming from plugins config',
-    index: true
+    index: true,
   }),
   order: field({ type: Number, label: 'Order number' }),
   chartType: field({ type: IChartType, label: 'Chart type' }),
   filter: field({ type: JSON, label: 'Filters' }),
-  defaultFilterId: field({ type: String, label: 'Default filter id' })
+  dimension: field({ type: JSON, label: 'Dimension' }),
+  defaultFilterId: field({ type: String, label: 'Default filter id' }),
 });

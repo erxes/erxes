@@ -5,7 +5,7 @@ import Step from '@erxes/ui/src/components/step/Step';
 import Steps from '@erxes/ui/src/components/step/Steps';
 import {
   StepWrapper,
-  TitleContainer
+  TitleContainer,
 } from '@erxes/ui/src/components/step/styles';
 import { Alert, __ } from 'coreui/utils';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
@@ -27,7 +27,7 @@ import {
   IEngageSms,
   IEngageNotification,
   IEmailTemplate,
-  IIntegrationWithPhone
+  IIntegrationWithPhone,
 } from '@erxes/ui-engage/src/types';
 import { ClientPortalConfig } from '@erxes/plugin-clientportal-ui/src/types';
 import SmsForm from './SmsForm';
@@ -49,7 +49,7 @@ type Props = {
   save: (doc: IEngageMessageDoc) => Promise<any>;
   validateDoc: (
     type: string,
-    doc: IEngageMessageDoc
+    doc: IEngageMessageDoc,
   ) => { status: string; doc?: IEngageMessageDoc };
   renderTitle: () => string;
   breadcrumbs: IBreadCrumbItem[];
@@ -90,7 +90,7 @@ class AutoAndManualForm extends React.Component<Props, State> {
     let content = email.content || '';
 
     const rules = messenger.rules
-      ? messenger.rules.map(rule => ({ ...rule }))
+      ? messenger.rules.map((rule) => ({ ...rule }))
       : [];
 
     if (messenger.content && messenger.content !== '') {
@@ -112,12 +112,12 @@ class AutoAndManualForm extends React.Component<Props, State> {
       notification: message.notification,
       cpId: message.cpId,
       rules,
-      isSaved: false
+      isSaved: false,
     };
   }
 
   changeState = <T extends keyof State>(key: T, value: State[T]) => {
-    this.setState(({ [key]: value } as unknown) as Pick<State, keyof State>);
+    this.setState({ [key]: value } as unknown as Pick<State, keyof State>);
   };
 
   clearState = () => {
@@ -125,7 +125,7 @@ class AutoAndManualForm extends React.Component<Props, State> {
       segmentIds: [],
       brandIds: [],
       tagIds: [],
-      rules: []
+      rules: [],
     });
   };
 
@@ -141,7 +141,7 @@ class AutoAndManualForm extends React.Component<Props, State> {
       scheduleDate: this.state.scheduleDate,
       shortMessage: this.state.shortMessage,
       notification: this.state.notification,
-      cpId: this.state.cpId
+      cpId: this.state.cpId,
     } as IEngageMessageDoc;
 
     if (this.state.method === METHODS.EMAIL) {
@@ -153,7 +153,7 @@ class AutoAndManualForm extends React.Component<Props, State> {
         replyTo: (email.replyTo || '').split(' ').toString(),
         content: this.state.content,
         attachments: email.attachments,
-        templateId: email.templateId || ''
+        templateId: email.templateId || '',
       };
 
       if (doc.messenger) {
@@ -174,7 +174,7 @@ class AutoAndManualForm extends React.Component<Props, State> {
         kind: messenger.kind || '',
         sentAs: messenger.sentAs || '',
         content: this.state.content,
-        rules: this.state.rules
+        rules: this.state.rules,
       };
 
       if (doc.email) {
@@ -191,13 +191,13 @@ class AutoAndManualForm extends React.Component<Props, State> {
       const shortMessage = this.state.shortMessage || {
         from: '',
         content: '',
-        fromIntegrationId: ''
+        fromIntegrationId: '',
       };
 
       doc.shortMessage = {
         from: shortMessage.from,
         content: shortMessage.content,
-        fromIntegrationId: shortMessage.fromIntegrationId
+        fromIntegrationId: shortMessage.fromIntegrationId,
       };
 
       if (doc.email) {
@@ -215,13 +215,13 @@ class AutoAndManualForm extends React.Component<Props, State> {
       const notification = this.state?.notification || {
         title: '',
         content: '',
-        isMobile: false
+        isMobile: false,
       };
 
       doc.notification = {
         title: notification.title,
         content: notification.content,
-        isMobile: notification.isMobile || false
+        isMobile: notification.isMobile || false,
       };
       doc.fromUserId = currentUser?._id;
       if (doc.email) {
@@ -237,7 +237,7 @@ class AutoAndManualForm extends React.Component<Props, State> {
     const response = this.props.validateDoc(type, doc);
     if (this.state.method === METHODS.SMS && !this.props.smsConfig) {
       return Alert.warning(
-        'SMS integration is not configured. Go to Settings > System config > Integrations config and set Telnyx SMS API key.'
+        'SMS integration is not configured. Go to Settings > System config > Integrations config and set Telnyx SMS API key.',
       );
     }
 
@@ -290,15 +290,8 @@ class AutoAndManualForm extends React.Component<Props, State> {
   };
 
   renderMessageContent() {
-    const {
-      message,
-      brands,
-      users,
-      kind,
-      templates,
-      smsConfig,
-      integrations
-    } = this.props;
+    const { message, brands, users, kind, templates, smsConfig, integrations } =
+      this.props;
 
     const {
       messenger,
@@ -309,7 +302,7 @@ class AutoAndManualForm extends React.Component<Props, State> {
       method,
       shortMessage,
       notification,
-      isSaved
+      isSaved,
     } = this.state;
 
     const imagePath = '/images/icons/erxes-08.svg';
@@ -407,15 +400,11 @@ class AutoAndManualForm extends React.Component<Props, State> {
   }
 
   render() {
-    const {
-      clientPortalGetConfigs,
-      renderTitle,
-      breadcrumbs,
-      segmentType
-    } = this.props;
+    const { clientPortalGetConfigs, renderTitle, breadcrumbs, segmentType } =
+      this.props;
     const { segmentIds, brandIds, title, tagIds } = this.state;
 
-    const onChange = e =>
+    const onChange = (e) =>
       this.changeState('title', (e.target as HTMLInputElement).value);
 
     return (

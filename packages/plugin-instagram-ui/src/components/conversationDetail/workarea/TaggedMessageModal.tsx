@@ -20,9 +20,9 @@ class Modal extends React.Component<Props, {}> {
   onSave = () => {
     const { setExtraInfo, hideMask } = this.props;
 
-    const tag = (document.getElementById(
-      'facebook-message-tag'
-    ) as HTMLInputElement).value;
+    const tag = (
+      document.getElementById('facebook-message-tag') as HTMLInputElement
+    ).value;
 
     setExtraInfo({ tag });
     hideMask();
@@ -36,7 +36,7 @@ class Modal extends React.Component<Props, {}> {
     const tags = [
       { label: 'Confirmed Event Update', value: 'CONFIRMED_EVENT_UPDATE' },
       { label: 'Post-Purchase Update', value: 'POST_PURCHASE_UPDATE' },
-      { label: 'Account Update', value: 'ACCOUNT_UPDATE' }
+      { label: 'Account Update', value: 'ACCOUNT_UPDATE' },
     ];
 
     const { extraInfo = { tag: '' } } = this.props;
@@ -56,7 +56,7 @@ class Modal extends React.Component<Props, {}> {
             placeholder={__('Select Facebook Tag') as string}
             defaultValue={extraInfo.tag || ''}
           >
-            {tags.map(tag => (
+            {tags.map((tag) => (
               <option key={tag.value} value={tag.value}>
                 {tag.label}
               </option>
