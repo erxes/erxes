@@ -22,6 +22,7 @@ const generateQueryParams = ({ location }) => {
 const ContractListContainer = (props: Props) => {
   const [loading, setLoading] = useState(false);
   const { queryParams, history } = props;
+  const [date, setDate] = useState(new Date());
 
   const contractsMainQuery = useQuery<MainQueryResponse>(
     gql(queries.contractsMain),
@@ -61,7 +62,7 @@ const ContractListContainer = (props: Props) => {
     gql(queries.savingsContractsAlert),
     {
       variables: {
-        date: new Date(),
+        date,
       },
       fetchPolicy: 'network-only',
     },
