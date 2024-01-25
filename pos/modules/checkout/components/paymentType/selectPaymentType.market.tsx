@@ -70,7 +70,7 @@ const SelectPaymentType = ({ onSelect }: { onSelect?: () => void }) => {
             </SelectItem>
           )}
           {!!tdb && (
-            <SelectItem value={BANK_CARD_TYPES.TDB} disabled={disabledTerms}>
+            <SelectItem value={tdb.type} disabled={disabledTerms}>
               ХXБанк
             </SelectItem>
           )}

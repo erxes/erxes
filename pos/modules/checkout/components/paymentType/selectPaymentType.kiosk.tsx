@@ -40,9 +40,7 @@ const SelectPaymentType = () => {
             {!!khan && (
               <PaymentType type={BANK_CARD_TYPES.KHANBANK}>Kартаар</PaymentType>
             )}
-            {!!tdb && (
-              <PaymentType type={BANK_CARD_TYPES.TDB}>Kартаар</PaymentType>
-            )}
+            {!!tdb && <PaymentType type={tdb.type}>Kартаар</PaymentType>}
             {!!golomt && (
               <PaymentType type={BANK_CARD_TYPES.GOLOMT}>Kартаар</PaymentType>
             )}

@@ -34,7 +34,8 @@ const PaymentSheet = () => {
         >
           {type === "mobile" && <MobileSheet />}
           {type === BANK_CARD_TYPES.KHANBANK && <KhanSheet />}
-          {type === BANK_CARD_TYPES.TDB && <TDBSheet />}
+          {(type === BANK_CARD_TYPES.TDB ||
+            type === BANK_CARD_TYPES.CAPITRON) && <TDBSheet />}
           {type === BANK_CARD_TYPES.GOLOMT && <GolomtSheet />}
         </SheetContent>
       </Sheet>

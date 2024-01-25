@@ -52,6 +52,7 @@ const BANK_CARD_TYPES = {
   GOLOMT: "golomtCard",
   KHANBANK: "khaanCard",
   TDB: "TDBCard",
+  CAPITRON: "captrnCard",
 }
 
 const ALL_BANK_CARD_TYPES = Object.values(BANK_CARD_TYPES)

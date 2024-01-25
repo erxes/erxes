@@ -5,7 +5,7 @@ import {
   FormGroup,
   Icon,
   Tip,
-  __
+  __,
 } from '@erxes/ui/src';
 import { LeftItem } from '@erxes/ui/src/components/step/styles';
 import { FormColumn, FormWrapper } from '@erxes/ui/src/styles/main';
@@ -48,7 +48,7 @@ class PaymentsStep extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      slots: props.posSlots || []
+      slots: props.posSlots || [],
     };
   }
 
@@ -56,16 +56,16 @@ class PaymentsStep extends React.Component<Props, State> {
     this.props.onChange(name, value);
   };
 
-  onChangePayments = ids => {
+  onChangePayments = (ids) => {
     const { pos } = this.props;
     this.onChangeFunction('pos', { ...pos, paymentIds: ids });
   };
 
-  onChangeInput = e => {
+  onChangeInput = (e) => {
     const { pos } = this.props;
     this.onChangeFunction('pos', {
       ...pos,
-      [e.target.id]: (e.currentTarget as HTMLInputElement).value
+      [e.target.id]: (e.currentTarget as HTMLInputElement).value,
     });
   };
 
@@ -77,7 +77,7 @@ class PaymentsStep extends React.Component<Props, State> {
       _id: Math.random().toString(),
       type: '',
       title: '',
-      icon: ''
+      icon: '',
     });
 
     onChange('pos', { ...pos, paymentTypes });
@@ -92,32 +92,33 @@ class PaymentsStep extends React.Component<Props, State> {
 
     const editPayment = (name, value) => {
       let paymentTypes = [...(pos.paymentTypes || [])];
-      paymentTypes = (paymentTypes || []).map(p =>
-        p._id === paymentType._id ? { ...p, [name]: value } : p
+      paymentTypes = (paymentTypes || []).map((p) =>
+        p._id === paymentType._id ? { ...p, [name]: value } : p,
       );
       onChange('pos', { ...pos, paymentTypes });
     };
 
-    const onChangeInput = e => {
+    const onChangeInput = (e) => {
       const name = e.target.name;
       const value = e.target.value;
       editPayment(name, value);
     };
 
-    const onChangeSelect = option => {
+    const onChangeSelect = (option) => {
       console.log(option);
       editPayment('icon', option.value);
     };
 
     const removePayment = () => {
       const paymentTypes =
-        (pos.paymentTypes || []).filter(m => m._id !== paymentType._id) || [];
+        (pos.paymentTypes || []).filter((m) => m._id !== paymentType._id) || [];
       onChange('pos', { ...pos, paymentTypes });
     };
 
-    const getTipText = type => {
+    const getTipText = (type) => {
       if (type === 'golomtCard') return 'continue';
-      if (type === 'TDBCard') return 'must config: "{port: 8078}"';
+      if (type === 'TDBCard' || type === 'captrnCard')
+        return 'must config: "{port: 8078}"';
       if (type === 'khaanCard')
         return 'check localhost:27028 and contact databank';
       return '';
@@ -155,10 +156,10 @@ class PaymentsStep extends React.Component<Props, State> {
                 valueRenderer={this.selectItemRenderer}
                 value={paymentType.icon || ''}
                 onChange={onChangeSelect}
-                options={PAYMENT_TYPE_ICONS.map(icon => ({
+                options={PAYMENT_TYPE_ICONS.map((icon) => ({
                   value: icon,
                   label: icon,
-                  avatar: `${icon}`
+                  avatar: `${icon}`,
                 }))}
               />
             </FormGroup>
@@ -199,7 +200,7 @@ class PaymentsStep extends React.Component<Props, State> {
               <>
                 {loadDynamicComponent('selectPayments', {
                   defaultValue: pos.paymentIds || [],
-                  onChange: (ids: string[]) => this.onChangePayments(ids)
+                  onChange: (ids: string[]) => this.onChangePayments(ids),
                 })}
 
                 <Block>
@@ -220,7 +221,7 @@ class PaymentsStep extends React.Component<Props, State> {
               <h4>{__('Other payments')}</h4>
               <Description>
                 type is must latin, some default types: golomtCard, khaanCard,
-                TDBCard
+                TDBCard, captrnCard
               </Description>
               <Description>
                 Хэрэв тухайн төлбөрт ебаримт хэвлэхгүй бол: "skipEbarimt: true",
@@ -255,8 +256,8 @@ class PaymentsStep extends React.Component<Props, State> {
                     <FormColumn></FormColumn>
                   </FormWrapper>
                 </div>
-                {(pos.paymentTypes || []).map(item =>
-                  this.renderPaymentType(item)
+                {(pos.paymentTypes || []).map((item) =>
+                  this.renderPaymentType(item),
                 )}
               </FormGroup>
               <Button

@@ -22,8 +22,9 @@ export const endPoint = (port?: string) =>
   (port ? `http://localhost:${port}` : TDB_DEFAULT_PATH) + `/ecrt1000`
 
 const useTDB = () => {
-  const paymentType = usePaymentType(BANK_CARD_TYPES.TDB)
-  return { paymentType }
+  const tdb = usePaymentType(BANK_CARD_TYPES.TDB)
+  const capitron = usePaymentType(BANK_CARD_TYPES.CAPITRON)
+  return { paymentType: tdb || capitron }
 }
 
 export const useTDBTransaction = (options: {
@@ -31,7 +32,7 @@ export const useTDBTransaction = (options: {
   onError: () => void
 }) => {
   const { onCompleted, onError } = options
-  const paymentType = usePaymentType(BANK_CARD_TYPES.TDB)
+  const { paymentType } = useTDB()
   const { port } = paymentType?.config || {}
 
   const TDBTransaction = async (variables: { _id: string; amount: number }) => {
