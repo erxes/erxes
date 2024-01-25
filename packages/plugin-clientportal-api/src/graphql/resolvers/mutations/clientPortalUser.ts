@@ -750,7 +750,7 @@ const clientPortalUserMutations = {
               action: 'sendEmail',
               data: {
                 toEmails: [email],
-                title: 'OTP verification',
+                title: config.emailSubject || 'OTP verification',
                 template: {
                   name: 'base',
                   data: {
@@ -771,7 +771,7 @@ const clientPortalUserMutations = {
     const emailCode = await models.ClientPortalUsers.imposeVerificationCode({
       clientPortalId: clientPortal._id,
       codeLength: config.codeLength,
-      email: user?.email,
+      email: user.email,
       expireAfter: config.expireAfter,
     });
 
@@ -784,7 +784,7 @@ const clientPortalUserMutations = {
         action: 'sendEmail',
         data: {
           toEmails: [email],
-          title: 'OTP verification',
+          title: config.emailSubject || 'OTP verification',
           template: {
             name: 'base',
             data: {
