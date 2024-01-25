@@ -4,7 +4,7 @@ import {
   customFieldToObject,
   getConfig,
   setCustomerCode,
-  toPolaris,
+  fetchPolaris,
 } from './utils';
 
 export const customerToPolaris = async (
@@ -73,7 +73,7 @@ export const customerToPolaris = async (
 
   console.log('sendData', sendData);
 
-  const customerCode = await toPolaris({
+  const customerCode = await fetchPolaris({
     subdomain,
     op: op,
     data: sendData,
@@ -123,7 +123,7 @@ export const companyToPolaris = async (
   if (action === 'create') op = '13610314';
   else if (action === 'update') op = '13610316';
 
-  toPolaris({
+  fetchPolaris({
     subdomain,
     op: op,
     data: sendData,

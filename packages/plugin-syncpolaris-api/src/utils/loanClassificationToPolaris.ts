@@ -1,4 +1,4 @@
-import { getConfig, getLoanContract, toPolaris } from './utils';
+import { getConfig, getLoanContract, fetchPolaris } from './utils';
 
 const getClassificationCode = (classification: string) => {
   switch (classification) {
@@ -38,7 +38,7 @@ export const loanClassificationToPolaris = async (subdomain, params) => {
     },
   ];
 
-  await toPolaris({
+  await fetchPolaris({
     op: '13610283',
     data: sendData,
     subdomain,

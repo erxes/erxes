@@ -12,7 +12,7 @@ type CustomFieldType =
   | 'loans:contract'
   | 'savings:contract';
 
-export const toPolaris = async (args: IParams) => {
+export const fetchPolaris = async (args: IParams) => {
   const { op, data, subdomain } = args;
 
   const config = await getConfig(subdomain, 'POLARIS', {});
@@ -33,7 +33,12 @@ export const toPolaris = async (args: IParams) => {
       body: JSON.stringify(data),
     };
 
-    return await fetch(config.apiUrl, requestOptions).then((a) => a.text());
+    return await fetch(config.apiUrl, requestOptions)
+      .then((a) => a.text())
+      .then((response) => {
+        console.log('response', response);
+        return response;
+      });
   } catch (e) {
     const errorMessage = JSON.parse(e.message).message || e.message;
     throw new Error(errorMessage);
@@ -230,4 +235,14 @@ export const getSavingProduct = async (subdomain, _id) => {
     data: { _id },
     isRPC: true,
   });
+};
+
+export const getBoolean = (value) => {
+  if (value === 1) return true;
+  return false;
+};
+
+export const getBooleanToNumber = (value) => {
+  if (value === true) return 1;
+  return 0;
 };

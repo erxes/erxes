@@ -1,4 +1,4 @@
-import { getConfig, toPolaris } from './utils';
+import { getConfig, fetchPolaris } from './utils';
 
 export const depositTransactionToPolaris = async (
   subdomain,
@@ -57,7 +57,7 @@ export const depositTransactionToPolaris = async (
     },
   ];
 
-  toPolaris({
+  fetchPolaris({
     op: op,
     data: sendData,
     subdomain,

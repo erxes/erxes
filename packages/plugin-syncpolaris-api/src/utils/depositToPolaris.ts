@@ -3,7 +3,7 @@ import {
   getConfig,
   getCustomer,
   getSavingProduct,
-  toPolaris,
+  fetchPolaris,
 } from './utils';
 
 export const depositToPolaris = async (subdomain, params) => {
@@ -83,7 +83,7 @@ export const depositToPolaris = async (subdomain, params) => {
   ];
   console.log('objectCus:', objectCus);
   console.log('sendData:', sendData);
-  toPolaris({
+  fetchPolaris({
     op: '13610020',
     data: sendData,
     subdomain,
@@ -108,7 +108,7 @@ export const getCustomerAcntTransaction = async (subdomain, params) => {
       count: acntTransactionParams.count,
     },
   ];
-  toPolaris({
+  fetchPolaris({
     op: '13610003',
     data: sendData,
     subdomain,
@@ -125,7 +125,7 @@ export const getCustomerAcntBalance = async (subdomain, params) => {
       acntCode: acntBalanceParam.acntCode,
     },
   ];
-  toPolaris({
+  fetchPolaris({
     op: '13610003',
     data: sendData,
     subdomain,

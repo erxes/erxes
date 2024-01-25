@@ -6,42 +6,12 @@ import {
   getDepositAccount,
   getLoanProduct,
   getUser,
-  fetchPolaris,
+  toPolaris,
   updateLoanNumber,
 } from './utils';
 
-export const loansToPolaris = async (
-  subdomain,
-  params,
-  action: 'create' | 'update',
-) => {
-  const config = await getConfig(subdomain, 'POLARIS', {});
-
+export const createLoan = async (subdomain, params) => {
   const loan = params.updatedDocument || params.object;
-
-  console.log('loan', loan);
-
-  if (loan.status === 'closed') {
-    const closeInfo = await getCloseInfo(
-      subdomain,
-      params.newData.contractId,
-      params.newData.closeDate,
-    );
-
-    const depositAccount = await getDepositAccount(
-      subdomain,
-      params.newData.contractId,
-    );
-
-    await closeContract(
-      config,
-      params.newData,
-      loan,
-      closeInfo,
-      depositAccount,
-    );
-    return;
-  }
 
   const customer = await getCustomer(subdomain, loan.customerId);
 
@@ -91,17 +61,13 @@ export const loansToPolaris = async (
     },
   ];
 
-  let op = '13610313';
-  // if (action === 'create') op = '13610313';
-  // else if (action === 'update') op = '13610315';
-
-  const result = await fetchPolaris({
-    op: op,
+  const result = await toPolaris({
+    op: '13610313',
     data: sendData,
     subdomain,
   });
 
-  if (action === 'create' && typeof result === 'string') {
+  if (typeof result === 'string') {
     await updateLoanNumber(subdomain, loan._id, result);
 
     await openLoanContract(config, [result, 'данс нээв', null]);
@@ -111,7 +77,7 @@ export const loansToPolaris = async (
 };
 
 const openLoanContract = async (subdomain, sendData) => {
-  const result = await fetchPolaris({
+  const result = await toPolaris({
     op: '13610263',
     data: sendData,
     subdomain,
@@ -143,7 +109,7 @@ const createLoanSchedule = async (subdomain: string, contract: any) => {
     contract.customPayment ?? null,
   ];
 
-  const result = await fetchPolaris({
+  const result = await toPolaris({
     op: '13610263',
     data: sendData,
     subdomain,
@@ -178,7 +144,7 @@ const closeContract = async (
     },
   ];
 
-  const result = await fetchPolaris({
+  const result = await toPolaris({
     op: '13610267',
     data: sendData,
     subdomain,

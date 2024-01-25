@@ -1,4 +1,9 @@
-import { getConfig, getCustomer, getSavingProduct, toPolaris } from './utils';
+import {
+  getConfig,
+  getCustomer,
+  getSavingProduct,
+  fetchPolaris,
+} from './utils';
 
 export const savingToPolaris = async (subdomain: string, params) => {
   const config = await getConfig(subdomain, 'POLARIS', {});
@@ -48,7 +53,7 @@ export const savingToPolaris = async (subdomain: string, params) => {
     },
   ];
 
-  toPolaris({
+  fetchPolaris({
     op: '13610120',
     data: sendData,
     subdomain,
@@ -73,7 +78,7 @@ export const getSavingAcntTransaction = async (subdomain, params) => {
       PageRowCount: savingTransactionParams.PageRowCount,
     },
   ];
-  toPolaris({
+  fetchPolaris({
     op: '13610101',
     data: sendData,
     subdomain,

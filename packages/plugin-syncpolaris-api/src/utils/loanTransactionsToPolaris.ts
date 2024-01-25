@@ -2,7 +2,7 @@ import {
   getConfig,
   getDepositAccount,
   getLoanContract,
-  toPolaris,
+  fetchPolaris,
 } from './utils';
 
 export const loanTransactionsToPolaris = async (
@@ -68,7 +68,7 @@ export const loanTransactionsToPolaris = async (
   if (action === 'create') op = '13610313';
   else if (action === 'update') op = '13610315';
 
-  await toPolaris({
+  await fetchPolaris({
     op: op,
     data: sendData,
     subdomain,
@@ -111,7 +111,7 @@ const loanGive = async (
     },
   ];
 
-  await toPolaris({
+  await fetchPolaris({
     op: '13610262',
     data: sendData,
     subdomain,
