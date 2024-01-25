@@ -12,7 +12,7 @@ import { renderDynamicComponent } from '../../utils';
 import {
   BRANCH_HANDLE_OPTIONS,
   DEFAULT_HANDLE_OPTIONS,
-  DEFAULT_HANDLE_STYLE
+  DEFAULT_HANDLE_STYLE,
 } from './constants';
 import { ScratchNode as CommonScratchNode, Trigger } from './styles';
 import { checkNote } from './utils';
@@ -38,7 +38,7 @@ type Props = {
     description: string;
     toggleDrawer: ({
       type,
-      awaitingActionId
+      awaitingActionId,
     }: {
       type: string;
       awaitingActionId?: string;
@@ -83,7 +83,7 @@ export default memo(({ id, data }: Props) => {
 
   const handleOnClick = ({
     optionId,
-    isOptionalConnect
+    isOptionalConnect,
   }: {
     optionId: string;
     isOptionalConnect?: boolean;
@@ -93,7 +93,7 @@ export default memo(({ id, data }: Props) => {
         type: `actions`,
         awaitingActionId: isOptionalConnect
           ? optionId.replace('-right', '')
-          : id
+          : id,
       });
     }
   };
@@ -102,7 +102,7 @@ export default memo(({ id, data }: Props) => {
     onDoubleClick(data.nodeType, id);
   };
 
-  const removeNode = e => {
+  const removeNode = (e) => {
     e.persist();
     removeItem(data.nodeType, id);
   };
@@ -113,7 +113,7 @@ export default memo(({ id, data }: Props) => {
 
       return (
         <CommonForm
-          renderContent={formProps => (
+          renderContent={(formProps) => (
             <NoteFormContainer
               formProps={formProps}
               automationId={automation?._id || ''}
@@ -142,14 +142,14 @@ export default memo(({ id, data }: Props) => {
     }
 
     const constant = (constants[`${data.nodeType}sConst`] || []).find(
-      c => c.type === data[`${data.nodeType}Type`]
+      (c) => c.type === data[`${data.nodeType}Type`],
     );
 
     if (!constant || !constant?.isAvailableOptionalConnect) {
       return null;
     }
 
-    const handle = optionalId => (
+    const handle = (optionalId) => (
       <Handle
         key={`${id}-${optionalId}-right`}
         id={`${id}-${optionalId}-right`}
@@ -157,15 +157,16 @@ export default memo(({ id, data }: Props) => {
         position={Position.Right}
         onClick={handleOnClick.bind(this, {
           optionId: `${id}-${optionalId}-right`,
-          isOptionalConnect: true
+          isOptionalConnect: true,
         })}
         isConnectable
         style={{
           right: '20px',
-          width: 10,
-          height: 10,
-          backgroundColor: colors.colorShadowGray,
-          zIndex: 4
+          width: 15,
+          height: 15,
+          backgroundColor: colors.colorWhite,
+          border: `2px solid ${colors.colorCoreGray}`,
+          zIndex: 4,
         }}
       />
     );
@@ -176,9 +177,9 @@ export default memo(({ id, data }: Props) => {
           {
             componentType: 'optionalContent',
             data,
-            handle
+            handle,
           },
-          constant.type
+          constant.type,
         )}
       </div>
     );
@@ -219,7 +220,7 @@ export default memo(({ id, data }: Props) => {
         <p>{data.description}</p>
       </Trigger>
       {handleOptions.map(
-        option =>
+        (option) =>
           showHandler(data, option) && (
             <Handle
               key={option.id}
@@ -233,14 +234,14 @@ export default memo(({ id, data }: Props) => {
                 <div
                   style={{
                     ...option.labelStyle,
-                    color: option.style.background
+                    color: option.style.background,
                   }}
                 >
                   {option.label}
                 </div>
               )}
             </Handle>
-          )
+          ),
       )}
     </>
   );

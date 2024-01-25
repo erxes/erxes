@@ -4,7 +4,6 @@ import { debugError } from './debuggers';
 import { IConversation } from './models/definitions/conversations';
 import { sendReply } from './utils';
 import { sendInboxMessage } from './messageBroker';
-import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
 
 export default {
   constants: {
@@ -24,6 +23,7 @@ export default {
         img: 'automation3.svg',
         icon: 'file-plus-alt',
         label: 'Facebook Message',
+        isCustom: true,
         description:
           'Start with a blank workflow that enralls and is triggered off facebook messages',
       },
@@ -141,60 +141,182 @@ const generateMessage = async (
   }
 };
 
-const generateBotData = ({ messageTemplates, quickReplies, text }) => {
-  if (messageTemplates?.length > 1) {
-    return [
-      {
-        type: 'carousel',
-        elements: messageTemplates.map(
-          ({ title, description, image, buttons }) => ({
-            picture: readFileUrl(image.url),
-            title,
-            subtitle: description,
-            buttons: buttons.map((btn) => ({
-              title: btn.text,
-              url: btn.link || null,
-              type: btn.link ? 'openUrl' : null,
-            })),
-          }),
+const generateMessages = async (
+  models: IModels,
+  config,
+  conversation: IConversation,
+  senderId,
+) => {
+  const { messages = [] } = config || {};
+
+  const customer = await models.Customers.findOne({ userId: senderId }).lean();
+
+  const generateButtons = (buttons: any[] = []) => {
+    const generatedButtons: any = [];
+
+    for (const button of buttons) {
+      const obj: any = {
+        type: 'postback',
+        title: button.text,
+        payload: generatePayloadString(
+          conversation,
+          button,
+          customer?.erxesApiId,
         ),
-      },
-    ];
-  }
+      };
 
-  if (messageTemplates?.length === 1) {
-    return [
-      {
-        type: 'carousel',
-        elements: messageTemplates.map(({ title, buttons }) => ({
-          title,
-          buttons: buttons.map((btn) => ({
-            title: btn.text,
-            url: btn.link || null,
-            type: btn.link ? 'openUrl' : null,
+      if (button.link) {
+        delete obj.payload;
+        obj.type = 'web_url';
+        obj.url = button.link;
+      }
+
+      generatedButtons.push(obj);
+    }
+
+    return generatedButtons;
+  };
+
+  const generatedMessages = messages.map(
+    ({ type, buttons, text, cards = [], quickReplies, image = '' }) => {
+      if (type === 'text' && buttons?.length > 0) {
+        return {
+          text,
+        };
+      }
+
+      if (type === 'text' && !!buttons?.length) {
+        return {
+          attachment: {
+            type: 'template',
+            payload: {
+              template_type: 'button',
+              text,
+              buttons: generateButtons(buttons),
+            },
+          },
+        };
+      }
+
+      if (type === 'cards') {
+        return {
+          attachment: {
+            type: 'template',
+            payload: {
+              template_type: 'generic',
+              elements: cards.map(
+                ({ title = '', subtitle = '', image = '', buttons = [] }) => ({
+                  title,
+                  subtitle,
+                  image_url: readFileUrl(image),
+                  buttons: generateButtons(buttons),
+                }),
+              ),
+            },
+          },
+        };
+      }
+
+      if (type === 'quickReplies') {
+        return {
+          text: text || '',
+          quick_replies: quickReplies.map((quickReply) => ({
+            content_type: 'text',
+            title: quickReply?.text || '',
+            payload: generatePayloadString(
+              conversation,
+              quickReply,
+              customer?.erxesApiId,
+            ),
           })),
-        })),
-      },
-    ];
-  }
-  if (quickReplies) {
-    return [
-      {
-        type: 'custom',
-        component: 'QuickReplies',
-        quick_replies: quickReplies.map((qReplies) => ({
-          title: qReplies.label,
-        })),
-      },
-    ];
+        };
+      }
+
+      if (type === 'image') {
+        return {
+          attachment: {
+            type: 'image',
+            payload: {
+              url: image,
+            },
+          },
+        };
+      }
+    },
+  );
+
+  return generatedMessages;
+};
+
+const generateBotData = ({
+  type,
+  buttons,
+  text,
+  cards = [],
+  quickReplies,
+  image = '',
+}) => {
+  let botData: any[] = [];
+
+  const generateButtons = (buttons: any[]) => {
+    return buttons.map((btn: any) => ({
+      title: btn.text,
+      url: btn.link || null,
+      type: btn.link ? 'openUrl' : null,
+    }));
+  };
+
+  if (type === 'card') {
+    botData.push({
+      type: 'carousel',
+      elements: cards.map(
+        ({
+          title = '',
+          subtitle = '',
+          image = '',
+          buttons: cardButtons = [],
+        }) => ({
+          picture: readFileUrl(image),
+          title,
+          subtitle,
+          buttons: generateButtons(cardButtons),
+        }),
+      ),
+    });
   }
 
-  return [
-    {
+  if (type === 'quickReplies') {
+    botData.push({
+      type: 'custom',
+      component: 'QuickReplies',
+      quick_replies: quickReplies.map(({ text }) => ({
+        title: text,
+      })),
+    });
+  }
+
+  if (type === 'image') {
+    botData.push({
+      type: 'file',
+      url: readFileUrl(image),
+    });
+  }
+
+  if (type === 'text' && buttons?.length > 0) {
+    botData.push({
+      type: 'carousel',
+      elements: [{ title: text, buttons: generateButtons(buttons) }],
+    });
+  }
+
+  if (type === 'text') {
+    botData.push({
       type: 'text',
       text: `<p>${text}</p>`,
-    },
-  ];
+    });
+  }
+
+  return botData;
 };
 
 const actionCreateMessage = async (
@@ -223,44 +345,47 @@ const actionCreateMessage = async (
   }
   const { recipientId, senderId, botId } = conversation;
 
+  const customer = await models.Customers.findOne({ userId: recipientId });
+
+  if (!customer) {
+    return;
+  }
+
+  let result: any[] = [];
+
   try {
-    const message = await generateMessage(
+    const messages = await generateMessages(
       models,
       config,
       conversation,
       senderId,
     );
 
-    if (!message) {
-      return;
-    }
-
-    const resp = await sendReply(
-      models,
-      'me/messages',
-      {
-        recipient: { id: senderId },
-        message,
-      },
-      recipientId,
-      integration.erxesApiId,
-    );
-
-    if (resp) {
-      const conversationMessage = await models.ConversationMessages.addMessage(
+    for (const message of messages) {
+      const resp = await sendReply(
+        models,
+        'me/messages',
         {
-          // ...doc,
-          // inbox conv id comes, so override
-          conversationId: conversation._id,
-          content: '<p>Bot Message</p>',
-          internal: false,
-          mid: resp.message_id,
-          botId,
-          botData: generateBotData(config),
-          fromBot: true,
+          recipient: { id: senderId },
+          message,
         },
-        config.fromUserId,
+        recipientId,
+        integration.erxesApiId,
       );
+
+      if (!resp) {
+        return;
+      }
+
+      const conversationMessage = await models.ConversationMessages.addMessage({
+        conversationId: conversation._id,
+        content: '<p>Bot Message</p>',
+        internal: false,
+        mid: resp.message_id,
+        botId,
+        botData: generateBotData(message),
+        fromBot: true,
+      });
 
       await sendInboxMessage({
         subdomain,
@@ -271,35 +396,27 @@ const actionCreateMessage = async (
         },
       });
 
-      graphqlPubsub.publish(
-        `conversationMessageInserted:${conversation.erxesApiId}`,
-        {
-          conversationMessageInserted: {
-            ...conversationMessage.toObject(),
-            conversationId: conversation.erxesApiId,
+      result.push(conversationMessage);
+    }
+
+    const { optionalConnects = [] } = config;
+
+    if (!optionalConnects?.length) {
+      return result;
+    }
+
+    return {
+      result,
+      objToWait: {
+        objToCheck: {
+          propertyName: 'payload.btnId',
+          general: {
+            conversationId: conversation._id,
+            customerId: customer.erxesApiId,
           },
         },
-      );
-
-      const { optionalConnects = [] } = config;
-
-      if (optionalConnects?.length > 0) {
-        return {
-          result: conversationMessage,
-          objToWait: {
-            objToCheck: {
-              propertyName: 'payload.btnId',
-              general: {
-                conversationId: conversation._id,
-                customerId: conversationMessage.customerId,
-              },
-            },
-          },
-        };
-      }
-
-      return conversationMessage;
-    }
+      },
+    };
   } catch (error) {
     debugError(error.message);
   }

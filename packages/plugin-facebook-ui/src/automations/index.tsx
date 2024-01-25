@@ -2,8 +2,13 @@ import React from 'react';
 import ReplyFbMessage from './components/ReplyFbMessage';
 import OptionalContent from './components/OptionalContent';
 
-const Automations = props => {
+const Automations = (props) => {
   const { componentType, activeAction } = props;
+
+  if (componentType === 'triggerForm') {
+    console.log({ props });
+    return <>shit</>;
+  }
 
   if (componentType === 'historyName') {
     return <>{'-'}</>;

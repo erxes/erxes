@@ -1,30 +1,34 @@
-import {
-  Button,
-  ControlLabel,
-  FormControl,
-  FormGroup,
-  Icon,
-  SortItem,
-  __,
-  colors
-} from '@erxes/ui/src';
+import Button from '@erxes/ui/src/components/Button';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import HelpPopover from '@erxes/ui/src/components/HelpPopover';
+import Icon from '@erxes/ui/src/components/Icon';
+import { SortItem } from '@erxes/ui/src/styles/sort';
+import { __ } from '@erxes/ui/src/utils/core';
+import colors from '@erxes/ui/src/styles/colors';
+
 import { ActionButton } from '@erxes/ui/src/components/ActionButtons';
 import CommonForm from '@erxes/ui/src/components/form/Form';
 import { LinkButton, ModalFooter } from '@erxes/ui/src/styles/main';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import React from 'react';
+import React, { useState } from 'react';
 import LinkAction from '../../automations/components/LinkAction';
 import { Features } from '../styles';
 import { SelectAccount, SelectAccountPages } from '../utils';
+import styled from 'styled-components';
+
+const PersistentMenu = styled(SortItem)`
+  display: grid;
+  grid-template-columns: 80% 10%;
+  grid-gap: 15px;
+  align-items: center;
+`;
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   closeModal: () => void;
   bot?: any;
-};
-
-type State = {
-  doc: any;
 };
 
 function removeNullAndTypename(obj) {
@@ -46,109 +50,99 @@ function removeNullAndTypename(obj) {
   return cleanedObj;
 }
 
-class Form extends React.Component<Props, State> {
-  constructor(props) {
-    super(props);
+function Form({ renderButton, closeModal, bot }: Props) {
+  const [doc, setDoc] = useState(bot || {});
 
-    this.state = {
-      doc: props?.bot ? props.bot : null
-    };
-  }
-
-  generateDoc(values) {
-    const { doc } = this.state;
-
-    return { ...removeNullAndTypename(doc || {}), ...values };
-  }
-
-  renderPersistentMenus(doc) {
-    const { persistentMenus = [] } = doc || {};
+  const renderPersistentMenus = () => {
+    const { persistentMenus = [] } = doc;
 
     const addPersistentMenu = () => {
-      this.setState({
-        doc: {
-          ...doc,
-          persistentMenus: [
-            ...persistentMenus,
-            { _id: Math.random(), title: '' }
-          ]
-        }
+      console.log({ persistentMenus });
+      setDoc({
+        ...doc,
+        persistentMenus: [
+          ...persistentMenus,
+          { _id: Math.random(), title: '' },
+        ],
       });
     };
 
     const onChange = (_id, name, value) => {
-      this.setState({
-        doc: {
-          ...doc,
-          persistentMenus: persistentMenus.map(persistentMenu =>
-            persistentMenu._id === _id
-              ? { ...persistentMenu, [name]: value }
-              : persistentMenu
-          )
-        }
+      setDoc({
+        ...doc,
+        persistentMenus: persistentMenus.map((persistentMenu) =>
+          persistentMenu._id === _id
+            ? { ...persistentMenu, [name]: value }
+            : persistentMenu,
+        ),
       });
     };
 
     const handleChange = (_id, e) => {
       const { value, name } = e.currentTarget as HTMLInputElement;
 
-      onChange(_id, 'type', 'web_url');
+      if (name === 'url') {
+        onChange(_id, 'type', 'web_url');
+      }
+
       onChange(_id, name, value);
     };
 
-    const handleRemove = _id => {
-      this.setState({
-        doc: {
-          ...doc,
-          persistentMenus: persistentMenus.filter(
-            persistentMenu => persistentMenu._id !== _id
-          )
-        }
+    const handleRemove = (_id) => {
+      setDoc({
+        ...doc,
+        persistentMenus: persistentMenus.filter(
+          (persistentMenu) => persistentMenu._id !== _id,
+        ),
       });
     };
 
     return (
       <FormGroup>
-        <ControlLabel>{__('Persistence Menu')}</ControlLabel>
+        <ControlLabel>
+          {__('Persistence Menu')}
+          <HelpPopover title="A Persistence Menu is a quick-access toolbar in your chat. Customize it below for easy navigation to key bot features." />
+        </ControlLabel>
         {persistentMenus.map(({ _id, title, url }) => (
-          <SortItem key={_id} isDragging={false} isModal={false}>
+          <PersistentMenu key={_id} isDragging={false} isModal={false}>
             <FormControl
               placeholder="type a title"
               name="title"
               value={title}
-              onChange={e => handleChange(_id, e)}
+              onChange={(e) => handleChange(_id, e)}
             />
             <ActionButton>
               <LinkAction
                 container={this}
                 name="url"
                 link={url}
-                onChange={e => handleChange(_id, e)}
+                onChange={(e) => handleChange(_id, e)}
               />
               <Icon
                 icon="cancel-1"
                 color={colors.colorCoreRed}
                 style={{ cursor: 'pointer' }}
-                onClick={handleRemove.bind(this, _id)}
+                onClick={() => handleRemove(_id)}
               />
             </ActionButton>
-          </SortItem>
+          </PersistentMenu>
         ))}
         <LinkButton onClick={addPersistentMenu}>
           {__('Add Persistent Menu')}
         </LinkButton>
       </FormGroup>
     );
-  }
+  };
 
-  renderContent = (formProps: IFormProps) => {
+  const generateDoc = (values) => {
+    return { ...removeNullAndTypename(doc || {}), ...values };
+  };
+
+  const renderContent = (formProps: IFormProps) => {
     const { isSubmitted, values } = formProps;
 
-    const { renderButton, closeModal, bot } = this.props;
-    const { doc } = this.state;
-
     const onSelect = (value, name) => {
-      this.setState({ doc: { ...doc, [name]: value } });
+      setDoc({ ...doc, [name]: value });
     };
 
     return (
@@ -176,7 +170,7 @@ class Form extends React.Component<Props, State> {
               onSelect={onSelect}
             />
           </FormGroup>
-          {this.renderPersistentMenus(doc)}
+          {renderPersistentMenus()}
         </Features>
 
         <ModalFooter>
@@ -185,18 +179,16 @@ class Form extends React.Component<Props, State> {
           </Button>
           {renderButton({
             name: 'Bot',
-            values: this.generateDoc(values),
+            values: generateDoc(values),
             isSubmitted,
-            object: bot
+            object: bot,
           })}
         </ModalFooter>
       </>
     );
   };
 
-  render() {
-    return <CommonForm renderContent={this.renderContent} />;
-  }
+  return <CommonForm renderContent={renderContent} />;
 }
 
 export default Form;

@@ -1,72 +1,76 @@
+import { Icon, readFile } from '@erxes/ui/src';
 import React from 'react';
+import styled from 'styled-components';
+import { Card } from '../styles';
 
 type Props = {
   action: any;
   handle: (id: number) => JSX.Element;
 };
 
-class OptionalContent extends React.Component<Props> {
-  constructor(props) {
-    super(props);
-  }
+const LinkIcon = styled.a`
+  right: 25px;
+  position: absolute;
+`;
 
-  renderMessageTemplatesOptions(messageTemplates) {
-    const { handle } = this.props;
+function OptionalContent({ action, handle }: Props) {
+  const { messages = [] } = action?.config || {};
 
+  const renderCard = ({
+    text = '',
+    title = '',
+    subtitle = '',
+    buttons = [],
+    image = '',
+  }) => {
     return (
-      <>
-        {messageTemplates.map(({ buttons = [] }) =>
-          buttons.map(({ _id, text, link }) => {
-            if (link) {
-              return null;
-            }
-            return (
-              <li key={`${_id}-right`}>
-                {text}
-                {handle(_id)}
-              </li>
-            );
-          })
-        )}
-      </>
+      <Card>
+        {image && <img src={readFile(image)} alt={image} />}
+        <p>{text || title}</p>
+        <span>{subtitle}</span>
+        {buttons.map(({ _id, text, link }) => (
+          <li key={`${_id}-right`} className="optional-connect">
+            {text}
+            {link ? (
+              <LinkIcon href={link} target="_blank">
+                <Icon icon="link" />
+              </LinkIcon>
+            ) : (
+              handle(_id)
+            )}
+          </li>
+        ))}
+      </Card>
     );
-  }
+  };
+  const renderCards = (cards = []) => {
+    return <>{cards.map((card) => renderCard(card))}</>;
+  };
 
-  renderQuickReplies(quickReplies) {
-    const { handle } = this.props;
-    return (
-      <>
-        {quickReplies.map(
-          quickReply =>
-            !quickReply?.link && (
-              <li key={`${quickReply._id}-right`}>
-                {quickReply?.label}
-                {handle(quickReply._id)}
-              </li>
-            )
-        )}
-      </>
-    );
-  }
+  const renderMessage = ({
+    type,
+    text,
+    buttons,
+    cards,
+    image,
+    quickReplies,
+  }) => {
+    switch (type) {
+      case 'text':
+        return renderCard({ text, buttons });
+      case 'card':
+        return renderCards(cards);
+      case 'quickReplies':
+        return renderCard({ text, buttons: quickReplies });
+      case 'image':
+        return renderCard({ image });
 
-  renderContent(messageTemplates, quickReplies) {
-    if (messageTemplates?.length > 0) {
-      return this.renderMessageTemplatesOptions(messageTemplates);
+      default:
+        return null;
     }
+  };
 
-    if (quickReplies?.length > 0) {
-      return this.renderQuickReplies(quickReplies);
-    }
-    return null;
-  }
-
-  render() {
-    const { action } = this.props;
-
-    const { messageTemplates = [], quickReplies = [] } = action?.config || {};
-
-    return this.renderContent(messageTemplates, quickReplies);
-  }
+  return <>{messages.map((message) => renderMessage(message))}</>;
 }
 
 export default OptionalContent;

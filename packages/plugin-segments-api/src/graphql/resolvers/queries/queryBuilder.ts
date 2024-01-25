@@ -3,14 +3,14 @@ import {
   fetchByQuery,
   fetchEs,
   fetchEsWithScroll,
-  getDbNameFromConnectionString
+  getDbNameFromConnectionString,
 } from '@erxes/api-utils/src/elasticsearch';
 
 import { getEsIndexByContentType } from '@erxes/api-utils/src/segments';
 
 import {
   SEGMENT_DATE_OPERATORS,
-  SEGMENT_NUMBER_OPERATORS
+  SEGMENT_NUMBER_OPERATORS,
 } from '../../../constants';
 import { ICondition, ISegment } from '../../../models/definitions/segments';
 
@@ -37,15 +37,15 @@ export const isInSegment = async (
   subdomain: string,
   segmentId: string,
   idToCheck: string,
-  options: IOptions = {}
+  options: IOptions = {},
 ): Promise<boolean> => {
   options.returnCount = true;
   options.defaultMustSelector = [
     {
       match: {
-        _id: idToCheck
-      }
-    }
+        _id: idToCheck,
+      },
+    },
   ];
 
   const segment = await models.Segments.getSegment(segmentId);
@@ -58,7 +58,7 @@ export const fetchSegment = async (
   models: IModels,
   subdomain: string,
   segment,
-  options: IOptions = {}
+  options: IOptions = {},
 ): Promise<any> => {
   const { contentType } = segment;
 
@@ -72,7 +72,7 @@ export const fetchSegment = async (
     if (
       contentType.includes(`${serviceName}:`) &&
       getDbNameFromConnectionString(
-        service?.config?.dbConnectionString || ''
+        service?.config?.dbConnectionString || '',
       ) !== 'erxes'
     ) {
       mongoConnectionString = service?.config?.dbConnectionString || '';
@@ -91,7 +91,7 @@ export const fetchSegment = async (
     selector: selector.bool,
     options,
     serviceConfigs,
-    isInitialCall: true
+    isInitialCall: true,
   });
 
   const { returnAssociated } = options;
@@ -106,15 +106,16 @@ export const fetchSegment = async (
       index: await getEsIndexByContentType(returnAssociated.mainType),
       body: {
         query: selector,
-        _source: '_id'
+        _source: '_id',
       },
-      defaultValue: { hits: { hits: [] } }
+      defaultValue: { hits: { hits: [] } },
     });
 
     const items = itemsResponse.hits.hits;
-    const itemIds = items.map(i => i._id);
+    const itemIds = items.map((i) => i._id);
 
-    const getType = type => type.replace('contacts:', '').replace('cards:', '');
+    const getType = (type) =>
+      type.replace('contacts:', '').replace('cards:', '');
 
     const associationIds = await sendCoreMessage({
       subdomain,
@@ -122,9 +123,9 @@ export const fetchSegment = async (
       data: {
         mainType: getType(returnAssociated.mainType),
         mainTypeIds: itemIds,
-        relType: getType(returnAssociated.relType)
+        relType: getType(returnAssociated.relType),
       },
-      isRPC: true
+      isRPC: true,
     });
 
     selector = {
@@ -132,11 +133,11 @@ export const fetchSegment = async (
         must: [
           {
             terms: {
-              _id: _.uniq(associationIds)
-            }
-          }
-        ]
-      }
+              _id: _.uniq(associationIds),
+            },
+          },
+        ],
+      },
     };
   }
 
@@ -146,16 +147,19 @@ export const fetchSegment = async (
 
   // count entries
   if (options.returnCount) {
+    console.log('returncount:', JSON.stringify({ query: selector }));
     const countResponse = await fetchEs({
       subdomain,
       action: 'count',
       connectionString: mongoConnectionString,
       index,
       body: {
-        query: selector
+        query: selector,
       },
-      defaultValue: { count: -1 }
+      defaultValue: { count: -1 },
     });
+
+    console.log({ countResponse });
 
     return countResponse.count;
   }
@@ -167,7 +171,7 @@ export const fetchSegment = async (
   if (page && perPage) {
     pagination = {
       from: (page - 1) * perPage,
-      size: perPage
+      size: perPage,
     };
   }
 
@@ -180,9 +184,9 @@ export const fetchSegment = async (
             ? sortDirection === -1
               ? 'desc'
               : 'asc'
-            : 'desc'
-        }
-      }
+            : 'desc',
+        },
+      },
     };
   }
 
@@ -194,9 +198,9 @@ export const fetchSegment = async (
     body: {
       _source: options.returnFields || options.returnFullDoc || false,
       query: selector,
-      ...pagination
+      ...pagination,
     },
-    defaultValue: { hits: { hits: [] } }
+    defaultValue: { hits: { hits: [] } },
   };
 
   if (options.scroll && options.perPage) {
@@ -215,7 +219,7 @@ export const fetchSegment = async (
       const { hits = {} } = resp.shift();
 
       if (hits.hits) {
-        hits.hits.forEach(hit => {
+        hits.hits.forEach((hit) => {
           results.push(hit._id);
         });
       }
@@ -241,15 +245,15 @@ export const fetchSegment = async (
   const response = await fetchEs(fetchOptions);
 
   if (options.returnFullDoc || options.returnFields) {
-    return response.hits.hits.map(hit => ({ _id: hit._id, ...hit._source }));
+    return response.hits.hits.map((hit) => ({ _id: hit._id, ...hit._source }));
   }
 
-  return response.hits.hits.map(hit => hit._id);
+  return response.hits.hits.map((hit) => hit._id);
 };
 
 const generateDefaultSelector = ({ defaultMustSelector, isInitialCall }) => {
   if (isInitialCall && defaultMustSelector) {
-    return defaultMustSelector.map(s => ({ ...s }));
+    return defaultMustSelector.map((s) => ({ ...s }));
   }
 
   return [];
@@ -281,7 +285,7 @@ export const generateQueryBySegment = async (
     serviceConfigs: any;
     options?: IOptions;
     isInitialCall?: boolean;
-  }
+  },
 ) => {
   const { segment, serviceConfigs, options = {}, isInitialCall } = args;
 
@@ -294,7 +298,7 @@ export const generateQueryBySegment = async (
   // generated default selector of service
   const defaultSelector = generateDefaultSelector({
     defaultMustSelector,
-    isInitialCall
+    isInitialCall,
   });
 
   const cj = segment.conditionsConjunction || 'and';
@@ -307,19 +311,17 @@ export const generateQueryBySegment = async (
       {
         bool: {
           should: [],
-          must_not: []
-        }
+          must_not: [],
+        },
       },
-      ...defaultSelector
+      ...defaultSelector,
     ];
   }
 
   // generate positive and negative selector list based on conjunction of segment
 
-  const {
-    selectorPositiveList,
-    selectorNegativeList
-  } = generatePositiveNegativeSelector({ cj, selector });
+  const { selectorPositiveList, selectorNegativeList } =
+    generatePositiveNegativeSelector({ cj, selector });
 
   const parentSegment = await models.Segments.findOne({ _id: segment.subOf });
 
@@ -331,7 +333,7 @@ export const generateQueryBySegment = async (
       ...args,
       selector: selector.must[selector.must.length - 1].bool,
       segment: parentSegment,
-      isInitialCall: false
+      isInitialCall: false,
     });
   }
 
@@ -343,11 +345,8 @@ export const generateQueryBySegment = async (
   const propertiesNegative: any = [];
 
   for (const serviceConfig of serviceConfigs) {
-    const {
-      contentTypes,
-      esTypesMapAvailable,
-      initialSelectorAvailable
-    } = serviceConfig;
+    const { contentTypes, esTypesMapAvailable, initialSelectorAvailable } =
+      serviceConfig;
 
     if (contentTypes) {
       for (const ct of contentTypes) {
@@ -362,8 +361,8 @@ export const generateQueryBySegment = async (
             isRPC: true,
             action: 'segments.esTypesMap',
             data: {
-              collectionType
-            }
+              collectionType,
+            },
           });
 
           typesMap = response.typesMap;
@@ -377,8 +376,8 @@ export const generateQueryBySegment = async (
             action: 'segments.initialSelector',
             data: {
               segment,
-              options
-            }
+              options,
+            },
           });
 
           if (negative) {
@@ -404,7 +403,7 @@ export const generateQueryBySegment = async (
         const formFieldCondition = {
           ...condition,
           propertyName: 'formFieldId',
-          propertyValue: condition.propertyName
+          propertyValue: condition.propertyName,
         };
 
         if (
@@ -443,7 +442,7 @@ export const generateQueryBySegment = async (
         ...args,
         segment: subSegment || ({} as ISegment),
         selector: selectorPositiveList[selectorPositiveList.length - 1].bool,
-        isInitialCall: false
+        isInitialCall: false,
       });
     }
   }
@@ -456,21 +455,17 @@ export const generateQueryBySegment = async (
         field,
         type: typesMap[field],
         operator: condition.propertyOperator || '',
-        value: condition.propertyValue || ''
+        value: condition.propertyValue || '',
       });
 
       negativeQuery = negativeQuery;
 
       for (const serviceConfig of serviceConfigs) {
-        const {
-          contentTypes,
-          propertyConditionExtenderAvailable
-        } = serviceConfig;
+        const { contentTypes, propertyConditionExtenderAvailable } =
+          serviceConfig;
 
-        const [
-          propertyServiceName,
-          propertyContentType
-        ] = condition.propertyType.split(':');
+        const [propertyServiceName, propertyContentType] =
+          condition.propertyType.split(':');
 
         //pass positive query to service for get extend positive query if service has property condition extender
         if (contentTypes && propertyConditionExtenderAvailable) {
@@ -483,7 +478,7 @@ export const generateQueryBySegment = async (
               serviceName: propertyServiceName,
               isRPC: true,
               action: 'segments.propertyConditionExtender',
-              data: { condition, positiveQuery }
+              data: { condition, positiveQuery },
             });
 
             if (positive) {
@@ -491,8 +486,8 @@ export const generateQueryBySegment = async (
                 bool: {
                   must: ignoreThisPostiveQuery
                     ? [positive]
-                    : [positiveQuery, positive]
-                }
+                    : [positiveQuery, positive],
+                },
               };
             }
           }
@@ -515,13 +510,13 @@ export const generateQueryBySegment = async (
           mainType: contentType,
           propertyType: condition.propertyType,
           positiveQuery,
-          negativeQuery
+          negativeQuery,
         });
 
         propertiesPositive.push({
           terms: {
-            _id: ids.filter(id => id)
-          }
+            _id: ids.filter((id) => id),
+          },
         });
       }
     }
@@ -532,20 +527,20 @@ export const generateQueryBySegment = async (
       eventOccurence,
       eventName,
       eventOccurenceValue,
-      eventAttributeFilters = []
+      eventAttributeFilters = [],
     } = condition;
 
     eventPositive.push({
       term: {
-        name: eventName
-      }
+        name: eventName,
+      },
     });
 
     if (eventOccurence === 'exactly') {
       eventPositive.push({
         term: {
-          count: eventOccurenceValue
-        }
+          count: eventOccurenceValue,
+        },
       });
     }
 
@@ -553,9 +548,9 @@ export const generateQueryBySegment = async (
       eventPositive.push({
         range: {
           count: {
-            gte: eventOccurenceValue
-          }
-        }
+            gte: eventOccurenceValue,
+          },
+        },
       });
     }
 
@@ -563,9 +558,9 @@ export const generateQueryBySegment = async (
       eventPositive.push({
         range: {
           count: {
-            lte: eventOccurenceValue
-          }
-        }
+            lte: eventOccurenceValue,
+          },
+        },
       });
     }
 
@@ -573,7 +568,7 @@ export const generateQueryBySegment = async (
       const [positiveQuery, negativeQuery] = elkConvertConditionToQuery({
         field: `attributes.${filter.name}`,
         operator: filter.operator,
-        value: filter.value
+        value: filter.value,
       });
 
       if (positiveQuery) {
@@ -591,16 +586,18 @@ export const generateQueryBySegment = async (
         index: 'events',
         _source: contentType === 'company' ? 'companyId' : 'customerId',
         positiveQuery: eventPositive,
-        negativeQuery: eventNegative
+        negativeQuery: eventNegative,
       });
 
       propertiesPositive.push({
         terms: {
-          _id: idsByEvents
-        }
+          _id: idsByEvents,
+        },
       });
     }
   }
+
+  console.log('main:', JSON.stringify(propertiesPositive));
 
   selectorPositiveList.push(...propertiesPositive);
   selectorNegativeList.push(...propertiesNegative);
@@ -611,7 +608,7 @@ export const generateNestedQuery = (
   field: string,
   operator: string,
   query: any,
-  fixedValue: any
+  fixedValue: any,
 ) => {
   const fieldKey = field.replace(`${kind}.`, '');
 
@@ -633,11 +630,11 @@ export const generateNestedQuery = (
 
   updatedQuery = JSON.stringify(updatedQuery).replace(
     `${kind}.${fieldKey}`,
-    `${kind}.${fieldValue}`
+    `${kind}.${fieldValue}`,
   );
   updatedQuery = JSON.parse(updatedQuery);
 
-  return {
+  const er = {
     nested: {
       path: kind,
       query: {
@@ -645,15 +642,19 @@ export const generateNestedQuery = (
           must: [
             {
               term: {
-                [`${kind}.field`]: fieldKey
-              }
+                [`${kind}.field`]: fieldKey,
+              },
             },
-            updatedQuery
-          ]
-        }
-      }
-    }
+            updatedQuery,
+          ],
+        },
+      },
+    },
   };
+
+  console.log('nested:', JSON.stringify(er));
+
+  return er;
 };
 
 export function elkConvertConditionToQuery(args: {
@@ -679,11 +680,11 @@ export function elkConvertConditionToQuery(args: {
   if (['e', 'numbere'].includes(operator)) {
     if (['keyword', 'email'].includes(type) || operator === 'numbere') {
       positiveQuery = {
-        term: { [field]: value }
+        term: { [field]: value },
       };
     } else {
       positiveQuery = {
-        match_phrase: { [field]: value }
+        match_phrase: { [field]: value },
       };
     }
   }
@@ -692,11 +693,11 @@ export function elkConvertConditionToQuery(args: {
   if (['dne', 'numberdne'].includes(operator)) {
     if (['keyword', 'email'].includes(type) || operator === 'numberdne') {
       negativeQuery = {
-        term: { [field]: value }
+        term: { [field]: value },
       };
     } else {
       negativeQuery = {
-        match_phrase: { [field]: value }
+        match_phrase: { [field]: value },
       };
     }
   }
@@ -705,8 +706,8 @@ export function elkConvertConditionToQuery(args: {
   if (operator === 'c') {
     positiveQuery = {
       wildcard: {
-        [field]: `*${fixedValue}*`
-      }
+        [field]: `*${fixedValue}*`,
+      },
     };
   }
 
@@ -714,8 +715,8 @@ export function elkConvertConditionToQuery(args: {
   if (operator === 'dnc') {
     negativeQuery = {
       wildcard: {
-        [field]: `*${fixedValue}*`
-      }
+        [field]: `*${fixedValue}*`,
+      },
     };
   }
 
@@ -724,9 +725,9 @@ export function elkConvertConditionToQuery(args: {
     positiveQuery = {
       range: {
         [field]: {
-          gte: fixedValue
-        }
-      }
+          gte: fixedValue,
+        },
+      },
     };
   }
 
@@ -735,9 +736,9 @@ export function elkConvertConditionToQuery(args: {
     positiveQuery = {
       range: {
         [field]: {
-          lte: fixedValue
-        }
-      }
+          lte: fixedValue,
+        },
+      },
     };
   }
 
@@ -745,8 +746,8 @@ export function elkConvertConditionToQuery(args: {
   if (operator === 'it') {
     positiveQuery = {
       term: {
-        [field]: true
-      }
+        [field]: true,
+      },
     };
   }
 
@@ -754,8 +755,8 @@ export function elkConvertConditionToQuery(args: {
   if (operator === 'if') {
     positiveQuery = {
       term: {
-        [field]: false
-      }
+        [field]: false,
+      },
     };
   }
 
@@ -763,8 +764,8 @@ export function elkConvertConditionToQuery(args: {
   if (['is', 'dateis'].includes(operator)) {
     positiveQuery = {
       exists: {
-        field
-      }
+        field,
+      },
     };
   }
 
@@ -772,8 +773,8 @@ export function elkConvertConditionToQuery(args: {
   if (['ins', 'dateins'].includes(operator)) {
     negativeQuery = {
       exists: {
-        field
-      }
+        field,
+      },
     };
   }
 
@@ -824,8 +825,8 @@ export function elkConvertConditionToQuery(args: {
 
     positiveQuery = {
       wildcard: {
-        [field]: `????-${month}-${day < 10 ? '0' + day : day}???:??:??.????`
-      }
+        [field]: `????-${month}-${day < 10 ? '0' + day : day}???:??:??.????`,
+      },
     };
   }
   // date relative less than
@@ -846,7 +847,7 @@ export function elkConvertConditionToQuery(args: {
           field,
           operator,
           positiveQuery,
-          fixedValue
+          fixedValue,
         );
       }
 
@@ -856,7 +857,7 @@ export function elkConvertConditionToQuery(args: {
           field,
           operator,
           negativeQuery,
-          fixedValue
+          fixedValue,
         );
       }
     }
@@ -872,14 +873,14 @@ const associationPropertyFilter = async (
     mainType,
     propertyType,
     positiveQuery,
-    negativeQuery
+    negativeQuery,
   }: {
     serviceName: string;
     mainType: string;
     propertyType: string;
     positiveQuery: any;
     negativeQuery: any;
-  }
+  },
 ) => {
   const service = await getService(serviceName);
   const segmentMeta = (service.config.meta || {}).segments;
@@ -894,9 +895,9 @@ const associationPropertyFilter = async (
         mainType,
         propertyType,
         positiveQuery,
-        negativeQuery
+        negativeQuery,
       },
-      defaultValue: []
+      defaultValue: [],
     });
   }
 

@@ -20,7 +20,7 @@ const validateDoc = async (models: IModels, doc: any, isUpdate?: boolean) => {
     !isUpdate &&
     (await models.Bots.findOne({
       pageId: doc.pageId,
-      accountId: doc.accountId
+      accountId: doc.accountId,
     }))
   ) {
     throw new Error('This page has already been registered as a bot');
@@ -46,7 +46,7 @@ export const loadBotClass = (models: IModels) => {
 
       const integration = await models.Integrations.findOne({
         accountId,
-        facebookPageIds: { $in: [pageId] }
+        facebookPageIds: { $in: [pageId] },
       });
 
       try {
@@ -65,12 +65,13 @@ export const loadBotClass = (models: IModels) => {
 
       const { accountId, pageId, persistentMenus } = doc;
 
-      const bot = await models.Bots.findOne({ _id })
+      const { integrationId, ...bot } = await models.Bots.findOne({ _id })
         .select({
           _id: 0,
           accountId: 1,
           pageId: 1,
-          persistentMenus: 1
+          persistentMenus: 1,
+          integrationId: 1,
         })
         .lean();
 
@@ -87,10 +88,10 @@ export const loadBotClass = (models: IModels) => {
 
           await this.connectBotPageMessenger(
             await models.Integrations.findOne({
-              accountId
+              _id: integrationId,
             }),
             pageId,
-            doc
+            doc,
           );
           return { status: 'success' };
         } catch (error) {
@@ -120,7 +121,7 @@ export const loadBotClass = (models: IModels) => {
     static async connectBotPageMessenger(integration, pageId, doc) {
       const pageAccessToken = getPageAccessTokenFromMap(
         pageId,
-        integration?.facebookPageTokensMap || {}
+        integration?.facebookPageTokensMap || {},
       );
 
       if (!pageAccessToken) {
@@ -128,7 +129,10 @@ export const loadBotClass = (models: IModels) => {
       }
 
       try {
-        const bot = await models.Bots.create({ ...doc });
+        const bot = await models.Bots.create({
+          ...doc,
+          integrationId: integration._id,
+        });
 
         let persistentMenus: any[] = [];
 
@@ -139,13 +143,13 @@ export const loadBotClass = (models: IModels) => {
                 type: 'web_url',
                 title,
                 url: url,
-                webview_height_ratio: 'full'
+                webview_height_ratio: 'full',
               });
             } else {
               persistentMenus.push({
                 type: 'postback',
                 title,
-                payload: bot._id
+                payload: bot._id,
               });
             }
           }
@@ -161,12 +165,12 @@ export const loadBotClass = (models: IModels) => {
                 {
                   type: 'postback',
                   title: 'Get Started',
-                  payload: bot._id
+                  payload: bot._id,
                 },
-                ...persistentMenus
-              ]
-            }
-          ]
+                ...persistentMenus,
+              ],
+            },
+          ],
         });
 
         return { status: 'success' };
@@ -179,7 +183,7 @@ export const loadBotClass = (models: IModels) => {
       const bot = await models.Bots.findOne({ _id });
 
       const integration = await models.Integrations.findOne({
-        accountId: bot?.accountId
+        _id: bot?.integrationId,
       });
 
       if (!bot || !integration) {
@@ -188,7 +192,7 @@ export const loadBotClass = (models: IModels) => {
 
       const pageAccessToken = getPageAccessTokenFromMap(
         bot.pageId,
-        integration?.facebookPageTokensMap || {}
+        integration?.facebookPageTokensMap || {},
       );
 
       if (!pageAccessToken) {
@@ -198,7 +202,7 @@ export const loadBotClass = (models: IModels) => {
       try {
         graphRequest.delete(`/me/messenger_profile`, pageAccessToken, {
           fields: ['get_started', 'persistent_menu'],
-          access_token: pageAccessToken
+          access_token: pageAccessToken,
         });
 
         await models.Bots.deleteOne({ _id });

@@ -1,18 +1,31 @@
-import Common from '@erxes/ui-automations/src/components/forms/actions/Common';
 import PlaceHolderInput from '@erxes/ui-automations/src/components/forms/actions/placeHolder/PlaceHolderInput';
-import { DrawerDetail } from '@erxes/ui-automations/src/styles';
 import { IAction } from '@erxes/ui-automations/src/types';
-import { Tabs, TabTitle } from '@erxes/ui/src/components/tabs';
+import {
+  Button,
+  ControlLabel,
+  FormControl,
+  Icon,
+  SortableList,
+} from '@erxes/ui/src';
 import colors from '@erxes/ui/src/styles/colors';
 import dimensions from '@erxes/ui/src/styles/dimensions';
-import confirm from '@erxes/ui/src/utils/confirmation/confirm';
+import { Column, ModalFooter } from '@erxes/ui/src/styles/main';
 import { __ } from '@erxes/ui/src/utils/core';
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
-import { Container } from '../styles';
-import { Config } from '../types';
-import GenerateButtons from './GenerateButtons';
-import Template from './Templates';
+import { BOTTOM_BAR_ITEMS, INITIAL_OBJ_ACTIONS } from '../constants';
+import {
+  BottomBarAction,
+  BottomBarActionsContainer,
+  BottomBarContainer,
+  ContentWrapper,
+  MainContent,
+  Wrapper,
+} from '../styles';
+import ButtonsGenerator from './ButtonGenerator';
+import Cards from './Cards';
+import ImageUploader from './ImageUpload';
+import PreviewWidget from './Preview';
 
 export const TabAction = styled.div`
   padding-left: ${dimensions.unitSpacing}px;
@@ -32,203 +45,207 @@ type Props = {
   triggerType: string;
 };
 
-type State = {
-  config: Config;
-  selectedTab: string;
-  selectedTemplatePageId?: string;
-};
+function ReplyFbMessage({
+  closeModal,
+  addAction,
+  activeAction,
+  triggerType,
+}: Props) {
+  const [config, setConfig] = useState(activeAction?.config || {});
+  const { messages = [] } = config;
 
-const tableConst = [
-  {
-    label: 'Text',
-    value: 'text'
-  },
-  {
-    label: 'Message Template',
-    value: 'messageTemplate'
-  },
-  {
-    label: 'Quick Replies',
-    value: 'quickReplies'
-  }
-];
+  const handleChange = (_id, name, value) => {
+    const updateMessages = messages.map((message) =>
+      message._id === _id ? { ...message, [name]: value } : message,
+    );
 
-const getSelectedTab = config => {
-  if (config?.messageTemplate) {
-    return 'messageTemplate';
-  }
+    setConfig({ ...config, messages: updateMessages });
+  };
 
-  if (config?.quickReplies) {
-    return 'quickReplies';
-  }
-
-  if (config?.text) {
-    return 'text';
-  }
-
-  return localStorage.getItem('fb_selected_message_action_tab') || '';
-};
-
-class ReplyFbMessage extends React.Component<Props, State> {
-  constructor(props) {
-    super(props);
-
-    const { activeAction } = props as Props;
-
-    this.state = {
-      config: activeAction?.config || null,
-      selectedTab: getSelectedTab(props?.activeAction?.config)
+  const renderText = ({ _id, text, buttons }) => {
+    const onChange = ({ text }) => {
+      handleChange(_id, 'text', text);
     };
-  }
 
-  componentDidUpdate(prevProps: Readonly<Props>): void {
-    const prevActiveAction = prevProps?.activeAction;
+    return (
+      <Column>
+        <ControlLabel>{__('Text')}</ControlLabel>
+        <PlaceHolderInput
+          config={{ text }}
+          triggerType={triggerType}
+          inputName="text"
+          componentClass="textarea"
+          label=""
+          placeholder="Enter your text..."
+          onChange={onChange}
+        />
+        <ButtonsGenerator _id={_id} buttons={buttons} onChange={handleChange} />
+      </Column>
+    );
+  };
 
-    const activeAction = this.props.activeAction;
+  const renderImage = ({ _id, image }) => {
+    const handleUpload = (response) => {
+      handleChange(_id, 'image', response);
+    };
 
-    if (JSON.stringify(activeAction) !== JSON.stringify(prevActiveAction)) {
-      this.setState({ config: activeAction.config });
+    return (
+      <div>
+        <ControlLabel>{__('Image')}</ControlLabel>
+        <ImageUploader src={image} onUpload={handleUpload} />
+      </div>
+    );
+  };
+
+  const renderCards = ({ _id, cards }) => {
+    const handleChangeCards = (cards) => {
+      handleChange(_id, 'cards', cards);
+    };
+
+    return (
+      <div>
+        <ControlLabel>{__('Cards')}</ControlLabel>
+        <Cards cards={cards} onChange={handleChangeCards} />
+      </div>
+    );
+  };
+
+  const renderQuickReplies = ({ _id, quickReplies, text }) => {
+    const handleChangeQuickReplies = (_id, name, value) => {
+      handleChange(_id, 'quickReplies', value);
+    };
+
+    const handleChangeInput = (e) => {
+      const { value } = e.currentTarget as HTMLInputElement;
+
+      handleChange(_id, 'text', value);
+    };
+
+    return (
+      <div>
+        <ControlLabel>{__('Quick Replies')}</ControlLabel>
+
+        <FormControl
+          placeholder="enter your text"
+          value={text}
+          onChange={handleChangeInput}
+        />
+
+        <ButtonsGenerator
+          _id={_id}
+          buttons={quickReplies}
+          onChange={handleChangeQuickReplies}
+          hideMenu
+          addButtonLabel="Add Quick Reply"
+        />
+      </div>
+    );
+  };
+  const renderComponent = ({
+    type,
+    _id,
+    text,
+    buttons,
+    image,
+    cards,
+    quickReplies,
+  }) => {
+    switch (type) {
+      case 'text':
+        return renderText({ _id, text, buttons });
+      case 'image':
+        return renderImage({ _id, image });
+      case 'card':
+        return renderCards({ _id, cards });
+      case 'quickReplies':
+        return renderQuickReplies({ _id, text, quickReplies });
+      default:
+        return null;
     }
-  }
+  };
 
-  renderQuickReplies(config) {
-    const { triggerType } = this.props;
+  const renderContent = (props) => {
+    const { _id } = props;
 
-    const onChange = buttons => {
-      this.setState({
-        config: {
-          ...config,
-          quickReplies: buttons
-        }
+    const removeMessage = () => {
+      setConfig({
+        ...config,
+        messages: messages.filter((message) => message._id !== _id),
       });
     };
 
     return (
-      <Container>
-        <PlaceHolderInput
-          config={config}
-          triggerType={triggerType}
-          inputName="text"
-          componentClass="textarea"
-          label="Text"
-          onChange={config => this.setState({ config })}
-        />
-
-        <GenerateButtons
-          buttons={config?.quickReplies || []}
-          onChange={onChange}
-          emptyMessage="There are no quick replies"
-        />
-      </Container>
+      <ContentWrapper key={_id}>
+        {renderComponent(props)}
+        <Icon icon="cancel" onClick={removeMessage} />
+      </ContentWrapper>
     );
-  }
+  };
 
-  renderContent(selectedTab) {
-    const { config } = this.state;
-    const { triggerType } = this.props;
-
-    if (selectedTab === 'messageTemplate') {
-      return (
-        <Template
-          config={config}
-          onChangeConfig={config => this.setState({ config })}
-        />
-      );
-    }
-
-    if (selectedTab === 'quickReplies') {
-      return this.renderQuickReplies(config);
-    }
-
-    if (selectedTab === 'text') {
-      return (
-        <Container>
-          <PlaceHolderInput
-            config={config}
-            triggerType={triggerType}
-            componentClass="textarea"
-            inputName="text"
-            label="Reply Text"
-            onChange={config => this.setState({ config })}
-          />
-        </Container>
-      );
-    }
-
-    return null;
-  }
-
-  renderTabs() {
-    const { selectedTab } = this.state;
-    const { text, quickReplies, messageTemplates, ...config } =
-      this.state.config || {};
-
-    const checkTabConfigration = () => {
-      if (selectedTab === 'text' && !!text) {
-        return true;
-      }
-
-      if (selectedTab === 'messageTemplate' && !!messageTemplates?.length) {
-        return true;
-      }
-
-      if (
-        selectedTab === 'quickReplies' &&
-        (!!text || !!quickReplies?.length)
-      ) {
-        return true;
-      }
-    };
-
-    const onSelectTab = value => {
-      localStorage.setItem('fb_selected_message_action_tab', value);
-
-      if (checkTabConfigration()) {
-        return confirm(
-          'Are you sure. Switching tabs will clear unsaved changes.'
-        ).then(() => {
-          this.setState({ selectedTab: value, config });
-        });
-      }
-
-      this.setState({ selectedTab: value, config });
+  const renderContents = () => {
+    const onChangeFields = (messages) => {
+      setConfig({ ...config, messages });
     };
 
     return (
-      <>
-        <Tabs full>
-          {tableConst.map(({ value, label }) => (
-            <TabTitle
-              key={value}
-              className={selectedTab === value ? 'active' : ''}
-              onClick={onSelectTab.bind(this, value)}
-            >
-              {__(label)}
-            </TabTitle>
+      <div style={{ paddingRight: 25 }}>
+        <SortableList
+          fields={messages}
+          child={renderContent}
+          onChangeFields={onChangeFields}
+          showDragHandler={false}
+          droppableId="property option fields"
+          emptyMessage={'empty'}
+        />
+      </div>
+    );
+  };
+
+  const renderButtomBar = () => {
+    const onSave = () => {
+      addAction(activeAction, activeAction.id, config);
+
+      closeModal();
+    };
+
+    const addMessage = (type) => {
+      const initialValues = INITIAL_OBJ_ACTIONS[type];
+
+      const updateMessages = messages.concat({
+        _id: Math.random(),
+        type,
+        ...initialValues,
+      });
+
+      setConfig({ ...config, messages: updateMessages });
+    };
+
+    return (
+      <BottomBarContainer>
+        <BottomBarActionsContainer>
+          {BOTTOM_BAR_ITEMS.map(({ title, icon, type }) => (
+            <BottomBarAction onClick={() => addMessage(type)}>
+              <Icon icon={icon} />
+              <p>{title}</p>
+            </BottomBarAction>
           ))}
-        </Tabs>
-        {this.renderContent(selectedTab)}
-      </>
+        </BottomBarActionsContainer>
+        <ModalFooter>
+          <PreviewWidget messages={messages} />
+          <Button btnStyle="success" icon="checked-1" block onClick={onSave}>
+            Save
+          </Button>
+        </ModalFooter>
+      </BottomBarContainer>
     );
-  }
+  };
 
-  render() {
-    const { activeAction, closeModal, addAction } = this.props;
-    const { config } = this.state;
-
-    return (
-      <DrawerDetail>
-        <Common
-          closeModal={closeModal}
-          addAction={addAction}
-          activeAction={activeAction}
-          config={config}
-        >
-          {this.renderTabs()}
-        </Common>
-      </DrawerDetail>
-    );
-  }
+  return (
+    <Wrapper>
+      <MainContent>{renderContents()}</MainContent>
+      {renderButtomBar()}
+    </Wrapper>
+  );
 }
 
 export default ReplyFbMessage;
