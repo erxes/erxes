@@ -49,7 +49,7 @@ const PerSettings = (props: Props) => {
 
   const onChangeConfig = (code: string, value) => {
     config[code] = value;
-    setConfig({ config });
+    setConfig(config);
   };
 
   const onChangeInput = (code: string, e) => {
@@ -92,6 +92,7 @@ const PerSettings = (props: Props) => {
               autoSelectStage={false}
               boardId={config.boardId}
               pipelineId={config.pipelineId}
+              stageId={config.stageId}
               onChangeBoard={onChangeBoard}
               onChangePipeline={onChangePipeline}
             />

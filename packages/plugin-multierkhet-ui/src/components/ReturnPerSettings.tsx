@@ -52,7 +52,7 @@ const PerSettings = (props: Props) => {
 
   const onChangeConfig = (code: string, value) => {
     config[code] = value;
-    setConfig({ config });
+    setConfig(config);
   };
 
   const onChangeInput = (code: string, e) => {

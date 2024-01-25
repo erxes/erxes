@@ -135,12 +135,21 @@ const PerSettings = (props: Props) => {
     setBrandRules(newConfig);
   };
 
-  const updateConfig = (brandId, key, value) => {
-    if (key === 'brandId') {
-      delete brandRules.newBrand;
-    }
-    brandRules[brandId] = { ...brandRules[brandId], [key]: value };
-    setBrandRules(brandRules);
+  const updateConfig = (brandId, key, value, test?) => {
+    setBrandRules((prevBrandRules) => {
+      const newBrandRules = { ...prevBrandRules };
+
+      if (key === 'brandId') {
+        delete newBrandRules.newBrand;
+      }
+      if (brandId !== test) {
+        delete newBrandRules[test];
+      }
+
+      newBrandRules[brandId] = { ...newBrandRules[brandId], [key]: value };
+
+      return newBrandRules;
+    });
   };
 
   const renderPerConfig = () => {
@@ -157,7 +166,7 @@ const PerSettings = (props: Props) => {
                 label: 'No Brand (noBrand)',
                 value: 'noBrand',
               }}
-              onSelect={(brand) => updateConfig(brand, 'brandId', brand)}
+              onSelect={(brand) => updateConfig(brand, 'brandId', brand, key)}
               multi={false}
             />
           </FormGroup>

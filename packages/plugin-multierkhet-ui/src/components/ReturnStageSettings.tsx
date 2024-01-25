@@ -15,10 +15,6 @@ type Props = {
   configsMap: IConfigsMap;
 };
 
-type State = {
-  configsMap: IConfigsMap;
-};
-
 const GeneralSettings = (props: Props) => {
   const [configsMap, setConfigsMap] = useState<IConfigsMap>(props.configsMap);
 
