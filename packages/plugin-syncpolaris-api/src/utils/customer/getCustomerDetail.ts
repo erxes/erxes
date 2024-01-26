@@ -1,5 +1,4 @@
-import { IModels } from '../../connectionResolver';
-import { customFieldToObject, setCustomerCode, fetchPolaris } from '../utils';
+import { fetchPolaris } from '../utils';
 
 interface IParams {
   code: string;

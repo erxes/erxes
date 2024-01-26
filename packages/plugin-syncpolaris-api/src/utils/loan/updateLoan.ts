@@ -7,7 +7,7 @@ import {
   updateLoanNumber,
 } from '../utils';
 
-export const createLoan = async (subdomain, params) => {
+export const updateLoan = async (subdomain, params) => {
   const loan = params.updatedDocument || params.object;
 
   const customer = await getCustomer(subdomain, loan.customerId);
@@ -58,7 +58,7 @@ export const createLoan = async (subdomain, params) => {
   ];
 
   const result = await fetchPolaris({
-    op: '13610313',
+    op: '13610282',
     data: sendData,
     subdomain,
   });

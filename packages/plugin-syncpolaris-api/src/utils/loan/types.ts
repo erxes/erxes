@@ -1,4 +1,4 @@
-export interface PolarisLoan {
+export interface IPolarisLoan {
   custCode: string;
   name: string;
   name2: string;
@@ -35,24 +35,63 @@ export interface PolarisLoan {
   secType: number;
 }
 
-export interface PolarisLoanGive {
-  txnAcntCode: '300116000030';
-  txnAmount: 10000000;
-  curCode: 'MNT';
-  rate: 1;
-  contAcntCode: '300021000078';
-  contAmount: 10000000;
-  contCurCode: 'MNT';
-  contRate: 1;
-  rateTypeId: '16';
-  txnDesc: '10M zeel belen busaar olgov';
-  tcustName: 'Ner';
-  tcustAddr: 'hayag';
-  tcustRegister: 'ЖЖ77885544';
-  tcustRegisterMask: '3';
-  tcustContact: '88774455';
-  sourceType: 'TLLR';
-  isTmw: 1;
-  isPreview: 0;
-  isPreviewFee: 0;
+export interface IPolarisLoanGive {
+  txnAcntCode: string;
+  txnAmount: number;
+  curCode: string;
+  rate: number;
+  contAcntCode: string;
+  contAmount: number;
+  contCurCode: string;
+  contRate: number;
+  rateTypeId: string;
+  txnDesc: string;
+  tcustName: string;
+  tcustAddr: string;
+  tcustRegister: string;
+  tcustRegisterMask: string;
+  tcustContact: string;
+  sourceType: string;
+  isTmw: number;
+  isPreview: number;
+  isPreviewFee: number;
+  addParams: any;
+}
+
+export interface IPolarisStoreInterest {
+  txnAcntCode: string;
+  txnAmount: number;
+  txnDesc: string;
+  sourceType: string;
+  offBal: number;
+  isPreview: number;
+  isTmw: number;
+  intTypeCodeAdj: string;
+}
+
+export interface IPolarisClassification {
+  operCode: string;
+  txnAcntCode: string;
+  newValue: string;
+  txnDesc: string;
+  sourceType: string;
+  identityType: string;
+}
+
+export interface IPolarisRepayment {
+  txnAcntCode: string;
+  txnAmount: number;
+  rate: number;
+  rateTypeId: string;
+  contAcntCode: string;
+  contAmount: number;
+  contRate: number;
+  txnDesc: string;
+  tcustRegister: string;
+  tcustRegisterMask: string;
+  sourceType: string;
+  isPreview: number;
+  isPreviewFee: any;
+  isTmw: number;
+  addParams: any;
 }

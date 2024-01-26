@@ -1,21 +1,12 @@
-import { getConfig, fetchPolaris } from './utils';
+import { fetchPolaris } from '../utils';
 
-export const depositTransactionToPolaris = async (
-  subdomain,
-  params,
-  action: 'income' | 'outcome',
-) => {
-  const config = await getConfig(subdomain, 'POLARIS', {});
-  let op = '';
-  if (action === 'income') op = '13610009';
-  else if (action === 'outcome') op = '13610010';
-
+export const incomeDeposit = async (subdomain, params) => {
   const transaction = params.object;
   let sendData = {};
 
   sendData = [
     {
-      operCode: op,
+      operCode: '13610009',
       txnAcntCode: transaction.contractId,
       txnAmount: transaction.total,
       rate: transaction.rate,
@@ -58,7 +49,7 @@ export const depositTransactionToPolaris = async (
   ];
 
   fetchPolaris({
-    op: op,
+    op: '13610009',
     data: sendData,
     subdomain,
   });

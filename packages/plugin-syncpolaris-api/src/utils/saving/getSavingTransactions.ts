@@ -3,11 +3,9 @@ import {
   getCustomer,
   getSavingProduct,
   fetchPolaris,
-  getBranch,
-  getDepositAccount,
 } from '../utils';
 
-export const createSaving = async (subdomain: string, params) => {
+export const savingToPolaris = async (subdomain: string, params) => {
   const savingContract = params.object;
 
   const savingProduct = await getSavingProduct(
@@ -17,10 +15,6 @@ export const createSaving = async (subdomain: string, params) => {
 
   const customer = await getCustomer(subdomain, savingContract.customerId);
 
-  const branch = await getBranch(subdomain, savingContract.branchId);
-
-  const deposit = await getDepositAccount(subdomain, savingContract.customerId);
-
   let sendData = {};
   sendData = [
     {
@@ -28,7 +22,9 @@ export const createSaving = async (subdomain: string, params) => {
       slevel: 1,
       capMethod: savingContract.interestCalcType,
       capAcntCode:
-        savingContract.depositAccount === 'depositAccount' ? deposit.code : '',
+        savingContract.depositAccount === 'depositAccount'
+          ? savingContract.depositAccount
+          : '',
       capAcntSysNo: '', // savingContract.storeInterestInterval,
       startDate: savingContract.startDate,
       maturityOption: savingContract.closeOrExtendConfig,
@@ -36,22 +32,22 @@ export const createSaving = async (subdomain: string, params) => {
         savingContract.depositAccount === 'depositAccount'
           ? savingContract.depositAccount
           : '',
-      brchCode: branch.code,
+      brchCode: savingContract.branchId,
       curCode: savingContract.currency,
       name: savingContract.contractType.name,
-      name2: savingContract.contractType.name,
+      name2: savingContract.contractType.__typename,
       termLen: savingContract.duration,
       maturityDate: savingContract.endDate,
       custCode: customer.code,
-      segCode: '81',
-      jointOrSingle: 'S',
-      statusCustom: '',
-      statusDate: '',
-      casaAcntCode: '',
-      closedBy: '',
-      closedDate: '',
-      lastCtDate: '',
-      lastDtDate: '',
+      segCode: savingContract.number,
+      jointOrSingle: 's',
+      statusCustom: 0,
+      statusDate: savingContract.startDate,
+      casaAcntCode: savingContract.casaAcntCode,
+      closedBy: savingContract.closedBy,
+      closedDate: savingContract.closedDate,
+      lastCtDate: savingContract.lastCtDate,
+      lastDtDate: savingContract.lastDtDate,
     },
   ];
 

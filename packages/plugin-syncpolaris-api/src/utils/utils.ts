@@ -116,6 +116,16 @@ export const updateLoanNumber = async (subdomain, _id, number) => {
   });
 };
 
+export const updateSavingNumber = async (subdomain, _id, number) => {
+  return await sendCommonMessage({
+    subdomain,
+    action: 'contracts.updateContractNumber',
+    serviceName: 'savings',
+    data: { _id, number },
+    isRPC: true,
+  });
+};
+
 export const getUser = async (subdomain, _id) => {
   return await sendCommonMessage({
     subdomain,
@@ -152,13 +162,13 @@ export const getCloseInfo = async (
 
 export const getDepositAccount = async (
   subdomain: string,
-  contractId: string,
+  customerId: string,
 ) => {
   return await sendCommonMessage({
     subdomain,
     action: 'contracts.getDepositAccount',
     serviceName: 'savings',
-    data: { contractId },
+    data: { customerId },
     isRPC: true,
   });
 };
@@ -245,4 +255,40 @@ export const getBoolean = (value) => {
 export const getBooleanToNumber = (value) => {
   if (value === true) return 1;
   return 0;
+};
+
+export const getClassificationCode = (classificationCode) => {
+  switch (classificationCode) {
+    case 'NORMAL':
+      return '1';
+    case 'EXPIRED':
+      return '2';
+    case 'DOUBTFUL':
+      return '3';
+    case 'NEGATIVE':
+      return '4';
+    case 'BAD':
+      return '5';
+
+    default:
+      return '1';
+  }
+};
+
+export const getLoanContractAccount = (contractType, loanContract) => {
+  switch (loanContract.classification) {
+    case 'NORMAL':
+      return contractType.config.normalAccount;
+    case 'EXPIRED':
+      return contractType.config.expiredAccount;
+    case 'DOUBTFUL':
+      return contractType.config.doubtfulAccount;
+    case 'NEGATIVE':
+      return contractType.config.negativeAccount;
+    case 'BAD':
+      return contractType.config.badAccount;
+
+    default:
+      break;
+  }
 };

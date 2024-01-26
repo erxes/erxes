@@ -1,4 +1,4 @@
-export interface PolarisCustomer {
+export interface IPolarisCustomer {
   custSegCode: string;
   isVatPayer: number;
   sexCode: string;

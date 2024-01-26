@@ -1,6 +1,6 @@
 import { fetchPolaris } from '../utils';
 
-const createLoanSchedule = async (subdomain: string, contract: any) => {
+export const createLoanSchedule = async (subdomain: string, contract: any) => {
   const sendData = [
     contract.number,
     contract.startDate,

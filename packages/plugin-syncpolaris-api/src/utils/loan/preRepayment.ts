@@ -9,7 +9,7 @@ import {
 } from '../utils';
 import { IPolarisRepayment } from './types';
 
-export const createLoanRepayment = async (subdomain, transaction) => {
+export const createLoanPreRepayment = async (subdomain, transaction) => {
   const loanContract = await getLoanContract(subdomain, transaction.contractId);
 
   const loanContractType = await getLoanProduct(

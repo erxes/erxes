@@ -1,21 +1,25 @@
-import { companyToPolaris, customerToPolaris } from './utils/customerToPolaris';
 import { generateModels } from './connectionResolver';
-import { savingToPolaris } from './utils/savingToPolaris';
-import { depositToPolaris } from './utils/depositToPolaris';
-import { depositTransactionToPolaris } from './utils/depositTransactionToPolaris';
-import { loansToPolaris } from './utils/loansToPolaris';
-import { loanClassificationToPolaris } from './utils/loanClassificationToPolaris';
-import { loanTransactionsToPolaris } from './utils/loanTransactionsToPolaris';
-import { loanScheduleToErxes } from './utils/loansToErxes';
+import { createCustomer } from './utils/customer/createCustomer';
+import { updateCustomer } from './utils/customer/updateCustomer';
+import { createDeposit } from './utils/deposit/createDeposit';
+import { incomeDeposit } from './utils/deposit/incomeDeposit';
+import { outcomeDeposit } from './utils/deposit/outcomeDeposit';
+import { updateDeposit } from './utils/deposit/updateDeposit';
+import { createChangeClassification } from './utils/loan/changeClassification';
+import { createLoan } from './utils/loan/createLoan';
+import { createLoanGive } from './utils/loan/loanGive';
+import { createLoanRepayment } from './utils/loan/loanRepayment';
+import { updateLoan } from './utils/loan/updateLoan';
+import { createSaving } from './utils/saving/createSaving';
+import { updateSaving } from './utils/saving/updateSaving';
 
 const allowTypes = {
   'contacts:customer': ['create', 'update'],
   'contacts:company': ['create', 'update'],
   //deposit
-  'savings:deposit': ['create', 'update'],
-  'savings:depositTransaction': ['create'],
+  'savings:transaction': ['create'],
   //saving
-  'savings:contract': ['create'],
+  'savings:contract': ['create', 'update'],
   //loan
   'loans:contract': ['create', 'update'],
   'loans:classification': ['create'],
@@ -26,6 +30,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
   const { type, action, user } = params;
 
   const models = await generateModels(subdomain);
+
   const syncLogDoc = {
     type: '',
     contentType: type,
@@ -36,6 +41,8 @@ export const afterMutationHandlers = async (subdomain, params) => {
     consumeStr: JSON.stringify(params),
   };
 
+  const preValue = await models.SyncLogs.findOne({ contentType: type });
+
   if (!Object.keys(allowTypes).includes(type)) {
     return;
   }
@@ -45,34 +52,56 @@ export const afterMutationHandlers = async (subdomain, params) => {
   }
 
   let syncLog = await models.SyncLogs.syncLogsAdd(syncLogDoc);
+  let response: any;
 
   try {
     switch (type) {
       case 'contacts:customer':
-        customerToPolaris(subdomain, params, action, models);
-        break;
-      case 'contacts:company':
-        companyToPolaris(subdomain, params, action);
-        break;
-      case 'savings:deposit':
-        depositToPolaris(subdomain, params);
-        break;
-      case 'savings:depositTransaction':
-        depositTransactionToPolaris(subdomain, params, action);
+        if (action === 'create' || !preValue) createCustomer(subdomain, params);
+        else if (action === 'update') updateCustomer(subdomain, params);
         break;
       case 'savings:contract':
-        savingToPolaris(subdomain, params);
+        const savingContract = params.object;
+        if (action === 'create' || !preValue) {
+          if (savingContract.isDeposit === true) {
+            response = await createDeposit(subdomain, params);
+          } else response = await createSaving(subdomain, params);
+        } else if (action === 'update') {
+          if (savingContract.isDeposit === true) {
+            response = await updateDeposit(subdomain, params);
+          } else response = await updateSaving(subdomain, params);
+        }
+        break;
+      case 'savings:transaction':
+        const savingTransaction = params.object;
+        if (savingTransaction.transactionType === 'income') {
+          response = await incomeDeposit(subdomain, params);
+        } else if (savingTransaction.transactionType === 'outcome')
+          response = await outcomeDeposit(subdomain, params);
         break;
       case 'loans:contract':
-        loansToPolaris(subdomain, params, action);
+        if (action === 'create' || !preValue)
+          response = await createLoan(subdomain, params);
+        else if (action === 'update')
+          response = await updateLoan(subdomain, params);
         break;
       case 'loans:classification':
-        loanClassificationToPolaris(subdomain, params);
+        response = await createChangeClassification(subdomain, params);
         break;
       case 'loans:transaction':
-        loanTransactionsToPolaris(subdomain, params, action);
+        const loanTransaction = params.object;
+        if (loanTransaction.transactionType === 'income') {
+          response = await createLoanRepayment(subdomain, params);
+        } else if (loanTransaction.transactionType === 'outcome')
+          response = await createLoanGive(subdomain, params);
         break;
     }
+    await models.SyncLogs.updateOne(
+      { _id: syncLog._id },
+      {
+        $set: { responseData: response, responseStr: JSON.stringify(response) },
+      },
+    );
   } catch (e) {
     console.log('e', e);
     await models.SyncLogs.updateOne(

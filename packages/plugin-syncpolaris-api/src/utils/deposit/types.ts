@@ -1,4 +1,4 @@
-export interface PolarisDeposit {
+export interface IPolarisDeposit {
   acntType: string;
   prodCode: string;
   brchCode: string;
@@ -7,7 +7,6 @@ export interface PolarisDeposit {
   name: string;
   name2: string;
   slevel: string;
-  statusCustom: string;
   jointOrSingle: string;
   dormancyDate: string;
   statusDate: string;
@@ -18,6 +17,6 @@ export interface PolarisDeposit {
   capAcntCode: string;
   capMethod: string;
   segCode: string;
-  'paymtDefault ': string;
+  paymtDefault: string;
   odType: string;
 }
