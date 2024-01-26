@@ -134,7 +134,7 @@ const clientPortalUserMutations = {
 
     const optConfig = clientPortal.otpConfig;
 
-    if (args.phoneOtp && optConfig && optConfig.loginWithOTP) {
+    if (optConfig && optConfig.loginWithOTP) {
       return tokenHandler(user, clientPortal, res);
     }
 
