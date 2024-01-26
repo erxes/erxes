@@ -1,0 +1,20 @@
+{
+  "unversionedId": "developer/integrations-overview/twitter",
+  "id": "developer/integrations-overview/twitter",
+  "isDocsHomePage": false,
+  "title": "Twitter integration guide",
+  "description": "Erxes app can be integrated with twitter developer API and that means we can receive our twitter accounts DMs, Tweets directly into our erxes app's inbox.",
+  "source": "@site/docs/developer/integrations-overview/twitter.md",
+  "sourceDirName": "developer/integrations-overview",
+  "slug": "/developer/integrations-overview/twitter",
+  "permalink": "/developer/integrations-overview/twitter",
+  "editUrl": "https://github.com/erxes/erxes/edit/erxes-docs-blog/docs/docs/developer/integrations-overview/twitter.md",
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055,
+  "formattedLastUpdatedAt": "10/14/2018",
+  "frontMatter": {
+    "id": "twitter",
+    "title": "Twitter integration guide"
+  }
+}

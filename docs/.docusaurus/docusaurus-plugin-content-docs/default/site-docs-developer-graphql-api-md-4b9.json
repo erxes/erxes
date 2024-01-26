@@ -1,0 +1,31 @@
+{
+  "unversionedId": "developer/graphql-api",
+  "id": "developer/graphql-api",
+  "isDocsHomePage": false,
+  "title": "GraphQL API Schema",
+  "description": "This document explains how to work with GraphQL API Schema.",
+  "source": "@site/docs/developer/graphql-api.md",
+  "sourceDirName": "developer",
+  "slug": "/developer/graphql-api",
+  "permalink": "/developer/graphql-api",
+  "editUrl": "https://github.com/erxes/erxes/edit/erxes-docs-blog/docs/docs/developer/graphql-api.md",
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055,
+  "formattedLastUpdatedAt": "10/14/2018",
+  "sidebar_label": "GraphQL API",
+  "frontMatter": {
+    "id": "graphql-api",
+    "title": "GraphQL API Schema",
+    "sidebar_label": "GraphQL API"
+  },
+  "sidebar": "docs",
+  "previous": {
+    "title": "webhook",
+    "permalink": "/developer/webhook"
+  },
+  "next": {
+    "title": "Push notifications",
+    "permalink": "/developer/push-notifications"
+  }
+}

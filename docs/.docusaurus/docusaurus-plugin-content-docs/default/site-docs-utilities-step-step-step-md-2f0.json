@@ -1,0 +1,29 @@
+{
+  "unversionedId": "utilities/Step/Step/step",
+  "id": "utilities/Step/Step/step",
+  "isDocsHomePage": false,
+  "title": "Step",
+  "description": "Image",
+  "source": "@site/docs/utilities/Step/Step/step.md",
+  "sourceDirName": "utilities/Step/Step",
+  "slug": "/utilities/Step/Step/step",
+  "permalink": "/utilities/Step/Step/step",
+  "editUrl": "https://github.com/erxes/erxes/edit/erxes-docs-blog/docs/docs/utilities/Step/Step/step.md",
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055,
+  "formattedLastUpdatedAt": "10/14/2018",
+  "frontMatter": {
+    "id": "step",
+    "title": "Step"
+  },
+  "sidebar": "components",
+  "previous": {
+    "title": "Modifiable List",
+    "permalink": "/utilities/ModifiableList/modifiablelist"
+  },
+  "next": {
+    "title": "Steps",
+    "permalink": "/utilities/Step/Steps/steps"
+  }
+}

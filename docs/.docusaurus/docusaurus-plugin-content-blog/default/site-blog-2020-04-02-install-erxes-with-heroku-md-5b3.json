@@ -1,0 +1,24 @@
+{
+  "permalink": "/blog/install-erxes-on-heroku",
+  "source": "@site/blog/2020-04-02-install-erxes-with-heroku.md",
+  "title": "Install erxes with a 1-Click App on Heroku",
+  "description": "Today, we’re delighted to announce that erxes is available on Heroku. It will enable teams to run erxes and collaborate in the cloud, thus creating a frictionless developer experience.",
+  "date": "2020-04-02T00:00:00.000Z",
+  "formattedDate": "April 2, 2020",
+  "tags": [
+    {
+      "label": "installation",
+      "permalink": "/blog/tags/installation"
+    },
+    {
+      "label": "heroku",
+      "permalink": "/blog/tags/heroku"
+    }
+  ],
+  "readingTime": 0.815,
+  "truncated": true,
+  "nextItem": {
+    "title": "Erxes v0.13.0 release information",
+    "permalink": "/blog/release-0.13.0"
+  }
+}

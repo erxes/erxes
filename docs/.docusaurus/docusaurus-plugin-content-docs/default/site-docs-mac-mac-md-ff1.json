@@ -1,0 +1,22 @@
+{
+  "unversionedId": "mac/mac",
+  "id": "mac/mac",
+  "isDocsHomePage": false,
+  "title": "Mac",
+  "description": "",
+  "source": "@site/docs/mac/mac.md",
+  "sourceDirName": "mac",
+  "slug": "/mac/mac",
+  "permalink": "/mac/mac",
+  "editUrl": "https://github.com/erxes/erxes/edit/erxes-docs-blog/docs/docs/mac/mac.md",
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055,
+  "formattedLastUpdatedAt": "10/14/2018",
+  "sidebar_label": "Mac",
+  "frontMatter": {
+    "id": "mac",
+    "title": "Mac",
+    "sidebar_label": "Mac"
+  }
+}

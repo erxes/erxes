@@ -1,0 +1,22 @@
+{
+  "unversionedId": "development/troubleshooting",
+  "id": "development/troubleshooting",
+  "isDocsHomePage": false,
+  "title": "Troubleshooting",
+  "description": "",
+  "source": "@site/docs/development/troubleshooting.md",
+  "sourceDirName": "development",
+  "slug": "/development/troubleshooting",
+  "permalink": "/development/troubleshooting",
+  "editUrl": "https://github.com/erxes/erxes/edit/erxes-docs-blog/docs/docs/development/troubleshooting.md",
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055,
+  "formattedLastUpdatedAt": "10/14/2018",
+  "sidebar_label": "Troubleshooting",
+  "frontMatter": {
+    "id": "troubleshooting",
+    "title": "Troubleshooting",
+    "sidebar_label": "Troubleshooting"
+  }
+}

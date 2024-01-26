@@ -1,0 +1,22 @@
+{
+  "unversionedId": "plugins/plugin-api",
+  "id": "plugins/plugin-api",
+  "isDocsHomePage": false,
+  "title": "Plugin API",
+  "description": "",
+  "source": "@site/docs/plugins/plugin-api.md",
+  "sourceDirName": "plugins",
+  "slug": "/plugins/plugin-api",
+  "permalink": "/plugins/plugin-api",
+  "editUrl": "https://github.com/erxes/erxes/edit/erxes-docs-blog/docs/docs/plugins/plugin-api.md",
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055,
+  "formattedLastUpdatedAt": "10/14/2018",
+  "sidebar_label": "Plugin API",
+  "frontMatter": {
+    "id": "plugin-api",
+    "title": "Plugin API",
+    "sidebar_label": "Plugin API"
+  }
+}

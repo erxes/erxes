@@ -1,0 +1,29 @@
+{
+  "unversionedId": "utilities/CollapseContent/collapsecontent",
+  "id": "utilities/CollapseContent/collapsecontent",
+  "isDocsHomePage": false,
+  "title": "Collapse Content",
+  "description": "Simple",
+  "source": "@site/docs/utilities/CollapseContent/collapsecontent.md",
+  "sourceDirName": "utilities/CollapseContent",
+  "slug": "/utilities/CollapseContent/collapsecontent",
+  "permalink": "/utilities/CollapseContent/collapsecontent",
+  "editUrl": "https://github.com/erxes/erxes/edit/erxes-docs-blog/docs/docs/utilities/CollapseContent/collapsecontent.md",
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055,
+  "formattedLastUpdatedAt": "10/14/2018",
+  "frontMatter": {
+    "id": "collapsecontent",
+    "title": "Collapse Content"
+  },
+  "sidebar": "components",
+  "previous": {
+    "title": "Box",
+    "permalink": "/utilities/Box/box"
+  },
+  "next": {
+    "title": "Counts by Tag",
+    "permalink": "/utilities/CountsByTag/countsbytag"
+  }
+}

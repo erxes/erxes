@@ -1,0 +1,20 @@
+{
+  "unversionedId": "installation/heroku",
+  "id": "installation/heroku",
+  "isDocsHomePage": false,
+  "title": "Heroku",
+  "description": "Learn how to deploy Erxes on Heroku.",
+  "source": "@site/docs/installation/heroku.md",
+  "sourceDirName": "installation",
+  "slug": "/installation/heroku",
+  "permalink": "/installation/heroku",
+  "editUrl": "https://github.com/erxes/erxes/edit/erxes-docs-blog/docs/docs/installation/heroku.md",
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055,
+  "formattedLastUpdatedAt": "10/14/2018",
+  "frontMatter": {
+    "slug": "heroku",
+    "title": "Heroku"
+  }
+}

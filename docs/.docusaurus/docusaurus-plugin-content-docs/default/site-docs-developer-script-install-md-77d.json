@@ -1,0 +1,31 @@
+{
+  "unversionedId": "developer/script-install",
+  "id": "developer/script-install",
+  "isDocsHomePage": false,
+  "title": "Script installation",
+  "description": "In the case of web messenger, knowledgebase, popups, you have to install some scripts on your website's code.",
+  "source": "@site/docs/developer/script-install.md",
+  "sourceDirName": "developer",
+  "slug": "/developer/script-install",
+  "permalink": "/developer/script-install",
+  "editUrl": "https://github.com/erxes/erxes/edit/erxes-docs-blog/docs/docs/developer/script-install.md",
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055,
+  "formattedLastUpdatedAt": "10/14/2018",
+  "sidebar_label": "Script installation",
+  "frontMatter": {
+    "id": "script-install",
+    "title": "Script installation",
+    "sidebar_label": "Script installation"
+  },
+  "sidebar": "docs",
+  "previous": {
+    "title": "Push notifications",
+    "permalink": "/developer/push-notifications"
+  },
+  "next": {
+    "title": "Ubuntu",
+    "permalink": "/developer/ubuntu"
+  }
+}

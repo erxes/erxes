@@ -1,0 +1,31 @@
+{
+  "unversionedId": "contribute/overview",
+  "id": "contribute/overview",
+  "isDocsHomePage": false,
+  "title": "Overview",
+  "description": "Welcome to erxes community 👋",
+  "source": "@site/docs/contribute/overview.md",
+  "sourceDirName": "contribute",
+  "slug": "/contribute/overview",
+  "permalink": "/contribute/overview",
+  "editUrl": "https://github.com/erxes/erxes/edit/erxes-docs-blog/docs/docs/contribute/overview.md",
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055,
+  "formattedLastUpdatedAt": "10/14/2018",
+  "sidebar_label": "Overview",
+  "frontMatter": {
+    "id": "overview",
+    "title": "Overview",
+    "sidebar_label": "Overview"
+  },
+  "sidebar": "docs",
+  "previous": {
+    "title": "Troubleshooting",
+    "permalink": "/developer/troubleshooting"
+  },
+  "next": {
+    "title": "Contribute to codebase",
+    "permalink": "/contribute/contribute-to-codebase"
+  }
+}

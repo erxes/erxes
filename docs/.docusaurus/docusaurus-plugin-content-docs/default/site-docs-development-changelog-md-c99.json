@@ -1,0 +1,22 @@
+{
+  "unversionedId": "development/changelog",
+  "id": "development/changelog",
+  "isDocsHomePage": false,
+  "title": "Changelog",
+  "description": "",
+  "source": "@site/docs/development/changelog.md",
+  "sourceDirName": "development",
+  "slug": "/development/changelog",
+  "permalink": "/development/changelog",
+  "editUrl": "https://github.com/erxes/erxes/edit/erxes-docs-blog/docs/docs/development/changelog.md",
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055,
+  "formattedLastUpdatedAt": "10/14/2018",
+  "sidebar_label": "Changelog",
+  "frontMatter": {
+    "id": "changelog",
+    "title": "Changelog",
+    "sidebar_label": "Changelog"
+  }
+}

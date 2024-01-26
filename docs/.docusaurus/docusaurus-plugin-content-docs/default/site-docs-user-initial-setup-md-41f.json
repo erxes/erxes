@@ -1,0 +1,29 @@
+{
+  "unversionedId": "user/initial-setup",
+  "id": "user/initial-setup",
+  "isDocsHomePage": false,
+  "title": "Initial Setup",
+  "description": "Brands, Channels and Integrations are the key components of erxes platform.",
+  "source": "@site/docs/user/initial-setup.md",
+  "sourceDirName": "user",
+  "slug": "/user/initial-setup",
+  "permalink": "/user/initial-setup",
+  "editUrl": "https://github.com/erxes/erxes/edit/develop/docs/docs/user/initial-setup.md",
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055,
+  "formattedLastUpdatedAt": "10/14/2018",
+  "frontMatter": {
+    "id": "initial-setup",
+    "title": "Initial Setup"
+  },
+  "sidebar": "tutorials",
+  "previous": {
+    "title": "Subscription getting started",
+    "permalink": "/user/subscription-getting-started"
+  },
+  "next": {
+    "title": "General Settings",
+    "permalink": "/user/general-settings"
+  }
+}

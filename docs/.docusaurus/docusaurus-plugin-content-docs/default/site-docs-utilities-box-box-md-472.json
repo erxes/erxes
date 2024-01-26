@@ -1,0 +1,29 @@
+{
+  "unversionedId": "utilities/Box/box",
+  "id": "utilities/Box/box",
+  "isDocsHomePage": false,
+  "title": "Box",
+  "description": "Build vertically collapsing boxes.",
+  "source": "@site/docs/utilities/Box/box.md",
+  "sourceDirName": "utilities/Box",
+  "slug": "/utilities/Box/box",
+  "permalink": "/utilities/Box/box",
+  "editUrl": "https://github.com/erxes/erxes/edit/erxes-docs-blog/docs/docs/utilities/Box/box.md",
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055,
+  "formattedLastUpdatedAt": "10/14/2018",
+  "frontMatter": {
+    "id": "box",
+    "title": "Box"
+  },
+  "sidebar": "components",
+  "previous": {
+    "title": "Alert",
+    "permalink": "/utilities/Alert/alert"
+  },
+  "next": {
+    "title": "Collapse Content",
+    "permalink": "/utilities/CollapseContent/collapsecontent"
+  }
+}

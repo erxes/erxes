@@ -1,0 +1,22 @@
+{
+  "unversionedId": "ubuntu/server",
+  "id": "ubuntu/server",
+  "isDocsHomePage": false,
+  "title": "Server requirement",
+  "description": "",
+  "source": "@site/docs/ubuntu/server.md",
+  "sourceDirName": "ubuntu",
+  "slug": "/ubuntu/server",
+  "permalink": "/ubuntu/server",
+  "editUrl": "https://github.com/erxes/erxes/edit/erxes-docs-blog/docs/docs/ubuntu/server.md",
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055,
+  "formattedLastUpdatedAt": "10/14/2018",
+  "sidebar_label": "Server requirement",
+  "frontMatter": {
+    "id": "server",
+    "title": "Server requirement",
+    "sidebar_label": "Server requirement"
+  }
+}

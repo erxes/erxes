@@ -1,0 +1,22 @@
+{
+  "unversionedId": "plugins/choose-your-plugins",
+  "id": "plugins/choose-your-plugins",
+  "isDocsHomePage": false,
+  "title": "Choose your plugins",
+  "description": "erxes has a set of plugins that allow you to create unique customer experiences. Go to our marketplace to find out what plugins erxes offers you and their use cases.",
+  "source": "@site/docs/plugins/choose-your-plugins.md",
+  "sourceDirName": "plugins",
+  "slug": "/plugins/choose-your-plugins",
+  "permalink": "/plugins/choose-your-plugins",
+  "editUrl": "https://github.com/erxes/erxes/edit/erxes-docs-blog/docs/docs/plugins/choose-your-plugins.md",
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055,
+  "formattedLastUpdatedAt": "10/14/2018",
+  "sidebar_label": "Choose your plugins",
+  "frontMatter": {
+    "id": "choose-your-plugins",
+    "title": "Choose your plugins",
+    "sidebar_label": "Choose your plugins"
+  }
+}

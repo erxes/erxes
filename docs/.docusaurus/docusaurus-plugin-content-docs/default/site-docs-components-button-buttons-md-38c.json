@@ -1,0 +1,25 @@
+{
+  "unversionedId": "components/Button/buttons",
+  "id": "components/Button/buttons",
+  "isDocsHomePage": false,
+  "title": "Buttons",
+  "description": "Custom button styles for actions in forms, dialogs, and more with support for multiple sizes, states, and more.",
+  "source": "@site/docs/components/Button/buttons.md",
+  "sourceDirName": "components/Button",
+  "slug": "/components/Button/buttons",
+  "permalink": "/components/Button/buttons",
+  "editUrl": "https://github.com/erxes/erxes/edit/develop/docs/docs/components/Button/buttons.md",
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055,
+  "formattedLastUpdatedAt": "10/14/2018",
+  "frontMatter": {
+    "id": "buttons",
+    "title": "Buttons"
+  },
+  "sidebar": "components",
+  "next": {
+    "title": "Empty State",
+    "permalink": "/components/EmptyState/emptystate"
+  }
+}

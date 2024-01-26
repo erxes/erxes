@@ -1,0 +1,20 @@
+{
+  "unversionedId": "overview/overview",
+  "id": "overview/overview",
+  "isDocsHomePage": false,
+  "title": "Overview",
+  "description": "Erxes helps you attract and engage more customers while giving you high lead conversion. With erxes, all your marketing, sales and customer service tools are merged into one platform for greater output.",
+  "source": "@site/docs/overview/overview.md",
+  "sourceDirName": "overview",
+  "slug": "/overview/overview",
+  "permalink": "/overview/overview",
+  "editUrl": "https://github.com/erxes/erxes/edit/erxes-docs-blog/docs/docs/overview/overview.md",
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055,
+  "formattedLastUpdatedAt": "10/14/2018",
+  "frontMatter": {
+    "id": "overview",
+    "title": "Overview"
+  }
+}

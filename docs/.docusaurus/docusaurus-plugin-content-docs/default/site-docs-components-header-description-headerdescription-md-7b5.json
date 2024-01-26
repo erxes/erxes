@@ -1,0 +1,29 @@
+{
+  "unversionedId": "components/HeaderDescription/headerdescription",
+  "id": "components/HeaderDescription/headerdescription",
+  "isDocsHomePage": false,
+  "title": "Header Description",
+  "description": "Expandable description, shows image and description when expanded but just title when it's not.",
+  "source": "@site/docs/components/HeaderDescription/headerdescription.md",
+  "sourceDirName": "components/HeaderDescription",
+  "slug": "/components/HeaderDescription/headerdescription",
+  "permalink": "/components/HeaderDescription/headerdescription",
+  "editUrl": "https://github.com/erxes/erxes/edit/develop/docs/docs/components/HeaderDescription/headerdescription.md",
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055,
+  "formattedLastUpdatedAt": "10/14/2018",
+  "frontMatter": {
+    "id": "headerdescription",
+    "title": "Header Description"
+  },
+  "sidebar": "components",
+  "previous": {
+    "title": "Filter by Params",
+    "permalink": "/components/FilterByParams/filterbyparams"
+  },
+  "next": {
+    "title": "Help Popover",
+    "permalink": "/components/HelpPopOver/helppopover"
+  }
+}

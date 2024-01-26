@@ -1,0 +1,31 @@
+{
+  "unversionedId": "introduction/architecture",
+  "id": "introduction/architecture",
+  "isDocsHomePage": false,
+  "title": "Architecture",
+  "description": "erxes’s coding architecture comprises Backend, UI, and Widgets.",
+  "source": "@site/docs/introduction/architecture.md",
+  "sourceDirName": "introduction",
+  "slug": "/introduction/architecture",
+  "permalink": "/introduction/architecture",
+  "editUrl": "https://github.com/erxes/erxes/edit/erxes-docs-blog/docs/docs/introduction/architecture.md",
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055,
+  "formattedLastUpdatedAt": "10/14/2018",
+  "sidebar_label": "Architecture",
+  "frontMatter": {
+    "id": "architecture",
+    "title": "Architecture",
+    "sidebar_label": "Architecture"
+  },
+  "sidebar": "docs",
+  "previous": {
+    "title": "Introduction",
+    "permalink": "/introduction/introduction"
+  },
+  "next": {
+    "title": "FAQ",
+    "permalink": "/introduction/faq"
+  }
+}

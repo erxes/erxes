@@ -1,0 +1,29 @@
+{
+  "unversionedId": "components/Tip/tip",
+  "id": "components/Tip/tip",
+  "isDocsHomePage": false,
+  "title": "Tip",
+  "description": "Tip text",
+  "source": "@site/docs/components/Tip/tip.md",
+  "sourceDirName": "components/Tip",
+  "slug": "/components/Tip/tip",
+  "permalink": "/components/Tip/tip",
+  "editUrl": "https://github.com/erxes/erxes/edit/erxes-docs-blog/docs/docs/components/Tip/tip.md",
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055,
+  "formattedLastUpdatedAt": "10/14/2018",
+  "frontMatter": {
+    "id": "tip",
+    "title": "Tip"
+  },
+  "sidebar": "components",
+  "previous": {
+    "title": "Text info",
+    "permalink": "/components/TextInfo/textinfo"
+  },
+  "next": {
+    "title": "Toggle",
+    "permalink": "/components/Toggle/toggle"
+  }
+}

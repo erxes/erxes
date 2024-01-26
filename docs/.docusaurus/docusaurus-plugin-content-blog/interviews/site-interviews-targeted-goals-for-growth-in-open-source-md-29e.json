@@ -1,0 +1,24 @@
+{
+  "permalink": "/interviews/targeted-goals-for-growth-in-open-source",
+  "source": "@site/interviews/targeted-goals-for-growth-in-open-source.md",
+  "title": "Having Targeted Goals in Open Source with Diana Chen",
+  "description": "At erxes, we’re dedicated to supporting open source projects grow. We do this in a couple of different ways. First, we help open source projects grow through the use of our own own open source marketing platform. Secondly, we work hard to educate open source project founders and contributors on a wide range of topics relating to marketing open source projects.",
+  "date": "2022-08-11T01:10:33.856Z",
+  "formattedDate": "August 11, 2022",
+  "tags": [
+    {
+      "label": "open source",
+      "permalink": "/interviews/tags/open-source"
+    },
+    {
+      "label": "education",
+      "permalink": "/interviews/tags/education"
+    }
+  ],
+  "readingTime": 13.34,
+  "truncated": true,
+  "prevItem": {
+    "title": "Starting an Open Source Project with No Corporate Backing with Ben Gubler",
+    "permalink": "/interviews/starting-an-open-source-project-with-no-corporate-funding"
+  }
+}

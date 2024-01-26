@@ -1,0 +1,58 @@
+{
+  "banking": {
+    "allTagsPath": "/caseStudies/tags",
+    "slug": "banking",
+    "name": "banking",
+    "count": 1,
+    "permalink": "/caseStudies/tags/banking"
+  },
+  "support": {
+    "allTagsPath": "/caseStudies/tags",
+    "slug": "support",
+    "name": "support",
+    "count": 1,
+    "permalink": "/caseStudies/tags/support"
+  },
+  "sales": {
+    "allTagsPath": "/caseStudies/tags",
+    "slug": "sales",
+    "name": "sales",
+    "count": 3,
+    "permalink": "/caseStudies/tags/sales"
+  },
+  "telecomunications": {
+    "allTagsPath": "/caseStudies/tags",
+    "slug": "telecomunications",
+    "name": "telecomunications",
+    "count": 1,
+    "permalink": "/caseStudies/tags/telecomunications"
+  },
+  "marketing": {
+    "allTagsPath": "/caseStudies/tags",
+    "slug": "marketing",
+    "name": "marketing",
+    "count": 2,
+    "permalink": "/caseStudies/tags/marketing"
+  },
+  "investment": {
+    "allTagsPath": "/caseStudies/tags",
+    "slug": "investment",
+    "name": "investment",
+    "count": 1,
+    "permalink": "/caseStudies/tags/investment"
+  },
+  "management": {
+    "allTagsPath": "/caseStudies/tags",
+    "slug": "management",
+    "name": "management",
+    "count": 1,
+    "permalink": "/caseStudies/tags/management"
+  },
+  "multi-industry": {
+    "allTagsPath": "/caseStudies/tags",
+    "slug": "multi-industry",
+    "name": "multi-industry",
+    "count": 1,
+    "permalink": "/caseStudies/tags/multi-industry"
+  }
+}

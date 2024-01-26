@@ -1,0 +1,29 @@
+{
+  "unversionedId": "components/AnimatedLoader/animatedLoader",
+  "id": "components/AnimatedLoader/animatedLoader",
+  "isDocsHomePage": false,
+  "title": "Animated Loader",
+  "description": "Custom styled loaders for many kind of use.",
+  "source": "@site/docs/components/AnimatedLoader/animatedLoader.md",
+  "sourceDirName": "components/AnimatedLoader",
+  "slug": "/components/AnimatedLoader/animatedLoader",
+  "permalink": "/components/AnimatedLoader/animatedLoader",
+  "editUrl": "https://github.com/erxes/erxes/edit/erxes-docs-blog/docs/docs/components/AnimatedLoader/animatedLoader.md",
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055,
+  "formattedLastUpdatedAt": "10/14/2018",
+  "frontMatter": {
+    "id": "animatedLoader",
+    "title": "Animated Loader"
+  },
+  "sidebar": "components",
+  "previous": {
+    "title": "Introduction",
+    "permalink": "/components/GettingStarted/introduction"
+  },
+  "next": {
+    "title": "Attachment",
+    "permalink": "/components/Attachment/attachment"
+  }
+}

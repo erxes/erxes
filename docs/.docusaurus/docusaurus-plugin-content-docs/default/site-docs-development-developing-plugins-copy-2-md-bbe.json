@@ -1,0 +1,31 @@
+{
+  "unversionedId": "development/developing-plugins",
+  "id": "development/developing-plugins",
+  "isDocsHomePage": false,
+  "title": "Developing Plugins",
+  "description": "",
+  "source": "@site/docs/development/developing-plugins copy 2.md",
+  "sourceDirName": "development",
+  "slug": "/development/developing-plugins",
+  "permalink": "/development/developing-plugins",
+  "editUrl": "https://github.com/erxes/erxes/edit/erxes-docs-blog/docs/docs/development/developing-plugins copy 2.md",
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055,
+  "formattedLastUpdatedAt": "10/14/2018",
+  "sidebar_label": "Developing Plugins",
+  "frontMatter": {
+    "id": "developing-plugins",
+    "title": "Developing Plugins",
+    "sidebar_label": "Developing Plugins"
+  },
+  "sidebar": "docs",
+  "previous": {
+    "title": "Mac",
+    "permalink": "/development/mac"
+  },
+  "next": {
+    "title": "Overview",
+    "permalink": "/contribute/overview"
+  }
+}

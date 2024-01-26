@@ -1,0 +1,20 @@
+{
+  "unversionedId": "developer/integrations-overview/nylas-integrations",
+  "id": "developer/integrations-overview/nylas-integrations",
+  "isDocsHomePage": false,
+  "title": "Nylas integrations",
+  "description": "Connect your application to every email, calendar, and contacts provider in the world. Learn how to integrate Nylas Accounts With Erxes.",
+  "source": "@site/docs/developer/integrations-overview/Nylas.md",
+  "sourceDirName": "developer/integrations-overview",
+  "slug": "/developer/integrations-overview/nylas-integrations",
+  "permalink": "/developer/integrations-overview/nylas-integrations",
+  "editUrl": "https://github.com/erxes/erxes/edit/erxes-docs-blog/docs/docs/developer/integrations-overview/Nylas.md",
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055,
+  "formattedLastUpdatedAt": "10/14/2018",
+  "frontMatter": {
+    "id": "nylas-integrations",
+    "title": "Nylas integrations"
+  }
+}

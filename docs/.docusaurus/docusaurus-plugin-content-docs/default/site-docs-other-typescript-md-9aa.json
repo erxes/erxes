@@ -1,0 +1,17 @@
+{
+  "unversionedId": "other/typescript",
+  "id": "other/typescript",
+  "isDocsHomePage": false,
+  "title": "typescript",
+  "description": "",
+  "source": "@site/docs/other/typescript.md",
+  "sourceDirName": "other",
+  "slug": "/other/typescript",
+  "permalink": "/other/typescript",
+  "editUrl": "https://github.com/erxes/erxes/edit/erxes-docs-blog/docs/docs/other/typescript.md",
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055,
+  "formattedLastUpdatedAt": "10/14/2018",
+  "frontMatter": {}
+}

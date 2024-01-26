@@ -1,0 +1,22 @@
+{
+  "unversionedId": "plugins/plugin-ui",
+  "id": "plugins/plugin-ui",
+  "isDocsHomePage": false,
+  "title": "Plugin UI",
+  "description": "",
+  "source": "@site/docs/plugins/plugin-ui.md",
+  "sourceDirName": "plugins",
+  "slug": "/plugins/plugin-ui",
+  "permalink": "/plugins/plugin-ui",
+  "editUrl": "https://github.com/erxes/erxes/edit/erxes-docs-blog/docs/docs/plugins/plugin-ui.md",
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055,
+  "formattedLastUpdatedAt": "10/14/2018",
+  "sidebar_label": "Plugin UI",
+  "frontMatter": {
+    "id": "plugin-ui",
+    "title": "Plugin UI",
+    "sidebar_label": "Plugin UI"
+  }
+}

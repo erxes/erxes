@@ -1,0 +1,22 @@
+{
+  "unversionedId": "integrations/configuration",
+  "id": "integrations/configuration",
+  "isDocsHomePage": false,
+  "title": "Configuration",
+  "description": "",
+  "source": "@site/docs/integrations/configuration.md",
+  "sourceDirName": "integrations",
+  "slug": "/integrations/configuration",
+  "permalink": "/integrations/configuration",
+  "editUrl": "https://github.com/erxes/erxes/edit/erxes-docs-blog/docs/docs/integrations/configuration.md",
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055,
+  "formattedLastUpdatedAt": "10/14/2018",
+  "sidebar_label": "Configuration",
+  "frontMatter": {
+    "id": "configuration",
+    "title": "Configuration",
+    "sidebar_label": "Configuration"
+  }
+}

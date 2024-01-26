@@ -1,0 +1,29 @@
+{
+  "unversionedId": "components/TextInfo/textinfo",
+  "id": "components/TextInfo/textinfo",
+  "isDocsHomePage": false,
+  "title": "Text info",
+  "description": "Types",
+  "source": "@site/docs/components/TextInfo/textinfo.md",
+  "sourceDirName": "components/TextInfo",
+  "slug": "/components/TextInfo/textinfo",
+  "permalink": "/components/TextInfo/textinfo",
+  "editUrl": "https://github.com/erxes/erxes/edit/erxes-docs-blog/docs/docs/components/TextInfo/textinfo.md",
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055,
+  "formattedLastUpdatedAt": "10/14/2018",
+  "frontMatter": {
+    "id": "textinfo",
+    "title": "Text info"
+  },
+  "sidebar": "components",
+  "previous": {
+    "title": "Text Divider",
+    "permalink": "/components/TextDivider/textdivider"
+  },
+  "next": {
+    "title": "Tip",
+    "permalink": "/components/Tip/tip"
+  }
+}

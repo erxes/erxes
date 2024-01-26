@@ -1,0 +1,29 @@
+{
+  "unversionedId": "components/AvatarUpload/avatarUpload",
+  "id": "components/AvatarUpload/avatarUpload",
+  "isDocsHomePage": false,
+  "title": "Avatar Upload",
+  "description": "Upload an avatar by clicking on them.",
+  "source": "@site/docs/components/AvatarUpload/avatarUpload.md",
+  "sourceDirName": "components/AvatarUpload",
+  "slug": "/components/AvatarUpload/avatarUpload",
+  "permalink": "/components/AvatarUpload/avatarUpload",
+  "editUrl": "https://github.com/erxes/erxes/edit/erxes-docs-blog/docs/docs/components/AvatarUpload/avatarUpload.md",
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055,
+  "formattedLastUpdatedAt": "10/14/2018",
+  "frontMatter": {
+    "id": "avatarUpload",
+    "title": "Avatar Upload"
+  },
+  "sidebar": "components",
+  "previous": {
+    "title": "Attachment",
+    "permalink": "/components/Attachment/attachment"
+  },
+  "next": {
+    "title": "Breadcrumb",
+    "permalink": "/components/BreadCrumb/breadcrumbs"
+  }
+}

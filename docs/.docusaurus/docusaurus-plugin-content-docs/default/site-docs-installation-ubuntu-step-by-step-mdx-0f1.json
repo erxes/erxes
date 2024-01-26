@@ -1,0 +1,20 @@
+{
+  "unversionedId": "installation/ubuntu-step-by-step",
+  "id": "installation/ubuntu-step-by-step",
+  "isDocsHomePage": false,
+  "title": "CE Step by Step Installation",
+  "description": "Installing the Community Edition",
+  "source": "@site/docs/installation/ubuntu-step-by-step.mdx",
+  "sourceDirName": "installation",
+  "slug": "/installation/ubuntu-step-by-step",
+  "permalink": "/installation/ubuntu-step-by-step",
+  "editUrl": "https://github.com/erxes/erxes/edit/erxes-docs-blog/docs/docs/installation/ubuntu-step-by-step.mdx",
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055,
+  "formattedLastUpdatedAt": "10/14/2018",
+  "frontMatter": {
+    "id": "ubuntu-step-by-step",
+    "title": "CE Step by Step Installation"
+  }
+}

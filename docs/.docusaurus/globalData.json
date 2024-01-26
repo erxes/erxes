@@ -1,0 +1,652 @@
+{
+  "docusaurus-plugin-content-docs": {
+    "default": {
+      "path": "/",
+      "versions": [
+        {
+          "name": "current",
+          "label": "Next",
+          "isLast": true,
+          "path": "/",
+          "mainDocId": "introduction/introduction",
+          "docs": [
+            {
+              "id": "administrator/creating-first-user",
+              "path": "/administrator/creating-first-user",
+              "sidebar": "docs"
+            },
+            {
+              "id": "administrator/environment-variables",
+              "path": "/administrator/environment-variables",
+              "sidebar": "docs"
+            },
+            {
+              "id": "administrator/migration",
+              "path": "/administrator/migration",
+              "sidebar": "docs"
+            },
+            {
+              "id": "administrator/system-config",
+              "path": "/administrator/system-config",
+              "sidebar": "docs"
+            },
+            {
+              "id": "changelog/release-notes",
+              "path": "/changelog/release-notes"
+            },
+            {
+              "id": "components/AnimatedLoader/animatedLoader",
+              "path": "/components/AnimatedLoader/animatedLoader",
+              "sidebar": "components"
+            },
+            {
+              "id": "components/Attachment/attachment",
+              "path": "/components/Attachment/attachment",
+              "sidebar": "components"
+            },
+            {
+              "id": "components/AvatarUpload/avatarUpload",
+              "path": "/components/AvatarUpload/avatarUpload",
+              "sidebar": "components"
+            },
+            {
+              "id": "components/BreadCrumb/breadcrumbs",
+              "path": "/components/BreadCrumb/breadcrumbs",
+              "sidebar": "components"
+            },
+            {
+              "id": "components/Button/button",
+              "path": "/components/Button/button",
+              "sidebar": "components"
+            },
+            {
+              "id": "components/Chip/chip",
+              "path": "/components/Chip/chip",
+              "sidebar": "components"
+            },
+            {
+              "id": "components/CollapseContent/collapsecontent",
+              "path": "/components/CollapseContent/collapsecontent"
+            },
+            {
+              "id": "components/DatawithLoader/datawithloader",
+              "path": "/components/DatawithLoader/datawithloader",
+              "sidebar": "components"
+            },
+            {
+              "id": "components/EmptyContent/emptycontent",
+              "path": "/components/EmptyContent/emptycontent",
+              "sidebar": "components"
+            },
+            {
+              "id": "components/EmptyState/emptystate",
+              "path": "/components/EmptyState/emptystate",
+              "sidebar": "components"
+            },
+            {
+              "id": "components/ErrorMsg/errormsg",
+              "path": "/components/ErrorMsg/errormsg",
+              "sidebar": "components"
+            },
+            {
+              "id": "components/FilePreview/filepreview",
+              "path": "/components/FilePreview/filepreview",
+              "sidebar": "components"
+            },
+            {
+              "id": "components/FilterableList/filterablelist",
+              "path": "/components/FilterableList/filterablelist"
+            },
+            {
+              "id": "components/FilterByParams/filterbyparams",
+              "path": "/components/FilterByParams/filterbyparams",
+              "sidebar": "components"
+            },
+            {
+              "id": "components/GettingStarted/introduction",
+              "path": "/components/GettingStarted/introduction",
+              "sidebar": "components"
+            },
+            {
+              "id": "components/HelpPopOver/helppopover",
+              "path": "/components/HelpPopOver/helppopover",
+              "sidebar": "components"
+            },
+            {
+              "id": "components/Icon/icon",
+              "path": "/components/Icon/icon",
+              "sidebar": "components"
+            },
+            {
+              "id": "components/Info/info",
+              "path": "/components/Info/info",
+              "sidebar": "components"
+            },
+            {
+              "id": "components/Label/label",
+              "path": "/components/Label/label",
+              "sidebar": "components"
+            },
+            {
+              "id": "components/ModalTrigger/modaltrigger",
+              "path": "/components/ModalTrigger/modaltrigger",
+              "sidebar": "components"
+            },
+            {
+              "id": "components/ModifiableList/modifiablelist",
+              "path": "/components/ModifiableList/modifiablelist"
+            },
+            {
+              "id": "components/Namecard/namecard",
+              "path": "/components/Namecard/namecard",
+              "sidebar": "components"
+            },
+            {
+              "id": "components/Pagination/pagination",
+              "path": "/components/Pagination/pagination",
+              "sidebar": "components"
+            },
+            {
+              "id": "components/ProgressBar/progressbar",
+              "path": "/components/ProgressBar/progressbar",
+              "sidebar": "components"
+            },
+            {
+              "id": "components/SortableList/sortablelist",
+              "path": "/components/SortableList/sortablelist",
+              "sidebar": "components"
+            },
+            {
+              "id": "components/SortHandler/sorthandler",
+              "path": "/components/SortHandler/sorthandler",
+              "sidebar": "components"
+            },
+            {
+              "id": "components/Spinner/spinner",
+              "path": "/components/Spinner/spinner",
+              "sidebar": "components"
+            },
+            {
+              "id": "components/Steps/steps",
+              "path": "/components/Steps/steps"
+            },
+            {
+              "id": "components/SubMenu/submenu",
+              "path": "/components/SubMenu/submenu",
+              "sidebar": "components"
+            },
+            {
+              "id": "components/Tab/tab",
+              "path": "/components/Tab/tab",
+              "sidebar": "components"
+            },
+            {
+              "id": "components/Table/table",
+              "path": "/components/Table/table",
+              "sidebar": "components"
+            },
+            {
+              "id": "components/Tabs/tabs",
+              "path": "/components/Tabs/tabs"
+            },
+            {
+              "id": "components/Tag/tag",
+              "path": "/components/Tag/tag",
+              "sidebar": "components"
+            },
+            {
+              "id": "components/TextDivider/textdivider",
+              "path": "/components/TextDivider/textdivider",
+              "sidebar": "components"
+            },
+            {
+              "id": "components/TextInfo/textinfo",
+              "path": "/components/TextInfo/textinfo",
+              "sidebar": "components"
+            },
+            {
+              "id": "components/Tip/tip",
+              "path": "/components/Tip/tip",
+              "sidebar": "components"
+            },
+            {
+              "id": "components/Toggle/toggle",
+              "path": "/components/Toggle/toggle",
+              "sidebar": "components"
+            },
+            {
+              "id": "components/Uploader/uploader",
+              "path": "/components/Uploader/uploader",
+              "sidebar": "components"
+            },
+            {
+              "id": "contribute/coding-standarts",
+              "path": "/contribute/coding-standarts"
+            },
+            {
+              "id": "contribute/contribute-to-codebase",
+              "path": "/contribute/contribute-to-codebase",
+              "sidebar": "docs"
+            },
+            {
+              "id": "contribute/contribute-to-documentation",
+              "path": "/contribute/contribute-to-documentation",
+              "sidebar": "docs"
+            },
+            {
+              "id": "contribute/contribute-to-erxes",
+              "path": "/contribute/contribute-to-erxes"
+            },
+            {
+              "id": "contribute/documentation-style-guide",
+              "path": "/contribute/documentation-style-guide",
+              "sidebar": "docs"
+            },
+            {
+              "id": "contribute/integration",
+              "path": "/contribute/integration"
+            },
+            {
+              "id": "contribute/overview",
+              "path": "/contribute/overview",
+              "sidebar": "docs"
+            },
+            {
+              "id": "contribute/plugin-Installation",
+              "path": "/contribute/plugin-Installation",
+              "sidebar": "docs"
+            },
+            {
+              "id": "developer/android-sdk",
+              "path": "/developer/android-sdk"
+            },
+            {
+              "id": "developer/contributing",
+              "path": "/developer/contributing"
+            },
+            {
+              "id": "developer/developer",
+              "path": "/developer/developer"
+            },
+            {
+              "id": "developer/documentation_guide",
+              "path": "/developer/documentation_guide"
+            },
+            {
+              "id": "developer/events",
+              "path": "/developer/events"
+            },
+            {
+              "id": "developer/graphql-api",
+              "path": "/developer/graphql-api",
+              "sidebar": "docs"
+            },
+            {
+              "id": "developer/integrations-overview/aws-s3",
+              "path": "/developer/integrations-overview/aws-s3",
+              "sidebar": "docs"
+            },
+            {
+              "id": "developer/integrations-overview/aws-ses",
+              "path": "/developer/integrations-overview/aws-ses",
+              "sidebar": "docs"
+            },
+            {
+              "id": "developer/integrations-overview/facebook",
+              "path": "/developer/integrations-overview/facebook",
+              "sidebar": "docs"
+            },
+            {
+              "id": "developer/integrations-overview/gmail",
+              "path": "/developer/integrations-overview/gmail",
+              "sidebar": "docs"
+            },
+            {
+              "id": "developer/integrations-overview/google-cloud-storage",
+              "path": "/developer/integrations-overview/google-cloud-storage",
+              "sidebar": "docs"
+            },
+            {
+              "id": "developer/integrations-overview/nylas-integrations",
+              "path": "/developer/integrations-overview/nylas-integrations"
+            },
+            {
+              "id": "developer/integrations-overview/sunshine-conversations",
+              "path": "/developer/integrations-overview/sunshine-conversations"
+            },
+            {
+              "id": "developer/integrations-overview/twitter",
+              "path": "/developer/integrations-overview/twitter"
+            },
+            {
+              "id": "developer/integrations-overview/whatsApp-integration",
+              "path": "/developer/integrations-overview/whatsApp-integration"
+            },
+            {
+              "id": "developer/ios-sdk",
+              "path": "/developer/ios-sdk"
+            },
+            {
+              "id": "developer/mac",
+              "path": "/developer/mac",
+              "sidebar": "docs"
+            },
+            {
+              "id": "developer/plugin",
+              "path": "/developer/plugin"
+            },
+            {
+              "id": "developer/push-notifications",
+              "path": "/developer/push-notifications",
+              "sidebar": "docs"
+            },
+            {
+              "id": "developer/script-install",
+              "path": "/developer/script-install",
+              "sidebar": "docs"
+            },
+            {
+              "id": "developer/troubleshooting",
+              "path": "/developer/troubleshooting",
+              "sidebar": "docs"
+            },
+            {
+              "id": "developer/ubuntu",
+              "path": "/developer/ubuntu",
+              "sidebar": "docs"
+            },
+            {
+              "id": "developer/webhook",
+              "path": "/developer/webhook",
+              "sidebar": "docs"
+            },
+            {
+              "id": "development/changelog",
+              "path": "/development/changelog"
+            },
+            {
+              "id": "development/developing-plugins",
+              "path": "/development/developing-plugins",
+              "sidebar": "docs"
+            },
+            {
+              "id": "development/erxes-xos-user-guide",
+              "path": "/development/erxes-xos-user-guide",
+              "sidebar": "docs"
+            },
+            {
+              "id": "development/mac",
+              "path": "/development/mac"
+            },
+            {
+              "id": "development/troubleshooting",
+              "path": "/development/troubleshooting"
+            },
+            {
+              "id": "development/ubuntu",
+              "path": "/development/ubuntu"
+            },
+            {
+              "id": "getting-started/commit",
+              "path": "/getting-started/commit"
+            },
+            {
+              "id": "getting-started/contributing-guide",
+              "path": "/getting-started/contributing-guide"
+            },
+            {
+              "id": "getting-started/submitting",
+              "path": "/getting-started/submitting"
+            },
+            {
+              "id": "icons/icons",
+              "path": "/icons/icons",
+              "sidebar": "components"
+            },
+            {
+              "id": "icons/usage",
+              "path": "/icons/usage",
+              "sidebar": "components"
+            },
+            {
+              "id": "installation/aws",
+              "path": "/installation/aws"
+            },
+            {
+              "id": "installation/digitalocean",
+              "path": "/installation/digitalocean"
+            },
+            {
+              "id": "installation/docker",
+              "path": "/installation/docker"
+            },
+            {
+              "id": "installation/heroku",
+              "path": "/installation/heroku"
+            },
+            {
+              "id": "installation/kubernetes",
+              "path": "/installation/kubernetes"
+            },
+            {
+              "id": "installation/ubuntu",
+              "path": "/installation/ubuntu"
+            },
+            {
+              "id": "installation/ubuntu-quickstart",
+              "path": "/installation/ubuntu-quickstart"
+            },
+            {
+              "id": "installation/ubuntu-step-by-step",
+              "path": "/installation/ubuntu-step-by-step"
+            },
+            {
+              "id": "installation/ubuntu-troubleshooting",
+              "path": "/installation/ubuntu-troubleshooting"
+            },
+            {
+              "id": "installation/upgrade",
+              "path": "/installation/upgrade",
+              "sidebar": "docs"
+            },
+            {
+              "id": "integrations/3rd-party-integration",
+              "path": "/integrations/3rd-party-integration"
+            },
+            {
+              "id": "integrations/configuration",
+              "path": "/integrations/configuration"
+            },
+            {
+              "id": "introduction/architecture",
+              "path": "/introduction/architecture",
+              "sidebar": "docs"
+            },
+            {
+              "id": "introduction/faq",
+              "path": "/introduction/faq",
+              "sidebar": "docs"
+            },
+            {
+              "id": "introduction/introduction",
+              "path": "/introduction/introduction",
+              "sidebar": "docs"
+            },
+            {
+              "id": "mac/deployment",
+              "path": "/mac/deployment"
+            },
+            {
+              "id": "mac/installation",
+              "path": "/mac/installation"
+            },
+            {
+              "id": "mac/mac",
+              "path": "/mac/mac"
+            },
+            {
+              "id": "mac/prerequisites",
+              "path": "/mac/prerequisites"
+            },
+            {
+              "id": "other/changelog",
+              "path": "/other/changelog"
+            },
+            {
+              "id": "other/general-feedback",
+              "path": "/other/general-feedback"
+            },
+            {
+              "id": "other/troubleshooting",
+              "path": "/other/troubleshooting"
+            },
+            {
+              "id": "other/typescript",
+              "path": "/other/typescript"
+            },
+            {
+              "id": "other/update",
+              "path": "/other/update"
+            },
+            {
+              "id": "overview/deployment-overview",
+              "path": "/overview/deployment-overview"
+            },
+            {
+              "id": "overview/getting-started",
+              "path": "/overview/getting-started"
+            },
+            {
+              "id": "overview/integrations-overview",
+              "path": "/overview/integrations-overview"
+            },
+            {
+              "id": "overview/overview",
+              "path": "/overview/overview"
+            },
+            {
+              "id": "overview/quickstart",
+              "path": "/overview/quickstart",
+              "sidebar": "docs"
+            },
+            {
+              "id": "partner-agency",
+              "path": "/partner-agency"
+            },
+            {
+              "id": "partner-developer",
+              "path": "/partner-developer"
+            },
+            {
+              "id": "plugins/choose-your-plugins",
+              "path": "/plugins/choose-your-plugins"
+            },
+            {
+              "id": "plugins/plugin-api",
+              "path": "/plugins/plugin-api"
+            },
+            {
+              "id": "plugins/plugin-ui",
+              "path": "/plugins/plugin-ui"
+            },
+            {
+              "id": "styles/Color/color",
+              "path": "/styles/Color/color",
+              "sidebar": "components"
+            },
+            {
+              "id": "styles/Dimension/dimension",
+              "path": "/styles/Dimension/dimension",
+              "sidebar": "components"
+            },
+            {
+              "id": "styles/Typography/typography",
+              "path": "/styles/Typography/typography",
+              "sidebar": "components"
+            },
+            {
+              "id": "ubuntu/deployment",
+              "path": "/ubuntu/deployment"
+            },
+            {
+              "id": "ubuntu/installation",
+              "path": "/ubuntu/installation"
+            },
+            {
+              "id": "ubuntu/prerequisites",
+              "path": "/ubuntu/prerequisites"
+            },
+            {
+              "id": "ubuntu/server",
+              "path": "/ubuntu/server"
+            },
+            {
+              "id": "ubuntu/ubuntu",
+              "path": "/ubuntu/ubuntu"
+            },
+            {
+              "id": "utilities/Alert/alert",
+              "path": "/utilities/Alert/alert",
+              "sidebar": "components"
+            },
+            {
+              "id": "utilities/Box/box",
+              "path": "/utilities/Box/box",
+              "sidebar": "components"
+            },
+            {
+              "id": "utilities/CollapseContent/collapsecontent",
+              "path": "/utilities/CollapseContent/collapsecontent",
+              "sidebar": "components"
+            },
+            {
+              "id": "utilities/CountsByTag/countsbytag",
+              "path": "/utilities/CountsByTag/countsbytag",
+              "sidebar": "components"
+            },
+            {
+              "id": "utilities/FilterableList/filterablelist",
+              "path": "/utilities/FilterableList/filterablelist",
+              "sidebar": "components"
+            },
+            {
+              "id": "utilities/Form/form",
+              "path": "/utilities/Form/form",
+              "sidebar": "components"
+            },
+            {
+              "id": "utilities/HeaderDescription/headerdescription",
+              "path": "/utilities/HeaderDescription/headerdescription",
+              "sidebar": "components"
+            },
+            {
+              "id": "utilities/ModifiableList/modifiablelist",
+              "path": "/utilities/ModifiableList/modifiablelist",
+              "sidebar": "components"
+            },
+            {
+              "id": "utilities/Rule/rule",
+              "path": "/utilities/Rule/rule",
+              "sidebar": "components"
+            },
+            {
+              "id": "utilities/Step/Step/step",
+              "path": "/utilities/Step/Step/step",
+              "sidebar": "components"
+            },
+            {
+              "id": "utilities/Step/Steps/steps",
+              "path": "/utilities/Step/Steps/steps",
+              "sidebar": "components"
+            },
+            {
+              "id": "utilities/Timer/timer",
+              "path": "/utilities/Timer/timer",
+              "sidebar": "components"
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "unversionedId": "developer/integrations-overview/aws-ses",
+  "id": "developer/integrations-overview/aws-ses",
+  "isDocsHomePage": false,
+  "title": "AWS SES integration",
+  "description": "Amazon Simple Email Service enables you to send and receive email using a reliable and scalable email platform. Set up your custom Amazon simple email service account.",
+  "source": "@site/docs/developer/integrations-overview/AWS-SES.md",
+  "sourceDirName": "developer/integrations-overview",
+  "slug": "/developer/integrations-overview/aws-ses",
+  "permalink": "/developer/integrations-overview/aws-ses",
+  "editUrl": "https://github.com/erxes/erxes/edit/erxes-docs-blog/docs/docs/developer/integrations-overview/AWS-SES.md",
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055,
+  "formattedLastUpdatedAt": "10/14/2018",
+  "frontMatter": {
+    "id": "aws-ses",
+    "title": "AWS SES integration"
+  },
+  "sidebar": "docs",
+  "previous": {
+    "title": "AWS S3 integration",
+    "permalink": "/developer/integrations-overview/aws-s3"
+  },
+  "next": {
+    "title": "webhook",
+    "permalink": "/developer/webhook"
+  }
+}

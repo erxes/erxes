@@ -1,0 +1,22 @@
+{
+  "unversionedId": "contribute/contribute-to-erxes",
+  "id": "contribute/contribute-to-erxes",
+  "isDocsHomePage": false,
+  "title": "Contribute to erxes",
+  "description": "",
+  "source": "@site/docs/contribute/contribute-to-erxes.md",
+  "sourceDirName": "contribute",
+  "slug": "/contribute/contribute-to-erxes",
+  "permalink": "/contribute/contribute-to-erxes",
+  "editUrl": "https://github.com/erxes/erxes/edit/erxes-docs-blog/docs/docs/contribute/contribute-to-erxes.md",
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055,
+  "formattedLastUpdatedAt": "10/14/2018",
+  "sidebar_label": "Contribute to erxes",
+  "frontMatter": {
+    "id": "contribute-to-erxes",
+    "title": "Contribute to erxes",
+    "sidebar_label": "Contribute to erxes"
+  }
+}

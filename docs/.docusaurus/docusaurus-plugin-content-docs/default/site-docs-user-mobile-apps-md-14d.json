@@ -1,0 +1,31 @@
+{
+  "unversionedId": "user/mobile-apps",
+  "id": "user/mobile-apps",
+  "isDocsHomePage": false,
+  "title": "Mobile Apps",
+  "description": "This document details how is the configuration of the system in mobile equipment according to the operating system.",
+  "source": "@site/docs/user/mobile-apps.md",
+  "sourceDirName": "user",
+  "slug": "/user/mobile-apps",
+  "permalink": "/user/mobile-apps",
+  "editUrl": "https://github.com/erxes/erxes/edit/develop/docs/docs/user/mobile-apps.md",
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055,
+  "formattedLastUpdatedAt": "10/14/2018",
+  "sidebar_label": "Mobile Apps",
+  "frontMatter": {
+    "id": "mobile-apps",
+    "title": "Mobile Apps",
+    "sidebar_label": "Mobile Apps"
+  },
+  "sidebar": "tutorials",
+  "previous": {
+    "title": "Notifications",
+    "permalink": "/user/notification"
+  },
+  "next": {
+    "title": "Import",
+    "permalink": "/user/import"
+  }
+}

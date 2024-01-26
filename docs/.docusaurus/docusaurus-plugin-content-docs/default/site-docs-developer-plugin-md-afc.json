@@ -1,0 +1,22 @@
+{
+  "unversionedId": "developer/plugin",
+  "id": "developer/plugin",
+  "isDocsHomePage": false,
+  "title": "Plugin development",
+  "description": "Important notes",
+  "source": "@site/docs/developer/plugin.md",
+  "sourceDirName": "developer",
+  "slug": "/developer/plugin",
+  "permalink": "/developer/plugin",
+  "editUrl": "https://github.com/erxes/erxes/edit/erxes-docs-blog/docs/docs/developer/plugin.md",
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055,
+  "formattedLastUpdatedAt": "10/14/2018",
+  "sidebar_label": "Plugins",
+  "frontMatter": {
+    "id": "plugin",
+    "title": "Plugin development",
+    "sidebar_label": "Plugins"
+  }
+}

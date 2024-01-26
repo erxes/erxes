@@ -1,0 +1,29 @@
+{
+  "unversionedId": "utilities/Form/form",
+  "id": "utilities/Form/form",
+  "isDocsHomePage": false,
+  "title": "Form",
+  "description": "Examples and usage guidelines for form, form control and so on. Assemble desired components to make complete form for your requirements.",
+  "source": "@site/docs/utilities/Form/form.md",
+  "sourceDirName": "utilities/Form",
+  "slug": "/utilities/Form/form",
+  "permalink": "/utilities/Form/form",
+  "editUrl": "https://github.com/erxes/erxes/edit/erxes-docs-blog/docs/docs/utilities/Form/form.md",
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055,
+  "formattedLastUpdatedAt": "10/14/2018",
+  "frontMatter": {
+    "id": "form",
+    "title": "Form"
+  },
+  "sidebar": "components",
+  "previous": {
+    "title": "Filterable List",
+    "permalink": "/utilities/FilterableList/filterablelist"
+  },
+  "next": {
+    "title": "Header Description",
+    "permalink": "/utilities/HeaderDescription/headerdescription"
+  }
+}

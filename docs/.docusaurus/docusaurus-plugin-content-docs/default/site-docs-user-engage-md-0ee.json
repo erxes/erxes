@@ -1,0 +1,29 @@
+{
+  "unversionedId": "user/engage",
+  "id": "user/engage",
+  "isDocsHomePage": false,
+  "title": "Engage",
+  "description": "Start converting your prospects into potential customers through Email, SMS, Messenger or more interactions to drive them to a successful close.",
+  "source": "@site/docs/user/engage.md",
+  "sourceDirName": "user",
+  "slug": "/user/engage",
+  "permalink": "/user/engage",
+  "editUrl": "https://github.com/erxes/erxes/edit/develop/docs/docs/user/engage.md",
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055,
+  "formattedLastUpdatedAt": "10/14/2018",
+  "frontMatter": {
+    "id": "engage",
+    "title": "Engage"
+  },
+  "sidebar": "tutorials",
+  "previous": {
+    "title": "Sales pipeline",
+    "permalink": "/user/sales-pipeline"
+  },
+  "next": {
+    "title": "Profile settings",
+    "permalink": "/user/profile-settings"
+  }
+}

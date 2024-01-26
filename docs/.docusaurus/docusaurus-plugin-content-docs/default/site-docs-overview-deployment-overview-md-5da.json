@@ -1,0 +1,20 @@
+{
+  "unversionedId": "overview/deployment-overview",
+  "id": "overview/deployment-overview",
+  "isDocsHomePage": false,
+  "title": "Deployment Overview",
+  "description": "This document details the steps to perform the Erxes installation.",
+  "source": "@site/docs/overview/deployment-overview.md",
+  "sourceDirName": "overview",
+  "slug": "/overview/deployment-overview",
+  "permalink": "/overview/deployment-overview",
+  "editUrl": "https://github.com/erxes/erxes/edit/erxes-docs-blog/docs/docs/overview/deployment-overview.md",
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055,
+  "formattedLastUpdatedAt": "10/14/2018",
+  "frontMatter": {
+    "id": "deployment-overview",
+    "title": "Deployment Overview"
+  }
+}

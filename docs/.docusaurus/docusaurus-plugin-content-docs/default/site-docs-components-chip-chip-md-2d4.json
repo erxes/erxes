@@ -1,0 +1,29 @@
+{
+  "unversionedId": "components/Chip/chip",
+  "id": "components/Chip/chip",
+  "isDocsHomePage": false,
+  "title": "Chip",
+  "description": "Examples",
+  "source": "@site/docs/components/Chip/chip.md",
+  "sourceDirName": "components/Chip",
+  "slug": "/components/Chip/chip",
+  "permalink": "/components/Chip/chip",
+  "editUrl": "https://github.com/erxes/erxes/edit/erxes-docs-blog/docs/docs/components/Chip/chip.md",
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055,
+  "formattedLastUpdatedAt": "10/14/2018",
+  "frontMatter": {
+    "id": "chip",
+    "title": "Chip"
+  },
+  "sidebar": "components",
+  "previous": {
+    "title": "Button",
+    "permalink": "/components/Button/button"
+  },
+  "next": {
+    "title": "Data with loader",
+    "permalink": "/components/DatawithLoader/datawithloader"
+  }
+}

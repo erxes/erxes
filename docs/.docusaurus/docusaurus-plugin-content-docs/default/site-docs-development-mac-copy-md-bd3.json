@@ -1,0 +1,31 @@
+{
+  "unversionedId": "development/mac",
+  "id": "development/mac",
+  "isDocsHomePage": false,
+  "title": "Mac",
+  "description": "",
+  "source": "@site/docs/development/mac copy.md",
+  "sourceDirName": "development",
+  "slug": "/development/mac",
+  "permalink": "/development/mac",
+  "editUrl": "https://github.com/erxes/erxes/edit/erxes-docs-blog/docs/docs/development/mac copy.md",
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055,
+  "formattedLastUpdatedAt": "10/14/2018",
+  "sidebar_label": "Mac",
+  "frontMatter": {
+    "id": "mac",
+    "title": "Mac",
+    "sidebar_label": "Mac"
+  },
+  "sidebar": "docs",
+  "previous": {
+    "title": "Ubuntu",
+    "permalink": "/development/ubuntu"
+  },
+  "next": {
+    "title": "Configuration",
+    "permalink": "/integrations/configuration"
+  }
+}

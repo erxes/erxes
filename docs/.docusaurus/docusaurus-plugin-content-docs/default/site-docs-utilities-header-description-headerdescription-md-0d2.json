@@ -1,0 +1,29 @@
+{
+  "unversionedId": "utilities/HeaderDescription/headerdescription",
+  "id": "utilities/HeaderDescription/headerdescription",
+  "isDocsHomePage": false,
+  "title": "Header Description",
+  "description": "Expandable description, shows image and description when expanded but just title when it's not.",
+  "source": "@site/docs/utilities/HeaderDescription/headerdescription.md",
+  "sourceDirName": "utilities/HeaderDescription",
+  "slug": "/utilities/HeaderDescription/headerdescription",
+  "permalink": "/utilities/HeaderDescription/headerdescription",
+  "editUrl": "https://github.com/erxes/erxes/edit/erxes-docs-blog/docs/docs/utilities/HeaderDescription/headerdescription.md",
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055,
+  "formattedLastUpdatedAt": "10/14/2018",
+  "frontMatter": {
+    "id": "headerdescription",
+    "title": "Header Description"
+  },
+  "sidebar": "components",
+  "previous": {
+    "title": "Form",
+    "permalink": "/utilities/Form/form"
+  },
+  "next": {
+    "title": "Modifiable List",
+    "permalink": "/utilities/ModifiableList/modifiablelist"
+  }
+}

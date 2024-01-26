@@ -1,0 +1,17 @@
+{
+  "unversionedId": "partner-developer",
+  "id": "partner-developer",
+  "isDocsHomePage": false,
+  "title": "partner-developer",
+  "description": "|  | Bronze | Silver | Gold |",
+  "source": "@site/docs/partner-developer.md",
+  "sourceDirName": ".",
+  "slug": "/partner-developer",
+  "permalink": "/partner-developer",
+  "editUrl": "https://github.com/erxes/erxes/edit/erxes-docs-blog/docs/docs/partner-developer.md",
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055,
+  "formattedLastUpdatedAt": "10/14/2018",
+  "frontMatter": {}
+}

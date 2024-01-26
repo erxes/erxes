@@ -1,0 +1,29 @@
+{
+  "unversionedId": "administrator/creating-first-user",
+  "id": "administrator/creating-first-user",
+  "isDocsHomePage": false,
+  "title": "Creating first user",
+  "description": "The following steps are required prior using the system.",
+  "source": "@site/docs/administrator/creating-first-user.md",
+  "sourceDirName": "administrator",
+  "slug": "/administrator/creating-first-user",
+  "permalink": "/administrator/creating-first-user",
+  "editUrl": "https://github.com/erxes/erxes/edit/erxes-docs-blog/docs/docs/administrator/creating-first-user.md",
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055,
+  "formattedLastUpdatedAt": "10/14/2018",
+  "frontMatter": {
+    "id": "creating-first-user",
+    "title": "Creating first user"
+  },
+  "sidebar": "docs",
+  "previous": {
+    "title": "Plugin Installation",
+    "permalink": "/contribute/plugin-Installation"
+  },
+  "next": {
+    "title": "Environment variables",
+    "permalink": "/administrator/environment-variables"
+  }
+}

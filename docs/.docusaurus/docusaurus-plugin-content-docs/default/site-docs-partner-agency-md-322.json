@@ -1,0 +1,17 @@
+{
+  "unversionedId": "partner-agency",
+  "id": "partner-agency",
+  "isDocsHomePage": false,
+  "title": "partner-agency",
+  "description": "|  | Bronze | Silver | Gold |",
+  "source": "@site/docs/partner-agency.md",
+  "sourceDirName": ".",
+  "slug": "/partner-agency",
+  "permalink": "/partner-agency",
+  "editUrl": "https://github.com/erxes/erxes/edit/erxes-docs-blog/docs/docs/partner-agency.md",
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055,
+  "formattedLastUpdatedAt": "10/14/2018",
+  "frontMatter": {}
+}

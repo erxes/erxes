@@ -1,0 +1,20 @@
+{
+  "unversionedId": "installation/aws",
+  "id": "installation/aws",
+  "isDocsHomePage": false,
+  "title": "AWS Marketplace",
+  "description": "Launch an EC2 instance using erxes in the AWS Marketplace.",
+  "source": "@site/docs/installation/aws.md",
+  "sourceDirName": "installation",
+  "slug": "/installation/aws",
+  "permalink": "/installation/aws",
+  "editUrl": "https://github.com/erxes/erxes/edit/erxes-docs-blog/docs/docs/installation/aws.md",
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055,
+  "formattedLastUpdatedAt": "10/14/2018",
+  "frontMatter": {
+    "id": "aws",
+    "title": "AWS Marketplace"
+  }
+}

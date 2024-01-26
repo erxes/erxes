@@ -1,0 +1,29 @@
+{
+  "unversionedId": "components/SortableList/sortablelist",
+  "id": "components/SortableList/sortablelist",
+  "isDocsHomePage": false,
+  "title": "Sortable list",
+  "description": "You can sort the list with drag and drop actions.",
+  "source": "@site/docs/components/SortableList/sortablelist.md",
+  "sourceDirName": "components/SortableList",
+  "slug": "/components/SortableList/sortablelist",
+  "permalink": "/components/SortableList/sortablelist",
+  "editUrl": "https://github.com/erxes/erxes/edit/erxes-docs-blog/docs/docs/components/SortableList/sortablelist.md",
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055,
+  "formattedLastUpdatedAt": "10/14/2018",
+  "frontMatter": {
+    "id": "sortablelist",
+    "title": "Sortable list"
+  },
+  "sidebar": "components",
+  "previous": {
+    "title": "Progress Bar",
+    "permalink": "/components/ProgressBar/progressbar"
+  },
+  "next": {
+    "title": "Sort Handler",
+    "permalink": "/components/SortHandler/sorthandler"
+  }
+}

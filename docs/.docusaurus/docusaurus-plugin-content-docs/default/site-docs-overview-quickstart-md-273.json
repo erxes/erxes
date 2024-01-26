@@ -1,0 +1,31 @@
+{
+  "unversionedId": "overview/quickstart",
+  "id": "overview/quickstart",
+  "isDocsHomePage": false,
+  "title": "Quick start guide",
+  "description": "⏳ Coming soon...",
+  "source": "@site/docs/overview/quickstart.md",
+  "sourceDirName": "overview",
+  "slug": "/overview/quickstart",
+  "permalink": "/overview/quickstart",
+  "editUrl": "https://github.com/erxes/erxes/edit/erxes-docs-blog/docs/docs/overview/quickstart.md",
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055,
+  "formattedLastUpdatedAt": "10/14/2018",
+  "sidebar_label": "Quick start guide",
+  "frontMatter": {
+    "id": "quickstart",
+    "title": "Quick start guide",
+    "sidebar_label": "Quick start guide"
+  },
+  "sidebar": "docs",
+  "previous": {
+    "title": "FAQ",
+    "permalink": "/introduction/faq"
+  },
+  "next": {
+    "title": "Introduction",
+    "permalink": "/introduction/introduction"
+  }
+}

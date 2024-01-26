@@ -1,0 +1,29 @@
+{
+  "unversionedId": "components/Pagination/pagination",
+  "id": "components/Pagination/pagination",
+  "isDocsHomePage": false,
+  "title": "Pagination",
+  "description": "Show pagination on footer to display lists by page.",
+  "source": "@site/docs/components/Pagination/pagination.md",
+  "sourceDirName": "components/Pagination",
+  "slug": "/components/Pagination/pagination",
+  "permalink": "/components/Pagination/pagination",
+  "editUrl": "https://github.com/erxes/erxes/edit/erxes-docs-blog/docs/docs/components/Pagination/pagination.md",
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055,
+  "formattedLastUpdatedAt": "10/14/2018",
+  "frontMatter": {
+    "id": "pagination",
+    "title": "Pagination"
+  },
+  "sidebar": "components",
+  "previous": {
+    "title": "Name card",
+    "permalink": "/components/Namecard/namecard"
+  },
+  "next": {
+    "title": "Progress Bar",
+    "permalink": "/components/ProgressBar/progressbar"
+  }
+}

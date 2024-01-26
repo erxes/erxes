@@ -1,0 +1,29 @@
+{
+  "unversionedId": "components/Tab/tab",
+  "id": "components/Tab/tab",
+  "isDocsHomePage": false,
+  "title": "Tab",
+  "description": "Dynamic tabbed interfaces.",
+  "source": "@site/docs/components/Tab/tab.md",
+  "sourceDirName": "components/Tab",
+  "slug": "/components/Tab/tab",
+  "permalink": "/components/Tab/tab",
+  "editUrl": "https://github.com/erxes/erxes/edit/erxes-docs-blog/docs/docs/components/Tab/tab.md",
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055,
+  "formattedLastUpdatedAt": "10/14/2018",
+  "frontMatter": {
+    "id": "tab",
+    "title": "Tab"
+  },
+  "sidebar": "components",
+  "previous": {
+    "title": "Table",
+    "permalink": "/components/Table/table"
+  },
+  "next": {
+    "title": "Tags",
+    "permalink": "/components/Tag/tag"
+  }
+}

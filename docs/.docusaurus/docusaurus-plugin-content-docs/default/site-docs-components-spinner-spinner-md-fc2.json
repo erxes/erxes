@@ -1,0 +1,29 @@
+{
+  "unversionedId": "components/Spinner/spinner",
+  "id": "components/Spinner/spinner",
+  "isDocsHomePage": false,
+  "title": "Spinner",
+  "description": "Spinners can be used to show the loading state in your projects.",
+  "source": "@site/docs/components/Spinner/spinner.md",
+  "sourceDirName": "components/Spinner",
+  "slug": "/components/Spinner/spinner",
+  "permalink": "/components/Spinner/spinner",
+  "editUrl": "https://github.com/erxes/erxes/edit/erxes-docs-blog/docs/docs/components/Spinner/spinner.md",
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055,
+  "formattedLastUpdatedAt": "10/14/2018",
+  "frontMatter": {
+    "id": "spinner",
+    "title": "Spinner"
+  },
+  "sidebar": "components",
+  "previous": {
+    "title": "Sort Handler",
+    "permalink": "/components/SortHandler/sorthandler"
+  },
+  "next": {
+    "title": "SubMenu",
+    "permalink": "/components/SubMenu/submenu"
+  }
+}

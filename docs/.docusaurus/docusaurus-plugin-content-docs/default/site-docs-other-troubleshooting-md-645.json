@@ -1,0 +1,17 @@
+{
+  "unversionedId": "other/troubleshooting",
+  "id": "other/troubleshooting",
+  "isDocsHomePage": false,
+  "title": "troubleshooting",
+  "description": "",
+  "source": "@site/docs/other/troubleshooting.md",
+  "sourceDirName": "other",
+  "slug": "/other/troubleshooting",
+  "permalink": "/other/troubleshooting",
+  "editUrl": "https://github.com/erxes/erxes/edit/erxes-docs-blog/docs/docs/other/troubleshooting.md",
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055,
+  "formattedLastUpdatedAt": "10/14/2018",
+  "frontMatter": {}
+}

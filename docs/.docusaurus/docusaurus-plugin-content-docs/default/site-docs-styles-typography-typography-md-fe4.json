@@ -1,0 +1,25 @@
+{
+  "unversionedId": "styles/Typography/typography",
+  "id": "styles/Typography/typography",
+  "isDocsHomePage": false,
+  "title": "Typography",
+  "description": "It includes a large amount of font size, weight and line heights.",
+  "source": "@site/docs/styles/Typography/typography.md",
+  "sourceDirName": "styles/Typography",
+  "slug": "/styles/Typography/typography",
+  "permalink": "/styles/Typography/typography",
+  "editUrl": "https://github.com/erxes/erxes/edit/erxes-docs-blog/docs/docs/styles/Typography/typography.md",
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055,
+  "formattedLastUpdatedAt": "10/14/2018",
+  "frontMatter": {
+    "id": "typography",
+    "title": "Typography"
+  },
+  "sidebar": "components",
+  "previous": {
+    "title": "Dimension",
+    "permalink": "/styles/Dimension/dimension"
+  }
+}

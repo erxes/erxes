@@ -1,0 +1,31 @@
+{
+  "unversionedId": "developer/troubleshooting",
+  "id": "developer/troubleshooting",
+  "isDocsHomePage": false,
+  "title": "Troubleshooting",
+  "description": "Nylas",
+  "source": "@site/docs/developer/troubleshooting.md",
+  "sourceDirName": "developer",
+  "slug": "/developer/troubleshooting",
+  "permalink": "/developer/troubleshooting",
+  "editUrl": "https://github.com/erxes/erxes/edit/erxes-docs-blog/docs/docs/developer/troubleshooting.md",
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055,
+  "formattedLastUpdatedAt": "10/14/2018",
+  "sidebar_label": "Troubleshooting",
+  "frontMatter": {
+    "id": "troubleshooting",
+    "title": "Troubleshooting",
+    "sidebar_label": "Troubleshooting"
+  },
+  "sidebar": "docs",
+  "previous": {
+    "title": "Upgrade",
+    "permalink": "/installation/upgrade"
+  },
+  "next": {
+    "title": "Overview",
+    "permalink": "/contribute/overview"
+  }
+}

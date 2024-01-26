@@ -1,0 +1,20 @@
+{
+  "unversionedId": "installation/digitalocean",
+  "id": "installation/digitalocean",
+  "isDocsHomePage": false,
+  "title": "DigitalOcean Marketplace",
+  "description": "Launch a Droplet using erxes in the DigitalOcean Marketplace.",
+  "source": "@site/docs/installation/digitalocean.md",
+  "sourceDirName": "installation",
+  "slug": "/installation/digitalocean",
+  "permalink": "/installation/digitalocean",
+  "editUrl": "https://github.com/erxes/erxes/edit/erxes-docs-blog/docs/docs/installation/digitalocean.md",
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055,
+  "formattedLastUpdatedAt": "10/14/2018",
+  "frontMatter": {
+    "id": "digitalocean",
+    "title": "DigitalOcean Marketplace"
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "unversionedId": "contribute/contribute-to-documentation",
+  "id": "contribute/contribute-to-documentation",
+  "isDocsHomePage": false,
+  "title": "Contribute to documentation",
+  "description": "Thank you for your interest in contributing to the documentation! You will be helping the open source community and other developers interested in learning more about erxes and using them.",
+  "source": "@site/docs/contribute/contribute-to-documentation.md",
+  "sourceDirName": "contribute",
+  "slug": "/contribute/contribute-to-documentation",
+  "permalink": "/contribute/contribute-to-documentation",
+  "editUrl": "https://github.com/erxes/erxes/edit/erxes-docs-blog/docs/docs/contribute/contribute-to-documentation.md",
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055,
+  "formattedLastUpdatedAt": "10/14/2018",
+  "sidebar_label": "Contribute to documentation",
+  "frontMatter": {
+    "id": "contribute-to-documentation",
+    "title": "Contribute to documentation",
+    "sidebar_label": "Contribute to documentation"
+  },
+  "sidebar": "docs",
+  "previous": {
+    "title": "Contribute to codebase",
+    "permalink": "/contribute/contribute-to-codebase"
+  },
+  "next": {
+    "title": "Documentation style guide",
+    "permalink": "/contribute/documentation-style-guide"
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "unversionedId": "developer/mac",
+  "id": "developer/mac",
+  "isDocsHomePage": false,
+  "title": "Mac",
+  "description": "The following documentation will guide you through the installation of an erxes project using Docker on MacOs.",
+  "source": "@site/docs/developer/mac.md",
+  "sourceDirName": "developer",
+  "slug": "/developer/mac",
+  "permalink": "/developer/mac",
+  "editUrl": "https://github.com/erxes/erxes/edit/erxes-docs-blog/docs/docs/developer/mac.md",
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055,
+  "formattedLastUpdatedAt": "10/14/2018",
+  "sidebar_label": "Mac",
+  "frontMatter": {
+    "id": "mac",
+    "title": "Mac",
+    "sidebar_label": "Mac"
+  },
+  "sidebar": "docs",
+  "previous": {
+    "title": "Ubuntu",
+    "permalink": "/developer/ubuntu"
+  },
+  "next": {
+    "title": "Plugin Installation",
+    "permalink": "/contribute/plugin-Installation"
+  }
+}
