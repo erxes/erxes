@@ -33,8 +33,9 @@ const loginMiddleware = async (req, res) => {
   const INSTAGRAM_LOGIN_REDIRECT_URL = await getConfig(
     models,
     'INSTAGRAM_LOGIN_REDIRECT_URL',
-    `https://a5e7-202-21-104-34.ngrok-free.app/pl:instagram/instagram/login`,
+    `${DOMAIN}/gateway/pl:instagram/instagram/login`,
   );
+
   console.log(INSTAGRAM_LOGIN_REDIRECT_URL, 'INSTAGRAM_LOGIN_REDIRECT_URL');
   const conf = {
     client_id: INSTAGRAM_APP_ID,
