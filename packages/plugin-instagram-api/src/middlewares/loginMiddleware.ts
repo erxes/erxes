@@ -59,8 +59,10 @@ const loginMiddleware = async (req, res) => {
     // checks whether a user denied the app facebook login/permissions
     if (!req.query.error) {
       debugResponse(debugInstagram, req, authUrl);
-      console.log('!req.query.error...');
-      return res.redirect(authUrl);
+      console.log('!req.query.error...', authUrl);
+      const url = res.redirect(authUrl);
+      console.log(url, 'url');
+      return url;
     } else {
       console.log('access denied...');
       debugResponse(debugInstagram, req, 'access denied');
