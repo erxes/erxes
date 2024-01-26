@@ -3,7 +3,12 @@ import { getSubdomain } from '@erxes/api-utils/src/core';
 import { generateModels } from '../connectionResolver';
 import { getConfig, getEnv } from '../commonUtils';
 import { graphRequest } from '../utils';
-import { debugFacebook, debugRequest, debugResponse } from '../debuggers';
+import {
+  debugFacebook,
+  debugRequest,
+  debugResponse,
+  debugInstagram,
+} from '../debuggers';
 import { repairIntegrations } from '../helpers';
 
 const loginMiddleware = async (req, res) => {
@@ -28,16 +33,19 @@ const loginMiddleware = async (req, res) => {
   const INSTAGRAM_LOGIN_REDIRECT_URL = await getConfig(
     models,
     'INSTAGRAM_LOGIN_REDIRECT_URL',
-    `${DOMAIN}/gateway/pl:instagram/instagram/login`,
+    `https://a5e7-202-21-104-34.ngrok-free.app/pl:instagram/instagram/login`,
   );
-
+  console.log(INSTAGRAM_LOGIN_REDIRECT_URL, 'INSTAGRAM_LOGIN_REDIRECT_URL');
   const conf = {
     client_id: INSTAGRAM_APP_ID,
     client_secret: INSTAGRAM_APP_SECRET,
     scope: INSTAGRAM_PERMISSIONS,
     redirect_uri: INSTAGRAM_LOGIN_REDIRECT_URL,
   };
-  debugRequest(debugFacebook, req);
+
+  console.log(conf, 'conf1');
+
+  debugRequest(debugInstagram, req);
   // we don't have a code yet
   // so we'll redirect to the oauth dialog
   if (!req.query.code) {
@@ -48,12 +56,13 @@ const loginMiddleware = async (req, res) => {
       state: DOMAIN,
     });
 
+    console.log(authUrl, 'authUrl');
     // checks whether a user denied the app facebook login/permissions
     if (!req.query.error) {
-      debugResponse(debugFacebook, req, authUrl);
+      debugResponse(debugInstagram, req, authUrl);
       return res.redirect(authUrl);
     } else {
-      debugResponse(debugFacebook, req, 'access denied');
+      debugResponse(debugInstagram, req, 'access denied');
       return res.send('access denied');
     }
   }
@@ -65,6 +74,7 @@ const loginMiddleware = async (req, res) => {
     code: req.query.code,
   };
 
+  console.log(config, 'config2');
   debugResponse(debugFacebook, req, JSON.stringify(config));
 
   // If this branch executes user is already being redirected back with
