@@ -6,7 +6,7 @@ import redis from '@erxes/api-utils/src/redis';
 
 dotenv.config();
 
-const CACHE_NAME = 'configs_erxes_fb_integrations';
+const CACHE_NAME = 'configs_erxes_ig_integrations';
 
 interface IRequestParams {
   url?: string;
