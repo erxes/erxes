@@ -7,6 +7,7 @@ import tripMutations from './trips';
 import tumentechDealMutations from './tumentechDeal';
 import tumentechMutations from './tumentech';
 import accountMutations from './accounts';
+import advertisementMutations from './advertisement';
 
 export default {
   ...tumentechMutations,
@@ -17,5 +18,6 @@ export default {
   ...placeMutations,
   ...tripMutations,
   ...tumentechDealMutations,
-  ...accountMutations
+  ...accountMutations,
+  ...advertisementMutations,
 };
