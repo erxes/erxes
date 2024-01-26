@@ -4,17 +4,18 @@ import DropdownToggle from '@erxes/ui/src/components/DropdownToggle';
 import Icon from '@erxes/ui/src/components/Icon';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import Pagination from '@erxes/ui/src/components/pagination/Pagination';
+import FormControl from '@erxes/ui/src/components/form/Control';
 import Table from '@erxes/ui/src/components/table';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { BarItems } from '@erxes/ui/src/layout/styles';
 import { LinkButton } from '@erxes/ui/src/styles/main';
-import { IRouterProps } from '@erxes/ui/src/types';
+import { IRouterProps, IQueryParams } from '@erxes/ui/src/types';
 import { __, router } from '@erxes/ui/src/utils/core';
 import React, { useState } from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
 import { withRouter } from 'react-router-dom';
 import Modal from 'react-bootstrap/Modal';
-
+import { CityListQueryResponse } from '../../cities/types';
 import OSMBuildings from '../../../common/OSMBuildings';
 import OSMap from '../../../common/OSMap';
 import { ICoordinates } from '../../../types';
@@ -36,6 +37,8 @@ type Props = {
   remove: (buildingId: string) => void;
   refetch?: () => void;
 } & IRouterProps;
+
+let timer: NodeJS.Timeout;
 
 const List = (props: Props) => {
   const {
@@ -66,7 +69,13 @@ const List = (props: Props) => {
     undefined,
   );
   const [isFormOpen, setIsFormOpen] = useState<boolean>(false);
+  const [searchValue, setSearchValue] = useState<string>();
 
+  const changeMapCenter = (center) => {
+    if (map) {
+      map.setPosition({ latitude: center.lat, longitude: center.lng });
+    }
+  };
   React.useEffect(() => {
     if (props.buildings) {
       console.log('buildings changed  ', props.buildings);
@@ -219,6 +228,7 @@ const List = (props: Props) => {
   const formContent = (formProps) => (
     <BuildingForm
       {...formProps}
+      refetch={props.refetch}
       center={center}
       osmBuilding={currentOsmBuilding}
       building={currentBuilding}
@@ -295,11 +305,56 @@ const List = (props: Props) => {
       Add building
     </Button>
   );
+  const search = (e) => {
+    if (timer) {
+      clearTimeout(timer);
+    }
+    const searchValue = e.target.value;
+
+    setSearchValue(searchValue);
+
+    timer = setTimeout(() => {
+      router.removeParams(history, 'page');
+      router.setParams(history, { searchValue });
+    }, 500);
+  };
+
+  const onFilter = (filterParams: IQueryParams) => {
+    router.removeParams(props.history, 'page');
+
+    for (const key of Object.keys(filterParams)) {
+      if (filterParams[key]) {
+        router.setParams(props.history, { [key]: filterParams[key] });
+      } else {
+        router.removeParams(props.history, key);
+      }
+    }
+
+    return router;
+  };
+  const moveCursorAtTheEnd = (e) => {
+    const tmpValue = e.target.value;
+    e.target.value = '';
+    e.target.value = tmpValue;
+  };
+  const filterParams = {
+    onFilter,
+    queryParams,
+    changeMapCenter,
+  };
 
   const actionBarRight = (
     <BarItems>
+      <FormControl
+        type="text"
+        placeholder={__('Type to search')}
+        onChange={search}
+        value={searchValue}
+        autoFocus={true}
+        onFocus={moveCursorAtTheEnd}
+      />
       {renderViewChooser()}
-      <FilterMenu />
+      <FilterMenu {...filterParams} />
       <ModalTrigger
         size="xl"
         title={currentBuilding ? __('Edit building') : __('Add building')}

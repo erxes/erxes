@@ -16,6 +16,7 @@ type Props = {
   building?: IBuilding;
   center?: ICoordinates;
   closeModal: () => void;
+  refetch: () => void;
 };
 
 const BuildingFormContainer = (props: Props) => {
@@ -23,30 +24,30 @@ const BuildingFormContainer = (props: Props) => {
     gql(districtQueries.districtByCoordinatesQuery),
     {
       variables: {
-        ...props.center
+        ...props.center,
       },
       skip: !props.center || props.building ? true : false,
-      fetchPolicy: 'network-only'
-    }
+      fetchPolicy: 'network-only',
+    },
   );
 
   const configsQuery = useQuery(gql(queries.configs), {
     variables: {
-      code: 'MOBINET_CONFIGS'
+      code: 'MOBINET_CONFIGS',
     },
-    fetchPolicy: 'network-only'
+    fetchPolicy: 'network-only',
   });
 
   const { data, loading, refetch } = useQuery<CityByCoordinateQueryResponse>(
     gql(cityQueries.cityByCoordinatesQuery),
     {
       variables: {
-        ...props.center
+        ...props.center,
       },
 
       skip: !props.center || props.building ? true : false,
-      fetchPolicy: 'network-only'
-    }
+      fetchPolicy: 'network-only',
+    },
   );
 
   if (configsQuery.loading) {
@@ -57,7 +58,7 @@ const BuildingFormContainer = (props: Props) => {
     values,
     isSubmitted,
     callback,
-    object
+    object,
   }: IButtonMutateProps) => {
     const mutation = object ? mutations.editMutation : mutations.addMutation;
 
@@ -67,6 +68,7 @@ const BuildingFormContainer = (props: Props) => {
         variables={values}
         callback={callback}
         // refetchQueries={getRefetchQueries()}
+        refetchQueries={props.refetch()}
         isSubmitted={isSubmitted}
         type="submit"
         icon="check-circle"
@@ -83,8 +85,8 @@ const BuildingFormContainer = (props: Props) => {
     district:
       districtsByCoordinates.data &&
       districtsByCoordinates.data.districtByCoordinates,
-    suhTagId: configsQuery.data.configsGetValue.value.suhTagId || '',
-    renderButton
+    suhTagId: configsQuery.data?.configsGetValue?.value?.suhTagId || '',
+    renderButton,
   };
 
   return <BuildingForm {...updatedProps} />;
@@ -94,8 +96,8 @@ const getRefetchQueries = () => {
   return [
     {
       query: gql(queries.listQuery),
-      fetchPolicy: 'network-only'
-    }
+      fetchPolicy: 'network-only',
+    },
   ];
 };
 

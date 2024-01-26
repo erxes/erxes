@@ -5,40 +5,46 @@ import {
   ControlLabel,
   FormControl,
   Icon,
-  SelectTeamMembers
+  SelectTeamMembers,
 } from '@erxes/ui/src';
+import FormGroup from '@erxes/ui/src/components/form/Group';
 import {
   CustomRangeContainer,
   FilterBox,
   FilterButton,
   MenuFooter,
   RightMenuContainer,
-  TabContent
+  TabContent,
 } from '../../../common/styles';
 
 import Datetime from '@nateradebaugh/react-datetime';
 import { IQueryParams } from '@erxes/ui/src/types';
 import RTG from 'react-transition-group';
-import React from 'react';
+import React, { useState } from 'react';
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 import dayjs from 'dayjs';
 import { isEnabled, __ } from '@erxes/ui/src/utils/core';
+import SelectCity from '../../cities/containers/SelectCity';
+import SelectDistrict from '../../districts/containers/SelectDistrict';
+import SelectQuarter from '../../quarters/containers/SelectQuarter';
+import { ICoordinates } from '../../../types';
+import { setParams } from '@erxes/ui/src/utils/router';
 
 const SelectCustomers = asyncComponent(
   () =>
     isEnabled('contacts') &&
     import(
       /* webpackChunkName: "SelectCustomers" */ '@erxes/ui-contacts/src/customers/containers/SelectCustomers'
-    )
+    ),
 );
 
 type Props = {
   onSearch?: (search: string) => void;
   onFilter?: (filterParams: IQueryParams) => void;
-  onSelect?: (values: string[] | string, key: string) => void;
   queryParams?: any;
   isFiltered?: boolean;
   clearFilter?: () => void;
+  changeMapCenter: (param: any) => void;
 };
 
 type StringState = {
@@ -50,186 +56,113 @@ type State = {
   filterParams: IQueryParams;
 } & StringState;
 
-export default class RightMenu extends React.Component<Props, State> {
-  private wrapperRef;
+type FilterType = {
+  searchValue?: string;
+  cityId?: string;
+  districtId?: string;
+  quarterId?: string;
+};
+const FilterMenu = (props: Props) => {
+  const [currentTab, setCurrentTab] = useState('Filter');
+  const [showMenu, setShowMenu] = useState(false);
+  const [filterParams, setFilterParams] = useState<FilterType>(
+    props.queryParams || { cityId: '', districtId: '', quarterId: '' },
+  );
 
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      currentTab: 'Filter',
-      showMenu: false,
-
-      filterParams: this.props.queryParams || {}
-    };
-
-    this.setWrapperRef = this.setWrapperRef.bind(this);
-  }
-
-  setFilter = () => {
-    const { filterParams } = this.state;
-    this.props.onFilter && this.props.onFilter(filterParams);
+  const setFilter = () => {
+    props.onFilter && props.onFilter(filterParams);
   };
 
-  setWrapperRef(node) {
-    this.wrapperRef = node;
-  }
-
-  toggleMenu = () => {
-    this.setState({ showMenu: !this.state.showMenu });
+  const toggleMenu = () => {
+    setShowMenu((prev) => !prev);
   };
 
-  onSearch = (e: React.KeyboardEvent<Element>) => {
+  const onSearch = (e: React.KeyboardEvent<Element>) => {
     if (e.key === 'Enter') {
       const target = e.currentTarget as HTMLInputElement;
-      this.props.onSearch && this.props.onSearch(target.value || '');
+      props.onSearch && props.onSearch(target.value || '');
     }
   };
 
-  onSelect = (values: string[] | string, key: string) => {
-    const { filterParams } = this.state;
-    this.setState({ filterParams: { ...filterParams, [key]: String(values) } });
-  };
-
-  onChangeInput = e => {
+  const onChangeInput = (e) => {
     const target = e.target;
     const name = target.name;
     const value = target.value;
 
-    const { filterParams } = this.state;
-    this.setState({ filterParams: { ...filterParams, [name]: value } });
+    setFilterParams((prev) => ({ ...prev, [name]: value }));
+  };
+  const onChangeQuarter = (quarterId, center?: ICoordinates) => {
+    setFilterParams((prev) => ({
+      ...prev,
+      quarterId: String(quarterId),
+    }));
+    if (center) {
+      props.changeMapCenter(center);
+    }
+  };
+  const onChangeDistrict = (districtId, center?: ICoordinates) => {
+    setFilterParams((prev) => ({
+      ...prev,
+      districtId: String(districtId),
+    }));
+    if (center) {
+      props.changeMapCenter(center);
+    }
   };
 
-  // renderLink(label: string, key: string, value: string) {
-  //   const { onSelect, queryParams } = this.props;
-
-  //   const selected = queryParams[key] === value;
-
-  //   const onClick = _e => {
-  //     onSelect && onSelect(value, key);
-  //   };
-
-  //   return (
-  //     <FilterButton selected={selected} onClick={onClick}>
-  //       {__(label)}
-  //       {selected && <Icon icon="check-1" size={14} />}
-  //     </FilterButton>
-  //   );
-  // }
-
-  onChangeRangeFilter = (kind, date) => {
-    const { filterParams } = this.state;
-    const cDate = dayjs(date).format('YYYY-MM-DD HH:mm');
-    this.setState({ filterParams: { ...filterParams, [kind]: cDate } });
+  const onChangeCity = (cityId, center?: ICoordinates) => {
+    setFilterParams((v) => ({ ...v, cityId }));
+    if (center) {
+      props.changeMapCenter(center);
+    }
   };
 
-  renderSpecials() {
-    return (
-      <>
-        {/* {this.renderLink('Only Today', 'paidDate', 'today')} */}
-        {/* {this.renderLink('Only Me', 'userId', 'me')} */}
-        {/* {this.renderLink('No Pos', 'userId', 'nothing')} */}
-      </>
-    );
-  }
-
-  renderRange(dateType: string) {
-    const { filterParams } = this.state;
-
-    const lblStart = `${dateType}StartDate`;
-    const lblEnd = `${dateType}EndDate`;
-
-    return (
-      <>
-        <ControlLabel>{`${dateType} Date range:`}</ControlLabel>
-
-        <CustomRangeContainer>
-          <div className="input-container">
-            <Datetime
-              inputProps={{ placeholder: __('Click to select a date') }}
-              dateFormat="YYYY-MM-DD"
-              timeFormat="HH:mm"
-              value={filterParams[lblStart]}
-              closeOnSelect={true}
-              utc={true}
-              input={true}
-              onChange={this.onChangeRangeFilter.bind(this, lblStart)}
-              viewMode={'days'}
-              className={'filterDate'}
-            />
-          </div>
-
-          <div className="input-container">
-            <Datetime
-              inputProps={{ placeholder: __('Click to select a date') }}
-              dateFormat="YYYY-MM-DD"
-              timeFormat="HH:mm"
-              value={filterParams[lblEnd]}
-              closeOnSelect={true}
-              utc={true}
-              input={true}
-              onChange={this.onChangeRangeFilter.bind(this, lblEnd)}
-              viewMode={'days'}
-              className={'filterDate'}
-            />
-          </div>
-        </CustomRangeContainer>
-      </>
-    );
-  }
-
-  renderFilter() {
-    const { filterParams } = this.state;
-
+  const renderFilter = () => {
     return (
       <FilterBox>
         <FormControl
-          name={'search'}
-          defaultValue={filterParams.search || ''}
-          placeholder={__('Number ...')}
-          onKeyPress={this.onSearch}
+          name={'searchValue'}
+          defaultValue={filterParams.searchValue || ''}
+          placeholder={__('search')}
+          onKeyPress={onSearch}
           autoFocus={true}
-          onChange={this.onChangeInput}
+          onChange={onChangeInput}
         />
 
-        {isEnabled('contacts') && (
-          <SelectCustomers
-            label="Filter by customer"
-            name="customerId"
-            initialValue={filterParams.customerId}
-            onSelect={this.onSelect}
-            customOption={{ value: '', label: '...Clear customer filter' }}
-            multi={false}
+        <SelectCity
+          defaultValue={filterParams.cityId}
+          onChange={onChangeCity}
+        />
+
+        {filterParams.cityId && (
+          <SelectDistrict
+            cityId={filterParams.cityId}
+            defaultValue={filterParams.districtId || ''}
+            onChange={onChangeDistrict}
           />
         )}
 
-        <SelectTeamMembers
-          label="Choose users"
-          name="userId"
-          initialValue={filterParams.userId}
-          onSelect={this.onSelect}
-          customOption={{ value: '', label: '...Clear user filter' }}
-          multi={false}
-        />
-
-        {this.renderRange('created')}
-        {this.renderRange('paid')}
-
-        {this.renderSpecials()}
+        {filterParams.districtId && (
+          <SelectQuarter
+            districtId={filterParams.districtId}
+            defaultValue={filterParams.quarterId || ''}
+            onChange={onChangeQuarter}
+          />
+        )}
       </FilterBox>
     );
-  }
+  };
 
-  renderTabContent() {
+  const renderTabContent = () => {
     return (
       <>
-        <TabContent>{this.renderFilter()}</TabContent>
+        <TabContent>{renderFilter()}</TabContent>
         <MenuFooter>
           <Button
             block={true}
             btnStyle="success"
             uppercase={false}
-            onClick={this.setFilter}
+            onClick={setFilter}
             icon="filter"
           >
             {__('Filter')}
@@ -237,42 +170,41 @@ export default class RightMenu extends React.Component<Props, State> {
         </MenuFooter>
       </>
     );
-  }
+  };
 
-  render() {
-    const { showMenu } = this.state;
-    const { isFiltered } = this.props;
+  const { isFiltered } = props;
 
-    return (
-      <div ref={this.setWrapperRef}>
-        {isFiltered && (
-          <Button
-            btnStyle="warning"
-            icon="times-circle"
-            uppercase={false}
-            onClick={this.props.clearFilter}
-          >
-            {__('Clear Filter')}
-          </Button>
-        )}
+  return (
+    <div>
+      {isFiltered && (
         <Button
-          btnStyle="simple"
+          btnStyle="warning"
+          icon="times-circle"
           uppercase={false}
-          icon="bars"
-          onClick={this.toggleMenu}
+          onClick={props.clearFilter}
         >
-          {showMenu ? __('Hide Filter') : __('Show Filter')}
+          {__('Clear Filter')}
         </Button>
+      )}
+      <Button
+        btnStyle="simple"
+        uppercase={false}
+        icon="bars"
+        onClick={toggleMenu}
+      >
+        {showMenu ? __('Hide Filter') : __('Show Filter')}
+      </Button>
 
-        <RTG.CSSTransition
-          in={this.state.showMenu}
-          timeout={300}
-          classNames="slide-in-right"
-          unmountOnExit={true}
-        >
-          <RightMenuContainer>{this.renderTabContent()}</RightMenuContainer>
-        </RTG.CSSTransition>
-      </div>
-    );
-  }
-}
+      <RTG.CSSTransition
+        in={showMenu}
+        timeout={300}
+        classNames="slide-in-right"
+        unmountOnExit={true}
+      >
+        <RightMenuContainer>{renderTabContent()}</RightMenuContainer>
+      </RTG.CSSTransition>
+    </div>
+  );
+};
+
+export default FilterMenu;

@@ -26,6 +26,7 @@ quarter {
 quarterId
 type
 networkType
+customFieldsData
 `;
 
 const commonParamsDef = `
@@ -162,5 +163,5 @@ export default {
   buildingsByBoundsQuery,
   buildingsQuery,
   assets,
-  configs
+  configs,
 };
