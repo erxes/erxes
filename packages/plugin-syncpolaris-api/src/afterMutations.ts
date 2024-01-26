@@ -41,7 +41,11 @@ export const afterMutationHandlers = async (subdomain, params) => {
     consumeStr: JSON.stringify(params),
   };
 
-  const preValue = await models.SyncLogs.findOne({ contentType: type });
+  const preSuccessValue = await models.SyncLogs.findOne({
+    contentType: type,
+    error: { $exists: false },
+    responseData: { $exists: true },
+  });
 
   if (!Object.keys(allowTypes).includes(type)) {
     return;
@@ -57,12 +61,13 @@ export const afterMutationHandlers = async (subdomain, params) => {
   try {
     switch (type) {
       case 'contacts:customer':
-        if (action === 'create' || !preValue) createCustomer(subdomain, params);
+        if (action === 'create' || !preSuccessValue)
+          createCustomer(subdomain, params);
         else if (action === 'update') updateCustomer(subdomain, params);
         break;
       case 'savings:contract':
         const savingContract = params.object;
-        if (action === 'create' || !preValue) {
+        if (action === 'create' || !preSuccessValue) {
           if (savingContract.isDeposit === true) {
             response = await createDeposit(subdomain, params);
           } else response = await createSaving(subdomain, params);
@@ -80,7 +85,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
           response = await outcomeDeposit(subdomain, params);
         break;
       case 'loans:contract':
-        if (action === 'create' || !preValue)
+        if (action === 'create' || !preSuccessValue)
           response = await createLoan(subdomain, params);
         else if (action === 'update')
           response = await updateLoan(subdomain, params);

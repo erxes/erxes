@@ -34,7 +34,7 @@ const keys = [
 ];
 
 export const validateObject = async (value: IPolarisCustomer) => {
-  for (const key in keys) {
-    if (!value[key]) throw new Error(`${key} value not filled`);
+  for (const key of keys) {
+    if (value[key] === undefined) throw new Error(`${key} value not filled`);
   }
 };

@@ -25,7 +25,7 @@ const requiredKeys = [
 ];
 
 export const validateDepositObject = async (value: IPolarisDeposit) => {
-  for (const key in requiredKeys) {
+  for (const key of requiredKeys) {
     if (!value[key]) throw new Error(`${key} value not filled`);
   }
 };
