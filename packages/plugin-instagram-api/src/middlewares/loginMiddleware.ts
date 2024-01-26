@@ -48,6 +48,7 @@ const loginMiddleware = async (req, res) => {
   debugRequest(debugFacebook, req);
   // we don't have a code yet
   // so we'll redirect to the oauth dialog
+
   if (!req.query.code) {
     const authUrl = graph.getOauthUrl({
       client_id: conf.client_id,

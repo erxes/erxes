@@ -33,7 +33,8 @@ const loginMiddleware = async (req, res) => {
     scope: FACEBOOK_PERMISSIONS,
     redirect_uri: FACEBOOK_LOGIN_REDIRECT_URL,
   };
-
+  console.log(conf, 'conf');
+  console.log('req.code:', JSON.stringify(req.code));
   debugRequest(debugFacebook, req);
 
   // we don't have a code yet
@@ -45,17 +46,20 @@ const loginMiddleware = async (req, res) => {
       scope: conf.scope,
       state: DOMAIN,
     });
-
+    console.log(authUrl, 'authUrl');
     // checks whether a user denied the app facebook login/permissions
     if (!req.query.error) {
       debugResponse(debugFacebook, req, authUrl);
-      return res.redirect(authUrl);
+      console.log('!req.query.error...', authUrl);
+      const url = await res.redirect(authUrl);
+      console.log(url, 'url');
     } else {
+      console.log('access denied...');
       debugResponse(debugFacebook, req, 'access denied');
       return res.send('access denied');
     }
   }
-
+  console.log('conf2 end boljin...');
   const config = {
     client_id: conf.client_id,
     redirect_uri: conf.redirect_uri,
