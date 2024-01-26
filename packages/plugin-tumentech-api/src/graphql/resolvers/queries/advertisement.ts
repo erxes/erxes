@@ -100,16 +100,12 @@ const advertisementQuery = {
     };
   },
 
-  activeAdvertisement: async (_root, {}, { models }: IContext) => {
-    return models.Trips.find({ status: 'active' }).lean();
-  },
-
   advertisementDetail: async (
     _root,
     { _id }: { _id: string },
     { models }: IContext,
   ) => {
-    return models.Trips.getTrip({ _id });
+    return models.Advertisement.findById(_id);
   },
 };
 

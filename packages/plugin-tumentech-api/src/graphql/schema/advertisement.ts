@@ -6,6 +6,7 @@ type Advertisement @key(fields: "_id") @cacheControl(maxAge: 3) {
   driverId: String
   carIds: [String]
   categoryIds: [String]
+  type: String
   status: String
 
   startPlace: String
@@ -39,6 +40,7 @@ const params = `
 driverId: String,
 carIds: [String],
 categoryIds: [String],
+type: String,
 status: String,
 
 startPlace: String,
@@ -55,7 +57,7 @@ period: String
 `;
 export const queries = `
     advertisements(${params}, page: Int, perPage: Int): AdvertisementListResponse
-    AdvertisementDetail(_id: String!): Advertisement
+    advertisementDetail(_id: String!): Advertisement
 `;
 
 export const mutations = `

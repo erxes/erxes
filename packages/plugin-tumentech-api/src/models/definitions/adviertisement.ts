@@ -6,6 +6,7 @@ export interface IAdvertisement {
   driverId: string;
   carIds: string[];
   categoryIds: string[];
+  type: string;
   status: string;
   // чиглэлтэй тээврийн талбар
   startPlace: string;
@@ -33,6 +34,7 @@ export const AdvertisementSchema = schemaHooksWrapper(
     driverId: field({ type: String, label: 'Driver id' }),
     carIds: field({ type: [String], label: 'Car ids' }),
     categoryIds: field({ type: [String], label: 'Product ids' }),
+    type: field({ type: String, label: 'төрөл' }),
     status: field({ type: String, label: 'төлөв', default: 'open' }),
 
     // чиглэлтэй тээврийн талбар
