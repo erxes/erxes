@@ -36,14 +36,12 @@ const loginMiddleware = async (req, res) => {
     `https://a5e7-202-21-104-34.ngrok-free.app/pl:instagram/instagram/login`,
   );
 
-  const redis_url_test =
-    'https://office.erxes.io/gateway/pl:instagram/instagram/login';
-  console.log(redis_url_test, 'redis_url_test');
+  console.log(INSTAGRAM_LOGIN_REDIRECT_URL, 'INSTAGRAM_LOGIN_REDIRECT_URL');
   const conf = {
     client_id: INSTAGRAM_APP_ID,
     client_secret: INSTAGRAM_APP_SECRET,
     scope: INSTAGRAM_PERMISSIONS,
-    redirect_uri: redis_url_test,
+    redirect_uri: INSTAGRAM_LOGIN_REDIRECT_URL,
   };
 
   console.log(conf, 'conf1');
