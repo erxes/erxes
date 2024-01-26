@@ -101,6 +101,7 @@ function General({
         handleFormChange('otpConfig', null);
       } else {
         handleFormChange('otpConfig', {
+          emailSubject: 'OTP verification',
           smsTransporterType: '',
           codeLength: 4,
           content: 'Your verification code is {{ code }}',
@@ -195,6 +196,7 @@ function General({
 
   const renderOtp = () => {
     const obj = otpConfig || {
+      emailSubject: 'OTP Verification',
       content: '',
       codeLength: 4,
       smsTransporterType: 'messagePro',
@@ -237,7 +239,7 @@ function General({
     };
 
     return (
-      <CollapseContent title={__('Mobile OTP')} compact={true} open={false}>
+      <CollapseContent title={__('OTP')} compact={true} open={false}>
         <ToggleWrap>
           <FormGroup>
             <ControlLabel>Enable OTP config</ControlLabel>
@@ -269,8 +271,20 @@ function General({
               />
             </FormGroup>
             <FormGroup>
+              <ControlLabel>emailSubject</ControlLabel>
+              <p>OTP email subject</p>
+              <FlexContent>
+                <FormControl
+                  id="emailSubject"
+                  name="emailSubject"
+                  value={obj.emailSubject}
+                  onChange={handleChange}
+                />
+              </FlexContent>
+            </FormGroup>
+            <FormGroup>
               <ControlLabel required={true}>Content</ControlLabel>
-              <p>OTP message body</p>
+              <p>OTP body</p>
               <FlexContent>
                 <FormControl
                   id="content"
