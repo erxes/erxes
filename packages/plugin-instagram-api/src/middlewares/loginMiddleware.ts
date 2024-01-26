@@ -24,7 +24,7 @@ const loginMiddleware = async (req, res) => {
   const FACEBOOK_LOGIN_REDIRECT_URL = await getConfig(
     models,
     'FACEBOOK_LOGIN_REDIRECT_URL',
-    `${DOMAIN}/gateway/pl:instagram/instagram/login`,
+    `${DOMAIN}/gateway/pl:facebook/fblogin`,
   );
 
   const conf = {
@@ -103,7 +103,7 @@ const loginMiddleware = async (req, res) => {
       await models.Accounts.create({
         token: access_token,
         name,
-        kind: 'instagram',
+        kind: 'facebook',
         uid: userAccount.id,
       });
     }
