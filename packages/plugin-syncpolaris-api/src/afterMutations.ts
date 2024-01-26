@@ -62,8 +62,9 @@ export const afterMutationHandlers = async (subdomain, params) => {
     switch (type) {
       case 'contacts:customer':
         if (action === 'create' || !preSuccessValue)
-          createCustomer(subdomain, params);
-        else if (action === 'update') updateCustomer(subdomain, params);
+          response = await createCustomer(subdomain, params);
+        else if (action === 'update')
+          response = await updateCustomer(subdomain, params);
         break;
       case 'savings:contract':
         const savingContract = params.object;

@@ -25,7 +25,7 @@ export const createCustomer = async (subdomain: string, params) => {
     taxExemption: data.taxExemption ?? '0',
     status: '1',
     noCompany: data.noCompany ?? 0,
-    isCompanyCustomer: data.isCompanyCustomer ?? '1',
+    isCompanyCustomer: 1,
     industryId: data.industryId ?? '2',
     birthPlaceId: data.birthPlaceId ?? 161204,
     shortName: data.shortName ?? 'shortName',
@@ -45,6 +45,8 @@ export const createCustomer = async (subdomain: string, params) => {
     isPolitical: data.isPolitical ?? '',
   };
 
+  console.log('sendData', sendData);
+
   await validateObject(sendData);
 
   const customerCode = await fetchPolaris({
@@ -53,7 +55,10 @@ export const createCustomer = async (subdomain: string, params) => {
     data: [sendData],
   });
 
-  if (typeof customerCode === 'string') {
+  console.log('customerCode', customerCode);
+
+  if (customerCode) {
+    console.log('customerCode', customerCode);
     await setCustomerCode(subdomain, customer._id, customerCode);
   }
 };
