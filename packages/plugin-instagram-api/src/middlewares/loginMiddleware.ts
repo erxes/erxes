@@ -55,7 +55,7 @@ const loginMiddleware = async (req, res) => {
       scope: conf.scope,
       state: DOMAIN,
     });
-
+    console.log(authUrl, 'authUrl');
     // checks whether a user denied the app facebook login/permissions
     if (!req.query.error) {
       debugResponse(debugInstagram, req, authUrl);
