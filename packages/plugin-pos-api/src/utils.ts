@@ -1,3 +1,4 @@
+import { sendMessage } from '@erxes/api-utils/src/messageBroker';
 import redis from '@erxes/api-utils/src/redis';
 import { IModels } from './connectionResolver';
 import {
@@ -132,13 +133,7 @@ export const confirmLoyalties = async (subdomain: string, order: IPosOrder) => {
   }
 };
 
-const otherPlugins = async (
-  subdomain,
-  messageBroker,
-  newOrder,
-  oldOrder?,
-  userId?,
-) => {
+const otherPlugins = async (subdomain, newOrder, oldOrder?, userId?) => {
   const value = await redis.get('afterMutations');
   const afterMutations = JSON.parse(value || '{}');
 
@@ -155,7 +150,7 @@ const otherPlugins = async (
     });
 
     for (const service of afterMutations['pos:order']['synced']) {
-      await messageBroker.sendMessage(`${service}:afterMutation`, {
+      await sendMessage(`${service}:afterMutation`, {
         subdomain,
         data: {
           type: 'pos:order',
@@ -679,6 +674,7 @@ export const syncOrderFromClient = async ({
         ...order,
         posToken,
         items,
+        scopeBrandIds: pos.scopeBrandIds,
         branchId: order.branchId || pos.branchId,
         departmentId: order.departmentId || pos.departmentId,
       },

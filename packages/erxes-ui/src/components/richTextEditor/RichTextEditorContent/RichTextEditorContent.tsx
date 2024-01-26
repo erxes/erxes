@@ -21,13 +21,13 @@ export const RichTextEditorContent = (props: IRichTextEditorContentProps) => {
     height = 120,
     autoGrowMinHeight = 120,
     autoGrowMaxHeight = 0,
-    autoGrow = false
+    autoGrow = false,
   } = props;
 
   const editorStyle = {
     ...(autoGrow && { minHeight: autoGrowMinHeight }),
     ...(autoGrow && { maxHeight: autoGrowMaxHeight }),
-    ...(!autoGrow && { height })
+    ...(!autoGrow && { height }),
   };
 
   function convertToPx(value: string | number) {
@@ -50,7 +50,7 @@ export const RichTextEditorContent = (props: IRichTextEditorContentProps) => {
         maxHeight={convertToPx(autoGrowMaxHeight)}
         autoFocus={true}
         extensions={[
-          html({ matchClosingTags: true, selfClosingTags: true }).extension
+          html({ matchClosingTags: true, selfClosingTags: true }).extension,
         ]}
       />
       <EditorContent

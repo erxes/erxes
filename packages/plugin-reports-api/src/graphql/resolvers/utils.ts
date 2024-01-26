@@ -2,7 +2,7 @@ import { sendCommonMessage } from '../../messageBroker';
 
 export const reportChartGetResult = async (
   { serviceName, templateType, filter },
-  subdomain: any
+  subdomain: any,
 ) => {
   const reportResult = await sendCommonMessage({
     subdomain,
@@ -10,9 +10,9 @@ export const reportChartGetResult = async (
     action: 'reports.getChartResult',
     data: {
       filter,
-      templateType
+      templateType,
     },
-    isRPC: true
+    isRPC: true,
   });
 
   return reportResult;

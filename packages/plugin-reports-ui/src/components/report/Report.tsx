@@ -15,7 +15,7 @@ import {
   FlexCenter,
   HeightedWrapper,
   ReportContainer,
-  Title
+  Title,
 } from '../../styles';
 import { IChart, IReport, IReportItem } from '../../types';
 import SelectMembersForm from '../utils/SelectMembersForm';
@@ -27,23 +27,23 @@ import queryString from 'query-string';
 
 const DEFAULT_GRID_DIMENSIONS = {
   w: 3,
-  h: 3
+  h: 3,
 };
-const deserializeItem = i => {
+const deserializeItem = (i) => {
   return {
     ...i,
     layout: i.layout ? JSON.parse(i.layout) : {},
-    vizState: i.vizState ? JSON.parse(i.vizState) : {}
+    vizState: i.vizState ? JSON.parse(i.vizState) : {},
   };
 };
 
-const defaultLayout = i => ({
+const defaultLayout = (i) => ({
   x: i.layout.x || 0,
   y: i.layout.y || 0,
   w: i.layout.w || DEFAULT_GRID_DIMENSIONS.w,
   h: i.layout.h || DEFAULT_GRID_DIMENSIONS.h,
   minW: 1,
-  minH: 1
+  minH: 1,
 });
 
 type Props = {
@@ -62,7 +62,7 @@ const Report = (props: Props) => {
     reportChartsEdit,
     reportChartsRemove,
     history,
-    queryParams
+    queryParams,
   } = props;
   const { charts, members } = report;
 
@@ -78,7 +78,7 @@ const Report = (props: Props) => {
 
   const [userIds, setUserIds] = useState(report.assignedUserIds);
   const [departmentIds, setDepartmentIds] = useState(
-    report.assignedDepartmentIds
+    report.assignedDepartmentIds,
   );
 
   const [columnsNum, setColumnsNum] = useState(2);
@@ -87,7 +87,7 @@ const Report = (props: Props) => {
     setReportItems(charts || []);
   }, [charts]);
 
-  const onNameChange = e => {
+  const onNameChange = (e) => {
     e.preventDefault();
     setName(e.target.value);
   };
@@ -124,11 +124,11 @@ const Report = (props: Props) => {
 
   const exportTable = (item: IChart) => {
     const stringified = queryString.stringify({
-      ...item
+      ...item,
     });
     const { REACT_APP_API_URL } = getEnv();
     window.open(
-      `${REACT_APP_API_URL}/pl:reports/report-table-export?${stringified}`
+      `${REACT_APP_API_URL}/pl:reports/report-table-export?${stringified}`,
     );
   };
 
@@ -176,9 +176,10 @@ const Report = (props: Props) => {
             chartHeight={defaultLayout(item).h * 160}
             chartVariables={{
               serviceName: item.serviceName,
-              templateType: item.templateType
+              templateType: item.templateType,
             }}
             filter={item.filter}
+            dimension={item.dimension}
           />
         </div>
       );
@@ -194,7 +195,7 @@ const Report = (props: Props) => {
 
     if (checkNameChange()) {
       confirm('Do you want to save the change').then(() =>
-        reportsEdit(report._id, { name }, history.push('/reports'))
+        reportsEdit(report._id, { name }, history.push('/reports')),
       );
     } else {
       history.push('/reports');
@@ -217,9 +218,9 @@ const Report = (props: Props) => {
       {
         visibility,
         assignedDepartmentIds: departmentIds,
-        assignedUserIds: userIds
+        assignedUserIds: userIds,
       },
-      setShowTeamMembersSelect(false)
+      setShowTeamMembersSelect(false),
     );
   };
 
@@ -231,7 +232,7 @@ const Report = (props: Props) => {
     setUserIds(usrIds);
   };
 
-  const onColumsNumChange = e => {
+  const onColumsNumChange = (e) => {
     e.preventDefault();
     setColumnsNum(e.target.value);
   };
@@ -350,19 +351,19 @@ const Report = (props: Props) => {
     );
   };
 
-  const onLayoutChange = newLayout => {
-    newLayout.forEach(l => {
-      const item = reportItems.find(i => i._id?.toString() === l.i);
+  const onLayoutChange = (newLayout) => {
+    newLayout.forEach((l) => {
+      const item = reportItems.find((i) => i._id?.toString() === l.i);
       const toUpdate = JSON.stringify({
         x: l.x,
         y: l.y,
         w: l.w,
-        h: l.h
+        h: l.h,
       });
 
       if (item && toUpdate !== item.layout) {
         reportChartsEdit(item._id, {
-          layout: toUpdate
+          layout: toUpdate,
         });
       }
     });
@@ -376,7 +377,7 @@ const Report = (props: Props) => {
           queryParams={queryParams}
           breadcrumb={[
             { title: __('Reports'), link: '/reports' },
-            { title: `${(report && report.name) || ''}` }
+            { title: `${(report && report.name) || ''}` },
           ]}
         />
         <PageContent

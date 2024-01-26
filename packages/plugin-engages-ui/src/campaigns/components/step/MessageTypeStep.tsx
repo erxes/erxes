@@ -5,7 +5,7 @@ import { FlexItem } from '@erxes/ui/src/components/step/styles';
 import {
   CAMPAIGN_TARGET_TYPES,
   METHODS,
-  BUSINESS_PORTAL_KINDS
+  BUSINESS_PORTAL_KINDS,
 } from '@erxes/ui-engage/src/constants';
 import { SelectMessageType } from '@erxes/ui-engage/src/styles';
 import { ClientPortalConfig } from '@erxes/plugin-clientportal-ui/src/types';
@@ -20,7 +20,7 @@ type Props = {
   clearState: () => void;
   onChange: (
     name: 'brandIds' | 'tagIds' | 'segmentIds' | 'cpId',
-    value: string[] | string
+    value: string[] | string,
   ) => void;
   segmentType?: string;
   segmentIds: string[];
@@ -80,14 +80,14 @@ class MessageTypeStep extends React.Component<Props, State> {
             componentClass="select"
             options={[
               { value: '', label: 'Select a business portal' },
-              ...BUSINESS_PORTAL_KINDS.ALL.map(item => ({
+              ...BUSINESS_PORTAL_KINDS.ALL.map((item) => ({
                 value: item,
-                label: item + ' portal'
-              }))
+                label: item + ' portal',
+              })),
             ]}
-            onChange={e => {
+            onChange={(e) => {
               this.props.handleClientPortalKindChange(
-                (e.target as HTMLInputElement).value
+                (e.target as HTMLInputElement).value,
               );
             }}
           />
@@ -123,10 +123,10 @@ class MessageTypeStep extends React.Component<Props, State> {
             componentClass="select"
             options={[
               { value: '', label: `Select a ${businessPortalKind} portal` },
-              ...clientPortalGetConfigs.map(item => ({
+              ...clientPortalGetConfigs.map((item) => ({
                 value: item._id,
-                label: item.name
-              }))
+                label: item.name,
+              })),
             ]}
             onChange={this.onChange.bind(this, 'cpId')}
             required
@@ -162,7 +162,7 @@ class MessageTypeStep extends React.Component<Props, State> {
               { value: 'cards:deal', label: 'Deal contacts' },
               { value: 'cards:task', label: 'Task contacts' },
               { value: 'cards:ticket', label: 'Ticket contacts' },
-              { value: 'cards:purchase', label: 'Purchase contacts' }
+              { value: 'cards:purchase', label: 'Purchase contacts' },
             ]}
             onChange={this.onChange.bind(this, 'segmentType')}
           />
@@ -174,9 +174,9 @@ class MessageTypeStep extends React.Component<Props, State> {
   renderSelector() {
     const { clientPortalGetConfigs, method } = this.props;
 
-    const options = CAMPAIGN_TARGET_TYPES.ALL.map(opt => ({
+    const options = CAMPAIGN_TARGET_TYPES.ALL.map((opt) => ({
       value: opt,
-      label: opt.split(':')[1]
+      label: opt.split(':')[1],
     }));
 
     if (
@@ -266,7 +266,7 @@ class MessageTypeStep extends React.Component<Props, State> {
       messageType: this.state.messageType,
       segmentType: this.state.segmentType,
       cpId: this.state.cpId,
-      renderContent: args => this.renderContent(args)
+      renderContent: (args) => this.renderContent(args),
     };
 
     const Component = this.stepComponent();

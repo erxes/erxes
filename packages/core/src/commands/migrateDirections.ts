@@ -30,18 +30,18 @@ const command = async () => {
     $or: [
       {
         googleMapPath: {
-          $exists: false
-        }
+          $exists: false,
+        },
       },
       {
-        googleMapPath: null
+        googleMapPath: null,
       },
       {
         googleMapPath: {
-          $size: 0
-        }
-      }
-    ]
+          $size: 0,
+        },
+      },
+    ],
   }).toArray();
 
   const getPath = async (placeA: any, placeB: any) => {
@@ -53,7 +53,7 @@ const command = async () => {
 
       if (!response.ok || body.routes.length === 0) {
         console.log(
-          `${placeA.name} - ${placeB.name} path not found: ${response.status}`
+          `${placeA.name} - ${placeB.name} path not found: ${response.status}`,
         );
         return null;
       }
@@ -75,7 +75,7 @@ const command = async () => {
     try {
       await Directions.updateOne(
         { _id: direction._id },
-        { $set: { googleMapPath: path } }
+        { $set: { googleMapPath: path } },
       );
     } catch (e) {
       console.log(e);
