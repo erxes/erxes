@@ -60,7 +60,7 @@ const loginMiddleware = async (req, res) => {
     if (!req.query.error) {
       debugResponse(debugInstagram, req, authUrl);
       console.log('!req.query.error...', authUrl);
-      const url = res.redirect(authUrl);
+      const url = await res.redirect(authUrl);
       console.log(url, 'url');
       return url;
     } else {
@@ -131,7 +131,7 @@ const loginMiddleware = async (req, res) => {
 
     debugResponse(debugFacebook, req, url);
 
-    return res.redirect(url);
+    return await res.redirect(url);
   });
 };
 export default loginMiddleware;
