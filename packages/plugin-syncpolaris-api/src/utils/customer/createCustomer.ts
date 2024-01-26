@@ -1,4 +1,3 @@
-import { IModels } from '../../connectionResolver';
 import { customFieldToObject, setCustomerCode, fetchPolaris } from '../utils';
 import { IPolarisCustomer } from './types';
 import { validateObject } from './validator';

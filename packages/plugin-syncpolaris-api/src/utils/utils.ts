@@ -34,14 +34,18 @@ export const fetchPolaris = async (args: IParams) => {
     };
 
     return await fetch(config.apiUrl, requestOptions)
-      .then((a) => a.text())
+      .then(async (response) => {
+        if (!response.ok) {
+          let responseText = await response.text();
+          throw new Error(responseText);
+        }
+        return response.text();
+      })
       .then((response) => {
-        console.log('response', response);
         return response;
       });
   } catch (e) {
-    const errorMessage = JSON.parse(e.message).message || e.message;
-    throw new Error(errorMessage);
+    throw new Error(e.message);
   }
 };
 
