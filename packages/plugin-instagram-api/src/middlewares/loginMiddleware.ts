@@ -42,6 +42,7 @@ const loginMiddleware = async (req, res) => {
     scope: INSTAGRAM_PERMISSIONS,
     redirect_uri: INSTAGRAM_LOGIN_REDIRECT_URL,
   };
+  console.log(conf, 'conf');
 
   console.log('req.code:', JSON.stringify(req.code));
   debugRequest(debugFacebook, req);
