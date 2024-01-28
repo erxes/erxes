@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ImagePreview, UploadWrapper } from '../styles';
+import { ImagePreview, UploadWrapper } from '../../styles';
 import { Alert, Icon, Spinner, readFile, uploadHandler } from '@erxes/ui/src';
 
 type Props = {

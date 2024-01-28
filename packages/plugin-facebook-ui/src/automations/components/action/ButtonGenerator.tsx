@@ -7,7 +7,7 @@ import {
   __,
 } from '@erxes/ui/src';
 import React, { useEffect, useState } from 'react';
-import { ButtonRow, Container } from '../styles';
+import { ButtonRow, Container } from '../../styles';
 import Dropdown from 'react-bootstrap/Dropdown';
 import { FormContainer } from '@erxes/ui-cards/src/boards/styles/common';
 import DropdownToggle from '@erxes/ui/src/components/DropdownToggle';

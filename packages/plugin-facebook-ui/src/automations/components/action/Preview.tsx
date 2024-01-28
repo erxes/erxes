@@ -17,7 +17,7 @@ import {
   EmulatorWrapper,
   QuickReplies,
   QuickReply,
-} from '../styles';
+} from '../../styles';
 
 const PopoverWrapper = (props) => {
   return <Popover {...props} />;

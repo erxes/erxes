@@ -1,13 +1,14 @@
 import React from 'react';
-import ReplyFbMessage from './components/ReplyFbMessage';
+import ReplyFbMessage from './components/action/ReplyFbMessage';
 import OptionalContent from './components/OptionalContent';
+import TriggerForm from './components/trigger/TriggerForm';
 
 const Automations = (props) => {
   const { componentType, activeAction } = props;
 
   if (componentType === 'triggerForm') {
     console.log({ props });
-    return <>shit</>;
+    return <TriggerForm {...props} />;
   }
 
   if (componentType === 'historyName') {

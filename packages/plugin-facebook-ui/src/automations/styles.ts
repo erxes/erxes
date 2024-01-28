@@ -1,10 +1,10 @@
+import { DrawerDetail } from '@erxes/ui-automations/src/styles';
+import Icon from '@erxes/ui/src/components/Icon';
 import colors from '@erxes/ui/src/styles/colors';
 import typography from '@erxes/ui/src/styles/typography';
 import styled from 'styled-components';
-import { DrawerDetail } from '@erxes/ui-automations/src/styles';
 import styledTS from 'styled-components-ts';
-import Icon from '@erxes/ui/src/components/Icon';
-import Popover from 'react-bootstrap/Popover';
+import { ConjunctionButtons } from '@erxes/ui-segments/src/components/styles';
 
 export const Container = styled.div`
   padding: 10px 0;
@@ -255,4 +255,65 @@ export const Card = styled.div`
     object-fit: cover;
     border-radius: 5px 5px 0 0;
   }
+`;
+
+export const TriggersList = styled.div`
+  padding: 10px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  i > {
+    font-size: 32px;
+    color: ${colors.colorLightBlue};
+  }
+`;
+
+export const TriggerItem = styledTS<{ isActive?: boolean }>(styled.div)`
+  display: flex;
+  gap: 25px;
+  border: 1px solid ${colors.bgGray};
+  padding: 10px 20px;
+  border-radius: 10px;
+  align-items: center;
+  cursor: pointer;
+  transition: all ease 0.3s;
+
+  &:hover {
+    border: 1px solid #316ff6;
+    box-shadow: 0 6px 10px 1px rgba(136, 136, 136, 0.12);
+  }
+
+  > i {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: #316ff6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    color: white;
+  }
+
+  > div {
+    > label {
+      font-weight: ${typography.fontWeightMedium};
+      font-size: 12px;
+      margin: 0;
+    }
+
+    > p {
+      font-weight: ${typography.fontWeightMedium};
+      font-size: 12px;
+      color: ${colors.colorCoreGray};
+    }
+  }
+`;
+
+export const ConditionsContainer = styled.div`
+  margin: 10px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
 `;

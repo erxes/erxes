@@ -23,9 +23,35 @@ export default {
         img: 'automation3.svg',
         icon: 'file-plus-alt',
         label: 'Facebook Message',
-        isCustom: true,
         description:
           'Start with a blank workflow that enralls and is triggered off facebook messages',
+        isCustom: true,
+        conditions: [
+          {
+            type: 'getStarted',
+            label: 'Get Started',
+            icon: 'messenger',
+            description: 'User click on get started on the messenger',
+          },
+          {
+            type: 'persistentMenu',
+            label: 'Persistent menu',
+            icon: 'menu-2',
+            description: 'User click on persistent menu on the messenger',
+          },
+          {
+            type: 'direct',
+            icon: 'messenger',
+            label: 'Direct Message',
+            description: 'User sends direct message with keyword',
+          },
+          {
+            type: 'comment',
+            icon: 'comment-message',
+            label: 'Comments',
+            description: 'User comment on post',
+          },
+        ],
       },
     ],
   },
@@ -41,6 +67,49 @@ export default {
 
     return;
   },
+  generateSegmentData: async ({ subdomain, data: { config } }) => {
+    const { triggers } = config;
+
+    const segmentData: any = {
+      contentType: 'facebook:messages',
+      conditionsConjunction: 'and',
+      conditions: [],
+    };
+
+    const commonConditionObj = {
+      type: 'property',
+      propertyType: 'facebook:messages',
+    };
+
+    for (const { type, conditions = [], persistentMenuIds } of triggers) {
+      if (type === 'getStarted') {
+        segmentData.conditions.push({
+          ...commonConditionObj,
+          propertyName: 'content',
+          propertyOperator: 'e',
+          propertyValue: 'Get Started',
+        });
+      }
+
+      if (type === 'direct') {
+        for (const { operator, keywords } of conditions) {
+          for (const keyword of keywords) {
+            segmentData.conditions.push({
+              ...commonConditionObj,
+              propertyName: 'content',
+              propertyOperator: operator,
+              propertyValue: keyword,
+            });
+          }
+        }
+      }
+
+      if (type === 'persistentMenu') {
+        for (const persistentMenuId of persistentMenuIds) {
+        }
+      }
+    }
+  },
 };
 
 const generatePayloadString = (conversation, btn, customerId) => {
@@ -49,96 +118,6 @@ const generatePayloadString = (conversation, btn, customerId) => {
     conversationId: conversation._id,
     customerId,
   });
-};
-
-const generateMessage = async (
-  models: IModels,
-  config,
-  conversation: IConversation,
-  senderId,
-) => {
-  const customer = await models.Customers.findOne({ userId: senderId }).lean();
-
-  const generateButtons = (buttons: any[] = []) => {
-    const generatedButtons: any = [];
-
-    for (const button of buttons) {
-      const obj: any = {
-        type: 'postback',
-        title: button.text,
-        payload: generatePayloadString(
-          conversation,
-          button,
-          customer?.erxesApiId,
-        ),
-      };
-
-      if (button.link) {
-        delete obj.payload;
-        obj.type = 'web_url';
-        obj.url = button.link;
-      }
-
-      generatedButtons.push(obj);
-    }
-
-    return generatedButtons;
-  };
-
-  if (config?.messageTemplates?.length > 1) {
-    return {
-      attachment: {
-        type: 'template',
-        payload: {
-          template_type: 'generic',
-          elements: config.messageTemplates.map((temp) => ({
-            title: temp.title,
-            subtitle: temp.description,
-            image_url: readFileUrl(temp?.image?.url),
-            buttons: generateButtons(temp?.buttons),
-          })),
-        },
-      },
-    };
-  }
-
-  if (config?.messageTemplates?.length === 1) {
-    const messageTemplate = config.messageTemplates[0];
-
-    return {
-      attachment: {
-        type: 'template',
-        payload: {
-          template_type: 'button',
-          text: messageTemplate?.title,
-          buttons: generateButtons(messageTemplate?.buttons),
-        },
-      },
-    };
-  }
-
-  if (config?.quickReplies) {
-    const quickReplies = config?.quickReplies || [];
-
-    return {
-      text: config?.text,
-      quick_replies: quickReplies.map((quickReply) => ({
-        content_type: 'text',
-        title: quickReply.label,
-        payload: generatePayloadString(
-          conversation,
-          quickReply,
-          customer?.erxesApiId,
-        ),
-      })),
-    };
-  }
-
-  if (config?.text) {
-    return {
-      text: config.text,
-    };
-  }
 };
 
 const generateMessages = async (

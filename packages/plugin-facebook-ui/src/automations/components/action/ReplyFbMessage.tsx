@@ -13,7 +13,7 @@ import { Column, ModalFooter } from '@erxes/ui/src/styles/main';
 import { __ } from '@erxes/ui/src/utils/core';
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { BOTTOM_BAR_ITEMS, INITIAL_OBJ_ACTIONS } from '../constants';
+import { BOTTOM_BAR_ITEMS, INITIAL_OBJ_ACTIONS } from '../../constants';
 import {
   BottomBarAction,
   BottomBarActionsContainer,
@@ -21,7 +21,7 @@ import {
   ContentWrapper,
   MainContent,
   Wrapper,
-} from '../styles';
+} from '../../styles';
 import ButtonsGenerator from './ButtonGenerator';
 import Cards from './Cards';
 import ImageUploader from './ImageUpload';

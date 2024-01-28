@@ -5,7 +5,7 @@ import React, { useRef } from 'react';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
 import { PopoverContent } from '@erxes/ui/src/components/filterableList/styles';
-import { Padding } from '../styles';
+import { Padding } from '../../styles';
 type Props = {
   onChange: (e) => void;
   link?: string;

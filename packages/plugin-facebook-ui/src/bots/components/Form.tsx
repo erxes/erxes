@@ -13,7 +13,7 @@ import CommonForm from '@erxes/ui/src/components/form/Form';
 import { LinkButton, ModalFooter } from '@erxes/ui/src/styles/main';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import React, { useState } from 'react';
-import LinkAction from '../../automations/components/LinkAction';
+import LinkAction from '../../automations/components/action/LinkAction';
 import { Features } from '../styles';
 import { SelectAccount, SelectAccountPages } from '../utils';
 import styled from 'styled-components';
