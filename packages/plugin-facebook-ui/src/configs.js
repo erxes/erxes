@@ -11,23 +11,25 @@ module.exports = {
       './src/containers/TagMessageContainer.tsx',
     './inboxConversationDetail':
       './src/containers/post/FbCommentsContainer.tsx',
-    './automation': './src/automations/index.tsx'
+    './automation': './src/automations/index.tsx',
+    './messenger-bots': './src/automations/bots/containers/List.tsx'
   },
   routes: {
     url: 'http://localhost:3017/remoteEntry.js',
     scope: 'facebook',
     module: './routes'
   },
-  menus: [
+  automation: './automation',
+  automationBots: [
     {
-      text: 'Facebook Messenger Bots',
-      to: '/settings/facebook-messenger-bots',
-      image: '/images/icons/erxes-16.svg',
-      location: 'settings',
-      scope: 'facebook'
+      name: 'facebook-messenger-bots',
+      label: 'Facebook Messenger',
+      description: 'Generate Facebook Messenger Bots',
+      logo: '/images/integrations/facebook.png',
+      list: './messenger-bots',
+      createUrl: '/settings/facebook-messenger-bot/create'
     }
   ],
-  automation: './automation',
   inboxIntegrationSettings: './inboxIntegrationSettings',
   inboxDirectMessage: {
     messagesQuery: {
@@ -95,7 +97,7 @@ module.exports = {
           }
         `,
       name: 'facebookConversationMessages',
-      integrationKind: 'facebook-messenger',
+      integrationKind: 'facebook-messenger'
     },
     countQuery: {
       query: `
@@ -104,8 +106,8 @@ module.exports = {
           }
         `,
       name: 'facebookConversationMessagesCount',
-      integrationKind: 'facebook-messenger',
-    },
+      integrationKind: 'facebook-messenger'
+    }
   },
   inboxIntegrations: [
     {
@@ -119,7 +121,7 @@ module.exports = {
       createUrl: '/settings/integrations/createFacebook',
       category:
         'All integrations, For support teams, Marketing automation, Social media',
-      components: ['inboxConversationDetail'],
+      components: ['inboxConversationDetail']
     },
     {
       name: 'Facebook Messenger',
@@ -133,11 +135,11 @@ module.exports = {
       createUrl: '/settings/integrations/createFacebook',
       category:
         'All integrations, For support teams, Messaging, Social media, Conversation',
-      components: ['inboxConversationDetailRespondBoxMask'],
-    },
+      components: ['inboxConversationDetailRespondBoxMask']
+    }
   ],
   activityLog: './activityLog',
   inboxConversationDetailRespondBoxMask:
     './inboxConversationDetailRespondBoxMask',
-  inboxConversationDetail: './inboxConversationDetail',
+  inboxConversationDetail: './inboxConversationDetail'
 };

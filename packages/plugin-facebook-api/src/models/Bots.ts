@@ -2,6 +2,7 @@ import { Model } from 'mongoose';
 import { IModels } from '../connectionResolver';
 import { getPageAccessTokenFromMap, graphRequest } from '../utils';
 import { IBotDocument, botSchema } from './definitions/bots';
+import { debugError } from '../debuggers';
 
 const validateDoc = async (models: IModels, doc: any, isUpdate?: boolean) => {
   if (!doc.name) {
@@ -57,6 +58,7 @@ export const loadBotClass = (models: IModels) => {
     }
 
     public static async updateBot(_id, doc) {
+      console.log({ _id, doc });
       try {
         await validateDoc(models, doc, true);
       } catch (error) {
@@ -65,34 +67,34 @@ export const loadBotClass = (models: IModels) => {
 
       const { accountId, pageId, persistentMenus } = doc;
 
-      const { integrationId, ...bot } = await models.Bots.findOne({ _id })
-        .select({
-          _id: 0,
-          accountId: 1,
-          pageId: 1,
-          persistentMenus: 1,
-          integrationId: 1,
-        })
-        .lean();
+      const { integrationId, ...bot } =
+        (await models.Bots.findOne({ _id })
+          .select({
+            _id: 0,
+            accountId: 1,
+            pageId: 1,
+            persistentMenus: 1,
+            integrationId: 1,
+          })
+          .lean()) || {};
 
       if (!bot) {
         throw new Error('Not found');
       }
+
+      console.log({ bot });
 
       if (
         JSON.stringify({ accountId, pageId, persistentMenus }) !==
         JSON.stringify({ ...bot })
       ) {
         try {
+          const integration = await models.Integrations.findOne({
+            _id: integrationId,
+          });
           await this.disconnectBotPageMessenger(_id);
 
-          await this.connectBotPageMessenger(
-            await models.Integrations.findOne({
-              _id: integrationId,
-            }),
-            pageId,
-            doc,
-          );
+          await this.connectBotPageMessenger(integration, pageId, doc);
           return { status: 'success' };
         } catch (error) {
           throw new Error(error.message);
@@ -111,8 +113,9 @@ export const loadBotClass = (models: IModels) => {
       try {
         await this.disconnectBotPageMessenger(_id);
       } catch (error) {
-        throw new Error(error.message);
+        debugError(error.message);
       }
+
       await models.Bots.deleteOne({ _id });
 
       return { status: 'success' };
@@ -128,55 +131,55 @@ export const loadBotClass = (models: IModels) => {
         throw new Error('Cannot find access token');
       }
 
-      try {
-        const bot = await models.Bots.create({
-          ...doc,
-          integrationId: integration._id,
-        });
+      const bot = await models.Bots.create({
+        ...doc,
+        integrationId: integration._id,
+      });
 
-        let persistentMenus: any[] = [];
+      let persistentMenus: any[] = [];
 
-        for (const { type, title, url } of doc?.persistentMenus || []) {
-          if (title) {
-            if (type === 'web_url' && url) {
-              persistentMenus.push({
-                type: 'web_url',
-                title,
-                url: url,
-                webview_height_ratio: 'full',
-              });
-            } else {
-              persistentMenus.push({
-                type: 'postback',
-                title,
-                payload: bot._id,
-              });
-            }
+      for (const { type, text, link } of doc?.persistentMenus || []) {
+        if (text) {
+          if (type === 'link' && link) {
+            persistentMenus.push({
+              type: 'web_url',
+              title: text,
+              url: link,
+              webview_height_ratio: 'full',
+            });
+          } else {
+            persistentMenus.push({
+              type: 'postback',
+              title: text,
+              payload: bot._id,
+            });
           }
         }
-
-        graphRequest.post('/me/messenger_profile', pageAccessToken, {
-          get_started: { payload: bot._id },
-          persistent_menu: [
-            {
-              locale: 'default',
-              composer_input_disabled: false,
-              call_to_actions: [
-                {
-                  type: 'postback',
-                  title: 'Get Started',
-                  payload: bot._id,
-                },
-                ...persistentMenus,
-              ],
-            },
-          ],
-        });
-
-        return { status: 'success' };
-      } catch (error) {
-        throw new Error(error.message);
       }
+
+      console.log({ persistentMenus });
+
+      await graphRequest.post('/me/messenger_profile', pageAccessToken, {
+        get_started: { payload: bot._id },
+        persistent_menu: [
+          {
+            locale: 'default',
+            composer_input_disabled: false,
+            call_to_actions: [
+              {
+                type: 'postback',
+                title: 'Get Started',
+                payload: bot._id,
+              },
+              ...persistentMenus,
+            ],
+          },
+        ],
+      });
+
+      console.log('Hello world');
+
+      return { status: 'success' };
     }
 
     static async disconnectBotPageMessenger(_id) {
@@ -185,6 +188,8 @@ export const loadBotClass = (models: IModels) => {
       const integration = await models.Integrations.findOne({
         _id: bot?.integrationId,
       });
+
+      console.log({ integration });
 
       if (!bot || !integration) {
         throw new Error('Something went wrong');
@@ -199,18 +204,16 @@ export const loadBotClass = (models: IModels) => {
         throw new Error('Cannot find access token');
       }
 
-      try {
-        graphRequest.delete(`/me/messenger_profile`, pageAccessToken, {
-          fields: ['get_started', 'persistent_menu'],
-          access_token: pageAccessToken,
-        });
+      console.log({ pageAccessToken });
 
-        await models.Bots.deleteOne({ _id });
+      await graphRequest.delete(`/me/messenger_profile`, pageAccessToken, {
+        fields: ['get_started', 'persistent_menu'],
+        access_token: pageAccessToken,
+      });
 
-        return { status: 'success' };
-      } catch (error) {
-        throw new Error(error.message);
-      }
+      await models.Bots.deleteOne({ _id });
+
+      return { status: 'success' };
     }
   }
 

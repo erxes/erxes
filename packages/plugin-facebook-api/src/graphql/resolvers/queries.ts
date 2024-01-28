@@ -35,7 +35,7 @@ const buildSelector = async (conversationId: string, models: IModels) => {
   const query = { conversationId: '' };
 
   const conversation = await models.Conversations.findOne({
-    erxesApiId: conversationId
+    erxesApiId: conversationId,
   });
 
   if (conversation) {
@@ -57,7 +57,7 @@ const facebookQueries = {
   facebookGetIntegrationDetail(
     _root,
     { erxesApiId }: IDetailParams,
-    { models }: IContext
+    { models }: IContext,
   ) {
     return models.Integrations.findOne({ erxesApiId });
   },
@@ -69,14 +69,14 @@ const facebookQueries = {
   async facebookGetComments(
     _root,
     args: ICommentsParams,
-    { models }: IContext
+    { models }: IContext,
   ) {
     const {
       conversationId,
       isResolved,
       commentId,
       senderId,
-      limit = 10
+      limit = 10,
     } = args;
     const post = await models.Posts.getPost({ erxesApiId: conversationId });
 
@@ -87,7 +87,7 @@ const facebookQueries = {
       senderId?: string;
     } = {
       postId: post.postId,
-      isResolved: isResolved === true
+      isResolved: isResolved === true,
     };
 
     if (senderId && senderId !== 'undefined') {
@@ -102,55 +102,55 @@ const facebookQueries = {
 
     const result = await models.Comments.aggregate([
       {
-        $match: query
+        $match: query,
       },
       {
         $lookup: {
           from: 'customers_facebooks',
           localField: 'senderId',
           foreignField: 'userId',
-          as: 'customer'
-        }
+          as: 'customer',
+        },
       },
       {
         $unwind: {
           path: '$customer',
-          preserveNullAndEmptyArrays: true
-        }
+          preserveNullAndEmptyArrays: true,
+        },
       },
       {
         $lookup: {
           from: 'posts_facebooks',
           localField: 'postId',
           foreignField: 'postId',
-          as: 'post'
-        }
+          as: 'post',
+        },
       },
       {
         $unwind: {
           path: '$post',
-          preserveNullAndEmptyArrays: true
-        }
+          preserveNullAndEmptyArrays: true,
+        },
       },
       {
         $lookup: {
           from: 'comments_facebooks',
           localField: 'commentId',
           foreignField: 'parentId',
-          as: 'replies'
-        }
+          as: 'replies',
+        },
       },
       {
         $addFields: {
           commentCount: { $size: '$replies' },
           'customer.avatar': '$customer.profilePic',
           'customer._id': '$customer.erxesApiId',
-          conversationId: '$post.erxesApiId'
-        }
+          conversationId: '$post.erxesApiId',
+        },
       },
 
       { $sort: { timestamp: -1 } },
-      { $limit: limit }
+      { $limit: limit },
     ]);
 
     return result.reverse();
@@ -161,22 +161,22 @@ const facebookQueries = {
 
     const post = await models.Posts.getPost(
       { erxesApiId: conversationId },
-      true
+      true,
     );
 
     const commentCount = await models.Comments.countDocuments({
       postId: post.postId,
-      isResolved
+      isResolved,
     });
     const commentCountWithoutReplies = await models.Comments.countDocuments({
       postId: post.postId,
       isResolved,
-      parentId: null
+      parentId: null,
     });
 
     return {
       commentCount,
-      commentCountWithoutReplies
+      commentCountWithoutReplies,
     };
   },
 
@@ -192,7 +192,7 @@ const facebookQueries = {
       if (!e.message.includes('Application request limit reached')) {
         await models.Integrations.updateOne(
           { accountId },
-          { $set: { healthStatus: 'account-token', error: `${e.message}` } }
+          { $set: { healthStatus: 'account-token', error: `${e.message}` } },
         );
       }
     }
@@ -203,7 +203,7 @@ const facebookQueries = {
   facebookConversationDetail(
     _root,
     { _id }: { _id: string },
-    { models }: IContext
+    { models }: IContext,
   ) {
     return models.Conversations.findOne({ _id });
   },
@@ -211,7 +211,7 @@ const facebookQueries = {
   async facebookConversationMessages(
     _root,
     args: IMessagesParams,
-    { models }: IContext
+    { models }: IContext,
   ) {
     const { conversationId, limit, skip, getFirst } = args;
 
@@ -242,7 +242,7 @@ const facebookQueries = {
   async facebookConversationMessagesCount(
     _root,
     { conversationId }: { conversationId: string },
-    { models }: IContext
+    { models }: IContext,
   ) {
     const selector = await buildSelector(conversationId, models);
 
@@ -256,14 +256,14 @@ const facebookQueries = {
   async facebookHasTaggedMessages(
     _root,
     { conversationId }: IConversationId,
-    { models, subdomain }: IContext
+    { models, subdomain }: IContext,
   ) {
     const commonParams = { isRPC: true, subdomain };
 
     const inboxConversation = await sendInboxMessage({
       ...commonParams,
       action: 'conversations.findOne',
-      data: { query: { _id: conversationId } }
+      data: { query: { _id: conversationId } },
     });
 
     let integration;
@@ -272,7 +272,7 @@ const facebookQueries = {
       integration = await sendInboxMessage({
         ...commonParams,
         action: 'integrations.findOne',
-        data: { _id: inboxConversation.integrationId }
+        data: { _id: inboxConversation.integrationId },
       });
     }
 
@@ -285,7 +285,7 @@ const facebookQueries = {
     const messages = await models.ConversationMessages.find({
       ...query,
       customerId: { $exists: true },
-      createdAt: { $gt: new Date(Date.now() - 24 * 60 * 60 * 1000) }
+      createdAt: { $gt: new Date(Date.now() - 24 * 60 * 60 * 1000) },
     })
       .limit(2)
       .lean();
@@ -302,7 +302,10 @@ const facebookQueries = {
   },
   async facebootMessengerBotsTotalCount(_root, _args, { models }: IContext) {
     return await models.Bots.find({}).count();
-  }
+  },
+  async facebootMessengerBot(_root, { _id }, { models }: IContext) {
+    return await models.Bots.findOne({ _id });
+  },
 };
 
 export default facebookQueries;

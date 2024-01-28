@@ -9,7 +9,7 @@ const list = `
         page
         pageId
         persistentMenus {
-          _id,title,type,url
+          _id,text,type,link
         }
       }
     }
@@ -21,7 +21,25 @@ const totalCount = `
     }
 `;
 
+const detail = `
+    query FacebootMessengerBot($_id:String) {
+      facebootMessengerBot(_id:$_id) {
+        _id
+        name
+        account
+        accountId
+        createdAt
+        page
+        pageId
+        persistentMenus {
+          _id,text,type,link
+        }
+      }
+    }
+`;
+
 export default {
   list,
-  totalCount
+  totalCount,
+  detail,
 };

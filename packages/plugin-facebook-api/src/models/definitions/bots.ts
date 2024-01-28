@@ -3,9 +3,9 @@ import { field } from './utils';
 
 interface IPersistentMenus {
   _id: number;
-  title: string;
+  text: string;
   type: string;
-  url?: string;
+  link?: string;
 }
 export interface IBot {
   name: string;
@@ -22,9 +22,9 @@ export interface IBotDocument extends IBot, Document {
 
 const persistentMenuSchema = new Schema({
   _id: { type: Number },
-  title: { type: String },
+  text: { type: String },
   type: { type: String },
-  url: { type: String, optional: true },
+  link: { type: String, optional: true },
 });
 
 export const botSchema = new Schema({

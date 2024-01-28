@@ -4,7 +4,6 @@ import colors from '@erxes/ui/src/styles/colors';
 import typography from '@erxes/ui/src/styles/typography';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
-import { ConjunctionButtons } from '@erxes/ui-segments/src/components/styles';
 
 export const Container = styled.div`
   padding: 10px 0;

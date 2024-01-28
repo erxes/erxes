@@ -19,14 +19,11 @@ type FinalProps = {
 
 class List extends React.Component<FinalProps> {
   render() {
-    const {
-      listQueryResponse,
-      totalCountQueryResponse,
-      removeMutation
-    } = this.props;
+    const { listQueryResponse, totalCountQueryResponse, removeMutation } =
+      this.props;
 
     if (listQueryResponse?.loading) {
-      return <Spinner />;
+      return <Spinner objective />;
     }
 
     const remove = (_id: string) => {
@@ -36,7 +33,7 @@ class List extends React.Component<FinalProps> {
             listQueryResponse.refetch();
             Alert.success('You successfully removed bot');
           })
-          .catch(e => {
+          .catch((e) => {
             Alert.error(e.message);
           });
       });
@@ -46,34 +43,26 @@ class List extends React.Component<FinalProps> {
       list: listQueryResponse?.facebootMessengerBots || [],
       totalCount:
         totalCountQueryResponse?.facebootMessengerBotsTotalCount || [],
-      remove
+      remove,
     };
 
     return <ListComponent {...updatedProps} />;
   }
 }
 
-export const refetchQueries = _queryParams => {
-  return [
-    {
-      query: gql(queries.list)
-    },
-    {
-      query: gql(queries.totalCount)
-    }
-  ];
-};
-
 export default withProps<Props>(
   compose(
     graphql<Props>(gql(queries.list), {
-      name: 'listQueryResponse'
+      name: 'listQueryResponse',
+      options: () => ({
+        fetchPolicy: 'cache-and-network',
+      }),
     }),
     graphql<Props>(gql(queries.totalCount), {
-      name: 'totalCountQueryResponse'
+      name: 'totalCountQueryResponse',
     }),
     graphql(gql(mutations.removeBot), {
-      name: 'removeMutation'
-    })
-  )(List)
+      name: 'removeMutation',
+    }),
+  )(List),
 );

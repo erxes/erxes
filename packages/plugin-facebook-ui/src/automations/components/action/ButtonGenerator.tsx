@@ -43,7 +43,6 @@ function ButtonsGenerator({
   }, [buttons]);
 
   const generateButtons = () => {
-    console.log({ btns });
     return btns.map(({ _id, text, link, type }) => ({ _id, text, link, type }));
   };
 
@@ -53,30 +52,36 @@ function ButtonsGenerator({
 
   const renderButton = (button) => {
     const onBtnChange = (name, value) => {
-      console.log({ name, value });
       const updateButtons = btns.map((btn) =>
         btn._id === button._id ? { ...btn, [name]: value } : btn,
       );
 
       setButtons(updateButtons);
       onChangeButtons(
-        updateButtons.map(({ _id, text, link, type }) => ({
+        updateButtons.map(({ _id, text, type, link }) => ({
           _id,
           text,
-          link,
           type,
+          link,
         })),
       );
     };
 
     const onDoubleClick = () => {
-      onBtnChange('isEditing', true);
+      setButtons(
+        btns.map((btn) =>
+          btn._id === button._id ? { ...btn, isEditing: true } : btn,
+        ),
+      );
     };
 
     const handleEdit = (e) => {
       const { value } = e.currentTarget as HTMLInputElement;
 
-      onBtnChange('text', value);
+      const updateButtons = btns.map((btn) =>
+        btn._id === button._id ? { ...btn, text: value } : btn,
+      );
+      setButtons(updateButtons);
     };
 
     const onSave = (e) => {
@@ -146,7 +151,7 @@ function ButtonsGenerator({
               className="editInput"
               placeholder="Enter a name"
               onChange={handleEdit}
-              value={button.text}
+              value={button?.text || null}
               onBlur={onSave}
               onKeyPress={(e) => e.key === 'Enter' && onSave(e)}
             />
@@ -178,7 +183,7 @@ function ButtonsGenerator({
                   { type: 'btn', text: 'Button' },
                   { type: 'link', text: 'Link' },
                 ].map(({ text, type }) => (
-                  <li onClick={(e) => handleBtnTypeChange(e, type)}>
+                  <li key={type} onClick={(e) => handleBtnTypeChange(e, type)}>
                     <a>{text}</a>
                   </li>
                 ))}

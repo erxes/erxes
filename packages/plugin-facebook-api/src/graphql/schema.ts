@@ -74,17 +74,17 @@ export const types = `
   }
 
   type BotPersistentMenuType {
-    _id:Float
+    _id:String
     type:String
-    title: String
-    url: String
+    text: String
+    link: String
   }
 
   input BotPersistentMenuInput {
-    _id:Float
+    _id:String
     type:String
-    title: String
-    url: String
+    text: String
+    link: String
   }
 
   type FacebookMessengerBot {
@@ -119,6 +119,7 @@ export const queries = `
   facebookHasTaggedMessages(conversationId: String!): Boolean
   facebootMessengerBots:[FacebookMessengerBot]
   facebootMessengerBotsTotalCount:Int
+  facebootMessengerBot(_id:String):FacebookMessengerBot
 `;
 
 export const mutations = `
