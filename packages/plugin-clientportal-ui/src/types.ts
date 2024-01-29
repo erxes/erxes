@@ -4,6 +4,7 @@ import { ICustomer } from '@erxes/ui-contacts/src/customers/types';
 import { QueryResponse } from '@erxes/ui/src/types';
 
 export type OTPConfig = {
+  emailSubject?: string;
   content: string;
   smsTransporterType?: '' | 'messagePro';
   codeLength: number;
