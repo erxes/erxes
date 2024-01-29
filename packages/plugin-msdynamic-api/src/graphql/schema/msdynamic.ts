@@ -20,12 +20,12 @@ export const queries = `
 `;
 
 export const mutations = `
-  toCheckProducts(brandId: String): JSON
-  toSyncProducts(brandId: String, action: String, products: [JSON]): JSON
-  toCheckPrices(brandId: String): JSON
-  toSyncPrices(brandId: String, action: String, prices: [JSON]): JSON
-  toCheckProductCategories(brandId: String): JSON
-  toSyncProductCategories(brandId: String, action: String, categories: [JSON]): JSON
-  toCheckCustomers(brandId: String): JSON
-  toSyncCustomers(brandId: String, action: String, customers: [JSON]): JSON
+  toCheckMsdProducts(brandId: String): JSON
+  toSyncMsdProducts(brandId: String, action: String, products: [JSON]): JSON
+  toCheckMsdPrices(brandId: String): JSON
+  toSyncMsdPrices(brandId: String, action: String, prices: [JSON]): JSON
+  toCheckMsdProductCategories(brandId: String): JSON
+  toSyncMsdProductCategories(brandId: String, action: String, categories: [JSON]): JSON
+  toCheckMsdCustomers(brandId: String): JSON
+  toSyncMsdCustomers(brandId: String, action: String, customers: [JSON]): JSON
 `;
