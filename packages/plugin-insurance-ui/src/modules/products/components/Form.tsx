@@ -91,6 +91,18 @@ const ProductForm = (props: Props) => {
       };
     });
 
+    finalValues.travelProductConfigs = travelConfigs.map((config) => {
+      return {
+        duration: config.duration,
+        prices: config.prices.map((price) => {
+          return {
+            numberOfIndividuals: price.numberOfIndividuals,
+            price: Number(price.price),
+          };
+        }),
+      };
+    });
+
     return {
       ...finalValues,
     };
