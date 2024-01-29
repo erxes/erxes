@@ -26,6 +26,7 @@ import SelectContracts from '../common/SelectContract';
 import { TabTitle, Tabs as MainTabs } from '@erxes/ui/src/components/tabs';
 import ContractsCustomFields from './ContractsCustomFields';
 import { isEnabled } from '@erxes/ui/src/utils/core';
+import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
 
 type Props = {
   currentUser: IUser;
@@ -256,6 +257,10 @@ class ContractForm extends React.Component<Props, State> {
       this.setState({ startDate: value });
     };
 
+    const onChangeBranchId = (value) => {
+      this.setState({ branchId: value });
+    };
+
     return (
       <>
         <ScrollWrapper>
@@ -352,6 +357,16 @@ class ContractForm extends React.Component<Props, State> {
               </FormColumn>
             )}
             <FormColumn>
+              <FormGroup>
+                <ControlLabel>{__('Branches')}</ControlLabel>
+                <SelectBranches
+                  name="branchId"
+                  label={__('Choose branch')}
+                  initialValue={this.state?.branchId}
+                  onSelect={onChangeBranchId}
+                  multi={false}
+                />
+              </FormGroup>
               {this.renderFormGroup('Interest Rate', {
                 ...formProps,
                 className: 'flex-item',

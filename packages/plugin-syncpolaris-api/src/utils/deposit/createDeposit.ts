@@ -59,7 +59,7 @@ export const createDeposit = async (subdomain: string, params) => {
     custCode: customer.code,
     name: deposit.number,
     name2: deposit.number,
-    slevel: objectDeposit.slevel,
+    slevel: objectDeposit.slevel || '1',
     jointOrSingle: 'S',
     dormancyDate: '',
     statusDate: '',
@@ -78,11 +78,13 @@ export const createDeposit = async (subdomain: string, params) => {
 
   const depositCode = await fetchPolaris({
     subdomain,
-    op: '13610313',
+    op: '13610020',
     data: [sendData],
   });
 
   if (typeof depositCode === 'string') {
-    await updateSavingNumber(subdomain, deposit._id, depositCode);
+    await updateSavingNumber(subdomain, deposit._id, JSON.parse(depositCode));
   }
+
+  return depositCode;
 };

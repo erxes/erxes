@@ -5,6 +5,7 @@ import {
   fetchPolaris,
   getBranch,
   getDepositAccount,
+  updateSavingNumber,
 } from '../utils';
 
 export const createSaving = async (subdomain: string, params) => {
@@ -21,49 +22,54 @@ export const createSaving = async (subdomain: string, params) => {
 
   const deposit = await getDepositAccount(subdomain, savingContract.customerId);
 
-  let sendData = {};
-  sendData = [
-    {
-      prodCode: savingProduct.code,
-      slevel: 1,
-      capMethod: savingContract.interestCalcType,
-      capAcntCode:
-        savingContract.depositAccount === 'depositAccount' ? deposit.code : '',
-      capAcntSysNo: '', // savingContract.storeInterestInterval,
-      startDate: savingContract.startDate,
-      maturityOption: savingContract.closeOrExtendConfig,
-      rcvAcntCode:
-        savingContract.depositAccount === 'depositAccount'
-          ? savingContract.depositAccount
-          : '',
-      brchCode: branch.code,
-      curCode: savingContract.currency,
-      name: savingContract.contractType.name,
-      name2: savingContract.contractType.name,
-      termLen: savingContract.duration,
-      maturityDate: savingContract.endDate,
-      custCode: customer.code,
-      segCode: '81',
-      jointOrSingle: 'S',
-      statusCustom: '',
-      statusDate: '',
-      casaAcntCode: '',
-      closedBy: '',
-      closedDate: '',
-      lastCtDate: '',
-      lastDtDate: '',
-    },
-  ];
+  let sendData = {
+    prodCode: savingProduct.code,
+    slevel: 1,
+    capMethod: '1',
+    capAcntCode: deposit?.number || '',
+    capAcntSysNo: '1306', // savingContract.storeInterestInterval,
+    startDate: savingContract.startDate,
+    maturityOption: savingContract.closeOrExtendConfig,
+    rcvAcntCode:
+      savingContract.depositAccount === 'depositAccount'
+        ? savingContract.depositAccount
+        : '',
+    brchCode: branch?.code,
+    curCode: savingContract.currency,
+    name: savingProduct.name,
+    name2: savingProduct.name,
+    termLen: savingContract.duration,
+    maturityDate: savingContract.endDate,
+    custCode: customer?.code,
+    segCode: '81',
+    jointOrSingle: 'S',
+    statusCustom: '',
+    statusDate: '',
+    casaAcntCode: '',
+    closedBy: '',
+    closedDate: '',
+    lastCtDate: '',
+    lastDtDate: '',
+  };
 
-  fetchPolaris({
+  const savingCode = await fetchPolaris({
     op: '13610120',
-    data: sendData,
+    data: [sendData],
     subdomain,
   });
+
+  if (savingCode) {
+    await updateSavingNumber(
+      subdomain,
+      savingContract._id,
+      JSON.parse(savingCode),
+    );
+  }
+
+  return savingCode;
 };
 
 export const getSavingAcntTransaction = async (subdomain, params) => {
-  const config = await getConfig(subdomain, 'POLARIS', {});
   const savingTransactionParams = params.updatedDocument || params.object;
   let sendData = {};
 

@@ -44,7 +44,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
   const preSuccessValue = await models.SyncLogs.findOne({
     contentType: type,
     error: { $exists: false },
-    responseData: { $exists: true },
+    responseData: { $exists: true, $ne: null },
   });
 
   if (!Object.keys(allowTypes).includes(type)) {
@@ -58,6 +58,8 @@ export const afterMutationHandlers = async (subdomain, params) => {
   let syncLog = await models.SyncLogs.syncLogsAdd(syncLogDoc);
   let response: any;
 
+  console.log('type+----->', type, action);
+
   try {
     switch (type) {
       case 'contacts:customer':
@@ -68,6 +70,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
         break;
       case 'savings:contract':
         const savingContract = params.object;
+        console.log('savingContract', savingContract);
         if (action === 'create' || !preSuccessValue) {
           if (savingContract.isDeposit === true) {
             response = await createDeposit(subdomain, params);
