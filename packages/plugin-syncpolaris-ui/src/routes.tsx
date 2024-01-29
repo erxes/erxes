@@ -15,13 +15,6 @@ const Settings = asyncComponent(
     import(/* webpackChunkName: "Settings" */ './settings/containers/Settings'),
 );
 
-const CustomAcntBalance = asyncComponent(
-  () =>
-    import(
-      /* webpackChunkName: "CheckSyncedDeals" */ './customerAcntBalance/containers/customerAcntBalance'
-    ),
-);
-
 const Customer = asyncComponent(
   () => import(/* webpackChunkName: "customer" */ './customer/containers/List'),
 );
