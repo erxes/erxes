@@ -57,8 +57,6 @@ const command = async () => {
         body.register_number = code;
       }
 
-      console.log('fetching data for', body);
-
       const response = await fetch(`${apiUrl}/user/info`, {
         method: 'POST',
         headers: {
@@ -68,7 +66,7 @@ const command = async () => {
       });
 
       if (response.status !== 200) {
-        // throw new Error('Failed to fetch data');
+        // throw new Error("Failed to fetch data");
         console.error('Failed to fetch data');
         continue;
       }
@@ -82,10 +80,6 @@ const command = async () => {
       }
 
       const data = res.data;
-
-      console.log('found data', data);
-
-      await new Promise((resolve) => setTimeout(resolve, 10000));
 
       await Customers.updateOne(
         { _id: customer._id },
@@ -110,6 +104,7 @@ const command = async () => {
           { customerId: customer._id },
           { $set: { data: data, updatedAt: new Date() } },
         );
+        console.log('updated existing data of: ', customer._id);
       } else {
         const newDoc = {
           _id: nanoid(),
@@ -120,6 +115,8 @@ const command = async () => {
         };
 
         await Polarissyncs.insertOne(newDoc);
+
+        console.log('inserted new data for: ', customer._id);
       }
     }
 
