@@ -32,7 +32,7 @@ const command = async () => {
 
     for (const customer of customers) {
       //
-      await new Promise((resolve) => setTimeout(resolve, 5000));
+
       const { _id, primaryPhone, code } = customer;
 
       const polarisData = await Polarissyncs.findOne({ customerId: _id });
@@ -58,7 +58,7 @@ const command = async () => {
       if (code) {
         body.register_number = code;
       }
-
+      await new Promise((resolve) => setTimeout(resolve, 5000));
       const response = await fetch(`${apiUrl}/user/info`, {
         method: 'POST',
         headers: {
@@ -69,7 +69,8 @@ const command = async () => {
 
       if (response.status !== 200) {
         // throw new Error("Failed to fetch data");
-        console.error('Failed to fetch data');
+
+        console.error('Failed to fetch data', response);
         continue;
       }
 
