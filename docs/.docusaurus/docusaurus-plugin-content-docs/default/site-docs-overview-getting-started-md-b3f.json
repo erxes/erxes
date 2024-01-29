@@ -1,0 +1,20 @@
+{
+  "unversionedId": "overview/getting-started",
+  "id": "overview/getting-started",
+  "isDocsHomePage": false,
+  "title": "Getting  Started",
+  "description": "Overview",
+  "source": "@site/docs/overview/getting-started.md",
+  "sourceDirName": "overview",
+  "slug": "/overview/getting-started",
+  "permalink": "/overview/getting-started",
+  "editUrl": "https://github.com/erxes/erxes/edit/develop/docs/docs/overview/getting-started.md",
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055,
+  "formattedLastUpdatedAt": "10/14/2018",
+  "frontMatter": {
+    "id": "getting-started",
+    "title": "Getting  Started"
+  }
+}

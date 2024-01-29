@@ -1,0 +1,29 @@
+{
+  "unversionedId": "components/TextDivider/textdivider",
+  "id": "components/TextDivider/textdivider",
+  "isDocsHomePage": false,
+  "title": "Text Divider",
+  "description": "Add text divider with text and date to divide contents.",
+  "source": "@site/docs/components/TextDivider/textdivider.md",
+  "sourceDirName": "components/TextDivider",
+  "slug": "/components/TextDivider/textdivider",
+  "permalink": "/components/TextDivider/textdivider",
+  "editUrl": "https://github.com/erxes/erxes/edit/develop/docs/docs/components/TextDivider/textdivider.md",
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055,
+  "formattedLastUpdatedAt": "10/14/2018",
+  "frontMatter": {
+    "id": "textdivider",
+    "title": "Text Divider"
+  },
+  "sidebar": "components",
+  "previous": {
+    "title": "Tags",
+    "permalink": "/components/Tag/tag"
+  },
+  "next": {
+    "title": "Text info",
+    "permalink": "/components/TextInfo/textinfo"
+  }
+}

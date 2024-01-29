@@ -1,0 +1,29 @@
+{
+  "unversionedId": "components/Tag/tag",
+  "id": "components/Tag/tag",
+  "isDocsHomePage": false,
+  "title": "Tags",
+  "description": "Use _id and name props for connecting with other function.",
+  "source": "@site/docs/components/Tag/tag.md",
+  "sourceDirName": "components/Tag",
+  "slug": "/components/Tag/tag",
+  "permalink": "/components/Tag/tag",
+  "editUrl": "https://github.com/erxes/erxes/edit/develop/docs/docs/components/Tag/tag.md",
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055,
+  "formattedLastUpdatedAt": "10/14/2018",
+  "frontMatter": {
+    "id": "tag",
+    "title": "Tags"
+  },
+  "sidebar": "components",
+  "previous": {
+    "title": "Tabs",
+    "permalink": "/components/Tabs/tabs"
+  },
+  "next": {
+    "title": "Text Divider",
+    "permalink": "/components/TextDivider/textdivider"
+  }
+}

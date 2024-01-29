@@ -1,4 +1,4 @@
-import { isEnabled } from "@erxes/api-utils/src/serviceDiscovery";
+import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
 const externalId = '_id: String! @external';
 const keyFields = '@key(fields: "_id")';
 
@@ -52,6 +52,7 @@ export const types = async () => {
       segmentIds: [String]
       brandIds: [String]
       customerIds: [String]
+      cpId: String
       title: String
       fromUserId: String
       method: String
@@ -71,6 +72,7 @@ export const types = async () => {
       email: JSON
       messenger: JSON
       shortMessage: EngageMessageSms
+      notification: JSON
       createdBy: String
 
       scheduleDate: EngageScheduleDate
@@ -207,6 +209,12 @@ export const types = async () => {
       content: String!
       fromIntegrationId: String!
     }
+
+    input EngageMessageNotification {
+      title: String!,
+      content: String!,
+      isMobile: Boolean,
+    }
   `;
 };
 
@@ -245,9 +253,11 @@ const commonParams = `
   customerTagIds: [String],
   brandIds: [String],
   customerIds: [String],
+  cpId: String,
   email: EngageMessageEmail,
   scheduleDate: EngageScheduleDateInput,
   messenger: EngageMessageMessenger,
+  notification: EngageMessageNotification,
   shortMessage: EngageMessageSmsInput
   forceCreateConversation: Boolean
 `;

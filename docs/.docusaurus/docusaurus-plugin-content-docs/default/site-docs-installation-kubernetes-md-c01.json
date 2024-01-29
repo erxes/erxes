@@ -1,0 +1,20 @@
+{
+  "unversionedId": "installation/kubernetes",
+  "id": "installation/kubernetes",
+  "isDocsHomePage": false,
+  "title": "Kubernetes",
+  "description": "Coming soon.",
+  "source": "@site/docs/installation/kubernetes.md",
+  "sourceDirName": "installation",
+  "slug": "/installation/kubernetes",
+  "permalink": "/installation/kubernetes",
+  "editUrl": "https://github.com/erxes/erxes/edit/develop/docs/docs/installation/kubernetes.md",
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055,
+  "formattedLastUpdatedAt": "10/14/2018",
+  "frontMatter": {
+    "id": "kubernetes",
+    "title": "Kubernetes"
+  }
+}

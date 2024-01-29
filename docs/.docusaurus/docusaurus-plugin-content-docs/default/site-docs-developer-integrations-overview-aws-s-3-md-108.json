@@ -1,0 +1,29 @@
+{
+  "unversionedId": "developer/integrations-overview/aws-s3",
+  "id": "developer/integrations-overview/aws-s3",
+  "isDocsHomePage": false,
+  "title": "AWS S3 integration",
+  "description": "Amazon Simple Storage Service (Amazon S3) is storage for the internet. You can use Amazon S3 to store and retrieve any amount of data at any time, from anywhere on the web.",
+  "source": "@site/docs/developer/integrations-overview/AWS-S3.md",
+  "sourceDirName": "developer/integrations-overview",
+  "slug": "/developer/integrations-overview/aws-s3",
+  "permalink": "/developer/integrations-overview/aws-s3",
+  "editUrl": "https://github.com/erxes/erxes/edit/develop/docs/docs/developer/integrations-overview/AWS-S3.md",
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055,
+  "formattedLastUpdatedAt": "10/14/2018",
+  "frontMatter": {
+    "id": "aws-s3",
+    "title": "AWS S3 integration"
+  },
+  "sidebar": "docs",
+  "previous": {
+    "title": "Google Cloud Storage",
+    "permalink": "/developer/integrations-overview/google-cloud-storage"
+  },
+  "next": {
+    "title": "AWS SES integration",
+    "permalink": "/developer/integrations-overview/aws-ses"
+  }
+}

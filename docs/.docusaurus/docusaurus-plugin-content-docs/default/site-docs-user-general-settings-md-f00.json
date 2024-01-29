@@ -1,0 +1,29 @@
+{
+  "unversionedId": "user/general-settings",
+  "id": "user/general-settings",
+  "isDocsHomePage": false,
+  "title": "General Settings",
+  "description": "This document details how the system configuration is, what features it includes, how to configure an account, etc.",
+  "source": "@site/docs/user/general-settings.md",
+  "sourceDirName": "user",
+  "slug": "/user/general-settings",
+  "permalink": "/user/general-settings",
+  "editUrl": "https://github.com/erxes/erxes/edit/develop/docs/docs/user/general-settings.md",
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055,
+  "formattedLastUpdatedAt": "10/14/2018",
+  "frontMatter": {
+    "id": "general-settings",
+    "title": "General Settings"
+  },
+  "sidebar": "tutorials",
+  "previous": {
+    "title": "Initial Setup",
+    "permalink": "/user/initial-setup"
+  },
+  "next": {
+    "title": "Engage phone settings",
+    "permalink": "/user/engage-phone-settings"
+  }
+}

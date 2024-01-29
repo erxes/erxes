@@ -1,0 +1,25 @@
+{
+  "unversionedId": "components/Uploader/uploader",
+  "id": "components/Uploader/uploader",
+  "isDocsHomePage": false,
+  "title": "Uploader",
+  "description": "Multiple",
+  "source": "@site/docs/components/Uploader/uploader.md",
+  "sourceDirName": "components/Uploader",
+  "slug": "/components/Uploader/uploader",
+  "permalink": "/components/Uploader/uploader",
+  "editUrl": "https://github.com/erxes/erxes/edit/develop/docs/docs/components/Uploader/uploader.md",
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055,
+  "formattedLastUpdatedAt": "10/14/2018",
+  "frontMatter": {
+    "id": "uploader",
+    "title": "Uploader"
+  },
+  "sidebar": "components",
+  "previous": {
+    "title": "Toggle",
+    "permalink": "/components/Toggle/toggle"
+  }
+}

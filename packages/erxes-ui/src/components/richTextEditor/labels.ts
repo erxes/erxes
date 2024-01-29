@@ -150,7 +150,7 @@ export const DEFAULT_LABELS: IRichTextEditorLabels = {
   linkControlLabel: 'Link',
   colorPickerControlLabel: 'Text color',
   highlightControlLabel: 'Highlight text',
-  colorControlLabel: color => `Set text color ${color}`,
+  colorControlLabel: (color) => `Set text color ${color}`,
   boldControlLabel: 'Bold',
   italicControlLabel: 'Italic',
   underlineControlLabel: 'Underline',
@@ -190,7 +190,7 @@ export const DEFAULT_LABELS: IRichTextEditorLabels = {
   colorPickerColorPicker: 'Color picker',
   colorPickerPalette: 'Color palette',
   colorPickerSave: 'Save',
-  colorPickerColorLabel: color => `Set text color ${color}`,
+  colorPickerColorLabel: (color) => `Set text color ${color}`,
 
   // Image control
   imageControlLabel: `Insert image`,
@@ -214,5 +214,5 @@ export const DEFAULT_LABELS: IRichTextEditorLabels = {
   toggleHeaderCell: 'Toggle header cell',
   deleteTable: 'Delete table',
 
-  moreControlLabel: 'More'
+  moreControlLabel: 'More',
 };

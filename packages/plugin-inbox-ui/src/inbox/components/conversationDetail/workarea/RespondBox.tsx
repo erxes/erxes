@@ -29,7 +29,7 @@ import { IIntegration } from '@erxes/ui-inbox/src/settings/integrations/types';
 import { IResponseTemplate } from '../../../../settings/responseTemplates/types';
 import { IUser } from '@erxes/ui/src/auth/types';
 import Icon from '@erxes/ui/src/components/Icon';
-
+import { MentionSuggestionParams } from '@erxes/ui/src/components/richTextEditor/utils/getMentionSuggestions';
 import NameCard from '@erxes/ui/src/components/nameCard/NameCard';
 import React from 'react';
 import ResponseTemplate from '../../../containers/conversationDetail/responseTemplate/ResponseTemplate';
@@ -37,9 +37,8 @@ import { SmallLoader } from '@erxes/ui/src/components/ButtonMutate';
 import Tip from '@erxes/ui/src/components/Tip';
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 import { deleteHandler } from '@erxes/ui/src/utils/uploadHandler';
-import { useGenerateJSON } from '@erxes/ui/src/components/richTextEditor/hooks/useExtensions';
 import { getParsedMentions } from '@erxes/ui/src/components/richTextEditor/utils/getParsedMentions';
-import { MentionSuggestionParams } from '@erxes/ui/src/components/richTextEditor/utils/getMentionSuggestions';
+import { useGenerateJSON } from '@erxes/ui/src/components/richTextEditor/hooks/useExtensions';
 
 type Props = {
   conversation: IConversation;

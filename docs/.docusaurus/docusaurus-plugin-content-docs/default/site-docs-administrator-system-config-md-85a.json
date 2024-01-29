@@ -1,0 +1,29 @@
+{
+  "unversionedId": "administrator/system-config",
+  "id": "administrator/system-config",
+  "isDocsHomePage": false,
+  "title": "System config",
+  "description": "In this tutorials enable you to set up administration system configurations, which allows you work on sysadmin without require coding skills.",
+  "source": "@site/docs/administrator/system-config.md",
+  "sourceDirName": "administrator",
+  "slug": "/administrator/system-config",
+  "permalink": "/administrator/system-config",
+  "editUrl": "https://github.com/erxes/erxes/edit/develop/docs/docs/administrator/system-config.md",
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055,
+  "formattedLastUpdatedAt": "10/14/2018",
+  "frontMatter": {
+    "id": "system-config",
+    "title": "System config"
+  },
+  "sidebar": "docs",
+  "previous": {
+    "title": "Environment variables",
+    "permalink": "/administrator/environment-variables"
+  },
+  "next": {
+    "title": "Migration",
+    "permalink": "/administrator/migration"
+  }
+}

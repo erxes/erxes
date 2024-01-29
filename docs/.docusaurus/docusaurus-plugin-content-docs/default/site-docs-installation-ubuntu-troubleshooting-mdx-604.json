@@ -1,0 +1,29 @@
+{
+  "unversionedId": "installation/ubuntu-troubleshooting",
+  "id": "installation/ubuntu-troubleshooting",
+  "isDocsHomePage": false,
+  "title": "Troubleshooting Ubuntu Installation",
+  "description": "Known Issues and frequent Questions",
+  "source": "@site/docs/installation/ubuntu-troubleshooting.mdx",
+  "sourceDirName": "installation",
+  "slug": "/installation/ubuntu-troubleshooting",
+  "permalink": "/installation/ubuntu-troubleshooting",
+  "editUrl": "https://github.com/erxes/erxes/edit/develop/docs/docs/installation/ubuntu-troubleshooting.mdx",
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055,
+  "formattedLastUpdatedAt": "10/14/2018",
+  "frontMatter": {
+    "id": "ubuntu-troubleshooting",
+    "title": "Troubleshooting Ubuntu Installation"
+  },
+  "sidebar": "docs",
+  "previous": {
+    "title": "CE Step by Step Installation",
+    "permalink": "/installation/ubuntu-step-by-step"
+  },
+  "next": {
+    "title": "Docker",
+    "permalink": "/installation/docker"
+  }
+}

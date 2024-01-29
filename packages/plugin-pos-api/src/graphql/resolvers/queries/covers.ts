@@ -1,5 +1,6 @@
 import { getPureDate, paginate } from '@erxes/api-utils/src/core';
 import { IContext } from '../../../connectionResolver';
+import { checkPermission } from '@erxes/api-utils/src/permissions';
 
 const generateFilterQuery = async (models, params) => {
   const query: any = {};
@@ -40,25 +41,23 @@ const coverQueries = {
   async posCovers(_root, params, { models }: IContext) {
     const query = await generateFilterQuery(models, params);
 
-    return paginate(
-      models.Covers.find(query)
-        .sort({ createdAt: -1 })
-        .lean(),
-      {
-        ...params
-      }
-    );
+    return paginate(models.Covers.find(query).sort({ createdAt: -1 }).lean(), {
+      ...params,
+    });
   },
 
   async posCoversCount(_root, params, { models }: IContext) {
     return models.Covers.find({
-      ...(await generateFilterQuery(models, params))
+      ...(await generateFilterQuery(models, params)),
     }).count();
   },
 
   async posCoverDetail(_root, { _id }: { _id: string }, { models }: IContext) {
     return models.Covers.getCover(_id);
-  }
+  },
 };
+
+checkPermission(coverQueries, 'posCovers', 'showCovers');
+checkPermission(coverQueries, 'posCoversCount', 'showCovers');
 
 export default coverQueries;

@@ -1,0 +1,31 @@
+{
+  "unversionedId": "overview/architecture-overview",
+  "id": "overview/architecture-overview",
+  "isDocsHomePage": false,
+  "title": "Architecture Overview",
+  "description": "This document describes the main architecture overview of Erxes.",
+  "source": "@site/docs/overview/architecture-overview.md",
+  "sourceDirName": "overview",
+  "slug": "/overview/architecture-overview",
+  "permalink": "/overview/architecture-overview",
+  "editUrl": "https://github.com/erxes/erxes/edit/develop/docs/docs/overview/architecture-overview.md",
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055,
+  "formattedLastUpdatedAt": "10/14/2018",
+  "sidebar_label": "Architecture Overview",
+  "frontMatter": {
+    "id": "architecture-overview",
+    "title": "Architecture Overview",
+    "sidebar_label": "Architecture Overview"
+  },
+  "sidebar": "docs",
+  "previous": {
+    "title": "Overview",
+    "permalink": "/overview/overview"
+  },
+  "next": {
+    "title": "Developing erxes",
+    "permalink": "/developer/developer"
+  }
+}

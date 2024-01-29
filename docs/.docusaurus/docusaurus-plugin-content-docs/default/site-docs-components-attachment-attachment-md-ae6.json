@@ -1,0 +1,29 @@
+{
+  "unversionedId": "components/Attachment/attachment",
+  "id": "components/Attachment/attachment",
+  "isDocsHomePage": false,
+  "title": "Attachment",
+  "description": "Add any type of attachment or attachments with preview. Click logo or picture to preview.",
+  "source": "@site/docs/components/Attachment/attachment.md",
+  "sourceDirName": "components/Attachment",
+  "slug": "/components/Attachment/attachment",
+  "permalink": "/components/Attachment/attachment",
+  "editUrl": "https://github.com/erxes/erxes/edit/develop/docs/docs/components/Attachment/attachment.md",
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055,
+  "formattedLastUpdatedAt": "10/14/2018",
+  "frontMatter": {
+    "id": "attachment",
+    "title": "Attachment"
+  },
+  "sidebar": "components",
+  "previous": {
+    "title": "Animated Loader",
+    "permalink": "/components/AnimatedLoader/animatedLoader"
+  },
+  "next": {
+    "title": "Avatar Upload",
+    "permalink": "/components/AvatarUpload/avatarUpload"
+  }
+}

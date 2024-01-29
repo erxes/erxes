@@ -1,7 +1,7 @@
+import { IResponseTemplate } from '../../../../settings/responseTemplates/types';
+import { MentionSuggestionParams } from '@erxes/ui/src/components/richTextEditor/utils/getMentionSuggestions';
 import React from 'react';
 import { RichTextEditor } from '@erxes/ui/src/components/richTextEditor/TEditor';
-import { MentionSuggestionParams } from '@erxes/ui/src/components/richTextEditor/utils/getMentionSuggestions';
-import { IResponseTemplate } from '../../../../settings/responseTemplates/types';
 import TemplateList from './TemplateList';
 
 type EditorProps = {

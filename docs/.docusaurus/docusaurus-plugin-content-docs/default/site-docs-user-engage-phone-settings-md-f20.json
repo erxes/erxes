@@ -1,0 +1,31 @@
+{
+  "unversionedId": "user/engage-phone-settings",
+  "id": "user/engage-phone-settings",
+  "isDocsHomePage": false,
+  "title": "Engage phone settings",
+  "description": "This guide only applies to our cloud users (SAAS version).",
+  "source": "@site/docs/user/engage-phone-settings.md",
+  "sourceDirName": "user",
+  "slug": "/user/engage-phone-settings",
+  "permalink": "/user/engage-phone-settings",
+  "editUrl": "https://github.com/erxes/erxes/edit/develop/docs/docs/user/engage-phone-settings.md",
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055,
+  "formattedLastUpdatedAt": "10/14/2018",
+  "sidebar_label": "Engage phone settings",
+  "frontMatter": {
+    "id": "engage-phone-settings",
+    "title": "Engage phone settings",
+    "sidebar_label": "Engage phone settings"
+  },
+  "sidebar": "tutorials",
+  "previous": {
+    "title": "General Settings",
+    "permalink": "/user/general-settings"
+  },
+  "next": {
+    "title": "Team Inbox",
+    "permalink": "/user/team-inbox"
+  }
+}

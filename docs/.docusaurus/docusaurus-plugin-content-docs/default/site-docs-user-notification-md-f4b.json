@@ -1,0 +1,29 @@
+{
+  "unversionedId": "user/notification",
+  "id": "user/notification",
+  "isDocsHomePage": false,
+  "title": "Notifications",
+  "description": "Notifications in erxes alert you to channels and conversations events.",
+  "source": "@site/docs/user/notification.md",
+  "sourceDirName": "user",
+  "slug": "/user/notification",
+  "permalink": "/user/notification",
+  "editUrl": "https://github.com/erxes/erxes/edit/develop/docs/docs/user/notification.md",
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055,
+  "formattedLastUpdatedAt": "10/14/2018",
+  "frontMatter": {
+    "id": "notification",
+    "title": "Notifications"
+  },
+  "sidebar": "tutorials",
+  "previous": {
+    "title": "Profile settings",
+    "permalink": "/user/profile-settings"
+  },
+  "next": {
+    "title": "Mobile Apps",
+    "permalink": "/user/mobile-apps"
+  }
+}

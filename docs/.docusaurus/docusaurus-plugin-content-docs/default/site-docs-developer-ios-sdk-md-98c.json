@@ -1,0 +1,31 @@
+{
+  "unversionedId": "developer/ios-sdk",
+  "id": "developer/ios-sdk",
+  "isDocsHomePage": false,
+  "title": "iOS SDK",
+  "description": "Learn how to install the iOS SDK.",
+  "source": "@site/docs/developer/ios-sdk.md",
+  "sourceDirName": "developer",
+  "slug": "/developer/ios-sdk",
+  "permalink": "/developer/ios-sdk",
+  "editUrl": "https://github.com/erxes/erxes/edit/develop/docs/docs/developer/ios-sdk.md",
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055,
+  "formattedLastUpdatedAt": "10/14/2018",
+  "sidebar_label": "iOS SDK",
+  "frontMatter": {
+    "id": "ios-sdk",
+    "title": "iOS SDK",
+    "sidebar_label": "iOS SDK"
+  },
+  "sidebar": "docs",
+  "previous": {
+    "title": "Android SDK",
+    "permalink": "/developer/android-sdk"
+  },
+  "next": {
+    "title": "Push notifications",
+    "permalink": "/developer/push-notifications"
+  }
+}

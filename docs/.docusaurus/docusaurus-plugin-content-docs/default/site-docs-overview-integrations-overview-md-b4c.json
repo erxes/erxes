@@ -1,0 +1,20 @@
+{
+  "unversionedId": "overview/integrations-overview",
+  "id": "overview/integrations-overview",
+  "isDocsHomePage": false,
+  "title": "Integrations Overview",
+  "description": "UNLIMITED THIRD PARTY APP INTEGRATION",
+  "source": "@site/docs/overview/integrations-overview.md",
+  "sourceDirName": "overview",
+  "slug": "/overview/integrations-overview",
+  "permalink": "/overview/integrations-overview",
+  "editUrl": "https://github.com/erxes/erxes/edit/develop/docs/docs/overview/integrations-overview.md",
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055,
+  "formattedLastUpdatedAt": "10/14/2018",
+  "frontMatter": {
+    "id": "integrations-overview",
+    "title": "Integrations Overview"
+  }
+}

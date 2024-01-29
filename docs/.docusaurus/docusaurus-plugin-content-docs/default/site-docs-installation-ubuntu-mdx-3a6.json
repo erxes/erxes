@@ -1,0 +1,29 @@
+{
+  "unversionedId": "installation/ubuntu",
+  "id": "installation/ubuntu",
+  "isDocsHomePage": false,
+  "title": "Ubuntu 18.04",
+  "description": "Server Installation",
+  "source": "@site/docs/installation/ubuntu.mdx",
+  "sourceDirName": "installation",
+  "slug": "/installation/ubuntu",
+  "permalink": "/installation/ubuntu",
+  "editUrl": "https://github.com/erxes/erxes/edit/develop/docs/docs/installation/ubuntu.mdx",
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055,
+  "formattedLastUpdatedAt": "10/14/2018",
+  "frontMatter": {
+    "id": "ubuntu",
+    "title": "Ubuntu 18.04"
+  },
+  "sidebar": "docs",
+  "previous": {
+    "title": "Deployment Overview",
+    "permalink": "/overview/deployment-overview"
+  },
+  "next": {
+    "title": "CE Quick Start Installation",
+    "permalink": "/installation/ubuntu-quickstart"
+  }
+}

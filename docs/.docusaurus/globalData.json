@@ -1,0 +1,483 @@
+{
+  "docusaurus-plugin-content-docs": {
+    "default": {
+      "path": "/",
+      "versions": [
+        {
+          "name": "current",
+          "label": "Next",
+          "isLast": true,
+          "path": "/",
+          "mainDocId": "overview/deployment-overview",
+          "docs": [
+            {
+              "id": "administrator/creating-first-user",
+              "path": "/administrator/creating-first-user",
+              "sidebar": "docs"
+            },
+            {
+              "id": "administrator/environment-variables",
+              "path": "/administrator/environment-variables",
+              "sidebar": "docs"
+            },
+            {
+              "id": "administrator/migration",
+              "path": "/administrator/migration",
+              "sidebar": "docs"
+            },
+            {
+              "id": "administrator/system-config",
+              "path": "/administrator/system-config",
+              "sidebar": "docs"
+            },
+            {
+              "id": "changelog/release-notes",
+              "path": "/changelog/release-notes"
+            },
+            {
+              "id": "components/AnimatedLoader/animatedLoader",
+              "path": "/components/AnimatedLoader/animatedLoader",
+              "sidebar": "components"
+            },
+            {
+              "id": "components/Attachment/attachment",
+              "path": "/components/Attachment/attachment",
+              "sidebar": "components"
+            },
+            {
+              "id": "components/AvatarUpload/avatarUpload",
+              "path": "/components/AvatarUpload/avatarUpload",
+              "sidebar": "components"
+            },
+            {
+              "id": "components/Box/box",
+              "path": "/components/Box/box",
+              "sidebar": "components"
+            },
+            {
+              "id": "components/BreadCrumb/breadcrumbs",
+              "path": "/components/BreadCrumb/breadcrumbs",
+              "sidebar": "components"
+            },
+            {
+              "id": "components/Button/buttons",
+              "path": "/components/Button/buttons",
+              "sidebar": "components"
+            },
+            {
+              "id": "components/Chip/chip",
+              "path": "/components/Chip/chip",
+              "sidebar": "components"
+            },
+            {
+              "id": "components/CollapseContent/collapsecontent",
+              "path": "/components/CollapseContent/collapsecontent",
+              "sidebar": "components"
+            },
+            {
+              "id": "components/DatawithLoader/datawithloader",
+              "path": "/components/DatawithLoader/datawithloader",
+              "sidebar": "components"
+            },
+            {
+              "id": "components/EmptyContent/emptycontent",
+              "path": "/components/EmptyContent/emptycontent",
+              "sidebar": "components"
+            },
+            {
+              "id": "components/EmptyState/emptystate",
+              "path": "/components/EmptyState/emptystate",
+              "sidebar": "components"
+            },
+            {
+              "id": "components/ErrorMsg/errormsg",
+              "path": "/components/ErrorMsg/errormsg",
+              "sidebar": "components"
+            },
+            {
+              "id": "components/FilePreview/filepreview",
+              "path": "/components/FilePreview/filepreview",
+              "sidebar": "components"
+            },
+            {
+              "id": "components/FilterableList/filterablelist",
+              "path": "/components/FilterableList/filterablelist",
+              "sidebar": "components"
+            },
+            {
+              "id": "components/FilterByParams/filterbyparams",
+              "path": "/components/FilterByParams/filterbyparams",
+              "sidebar": "components"
+            },
+            {
+              "id": "components/HeaderDescription/headerdescription",
+              "path": "/components/HeaderDescription/headerdescription",
+              "sidebar": "components"
+            },
+            {
+              "id": "components/HelpPopOver/helppopover",
+              "path": "/components/HelpPopOver/helppopover",
+              "sidebar": "components"
+            },
+            {
+              "id": "components/Icon/icon",
+              "path": "/components/Icon/icon",
+              "sidebar": "components"
+            },
+            {
+              "id": "components/Info/info",
+              "path": "/components/Info/info",
+              "sidebar": "components"
+            },
+            {
+              "id": "components/Label/label",
+              "path": "/components/Label/label",
+              "sidebar": "components"
+            },
+            {
+              "id": "components/ModifiableList/modifiablelist",
+              "path": "/components/ModifiableList/modifiablelist",
+              "sidebar": "components"
+            },
+            {
+              "id": "components/Namecard/namecard",
+              "path": "/components/Namecard/namecard",
+              "sidebar": "components"
+            },
+            {
+              "id": "components/ProgressBar/progressbar",
+              "path": "/components/ProgressBar/progressbar",
+              "sidebar": "components"
+            },
+            {
+              "id": "components/SortHandler/sorthandler",
+              "path": "/components/SortHandler/sorthandler",
+              "sidebar": "components"
+            },
+            {
+              "id": "components/Spinner/spinners",
+              "path": "/components/Spinner/spinners",
+              "sidebar": "components"
+            },
+            {
+              "id": "components/Steps/steps",
+              "path": "/components/Steps/steps",
+              "sidebar": "components"
+            },
+            {
+              "id": "components/SubMenu/submenu",
+              "path": "/components/SubMenu/submenu",
+              "sidebar": "components"
+            },
+            {
+              "id": "components/Table/table",
+              "path": "/components/Table/table",
+              "sidebar": "components"
+            },
+            {
+              "id": "components/Tabs/tabs",
+              "path": "/components/Tabs/tabs",
+              "sidebar": "components"
+            },
+            {
+              "id": "components/Tag/tag",
+              "path": "/components/Tag/tag",
+              "sidebar": "components"
+            },
+            {
+              "id": "components/TextDivider/textdivider",
+              "path": "/components/TextDivider/textdivider",
+              "sidebar": "components"
+            },
+            {
+              "id": "components/TextInfo/textinfo",
+              "path": "/components/TextInfo/textinfo",
+              "sidebar": "components"
+            },
+            {
+              "id": "components/Timer/timer",
+              "path": "/components/Timer/timer",
+              "sidebar": "components"
+            },
+            {
+              "id": "components/Tip/tip",
+              "path": "/components/Tip/tip",
+              "sidebar": "components"
+            },
+            {
+              "id": "components/Toggle/toggle",
+              "path": "/components/Toggle/toggle",
+              "sidebar": "components"
+            },
+            {
+              "id": "components/Uploader/uploader",
+              "path": "/components/Uploader/uploader",
+              "sidebar": "components"
+            },
+            {
+              "id": "developer/android-sdk",
+              "path": "/developer/android-sdk",
+              "sidebar": "docs"
+            },
+            {
+              "id": "developer/contributing",
+              "path": "/developer/contributing"
+            },
+            {
+              "id": "developer/developer",
+              "path": "/developer/developer",
+              "sidebar": "docs"
+            },
+            {
+              "id": "developer/documentation_guide",
+              "path": "/developer/documentation_guide",
+              "sidebar": "docs"
+            },
+            {
+              "id": "developer/graphql-api",
+              "path": "/developer/graphql-api",
+              "sidebar": "docs"
+            },
+            {
+              "id": "developer/integrations-overview/aws-s3",
+              "path": "/developer/integrations-overview/aws-s3",
+              "sidebar": "docs"
+            },
+            {
+              "id": "developer/integrations-overview/aws-ses",
+              "path": "/developer/integrations-overview/aws-ses",
+              "sidebar": "docs"
+            },
+            {
+              "id": "developer/integrations-overview/facebook",
+              "path": "/developer/integrations-overview/facebook",
+              "sidebar": "docs"
+            },
+            {
+              "id": "developer/integrations-overview/gmail",
+              "path": "/developer/integrations-overview/gmail",
+              "sidebar": "docs"
+            },
+            {
+              "id": "developer/integrations-overview/google-cloud-storage",
+              "path": "/developer/integrations-overview/google-cloud-storage",
+              "sidebar": "docs"
+            },
+            {
+              "id": "developer/integrations-overview/nylas-integrations",
+              "path": "/developer/integrations-overview/nylas-integrations",
+              "sidebar": "docs"
+            },
+            {
+              "id": "developer/integrations-overview/sunshine-conversations",
+              "path": "/developer/integrations-overview/sunshine-conversations",
+              "sidebar": "docs"
+            },
+            {
+              "id": "developer/integrations-overview/twitter",
+              "path": "/developer/integrations-overview/twitter",
+              "sidebar": "docs"
+            },
+            {
+              "id": "developer/integrations-overview/whatsApp-integration",
+              "path": "/developer/integrations-overview/whatsApp-integration",
+              "sidebar": "docs"
+            },
+            {
+              "id": "developer/ios-sdk",
+              "path": "/developer/ios-sdk",
+              "sidebar": "docs"
+            },
+            {
+              "id": "developer/plugin",
+              "path": "/developer/plugin",
+              "sidebar": "docs"
+            },
+            {
+              "id": "developer/push-notifications",
+              "path": "/developer/push-notifications",
+              "sidebar": "docs"
+            },
+            {
+              "id": "developer/troubleshooting",
+              "path": "/developer/troubleshooting",
+              "sidebar": "docs"
+            },
+            {
+              "id": "getting-started/commit",
+              "path": "/getting-started/commit",
+              "sidebar": "docs"
+            },
+            {
+              "id": "getting-started/contributing-guide",
+              "path": "/getting-started/contributing-guide",
+              "sidebar": "docs"
+            },
+            {
+              "id": "getting-started/submitting",
+              "path": "/getting-started/submitting",
+              "sidebar": "docs"
+            },
+            {
+              "id": "installation/aws",
+              "path": "/installation/aws"
+            },
+            {
+              "id": "installation/digitalocean",
+              "path": "/installation/digitalocean"
+            },
+            {
+              "id": "installation/docker",
+              "path": "/installation/docker",
+              "sidebar": "docs"
+            },
+            {
+              "id": "installation/heroku",
+              "path": "/installation/heroku"
+            },
+            {
+              "id": "installation/kubernetes",
+              "path": "/installation/kubernetes"
+            },
+            {
+              "id": "installation/ubuntu",
+              "path": "/installation/ubuntu",
+              "sidebar": "docs"
+            },
+            {
+              "id": "installation/ubuntu-quickstart",
+              "path": "/installation/ubuntu-quickstart",
+              "sidebar": "docs"
+            },
+            {
+              "id": "installation/ubuntu-step-by-step",
+              "path": "/installation/ubuntu-step-by-step",
+              "sidebar": "docs"
+            },
+            {
+              "id": "installation/ubuntu-troubleshooting",
+              "path": "/installation/ubuntu-troubleshooting",
+              "sidebar": "docs"
+            },
+            {
+              "id": "installation/upgrade",
+              "path": "/installation/upgrade",
+              "sidebar": "docs"
+            },
+            {
+              "id": "overview/architecture-overview",
+              "path": "/overview/architecture-overview",
+              "sidebar": "docs"
+            },
+            {
+              "id": "overview/deployment-overview",
+              "path": "/overview/deployment-overview",
+              "sidebar": "docs"
+            },
+            {
+              "id": "overview/getting-started",
+              "path": "/overview/getting-started"
+            },
+            {
+              "id": "overview/integrations-overview",
+              "path": "/overview/integrations-overview"
+            },
+            {
+              "id": "overview/overview",
+              "path": "/overview/overview",
+              "sidebar": "docs"
+            },
+            {
+              "id": "partner-agency",
+              "path": "/partner-agency"
+            },
+            {
+              "id": "partner-developer",
+              "path": "/partner-developer"
+            },
+            {
+              "id": "user/contacts",
+              "path": "/user/contacts",
+              "sidebar": "tutorials"
+            },
+            {
+              "id": "user/engage",
+              "path": "/user/engage",
+              "sidebar": "tutorials"
+            },
+            {
+              "id": "user/engage-phone-settings",
+              "path": "/user/engage-phone-settings",
+              "sidebar": "tutorials"
+            },
+            {
+              "id": "user/general-settings",
+              "path": "/user/general-settings",
+              "sidebar": "tutorials"
+            },
+            {
+              "id": "user/import",
+              "path": "/user/import",
+              "sidebar": "tutorials"
+            },
+            {
+              "id": "user/initial-setup",
+              "path": "/user/initial-setup",
+              "sidebar": "tutorials"
+            },
+            {
+              "id": "user/knowledge-base",
+              "path": "/user/knowledge-base",
+              "sidebar": "tutorials"
+            },
+            {
+              "id": "user/mobile-apps",
+              "path": "/user/mobile-apps",
+              "sidebar": "tutorials"
+            },
+            {
+              "id": "user/notification",
+              "path": "/user/notification",
+              "sidebar": "tutorials"
+            },
+            {
+              "id": "user/popups",
+              "path": "/user/popups",
+              "sidebar": "tutorials"
+            },
+            {
+              "id": "user/profile-settings",
+              "path": "/user/profile-settings",
+              "sidebar": "tutorials"
+            },
+            {
+              "id": "user/sales-pipeline",
+              "path": "/user/sales-pipeline",
+              "sidebar": "tutorials"
+            },
+            {
+              "id": "user/script-install",
+              "path": "/user/script-install",
+              "sidebar": "docs"
+            },
+            {
+              "id": "user/segments",
+              "path": "/user/segments",
+              "sidebar": "tutorials"
+            },
+            {
+              "id": "user/subscription-getting-started",
+              "path": "/user/subscription-getting-started",
+              "sidebar": "tutorials"
+            },
+            {
+              "id": "user/team-inbox",
+              "path": "/user/team-inbox",
+              "sidebar": "tutorials"
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

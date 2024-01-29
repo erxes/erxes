@@ -1,0 +1,29 @@
+{
+  "unversionedId": "installation/docker",
+  "id": "installation/docker",
+  "isDocsHomePage": false,
+  "title": "Docker",
+  "description": "This steps explain how to install Erxes on Docker Hub, to do it, follow the instructions.",
+  "source": "@site/docs/installation/docker.md",
+  "sourceDirName": "installation",
+  "slug": "/installation/docker",
+  "permalink": "/installation/docker",
+  "editUrl": "https://github.com/erxes/erxes/edit/develop/docs/docs/installation/docker.md",
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055,
+  "formattedLastUpdatedAt": "10/14/2018",
+  "frontMatter": {
+    "id": "docker",
+    "title": "Docker"
+  },
+  "sidebar": "docs",
+  "previous": {
+    "title": "Troubleshooting Ubuntu Installation",
+    "permalink": "/installation/ubuntu-troubleshooting"
+  },
+  "next": {
+    "title": "Upgrade",
+    "permalink": "/installation/upgrade"
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "installation": {
+    "allTagsPath": "/blog/tags",
+    "slug": "installation",
+    "name": "installation",
+    "count": 1,
+    "permalink": "/blog/tags/installation"
+  },
+  "heroku": {
+    "allTagsPath": "/blog/tags",
+    "slug": "heroku",
+    "name": "heroku",
+    "count": 1,
+    "permalink": "/blog/tags/heroku"
+  },
+  "release-note": {
+    "allTagsPath": "/blog/tags",
+    "slug": "release-note",
+    "name": "release note",
+    "count": 2,
+    "permalink": "/blog/tags/release-note"
+  },
+  "open-source": {
+    "allTagsPath": "/blog/tags",
+    "slug": "open-source",
+    "name": "open source",
+    "count": 2,
+    "permalink": "/blog/tags/open-source"
+  }
+}

@@ -45,7 +45,7 @@ export const RichTextEditorControl = (props: IRichTextEditorControlProps) => {
       aria-pressed={(active && interactive) || undefined}
       aria-hidden={!interactive || undefined}
       innerRef={ref}
-      onMouseDown={event => {
+      onMouseDown={(event) => {
         event.preventDefault();
         onMouseDown?.(event);
       }}
@@ -60,7 +60,7 @@ export interface IRichTextEditorControlBaseProps
 
 export const RichTextEditorControlBase = <
   HTMLButtonElement,
-  RichTextEditorControlBaseProps
+  RichTextEditorControlBaseProps,
 >({
   className,
   icon: Icon,
@@ -84,10 +84,10 @@ export function createControl({
   label,
   isActive,
   operation,
-  icon
+  icon,
 }: ICreateControlProps) {
   return <HTMLButtonElement, RichTextEditorControlBaseProps>(
-    props: RichTextEditorControlBaseProps
+    props: RichTextEditorControlBaseProps,
   ) => {
     const { editor, labels } = useRichTextEditorContext();
     const _label = labels[label] as string;
@@ -99,8 +99,8 @@ export function createControl({
           isActive?.name
             ? editor?.isActive(isActive.name, isActive.attributes)
             : isActive?.attributes
-            ? editor?.isActive(isActive.attributes)
-            : false
+              ? editor?.isActive(isActive.attributes)
+              : false
         }
         onClick={() =>
           (editor as any)

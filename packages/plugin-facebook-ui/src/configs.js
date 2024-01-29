@@ -95,7 +95,7 @@ module.exports = {
           }
         `,
       name: 'facebookConversationMessages',
-      integrationKind: 'facebook-messenger',
+      integrationKind: 'facebook-messenger'
     },
     countQuery: {
       query: `
@@ -104,8 +104,8 @@ module.exports = {
           }
         `,
       name: 'facebookConversationMessagesCount',
-      integrationKind: 'facebook-messenger',
-    },
+      integrationKind: 'facebook-messenger'
+    }
   },
   inboxIntegrations: [
     {
@@ -119,7 +119,7 @@ module.exports = {
       createUrl: '/settings/integrations/createFacebook',
       category:
         'All integrations, For support teams, Marketing automation, Social media',
-      components: ['inboxConversationDetail'],
+      components: ['inboxConversationDetailRespondBoxMask']
     },
     {
       name: 'Facebook Messenger',
@@ -133,11 +133,11 @@ module.exports = {
       createUrl: '/settings/integrations/createFacebook',
       category:
         'All integrations, For support teams, Messaging, Social media, Conversation',
-      components: ['inboxConversationDetailRespondBoxMask'],
-    },
+      components: ['inboxConversationDetailRespondBoxMask']
+    }
   ],
   activityLog: './activityLog',
   inboxConversationDetailRespondBoxMask:
     './inboxConversationDetailRespondBoxMask',
-  inboxConversationDetail: './inboxConversationDetail',
+  inboxConversationDetail: './inboxConversationDetail'
 };

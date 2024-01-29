@@ -1,0 +1,29 @@
+{
+  "unversionedId": "components/Info/info",
+  "id": "components/Info/info",
+  "isDocsHomePage": false,
+  "title": "Info",
+  "description": "Provide contextual messages for typical user actions with info messages.",
+  "source": "@site/docs/components/Info/info.md",
+  "sourceDirName": "components/Info",
+  "slug": "/components/Info/info",
+  "permalink": "/components/Info/info",
+  "editUrl": "https://github.com/erxes/erxes/edit/develop/docs/docs/components/Info/info.md",
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055,
+  "formattedLastUpdatedAt": "10/14/2018",
+  "frontMatter": {
+    "id": "info",
+    "title": "Info"
+  },
+  "sidebar": "components",
+  "previous": {
+    "title": "Icon",
+    "permalink": "/components/Icon/icon"
+  },
+  "next": {
+    "title": "Label",
+    "permalink": "/components/Label/label"
+  }
+}

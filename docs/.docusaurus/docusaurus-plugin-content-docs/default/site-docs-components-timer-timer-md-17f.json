@@ -1,0 +1,29 @@
+{
+  "unversionedId": "components/Timer/timer",
+  "id": "components/Timer/timer",
+  "isDocsHomePage": false,
+  "title": "Timer",
+  "description": "Click any button to check actions.",
+  "source": "@site/docs/components/Timer/timer.md",
+  "sourceDirName": "components/Timer",
+  "slug": "/components/Timer/timer",
+  "permalink": "/components/Timer/timer",
+  "editUrl": "https://github.com/erxes/erxes/edit/develop/docs/docs/components/Timer/timer.md",
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055,
+  "formattedLastUpdatedAt": "10/14/2018",
+  "frontMatter": {
+    "id": "timer",
+    "title": "Timer"
+  },
+  "sidebar": "components",
+  "previous": {
+    "title": "Text info",
+    "permalink": "/components/TextInfo/textinfo"
+  },
+  "next": {
+    "title": "Tip",
+    "permalink": "/components/Tip/tip"
+  }
+}

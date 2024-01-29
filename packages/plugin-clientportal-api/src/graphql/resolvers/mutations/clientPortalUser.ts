@@ -649,7 +649,9 @@ const clientPortalUserMutations = {
 
             await sendSms(
               subdomain,
-              'messagePro',
+              config.smsTransporterType
+                ? config.smsTransporterType
+                : 'messagePro',
               clientPortal?.testUserPhone,
               body,
             );
@@ -674,7 +676,12 @@ const clientPortalUserMutations = {
         config.content.replace(/{.*}/, phoneCode) ||
         `Your verification code is ${phoneCode}`;
 
-      await sendSms(subdomain, 'messagePro', phone, body);
+      await sendSms(
+        subdomain,
+        config.smsTransporterType ? config.smsTransporterType : 'messagePro',
+        phone,
+        body,
+      );
     }
 
     return { userId: user._id, message: 'Sms sent' };
@@ -889,7 +896,7 @@ const clientPortalUserMutations = {
 
     await sendSms(
       subdomain,
-      config.smsTransporterType,
+      config.smsTransporterType ? config.smsTransporterType : 'messagePro',
       phone,
       config.content.replace(/{.*}/, code),
     );

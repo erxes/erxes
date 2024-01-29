@@ -1,0 +1,31 @@
+{
+  "unversionedId": "developer/developer",
+  "id": "developer/developer",
+  "isDocsHomePage": false,
+  "title": "Developing erxes",
+  "description": "This document describes how to set up your development environment to develop and test Erxes. It also explains the basic mechanics of using git, node, and yarn.",
+  "source": "@site/docs/developer/developer.md",
+  "sourceDirName": "developer",
+  "slug": "/developer/developer",
+  "permalink": "/developer/developer",
+  "editUrl": "https://github.com/erxes/erxes/edit/develop/docs/docs/developer/developer.md",
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055,
+  "formattedLastUpdatedAt": "10/14/2018",
+  "sidebar_label": "Developer",
+  "frontMatter": {
+    "id": "developer",
+    "title": "Developing erxes",
+    "sidebar_label": "Developer"
+  },
+  "sidebar": "docs",
+  "previous": {
+    "title": "Architecture Overview",
+    "permalink": "/overview/architecture-overview"
+  },
+  "next": {
+    "title": "Plugin development",
+    "permalink": "/developer/plugin"
+  }
+}
