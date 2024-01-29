@@ -251,6 +251,16 @@ export const getSavingProduct = async (subdomain, _id) => {
   });
 };
 
+export const getSavingContract = async (subdomain, _id) => {
+  return await sendCommonMessage({
+    subdomain,
+    action: 'contract.findOne',
+    serviceName: 'savings',
+    data: { _id },
+    isRPC: true,
+  });
+};
+
 export const getBoolean = (value) => {
   if (value === 1) return true;
   return false;
