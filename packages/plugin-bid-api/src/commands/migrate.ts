@@ -31,6 +31,8 @@ const command = async () => {
     const apiUrl = 'https://crm-api.bid.mn/api/v1';
 
     for (const customer of customers) {
+      //
+      await new Promise((resolve) => setTimeout(resolve, 5000));
       const { _id, primaryPhone, code } = customer;
 
       const polarisData = await Polarissyncs.findOne({ customerId: _id });
