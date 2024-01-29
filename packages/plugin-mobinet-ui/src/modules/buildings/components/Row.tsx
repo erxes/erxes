@@ -77,15 +77,17 @@ const Row = (props: Props) => {
 
   const installationRequestIds = building.installationRequestIds || [];
   const ticketIds = building.ticketIds || [];
-
+  const onClick = () => {
+    props.history.push(`/mobinet/building/details/${building._id}`);
+  };
   return (
     <tr>
       <td key={Math.random()}>
-        <RowTitle>{props.index}</RowTitle>
+        <RowTitle onClick={onClick}>{props.index}</RowTitle>
       </td>
 
       <td key={Math.random()}>
-        <RowTitle>{building.name || '-'}</RowTitle>
+        <RowTitle onClick={onClick}>{building.name || '-'}</RowTitle>
       </td>
 
       <td key={Math.random()}>

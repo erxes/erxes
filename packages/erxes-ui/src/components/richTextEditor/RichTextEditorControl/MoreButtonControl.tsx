@@ -4,12 +4,12 @@ import Popover from 'react-bootstrap/Popover';
 import { useRichTextEditorContext } from '../RichTextEditor.context';
 import {
   IRichTextEditorControlBaseProps,
-  RichTextEditorControlBase
+  RichTextEditorControlBase,
 } from './RichTextEditorControl';
 import Icon from '../../Icon';
 import {
   RichTextEditorMenuWrapper,
-  RichTextEditorMenuPopoverWrapper
+  RichTextEditorMenuPopoverWrapper,
 } from './styles';
 
 export interface IRichTextEditorMoreControlProps
@@ -26,7 +26,7 @@ export const MoreButtonControl = (props: IRichTextEditorMoreControlProps) => {
   const { labels } = useRichTextEditorContext();
   const { toolbarPlacement, children } = props;
 
-  const renderMenu = props => (
+  const renderMenu = (props) => (
     <RichTextEditorMenuPopoverWrapper>
       <Popover id="rte-more-menu" {...props}>
         <RichTextEditorMenuWrapper>{children}</RichTextEditorMenuWrapper>

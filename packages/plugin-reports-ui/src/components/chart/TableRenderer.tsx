@@ -16,7 +16,7 @@ const TableList = (props: Props) => {
   const { dataset } = props;
   const { title, data, labels } = dataset;
 
-  const sliceArrayBy12 = arr => {
+  const sliceArrayBy12 = (arr) => {
     const slicedArray: any = [];
     for (var i = 0; i < arr.length; i += 12) {
       slicedArray.push(arr.slice(i, i + 12));

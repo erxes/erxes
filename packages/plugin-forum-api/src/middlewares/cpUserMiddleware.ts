@@ -5,7 +5,7 @@ import * as jwt from 'jsonwebtoken';
 export default async function cpUserMiddleware(
   req: Request & { cpUser?: any },
   _res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) {
   const subdomain = getSubdomain(req);
   const authHeader = req.headers.authorization;

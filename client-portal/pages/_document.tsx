@@ -36,7 +36,7 @@ export default class MyDocument extends Document {
           <meta property="og:site_name" content="Erxes client portal" />
           <meta
             name="keywords"
-            content="Erxes client portal erxes.io erxes.org mongolia"
+            content="Erxes client portal erxes.io mongolia"
           />
 
           <link

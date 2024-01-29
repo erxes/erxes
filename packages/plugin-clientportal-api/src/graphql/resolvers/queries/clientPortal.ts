@@ -7,7 +7,7 @@ import {
   sendCommonMessage,
   sendContactsMessage,
   sendCoreMessage,
-  sendKbMessage
+  sendKbMessage,
 } from '../../../messageBroker';
 import { getCards, getUserCards } from '../../../utils';
 
@@ -16,7 +16,7 @@ const getByHost = async (models, requestInfo) => {
   const pattern = `.*${origin}.*`;
 
   const config = await models.ClientPortals.findOne({
-    url: { $regex: pattern }
+    url: { $regex: pattern },
   });
 
   if (!config) {
@@ -30,7 +30,7 @@ const configClientPortalQueries = {
   async clientPortalGetConfigs(
     _root,
     args: { kind?: string; page?: number; perPage?: number },
-    { models }: IContext
+    { models }: IContext,
   ) {
     const { kind = 'client' } = args;
 
@@ -46,14 +46,14 @@ const configClientPortalQueries = {
    */
   clientPortalGetLast(_root, { kind }, { models }: IContext) {
     return models.ClientPortals.findOne({ kind }).sort({
-      createdAt: -1
+      createdAt: -1,
     });
   },
 
   async clientPortalGetConfig(
     _root,
     { _id }: { _id: string },
-    { models }: IContext
+    { models }: IContext,
   ) {
     return models.ClientPortals.findOne({ _id });
   },
@@ -61,7 +61,7 @@ const configClientPortalQueries = {
   async clientPortalGetConfigByDomain(
     _root,
     _args,
-    { models, requestInfo }: IContext
+    { models, requestInfo }: IContext,
   ) {
     return getByHost(models, requestInfo);
   },
@@ -69,7 +69,7 @@ const configClientPortalQueries = {
   async clientPortalGetTaskStages(
     _root,
     _args,
-    { models, subdomain, requestInfo }: IContext
+    { models, subdomain, requestInfo }: IContext,
   ) {
     const config = await getByHost(models, requestInfo);
 
@@ -77,16 +77,16 @@ const configClientPortalQueries = {
       subdomain,
       action: 'stages.find',
       data: {
-        pipelineId: config.taskPublicPipelineId
+        pipelineId: config.taskPublicPipelineId,
       },
-      isRPC: true
+      isRPC: true,
     });
   },
 
   async clientPortalGetTasks(
     _root,
     { stageId },
-    { models, subdomain, requestInfo }: IContext
+    { models, subdomain, requestInfo }: IContext,
   ) {
     const config = await getByHost(models, requestInfo);
 
@@ -94,9 +94,9 @@ const configClientPortalQueries = {
       subdomain,
       action: 'stages.findOne',
       data: {
-        _id: stageId
+        _id: stageId,
       },
-      isRPC: true
+      isRPC: true,
     });
 
     if (config.taskPublicPipelineId !== stage.pipelineId) {
@@ -107,26 +107,26 @@ const configClientPortalQueries = {
       subdomain,
       action: 'tasks.find',
       data: {
-        stageId
+        stageId,
       },
-      isRPC: true
+      isRPC: true,
     });
   },
 
   async clientPortalKnowledgeBaseTopicDetail(
     _root,
     { _id },
-    { subdomain }: IContext
+    { subdomain }: IContext,
   ) {
     return sendKbMessage({
       subdomain,
       action: 'topics.findOne',
       data: {
         query: {
-          _id
-        }
+          _id,
+        },
       },
-      isRPC: true
+      isRPC: true,
     });
   },
 
@@ -151,9 +151,9 @@ const configClientPortalQueries = {
       subdomain,
       action: 'tickets.findOne',
       data: {
-        _id
+        _id,
       },
-      isRPC: true
+      isRPC: true,
     });
   },
 
@@ -165,13 +165,13 @@ const configClientPortalQueries = {
     {
       categoryIds,
       searchValue,
-      topicId
+      topicId,
     }: {
       searchValue?: string;
       categoryIds: string[];
       topicId?: string;
     },
-    { subdomain }: IContext
+    { subdomain }: IContext,
   ) {
     const selector: any = {};
 
@@ -181,10 +181,10 @@ const configClientPortalQueries = {
           $or: [
             { title: { $regex: `.*${searchValue.trim()}.*`, $options: 'i' } },
             { content: { $regex: `.*${searchValue.trim()}.*`, $options: 'i' } },
-            { summary: { $regex: `.*${searchValue.trim()}.*`, $options: 'i' } }
-          ]
+            { summary: { $regex: `.*${searchValue.trim()}.*`, $options: 'i' } },
+          ],
         },
-        { topicId }
+        { topicId },
       ];
     }
 
@@ -196,35 +196,35 @@ const configClientPortalQueries = {
       subdomain,
       action: 'articles.find',
       data: {
-        query: selector,
+        query: { ...selector, status: { $ne: 'draft' } },
         sort: {
-          createdDate: -1
-        }
+          createdDate: -1,
+        },
       },
       isRPC: true,
-      defaultValue: []
+      defaultValue: [],
     });
   },
 
   async clientPortalGetAllowedFields(
     _root,
     { _id }: { _id: string },
-    { models, subdomain }: IContext
+    { models, subdomain }: IContext,
   ) {
     const configs = await models.FieldConfigs.find({
-      allowedClientPortalIds: _id
+      allowedClientPortalIds: _id,
     });
 
     const required = await models.FieldConfigs.find({
       allowedClientPortalIds: _id,
-      requiredOn: _id
+      requiredOn: _id,
     });
 
     if (!configs || configs.length === 0) {
       return [];
     }
 
-    const fieldIds = configs.map(config => config.fieldId);
+    const fieldIds = configs.map((config) => config.fieldId);
     const fields = await sendCommonMessage({
       subdomain,
       serviceName: 'forms',
@@ -232,19 +232,19 @@ const configClientPortalQueries = {
       data: {
         query: {
           _id: { $in: fieldIds },
-          contentType: 'clientportal:user'
-        }
+          contentType: 'clientportal:user',
+        },
       },
       isRPC: true,
-      defaultValue: []
+      defaultValue: [],
     });
 
     if (!required.length || required.length === 0) {
       return fields;
     }
 
-    return fields.map(field => {
-      const found = required.find(config => config.fieldId === field._id);
+    return fields.map((field) => {
+      const found = required.find((config) => config.fieldId === field._id);
 
       if (!found) {
         return field;
@@ -252,7 +252,7 @@ const configClientPortalQueries = {
 
       return {
         ...field,
-        isRequired: true
+        isRequired: true,
       };
     });
   },
@@ -260,11 +260,11 @@ const configClientPortalQueries = {
   async clientPortalCardUsers(
     _root,
     { contentType, contentTypeId, userKind },
-    { models }: IContext
+    { models }: IContext,
   ) {
     const userIds = await models.ClientPortalUserCards.getUserIds(
       contentType,
-      contentTypeId
+      contentTypeId,
     );
 
     if (!userIds || userIds.length === 0) {
@@ -274,25 +274,25 @@ const configClientPortalQueries = {
     const users = await models.ClientPortalUsers.aggregate([
       {
         $match: {
-          _id: { $in: userIds }
-        }
+          _id: { $in: userIds },
+        },
       },
       {
         $lookup: {
           from: 'client_portals',
           localField: 'clientPortalId',
           foreignField: '_id',
-          as: 'clientPortal'
-        }
+          as: 'clientPortal',
+        },
       },
       {
-        $unwind: '$clientPortal'
+        $unwind: '$clientPortal',
       },
       {
         $match: {
-          'clientPortal.kind': userKind
-        }
-      }
+          'clientPortal.kind': userKind,
+        },
+      },
     ]);
 
     return users;
@@ -301,7 +301,7 @@ const configClientPortalQueries = {
   clientPortalUserTickets(
     _root,
     { userId }: { userId: string },
-    { models, cpUser, subdomain }: IContext
+    { models, cpUser, subdomain }: IContext,
   ) {
     const id = userId || (cpUser && cpUser._id);
 
@@ -314,7 +314,7 @@ const configClientPortalQueries = {
   clientPortalUserDeals(
     _root,
     { userId }: { userId: string },
-    { models, cpUser, subdomain }: IContext
+    { models, cpUser, subdomain }: IContext,
   ) {
     const id = userId || (cpUser && cpUser._id);
 
@@ -328,7 +328,7 @@ const configClientPortalQueries = {
   clientPortalUserPurchases(
     _root,
     { userId }: { userId: string },
-    { models, cpUser, subdomain }: IContext
+    { models, cpUser, subdomain }: IContext,
   ) {
     const id = userId || (cpUser && cpUser._id);
 
@@ -342,7 +342,7 @@ const configClientPortalQueries = {
   clientPortalUserTasks(
     _root,
     { userId }: { userId: string },
-    { models, cpUser, subdomain }: IContext
+    { models, cpUser, subdomain }: IContext,
   ) {
     const id = userId || (cpUser && cpUser._id);
 
@@ -351,7 +351,7 @@ const configClientPortalQueries = {
     }
 
     return getUserCards(id, 'task', models, subdomain);
-  }
+  },
 };
 
 export default configClientPortalQueries;

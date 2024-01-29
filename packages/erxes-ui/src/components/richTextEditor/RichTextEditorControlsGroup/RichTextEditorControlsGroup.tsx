@@ -17,7 +17,7 @@ export interface IRichTextEditorControlsGroupProps
 }
 
 export const RichTextEditorControlsGroup = (
-  props: IRichTextEditorControlsGroupProps
+  props: IRichTextEditorControlsGroupProps,
 ) => {
   const { isDropdown, controlNames, toolbarPlacement, children } = props;
   const { editor, isSourceEnabled } = useRichTextEditorContext();

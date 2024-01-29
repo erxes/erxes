@@ -88,8 +88,8 @@ export const initBroker = async () => {
 
   consumeQueue(
     'clientportal:sendSMS',
-    async ({ subdomain, data: { to, content } }) => {
-      await sendSms(subdomain, 'messagePro', to, content);
+    async ({ subdomain, data: { to, content, type } }) => {
+      await sendSms(subdomain, type, to, content);
     },
   );
 

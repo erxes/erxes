@@ -274,7 +274,15 @@ const lastConversation = `
     }
   }
 `;
-
+const postInfo = `
+  query facebookGetPost( $erxesApiId: String!){
+    facebookGetPost(erxesApiId: $erxesApiId){
+      _id
+      content
+      permalink_url
+    }
+  }
+ `;
 const responseTemplateList = `
   query responseTemplates($perPage: Int, $searchValue: String) {
     responseTemplates(perPage: $perPage, searchValue: $searchValue) {
@@ -297,14 +305,14 @@ const convertToInfo = `
   }
 `;
 
-const generateCustomerDetailQuery = params => {
+const generateCustomerDetailQuery = (params) => {
   const {
     showDeviceProperties = false,
     showTrackedData = false,
     showCustomFields = false,
     showCompanies = false,
     showTags = false,
-    showSegments = false
+    showSegments = false,
   } = params || {};
 
   let fields = `
@@ -420,5 +428,6 @@ export default {
   tagsQueryCount,
   channelsByMembers,
   generateCustomerDetailQuery,
-  convertToInfo
+  convertToInfo,
+  postInfo,
 };
