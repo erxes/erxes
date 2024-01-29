@@ -11,7 +11,7 @@ import { __, Alert } from 'coreui/utils';
 import {
   MESSAGE_KIND_FILTERS,
   MESSAGE_KINDS,
-  METHODS
+  METHODS,
 } from '@erxes/ui-engage/src/constants';
 import React from 'react';
 import s from 'underscore.string';
@@ -66,7 +66,7 @@ class Row extends React.Component<Props> {
 
     if (msg.isLive && msg.kind === MESSAGE_KINDS.MANUAL) {
       return Alert.warning(
-        'Unfortunately once a campaign has been sent, it cannot be stopped or edited.'
+        'Unfortunately once a campaign has been sent, it cannot be stopped or edited.',
       );
     }
 
@@ -81,7 +81,7 @@ class Row extends React.Component<Props> {
     const liveM = this.renderLink(
       'Set live',
       'play-circle',
-      this.props.setLiveManual
+      this.props.setLiveManual,
     );
     const show = this.renderLink('Show statistics', 'eye', this.props.show);
     const copy = this.renderLink('Copy', 'copy-1', this.props.copy);
@@ -108,7 +108,7 @@ class Row extends React.Component<Props> {
     return [...links, live];
   }
 
-  renderRemoveButton = onClick => {
+  renderRemoveButton = (onClick) => {
     return (
       <Tip text={__('Delete')} placement="top">
         <Button btnStyle="link" onClick={onClick} icon="times-circle" />
@@ -116,16 +116,16 @@ class Row extends React.Component<Props> {
     );
   };
 
-  toggleBulk = e => {
+  toggleBulk = (e) => {
     this.props.toggleBulk(this.props.message, e.target.checked);
   };
 
   renderSegments(message) {
     let segments = message.segments || ([] as ISegment[]);
 
-    segments = segments.filter(segment => segment && segment._id);
+    segments = segments.filter((segment) => segment && segment._id);
 
-    return segments.map(segment => (
+    return segments.map((segment) => (
       <HelperText key={segment._id}>
         <Icon icon="chart-pie" /> {segment.name}
       </HelperText>
@@ -136,7 +136,7 @@ class Row extends React.Component<Props> {
     const messenger = message.messenger || ({} as IEngageMessenger);
     const rules = messenger.rules || [];
 
-    return rules.map(rule => (
+    return rules.map((rule) => (
       <HelperText key={rule._id}>
         <Icon icon="sign-alt" /> {rule.text} {rule.condition} {rule.value}
       </HelperText>
@@ -146,7 +146,7 @@ class Row extends React.Component<Props> {
   renderBrands(message) {
     const brands = message.brands || ([] as IBrand[]);
 
-    return brands.map(brand => (
+    return brands.map((brand) => (
       <HelperText key={brand._id}>
         <Icon icon="award" /> {brand.name}
       </HelperText>
@@ -167,7 +167,7 @@ class Row extends React.Component<Props> {
 
   renderStatus() {
     const { message } = this.props;
-    const { kind, scheduleDate, isLive, runCount, isDraft } = message;
+    const { kind, scheduleDate, isLive, runCount, isDraft, method } = message;
     let labelStyle = 'primary';
     let labelText = 'Sending';
 
@@ -217,7 +217,6 @@ class Row extends React.Component<Props> {
   renderType(msg) {
     let icon: string = 'multiply';
     let label: string = 'Other type';
-
     switch (msg.method) {
       case METHODS.EMAIL:
         icon = 'envelope';
@@ -234,11 +233,16 @@ class Row extends React.Component<Props> {
         label = __('Messenger');
 
         break;
+      case METHODS.NOTIFICATION:
+        icon = 'message';
+        label = __('Notification');
+
+        break;
       default:
         break;
     }
 
-    const kind = MESSAGE_KIND_FILTERS.find(item => item.name === msg.kind);
+    const kind = MESSAGE_KIND_FILTERS.find((item) => item.name === msg.kind);
 
     return (
       <div>
@@ -253,7 +257,6 @@ class Row extends React.Component<Props> {
   render() {
     const { isChecked, message, remove } = this.props;
     const { brand = { name: '' }, scheduleDate, totalCustomersCount } = message;
-
     return (
       <tr key={message._id}>
         <td>

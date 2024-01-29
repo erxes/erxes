@@ -13,7 +13,7 @@ const KEY_LABELS = {
   INSTAGRAM_APP_ID: 'Instagram App Id',
   INSTAGRAM_APP_SECRET: 'Instagram App Secret',
   INSTAGRAM_VERIFY_TOKEN: 'Instagram Verify Token',
-  INSTAGRAM_PERMISSIONS: 'Instagram Permissions'
+  INSTAGRAM_PERMISSIONS: 'Instagram Permissions',
 };
 
 type Props = {
@@ -50,7 +50,7 @@ export default class UpdateConfigs extends React.Component<Props, State> {
     type?: string,
     description?: string,
     defaultValue?: string,
-    label?: string
+    label?: string,
   ) => {
     const { configsMap } = this.state;
 
@@ -81,7 +81,7 @@ export default class UpdateConfigs extends React.Component<Props, State> {
         <Info>
           <a
             target="_blank"
-            href="https://erxes.org/administrator/system-config#instagram"
+            href="https://docs.erxes.io/"
             rel="noopener noreferrer"
           >
             {__('Learn how to set Instagram Integration Variables')}
@@ -94,7 +94,7 @@ export default class UpdateConfigs extends React.Component<Props, State> {
           'INSTAGRAM_PERMISSIONS',
           '',
           '',
-          'pages_messaging,pages_manage_ads,pages_manage_engagement,pages_manage_metadata,pages_read_user_content'
+          'pages_messaging,pages_manage_ads,pages_manage_engagement,pages_manage_metadata,pages_read_user_content',
         )}
         <Button onClick={onClick}>{__('Save')}</Button>
       </CollapseContent>

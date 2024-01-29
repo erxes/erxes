@@ -199,7 +199,7 @@ const reportsQueries = {
 
   async reportChartGetResult(
     _root,
-    { serviceName, templateType, filter },
+    { serviceName, templateType, filter, dimension },
     { subdomain, user }: IContext,
   ) {
     const reportResult = await sendCommonMessage({
@@ -208,6 +208,7 @@ const reportsQueries = {
       action: 'reports.getChartResult',
       data: {
         filter,
+        dimension,
         templateType,
         currentUser: user,
       },

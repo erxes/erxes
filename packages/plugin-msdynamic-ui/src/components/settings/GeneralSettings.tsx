@@ -22,7 +22,7 @@ class GeneralSettings extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      configsMap: props.configsMap
+      configsMap: props.configsMap,
     };
   }
 
@@ -32,7 +32,7 @@ class GeneralSettings extends React.Component<Props, State> {
     }
   }
 
-  add = e => {
+  add = (e) => {
     e.preventDefault();
     const { configsMap } = this.state;
 
@@ -51,7 +51,19 @@ class GeneralSettings extends React.Component<Props, State> {
       salesApi: '',
       salesLineApi: '',
       username: '',
-      password: ''
+      password: '',
+      genBusPostingGroup: '',
+      vatBusPostingGroup: '',
+      paymentTermsCode: '',
+      paymentMethodCode: '',
+      customerPostingGroup: '',
+      customerPricingGroup: '',
+      customerDiscGroup: '',
+      locationCode: '',
+      responsibilityCenter: '',
+      billType: '',
+      dealType: '',
+      syncType: '',
     };
 
     this.setState({ configsMap });
@@ -70,7 +82,7 @@ class GeneralSettings extends React.Component<Props, State> {
   };
 
   renderConfigs(configs) {
-    return Object.keys(configs).map(key => {
+    return Object.keys(configs).map((key) => {
       return (
         <PerSettings
           key={key}
@@ -98,7 +110,7 @@ class GeneralSettings extends React.Component<Props, State> {
   render() {
     const breadcrumb = [
       { title: __('Settings'), link: '/settings' },
-      { title: __('Msdynamics'), link: '/msdynamics' }
+      { title: __('Msdynamics'), link: '/msdynamics' },
     ];
 
     return (

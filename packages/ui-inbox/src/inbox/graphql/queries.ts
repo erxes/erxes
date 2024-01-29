@@ -274,7 +274,15 @@ const lastConversation = `
     }
   }
 `;
-
+const postInfo = `
+  query facebookGetPost( $erxesApiId: String!){
+    facebookGetPost(erxesApiId: $erxesApiId){
+      _id
+      content
+      permalink_url
+    }
+  }
+ `;
 const responseTemplateList = `
   query responseTemplates($perPage: Int, $searchValue: String) {
     responseTemplates(perPage: $perPage, searchValue: $searchValue) {
@@ -421,4 +429,5 @@ export default {
   channelsByMembers,
   generateCustomerDetailQuery,
   convertToInfo,
+  postInfo,
 };
