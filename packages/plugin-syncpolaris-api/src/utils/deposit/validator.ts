@@ -9,18 +9,13 @@ const requiredKeys = [
   'name',
   'name2',
   'slevel',
-  'statusCustom',
   'jointOrSingle',
-  'dormancyDate',
-  'statusDate',
   'flagNoCredit',
   'flagNoDebit',
   'salaryAcnt',
   'corporateAcnt',
-  'capAcntCode',
   'capMethod',
   'segCode',
-  'paymtDefault',
   'odType',
 ];
 

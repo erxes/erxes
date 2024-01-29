@@ -41,7 +41,7 @@ export const initBroker = async () => {
 
       return {
         status: 'success',
-        data: await models.Contracts.findOne(
+        data: await models.Contracts.updateOne(
           {
             _id: data._id,
           },
