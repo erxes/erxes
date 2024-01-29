@@ -15,8 +15,8 @@ const commonHistoryParams = `
 `;
 
 export const queries = `
-  syncHistories(${commonHistoryParams}): [SyncHistory]
-  syncHistoriesCount(${commonHistoryParams}): Int
+  syncMsdHistories(${commonHistoryParams}): [SyncMsdHistory]
+  syncMsdHistoriesCount(${commonHistoryParams}): Int
 `;
 
 export const mutations = `

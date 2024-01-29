@@ -87,13 +87,13 @@ export type ToSyncCustomersMutationResponse = {
 };
 
 export type SyncHistoriesQueryResponse = {
-  syncHistories: any[];
+  syncMsdHistories: any[];
   loading: boolean;
   refetch: () => void;
 };
 
 export type SyncHistoriesCountQueryResponse = {
-  syncHistoriesCount: number;
+  syncMsdHistoriesCount: number;
   loading: boolean;
   refetch: () => void;
 };
