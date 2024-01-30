@@ -5,6 +5,7 @@ import {
   consumeRPCQueue,
   consumeQueue,
 } from '@erxes/api-utils/src/messageBroker';
+import { createLoanSchedule } from './utils/loan/createSchedule';
 
 export const initBroker = async () => {
   consumeQueue('syncpolaris:afterMutation', async ({ subdomain, data }) => {
@@ -24,6 +25,13 @@ export const initBroker = async () => {
     return {
       status: 'success',
       data: await Syncpolariss.find({}),
+    };
+  });
+
+  consumeRPCQueue('syncpolaris:createSchedule', async ({ data, subdomain }) => {
+    return {
+      status: 'success',
+      data: await createLoanSchedule(subdomain, data),
     };
   });
 };
