@@ -43,7 +43,7 @@ export const outcomeSaving = async (subdomain, params) => {
     ],
   };
 
-  fetchPolaris({
+  return await fetchPolaris({
     op: '13610015',
     data: [sendData],
     subdomain,
