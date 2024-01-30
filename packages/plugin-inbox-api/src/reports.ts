@@ -1,11 +1,13 @@
 import { IUserDocument } from '@erxes/api-utils/src/types';
 import { models } from './connectionResolver';
-import { sendCoreMessage } from './messageBroker';
+import { sendCoreMessage, sendTagsMessage } from './messageBroker';
 import * as dayjs from 'dayjs';
 
 const MMSTOMINS = 60000;
 
 const MMSTOHRS = MMSTOMINS * 60;
+
+const INBOX_TAG_TYPE = 'inbox:conversation';
 
 const reportTemplates = [
   {
@@ -1115,6 +1117,7 @@ const chartTemplates = [
         return { title, labels, data };
       }
 
+      //source
       if (dimensionX === 'source') {
         const sourcesDict = {};
 
@@ -1169,6 +1172,7 @@ const chartTemplates = [
         return { title, labels, data };
       }
 
+      //brand
       if (dimensionX === 'brand') {
         const query =
           brandIds && brandIds.length ? { _id: { $in: brandIds } } : {};
@@ -1240,6 +1244,53 @@ const chartTemplates = [
           const title = 'Conversations count by brand';
           return { title, labels, data };
         }
+      }
+
+      //tag
+      if (dimensionX === 'tag') {
+        const query = checkFilterParam(tagIds) ? { _id: { $in: tagIds } } : {};
+
+        const tags = await sendTagsMessage({
+          subdomain,
+          action: 'find',
+          data: {
+            ...query,
+          },
+          isRPC: true,
+          defaultValue: [],
+        });
+
+        const tagsMap: { [key: string]: string } = {};
+
+        for (const tag of tags) {
+          tagsMap[tag._id] = tag.name;
+        }
+
+        groupByQuery = {
+          $group: {
+            _id: '$tagIds',
+            conversationsCount: { $sum: 1 },
+          },
+        };
+
+        const convosCountByTag = await models?.Conversations.aggregate([
+          {
+            $match: { ...matchfilter, integrationId: { $exists: true } },
+          },
+          { $unwind: '$tagIds' },
+          groupByQuery,
+        ]);
+
+        if (convosCountByTag) {
+          for (const convo of convosCountByTag) {
+            data.push(convo.conversationsCount);
+            labels.push(tagsMap[convo._id]);
+          }
+        }
+
+        const title = 'Conversations count by tag';
+
+        return { title, labels, data };
       }
 
       // team members
@@ -1318,7 +1369,7 @@ const chartTemplates = [
         fieldQuery: 'tags',
         fieldValueVariable: '_id',
         fieldLabelVariable: 'name',
-        fieldQueryVariables: '{"type": "inbox:conversation", "perPage": 1000}',
+        fieldQueryVariables: `{"type": ${INBOX_TAG_TYPE}, "perPage": 1000}`,
         multi: true,
         fieldLabel: 'Select tags',
       },
