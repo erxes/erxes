@@ -36,7 +36,6 @@ class savingContainer extends React.Component<FinalProps, {}> {
 
     const syncHistories = syncHistoriesQuery.syncHistories || [];
     const totalCount = syncHistoriesCountQuery.syncHistoriesCount || 0;
-    queryParams.contentType = 'savings:contract';
     const updatedProps = {
       ...this.props,
       queryParams,
@@ -59,7 +58,7 @@ const generateParams = ({ queryParams }) => {
     userId: queryParams.userId,
     startDate: queryParams.startDate,
     endDate: queryParams.endDate,
-    contentType: queryParams.contentType,
+    contentType: 'savings:contract',
     contentId: queryParams.contentId,
     searchConsume: queryParams.searchConsume,
     searchSend: queryParams.searchSend,

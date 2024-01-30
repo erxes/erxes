@@ -36,7 +36,6 @@ class loanContainer extends React.Component<FinalProps, {}> {
 
     const syncHistories = syncHistoriesQuery.syncHistories || [];
     const totalCount = syncHistoriesCountQuery.syncHistoriesCount || 0;
-    queryParams.contentType = 'loans:contract';
     const updatedProps = {
       ...this.props,
       queryParams,

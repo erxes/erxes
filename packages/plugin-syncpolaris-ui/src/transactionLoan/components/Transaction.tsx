@@ -29,7 +29,7 @@ interface IProps extends IRouterProps {
   clearFilter: () => void;
 }
 
-class Customer extends React.Component<IProps, {}> {
+class TransactionLoanAcnt extends React.Component<IProps, {}> {
   constructor(props) {
     super(props);
   }
@@ -40,7 +40,7 @@ class Customer extends React.Component<IProps, {}> {
     e.target.value = tmpValue;
   };
 
-  rowContent = (item) => {
+  rowContent = (props, item) => {
     return <>{item.responseStr}</>;
   };
 
@@ -55,7 +55,6 @@ class Customer extends React.Component<IProps, {}> {
       'FirstName',
       'LastName',
       'Content',
-      'error',
     ];
 
     const mainContent = (
@@ -69,8 +68,9 @@ class Customer extends React.Component<IProps, {}> {
         </thead>
         <tbody id="orders">
           {(syncHistories || []).map((item) => (
+            // tslint:disable-next-line:jsx-key
             <ModalTrigger
-              title="Customer information"
+              title="transaction information"
               trigger={
                 <tr key={item._id}>
                   <td>{dayjs(item.createdAt).format('lll')}</td>
@@ -79,11 +79,10 @@ class Customer extends React.Component<IProps, {}> {
                   <td>{item.createdUser?.details?.firstName}</td>
                   <td>{item.createdUser?.details?.lastName}</td>
                   <td>{item.content}</td>
-                  <td>{item.error}</td>
                 </tr>
               }
               size="xl"
-              content={(props) => this.rowContent(item)}
+              content={(props) => this.rowContent(props, item)}
             />
           ))}
         </tbody>
@@ -94,7 +93,7 @@ class Customer extends React.Component<IProps, {}> {
       <Wrapper
         header={
           <Wrapper.Header
-            title={__(`Customer`)}
+            title={__(`Loan Transaction`)}
             queryParams={queryParams}
             submenu={menuSyncpolaris}
           />
@@ -108,7 +107,7 @@ class Customer extends React.Component<IProps, {}> {
         }
         actionBar={
           <Wrapper.ActionBar
-            left={<Title>{__(`Customers (${totalCount})`)}</Title>}
+            left={<Title>{__(` Loan Transactions (${totalCount})`)}</Title>}
             // right={actionBarRight}
             background="colorWhite"
             wideSpacing={true}
@@ -130,4 +129,4 @@ class Customer extends React.Component<IProps, {}> {
   }
 }
 
-export default withRouter<IRouterProps>(Customer);
+export default withRouter<IRouterProps>(TransactionLoanAcnt);

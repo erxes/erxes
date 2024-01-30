@@ -36,7 +36,6 @@ class transactionContainer extends React.Component<FinalProps, {}> {
 
     const syncHistories = syncHistoriesQuery.syncHistories || [];
     const totalCount = syncHistoriesCountQuery.syncHistoriesCount || 0;
-    queryParams.contentType = 'savings:transaction';
     const updatedProps = {
       ...this.props,
       queryParams,

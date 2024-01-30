@@ -6,7 +6,7 @@ import {
 import { queries } from '../../graphql';
 import { router, withProps } from '@erxes/ui/src/utils/core';
 import { IRouterProps } from '@erxes/ui/src/types';
-import Customer from '../components/Customer';
+import Transaction from '../components/Transaction';
 import React from 'react';
 import { gql } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
@@ -23,7 +23,7 @@ type FinalProps = {
 } & Props &
   IRouterProps;
 
-class CustomerContainer extends React.Component<FinalProps, {}> {
+class transactionLoanContainer extends React.Component<FinalProps, {}> {
   constructor(props) {
     super(props);
 
@@ -43,7 +43,7 @@ class CustomerContainer extends React.Component<FinalProps, {}> {
       totalCount,
       loading: syncHistoriesQuery.loading || syncHistoriesCountQuery.loading,
     };
-    return <Customer {...updatedProps} />;
+    return <Transaction {...updatedProps} />;
   }
 }
 
@@ -58,7 +58,8 @@ const generateParams = ({ queryParams }) => {
     userId: queryParams.userId,
     startDate: queryParams.startDate,
     endDate: queryParams.endDate,
-    contentType: 'contacts:customer',
+    contentType: 'loans:transaction',
+    content: queryParams.content,
     contentId: queryParams.contentId,
     searchConsume: queryParams.searchConsume,
     searchSend: queryParams.searchSend,
@@ -86,5 +87,5 @@ export default withProps<Props>(
         }),
       },
     ),
-  )(withRouter<IRouterProps>(CustomerContainer)),
+  )(withRouter<IRouterProps>(transactionLoanContainer)),
 );

@@ -22,10 +22,11 @@ module.exports = {
       permission: "syncPolarisConfig",
     },
     {
-      "text":"Syncpolariss",
-      "url":"/syncpolariss",
+      "text":"Sync Polariss",
+      "url":"/sync-polaris-history",
       "icon":"icon-star",
       "location":"mainNavigation"
     },
+    
   ]
 };

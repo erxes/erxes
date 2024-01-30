@@ -154,66 +154,6 @@ class SyncHistorySidebar extends React.Component<Props, State> {
                 </EndDateContainer>
               </FormGroup>
             </CustomRangeContainer>
-            <FormGroup>
-              <ControlLabel>Content Type</ControlLabel>
-              <FormControl
-                name="contentType"
-                onChange={(e) =>
-                  this.setFilter('contentType', (e.target as any).value)
-                }
-                defaultValue={filterParams.contentType}
-              />
-            </FormGroup>
-            <FormGroup>
-              <ControlLabel>Content ID</ControlLabel>
-              <FormControl
-                name="contentId"
-                onChange={(e) =>
-                  this.setFilter('contentId', (e.target as any).value)
-                }
-                defaultValue={filterParams.contentId}
-              />
-            </FormGroup>
-            <FormGroup>
-              <ControlLabel>Search Consume</ControlLabel>
-              <FormControl
-                name="searchConsume"
-                onChange={(e) =>
-                  this.setFilter('searchConsume', (e.target as any).value)
-                }
-                defaultValue={filterParams.searchConsume}
-              />
-            </FormGroup>
-            <FormGroup>
-              <ControlLabel>Search Send</ControlLabel>
-              <FormControl
-                name="searchSend"
-                onChange={(e) =>
-                  this.setFilter('searchSend', (e.target as any).value)
-                }
-                defaultValue={filterParams.searchSend}
-              />
-            </FormGroup>
-            <FormGroup>
-              <ControlLabel>Search Response</ControlLabel>
-              <FormControl
-                name="searchResponse"
-                onChange={(e) =>
-                  this.setFilter('searchResponse', (e.target as any).value)
-                }
-                defaultValue={filterParams.searchResponse}
-              />
-            </FormGroup>
-            <FormGroup>
-              <ControlLabel>Search Error</ControlLabel>
-              <FormControl
-                name="searchError"
-                onChange={(e) =>
-                  this.setFilter('searchError', (e.target as any).value)
-                }
-                defaultValue={filterParams.searchError}
-              />
-            </FormGroup>
           </List>
           <Button
             block={true}
