@@ -3,10 +3,6 @@ import ChartFormField from '../../components/chart/ChartFormField';
 import { queries } from '../../graphql';
 import { gql, useQuery } from '@apollo/client';
 
-type IFilter = {
-  [key: string]: any;
-};
-
 export type IFilterType = {
   fieldName: string;
   fieldType: string;
@@ -15,6 +11,7 @@ export type IFilterType = {
   fieldOptions: any[];
   fieldValueVariable?: string;
   fieldLabelVariable?: string;
+  fieldQueryVariables?: any;
   multi?: boolean;
 };
 
@@ -38,23 +35,29 @@ const ChartFormFieldList = (props: Props) => {
     fieldOptions,
     fieldValueVariable,
     fieldLabelVariable,
+    fieldQueryVariables,
   } = filterType;
 
   const queryExists = queries[`${fieldQuery}`];
   let queryFieldOptions;
-
   if (queryExists) {
+    const variables = fieldQueryVariables
+      ? JSON.parse(fieldQueryVariables)
+      : {};
+
     const query = useQuery(gql(queries[`${fieldQuery}`]), {
       skip: fieldOptions ? true : false,
+      variables,
     });
 
-    const queryData = query && query.data ? query.data : [];
+    const queryData = query && query.data ? query.data : {};
 
     queryFieldOptions =
       fieldValueVariable &&
       fieldLabelVariable &&
-      queryData.length &&
-      queryData.map((d) => ({
+      queryData[fieldQuery] &&
+      queryData[fieldQuery].length &&
+      queryData[fieldQuery].map((d) => ({
         value: d[fieldValueVariable],
         label: d[fieldLabelVariable],
       }));

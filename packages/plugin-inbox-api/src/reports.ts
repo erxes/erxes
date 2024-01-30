@@ -22,6 +22,10 @@ const reportTemplates = [
   },
 ];
 
+const checkFilterParam = (param: any) => {
+  return param && param.length;
+};
+
 // integrationTypess
 
 // XOS messenger
@@ -97,7 +101,7 @@ const chartTemplates = [
       const filterQuery = {
         createdAt: { $gte: startDate, $lte: endDate },
       };
-      const { departmentIds, branchIds } = filter;
+      const { departmentIds, branchIds, userIds } = filter;
 
       const dimensionX = dimension.x;
 
@@ -106,7 +110,7 @@ const chartTemplates = [
       const integrationsDict = {};
       let totalIntegrations;
 
-      if (departmentIds && departmentIds.length) {
+      if (checkFilterParam(departmentIds)) {
         const findDepartmentUsers = await sendCoreMessage({
           subdomain,
           action: 'users.find',
@@ -121,7 +125,7 @@ const chartTemplates = [
         filterUserIds = findDepartmentUsers.map((user) => user._id);
       }
 
-      if (branchIds && branchIds.length) {
+      if (checkFilterParam(branchIds)) {
         const findBranchUsers = await sendCoreMessage({
           subdomain,
           action: 'users.find',
@@ -135,7 +139,7 @@ const chartTemplates = [
         filterUserIds.push(...findBranchUsers.map((user) => user._id));
       }
 
-      if (filter.userIds) {
+      if (checkFilterParam(userIds)) {
         filterUserIds = filter.userIds;
       }
 
@@ -441,7 +445,7 @@ const chartTemplates = [
         closedAt: { $exists: true },
       };
 
-      const { departmentIds, branchIds } = filter;
+      const { departmentIds, branchIds, userIds } = filter;
 
       const dimensionX = dimension.x;
 
@@ -450,7 +454,7 @@ const chartTemplates = [
       const integrationsDict = {};
       let totalIntegrations;
 
-      if (departmentIds && departmentIds.length) {
+      if (checkFilterParam(departmentIds)) {
         const findDepartmentUsers = await sendCoreMessage({
           subdomain,
           action: 'users.find',
@@ -465,7 +469,7 @@ const chartTemplates = [
         filterUserIds = findDepartmentUsers.map((user) => user._id);
       }
 
-      if (branchIds && branchIds.length) {
+      if (checkFilterParam(branchIds)) {
         const findBranchUsers = await sendCoreMessage({
           subdomain,
           action: 'users.find',
@@ -479,7 +483,7 @@ const chartTemplates = [
         filterUserIds.push(...findBranchUsers.map((user) => user._id));
       }
 
-      if (filter.userIds) {
+      if (checkFilterParam(userIds)) {
         filterUserIds = filter.userIds;
       }
 
@@ -724,7 +728,7 @@ const chartTemplates = [
       const integrationsDict = {};
       let totalIntegrations;
 
-      if (departmentIds && departmentIds.length) {
+      if (checkFilterParam(departmentIds)) {
         const findDepartmentUsers = await sendCoreMessage({
           subdomain,
           action: 'users.find',
@@ -739,7 +743,7 @@ const chartTemplates = [
         filterUserIds = findDepartmentUsers.map((user) => user._id);
       }
 
-      if (branchIds && branchIds.length) {
+      if (checkFilterParam(branchIds)) {
         const findBranchUsers = await sendCoreMessage({
           subdomain,
           action: 'users.find',
@@ -751,6 +755,15 @@ const chartTemplates = [
         });
 
         filterUserIds.push(...findBranchUsers.map((user) => user._id));
+      }
+
+      if (checkFilterParam(tagIds)) {
+        matchfilter['tagIds'] = { $in: tagIds };
+      }
+
+      // if team members selected, go by team members
+      if (checkFilterParam(userIds)) {
+        filterUserIds = userIds;
       }
 
       if (dateRange) {
@@ -826,11 +839,6 @@ const chartTemplates = [
         if (Object.keys(dateFilter).length) {
           matchfilter['createdAt'] = dateFilter;
         }
-      }
-
-      // if team members selected, go by team members
-      if (userIds && userIds.length) {
-        filterUserIds = userIds;
       }
 
       // filter by status
@@ -1292,7 +1300,7 @@ const chartTemplates = [
         fieldName: 'brandIds',
 
         fieldType: 'select',
-        fieldQuery: 'brands',
+        fieldQuery: 'allBrands',
         multi: true,
         fieldLabel: 'Select brands',
       },
@@ -1305,8 +1313,12 @@ const chartTemplates = [
         fieldLabel: 'Select date range',
       },
       {
-        fieldName: 'tags',
+        fieldName: 'tagIds',
         fieldType: 'select',
+        fieldQuery: 'tags',
+        fieldValueVariable: '_id',
+        fieldLabelVariable: 'name',
+        fieldQueryVariables: '{"type": "inbox:conversation", "perPage": 1000}',
         multi: true,
         fieldLabel: 'Select tags',
       },

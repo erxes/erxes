@@ -1,12 +1,11 @@
-import SelectTags from '@erxes/ui-tags/src/containers/SelectTags';
 import { ControlLabel, SelectTeamMembers } from '@erxes/ui/src';
-import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
+import SelectBrands from '@erxes/ui/src/brands/containers/SelectBrands';
 import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
+import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
 import React, { useState } from 'react';
 import Select from 'react-select-plus';
-import DateRange from '../datepicker/DateRange';
 import { MarginY } from '../../styles';
-import SelectBrands from '@erxes/ui/src/brands/containers/SelectBrands';
+import DateRange from '../datepicker/DateRange';
 
 type Props = {
   fieldType: string;
@@ -34,14 +33,6 @@ const ChartFormField = (props: Props) => {
     endDate,
   } = props;
   const [fieldValue, setFieldValue] = useState(initialValue);
-
-  console.log(fieldLabel, initialValue, ' bla');
-
-  const isArrayObjects = (arr) => {
-    return arr.every(
-      (element) => typeof element === 'object' && element !== null,
-    );
-  };
 
   const onSelect = (e) => {
     if (multi && Array.isArray(e)) {
@@ -101,21 +92,20 @@ const ChartFormField = (props: Props) => {
         </div>
       );
 
-    case 'tags':
-      return (
-        <div>
-          <ControlLabel>{fieldLabel}</ControlLabel>
+    // case 'tags':
+    //   return (
+    //     <div>
+    //       <ControlLabel>{fieldLabel}</ControlLabel>
 
-          <SelectTags
-            tagsType="reports:reports"
-            multi={multi}
-            name="chartTags"
-            label={fieldLabel}
-            onSelect={onChange}
-            initialValue={fieldValue}
-          />
-        </div>
-      );
+    //       <SelectTags
+    //         tagsType='reports:reports'
+    //         multi={multi}
+    //         label={fieldLabel}
+    //         onSelect={onChange}
+    //         initialValue={fieldValue}
+    //       />
+    //     </div>
+    //   );
 
     case 'branches':
       return (
