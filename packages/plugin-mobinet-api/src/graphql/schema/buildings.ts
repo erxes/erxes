@@ -183,6 +183,7 @@ const qryParams = `
     perPage: Int
     customQuery: JSON
     networkType: NetworkType
+    serviceStatus: ServiceStatus
 `;
 
 export const queries = `
