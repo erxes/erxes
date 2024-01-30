@@ -5,50 +5,50 @@ const updateConfigs = `
 `;
 
 const toCheckProducts = `
-  mutation toCheckProducts($brandId: String) {
-    toCheckProducts(brandId: $brandId)
+  mutation toCheckMsdProducts($brandId: String) {
+    toCheckMsdProducts(brandId: $brandId)
   }
 `;
 
 const toSyncProducts = `
-  mutation toSyncProducts($brandId: String, $action: String, $products: [JSON]) {
-    toSyncProducts(brandId: $brandId, action: $action, products: $products)
+  mutation toSyncMsdProducts($brandId: String, $action: String, $products: [JSON]) {
+    toSyncMsdProducts(brandId: $brandId, action: $action, products: $products)
   }
 `;
 
 const toCheckCategories = `
-  mutation toCheckProductCategories($brandId: String) {
-    toCheckProductCategories(brandId: $brandId)
+  mutation toCheckMsdProductCategories($brandId: String) {
+    toCheckMsdProductCategories(brandId: $brandId)
   }
 `;
 
 const toSyncCategories = `
-  mutation toSyncProductCategories($brandId: String, $action: String, $categories: [JSON]) {
-    toSyncProductCategories(brandId: $brandId, action: $action, categories: $categories)
+  mutation toSyncMsdProductCategories($brandId: String, $action: String, $categories: [JSON]) {
+    toSyncMsdProductCategories(brandId: $brandId, action: $action, categories: $categories)
   }
 `;
 
 const toCheckCustomers = `
-  mutation toCheckCustomers($brandId: String) {
-    toCheckCustomers(brandId: $brandId)
+  mutation toCheckMsdCustomers($brandId: String) {
+    toCheckMsdCustomers(brandId: $brandId)
   }
 `;
 
 const toSyncCustomers = `
-  mutation toSyncCustomers($brandId: String, $action: String, $customers: [JSON]) {
-    toSyncCustomers(brandId: $brandId, action: $action, customers: $customers)
+  mutation toSyncMsdCustomers($brandId: String, $action: String, $customers: [JSON]) {
+    toSyncMsdCustomers(brandId: $brandId, action: $action, customers: $customers)
   }
 `;
 
 const toCheckPrices = `
-  mutation toCheckPrices($brandId: String) {
-    toCheckPrices(brandId: $brandId)
+  mutation toCheckMsdPrices($brandId: String) {
+    toCheckMsdPrices(brandId: $brandId)
   }
 `;
 
 const toSyncPrices = `
-  mutation toSyncPrices($brandId: String, $action: String, $prices: [JSON]) {
-    toSyncPrices(brandId: $brandId, action: $action, prices: $prices)
+  mutation toSyncMsdPrices($brandId: String, $action: String, $prices: [JSON]) {
+    toSyncMsdPrices(brandId: $brandId, action: $action, prices: $prices)
   }
 `;
 
@@ -61,5 +61,5 @@ export default {
   toCheckCustomers,
   toSyncCustomers,
   toCheckPrices,
-  toSyncPrices
+  toSyncPrices,
 };
