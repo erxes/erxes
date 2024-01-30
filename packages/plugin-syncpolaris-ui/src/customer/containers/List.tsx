@@ -59,7 +59,7 @@ const generateParams = ({ queryParams }) => {
     userId: queryParams.userId,
     startDate: queryParams.startDate,
     endDate: queryParams.endDate,
-    contentType: queryParams.contentType,
+    contentType: 'contacts:customer',
     contentId: queryParams.contentId,
     searchConsume: queryParams.searchConsume,
     searchSend: queryParams.searchSend,

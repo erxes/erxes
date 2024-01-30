@@ -1,12 +1,21 @@
+import { incomeDeposit } from '../deposit/incomeDeposit';
 import { fetchPolaris, getSavingContract } from '../utils';
 
-export const savingIncome = async (subdomain, params) => {
+export const incomeSaving = async (subdomain, params) => {
   const savingTransactionParams = params.updatedDocument || params.object;
 
   const savingContract = await getSavingContract(
     subdomain,
     savingTransactionParams.savingContractId,
   );
+
+  if (!savingContract) {
+    throw new Error('Contract not found');
+  }
+
+  if (savingContract.isDeposit) {
+    return await incomeDeposit(subdomain, params);
+  }
 
   let sendData = {
     operCode: '13610015',
