@@ -1,13 +1,13 @@
 import { RowTitle } from '@erxes/ui-engage/src/styles';
 import ActionButtons from '@erxes/ui/src/components/ActionButtons';
 import Button from '@erxes/ui/src/components/Button';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import Tip from '@erxes/ui/src/components/Tip';
 import { __ } from '@erxes/ui/src/utils/core';
 import React from 'react';
 import BuildingForm from '../containers/Form';
 import TextInfo from '@erxes/ui/src/components/TextInfo';
 import { IBuilding } from '../types';
+import { Icon, Label, ModalTrigger } from '@erxes/ui/src';
 
 type Props = {
   index: number;
@@ -80,6 +80,24 @@ const Row = (props: Props) => {
   const onClick = () => {
     props.history.push(`/mobinet/building/details/${building._id}`);
   };
+
+  let statusText = 'Сүлжээ нэвтрээгүй';
+
+  switch (building.serviceStatus) {
+    case 'active':
+      statusText = 'Сүлжээ нэвтэрсэн';
+      break;
+    case 'inactive':
+      statusText = 'Сүлжээ нэвтрээгүй';
+      break;
+    case 'inprogress':
+      statusText = 'Нэвтрүүлэлт хийгдэж буй';
+      break;
+    default:
+      statusText = 'Сүлжээ нэвтрээгүй';
+      break;
+  }
+
   return (
     <tr>
       <td key={Math.random()}>
@@ -121,7 +139,11 @@ const Row = (props: Props) => {
       <td key={Math.random()}>
         <RowTitle>{building.networkType || '-'}</RowTitle>
       </td>
-
+      <td key={Math.random()}>
+        <Label lblColor={building.color} ignoreTrans={true}>
+          <span>{statusText}</span>
+        </Label>
+      </td>
       <td>
         <ActionButtons>
           {renderEditAction()}

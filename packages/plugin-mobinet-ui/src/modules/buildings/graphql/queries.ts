@@ -40,6 +40,8 @@ $quarterId: String
 $searchValue: String
 $type: String
 $customQuery: JSON
+$networkType: NetworkType 
+$serviceStatus: ServiceStatus
 `;
 
 const commonParams = `
@@ -53,6 +55,8 @@ quarterId: $quarterId
 searchValue: $searchValue
 type: $type
 customQuery: $customQuery
+networkType: $networkType
+serviceStatus:$serviceStatus
 `;
 
 const listQuery = `

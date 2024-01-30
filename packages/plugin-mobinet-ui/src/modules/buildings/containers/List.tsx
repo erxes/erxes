@@ -25,6 +25,8 @@ const generateParams = (queryParams) => {
     quarterId: queryParams?.quarterId,
     districtId: queryParams?.districtId,
     name: queryParams?.name,
+    serviceStatus: queryParams?.serviceStatus,
+    networkType: queryParams?.networkType,
   };
 };
 

@@ -11,6 +11,7 @@ const buildQuery = async (params: any, models: IModels) => {
     quarterId,
     customQuery,
     networkType,
+    serviceStatus,
   } = params;
   const filter: any = {};
 
@@ -41,6 +42,9 @@ const buildQuery = async (params: any, models: IModels) => {
 
   if (networkType) {
     filter.networkType = networkType;
+  }
+  if (serviceStatus) {
+    filter.serviceStatus = serviceStatus;
   }
 
   return { ...filter, ...customQuery };

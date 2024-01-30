@@ -61,12 +61,20 @@ type FilterType = {
   cityId?: string;
   districtId?: string;
   quarterId?: string;
+  serviceStatus?: string;
+  networkType?: string;
 };
 const FilterMenu = (props: Props) => {
   const [currentTab, setCurrentTab] = useState('Filter');
   const [showMenu, setShowMenu] = useState(false);
   const [filterParams, setFilterParams] = useState<FilterType>(
-    props.queryParams || { cityId: '', districtId: '', quarterId: '' },
+    props.queryParams || {
+      cityId: '',
+      districtId: '',
+      quarterId: '',
+      serviceStatus: '',
+      networkType: '',
+    },
   );
 
   const setFilter = () => {
@@ -104,6 +112,7 @@ const FilterMenu = (props: Props) => {
     setFilterParams((prev) => ({
       ...prev,
       districtId: String(districtId),
+      quarterId: '',
     }));
     if (center) {
       props.changeMapCenter(center);
@@ -111,7 +120,12 @@ const FilterMenu = (props: Props) => {
   };
 
   const onChangeCity = (cityId, center?: ICoordinates) => {
-    setFilterParams((v) => ({ ...v, cityId }));
+    setFilterParams((prev) => ({
+      ...prev,
+      cityId,
+      districtId: '',
+      quarterId: '',
+    }));
     if (center) {
       props.changeMapCenter(center);
     }
@@ -149,6 +163,40 @@ const FilterMenu = (props: Props) => {
             onChange={onChangeQuarter}
           />
         )}
+
+        <FormGroup>
+          <ControlLabel>Service status</ControlLabel>
+          <FormControl
+            id={'serviceStatus'}
+            componentClass="select"
+            defaultValue={filterParams.serviceStatus}
+            name="serviceStatus"
+            onChange={onChangeInput}
+          >
+            {['', 'inactive', 'active', 'inprogress'].map((p, index) => (
+              <option key={index} value={p}>
+                {p}
+              </option>
+            ))}
+          </FormControl>
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel>Network type</ControlLabel>
+          <FormControl
+            id={'networkType'}
+            componentClass="select"
+            defaultValue={filterParams.networkType}
+            name="networkType"
+            onChange={onChangeInput}
+          >
+            {['', 'ftth', 'fttb'].map((p, index) => (
+              <option key={index} value={p}>
+                {p}
+              </option>
+            ))}
+          </FormControl>
+        </FormGroup>
       </FilterBox>
     );
   };
