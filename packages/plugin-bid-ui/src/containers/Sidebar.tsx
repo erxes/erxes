@@ -7,7 +7,6 @@ import Alert from '@erxes/ui/src/utils/Alert';
 const GET_DATA = gql`
   query PolarisGetData($customerId: String!) {
     bidGetPolarisData(customerId: $customerId) {
-      _id
       createdAt
       customerId
       updatedAt

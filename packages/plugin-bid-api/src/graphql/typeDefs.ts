@@ -2,7 +2,7 @@ import gql from 'graphql-tag';
 
 const types = `
   type PolarisData {
-    _id: String!
+    _id: String
     customerId: String!
     data: JSON
     createdAt: Date!

@@ -31,6 +31,8 @@ const command = async () => {
     const apiUrl = 'https://crm-api.bid.mn/api/v1';
 
     for (const customer of customers) {
+      //
+
       const { _id, primaryPhone, code } = customer;
 
       const polarisData = await Polarissyncs.findOne({ customerId: _id });
@@ -56,9 +58,7 @@ const command = async () => {
       if (code) {
         body.register_number = code;
       }
-
-      console.log('fetching data for', body);
-
+      await new Promise((resolve) => setTimeout(resolve, 5000));
       const response = await fetch(`${apiUrl}/user/info`, {
         method: 'POST',
         headers: {
@@ -68,8 +68,9 @@ const command = async () => {
       });
 
       if (response.status !== 200) {
-        // throw new Error('Failed to fetch data');
-        console.error('Failed to fetch data');
+        // throw new Error("Failed to fetch data");
+
+        console.error('Failed to fetch data', response);
         continue;
       }
 
@@ -82,10 +83,6 @@ const command = async () => {
       }
 
       const data = res.data;
-
-      console.log('found data', data);
-
-      await new Promise((resolve) => setTimeout(resolve, 10000));
 
       await Customers.updateOne(
         { _id: customer._id },
@@ -110,6 +107,7 @@ const command = async () => {
           { customerId: customer._id },
           { $set: { data: data, updatedAt: new Date() } },
         );
+        console.log('updated existing data of: ', customer._id);
       } else {
         const newDoc = {
           _id: nanoid(),
@@ -120,6 +118,8 @@ const command = async () => {
         };
 
         await Polarissyncs.insertOne(newDoc);
+
+        console.log('inserted new data for: ', customer._id);
       }
     }
 
