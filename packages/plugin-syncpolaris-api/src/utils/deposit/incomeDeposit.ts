@@ -1,56 +1,50 @@
-import { fetchPolaris } from '../utils';
+import { fetchPolaris, getSavingContract } from '../utils';
 
 export const incomeDeposit = async (subdomain, params) => {
   const transaction = params.object;
-  let sendData = {};
 
-  sendData = [
-    {
-      operCode: '13610009',
-      txnAcntCode: transaction.contractId,
-      txnAmount: transaction.total,
-      rate: transaction.rate,
+  const savingContract = await getSavingContract(
+    subdomain,
+    transaction.savingContractId,
+  );
 
-      contAmount: transaction.contAmount,
-      contCurCode: transaction.contCurCode,
-      contRate: transaction.contRate,
-      txnDesc: transaction.txnDesc,
-      banknotes: [
+  let sendData = {
+    operCode: '13610009',
+    txnAcntCode: savingContract.number,
+    txnAmount: transaction.total,
+    rate: '1',
+
+    contAmount: transaction.total,
+    contCurCode: transaction.currency,
+    contRate: '1',
+    txnDesc: transaction.description,
+    banknotes: [
+      {
+        banknoteId: transaction.banknoteId,
+        qty: transaction.qty,
+        totalAmount: transaction.totalAmount,
+      },
+    ],
+    tcustRegisterMask: transaction.tcustRegisterMask,
+    sourceType: transaction.sourceType,
+    isPreview: transaction.isPreview,
+    isPreviewFee: transaction.isPreviewFee,
+    isTmw: transaction.isTmw,
+    isAdvice: transaction.isAdvice,
+    txnClearAmount: transaction.txnClearAmount,
+    aspParam: [
+      [
         {
-          banknoteId: transaction.banknoteId,
-          qty: transaction.qty,
-          totalAmount: transaction.totalAmount,
+          acntCode: 'txnAcntCode',
+          acntType: 'INCOME',
         },
       ],
-      tcustRegisterMask: transaction.tcustRegisterMask,
-      sourceType: transaction.sourceType,
-      isPreview: transaction.isPreview,
-      isPreviewFee: transaction.isPreviewFee,
-      isTmw: transaction.isTmw,
-      isAdvice: transaction.isAdvice,
-      txnClearAmount: transaction.txnClearAmount,
-      aspParam: [
-        [
-          {
-            acntCode: transaction.acntCode,
-            acntType: transaction.acntType,
-          },
-        ],
-      ],
-      // tcustName: transaction.tcustName, //outcome
-      // tcustAddr: transaction.tcustName, //outcome
-      // tcustRegister: transaction.tcustRegister, //outcome
-      // tcustContact: transaction.tcustContact, //outcome
-      // tranAmt: transaction.tranAmt, //outcome
-      // tranCurCode: transaction.tranCurCode, //outcome
-      // changeBanknotes: debitParams.changeBanknotes, //income
-      // rateTypeId :  transaction.rateTypeId //income
-    },
-  ];
+    ],
+  };
 
-  fetchPolaris({
+  return await fetchPolaris({
     op: '13610009',
-    data: sendData,
+    data: [sendData],
     subdomain,
   });
 };

@@ -17,6 +17,15 @@ export const initBroker = async () => {
     };
   });
 
+  consumeRPCQueue('savings:contract.findOne', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    return {
+      status: 'success',
+      data: await models.Contracts.findOne(data).lean(),
+    };
+  });
+
   consumeRPCQueue(
     'savings:contracts.getDepositAccount',
     async ({ subdomain, data }) => {

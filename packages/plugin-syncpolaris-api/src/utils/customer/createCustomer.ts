@@ -54,11 +54,8 @@ export const createCustomer = async (subdomain: string, params) => {
   });
 
   if (customerCode) {
-    const response = await setCustomerCode(
-      subdomain,
-      params.object._id,
-      customerCode,
-    );
-    console.log('customer response', response, customer);
+    await setCustomerCode(subdomain, params.object._id, customerCode);
   }
+
+  return customerCode;
 };

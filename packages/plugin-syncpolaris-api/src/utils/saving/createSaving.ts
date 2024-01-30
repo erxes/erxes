@@ -68,27 +68,3 @@ export const createSaving = async (subdomain: string, params) => {
 
   return savingCode;
 };
-
-export const getSavingAcntTransaction = async (subdomain, params) => {
-  const savingTransactionParams = params.updatedDocument || params.object;
-  let sendData = {};
-
-  sendData = [
-    {
-      acntCode: savingTransactionParams.acntCode,
-      startDate: savingTransactionParams.startDate,
-      endDate: savingTransactionParams.endDate,
-      orderBy: savingTransactionParams.orderBy,
-      seeNotFinancial: savingTransactionParams.seeNotFinancial,
-      seeCorr: savingTransactionParams.seeCorr,
-      seeReverse: savingTransactionParams.seeReverse,
-      startPagingPosition: savingTransactionParams.startPagingPosition,
-      PageRowCount: savingTransactionParams.PageRowCount,
-    },
-  ];
-  fetchPolaris({
-    op: '13610101',
-    data: sendData,
-    subdomain,
-  });
-};

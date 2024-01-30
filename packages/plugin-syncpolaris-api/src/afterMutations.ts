@@ -11,6 +11,8 @@ import { createLoanGive } from './utils/loan/loanGive';
 import { createLoanRepayment } from './utils/loan/loanRepayment';
 import { updateLoan } from './utils/loan/updateLoan';
 import { createSaving } from './utils/saving/createSaving';
+import { incomeSaving } from './utils/saving/incomeSaving';
+import { outcomeSaving } from './utils/saving/outcomeSaving';
 import { updateSaving } from './utils/saving/updateSaving';
 
 const allowTypes = {
@@ -84,9 +86,9 @@ export const afterMutationHandlers = async (subdomain, params) => {
       case 'savings:transaction':
         const savingTransaction = params.object;
         if (savingTransaction.transactionType === 'income') {
-          response = await incomeDeposit(subdomain, params);
+          response = await incomeSaving(subdomain, params);
         } else if (savingTransaction.transactionType === 'outcome')
-          response = await outcomeDeposit(subdomain, params);
+          response = await outcomeSaving(subdomain, params);
         break;
       case 'loans:contract':
         if (action === 'create' || !preSuccessValue)

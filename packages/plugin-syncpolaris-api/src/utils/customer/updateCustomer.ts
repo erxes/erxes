@@ -12,11 +12,11 @@ export const updateCustomer = async (subdomain, params) => {
   );
 
   let sendData: IPolarisCustomer = {
-    lastName: data.lastName ?? 'Bold',
-    firstName: data.firstName ?? 'Bold',
-    familyName: data.familyName ?? 'Bold',
-    email: data.email ?? 'br@gma.cm',
-    mobile: data.mobile ?? '99119911',
+    lastName: data.lastName,
+    firstName: data.firstName,
+    familyName: data.familyName,
+    email: data.emails?.join(','),
+    mobile: data.phones?.join(','),
     birthDate: data.birthDate ?? '1995-02-27 00:00:00',
 
     custSegCode: '81',
