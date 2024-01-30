@@ -68,8 +68,6 @@ const ChartForm = (props: Props) => {
     serviceNames,
   } = props;
 
-  console.log(chart);
-
   const [name, setName] = useState(chart?.name || '');
 
   const [serviceName, setServiceName] = useState(chart?.serviceName || '');

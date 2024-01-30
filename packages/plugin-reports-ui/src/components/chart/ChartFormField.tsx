@@ -35,6 +35,8 @@ const ChartFormField = (props: Props) => {
   } = props;
   const [fieldValue, setFieldValue] = useState(initialValue);
 
+  console.log(fieldLabel, initialValue, ' bla');
+
   const isArrayObjects = (arr) => {
     return arr.every(
       (element) => typeof element === 'object' && element !== null,
@@ -135,10 +137,11 @@ const ChartFormField = (props: Props) => {
         <div>
           <ControlLabel> {fieldLabel}</ControlLabel>
           <SelectBrands
-            label={'Choose brands'}
-            onSelect={OnSaveBrands}
             multi={true}
             name="selectedBrands"
+            label={'Choose brands'}
+            onSelect={OnSaveBrands}
+            initialValue={fieldValue}
           />
         </div>
       );

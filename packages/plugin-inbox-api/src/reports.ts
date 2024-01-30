@@ -1161,6 +1161,79 @@ const chartTemplates = [
         return { title, labels, data };
       }
 
+      if (dimensionX === 'brand') {
+        const query =
+          brandIds && brandIds.length ? { _id: { $in: brandIds } } : {};
+
+        const brandsMap: { [brandId: string]: string } = {};
+
+        const brands = await sendCoreMessage({
+          subdomain,
+          action: 'brands.find',
+          data: {
+            query,
+          },
+          isRPC: true,
+          defaultValue: [],
+        });
+
+        groupByQuery = {
+          $group: {
+            _id: '$integrationId',
+            conversationsCount: { $sum: 1 },
+          },
+        };
+
+        for (const brand of brands) {
+          brandsMap[brand._id] = brand.name;
+        }
+
+        const convosCountBySource = await models?.Conversations.aggregate([
+          {
+            $match: { ...matchfilter, integrationId: { $exists: true } },
+          },
+          groupByQuery,
+        ]);
+
+        if (convosCountBySource && convosCountBySource.length) {
+          const integrationsCountMap = {};
+          const brandsCountMap = {};
+
+          const integrationsMap = {};
+
+          for (const convo of convosCountBySource) {
+            integrationsCountMap[convo._id] = convo.conversationsCount;
+          }
+
+          const ingegrations =
+            (await models?.Integrations.find({
+              _id: { $in: convosCountBySource.map((c) => c._id) },
+            })) || [];
+
+          for (const integration of ingegrations) {
+            if (integration.brandId) {
+              const { brandId } = integration;
+
+              if (brandsCountMap[brandId]) {
+                const getOldConvosCount = brandsCountMap[brandId];
+                brandsCountMap[brandId] =
+                  getOldConvosCount + integrationsCountMap[integration._id];
+              }
+              brandsCountMap[brandId] =
+                integrationsCountMap[integration._id] || 0;
+            }
+          }
+
+          for (const brandId of Object.keys(brandsCountMap)) {
+            labels.push(brandsMap[brandId]);
+            data.push(brandsCountMap[brandId]);
+          }
+
+          const title = 'Conversations count by brand';
+          return { title, labels, data };
+        }
+      }
+
       // team members
       if (usersWithConvosCount) {
         for (const user of usersWithConvosCount) {
@@ -1216,7 +1289,7 @@ const chartTemplates = [
         fieldLabel: 'Select source',
       },
       {
-        fieldName: 'brand',
+        fieldName: 'brandIds',
 
         fieldType: 'select',
         fieldQuery: 'brands',
