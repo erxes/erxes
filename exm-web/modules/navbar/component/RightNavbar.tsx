@@ -3,7 +3,7 @@
 import { currentUserAtom } from "@/modules/JotaiProiveder"
 import { IUser } from "@/modules/auth/types"
 import { useAtomValue } from "jotai"
-import { LogOut, User } from "lucide-react"
+import { LogOut, User, ChevronDown } from "lucide-react"
 
 import Image from "@/components/ui/image"
 import {
@@ -15,7 +15,7 @@ import {
 import useMutations from "../hooks/useMutations"
 import Notifications from "./Notifications"
 
-const RightNavbar = ({ withBorder }: { withBorder?: boolean }) => {
+const RightNavbar = () => {
   const currentUser = useAtomValue(currentUserAtom) || ({} as IUser)
 
   const { logout } = useMutations()
@@ -24,23 +24,30 @@ const RightNavbar = ({ withBorder }: { withBorder?: boolean }) => {
     : `company/team-members/detail?id=${currentUser._id}`
 
   return (
-    <div className={`p-3.5 ${withBorder && "border-b border-[#eee]"} bg-white`}>
-      <div className="flex items-center justify-end">
+    <div className={` bg-white`}>
+      <div className="flex items-center justify-end h-full">
         <Notifications />
         <Popover>
           <PopoverTrigger asChild={true}>
-            <div className="cursor-pointer">
-              <Image
-                src={
-                  currentUser.details && currentUser.details.avatar
-                    ? currentUser?.details?.avatar
-                    : "/avatar-colored.svg"
-                }
-                alt="User Profile"
-                width={80}
-                height={80}
-                className="w-9 h-9 rounded-full object-cover mr-6 border border-primary"
-              />
+            <div className="h-full flex items-center px-4 border-l border-[#EAECF0]">
+              <div className="cursor-pointer flex ">
+                <Image
+                  src={
+                    currentUser.details && currentUser.details.avatar
+                      ? currentUser?.details?.avatar
+                      : "/avatar-colored.svg"
+                  }
+                  alt="User Profile"
+                  width={80}
+                  height={80}
+                  className="w-[32px] h-[32px] rounded-[8px] object-cover mr-[10px] border-[1.5px] border-[#EAECF0]"
+                />
+                <div className="leading-none mr-[12px]">
+                  <div>{currentUser.details ? currentUser.details.fullName : currentUser.username}</div>
+                  <div className="font-normal font-[12px]">{currentUser.email}</div>
+                </div>
+                <ChevronDown />
+              </div>
             </div>
           </PopoverTrigger>
           <PopoverContent className="mr-8 w-fit p-2">
