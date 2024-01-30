@@ -502,8 +502,7 @@ export const customerToDynamic = async (subdomain, syncLog, params, models) => {
 
 export const dealToDynamic = async (subdomain, syncLog, params, models) => {
   const configs = await getConfig(subdomain, 'DYNAMIC', {});
-  // const config = configs[brandId || 'noBrand'];
-  const config = configs['7r1ffWS1cHmaFDQ0chvRq'];
+  const config = configs[params.scopeBrandIds[0] || 'noBrand'];
 
   const order = params;
 
@@ -568,6 +567,31 @@ export const dealToDynamic = async (subdomain, syncLog, params, models) => {
           },
           body: JSON.stringify('sendData'),
         }).then((r) => r.json());
+
+        const brandIds = (customer || {}).scopeBrandIds || [];
+
+        if (
+          !brandIds.includes(params.scopeBrandIds[0]) &&
+          params.scopeBrandIds[0] !== 'noBrand'
+        ) {
+          brandIds.push(params.scopeBrandIds[0]);
+        }
+
+        if (order.customerType === 'company') {
+          await sendContactsMessage({
+            subdomain,
+            action: 'companies.updateCompany',
+            data: { _id: customer._id, doc: { scopeBrandIds: brandIds } },
+            isRPC: true,
+          });
+        } else {
+          await sendContactsMessage({
+            subdomain,
+            action: 'customers.updateCustomer',
+            data: { _id: customer._id, doc: { scopeBrandIds: brandIds } },
+            isRPC: true,
+          });
+        }
       }
     }
 
@@ -586,9 +610,9 @@ export const dealToDynamic = async (subdomain, syncLog, params, models) => {
       Prices_Including_VAT: true,
       BillType: config.billType || 'Receipt',
       Location_Code: config.locationCode || 'BEV-01',
-      CustomerNo: customer
-        ? customer?.customFieldsDataByFieldCode?.VAT?.value
-        : '',
+      CustomerNo:
+        customer?.customFieldsDataByFieldCode?.vatCustomer?.value ||
+        customer?.customFieldsDataByFieldCode?.vatCompany?.value,
     };
 
     await models.SyncLogs.updateOne(
