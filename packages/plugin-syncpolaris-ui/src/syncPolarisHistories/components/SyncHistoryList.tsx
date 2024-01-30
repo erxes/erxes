@@ -1,19 +1,18 @@
-import React from 'react';
-import { IRouterProps, IQueryParams } from '@erxes/ui/src/types';
 import {
   __,
-  Wrapper,
   DataWithLoader,
   Pagination,
   Table,
+  Wrapper,
   ModalTrigger,
 } from '@erxes/ui/src';
-
-import Sidebar from './Sidebar';
-import { menuSyncpolaris } from '../../constants';
-import { Title } from '@erxes/ui-settings/src/styles';
-import { withRouter } from 'react-router-dom';
 import dayjs from 'dayjs';
+import { IRouterProps, IQueryParams } from '@erxes/ui/src/types';
+import React from 'react';
+import { withRouter } from 'react-router-dom';
+import { menuSyncpolaris } from '../../constants';
+import SyncHistorySidebar from './syncHistorySidebar';
+import { Title } from '@erxes/ui-settings/src/styles';
 
 interface IProps extends IRouterProps {
   syncHistories: any[];
@@ -29,7 +28,7 @@ interface IProps extends IRouterProps {
   clearFilter: () => void;
 }
 
-class Customer extends React.Component<IProps, {}> {
+class SyncHistoryList extends React.Component<IProps, {}> {
   constructor(props) {
     super(props);
   }
@@ -40,7 +39,7 @@ class Customer extends React.Component<IProps, {}> {
     e.target.value = tmpValue;
   };
 
-  rowContent = (item) => {
+  rowContent = (props, item) => {
     return <>{item.responseStr}</>;
   };
 
@@ -48,15 +47,7 @@ class Customer extends React.Component<IProps, {}> {
     const { history, syncHistories, totalCount, loading, queryParams } =
       this.props;
 
-    const tablehead = [
-      'Date',
-      'Email',
-      'Fullname',
-      'FirstName',
-      'LastName',
-      'Content',
-      'error',
-    ];
+    const tablehead = ['Date', 'User', 'Content Type', 'Content', 'Error'];
 
     const mainContent = (
       <Table whiteSpace="nowrap" bordered={true} hover={true}>
@@ -69,21 +60,36 @@ class Customer extends React.Component<IProps, {}> {
         </thead>
         <tbody id="orders">
           {(syncHistories || []).map((item) => (
+            // tslint:disable-next-line:jsx-key
             <ModalTrigger
-              title="Customer information"
+              title="Sync polaris information"
               trigger={
                 <tr key={item._id}>
                   <td>{dayjs(item.createdAt).format('lll')}</td>
                   <td>{item.createdUser?.email}</td>
-                  <td>{item.createdUser?.details?.fullName}</td>
-                  <td>{item.createdUser?.details?.firstName}</td>
-                  <td>{item.createdUser?.details?.lastName}</td>
+                  <td>{item.contentType}</td>
                   <td>{item.content}</td>
-                  <td>{item.error}</td>
+                  <td>
+                    {(item.responseStr || '').includes('timedout')
+                      ? item.responseStr
+                      : '' ||
+                        `
+                      ${item.responseData?.extra_info?.warnings || ''}
+                      ${item.responseData?.message || ''}
+                      ${item.error || ''}
+                      ${
+                        typeof (item.responseData?.error || '') === 'string' &&
+                        typeof (item.responseData?.error || '').replace(
+                          'ЕБаримт руу илгээгдээгүй түр баримт болно.',
+                          '',
+                        )
+                      }
+                      `}
+                  </td>
                 </tr>
               }
               size="xl"
-              content={(props) => this.rowContent(item)}
+              content={(props) => this.rowContent(props, item)}
             />
           ))}
         </tbody>
@@ -94,13 +100,13 @@ class Customer extends React.Component<IProps, {}> {
       <Wrapper
         header={
           <Wrapper.Header
-            title={__(`Customer`)}
+            title={__(`Sync Polariss `)}
             queryParams={queryParams}
             submenu={menuSyncpolaris}
           />
         }
         leftSidebar={
-          <Sidebar
+          <SyncHistorySidebar
             queryParams={queryParams}
             history={history}
             loading={loading}
@@ -108,7 +114,7 @@ class Customer extends React.Component<IProps, {}> {
         }
         actionBar={
           <Wrapper.ActionBar
-            left={<Title>{__(`Customers (${totalCount})`)}</Title>}
+            left={<Title>{__(`DATAS (${totalCount})`)}</Title>}
             // right={actionBarRight}
             background="colorWhite"
             wideSpacing={true}
@@ -130,4 +136,4 @@ class Customer extends React.Component<IProps, {}> {
   }
 }
 
-export default withRouter<IRouterProps>(Customer);
+export default withRouter<IRouterProps>(SyncHistoryList);

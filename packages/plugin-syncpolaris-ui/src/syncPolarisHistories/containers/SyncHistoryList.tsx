@@ -1,15 +1,17 @@
 import * as compose from 'lodash.flowright';
+
 import {
-  SyncHistoriesQueryResponse,
   SyncHistoriesCountQueryResponse,
+  SyncHistoriesQueryResponse,
 } from '../../types';
-import { queries } from '../../graphql';
 import { router, withProps } from '@erxes/ui/src/utils/core';
+
 import { IRouterProps } from '@erxes/ui/src/types';
-import Customer from '../components/Customer';
 import React from 'react';
+import SyncHistoryList from '../components//SyncHistoryList';
 import { gql } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
+import { queries } from '../../graphql';
 import { withRouter } from 'react-router-dom';
 
 type Props = {
@@ -23,7 +25,7 @@ type FinalProps = {
 } & Props &
   IRouterProps;
 
-class CustomerContainer extends React.Component<FinalProps, {}> {
+class SyncHistoryListContainer extends React.Component<FinalProps, {}> {
   constructor(props) {
     super(props);
 
@@ -36,6 +38,7 @@ class CustomerContainer extends React.Component<FinalProps, {}> {
 
     const syncHistories = syncHistoriesQuery.syncHistories || [];
     const totalCount = syncHistoriesCountQuery.syncHistoriesCount || 0;
+
     const updatedProps = {
       ...this.props,
       queryParams,
@@ -43,7 +46,8 @@ class CustomerContainer extends React.Component<FinalProps, {}> {
       totalCount,
       loading: syncHistoriesQuery.loading || syncHistoriesCountQuery.loading,
     };
-    return <Customer {...updatedProps} />;
+
+    return <SyncHistoryList {...updatedProps} />;
   }
 }
 
@@ -58,7 +62,7 @@ const generateParams = ({ queryParams }) => {
     userId: queryParams.userId,
     startDate: queryParams.startDate,
     endDate: queryParams.endDate,
-    contentType: 'contacts:customer',
+    contentType: queryParams.contentType,
     contentId: queryParams.contentId,
     searchConsume: queryParams.searchConsume,
     searchSend: queryParams.searchSend,
@@ -86,5 +90,5 @@ export default withProps<Props>(
         }),
       },
     ),
-  )(withRouter<IRouterProps>(CustomerContainer)),
+  )(withRouter<IRouterProps>(SyncHistoryListContainer)),
 );
