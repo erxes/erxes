@@ -6,7 +6,7 @@ import {
   FormGroup
 } from '@erxes/ui/src/components';
 
-import EditorCK from '../containers/EditorCK';
+import RichTextEditor from '../containers/RichTextEditor';
 import { IFormProps } from '@erxes/ui/src/types';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
 import React from 'react';
@@ -37,8 +37,8 @@ class Form extends React.Component<Props, State> {
     this.state = { name: obj.name, content: obj.content, subType: obj.subType };
   }
 
-  onContentChange = e => {
-    this.setState({ content: e.editor.getData() });
+  onContentChange = (content: string) => {
+    this.setState({ content });
   };
 
   onChangeField = (key, e) => {
@@ -77,7 +77,7 @@ class Form extends React.Component<Props, State> {
 
         <FormGroup>
           <div style={{ float: 'left', width: '100%' }}>
-            <EditorCK
+            <RichTextEditor
               contentType={obj.contentType || contentType}
               content={obj.content}
               onChange={this.onContentChange}

@@ -13,7 +13,7 @@ import {
 
 import Button from '@erxes/ui/src/components/Button';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
-import EditorCK from '../containers/EditorCK';
+import RichTextEditor from '../containers/RichTextEditor';
 import ErrorMsg from '@erxes/ui/src/components/ErrorMsg';
 import { FlexContent } from '@erxes/ui-log/src/activityLogs/styles';
 import FormControl from '@erxes/ui/src/components/form/Control';
@@ -118,8 +118,8 @@ class EmailForm extends React.Component<Props, State> {
     );
   }
 
-  onEditorChange = e => {
-    this.props.onChange('content', e.editor.getData());
+  onEditorChange = (content: string) => {
+    this.props.onChange('content', content);
   };
 
   renderFrom() {
@@ -322,7 +322,7 @@ class EmailForm extends React.Component<Props, State> {
         <FlexItem overflow="auto" count="2">
           <EditorContainer>
             <ControlLabel>Content:</ControlLabel>
-            <EditorCK
+            <RichTextEditor
               content={this.state.content}
               isSubmitted={this.props.isSaved}
               onChange={this.onEditorChange}
