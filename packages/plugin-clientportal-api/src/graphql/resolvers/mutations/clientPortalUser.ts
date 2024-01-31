@@ -134,7 +134,7 @@ const clientPortalUserMutations = {
 
     const optConfig = clientPortal.otpConfig;
 
-    if (args.phoneOtp && optConfig && optConfig.loginWithOTP) {
+    if (optConfig && optConfig.loginWithOTP) {
       return tokenHandler(user, clientPortal, res);
     }
 
@@ -685,6 +685,124 @@ const clientPortalUserMutations = {
     }
 
     return { userId: user._id, message: 'Sms sent' };
+  },
+
+  clientPortalLoginWithMailOTP: async (
+    _root,
+    args: { email: string; clientPortalId: string; deviceToken },
+    { models, subdomain, res }: IContext,
+  ) => {
+    const { email, clientPortalId, deviceToken } = args;
+    const clientPortal = await models.ClientPortals.getConfig(clientPortalId);
+
+    const config = clientPortal.otpConfig || {
+      content: '',
+      codeLength: 4,
+      loginWithOTP: false,
+      expireAfter: 5,
+      emailSubject: 'Email verification',
+    };
+
+    if (!config.loginWithOTP) {
+      throw new Error('Login with OTP is not enabled');
+    }
+
+    const doc = { email };
+
+    const user = await models.ClientPortalUsers.loginWithoutPassword(
+      subdomain,
+      clientPortal,
+      doc,
+      deviceToken,
+    );
+
+    try {
+      if (clientPortal?.testUserEmail && clientPortal._id) {
+        const cpUser = await models.ClientPortalUsers.findOne({
+          firstName: 'test clientportal user',
+          clientPortalId: clientPortal._id,
+        });
+        if (cpUser) {
+          if (!clientPortal?.testUserOTP) {
+            throw new Error('Test user email otp not provided!');
+          }
+
+          if (
+            config.codeLength !== clientPortal?.testUserOTP?.toString().length
+          ) {
+            throw new Error(
+              'Client portal otp config and test user otp does not same length!',
+            );
+          }
+
+          if (
+            clientPortal?.testUserOTP &&
+            config.codeLength === clientPortal?.testUserOTP?.toString().length
+          ) {
+            const testEmailCode =
+              await models.ClientPortalUsers.imposeVerificationCode({
+                clientPortalId: clientPortal._id,
+                codeLength: config.codeLength,
+                email: clientPortal?.testUserEmail,
+                expireAfter: config.expireAfter,
+                testUserOTP: clientPortal?.testUserOTP,
+              });
+
+            const body =
+              config.content.replace(/{.*}/, testEmailCode) ||
+              `Your OTP is ${testEmailCode}`;
+
+            await sendCoreMessage({
+              subdomain,
+              action: 'sendEmail',
+              data: {
+                toEmails: [email],
+                title: config.emailSubject || 'OTP verification',
+                template: {
+                  name: 'base',
+                  data: {
+                    content: body,
+                  },
+                },
+              },
+            });
+          }
+
+          return { userId: user._id, message: 'sent' };
+        }
+      }
+    } catch (e) {
+      console.log(e.message);
+    }
+
+    const emailCode = await models.ClientPortalUsers.imposeVerificationCode({
+      clientPortalId: clientPortal._id,
+      codeLength: config.codeLength,
+      email: user.email,
+      expireAfter: config.expireAfter,
+    });
+
+    if (emailCode) {
+      const body =
+        config.content.replace(/{.*}/, emailCode) || `Your OTP is ${emailCode}`;
+
+      await sendCoreMessage({
+        subdomain,
+        action: 'sendEmail',
+        data: {
+          toEmails: [email],
+          title: config.emailSubject || 'OTP verification',
+          template: {
+            name: 'base',
+            data: {
+              content: body,
+            },
+          },
+        },
+      });
+    }
+
+    return { userId: user._id, message: 'Sent' };
   },
 
   clientPortalLoginWithSocialPay: async (
