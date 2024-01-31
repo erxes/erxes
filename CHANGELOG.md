@@ -1,3 +1,59 @@
+# [1.6.0-rc.2](https://github.com/erxes/erxes/compare/1.6.0-rc.1...1.6.0-rc.2) (2024-01-31)
+
+
+
+
+
+# [1.6.0-rc.1](https://github.com/erxes/erxes/compare/1.6.0-rc.0...1.6.0-rc.1) (2024-01-29)
+
+# [1.6.0-rc.0](https://github.com/erxes/erxes/compare/1.5.10...1.6.0-rc.0) (2024-01-25)
+
+
+### Bug Fixes
+
+* **core:** Enforce jpg file extension during Cloudflare Images upload if provided extension is .JPG or .JPEG ([9045a98](https://github.com/erxes/erxes/commit/9045a986f88e187cc2a8249508cfea84751c0e56))
+* posclient products sort by unitPrice ([deacf8f](https://github.com/erxes/erxes/commit/deacf8fea0c02d3eedba72101404c5b5ff7a9eee))
+* **viber:** save inbox conversationId on viber conversation ([#4903](https://github.com/erxes/erxes/issues/4903)) ([67d0a28](https://github.com/erxes/erxes/commit/67d0a288e770c728590df9e1014ef80a2ad06654))
+
+
+### Features
+
+* **engage:** introduce client portal notification type in engage plugin ([#4915](https://github.com/erxes/erxes/issues/4915)) ([c7999e8](https://github.com/erxes/erxes/commit/c7999e8c1b7171f1c83899210bae41a6bfbe7711))
+* syncerkhet sync products with weight ([d86acf3](https://github.com/erxes/erxes/commit/d86acf3286d2a40f56b3f9bd5cbeffb2202eed29))
+* **xyp:** set customer properties from xypdan data ([#4910](https://github.com/erxes/erxes/issues/4910)) ([b6abdf9](https://github.com/erxes/erxes/commit/b6abdf9df11d9b7c09414d5c792c07d157d15077))
+
+
+
+## [1.5.10](https://github.com/erxes/erxes/compare/1.5.9...1.5.10) (2024-01-17)
+
+## [1.5.9](https://github.com/erxes/erxes/compare/1.5.8...1.5.9) (2024-01-12)
+
+
+### Bug Fixes
+
+* **contacts:** fix empty trackedData of company ([f43f105](https://github.com/erxes/erxes/commit/f43f1058f64c30fef77085836a8e3667f7ecf238))
+
+## [1.5.8](https://github.com/erxes/erxes/compare/1.5.7...1.5.8) (2024-01-09)
+
+
+### Bug Fixes
+
+* **businessportal:** fix cp user related cards ([49e4620](https://github.com/erxes/erxes/commit/49e4620a8ec2b8e03be4384d718181aa9a35302b))
+* ebarimt per stage configure company name ([910e556](https://github.com/erxes/erxes/commit/910e556cbfe5cf947f8be0cee243de885a6d78f2))
+* refactor tag order ([4623716](https://github.com/erxes/erxes/commit/46237168449d0a998f87b71e60d1fcfc4652d9d0))
+* refactor tag order ([f25139b](https://github.com/erxes/erxes/commit/f25139b06d1f56444ccd172bf2477c5d99fe31ef))
+
+
+### Performance Improvements
+
+* **editor:** add table, mention & attribute plugins & replace respondBox editor ([#4861](https://github.com/erxes/erxes/issues/4861)) ([e0207f7](https://github.com/erxes/erxes/commit/e0207f79fafef6528c56fd99f132c6d7d916f37d))
+* **products:** some refactor & update some UI in settings ([a27de3a](https://github.com/erxes/erxes/commit/a27de3a6d1dce65a46798bfb9720529d94817a91))
+
+
+### Reverts
+
+* Revert "simplify" ([f34977c](https://github.com/erxes/erxes/commit/f34977c1c051c1efdd7ae00a66dfd713c977a3b0))
+
 ## [1.5.7](https://github.com/erxes/erxes/compare/1.5.6...1.5.7) (2024-01-03)
 
 

@@ -3,10 +3,10 @@ import gql from 'graphql-tag';
 import {
   types as segmentTypes,
   queries as segmentQueries,
-  mutations as segmentMutations
+  mutations as segmentMutations,
 } from './schema/segment';
 
-const typeDefs = async _serviceDiscovery => {
+const typeDefs = async () => {
   return gql`
     scalar JSON
     scalar Date

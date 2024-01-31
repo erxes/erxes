@@ -1,5 +1,5 @@
 import { IConfig } from '../../models/definitions/notifications';
-import { graphqlPubsub } from '../../configs';
+import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
 import { moduleRequireLogin } from '@erxes/api-utils/src/permissions';
 import { IContext } from '../../connectionResolver';
 import { sendCoreMessage } from '../../messageBroker';
@@ -11,7 +11,7 @@ const notificationMutations = {
   notificationsSaveConfig(_root, doc: IConfig, { user, models }: IContext) {
     return models.NotificationConfigurations.createOrUpdateConfiguration(
       doc,
-      user
+      user,
     );
   },
 
@@ -21,7 +21,7 @@ const notificationMutations = {
   async notificationsMarkAsRead(
     _root,
     { _ids, contentTypeId }: { _ids: string[]; contentTypeId: string },
-    { models, user }: IContext
+    { models, user }: IContext,
   ) {
     // notify subscription
     graphqlPubsub.publish('notificationsChanged', '');
@@ -54,8 +54,8 @@ const notificationMutations = {
       action: 'users.updateOne',
       data: {
         selector: { _id: user._id },
-        modifier: { $set: { isShowNotification: true } }
-      }
+        modifier: { $set: { isShowNotification: true } },
+      },
     });
 
     return 'success';

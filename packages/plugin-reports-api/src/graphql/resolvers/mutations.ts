@@ -1,10 +1,10 @@
-import { serviceDiscovery } from '../../configs';
+import { getService } from '@erxes/api-utils/src/serviceDiscovery';
 import { IContext } from '../../connectionResolver';
 import {
   IChart,
   IChartDocument,
   IReport,
-  IReportDocument
+  IReportDocument,
 } from '../../models/definitions/reports';
 
 const reportsMutations = {
@@ -14,15 +14,19 @@ const reportsMutations = {
       createdBy: user._id,
       createdAt: new Date(),
       updatedBy: user._id,
-      updatedAt: new Date()
+      updatedAt: new Date(),
     });
 
     if (doc.reportTemplateType) {
-      const service = await serviceDiscovery.getService(doc.serviceName);
+      if (!doc.serviceName) {
+        throw new Error(`doc.serviceName is ${doc.serviceName}`);
+      }
+      const service = await getService(doc.serviceName);
 
-      const reportTemplate = service.config?.meta?.reports?.reportTemplates?.find(
-        t => t.serviceType === doc.reportTemplateType
-      );
+      const reportTemplate =
+        service.config?.meta?.reports?.reportTemplates?.find(
+          (t) => t.serviceType === doc.reportTemplateType,
+        );
 
       const chartTemplates = service.config?.meta?.reports?.chartTemplates;
 
@@ -31,26 +35,26 @@ const reportsMutations = {
       let getChartTemplates;
 
       if (charts) {
-        getChartTemplates = chartTemplates?.filter(t =>
-          charts.includes(t.templateType)
+        getChartTemplates = chartTemplates?.filter((t) =>
+          charts.includes(t.templateType),
         );
       } else {
         // create with default charts
-        getChartTemplates = chartTemplates?.filter(t =>
-          reportTemplate.charts.includes(t.templateType)
+        getChartTemplates = chartTemplates?.filter((t) =>
+          reportTemplate.charts.includes(t.templateType),
         );
       }
 
       if (getChartTemplates) {
         await models.Charts.insertMany(
-          getChartTemplates.map(c => {
+          getChartTemplates.map((c) => {
             return {
               serviceName,
               chartType: c.chartTypes[0],
               reportId: report._id,
-              ...c
+              ...c,
             };
-          })
+          }),
         );
       }
     }
@@ -60,7 +64,7 @@ const reportsMutations = {
   async reportsEdit(
     _root,
     { _id, ...doc }: IReportDocument,
-    { models, user }: IContext
+    { models, user }: IContext,
   ) {
     if (doc.charts) {
       const { charts } = doc;
@@ -73,7 +77,7 @@ const reportsMutations = {
     return models.Reports.updateReport(_id, {
       ...doc,
       updatedAt: new Date(),
-      updatedBy: user._id
+      updatedBy: user._id,
     });
   },
   async reportsRemove(_root, _id: string, { models }: IContext) {
@@ -90,13 +94,13 @@ const reportsMutations = {
   async reportChartsEdit(
     _root,
     { _id, ...doc }: IChartDocument,
-    { models }: IContext
+    { models }: IContext,
   ) {
     return models.Charts.updateChart(_id, { ...doc });
   },
   reportChartsRemove(_root, _id: string, { models }: IContext) {
     return models.Charts.removeChart(_id);
-  }
+  },
 };
 
 export default reportsMutations;

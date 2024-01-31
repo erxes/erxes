@@ -94,9 +94,9 @@ function renderCreate(createUrl, kind, isAvailable) {
       </Link>
     );
   }
-  if (kind === INTEGRATION_KINDS.INSTAGRAM_POST) {
+  if (kind === INTEGRATION_KINDS.INSTAGRAM_MESSENGER) {
     return (
-      <Link to={`${createUrl}?kind=${INTEGRATION_KINDS.INSTAGRAM_POST}`}>
+      <Link to={`${createUrl}?kind=${INTEGRATION_KINDS.INSTAGRAM_MESSENGER}`}>
         + {__('Add')}
       </Link>
     );
@@ -110,7 +110,7 @@ function renderCreate(createUrl, kind, isAvailable) {
     kind === INTEGRATION_KINDS.NYLAS_OFFICE365 ||
     kind === INTEGRATION_KINDS.NYLAS_GMAIL
   ) {
-    const content = props => <NylasForm kind={kind} {...props} />;
+    const content = (props) => <NylasForm kind={kind} {...props} />;
 
     return (
       <ModalTrigger
@@ -127,7 +127,7 @@ function renderCreate(createUrl, kind, isAvailable) {
     kind === INTEGRATION_KINDS.NYLAS_OUTLOOK ||
     kind === INTEGRATION_KINDS.NYLAS_YAHOO
   ) {
-    const content = props => <NylasForm kind={kind} {...props} />;
+    const content = (props) => <NylasForm kind={kind} {...props} />;
 
     return (
       <ModalTrigger
@@ -144,7 +144,7 @@ function renderCreate(createUrl, kind, isAvailable) {
   }
 
   if (kind === 'twitter') {
-    const content = props => <Twitter {...props} />;
+    const content = (props) => <Twitter {...props} />;
 
     return (
       <ModalTrigger title="Add twitter" trigger={trigger} content={content} />
@@ -152,7 +152,7 @@ function renderCreate(createUrl, kind, isAvailable) {
   }
 
   if (kind === INTEGRATION_KINDS.SMOOCH_LINE) {
-    const content = props => <LineForm {...props} />;
+    const content = (props) => <LineForm {...props} />;
 
     return (
       <ModalTrigger title="Add Line" trigger={trigger} content={content} />
@@ -160,14 +160,14 @@ function renderCreate(createUrl, kind, isAvailable) {
   }
 
   if (kind === INTEGRATION_KINDS.TELNYX) {
-    const content = props => <TelnyxForm {...props} />;
+    const content = (props) => <TelnyxForm {...props} />;
 
     return (
       <ModalTrigger title="Add telnyx" trigger={trigger} content={content} />
     );
   }
 
-  const formContent = props => <IntegrationForm {...props} type={kind} />;
+  const formContent = (props) => <IntegrationForm {...props} type={kind} />;
 
   return (
     <ModalTrigger
@@ -183,7 +183,7 @@ function Entry({
   getClassName,
   toggleBox,
   totalCount,
-  customLink
+  customLink,
 }: Props) {
   const { kind, isAvailable, createUrl } = integration;
 
@@ -195,7 +195,7 @@ function Entry({
     if (
       ![
         INTEGRATION_KINDS.NYLAS_GMAIL,
-        INTEGRATION_KINDS.NYLAS_OFFICE365
+        INTEGRATION_KINDS.NYLAS_OFFICE365,
       ].includes(kind) ||
       !isAvailable
     ) {

@@ -6,26 +6,24 @@ import {
   fieldsMutations,
   fieldsGroupsTypes,
   fieldsGroupsQueries,
-  fieldsGroupsMutations
+  fieldsGroupsMutations,
 } from './schema/field';
 
 import { types, queries, mutations } from './schema/form';
+import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
 
-const typeDefs = async serviceDiscovery => {
-  const isContactsEnabled = await serviceDiscovery.isEnabled('contacts');
-  const isProductsEnabled = await serviceDiscovery.isEnabled('products');
-
-  const isEnabled = {
-    contacts: isContactsEnabled,
-    products: isProductsEnabled
+const typeDefs = async () => {
+  const isEnabledTable = {
+    contacts: isEnabled('contacts'),
+    products: isEnabled('products'),
   };
 
   return gql`
     scalar JSON
     scalar Date
 
-    ${types(isEnabled)}
-    ${fieldsTypes(isEnabled)}
+    ${types(isEnabledTable)}
+    ${fieldsTypes(isEnabledTable)}
     ${fieldsGroupsTypes}
 
     extend type Query {

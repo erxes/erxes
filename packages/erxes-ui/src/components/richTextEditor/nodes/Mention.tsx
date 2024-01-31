@@ -3,7 +3,7 @@ import React, {
   useEffect,
   useImperativeHandle,
   useRef,
-  useState
+  useState,
 } from 'react';
 import { NodeViewProps, NodeViewWrapper } from '@tiptap/react';
 import { SuggestionOptions, SuggestionProps } from '@tiptap/suggestion';
@@ -13,7 +13,7 @@ import {
   VariableLabel,
   VariableListBtn,
   VariableListWrapper,
-  VariableWrapper
+  VariableWrapper,
 } from '../styles';
 import { FlexCenter } from '../../../styles/main';
 
@@ -59,7 +59,7 @@ export const MentionList = forwardRef<SuggestionListRef, SuggestionListProps>(
 
       const mentionItem = {
         id: item.id,
-        label: (item.fullName || item.username || '').trim()
+        label: (item.fullName || item.username || '').trim(),
       };
 
       if (item) {
@@ -99,7 +99,7 @@ export const MentionList = forwardRef<SuggestionListRef, SuggestionListProps>(
         }
 
         return false;
-      }
+      },
     }));
 
     const renderList = () => {
@@ -140,7 +140,7 @@ export const MentionList = forwardRef<SuggestionListRef, SuggestionListProps>(
     };
 
     return <VariableListWrapper>{renderList()}</VariableListWrapper>;
-  }
+  },
 );
 
 MentionList.displayName = 'MentionList';
@@ -196,11 +196,11 @@ export function VariableComponent(props: NodeViewProps) {
       style={{
         display: 'inline-block',
         lineHeight: 1,
-        ...(selected ? { outline: '3px solid #555' } : {})
+        ...(selected ? { outline: '3px solid #555' } : {}),
       }}
     >
       <OverlayTrigger
-        ref={overlayTrigger => {
+        ref={(overlayTrigger) => {
           overLayRef = overlayTrigger;
         }}
         trigger="click"
@@ -216,9 +216,9 @@ export function VariableComponent(props: NodeViewProps) {
               <input
                 placeholder="Add Variable Name"
                 value={id}
-                onChange={e => {
+                onChange={(e) => {
                   updateAttributes({
-                    id: e.target.value
+                    id: e.target.value,
                   });
                 }}
               />
@@ -228,9 +228,9 @@ export function VariableComponent(props: NodeViewProps) {
               <input
                 placeholder="Fallback Value"
                 value={fallback || ''}
-                onChange={e => {
+                onChange={(e) => {
                   updateAttributes({
-                    fallback: e.target.value
+                    fallback: e.target.value,
                   });
                 }}
               />

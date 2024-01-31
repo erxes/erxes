@@ -1,21 +1,20 @@
-import React from 'react';
 import * as compose from 'lodash.flowright';
 
 import {
   AddMessageMutationVariables,
-  IConversation
+  IConversation,
 } from '@erxes/ui-inbox/src/inbox/types';
+import { gql, useLazyQuery } from '@apollo/client';
 import { readFile, withProps } from '@erxes/ui/src/utils';
 
 import { AppConsumer } from 'coreui/appContext';
 import { IAttachmentPreview } from '@erxes/ui/src/types';
 import { IUser } from '@erxes/ui/src/auth/types';
-
+import React from 'react';
 import RespondBox from '../../components/conversationDetail/workarea/RespondBox';
 import { ResponseTemplatesQueryResponse } from '../../../settings/responseTemplates/types';
 import { UsersQueryResponse } from '@erxes/ui/src/auth/types';
 import debounce from 'lodash/debounce';
-import { gql, useLazyQuery } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
 import { queries } from '@erxes/ui-inbox/src/inbox/graphql';
 
@@ -53,7 +52,7 @@ const RespondBoxContainer = (props: FinalProps) => {
     addMessage,
     responseTemplatesQuery,
     currentUser,
-    search
+    search,
   } = props;
 
   const [fetchMentions] = useLazyQuery(gql(queries.userList));
@@ -73,7 +72,7 @@ const RespondBoxContainer = (props: FinalProps) => {
         avatar:
           user.details &&
           user.details.avatar &&
-          readFile(user.details.avatar, 44)
+          readFile(user.details.avatar, 44),
       });
     }
     return mentionUsers;
@@ -87,15 +86,10 @@ const RespondBoxContainer = (props: FinalProps) => {
 
   const sendMessage = (
     variables: AddMessageMutationVariables,
-    callback: (error: Error) => void
+    callback: (error: Error) => void,
   ) => {
-    const {
-      conversationId,
-      content,
-      attachments,
-      internal,
-      contentType
-    } = variables;
+    const { conversationId, content, attachments, internal, contentType } =
+      variables;
 
     let optimisticResponse;
 
@@ -123,15 +117,15 @@ const RespondBoxContainer = (props: FinalProps) => {
         user: null,
         customer: null,
         videoCallData: null,
-        mid: Math.random().toString()
-      }
+        mid: Math.random().toString(),
+      },
     };
 
     addMessage({
       variables,
       optimisticResponse,
       kind: conversation.integration.kind,
-      callback
+      callback,
     });
   };
 
@@ -140,7 +134,7 @@ const RespondBoxContainer = (props: FinalProps) => {
     onSearchChange,
     sendMessage,
     responseTemplates: responseTemplatesQuery.responseTemplates || [],
-    mentionSuggestion: { getVariables, fetchMentions, extractFunction }
+    mentionSuggestion: { getVariables, fetchMentions, extractFunction },
   };
 
   return <RespondBox {...updatedProps} />;
@@ -156,13 +150,13 @@ const withQuery = () =>
           options: () => {
             return {
               variables: {
-                perPage: 200
-              }
+                perPage: 20,
+              },
             };
-          }
-        }
-      )
-    )(RespondBoxContainer)
+          },
+        },
+      ),
+    )(RespondBoxContainer),
   );
 
 class Wrapper extends React.Component<

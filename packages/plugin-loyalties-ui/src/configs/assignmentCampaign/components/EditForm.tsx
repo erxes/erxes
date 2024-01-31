@@ -8,17 +8,17 @@ import FormGroup from '@erxes/ui/src/components/form/Group';
 import DateControl from '@erxes/ui/src/components/form/DateControl';
 import Uploader from '@erxes/ui/src/components/Uploader';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
-import EditorCK from '@erxes/ui/src/components/EditorCK';
 import Toggle from '@erxes/ui/src/components/Toggle';
+import { RichTextEditor } from '@erxes/ui/src/components/richTextEditor/TEditor';
 import {
   MainStyleFormColumn as FormColumn,
   MainStyleFormWrapper as FormWrapper,
-  MainStyleDateContainer as DateContainer
+  MainStyleDateContainer as DateContainer,
 } from '@erxes/ui/src/styles/eindex';
 import {
   IAttachment,
   IButtonMutateProps,
-  IFormProps
+  IFormProps,
 } from '@erxes/ui/src/types';
 import { IAssignmentCampaign } from '../types';
 import { extractAttachment, __ } from '@erxes/ui/src/utils';
@@ -50,7 +50,7 @@ class EditForm extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      assignmentCampaign: this.props.assignmentCampaign || {}
+      assignmentCampaign: this.props.assignmentCampaign || {},
     };
   }
 
@@ -68,7 +68,7 @@ class EditForm extends React.Component<Props, State> {
 
     return {
       ...finalValues,
-      ...assignmentCampaign
+      ...assignmentCampaign,
     };
   };
 
@@ -76,12 +76,12 @@ class EditForm extends React.Component<Props, State> {
     const { assignmentCampaign } = this.state;
 
     this.setState({
-      assignmentCampaign: { ...assignmentCampaign, [name]: value }
+      assignmentCampaign: { ...assignmentCampaign, [name]: value },
     });
   };
 
-  onChangeDescription = e => {
-    this.onChange(e.editor.getData(), 'description');
+  onChangeDescription = (content: string) => {
+    this.onChange(content, 'description');
   };
 
   onChangeAttachment = (files: IAttachment[]) => {
@@ -92,7 +92,7 @@ class EditForm extends React.Component<Props, State> {
     this.onChange(date, type);
   };
 
-  onInputChange = e => {
+  onInputChange = (e) => {
     e.preventDefault();
     const value = e.target.value;
     const name = e.target.name;
@@ -104,13 +104,13 @@ class EditForm extends React.Component<Props, State> {
     const { renderButton } = this.props;
     const { values, isSubmitted } = formProps;
 
-    const onChangeVoucherCampaign = selected => {
+    const onChangeVoucherCampaign = (selected) => {
       const value = (selected || {}).value;
 
       this.onChange(value, 'voucherCampaignId');
     };
 
-    const onChangeSegments = segmentIds => {
+    const onChangeSegments = (segmentIds) => {
       this.onChange(segmentIds, 'segmentIds');
     };
 
@@ -185,7 +185,7 @@ class EditForm extends React.Component<Props, State> {
                   value={assignmentCampaign.finishDateOfUse}
                   onChange={this.onDateInputChange.bind(
                     this,
-                    'finishDateOfUse'
+                    'finishDateOfUse',
                   )}
                 />
               </DateContainer>
@@ -202,7 +202,7 @@ class EditForm extends React.Component<Props, State> {
                 initialValue={this.state.assignmentCampaign.segmentIds}
                 contentTypes={['contacts:customer', 'contacts:lead']}
                 multi={true}
-                onSelect={segmentIds => onChangeSegments(segmentIds)}
+                onSelect={(segmentIds) => onChangeSegments(segmentIds)}
               />
             </FormGroup>
             <SegmentFields
@@ -217,9 +217,9 @@ class EditForm extends React.Component<Props, State> {
           <Select
             placeholder={__('Choose voucher campaign')}
             value={this.state.assignmentCampaign.voucherCampaignId}
-            options={this.props.voucherCampaigns.map(voucher => ({
+            options={this.props.voucherCampaigns.map((voucher) => ({
               label: `${voucher.title}`,
-              value: voucher._id
+              value: voucher._id,
             }))}
             name="voucherCampaignId"
             onChange={onChangeVoucherCampaign}
@@ -228,27 +228,21 @@ class EditForm extends React.Component<Props, State> {
         </FormGroup>
         <FormGroup>
           <ControlLabel>Description</ControlLabel>
-          <EditorCK
+          <RichTextEditor
             content={assignmentCampaign.description || ''}
             onChange={this.onChangeDescription}
             height={150}
             isSubmitted={formProps.isSaved}
             name={`assignmentCampaign_description_${assignmentCampaign.description}`}
             toolbar={[
-              {
-                name: 'basicstyles',
-                items: [
-                  'Bold',
-                  'Italic',
-                  'NumberedList',
-                  'BulletedList',
-                  'Link',
-                  'Unlink',
-                  '-',
-                  'Image',
-                  'EmojiPanel'
-                ]
-              }
+              'bold',
+              'italic',
+              'orderedList',
+              'bulletList',
+              'link',
+              'unlink',
+              '|',
+              'image',
             ]}
           />
         </FormGroup>
@@ -272,7 +266,7 @@ class EditForm extends React.Component<Props, State> {
               onChange={() =>
                 this.onChange(
                   !assignmentCampaign?.allowMultiWin,
-                  'allowMultiWin'
+                  'allowMultiWin',
                 )
               }
             />
@@ -295,7 +289,7 @@ class EditForm extends React.Component<Props, State> {
             values: this.generateDoc(values),
             isSubmitted,
             object: assignmentCampaign,
-            callback: onSave
+            callback: onSave,
           })}
         </FormFooter>
       </>
@@ -305,7 +299,7 @@ class EditForm extends React.Component<Props, State> {
   render() {
     const breadcrumb = [
       { title: __('Settings'), link: '/settings' },
-      { title: __('Assignment Campaign') }
+      { title: __('Assignment Campaign') },
     ];
 
     const content = (

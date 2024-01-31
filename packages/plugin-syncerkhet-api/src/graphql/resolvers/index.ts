@@ -5,18 +5,18 @@ import erkhetRemainders from './queries/remainders';
 import syncHistories from './queries/syncHistories';
 import SyncHistory from './syncLog';
 
-const resolvers: any = async _serviceDiscovery => ({
+const resolvers: any = async () => ({
   ...customScalars,
   SyncHistory,
   Query: {
     ...erkhetRemainders,
-    ...syncHistories
+    ...syncHistories,
   },
 
   Mutation: {
     ...checkSyncedMutations,
-    ...inventoryMutations
-  }
+    ...inventoryMutations,
+  },
 });
 
 export default resolvers;

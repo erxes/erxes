@@ -126,7 +126,7 @@ export class PutData<IListArgs extends IPutDataArgs> {
       } else {
         response.getInformation = await fetch(
           `${url}/getInformation?lib=${rd}`,
-        ).then((r) => r.json());
+        ).then((r) => r.text());
       }
     }
 

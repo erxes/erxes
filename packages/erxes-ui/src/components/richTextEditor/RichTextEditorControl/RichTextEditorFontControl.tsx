@@ -95,9 +95,9 @@ export const RichTextEditorFontControl = ({ toolbarPlacement }) => {
         multi={false}
         value={currentFontSize}
         onChange={(val: SelectProps) => setSize(val.value)}
-        options={DEFAULT_FONT_SIZE_SELECT_OPTIONS.map(size => ({
+        options={DEFAULT_FONT_SIZE_SELECT_OPTIONS.map((size) => ({
           value: size,
-          label: size
+          label: size,
         }))}
         disabled={isSourceEnabled}
       /> */}

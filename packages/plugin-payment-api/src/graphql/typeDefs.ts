@@ -3,30 +3,22 @@ import gql from 'graphql-tag';
 import {
   queries as invoiceQueries,
   types as invoiceTypes,
-  mutations as invoiceMutations
+  mutations as invoiceMutations,
 } from './schema/invoices';
 
 import {
   queries as paymentQueries,
   types as paymentTypes,
-  mutations as paymentMutations
+  mutations as paymentMutations,
 } from './schema/payments';
 
 import {
   queries as configsQueries,
   mutations as configsMutations,
-  types as configsTypes
+  types as configsTypes,
 } from './schema/paymentConfigs';
 
-const typeDefs = async serviceDiscovery => {
-  const isContactsEnabled = await serviceDiscovery.isEnabled('contacts');
-  const cardsAvailable = await serviceDiscovery.isEnabled('cards');
-
-  const isEnabled = {
-    contacts: isContactsEnabled,
-    cards: cardsAvailable
-  };
-
+const typeDefs = async () => {
   return gql`
     scalar JSON
     scalar Date

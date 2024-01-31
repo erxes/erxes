@@ -549,5 +549,5 @@ export default {
   skillTypes,
   fieldsGroups,
   userMovements,
-  userList
+  userList,
 };

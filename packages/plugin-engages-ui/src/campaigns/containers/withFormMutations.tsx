@@ -21,6 +21,7 @@ import { graphql } from '@apollo/client/react/hoc';
 type Props = {
   messageId: string;
   kind: string;
+  businessPortalKind?: string;
 };
 
 type FinalProps = {
@@ -50,13 +51,13 @@ function withSaveAndEdit<IComponentProps>(Component) {
         engageMessageDetailQuery,
         addMutation,
         editMutation,
+        businessPortalKind,
       } = this.props;
 
       const message =
         engageMessageDetailQuery.engageMessageDetail || ({} as IEngageMessage);
       const users = usersQuery.allUsers || [];
       const verifiedUsers = users.filter((user) => user.username) || [];
-
       const doMutation = (mutation, variables, msg) => {
         this.setState({ isLoading: true });
 
@@ -81,7 +82,6 @@ function withSaveAndEdit<IComponentProps>(Component) {
       // save
       const save = (doc) => {
         doc.kind = message.kind ? message.kind : kind;
-
         if (messageId) {
           return doMutation(
             editMutation,
@@ -114,6 +114,12 @@ function withSaveAndEdit<IComponentProps>(Component) {
         templateId: '',
       };
 
+      const notification = message.notification || {
+        title: '',
+        content: '',
+        isMobile: false,
+      };
+
       const scheduleDate = message.scheduleDate;
 
       const updatedProps = {
@@ -138,6 +144,11 @@ function withSaveAndEdit<IComponentProps>(Component) {
             templateId: email.templateId,
             replyTo: email.replyTo,
             sender: email.sender,
+          },
+          notification: {
+            title: notification.title,
+            content: notification.content,
+            isMobile: notification.isMobile,
           },
           scheduleDate: scheduleDate
             ? {

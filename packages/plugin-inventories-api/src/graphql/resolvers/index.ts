@@ -7,7 +7,7 @@ import ReserveRem from './customResolvers/reserveRem';
 import SafeRemainderItem from './customResolvers/safeRemainderItem';
 import Transaction from './customResolvers/transaction';
 
-const resolvers: any = async _serviceDiscovery => ({
+const resolvers: any = async () => ({
   ...customScalars,
   RemainderProduct,
   SafeRemainder,
@@ -15,7 +15,7 @@ const resolvers: any = async _serviceDiscovery => ({
   ReserveRem,
   Transaction,
   Mutation,
-  Query
+  Query,
 });
 
 export default resolvers;

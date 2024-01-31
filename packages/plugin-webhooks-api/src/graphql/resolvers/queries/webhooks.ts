@@ -1,9 +1,10 @@
 import {
   checkPermission,
-  requireLogin
+  requireLogin,
 } from '@erxes/api-utils/src/permissions';
-import { serviceDiscovery } from '../../../configs';
+
 import { IContext } from '../../../connectionResolver';
+import { getService, getServices } from '@erxes/api-utils/src/serviceDiscovery';
 
 const webhookQueries = {
   /**
@@ -23,17 +24,17 @@ const webhookQueries = {
   async webhooksTotalCount(
     _root,
     _args,
-    { commonQuerySelector, models }: IContext
+    { commonQuerySelector, models }: IContext,
   ) {
     return models.Webhooks.find({ ...commonQuerySelector }).countDocuments();
   },
 
   async webhooksGetActions(_root) {
-    const services = await serviceDiscovery.getServices();
+    const services = await getServices();
     const webhookActions: any = [];
 
     for (const serviceName of services) {
-      const service = await serviceDiscovery.getService(serviceName);
+      const service = await getService(serviceName);
       const meta = service.config?.meta || {};
 
       if (meta && meta.webhooks) {
@@ -43,14 +44,14 @@ const webhookQueries = {
           webhookActions.push({
             label: action.label,
             action: action.action,
-            type: action.type
+            type: action.type,
           });
         }
       }
     }
 
     return webhookActions;
-  }
+  },
 };
 
 requireLogin(webhookQueries, 'webhookDetail');

@@ -3,48 +3,49 @@ import gql from 'graphql-tag';
 import {
   types as jobReferTypes,
   queries as jobReferQueries,
-  mutations as jobReferMutations
+  mutations as jobReferMutations,
 } from './schema/jobRefer';
 
 import {
   types as jobCategoryTypes,
   queries as jobCategoryQueries,
-  mutations as jobCategoryMutations
+  mutations as jobCategoryMutations,
 } from './schema/jobCategory';
 
 import {
   types as flowTypes,
   queries as flowQueries,
-  mutations as flowMutations
+  mutations as flowMutations,
 } from './schema/flow';
 
 import {
   types as flowCategoryTypes,
-  queries as flowCategoryQueries
+  queries as flowCategoryQueries,
 } from './schema/flowCategory';
 
 import {
   types as workTypes,
   queries as workQueries,
-  mutations as workMutations
+  mutations as workMutations,
 } from './schema/work';
 
 import {
   types as overallWorkTypes,
   queries as overallWorkQueries,
-  mutations as overallWorkMutations
+  mutations as overallWorkMutations,
 } from './schema/overallWork';
 
 import {
   types as performTypes,
   queries as performQueries,
-  mutations as performMutations
+  mutations as performMutations,
 } from './schema/perform';
 
 import { types as commonTypes } from './schema/common';
+import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
 
-const typeDefs = async serviceDiscovery => {
-  const contactsAvailable = await serviceDiscovery.isEnabled('contacts');
+const typeDefs = async () => {
+  const contactsAvailable = isEnabled('contacts');
 
   return gql`
     scalar JSON
