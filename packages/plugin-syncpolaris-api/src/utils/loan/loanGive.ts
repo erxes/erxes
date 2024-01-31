@@ -30,7 +30,7 @@ export const createLoanGive = async (subdomain, transaction) => {
   );
 
   const loanGive: IPolarisLoanGive = {
-    txnAcntCode: loanContractType.transAccount,
+    txnAcntCode: loanContract.number,
     txnAmount: transaction.total,
     curCode: transaction.currency,
     rate: 1,

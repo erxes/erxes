@@ -19,7 +19,7 @@ export const createLoanSchedule = async (subdomain: string, contract: any) => {
     null,
     contract.description,
     contract.skipAmountCalcMonth ?? null,
-    contract.customPayment ?? null,
+    contract.customPayment ?? [],
   ];
 
   const result = await fetchPolaris({
