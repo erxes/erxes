@@ -4,18 +4,18 @@ import {
   consumeCustomers,
   consumeInventory,
   consumePrice,
-  getConfig
+  getConfig,
 } from '../../../utils';
 
 const msdynamicSyncMutations = {
-  async toSyncProducts(
+  async toSyncMsdProducts(
     _root,
     {
       brandId,
       action,
-      products
+      products,
     }: { brandId: string; action: string; products: any[] },
-    { subdomain }: IContext
+    { subdomain }: IContext,
   ) {
     const configs = await getConfig(subdomain, 'DYNAMIC', {});
     const config = configs[brandId || 'noBrand'];
@@ -45,21 +45,21 @@ const msdynamicSyncMutations = {
       }
 
       return {
-        status: 'success'
+        status: 'success',
       };
     } catch (e) {
       console.log(e, 'error');
     }
   },
 
-  async toSyncPrices(
+  async toSyncMsdPrices(
     _root,
     {
       brandId,
       action,
-      prices
+      prices,
     }: { brandId: string; action: string; prices: any[] },
-    { subdomain }: IContext
+    { subdomain }: IContext,
   ) {
     const configs = await getConfig(subdomain, 'DYNAMIC', {});
     const config = configs[brandId || 'noBrand'];
@@ -83,21 +83,21 @@ const msdynamicSyncMutations = {
       }
 
       return {
-        status: 'success'
+        status: 'success',
       };
     } catch (e) {
       console.log(e, 'error');
     }
   },
 
-  async toSyncProductCategories(
+  async toSyncMsdProductCategories(
     _root,
     {
       brandId,
       action,
-      categories
+      categories,
     }: { brandId: string; action: string; categories: any[] },
-    { subdomain }: IContext
+    { subdomain }: IContext,
   ) {
     const configs = await getConfig(subdomain, 'DYNAMIC', {});
     const config = configs[brandId || 'noBrand'];
@@ -127,21 +127,21 @@ const msdynamicSyncMutations = {
       }
 
       return {
-        status: 'success'
+        status: 'success',
       };
     } catch (e) {
       console.log(e, 'error');
     }
   },
 
-  async toSyncCustomers(
+  async toSyncMsdCustomers(
     _root,
     {
       brandId,
       action,
-      customers
+      customers,
     }: { brandId: string; action: string; customers: any[] },
-    { subdomain }: IContext
+    { subdomain }: IContext,
   ) {
     const configs = await getConfig(subdomain, 'DYNAMIC', {});
     const config = configs[brandId || 'noBrand'];
@@ -171,12 +171,12 @@ const msdynamicSyncMutations = {
       }
 
       return {
-        status: 'success'
+        status: 'success',
       };
     } catch (e) {
       console.log(e, 'error');
     }
-  }
+  },
 };
 
 export default msdynamicSyncMutations;
