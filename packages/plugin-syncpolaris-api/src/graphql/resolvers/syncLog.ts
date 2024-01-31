@@ -6,7 +6,7 @@ export default {
     return models.SyncLogs.findOne({ _id });
   },
 
-  async content(syncLog: ISyncLogDocument, _, {}: IContext) {
+  async content(syncLog: ISyncLogDocument, _) {
     const { contentType, contentId } = syncLog;
 
     if (contentType === 'cards:deal') {
@@ -61,5 +61,5 @@ export default {
     }
 
     return contentId;
-  }
+  },
 };
