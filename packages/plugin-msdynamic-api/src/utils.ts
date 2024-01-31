@@ -25,11 +25,80 @@ const companyRequest = async (subdomain, config, action, updateCode, doc) => {
     defaultValue: {},
   });
 
+  let customFieldData = [] as any;
+  let updateCustomFieldData;
+
   const brandIds = (company || {}).scopeBrandIds || [];
 
   if ((action === 'update' && doc.No) || action === 'create') {
     if (!brandIds.includes(config.brandId) && config.brandId !== 'noBrand') {
       brandIds.push(config.brandId);
+    }
+
+    if (doc.Post_Code) {
+      const foundfield = await sendFormsMessage({
+        subdomain,
+        action: 'fields.findOne',
+        data: {
+          query: {
+            text: 'post code',
+            contentType: 'contacts:company',
+          },
+        },
+        isRPC: true,
+      });
+
+      customFieldData.push({
+        field: foundfield._id,
+        value: doc.Post_Code,
+      });
+    }
+
+    if (doc.City) {
+      const foundfield = await sendFormsMessage({
+        subdomain,
+        action: 'fields.findOne',
+        data: {
+          query: {
+            text: 'city',
+            contentType: 'contacts:company',
+          },
+        },
+        isRPC: true,
+      });
+
+      customFieldData.push({
+        field: foundfield._id,
+        value: doc.City,
+      });
+    }
+
+    if (doc.VAT_Registration_No) {
+      const foundfield = await sendFormsMessage({
+        subdomain,
+        action: 'fields.findOne',
+        data: {
+          query: {
+            text: 'VAT',
+            contentType: 'contacts:company',
+          },
+        },
+        isRPC: true,
+      });
+
+      customFieldData.push({
+        field: foundfield._id,
+        value: doc.VAT_Registration_No,
+      });
+    }
+
+    if (doc.Post_Code || doc.VAT_Registration_No || doc.City) {
+      updateCustomFieldData = await sendFormsMessage({
+        subdomain,
+        action: 'fields.prepareCustomFieldsData',
+        data: customFieldData,
+        isRPC: true,
+      });
     }
 
     const document: any = {
@@ -39,6 +108,7 @@ const companyRequest = async (subdomain, config, action, updateCode, doc) => {
       phones: [doc?.Phone_No],
       location: doc?.Country_Region_Code === 'MN' ? 'Mongolia' : '',
       businessType: doc?.Partner_Type === 'Person' ? 'Customer' : 'Partner',
+      customFieldsData: updateCustomFieldData,
       scopeBrandIds: brandIds,
     };
 
@@ -69,6 +139,9 @@ const customerRequest = async (subdomain, config, action, updateCode, doc) => {
     defaultValue: {},
   });
 
+  let customFieldData = [] as any;
+  let updateCustomFieldData;
+
   const brandIds = (customer || {}).scopeBrandIds || [];
 
   if ((action === 'update' && doc.No) || action === 'create') {
@@ -76,11 +149,78 @@ const customerRequest = async (subdomain, config, action, updateCode, doc) => {
       brandIds.push(config.brandId);
     }
 
+    if (doc.Post_Code) {
+      const foundfield = await sendFormsMessage({
+        subdomain,
+        action: 'fields.findOne',
+        data: {
+          query: {
+            text: 'post code',
+            contentType: 'contacts:customer',
+          },
+        },
+        isRPC: true,
+      });
+
+      customFieldData.push({
+        field: foundfield._id,
+        value: doc.Post_Code,
+      });
+    }
+
+    if (doc.City) {
+      const foundfield = await sendFormsMessage({
+        subdomain,
+        action: 'fields.findOne',
+        data: {
+          query: {
+            text: 'city',
+            contentType: 'contacts:customer',
+          },
+        },
+        isRPC: true,
+      });
+
+      customFieldData.push({
+        field: foundfield._id,
+        value: doc.City,
+      });
+    }
+
+    if (doc.VAT_Registration_No) {
+      const foundfield = await sendFormsMessage({
+        subdomain,
+        action: 'fields.findOne',
+        data: {
+          query: {
+            text: 'VAT',
+            contentType: 'contacts:customer',
+          },
+        },
+        isRPC: true,
+      });
+
+      customFieldData.push({
+        field: foundfield._id,
+        value: doc.VAT_Registration_No,
+      });
+    }
+
+    if (doc.Post_Code || doc.VAT_Registration_No || doc.City) {
+      updateCustomFieldData = await sendFormsMessage({
+        subdomain,
+        action: 'fields.prepareCustomFieldsData',
+        data: customFieldData,
+        isRPC: true,
+      });
+    }
+
     const document: any = {
       firstName: doc?.Name || 'default',
       code: doc.No,
       primaryPhone: doc?.Mobile_Phone_No,
       phones: [doc?.Phone_No],
+      customFieldsData: updateCustomFieldData,
       scopeBrandIds: brandIds,
       state: 'customer',
     };
@@ -502,8 +642,7 @@ export const customerToDynamic = async (subdomain, syncLog, params, models) => {
 
 export const dealToDynamic = async (subdomain, syncLog, params, models) => {
   const configs = await getConfig(subdomain, 'DYNAMIC', {});
-  // const config = configs[brandId || 'noBrand'];
-  const config = configs['7r1ffWS1cHmaFDQ0chvRq'];
+  const config = configs[params.scopeBrandIds[0] || 'noBrand'];
 
   const order = params;
 
@@ -568,6 +707,31 @@ export const dealToDynamic = async (subdomain, syncLog, params, models) => {
           },
           body: JSON.stringify('sendData'),
         }).then((r) => r.json());
+
+        const brandIds = (customer || {}).scopeBrandIds || [];
+
+        if (
+          !brandIds.includes(params.scopeBrandIds[0]) &&
+          params.scopeBrandIds[0] !== 'noBrand'
+        ) {
+          brandIds.push(params.scopeBrandIds[0]);
+        }
+
+        if (order.customerType === 'company') {
+          await sendContactsMessage({
+            subdomain,
+            action: 'companies.updateCompany',
+            data: { _id: customer._id, doc: { scopeBrandIds: brandIds } },
+            isRPC: true,
+          });
+        } else {
+          await sendContactsMessage({
+            subdomain,
+            action: 'customers.updateCustomer',
+            data: { _id: customer._id, doc: { scopeBrandIds: brandIds } },
+            isRPC: true,
+          });
+        }
       }
     }
 
@@ -586,9 +750,9 @@ export const dealToDynamic = async (subdomain, syncLog, params, models) => {
       Prices_Including_VAT: true,
       BillType: config.billType || 'Receipt',
       Location_Code: config.locationCode || 'BEV-01',
-      CustomerNo: customer
-        ? customer?.customFieldsDataByFieldCode?.VAT?.value
-        : '',
+      CustomerNo:
+        customer?.customFieldsDataByFieldCode?.vatCustomer?.value ||
+        customer?.customFieldsDataByFieldCode?.vatCompany?.value,
     };
 
     await models.SyncLogs.updateOne(
