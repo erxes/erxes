@@ -72,7 +72,7 @@ export const createLoan = async (subdomain, params) => {
 
   if (typeof result === 'string') {
     await updateLoanNumber(subdomain, loan._id, result);
-    const activate = await activeLoan(subdomain, [result, 'данс нээв']);
+    const activate = await activeLoan(subdomain, [result, 'данс нээв', null]);
 
     console.log('activate', activate);
 
