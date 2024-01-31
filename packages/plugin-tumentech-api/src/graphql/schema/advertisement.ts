@@ -44,6 +44,28 @@ type: String,
 status: String,
 
 startPlace: String,
+startBegin: Date,
+startEnd: Date,
+
+endPlace: String,
+endBegin: Date,
+endEnd: Date,
+
+
+generalPlace: String,
+shift: String,
+period: String
+carCategoryId: String
+`;
+
+const filters = `
+driverId: String,
+carIds: [String],
+categoryIds: [String],
+type: String,
+status: String,
+
+startPlace: String,
 startDate: Date,
 
 
@@ -57,7 +79,7 @@ period: String
 carCategoryId: String
 `;
 export const queries = `
-    advertisements(${params}, page: Int, perPage: Int): AdvertisementListResponse
+    advertisements(${filters}, page: Int, perPage: Int): AdvertisementListResponse
     advertisementDetail(_id: String!): Advertisement
 `;
 
