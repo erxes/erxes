@@ -1,7 +1,7 @@
 import FormControl from '@erxes/ui/src/components/form/Control';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
-import EditorCK from '@erxes/ui/src/containers/EditorCK';
+import RichTextEditor from '@erxes/ui/src/containers/RichTextEditor';
 import { IFormProps } from '@erxes/ui/src/types';
 import React from 'react';
 import CommonForm from '@erxes/ui-settings/src/common/components/Form';
@@ -26,8 +26,8 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
     };
   }
 
-  onEditorChange = e => {
-    this.setState({ content: e.editor.getData() });
+  onEditorChange = (content: string) => {
+    this.setState({ content });
   };
 
   generateDoc = (values: { _id?: string; name: string; content: string }) => {
@@ -64,7 +64,7 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
 
         <FormGroup>
           <ControlLabel>Content</ControlLabel>
-          <EditorCK
+          <RichTextEditor
             content={this.state.content}
             onChange={this.onEditorChange}
             autoGrow={true}

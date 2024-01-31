@@ -4,12 +4,12 @@ import SelectBrands from '@erxes/ui/src/brands/containers/SelectBrands';
 import ActionButtons from '@erxes/ui/src/components/ActionButtons';
 import AutoCompletionSelect from '@erxes/ui/src/components/AutoCompletionSelect';
 import Button from '@erxes/ui/src/components/Button';
-import EditorCK from '@erxes/ui/src/components/EditorCK';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import CommonForm from '@erxes/ui/src/components/form/Form';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import Icon from '@erxes/ui/src/components/Icon';
+import { RichTextEditor } from '@erxes/ui/src/components/richTextEditor/TEditor';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import Tip from '@erxes/ui/src/components/Tip';
 import Uploader from '@erxes/ui/src/components/Uploader';
@@ -357,12 +357,12 @@ class Form extends React.Component<Props, State> {
     this.setState({ subUoms: filteredUoms });
   };
 
-  onChangeDescription = (e) => {
-    this.setState({ description: e.editor.getData() });
+  onChangeDescription = (content: string) => {
+    this.setState({ description: content });
   };
 
-  onChangeBarcodeDescription = (e) => {
-    this.setState({ barcodeDescription: e.editor.getData() });
+  onChangeBarcodeDescription = (content: string) => {
+    this.setState({ barcodeDescription: content });
   };
 
   onChangeAttachment = (files: IAttachment[]) => {
@@ -622,27 +622,21 @@ class Form extends React.Component<Props, State> {
 
             <FormGroup>
               <ControlLabel>Description</ControlLabel>
-              <EditorCK
+              <RichTextEditor
                 content={description}
                 onChange={this.onChangeDescription}
                 height={150}
                 isSubmitted={formProps.isSaved}
                 name={`product_description_${description}`}
                 toolbar={[
-                  {
-                    name: 'basicstyles',
-                    items: [
-                      'Bold',
-                      'Italic',
-                      'NumberedList',
-                      'BulletedList',
-                      'Link',
-                      'Unlink',
-                      '-',
-                      'Image',
-                      'EmojiPanel',
-                    ],
-                  },
+                  'bold',
+                  'italic',
+                  'orderedList',
+                  'bulletList',
+                  'link',
+                  'unlink',
+                  '|',
+                  'image'
                 ]}
               />
             </FormGroup>
@@ -761,27 +755,21 @@ class Form extends React.Component<Props, State> {
 
             <FormGroup>
               <ControlLabel>Barcode Description</ControlLabel>
-              <EditorCK
+              <RichTextEditor
                 content={barcodeDescription}
                 onChange={this.onChangeBarcodeDescription}
                 height={150}
                 isSubmitted={formProps.isSaved}
                 name={`product_barcode_description_${barcodeDescription}`}
                 toolbar={[
-                  {
-                    name: 'basicstyles',
-                    items: [
-                      'Bold',
-                      'Italic',
-                      'NumberedList',
-                      'BulletedList',
-                      'Link',
-                      'Unlink',
-                      '-',
-                      'Image',
-                      'EmojiPanel',
-                    ],
-                  },
+                  'bold',
+                  'italic',
+                  'orderedList',
+                  'bulletList',
+                  'link',
+                  'unlink',
+                  '|',
+                  'image'
                 ]}
               />
             </FormGroup>

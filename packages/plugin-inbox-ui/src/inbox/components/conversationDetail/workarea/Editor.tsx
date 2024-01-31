@@ -1,7 +1,7 @@
+import { IResponseTemplate } from '../../../../settings/responseTemplates/types';
+import { MentionSuggestionParams } from '@erxes/ui/src/components/richTextEditor/utils/getMentionSuggestions';
 import React from 'react';
 import { RichTextEditor } from '@erxes/ui/src/components/richTextEditor/TEditor';
-import { MentionSuggestionParams } from '@erxes/ui/src/components/richTextEditor/utils/getMentionSuggestions';
-import { IResponseTemplate } from '../../../../settings/responseTemplates/types';
 import TemplateList from './TemplateList';
 
 type EditorProps = {
@@ -9,20 +9,14 @@ type EditorProps = {
   defaultContent?: string;
   integrationKind: string;
   onChange: (content: string) => void;
-  onAddMention: (mentions: any) => void;
-  onAddMessage: () => void;
-  onSearchChange: (value: string) => void;
   showMentions: boolean;
-  responseTemplate: string;
   responseTemplates: IResponseTemplate[];
-  handleFileInput: (e: React.FormEvent<HTMLInputElement>) => void;
   placeholder?: string;
-  content?: string;
+  content: string;
   mentionSuggestion?: MentionSuggestionParams;
 };
 
 type State = {
-  content: string;
   collectedMentions: any;
   templatesState: any;
   hideTemplates: boolean;
@@ -33,7 +27,6 @@ export default class Editor extends React.Component<EditorProps, State> {
     super(props);
 
     this.state = {
-      content: this.props.defaultContent || '',
       collectedMentions: [],
       templatesState: null,
       hideTemplates: this.props.showMentions,
@@ -41,17 +34,10 @@ export default class Editor extends React.Component<EditorProps, State> {
   }
 
   componentWillReceiveProps(nextProps) {
-    if (nextProps.responseTemplate !== this.props.responseTemplate) {
-      const templateIncludedContent = nextProps.responseTemplate;
-      this.props.onChange(templateIncludedContent);
-      this.setState({ content: templateIncludedContent });
-    }
-
     // check switch conversation and fill default content
     if (nextProps.currentConversation !== this.props.currentConversation) {
       const defaultContent = nextProps.defaultContent;
       this.props.onChange(defaultContent);
-      this.setState({ content: defaultContent });
     }
   }
 
@@ -62,12 +48,9 @@ export default class Editor extends React.Component<EditorProps, State> {
     if (
       this.props.defaultContent !== prevProps.defaultContent &&
       !this.props?.defaultContent &&
-      prevState.content.length
+      this.props.content.length
     ) {
       this.props.onChange(this.props.defaultContent || '');
-      this.setState({
-        content: this.props.defaultContent || '',
-      });
     }
     if (prevProps.showMentions !== this.props.showMentions) {
       this.setState({ hideTemplates: this.props.showMentions });
@@ -75,8 +58,6 @@ export default class Editor extends React.Component<EditorProps, State> {
   }
 
   onChange = (content: string) => {
-    this.setState({ content });
-
     this.props.onChange(content);
 
     window.requestAnimationFrame(() => {
@@ -93,8 +74,7 @@ export default class Editor extends React.Component<EditorProps, State> {
       return this.state.templatesState;
     }
 
-    const { content } = this.state;
-    const { responseTemplates } = this.props;
+    const { responseTemplates, content } = this.props;
     // get html content as text
     const textContent = content.toLowerCase().replace(/<[^>]+>/g, '');
 
@@ -125,7 +105,7 @@ export default class Editor extends React.Component<EditorProps, State> {
     // this setState
     this.props.onChange(content);
 
-    return this.setState({ content, templatesState: null });
+    return this.setState({ templatesState: null });
   };
 
   onSelectTemplate = (index?: number) => {
@@ -168,7 +148,7 @@ export default class Editor extends React.Component<EditorProps, State> {
           {...(this.props.showMentions && {
             mentionSuggestion: this.props.mentionSuggestion,
           })}
-          content={this.state.content}
+          content={this.props.content}
           onChange={this.onChange}
           autoGrow={true}
           autoGrowMinHeight={100}

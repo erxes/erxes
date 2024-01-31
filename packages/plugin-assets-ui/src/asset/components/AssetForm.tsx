@@ -32,10 +32,10 @@ import {
 } from '@erxes/ui/src/types';
 
 import CategoryForm from '../containers/CategoryForm';
-import EditorCK from '@erxes/ui/src/components/EditorCK';
 import React from 'react';
 import SelectCompanies from '@erxes/ui-contacts/src/companies/containers/SelectCompanies';
 import { isEnabled } from '@erxes/ui/src/utils/core';
+import { RichTextEditor } from '@erxes/ui/src/components/richTextEditor/TEditor';
 
 type Props = {
   asset?: IAsset;
@@ -122,8 +122,8 @@ function AssetForm({
     );
   };
 
-  const onChangeDescription = e => {
-    setDescription(e.editor.getData());
+  const onChangeDescription = (content: string) => {
+    setDescription(content);
   };
 
   const onComboEvent = (variable: string, e) => {
@@ -308,27 +308,21 @@ function AssetForm({
         <FormGroup>
           <ControlLabel>Description</ControlLabel>
           <FlexItem>
-            <EditorCK
+            <RichTextEditor
               content={description}
               onChange={onChangeDescription}
               height={150}
               isSubmitted={formProps.isSaved}
               name={`asset_description_${description}`}
               toolbar={[
-                {
-                  name: 'basicstyles',
-                  items: [
-                    'Bold',
-                    'Italic',
-                    'NumberedList',
-                    'BulletedList',
-                    'Link',
-                    'Unlink',
-                    '-',
-                    'Image',
-                    'EmojiPanel'
-                  ]
-                }
+                'bold',
+                'italic',
+                'orderedList',
+                'bulletList',
+                'link',
+                'unlink',
+                '|',
+                'image'
               ]}
             />
           </FlexItem>

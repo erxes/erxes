@@ -8,8 +8,8 @@ import FormGroup from '@erxes/ui/src/components/form/Group';
 import DateControl from '@erxes/ui/src/components/form/DateControl';
 import Uploader from '@erxes/ui/src/components/Uploader';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
-import EditorCK from '@erxes/ui/src/components/EditorCK';
 import Toggle from '@erxes/ui/src/components/Toggle';
+import { RichTextEditor } from '@erxes/ui/src/components/richTextEditor/TEditor';
 import {
   MainStyleFormColumn as FormColumn,
   MainStyleFormWrapper as FormWrapper,
@@ -80,8 +80,8 @@ class EditForm extends React.Component<Props, State> {
     });
   };
 
-  onChangeDescription = e => {
-    this.onChange(e.editor.getData(), 'description');
+  onChangeDescription = (content: string) => {
+    this.onChange(content, 'description');
   };
 
   onChangeAttachment = (files: IAttachment[]) => {
@@ -228,27 +228,21 @@ class EditForm extends React.Component<Props, State> {
         </FormGroup>
         <FormGroup>
           <ControlLabel>Description</ControlLabel>
-          <EditorCK
+          <RichTextEditor
             content={assignmentCampaign.description || ''}
             onChange={this.onChangeDescription}
             height={150}
             isSubmitted={formProps.isSaved}
             name={`assignmentCampaign_description_${assignmentCampaign.description}`}
             toolbar={[
-              {
-                name: 'basicstyles',
-                items: [
-                  'Bold',
-                  'Italic',
-                  'NumberedList',
-                  'BulletedList',
-                  'Link',
-                  'Unlink',
-                  '-',
-                  'Image',
-                  'EmojiPanel'
-                ]
-              }
+              'bold',
+              'italic',
+              'orderedList',
+              'bulletList',
+              'link',
+              'unlink',
+              '|',
+              'image'
             ]}
           />
         </FormGroup>
