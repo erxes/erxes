@@ -1,6 +1,7 @@
 import { paginate } from '@erxes/api-utils/src';
 
 import { IContext } from '../../../connectionResolver';
+import { ICar } from '../../../models/definitions/tumentech';
 
 const advertisementQuery = {
   advertisements: async (
@@ -10,37 +11,36 @@ const advertisementQuery = {
       carIds,
       categoryIds,
       status,
-
+      type,
       startPlace,
-      startBegin,
-      startEnd,
+      startDate,
 
       endPlace,
-      endBegin,
-      endEnd,
+      endDate,
 
       generalPlace,
       shift,
       period,
       page,
       perPage,
+      carCategoryId,
     }: {
       driverId: string;
       carIds: [string];
       categoryIds: [string];
       status: string;
-
+      type: string;
       startPlace: string;
-      startBegin: Date;
-      startEnd: Date;
+      startDate: Date;
 
       endPlace: string;
-      endBegin: Date;
-      endEnd: Date;
+      endDate: Date;
 
       generalPlace: string;
       shift: string;
       period: string;
+
+      carCategoryId: string;
       page?: number;
       perPage?: number;
     },
@@ -61,21 +61,32 @@ const advertisementQuery = {
       filter.status = status;
     }
 
+    if (type) {
+      filter.type = type;
+    }
+
     if (startPlace) {
       filter.startPlace = startPlace;
     }
-
-    if (startBegin) {
+    if (startDate) {
+      filter.startBegin = {
+        $lte: startDate,
+      };
+      filter.startEnd = {
+        $gte: startDate,
+      };
     }
-    if (startEnd) {
+    if (endDate) {
+      filter.endBegin = {
+        $lte: endDate,
+      };
+      filter.endEnd = {
+        $gte: endDate,
+      };
     }
 
     if (endPlace) {
       filter.endPlace = endPlace;
-    }
-    if (endBegin) {
-    }
-    if (endEnd) {
     }
 
     if (generalPlace) {
@@ -86,6 +97,23 @@ const advertisementQuery = {
     }
     if (period) {
       filter.period = period;
+    }
+
+    if (carCategoryId) {
+      // carCategoryId: field({ type: String, label: 'Category', index: true }),
+      // parentCarCategoryId:
+
+      const carCategory = await models.CarCategories.findById(carCategoryId);
+      const isParentCarCategoryId = carCategory?.parentId ? false : true;
+
+      let carFilter = {};
+      if (isParentCarCategoryId) {
+        carFilter = { parentCarCategoryId: carCategoryId };
+      } else {
+        carFilter = { carCategoryId: carCategoryId };
+      }
+      const carList = await models.Cars.find(carFilter).lean();
+      filter.carIds = { $in: carList.map((x) => x?._id) };
     }
 
     return {

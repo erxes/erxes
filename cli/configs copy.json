@@ -1,0 +1,29 @@
+{
+  "jwt_token_secret": "token",
+  "client_portal_domains": "http://localhost:4200",
+  "elasticsearch": {},
+  "redis": { "password": "" },
+  "mongo": { "username": "", "password": "" },
+  "workers": {},
+  "rabbitmq": { "cookie": "", "user": "", "pass": "", "vhost": "" },
+  "ui_remote_url": "https://staging.erxes.io/js/plugins/plugin-<name>-ui/remoteEntry.js",
+  "plugins": [
+    { "name": "tags", "ui": "local" },
+    { "name": "forms", "ui": "local" },
+    { "name": "products", "ui": "local" },
+    { "name": "engages", "ui": "local" },
+    { "name": "contacts", "ui": "local" },
+    { "name": "cards", "ui": "local" },
+    { "name": "inbox", "ui": "local" },
+    { "name": "knowledgebase", "ui": "local" },
+    { "name": "xyp", "ui": "local" },
+    { "name": "clientportal", "ui": "local" },
+    { "name": "payment", "ui": "local" },
+    { "name": "pos", "ui": "local" },
+    { "name": "posclient" },
+    { "name": "segments", "ui": "local" },
+    { "name": "mobinet", "ui": "local" },
+    { "name": "assets", "ui": "local" }
+
+  ]
+}

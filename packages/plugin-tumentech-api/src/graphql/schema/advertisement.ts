@@ -44,16 +44,17 @@ type: String,
 status: String,
 
 startPlace: String,
-startBegin: Date,
-startEnd: Date,
+startDate: Date,
+
 
 endPlace: String,
-endBegin: Date,
-endEnd: Date,
+endDate: Date,
+
 
 generalPlace: String,
 shift: String,
 period: String
+carCategoryId: String
 `;
 export const queries = `
     advertisements(${params}, page: Int, perPage: Int): AdvertisementListResponse
