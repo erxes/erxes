@@ -22,13 +22,12 @@ import TemplateForm from '../../containers/forms/TemplateForm';
 import TriggerForm from '../../containers/forms/triggers/TriggerForm';
 import {
   ActionBarButtonsWrapper,
-  BackButton,
-  BackIcon,
   CenterBar,
   RightDrawerContainer,
   Title,
   ToggleWrapper,
 } from '../../styles';
+import { BackButton, BackIcon } from '@erxes/ui-automations/src/styles';
 import {
   AutomationConstants,
   IAutomation,
@@ -151,6 +150,7 @@ class Editor extends React.Component<Props, State> {
           description: t.description,
           actionId: t.actionId,
           position: t.position,
+          isCustom: t.isCustom,
         })),
         actions: actions.map((a) => ({
           id: a.id,

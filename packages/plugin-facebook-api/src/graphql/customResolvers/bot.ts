@@ -1,6 +1,11 @@
-import { IBotDocument } from '../../models/definitions/bots';
 import { IContext } from '../../connectionResolver';
-import { getPageList } from '../../utils';
+import { debugError } from '../../debuggers';
+import { IBotDocument } from '../../models/definitions/bots';
+import {
+  getPageAccessTokenFromMap,
+  getPageList,
+  graphRequest,
+} from '../../utils';
 
 export default {
   account(bot: IBotDocument, _args, { models }: IContext) {
@@ -28,5 +33,44 @@ export default {
     const page = pages.find((page) => page.id === pageId);
 
     return page ? page : null;
+  },
+
+  async profileUrl(
+    { pageId, integrationId }: IBotDocument,
+    _args,
+    { models }: IContext,
+  ) {
+    const integration = await models.Integrations.findOne({
+      _id: integrationId,
+    });
+
+    if (!integration) {
+      return null;
+    }
+
+    const { facebookPageTokensMap = {} } = integration;
+
+    let pageAccessToken;
+    try {
+      pageAccessToken = getPageAccessTokenFromMap(
+        pageId,
+        facebookPageTokensMap,
+      );
+    } catch (e) {
+      debugError(
+        `Error occurred while getting page access token: ${e.message}`,
+      );
+      throw new Error();
+    }
+    const response: any = await graphRequest.get(
+      `/${pageId}/picture?height=600`,
+      pageAccessToken,
+    );
+
+    if (!response) {
+      return null;
+    }
+
+    return response?.location || null;
   },
 };

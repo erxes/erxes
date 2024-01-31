@@ -39,7 +39,8 @@ export const BottomBarContainer = styled.footer`
 export const BottomBarActionsContainer = styled.div`
   display: flex;
   flex-direction: row;
-  justify-content: space-between;
+  flex-wrap: wrap;
+  justify-content: center;
 `;
 
 export const BottomBarAction = styled.div`
@@ -52,6 +53,8 @@ export const BottomBarAction = styled.div`
   font-weight: ${typography.fontWeightMedium};
   padding: 5px 15px;
   cursor: pointer;
+  margin-left: 5px;
+  margin-bottom: 5px;
 `;
 
 export const ContentWrapper = styled.div`
@@ -278,7 +281,7 @@ export const TriggerItem = styledTS<{ isActive?: boolean }>(styled.div)`
   cursor: pointer;
   transition: all ease 0.3s;
 
-  &:hover {
+  ${({ isActive }) => (isActive ? '' : '&:hover')} {
     border: 1px solid #316ff6;
     box-shadow: 0 6px 10px 1px rgba(136, 136, 136, 0.12);
   }
@@ -315,4 +318,22 @@ export const ConditionsContainer = styled.div`
   display: flex;
   flex-direction: column;
   gap: 15px;
+`;
+
+export const Features = styledTS<{ isToggled: boolean }>(styled.span)`
+  transition: all ease .3s;
+  filter: ${(props) => !props.isToggled && `blur(4px)`};
+  pointer-events: ${(props) => !props.isToggled && `none`};
+`;
+
+export const ListItem = styled.div`
+    border: 1px solid #EEE;
+    border-radius: 10px;
+    padding: 10px 20px;
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+    font-weight: ${typography.fontWeightMedium};
+    margin-bottom:10px;
+}
 `;

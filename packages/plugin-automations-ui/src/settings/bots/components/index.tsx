@@ -1,24 +1,21 @@
 import {
   Box,
+  CollapsibleContent,
   Content,
   IntegrationItem,
   IntegrationRow,
   IntegrationWrapper,
 } from '@erxes/ui-inbox/src/settings/integrations/components/store/styles';
 import { Title } from '@erxes/ui-settings/src/styles';
-import { HeaderDescription, Spinner } from '@erxes/ui/src/components';
-import { CollapsibleContent } from '@erxes/ui-inbox/src/settings/integrations/components/store/styles';
+import { HeaderDescription } from '@erxes/ui/src/components';
+import ErrorBoundary from '@erxes/ui/src/components/ErrorBoundary';
 import { Wrapper } from '@erxes/ui/src/layout';
 import { __ } from '@erxes/ui/src/utils';
+import { RenderDynamicComponent } from '@erxes/ui/src/utils/core';
 import React, { useState } from 'react';
-import Sidebar from '../../Sidebar';
-import { Link } from 'react-router-dom';
 import Collapse from 'react-bootstrap/Collapse';
-import {
-  RenderDynamicComponent,
-  loadDynamicComponent,
-} from '@erxes/ui/src/utils/core';
-import ErrorBoundary from '@erxes/ui/src/components/ErrorBoundary';
+import { Link } from 'react-router-dom';
+import Sidebar from '../../Sidebar';
 
 const breadcrumb = [
   { title: __('Settings'), link: '/settings' },
@@ -67,14 +64,6 @@ function Settings() {
     }
 
     const handleSelectPlatform = (platform) => {
-      console.log(
-        selectedPlatform,
-        platform,
-        selectedPlatform?.name !== platform.name,
-      );
-
-      console.log(selectedPlatform?.name !== platform.name ? platform : null);
-
       setPlatform(selectedPlatform?.name !== platform.name ? platform : null);
     };
 

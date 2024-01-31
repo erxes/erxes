@@ -25,7 +25,7 @@ module.exports = {
       name: 'facebook-messenger-bots',
       label: 'Facebook Messenger',
       description: 'Generate Facebook Messenger Bots',
-      logo: '/images/integrations/facebook.png',
+      logo: '/images/integrations/fb-messenger.png',
       list: './messenger-bots',
       createUrl: '/settings/facebook-messenger-bot/create'
     }

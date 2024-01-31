@@ -5,9 +5,12 @@ import { Alert, Icon, Spinner, readFile, uploadHandler } from '@erxes/ui/src';
 type Props = {
   src?: string;
   onUpload: (response: any) => void;
+  label?: string;
+  alertText?: string;
+  fileType?: string;
 };
 
-function ImageUploader({ onUpload, src }: Props) {
+function ImageUploader({ onUpload, src, label, alertText, fileType }: Props) {
   const [uploadPreview, setUploadPreview] = useState(null as any);
   const [previewUrl, setPreviewUrl] = useState(src);
   const [previewStyle, setPreviewStyle] = useState({});
@@ -17,10 +20,10 @@ function ImageUploader({ onUpload, src }: Props) {
   }, [src]);
 
   const handleImageChange = (e) => {
-    const imageFile = e.target.files;
+    const file = e.target.files;
 
     uploadHandler({
-      files: imageFile,
+      files: file,
 
       beforeUpload: () => {
         setPreviewStyle({ opacity: '0.2' });
@@ -38,7 +41,7 @@ function ImageUploader({ onUpload, src }: Props) {
         }
 
         if (status === 'ok') {
-          Alert.info('Looking good!');
+          Alert.info(alertText || 'Looking good!');
         } else {
           Alert.error(response);
         }
@@ -68,9 +71,9 @@ function ImageUploader({ onUpload, src }: Props) {
         <label>
           <div>
             <Icon icon="export" size={30} />
-            <p>{'Upload Image'}</p>
+            <p>{label || 'Upload Image'}</p>
           </div>
-          <input type="file" onChange={handleImageChange} />
+          <input type="file" accept={fileType} onChange={handleImageChange} />
         </label>
       </UploadWrapper>
     );
@@ -82,7 +85,7 @@ function ImageUploader({ onUpload, src }: Props) {
       <label>
         <div>
           <Icon icon="export" size={30} />
-          <p>{'Upload Image'}</p>
+          <p>{label || 'Upload Image'}</p>
         </div>
         <input type="file" onChange={handleImageChange} />
       </label>

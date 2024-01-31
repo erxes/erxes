@@ -45,12 +45,6 @@ export default {
             label: 'Direct Message',
             description: 'User sends direct message with keyword',
           },
-          {
-            type: 'comment',
-            icon: 'comment-message',
-            label: 'Comments',
-            description: 'User comment on post',
-          },
         ],
       },
     ],
@@ -67,49 +61,82 @@ export default {
 
     return;
   },
-  generateSegmentData: async ({ subdomain, data: { config } }) => {
-    const { triggers } = config;
+  checkCustomTrigger: async ({
+    subdomain,
+    data: { collectionType, target, config },
+  }) => {
+    const { conditions = [], botId } = config;
 
-    const segmentData: any = {
-      contentType: 'facebook:messages',
-      conditionsConjunction: 'and',
-      conditions: [],
-    };
-
-    const commonConditionObj = {
-      type: 'property',
-      propertyType: 'facebook:messages',
-    };
-
-    for (const { type, conditions = [], persistentMenuIds } of triggers) {
-      if (type === 'getStarted') {
-        segmentData.conditions.push({
-          ...commonConditionObj,
-          propertyName: 'content',
-          propertyOperator: 'e',
-          propertyValue: 'Get Started',
-        });
+    if (collectionType === 'messages') {
+      if (target.botId === botId) {
+        return;
       }
 
-      if (type === 'direct') {
-        for (const { operator, keywords } of conditions) {
-          for (const keyword of keywords) {
-            segmentData.conditions.push({
-              ...commonConditionObj,
-              propertyName: 'content',
-              propertyOperator: operator,
-              propertyValue: keyword,
-            });
+      for (const {
+        isSelected,
+        type,
+        persistentMenuIds,
+        conditions: directMessageCondtions = [],
+      } of conditions) {
+        if (isSelected) {
+          if (type === 'getStarted' && target.content === 'Get Started') {
+            return true;
           }
-        }
-      }
+          if (type === 'persistentMenu' && target?.payload) {
+            const { persistenceMenuId } = JSON.parse(target?.payload || '{}');
 
-      if (type === 'persistentMenu') {
-        for (const persistentMenuId of persistentMenuIds) {
+            if ((persistentMenuIds || []).includes(persistenceMenuId)) {
+              return true;
+            }
+          }
+
+          if (type === 'direct' && directMessageCondtions?.length > 0) {
+            if (
+              checkDirectMessageConditions(
+                target?.content || '',
+                directMessageCondtions,
+              )
+            ) {
+              return true;
+            }
+            continue;
+          }
+          continue;
         }
+        continue;
       }
     }
+
+    return;
   },
+};
+
+const checkDirectMessageConditions = (content: string, conditions: any[]) => {
+  for (const cond of conditions || []) {
+    const keywords = (cond?.keywords || [])
+      .map((keyword) => keyword.text)
+      .filter((keyword) => keyword);
+    const regexPattern = new RegExp(keywords.join('|'), 'i');
+
+    switch (cond?.operator || '') {
+      case 'every':
+        return keywords.every((_keyword) => regexPattern.test(content));
+      case 'some':
+        return keywords.some((_keyword) => regexPattern.test(content));
+      case 'isEqual':
+        return keywords.some((keyword) => keyword === content);
+      case 'isContains':
+        return keywords.some((keyword) =>
+          content.match(new RegExp(keyword, 'i')),
+        );
+      case 'startWith':
+        return keywords.some((keyword) => content.startsWith(keyword));
+      case 'endWith':
+        return keywords.some((keyword) => content.endsWith(keyword));
+      default:
+        return;
+    }
+  }
 };
 
 const generatePayloadString = (conversation, btn, customerId) => {

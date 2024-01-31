@@ -138,7 +138,7 @@ export const loadBotClass = (models: IModels) => {
 
       let persistentMenus: any[] = [];
 
-      for (const { type, text, link } of doc?.persistentMenus || []) {
+      for (const { _id, type, text, link } of doc?.persistentMenus || []) {
         if (text) {
           if (type === 'link' && link) {
             persistentMenus.push({
@@ -151,7 +151,10 @@ export const loadBotClass = (models: IModels) => {
             persistentMenus.push({
               type: 'postback',
               title: text,
-              payload: bot._id,
+              payload: JSON.stringify({
+                botId: bot._id,
+                persistenceMenuId: _id,
+              }),
             });
           }
         }

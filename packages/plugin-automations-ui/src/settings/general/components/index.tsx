@@ -23,21 +23,12 @@ function GeneralSettings() {
   const header = (
     <HeaderDescription
       icon="/images/actions/25.svg"
-      title="Loyalty configs"
+      title="Automations configs"
       description=""
     />
   );
 
-  const actionButtons = (
-    <Button
-      btnStyle="success"
-      // onClick={this.save}
-      icon="check-circle"
-      uppercase={false}
-    >
-      Save
-    </Button>
-  );
+  const actionButtons = <></>;
 
   const content = (
     <>
@@ -53,7 +44,7 @@ function GeneralSettings() {
       mainHead={header}
       actionBar={
         <Wrapper.ActionBar
-          left={<Title capitalize={true}>{__('Loyalty config')}</Title>}
+          left={<Title capitalize={true}>{__('Automations config')}</Title>}
           right={actionButtons}
           wideSpacing={true}
         />

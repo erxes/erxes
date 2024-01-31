@@ -6,6 +6,7 @@ import {
   FormControl,
   Icon,
   SortableList,
+  Uploader,
 } from '@erxes/ui/src';
 import colors from '@erxes/ui/src/styles/colors';
 import dimensions from '@erxes/ui/src/styles/dimensions';
@@ -141,14 +142,35 @@ function ReplyFbMessage({
       </div>
     );
   };
+
+  const renderAudio = ({ _id, audio }) => {
+    const handleUpload = (response) => {
+      handleChange(_id, 'audio', response[0]);
+    };
+    return (
+      <div>
+        <ImageUploader
+          src={audio?.url}
+          onUpload={handleUpload}
+          label="Upload Audio"
+          fileType="audio"
+        />
+      </div>
+    );
+  };
+  const renderVideo = () => {};
+  const renderAttachements = () => {};
+  const renderInput = () => {};
+
   const renderComponent = ({
     type,
     _id,
     text,
     buttons,
-    image,
     cards,
     quickReplies,
+    image,
+    audio,
   }) => {
     switch (type) {
       case 'text':
@@ -159,6 +181,14 @@ function ReplyFbMessage({
         return renderCards({ _id, cards });
       case 'quickReplies':
         return renderQuickReplies({ _id, text, quickReplies });
+      case 'audio':
+        return renderAudio({ _id, audio });
+      case 'video':
+        return renderVideo();
+      case 'attachments':
+        return renderAttachements();
+      case 'input':
+        return renderInput();
       default:
         return null;
     }

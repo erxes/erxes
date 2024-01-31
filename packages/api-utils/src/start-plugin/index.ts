@@ -494,6 +494,15 @@ export async function startPlugin(configs: any): Promise<express.Express> {
           }),
         );
       }
+      if (automations?.checkCustomTrigger) {
+        consumeRPCQueue(
+          `${configs.name}:automations.checkCustomTrigger`,
+          async (args) => ({
+            status: 'success',
+            data: await automations.checkCustomTrigger(args),
+          }),
+        );
+      }
     }
 
     if (reports) {

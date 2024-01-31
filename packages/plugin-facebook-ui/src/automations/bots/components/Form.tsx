@@ -9,7 +9,7 @@ import {
   Content,
   MessengerPreview,
 } from '@erxes/ui-inbox/src/settings/integrations/styles';
-import { Step, Steps } from '@erxes/ui/src';
+import { BreadCrumb, PageHeader, Step, Steps } from '@erxes/ui/src';
 import CommonForm from '@erxes/ui/src/components/form/Form';
 import { Preview, StepWrapper } from '@erxes/ui/src/components/step/styles';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
@@ -133,15 +133,29 @@ function Form({ renderButton, bot, returnToList }: Props) {
     );
   };
 
+  const breadcrumb = [
+    { title: __('Settings'), link: '/settings' },
+    {
+      title: __('Bots config'),
+      link: '/settings/automations/bots',
+    },
+    { title: __(bot ? `Edit ${bot.name}` : 'Create Bot') },
+  ];
+
   return (
-    <StepWrapper>
-      <Content>
-        <CommonForm renderContent={renderContent} />
-        <MessengerPreview>
-          <Preview fullHeight>Hello world</Preview>
-        </MessengerPreview>
-      </Content>
-    </StepWrapper>
+    <>
+      <PageHeader>
+        <BreadCrumb breadcrumbs={breadcrumb} />
+      </PageHeader>
+      <StepWrapper>
+        <Content>
+          <CommonForm renderContent={renderContent} />
+          <MessengerPreview>
+            <Preview fullHeight>Hello world</Preview>
+          </MessengerPreview>
+        </Content>
+      </StepWrapper>
+    </>
   );
 }
 

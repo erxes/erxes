@@ -96,6 +96,7 @@ export const types = `
     page: JSON
     createdAt: Date
     persistentMenus:[BotPersistentMenuType]
+    profileUrl:String
   }
 `;
 

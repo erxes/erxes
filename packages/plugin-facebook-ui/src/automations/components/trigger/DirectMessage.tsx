@@ -5,50 +5,103 @@ import {
   ControlLabel,
   FormControl,
   FormGroup,
+  HelpPopover,
   Icon,
+  Table,
   __,
+  colors,
+  typography,
 } from '@erxes/ui/src';
 import { FlexRow } from '@erxes/ui/src/components/filterableList/styles';
-import { Column, ModalFooter } from '@erxes/ui/src/styles/main';
+import { Column } from '@erxes/ui/src/styles/main';
 import React, { useState } from 'react';
 import Select from 'react-select-plus';
+import styled from 'styled-components';
 import { ConditionsContainer } from '../../styles';
+
+const CustomChip = styled.span`
+  color: ${colors.colorCoreBlack};
+  background: ${colors.colorWhite};
+  border: 1px solid ${colors.colorShadowGray}
+  padding: 2px 10px;
+  margin: 2px 5px 2px 0;
+  display: inline-block;
+  border-radius: 11px;
+  position: relative;
+  line-height: 18px;
+
+  > p {
+    margin: 0;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    font-weight:${typography.fontWeightMedium}
+    margin:10px;
+    gap:20px;
+
+    > i {
+      cursor: pointer
+      
+    }
+  }
+`;
+
+const CondtionContainer = styled.div`
+  display: grid;
+  grid-template-columns: 95% 5%;
+  gap:10px;
+  opacity: 1;
+  transition: opacity 0.3s ease;
+
+  &:hover {
+    opacity: 1;
+  }
+
+  > i {
+    opacity:0
+    transition: opacity 0.3s ease;
+    cursor: pointer;
+
+      &:hover {
+        opacity:1
+      }
+  }
+
+  &:hover > i {
+    opacity: 1;
+    cursor: pointer;
+  }
+
+`;
 
 const OPERATOR_TYPES = [
   { label: 'Is Equal to', value: 'isEqual' },
-  { label: 'Is Not Equal to', value: 'notEqual' },
   { label: 'Is Contains', value: 'isContains' },
-  { label: 'Is Not Contains', value: 'notContains' },
+  { label: 'Is Every keywords includes', value: 'every' },
+  { label: 'Is Some keywords includes', value: 'some' },
+  { label: 'Start with', value: 'startWith' },
+  { label: 'End with', value: 'endWith' },
 ];
 
 type Condtion = {
   _id: string;
-  keywords: { _id: string; text: string }[];
+  keywords: { _id: string; text: string; isEditable?: boolean }[];
   operator: string;
 };
 
 type Props = {
-  _id: string;
   conditions: Condtion[];
-  isNew?: boolean;
-  onChange: (
-    _id: string,
-    name: string,
-    value: Condtion[],
-    isNew?: boolean,
-  ) => void;
+  onChange: (name: string, value: Condtion[]) => void;
 };
 
 export default function DirectMessageForm({
-  _id,
   conditions: propCondtions,
   onChange,
-  isNew,
 }: Props) {
   const [conditions, setConditions] = useState(propCondtions || []);
 
   const handleChangeCondtions = (conditions) => {
-    onChange(_id, 'conditions', conditions, isNew);
+    onChange('conditions', conditions);
     setConditions(conditions);
   };
 
@@ -90,34 +143,86 @@ export default function DirectMessageForm({
       );
     };
 
+    const onDoubleClick = (keywordId) => {
+      onChangeCondition(
+        _id,
+        'keywords',
+        keywords.map((keyword) =>
+          keyword._id === keywordId
+            ? { ...keyword, isEditable: true }
+            : keyword,
+        ),
+      );
+    };
+
+    const onChangeKeyword = (e) => {
+      const { id, value } = e.currentTarget as HTMLInputElement;
+
+      onChangeCondition(
+        _id,
+        'keywords',
+        keywords.map((keyword) =>
+          keyword._id === id ? { ...keyword, text: value } : keyword,
+        ),
+      );
+    };
+
+    const onEnterKeyword = (e) => {
+      if (e.key === 'Enter') {
+        const { id } = e.currentTarget as HTMLInputElement;
+        onChangeCondition(
+          _id,
+          'keywords',
+          keywords.map((keyword) =>
+            keyword._id === id ? { ...keyword, isEditable: false } : keyword,
+          ),
+        );
+      }
+    };
+
     return (
-      <DrawerDetail key={_id}>
-        <FormGroup>
-          <ControlLabel>{__('Operator')}</ControlLabel>
-          <Select
-            value={operator}
-            onChange={({ value }) => onChangeCondition(_id, 'operator', value)}
-            options={OPERATOR_TYPES}
-          />
-        </FormGroup>
-        <FormGroup>
-          <ControlLabel>{__('Keywords')}</ControlLabel>
-          <FormControl onKeyPress={(e: any) => handleKeyPress(e, keywords)} />
-        </FormGroup>
-        {keywords.map(({ _id, text }) => (
-          <Chip key={_id} onClick={() => clearKeyword(_id)}>
-            {text}
-          </Chip>
-        ))}
-        <Button
-          btnStyle="link"
-          icon="trash"
-          block
-          onClick={() => removeCondition(_id)}
-        >
-          {'Remove'}
-        </Button>
-      </DrawerDetail>
+      <CondtionContainer>
+        <DrawerDetail key={_id}>
+          <FormGroup>
+            <ControlLabel>{__('Message')}</ControlLabel>
+            <Select
+              value={operator}
+              onChange={({ value }) =>
+                onChangeCondition(_id, 'operator', value)
+              }
+              options={OPERATOR_TYPES}
+            />
+          </FormGroup>
+          <Column>
+            <ControlLabel>{__('Keywords')}</ControlLabel>
+            <div>
+              {keywords.map(({ _id, text, isEditable }) => (
+                <CustomChip key={_id} onClick={() => clearKeyword(_id)}>
+                  {isEditable ? (
+                    <FormControl
+                      id={_id}
+                      defaultValue={text}
+                      onKeyPress={onEnterKeyword}
+                      onChange={onChangeKeyword}
+                    />
+                  ) : (
+                    <p onDoubleClick={() => onDoubleClick(_id)}>
+                      {text} <Icon icon="times" />
+                    </p>
+                  )}
+                </CustomChip>
+              ))}
+              <CustomChip>
+                <FormControl
+                  placeholder="+ add keyword"
+                  onKeyPress={(e: any) => handleKeyPress(e, keywords)}
+                />
+              </CustomChip>
+            </div>
+          </Column>
+        </DrawerDetail>
+        <Icon icon="times" onClick={() => removeCondition(_id)} />
+      </CondtionContainer>
     );
   };
 

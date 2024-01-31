@@ -8,6 +8,7 @@ const list = `
         createdAt
         page
         pageId
+        profileUrl
         persistentMenus {
           _id,text,type,link
         }
