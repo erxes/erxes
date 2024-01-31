@@ -117,7 +117,7 @@ class PaymentsStep extends React.Component<Props, State> {
 
     const getTipText = (type) => {
       if (type === 'golomtCard') return 'continue';
-      if (type === 'TDBCard' || type === 'captrnCard')
+      if (type === 'TDBCard' || type === 'capitron')
         return 'must config: "{port: 8078}"';
       if (type === 'khaanCard')
         return 'check localhost:27028 and contact databank';
@@ -221,7 +221,7 @@ class PaymentsStep extends React.Component<Props, State> {
               <h4>{__('Other payments')}</h4>
               <Description>
                 type is must latin, some default types: golomtCard, khaanCard,
-                TDBCard, captrnCard
+                TDBCard, capitron
               </Description>
               <Description>
                 Хэрэв тухайн төлбөрт ебаримт хэвлэхгүй бол: "skipEbarimt: true",
