@@ -9,7 +9,7 @@ import {
 
 import Button from '@erxes/ui/src/components/Button';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
-import EditorCK from '@erxes/ui/src/containers/EditorCK';
+import RichTextEditor from '@erxes/ui/src/containers/RichTextEditor';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import { IAttachment } from '@erxes/ui/src/types';
@@ -110,8 +110,8 @@ class WidgetForm extends React.Component<Props, State> {
     this.setState({ content: this.findTemplate(e.value), templateId: e.value });
   };
 
-  onEditorChange = e => {
-    this.onChangeCommon('content', e.editor.getData());
+  onEditorChange = (content: string) => {
+    this.onChangeCommon('content', content);
   };
 
   onSentAsChange = e => {
@@ -176,14 +176,11 @@ class WidgetForm extends React.Component<Props, State> {
     const currentUser = this.props.currentUser;
 
     const editor = (options?) => (
-      <EditorCK
+      <RichTextEditor
         {...options}
         content={this.state.content}
         onChange={this.onEditorChange}
-        toolbar={[
-          { name: 'insert', items: ['strinsert'] },
-          ...MAIL_TOOLBARS_CONFIG
-        ]}
+        toolbar={MAIL_TOOLBARS_CONFIG}
         name={`engage_widget_${this.state.channel}_${currentUser._id}`}
         isSubmitted={this.state.isSaved}
       />

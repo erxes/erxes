@@ -10,7 +10,7 @@ import {
   FormGroup,
   Uploader
 } from '@erxes/ui/src/components';
-import EditorCK from '@erxes/ui/src/components/EditorCK';
+import { RichTextEditor } from '@erxes/ui/src/components/richTextEditor/TEditor';
 import {
   MainStyleDateContainer as DateContainer,
   MainStyleFormColumn as FormColumn,
@@ -87,11 +87,11 @@ class Form extends React.Component<Props, State> {
     };
   };
 
-  onChangeDescription = e => {
+  onChangeDescription = (content: string) => {
     this.setState({
       lotteryCampaign: {
         ...this.state.lotteryCampaign,
-        description: e.editor.getData()
+        description: content
       }
     });
   };
@@ -428,27 +428,21 @@ class Form extends React.Component<Props, State> {
           <br />
           <FormGroup>
             <ControlLabel>Description</ControlLabel>
-            <EditorCK
-              content={lotteryCampaign.description}
+            <RichTextEditor
+              content={lotteryCampaign.description || ''}
               onChange={this.onChangeDescription}
               height={150}
               isSubmitted={formProps.isSaved}
               name={`lotteryCampaign_description_${lotteryCampaign.description}`}
               toolbar={[
-                {
-                  name: 'basicstyles',
-                  items: [
-                    'Bold',
-                    'Italic',
-                    'NumberedList',
-                    'BulletedList',
-                    'Link',
-                    'Unlink',
-                    '-',
-                    'Image',
-                    'EmojiPanel'
-                  ]
-                }
+                'bold',
+                'italic',
+                'orderedList',
+                'bulletList',
+                'link',
+                'unlink',
+                '|',
+                'image'
               ]}
             />
           </FormGroup>
