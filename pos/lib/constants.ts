@@ -52,8 +52,10 @@ const BANK_CARD_TYPES = {
   GOLOMT: "golomtCard",
   KHANBANK: "khaanCard",
   TDB: "TDBCard",
-  CAPITRON: "captrnCard",
+  CAPITRON: "capitron",
 }
+
+export const CAPTDB = [BANK_CARD_TYPES.TDB, BANK_CARD_TYPES.CAPITRON]
 
 const ALL_BANK_CARD_TYPES = Object.values(BANK_CARD_TYPES)
 

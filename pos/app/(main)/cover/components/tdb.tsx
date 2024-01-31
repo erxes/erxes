@@ -10,7 +10,7 @@ import { coverConfigAtom } from "@/store/config.store"
 import { tdbResponseAtom } from "@/store/cover.store"
 import { useAtom, useAtomValue } from "jotai"
 
-import { BANK_CARD_TYPES } from "@/lib/constants"
+import { CAPTDB } from "@/lib/constants"
 import { useToast } from "@/components/ui/use-toast"
 
 import BankAmountUi from "./bank-amount-ui"
@@ -22,10 +22,7 @@ const TDB = () => {
   const { onError } = useToast()
   const { getLabel } = usePaymentLabel()
 
-  const bank = config?.paymentTypes.find(
-    (pt) =>
-      pt.type === BANK_CARD_TYPES.TDB || pt.type === BANK_CARD_TYPES.CAPITRON
-  )
+  const bank = config?.paymentTypes.find((pt) => CAPTDB.includes(pt.type))
 
   const getTDBCover = () => {
     setLoading(true)
