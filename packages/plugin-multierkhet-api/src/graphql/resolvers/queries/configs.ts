@@ -17,7 +17,7 @@ const configQueries = {
   async multierkhetConfigsGetValue(
     _root,
     { code }: { code: string },
-    { models }: IContext
+    { models }: IContext,
   ) {
     return models.Configs.findOne({ code }).lean();
   },
@@ -25,13 +25,13 @@ const configQueries = {
   async dealPayAmountByBrand(
     _root,
     { _id }: { _id: string },
-    { models, subdomain }: IContext
+    { models, subdomain }: IContext,
   ) {
     const deal = await sendCardsMessage({
       subdomain,
       action: 'deals.findOne',
       data: { _id },
-      isRPC: true
+      isRPC: true,
     });
 
     if (!deal || !deal.productsData || !deal.productsData.length) {
@@ -42,17 +42,30 @@ const configQueries = {
 
     const brandIds = Object.keys(mainConfigs);
 
-    const productsIds = deal.productsData.map(item => item.productId);
+    if (!brandIds.length) {
+      return [
+        {
+          _id: '',
+          name: '',
+          amount: deal.productsData.reduce(
+            (sum, pd) => Number(sum) + Number(pd.amount),
+            0,
+          ),
+        },
+      ];
+    }
+
+    const productsIds = deal.productsData.map((item) => item.productId);
 
     const products = await sendProductsMessage({
       subdomain,
       action: 'find',
       data: {
         query: { _id: { $in: productsIds } },
-        limit: deal.productsData.length
+        limit: deal.productsData.length,
       },
       isRPC: true,
-      defaultValue: []
+      defaultValue: [],
     });
 
     const productById = {};
@@ -98,13 +111,13 @@ const configQueries = {
       }
     }
 
-    return (Object.keys(amountByBrandId) || []).map(brandId => ({
+    return (Object.keys(amountByBrandId) || []).map((brandId) => ({
       _id: brandId,
       name: mainConfigs[brandId].title,
       amount: amountByBrandId[brandId],
-      paymentIds: mainConfigs[brandId].paymentIds || []
+      paymentIds: mainConfigs[brandId].paymentIds || [],
     }));
-  }
+  },
 };
 
 requireLogin(configQueries, 'multierkhetConfigs');

@@ -4,7 +4,7 @@ import { graphql } from '@apollo/client/react/hoc';
 import { withProps } from '@erxes/ui/src/utils';
 import {
   ToCheckPricesMutationResponse,
-  ToSyncPricesMutationResponse
+  ToSyncPricesMutationResponse,
 } from '../types';
 import { router } from '@erxes/ui/src';
 import { Bulk } from '@erxes/ui/src/components';
@@ -38,8 +38,8 @@ const InventoryPriceContainer = (props: FinalProps) => {
   }
 
   const setSyncStatusTrue = (data: any, prices: any, action: string) => {
-    data[action].items = data[action].items.map(i => {
-      if (prices.find(c => c.code === i.code)) {
+    data[action].items = data[action].items.map((i) => {
+      if (prices.find((c) => c.code === i.code)) {
         const temp = i;
         temp.syncStatus = true;
         return temp;
@@ -49,9 +49,9 @@ const InventoryPriceContainer = (props: FinalProps) => {
   };
 
   const setSyncStatus = (data: any, action: string) => {
-    const createData = data[action].items.map(d => ({
+    const createData = data[action].items.map((d) => ({
       ...d,
-      syncStatus: false
+      syncStatus: false,
     }));
     data[action].items = createData;
 
@@ -61,20 +61,20 @@ const InventoryPriceContainer = (props: FinalProps) => {
   const toCheckPrices = () => {
     setLoading(true);
     props
-      .toCheckPrices({
-        variables: { brandId }
+      .toCheckMsdPrices({
+        variables: { brandId },
       })
-      .then(response => {
-        const data = response.data.toCheckPrices;
+      .then((response) => {
+        const data = response.data.toCheckMsdPrices;
 
         setSyncStatus(data, 'create');
         setSyncStatus(data, 'update');
         setSyncStatus(data, 'delete');
 
-        setItems(response.data.toCheckPrices);
+        setItems(response.data.toCheckMsdPrices);
         setLoading(false);
       })
-      .catch(e => {
+      .catch((e) => {
         Alert.error(e.message);
         setLoading(false);
       });
@@ -83,12 +83,12 @@ const InventoryPriceContainer = (props: FinalProps) => {
   const toSyncPrices = (action: string, prices: any[]) => {
     setLoading(true);
     props
-      .toSyncPrices({
+      .toSyncMsdPrices({
         variables: {
           brandId,
           action,
-          prices
-        }
+          prices,
+        },
       })
       .then(() => {
         setLoading(false);
@@ -100,7 +100,7 @@ const InventoryPriceContainer = (props: FinalProps) => {
         setSyncStatusTrue(data, prices, action.toLowerCase());
         setItems(data);
       })
-      .catch(e => {
+      .catch((e) => {
         Alert.error(e.message);
         setLoading(false);
       });
@@ -112,7 +112,7 @@ const InventoryPriceContainer = (props: FinalProps) => {
     items,
     setBrand,
     toCheckPrices,
-    toSyncPrices
+    toSyncPrices,
   };
 
   const content = () => <InventoryPrices {...updatedProps} />;
@@ -125,14 +125,14 @@ export default withProps<Props>(
     graphql<Props, ToCheckPricesMutationResponse, {}>(
       gql(mutations.toCheckPrices),
       {
-        name: 'toCheckPrices'
-      }
+        name: 'toCheckMsdPrices',
+      },
     ),
     graphql<Props, ToSyncPricesMutationResponse, {}>(
       gql(mutations.toSyncPrices),
       {
-        name: 'toSyncPrices'
-      }
-    )
-  )(InventoryPriceContainer)
+        name: 'toSyncMsdPrices',
+      },
+    ),
+  )(InventoryPriceContainer),
 );

@@ -84,6 +84,7 @@ const configMutations = {
       },
       body: JSON.stringify({ token, type }),
       timeout: 300000,
+      method: 'POST',
     });
 
     if (!response.ok) {
