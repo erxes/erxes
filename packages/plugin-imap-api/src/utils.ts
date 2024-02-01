@@ -243,11 +243,18 @@ export const listenIntegration = async (
   integration: IIntegrationDocument,
   models: IModels,
 ) => {
-  const listen = async (): Promise<any> => {
-    return new Promise<any>(async (resolve, reject) => {
+  interface ListenResult {
+    reconnect: boolean;
+    error?: Error;
+    result?: any;
+  }
+
+  const listen = async (): Promise<ListenResult> => {
+    return new Promise<ListenResult>(async (resolve) => {
       let lock;
       let reconnect = true;
-      let disconnectReason;
+      let error: Error | undefined;
+      let result: string | undefined;
 
       try {
         lock = await redlock.lock(
@@ -256,7 +263,10 @@ export const listenIntegration = async (
         );
       } catch (e) {
         // 1 other pod or container is already listening on it
-        return reject(e);
+        return resolve({
+          reconnect: false,
+          result: `Integration ${integration._id} is already being listened to`,
+        });
       }
 
       await lock.extend(60000);
@@ -266,7 +276,10 @@ export const listenIntegration = async (
       );
 
       if (!updatedIntegration) {
-        return reject(new Error(`Integration ${integration._id} not found`));
+        return resolve({
+          reconnect: false,
+          error: new Error(`Integration ${integration._id} not found`),
+        });
       }
 
       let lastFetchDate = updatedIntegration.lastFetchDate
@@ -296,15 +309,13 @@ export const listenIntegration = async (
             { $set: { lastFetchDate } },
           );
         } catch (e) {
-          disconnectReason = e;
+          error = e;
           reconnect = false;
-          console.error('syncEmail error', e);
           await models.Logs.createLog({
             type: 'error',
             message: 'syncEmail error:' + e.message,
             errorStack: e.stack,
           });
-
           imap.end();
         }
       };
@@ -313,9 +324,8 @@ export const listenIntegration = async (
         imap.openBox('INBOX', true, async (e, box) => {
           if (e) {
             // if we can't open the inbox, we can't sync emails
-            disconnectReason = e;
-            reconnect = true;
-            console.error('openBox error', e);
+            error = e;
+            reconnect = false;
             await models.Logs.createLog({
               type: 'error',
               message: 'openBox error:' + e.message,
@@ -330,11 +340,9 @@ export const listenIntegration = async (
       imap.on('mail', throttle(syncEmail, 30000, { leading: true }));
 
       imap.once('error', async (e) => {
-        disconnectReason = e;
-        console.log('imap.once error', e);
-
+        error = e;
         if (e.message.includes('Invalid credentials')) {
-          // We shouldn't try to reconnect, since it's impossible to connect when the credentials are wrong.
+          // We shouldn't try to reconnect, since it's impossible to reconnect when the credentials are wrong.
           reconnect = false;
           await models.Integrations.updateOne(
             { _id: updatedIntegration._id },
@@ -346,7 +354,6 @@ export const listenIntegration = async (
             },
           );
         }
-
         await models.Logs.createLog({
           type: 'error',
           message: 'error event: ' + e.message,
@@ -364,26 +371,26 @@ export const listenIntegration = async (
           imap.removeAllListeners();
         } catch (e) {}
 
+        await cleanupLock();
+
         try {
           await imap.end();
         } catch (e) {}
 
-        await cleanupLock();
-
-        if (reconnect) {
-          resolve(disconnectReason);
-        } else {
-          reject(disconnectReason);
-        }
+        return resolve({
+          reconnect,
+          error,
+          result,
+        });
       };
 
       imap.once('close', closeEndHandler);
       imap.once('end', closeEndHandler);
 
-      // The imap servers seem to be terminating the connection after 2 hours. Try to reconnect before it happens.
+      // The imap servers seem to be terminating the connection after 2 hours. Try to reconnect before that happens.
       const renewTimeout = setTimeout(
         async () => {
-          disconnectReason = 'Renewing imap connection after 1 hour';
+          result = `Renewing imap ${integration._id} connection after 1 hour`;
           reconnect = true;
           await closeEndHandler();
         },
@@ -396,9 +403,8 @@ export const listenIntegration = async (
         try {
           await lock.extend(60000);
         } catch (e) {
-          // 1 other pod or container has already acquired the lock
           reconnect = false;
-          disconnectReason = e;
+          result = `Integration ${integration._id} is already being listened to`;
           await cleanupLock();
           imap.end();
         }
@@ -417,16 +423,16 @@ export const listenIntegration = async (
 
   while (true) {
     try {
-      const disconnectReason = await listen();
-      console.log(
-        `IMAP ${integration._id} disconnected. Reconnecting... `,
-        disconnectReason,
-      );
-      await new Promise((resolve) => setTimeout(resolve, 5000));
-      // disconnected due to recoverable error, reconnect
-      continue;
+      const result = await listen();
+      result.error && console.error(result.error);
+      result.result && console.log(result.result);
+
+      if (!result.reconnect) {
+        break;
+      }
+      await new Promise((resolve) => setTimeout(resolve, 10_000));
     } catch (e) {
-      console.log(`IMAP ${integration._id} disconnected. Not reconnecting.`, e);
+      console.error(e);
       // disconnected due to unrecoverable error
       break;
     }
