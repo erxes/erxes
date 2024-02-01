@@ -24,6 +24,7 @@ const SelectPaymentTypeMain = () => {
     paymentIds,
     khan,
     tdb,
+    capitron,
     golomt,
     mappedPts,
     notPaidAmount,
@@ -64,6 +65,14 @@ const SelectPaymentTypeMain = () => {
           Icon={LandmarkIcon}
           title={getLabel(tdb.type)}
           type={tdb.type}
+          disabled={disabledTerms || !notPaidAmount}
+        />
+      )}
+      {!!capitron && (
+        <Term
+          Icon={LandmarkIcon}
+          title={getLabel(capitron.type)}
+          type={capitron.type}
           disabled={disabledTerms || !notPaidAmount}
         />
       )}

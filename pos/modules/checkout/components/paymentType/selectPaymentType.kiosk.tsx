@@ -1,5 +1,6 @@
-import { useEffect, useState } from "react"
+import { use, useEffect, useState } from "react"
 import useConfig from "@/modules/auth/hooks/useConfig"
+import usePaymentLabel from "@/modules/checkout/hooks/usePaymentLabel"
 import { currentPaymentTypeAtom, kioskDialogOpenAtom } from "@/store"
 import { useAtom, useSetAtom } from "jotai"
 
@@ -13,7 +14,8 @@ import useHandlePayment from "../../hooks/useHandlePayment"
 import usePossiblePaymentTerms from "../../hooks/usePossiblePaymentTerms"
 
 const SelectPaymentType = () => {
-  const { paymentIds, khan, tdb, golomt } = usePossiblePaymentTerms()
+  const { paymentIds, khan, tdb, golomt, capitron } = usePossiblePaymentTerms()
+  const { getLabel } = usePaymentLabel()
 
   const { notPaidAmount, setCurrentAmount } = useHandlePayment()
 
@@ -38,11 +40,24 @@ const SelectPaymentType = () => {
               <PaymentType type="mobile">Цахимаар</PaymentType>
             )}
             {!!khan && (
-              <PaymentType type={BANK_CARD_TYPES.KHANBANK}>Kартаар</PaymentType>
+              <PaymentType type={BANK_CARD_TYPES.KHANBANK}>
+                Kартаар - {getLabel(BANK_CARD_TYPES.KHANBANK)}
+              </PaymentType>
             )}
-            {!!tdb && <PaymentType type={tdb.type}>Kартаар</PaymentType>}
+            {!!tdb && (
+              <PaymentType type={tdb.type}>
+                Kартаар - {getLabel(tdb.type)}
+              </PaymentType>
+            )}
+            {!!capitron && (
+              <PaymentType type={capitron.type}>
+                Kартаар - {getLabel(capitron.type)}
+              </PaymentType>
+            )}
             {!!golomt && (
-              <PaymentType type={BANK_CARD_TYPES.GOLOMT}>Kартаар</PaymentType>
+              <PaymentType type={BANK_CARD_TYPES.GOLOMT}>
+                Kартаар - {getLabel(BANK_CARD_TYPES.GOLOMT)}
+              </PaymentType>
             )}
           </RadioGroup>
         )}

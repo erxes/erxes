@@ -55,8 +55,6 @@ const BANK_CARD_TYPES = {
   CAPITRON: "capitron",
 }
 
-export const CAPTDB = [BANK_CARD_TYPES.TDB, BANK_CARD_TYPES.CAPITRON]
-
 const ALL_BANK_CARD_TYPES = Object.values(BANK_CARD_TYPES)
 
 const HARD_PAYMENT_TYPES = ["mobile", ...ALL_BANK_CARD_TYPES]

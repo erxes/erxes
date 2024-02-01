@@ -3,7 +3,7 @@ import { currentPaymentTypeAtom, modeAtom } from "@/store"
 import { paymentSheetAtom } from "@/store/ui.store"
 import { useAtom, useAtomValue } from "jotai"
 
-import { ALL_BANK_CARD_TYPES, BANK_CARD_TYPES, CAPTDB } from "@/lib/constants"
+import { ALL_BANK_CARD_TYPES, BANK_CARD_TYPES } from "@/lib/constants"
 import { cn } from "@/lib/utils"
 import { LoaderIcon, LoaderText, LoaderWrapper } from "@/components/ui/loader"
 import { Sheet, SheetContent } from "@/components/ui/sheet"
@@ -34,7 +34,8 @@ const PaymentSheet = () => {
         >
           {type === "mobile" && <MobileSheet />}
           {type === BANK_CARD_TYPES.KHANBANK && <KhanSheet />}
-          {CAPTDB.includes(type) && <TDBSheet />}
+          {type === BANK_CARD_TYPES.TDB && <TDBSheet />}
+          {type === BANK_CARD_TYPES.CAPITRON && <CapitronSheet />}
           {type === BANK_CARD_TYPES.GOLOMT && <GolomtSheet />}
         </SheetContent>
       </Sheet>
@@ -58,6 +59,9 @@ const KhanSheet = dynamic(() => import("../paymentTypes/khanCardSheet"), {
 })
 
 const TDBSheet = dynamic(() => import("../paymentTypes/TDBCardSheet"), {
+  loading: Loading,
+})
+const CapitronSheet = dynamic(() => import("../paymentTypes/capitronSheet"), {
   loading: Loading,
 })
 
