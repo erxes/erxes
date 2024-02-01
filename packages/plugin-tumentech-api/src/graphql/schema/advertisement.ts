@@ -5,17 +5,19 @@ type Advertisement @key(fields: "_id") @cacheControl(maxAge: 3) {
   _id: String!
   driverId: String
   carIds: [String]
-  categoryIds: [String]
+  productCategoryIds: [String]
   type: String
   status: String
 
   startPlace: String
   startBegin: Date
   startEnd: Date
+  startPlaceObject: Place
 
   endPlace: String
   endBegin: Date
   endEnd: Date
+  endPlaceObject: Place
 
   generalPlace: String
   shift: String
@@ -24,7 +26,7 @@ type Advertisement @key(fields: "_id") @cacheControl(maxAge: 3) {
   createdAt : Date
 
   cars: [Car]
-  ${products ? `categories: JSON` : ''}
+  ${products ? `productCategories: JSON` : ''}
   ${contacts ? `driver: Customer` : ''}
 
 }
@@ -39,7 +41,7 @@ type Advertisement @key(fields: "_id") @cacheControl(maxAge: 3) {
 const params = `
 driverId: String,
 carIds: [String],
-categoryIds: [String],
+productCategoryIds: [String],
 type: String,
 status: String,
 
@@ -55,13 +57,12 @@ endEnd: Date,
 generalPlace: String,
 shift: String,
 period: String
-carCategoryId: String
 `;
 
 const filters = `
 driverId: String,
 carIds: [String],
-categoryIds: [String],
+productCategoryIds: [String],
 type: String,
 status: String,
 

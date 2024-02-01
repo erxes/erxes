@@ -5,7 +5,7 @@ import { field, schemaHooksWrapper } from './utils';
 export interface IAdvertisement {
   driverId: string;
   carIds: string[];
-  categoryIds: string[];
+  productCategoryIds: string[];
   type: string;
   status: string;
   // чиглэлтэй тээврийн талбар
@@ -33,7 +33,7 @@ export const AdvertisementSchema = schemaHooksWrapper(
     _id: field({ pkey: true }),
     driverId: field({ type: String, label: 'Driver id' }),
     carIds: field({ type: [String], label: 'Car ids' }),
-    categoryIds: field({ type: [String], label: 'Product ids' }),
+    productCategoryIds: field({ type: [String], label: 'Product ids' }),
     type: field({ type: String, label: 'төрөл' }),
     status: field({ type: String, label: 'төлөв', default: 'open' }),
 

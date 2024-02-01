@@ -9,7 +9,7 @@ const advertisementQuery = {
     {
       driverId,
       carIds,
-      categoryIds,
+      productCategoryIds,
       status,
       type,
       startPlace,
@@ -27,7 +27,7 @@ const advertisementQuery = {
     }: {
       driverId: string;
       carIds: [string];
-      categoryIds: [string];
+      productCategoryIds: [string];
       status: string;
       type: string;
       startPlace: string;
@@ -54,8 +54,8 @@ const advertisementQuery = {
     if (carIds) {
       filter.carIds = { $in: carIds };
     }
-    if (categoryIds) {
-      filter.categoryIds = { $in: categoryIds };
+    if (productCategoryIds) {
+      filter.categoryIds = { $in: productCategoryIds };
     }
     if (status) {
       filter.status = status;

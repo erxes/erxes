@@ -1,5 +1,5 @@
 import { IContext } from '../../connectionResolver';
-import { sendContactsMessage } from '../../messageBroker';
+import { sendContactsMessage, sendProductsMessage } from '../../messageBroker';
 import { IAdvertisement } from '../../models/definitions/adviertisement';
 
 const Advertisement = {
@@ -19,6 +19,38 @@ const Advertisement = {
     });
 
     return customer;
+  },
+  async startPlaceObject(
+    advertisement: IAdvertisement,
+    {},
+    { models }: IContext,
+  ) {
+    const place = await models.Places.findById(advertisement.startPlace);
+    return place;
+  },
+  async endPlaceObject(
+    advertisement: IAdvertisement,
+    {},
+    { models }: IContext,
+  ) {
+    const place = await models.Places.findById(advertisement.endPlace);
+    return place;
+  },
+
+  async productCategories(
+    advertisement: IAdvertisement,
+    {},
+    { models, subdomain }: IContext,
+  ) {
+    const productCategories = await sendProductsMessage({
+      subdomain,
+      action: 'categories.find',
+      data: { query: { _id: { $in: advertisement.productCategoryIds } } },
+      isRPC: true,
+      defaultValue: [],
+    });
+
+    return productCategories;
   },
 };
 
