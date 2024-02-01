@@ -19,7 +19,7 @@ export default function RootLayout({ children }: ILayoutProps) {
         <ExmProvider>
           <div className="relative flex h-screen flex-col">
             <section className="flex flex-auto justify-between bg-white border-b border-[#EAECF0]">
-              <div className="w-full  flex justify-center w-[230px] h-[67px] items-center border-r border-[#EAECF0]">
+              <div className="flex justify-center w-[230px] h-[67px] items-center border-r border-[#EAECF0]">
                 <Image
                   alt=""
                   src="/logo-dark.svg"

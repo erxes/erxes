@@ -26,12 +26,6 @@ const List = ({ contentType }: { contentType: string }) => {
   const { feeds, feedsCount, loading, handleLoadMore } = useFeeds(contentType)
 
   const datas = feeds || []
-  const currentUser = useAtomValue(currentUserAtom) || ({} as IUser)
-
-  const checkExmPermission =
-    (currentUser.permissionActions &&
-      currentUser.permissionActions.manageExmActivityFeed) ||
-    false
 
   const pinnedList = datas.filter((data) => data.isPinned)
   const normalList = datas.filter((data) => !data.isPinned)
@@ -64,22 +58,18 @@ const List = ({ contentType }: { contentType: string }) => {
   }
 
   const renderForm = () => {
-    if (contentType === "publicHoliday") {
-      return checkExmPermission && <FeedForm contentType={contentType} />
-    }
-
     return <FeedForm contentType={contentType} />
   }
 
   return (
-    <div className="h-[calc(100vh-65px)] pl-[25px] pr-[20px] overflow-auto">
+    <div className="h-[calc(100vh-68px)] overflow-auto w-full flex flex-col items-center gap-4 relative pb-4 px-4">
       {renderForm()}
       {showList(pinnedList)}
       {showList(normalList)}
 
       {loading && (
         <>
-          <LoadingCard type="chatlist" />
+          <LoadingCard />
         </>
       )}
 
@@ -88,6 +78,7 @@ const List = ({ contentType }: { contentType: string }) => {
           <LoadingCard />
         </div>
       )}
+      <div className="fixed bottom-0 right-0">hi</div>
     </div>
   )
 }

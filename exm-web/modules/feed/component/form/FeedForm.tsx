@@ -26,8 +26,6 @@ const FeedForm = ({ contentType }: { contentType: string }) => {
     switch (contentType) {
       case "post":
         return <PostForm setOpen={setOpen} />
-      case "publicHoliday":
-        return <HolidayForm setOpen={setOpen} />
       case "bravo":
         return <BravoForm setOpen={setOpen} />
       case "event":
@@ -39,8 +37,6 @@ const FeedForm = ({ contentType }: { contentType: string }) => {
     switch (contentType) {
       case "post":
         return "Write a post"
-      case "publicHoliday":
-        return "Create a holiday"
       case "bravo":
         return "Create a bravo"
       case "event":
@@ -53,10 +49,10 @@ const FeedForm = ({ contentType }: { contentType: string }) => {
   return (
     <>
       <Dialog open={open} onOpenChange={() => setOpen(!open)}>
-        <div className="w-full">
-          <Card className="w-full mx-auto my-4 border-0">
+        <div className="max-w-[880px] w-full">
+          <Card className="w-full mx-auto mt-4 border-0">
             {contentType !== "welcome" ? (
-              <CardHeader className="flex">
+              <CardHeader className="flex border border-[#EAECF0] rounded-[8px] py-2 px-3">
                 <div className="flex items-center">
                   <Image
                     src={
@@ -73,7 +69,7 @@ const FeedForm = ({ contentType }: { contentType: string }) => {
                     <DialogTrigger asChild={true}>
                       <div>
                         <Input
-                          className="bg-[#F5F6FF] rounded-lg border-none"
+                          className="bg-[#FCFCFC] rounded-[8px] border-[#EAECF0]"
                           placeholder={`${placeHolder || "place"}`}
                         />
                       </div>
