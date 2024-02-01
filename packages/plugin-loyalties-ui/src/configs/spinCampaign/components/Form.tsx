@@ -8,7 +8,7 @@ import {
   DateControl,
   Uploader
 } from '@erxes/ui/src/components';
-import EditorCK from '@erxes/ui/src/components/EditorCK';
+import { RichTextEditor } from '@erxes/ui/src/components/richTextEditor/TEditor';
 import {
   MainStyleFormColumn as FormColumn,
   MainStyleFormWrapper as FormWrapper,
@@ -71,11 +71,11 @@ class Form extends React.Component<Props, State> {
     };
   };
 
-  onChangeDescription = e => {
+  onChangeDescription = (content: string) => {
     this.setState({
       spinCampaign: {
         ...this.state.spinCampaign,
-        description: e.editor.getData()
+        description: content
       }
     });
   };
@@ -337,27 +337,21 @@ class Form extends React.Component<Props, State> {
           <br />
           <FormGroup>
             <ControlLabel>Description</ControlLabel>
-            <EditorCK
-              content={spinCampaign.description}
+            <RichTextEditor
+              content={spinCampaign.description || ''}
               onChange={this.onChangeDescription}
               height={150}
               isSubmitted={formProps.isSaved}
               name={`spinCampaign_description_${spinCampaign.description}`}
               toolbar={[
-                {
-                  name: 'basicstyles',
-                  items: [
-                    'Bold',
-                    'Italic',
-                    'NumberedList',
-                    'BulletedList',
-                    'Link',
-                    'Unlink',
-                    '-',
-                    'Image',
-                    'EmojiPanel'
-                  ]
-                }
+                'bold',
+                'italic',
+                'orderedList',
+                'bulletList',
+                'link',
+                'unlink',
+                '|',
+                'image'
               ]}
             />
           </FormGroup>

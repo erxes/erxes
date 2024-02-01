@@ -5,7 +5,6 @@ import {
   FieldsCombinedByTypeQueryResponse
 } from '@erxes/ui-forms/src/settings/properties/types';
 
-import EditorCK from '@erxes/ui/src/containers/EditorCK';
 import { IEditorProps } from '@erxes/ui/src/types';
 import React from 'react';
 import { queries as fieldQueries } from '@erxes/ui-forms/src/settings/properties/graphql';
@@ -14,6 +13,7 @@ import { graphql } from '@apollo/client/react/hoc';
 import { isEnabled } from '@erxes/ui/src/utils/core';
 import { queries } from '@erxes/ui-forms/src/forms/graphql';
 import { withProps } from '@erxes/ui/src/utils';
+import { RichTextEditor } from '@erxes/ui/src/components/richTextEditor/TEditor';
 
 const generateItemCustomFields = items =>
   (items || []).map(item => ({
@@ -98,10 +98,10 @@ const EditorContainer = (props: FinalProps) => {
     [];
   const cardsFields = (cardsFieldsQuery && cardsFieldsQuery.cardsFields) || {};
 
-  const insertItems =
+  const placeholderItems =
     props.insertItems || generateAttributes(cardsFields, combinedFields);
 
-  return <EditorCK {...props} insertItems={insertItems} />;
+  return <RichTextEditor {...props} placeholderProp={placeholderItems} />;
 };
 
 export default withProps<Props>(

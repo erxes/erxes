@@ -8,8 +8,8 @@ import React, { useEffect, useState } from 'react';
 import { __, readFile } from '@erxes/ui/src/utils';
 
 import Button from '@erxes/ui/src/components/Button';
+import { RichTextEditor } from '@erxes/ui/src/components/richTextEditor/TEditor';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
-import EditorCK from '@erxes/ui/src/components/EditorCK';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import { Uploader } from '@erxes/ui/src/components';
@@ -76,9 +76,9 @@ function Form(props: Props) {
     switch (field.type) {
       case 'textarea':
         input = (
-          <EditorCK
+          <RichTextEditor
             content={value}
-            onChange={e => onChange(field.code, e.editor.getData())}
+            onChange={content => onChange(field.code, content)}
             height={250}
           />
         );

@@ -1,20 +1,20 @@
-import CollapseContent from '@erxes/ui/src/components/CollapseContent';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import Toggle from '@erxes/ui/src/components/Toggle';
-import EditorCK from '@erxes/ui/src/containers/EditorCK';
-import { FlexContent } from '@erxes/ui/src/layout/styles';
-import { __ } from '@erxes/ui/src/utils';
+import { BlockRow, ToggleWrap } from '../../styles';
 import React, { useState } from 'react';
-import Select from 'react-select-plus';
-import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
 
 import { CONFIGURATIONS } from '../../constants';
-import { BlockRow, ToggleWrap } from '../../styles';
 import { ClientPortalConfig } from '../../types';
-import PasswordConfig from './PasswordConfig';
+import CollapseContent from '@erxes/ui/src/components/CollapseContent';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import { FlexContent } from '@erxes/ui/src/layout/styles';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import FormGroup from '@erxes/ui/src/components/form/Group';
 import { Formgroup } from '@erxes/ui/src/components/form/styles';
+import PasswordConfig from './PasswordConfig';
+import { RichTextEditor } from '@erxes/ui/src/components/richTextEditor/TEditor';
+import Select from 'react-select-plus';
+import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
+import Toggle from '@erxes/ui/src/components/Toggle';
+import { __ } from '@erxes/ui/src/utils';
 import { isEnabled } from '@erxes/ui/src/utils/core';
 
 type Props = {
@@ -407,14 +407,12 @@ function General({
       handleFormChange('mailConfig', obj);
     };
 
-    const onEditorChange = (e) => {
-      const value = e.editor.getData();
-      const editorNumber: number =
-        e.editor.name && e.editor.name.replace(/[^\d.]/g, '');
+    const onEditorChange = (type: string) => (content: string) => {
+      const value = content;
 
-      if (editorNumber % 2 !== 0) {
+      if (type === 'registrationContent') {
         obj.registrationContent = value;
-      } else {
+      } else if (type === 'invitationContent') {
         obj.invitationContent = value;
       }
 
@@ -461,12 +459,12 @@ function General({
               </ControlLabel>
               <p>Registration mail body</p>
               <FlexContent>
-                <EditorCK
+                <RichTextEditor
                   content={obj.registrationContent || ''}
-                  onChange={onEditorChange}
+                  onChange={onEditorChange('registrationContent')}
                   height={300}
-                  name={'registrationContent'}
-                  insertItems={{
+                  name="registrationContent"
+                  placeholderProp={{
                     items: [
                       {
                         value: 'link',
@@ -486,12 +484,12 @@ function General({
               </ControlLabel>
               <p>Invitation mail body</p>
               <FlexContent>
-                <EditorCK
+                <RichTextEditor
                   content={obj.invitationContent || ''}
-                  onChange={onEditorChange}
+                  onChange={onEditorChange('invitationContent')}
                   height={300}
-                  name={'invitationContent'}
-                  insertItems={{
+                  name="invitationContent"
+                  placeholderProp={{
                     items: [
                       {
                         value: 'link',
