@@ -275,6 +275,20 @@ class ContractForm extends React.Component<Props, State> {
 
     const repayment = name === 'repayment' ? value : this.state.repayment;
 
+    this.customGraphicChange(repayment, name, value);
+
+    if (name === 'interestRate') {
+      this.setState({
+        interestRate: Number(value),
+        interestMonth: Number(value || 0) / 12,
+      });
+      return;
+    }
+
+    this.setState({ [name]: value } as any);
+  };
+
+  customGraphicChange(repayment, name, value) {
     if (
       (name === 'repayment' && repayment === 'custom') ||
       (repayment === 'custom' &&
@@ -293,10 +307,10 @@ class ContractForm extends React.Component<Props, State> {
         name === 'leaseAmount' ? value : this.state.leaseAmount,
       );
       const customPayment = Number(
-        name === 'customPayment' ? value : this.state.customPayment || 0,
+        (name === 'customPayment' ? value : this.state.customPayment) ?? 0,
       );
       const customInterest = Number(
-        name === 'customInterest' ? value : this.state.customInterest || 0,
+        (name === 'customInterest' ? value : this.state.customInterest) ?? 0,
       );
       const isPayFirstMonth =
         name === 'isPayFirstMonth' ? value : this.state.isPayFirstMonth;
@@ -321,16 +335,7 @@ class ContractForm extends React.Component<Props, State> {
       });
       this.setState({ schedule: schedules });
     }
-    if (name === 'interestRate') {
-      this.setState({
-        interestRate: Number(value),
-        interestMonth: Number(value || 0) / 12,
-      });
-      return;
-    }
-
-    this.setState({ [name]: value } as any);
-  };
+  }
 
   onSelectTeamMember = (value, name) => {
     this.setState({ [name]: value } as any);
