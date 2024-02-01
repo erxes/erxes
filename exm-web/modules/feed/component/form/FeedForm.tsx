@@ -13,7 +13,6 @@ import { Input } from "@/components/ui/input"
 
 const BravoForm = dynamic(() => import("./BravoForm"))
 const EventForm = dynamic(() => import("./EventForm"))
-const HolidayForm = dynamic(() => import("./HolidayForm"))
 const PostForm = dynamic(() => import("./PostForm"))
 
 const FeedForm = ({ contentType }: { contentType: string }) => {

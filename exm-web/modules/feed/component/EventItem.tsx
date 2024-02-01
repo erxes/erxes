@@ -34,6 +34,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
+import Image from "@/components/ui/image"
 import LoadingCard from "@/components/ui/loading-card"
 import LoadingPost from "@/components/ui/loadingPost"
 import {
@@ -231,7 +232,7 @@ const EventItem = ({ postId }: { postId: string }): JSX.Element => {
     return (
       <Popover>
         <PopoverTrigger asChild={true}>
-          <div className="p-2 bg-white rounded-full">
+          <div className="p-2 bg-white rounded-sm absolute top-[11px] right-[11px]">
             <MoreVerticalIcon size={16} />
           </div>
         </PopoverTrigger>
@@ -269,30 +270,16 @@ const EventItem = ({ postId }: { postId: string }): JSX.Element => {
       <div className="text-[#5E5B5B]">
         <div className="flex items-center mb-2">
           <Calendar size={18} className="mr-1" />
-          {dayjs(eventData?.startDate).format("MM/DD/YY h:mm A")} ~{" "}
-          {dayjs(eventData?.endDate).format("MM/DD/YY h:mm A")}
-        </div>
-        <div className="flex items-center mb-2">
-          <UserIcon size={18} className="mr-1" />
-          Event by{" "}
-          {feed?.createdUser?.details?.fullName ||
-            feed?.createdUser?.username ||
-            feed?.createdUser?.email}
+          {dayjs(eventData?.startDate).format("MM/DD/YY H:mm")} ~{" "}
+          {dayjs(eventData?.endDate).format("MM/DD/YY H:mm")}
         </div>
         <div className="flex items-center mb-2">
           <MapPinIcon size={18} className="mr-1" />
-          {eventData?.where || ""}
+          <span className="w-[calc(100%-22px)] truncate">
+            {eventData?.where || ""}
+          </span>
         </div>
         {eventData && <EventUsersAvatar eventData={eventData} />}
-        {(feed.attachments || []).map((a, index) => {
-          return (
-            <a key={index} href={readFile(a.url)}>
-              <div className="flex items-center bg-[#EAEAEA] text-sm font-medium text-[#444] attachment-shadow px-2.5 py-[5px] justify-between w-full rounded-lg rounded-tr-none mt-4">
-                {a.name} <ExternalLinkIcon size={18} />
-              </div>
-            </a>
-          )
-        })}
       </div>
     )
   }
@@ -341,29 +328,15 @@ const EventItem = ({ postId }: { postId: string }): JSX.Element => {
     }
 
     return (
-      <div className="overflow-hidden rounded-[6px] h-[150px] w-[150px] mr-[20px] shrink-0">
-        <FilePreview
-          attachments={[feed.images[0]]}
-          fileUrl={feed.images[0].url}
-          fileIndex={0}
+      <div className="overflow-hidden rounded-lg h-[150px] w-full shrink-0 rounded-bl-none rounded-br-none ">
+        <Image
+          alt="image"
+          src={feed.images[0].url || ""}
+          width={500}
+          height={150}
+          className={`object-cover w-full h-full`}
         />
       </div>
-    )
-  }
-
-  const renderSeeMore = () => {
-    if (seeMore || updatedDescription.length < 60) {
-      return null
-    }
-
-    return (
-      <span
-        className="text-primary cursor-pointer"
-        onClick={() => setSeeMore(true)}
-      >
-        {" "}
-        see more...
-      </span>
     )
   }
 
@@ -381,52 +354,26 @@ const EventItem = ({ postId }: { postId: string }): JSX.Element => {
 
   return (
     <>
-      <Card className="w-full mx-auto my-4 border-0 p-4">
-        <CardContent className="p-0 flex items-start justify-between">
-          <div className="flex">
-            {renderImage()}
-            <div>
-              <div className="overflow-x-hidden">
-                <p className="text-black font-semibold mb-2">{feed.title}</p>
-                <p className="text-[#222] mb-2">
-                  <span
-                    className={`${
-                      seeMore ? "max-h-fit" : "max-h-[40px]"
-                    } flex overflow-hidden`}
-                  >
-                    {updatedDescription}
-                  </span>
-                  {renderSeeMore()}
-                </p>
-              </div>
+      <Card className="lg:w-[calc(100%/3-2rem)] w-[calc(100%/2-2rem)] border border-[#EAECF0] flex-1 rounded-lg shrink-0">
+        <CardContent className="p-0 relative">
+          {renderImage()}
+          {renderFeedActions()}
+          <div className="px-4 py-3 ">
+            <div className="overflow-x-hidden">
+              <p className="text-black font-semibold mb-2 text-lg">
+                {feed.title}
+              </p>
+              <p className="text-[#222] mb-2 truncate w-full">
+                {updatedDescription}
+              </p>
               {renderEventInfo()}
             </div>
-          </div>
-          <div className="w-[205px] shrink-0 flex">
-            <EventDropDown event={feed} />
-            {renderFeedActions()}
-          </div>
-        </CardContent>
-
-        {renderEmojiCount()}
-        <CardFooter className="border-t mt-5 pb-0 justify-between">
-          <div
-            className="cursor-pointer flex items-center pt-2 mr-4"
-            onClick={reactionAdd}
-          >
-            <ThumbsUp
-              size={20}
-              className="mr-1"
-              fill={`${idExists ? "#8771D5" : "white"}`}
-              color={`${idExists ? "#8771D5" : "black"}`}
-            />
-            <div className={`${idExists ? "text-primary" : "text-black"}`}>
-              Like
+            <div className="w-full shrink-0 flex gap-3">
+              <EventDropDown event={feed} />
+              <Button className="rounded-lg px-3 h-auto">View Details</Button>
             </div>
           </div>
-          {renderComment()}
-        </CardFooter>
-        {renderComments()}
+        </CardContent>
       </Card>
     </>
   )

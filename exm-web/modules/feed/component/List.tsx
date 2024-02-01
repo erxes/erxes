@@ -2,9 +2,6 @@
 
 import { useEffect } from "react"
 import dynamic from "next/dynamic"
-import { currentUserAtom } from "@/modules/JotaiProiveder"
-import { IUser } from "@/modules/auth/types"
-import { useAtomValue } from "jotai"
 import { useInView } from "react-intersection-observer"
 
 import LoadingCard from "@/components/ui/loading-card"
@@ -32,9 +29,13 @@ const List = ({ contentType }: { contentType: string }) => {
 
   const showList = (items: IFeed[]) => {
     if (contentType === "event") {
-      return items.map((filteredItem: any, index) => (
-        <EventItem postId={filteredItem._id} key={index} />
-      ))
+      return (
+        <div className="max-w-[880px] w-full flex flex-wrap gap-4">
+          {items.map((filteredItem: any, index) => (
+            <EventItem postId={filteredItem._id} key={index} />
+          ))}
+        </div>
+      )
     }
 
     return items.map((filteredItem: any) => (
@@ -58,6 +59,10 @@ const List = ({ contentType }: { contentType: string }) => {
   }
 
   const renderForm = () => {
+    if (contentType === "event") {
+      return null
+    }
+
     return <FeedForm contentType={contentType} />
   }
 
@@ -78,7 +83,6 @@ const List = ({ contentType }: { contentType: string }) => {
           <LoadingCard />
         </div>
       )}
-      <div className="fixed bottom-0 right-0">hi</div>
     </div>
   )
 }
