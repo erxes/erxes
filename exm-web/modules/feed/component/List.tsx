@@ -75,7 +75,6 @@ const List = ({ contentType }: { contentType: string }) => {
           <LoadingCard />
         </div>
       )}
-      <div className="fixed bottom-0 right-0">hi</div>
     </div>
   )
 }
