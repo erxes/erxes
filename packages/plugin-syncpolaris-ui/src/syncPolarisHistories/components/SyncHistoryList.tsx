@@ -20,12 +20,6 @@ interface IProps extends IRouterProps {
   totalCount: number;
   history: any;
   queryParams: any;
-
-  onSearch: (search: string) => void;
-  onFilter: (filterParams: IQueryParams) => void;
-  onSelect: (values: string[] | string, key: string) => void;
-  isFiltered: boolean;
-  clearFilter: () => void;
 }
 
 class SyncHistoryList extends React.Component<IProps, {}> {
@@ -60,7 +54,6 @@ class SyncHistoryList extends React.Component<IProps, {}> {
         </thead>
         <tbody id="orders">
           {(syncHistories || []).map((item) => (
-            // tslint:disable-next-line:jsx-key
             <ModalTrigger
               title="Sync polaris information"
               trigger={
@@ -106,11 +99,7 @@ class SyncHistoryList extends React.Component<IProps, {}> {
           />
         }
         leftSidebar={
-          <SyncHistorySidebar
-            queryParams={queryParams}
-            history={history}
-            loading={loading}
-          />
+          <SyncHistorySidebar queryParams={queryParams} history={history} />
         }
         actionBar={
           <Wrapper.ActionBar
@@ -136,4 +125,4 @@ class SyncHistoryList extends React.Component<IProps, {}> {
   }
 }
 
-export default withRouter<IRouterProps>(SyncHistoryList);
+export default SyncHistoryList;

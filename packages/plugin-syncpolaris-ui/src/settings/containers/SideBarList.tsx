@@ -6,7 +6,7 @@ import SideBar from '../components/SideBar';
 import {
   EditTypeMutationResponse,
   RemoveTypeMutationResponse,
-  TypeQueryResponse
+  TypeQueryResponse,
 } from '../types';
 import { mutations, queries } from '../graphql';
 import React from 'react';
@@ -26,7 +26,7 @@ type FinalProps = {
   EditTypeMutationResponse;
 
 const TypesListContainer = (props: FinalProps) => {
-  const { listSyncpolarisTypeQuery, typesEdit, typesRemove, history } = props;
+  const { listSyncpolarisTypeQuery, typesRemove } = props;
 
   if (listSyncpolarisTypeQuery.loading) {
     return <Spinner />;
@@ -38,7 +38,7 @@ const TypesListContainer = (props: FinalProps) => {
     values,
     isSubmitted,
     callback,
-    object
+    object,
   }: IButtonMutateProps) => {
     return (
       <ButtonMutate
@@ -55,16 +55,16 @@ const TypesListContainer = (props: FinalProps) => {
     );
   };
 
-  const remove = type => {
+  const remove = (type) => {
     confirm('You are about to delete the item. Are you sure? ')
       .then(() => {
         typesRemove({ variables: { _id: type._id } })
           .then(() => {
             Alert.success('Successfully deleted an item');
           })
-          .catch(e => Alert.error(e.message));
+          .catch((e) => Alert.error(e.message));
       })
-      .catch(e => Alert.error(e.message));
+      .catch((e) => Alert.error(e.message));
   };
 
   const updatedProps = {
@@ -72,7 +72,7 @@ const TypesListContainer = (props: FinalProps) => {
     types: listSyncpolarisTypeQuery.syncpolarisTypes || [],
     loading: listSyncpolarisTypeQuery.loading,
     remove,
-    renderButton
+    renderButton,
   };
 
   return <SideBar {...updatedProps} />;
@@ -83,14 +83,14 @@ export default withProps<Props>(
     graphql(gql(queries.listSyncpolarisTypes), {
       name: 'listSyncpolarisTypeQuery',
       options: () => ({
-        fetchPolicy: 'network-only'
-      })
+        fetchPolicy: 'network-only',
+      }),
     }),
     graphql(gql(mutations.removeType), {
       name: 'typesRemove',
       options: () => ({
-        refetchQueries: ['listSyncpolarisTypeQuery']
-      })
-    })
-  )(TypesListContainer)
+        refetchQueries: ['listSyncpolarisTypeQuery'],
+      }),
+    }),
+  )(TypesListContainer),
 );

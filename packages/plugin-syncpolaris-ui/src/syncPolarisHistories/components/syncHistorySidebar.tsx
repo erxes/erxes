@@ -9,8 +9,7 @@ import Tip from '@erxes/ui/src/components/Tip';
 import { router } from '@erxes/ui/src/utils';
 import { __ } from '@erxes/ui/src';
 import { DateContainer } from '@erxes/ui/src/styles/main';
-import { SidebarList as List } from '@erxes/ui/src/layout';
-import { Wrapper } from '@erxes/ui/src/layout';
+import { SidebarList as List, Wrapper } from '@erxes/ui/src/layout';
 import { IQueryParams } from '@erxes/ui/src/types';
 import Button from '@erxes/ui/src/components/Button';
 import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
@@ -21,7 +20,6 @@ import { EndDateContainer } from '@erxes/ui-forms/src/forms/styles';
 interface Props {
   history: any;
   queryParams: any;
-  loading: boolean;
 }
 
 type State = {
@@ -63,24 +61,6 @@ class SyncHistorySidebar extends React.Component<Props, State> {
   setFilter = (name, value) => {
     const { filterParams } = this.state;
     this.setState({ filterParams: { ...filterParams, [name]: value } });
-  };
-
-  onchangeType = (e) => {
-    const { filterParams } = this.state;
-    const value = (e.currentTarget as HTMLInputElement).value;
-
-    const filters: IQueryParams = {
-      ...filterParams,
-      type: value,
-    };
-
-    delete filters.jobReferId;
-    delete filters.productIds;
-    delete filters.productCategoryId;
-
-    this.setState({
-      filterParams: filters,
-    });
   };
 
   onSelectDate = (value, name) => {

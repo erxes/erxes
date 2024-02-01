@@ -12,7 +12,6 @@ import {
 import Sidebar from './Sidebar';
 import { menuSyncpolaris } from '../../constants';
 import { Title } from '@erxes/ui-settings/src/styles';
-import { withRouter } from 'react-router-dom';
 import dayjs from 'dayjs';
 
 interface IProps extends IRouterProps {
@@ -99,13 +98,7 @@ class Customer extends React.Component<IProps, {}> {
             submenu={menuSyncpolaris}
           />
         }
-        leftSidebar={
-          <Sidebar
-            queryParams={queryParams}
-            history={history}
-            loading={loading}
-          />
-        }
+        leftSidebar={<Sidebar queryParams={queryParams} history={history} />}
         actionBar={
           <Wrapper.ActionBar
             left={<Title>{__(`Customers (${totalCount})`)}</Title>}
@@ -130,4 +123,4 @@ class Customer extends React.Component<IProps, {}> {
   }
 }
 
-export default withRouter<IRouterProps>(Customer);
+export default Customer;
