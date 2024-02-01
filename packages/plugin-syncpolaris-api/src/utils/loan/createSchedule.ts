@@ -12,7 +12,7 @@ export const createLoanSchedule = async (subdomain: string, contract: any) => {
     contract.scheduleDays?.[1] ?? null,
     '1',
     0,
-    null,
+    0,
     0,
     'SIMPLE_INT',
     contract.endDate,
