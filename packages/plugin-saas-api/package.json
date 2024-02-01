@@ -1,11 +1,11 @@
 {
-  "name": "@erxes/plugin-block-api",
+  "name": "@erxes/plugin-saas-api",
   "version": "1.0.0",
   "scripts": {
     "dev": "nodemon src/index.ts",
-    "build" : "tsc"
+    "build": "tsc"
   },
   "dependencies": {
-    "@erxes/api-utils" : "*"
+    "@erxes/api-utils": "*"
   }
 }
