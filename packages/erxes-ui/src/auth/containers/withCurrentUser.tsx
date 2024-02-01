@@ -1,12 +1,10 @@
-import * as compose from 'lodash.flowright';
 import * as gq from '../graphql';
-
-import { storeConstantToStore, withProps } from '../../utils';
-
+import { storeConstantToStore } from '../../utils';
 import { CurrentUserQueryResponse } from '../types';
 import React from 'react';
-import { gql } from '@apollo/client';
-import { graphql } from '@apollo/client/react/hoc';
+import { gql, useQuery } from '@apollo/client';
+import { IUser } from 'modules/auth/types';
+import Spinner from '../../components/Spinner';
 
 type Props = {
   currentUserQuery: CurrentUserQueryResponse;
@@ -14,13 +12,18 @@ type Props = {
 
 const withCurrentUser = (WrappedComponent) => {
   const Container = (props: Props) => {
-    const { currentUserQuery } = props;
+    const { loading, data } = useQuery<CurrentUserQueryResponse>(
+      gql(gq.currentUser),
+      {
+        fetchPolicy: 'cache-and-network',
+      },
+    );
 
-    if (currentUserQuery.loading) {
-      return null;
+    if (loading || !data) {
+      return <Spinner />;
     }
 
-    const currentUser = currentUserQuery.currentUser;
+    const currentUser = data ? data.currentUser : ({} as IUser);
 
     const updatedProps = {
       ...props,
@@ -36,13 +39,7 @@ const withCurrentUser = (WrappedComponent) => {
     return <WrappedComponent {...updatedProps} />;
   };
 
-  return withProps<{}>(
-    compose(
-      graphql<{}, CurrentUserQueryResponse>(gql(gq.currentUser), {
-        name: 'currentUserQuery',
-      }),
-    )(Container),
-  );
+  return Container;
 };
 
 export default withCurrentUser;
