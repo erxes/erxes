@@ -9,14 +9,14 @@ import {
   ReadCpUserLevels,
   READ_CP_USER_LEVELS,
   WriteCpUserLevels,
-  WRITE_CP_USER_LEVELS
+  WRITE_CP_USER_LEVELS,
 } from '../../consts';
 import { ICpUser } from '../../graphql';
 import { PostDocument } from './post';
 import {
   InsufficientPermissionError,
   InsufficientUserLevelError,
-  LoginRequiredError
+  LoginRequiredError,
 } from '../../customErrors';
 
 export interface ICategory {
@@ -50,21 +50,21 @@ export interface ICategoryModel extends Model<CategoryDocument> {
   createCategory(input: InputCategoryInsert): Promise<CategoryDocument>;
   patchCategory(
     _id: string,
-    input: InputCategoryPatch
+    input: InputCategoryPatch,
   ): Promise<CategoryDocument>;
   deleteCategory(_id: string): Promise<CategoryDocument>;
   getDescendantsOf(_id: string[]): Promise<ICategory[]>;
   getAncestorsOf(_id: string): Promise<ICategory[]>;
   isDescendantRelationship(
     ancestorId: string,
-    descendantId: string
+    descendantId: string,
   ): Promise<boolean>;
 
   doesRequireAdminApproval(_id?: string | null): Promise<boolean>;
 
   isUserAllowedToRead(
     post: PostDocument,
-    user?: ICpUser | null
+    user?: ICpUser | null,
   ): Promise<
     | undefined
     | {
@@ -76,10 +76,10 @@ export interface ICategoryModel extends Model<CategoryDocument> {
   ensureUserIsAllowed(
     permission: Exclude<Permissions, 'READ_POST'>,
     category?: CategoryDocument | null,
-    user?: ICpUser | null
+    user?: ICpUser | null,
   ): Promise<void>;
   categoriesUserAllowedToPost(
-    userId: string | null | undefined
+    userId: string | null | undefined,
   ): Promise<ICategory[] | null | undefined>;
 }
 
@@ -91,7 +91,7 @@ export const categorySchema = new Schema<CategoryDocument>({
   code: {
     type: String,
     index: true,
-    sparse: true
+    sparse: true,
   },
   thumbnail: String,
   parentId: { type: Types.ObjectId, index: true },
@@ -101,13 +101,13 @@ export const categorySchema = new Schema<CategoryDocument>({
     type: String,
     requried: true,
     enum: _.keys(READ_CP_USER_LEVELS),
-    default: getDefaultPostReadCpUserLevel
+    default: getDefaultPostReadCpUserLevel,
   },
   userLevelReqPostWrite: {
     type: String,
     requried: true,
     enum: _.keys(WRITE_CP_USER_LEVELS),
-    default: getDefaultWriteCpUserLevel
+    default: getDefaultWriteCpUserLevel,
   },
 
   // userLevelReqCommentRead: { type: String, requried: true, enum: _.keys(READ_CP_USER_LEVELS), default: (): ReadCpUserLevels => ('GUEST')},
@@ -115,30 +115,30 @@ export const categorySchema = new Schema<CategoryDocument>({
     type: String,
     requried: true,
     enum: _.keys(WRITE_CP_USER_LEVELS),
-    default: getDefaultWriteCpUserLevel
+    default: getDefaultWriteCpUserLevel,
   },
 
   postsReqCrmApproval: {
     type: Boolean,
     required: true,
-    default: (): boolean => false
+    default: (): boolean => false,
   },
 
   postReadRequiresPermissionGroup: Boolean,
   postWriteRequiresPermissionGroup: Boolean,
   commentWriteRequiresPermissionGroup: Boolean,
 
-  order: Number
+  order: Number,
 });
 
 export const generateCategoryModel = (
   subdomain: string,
   con: Connection,
-  models: IModels
+  models: IModels,
 ): void => {
   class CategoryModel {
     public static async findByIdOrThrow(
-      _id: string
+      _id: string,
     ): Promise<CategoryDocument> {
       const cat = await models.Category.findById(_id);
       if (!cat) {
@@ -147,11 +147,11 @@ export const generateCategoryModel = (
       return cat;
     }
     public static async createCategory(
-      input: InputCategoryInsert
+      input: InputCategoryInsert,
     ): Promise<CategoryDocument> {
       if (input.code) {
         const exists = await models.Category.findOne({
-          code: input.code
+          code: input.code,
         }).lean();
         if (exists) {
           throw new Error(`A category with same code already exists`);
@@ -173,14 +173,14 @@ export const generateCategoryModel = (
     }
     public static async patchCategory(
       _id: string,
-      input: InputCategoryPatch
+      input: InputCategoryPatch,
     ): Promise<CategoryDocument> {
       const patch = { ...input } as Partial<Omit<ICategory, '_id'>>;
 
       if (patch.code) {
         const exists = await models.Category.findOne({
           _id: { $ne: Types.ObjectId(_id) },
-          code: patch.code
+          code: patch.code,
         });
 
         if (exists) {
@@ -193,7 +193,7 @@ export const generateCategoryModel = (
           await models.Category.isDescendantRelationship(_id, patch.parentId)
         ) {
           throw new Error(
-            `A category cannot be a subcategory of one of its own descendants`
+            `A category cannot be a subcategory of one of its own descendants`,
           );
         }
       }
@@ -217,7 +217,7 @@ export const generateCategoryModel = (
         await models.Post.updateMany({ categoryId: _id }, { categoryId: null });
         await models.Category.updateMany({ parentId: _id }, { parentId: null });
         await models.PermissionGroupCategoryPermit.deleteMany({
-          categoryId: _id
+          categoryId: _id,
         });
         await models.Quiz.updateMany({ categoryId: _id }, { categoryId: null });
         await cat.remove();
@@ -237,8 +237,8 @@ export const generateCategoryModel = (
       const matchedCategories = await models.Category.aggregate([
         {
           $match: {
-            _id: { $in: (_ids || []).map(v => Types.ObjectId(v)) }
-          }
+            _id: { $in: (_ids || []).map((v) => Types.ObjectId(v)) },
+          },
         },
         {
           $graphLookup: {
@@ -246,19 +246,19 @@ export const generateCategoryModel = (
             startWith: '$_id',
             connectFromField: '_id',
             connectToField: 'parentId',
-            as: descendantsArrayName
-          }
-        }
+            as: descendantsArrayName,
+          },
+        },
       ]);
 
       if (!matchedCategories?.length) {
         throw new Error(
-          `Category with _id=${JSON.stringify(_ids)} doesn't exist`
+          `Category with _id=${JSON.stringify(_ids)} doesn't exist`,
         );
       }
 
       return (
-        _.flatten(matchedCategories.map(x => x[descendantsArrayName])) || []
+        _.flatten(matchedCategories.map((x) => x[descendantsArrayName])) || []
       );
     }
 
@@ -268,8 +268,8 @@ export const generateCategoryModel = (
       const results = await models.Category.aggregate([
         {
           $match: {
-            _id: Types.ObjectId(_id)
-          }
+            _id: Types.ObjectId(_id),
+          },
         },
         {
           $graphLookup: {
@@ -277,9 +277,9 @@ export const generateCategoryModel = (
             startWith: '$parentId',
             connectFromField: 'parentId',
             connectToField: '_id',
-            as: ancestorsArrayName
-          }
-        }
+            as: ancestorsArrayName,
+          },
+        },
       ]);
 
       if (!results?.length) {
@@ -292,17 +292,17 @@ export const generateCategoryModel = (
 
     public static async isDescendantRelationship(
       ancestorId: string,
-      descendantId: string
+      descendantId: string,
     ): Promise<boolean> {
       const ancestors = await models.Category.getAncestorsOf(descendantId);
       const isInAncestors = ancestors.some(
-        a => a._id.toString() === ancestorId
+        (a) => a._id.toString() === ancestorId,
       );
       return isInAncestors;
     }
 
     public static async doesRequireAdminApproval(
-      _id?: string | null
+      _id?: string | null,
     ): Promise<boolean> {
       if (!_id) return false;
 
@@ -315,7 +315,7 @@ export const generateCategoryModel = (
 
     public static async isUserAllowedToRead(
       post: PostDocument,
-      user?: ICpUser | null
+      user?: ICpUser | null,
     ): Promise<
       | undefined
       | {
@@ -338,7 +338,8 @@ export const generateCategoryModel = (
 
       const category = await models.Category.findByIdOrThrow(categoryId);
       const requiredLevel = category.userLevelReqPostRead;
-      const postReadRequiresPermissionGroup = !!category.postReadRequiresPermissionGroup;
+      const postReadRequiresPermissionGroup =
+        !!category.postReadRequiresPermissionGroup;
 
       // everyone is allowed to read
       if (requiredLevel === 'GUEST') return;
@@ -353,7 +354,7 @@ export const generateCategoryModel = (
         hasPermit = await models.PermissionGroupCategoryPermit.isUserPermitted(
           categoryId,
           'READ_POST',
-          user?.userId
+          user?.userId,
         );
       };
 
@@ -369,7 +370,7 @@ export const generateCategoryModel = (
       if (postReadRequiresPermissionGroup) {
         return {
           requiredLevel: allowedByUserLevel ? undefined : requiredLevel,
-          isPermissionGroupRequired: hasPermit ? undefined : true
+          isPermissionGroupRequired: hasPermit ? undefined : true,
         };
       } else {
         return { requiredLevel };
@@ -379,7 +380,7 @@ export const generateCategoryModel = (
     public static async ensureUserIsAllowed(
       permission: Exclude<Permissions, 'READ_POST'>,
       category?: CategoryDocument | null,
-      user?: ICpUser | null
+      user?: ICpUser | null,
     ): Promise<void> {
       if (!user) throw new LoginRequiredError();
 
@@ -389,21 +390,21 @@ export const generateCategoryModel = (
 
       const [requiredLevel, requiresPermissionGroup]: [
         CpUserLevels,
-        boolean | null | undefined
+        boolean | null | undefined,
       ] = (() => {
         if (permission === 'WRITE_COMMENT') {
           return [
             category.userLevelReqCommentWrite,
-            category.commentWriteRequiresPermissionGroup
+            category.commentWriteRequiresPermissionGroup,
           ];
         } else if (permission === 'WRITE_POST') {
           return [
             category.userLevelReqPostWrite,
-            category.postWriteRequiresPermissionGroup
+            category.postWriteRequiresPermissionGroup,
           ];
         } else {
           throw new Error(
-            'Tried to check for an unrecognized write permission'
+            'Tried to check for an unrecognized write permission',
           );
         }
       })();
@@ -416,7 +417,7 @@ export const generateCategoryModel = (
         hasPermit = await models.PermissionGroupCategoryPermit.isUserPermitted(
           category._id,
           permission,
-          user.userId
+          user.userId,
         );
         return hasPermit;
       };
@@ -435,7 +436,7 @@ export const generateCategoryModel = (
 
       const insufficientLevel = new InsufficientUserLevelError(
         ALL_CP_USER_LEVEL_REQUIREMENT_ERROR_MESSAGES[requiredLevel],
-        requiredLevel
+        requiredLevel,
       );
       const insufficientPermission = new InsufficientPermissionError();
 
@@ -448,21 +449,22 @@ export const generateCategoryModel = (
     }
 
     public static async categoriesUserAllowedToPost(
-      userId: string | undefined | null
+      userId: string | undefined | null,
     ): Promise<ICategory[] | null | undefined> {
       if (!userId) return [];
 
       const userLevel = await models.ForumClientPortalUser.getUserLevel({
-        userId
+        userId,
       });
 
       const allowedLevels = Object.entries(ALL_CP_USER_LEVELS)
         .filter(([_, v]) => v <= ALL_CP_USER_LEVELS[userLevel])
         .map(([k]) => k);
 
-      const permittedCategoryIds: Types.ObjectId[] = await models.PermissionGroupCategoryPermit.userPermittedCategoryIds(
-        userId
-      );
+      const permittedCategoryIds: Types.ObjectId[] =
+        await models.PermissionGroupCategoryPermit.userPermittedCategoryIds(
+          userId,
+        );
 
       const categories = await models.Category.find({
         $or: [
@@ -470,15 +472,15 @@ export const generateCategoryModel = (
             postWriteRequiresPermissionGroup: { $ne: true },
             $or: [
               { userLevelReqPostWrite: { $in: allowedLevels } },
-              { _id: { $in: permittedCategoryIds } }
-            ]
+              { _id: { $in: permittedCategoryIds } },
+            ],
           },
           {
             postWriteRequiresPermissionGroup: true,
             userLevelReqPostWrite: { $in: allowedLevels },
-            _id: { $in: permittedCategoryIds }
-          }
-        ]
+            _id: { $in: permittedCategoryIds },
+          },
+        ],
       });
 
       return categories;
@@ -488,6 +490,6 @@ export const generateCategoryModel = (
 
   models.Category = con.model<CategoryDocument, ICategoryModel>(
     'forum_categories',
-    categorySchema
+    categorySchema,
   );
 };
