@@ -10,32 +10,32 @@ import {
   TabTitle,
   Tabs,
   Uploader,
-  extractAttachment
+  extractAttachment,
 } from '@erxes/ui/src';
 import {
   CommonFormGroup,
   SelectWithAssetCategory,
-  SelectWithAssets
+  SelectWithAssets,
 } from '../../common/utils';
 import { FormColumn, ModalFooter } from '@erxes/ui/src/styles/main';
 import {
   FormWrapper,
   TabContainer,
   TabContent,
-  TriggerTabs
+  TriggerTabs,
 } from '../../style';
 import { IAsset, IAssetCategoryTypes } from '../../common/types';
 import {
   IAttachment,
   IButtonMutateProps,
-  IFormProps
+  IFormProps,
 } from '@erxes/ui/src/types';
 
 import CategoryForm from '../containers/CategoryForm';
-import EditorCK from '@erxes/ui/src/components/EditorCK';
 import React from 'react';
 import SelectCompanies from '@erxes/ui-contacts/src/companies/containers/SelectCompanies';
 import { isEnabled } from '@erxes/ui/src/utils/core';
+import { RichTextEditor } from '@erxes/ui/src/components/richTextEditor/TEditor';
 
 type Props = {
   asset?: IAsset;
@@ -52,12 +52,12 @@ function AssetForm({
   categories,
   queryParams,
   renderButton,
-  closeModal
+  closeModal,
 }: Props) {
   const [assetCount, setAssetCount] = React.useState<number>(0);
   const [minimiumCount, setMinimiumCount] = React.useState<number>(0);
   const [attachment, setAttachment] = React.useState<IAttachment | undefined>(
-    undefined
+    undefined,
   );
   const [attachmentMore, setAttachmentMore] = React.useState<
     IAttachment[] | undefined
@@ -104,12 +104,12 @@ function AssetForm({
       vendorId,
       description,
       parentId,
-      categoryId
+      categoryId,
     };
   };
 
   const renderFormTrigger = (trigger: React.ReactNode) => {
-    const content = props => (
+    const content = (props) => (
       <CategoryForm {...props} categories={categories} />
     );
 
@@ -122,8 +122,8 @@ function AssetForm({
     );
   };
 
-  const onChangeDescription = e => {
-    setDescription(e.editor.getData());
+  const onChangeDescription = (content: string) => {
+    setDescription(content);
   };
 
   const onComboEvent = (variable: string, e) => {
@@ -138,7 +138,7 @@ function AssetForm({
     setAttachmentMore(files ? files : undefined);
   };
 
-  const onChangeCurrentTab = selecteTab => {
+  const onChangeCurrentTab = (selecteTab) => {
     switch (selecteTab) {
       case 'Parent':
         setCategoryId('');
@@ -291,7 +291,7 @@ function AssetForm({
         <TabContainer>
           <TriggerTabs>
             <Tabs full={true}>
-              {['Category', 'Parent'].map(item => (
+              {['Category', 'Parent'].map((item) => (
                 <TabTitle
                   className={currentTab === item ? 'active' : ''}
                   key={item}
@@ -308,27 +308,21 @@ function AssetForm({
         <FormGroup>
           <ControlLabel>Description</ControlLabel>
           <FlexItem>
-            <EditorCK
+            <RichTextEditor
               content={description}
               onChange={onChangeDescription}
               height={150}
               isSubmitted={formProps.isSaved}
               name={`asset_description_${description}`}
               toolbar={[
-                {
-                  name: 'basicstyles',
-                  items: [
-                    'Bold',
-                    'Italic',
-                    'NumberedList',
-                    'BulletedList',
-                    'Link',
-                    'Unlink',
-                    '-',
-                    'Image',
-                    'EmojiPanel'
-                  ]
-                }
+                'bold',
+                'italic',
+                'orderedList',
+                'bulletList',
+                'link',
+                'unlink',
+                '|',
+                'image',
               ]}
             />
           </FlexItem>
@@ -376,7 +370,7 @@ function AssetForm({
             values: generateDoc(values),
             isSubmitted,
             callback: closeModal,
-            object: asset
+            object: asset,
           })}
         </ModalFooter>
       </>

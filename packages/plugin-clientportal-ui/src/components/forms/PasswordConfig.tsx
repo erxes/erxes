@@ -3,7 +3,7 @@ import FormControl from '@erxes/ui/src/components/form/Control';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import Toggle from '@erxes/ui/src/components/Toggle';
-import EditorCK from '@erxes/ui/src/containers/EditorCK';
+import { RichTextEditor } from '@erxes/ui/src/components/richTextEditor/TEditor';
 import { FlexContent } from '@erxes/ui/src/layout/styles';
 import { __ } from '@erxes/ui/src/utils/core';
 
@@ -23,20 +23,20 @@ const PasswordConfig = (props: Props) => {
       verifyByOTP: false,
       emailSubject: 'Reset your password',
       emailContent: ' {{ link }} ',
-      smsContent: ' {{ link }} '
-    }
+      smsContent: ' {{ link }} ',
+    },
   );
 
   const [editorAttrs, setEditorAttrs] = React.useState<any>(
     config.verifyByOTP
       ? {
           value: 'code',
-          name: 'Code'
+          name: 'Code',
         }
       : {
           value: 'link',
-          name: 'Link'
-        }
+          name: 'Link',
+        },
   );
 
   const onChangeToggle = (value: boolean) => {
@@ -45,39 +45,39 @@ const PasswordConfig = (props: Props) => {
         ...config,
         verifyByOTP: value,
         smsContent: config.smsContent.replace('{{ link }}', '{{ code }}'),
-        emailContent: config.emailContent.replace('{{ link }}', '{{ code }}')
+        emailContent: config.emailContent.replace('{{ link }}', '{{ code }}'),
       });
 
       setEditorAttrs({
         value: 'code',
-        name: 'Code'
+        name: 'Code',
       });
     } else {
       setConfig({
         ...config,
         verifyByOTP: value,
         smsContent: config.smsContent.replace('{{ code }}', '{{ link }}'),
-        emailContent: config.emailContent.replace('{{ code }}', '{{ link }}')
+        emailContent: config.emailContent.replace('{{ code }}', '{{ link }}'),
       });
 
       setEditorAttrs({
         value: 'link',
-        name: 'Link'
+        name: 'Link',
       });
     }
 
     props.onChange('passwordVerificationConfig', config);
   };
 
-  const onEditorChange = e => {
-    const value = e.editor.getData();
+  const onEditorChange = (content: string) => {
+    const value = content;
 
     setConfig({ ...config, emailContent: value });
 
     props.onChange('passwordVerificationConfig', config);
   };
 
-  const onChange = e => {
+  const onChange = (e) => {
     const { name, value } = e.currentTarget;
     if (name === 'smsContent') {
       let content = value;
@@ -132,7 +132,7 @@ const PasswordConfig = (props: Props) => {
             onChange={() => onChangeToggle(!config.verifyByOTP)}
             icons={{
               checked: <span>Yes</span>,
-              unchecked: <span>No</span>
+              unchecked: <span>No</span>,
             }}
           />
         </FormGroup>
@@ -167,15 +167,15 @@ const PasswordConfig = (props: Props) => {
         <ControlLabel required={true}>Mail Content</ControlLabel>
         <p>{__('Forgot password mail body')}</p>
         <FlexContent>
-          <EditorCK
+          <RichTextEditor
             content={config.emailContent || ''}
             onChange={onEditorChange}
             height={300}
             name={'emailContent'}
-            insertItems={{
+            placeholderProp={{
               items: [editorAttrs],
               title: 'Attributes',
-              label: 'Attributes'
+              label: 'Attributes',
             }}
           />
         </FlexContent>
