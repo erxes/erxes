@@ -58,7 +58,10 @@ export const useCapitronTransaction = (options: {
           })
           return !!onCompleted && onCompleted()
         }
-        toast({ description: `${ecrResult}`, variant: "destructive" })
+        toast({
+          description: `${JSON.stringify(ecrResult)}`,
+          variant: "destructive",
+        })
         !!onError && onError()
       })
       .catch((e) => {
