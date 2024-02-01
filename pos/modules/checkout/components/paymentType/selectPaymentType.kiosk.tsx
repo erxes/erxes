@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react"
 import useConfig from "@/modules/auth/hooks/useConfig"
-import usePaymentLabel from "@/modules/checkout/hooks/usePaymentLabel"
 import { currentPaymentTypeAtom, kioskDialogOpenAtom } from "@/store"
 import { useAtom, useSetAtom } from "jotai"
 
