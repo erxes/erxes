@@ -4,15 +4,15 @@ import styledTS from 'styled-components-ts';
 import { ILog } from '../../types';
 import { FormControl } from '@erxes/ui/src/components/form';
 import { colors, dimensions } from '@erxes/ui/src/styles';
-
+import dayjs from 'dayjs';
 const ZmsNameStyled = styledTS<{ checked: boolean }>(styled.div).attrs({})`
     color: ${colors.colorCoreBlack};
-    text-decoration: ${props => (props.checked ? 'line-through' : 'none')}
+    text-decoration: ${(props) => (props.checked ? 'line-through' : 'none')}
     `;
 
 export const ZmsWrapper = styledTS<{ space: number }>(
-  styled.div
-)`padding-left: ${props => props.space * 20}px;
+  styled.div,
+)`padding-left: ${(props) => props.space * 20}px;
   display:inline-flex;
   justify-content:flex-start;
   align-items: center;
@@ -53,7 +53,9 @@ class Row extends React.Component<Props, State> {
           </ZmsWrapper>
         </td>
         <td>
-          <ZmsNameStyled checked={false}>{log.createdAt}</ZmsNameStyled>
+          <ZmsNameStyled checked={false}>
+            {dayjs(log.createdAt).format('lll')}
+          </ZmsNameStyled>
         </td>
         <td>
           <ZmsNameStyled checked={false}>{log.status}</ZmsNameStyled>
